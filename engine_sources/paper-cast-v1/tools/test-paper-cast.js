@@ -247,6 +247,37 @@ test('the figure carries one merged contour instead of per-part outlines', () =>
   }
 });
 
+test('limb bends are padded so a joint never opens a notch in the silhouette', () => {
+  const svg = Renderer.renderPose({ proportion: 'adult-average', height: 400, view: 'profile-right', pose: { armRight: { shoulder: { tilt: 40 }, elbow: { tilt: 100 } } } }).svg;
+  assert.ok(/class="pc-joint/.test(svg), 'expected joint pads on the limbs');
+  assert.ok(/class="pc-hand-end/.test(svg), 'expected a rounded hand end rather than a square cut strip');
+});
+
+test('a timed scene is deterministic and different from its neighbouring second', () => {
+  const script = 'The analyst turns to the chart on the screen and points at the spike.';
+  const a = Cast.renderScene({ script, time: 2, duration: 5 }).svg;
+  const b = Cast.renderScene({ script, time: 2, duration: 5 }).svg;
+  const c = Cast.renderScene({ script, time: 3.5, duration: 5 }).svg;
+  assert.strictEqual(a, b, 'the same second must render the same frame');
+  assert.notStrictEqual(a, c, 'a later second must move the performance on');
+});
+
+test('a walking beat travels across the stage instead of standing still', () => {
+  const member = Cast.plan({ script: 'The reporter walks across the field toward the crowd, then heads out of frame.' }).cast[0];
+  const start = Cast.Performance.frame(member, 0.5, { duration: 5 });
+  const end = Cast.Performance.frame(member, 4.5, { duration: 5 });
+  assert.ok(Cast.Performance.moving(member), 'a walking beat must be read as locomotion');
+  assert.ok(Math.abs(end.offsetX - start.offsetX) > 0.1, 'the walker should cover ground');
+});
+
+test('a standing beat breathes without sliding off its mark', () => {
+  const member = Cast.plan({ script: 'A presenter welcomes the audience and speaks to camera.' }).cast[0];
+  const frames = [0.4, 1.3, 2.6, 4.1].map((t) => Cast.Performance.frame(member, t, { duration: 5 }));
+  for (const f of frames) assert.ok(Math.abs(f.offsetX) < 0.02, `a standing figure drifted by ${f.offsetX}`);
+  const tilts = frames.map((f) => f.pose.chest.tilt);
+  assert.ok(new Set(tilts.map((t) => Math.round(t * 100))).size > 1, 'a standing figure must still breathe');
+});
+
 const failed = results.filter((r) => !r.ok);
 for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `\n      ${r.error}`}`);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);

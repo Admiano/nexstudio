@@ -16,6 +16,7 @@
       Renderer: require('./paper-cast-renderer.js'),
       Selector: require('./cast-selector.js'),
       Context: require('./cast-context.js'),
+      Performance: require('./cast-performance.js'),
       load: () => {
         const fs = require('fs');
         const path = require('path');
@@ -31,13 +32,14 @@
       Renderer: root.NexPaperCastRenderer,
       Selector: root.NexCastSelector,
       Context: root.NexCastContext,
+      Performance: root.NexCastPerformance,
       load: () => ({ registry: root.NEX_CAST, poses: root.NEX_CAST_POSES })
     };
   const api = factory(deps);
   if (isNode) module.exports = api;
   root.NexPaperCast = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (deps) {
-  const { Rig, Renderer, Selector, Context, load } = deps;
+  const { Rig, Renderer, Selector, Context, Performance, load } = deps;
   const round = (n) => Math.round(Number(n) * 100) / 100;
 
   const FRAMES = {
@@ -70,14 +72,15 @@
     return Selector.select(request || {});
   }
 
-  function renderCharacter(member, request, frame, crowd) {
+  function renderCharacter(member, request, frame, crowd, beat) {
     const req = request || {};
     const share = 1 - Math.min(0.32, ((crowd || 1) - 1) * 0.11);
+    const angles = beat ? beat.pose : member.poseAngles;
     const figure = Rig.build({
       proportion: member.proportion,
       height: frame.height * frame.figureHeight * share,
       view: member.view.viewAxis,
-      pose: { ...member.poseAngles, head: { ...(member.poseAngles.head || {}), yaw: member.view.headYaw } }
+      pose: { ...angles, head: { ...(angles.head || {}), yaw: member.view.headYaw } }
     });
     return Renderer.render(figure, {
       paperStyle: req.paperStyle || 'clean-editorial',
@@ -132,12 +135,18 @@
     const layers = [];
     const crowd = Math.max(1, selection.cast.length);
 
+    // `time` runs the performance layer: the same second always yields the same
+    // frame, so a paper-motion timeline can seek this stage like any component.
+    const timed = typeof req.time === 'number';
+
     const members = selection.cast
       .map((member) => {
-        const rendered = renderCharacter(member, req, frame, crowd);
+        const beat = timed ? Performance.frame(member, req.time, { duration: req.duration }) : null;
+        const rendered = renderCharacter(member, req, frame, crowd, beat);
         const scale = 1 + member.stage.depth * 0.18;
         return {
           member,
+          beat,
           rendered,
           scale,
           x: frame.width / 2 + member.stage.x * frame.width * 0.32,
@@ -147,11 +156,13 @@
     spaceOut(members, frame);
     members.sort((a, b) => a.member.stage.depth - b.member.stage.depth);
 
-    for (const { member, rendered, scale, x } of members) {
+    for (const { member, beat, rendered, scale, x } of members) {
       const lift = round(-rendered.ground);
+      const driftX = beat ? beat.offsetX * frame.width * 0.32 : 0;
+      const driftY = beat ? beat.offsetY * frame.height : 0;
       if (rendered.defs) defs.push(rendered.defs);
       layers.push(
-        `<g class="pc-stage-member" data-id="${member.id}" data-pose="${member.pose}" data-view-axis="${member.view.viewAxis}" data-head-axis="${Rig.nearestViewAxis(Rig.VIEW_AXES[member.view.viewAxis] + member.view.headYaw)}" data-addressing="${member.view.addressing}" transform="translate(${round(x)} ${round(groundY)}) scale(${round(scale)}) translate(0 ${lift})">${rendered.group}</g>`
+        `<g class="pc-stage-member" data-id="${member.id}" data-pose="${member.pose}" data-view-axis="${member.view.viewAxis}" data-head-axis="${Rig.nearestViewAxis(Rig.VIEW_AXES[member.view.viewAxis] + member.view.headYaw)}" data-addressing="${member.view.addressing}" transform="translate(${round(x + driftX)} ${round(groundY + driftY)}) scale(${round(scale)}) translate(0 ${lift})"${beat ? ` opacity="${round(beat.opacity)}"` : ''}>${rendered.group}</g>`
       );
     }
 
@@ -208,7 +219,8 @@
     Rig,
     Renderer,
     Selector,
-    Context
+    Context,
+    Performance
   };
 
   return api;

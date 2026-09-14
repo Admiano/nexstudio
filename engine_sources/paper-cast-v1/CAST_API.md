@@ -72,6 +72,38 @@ components. Internal separation comes from tone: depth shading plus a step
 between a limb and the garment behind it. Faces, folds and other ink details
 are drawn after both passes.
 
+## In the paperbook (paper-motion)
+
+`install-engines.py` grafts the runtime into the installed paper-motion tree, so
+the cast is used there the way any other paper-motion component is used:
+
+```js
+const stage = NexCastStage.create({
+  script: 'The teacher explains the diagram while the student takes notes.',
+  paperStyle: 'clean-editorial',
+  aspectRatio: '16:9',
+  duration: 5,
+  seed: 'beat-2'
+});
+host.append(stage);
+const tl = NexCastStage.animate(stage, { duration: 5 }); // paused, seekable
+tl.seek(2.4);
+```
+
+| Path | Role |
+| --- | --- |
+| `components/paper-cast-stage.js` | `component.cast-stage.paper-01`: create / animate / update / plan. |
+| `runtime/paper-cast/*` | Selector, context, rig, performance and renderer. |
+| `styles/paper-cast.css` | Stage and reel layout tokens. |
+| `compositions/cast-reel.html` | 30-second, six-beat contextual cast reel. |
+
+`NexCastStage.animate()` returns a paused `NexMotion` timeline. Every frame is a
+pure function of `(member, time, duration)` via `NexCastPerformance.frame()`, so
+seeking to the same time always renders the same SVG — the reel can be scrubbed
+or captured frame by frame without drift. Standing figures breathe and sway in
+place; walking or exiting figures gain a gait cycle and travel across the stage
+in the direction they are already facing.
+
 ## Other entry points
 
 | Call | Use |

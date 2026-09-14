@@ -40,4 +40,20 @@ for name,tree in TREES.items():
     shutil.copytree(source, target, ignore=shutil.ignore_patterns('.review'))
     print(f'{name}: {target}')
 
+# Paper Cast is also a paper-motion (paperbook) citizen: its runtime, component,
+# stylesheet and reel composition are grafted into the extracted Explainer
+# paper-motion tree so paperbook compositions can load them by relative path.
+paper_motion=ENGINES/'explainer'/'NexStudio_Explainer_Execution_Body_V2'/'runtime-assets'/'paper-motion'
+cast_source=SOURCES/TREES['paper-cast']
+if paper_motion.exists() and cast_source.exists():
+    runtime=paper_motion/'runtime'/'paper-cast'
+    if runtime.exists(): shutil.rmtree(runtime)
+    shutil.copytree(cast_source/'runtime', runtime)
+    shutil.copytree(cast_source/'manifests', paper_motion/'manifests'/'paper-cast', dirs_exist_ok=True)
+    shutil.copy2(cast_source/'paperbook'/'paper-cast-stage.js', paper_motion/'components'/'paper-cast-stage.js')
+    shutil.copy2(cast_source/'paperbook'/'paper-cast.css', paper_motion/'styles'/'paper-cast.css')
+    shutil.copy2(cast_source/'paperbook'/'cast-reel.js', paper_motion/'runtime'/'cast-reel.js')
+    shutil.copy2(cast_source/'paperbook'/'cast-reel.html', paper_motion/'compositions'/'cast-reel.html')
+    print(f'paper-cast -> paper-motion: {paper_motion}')
+
 print('\nEngine source installed, shared Paper Motion dependencies assembled, and runtime package boundaries applied. Use the paths in .env.example.')

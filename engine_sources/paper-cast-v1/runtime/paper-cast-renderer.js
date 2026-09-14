@@ -87,6 +87,15 @@
     return cutPolygon(quad, rnd, style, w0 * 0.3);
   }
 
+  /**
+   * A soft pad over a joint. Two strips meeting at an angle otherwise leave a
+   * notch on the outside of the bend, which is exactly the assembled-from-parts
+   * read the merged silhouette exists to avoid.
+   */
+  function jointPad(point, radius) {
+    return `<ellipse cx="${round(point.x)}" cy="${round(point.y)}" rx="${round(radius)}" ry="${round(radius)}"`;
+  }
+
   function torsoPath(torso, rnd, style, garment) {
     const spread = garment.spread ?? 1;
     const hem = garment.hem ?? 1;
@@ -282,6 +291,8 @@
       // stay readable.
       const relief = base === look.top.color ? mixHex(base, '#1a1614', 0.16) : base;
       solid(`pc-${part.kind} pc-${part.side}`, `<path d="${strip(part, rnd, style, widthScale)}"`, darken(relief));
+      solid(`pc-joint pc-${part.side}`, jointPad(part.a, part.widthFrom * widthScale * 0.5), darken(relief));
+      if (isHand) solid(`pc-hand-end pc-${part.side}`, jointPad(part.b, part.widthTo * widthScale * 0.62), darken(relief));
       if (isUpperArm && look.top.sleeve > 0) {
         const sleeve = { ...part, b: { x: part.a.x + (part.b.x - part.a.x) * look.top.sleeve, y: part.a.y + (part.b.y - part.a.y) * look.top.sleeve }, widthTo: part.widthFrom };
         solid('pc-sleeve', `<path d="${strip(sleeve, rnd, style, look.top.spread)}"`, darken(look.top.color));
