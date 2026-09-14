@@ -1,0 +1,266 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "cast.pose-library.paper-01",
+  "angleConvention": {
+    "tilt": "sagittal rotation in degrees; positive swings the segment toward the character's front",
+    "swing": "coronal rotation in degrees; positive swings the segment away from the body midline",
+    "head.yaw": "degrees added to the body view yaw, so a character can hold a turned body while addressing the camera"
+  },
+  "poses": [
+    {
+      "id": "idle-stance",
+      "name": "Idle stance",
+      "intents": ["hold_frame", "wait_for_cue"],
+      "gestureTags": ["neutral", "idle"],
+      "energy": ["low"],
+      "viewAxes": ["front", "three-quarter-left", "three-quarter-right", "profile-left", "profile-right", "back"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 4, "swing": 8 }, "elbow": { "tilt": 12, "swing": 4 } },
+        "armRight": { "shoulder": { "tilt": 2, "swing": 9 }, "elbow": { "tilt": 15, "swing": 4 } },
+        "legLeft": { "hip": { "tilt": 1, "swing": 4 }, "knee": { "tilt": 2, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -2, "swing": 5 }, "knee": { "tilt": 4, "swing": 0 } },
+        "spine": { "tilt": 1, "swing": 1 }
+      }
+    },
+    {
+      "id": "address-audience",
+      "name": "Address the audience",
+      "intents": ["capture_attention", "introduce_topic", "narrate"],
+      "gestureTags": ["speaking", "open"],
+      "energy": ["low", "medium"],
+      "viewAxes": ["front", "three-quarter-left", "three-quarter-right"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 16, "swing": 14 }, "elbow": { "tilt": 52, "swing": 10 } },
+        "armRight": { "shoulder": { "tilt": 18, "swing": 15 }, "elbow": { "tilt": 56, "swing": 12 } },
+        "legLeft": { "hip": { "tilt": 2, "swing": 5 }, "knee": { "tilt": 3, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -3, "swing": 6 }, "knee": { "tilt": 3, "swing": 0 } },
+        "chest": { "tilt": 2, "swing": 0 }
+      }
+    },
+    {
+      "id": "explain-open-hands",
+      "name": "Explain with open hands",
+      "intents": ["explain_concept", "compare_options", "narrate"],
+      "gestureTags": ["speaking", "explanatory"],
+      "energy": ["medium"],
+      "viewAxes": ["front", "three-quarter-left", "three-quarter-right"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 34, "swing": 22 }, "elbow": { "tilt": 62, "swing": 16 } },
+        "armRight": { "shoulder": { "tilt": 36, "swing": 24 }, "elbow": { "tilt": 66, "swing": 18 } },
+        "legLeft": { "hip": { "tilt": 3, "swing": 5 }, "knee": { "tilt": 3, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -4, "swing": 6 }, "knee": { "tilt": 4, "swing": 0 } },
+        "chest": { "tilt": 3, "swing": 0 }
+      }
+    },
+    {
+      "id": "present-to-content",
+      "name": "Present toward the content",
+      "intents": ["reveal_content", "guide_attention", "demonstrate"],
+      "gestureTags": ["pointing", "presenting"],
+      "energy": ["medium"],
+      "requiresFacingTarget": true,
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 6, "swing": 10 }, "elbow": { "tilt": 22, "swing": 6 } },
+        "armRight": { "shoulder": { "tilt": 12, "swing": 74 }, "elbow": { "tilt": 8, "swing": 10 } },
+        "legLeft": { "hip": { "tilt": 3, "swing": 6 }, "knee": { "tilt": 3, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -4, "swing": 7 }, "knee": { "tilt": 4, "swing": 0 } },
+        "chest": { "tilt": 2, "swing": 3 },
+        "head": { "yaw": -14 }
+      }
+    },
+    {
+      "id": "point-at-detail",
+      "name": "Point at a detail",
+      "intents": ["guide_attention", "highlight_step", "annotate"],
+      "gestureTags": ["pointing"],
+      "energy": ["medium", "high"],
+      "requiresFacingTarget": true,
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 4, "swing": 9 }, "elbow": { "tilt": 18, "swing": 5 } },
+        "armRight": { "shoulder": { "tilt": 30, "swing": 104 }, "elbow": { "tilt": 4, "swing": 6 } },
+        "legLeft": { "hip": { "tilt": 4, "swing": 6 }, "knee": { "tilt": 3, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -5, "swing": 7 }, "knee": { "tilt": 5, "swing": 0 } },
+        "chest": { "tilt": 4, "swing": 4 },
+        "head": { "yaw": -10, "pitch": -6 }
+      }
+    },
+    {
+      "id": "walk-stride",
+      "name": "Walking stride",
+      "intents": ["move_through_story", "show_progress", "enter_scene"],
+      "gestureTags": ["locomotion"],
+      "energy": ["medium", "high"],
+      "viewAxes": ["profile-left", "profile-right", "three-quarter-left", "three-quarter-right", "back"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 30, "swing": 8 }, "elbow": { "tilt": 26, "swing": 4 } },
+        "armRight": { "shoulder": { "tilt": -26, "swing": 8 }, "elbow": { "tilt": 20, "swing": 4 } },
+        "legLeft": { "hip": { "tilt": 26, "swing": 3 }, "knee": { "tilt": 6, "swing": 0 }, "ankle": { "tilt": -12 } },
+        "legRight": { "hip": { "tilt": -22, "swing": 3 }, "knee": { "tilt": 28, "swing": 0 }, "ankle": { "tilt": 10 } },
+        "spine": { "tilt": 4, "swing": 0 }
+      }
+    },
+    {
+      "id": "walk-passing",
+      "name": "Walking passing position",
+      "intents": ["move_through_story", "show_progress"],
+      "gestureTags": ["locomotion"],
+      "energy": ["medium"],
+      "viewAxes": ["profile-left", "profile-right", "three-quarter-left", "three-quarter-right", "back"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 8, "swing": 8 }, "elbow": { "tilt": 18, "swing": 4 } },
+        "armRight": { "shoulder": { "tilt": -6, "swing": 8 }, "elbow": { "tilt": 16, "swing": 4 } },
+        "legLeft": { "hip": { "tilt": 6, "swing": 3 }, "knee": { "tilt": 10, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -4, "swing": 3 }, "knee": { "tilt": 48, "swing": 0 }, "ankle": { "tilt": 16 } },
+        "spine": { "tilt": 3, "swing": 0 }
+      }
+    },
+    {
+      "id": "think-considering",
+      "name": "Considering a problem",
+      "intents": ["show_uncertainty", "frame_problem", "reflect"],
+      "gestureTags": ["thinking"],
+      "energy": ["low"],
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 14, "swing": 10 }, "elbow": { "tilt": 74, "swing": 6 } },
+        "armRight": { "shoulder": { "tilt": 40, "swing": 16 }, "elbow": { "tilt": 108, "swing": 10 } },
+        "legLeft": { "hip": { "tilt": 2, "swing": 5 }, "knee": { "tilt": 3, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -3, "swing": 6 }, "knee": { "tilt": 4, "swing": 0 } },
+        "neck": { "tilt": 6, "swing": 0 },
+        "head": { "pitch": -10, "yaw": 8 }
+      }
+    },
+    {
+      "id": "hand-over",
+      "name": "Hand something over",
+      "intents": ["transfer_ownership", "handoff", "collaborate"],
+      "gestureTags": ["handoff", "reaching"],
+      "energy": ["medium"],
+      "requiresFacingTarget": true,
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 8, "swing": 9 }, "elbow": { "tilt": 24, "swing": 5 } },
+        "armRight": { "shoulder": { "tilt": 68, "swing": 14 }, "elbow": { "tilt": 16, "swing": 6 } },
+        "legLeft": { "hip": { "tilt": 8, "swing": 5 }, "knee": { "tilt": 6, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -8, "swing": 6 }, "knee": { "tilt": 8, "swing": 0 } },
+        "spine": { "tilt": 5, "swing": 0 }
+      }
+    },
+    {
+      "id": "listen-attentive",
+      "name": "Listening",
+      "intents": ["receive_information", "react", "support_other_character"],
+      "gestureTags": ["listening", "neutral"],
+      "energy": ["low"],
+      "requiresFacingTarget": true,
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right", "back"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 4, "swing": 7 }, "elbow": { "tilt": 30, "swing": 4 } },
+        "armRight": { "shoulder": { "tilt": 4, "swing": 7 }, "elbow": { "tilt": 34, "swing": 4 } },
+        "legLeft": { "hip": { "tilt": 1, "swing": 4 }, "knee": { "tilt": 2, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -2, "swing": 5 }, "knee": { "tilt": 3, "swing": 0 } },
+        "neck": { "tilt": 3, "swing": 0 },
+        "head": { "pitch": -4 }
+      }
+    },
+    {
+      "id": "celebrate-lift",
+      "name": "Celebrate",
+      "intents": ["celebrate_outcome", "show_result", "close_story"],
+      "gestureTags": ["celebration"],
+      "energy": ["high"],
+      "viewAxes": ["front", "three-quarter-left", "three-quarter-right", "back"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 18, "swing": 148 }, "elbow": { "tilt": 12, "swing": 16 } },
+        "armRight": { "shoulder": { "tilt": 20, "swing": 152 }, "elbow": { "tilt": 10, "swing": 18 } },
+        "legLeft": { "hip": { "tilt": 6, "swing": 8 }, "knee": { "tilt": 4, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -6, "swing": 9 }, "knee": { "tilt": 5, "swing": 0 } },
+        "spine": { "tilt": -4, "swing": 0 },
+        "head": { "pitch": 8 }
+      }
+    },
+    {
+      "id": "work-at-surface",
+      "name": "Working at a surface",
+      "intents": ["show_work", "demonstrate_tool", "operate_device"],
+      "gestureTags": ["working", "typing"],
+      "energy": ["low", "medium"],
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right", "back"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 46, "swing": 12 }, "elbow": { "tilt": 54, "swing": 6 } },
+        "armRight": { "shoulder": { "tilt": 48, "swing": 13 }, "elbow": { "tilt": 56, "swing": 7 } },
+        "legLeft": { "hip": { "tilt": 3, "swing": 5 }, "knee": { "tilt": 4, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -3, "swing": 6 }, "knee": { "tilt": 5, "swing": 0 } },
+        "spine": { "tilt": 8, "swing": 0 },
+        "neck": { "tilt": 6, "swing": 0 },
+        "head": { "pitch": -12 }
+      }
+    },
+    {
+      "id": "inspect-crouch",
+      "name": "Crouch and inspect",
+      "intents": ["investigate", "diagnose", "show_detail"],
+      "gestureTags": ["inspecting", "crouching"],
+      "energy": ["low", "medium"],
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right"],
+      "pose": {
+        "crouch": 0.62,
+        "armLeft": { "shoulder": { "tilt": 30, "swing": 12 }, "elbow": { "tilt": 58, "swing": 6 } },
+        "armRight": { "shoulder": { "tilt": 52, "swing": 14 }, "elbow": { "tilt": 30, "swing": 8 } },
+        "legLeft": { "hip": { "tilt": 4, "swing": 8 }, "knee": { "tilt": 6, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -4, "swing": 9 }, "knee": { "tilt": 8, "swing": 0 } },
+        "spine": { "tilt": 14, "swing": 0 },
+        "head": { "pitch": -14 }
+      }
+    },
+    {
+      "id": "carry-load",
+      "name": "Carrying a load",
+      "intents": ["move_material", "show_effort", "deliver"],
+      "gestureTags": ["carrying"],
+      "energy": ["medium"],
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right", "back"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 58, "swing": 16 }, "elbow": { "tilt": 62, "swing": 4 } },
+        "armRight": { "shoulder": { "tilt": 60, "swing": 17 }, "elbow": { "tilt": 64, "swing": 5 } },
+        "legLeft": { "hip": { "tilt": 10, "swing": 5 }, "knee": { "tilt": 8, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -8, "swing": 6 }, "knee": { "tilt": 12, "swing": 0 } },
+        "spine": { "tilt": -6, "swing": 0 }
+      }
+    },
+    {
+      "id": "turn-away",
+      "name": "Turning away into the scene",
+      "intents": ["exit_scene", "lead_into_next_beat", "show_direction"],
+      "gestureTags": ["locomotion", "back-view"],
+      "energy": ["low", "medium"],
+      "viewAxes": ["back", "back-left", "back-right"],
+      "pose": {
+        "armLeft": { "shoulder": { "tilt": 18, "swing": 9 }, "elbow": { "tilt": 22, "swing": 4 } },
+        "armRight": { "shoulder": { "tilt": -14, "swing": 9 }, "elbow": { "tilt": 18, "swing": 4 } },
+        "legLeft": { "hip": { "tilt": 18, "swing": 4 }, "knee": { "tilt": 6, "swing": 0 } },
+        "legRight": { "hip": { "tilt": -16, "swing": 4 }, "knee": { "tilt": 24, "swing": 0 } },
+        "head": { "yaw": 24 }
+      }
+    },
+    {
+      "id": "sit-and-talk",
+      "name": "Seated conversation",
+      "intents": ["interview", "converse", "receive_information"],
+      "gestureTags": ["seated", "speaking"],
+      "energy": ["low"],
+      "seated": true,
+      "viewAxes": ["three-quarter-left", "three-quarter-right", "profile-left", "profile-right"],
+      "pose": {
+        "seated": true,
+        "armLeft": { "shoulder": { "tilt": 28, "swing": 12 }, "elbow": { "tilt": 66, "swing": 8 } },
+        "armRight": { "shoulder": { "tilt": 32, "swing": 14 }, "elbow": { "tilt": 70, "swing": 10 } },
+        "legLeft": { "hip": { "tilt": 78, "swing": 7 }, "knee": { "tilt": -76, "swing": 0 }, "ankle": { "tilt": -4 } },
+        "legRight": { "hip": { "tilt": 74, "swing": 8 }, "knee": { "tilt": -72, "swing": 0 }, "ankle": { "tilt": -4 } },
+        "spine": { "tilt": 4, "swing": 0 }
+      }
+    }
+  ]
+}

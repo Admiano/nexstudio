@@ -2,6 +2,7 @@ from pathlib import Path
 import shutil, zipfile
 ROOT=Path(__file__).resolve().parents[1]
 SOURCES=ROOT/'engine_sources'; ENGINES=ROOT/'engines'
+TREES={'paper-cast':'paper-cast-v1'}
 items={
  'whiteboard':'WHITEBOARD_ENGINE_SOURCE.zip',
  'explainer':'EXPLAINER_ENGINE_SOURCE.zip',
@@ -27,5 +28,16 @@ for name,archive in items.items():
 stick_root=ENGINES/'stickman'/'NEXSTICK_MASTER_V2_UNIFIED_PERFORMANCE_V5_1_CLEAN_2026-08-13'
 if stick_root.exists():
     (stick_root/'package.json').write_text('{\n  \"type\": \"commonjs\"\n}\n')
+
+# Paper Cast is authored in-repo rather than archived, and ships its own
+# CommonJS package boundary; copy it alongside the extracted engines so every
+# engine path in .env.example resolves the same way.
+for name,tree in TREES.items():
+    source=SOURCES/tree
+    if not source.exists(): continue
+    target=ENGINES/name
+    if target.exists(): shutil.rmtree(target)
+    shutil.copytree(source, target, ignore=shutil.ignore_patterns('.review'))
+    print(f'{name}: {target}')
 
 print('\nEngine source installed, shared Paper Motion dependencies assembled, and runtime package boundaries applied. Use the paths in .env.example.')

@@ -1,0 +1,157 @@
+{
+  "id": "cast.technician.paper-01",
+  "name": "Technician",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "technician",
+  "slug": "technician",
+  "renderer": "paper-cast-figure",
+  "role": "technician",
+  "ageBand": "adult",
+  "proportion": "adult-broad",
+  "formality": "workwear",
+  "intents": [
+    "diagnose",
+    "repair",
+    "operate_device",
+    "investigate"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "technician",
+    "engineer",
+    "repair",
+    "machine",
+    "maintenance",
+    "diagnostic"
+  ],
+  "useCases": [
+    "industrial",
+    "explainer",
+    "documentary"
+  ],
+  "personalities": [
+    "serious",
+    "calm",
+    "reserved"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "poses": [
+    "inspect-crouch",
+    "work-at-surface",
+    "point-at-detail",
+    "carry-load",
+    "idle-stance"
+  ],
+  "defaultPose": "inspect-crouch",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#9a6440",
+    "hair": {
+      "color": "#2f2a26",
+      "length": 0.16
+    },
+    "top": {
+      "color": "#3e6b8a",
+      "sleeve": 0.9
+    },
+    "bottom": {
+      "color": "#3a4149"
+    },
+    "shoes": {
+      "color": "#25201c"
+    },
+    "accent": "#f0a92b"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.technician",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Technician paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "diagnose",
+      "repair",
+      "operate_device",
+      "investigate"
+    ],
+    "storyRole": "technician",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

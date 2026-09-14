@@ -1,0 +1,156 @@
+{
+  "id": "cast.parent.paper-01",
+  "name": "Parent",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "parent",
+  "slug": "parent",
+  "renderer": "paper-cast-figure",
+  "role": "parent",
+  "ageBand": "adult",
+  "proportion": "adult-average",
+  "formality": "casual",
+  "intents": [
+    "support_other_character",
+    "decide_for_family",
+    "reassure",
+    "compare_options"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "parent",
+    "family",
+    "home",
+    "guardian",
+    "household"
+  ],
+  "useCases": [
+    "family",
+    "commerce",
+    "explainer"
+  ],
+  "personalities": [
+    "warm",
+    "calm",
+    "cheerful"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "poses": [
+    "listen-attentive",
+    "explain-open-hands",
+    "hand-over",
+    "walk-stride",
+    "idle-stance"
+  ],
+  "defaultPose": "listen-attentive",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#dda87c",
+    "hair": {
+      "color": "#8c6239",
+      "length": 0.46
+    },
+    "top": {
+      "color": "#a8574f",
+      "sleeve": 0.52
+    },
+    "bottom": {
+      "color": "#39445a"
+    },
+    "shoes": {
+      "color": "#6b5a4a"
+    },
+    "accent": "#e2a04a"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.parent",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Parent paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "support_other_character",
+      "decide_for_family",
+      "reassure",
+      "compare_options"
+    ],
+    "storyRole": "parent",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

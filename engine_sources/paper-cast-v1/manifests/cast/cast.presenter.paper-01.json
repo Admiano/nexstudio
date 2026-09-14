@@ -1,0 +1,158 @@
+{
+  "id": "cast.presenter.paper-01",
+  "name": "Presenter",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "presenter",
+  "slug": "presenter",
+  "renderer": "paper-cast-figure",
+  "role": "presenter",
+  "ageBand": "adult",
+  "proportion": "adult-average",
+  "formality": "smart-casual",
+  "intents": [
+    "capture_attention",
+    "introduce_topic",
+    "narrate",
+    "reveal_content"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "presenter",
+    "host",
+    "narrator",
+    "speaker",
+    "introduction"
+  ],
+  "useCases": [
+    "explainer",
+    "agent",
+    "creator",
+    "documentary"
+  ],
+  "personalities": [
+    "confident",
+    "warm",
+    "cheerful"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "poses": [
+    "address-audience",
+    "explain-open-hands",
+    "present-to-content",
+    "point-at-detail",
+    "idle-stance",
+    "celebrate-lift"
+  ],
+  "defaultPose": "address-audience",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#dda87c",
+    "hair": {
+      "color": "#2f2a26",
+      "length": 0.28
+    },
+    "top": {
+      "color": "#3f6b7d",
+      "sleeve": 0.62
+    },
+    "bottom": {
+      "color": "#2d3742"
+    },
+    "shoes": {
+      "color": "#23231f"
+    },
+    "accent": "#d98032"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.presenter",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Presenter paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "capture_attention",
+      "introduce_topic",
+      "narrate",
+      "reveal_content"
+    ],
+    "storyRole": "presenter",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

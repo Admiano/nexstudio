@@ -1,0 +1,504 @@
+{
+  "schemaVersion": "1.0.0",
+  "release": "1.0.0",
+  "roles": [
+    "analyst",
+    "builder",
+    "child",
+    "creator",
+    "customer",
+    "executive",
+    "friend",
+    "healthcare_worker",
+    "helper",
+    "mentor",
+    "office_worker",
+    "parent",
+    "presenter",
+    "reporter",
+    "salesperson",
+    "student",
+    "teacher",
+    "technician"
+  ],
+  "ageBands": [
+    "adult",
+    "child",
+    "senior",
+    "teen"
+  ],
+  "proportions": [
+    "adult-average",
+    "adult-broad",
+    "adult-slight",
+    "adult-tall",
+    "child",
+    "senior",
+    "teen"
+  ],
+  "formality": [
+    "business-casual",
+    "casual",
+    "formal",
+    "smart-casual",
+    "uniform",
+    "workwear"
+  ],
+  "personalities": [
+    "authoritative",
+    "calm",
+    "cheerful",
+    "confident",
+    "curious",
+    "energetic",
+    "playful",
+    "reserved",
+    "serious",
+    "shy",
+    "warm"
+  ],
+  "useCases": [
+    "agent",
+    "business",
+    "commerce",
+    "creator",
+    "documentary",
+    "education",
+    "explainer",
+    "family",
+    "healthcare",
+    "industrial"
+  ],
+  "intents": [
+    "address_stakeholders",
+    "advise",
+    "approve_outcome",
+    "ask_question",
+    "buy",
+    "capture_attention",
+    "care_for_person",
+    "close_deal",
+    "collaborate",
+    "compare_options",
+    "construct",
+    "converse",
+    "decide_for_family",
+    "deliver",
+    "demonstrate",
+    "diagnose",
+    "evaluate_option",
+    "explain_concept",
+    "explain_procedure",
+    "guide_attention",
+    "guide_user",
+    "handoff",
+    "interview",
+    "introduce_topic",
+    "investigate",
+    "make_content",
+    "move_material",
+    "move_through_story",
+    "narrate",
+    "operate_device",
+    "pitch_offer",
+    "play",
+    "process_task",
+    "publish_result",
+    "react",
+    "reassure",
+    "receive_information",
+    "record_observation",
+    "reflect",
+    "repair",
+    "report_status",
+    "resolve_issue",
+    "reveal_content",
+    "set_direction",
+    "show_craft",
+    "show_data",
+    "show_effort",
+    "show_progress",
+    "show_wonder",
+    "show_work",
+    "state_decision",
+    "support_other_character",
+    "teach_step"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "poses": [
+    {
+      "id": "idle-stance",
+      "intents": [
+        "hold_frame",
+        "wait_for_cue"
+      ],
+      "gestureTags": [
+        "neutral",
+        "idle"
+      ],
+      "energy": [
+        "low"
+      ],
+      "viewAxes": [
+        "front",
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right",
+        "back"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "address-audience",
+      "intents": [
+        "capture_attention",
+        "introduce_topic",
+        "narrate"
+      ],
+      "gestureTags": [
+        "speaking",
+        "open"
+      ],
+      "energy": [
+        "low",
+        "medium"
+      ],
+      "viewAxes": [
+        "front",
+        "three-quarter-left",
+        "three-quarter-right"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "explain-open-hands",
+      "intents": [
+        "explain_concept",
+        "compare_options",
+        "narrate"
+      ],
+      "gestureTags": [
+        "speaking",
+        "explanatory"
+      ],
+      "energy": [
+        "medium"
+      ],
+      "viewAxes": [
+        "front",
+        "three-quarter-left",
+        "three-quarter-right"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "present-to-content",
+      "intents": [
+        "reveal_content",
+        "guide_attention",
+        "demonstrate"
+      ],
+      "gestureTags": [
+        "pointing",
+        "presenting"
+      ],
+      "energy": [
+        "medium"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right"
+      ],
+      "requiresFacingTarget": true
+    },
+    {
+      "id": "point-at-detail",
+      "intents": [
+        "guide_attention",
+        "highlight_step",
+        "annotate"
+      ],
+      "gestureTags": [
+        "pointing"
+      ],
+      "energy": [
+        "medium",
+        "high"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right"
+      ],
+      "requiresFacingTarget": true
+    },
+    {
+      "id": "walk-stride",
+      "intents": [
+        "move_through_story",
+        "show_progress",
+        "enter_scene"
+      ],
+      "gestureTags": [
+        "locomotion"
+      ],
+      "energy": [
+        "medium",
+        "high"
+      ],
+      "viewAxes": [
+        "profile-left",
+        "profile-right",
+        "three-quarter-left",
+        "three-quarter-right",
+        "back"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "walk-passing",
+      "intents": [
+        "move_through_story",
+        "show_progress"
+      ],
+      "gestureTags": [
+        "locomotion"
+      ],
+      "energy": [
+        "medium"
+      ],
+      "viewAxes": [
+        "profile-left",
+        "profile-right",
+        "three-quarter-left",
+        "three-quarter-right",
+        "back"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "think-considering",
+      "intents": [
+        "show_uncertainty",
+        "frame_problem",
+        "reflect"
+      ],
+      "gestureTags": [
+        "thinking"
+      ],
+      "energy": [
+        "low"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "hand-over",
+      "intents": [
+        "transfer_ownership",
+        "handoff",
+        "collaborate"
+      ],
+      "gestureTags": [
+        "handoff",
+        "reaching"
+      ],
+      "energy": [
+        "medium"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right"
+      ],
+      "requiresFacingTarget": true
+    },
+    {
+      "id": "listen-attentive",
+      "intents": [
+        "receive_information",
+        "react",
+        "support_other_character"
+      ],
+      "gestureTags": [
+        "listening",
+        "neutral"
+      ],
+      "energy": [
+        "low"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right",
+        "back"
+      ],
+      "requiresFacingTarget": true
+    },
+    {
+      "id": "celebrate-lift",
+      "intents": [
+        "celebrate_outcome",
+        "show_result",
+        "close_story"
+      ],
+      "gestureTags": [
+        "celebration"
+      ],
+      "energy": [
+        "high"
+      ],
+      "viewAxes": [
+        "front",
+        "three-quarter-left",
+        "three-quarter-right",
+        "back"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "work-at-surface",
+      "intents": [
+        "show_work",
+        "demonstrate_tool",
+        "operate_device"
+      ],
+      "gestureTags": [
+        "working",
+        "typing"
+      ],
+      "energy": [
+        "low",
+        "medium"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right",
+        "back"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "inspect-crouch",
+      "intents": [
+        "investigate",
+        "diagnose",
+        "show_detail"
+      ],
+      "gestureTags": [
+        "inspecting",
+        "crouching"
+      ],
+      "energy": [
+        "low",
+        "medium"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "carry-load",
+      "intents": [
+        "move_material",
+        "show_effort",
+        "deliver"
+      ],
+      "gestureTags": [
+        "carrying"
+      ],
+      "energy": [
+        "medium"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right",
+        "back"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "turn-away",
+      "intents": [
+        "exit_scene",
+        "lead_into_next_beat",
+        "show_direction"
+      ],
+      "gestureTags": [
+        "locomotion",
+        "back-view"
+      ],
+      "energy": [
+        "low",
+        "medium"
+      ],
+      "viewAxes": [
+        "back",
+        "back-left",
+        "back-right"
+      ],
+      "requiresFacingTarget": false
+    },
+    {
+      "id": "sit-and-talk",
+      "intents": [
+        "interview",
+        "converse",
+        "receive_information"
+      ],
+      "gestureTags": [
+        "seated",
+        "speaking"
+      ],
+      "energy": [
+        "low"
+      ],
+      "viewAxes": [
+        "three-quarter-left",
+        "three-quarter-right",
+        "profile-left",
+        "profile-right"
+      ],
+      "requiresFacingTarget": false
+    }
+  ]
+}
