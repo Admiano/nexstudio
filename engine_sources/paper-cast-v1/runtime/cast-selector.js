@@ -58,14 +58,25 @@
     return { entry, score, reasons };
   }
 
-  function choosePose(entry, ctx, requested) {
-    const candidates = unique([requested, ctx.action, ...(ctx.actions || []), ...entry.poses].filter(Boolean))
+  const reaches = (posed, desiredYaw) =>
+    typeof desiredYaw !== 'number' || Math.abs(snapToAllowed(desiredYaw, posed.viewAxes).residual) <= 62;
+
+  /**
+   * Picks the pose for a beat. A pose that cannot turn far enough to face what
+   * the character is addressing is rejected in favour of one that can, so a
+   * teacher talking to a student beside her is not left explaining to the wall.
+   */
+  function choosePose(entry, ctx, requested, desiredYaw) {
+    const candidates = unique([requested, ctx.action, ...(ctx.actions || []), entry.defaultPose, ...entry.poses].filter(Boolean))
       .map(pose)
       .filter(Boolean);
-    const supported = candidates.find((p) => entry.poses.includes(p.id));
-    const byIntent = candidates.find((p) => (ctx.intents || []).some((i) => p.intents.includes(i)));
-    const byEnergy = candidates.find((p) => p.energy.includes(ctx.motionEnergy));
-    return supported || byIntent || byEnergy || pose(entry.defaultPose) || POSES.poses[0];
+    const rank = (list) => list.filter((p) => reaches(p, desiredYaw));
+    const supported = candidates.filter((p) => entry.poses.includes(p.id));
+    const byIntent = candidates.filter((p) => (ctx.intents || []).some((i) => p.intents.includes(i)));
+    const byEnergy = candidates.filter((p) => p.energy.includes(ctx.motionEnergy));
+    const fallback = entry.poses.map(pose).filter(Boolean);
+    return rank(supported)[0] || rank(byIntent)[0] || rank(byEnergy)[0] || rank(fallback)[0]
+      || supported[0] || byIntent[0] || byEnergy[0] || pose(entry.defaultPose) || POSES.poses[0];
   }
 
   /** Stage coordinates: x spans the frame (-1 left, +1 right), depth is +1 toward the camera. */
@@ -77,8 +88,12 @@
     return Array.from({ length: size }, (_, i) => ({ x: -spread + step * i, depth: i % 2 === 0 ? 0 : -0.12 }));
   }
 
-  function targetPoint(target, self, members, contentAnchor) {
+  function targetPoint(target, self, members, contentAnchor, ctx) {
     const camera = { x: self.x, depth: self.depth + 2.2, kind: 'camera' };
+    if (target === 'travel' || target === 'exit') {
+      const dir = (ctx && ctx.direction) === 'left' ? -1 : 1;
+      return { x: self.x + dir * 2.4, depth: self.depth - (target === 'exit' ? 0.7 : 0.25), kind: target };
+    }
     if (typeof target === 'number') {
       const other = members[target];
       return other && other !== self ? { x: other.x, depth: other.depth, kind: 'peer' } : camera;
@@ -116,6 +131,10 @@
     return { axis: best, yaw: Rig.VIEW_AXES[best], residual: ((yaw - Rig.VIEW_AXES[best] + 540) % 360) - 180 };
   }
 
+  function desiredYawFor(member, members, ctx, contentAnchor) {
+    return yawToward(member, targetPoint(member.addressing, member, members, contentAnchor, ctx));
+  }
+
   /**
    * Resolves body orientation and head yaw for one member.
    * The body snaps to the view axis its pose is authored for; whatever turn is
@@ -123,10 +142,10 @@
    * upstage while glancing back at the viewer.
    */
   function orient(member, members, ctx, contentAnchor, posed) {
-    const bodyTarget = targetPoint(member.addressing, member, members, contentAnchor);
+    const bodyTarget = targetPoint(member.addressing, member, members, contentAnchor, ctx);
     const desired = yawToward(member, bodyTarget);
     const snapped = snapToAllowed(desired, posed.viewAxes);
-    const gazeTarget = targetPoint(member.gazeAt ?? member.addressing, member, members, contentAnchor);
+    const gazeTarget = targetPoint(member.gazeAt ?? member.addressing, member, members, contentAnchor, ctx);
     const gazeYaw = yawToward(member, gazeTarget);
     const headYaw = clamp(((gazeYaw - snapped.yaw + 540) % 360) - 180, -62, 62);
     return {
@@ -164,19 +183,27 @@
     const size = requested ? requested.length : clamp(ctx.castSize || 1, 1, 4);
     const positions = stagePositions(size, req.staging);
     const contentAnchor = (req.staging && req.staging.contentAnchor)
-      || { x: ctx.direction === 'left' ? -0.85 : 0.85, depth: -0.5 };
+      || { x: ctx.direction === 'left' ? -0.95 : 0.95, depth: 0.05 };
 
     const taken = new Set();
     const members = [];
     const alternates = [];
+    const namedRoles = ctx.roles || [];
 
     for (let i = 0; i < size; i += 1) {
       const slot = requested ? requested[i] : {};
-      const slotCtx = { ...ctx, ...slot, script: slot.script || ctx.script };
+      const slotCtx = { ...ctx, ...slot, role: slot.role ?? namedRoles[i] ?? ctx.role, script: slot.script || ctx.script };
       const ranked = REGISTRY.entries
         .map((entry) => scoreCharacter(entry, slotCtx))
         .sort((a, b) => b.score - a.score || a.entry.id.localeCompare(b.entry.id));
-      const pick = ranked.find((r) => (slot.id ? r.entry.id === slot.id || r.entry.slug === slot.id : !taken.has(r.entry.id))) || ranked[0];
+      const free = (r) => !taken.has(r.entry.id);
+      // A role named in the script owns its slot: when the beat lists four
+      // people, each one is cast, instead of the highest-scoring lookalike
+      // taking someone else's place.
+      const pick = (slot.id
+        ? ranked.find((r) => r.entry.id === slot.id || r.entry.slug === slot.id)
+        : (slotCtx.role ? ranked.find((r) => r.entry.role === slotCtx.role && free(r)) : null) || ranked.find(free)
+      ) || ranked[0];
       if (!pick) {
         warnings.push('no cast entries registered');
         break;
@@ -185,7 +212,6 @@
       if (i === 0) alternates.push(...ranked.slice(1, 4).map((r) => ({ id: r.entry.id, score: r.score, reasons: r.reasons })));
       if (pick.score <= 0) warnings.push(`weak match for slot ${i}: ${pick.entry.id} scored ${pick.score}`);
 
-      const chosen = choosePose(pick.entry, slotCtx, slot.pose);
       members.push({
         index: i,
         id: pick.entry.id,
@@ -194,7 +220,9 @@
         entry: pick.entry,
         score: pick.score,
         reasons: pick.reasons,
-        posed: chosen,
+        posed: null,
+        slotCtx,
+        slotPose: slot.pose,
         x: typeof slot.x === 'number' ? slot.x : positions[i].x,
         depth: typeof slot.depth === 'number' ? slot.depth : positions[i].depth,
         addressing: slot.addressing ?? defaultTarget(ctx, i, size),
@@ -202,6 +230,10 @@
         name: slot.name || null,
         line: slot.line || null
       });
+    }
+
+    for (const member of members) {
+      member.posed = choosePose(member.entry, member.slotCtx, member.slotPose, desiredYawFor(member, members, ctx, contentAnchor));
     }
 
     const cast = members.map((member) => {
@@ -233,8 +265,11 @@
   function defaultTarget(ctx, index, size) {
     if (ctx.addressing === 'peer' && size > 1) return index === 0 ? 1 : 0;
     if (ctx.addressing) return ctx.addressing;
+    const leaving = (ctx.intents || []).includes('exit_scene') || ctx.action === 'turn-away';
+    if (leaving) return 'exit';
+    if (ctx.travelling) return 'travel';
     if (size > 1) return index === 0 ? 1 : 0;
-    const contentIntents = ['guide_attention', 'show_data', 'demonstrate', 'compare_options', 'show_work', 'investigate', 'move_through_story'];
+    const contentIntents = ['guide_attention', 'show_data', 'demonstrate', 'compare_options', 'show_work', 'investigate'];
     if ((ctx.intents || []).some((i) => contentIntents.includes(i))) return 'content';
     return 'camera';
   }

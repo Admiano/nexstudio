@@ -169,6 +169,74 @@ test('scene svg is valid for each aspect ratio', () => {
   }
 });
 
+test('a profile torso keeps its body depth instead of collapsing to a line', () => {
+  const width = (axis) => {
+    const t = Rig.build({ proportion: 'adult-average', height: 600, view: axis, pose: {} }).torso;
+    return t.shoulderRight.x - t.shoulderLeft.x;
+  };
+  const front = width('front');
+  for (const axis of ['profile-left', 'profile-right']) {
+    assert.ok(width(axis) > front * 0.45, `${axis} torso collapsed to ${width(axis).toFixed(1)}`);
+  }
+});
+
+test('feet stand on the stage ground line at every view axis', () => {
+  for (const axis of VIEW_AXES) {
+    const figure = Rig.build({ proportion: 'adult-average', height: 600, view: axis, pose: {} });
+    const feet = figure.parts.filter((p) => p.kind === 'foot');
+    assert.ok(feet.every((f) => f.b.y > f.a.y), `${axis}: a foot has no visible height`);
+    assert.ok(Math.abs(figure.ground - Math.max(...feet.map((f) => f.b.y + f.widthTo * 0.5))) < 1e-6);
+  }
+  // On stage a member is lifted by its ground line, not by its padded bounds,
+  // so the shoes touch the dashed floor instead of hovering above it.
+  const frame = Cast.FRAMES['16:9'];
+  const scene = Cast.renderScene({ script: 'The presenter welcomes the audience.', aspectRatio: '16:9' });
+  const figure = Rig.build({ proportion: scene.cast[0].proportion, height: frame.height * frame.figureHeight, view: scene.cast[0].view.viewAxis, pose: { ...scene.cast[0].poseAngles, head: { ...(scene.cast[0].poseAngles.head || {}), yaw: scene.cast[0].view.headYaw } } });
+  const lift = Number(/translate\(0 (-?[\d.]+)\)/.exec(scene.svg)[1]);
+  assert.ok(Math.abs(lift + figure.ground) < 0.02, `member sits ${(lift + figure.ground).toFixed(1)} off the ground line`);
+  assert.ok(scene.svg.includes(`y1="${frame.height * frame.ground}"`));
+});
+
+test('a four-hander is laid out without overlapping silhouettes', () => {
+  for (const ratio of ['16:9', '1:1', '9:16']) {
+    const scene = Cast.renderScene({ script: 'The teacher, student, doctor and builder discuss plans together.', aspectRatio: ratio });
+    assert.strictEqual(scene.cast.length, 4);
+    const xs = [...scene.svg.matchAll(/class="pc-stage-member"[^>]*transform="translate\((-?[\d.]+) /g)].map((m) => Number(m[1]));
+    assert.strictEqual(xs.length, 4);
+    const sorted = [...xs].sort((a, b) => a - b);
+    for (let i = 1; i < sorted.length; i += 1) {
+      assert.ok(sorted[i] - sorted[i - 1] > Cast.FRAMES[ratio].width * 0.1, `${ratio}: members ${i - 1}/${i} are stacked`);
+    }
+  }
+});
+
+test('every named role in a beat is cast, not silently dropped', () => {
+  const plan = Cast.plan({ script: 'The teacher, student, doctor and builder discuss plans together.' });
+  assert.deepStrictEqual(plan.cast.map((m) => m.role), ['teacher', 'student', 'healthcare_worker', 'builder']);
+});
+
+test('travel and exit beats orient along the direction of movement', () => {
+  const travel = Cast.plan({ script: 'The reporter walks across the field toward the crowd.' }).cast[0];
+  assert.strictEqual(travel.view.addressing, 'travel');
+  assert.ok(travel.view.viewAxis.startsWith('profile'), `expected a profile, got ${travel.view.viewAxis}`);
+  const exit = Cast.plan({ script: 'The builder carries boxes across the site and heads out of frame.' }).cast[0];
+  assert.strictEqual(exit.view.addressing, 'exit');
+  assert.notStrictEqual(exit.view.viewAxis, 'front');
+});
+
+test('poses are chosen so the body can actually face what it addresses', () => {
+  const beats = [
+    'The teacher explains the diagram while the student listens.',
+    'The customer asks the support agent a question and they talk to each other.',
+    'The analyst turns to the chart on the screen and points at the spike.',
+    'The reporter walks across the field toward the crowd.'
+  ];
+  for (const script of beats) {
+    const plan = Cast.plan({ script });
+    assert.deepStrictEqual(plan.warnings.filter((w) => w.includes('cannot face')), [], `${script} -> ${plan.warnings.join('; ')}`);
+  }
+});
+
 const failed = results.filter((r) => !r.ok);
 for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `\n      ${r.error}`}`);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);

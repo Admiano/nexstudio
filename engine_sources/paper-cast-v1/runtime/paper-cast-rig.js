@@ -26,13 +26,13 @@
   };
 
   const PROPORTIONS = {
-    'adult-average': { head: 0.066, neck: 0.03, chest: 0.2, pelvisWidth: 0.076, shoulderWidth: 0.107, thigh: 0.235, shin: 0.235, foot: 0.055, upperArm: 0.163, foreArm: 0.15, hand: 0.042, limb: 0.032, torsoTaper: 0.86 },
-    'adult-broad': { head: 0.064, neck: 0.031, chest: 0.2, pelvisWidth: 0.09, shoulderWidth: 0.125, thigh: 0.231, shin: 0.231, foot: 0.058, upperArm: 0.166, foreArm: 0.152, hand: 0.044, limb: 0.039, torsoTaper: 0.94 },
-    'adult-slight': { head: 0.066, neck: 0.03, chest: 0.198, pelvisWidth: 0.068, shoulderWidth: 0.096, thigh: 0.24, shin: 0.24, foot: 0.052, upperArm: 0.162, foreArm: 0.15, hand: 0.04, limb: 0.027, torsoTaper: 0.8 },
-    'adult-tall': { head: 0.061, neck: 0.032, chest: 0.202, pelvisWidth: 0.072, shoulderWidth: 0.104, thigh: 0.248, shin: 0.248, foot: 0.055, upperArm: 0.168, foreArm: 0.156, hand: 0.042, limb: 0.029, torsoTaper: 0.83 },
-    teen: { head: 0.072, neck: 0.028, chest: 0.19, pelvisWidth: 0.068, shoulderWidth: 0.094, thigh: 0.228, shin: 0.228, foot: 0.05, upperArm: 0.155, foreArm: 0.142, hand: 0.04, limb: 0.028, torsoTaper: 0.82 },
-    child: { head: 0.093, neck: 0.024, chest: 0.175, pelvisWidth: 0.062, shoulderWidth: 0.082, thigh: 0.198, shin: 0.198, foot: 0.046, upperArm: 0.135, foreArm: 0.122, hand: 0.038, limb: 0.03, torsoTaper: 0.9 },
-    senior: { head: 0.066, neck: 0.028, chest: 0.193, pelvisWidth: 0.08, shoulderWidth: 0.1, thigh: 0.226, shin: 0.226, foot: 0.055, upperArm: 0.158, foreArm: 0.146, hand: 0.042, limb: 0.031, torsoTaper: 0.88 }
+    'adult-average': { head: 0.066, neck: 0.03, chest: 0.2, pelvisWidth: 0.076, shoulderWidth: 0.107, thigh: 0.235, shin: 0.235, foot: 0.055, upperArm: 0.163, foreArm: 0.15, hand: 0.042, limb: 0.032, torsoTaper: 0.86, bodyDepth: 0.62 },
+    'adult-broad': { head: 0.064, neck: 0.031, chest: 0.2, pelvisWidth: 0.09, shoulderWidth: 0.125, thigh: 0.231, shin: 0.231, foot: 0.058, upperArm: 0.166, foreArm: 0.152, hand: 0.044, limb: 0.039, torsoTaper: 0.94, bodyDepth: 0.68 },
+    'adult-slight': { head: 0.066, neck: 0.03, chest: 0.198, pelvisWidth: 0.068, shoulderWidth: 0.096, thigh: 0.24, shin: 0.24, foot: 0.052, upperArm: 0.162, foreArm: 0.15, hand: 0.04, limb: 0.027, torsoTaper: 0.8, bodyDepth: 0.58 },
+    'adult-tall': { head: 0.061, neck: 0.032, chest: 0.202, pelvisWidth: 0.072, shoulderWidth: 0.104, thigh: 0.248, shin: 0.248, foot: 0.055, upperArm: 0.168, foreArm: 0.156, hand: 0.042, limb: 0.029, torsoTaper: 0.83, bodyDepth: 0.6 },
+    teen: { head: 0.072, neck: 0.028, chest: 0.19, pelvisWidth: 0.068, shoulderWidth: 0.094, thigh: 0.228, shin: 0.228, foot: 0.05, upperArm: 0.155, foreArm: 0.142, hand: 0.04, limb: 0.028, torsoTaper: 0.82, bodyDepth: 0.58 },
+    child: { head: 0.093, neck: 0.024, chest: 0.175, pelvisWidth: 0.062, shoulderWidth: 0.082, thigh: 0.198, shin: 0.198, foot: 0.046, upperArm: 0.135, foreArm: 0.122, hand: 0.038, limb: 0.03, torsoTaper: 0.9, bodyDepth: 0.64 },
+    senior: { head: 0.066, neck: 0.028, chest: 0.193, pelvisWidth: 0.08, shoulderWidth: 0.1, thigh: 0.226, shin: 0.226, foot: 0.055, upperArm: 0.158, foreArm: 0.146, hand: 0.042, limb: 0.031, torsoTaper: 0.88, bodyDepth: 0.66 }
   };
 
   const REST = {
@@ -174,12 +174,12 @@
 
       const limb = L('limb');
       segments.push(
-        { id: side + '-upper-arm', kind: 'limb', side, from: shoulder, to: elbow, widthFrom: limb * 1.05, widthTo: limb * 0.92 },
-        { id: side + '-fore-arm', kind: 'limb', side, from: elbow, to: wrist, widthFrom: limb * 0.92, widthTo: limb * 0.74 },
-        { id: side + '-hand', kind: 'hand', side, from: wrist, to: hand, widthFrom: limb * 0.86, widthTo: limb * 0.7 },
-        { id: side + '-thigh', kind: 'limb', side, from: hip, to: knee, widthFrom: limb * 1.32, widthTo: limb * 1.05 },
-        { id: side + '-shin', kind: 'limb', side, from: knee, to: ankle, widthFrom: limb * 1.05, widthTo: limb * 0.82 },
-        { id: side + '-foot', kind: 'foot', side, from: ankle, to: toe, widthFrom: limb * 0.9, widthTo: limb * 0.72 }
+        { id: side + '-upper-arm', kind: 'limb', side, from: shoulder, to: elbow, widthFrom: limb * 1.45, widthTo: limb * 1.2 },
+        { id: side + '-fore-arm', kind: 'limb', side, from: elbow, to: wrist, widthFrom: limb * 1.2, widthTo: limb * 1 },
+        { id: side + '-hand', kind: 'hand', side, from: wrist, to: hand, widthFrom: limb * 1.08, widthTo: limb * 0.9 },
+        { id: side + '-thigh', kind: 'limb', side, from: hip, to: knee, widthFrom: limb * 2.05, widthTo: limb * 1.6 },
+        { id: side + '-shin', kind: 'limb', side, from: knee, to: ankle, widthFrom: limb * 1.6, widthTo: limb * 1.2 },
+        { id: side + '-foot', kind: 'foot', side, from: ankle, to: toe, widthFrom: limb * 1.35, widthTo: limb * 1.15 }
       );
     };
 
@@ -201,14 +201,29 @@
       return { ...seg, a, b, depth: (a.depth + b.depth) / 2 };
     });
 
+    // A foot points along the body's forward axis, so it projects to nothing in
+    // a frontal view. Giving it the shoe's standing height keeps it on screen at
+    // every yaw and lets it read as a shoe seen head-on.
+    const shoeRise = L('limb') * 0.62;
+    for (const part of parts) {
+      if (part.kind !== 'foot') continue;
+      part.b = { x: part.b.x, y: Math.max(part.b.y, part.a.y + shoeRise), depth: part.b.depth };
+    }
+
+    // Body depth: the torso is a box, not a plane, so its projected silhouette
+    // keeps width when the figure turns to profile.
+    const bodyDepth = proportion.bodyDepth ?? 0.6;
+    const support = (half) => Math.abs(half * cos) + Math.abs(half * bodyDepth * sin);
+    const shoulderSpan = support(shoulderHalf);
+    const hipSpan = support(hipHalf);
     const torso = {
       id: 'torso',
       kind: 'torso',
       depth: (screen.chest.depth + screen.pelvis.depth) / 2,
-      shoulderLeft: screen.leftShoulder,
-      shoulderRight: screen.rightShoulder,
-      hipLeft: screen.leftHip,
-      hipRight: screen.rightHip,
+      shoulderLeft: { x: screen.chest.x - shoulderSpan, y: screen.leftShoulder.y },
+      shoulderRight: { x: screen.chest.x + shoulderSpan, y: screen.rightShoulder.y },
+      hipLeft: { x: screen.pelvis.x - hipSpan, y: screen.leftHip.y },
+      hipRight: { x: screen.pelvis.x + hipSpan, y: screen.rightHip.y },
       chest: screen.chest,
       pelvis: screen.pelvis,
       taper: proportion.torsoTaper
@@ -233,6 +248,7 @@
     const xs = all.flatMap((p) => (p.kind === 'head' ? [p.center.x - p.radius, p.center.x + p.radius] : p.kind === 'torso' ? [p.shoulderLeft.x, p.shoulderRight.x, p.hipLeft.x, p.hipRight.x] : [p.a.x, p.b.x]));
     const ys = all.flatMap((p) => (p.kind === 'head' ? [p.center.y - p.radius * 1.35, p.center.y + p.radius] : p.kind === 'torso' ? [p.chest.y, p.pelvis.y] : [p.a.y, p.b.y]));
     const pad = L('limb') * 2.2;
+    const ground = Math.max(...parts.filter((p) => p.kind === 'foot').map((p) => p.b.y + p.widthTo * 0.5), screen.leftAnkle.y, screen.rightAnkle.y);
 
     return {
       proportion: opts.proportion || 'adult-average',
@@ -243,6 +259,7 @@
       parts: all,
       head,
       torso,
+      ground,
       bounds: { minX: Math.min(...xs) - pad, maxX: Math.max(...xs) + pad, minY: Math.min(...ys) - pad, maxY: Math.max(...ys) + pad }
     };
   }

@@ -43,7 +43,7 @@ container.innerHTML = scene.svg;
 | `paperStyle` | `clean-editorial`, `handmade-scrapbook`, `technical-notebook`, `bold-paper-collage`. |
 | `aspectRatio` | `16:9`, `1:1`, `9:16`. |
 | `seed` | Fixes the paper cut noise, so the same beat always cuts the same character. |
-| `staging.contentAnchor` | `{ x, depth }` of the thing being presented; defaults upstage on the side the script implies. |
+| `staging.contentAnchor` | `{ x, depth }` of the thing being presented; defaults to the side the script implies, level with the cast. |
 
 ## Orientation model
 
@@ -52,9 +52,12 @@ all eight axes are the same character rather than eight drawings:
 
 `front · three-quarter-left/right · profile-left/right · back-left/right · back`
 
-- `addressing` picks the target (`camera`, `content`, a cast index, an id or a role).
+- `addressing` picks the target (`camera`, `content`, `travel`, `exit`, a cast index, an id or a role).
+  Beats that move ("walks across", "heads out of frame") resolve to the direction
+  of travel rather than to a bystander or the viewer.
 - The yaw that faces that target is computed from stage geometry, then snapped
-  to an axis the chosen pose supports.
+  to an axis the chosen pose supports. A pose that cannot turn far enough is
+  replaced by one that can, so a character never explains to the wall.
 - Leftover turn goes to the head (±62°), which is how a character works at a
   surface upstage while glancing back at the viewer.
 - Parts are sorted by projected depth, so the far arm and far leg are occluded

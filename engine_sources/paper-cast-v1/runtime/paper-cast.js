@@ -70,11 +70,12 @@
     return Selector.select(request || {});
   }
 
-  function renderCharacter(member, request, frame) {
+  function renderCharacter(member, request, frame, crowd) {
     const req = request || {};
+    const share = 1 - Math.min(0.32, ((crowd || 1) - 1) * 0.11);
     const figure = Rig.build({
       proportion: member.proportion,
-      height: frame.height * frame.figureHeight,
+      height: frame.height * frame.figureHeight * share,
       view: member.view.viewAxis,
       pose: { ...member.poseAngles, head: { ...(member.poseAngles.head || {}), yaw: member.view.headYaw } }
     });
@@ -84,6 +85,36 @@
       seed: req.seed ? `${req.seed}:${member.id}` : member.id,
       accessibilityLabel: `${member.role} facing ${member.view.viewAxis}, ${member.pose}`
     });
+  }
+
+  /**
+   * Spaces members so their rendered silhouettes do not collide, then shrinks
+   * the whole line-up if the stage cannot hold it — a four-hander in 9:16 is
+   * laid out, not stacked on top of itself.
+   */
+  function spaceOut(placed, frame) {
+    const margin = frame.width * 0.03;
+    const sorted = [...placed].sort((a, b) => a.x - b.x);
+    for (let i = 1; i < sorted.length; i += 1) {
+      const gap = sorted[i - 1].halfWidth + sorted[i].halfWidth;
+      if (sorted[i].x - sorted[i - 1].x < gap) sorted[i].x = sorted[i - 1].x + gap;
+    }
+    if (!sorted.length) return placed;
+    const left = sorted[0].x - sorted[0].halfWidth;
+    const right = sorted[sorted.length - 1].x + sorted[sorted.length - 1].halfWidth;
+    const centre = frame.width / 2 - (left + right) / 2;
+    for (const item of sorted) item.x += centre;
+    const span = right - left;
+    const room = frame.width - margin * 2;
+    if (span > room) {
+      const shrink = room / span;
+      for (const item of sorted) {
+        item.x = frame.width / 2 + (item.x - frame.width / 2) * shrink;
+        item.scale *= shrink;
+        item.halfWidth *= shrink;
+      }
+    }
+    return placed;
   }
 
   /**
@@ -99,18 +130,28 @@
     const groundY = frame.height * frame.ground;
     const defs = [];
     const layers = [];
+    const crowd = Math.max(1, selection.cast.length);
 
     const members = selection.cast
-      .map((member) => ({ member, rendered: renderCharacter(member, req, frame) }))
-      .sort((a, b) => a.member.stage.depth - b.member.stage.depth);
+      .map((member) => {
+        const rendered = renderCharacter(member, req, frame, crowd);
+        const scale = 1 + member.stage.depth * 0.18;
+        return {
+          member,
+          rendered,
+          scale,
+          x: frame.width / 2 + member.stage.x * frame.width * 0.32,
+          halfWidth: (rendered.width * scale) / 2
+        };
+      });
+    spaceOut(members, frame);
+    members.sort((a, b) => a.member.stage.depth - b.member.stage.depth);
 
-    for (const { member, rendered } of members) {
-      const scale = round(1 + member.stage.depth * 0.18);
-      const x = round(frame.width / 2 + member.stage.x * frame.width * 0.32);
-      const lift = round(-rendered.bounds.maxY);
+    for (const { member, rendered, scale, x } of members) {
+      const lift = round(-rendered.ground);
       if (rendered.defs) defs.push(rendered.defs);
       layers.push(
-        `<g class="pc-stage-member" data-id="${member.id}" data-pose="${member.pose}" data-view-axis="${member.view.viewAxis}" data-head-axis="${Rig.nearestViewAxis(Rig.VIEW_AXES[member.view.viewAxis] + member.view.headYaw)}" data-addressing="${member.view.addressing}" transform="translate(${x} ${round(groundY)}) scale(${scale}) translate(0 ${lift})">${rendered.group}</g>`
+        `<g class="pc-stage-member" data-id="${member.id}" data-pose="${member.pose}" data-view-axis="${member.view.viewAxis}" data-head-axis="${Rig.nearestViewAxis(Rig.VIEW_AXES[member.view.viewAxis] + member.view.headYaw)}" data-addressing="${member.view.addressing}" transform="translate(${round(x)} ${round(groundY)}) scale(${round(scale)}) translate(0 ${lift})">${rendered.group}</g>`
       );
     }
 

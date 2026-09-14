@@ -273,12 +273,12 @@
     const grain = style.grain
       ? `<filter id="${grainId}"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="${style.grain}"/></feComponentTransfer><feComposite operator="in" in2="SourceGraphic"/></filter>`
       : '';
-    const shadow = `<ellipse class="pc-contact-shadow" cx="${round((figure.joints.leftToe.x + figure.joints.rightToe.x) / 2)}" cy="${round(Math.max(figure.joints.leftToe.y, figure.joints.rightToe.y) + 6)}" rx="${round(figure.height * 0.09)}" ry="${round(figure.height * 0.016)}" fill="#000" opacity="${style.shadow}"/>`;
+    const shadow = `<ellipse class="pc-contact-shadow" cx="${round((figure.joints.leftToe.x + figure.joints.rightToe.x) / 2)}" cy="${round(figure.ground)}" rx="${round(figure.height * 0.09)}" ry="${round(figure.height * 0.016)}" fill="#000" opacity="${style.shadow}"/>`;
 
     const body = `<g class="pc-figure" data-view-axis="${esc(figure.view.axis)}" data-head-axis="${esc(figure.view.headAxis)}">${shadow}${shapes.join('')}</g>`;
     const overlay = style.grain ? `<rect x="${round(b.minX)}" y="${round(b.minY)}" width="${round(width)}" height="${round(height)}" filter="url(#${grainId})" fill="${look.ink}" opacity="0.35" pointer-events="none"/>` : '';
     const svg = `<svg class="nex-paper-cast" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-label="${esc(opts.accessibilityLabel || 'Paper cast character')}"><defs>${grain}</defs>${body}${overlay}</svg>`;
-    return { svg, group: body, defs: grain, viewBox, width, height, bounds: b, figure };
+    return { svg, group: body, defs: grain, viewBox, width, height, bounds: b, ground: figure.ground, figure };
   }
 
   function renderPose(options) {

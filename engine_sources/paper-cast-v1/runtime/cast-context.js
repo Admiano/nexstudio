@@ -78,6 +78,13 @@
     { target: 'peer', cues: ['to her colleague', 'to his colleague', 'to the customer', 'to the student', 'each other', 'the other', 'to them'] }
   ];
 
+  /**
+   * Nouns that name a person on screen. Cast size counts these rather than
+   * matched role cues, because cue vocabularies overlap ("reporter" contains
+   * "report", an analyst cue) and would otherwise invent a second character.
+   */
+  const PERSON_NOUNS = ['presenter', 'host', 'narrator', 'speaker', 'teacher', 'tutor', 'lecturer', 'student', 'pupil', 'learner', 'child', 'kid', 'toddler', 'executive', 'ceo', 'director', 'manager', 'colleague', 'analyst', 'technician', 'engineer', 'nurse', 'doctor', 'clinician', 'patient', 'builder', 'parent', 'mum', 'mom', 'dad', 'customer', 'shopper', 'buyer', 'client', 'agent', 'salesperson', 'friend', 'teammate', 'mentor', 'coach', 'advisor', 'reporter', 'journalist', 'interviewer', 'designer', 'creator', 'developer', 'operator', 'assistant'];
+
   const ENERGY_CUES = {
     high: ['rush', 'fast', 'burst', 'excited', 'races', 'suddenly', 'explodes', 'celebrat', '!'],
     low: ['calm', 'slowly', 'quietly', 'gently', 'reflect', 'pause', 'steady']
@@ -90,6 +97,11 @@
   };
 
   const count = (text, cues) => cues.reduce((total, cue) => total + (text.includes(cue) ? 1 : 0), 0);
+
+  const firstIndex = (text, cues) => cues.reduce((best, cue) => {
+    const at = text.indexOf(cue);
+    return at >= 0 && at < best ? at : best;
+  }, Infinity);
 
   function rank(text, table, limit) {
     const scored = Object.entries(table)
@@ -108,7 +120,12 @@
     const text = raw.toLowerCase();
     const h = hints || {};
 
-    const roles = rank(text, ROLE_CUES).map((entry) => entry.key);
+    // Roles keep the order they are mentioned in, so slot 0 is the character
+    // the beat opens on rather than whichever cue vocabulary matched loudest.
+    const roles = rank(text, ROLE_CUES)
+      .map((entry) => ({ ...entry, at: firstIndex(text, ROLE_CUES[entry.key]) }))
+      .sort((a, b) => a.at - b.at)
+      .map((entry) => entry.key);
     const intents = rank(text, INTENT_CUES).map((entry) => entry.key);
     const actions = ACTION_CUES.map((entry) => ({ pose: entry.pose, score: count(text, entry.cues) }))
       .filter((entry) => entry.score > 0)
@@ -124,10 +141,12 @@
     const low = count(text, ENERGY_CUES.low);
 
     const directionCue = /\b(left|right)\b/.exec(text);
-    const speakerCount = Math.max(
-      roles.length >= 2 ? 2 : 1,
+    const named = PERSON_NOUNS.filter((noun) => new RegExp(`\\b${noun}s?\\b`).test(text)).length;
+    const speakerCount = Math.min(4, Math.max(
+      named,
       count(text, ['each other', 'they both', 'the two of them', 'together']) ? 2 : 1
-    );
+    ));
+    const travels = count(text, ['walks', 'walking', 'strides', 'moves across', 'heads to', 'heads out', 'crosses', 'runs', 'travels', 'exits', 'leaves', 'walks off']) > 0;
 
     return {
       script: raw,
@@ -142,6 +161,7 @@
       ageBand: h.ageBand || ageBands[0] || null,
       motionEnergy: h.motionEnergy || (high > low ? 'high' : low > high ? 'low' : 'medium'),
       direction: h.direction || (directionCue ? directionCue[1] : null),
+      travelling: h.travelling ?? travels,
       castSize: h.castSize || speakerCount,
       useCase: h.useCase || null,
       paperStyle: h.paperStyle || null,
