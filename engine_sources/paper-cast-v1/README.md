@@ -21,25 +21,28 @@ runtime/cast-context.js     script → role / intent / action / who is being add
 runtime/cast-selector.js    ranking + staging: positions, body yaw, head yaw
 runtime/paper-cast.js       public API (plan, renderScene, renderFigure, analyze, search)
 runtime/cast-registry.js    generated browser registry
+runtime/cast-performance.js deterministic per-time performance: breathing, gait, travel
+paperbook/                  paper-motion component, styles and the 30-second reel
 cast-explorer.html          type a beat, see it staged; roster, poses and orientation sweep
-tools/                      manifest build, validation suite, review contact sheet
+tools/                      manifest build, validation suite, contact sheet, reel capture
 ```
 
 ## Use
 
 ```bash
 node tools/build-cast-manifests.js   # regenerate manifests, facets and registry
-node tools/test-paper-cast.js        # 16 checks: rig, depth order, staging, render sweep
+node tools/test-paper-cast.js        # 27 checks: rig, depth order, staging, timing, render
 node tools/render-contact-sheet.js   # .review/contact-sheet.html for visual review
 ```
 
 ```js
-const scene = require('./runtime/paper-cast.js').init().renderScene({
+const scene = require('./runtime/paper-cast.js').renderScene({
   script: 'The customer asks the support agent a question and they talk to each other.'
 });
 ```
 
-See [CAST_API.md](CAST_API.md) for the request shape and the orientation model.
+See [CAST_API.md](CAST_API.md) for the request shape and the orientation model, and
+[INSTALL.md](INSTALL.md) for installing into paper-motion and running the reel.
 
 ## Why not NexStick V5.1
 
