@@ -95,13 +95,29 @@
     const hl = torso.hipLeft;
     const hr = torso.hipRight;
     const widen = (a, b, k) => ({ x: a.x + (a.x - b.x) * k, y: a.y + (a.y - b.y) * k });
+    const top = widen(sl, sr, (spread - 1) * 0.5);
+    const topRight = widen(sr, sl, (spread - 1) * 0.5);
+    const cx = torso.chest.x;
+    const run = torso.pelvis.y - torso.chest.y;
+    const hemY = (p) => p.y + run * (garment.length ?? 0.18);
+    const lean = (p, k) => cx + (p.x - cx) * k;
+    const hemLeft = { x: lean(hl, hem), y: hemY(hl) };
+    const hemRight = { x: lean(hr, hem), y: hemY(hr) };
+    // Sloped shoulders, an armhole and a waist: a garment outline rather than a
+    // rectangle, which matters now that the figure carries one merged contour.
     const points = [
-      widen(sl, sr, (spread - 1) * 0.5),
-      widen(sr, sl, (spread - 1) * 0.5),
-      { x: hr.x + (hr.x - hl.x) * (hem - 1) * 0.5, y: hr.y + (torso.pelvis.y - torso.chest.y) * (garment.length ?? 0.18) },
-      { x: hl.x + (hl.x - hr.x) * (hem - 1) * 0.5, y: hl.y + (torso.pelvis.y - torso.chest.y) * (garment.length ?? 0.18) }
+      { x: lean(top, 0.42), y: top.y - run * 0.05 },
+      { x: lean(topRight, 0.42), y: topRight.y - run * 0.05 },
+      topRight,
+      { x: lean(topRight, 0.96), y: topRight.y + run * 0.26 },
+      { x: lean(hemRight, 1.04), y: torso.chest.y + run * 0.74 },
+      hemRight,
+      hemLeft,
+      { x: lean(hemLeft, 1.04), y: torso.chest.y + run * 0.74 },
+      { x: lean(top, 0.96), y: top.y + run * 0.26 },
+      top
     ];
-    return cutPolygon(points, rnd, style, Math.abs(sr.x - sl.x) * 0.12 + 2);
+    return cutPolygon(points, rnd, style, Math.abs(sr.x - sl.x) * 0.1 + 2);
   }
 
   /**
@@ -207,7 +223,7 @@
       skin: l.skin || PALETTE.skin[2],
       skinShade: mixHex(l.skin || PALETTE.skin[2], '#000000', 0.16),
       hair: { color: l.hair?.color || PALETTE.hair[0], length: l.hair?.length ?? 0.3 },
-      top: { color: l.top?.color || '#4f6d7a', spread: l.top?.spread ?? 1.08, hem: l.top?.hem ?? 1.02, length: l.top?.length ?? 0.24, sleeve: l.top?.sleeve ?? 0.55 },
+      top: { color: l.top?.color || '#4f6d7a', spread: l.top?.spread ?? 1.02, hem: l.top?.hem ?? 0.94, length: l.top?.length ?? 0.1, sleeve: l.top?.sleeve ?? 0.55 },
       bottom: { color: l.bottom?.color || '#33404a', length: l.bottom?.length ?? 1, flare: l.bottom?.flare ?? 1 },
       shoes: { color: l.shoes?.color || '#2b2b2b' },
       accent: l.accent || '#d98032',
@@ -226,16 +242,20 @@
     const rnd = seeded(seed);
     const depths = figure.parts.map((p) => p.depth);
     const span = Math.max(1, Math.max(...depths.map(Math.abs)));
-    const shapes = [];
+    // Body pieces are collected rather than emitted: they are stroked once as a
+    // merged silhouette and then re-filled, so the figure reads as one cut sheet
+    // of paper instead of separately outlined components.
+    const solids = [];
+    const details = [];
+    const solid = (cls, geometry, fill) => solids.push({ cls, geometry, fill });
 
     for (const part of figure.parts) {
       const shade = shadeFor(part.depth, span);
       const darken = (hex) => mixHex(hex, '#1a1614', shade * 0.34);
-      const stroke = `stroke="${look.ink}" stroke-width="${round(style.outline)}" stroke-linejoin="round"`;
       if (part.kind === 'torso') {
-        shapes.push(`<path class="pc-torso" d="${torsoPath(part, rnd, style, look.top)}" fill="${look.top.color}" ${stroke}/>`);
+        solid('pc-torso', `<path d="${torsoPath(part, rnd, style, look.top)}"`, look.top.color);
         const pocket = { x: (part.hipLeft.x + part.hipRight.x) / 2, y: (part.chest.y + part.pelvis.y) / 2 };
-        shapes.push(`<path class="pc-torso-fold" d="M ${round(pocket.x)} ${round(part.chest.y + 6)} L ${round(pocket.x)} ${round(pocket.y)}" stroke="${mixHex(look.top.color, '#000000', 0.25)}" stroke-width="${round(style.outline * 0.6)}" fill="none" stroke-linecap="round"/>`);
+        details.push(`<path class="pc-torso-fold" d="M ${round(pocket.x)} ${round(part.chest.y + 6)} L ${round(pocket.x)} ${round(pocket.y)}" stroke="${mixHex(look.top.color, '#000000', 0.25)}" stroke-width="${round(style.outline * 0.6)}" fill="none" stroke-linecap="round"/>`);
         continue;
       }
       if (part.kind === 'head') {
@@ -243,12 +263,12 @@
         const c = part.center;
         const hair = hairShapes(part, rnd, style, look.hair);
         const neckTop = { x: c.x, y: c.y + r * 0.95 };
-        shapes.push(`<path class="pc-neck" d="${strip({ a: neckTop, b: part.neck, widthFrom: r * 0.52, widthTo: r * 0.62 }, rnd, style, 1)}" fill="${mixHex(look.skin, '#000000', 0.12)}" ${stroke}/>`);
-        for (const mass of hair.masses) shapes.push(`<path class="pc-hair-back" d="${mass}" fill="${mixHex(look.hair.color, '#000000', 0.18)}" ${stroke}/>`);
-        shapes.push(`<ellipse class="pc-head" cx="${round(c.x)}" cy="${round(c.y)}" rx="${round(r * 0.95)}" ry="${round(r * 1.08)}" fill="${look.skin}" ${stroke}/>`);
-        shapes.push(nosePath(part, look));
-        shapes.push(`<path class="pc-hair" d="${hair.cap}" fill="${look.hair.color}" ${stroke}/>`);
-        shapes.push(facePath(part, look));
+        solid('pc-neck', `<path d="${strip({ a: neckTop, b: part.neck, widthFrom: r * 0.52, widthTo: r * 0.62 }, rnd, style, 1)}"`, mixHex(look.skin, '#000000', 0.12));
+        for (const mass of hair.masses) solid('pc-hair-back', `<path d="${mass}"`, mixHex(look.hair.color, '#000000', 0.18));
+        solid('pc-head', `<ellipse cx="${round(c.x)}" cy="${round(c.y)}" rx="${round(r * 0.95)}" ry="${round(r * 1.08)}"`, look.skin);
+        details.push(nosePath(part, look));
+        solid('pc-hair', `<path d="${hair.cap}"`, look.hair.color);
+        details.push(facePath(part, look));
         continue;
       }
       const isLeg = /thigh|shin/.test(part.id);
@@ -258,12 +278,20 @@
       const isForeArm = /fore-arm/.test(part.id);
       const base = isFoot ? look.shoes.color : isHand ? look.skin : isLeg ? look.bottom.color : isForeArm && look.top.sleeve < 0.6 ? look.skin : look.top.color;
       const widthScale = isLeg ? look.bottom.flare : isUpperArm ? look.top.spread * 0.96 : 1;
-      shapes.push(`<path class="pc-${part.kind} pc-${part.side}" d="${strip(part, rnd, style, widthScale)}" fill="${darken(base)}" ${stroke}/>`);
+      // Without ink seams, a limb crossing the torso needs its own tonal step to
+      // stay readable.
+      const relief = base === look.top.color ? mixHex(base, '#1a1614', 0.16) : base;
+      solid(`pc-${part.kind} pc-${part.side}`, `<path d="${strip(part, rnd, style, widthScale)}"`, darken(relief));
       if (isUpperArm && look.top.sleeve > 0) {
-        const sleeve = { ...part, b: { x: part.a.x + (part.b.x - part.a.x) * look.top.sleeve, y: part.a.y + (part.b.y - part.a.y) * look.top.sleeve }, widthTo: part.widthFrom * 1.02 };
-        shapes.push(`<path class="pc-sleeve" d="${strip(sleeve, rnd, style, look.top.spread * 1.08)}" fill="${darken(look.top.color)}" ${stroke}/>`);
+        const sleeve = { ...part, b: { x: part.a.x + (part.b.x - part.a.x) * look.top.sleeve, y: part.a.y + (part.b.y - part.a.y) * look.top.sleeve }, widthTo: part.widthFrom };
+        solid('pc-sleeve', `<path d="${strip(sleeve, rnd, style, look.top.spread)}"`, darken(look.top.color));
       }
     }
+
+    const cut = `stroke="${look.ink}" stroke-width="${round(style.outline * 2)}" stroke-linejoin="round" stroke-linecap="round" fill="${look.ink}"`;
+    const silhouette = solids.map((s) => `${s.geometry} class="pc-cut" ${cut}/>`).join('');
+    const fills = solids.map((s) => `${s.geometry} class="${s.cls}" fill="${s.fill}" stroke="${s.fill}" stroke-width="${round(style.outline * 0.9)}" stroke-linejoin="round"/>`).join('');
+    const shapes = [silhouette, fills, ...details];
 
     const b = figure.bounds;
     const width = Math.max(1, b.maxX - b.minX);

@@ -63,6 +63,15 @@ all eight axes are the same character rather than eight drawings:
 - Parts are sorted by projected depth, so the far arm and far leg are occluded
   by the torso and the far eye drops out of a turned face.
 
+## Cut-out rendering
+
+Body pieces are never outlined individually. Every solid is stroked once as a
+thick ink pass, then the same shapes are re-filled on top, so only the outer
+contour survives and the figure reads as one cut sheet rather than assembled
+components. Internal separation comes from tone: depth shading plus a step
+between a limb and the garment behind it. Faces, folds and other ink details
+are drawn after both passes.
+
 ## Other entry points
 
 | Call | Use |

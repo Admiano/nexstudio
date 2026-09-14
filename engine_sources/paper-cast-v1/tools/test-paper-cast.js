@@ -237,6 +237,16 @@ test('poses are chosen so the body can actually face what it addresses', () => {
   }
 });
 
+test('the figure carries one merged contour instead of per-part outlines', () => {
+  const svg = Renderer.renderPose({ proportion: 'adult-average', height: 400, view: 'three-quarter-right', pose: {} }).svg;
+  const cuts = [...svg.matchAll(/class="pc-cut"/g)].length;
+  assert.ok(cuts > 8, `expected a silhouette pass, found ${cuts} cut shapes`);
+  const ink = Renderer.resolveLook({}).ink;
+  for (const el of svg.match(/<(?:path|ellipse)[^>]*class="pc-(?:torso|head|neck|hair|limb|foot|hand|sleeve)[^"]*"[^>]*>/g) || []) {
+    assert.ok(!el.includes(`stroke="${ink}"`), `body fill still draws its own ink seam: ${el.slice(0, 80)}`);
+  }
+});
+
 const failed = results.filter((r) => !r.ok);
 for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `\n      ${r.error}`}`);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);
