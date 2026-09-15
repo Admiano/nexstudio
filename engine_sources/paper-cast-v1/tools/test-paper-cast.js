@@ -278,6 +278,129 @@ test('a standing beat breathes without sliding off its mark', () => {
   assert.ok(new Set(tilts.map((t) => Math.round(t * 100))).size > 1, 'a standing figure must still breathe');
 });
 
+// ---------------------------------------------------------------------------
+// Parametric bodies, contact goals, relations and the paperbook skin.
+// ---------------------------------------------------------------------------
+
+const Body = require(path.join(ROOT, 'runtime', 'cast-body.js'));
+const Contact = require(path.join(ROOT, 'runtime', 'cast-contact.js'));
+const Relation = require(path.join(ROOT, 'runtime', 'cast-relation.js'));
+const Paperbook = require(path.join(ROOT, 'runtime', 'paperbook-figure.js'));
+
+test('an infant is not a shrunken adult: head, limbs and stature all change shape', () => {
+  const infant = Body.body('infant');
+  const toddler = Body.body('toddler');
+  const adult = Body.body({ age: 30 });
+  const headShare = (b) => b.head / b.stature;
+  assert.ok(headShare(infant) > headShare(toddler), 'infants are the most top-heavy');
+  assert.ok(headShare(toddler) > headShare(adult) * 1.5, 'a toddler head reads much larger than an adult head');
+  assert.ok(infant.stature < toddler.stature && toddler.stature < adult.stature);
+  // Lengths are fractions of the body's own height, so this is shape, not size.
+  assert.ok(infant.thigh < adult.thigh * 0.8, 'an infant has short legs for its own height');
+});
+
+test('age is continuous, not a set of presets', () => {
+  const heights = [0.5, 2, 5, 9, 14, 30, 74].map((age) => Body.heightFor({ age }, 1000));
+  for (let i = 1; i < heights.length - 1; i += 1) assert.ok(heights[i] > heights[i - 1], `age ${i} should be taller`);
+  const between = Body.body({ age: 2.5 });
+  const two = Body.body({ age: 2 });
+  const three = Body.body({ age: 3 });
+  assert.ok(between.stature > two.stature && between.stature < three.stature, 'in-between ages interpolate');
+  assert.strictEqual(Body.ageBandOf(1.4), 'toddler');
+  assert.strictEqual(Body.ageBandOf(0.4), 'infant');
+});
+
+test('a build changes mass without changing the age read', () => {
+  const slight = Body.body({ age: 30, build: 'slight' });
+  const broad = Body.body({ age: 30, build: 'broad' });
+  assert.ok(broad.shoulderWidth > slight.shoulderWidth && broad.bodyDepth > slight.bodyDepth);
+  assert.strictEqual(Math.round(broad.head * 1000), Math.round(slight.head * 1000));
+});
+
+test('a hand goal is reached: the character grips the prop instead of miming it', () => {
+  const proportion = Body.body({ age: 32 });
+  const oar = { id: 'oar', anchors: { grip: { x: 0.06, y: 0.12, z: 0.26 } } };
+  const solved = Contact.solve({
+    proportion,
+    goals: [{ effector: 'rightHand', at: Contact.anchor(oar, 'grip') }]
+  });
+  assert.ok(solved.reached, `hand missed the oar by ${solved.residual}`);
+  const joints = Contact.joints(proportion, solved.pose);
+  const d = Math.hypot(joints.rightHand.x - 0.06, joints.rightHand.y - 0.12, joints.rightHand.z - 0.26);
+  assert.ok(d < 0.02, `solved pose does not put the hand on the anchor (${d})`);
+});
+
+test('a foot goal plants the foot where the ground is, and unreachable goals say so', () => {
+  const proportion = Body.body({ age: 30 });
+  // Goals are pelvis-relative fractions of height, and the solver bends joints
+  // rather than moving the root, so a step forward stays inside the leg's reach.
+  const mark = { x: 0.09, y: -0.44, z: 0.17 };
+  const step = Contact.solve({ proportion, goals: [{ effector: 'rightToe', at: mark }] });
+  assert.ok(step.reached, `foot missed its mark by ${step.residual}`);
+  const toe = Contact.joints(proportion, step.pose).rightToe;
+  assert.ok(Math.hypot(toe.x - mark.x, toe.y - mark.y, toe.z - mark.z) < 0.02, 'the foot must land on the mark');
+  assert.ok(step.pose.legRight.ankle.tilt !== 0, 'the ankle angles into the ground contact');
+  const far = Contact.solve({ proportion, goals: [{ effector: 'rightHand', at: { x: 3, y: 2, z: 3 } }] });
+  assert.ok(!far.reached && far.residual > 0.5, 'an out-of-reach goal must report failure, not fake success');
+});
+
+test('solving is deterministic and leaves untouched limbs alone', () => {
+  const proportion = Body.body({ age: 30 });
+  const goals = [{ effector: 'leftHand', at: { x: -0.08, y: 0.2, z: 0.24 } }];
+  const a = Contact.solve({ proportion, goals });
+  const b = Contact.solve({ proportion, goals });
+  assert.deepStrictEqual(a.pose, b.pose);
+  assert.deepStrictEqual(a.pose.legRight, Rig.mergePose({}).legRight, 'a hand goal must not rearrange the legs');
+});
+
+test('carry-on-back holds the pair together: child above the hips, hands in contact', () => {
+  const rel = Relation.relate('carry-on-back', { carrier: { body: { age: 31 } }, carried: { body: { age: 3 } }, height: 900 });
+  assert.strictEqual(rel.participants.length, 2);
+  const [carrier, child] = rel.participants;
+  assert.ok(child.height < carrier.height * 0.6, 'the child must be drawn as a child');
+  assert.ok(child.origin.y > 0.3, 'the child rides on the back, it does not stand on the floor');
+  assert.ok(child.origin.z < carrier.origin.z, 'the child is behind the carrier');
+  assert.ok(rel.residual < 0.05, `contacts drifted by ${rel.residual}`);
+  assert.ok(rel.preferredViews.length, 'a stacked pair must tell the compositor which views read');
+});
+
+test('support-walk puts both hands on the same point and the toddler mid-step', () => {
+  const rel = Relation.relate('support-walk', { adult: { body: { age: 34 } }, toddler: { body: { age: 1.3 } }, height: 900 });
+  const [adult, toddler] = rel.participants;
+  assert.ok(rel.residual < 0.05, `the hands did not meet (${rel.residual})`);
+  const contact = rel.contacts[0];
+  assert.ok(contact.between.some((e) => e.startsWith('adult')) && contact.between.some((e) => e.startsWith('toddler')));
+  const joints = Contact.joints(toddler.proportion, toddler.pose);
+  assert.ok(Math.abs(joints.leftToe.z - joints.rightToe.z) > 0.04, 'one foot must be ahead of the other');
+  assert.ok(adult.pose.spine.tilt > 4, 'the adult has to stoop to hold a toddler hand');
+});
+
+test('the paperbook renderer draws a valid, deterministic, patterned figure', () => {
+  const look = { skin: '#b07f56', top: { color: '#7ba3bd' }, bottom: { garment: 'wrapper', color: '#e2d6bb', pattern: 'diamond', patternColor: '#b6552f' } };
+  const svg = Paperbook.renderPose({ proportion: Body.body({ age: 30 }), height: 900, view: 'three-quarter-right', look, id: 'a' }).svg;
+  assert.ok(svg.startsWith('<svg') && svg.endsWith('</svg>'));
+  assert.ok(!/NaN|undefined/.test(svg), 'the figure contains an unresolved coordinate');
+  assert.ok(svg.includes('<pattern'), 'a patterned wrapper must emit its pattern');
+  assert.strictEqual(svg, Paperbook.renderPose({ proportion: Body.body({ age: 30 }), height: 900, view: 'three-quarter-right', look, id: 'a' }).svg);
+});
+
+test('a relation renders as one interleaved illustration, not two pasted figures', () => {
+  const rel = Relation.relate('carry-on-back', { carrier: { body: { age: 31 }, yaw: 72 }, carried: { body: { age: 3 }, yaw: 72 }, height: 900 });
+  const scene = Paperbook.renderRelation(rel, {});
+  assert.ok(!/NaN|undefined/.test(scene.svg));
+  const ids = [...scene.svg.matchAll(/data-id="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(ids.includes('carrier') && ids.includes('carried'), 'both bodies must be drawn');
+  const order = ids.join(' ');
+  assert.ok(/carried .*carrier|carrier .*carried/.test(order));
+  assert.ok(new Set(ids).size === 2 && ids.length > 4, 'bodies must be split into depth-sorted parts');
+});
+
+test('the public API exposes the artist, not just the catalogue', () => {
+  const scene = Cast.illustrate('support-walk', { adult: { body: { age: 30 } }, toddler: { body: { age: 1.4 } }, height: 800 });
+  assert.ok(scene.svg.includes('<svg'));
+  assert.ok(Cast.body('toddler').stature < 0.6);
+});
+
 const failed = results.filter((r) => !r.ok);
 for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `\n      ${r.error}`}`);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);
