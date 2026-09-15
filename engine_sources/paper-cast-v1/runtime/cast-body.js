@@ -56,7 +56,7 @@
     }
   ];
 
-  /** Build shifts widths and mass, never age. */
+  /** Build shifts frame width, never age. Soft mass is a separate axis. */
   const BUILDS = {
     slight: { widths: 0.9, limb: 0.86, depth: 0.94, taper: 0.93, stature: 1.01 },
     average: { widths: 1, limb: 1, depth: 1, taper: 1, stature: 1 },
@@ -72,6 +72,7 @@
     'adult-broad': { age: 34, build: 'broad' },
     'adult-slight': { age: 27, build: 'slight' },
     'adult-tall': { age: 30, build: 'tall' },
+    'adult-heavy': { age: 40, build: 'average', mass: 0.8 },
     teen: { age: 14, build: 'slight' },
     child: { age: 7, build: 'average' },
     senior: { age: 70, build: 'average' },
@@ -100,7 +101,7 @@
   }
 
   /**
-   * @param {object|string} spec `{ age, build, stature }`, an age band, or a preset name
+   * @param {object|string} spec `{ age, build, mass, stature }`, an age band, or a preset name
    * @returns {object} rig proportions plus `stature` (height relative to an adult)
    */
   function body(spec) {
@@ -113,6 +114,18 @@
     out.limb *= build.limb;
     out.bodyDepth = clamp(out.bodyDepth * build.depth, 0.3, 0.95);
     out.torsoTaper = clamp(out.torsoTaper * build.taper, 0.6, 1.2);
+
+    // Mass is its own axis because a heavy body is not a broad one: a broad
+    // frame is shoulders and limbs, weight is carried at the waist. Widening
+    // `build` alone gives a thicker athlete and never a heavy person, so mass
+    // drives the waist and the body's depth and leaves the frame alone.
+    const mass = clamp(typeof s.mass === 'number' ? s.mass : 0, 0, 1);
+    out.waist = 1 + mass * 0.6;
+    out.bodyDepth = clamp(out.bodyDepth * (1 + mass * 0.42), 0.3, 1.1);
+    out.pelvisWidth *= 1 + mass * 0.22;
+    out.limb *= 1 + mass * 0.3;
+    out.torsoTaper = clamp(out.torsoTaper * (1 + mass * 0.16), 0.6, 1.3);
+    out.mass = mass;
     out.age = age;
     out.build = s.build && BUILDS[s.build] ? s.build : 'average';
     out.stature = clamp((typeof s.stature === 'number' ? s.stature : stature) * build.stature, 0.15, 1.35);
