@@ -328,33 +328,41 @@ window.NexEditorial = (() => {
     const hold = Number(options.hold ?? 0.35);
     const crossfade = Number(options.crossfade ?? (RULES().shots || {}).crossfade ?? 0.28);
 
+    // How long a shot's type takes to arrive, and the handover window that
+    // covers it: the outgoing shot stays under the incoming one until the
+    // incoming words are actually on the paper, so no instant reads as blank.
+    const typeIn = (shot) => Math.min(1.6, shot.duration * 0.55);
+    const handover = (i) => {
+      if (i <= 0 || i >= shots.length) return 0;
+      const incoming = shots[i].shot;
+      const outgoing = shots[i - 1].shot;
+      return Math.min(
+        Math.max(crossfade, typeIn(incoming) * 0.75),
+        incoming.duration * 0.45,
+        outgoing.duration * 0.5
+      );
+    };
+
     shots.forEach((built, i) => {
       const { shot, scene } = built;
       const start = shot.start;
       const end = shot.start + shot.duration;
       tl.set(scene, { opacity: 0, pointerEvents: 'none' }, 0);
-      const entry = i === 0 ? 0 : Math.min(crossfade, shot.duration * 0.4);
-      // The incoming card rises over the outgoing one rather than covering it
-      // blank: while its own words animate in, the shot behind it is still
-      // readable, so no instant of the film is empty.
+      const entry = handover(i);
       if (entry) tl.fromTo(scene, { opacity: 0 }, { opacity: 1, duration: entry, ease: 'none' }, start);
       else tl.set(scene, { opacity: 1 }, start);
-      // The outgoing shot holds under the incoming one while its type arrives,
-      // so the boundary itself never lands on an empty frame. The last shot
-      // holds to the end.
-      if (i < shots.length - 1) {
-        const overlap = Math.min(crossfade, shots[i + 1].shot.duration * 0.4);
-        tl.to(scene, { opacity: 0, duration: overlap, ease: 'none' }, end);
-      }
+      // The last shot holds to the end of the film.
+      const exit = handover(i + 1);
+      if (i < shots.length - 1) tl.to(scene, { opacity: 0, duration: exit, ease: 'none' }, end);
 
       const typeTl = window.NexTypography.animate(built.typeNode, {
-        duration: Math.min(1.6, shot.duration * 0.55),
+        duration: typeIn(shot),
         energy: built.typeNode.dataset.energy,
         // The card itself is present from the first frame of its shot; only its
         // words animate in.
         visibleStart: true
       });
-      tl.addUpdate(start, Math.min(1.6, shot.duration * 0.55), (p) => typeTl.progress(p));
+      tl.addUpdate(start, typeIn(shot), (p) => typeTl.progress(p));
 
       if (built.icons) {
         [...built.icons.children].forEach((node, i) => {
