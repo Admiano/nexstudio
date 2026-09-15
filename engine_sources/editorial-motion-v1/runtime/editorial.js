@@ -150,6 +150,40 @@ window.NexEditorial = (() => {
     node.classList.add('ed-empty');
   }
 
+  /** Width of the glyphs themselves, not of the block they sit in. */
+  function inkWidth(node) {
+    const boxes = node.children.length
+      ? [...node.children].map((child) => child.getBoundingClientRect())
+      : (() => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return [...range.getClientRects()];
+      })();
+    if (!boxes.length) return 0;
+    const left = Math.min(...boxes.map((b) => b.left));
+    const right = Math.max(...boxes.map((b) => b.right));
+    return right - left;
+  }
+
+  /**
+   * The vendored fitter measures scrollWidth, which a clipped inline-block word
+   * can hide. Measuring the glyphs directly catches the last few pixels of a
+   * long word running past the card edge.
+   */
+  function containLines(scene) {
+    scene.querySelectorAll('.ed-type .type-main, .ed-type .type-body, .ed-type .type-meta')
+      .forEach((node) => {
+        if (!node.textContent.trim()) return;
+        let size = parseFloat(getComputedStyle(node).fontSize) || 24;
+        let guard = 0;
+        while (size > 9 && inkWidth(node) > node.clientWidth - 2 && guard < 200) {
+          size *= 0.97;
+          node.style.fontSize = size + 'px';
+          guard += 1;
+        }
+      });
+  }
+
   function placeRegion(node, region) {
     node.style.left = (region.x * 100) + '%';
     node.style.top = (region.y * 100) + '%';
@@ -253,7 +287,12 @@ window.NexEditorial = (() => {
     host.__editorialShots = shots;
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     const frameHeight = host.getBoundingClientRect().height;
-    if (frameHeight) shots.forEach(({ scene }) => enforceReadableCopy(scene, frameHeight));
+    if (frameHeight) {
+      shots.forEach(({ scene }) => {
+        enforceReadableCopy(scene, frameHeight);
+        containLines(scene);
+      });
+    }
     return host;
   }
 
@@ -275,7 +314,12 @@ window.NexEditorial = (() => {
       const start = shot.start;
       const end = shot.start + shot.duration;
       tl.set(scene, { opacity: 0, pointerEvents: 'none' }, 0);
-      tl.set(scene, { opacity: 1 }, start);
+      const entry = i === 0 ? 0 : Math.min(crossfade, shot.duration * 0.4);
+      // The incoming card rises over the outgoing one rather than covering it
+      // blank: while its own words animate in, the shot behind it is still
+      // readable, so no instant of the film is empty.
+      if (entry) tl.fromTo(scene, { opacity: 0 }, { opacity: 1, duration: entry, ease: 'none' }, start);
+      else tl.set(scene, { opacity: 1 }, start);
       // The outgoing shot holds under the incoming one while its type arrives,
       // so the boundary itself never lands on an empty frame. The last shot
       // holds to the end.
