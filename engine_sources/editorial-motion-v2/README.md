@@ -1,6 +1,8 @@
-# Editorial Motion v2
+# Editorial Motion v3
 
-Text-led editorial films, authored natively for 9:16, 1:1 and 16:9.
+Text-led editorial films with script-contextual illustration, authored natively for 9:16, 1:1
+and 16:9. Monochrome ink on paper with one brand accent reserved for state changes.
+Setup and operating instructions: `INSTALL.md`.
 
 ```
 NexMind P8 treatment decision (structured, per beat)
@@ -13,9 +15,10 @@ NexMind P8 treatment decision (structured, per beat)
 Authority boundaries (see `EXECUTION_AUTHORITY.json`):
 
 - **P8 owns creative direction.** The treatment names, per beat, the dominant layer
-  (`TEXT | EVIDENCE | FIGURE | DATA | QUIET`), the reference pattern, the display copy
-  (never rewritten), promoted words / replacement groups, and any figure, media or data
-  directive with its justification.
+  (`TEXT | ILLUSTRATION | HYBRID | EVIDENCE | FIGURE | DATA | QUIET`), the reference pattern,
+  the display copy (never rewritten), stressed words / replacement groups, the illustration
+  program (form, entities, relations, word-anchored operations, carry-over) and any figure,
+  media or data directive with its justification.
 - **The compiler realises decisions.** It never reads script wording to route layout,
   motif, icon, figure or sound. Anything outside the bounded vocabulary raises a coded
   `TreatmentError` that P8 must replan; there is no house fallback.
@@ -26,25 +29,26 @@ Authority boundaries (see `EXECUTION_AUTHORITY.json`):
 
 | Path | What |
 | --- | --- |
-| `compiler/editorial_plan_compiler/` | Treatment contracts, timing, type fitting, figures, sound binding, voice, plan compiler, JSON schema generator |
+| `compiler/editorial_plan_compiler/` | Treatment contracts, timing, type fitting, illustration solver (`illustration.py`), figures, sound binding, voice, plan compiler, JSON schema generator |
+| `assets/illustration/` | AEV1 icon bank + `registry.json` (path, sha256, licence per `asset_ref`); rebuilt by `tools/build_illustration_registry.py` |
 | `compiler/editorial_plan_compiler/authorities/` | Bundle planning authorities vendored from `EDITORIAL_TEXT_LED_BUNDLE_SOURCE.zip` with `AUTHORITY_PROVENANCE.json` (source/vendored hashes and the exact modification per file) |
 | `runtime/editorial-runtime.js` + `compositions/player.html` | Plan executor and seekable player |
 | `voice/elevenlabs_route.py` | `NEXSTUDIO_TTS_ROUTES_JSON` route: ElevenLabs `/with-timestamps` -> audio + character alignment; `ELEVENLABS_TRANSPORT=fixture:<dir>` replays recorded responses |
 | `assets/fonts/` | Inter (OFL) and JetBrains Mono (Apache-2.0) with measured metrics |
 | `assets/peeps/` | Open Peeps part library (full-body, still) extracted by `tools/import-open-peeps.py` |
 | `schema/` | Explicit JSON Schemas for treatment, semantic beat, plan, alignment, sound events, media provenance, native-aspect composition |
-| `fixtures/` | `reply-speed.treatment.json` (12 beats, fixture voice timings, one image + one video upload) |
-| `reports/reply-speed/` | Gate report, render manifests, contact sheets and transition strips for the fixture across all three aspects |
+| `fixtures/` | `water-to-thirsty/` (10 beats, recorded voice alignment + audio slices, six illustration forms, one still figure) and `reply-speed.treatment.json` (12 beats, fixture voice timings, one image + one video upload) |
+| `reports/<fixture>/` | Gate report, render manifests, contact sheets and transition strips for each fixture across all three aspects |
 
 ## Run
 
 ```bash
 cd engine_sources/editorial-motion-v2
 python3 -m pytest -q compiler/tests                       # compiler + schema suite
-cd compiler && python3 -m editorial_plan_compiler ../fixtures/reply-speed.treatment.json ../out/reply-speed && cd ..
+cd compiler && python3 -m editorial_plan_compiler ../fixtures/water-to-thirsty/treatment.json ../out/water && cd ..
 export CHROME_PATH=/path/to/chromium NODE_PATH=/path/with/playwright-core
 node tools/test_runtime.js                                # browser runtime suite, all three aspects
-for a in 9x16 1x1 16x9; do node tools/render_reel.js out/reply-speed/plan_$a.json out/reply-speed/render; done
+for a in 9x16 1x1 16x9; do node tools/render_reel.js out/water/plan_$a.json out/water/render_$a; done
 ```
 
 Exit codes from the compiler: `0` PASS, `3` gate FAIL, `4` treatment outside the vocabulary

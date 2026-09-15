@@ -34,8 +34,9 @@ GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0}
 def library_root() -> Optional[Path]:
     env = os.environ.get('NEXSTUDIO_SOUND_LIBRARY_ROOT', '').strip()
     candidates = [Path(env)] if env else []
-    repo = Path(__file__).resolve().parents[4]
-    candidates.append(repo / 'engines' / 'sound' / 'NexStudio_Sound_Library_V2_Production')
+    here = Path(__file__).resolve()
+    candidates.append(here.parents[2] / 'sound-library')
+    candidates.append(here.parents[4] / 'engines' / 'sound' / 'NexStudio_Sound_Library_V2_Production')
     for c in candidates:
         if (c / REGISTRY_REL).exists():
             return c

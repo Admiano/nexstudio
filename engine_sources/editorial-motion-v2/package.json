@@ -1,11 +1,13 @@
 {
   "name": "@nexstudio/editorial-motion-v2",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "type": "commonjs",
-  "description": "Editorial Motion v2: P8-directed treatment -> deterministic EditorialPlan compiler -> execution-only runtime for 9:16, 1:1 and 16:9.",
+  "description": "Editorial Motion v3: P8-directed treatment with illustration programs -> deterministic EditorialPlan compiler -> execution-only runtime for 9:16, 1:1 and 16:9.",
   "scripts": {
     "compile:fixture": "cd compiler && python3 -m editorial_plan_compiler ../fixtures/reply-speed.treatment.json ../out/reply-speed",
+    "compile:water": "cd compiler && python3 -m editorial_plan_compiler ../fixtures/water-to-thirsty/treatment.json ../out/water",
+    "render:water": "node tools/render_reel.js out/water/plan_9x16.json out/water/render_9x16 && node tools/render_reel.js out/water/plan_1x1.json out/water/render_1x1 && node tools/render_reel.js out/water/plan_16x9.json out/water/render_16x9",
     "test:py": "python3 -m pytest -q compiler/tests",
     "test:js": "node tools/test_runtime.js",
     "test": "npm run test:py && npm run test:js",
