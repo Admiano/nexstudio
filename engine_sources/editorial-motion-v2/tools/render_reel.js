@@ -104,6 +104,7 @@ async function main() {
     : await chromium.connectOverCDP(cdp);
   const context = browser.contexts()[0] || (await browser.newContext());
   const page = await context.newPage();
+  await page.bringToFront(); // a background tab is throttled by the browser; capture must own the foreground
   await page.setViewportSize({ width: plan.output.w, height: plan.output.h });
   const errors = [];
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
@@ -166,7 +167,7 @@ async function main() {
   await page.close();
   if (chromePath) await browser.close();
   srv.close();
-  if (errors.length) process.exit(2);
+  process.exit(errors.length ? 2 : 0);
 }
 
 function ts(ms) {

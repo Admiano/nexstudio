@@ -19,13 +19,14 @@ from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
 from .contracts import BeatTreatment, FilmTreatment, TreatmentError
 from .figures import resolve_figure
+from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
 from .media import NormalisedMedia, normalise_media
 from .sound import SoundLibrary, bind_beat_sound, library_root
-from .timing import BeatClock, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, retime_choreography
+from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, retime_choreography
 from .typefit import fit_text
 from .voice import VoiceSegment, resolve_voice
 
-COMPILER_VERSION = 'EDITORIAL_PLAN_COMPILER_V2.0'
+COMPILER_VERSION = 'EDITORIAL_PLAN_COMPILER_V3.0'
 PLAN_SCHEMA = 'NexStudioEditorialPlanV2'
 FONTS = Path(__file__).resolve().parents[2] / 'assets' / 'fonts'
 
@@ -47,7 +48,12 @@ NATIVE_TREATMENT = {
     'CTA_LOCKUP': 'CTA_LOCKUP',
     'CONTROLLED_EMPTY_SPACE': 'CONTROLLED_EMPTY_SPACE',
 }
-SHOT_ROLE = {'TEXT': 'TEXT_LED', 'EVIDENCE': 'HYBRID', 'FIGURE': 'CHARACTER_EMPHASIS', 'DATA': 'HYBRID', 'QUIET': 'TEXT_LED'}
+SHOT_ROLE = {'TEXT': 'TEXT_LED', 'ILLUSTRATION': 'HYBRID', 'HYBRID': 'HYBRID', 'EVIDENCE': 'HYBRID', 'FIGURE': 'CHARACTER_EMPHASIS', 'DATA': 'HYBRID', 'QUIET': 'TEXT_LED'}
+# Native treatments whose visual field is too small to stage a visual argument; an illustration-led beat is
+# re-composed on the aspect's evidence or process field instead (still authored natively per aspect).
+SMALL_FIELD_TREATMENTS = {'PROGRESSIVE_HERO_BUILD', 'CONTROLLED_EMPTY_SPACE', 'PAYOFF_LOCKUP', 'CTA_LOCKUP'}
+PROCESS_FORMS = {'PROCESS_PIPELINE', 'CALLOUT_LENS'}
+WORD_CASCADE_MIN_STEP_MS = 70
 # Delivery sizes; authority canvases are the native authoring spaces they scale from uniformly.
 OUTPUT = {'9x16': (1080, 1920), '1x1': (1080, 1080), '16x9': (1920, 1080)}
 BACKGROUND_RENDER = {'SOFT_FIELD': 'SOFT_FIELD', 'GRID_FIELD': 'GRID_FIELD', 'SPOTLIGHT_STAGE': 'SPOTLIGHT_STAGE', 'CARD_STAGE': 'CARD_STAGE',
@@ -133,9 +139,35 @@ class BeatCompiler:
         self.hero_max_lines = native.ASPECTS[aspect]['hero_max_lines']
         self.prev_motif: Optional[str] = None
         self.carried_media: Optional[Dict[str, Any]] = None  # media persisting from an earlier beat
+        self.carried_illustration: Optional[Dict[str, Any]] = None  # illustration persisting from an earlier beat
+        self.illustrations: Dict[str, Dict[str, Any]] = {}  # beat_id -> compiled illustration (carry-over source)
+        self.solver = IllustrationSolver(aspect, (self.W, self.H), IllustrationRegistry(), film.media_library, self.media_files, film.brand.accent)
 
     # ------------------------------------------------------------------ helpers
+    def _native_treatment(self, b: BeatTreatment) -> str:
+        t = NATIVE_TREATMENT[b.pattern]
+        il = b.illustration
+        if il is None and not self.carried_illustration:
+            return t
+        if il is not None and il.form in PROCESS_FORMS:
+            return 'PROCESS_RAIL'
+        if t in SMALL_FIELD_TREATMENTS or self.carried_illustration:
+            return 'HERO_TO_EVIDENCE_HANDOFF' if b.dominant_layer in ('ILLUSTRATION', 'HYBRID') or self.carried_illustration else t
+        return t
+
+    @staticmethod
+    def _text_share(b: BeatTreatment) -> float:
+        """How much of the stacked stage the copy needs: grows with hero count and word load, shrinks for illustration-led beats."""
+        heroes = sum(u.role == 'hero' for u in b.units)
+        words = sum(len(u.text.split()) for u in b.units)
+        share = 0.34 + 0.09 * max(0, heroes - 1) + 0.012 * max(0, words - 4)
+        if b.dominant_layer == 'ILLUSTRATION':
+            share -= 0.04
+        return max(0.28, min(0.5, share))
+
     def _visual_kind(self, b: BeatTreatment) -> str:
+        if b.illustration:
+            return 'PROCESS_RAIL' if b.illustration.form in PROCESS_FORMS else 'EVIDENCE_CARD'
         if b.media:
             kind = self.film.media_library[b.media.asset_id].kind
             return {'SCREENSHOT': 'SCREENSHOT', 'DOCUMENT': 'DOCUMENT', 'IMAGE': 'EVIDENCE_CARD', 'VIDEO': 'EVIDENCE_CARD'}[kind]
@@ -158,19 +190,37 @@ class BeatCompiler:
         ktp_zone = ktp._zones(self.aspect, shot_role, object_present, text_load).text_zone
         native_zone = comp['text_zone']
         blocks: List[Dict[str, Any]] = []
+        grown: List[int] = []
         for blk in perf['text_blocks']:
             bbox = _remap(blk['bbox'], ktp_zone, native_zone)
             # Edge-crop heroes may reach the safe edge but never leave the safe frame.
             bbox['x'] = max(self.safe['x'], bbox['x'])
             bbox['w'] = min(bbox['w'], self.safe['x'] + self.safe['w'] - bbox['x'])
             max_lines = self.hero_max_lines if blk['role'] == 'hero' else MAX_LINES[blk['role']]
-            fit = fit_text(blk['text'], bbox, blk['role'], blk['weight'], (self.W, self.H), max_lines=max_lines)
+            stress = b.units[blk['unit_index']].stress
+            fit = fit_text(blk['text'], bbox, blk['role'], blk['weight'], (self.W, self.H), max_lines=max_lines, stress=stress)
+            if fit.status == 'FLOOR_BREACH':
+                # The authority's proportional box is a starting point; the legibility floor is the law. Grow the
+                # box to the floor requirement inside the text zone and let the collision gate judge the result.
+                bbox = _grow(bbox, fit.width_px * 1.04, fit.height_px * 1.06, native_zone, self.safe)
+                fit = fit_text(blk['text'], bbox, blk['role'], blk['weight'], (self.W, self.H), max_lines=max_lines, stress=stress)
+                grown.append(len(blocks))
             blocks.append({**blk, 'bbox': bbox, 'fit': asdict(fit)})
+        def _others(k: int) -> List[Dict[str, float]]:
+            rg = b.units[blocks[k]['unit_index']].replace_group
+            return [bl['bbox'] for j, bl in enumerate(blocks) if j != k and not (rg and b.units[bl['unit_index']].replace_group == rg)]
+        for gi in grown:
+            blocks[gi]['bbox'] = _nudge_clear(blocks[gi]['bbox'], _others(gi), native_zone)
+            # If the grown block has nowhere to go, the neighbour it hits may have the slack instead.
+            for j, bl in enumerate(blocks):
+                if j != gi and _overlap(bl['bbox'], blocks[gi]['bbox']) > 0:
+                    blocks[j]['bbox'] = _nudge_clear(bl['bbox'], _others(j), native_zone)
+        self._stack_in_narration_order(b, blocks)
         hero_px = max((bl['fit']['font_px'] for bl in blocks if bl['role'] == 'hero'), default=0.0)
         for bl in blocks:
             f = bl['fit']
             if bl['role'] == 'support' and hero_px and f['font_px'] > hero_px / HERO_SUPPORT_MIN_RATIO:
-                refit = fit_text(bl['text'], {**bl['bbox'], 'h': hero_px / HERO_SUPPORT_MIN_RATIO * f['line_height'] * len(f['lines'])}, 'support', bl['weight'], (self.W, self.H), max_lines=MAX_LINES['support'])
+                refit = fit_text(bl['text'], {**bl['bbox'], 'h': hero_px / HERO_SUPPORT_MIN_RATIO * f['line_height'] * len(f['lines'])}, 'support', bl['weight'], (self.W, self.H), max_lines=MAX_LINES['support'], stress=b.units[bl['unit_index']].stress)
                 bl['fit'] = asdict(refit)
                 f = bl['fit']
             if f['status'] == 'WORD_TOO_WIDE':
@@ -201,11 +251,101 @@ class BeatCompiler:
         warnings += [w for w in perf['warnings'] if not w.startswith('TEXT_BLOCK_COLLISION')]
         if not perf['pass_gate'] and not failures:
             failures.append('TYPOGRAPHY_AUTHORITY_GATE_FAIL')
+        self._word_cascade(b, blocks, events, clock)
         typ = {
             'motif': perf['motif'], 'spatial_preset': perf['spatial_preset'], 'blocks': blocks, 'events': events, 'performance_events': perf_events,
+            'reveal_mode': self.film.typography.reveal, 'tonal_ink': self.film.typography.tonal_ink,
             'transition_carrier': perf['transition_carrier'], 'reading_order': perf['reading_order'], 'focal_order': perf['focal_order'], 'metrics': perf['metrics'],
         }
         return typ, failures, warnings
+
+    @staticmethod
+    def _stack_in_narration_order(b: BeatTreatment, blocks: List[Dict[str, Any]]) -> None:
+        """Blocks that share a column read top-down in the order the voice says them.
+
+        The authority sizes the hero and its supports; it does not know which unit is spoken
+        first. The vertical slots it chose are kept (top edge and gaps) and refilled by unit
+        order, so a lead-in never sits under the phrase it introduces. Replace-group stages
+        share one slot and are left alone."""
+        idx = [k for k, bl in enumerate(blocks) if not b.units[bl['unit_index']].replace_group]
+        if len(idx) < 2:
+            return
+        def _same_column(a: Dict[str, float], c: Dict[str, float]) -> bool:
+            return min(a['x'] + a['w'], c['x'] + c['w']) - max(a['x'], c['x']) > min(a['w'], c['w']) * 0.5
+        if not all(_same_column(blocks[i]['bbox'], blocks[j]['bbox']) for i in idx for j in idx if i < j):
+            return
+        by_y = sorted(idx, key=lambda k: blocks[k]['bbox']['y'])
+        by_unit = sorted(idx, key=lambda k: blocks[k]['unit_index'])
+        if by_y == by_unit:
+            return
+        gaps = [blocks[by_y[i + 1]]['bbox']['y'] - (blocks[by_y[i]]['bbox']['y'] + blocks[by_y[i]]['bbox']['h']) for i in range(len(by_y) - 1)]
+        y = blocks[by_y[0]]['bbox']['y']
+        for i, k in enumerate(by_unit):
+            blocks[k]['bbox'] = {**blocks[k]['bbox'], 'y': round(y, 1)}
+            y += blocks[k]['bbox']['h'] + (gaps[i] if i < len(gaps) else 0.0)
+
+    def _word_cascade(self, b: BeatTreatment, blocks: List[Dict[str, Any]], events: List[Dict[str, Any]], clock: BeatClock) -> None:
+        """Per-word landing times for every block: a word arrives when the voice says it.
+
+        Words are matched sequentially from the unit's landing word; words the voice does not
+        say (display copy is authored, not transcribed) are spread evenly across the gap to the
+        next spoken word. Stressed words are flagged for full-ink weight; the rest read tonal
+        until the unit is complete."""
+        reveal_start = {e['unit_index']: e['start_ms'] for e in reversed(events) if e['unit_index'] >= 0 and e['event'] not in ('HOLD', 'EXIT')}
+        for bl in blocks:
+            i = bl['unit_index']
+            unit = b.units[i]
+            mode = unit.reveal or self.film.typography.reveal
+            bl['reveal'] = mode
+            stress = {normalise(w) for w in unit.stress}
+            tokens = [t for line in bl['fit']['lines'] for t in line.split()]
+            line_of = [li for li, line in enumerate(bl['fit']['lines']) for _ in line.split()]
+            start = reveal_start.get(i, clock.landings_ms[i])
+            times: List[Optional[int]] = [None] * len(tokens)
+            if clock.landing_source[i] == 'WORD' and clock.words:
+                cursor = max(0, find_landing(clock.words, unit.anchor_word or tokens[0], 0) or 0)
+                for k, tok in enumerate(tokens):
+                    idx = find_landing(clock.words, tok, cursor)
+                    if idx is not None and idx >= cursor and (idx - cursor) <= 3:
+                        times[k] = clock.words[idx].start_ms
+                        cursor = idx + 1
+            # Fill unmatched words evenly between their spoken neighbours.
+            if times and times[0] is None:
+                times[0] = start
+            k = 0
+            while k < len(times):
+                if times[k] is not None:
+                    k += 1
+                    continue
+                j = k
+                while j < len(times) and times[j] is None:
+                    j += 1
+                lo = times[k - 1]
+                hi = times[j] if j < len(times) else lo + WORD_CASCADE_MIN_STEP_MS * (j - k + 1) * 1.6
+                n = j - k + 1
+                for m in range(k, j):
+                    times[m] = int(lo + (hi - lo) * (m - k + 1) / n)
+                k = j
+            # Monotonic, never before the unit reveal, never past the settle window.
+            words = []
+            prev = start - WORD_CASCADE_MIN_STEP_MS
+            for k, tok in enumerate(tokens):
+                t = max(int(times[k]), prev + WORD_CASCADE_MIN_STEP_MS, start)
+                prev = t
+                words.append({'text': tok, 'line': line_of[k], 'start_ms': t, 'stress': normalise(tok) in stress})
+            if words:
+                last = words[-1]['start_ms']
+                bl['cascade_end_ms'] = last + CASCADE_SETTLE_MS
+                limit = bl['exit_ms'] - 360 if bl.get('exit_ms') else clock.duration_ms - 760
+                if last > limit:
+                    # Compress the cascade so the phrase finishes reading before it leaves or the beat ends.
+                    span = max(1, last - start)
+                    room = max(WORD_CASCADE_MIN_STEP_MS * len(words), limit - start)
+                    for w in words:
+                        w['start_ms'] = int(start + (w['start_ms'] - start) * room / span)
+                    bl['cascade_end_ms'] = words[-1]['start_ms'] + CASCADE_SETTLE_MS
+            bl['words'] = words
+            bl['has_stress'] = any(w['stress'] for w in words)
 
     @staticmethod
     def _resolve_replacements(b: BeatTreatment, blocks: List[Dict[str, Any]], events: List[Dict[str, Any]], clock: BeatClock) -> List[Dict[str, Any]]:
@@ -353,11 +493,32 @@ class BeatCompiler:
         return {'kind': d.kind, 'zone': zone, 'blocks': blocks, 'enter_ms': int(enter), 'enter_duration_ms': 340, 'stagger_ms': stagger, 'style': 'COUNT_IN' if d.kind == 'STAT' else 'SETTLE'}
 
     # ------------------------------------------------------------------ beat
+    def _illustration(self, b: BeatTreatment, comp: Dict[str, Any], clock: BeatClock) -> Tuple[Optional[Dict[str, Any]], List[str]]:
+        il = b.illustration
+        if il is None:
+            if self.carried_illustration:
+                plan = carried_copy(self.carried_illustration)
+                if self.carried_illustration.get('persist_to') == b.beat_id:
+                    self.carried_illustration = None
+                return plan, []
+            return None, []
+        src = self.illustrations.get(il.carry_from) if il.carry_from else None
+        plan, failures = self.solver.compile(il, comp['visual_zone'], clock, b.beat_id, src)
+        self.illustrations[b.beat_id] = plan
+        self.carried_illustration = plan if il.persist_to else None
+        return plan, failures
+
     def compile(self, b: BeatTreatment, clock: BeatClock, beat_offset_ms: int) -> Dict[str, Any]:
         failures: List[str] = []
         warnings: List[str] = []
-        comp = native.compose(self.aspect, NATIVE_TREATMENT[b.pattern], self._visual_kind(b))
-        object_present = bool(b.media or b.figure or b.data or self.carried_media)
+        comp = native.compose(self.aspect, self._native_treatment(b), self._visual_kind(b))
+        if b.illustration is not None and not (b.illustration.carry_from and b.illustration.carry_from in self.illustrations):
+            _rebalance(comp, self._text_share(b))
+        if self.carried_illustration and b.illustration is None:
+            comp['visual_zone'] = dict(self.carried_illustration['zone'])  # persisted argument keeps its stage
+        elif b.illustration is not None and b.illustration.carry_from and b.illustration.carry_from in self.illustrations:
+            comp['visual_zone'] = dict(self.illustrations[b.illustration.carry_from]['zone'])
+        object_present = bool(b.media or b.figure or b.data or b.illustration or self.carried_media or self.carried_illustration)
         if object_present:
             comp['text_zone'] = _carve(comp['text_zone'], comp['visual_zone'])
             if comp['text_zone']['w'] < 200 or comp['text_zone']['h'] < 90:
@@ -370,8 +531,9 @@ class BeatCompiler:
         ensemble_plan = ens.EditorialMotionEnsembleDirectorV1().plan(ens.EnsembleRequest(
             duration_ms=clock.duration_ms, shot_role=shot_role,
             hero_motion_count=sum(u.role == 'hero' for u in b.units), support_motion_count=sum(u.role != 'hero' for u in b.units),
-            illustration_motion_count=1 if (b.media or b.data or self.carried_media) else 0, character_present=b.figure is not None,
-            transition_mode='TEXT_CARRIER' if (typ['transition_carrier'] and not b.media) else 'OBJECT_OR_TEXT_CARRIER',
+            illustration_motion_count=(len(b.illustration.program) if b.illustration else 0) + (1 if (b.media or b.data or self.carried_media) else 0),
+            character_present=b.figure is not None,
+            transition_mode='TEXT_CARRIER' if (typ['transition_carrier'] and not b.media and not b.illustration) else 'OBJECT_OR_TEXT_CARRIER',
             beat_energy=b.energy, audio_accent_times=[l for l in clock.landings_ms if 0 < l < clock.duration_ms]))
         ensemble = asdict(ensemble_plan)
         warnings += ensemble['warnings']
@@ -379,6 +541,21 @@ class BeatCompiler:
         media = self._media(b, comp, clock, typ)
         figure = self._figure(b, comp, clock, ensemble)
         data = self._data(b, comp, clock)
+        illustration, ilf = self._illustration(b, comp, clock)
+        failures += ilf
+        if illustration:
+            if not _inside(illustration['zone'], self.frame, 2):
+                failures.append('ILLUSTRATION_OUTSIDE_FRAME')
+            for ent in illustration['entities']:
+                boxes = [ent['bbox']] + ([ent['label']['bbox']] if ent.get('label') else [])
+                for bx in boxes:
+                    for bl in typ['blocks']:
+                        if _overlap(bx, bl['bbox']) > 0:
+                            failures.append(f"ILLUSTRATION_COLLIDES_TEXT:{ent['id']}:{bl['unit_index']}")
+            if figure and any(_overlap(figure['bbox'], e['bbox']) > 0 for e in illustration['entities']):
+                failures.append('FIGURE_COLLIDES_ILLUSTRATION')
+            if not illustration['carried'] and illustration['state_changes'] == 0 and b.dominant_layer in ('ILLUSTRATION', 'HYBRID'):
+                warnings.append('ILLUSTRATION_WITHOUT_STATE_CHANGE')
 
         # Ownership: nothing visual may sit on text, and every element stays in the safe frame.
         for name, el in (('MEDIA', media), ('FIGURE', figure)):
@@ -398,6 +575,8 @@ class BeatCompiler:
         # Transition: media persisting into the next beat carries the cut; otherwise the type carrier or a plain settle-cut.
         if media and media.get('persist_to') and media['persist_to'] != b.beat_id:
             transition = {'mode': 'EVIDENCE_PERSISTENCE', 'owner': 'MEDIA', 'start_ms': clock.duration_ms - 320, 'end_ms': clock.duration_ms}
+        elif illustration and illustration.get('persist_to') and illustration['persist_to'] != b.beat_id:
+            transition = {'mode': 'ILLUSTRATION_PERSISTENCE', 'owner': 'ILLUSTRATION', 'start_ms': clock.duration_ms - 320, 'end_ms': clock.duration_ms}
         elif typ['transition_carrier']:
             transition = {**typ['transition_carrier'], 'owner': 'TEXT'}
         else:
@@ -412,6 +591,9 @@ class BeatCompiler:
             settled.append(figure['enter_ms'] + figure['enter_duration_ms'])
         if data:
             settled.append(data['enter_ms'] + data['enter_duration_ms'] + data['stagger_ms'] * max(0, len(data['blocks']) - 1))
+        if illustration:
+            settled.append(illustration['settled_ms'])
+        settled += [bl['cascade_end_ms'] for bl in typ['blocks'] if bl.get('cascade_end_ms') and not bl.get('exit_ms')]
         leaving = [transition['start_ms']]
         leaving += [e['start_ms'] for e in typ['events'] if e['event'] == 'EXIT']
         hold_start, hold_end = int(max(settled)), int(min(leaving))
@@ -435,6 +617,10 @@ class BeatCompiler:
             candidates.append({'event': 'SPATIAL_RECONFIGURE', 'at_ms': 0, 'strength': 0.7})
         if data:
             candidates.append({'event': 'DATA_LAND', 'at_ms': data['enter_ms'] + data['enter_duration_ms'], 'strength': 0.8})
+        if illustration and not illustration['carried']:
+            for o in illustration['ops']:
+                if o['state_change']:
+                    candidates.append({'event': 'KEYWORD_HIT' if o['op'] in ('INK', 'STRIKE') else 'EVIDENCE_LAND', 'at_ms': o['end_ms'], 'strength': 0.7})
         if transition['mode'] in ('TEXT_MASK_WIPE', 'LABEL_EXPAND_WIPE'):
             candidates.append({'event': 'TRANSITION_CARRIER', 'at_ms': transition['start_ms'], 'strength': 0.6})
         sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates)
@@ -442,7 +628,7 @@ class BeatCompiler:
             warnings.append('SOUND_LIBRARY_MISSING')
 
         bg = (comp.get('authentic_v2_plan') or {}).get('background_template') or 'SOFT_FIELD'
-        render_bg = 'SPOTLIGHT_STAGE' if figure else ('CARD_STAGE' if (media or data) else 'SOFT_FIELD')
+        render_bg = 'SPOTLIGHT_STAGE' if figure else ('CARD_STAGE' if (media or data) else ('STAGE_FIELD' if illustration else 'SOFT_FIELD'))
         return {
             'beat_id': b.beat_id, 'beat_type': b.beat_type, 'pattern': b.pattern, 'dominant_layer': b.dominant_layer, 'shot_role': shot_role,
             'start_ms': beat_offset_ms, 'duration_ms': clock.duration_ms, 'energy': b.energy,
@@ -450,11 +636,11 @@ class BeatCompiler:
             'landings': [{'unit_index': i, 'at_ms': l, 'source': s} for i, (l, s) in enumerate(zip(clock.landings_ms, clock.landing_source))],
             'composition': {
                 'layout_family': comp['layout_family'], 'treatment': comp['treatment'], 'text_zone': comp['text_zone'], 'visual_zone': comp['visual_zone'],
-                'safe_area': self.safe, 'background': {'template': bg, 'render': render_bg, 'stage': (media or figure or data or {}).get('zone')},
+                'safe_area': self.safe, 'background': {'template': bg, 'render': render_bg, 'stage': (media or figure or data or illustration or {}).get('zone')},
                 'native_profile': comp['native_profile'], 'derived_by_scaling': comp['derived_by_scaling'], 'authority': comp['authority_version'],
             },
             'typography': typ, 'ensemble': {'events': ensemble['events'], 'dominant_sequence': ensemble['dominant_sequence'], 'hold_window': ensemble['hold_window'], 'transition_window': ensemble['transition_window']},
-            'media': media, 'figure': figure, 'data': data, 'transition': transition, 'sound': sound,
+            'media': media, 'figure': figure, 'data': data, 'illustration': illustration, 'transition': transition, 'sound': sound,
             'gate': {'status': 'FAIL' if failures else 'PASS', 'failures': failures, 'warnings': sorted(set(warnings))},
         }
 
@@ -465,6 +651,82 @@ def _captions(beats: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         for w in bt['words']:
             caps.append({'beat_id': bt['beat_id'], 'text': w['text'], 'start_ms': bt['start_ms'] + w['start_ms'], 'end_ms': bt['start_ms'] + w['end_ms']})
     return caps
+
+
+def _grow(bbox: Dict[str, float], need_w: float, need_h: float, zone: Dict[str, float], safe: Dict[str, float]) -> Dict[str, float]:
+    """Enlarge a box about its centre to at least need_w x need_h, staying inside the text zone and safe frame."""
+    lim_x = max(zone['x'], safe['x'])
+    lim_r = min(zone['x'] + zone['w'], safe['x'] + safe['w'])
+    lim_y = max(zone['y'], safe['y'])
+    lim_b = min(zone['y'] + zone['h'], safe['y'] + safe['h'])
+    w = min(max(bbox['w'], need_w), lim_r - lim_x)
+    h = min(max(bbox['h'], need_h), lim_b - lim_y)
+    cx, cy = bbox['x'] + bbox['w'] / 2, bbox['y'] + bbox['h'] / 2
+    x = min(max(cx - w / 2, lim_x), lim_r - w)
+    y = min(max(cy - h / 2, lim_y), lim_b - h)
+    return {'x': round(x, 1), 'y': round(y, 1), 'w': round(w, 1), 'h': round(h, 1)}
+
+
+def _nudge_clear(bbox: Dict[str, float], others: List[Dict[str, float]], zone: Dict[str, float]) -> Dict[str, float]:
+    """Slide a box vertically inside the zone to the nearest position clear of every other box; unchanged if none exists."""
+    if not any(_overlap(bbox, o) > 0 for o in others):
+        return bbox
+    lo, hi = zone['y'], zone['y'] + zone['h'] - bbox['h']
+    candidates: List[float] = []
+    for o in others:
+        candidates += [o['y'] - bbox['h'] - 6, o['y'] + o['h'] + 6]
+    best = None
+    for y in sorted(c for c in candidates if lo - 0.5 <= c <= hi + 0.5):
+        trial = {**bbox, 'y': round(y, 1)}
+        if not any(_overlap(trial, o) > 0 for o in others):
+            if best is None or abs(y - bbox['y']) < abs(best['y'] - bbox['y']):
+                best = trial
+    return best or bbox
+
+
+def _rebalance(comp: Dict[str, Any], text_share: float) -> None:
+    """Re-split a stacked (text over visual) or side-by-side (text beside visual) stage so the copy gets `text_share` of the axis."""
+    t, v = comp['text_zone'], comp['visual_zone']
+    gap_y = v['y'] - (t['y'] + t['h'])
+    gap_x = v['x'] - (t['x'] + t['w'])
+    if gap_y >= 0 and _overlap({**t, 'y': 0, 'h': 1}, {**v, 'y': 0, 'h': 1}) > 0:
+        top, bottom = t['y'], v['y'] + v['h']
+        span = bottom - top - gap_y
+        th = round(span * text_share, 1)
+        t['h'] = th
+        v['y'] = round(top + th + gap_y, 1)
+        v['h'] = round(bottom - v['y'], 1)
+    elif gap_x >= 0 and _overlap({**t, 'x': 0, 'w': 1}, {**v, 'x': 0, 'w': 1}) > 0:
+        left, right = t['x'], v['x'] + v['w']
+        span = right - left - gap_x
+        tw = round(span * max(text_share, 0.4), 1)
+        t['w'] = tw
+        v['x'] = round(left + tw + gap_x, 1)
+        v['w'] = round(right - v['x'], 1)
+
+
+def _extend_for_program(clock: BeatClock, b: BeatTreatment) -> BeatClock:
+    """An illustration op that lands on a late word must still finish, settle and be read before the cut."""
+    if not b.illustration:
+        return clock
+    cursor = 0
+    latest = 0
+    for op in b.illustration.program:
+        if 'word' in op.at:
+            idx = find_landing(clock.words, op.at['word'], cursor)
+            if idx is None:
+                continue
+            start = clock.words[idx].start_ms - 60
+            cursor = idx
+        elif 'unit' in op.at:
+            start = clock.landings_ms[op.at['unit']]
+        else:
+            start = LEAD_IN_MS + op.at['offset_ms']
+        latest = max(latest, start + op.duration_ms)
+    needed = latest + MIN_HOLD_MS + EXIT_MS + 80
+    if needed <= clock.duration_ms:
+        return clock
+    return replace(clock, duration_ms=int(needed))
 
 
 def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[Path] = None) -> Dict[str, Any]:
@@ -484,7 +746,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     clocks: List[BeatClock] = []
     for b in film.beats:
         seg = seg_by_id[b.beat_id]
-        clocks.append(beat_clock(b.beat_id, [u.text for u in b.units], [u.anchor_word for u in b.units], seg.alignment, seg.source, b.min_duration_ms, b.energy))
+        clock = beat_clock(b.beat_id, [u.text for u in b.units], [u.anchor_word for u in b.units], seg.alignment, seg.source, b.min_duration_ms, b.energy)
+        clocks.append(_extend_for_program(clock, b))
     offsets: List[int] = []
     t = 0
     for c in clocks:
@@ -503,6 +766,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         beats = [bc.compile(b, c, o) for b, c, o in zip(film.beats, clocks, offsets)]
         if bc.carried_media:
             film_failures.append(f'{aspect}:MEDIA_PERSISTENCE_UNTERMINATED')
+        if bc.carried_illustration:
+            film_failures.append(f'{aspect}:ILLUSTRATION_PERSISTENCE_UNTERMINATED')
         motifs = [bt['typography']['motif'] for bt in beats if bt['typography']['motif']]
         if len(motifs) >= 4 and len(set(motifs)) < 2:
             film_warnings.append(f'{aspect}:MOTIF_MONOTONY')
@@ -514,7 +779,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         plans[aspect] = {
             'schema': PLAN_SCHEMA, 'compiler': COMPILER_VERSION, 'film_id': film.film_id, 'aspect': aspect, 'fps': film.fps,
             'canvas': {'w': W, 'h': H}, 'output': {'w': ow, 'h': oh, 'scale': round(ow / W, 4)},
-            'brand': asdict(film.brand), 'fonts': _fonts(), 'duration_ms': total_ms,
+            'brand': asdict(film.brand), 'typography': asdict(film.typography), 'fonts': _fonts(), 'duration_ms': total_ms,
+            'illustration_registry': {'path': str(bc.solver.registry.path), 'version': bc.solver.registry.version},
             'voice': {'source': voice_source, 'segments': [
                 {'beat_id': s.beat_id, 'source': s.source, 'audio_path': s.audio_path, 'sha256': s.audio_sha256, 'start_ms': o + LEAD_IN_MS, 'duration_ms': s.duration_ms, 'evidence': s.evidence}
                 for s, o in zip(segments, offsets)]},

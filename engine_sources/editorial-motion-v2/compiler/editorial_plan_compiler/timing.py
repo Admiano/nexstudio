@@ -20,6 +20,7 @@ MIN_BEAT_MS = 1400
 EXIT_MS = 320
 MIN_HOLD_MS = 480         # shortest readable settled state
 LAND_SETTLE_MS = 640      # reveal + emphasis after the last landing before the state counts as settled
+CASCADE_SETTLE_MS = 260   # a cascaded word is readable this long after it lands
 
 _WORD = re.compile(r"[A-Za-z0-9][A-Za-z0-9'’%.,:-]*[A-Za-z0-9%]|[A-Za-z0-9]")
 
@@ -174,6 +175,9 @@ def beat_clock(beat_id: str, unit_texts: List[str], anchors: List[Optional[str]]
     # The beat lasts at least until the last unit has settled, been read and left.
     if landings:
         duration = max(duration, max(landings) + LAND_SETTLE_MS + MIN_HOLD_MS + EXIT_MS + 60)
+    # Word cascades land copy on the spoken word, so the last spoken word also needs its settled read.
+    if shifted and unit_texts:
+        duration = max(duration, shifted[-1].start_ms + CASCADE_SETTLE_MS + MIN_HOLD_MS + EXIT_MS + 120)
     return BeatClock(beat_id, duration, LEAD_IN_MS, voice_ms, shifted, landings, sources, source)
 
 

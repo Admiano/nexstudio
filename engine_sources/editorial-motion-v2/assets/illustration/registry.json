@@ -1,0 +1,4331 @@
+{
+  "schema": "NexStudioIllustrationRegistryV1",
+  "version": "AEV1-1.0.0-mono",
+  "policy": "P8 references assets by id. The compiler validates the reference; it never searches this catalogue by wording.",
+  "colour": "currentColor only; ink and accent are runtime-owned",
+  "count": 172,
+  "assets": [
+    {
+      "id": "icon.crypto.wallet",
+      "label": "wallet",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.wallet.svg",
+      "sha256": "37dd165a50cc2a119b13cc3a89b9ee31332ca67b35bb377f2c854f5158d84dd8",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-001",
+        "sha256": "c9a3cdf1693bfe1dd975cef0a8b3ff2dfb65aa39b9e89c33e79513c84456777b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "placeable",
+        "pointable",
+        "wallet"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.token",
+      "label": "token",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.token.svg",
+      "sha256": "47449767a69e43ff033348bc1b7d871c2cf319077e5d55728603dbd5ab0dceb4",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-002",
+        "sha256": "b1624650b007fcfff19f7aba72bb928ad4666bffecafb7fddfde4ef384208ac4"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "placeable",
+        "pointable",
+        "token"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.transaction",
+      "label": "transaction",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.transaction.svg",
+      "sha256": "56c84d572fd9052aec33380711ec3780c7f23328676381381c51d477094b9319",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-003",
+        "sha256": "7e4a86a8942bfa6f9ebe260df85e914b8427d2eb45cab92c9ef3509725b1a81d"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "placeable",
+        "pointable",
+        "transaction"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.block",
+      "label": "block",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.block.svg",
+      "sha256": "c19bac9121f107cd95290eeea8efd58391cc2184359e5a1e63d55b3f24343ffa",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-004",
+        "sha256": "72287de610af875ec5918ee5da0e542a8db5e758a4ed1b9e96d9cf3e7c35c83d"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "block",
+        "crypto",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.chain",
+      "label": "chain",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.chain.svg",
+      "sha256": "efc22a9df6a7aa97ee951654bc01217ffc1da1287fb353e1fba00531f31de450",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-005",
+        "sha256": "7b814a96f59eefffae0d371ee3ed5306ded69983165e4c0feeee0f7947a4847a"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "chain",
+        "crypto",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.smart-contract",
+      "label": "smart-contract",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.smart-contract.svg",
+      "sha256": "165369e98fb5f8927e329a5bb40250ce45ad5573e367e5d5cc4a85e16696b6aa",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-006",
+        "sha256": "243cc7444aec230b72b7e96f81ec884e3d21c576838aa7e947f3cb6911097ebd"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "contract",
+        "crypto",
+        "placeable",
+        "pointable",
+        "smart",
+        "smart-contract"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.liquidity",
+      "label": "liquidity",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.liquidity.svg",
+      "sha256": "8710e123c4a02ad779fe5ac5b8d89fbbc611d31368f1fbe71f6db7d1c14b64d3",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-007",
+        "sha256": "00e2c0b7824b619d17c2a0463f04bf986493e8328e6d3409703720c75ddff07e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "liquidity",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.exchange",
+      "label": "exchange",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.exchange.svg",
+      "sha256": "315c12a0200b92b1dd9a141adda374c4b81e65e10adfce3dac7cf945d1d98fa9",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-008",
+        "sha256": "bf020885f66bc618dea87a6d0e4e992efdde2f8c332d6f695532f9f36d158f4b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "exchange",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.escrow",
+      "label": "escrow",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.escrow.svg",
+      "sha256": "17f26852b089f24f16812e7422191c102ea8b85e5c81a51f25e8ec0f6408fa2f",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-009",
+        "sha256": "1f694ee4bbe17e3e4a6d8fed0c3647518bada99516f4db3297a406ae4b62e319"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "escrow",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.gas",
+      "label": "gas",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.gas.svg",
+      "sha256": "576de2a7e0abb56313496f5f49d2bc2c85959f8a09ec72a1c1d6d52c47b811c3",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-010",
+        "sha256": "8cd8292d4fcc1beb7c450bcb6aeeccc8b5256e54891c5e4e577451e60181430e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "gas",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.bridge",
+      "label": "bridge",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.bridge.svg",
+      "sha256": "265920e03e67efc1ffcc311bdf51c70577fcf64ff4abe9b998647deaebeae1f1",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-011",
+        "sha256": "fecba308591cbb420198d4a67bf36687b432b29577a3b6c750d895e028dd14a2"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "bridge",
+        "crypto",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.validator",
+      "label": "validator",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.validator.svg",
+      "sha256": "c0c1e7a47a64533d7e215f2a7d7e82029c69cce50b12f20d4c41e2ab0d28cc3a",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-012",
+        "sha256": "02fa94b51f56a43e91276eebcba69b39c085ccb3c43a5b6f2c913ec9bf9758e8"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "placeable",
+        "pointable",
+        "validator"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.staking",
+      "label": "staking",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.staking.svg",
+      "sha256": "c2b115b49cdbb223431f804ed65e105ec5ff8e7afabfcdce869df4cb4e273991",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-013",
+        "sha256": "2f19d1748af3c3a039a7664a192e1c3881d2c93bb6afe2f580f8fda253768b1b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "placeable",
+        "pointable",
+        "staking"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.governance",
+      "label": "governance",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.governance.svg",
+      "sha256": "5942b16080c9ebe32533b394e944a68a1543a739e57791f651efdd0e6d3dfe1d",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-014",
+        "sha256": "512aa84ebdd180d2647b98b01da0bae451f57478b3b985872c338a94d6ed4019"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "governance",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.mint",
+      "label": "mint",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.mint.svg",
+      "sha256": "cdbc20b63225c058ebc659e52da16181c9103fb09e1ed37418a99884f9b53204",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-015",
+        "sha256": "37e0d4c60cb8c6c548a00e0d2977152af052fd8ffeb8e5e97b6c3db8f4dceefa"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "mint",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.burn",
+      "label": "burn",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.burn.svg",
+      "sha256": "f82f0b1a1ad76dcc80e4a0cafe4aaa9fe75b704c0ab80bf2045c4c8fee2fd9e5",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-016",
+        "sha256": "c273f217bf9cfd50afe4ae331bc27d09be53efb8aa51e9a3122d88dcb04b40c8"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "burn",
+        "crypto",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.key",
+      "label": "key",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.key.svg",
+      "sha256": "accaa1063cb2258c9f38ca207ce7bf4b9084f2ccdef08271dfe8cafbd5030f1c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-017",
+        "sha256": "b8b2e4b01dfd5b55c4059dcd9c5299e4692366ed3a87cfed476b0890f1b97515"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "key",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.crypto.onchain",
+      "label": "onchain",
+      "family": "icon",
+      "domain": "crypto",
+      "path": "aev1/icon.crypto.onchain.svg",
+      "sha256": "828a6ad11ab528c3a766f00e0d707630f15ab6c644d87886542c7bbcffe149dd",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-018",
+        "sha256": "33b304aa7153333a71d18158a68fe414707792e27822b25242629ca0d3b65c42"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "onchain",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.agent",
+      "label": "agent",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.agent.svg",
+      "sha256": "778dbec5a5f6527a03d981ddca0f9bd17180677dcb08f39ac31073d538b2ae70",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-019",
+        "sha256": "f01a9b19bf882168f7805ce33eb9d5fb537cf89e827523695059937a3aa7a397"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "agent",
+        "ai",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.model",
+      "label": "model",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.model.svg",
+      "sha256": "74dae0fe9d2d1315b5a27f19ef5f020c3fa8dc772ca626d30694964a54cd3bdc",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-020",
+        "sha256": "d001176b2401f398834659e39c8a16a1f7fed988dd812c45cc90aca03e6b929f"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "model",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.prompt",
+      "label": "prompt",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.prompt.svg",
+      "sha256": "5c7fb63a6cd4c6bb3017ca767676e066ec039bc6fa9373de774c49a187cf99df",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-021",
+        "sha256": "05dc93c33376dacdab34dfd35ab286244ed416706aae598d17569d8b29776b3e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "placeable",
+        "pointable",
+        "prompt"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.memory",
+      "label": "memory",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.memory.svg",
+      "sha256": "1163d668fba5d5697dec5322fa09abd7a375ffd9bac9c550bbf7c4b51559008b",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-022",
+        "sha256": "5d7510f1aa30345c3c004f3f911e31960bf927f3764e8c42e68a96685988549a"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "memory",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.tool",
+      "label": "tool",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.tool.svg",
+      "sha256": "ca0bbe8411fa178bedaadf012318d5e9f2d3380682fe0186414b1809e4f6dc46",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-023",
+        "sha256": "80fde27a6138c8aa7deba23664163342678d6e5ba2dfc4224fd397a23a8c7092"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "placeable",
+        "pointable",
+        "tool"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.evaluation",
+      "label": "evaluation",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.evaluation.svg",
+      "sha256": "bd407a568837c337aa79749de0f1f61ce5e650eac604d3a4fcd3f0e07701f434",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-024",
+        "sha256": "09ed4ec7e172c8eb4799f6004ac901094578b07e3affed638bfc3b0ea1678b68"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "evaluation",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.task",
+      "label": "task",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.task.svg",
+      "sha256": "e20cc28d36de318cbc00616579125ab455a874738a9bc80f4aea0a7557d800a4",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-025",
+        "sha256": "c9e73ac4db487c103202b011a0edc17c1dd926929d679673761e8cd3d27e8fb6"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "placeable",
+        "pointable",
+        "task"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.planner",
+      "label": "planner",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.planner.svg",
+      "sha256": "340aae78625332aa28ec4dbf608b0d5fb5e460b958e25ee348b82eee6bbaa085",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-026",
+        "sha256": "1c470fe8407fc9fd08d8d243ce0faad28fdfe2d3d146f0778d54c4450787878f"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "placeable",
+        "planner",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.compute",
+      "label": "compute",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.compute.svg",
+      "sha256": "ea397b03cdc714d38fb026143ad4b7606b3de21e2dcc51c49bac4dbbec916777",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-027",
+        "sha256": "5db82a1fdb2d55e093bc841ae37157ad0bd2668d77eef2c065726c4624ef9a1f"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "compute",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.research",
+      "label": "research",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.research.svg",
+      "sha256": "828bf6d8f02b8a0d4a0128b0751834684f04fe3d6869ec387b34400d22dfdfe4",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-028",
+        "sha256": "39f94b2336a5c6eaf79a71c6e7ab8a0c43ce1a994bdc45fb7ec7f6d193b0d8ab"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "placeable",
+        "pointable",
+        "research"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.generation",
+      "label": "generation",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.generation.svg",
+      "sha256": "b0ab3ef853468547ab7a014242df419b167d72479e9cf2b85f1ccc0322425b35",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-029",
+        "sha256": "6141cb5c3367da83c40a8121810d216ea452213e167d847090ca89d2c653bf8b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "generation",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.validation",
+      "label": "validation",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.validation.svg",
+      "sha256": "bd407a568837c337aa79749de0f1f61ce5e650eac604d3a4fcd3f0e07701f434",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-030",
+        "sha256": "388abe07acafe157df5dc68e5d15f6203baee8271ebdd0308a925509ce9474cd"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "placeable",
+        "pointable",
+        "validation"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.handoff",
+      "label": "handoff",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.handoff.svg",
+      "sha256": "1e47c4e9cae6091cf91caa40453e8f3b728e272ccef51c86ed13c7f4a5080b68",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-031",
+        "sha256": "6a3eec323e4f169b52ae5d6ff3e84292a30356f990948b13fd16a9e5e3ba9351"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "handoff",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.context",
+      "label": "context",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.context.svg",
+      "sha256": "5c7fb63a6cd4c6bb3017ca767676e066ec039bc6fa9373de774c49a187cf99df",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-032",
+        "sha256": "3ac5cc63c5808a74cdd902ba310090f0d74e9c9614754d301a011790a36de1ed"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "context",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.retrieval",
+      "label": "retrieval",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.retrieval.svg",
+      "sha256": "2a573552d3bc4200f39e59ae3e2afd2e0ac735d9d0ee6f38feb7eb1a257a97a2",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-033",
+        "sha256": "b9fa51001f6db98a8369676f6ad88b8e11ad5c4374c9c42a4a6a2ba2a5232af8"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "placeable",
+        "pointable",
+        "retrieval"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.embedding",
+      "label": "embedding",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.embedding.svg",
+      "sha256": "b0ab3ef853468547ab7a014242df419b167d72479e9cf2b85f1ccc0322425b35",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-034",
+        "sha256": "d48814d35e0494fabfb8f073a79db6a5eba82e8a54e5bd161d4743242c791598"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "embedding",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.inference",
+      "label": "inference",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.inference.svg",
+      "sha256": "5242f9bfc390781373f9924268181288ebf67cffb75d5332b70ee24b231b75bd",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-035",
+        "sha256": "6587d578d4e31026451d933c52559203decad90a72267025e90f5f239a3f96be"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "inference",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.ai.human-loop",
+      "label": "human-loop",
+      "family": "icon",
+      "domain": "ai",
+      "path": "aev1/icon.ai.human-loop.svg",
+      "sha256": "1c1b728cb80081a2730558099e2195777c4fc6df2bb9a677279ae5b4b189229f",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-036",
+        "sha256": "4d73fab95718c99dac0f358a63b466ca9f0905fdbddf2b128619d26e7e582bfc"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "human",
+        "human-loop",
+        "loop",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.queue",
+      "label": "queue",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.queue.svg",
+      "sha256": "934f630dfbeaa8d8b5f74d6c25a97715e483e7bcc098ebb022b55812e6cc1aa3",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-037",
+        "sha256": "22914ef74ee7c067f062bddf8f1974525f7c1552e69d1c82fc9288dd180dc99e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "queue",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.approval",
+      "label": "approval",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.approval.svg",
+      "sha256": "8a35916ebacb64b4c4b0d05151623d8c511bfed4d8bb3fe002ac325ab7e213da",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-038",
+        "sha256": "4cbb3e9f4cc04c1c29ebd9301c452e7bbba11f0625b3e83c783beb4476dd7edf"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "approval",
+        "placeable",
+        "pointable",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.branch",
+      "label": "branch",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.branch.svg",
+      "sha256": "7ece1846b67a81fd97858914686f801e1b1394175f1e561fb36176f370a2e7d8",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-039",
+        "sha256": "f5739bf5033dca776dc26d8598f86adde6e084cb0d576eba2007e5eb0d2c8232"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "branch",
+        "placeable",
+        "pointable",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.loop",
+      "label": "loop",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.loop.svg",
+      "sha256": "9df8525b1a7edd696dff586aa7b2f326a3e9d140c70146de525f0dd78105d4cc",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-040",
+        "sha256": "0547c5ca9f90c897bcf043d079c4dd987b21e41a6e289b1a3ffe7afebae8bd1a"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "loop",
+        "placeable",
+        "pointable",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.handoff",
+      "label": "handoff",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.handoff.svg",
+      "sha256": "1e47c4e9cae6091cf91caa40453e8f3b728e272ccef51c86ed13c7f4a5080b68",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-041",
+        "sha256": "f000e6ba13024225ffd78c9da48cdda1b4773a089cde248eb2102b283e71e071"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "handoff",
+        "placeable",
+        "pointable",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.automation",
+      "label": "automation",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.automation.svg",
+      "sha256": "0e300e1f15123bacbb6b270b5b293c7cced23d77844a6aa71352496ed61f76d6",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-042",
+        "sha256": "191d982b4611ec24e2d6ff935479929c55174105cf146aae9a17a9d55eb9a074"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "automation",
+        "placeable",
+        "pointable",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.review",
+      "label": "review",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.review.svg",
+      "sha256": "e67bad35161e24ab5e55b989406bdd830a927aa663031325ce39bad429f69c63",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-043",
+        "sha256": "0e3b1d55f91f541e584a8cf52102245ead46db0cb7dabb641a4031a5168c0915"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "review",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.decision",
+      "label": "decision",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.decision.svg",
+      "sha256": "b906fc605aa98870f6195c570053a4ab2c23143b6c1f08cd55e6d044d7ab3c40",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-044",
+        "sha256": "81ebea3ae35dd556099822dbdcfed05943c9c337b52b17e1a58f52bab8e87a7f"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "decision",
+        "placeable",
+        "pointable",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.trigger",
+      "label": "trigger",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.trigger.svg",
+      "sha256": "7fd6cc5517293fa46401ceed4dbaa0406b79446506216cc3c58e1b49521cf39d",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-045",
+        "sha256": "b27adb9b410ee51b5b0bfaef28bdd52d5feccef3ffd2b8bd42bf45afff7c7219"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "trigger",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.retry",
+      "label": "retry",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.retry.svg",
+      "sha256": "2492e1d50388870c01973b3951292004a18935f4e018695c65fd5755982e5506",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-046",
+        "sha256": "b38523292f3fd529cb79b874a9bb804da5052813458e330de0cf59ea35db84e5"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "retry",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.success",
+      "label": "success",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.success.svg",
+      "sha256": "68c8182fa42cadb2b9c37dee2f0725406ead2bd3d44e24709a09efa9e5a2a84f",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-047",
+        "sha256": "6fdfc1cba529d90523b207f382ed2c508060a52561b891081e855db9422719db"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "success",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.pipeline",
+      "label": "pipeline",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.pipeline.svg",
+      "sha256": "bcc0f4b7e0c55f9abb945292396ed641b7bcf9a55bb22ee091a09062464eabfc",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-048",
+        "sha256": "3b3c7ab04a979ea13b6dcb12d516338f1983eaadfee044ad8de512b50301859e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "pipeline",
+        "placeable",
+        "pointable",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.start",
+      "label": "start",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.start.svg",
+      "sha256": "202c9677add5e76ff06f8f2ec3f5b5b1a27e70bd1ef3913313f572e467b829fc",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-049",
+        "sha256": "70dd142d8e24346383c25e34d51a383e22e85a9b7c45ad7a09fc3eb62b4c5ccf"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "start",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.finish",
+      "label": "finish",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.finish.svg",
+      "sha256": "f70b4a6a48d1d77f4dba5efa38780a8f4c3397b52ee09664122a5669eaa1074d",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-050",
+        "sha256": "e4181ca242441bdf42ba3798c2240ab43f45a173995ecf0742941c142e4dfc77"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "finish",
+        "placeable",
+        "pointable",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.workflow.schedule",
+      "label": "schedule",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.workflow.schedule.svg",
+      "sha256": "b2d74398fff08b9ee8725400b0131b125aa8a677110088642acdc9d7f4f45a16",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-051",
+        "sha256": "6da927769db2b0de00d65ee0757c23df6ca1447e380c49060ff9dfd348baea2b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "schedule",
+        "workflow"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.app",
+      "label": "app",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.app.svg",
+      "sha256": "31f37ef3b573a8f9ea6639104eb0286dd008153a46368828906c413af8aaef80",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-052",
+        "sha256": "b968261ffeba61c9e8c365741d2089b060814e1e3a592fade5c2bcf59f4f0480"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "app",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.browser",
+      "label": "browser",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.browser.svg",
+      "sha256": "31f37ef3b573a8f9ea6639104eb0286dd008153a46368828906c413af8aaef80",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-053",
+        "sha256": "36a10a745540ca7741e3cfc5852d027e0dfaeb2af37e8c9bead3a8cc06832447"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "browser",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.phone",
+      "label": "phone",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.phone.svg",
+      "sha256": "7d6f267bf37d9eaecdf911d9ce5912616af7590b65b08aa677f082d7e043a016",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-054",
+        "sha256": "2dbf1a8b8d943af40ca46bea92131363f0bc2dd4543c2132738cdba43fadb97a"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "phone",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.dashboard",
+      "label": "dashboard",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.dashboard.svg",
+      "sha256": "c691042405f52bc2f3f8a5dcabafc62c291aa9ff5d03802992d3e047184af244",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-055",
+        "sha256": "fc0b653cdc4e4e3a38e78367cee519c0233f032d948cfa960f6794d30a4bf32c"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "dashboard",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.api",
+      "label": "api",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.api.svg",
+      "sha256": "76bc6c0d8f533f3d452b3f4d3c268329c8b48e2741aa47d3367d77dd470b2658",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-056",
+        "sha256": "b2fbf7d6084ad80159b237d15256207212f00fbfab972e194772df10d1a8ed14"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "api",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.website",
+      "label": "website",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.website.svg",
+      "sha256": "fbed1698a55a5190e9e4081ec053ee7c8525f9af074a611cd39766beb90e4c87",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-057",
+        "sha256": "916c51e7ab9e3fa896c7c837f4e2550c08ca37fadd4f4f26e717f616e0c40151"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "product",
+        "website"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.search",
+      "label": "search",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.search.svg",
+      "sha256": "c3d7fd0446e6ee481e830256ace857d87840e63937b5355d4f4bd07199dd7507",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-058",
+        "sha256": "59568b6615f8cf36535fea74bd053fc930a67a30c9e9a973992335c0a36e4cc6"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "product",
+        "search"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.upload",
+      "label": "upload",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.upload.svg",
+      "sha256": "6edc7d019f73213e17cee8a892f471cdee1b8afca15057ba39773335ef0db575",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-059",
+        "sha256": "46b074b362ec27899be1bede68477a0450c99074aa04684b1d8f188079c9499e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "product",
+        "upload"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.integration",
+      "label": "integration",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.integration.svg",
+      "sha256": "852c7b2d2fc9e4c093bb47b9f73bd98feffa9b4acccab5027b01c766b75531fd",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-060",
+        "sha256": "6331bc2438709c22883ab013862739da892e1e888078928d1bf37c0ef818df57"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "integration",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.webhook",
+      "label": "webhook",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.webhook.svg",
+      "sha256": "ce6e6dbce2cc2d9a525fee20b7e4000458fc7e16336a2dbbc167aa408b3a8783",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-061",
+        "sha256": "d6e160885269c738cdc377a999e406a7ef1b6a8f3b9258995eeb101238d2a3a6"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "product",
+        "webhook"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.terminal",
+      "label": "terminal",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.terminal.svg",
+      "sha256": "15320ba52d37facb1664669fed0fb94bdc0ced07010ce12a83cf7a3946c2ec42",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-062",
+        "sha256": "bd05ea74412186ffc3d08c19998508f915aeaa63c1de5286104c53a9c40411b7"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "product",
+        "terminal"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.code",
+      "label": "code",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.code.svg",
+      "sha256": "636000f1ae427b616552a1d6d15f7973c18288513fd0ae41f7340cb6ca3fcdcc",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-063",
+        "sha256": "11c0c63dd46c1c9bef0a47a1dbc1c357eb9bcf112fd009f02f76e4f82b9c4c5b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "code",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.settings",
+      "label": "settings",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.settings.svg",
+      "sha256": "f79b619dd603a67b3f72622c4677211aa74d69689a7a7c409607c4e49d3bcea9",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-064",
+        "sha256": "b1cd64b8bbba807185d12d7fe42072b7f57b00ad20b03c364f0027a532694cdd"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "product",
+        "settings"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.login",
+      "label": "login",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.login.svg",
+      "sha256": "4211a4823d3164f0c7d5b2c40e8030ac2d5988992426d8cc071ebb2a500aae91",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-065",
+        "sha256": "c5952132214db9594e45d9fcef13372ed51b95b14bdb3030677b5da633af8cb3"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "login",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.product.download",
+      "label": "download",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.product.download.svg",
+      "sha256": "c0f63cfeaccb3d355de54026d950aa030d71e722c6cf03277459ce01700edf69",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-066",
+        "sha256": "dcca1c15ea7c787b77f0ef057629ae7cd5a36df9a89925cdcc0e876aa15de9f2"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "download",
+        "placeable",
+        "pointable",
+        "product"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.chart-line",
+      "label": "chart-line",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.chart-line.svg",
+      "sha256": "a8e8c14f80a87f28d26c158589cb3306b36336548ae5f906943c5fb44c0e8732",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-067",
+        "sha256": "6abc1a71c600a2c53eb673c8c2246053ed515a83e2296d9132f36e138983e337"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "chart",
+        "chart-line",
+        "data",
+        "line",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.chart-bar",
+      "label": "chart-bar",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.chart-bar.svg",
+      "sha256": "1f6d47d0f1806d9d4407c349dc880350411bb7825da4771d3b64c9edde96efbe",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-068",
+        "sha256": "837e7a88d9a0f1dcf7c159fbbf0430dac194674eb8fff45b56ad9bf2b4f50e17"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "bar",
+        "chart",
+        "chart-bar",
+        "data",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.database",
+      "label": "database",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.database.svg",
+      "sha256": "8562d0f1fb24f46b36a577bcc92d1b0b4b315b348cfdfab945302ed1f8e1c3ec",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-069",
+        "sha256": "9a1945449cd283c2903db23e6d3b7012c6c9f1bcbd064c6e2ec92fd57682e353"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "database",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.dataset",
+      "label": "dataset",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.dataset.svg",
+      "sha256": "8562d0f1fb24f46b36a577bcc92d1b0b4b315b348cfdfab945302ed1f8e1c3ec",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-070",
+        "sha256": "e4207607f0df4c78c6454ece9d9d1827a8ec164f933bea51ca640c74a69400f0"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "dataset",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.analytics",
+      "label": "analytics",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.analytics.svg",
+      "sha256": "0d3041f6c078d78be35c0b784f6bc5845ba480c929bf7b5d3d5fbe1200abc962",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-071",
+        "sha256": "702d0148b8507ad78afd3a31bf72ccf99d8fc8b94658326d4fc26ec1083aef3b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "analytics",
+        "data",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.metric",
+      "label": "metric",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.metric.svg",
+      "sha256": "407d7e498997dbdb09468ec371d1565245ccfe4612f71504c9580301437e6469",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-072",
+        "sha256": "b96d3c330c3ab33df5277a418cbb3b272937cdf06c68d5fcb6a678c47d178406"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "metric",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.signal",
+      "label": "signal",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.signal.svg",
+      "sha256": "f8ef8cbe2f97a6a3406ae07dc41fe5412983bc89fddbee1e0961382cef75d992",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-073",
+        "sha256": "da288cecc86c0962c4749723e135b357cd92d7cccb4c013e3e8d4249538d2231"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "placeable",
+        "pointable",
+        "signal"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.query",
+      "label": "query",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.query.svg",
+      "sha256": "12d16c2f9a1eaec84838721059181d03cb931b2b33af7199d580eceb189464a5",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-074",
+        "sha256": "d5f661a780295fd657a5da217d1735f2ddfc1222a19451f7bfc64c1ed188c8f6"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "placeable",
+        "pointable",
+        "query"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.trend-up",
+      "label": "trend-up",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.trend-up.svg",
+      "sha256": "a1fc887389252d19e7ef9e81e4b5ead0988e9c04fc1be7365006d75f52b1aadc",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-075",
+        "sha256": "f0ed1439eb47b3efb716aea941d7a63674f422937cfba3b868bf2dc19669fbfb"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "placeable",
+        "pointable",
+        "trend",
+        "trend-up",
+        "up"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.gauge",
+      "label": "gauge",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.gauge.svg",
+      "sha256": "5c342b85cb0dd055762649d0dace72c68311cfd745faa1f31c956cdb27b33198",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-076",
+        "sha256": "9e1291bbb21598789ec0aff24e9777a2a46032ba5dc62df25513ad32c32b26e3"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "gauge",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.compare",
+      "label": "compare",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.compare.svg",
+      "sha256": "55956cf148126a5cedce76665065f1283152a9f59b8ce2d9681f8cbb82586743",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-077",
+        "sha256": "8a3604f3e5b46427e79bf4c2941819438187db7f076c6fe3837055e03eeb80b8"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "compare",
+        "data",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.insight",
+      "label": "insight",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.insight.svg",
+      "sha256": "7ffb6aa4796cc4a372757684fea9e63c9f2e44c07a1f0473ff801511cf130428",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-078",
+        "sha256": "dfbc8be81fb112f379e6bb2b926e4ac552d7444dbb8cfe1fe8965bb6dcef4521"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "insight",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.forecast",
+      "label": "forecast",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.forecast.svg",
+      "sha256": "e305a370eaa8b418d6afb6851d6e4aac807e905cfca9c6e528c23fd1fb4c782a",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-079",
+        "sha256": "47204bbebf9e128e13b04b1b0a514b96900bbd7056914c907baf67a3074d2695"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "forecast",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.data.filter",
+      "label": "filter",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.data.filter.svg",
+      "sha256": "3357b6979789597ab2899a8b83763e24d7559a7dfb1201711be8630b63f0c3f6",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-080",
+        "sha256": "2e9a52be9d3e3c90dcb5a827836342d7394f8ffce6b1ab78bbd08063ffe553e6"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data",
+        "filter",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.lock",
+      "label": "lock",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.lock.svg",
+      "sha256": "15c94c423adab26b75edf05966b9ff765854fca692d01059424f63b1a0658324",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-081",
+        "sha256": "99f7dbcd555c5145ffe821ca19b58c6982413fd5d6d6bb6ac564b571d05c5e29"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "lock",
+        "placeable",
+        "pointable",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.shield",
+      "label": "shield",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.shield.svg",
+      "sha256": "b49eda97190baaa8fb6d2b52f073d9ac1aaddde813d965d28ef32ad959b9daf4",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-082",
+        "sha256": "fb1e129ab22e7d6ad6b7741ebd38adff8304cc7ed53e3f404953c0aba39725df"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "security",
+        "shield"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.verification",
+      "label": "verification",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.verification.svg",
+      "sha256": "f3fe7c50c67cf67809773ed0e07c0da8bb7043bc0e0e772cf407bd201bf735e9",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-083",
+        "sha256": "779c0c5c8e7fcb7a5c113d74817b401589cae66eacd5338d3afe49b99e74e63f"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "security",
+        "verification"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.identity",
+      "label": "identity",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.identity.svg",
+      "sha256": "ed4e2a0f5c934f327e55e402bbd2cccad8774325871983772b959004ecd5c5f7",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-084",
+        "sha256": "dbf2c6f5ad905af52125627993511387683546853e29ca2b8ef4bee9a88833f7"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "identity",
+        "placeable",
+        "pointable",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.permission",
+      "label": "permission",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.permission.svg",
+      "sha256": "dfb084cd4f66afa91f012fe9362b784ee28e66ae17a131b29d6c58f9e34da7a0",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-085",
+        "sha256": "124f5d1ff0b7450b2bd98339c38e4f62dcd7e05af1426a20ac61cd2eb9b57bb7"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "permission",
+        "placeable",
+        "pointable",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.key",
+      "label": "key",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.key.svg",
+      "sha256": "a19e07c26d6d89dc226fcd6c24764fd20d5fcc29301012c38369c54ce994288b",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-086",
+        "sha256": "cd7c2c1221bcaaa9da2c827ef1f3607d32076b6fe6a1fe8eb98133dc643e376a"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "key",
+        "placeable",
+        "pointable",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.access",
+      "label": "access",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.access.svg",
+      "sha256": "50ea94d5dd09d16e95a4cf31eee5ffd84c2563548b4b4c27f0a393ccdf42d228",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-087",
+        "sha256": "2ce8ca70c8153ebd91507c274580f2f9287c0a977322b0c75879b896cc83a529"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "access",
+        "placeable",
+        "pointable",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.privacy",
+      "label": "privacy",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.privacy.svg",
+      "sha256": "7566d915cc4b81b2d14b74554c60876d1fad0be6d877f6ca975a4973b8ad173e",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-088",
+        "sha256": "d18385c93ced9426964ab9436b6995fb29fa366def27d1584cb5549f10018f08"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "privacy",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.audit",
+      "label": "audit",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.audit.svg",
+      "sha256": "d88288a3f84ce14b52365d34d4c3c53cafa2b80c0ec8a4711b8eebd104c06f93",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-089",
+        "sha256": "6e6ae83db0a5a1ef754be49edf85d5f24044d8686a069a5109db2aabf71d44bd"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "audit",
+        "placeable",
+        "pointable",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.compliance",
+      "label": "compliance",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.compliance.svg",
+      "sha256": "f3fe7c50c67cf67809773ed0e07c0da8bb7043bc0e0e772cf407bd201bf735e9",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-090",
+        "sha256": "51ca7a3b09e5dfd68bdc8ac13c2fda19ceaa096358f9facc56c568ed51b92fe7"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "compliance",
+        "placeable",
+        "pointable",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.secure-link",
+      "label": "secure-link",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.secure-link.svg",
+      "sha256": "6199ef67185687c2fd92f8c9bcd544f393cfa53069963c00211802439631851b",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-091",
+        "sha256": "cefb56e28454f82c91a12c3b679ad619f2aa70cc9475e608dc7cd74234b23d32"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "link",
+        "placeable",
+        "pointable",
+        "secure",
+        "secure-link",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.security.credential",
+      "label": "credential",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.security.credential.svg",
+      "sha256": "7d7b52e41e572ec7d8c47377d2745232ae17f2e2dd34d8aa769992da597cf2e7",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-092",
+        "sha256": "673a823cd40042d65acaec2ab71aca1e2febe810c43118025bb8007d4da119a2"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "credential",
+        "placeable",
+        "pointable",
+        "security"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.commerce.money",
+      "label": "money",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.commerce.money.svg",
+      "sha256": "35770c136ab9e08f905cce8f7da64b833ba0e05d1831e7d84a57a96e48c8cb4c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-093",
+        "sha256": "237c480d5d6a5c55a81c1fdc603023cf7b9aa727c920fe9c59bfad3f27d31f5a"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "commerce",
+        "money",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.commerce.payment",
+      "label": "payment",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.commerce.payment.svg",
+      "sha256": "aa87d90b4ec7160d1d0b9e9845cec3489f2801d09a181ec3a96bd0e88490ea7c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-094",
+        "sha256": "e59a928ae666bb09c101a3ae22dcb6961d4fb13bcb5ae9590948a530089a6fa3"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "commerce",
+        "payment",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.commerce.card",
+      "label": "card",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.commerce.card.svg",
+      "sha256": "b6f5f7b541a695121c04c0d84a20a1d0312c98b03b33f7e1204ca080b4fda82e",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-095",
+        "sha256": "6f0d9d0898cbc7a831c6208402e3a0deea01afbda883bf8bebad8044cc043619"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "card",
+        "commerce",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.commerce.purchase",
+      "label": "purchase",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.commerce.purchase.svg",
+      "sha256": "29aa0e322f5fe3e15777f61412eb9dca9033b3ab4a02e0cf49d2f315ca241948",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-096",
+        "sha256": "c7b065703e745dbd0f2fbcdbac802c7e041afea8a2208e21c1d6905f4d7c3ded"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "commerce",
+        "placeable",
+        "pointable",
+        "purchase"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.commerce.checkout",
+      "label": "checkout",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.commerce.checkout.svg",
+      "sha256": "b6f5f7b541a695121c04c0d84a20a1d0312c98b03b33f7e1204ca080b4fda82e",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-097",
+        "sha256": "bea417c8d081218376a901c72496ac0f004e93f2a65838aae2df8d03b1dd3a74"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "checkout",
+        "commerce",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.commerce.order",
+      "label": "order",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.commerce.order.svg",
+      "sha256": "8e1e2c806c65e95db542d316431c84b28b197dc723d8c3c25504f3f4fca55633",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-098",
+        "sha256": "3070cb73fa1b7395972dd0b6d8eb4ec7595cf6cd4bcc1c110ac75a04419aa036"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "commerce",
+        "order",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.commerce.wallet-cash",
+      "label": "wallet-cash",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.commerce.wallet-cash.svg",
+      "sha256": "22a61fb76385660d2548e103de11a48568a3023f5ac51c17019190d04a2f2848",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-099",
+        "sha256": "2d8dca94ee1d85992e5e3b778474a049f3640e004ddcc8ce7f97c20916be426b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "cash",
+        "commerce",
+        "crypto",
+        "placeable",
+        "pointable",
+        "wallet",
+        "wallet-cash"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.commerce.revenue",
+      "label": "revenue",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.commerce.revenue.svg",
+      "sha256": "3d5a6630c6c783e64bd5a1a1574d9060ab5d2060f7e2f3c9e4416b38f6f07210",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-100",
+        "sha256": "76b5da3501c06310f80a9dd8e08894aab1bcec82fe1e065cb254aa52ed4802d3"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "commerce",
+        "placeable",
+        "pointable",
+        "revenue"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.documents.document",
+      "label": "document",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.documents.document.svg",
+      "sha256": "72edebae5718a6cbee06b10976c3577f0c07473601f2f9f74f5dac573305022c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-101",
+        "sha256": "0eb8092b1f3e4d1c790010d99487e11f9cdd39a824707597a1a1e227bd1b2daf"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "document",
+        "documents",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.documents.contract",
+      "label": "contract",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.documents.contract.svg",
+      "sha256": "816ea0c4389642b1a27edb242a2c2cc7dca6a7e4908a8990a5d0fa97c3ed9bd1",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-102",
+        "sha256": "4b6cb6f72a252ada0987b9118ffd9e3587f14a2770e35a0ab8f125ee115e766c"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "contract",
+        "documents",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.documents.invoice",
+      "label": "invoice",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.documents.invoice.svg",
+      "sha256": "21ce4f0a811d5336bc83c7fb71fed14856fe5d0f33e6b39c008ac18ae4115e4c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-103",
+        "sha256": "661e2c8c7f9c95ff21fe0eae7f0e027ba9aac15b34a3f247dacfee0a0b110e46"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "documents",
+        "invoice",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.documents.brief",
+      "label": "brief",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.documents.brief.svg",
+      "sha256": "cca4cc35e2d6944eefa2417ab36d54478c144fb61a00d4a3a6ff909b6878cb5b",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-104",
+        "sha256": "2b6c33315ca63f7c77477ecfe4c938c42692ee2c55679fb4276fe648943ca2ff"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "brief",
+        "documents",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.documents.report",
+      "label": "report",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.documents.report.svg",
+      "sha256": "7eb5568ef31cba3154ecda824b2ae5c6e51d7900d0772c88e02abc5c13e69f4f",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-105",
+        "sha256": "ad9767f591bcb769d997e0a2bcf843d6b11b2a2ae2354e920a7cdcc0d9df8c2c"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "documents",
+        "placeable",
+        "pointable",
+        "report"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.documents.receipt",
+      "label": "receipt",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.documents.receipt.svg",
+      "sha256": "21ce4f0a811d5336bc83c7fb71fed14856fe5d0f33e6b39c008ac18ae4115e4c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-106",
+        "sha256": "bb12710c1afa7f083581fc1e5636df39c421074d22eed00b46002ec747ca46ad"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "documents",
+        "placeable",
+        "pointable",
+        "receipt"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.documents.checklist",
+      "label": "checklist",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.documents.checklist.svg",
+      "sha256": "20bbd06bff5c02c2ae133c36cdb0aecc97b431462af62421fe429c6ed753eb36",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-107",
+        "sha256": "e045a5d7f69e9bb2d19daaaf24ecbbcb433f70df82cbae538a35d48dda4d9ace"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "checklist",
+        "documents",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.documents.signature",
+      "label": "signature",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.documents.signature.svg",
+      "sha256": "253c5135fcbcebe25898629115800b08a158051d851f53fd7aadfa527147e9af",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-108",
+        "sha256": "a9ae7cb9ea25b159290b120456d439ef618c4aa2ba64fdf9a2f32ec586cee683"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "documents",
+        "placeable",
+        "pointable",
+        "signature"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.communication.message",
+      "label": "message",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.communication.message.svg",
+      "sha256": "2ae3bb598daed3ad56eeb9f3c79a5ff6869a17ec49831845572a35de9a1cae79",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-109",
+        "sha256": "d29515da0c90b8f8eb5cb95b1ae9c6b6deac36168028d4436981ab1431794885"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "communication",
+        "message",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.communication.email",
+      "label": "email",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.communication.email.svg",
+      "sha256": "646adf7a8799e622140f64c22b5951d925ba5d0b4ea058a50cbab253d63482c5",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-110",
+        "sha256": "ea9c9f47b1828f9bc254772ec95cc3681695fab6207e5bc060abdc546d394777"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "communication",
+        "email",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.communication.notification",
+      "label": "notification",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.communication.notification.svg",
+      "sha256": "859d6a331784a6d348588e438160f02e6b40e608541dab97b7d1bbe20d15bfb7",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-111",
+        "sha256": "07f51a9e0d1dd1c04fd51a035ee5a16f817cda3390c916bf4e29625dc68babbf"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "communication",
+        "notification",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.communication.conversation",
+      "label": "conversation",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.communication.conversation.svg",
+      "sha256": "bb4309bd3d0a17993ba046f49e10c4b1eed80c8d9db9952d2bd6272867b4efed",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-112",
+        "sha256": "36d33ac5273cf85cbb94611b79085d2295f67e2840554de3003184132480deee"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "communication",
+        "conversation",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.communication.feedback",
+      "label": "feedback",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.communication.feedback.svg",
+      "sha256": "662f24c115419a3fa1aa3b068afe74a4fe561c011c7e669c68754f81085e64c0",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-113",
+        "sha256": "fcc1963ce87779451523d9496fb26219abb28ffe7d7839d60b48d2e15c6dfd69"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "communication",
+        "feedback",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.communication.send",
+      "label": "send",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.communication.send.svg",
+      "sha256": "4a1aa9ce84e3dae6e43630085f9917baaf2615c8dfaecee35da543f6fe5c303d",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-114",
+        "sha256": "22f3688b032e6427e829e4914f9e7a89eae798d98f7cd27f79f4a7085c5dbe42"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "communication",
+        "placeable",
+        "pointable",
+        "send"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.communication.receive",
+      "label": "receive",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.communication.receive.svg",
+      "sha256": "c0f63cfeaccb3d355de54026d950aa030d71e722c6cf03277459ce01700edf69",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-115",
+        "sha256": "13303643b832460580a5834df62d775049779d9df08b36395f61a5706b55b88c"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "communication",
+        "placeable",
+        "pointable",
+        "receive"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.communication.signal",
+      "label": "signal",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.communication.signal.svg",
+      "sha256": "ff4f766c16c85a0e4dc423d78f9a05546e469978d679f50055eef3fe6bdaee17",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-116",
+        "sha256": "ce47024308c2f7910512fb1255c04d3fa4bd3177c9359083812190deac6af3be"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "communication",
+        "placeable",
+        "pointable",
+        "signal"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.media.image",
+      "label": "image",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.media.image.svg",
+      "sha256": "7ca40d38a54d6fbd86a22119caaeda8f1feed3fa4ef5a077ccba38e033b9baa6",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-117",
+        "sha256": "2b3dbc7b0917446c2cd24f1de42c08d8e87658e1e7592e1f3664c7cdd6ee3eb9"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "image",
+        "media",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.media.video",
+      "label": "video",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.media.video.svg",
+      "sha256": "13778adb77429cad74ab50b2f8b3dc10744ed82f93dd6ba1935e5457704a7f35",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-118",
+        "sha256": "eac2c58e893d8f18d95ca068d2879fa64f9235ace8467aa78b68e82cd395b4b9"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "media",
+        "placeable",
+        "pointable",
+        "video"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.media.audio",
+      "label": "audio",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.media.audio.svg",
+      "sha256": "602d1c9824df7b09be1f605f4273cc11048dbb401dbeaafc8a441c2ab677d576",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-119",
+        "sha256": "1a8334060e88ac8e378dba414dfa3a3cbfabf9283047b46bdabd1449ab8d3ad1"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "audio",
+        "media",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.media.timeline",
+      "label": "timeline",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.media.timeline.svg",
+      "sha256": "d845e1c12b10e54186c7822633ed3d15d12d316c9a3ed1d47ff0b289ab4258fe",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-120",
+        "sha256": "63732358cefa1f1d530b16ac82a670ec50156e8b0cd78bd326d7fa575e1ffa9e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "media",
+        "placeable",
+        "pointable",
+        "timeline"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.media.publish",
+      "label": "publish",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.media.publish.svg",
+      "sha256": "b8e08023bb158f8c546fa9876ccbce68c863367ed1749c4a288fd27289ac8824",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-121",
+        "sha256": "54f0c54bae305bfb9f408a3b074a67e43a6cead0bcb071011e6283fcf7e48a56"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "media",
+        "placeable",
+        "pointable",
+        "publish"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.media.render",
+      "label": "render",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.media.render.svg",
+      "sha256": "06e15294a19de9c2bb56f0b2518ea83de53eefa27f83a0bba143eb28e8bc4a9b",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-122",
+        "sha256": "18d4f0ada9f765a75d5581279ac377015a7d247084cd2bf63f7f74f0cd555a3e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "media",
+        "placeable",
+        "pointable",
+        "render"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.media.edit",
+      "label": "edit",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.media.edit.svg",
+      "sha256": "c80c5a05c8dc56d013f3d7abe575720840ef60361ccfd385646ef32c65b90725",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-123",
+        "sha256": "f0c18412643583216f36d2d320bef80ff48c1ac88b3ad619b3b87d6e65f9982b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "edit",
+        "media",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "icon.media.caption",
+      "label": "caption",
+      "family": "icon",
+      "domain": "universal",
+      "path": "aev1/icon.media.caption.svg",
+      "sha256": "bfa5ff40346ac7e0ae9616cd17ffc0ee4a42c6701aba1b058141bb4fa24e45c7",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-124",
+        "sha256": "59f43b0299ab95ecb48e67c3d55876b032ca5884b3378034ce56855250171c6c"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "caption",
+        "media",
+        "placeable",
+        "pointable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable"
+      ]
+    },
+    {
+      "id": "prop.office.laptop",
+      "label": "laptop",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.office.laptop.svg",
+      "sha256": "cf4b78fce944e1c57d5fe9f6e09ae9f5aee9c911277e1812dd09958f4170d02a",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-125",
+        "sha256": "9afe5710a1eef0a2e4962837c2c5df2bd9877fbb7399cdde48bc03da02df2803"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "laptop",
+        "office",
+        "placeable",
+        "pointable",
+        "screen-bearing"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "screen-bearing"
+      ]
+    },
+    {
+      "id": "prop.office.desktop-monitor",
+      "label": "desktop-monitor",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.office.desktop-monitor.svg",
+      "sha256": "3b04130020da56a0f66c38cd122b834f58d3c346e6aad434313dbc9b022d8980",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-126",
+        "sha256": "4f422af67dac6060af0b817a6df69a5abe66ac6e792f89b8604936402f02dce2"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "desktop",
+        "monitor",
+        "office",
+        "placeable",
+        "pointable",
+        "screen-bearing"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "screen-bearing"
+      ]
+    },
+    {
+      "id": "prop.office.phone",
+      "label": "phone",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.office.phone.svg",
+      "sha256": "837085a4ce5b748726a535e0337fb064f0fb818aaeaf0d5520460259810be8bf",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-127",
+        "sha256": "c88099cc426af1979ec1f136d14a29a908ec4b6a7162df3a14753fec9a895b1d"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "holdable",
+        "office",
+        "phone",
+        "pointable",
+        "screen-bearing",
+        "transferable"
+      ],
+      "affordances": [
+        "holdable",
+        "pointable",
+        "screen-bearing",
+        "transferable"
+      ]
+    },
+    {
+      "id": "prop.office.tablet",
+      "label": "tablet",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.office.tablet.svg",
+      "sha256": "c4948aaacbb50dd89bdf1af54a3e00161691cfe92fafd735832b5f6e71dbf0cd",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-128",
+        "sha256": "f58bdd3502e59dd3b54140a19429d3ef4379357469a5e4107cdeeeb0c895dc38"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "holdable",
+        "office",
+        "pointable",
+        "screen-bearing",
+        "tablet",
+        "transferable"
+      ],
+      "affordances": [
+        "holdable",
+        "pointable",
+        "screen-bearing",
+        "transferable"
+      ]
+    },
+    {
+      "id": "prop.office.paper-sheet",
+      "label": "paper-sheet",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.office.paper-sheet.svg",
+      "sha256": "34b85168e1e27853fffdaa0bcce8400bf7f3aaf8b9e16f21ae4bfe536e6e9215",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-129",
+        "sha256": "aa7628569a7ee130fc2ccb7d3a4e886cd4d34d9780e37841a98f4acda893350d"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "holdable",
+        "office",
+        "paper",
+        "placeable",
+        "sheet",
+        "transferable",
+        "writable"
+      ],
+      "affordances": [
+        "holdable",
+        "placeable",
+        "transferable",
+        "writable"
+      ]
+    },
+    {
+      "id": "prop.office.sticky-note",
+      "label": "sticky-note",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.office.sticky-note.svg",
+      "sha256": "34b85168e1e27853fffdaa0bcce8400bf7f3aaf8b9e16f21ae4bfe536e6e9215",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-130",
+        "sha256": "4a3e5735d2b051cf63d72145d113cc90b5b666bb63bffb9343fc33485705df60"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "holdable",
+        "note",
+        "office",
+        "placeable",
+        "sticky",
+        "transferable",
+        "writable"
+      ],
+      "affordances": [
+        "holdable",
+        "placeable",
+        "transferable",
+        "writable"
+      ]
+    },
+    {
+      "id": "prop.office.clipboard",
+      "label": "clipboard",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.office.clipboard.svg",
+      "sha256": "569327a925675f35de9a11a03642fdbef6916dae0f4359605215fd4392f9be69",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-131",
+        "sha256": "b5cc8ceaece231495100487e0d55e00d2f6fd78905ab3991c0be77f58b1e714a"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "clipboard",
+        "holdable",
+        "office",
+        "placeable",
+        "transferable",
+        "writable"
+      ],
+      "affordances": [
+        "holdable",
+        "placeable",
+        "transferable",
+        "writable"
+      ]
+    },
+    {
+      "id": "prop.office.desk",
+      "label": "desk",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.office.desk.svg",
+      "sha256": "e0e8d0af368b195e26a6218ac2643375d666fcae90424d01a2d025bb5a37d83d",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-132",
+        "sha256": "1205f1b51352a3919e0fa83827ca5fa0960515f7d7c59769d6c560d2e0f21103"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "desk",
+        "office",
+        "placeable",
+        "surface"
+      ],
+      "affordances": [
+        "placeable",
+        "surface"
+      ]
+    },
+    {
+      "id": "prop.commerce.package-box",
+      "label": "package-box",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.commerce.package-box.svg",
+      "sha256": "95c4c36a42637df9797c830de23e5993823b50dc317ed94d761dde3cdad5f5fc",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-133",
+        "sha256": "4b1d41c8de5614e0d99a3deb2e3158c78865cf0cca4662e10b5bd4e9fb02d4a1"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "box",
+        "commerce",
+        "container",
+        "holdable",
+        "package",
+        "placeable",
+        "transferable"
+      ],
+      "affordances": [
+        "container",
+        "holdable",
+        "placeable",
+        "transferable"
+      ]
+    },
+    {
+      "id": "prop.commerce.payment-card",
+      "label": "payment-card",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.commerce.payment-card.svg",
+      "sha256": "28fdcd39c761b4b2147546b7603fe620c576b0545853588d40eaf697f3ed6c78",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-134",
+        "sha256": "6121a20a69fa37911a340e7c6f2f42dfab55cd93573bbf1a70f41fa5a21695e4"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "card",
+        "commerce",
+        "holdable",
+        "payment",
+        "payment-instrument",
+        "transferable"
+      ],
+      "affordances": [
+        "holdable",
+        "payment-instrument",
+        "transferable"
+      ]
+    },
+    {
+      "id": "prop.commerce.coin-stack",
+      "label": "coin-stack",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.commerce.coin-stack.svg",
+      "sha256": "6da42c71dedcb41892fc21dfeeb73badb2819e22deb5b5f27e3da26ef54ba382",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-135",
+        "sha256": "4cef376dec22a9f57609ed3e53f3367892678dcf6afd3241ffb4deeb90dcd6e9"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "coin",
+        "commerce",
+        "placeable",
+        "stack",
+        "transferable",
+        "value-object"
+      ],
+      "affordances": [
+        "placeable",
+        "transferable",
+        "value-object"
+      ]
+    },
+    {
+      "id": "prop.commerce.receipt-roll",
+      "label": "receipt-roll",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.commerce.receipt-roll.svg",
+      "sha256": "d9078c0368489343f53ab5416ebcafdd085df09fd06dd05dc68dc0fe6ce78fd1",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-136",
+        "sha256": "01bc6e4945fc4396c6d3fefafdc0f29cae8d0ed88a3de30c7a15ffd70efbe780"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "commerce",
+        "holdable",
+        "receipt",
+        "roll",
+        "transferable",
+        "writable"
+      ],
+      "affordances": [
+        "holdable",
+        "transferable",
+        "writable"
+      ]
+    },
+    {
+      "id": "prop.commerce.storefront",
+      "label": "storefront",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.commerce.storefront.svg",
+      "sha256": "c16e19010b9fc0f5f683ce6742424cc80d978b55021bf0081e5285dc179abc19",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-137",
+        "sha256": "7158797a437b922f1ae9021fde92765b5bf5e7a84e3081cc0c7edceaeceac886"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "commerce",
+        "environment-anchor",
+        "placeable",
+        "storefront"
+      ],
+      "affordances": [
+        "environment-anchor",
+        "placeable"
+      ]
+    },
+    {
+      "id": "prop.commerce.checkout-terminal",
+      "label": "checkout-terminal",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.commerce.checkout-terminal.svg",
+      "sha256": "9b9063d43881c27bda9962168dbe48a6e95652fd7cbbcf5b866554355a4eb72f",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-138",
+        "sha256": "aeb92be3d3933e9ae3f60d17907341b731b3ac27d5402b500dd35f656a388965"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "checkout",
+        "commerce",
+        "payment-instrument",
+        "pointable",
+        "screen-bearing",
+        "terminal"
+      ],
+      "affordances": [
+        "payment-instrument",
+        "pointable",
+        "screen-bearing"
+      ]
+    },
+    {
+      "id": "prop.tech.server-rack",
+      "label": "server-rack",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.tech.server-rack.svg",
+      "sha256": "218168fc93926c27e17fb5ab9743f00f09a922ba72b74e8fd8638389223f9174",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-139",
+        "sha256": "b008da29d5ce7d046e91e791f460b762643bd596c7cbc87fd2521556432f1f7b"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "compute",
+        "environment-anchor",
+        "placeable",
+        "rack",
+        "server",
+        "tech"
+      ],
+      "affordances": [
+        "compute",
+        "environment-anchor",
+        "placeable"
+      ]
+    },
+    {
+      "id": "prop.tech.router",
+      "label": "router",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.tech.router.svg",
+      "sha256": "3c3149a2a3fbf935a3e3b78b616f4d1c30d92cc5bfe68722c431e388691d0125",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-140",
+        "sha256": "7f4cbe4e7f3fdb2e4fbecd803938b7d3bc1a0f8d405942e487d0e4f3d216efa8"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "network",
+        "placeable",
+        "router",
+        "tech"
+      ],
+      "affordances": [
+        "network",
+        "placeable"
+      ]
+    },
+    {
+      "id": "prop.tech.database-stack",
+      "label": "database-stack",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.tech.database-stack.svg",
+      "sha256": "497fbbf76a4eeabcd08db9011f648eedd83292d0decde5887394762ffb4f3283",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-141",
+        "sha256": "325e5cebb7f0e0d1fa76e480d20da9ee1c9cb48839ce44a4cff4243ba97ff925"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "data-container",
+        "database",
+        "placeable",
+        "stack",
+        "tech"
+      ],
+      "affordances": [
+        "data-container",
+        "placeable"
+      ]
+    },
+    {
+      "id": "prop.tech.dashboard-screen",
+      "label": "dashboard-screen",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.tech.dashboard-screen.svg",
+      "sha256": "71cbb6b65c14eb67db2e3ef0ac1541e728e4246cd0562cba1184101421ebb75b",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-142",
+        "sha256": "bfdf4fb0b5e6ddaca527929a5e356f912ae31b94ffac911daac2f36f58a41a61"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "dashboard",
+        "placeable",
+        "pointable",
+        "screen",
+        "screen-bearing",
+        "tech"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "screen-bearing"
+      ]
+    },
+    {
+      "id": "prop.tech.cloud-compute",
+      "label": "cloud-compute",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.tech.cloud-compute.svg",
+      "sha256": "176eac8ec7ecbf947595650ca35b0c3d71a2989d1c5ba90bc209eff4d95f9095",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-143",
+        "sha256": "c7a5b9ea8189d9b5f3e1e09d0be9a97f8861599d12ec6dec900b04de539deae3"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "cloud",
+        "compute",
+        "network",
+        "tech",
+        "transformable"
+      ],
+      "affordances": [
+        "compute",
+        "network",
+        "transformable"
+      ]
+    },
+    {
+      "id": "prop.tech.ai-console",
+      "label": "ai-console",
+      "family": "literal-prop",
+      "domain": "universal",
+      "path": "aev1/prop.tech.ai-console.svg",
+      "sha256": "83ed60b802e568f3a567540ed70168cf525d2ba80f2f1dc160a1584977b5a817",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-144",
+        "sha256": "006049a9e55cc80bdb5b1b3fbd1ad6e48fdb4f35cf7338d0ef561fd417a44896"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "compute",
+        "console",
+        "placeable",
+        "pointable",
+        "screen-bearing",
+        "tech"
+      ],
+      "affordances": [
+        "compute",
+        "placeable",
+        "pointable",
+        "screen-bearing"
+      ]
+    },
+    {
+      "id": "metaphor.complexity.tangled-thread",
+      "label": "tangled-thread",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.complexity.tangled-thread.svg",
+      "sha256": "5cf8e04fd3693665b291d8aa56eb05222790347ed491b8c951b9ba5489b6af5a",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-145",
+        "sha256": "0533ab58983af30da8f68550568f8334bbcb2632d572d712cc946170d2e3a63f"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "placeable",
+        "pointable",
+        "tangled",
+        "thread",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.bottleneck.bottleneck-pipe",
+      "label": "bottleneck-pipe",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.bottleneck.bottleneck-pipe.svg",
+      "sha256": "b6b4205e64d763802763850cc45d136fe8449df6844720a17b38e2593fc32b2c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-146",
+        "sha256": "e07fb24592f94f587ea72c51c51926c94b77ae844f134ceb2adb04fa51ee6784"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "bottleneck",
+        "pipe",
+        "placeable",
+        "pointable",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.blockage.blocked-door",
+      "label": "blocked-door",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.blockage.blocked-door.svg",
+      "sha256": "940d1f23db8ff2972d3f02ed4f7d21859e15ad190210a94c12a37ce8620155e0",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-147",
+        "sha256": "b6dbf8ee4e568f27953344355a7e38392bb41607ce31683bf92e3f7f3aec21f7"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "blocked",
+        "door",
+        "placeable",
+        "pointable",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.coordination.relay-baton",
+      "label": "relay-baton",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.coordination.relay-baton.svg",
+      "sha256": "675a4b0269c9a22f9da394d87be4c930ffd05e8d4c5ba88808efe740924c4995",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-148",
+        "sha256": "466e7fc317f290c6f1a94e4988ea77e5af8302180139e44123d14f3d7d0ef333"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "baton",
+        "placeable",
+        "pointable",
+        "relay",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.coordination.conveyor",
+      "label": "conveyor",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.coordination.conveyor.svg",
+      "sha256": "d3dbc0a837cdb4339753e54744722b8391e9d0ac6edf2fbb7e798f52168d282a",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-149",
+        "sha256": "7a69bc13eb849ba21c1058ac39f51ae923be8de884d8b0dbb345d96fe9edcb77"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "conveyor",
+        "placeable",
+        "pointable",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.filtering.funnel-filter",
+      "label": "funnel-filter",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.filtering.funnel-filter.svg",
+      "sha256": "1dbe212c59eef7b94213f80b619cd7eadd6c77f68a93789bf7b66dd17d81b1cd",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-150",
+        "sha256": "3fd1144c1ab27c9625b0269498f980fb3309f7237c87701a2aa1136d7e0f8f8e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "filter",
+        "funnel",
+        "placeable",
+        "pointable",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.connection.bridge",
+      "label": "bridge",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.connection.bridge.svg",
+      "sha256": "d9b13bb0ed525b09f444e3c354c306976cff5cb981d2d38066af83a7da1557dc",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-151",
+        "sha256": "63e3fcf706c30a91a9430b67a7274302f15979ed99295c329ecfee0556f54e83"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "bridge",
+        "crypto",
+        "placeable",
+        "pointable",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.growth.staircase-growth",
+      "label": "staircase-growth",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.growth.staircase-growth.svg",
+      "sha256": "c1d36ba2f0aa77e5f5de61590bb2ff526ba567e6ef3123769ef57fa93e0e28e1",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-152",
+        "sha256": "27306f7f3837feea27efe0db2cfc4988b861f944c7f4ee96b9535fed2eb86ab4"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "growth",
+        "placeable",
+        "pointable",
+        "staircase",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.trust.inspection-seal",
+      "label": "inspection-seal",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.trust.inspection-seal.svg",
+      "sha256": "9d5ebf241db96b61dd1cdeb1e116e532c8f1212e2c82c6f646a654db25f20e7c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-153",
+        "sha256": "b4449a7270c31d1f742de4e08aad39391d29120c354e85cbd97e6c98df8a7337"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "inspection",
+        "placeable",
+        "pointable",
+        "seal",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "metaphor.coordination.assembly-machine",
+      "label": "assembly-machine",
+      "family": "visual-metaphor",
+      "domain": "universal",
+      "path": "aev1/metaphor.coordination.assembly-machine.svg",
+      "sha256": "635a628efce3474f27f8d94a4d996fe8e7047dc83db6ce436dd6d1541b8c1d5f",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-154",
+        "sha256": "875409735cd54b48a9c69358ff5b4290a7b20d4dd3ad1f2c5d8752a07d024991"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "assembly",
+        "machine",
+        "placeable",
+        "pointable",
+        "transformable"
+      ],
+      "affordances": [
+        "placeable",
+        "pointable",
+        "transformable"
+      ]
+    },
+    {
+      "id": "environment.creator.creator-workspace",
+      "label": "creator-workspace",
+      "family": "environment-fragment",
+      "domain": "universal",
+      "path": "aev1/environment.creator.creator-workspace.svg",
+      "sha256": "8ab54cd3cd36f7175cac68bf00d4fe3cb3231b2f233424bbff29bfabb2e80ec3",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-155",
+        "sha256": "24df54bc64909f8371c275f2b71b80fc84003dbab54c25d82fce1119a32da024"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "creator",
+        "workspace"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "environment.analyst.analyst-review-desk",
+      "label": "analyst-review-desk",
+      "family": "environment-fragment",
+      "domain": "universal",
+      "path": "aev1/environment.analyst.analyst-review-desk.svg",
+      "sha256": "20382e310ee847ec2415883fefcf4b545bbbec903d110baf7d82aec4a0700613",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-156",
+        "sha256": "13fc6ff2cd174efd3c9d2e3d43e870251d262bb7f852b011bac9b84df0b4cc9e"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "analyst",
+        "desk",
+        "review"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "environment.product.product-demo-table",
+      "label": "product-demo-table",
+      "family": "environment-fragment",
+      "domain": "universal",
+      "path": "aev1/environment.product.product-demo-table.svg",
+      "sha256": "feeee5f4c9b33e2c5e14a3c1971785cef46c2b668ee9358d7b48ce421733a4bf",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-157",
+        "sha256": "cf037f7283111d3dfac41a3bdc9d345b81646076f31d4c221b03f042b935fc16"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "demo",
+        "product",
+        "table"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "environment.commerce.checkout-counter",
+      "label": "checkout-counter",
+      "family": "environment-fragment",
+      "domain": "universal",
+      "path": "aev1/environment.commerce.checkout-counter.svg",
+      "sha256": "a1e59cf3dc7cc7dfa07db3176d3e04e33be432604f820d80619e313c7972d7cd",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-158",
+        "sha256": "fd29f8e79cd0fdb0113ab58227214306ca3140de40227d297c52ea8e7e93f5c0"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "checkout",
+        "counter"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "environment.workflow.team-handoff-table",
+      "label": "team-handoff-table",
+      "family": "environment-fragment",
+      "domain": "universal",
+      "path": "aev1/environment.workflow.team-handoff-table.svg",
+      "sha256": "1d1205f1336cc0da5026002ed24db99f30424df3ef10ed354f2c967834dfd19f",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-159",
+        "sha256": "ad482c4732b2387ba7b659d3718ff90e5b433643c492432b1accc9f8cf7437b7"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "handoff",
+        "table",
+        "team"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "environment.ai.ai-ops-console",
+      "label": "ai-ops-console",
+      "family": "environment-fragment",
+      "domain": "universal",
+      "path": "aev1/environment.ai.ai-ops-console.svg",
+      "sha256": "da889aa3278dbbc05e0b2f49dcc374d7ef734747bb860fc9af298b715e080b1d",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-160",
+        "sha256": "e34aa8fdcd9ca8ed614788af53942ee21c465fafe2fe40aee6da47b7a5e26fc7"
+      },
+      "license": "NexStudio-authored",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "console",
+        "ops"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.agent-robot-handoff",
+      "label": "agent-robot-handoff",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.agent-robot-handoff.svg",
+      "sha256": "5ac7bfbc9ae30361ea0f005a4cd1dbab5101aea7ff40d0dd268d4357b883239c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-189",
+        "sha256": "39c6fe2a819c5c5a26540ecbe74d1b364372cec6b1e43ee6415a66c64895c88a"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "agent",
+        "ai",
+        "handoff",
+        "robot"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.collateral-vault",
+      "label": "collateral-vault",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.collateral-vault.svg",
+      "sha256": "10fec1021e56530dca44ee89c8918d0356b4a3c9024002d21eeca3beb99b8343",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-190",
+        "sha256": "0461d873da96ceb9e6470d50fd9a5578e055b9eb3b63374c283ef579cd7015ac"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "collateral",
+        "crypto",
+        "vault"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.compute-stack",
+      "label": "compute-stack",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.compute-stack.svg",
+      "sha256": "81ea24ebae58d54406c749ba592da72c38101a16a8cb0a6df9aebdf279fe52c7",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-191",
+        "sha256": "1108150568e76aa2e2a2080bce79820146fce74d1d51708c91acef4c8524b2b0"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "compute",
+        "stack"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.training-pipeline",
+      "label": "training-pipeline",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.training-pipeline.svg",
+      "sha256": "d1dc668d555e0f183f33387711d6043ea7a958659afe23db1c93d32df23ad7d6",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-192",
+        "sha256": "c8be1204287e7946cee928ca9ac620605b94347abb28729e351d0bdb0229d3cc"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "pipeline",
+        "training"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.deployment-monitor",
+      "label": "deployment-monitor",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.deployment-monitor.svg",
+      "sha256": "e9fbb382525a606dd617ee4d656185244165e83aa9b81fd158addbfa0e1df007",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-193",
+        "sha256": "f53a6c0ab03e8ddb89c79fdc120377d0c4e13f1715b2d9347649e1c6f2654b85"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "deployment",
+        "monitor"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.teleop-fleet-loop",
+      "label": "teleop-fleet-loop",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.teleop-fleet-loop.svg",
+      "sha256": "9651e52fface18c2979f7a3b55e36c3fc604eced57bb0722d0fd9fd2d094d8ef",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-194",
+        "sha256": "c8388d8e0ad2d1fea964afcba3aa97c5914e3646863f5081aedfc7029a3ccb41"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "fleet",
+        "loop",
+        "teleop"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.retrieval-injector",
+      "label": "retrieval-injector",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.retrieval-injector.svg",
+      "sha256": "5078ed3d385758405829731267f9de77c835ef8d78905cba6290c96f293545a4",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-195",
+        "sha256": "e19349e2fc0d3bbc40d323a9de7e0e851ffc067f64b6814b49b8d7ad97328343"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ai",
+        "injector",
+        "retrieval"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.governance-treasury-chamber",
+      "label": "governance-treasury-chamber",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.governance-treasury-chamber.svg",
+      "sha256": "af0590be2d950dad649f7518d4f2cfb5216357fec749071866a10dbc66d5724c",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-196",
+        "sha256": "9450dae7c71156e90170c7bb0372ba93ef418dc903d97c9a1d83cd58c4599acc"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "chamber",
+        "crypto",
+        "governance",
+        "treasury"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.category-expansion-field",
+      "label": "category-expansion-field",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.category-expansion-field.svg",
+      "sha256": "4834af9c384506ff5f76ebc789f1fa0ba1b4ab9ebe4f4764a7d85340a623f71b",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-197",
+        "sha256": "61931992788fe49813589f0934c58a0059eecb883a8f4ed11bfe813e6fc0afd4"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "category",
+        "expansion",
+        "field"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.liquidation-gate",
+      "label": "liquidation-gate",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.liquidation-gate.svg",
+      "sha256": "0a19c2c735b05b98e2945ba0583ce6703225087bc0e2b2bc1c1fa65513960a41",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-198",
+        "sha256": "d70d835951dfd2253aa4c8ecbed3f2f3b096fe427af66f5db7b0759106b7dbbc"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "crypto",
+        "gate",
+        "liquidation"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.problem-obstacle-corridor",
+      "label": "problem-obstacle-corridor",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.problem-obstacle-corridor.svg",
+      "sha256": "f7dc88d98ef1195ab4fae7fb45d43af67ff08923a46fc76b1e781ad40496d4c4",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-199",
+        "sha256": "cffe7fe4030a4fc2ee53b22caa3c21caa7175e2f1335f413c4ae57d5f8b4f0fb"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "corridor",
+        "obstacle",
+        "problem"
+      ],
+      "affordances": []
+    },
+    {
+      "id": "mechanism.supply-unlock-ring",
+      "label": "supply-unlock-ring",
+      "family": "mechanism-hero",
+      "domain": "specialist",
+      "path": "aev1/mechanism.supply-unlock-ring.svg",
+      "sha256": "3ff7d6cfc58b0a4cb3709df0ebbb7e64563fe3cc4842309e184781afd6fa74c9",
+      "source": {
+        "pack": "NexStudio Autonomous Explainer V1 \u2014 Curated Production Asset 200",
+        "asset_id": "AEV1-200",
+        "sha256": "f5f09c969b9278cfb5415e3f6cba3b39bbf0d7b1dd2ccdf71fb881028df9ac76"
+      },
+      "license": "NexStudio-authored/internal",
+      "eligibility": "eligible-under-recorded-project-provenance",
+      "tags": [
+        "ring",
+        "supply",
+        "unlock"
+      ],
+      "affordances": []
+    }
+  ]
+}

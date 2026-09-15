@@ -82,6 +82,8 @@
             "type": "string",
             "enum": [
               "TEXT",
+              "ILLUSTRATION",
+              "HYBRID",
               "EVIDENCE",
               "FIGURE",
               "DATA",
@@ -142,6 +144,27 @@
                   "type": [
                     "string",
                     "null"
+                  ]
+                },
+                "stress": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "reveal": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "WORD_CASCADE",
+                        "BLOCK"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
                   ]
                 }
               },
@@ -330,6 +353,272 @@
               }
             ]
           },
+          "illustration": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "form": {
+                    "type": "string",
+                    "enum": [
+                      "OBJECT_STAGE",
+                      "PROCESS_PIPELINE",
+                      "RELATIONSHIP",
+                      "STATE_TRANSFORMATION",
+                      "COMPARISON",
+                      "DATA_VISUAL",
+                      "CALLOUT_LENS",
+                      "SIGNAL"
+                    ]
+                  },
+                  "entities": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "object",
+                            "system",
+                            "state",
+                            "group",
+                            "evidence",
+                            "signal",
+                            "agent"
+                          ]
+                        },
+                        "glyph": {
+                          "type": "string",
+                          "enum": [
+                            "VESSEL",
+                            "NODE",
+                            "CARD",
+                            "LENS",
+                            "CHART_LINE",
+                            "RING",
+                            "PILL",
+                            "PROHIBIT",
+                            "BRACKET",
+                            "BAR",
+                            "ICON",
+                            "MEDIA"
+                          ]
+                        },
+                        "size": {
+                          "type": "string",
+                          "enum": [
+                            "hero",
+                            "support",
+                            "minor"
+                          ]
+                        },
+                        "label": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "asset_ref": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "media_ref": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "params": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "glyph"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 7
+                  },
+                  "relations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "flows_to",
+                            "connects",
+                            "points_at",
+                            "blocks",
+                            "contains",
+                            "compares",
+                            "transforms_into",
+                            "emits_to",
+                            "scans"
+                          ]
+                        },
+                        "source": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "target": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "source",
+                        "target"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "program": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "op": {
+                          "type": "string",
+                          "enum": [
+                            "FILL",
+                            "DRAW",
+                            "CONNECT",
+                            "EMIT",
+                            "TRAVEL",
+                            "GROW",
+                            "SWAP",
+                            "STRIKE",
+                            "COUNT",
+                            "INK",
+                            "DIM",
+                            "TRACE",
+                            "SETTLE"
+                          ]
+                        },
+                        "target": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "at": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "word": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "word"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "unit": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "unit"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "offset_ms": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "offset_ms"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "duration_ms": {
+                          "type": "integer",
+                          "minimum": 120,
+                          "maximum": 4000
+                        },
+                        "from": {
+                          "type": "number"
+                        },
+                        "to": {
+                          "type": "number"
+                        },
+                        "params": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "op",
+                        "target",
+                        "at"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 10
+                  },
+                  "carry": {
+                    "type": "object",
+                    "properties": {
+                      "from_beat": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "entities": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    "required": [
+                      "from_beat"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "persist_to": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "form",
+                  "entities",
+                  "program"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "energy": {
             "type": "number",
             "minimum": 0.0,
@@ -438,6 +727,29 @@
       },
       "required": []
     },
+    "typography": {
+      "type": "object",
+      "properties": {
+        "reveal": {
+          "type": "string",
+          "enum": [
+            "WORD_CASCADE",
+            "BLOCK"
+          ]
+        },
+        "tonal_ink": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "min_visual_share": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": []
+    },
     "voice": {
       "type": "object",
       "properties": {
@@ -492,6 +804,9 @@
         }
       },
       "required": []
+    },
+    "note": {
+      "type": "string"
     }
   },
   "required": [

@@ -50,7 +50,29 @@ def treatment_schema() -> Dict[str, Any]:
         'can_promote': {'type': 'boolean'},
         'italic': {'type': 'boolean'},
         'anchor_word': NULLABLE_STR,
+        'stress': {'type': 'array', 'items': _str()},
+        'reveal': {'anyOf': [_enum(c.REVEAL_MODES), {'type': 'null'}]},
     }, ['text'], additionalProperties=False)
+    entity = _obj({
+        'id': _str(), 'kind': _enum(c.ENTITY_KINDS), 'glyph': _enum(c.GLYPHS), 'size': _enum(c.ENTITY_SIZES),
+        'label': NULLABLE_STR, 'asset_ref': NULLABLE_STR, 'media_ref': NULLABLE_STR,
+        'params': {'type': 'object'},
+    }, ['id', 'kind', 'glyph'], additionalProperties=False)
+    relation = _obj({'type': _enum(c.RELATION_TYPES), 'source': _str(), 'target': _str()}, ['type', 'source', 'target'], additionalProperties=False)
+    anchor = {'oneOf': [_obj({'word': _str()}, ['word'], additionalProperties=False), _obj({'unit': {'type': 'integer', 'minimum': 0}}, ['unit'], additionalProperties=False),
+                        _obj({'offset_ms': MS}, ['offset_ms'], additionalProperties=False)]}
+    op = _obj({
+        'op': _enum(c.OPS), 'target': _str(), 'at': anchor, 'duration_ms': {'type': 'integer', 'minimum': 120, 'maximum': 4000},
+        'from': {'type': 'number'}, 'to': {'type': 'number'}, 'params': {'type': 'object'},
+    }, ['op', 'target', 'at'], additionalProperties=False)
+    illustration = _obj({
+        'form': _enum(c.ILLUSTRATION_FORMS),
+        'entities': {'type': 'array', 'items': entity, 'minItems': 1, 'maxItems': 7},
+        'relations': {'type': 'array', 'items': relation},
+        'program': {'type': 'array', 'items': op, 'minItems': 1, 'maxItems': 10},
+        'carry': _obj({'from_beat': _str(), 'entities': {'type': 'array', 'items': _str()}}, ['from_beat'], additionalProperties=False),
+        'persist_to': NULLABLE_STR,
+    }, ['form', 'entities', 'program'], additionalProperties=False)
     figure = _obj({
         'valence': _unit(-1.0, 1.0),
         'arousal': _unit(),
@@ -83,6 +105,7 @@ def treatment_schema() -> Dict[str, Any]:
         'figure': {'anyOf': [figure, {'type': 'null'}]},
         'media': {'anyOf': [media, {'type': 'null'}]},
         'data': {'anyOf': [data, {'type': 'null'}]},
+        'illustration': {'anyOf': [illustration, {'type': 'null'}]},
         'energy': _unit(),
         'complexity': _unit(),
         'features': {'type': 'object', 'additionalProperties': _unit()},
@@ -116,7 +139,9 @@ def treatment_schema() -> Dict[str, Any]:
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'media_library': {'type': 'array', 'items': asset},
             'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES)}, []),
+            'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, []),
             'voice': voice,
+            'note': {'type': 'string'},
         }, ['schema', 'film_id', 'beats']),
     }
 
@@ -201,11 +226,38 @@ def plan_schema() -> Dict[str, Any]:
     event = _obj({'event': _str(), 'unit_index': {'type': 'integer', 'minimum': -1}, 'start_ms': MS, 'end_ms': MS}, ['event', 'unit_index', 'start_ms', 'end_ms'])
     fit = _obj({'font_px': {'type': 'number', 'exclusiveMinimum': 0}, 'line_height': {'type': 'number'}, 'lines': {'type': 'array', 'items': {'type': 'string'}, 'minItems': 1},
                 'status': {'const': 'FIT'}}, ['font_px', 'lines', 'status'])
-    block = _obj({'unit_index': {'type': 'integer', 'minimum': 0}, 'role': _enum(c.UNIT_ROLES), 'text': _str(), 'weight': _str(), 'style': _str(), 'bbox': BOX, 'fit': fit},
-                 ['unit_index', 'role', 'text', 'bbox', 'fit'])
+    cascade_word = _obj({'text': _str(), 'line': {'type': 'integer', 'minimum': 0}, 'start_ms': MS, 'stress': {'type': 'boolean'}}, ['text', 'line', 'start_ms', 'stress'])
+    block = _obj({'unit_index': {'type': 'integer', 'minimum': 0}, 'role': _enum(c.UNIT_ROLES), 'text': _str(), 'weight': _str(), 'style': _str(), 'bbox': BOX, 'fit': fit,
+                  'reveal': _enum(c.REVEAL_MODES), 'words': {'type': 'array', 'items': cascade_word, 'minItems': 1}, 'cascade_end_ms': MS},
+                 ['unit_index', 'role', 'text', 'bbox', 'fit', 'reveal', 'words'])
     typography = _obj({'motif': NULLABLE_STR, 'blocks': {'type': 'array', 'items': block}, 'events': {'type': 'array', 'items': event},
-                       'performance_events': {'type': 'array', 'items': event}, 'transition_carrier': {}, 'reading_order': {'type': 'array'}, 'focal_order': {'type': 'array'}},
+                       'performance_events': {'type': 'array', 'items': event}, 'transition_carrier': {}, 'reading_order': {'type': 'array'}, 'focal_order': {'type': 'array'},
+                       'reveal_mode': _enum(c.REVEAL_MODES), 'tonal_ink': _unit()},
                       ['blocks', 'events', 'performance_events'])
+    label = _obj({'text': _str(), 'bbox': BOX, 'fit': fit, 'placement': _enum(('inside', 'below'))}, ['text', 'bbox', 'fit', 'placement'])
+    asset = _obj({'id': _str(), 'path': _str(), 'sha256': SHA, 'license': _str(), 'family': _str()}, ['id', 'path', 'sha256', 'license'])
+    ent_media = _obj({'asset_id': _str(), 'kind': _enum(c.MEDIA_KINDS), 'path': _str(), 'sha256': {'anyOf': [SHA, {'type': 'null'}]}, 'source_size': {'type': 'object'},
+                      'rights': _str(), 'audio': {'const': 'MUTE'}, 'trim': {}}, ['asset_id', 'kind', 'path', 'rights', 'audio'])
+    state_in = _obj({k: {'type': 'number'} for k in ('draw', 'fill', 'ink', 'dim', 'grow', 'strike', 'swap', 'count', 'emit', 'connect')} | {'at': _str()}, [], additionalProperties=False)
+    entity = _obj({
+        'id': _str(), 'kind': _enum(c.ENTITY_KINDS), 'glyph': _enum(c.GLYPHS), 'size': _enum(c.ENTITY_SIZES), 'bbox': BOX, 'params': {'type': 'object'},
+        'label': {'anyOf': [label, {'type': 'null'}]}, 'asset': {'anyOf': [asset, {'type': 'null'}]}, 'media': {'anyOf': [ent_media, {'type': 'null'}]},
+        'inside': _str(), 'over': _str(), 'enter_ms': MS, 'enter_duration_ms': MS, 'carried': {'type': 'boolean'}, 'carry_from_bbox': {'anyOf': [BOX, {'type': 'null'}]},
+        'state_in': state_in,
+    }, ['id', 'kind', 'glyph', 'size', 'bbox', 'params', 'enter_ms', 'enter_duration_ms', 'carried', 'state_in'])
+    point = {'type': 'array', 'items': {'type': 'number'}, 'minItems': 2, 'maxItems': 2}
+    relation = _obj({
+        'id': _str(), 'type': _enum(c.RELATION_TYPES), 'source': _str(), 'target': _str(), 'path': {'anyOf': [{'type': 'array', 'items': point, 'minItems': 2}, {'type': 'null'}]},
+        'length': {'type': 'number'}, 'arrow': {'type': 'boolean'}, 'bar': {'type': 'boolean'}, 'rule': {'type': 'boolean'},
+        'enter_ms': MS, 'enter_duration_ms': MS, 'drawn_by_op': {'type': 'boolean'}, 'state_in': state_in,
+    }, ['id', 'type', 'source', 'target', 'path', 'arrow', 'enter_ms', 'enter_duration_ms', 'state_in'])
+    op = _obj({'op': _enum(c.OPS), 'target': _str(), 'start_ms': MS, 'end_ms': MS, 'from': {'type': 'number'}, 'to': {'type': 'number'}, 'params': {'type': 'object'},
+               'state_change': {'type': 'boolean'}, 'anchor': {'type': 'object'}}, ['op', 'target', 'start_ms', 'end_ms', 'from', 'to', 'state_change'])
+    illustration = _obj({
+        'form': _enum(c.ILLUSTRATION_FORMS), 'zone': BOX, 'entities': {'type': 'array', 'items': entity, 'minItems': 1}, 'relations': {'type': 'array', 'items': relation},
+        'ops': {'type': 'array', 'items': op}, 'settled_ms': MS, 'accent': NULLABLE_STR, 'accent_policy': {'const': 'STATE_CHANGE_OPS_ONLY'}, 'state_changes': {'type': 'integer'},
+        'carry_from': NULLABLE_STR, 'persist_to': NULLABLE_STR, 'carried': {'type': 'boolean'}, 'registry_version': NULLABLE_STR,
+    }, ['form', 'zone', 'entities', 'relations', 'ops', 'settled_ms', 'accent_policy', 'carried'])
     window = _obj({'start_ms': MS, 'end_ms': MS}, ['start_ms', 'end_ms'])
     ensemble = _obj({'events': {'type': 'array'}, 'hold_window': window, 'transition_window': window}, ['hold_window'])
     part = _obj({'slot': _str(), 'part_id': _str(), 'file': _str(), 'sha256': SHA, 'frame': BOX}, ['slot', 'part_id', 'file', 'sha256', 'frame'])
@@ -232,8 +284,9 @@ def plan_schema() -> Dict[str, Any]:
         'words': {'type': 'array', 'items': word}, 'landings': {'type': 'array'},
         'composition': _strip(native_aspect_schema()), 'typography': typography, 'ensemble': ensemble,
         'media': {'anyOf': [media, {'type': 'null'}]}, 'figure': {'anyOf': [figure, {'type': 'null'}]}, 'data': {'anyOf': [data, {'type': 'null'}]},
+        'illustration': {'anyOf': [illustration, {'type': 'null'}]},
         'transition': transition, 'sound': _strip(sound_events_schema()), 'gate': gate,
-    }, ['beat_id', 'beat_type', 'pattern', 'dominant_layer', 'start_ms', 'duration_ms', 'composition', 'typography', 'ensemble', 'transition', 'sound', 'gate'])
+    }, ['beat_id', 'beat_type', 'pattern', 'dominant_layer', 'start_ms', 'duration_ms', 'composition', 'typography', 'ensemble', 'illustration', 'transition', 'sound', 'gate'])
     segment = _obj({'beat_id': _str(), 'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE')), 'audio_path': _str(), 'sha256': SHA, 'start_ms': MS, 'duration_ms': MS,
                     'evidence': {'type': 'object'}}, ['beat_id', 'source', 'audio_path', 'sha256', 'start_ms', 'duration_ms'])
     caption = _obj({'beat_id': _str(), 'text': _str(), 'start_ms': MS, 'end_ms': MS}, ['beat_id', 'text', 'start_ms', 'end_ms'])
@@ -252,13 +305,15 @@ def plan_schema() -> Dict[str, Any]:
             'canvas': _obj({'w': {'type': 'integer'}, 'h': {'type': 'integer'}}, ['w', 'h']),
             'output': _obj({'w': {'type': 'integer'}, 'h': {'type': 'integer'}, 'scale': {'type': 'number'}}, ['w', 'h', 'scale']),
             'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES)}, ['ink', 'paper', 'finish']),
+            'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, ['reveal', 'tonal_ink']),
+            'illustration_registry': _obj({'path': _str(), 'version': NULLABLE_STR}, ['path']),
             'fonts': {'type': 'object'}, 'duration_ms': {'type': 'integer', 'exclusiveMinimum': 0},
             'voice': _obj({'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE')), 'segments': {'type': 'array', 'items': segment}}, ['source', 'segments']),
             'music': _obj({'slot': _str(), 'status': _str(), 'duck_under_voice_db': {'type': 'number'}, 'path': NULLABLE_STR}, ['slot', 'status', 'path']),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'captions': {'type': 'array', 'items': caption},
             'gate': gate, 'provenance': provenance,
-        }, ['schema', 'compiler', 'film_id', 'aspect', 'fps', 'canvas', 'output', 'brand', 'fonts', 'duration_ms', 'voice', 'music', 'beats', 'captions', 'gate', 'provenance']),
+        }, ['schema', 'compiler', 'film_id', 'aspect', 'fps', 'canvas', 'output', 'brand', 'typography', 'fonts', 'duration_ms', 'voice', 'music', 'beats', 'captions', 'gate', 'provenance']),
     }
 
 

@@ -185,11 +185,16 @@ def _layout_blocks(motif:str,aspect:str,units:List[TextUnit],text_zone:Dict[str,
                 add(i,u,tx+.02,sy,tw*.86,min(.07,th*.16),.54,'SemiBold',True,'left','support_italic',15); sy+=.075
     elif motif=='SPLIT_SCALE_LOCKUP':
         if hero:
-            i0,u0=hero[0]; add(i0,u0,tx,ty+th*.02,tw*.58,th*.23,.78,'SemiBold',False,'left','setup',20)
+            i0,u0=hero[0]
             if len(hero)>1:
+                add(i0,u0,tx,ty+th*.02,tw*.58,th*.23,.78,'SemiBold',False,'left','setup',20)
                 i1,u1=hero[1]; add(i1,u1,tx+tw*.38,ty+th*.31,tw*.62,th*.37,1.65,'Black',False,'right','large_counterweight',30)
-            elif promote is not None:
+            elif promote is not None and promote!=i0:
+                add(i0,u0,tx,ty+th*.02,tw*.58,th*.23,.78,'SemiBold',False,'left','setup',20)
                 pu=units[promote]; add(promote,pu,tx+tw*.32,ty+th*.30,tw*.68,th*.40,1.55,'Black',False,'right','large_counterweight',30)
+            else:
+                # A lone hero is the lockup's weight itself; it is never echoed as its own setup line.
+                add(i0,u0,tx,ty+th*.08,tw,th*.60,1.55,'Black',False,'left','large_counterweight',30)
             sy=ty+th*.76
             for i,u in support[:2]:
                 add(i,u,tx,sy,tw*.72,th*.13,.50,'SemiBold',True,'left','support_italic',15); sy+=th*.15

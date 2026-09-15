@@ -20,7 +20,22 @@ ASPECTS = ('9x16', '1x1', '16x9')
 BEAT_TYPES = ('HOOK', 'SETUP', 'CONTRAST', 'EXPLANATION', 'PROOF', 'LIST', 'REFRAME', 'EMPHASIS', 'PAYOFF', 'CTA')
 PATTERNS = tuple(p['id'] for p in GRAMMAR['patterns'])
 PATTERN_LAYER = {p['id']: p['dominant_layer'] for p in GRAMMAR['patterns']}
-DOMINANT_LAYERS = ('TEXT', 'EVIDENCE', 'FIGURE', 'DATA', 'QUIET')
+DOMINANT_LAYERS = ('TEXT', 'ILLUSTRATION', 'HYBRID', 'EVIDENCE', 'FIGURE', 'DATA', 'QUIET')
+REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
+# Illustration program: a per-beat visual argument. Forms are topologies, glyphs are drawable
+# primitives, ops are timed state changes. None of these names is derived from wording.
+ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
+GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA')
+ENTITY_KINDS = ('object', 'system', 'state', 'group', 'evidence', 'signal', 'agent')
+ENTITY_SIZES = ('hero', 'support', 'minor')
+RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans')
+OPS = ('FILL', 'DRAW', 'CONNECT', 'EMIT', 'TRAVEL', 'GROW', 'SWAP', 'STRIKE', 'COUNT', 'INK', 'DIM', 'TRACE', 'SETTLE')
+OP_DEFAULT_MS = {'FILL': 900, 'DRAW': 520, 'CONNECT': 480, 'EMIT': 1100, 'TRAVEL': 700, 'GROW': 460, 'SWAP': 420, 'STRIKE': 380,
+                 'COUNT': 620, 'INK': 320, 'DIM': 320, 'TRACE': 900, 'SETTLE': 360}
+# Ops whose visible result is a changed state: the only place the brand accent may appear.
+STATE_CHANGE_OPS = ('FILL', 'INK', 'SWAP', 'STRIKE', 'EMIT', 'TRACE')
+FORM_MIN_ENTITIES = {'OBJECT_STAGE': 1, 'PROCESS_PIPELINE': 2, 'RELATIONSHIP': 2, 'STATE_TRANSFORMATION': 2, 'COMPARISON': 2,
+                     'DATA_VISUAL': 1, 'CALLOUT_LENS': 2, 'SIGNAL': 1}
 UNIT_ROLES = ('hero', 'support', 'label')
 SEMANTIC_ROLES = ('statement', 'setup', 'contrast', 'proof', 'punch', 'qualifier', 'action', 'evidence')
 MEDIA_KINDS = ('IMAGE', 'SCREENSHOT', 'DOCUMENT', 'VIDEO')
@@ -60,6 +75,8 @@ class DisplayUnit:
     can_promote: bool = True
     italic: bool = False
     anchor_word: Optional[str] = None  # narration word the unit lands on; defaults to its own first word
+    stress: List[str] = field(default_factory=list)  # words set in full ink weight; the rest of the unit reads tonal
+    reveal: Optional[str] = None  # WORD_CASCADE | BLOCK; None inherits the film typography mode
 
     @classmethod
     def parse(cls, d: Dict[str, Any], beat_id: str) -> 'DisplayUnit':
@@ -78,7 +95,30 @@ class DisplayUnit:
             can_promote=bool(d.get('can_promote', True)),
             italic=bool(d.get('italic', False)),
             anchor_word=(str(d['anchor_word']).strip() or None) if d.get('anchor_word') else None,
+            stress=cls._parse_stress(d.get('stress'), text, beat_id),
+            reveal=cls._parse_reveal(d.get('reveal'), beat_id),
         )
+
+    @staticmethod
+    def _parse_stress(raw: Any, text: str, beat_id: str) -> List[str]:
+        if not raw:
+            return []
+        _need(isinstance(raw, list), 'DISPLAY_UNIT_STRESS_INVALID', 'stress must be a list of words from the unit text', beat_id)
+        words = {_norm(w) for w in text.split()}
+        out = []
+        for w in raw:
+            s = str(w).strip()
+            _need(_norm(s) in words, 'DISPLAY_UNIT_STRESS_NOT_IN_TEXT', s, beat_id)
+            out.append(s)
+        return out
+
+    @staticmethod
+    def _parse_reveal(raw: Any, beat_id: str) -> Optional[str]:
+        if raw is None:
+            return None
+        r = str(raw).upper()
+        _need(r in REVEAL_MODES, 'DISPLAY_UNIT_REVEAL_UNKNOWN', r, beat_id)
+        return r
 
     def ktp_unit(self) -> Dict[str, Any]:
         return {
@@ -90,6 +130,165 @@ class DisplayUnit:
             'can_promote': self.can_promote,
             'italic': self.italic,
         }
+
+
+def _norm(token: str) -> str:
+    return ''.join(ch for ch in token.lower().replace('\u2019', "'") if ch.isalnum() or ch in "'%")
+
+
+@dataclass
+class IllustrationEntity:
+    id: str
+    kind: str
+    glyph: str
+    size: str = 'support'
+    label: Optional[str] = None       # payload, drawn as a label; never routes
+    asset_ref: Optional[str] = None   # ICON: illustration registry id
+    media_ref: Optional[str] = None   # MEDIA: media_library asset_id
+    params: Dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def parse(cls, d: Dict[str, Any], beat_id: str) -> 'IllustrationEntity':
+        eid = str(d.get('id') or '').strip()
+        _need(bool(eid), 'ENTITY_ID_MISSING', 'illustration entity needs an id', beat_id)
+        kind = str(d.get('kind') or '')
+        _need(kind in ENTITY_KINDS, 'ENTITY_KIND_UNKNOWN', f'{eid}:{kind}', beat_id)
+        glyph = str(d.get('glyph') or '').upper()
+        _need(glyph in GLYPHS, 'ENTITY_GLYPH_UNKNOWN', f'{eid}:{glyph}', beat_id)
+        size = str(d.get('size') or 'support')
+        _need(size in ENTITY_SIZES, 'ENTITY_SIZE_UNKNOWN', f'{eid}:{size}', beat_id)
+        label = ' '.join(str(d.get('label') or '').split()) or None
+        asset_ref = (str(d.get('asset_ref') or '').strip() or None)
+        media_ref = (str(d.get('media_ref') or '').strip() or None)
+        if glyph == 'ICON':
+            _need(asset_ref is not None, 'ICON_WITHOUT_ASSET_REF', eid, beat_id)
+        if glyph == 'MEDIA':
+            _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
+        params = dict(d.get('params') or {})
+        if glyph == 'CHART_LINE':
+            pts = params.get('points')
+            _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)
+            params['points'] = [_unit(p) for p in pts]
+        if 'level' in params:
+            params['level'] = _unit(params['level'])
+        if 'count' in params:
+            params['count'] = max(1, min(12, int(params['count'])))
+        if 'lines' in params:
+            params['lines'] = max(0, min(4, int(params['lines'])))
+        return cls(eid, kind, glyph, size, label, asset_ref, media_ref, params)
+
+
+@dataclass
+class IllustrationRelation:
+    type: str
+    source: str
+    target: str
+
+    @classmethod
+    def parse(cls, d: Dict[str, Any], ids: set, beat_id: str) -> 'IllustrationRelation':
+        t = str(d.get('type') or '')
+        _need(t in RELATION_TYPES, 'RELATION_TYPE_UNKNOWN', t, beat_id)
+        s, tg = str(d.get('source') or ''), str(d.get('target') or '')
+        _need(s in ids and tg in ids, 'RELATION_ENDPOINT_UNKNOWN', f'{s}->{tg}', beat_id)
+        _need(s != tg, 'RELATION_SELF_LOOP', s, beat_id)
+        return cls(t, s, tg)
+
+
+@dataclass
+class IllustrationOp:
+    op: str
+    target: str
+    at: Dict[str, Any]              # {'word': str} | {'unit': int} | {'offset_ms': int}
+    duration_ms: int
+    value_from: float = 0.0
+    value_to: float = 1.0
+    params: Dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def parse(cls, d: Dict[str, Any], ids: set, relations: List['IllustrationRelation'], n_units: int, beat_id: str) -> 'IllustrationOp':
+        op = str(d.get('op') or '').upper()
+        _need(op in OPS, 'OP_UNKNOWN', op, beat_id)
+        target = str(d.get('target') or '')
+        if op == 'CONNECT' or '->' in target:
+            # target is 'source->target' naming an authored relation
+            _need('->' in target, 'CONNECT_TARGET_NOT_A_RELATION', target, beat_id)
+            _need(op in ('CONNECT', 'STRIKE', 'INK', 'DIM', 'TRACE', 'SETTLE'), 'OP_NOT_APPLICABLE_TO_RELATION', f'{op}:{target}', beat_id)
+            s, t = [x.strip() for x in target.split('->', 1)]
+            _need(any(r.source == s and r.target == t for r in relations), 'CONNECT_RELATION_UNKNOWN', target, beat_id)
+            target = f'{s}->{t}'
+        else:
+            _need(target in ids, 'OP_TARGET_UNKNOWN', f'{op}:{target}', beat_id)
+        at = dict(d.get('at') or {})
+        keys = [k for k in ('word', 'unit', 'offset_ms') if k in at]
+        _need(len(keys) == 1, 'OP_ANCHOR_INVALID', 'op.at needs exactly one of word | unit | offset_ms', beat_id)
+        if 'unit' in at:
+            _need(0 <= int(at['unit']) < n_units, 'OP_ANCHOR_UNIT_OUT_OF_RANGE', str(at['unit']), beat_id)
+            at = {'unit': int(at['unit'])}
+        elif 'word' in at:
+            _need(bool(str(at['word']).strip()), 'OP_ANCHOR_WORD_EMPTY', op, beat_id)
+            at = {'word': str(at['word']).strip()}
+        else:
+            at = {'offset_ms': max(0, int(at['offset_ms']))}
+        dur = int(d.get('duration_ms') or OP_DEFAULT_MS[op])
+        _need(120 <= dur <= 4000, 'OP_DURATION_OUT_OF_RANGE', f'{op}:{dur}', beat_id)
+        params = dict(d.get('params') or {})
+        if op == 'TRAVEL':
+            over = params.get('over')
+            _need(isinstance(over, list) and len(over) >= 1 and all(o in ids for o in over), 'TRAVEL_OVER_INVALID', 'TRAVEL needs params.over: [entity ids]', beat_id)
+        if op == 'COUNT':
+            params['count'] = max(1, min(12, int(params.get('count') or 3)))
+        return cls(op, target, at, dur, float(d.get('from', 0.0)), float(d.get('to', 1.0)), params)
+
+
+@dataclass
+class IllustrationDirective:
+    """A visual argument: entities in a topology, relations between them, and timed state changes."""
+
+    form: str
+    entities: List[IllustrationEntity]
+    relations: List[IllustrationRelation]
+    program: List[IllustrationOp]
+    carry_from: Optional[str] = None            # beat_id whose entities (below) persist into this beat
+    carry_entities: List[str] = field(default_factory=list)
+    persist_to: Optional[str] = None            # beat_id through which this illustration stays on stage
+
+    @classmethod
+    def parse(cls, d: Dict[str, Any], n_units: int, beat_id: str) -> 'IllustrationDirective':
+        form = str(d.get('form') or '').upper()
+        _need(form in ILLUSTRATION_FORMS, 'ILLUSTRATION_FORM_UNKNOWN', form, beat_id)
+        ents = [IllustrationEntity.parse(e, beat_id) for e in (d.get('entities') or [])]
+        ids = [e.id for e in ents]
+        _need(len(ids) == len(set(ids)), 'ENTITY_ID_DUPLICATE', 'entity ids must be unique inside a beat', beat_id)
+        _need(len(ents) >= FORM_MIN_ENTITIES[form], 'ILLUSTRATION_TOO_FEW_ENTITIES', f'{form} needs >= {FORM_MIN_ENTITIES[form]} entities', beat_id)
+        _need(len(ents) <= 7, 'ILLUSTRATION_TOO_MANY_ENTITIES', 'more than seven entities in one beat', beat_id)
+        idset = set(ids)
+        rels = [IllustrationRelation.parse(r, idset, beat_id) for r in (d.get('relations') or [])]
+        ops = [IllustrationOp.parse(o, idset, rels, n_units, beat_id) for o in (d.get('program') or [])]
+        _need(bool(ops), 'ILLUSTRATION_WITHOUT_PROGRAM', 'an illustration must change state at least once while the beat speaks', beat_id)
+        _need(len(ops) <= 10, 'ILLUSTRATION_PROGRAM_TOO_LONG', 'more than ten ops in one beat', beat_id)
+        if form == 'DATA_VISUAL':
+            _need(any(e.glyph in ('CHART_LINE', 'BAR') for e in ents), 'DATA_VISUAL_WITHOUT_CHART', 'DATA_VISUAL needs a CHART_LINE or BAR entity', beat_id)
+        if form == 'CALLOUT_LENS':
+            _need(any(e.glyph == 'LENS' for e in ents), 'CALLOUT_LENS_WITHOUT_LENS', 'CALLOUT_LENS needs a LENS entity', beat_id)
+            _need(any(o.op == 'TRAVEL' for o in ops), 'CALLOUT_LENS_WITHOUT_TRAVEL', 'the lens must TRAVEL', beat_id)
+        if form == 'SIGNAL':
+            _need(any(e.glyph == 'RING' for e in ents), 'SIGNAL_WITHOUT_RING', 'SIGNAL needs a RING entity', beat_id)
+        if form in ('PROCESS_PIPELINE', 'RELATIONSHIP'):
+            _need(bool(rels), 'FORM_WITHOUT_RELATIONS', f'{form} needs at least one relation', beat_id)
+        if form == 'STATE_TRANSFORMATION':
+            _need(any(r.type == 'transforms_into' for r in rels), 'STATE_TRANSFORMATION_WITHOUT_TRANSFORM', 'needs a transforms_into relation', beat_id)
+        if form == 'COMPARISON':
+            _need(any(r.type == 'compares' for r in rels), 'COMPARISON_WITHOUT_COMPARES', 'needs a compares relation', beat_id)
+        heroes = [e for e in ents if e.size == 'hero']
+        _need(len(heroes) <= 2, 'ILLUSTRATION_TOO_MANY_HEROES', 'at most two hero entities', beat_id)
+        carry = d.get('carry') or {}
+        carry_from = (str(carry.get('from_beat') or '').strip() or None)
+        carry_entities = [str(x) for x in (carry.get('entities') or [])]
+        if carry_entities:
+            _need(carry_from is not None, 'CARRY_WITHOUT_SOURCE_BEAT', 'carry.entities needs carry.from_beat', beat_id)
+            for ce in carry_entities:
+                _need(ce in idset, 'CARRY_ENTITY_NOT_DECLARED', f'{ce} must be declared in this beat too', beat_id)
+        return cls(form, ents, rels, ops, carry_from, carry_entities, (str(d['persist_to']) if d.get('persist_to') else None))
 
 
 @dataclass
@@ -175,6 +374,7 @@ class BeatTreatment:
     figure: Optional[FigureDirective] = None
     media: Optional[MediaDirective] = None
     data: Optional[DataDirective] = None
+    illustration: Optional[IllustrationDirective] = None
     energy: float = 0.55
     complexity: float = 0.45
     features: Dict[str, float] = field(default_factory=dict)
@@ -195,11 +395,18 @@ class BeatTreatment:
         figure = FigureDirective.parse(d['figure'], bid) if d.get('figure') else None
         media = MediaDirective.parse(d['media'], bid) if d.get('media') else None
         data = DataDirective.parse(d['data'], bid) if d.get('data') else None
+        illus = IllustrationDirective.parse(d['illustration'], len(units), bid) if d.get('illustration') else None
 
         if layer == 'QUIET':
-            _need(len(units) <= 1 and not figure and not media, 'QUIET_BEAT_OVERLOADED', 'QUIET carries at most one unit and no figure/media', bid)
+            _need(len(units) <= 1 and not figure and not media and not illus, 'QUIET_BEAT_OVERLOADED', 'QUIET carries at most one unit and no figure/media/illustration', bid)
         else:
-            _need(bool(units) or media or data, 'BEAT_HAS_NOTHING_TO_SHOW', 'beat has no display units, media or data', bid)
+            _need(bool(units) or media or data or illus, 'BEAT_HAS_NOTHING_TO_SHOW', 'beat has no display units, media, data or illustration', bid)
+        if layer == 'ILLUSTRATION':
+            _need(illus is not None, 'ILLUSTRATION_LAYER_WITHOUT_ILLUSTRATION', 'ILLUSTRATION dominant layer requires an illustration directive', bid)
+        if layer == 'HYBRID':
+            _need(illus is not None and bool(units), 'HYBRID_LAYER_INCOMPLETE', 'HYBRID needs display units and an illustration', bid)
+        if illus is not None:
+            _need(media is None and data is None, 'ILLUSTRATION_WITH_MEDIA_OR_DATA', 'media and data belong inside the illustration as MEDIA/CHART entities', bid)
         if layer == 'FIGURE':
             _need(figure is not None, 'FIGURE_LAYER_WITHOUT_FIGURE', 'FIGURE dominant layer requires a figure directive', bid)
         if layer == 'EVIDENCE':
@@ -210,8 +417,12 @@ class BeatTreatment:
         _need(len(units) <= 5, 'TOO_MANY_DISPLAY_UNITS', 'more than five display units in one beat', bid)
         _need(not (figure and media and layer == 'TEXT'), 'TEXT_BEAT_WITH_FIGURE_AND_MEDIA', 'a text-led beat may carry a figure or media, not both', bid)
         feats = {k: _unit(v) for k, v in (d.get('features') or {}).items()}
-        return cls(bid, bt, pattern, layer, narration, units, figure, media, data,
+        return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
                    _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0))
+
+    @property
+    def has_visual(self) -> bool:
+        return bool(self.illustration or self.media or self.figure or self.data)
 
 
 @dataclass
@@ -238,8 +449,15 @@ class MediaAsset:
 class Brand:
     ink: str = '#0e0e0e'
     paper: str = '#f7f7f5'
-    accent: Optional[str] = None
+    accent: Optional[str] = None  # one brand colour, spent only on state changes
     finish: str = 'EDITORIAL_FLAT'
+
+
+@dataclass
+class TypographyMode:
+    reveal: str = 'WORD_CASCADE'
+    tonal_ink: float = 0.42   # opacity of non-stressed words while a unit is still being spoken
+    min_visual_share: float = 0.6  # fraction of non-QUIET beats that must carry a visual argument
 
 
 @dataclass
@@ -251,6 +469,7 @@ class FilmTreatment:
     brand: Brand
     voice: Dict[str, Any]
     fps: int = 30
+    typography: TypographyMode = field(default_factory=TypographyMode)
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -265,7 +484,22 @@ class FilmTreatment:
         for a in aspects:
             _need(a in ASPECTS, 'ASPECT_UNKNOWN', a)
         library = {m.asset_id: m for m in (MediaAsset.parse(x) for x in (d.get('media_library') or []))}
+        by_id = {b.beat_id: b for b in beats}
         for b in beats:
+            il = b.illustration
+            if il:
+                for e in il.entities:
+                    if e.glyph == 'MEDIA':
+                        _need(e.media_ref in library, 'MEDIA_ASSET_NOT_IN_LIBRARY', e.media_ref, b.beat_id)
+                if il.carry_from:
+                    _need(il.carry_from in ids and ids.index(il.carry_from) < ids.index(b.beat_id), 'CARRY_SOURCE_NOT_EARLIER', il.carry_from, b.beat_id)
+                    src = by_id[il.carry_from].illustration
+                    _need(src is not None, 'CARRY_SOURCE_HAS_NO_ILLUSTRATION', il.carry_from, b.beat_id)
+                    src_ids = {e.id for e in src.entities}
+                    for ce in il.carry_entities:
+                        _need(ce in src_ids, 'CARRY_ENTITY_NOT_IN_SOURCE', f'{ce} not in {il.carry_from}', b.beat_id)
+                if il.persist_to:
+                    _need(il.persist_to in ids and ids.index(il.persist_to) > ids.index(b.beat_id), 'ILLUSTRATION_PERSIST_TARGET_INVALID', il.persist_to, b.beat_id)
             if b.media:
                 _need(b.media.asset_id in library, 'MEDIA_ASSET_NOT_IN_LIBRARY', b.media.asset_id, b.beat_id)
                 if b.media.persist_to:
@@ -280,4 +514,13 @@ class FilmTreatment:
         voice = dict(d.get('voice') or {})
         fps = int(d.get('fps') or 30)
         _need(fps in (24, 25, 30, 60), 'FPS_UNSUPPORTED', str(fps))
-        return cls(fid, beats, aspects, library, brand, voice, fps)
+        ty = d.get('typography') or {}
+        reveal = str(ty.get('reveal') or 'WORD_CASCADE').upper()
+        _need(reveal in REVEAL_MODES, 'TYPOGRAPHY_REVEAL_UNKNOWN', reveal)
+        typo = TypographyMode(reveal, _unit(ty.get('tonal_ink', 0.42)), _unit(ty.get('min_visual_share', 0.6)))
+        spoken = [b for b in beats if b.dominant_layer != 'QUIET']
+        if spoken:
+            share = sum(b.has_visual for b in spoken) / len(spoken)
+            _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
+                  f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo)
