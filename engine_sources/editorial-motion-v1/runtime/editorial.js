@@ -70,6 +70,39 @@ window.NexEditorial = (() => {
     return node;
   }
 
+  /**
+   * The kinetic component animates one letter per inline-block span, which
+   * lets a line wrap mid-word. Letters are regrouped per word so a word breaks
+   * only between words, and the fitter shrinks the type instead.
+   */
+  function keepWordsWhole(node) {
+    node.querySelectorAll('.kinetic-letters').forEach((line) => {
+      const letters = [...line.children];
+      if (!letters.length) return;
+      const text = line.textContent;
+      let index = 0;
+      const frag = document.createDocumentFragment();
+      let word = null;
+      for (const ch of text) {
+        if (ch === ' ') {
+          word = null;
+          frag.appendChild(document.createTextNode(' '));
+          continue;
+        }
+        if (!word) {
+          word = document.createElement('span');
+          word.className = 'ed-word';
+          frag.appendChild(word);
+        }
+        word.appendChild(letters[index] || document.createTextNode(ch));
+        index += 1;
+      }
+      line.innerHTML = '';
+      line.appendChild(frag);
+    });
+    return node;
+  }
+
   function placeRegion(node, region) {
     node.style.left = (region.x * 100) + '%';
     node.style.top = (region.y * 100) + '%';
@@ -100,6 +133,12 @@ window.NexEditorial = (() => {
     });
     pruneSlots(node, content);
     node.classList.add('ed-media-node');
+    // An upload that will not load is dropped rather than shown as a broken
+    // frame: the file name is not the script's copy and never reaches screen.
+    node.querySelectorAll('img, video').forEach((el) => {
+      el.removeAttribute('alt');
+      el.addEventListener('error', () => { wrap.classList.add('ed-empty'); }, { once: true });
+    });
     wrap.appendChild(node);
     return wrap;
   }
@@ -145,6 +184,7 @@ window.NexEditorial = (() => {
         energy: shot.emphasis > 0.66 ? 'high' : shot.emphasis > 0.33 ? 'medium' : 'low'
       });
       pruneSlots(typeNode, shot.typography.content);
+      keepWordsWhole(typeNode);
       typeWrap.appendChild(typeNode);
 
       const built = { shot, scene, typeNode, icons: null, media: null, character: null };
@@ -179,13 +219,15 @@ window.NexEditorial = (() => {
     const tl = window.NexMotion.createTimeline({ defaults: { ease: 'power3.out' } });
     const hold = Number(options.hold ?? 0.35);
 
-    shots.forEach((built) => {
+    shots.forEach((built, i) => {
       const { shot, scene } = built;
       const start = shot.start;
       const end = shot.start + shot.duration;
       tl.set(scene, { opacity: 0, pointerEvents: 'none' }, 0);
       tl.set(scene, { opacity: 1 }, start);
-      tl.set(scene, { opacity: 0 }, Math.max(start, end - 0.01));
+      // The outgoing shot clears exactly where the next one lights, so no time
+      // in the film lands on an empty frame. The last shot holds to the end.
+      if (i < shots.length - 1) tl.set(scene, { opacity: 0 }, end);
 
       const typeTl = window.NexTypography.animate(built.typeNode, {
         duration: Math.min(1.6, shot.duration * 0.55),
@@ -204,10 +246,9 @@ window.NexEditorial = (() => {
           { opacity: 1, scale: 1, rotation: 0, duration: 0.6, ease: 'back.out(1.4)' }, start + hold * 0.6);
       }
       if (built.character) {
-        // A still: the figure is cut into the frame and held. No transform, no
-        // loop, no idle — only presence.
-        tl.set(built.character, { opacity: 0 }, start);
-        tl.set(built.character, { opacity: 1 }, start + hold);
+        // A still: the figure fades up once and holds. Opacity only — no
+        // transform, no loop, no idle.
+        tl.fromTo(built.character, { opacity: 0 }, { opacity: 1, duration: hold, ease: 'power1.out' }, start);
       }
     });
 

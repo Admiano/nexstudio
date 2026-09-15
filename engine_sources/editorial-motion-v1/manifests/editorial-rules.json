@@ -157,7 +157,13 @@
     "intentWeight": 0.8,
     "emphasisBias": 0.15,
     "suppressWithMedia": 1,
-    "suppressWithCharacter": 1
+    "suppressWithCharacter": 1,
+    "keywordDenylist": {
+      "home": [
+        "dashboard"
+      ]
+    },
+    "denylistNote": "Words a registry icon claims but does not depict: a dashboard is not a house."
   },
   "media": {
     "minScore": 0.3,
@@ -221,7 +227,8 @@
       "image": "paper-framed-photograph",
       "video": "video-player",
       "audio": "audio-player"
-    }
+    },
+    "requireKeywordMatch": true
   },
   "character": {
     "emphasisGate": 0.62,
@@ -232,19 +239,16 @@
     "allowWithMedia": false,
     "framingByRatio": {
       "16:9": {
-        "standing": 0.7,
-        "sitting": 0.2,
-        "bust": 0.1
+        "standing": 0.75,
+        "sitting": 0.25
       },
       "1:1": {
-        "standing": 0.45,
-        "sitting": 0.2,
-        "bust": 0.35
+        "standing": 0.6,
+        "sitting": 0.4
       },
       "9:16": {
-        "standing": 0.8,
-        "sitting": 0.1,
-        "bust": 0.1
+        "standing": 0.85,
+        "sitting": 0.15
       }
     },
     "sittingCues": [
@@ -257,17 +261,8 @@
       "study",
       "commute"
     ],
-    "bustCues": [
-      "said",
-      "says",
-      "asks",
-      "tells",
-      "explains",
-      "voice",
-      "interview",
-      "quote"
-    ],
-    "personFloor": 0.2
+    "personFloor": 0.2,
+    "fullBodyOnly": true
   },
   "frames": {
     "16:9": {

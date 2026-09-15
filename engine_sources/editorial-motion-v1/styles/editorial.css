@@ -69,3 +69,19 @@
   word-break: normal !important;
   hyphens: none;
 }
+/* Kinetic components animate a span per letter; the letters of one word are
+   wrapped together so a line can only break between words. */
+.ed-type .ed-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.ed-type .ed-word .type-word { margin-right: 0; }
+.ed-type .ed-word + .ed-word { margin-left: .22em; }
+
+/* An upload is shown whole. Cropping a report to fill a frame hides the part
+   of it the script is talking about. */
+.ed-media img,
+.ed-media video {
+  object-fit: contain !important;
+  background: var(--paper-surface-alt, transparent);
+}

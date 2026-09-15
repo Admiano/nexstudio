@@ -587,6 +587,28 @@
   "pacing": {
     "wordsPerSecond": 2.6,
     "minShot": 2.4,
-    "maxShot": 6.5
-  }
+    "maxShot": 6.5,
+    "maxWordsPerCard": 34
+  },
+  "abbreviations": [
+    "mr.",
+    "mrs.",
+    "ms.",
+    "dr.",
+    "prof.",
+    "st.",
+    "e.g.",
+    "i.e.",
+    "etc.",
+    "vs.",
+    "fig.",
+    "no.",
+    "approx.",
+    "inc.",
+    "ltd.",
+    "jr.",
+    "sr.",
+    "u.s.",
+    "u.k."
+  ]
 }
