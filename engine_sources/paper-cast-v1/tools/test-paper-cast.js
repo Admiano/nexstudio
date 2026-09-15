@@ -604,6 +604,176 @@ test('the public API lists the props and roles a story can use', () => {
   assert.strictEqual(Cast.describeRole('a waiter', { prop: null }).prop, null, 'an author must be able to empty the hands');
 });
 
+const World = require(path.join(ROOT, 'runtime', 'cast-world.js'));
+const Face = require(path.join(ROOT, 'runtime', 'cast-face.js'));
+const Acting = require(path.join(ROOT, 'runtime', 'cast-acting.js'));
+
+const STAGE = () => World.scene({
+  features: [
+    { id: 'chair', kind: 'chair', at: { x: -0.1 }, facing: 15 },
+    { id: 'table', kind: 'table', at: { x: 0, z: 0.5 }, facing: 180 },
+    { id: 'shelf', kind: 'shelf', at: { x: 0.2, z: -0.3 }, facing: 180 }
+  ]
+});
+
+test('a staged world names its contact points instead of leaving them to be guessed', () => {
+  const scene = STAGE();
+  const seat = scene.anchor('chair.seat');
+  const edge = scene.anchor('table.edge');
+  assert.ok(seat && edge, 'a chair has a seat and a table has an edge');
+  assert.ok(seat.y > 0.2 && seat.y < 0.6, `a seat sits at hip height, got ${seat.y}`);
+  assert.ok(edge.y > seat.y, 'a table top is above a chair seat');
+  // The chair is turned, so its seat is not on the world axis it was placed on.
+  assert.ok(Math.abs(seat.z) > 0.001 || Math.abs(seat.x + 0.1) > 0.001, 'anchors follow the feature facing');
+  assert.strictEqual(scene.anchor('nothing.here'), null, 'an unknown anchor is null, not an invented point');
+  const post = World.approach(scene.get('table'));
+  assert.ok(Number.isFinite(post.at.x) && Number.isFinite(post.yaw), 'a feature says where to stand and which way to face');
+});
+
+test('anchored relations put the body on the furniture, not near it', () => {
+  const scene = STAGE();
+  const cases = [
+    ['sit-on', { scene, feature: scene.get('chair') }, 0.02],
+    ['lean-on', { scene, feature: scene.get('table') }, 0.03],
+    ['reach-to', { scene, feature: scene.get('shelf'), at: 'shelf.top' }, 0.03],
+    ['work-at-table', { scene, feature: scene.get('table') }, 0.03],
+    ['place-on', { scene, feature: scene.get('table'), at: 'table.top' }, 0.03],
+    ['pick-up', { at: { x: 0.1, y: 0.12, z: 0.26 } }, 0.03],
+    ['hand-over', { giver: {}, receiver: { body: { age: 9 } } }, 0.04],
+    ['shake-hands', {}, 0.03],
+    ['hold-hands', { left: {}, right: { body: { age: 6 } } }, 0.03]
+  ];
+  for (const [kind, spec, tolerance] of cases) {
+    const relation = Relation.relate(kind, { ...spec, height: 900 });
+    assert.ok(relation.contacts.length > 0, `${kind} produced no contact`);
+    assert.ok(relation.residual <= tolerance, `${kind} residual ${(relation.residual * 100).toFixed(2)}% over ${(tolerance * 100).toFixed(0)}%`);
+    for (const c of relation.contacts) assert.ok(Number.isFinite(c.at.x) && Number.isFinite(c.at.y), `${kind} contact is not a point`);
+    const again = Relation.relate(kind, { ...spec, height: 900 });
+    assert.deepStrictEqual(again.participants.map((p) => p.pose), relation.participants.map((p) => p.pose), `${kind} must be deterministic`);
+  }
+});
+
+test('a seat too tall for the body leaves the feet off the floor and says so', () => {
+  const scene = World.scene({ features: [{ id: 'stool', kind: 'stool' }] });
+  const child = Relation.relate('sit-on', { scene, feature: scene.get('stool'), actor: { body: { age: 5 } }, height: 900 });
+  const adult = Relation.relate('sit-on', { scene, feature: scene.get('stool'), height: 900 });
+  assert.ok(adult.residual < 0.02, `an adult reaches the floor from a stool: ${adult.residual}`);
+  assert.ok(child.residual > 0.02, 'a five-year-old on a bar stool dangles, and the residual must admit it');
+});
+
+test('the world a relation was staged against can be drawn behind it', () => {
+  const scene = STAGE();
+  const svg = Paperbook.renderRelation(Relation.relate('sit-on', { scene, feature: scene.get('chair'), height: 900 }), { scene }).svg;
+  assert.ok(svg.includes('data-feature="chair"'), 'the chair being sat on must be in the picture');
+  assert.ok(!/NaN|undefined/.test(svg));
+});
+
+test('a face is a state the story sets, not a fixed drawing', () => {
+  const neutral = Face.state({ emotion: 'neutral' });
+  const worried = Face.state({ emotion: 'concern' });
+  assert.ok(worried.browTilt > neutral.browTilt, 'worry lifts the inner brow');
+  assert.ok(worried.mouthCurve < neutral.mouthCurve, 'worry turns the mouth down');
+  assert.ok(Face.state({ emotion: 'surprise' }).eyeOpen > neutral.eyeOpen);
+  assert.ok(Face.state({ listening: true }).brow > neutral.brow, 'listening is drawn above the eyes');
+  assert.strictEqual(Face.state({ emotion: 'not-a-feeling' }).emotion, 'neutral', 'an unknown feeling falls back rather than guessing');
+  const gaze = Face.state({ gaze: 'left' }).gaze;
+  assert.ok(gaze.x < 0, 'looking left moves the eyes left');
+});
+
+test('blinking and speech are functions of time, so a spread freezes the same way twice', () => {
+  const spec = { id: 'adanna', emotion: 'warm', speaking: true };
+  const samples = [];
+  for (let t = 0; t <= 4; t += 0.05) samples.push(Face.at(spec, t));
+  assert.deepStrictEqual(Face.at(spec, 1.35), Face.at(spec, 1.35), 'the same second must draw the same face');
+  assert.ok(samples.some((s) => s.eyeOpen < 0.15), 'the character blinks somewhere in four seconds');
+  assert.ok(samples.every((s) => s.eyeOpen >= 0 && s.mouthOpen <= 1));
+  assert.ok(new Set(samples.map((s) => s.viseme)).size > 2, 'a speaking mouth must move');
+  // Two characters must not blink in lockstep.
+  const other = [];
+  for (let t = 0; t <= 4; t += 0.05) other.push(Face.at({ ...spec, id: 'chidi' }, t).eyeOpen);
+  assert.notDeepStrictEqual(other, samples.map((s) => s.eyeOpen));
+});
+
+test('a gesture is prepared, struck, held and released rather than switched on', () => {
+  const act = Acting.perform({ id: 'adanna', beats: [{ at: 0.5, kind: 'point', target: { x: 0.22, y: 0.3, z: 0.3 }, say: 'over there' }] });
+  const phases = [];
+  for (let t = 0; t <= act.duration; t += 0.05) {
+    const f = act.at(t);
+    if (!phases.length || phases[phases.length - 1] !== f.phase) phases.push(f.phase);
+  }
+  assert.deepStrictEqual(phases, ['idle', 'prepare', 'stroke', 'hold', 'release', 'idle'], `phases were ${phases.join(' → ')}`);
+  assert.ok(act.residual < 0.03, `the gesture could not reach its target: ${act.residual}`);
+  const hold = act.at(1.2);
+  const rest = act.at(0.1);
+  assert.ok(Math.abs(hold.pose.armRight.shoulder.tilt - rest.pose.armRight.shoulder.tilt) > 10, 'the arm must actually move');
+  // Anticipation goes the other way first: that is what makes it read as intent.
+  const prep = act.at(0.6);
+  assert.ok((prep.pose.armRight.shoulder.tilt - rest.pose.armRight.shoulder.tilt) * (hold.pose.armRight.shoulder.tilt - rest.pose.armRight.shoulder.tilt) <= 0, 'the prepare phase must draw back, not creep forward');
+  assert.deepStrictEqual(act.at(1.2), act.at(1.2), 'sampling must be deterministic');
+  assert.ok(hold.face.speaking, 'a line said during a beat moves the mouth');
+});
+
+test('weight shifts and the body settles instead of snapping back', () => {
+  const act = Acting.perform({ id: 'chidi', beats: [{ at: 0.3, kind: 'offer', hand: 'right' }] });
+  const held = act.at(0.3 + 0.26 + 0.3 + 0.4);
+  assert.ok(Math.abs(held.weight) > 0.5, 'a held gesture puts the weight on a leg');
+  assert.ok(Math.abs(held.pose.hipRoll) > 0.5, 'the weight shift is visible in the hips');
+  const settling = [];
+  for (let t = act.beats[0].end - 0.3; t < act.beats[0].end + 0.5; t += 0.02) settling.push(act.at(t).pose.armRight.shoulder.tilt);
+  const jumps = settling.slice(1).map((v, i) => Math.abs(v - settling[i]));
+  assert.ok(Math.max(...jumps) < 6, `the release must not snap: largest step ${Math.max(...jumps).toFixed(1)}°`);
+});
+
+test('in dialogue the listener looks at the speaker and nods, and the turn passes', () => {
+  const scene = Acting.dialogue({
+    cast: [{ id: 'a' }, { id: 'b' }],
+    lines: [
+      { speaker: 'a', at: 0.4, duration: 1.6, text: 'the water is rising', emotion: 'concern' },
+      { speaker: 'b', at: 2.4, duration: 1.4, text: 'then we move the boats', emotion: 'warm' }
+    ]
+  });
+  assert.strictEqual(scene.speakerAt(1), 'a');
+  assert.strictEqual(scene.speakerAt(3), 'b');
+  assert.strictEqual(scene.speakerAt(2.1), null, 'the gap between lines belongs to nobody');
+  const mid = scene.at(1);
+  assert.ok(mid.a.face.speaking, 'the speaker speaks');
+  assert.ok(!mid.b.face.speaking && mid.b.face.listening, 'the other one listens rather than freezing');
+  assert.ok(mid.b.face.gaze.x !== 0, 'a listener looks at the speaker');
+  const later = scene.at(3);
+  assert.ok(later.b.face.speaking && !later.a.face.speaking, 'the turn passes');
+});
+
+test('an acted frame draws, with the face the beat asked for', () => {
+  const act = Acting.perform({ id: 'adanna', emotion: 'warm', beats: [{ at: 0.2, kind: 'wave', emotion: 'joy' }] });
+  const frame = act.at(0.9);
+  const svg = Paperbook.renderPose({ height: 800, pose: frame.pose, view: 'three-quarter-right', face: frame.face, look: { top: { garment: 'tunic' } } }).svg;
+  assert.ok(svg.includes('pb-face'), 'the face must be drawn');
+  assert.ok(!/NaN|undefined/.test(svg), 'no broken numbers may reach the page');
+  assert.ok(/<path|<ellipse/.test(svg));
+});
+
+test('the polish pass is on the page: contact shadows, folds, hands and feet', () => {
+  const svg = Paperbook.renderPose({ height: 800, view: 'three-quarter-right' }).svg;
+  for (const cls of ['pb-shadow', 'pb-fold', 'pb-hand', 'pb-foot']) {
+    assert.ok(svg.includes(cls), `${cls} missing from the drawing`);
+  }
+  // A kneeling body rests on a knee, so the shadow must not stay under the feet.
+  const kneeling = Relation.relate('pick-up', { at: { x: 0.05, y: 0.05, z: 0.24 }, kneel: true, height: 900 });
+  const scene = Paperbook.renderRelation(kneeling, {});
+  assert.ok(scene.svg.includes('pb-shadow'));
+  assert.ok(!/NaN|undefined/.test(scene.svg));
+});
+
+test('the public API exposes the world, the acting and the face', () => {
+  assert.ok(typeof Cast.stage === 'function' && typeof Cast.perform === 'function' && typeof Cast.face === 'function');
+  const relations = Cast.relations();
+  for (const kind of ['sit-on', 'lean-on', 'reach-to', 'work-at-table', 'hand-over', 'hold-hands']) {
+    assert.ok(relations.includes(kind), `${kind} is not reachable through the public API`);
+  }
+  assert.strictEqual(Cast.face({ emotion: 'joy' }).emotion, 'joy');
+  assert.ok(Cast.perform({ id: 'x', beats: [{ at: 0, kind: 'nod' }] }).at(0.3).pose);
+});
+
 const failed = results.filter((r) => !r.ok);
 for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `\n      ${r.error}`}`);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);

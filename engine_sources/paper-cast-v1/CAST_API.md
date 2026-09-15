@@ -138,7 +138,12 @@ height — a drawing whose hand missed the handle says so instead of hiding it.
 | `illustrateRole(text, opts)` | A line of script → a drawn character. |
 | `describeRole(text, overrides)` | The same resolution, without drawing. |
 | `illustrateFigure({ proportion, pose, goals, look, props, view })` | One body, posed from goals. |
-| `illustrate(kind, spec, opts)` | A two-body relation: `carry-on-back`, `support-walk`, `grip-prop`. |
+| `illustrate(kind, spec, opts)` | A relation; `relations()` lists them. |
+| `stage({ features })` | An environment as named contact points: `scene.anchor('table.edge')`. |
+| `perform({ id, beats })` | A beat over time: `act.at(t)` gives pose, face and weight. |
+| `dialogue({ lines })` | Turn-taking: the listener looks at the speaker. |
+| `face(spec, t)` | Brows, eye aperture, blink, mouth, gaze, speaking or listening. |
+| `relations()` | The relations this cast can draw. |
 | `body(spec)` | Proportions for `{ age, build, stature, mass }`. |
 | `props()` / `roles()` / `wardrobe()` | What the artist can draw and answer to. |
 
@@ -147,6 +152,33 @@ arbitrary prose, and an unmatched line comes back `recognised: false` rather
 than as a confident wrong character. Complexion words set complexion only —
 dress and headwear come from dress words, so no garment is inferred from a skin
 tone and no skin tone is inferred from a garment.
+
+## Staging against the world
+
+A relation takes its contact points from the environment rather than from
+coordinates chosen by hand, so a chair of a different height moves the body
+that sits on it:
+
+```js
+const scene = Cast.stage({ features: [{ id: 'table', kind: 'table', at: { z: 0.5 }, facing: 180 }] });
+const work = Cast.illustrate('work-at-table', { feature: scene.get('table') }, { scene });
+```
+
+World coordinates are fractions of the primary figure's height with the ground
+at `y = 0`. A seat too tall for the body leaves the feet off the floor and
+reports it in `residual` rather than stretching the legs to reach.
+
+## Acting and faces
+
+```js
+const act = Cast.perform({ id: 'adanna', beats: [{ at: 0.4, kind: 'point', target: { x: 0.3, y: 0.4, z: 0.4 }, say: 'over there' }] });
+const frame = act.at(1.2);   // { phase, pose, face, weight, offsetX, offsetY }
+```
+
+A gesture is prepared, struck, held and released; between beats the body
+breathes, shifts weight and settles. Sampling is a pure function of the actor
+and the time, so a spread asked for the same moment twice draws the same
+picture — which is what a still book needs.
 
 ## Other entry points
 

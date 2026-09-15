@@ -138,6 +138,11 @@
     const headDir = dirUp(pose.spine.tilt + pose.chest.tilt + pose.neck.tilt, pose.spine.swing + pose.chest.swing + pose.neck.swing);
     const headCenter = add(neck, headDir, L('head') * 1.15);
 
+    // A heavy body is wider at the waist than at the shoulders, so an arm
+    // hung straight down disappears into the belly. Weight pushes the arms
+    // out; the amount is part of the body, so contact solving sees it too.
+    const spill = Math.min(Math.max((num(proportion.waist, 1) - 1) * 30, 0), 20);
+
     const lateral = (half, roll, sign) => {
       const r = roll * RAD;
       return { x: sign * half * Math.cos(r), y: sign * half * Math.sin(r), z: 0 };
@@ -153,9 +158,9 @@
 
       const shoulderOffset = lateral(shoulderHalf, pose.shoulderRoll, sign);
       const shoulder = { x: chestPoint.x + shoulderOffset.x, y: chestPoint.y + shoulderOffset.y + L('neck') * 0.35, z: chestPoint.z };
-      const upperDir = dirDown(armPose.shoulder.tilt, sign * armPose.shoulder.swing);
+      const upperDir = dirDown(armPose.shoulder.tilt, sign * (armPose.shoulder.swing + spill));
       const elbow = add(shoulder, upperDir, L('upperArm'));
-      const foreDir = dirDown(armPose.shoulder.tilt + armPose.elbow.tilt, sign * (armPose.shoulder.swing + armPose.elbow.swing));
+      const foreDir = dirDown(armPose.shoulder.tilt + armPose.elbow.tilt, sign * (armPose.shoulder.swing + spill + armPose.elbow.swing));
       const wrist = add(elbow, foreDir, L('foreArm'));
       const hand = add(wrist, foreDir, L('hand'));
 
