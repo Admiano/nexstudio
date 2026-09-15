@@ -496,6 +496,114 @@ test('the public API lists what a character can wear', () => {
   assert.ok(w.overlays.includes('apron'));
 });
 
+const Props = require(path.join(ROOT, 'runtime', 'cast-props.js'));
+const Roles = require(path.join(ROOT, 'runtime', 'cast-roles.js'));
+
+test('a prop supplies both its grips and its drawing', () => {
+  assert.strictEqual(Props.grips('nonexistent-prop').length, 0, 'an unknown prop must grip nothing');
+  const one = Props.grips('grocery-bag');
+  assert.strictEqual(one.length, 1);
+  assert.strictEqual(one[0].effector, 'rightHand');
+  const mirrored = Props.grips('grocery-bag', { side: 'left' });
+  assert.strictEqual(mirrored[0].effector, 'leftHand');
+  assert.ok(Math.abs(mirrored[0].at.x + one[0].at.x) < 1e-9, 'the left-hand grip must mirror the right');
+  const two = Props.grips('hose').map((g) => g.effector).sort();
+  assert.deepStrictEqual(two, ['leftHand', 'rightHand'], 'a hose needs both hands');
+});
+
+test('a held prop is drawn from the hands that hold it', () => {
+  const proportion = Body.body({ age: 34 });
+  const grips = Props.grips('tray');
+  const solved = Contact.solve({ proportion, pose: Rig.mergePose({}), goals: grips, tolerance: 0.03 });
+  assert.ok(solved.residual < 0.05, `tray grip unreached: ${solved.residual}`);
+  const figure = Rig.build({ proportion, height: 800, view: 'three-quarter-right', pose: solved.pose });
+  const shapes = Props.shapes('tray', figure, {});
+  assert.ok(shapes.length, 'the tray must draw something');
+  const box = Props.extent('tray', figure, {});
+  const hand = figure.joints.rightHand;
+  assert.ok(box.minX <= hand.x && box.maxX >= hand.x, 'the prop box must contain the hand holding it');
+  assert.strictEqual(Props.shapes('nope', figure, {}).length, 0);
+});
+
+test('props reach the page and widen the frame around them', () => {
+  const proportion = Body.body({ age: 34 });
+  const bare = Paperbook.renderPose({ proportion, height: 800, view: 'three-quarter-right', id: 'p' });
+  const withOar = Paperbook.renderPose({ proportion, height: 800, view: 'three-quarter-right', id: 'p', props: ['oar'] });
+  assert.ok(withOar.svg.includes('pb-prop'), 'the prop must be drawn');
+  assert.ok(!/NaN|undefined/.test(withOar.svg));
+  assert.ok(withOar.width > bare.width, 'an oar must not be cropped off the spread');
+});
+
+test('role words resolve to an outfit, a prop and a body', () => {
+  const fireman = Roles.resolve('a fireman runs to the boat');
+  assert.strictEqual(fireman.role, 'firefighter');
+  assert.strictEqual(fireman.look.head.kind, 'helmet');
+  assert.strictEqual(fireman.prop, 'hose');
+
+  assert.strictEqual(Roles.resolve('a police officer').role, 'police-officer', 'the longer phrase must win over "officer"');
+  assert.strictEqual(Roles.resolve('a waiter serving food').prop, 'tray');
+  assert.strictEqual(Roles.resolve('carrying groceries home').prop, 'grocery-bag');
+  assert.strictEqual(Roles.resolve('a farmer').prop, 'hoe');
+
+  const unknown = Roles.resolve('a shimmering thought');
+  assert.strictEqual(unknown.recognised, false, 'an unmatched line must say so rather than guess');
+  assert.strictEqual(unknown.prop, null);
+});
+
+test('modifiers change the body and the dress without losing the job', () => {
+  const elder = Roles.resolve('an elderly Muslim farmer');
+  assert.strictEqual(elder.role, 'farmer');
+  assert.strictEqual(elder.prop, 'hoe', 'the tool survives the modifiers');
+  assert.ok(elder.body.age > 60);
+
+  const heavy = Roles.resolve('an obese man');
+  assert.ok(heavy.body.mass > 0.5, 'mass, not a wider build, carries weight');
+
+  const hijabi = Roles.resolve('a woman in a hijab');
+  assert.strictEqual(hijabi.look.head.kind, 'hijab');
+  assert.ok(!hijabi.look.skin, 'dress must not imply a complexion');
+
+  const sikh = Roles.resolve('an Indian man in a turban');
+  assert.strictEqual(sikh.look.head.kind, 'turban');
+  assert.strictEqual(sikh.look.bottom.pattern, null, 'a kurta must not keep a wrapper under it');
+
+  const tones = ['a white nurse', 'a black nurse', 'an Indian nurse'].map((t) => Roles.resolve(t).look.skin);
+  assert.strictEqual(new Set(tones).size, 3, 'each complexion word must reach the skin');
+});
+
+test('a line of script draws itself, hands on the prop', () => {
+  const lines = ['a fireman', 'a police officer', 'an elderly farmer', 'a waiter serving food', 'a woman in a hijab carrying groceries', 'an obese man carrying a crate', 'a fisherman rowing'];
+  const seen = new Set();
+  for (const line of lines) {
+    const drawn = Cast.illustrateRole(line, { height: 700 });
+    assert.ok(!/NaN|undefined/.test(drawn.svg), `${line} produced an unresolved coordinate`);
+    assert.ok(drawn.svg.startsWith('<svg') && drawn.svg.endsWith('</svg>'), `${line} produced invalid svg`);
+    assert.ok(drawn.residual < 0.03, `${line} could not reach its prop: ${(drawn.residual * 100).toFixed(1)}%`);
+    assert.ok(drawn.svg.includes('pb-prop'), `${line} lost its prop`);
+    seen.add(drawn.svg);
+  }
+  assert.strictEqual(seen.size, lines.length, 'every role must draw a different picture');
+  assert.strictEqual(Cast.illustrateRole('a fireman', { height: 700 }).svg, Cast.illustrateRole('a fireman', { height: 700 }).svg, 'the same line must draw the same character');
+});
+
+test('a relation can be given a prop by name', () => {
+  const rowing = Relation.relate('grip-prop', { propId: 'oar', actor: { body: { age: 34 } }, height: 900 });
+  assert.ok(rowing.participants[0].residual < 0.03, `oar unreached: ${rowing.participants[0].residual}`);
+  assert.strictEqual(rowing.contacts.length, 2, 'an oar is a two-handed contact');
+  const svg = Paperbook.renderRelation(rowing, { view: 'three-quarter-right' }).svg;
+  assert.ok(svg.includes('pb-prop'), 'the named prop must be drawn into the scene');
+  assert.ok(!/NaN|undefined/.test(svg));
+});
+
+test('the public API lists the props and roles a story can use', () => {
+  const props = Cast.props().map((p) => p.id);
+  for (const id of ['grocery-bag', 'tray', 'hose', 'hoe', 'basket']) assert.ok(props.includes(id), `${id} missing`);
+  const roles = Cast.roles().map((r) => r.id);
+  for (const id of ['firefighter', 'police-officer', 'farmer', 'waiter']) assert.ok(roles.includes(id), `${id} missing`);
+  assert.strictEqual(Cast.describeRole('a waiter').role, 'waiter');
+  assert.strictEqual(Cast.describeRole('a waiter', { prop: null }).prop, null, 'an author must be able to empty the hands');
+});
+
 const failed = results.filter((r) => !r.ok);
 for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `\n      ${r.error}`}`);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);

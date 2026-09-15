@@ -14,12 +14,12 @@
 (function (root, factory) {
   const isNode = typeof module === 'object' && module.exports;
   const deps = isNode
-    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Wardrobe: require('./cast-wardrobe.js') }
-    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Wardrobe: root.NexCastWardrobe };
+    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Wardrobe: require('./cast-wardrobe.js'), Props: require('./cast-props.js') }
+    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Wardrobe: root.NexCastWardrobe, Props: root.NexCastProps };
   const api = factory(deps);
   if (isNode) module.exports = api;
   root.NexPaperbookFigure = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Wardrobe }) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Wardrobe, Props }) {
   const round = (n) => Math.round(Number(n) * 100) / 100;
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -271,8 +271,27 @@
     const shadowX = (figure.joints.leftToe.x + figure.joints.rightToe.x) / 2;
     emit(-Infinity, `<ellipse class="pb-shadow" cx="${round(shadowX)}" cy="${round(figure.ground)}" rx="${round(height * 0.1)}" ry="${round(height * 0.018)}" fill="${PAPER.shadow}" opacity="0.22"/>`);
 
+    // Held props are drawn from the hands the solver produced, in front of
+    // the body: a bag behind the arm holding it is the floating-rice-bag bug.
+    const held = (opts.props || []).map((p) => (typeof p === 'string' ? { id: p } : p)).filter((p) => p && p.id);
+    let reach = null;
+    if (held.length) {
+      const front = Math.max(...figure.parts.map((p) => p.depth)) + 1;
+      for (const p of held) {
+        for (const s of Props.shapes(p.id, figure, { side: p.side, color: p.color, mix })) {
+          emit(p.behind ? -span : front, piece(s.fill, s.svg, 'pb-prop'));
+        }
+        const box = Props.extent(p.id, figure, { side: p.side });
+        if (box) {
+          reach = reach ? { minX: Math.min(reach.minX, box.minX), maxX: Math.max(reach.maxX, box.maxX), minY: Math.min(reach.minY, box.minY), maxY: Math.max(reach.maxY, box.maxY) } : box;
+        }
+      }
+    }
+
     const pad = height * 0.05;
-    const b = figure.bounds;
+    const b = reach
+      ? { minX: Math.min(figure.bounds.minX, reach.minX), maxX: Math.max(figure.bounds.maxX, reach.maxX), minY: Math.min(figure.bounds.minY, reach.minY), maxY: Math.max(figure.bounds.maxY, reach.maxY) }
+      : figure.bounds;
     out.bounds = { minX: b.minX - pad, maxX: b.maxX + pad, minY: b.minY - pad, maxY: b.maxY + pad };
     out.figure = figure;
     return out;
@@ -320,7 +339,8 @@
 
     for (const p of relation.participants) {
       const figure = Rig.build({ proportion: p.proportion, height: p.height, pose: p.pose, view: p.yaw });
-      const collected = collect(figure, { look: looks[p.id] || looks[p.role] || opts.look, id: p.id }, { layers: [], defs });
+      const props = (opts.props && (opts.props[p.id] || opts.props[p.role])) || p.props;
+      const collected = collect(figure, { look: looks[p.id] || looks[p.role] || opts.look, id: p.id, props }, { layers: [], defs });
       const dx = p.origin.x * unit;
       const dy = -p.origin.y * unit;
       // Each body's parts keep their own depth, offset by where the body

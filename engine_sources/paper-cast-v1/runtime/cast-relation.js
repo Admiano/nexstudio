@@ -13,12 +13,12 @@
 (function (root, factory) {
   const isNode = typeof module === 'object' && module.exports;
   const deps = isNode
-    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Contact: require('./cast-contact.js') }
-    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Contact: root.NexCastContact };
+    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Contact: require('./cast-contact.js'), Props: require('./cast-props.js') }
+    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Contact: root.NexCastContact, Props: root.NexCastProps };
   const api = factory(deps);
   if (isNode) module.exports = api;
   root.NexCastRelation = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Contact }) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Contact, Props }) {
   const RAD = Math.PI / 180;
 
   const rotateY = (p, deg) => {
@@ -194,8 +194,13 @@
    */
   function gripProp(spec) {
     const actor = settle(participant({ id: 'actor', ...(spec.actor || {}) }, 1));
-    const grips = (spec.grips || []).filter((g) => g && g.effector && g.at);
+    // Either name a prop from the catalogue and let it say where the hands go,
+    // or author the anchors for something the catalogue has never seen.
+    const propId = spec.propId && Props.PROPS[spec.propId] ? spec.propId : null;
+    const authored = spec.grips || (propId ? Props.grips(propId, { side: spec.side }) : []);
+    const grips = authored.filter((g) => g && g.effector && g.at);
     solveAgainst(actor, grips.map((g) => ({ effector: g.effector, at: toWorld(g.at, actor), weight: g.weight })), { torso: spec.torso !== false });
+    if (propId) actor.props = [{ id: propId, side: spec.side }];
     return compose('grip-prop', [actor], spec, (actor.goals || []).map((g) => ({ between: [`actor.${g.effector}`, spec.propId || 'prop'], at: g.at, error: g.error })));
   }
 
@@ -213,6 +218,7 @@
         scale: p.scale,
         yaw: p.yaw,
         origin: p.origin,
+        props: p.props || null,
         height: unit * p.scale,
         // Stage placement in pixels, ground at y = 0, for the scene renderer.
         stage: { x: p.origin.x * unit, y: p.origin.y * unit, depth: p.origin.z * unit },
