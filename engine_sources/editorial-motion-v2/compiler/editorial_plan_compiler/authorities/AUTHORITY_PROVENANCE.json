@@ -1,0 +1,94 @@
+{
+  "schema": "EditorialAuthorityProvenanceV1",
+  "bundle": "NEXMIND_ELITE_TEXT_LED_EDITORIAL_MOTION_BUNDLE_2026-09-15",
+  "files": [
+    {
+      "file": "text_element_spatial_authority_v1.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/GENUINE_STANDALONE/text_element_spatial_authority_v1.py",
+      "source_sha256": "fb048a146a942ed6f46894a4020b42b766f00819a8359c943d18e9709a27ec89",
+      "vendored_sha256": "18eb4b894d79c6296c16f483fa5cf2be801990047a4e0428845438581209a228",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative"
+    },
+    {
+      "file": "editorial_background_system_v1.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/GENUINE_STANDALONE/editorial_background_system_v1.py",
+      "source_sha256": "e339a776d7bebf6c25547247489bc8431cbea32936dff49cb3ba732b5b718299",
+      "vendored_sha256": "99504883a10b643984efaff50e8ef896e40864641bd103a9dd63b18436dd486a",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative; raster preview imports optional; preview output parameterised (--out)"
+    },
+    {
+      "file": "kinetic_typography_grammar_v2.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/GENUINE_STANDALONE/kinetic_typography_grammar_v2.py",
+      "source_sha256": "69c125dd8876bdfe80ae26b2acf9b9e794d8b66b7e090db2fb14303d1bb49791",
+      "vendored_sha256": "08c5c259fb31e3a88416a3fd29bb0ffccdebafc7bb0bdfdabccbd8b59c3481ca",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative"
+    },
+    {
+      "file": "kinetic_typography_performance_authority_v3.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/KINETIC_TYPOGRAPHY/KINETIC_TYPOGRAPHY_PERFORMANCE_AUTHORITY_V3/kinetic_typography_performance_authority_v3.py",
+      "source_sha256": "92f55f360c14a51742c20a6cd2c5b17cb0258c4d37e2c3ae179a7874dd766663",
+      "vendored_sha256": "09b3c027b62d2e7c23d6dd85b9b21af1392f58e36184577000d8f7e94172c30e",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative; REPLACEMENT_LOCKUP motif restricted to beats with a replace group (two heroes in one bbox otherwise collide)"
+    },
+    {
+      "file": "editorial_scene_composition_authority_v2.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/EDITORIAL_COMPOSITION/EDITORIAL_SCENE_COMPOSITION_AUTHORITY_V2/editorial_scene_composition_authority_v2.py",
+      "source_sha256": "a9a96520e53c157af10ecb8bd3e15ddd50027ff26f9a04bc4e7144fe91627fbc",
+      "vendored_sha256": "3140fa32aa219cd3c5b54edfe60a44d89f6a812c2675feda1171b65c6a3edfeb",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative"
+    },
+    {
+      "file": "editorial_motion_ensemble_director_v1.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/MOTION_ENSEMBLE/EDITORIAL_MOTION_ENSEMBLE_DIRECTOR_V1/editorial_motion_ensemble_director_v1.py",
+      "source_sha256": "86647b841bf6f815841708897563c5d4e2d0e4d8a23fef65b20cb4af09b3aff8",
+      "vendored_sha256": "c581788a4c1d59dc2bd82371f997200bcb2106f2acf1bcbe5b12c865665865dd",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative"
+    },
+    {
+      "file": "native_three_aspect_composition_authority_v2.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/selected_reusable_adapters/native_three_aspect_composition_authority_v2.py",
+      "source_sha256": "54832326ef35c1a9368953fbc940b88c51232ab63db07fe710a57d51aae531bc",
+      "vendored_sha256": "a37e248fc4d78074d2c94ce7da520cc6821a5504be92efe6de186855be9b8c77",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative"
+    },
+    {
+      "file": "semantic_beat_model.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/SCENE_INTELLIGENCE/ILLUSTRATED_STORIES_SCENE_INTELLIGENCE_V1/semantic_beat_model.py",
+      "source_sha256": "65aa824d7700daaf94cea447ec0c3e288d6572d7d248965ae007bf0dba3af1a3",
+      "vendored_sha256": "7b31f95ee0bc593f8270d86d317500d8c3e3f082d90985c1d9acad381182caa7",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative"
+    },
+    {
+      "file": "scene_intelligence_schema.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/SCENE_INTELLIGENCE/ILLUSTRATED_STORIES_SCENE_INTELLIGENCE_V1/scene_intelligence_schema.py",
+      "source_sha256": "df2e47833d0943d413491b0d070dcfe26b51b33efdd57cdd863360e69b67f440",
+      "vendored_sha256": "610800576bcc31d46a16d4b5607a43dbe39fd909249fa58949726d0129de8cd8",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative"
+    },
+    {
+      "file": "open_peeps_conventional_rig_v6.py",
+      "bundle_path": "02_AUTHENTIC_EDITORIAL_AUTHORITIES/GENUINE_STANDALONE/open_peeps_conventional_rig_v6.py",
+      "source_sha256": "cb9621eb459e1bd5a75f49a2fe9b88b794eb7a009fbb7f3f5f89904b5fb3a1e4",
+      "vendored_sha256": "55988cbcf2d24972ecfa77908eb0bbb40d51dd7ba86ce9ff1c6dd85741df4864",
+      "modified": true,
+      "modification": "authoring-machine /mnt/data paths removed; sibling imports made package-relative; source and rig output parameterised (OPEN_PEEPS_SOURCE_ROOT, OPEN_PEEPS_RIG_OUT); offline authoring tool, not imported at runtime"
+    },
+    {
+      "file": "REFERENCE_EDITORIAL_MOTION_GRAMMAR_V1.json",
+      "bundle_path": "06_REFERENCE_GRAMMAR_AND_ANALYSIS/REFERENCE_EDITORIAL_MOTION_GRAMMAR_V1_CURRENT.json",
+      "source_sha256": "c389bf28aafa10dfa78a9af8005b4c419e671c300eb0b24fac95faa90f7823cd",
+      "vendored_sha256": "c389bf28aafa10dfa78a9af8005b4c419e671c300eb0b24fac95faa90f7823cd",
+      "modified": false,
+      "modification": null
+    }
+  ]
+}

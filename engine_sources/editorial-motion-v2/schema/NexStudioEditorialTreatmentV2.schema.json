@@ -1,0 +1,502 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.dev/schema/NexStudioEditorialTreatmentV2.json",
+  "title": "NexStudioEditorialTreatmentV2",
+  "description": "Per-beat editorial treatment decision authored by NexMind P8. The compiler fails closed on anything outside these vocabularies.",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "NexStudioEditorialTreatmentV2"
+    },
+    "film_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "aspects": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "9x16",
+          "1x1",
+          "16x9"
+        ]
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "fps": {
+      "type": "integer",
+      "enum": [
+        24,
+        25,
+        30,
+        60
+      ]
+    },
+    "beats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "beat_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "beat_type": {
+            "type": "string",
+            "enum": [
+              "HOOK",
+              "SETUP",
+              "CONTRAST",
+              "EXPLANATION",
+              "PROOF",
+              "LIST",
+              "REFRAME",
+              "EMPHASIS",
+              "PAYOFF",
+              "CTA"
+            ]
+          },
+          "pattern": {
+            "type": "string",
+            "enum": [
+              "PROGRESSIVE_HERO_BUILD",
+              "PHRASE_REPLACEMENT",
+              "HERO_SCALE_PROMOTION",
+              "HERO_TO_EVIDENCE_HANDOFF",
+              "EVIDENCE_PERSISTENCE_CARRIER",
+              "ANCHORED_SCREENSHOT_PROOF",
+              "SEQUENTIAL_SUPPORT_LIST",
+              "QUIET_SUPPORT_AFTER_HERO",
+              "CONTRAST_RECONFIGURATION",
+              "PROCESS_RAIL",
+              "WORD_OBJECT_BRIDGE",
+              "OBJECT_LED_TRANSITION",
+              "PAYOFF_LOCKUP",
+              "CTA_LOCKUP",
+              "CONTROLLED_EMPTY_SPACE"
+            ]
+          },
+          "dominant_layer": {
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "EVIDENCE",
+              "FIGURE",
+              "DATA",
+              "QUIET"
+            ]
+          },
+          "narration": {
+            "type": "string"
+          },
+          "display_units": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "hero",
+                    "support",
+                    "label"
+                  ]
+                },
+                "emphasis": {
+                  "type": "number",
+                  "minimum": 0.0,
+                  "maximum": 1.0
+                },
+                "semantic_role": {
+                  "type": "string",
+                  "enum": [
+                    "statement",
+                    "setup",
+                    "contrast",
+                    "proof",
+                    "punch",
+                    "qualifier",
+                    "action",
+                    "evidence"
+                  ]
+                },
+                "replace_group": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "can_promote": {
+                  "type": "boolean"
+                },
+                "italic": {
+                  "type": "boolean"
+                },
+                "anchor_word": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 5
+          },
+          "figure": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "valence": {
+                    "type": "number",
+                    "minimum": -1.0,
+                    "maximum": 1.0
+                  },
+                  "arousal": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0
+                  },
+                  "posture": {
+                    "type": "string",
+                    "enum": [
+                      "standing",
+                      "sitting"
+                    ]
+                  },
+                  "energy": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0
+                  },
+                  "formality": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0
+                  },
+                  "facing": {
+                    "type": "string",
+                    "enum": [
+                      "TOWARD_TEXT",
+                      "TOWARD_EVIDENCE",
+                      "CAMERA",
+                      "AWAY"
+                    ]
+                  },
+                  "justification": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "valence",
+                  "arousal",
+                  "justification"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "media": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "asset_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "EVIDENCE",
+                      "PROOF",
+                      "CONTEXT"
+                    ]
+                  },
+                  "focus": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                      },
+                      "y": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                      },
+                      "w": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                      },
+                      "h": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ]
+                  },
+                  "persist_to": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "trim": {
+                    "type": "object",
+                    "properties": {
+                      "start": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "end": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "required": [
+                      "start",
+                      "end"
+                    ]
+                  }
+                },
+                "required": [
+                  "asset_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "STAT",
+                      "COMPARISON",
+                      "SEQUENCE"
+                    ]
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "secondary": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "energy": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "complexity": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "features": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          },
+          "min_duration_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "beat_id",
+          "beat_type",
+          "pattern"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "media_library": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "IMAGE",
+              "SCREENSHOT",
+              "DOCUMENT",
+              "VIDEO"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "duration_s": {
+            "type": "number",
+            "minimum": 0
+          },
+          "rights": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "asset_id",
+          "kind",
+          "path",
+          "width",
+          "height"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "brand": {
+      "type": "object",
+      "properties": {
+        "ink": {
+          "type": "string",
+          "minLength": 1
+        },
+        "paper": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "finish": {
+          "type": "string",
+          "enum": [
+            "EDITORIAL_FLAT",
+            "PAPER"
+          ]
+        }
+      },
+      "required": []
+    },
+    "voice": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "RECORDED",
+            "ROUTE",
+            "FIXTURE"
+          ]
+        },
+        "route_id": {
+          "type": "string"
+        },
+        "alignments": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "characters": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1
+                }
+              },
+              "character_start_times_seconds": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "character_end_times_seconds": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            },
+            "required": [
+              "characters",
+              "character_start_times_seconds",
+              "character_end_times_seconds"
+            ]
+          }
+        },
+        "words_per_minute": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "schema",
+    "film_id",
+    "beats"
+  ]
+}

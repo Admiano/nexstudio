@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Editorial Motion v2 — plan player</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+  #mount { position: relative; width: 100vw; height: 100vh; }
+  #hud { position: fixed; left: 12px; bottom: 12px; font: 12px/1.4 ui-monospace, monospace; color: #bbb; background: rgba(0,0,0,.55); padding: 6px 10px; border-radius: 6px; }
+  #hud[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div id="mount"></div>
+<div id="hud" hidden></div>
+<script src="../runtime/editorial-runtime.js"></script>
+<script>
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const planUrl = q.get('plan');
+  if (!planUrl) { document.body.textContent = 'Usage: player.html?plan=<url to plan_<aspect>.json>[&assets=<url prefix>][&hud=1]'; return; }
+  const plan = await (await fetch(planUrl)).json();
+  const assetPrefix = q.get('assets') || '';
+  const mount = document.getElementById('mount');
+  const film = EditorialRuntime.createEditorialFilm(plan, mount, {
+    fontBase: '../assets/fonts/',
+    peepsBase: '../assets/peeps/',
+    // Compiled plans carry absolute media paths; the capture server maps them under a prefix.
+    assetUrl: (p) => (/^https?:|^\//.test(p) && assetPrefix ? assetPrefix + p : p),
+  });
+  const hud = document.getElementById('hud');
+  if (q.get('hud')) hud.hidden = false;
+  const refit = () => film.fit(mount);
+  window.addEventListener('resize', refit);
+  refit();
+  window.__em2 = film;
+  try { await film.ready; } catch (e) { window.__em2Error = String(e); throw e; }
+  window.__em2Ready = true;
+  if (q.get('autoplay')) film.play(0);
+  const loop = () => {
+    if (!hud.hidden) hud.textContent = `${plan.film_id} ${plan.aspect} t=${Math.round(film.time)}ms / ${film.duration}ms`;
+    requestAnimationFrame(loop);
+  };
+  loop();
+  window.addEventListener('keydown', (e) => {
+    if (e.key === ' ') film.playing ? film.pause() : film.play(film.time >= film.duration ? 0 : film.time);
+    if (e.key === 'ArrowRight') film.seek(film.time + (e.shiftKey ? 1000 : 1000 / film.fps));
+    if (e.key === 'ArrowLeft') film.seek(film.time - (e.shiftKey ? 1000 : 1000 / film.fps));
+    if (e.key === 'Home') film.seek(0);
+  });
+})();
+</script>
+</body>
+</html>

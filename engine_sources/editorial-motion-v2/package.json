@@ -1,0 +1,18 @@
+{
+  "name": "@nexstudio/editorial-motion-v2",
+  "version": "2.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Editorial Motion v2: P8-directed treatment -> deterministic EditorialPlan compiler -> execution-only runtime for 9:16, 1:1 and 16:9.",
+  "scripts": {
+    "compile:fixture": "cd compiler && python3 -m editorial_plan_compiler ../fixtures/reply-speed.treatment.json ../out/reply-speed",
+    "test:py": "python3 -m pytest -q compiler/tests",
+    "test:js": "node tools/test_runtime.js",
+    "test": "npm run test:py && npm run test:js",
+    "render:fixture": "node tools/render_reel.js out/reply-speed/plan_9x16.json out/reply-speed && node tools/render_reel.js out/reply-speed/plan_1x1.json out/reply-speed && node tools/render_reel.js out/reply-speed/plan_16x9.json out/reply-speed"
+  },
+  "devDependencies": {
+    "playwright-core": "1.47.2"
+  },
+  "license": "UNLICENSED"
+}
