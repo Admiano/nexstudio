@@ -103,6 +103,53 @@ window.NexEditorial = (() => {
     return node;
   }
 
+  const RULES = () => window.NEX_EDITORIAL_RULES || {};
+
+  /**
+   * The vendored fitter shrinks type until the card fits, which can take
+   * supporting copy down to a size nobody reads. Below that floor the copy
+   * holds its size and sheds its own trailing words instead, so what is on
+   * screen is always legible and always the script's words.
+   */
+  function enforceReadableCopy(scene, frameHeight) {
+    const rules = RULES().typography || {};
+    const floors = [
+      ['.type-body', rules.minBodyHeightRatio],
+      ['.type-meta', rules.minMetaHeightRatio]
+    ];
+    const paper = scene.querySelector('.type-paper');
+    const content = scene.querySelector('.type-content') || paper;
+    if (!paper || !content) return;
+    const overflows = () =>
+      content.scrollHeight > paper.clientHeight - 42 ||
+      content.scrollWidth > paper.clientWidth - 38;
+
+    floors.forEach(([selector, ratio]) => {
+      if (!ratio) return;
+      const min = frameHeight * ratio;
+      scene.querySelectorAll('.ed-type ' + selector).forEach((node) => {
+        if (!node.textContent.trim()) return;
+        if ((parseFloat(getComputedStyle(node).fontSize) || 0) >= min) return;
+        node.style.fontSize = min + 'px';
+        node.style.lineHeight = '1.18';
+        node.style.letterSpacing = 'normal';
+        const words = node.textContent.trim().split(/\s+/);
+        let guard = 0;
+        while (words.length > 1 && overflows() && guard < 400) {
+          words.pop();
+          node.textContent = words.join(' ') + '…';
+          guard += 1;
+        }
+        if (words.length <= 1 && overflows()) markEmpty(node);
+      });
+    });
+  }
+
+  function markEmpty(node) {
+    node.textContent = '';
+    node.classList.add('ed-empty');
+  }
+
   function placeRegion(node, region) {
     node.style.left = (region.x * 100) + '%';
     node.style.top = (region.y * 100) + '%';
@@ -204,6 +251,9 @@ window.NexEditorial = (() => {
     }
     host.__editorialPlan = plan;
     host.__editorialShots = shots;
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const frameHeight = host.getBoundingClientRect().height;
+    if (frameHeight) shots.forEach(({ scene }) => enforceReadableCopy(scene, frameHeight));
     return host;
   }
 
@@ -218,6 +268,7 @@ window.NexEditorial = (() => {
     if (!plan) throw new Error('Call NexEditorial.create() before animate()');
     const tl = window.NexMotion.createTimeline({ defaults: { ease: 'power3.out' } });
     const hold = Number(options.hold ?? 0.35);
+    const crossfade = Number(options.crossfade ?? (RULES().shots || {}).crossfade ?? 0.28);
 
     shots.forEach((built, i) => {
       const { shot, scene } = built;
@@ -225,13 +276,20 @@ window.NexEditorial = (() => {
       const end = shot.start + shot.duration;
       tl.set(scene, { opacity: 0, pointerEvents: 'none' }, 0);
       tl.set(scene, { opacity: 1 }, start);
-      // The outgoing shot clears exactly where the next one lights, so no time
-      // in the film lands on an empty frame. The last shot holds to the end.
-      if (i < shots.length - 1) tl.set(scene, { opacity: 0 }, end);
+      // The outgoing shot holds under the incoming one while its type arrives,
+      // so the boundary itself never lands on an empty frame. The last shot
+      // holds to the end.
+      if (i < shots.length - 1) {
+        const overlap = Math.min(crossfade, shots[i + 1].shot.duration * 0.4);
+        tl.to(scene, { opacity: 0, duration: overlap, ease: 'none' }, end);
+      }
 
       const typeTl = window.NexTypography.animate(built.typeNode, {
         duration: Math.min(1.6, shot.duration * 0.55),
-        energy: built.typeNode.dataset.energy
+        energy: built.typeNode.dataset.energy,
+        // The card itself is present from the first frame of its shot; only its
+        // words animate in.
+        visibleStart: true
       });
       tl.addUpdate(start, Math.min(1.6, shot.duration * 0.55), (p) => typeTl.progress(p));
 

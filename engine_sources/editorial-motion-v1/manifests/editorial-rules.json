@@ -143,7 +143,10 @@
       "date-location-label": {
         "names": 1
       }
-    }
+    },
+    "minBodyHeightRatio": 0.02,
+    "minMetaHeightRatio": 0.016,
+    "readabilityNote": "Supporting copy is never shrunk below a share of the frame height; it sheds its own trailing words instead."
   },
   "icons": {
     "minScore": 0.34,
@@ -286,5 +289,8 @@
       "maxElements": 3,
       "textShare": 0.55
     }
+  },
+  "shots": {
+    "crossfade": 0.28
   }
 }
