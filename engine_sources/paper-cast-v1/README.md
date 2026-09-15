@@ -22,27 +22,43 @@ runtime/cast-selector.js    ranking + staging: positions, body yaw, head yaw
 runtime/paper-cast.js       public API (plan, renderScene, renderFigure, analyze, search)
 runtime/cast-registry.js    generated browser registry
 runtime/cast-performance.js deterministic per-time performance: breathing, gait, travel
+runtime/cast-body.js        parametric bodies: age infant→senior, build, stature, mass
+runtime/cast-contact.js     contact solver: hands, feet and props reached by goal
+runtime/cast-relation.js    two-body relations: carry on back, supported walk, grip prop
+runtime/cast-wardrobe.js    garment silhouettes, trim, overlays, headwear, hair, beards
+runtime/cast-props.js       props whose grips and drawing come from one definition
+runtime/cast-roles.js       role vocabulary: a script phrase → body, outfit, prop, hold
+runtime/paperbook-figure.js paperbook skin: flat gouache shapes on toned paper
 paperbook/                  paper-motion component, styles and the 30-second reel
 cast-explorer.html          type a beat, see it staged; roster, poses and orientation sweep
-tools/                      manifest build, validation suite, contact sheet, reel capture
+tools/                      manifest build, validation suite, sheets, reel capture, packaging
 ```
 
 ## Use
 
 ```bash
 node tools/build-cast-manifests.js   # regenerate manifests, facets and registry
-node tools/test-paper-cast.js        # 27 checks: rig, depth order, staging, timing, render
+node tools/test-paper-cast.js        # 54 checks: rig, bodies, contacts, wardrobe, props, roles, render
 node tools/render-contact-sheet.js   # .review/contact-sheet.html for visual review
+node tools/render-story-sheet.js out "a fireman" "a woman in a hijab carrying groceries"
+node tools/package-engine.js         # PAPER_CAST_V1_ENGINE_SOURCE.zip, with provenance
 ```
 
 ```js
-const scene = require('./runtime/paper-cast.js').renderScene({
+const Cast = require('./runtime/paper-cast.js');
+
+const scene = Cast.renderScene({
   script: 'The customer asks the support agent a question and they talk to each other.'
 });
+
+// The paperbook path: the line of script draws itself.
+const waiter = Cast.illustrateRole('a waiter serving food');
+const carry = Cast.illustrate('carry-on-back', { carrier: { body: { age: 31 } }, carried: { body: { age: 3 } } });
 ```
 
-See [CAST_API.md](CAST_API.md) for the request shape and the orientation model, and
-[INSTALL.md](INSTALL.md) for installing into paper-motion and running the reel.
+See [CAST_API.md](CAST_API.md) for the request shape, the orientation model and
+the paperbook figure API, and [INSTALL.md](INSTALL.md) for installing into
+paper-motion, running the reel and exporting the engine archive.
 
 ## Why not NexStick V5.1
 

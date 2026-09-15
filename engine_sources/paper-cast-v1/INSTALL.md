@@ -33,8 +33,10 @@ Checks and regeneration:
 
 ```bash
 node tools/build-cast-manifests.js   # rebuild manifests, facets, browser registry
-node tools/test-paper-cast.js        # 27 checks: rig, depth, staging, timing, render
+node tools/test-paper-cast.js        # 54 checks: rig, bodies, contacts, wardrobe, props, roles, render
 node tools/render-contact-sheet.js   # .review/contact-sheet.html
+node tools/render-story-sheet.js out "a fireman" "a waiter serving food"
+node tools/package-engine.js         # rebuild PAPER_CAST_V1_ENGINE_SOURCE.zip
 ```
 
 ## 2. Install into paper-motion (the paperbook)
@@ -71,6 +73,13 @@ Load order in any composition (scripts, in this order):
 <script src="../runtime/paper-cast/cast-selector.js"></script>
 <script src="../runtime/paper-cast/cast-performance.js"></script>
 <script src="../runtime/paper-cast/cast-registry.js"></script>
+<script src="../runtime/paper-cast/cast-body.js"></script>
+<script src="../runtime/paper-cast/cast-contact.js"></script>
+<script src="../runtime/paper-cast/cast-props.js"></script>
+<script src="../runtime/paper-cast/cast-relation.js"></script>
+<script src="../runtime/paper-cast/cast-wardrobe.js"></script>
+<script src="../runtime/paper-cast/cast-roles.js"></script>
+<script src="../runtime/paper-cast/paperbook-figure.js"></script>
 <script src="../runtime/paper-cast/paper-cast.js"></script>
 <script src="../components/paper-cast-stage.js"></script>
 ```
@@ -90,7 +99,18 @@ const tl = NexCastStage.animate(stage, { duration: 5 }); // paused NexMotion tim
 tl.seek(2.4);                                            // same time -> same frame
 ```
 
-## 3. Run the 30-second reel
+## 3. Export the engine archive
+
+```bash
+node tools/package-engine.js            # -> ../PAPER_CAST_V1_ENGINE_SOURCE.zip
+node tools/package-engine.js /somewhere # or anywhere else
+```
+
+The suite runs first and the archive is refused if a check fails. Inside the
+zip, `PAPER_CAST_PROVENANCE.json` records the version, the capabilities, the
+truth boundary, the suite result, and a sha256 for every packaged file.
+
+## 4. Run the 30-second reel
 
 ```bash
 cd /path/to/runtime-assets/paper-motion
