@@ -291,6 +291,7 @@
     }
   },
   "shots": {
-    "crossfade": 0.28
+    "entryLead": 0.18,
+    "entryLeadNote": "A shot cuts in with its type already part way through its entry, so a cut never lands on an empty card and two shots never share the frame."
   }
 }
