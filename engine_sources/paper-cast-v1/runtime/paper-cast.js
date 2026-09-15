@@ -21,6 +21,8 @@
       Contact: require('./cast-contact.js'),
       Relation: require('./cast-relation.js'),
       Wardrobe: require('./cast-wardrobe.js'),
+      Props: require('./cast-props.js'),
+      Roles: require('./cast-roles.js'),
       Paperbook: require('./paperbook-figure.js'),
       load: () => {
         const fs = require('fs');
@@ -42,6 +44,8 @@
       Contact: root.NexCastContact,
       Relation: root.NexCastRelation,
       Wardrobe: root.NexCastWardrobe,
+      Props: root.NexCastProps,
+      Roles: root.NexCastRoles,
       Paperbook: root.NexPaperbookFigure,
       load: () => ({ registry: root.NEX_CAST, poses: root.NEX_CAST_POSES })
     };
@@ -49,7 +53,7 @@
   if (isNode) module.exports = api;
   root.NexPaperCast = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (deps) {
-  const { Rig, Renderer, Selector, Context, Performance, Body, Contact, Relation, Wardrobe, Paperbook, load } = deps;
+  const { Rig, Renderer, Selector, Context, Performance, Body, Contact, Relation, Wardrobe, Props, Roles, Paperbook, load } = deps;
   const round = (n) => Math.round(Number(n) * 100) / 100;
 
   const FRAMES = {
@@ -239,6 +243,59 @@
     },
     body: (spec) => Body.body(spec),
 
+    /**
+     * Draws the character a line of script is describing.
+     *
+     *   Cast.illustrateRole('an elderly farmer with a hoe')
+     *   Cast.illustrateRole('a waiter serving food', { view: 'three-quarter-left' })
+     *
+     * The vocabulary picks body, garments, headwear and prop; the contact
+     * solver puts the hands on the prop; the paperbook skin draws it. Returns
+     * the rendered SVG plus the resolved character, so a caller can see what
+     * the words were taken to mean — and `recognised: false` when no role
+     * matched, instead of a confident wrong drawing.
+     *
+     * @param {string} text
+     * @param {{view?:string|number, height?:number, look?:object, body?:object, prop?:string|null, side?:'left'|'right'}} [options]
+     */
+    illustrateRole(text, options) {
+      const opts = options || {};
+      const character = Roles.resolve(text, { body: opts.body, look: opts.look, prop: opts.prop, side: opts.side });
+      const proportion = Body.body(character.body);
+      const height = Body.heightFor(character.body, opts.height || 900);
+      let pose = Rig.mergePose(character.pose);
+      let residual = 0;
+
+      if (character.prop) {
+        const grips = Props.grips(character.prop, { side: character.side });
+        const hold = Props.holdOf(character.prop, {});
+        const solved = Contact.solve({ proportion, pose, goals: grips, torso: hold ? hold.torso : false, tolerance: 0.03 });
+        pose = solved.pose;
+        residual = solved.residual;
+      }
+
+      const scene = Paperbook.renderPose({
+        proportion,
+        height,
+        pose,
+        view: opts.view || 'three-quarter-right',
+        look: character.look,
+        props: character.prop ? [{ id: character.prop, side: character.side }] : [],
+        id: opts.id || character.role || 'character',
+        accessibilityLabel: opts.accessibilityLabel || character.label
+      });
+      return { ...scene, character, residual };
+    },
+
+    /** What a line of script was understood to mean, without drawing it. */
+    describeRole: (text, overrides) => Roles.resolve(text, overrides),
+
+    /** The props a character can be given, and how each one is held. */
+    props: () => Object.entries(Props.PROPS).map(([id, p]) => ({ id, label: p.label, hold: p.hold })),
+
+    /** Every role word the vocabulary answers to. */
+    roles: () => Object.entries(Roles.ROLES).map(([id, r]) => ({ id, words: r.words, prop: r.prop })),
+
     /** What the artist can put on a character: garments, overlays, headwear. */
     wardrobe: () => ({
       garments: Object.keys(Wardrobe.GARMENTS),
@@ -249,6 +306,8 @@
     Rig,
     Body,
     Wardrobe,
+    Props,
+    Roles,
     Contact,
     Relation,
     Paperbook,
