@@ -1,0 +1,37 @@
+:root {
+  --paper-bg: #efe8dc;
+  --paper-surface: #fffdf8;
+  --paper-surface-alt: #f1e5cf;
+  --ink: #171419;
+  --ink-muted: #655f68;
+  --primary: #6d45d8;
+  --secondary: #ffb648;
+  --accent: #f25f3a;
+  --highlight: #ffe681;
+  --shadow-color: #241d2c;
+  --shadow-opacity: .20;
+  --grain-opacity: .16;
+  --outline-width: 3px;
+  --motion-scale: 1;
+  --motion-duration: 1;
+  --paper-radius: 18px;
+  --ui-font: Inter, Arial, sans-serif;
+  --display-font: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  --mono-font: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+[data-paper-style="clean-editorial"] {
+  --paper-bg:#efece6; --paper-surface:#fffefa; --paper-surface-alt:#e8e4dc;
+  --grain-opacity:.08; --outline-width:2px; --paper-radius:14px; --shadow-opacity:.16;
+}
+[data-paper-style="handmade-scrapbook"] {
+  --paper-bg:#e7d7bd; --paper-surface:#fff8e9; --paper-surface-alt:#dcbf92;
+  --grain-opacity:.22; --outline-width:3px; --paper-radius:8px; --shadow-opacity:.24;
+}
+[data-paper-style="technical-notebook"] {
+  --paper-bg:#e5e8e2; --paper-surface:#fbfcf4; --paper-surface-alt:#dce4df;
+  --grain-opacity:.10; --outline-width:2px; --paper-radius:5px; --shadow-opacity:.18;
+}
+[data-paper-style="bold-paper-collage"] {
+  --paper-bg:#efe1cf; --paper-surface:#fff7e9; --paper-surface-alt:#f3c941;
+  --grain-opacity:.18; --outline-width:4px; --paper-radius:4px; --shadow-opacity:.30;
+}

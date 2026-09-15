@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil, zipfile
 ROOT=Path(__file__).resolve().parents[1]
 SOURCES=ROOT/'engine_sources'; ENGINES=ROOT/'engines'
-TREES={'paper-cast':'paper-cast-v1'}
+TREES={'paper-cast':'paper-cast-v1','editorial-motion':'editorial-motion-v1'}
 items={
  'whiteboard':'WHITEBOARD_ENGINE_SOURCE.zip',
  'explainer':'EXPLAINER_ENGINE_SOURCE.zip',
