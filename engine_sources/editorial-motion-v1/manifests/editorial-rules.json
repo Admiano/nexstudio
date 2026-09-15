@@ -291,7 +291,7 @@
     }
   },
   "shots": {
-    "entryLead": 0.18,
-    "entryLeadNote": "A shot cuts in with its type already part way through its entry, so a cut never lands on an empty card and two shots never share the frame."
+    "entryLead": 0.5,
+    "entryLeadNote": "A shot cuts in with its type already half way through its entry, so a cut lands on legible copy and two shots never share the frame; the remaining motion settles it."
   }
 }
