@@ -111,9 +111,14 @@
    * Returned joints carry `depth`: positive is nearer the camera, which is what
    * the renderer sorts on so the far arm and far leg fall behind the torso.
    */
+  function resolveProportion(spec) {
+    if (spec && typeof spec === 'object') return { ...PROPORTIONS['adult-average'], ...spec };
+    return PROPORTIONS[spec] || PROPORTIONS['adult-average'];
+  }
+
   function build(options) {
     const opts = options || {};
-    const proportion = PROPORTIONS[opts.proportion] || PROPORTIONS['adult-average'];
+    const proportion = resolveProportion(opts.proportion);
     const pose = mergePose(opts.pose);
     const height = num(opts.height, 1000);
     const yaw = resolveYaw(opts.view ?? opts.viewAxis ?? 0);
@@ -251,11 +256,15 @@
     const ground = Math.max(...parts.filter((p) => p.kind === 'foot').map((p) => p.b.y + p.widthTo * 0.5), screen.leftAnkle.y, screen.rightAnkle.y);
 
     return {
-      proportion: opts.proportion || 'adult-average',
+      proportion: typeof opts.proportion === 'string' ? opts.proportion : (opts.proportion ? 'parametric' : 'adult-average'),
+      proportions: proportion,
       height,
       view: { yaw, axis: nearestViewAxis(yaw), headYaw, headAxis: head.viewAxis, facing: Math.cos(yaw * RAD), lateral: Math.sin(yaw * RAD) },
       pose,
       joints: screen,
+      // Body-local, unprojected joints: what a contact solver aims at, since a
+      // hand on an oar is a fact about the body, not about the camera.
+      localJoints: joints,
       parts: all,
       head,
       torso,
@@ -279,5 +288,5 @@
     return walk(mergePose(a), mergePose(b));
   }
 
-  return { build, blend, mergePose, resolveYaw, nearestViewAxis, VIEW_AXES, PROPORTIONS, REST };
+  return { build, blend, mergePose, resolveYaw, resolveProportion, nearestViewAxis, VIEW_AXES, PROPORTIONS, REST };
 });

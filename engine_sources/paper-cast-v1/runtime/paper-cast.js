@@ -17,6 +17,10 @@
       Selector: require('./cast-selector.js'),
       Context: require('./cast-context.js'),
       Performance: require('./cast-performance.js'),
+      Body: require('./cast-body.js'),
+      Contact: require('./cast-contact.js'),
+      Relation: require('./cast-relation.js'),
+      Paperbook: require('./paperbook-figure.js'),
       load: () => {
         const fs = require('fs');
         const path = require('path');
@@ -33,13 +37,17 @@
       Selector: root.NexCastSelector,
       Context: root.NexCastContext,
       Performance: root.NexCastPerformance,
+      Body: root.NexCastBody,
+      Contact: root.NexCastContact,
+      Relation: root.NexCastRelation,
+      Paperbook: root.NexPaperbookFigure,
       load: () => ({ registry: root.NEX_CAST, poses: root.NEX_CAST_POSES })
     };
   const api = factory(deps);
   if (isNode) module.exports = api;
   root.NexPaperCast = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (deps) {
-  const { Rig, Renderer, Selector, Context, Performance, load } = deps;
+  const { Rig, Renderer, Selector, Context, Performance, Body, Contact, Relation, Paperbook, load } = deps;
   const round = (n) => Math.round(Number(n) * 100) / 100;
 
   const FRAMES = {
@@ -215,8 +223,25 @@
     get poses() {
       return ready().poses;
     },
+    /**
+     * Illustrates a two-body relation (`carry-on-back`, `support-walk`,
+     * `grip-prop`) in the paperbook skin. The relation solves the contacts;
+     * this only draws the result.
+     */
+    illustrate(kind, spec, options) {
+      return Paperbook.renderRelation(Relation.relate(kind, spec || {}), options || {});
+    },
+    /** A single body, posed from goals rather than picked from the pose list. */
+    illustrateFigure(options) {
+      return Paperbook.renderPose(options || {});
+    },
+    body: (spec) => Body.body(spec),
     FRAMES,
     Rig,
+    Body,
+    Contact,
+    Relation,
+    Paperbook,
     Renderer,
     Selector,
     Context,
