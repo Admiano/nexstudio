@@ -286,6 +286,7 @@ const Body = require(path.join(ROOT, 'runtime', 'cast-body.js'));
 const Contact = require(path.join(ROOT, 'runtime', 'cast-contact.js'));
 const Relation = require(path.join(ROOT, 'runtime', 'cast-relation.js'));
 const Paperbook = require(path.join(ROOT, 'runtime', 'paperbook-figure.js'));
+const Wardrobe = require(path.join(ROOT, 'runtime', 'cast-wardrobe.js'));
 
 test('an infant is not a shrunken adult: head, limbs and stature all change shape', () => {
   const infant = Body.body('infant');
@@ -399,6 +400,100 @@ test('the public API exposes the artist, not just the catalogue', () => {
   const scene = Cast.illustrate('support-walk', { adult: { body: { age: 30 } }, toddler: { body: { age: 1.4 } }, height: 800 });
   assert.ok(scene.svg.includes('<svg'));
   assert.ok(Cast.body('toddler').stature < 0.6);
+});
+
+test('mass is a separate axis: it thickens the waist, not the frame', () => {
+  const lean = Body.body({ age: 40 });
+  const heavy = Body.body({ age: 40, mass: 0.8 });
+  assert.strictEqual(heavy.shoulderWidth, lean.shoulderWidth, 'mass must not widen the shoulder frame');
+  assert.ok(heavy.waist > lean.waist * 1.3, 'a heavy body carries weight at the waist');
+  assert.ok(heavy.bodyDepth > lean.bodyDepth, 'weight reads in depth as well as width');
+  assert.strictEqual(Body.ageBandOf(heavy.age), Body.ageBandOf(lean.age), 'mass must not change the age band');
+  assert.ok(Body.body({ age: 40, build: 'broad' }).waist < heavy.waist, 'a broad frame is not the same thing as a heavy body');
+});
+
+test('the rig projects a waist so a garment has something to follow', () => {
+  const heavy = Rig.build({ proportion: Body.body({ age: 40, mass: 0.9 }), height: 900, view: 'front' });
+  const lean = Rig.build({ proportion: Body.body({ age: 40 }), height: 900, view: 'front' });
+  const span = (f) => f.torso.waistRight.x - f.torso.waistLeft.x;
+  assert.ok(span(heavy) > span(lean) * 1.25, 'the heavy waist must be projected wider');
+  assert.ok(heavy.torso.waistLeft.y > heavy.torso.chest.y && heavy.torso.waistLeft.y < heavy.torso.pelvis.y, 'the waist sits between chest and pelvis');
+  assert.ok(heavy.bounds.minX <= heavy.torso.waistLeft.x && heavy.bounds.maxX >= heavy.torso.waistRight.x, 'bounds must contain the waist');
+});
+
+test('garments are silhouettes, not colours: each cut draws a different outline', () => {
+  const figure = Rig.build({ proportion: Body.body({ age: 30 }), height: 900, view: 'front' });
+  const paths = new Set();
+  for (const name of Object.keys(Wardrobe.GARMENTS)) {
+    const cut = Wardrobe.GARMENTS[name];
+    const d = Wardrobe.torsoPath(figure.torso, { spread: cut.spread, waist: cut.waist, hem: cut.hem, flare: cut.flare });
+    assert.ok(!/NaN|undefined/.test(d), `${name} produced an unresolved coordinate`);
+    paths.add(d);
+  }
+  assert.ok(paths.size >= Object.keys(Wardrobe.GARMENTS).length - 1, 'garments must not collapse onto one outline');
+});
+
+test('trim and overlays draw the marks that make a uniform a uniform', () => {
+  const figure = Rig.build({ proportion: Body.body({ age: 30 }), height: 900, view: 'front' });
+  const trim = Wardrobe.trimShapes(figure.torso, { trim: ['collar', 'placket', 'belt', 'band', 'badge'], trimColor: '#333' });
+  assert.strictEqual(trim.length, 5, 'every requested trim must be drawn');
+  assert.strictEqual(Wardrobe.trimShapes(figure.torso, { trim: [] }).length, 0);
+  const apron = Wardrobe.overlayShapes(figure.torso, figure.joints, { kind: 'apron', color: '#33413f' });
+  assert.ok(apron.length && !/NaN|undefined/.test(apron.map((s) => s.svg).join('')));
+  assert.strictEqual(Wardrobe.overlayShapes(figure.torso, figure.joints, { kind: 'nonesuch' }).length, 0);
+});
+
+test('headwear covers the hair when the garment says it does', () => {
+  const figure = Rig.build({ proportion: Body.body({ age: 30 }), height: 900, view: 'three-quarter-right' });
+  const head = figure.parts.find((p) => p.kind === 'head');
+  assert.strictEqual(Wardrobe.headwearShapes(head, null).shapes.length, 0, 'a bare head wears nothing');
+  for (const kind of Object.keys(Wardrobe.HEADWEAR)) {
+    const worn = Wardrobe.headwearShapes(head, { kind, color: '#7b5a86' });
+    const svg = [...worn.shapes, ...worn.front].map((s) => s.svg).join('');
+    assert.ok(svg.length, `${kind} drew nothing`);
+    assert.ok(!/NaN|undefined/.test(svg), `${kind} produced an unresolved coordinate`);
+    assert.strictEqual(worn.coversHair, Wardrobe.HEADWEAR[kind].coversHair);
+  }
+  assert.ok(Wardrobe.headwearShapes(head, { kind: 'hijab' }).coversHair, 'a hijab replaces the hair rather than sitting on it');
+});
+
+test('a uniformed figure renders differently from the same body in a shirt', () => {
+  const proportion = Body.body({ age: 36, build: 'broad' });
+  const draw = (look) => Paperbook.renderPose({ proportion, height: 800, view: 'three-quarter-right', look, id: 'r' }).svg;
+  const plain = draw({ skin: '#dda87c', top: { color: '#c25a34' } });
+  const fireman = draw({
+    skin: '#dda87c',
+    head: { kind: 'helmet', color: '#b4462a' },
+    top: { garment: 'coverall', color: '#c25a34', trim: ['collar', 'belt', 'band'], bandColor: '#f2d64b' }
+  });
+  assert.ok(!/NaN|undefined/.test(fireman));
+  assert.notStrictEqual(fireman, plain, 'garment and headwear must change the drawing');
+  assert.ok(fireman.includes('pb-headwear') && fireman.includes('pb-trim'));
+  assert.ok(fireman.includes('#f2d64b'), 'the hi-vis band must reach the page');
+  assert.strictEqual(fireman, draw({
+    skin: '#dda87c',
+    head: { kind: 'helmet', color: '#b4462a' },
+    top: { garment: 'coverall', color: '#c25a34', trim: ['collar', 'belt', 'band'], bandColor: '#f2d64b' }
+  }), 'the same outfit must render identically');
+});
+
+test('hair, beard and a covered head are all drawable', () => {
+  const proportion = Body.body({ age: 44 });
+  const draw = (look) => Paperbook.renderPose({ proportion, height: 800, view: 'front', look, id: 'h' }).svg;
+  for (const style of ['bun', 'tuft', 'long', 'afro', 'coils', 'shaved']) {
+    const svg = draw({ hair: { style, color: '#241c17' } });
+    assert.ok(!/NaN|undefined/.test(svg), `${style} produced an unresolved coordinate`);
+  }
+  assert.ok(draw({ hair: { style: 'shaved', color: '#241c17', beard: true } }).includes('pb-beard'));
+  const veiled = draw({ hair: { style: 'long', color: '#241c17' }, head: { kind: 'hijab', color: '#7b5a86' } });
+  assert.ok(!veiled.includes('pb-hair'), 'hair must not be drawn under a hijab');
+});
+
+test('the public API lists what a character can wear', () => {
+  const w = Cast.wardrobe();
+  for (const name of ['coverall', 'robe', 'kurta', 'dress']) assert.ok(w.garments.includes(name), `${name} missing`);
+  for (const name of ['hijab', 'turban', 'helmet', 'headtie']) assert.ok(w.headwear.includes(name), `${name} missing`);
+  assert.ok(w.overlays.includes('apron'));
 });
 
 const failed = results.filter((r) => !r.ok);

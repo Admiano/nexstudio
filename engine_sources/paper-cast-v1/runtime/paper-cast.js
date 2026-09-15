@@ -20,6 +20,7 @@
       Body: require('./cast-body.js'),
       Contact: require('./cast-contact.js'),
       Relation: require('./cast-relation.js'),
+      Wardrobe: require('./cast-wardrobe.js'),
       Paperbook: require('./paperbook-figure.js'),
       load: () => {
         const fs = require('fs');
@@ -40,6 +41,7 @@
       Body: root.NexCastBody,
       Contact: root.NexCastContact,
       Relation: root.NexCastRelation,
+      Wardrobe: root.NexCastWardrobe,
       Paperbook: root.NexPaperbookFigure,
       load: () => ({ registry: root.NEX_CAST, poses: root.NEX_CAST_POSES })
     };
@@ -47,7 +49,7 @@
   if (isNode) module.exports = api;
   root.NexPaperCast = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (deps) {
-  const { Rig, Renderer, Selector, Context, Performance, Body, Contact, Relation, Paperbook, load } = deps;
+  const { Rig, Renderer, Selector, Context, Performance, Body, Contact, Relation, Wardrobe, Paperbook, load } = deps;
   const round = (n) => Math.round(Number(n) * 100) / 100;
 
   const FRAMES = {
@@ -236,9 +238,17 @@
       return Paperbook.renderPose(options || {});
     },
     body: (spec) => Body.body(spec),
+
+    /** What the artist can put on a character: garments, overlays, headwear. */
+    wardrobe: () => ({
+      garments: Object.keys(Wardrobe.GARMENTS),
+      overlays: Object.keys(Wardrobe.OVERLAYS),
+      headwear: Object.keys(Wardrobe.HEADWEAR)
+    }),
     FRAMES,
     Rig,
     Body,
+    Wardrobe,
     Contact,
     Relation,
     Paperbook,

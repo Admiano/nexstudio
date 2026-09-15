@@ -221,6 +221,9 @@
     const support = (half) => Math.abs(half * cos) + Math.abs(half * bodyDepth * sin);
     const shoulderSpan = support(shoulderHalf);
     const hipSpan = support(hipHalf);
+    const waistFactor = proportion.waist ?? 1;
+    const waistSpan = support(((shoulderHalf + hipHalf) / 2) * waistFactor);
+    const waistY = (screen.chest.y + screen.pelvis.y) / 2 + (screen.pelvis.y - screen.chest.y) * 0.12;
     const torso = {
       id: 'torso',
       kind: 'torso',
@@ -231,7 +234,13 @@
       hipRight: { x: screen.pelvis.x + hipSpan, y: screen.rightHip.y },
       chest: screen.chest,
       pelvis: screen.pelvis,
-      taper: proportion.torsoTaper
+      taper: proportion.torsoTaper,
+      // The waist is where soft mass shows, so it is projected like the
+      // shoulders and hips rather than interpolated between them by whatever
+      // draws the clothes.
+      waistLeft: { x: screen.chest.x - waistSpan, y: waistY },
+      waistRight: { x: screen.chest.x + waistSpan, y: waistY },
+      waist: waistFactor
     };
 
     const headYaw = yaw + pose.head.yaw;
@@ -250,7 +259,7 @@
     };
 
     const all = [...parts, torso, head].sort((p, q) => p.depth - q.depth);
-    const xs = all.flatMap((p) => (p.kind === 'head' ? [p.center.x - p.radius, p.center.x + p.radius] : p.kind === 'torso' ? [p.shoulderLeft.x, p.shoulderRight.x, p.hipLeft.x, p.hipRight.x] : [p.a.x, p.b.x]));
+    const xs = all.flatMap((p) => (p.kind === 'head' ? [p.center.x - p.radius, p.center.x + p.radius] : p.kind === 'torso' ? [p.shoulderLeft.x, p.shoulderRight.x, p.hipLeft.x, p.hipRight.x, p.waistLeft.x, p.waistRight.x] : [p.a.x, p.b.x]));
     const ys = all.flatMap((p) => (p.kind === 'head' ? [p.center.y - p.radius * 1.35, p.center.y + p.radius] : p.kind === 'torso' ? [p.chest.y, p.pelvis.y] : [p.a.y, p.b.y]));
     const pad = L('limb') * 2.2;
     const ground = Math.max(...parts.filter((p) => p.kind === 'foot').map((p) => p.b.y + p.widthTo * 0.5), screen.leftAnkle.y, screen.rightAnkle.y);

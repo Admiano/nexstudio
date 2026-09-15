@@ -14,12 +14,12 @@
 (function (root, factory) {
   const isNode = typeof module === 'object' && module.exports;
   const deps = isNode
-    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js') }
-    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody };
+    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Wardrobe: require('./cast-wardrobe.js') }
+    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Wardrobe: root.NexCastWardrobe };
   const api = factory(deps);
   if (isNode) module.exports = api;
   root.NexPaperbookFigure = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body }) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Wardrobe }) {
   const round = (n) => Math.round(Number(n) * 100) / 100;
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -58,10 +58,27 @@
   function resolveLook(look, proportion) {
     const l = look || {};
     const young = (proportion && proportion.age != null ? proportion.age : 30) < 5;
+    // The garment chosen from the catalogue supplies the defaults — sleeve
+    // length, hem, trim — so `{ garment: 'jacket' }` is a jacket rather than a
+    // tunic that has to be dressed up field by field.
+    const cut = Wardrobe.GARMENTS[l.top?.garment] || Wardrobe.GARMENTS.tunic;
     return {
       skin: l.skin || SKIN[2],
-      hair: { color: l.hair?.color || '#241c17', style: l.hair?.style || (young ? 'tuft' : 'bun'), wrap: l.hair?.wrap || null },
-      top: { color: l.top?.color || '#7d9cab', sleeve: l.top?.sleeve ?? 0.35, length: l.top?.length ?? 0.24, spread: l.top?.spread ?? 1 },
+      hair: { color: l.hair?.color || '#241c17', style: l.hair?.style || (young ? 'tuft' : 'bun'), wrap: l.hair?.wrap || null, beard: l.hair?.beard || false },
+      head: l.head ? { kind: l.head.kind || l.head, color: l.head.color, trimColor: l.head.trimColor } : null,
+      over: l.over ? { kind: l.over.kind || l.over, color: l.over.color } : null,
+      top: {
+        color: l.top?.color || '#7d9cab',
+        garment: Wardrobe.GARMENTS[l.top?.garment] ? l.top.garment : 'tunic',
+        cut,
+        trim: l.top?.trim || cut.trim,
+        trimColor: l.top?.trimColor || mix(l.top?.color || '#7d9cab', '#241c17', 0.4),
+        bandColor: l.top?.bandColor,
+        badgeColor: l.top?.badgeColor,
+        sleeve: l.top?.sleeve ?? cut.sleeve ?? 0.35,
+        length: l.top?.length ?? cut.hem ?? 0.24,
+        spread: l.top?.spread ?? cut.spread ?? 1
+      },
       bottom: {
         color: l.bottom?.color || '#5d5445',
         garment: l.bottom?.garment || (young ? 'shorts' : 'trousers'),
@@ -93,46 +110,29 @@
 
   const piece = (fill, geometry, cls) => `<g class="${cls}" fill="${fill}">${geometry}</g>`;
 
-  /** Tunic silhouette: sloped shoulders, an easy waist and a curved hem. */
-  function topPath(torso, look) {
-    const sl = torso.shoulderLeft;
-    const sr = torso.shoulderRight;
-    const hl = torso.hipLeft;
-    const hr = torso.hipRight;
-    const run = torso.pelvis.y - torso.chest.y || 1;
-    const hem = (look.top.length || 0.24) * run;
-    const w = look.top.spread;
-    const grow = (p, c, k) => ({ x: c + (p.x - c) * k, y: p.y });
-    const cx = (sl.x + sr.x) / 2;
-    const a = grow(sl, cx, w);
-    const b = grow(sr, cx, w);
-    const c = { x: hr.x * 1.04 + (hr.x - hl.x) * 0.04, y: hr.y + hem };
-    const d = { x: hl.x * 1.04 - (hr.x - hl.x) * 0.04, y: hl.y + hem };
-    return `M ${round(a.x)} ${round(a.y)} Q ${round(cx)} ${round(a.y - run * 0.16)} ${round(b.x)} ${round(b.y)} `
-      + `C ${round(b.x + (b.x - cx) * 0.06)} ${round(b.y + run * 0.4)} ${round(c.x)} ${round(c.y - hem * 0.6)} ${round(c.x)} ${round(c.y)} `
-      + `Q ${round(cx)} ${round(c.y + hem * 0.5)} ${round(d.x)} ${round(d.y)} `
-      + `C ${round(d.x)} ${round(d.y - hem * 0.6)} ${round(a.x - (a.x - cx) * 0.06)} ${round(a.y + run * 0.4)} ${round(a.x)} ${round(a.y)} Z`;
-  }
+  const topPath = (torso, look) => Wardrobe.torsoPath(torso, {
+    spread: look.top.spread,
+    waist: look.top.cut.waist,
+    hem: look.top.length,
+    flare: look.top.cut.flare
+  });
 
-  /** Wrapper skirt: hips to hem, flaring, and the surface the cloth pattern lives on. */
-  function wrapperPath(torso, joints, length) {
-    const hl = torso.hipLeft;
-    const hr = torso.hipRight;
-    const ankle = Math.max(joints.leftAnkle.y, joints.rightAnkle.y);
-    const top = (hl.y + hr.y) / 2;
-    const hemY = top + (ankle - top) * length;
-    const half = Math.abs(hr.x - hl.x) * 0.5;
-    const cx = (hl.x + hr.x) / 2;
-    const flare = half * 1.5;
-    return `M ${round(cx - half * 1.05)} ${round(top - half * 0.15)} L ${round(cx + half * 1.05)} ${round(top - half * 0.15)} `
-      + `L ${round(cx + flare)} ${round(hemY)} Q ${round(cx)} ${round(hemY + half * 0.35)} ${round(cx - flare)} ${round(hemY)} Z`;
-  }
+  const wrapperPath = (torso, joints, length, flare) => Wardrobe.skirtPath(torso, joints, { length, flare });
 
   function hairShapes(head, look) {
     const r = head.radius;
     const c = head.center;
     const lateral = head.lateral;
     const out = [];
+    if (look.hair.style === 'afro' || look.hair.style === 'coils') {
+      const k = look.hair.style === 'afro' ? 1.42 : 1.2;
+      out.push(`<ellipse cx="${round(c.x)}" cy="${round(c.y - r * 0.34)}" rx="${round(r * k)}" ry="${round(r * k * 0.92)}"/>`);
+      return { fill: look.hair.color, shapes: out };
+    }
+    if (look.hair.style === 'shaved') {
+      out.push(`<path d="M ${round(c.x - r * 0.98)} ${round(c.y - r * 0.2)} Q ${round(c.x)} ${round(c.y - r * 1.12)} ${round(c.x + r * 0.98)} ${round(c.y - r * 0.2)} Q ${round(c.x)} ${round(c.y - r * 0.66)} ${round(c.x - r * 0.98)} ${round(c.y - r * 0.2)} Z"/>`);
+      return { fill: look.hair.color, shapes: out };
+    }
     if (look.hair.wrap) {
       out.push(`<path d="M ${round(c.x - r * 1.02)} ${round(c.y - r * 0.18)} Q ${round(c.x)} ${round(c.y - r * 1.5)} ${round(c.x + r * 1.02)} ${round(c.y - r * 0.18)} Q ${round(c.x)} ${round(c.y - r * 0.5)} ${round(c.x - r * 1.02)} ${round(c.y - r * 0.18)} Z"/>`);
       return { fill: look.hair.wrap, shapes: out };
@@ -147,6 +147,13 @@
     }
     return { fill: look.hair.color, shapes: out };
   }
+
+  /** Drawn over the jaw rather than with the hair, which sits behind the head. */
+  const beardShape = (head) => {
+    const r = head.radius;
+    const c = head.center;
+    return `<path d="M ${round(c.x - r * 0.82)} ${round(c.y + r * 0.3)} Q ${round(c.x)} ${round(c.y + r * 1.5)} ${round(c.x + r * 0.82)} ${round(c.y + r * 0.3)} Q ${round(c.x)} ${round(c.y + r * 0.78)} ${round(c.x - r * 0.82)} ${round(c.y + r * 0.3)} Z"/>`;
+  };
 
   /** Faces in this book are quiet: eyes, a mouth, nothing that fights the page. */
   function facePath(head, look) {
@@ -188,7 +195,8 @@
       bottomFill = `url(#${pid})`;
     }
 
-    const wrapped = look.bottom.garment === 'wrapper';
+    const legs = look.top.cut.legs || 'bare';
+    const wrapped = look.bottom.garment === 'wrapper' || legs === 'skirt';
     const shortLegs = look.bottom.garment === 'shorts';
     const layers = out.layers;
     const emit = (depth, svg) => layers.push({ depth, svg });
@@ -208,10 +216,16 @@
         const r = part.radius;
         const c = part.center;
         const hair = hairShapes(part, look);
+        const worn = Wardrobe.headwearShapes(part, look.head);
         emit(depth, piece(mix(look.skin, '#2a1c12', 0.16), limbMass({ x: c.x, y: c.y + r * 0.9 }, part.neck, r * 0.5, r * 0.6), 'pb-neck'));
-        emit(depth, piece(hair.fill, hair.shapes.join(''), 'pb-hair'));
+        // Headwear that covers the hair replaces it: a hijab or a helmet with
+        // a bun still poking out reads as a costume over a wig.
+        if (!worn.coversHair) emit(depth, piece(hair.fill, hair.shapes.join(''), 'pb-hair'));
+        for (const s of worn.shapes) emit(depth, piece(s.fill, s.svg, 'pb-headwear'));
         emit(depth, piece(look.skin, `<ellipse cx="${round(c.x)}" cy="${round(c.y)}" rx="${round(r * 0.94)}" ry="${round(r * 1.06)}"/>`, 'pb-head'));
+        if (look.hair.beard) emit(depth, piece(look.hair.color, beardShape(part), 'pb-beard'));
         emit(depth, `<g class="pb-face">${facePath(part, look)}</g>`);
+        for (const s of worn.front) emit(depth, piece(s.fill, s.svg, 'pb-headwear'));
         continue;
       }
       const isLeg = /thigh|shin/.test(part.id);
@@ -222,7 +236,7 @@
       const sleeved = isUpper ? look.top.sleeve > 0.05 : isFore ? look.top.sleeve > 0.85 : false;
       let fill = look.skin;
       if (isFoot) fill = look.shoes.bare ? look.skin : look.shoes.color;
-      else if (isLeg) fill = wrapped ? look.skin : (shortLegs && /shin/.test(part.id) ? look.skin : bottomFill);
+      else if (isLeg) fill = legs === 'fill' ? look.top.color : wrapped ? look.skin : (shortLegs && /shin/.test(part.id) ? look.skin : bottomFill);
       else if (sleeved) fill = look.top.color;
       if (isHand) fill = look.skin;
 
@@ -239,7 +253,19 @@
     if (wrapped && torso) {
       // In front of both legs, which it covers, but still behind the arms.
       const legDepth = Math.max(...figure.parts.filter((p) => /thigh|shin|foot/.test(p.id)).map((p) => p.depth), torso.depth);
-      emit(legDepth + 0.01, piece(bottomFill, `<path d="${wrapperPath(torso, figure.joints, look.bottom.length ?? 0.92)}"/>`, 'pb-wrapper'));
+      const skirtFill = legs === 'skirt' ? shade(look.top.color, torso.depth, span) : bottomFill;
+      const length = legs === 'skirt' ? Math.min(1, look.top.length) : (look.bottom.length ?? 0.92);
+      emit(legDepth + 0.01, piece(skirtFill, `<path d="${wrapperPath(torso, figure.joints, length, look.top.cut.flare)}"/>`, 'pb-wrapper'));
+    }
+
+    if (torso) {
+      // Trim and overlays ride on the front of the body, ahead of the garment
+      // but behind whichever arm crosses it.
+      const face = torso.depth + 0.02;
+      for (const t of Wardrobe.trimShapes(torso, look.top)) emit(face, piece(t.fill, t.svg, 'pb-trim'));
+      if (look.over) {
+        for (const o of Wardrobe.overlayShapes(torso, figure.joints, look.over)) emit(face + 0.01, piece(o.fill, o.svg, 'pb-overlay'));
+      }
     }
 
     const shadowX = (figure.joints.leftToe.x + figure.joints.rightToe.x) / 2;
