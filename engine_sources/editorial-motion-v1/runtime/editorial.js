@@ -150,19 +150,26 @@ window.NexEditorial = (() => {
     node.classList.add('ed-empty');
   }
 
-  /** Width of the glyphs themselves, not of the block they sit in. */
-  function inkWidth(node) {
-    const boxes = node.children.length
-      ? [...node.children].map((child) => child.getBoundingClientRect())
-      : (() => {
-        const range = document.createRange();
-        range.selectNodeContents(node);
-        return [...range.getClientRects()];
-      })();
-    if (!boxes.length) return 0;
-    const left = Math.min(...boxes.map((b) => b.left));
-    const right = Math.max(...boxes.map((b) => b.right));
-    return right - left;
+  /** Page coordinates of the glyphs themselves, not of the block they sit in. */
+  function inkEdges(node) {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const boxes = [...range.getClientRects()].filter((b) => b.width > 0.5);
+    if (!boxes.length) return null;
+    return {
+      left: Math.min(...boxes.map((b) => b.left)),
+      right: Math.max(...boxes.map((b) => b.right))
+    };
+  }
+
+  /** The content box of the card the copy has to live inside. */
+  function contentEdges(paper) {
+    const rect = paper.getBoundingClientRect();
+    const cs = getComputedStyle(paper);
+    return {
+      left: rect.left + parseFloat(cs.paddingLeft || 0),
+      right: rect.right - parseFloat(cs.paddingRight || 0)
+    };
   }
 
   /**
@@ -171,12 +178,24 @@ window.NexEditorial = (() => {
    * long word running past the card edge.
    */
   function containLines(scene) {
+    const paper = scene.querySelector('.type-paper');
+    if (!paper) return;
     scene.querySelectorAll('.ed-type .type-main, .ed-type .type-body, .ed-type .type-meta')
       .forEach((node) => {
         if (!node.textContent.trim()) return;
-        let size = parseFloat(getComputedStyle(node).fontSize) || 24;
+        const start = parseFloat(getComputedStyle(node).fontSize) || 24;
+        // Only the overhang is corrected: a card that already fits keeps the
+        // size the fitter chose, and nothing shrinks past three quarters of it.
+        const floor = Math.max(9, start * 0.75);
+        let size = start;
         let guard = 0;
-        while (size > 9 && inkWidth(node) > node.clientWidth - 2 && guard < 200) {
+        const overhangs = () => {
+          const ink = inkEdges(node);
+          if (!ink) return false;
+          const box = contentEdges(paper);
+          return ink.right > box.right + 1 || ink.left < box.left - 1;
+        };
+        while (size > floor && overhangs() && guard < 60) {
           size *= 0.97;
           node.style.fontSize = size + 'px';
           guard += 1;
