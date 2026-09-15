@@ -76,10 +76,16 @@
     // hem turns every garment into a bell that swallows the arms.
     const hemHalf = Math.max(hipHalf * 1.04, waistHalf * 0.84) * (s.flare ?? 1);
     const hemY = torso.hipRight.y + hem;
+    // Down from the shoulder before out to the waist. Running a single curve
+    // from shoulder to waist balloons the chest sideways over the arms, which
+    // is what made broad and heavy figures read as shoulder pads.
+    const armhole = run * 0.3;
     return `M ${pt(a)} Q ${round(cx)} ${round(a.y - run * 0.16)} ${pt(b)} `
-      + `C ${round(cx + waistHalf)} ${round(waistY)} ${round(cx + hemHalf)} ${round(hemY - hem * 0.55)} ${round(cx + hemHalf)} ${round(hemY)} `
+      + `C ${round(b.x)} ${round(b.y + armhole)} ${round(cx + waistHalf)} ${round(waistY - run * 0.12)} ${round(cx + waistHalf)} ${round(waistY)} `
+      + `C ${round(cx + waistHalf)} ${round(waistY + run * 0.1)} ${round(cx + hemHalf)} ${round(hemY - hem * 0.55)} ${round(cx + hemHalf)} ${round(hemY)} `
       + `Q ${round(cx)} ${round(hemY + hem * 0.35)} ${round(cx - hemHalf)} ${round(hemY)} `
-      + `C ${round(cx - hemHalf)} ${round(hemY - hem * 0.55)} ${round(cx - waistHalf)} ${round(waistY)} ${pt(a)} Z`;
+      + `C ${round(cx - hemHalf)} ${round(hemY - hem * 0.55)} ${round(cx - waistHalf)} ${round(waistY + run * 0.1)} ${round(cx - waistHalf)} ${round(waistY)} `
+      + `C ${round(cx - waistHalf)} ${round(waistY - run * 0.12)} ${round(a.x)} ${round(a.y + armhole)} ${pt(a)} Z`;
   }
 
   /** Cloth from the hips down: wrapper, coat skirt, kaftan, dress. */

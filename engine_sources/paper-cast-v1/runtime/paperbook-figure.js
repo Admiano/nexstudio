@@ -14,20 +14,24 @@
 (function (root, factory) {
   const isNode = typeof module === 'object' && module.exports;
   const deps = isNode
-    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Wardrobe: require('./cast-wardrobe.js'), Props: require('./cast-props.js') }
-    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Wardrobe: root.NexCastWardrobe, Props: root.NexCastProps };
+    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Wardrobe: require('./cast-wardrobe.js'), Props: require('./cast-props.js'), Face: require('./cast-face.js'), World: require('./cast-world.js') }
+    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Wardrobe: root.NexCastWardrobe, Props: root.NexCastProps, Face: root.NexCastFace, World: root.NexCastWorld };
   const api = factory(deps);
   if (isNode) module.exports = api;
   root.NexPaperbookFigure = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Wardrobe, Props }) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Wardrobe, Props, Face, World }) {
   const round = (n) => Math.round(Number(n) * 100) / 100;
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   const PAPER = {
     page: '#efe7d8',
     ink: '#3a3028',
-    shadow: '#7a6a58'
+    shadow: '#7a6a58',
+    light: '#fff6e4'
   };
+
+  /** Paper fibre: the tooth of the stock, faint enough to feel rather than see. */
+  const grainPattern = (id) => `<pattern id="${id}" width="48" height="48" patternUnits="userSpaceOnUse"><rect width="48" height="48" fill="none"/><path d="M 0 7 H 48 M 0 19 H 48 M 0 31 H 48 M 0 43 H 48" stroke="#8d7c63" stroke-width="0.6" opacity="0.5"/><path d="M 11 0 V 48 M 29 0 V 48" stroke="#8d7c63" stroke-width="0.5" opacity="0.3"/></pattern>`;
 
   const SKIN = ['#f0cfa8', '#dda87c', '#c1895f', '#98603c', '#6d452c'];
 
@@ -108,6 +112,28 @@
     return `<path d="M ${quad.map((p) => `${round(p.x)} ${round(p.y)}`).join(' L ')} Z"/><circle cx="${round(a.x)}" cy="${round(a.y)}" r="${round(w0 * 0.5)}"/><circle cx="${round(b.x)}" cy="${round(b.y)}" r="${round(w1 * 0.5)}"/>`;
   };
 
+  /**
+   * The same mass with the end caps chosen. The cap at the shoulder is what
+   * made every broad figure look padded: the torso already covers that joint,
+   * so a disc there only sticks out past the garment.
+   */
+  const cappedMass = (a, b, w0, w1, caps) => {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+    const quad = [
+      { x: a.x + nx * w0 * 0.5, y: a.y + ny * w0 * 0.5 },
+      { x: b.x + nx * w1 * 0.5, y: b.y + ny * w1 * 0.5 },
+      { x: b.x - nx * w1 * 0.5, y: b.y - ny * w1 * 0.5 },
+      { x: a.x - nx * w0 * 0.5, y: a.y - ny * w0 * 0.5 }
+    ];
+    const start = caps === 'start' || caps === 'both' ? `<circle cx="${round(a.x)}" cy="${round(a.y)}" r="${round(w0 * 0.5)}"/>` : '';
+    const end = caps === 'end' || caps === 'both' ? `<circle cx="${round(b.x)}" cy="${round(b.y)}" r="${round(w1 * 0.5)}"/>` : '';
+    return `<path d="M ${quad.map((p) => `${round(p.x)} ${round(p.y)}`).join(' L ')} Z"/>${start}${end}`;
+  };
+
   const piece = (fill, geometry, cls) => `<g class="${cls}" fill="${fill}">${geometry}</g>`;
 
   const topPath = (torso, look) => Wardrobe.torsoPath(torso, {
@@ -155,22 +181,96 @@
     return `<path d="M ${round(c.x - r * 0.82)} ${round(c.y + r * 0.3)} Q ${round(c.x)} ${round(c.y + r * 1.5)} ${round(c.x + r * 0.82)} ${round(c.y + r * 0.3)} Q ${round(c.x)} ${round(c.y + r * 0.78)} ${round(c.x - r * 0.82)} ${round(c.y + r * 0.3)} Z"/>`;
   };
 
-  /** Faces in this book are quiet: eyes, a mouth, nothing that fights the page. */
-  function facePath(head, look) {
-    const r = head.radius;
-    const c = head.center;
-    if (head.facing <= -0.3) return '';
-    const lateral = head.lateral;
-    const dir = lateral >= 0 ? 1 : -1;
-    const open = Math.max(0.18, head.facing);
-    const shift = lateral * r * 0.3;
-    const eyeY = c.y - r * 0.05;
-    const ink = mix(look.skin, '#1a120c', 0.82);
-    const eye = (x, squash) => `<ellipse cx="${round(x)}" cy="${round(eyeY)}" rx="${round(r * 0.1 * squash)}" ry="${round(r * 0.12)}" fill="${ink}"/>`;
-    const parts = [eye(c.x + shift + r * 0.3 * dir * open, 1)];
-    if (Math.abs(lateral) < 0.82) parts.push(eye(c.x + shift - r * 0.3 * dir * open, Math.max(0.3, 1 - Math.abs(lateral))));
-    parts.push(`<path d="M ${round(c.x + shift - r * 0.18 * open)} ${round(c.y + r * 0.42)} Q ${round(c.x + shift)} ${round(c.y + r * 0.56)} ${round(c.x + shift + r * 0.18 * open)} ${round(c.y + r * 0.42)}" fill="none" stroke="${ink}" stroke-width="${round(r * 0.07)}" stroke-linecap="round"/>`);
-    return parts.join('');
+  /**
+   * Faces in this book are quiet: eyes, brows, a mouth, nothing that fights
+   * the page. What they are doing comes from `cast-face.js`, so the same head
+   * can listen, speak, worry or blink without a second drawing.
+   */
+  function facePath(head, look, face) {
+    return Face.shapes(head, look, face || { emotion: 'neutral' }).map((s) => s.svg).join('');
+  }
+
+  /**
+   * A hand: palm and thumb rather than the tapered tube the limb builder
+   * gives every other segment. At book scale this is the difference between
+   * a hand on an oar and a stick touching it.
+   */
+  function handShape(part) {
+    const a = part.a;
+    const b = part.b;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len;
+    const uy = dy / len;
+    const w = part.widthFrom;
+    const palm = { x: a.x + ux * len * 0.55, y: a.y + uy * len * 0.55 };
+    const thumb = { x: palm.x - uy * w * 0.62 * (part.side === 'right' ? 1 : -1), y: palm.y + ux * w * 0.62 * (part.side === 'right' ? 1 : -1) };
+    return [
+      limbMass(a, b, w * 0.95, w * 0.78),
+      `<ellipse cx="${round(palm.x)}" cy="${round(palm.y)}" rx="${round(w * 0.62)}" ry="${round(w * 0.52)}" transform="rotate(${round(Math.atan2(uy, ux) * 180 / Math.PI)} ${round(palm.x)} ${round(palm.y)})"/>`,
+      `<ellipse cx="${round(thumb.x)}" cy="${round(thumb.y)}" rx="${round(w * 0.3)}" ry="${round(w * 0.24)}"/>`
+    ].join('');
+  }
+
+  /** A shoe: the mass, plus a sole that puts the foot on the floor. */
+  function footShapes(part, fill, shadeColor) {
+    const a = part.a;
+    const b = part.b;
+    const sole = Math.max(a.y, b.y);
+    return [
+      { fill, svg: limbMass(a, b, part.widthFrom * 1.12, part.widthTo * 1.18) },
+      { fill: shadeColor, svg: `<path d="M ${round(Math.min(a.x, b.x) - part.widthTo * 0.4)} ${round(sole + part.widthTo * 0.3)} L ${round(Math.max(a.x, b.x) + part.widthTo * 0.4)} ${round(sole + part.widthTo * 0.3)}" stroke="${shadeColor}" stroke-width="${round(part.widthTo * 0.34)}" stroke-linecap="round" fill="none" opacity="0.75"/>` }
+    ];
+  }
+
+  /**
+   * Cloth reads as cloth through a few folds, not through shading everywhere:
+   * a pull across the chest, a gather at the waist, a shadow under the collar
+   * where the head blocks the light.
+   */
+  function garmentFolds(torso, look, span) {
+    const dark = mix(look.top.color, '#1c150f', 0.3);
+    const lift = mix(look.top.color, PAPER.light, 0.28);
+    const chestY = torso.chest.y;
+    const waistY = torso.waistLeft.y;
+    const leftX = torso.waistLeft.x;
+    const rightX = torso.waistRight.x;
+    const width = rightX - leftX;
+    const drop = waistY - chestY;
+    return [
+      // Light side: one soft panel down the lit edge of the body.
+      { fill: lift, svg: `<path d="M ${round(leftX + width * 0.08)} ${round(chestY + drop * 0.1)} Q ${round(leftX + width * 0.02)} ${round(chestY + drop * 0.7)} ${round(leftX + width * 0.14)} ${round(waistY + drop * 0.35)} L ${round(leftX + width * 0.3)} ${round(waistY + drop * 0.3)} Q ${round(leftX + width * 0.24)} ${round(chestY + drop * 0.5)} ${round(leftX + width * 0.28)} ${round(chestY + drop * 0.08)} Z" opacity="0.5"/>` },
+      // Gathers at the waist, drawn as two short strokes that follow the body.
+      { fill: 'none', svg: `<path d="M ${round(leftX + width * 0.34)} ${round(waistY - drop * 0.12)} Q ${round(leftX + width * 0.5)} ${round(waistY + drop * 0.06)} ${round(leftX + width * 0.66)} ${round(waistY - drop * 0.14)}" fill="none" stroke="${dark}" stroke-width="${round(width * 0.035)}" stroke-linecap="round" opacity="0.4"/>` },
+      { fill: 'none', svg: `<path d="M ${round(rightX - width * 0.26)} ${round(chestY + drop * 0.42)} Q ${round(rightX - width * 0.16)} ${round(chestY + drop * 0.66)} ${round(rightX - width * 0.2)} ${round(waistY - drop * 0.02)}" fill="none" stroke="${dark}" stroke-width="${round(width * 0.03)}" stroke-linecap="round" opacity="0.32"/>` },
+      // Occlusion under the chin: without it the head floats on the shoulders.
+      { fill: dark, svg: `<ellipse cx="${round(torso.chest.x)}" cy="${round(chestY + drop * 0.06)}" rx="${round(width * 0.3)}" ry="${round(Math.abs(drop) * 0.12 + 1)}" opacity="0.22"/>` }
+    ];
+  }
+
+  /**
+   * Shadows where the body meets the floor. One blob under the middle of a
+   * figure is what makes a character look pasted onto a page: the shadow has
+   * to sit under whatever is actually touching the ground, which for a
+   * kneeling or seated body is not the feet.
+   */
+  function contactShadows(figure, height) {
+    const ground = figure.ground;
+    const touching = figure.parts
+      .filter((p) => p.a && p.b)
+      .map((p) => ({ part: p, low: Math.max(p.a.y, p.b.y) + (p.widthTo || 0) * 0.5 }))
+      .filter((entry) => Math.abs(entry.low - ground) < height * 0.035);
+    const spots = touching.length
+      ? touching.map((entry) => ({ x: (entry.part.a.x + entry.part.b.x) / 2, w: Math.abs(entry.part.b.x - entry.part.a.x) * 0.6 + height * 0.05 }))
+      : [{ x: (figure.joints.leftToe.x + figure.joints.rightToe.x) / 2, w: height * 0.1 }];
+    const minX = Math.min(...spots.map((s) => s.x - s.w));
+    const maxX = Math.max(...spots.map((s) => s.x + s.w));
+    const wide = `<ellipse cx="${round((minX + maxX) / 2)}" cy="${round(ground + height * 0.004)}" rx="${round((maxX - minX) / 2 + height * 0.02)}" ry="${round(height * 0.022)}" fill="${PAPER.shadow}" opacity="0.14"/>`;
+    // A tighter, darker core right at each contact: the part of a cast shadow
+    // that actually reads as weight.
+    const cores = spots.map((s) => `<ellipse cx="${round(s.x)}" cy="${round(ground)}" rx="${round(s.w * 0.8)}" ry="${round(height * 0.012)}" fill="${PAPER.shadow}" opacity="0.3"/>`).join('');
+    return `<g class="pb-shadow">${wide}${cores}</g>`;
   }
 
   /**
@@ -224,7 +324,7 @@
         for (const s of worn.shapes) emit(depth, piece(s.fill, s.svg, 'pb-headwear'));
         emit(depth, piece(look.skin, `<ellipse cx="${round(c.x)}" cy="${round(c.y)}" rx="${round(r * 0.94)}" ry="${round(r * 1.06)}"/>`, 'pb-head'));
         if (look.hair.beard) emit(depth, piece(look.hair.color, beardShape(part), 'pb-beard'));
-        emit(depth, `<g class="pb-face">${facePath(part, look)}</g>`);
+        emit(depth, `<g class="pb-face">${facePath(part, look, opts.face)}</g>`);
         for (const s of worn.front) emit(depth, piece(s.fill, s.svg, 'pb-headwear'));
         continue;
       }
@@ -240,13 +340,32 @@
       else if (sleeved) fill = look.top.color;
       if (isHand) fill = look.skin;
 
-      const w = isFoot ? 1.1 : 1;
       const solid = fill.startsWith('url') ? fill : shade(fill, part.depth, span);
-      emit(depth, piece(solid, limbMass(part.a, part.b, part.widthFrom * w, part.widthTo * w), `pb-${part.kind}`));
+      // A rim behind the arm: a bare arm resting against a sleeve of its own
+      // colour has no edge otherwise, which is why these figures have read as
+      // a torso with something vaguely arm-shaped stuck to it.
+      if ((isUpper || isFore || isHand) && opts.rim !== false) {
+        const rimColor = mix(fill.startsWith('url') ? look.bottom.color : fill, '#2a1c12', 0.34);
+        // Not at the shoulder: widening there puffs the joint into a pad.
+        const from = part.widthFrom * (isUpper ? 1.0 : 1.16);
+        const wide = isHand
+          ? handShape({ ...part, widthFrom: from })
+          : isUpper
+            ? cappedMass(part.a, part.b, from, part.widthTo * 1.16, 'end')
+            : limbMass(part.a, part.b, from, part.widthTo * 1.16);
+        emit(depth - 0.001, piece(rimColor, wide, 'pb-rim'));
+      }
+      if (isFoot) {
+        for (const s of footShapes(part, solid, mix(look.shoes.bare ? look.skin : look.shoes.color, '#1a120c', 0.42))) emit(depth, piece(s.fill, s.svg, 'pb-foot'));
+      } else if (isHand) {
+        emit(depth, piece(solid, handShape(part), 'pb-hand'));
+      } else {
+        emit(depth, piece(solid, isUpper ? cappedMass(part.a, part.b, part.widthFrom, part.widthTo, 'end') : limbMass(part.a, part.b, part.widthFrom, part.widthTo), `pb-${part.kind}`));
+      }
 
       if (isUpper && look.top.sleeve > 0.05 && look.top.sleeve < 1) {
         const end = { x: part.a.x + (part.b.x - part.a.x) * look.top.sleeve, y: part.a.y + (part.b.y - part.a.y) * look.top.sleeve };
-        emit(depth, piece(shade(look.top.color, part.depth, span), limbMass(part.a, end, part.widthFrom * 1.18, part.widthFrom * 1.02), 'pb-sleeve'));
+        emit(depth, piece(shade(look.top.color, part.depth, span), cappedMass(part.a, end, part.widthFrom * 1.1, part.widthFrom * 1.04, 'none'), 'pb-sleeve'));
       }
     }
 
@@ -262,14 +381,16 @@
       // Trim and overlays ride on the front of the body, ahead of the garment
       // but behind whichever arm crosses it.
       const face = torso.depth + 0.02;
+      if (opts.folds !== false) {
+        for (const f of garmentFolds(torso, look, span)) emit(torso.depth + 0.01, piece(f.fill, f.svg, 'pb-fold'));
+      }
       for (const t of Wardrobe.trimShapes(torso, look.top)) emit(face, piece(t.fill, t.svg, 'pb-trim'));
       if (look.over) {
         for (const o of Wardrobe.overlayShapes(torso, figure.joints, look.over)) emit(face + 0.01, piece(o.fill, o.svg, 'pb-overlay'));
       }
     }
 
-    const shadowX = (figure.joints.leftToe.x + figure.joints.rightToe.x) / 2;
-    emit(-Infinity, `<ellipse class="pb-shadow" cx="${round(shadowX)}" cy="${round(figure.ground)}" rx="${round(height * 0.1)}" ry="${round(height * 0.018)}" fill="${PAPER.shadow}" opacity="0.22"/>`);
+    emit(-Infinity, contactShadows(figure, height));
 
     // Held props are drawn from the hands the solver produced, in front of
     // the body: a bag behind the arm holding it is the floating-rice-bag bug.
@@ -333,14 +454,32 @@
     const opts = options || {};
     const unit = relation.unit || 1000;
     const looks = opts.looks || {};
+    const faces = opts.faces || {};
     const layers = [];
     const defs = [];
     let box = null;
 
+    // The world the relation was staged against, drawn flat and behind
+    // everyone. Paperbook supplies the real environment; this is what a proof
+    // needs so the chair a figure sits on is visible.
+    if (opts.scene) {
+      const scene = typeof opts.scene.anchor === 'function' ? opts.scene : World.scene(opts.scene);
+      for (const f of scene.features) {
+        // Furniture sorts by its own depth like a body does, so a figure
+        // stands behind the table it works at and in front of the shelf.
+        const depth = (f.at.z || 0) * unit;
+        for (const s of World.shapes(f, unit, opts.world)) {
+          layers.push({ depth: depth + (s.dz || 0) * unit, svg: `<g class="pb-world" data-feature="${esc(f.id)}" fill="${s.fill}">${s.svg}</g>` });
+        }
+        const e = World.extent(f, unit);
+        box = box ? { minX: Math.min(box.minX, e.minX), maxX: Math.max(box.maxX, e.maxX), minY: Math.min(box.minY, e.minY), maxY: Math.max(box.maxY, e.maxY) } : e;
+      }
+    }
+
     for (const p of relation.participants) {
       const figure = Rig.build({ proportion: p.proportion, height: p.height, pose: p.pose, view: p.yaw });
       const props = (opts.props && (opts.props[p.id] || opts.props[p.role])) || p.props;
-      const collected = collect(figure, { look: looks[p.id] || looks[p.role] || opts.look, id: p.id, props }, { layers: [], defs });
+      const collected = collect(figure, { look: looks[p.id] || looks[p.role] || opts.look, face: faces[p.id] || faces[p.role] || opts.face, id: p.id, props }, { layers: [], defs });
       const dx = p.origin.x * unit;
       const dy = -p.origin.y * unit;
       // Each body's parts keep their own depth, offset by where the body
@@ -364,10 +503,16 @@
     const height = box.maxY - box.minY;
     const viewBox = `${round(box.minX)} ${round(box.minY)} ${round(width)} ${round(height)}`;
     const group = `<g class="pb-relation" data-relation="${esc(relation.relation)}">${stableSort(layers)}</g>`;
-    const background = opts.background === false ? '' : `<rect x="${round(box.minX)}" y="${round(box.minY)}" width="${round(width)}" height="${round(height)}" fill="${opts.page || PAPER.page}"/>`;
-    const svg = `<svg class="nex-paperbook-scene" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-label="${esc(opts.accessibilityLabel || relation.relation)}"><defs>${defs.join('')}</defs>${background}${group}</svg>`;
+    const plate = (fill, opacity) => `<rect x="${round(box.minX)}" y="${round(box.minY)}" width="${round(width)}" height="${round(height)}" fill="${fill}"${opacity ? ` opacity="${opacity}"` : ''}/>`;
+    const background = opts.background === false ? '' : plate(opts.page || PAPER.page);
+    // Grain over the whole spread rather than per figure, so the paper reads
+    // as one sheet the characters are printed on.
+    const grainId = 'pb-grain';
+    const grain = opts.background === false || opts.grain === false ? '' : plate(`url(#${grainId})`, 0.16);
+    if (grain) defs.push(grainPattern(grainId));
+    const svg = `<svg class="nex-paperbook-scene" xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-label="${esc(opts.accessibilityLabel || relation.relation)}"><defs>${defs.join('')}</defs>${background}${group}${grain}</svg>`;
     return { svg, group, defs: defs.join(''), viewBox, width, height, bounds: box };
   }
 
-  return { render, renderPose, renderRelation, resolveLook, PATTERNS, PAPER, SKIN, mix, Body };
+  return { render, renderPose, renderRelation, resolveLook, contactShadows, PATTERNS, PAPER, SKIN, mix, Body, Face };
 });

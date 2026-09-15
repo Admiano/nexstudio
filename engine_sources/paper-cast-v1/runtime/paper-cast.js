@@ -23,6 +23,9 @@
       Wardrobe: require('./cast-wardrobe.js'),
       Props: require('./cast-props.js'),
       Roles: require('./cast-roles.js'),
+      World: require('./cast-world.js'),
+      Face: require('./cast-face.js'),
+      Acting: require('./cast-acting.js'),
       Paperbook: require('./paperbook-figure.js'),
       load: () => {
         const fs = require('fs');
@@ -43,6 +46,9 @@
       Body: root.NexCastBody,
       Contact: root.NexCastContact,
       Relation: root.NexCastRelation,
+      World: root.NexCastWorld,
+      Face: root.NexCastFace,
+      Acting: root.NexCastActing,
       Wardrobe: root.NexCastWardrobe,
       Props: root.NexCastProps,
       Roles: root.NexCastRoles,
@@ -53,7 +59,7 @@
   if (isNode) module.exports = api;
   root.NexPaperCast = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (deps) {
-  const { Rig, Renderer, Selector, Context, Performance, Body, Contact, Relation, Wardrobe, Props, Roles, Paperbook, load } = deps;
+  const { Rig, Renderer, Selector, Context, Performance, Body, Contact, Relation, Wardrobe, Props, Roles, World, Face, Acting, Paperbook, load } = deps;
   const round = (n) => Math.round(Number(n) * 100) / 100;
 
   const FRAMES = {
@@ -244,6 +250,26 @@
     body: (spec) => Body.body(spec),
 
     /**
+     * A staged environment the relations can take contact goals from, so a
+     * character sits on Paperbook's chair rather than on a number someone
+     * typed. Paperbook owns the drawn environment; this is the semantics of
+     * it — where the seat, the table edge and the shelf are.
+     */
+    stage: (spec) => World.scene(spec),
+
+    /** A beat performed over time: prepare, stroke, hold, release, settle. */
+    perform: (spec) => Acting.perform(spec),
+
+    /** Turn-taking across a scene of dialogue, listeners included. */
+    dialogue: (spec) => Acting.dialogue(spec),
+
+    /** A face state: brow, eyes, gaze, mouth \u2014 sampled at a time for the blink. */
+    face: (spec, time) => (time === undefined ? Face.state(spec) : Face.at(spec, time)),
+
+    /** The relations a story can ask for. */
+    relations: () => Object.keys(Relation.RELATIONS),
+
+    /**
      * Draws the character a line of script is describing.
      *
      *   Cast.illustrateRole('an elderly farmer with a hoe')
@@ -310,6 +336,9 @@
     Roles,
     Contact,
     Relation,
+    World,
+    Face,
+    Acting,
     Paperbook,
     Renderer,
     Selector,

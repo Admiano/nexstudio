@@ -13,12 +13,12 @@
 (function (root, factory) {
   const isNode = typeof module === 'object' && module.exports;
   const deps = isNode
-    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Contact: require('./cast-contact.js'), Props: require('./cast-props.js') }
-    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Contact: root.NexCastContact, Props: root.NexCastProps };
+    ? { Rig: require('./paper-cast-rig.js'), Body: require('./cast-body.js'), Contact: require('./cast-contact.js'), Props: require('./cast-props.js'), World: require('./cast-world.js') }
+    : { Rig: root.NexPaperCastRig, Body: root.NexCastBody, Contact: root.NexCastContact, Props: root.NexCastProps, World: root.NexCastWorld };
   const api = factory(deps);
   if (isNode) module.exports = api;
   root.NexCastRelation = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Contact, Props }) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function ({ Rig, Body, Contact, Props, World }) {
   const RAD = Math.PI / 180;
 
   const rotateY = (p, deg) => {
@@ -42,7 +42,9 @@
   /** Pelvis height above ground for a posed body, in its own units. */
   function pelvisLift(proportion, pose) {
     const j = Contact.joints(proportion, pose);
-    const low = ['leftToe', 'rightToe', 'leftAnkle', 'rightAnkle'].reduce((m, key) => Math.min(m, j[key].y), 0);
+    // Knees count: on one knee they are what the body rests on, and standing
+    // they are never the lowest point, so including them costs nothing.
+    const low = ['leftToe', 'rightToe', 'leftAnkle', 'rightAnkle', 'leftKnee', 'rightKnee'].reduce((m, key) => Math.min(m, j[key].y), 0);
     return -low;
   }
 
@@ -204,6 +206,392 @@
     return compose('grip-prop', [actor], spec, (actor.goals || []).map((g) => ({ between: [`actor.${g.effector}`, spec.propId || 'prop'], at: g.at, error: g.error })));
   }
 
+  /* ---------------------------------------------------------------------- *
+   * Relations against the world
+   *
+   * Everything below takes its target from `cast-world.js` rather than from
+   * numbers written into the beat: a chair states its own seat height, a
+   * counter its own edge, and the body is solved to that. Swap the stool for
+   * a bench and the figure sits lower without a line changing.
+   * ---------------------------------------------------------------------- */
+
+  /** Resolves `{ scene, feature }` however the caller chose to supply them. */
+  function staging(spec, defaultKind) {
+    const scene = spec.scene && typeof spec.scene.anchor === 'function'
+      ? spec.scene
+      : (spec.scene ? World.scene(spec.scene) : null);
+    let feature = null;
+    if (spec.feature && spec.feature.anchors) feature = spec.feature;
+    else if (spec.feature) feature = World.feature(spec.feature);
+    else if (scene && spec.at && typeof spec.at === 'string') feature = scene.get(String(spec.at).split('.')[0]);
+    if (!feature && defaultKind) feature = World.feature({ id: defaultKind, kind: defaultKind });
+    return { scene, feature, ground: scene ? scene.ground : World.groundPlane() };
+  }
+
+  /** A world point from an anchor reference, a dotted scene path, or literal coordinates. */
+  function pointOf(ctx, ref, fallbackName) {
+    if (ref && typeof ref === 'object' && Number.isFinite(Number(ref.x))) {
+      return { x: Number(ref.x) || 0, y: Number(ref.y) || 0, z: Number(ref.z) || 0 };
+    }
+    if (typeof ref === 'string') {
+      if (ctx.scene) {
+        const fromScene = ctx.scene.anchor(ref);
+        if (fromScene) return fromScene;
+      }
+      if (ctx.feature) {
+        const named = World.anchor(ctx.feature, ref.includes('.') ? ref.split('.')[1] : ref);
+        if (named) return named;
+      }
+    }
+    return ctx.feature ? World.anchor(ctx.feature, fallbackName) : null;
+  }
+
+  /** Puts a body on the ground at a place, facing a direction. */
+  function stand(p, at, yaw, groundY) {
+    p.yaw = Number(yaw) || 0;
+    p.origin.x = (at && Number(at.x)) || 0;
+    p.origin.z = (at && Number(at.z)) || 0;
+    p.origin.y = pelvisLift(p.proportion, p.pose) * p.scale + (Number(groundY) || 0);
+    return p;
+  }
+
+  /**
+   * Which hand a body would actually use for a point in the world. Asking
+   * for the right hand is asking for a cross-body reach whenever the thing
+   * is on the other side, and that is what a 14%-of-height residual looks
+   * like: an arm stretched across the chest, not a shelf being used.
+   */
+  const nearerSide = (p, point, preferred) => {
+    if (preferred === 'left' || preferred === 'right') return preferred;
+    return toLocal(point, p).x >= 0 ? 'right' : 'left';
+  };
+
+  const worldJoint = (p, name) => {
+    const j = Contact.joints(p.proportion, p.pose);
+    return toWorld(j[name], p);
+  };
+
+  /**
+   * Drops the feet to the floor from a seat. A seated body cannot go through
+   * the contact solver — the knee angle a chair needs is outside the standing
+   * range it is allowed to search — so the two unknowns, thigh slope and shin
+   * angle, are fitted directly. A stool too tall for the body leaves the feet
+   * hanging and says so in the residual rather than stretching the legs.
+   */
+  function fitSeatedLegs(p, seatY, groundY) {
+    const posed = (hip, knee) => Rig.mergePose({
+      ...p.pose,
+      legLeft: { ...p.pose.legLeft, hip: { ...p.pose.legLeft.hip, tilt: hip }, knee: { ...p.pose.legLeft.knee, tilt: knee } },
+      legRight: { ...p.pose.legRight, hip: { ...p.pose.legRight.hip, tilt: hip }, knee: { ...p.pose.legRight.knee, tilt: knee } }
+    });
+    const errorOf = (hip, knee) => {
+      const pose = posed(hip, knee);
+      const j = Contact.joints(p.proportion, pose);
+      const low = Math.min(j.leftToe.y, j.rightToe.y, j.leftAnkle.y, j.rightAnkle.y);
+      return { pose, hip, knee, error: Math.abs(seatY + low * p.scale - groundY) };
+    };
+
+    let best = errorOf(82, -80);
+    // Thigh slope first, then shin: coarse sweep, then a local refinement, so
+    // the fit is deterministic and does not depend on a starting guess.
+    for (let hip = 68; hip <= 94; hip += 2) {
+      for (let knee = -108; knee <= -46; knee += 2) {
+        const candidate = errorOf(hip, knee);
+        if (candidate.error < best.error) best = candidate;
+      }
+    }
+    for (let hip = best.hip - 2; hip <= best.hip + 2; hip += 0.5) {
+      for (let knee = best.knee - 2; knee <= best.knee + 2; knee += 0.5) {
+        const candidate = errorOf(hip, knee);
+        if (candidate.error < best.error) best = candidate;
+      }
+    }
+    p.pose = best.pose;
+    return best.error;
+  }
+
+  /** Sits a body on a seat the world described, feet on the floor. */
+  function sitOn(spec) {
+    const ctx = staging(spec, 'chair');
+    const actor = participant({ id: 'actor', ...(spec.actor || {}) }, 1);
+    const seat = pointOf(ctx, spec.at || spec.seat, 'seat') || { x: 0, y: 0.26, z: 0 };
+    const groundY = ctx.ground.height(seat.x);
+
+    actor.yaw = Number.isFinite(Number(spec.yaw)) ? Number(spec.yaw) : (ctx.feature ? ctx.feature.facing : 0);
+    actor.pose = Rig.mergePose({
+      seated: true,
+      spine: { tilt: Number(spec.lean) || 4, swing: 0 },
+      chest: { tilt: 2, swing: 0 },
+      // Thighs along the seat; the shin angle is fitted to the floor below.
+      legLeft: { hip: { tilt: 82, swing: 6 }, knee: { tilt: -80, swing: 0 }, ankle: { tilt: 0 } },
+      legRight: { hip: { tilt: 82, swing: 6 }, knee: { tilt: -80, swing: 0 }, ankle: { tilt: 0 } },
+      armLeft: { shoulder: { tilt: 18, swing: 8 }, elbow: { tilt: 44, swing: 0 } },
+      armRight: { shoulder: { tilt: 18, swing: 8 }, elbow: { tilt: 44, swing: 0 } }
+    });
+
+    actor.origin = { x: seat.x, y: seat.y, z: seat.z };
+    const footError = fitSeatedLegs(actor, seat.y, groundY);
+
+    // Hands: on the thighs by default, or wherever the beat puts them.
+    const hands = [];
+    if (spec.hands && spec.hands !== 'lap') {
+      for (const goal of [].concat(spec.hands)) {
+        const at = pointOf(ctx, goal.at || goal, 'top');
+        if (at) hands.push({ effector: goal.effector || 'rightHand', at });
+      }
+    }
+    if (hands.length) solveAgainst(actor, hands, { torso: true });
+
+    const seated = Contact.joints(actor.proportion, actor.pose);
+    const contacts = [
+      { between: ['actor.pelvis', `${ctx.feature ? ctx.feature.id : 'seat'}.seat`], at: seat, error: 0 },
+      ...['left', 'right'].map((side) => ({ between: [`actor.${side}Foot`, 'ground'], at: toWorld(seated[`${side}Toe`], actor), error: footError }))
+    ];
+    actor.residual = Math.max(actor.residual || 0, footError);
+    return compose('sit-on', [actor], spec, contacts.concat(actor.goals.map((g) => ({ between: [`actor.${g.effector}`], at: g.at, error: g.error }))), ['three-quarter-right', 'profile-right']);
+  }
+
+  /** A forearm or hand resting on a counter, weight on the far leg. */
+  function leanOn(spec) {
+    const ctx = staging(spec, 'counter');
+    const actor = participant({ id: 'actor', ...(spec.actor || {}) }, 1);
+    const side = spec.side === 'left' ? 'left' : 'right';
+    const edge = pointOf(ctx, spec.at, 'edge') || { x: 0, y: 0.55, z: 0 };
+    const post = ctx.feature ? World.approach(ctx.feature, { offset: side === 'right' ? -0.2 : 0.2, gap: (ctx.feature.metrics.depth / 2) + 0.14 }) : { at: { x: side === 'right' ? -0.2 : 0.2, z: 0.26 }, yaw: 180 };
+
+    actor.pose = Rig.mergePose({
+      spine: { tilt: 6, swing: side === 'right' ? 5 : -5 },
+      chest: { tilt: 3, swing: 0 },
+      hipRoll: side === 'right' ? -5 : 5,
+      // Weight on the leg away from the surface: the lean has to come from
+      // somewhere or the figure reads as standing beside the counter.
+      legLeft: { hip: { tilt: side === 'right' ? -4 : 3, swing: 4 }, knee: { tilt: 3, swing: 0 } },
+      legRight: { hip: { tilt: side === 'right' ? 3 : -4, swing: 4 }, knee: { tilt: 3, swing: 0 } }
+    });
+    stand(actor, post.at, Number.isFinite(Number(spec.yaw)) ? Number(spec.yaw) : post.yaw, ctx.ground.height(post.at.x));
+    solveAgainst(actor, [{ effector: `${side}Hand`, at: edge }], { torso: true });
+    return compose('lean-on', [actor], spec, [{ between: [`actor.${side}Hand`, ctx.feature ? `${ctx.feature.id}.edge` : 'surface'], at: edge, error: actor.residual }], ['three-quarter-right', 'profile-right']);
+  }
+
+  /** Reaching a point the world named: a shelf, a handle, a board. */
+  function reachTo(spec) {
+    const ctx = staging(spec, 'shelf');
+    const actor = participant({ id: 'actor', ...(spec.actor || {}) }, 1);
+    const target = pointOf(ctx, spec.at, ctx.feature && ctx.feature.metrics.role === 'wall' ? 'face' : 'edge') || { x: 0.2, y: 0.9, z: 0.2 };
+    const post = ctx.feature ? World.approach(ctx.feature, { offset: Number(spec.offset) || 0, gap: Number(spec.gap) || ((ctx.feature.metrics.depth / 2) + 0.16) }) : { at: { x: 0, z: 0 }, yaw: 0 };
+
+    actor.pose = Rig.mergePose(spec.pose || {});
+    stand(actor, post.at, Number.isFinite(Number(spec.yaw)) ? Number(spec.yaw) : post.yaw, ctx.ground.height(post.at.x));
+    const side = nearerSide(actor, target, spec.side);
+
+    // A high shelf is taken on the toes; a low one is not.
+    const shoulder = worldJoint(actor, `${side}Shoulder`).y;
+    if (target.y > shoulder + 0.12) {
+      actor.pose = Rig.mergePose({ ...actor.pose, legLeft: { ...actor.pose.legLeft, ankle: { tilt: 22 } }, legRight: { ...actor.pose.legRight, ankle: { tilt: 22 } }, spine: { tilt: -4, swing: actor.pose.spine.swing } });
+      stand(actor, post.at, actor.yaw, ctx.ground.height(post.at.x));
+    }
+
+    solveAgainst(actor, [{ effector: `${side}Hand`, at: target }], { torso: true });
+    if (spec.propId && Props.PROPS[spec.propId]) actor.props = [{ id: spec.propId, side }];
+    return compose('reach-to', [actor], spec, [{ between: [`actor.${side}Hand`, ctx.feature ? ctx.feature.id : 'target'], at: target, error: actor.residual }], ['three-quarter-right', 'profile-right']);
+  }
+
+  /** Both hands down on a table, head over the work. */
+  function workAtTable(spec) {
+    const ctx = staging(spec, 'table');
+    const actor = participant({ id: 'actor', ...(spec.actor || {}) }, 1);
+    const left = pointOf(ctx, spec.leftAt, 'left');
+    const right = pointOf(ctx, spec.rightAt, 'right');
+    const post = ctx.feature ? World.approach(ctx.feature, { offset: Number(spec.offset) || 0, gap: (ctx.feature.metrics.depth / 2) + 0.1 }) : { at: { x: 0, z: 0.26 }, yaw: 180 };
+
+    actor.pose = Rig.mergePose({
+      spine: { tilt: 12, swing: 0 },
+      chest: { tilt: 6, swing: 0 },
+      neck: { tilt: -14, swing: 0 },
+      head: { yaw: 0, pitch: -12 }
+    });
+    stand(actor, post.at, Number.isFinite(Number(spec.yaw)) ? Number(spec.yaw) : post.yaw, ctx.ground.height(post.at.x));
+    // The anchors are the table's left and right; which hand that is depends
+    // on which side of the table the body was placed on, and getting it wrong
+    // crosses the arms over the work.
+    const goals = [];
+    if (right) goals.push({ effector: `${nearerSide(actor, right)}Hand`, at: right });
+    if (left) goals.push({ effector: `${nearerSide(actor, left)}Hand`, at: left });
+    if (goals.length === 2 && goals[0].effector === goals[1].effector) goals[1].effector = goals[0].effector === 'rightHand' ? 'leftHand' : 'rightHand';
+    solveAgainst(actor, goals, { torso: true });
+    if (spec.propId && Props.PROPS[spec.propId]) actor.props = [{ id: spec.propId, side: spec.side }];
+    return compose('work-at-table', [actor], spec, actor.goals.map((g) => ({ between: [`actor.${g.effector}`, ctx.feature ? `${ctx.feature.id}.top` : 'surface'], at: g.at, error: g.error })), ['three-quarter-right', 'front']);
+  }
+
+  /**
+   * Down on one knee: the back shin folded flat on the floor, the front foot
+   * fitted to the same level. Like sitting, this is authored rather than
+   * solved, because a folded knee is outside the standing joint range.
+   */
+  function kneelPose(p, side) {
+    const back = side === 'left' ? 'legRight' : 'legLeft';
+    const front = side === 'left' ? 'legLeft' : 'legRight';
+    const base = Rig.mergePose({
+      ...p.pose,
+      spine: { tilt: 14, swing: 0 },
+      chest: { tilt: 6, swing: 0 },
+      neck: { tilt: -12, swing: 0 },
+      crouch: 0,
+      [back]: { hip: { tilt: 2, swing: 4 }, knee: { tilt: -92, swing: 0 }, ankle: { tilt: -20 } },
+      [front]: { hip: { tilt: 62, swing: 8 }, knee: { tilt: -70, swing: 0 }, ankle: { tilt: 0 } }
+    });
+    const floor = Contact.joints(p.proportion, base)[`${back === 'legLeft' ? 'left' : 'right'}Knee`].y;
+    const frontSide = front === 'legLeft' ? 'left' : 'right';
+    // Both front-leg angles are searched: with the thigh angle fixed, the
+    // shin can only reach the floor plane the back knee defines by accident,
+    // and the foot ends up planted below the knee it kneels on.
+    const errorOf = (hip, knee) => {
+      const pose = Rig.mergePose({ ...base, [front]: { hip: { tilt: hip, swing: 8 }, knee: { tilt: knee, swing: 0 }, ankle: { tilt: 0 } } });
+      const j = Contact.joints(p.proportion, pose);
+      const ankle = j[`${frontSide}Ankle`].y;
+      const toe = j[`${frontSide}Toe`].y;
+      // The sole is flat on the same floor as the kneeling shin, and the
+      // shin stays roughly upright so the pose reads as a knee, not a squat.
+      const upright = Math.abs(j[`${frontSide}Knee`].z - j[`${frontSide}Ankle`].z) * 0.3;
+      return { pose, hip, knee, error: Math.abs(toe - floor) + Math.abs(ankle - floor) + upright };
+    };
+    let best = errorOf(62, -70);
+    for (let hip = 30; hip <= 86; hip += 2) {
+      for (let knee = -120; knee <= -20; knee += 2) {
+        const candidate = errorOf(hip, knee);
+        if (candidate.error < best.error) best = candidate;
+      }
+    }
+    for (let hip = best.hip - 2; hip <= best.hip + 2; hip += 0.5) {
+      for (let knee = best.knee - 2; knee <= best.knee + 2; knee += 0.5) {
+        const candidate = errorOf(hip, knee);
+        if (candidate.error < best.error) best = candidate;
+      }
+    }
+    return best.pose;
+  }
+
+  /** Crouching to a low point and taking hold of it. */
+  function pickUp(spec) {
+    const ctx = staging(spec, null);
+    const actor = participant({ id: 'actor', ...(spec.actor || {}) }, 1);
+    const target = pointOf(ctx, spec.at, 'under') || { x: 0.1, y: 0.06, z: 0.22 };
+    const hands = spec.hands === 1 ? 1 : 2;
+    const side = spec.side === 'left' ? 'left' : 'right';
+
+    // How far down the body has to go is a fact about the target, not a style
+    // choice: a crate at knee height is a stoop, a coin on the floor is a
+    // squat. The crouch is fitted so the shoulders end up about an arm above
+    // the object — the difference between reaching it and pawing the air.
+    const arm = actor.proportion.upperArm + actor.proportion.foreArm + actor.proportion.hand;
+    const fit = (crouch) => {
+      const pose = Rig.mergePose({ crouch, spine: { tilt: 14 + crouch * 16, swing: 0 }, chest: { tilt: 6, swing: 0 }, neck: { tilt: -10, swing: 0 } });
+      const lift = pelvisLift(actor.proportion, pose) * actor.scale + ctx.ground.height(target.x);
+      const j = Contact.joints(actor.proportion, pose);
+      const shoulder = lift + Math.min(j.leftShoulder.y, j.rightShoulder.y) * actor.scale;
+      return { pose, error: Math.abs(shoulder - (target.y + arm * 0.84 * actor.scale)) };
+    };
+    let best = fit(0);
+    for (let c = 0; c <= 1.0001; c += 0.02) {
+      const candidate = fit(c);
+      if (candidate.error < best.error) best = candidate;
+    }
+    // Below a squat's reach the body stops squatting and goes down on a knee,
+    // which is what people actually do for something on the floor.
+    const kneeling = spec.kneel === true || (spec.kneel !== false && best.pose.crouch >= 0.999 && best.error > 0.06);
+    actor.pose = kneeling ? kneelPose(actor, side) : best.pose;
+    stand(actor, { x: target.x, z: target.z - (kneeling ? 0.1 : 0.18) }, Number(spec.yaw) || 0, ctx.ground.height(target.x));
+
+    const spread = Number(spec.spread) || 0.06;
+    const goals = hands === 2
+      ? [{ effector: 'rightHand', at: { ...target, x: target.x + spread } }, { effector: 'leftHand', at: { ...target, x: target.x - spread } }]
+      : [{ effector: `${side}Hand`, at: target }];
+    solveAgainst(actor, goals, { torso: true });
+    if (spec.propId && Props.PROPS[spec.propId]) actor.props = [{ id: spec.propId, side }];
+    return compose('pick-up', [actor], spec, actor.goals.map((g) => ({ between: [`actor.${g.effector}`, spec.propId || 'object'], at: g.at, error: g.error })), ['three-quarter-right', 'profile-right']);
+  }
+
+  /** Setting something down on a surface the world described. */
+  function placeOn(spec) {
+    const ctx = staging(spec, 'table');
+    const actor = participant({ id: 'actor', ...(spec.actor || {}) }, 1);
+    const target = pointOf(ctx, spec.at, 'top') || { x: 0, y: 0.43, z: 0 };
+    const post = ctx.feature ? World.approach(ctx.feature, { offset: Number(spec.offset) || 0, gap: (ctx.feature.metrics.depth / 2) + 0.14 }) : { at: { x: 0, z: 0.3 }, yaw: 180 };
+    const spread = Number(spec.spread) || 0.05;
+
+    actor.pose = Rig.mergePose({ spine: { tilt: 10, swing: 0 }, chest: { tilt: 5, swing: 0 }, neck: { tilt: -10, swing: 0 } });
+    stand(actor, post.at, Number.isFinite(Number(spec.yaw)) ? Number(spec.yaw) : post.yaw, ctx.ground.height(post.at.x));
+    solveAgainst(actor, [
+      { effector: 'rightHand', at: { x: target.x + spread, y: target.y + 0.02, z: target.z } },
+      { effector: 'leftHand', at: { x: target.x - spread, y: target.y + 0.02, z: target.z } }
+    ], { torso: true });
+    if (spec.propId && Props.PROPS[spec.propId]) actor.props = [{ id: spec.propId, side: spec.side }];
+    return compose('place-on', [actor], spec, actor.goals.map((g) => ({ between: [`actor.${g.effector}`, ctx.feature ? `${ctx.feature.id}.top` : 'surface'], at: g.at, error: g.error })), ['three-quarter-right', 'profile-right']);
+  }
+
+  /** Two bodies placed facing one another across a gap, both angled to camera. */
+  function facingPair(spec, ids) {
+    const gap = typeof spec.gap === 'number' ? spec.gap : 0.52;
+    const turn = typeof spec.turn === 'number' ? spec.turn : 62;
+    const a = participant({ id: ids[0], role: ids[0], ...(spec[ids[0]] || {}) }, 1);
+    const primaryStature = a.proportion.stature || 1;
+    const b = participant({ id: ids[1], role: ids[1], ...(spec[ids[1]] || {}) }, primaryStature);
+    a.pose = Rig.mergePose({ ...a.pose, head: { yaw: 10, pitch: 0 } });
+    b.pose = Rig.mergePose({ ...b.pose, head: { yaw: -10, pitch: 0 } });
+    stand(a, { x: -gap / 2, z: 0 }, turn, 0);
+    stand(b, { x: gap / 2, z: 0 }, -turn, 0);
+    return { a, b };
+  }
+
+  /** Something passes from one pair of hands to another. */
+  function handOver(spec) {
+    const { a: giver, b: receiver } = facingPair(spec, ['giver', 'receiver']);
+    const giverHand = spec.giverHand || 'leftHand';
+    const receiverHand = spec.receiverHand || 'rightHand';
+
+    // The exchange happens between the two chests, at the height of the
+    // shorter body so the smaller pair of arms is not asked for a miracle.
+    const height = Math.min(worldJoint(giver, 'chest').y, worldJoint(receiver, 'chest').y);
+    const meet = { x: (giver.origin.x + receiver.origin.x) / 2, y: height * 0.94, z: 0.08 };
+    solveAgainst(giver, [{ effector: giverHand, at: meet }], { torso: true });
+    solveAgainst(receiver, [{ effector: receiverHand, at: meet }], { torso: true });
+    if (spec.propId && Props.PROPS[spec.propId]) giver.props = [{ id: spec.propId, side: giverHand.startsWith('left') ? 'left' : 'right' }];
+    return compose('hand-over', [giver, receiver], spec, [{ between: [`giver.${giverHand}`, `receiver.${receiverHand}`], at: meet, error: Math.max(giver.residual || 0, receiver.residual || 0) }], ['front', 'three-quarter-right']);
+  }
+
+  /** Right hands meet: same solve, a firmer height, both bodies leaning in. */
+  function shakeHands(spec) {
+    const { a, b } = facingPair({ gap: 0.58, ...spec }, ['first', 'second']);
+    const height = Math.min(worldJoint(a, 'chest').y, worldJoint(b, 'chest').y);
+    const meet = { x: (a.origin.x + b.origin.x) / 2, y: height * 0.8, z: 0.06 };
+    solveAgainst(a, [{ effector: 'rightHand', at: meet }], { torso: true });
+    solveAgainst(b, [{ effector: 'rightHand', at: meet }], { torso: true });
+    return compose('shake-hands', [a, b], spec, [{ between: ['first.rightHand', 'second.rightHand'], at: meet, error: Math.max(a.residual || 0, b.residual || 0) }], ['front', 'three-quarter-right']);
+  }
+
+  /**
+   * Walking hand in hand. Unlike `support-walk` this is two bodies of any
+   * size side by side, so the join lands at whichever hand is lower.
+   */
+  function holdHands(spec) {
+    const gap = typeof spec.gap === 'number' ? spec.gap : 0.34;
+    const left = participant({ id: 'left', role: 'left', ...(spec.left || {}) }, 1);
+    const primaryStature = left.proportion.stature || 1;
+    const right = participant({ id: 'right', role: 'right', ...(spec.right || {}) }, primaryStature);
+    const yaw = Number(spec.yaw) || 0;
+    stand(left, { x: -gap / 2, z: 0 }, yaw, 0);
+    stand(right, { x: gap / 2, z: 0 }, yaw, 0);
+
+    // The join sits below the shorter body's shoulder: hand in hand with a
+    // child means the adult's arm comes down, not the child's arm stretched
+    // up to adult height.
+    const shoulder = Math.min(worldJoint(left, 'rightShoulder').y, worldJoint(right, 'leftShoulder').y);
+    const meet = { x: 0, y: shoulder * 0.86, z: 0.06 };
+    solveAgainst(left, [{ effector: 'rightHand', at: meet }], { torso: true });
+    solveAgainst(right, [{ effector: 'leftHand', at: meet }], { torso: true });
+    return compose('hold-hands', [left, right], spec, [{ between: ['left.rightHand', 'right.leftHand'], at: meet, error: Math.max(left.residual || 0, right.residual || 0) }], ['front', 'three-quarter-right']);
+  }
+
   function compose(name, participants, spec, contacts, preferredViews) {
     const unit = Number(spec && spec.height) || 1000;
     return {
@@ -230,7 +618,20 @@
     };
   }
 
-  const RELATIONS = { 'carry-on-back': carryOnBack, 'support-walk': supportWalk, 'grip-prop': gripProp };
+  const RELATIONS = {
+    'carry-on-back': carryOnBack,
+    'support-walk': supportWalk,
+    'grip-prop': gripProp,
+    'sit-on': sitOn,
+    'lean-on': leanOn,
+    'reach-to': reachTo,
+    'work-at-table': workAtTable,
+    'pick-up': pickUp,
+    'place-on': placeOn,
+    'hand-over': handOver,
+    'shake-hands': shakeHands,
+    'hold-hands': holdHands
+  };
 
   function relate(name, spec) {
     const fn = RELATIONS[name];
@@ -238,5 +639,5 @@
     return fn(spec || {});
   }
 
-  return { relate, RELATIONS, toWorld, toLocal, pelvisLift };
+  return { relate, RELATIONS, toWorld, toLocal, pelvisLift, staging, pointOf };
 });

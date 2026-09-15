@@ -24,7 +24,10 @@ runtime/cast-registry.js    generated browser registry
 runtime/cast-performance.js deterministic per-time performance: breathing, gait, travel
 runtime/cast-body.js        parametric bodies: age infant→senior, build, stature, mass
 runtime/cast-contact.js     contact solver: hands, feet and props reached by goal
-runtime/cast-relation.js    two-body relations: carry on back, supported walk, grip prop
+runtime/cast-relation.js    relations: carry, support, sit, lean, reach, work, hand over, hold
+runtime/cast-world.js       the environment as named contact points: seats, edges, shelves
+runtime/cast-acting.js      a beat over time: prepare, stroke, hold, release, gaze, settle
+runtime/cast-face.js        brows, eye aperture, blink, mouth, gaze, speaking and listening
 runtime/cast-wardrobe.js    garment silhouettes, trim, overlays, headwear, hair, beards
 runtime/cast-props.js       props whose grips and drawing come from one definition
 runtime/cast-roles.js       role vocabulary: a script phrase → body, outfit, prop, hold
@@ -38,7 +41,8 @@ tools/                      manifest build, validation suite, sheets, reel captu
 
 ```bash
 node tools/build-cast-manifests.js   # regenerate manifests, facets and registry
-node tools/test-paper-cast.js        # 54 checks: rig, bodies, contacts, wardrobe, props, roles, render
+node tools/test-paper-cast.js        # 66 checks: rig, bodies, contacts, world, acting, faces, render
+node tools/render-acting-sheet.js    # staged relations, gesture phases and face states
 node tools/render-contact-sheet.js   # .review/contact-sheet.html for visual review
 node tools/render-story-sheet.js out "a fireman" "a woman in a hijab carrying groceries"
 node tools/package-engine.js         # PAPER_CAST_V1_ENGINE_SOURCE.zip, with provenance

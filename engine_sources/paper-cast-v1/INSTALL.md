@@ -76,7 +76,10 @@ Load order in any composition (scripts, in this order):
 <script src="../runtime/paper-cast/cast-body.js"></script>
 <script src="../runtime/paper-cast/cast-contact.js"></script>
 <script src="../runtime/paper-cast/cast-props.js"></script>
+<script src="../runtime/paper-cast/cast-world.js"></script>
 <script src="../runtime/paper-cast/cast-relation.js"></script>
+<script src="../runtime/paper-cast/cast-face.js"></script>
+<script src="../runtime/paper-cast/cast-acting.js"></script>
 <script src="../runtime/paper-cast/cast-wardrobe.js"></script>
 <script src="../runtime/paper-cast/cast-roles.js"></script>
 <script src="../runtime/paper-cast/paperbook-figure.js"></script>
