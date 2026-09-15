@@ -104,6 +104,50 @@ or captured frame by frame without drift. Standing figures breathe and sway in
 place; walking or exiting figures gain a gait cycle and travel across the stage
 in the direction they are already facing.
 
+## Paperbook figures: bodies, contacts, props, roles
+
+The catalogue path above picks a drawing. The paperbook path draws one: a body
+is a set of parameters, a pose is the result of reaching for something, and an
+outfit is a silhouette rather than a colour.
+
+```js
+const { svg, character, residual } = NexPaperCast.illustrateRole(
+  'an elderly farmer with a hoe',
+  { view: 'three-quarter-right', height: 900 }
+);
+```
+
+`character` is what the words were taken to mean, and is worth reading before
+trusting the drawing:
+
+```json
+{
+  "role": "farmer", "recognised": true, "modifiers": ["elderly"],
+  "body": { "age": 72 },
+  "look": { "head": { "kind": "hat" }, "top": { "garment": "shirt" } },
+  "prop": "hoe", "side": "right", "stance": "work",
+  "label": "farmer, holding a hoe"
+}
+```
+
+`residual` is how far the hands finished from the prop, as a fraction of figure
+height — a drawing whose hand missed the handle says so instead of hiding it.
+
+| Call | Use |
+| --- | --- |
+| `illustrateRole(text, opts)` | A line of script → a drawn character. |
+| `describeRole(text, overrides)` | The same resolution, without drawing. |
+| `illustrateFigure({ proportion, pose, goals, look, props, view })` | One body, posed from goals. |
+| `illustrate(kind, spec, opts)` | A two-body relation: `carry-on-back`, `support-walk`, `grip-prop`. |
+| `body(spec)` | Proportions for `{ age, build, stature, mass }`. |
+| `props()` / `roles()` / `wardrobe()` | What the artist can draw and answer to. |
+
+Boundaries worth stating plainly: the vocabulary answers to listed words, not to
+arbitrary prose, and an unmatched line comes back `recognised: false` rather
+than as a confident wrong character. Complexion words set complexion only —
+dress and headwear come from dress words, so no garment is inferred from a skin
+tone and no skin tone is inferred from a garment.
+
 ## Other entry points
 
 | Call | Use |
