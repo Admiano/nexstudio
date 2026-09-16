@@ -1,0 +1,156 @@
+{
+  "id": "cast.peer-friend.paper-01",
+  "name": "Peer",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "friend",
+  "slug": "peer-friend",
+  "renderer": "paper-cast-figure",
+  "role": "friend",
+  "ageBand": "adult",
+  "proportion": "adult-slight",
+  "formality": "casual",
+  "intents": [
+    "converse",
+    "react",
+    "support_other_character",
+    "collaborate"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "friend",
+    "peer",
+    "colleague",
+    "conversation",
+    "partner"
+  ],
+  "useCases": [
+    "explainer",
+    "creator",
+    "family"
+  ],
+  "personalities": [
+    "cheerful",
+    "playful",
+    "warm"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "poses": [
+    "sit-and-talk",
+    "listen-attentive",
+    "explain-open-hands",
+    "walk-stride",
+    "idle-stance"
+  ],
+  "defaultPose": "sit-and-talk",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#dda87c",
+    "hair": {
+      "color": "#c9a227",
+      "length": 0.4
+    },
+    "top": {
+      "color": "#3d7f6f",
+      "sleeve": 0.38
+    },
+    "bottom": {
+      "color": "#3f4553"
+    },
+    "shoes": {
+      "color": "#e6e0d6"
+    },
+    "accent": "#d97b5e"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.friend",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Peer paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "converse",
+      "react",
+      "support_other_character",
+      "collaborate"
+    ],
+    "storyRole": "friend",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

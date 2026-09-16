@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexStudio Editorial Motion — explorer</title>
+<link rel="stylesheet" href="../vendor/paper-motion/styles/tokens.css">
+<link rel="stylesheet" href="../vendor/paper-motion/styles/paper.css">
+<link rel="stylesheet" href="../vendor/paper-motion/styles/motion.css">
+<link rel="stylesheet" href="../vendor/paper-motion/styles/typography.css">
+<link rel="stylesheet" href="../vendor/paper-motion/styles/icons.css">
+<link rel="stylesheet" href="../vendor/paper-motion/styles/media-containers.css">
+<link rel="stylesheet" href="../styles/editorial.css">
+<style>
+  body { margin: 0; background: #ded7cb; color: var(--ink); font-family: var(--ui-font); }
+  .shell { display: grid; grid-template-columns: 330px 1fr; min-height: 100vh; }
+  .panel { padding: 22px; background: #fffdf8; border-right: 2px solid #1714191a; display: flex; flex-direction: column; gap: 14px; overflow: auto; }
+  .stage { display: flex; align-items: center; justify-content: center; padding: 28px; }
+  textarea { width: 100%; min-height: 220px; font: 13px/1.5 var(--mono-font); padding: 10px; border: 2px solid #17141926; border-radius: 8px; resize: vertical; }
+  label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font: 600 13px var(--ui-font); padding: 8px 14px; border: 2px solid var(--ink); border-radius: 8px; background: #fff; cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  input[type=range] { width: 100%; }
+  #frame { box-shadow: 0 22px 60px #241d2c33; }
+  #frame[data-ratio="16:9"] { width: min(1180px, 92vw); }
+  #frame[data-ratio="1:1"] { width: min(760px, 86vh); }
+  #frame[data-ratio="9:16"] { width: min(430px, 48vh); }
+  pre { font: 11px/1.45 var(--mono-font); background: #17141908; padding: 10px; border-radius: 8px; max-height: 32vh; overflow: auto; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="panel">
+    <label for="script">Script</label>
+    <textarea id="script">Your team still copies numbers between five tools every morning.
+It is slow, manual and exhausting, and mistakes slip through.
+What if the report wrote itself?
+NexStudio reads your sources and drafts the update in seconds.
+Teams cut reporting time by 78 percent in the first month.
+A nurse on call reviews the patient summary before her shift ends.
+Download the app and start free today.</textarea>
+    <label>Ratio</label>
+    <div class="row" id="ratios"></div>
+    <label>Paper style</label>
+    <div class="row" id="styles"></div>
+    <label>Uploaded media (one per line: type|name)</label>
+    <textarea id="media" style="min-height:70px">image|../assets/samples/dashboard-report.svg</textarea>
+    <div class="row">
+      <button id="build">Direct</button>
+      <button id="play">Play</button>
+      <button id="pause">Pause</button>
+    </div>
+    <label>Scrub <span id="time">0.00s</span></label>
+    <input id="scrub" type="range" min="0" max="1000" value="0">
+    <label>Plan</label>
+    <pre id="plan"></pre>
+  </aside>
+  <main class="stage"><div id="frame" class="ed-frame" data-ratio="16:9"></div></main>
+</div>
+
+<script src="../vendor/paper-motion/vendor/gsap-compat.js"></script>
+<script src="../vendor/paper-motion/runtime/motion-registry.js"></script>
+<script src="../vendor/paper-motion/runtime/motion-engine.js"></script>
+<script src="../vendor/paper-motion/runtime/typography-registry.js"></script>
+<script src="../vendor/paper-motion/components/typography.js"></script>
+<script src="../vendor/paper-motion/runtime/icon-registry.js"></script>
+<script src="../vendor/paper-motion/components/universal-icons.js"></script>
+<script src="../vendor/paper-motion/runtime/media-container-registry.js"></script>
+<script src="../vendor/paper-motion/components/media-containers.js"></script>
+<script src="../manifests/editorial-data.js"></script>
+<script src="../runtime/script-context.js"></script>
+<script src="../runtime/layout-engine.js"></script>
+<script src="../runtime/peeps-library.js"></script>
+<script src="../runtime/editorial-director.js"></script>
+<script src="../runtime/editorial.js"></script>
+<script>
+(async () => {
+  const frame = document.getElementById('frame');
+  const state = { ratio: '16:9', style: 'clean-editorial', timeline: null };
+
+  const buttons = (host, values, key) => values.forEach(value => {
+    const b = document.createElement('button');
+    b.textContent = value;
+    b.setAttribute('aria-pressed', String(state[key] === value));
+    b.onclick = () => { state[key] = value; [...host.children].forEach(c => c.setAttribute('aria-pressed', String(c.textContent === value))); build(); };
+    host.appendChild(b);
+  });
+  buttons(document.getElementById('ratios'), ['16:9', '1:1', '9:16'], 'ratio');
+  buttons(document.getElementById('styles'), ['clean-editorial', 'handmade-scrapbook', 'technical-notebook', 'bold-paper-collage'], 'style');
+
+  function mediaLibrary() {
+    return document.getElementById('media').value.split('\n').map(line => line.trim()).filter(Boolean).map(line => {
+      const [type, name] = line.split('|');
+      return { type: (type || 'image').trim(), name: (name || '').trim(), src: (name || '').trim() };
+    });
+  }
+
+  async function build() {
+    const script = document.getElementById('script').value;
+    const { plan, timeline } = await NexEditorial.render(frame, script, {
+      ratio: state.ratio,
+      style: state.style,
+      duration: 30,
+      media: mediaLibrary(),
+      assetBase: '../assets/peeps/'
+    });
+    state.timeline = timeline;
+    timeline.seek(0);
+    document.getElementById('plan').textContent = plan.shots.map(s =>
+      `${s.index} ${s.role} ${s.start.toFixed(1)}s ${s.layout.key}\n  type ${s.typography.slug}\n  icons ${s.icons.map(i => i.slug).join(', ') || '—'}\n  media ${s.media ? s.media.slug : '—'}\n  peep ${s.character ? s.character.framing + ' ' + s.character.parts.face.id + ' / ' + s.character.parts.body.id : '—'}`
+    ).join('\n');
+  }
+
+  document.getElementById('build').onclick = build;
+  document.getElementById('play').onclick = () => state.timeline && state.timeline.play(0);
+  document.getElementById('pause').onclick = () => state.timeline && state.timeline.pause();
+  document.getElementById('scrub').oninput = (e) => {
+    if (!state.timeline) return;
+    state.timeline.pause();
+    const t = (e.target.value / 1000) * state.timeline.duration();
+    state.timeline.seek(t);
+    document.getElementById('time').textContent = t.toFixed(2) + 's';
+  };
+  await build();
+})();
+</script>
+</body>
+</html>

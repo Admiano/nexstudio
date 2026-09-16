@@ -1,0 +1,157 @@
+{
+  "id": "cast.creator.paper-01",
+  "name": "Creator",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "creator",
+  "slug": "creator",
+  "renderer": "paper-cast-figure",
+  "role": "creator",
+  "ageBand": "adult",
+  "proportion": "adult-slight",
+  "formality": "casual",
+  "intents": [
+    "make_content",
+    "show_craft",
+    "demonstrate",
+    "publish_result"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "creator",
+    "maker",
+    "designer",
+    "studio",
+    "camera",
+    "editing"
+  ],
+  "useCases": [
+    "creator",
+    "explainer",
+    "agent"
+  ],
+  "personalities": [
+    "energetic",
+    "playful",
+    "confident"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "poses": [
+    "work-at-surface",
+    "present-to-content",
+    "explain-open-hands",
+    "celebrate-lift",
+    "walk-stride"
+  ],
+  "defaultPose": "work-at-surface",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#c1895f",
+    "hair": {
+      "color": "#b0462f",
+      "length": 0.55
+    },
+    "top": {
+      "color": "#2f6f5e",
+      "sleeve": 0.45
+    },
+    "bottom": {
+      "color": "#2f3440"
+    },
+    "shoes": {
+      "color": "#e4ded4"
+    },
+    "accent": "#e8734a"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.creator",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Creator paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "make_content",
+      "show_craft",
+      "demonstrate",
+      "publish_result"
+    ],
+    "storyRole": "creator",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

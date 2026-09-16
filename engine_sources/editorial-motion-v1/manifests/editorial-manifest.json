@@ -1,0 +1,41 @@
+{
+  "id": "nex.editorial-motion",
+  "version": "1.0.0",
+  "ratios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "source": {
+    "foundation": "NexMind paper-motion (vendored)",
+    "cast": "Open Peeps by Pablo Stanley (CC0)"
+  },
+  "counts": {
+    "typography": 24,
+    "icons": 40,
+    "mediaContainers": 24,
+    "motion": 32,
+    "peepsParts": 176,
+    "peepsGroups": {
+      "accessories": 8,
+      "body": 30,
+      "face": 33,
+      "facial-hair": 16,
+      "head": 50,
+      "mask": 2,
+      "pose": 37
+    },
+    "peepsCompositions": [
+      "bust",
+      "sitting",
+      "standing"
+    ]
+  },
+  "entrypoints": {
+    "browser": "runtime/editorial.js",
+    "node": "runtime/editorial-director.js",
+    "data": "manifests/editorial-data.js",
+    "explorer": "compositions/editorial-explorer.html"
+  },
+  "generated": "2026-09-15"
+}

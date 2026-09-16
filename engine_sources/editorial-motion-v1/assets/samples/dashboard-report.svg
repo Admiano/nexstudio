@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Sample uploaded dashboard report">
+  <rect width="640" height="400" fill="#f3f1ea"/>
+  <rect x="32" y="32" width="576" height="336" rx="10" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+  <rect x="64" y="66" width="200" height="16" rx="8" fill="#111111"/>
+  <rect x="64" y="96" width="120" height="10" rx="5" fill="#b9b5a8"/>
+  <g fill="#111111">
+    <rect x="64" y="250" width="54" height="72"/>
+    <rect x="140" y="214" width="54" height="108"/>
+    <rect x="216" y="168" width="54" height="154"/>
+    <rect x="292" y="196" width="54" height="126"/>
+  </g>
+  <g fill="#ff4f6b">
+    <rect x="368" y="140" width="54" height="182"/>
+    <rect x="444" y="112" width="54" height="210"/>
+  </g>
+  <rect x="64" y="322" width="434" height="3" fill="#111111"/>
+  <circle cx="546" cy="110" r="34" fill="none" stroke="#111111" stroke-width="6"/>
+  <path d="M546 76a34 34 0 0 1 29 52l-29-18z" fill="#ff4f6b"/>
+</svg>
