@@ -1,0 +1,25 @@
+{
+  "schema": "EditorialRenderManifestV1",
+  "runtime": "EDITORIAL_RUNTIME_V3.0",
+  "film_id": "honey-nut-fact-check",
+  "aspect": "16x9",
+  "plan_sha256": "9cf3fbbf7489d1769e245f58fbd3a387b16e479e9464c86e32dfc47056c0b3d4",
+  "frames": 1028,
+  "fps": 30,
+  "output": {
+    "w": 1920,
+    "h": 1080,
+    "scale": 1.5
+  },
+  "mp4": "honey-nut-fact-check_16x9.mp4",
+  "mp4_sha256": "41accdb879fe9bc738c4b281746bc8aaa887c7b940e0618c6a261d55a86ee1c1",
+  "contact_sheet": "contact_16x9.png",
+  "transition_strip": "transitions_16x9.png",
+  "audio": {
+    "voice_segments": 1,
+    "accents": 25,
+    "music": "SILENT_UNTIL_RIGHTS_CLEAN_SOURCE_SELECTED"
+  },
+  "page_errors": [],
+  "native_profile": true
+}

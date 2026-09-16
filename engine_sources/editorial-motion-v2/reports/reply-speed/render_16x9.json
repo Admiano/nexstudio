@@ -1,0 +1,25 @@
+{
+  "schema": "EditorialRenderManifestV1",
+  "runtime": "EDITORIAL_RUNTIME_V2.0",
+  "film_id": "fixture-reply-speed",
+  "aspect": "16x9",
+  "plan_sha256": "3078dfa2801503cfd999c6d4b3caf8447af581375bf186312f2f49dba30657d2",
+  "frames": 1511,
+  "fps": 30,
+  "output": {
+    "w": 1920,
+    "h": 1080,
+    "scale": 1.5
+  },
+  "mp4": "fixture-reply-speed_16x9.mp4",
+  "mp4_sha256": "bbb8c0862d7fa92c6068e535c0e014515b9834b7c160945932ba95134cdeb09a",
+  "contact_sheet": "contact_16x9.png",
+  "transition_strip": "transitions_16x9.png",
+  "audio": {
+    "voice_segments": 12,
+    "accents": 21,
+    "music": "SILENT_UNTIL_RIGHTS_CLEAN_SOURCE_SELECTED"
+  },
+  "page_errors": [],
+  "native_profile": true
+}

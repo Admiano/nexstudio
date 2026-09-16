@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.dev/schema/NexStudioMediaProvenanceV1.json",
+  "title": "NexStudioMediaProvenanceV1",
+  "description": "Customer media as ingested: the original upload and the render-normalised copy are both hashed.",
+  "type": "object",
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "IMAGE",
+        "SCREENSHOT",
+        "DOCUMENT",
+        "VIDEO"
+      ]
+    },
+    "rights": {
+      "type": "string",
+      "minLength": 1
+    },
+    "original_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "original_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "render_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "render_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "render_codec": {
+      "type": "string",
+      "minLength": 1
+    },
+    "normalised": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "asset_id",
+    "kind",
+    "rights",
+    "original_path",
+    "original_sha256",
+    "render_path",
+    "render_sha256",
+    "render_codec",
+    "normalised"
+  ]
+}

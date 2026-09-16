@@ -1,0 +1,943 @@
+{
+  "schema": "NexStudioEditorialTreatmentV2",
+  "film_id": "honey-nut-fact-check",
+  "note": "Hand-authored stand-in for a NexMind P8 treatment decision over one continuous ElevenLabs voice-over (MASTER). Beats are located inside the master word stream; the audio is never cut or re-spaced. Every creative choice is P8's; the compiler resolves geometry and time only.",
+  "aspects": [
+    "9x16",
+    "1x1",
+    "16x9"
+  ],
+  "fps": 30,
+  "brand": {
+    "ink": "#141414",
+    "paper": "#f5f2ea",
+    "accent": "#e8a317",
+    "finish": "EDITORIAL_FLAT"
+  },
+  "typography": {
+    "reveal": "WORD_CASCADE",
+    "tonal_ink": 0.42,
+    "min_visual_share": 0.6
+  },
+  "voice": {
+    "source": "MASTER",
+    "audio_path": "voice/master.mp3",
+    "alignment_path": "voice/master.words.json",
+    "head_pad_ms": 480
+  },
+  "media_library": [],
+  "beats": [
+    {
+      "beat_id": "b01",
+      "beat_type": "HOOK",
+      "pattern": "CONTRAST_RECONFIGURATION",
+      "dominant_layer": "HYBRID",
+      "narration": "Honey Nut Cheerios has more sugar than honey.",
+      "energy": 0.66,
+      "complexity": 0.45,
+      "display_units": [
+        {
+          "text": "Honey Nut Cheerios",
+          "role": "support",
+          "anchor_word": "Honey",
+          "emphasis": 0.45,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "More sugar than honey.",
+          "role": "hero",
+          "anchor_word": "more",
+          "emphasis": 0.95,
+          "semantic_role": "statement",
+          "stress": [
+            "sugar"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "COMPARISON",
+        "entities": [
+          {
+            "id": "sugar",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "hero",
+            "label": "sugar"
+          },
+          {
+            "id": "honey",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "honey"
+          }
+        ],
+        "relations": [
+          {
+            "type": "compares",
+            "source": "sugar",
+            "target": "honey"
+          }
+        ],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "sugar",
+            "at": {
+              "word": "more"
+            },
+            "duration_ms": 720,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "INK",
+            "target": "sugar",
+            "at": {
+              "word": "sugar"
+            },
+            "duration_ms": 320
+          },
+          {
+            "op": "GROW",
+            "target": "honey",
+            "at": {
+              "word": "than"
+            },
+            "duration_ms": 620,
+            "from": 0.0,
+            "to": 0.34
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b02",
+      "beat_type": "SETUP",
+      "pattern": "PROCESS_RAIL",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Sugar is the second ingredient.",
+      "energy": 0.55,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "Sugar is",
+          "role": "support",
+          "anchor_word": "Sugar",
+          "emphasis": 0.4,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "the second ingredient.",
+          "role": "hero",
+          "anchor_word": "second",
+          "emphasis": 0.9,
+          "semantic_role": "statement",
+          "stress": [
+            "second"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "CALLOUT_LENS",
+        "persist_to": "b03",
+        "entities": [
+          {
+            "id": "i1",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "1  Whole grain oats"
+          },
+          {
+            "id": "i2",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "2  Sugar"
+          },
+          {
+            "id": "i3",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "3  Honey"
+          },
+          {
+            "id": "i4",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "4  Brown sugar syrup"
+          },
+          {
+            "id": "lens",
+            "kind": "signal",
+            "glyph": "LENS",
+            "size": "hero"
+          }
+        ],
+        "relations": [
+          {
+            "type": "scans",
+            "source": "lens",
+            "target": "i2"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "lens",
+            "at": {
+              "word": "Sugar"
+            },
+            "duration_ms": 520
+          },
+          {
+            "op": "TRAVEL",
+            "target": "lens",
+            "at": {
+              "word": "second"
+            },
+            "duration_ms": 520,
+            "params": {
+              "over": [
+                "i1",
+                "i2"
+              ]
+            }
+          },
+          {
+            "op": "INK",
+            "target": "i2",
+            "at": {
+              "word": "ingredient"
+            },
+            "duration_ms": 360
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b03",
+      "beat_type": "EXPLANATION",
+      "pattern": "PROCESS_RAIL",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Honey is further down and there's brown sugar syrup after that.",
+      "energy": 0.58,
+      "complexity": 0.55,
+      "display_units": [
+        {
+          "text": "Honey is further down.",
+          "role": "hero",
+          "anchor_word": "Honey",
+          "emphasis": 0.85,
+          "semantic_role": "statement",
+          "stress": [
+            "further"
+          ]
+        },
+        {
+          "text": "Brown sugar syrup after that.",
+          "role": "support",
+          "anchor_word": "brown",
+          "emphasis": 0.5,
+          "semantic_role": "qualifier"
+        }
+      ],
+      "illustration": {
+        "form": "CALLOUT_LENS",
+        "carry": {
+          "from_beat": "b02",
+          "entities": [
+            "i1",
+            "i2",
+            "i3",
+            "i4",
+            "lens"
+          ]
+        },
+        "entities": [
+          {
+            "id": "i1",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "1  Whole grain oats"
+          },
+          {
+            "id": "i2",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "2  Sugar"
+          },
+          {
+            "id": "i3",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "3  Honey"
+          },
+          {
+            "id": "i4",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "4  Brown sugar syrup"
+          },
+          {
+            "id": "lens",
+            "kind": "signal",
+            "glyph": "LENS",
+            "size": "hero"
+          }
+        ],
+        "relations": [
+          {
+            "type": "scans",
+            "source": "lens",
+            "target": "i2"
+          }
+        ],
+        "program": [
+          {
+            "op": "TRAVEL",
+            "target": "lens",
+            "at": {
+              "word": "further"
+            },
+            "duration_ms": 640,
+            "params": {
+              "over": [
+                "i2",
+                "i3"
+              ]
+            }
+          },
+          {
+            "op": "INK",
+            "target": "i3",
+            "at": {
+              "word": "down"
+            },
+            "duration_ms": 360
+          },
+          {
+            "op": "TRAVEL",
+            "target": "lens",
+            "at": {
+              "word": "brown"
+            },
+            "duration_ms": 640,
+            "params": {
+              "over": [
+                "i3",
+                "i4"
+              ]
+            }
+          },
+          {
+            "op": "INK",
+            "target": "i4",
+            "at": {
+              "word": "syrup"
+            },
+            "duration_ms": 360
+          },
+          {
+            "op": "DIM",
+            "target": "i1",
+            "at": {
+              "word": "after"
+            },
+            "duration_ms": 420,
+            "from": 1.0,
+            "to": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b04",
+      "beat_type": "PROOF",
+      "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "General Mills says the 12 grams of sugar in a serving come from sugar,",
+      "energy": 0.6,
+      "complexity": 0.6,
+      "display_units": [
+        {
+          "text": "General Mills says",
+          "role": "support",
+          "anchor_word": "General",
+          "emphasis": 0.4,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "12 g of sugar per serving",
+          "role": "hero",
+          "anchor_word": "12",
+          "emphasis": 0.92,
+          "semantic_role": "proof",
+          "stress": [
+            "12"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "DATA_VISUAL",
+        "persist_to": "b05",
+        "entities": [
+          {
+            "id": "s1",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "hero",
+            "label": "sugar"
+          },
+          {
+            "id": "s2",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "honey"
+          },
+          {
+            "id": "s3",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "syrup"
+          }
+        ],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "s1",
+            "at": {
+              "word": "from"
+            },
+            "duration_ms": 720,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "INK",
+            "target": "s1",
+            "at": {
+              "word": "sugar,"
+            },
+            "duration_ms": 320
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b05",
+      "beat_type": "PROOF",
+      "pattern": "EVIDENCE_PERSISTENCE_CARRIER",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "real honey, and brown sugar syrup and it's 24% of your recommended daily amount.",
+      "energy": 0.62,
+      "complexity": 0.6,
+      "display_units": [
+        {
+          "text": "real honey, brown sugar syrup",
+          "role": "support",
+          "anchor_word": "real",
+          "emphasis": 0.45,
+          "semantic_role": "evidence"
+        },
+        {
+          "text": "24% of your daily amount.",
+          "role": "hero",
+          "anchor_word": "24",
+          "emphasis": 0.95,
+          "semantic_role": "proof",
+          "stress": [
+            "24%"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "DATA_VISUAL",
+        "carry": {
+          "from_beat": "b04",
+          "entities": [
+            "s1",
+            "s2",
+            "s3"
+          ]
+        },
+        "entities": [
+          {
+            "id": "s1",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "hero",
+            "label": "sugar"
+          },
+          {
+            "id": "s2",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "honey"
+          },
+          {
+            "id": "s3",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "syrup"
+          }
+        ],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "s2",
+            "at": {
+              "word": "real"
+            },
+            "duration_ms": 620,
+            "from": 0.0,
+            "to": 0.5
+          },
+          {
+            "op": "GROW",
+            "target": "s3",
+            "at": {
+              "word": "brown"
+            },
+            "duration_ms": 620,
+            "from": 0.0,
+            "to": 0.36
+          },
+          {
+            "op": "INK",
+            "target": "s2",
+            "at": {
+              "word": "24"
+            },
+            "duration_ms": 320
+          },
+          {
+            "op": "INK",
+            "target": "s3",
+            "at": {
+              "word": "24"
+            },
+            "duration_ms": 320
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b06",
+      "beat_type": "CONTRAST",
+      "pattern": "CONTROLLED_EMPTY_SPACE",
+      "dominant_layer": "HYBRID",
+      "narration": "There are no nuts in it either.",
+      "energy": 0.5,
+      "complexity": 0.3,
+      "display_units": [
+        {
+          "text": "No nuts.",
+          "role": "hero",
+          "anchor_word": "no",
+          "emphasis": 0.95,
+          "semantic_role": "contrast",
+          "stress": [
+            "No"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "nonuts",
+            "kind": "signal",
+            "glyph": "PROHIBIT",
+            "size": "hero"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "nonuts",
+            "at": {
+              "word": "no"
+            },
+            "duration_ms": 440
+          },
+          {
+            "op": "INK",
+            "target": "nonuts",
+            "at": {
+              "word": "nuts"
+            },
+            "duration_ms": 320
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b07",
+      "beat_type": "EXPLANATION",
+      "pattern": "CONTRAST_RECONFIGURATION",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "The nut in honey nut is natural almond flavour,",
+      "energy": 0.58,
+      "complexity": 0.55,
+      "display_units": [
+        {
+          "text": "The “nut” in Honey Nut",
+          "role": "support",
+          "anchor_word": "nut",
+          "emphasis": 0.45,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "is natural almond flavour.",
+          "role": "hero",
+          "anchor_word": "natural",
+          "emphasis": 0.9,
+          "semantic_role": "statement",
+          "stress": [
+            "flavour"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "STATE_TRANSFORMATION",
+        "entities": [
+          {
+            "id": "nut",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "nut",
+            "params": {
+              "dashed": true
+            }
+          },
+          {
+            "id": "flavour",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "hero",
+            "label": "natural almond flavour"
+          }
+        ],
+        "relations": [
+          {
+            "type": "transforms_into",
+            "source": "nut",
+            "target": "flavour"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "nut",
+            "at": {
+              "word": "nut"
+            },
+            "duration_ms": 480
+          },
+          {
+            "op": "CONNECT",
+            "target": "nut->flavour",
+            "at": {
+              "word": "is"
+            },
+            "duration_ms": 640
+          },
+          {
+            "op": "INK",
+            "target": "flavour",
+            "at": {
+              "word": "almond"
+            },
+            "duration_ms": 360
+          },
+          {
+            "op": "STRIKE",
+            "target": "nut",
+            "at": {
+              "word": "flavour"
+            },
+            "duration_ms": 400
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b08",
+      "beat_type": "PROOF",
+      "pattern": "CONTRAST_RECONFIGURATION",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "which is why the allergen line says contains almond ingredients instead of contains almonds.",
+      "energy": 0.6,
+      "complexity": 0.6,
+      "display_units": [
+        {
+          "text": "The allergen line says",
+          "role": "support",
+          "anchor_word": "allergen",
+          "emphasis": 0.4,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "“contains almond ingredients”",
+          "role": "hero",
+          "anchor_word": "contains",
+          "emphasis": 0.9,
+          "semantic_role": "proof",
+          "stress": [
+            "ingredients"
+          ]
+        },
+        {
+          "text": "not “contains almonds.”",
+          "role": "support",
+          "anchor_word": "instead",
+          "emphasis": 0.55,
+          "semantic_role": "contrast"
+        }
+      ],
+      "illustration": {
+        "form": "COMPARISON",
+        "entities": [
+          {
+            "id": "says",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "hero",
+            "label": "almond ingredients"
+          },
+          {
+            "id": "not",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "almonds",
+            "params": {
+              "dashed": true
+            }
+          }
+        ],
+        "relations": [
+          {
+            "type": "compares",
+            "source": "says",
+            "target": "not"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "says",
+            "at": {
+              "word": "contains"
+            },
+            "duration_ms": 480
+          },
+          {
+            "op": "INK",
+            "target": "says",
+            "at": {
+              "word": "ingredients"
+            },
+            "duration_ms": 360
+          },
+          {
+            "op": "DRAW",
+            "target": "not",
+            "at": {
+              "word": "instead"
+            },
+            "duration_ms": 440
+          },
+          {
+            "op": "STRIKE",
+            "target": "not",
+            "at": {
+              "word": "almonds"
+            },
+            "duration_ms": 400
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b09",
+      "beat_type": "REFRAME",
+      "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+      "dominant_layer": "HYBRID",
+      "narration": "The box says made with real honey.",
+      "energy": 0.52,
+      "complexity": 0.45,
+      "display_units": [
+        {
+          "text": "The box says",
+          "role": "support",
+          "anchor_word": "box",
+          "emphasis": 0.4,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "“Made with real honey.”",
+          "role": "hero",
+          "anchor_word": "made",
+          "emphasis": 0.9,
+          "semantic_role": "statement",
+          "stress": [
+            "real"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "box",
+            "kind": "object",
+            "glyph": "ICON",
+            "size": "hero",
+            "asset_ref": "prop.commerce.package-box"
+          },
+          {
+            "id": "claim",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "real honey"
+          }
+        ],
+        "relations": [
+          {
+            "type": "contains",
+            "source": "box",
+            "target": "claim"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "box",
+            "at": {
+              "word": "box"
+            },
+            "duration_ms": 560
+          },
+          {
+            "op": "DRAW",
+            "target": "claim",
+            "at": {
+              "word": "made"
+            },
+            "duration_ms": 440
+          },
+          {
+            "op": "INK",
+            "target": "claim",
+            "at": {
+              "word": "honey"
+            },
+            "duration_ms": 360
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b10",
+      "beat_type": "PAYOFF",
+      "pattern": "PAYOFF_LOCKUP",
+      "dominant_layer": "HYBRID",
+      "narration": "That's true, it just isn't the main sweetener.",
+      "energy": 0.5,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "That's true.",
+          "role": "hero",
+          "anchor_word": "true",
+          "emphasis": 0.9,
+          "semantic_role": "statement",
+          "stress": [
+            "true"
+          ]
+        },
+        {
+          "text": "It just isn't the main sweetener.",
+          "role": "hero",
+          "anchor_word": "isn't",
+          "emphasis": 1.0,
+          "semantic_role": "punch",
+          "stress": [
+            "main"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "COMPARISON",
+        "entities": [
+          {
+            "id": "honey",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "honey"
+          },
+          {
+            "id": "sugar",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "hero",
+            "label": "sugar"
+          }
+        ],
+        "relations": [
+          {
+            "type": "compares",
+            "source": "sugar",
+            "target": "honey"
+          }
+        ],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "honey",
+            "at": {
+              "word": "true"
+            },
+            "duration_ms": 520,
+            "from": 0.0,
+            "to": 0.34
+          },
+          {
+            "op": "GROW",
+            "target": "sugar",
+            "at": {
+              "word": "isn't"
+            },
+            "duration_ms": 620,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "INK",
+            "target": "sugar",
+            "at": {
+              "word": "main"
+            },
+            "duration_ms": 320
+          }
+        ]
+      }
+    }
+  ]
+}
