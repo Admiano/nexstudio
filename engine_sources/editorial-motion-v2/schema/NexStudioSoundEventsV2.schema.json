@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.dev/schema/NexStudioSoundEventsV2.json",
+  "title": "NexStudioSoundEventsV2",
+  "description": "Semantic accents bound to visible events. Silence is a valid, recorded outcome.",
+  "type": "object",
+  "properties": {
+    "accents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "minLength": 1
+          },
+          "beat_at_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "film_at_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "asset_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "semantic_tag": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "license": {
+            "type": "string",
+            "minLength": 1
+          },
+          "duration_s": {
+            "type": "number",
+            "minimum": 0
+          },
+          "gain_db": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "event",
+          "beat_at_ms",
+          "film_at_ms",
+          "asset_id",
+          "path",
+          "sha256",
+          "license"
+        ]
+      },
+      "maxItems": 3
+    },
+    "silenced": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "accents",
+    "silenced"
+  ]
+}

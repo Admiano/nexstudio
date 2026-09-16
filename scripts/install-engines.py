@@ -9,6 +9,7 @@ items={
  'editorial':'EDITORIAL_MOTION_ENGINE_SOURCE.zip',
  'stickman':'STICKMAN_V5_1_ENGINE_SOURCE.zip',
  'sound':'SOUND_LIBRARY_V2_SOURCE.zip',
+ 'editorial-text-led-bundle':'EDITORIAL_TEXT_LED_BUNDLE_SOURCE.zip',
 }
 ENGINES.mkdir(exist_ok=True)
 for name,archive in items.items():
@@ -55,5 +56,9 @@ if paper_motion.exists() and cast_source.exists():
     shutil.copy2(cast_source/'paperbook'/'cast-reel.js', paper_motion/'runtime'/'cast-reel.js')
     shutil.copy2(cast_source/'paperbook'/'cast-reel.html', paper_motion/'compositions'/'cast-reel.html')
     print(f'paper-cast -> paper-motion: {paper_motion}')
+
+# Editorial Motion v2 lives unpacked at engine_sources/editorial-motion-v2 (compiler + runtime + fixtures).
+# The text-led bundle archive above is its planning-authority source of record; the compiler ships
+# vendored copies with provenance hashes, so the archive is extracted for audit, not imported at runtime.
 
 print('\nEngine source installed, shared Paper Motion dependencies assembled, and runtime package boundaries applied. Use the paths in .env.example.')

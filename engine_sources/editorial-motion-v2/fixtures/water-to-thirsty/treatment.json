@@ -1,0 +1,924 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "fixture-water-to-thirsty",
+ "note": "Hand-authored stand-in for a NexMind P8 treatment decision over the reference voice-over. Every creative choice is P8's; the compiler resolves geometry and time only.",
+ "aspects": [
+  "9x16",
+  "1x1",
+  "16x9"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#111111",
+  "paper": "#f6f5f1",
+  "accent": "#1f6bff",
+  "finish": "EDITORIAL_FLAT"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "RECORDED",
+  "segments": {
+   "b01": {
+    "alignment_path": "voice/b01.alignment.json",
+    "audio_path": "voice/b01.wav"
+   },
+   "b02": {
+    "alignment_path": "voice/b02.alignment.json",
+    "audio_path": "voice/b02.wav"
+   },
+   "b03": {
+    "alignment_path": "voice/b03.alignment.json",
+    "audio_path": "voice/b03.wav"
+   },
+   "b04": {
+    "alignment_path": "voice/b04.alignment.json",
+    "audio_path": "voice/b04.wav"
+   },
+   "b05": {
+    "alignment_path": "voice/b05.alignment.json",
+    "audio_path": "voice/b05.wav"
+   },
+   "b06": {
+    "alignment_path": "voice/b06.alignment.json",
+    "audio_path": "voice/b06.wav"
+   },
+   "b07": {
+    "alignment_path": "voice/b07.alignment.json",
+    "audio_path": "voice/b07.wav"
+   },
+   "b08": {
+    "alignment_path": "voice/b08.alignment.json",
+    "audio_path": "voice/b08.wav"
+   },
+   "b09": {
+    "alignment_path": "voice/b09.alignment.json",
+    "audio_path": "voice/b09.wav"
+   }
+  }
+ },
+ "media_library": [],
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "HOOK",
+   "pattern": "PROGRESSIVE_HERO_BUILD",
+   "dominant_layer": "HYBRID",
+   "narration": "The easiest way to sell something is to sell water to the thirsty.",
+   "energy": 0.62,
+   "complexity": 0.4,
+   "display_units": [
+    {
+     "text": "Sell water",
+     "role": "hero",
+     "anchor_word": "sell",
+     "emphasis": 0.95,
+     "semantic_role": "statement",
+     "stress": [
+      "water"
+     ]
+    },
+    {
+     "text": "to the thirsty.",
+     "role": "hero",
+     "anchor_word": "thirsty",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "thirsty"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "persist_to": "b02",
+    "entities": [
+     {
+      "id": "vessel",
+      "kind": "object",
+      "glyph": "VESSEL",
+      "size": "hero"
+     },
+     {
+      "id": "thirst",
+      "kind": "signal",
+      "glyph": "RING",
+      "size": "support",
+      "params": {
+       "rings": 3
+      }
+     }
+    ],
+    "relations": [
+     {
+      "type": "emits_to",
+      "source": "thirst",
+      "target": "vessel"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "vessel",
+      "at": {
+       "word": "sell"
+      },
+      "duration_ms": 640
+     },
+     {
+      "op": "FILL",
+      "target": "vessel",
+      "at": {
+       "word": "water"
+      },
+      "duration_ms": 900,
+      "from": 0.0,
+      "to": 0.82
+     },
+     {
+      "op": "EMIT",
+      "target": "thirst",
+      "at": {
+       "word": "thirsty"
+      },
+      "duration_ms": 1100
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "SETUP",
+   "pattern": "QUIET_SUPPORT_AFTER_HERO",
+   "dominant_layer": "HYBRID",
+   "narration": "What this really means is simple.",
+   "energy": 0.35,
+   "complexity": 0.25,
+   "display_units": [
+    {
+     "text": "What this really means",
+     "role": "support",
+     "anchor_word": "What",
+     "emphasis": 0.4,
+     "semantic_role": "qualifier"
+    },
+    {
+     "text": "is simple.",
+     "role": "hero",
+     "anchor_word": "simple",
+     "emphasis": 0.85,
+     "semantic_role": "statement",
+     "stress": [
+      "simple"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "carry": {
+     "from_beat": "b01",
+     "entities": [
+      "vessel"
+     ]
+    },
+    "entities": [
+     {
+      "id": "vessel",
+      "kind": "object",
+      "glyph": "VESSEL",
+      "size": "support"
+     }
+    ],
+    "program": [
+     {
+      "op": "SETTLE",
+      "target": "vessel",
+      "at": {
+       "word": "means"
+      },
+      "duration_ms": 520
+     },
+     {
+      "op": "DIM",
+      "target": "vessel",
+      "at": {
+       "word": "simple"
+      },
+      "duration_ms": 480,
+      "from": 1.0,
+      "to": 0.55
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "CONTRAST",
+   "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "You do not need to convince people to want something they do not already want.",
+   "energy": 0.58,
+   "complexity": 0.55,
+   "display_units": [
+    {
+     "text": "Don't convince people",
+     "role": "hero",
+     "anchor_word": "convince",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "convince"
+     ]
+    },
+    {
+     "text": "to want what they don't already want.",
+     "role": "support",
+     "anchor_word": "want",
+     "emphasis": 0.5,
+     "semantic_role": "qualifier"
+    }
+   ],
+   "illustration": {
+    "form": "RELATIONSHIP",
+    "entities": [
+     {
+      "id": "pitch",
+      "kind": "agent",
+      "glyph": "ICON",
+      "size": "support",
+      "label": "your pitch",
+      "asset_ref": "icon.communication.send"
+     },
+     {
+      "id": "people",
+      "kind": "group",
+      "glyph": "NODE",
+      "size": "hero",
+      "label": "people",
+      "params": {
+       "count": 3
+      }
+     }
+    ],
+    "relations": [
+     {
+      "type": "points_at",
+      "source": "pitch",
+      "target": "people"
+     }
+    ],
+    "program": [
+     {
+      "op": "CONNECT",
+      "target": "pitch->people",
+      "at": {
+       "word": "convince"
+      },
+      "duration_ms": 700
+     },
+     {
+      "op": "STRIKE",
+      "target": "pitch->people",
+      "at": {
+       "word": "not"
+      },
+      "duration_ms": 420
+     },
+     {
+      "op": "DIM",
+      "target": "pitch",
+      "at": {
+       "word": "already"
+      },
+      "duration_ms": 480,
+      "from": 1.0,
+      "to": 0.45
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "EXPLANATION",
+   "pattern": "PROCESS_RAIL",
+   "dominant_layer": "HYBRID",
+   "narration": "You need to understand what people are already searching for,",
+   "energy": 0.6,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "Understand what people are",
+     "role": "support",
+     "anchor_word": "understand",
+     "emphasis": 0.45,
+     "semantic_role": "qualifier"
+    },
+    {
+     "text": "already searching for.",
+     "role": "hero",
+     "anchor_word": "searching",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "searching"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "CALLOUT_LENS",
+    "persist_to": "b06",
+    "entities": [
+     {
+      "id": "q1",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "searching for"
+     },
+     {
+      "id": "q2",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "struggling with"
+     },
+     {
+      "id": "q3",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "looking for answers"
+     },
+     {
+      "id": "lens",
+      "kind": "signal",
+      "glyph": "LENS",
+      "size": "hero"
+     }
+    ],
+    "relations": [
+     {
+      "type": "scans",
+      "source": "lens",
+      "target": "q1"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "lens",
+      "at": {
+       "word": "understand"
+      },
+      "duration_ms": 560
+     },
+     {
+      "op": "TRAVEL",
+      "target": "lens",
+      "at": {
+       "word": "searching"
+      },
+      "duration_ms": 520,
+      "params": {
+       "over": [
+        "q1"
+       ]
+      }
+     },
+     {
+      "op": "INK",
+      "target": "q1",
+      "at": {
+       "word": "searching"
+      },
+      "duration_ms": 420
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b05",
+   "beat_type": "EXPLANATION",
+   "pattern": "PROCESS_RAIL",
+   "dominant_layer": "HYBRID",
+   "narration": "what they are struggling with,",
+   "energy": 0.62,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "What they are",
+     "role": "support",
+     "anchor_word": "what",
+     "emphasis": 0.4,
+     "semantic_role": "qualifier"
+    },
+    {
+     "text": "struggling with.",
+     "role": "hero",
+     "anchor_word": "struggling",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "struggling"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "CALLOUT_LENS",
+    "carry": {
+     "from_beat": "b04",
+     "entities": [
+      "q1",
+      "q2",
+      "q3",
+      "lens"
+     ]
+    },
+    "persist_to": "b06",
+    "entities": [
+     {
+      "id": "q1",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "searching for"
+     },
+     {
+      "id": "q2",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "struggling with"
+     },
+     {
+      "id": "q3",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "looking for answers"
+     },
+     {
+      "id": "lens",
+      "kind": "signal",
+      "glyph": "LENS",
+      "size": "hero"
+     }
+    ],
+    "relations": [
+     {
+      "type": "scans",
+      "source": "lens",
+      "target": "q1"
+     }
+    ],
+    "program": [
+     {
+      "op": "TRAVEL",
+      "target": "lens",
+      "at": {
+       "word": "struggling"
+      },
+      "duration_ms": 560,
+      "params": {
+       "over": [
+        "q1",
+        "q2"
+       ]
+      }
+     },
+     {
+      "op": "DIM",
+      "target": "q1",
+      "at": {
+       "word": "struggling"
+      },
+      "duration_ms": 400,
+      "from": 1.0,
+      "to": 0.5
+     },
+     {
+      "op": "INK",
+      "target": "q2",
+      "at": {
+       "word": "struggling"
+      },
+      "duration_ms": 420
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b06",
+   "beat_type": "EXPLANATION",
+   "pattern": "PROCESS_RAIL",
+   "dominant_layer": "HYBRID",
+   "narration": "and where they are actively looking for answers.",
+   "energy": 0.66,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "Where they are actively",
+     "role": "support",
+     "anchor_word": "where",
+     "emphasis": 0.4,
+     "semantic_role": "qualifier"
+    },
+    {
+     "text": "looking for answers.",
+     "role": "hero",
+     "anchor_word": "looking",
+     "emphasis": 0.92,
+     "semantic_role": "statement",
+     "stress": [
+      "answers"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "CALLOUT_LENS",
+    "carry": {
+     "from_beat": "b05",
+     "entities": [
+      "q1",
+      "q2",
+      "q3",
+      "lens"
+     ]
+    },
+    "entities": [
+     {
+      "id": "q1",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "searching for"
+     },
+     {
+      "id": "q2",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "struggling with"
+     },
+     {
+      "id": "q3",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "looking for answers"
+     },
+     {
+      "id": "lens",
+      "kind": "signal",
+      "glyph": "LENS",
+      "size": "hero"
+     }
+    ],
+    "relations": [
+     {
+      "type": "scans",
+      "source": "lens",
+      "target": "q1"
+     }
+    ],
+    "program": [
+     {
+      "op": "TRAVEL",
+      "target": "lens",
+      "at": {
+       "word": "looking"
+      },
+      "duration_ms": 560,
+      "params": {
+       "over": [
+        "q2",
+        "q3"
+       ]
+      }
+     },
+     {
+      "op": "DIM",
+      "target": "q2",
+      "at": {
+       "word": "looking"
+      },
+      "duration_ms": 400,
+      "from": 1.0,
+      "to": 0.5
+     },
+     {
+      "op": "INK",
+      "target": "q3",
+      "at": {
+       "word": "answers"
+      },
+      "duration_ms": 420
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b07",
+   "beat_type": "CONTRAST",
+   "pattern": "CONTRAST_RECONFIGURATION",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "Most marketing fails because it tries to create demand out of thin air.",
+   "energy": 0.6,
+   "complexity": 0.55,
+   "display_units": [
+    {
+     "text": "Most marketing fails",
+     "role": "hero",
+     "anchor_word": "Most",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "fails"
+     ]
+    },
+    {
+     "text": "creating demand from thin air.",
+     "role": "support",
+     "anchor_word": "create",
+     "emphasis": 0.5,
+     "semantic_role": "qualifier"
+    }
+   ],
+   "illustration": {
+    "form": "STATE_TRANSFORMATION",
+    "entities": [
+     {
+      "id": "air",
+      "kind": "state",
+      "glyph": "NODE",
+      "size": "support",
+      "label": "thin air",
+      "params": {
+       "dashed": true
+      }
+     },
+     {
+      "id": "demand",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "hero",
+      "label": "demand"
+     }
+    ],
+    "relations": [
+     {
+      "type": "transforms_into",
+      "source": "air",
+      "target": "demand"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "air",
+      "at": {
+       "word": "tries"
+      },
+      "duration_ms": 480
+     },
+     {
+      "op": "CONNECT",
+      "target": "air->demand",
+      "at": {
+       "word": "create"
+      },
+      "duration_ms": 720
+     },
+     {
+      "op": "STRIKE",
+      "target": "demand",
+      "at": {
+       "word": "air"
+      },
+      "duration_ms": 420
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b08",
+   "beat_type": "EMPHASIS",
+   "pattern": "CONTROLLED_EMPTY_SPACE",
+   "dominant_layer": "FIGURE",
+   "narration": "That is the hard way.",
+   "energy": 0.4,
+   "complexity": 0.3,
+   "display_units": [
+    {
+     "text": "The hard way.",
+     "role": "hero",
+     "anchor_word": "hard",
+     "emphasis": 0.85,
+     "semantic_role": "statement",
+     "stress": [
+      "hard"
+     ]
+    }
+   ],
+   "figure": {
+    "valence": -0.6,
+    "arousal": 0.25,
+    "posture": "standing",
+    "energy": 0.3,
+    "formality": 0.5,
+    "facing": "TOWARD_TEXT",
+    "justification": "The sentence is about the marketer worn down by pushing uphill; a still, deflated figure carries that state."
+   }
+  },
+  {
+   "beat_id": "b09",
+   "beat_type": "EXPLANATION",
+   "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "It burns money, time, and energy.",
+   "energy": 0.66,
+   "complexity": 0.55,
+   "display_units": [
+    {
+     "text": "It burns",
+     "role": "hero",
+     "anchor_word": "burns",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "burns"
+     ]
+    },
+    {
+     "text": "money, time and energy.",
+     "role": "support",
+     "anchor_word": "money",
+     "emphasis": 0.5,
+     "semantic_role": "qualifier"
+    }
+   ],
+   "illustration": {
+    "form": "DATA_VISUAL",
+    "entities": [
+     {
+      "id": "money",
+      "kind": "evidence",
+      "glyph": "BAR",
+      "size": "support",
+      "label": "money"
+     },
+     {
+      "id": "time",
+      "kind": "evidence",
+      "glyph": "BAR",
+      "size": "support",
+      "label": "time"
+     },
+     {
+      "id": "energy",
+      "kind": "evidence",
+      "glyph": "BAR",
+      "size": "support",
+      "label": "energy"
+     }
+    ],
+    "program": [
+     {
+      "op": "INK",
+      "target": "money",
+      "at": {
+       "word": "money"
+      },
+      "duration_ms": 260
+     },
+     {
+      "op": "GROW",
+      "target": "money",
+      "at": {
+       "word": "money"
+      },
+      "duration_ms": 620,
+      "from": 1.0,
+      "to": 0.18
+     },
+     {
+      "op": "INK",
+      "target": "time",
+      "at": {
+       "word": "time"
+      },
+      "duration_ms": 260
+     },
+     {
+      "op": "GROW",
+      "target": "time",
+      "at": {
+       "word": "time"
+      },
+      "duration_ms": 620,
+      "from": 1.0,
+      "to": 0.22
+     },
+     {
+      "op": "INK",
+      "target": "energy",
+      "at": {
+       "word": "energy"
+      },
+      "duration_ms": 260
+     },
+     {
+      "op": "GROW",
+      "target": "energy",
+      "at": {
+       "word": "energy"
+      },
+      "duration_ms": 620,
+      "from": 1.0,
+      "to": 0.15
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b10",
+   "beat_type": "PAYOFF",
+   "pattern": "PAYOFF_LOCKUP",
+   "dominant_layer": "HYBRID",
+   "narration": "",
+   "min_duration_ms": 3400,
+   "energy": 0.5,
+   "complexity": 0.35,
+   "display_units": [
+    {
+     "text": "Sell water to the thirsty.",
+     "role": "hero",
+     "emphasis": 1.0,
+     "semantic_role": "punch",
+     "stress": [
+      "water",
+      "thirsty"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "vessel",
+      "kind": "object",
+      "glyph": "VESSEL",
+      "size": "hero"
+     },
+     {
+      "id": "thirst",
+      "kind": "signal",
+      "glyph": "RING",
+      "size": "support",
+      "params": {
+       "rings": 3
+      }
+     }
+    ],
+    "relations": [
+     {
+      "type": "emits_to",
+      "source": "thirst",
+      "target": "vessel"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "vessel",
+      "at": {
+       "offset_ms": 0
+      },
+      "duration_ms": 520
+     },
+     {
+      "op": "FILL",
+      "target": "vessel",
+      "at": {
+       "offset_ms": 700
+      },
+      "duration_ms": 900,
+      "from": 0.0,
+      "to": 0.82
+     },
+     {
+      "op": "EMIT",
+      "target": "thirst",
+      "at": {
+       "offset_ms": 1500
+      },
+      "duration_ms": 1100
+     }
+    ]
+   }
+  }
+ ]
+}

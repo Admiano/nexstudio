@@ -1,0 +1,564 @@
+{
+  "schema": "ReferenceEditorialMotionGrammarV1",
+  "principles": [
+    "References are quality standards, never scene templates.",
+    "Typography is primary; support visuals strengthen meaning.",
+    "One dominant visual/motion event at a time unless deliberate contrast requires two.",
+    "Continuity carriers are preferred over full reset when adjacent beats share evidence.",
+    "Native 9:16, 1:1 and 16:9 compositions are semantic siblings, not crops.",
+    "Motion reinforces reading order and semantic change.",
+    "Technical pass cannot overrule weak visual judgment."
+  ],
+  "reference_sources": [
+    {
+      "id": "sell_without_selling",
+      "role": "editorial rhythm, human/metaphor scale, replacement/wipe continuity"
+    },
+    {
+      "id": "full_app",
+      "role": "hero typography, phrase build/replacement, text-as-transition, proof handoff"
+    },
+    {
+      "id": "videoplayback_1",
+      "role": "UI proof cards, editorial whitespace, document/evidence framing"
+    },
+    {
+      "id": "videoplayback_2",
+      "role": "product/scene proof, annotation, image/evidence choreography"
+    },
+    {
+      "id": "videoplayback_3",
+      "role": "code/product evidence, human-vs-AI editorial contrast, CTA lockup"
+    },
+    {
+      "id": "videoplayback_4",
+      "role": "persistent UI evidence, product-model comparison, text hierarchy"
+    },
+    {
+      "id": "videoplayback_5",
+      "role": "accent motif, instruction/evidence flow, CTA lockup"
+    }
+  ],
+  "patterns": [
+    {
+      "id": "PROGRESSIVE_HERO_BUILD",
+      "semantic_use": "Hook, promise, setup, or cumulative claim where meaning becomes stronger as phrase completes",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Reveal semantic chunks, not arbitrary word-by-word typing",
+        "Preserve semantic line breaks",
+        "Allow final keyword/phrase to promote in scale/weight"
+      ],
+      "support_visual_behavior": [
+        "Support visual may already be present at low dominance",
+        "Do not add a second dominant event while hero builds"
+      ],
+      "motion_behavior": {
+        "entry": "mask/reveal or spatial build",
+        "cadence": "2\u20134 phrase stages with short holds",
+        "settle": "full phrase receives longest hold",
+        "exit": "may collapse/reconfigure into next evidence scene"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "stack vertically; 2\u20134 semantic lines; support object below/behind with generous white space",
+        "1x1": "compact 2\u20133 line lockup; support object may sit offset lower-right/left",
+        "16x9": "use lateral negative space; text can build left while support visual occupies opposite field"
+      },
+      "misuse_conditions": [
+        "Long explanatory paragraphs",
+        "Every beat; reserve for claims whose meaning benefits from accumulation"
+      ],
+      "reference_evidence": [
+        {
+          "source": "Full APP reference",
+          "window": "~0.2\u20133.4s",
+          "observation": "hero builds from setup to large payoff phrase while UI proof remains secondary"
+        },
+        {
+          "source": "Sell Without Selling",
+          "window": "~0.1\u20132.5s",
+          "observation": "headline expands semantically while supporting human illustration stays stable"
+        }
+      ]
+    },
+    {
+      "id": "PHRASE_REPLACEMENT",
+      "semantic_use": "Contrast, correction, reframe, before/after, misconception-to-truth",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Stage A must stop being readable before Stage B becomes dominant",
+        "Replacement may reuse position or deliberately reconfigure",
+        "Promote the changed concept rather than repeating full sentence"
+      ],
+      "support_visual_behavior": [
+        "Supporting visual may persist as continuity carrier if it remains semantically valid"
+      ],
+      "motion_behavior": {
+        "entry": "old phrase resolves",
+        "transition": "mask wipe / label expand / push-pull",
+        "hold": "new phrase settles cleanly",
+        "continuity": "one shared anchor may persist"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "vertical replacement at same anchor or top-to-center reconfiguration",
+        "1x1": "same-anchor replacement or split-to-single lockup",
+        "16x9": "can replace laterally or collapse split comparison into single statement"
+      },
+      "misuse_conditions": [
+        "Readable phrase overlap",
+        "Mechanical replacement every scene",
+        "Changing support visual when persistence would aid continuity"
+      ],
+      "reference_evidence": [
+        {
+          "source": "Full APP reference",
+          "window": "multiple hero transitions",
+          "observation": "setup copy gives way to large payoff word/phrase rather than coexisting"
+        },
+        {
+          "source": "Sell Without Selling",
+          "window": "~2.5s onward",
+          "observation": "new semantic statement enters with changed human pose"
+        }
+      ]
+    },
+    {
+      "id": "HERO_SCALE_PROMOTION",
+      "semantic_use": "Payoff word, critical number, product/name reveal, decisive contrast",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "One word/short phrase grows to become clear visual center",
+        "Support copy becomes quieter",
+        "Scale contrast should carry meaning rather than decoration"
+      ],
+      "support_visual_behavior": [
+        "Supporting visual must retreat, crop, or remain subordinate"
+      ],
+      "motion_behavior": {
+        "entry": "promoted unit emerges from existing text or clean cut",
+        "peak": "largest semantic unit holds",
+        "exit": "may become transition carrier"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "large center/top-center vertical word with room for support below",
+        "1x1": "large central lockup with asymmetric support",
+        "16x9": "large lateral or centered word; use horizontal breathing room"
+      },
+      "misuse_conditions": [
+        "Promoting multiple phrases simultaneously",
+        "Huge text without semantic reason"
+      ],
+      "reference_evidence": [
+        {
+          "source": "Full APP reference",
+          "window": "opening",
+          "observation": "strong scale contrast converts setup text into dominant payoff phrase"
+        }
+      ]
+    },
+    {
+      "id": "HERO_TO_EVIDENCE_HANDOFF",
+      "semantic_use": "Move from claim to proof/demo without losing narrative continuity",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Hero resolves first; a keyword/label can remain as anchor",
+        "Support text introduces what the proof demonstrates"
+      ],
+      "support_visual_behavior": [
+        "Screenshot/app window/card enters only after claim is readable",
+        "Evidence becomes dominant visual after handoff"
+      ],
+      "motion_behavior": {
+        "entry": "text-first",
+        "handoff": "text compresses/shifts while evidence enters",
+        "hold": "evidence receives inspection time",
+        "exit": "evidence may persist into next beat"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "hero top; evidence card expands into lower 45\u201355%",
+        "1x1": "hero upper/left; evidence offset lower/right",
+        "16x9": "hero and evidence can trade left/right dominance"
+      },
+      "misuse_conditions": [
+        "Evidence appearing before viewer understands claim",
+        "Screenshot used as decoration"
+      ],
+      "reference_evidence": [
+        {
+          "source": "Full APP reference",
+          "window": "~3.4\u20134.2s",
+          "observation": "large hero resolves then scene switches to tiny setup + product window"
+        },
+        {
+          "source": "videoplayback (4)",
+          "window": "~32.8\u201334.1s",
+          "observation": "headline and screenshot share hierarchy before evidence persists into next question"
+        }
+      ]
+    },
+    {
+      "id": "EVIDENCE_PERSISTENCE_CARRIER",
+      "semantic_use": "Adjacent beats discuss the same product/proof surface",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Headline/support copy may replace around a stable evidence object"
+      ],
+      "support_visual_behavior": [
+        "Keep screenshot/card on screen and reposition/resize rather than reintroducing from zero"
+      ],
+      "motion_behavior": {
+        "continuity": "evidence object persists across beat boundary",
+        "text": "new claim replaces old around persistent anchor",
+        "movement": "small purposeful reframe only"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "evidence can stay center/lower and text changes above",
+        "1x1": "evidence offset anchor may slide modestly",
+        "16x9": "evidence remains on one side while text region changes"
+      },
+      "misuse_conditions": [
+        "Persisting irrelevant evidence",
+        "Perpetual floating motion"
+      ],
+      "reference_evidence": [
+        {
+          "source": "videoplayback (4)",
+          "window": "Chatbox AI sequence",
+          "observation": "same UI evidence persists while headline changes to new semantic question"
+        }
+      ]
+    },
+    {
+      "id": "ANCHORED_SCREENSHOT_PROOF",
+      "semantic_use": "Product proof, interface demonstration, code, document, repository, real evidence",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Headline should state takeaway, not describe every visible detail",
+        "Use short annotation/label if needed"
+      ],
+      "support_visual_behavior": [
+        "Frame/crop screenshot cleanly; mild shadow/depth allowed; preserve legibility",
+        "Use callout arrow/line only for exact evidence target"
+      ],
+      "motion_behavior": {
+        "entry": "scale/slide/mask from meaningful direction",
+        "hold": "long enough to inspect",
+        "exit": "can become continuity carrier or collapse into label"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "portrait crop or stacked window; avoid tiny full desktop",
+        "1x1": "crop to relevant region; one primary evidence surface",
+        "16x9": "can show wider UI with annotation zone"
+      },
+      "misuse_conditions": [
+        "Tiny unreadable full-screen screenshots",
+        "Multiple equal-weight windows without hierarchy",
+        "Using fake UI as proof when real supplied UI exists"
+      ],
+      "reference_evidence": [
+        {
+          "source": "videoplayback (1)",
+          "observation": "large product/interface crops function as proof beneath concise headline"
+        },
+        {
+          "source": "videoplayback (3)",
+          "observation": "code window plus short bullets; evidence remains primary visual"
+        }
+      ]
+    },
+    {
+      "id": "SEQUENTIAL_SUPPORT_LIST",
+      "semantic_use": "Short proof points, requirements, features, constraints after a clear headline",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "List items are subordinate to hero",
+        "Reveal each item in reading order",
+        "Keep line length short"
+      ],
+      "support_visual_behavior": [
+        "Optional small icon/check/cue per item only if it improves scanning"
+      ],
+      "motion_behavior": {
+        "entry": "hero first",
+        "sequence": "items reveal with 2\u20135 frame stagger or short semantic holds",
+        "exit": "list can compress into one summary phrase"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "vertical list beneath/alongside evidence",
+        "1x1": "2\u20134 compact items with ample gap",
+        "16x9": "list can sit beside evidence rather than under"
+      },
+      "misuse_conditions": [
+        "Long bullet dumps",
+        "Using list as default treatment"
+      ],
+      "reference_evidence": [
+        {
+          "source": "Full APP reference",
+          "window": "~14.8\u201316.5s",
+          "observation": "ONE COMMAND headline + screenshot + progressively revealed no-setup/no-config list"
+        }
+      ]
+    },
+    {
+      "id": "QUIET_SUPPORT_AFTER_HERO",
+      "semantic_use": "Clarification, italic aside, explanatory tail after a strong claim",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Support enters later and quieter",
+        "Smaller scale, lighter weight or italic allowed",
+        "Never compete with hero"
+      ],
+      "support_visual_behavior": [
+        "Support visual should remain static/subtle during reading"
+      ],
+      "motion_behavior": {
+        "entry": "delayed drift/fade/mask",
+        "hold": "longer readability hold",
+        "exit": "may stay while next object transition begins"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "place below hero with generous line-height",
+        "1x1": "offset beside/below hero",
+        "16x9": "can occupy secondary column"
+      },
+      "misuse_conditions": [
+        "Animating every support word",
+        "Using support to carry the main idea"
+      ],
+      "reference_evidence": [
+        {
+          "source": "Full APP reference",
+          "window": "~16.9s+",
+          "observation": "large OpenCode carrier with quiet italic support copy building beneath"
+        }
+      ]
+    },
+    {
+      "id": "CONTRAST_RECONFIGURATION",
+      "semantic_use": "Two alternatives, before/after, manual/automatic, expensive/free, fragmented/shared",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Use spatial contrast first; collapse to winner/summary after comparison",
+        "Different text weights can signal hierarchy"
+      ],
+      "support_visual_behavior": [
+        "Use paired evidence/objects only when both sides are meaningful"
+      ],
+      "motion_behavior": {
+        "entry": "split or sequential reveal",
+        "turn": "one side de-emphasizes/collapses",
+        "resolution": "winning/reframed statement becomes single dominant lockup"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "stacked before/after or top/bottom compare",
+        "1x1": "diagonal/asymmetric split",
+        "16x9": "natural left/right split then collapse"
+      },
+      "misuse_conditions": [
+        "Permanent 50/50 template",
+        "Comparison where no real contrast exists"
+      ],
+      "reference_evidence": [
+        {
+          "source": "videoplayback (4)",
+          "observation": "pricing/model comparisons use text and product surfaces with decisive hierarchy"
+        }
+      ]
+    },
+    {
+      "id": "PROCESS_RAIL",
+      "semantic_use": "Short process, sequence, handoff, workflow, cause-effect",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Keep labels concise; hero names the transformation",
+        "Text may track a moving focal point"
+      ],
+      "support_visual_behavior": [
+        "Use nodes/rail/arrows only when order matters",
+        "Prefer 2\u20134 meaningful states"
+      ],
+      "motion_behavior": {
+        "entry": "rail draws or first node activates",
+        "progression": "focal indicator moves; labels resolve sequentially",
+        "payoff": "rail may collapse into outcome icon/word"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "vertical or stepped rail",
+        "1x1": "bent/diagonal/compact rail",
+        "16x9": "horizontal rail with lateral progression"
+      },
+      "misuse_conditions": [
+        "Generic pipeline for non-process ideas",
+        "Too many nodes",
+        "Diagram replacing editorial storytelling"
+      ],
+      "reference_evidence": [
+        {
+          "source": "multiple newer refs",
+          "observation": "arrows/step indicators are used as directional support, not as full infographic boards"
+        }
+      ]
+    },
+    {
+      "id": "WORD_OBJECT_BRIDGE",
+      "semantic_use": "A keyword should become, reveal, or attach to a concrete object/evidence surface",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Keyword remains legible during handoff",
+        "Text may shrink/move into label position"
+      ],
+      "support_visual_behavior": [
+        "Object enters from keyword anchor or keyword transforms into annotation"
+      ],
+      "motion_behavior": {
+        "entry": "keyword emphasis",
+        "bridge": "shared position/path connects text and object",
+        "hold": "object becomes evidence/support",
+        "exit": "object can carry continuity"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "vertical handoff from text to object below",
+        "1x1": "diagonal/offset handoff",
+        "16x9": "lateral handoff across composition"
+      },
+      "misuse_conditions": [
+        "Literal noun-to-icon substitution with no added meaning"
+      ],
+      "reference_evidence": [
+        {
+          "source": "reference family",
+          "observation": "text and product surfaces repeatedly exchange dominance through spatial continuity"
+        }
+      ]
+    },
+    {
+      "id": "OBJECT_LED_TRANSITION",
+      "semantic_use": "A screenshot/card/document/device/object is the strongest continuity carrier into next beat",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Text exits/replaces around the carrier",
+        "Next headline should relate to what object now demonstrates"
+      ],
+      "support_visual_behavior": [
+        "Object may move/scale/crop into new role"
+      ],
+      "motion_behavior": {
+        "transition": "object becomes bridge rather than full-scene fade",
+        "motion": "single purposeful path, optional depth/rotation if semantically useful"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "object can expand from lower card to central proof",
+        "1x1": "object shifts corner-to-center",
+        "16x9": "object crosses or trades columns"
+      },
+      "misuse_conditions": [
+        "Random card shuffle",
+        "Carousel motion for its own sake",
+        "Continuous floating"
+      ],
+      "reference_evidence": [
+        {
+          "source": "videoplayback (1\u20135)",
+          "observation": "screenshots/cards frequently persist or reposition between adjacent proof beats"
+        }
+      ]
+    },
+    {
+      "id": "PAYOFF_LOCKUP",
+      "semantic_use": "Final synthesis, memorable conclusion, product promise",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Short decisive lockup",
+        "Strong scale hierarchy",
+        "Optional subordinate one-line qualifier"
+      ],
+      "support_visual_behavior": [
+        "One supporting cue at most unless product proof is essential"
+      ],
+      "motion_behavior": {
+        "entry": "clean convergence from prior elements",
+        "hold": "longest clean settle near end",
+        "exit": "minimal; allow reading"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "center or top-center hero with deep negative space",
+        "1x1": "center/asymmetric hero with one anchor",
+        "16x9": "wide hero or left/right payoff with restrained support"
+      },
+      "misuse_conditions": [
+        "Busy collage at conclusion",
+        "CTA competing with payoff"
+      ],
+      "reference_evidence": [
+        {
+          "source": "all references",
+          "observation": "strong beats end on readable editorial lockups rather than generic montage"
+        }
+      ]
+    },
+    {
+      "id": "CTA_LOCKUP",
+      "semantic_use": "Explicit action request at end or creator/social CTA",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "Verb/action is dominant; qualifier secondary",
+        "CTA should visually differ from payoff but not feel like an ad template"
+      ],
+      "support_visual_behavior": [
+        "May include single object/brand cue when relevant"
+      ],
+      "motion_behavior": {
+        "entry": "simple decisive reveal",
+        "hold": "clear reading/action time",
+        "exit": "none or restrained"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "vertical lockup suited to social action",
+        "1x1": "central CTA with compact proof/brand cue",
+        "16x9": "CTA may sit with brand/product mark on opposite side"
+      },
+      "misuse_conditions": [
+        "Copying recurring \u201cComment HUMAN\u201d CTA from references",
+        "Forcing CTA on non-promotional stories"
+      ],
+      "reference_evidence": [
+        {
+          "source": "videoplayback (3)/(5)",
+          "observation": "creator CTA is a reference for strong lockup, not reusable wording/template"
+        }
+      ]
+    },
+    {
+      "id": "CONTROLLED_EMPTY_SPACE",
+      "semantic_use": "Confidence beat, pause, transition, isolated key phrase",
+      "dominant_layer": "TEXT",
+      "typography_behavior": [
+        "One concise statement or keyword",
+        "Whitespace is active composition"
+      ],
+      "support_visual_behavior": [
+        "At most one small support cue; background may carry subtle grid/line/depth"
+      ],
+      "motion_behavior": {
+        "motion": "minimal but precise; settle is the event",
+        "pause": "meaningful breathing room"
+      },
+      "native_aspect_adaptations": {
+        "9x16": "deep vertical negative space",
+        "1x1": "asymmetric empty field",
+        "16x9": "wide lateral empty field"
+      },
+      "misuse_conditions": [
+        "Empty because composition is unfinished",
+        "Adding decoration solely to fill space"
+      ],
+      "reference_evidence": [
+        {
+          "source": "videoplayback references",
+          "observation": "large white fields are repeatedly used to create hierarchy and pacing"
+        }
+      ]
+    }
+  ]
+}

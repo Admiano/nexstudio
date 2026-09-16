@@ -1,0 +1,2233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.dev/schema/NexStudioEditorialPlanV2.json",
+  "title": "NexStudioEditorialPlanV2",
+  "description": "Compiled, gate-checked editorial plan for one native aspect. Consumed verbatim by the execution-only runtime.",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "NexStudioEditorialPlanV2"
+    },
+    "compiler": {
+      "type": "string",
+      "minLength": 1
+    },
+    "film_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "aspect": {
+      "type": "string",
+      "enum": [
+        "9x16",
+        "1x1",
+        "16x9"
+      ]
+    },
+    "fps": {
+      "type": "integer",
+      "enum": [
+        24,
+        25,
+        30,
+        60
+      ]
+    },
+    "canvas": {
+      "type": "object",
+      "properties": {
+        "w": {
+          "type": "integer"
+        },
+        "h": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "w",
+        "h"
+      ]
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "w": {
+          "type": "integer"
+        },
+        "h": {
+          "type": "integer"
+        },
+        "scale": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "w",
+        "h",
+        "scale"
+      ]
+    },
+    "brand": {
+      "type": "object",
+      "properties": {
+        "ink": {
+          "type": "string",
+          "minLength": 1
+        },
+        "paper": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "finish": {
+          "type": "string",
+          "enum": [
+            "EDITORIAL_FLAT",
+            "PAPER"
+          ]
+        }
+      },
+      "required": [
+        "ink",
+        "paper",
+        "finish"
+      ]
+    },
+    "typography": {
+      "type": "object",
+      "properties": {
+        "reveal": {
+          "type": "string",
+          "enum": [
+            "WORD_CASCADE",
+            "BLOCK"
+          ]
+        },
+        "tonal_ink": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "min_visual_share": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": [
+        "reveal",
+        "tonal_ink"
+      ]
+    },
+    "illustration_registry": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "path"
+      ]
+    },
+    "fonts": {
+      "type": "object"
+    },
+    "duration_ms": {
+      "type": "integer",
+      "exclusiveMinimum": 0
+    },
+    "voice": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": [
+            "RECORDED",
+            "ROUTE",
+            "FIXTURE",
+            "MASTER"
+          ]
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "beat_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "RECORDED",
+                  "ROUTE",
+                  "FIXTURE",
+                  "MASTER"
+                ]
+              },
+              "audio_path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "start_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "duration_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "evidence": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "beat_id",
+              "source",
+              "audio_path",
+              "sha256",
+              "start_ms",
+              "duration_ms"
+            ]
+          }
+        },
+        "timeline": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "source",
+        "segments"
+      ]
+    },
+    "music": {
+      "type": "object",
+      "properties": {
+        "slot": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "duck_under_voice_db": {
+          "type": "number"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "slot",
+        "status",
+        "path"
+      ]
+    },
+    "beats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "beat_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "beat_type": {
+            "type": "string",
+            "enum": [
+              "HOOK",
+              "SETUP",
+              "CONTRAST",
+              "EXPLANATION",
+              "PROOF",
+              "LIST",
+              "REFRAME",
+              "EMPHASIS",
+              "PAYOFF",
+              "CTA"
+            ]
+          },
+          "pattern": {
+            "type": "string",
+            "enum": [
+              "PROGRESSIVE_HERO_BUILD",
+              "PHRASE_REPLACEMENT",
+              "HERO_SCALE_PROMOTION",
+              "HERO_TO_EVIDENCE_HANDOFF",
+              "EVIDENCE_PERSISTENCE_CARRIER",
+              "ANCHORED_SCREENSHOT_PROOF",
+              "SEQUENTIAL_SUPPORT_LIST",
+              "QUIET_SUPPORT_AFTER_HERO",
+              "CONTRAST_RECONFIGURATION",
+              "PROCESS_RAIL",
+              "WORD_OBJECT_BRIDGE",
+              "OBJECT_LED_TRANSITION",
+              "PAYOFF_LOCKUP",
+              "CTA_LOCKUP",
+              "CONTROLLED_EMPTY_SPACE"
+            ]
+          },
+          "dominant_layer": {
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "ILLUSTRATION",
+              "HYBRID",
+              "EVIDENCE",
+              "FIGURE",
+              "DATA",
+              "QUIET"
+            ]
+          },
+          "shot_role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "duration_ms": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "narration": {
+            "type": "string"
+          },
+          "words": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "start_ms": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "end_ms": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "text",
+                "start_ms",
+                "end_ms"
+              ]
+            }
+          },
+          "landings": {
+            "type": "array"
+          },
+          "composition": {
+            "type": "object",
+            "properties": {
+              "layout_family": {
+                "type": "string",
+                "minLength": 1
+              },
+              "treatment": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text_zone": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "w": {
+                    "type": "number"
+                  },
+                  "h": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ]
+              },
+              "visual_zone": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "w": {
+                    "type": "number"
+                  },
+                  "h": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ]
+              },
+              "safe_area": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "w": {
+                    "type": "number"
+                  },
+                  "h": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ]
+              },
+              "background": {
+                "type": "object"
+              },
+              "native_profile": {
+                "const": true
+              },
+              "derived_by_scaling": {
+                "const": false
+              },
+              "authority": {
+                "const": "NATIVE_THREE_ASPECT_COMPOSITION_AUTHORITY_V2"
+              }
+            },
+            "required": [
+              "layout_family",
+              "treatment",
+              "text_zone",
+              "visual_zone",
+              "safe_area",
+              "native_profile",
+              "derived_by_scaling",
+              "authority"
+            ]
+          },
+          "typography": {
+            "type": "object",
+            "properties": {
+              "motif": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "unit_index": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "hero",
+                        "support",
+                        "label"
+                      ]
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "weight": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "style": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "bbox": {
+                      "type": "object",
+                      "properties": {
+                        "x": {
+                          "type": "number"
+                        },
+                        "y": {
+                          "type": "number"
+                        },
+                        "w": {
+                          "type": "number"
+                        },
+                        "h": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "x",
+                        "y",
+                        "w",
+                        "h"
+                      ]
+                    },
+                    "fit": {
+                      "type": "object",
+                      "properties": {
+                        "font_px": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "line_height": {
+                          "type": "number"
+                        },
+                        "lines": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "minItems": 1
+                        },
+                        "status": {
+                          "const": "FIT"
+                        }
+                      },
+                      "required": [
+                        "font_px",
+                        "lines",
+                        "status"
+                      ]
+                    },
+                    "reveal": {
+                      "type": "string",
+                      "enum": [
+                        "WORD_CASCADE",
+                        "BLOCK"
+                      ]
+                    },
+                    "words": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "line": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "start_ms": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stress": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "line",
+                          "start_ms",
+                          "stress"
+                        ]
+                      },
+                      "minItems": 1
+                    },
+                    "cascade_end_ms": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "unit_index",
+                    "role",
+                    "text",
+                    "bbox",
+                    "fit",
+                    "reveal",
+                    "words"
+                  ]
+                }
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "unit_index": {
+                      "type": "integer",
+                      "minimum": -1
+                    },
+                    "start_ms": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "end_ms": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "event",
+                    "unit_index",
+                    "start_ms",
+                    "end_ms"
+                  ]
+                }
+              },
+              "performance_events": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "unit_index": {
+                      "type": "integer",
+                      "minimum": -1
+                    },
+                    "start_ms": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "end_ms": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "event",
+                    "unit_index",
+                    "start_ms",
+                    "end_ms"
+                  ]
+                }
+              },
+              "transition_carrier": {},
+              "reading_order": {
+                "type": "array"
+              },
+              "focal_order": {
+                "type": "array"
+              },
+              "reveal_mode": {
+                "type": "string",
+                "enum": [
+                  "WORD_CASCADE",
+                  "BLOCK"
+                ]
+              },
+              "tonal_ink": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0
+              }
+            },
+            "required": [
+              "blocks",
+              "events",
+              "performance_events"
+            ]
+          },
+          "ensemble": {
+            "type": "object",
+            "properties": {
+              "events": {
+                "type": "array"
+              },
+              "hold_window": {
+                "type": "object",
+                "properties": {
+                  "start_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "end_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "start_ms",
+                  "end_ms"
+                ]
+              },
+              "transition_window": {
+                "type": "object",
+                "properties": {
+                  "start_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "end_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "start_ms",
+                  "end_ms"
+                ]
+              }
+            },
+            "required": [
+              "hold_window"
+            ]
+          },
+          "media": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "asset_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "IMAGE",
+                      "SCREENSHOT",
+                      "DOCUMENT",
+                      "VIDEO"
+                    ]
+                  },
+                  "rights": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "original_path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "original_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "render_codec": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source_size": {
+                    "type": "object",
+                    "properties": {
+                      "w": {
+                        "type": "integer"
+                      },
+                      "h": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "w",
+                      "h"
+                    ]
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "EVIDENCE",
+                      "PROOF",
+                      "CONTEXT"
+                    ]
+                  },
+                  "bbox": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "w": {
+                        "type": "number"
+                      },
+                      "h": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ]
+                  },
+                  "zone": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "w": {
+                        "type": "number"
+                      },
+                      "h": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ]
+                  },
+                  "focus": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "number"
+                          },
+                          "y": {
+                            "type": "number"
+                          },
+                          "w": {
+                            "type": "number"
+                          },
+                          "h": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "x",
+                          "y",
+                          "w",
+                          "h"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "trim": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "start": {
+                            "type": "number"
+                          },
+                          "end": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "start",
+                          "end"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "audio": {
+                    "const": "MUTE"
+                  },
+                  "enter_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "enter_duration_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "carried_from": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "persist_to": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "frame": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "asset_id",
+                  "kind",
+                  "rights",
+                  "path",
+                  "sha256",
+                  "original_path",
+                  "original_sha256",
+                  "role",
+                  "bbox",
+                  "audio",
+                  "enter_ms",
+                  "enter_duration_ms",
+                  "frame"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "figure": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "library": {
+                    "const": "OPEN_PEEPS"
+                  },
+                  "still": {
+                    "const": true
+                  },
+                  "framing": {
+                    "const": "FULL_BODY"
+                  },
+                  "posture": {
+                    "type": "string",
+                    "enum": [
+                      "standing",
+                      "sitting"
+                    ]
+                  },
+                  "parts": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "slot": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "part_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "file": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "frame": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "w": {
+                              "type": "number"
+                            },
+                            "h": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y",
+                            "w",
+                            "h"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "slot",
+                        "part_id",
+                        "file",
+                        "sha256",
+                        "frame"
+                      ]
+                    },
+                    "minItems": 1
+                  },
+                  "palette": {
+                    "type": "object"
+                  },
+                  "mirror": {
+                    "type": "boolean"
+                  },
+                  "facing": {
+                    "type": "string",
+                    "enum": [
+                      "TOWARD_TEXT",
+                      "TOWARD_EVIDENCE",
+                      "CAMERA",
+                      "AWAY"
+                    ]
+                  },
+                  "emotion": {
+                    "type": "object"
+                  },
+                  "pose": {
+                    "type": "object"
+                  },
+                  "justification": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "bbox": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "w": {
+                        "type": "number"
+                      },
+                      "h": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ]
+                  },
+                  "zone": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "w": {
+                        "type": "number"
+                      },
+                      "h": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ]
+                  },
+                  "enter_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "enter_duration_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "entrance": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "ground_line": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "library",
+                  "still",
+                  "framing",
+                  "parts",
+                  "facing",
+                  "justification",
+                  "bbox",
+                  "enter_ms",
+                  "enter_duration_ms"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "STAT",
+                      "COMPARISON",
+                      "SEQUENCE"
+                    ]
+                  },
+                  "zone": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "w": {
+                        "type": "number"
+                      },
+                      "h": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ]
+                  },
+                  "blocks": {
+                    "type": "array"
+                  },
+                  "enter_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "enter_duration_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "stagger_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "style": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "zone",
+                  "blocks",
+                  "enter_ms",
+                  "enter_duration_ms",
+                  "stagger_ms"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "illustration": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "form": {
+                    "type": "string",
+                    "enum": [
+                      "OBJECT_STAGE",
+                      "PROCESS_PIPELINE",
+                      "RELATIONSHIP",
+                      "STATE_TRANSFORMATION",
+                      "COMPARISON",
+                      "DATA_VISUAL",
+                      "CALLOUT_LENS",
+                      "SIGNAL"
+                    ]
+                  },
+                  "zone": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "w": {
+                        "type": "number"
+                      },
+                      "h": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ]
+                  },
+                  "entities": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "object",
+                            "system",
+                            "state",
+                            "group",
+                            "evidence",
+                            "signal",
+                            "agent"
+                          ]
+                        },
+                        "glyph": {
+                          "type": "string",
+                          "enum": [
+                            "VESSEL",
+                            "NODE",
+                            "CARD",
+                            "LENS",
+                            "CHART_LINE",
+                            "RING",
+                            "PILL",
+                            "PROHIBIT",
+                            "BRACKET",
+                            "BAR",
+                            "ICON",
+                            "MEDIA"
+                          ]
+                        },
+                        "size": {
+                          "type": "string",
+                          "enum": [
+                            "hero",
+                            "support",
+                            "minor"
+                          ]
+                        },
+                        "bbox": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "w": {
+                              "type": "number"
+                            },
+                            "h": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y",
+                            "w",
+                            "h"
+                          ]
+                        },
+                        "params": {
+                          "type": "object"
+                        },
+                        "label": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "bbox": {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "type": "number"
+                                    },
+                                    "y": {
+                                      "type": "number"
+                                    },
+                                    "w": {
+                                      "type": "number"
+                                    },
+                                    "h": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y",
+                                    "w",
+                                    "h"
+                                  ]
+                                },
+                                "fit": {
+                                  "type": "object",
+                                  "properties": {
+                                    "font_px": {
+                                      "type": "number",
+                                      "exclusiveMinimum": 0
+                                    },
+                                    "line_height": {
+                                      "type": "number"
+                                    },
+                                    "lines": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      },
+                                      "minItems": 1
+                                    },
+                                    "status": {
+                                      "const": "FIT"
+                                    }
+                                  },
+                                  "required": [
+                                    "font_px",
+                                    "lines",
+                                    "status"
+                                  ]
+                                },
+                                "placement": {
+                                  "type": "string",
+                                  "enum": [
+                                    "inside",
+                                    "below"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "bbox",
+                                "fit",
+                                "placement"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "asset": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "sha256": {
+                                  "type": "string",
+                                  "pattern": "^[0-9a-f]{64}$"
+                                },
+                                "license": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "family": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "art_box": {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "y": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "w": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "h": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y",
+                                    "w",
+                                    "h"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "path",
+                                "sha256",
+                                "license"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "media": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "asset_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "IMAGE",
+                                    "SCREENSHOT",
+                                    "DOCUMENT",
+                                    "VIDEO"
+                                  ]
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "sha256": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "pattern": "^[0-9a-f]{64}$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "source_size": {
+                                  "type": "object"
+                                },
+                                "rights": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "audio": {
+                                  "const": "MUTE"
+                                },
+                                "trim": {}
+                              },
+                              "required": [
+                                "asset_id",
+                                "kind",
+                                "path",
+                                "rights",
+                                "audio"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "inside": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "over": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "enter_ms": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "enter_duration_ms": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "carried": {
+                          "type": "boolean"
+                        },
+                        "carry_from_bbox": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number"
+                                },
+                                "y": {
+                                  "type": "number"
+                                },
+                                "w": {
+                                  "type": "number"
+                                },
+                                "h": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "w",
+                                "h"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "state_in": {
+                          "type": "object",
+                          "properties": {
+                            "draw": {
+                              "type": "number"
+                            },
+                            "fill": {
+                              "type": "number"
+                            },
+                            "ink": {
+                              "type": "number"
+                            },
+                            "dim": {
+                              "type": "number"
+                            },
+                            "grow": {
+                              "type": "number"
+                            },
+                            "strike": {
+                              "type": "number"
+                            },
+                            "swap": {
+                              "type": "number"
+                            },
+                            "count": {
+                              "type": "number"
+                            },
+                            "emit": {
+                              "type": "number"
+                            },
+                            "connect": {
+                              "type": "number"
+                            },
+                            "at": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [],
+                          "additionalProperties": false
+                        },
+                        "art_bbox": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "w": {
+                              "type": "number"
+                            },
+                            "h": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y",
+                            "w",
+                            "h"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "glyph",
+                        "size",
+                        "bbox",
+                        "params",
+                        "enter_ms",
+                        "enter_duration_ms",
+                        "carried",
+                        "state_in",
+                        "art_bbox"
+                      ]
+                    },
+                    "minItems": 1
+                  },
+                  "relations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "flows_to",
+                            "connects",
+                            "points_at",
+                            "blocks",
+                            "contains",
+                            "compares",
+                            "transforms_into",
+                            "emits_to",
+                            "scans"
+                          ]
+                        },
+                        "source": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "target": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "path": {
+                          "anyOf": [
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                },
+                                "minItems": 2,
+                                "maxItems": 2
+                              },
+                              "minItems": 2
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "length": {
+                          "type": "number"
+                        },
+                        "arrow": {
+                          "type": "boolean"
+                        },
+                        "bar": {
+                          "type": "boolean"
+                        },
+                        "rule": {
+                          "type": "boolean"
+                        },
+                        "enter_ms": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "enter_duration_ms": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "drawn_by_op": {
+                          "type": "boolean"
+                        },
+                        "state_in": {
+                          "type": "object",
+                          "properties": {
+                            "draw": {
+                              "type": "number"
+                            },
+                            "fill": {
+                              "type": "number"
+                            },
+                            "ink": {
+                              "type": "number"
+                            },
+                            "dim": {
+                              "type": "number"
+                            },
+                            "grow": {
+                              "type": "number"
+                            },
+                            "strike": {
+                              "type": "number"
+                            },
+                            "swap": {
+                              "type": "number"
+                            },
+                            "count": {
+                              "type": "number"
+                            },
+                            "emit": {
+                              "type": "number"
+                            },
+                            "connect": {
+                              "type": "number"
+                            },
+                            "at": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "source",
+                        "target",
+                        "path",
+                        "arrow",
+                        "enter_ms",
+                        "enter_duration_ms",
+                        "state_in"
+                      ]
+                    }
+                  },
+                  "ops": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "op": {
+                          "type": "string",
+                          "enum": [
+                            "FILL",
+                            "DRAW",
+                            "CONNECT",
+                            "EMIT",
+                            "TRAVEL",
+                            "GROW",
+                            "SWAP",
+                            "STRIKE",
+                            "COUNT",
+                            "INK",
+                            "DIM",
+                            "TRACE",
+                            "SETTLE"
+                          ]
+                        },
+                        "target": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "start_ms": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_ms": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "from": {
+                          "type": "number"
+                        },
+                        "to": {
+                          "type": "number"
+                        },
+                        "params": {
+                          "type": "object"
+                        },
+                        "state_change": {
+                          "type": "boolean"
+                        },
+                        "anchor": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "op",
+                        "target",
+                        "start_ms",
+                        "end_ms",
+                        "from",
+                        "to",
+                        "state_change"
+                      ]
+                    }
+                  },
+                  "settled_ms": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "accent": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "accent_policy": {
+                    "const": "STATE_CHANGE_OPS_ONLY"
+                  },
+                  "state_changes": {
+                    "type": "integer"
+                  },
+                  "carry_from": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "persist_to": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "carried": {
+                    "type": "boolean"
+                  },
+                  "registry_version": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "form",
+                  "zone",
+                  "entities",
+                  "relations",
+                  "ops",
+                  "settled_ms",
+                  "accent_policy",
+                  "carried"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "transition": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "minLength": 1
+              },
+              "owner": {
+                "type": "string",
+                "minLength": 1
+              },
+              "start_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end_ms": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "mode",
+              "owner",
+              "start_ms",
+              "end_ms"
+            ]
+          },
+          "sound": {
+            "type": "object",
+            "properties": {
+              "accents": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "beat_at_ms": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "film_at_ms": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "asset_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "semantic_tag": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "license": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "duration_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "gain_db": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "event",
+                    "beat_at_ms",
+                    "film_at_ms",
+                    "asset_id",
+                    "path",
+                    "sha256",
+                    "license"
+                  ]
+                },
+                "maxItems": 3
+              },
+              "silenced": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "accents",
+              "silenced"
+            ]
+          },
+          "gate": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "failures": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "status",
+              "failures"
+            ]
+          }
+        },
+        "required": [
+          "beat_id",
+          "beat_type",
+          "pattern",
+          "dominant_layer",
+          "start_ms",
+          "duration_ms",
+          "composition",
+          "typography",
+          "ensemble",
+          "illustration",
+          "transition",
+          "sound",
+          "gate"
+        ]
+      },
+      "minItems": 1
+    },
+    "captions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "beat_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "beat_id",
+          "text",
+          "start_ms",
+          "end_ms"
+        ]
+      }
+    },
+    "gate": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "status",
+        "failures"
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "treatment_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "creative_authority": {
+          "const": "NEXMIND_P8"
+        },
+        "compiler_role": {
+          "const": "DETERMINISTIC_PLAN_COMPILER"
+        },
+        "renderer_role": {
+          "const": "EXECUTION_ONLY"
+        },
+        "voice_timing": {
+          "type": "string",
+          "enum": [
+            "RECORDED",
+            "ROUTE",
+            "FIXTURE",
+            "MASTER"
+          ]
+        },
+        "commercial_certification": {
+          "const": false
+        },
+        "authorities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string",
+                "minLength": 1
+              },
+              "bundle_path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "vendored_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "modified": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "file",
+              "source_sha256",
+              "vendored_sha256",
+              "modified"
+            ]
+          }
+        },
+        "sound_library": {
+          "type": "object"
+        },
+        "media_assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "asset_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "IMAGE",
+                  "SCREENSHOT",
+                  "DOCUMENT",
+                  "VIDEO"
+                ]
+              },
+              "rights": {
+                "type": "string",
+                "minLength": 1
+              },
+              "original_path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "original_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "render_path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "render_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "render_codec": {
+                "type": "string",
+                "minLength": 1
+              },
+              "normalised": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "asset_id",
+              "kind",
+              "rights",
+              "original_path",
+              "original_sha256",
+              "render_path",
+              "render_sha256",
+              "render_codec",
+              "normalised"
+            ]
+          }
+        }
+      },
+      "required": [
+        "treatment_sha256",
+        "creative_authority",
+        "compiler_role",
+        "renderer_role",
+        "voice_timing",
+        "commercial_certification",
+        "authorities"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "compiler",
+    "film_id",
+    "aspect",
+    "fps",
+    "canvas",
+    "output",
+    "brand",
+    "typography",
+    "fonts",
+    "duration_ms",
+    "voice",
+    "music",
+    "beats",
+    "captions",
+    "gate",
+    "provenance"
+  ]
+}

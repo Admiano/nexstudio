@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+<defs>
+ <filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-opacity=".18"/></filter>
+ <linearGradient id="teal" x1="0" x2="1"><stop stop-color="#62D9D2"/><stop offset="1" stop-color="#8EA7FF"/></linearGradient>
+ <linearGradient id="warm" x1="0" x2="1"><stop stop-color="#F05A47"/><stop offset="1" stop-color="#F3C74E"/></linearGradient>
+ <style>.ink{stroke:#171A1F;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;fill:none} .light{stroke:#EEF5F6;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;fill:none}</style>
+</defs>
+
+ <g filter="url(#sh)">
+  <rect x="300" y="190" width="200" height="120" rx="48" fill="currentColor"/>
+  <circle cx="145" cy="110" r="68" fill="currentColor"/><circle cx="655" cy="110" r="68" fill="currentColor"/>
+  <circle cx="145" cy="390" r="68" fill="currentColor"/><circle cx="655" cy="390" r="68" fill="currentColor"/>
+  <path d="M300 230 C240 210 230 160 205 135 M500 230 C560 210 570 160 595 135 M300 270 C240 290 230 340 205 365 M500 270 C560 290 570 340 595 365" class="ink" opacity=".38"/>
+  <circle cx="400" cy="250" r="28" fill="currentColor"/>
+ </g>
+</svg>
