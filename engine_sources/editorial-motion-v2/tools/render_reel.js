@@ -64,6 +64,9 @@ function buildAudio(plan, out) {
   n = 1;
   for (const seg of plan.voice.segments) {
     if (!seg.audio_path || !fs.existsSync(seg.audio_path)) continue;
+    if (seg.start_ms + seg.duration_ms > plan.duration_ms + 1000 / plan.fps) {
+      throw new Error(`voice segment ${seg.beat_id} ends at ${seg.start_ms + seg.duration_ms}ms but the film is ${plan.duration_ms}ms; the audio would be cut`);
+    }
     inputs.push('-i', seg.audio_path);
     filters.push(`[${n}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay=${seg.start_ms}|${seg.start_ms}[v${n}]`);
     labels.push(`[v${n}]`);
@@ -150,7 +153,13 @@ async function main() {
   const audioPath = path.join(outDir, `audio_${plan.aspect}.wav`);
   const audio = buildAudio(plan, audioPath);
   const mp4 = path.join(outDir, `${plan.film_id}_${plan.aspect}.mp4`);
-  ff(['-framerate', String(fps), '-i', path.join(framesDir, 'f%05d.png'), '-i', audioPath, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '17', '-preset', 'medium', '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', mp4]);
+  ff(['-framerate', String(fps), '-i', path.join(framesDir, 'f%05d.png'), '-i', audioPath, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '17', '-preset', 'medium', '-c:a', 'aac', '-b:a', '160k', '-t', (plan.duration_ms / 1000).toFixed(3), '-movflags', '+faststart', mp4]);
+  const streams = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type,duration', '-of', 'json', mp4]).toString()).streams;
+  const durations = Object.fromEntries(streams.map((s) => [s.codec_type, Math.round(parseFloat(s.duration) * 1000)]));
+  const frameMs = 1000 / fps;
+  for (const kind of ['video', 'audio']) {
+    if (Math.abs(durations[kind] - plan.duration_ms) > frameMs * 2) throw new Error(`${kind} stream is ${durations[kind]}ms, plan is ${plan.duration_ms}ms`);
+  }
 
   // Captions (SRT) straight from the plan's word timings.
   const srt = plan.captions.map((c, i) => `${i + 1}\n${ts(c.start_ms)} --> ${ts(c.end_ms)}\n${c.text}\n`).join('\n');

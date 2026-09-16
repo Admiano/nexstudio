@@ -707,12 +707,25 @@
       }
       case 'LENS': {
         // Built at the origin; positioned per frame by translate, so travel is one transform write.
-        const d = Math.min(b.w, b.h), r = d * 0.36, w = sw * 1.5;
+        const w = sw * 1.5;
         const lens = svgEl('g', {}, g);
-        svgEl('circle', { cx: 0, cy: 0, r: r, fill: paper, 'fill-opacity': 0.32 }, lens);
-        const o = svgEl('circle', { ...line, cx: 0, cy: 0, r: r, 'stroke-width': w }, lens);
-        const handle = svgEl('path', { ...line, d: polyPath([[r * 0.72, r * 0.72], [r * 1.42, r * 1.42]]), 'stroke-width': w * 1.35 }, lens);
-        node.outline.push(drawable(o, 2 * Math.PI * r), drawable(handle, r));
+        let o, r;
+        if (b.w > b.h * 1.5) {
+          // Loupe framing a wide subject: an open ellipse around it, never a wash over its label.
+          const rx = b.w / 2 - w, ry = b.h / 2 - w;
+          o = svgEl('ellipse', { ...line, cx: 0, cy: 0, rx: rx, ry: ry, 'stroke-width': w }, lens);
+          r = ry;
+          const a = Math.PI / 4;
+          const handle = svgEl('path', { ...line, d: polyPath([[rx * Math.cos(a), ry * Math.sin(a)], [rx * Math.cos(a) + ry * 0.7, ry * Math.sin(a) + ry * 0.7]]), 'stroke-width': w * 1.35 }, lens);
+          node.outline.push(drawable(o, Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)))), drawable(handle, ry));
+        } else {
+          const d = Math.min(b.w, b.h);
+          r = d * 0.36;
+          svgEl('circle', { cx: 0, cy: 0, r: r, fill: paper, 'fill-opacity': 0.32 }, lens);
+          o = svgEl('circle', { ...line, cx: 0, cy: 0, r: r, 'stroke-width': w }, lens);
+          const handle = svgEl('path', { ...line, d: polyPath([[r * 0.72, r * 0.72], [r * 1.42, r * 1.42]]), 'stroke-width': w * 1.35 }, lens);
+          node.outline.push(drawable(o, 2 * Math.PI * r), drawable(handle, r));
+        }
         node.extra.lens = lens;
         node.extra.lensR = r;
         break;

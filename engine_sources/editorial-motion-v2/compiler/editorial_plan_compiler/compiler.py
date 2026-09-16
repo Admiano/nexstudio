@@ -22,7 +22,8 @@ from .figures import resolve_figure
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
 from .media import NormalisedMedia, normalise_media
 from .sound import SoundLibrary, bind_beat_sound, library_root
-from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, retime_choreography
+from .master_timeline import MasterTimeline, extend_tail, resolve_master
+from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
 from .typefit import fit_text
 from .voice import VoiceSegment, resolve_voice
 
@@ -236,7 +237,7 @@ class BeatCompiler:
                     continue
                 if _overlap(blocks[i]['bbox'], blocks[j]['bbox']) > 0:
                     failures.append(f"TEXT_COLLISION:{blocks[i]['unit_index']}:{blocks[j]['unit_index']}")
-        events = retime_choreography(perf['choreography']['base']['events'], clock.landings_ms, clock.duration_ms)
+        events = retime_choreography(perf['choreography']['base']['events'], clock.landings_ms, clock.duration_ms, clock.exit_ms)
         events = self._resolve_replacements(b, blocks, events, clock)
         events = self._reveal_orphans(b, blocks, events, clock)
         # Performance events follow their unit's retimed reveal.
@@ -336,7 +337,7 @@ class BeatCompiler:
             if words:
                 last = words[-1]['start_ms']
                 bl['cascade_end_ms'] = last + CASCADE_SETTLE_MS
-                limit = bl['exit_ms'] - 360 if bl.get('exit_ms') else clock.duration_ms - 760
+                limit = bl['exit_ms'] - 360 if bl.get('exit_ms') else clock.duration_ms - (clock.exit_ms + 40 if clock.fixed_window else 760)
                 if last > limit:
                     # Compress the cascade so the phrase finishes reading before it leaves or the beat ends.
                     span = max(1, last - start)
@@ -344,6 +345,7 @@ class BeatCompiler:
                     for w in words:
                         w['start_ms'] = int(start + (w['start_ms'] - start) * room / span)
                     bl['cascade_end_ms'] = words[-1]['start_ms'] + CASCADE_SETTLE_MS
+                    bl['cascade_compression'] = round(room / span, 3)
             bl['words'] = words
             bl['has_stress'] = any(w['stress'] for w in words)
 
@@ -547,12 +549,12 @@ class BeatCompiler:
             if not _inside(illustration['zone'], self.frame, 2):
                 failures.append('ILLUSTRATION_OUTSIDE_FRAME')
             for ent in illustration['entities']:
-                boxes = [ent['bbox']] + ([ent['label']['bbox']] if ent.get('label') else [])
+                boxes = [ent['art_bbox']] + ([ent['label']['bbox']] if ent.get('label') else [])
                 for bx in boxes:
                     for bl in typ['blocks']:
                         if _overlap(bx, bl['bbox']) > 0:
                             failures.append(f"ILLUSTRATION_COLLIDES_TEXT:{ent['id']}:{bl['unit_index']}")
-            if figure and any(_overlap(figure['bbox'], e['bbox']) > 0 for e in illustration['entities']):
+            if figure and any(_overlap(figure['bbox'], e['art_bbox']) > 0 for e in illustration['entities']):
                 failures.append('FIGURE_COLLIDES_ILLUSTRATION')
             if not illustration['carried'] and illustration['state_changes'] == 0 and b.dominant_layer in ('ILLUSTRATION', 'HYBRID'):
                 warnings.append('ILLUSTRATION_WITHOUT_STATE_CHANGE')
@@ -574,13 +576,15 @@ class BeatCompiler:
                         failures.append(f"DATA_COLLIDES_TEXT:{bl['unit_index']}")
         # Transition: media persisting into the next beat carries the cut; otherwise the type carrier or a plain settle-cut.
         if media and media.get('persist_to') and media['persist_to'] != b.beat_id:
-            transition = {'mode': 'EVIDENCE_PERSISTENCE', 'owner': 'MEDIA', 'start_ms': clock.duration_ms - 320, 'end_ms': clock.duration_ms}
+            transition = {'mode': 'EVIDENCE_PERSISTENCE', 'owner': 'MEDIA', 'start_ms': clock.duration_ms - clock.exit_ms, 'end_ms': clock.duration_ms}
         elif illustration and illustration.get('persist_to') and illustration['persist_to'] != b.beat_id:
-            transition = {'mode': 'ILLUSTRATION_PERSISTENCE', 'owner': 'ILLUSTRATION', 'start_ms': clock.duration_ms - 320, 'end_ms': clock.duration_ms}
+            transition = {'mode': 'ILLUSTRATION_PERSISTENCE', 'owner': 'ILLUSTRATION', 'start_ms': clock.duration_ms - clock.exit_ms, 'end_ms': clock.duration_ms}
         elif typ['transition_carrier']:
             transition = {**typ['transition_carrier'], 'owner': 'TEXT'}
+            if clock.fixed_window:
+                transition['start_ms'] = max(transition['start_ms'], clock.duration_ms - clock.exit_ms)
         else:
-            transition = {'mode': 'SETTLE_CUT', 'owner': 'NONE', 'start_ms': clock.duration_ms - 200, 'end_ms': clock.duration_ms}
+            transition = {'mode': 'SETTLE_CUT', 'owner': 'NONE', 'start_ms': clock.duration_ms - min(200, clock.exit_ms), 'end_ms': clock.duration_ms}
 
         # The settled hold is the window in which every authored element has finished arriving and nothing has
         # started leaving; typography, ensemble and object channels are reconciled to that single window.
@@ -601,7 +605,31 @@ class BeatCompiler:
         hold = next((e for e in typ['events'] if e['event'] == 'HOLD'), None)
         if hold:
             hold['start_ms'], hold['end_ms'] = hold_start, hold_end
-        if hold_end - hold_start < MIN_HOLD_MS:
+        if clock.fixed_window:
+            # Speech sets the window. Copy cascades with the spoken words, so the viewer reads the phrase as it is
+            # said; what must survive is the hero in its settled state and every visual state change, legible for
+            # a floor that scales with the beat, and no cascade still landing while the beat leaves.
+            hero_units = {i for i, u in enumerate(b.units) if u.role == 'hero'}
+            core = [e['end_ms'] for e in typ['events'] if e['unit_index'] in hero_units and e['event'] not in ('HOLD', 'EXIT')]
+            core += [bl['cascade_end_ms'] for bl in typ['blocks'] if bl['unit_index'] in hero_units and bl.get('cascade_end_ms')]
+            if illustration:
+                core += [o['end_ms'] for o in illustration.get('ops', []) if o.get('state_change')]
+            for el in (media, figure):
+                if el:
+                    core.append(el['enter_ms'] + el['enter_duration_ms'])
+            legible = hold_end - (max(core) if core else hold_start)
+            floor = readable_close_floor(clock.pause_after_ms) if clock.pause_after_ms >= 0 else MIN_HOLD_MS
+            if legible < floor:
+                (warnings if legible >= floor * 0.6 else failures).append(f'LEGIBLE_HOLD_{legible}MS_UNDER_{floor}MS')
+            overrun = max((bl['cascade_end_ms'] - hold_end for bl in typ['blocks'] if bl.get('cascade_end_ms')), default=0)
+            if overrun > 1000 // self.film.fps:
+                failures.append(f'CASCADE_OVERRUNS_EXIT:{overrun}ms')
+            for bl in typ['blocks']:
+                if bl.get('cascade_compression', 1.0) < 0.8:
+                    warnings.append(f"CASCADE_COMPRESSED:{bl['unit_index']}:{bl['cascade_compression']}")
+            if hold_end - hold_start < MIN_HOLD_MS:
+                warnings.append(f"SETTLED_HOLD:{hold_end - hold_start}ms")
+        elif hold_end - hold_start < MIN_HOLD_MS:
             failures.append(f"HOLD_TOO_SHORT:{hold_end - hold_start}ms")
         if b.dominant_layer == 'FIGURE' and not figure:
             failures.append('FIGURE_UNRESOLVED')
@@ -706,7 +734,9 @@ def _rebalance(comp: Dict[str, Any], text_share: float) -> None:
 
 
 def _extend_for_program(clock: BeatClock, b: BeatTreatment) -> BeatClock:
-    """An illustration op that lands on a late word must still finish, settle and be read before the cut."""
+    """An illustration op that lands on a late word must still finish, settle and be read before the cut.
+
+    A MASTER window cannot grow: the deficit is folded into ``budget_met`` and gated there."""
     if not b.illustration:
         return clock
     cursor = 0
@@ -726,7 +756,34 @@ def _extend_for_program(clock: BeatClock, b: BeatTreatment) -> BeatClock:
     needed = latest + MIN_HOLD_MS + EXIT_MS + 80
     if needed <= clock.duration_ms:
         return clock
+    if clock.fixed_window:
+        met = max(0.0, (clock.duration_ms - latest) / (MIN_HOLD_MS + EXIT_MS + 80))
+        return replace(clock, budget_met=round(min(clock.budget_met, met), 3))
     return replace(clock, duration_ms=int(needed))
+
+
+def _master_clocks(film: FilmTreatment, base_dir: Path) -> Tuple[MasterTimeline, List[BeatClock], List[int], List[VoiceSegment]]:
+    """Beats take their windows from the continuous speech timeline; the last spoken beat gets a silent readable close."""
+    tl = resolve_master(film.beats, film.voice, base_dir)
+    by_id = {w.beat_id: w for w in tl.windows}
+    clocks: List[BeatClock] = []
+    for b in film.beats:
+        w = by_id[b.beat_id]
+        clocks.append(_extend_for_program(window_clock(b.beat_id, [u.text for u in b.units], [u.anchor_word for u in b.units], w.local_words(), w.duration_ms, 'MASTER', w.pause_after_ms), b))
+    last = next((i for i in range(len(film.beats) - 1, -1, -1) if by_id[film.beats[i].beat_id].speech_start_ms >= 0), None)
+    if last is not None and clocks[last].budget_met < 1.0:
+        c = clocks[last]
+        need = max((max(c.landings_ms) + LAND_SETTLE_MS) if c.landings_ms else 0, (c.words[-1].start_ms + CASCADE_SETTLE_MS) if c.words else 0) + MIN_HOLD_MS + EXIT_MS
+        extend_tail(tl, need - c.duration_ms)
+        w = by_id[film.beats[last].beat_id]
+        clocks[last] = _extend_for_program(window_clock(c.beat_id, [u.text for u in film.beats[last].units], [u.anchor_word for u in film.beats[last].units], w.local_words(), w.duration_ms, 'MASTER', w.pause_after_ms), film.beats[last])
+    offsets = [by_id[b.beat_id].start_ms for b in film.beats]
+    seg = VoiceSegment('MASTER', 'MASTER', None, tl.audio_path, hashlib.sha256(Path(tl.audio_path).read_bytes()).hexdigest(), tl.audio_ms,
+                       {'alignment_path': str((base_dir / film.voice['alignment_path']).resolve()), 'head_pad_ms': tl.head_pad_ms, 'tail_silence_ms': tl.tail_silence_ms,
+                        'tempo': tl.tempo, 'windows': [{'beat_id': w.beat_id, 'start_ms': w.start_ms, 'end_ms': w.end_ms, 'speech_start_ms': w.speech_start_ms,
+                                                         'speech_end_ms': w.speech_end_ms, 'pause_before_ms': w.pause_before_ms, 'pause_after_ms': w.pause_after_ms,
+                                                         'match_ratio': w.match_ratio} for w in tl.windows]})
+    return tl, clocks, offsets, [seg]
 
 
 def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[Path] = None) -> Dict[str, Any]:
@@ -741,23 +798,30 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             raise TreatmentError('MEDIA_ASSET_FILE_MISSING', m.path)
     normalised = {m.asset_id: normalise_media(m, work_dir) for m in film.media_library.values()}
     treatment_sha = hashlib.sha256(json.dumps(treatment, sort_keys=True).encode()).hexdigest()
-    segments = resolve_voice(film.beats, film.voice, work_dir, base_dir, film.film_id)
-    seg_by_id: Dict[str, VoiceSegment] = {s.beat_id: s for s in segments}
-    clocks: List[BeatClock] = []
-    for b in film.beats:
-        seg = seg_by_id[b.beat_id]
-        clock = beat_clock(b.beat_id, [u.text for u in b.units], [u.anchor_word for u in b.units], seg.alignment, seg.source, b.min_duration_ms, b.energy)
-        clocks.append(_extend_for_program(clock, b))
-    offsets: List[int] = []
-    t = 0
-    for c in clocks:
-        offsets.append(t)
-        t += c.duration_ms
-    total_ms = t
+    voice_source = str(film.voice.get('source') or 'FIXTURE').upper()
+    timeline: Optional[MasterTimeline] = None
+    if voice_source == 'MASTER':
+        timeline, clocks, offsets, segments = _master_clocks(film, base_dir)
+        total_ms = timeline.film_ms
+        segment_starts = [timeline.head_pad_ms]
+    else:
+        segments = resolve_voice(film.beats, film.voice, work_dir, base_dir, film.film_id)
+        seg_by_id: Dict[str, VoiceSegment] = {s.beat_id: s for s in segments}
+        clocks = []
+        for b in film.beats:
+            seg = seg_by_id[b.beat_id]
+            clock = beat_clock(b.beat_id, [u.text for u in b.units], [u.anchor_word for u in b.units], seg.alignment, seg.source, b.min_duration_ms, b.energy)
+            clocks.append(_extend_for_program(clock, b))
+        offsets = []
+        t = 0
+        for c in clocks:
+            offsets.append(t)
+            t += c.duration_ms
+        total_ms = t
+        segment_starts = [o + LEAD_IN_MS for o in offsets]
 
     root = library_root()
     lib = SoundLibrary(root) if root else None
-    voice_source = str(film.voice.get('source') or 'FIXTURE').upper()
     plans: Dict[str, Any] = {}
     film_failures: List[str] = []
     film_warnings: List[str] = []
@@ -782,8 +846,11 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'brand': asdict(film.brand), 'typography': asdict(film.typography), 'fonts': _fonts(), 'duration_ms': total_ms,
             'illustration_registry': {'path': str(bc.solver.registry.path), 'version': bc.solver.registry.version},
             'voice': {'source': voice_source, 'segments': [
-                {'beat_id': s.beat_id, 'source': s.source, 'audio_path': s.audio_path, 'sha256': s.audio_sha256, 'start_ms': o + LEAD_IN_MS, 'duration_ms': s.duration_ms, 'evidence': s.evidence}
-                for s, o in zip(segments, offsets)]},
+                {'beat_id': s.beat_id, 'source': s.source, 'audio_path': s.audio_path, 'sha256': s.audio_sha256, 'start_ms': o, 'duration_ms': s.duration_ms, 'evidence': s.evidence}
+                for s, o in zip(segments, segment_starts)]},
+            'timeline': None if timeline is None else {'source': 'MASTER', 'audio_ms': timeline.audio_ms, 'head_pad_ms': timeline.head_pad_ms, 'tail_silence_ms': timeline.tail_silence_ms,
+                                                       'tempo': timeline.tempo, 'beats': [{'beat_id': w.beat_id, 'start_ms': w.start_ms, 'end_ms': w.end_ms, 'speech_start_ms': w.speech_start_ms,
+                                                                                          'speech_end_ms': w.speech_end_ms, 'budget_met': c.budget_met} for w, c in zip(timeline.windows, clocks)]},
             'music': {'slot': 'BACKGROUND_MUSIC', 'status': 'SILENT_UNTIL_RIGHTS_CLEAN_SOURCE_SELECTED', 'duck_under_voice_db': -14, 'path': None},
             'beats': beats, 'captions': _captions(beats),
             'gate': {'status': 'FAIL' if fails else 'PASS', 'failures': fails},

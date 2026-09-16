@@ -10,6 +10,9 @@ shape so the rest of the compiler never knows which one ran:
   sidecar and reports it through ``providerEvidence.alignmentPath``.
 * ``FIXTURE``  — synthesised cadence, silent audio. Never commercial output;
   provenance marks the film ``FIXTURE_TIMING``.
+* ``MASTER``   — one continuous audio file plus one whole-script alignment;
+  resolved by ``master_timeline.resolve_master`` (the compiler dispatches
+  there before this module is consulted).
 """
 from __future__ import annotations
 
@@ -25,7 +28,7 @@ from typing import Any, Dict, List, Optional
 from .contracts import BeatTreatment, TreatmentError
 from .timing import synthesise_alignment
 
-SOURCES = ('RECORDED', 'ROUTE', 'FIXTURE')
+SOURCES = ('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')
 
 
 @dataclass

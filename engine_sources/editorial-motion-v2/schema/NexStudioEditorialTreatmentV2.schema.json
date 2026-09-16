@@ -758,7 +758,8 @@
           "enum": [
             "RECORDED",
             "ROUTE",
-            "FIXTURE"
+            "FIXTURE",
+            "MASTER"
           ]
         },
         "route_id": {
@@ -801,6 +802,18 @@
         "words_per_minute": {
           "type": "number",
           "exclusiveMinimum": 0
+        },
+        "audio_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "alignment_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "head_pad_ms": {
+          "type": "integer",
+          "minimum": 0
         }
       },
       "required": []

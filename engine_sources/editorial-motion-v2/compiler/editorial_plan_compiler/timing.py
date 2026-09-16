@@ -18,6 +18,7 @@ TAIL_HOLD_MS = 620        # settled read after the last word
 LAND_BEFORE_WORD_MS = 90  # text lands a breath before the word is spoken
 MIN_BEAT_MS = 1400
 EXIT_MS = 320
+MIN_EXIT_MS = 120
 MIN_HOLD_MS = 480         # shortest readable settled state
 LAND_SETTLE_MS = 640      # reveal + emphasis after the last landing before the state counts as settled
 CASCADE_SETTLE_MS = 260   # a cascaded word is readable this long after it lands
@@ -139,6 +140,65 @@ class BeatClock:
     landings_ms: List[int]         # one per display unit
     landing_source: List[str]      # WORD | PROPORTIONAL
     source: str                    # ELEVENLABS | FIXTURE | NONE
+    fixed_window: bool = False     # MASTER: duration is set by the speech timeline and cannot grow
+    budget_met: float = 1.0        # share of the readable settle/hold/exit budget the window affords
+    exit_ms: int = EXIT_MS         # handoff length; under MASTER it is sized from the speaker's own pause
+    pause_after_ms: int = -1       # MASTER: silence the speaker left after this beat's last word (-1: not a speech window)
+
+
+def exit_for_pause(pause_ms: int) -> int:
+    """The outgoing beat leaves inside the pause the speaker actually left, never longer than the authored exit."""
+    return max(MIN_EXIT_MS, min(EXIT_MS, int(pause_ms * 0.4)))
+
+
+def readable_close_floor(pause_ms: int) -> int:
+    """How long a settled state must stay legible after its last word: the speaker's pause is the budget."""
+    return min(MIN_HOLD_MS, max(100, int(pause_ms * 0.35)))
+
+
+def _land_before(words: List[Word], idx: int) -> int:
+    """Land a breath before the word, never more than 40% of the gap to the previous word."""
+    if idx == 0:
+        return LAND_BEFORE_WORD_MS
+    gap = max(0, words[idx].start_ms - words[idx - 1].end_ms) + 40
+    return min(LAND_BEFORE_WORD_MS, int(gap * 0.4))
+
+
+def window_clock(beat_id: str, unit_texts: List[str], anchors: List[Optional[str]], words: List[Word],
+                 window_ms: int, source: str, pause_after_ms: int = EXIT_MS * 2) -> BeatClock:
+    """Beat clock for a MASTER window: words are already placed inside the beat, the window is fixed.
+
+    Landings follow the spoken anchors exactly as in ``beat_clock``; nothing is padded. The
+    readable close after the last landing is measured against the window and reported as
+    ``budget_met`` so the gate, not the clock, decides what a short window means.
+    """
+    voice_ms = max((w.end_ms for w in words), default=0)
+    first = words[0].start_ms if words else LEAD_IN_MS
+    landings: List[int] = []
+    sources: List[str] = []
+    cursor = 0
+    for text, anchor in zip(unit_texts, anchors):
+        idx = find_landing(words, unit_anchor(text, anchor), cursor) if words else None
+        if idx is None:
+            landings.append(-1)
+            sources.append('PROPORTIONAL')
+            continue
+        landings.append(max(min(first, LEAD_IN_MS // 2), words[idx].start_ms - _land_before(words, idx)))
+        sources.append('WORD')
+        cursor = idx + 1
+    missing = [i for i, v in enumerate(landings) if v < 0]
+    if missing:
+        span_start = first
+        span_end = voice_ms if voice_ms else max(first, window_ms - EXIT_MS - MIN_HOLD_MS)
+        for n, i in enumerate(missing):
+            frac = (n + 1) / (len(missing) + 1)
+            landings[i] = int(span_start + (span_end - span_start) * frac)
+    for i in range(1, len(landings)):
+        landings[i] = max(landings[i], landings[i - 1] + 60)
+    exit_ms = exit_for_pause(pause_after_ms)
+    close = LAND_SETTLE_MS + MIN_HOLD_MS + exit_ms
+    budget = max(0.0, min(1.0, (window_ms - max(landings)) / close)) if landings else 1.0
+    return BeatClock(beat_id, window_ms, first, voice_ms, list(words), landings, sources, source, True, round(budget, 3), exit_ms, pause_after_ms)
 
 
 def beat_clock(beat_id: str, unit_texts: List[str], anchors: List[Optional[str]], alignment: Optional[Dict[str, Any]],
@@ -181,7 +241,7 @@ def beat_clock(beat_id: str, unit_texts: List[str], anchors: List[Optional[str]]
     return BeatClock(beat_id, duration, LEAD_IN_MS, voice_ms, shifted, landings, sources, source)
 
 
-def retime_choreography(events: List[Dict[str, Any]], landings_ms: List[int], duration_ms: int) -> List[Dict[str, Any]]:
+def retime_choreography(events: List[Dict[str, Any]], landings_ms: List[int], duration_ms: int, exit_ms: int = EXIT_MS) -> List[Dict[str, Any]]:
     """Shift each unit's first reveal so its settle meets the word landing.
 
     Event durations are preserved; only start times move. HOLD/EXIT globals
@@ -192,7 +252,7 @@ def retime_choreography(events: List[Dict[str, Any]], landings_ms: List[int], du
     first_seen: Dict[int, int] = {}
     shift_by_unit: Dict[int, int] = {}
     last_end = 0
-    exit_start = duration_ms - EXIT_MS
+    exit_start = duration_ms - exit_ms
     for ev in sorted(events, key=lambda e: (e['start_ms'], e['end_ms'])):
         ui = ev.get('unit_index', -1)
         if ev['event'] in ('HOLD', 'EXIT'):

@@ -121,10 +121,13 @@ def treatment_schema() -> Dict[str, Any]:
         'rights': _str(),
     }, ['asset_id', 'kind', 'path', 'width', 'height'], additionalProperties=False)
     voice = _obj({
-        'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE')),
+        'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')),
         'route_id': {'type': 'string'},
         'alignments': {'type': 'object', 'additionalProperties': alignment_schema(nested=True)},
         'words_per_minute': {'type': 'number', 'exclusiveMinimum': 0},
+        'audio_path': _str(),
+        'alignment_path': _str(),
+        'head_pad_ms': MS,
     }, [])
     return {
         '$schema': DRAFT,
@@ -287,12 +290,12 @@ def plan_schema() -> Dict[str, Any]:
         'illustration': {'anyOf': [illustration, {'type': 'null'}]},
         'transition': transition, 'sound': _strip(sound_events_schema()), 'gate': gate,
     }, ['beat_id', 'beat_type', 'pattern', 'dominant_layer', 'start_ms', 'duration_ms', 'composition', 'typography', 'ensemble', 'illustration', 'transition', 'sound', 'gate'])
-    segment = _obj({'beat_id': _str(), 'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE')), 'audio_path': _str(), 'sha256': SHA, 'start_ms': MS, 'duration_ms': MS,
+    segment = _obj({'beat_id': _str(), 'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')), 'audio_path': _str(), 'sha256': SHA, 'start_ms': MS, 'duration_ms': MS,
                     'evidence': {'type': 'object'}}, ['beat_id', 'source', 'audio_path', 'sha256', 'start_ms', 'duration_ms'])
     caption = _obj({'beat_id': _str(), 'text': _str(), 'start_ms': MS, 'end_ms': MS}, ['beat_id', 'text', 'start_ms', 'end_ms'])
     provenance = _obj({
         'treatment_sha256': SHA, 'creative_authority': {'const': 'NEXMIND_P8'}, 'compiler_role': {'const': 'DETERMINISTIC_PLAN_COMPILER'},
-        'renderer_role': {'const': 'EXECUTION_ONLY'}, 'voice_timing': _enum(('RECORDED', 'ROUTE', 'FIXTURE')), 'commercial_certification': {'const': False},
+        'renderer_role': {'const': 'EXECUTION_ONLY'}, 'voice_timing': _enum(('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')), 'commercial_certification': {'const': False},
         'authorities': {'type': 'array', 'items': _obj({'file': _str(), 'bundle_path': _str(), 'source_sha256': SHA, 'vendored_sha256': SHA, 'modified': {'type': 'boolean'}},
                                                        ['file', 'source_sha256', 'vendored_sha256', 'modified'])},
         'sound_library': {'type': 'object'}, 'media_assets': {'type': 'array', 'items': _strip(media_provenance_schema())},
@@ -308,7 +311,8 @@ def plan_schema() -> Dict[str, Any]:
             'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, ['reveal', 'tonal_ink']),
             'illustration_registry': _obj({'path': _str(), 'version': NULLABLE_STR}, ['path']),
             'fonts': {'type': 'object'}, 'duration_ms': {'type': 'integer', 'exclusiveMinimum': 0},
-            'voice': _obj({'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE')), 'segments': {'type': 'array', 'items': segment}}, ['source', 'segments']),
+            'voice': _obj({'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')), 'segments': {'type': 'array', 'items': segment},
+                           'timeline': {'type': ['object', 'null']}}, ['source', 'segments']),
             'music': _obj({'slot': _str(), 'status': _str(), 'duck_under_voice_db': {'type': 'number'}, 'path': NULLABLE_STR}, ['slot', 'status', 'path']),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'captions': {'type': 'array', 'items': caption},

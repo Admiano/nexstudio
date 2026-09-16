@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -65,6 +66,102 @@ def _centre(b: Dict[str, float]) -> Tuple[float, float]:
     return b['x'] + b['w'] / 2, b['y'] + b['h'] / 2
 
 
+_NUM = re.compile(r'-?\d*\.?\d+(?:e-?\d+)?')
+_ATTR = re.compile(r'(\w[\w-]*)="([^"]*)"')
+_ELEMENT = re.compile(r'<(circle|ellipse|line|rect|polyline|polygon|path)\b([^>]*)>')
+
+
+def svg_art_box(svg: str) -> Dict[str, float]:
+    """Fraction of the viewBox the drawn geometry actually occupies (control points count, so it is never too small).
+
+    Artwork under a transform cannot be measured cheaply, so it reports the full viewBox."""
+    m = re.search(r'viewBox="([^"]+)"', svg)
+    vb = [float(v) for v in _NUM.findall(m.group(1))] if m else [0.0, 0.0, 100.0, 100.0]
+    full = {'x': 0.0, 'y': 0.0, 'w': 1.0, 'h': 1.0}
+    if 'transform=' in svg or len(vb) != 4 or vb[2] <= 0 or vb[3] <= 0:
+        return full
+    xs: List[float] = []
+    ys: List[float] = []
+    for tag, raw in _ELEMENT.findall(svg):
+        a = dict(_ATTR.findall(raw))
+        try:
+            if tag == 'circle':
+                cx, cy, r = float(a['cx']), float(a['cy']), float(a['r'])
+                xs += [cx - r, cx + r]; ys += [cy - r, cy + r]
+            elif tag == 'ellipse':
+                cx, cy, rx, ry = float(a['cx']), float(a['cy']), float(a['rx']), float(a['ry'])
+                xs += [cx - rx, cx + rx]; ys += [cy - ry, cy + ry]
+            elif tag == 'line':
+                xs += [float(a['x1']), float(a['x2'])]; ys += [float(a['y1']), float(a['y2'])]
+            elif tag == 'rect':
+                x, y = float(a.get('x', 0)), float(a.get('y', 0))
+                xs += [x, x + float(a['width'])]; ys += [y, y + float(a['height'])]
+            elif tag in ('polyline', 'polygon'):
+                pts = [float(v) for v in _NUM.findall(a['points'])]
+                xs += pts[0::2]; ys += pts[1::2]
+            else:
+                px, py = _path_points(a['d'])
+                if px is None:
+                    return full
+                xs += px; ys += py
+        except (KeyError, ValueError):
+            return full
+    if not xs or not ys:
+        return full
+    x0, x1 = max(vb[0], min(xs)), min(vb[0] + vb[2], max(xs))
+    y0, y1 = max(vb[1], min(ys)), min(vb[1] + vb[3], max(ys))
+    if x1 <= x0 or y1 <= y0:
+        return full
+    return {'x': round((x0 - vb[0]) / vb[2], 4), 'y': round((y0 - vb[1]) / vb[3], 4), 'w': round((x1 - x0) / vb[2], 4), 'h': round((y1 - y0) / vb[3], 4)}
+
+
+def _path_points(d: str) -> Tuple[Optional[List[float]], Optional[List[float]]]:
+    """Absolute x/y of every coordinate in a path (arcs report their endpoints only)."""
+    xs: List[float] = []
+    ys: List[float] = []
+    cx = cy = 0.0
+    sx = sy = 0.0
+    for cmd, body in re.findall(r'([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)', d):
+        nums = [float(v) for v in _NUM.findall(body)]
+        rel = cmd.islower()
+        c = cmd.upper()
+        if c == 'Z':
+            cx, cy = sx, sy
+            continue
+        if c == 'H':
+            for v in nums:
+                cx = cx + v if rel else v
+                xs.append(cx); ys.append(cy)
+            continue
+        if c == 'V':
+            for v in nums:
+                cy = cy + v if rel else v
+                xs.append(cx); ys.append(cy)
+            continue
+        stride = {'M': 2, 'L': 2, 'T': 2, 'S': 4, 'Q': 4, 'C': 6, 'A': 7}[c]
+        if len(nums) % stride:
+            return None, None
+        for i in range(0, len(nums), stride):
+            seg = nums[i:i + stride]
+            pts = [(seg[j], seg[j + 1]) for j in range(0, len(seg) - 1, 2)] if c != 'A' else [(seg[5], seg[6])]
+            for px, py in pts:
+                px, py = (cx + px, cy + py) if rel else (px, py)
+                xs.append(px); ys.append(py)
+            cx, cy = xs[-1], ys[-1]
+            if c == 'M':
+                sx, sy = cx, cy
+    return xs, ys
+
+
+def _art_bbox(bbox: Dict[str, float], art: Dict[str, float]) -> Dict[str, float]:
+    return _box(bbox['x'] + bbox['w'] * art['x'], bbox['y'] + bbox['h'] * art['y'], bbox['w'] * art['w'], bbox['h'] * art['h'])
+
+
+def _viewbox_for_art(art_bbox: Dict[str, float], art: Dict[str, float]) -> Dict[str, float]:
+    w, h = art_bbox['w'] / art['w'], art_bbox['h'] / art['h']
+    return _box(art_bbox['x'] - w * art['x'], art_bbox['y'] - h * art['y'], w, h)
+
+
 class IllustrationRegistry:
     """Catalogue of drawable line assets P8 may reference by id. Never searched by wording here."""
 
@@ -86,7 +183,11 @@ class IllustrationRegistry:
         p = self.root / item['path']
         if not p.exists():
             raise TreatmentError('ASSET_FILE_MISSING', str(p), beat_id)
-        return {'id': ref, 'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'license': item['license'], 'family': item['family']}
+        return {'id': ref, 'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'license': item['license'], 'family': item['family'],
+                'art_box': svg_art_box(p.read_text())}
+
+    def art_box(self, ref: str, beat_id: str) -> Dict[str, float]:
+        return self.resolve(ref, beat_id)['art_box']
 
 
 class IllustrationSolver:
@@ -115,19 +216,27 @@ class IllustrationSolver:
             cur += size + gap
         return cells
 
-    def _entity_ar(self, e: IllustrationEntity) -> float:
+    def _entity_ar(self, e: IllustrationEntity, beat_id: str = '') -> float:
         if e.glyph == 'MEDIA':
             a = self.media_library[e.media_ref]
             return a.width / a.height
+        if e.glyph == 'ICON':
+            art = self.registry.art_box(e.asset_ref, beat_id)
+            return art['w'] / art['h'] if art['h'] else 1.0
         return GLYPH_ASPECT[e.glyph]
 
-    def _place(self, e: IllustrationEntity, cell: Dict[str, float], zone: Dict[str, float], vertical: bool) -> Tuple[Dict[str, float], Optional[Dict[str, float]]]:
-        """Glyph bbox and, if labelled, a label strip under it."""
+    def _place(self, e: IllustrationEntity, cell: Dict[str, float], zone: Dict[str, float], vertical: bool, beat_id: str = '') -> Tuple[Dict[str, float], Optional[Dict[str, float]]]:
+        """Glyph bbox and, if labelled, a label strip under it.
+
+        For an ICON the drawn artwork (not its viewBox padding) is what fills the cell; the returned bbox is
+        the viewBox the runtime maps, so the art lands exactly where the solver measured it."""
         label_h = zone['h'] * LABEL_H_FRAC if e.label and e.glyph not in ('PILL', 'CARD') else 0.0
         body = _box(cell['x'], cell['y'], cell['w'], cell['h'] - label_h)
         scale = {'hero': 0.92, 'support': 0.78, 'minor': 0.66}[e.size]
         # Weighted cells already encode size; a hero in a row keeps its full cell, supports breathe.
-        bbox = _fit_aspect(body, self._entity_ar(e), scale)
+        bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
+        if e.glyph == 'ICON':
+            bbox = _viewbox_for_art(bbox, self.registry.art_box(e.asset_ref, beat_id))
         if e.glyph == 'PILL' and e.label:
             # A pill is a label carrier: it widens (up to 5:1) until its label sits at the floor size on one line.
             floor = FLOOR_FRACTION['label'] * min(self.canvas)
@@ -161,13 +270,15 @@ class IllustrationSolver:
         for e in il.entities:
             if e.id in contained or e.id in lenses:
                 continue
-            bbox, label_box = self._place(e, cells[e.id], zone, vertical)
+            bbox, label_box = self._place(e, cells[e.id], zone, vertical, beat_id)
             placed[e.id] = self._entity_plan(e, bbox, label_box, failures, beat_id)
         for e in il.entities:
             if e.id in contained:
-                host = placed[contained[e.id]]['bbox']
+                host = placed[contained[e.id]]['art_bbox']
                 inset = _box(host['x'] + host['w'] * 0.18, host['y'] + host['h'] * 0.18, host['w'] * 0.64, host['h'] * 0.64)
-                bbox = _fit_aspect(inset, self._entity_ar(e))
+                bbox = _fit_aspect(inset, self._entity_ar(e, beat_id))
+                if e.glyph == 'ICON':
+                    bbox = _viewbox_for_art(bbox, self.registry.art_box(e.asset_ref, beat_id))
                 placed[e.id] = self._entity_plan(e, bbox, None, failures, beat_id)
                 placed[e.id]['inside'] = contained[e.id]
             elif e.id in lenses:
@@ -176,25 +287,36 @@ class IllustrationSolver:
                     failures.append(f'LENS_WITHOUT_SUBJECT:{e.id}')
                     host = dict(zone)
                 else:
-                    host = placed[over_id]['bbox']
-                wide = host['w'] > host['h'] * 1.5
-                d = min(host['h'] * 1.6 if wide else max(host['w'], host['h']) * 1.18, min(zone['w'], zone['h']))
-                hx, hy = _centre(host)
-                x = min(max(hx - d / 2, zone['x']), zone['x'] + zone['w'] - d)
-                y = min(max(hy - d / 2, zone['y']), zone['y'] + zone['h'] - d)
-                bbox = _box(x, y, d, d)
+                    host = dict(placed[over_id]['art_bbox'])
+                    # The loupe is cut for the widest subject it will travel over.
+                    for op in il.program:
+                        if op.op == 'TRAVEL' and op.target == e.id:
+                            for oid in op.params.get('over', []):
+                                if oid in placed:
+                                    host['w'] = max(host['w'], placed[oid]['art_bbox']['w'])
+                                    host['h'] = max(host['h'], placed[oid]['art_bbox']['h'])
+                hx, hy = _centre(placed[over_id]['art_bbox']) if over_id else _centre(host)
+                if host['w'] > host['h'] * 1.5:
+                    # A wide subject is framed by a loupe around it, so its label stays clear.
+                    pad = host['h'] * 0.22
+                    bw, bh = host['w'] + pad * 2, host['h'] + pad * 2
+                else:
+                    bw = bh = min(max(host['w'], host['h']) * 1.18, min(zone['w'], zone['h']))
+                x = min(max(hx - bw / 2, zone['x']), zone['x'] + zone['w'] - bw)
+                y = min(max(hy - bh / 2, zone['y']), zone['y'] + zone['h'] - bh)
+                bbox = _box(x, y, bw, bh)
                 placed[e.id] = self._entity_plan(e, bbox, None, failures, beat_id)
                 placed[e.id]['over'] = over_id
         ents = [placed[e.id] for e in il.entities]
         for i in range(len(ents)):
-            if not _inside(ents[i]['bbox'], zone, 2):
+            if not _inside(ents[i]['art_bbox'], zone, 2):
                 failures.append(f"ENTITY_OUTSIDE_ZONE:{ents[i]['id']}")
             for j in range(i + 1, len(ents)):
                 if ents[i].get('inside') == ents[j]['id'] or ents[j].get('inside') == ents[i]['id']:
                     continue
                 if ents[i]['glyph'] == 'LENS' or ents[j]['glyph'] == 'LENS':
                     continue  # a lens is allowed to sit over what it inspects
-                if _overlap(ents[i]['bbox'], ents[j]['bbox']) > 0.5:
+                if _overlap(ents[i]['art_bbox'], ents[j]['art_bbox']) > 0.5:
                     failures.append(f"ENTITY_COLLISION:{ents[i]['id']}:{ents[j]['id']}")
         return ents, failures
 
@@ -276,9 +398,10 @@ class IllustrationSolver:
         return cells
 
     def _entity_plan(self, e: IllustrationEntity, bbox: Dict[str, float], label_box: Optional[Dict[str, float]], failures: List[str], beat_id: str) -> Dict[str, Any]:
-        plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
+        plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'bbox': bbox, 'art_bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
         if e.glyph == 'ICON':
             plan['asset'] = self.registry.resolve(e.asset_ref, beat_id)
+            plan['art_bbox'] = _art_bbox(bbox, plan['asset']['art_box'])
         if e.glyph == 'MEDIA':
             a = self.media_library[e.media_ref]
             nm = self.media_files.get(e.media_ref)
@@ -303,7 +426,7 @@ class IllustrationSolver:
         by_id = {e['id']: e for e in ents}
         out = []
         for r in il.relations:
-            a, b = by_id[r.source]['bbox'], by_id[r.target]['bbox']
+            a, b = by_id[r.source]['art_bbox'], by_id[r.target]['art_bbox']
             rel = {'type': r.type, 'source': r.source, 'target': r.target, 'id': f'{r.source}->{r.target}', 'path': None, 'arrow': r.type in ARROWED, 'bar': r.type == 'blocks'}
             if r.type in LINED:
                 ax, ay = _centre(a)

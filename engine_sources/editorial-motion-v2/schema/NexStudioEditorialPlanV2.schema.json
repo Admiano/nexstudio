@@ -157,7 +157,8 @@
           "enum": [
             "RECORDED",
             "ROUTE",
-            "FIXTURE"
+            "FIXTURE",
+            "MASTER"
           ]
         },
         "segments": {
@@ -174,7 +175,8 @@
                 "enum": [
                   "RECORDED",
                   "ROUTE",
-                  "FIXTURE"
+                  "FIXTURE",
+                  "MASTER"
                 ]
               },
               "audio_path": {
@@ -206,6 +208,12 @@
               "duration_ms"
             ]
           }
+        },
+        "timeline": {
+          "type": [
+            "object",
+            "null"
+          ]
         }
       },
       "required": [
@@ -1393,6 +1401,37 @@
                                 "family": {
                                   "type": "string",
                                   "minLength": 1
+                                },
+                                "art_box": {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "y": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "w": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "h": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y",
+                                    "w",
+                                    "h"
+                                  ]
                                 }
                               },
                               "required": [
@@ -1554,6 +1593,29 @@
                           },
                           "required": [],
                           "additionalProperties": false
+                        },
+                        "art_bbox": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "w": {
+                              "type": "number"
+                            },
+                            "h": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "x",
+                            "y",
+                            "w",
+                            "h"
+                          ]
                         }
                       },
                       "required": [
@@ -1566,7 +1628,8 @@
                         "enter_ms",
                         "enter_duration_ms",
                         "carried",
-                        "state_in"
+                        "state_in",
+                        "art_bbox"
                       ]
                     },
                     "minItems": 1
@@ -2034,7 +2097,8 @@
           "enum": [
             "RECORDED",
             "ROUTE",
-            "FIXTURE"
+            "FIXTURE",
+            "MASTER"
           ]
         },
         "commercial_certification": {
