@@ -270,6 +270,62 @@ test('all three ratios direct successfully from one script', () => {
   }
 });
 
+console.log('\nreading edge cases');
+test('a decimal figure survives sentence splitting', () => {
+  const doc = Script.read('Costs fell. Second: 12.5% of the bill, or €99.', { duration: 10 });
+  const all = doc.beats.map((b) => b.text).join(' ');
+  assert(!/\b12\.\s/.test(all), 'a decimal was split into two sentences');
+  const numbers = doc.beats.flatMap((b) => b.entities.numbers.map((n) => n.trim()));
+  assert(numbers.some((n) => n.startsWith('12.5')), 'the statistic lost its decimal: ' + JSON.stringify(numbers));
+});
+test('a quoted sentence keeps its closing punctuation', () => {
+  const doc = Script.read('She put it plainly: "Clarity is enough." Nothing else shipped.', { duration: 10 });
+  doc.beats.forEach((b) => b.sentences.forEach((s) => {
+    assert(/[a-z0-9]/i.test(s), 'a sentence of punctuation only: ' + JSON.stringify(s));
+  }));
+});
+test('abbreviations do not end a sentence', () => {
+  const doc = Script.read('Dr. Ada shipped it in one week.', { duration: 6 });
+  assert(doc.beats[0].sentences.length === 1, 'split on an abbreviation');
+});
+test('a card never carries more copy than it can show', () => {
+  const long = 'This paragraph runs on and on with clause after clause, ' +
+    'and it keeps adding words far beyond what any single card could ever hold at a readable size, ' +
+    'piling detail upon detail until the sentence finally stops.';
+  const doc = Script.read(long + '\n' + long, { duration: 12 });
+  const cap = require(path.join(root, 'manifests/editorial-lexicon.json')).pacing.maxWordsPerCard;
+  doc.beats.forEach((b) => {
+    const shown = b.display.split(/\s+/).filter(Boolean).length;
+    assert(shown <= cap + 1, 'card shows ' + shown + ' words, cap ' + cap);
+    assert(b.display.length, 'a beat shows nothing');
+  });
+});
+
+console.log('\nfigures stay full body');
+test('spoken beats never crop to a bust', () => {
+  const script = 'The nurse says the ward is short staffed.\nA worker asks why nothing changed.\nShe tells the team the truth.';
+  for (const ratio of RATIOS) {
+    const p = Director.direct(script, { ratio, duration: 24, registries: reg });
+    p.shots.filter((s) => s.character).forEach((s) => {
+      assert(s.character.framing !== 'bust', 'a bust was staged in ' + ratio);
+      assert(['standing', 'sitting'].includes(s.character.framing), 'unknown framing ' + s.character.framing);
+    });
+  }
+});
+test('anger and exhaustion resolve to faces that show them', () => {
+  const cases = [
+    { text: 'The team is angry: the release broke again and everything is stuck.', want: ['angry', 'rage', 'frustrat', 'annoy'] },
+    { text: 'Workers are exhausted after another endless week of manual busywork.', want: ['tired', 'exhaust', 'weary', 'sad', 'bored'] }
+  ];
+  for (const { text, want } of cases) {
+    const doc = Script.read(text, { duration: 6 });
+    const selection = Peeps.resolve({ ...Script.brief(doc.beats[0]), framing: 'standing', seed: text });
+    const label = (selection.parts.face.id + ' ' + (selection.emotion.emotion || '') + ' ' + (selection.emotion.tags || []).join(' ')).toLowerCase();
+    assert(selection.emotion.valence < -0.25, 'a negative beat drew a positive face: ' + label);
+    assert(want.some((w) => label.includes(w)), 'face does not read as the stated emotion: ' + label);
+  }
+});
+
 console.log('\npackaging');
 test('the generated data bundle matches the manifests on disk', () => {
   const bundlePath = path.join(root, 'manifests/editorial-data.js');

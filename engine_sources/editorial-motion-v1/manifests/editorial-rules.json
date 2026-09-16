@@ -143,7 +143,10 @@
       "date-location-label": {
         "names": 1
       }
-    }
+    },
+    "minBodyHeightRatio": 0.02,
+    "minMetaHeightRatio": 0.016,
+    "readabilityNote": "Supporting copy is never shrunk below a share of the frame height; it sheds its own trailing words instead."
   },
   "icons": {
     "minScore": 0.34,
@@ -157,7 +160,13 @@
     "intentWeight": 0.8,
     "emphasisBias": 0.15,
     "suppressWithMedia": 1,
-    "suppressWithCharacter": 1
+    "suppressWithCharacter": 1,
+    "keywordDenylist": {
+      "home": [
+        "dashboard"
+      ]
+    },
+    "denylistNote": "Words a registry icon claims but does not depict: a dashboard is not a house."
   },
   "media": {
     "minScore": 0.3,
@@ -221,7 +230,8 @@
       "image": "paper-framed-photograph",
       "video": "video-player",
       "audio": "audio-player"
-    }
+    },
+    "requireKeywordMatch": true
   },
   "character": {
     "emphasisGate": 0.62,
@@ -232,19 +242,16 @@
     "allowWithMedia": false,
     "framingByRatio": {
       "16:9": {
-        "standing": 0.7,
-        "sitting": 0.2,
-        "bust": 0.1
+        "standing": 0.75,
+        "sitting": 0.25
       },
       "1:1": {
-        "standing": 0.45,
-        "sitting": 0.2,
-        "bust": 0.35
+        "standing": 0.6,
+        "sitting": 0.4
       },
       "9:16": {
-        "standing": 0.8,
-        "sitting": 0.1,
-        "bust": 0.1
+        "standing": 0.85,
+        "sitting": 0.15
       }
     },
     "sittingCues": [
@@ -257,17 +264,8 @@
       "study",
       "commute"
     ],
-    "bustCues": [
-      "said",
-      "says",
-      "asks",
-      "tells",
-      "explains",
-      "voice",
-      "interview",
-      "quote"
-    ],
-    "personFloor": 0.2
+    "personFloor": 0.2,
+    "fullBodyOnly": true
   },
   "frames": {
     "16:9": {
@@ -291,5 +289,9 @@
       "maxElements": 3,
       "textShare": 0.55
     }
+  },
+  "shots": {
+    "entryLead": 0.5,
+    "entryLeadNote": "A shot cuts in with its type already half way through its entry, so a cut lands on legible copy and two shots never share the frame; the remaining motion settles it."
   }
 }

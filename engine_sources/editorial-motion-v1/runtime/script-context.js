@@ -25,18 +25,45 @@
     return String(text || '').replace(/\s+/g, ' ').trim();
   }
 
+  const ABBREVIATIONS = new Set((lex.abbreviations || []).map((a) => a.toLowerCase()));
+
+  /**
+   * A full stop only ends a sentence when it is not inside a number ('12.5%'),
+   * not part of a known abbreviation ('e.g.'), and once any closing quote or
+   * bracket that belongs to the sentence has been taken with it — otherwise a
+   * quoted line leaves a shot holding nothing but a quotation mark.
+   */
   function sentences(text) {
     const lines = String(text || '')
       .split(/\n+/)
       .map((line) => line.trim())
       .filter(Boolean);
     const out = [];
+
+    const push = (value) => {
+      const v = normalise(value);
+      if (!v) return;
+      if (/[a-z0-9]/i.test(v)) out.push(v);
+      else if (out.length) out[out.length - 1] += v;
+    };
+
     for (const line of lines) {
-      const parts = line.match(/[^.!?…]+[.!?…]*/g) || [line];
-      for (const part of parts) {
-        const value = normalise(part);
-        if (value) out.push(value);
+      let buffer = '';
+      for (let i = 0; i < line.length; i += 1) {
+        const ch = line[i];
+        buffer += ch;
+        if (!'.!?…'.includes(ch)) continue;
+        if (ch === '.' && /\d/.test(line[i - 1] || '') && /\d/.test(line[i + 1] || '')) continue;
+        const token = (buffer.match(/[^\s]+$/) || [''])[0].toLowerCase();
+        if (ch === '.' && ABBREVIATIONS.has(token)) continue;
+        let j = i + 1;
+        while (j < line.length && /[.!?…”’"')\]]/.test(line[j])) buffer += line[j++];
+        if (j < line.length && !/\s/.test(line[j])) { i = j - 1; continue; }
+        push(buffer);
+        buffer = '';
+        i = j - 1;
       }
+      push(buffer);
     }
     return out;
   }
@@ -255,6 +282,27 @@
       };
     });
 
+    // A card holds what a reader can read in the seconds it is on screen. Past
+    // that, the beat still carries its full text for analysis, but what the
+    // frame shows is an excerpt of the script's own words rather than a wall of
+    // type shrunk to nothing.
+    const maxWords = (lex.pacing || {}).maxWordsPerCard || 0;
+    beats.forEach((beat) => {
+      const shown = [];
+      let load = 0;
+      for (const sentence of beat.sentences) {
+        const n = words(sentence).length;
+        if (maxWords && shown.length && load + n > maxWords) break;
+        shown.push(sentence);
+        load += n;
+      }
+      if (maxWords && shown.length === 1 && load > maxWords) {
+        shown[0] = shown[0].split(/\s+/).slice(0, maxWords).join(' ') + '…';
+      }
+      beat.displaySentences = shown;
+      beat.display = shown.join(' ');
+    });
+
     const values = beats.map((b) => b.rawEmphasis);
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -293,7 +341,10 @@
     const role = (lex.beatRoles || {})[beat.role] || {};
     const disposition = role.disposition || { valence: 0, arousal: 0.35, formality: 0.5 };
     const measured = beat.emotion || { valence: 0, arousal: 0.3, confidence: 0, tags: [] };
-    const w = clamp(measured.confidence ?? 0);
+    // A stated emotion leads even when the script states it once: the role's
+    // disposition colours the blend rather than overruling the words.
+    const stated = (measured.tags || []).length ? clamp(0.6 + (measured.confidence ?? 0) * 0.4) : 0;
+    const w = stated;
     const valence = measured.valence * w + disposition.valence * (1 - w);
     const arousal = measured.arousal * w + disposition.arousal * (1 - w);
     return {

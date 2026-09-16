@@ -70,6 +70,139 @@ window.NexEditorial = (() => {
     return node;
   }
 
+  /**
+   * The kinetic component animates one letter per inline-block span, which
+   * lets a line wrap mid-word. Letters are regrouped per word so a word breaks
+   * only between words, and the fitter shrinks the type instead.
+   */
+  function keepWordsWhole(node) {
+    node.querySelectorAll('.kinetic-letters').forEach((line) => {
+      const letters = [...line.children];
+      if (!letters.length) return;
+      const text = line.textContent;
+      let index = 0;
+      const frag = document.createDocumentFragment();
+      let word = null;
+      for (const ch of text) {
+        if (ch === ' ') {
+          word = null;
+          frag.appendChild(document.createTextNode(' '));
+          continue;
+        }
+        if (!word) {
+          word = document.createElement('span');
+          word.className = 'ed-word';
+          frag.appendChild(word);
+        }
+        word.appendChild(letters[index] || document.createTextNode(ch));
+        index += 1;
+      }
+      line.innerHTML = '';
+      line.appendChild(frag);
+    });
+    return node;
+  }
+
+  const RULES = () => window.NEX_EDITORIAL_RULES || {};
+
+  /**
+   * The vendored fitter shrinks type until the card fits, which can take
+   * supporting copy down to a size nobody reads. Below that floor the copy
+   * holds its size and sheds its own trailing words instead, so what is on
+   * screen is always legible and always the script's words.
+   */
+  function enforceReadableCopy(scene, frameHeight) {
+    const rules = RULES().typography || {};
+    const floors = [
+      ['.type-body', rules.minBodyHeightRatio],
+      ['.type-meta', rules.minMetaHeightRatio]
+    ];
+    const paper = scene.querySelector('.type-paper');
+    const content = scene.querySelector('.type-content') || paper;
+    if (!paper || !content) return;
+    const overflows = () =>
+      content.scrollHeight > paper.clientHeight - 42 ||
+      content.scrollWidth > paper.clientWidth - 38;
+
+    floors.forEach(([selector, ratio]) => {
+      if (!ratio) return;
+      const min = frameHeight * ratio;
+      scene.querySelectorAll('.ed-type ' + selector).forEach((node) => {
+        if (!node.textContent.trim()) return;
+        if ((parseFloat(getComputedStyle(node).fontSize) || 0) >= min) return;
+        node.style.fontSize = min + 'px';
+        node.style.lineHeight = '1.18';
+        node.style.letterSpacing = 'normal';
+        const words = node.textContent.trim().split(/\s+/);
+        let guard = 0;
+        while (words.length > 1 && overflows() && guard < 400) {
+          words.pop();
+          node.textContent = words.join(' ') + '…';
+          guard += 1;
+        }
+        if (words.length <= 1 && overflows()) markEmpty(node);
+      });
+    });
+  }
+
+  function markEmpty(node) {
+    node.textContent = '';
+    node.classList.add('ed-empty');
+  }
+
+  /** Page coordinates of the glyphs themselves, not of the block they sit in. */
+  function inkEdges(node) {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const boxes = [...range.getClientRects()].filter((b) => b.width > 0.5);
+    if (!boxes.length) return null;
+    return {
+      left: Math.min(...boxes.map((b) => b.left)),
+      right: Math.max(...boxes.map((b) => b.right))
+    };
+  }
+
+  /** The content box of the card the copy has to live inside. */
+  function contentEdges(paper) {
+    const rect = paper.getBoundingClientRect();
+    const cs = getComputedStyle(paper);
+    return {
+      left: rect.left + parseFloat(cs.paddingLeft || 0),
+      right: rect.right - parseFloat(cs.paddingRight || 0)
+    };
+  }
+
+  /**
+   * The vendored fitter measures scrollWidth, which a clipped inline-block word
+   * can hide. Measuring the glyphs directly catches the last few pixels of a
+   * long word running past the card edge.
+   */
+  function containLines(scene) {
+    const paper = scene.querySelector('.type-paper');
+    if (!paper) return;
+    scene.querySelectorAll('.ed-type .type-main, .ed-type .type-body, .ed-type .type-meta')
+      .forEach((node) => {
+        if (!node.textContent.trim()) return;
+        const start = parseFloat(getComputedStyle(node).fontSize) || 24;
+        // Only the overhang is corrected: a card that already fits keeps the
+        // size the fitter chose, and nothing shrinks past three quarters of it.
+        const floor = Math.max(9, start * 0.75);
+        let size = start;
+        let guard = 0;
+        const overhangs = () => {
+          const ink = inkEdges(node);
+          if (!ink) return false;
+          const box = contentEdges(paper);
+          return ink.right > box.right + 1 || ink.left < box.left - 1;
+        };
+        while (size > floor && overhangs() && guard < 60) {
+          size *= 0.97;
+          node.style.fontSize = size + 'px';
+          guard += 1;
+        }
+      });
+  }
+
   function placeRegion(node, region) {
     node.style.left = (region.x * 100) + '%';
     node.style.top = (region.y * 100) + '%';
@@ -100,6 +233,12 @@ window.NexEditorial = (() => {
     });
     pruneSlots(node, content);
     node.classList.add('ed-media-node');
+    // An upload that will not load is dropped rather than shown as a broken
+    // frame: the file name is not the script's copy and never reaches screen.
+    node.querySelectorAll('img, video').forEach((el) => {
+      el.removeAttribute('alt');
+      el.addEventListener('error', () => { wrap.classList.add('ed-empty'); }, { once: true });
+    });
     wrap.appendChild(node);
     return wrap;
   }
@@ -145,6 +284,7 @@ window.NexEditorial = (() => {
         energy: shot.emphasis > 0.66 ? 'high' : shot.emphasis > 0.33 ? 'medium' : 'low'
       });
       pruneSlots(typeNode, shot.typography.content);
+      keepWordsWhole(typeNode);
       typeWrap.appendChild(typeNode);
 
       const built = { shot, scene, typeNode, icons: null, media: null, character: null };
@@ -164,6 +304,14 @@ window.NexEditorial = (() => {
     }
     host.__editorialPlan = plan;
     host.__editorialShots = shots;
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const frameHeight = host.getBoundingClientRect().height;
+    if (frameHeight) {
+      shots.forEach(({ scene }) => {
+        enforceReadableCopy(scene, frameHeight);
+        containLines(scene);
+      });
+    }
     return host;
   }
 
@@ -178,20 +326,29 @@ window.NexEditorial = (() => {
     if (!plan) throw new Error('Call NexEditorial.create() before animate()');
     const tl = window.NexMotion.createTimeline({ defaults: { ease: 'power3.out' } });
     const hold = Number(options.hold ?? 0.35);
+    // A cut, never a dissolve: one shot owns the frame at a time, so outgoing
+    // and incoming copy can never overlap each other. The cut still never
+    // lands on an empty card, because a shot arrives with its type already
+    // part way through its entry and finishes arriving on screen.
+    const lead = Math.min(0.6, Math.max(0, Number(options.entryLead ?? (RULES().shots || {}).entryLead ?? 0.18)));
+    const typeIn = (shot) => Math.min(1.6, shot.duration * 0.55);
 
-    shots.forEach((built) => {
+    shots.forEach((built, i) => {
       const { shot, scene } = built;
       const start = shot.start;
       const end = shot.start + shot.duration;
       tl.set(scene, { opacity: 0, pointerEvents: 'none' }, 0);
       tl.set(scene, { opacity: 1 }, start);
-      tl.set(scene, { opacity: 0 }, Math.max(start, end - 0.01));
+      // The last shot holds to the end of the film.
+      if (i < shots.length - 1) tl.set(scene, { opacity: 0 }, end);
 
       const typeTl = window.NexTypography.animate(built.typeNode, {
-        duration: Math.min(1.6, shot.duration * 0.55),
-        energy: built.typeNode.dataset.energy
+        duration: typeIn(shot),
+        energy: built.typeNode.dataset.energy,
+        visibleStart: true
       });
-      tl.addUpdate(start, Math.min(1.6, shot.duration * 0.55), (p) => typeTl.progress(p));
+      typeTl.progress(lead);
+      tl.addUpdate(start, typeIn(shot) * (1 - lead), (p) => typeTl.progress(lead + (1 - lead) * p));
 
       if (built.icons) {
         [...built.icons.children].forEach((node, i) => {
@@ -204,10 +361,9 @@ window.NexEditorial = (() => {
           { opacity: 1, scale: 1, rotation: 0, duration: 0.6, ease: 'back.out(1.4)' }, start + hold * 0.6);
       }
       if (built.character) {
-        // A still: the figure is cut into the frame and held. No transform, no
-        // loop, no idle — only presence.
-        tl.set(built.character, { opacity: 0 }, start);
-        tl.set(built.character, { opacity: 1 }, start + hold);
+        // A still: the figure fades up once and holds. Opacity only — no
+        // transform, no loop, no idle.
+        tl.fromTo(built.character, { opacity: 0 }, { opacity: 1, duration: hold, ease: 'power1.out' }, start);
       }
     });
 

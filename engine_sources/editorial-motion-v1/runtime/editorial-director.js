@@ -94,8 +94,11 @@
 
   /** Content for the chosen typographic component, taken from the beat itself. */
   function typographyContent(def, beat) {
-    const sentences = beat.sentences.slice();
-    const head = sentences[0] || beat.text;
+    // What the card shows is the beat's readable excerpt, not necessarily every
+    // word it was analysed from.
+    const sentences = (beat.displaySentences || beat.sentences).slice();
+    const shown = beat.display || beat.text;
+    const head = sentences[0] || shown;
     const rest = sentences.slice(1).join(' ');
     const keywords = (beat.keywords || []).map((k) => k.term);
     const content = {
@@ -110,10 +113,12 @@
     };
     switch (def.slug) {
       case 'statistic-headline':
-        content.title = beat.entities.numbers[0] || head;
+        // The figure is the one the shown sentence actually states, so a card
+        // can never headline a number the reader cannot see underneath it.
+        content.title = (beat.entities.numbers.find((n) => shown.includes(n)) || beat.entities.numbers[0] || head);
         // The sentence stays whole under the figure: cutting the number out of
         // it leaves a hole in the copy ("cut reporting time by  in the month").
-        content.body = beat.text;
+        content.body = shown;
         break;
       case 'quote-card':
         content.title = beat.entities.quotes[0] || head;
@@ -122,8 +127,8 @@
       case 'numbered-list':
       case 'bullet-list':
         content.title = beat.role === 'step' ? head : '';
-        content.items = (beat.sentences.length > 1 ? beat.sentences.slice(beat.role === 'step' ? 1 : 0) : [beat.text]).slice(0, 4);
-        if (!content.items.length) content.items = [beat.text];
+        content.items = (sentences.length > 1 ? sentences.slice(beat.role === 'step' ? 1 : 0) : [shown]).slice(0, 4);
+        if (!content.items.length) content.items = [shown];
         break;
       case 'kinetic-keyword':
         content.title = keywords[0] ? keywords[0].toUpperCase() : head;
@@ -136,7 +141,7 @@
       case 'name-role-card':
       case 'speaker-identification':
         content.title = beat.entities.names[0] || head;
-        content.body = rest || beat.text;
+        content.body = rest || shown;
         break;
       default:
         break;
@@ -183,7 +188,9 @@
     const shared = ambiguity(registry);
     const ranked = registry
       .map((def) => {
-        const own = (def.keywords || []).filter((k) => !GENERIC_KEYWORDS.has(lower(k)) && lower(k).length > 2);
+        const denied = new Set(((rules.keywordDenylist || {})[def.slug] || []).map(lower));
+        const own = (def.keywords || []).filter((k) =>
+          !GENERIC_KEYWORDS.has(lower(k)) && !denied.has(lower(k)) && lower(k).length > 2);
         const matched = own.filter((k) => said.has(lower(k)) &&
           (lower(k) === lower(def.slug) || (shared.get(lower(k)) || 0) < 2));
         if (!matched.length) return { def, score: 0, matched };
@@ -222,7 +229,11 @@
     const ranked = library
       .map((item, index) => {
         const tokens = mediaTokens(item);
-        let score = overlap(tokens, terms) * rules.keywordWeight + beat.showCue * rules.showCueWeight;
+        const named = overlap(tokens, terms);
+        let score = named * rules.keywordWeight + beat.showCue * rules.showCueWeight;
+        // "Show me" is not enough on its own: an upload has to be about the
+        // beat, or a volcano line borrows whatever file happens to be loaded.
+        if (rules.requireKeywordMatch && !named) score = 0;
         if ((used[index] || 0) >= rules.maxReuse) score -= 2;
         return { item, index, tokens, score: round(score) };
       })
@@ -251,13 +262,20 @@
     return { allowed: true, score: round(score) };
   }
 
+  /**
+   * Figures are full body: standing, or seated where the beat is set at a desk.
+   * Busts are never staged — a cropped head reads as a stock portrait, not as
+   * an editorial emphasis.
+   */
   function framingFor(beat, ratio) {
     const rules = RULES.character;
     const hay = ' ' + lower(beat.text) + ' ';
-    if (termHits(rules.bustCues, hay)) return 'bust';
     if (termHits(rules.sittingCues, hay)) return 'sitting';
     const weights = rules.framingByRatio[ratio] || { standing: 1 };
-    return Object.entries(weights).sort((a, b) => b[1] - a[1])[0][0];
+    const ranked = Object.entries(weights)
+      .filter(([id]) => !rules.fullBodyOnly || id !== 'bust')
+      .sort((a, b) => b[1] - a[1]);
+    return (ranked[0] || ['standing'])[0];
   }
 
   /**
@@ -328,7 +346,8 @@
         duration: beat.duration,
         role: beat.role,
         emphasis: beat.emphasis,
-        text: beat.text,
+        text: beat.display || beat.text,
+        sourceText: beat.text,
         conditions: conds,
         typography: {
           id: typography.def.id,
