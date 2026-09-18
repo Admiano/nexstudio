@@ -77,67 +77,8 @@ def load_execution_body(package_root: str | None = None):
     import whiteboard_compiler  # noqa: E402
     import whiteboard_pil_adapter  # noqa: E402
     import sound_choreographer  # noqa: E402
-    _install_semantic_skin_resolution(whiteboard_pil_adapter)
-    return whiteboard_compiler, whiteboard_pil_adapter, sound_choreographer
-
-
-# The preserved semantic path deliberately refuses to guess pictograms for
-# entities (`_semantic_prim` emits the generic 'object' skin). The V3 lineage
-# rendered recognizable skins for known noun classes (person, phone, document,
-# screen, package, desk, doorway, ...). This shim re-binds that vocabulary onto
-# the preserved skin set without editing the frozen preserved source.
-_SKIN_KEYWORDS = {
-    'person': ('person', 'customer', 'user', 'agent', 'human', 'operator', 'worker',
-               'courier', 'staff', 'client', 'buyer', 'seller', 'employee', 'man',
-               'woman', 'child', 'team', 'audience', 'customer support'),
-    'phone': ('phone', 'smartphone', 'mobile', 'call'),
-    'screen': ('screen', 'monitor', 'display', 'dashboard', 'interface', 'app'),
-    'document': ('document', 'report', 'file', 'form', 'contract', 'ticket',
-                 'invoice', 'letter', 'request', 'proposal', 'brief', 'order',
-                 'application', 'message', 'email', 'inbox'),
-    'package': ('package', 'box', 'parcel', 'product', 'delivery'),
-    'desk': ('desk', 'workstation', 'office'),
-    'doorway': ('door', 'doorway', 'entry', 'gateway', 'portal', 'login'),
-    'wallet': ('wallet', 'money', 'payment', 'cash', 'budget', 'price', 'cost'),
-    'cup': ('cup', 'coffee', 'drink', 'mug'),
-    'bottle': ('bottle', 'drink container'),
-    'chair': ('chair', 'seat'),
-    'shelf': ('shelf', 'inventory', 'catalog', 'library', 'queue'),
-}
-
-
-def _skin_for(concept: str) -> str:
-    words = set(str(concept).lower().replace('-', ' ').replace('_', ' ').split())
-    phrase = str(concept).lower()
-    for skin, keys in _SKIN_KEYWORDS.items():
-        if any(k in words or k in phrase for k in keys):
-            return skin
-    return 'object'
-
-
-def _install_semantic_skin_resolution(adapter) -> None:
-    original = adapter._semantic_prim
-
-    def _semantic_prim_v3(pos, size, concept, show_label=True):
-        return ('semantic', pos, size, str(concept), _skin_for(str(concept)), bool(show_label))
-
-    if getattr(adapter, '_v3_skin_resolution_installed', False):
-        return
-    adapter._semantic_prim = _semantic_prim_v3
-    adapter._v3_skin_resolution_installed = True
-    adapter._v3_original_semantic_prim = original
-
-    # The preserved body emits a 'type' prim for screenCopy.primary AND renders the
-    # same copy as the frame header — the V3 lineage showed the headline once.
-    orig_set = adapter._primitive_set
-
-    def _primitive_set_v3(scene, ratio):
-        prims = orig_set(scene, ratio)
-        if str((scene.get('screenCopy') or {}).get('primary') or '').strip():
-            prims = [p for p in prims if p[0] != 'type']
-        return prims
-
-    adapter._primitive_set = _primitive_set_v3
+    import v3_board_renderer  # noqa: E402
+    return whiteboard_compiler, whiteboard_pil_adapter, sound_choreographer, v3_board_renderer
 
 
 # ---------------------------------------------------------------------------
@@ -199,6 +140,14 @@ def normalize_plan(plan: dict) -> dict:
         ),
     }
     p['durationSeconds'] = cursor + p['pacing']['board_reveal_seconds']
+    # Warm paper + blue accent — the reel's house palette; overridable per plan.
+    if not p.get('brandExecution'):
+        p['brandExecution'] = {
+            'brandAuthority': {
+                'background': '#F5F0E4', 'ink': '#1A1A17',
+                'accent': '#2E5BD7', 'secondary': '#8B8577',
+            }
+        }
     return p
 
 
@@ -206,7 +155,7 @@ def normalize_plan(plan: dict) -> dict:
 # Rendering
 # ---------------------------------------------------------------------------
 
-def _board_canvas(wbp, plan: dict, ratio: str, scenes: list[dict]):
+def _board_canvas(wbp, v3r, plan: dict, ratio: str, scenes: list[dict]):
     """Composite every fully-drawn scene into one board-space bitmap."""
     from PIL import Image
     size = wbp.RATIO_SIZES[ratio]
@@ -222,7 +171,7 @@ def _board_canvas(wbp, plan: dict, ratio: str, scenes: list[dict]):
     pal = plan.get('_pal') or wbp._pal(plan)
     canvas = Image.new('RGB', (max(64, cw), max(64, ch)), tuple(pal['bgc'][:3]))
     for scene in scenes:
-        tile = wbp.render_scene(scene, plan, ratio, progress=1.0, scene_time=999.0)
+        tile = v3r.render_scene_frame(scene, plan, ratio, scene_time=999.0)
         z = scene['whiteboardRuntime']['boardZone']
         cx = int((z['x'] + z['w'] / 2 - x0) * scale) + pad
         cy = int((z['y'] + z['h'] / 2 - y0) * scale) + pad
@@ -259,7 +208,7 @@ def _reveal_frame(canvas, start_view, end_view, p: float, size):
     return canvas.crop(box).resize(size)
 
 
-def render_frames(wbp, plan: dict, ratio: str, fps: int) -> Iterator[tuple[float, Any]]:
+def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[float, Any]]:
     """Yield (t_seconds, PIL RGB frame) across the narration-timed timeline."""
     beats = plan['beats']
     scenes = plan['sceneSpecs']
@@ -281,14 +230,14 @@ def render_frames(wbp, plan: dict, ratio: str, fps: int) -> Iterator[tuple[float
         beat, scene = beats[idx], scenes[idx]
         local = t - beat['start_seconds']
         if idx > 0 and local < trans:
-            frame = wbp.render_transition_frame(scenes[idx - 1], scene, plan, ratio, local / trans)
+            frame = v3r.render_transition_frame(scenes[idx - 1], scene, plan, ratio, local / trans)
         else:
-            frame = wbp.render_scene(scene, plan, ratio, scene_time=local)
+            frame = v3r.render_scene_frame(scene, plan, ratio, scene_time=local)
         yield t, frame
         t += step
 
     if reveal > 0:
-        canvas, start_view, end_view = _board_canvas(wbp, plan, ratio, scenes)
+        canvas, start_view, end_view = _board_canvas(wbp, v3r, plan, ratio, scenes)
         n = max(1, int(round(reveal * fps)))
         hold_from = 1.0 - REVEAL_HOLD_FRACTION
         for i in range(n):
@@ -401,7 +350,7 @@ def render_production(
     keep_frames: bool = False,
     package_root: str | None = None,
 ) -> dict:
-    wbc, wbp, snd = load_execution_body(package_root)
+    wbc, wbp, snd, v3r = load_execution_body(package_root)
     ratio = ratio or (plan.get('output_ratios') or ['16:9'])[0]
     if ratio not in wbp.RATIO_SIZES:
         raise _err('WHITEBOARD_V3_RATIO_UNSUPPORTED', ratio)
@@ -418,7 +367,7 @@ def render_production(
     frames_dir = Path(tempfile.mkdtemp(prefix='wbv3-frames-'))
     frame_count = 0
     try:
-        for t, frame in render_frames(wbp, plan, ratio, fps):
+        for t, frame in render_frames(wbp, v3r, plan, ratio, fps):
             frame.save(frames_dir / f'f{frame_count:05d}.png')
             frame_count += 1
 

@@ -49,14 +49,14 @@ def _frame_bytes(img) -> bytes:
 
 
 def _compiled(over=None):
-    wbc, wbp, _ = pipe.load_execution_body()
+    wbc, wbp, _, v3r = pipe.load_execution_body()
     plan = _plan(**(over or {}))
     compiled = wbc.compile_whiteboard_plan(plan, {'ratio': '16:9'})
     plan.update(compiled)
-    return plan, wbp
+    return plan, wbp, v3r
 
 
-def _render_at(plan, wbp, t):
+def _render_at(plan, v3r, t):
     beats, scenes = plan['beats'], plan['sceneSpecs']
     trans = plan['pacing']['transition_seconds']
     idx = 0
@@ -65,8 +65,8 @@ def _render_at(plan, wbp, t):
             idx = i
     local = t - beats[idx]['start_seconds']
     if idx > 0 and local < trans:
-        return wbp.render_transition_frame(scenes[idx - 1], scenes[idx], plan, '16:9', local / trans)
-    return wbp.render_scene(scenes[idx], plan, '16:9', scene_time=local)
+        return v3r.render_transition_frame(scenes[idx - 1], scenes[idx], plan, '16:9', local / trans)
+    return v3r.render_scene_frame(scenes[idx], plan, '16:9', scene_time=local)
 
 
 def _mean_abs_diff(a: bytes, b: bytes) -> float:
@@ -93,7 +93,7 @@ def test_plan_narration_is_clock():
 
 
 def test_compile_produces_board_world_and_drawplan():
-    plan, _ = _compiled()
+    plan, _, _ = _compiled()
     assert plan['whiteboardBoardWorld']['persistent'] is True
     zones = [s['whiteboardRuntime']['boardZone'] for s in plan['sceneSpecs']]
     assert len({(z['x'], z['y']) for z in zones}) == len(zones)
@@ -105,8 +105,8 @@ def test_compile_produces_board_world_and_drawplan():
 
 @pytest.mark.parametrize('t', [0.8, 1.7, 2.4, 3.4])
 def test_golden_frame(t):
-    plan, wbp = _compiled()
-    img = _render_at(plan, wbp, t)
+    plan, _, v3r = _compiled()
+    img = _render_at(plan, v3r, t)
     got = _frame_bytes(img)
     golden = GOLDEN / f'frame_t{t:.1f}.png'
     if not golden.exists():
@@ -117,10 +117,10 @@ def test_golden_frame(t):
 
 
 def test_render_deterministic():
-    p1, wbp = _compiled()
-    p2, _ = _compiled()
-    a = _frame_bytes(_render_at(p1, wbp, 0.9))
-    b = _frame_bytes(_render_at(p2, wbp, 0.9))
+    p1, _, v3r = _compiled()
+    p2, _, _ = _compiled()
+    a = _frame_bytes(_render_at(p1, v3r, 0.9))
+    b = _frame_bytes(_render_at(p2, v3r, 0.9))
     assert a == b
 
 
