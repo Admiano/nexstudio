@@ -11,7 +11,7 @@ preserved execution body so every render is reproducible from versioned source.
 
 - **Narration is the clock.** Each beat's `duration_seconds` (VO segment) is the scene window; drawing completes inside it and holds — the compiler's per-stroke `drawPlan` plus the comprehension doctrine do the pacing.
 - **One evolving board world.** Scenes live at authored board zones; the camera travels between zones (`cluster_travel` 0.62 s moves) and finishes with a pull-back reveal of the whole accumulated board (`giant_board_journey` uses 0.72 s travel).
-- **Skin resolution shim.** `whiteboard_pil_adapter._semantic_prim` is wrapped so known noun classes (person, phone, document, screen, package, wallet, queue…) resolve to the preserved pictogram skins instead of the generic object rect — approximating the V3 icon vocabulary without editing frozen source.
+- **Pictogram board renderer.** `v3_board_renderer.py` draws the reel's visual language: stroke-ordered pictogram icons (person, robot agent, envelope, document, context card, stack, funnel, wrench, circled check, chart, clock, question card) joined by dashed accent connectors, small-caps captions, and an underlined bold headline on warm paper. Concepts resolve to icons noun-first (`customer request` → envelope, `human agent` → person, `AI agent` → robot, `12 min` → clock).
 - **Audio finish.** 48 kHz pen/marker SFX bed from `sound_choreographer`, optional VO mixed via ffmpeg `sidechaincompress` (~120 ms attack / 280 ms release) and `loudnorm` to −16 LUFS / −1.5 dBTP.
 - **Artifacts.** MP4 (`libx264`, yuv420p, faststart), QA contact sheet, metrics JSON, execution receipt with SHA-256 of every output.
 
