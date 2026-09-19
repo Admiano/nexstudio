@@ -519,7 +519,8 @@ class IllustrationSolver:
             nm = self.media_files.get(e.media_ref)
             plan['media'] = {'asset_id': a.asset_id, 'kind': a.kind, 'path': nm.render_path if nm else a.path, 'sha256': nm.render_sha256 if nm else None,
                              'source_size': {'w': a.width, 'h': a.height}, 'rights': a.rights, 'audio': 'MUTE',
-                             'trim': ({'start': float(e.params['trim'][0]), 'end': float(e.params['trim'][1])} if e.params.get('trim') else None)}
+                             'trim': ({'start': float(e.params['trim'][0]), 'end': float(e.params['trim'][1])} if e.params.get('trim') else None),
+                             'chassis': e.params.get('chassis') or None}
         if e.label:
             if e.glyph in ('PILL', 'CARD'):
                 inner = _box(bbox['x'] + bbox['w'] * 0.12, bbox['y'] + bbox['h'] * (0.2 if e.glyph == 'PILL' else 0.58), bbox['w'] * 0.76, bbox['h'] * (0.6 if e.glyph == 'PILL' else 0.3))

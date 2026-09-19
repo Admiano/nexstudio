@@ -291,7 +291,10 @@ def test_sound_is_semantic_admitted_and_spaced(plans):
             times = sorted(a['beat_at_ms'] for a in acc)
             assert all(y - x >= MIN_ACCENT_GAP_MS for x, y in zip(times, times[1:])), b['beat_id']
             for a in acc:
-                assert a['license'] == 'CC0-1.0' and a['sha256'] and Path(a['path']).exists()
+                # Provenance law: an admitted accent must carry a license class, sha256 and a real file.
+                assert a['license'] and a['sha256'] and Path(a['path']).exists()
+                if a.get('trim_ms'):
+                    assert a['trim_ms'] <= 1500
                 assert 0 <= a['beat_at_ms'] <= b['duration_ms']
         if p['music']['path'] is None:
             assert p['music']['status'].startswith('SILENT')

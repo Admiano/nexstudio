@@ -165,6 +165,9 @@ class IllustrationEntity:
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})
+        if 'chassis' in params:
+            _need(glyph == 'MEDIA', 'CHASSIS_ON_NON_MEDIA', f'{eid}: chassis wraps MEDIA only', beat_id)
+            _need(str(params['chassis']) in ('phone', 'browser', 'card'), 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
         if glyph == 'CHART_LINE':
             pts = params.get('points')
             _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)
