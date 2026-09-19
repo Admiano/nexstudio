@@ -1799,6 +1799,22 @@ def _group_len(g) -> float:
     return total
 
 
+def _ease_inv(p: float) -> float:
+    """Inverse of wbp._ease via bisection (monotone on [0,1])."""
+    if p <= 0:
+        return 0.0
+    if p >= 1:
+        return 1.0
+    lo, hi = 0.0, 1.0
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        if wbp._ease(mid) < p:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
 def _scene_groups(scene: dict, plan: dict, ratio: str):
     zone = scene['whiteboardRuntime']['boardZone']
     labels = _scene_labels(scene)
@@ -1937,35 +1953,18 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             a, b = spans.get(j, (s_, e_))
             spans[j] = (min(a, s_), max(b, e_))
             # per-polyline pen-down intervals — the sound layer scratches
-            # only while the pen is inking, never during lifts/travel
-            plens = []
-            for stt in g[1]:
-                pts = stt[0]
-                sc = 1.0 if (len(stt) > 4 and stt[4]) else g[3]
-                plens.append(sum(math.hypot(bb[0] - aa[0], bb[1] - aa[1]) * sc
-                                 for aa, bb in zip(pts, pts[1:])))
-            tot = sum(plens) or 1.0
-            # cap intervals: at most ~one scratch burst per 60ms of window;
-            # surplus strokes merge into contiguous buckets
-            n_int = max(1, int((e_ - s_) / 0.06))
-            if len(plens) > n_int:
-                merged = [0.0] * n_int
-                acc = 0.0
-                for k, pl in enumerate(plens):
-                    acc += pl
-                    merged[min(n_int - 1, int(k * n_int / len(plens)))] += pl
-                plens = merged
-            lift = min(0.05, (e_ - s_) * 0.25 / max(1, len(plens) - 1))
-            avail = max(0.02, e_ - s_ - lift * max(0, len(plens) - 1))
-            cur = s_
+            # only while the pen is inking, never during lifts/travel.
+            # Strokes draw at EQUAL shares of the eased group window
+            # (p = ease((t-s)/(e-s))*n - j), so invert the ease to land
+            # each interval exactly on its stroke's real time span.
+            n = len(g[1])
             pen = []
-            for pl in plens:
-                if cur >= e_:
-                    break
-                seg = max(0.02, avail * pl / tot)
-                pe_ = min(e_, cur + seg)
-                pen.append([cur, pe_])
-                cur = pe_ + lift
+            for jj, stt in enumerate(g[1]):
+                a, b = jj / n, (jj + 1) / n
+                if len(stt) > 3 and stt[3]:  # hatch fills skip p<0.38
+                    a += 0.38 / n
+                pen.append([s_ + (e_ - s_) * _ease_inv(a),
+                            s_ + (e_ - s_) * _ease_inv(b)])
             pens.setdefault(j, []).extend(pen)
         for j, st in enumerate(dp):
             if j in spans:
