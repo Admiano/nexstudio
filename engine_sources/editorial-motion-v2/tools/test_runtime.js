@@ -180,13 +180,16 @@ async function runFixture(fx, base, browser) {
         out.replace = { before: before.includes(String(a.unit_index)) && !before.includes(String(bb.unit_index)), after: after.includes(String(bb.unit_index)) && !after.includes(String(a.unit_index)) };
       }
 
-      // Media evidence: hidden before its landing, present after; video honours trim.
+      // Media evidence: the content is hidden before its landing (the frame chrome may
+      // legitimately be on stage early — chrome is stage furniture, the evidence is not),
+      // present after; video honours trim.
       out.media = [];
       for (const b of plan.beats.filter((x) => x.media)) {
         const beatNode = stage.children[plan.beats.indexOf(b)];
         const frame = beatNode.querySelector('img, video').parentElement;
+        const content = frame.querySelector('img, video');
         await film.seek(b.start_ms + Math.max(0, b.media.enter_ms - 30));
-        const hiddenBefore = b.media.enter_ms === 0 ? true : (getComputedStyle(frame).visibility === 'hidden' || Number(getComputedStyle(frame).opacity) < 0.05);
+        const hiddenBefore = b.media.enter_ms === 0 ? true : (getComputedStyle(content).visibility === 'hidden' || Number(getComputedStyle(content).opacity) < 0.05);
         await film.seek(b.start_ms + b.media.enter_ms + b.media.enter_duration_ms + 50);
         const shown = getComputedStyle(frame).visibility !== 'hidden' && Number(getComputedStyle(frame).opacity) > 0.95;
         const node = frame.querySelector('img, video');
@@ -266,7 +269,9 @@ async function runFixture(fx, base, browser) {
             why = lens.getAttribute('transform');
           }
           if (op.op === 'GROW') { const r = node.querySelector('rect[data-grow]') || node.querySelector('rect'); if (r) { ok = Math.abs(num(r.getAttribute('height')) / il.entities.find((x) => x.id === op.target).bbox.h - op.to) < 0.05; why = r.getAttribute('height'); } }
-          if (op.op === 'EMIT') { ok = Array.from(node.querySelectorAll('circle')).some((c) => Number(c.getAttribute('stroke-opacity')) > 0.3); }
+          // Persistent EMITs leave visible embers; a fully decaying pulse (to:0) is verified by the
+          // before/after pixel diff alone.
+          if (op.op === 'EMIT' && op.to !== 0) { ok = Array.from(node.querySelectorAll('circle')).some((c) => Number(c.getAttribute('stroke-opacity')) > 0.3); }
           rec.ops.push({ op: op.op, target: op.target, ok: Boolean(ok), why });
         }
         // Accent discipline: at the settled state only state-change ops may have introduced the accent colour.

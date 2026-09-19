@@ -23,6 +23,9 @@ from .timing import BeatClock, EXIT_MS, LEAD_IN_MS, find_landing
 from .typefit import FLOOR_FRACTION, TRACKING, _face, fit_text, measure
 
 REGISTRY_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'illustration' / 'registry.json'
+# Additional licence-clean catalogues materialised by tools/build_community_registry.py; each entry is
+# resolved relative to its own registry root, so pack layout never reaches into this module.
+EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'icons-registry.json']
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
 GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
@@ -163,24 +166,32 @@ def _viewbox_for_art(art_bbox: Dict[str, float], art: Dict[str, float]) -> Dict[
 
 
 class IllustrationRegistry:
-    """Catalogue of drawable line assets P8 may reference by id. Never searched by wording here."""
+    """Catalogue of drawable line assets P8 may reference by id. Never searched by wording here.
 
-    def __init__(self, path: Path = REGISTRY_PATH):
+    Loads the authored AEV1 catalogue plus any licence-clean community catalogues listed in
+    EXTRA_REGISTRIES; ids are namespaced by their file path so packs can coexist without collisions."""
+
+    def __init__(self, path: Path = REGISTRY_PATH, extra_paths: Optional[List[Path]] = None):
         self.path = path
         self.root = path.parent
         self.items: Dict[str, Dict[str, Any]] = {}
-        if path.exists():
-            doc = json.loads(path.read_text())
-            self.items = {a['id']: a for a in doc['assets']}
-            self.version = doc.get('version')
-        else:
-            self.version = None
+        self._roots: Dict[str, Path] = {}
+        versions: List[str] = []
+        for p in [path] + list(extra_paths if extra_paths is not None else EXTRA_REGISTRIES):
+            if not p.exists():
+                continue
+            doc = json.loads(p.read_text())
+            for a in doc['assets']:
+                self.items[a['id']] = a
+                self._roots[a['id']] = p.parent
+            versions.append(str(doc.get('version') or p.name))
+        self.version = '+'.join(versions) if versions else None
 
     def resolve(self, ref: str, beat_id: str) -> Dict[str, Any]:
         item = self.items.get(ref)
         if not item:
             raise TreatmentError('ASSET_REF_UNKNOWN', f'{ref} is not in the illustration registry', beat_id)
-        p = self.root / item['path']
+        p = self._roots[ref] / item['path']
         if not p.exists():
             raise TreatmentError('ASSET_FILE_MISSING', str(p), beat_id)
         return {'id': ref, 'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'license': item['license'], 'family': item['family'],
@@ -234,9 +245,15 @@ class IllustrationSolver:
         body = _box(cell['x'], cell['y'], cell['w'], cell['h'] - label_h)
         scale = {'hero': 0.92, 'support': 0.78, 'minor': 0.66}[e.size]
         # Weighted cells already encode size; a hero in a row keeps its full cell, supports breathe.
-        bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
         if e.glyph == 'ICON':
-            bbox = _viewbox_for_art(bbox, self.registry.art_box(e.asset_ref, beat_id))
+            # The runtime renders the icon's whole viewBox (padding included), so the viewBox — not
+            # just the drawn art — must fit the cell; fitting art first lets the padding spill past it.
+            ab = self.registry.art_box(e.asset_ref, beat_id)
+            ar = self._entity_ar(e, beat_id)
+            vb_ar = ar * (ab['h'] / ab['w']) if ab['w'] else ar
+            bbox = _fit_aspect(body, vb_ar, scale)
+        else:
+            bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
         if e.glyph == 'PILL' and e.label:
             # A pill is a label carrier: it widens (up to 5:1) until its label sits at the floor size on one line.
             floor = FLOOR_FRACTION['label'] * min(self.canvas)
@@ -276,9 +293,18 @@ class IllustrationSolver:
             if e.id in contained:
                 host = placed[contained[e.id]]['art_bbox']
                 inset = _box(host['x'] + host['w'] * 0.18, host['y'] + host['h'] * 0.18, host['w'] * 0.64, host['h'] * 0.64)
-                bbox = _fit_aspect(inset, self._entity_ar(e, beat_id))
                 if e.glyph == 'ICON':
-                    bbox = _viewbox_for_art(bbox, self.registry.art_box(e.asset_ref, beat_id))
+                    ab = self.registry.art_box(e.asset_ref, beat_id)
+                    ar = self._entity_ar(e, beat_id)
+                    bbox = _fit_aspect(inset, ar * (ab['h'] / ab['w']) if ab['w'] else ar)
+                else:
+                    bbox = _fit_aspect(inset, self._entity_ar(e, beat_id))
+                if e.glyph in ('PILL', 'CARD') and e.label:
+                    # A contained label carrier still earns its floor size: widen toward the host edge before breaching.
+                    floor = FLOOR_FRACTION['label'] * min(self.canvas)
+                    need = measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06
+                    w = min(max(bbox['w'], need), bbox['h'] * 5.0, host['w'] * 0.84)
+                    bbox = _box(inset['x'] + (inset['w'] - w) / 2, bbox['y'], w, bbox['h'])
                 placed[e.id] = self._entity_plan(e, bbox, None, failures, beat_id)
                 placed[e.id]['inside'] = contained[e.id]
             elif e.id in lenses:
@@ -503,22 +529,60 @@ class IllustrationSolver:
                         'params': op.params, 'state_change': op.op in STATE_CHANGE_OPS, 'anchor': op.at})
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
         # Entrance: every entity is on stage before its first op, in layout order, before the first landing.
+        # The stage must never stand empty while voice is already running: the first furniture always enters
+        # inside the lead-in, and the rest of the scene staggers after it.
         first_land = min([l for l in clock.landings_ms] or [LEAD_IN_MS + 200])
-        base = max(LEAD_IN_MS // 2, first_land - 120)
+        # The first furniture lands inside ~50ms so a cut never opens on bare paper.
+        base = max(LEAD_IN_MS // 5, min(first_land - 120, LEAD_IN_MS))
         enter: Dict[str, int] = {}
         for i, e in enumerate(ents):
             if e['id'] in carried_ids:
                 enter[e['id']] = 0
                 continue
-            t = base + i * ENTER_STAGGER_MS
+            t = min(base + i * ENTER_STAGGER_MS, first_land - 40)
+            t = max(LEAD_IN_MS // 5, t)
             first_op = min((o['start_ms'] for o in ops if o['target'] == e['id'] or o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id'])), default=None)
             if first_op is not None:
                 t = min(t, first_op - 160)
-            enter[e['id']] = max(LEAD_IN_MS // 2, int(t))
+            enter[e['id']] = max(LEAD_IN_MS // 5, int(t))
         for o in ops:
             if o['end_ms'] - o['start_ms'] < 120:
                 failures.append(f"OP_SQUEEZED:{o['op']}:{o['target']}")
         return ops, enter, failures
+
+    # ------------------------------------------------------------------ authored-program decoration
+    @staticmethod
+    def _decorate(ops: List[Dict[str, Any]], ents: List[Dict[str, Any]], rels: List[Dict[str, Any]], latest_end: int) -> List[Dict[str, Any]]:
+        """Secondary grammar the authoring layer shouldn't have to spell out: a drawn connector earns a
+        tracer pass, the beat's last state change earns a confirmation ring, a multi-dot node counts
+        itself in. Synthesized ops are state_change ops only where they spend the accent."""
+        extra: List[Dict[str, Any]] = []
+        ent_ids = {e['id'] for e in ents}
+        for r in rels:
+            draw = next((o for o in ops if o['target'] == r['id'] and o['op'] in ('CONNECT', 'DRAW')), None)
+            if draw and not any(o['op'] == 'TRACE' and o['target'] == r['id'] for o in ops):
+                st = draw['end_ms'] + 140
+                dur = min(560, max(240, int(r.get('length', 300) * 0.9)))
+                if st + dur <= latest_end:
+                    extra.append({'op': 'TRACE', 'target': r['id'], 'start_ms': st, 'end_ms': st + dur,
+                                  'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}})
+        sc = [o for o in ops if o['state_change'] and o['target'] in ent_ids]
+        if sc:
+            last = max(sc, key=lambda o: o['end_ms'])
+            if not any(o['op'] == 'EMIT' and o['target'] == last['target'] for o in ops):
+                st = last['end_ms'] + 120
+                if st + 300 <= latest_end:
+                    extra.append({'op': 'EMIT', 'target': last['target'], 'start_ms': st, 'end_ms': st + 420,
+                                  'from': 0.0, 'to': 0.7, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}})
+        for e in ents:
+            n = int((e.get('params') or {}).get('count') or 0)
+            if n > 1 and not any(o['op'] == 'COUNT' and o['target'] == e['id'] for o in ops):
+                st = e['enter_ms'] + e.get('enter_duration_ms', 0) + 100
+                dur = min(160 * n, 800)
+                if st + dur <= latest_end:
+                    extra.append({'op': 'COUNT', 'target': e['id'], 'start_ms': st, 'end_ms': st + dur,
+                                  'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}})
+        return extra
 
     # ------------------------------------------------------------------ entry
     def compile(self, il: IllustrationDirective, zone: Dict[str, float], clock: BeatClock, beat_id: str,
@@ -551,7 +615,11 @@ class IllustrationSolver:
             if connect:
                 r['enter_ms'], r['enter_duration_ms'] = connect['start_ms'], connect['end_ms'] - connect['start_ms']
                 r['drawn_by_op'] = True
+        # The authored program settles the scene; decorations then ride the hold it opened, so
+        # they join the op list after `settled` is measured rather than delaying it.
         settled = max([e['enter_ms'] + e['enter_duration_ms'] for e in ents] + [r['enter_ms'] + r['enter_duration_ms'] for r in rels] + [o['end_ms'] for o in ops] + [CARRY_REFRAME_MS if carry_in else 0])
+        ops += self._decorate(ops, ents, rels, clock.duration_ms - EXIT_MS - 60)
+        ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
         state_changes = sum(o['state_change'] for o in ops)
         plan = {
             'form': il.form, 'zone': zone, 'entities': ents, 'relations': rels, 'ops': ops, 'settled_ms': int(settled),

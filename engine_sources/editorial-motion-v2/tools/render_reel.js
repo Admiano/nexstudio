@@ -56,12 +56,11 @@ function ff(args) {
 function buildAudio(plan, out) {
   const inputs = [];
   const filters = [];
-  const labels = [];
-  let n = 0;
   const durS = (plan.duration_ms / 1000).toFixed(3);
+  let n = 0;
   inputs.push('-f', 'lavfi', '-t', durS, '-i', 'anullsrc=r=48000:cl=stereo');
-  labels.push('[0:a]');
   n = 1;
+  const voice = [];
   for (const seg of plan.voice.segments) {
     if (!seg.audio_path || !fs.existsSync(seg.audio_path)) continue;
     if (seg.start_ms + seg.duration_ms > plan.duration_ms + 1000 / plan.fps) {
@@ -69,22 +68,86 @@ function buildAudio(plan, out) {
     }
     inputs.push('-i', seg.audio_path);
     filters.push(`[${n}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay=${seg.start_ms}|${seg.start_ms}[v${n}]`);
-    labels.push(`[v${n}]`);
+    voice.push(`[v${n}]`);
     n += 1;
   }
+  filters.push(`[0:a]${voice.join('')}amix=inputs=${voice.length + 1}:normalize=0:duration=first[vox]`);
+  const accents = [];
   for (const beat of plan.beats) {
     for (const acc of beat.sound.accents) {
       if (!fs.existsSync(acc.path)) throw new Error(`sound asset missing: ${acc.path}`);
       inputs.push('-i', acc.path);
       filters.push(`[${n}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=${acc.gain_db}dB,adelay=${acc.film_at_ms}|${acc.film_at_ms}[s${n}]`);
-      labels.push(`[s${n}]`);
+      accents.push(`[s${n}]`);
       n += 1;
     }
   }
-  if (plan.music && plan.music.path) throw new Error('music slot has a path but the runtime has no rights evidence for it');
-  filters.push(`${labels.join('')}amix=inputs=${labels.length}:normalize=0:duration=first[mix]`);
+  const final = ['[voxm]', ...accents];
+  let musicStatus = plan.music ? plan.music.status : 'NONE';
+  const wantsMusic = Boolean(plan.music && plan.music.path);
+  filters.push(wantsMusic && voice.length ? '[vox]asplit=2[voxm][voxk]' : '[vox]anull[voxm]');
+  if (wantsMusic) {
+    // Music is bound only with rights evidence: the plan must carry the license + sha256 of the file.
+    if (plan.music.status !== 'BOUND_CC0' || !plan.music.license) throw new Error('music slot has a path but no rights evidence');
+    if (!fs.existsSync(plan.music.path)) throw new Error(`music asset missing: ${plan.music.path}`);
+    if (plan.music.sha256 && sha(fs.readFileSync(plan.music.path)) !== plan.music.sha256) throw new Error(`music sha256 mismatch: ${plan.music.path}`);
+    inputs.push('-stream_loop', '-1', '-t', durS, '-i', plan.music.path);
+    const mi = n; n += 1;
+    const gain = plan.music.gain_db == null ? -19 : plan.music.gain_db;
+    const fin = ((plan.music.fade_in_ms || 0) / 1000).toFixed(3);
+    const fout = ((plan.music.fade_out_ms || 0) / 1000).toFixed(3);
+    const dur = plan.duration_ms / 1000;
+    filters.push(`[${mi}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=${gain}dB,afade=t=in:st=0:d=${fin},afade=t=out:st=${(dur - Number(fout)).toFixed(3)}:d=${fout}[mraw]`);
+    if (voice.length) {
+      // Sidechain-duck the bed under the voice mix; strength comes from the plan's duck_db.
+      const ratio = Math.min(20, Math.max(2, Math.abs(plan.music.duck_under_voice_db || -14) / 2.4)).toFixed(1);
+      filters.push(`[mraw][voxk]sidechaincompress=threshold=0.02:ratio=${ratio}:attack=30:release=450:makeup=1[mduck]`);
+      final.push('[mduck]');
+    } else {
+      filters.push('[mraw]anull[mduck]');
+      final.push('[mduck]');
+    }
+    musicStatus = `${plan.music.status}:${path.basename(plan.music.path)}`;
+  }
+  filters.push(`${final.join('')}amix=inputs=${final.length}:normalize=0:duration=first[mix]`);
   ff([...inputs, '-filter_complex', filters.join(';'), '-map', '[mix]', '-t', durS, '-c:a', 'pcm_s16le', out]);
-  return { voice_segments: plan.voice.segments.length, accents: labels.length - 1 - plan.voice.segments.length, music: plan.music.status };
+  return { voice_segments: plan.voice.segments.length, accents: accents.length, music: musicStatus };
+}
+
+// Karaoke captions: one ASS dialogue per beat with \k word timings so the spoken word highlights.
+function writeCaptions(plan, out) {
+  const W = plan.output.w, H = plan.output.h;
+  const safe = plan.beats[0] && plan.beats[0].composition.safe_area;
+  const scale = plan.output.scale || 1;
+  const marginV = Math.max(24, Math.round((plan.canvas.h - (safe ? safe.y + safe.h : plan.canvas.h)) * scale * 0.7));
+  const accent = (plan.brand.accent || '#e8a317').replace('#', '');
+  const accentAss = `&H00${accent.slice(4, 6)}${accent.slice(2, 4)}${accent.slice(0, 2)}`;
+  const inkAss = `&H00${(plan.brand.ink || '#141414').replace('#', '').slice(4, 6)}${(plan.brand.ink || '#141414').replace('#', '').slice(2, 4)}${(plan.brand.ink || '#141414').replace('#', '').slice(0, 2)}`;
+  const size = Math.round(H * 0.044);
+  const header = [
+    '[Script Info]', 'ScriptType: v4.00+', `PlayResX: ${W}`, `PlayResY: ${H}`, 'WrapStyle: 0', '',
+    '[V4+ Styles]',
+    'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
+    `Style: K,Inter Display,${size},${accentAss},&H78141414,${inkAss},&H00000000,1,0,0,0,100,100,0,0,1,1.6,1.2,2,60,60,${marginV},1`,
+    '',
+    '[Events]',
+    'Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text',
+  ];
+  const t = (ms) => {
+    const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000), s = (ms % 60000) / 1000;
+    return `${h}:${String(m).padStart(2, '0')}:${s.toFixed(2).padStart(5, '0')}`;
+  };
+  const lines = [];
+  for (const b of plan.beats) {
+    const words = (b.words || []).filter((w) => w.text && w.text.trim());
+    if (!words.length) continue;
+    const start = b.start_ms + words[0].start_ms;
+    const end = Math.min(plan.duration_ms, b.start_ms + words[words.length - 1].end_ms + 60);
+    const body = words.map((w) => `{\\k${Math.max(1, Math.round((w.end_ms - w.start_ms) / 10))}}${w.text.trim().replace(/[{}\\]/g, '')}`).join(' ');
+    lines.push(`Dialogue: 0,${t(start)},${t(end)},K,,0,0,0,,${body}`);
+  }
+  fs.writeFileSync(out, `${header.join('\n')}\n${lines.join('\n')}\n`);
+  return lines.length;
 }
 
 async function main() {
@@ -95,8 +158,11 @@ async function main() {
   const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
   const fps = Number(arg('--fps', plan.fps));
   const framesDir = path.join(outDir, `frames_${plan.aspect}`);
-  fs.rmSync(framesDir, { recursive: true, force: true });
-  fs.mkdirSync(framesDir, { recursive: true });
+  const reuseFrames = process.argv.includes('--reuse-frames');
+  if (!reuseFrames) {
+    fs.rmSync(framesDir, { recursive: true, force: true });
+    fs.mkdirSync(framesDir, { recursive: true });
+  }
 
   const srv = await serve();
   const port = srv.address().port;
@@ -122,11 +188,13 @@ async function main() {
 
   const total = Math.ceil(((limit || plan.duration_ms) * fps) / 1000);
   const t0 = Date.now();
-  for (let i = 0; i < total; i += 1) {
-    const ms = Math.round((i * 1000) / fps);
-    await page.evaluate((t) => window.__em2.seek(t), ms);
-    await page.screenshot({ path: path.join(framesDir, `f${String(i).padStart(5, '0')}.png`), clip, animations: 'disabled', caret: 'hide' });
-    if (i % 150 === 0) process.stdout.write(`${plan.aspect} ${i}/${total} (${((Date.now() - t0) / 1000).toFixed(0)}s)\n`);
+  if (!reuseFrames) {
+    for (let i = 0; i < total; i += 1) {
+      const ms = Math.round((i * 1000) / fps);
+      await page.evaluate((t) => window.__em2.seek(t), ms);
+      await page.screenshot({ path: path.join(framesDir, `f${String(i).padStart(5, '0')}.png`), clip, animations: 'disabled', caret: 'hide' });
+      if (i % 150 === 0) process.stdout.write(`${plan.aspect} ${i}/${total} (${((Date.now() - t0) / 1000).toFixed(0)}s)\n`);
+    }
   }
 
   // Frozen-progress contact sheet: one frame per beat at the start of its hold window, plus transition strips.
@@ -152,8 +220,21 @@ async function main() {
 
   const audioPath = path.join(outDir, `audio_${plan.aspect}.wav`);
   const audio = buildAudio(plan, audioPath);
+
+  // Karaoke captions (ASS, word-timed) burned into the picture, plus an SRT sidecar.
+  const assPath = path.join(outDir, `captions_${plan.aspect}.ass`);
+  let captions = 0;
+  if (!process.argv.includes('--no-captions')) {
+    captions = writeCaptions(plan, assPath);
+    const srt = plan.captions.map((c, i) => `${i + 1}\n${ts(c.start_ms)} --> ${ts(c.end_ms)}\n${c.text}\n`).join('\n');
+    fs.writeFileSync(path.join(outDir, `captions_${plan.aspect}.srt`), srt);
+  }
   const mp4 = path.join(outDir, `${plan.film_id}_${plan.aspect}.mp4`);
-  ff(['-framerate', String(fps), '-i', path.join(framesDir, 'f%05d.png'), '-i', audioPath, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '17', '-preset', 'medium', '-c:a', 'aac', '-b:a', '160k', '-t', (plan.duration_ms / 1000).toFixed(3), '-movflags', '+faststart', mp4]);
+  const fontsDir = path.join(ROOT, 'assets', 'fonts');
+  const vf = captions ? `subtitles='${assPath}':fontsdir='${fontsDir}'` : null;
+  ff(['-framerate', String(fps), '-i', path.join(framesDir, 'f%05d.png'), '-i', audioPath]
+    .concat(vf ? ['-vf', vf] : [])
+    .concat(['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '17', '-preset', 'medium', '-c:a', 'aac', '-b:a', '160k', '-t', (plan.duration_ms / 1000).toFixed(3), '-movflags', '+faststart', mp4]));
   const streams = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type,duration', '-of', 'json', mp4]).toString()).streams;
   const durations = Object.fromEntries(streams.map((s) => [s.codec_type, Math.round(parseFloat(s.duration) * 1000)]));
   const frameMs = 1000 / fps;
@@ -161,15 +242,11 @@ async function main() {
     if (Math.abs(durations[kind] - plan.duration_ms) > frameMs * 2) throw new Error(`${kind} stream is ${durations[kind]}ms, plan is ${plan.duration_ms}ms`);
   }
 
-  // Captions (SRT) straight from the plan's word timings.
-  const srt = plan.captions.map((c, i) => `${i + 1}\n${ts(c.start_ms)} --> ${ts(c.end_ms)}\n${c.text}\n`).join('\n');
-  fs.writeFileSync(path.join(outDir, `captions_${plan.aspect}.srt`), srt);
-
   const manifest = {
     schema: 'EditorialRenderManifestV1', runtime: await page.evaluate(() => window.__em2.version), film_id: plan.film_id, aspect: plan.aspect,
     plan_sha256: sha(fs.readFileSync(planPath)), frames: total, fps, output: plan.output, mp4: path.basename(mp4), mp4_sha256: sha(fs.readFileSync(mp4)),
     contact_sheet: `contact_${plan.aspect}.png`, transition_strip: stripFrames.length ? `transitions_${plan.aspect}.png` : null,
-    audio, page_errors: errors, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
+    audio, captions_burned: captions, page_errors: errors, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
   };
   fs.writeFileSync(path.join(outDir, `render_${plan.aspect}.json`), JSON.stringify(manifest, null, 2));
   console.log(JSON.stringify({ mp4, frames: total, errors: errors.length, audio }, null, 1));

@@ -21,7 +21,7 @@ from .contracts import BeatTreatment, FilmTreatment, TreatmentError
 from .figures import resolve_figure
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
 from .media import NormalisedMedia, normalise_media
-from .sound import SoundLibrary, bind_beat_sound, library_root
+from .sound import SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
 from .master_timeline import MasterTimeline, extend_tail, resolve_master
 from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
 from .typefit import fit_text
@@ -73,6 +73,35 @@ def _box(x: float, y: float, w: float, h: float) -> Dict[str, float]:
 
 def _inside(a: Dict[str, float], b: Dict[str, float], tol: float = 1.0) -> bool:
     return a['x'] >= b['x'] - tol and a['y'] >= b['y'] - tol and a['x'] + a['w'] <= b['x'] + b['w'] + tol and a['y'] + a['h'] <= b['y'] + b['h'] + tol
+
+
+def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int]) -> List[Dict[str, Any]]:
+    """Structural stage furniture under the content, derived from the authored background template.
+
+    The runtime renders these verbatim; `kind` selects the draw recipe and all geometry is absolute
+    canvas coordinates so the layers land exactly under the zones they dress."""
+    W, H = canvas
+    st = dict(stage)
+    layers: List[Dict[str, Any]] = []
+    has_panel = authored in {'CARD_STAGE', 'DOCUMENT_STAGE', 'PRODUCT_STAGE', 'LAYERED_PLANE'} or render_bg in {'CARD_STAGE', 'SPOTLIGHT_STAGE'}
+    if has_panel:
+        layers.append({'kind': 'panel', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'fill': 'paper_lift', 'radius_frac': 0.032,
+                       'shadow': {'opacity': 0.13, 'blur_frac': 0.022, 'dy_frac': 0.013}, 'opacity': 1.0})
+        layers.append({'kind': 'hairline', 'bbox': _box(st['x'] + st['w'] * 0.045, st['y'] + st['h'] * 0.045, st['w'] * 0.91, st['h'] * 0.91), 'opacity': 0.10})
+    if authored == 'LAYERED_PLANE':
+        layers.append({'kind': 'plane', 'bbox': _box(st['x'] + st['w'] * 0.06, st['y'] + st['h'] * 0.05, st['w'] * 0.88, st['h'] * 0.9), 'rotation_deg': -1.1, 'opacity': 0.45})
+        layers.append({'kind': 'plane', 'bbox': _box(st['x'] + st['w'] * 0.11, st['y'] + st['h'] * 0.09, st['w'] * 0.78, st['h'] * 0.82), 'rotation_deg': 1.3, 'opacity': 0.3})
+    if authored == 'GRID_FIELD':
+        layers.append({'kind': 'dotgrid', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'opacity': 0.5, 'spacing_frac': 0.055, 'radius_frac': 0.0022})
+    elif render_bg == 'STAGE_FIELD' and not has_panel:
+        # Bare field: a sparse dot grid inside the safe frame keeps the cut from reading empty.
+        layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.32, 'spacing_frac': 0.08, 'radius_frac': 0.0018})
+    if render_bg == 'SPOTLIGHT_STAGE':
+        layers.append({'kind': 'spotlight', 'bbox': _box(st['x'], st['y'] + st['h'] * 0.05, st['w'], st['h']), 'radius_frac': 0.9, 'opacity': 0.5})
+    if not layers:
+        # SOFT_FIELD text beats still get a faint field texture so a quiet cut never reads as dead paper.
+        layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.18, 'spacing_frac': 0.095, 'radius_frac': 0.0016})
+    return layers
 
 
 def _overlap(a: Dict[str, float], b: Dict[str, float]) -> float:
@@ -427,13 +456,16 @@ class BeatCompiler:
                 'role': b.media.role, 'bbox': bbox, 'zone': zone, 'focus': b.media.focus, 'trim': b.media.trim, 'audio': 'MUTE',
                 'enter_ms': int(enter), 'enter_duration_ms': 360, 'carried_from': None, 'persist_to': b.media.persist_to, 'frame': 'EVIDENCE_PANEL',
                 'source_size': {'w': asset.width, 'h': asset.height}, 'rights': asset.rights,
+                # The empty evidence card is set-dressing: it enters inside the lead-in when the
+                # exhibit itself lands late, so a cut never opens on bare paper.
+                'chrome_ms': LEAD_IN_MS // 4 if enter > LEAD_IN_MS + 320 else None,
             }
             self.carried_media = media if b.media.persist_to and b.media.persist_to != b.beat_id else None
             return media
         carried = dict(self.carried_media)
         asset = self.film.media_library[carried['asset_id']]
         bbox = _contain(zone, asset.width / asset.height, min(1.0, comp['visual_hints']['evidence_scale']))
-        carried.update({'bbox': bbox, 'zone': zone, 'enter_ms': 0, 'enter_duration_ms': 0, 'carried_from': carried.get('carried_from') or self.carried_media['asset_id'],
+        carried.update({'bbox': bbox, 'zone': zone, 'enter_ms': 0, 'enter_duration_ms': 0, 'chrome_ms': None, 'carried_from': carried.get('carried_from') or self.carried_media['asset_id'],
                         'reframe': {'from': self.carried_media['bbox'], 'start_ms': 0, 'end_ms': 420} if self.carried_media['bbox'] != bbox else None})
         if carried['persist_to'] == b.beat_id:
             self.carried_media = None
@@ -455,6 +487,9 @@ class BeatCompiler:
         bbox = _contain(zone, fig['composition']['aspect'], 1.0, anchor='bottom')
         ev = next((e for e in ensemble['events'] if e['channel'] == 'CHARACTER'), None)
         enter = ev['start_ms'] if ev else min(clock.duration_ms - 900, max(clock.landings_ms or [LEAD_IN_MS]) + 200)
+        # A performer is part of the stage, not a payload: when the character event sits late the figure
+        # still arrives inside the lead-in rather than leaving the stage empty.
+        enter = max(LEAD_IN_MS // 4 + 20, min(int(enter), LEAD_IN_MS + 220))
         fig.update({'bbox': bbox, 'zone': zone, 'enter_ms': int(enter), 'enter_duration_ms': 300, 'entrance': 'SETTLE_RISE', 'ground_line': round(bbox['y'] + bbox['h'], 1)})
         return fig
 
@@ -492,7 +527,9 @@ class BeatCompiler:
         hero_land = max((clock.landings_ms[i] for i, u in enumerate(b.units) if u.role == 'hero'), default=LEAD_IN_MS)
         enter = min(hero_land + 160, clock.duration_ms - 900)
         stagger = 160 if d.kind == 'SEQUENCE' else 0
-        return {'kind': d.kind, 'zone': zone, 'blocks': blocks, 'enter_ms': int(enter), 'enter_duration_ms': 340, 'stagger_ms': stagger, 'style': 'COUNT_IN' if d.kind == 'STAT' else 'SETTLE'}
+        return {'kind': d.kind, 'zone': zone, 'blocks': blocks, 'enter_ms': int(enter), 'enter_duration_ms': 340, 'stagger_ms': stagger, 'style': 'COUNT_IN' if d.kind == 'STAT' else 'SETTLE',
+                # A hairline table rail enters inside the lead-in when the figures themselves land late.
+                'chrome_ms': LEAD_IN_MS // 4 + 40 if enter > LEAD_IN_MS + 340 else None}
 
     # ------------------------------------------------------------------ beat
     def _illustration(self, b: BeatTreatment, comp: Dict[str, Any], clock: BeatClock) -> Tuple[Optional[Dict[str, Any]], List[str]]:
@@ -657,6 +694,20 @@ class BeatCompiler:
 
         bg = (comp.get('authentic_v2_plan') or {}).get('background_template') or 'SOFT_FIELD'
         render_bg = 'SPOTLIGHT_STAGE' if figure else ('CARD_STAGE' if (media or data) else ('STAGE_FIELD' if illustration else 'SOFT_FIELD'))
+        stage_zone = (media or figure or data or illustration or {}).get('zone') or self.safe
+        # Every beat must carry visible content inside its lead-in window: stage, chrome or first words.
+        firsts = [w['start_ms'] for w in [{'text': w.text, 'start_ms': w.start_ms, 'end_ms': w.end_ms} for w in clock.words]]
+        firsts += [e['start_ms'] for e in typ['events'] if e['unit_index'] >= 0]
+        if illustration:
+            firsts += [e['enter_ms'] for e in illustration['entities']] + [r['enter_ms'] for r in illustration['relations']]
+        if media:
+            firsts += [media['chrome_ms'] or media['enter_ms']]
+        if data:
+            firsts += [data['chrome_ms'] or data['enter_ms']]
+        if figure:
+            firsts += [figure['enter_ms']]
+        if firsts and min(firsts) > LEAD_IN_MS + 420:
+            warnings.append(f'EMPTY_LEAD:{min(firsts)}ms')
         return {
             'beat_id': b.beat_id, 'beat_type': b.beat_type, 'pattern': b.pattern, 'dominant_layer': b.dominant_layer, 'shot_role': shot_role,
             'start_ms': beat_offset_ms, 'duration_ms': clock.duration_ms, 'energy': b.energy,
@@ -664,7 +715,9 @@ class BeatCompiler:
             'landings': [{'unit_index': i, 'at_ms': l, 'source': s} for i, (l, s) in enumerate(zip(clock.landings_ms, clock.landing_source))],
             'composition': {
                 'layout_family': comp['layout_family'], 'treatment': comp['treatment'], 'text_zone': comp['text_zone'], 'visual_zone': comp['visual_zone'],
-                'safe_area': self.safe, 'background': {'template': bg, 'render': render_bg, 'stage': (media or figure or data or illustration or {}).get('zone')},
+                'safe_area': self.safe, 'background': {'template': bg, 'render': render_bg, 'stage': stage_zone,
+                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H)),
+                                                       'finish': self.film.brand.finish},
                 'native_profile': comp['native_profile'], 'derived_by_scaling': comp['derived_by_scaling'], 'authority': comp['authority_version'],
             },
             'typography': typ, 'ensemble': {'events': ensemble['events'], 'dominant_sequence': ensemble['dominant_sequence'], 'hold_window': ensemble['hold_window'], 'transition_window': ensemble['transition_window']},
@@ -851,7 +904,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'timeline': None if timeline is None else {'source': 'MASTER', 'audio_ms': timeline.audio_ms, 'head_pad_ms': timeline.head_pad_ms, 'tail_silence_ms': timeline.tail_silence_ms,
                                                        'tempo': timeline.tempo, 'beats': [{'beat_id': w.beat_id, 'start_ms': w.start_ms, 'end_ms': w.end_ms, 'speech_start_ms': w.speech_start_ms,
                                                                                           'speech_end_ms': w.speech_end_ms, 'budget_met': c.budget_met} for w, c in zip(timeline.windows, clocks)]},
-            'music': {'slot': 'BACKGROUND_MUSIC', 'status': 'SILENT_UNTIL_RIGHTS_CLEAN_SOURCE_SELECTED', 'duck_under_voice_db': -14, 'path': None},
+            'music': bind_film_music(film.film_id),
+            'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
             'beats': beats, 'captions': _captions(beats),
             'gate': {'status': 'FAIL' if fails else 'PASS', 'failures': fails},
             'provenance': {

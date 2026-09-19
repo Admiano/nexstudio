@@ -99,3 +99,34 @@ def bind_beat_sound(lib: Optional[SoundLibrary], film_id: str, beat_id: str, bea
         })
     chosen.sort(key=lambda a: a['beat_at_ms'])
     return {'accents': chosen, 'silenced': silenced, 'reason': None}
+
+
+COMMUNITY_MANIFEST = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'manifest.json'
+
+
+def bind_film_music(film_id: str) -> Dict[str, Any]:
+    """Music bed binding: one rights-clean (CC0) bed per film, picked by deterministic hash.
+
+    The renderer mixes it under the voice with sidechain ducking. When no community
+    music manifest is vendored the slot stays silent rather than shipping unlicensed audio."""
+    silent = {'slot': 'BACKGROUND_MUSIC', 'status': 'SILENT_NO_RIGHTS_CLEAN_BED', 'duck_under_voice_db': -14, 'path': None}
+    if not COMMUNITY_MANIFEST.exists():
+        return silent
+    beds = [a for a in json.loads(COMMUNITY_MANIFEST.read_text()).get('assets', [])
+            if a.get('kind') == 'music' and a.get('license', '').startswith('CC0') and (COMMUNITY_MANIFEST.parent / a['path']).exists()]
+    if not beds:
+        return silent
+    pick = beds[int(hashlib.sha256(film_id.encode()).hexdigest(), 16) % len(beds)]
+    path = str(COMMUNITY_MANIFEST.parent / pick['path'])
+    return {'slot': 'BACKGROUND_MUSIC', 'status': 'BOUND_CC0', 'path': path, 'sha256': pick['sha256'], 'license': pick['license'],
+            'gain_db': -19.0, 'duck_under_voice_db': -14.0, 'loop': True, 'fade_in_ms': 700, 'fade_out_ms': 1600}
+
+
+def community_surface(kind: str, path_fragment: str) -> Optional[Dict[str, Any]]:
+    """Resolve a vendored CC0 surface/texture asset by manifest path fragment."""
+    if not COMMUNITY_MANIFEST.exists():
+        return None
+    for a in json.loads(COMMUNITY_MANIFEST.read_text()).get('assets', []):
+        if a.get('kind') == kind and path_fragment in a.get('path', '') and (COMMUNITY_MANIFEST.parent / a['path']).exists():
+            return {'path': str(COMMUNITY_MANIFEST.parent / a['path']), 'sha256': a['sha256'], 'license': a['license']}
+    return None

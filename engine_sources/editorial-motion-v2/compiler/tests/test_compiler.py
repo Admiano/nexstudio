@@ -293,7 +293,11 @@ def test_sound_is_semantic_admitted_and_spaced(plans):
             for a in acc:
                 assert a['license'] == 'CC0-1.0' and a['sha256'] and Path(a['path']).exists()
                 assert 0 <= a['beat_at_ms'] <= b['duration_ms']
-        assert p['music']['path'] is None and p['music']['status'] == 'SILENT_UNTIL_RIGHTS_CLEAN_SOURCE_SELECTED'
+        if p['music']['path'] is None:
+            assert p['music']['status'].startswith('SILENT')
+        else:
+            assert p['music']['status'] == 'BOUND_CC0' and p['music']['license'].startswith('CC0')
+            assert p['music']['sha256'] and Path(p['music']['path']).exists()
 
 
 def test_provenance_declares_roles_and_no_certification(plans):
@@ -399,3 +403,51 @@ def test_checked_in_schema_files_match_generator():
     for name, fn in schemas.ALL.items():
         on_disk = json.loads((SCHEMA_DIR / name).read_text())
         assert on_disk == fn(), f'{name} is stale: python3 -m editorial_plan_compiler.schemas'
+
+
+# ---------------------------------------------------------------- v4 stage + ambient
+
+def test_every_beat_draws_a_stage(plans):
+    for p in plans.values():
+        for b in p['beats']:
+            bg = b['composition']['background']
+            assert bg['layers'], f"{b['beat_id']} has no stage layers"
+            for l in bg['layers']:
+                assert l['kind'] in {'panel', 'hairline', 'plane', 'dotgrid', 'spotlight'}, l
+
+
+def test_no_beat_opens_empty(plans):
+    """First visible content (chrome, entity or first word) inside the lead-in window."""
+    from editorial_plan_compiler.timing import LEAD_IN_MS
+    for p in plans.values():
+        for b in p['beats']:
+            firsts = [w['start_ms'] for w in b['words']]
+            firsts += [e['start_ms'] for e in b['typography']['events'] if e['unit_index'] >= 0]
+            if b['illustration']:
+                firsts += [e['enter_ms'] for e in b['illustration']['entities']]
+            if b['media']:
+                firsts.append(b['media']['chrome_ms'] if b['media']['chrome_ms'] is not None else b['media']['enter_ms'])
+            if b['data']:
+                firsts.append(b['data']['chrome_ms'] if b['data']['chrome_ms'] is not None else b['data']['enter_ms'])
+            if b['figure']:
+                firsts.append(b['figure']['enter_ms'])
+            assert min(firsts) <= LEAD_IN_MS + 640, (b['beat_id'], min(firsts))
+
+
+def test_registry_merges_aev1_and_community_icons():
+    from editorial_plan_compiler.illustration import IllustrationRegistry
+    reg = IllustrationRegistry()
+    assert any(i.startswith('icon.') for i in reg.items), 'community icons not loaded'
+    resolved = reg.resolve('icon.lucide.check', 'test')
+    assert Path(resolved['path']).exists() and resolved['license']
+    # authored AEV1 assets still resolve
+    aev = next(k for k in reg.items if not k.startswith('icon.'))
+    assert reg.resolve(aev, 'test')['path']
+
+
+def test_music_bed_rights_clean_and_deterministic(plans):
+    for p in plans.values():
+        m = p['music']
+        assert m['status'] == 'BOUND_CC0' and m['license'].startswith('CC0'), m
+        assert Path(m['path']).exists()
+        assert m['duck_under_voice_db'] < 0 and m['gain_db'] < 0

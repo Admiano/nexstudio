@@ -34,6 +34,7 @@ def _str(min_len: int = 1) -> Dict[str, Any]:
 
 
 NULLABLE_STR = {'type': ['string', 'null']}
+NULLABLE_OBJ = {'type': ['object', 'null']}
 BOX = _obj({k: {'type': 'number'} for k in ('x', 'y', 'w', 'h')}, ['x', 'y', 'w', 'h'])
 MS = {'type': 'integer', 'minimum': 0}
 SHA = {'type': 'string', 'pattern': '^[0-9a-f]{64}$'}
@@ -313,7 +314,10 @@ def plan_schema() -> Dict[str, Any]:
             'fonts': {'type': 'object'}, 'duration_ms': {'type': 'integer', 'exclusiveMinimum': 0},
             'voice': _obj({'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')), 'segments': {'type': 'array', 'items': segment},
                            'timeline': {'type': ['object', 'null']}}, ['source', 'segments']),
-            'music': _obj({'slot': _str(), 'status': _str(), 'duck_under_voice_db': {'type': 'number'}, 'path': NULLABLE_STR}, ['slot', 'status', 'path']),
+            'music': _obj({'slot': _str(), 'status': _str(), 'duck_under_voice_db': {'type': 'number'}, 'path': NULLABLE_STR,
+                           'sha256': NULLABLE_STR, 'license': NULLABLE_STR, 'gain_db': {'type': 'number'},
+                           'loop': {'type': 'boolean'}, 'fade_in_ms': MS, 'fade_out_ms': MS}, ['slot', 'status', 'path']),
+            'surfaces': _obj({'grain': NULLABLE_OBJ, 'paper': NULLABLE_OBJ}, []),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'captions': {'type': 'array', 'items': caption},
             'gate': gate, 'provenance': provenance,
