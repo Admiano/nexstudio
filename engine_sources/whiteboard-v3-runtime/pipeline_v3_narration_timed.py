@@ -344,6 +344,15 @@ def _sha256(path: Path) -> str:
 
 def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
     # sound_choreographer reads plan['sceneSpecs'][*]['whiteboardRuntime']['drawPlan']
+    # Runtime wrap (preserved module untouched): point its audio dir at our
+    # denser synthesized marker bed — the packaged bed was ~16x too quiet.
+    sfx_dir = Path(__file__).parent / 'assets' / 'sfx'
+    if (sfx_dir / 'marker-scratch-bed-48k.wav').is_file():
+        snd.AUDIO = sfx_dir
+        snd.ROLE_FILE['marker.short'] = 'marker-scratch-bed-48k.wav'
+        snd.ROLE_FILE['marker.swipe'] = 'marker-scratch-bed-48k.wav'
+        snd.ROLE_GAIN['marker.short'] = 0.5
+        snd.ROLE_GAIN['marker.swipe'] = 0.62
     return Path(snd.render(plan, duration, out_path)['path'])
 
 
