@@ -210,10 +210,12 @@ class IllustrationSolver:
         self.media_library = media_library
         self.media_files = media_files
         self.accent = accent
-        # Burned karaoke captions live in the strip below the caption-safe frame; labelled
-        # entities keep clear of it (unlabelled art may still bleed under captions).
+        # Burned karaoke captions sit below the caption-safe frame (MarginV = 70% of the gap,
+        # two lines tall at 4.4% of height). Labelled entities must clear their top edge;
+        # unlabelled art may still bleed under the caption line.
         _safe = _NATIVE_ASPECTS[aspect]['safe']
-        self.caption_floor = _safe[1] + _safe[3] - min(self.canvas) * 0.012
+        _h = self.canvas[1]
+        self.caption_floor = _safe[3] + (_h - _safe[3]) * 0.3 - 2 * _h * 0.044 * 1.3 - min(self.canvas) * 0.012
 
     # ------------------------------------------------------------------ layout
     def _cells(self, zone: Dict[str, float], ents: List[IllustrationEntity], vertical: bool, gap_frac: float = GAP_FRAC) -> Dict[str, Dict[str, float]]:
@@ -383,9 +385,14 @@ class IllustrationSolver:
                 else:
                     hx, hy = _centre(host)
                     d = max(host['w'], host['h']) * 1.2
-                    x = min(max(hx - d / 2, zone['x']), zone['x'] + zone['w'] - d)
-                    y = min(max(hy - d / 2, zone['y']), zone['y'] + zone['h'] - d)
-                    bbox = _box(x, y, d, d)
+                    neighbours = [p['art_bbox'] for k, p in placed.items() if k != e.id and k != blocks[e.id]]
+                    while True:
+                        x = min(max(hx - d / 2, zone['x']), zone['x'] + zone['w'] - d)
+                        y = min(max(hy - d / 2, zone['y']), zone['y'] + zone['h'] - d)
+                        bbox = _box(x, y, d, d)
+                        if d <= max(host['w'], host['h']) or not any(_overlap(bbox, n) > 4.0 for n in neighbours):
+                            break
+                        d *= 0.94
                 placed[e.id] = self._entity_plan(e, bbox, None, failures, beat_id)
                 placed[e.id]['blocks'] = blocks[e.id]
         # A below-label has one line and cannot hyphenate, so a word that outgrows its cell borrows
