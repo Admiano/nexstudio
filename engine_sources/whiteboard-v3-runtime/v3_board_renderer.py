@@ -878,6 +878,7 @@ _TABLER_JUNK_PREFIXES = (
     'bracket', 'header', 'separator', 'section', 'breadcrumb', 'navbar',
     'whitespace', 'marquee', 'article', 'typography', 'input-', 'forms',
     'list-', 'box-model', 'clipboard-', 'copyleft', 'copyright',
+    'help', 'info-', 'file-', 'folder', 'device-', 'app-window',
 )
 
 
@@ -1340,10 +1341,25 @@ def icon_for(concept: str, used=None):
     if used is None:
         return _icon_for(concept)
     label = ' '.join(str(concept).lower().replace('-', ' ').split())
-    excl = {k for k, v in used.items() if v != label}
-    icon = _icon_for(concept, excl)
+    reg = used.setdefault('_reg', {})
+    assets = reg.setdefault('assets', {})
+    nouns = reg.setdefault('nouns', {})
+    excl = {k for k, v in assets.items() if v != label}
+    words = [w for w in label.split() if len(w) > 2]
+    head = _singular(words[-1]) if words else None
+    icon = None
+    # When this reel already depicted this head noun under a different
+    # label, let the modifiers steer: 'window frame' after 'square window'
+    # should draw a frame, not a second window.
+    if head and head in nouns and nouns[head] != label and len(words) > 1:
+        rest = ' '.join(words[:-1])
+        icon = (_illust_lookup(rest, excl) or _icon_lookup(rest, excl))
+    if icon is None:
+        icon = _icon_for(concept, excl)
     key = ('card', label) if icon == 'card' else _asset_key(icon)
-    used.setdefault(key, label)
+    assets.setdefault(key, label)
+    if head and isinstance(icon, tuple):
+        nouns.setdefault(head, label)
     return icon
 
 
