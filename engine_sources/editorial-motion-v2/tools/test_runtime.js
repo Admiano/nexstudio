@@ -21,6 +21,7 @@ const FIXTURES = [
   { name: 'blind-vinyl', treatment: '../fixtures/blind-vinyl/treatment.json', out: path.join(ROOT, 'out', 'blind-vinyl') },
   { name: 'vo-joe', treatment: '../fixtures/vo-joe/treatment.json', out: path.join(ROOT, 'out', 'vo-joe') },
   { name: 'chassis-demo', treatment: '../fixtures/chassis-demo/treatment.json', out: path.join(ROOT, 'out', 'chassis-demo') },
+  { name: 'glyph-shelf', treatment: '../fixtures/glyph-shelf/treatment.json', out: path.join(ROOT, 'out', 'glyph-shelf') },
 ];
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 

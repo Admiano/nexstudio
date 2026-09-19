@@ -253,11 +253,10 @@
       enter = { event: 'WORD_CASCADE', start_ms: first, end_ms: first };
     }
     const w = node.wrap.style;
-    if (!enter || lt < enter.start_ms) {
-      w.visibility = 'hidden';
-      return;
-    }
-    w.visibility = 'visible';
+    // Seek determinism: pre-entry still runs the whole pipeline at p=0 so every decl is
+    // (re)written — an early return would leave stale styles behind after scrubbing back.
+    const hidden = !enter || lt < enter.start_ms;
+    w.visibility = hidden ? 'hidden' : 'visible';
     let opacity = 1, tx = 0, ty = 0, scale = 1, rot = 0, wght = WEIGHT[b.weight] || 800;
     let clip = null; // [top,right,bottom,left] in %
     const em = b.fit.font_px;
@@ -265,8 +264,8 @@
     const lineStates = node.lines.map(() => ({ ty: 0, op: 1, clip: null }));
 
     // --- entry
-    const pe = prog(lt, enter.start_ms, enter.end_ms);
-    switch (enter.event) {
+    const pe = enter ? prog(lt, enter.start_ms, enter.end_ms) : 0;
+    switch (enter && enter.event) {
       case 'DECISIVE_SLIDE': {
         const p = EASE.outQuint(pe);
         tx = dirSign * (1 - p) * node.bb.w * 0.07;
@@ -362,14 +361,14 @@
     }
 
     // Velocity blur while the block travels: entry slide, exit rise, carrier wipes.
-    let blur = enter.end_ms > enter.start_ms ? velocityBlur(lt, enter.start_ms, enter.end_ms, EASE.enter, node.bb.w * 0.1 + em * 0.5) : 0;
+    let blur = enter && enter.end_ms > enter.start_ms ? velocityBlur(lt, enter.start_ms, enter.end_ms, EASE.enter, node.bb.w * 0.1 + em * 0.5) : 0;
     const tr = ctx.transition;
     if (tr && lt >= tr.start_ms) blur = Math.max(blur, velocityBlur(lt, tr.start_ms, tr.end_ms, EASE.exit, node.bb.h * 0.6));
     w.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
 
     // Hero copy breathes after its program settles — applied to the text node so block geometry never moves.
     if (b.role === 'hero') {
-      const heroS = ambientDrift(lt, `hero-${i}`, (node.cascade ? (b.cascade_end_ms || 0) : enter.end_ms) + 320, 0).s;
+      const heroS = ambientDrift(lt, `hero-${i}`, (node.cascade ? (b.cascade_end_ms || 0) : (enter ? enter.end_ms : 0)) + 320, 0).s;
       node.text.style.transform = `translateY(-50%) scale(${heroS.toFixed(4)})`;
     }
 
@@ -592,11 +591,9 @@
     const md = m.media;
     const s = m.frame.style;
     const chrome = md.chrome_ms == null ? md.enter_ms : md.chrome_ms;
-    if (lt < chrome) {
-      s.visibility = 'hidden';
-      return;
-    }
-    s.visibility = 'visible';
+    // Pre-chrome still runs the pipeline at p=0 so every driven decl is rewritten — same
+    // seek-determinism rule as entities and relations.
+    s.visibility = lt < chrome ? 'hidden' : 'visible';
     let tx = 0, ty = 0, opacity = 1, clip = null, scale = 1;
     const p = EASE.outQuint(prog(lt, md.enter_ms, md.enter_ms + md.enter_duration_ms));
     // The empty card dresses the stage first; the exhibit itself still lands on its word.
@@ -696,8 +693,7 @@
   function applyFigureState(f, lt, beat, ctx) {
     const fig = f.fig;
     const s = f.host.style;
-    if (lt < fig.enter_ms) { s.visibility = 'hidden'; return; }
-    s.visibility = 'visible';
+    s.visibility = lt < fig.enter_ms ? 'hidden' : 'visible';
     const p = EASE.outQuint(prog(lt, fig.enter_ms, fig.enter_ms + fig.enter_duration_ms));
     let opacity = p, ty = (1 - p) * f.bb.h * 0.05, scale = lerp(0.985, 1, p);
     const ex = ctx.exitState({ block: { role: 'figure' } }, lt);
@@ -753,8 +749,7 @@
       const order = b.blk.role === 'label' ? d.blocks.length - 1 : (b.blk.side || 0);
       const start = data.enter_ms + order * (data.stagger_ms || 0);
       const s = b.wrap.style;
-      if (lt < start) { s.visibility = 'hidden'; return; }
-      s.visibility = 'visible';
+      s.visibility = lt < start ? 'hidden' : 'visible';
       const p = prog(lt, start, start + data.enter_duration_ms);
       let opacity = EASE.outCubic(p), ty = (1 - EASE.outQuint(p)) * b.bb.h * 0.12, scale = EASE.settle(p);
       if (b.blk.role === 'label') scale = 1;
@@ -1017,6 +1012,127 @@
         node.outline.push(drawable(l, b.h + 2 * k), drawable(r, b.h + 2 * k));
         break;
       }
+      case 'ARROW': {
+        // A gestural arc-arrow: quadratic sweep + a two-stroke head; `bend` bows it, `flip` mirrors it.
+        const flip = params.flip ? -1 : 1;
+        const bend = params.bend != null ? clamp(Number(params.bend), -1, 1) : -0.45;
+        const p0 = [b.x + b.w * (flip > 0 ? 0.06 : 0.94), b.y + b.h * 0.8];
+        const p1 = [b.x + b.w * (flip > 0 ? 0.94 : 0.06), b.y + b.h * 0.2];
+        const cx = (p0[0] + p1[0]) / 2, cy = (p0[1] + p1[1]) / 2 + bend * b.h;
+        const pts = [];
+        for (let i = 0; i <= 14; i += 1) {
+          const t = i / 14, u = 1 - t;
+          pts.push([u * u * p0[0] + 2 * u * t * cx + t * t * p1[0], u * u * p0[1] + 2 * u * t * cy + t * t * p1[1]]);
+        }
+        node.outline.push(drawable(svgEl('path', { ...line, d: polyPath(pts), 'stroke-width': sw * 1.55 }, g), polyLength(pts)));
+        const dx = p1[0] - cx, dy = p1[1] - cy, ang = Math.atan2(dy, dx);
+        const hl = Math.min(b.w, b.h) * 0.24;
+        const head = polyPath([[p1[0] + Math.cos(ang + Math.PI * 0.8) * hl, p1[1] + Math.sin(ang + Math.PI * 0.8) * hl], p1,
+                               [p1[0] + Math.cos(ang - Math.PI * 0.8) * hl, p1[1] + Math.sin(ang - Math.PI * 0.8) * hl]]);
+        node.outline.push(drawable(svgEl('path', { ...line, d: head, 'stroke-width': sw * 1.55 }, g), hl * 2));
+        node.inkEls.push(svgEl('path', { d: head + 'Z', fill: accent, 'fill-opacity': 0 }, g));
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'MARK_CIRCLE': {
+        // A hand-marked loop: starts ~200°, wobbles ±3% in radius, and overshoots a full turn by ~40°.
+        const c = centre(b), rx = b.w / 2 - sw, ry = b.h / 2 - sw;
+        const a0 = Math.PI * 1.12, sweep = Math.PI * 2.22, pts = [];
+        for (let i = 0; i <= 30; i += 1) {
+          const t = i / 30, a = a0 + sweep * t;
+          const wob = 1 + 0.032 * Math.sin(a * 3.1 + 0.7);
+          pts.push([c.x + Math.cos(a) * rx * wob, c.y + Math.sin(a) * ry * wob]);
+        }
+        node.outline.push(drawable(svgEl('path', { ...line, d: polyPath(pts), 'stroke-width': sw * 1.3 }, g), polyLength(pts)));
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'UNDERLINE': {
+        // A two-stroke swash: a waved main stroke and a shorter echo that trails it.
+        const main = [[b.x, b.y + b.h * 0.5], [b.x + b.w * 0.32, b.y + b.h * 0.7], [b.x + b.w * 0.66, b.y + b.h * 0.44], [b.x + b.w, b.y + b.h * 0.56]];
+        const echo = [[b.x + b.w * 0.06, b.y + b.h * 0.9], [b.x + b.w * 0.62, b.y + b.h * 0.96]];
+        node.outline.push(drawable(svgEl('path', { ...line, d: polyPath(main), 'stroke-width': sw * 1.5 }, g), polyLength(main)));
+        const ep = svgEl('path', { ...line, d: polyPath(echo), 'stroke-width': sw * 0.9, 'stroke-opacity': 0 }, g);
+        ep.dataset.draw = 'outline';
+        node.outline.push({ path: ep, len: 0, set(v) { ep.setAttribute('stroke-opacity', (clamp(v * 1.6 - 0.6, 0, 1) * 0.55).toFixed(4)); } });
+        break;
+      }
+      case 'BURST': {
+        // Radiating rays with a hollow centre; rays stagger in through the shared draw value.
+        const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw, n = Math.max(5, params.rays || 11);
+        for (let i = 0; i < n; i += 1) {
+          const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+          const r0 = R * 0.36, r1 = R * (i % 2 === 0 ? 1 : 0.74);
+          const len = r1 - r0;
+          const p = svgEl('path', { ...line, d: polyPath([[c.x + Math.cos(a) * r0, c.y + Math.sin(a) * r0], [c.x + Math.cos(a) * r1, c.y + Math.sin(a) * r1]]), 'stroke-width': sw * 1.45 }, g);
+          p.style.strokeDasharray = `${f2(len)} ${f2(len + 4)}`;
+          p.dataset.draw = 'outline';
+          node.outline.push({ path: p, len, set(v) { p.style.strokeDashoffset = `${f2((1 - clamp(v * n - i, 0, 1)) * len)}`; } });
+        }
+        break;
+      }
+      case 'CALLOUT': {
+        // A speech bubble: rounded body + a tail that points at whatever sits below it.
+        const r = Math.min(b.w, b.h) * 0.14, tail = params.tail || 'bl';
+        const inner = { x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h * 0.78 - sw };
+        const tx = b.x + b.w * (tail === 'br' ? 0.74 : tail === 'b' ? 0.5 : 0.26);
+        const tp = [[tx - b.w * 0.1, inner.y + inner.h], [tx + b.w * 0.02, b.y + b.h - sw / 2], [tx + b.w * 0.17, inner.y + inner.h]];
+        const dBody = roundRectPath(inner, r);
+        svgEl('path', { d: dBody + polyPath(tp) + 'Z', fill: paper }, g);
+        node.inkEls.push(svgEl('path', { d: dBody + polyPath(tp) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
+        node.outline.push(drawable(svgEl('path', { ...line, d: dBody.slice(0, -1) + 'L' + f2(tp[0][0]) + ' ' + f2(tp[0][1]) + 'L' + f2(tp[1][0]) + ' ' + f2(tp[1][1]) + 'L' + f2(tp[2][0]) + ' ' + f2(tp[2][1]) + 'Z' }, g), 2 * (inner.w + inner.h) + b.w * 0.4));
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'STICKY': {
+        // A sticky note: paper square with a folded top-right corner, held at a slight rotation.
+        const fold = Math.min(b.w, b.h) * 0.22;
+        const body = [[b.x, b.y], [b.x + b.w - fold, b.y], [b.x + b.w, b.y + fold], [b.x + b.w, b.y + b.h], [b.x, b.y + b.h]];
+        const bodyD = polyPath(body) + 'Z';
+        svgEl('path', { d: bodyD, fill: paper }, g);
+        node.inkEls.push(svgEl('path', { d: bodyD, fill: accent, 'fill-opacity': 0 }, g));
+        const foldPts = [[b.x + b.w - fold, b.y], [b.x + b.w - fold, b.y + fold], [b.x + b.w, b.y + fold]];
+        const foldD = polyPath(foldPts);
+        svgEl('path', { d: foldD + 'Z', fill: ink, 'fill-opacity': 0.1 }, g);
+        node.outline.push(drawable(svgEl('path', { ...line, d: bodyD }, g), polyLength(body) + Math.hypot(body[0][0] - body[4][0], body[0][1] - body[4][1])));
+        node.outline.push(drawable(svgEl('path', { ...line, d: foldD, 'stroke-width': sw * 0.8 }, g), polyLength(foldPts)));
+        node.strike = strikeFor(b);
+        node.extra.rotateDeg = -2.4;
+        break;
+      }
+      case 'DONUT': {
+        // A progress ring: paper track + an arc that GROW sweeps, with an optional COUNT readout.
+        const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw * 1.6;
+        svgEl('circle', { cx: c.x, cy: c.y, r: R, fill: 'none', stroke: ink, 'stroke-width': sw * 1.5, 'stroke-opacity': 0.16 }, g);
+        const arc = svgEl('circle', { ...line, cx: c.x, cy: c.y, r: R, 'stroke-width': sw * 2.6, transform: `rotate(-90 ${f2(c.x)} ${f2(c.y)})` }, g);
+        arc.dataset.draw = 'outline';
+        const circ = 2 * Math.PI * R;
+        node.outline.push({ path: arc, len: circ, set(v) { arc.style.strokeDasharray = `${f2(circ * clamp(v, 0, 1))} ${f2(circ)}`; arc.style.strokeDashoffset = '0'; } });
+        node.extra.setGrow = (k) => node.outline[0].set(k);
+        if (params.count && il.ops.some((o) => o.op === 'COUNT' && o.target === ent.id)) {
+          node.extra.countMax = Math.max(1, params.count);
+          node.extra.countText = svgEl('text', {
+            x: f2(c.x), y: f2(c.y + sw * 1.4), 'text-anchor': 'middle', 'font-size': f2(R * 0.72),
+            'font-family': plan.fonts.families.data, 'font-weight': '600', fill: ink, 'font-variant-numeric': 'tabular-nums', 'fill-opacity': 0,
+          }, g);
+        }
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'FRAME': {
+        // Crop marks: four corner ticks framing the box — reads as a selection, not a container.
+        const k = Math.min(b.w, b.h) * 0.24;
+        const corners = [
+          [[b.x + k, b.y], [b.x, b.y], [b.x, b.y + k]],
+          [[b.x + b.w - k, b.y], [b.x + b.w, b.y], [b.x + b.w, b.y + k]],
+          [[b.x + k, b.y + b.h], [b.x, b.y + b.h], [b.x, b.y + b.h - k]],
+          [[b.x + b.w - k, b.y + b.h], [b.x + b.w, b.y + b.h], [b.x + b.w, b.y + b.h - k]],
+        ];
+        for (const pts of corners) {
+          node.outline.push(drawable(svgEl('path', { ...line, d: polyPath(pts), 'stroke-width': sw * 1.35 }, g), polyLength(pts)));
+        }
+        break;
+      }
       case 'ICON': {
         const host = svgEl('g', {}, g);
         host.style.color = ink;
@@ -1240,10 +1356,12 @@
       }
       if (gl.extra.countText) {
         const c = propAt(node, 'count', lt).v;
-        const topY = node.bb.y + node.bb.h - Math.max(ill.sw, (gl.extra.growK ?? 1) * node.bb.h);
         gl.extra.countText.textContent = String(Math.round(c * gl.extra.countMax));
         gl.extra.countText.setAttribute('fill-opacity', (c > 0 ? Math.min(1, c * 4) : 0).toFixed(4));
-        gl.extra.countText.setAttribute('y', f2(topY - ill.sw));
+        if (gl.extra.growK !== undefined) {
+          const topY = node.bb.y + node.bb.h - Math.max(ill.sw, gl.extra.growK * node.bb.h);
+          gl.extra.countText.setAttribute('y', f2(topY - ill.sw));
+        }
       }
       if (gl.strike) {
         const s = propAt(node, 'strike', lt);
@@ -1288,7 +1406,7 @@
       }
       if (ex) { opacity *= ex.opacity; ty += ex.ty; }
       const c = centre(node.bb);
-      if (scale !== 1 || ty || tx) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)}) translate(${f2(-c.x)} ${f2(-c.y)})`;
+      if (scale !== 1 || ty || tx || gl.extra.rotateDeg) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)})${gl.extra.rotateDeg ? ` rotate(${gl.extra.rotateDeg})` : ''} translate(${f2(-c.x)} ${f2(-c.y)})`;
       g.setAttribute('transform', transform.trim() || 'translate(0 0)');
       g.style.opacity = opacity.toFixed(4);
       if (node.label) {
@@ -1313,8 +1431,9 @@
     for (const r of ill.rels.values()) {
       if (!r.path) continue;
       const rel = r.rel, s = r.g.style;
-      if (lt < rel.enter_ms) { s.visibility = 'hidden'; continue; }
-      s.visibility = 'visible';
+      // Pre-entry still runs the pipeline (prog clamps to 0) so the arrow/bar/trace decls
+      // are rewritten every visit — scrubbing back must produce the same DOM.
+      s.visibility = lt < rel.enter_ms ? 'hidden' : 'visible';
       const pe = rel.enter_duration_ms ? prog(lt, rel.enter_ms, rel.enter_ms + rel.enter_duration_ms) : 1;
       const con = rel.drawn_by_op ? propAt(r, 'connect', lt).v : EASE.outQuint(pe);
       r.path.set(con);

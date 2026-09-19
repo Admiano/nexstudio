@@ -406,7 +406,15 @@
                             "BRACKET",
                             "BAR",
                             "ICON",
-                            "MEDIA"
+                            "MEDIA",
+                            "ARROW",
+                            "MARK_CIRCLE",
+                            "UNDERLINE",
+                            "BURST",
+                            "CALLOUT",
+                            "STICKY",
+                            "DONUT",
+                            "FRAME"
                           ]
                         },
                         "size": {
@@ -465,7 +473,8 @@
                             "compares",
                             "transforms_into",
                             "emits_to",
-                            "scans"
+                            "scans",
+                            "marks"
                           ]
                         },
                         "source": {
