@@ -26,7 +26,7 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 # primitives, ops are timed state changes. None of these names is derived from wording.
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
 GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
-          'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP')
+          'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER')
 ENTITY_KINDS = ('object', 'system', 'state', 'group', 'evidence', 'signal', 'agent')
 ENTITY_SIZES = ('hero', 'support', 'minor')
 RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans', 'marks')
@@ -46,7 +46,13 @@ MEDIA_KINDS = ('IMAGE', 'SCREENSHOT', 'DOCUMENT', 'VIDEO')
 MEDIA_ROLES = ('EVIDENCE', 'PROOF', 'CONTEXT')
 FIGURE_POSTURES = ('standing', 'sitting')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
-FINISHES = ('EDITORIAL_FLAT', 'PAPER')
+FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
+# Motion profile per finish: how elements enter, how far the camera drifts per beat, how cuts dissolve.
+MOTION_PROFILES = {
+    'EDITORIAL_FLAT': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.012, 'camera_pan_frac': 0.004, 'transition': 'blur_dissolve', 'blur_px': 6, 'word_landing': 'tonal'},
+    'PAPER': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.01, 'camera_pan_frac': 0.003, 'transition': 'blur_dissolve', 'blur_px': 5, 'word_landing': 'tonal'},
+    'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise'},
+}
 DATA_KINDS = ('STAT', 'COMPARISON', 'SEQUENCE')
 
 
@@ -182,9 +188,17 @@ class IllustrationEntity:
         if 'level' in params:
             params['level'] = _unit(params['level'])
         if 'count' in params:
-            params['count'] = max(1, min(12, int(params['count'])))
+            # NODE clusters spend count as drawn parts; readout glyphs (BAR, DONUT) carry the datum.
+            params['count'] = max(1, min(12, int(params['count']))) if glyph == 'NODE' else max(1, int(params['count']))
         if 'lines' in params:
             params['lines'] = max(0, min(4, int(params['lines'])))
+        if glyph == 'COUNTER':
+            _need('count' in params, 'COUNTER_WITHOUT_COUNT', f'{eid}: COUNTER needs params.count', beat_id)
+            for k in ('prefix', 'suffix', 'caption'):
+                if k in params:
+                    params[k] = str(params[k])[:24]
+        if 'tone' in params:
+            _need(str(params['tone']) in ('light', 'dark'), 'TONE_UNKNOWN', f"{eid}:{params['tone']}", beat_id)
         return cls(eid, kind, glyph, size, label, asset_ref, media_ref, params)
 
 

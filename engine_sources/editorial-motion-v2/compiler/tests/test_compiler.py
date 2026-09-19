@@ -462,3 +462,46 @@ def test_music_bed_rights_clean_and_deterministic(plans):
         assert m['status'] == 'BOUND_CC0' and m['license'].startswith('CC0'), m
         assert Path(m['path']).exists()
         assert m['duck_under_voice_db'] < 0 and m['gain_db'] < 0
+
+
+def test_colour_registry_resolves_brand_and_emoji_natively():
+    from editorial_plan_compiler.illustration import IllustrationRegistry
+    reg = IllustrationRegistry()
+    for asset_id in ('brand.logos.claude-icon', 'emoji.fluent.brain', 'icon.icon-park-color.robot'):
+        r = reg.resolve(asset_id, 'test')
+        assert Path(r['path']).exists() and r['license'] and r.get('colour') == 'native', asset_id
+
+
+@pytest.fixture(scope='module')
+def collage_plans(tmp_path_factory):
+    fx = ROOT / 'fixtures' / 'promo-collage' / 'treatment.json'
+    return compile_film(json.loads(fx.read_text()), tmp_path_factory.mktemp('collage'), base_dir=fx.parent)
+
+
+def test_product_collage_emits_motion_profile_and_kinetic_captions(collage_plans, plans):
+    assert collage_plans['gate']['status'] == 'PASS', collage_plans['gate']['failures']
+    for p in collage_plans['plans'].values():
+        assert p['captions_policy'] == 'kinetic'
+        m = p['motion']
+        assert m['entrance'] == 'pop' and m['transition'] == 'scale_through' and m['camera_push'] > 0
+        assert not any(L['kind'] == 'panel' for b in p['beats'] for L in b['composition']['background']['layers'])
+        for b in p['beats']:
+            il = b.get('illustration')
+            if not il:
+                continue
+            for e in il['entities']:
+                if e['glyph'] == 'CHIP' and e['label']:
+                    # inside label starts clear of the icon peg and ends before the tag-pill third
+                    lb, bb = e['label']['bbox'], e['bbox']
+                    assert lb['x'] >= bb['x'] + bb['w'] * 0.32 and lb['x'] + lb['w'] <= bb['x'] + bb['w'] * 0.64
+    for p in plans.values():
+        assert p['captions_policy'] == 'burned' and p['motion']['entrance'] == 'settle'
+
+
+def test_wrap_cells_keeps_a_single_line_when_shares_fit():
+    from editorial_plan_compiler.illustration import IllustrationRegistry, IllustrationSolver
+    from editorial_plan_compiler.contracts import IllustrationEntity
+    s = IllustrationSolver('16x9', (1920, 1080), IllustrationRegistry(), {}, {}, None)
+    ents = [IllustrationEntity(id=f'e{i}', kind='object', glyph='NODE', size='support') for i in range(3)]
+    cells = s._wrap_cells({'x': 0.0, 'y': 0.0, 'w': 1200.0, 'h': 300.0}, ents, False)
+    assert len({round(c['y']) for c in cells.values()}) == 1, 'unlabelled row must not wrap'
