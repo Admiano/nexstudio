@@ -1123,7 +1123,10 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             if s['icon'] == 'person':
                 groups.append(('marks', _motion_marks_strokes(), s['center'], s['size'], s))
         if s.get('bubble'):
-            bc = (s['center'][0] + s['size'] * 0.55, s['center'][1] - s['size'] * 0.62)
+            bx = min(s['center'][0] + s['size'] * 0.55 * s.get('facing', 1),
+                     zone['x'] + zone['w'] - s['size'] * 0.35)
+            bx = max(bx, zone['x'] + s['size'] * 0.35)
+            bc = (bx, s['center'][1] - s['size'] * 0.62)
             groups.append(('bubble', _bubble_strokes(), bc, s['size'] * 0.62, s))
         if s['icon'] in ('envelope', 'phone', 'question'):
             groups.append(('sparkle', _ping_strokes(), s['center'], s['size'], s))
