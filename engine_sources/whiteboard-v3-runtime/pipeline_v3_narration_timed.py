@@ -347,12 +347,15 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
     # Runtime wrap (preserved module untouched): point its audio dir at our
     # denser synthesized marker bed — the packaged bed was ~16x too quiet.
     sfx_dir = Path(__file__).parent / 'assets' / 'sfx'
-    if (sfx_dir / 'marker-scratch-bed-48k.wav').is_file():
+    marker_bed = sfx_dir / 'marker-real-bed-48k.wav'
+    if not marker_bed.is_file():
+        marker_bed = sfx_dir / 'marker-scratch-bed-48k.wav'
+    if marker_bed.is_file():
         snd.AUDIO = sfx_dir
-        snd.ROLE_FILE['marker.short'] = 'marker-scratch-bed-48k.wav'
-        snd.ROLE_FILE['marker.swipe'] = 'marker-scratch-bed-48k.wav'
-        snd.ROLE_GAIN['marker.short'] = 0.26
-        snd.ROLE_GAIN['marker.swipe'] = 0.32
+        snd.ROLE_FILE['marker.short'] = marker_bed.name
+        snd.ROLE_FILE['marker.swipe'] = marker_bed.name
+        snd.ROLE_GAIN['marker.short'] = 0.30
+        snd.ROLE_GAIN['marker.swipe'] = 0.38
     return Path(snd.render(plan, duration, out_path)['path'])
 
 

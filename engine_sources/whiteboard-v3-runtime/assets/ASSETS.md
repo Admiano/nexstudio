@@ -106,3 +106,11 @@ which were AI-generated and vectorized as pipeline demos.
   single-token lemmas). Vendored snapshot — deterministic, no runtime dep.
   Princeton WordNet license (free for commercial use).
 
+### sfx/
+- `marker-real-bed-48k.wav` — real board-drawing strokes extracted from
+  user-supplied Freesound recording 'blackboard4' (freesound id 19968).
+  Freesound community uploads are CC0/CC-BY — verify attribution need
+  before commercial release; drop-in replaceable via ROLE_FILE patch.
+- `marker-scratch-bed-48k.wav` — synthesized fallback bed.
+- `pencil-bed-48k.wav`, `pen-cap-48k.wav` — preserved-runtime audio assets.
+
