@@ -351,8 +351,8 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
         snd.AUDIO = sfx_dir
         snd.ROLE_FILE['marker.short'] = 'marker-scratch-bed-48k.wav'
         snd.ROLE_FILE['marker.swipe'] = 'marker-scratch-bed-48k.wav'
-        snd.ROLE_GAIN['marker.short'] = 0.5
-        snd.ROLE_GAIN['marker.swipe'] = 0.62
+        snd.ROLE_GAIN['marker.short'] = 0.26
+        snd.ROLE_GAIN['marker.swipe'] = 0.32
     return Path(snd.render(plan, duration, out_path)['path'])
 
 
