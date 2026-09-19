@@ -761,6 +761,8 @@ _ICON_KEYWORDS = {
                'traveler', 'hiker', 'camper', 'gardener', 'rancher',
                'herder', 'shepherd', 'fisher', 'hunter', 'swimmer',
                'runner', 'cyclist', 'dancer', 'singer', 'actor',
+               'shopper', 'vendor', 'merchant', 'consumer', 'guest',
+               'resident', 'visitor', 'pedestrian', 'jogger', 'clerk',
                'agent owner', 'customer agent'),
     'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'android',
               'chatbot', 'automation bot'),
@@ -955,41 +957,142 @@ def _tabler_strokes(name: str):
 _STAT_RE = re.compile(r"^[\$£€]?\s*\d[\d,\.]*\s*(%|[kmbx×+]|[a-z]{1,7})?\.?$",
                       re.I)
 _CUSTOM_DIR = _ASSETS / 'custom'
+# License-clean illustration collections (all stroke-friendly vector art):
+#   custom/   bespoke commissioned or generated sketches (vtracer output)
+#   ctrlv/    1019 CC0 vignette illustrations, tag-indexed
+#   flowbite/ 54 MIT scene illustrations (light/outline set)
+#   doodles/  31 CC0 sketchy figure illustrations (Open Doodles)
+_ILLUST_DIRS = ('custom', 'ctrlv', 'flowbite', 'doodles')
 
 
 def _slug(text: str) -> str:
     return re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
 
 
-def _custom_strokes(slug: str):
-    """Unit-space strokes for a bespoke SVG in assets/custom/<slug>.svg.
-    These are commissioned/generated illustrations — they win over every
-    generic vocabulary path."""
-    path = _CUSTOM_DIR / f'{slug}.svg'
+def _dir_strokes(dir_name: str, slug: str):
+    """Unit-space strokes for an SVG in assets/<dir_name>/<slug>.svg.
+    Ink-filled elements hatch; paper/secondary fills draw as outlines only
+    so the art reads on the board's paper."""
+    path = _ASSETS / dir_name / f'{slug}.svg'
     if not path.is_file():
         return None
     elements, vb = svg_paths.elements_from_string(path.read_text())
     polys = [p for ps, _f, _c in elements for p in ps if len(p) >= 2]
     if not polys:
         return None
-    # extent from geometry — vtracer writes width/height, not viewBox
     xs = [p[0] for pl in polys for p in pl]
     ys = [p[1] for pl in polys for p in pl]
-    vbw = (vb[2] if vb and len(vb) > 2 and vb[2]
-           else max(xs) - min(xs)) or 1
-    vbh = (vb[3] if vb and len(vb) > 3 and vb[3]
-           else max(ys) - min(ys)) or 1
-    x0 = vb[0] if vb and len(vb) > 2 and vb[2] else min(xs)
-    y0 = vb[1] if vb and len(vb) > 3 and vb[3] else min(ys)
+    # normalize by drawn geometry, not viewBox — library art carries big
+    # empty margins that would shrink the drawing inside its slot
+    vbw = max(xs) - min(xs) or 1
+    vbh = max(ys) - min(ys) or 1
+    x0 = min(xs)
+    y0 = min(ys)
     side = max(vbw, vbh, 1)  # normalize by the long edge, keep aspect
     ox = (side - vbw) / 2
     oy = (side - vbh) / 2
     strokes = []
-    for poly in polys:
-        strokes.append(([( (x - x0 + ox) / side - 0.5,
-                          (y - y0 + oy) / side - 0.5) for x, y in poly],
-                        'ink', 0.95, False))
+    for polys_el, fill, closed in elements:
+        if fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
+            color, hatch = 'ink', False
+        elif str(fill).startswith('#') and fill.lower() not in (
+                'none', 'default'):
+            color, hatch = 'ink', closed
+        else:
+            color, hatch = 'ink', False
+        for poly in polys_el:
+            if len(poly) < 2:
+                continue
+            strokes.append(([( (x - x0 + ox) / side - 0.5,
+                              (y - y0 + oy) / side - 0.5) for x, y in poly],
+                            color, 0.95, hatch))
     return strokes or None
+
+
+def _custom_strokes(slug: str):
+    """Unit-space strokes for a bespoke SVG in assets/custom/<slug>.svg.
+    These are commissioned/generated illustrations — they win over every
+    generic vocabulary path."""
+    return _dir_strokes('custom', slug)
+
+
+_CTRLV_INDEX: dict = None
+
+
+def _ctrlv_index():
+    global _CTRLV_INDEX
+    if _CTRLV_INDEX is None:
+        path = _ASSETS / 'ctrlv' / 'index.json'
+        _CTRLV_INDEX = json.loads(path.read_text()) if path.is_file() else {}
+    return _CTRLV_INDEX
+
+
+_ILLUST_DIRS_ = {'ctrlv', 'flowbite', 'doodles'}
+
+
+def _illust_ink(dir_name: str, slug: str) -> float:
+    """Normalized total stroke length — tiny/sparse art reads as fragments
+    at icon scale, so weak geometry must lose to the icon vocabularies."""
+    try:
+        elements, _vb = svg_paths.elements_from_string(
+            (_ASSETS / dir_name / f'{slug}.svg').read_text())
+    except Exception:
+        return 0.0
+    pts = [pt for polys, _f, _c in elements for pl in polys for pt in pl]
+    if len(pts) < 6:
+        return 0.0
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    side = max(max(xs) - min(xs), max(ys) - min(ys), 1)
+    total = 0.0
+    for polys, _f, _c in elements:
+        for pl in polys:
+            total += sum(math.hypot(b[0] - a[0], b[1] - a[1])
+                        for a, b in zip(pl, pl[1:]))
+    return total / side
+
+
+def _illust_lookup(concept: str):
+    """(dir, slug) for the best matching vignette illustration, or None.
+    Scene-level art beats a flat icon only when the match is strong — the
+    label's main noun must land in the art's slug/title/tags — and the art
+    must carry enough ink to read at icon scale."""
+    words = [w for w in re.findall(r"[a-z0-9]+", str(concept).lower())
+             if len(w) > 2]
+    if not words:
+        return None
+    wset = set(words) | {_singular(w) for w in words}
+    main = {_singular(words[-1]), words[-1]} | {w for w in wset if len(w) >= 5}
+    best, best_score = None, 0.0
+    candidates = []
+    for slug, meta in _ctrlv_index().items():
+        slug_parts = set(slug.split('-'))
+        toks = slug_parts | set(meta.get('tags') or [])
+        toks |= set(re.findall(r'[a-z0-9]+', (meta.get('title') or '').lower()))
+        candidates.append(('ctrlv', slug, slug_parts, toks))
+    for d in ('flowbite', 'doodles'):
+        ddir = _ASSETS / d
+        if not ddir.is_dir():
+            continue
+        for f in ddir.glob('*.svg'):
+            slug_parts = set(f.stem.split('-'))
+            candidates.append((d, f.stem, slug_parts, slug_parts))
+    for d, slug, slug_parts, toks in candidates:
+        # a meaningful word must anchor the match — fuzzy tag overlap alone
+        # ('gate open' -> 'open-notes') pulls wrong art
+        if not (main & slug_parts) and not (main & toks and len(wset & toks) >= 2):
+            continue
+        score = 0.0
+        for w in wset & toks:
+            score += (5 if w in slug_parts else 3) + 0.15 * len(w)
+        score += len(wset & slug_parts)
+        score += 1.5 * len(wset & toks) / len(wset)
+        score -= len(slug) * 0.04
+        if score > best_score:
+            best, best_score = (d, slug), score
+    if best and best_score >= 6.5 and _illust_ink(*best) >= 2.2:
+        return ('illust',) + best
+    return None
 
 
 def _singular(w: str) -> str:
@@ -1015,6 +1118,15 @@ def icon_for(concept: str) -> str:
     # bespoke commissioned/generated art for this exact label wins outright
     if (_CUSTOM_DIR / f'{_slug(phrase)}.svg').is_file():
         return ('custom', _slug(phrase))
+    # action-word figure art (running, sitting, reading...) beats a static pose
+    for w in words:
+        if (_ASSETS / 'doodles' / f'{w}.svg').is_file() and w in (
+                'running', 'sprinting', 'sitting', 'reading', 'meditating',
+                'dancing', 'jumping', 'strolling', 'unboxing', 'petting',
+                'selfie', 'ballet', 'swinging', 'laying', 'groovy', 'rolling',
+                'chilling', 'moshing', 'zombieing', 'sleek', 'clumsy', 'float',
+                'loving'):
+            return ('illust', 'doodles', w)
     for icon, keys in _ICON_KEYWORDS.items():
         if any(' ' in k and k in phrase for k in keys):
             return icon
@@ -1023,6 +1135,10 @@ def icon_for(concept: str) -> str:
         # object trailing the phrase ('teacher explains idea' → person)
         if words[0] in _ICON_KEYWORDS['person']:
             return 'person'
+        # a strong scene-vignette match beats the flat icon vocabulary
+        il = _illust_lookup(phrase)
+        if il:
+            return il
         last = words[-1]
         for icon, keys in _ICON_KEYWORDS.items():
             if last in keys:
@@ -1060,6 +1176,10 @@ def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
         custom = _custom_strokes(icon[1])
         if custom:
             return custom
+    if isinstance(icon, tuple) and icon[0] == 'illust':
+        ill = _dir_strokes(icon[1], icon[2])
+        if ill:
+            return ill
     if icon == 'person':
         spec = cast if isinstance(cast, dict) else (cast or pose)
         return _peeps_strokes(spec, facing)
@@ -1284,6 +1404,26 @@ def _scene_slots(labels: list[str], zone: dict, ratio: str):
     for s in slots:
         if s and s['icon'] in ('person', 'agent'):
             s['facing'] = 1 if s['center'][0] <= zcx else -1
+
+    # vignette pairing: with an actor present, pull the first small prop into
+    # reach so the two draw as an interaction, not a row of items
+    ppl = [s for s in slots if s and s['icon'] in ('person', 'agent')]
+    sm_props = [s for s in slots if s and s['icon'] not in ('person', 'agent')
+                and not (isinstance(s['icon'], tuple)
+                         and s['icon'][0] == 'illust')]
+    if ppl and sm_props and not portrait:
+        p, q = ppl[0], sm_props[0]
+        reach_x = p['center'][0] + p['facing'] * (p['size'] * 0.58
+                                                + q['size'] * 0.40)
+        reach_x = min(max(reach_x, x + q['size'] * 0.55),
+                      x + w - q['size'] * 0.55)
+        # only pull if it doesn't collide with any other element
+        ok = all(s is q or s is p
+                 or abs(s['center'][0] - reach_x)
+                 > (s['size'] + q['size']) * 0.46
+                 for s in slots if s)
+        if ok and abs(reach_x - q['center'][0]) > q['size'] * 0.2:
+            q['center'] = (reach_x, p['center'][1] + p['size'] * 0.10)
 
     if people:
         for s in slots:

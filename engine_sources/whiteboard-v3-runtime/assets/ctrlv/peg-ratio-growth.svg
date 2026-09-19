@@ -1,0 +1,8 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 220 L200 120 L300 100" stroke="#1A1A17" stroke-width="6" stroke-linecap="round" fill="none"/>
+        <g>
+            <path d="M280 80 L320 80 L320 120" stroke="#1A1A17" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <text x="200" y="160" font-family="Inter" font-weight="900" font-size="40" fill="#F5F0E4" opacity="0.8">PEG</text>
+        </g>
+        <path d="M100 240 H300" stroke="#F5F0E4" stroke-width="2"/>
+    </svg>

@@ -1,0 +1,25 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Gym background hint -->
+        <line x1="80" y1="260" x2="320" y2="260" stroke="#F5F0E4" stroke-width="2"/>
+        
+        <!-- Dumbbell -->
+        <g>
+            <rect x="180" y="220" width="40" height="6" fill="#F5F0E4"/>
+            <rect x="170" y="210" width="10" height="25" rx="2" fill="#F5F0E4"/>
+            <rect x="220" y="210" width="10" height="25" rx="2" fill="#F5F0E4"/>
+        </g>
+        
+        <!-- Coach & Pupil silhouettes -->
+        <g>
+            <!-- Pupil (doing pushup position) -->
+            <path d="M100 240 L160 200 L180 200" stroke="#1A1A17" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <circle cx="90" cy="230" r="12" fill="#1A1A17"/>
+            
+            <!-- Coach (Standing/Pointing) -->
+            <g>
+                <circle cx="280" cy="120" r="20" fill="#F5F0E4"/>
+                <path d="M280 140 V200 L260 240 M280 200 L300 240" stroke="#F5F0E4" stroke-width="10" stroke-linecap="round"/>
+                <path d="M280 160 L240 160" stroke="#F5F0E4" stroke-width="8" stroke-linecap="round"/>
+            </g>
+        </g>
+    </svg>

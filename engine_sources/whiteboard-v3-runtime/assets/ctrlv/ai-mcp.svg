@@ -1,0 +1,22 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- AI Model Node -->
+                <rect x="60" y="110" width="80" height="80" rx="15" fill="#1A1A17"/>
+                <circle cx="100" cy="150" r="15" fill="#F5F0E4"/>
+                
+                <!-- External Tool Node -->
+                <rect x="260" y="110" width="80" height="80" rx="15" fill="#F5F0E4"/>
+                <rect style="animation-delay: 0.5s;" x="285" y="135" width="30" height="30" rx="5" fill="#F5F0E4"/>
+                
+                <!-- Protocol Bridge -->
+                <path d="M140 150 H260" stroke="#F5F0E4" stroke-width="12" stroke-linecap="round"/>
+                <path d="M140 150 H260" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                
+                <!-- Context Packets -->
+                <g>
+                    <rect x="170" y="110" width="20" height="15" rx="4" fill="#F5F0E4"/>
+                    <rect x="210" y="175" width="20" height="15" rx="4" fill="#F5F0E4"/>
+                </g>
+                <path d="M180 125 V140 M220 175 V160" stroke="#F5F0E4" stroke-width="3" stroke-dasharray="2 2" opacity="0.5"/>
+            </g>
+          </svg>

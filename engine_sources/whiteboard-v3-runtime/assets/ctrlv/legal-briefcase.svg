@@ -1,0 +1,17 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Main Body -->
+                <rect x="100" y="120" width="200" height="120" rx="10" fill="#1A1A17"/>
+                <path d="M100 160 H300" stroke="#F5F0E4" stroke-width="8"/>
+                <path d="M100 210 H300" stroke="#F5F0E4" stroke-width="4"/>
+                
+                <!-- Handle -->
+                <path d="M160 120 V90 C160 70 240 70 240 90 V120" stroke="#F5F0E4" stroke-width="12" stroke-linecap="round" fill="none"/>
+                
+                <!-- Locks/Latches -->
+                <rect x="140" y="150" width="20" height="20" rx="4" fill="#F5F0E4"/>
+                <rect x="240" y="150" width="20" height="20" rx="4" fill="#F5F0E4"/>
+                <circle cx="150" cy="160" r="3" fill="#F5F0E4"/>
+                <circle cx="250" cy="160" r="3" fill="#F5F0E4"/>
+            </g>
+          </svg>

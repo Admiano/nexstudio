@@ -1,0 +1,25 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Plate -->
+                <circle cx="200" cy="180" r="110" fill="#F5F0E4" stroke="#1A1A17" stroke-width="4"/>
+                
+                <!-- Noodles -->
+                <g stroke="#1A1A17" stroke-width="4" fill="none" opacity="0.8">
+                    <path d="M140 180 Q200 120 260 180"/>
+                    <path d="M150 190 Q200 150 250 190"/>
+                    <path d="M160 170 Q200 210 240 170"/>
+                    <path d="M130 160 Q200 240 270 160" opacity="0.5"/>
+                </g>
+                
+                <!-- Ingredients (Peanuts, Tofu, Sprouts) -->
+                <g opacity="0.8">
+                    <rect x="180" y="160" width="15" height="15" fill="#F5F0E4"/>
+                    <rect style="animation-delay: 0.3s;" x="220" y="180" width="15" height="15" fill="#F5F0E4"/>
+                    <!-- Lime Wedge -->
+                    <path d="M120 180 Q140 140 160 180 Z" fill="#F5F0E4"/>
+                    <!-- Red Chili flakes -->
+                    <circle cx="210" cy="150" r="3" fill="#1A1A17"/>
+                    <circle cx="230" cy="160" r="3" fill="#1A1A17"/>
+                <circle cx="230" cy="160" r="3" fill="#1A1A17"/>
+            </g>
+          </svg>

@@ -1,0 +1,30 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Laptop -->
+                <rect x="80" y="80" width="240" height="150" rx="10" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                <path d="M50 230 L350 230 L340 250 H60 Z" fill="#F5F0E4"/>
+                
+                <!-- Screen UI -->
+                <rect x="90" y="90" width="220" height="130" rx="4" fill="#1A1A17" opacity="0.1"/>
+                
+                <!-- Welcome Banner -->
+                <rect x="110" y="100" width="180" height="30" rx="4" fill="#F5F0E4"/>
+                <text x="200" y="120" font-family="monospace" font-weight="bold" font-size="14" fill="#F5F0E4" text-anchor="middle">WELCOME!</text>
+                
+                <!-- Employee Profile on Screen -->
+                <circle cx="140" cy="170" r="25" fill="#F5F0E4"/>
+                <path d="M115 215 Q140 180 165 215 Z" fill="#F5F0E4"/>
+                
+                <!-- Tasks/Checklist -->
+                <rect x="180" y="150" width="80" height="10" rx="2" fill="#F5F0E4" opacity="0.3"/>
+                <rect x="180" y="170" width="100" height="10" rx="2" fill="#F5F0E4" opacity="0.3"/>
+                <rect x="180" y="190" width="60" height="10" rx="2" fill="#F5F0E4" opacity="0.3"/>
+                
+                <!-- Confetti -->
+                <circle cx="100" cy="60" r="5" fill="#1A1A17"/>
+                <g transform="rotate(20 280 50)">
+                <rect style="animation-delay: 0.2s;" x="280" y="50" width="8" height="8" fill="#F5F0E4" />
+            </g>
+                <path style="animation-delay: 0.4s;" d="M200 40 L205 50 L195 50 Z" fill="#F5F0E4"/>
+            </g>
+          </svg>

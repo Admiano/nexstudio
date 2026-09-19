@@ -1,0 +1,44 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="140" ry="10" fill="#E2E8F0" opacity="0.6"/>
+            <!-- Data Grid / Matrix Background -->
+            <g fill="#F5F0E4" opacity="0.2">
+                <!-- Rows / Cols -->
+                <rect x="80" y="60" width="30" height="10" rx="2"/>
+                <rect x="120" y="60" width="50" height="10" rx="2"/>
+                <rect x="180" y="60" width="40" height="10" rx="2"/>
+                <rect x="230" y="60" width="60" height="10" rx="2"/>
+                
+                <rect x="80" y="90" width="50" height="10" rx="2"/>
+                <rect x="140" y="90" width="40" height="10" rx="2"/>
+                <rect x="190" y="90" width="60" height="10" rx="2"/>
+                <rect x="260" y="90" width="30" height="10" rx="2"/>
+                
+                <rect x="80" y="120" width="40" height="10" rx="2"/>
+                <rect x="130" y="120" width="60" height="10" rx="2"/>
+                <rect x="200" y="120" width="30" height="10" rx="2"/>
+                <rect x="240" y="120" width="50" height="10" rx="2"/>
+                
+                <rect x="80" y="150" width="60" height="10" rx="2"/>
+                <rect x="150" y="150" width="30" height="10" rx="2"/>
+                <rect x="190" y="150" width="50" height="10" rx="2"/>
+                <rect x="250" y="150" width="40" height="10" rx="2"/>
+            </g>
+            
+            <g>
+                <!-- Magnifying Glass -->
+                <!-- Glass Reflection / Ring -->
+                <circle cx="220" cy="180" r="70" fill="#F5F0E4" stroke="#1A1A17" stroke-width="15"/>
+                <path d="M170 150 Q190 130 220 130" stroke="#F5F0E4" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.6"/>
+                
+                <!-- Handle -->
+                <path d="M260 230 L320 290" stroke="#F5F0E4" stroke-width="30" stroke-linecap="round"/>
+                <path d="M270 240 L310 280" stroke="#F5F0E4" stroke-width="8" stroke-linecap="round"/>
+                
+                <g>
+                    <!-- Targeted Metric Highlight inside Glass -->
+                    <rect x="180" y="160" width="40" height="40" rx="4" fill="#F5F0E4"/>
+                    <rect x="230" y="140" width="40" height="60" rx="4" fill="#1A1A17"/>
+                    <path d="M170 220 H280" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                </g>
+            </g>
+          </svg>

@@ -1,0 +1,19 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- UI Interface / Screen -->
+                <rect x="120" y="70" width="160" height="110" rx="8" fill="#F5F0E4" opacity="0.1"/>
+                <rect x="140" y="90" width="120" height="40" rx="5" fill="#1A1A17" opacity="0.8"/>
+                <rect x="140" y="140" width="50" height="20" rx="4" fill="#F5F0E4" opacity="0.6"/>
+                <rect x="200" y="140" width="60" height="20" rx="4" fill="#F5F0E4" opacity="0.6"/>
+                
+                <!-- Interaction rings -->
+                <circle cx="200" cy="110" r="20" stroke="#F5F0E4" stroke-width="4" fill="none" opacity="0.8"/>
+                <circle style="animation-delay: -0.4s" cx="200" cy="110" r="10" fill="#F5F0E4"/>
+
+                <!-- Finger tapping -->
+                <g>
+                    <path d="M220 220 L210 150 C208 140 192 140 190 150 L180 220 Z" fill="#F5F0E4"/>
+                    <path d="M180 220 H220" stroke="#F5F0E4" stroke-width="10" stroke-linecap="round"/>
+                </g>
+            </g>
+          </svg>

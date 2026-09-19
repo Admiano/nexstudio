@@ -68,6 +68,26 @@ which were AI-generated and vectorized as pipeline demos.
 - `whoosh.wav`, `pop.wav` — generated in-repo (numpy synthesis), no
   third-party rights; replaceable with a sourced pack later.
 
+## ctrlv/ — scene vignettes (1,019 SVGs)
+- Source: ctrlv.design illustration catalog (`js/illustrations-data.js`),
+  extracted to per-illustration SVGs + `index.json` (title/tags search
+  index). CSS color variables resolved to ink `#1A1A17` / paper `#F5F0E4`.
+- License: CC0 public domain — commercial use, no attribution.
+- Role: scene-level vignette layer — descriptive labels ('fire rescue',
+  'crypto wallet', 'delivery truck fleet') match via title+tags when a
+  meaningful word anchors the match and the art carries enough ink to read
+  at icon scale (`_illust_lookup` + `_illust_ink`).
+
+## flowbite/ — scene vignettes (54 SVGs)
+- Source: `themesberg/flowbite-illustrations` (MIT, Themesberg), light/outline
+  variants only. People-in-context scenes (tutoring, shopping, repairing…).
+
+## doodles/ — sketchy figures (31 SVGs)
+- Source: Open Doodles by Pablo Stanley (opendoodles.com), CC0.
+- Loose hand-drawn figures — the closest match to the whiteboard aesthetic;
+  also the fallback actor art for action-word labels ('runner', 'reader',
+  'dancer').
+
 ## icons/tabler/
 - `tabler-nodes-outline.json`, `icons.json` — Tabler Icons v3.35.0
   (MIT, © Paweł Kuna; npm package `@tabler/icons`). 4,964 stroke-style
