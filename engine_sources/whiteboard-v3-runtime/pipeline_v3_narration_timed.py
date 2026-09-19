@@ -356,6 +356,45 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
         snd.ROLE_FILE['marker.swipe'] = marker_bed.name
         snd.ROLE_GAIN['marker.short'] = 0.30
         snd.ROLE_GAIN['marker.swipe'] = 0.38
+
+    # Emit one scratch event per polyline pen-down interval (written into the
+    # drawPlan by the renderer) — the sound plays only while the pen inks,
+    # never during lifts or travel between strokes.
+    def pen_events(pl):
+        import random as _rnd
+        out = []
+        base = 0.0
+        scenes = pl.get('sceneSpecs') or []
+        for si, s in enumerate(scenes):
+            wb = s.get('whiteboardRuntime') or {}
+            dur = float(wb.get('sceneDuration') or 1)
+            for i, st in enumerate(wb.get('drawPlan') or []):
+                role = st.get('soundRole')
+                if not role:
+                    continue
+                rnd = _rnd.Random(snd._seed(wb.get('seed'), st.get('id'), role))
+                spans = st.get('pen') or [[st.get('start', 0), st.get('end', 0)]]
+                for ps, pe in spans:
+                    out.append({
+                        'role': role,
+                        'file': snd.ROLE_FILE.get(role, snd.ROLE_FILE['marker.short']),
+                        'start': base + float(ps),
+                        'duration': max(.05, float(pe) - float(ps)),
+                        'offset': rnd.random() * 4.8,
+                        'gain': snd.ROLE_GAIN.get(role, .12),
+                        'seed': snd._seed(si, i, role)})
+            base += dur
+        if scenes:
+            out.append({'role': 'cap', 'file': snd.ROLE_FILE['cap'],
+                        'start': .04, 'duration': .23, 'offset': .15,
+                        'gain': snd.ROLE_GAIN['cap'],
+                        'seed': snd._seed('cap', 'open')})
+            out.append({'role': 'cap', 'file': snd.ROLE_FILE['cap'],
+                        'start': max(.05, base - .28), 'duration': .24,
+                        'offset': 1.28, 'gain': snd.ROLE_GAIN['cap'] * .8,
+                        'seed': snd._seed('cap', 'close')})
+        return sorted(out, key=lambda x: (x['start'], x['role']))
+    snd.events = pen_events
     return Path(snd.render(plan, duration, out_path)['path'])
 
 

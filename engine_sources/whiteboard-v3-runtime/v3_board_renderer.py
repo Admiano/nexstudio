@@ -1931,13 +1931,46 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
     # Idempotent: re-entry re-weights identical lengths to identical times.
     if dp:
         spans: dict = {}
-        for gi, (_g, s_, e_) in enumerate(out):
+        pens: dict = {}
+        for gi, (g, s_, e_) in enumerate(out):
             j = min(gi, len(dp) - 1)
             a, b = spans.get(j, (s_, e_))
             spans[j] = (min(a, s_), max(b, e_))
+            # per-polyline pen-down intervals — the sound layer scratches
+            # only while the pen is inking, never during lifts/travel
+            plens = []
+            for stt in g[1]:
+                pts = stt[0]
+                sc = 1.0 if (len(stt) > 4 and stt[4]) else g[3]
+                plens.append(sum(math.hypot(bb[0] - aa[0], bb[1] - aa[1]) * sc
+                                 for aa, bb in zip(pts, pts[1:])))
+            tot = sum(plens) or 1.0
+            # cap intervals: at most ~one scratch burst per 60ms of window;
+            # surplus strokes merge into contiguous buckets
+            n_int = max(1, int((e_ - s_) / 0.06))
+            if len(plens) > n_int:
+                merged = [0.0] * n_int
+                acc = 0.0
+                for k, pl in enumerate(plens):
+                    acc += pl
+                    merged[min(n_int - 1, int(k * n_int / len(plens)))] += pl
+                plens = merged
+            lift = min(0.05, (e_ - s_) * 0.25 / max(1, len(plens) - 1))
+            avail = max(0.02, e_ - s_ - lift * max(0, len(plens) - 1))
+            cur = s_
+            pen = []
+            for pl in plens:
+                if cur >= e_:
+                    break
+                seg = max(0.02, avail * pl / tot)
+                pe_ = min(e_, cur + seg)
+                pen.append([cur, pe_])
+                cur = pe_ + lift
+            pens.setdefault(j, []).extend(pen)
         for j, st in enumerate(dp):
             if j in spans:
                 st['start'], st['end'] = spans[j]
+                st['pen'] = sorted(pens[j])
             else:
                 st['soundRole'] = None  # no drawn group left for this step
     return out
