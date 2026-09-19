@@ -1,0 +1,4 @@
+CC0 1.0 Universal — Public Domain Dedication.
+These files were published under CC0 (no rights reserved). No attribution required.
+Full text: https://creativecommons.org/publicdomain/zero/1.0/legalcode
+Source and per-file provenance: see ../manifest.json (community assets manifest).
