@@ -465,19 +465,22 @@
     return { layer, layers };
   }
 
-  function applyBackgroundState(bgNode, lt, beat, stageFade) {
+  function applyBackgroundState(bgNode, lt, beat, stageFade, preRoll) {
     if (stageFade != null) bgNode.layer.style.opacity = stageFade.toFixed(4);
     if (!bgNode.layers.length) return;
     const settle = (beat.ensemble.events || []).find((e) => e.channel === 'BACKGROUND' && e.event === 'STAGE_SETTLE');
     const ss = settle ? settle.start_ms : 0, se = settle ? settle.end_ms : 0;
     // The ensemble's settled-hold window owns the ambient pass: parallax engages only inside it.
     const holdStart = ((beat.ensemble.hold_window || {}).start_ms) || Number.MAX_SAFE_INTEGER;
+    // Stage furniture runs on the pre-rolled clock: a beat that dressed under the previous
+    // beat's transition continues from that point at takeover instead of re-fading from zero.
+    const ltFx = lt + (preRoll || 0);
     for (const L of bgNode.layers) {
       const spec = L.spec, s = L.node.style;
       // Each layer lands within ~170ms of its stagger slot — the stage is dressed before
       // the first content frame regardless of how long the ensemble's settle window runs.
       const ls = ss + L.i * 40, le = Math.min(se + L.i * 40, ls + 170);
-      const p = EASE.outCubic(prog(lt, ls, Math.max(le, ls + 1)));
+      const p = EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
       let scale = 1, tx = 0, ty = 0;
       if (spec.kind === 'panel' || spec.kind === 'plane' || spec.kind === 'spotlight') scale = lerp(0.985, 1, EASE.settle(p));
       if (spec.kind === 'dotgrid' || spec.kind === 'plane') {
@@ -1333,8 +1336,8 @@
     });
   }
 
-  function applyBeat(bn, lt, stageFade) {
-    applyBackgroundState(bn.bg, lt, bn.beat, stageFade);
+  function applyBeat(bn, lt, stageFade, preRoll) {
+    applyBackgroundState(bn.bg, lt, bn.beat, stageFade, preRoll);
     if (bn.media) applyMediaState(bn.media, lt, bn.beat, bn.ctx);
     if (bn.figure) applyFigureState(bn.figure, lt, bn.beat, bn.ctx);
     if (bn.data) applyDataState(bn.data, lt, bn.beat, bn.ctx);
@@ -1373,6 +1376,15 @@
       }, stage);
     }
     const beats = plan.beats.map((b, i) => buildBeat(b, plan, stage, opts, i === plan.beats.length - 1));
+    // Beats that ran under the previous beat's transition get that overlap time back as a
+    // furniture pre-roll at takeover — voice-anchored content keeps the plan's clock.
+    beats.forEach((bn, i) => {
+      const pt = i > 0 ? plan.beats[i - 1].transition : null;
+      const prev = plan.beats[i - 1];
+      bn.preRoll = pt && prev && prev.start_ms + prev.duration_ms === bn.beat.start_ms
+        ? pt.end_ms - pt.start_ms
+        : 0;
+    });
     let grain = null;
     if (surf.grain && surf.grain.path) {
       grain = el('div', {
@@ -1420,8 +1432,8 @@
         grain.style.backgroundPosition = `${-o[0]}px ${-o[1]}px`;
       }
       const t1 = performance.now();
-      applyBeat(bn, lt, stageFade);
-      if (overlapIdx >= 0) applyBeat(beats[overlapIdx], lt - tr.start_ms, 1);
+      applyBeat(bn, lt, stageFade, bn.preRoll);
+      if (overlapIdx >= 0) applyBeat(beats[overlapIdx], lt - tr.start_ms, 1, 0);
       const dt = performance.now() - t1;
       perf.frames += 1;
       perf.total_ms += dt;
