@@ -757,6 +757,10 @@ _ICON_KEYWORDS = {
                'inspector', 'supervisor', 'dispatcher', 'conductor',
                'attorney', 'judge', 'reporter', 'editor', 'author',
                'barista', 'server', 'bartender', 'host', 'guide',
+               'beekeeper', 'commuter', 'passenger', 'rider', 'tourist',
+               'traveler', 'hiker', 'camper', 'gardener', 'rancher',
+               'herder', 'shepherd', 'fisher', 'hunter', 'swimmer',
+               'runner', 'cyclist', 'dancer', 'singer', 'actor',
                'agent owner', 'customer agent'),
     'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'android',
               'chatbot', 'automation bot'),
@@ -780,7 +784,7 @@ _ICON_KEYWORDS = {
     'clock': ('time', 'clock', 'wait', 'sla', 'deadline', 'schedule', 'calendar',
               'delay', 'duration'),
     'phone': ('phone', 'smartphone', 'mobile', 'call', 'app', 'sms'),
-    'laptop': ('laptop', 'computer', 'workstation', 'website', 'platform',
+    'laptop': ('laptop', 'computer', 'workstation', 'website',
                'software', 'browser'),
     'coin': ('coin', 'money', 'payment', 'cash', 'token', 'crypto', 'bitcoin',
              'currency', 'dollar', 'fund', 'fee', 'cost', 'pay', 'salary',
@@ -860,6 +864,7 @@ def _tabler_lookup(concept: str):
     best, best_score = None, 0.0
     for name, toks in index.items():
         if (name.endswith('-off') or name in ('old', 'new', 'current')
+                or name.startswith(('brand-', 'steam', 'tiktok', 'meta'))
                 or (name.startswith(_TABLER_JUNK_PREFIXES)
                     and name not in ('list-check',))):
             continue
@@ -1048,10 +1053,10 @@ def _card_text_strokes(center, size, label, zone):
             tw = text_width(txt, h)
         lines = [txt]
     strokes = []
-    oy = center[1] + h * (0.07 if len(lines) == 1 else -0.55)
+    oy = center[1] + h * (0.07 if len(lines) == 1 else -0.72)
     for li, ln in enumerate(lines):
         lw = text_width(ln, h)
-        strokes += text_strokes(ln, (center[0] - lw / 2, oy + li * h * 1.15),
+        strokes += text_strokes(ln, (center[0] - lw / 2, oy + li * h * 1.45),
                                 h, 'ink', 0.95)
     return strokes
 
@@ -1412,8 +1417,8 @@ def _caption_strokes(center, size, label, zone=None, row=0):
         ox = center[0] - lw / 2
         if zone:
             ox = min(max(ox, zone['x'] + 6), zone['x'] + zone['w'] - lw - 6)
-        strokes += text_strokes(ln, (ox, oy + li * h * 1.15), h, 'ink', 0.85)
-    y = oy + (len(lines) - 1) * h * 1.15 + _text_bottom(lines[-1], h) + h * 0.16
+        strokes += text_strokes(ln, (ox, oy + li * h * 1.45), h, 'ink', 0.85)
+    y = oy + (len(lines) - 1) * h * 1.45 + _text_bottom(lines[-1], h) + h * 0.16
     ox0 = min(center[0] - text_width(l, h) / 2 for l in lines)
     if zone:
         ox0 = max(ox0, zone['x'] + 6)
@@ -1518,27 +1523,33 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
     if not arrow_drawn:
         groups += mark_groups
 
-    # two caption rows: neighbors whose text ranges overlap drop to row 1
-    prev_edge = None
-    row = 0
+    # two caption rows with per-row edges: a caption drops to row 1 when it
+    # collides on row 0, or stays on row 0 if row 1 already has a neighbor
+    row_edges = [None, None]
     for s in sorted(slots, key=lambda s: s['center'][0]):
         if s.get('no_caption'):
-            prev_edge = None
+            row_edges = [None, None]
             continue
         dy = 0.66 if s['icon'] in ('person', 'agent') else 0.56
-        strokes, x0, x1 = _caption_strokes(s['center'], s['size'],
-                                           s['label'], zone, row)
-        if s['icon'] in ('person', 'agent'):
-            strokes = _shift_strokes(strokes, 0, s['size'] * (dy - 0.56))
-        if prev_edge is not None and x0 < prev_edge + 10:
-            row = 1
-            strokes, x0, x1 = _caption_strokes(s['center'], s['size'],
-                                               s['label'], zone, row)
+
+        def cap(r):
+            st, a, b = _caption_strokes(s['center'], s['size'],
+                                        s['label'], zone, r)
             if s['icon'] in ('person', 'agent'):
-                strokes = _shift_strokes(strokes, 0, s['size'] * (dy - 0.56))
-        else:
-            row = 0
-        prev_edge = x1
+                st = _shift_strokes(st, 0, s['size'] * (dy - 0.56))
+            return st, a, b
+
+        strokes, x0, x1 = cap(0)
+        row = 0
+        if row_edges[0] is not None and x0 < row_edges[0] + 10:
+            row = 1
+            strokes, x0, x1 = cap(1)
+            if (row_edges[1] is not None and x0 < row_edges[1] + 10
+                    and (row_edges[0] is None
+                         or x0 - row_edges[0] > row_edges[1] - x0)):
+                row = 0
+                strokes, x0, x1 = cap(0)
+        row_edges[row] = x1
         groups.append(('caption', strokes, s['center'], s['size'], s))
     groups.sort(key=lambda g: order[g[0]])
 
@@ -1635,12 +1646,9 @@ def _emphasis_focus(scene, plan, ratio, scene_time):
 
 
 def _scene_zoom(scene, scene_time: float, ratio: str) -> float:
-    """Camera micro-zoom: slow push-in over the scene's first half, then
-    settle — the subtle drift paid whiteboard tools charge for."""
-    wb = scene.get('whiteboardRuntime') or {}
-    dur = float(wb.get('sceneDuration') or 4.0)
-    q = wbp._ease(wbp._clamp(scene_time / max(0.1, dur * 0.55)))
-    return 1.0 + 0.085 * q
+    """No per-scene zoom — this style holds a fixed frame on the zone so
+    every drawn element stays fully visible for the whole beat."""
+    return 1.0
 
 
 def _alpha_scale(layer: Image.Image, alpha: int) -> Image.Image:
@@ -1664,12 +1672,6 @@ def _composite_frame(plan: dict, ratio: str, cam, layers: list[tuple[Image.Image
 def render_scene_frame(scene: dict, plan: dict, ratio: str, scene_time: float) -> Image.Image:
     cam = wbp._camera(scene, ratio)
     zoom = _scene_zoom(scene, scene_time, ratio)
-    # camera leans toward an emphasized item while its circle draws
-    focus, estrength = _emphasis_focus(scene, plan, ratio, scene_time)
-    if focus and estrength > 0:
-        cam = (cam[0] + (focus[0] - cam[0]) * 0.22 * estrength,
-               cam[1] + (focus[1] - cam[1]) * 0.22 * estrength)
-        zoom *= 1 + 0.05 * estrength
     scenes = plan.get('sceneSpecs') or [scene]
     idx = next((i for i, s in enumerate(scenes)
                 if s.get('sceneId') == scene.get('sceneId')), 0)

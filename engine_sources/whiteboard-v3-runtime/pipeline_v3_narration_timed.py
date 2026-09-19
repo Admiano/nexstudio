@@ -156,29 +156,29 @@ def normalize_plan(plan: dict) -> dict:
 # ---------------------------------------------------------------------------
 
 def _board_canvas(wbp, v3r, plan: dict, ratio: str, scenes: list[dict]):
-    """Composite every fully-drawn scene into one board-space bitmap."""
+    """Composite every fully-drawn scene into a grid mosaic with breathing
+    space — N scenes lay out ceil(sqrt(N)) columns by however many rows
+    (4 → 2×2, 10 → 4×3), each tile a full rendered scene frame."""
+    import math
     from PIL import Image
     size = wbp.RATIO_SIZES[ratio]
-    scale = min(size) / (650 if ratio != '9:16' else 760)
-    zones = [s['whiteboardRuntime']['boardZone'] for s in scenes]
-    x0 = min(z['x'] for z in zones)
-    y0 = min(z['y'] for z in zones)
-    x1 = max(z['x'] + z['w'] for z in zones)
-    y1 = max(z['y'] + z['h'] for z in zones)
-    pad = 80
-    cw = int((x1 - x0) * scale) + pad * 2
-    ch = int((y1 - y0) * scale) + pad * 2
-    pal = plan.get('_pal') or wbp._pal(plan)
-    canvas = Image.new('RGB', (max(64, cw), max(64, ch)), tuple(pal['bgc'][:3]))
-    for scene in scenes:
-        tile = v3r.render_scene_frame(scene, plan, ratio, scene_time=999.0)
-        z = scene['whiteboardRuntime']['boardZone']
-        cx = int((z['x'] + z['w'] / 2 - x0) * scale) + pad
-        cy = int((z['y'] + z['h'] / 2 - y0) * scale) + pad
-        canvas.paste(tile, (cx - size[0] // 2, cy - size[1] // 2))
     view_w, view_h = size
-    # pad the board canvas to the output aspect so the reveal zooms out to a
-    # board-centered frame with paper margins — not a letterboxed strip
+    pal = plan.get('_pal') or wbp._pal(plan)
+    n = max(1, len(scenes))
+    cols = max(1, math.ceil(math.sqrt(n)))
+    rows = math.ceil(n / cols)
+    gap = int(view_h * 0.06)
+    cw = cols * view_w + (cols + 1) * gap
+    ch = rows * view_h + (rows + 1) * gap
+    canvas = Image.new('RGB', (cw, ch), tuple(pal['bgc'][:3]))
+    centers = []
+    for i, scene in enumerate(scenes):
+        tile = v3r.render_scene_frame(scene, plan, ratio, scene_time=999.0)
+        cx = gap + (i % cols) * (view_w + gap) + view_w // 2
+        cy = gap + (i // cols) * (view_h + gap) + view_h // 2
+        canvas.paste(tile, (cx - view_w // 2, cy - view_h // 2))
+        centers.append((cx, cy))
+    # pad to the output aspect so the pull-back lands with even paper margins
     need_w = int(canvas.height * view_w / view_h)
     need_h = int(canvas.width * view_h / view_w)
     pw, ph = max(canvas.width, need_w), max(canvas.height, need_h)
@@ -189,13 +189,9 @@ def _board_canvas(wbp, v3r, plan: dict, ratio: str, scenes: list[dict]):
         canvas = padded
     else:
         ox = oy = 0
-    last = zones[-1]
-    start_view = (
-        int((last['x'] + last['w'] / 2 - x0) * scale) + pad + ox - view_w // 2,
-        int((last['y'] + last['h'] / 2 - y0) * scale) + pad + oy - view_h // 2,
-        int((last['x'] + last['w'] / 2 - x0) * scale) + pad + ox + view_w // 2,
-        int((last['y'] + last['h'] / 2 - y0) * scale) + pad + oy + view_h // 2,
-    )
+    lx, ly = centers[-1]
+    start_view = (lx + ox - view_w // 2, ly + oy - view_h // 2,
+                  lx + ox + view_w // 2, ly + oy + view_h // 2)
     end_view = (0, 0, canvas.width, canvas.height)
     return canvas, start_view, end_view
 
