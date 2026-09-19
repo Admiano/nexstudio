@@ -1693,45 +1693,43 @@ def _emphasis_focus(scene, plan, ratio, scene_time):
 
 
 def _activity_focus(scene, plan, ratio, scene_time):
-    """Board center of the group currently being drawn + transient
-    push-in strength: eases in over the first 40% of the draw window and
-    back out before the window closes, so every hold/settle returns to
-    the full uncropped scene."""
+    """One focal point per scene — the emphasized element when present,
+    else the hero slot — eased in over the first ~40% of the scene and
+    held. A single deliberate push, not a pump per drawn element."""
+    dur = float((scene.get('whiteboardRuntime') or {}).get('sceneDuration')
+                or 4.0)
+    zone = scene['whiteboardRuntime']['boardZone']
+    target = None
     for (kind, _st, center, _size, slot), start, end in _scene_groups(
             scene, plan, ratio):
-        if center == (0, 0) or kind == 'headline':
-            continue
-        if start <= scene_time < end:
-            span = max(0.05, end - start)
-            e_in = wbp._ease(wbp._clamp((scene_time - start) /
-                                        min(0.55, span * 0.4)))
-            e_out = wbp._ease(wbp._clamp((end - scene_time) /
-                                         min(0.45, span * 0.35)))
-            return center, e_in * e_out
-    return None, 0.0
+        if kind == 'emphasis' and slot:
+            target = center
+            break
+    if target is None:
+        slots = _scene_slots(_scene_labels(scene), zone, ratio)
+        if slots:
+            target = max(slots, key=lambda s: s['size'])['center']
+    if target is None:
+        return None, 0.0
+    e = wbp._ease(wbp._clamp(scene_time / max(0.4, dur * 0.4)))
+    return target, e
 
 
 def _scene_cam_zoom(scene, plan, ratio, scene_time: float):
-    """Cinematic push-in: while a group is drawn the camera leans toward it
-    and zooms ~10%. Lean is clamped to the zone slack so nothing drawn —
-    including edge captions and headlines — ever leaves the frame."""
+    """One deliberate camera move per scene: a slow push toward the scene's
+    focal element (emphasized item or hero slot), held to the beat's end."""
     base = wbp._camera(scene, ratio)
     act, e = _activity_focus(scene, plan, ratio, scene_time)
     if act is None or e <= 0:
         return base, 1.0
-    zone = scene['whiteboardRuntime']['boardZone']
-    # board units visible in frame at zoom 1: view_w / scale1
-    wpx, hpx = wbp.RATIO_SIZES[ratio]
-    scale1 = min(wpx, hpx) / (650 if ratio != '9:16' else 760)
-    vis_w, vis_h = wpx / scale1, hpx / scale1
-    # lean toward the active element, capped so the zone's own content
-    # band is the frame boundary at peak zoom — neighbors may leave the
-    # frame briefly during a push (that's the cinematic move) but the
-    # hold between groups always returns to the full uncropped scene.
+    # a single slow push toward the scene's focal element — eased in over
+    # ~40% of the beat, then held. Neighbors may drift toward the frame
+    # edge during the push; that's the cinematic move, and it resolves
+    # before the transition. Kept shallow so nothing ever reads as cut.
     zcx, zcy = base
-    lean = 0.32 * e
+    lean = 0.22 * e
     cam = (zcx + (act[0] - zcx) * lean, zcy + (act[1] - zcy) * lean)
-    return cam, 1.0 + 0.14 * e
+    return cam, 1.0 + 0.09 * e
 
 
 def _alpha_scale(layer: Image.Image, alpha: int) -> Image.Image:
