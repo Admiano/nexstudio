@@ -90,12 +90,6 @@
             "EDITORIAL_FLAT",
             "PAPER"
           ]
-        },
-        "watermark": {
-          "type": [
-            "string",
-            "null"
-          ]
         }
       },
       "required": [

@@ -467,21 +467,6 @@
         }, parent);
         break;
       }
-      case 'watermark': {
-        // Brand field: the wordmark tiled faint under everything — the promo-film signature.
-        node = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, parent);
-        Object.assign(node.style, { position: 'absolute', left: '0', top: '0' });
-        const tileW = Math.max(W * 0.3, 300), tileH = Math.max(H * 0.17, 110);
-        const pat = svgEl('pattern', { id: `em2wm-${idx}`, width: tileW, height: tileH, patternUnits: 'userSpaceOnUse' }, node);
-        const t = svgEl('text', {
-          x: tileW / 2, y: tileH / 2, 'text-anchor': 'middle', 'dominant-baseline': 'middle',
-          fill: brand.ink, 'font-family': `"${plan.fonts.families.display || plan.fonts.families.text}"`, 'font-size': Math.max(17, tileH * 0.24),
-          'font-weight': '600', 'letter-spacing': '0.22em',
-        }, pat);
-        t.textContent = String(spec.text || '');
-        svgEl('rect', { x: 0, y: 0, width: W, height: H, fill: `url(#em2wm-${idx})` }, node);
-        break;
-      }
       case 'arc': {
         // A giant ring segment grazing the field — ambient geometry, never a diagram part.
         node = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, parent);

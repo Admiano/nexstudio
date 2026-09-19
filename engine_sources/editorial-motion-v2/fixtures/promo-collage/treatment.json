@@ -10,8 +10,7 @@
     "ink": "#191512",
     "paper": "#f2f1ee",
     "accent": "#b35c33",
-    "finish": "EDITORIAL_FLAT",
-    "watermark": "nexstudio"
+    "finish": "EDITORIAL_FLAT"
   },
   "voice": {
     "source": "FIXTURE",

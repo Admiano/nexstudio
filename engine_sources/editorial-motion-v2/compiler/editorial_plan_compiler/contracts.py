@@ -466,7 +466,6 @@ class Brand:
     paper: str = '#f7f7f5'
     accent: Optional[str] = None  # one brand colour, spent only on state changes
     finish: str = 'EDITORIAL_FLAT'
-    watermark: Optional[str] = None  # faint text tiled under every beat (the promo-film field)
 
 
 @dataclass
@@ -526,8 +525,7 @@ class FilmTreatment:
         brand_d = d.get('brand') or {}
         finish = str(brand_d.get('finish') or 'EDITORIAL_FLAT')
         _need(finish in FINISHES, 'FINISH_UNKNOWN', finish)
-        watermark = (str(brand_d['watermark']).strip() or None) if brand_d.get('watermark') else None
-        brand = Brand(str(brand_d.get('ink') or '#0e0e0e'), str(brand_d.get('paper') or '#f7f7f5'), brand_d.get('accent'), finish, watermark)
+        brand = Brand(str(brand_d.get('ink') or '#0e0e0e'), str(brand_d.get('paper') or '#f7f7f5'), brand_d.get('accent'), finish)
         voice = dict(d.get('voice') or {})
         fps = int(d.get('fps') or 30)
         _need(fps in (24, 25, 30, 60), 'FPS_UNSUPPORTED', str(fps))

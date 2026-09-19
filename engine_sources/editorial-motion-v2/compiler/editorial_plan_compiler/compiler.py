@@ -75,7 +75,7 @@ def _inside(a: Dict[str, float], b: Dict[str, float], tol: float = 1.0) -> bool:
     return a['x'] >= b['x'] - tol and a['y'] >= b['y'] - tol and a['x'] + a['w'] <= b['x'] + b['w'] + tol and a['y'] + a['h'] <= b['y'] + b['h'] + tol
 
 
-def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int], beat_index: int = 0, watermark: Optional[str] = None) -> List[Dict[str, Any]]:
+def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int], beat_index: int = 0) -> List[Dict[str, Any]]:
     """Structural stage furniture under the content, derived from the authored background template.
 
     The runtime renders these verbatim; `kind` selects the draw recipe and all geometry is absolute
@@ -83,8 +83,6 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     W, H = canvas
     st = dict(stage)
     layers: List[Dict[str, Any]] = []
-    if watermark:
-        layers.append({'kind': 'watermark', 'text': watermark, 'bbox': _box(0, 0, W, H), 'opacity': 0.09})
     has_panel = authored in {'CARD_STAGE', 'DOCUMENT_STAGE', 'PRODUCT_STAGE', 'LAYERED_PLANE'} or render_bg in {'CARD_STAGE', 'SPOTLIGHT_STAGE'}
     if has_panel:
         layers.append({'kind': 'panel', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'fill': 'paper_lift', 'radius_frac': 0.032,
@@ -752,7 +750,7 @@ class BeatCompiler:
             'composition': {
                 'layout_family': comp['layout_family'], 'treatment': comp['treatment'], 'text_zone': comp['text_zone'], 'visual_zone': comp['visual_zone'],
                 'safe_area': self.safe, 'background': {'template': bg, 'render': render_bg, 'stage': stage_zone,
-                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H), beat_index, self.film.brand.watermark),
+                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H), beat_index),
                                                        'finish': self.film.brand.finish},
                 'native_profile': comp['native_profile'], 'derived_by_scaling': comp['derived_by_scaling'], 'authority': comp['authority_version'],
             },
