@@ -41,7 +41,7 @@ function serve() {
         fs.createReadStream(file, { start, end }).pipe(res);
         return;
       }
-      res.writeHead(200, { 'Content-Type': type, 'Content-Length': stat.size, 'Accept-Ranges': 'bytes' });
+      res.writeHead(200, { 'Content-Type': type, 'Content-Length': stat.size, 'Accept-Ranges': 'bytes', 'Cache-Control': 'no-store' });
       fs.createReadStream(file).pipe(res);
     });
     srv.listen(0, '127.0.0.1', () => resolve(srv));
@@ -170,7 +170,7 @@ async function main() {
 
   const srv = await serve();
   const port = srv.address().port;
-  const url = `http://127.0.0.1:${port}/compositions/player.html?plan=/fs${planPath}&assets=/fs`;
+  const url = `http://127.0.0.1:${port}/compositions/player.html?plan=/fs${planPath}&assets=/fs&v=${fs.statSync(planPath).mtimeMs}`;
   const chromePath = arg('--chrome', process.env.CHROME_PATH || '');
   const browser = chromePath
     ? await chromium.launch({ executablePath: chromePath, headless: true, args: ['--no-sandbox', '--disable-gpu', '--font-render-hinting=none'] })

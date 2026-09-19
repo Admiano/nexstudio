@@ -75,7 +75,7 @@ def _inside(a: Dict[str, float], b: Dict[str, float], tol: float = 1.0) -> bool:
     return a['x'] >= b['x'] - tol and a['y'] >= b['y'] - tol and a['x'] + a['w'] <= b['x'] + b['w'] + tol and a['y'] + a['h'] <= b['y'] + b['h'] + tol
 
 
-def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int], beat_index: int = 0) -> List[Dict[str, Any]]:
+def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int], beat_index: int = 0, watermark: Optional[str] = None) -> List[Dict[str, Any]]:
     """Structural stage furniture under the content, derived from the authored background template.
 
     The runtime renders these verbatim; `kind` selects the draw recipe and all geometry is absolute
@@ -83,6 +83,8 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     W, H = canvas
     st = dict(stage)
     layers: List[Dict[str, Any]] = []
+    if watermark:
+        layers.append({'kind': 'watermark', 'text': watermark, 'bbox': _box(0, 0, W, H), 'opacity': 0.09})
     has_panel = authored in {'CARD_STAGE', 'DOCUMENT_STAGE', 'PRODUCT_STAGE', 'LAYERED_PLANE'} or render_bg in {'CARD_STAGE', 'SPOTLIGHT_STAGE'}
     if has_panel:
         layers.append({'kind': 'panel', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'fill': 'paper_lift', 'radius_frac': 0.032,
@@ -96,11 +98,13 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     elif render_bg == 'STAGE_FIELD' and not has_panel:
         # Bare field: a sparse texture inside the safe frame keeps the cut from reading empty.
         # Texture cycles per beat so successive bare-field cuts feel deliberately re-dressed.
-        v = beat_index % 3
+        v = beat_index % 4
         if v == 1:
             layers.append({'kind': 'ruled', 'bbox': dict(safe), 'opacity': 0.5, 'spacing_frac': 0.075})
         elif v == 2:
             layers.append({'kind': 'wash', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'align': 'left' if beat_index % 2 else 'right'})
+        elif v == 3:
+            layers.append({'kind': 'arc', 'bbox': dict(safe), 'opacity': 1.0, 'corner': beat_index % 4})
         else:
             layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.32, 'spacing_frac': 0.08, 'radius_frac': 0.0018})
     if render_bg == 'SPOTLIGHT_STAGE':
@@ -341,6 +345,7 @@ class BeatCompiler:
             mode = unit.reveal or self.film.typography.reveal
             bl['reveal'] = mode
             stress = {normalise(w) for w in unit.stress}
+            muted = {normalise(w) for w in unit.mute}
             tokens = [t for line in bl['fit']['lines'] for t in line.split()]
             line_of = [li for li, line in enumerate(bl['fit']['lines']) for _ in line.split()]
             start = reveal_start.get(i, clock.landings_ms[i])
@@ -375,7 +380,10 @@ class BeatCompiler:
             for k, tok in enumerate(tokens):
                 t = max(int(times[k]), prev + WORD_CASCADE_MIN_STEP_MS, start)
                 prev = t
-                words.append({'text': tok, 'line': line_of[k], 'start_ms': t, 'stress': normalise(tok) in stress})
+                w = {'text': tok, 'line': line_of[k], 'start_ms': t, 'stress': normalise(tok) in stress}
+                if normalise(tok) in muted:
+                    w['tone'] = 'mute'
+                words.append(w)
             if words:
                 last = words[-1]['start_ms']
                 bl['cascade_end_ms'] = last + CASCADE_SETTLE_MS
@@ -744,7 +752,7 @@ class BeatCompiler:
             'composition': {
                 'layout_family': comp['layout_family'], 'treatment': comp['treatment'], 'text_zone': comp['text_zone'], 'visual_zone': comp['visual_zone'],
                 'safe_area': self.safe, 'background': {'template': bg, 'render': render_bg, 'stage': stage_zone,
-                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H), beat_index),
+                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H), beat_index, self.film.brand.watermark),
                                                        'finish': self.film.brand.finish},
                 'native_profile': comp['native_profile'], 'derived_by_scaling': comp['derived_by_scaling'], 'authority': comp['authority_version'],
             },

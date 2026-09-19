@@ -26,10 +26,13 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 # primitives, ops are timed state changes. None of these names is derived from wording.
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
 GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
-          'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME')
+          'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP')
 ENTITY_KINDS = ('object', 'system', 'state', 'group', 'evidence', 'signal', 'agent')
 ENTITY_SIZES = ('hero', 'support', 'minor')
 RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans', 'marks')
+# Connector dress: default (hand-stroke + arrowhead) vs the product-diagram look — a hairline with
+# dot endpoints, optionally dashed straight ('dash') or bowed ('arc').
+RELATION_STYLES = ('link', 'dash', 'arc')
 OPS = ('FILL', 'DRAW', 'CONNECT', 'EMIT', 'TRAVEL', 'GROW', 'SWAP', 'STRIKE', 'COUNT', 'INK', 'DIM', 'TRACE', 'SETTLE')
 OP_DEFAULT_MS = {'FILL': 900, 'DRAW': 520, 'CONNECT': 480, 'EMIT': 1100, 'TRAVEL': 700, 'GROW': 460, 'SWAP': 420, 'STRIKE': 380,
                  'COUNT': 620, 'INK': 320, 'DIM': 320, 'TRACE': 900, 'SETTLE': 360}
@@ -77,6 +80,7 @@ class DisplayUnit:
     italic: bool = False
     anchor_word: Optional[str] = None  # narration word the unit lands on; defaults to its own first word
     stress: List[str] = field(default_factory=list)  # words set in full ink weight; the rest of the unit reads tonal
+    mute: List[str] = field(default_factory=list)    # words set in grey — the benchmark's mixed-tone type
     reveal: Optional[str] = None  # WORD_CASCADE | BLOCK; None inherits the film typography mode
 
     @classmethod
@@ -96,20 +100,22 @@ class DisplayUnit:
             can_promote=bool(d.get('can_promote', True)),
             italic=bool(d.get('italic', False)),
             anchor_word=(str(d['anchor_word']).strip() or None) if d.get('anchor_word') else None,
-            stress=cls._parse_stress(d.get('stress'), text, beat_id),
+            stress=cls._parse_word_list(d.get('stress'), text, 'STRESS', beat_id),
+            mute=cls._parse_word_list(d.get('mute'), text, 'MUTE', beat_id),
             reveal=cls._parse_reveal(d.get('reveal'), beat_id),
         )
 
     @staticmethod
-    def _parse_stress(raw: Any, text: str, beat_id: str) -> List[str]:
+    def _parse_word_list(raw: Any, text: str, field_name: str, beat_id: str) -> List[str]:
         if not raw:
             return []
-        _need(isinstance(raw, list), 'DISPLAY_UNIT_STRESS_INVALID', 'stress must be a list of words from the unit text', beat_id)
+        code = f'DISPLAY_UNIT_{field_name}'
+        _need(isinstance(raw, list), f'{code}_INVALID', f'{field_name.lower()} must be a list of words from the unit text', beat_id)
         words = {_norm(w) for w in text.split()}
         out = []
         for w in raw:
             s = str(w).strip()
-            _need(_norm(s) in words, 'DISPLAY_UNIT_STRESS_NOT_IN_TEXT', s, beat_id)
+            _need(_norm(s) in words, f'{code}_NOT_IN_TEXT', s, beat_id)
             out.append(s)
         return out
 
@@ -168,7 +174,7 @@ class IllustrationEntity:
         params = dict(d.get('params') or {})
         if 'chassis' in params:
             _need(glyph == 'MEDIA', 'CHASSIS_ON_NON_MEDIA', f'{eid}: chassis wraps MEDIA only', beat_id)
-            _need(str(params['chassis']) in ('phone', 'browser', 'card'), 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
+            _need(str(params['chassis']) in ('phone', 'browser', 'card', 'shot'), 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
         if glyph == 'CHART_LINE':
             pts = params.get('points')
             _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)
@@ -187,6 +193,7 @@ class IllustrationRelation:
     type: str
     source: str
     target: str
+    style: Optional[str] = None        # None = drawn stroke; 'link'|'dash'|'arc' = hairline + dot ends
 
     @classmethod
     def parse(cls, d: Dict[str, Any], ids: set, beat_id: str) -> 'IllustrationRelation':
@@ -195,7 +202,11 @@ class IllustrationRelation:
         s, tg = str(d.get('source') or ''), str(d.get('target') or '')
         _need(s in ids and tg in ids, 'RELATION_ENDPOINT_UNKNOWN', f'{s}->{tg}', beat_id)
         _need(s != tg, 'RELATION_SELF_LOOP', s, beat_id)
-        return cls(t, s, tg)
+        style = d.get('style')
+        if style is not None:
+            style = str(style).lower()
+            _need(style in RELATION_STYLES, 'RELATION_STYLE_UNKNOWN', str(style), beat_id)
+        return cls(t, s, tg, style)
 
 
 @dataclass
@@ -455,6 +466,7 @@ class Brand:
     paper: str = '#f7f7f5'
     accent: Optional[str] = None  # one brand colour, spent only on state changes
     finish: str = 'EDITORIAL_FLAT'
+    watermark: Optional[str] = None  # faint text tiled under every beat (the promo-film field)
 
 
 @dataclass
@@ -514,7 +526,8 @@ class FilmTreatment:
         brand_d = d.get('brand') or {}
         finish = str(brand_d.get('finish') or 'EDITORIAL_FLAT')
         _need(finish in FINISHES, 'FINISH_UNKNOWN', finish)
-        brand = Brand(str(brand_d.get('ink') or '#0e0e0e'), str(brand_d.get('paper') or '#f7f7f5'), brand_d.get('accent'), finish)
+        watermark = (str(brand_d['watermark']).strip() or None) if brand_d.get('watermark') else None
+        brand = Brand(str(brand_d.get('ink') or '#0e0e0e'), str(brand_d.get('paper') or '#f7f7f5'), brand_d.get('accent'), finish, watermark)
         voice = dict(d.get('voice') or {})
         fps = int(d.get('fps') or 30)
         _need(fps in (24, 25, 30, 60), 'FPS_UNSUPPORTED', str(fps))

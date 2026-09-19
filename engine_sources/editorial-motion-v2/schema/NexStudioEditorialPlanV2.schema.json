@@ -90,6 +90,12 @@
             "EDITORIAL_FLAT",
             "PAPER"
           ]
+        },
+        "watermark": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -609,6 +615,12 @@
                           },
                           "stress": {
                             "type": "boolean"
+                          },
+                          "tone": {
+                            "type": "string",
+                            "enum": [
+                              "mute"
+                            ]
                           }
                         },
                         "required": [
@@ -1313,7 +1325,9 @@
                             "CALLOUT",
                             "STICKY",
                             "DONUT",
-                            "FRAME"
+                            "FRAME",
+                            "TILE",
+                            "CHIP"
                           ]
                         },
                         "size": {
@@ -1692,6 +1706,21 @@
                           "type": "boolean"
                         },
                         "rule": {
+                          "type": "boolean"
+                        },
+                        "style": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "dots": {
+                          "type": "boolean"
+                        },
+                        "dashed": {
+                          "type": "boolean"
+                        },
+                        "thin": {
                           "type": "boolean"
                         },
                         "enter_ms": {

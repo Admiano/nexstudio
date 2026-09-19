@@ -52,6 +52,7 @@ def treatment_schema() -> Dict[str, Any]:
         'italic': {'type': 'boolean'},
         'anchor_word': NULLABLE_STR,
         'stress': {'type': 'array', 'items': _str()},
+        'mute': {'type': 'array', 'items': _str()},
         'reveal': {'anyOf': [_enum(c.REVEAL_MODES), {'type': 'null'}]},
     }, ['text'], additionalProperties=False)
     entity = _obj({
@@ -59,7 +60,7 @@ def treatment_schema() -> Dict[str, Any]:
         'label': NULLABLE_STR, 'asset_ref': NULLABLE_STR, 'media_ref': NULLABLE_STR,
         'params': {'type': 'object'},
     }, ['id', 'kind', 'glyph'], additionalProperties=False)
-    relation = _obj({'type': _enum(c.RELATION_TYPES), 'source': _str(), 'target': _str()}, ['type', 'source', 'target'], additionalProperties=False)
+    relation = _obj({'type': _enum(c.RELATION_TYPES), 'source': _str(), 'target': _str(), 'style': _enum(c.RELATION_STYLES)}, ['type', 'source', 'target'], additionalProperties=False)
     anchor = {'oneOf': [_obj({'word': _str()}, ['word'], additionalProperties=False), _obj({'unit': {'type': 'integer', 'minimum': 0}}, ['unit'], additionalProperties=False),
                         _obj({'offset_ms': MS}, ['offset_ms'], additionalProperties=False)]}
     op = _obj({
@@ -142,7 +143,7 @@ def treatment_schema() -> Dict[str, Any]:
             'fps': _enum_int((24, 25, 30, 60)),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'media_library': {'type': 'array', 'items': asset},
-            'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES)}, []),
+            'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES), 'watermark': NULLABLE_STR}, []),
             'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, []),
             'voice': voice,
             'note': {'type': 'string'},
@@ -230,7 +231,7 @@ def plan_schema() -> Dict[str, Any]:
     event = _obj({'event': _str(), 'unit_index': {'type': 'integer', 'minimum': -1}, 'start_ms': MS, 'end_ms': MS}, ['event', 'unit_index', 'start_ms', 'end_ms'])
     fit = _obj({'font_px': {'type': 'number', 'exclusiveMinimum': 0}, 'line_height': {'type': 'number'}, 'lines': {'type': 'array', 'items': {'type': 'string'}, 'minItems': 1},
                 'status': {'const': 'FIT'}}, ['font_px', 'lines', 'status'])
-    cascade_word = _obj({'text': _str(), 'line': {'type': 'integer', 'minimum': 0}, 'start_ms': MS, 'stress': {'type': 'boolean'}}, ['text', 'line', 'start_ms', 'stress'])
+    cascade_word = _obj({'text': _str(), 'line': {'type': 'integer', 'minimum': 0}, 'start_ms': MS, 'stress': {'type': 'boolean'}, 'tone': _enum(('mute',))}, ['text', 'line', 'start_ms', 'stress'])
     block = _obj({'unit_index': {'type': 'integer', 'minimum': 0}, 'role': _enum(c.UNIT_ROLES), 'text': _str(), 'weight': _str(), 'style': _str(), 'bbox': BOX, 'fit': fit,
                   'reveal': _enum(c.REVEAL_MODES), 'words': {'type': 'array', 'items': cascade_word, 'minItems': 1}, 'cascade_end_ms': MS},
                  ['unit_index', 'role', 'text', 'bbox', 'fit', 'reveal', 'words'])
@@ -253,6 +254,7 @@ def plan_schema() -> Dict[str, Any]:
     relation = _obj({
         'id': _str(), 'type': _enum(c.RELATION_TYPES), 'source': _str(), 'target': _str(), 'path': {'anyOf': [{'type': 'array', 'items': point, 'minItems': 2}, {'type': 'null'}]},
         'length': {'type': 'number'}, 'arrow': {'type': 'boolean'}, 'bar': {'type': 'boolean'}, 'rule': {'type': 'boolean'},
+        'style': NULLABLE_STR, 'dots': {'type': 'boolean'}, 'dashed': {'type': 'boolean'}, 'thin': {'type': 'boolean'},
         'enter_ms': MS, 'enter_duration_ms': MS, 'drawn_by_op': {'type': 'boolean'}, 'state_in': state_in,
     }, ['id', 'type', 'source', 'target', 'path', 'arrow', 'enter_ms', 'enter_duration_ms', 'state_in'])
     op = _obj({'op': _enum(c.OPS), 'target': _str(), 'start_ms': MS, 'end_ms': MS, 'from': {'type': 'number'}, 'to': {'type': 'number'}, 'params': {'type': 'object'},
@@ -308,7 +310,7 @@ def plan_schema() -> Dict[str, Any]:
             'schema': {'const': PLAN_SCHEMA_ID}, 'compiler': _str(), 'film_id': _str(), 'aspect': _enum(c.ASPECTS), 'fps': _enum_int((24, 25, 30, 60)),
             'canvas': _obj({'w': {'type': 'integer'}, 'h': {'type': 'integer'}}, ['w', 'h']),
             'output': _obj({'w': {'type': 'integer'}, 'h': {'type': 'integer'}, 'scale': {'type': 'number'}}, ['w', 'h', 'scale']),
-            'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES)}, ['ink', 'paper', 'finish']),
+            'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES), 'watermark': NULLABLE_STR}, ['ink', 'paper', 'finish']),
             'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, ['reveal', 'tonal_ink']),
             'illustration_registry': _obj({'path': _str(), 'version': NULLABLE_STR}, ['path']),
             'fonts': {'type': 'object'}, 'duration_ms': {'type': 'integer', 'exclusiveMinimum': 0},
