@@ -145,7 +145,7 @@ def normalize_plan(plan: dict) -> dict:
         p['brandExecution'] = {
             'brandAuthority': {
                 'background': '#F5F0E4', 'ink': '#1A1A17',
-                'accent': '#2E5BD7', 'secondary': '#8B8577',
+                'accent': '#0052FF', 'secondary': '#8B8577',
             }
         }
     return p

@@ -1,9 +1,11 @@
-"""Whiteboard V3 board renderer — expressive pictogram scenes.
+"""Whiteboard V3 board renderer — authored-illustration scenes.
 
 Replaces the labeled-rect generic semantic path with the reel's (and the
-crypto-explainer genre's) visual language: bold expressive characters with
-faces and poses, filled illustrative props, thought bubbles, sparkles and
-ground swash — composed as scenes, not rows of icons. Strokes replay
+crypto-explainer genre's) visual language: authored Open Peeps pose
+illustrations (shipped in ``assets/open_peeps``, from the approved V3
+source bundle's V15/V16 donor lineage) rendered as progressive pen strokes,
+filled illustrative props, thought bubbles, motion marks, ground shadows and
+sparkles — composed as scenes, not rows of icons. Strokes replay
 progressively via the compiler's per-step ``drawPlan`` timing. Everything is
 drawn in board world coordinates through the preserved adapter's camera and
 rough-stroke helpers, so unmodified preserved modules keep their contract.
@@ -12,10 +14,82 @@ from __future__ import annotations
 
 import math
 import re
+from pathlib import Path
 
 from PIL import Image, ImageDraw
 
 import whiteboard_pil_adapter as wbp
+import svg_paths
+
+_ASSET_DIR = Path(__file__).resolve().parent / 'assets' / 'open_peeps'
+
+# Authored Open Peeps pose library (V15/V16 donor lineage). Pose names used by
+# scene composition map onto the shipped illustrated poses.
+_POSE_FILES = {
+    'point': 'pose_point.svg',
+    'gesture': 'pose_gesture.svg',
+    'walk': 'pose_walk.svg',
+    'hold': 'pose_walk.svg',
+    'seated': 'pose_seated.svg',
+    'seated_alt': 'pose_seated_alt.svg',
+    'crouch': 'pose_crouch.svg',
+    'stand': 'malik_identity_authority.svg',
+    'cheer': 'malik_identity_authority.svg',
+    'think': 'pose_gesture.svg',
+}
+_POSE_CACHE: dict = {}
+
+
+def _poly_area(pts):
+    a = 0.0
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        a += x1 * y2 - x2 * y1
+    return abs(a) / 2
+
+
+def _peeps_strokes(pose: str, facing: int = 1):
+    """Normalize an authored pose SVG into unit-space stroke entries.
+
+    Closed paths draw their outline in ink and fill at reveal end: light
+    fills (skin, face whites) stay paper; large dark fills (clothing) take
+    the deep accent; small dark fills (hair, features) stay ink — matching
+    the authored asset's tonal structure.
+    """
+    key = (pose, facing)
+    if key in _POSE_CACHE:
+        return _POSE_CACHE[key]
+    svg = _ASSET_DIR / _POSE_FILES.get(pose, 'pose_point.svg')
+    elements, view_box = svg_paths.load_svg_strokes(svg)
+    x0, y0, w, h = view_box
+
+    def unit(poly):
+        return [((x - (x0 + w / 2)) / h * facing, (y - (y0 + h / 2)) / h)
+                for x, y in poly]
+
+    strokes = []
+    for polys, fill, closed in elements:
+        mapped = [unit(p) for p in polys]
+        if closed:
+            for mp in mapped:
+                area = _poly_area(mp)
+                cy = sum(y for _, y in mp) / len(mp)
+                if fill == '#000000':
+                    # dark fills above the torso line are hair/head detail —
+                    # keep them ink; body clothing takes the bold accent
+                    if cy < -0.20 or area < 0.015:
+                        strokes.append((mp, 'inkfill', 1.0, True))
+                    else:
+                        strokes.append((mp, 'accdeep', 1.0, True))
+                elif fill == '#FFFFFF':
+                    strokes.append((mp, 'paper', 1.0, True))
+                else:
+                    strokes.append((mp, 'inkfill', 1.0, True))
+        for mp in mapped:
+            # coarser strokes read as body contours; finer as detail
+            detail = 0.20 if len(mp) < 25 else 0.30
+            strokes.append((mp, 'ink', detail))
+    _POSE_CACHE[key] = strokes
+    return strokes
 
 # ---------------------------------------------------------------------------
 # Stroke vocabulary (unit space, ~[-0.5, 0.5] → scaled per slot)
@@ -266,47 +340,8 @@ def _robot_strokes():
 
 
 def _character_strokes(pose='point', facing=1):
-    """Fuller character: head with face + hair, accent shirt, posed limbs."""
-    s = [
-        (_ellipse(0, -0.34, 0.15, 0.15, 26), 'paper', 1.0, True),
-        (_ellipse(0, -0.34, 0.15, 0.15, 26), 'ink', 1.2),
-        (_arc(0, -0.40, 0.15, 0.12, 200, -20, 14), 'ink', 1.4),
-        (_arc(0.13, -0.36, 0.05, 0.06, 200, 340, 10), 'ink', 1.2),
-        (_ellipse(-0.07, -0.33, 0.018, 0.022, 8), 'ink', 0.9, True),
-        (_ellipse(0.05, -0.33, 0.018, 0.022, 8), 'ink', 0.9, True),
-        (_arc(-0.06, -0.40, 0.03, 0.02, 200, 340, 8), 'ink', 0.8),
-        (_arc(0.04, -0.40, 0.03, 0.02, 200, 340, 8), 'ink', 0.8),
-        (_arc(-0.01, -0.28, 0.06, 0.05, 20, 160, 10), 'ink', 0.9),
-        (_P((-0.14, -0.14), (0.14, -0.14), (0.17, 0.12), (-0.17, 0.12), (-0.14, -0.14)), 'accfill', 1.0, True),
-        (_P((-0.15, -0.18), (0.15, -0.18), (0.19, 0.16), (-0.19, 0.16), (-0.15, -0.18)), 'ink', 1.3),
-        (_P((-0.05, -0.18), (0, -0.12), (0.05, -0.18)), 'ink', 0.9),
-    ]
-    if pose == 'point':
-        s += [(_P((0.16, -0.12), (0.30, -0.16), (0.44, -0.14)), 'ink', 1.2),
-              (_ellipse(0.46, -0.14, 0.035, 0.035, 8), 'ink', 1.0, True),
-              (_P((-0.16, -0.12), (-0.24, 0.04), (-0.20, 0.16)), 'ink', 1.2)]
-    elif pose == 'think':
-        s += [(_P((0.16, -0.12), (0.24, -0.02), (0.10, -0.24)), 'ink', 1.2),
-              (_ellipse(0.09, -0.26, 0.035, 0.035, 8), 'ink', 1.0, True),
-              (_P((-0.16, -0.12), (-0.24, 0.04), (-0.20, 0.16)), 'ink', 1.2)]
-    elif pose == 'cheer':
-        s += [(_P((0.16, -0.12), (0.28, -0.28), (0.36, -0.40)), 'ink', 1.2),
-              (_P((-0.16, -0.12), (-0.28, -0.28), (-0.36, -0.40)), 'ink', 1.2),
-              (_ellipse(0.37, -0.42, 0.035, 0.035, 8), 'ink', 1.0, True),
-              (_ellipse(-0.37, -0.42, 0.035, 0.035, 8), 'ink', 1.0, True)]
-    elif pose == 'hold':
-        s += [(_P((0.16, -0.12), (0.28, 0.0), (0.36, 0.08)), 'ink', 1.2),
-              (_P((-0.16, -0.12), (-0.20, 0.02), (-0.10, 0.12)), 'ink', 1.2)]
-    else:
-        s += [(_P((0.16, -0.12), (0.22, 0.04), (0.20, 0.18)), 'ink', 1.2),
-              (_P((-0.16, -0.12), (-0.22, 0.04), (-0.20, 0.18)), 'ink', 1.2)]
-    s += [(_P((-0.09, 0.16), (-0.11, 0.36), (-0.13, 0.50)), 'ink', 1.2),
-          (_P((0.09, 0.16), (0.11, 0.36), (0.13, 0.50)), 'ink', 1.2),
-          (_P((-0.13, 0.50), (-0.22, 0.50)), 'ink', 1.3),
-          (_P((0.13, 0.50), (0.22, 0.50)), 'ink', 1.3)]
-    if facing < 0:
-        s = [([(-x, y) for x, y in pts], c, w, *rest) for pts, c, w, *rest in s]
-    return s
+    """Authored Open Peeps pose — real illustrated figure, not a stick figure."""
+    return _peeps_strokes(pose, facing)
 
 
 def _bubble_strokes():
@@ -318,6 +353,33 @@ def _bubble_strokes():
         (cloud, 'ink', 1.0),
         (_ellipse(0.30, 0.24, 0.030, 0.030, 8), 'ink', 0.9),
         (_ellipse(0.38, 0.34, 0.020, 0.020, 8), 'ink', 0.9),
+    ]
+
+
+def _ground_shadow_strokes():
+    """Loose grounding shadow under a figure's feet — whiteboard convention."""
+    s = _arc(0, 0, 0.34, 0.045, 0, 360, 30)
+    return [
+        ([p for p in s if p[1] > -0.002] + [(s[-1][0], 0.0), (s[0][0], 0.0)], 'pale', 1.0, True),
+        (_arc(0, 0, 0.34, 0.045, 10, 170, 18), 'ink', 0.7),
+    ]
+
+
+def _ping_strokes():
+    """Notification ping arcs — signals a message/request arriving."""
+    return [
+        (_arc(0.30, -0.26, 0.10, 0.10, -70, 30, 10), 'accent', 1.0),
+        (_arc(0.30, -0.26, 0.18, 0.18, -70, 30, 12), 'accent', 0.9),
+        (_ellipse(0.30, -0.26, 0.030, 0.030, 10), 'accent', 1.0, True),
+    ]
+
+
+def _motion_marks_strokes():
+    """Action dashes radiating near a figure's gesturing hand."""
+    return [
+        (_P((0.52, -0.30), (0.60, -0.36)), 'accent', 0.9),
+        (_P((0.55, -0.20), (0.65, -0.22)), 'accent', 0.9),
+        (_P((0.52, -0.10), (0.60, -0.06)), 'accent', 0.9),
     ]
 
 
@@ -528,9 +590,12 @@ def _scene_slots(labels: list[str], zone: dict, ratio: str):
 def _palette(plan):
     pal = wbp._pal(plan)
     accf = wbp._mix(pal['bgc'], pal['accentc'], 0.20)
+    accdeep = wbp._mix(pal['bgc'], pal['accentc'], 0.72)
+    inkfill = wbp._mix(pal['bgc'], pal['inkc'], 0.88)
     return {'ink': pal['inkc'], 'accent': pal['accentc'],
             'pale': (pal['secondaryc'][0], pal['secondaryc'][1], pal['secondaryc'][2], 190),
-            'accfill': accf, 'paper': pal['bgc'], 'bg': pal['bg']}
+            'accfill': accf, 'accdeep': accdeep, 'inkfill': inkfill,
+            'paper': pal['bgc'], 'bg': pal['bg']}
 
 
 def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress, seed):
@@ -611,14 +676,21 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
     labels = _scene_labels(scene)
     slots = _scene_slots(labels, zone, ratio)
 
-    order = {'icon': 0, 'bubble': 1, 'sparkle': 2, 'caption': 3}
+    order = {'ground': 0, 'icon': 0, 'bubble': 1, 'marks': 2, 'sparkle': 2, 'caption': 3}
     groups = []
     for s in slots:
         groups.append(('icon', _strokes_for(s['icon'], s.get('pose') or 'point'),
                        s['center'], s['size'], s))
+        if s['icon'] in ('person', 'agent'):
+            gc = (s['center'][0], s['center'][1] + s['size'] * 0.52)
+            groups.append(('ground', _ground_shadow_strokes(), gc, s['size'], s))
+            if s['icon'] == 'person':
+                groups.append(('marks', _motion_marks_strokes(), s['center'], s['size'], s))
         if s.get('bubble'):
             bc = (s['center'][0] + s['size'] * 0.55, s['center'][1] - s['size'] * 0.62)
             groups.append(('bubble', _bubble_strokes(), bc, s['size'] * 0.62, s))
+        if s['icon'] in ('envelope', 'phone', 'question'):
+            groups.append(('sparkle', _ping_strokes(), s['center'], s['size'], s))
         if s['icon'] in ('check', 'coin', 'coins', 'rocket', 'lightbulb', 'chart', 'target'):
             groups.append(('sparkle', _sparkle_strokes(), s['center'], s['size'], s))
     for s in slots:
