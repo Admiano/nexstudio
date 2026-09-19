@@ -1015,8 +1015,7 @@ def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
     if icon == 'agent':
         return _robot_strokes()
     if icon == 'card':
-        return [(_rounded_rect(-0.5, -0.34, 1.0, 0.68, 0.08), 'ink', 1.0),
-                (_P((-0.34, -0.34), (0, -0.14), (-0.05, -0.26)), 'accent', 0.9)]
+        return [(_rounded_rect(0, 0, 1.0, 0.68, 0.08), 'ink', 1.0)]
     return PROPS.get(icon, PROPS['tile'])
 
 
@@ -1041,8 +1040,11 @@ def _card_text_strokes(center, size, label, zone):
         if len(words) <= 1 and tw > maxw:  # one long word: shrink, not chop
             h *= maxw / tw
             tw = text_width(txt, h)
+        while tw > maxw and ' ' in txt[:-2]:
+            txt = txt.rsplit(' ', 1)[0] + '…'
+            tw = text_width(txt, h)
         while tw > maxw and len(txt) > 4:
-            txt = txt[:-4] + '...'
+            txt = txt[:-2] + '…'
             tw = text_width(txt, h)
         lines = [txt]
     strokes = []
@@ -1390,21 +1392,34 @@ def _shift_strokes(strokes, dx, dy):
 def _caption_strokes(center, size, label, zone=None, row=0):
     txt = str(label).upper()
     h = size * 0.11
-    tw = text_width(txt, h)
     maxw = min(size * 1.9, (zone['w'] * 0.42 if zone else size * 1.9))
-    while tw > maxw and len(txt) > 6:
-        txt = txt[:-4] + '...'
-        tw = text_width(txt, h)
-    ox = center[0] - tw / 2
+    words = txt.split()
+    lines = [txt]
+    if len(words) > 1 and text_width(txt, h) > maxw:
+        # two-line wrap at the most balanced boundary, then shrink to fit
+        best = min(range(1, len(words)),
+                   key=lambda i: max(text_width(' '.join(words[:i]), h),
+                                     text_width(' '.join(words[i:]), h)))
+        lines = [' '.join(words[:best]), ' '.join(words[best:])]
+    tw = max(text_width(l, h) for l in lines)
+    if tw > maxw:
+        h = max(size * 0.060, h * maxw / tw)
+        tw = max(text_width(l, h) for l in lines)
+    oy = center[1] + size * (0.56 + 0.30 * row)
+    strokes = []
+    for li, ln in enumerate(lines):
+        lw = text_width(ln, h)
+        ox = center[0] - lw / 2
+        if zone:
+            ox = min(max(ox, zone['x'] + 6), zone['x'] + zone['w'] - lw - 6)
+        strokes += text_strokes(ln, (ox, oy + li * h * 1.15), h, 'ink', 0.85)
+    y = oy + (len(lines) - 1) * h * 1.15 + _text_bottom(lines[-1], h) + h * 0.16
+    ox0 = min(center[0] - text_width(l, h) / 2 for l in lines)
     if zone:
-        ox = min(max(ox, zone['x'] + 6), zone['x'] + zone['w'] - tw - 6)
-    origin = (ox, center[1] + size * (0.56 + 0.15 * row))
-    strokes = text_strokes(txt, origin, h, 'ink', 0.85)
-    pad = tw * 0.05
-    y = origin[1] + _text_bottom(txt, h) + h * 0.16
-    strokes.append(([(origin[0] - pad, y), (origin[0] + tw + pad, y)],
+        ox0 = max(ox0, zone['x'] + 6)
+    strokes.append(([(ox0 - tw * 0.03, y), (ox0 + tw * 1.03, y)],
                     'accent', 0.8, False, True))
-    return strokes, ox, ox + tw
+    return strokes, ox0, ox0 + tw
 
 
 def _scene_labels(scene: dict) -> list[str]:

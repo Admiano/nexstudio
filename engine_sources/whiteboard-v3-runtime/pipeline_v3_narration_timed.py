@@ -177,21 +177,26 @@ def _board_canvas(wbp, v3r, plan: dict, ratio: str, scenes: list[dict]):
         cy = int((z['y'] + z['h'] / 2 - y0) * scale) + pad
         canvas.paste(tile, (cx - size[0] // 2, cy - size[1] // 2))
     view_w, view_h = size
+    # pad the board canvas to the output aspect so the reveal zooms out to a
+    # board-centered frame with paper margins — not a letterboxed strip
+    need_w = int(canvas.height * view_w / view_h)
+    need_h = int(canvas.width * view_h / view_w)
+    pw, ph = max(canvas.width, need_w), max(canvas.height, need_h)
+    if (pw, ph) != canvas.size:
+        padded = Image.new('RGB', (pw, ph), tuple(pal['bgc'][:3]))
+        ox, oy = (pw - canvas.width) // 2, (ph - canvas.height) // 2
+        padded.paste(canvas, (ox, oy))
+        canvas = padded
+    else:
+        ox = oy = 0
     last = zones[-1]
     start_view = (
-        int((last['x'] + last['w'] / 2 - x0) * scale) + pad - view_w // 2,
-        int((last['y'] + last['h'] / 2 - y0) * scale) + pad - view_h // 2,
-        int((last['x'] + last['w'] / 2 - x0) * scale) + pad + view_w // 2,
-        int((last['y'] + last['h'] / 2 - y0) * scale) + pad + view_h // 2,
+        int((last['x'] + last['w'] / 2 - x0) * scale) + pad + ox - view_w // 2,
+        int((last['y'] + last['h'] / 2 - y0) * scale) + pad + oy - view_h // 2,
+        int((last['x'] + last['w'] / 2 - x0) * scale) + pad + ox + view_w // 2,
+        int((last['y'] + last['h'] / 2 - y0) * scale) + pad + oy + view_h // 2,
     )
-    fit = min(view_w / canvas.width, view_h / canvas.height)
-    fw, fh = view_w / fit, view_h / fit
-    end_view = (
-        int(canvas.width / 2 - fw / 2),
-        int(canvas.height / 2 - fh / 2),
-        int(canvas.width / 2 + fw / 2),
-        int(canvas.height / 2 + fh / 2),
-    )
+    end_view = (0, 0, canvas.width, canvas.height)
     return canvas, start_view, end_view
 
 
