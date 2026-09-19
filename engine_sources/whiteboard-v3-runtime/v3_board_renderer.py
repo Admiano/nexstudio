@@ -816,6 +816,51 @@ _ICON_KEYWORDS = {
 
 _PERSON_AGENT_PREFIXES = ('human', 'support', 'customer', 'live', 'service', 'real')
 
+# Verb/difference vocabulary — pinned Tabler icons for action and contrast
+# words, so 'response time drops' draws a falling trend rather than whatever
+# the object keyword would have matched. Curated beats fuzzy here.
+_VERB_TABLE = {
+    'drop': 'trending-down', 'drops': 'trending-down', 'fall': 'trending-down',
+    'falls': 'trending-down', 'crash': 'trending-down', 'decline': 'trending-down',
+    'decrease': 'trending-down', 'lower': 'trending-down', 'sink': 'trending-down',
+    'cheaper': 'discount', 'cut': 'discount', 'discount': 'discount',
+    'rise': 'trending-up', 'rises': 'trending-up', 'grow': 'trending-up',
+    'grows': 'trending-up', 'growth': 'trending-up', 'increase': 'trending-up',
+    'higher': 'trending-up', 'climb': 'trending-up', 'surge': 'trending-up',
+    'boost': 'rocket', 'accelerate': 'rocket',
+    'faster': 'bolt', 'instant': 'bolt', 'quick': 'bolt', 'instantly': 'bolt',
+    'vs': 'scale', 'versus': 'scale', 'compare': 'scale', 'compared': 'scale',
+    'tradeoff': 'scale', 'balance': 'scale',
+    'difference': 'arrows-diff', 'gap': 'arrows-diff',
+    'instead': 'switch-3', 'rather': 'switch-3',
+    'replace': 'replace', 'replaces': 'replace', 'swap': 'exchange',
+    'exchange': 'exchange', 'switch': 'switch-3', 'migrate': 'arrows-left-right',
+    'transfer': 'arrows-left-right',
+    'benefit': 'award', 'benefits': 'award', 'advantage': 'award',
+    'gain': 'stars', 'value': 'stars', 'quality': 'stars',
+    'ownership': 'certificate', 'owner': 'id', 'equity': 'percentage',
+    'stake': 'percentage', 'share': 'percentage',
+    'dividend': 'pig-money', 'dividends': 'pig-money', 'yield': 'pig-money',
+    'payout': 'gift', 'reward': 'gift',
+    'transparent': 'eye', 'transparency': 'eye-check', 'visible': 'eye',
+    'programmable': 'settings-automation', 'automated': 'settings-automation',
+    'automatic': 'settings-automation',
+    'save': 'pig-money', 'saves': 'pig-money', 'saving': 'pig-money',
+    'earn': 'coin', 'earns': 'coin', 'earnings': 'coin',
+    'cost': 'receipt-2', 'costs': 'receipt-2', 'fee': 'receipt-2',
+    'fees': 'receipt-2', 'price': 'receipt-2',
+}
+
+
+def _verb_icon(concept: str):
+    """Pinned tabler icon for a phrase carrying an action/contrast word.
+    Runs after actor detection so 'driver earns more' keeps its person."""
+    words = [w for w in re.findall(r"[a-z]+", str(concept).lower())]
+    for w in words:
+        if w in _VERB_TABLE and _VERB_TABLE[w] in _tabler()[0]:
+            return ('tabler', _VERB_TABLE[w])
+    return None
+
 # ---------------------------------------------------------------------------
 # Tabler vocabulary — 4,964 stroke-style icons (MIT) searched by name/tags,
 # so any domain (animals, transport, forestry, health) resolves to a real
@@ -991,14 +1036,31 @@ def _dir_strokes(dir_name: str, slug: str):
     side = max(vbw, vbh, 1)  # normalize by the long edge, keep aspect
     ox = (side - vbw) / 2
     oy = (side - vbh) / 2
+    # promote one mid-size closed ink fill to accent — the signature blue
+    # pop inside a vignette (giant background fills are skipped)
+    accent_el = -1
+    if dir_name != 'custom':
+        filled = [(i, (max(p[0] for p in pls[0])
+                       - min(p[0] for p in pls[0]))
+                  * (max(p[1] for p in pls[0]) - min(p[1] for p in pls[0])))
+                  for i, (pls, f, c) in enumerate(elements)
+                  if c and str(f).startswith('#')
+                  and f not in ('#F5F0E4', '#FFFFFF', '#fff', 'white')]
+        if filled:
+            biggest = max(filled, key=lambda t: t[1])
+            total_area = vbw * vbh or 1
+            if biggest[1] <= total_area * 0.40:
+                accent_el = biggest[0]
     strokes = []
     # library vignettes draw at a lighter pen weight than bespoke art —
     # dense multi-path art at full width reads as a blob beside the icon set
     weight = 0.95 if dir_name == 'custom' else 0.5
     hatch_ok = dir_name == 'custom'
-    for polys_el, fill, closed in elements:
+    for ei, (polys_el, fill, closed) in enumerate(elements):
         if fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
             color, hatch = 'ink', False
+        elif ei == accent_el:
+            color, hatch = 'accent', True
         elif str(fill).startswith('#') and fill.lower() not in (
                 'none', 'default'):
             color, hatch = 'ink', closed and hatch_ok
@@ -1094,8 +1156,16 @@ def _illust_lookup(concept: str):
         score -= len(slug) * 0.04
         if score > best_score:
             best, best_score = (d, slug), score
-    if best and best_score >= 6.5 and _illust_ink(*best) >= 2.2:
-        return ('illust',) + best
+    if best and best_score >= 6.5:
+        strokes = _dir_strokes(*best)
+        # sparse art reads as fragments at icon scale — require real geometry
+        try:
+            n_el = len(svg_paths.elements_from_string(
+                (_ASSETS / best[0] / f'{best[1]}.svg').read_text())[0])
+        except Exception:
+            n_el = 0
+        if strokes and n_el >= 4 and _illust_ink(*best) >= 2.6:
+            return ('illust',) + best
     return None
 
 
@@ -1139,6 +1209,10 @@ def icon_for(concept: str) -> str:
         # object trailing the phrase ('teacher explains idea' → person)
         if words[0] in _ICON_KEYWORDS['person']:
             return 'person'
+        # action/contrast words pin to their own icons before any fuzzy match
+        vi = _verb_icon(phrase)
+        if vi:
+            return vi
         # a strong scene-vignette match beats the flat icon vocabulary
         il = _illust_lookup(phrase)
         if il:

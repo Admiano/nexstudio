@@ -347,6 +347,50 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
     return Path(snd.render(plan, duration, out_path)['path'])
 
 
+def build_music(duration: float, out_path: Path, rate: int = 48000) -> Path:
+    """Generated ambient pad bed — deterministic, license-clean (no sampled
+    audio): soft triangle chord progression under everything, mastered quiet.
+    Not a music library — a warm neutral bed until a licensed track drops in."""
+    import wave
+    from array import array
+    import numpy as np
+    n = int(duration * rate)
+    t = np.arange(n) / rate
+    # Cmaj7 -> Am7 -> Fmaj7 -> G add6, 2.6 s bars — calm, unobtrusive
+    bars = [(261.6, 329.6, 392.0, 493.9), (220.0, 261.6, 329.6, 392.0),
+            (174.6, 220.0, 261.6, 329.6), (196.0, 246.9, 293.7, 392.0)]
+    bar = 2.6
+    mix = np.zeros(n)
+    for bi, start_s in enumerate(np.arange(0, duration + bar, bar)):
+        chord = bars[bi % len(bars)]
+        i0 = int(start_s * rate)
+        seg_n = min(n - i0, int((bar + 0.6) * rate))
+        if seg_n <= 0:
+            break
+        tt = np.arange(seg_n) / rate
+        env = np.minimum(1.0, tt / 0.8) * np.minimum(
+            1.0, (bar + 0.6 - tt) / 0.9)  # soft attack, gentle release
+        for f in chord:
+            mix[i0:i0 + seg_n] += 0.045 * env * np.sin(
+                2 * np.pi * f * tt + 0.15 * np.sin(2 * np.pi * 0.5 * tt))
+        mix[i0:i0 + seg_n] += 0.05 * env * np.sin(
+            2 * np.pi * chord[0] / 2 * tt)  # sub root
+    # slow shimmer + edge fades
+    mix *= 1.0 + 0.10 * np.sin(2 * np.pi * 0.31 * t)
+    fade_in = np.minimum(1.0, t / 1.4)
+    fade_out = np.minimum(1.0, (duration - t) / 2.2)
+    mix *= fade_in * fade_out
+    peak = max(1e-9, np.abs(mix).max())
+    mix = mix / peak * 0.5
+    pcm = array('h', np.clip(mix * 32767, -32767, 32767).astype(np.int16))
+    with wave.open(str(out_path), 'wb') as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(pcm.tobytes())
+    return out_path
+
+
 def encode_mp4(
     frames_dir: Path,
     fps: int,
@@ -356,29 +400,50 @@ def encode_mp4(
     duration: float,
     out_path: Path,
     ffmpeg: str = 'ffmpeg',
+    music_wav: Path | None = None,
 ) -> Path:
     cmd = [
         ffmpeg, '-y', '-loglevel', 'error',
         '-framerate', str(fps), '-i', str(frames_dir / 'f%05d.png'),
     ]
     filters = []
+    ins = []  # ordered audio inputs after video
     if sfx_wav:
-        cmd += ['-i', str(sfx_wav)]
+        ins.append(sfx_wav)
+    if music_wav:
+        ins.append(music_wav)
     if voiceover:
-        cmd += ['-i', str(voiceover)]
-    if sfx_wav and voiceover:
-        # VO is the timing/intelligibility authority; SFX ducks under it
-        # (brand mix-plan defaults: 6 dB-class duck, ~120 ms attack, ~280 ms release,
+        ins.append(voiceover)
+    for p in ins:
+        cmd += ['-i', str(p)]
+    idx = {p: i + 1 for i, p in enumerate(ins)}
+    beds = [f'[{idx[p]}:a]' for p in ins if p != voiceover]
+    if len(ins) >= 2 and voiceover:
+        # VO is the timing/intelligibility authority; SFX + music bed duck
+        # under it (6 dB-class duck, ~120 ms attack, ~280 ms release,
         # mastered to -16 LUFS / -1.5 dBTP).
+        if len(beds) > 1:
+            filters.append(
+                ''.join(beds) +
+                f'amix=inputs={len(beds)}:normalize=0[bed]')
+            bed_src = '[bed]'
+        else:
+            bed_src = beds[0]
         filters.append(
-            '[1:a][2:a]sidechaincompress=threshold=0.02:ratio=8:attack=120:release=280[ducked];'
-            '[ducked][2:a]amix=inputs=2:normalize=0[m];'
+            f'{bed_src}[{idx[voiceover]}:a]sidechaincompress='
+            'threshold=0.02:ratio=8:attack=120:release=280[ducked];'
+            f'[ducked][{idx[voiceover]}:a]amix=inputs=2:normalize=0[m];'
             f'[m]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]'
         )
-    elif sfx_wav:
-        filters.append(f'[1:a]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')
-    elif voiceover:
-        filters.append(f'[1:a]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')
+    elif ins:
+        if len(beds) > 1:
+            filters.append(
+                ''.join(beds) +
+                f'amix=inputs={len(beds)}:normalize=0,')
+            filters[-1] += f'loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]'
+        else:
+            filters.append(
+                f'[1:a]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')
     if filters:
         cmd += ['-filter_complex', ';'.join(filters), '-map', '0:v', '-map', '[a]',
                 '-c:a', 'aac', '-b:a', '160k']
@@ -461,12 +526,14 @@ def render_production(
         mp4 = out_dir / f'{name}.mp4'
         if ffmpeg:
             sfx_wav = build_sfx(snd, plan, duration, out_dir / f'{name}.sfx.wav')
+            music_wav = build_music(duration, out_dir / f'{name}.music.wav')
             vo = None
             vo_spec = plan.get('voiceover') or {}
             vo_path = Path(vo_spec.get('path')) if vo_spec.get('path') else voiceover
             if vo_path and Path(vo_path).exists():
                 vo = Path(vo_path)
-            encode_mp4(frames_dir, fps, wbp.RATIO_SIZES[ratio], sfx_wav, vo, duration, mp4, ffmpeg)
+            encode_mp4(frames_dir, fps, wbp.RATIO_SIZES[ratio], sfx_wav, vo,
+                       duration, mp4, ffmpeg, music_wav=music_wav)
 
         times = [b['start_seconds'] + b['duration_seconds'] * 0.5 for b in beats]
         times.append(duration - plan['pacing']['board_reveal_seconds'] * 0.2)
