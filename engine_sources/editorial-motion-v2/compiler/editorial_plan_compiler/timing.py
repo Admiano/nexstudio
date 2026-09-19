@@ -147,8 +147,9 @@ class BeatClock:
 
 
 def exit_for_pause(pause_ms: int) -> int:
-    """The outgoing beat leaves inside the pause the speaker actually left, never longer than the authored exit."""
-    return max(MIN_EXIT_MS, min(EXIT_MS, int(pause_ms * 0.4)))
+    """The outgoing beat leaves inside the pause the speaker actually left, never longer than the
+    authored exit — the exit takes at most a third of the pause so two-thirds stay readable."""
+    return max(MIN_EXIT_MS, min(EXIT_MS, int(pause_ms * 0.34)))
 
 
 def readable_close_floor(pause_ms: int) -> int:

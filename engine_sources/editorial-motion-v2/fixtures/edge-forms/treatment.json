@@ -1,0 +1,566 @@
+{
+  "schema": "NexStudioEditorialTreatmentV2",
+  "film_id": "fixture-edge-forms",
+  "note": "Edge-form coverage fixture: every illustration form appears with a deliberately sparse program so the compiler's synthesized choreography (sweeps, confirmations, counts, travels) is what carries each hold. Hand-authored stand-in for a NexMind P8 treatment; the compiler resolves geometry and time only.",
+  "aspects": ["9x16", "1x1", "16x9"],
+  "fps": 30,
+  "brand": {
+    "ink": "#111111",
+    "paper": "#f6f5f1",
+    "accent": "#1f6bff",
+    "finish": "EDITORIAL_FLAT"
+  },
+  "typography": {
+    "reveal": "WORD_CASCADE",
+    "tonal_ink": 0.42,
+    "min_visual_share": 0.6
+  },
+  "voice": {
+    "source": "FIXTURE",
+    "words_per_second": 2.6
+  },
+  "media_library": [],
+  "beats": [
+    {
+      "beat_id": "b01",
+      "beat_type": "HOOK",
+      "pattern": "PROGRESSIVE_HERO_BUILD",
+      "dominant_layer": "HYBRID",
+      "narration": "Every change starts as a small idea in the code.",
+      "energy": 0.6,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "Every change starts",
+          "role": "support",
+          "anchor_word": "change",
+          "emphasis": 0.45,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "as a small idea.",
+          "role": "hero",
+          "anchor_word": "idea",
+          "emphasis": 0.9,
+          "semantic_role": "statement",
+          "stress": ["idea"]
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "commit",
+            "kind": "object",
+            "glyph": "ICON",
+            "size": "hero",
+            "asset_ref": "icon.lucide.git-fork",
+            "label": "a change"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "commit",
+            "at": { "word": "change" },
+            "duration_ms": 620
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b02",
+      "beat_type": "EXPLANATION",
+      "pattern": "PROCESS_RAIL",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "It moves through code, tests, review, and out.",
+      "energy": 0.6,
+      "complexity": 0.6,
+      "display_units": [
+        {
+          "text": "It moves through",
+          "role": "support",
+          "anchor_word": "moves",
+          "emphasis": 0.4,
+          "semantic_role": "qualifier"
+        },
+        {
+          "text": "code, tests, review, and out.",
+          "role": "hero",
+          "anchor_word": "code",
+          "emphasis": 0.85,
+          "semantic_role": "action",
+          "stress": ["out"]
+        }
+      ],
+      "illustration": {
+        "form": "PROCESS_PIPELINE",
+        "entities": [
+          {
+            "id": "write",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "code"
+          },
+          {
+            "id": "test",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "tests"
+          },
+          {
+            "id": "review",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "review"
+          },
+          {
+            "id": "ship",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "hero",
+            "label": "ship"
+          }
+        ],
+        "relations": [
+          { "type": "flows_to", "source": "write", "target": "test" },
+          { "type": "flows_to", "source": "test", "target": "review" },
+          { "type": "flows_to", "source": "review", "target": "ship" }
+        ],
+        "program": [
+          {
+            "op": "CONNECT",
+            "target": "write->test",
+            "at": { "word": "tests" },
+            "duration_ms": 480
+          },
+          {
+            "op": "CONNECT",
+            "target": "test->review",
+            "at": { "word": "review" },
+            "duration_ms": 480
+          },
+          {
+            "op": "CONNECT",
+            "target": "review->ship",
+            "at": { "word": "out" },
+            "duration_ms": 480
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b03",
+      "beat_type": "EXPLANATION",
+      "pattern": "ANCHORED_SCREENSHOT_PROOF",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "And everyone around it keeps the change honest.",
+      "energy": 0.5,
+      "complexity": 0.55,
+      "display_units": [
+        {
+          "text": "And everyone around it",
+          "role": "support",
+          "anchor_word": "everyone",
+          "emphasis": 0.4,
+          "semantic_role": "qualifier"
+        },
+        {
+          "text": "keeps it honest.",
+          "role": "hero",
+          "anchor_word": "honest",
+          "emphasis": 0.85,
+          "semantic_role": "statement",
+          "stress": ["honest"]
+        }
+      ],
+      "illustration": {
+        "form": "RELATIONSHIP",
+        "entities": [
+          {
+            "id": "you",
+            "kind": "signal",
+            "glyph": "CARD",
+            "size": "hero",
+            "label": "you"
+          },
+          {
+            "id": "peer",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "peers"
+          },
+          {
+            "id": "ci",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "CI"
+          },
+          {
+            "id": "docs",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "docs"
+          }
+        ],
+        "relations": [
+          { "type": "connects", "source": "you", "target": "peer" },
+          { "type": "connects", "source": "you", "target": "ci" },
+          { "type": "connects", "source": "you", "target": "docs" }
+        ],
+        "program": [
+          {
+            "op": "CONNECT",
+            "target": "you->peer",
+            "at": { "word": "everyone" },
+            "duration_ms": 420
+          },
+          {
+            "op": "CONNECT",
+            "target": "you->ci",
+            "at": { "word": "around" },
+            "duration_ms": 420
+          },
+          {
+            "op": "CONNECT",
+            "target": "you->docs",
+            "at": { "word": "keeps" },
+            "duration_ms": 420
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b04",
+      "beat_type": "CONTRAST",
+      "pattern": "CONTRAST_RECONFIGURATION",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "A draft becomes the change that actually ships.",
+      "energy": 0.58,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "A draft becomes",
+          "role": "support",
+          "anchor_word": "draft",
+          "emphasis": 0.4,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "the change that ships.",
+          "role": "hero",
+          "anchor_word": "ships",
+          "emphasis": 0.9,
+          "semantic_role": "contrast",
+          "stress": ["ships"]
+        }
+      ],
+      "illustration": {
+        "form": "STATE_TRANSFORMATION",
+        "entities": [
+          {
+            "id": "draft",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "draft",
+            "params": { "dashed": true }
+          },
+          {
+            "id": "merged",
+            "kind": "state",
+            "glyph": "CARD",
+            "size": "hero",
+            "label": "merged"
+          }
+        ],
+        "relations": [
+          { "type": "transforms_into", "source": "draft", "target": "merged" }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "merged",
+            "at": { "word": "change" },
+            "duration_ms": 520
+          },
+          {
+            "op": "CONNECT",
+            "target": "draft->merged",
+            "at": { "word": "becomes" },
+            "duration_ms": 460
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b05",
+      "beat_type": "PROOF",
+      "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Most of the work still lands in a few files.",
+      "energy": 0.5,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "Most of the work",
+          "role": "support",
+          "anchor_word": "work",
+          "emphasis": 0.45,
+          "semantic_role": "qualifier"
+        },
+        {
+          "text": "lands in a few files.",
+          "role": "hero",
+          "anchor_word": "files",
+          "emphasis": 0.9,
+          "semantic_role": "proof",
+          "stress": ["few"]
+        }
+      ],
+      "illustration": {
+        "form": "DATA_VISUAL",
+        "entities": [
+          {
+            "id": "core",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "hero",
+            "label": "core",
+            "params": { "count": 8 }
+          },
+          {
+            "id": "docsb",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "docs",
+            "params": { "count": 3 }
+          },
+          {
+            "id": "tests",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "tests",
+            "params": { "count": 5 }
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "core",
+            "at": { "word": "work" },
+            "duration_ms": 640,
+            "value_from": 0.0,
+            "value_to": 1.0
+          },
+          {
+            "op": "GROW",
+            "target": "docsb",
+            "at": { "word": "lands" },
+            "duration_ms": 560,
+            "value_from": 0.0,
+            "value_to": 0.4
+          },
+          {
+            "op": "GROW",
+            "target": "tests",
+            "at": { "word": "files" },
+            "duration_ms": 560,
+            "value_from": 0.0,
+            "value_to": 0.7
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b06",
+      "beat_type": "CONTRAST",
+      "pattern": "HERO_SCALE_PROMOTION",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Small diffs beat sweeping rewrites, every time.",
+      "energy": 0.55,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "Small diffs beat",
+          "role": "support",
+          "anchor_word": "diffs",
+          "emphasis": 0.45,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "sweeping rewrites, every time.",
+          "role": "hero",
+          "anchor_word": "rewrites",
+          "emphasis": 0.9,
+          "semantic_role": "contrast",
+          "stress": ["every"]
+        }
+      ],
+      "illustration": {
+        "form": "COMPARISON",
+        "entities": [
+          {
+            "id": "small",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "hero",
+            "label": "small diff"
+          },
+          {
+            "id": "rewrite",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "rewrite"
+          }
+        ],
+        "relations": [
+          { "type": "compares", "source": "small", "target": "rewrite" }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "small",
+            "at": { "word": "diffs" },
+            "duration_ms": 480
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b07",
+      "beat_type": "EXPLANATION",
+      "pattern": "SEQUENTIAL_SUPPORT_LIST",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Look at what reviewers actually check first.",
+      "energy": 0.52,
+      "complexity": 0.6,
+      "display_units": [
+        {
+          "text": "Look at what reviewers",
+          "role": "support",
+          "anchor_word": "reviewers",
+          "emphasis": 0.45,
+          "semantic_role": "qualifier"
+        },
+        {
+          "text": "actually check first.",
+          "role": "hero",
+          "anchor_word": "check",
+          "emphasis": 0.9,
+          "semantic_role": "statement",
+          "stress": ["check"]
+        }
+      ],
+      "illustration": {
+        "form": "CALLOUT_LENS",
+        "entities": [
+          {
+            "id": "r1",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "intent"
+          },
+          {
+            "id": "r2",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "risk"
+          },
+          {
+            "id": "r3",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "tests"
+          },
+          {
+            "id": "lens",
+            "kind": "signal",
+            "glyph": "LENS",
+            "size": "hero"
+          }
+        ],
+        "relations": [
+          { "type": "scans", "source": "lens", "target": "r1" }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "lens",
+            "at": { "word": "look" },
+            "duration_ms": 560
+          },
+          {
+            "op": "TRAVEL",
+            "target": "lens",
+            "at": { "word": "check" },
+            "duration_ms": 520,
+            "params": { "over": ["r2", "r3"] }
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b08",
+      "beat_type": "PAYOFF",
+      "pattern": "PAYOFF_LOCKUP",
+      "dominant_layer": "HYBRID",
+      "narration": "Ship small, ship often, and the system stays honest.",
+      "energy": 0.62,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "Ship small, ship often,",
+          "role": "hero",
+          "anchor_word": "small",
+          "emphasis": 0.92,
+          "semantic_role": "punch",
+          "stress": ["small", "often"]
+        },
+        {
+          "text": "and the system stays honest.",
+          "role": "support",
+          "anchor_word": "honest",
+          "emphasis": 0.5,
+          "semantic_role": "statement"
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "rocket",
+            "kind": "object",
+            "glyph": "ICON",
+            "size": "hero",
+            "asset_ref": "icon.ant-design.rocket-outlined",
+            "label": "ship it"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "rocket",
+            "at": { "word": "ship" },
+            "duration_ms": 640
+          }
+        ]
+      }
+    }
+  ]
+}

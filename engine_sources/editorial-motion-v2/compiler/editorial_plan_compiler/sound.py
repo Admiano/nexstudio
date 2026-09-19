@@ -26,9 +26,13 @@ EVENT_TAGS = {
     'SPATIAL_RECONFIGURE': ('motion.ui.expand',),
     'EVIDENCE_LAND': ('impact.soft.medium', 'impact.plate.light'),
     'DATA_LAND': ('impact.generic.light',),
-    'TRANSITION_CARRIER': ('motion.ui.expand', 'motion.ui.contract'),
+    'TRANSITION_CARRIER': ('motion.ui.expand', 'motion.ui.contract', 'legacy.paper.rustle.light'),
+    'LINE_DRAW': ('whiteboard.marker.line', 'type.scratch', 'whiteboard.pencil.write'),
+    'EMIT_CONFIRM': ('ui.confirm', 'legacy.ui.confirm.chime'),
+    'COUNT_TICK': ('legacy.ui.level.tick', 'ui.switch.tactile'),
+    'LOUPE_TRAVEL': ('legacy.ui.navigation.swipe', 'motion.ui.contract'),
 }
-GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0}
+GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0, 'ui': -19.0, 'legacy': -18.0, 'whiteboard': -20.0, 'foley': -20.0}
 
 
 def library_root() -> Optional[Path]:

@@ -650,7 +650,8 @@ class BeatCompiler:
             core = [e['end_ms'] for e in typ['events'] if e['unit_index'] in hero_units and e['event'] not in ('HOLD', 'EXIT')]
             core += [bl['cascade_end_ms'] for bl in typ['blocks'] if bl['unit_index'] in hero_units and bl.get('cascade_end_ms')]
             if illustration:
-                core += [o['end_ms'] for o in illustration.get('ops', []) if o.get('state_change')]
+                # Decorations ride the hold; only authored state changes claim reading time.
+                core += [o['end_ms'] for o in illustration.get('ops', []) if o.get('state_change') and not o.get('synthesized')]
             for el in (media, figure):
                 if el:
                     core.append(el['enter_ms'] + el['enter_duration_ms'])
@@ -664,7 +665,11 @@ class BeatCompiler:
             for bl in typ['blocks']:
                 if bl.get('cascade_compression', 1.0) < 0.8:
                     warnings.append(f"CASCADE_COMPRESSED:{bl['unit_index']}:{bl['cascade_compression']}")
-            if hold_end - hold_start < MIN_HOLD_MS:
+            # Under MASTER the speaker's pause is the settled-hold budget: warn only when the
+            # window couldn't afford even the pause-scaled readable close. The flat MIN_HOLD
+            # floor stays on free-running beats (HOLD_TOO_SHORT below).
+            settled_floor = readable_close_floor(clock.pause_after_ms)
+            if hold_end - hold_start < settled_floor:
                 warnings.append(f"SETTLED_HOLD:{hold_end - hold_start}ms")
         elif hold_end - hold_start < MIN_HOLD_MS:
             failures.append(f"HOLD_TOO_SHORT:{hold_end - hold_start}ms")
@@ -686,6 +691,14 @@ class BeatCompiler:
             for o in illustration['ops']:
                 if o['state_change']:
                     candidates.append({'event': 'KEYWORD_HIT' if o['op'] in ('INK', 'STRIKE') else 'EVIDENCE_LAND', 'at_ms': o['end_ms'], 'strength': 0.7})
+                if o['op'] in ('DRAW', 'CONNECT', 'TRACE'):
+                    candidates.append({'event': 'LINE_DRAW', 'at_ms': o['end_ms'], 'strength': 0.5})
+                if o['op'] == 'EMIT':
+                    candidates.append({'event': 'EMIT_CONFIRM', 'at_ms': o['end_ms'], 'strength': 0.75})
+                if o['op'] == 'COUNT':
+                    candidates.append({'event': 'COUNT_TICK', 'at_ms': o['end_ms'], 'strength': 0.5})
+                if o['op'] == 'TRAVEL':
+                    candidates.append({'event': 'LOUPE_TRAVEL', 'at_ms': o['end_ms'], 'strength': 0.55})
         if transition['mode'] in ('TEXT_MASK_WIPE', 'LABEL_EXPAND_WIPE'):
             candidates.append({'event': 'TRANSITION_CARRIER', 'at_ms': transition['start_ms'], 'strength': 0.6})
         sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates)
