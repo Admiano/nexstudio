@@ -777,7 +777,8 @@ class IllustrationSolver:
         ent_ids = {e['id'] for e in ents}
         for r in rels:
             draw = next((o for o in ops if o['target'] == r['id'] and o['op'] in ('CONNECT', 'DRAW')), None)
-            if draw and not any(o['op'] == 'TRACE' and o['target'] == r['id'] for o in ops):
+            # A wiped connector erases itself — a tracer pass over a vanished line reads broken.
+            if draw and not (draw.get('params') or {}).get('wipe') and not any(o['op'] == 'TRACE' and o['target'] == r['id'] for o in ops):
                 st = draw['end_ms'] + 140
                 dur = min(560, max(240, int(r.get('length', 300) * 0.9)))
                 if st + dur <= latest_end:
@@ -941,7 +942,8 @@ def terminal_state(plan: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         if o['op'] == 'TRAVEL':
             s['at'] = o['params']['over'][-1]
         elif o['op'] in OP_PROPERTY:
-            s[OP_PROPERTY[o['op']]] = o['to']
+            # A wiped stroke self-erases: its honest end state is undrawn.
+            s[OP_PROPERTY[o['op']]] = 0.0 if (o.get('params') or {}).get('wipe') else o['to']
     return state
 
 

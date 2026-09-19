@@ -207,6 +207,23 @@ async function runFixture(fx, base, browser) {
         }
         out.media.push({ beat: b.beat_id, hiddenBefore, shown, videoOk, loaded: node.tagName === 'VIDEO' ? node.readyState >= 2 : node.complete && node.naturalWidth > 0 });
       }
+      // Entity-level media: a MEDIA glyph can carry live video inside any chassis — it must
+      // be a real <video>, decode-ready and seeking with the film clock (not a static poster).
+      for (const b of plan.beats.filter((x) => x.illustration)) {
+        const beatNode = stage.children[plan.beats.indexOf(b)];
+        for (const e of b.illustration.entities.filter((en) => en.media && en.media.kind === 'VIDEO')) {
+          const frame = beatNode.querySelector(`[data-media-asset="${e.media.asset_id}"]`);
+          const node = frame && frame.querySelector('video');
+          let videoOk = false, loaded = false;
+          if (node) {
+            await film.seek(b.start_ms + e.enter_ms + 1200);
+            const expected = ((e.media.trim && e.media.trim.start) || 0) + 1.2;
+            videoOk = Math.abs(node.currentTime - expected) < 0.1;
+            loaded = node.readyState >= 2;
+          }
+          out.media.push({ beat: b.beat_id, entity: e.id, hiddenBefore: true, shown: Boolean(node), videoOk, loaded });
+        }
+      }
 
       // Still figure: composed from the compiled parts only, visible in its hold, never animated after entry.
       const fb = plan.beats.find((b) => b.figure);
@@ -265,7 +282,30 @@ async function runFixture(fx, base, browser) {
           if (op.op === 'FILL') { const r = node.querySelector('rect[clip-path]'); ok = r && Math.abs(num(r.getAttribute('height')) / (node.getBBox().height || 1) - op.to) < 0.12; why = r && r.getAttribute('height'); }
           if (op.op === 'INK') { ok = Array.from(node.querySelectorAll('[fill-opacity]')).some((n) => Math.abs(Number(n.getAttribute('fill-opacity')) - op.to) < 0.02) || (node.querySelector('g') && node.querySelector('g').style.color !== ''); }
           if (op.op === 'DIM') { ok = Math.abs(Number(node.style.opacity) - op.to) < 0.03; why = node.style.opacity; }
-          if (op.op === 'DRAW' || op.op === 'CONNECT') { ok = outlineDone(node); why = ok ? '' : 'outline not fully drawn'; }
+          if (op.op === 'DRAW' || op.op === 'CONNECT') {
+            if (op.params && op.params.wipe) {
+              // Draw-then-erase: at op end the traveling window has fully exited — stroked parts
+              // sit at offset ±len (never drawn / erased), dashed covers reclosed to a full-cover
+              // dash, and opacity-driven parts faded out with the sweep pulse.
+              const solid = drawn(node, 'outline'), covers = drawn(node, 'cover');
+              ok = solid.length + covers.length > 0
+                && solid.every((p) => {
+                  if (!p.style.strokeDasharray) {
+                    const so = p.getAttribute('stroke-opacity');
+                    return (so === null || num(so) < 0.05) && num(p.style.opacity || '0') < 0.05;
+                  }
+                  const L = p.getTotalLength ? p.getTotalLength() : 0;
+                  return L === 0 || Math.abs(num(p.style.strokeDashoffset)) >= L - 0.5;
+                })
+                && covers.every((p) => {
+                  const da0 = num(String(p.style.strokeDasharray || '0').split(/[ ,]+/)[0]);
+                  return da0 >= (p.getTotalLength ? p.getTotalLength() : 0) - 0.5;
+                });
+              why = ok ? '' : 'wiped stroke not erased at op end';
+            } else {
+              ok = outlineDone(node); why = ok ? '' : 'outline not fully drawn';
+            }
+          }
           if (op.op === 'STRIKE') { const ps = drawn(node, 'strike'); ok = ps.length > 0 && ps.every((p) => num(p.style.strokeDashoffset) < 0.5); why = ok ? '' : 'strike not drawn'; }
           if (op.op === 'TRAVEL') {
             const lens = node.querySelector('g[transform]');

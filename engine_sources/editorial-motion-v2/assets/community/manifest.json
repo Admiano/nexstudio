@@ -2,7 +2,7 @@
  "schema": "NexStudioCommunityAssetsV1",
  "policy": "Every vendored asset carries source-pack provenance, upstream license and sha256. Icons are normalised to currentColor; ink and accent remain runtime-owned.",
  "provenance": "See packs/<name>/info.json + LICENSE per icon pack; LICENSE.txt per audio/texture dir.",
- "count": 497,
+ "count": 514,
  "assets": [
   {
    "id": "sfx.click1",
@@ -4055,376 +4055,478 @@
   {
    "id": "sfx.classic-swish-1",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Classic Swish 1.wav",
+   "path": "assets/community/audio/wooshes-organic/Classic Swish 1.wav",
    "sha256": "672db5f3decc2c6de750ac8d8d9095f9868c37d64af2ae518d0377c915ead1bd",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.369
   },
   {
    "id": "sfx.classic-swish-2",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Classic Swish 2.wav",
+   "path": "assets/community/audio/wooshes-organic/Classic Swish 2.wav",
    "sha256": "713cd3b0c389b5650e665aa359f061033fdeb329b7e1e23a5b231629b5b97c59",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.339
   },
   {
    "id": "sfx.classic-swish-3",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Classic Swish 3.wav",
+   "path": "assets/community/audio/wooshes-organic/Classic Swish 3.wav",
    "sha256": "09e4e4a44828a35a93a549bcc202cceb4f888d11d5f7f2cb30bd516d7659059d",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.502
   },
   {
    "id": "sfx.combo-1",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Combo 1.wav",
+   "path": "assets/community/audio/wooshes-organic/Combo 1.wav",
    "sha256": "2eec2d3a4d74f1330707f164043f41fc6e34746d51946a1a6467a92449ca3d46",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.611
   },
   {
    "id": "sfx.combo-2",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Combo 2.wav",
+   "path": "assets/community/audio/wooshes-organic/Combo 2.wav",
    "sha256": "4798cb7bc5b319962100e447207d7c5f5418f97d32487e49a09978aa8a5d1f2f",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.099
   },
   {
    "id": "sfx.combo-3",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Combo 3.wav",
+   "path": "assets/community/audio/wooshes-organic/Combo 3.wav",
    "sha256": "93d8e2b8f6e018257cee15356ae617481d991b93049e0725f484cb602f64090f",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 2.109
   },
   {
    "id": "sfx.combo-4",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Combo 4.wav",
+   "path": "assets/community/audio/wooshes-organic/Combo 4.wav",
    "sha256": "88be9b207594a61cff54bdf4ef5454b2886de12df52d46fca2df2e90f6b25eb6",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.828
   },
   {
    "id": "sfx.gentle-swish",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Gentle Swish.wav",
+   "path": "assets/community/audio/wooshes-organic/Gentle Swish.wav",
    "sha256": "11d39fa96334ef67edd9ba8c09880b4eae1fb1d4bbfd978bf9a845bebffc5885",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.49
   },
   {
    "id": "sfx.slash",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Slash.wav",
+   "path": "assets/community/audio/wooshes-organic/Slash.wav",
    "sha256": "7bad54c4fc2f16c88680946b305e886f5dcb5be1cc8b3939b273968bc6232222",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.15
   },
   {
    "id": "sfx.swish-1",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Swish 1.wav",
+   "path": "assets/community/audio/wooshes-organic/Swish 1.wav",
    "sha256": "f1a0e150720bb766fd95cfac9cb22d9648df40ff3c266579ee42982d4e9a3c4e",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.356
   },
   {
    "id": "sfx.swish-2",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Swish 2.wav",
+   "path": "assets/community/audio/wooshes-organic/Swish 2.wav",
    "sha256": "2d3574dfe8a9e170ce4f24c229f5f79b2687326da82ca1bd2496183724f3d26e",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.514
   },
   {
    "id": "sfx.swish-3",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Swish 3.wav",
+   "path": "assets/community/audio/wooshes-organic/Swish 3.wav",
    "sha256": "59461c4daac23f50ccacbe1bfe39e9df6afdd4ebf4de55c3ff68efa34a3ab379",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.643
   },
   {
    "id": "sfx.swish-4",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Swish 4.wav",
+   "path": "assets/community/audio/wooshes-organic/Swish 4.wav",
    "sha256": "c921df277edabd240329fdd0f2022ad4c5fb379f883cdeacec118fd7c37ef9ff",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.205
   },
   {
    "id": "sfx.swish-5",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Swish 5.wav",
+   "path": "assets/community/audio/wooshes-organic/Swish 5.wav",
    "sha256": "0eed3cd4a8d1c080c66a223cab50b126608b5d40962ba28b7081f5e833267c2d",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.321
   },
   {
    "id": "sfx.swish-6",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Swish 6.wav",
+   "path": "assets/community/audio/wooshes-organic/Swish 6.wav",
    "sha256": "685dace0d0dbe8760051878d846898678e91add72d9884e78a78f7fbe3b67c72",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.557
   },
   {
    "id": "sfx.thunk-1",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Thunk 1.wav",
+   "path": "assets/community/audio/wooshes-organic/Thunk 1.wav",
    "sha256": "a6713f91a31aeaf62a6539740b2b1b627c0345afbfc2bdac48c4e8bf8f62668e",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.295
   },
   {
    "id": "sfx.thunk-2",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Thunk 2.wav",
+   "path": "assets/community/audio/wooshes-organic/Thunk 2.wav",
    "sha256": "5a0f6fb1dce7f9ae828d2935ec1ef82797c491ed94241c240b2a19ba56403360",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.296
   },
   {
    "id": "sfx.twirl-1",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl 1.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl 1.wav",
    "sha256": "73f9580d508106aa825d428d95b9f1a4467947478a1adc73830fd8d7dd5806f8",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 2.596
   },
   {
    "id": "sfx.twirl-2",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl 2.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl 2.wav",
    "sha256": "55e371fdede946ee0e7326e302b0c27ee9d1b48553122f758f09acdd9320a419",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.565
   },
   {
    "id": "sfx.twirl-3",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl 3.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl 3.wav",
    "sha256": "bdb4c5f576b8e3ea82f1feca0bf3aba1763d3431b4aae4a3e249d2e8a9939261",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.765
   },
   {
    "id": "sfx.twirl-4",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl 4.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl 4.wav",
    "sha256": "105aeb571f03f1b6bf9fed413b9782c6ccf89187d9f629bfb1a9c0f25b4c9a9a",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 2.853
   },
   {
    "id": "sfx.twirl-but-ben-hits-himself-halfway-through",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl But Ben Hits Himself Halfway Through.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl But Ben Hits Himself Halfway Through.wav",
    "sha256": "be1aae538923d1c02fe78dd8dbc10def065ea02ff311be694b9cc3fdb6493ac1",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 3.331
   },
   {
    "id": "sfx.twirl-smol-1",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl Smol 1.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl Smol 1.wav",
    "sha256": "49ca88684110c230727ba6735b9730ddde78f85967d14f7032e770fe6f5bc58d",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.067
   },
   {
    "id": "sfx.twirl-smol-2",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl Smol 2.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl Smol 2.wav",
    "sha256": "12096fbd03d0a9afd72856a0bedfb25c5de90cfa4a94bb84f264f38260ec725e",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.076
   },
   {
    "id": "sfx.twirl-smol-3",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl Smol 3.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl Smol 3.wav",
    "sha256": "7dce14ab0fd98f97e42ae1014f105169d25b5be5b7b885b200c31b766cf706d5",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.368
   },
   {
    "id": "sfx.twirl-smol-4",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl Smol 4.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl Smol 4.wav",
    "sha256": "b2de3490d9583372e1580e4dce1d625af7072461668d2f52970a4809dc6a1944",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.335
   },
   {
    "id": "sfx.twirl-smol-5",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl Smol 5.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl Smol 5.wav",
    "sha256": "8911cefaa27e74c02e534a41f34c133fbe0748999c9e4f3fb9afca090b186d9d",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.414
   },
   {
    "id": "sfx.twirl-smol-6",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Twirl Smol 6.wav",
+   "path": "assets/community/audio/wooshes-organic/Twirl Smol 6.wav",
    "sha256": "ae7889c9d530927f8edcfab94afef5d11e8fe9f86f7652d106892bd4b23a7017",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 1.965
   },
   {
    "id": "sfx.whistle-1",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Whistle 1.wav",
+   "path": "assets/community/audio/wooshes-organic/Whistle 1.wav",
    "sha256": "49c1253981f4fb3578d585ae332ac207032ef10b62ad921fd75a4e6c6b62866a",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.785
   },
   {
    "id": "sfx.whistle-2",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Whistle 2.wav",
+   "path": "assets/community/audio/wooshes-organic/Whistle 2.wav",
    "sha256": "da3e2de27b4f7cdc2f12815a585423b16ff8be69647869fa88bb3286b1930bbf",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.228
   },
   {
    "id": "sfx.whistle-3",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Whistle 3.wav",
+   "path": "assets/community/audio/wooshes-organic/Whistle 3.wav",
    "sha256": "6da7f1d88720a61a1911aa8c7fa035ea41e1091b103a996ea5b1f6d0610fb057",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.189
   },
   {
    "id": "sfx.whistle-4",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Whistle 4.wav",
+   "path": "assets/community/audio/wooshes-organic/Whistle 4.wav",
    "sha256": "0cd00b7afe24af176bbeb3169bc285f12f202818e03231634c1b4daa2364648f",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.774
   },
   {
    "id": "sfx.whistle-5",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Whistle 5.wav",
+   "path": "assets/community/audio/wooshes-organic/Whistle 5.wav",
    "sha256": "7a11f642a5480c727e55b6a4c5013d63e7e5a9d625d8a90e74c7829ee78badbd",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.545
   },
   {
    "id": "sfx.whistle-6",
    "kind": "sfx",
-   "path": "audio/wooshes-organic/Whistle 6.wav",
+   "path": "assets/community/audio/wooshes-organic/Whistle 6.wav",
    "sha256": "94e525a11c5bdb2b8ed6fbaa29c919b3da519125efd7d6a20758b53cfc1382cf",
    "license": "CC0-1.0",
    "source": {
     "pack": "Micro Pack \u2014 Organic Wooshes (NazdyNate, via cc0-sounds.exi.software)",
     "url": "https://cc0-sounds.exi.software/collection/Micro%20Pack%20-%20Organic%20Wooshes/"
-   }
+   },
+   "semantic_tag": "motion.ui.whoosh",
+   "family": "motion",
+   "duration_s": 0.452
   },
   {
    "id": "sfx.caress-paper",
@@ -5260,7 +5362,13 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 176.039,
+   "bpm": 89,
+   "moods": [
+    "uplifting",
+    "bright"
+   ]
   },
   {
    "id": "music.bass-meant-jazz",
@@ -5271,7 +5379,13 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 279.74,
+   "bpm": 123,
+   "moods": [
+    "jazzy",
+    "calm"
+   ]
   },
   {
    "id": "music.flutey-jazz",
@@ -5282,7 +5396,13 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 247.275,
+   "bpm": 99,
+   "moods": [
+    "jazzy",
+    "bright"
+   ]
   },
   {
    "id": "music.happy-whistling-ukulele",
@@ -5293,7 +5413,13 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 123.218,
+   "bpm": 65,
+   "moods": [
+    "playful",
+    "bright"
+   ]
   },
   {
    "id": "music.hopeful",
@@ -5304,7 +5430,12 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 113.763,
+   "bpm": 66,
+   "moods": [
+    "uplifting"
+   ]
   },
   {
    "id": "music.landras-dream",
@@ -5315,7 +5446,13 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 88.924,
+   "bpm": 152,
+   "moods": [
+    "dreamy",
+    "calm"
+   ]
   },
   {
    "id": "music.nordic-wist",
@@ -5326,7 +5463,12 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 149.002,
+   "bpm": 96,
+   "moods": [
+    "wistful"
+   ]
   },
   {
    "id": "music.study-and-relax",
@@ -5337,7 +5479,13 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 223.399,
+   "bpm": 72,
+   "moods": [
+    "calm",
+    "dreamy"
+   ]
   },
   {
    "id": "music.sunday-dub",
@@ -5348,7 +5496,13 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 209.471,
+   "bpm": 103,
+   "moods": [
+    "calm",
+    "playful"
+   ]
   },
   {
    "id": "music.ukulele-song",
@@ -5359,7 +5513,13 @@
    "source": {
     "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
     "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   }
+   },
+   "duration_s": 138.591,
+   "bpm": 72,
+   "moods": [
+    "playful",
+    "uplifting"
+   ]
   },
   {
    "id": "texture.paper006-color-1k",
@@ -5479,6 +5639,244 @@
     "url": "user-supplied attachment"
    },
    "sha256": "88fc314fb9140b51212de202f8498b53788c23e988c003ec172f82f8ee4a3bcb"
+  },
+  {
+   "id": "synth.pop.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.pop",
+   "family": "synth",
+   "path": "assets/community/synth/pop-01.wav",
+   "duration_s": 0.11,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "85973f9a0ab75769c4a45035b27492cfcf42f753d75199b994b5a17a160f1a12"
+  },
+  {
+   "id": "synth.pop.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.pop",
+   "family": "synth",
+   "path": "assets/community/synth/pop-02.wav",
+   "duration_s": 0.09,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "069ec8f34257301a6b510755f81b4786e00332a3a2301a819764dda1c7c9e1ad"
+  },
+  {
+   "id": "synth.pop.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.pop",
+   "family": "synth",
+   "path": "assets/community/synth/pop-03.wav",
+   "duration_s": 0.13,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "5eda2386a45cd1a401b6f6123d3e936475cee9f85f14f9dbf65bdd4c028e9159"
+  },
+  {
+   "id": "synth.pop.04",
+   "kind": "sfx",
+   "semantic_tag": "synth.pop",
+   "family": "synth",
+   "path": "assets/community/synth/pop-04.wav",
+   "duration_s": 0.08,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "aff130447af639a5475fcbbc68de4e6bcd2dc6fbbb2db9f4058f13e7a29ee723"
+  },
+  {
+   "id": "synth.tick.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.tick",
+   "family": "synth",
+   "path": "assets/community/synth/tick-01.wav",
+   "duration_s": 0.05,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "ef0af3aade95b9799c9521041f3d8314d32a53cbd3f6825d0bad79094452c8e3"
+  },
+  {
+   "id": "synth.tick.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.tick",
+   "family": "synth",
+   "path": "assets/community/synth/tick-02.wav",
+   "duration_s": 0.04,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "c31a5a2ce50de1d3c52e95715b02cab4488b582de939c07634bd7849a5355aea"
+  },
+  {
+   "id": "synth.tick.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.tick",
+   "family": "synth",
+   "path": "assets/community/synth/tick-03.wav",
+   "duration_s": 0.06,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "6c57a7992170bc250eeb630ac1a9bb9eb1e807118d2f9a485426eef615ecf5cb"
+  },
+  {
+   "id": "synth.whoosh.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.whoosh",
+   "family": "synth",
+   "path": "assets/community/synth/whoosh-01.wav",
+   "duration_s": 0.42,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "d897661ac8bf4fc5c7b1c8787e2663e12825e5579a4e3622d8a32fac3fc20ac1"
+  },
+  {
+   "id": "synth.whoosh.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.whoosh",
+   "family": "synth",
+   "path": "assets/community/synth/whoosh-02.wav",
+   "duration_s": 0.55,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "aef3bf1ca0224b92edf6e456a430354ca4dec137166cd268cd4a0445a41d1e21"
+  },
+  {
+   "id": "synth.whoosh.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.whoosh",
+   "family": "synth",
+   "path": "assets/community/synth/whoosh-03.wav",
+   "duration_s": 0.34,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "377af7e8d3d05da0d929111b1914226d41a462928e4d108e3fe3890382b5a172"
+  },
+  {
+   "id": "synth.whoosh.04",
+   "kind": "sfx",
+   "semantic_tag": "synth.whoosh",
+   "family": "synth",
+   "path": "assets/community/synth/whoosh-04.wav",
+   "duration_s": 0.62,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "b263932181f5e2e17c738e297c457f20f8cb809d257194b3c76b4a6f3ade00eb"
+  },
+  {
+   "id": "synth.riser.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.riser",
+   "family": "synth",
+   "path": "assets/community/synth/riser-01.wav",
+   "duration_s": 0.7,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "123be11d0958b010e05c1cd55a66ead8708af35454f3ae1c11cd708cde22b1d0"
+  },
+  {
+   "id": "synth.riser.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.riser",
+   "family": "synth",
+   "path": "assets/community/synth/riser-02.wav",
+   "duration_s": 0.55,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "94241c33d5de6d8620cfe5f1fc5c0023b737f61d8c8edddae4dc19ad3172f3d2"
+  },
+  {
+   "id": "synth.riser.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.riser",
+   "family": "synth",
+   "path": "assets/community/synth/riser-03.wav",
+   "duration_s": 0.85,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "214dfc40f964adb64bcd7ae7f6c0c6ab851aff44de6eaf4c5195549f272c81f9"
+  },
+  {
+   "id": "synth.shimmer.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.shimmer",
+   "family": "synth",
+   "path": "assets/community/synth/shimmer-01.wav",
+   "duration_s": 0.55,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "d41a18bc744054ce056ceaa1e654851c0f17618f4a0aadf9e8c59dffc71a1b4c"
+  },
+  {
+   "id": "synth.shimmer.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.shimmer",
+   "family": "synth",
+   "path": "assets/community/synth/shimmer-02.wav",
+   "duration_s": 0.45,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "7609a8678c6155768bc4405dcc503d13c291be54265a23278a134e773e3c9245"
+  },
+  {
+   "id": "synth.shimmer.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.shimmer",
+   "family": "synth",
+   "path": "assets/community/synth/shimmer-03.wav",
+   "duration_s": 0.7,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "b6740523cd8441c9cd05ab5a7e8f889d2557b365b788b3ce33f8ac55cd13dc5c"
   }
  ]
 }

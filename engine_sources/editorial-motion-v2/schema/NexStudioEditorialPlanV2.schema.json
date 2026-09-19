@@ -303,6 +303,42 @@
         "gain_db": {
           "type": "number"
         },
+        "asset_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "moods": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bpm": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mood_request": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "loop": {
           "type": "boolean"
         },

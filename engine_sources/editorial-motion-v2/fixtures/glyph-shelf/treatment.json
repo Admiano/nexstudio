@@ -236,7 +236,10 @@
       "at": {
        "word": "point"
       },
-      "duration_ms": 460
+      "duration_ms": 460,
+      "params": {
+       "wipe": true
+      }
      },
      {
       "op": "CONNECT",
@@ -244,7 +247,10 @@
       "at": {
        "word": "point"
       },
-      "duration_ms": 400
+      "duration_ms": 400,
+      "params": {
+       "wipe": true
+      }
      },
      {
       "op": "DRAW",
@@ -260,7 +266,10 @@
       "at": {
        "word": "underline"
       },
-      "duration_ms": 380
+      "duration_ms": 380,
+      "params": {
+       "wipe": true
+      }
      },
      {
       "op": "EMIT",

@@ -553,6 +553,7 @@
       overflow: 'hidden', borderRadius: px(Math.min(bb.w, bb.h) * 0.035), border: `2px solid ${brand.ink}`,
       background: brand.paper, willChange: 'transform, opacity, clip-path',
     }, beatRoot);
+    frame.dataset.mediaAsset = media.asset_id;
     let node;
     if (media.kind === 'VIDEO') {
       node = document.createElement('video');
@@ -872,7 +873,21 @@
   function drawable(path, len, role) {
     path.style.strokeDasharray = `${f2(len)} ${f2(len + 4)}`;
     path.dataset.draw = role || 'outline';
-    return { path, len, set(p) { path.style.strokeDashoffset = `${f2((1 - clamp(p, 0, 1)) * len)}`; } };
+    return {
+      path,
+      len,
+      set(p) {
+        path.style.strokeDasharray = `${f2(len)} ${f2(len + 4)}`;
+        path.style.strokeDashoffset = `${f2((1 - clamp(p, 0, 1)) * len)}`;
+      },
+      // Draw-then-erase: a fixed-length comet sweeps the path — the head draws, the tail
+      // erases behind it, and the stroke is gone again once the sweep has passed.
+      setWipe(p) {
+        const w = Math.max(10, len * 0.42);
+        path.style.strokeDasharray = `${f2(w)} ${f2(len + w)}`;
+        path.style.strokeDashoffset = `${f2(w - clamp(p, 0, 1) * (len + w))}`;
+      },
+    };
   }
   // A dashed outline cannot reveal by its own dash offset; a paper-coloured cover stroke recedes along it instead.
   function dashedDrawable(path, len, paper, sw, parent) {
@@ -884,7 +899,23 @@
     cover.style.strokeDasharray = `${f2(len)} ${f2(len)}`;
     cover.dataset.draw = 'cover';
     path.dataset.draw = 'outline-dashed';
-    return { path, len, set(p) { cover.style.strokeDashoffset = `${f2(-clamp(p, 0, 1) * len)}`; } };
+    return {
+      path,
+      len,
+      set(p) {
+        cover.style.strokeDasharray = `${f2(len)} ${f2(len)}`;
+        cover.style.strokeDashoffset = `${f2(-clamp(p, 0, 1) * len)}`;
+      },
+      // Wipe for a dashed stroke: the cover re-closes behind the head — it masks
+      // everything except the traveling window [tail, head].
+      setWipe(p) {
+        const w = Math.max(10, len * 0.42);
+        const head = clamp(p, 0, 1) * (len + w), tail = head - w;
+        const a = Math.max(0, tail), b = Math.min(len, head);
+        cover.style.strokeDashoffset = '0';
+        cover.style.strokeDasharray = b <= a ? `${f2(len)} ${f2(len)}` : `${f2(a)} ${f2(b - a)} ${f2(len - b + w)} ${f2(len)}`;
+      },
+    };
   }
 
   function clusterCentres(b, count) {
@@ -1446,7 +1477,10 @@
       if (glyph.ready) ready.push(glyph.ready);
       const label = buildLabel(ent, plan, beatRoot);
       let media = null;
-      if (ent.glyph === 'MEDIA') media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
+      if (ent.glyph === 'MEDIA') {
+        media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
+        ready.push(mediaReady(media));
+      }
       const settledAt = Math.max(ent.enter_ms + (ent.enter_duration_ms || 0), (opsFor.get(ent.id) || []).reduce((m, o) => Math.max(m, o.end_ms), 0));
       ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt });
     }
@@ -1516,6 +1550,15 @@
     return target.ops.filter((o) => o.op === name && lt >= o.start_ms && lt <= o.end_ms);
   }
 
+  // The op currently owning a driven property: the last matching op that has started.
+  function propDriver(target, prop, lt) {
+    let d = null;
+    for (const op of target.ops) {
+      if (OP_PROPERTY[op.op] === prop && lt >= op.start_ms) d = op;
+    }
+    return d;
+  }
+
   function lensPosition(node, ill, lt) {
     const start = node.state.at && ill.ents.has(node.state.at) ? centre(ill.ents.get(node.state.at).bb) : centre(node.bb);
     let pos = start;
@@ -1567,7 +1610,14 @@
       if (swap.v > 0 && swap.v < 1) scale *= 1 + 0.08 * EASE.pulse(swap.v);
 
       const draw = propAt(node, 'draw', lt).v;
-      for (const d of gl.outline) d.set(draw);
+      const drawOp = propDriver(node, 'draw', lt);
+      if (drawOp && drawOp.params && drawOp.params.wipe) {
+        // Wipe: stroked parts run the traveling comet; non-stroked parts pulse with the sweep.
+        const pulse = Math.sin(Math.PI * clamp(draw, 0, 1));
+        for (const d of gl.outline) { if (d.setWipe) d.setWipe(draw); else d.set(pulse); }
+      } else {
+        for (const d of gl.outline) d.set(draw);
+      }
 
       const inkP = propAt(node, 'ink', lt);
       const inkLevel = clamp(Math.max(inkP.v, swap.v >= 0.5 ? swap.v : 0), 0, 1);
@@ -1673,17 +1723,27 @@
       s.visibility = lt < rel.enter_ms ? 'hidden' : 'visible';
       const pe = rel.enter_duration_ms ? prog(lt, rel.enter_ms, rel.enter_ms + rel.enter_duration_ms) : 1;
       const con = rel.drawn_by_op ? propAt(r, 'connect', lt).v : EASE.outQuint(pe);
-      r.path.set(con);
+      const conDriver = rel.drawn_by_op ? propDriver(r, 'connect', lt) : null;
+      const wiping = Boolean(conDriver && conDriver.params && conDriver.params.wipe);
+      if (wiping && r.path.setWipe) r.path.setWipe(con); else r.path.set(con);
       const dim = propAt(r, 'dim', lt).v;
       let opacity = dim * (rel.drawn_by_op ? 1 : Math.min(1, pe * 3));
       if (ex) opacity *= ex.opacity;
       s.opacity = opacity.toFixed(4);
-      const head = con >= 0.985 ? 1 : 0;
+      // Under a wipe the endpoints belong to the sweep: a dot or arrowhead shows only while
+      // the traveling window covers its end of the path, and is erased with the tail.
+      let head = con >= 0.985 ? 1 : 0;
+      let head0 = con > 0.02 ? 1 : 0;
+      if (wiping) {
+        const w = Math.max(10, r.len * 0.42), hd = con * (r.len + w), tl = hd - w;
+        head = hd >= r.len - 0.5 && tl < r.len ? 1 : 0;
+        head0 = hd > 0 && tl <= 0 ? 1 : 0;
+      }
       if (r.arrow) r.arrow.style.opacity = String(head);
       if (r.bar) r.bar.style.opacity = String(head);
       if (r.dots) {
-        r.dots[0].style.opacity = con > 0.02 ? '1' : '0';
-        r.dots[1].style.opacity = head ? '1' : '0';
+        r.dots[0].style.opacity = String(head0);
+        r.dots[1].style.opacity = String(head);
         const dstroke = propAt(r, 'ink', lt);
         const dc = dstroke.v > 0.5 && dstroke.accent ? accent : ink;
         r.dots.forEach((d) => d.setAttribute('fill', dc));
@@ -1935,7 +1995,13 @@
       perf.total_ms += dt;
       if (dt > perf.max_ms) perf.max_ms = dt;
       const waits = [];
-      if (bn.media && bn.media.pending) waits.push(bn.media.pending);
+      const collectMedia = (b) => {
+        if (!b) return;
+        if (b.media && b.media.pending) waits.push(b.media.pending);
+        if (b.illustration) for (const e of b.illustration.ents.values()) if (e.media && e.media.pending) waits.push(e.media.pending);
+      };
+      collectMedia(bn);
+      if (overlapIdx >= 0) collectMedia(beats[overlapIdx]);
       return Promise.all(waits).then(() => undefined);
     }
 

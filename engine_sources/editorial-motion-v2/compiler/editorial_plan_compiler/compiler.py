@@ -27,6 +27,13 @@ from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_
 from .typefit import fit_text
 from .voice import VoiceSegment, resolve_voice
 
+
+def _cascade_settle_ms(finish: str) -> int:
+    """Word-cascade settle budget — must equal the runtime's per-profile landing
+    duration ('rise' lands a word in 300ms, 'tonal' in 260)."""
+    return 300 if MOTION_PROFILES[finish]['word_landing'] == 'rise' else CASCADE_SETTLE_MS
+
+
 COMPILER_VERSION = 'EDITORIAL_PLAN_COMPILER_V3.0'
 PLAN_SCHEMA = 'NexStudioEditorialPlanV2'
 FONTS = Path(__file__).resolve().parents[2] / 'assets' / 'fonts'
@@ -405,7 +412,8 @@ class BeatCompiler:
                 words.append(w)
             if words:
                 last = words[-1]['start_ms']
-                bl['cascade_end_ms'] = last + CASCADE_SETTLE_MS
+                settle = _cascade_settle_ms(self.film.brand.finish)
+                bl['cascade_end_ms'] = last + settle
                 limit = bl['exit_ms'] - 360 if bl.get('exit_ms') else clock.duration_ms - (clock.exit_ms + 40 if clock.fixed_window else 760)
                 if last > limit:
                     # Compress the cascade so the phrase finishes reading before it leaves or the beat ends.
@@ -413,7 +421,7 @@ class BeatCompiler:
                     room = max(WORD_CASCADE_MIN_STEP_MS * len(words), limit - start)
                     for w in words:
                         w['start_ms'] = int(start + (w['start_ms'] - start) * room / span)
-                    bl['cascade_end_ms'] = words[-1]['start_ms'] + CASCADE_SETTLE_MS
+                    bl['cascade_end_ms'] = words[-1]['start_ms'] + settle
                     bl['cascade_compression'] = round(room / span, 3)
             bl['words'] = words
             bl['has_stress'] = any(w['stress'] for w in words)
@@ -728,21 +736,45 @@ class BeatCompiler:
         if data:
             candidates.append({'event': 'DATA_LAND', 'at_ms': data['enter_ms'] + data['enter_duration_ms'], 'strength': 0.8})
         if illustration and not illustration['carried']:
+            # Furniture lands audibly: a pop on each element's arrival. Under the collage's 'pop'
+            # entrance the landing wave is the film's signature sound — it wins any window it
+            # shares with a text hit (they are one fused moment, so it plays with pop texture),
+            # and the 220ms-gap law takes every ~3rd landing of an 80ms-staggered wave.
+            # Elsewhere it stays a subordinate furniture click. The accent caps decide the rest.
+            pop_entrance = MOTION_PROFILES[self.film.brand.finish]['entrance'] == 'pop'
+            for e in illustration['entities']:
+                if not e.get('carried') and e.get('enter_duration_ms'):
+                    candidates.append({'event': 'ELEMENT_LAND', 'at_ms': e['enter_ms'] + e['enter_duration_ms'], 'strength': 0.99 if pop_entrance else 0.34})
+            for r in illustration['relations']:
+                if not r.get('drawn_by_op') and r.get('enter_duration_ms'):
+                    candidates.append({'event': 'ELEMENT_LAND', 'at_ms': r['enter_ms'] + r['enter_duration_ms'], 'strength': 0.3})
             for o in illustration['ops']:
                 if o['state_change'] and o['op'] != 'INK':
                     candidates.append({'event': 'KEYWORD_HIT' if o['op'] == 'STRIKE' else 'EVIDENCE_LAND', 'at_ms': o['end_ms'], 'strength': 0.7})
                 if o['op'] == 'INK':
                     candidates.append({'event': 'INK_WRITE', 'at_ms': o['start_ms'], 'strength': 0.72})
                 if o['op'] in ('DRAW', 'CONNECT', 'TRACE'):
-                    candidates.append({'event': 'LINE_DRAW', 'at_ms': o['end_ms'], 'strength': 0.5})
+                    if (o.get('params') or {}).get('wipe'):
+                        # A wiped stroke sweeps the stage — a whoosh at mid-sweep, not the line-draw
+                        # scratch. It is the beat's authored event, so it outranks carriers.
+                        candidates.append({'event': 'WIPE_SWEEP', 'at_ms': o['start_ms'] + (o['end_ms'] - o['start_ms']) // 3, 'strength': 0.62})
+                    else:
+                        candidates.append({'event': 'LINE_DRAW', 'at_ms': o['end_ms'], 'strength': 0.5})
                 if o['op'] == 'EMIT':
                     candidates.append({'event': 'EMIT_CONFIRM', 'at_ms': o['end_ms'], 'strength': 0.75})
                 if o['op'] == 'COUNT':
                     candidates.append({'event': 'COUNT_TICK', 'at_ms': o['end_ms'], 'strength': 0.5})
+                    candidates.append({'event': 'COUNT_RISE', 'at_ms': o['start_ms'], 'strength': 0.38})
                 if o['op'] == 'TRAVEL':
                     candidates.append({'event': 'LOUPE_TRAVEL', 'at_ms': o['end_ms'], 'strength': 0.55})
         if transition['mode'] in ('TEXT_MASK_WIPE', 'LABEL_EXPAND_WIPE'):
             candidates.append({'event': 'TRANSITION_CARRIER', 'at_ms': transition['start_ms'], 'strength': 0.6})
+        # Camera transitions are cuts with motion: a scale-through is the collage's signature
+        # transition and takes a full whoosh; a blur dissolve stays a subordinate fabric sound.
+        if beat_index < len(self.film.beats) - 1 and transition['end_ms'] > transition['start_ms']:
+            sweep = {'scale_through': 0.78, 'blur_dissolve': 0.32}.get(MOTION_PROFILES[self.film.brand.finish]['transition'])
+            if sweep:
+                candidates.append({'event': 'TRANSITION_SWEEP', 'at_ms': transition['start_ms'], 'strength': sweep})
         sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates)
         if self.lib is None and candidates and b.dominant_layer != 'QUIET':
             warnings.append('SOUND_LIBRARY_MISSING')
@@ -881,7 +913,7 @@ def _master_clocks(film: FilmTreatment, base_dir: Path) -> Tuple[MasterTimeline,
     last = next((i for i in range(len(film.beats) - 1, -1, -1) if by_id[film.beats[i].beat_id].speech_start_ms >= 0), None)
     if last is not None and clocks[last].budget_met < 1.0:
         c = clocks[last]
-        need = max((max(c.landings_ms) + LAND_SETTLE_MS) if c.landings_ms else 0, (c.words[-1].start_ms + CASCADE_SETTLE_MS) if c.words else 0) + MIN_HOLD_MS + EXIT_MS
+        need = max((max(c.landings_ms) + LAND_SETTLE_MS) if c.landings_ms else 0, (c.words[-1].start_ms + _cascade_settle_ms(film.brand.finish)) if c.words else 0) + MIN_HOLD_MS + EXIT_MS
         extend_tail(tl, need - c.duration_ms)
         w = by_id[film.beats[last].beat_id]
         clocks[last] = _extend_for_program(window_clock(c.beat_id, [u.text for u in film.beats[last].units], [u.anchor_word for u in film.beats[last].units], w.local_words(), w.duration_ms, 'MASTER', w.pause_after_ms), film.beats[last])
@@ -959,7 +991,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'timeline': None if timeline is None else {'source': 'MASTER', 'audio_ms': timeline.audio_ms, 'head_pad_ms': timeline.head_pad_ms, 'tail_silence_ms': timeline.tail_silence_ms,
                                                        'tempo': timeline.tempo, 'beats': [{'beat_id': w.beat_id, 'start_ms': w.start_ms, 'end_ms': w.end_ms, 'speech_start_ms': w.speech_start_ms,
                                                                                           'speech_end_ms': w.speech_end_ms, 'budget_met': c.budget_met} for w, c in zip(timeline.windows, clocks)]},
-            'music': bind_film_music(film.film_id),
+            'music': bind_film_music(film.film_id, film.mood, total_ms),
             'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
             'beats': beats, 'captions': _captions(beats),
             'captions_policy': 'kinetic' if film.brand.finish == 'PRODUCT_COLLAGE' else 'burned',

@@ -146,6 +146,7 @@ def treatment_schema() -> Dict[str, Any]:
             'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES)}, []),
             'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, []),
             'voice': voice,
+            'mood': _enum(c.FILM_MOODS),
             'note': {'type': 'string'},
         }, ['schema', 'film_id', 'beats']),
     }
@@ -322,6 +323,8 @@ def plan_schema() -> Dict[str, Any]:
                            'timeline': {'type': ['object', 'null']}}, ['source', 'segments']),
             'music': _obj({'slot': _str(), 'status': _str(), 'duck_under_voice_db': {'type': 'number'}, 'path': NULLABLE_STR,
                            'sha256': NULLABLE_STR, 'license': NULLABLE_STR, 'gain_db': {'type': 'number'},
+                           'asset_id': NULLABLE_STR, 'moods': {'anyOf': [{'type': 'array', 'items': _str()}, {'type': 'null'}]},
+                           'bpm': {'anyOf': [{'type': 'number'}, {'type': 'null'}]}, 'mood_request': NULLABLE_STR,
                            'loop': {'type': 'boolean'}, 'fade_in_ms': MS, 'fade_out_ms': MS}, ['slot', 'status', 'path']),
             'surfaces': _obj({'grain': NULLABLE_OBJ, 'paper': NULLABLE_OBJ}, []),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},

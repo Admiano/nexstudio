@@ -24,6 +24,14 @@
       "width": 1280,
       "height": 820,
       "rights": "OWNER_SUPPLIED"
+    },
+    {
+      "asset_id": "session_clip",
+      "kind": "VIDEO",
+      "path": "../assets/reply-landing.mp4",
+      "width": 1280,
+      "height": 720,
+      "rights": "OWNER_SUPPLIED"
     }
   ],
   "beats": [
@@ -248,10 +256,14 @@
             "kind": "evidence",
             "glyph": "MEDIA",
             "size": "hero",
-            "media_ref": "shot_ui",
+            "media_ref": "session_clip",
             "params": {
               "chassis": "shot",
-              "tilt": -4.5
+              "tilt": -4.5,
+              "trim": [
+                0.25,
+                3.4
+              ]
             }
           },
           {
@@ -457,5 +469,6 @@
         ]
       }
     }
-  ]
+  ],
+  "mood": "playful"
 }

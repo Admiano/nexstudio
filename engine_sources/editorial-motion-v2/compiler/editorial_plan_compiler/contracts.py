@@ -47,6 +47,8 @@ MEDIA_ROLES = ('EVIDENCE', 'PROOF', 'CONTEXT')
 FIGURE_POSTURES = ('standing', 'sitting')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
+# Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
+FILM_MOODS = ('bright', 'calm', 'dreamy', 'jazzy', 'playful', 'uplifting', 'wistful')
 # Motion profile per finish: how elements enter, how far the camera drifts per beat, how cuts dissolve.
 MOTION_PROFILES = {
     'EDITORIAL_FLAT': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.012, 'camera_pan_frac': 0.004, 'transition': 'blur_dissolve', 'blur_px': 6, 'word_landing': 'tonal'},
@@ -261,6 +263,8 @@ class IllustrationOp:
         dur = int(d.get('duration_ms') or OP_DEFAULT_MS[op])
         _need(120 <= dur <= 4000, 'OP_DURATION_OUT_OF_RANGE', f'{op}:{dur}', beat_id)
         params = dict(d.get('params') or {})
+        if params.get('wipe'):
+            _need(op in ('DRAW', 'CONNECT'), 'WIPE_ON_NON_STROKE_OP', f'{op}:{target}', beat_id)
         if op == 'TRAVEL':
             over = params.get('over')
             _need(isinstance(over, list) and len(over) >= 1 and all(o in ids for o in over), 'TRAVEL_OVER_INVALID', 'TRAVEL needs params.over: [entity ids]', beat_id)
@@ -499,6 +503,7 @@ class FilmTreatment:
     voice: Dict[str, Any]
     fps: int = 30
     typography: TypographyMode = field(default_factory=TypographyMode)
+    mood: Optional[str] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -547,9 +552,12 @@ class FilmTreatment:
         reveal = str(ty.get('reveal') or 'WORD_CASCADE').upper()
         _need(reveal in REVEAL_MODES, 'TYPOGRAPHY_REVEAL_UNKNOWN', reveal)
         typo = TypographyMode(reveal, _unit(ty.get('tonal_ink', 0.42)), _unit(ty.get('min_visual_share', 0.6)))
+        mood = (str(d.get('mood') or '').strip().lower() or None)
+        if mood is not None:
+            _need(mood in FILM_MOODS, 'FILM_MOOD_UNKNOWN', mood)
         spoken = [b for b in beats if b.dominant_layer != 'QUIET']
         if spoken:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo)
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood)

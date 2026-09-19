@@ -36,8 +36,13 @@ EVENT_TAGS = {
     'EMIT_CONFIRM': ('ui.confirm', 'legacy.ui.confirm.chime'),
     'COUNT_TICK': ('legacy.ui.level.tick', 'ui.switch.tactile'),
     'LOUPE_TRAVEL': ('legacy.ui.navigation.swipe', 'motion.ui.contract'),
+    # Furniture arrival / sweeps: the benchmark's pops on every landed element, whooshes on cut-throughs.
+    'ELEMENT_LAND': ('synth.pop', 'legacy.ui.pop.bright', 'legacy.ui.pop.tap'),
+    'TRANSITION_SWEEP': ('synth.whoosh', 'motion.ui.whoosh', 'motion.ui.expand'),
+    'WIPE_SWEEP': ('motion.ui.whoosh', 'synth.shimmer'),
+    'COUNT_RISE': ('synth.riser', 'legacy.ui.level.up'),
 }
-GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0, 'ui': -19.0, 'legacy': -18.0, 'whiteboard': -20.0, 'foley': -20.0}
+GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0, 'ui': -19.0, 'legacy': -18.0, 'whiteboard': -20.0, 'foley': -20.0, 'synth': -16.0}
 
 
 def library_root() -> Optional[Path]:
@@ -131,8 +136,13 @@ def bind_beat_sound(lib: Optional[SoundLibrary], film_id: str, beat_id: str, bea
 COMMUNITY_MANIFEST = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'manifest.json'
 
 
-def bind_film_music(film_id: str) -> Dict[str, Any]:
+def bind_film_music(film_id: str, mood: Optional[str] = None, duration_ms: Optional[int] = None) -> Dict[str, Any]:
     """Music bed binding: one rights-clean (CC0) bed per film, picked by deterministic hash.
+
+    Beds carry curated ``moods``/``bpm``/``duration_s`` metadata (``tools/tag_community_audio.py``).
+    An authored film ``mood`` restricts the pool to beds that carry that mood; when a film is
+    short enough to fit inside a bed, only covering beds are eligible so no loop seam is heard.
+    The pick itself stays a deterministic hash over the filtered pool, in manifest order.
 
     The renderer mixes it under the voice with sidechain ducking. When no community
     music manifest is vendored the slot stays silent rather than shipping unlicensed audio."""
@@ -143,9 +153,18 @@ def bind_film_music(film_id: str) -> Dict[str, Any]:
             if a.get('kind') == 'music' and a.get('license', '').startswith('CC0') and (COMMUNITY_MANIFEST.parent / a['path']).exists()]
     if not beds:
         return silent
+    if mood:
+        matched = [b for b in beds if mood in (b.get('moods') or [])]
+        if matched:
+            beds = matched
+    if duration_ms:
+        covering = [b for b in beds if float(b.get('duration_s') or 0) * 1000 >= duration_ms]
+        if covering:
+            beds = covering
     pick = beds[int(hashlib.sha256(film_id.encode()).hexdigest(), 16) % len(beds)]
     path = str(COMMUNITY_MANIFEST.parent / pick['path'])
     return {'slot': 'BACKGROUND_MUSIC', 'status': 'BOUND_CC0', 'path': path, 'sha256': pick['sha256'], 'license': pick['license'],
+            'asset_id': pick['id'], 'moods': pick.get('moods'), 'bpm': pick.get('bpm'), 'mood_request': mood,
             'gain_db': -19.0, 'duck_under_voice_db': -14.0, 'loop': True, 'fade_in_ms': 700, 'fade_out_ms': 1600}
 
 

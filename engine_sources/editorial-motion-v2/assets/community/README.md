@@ -76,9 +76,32 @@ the future physics channel.
 
 ## Deliberately not vendored
 
-- **DOVA-SYNDROME, Sound Effect Lab, PeriTune, Amacha** (JP free-music/SFX
-  sites): licenses permit use *inside rendered works* but forbid redistributing
-  raw files — fine for a render, wrong for a repo.
+### JP/KR music & SFX sites (S-register — render-permitted, redistribution-forbidden)
+
+The benchmark audit's S-row sites permit use *inside rendered works* but forbid
+redistributing the raw files — fine for a render, wrong for a repo. None are
+vendored. When a film genuinely needs one, the legal shape is a **render-time
+fetch with a rights record**: the render downloads the file, binds it with a
+provenance entry (source URL + licence posture `RENDER_ONLY_NO_REDISTRIBUTION`),
+and never re-exports it as an asset. Until that fetch path exists they stay
+unused — CC0/CC-BY pools cover the need today.
+
+- **効果音ラボ (Sound Effect Lab)** — SFX; commercial use allowed, no
+  redistribution of raw files; attribution optional.
+- **魔王魂 (MaouDamashii)** — music + SFX; broad free-use terms including
+  commercial, file redistribution forbidden.
+- **DOVA-SYNDROME** — music; requires free membership for download, license
+  allows use in works, no redistribution.
+- **甘茶の音楽工房 (Amacha)** — music; free for commercial works, file
+  redistribution prohibited.
+- **Springin' Sound Stock** — SFX; usable in works, redistribution banned.
+- **OtoLogic** — SFX + jingles; creative use allowed, no file redistribution.
+- **공유마당 (Korea Copyright Commission 공유마당)** — CC-mixed pool: each
+  entry carries its own CC licence — only CC0/CC-BY entries are candidates;
+  CC-BY-SA and NC variants are excluded.
+
+### Other exclusions
+
 - **GSAP**: now free post-Webflow but not OSI-licensed.
 - **unDraw / Storyset / Blush**: custom licenses prohibit reuse as an asset
   library inside a competing design tool.
@@ -86,3 +109,12 @@ the future physics channel.
   but flag-worthy; skipped for cleaner licenses.
 - **Noto CJK variable fonts** (OFL): 20–100 MB per face; only worth it when a
   CJK pipeline is real.
+
+## Synth accents — `synth/`
+
+`tools/synth_sfx.py` generates a small parametric accent pool (pops, ticks,
+whooshes, risers, shimmers) as pure DSP — NexStudio-authored, zero rights
+questions, deterministic (fixed seeds), registered with `NexStudio-Authored-1.0`
+in the manifest. These bind the furniture-arrival and sweep events
+(`ELEMENT_LAND`, `TRANSITION_SWEEP`, `WIPE_SWEEP`, `COUNT_RISE`) the licensed
+pools don't cover.
