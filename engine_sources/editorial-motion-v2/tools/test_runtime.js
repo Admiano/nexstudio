@@ -19,6 +19,8 @@ const FIXTURES = [
   { name: 'water-to-thirsty', treatment: '../fixtures/water-to-thirsty/treatment.json', out: path.join(ROOT, 'out', 'water') },
   { name: 'edge-forms', treatment: '../fixtures/edge-forms/treatment.json', out: path.join(ROOT, 'out', 'edge-forms') },
   { name: 'blind-vinyl', treatment: '../fixtures/blind-vinyl/treatment.json', out: path.join(ROOT, 'out', 'blind-vinyl') },
+  { name: 'vo-joe', treatment: '../fixtures/vo-joe/treatment.json', out: path.join(ROOT, 'out', 'vo-joe') },
+  { name: 'chassis-demo', treatment: '../fixtures/chassis-demo/treatment.json', out: path.join(ROOT, 'out', 'chassis-demo') },
 ];
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 
@@ -336,7 +338,7 @@ async function runFixture(fx, base, browser) {
     check('runtime version exposed', r.version === 'EDITORIAL_RUNTIME_V3.0', r.version);
     check(`stage is native ${plan.canvas.w}x${plan.canvas.h}`, r.stage.w === plan.canvas.w && r.stage.h === plan.canvas.h && r.stage.aspect === aspect, JSON.stringify(r.stage));
     check('frame count matches plan', r.frames === Math.ceil((plan.duration_ms * plan.fps) / 1000));
-    check('captions and audio events exposed', r.captions > 0 && r.audio.voice === plan.beats.length && r.audio.accents > 0 && r.audio.music === plan.music.status, JSON.stringify(r.audio));
+    check('captions and audio events exposed', r.captions > 0 && r.audio.voice === plan.voice.segments.length && r.audio.accents > 0 && r.audio.music === plan.music.status, JSON.stringify(r.audio));
     check('seek is deterministic across paths', r.determinism.every(Boolean), JSON.stringify(r.determinism));
     check('frame(n) equals seek(n/fps)', r.frameAddress);
     check('nothing settled before first landing', r.preLanding);

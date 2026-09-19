@@ -1,0 +1,717 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "vo-cadbury",
+ "note": "Real-voice reel: ElevenLabs 'Contemplative Joe' VO on Cadbury US/UK. MASTER voice with whisper-derived word alignment; beat narrations are verbatim transcript spans so the voice is the clock.",
+ "aspects": [
+  "16x9",
+  "1x1",
+  "9x16"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#17120c",
+  "paper": "#f5f0e8",
+  "accent": "#4b2e83",
+  "finish": "EDITORIAL_FLAT"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "HOOK",
+   "pattern": "PROGRESSIVE_HERO_BUILD",
+   "dominant_layer": "HYBRID",
+   "narration": "Cadbury in the US is made by Hershey.",
+   "energy": 0.6,
+   "complexity": 0.45,
+   "display_units": [
+    {
+     "text": "Cadbury in the US",
+     "role": "hero",
+     "anchor_word": "US",
+     "emphasis": 0.85,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "is made by Hershey.",
+     "role": "support",
+     "anchor_word": "Hershey",
+     "emphasis": 0.5,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "bar",
+      "kind": "object",
+      "glyph": "ICON",
+      "size": "hero",
+      "label": "Cadbury",
+      "asset_ref": "icon.tabler.chocolate"
+     },
+     {
+      "id": "maker",
+      "kind": "agent",
+      "glyph": "NODE",
+      "size": "support",
+      "label": "Hershey"
+     }
+    ],
+    "relations": [
+     {
+      "type": "connects",
+      "source": "bar",
+      "target": "maker"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "bar",
+      "at": {
+       "word": "Cadbury"
+      },
+      "duration_ms": 700
+     },
+     {
+      "op": "DRAW",
+      "target": "maker",
+      "at": {
+       "word": "by"
+      },
+      "duration_ms": 500
+     },
+     {
+      "op": "CONNECT",
+      "target": "bar->maker",
+      "at": {
+       "word": "Hershey"
+      },
+      "duration_ms": 520
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "SETUP",
+   "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "It has been since 1988 under licence with Hershey's own recipe.",
+   "energy": 0.5,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "It has been since 1988",
+     "role": "support",
+     "anchor_word": "1988",
+     "emphasis": 0.5,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "under licence with Hershey's own recipe.",
+     "role": "hero",
+     "anchor_word": "licence",
+     "emphasis": 0.85,
+     "semantic_role": "statement",
+     "stress": [
+      "licence"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "STATE_TRANSFORMATION",
+    "entities": [
+     {
+      "id": "ukRecipe",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "UK recipe"
+     },
+     {
+      "id": "usRecipe",
+      "kind": "state",
+      "glyph": "PILL",
+      "size": "hero",
+      "label": "Hershey recipe"
+     },
+     {
+      "id": "year",
+      "kind": "evidence",
+      "glyph": "NODE",
+      "size": "support",
+      "label": "1988"
+     }
+    ],
+    "relations": [
+     {
+      "type": "transforms_into",
+      "source": "ukRecipe",
+      "target": "usRecipe"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "year",
+      "at": {
+       "word": "1988"
+      },
+      "duration_ms": 500
+     },
+     {
+      "op": "CONNECT",
+      "target": "ukRecipe->usRecipe",
+      "at": {
+       "word": "licence"
+      },
+      "duration_ms": 700
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "EXPLANATION",
+   "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "The first ingredient in a British dairy milk is milk.",
+   "energy": 0.5,
+   "complexity": 0.45,
+   "display_units": [
+    {
+     "text": "The first ingredient in a British dairy milk",
+     "role": "support",
+     "anchor_word": "ingredient",
+     "emphasis": 0.45,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "is milk.",
+     "role": "hero",
+     "anchor_word": "milk.",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "milk."
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "DATA_VISUAL",
+    "entities": [
+     {
+      "id": "carton",
+      "kind": "object",
+      "glyph": "ICON",
+      "size": "support",
+      "label": "British",
+      "asset_ref": "icon.lucide.milk"
+     },
+     {
+      "id": "milkBar",
+      "kind": "evidence",
+      "glyph": "BAR",
+      "size": "hero",
+      "label": "milk"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "carton",
+      "at": {
+       "word": "British"
+      },
+      "duration_ms": 600
+     },
+     {
+      "op": "GROW",
+      "target": "milkBar",
+      "at": {
+       "word": "dairy"
+      },
+      "duration_ms": 800,
+      "value_from": 0.0,
+      "value_to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "CONTRAST",
+   "pattern": "CONTRAST_RECONFIGURATION",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "The first ingredient in the American one is sugar.",
+   "energy": 0.65,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "The first ingredient in the American one",
+     "role": "support",
+     "anchor_word": "American",
+     "emphasis": 0.45,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "is sugar.",
+     "role": "hero",
+     "anchor_word": "sugar.",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "sugar."
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "COMPARISON",
+    "entities": [
+     {
+      "id": "sugarBar",
+      "kind": "evidence",
+      "glyph": "BAR",
+      "size": "hero",
+      "label": "sugar"
+     },
+     {
+      "id": "milkRef",
+      "kind": "evidence",
+      "glyph": "BAR",
+      "size": "support",
+      "label": "milk"
+     }
+    ],
+    "relations": [
+     {
+      "type": "compares",
+      "source": "sugarBar",
+      "target": "milkRef"
+     }
+    ],
+    "program": [
+     {
+      "op": "GROW",
+      "target": "milkRef",
+      "at": {
+       "word": "ingredient"
+      },
+      "duration_ms": 500,
+      "value_from": 0.0,
+      "value_to": 0.45
+     },
+     {
+      "op": "GROW",
+      "target": "sugarBar",
+      "at": {
+       "word": "sugar"
+      },
+      "duration_ms": 800,
+      "value_from": 0.0,
+      "value_to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b05",
+   "beat_type": "LIST",
+   "pattern": "SEQUENTIAL_SUPPORT_LIST",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "The American bar also has PG, PR and soy lecithin in it, emulsifiers that stretch shelf life.",
+   "energy": 0.55,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "The American bar also has PG, PR and soy lecithin in it,",
+     "role": "hero",
+     "anchor_word": "lecithin",
+     "emphasis": 0.8,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "emulsifiers that stretch shelf life.",
+     "role": "support",
+     "anchor_word": "stretch",
+     "emphasis": 0.5,
+     "semantic_role": "qualifier"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "pg",
+      "kind": "evidence",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "PG"
+     },
+     {
+      "id": "pr",
+      "kind": "evidence",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "PR"
+     },
+     {
+      "id": "lec",
+      "kind": "evidence",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "soy lecithin"
+     },
+     {
+      "id": "shelf",
+      "kind": "evidence",
+      "glyph": "BAR",
+      "size": "hero",
+      "label": "shelf life"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "INK",
+      "target": "pg",
+      "at": {
+       "word": "PG,"
+      },
+      "duration_ms": 300
+     },
+     {
+      "op": "INK",
+      "target": "pr",
+      "at": {
+       "word": "PR"
+      },
+      "duration_ms": 300
+     },
+     {
+      "op": "INK",
+      "target": "lec",
+      "at": {
+       "word": "lecithin"
+      },
+      "duration_ms": 300
+     },
+     {
+      "op": "GROW",
+      "target": "shelf",
+      "at": {
+       "word": "stretch"
+      },
+      "duration_ms": 900,
+      "value_from": 0.0,
+      "value_to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b06",
+   "beat_type": "PROOF",
+   "pattern": "WORD_OBJECT_BRIDGE",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "In 2015 Hershey sued the largest importer of British candy in the country.",
+   "energy": 0.7,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "In 2015",
+     "role": "support",
+     "anchor_word": "2015",
+     "emphasis": 0.45,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "Hershey sued the largest importer of British candy in the country.",
+     "role": "hero",
+     "anchor_word": "sued",
+     "emphasis": 0.85,
+     "semantic_role": "action",
+     "stress": [
+      "sued"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "RELATIONSHIP",
+    "entities": [
+     {
+      "id": "hershey",
+      "kind": "agent",
+      "glyph": "NODE",
+      "size": "support",
+      "label": "Hershey"
+     },
+     {
+      "id": "imp",
+      "kind": "object",
+      "glyph": "CARD",
+      "size": "hero",
+      "label": "importer"
+     },
+     {
+      "id": "ban",
+      "kind": "signal",
+      "glyph": "PROHIBIT",
+      "size": "hero"
+     }
+    ],
+    "relations": [
+     {
+      "type": "points_at",
+      "source": "hershey",
+      "target": "imp"
+     },
+     {
+      "type": "blocks",
+      "source": "ban",
+      "target": "imp"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "imp",
+      "at": {
+       "word": "importer"
+      },
+      "duration_ms": 600
+     },
+     {
+      "op": "CONNECT",
+      "target": "hershey->imp",
+      "at": {
+       "word": "sued"
+      },
+      "duration_ms": 500
+     },
+     {
+      "op": "DRAW",
+      "target": "ban",
+      "at": {
+       "word": "country."
+      },
+      "duration_ms": 550
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b07",
+   "beat_type": "LIST",
+   "pattern": "SEQUENTIAL_SUPPORT_LIST",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "They settled and the settlement cut off British made Cadbury along with UK Kit Kats, Yorkies, toffee crisps and Maltesers.",
+   "energy": 0.6,
+   "complexity": 0.65,
+   "display_units": [
+    {
+     "text": "They settled and the settlement",
+     "role": "support",
+     "anchor_word": "settled",
+     "emphasis": 0.45,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "cut off British made Cadbury along with UK Kit Kats, Yorkies, toffee crisps and Maltesers.",
+     "role": "hero",
+     "anchor_word": "off",
+     "emphasis": 0.85,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "cadb",
+      "kind": "object",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "Cadbury"
+     },
+     {
+      "id": "kit",
+      "kind": "object",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "Kit Kat"
+     },
+     {
+      "id": "york",
+      "kind": "object",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "Yorkie"
+     },
+     {
+      "id": "toff",
+      "kind": "object",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "Toffee Crisp"
+     },
+     {
+      "id": "malt",
+      "kind": "object",
+      "glyph": "PILL",
+      "size": "support",
+      "label": "Malteser"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "STRIKE",
+      "target": "cadb",
+      "at": {
+       "word": "Cadbury"
+      },
+      "duration_ms": 380
+     },
+     {
+      "op": "STRIKE",
+      "target": "kit",
+      "at": {
+       "word": "Kats,"
+      },
+      "duration_ms": 340
+     },
+     {
+      "op": "STRIKE",
+      "target": "york",
+      "at": {
+       "word": "Yorkies,"
+      },
+      "duration_ms": 340
+     },
+     {
+      "op": "STRIKE",
+      "target": "toff",
+      "at": {
+       "word": "crisps"
+      },
+      "duration_ms": 340
+     },
+     {
+      "op": "STRIKE",
+      "target": "malt",
+      "at": {
+       "word": "Maltesers."
+      },
+      "duration_ms": 340
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b08",
+   "beat_type": "PAYOFF",
+   "pattern": "PAYOFF_LOCKUP",
+   "dominant_layer": "HYBRID",
+   "narration": "The wrapper looks the same but the bar is certainly not and since 2015 the real one is hard to find here. Crisps.",
+   "energy": 0.5,
+   "complexity": 0.55,
+   "display_units": [
+    {
+     "text": "The wrapper looks the same but the bar is certainly not",
+     "role": "support",
+     "anchor_word": "same",
+     "emphasis": 0.5,
+     "semantic_role": "contrast"
+    },
+    {
+     "text": "and since 2015 the real one is hard to find here.",
+     "role": "hero",
+     "anchor_word": "real",
+     "emphasis": 0.9,
+     "semantic_role": "statement",
+     "stress": [
+      "real"
+     ]
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "cadb",
+      "kind": "object",
+      "glyph": "PILL",
+      "size": "minor",
+      "label": "Cadbury"
+     },
+     {
+      "id": "wrap",
+      "kind": "object",
+      "glyph": "ICON",
+      "size": "support",
+      "label": "same wrapper",
+      "asset_ref": "icon.lucide.package"
+     },
+     {
+      "id": "real",
+      "kind": "object",
+      "glyph": "RING",
+      "size": "hero",
+      "label": "the real one"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "wrap",
+      "at": {
+       "word": "same"
+      },
+      "duration_ms": 550
+     },
+     {
+      "op": "DIM",
+      "target": "wrap",
+      "at": {
+       "word": "not"
+      },
+      "duration_ms": 450,
+      "value_from": 1.0,
+      "value_to": 0.4
+     },
+     {
+      "op": "DRAW",
+      "target": "real",
+      "at": {
+       "word": "real"
+      },
+      "duration_ms": 700
+     }
+    ],
+    "carry": {
+     "from_beat": "b07",
+     "entities": [
+      "cadb"
+     ]
+    }
+   }
+  }
+ ]
+}

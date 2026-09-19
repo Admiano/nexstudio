@@ -75,7 +75,7 @@ def _inside(a: Dict[str, float], b: Dict[str, float], tol: float = 1.0) -> bool:
     return a['x'] >= b['x'] - tol and a['y'] >= b['y'] - tol and a['x'] + a['w'] <= b['x'] + b['w'] + tol and a['y'] + a['h'] <= b['y'] + b['h'] + tol
 
 
-def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int]) -> List[Dict[str, Any]]:
+def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int], beat_index: int = 0) -> List[Dict[str, Any]]:
     """Structural stage furniture under the content, derived from the authored background template.
 
     The runtime renders these verbatim; `kind` selects the draw recipe and all geometry is absolute
@@ -94,13 +94,26 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     if authored == 'GRID_FIELD':
         layers.append({'kind': 'dotgrid', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'opacity': 0.5, 'spacing_frac': 0.055, 'radius_frac': 0.0022})
     elif render_bg == 'STAGE_FIELD' and not has_panel:
-        # Bare field: a sparse dot grid inside the safe frame keeps the cut from reading empty.
-        layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.32, 'spacing_frac': 0.08, 'radius_frac': 0.0018})
+        # Bare field: a sparse texture inside the safe frame keeps the cut from reading empty.
+        # Texture cycles per beat so successive bare-field cuts feel deliberately re-dressed.
+        v = beat_index % 3
+        if v == 1:
+            layers.append({'kind': 'ruled', 'bbox': dict(safe), 'opacity': 0.5, 'spacing_frac': 0.075})
+        elif v == 2:
+            layers.append({'kind': 'wash', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'align': 'left' if beat_index % 2 else 'right'})
+        else:
+            layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.32, 'spacing_frac': 0.08, 'radius_frac': 0.0018})
     if render_bg == 'SPOTLIGHT_STAGE':
         layers.append({'kind': 'spotlight', 'bbox': _box(st['x'], st['y'] + st['h'] * 0.05, st['w'], st['h']), 'radius_frac': 0.9, 'opacity': 0.5})
     if not layers:
         # SOFT_FIELD text beats still get a faint field texture so a quiet cut never reads as dead paper.
-        layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.18, 'spacing_frac': 0.095, 'radius_frac': 0.0016})
+        v = beat_index % 3
+        if v == 1:
+            layers.append({'kind': 'ruled', 'bbox': dict(safe), 'opacity': 0.3, 'spacing_frac': 0.095})
+        elif v == 2:
+            layers.append({'kind': 'wash', 'bbox': dict(safe), 'align': 'center'})
+        else:
+            layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.18, 'spacing_frac': 0.095, 'radius_frac': 0.0016})
     return layers
 
 
@@ -547,7 +560,7 @@ class BeatCompiler:
         self.carried_illustration = plan if il.persist_to else None
         return plan, failures
 
-    def compile(self, b: BeatTreatment, clock: BeatClock, beat_offset_ms: int) -> Dict[str, Any]:
+    def compile(self, b: BeatTreatment, clock: BeatClock, beat_offset_ms: int, beat_index: int = 0) -> Dict[str, Any]:
         failures: List[str] = []
         warnings: List[str] = []
         comp = native.compose(self.aspect, self._native_treatment(b), self._visual_kind(b))
@@ -689,8 +702,10 @@ class BeatCompiler:
             candidates.append({'event': 'DATA_LAND', 'at_ms': data['enter_ms'] + data['enter_duration_ms'], 'strength': 0.8})
         if illustration and not illustration['carried']:
             for o in illustration['ops']:
-                if o['state_change']:
-                    candidates.append({'event': 'KEYWORD_HIT' if o['op'] in ('INK', 'STRIKE') else 'EVIDENCE_LAND', 'at_ms': o['end_ms'], 'strength': 0.7})
+                if o['state_change'] and o['op'] != 'INK':
+                    candidates.append({'event': 'KEYWORD_HIT' if o['op'] == 'STRIKE' else 'EVIDENCE_LAND', 'at_ms': o['end_ms'], 'strength': 0.7})
+                if o['op'] == 'INK':
+                    candidates.append({'event': 'INK_WRITE', 'at_ms': o['start_ms'], 'strength': 0.72})
                 if o['op'] in ('DRAW', 'CONNECT', 'TRACE'):
                     candidates.append({'event': 'LINE_DRAW', 'at_ms': o['end_ms'], 'strength': 0.5})
                 if o['op'] == 'EMIT':
@@ -729,7 +744,7 @@ class BeatCompiler:
             'composition': {
                 'layout_family': comp['layout_family'], 'treatment': comp['treatment'], 'text_zone': comp['text_zone'], 'visual_zone': comp['visual_zone'],
                 'safe_area': self.safe, 'background': {'template': bg, 'render': render_bg, 'stage': stage_zone,
-                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H)),
+                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H), beat_index),
                                                        'finish': self.film.brand.finish},
                 'native_profile': comp['native_profile'], 'derived_by_scaling': comp['derived_by_scaling'], 'authority': comp['authority_version'],
             },
@@ -893,7 +908,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     film_warnings: List[str] = []
     for aspect in film.aspects:
         bc = BeatCompiler(film, aspect, lib, normalised)
-        beats = [bc.compile(b, c, o) for b, c, o in zip(film.beats, clocks, offsets)]
+        beats = [bc.compile(b, c, o, i) for i, (b, c, o) in enumerate(zip(film.beats, clocks, offsets))]
         if bc.carried_media:
             film_failures.append(f'{aspect}:MEDIA_PERSISTENCE_UNTERMINATED')
         if bc.carried_illustration:
