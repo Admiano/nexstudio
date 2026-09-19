@@ -898,33 +898,96 @@ def _tabler():
 
 
 def _tabler_lookup(concept: str):
-    """Best icon name for a free-text concept, or None when nothing fits."""
-    nodes, index = _tabler()
+    hit = _icon_lookup(concept)
+    return hit[2] if hit and hit[1] == 'tabler' else None
+
+
+_ICON_INDEX = None
+_SYN = None
+
+
+def _synonyms():
+    """Vendored WordNet-derived lemma relations (assets/semantic/synonyms.json) —
+    deterministic, no runtime dependency."""
+    global _SYN
+    if _SYN is None:
+        p = _ASSETS / 'semantic' / 'synonyms.json'
+        _SYN = json.loads(p.read_text()) if p.is_file() else {}
+    return _SYN
+
+
+def _expanded(words):
+    """(direct tokens incl. singulars, synonym-expanded tokens)."""
+    syn = _synonyms()
+    direct = set(words) | {_singular(w) for w in words}
+    expanded = set(direct)
+    for w in direct:
+        expanded |= set(syn.get(w, ())[:6])
+    return direct, expanded
+
+
+def _icon_index():
+    """Merged icon index across tabler / phosphor / fluent: {(dir, slug): toks}."""
+    global _ICON_INDEX
+    if _ICON_INDEX is None:
+        idx = {}
+        _nodes, tix = _tabler()
+        for name, toks in tix.items():
+            idx[('tabler', name)] = set(toks)
+        for f in (_ASSETS / 'phosphor').glob('*.svg'):
+            idx[('phosphor', f.stem)] = set(f.stem.split('-'))
+        fx = _ASSETS / 'fluent' / 'index.json'
+        if fx.is_file():
+            for slug, m in json.loads(fx.read_text()).items():
+                toks = set(slug.split('-')) | set(m.get('keywords', ()))
+                toks |= set(str(m.get('group', '')).lower().replace('&', ' ').split())
+                idx[('fluent', slug)] = {t for t in toks if len(t) > 1}
+        _ICON_INDEX = idx
+    return _ICON_INDEX
+
+
+def _icon_lookup(concept: str):
+    """Best icon for a free-text concept across all vendored icon sets,
+    or None when nothing fits. Returns ('icon', dir, slug)."""
     words = [w for w in re.findall(r"[a-z0-9]+", str(concept).lower())
              if len(w) > 2]
     if not words:
         return None
+    index = _icon_index()
     dashed = '-'.join(words)
-    if dashed in nodes:
-        return dashed
-    wset = set(words) | {_singular(w) for w in words}
+    if ('tabler', dashed) in index:
+        return ('icon', 'tabler', dashed)
+    direct, expanded = _expanded(words)
     best, best_score = None, 0.0
-    for name, toks in index.items():
-        if (name.endswith('-off') or name in ('old', 'new', 'current')
+    for (d, name), toks in index.items():
+        if d == 'tabler' and (
+                name.endswith('-off') or name in ('old', 'new', 'current')
                 or name.startswith(('brand-', 'steam', 'tiktok', 'meta'))
                 or (name.startswith(_TABLER_JUNK_PREFIXES)
-                    and name not in ('list-check',))):
+                    and name != 'list-check')):
             continue
         name_parts = set(name.split('-'))
         score = 0.0
-        for w in wset & toks:
+        for w in direct & toks:
             score += (5 if w in name_parts else 3) + 0.15 * len(w)
-        score += len(wset & name_parts)  # prefer covering more of the phrase
-        score += 1.5 * len(wset & toks) / len(wset)  # phrase coverage
+        syn_hits = (expanded & toks) - direct
+        score += 1.8 * len(syn_hits)          # meaning-level matches, half weight
+        score += len(direct & name_parts)     # prefer covering more of the phrase
+        score += 1.5 * len(direct & toks) / len(direct)
+        if d == 'tabler':
+            score += 0.15                     # cleanest stroke style wins ties
         score -= len(name) * 0.04
         if score > best_score:
-            best, best_score = name, score
+            best, best_score = ('icon', d, name), score
     return best if best_score >= 3.5 else None
+
+
+def _shift_strokes(strokes, scale, dx, dy, color=None):
+    out = []
+    for st in strokes:
+        pts = [(x * scale + dx, y * scale + dy) for x, y in st[0]]
+        out.append(tuple([pts, color or st[1]] + list(st[2:])))
+    return out
 
 
 def _shape_to_d(tag: str, a: dict) -> str:
@@ -1209,9 +1272,14 @@ def icon_for(concept: str) -> str:
         # object trailing the phrase ('teacher explains idea' → person)
         if words[0] in _ICON_KEYWORDS['person']:
             return 'person'
-        # action/contrast words pin to their own icons before any fuzzy match
+        # action/contrast words pin to their own icons before any fuzzy match;
+        # 'wages rise' -> wage icon + rise badge beats a bare trend arrow
         vi = _verb_icon(phrase)
         if vi:
+            rest = ' '.join(w for w in words if w not in _VERB_TABLE)
+            base = _icon_lookup(rest) if rest else None
+            if base and 0 < len(rest.split()) <= 3:
+                return ('overlay', base, vi)
             return vi
         # a strong scene-vignette match beats the flat icon vocabulary
         il = _illust_lookup(phrase)
@@ -1230,9 +1298,9 @@ def icon_for(concept: str) -> str:
         # the icon vocabulary may still know the non-numeric words
         rest = ' '.join(w for w in words if not re.search(r'\d', w))
         if rest and rest not in ('min', 'minute', 'hour', 'day'):
-            tb = _tabler_lookup(rest)
-            if tb:
-                return ('tabler', tb)
+            hit = _icon_lookup(rest)
+            if hit:
+                return hit
         if re.search(r'\b(min|mins|minute|minutes|hour|hours|sec|seconds|day|days|am|pm)\b', phrase):
             return 'clock'
         if re.search(r'(%|\$|bp|bps|\bx\b|\bk\b)', phrase):
@@ -1241,13 +1309,24 @@ def icon_for(concept: str) -> str:
     # last-word bespoke art ('giant octopus' -> octopus.svg)
     if words and (_CUSTOM_DIR / f'{_slug(words[-1])}.svg').is_file():
         return ('custom', _slug(words[-1]))
-    tb = _tabler_lookup(phrase)
-    if tb:
-        return ('tabler', tb)
+    hit = _icon_lookup(phrase)
+    if hit:
+        return hit
     return 'card'
 
 
 def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
+    if isinstance(icon, tuple) and icon[0] == 'overlay':
+        base = _strokes_for(icon[1]) or []
+        verb = _strokes_for(icon[2]) or []
+        return base + _shift_strokes(verb, 0.40, 0.56, 0.56, color='accent')
+    if isinstance(icon, tuple) and icon[0] == 'icon':
+        if icon[1] == 'tabler':
+            return _tabler_strokes(icon[2])
+        st = _dir_strokes(icon[1], icon[2])
+        if st:
+            return st
+        return PROPS['tile']
     if isinstance(icon, tuple) and icon[0] == 'tabler':
         return _tabler_strokes(icon[1])
     if isinstance(icon, tuple) and icon[0] == 'custom':

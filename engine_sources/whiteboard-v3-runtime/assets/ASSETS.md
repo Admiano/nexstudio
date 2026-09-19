@@ -96,3 +96,13 @@ which were AI-generated and vectorized as pipeline demos.
   healthcare, forestry, transport, finance…) resolves to a drawn icon via
   the tag index; unresolvable labels fall back to a lettered card —
   never a blank tile. `LICENSE` included.
+
+### icons/phosphor + icons/fluent + semantic/
+- `assets/phosphor/` — Phosphor Icons regular weight, 1,512 SVGs. MIT.
+- `assets/fluent/` — Microsoft Fluent Emoji "High Contrast" line-art variant,
+  1,285 SVGs + index.json (CLDR name/keywords/group per emoji). MIT.
+- `assets/semantic/synonyms.json` — WordNet-derived lemma relations
+  (~49k entries: synonyms + hypernyms + hyponyms + entailments, one hop,
+  single-token lemmas). Vendored snapshot — deterministic, no runtime dep.
+  Princeton WordNet license (free for commercial use).
+
