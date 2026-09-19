@@ -7,6 +7,7 @@ items={
  'explainer':'EXPLAINER_ENGINE_SOURCE.zip',
  'editorial':'EDITORIAL_MOTION_ENGINE_SOURCE.zip',
  'stickman':'STICKMAN_V5_1_ENGINE_SOURCE.zip',
+ 'stickman-performance':'NEXSTICK_PERFORMANCE_V2_ENGINE_SOURCE.zip',
  'sound':'SOUND_LIBRARY_V2_SOURCE.zip',
  'editorial-text-led-bundle':'EDITORIAL_TEXT_LED_BUNDLE_SOURCE.zip',
 }
@@ -28,6 +29,11 @@ for name,archive in items.items():
 stick_root=ENGINES/'stickman'/'NEXSTICK_MASTER_V2_UNIFIED_PERFORMANCE_V5_1_CLEAN_2026-08-13'
 if stick_root.exists():
     (stick_root/'package.json').write_text('{\n  \"type\": \"commonjs\"\n}\n')
+
+# NexStick Performance System Consolidated V2 runtime/authority modules are also authored as CommonJS.
+perf_root=ENGINES/'stickman-performance'/'NEXSTICK_COMPLETE_PERFORMANCE_PACKAGE'
+if perf_root.exists():
+    (perf_root/'package.json').write_text('{\n  \"type\": \"commonjs\"\n}\n')
 
 # Editorial Motion v2 lives unpacked at engine_sources/editorial-motion-v2 (compiler + runtime + fixtures).
 # The text-led bundle archive above is its planning-authority source of record; the compiler ships
