@@ -432,9 +432,10 @@ def encode_mp4(
                 ''.join(beds) +
                 f'amix=inputs={len(beds)}:normalize=0,'
                 'aformat=sample_fmts=fltp:channel_layouts=mono[bed]')
-            bed_src = '[bed]'
         else:
-            bed_src = beds[0]
+            filters.append(
+                f'{beds[0]}aformat=sample_fmts=fltp:channel_layouts=mono[bed]')
+        bed_src = '[bed]'
         filters.append(
             f'{bed_src}[vo_sc]sidechaincompress='
             'threshold=0.02:ratio=8:attack=120:release=280[ducked];'
@@ -532,14 +533,13 @@ def render_production(
         mp4 = out_dir / f'{name}.mp4'
         if ffmpeg:
             sfx_wav = build_sfx(snd, plan, duration, out_dir / f'{name}.sfx.wav')
-            music_wav = build_music(duration, out_dir / f'{name}.music.wav')
             vo = None
             vo_spec = plan.get('voiceover') or {}
             vo_path = Path(vo_spec.get('path')) if vo_spec.get('path') else voiceover
             if vo_path and Path(vo_path).exists():
                 vo = Path(vo_path)
             encode_mp4(frames_dir, fps, wbp.RATIO_SIZES[ratio], sfx_wav, vo,
-                       duration, mp4, ffmpeg, music_wav=music_wav)
+                       duration, mp4, ffmpeg)
 
         times = [b['start_seconds'] + b['duration_seconds'] * 0.5 for b in beats]
         times.append(duration - plan['pacing']['board_reveal_seconds'] * 0.2)
