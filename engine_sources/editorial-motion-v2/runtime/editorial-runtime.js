@@ -446,6 +446,25 @@
         }, parent);
         break;
       }
+      case 'ruled': {
+        // Editorial ruling: hairlines so quiet the field reads as ledger paper, not empty space.
+        const spacing = Math.max(34, Math.min(W, H) * (spec.spacing_frac || 0.075));
+        node = el('div', {
+          position: 'absolute', left: px(b.x), top: px(b.y), width: px(b.w), height: px(b.h),
+          backgroundImage: `repeating-linear-gradient(to bottom, transparent 0, transparent ${(spacing - 1).toFixed(2)}px, ${rgbaOf(brand.ink, 0.05)} ${spacing.toFixed(2)}px)`,
+          opacity: spec.opacity == null ? 1 : spec.opacity,
+        }, parent);
+        break;
+      }
+      case 'wash': {
+        // A soft off-paper tonal band behind the stage — a breath of colour without a second panel.
+        const cx = b.x + b.w * (spec.align === 'left' ? 0.28 : spec.align === 'right' ? 0.72 : 0.5);
+        node = el('div', {
+          position: 'absolute', inset: '0',
+          background: `radial-gradient(ellipse ${px(b.w * 1.2)} ${px(b.h)} at ${px(cx)} ${px(b.y + b.h * 0.5)}, ${rgbaOf(brand.accent || brand.ink, 0.05)}, ${rgbaOf(brand.ink, 0)} 62%)`,
+        }, parent);
+        break;
+      }
       default:
         break;
     }
@@ -516,10 +535,44 @@
       node.decoding = 'sync';
       node.src = assetUrl(media.path);
     }
+    const chassis = media.chassis || 'card';
+    let host = frame, hostW = bb.w, hostH = bb.h;
+    if (chassis === 'phone') {
+      // Device bezel: ink body, the media is its screen; a camera slit tops the bezel.
+      const m = Math.min(bb.w, bb.h);
+      Object.assign(frame.style, {
+        borderRadius: px(m * 0.11), border: 'none', background: '#161311',
+        boxShadow: `0 ${px(bb.h * 0.025)} ${px(bb.h * 0.07)} rgba(23,18,12,0.35), inset 0 0 0 ${px(m * 0.008)} #2c2620`,
+      });
+      hostW = bb.w * 0.91; hostH = bb.h * 0.944;
+      host = el('div', {
+        position: 'absolute', left: px(bb.w * 0.045), top: px(bb.h * 0.028),
+        width: px(hostW), height: px(hostH),
+        borderRadius: px(m * 0.075), overflow: 'hidden', background: '#000',
+      }, frame);
+      el('div', {
+        position: 'absolute', left: '50%', top: px(bb.h * 0.011), transform: 'translateX(-50%)',
+        width: px(bb.w * 0.16), height: px(bb.h * 0.009), borderRadius: px(bb.h * 0.005), background: '#2c2620',
+      }, frame);
+    } else if (chassis === 'browser') {
+      // Window chrome: a top bar with traffic dots and an address pill; media is the viewport.
+      const barH = bb.h * 0.1;
+      Object.assign(frame.style, { borderRadius: px(Math.min(bb.w, bb.h) * 0.05), background: brand.paper });
+      const bar = el('div', {
+        position: 'absolute', left: '0', top: '0', width: '100%', height: px(barH),
+        borderBottom: `1.5px solid ${brand.ink}22`, display: 'flex', alignItems: 'center', gap: px(bb.w * 0.012), paddingLeft: px(bb.w * 0.03), boxSizing: 'border-box',
+      }, frame);
+      for (const c of ['#e0635a', '#e8b13e', '#5fbb63']) el('div', { width: px(barH * 0.34), height: px(barH * 0.34), borderRadius: '50%', background: c, flex: 'none' }, bar);
+      el('div', { flex: '0 1 62%', height: px(barH * 0.44), marginLeft: px(bb.w * 0.02), borderRadius: px(barH * 0.22), background: `${brand.ink}12` }, bar);
+      hostH = bb.h - barH;
+      host = el('div', {
+        position: 'absolute', left: '0', top: px(barH), width: '100%', height: px(hostH), overflow: 'hidden',
+      }, frame);
+    }
     Object.assign(node.style, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100%', objectFit: 'cover', display: 'block' });
-    frame.appendChild(node);
-    const m = { media, frame, node, bb, pending: null };
-    layoutFocus(m, bb.w, bb.h);
+    host.appendChild(node);
+    const m = { media, frame, node, bb, hostW, hostH, pending: null };
+    layoutFocus(m, hostW, hostH);
     return m;
   }
 
@@ -560,7 +613,7 @@
       const x = lerp(from.x, m.bb.x, rp), y = lerp(from.y, m.bb.y, rp);
       const w = lerp(from.w, m.bb.w, rp), h = lerp(from.h, m.bb.h, rp);
       s.left = px(x); s.top = px(y); s.width = px(w); s.height = px(h);
-      layoutFocus(m, w, h);
+      layoutFocus(m, w * (m.hostW / m.bb.w), h * (m.hostH / m.bb.h));
       const dist = Math.hypot(from.x - m.bb.x, from.y - m.bb.y) + Math.abs(from.w - m.bb.w);
       const blur = velocityBlur(lt, md.reframe.start_ms, md.reframe.end_ms, EASE.inOutCubic, dist);
       s.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
@@ -1281,7 +1334,12 @@
         const p = EASE.inOutCubic(prog(lt, trace.start_ms, trace.end_ms));
         r.trace.style.strokeDashoffset = `${f2(r.len * 0.18 - p * r.len * 1.18)}`;
         r.trace.setAttribute('stroke-opacity', EASE.pulse(p).toFixed(4));
-      } else r.trace.setAttribute('stroke-opacity', '0');
+      } else {
+        r.trace.setAttribute('stroke-opacity', '0');
+        // Write the rest offset unconditionally: a decl left over from an earlier seek
+        // would make the DOM differ by path taken.
+        r.trace.style.strokeDashoffset = f2(r.len * 0.18);
+      }
       const st = propAt(r, 'strike', lt);
       r.strike.set(st.v);
       r.strike.path.setAttribute('stroke', st.accent ? accent : ink);

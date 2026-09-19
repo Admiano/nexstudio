@@ -14,6 +14,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 REGISTRY_REL = 'manifests/NEXSTUDIO_SOUND_V2_REGISTRY.json'
+COMMUNITY_MANIFEST = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'manifest.json'
+# A foley loop is an atmosphere, not a hit — accents trim to this budget so a long loop never outruns its event.
+ACCENT_TRIM_MS = 1500
 MAX_ACCENTS_PER_BEAT = 3
 MIN_ACCENT_GAP_MS = 220
 
@@ -27,7 +30,9 @@ EVENT_TAGS = {
     'EVIDENCE_LAND': ('impact.soft.medium', 'impact.plate.light'),
     'DATA_LAND': ('impact.generic.light',),
     'TRANSITION_CARRIER': ('motion.ui.expand', 'motion.ui.contract', 'legacy.paper.rustle.light'),
-    'LINE_DRAW': ('whiteboard.marker.line', 'type.scratch', 'whiteboard.pencil.write'),
+    'LINE_DRAW': ('whiteboard.marker.line', 'type.scratch', 'foley.write.pencil'),
+    # INK is a write moment: owner-supplied foley only — no synthetic tick may out-vote the texture.
+    'INK_WRITE': ('foley.write.chalk', 'foley.write.pencil', 'foley.write.blackboard'),
     'EMIT_CONFIRM': ('ui.confirm', 'legacy.ui.confirm.chime'),
     'COUNT_TICK': ('legacy.ui.level.tick', 'ui.switch.tactile'),
     'LOUPE_TRAVEL': ('legacy.ui.navigation.swipe', 'motion.ui.contract'),
@@ -59,6 +64,23 @@ class SoundLibrary:
                 self.by_tag.setdefault(a['semanticTag'], []).append(a)
         for v in self.by_tag.values():
             v.sort(key=lambda a: a['assetId'])
+        self._merge_community_foley()
+
+    def _merge_community_foley(self) -> None:
+        """Owner-supplied foley lives in the community manifest, not the sound library — merge it under its
+        semantic tags so `pick` can choose it. Engine-root-relative paths become absolute here."""
+        if not COMMUNITY_MANIFEST.exists():
+            return
+        root = COMMUNITY_MANIFEST.parents[2]
+        for a in json.loads(COMMUNITY_MANIFEST.read_text())['assets']:
+            if not a.get('semantic_tag'):
+                continue
+            self.by_tag.setdefault(a['semantic_tag'], []).append({
+                'assetId': a['id'], 'semanticTag': a['semantic_tag'], 'path': str(root / a['path']),
+                'productionSha256': a['sha256'], 'license': a['license'],
+                'durationSeconds': a.get('duration_s', 0.0), 'family': a.get('family', 'foley'),
+            })
+            self.by_tag[a['semantic_tag']].sort(key=lambda x: x['assetId'])
 
     def pick(self, tags: tuple, seed: str) -> Optional[Dict[str, Any]]:
         pool = [a for t in tags for a in self.by_tag.get(t, [])]
@@ -100,6 +122,7 @@ def bind_beat_sound(lib: Optional[SoundLibrary], film_id: str, beat_id: str, bea
             'license': asset['license'],
             'duration_s': asset['durationSeconds'],
             'gain_db': GAIN_DB.get(asset['family'], -16.0) + (2.0 if c.get('strength', 0.5) > 0.9 else 0.0),
+            'trim_ms': int(min(asset['durationSeconds'] * 1000, ACCENT_TRIM_MS)) if asset['durationSeconds'] else None,
         })
     chosen.sort(key=lambda a: a['beat_at_ms'])
     return {'accents': chosen, 'silenced': silenced, 'reason': None}

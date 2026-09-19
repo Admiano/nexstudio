@@ -80,7 +80,8 @@ function buildAudio(plan, out) {
       if (!acc.license) throw new Error(`sound accent ${acc.asset_id || acc.path} has no license evidence`);
       if (acc.sha256 && sha(fs.readFileSync(acc.path)) !== acc.sha256) throw new Error(`sound accent sha256 mismatch: ${acc.path}`);
       inputs.push('-i', acc.path);
-      filters.push(`[${n}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=${acc.gain_db}dB,adelay=${acc.film_at_ms}|${acc.film_at_ms}[s${n}]`);
+      const trim = acc.trim_ms ? `atrim=0:${(acc.trim_ms / 1000).toFixed(3)},afade=t=out:st=${Math.max(0, (acc.trim_ms - 120) / 1000).toFixed(3)}:d=0.12,` : '';
+      filters.push(`[${n}:a]aformat=sample_rates=48000:channel_layouts=stereo,${trim}volume=${acc.gain_db}dB,adelay=${acc.film_at_ms}|${acc.film_at_ms}[s${n}]`);
       accents.push(`[s${n}]`);
       n += 1;
     }
