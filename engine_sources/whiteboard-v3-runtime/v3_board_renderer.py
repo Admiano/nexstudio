@@ -23,6 +23,21 @@ from PIL import Image, ImageDraw
 import whiteboard_pil_adapter as wbp
 import svg_paths
 
+
+# The preserved adapter's paper grain reads as stray speckle on playback —
+# wrap it (runtime-only, file untouched) to a much subtler texture.
+def _subtle_paper_texture(im, pal, seed):
+    import random
+    rnd = random.Random(seed)
+    d = ImageDraw.Draw(im, 'RGBA')
+    w, h = im.size
+    for _ in range(max(14, int(w * h / 46000))):
+        x, y = rnd.randrange(w), rnd.randrange(h)
+        d.point((x, y), fill=(20, 20, 18, rnd.randrange(2, 5)))
+
+
+wbp._paper_texture = _subtle_paper_texture
+
 _ASSETS = Path(__file__).resolve().parent / 'assets'
 _ASSET_DIR = _ASSETS / 'open_peeps'
 _PEEPS_DIR = _ASSETS / 'peeps'
@@ -664,6 +679,17 @@ def text_strokes(text: str, origin, height: float, color='ink', wscale=1.0):
     return strokes
 
 
+def _text_bottom(text: str, height: float) -> float:
+    """Distance from origin to the lowest ink point (clears descenders)."""
+    glyphs = _hershey()
+    m = 0.0
+    for ch in text:
+        g = glyphs.get(str(ord(ch)))
+        if g:
+            m = max(m, g['bounding_box'][1][1])
+    return m * height
+
+
 def text_width(text: str, height: float) -> float:
     glyphs = _hershey()
     x = 0.0
@@ -729,6 +755,7 @@ _ICON_KEYWORDS = {
                'dentist', 'ranger', 'forester', 'biologist', 'operator',
                'inspector', 'supervisor', 'dispatcher', 'conductor',
                'attorney', 'judge', 'reporter', 'editor', 'author',
+               'barista', 'server', 'bartender', 'host', 'guide',
                'agent owner', 'customer agent'),
     'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'system'),
     'envelope': ('request', 'mail', 'email', 'message', 'letter', 'send', 'ticket',
@@ -817,7 +844,7 @@ def _tabler_lookup(concept: str):
     dashed = '-'.join(words)
     if dashed in nodes:
         return dashed
-    wset = set(words)
+    wset = set(words) | {_singular(w) for w in words}
     best, best_score = None, 0.0
     for name, toks in index.items():
         if name.endswith('-off'):
@@ -908,6 +935,16 @@ def _tabler_strokes(name: str):
 
 _STAT_RE = re.compile(r"^[\$£€]?\s*\d[\d,\.]*\s*(%|[kmbx×+]|[a-z]{1,7})?\.?$",
                       re.I)
+
+
+def _singular(w: str) -> str:
+    if w.endswith('ies') and len(w) > 4:
+        return w[:-3] + 'y'
+    if w.endswith('es') and len(w) > 4:
+        return w[:-2]
+    if w.endswith('s') and not w.endswith('ss') and len(w) > 3:
+        return w[:-1]
+    return w
 _STRIKE_TOKENS = {'old', 'manual', 'before', 'outdated', 'legacy', 'broken',
                   'without', 'no', 'boring', 'slow', 'bad'}
 _EMPHASIS_TOKENS = {'important', 'critical', 'key', 'warning', 'urgent',
@@ -938,6 +975,12 @@ def icon_for(concept: str) -> str:
     if _STAT_RE.match(phrase):
         return 'stat'
     if re.search(r'\d', phrase):
+        # the icon vocabulary may still know the non-numeric words
+        rest = ' '.join(w for w in words if not re.search(r'\d', w))
+        if rest and rest not in ('min', 'minute', 'hour', 'day'):
+            tb = _tabler_lookup(rest)
+            if tb:
+                return ('tabler', tb)
         if re.search(r'\b(min|mins|minute|minutes|hour|hours|sec|seconds|day|days|am|pm)\b', phrase):
             return 'clock'
         if re.search(r'(%|\$|bp|bps|\bx\b|\bk\b)', phrase):
@@ -1010,7 +1053,7 @@ def _stat_strokes(center, size, label):
     strokes = text_strokes(txt, origin, h, 'ink', 1.5)
     strokes += [([(px + h * 0.04, py + h * 0.02) for px, py in s[0]],
                  s[1], s[2], s[3], s[4]) for s in list(strokes)]
-    y = origin[1] + h * 0.34
+    y = origin[1] + _text_bottom(txt, h) + h * 0.16
     strokes.append(([(origin[0] - tw * 0.06, y), (origin[0] + tw * 1.06, y)],
                     'accent', 1.2, False, True))
     return strokes
@@ -1094,14 +1137,14 @@ def _scene_slots(labels: list[str], zone: dict, ratio: str):
     props = [i for i, ic in enumerate(icons) if ic not in ('person', 'agent')]
 
     slots: list[dict | None] = [None] * len(icons)
-    char_size = h * (0.66 if len(props) <= 1 else 0.58)
     prop_size = min(w, h) * (0.34 if len(props) <= 2 else 0.26)
+    char_size = prop_size * (1.35 if len(props) <= 1 else 1.2)
 
     def _size_for(icon):
         if icon == 'person':
             return char_size
         if icon == 'agent':
-            return char_size * 0.62
+            return char_size * 0.72
         return prop_size
 
     if people and props:
@@ -1316,13 +1359,18 @@ def _headline_strokes(scene, zone, ratio):
     strokes += [( [(px + h * 0.045, py + h * 0.02) for px, py in s[0]],
                   s[1], s[2], s[3], s[4]) for s in list(strokes)]
     tw = text_width(txt, h)
-    y_u = origin[1] + h * 0.34
+    y_u = origin[1] + _text_bottom(txt, h) + h * 0.16
     upts = [(origin[0] + tw * t / 18, y_u + math.sin(t * 1.4) * h * 0.10)
             for t in range(19)]
     strokes.append((upts, 'ink', 1.5, False, True))
-    strokes.append(([(a, b + h * 0.13) for a, b in upts], 'accent', 0.9,
+    strokes.append(([(a, b + h * 0.14) for a, b in upts], 'accent', 0.9,
                     False, True))
     return strokes
+
+
+def _shift_strokes(strokes, dx, dy):
+    return [([(px + dx, py + dy) for px, py in s[0]], *s[1:])
+            for s in strokes]
 
 
 def _caption_strokes(center, size, label, zone=None, row=0):
@@ -1339,7 +1387,7 @@ def _caption_strokes(center, size, label, zone=None, row=0):
     origin = (ox, center[1] + size * (0.56 + 0.15 * row))
     strokes = text_strokes(txt, origin, h, 'ink', 0.85)
     pad = tw * 0.05
-    y = origin[1] + h * 0.30
+    y = origin[1] + _text_bottom(txt, h) + h * 0.16
     strokes.append(([(origin[0] - pad, y), (origin[0] + tw + pad, y)],
                     'accent', 0.8, False, True))
     return strokes, ox, ox + tw
@@ -1370,6 +1418,7 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
              'emphasis': 2.6, 'caption': 3}
     groups = [('headline', _headline_strokes(scene, zone, ratio),
                (zone['x'], zone['y']), 1.0, None)]
+    mark_groups = []
     for s in slots:
         if s['icon'] == 'stat':
             groups.append(('icon', _stat_strokes(s['center'], s['size'],
@@ -1389,7 +1438,8 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             gc = (s['center'][0], s['center'][1] + s['size'] * 0.52)
             groups.append(('ground', _ground_shadow_strokes(), gc, s['size'], s))
             if s['icon'] == 'person':
-                groups.append(('marks', _motion_marks_strokes(), s['center'], s['size'], s))
+                mark_groups.append(('marks', _motion_marks_strokes(),
+                                    s['center'], s['size'], s))
         low_lbl = str(s['label']).lower()
         ltoks = set(re.findall(r"[a-z']+", low_lbl))
         if ltoks & _STRIKE_TOKENS or low_lbl.startswith(('no ', 'not ')):
@@ -1409,6 +1459,7 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
         if s['icon'] in ('check', 'coin', 'coins', 'rocket', 'lightbulb', 'chart', 'target'):
             groups.append(('sparkle', _sparkle_strokes(), s['center'], s['size'], s))
     # verb arrow — the drawn relationship from actor to first object
+    arrow_drawn = False
     person_slots = [s for s in slots if s['icon'] == 'person']
     prop_slots = [s for s in slots if s['icon'] not in ('person', 'agent')]
     if person_slots and prop_slots:
@@ -1419,6 +1470,10 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
               q['center'][1] - q['size'] * 0.08)
         if abs(p1[0] - p0[0]) > p['size'] * 0.15:
             groups.append(('arrow', _arrow_strokes(p0, p1), (0, 0), 1.0, None))
+            arrow_drawn = True
+    # motion marks only when the arrow didn't already carry the action
+    if not arrow_drawn:
+        groups += mark_groups
 
     # two caption rows: neighbors whose text ranges overlap drop to row 1
     prev_edge = None
@@ -1427,12 +1482,17 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
         if s.get('no_caption'):
             prev_edge = None
             continue
+        dy = 0.66 if s['icon'] in ('person', 'agent') else 0.56
         strokes, x0, x1 = _caption_strokes(s['center'], s['size'],
                                            s['label'], zone, row)
+        if s['icon'] in ('person', 'agent'):
+            strokes = _shift_strokes(strokes, 0, s['size'] * (dy - 0.56))
         if prev_edge is not None and x0 < prev_edge + 10:
             row = 1
             strokes, x0, x1 = _caption_strokes(s['center'], s['size'],
                                                s['label'], zone, row)
+            if s['icon'] in ('person', 'agent'):
+                strokes = _shift_strokes(strokes, 0, s['size'] * (dy - 0.56))
         else:
             row = 0
         prev_edge = x1
