@@ -1680,56 +1680,10 @@ def _smooth_tip(scene, plan, ratio, scene_time, cam, seed, zoom):
     return (bx, by + dt * 90 + 14)
 
 
-def _emphasis_focus(scene, plan, ratio, scene_time):
-    """Board point + strength for camera focus on an emphasized item."""
-    for (kind, _st, center, _size, slot), start, end in _scene_groups(
-            scene, plan, ratio):
-        if kind == 'emphasis':
-            e = wbp._ease(wbp._clamp((scene_time - start) /
-                                     max(0.05, (end - start) * 0.5)))
-            if e > 0:
-                return center, e
-    return None, 0.0
-
-
-def _activity_focus(scene, plan, ratio, scene_time):
-    """One focal point per scene — the emphasized element when present,
-    else the hero slot — eased in over the first ~40% of the scene and
-    held. A single deliberate push, not a pump per drawn element."""
-    dur = float((scene.get('whiteboardRuntime') or {}).get('sceneDuration')
-                or 4.0)
-    zone = scene['whiteboardRuntime']['boardZone']
-    target = None
-    for (kind, _st, center, _size, slot), start, end in _scene_groups(
-            scene, plan, ratio):
-        if kind == 'emphasis' and slot:
-            target = center
-            break
-    if target is None:
-        slots = _scene_slots(_scene_labels(scene), zone, ratio)
-        if slots:
-            target = max(slots, key=lambda s: s['size'])['center']
-    if target is None:
-        return None, 0.0
-    e = wbp._ease(wbp._clamp(scene_time / max(0.4, dur * 0.4)))
-    return target, e
-
-
 def _scene_cam_zoom(scene, plan, ratio, scene_time: float):
-    """One deliberate camera move per scene: a slow push toward the scene's
-    focal element (emphasized item or hero slot), held to the beat's end."""
-    base = wbp._camera(scene, ratio)
-    act, e = _activity_focus(scene, plan, ratio, scene_time)
-    if act is None or e <= 0:
-        return base, 1.0
-    # a single slow push toward the scene's focal element — eased in over
-    # ~40% of the beat, then held. Neighbors may drift toward the frame
-    # edge during the push; that's the cinematic move, and it resolves
-    # before the transition. Kept shallow so nothing ever reads as cut.
-    zcx, zcy = base
-    lean = 0.22 * e
-    cam = (zcx + (act[0] - zcx) * lean, zcy + (act[1] - zcy) * lean)
-    return cam, 1.0 + 0.09 * e
+    """Fixed frame per zone — this whiteboard style never zooms mid-scene.
+    Only the inter-scene transition travels the board."""
+    return wbp._camera(scene, ratio), 1.0
 
 
 def _alpha_scale(layer: Image.Image, alpha: int) -> Image.Image:
