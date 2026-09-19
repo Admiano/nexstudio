@@ -24,16 +24,17 @@ import whiteboard_pil_adapter as wbp
 import svg_paths
 
 
-# The preserved adapter's paper grain reads as stray speckle on playback —
-# wrap it (runtime-only, file untouched) to a much subtler texture.
+# The preserved adapter's paper grain draws near-black specks: ImageDraw on
+# RGBA ignores the fill alpha, so its 'subtle' dots always render full ink.
+# Wrap it (runtime-only, file untouched) with a pre-blended paper tint.
 def _subtle_paper_texture(im, pal, seed):
     import random
     rnd = random.Random(seed)
-    d = ImageDraw.Draw(im, 'RGBA')
+    d = ImageDraw.Draw(im)
     w, h = im.size
     for _ in range(max(14, int(w * h / 46000))):
         x, y = rnd.randrange(w), rnd.randrange(h)
-        d.point((x, y), fill=(20, 20, 18, rnd.randrange(2, 5)))
+        d.point((x, y), fill=(238, 235, 228, 255))
 
 
 wbp._paper_texture = _subtle_paper_texture
