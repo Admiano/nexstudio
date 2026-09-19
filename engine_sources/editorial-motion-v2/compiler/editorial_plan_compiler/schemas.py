@@ -240,7 +240,8 @@ def plan_schema() -> Dict[str, Any]:
                        'reveal_mode': _enum(c.REVEAL_MODES), 'tonal_ink': _unit()},
                       ['blocks', 'events', 'performance_events'])
     label = _obj({'text': _str(), 'bbox': BOX, 'fit': fit, 'placement': _enum(('inside', 'below'))}, ['text', 'bbox', 'fit', 'placement'])
-    asset = _obj({'id': _str(), 'path': _str(), 'sha256': SHA, 'license': _str(), 'family': _str()}, ['id', 'path', 'sha256', 'license'])
+    asset = _obj({'id': _str(), 'path': _str(), 'sha256': SHA, 'license': _str(), 'family': _str(), 'art_box': {'type': 'object'},
+                  'colour': _enum(('mono', 'native', 'brand')), 'brand_hex': _str()}, ['id', 'path', 'sha256', 'license'])
     ent_media = _obj({'asset_id': _str(), 'kind': _enum(c.MEDIA_KINDS), 'path': _str(), 'sha256': {'anyOf': [SHA, {'type': 'null'}]}, 'source_size': {'type': 'object'},
                       'rights': _str(), 'audio': {'const': 'MUTE'}, 'trim': {}}, ['asset_id', 'kind', 'path', 'rights', 'audio'])
     state_in = _obj({k: {'type': 'number'} for k in ('draw', 'fill', 'ink', 'dim', 'grow', 'strike', 'swap', 'count', 'emit', 'connect')} | {'at': _str()}, [], additionalProperties=False)
@@ -311,6 +312,9 @@ def plan_schema() -> Dict[str, Any]:
             'canvas': _obj({'w': {'type': 'integer'}, 'h': {'type': 'integer'}}, ['w', 'h']),
             'output': _obj({'w': {'type': 'integer'}, 'h': {'type': 'integer'}, 'scale': {'type': 'number'}}, ['w', 'h', 'scale']),
             'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES)}, ['ink', 'paper', 'finish']),
+            'motion': _obj({'entrance': _enum(('settle', 'pop')), 'stagger_ms': MS, 'camera_push': {'type': 'number'}, 'camera_pan_frac': {'type': 'number'},
+                            'transition': _enum(('blur_dissolve', 'scale_through')), 'blur_px': {'type': 'number'}, 'word_landing': _enum(('tonal', 'rise'))},
+                           ['entrance', 'stagger_ms', 'camera_push', 'transition', 'word_landing']),
             'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, ['reveal', 'tonal_ink']),
             'illustration_registry': _obj({'path': _str(), 'version': NULLABLE_STR}, ['path']),
             'fonts': {'type': 'object'}, 'duration_ms': {'type': 'integer', 'exclusiveMinimum': 0},
@@ -322,6 +326,7 @@ def plan_schema() -> Dict[str, Any]:
             'surfaces': _obj({'grain': NULLABLE_OBJ, 'paper': NULLABLE_OBJ}, []),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'captions': {'type': 'array', 'items': caption},
+            'captions_policy': _enum(('burned', 'kinetic')),
             'gate': gate, 'provenance': provenance,
         }, ['schema', 'compiler', 'film_id', 'aspect', 'fps', 'canvas', 'output', 'brand', 'typography', 'fonts', 'duration_ms', 'voice', 'music', 'beats', 'captions', 'gate', 'provenance']),
     }

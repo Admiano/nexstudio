@@ -26,16 +26,18 @@ from .typefit import FLOOR_FRACTION, TRACKING, _face, fit_text, measure
 REGISTRY_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'illustration' / 'registry.json'
 # Additional licence-clean catalogues materialised by tools/build_community_registry.py; each entry is
 # resolved relative to its own registry root, so pack layout never reaches into this module.
-EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'icons-registry.json']
+EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'icons-registry.json',
+                    Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'colour-registry.json']
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
 GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
                 'PROHIBIT': 1.0, 'BRACKET': 1.7, 'BAR': 0.46, 'ICON': 1.0,
                 'ARROW': 2.1, 'MARK_CIRCLE': 1.0, 'UNDERLINE': 5.5, 'BURST': 1.0, 'CALLOUT': 1.7, 'STICKY': 1.05,
-                'DONUT': 1.0, 'FRAME': 1.35, 'TILE': 1.0, 'CHIP': 2.9}
+                'DONUT': 1.0, 'FRAME': 1.35, 'TILE': 1.0, 'CHIP': 2.9, 'BADGE': 1.0, 'COUNTER': 1.5}
 # Glyphs that carry their label inside the shape rather than in a strip below it.
 LABEL_CARRIERS = ('PILL', 'CARD', 'CALLOUT', 'STICKY', 'CHIP')
 SIZE_WEIGHT = {'hero': 1.0, 'support': 0.64, 'minor': 0.42}
+SIZE_SCALE = {'hero': 0.92, 'support': 0.78, 'minor': 0.66}  # share of the cell a glyph body fills
 ARROWED = {'flows_to', 'points_at', 'transforms_into'}
 LINED = ARROWED | {'connects', 'blocks'}
 ENTER_STAGGER_MS = 90
@@ -45,6 +47,7 @@ LABEL_H_FRAC = 0.13
 GAP_FRAC = 0.055
 # Cells joined by a drawn connector leave room for the connector itself to read as a stroke, not a tick.
 CONNECTOR_GAP_FRAC = 0.16
+COLLAGE_FORMS = ('OBJECT_STAGE', 'RELATIONSHIP', 'SIGNAL')
 
 
 def _box(x: float, y: float, w: float, h: float) -> Dict[str, float]:
@@ -199,17 +202,23 @@ class IllustrationRegistry:
         p = self._roots[ref] / item['path']
         if not p.exists():
             raise TreatmentError('ASSET_FILE_MISSING', str(p), beat_id)
-        return {'id': ref, 'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'license': item['license'], 'family': item['family'],
-                'art_box': svg_art_box(p.read_text())}
+        out = {'id': ref, 'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'license': item['license'], 'family': item['family'],
+               'art_box': svg_art_box(p.read_text()), 'colour': item.get('colour') or 'mono'}
+        if item.get('brand_hex'):
+            out['brand_hex'] = item['brand_hex']
+        return out
 
     def art_box(self, ref: str, beat_id: str) -> Dict[str, float]:
         return self.resolve(ref, beat_id)['art_box']
 
 
 class IllustrationSolver:
-    def __init__(self, aspect: str, canvas: Tuple[int, int], registry: IllustrationRegistry, media_library: Dict[str, Any], media_files: Dict[str, Any], accent: Optional[str]):
+    def __init__(self, aspect: str, canvas: Tuple[int, int], registry: IllustrationRegistry, media_library: Dict[str, Any], media_files: Dict[str, Any], accent: Optional[str],
+                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS):
         self.aspect = aspect
         self.canvas = canvas
+        self.collage = collage
+        self.stagger_ms = stagger_ms
         self.registry = registry
         self.media_library = media_library
         self.media_files = media_files
@@ -220,6 +229,9 @@ class IllustrationSolver:
         _safe = _NATIVE_ASPECTS[aspect]['safe']
         _h = self.canvas[1]
         self.caption_floor = _safe[3] + (_h - _safe[3]) * 0.3 - 2 * _h * 0.044 * 1.3 - min(self.canvas) * 0.012
+        if collage:
+            # Collage films carry the words as kinetic type; no caption strip is burned, so art may use the full field.
+            self.caption_floor = float(_h)
 
     # ------------------------------------------------------------------ layout
     def _cells(self, zone: Dict[str, float], ents: List[IllustrationEntity], vertical: bool, gap_frac: float = GAP_FRAC) -> Dict[str, Dict[str, float]]:
@@ -247,13 +259,13 @@ class IllustrationSolver:
         span = zone['h'] if vertical else zone['w']
         total_w = sum(SIZE_WEIGHT[e.size] for e in ents)
         floor = FLOOR_FRACTION['label'] * min(self.canvas)
-        need = 0.0
+        gaps = span * gap_frac * (len(ents) - 1)
+        need = gaps
         for e in ents:
-            share = span * SIZE_WEIGHT[e.size] / total_w
+            share = (span - gaps) * SIZE_WEIGHT[e.size] / total_w
             if e.label and e.glyph in LABEL_CARRIERS:
-                share = max(share, measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06)
+                share = max(share, self._label_need(e, floor))
             need += share
-        need += span * gap_frac * (len(ents) - 1)
         if need <= span * 1.02 or len(ents) < 2:
             return self._cells(zone, ents, vertical, gap_frac)
         cut = (len(ents) + 1) // 2
@@ -267,6 +279,12 @@ class IllustrationSolver:
                    else _box(zone['x'], zone['y'] + off, zone['w'], strip))
             cells.update(self._cells(sub, line, vertical, gap_frac))
         return cells
+
+    def _label_need(self, e: IllustrationEntity, floor: float) -> float:
+        """Cell width a label-carrier needs so its inside label keeps the floor size: a chip's label
+        strip is 30% of its body when tag pills share the row, 52% otherwise; other carriers 76%."""
+        share = (0.30 if e.params.get('tags') else 0.52) if e.glyph == 'CHIP' else 0.76
+        return measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) * 1.06 / share / SIZE_SCALE[e.size]
 
     def _entity_ar(self, e: IllustrationEntity, beat_id: str = '') -> float:
         if e.glyph == 'MEDIA':
@@ -287,7 +305,7 @@ class IllustrationSolver:
             cell = dict(cell)
             cell['h'] = max(0.0, min(cell['y'] + cell['h'], self.caption_floor) - cell['y'])
         body = _box(cell['x'], cell['y'], cell['w'], cell['h'] - label_h)
-        scale = {'hero': 0.92, 'support': 0.78, 'minor': 0.66}[e.size]
+        scale = SIZE_SCALE[e.size]
         # Weighted cells already encode size; a hero in a row keeps its full cell, supports breathe.
         if e.glyph == 'ICON':
             # The runtime renders the icon's whole viewBox (padding included), so the viewBox — not
@@ -326,6 +344,8 @@ class IllustrationSolver:
         cells: Dict[str, Dict[str, float]]
         if il.form == 'RELATIONSHIP' and len(top) >= 4:
             cells = self._hub_layout(il, top, zone)
+        elif self.collage and il.form in COLLAGE_FORMS and len(top) >= 2 and any(e.size == 'hero' for e in top):
+            cells = self._collage_layout(il, top, zone)
         elif il.form == 'DATA_VISUAL':
             cells = self._data_layout(top, zone, vertical)
         else:
@@ -497,14 +517,65 @@ class IllustrationSolver:
         others = [e for e in top if e is not hub]
         cx, cy = _centre(zone)
         side = min(zone['w'], zone['h'])
-        hub_size = side * 0.34
+        wide = zone['w'] >= zone['h'] * 1.5
+        # Collage clusters fill the field: bigger hub and satellites, and on a wide field the ring
+        # starts half a step off vertical so satellites sit at the corners instead of over the hub.
+        corners = self.collage and wide and len(others) > 2
+        hub_size = side * (0.5 if corners else 0.42 if self.collage else 0.34)
+        sat = side * (0.4 if corners else 0.3 if self.collage else 0.26)
         cells = {hub.id: _box(cx - hub_size / 2, cy - hub_size / 2, hub_size, hub_size)}
-        r_x, r_y = zone['w'] / 2 - side * 0.14, zone['h'] / 2 - side * 0.14
-        sat = side * 0.26
+        r_x, r_y = zone['w'] / 2 - sat / 2, zone['h'] / 2 - sat / 2
+        start = -math.pi / 2 + (math.pi / len(others) if corners else 0.0)
         for i, e in enumerate(others):
-            ang = -math.pi / 2 + i * 2 * math.pi / len(others)
+            ang = start + i * 2 * math.pi / len(others)
             x, y = cx + math.cos(ang) * r_x, cy + math.sin(ang) * r_y
             cells[e.id] = _box(x - sat / 2, y - sat / 2, sat, sat)
+        return cells
+
+    def _collage_layout(self, il: IllustrationDirective, top: List[IllustrationEntity], zone: Dict[str, float]) -> Dict[str, Dict[str, float]]:
+        """Hero-anchored cluster: the hero fills the middle of the field and satellites stack in
+        flanking columns (wide field) or in a row beneath it (tall field). Regions are disjoint,
+        so the cluster reads as one object with orbiting parts rather than a row of equal cells."""
+        heroes = [e for e in top if e.size == 'hero']
+        sats = self._order(il, [e for e in top if e.size != 'hero'])
+        cells: Dict[str, Dict[str, float]] = {}
+        floor = FLOOR_FRACTION['label'] * min(self.canvas)
+        # A flanking column must hold its widest inside label at the floor size.
+        need_w = max([self._label_need(e, floor) for e in sats if e.label and e.glyph in LABEL_CARRIERS] or [0.0])
+        gap = zone['w'] * 0.025
+        side_w = min(max(zone['w'] * (0.24 if len(sats) > 1 else 0.28), need_w), zone['w'] * 0.34)
+        n_cols = 1 if len(sats) == 1 else 2
+        hero_ar = self._entity_ar(heroes[0]) if len(heroes) == 1 else 1.0
+        # Flank the hero when that leaves it a bigger body than stacking the satellites beneath it.
+        flank_w = _fit_aspect(_box(0, 0, zone['w'] - (side_w + gap) * n_cols, zone['h']), hero_ar)
+        below_w = _fit_aspect(_box(0, 0, zone['w'], zone['h'] * 0.56), hero_ar)
+        wide = flank_w['w'] * flank_w['h'] >= below_w['w'] * below_w['h']
+        if wide:
+            left = [s for i, s in enumerate(sats) if i % 2 == 1]
+            right = [s for i, s in enumerate(sats) if i % 2 == 0]
+            hero_x = zone['x'] + (side_w + gap if left else 0.0)
+            hero_w = zone['w'] - (side_w + gap) * ((1 if left else 0) + (1 if right else 0))
+            cells.update(self._cells(_box(hero_x, zone['y'], hero_w, zone['h']), heroes, False))
+            if right:
+                cells.update(self._cells(_box(zone['x'] + zone['w'] - side_w, zone['y'], side_w, zone['h']), right, True, 0.08))
+            if left:
+                cells.update(self._cells(_box(zone['x'], zone['y'], side_w, zone['h']), left, True, 0.08))
+        else:
+            bottom = min(zone['y'] + zone['h'], self.caption_floor) if any(e.label for e in sats) else zone['y'] + zone['h']
+            field_h = bottom - zone['y']
+            gap = zone['h'] * 0.03
+            # The satellite row must be tall enough for its label-carriers to keep the floor size at
+            # their own aspect; the hero gives up height (down to 36% of the field) to make room.
+            needs = [(self._label_need(e, floor), self._entity_ar(e)) for e in sats if e.label and e.glyph in LABEL_CARRIERS]
+            if needs:
+                lines = 2 if len(sats) > 1 and sum(n for n, _ in needs) + zone['w'] * GAP_FRAC * (len(sats) - 1) > zone['w'] else 1
+                row_h = lines * max(n / ar for n, ar in needs) + (lines - 1) * zone['h'] * GAP_FRAC
+                hero_h = min(field_h * 0.56, max(field_h * 0.36, field_h - row_h - gap))
+            else:
+                hero_h = field_h * 0.56
+            cells.update(self._cells(_box(zone['x'], zone['y'], zone['w'], hero_h), heroes, False))
+            row = _box(zone['x'], zone['y'] + hero_h + gap, zone['w'], bottom - zone['y'] - hero_h - gap)
+            cells.update(self._wrap_cells(row, sats, False))
         return cells
 
     def _data_layout(self, top: List[IllustrationEntity], zone: Dict[str, float], vertical: bool) -> Dict[str, Dict[str, float]]:
@@ -525,7 +596,7 @@ class IllustrationSolver:
 
     def _entity_plan(self, e: IllustrationEntity, bbox: Dict[str, float], label_box: Optional[Dict[str, float]], failures: List[str], beat_id: str) -> Dict[str, Any]:
         plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'bbox': bbox, 'art_bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
-        if e.glyph in ('ICON', 'TILE', 'CHIP') and e.asset_ref:
+        if e.glyph in ('ICON', 'TILE', 'CHIP', 'BADGE') and e.asset_ref:
             plan['asset'] = self.registry.resolve(e.asset_ref, beat_id)
             if e.glyph == 'ICON':
                 plan['art_bbox'] = _art_bbox(bbox, plan['asset']['art_box'])
@@ -543,8 +614,8 @@ class IllustrationSolver:
                 # text field, a sticky's fold owns its top strip, a card's header rule owns the middle.
                 inner_box = {'PILL': (0.12, 0.2, 0.76, 0.6), 'CARD': (0.12, 0.58, 0.76, 0.3),
                              'CALLOUT': (0.12, 0.1, 0.76, 0.52), 'STICKY': (0.14, 0.3, 0.72, 0.45),
-                             # The right ~quarter of a chip belongs to its tag pills when authored.
-                             'CHIP': (0.19, 0.14, 0.46 if e.params.get('tags') else 0.58, 0.72)}[e.glyph]
+                             # A chip's icon peg owns the left third; the right third belongs to tag pills when authored.
+                             'CHIP': (0.33, 0.14, 0.30 if e.params.get('tags') else 0.52, 0.72)}[e.glyph]
                 inner = _box(bbox['x'] + bbox['w'] * inner_box[0], bbox['y'] + bbox['h'] * inner_box[1],
                              bbox['w'] * inner_box[2], bbox['h'] * inner_box[3])
                 fit = fit_text(e.label, inner, 'label', 'SemiBold', self.canvas, max_lines=1)
@@ -648,7 +719,8 @@ class IllustrationSolver:
 
     # ------------------------------------------------------------------ program
     @staticmethod
-    def schedule(il: IllustrationDirective, clock: BeatClock, ents: List[Dict[str, Any]], carried_ids: set, beat_id: str) -> Tuple[List[Dict[str, Any]], Dict[str, int], List[str]]:
+    def schedule(il: IllustrationDirective, clock: BeatClock, ents: List[Dict[str, Any]], carried_ids: set, beat_id: str,
+                 stagger_ms: int = ENTER_STAGGER_MS) -> Tuple[List[Dict[str, Any]], Dict[str, int], List[str]]:
         failures: List[str] = []
         latest_end = clock.duration_ms - EXIT_MS - 80
         ops: List[Dict[str, Any]] = []
@@ -683,7 +755,7 @@ class IllustrationSolver:
             if e['id'] in carried_ids:
                 enter[e['id']] = 0
                 continue
-            t = min(base + i * ENTER_STAGGER_MS, first_land - 40)
+            t = min(base + i * stagger_ms, first_land - 40)
             t = max(LEAD_IN_MS // 5, t)
             first_op = min((o['start_ms'] for o in ops if o['target'] == e['id'] or o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id'])), default=None)
             if first_op is not None:
@@ -818,7 +890,7 @@ class IllustrationSolver:
                     failures.append(f'CARRY_ENTITY_MISSING_IN_SOURCE_PLAN:{cid}')
                     continue
                 carry_in[cid] = prev[cid]['bbox']
-        ops, enter, sf = self.schedule(il, clock, ents, carried_ids, beat_id)
+        ops, enter, sf = self.schedule(il, clock, ents, carried_ids, beat_id, self.stagger_ms)
         failures += sf
         inherited = terminal_state(carry_source) if carry_source else {}
         for e in ents:

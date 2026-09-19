@@ -10,7 +10,7 @@ gates:
   frozen_ms     <= FROZEN_RUN_MAX_MS    (longest run of pixel-identical frames)
   manifest.page_errors == 0
   manifest.audio.music present          (music bed bound)
-  manifest.captions_burned > 0
+  manifest.captions_burned > 0            (or captions_policy == kinetic: words live on canvas)
   manifest.native_profile == true
 
 Usage:
@@ -126,7 +126,7 @@ def main() -> int:
                 'frozen_ok': metrics['frozen_longest_ms'] <= FROZEN_RUN_MAX_MS,
                 'no_page_errors': manifest.get('page_errors') == [],
                 'music_bound': bool((manifest.get('audio') or {}).get('music')),
-                'captions': manifest.get('captions_burned', 0) > 0,
+                'captions': manifest.get('captions_burned', 0) > 0 or manifest.get('captions_policy') == 'kinetic',
                 'native_profile': manifest.get('native_profile') is True,
             }
             film['aspects'][aspect] = {'checks': checks, 'metrics': metrics, 'mp4': manifest['mp4'],

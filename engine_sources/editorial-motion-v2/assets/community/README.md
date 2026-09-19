@@ -23,6 +23,25 @@ comms, objects, transport, tech, emotion. Source icon data for all 19,640 icons
 lives in `packs/<slug>/icons.json`; re-run `tools/build_community_registry.py`
 after editing its `DOMAINS` vocabulary to materialise more.
 
+## Colour art — `colour/` + `colour-registry.json` (12,420 native-colour SVGs)
+
+Rendered as-is (`colour: native`) for the PRODUCT_COLLAGE finish — brand tiles,
+emoji, 3D-look emoji and coloured pictograms. Ids: `brand.logos.*`,
+`brand.si.*`, `emoji.fluent.*`, `emoji.fluent-flat.*`, `emoji.noto.*`,
+`icon.fluent-color.*`, `icon.icon-park-color.*`.
+
+| pack | license | origin | count |
+|---|---|---|---|
+| simple-icons 16.31.0 | CC0-1.0 | global | 3,460 |
+| SVG Logos (gilbarbara/logos) | CC0-1.0 | global | 2,174 |
+| IconPark (colour) | Apache-2.0 | ByteDance (CN) | 2,658 |
+| Fluent Emoji + Flat | MIT | Microsoft | 2,471 |
+| Noto Emoji | Apache-2.0 | Google | 1,458 |
+| Fluent UI Color Icons | MIT | Microsoft | 199 |
+
+Brand marks are licence-clean as artwork; trademark use is the film owner's
+responsibility (see `trademark_note`). Rebuild with `tools/build_colour_registry.py`.
+
 ## Audio — `audio/` (477 files, CC0)
 
 | dir | source | use |

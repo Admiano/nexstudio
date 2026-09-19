@@ -88,7 +88,8 @@
           "type": "string",
           "enum": [
             "EDITORIAL_FLAT",
-            "PAPER"
+            "PAPER",
+            "PRODUCT_COLLAGE"
           ]
         }
       },
@@ -96,6 +97,52 @@
         "ink",
         "paper",
         "finish"
+      ]
+    },
+    "motion": {
+      "type": "object",
+      "properties": {
+        "entrance": {
+          "type": "string",
+          "enum": [
+            "settle",
+            "pop"
+          ]
+        },
+        "stagger_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "camera_push": {
+          "type": "number"
+        },
+        "camera_pan_frac": {
+          "type": "number"
+        },
+        "transition": {
+          "type": "string",
+          "enum": [
+            "blur_dissolve",
+            "scale_through"
+          ]
+        },
+        "blur_px": {
+          "type": "number"
+        },
+        "word_landing": {
+          "type": "string",
+          "enum": [
+            "tonal",
+            "rise"
+          ]
+        }
+      },
+      "required": [
+        "entrance",
+        "stagger_ms",
+        "camera_push",
+        "transition",
+        "word_landing"
       ]
     },
     "typography": {
@@ -1321,7 +1368,9 @@
                             "DONUT",
                             "FRAME",
                             "TILE",
-                            "CHIP"
+                            "CHIP",
+                            "BADGE",
+                            "COUNTER"
                           ]
                         },
                         "size": {
@@ -1459,6 +1508,21 @@
                                   "minLength": 1
                                 },
                                 "family": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "art_box": {
+                                  "type": "object"
+                                },
+                                "colour": {
+                                  "type": "string",
+                                  "enum": [
+                                    "mono",
+                                    "native",
+                                    "brand"
+                                  ]
+                                },
+                                "brand_hex": {
                                   "type": "string",
                                   "minLength": 1
                                 }
@@ -2074,6 +2138,13 @@
           "end_ms"
         ]
       }
+    },
+    "captions_policy": {
+      "type": "string",
+      "enum": [
+        "burned",
+        "kinetic"
+      ]
     },
     "gate": {
       "type": "object",

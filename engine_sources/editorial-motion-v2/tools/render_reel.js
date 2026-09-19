@@ -228,7 +228,8 @@ async function main() {
   // Karaoke captions (ASS, word-timed) burned into the picture, plus an SRT sidecar.
   const assPath = path.join(outDir, `captions_${plan.aspect}.ass`);
   let captions = 0;
-  if (!process.argv.includes('--no-captions')) {
+  // Collage films carry the words as on-canvas kinetic type; a caption strip would duplicate them.
+  if (!process.argv.includes('--no-captions') && plan.captions_policy !== 'kinetic') {
     captions = writeCaptions(plan, assPath);
     const srt = plan.captions.map((c, i) => `${i + 1}\n${ts(c.start_ms)} --> ${ts(c.end_ms)}\n${c.text}\n`).join('\n');
     fs.writeFileSync(path.join(outDir, `captions_${plan.aspect}.srt`), srt);
@@ -250,7 +251,7 @@ async function main() {
     schema: 'EditorialRenderManifestV1', runtime: await page.evaluate(() => window.__em2.version), film_id: plan.film_id, aspect: plan.aspect,
     plan_sha256: sha(fs.readFileSync(planPath)), frames: total, fps, output: plan.output, mp4: path.basename(mp4), mp4_sha256: sha(fs.readFileSync(mp4)),
     contact_sheet: `contact_${plan.aspect}.png`, transition_strip: stripFrames.length ? `transitions_${plan.aspect}.png` : null,
-    audio, captions_burned: captions, page_errors: errors, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
+    audio, captions_burned: captions, captions_policy: plan.captions_policy || 'burned', page_errors: errors, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
   };
   fs.writeFileSync(path.join(outDir, `render_${plan.aspect}.json`), JSON.stringify(manifest, null, 2));
   console.log(JSON.stringify({ mp4, frames: total, errors: errors.length, audio }, null, 1));

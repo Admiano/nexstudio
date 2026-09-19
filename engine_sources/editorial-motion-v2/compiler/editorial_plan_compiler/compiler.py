@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from .authorities import editorial_motion_ensemble_director_v1 as ens
 from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
-from .contracts import BeatTreatment, FilmTreatment, TreatmentError
+from .contracts import MOTION_PROFILES, BeatTreatment, FilmTreatment, TreatmentError
 from .figures import resolve_figure
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
 from .media import NormalisedMedia, normalise_media
@@ -75,7 +75,8 @@ def _inside(a: Dict[str, float], b: Dict[str, float], tol: float = 1.0) -> bool:
     return a['x'] >= b['x'] - tol and a['y'] >= b['y'] - tol and a['x'] + a['w'] <= b['x'] + b['w'] + tol and a['y'] + a['h'] <= b['y'] + b['h'] + tol
 
 
-def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int], beat_index: int = 0) -> List[Dict[str, Any]]:
+def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], safe: Dict[str, float], canvas: Tuple[int, int], beat_index: int = 0,
+                       finish: str = 'EDITORIAL_FLAT') -> List[Dict[str, Any]]:
     """Structural stage furniture under the content, derived from the authored background template.
 
     The runtime renders these verbatim; `kind` selects the draw recipe and all geometry is absolute
@@ -83,6 +84,13 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     W, H = canvas
     st = dict(stage)
     layers: List[Dict[str, Any]] = []
+    if finish == 'PRODUCT_COLLAGE':
+        # Free canvas: no lifted panel, no rules. Objects float on the warm field over a soft
+        # off-centre glow that alternates sides so consecutive cuts re-light the stage.
+        layers.append({'kind': 'glow', 'bbox': _box(0, 0, W, H), 'align': ('left', 'right', 'center')[beat_index % 3], 'opacity': 0.55})
+        if beat_index % 4 == 3:
+            layers.append({'kind': 'arc', 'bbox': dict(safe), 'opacity': 0.6, 'corner': beat_index % 4})
+        return layers
     has_panel = authored in {'CARD_STAGE', 'DOCUMENT_STAGE', 'PRODUCT_STAGE', 'LAYERED_PLANE'} or render_bg in {'CARD_STAGE', 'SPOTLIGHT_STAGE'}
     if has_panel:
         layers.append({'kind': 'panel', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'fill': 'paper_lift', 'radius_frac': 0.032,
@@ -186,12 +194,17 @@ class BeatCompiler:
         self.carried_media: Optional[Dict[str, Any]] = None  # media persisting from an earlier beat
         self.carried_illustration: Optional[Dict[str, Any]] = None  # illustration persisting from an earlier beat
         self.illustrations: Dict[str, Dict[str, Any]] = {}  # beat_id -> compiled illustration (carry-over source)
-        self.solver = IllustrationSolver(aspect, (self.W, self.H), IllustrationRegistry(), film.media_library, self.media_files, film.brand.accent)
+        self.solver = IllustrationSolver(aspect, (self.W, self.H), IllustrationRegistry(), film.media_library, self.media_files, film.brand.accent,
+                                         collage=film.brand.finish == 'PRODUCT_COLLAGE',
+                                         stagger_ms=MOTION_PROFILES[film.brand.finish]['stagger_ms'])
 
     # ------------------------------------------------------------------ helpers
     def _native_treatment(self, b: BeatTreatment) -> str:
         t = NATIVE_TREATMENT[b.pattern]
         il = b.illustration
+        if self.film.brand.finish == 'PRODUCT_COLLAGE':
+            has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
+            return 'COLLAGE_STAGE' if has_visual else 'COLLAGE_LOCKUP'
         if il is None and not self.carried_illustration:
             return t
         if il is not None and il.form in PROCESS_FORMS:
@@ -261,6 +274,14 @@ class BeatCompiler:
                 if j != gi and _overlap(bl['bbox'], blocks[gi]['bbox']) > 0:
                     blocks[j]['bbox'] = _nudge_clear(bl['bbox'], _others(j), native_zone)
         self._stack_in_narration_order(b, blocks)
+        if comp.get('typography_hints', {}).get('text_align') == 'center':
+            # Centred lockup: every block sits on the zone's vertical axis and sets its lines centred.
+            lo = max(native_zone['x'], self.safe['x'])
+            hi = min(native_zone['x'] + native_zone['w'], self.safe['x'] + self.safe['w'])
+            for bl in blocks:
+                bl['alignment'] = 'center'
+                w = min(bl['bbox']['w'], hi - lo)
+                bl['bbox'] = _box((lo + hi - w) / 2, bl['bbox']['y'], w, bl['bbox']['h'])
         hero_px = max((bl['fit']['font_px'] for bl in blocks if bl['role'] == 'hero'), default=0.0)
         for bl in blocks:
             f = bl['fit']
@@ -750,7 +771,7 @@ class BeatCompiler:
             'composition': {
                 'layout_family': comp['layout_family'], 'treatment': comp['treatment'], 'text_zone': comp['text_zone'], 'visual_zone': comp['visual_zone'],
                 'safe_area': self.safe, 'background': {'template': bg, 'render': render_bg, 'stage': stage_zone,
-                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H), beat_index),
+                                                       'layers': _background_layers(render_bg, bg, stage_zone, self.safe, (self.W, self.H), beat_index, self.film.brand.finish),
                                                        'finish': self.film.brand.finish},
                 'native_profile': comp['native_profile'], 'derived_by_scaling': comp['derived_by_scaling'], 'authority': comp['authority_version'],
             },
@@ -930,7 +951,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         plans[aspect] = {
             'schema': PLAN_SCHEMA, 'compiler': COMPILER_VERSION, 'film_id': film.film_id, 'aspect': aspect, 'fps': film.fps,
             'canvas': {'w': W, 'h': H}, 'output': {'w': ow, 'h': oh, 'scale': round(ow / W, 4)},
-            'brand': asdict(film.brand), 'typography': asdict(film.typography), 'fonts': _fonts(), 'duration_ms': total_ms,
+            'brand': asdict(film.brand), 'motion': dict(MOTION_PROFILES[film.brand.finish]), 'typography': asdict(film.typography), 'fonts': _fonts(), 'duration_ms': total_ms,
             'illustration_registry': {'path': str(bc.solver.registry.path), 'version': bc.solver.registry.version},
             'voice': {'source': voice_source, 'segments': [
                 {'beat_id': s.beat_id, 'source': s.source, 'audio_path': s.audio_path, 'sha256': s.audio_sha256, 'start_ms': o, 'duration_ms': s.duration_ms, 'evidence': s.evidence}
@@ -941,6 +962,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'music': bind_film_music(film.film_id),
             'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
             'beats': beats, 'captions': _captions(beats),
+            'captions_policy': 'kinetic' if film.brand.finish == 'PRODUCT_COLLAGE' else 'burned',
             'gate': {'status': 'FAIL' if fails else 'PASS', 'failures': fails},
             'provenance': {
                 'treatment_sha256': treatment_sha, 'creative_authority': 'NEXMIND_P8', 'compiler_role': 'DETERMINISTIC_PLAN_COMPILER', 'renderer_role': 'EXECUTION_ONLY',

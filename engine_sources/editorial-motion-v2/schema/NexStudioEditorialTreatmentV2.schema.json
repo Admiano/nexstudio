@@ -423,7 +423,9 @@
                             "DONUT",
                             "FRAME",
                             "TILE",
-                            "CHIP"
+                            "CHIP",
+                            "BADGE",
+                            "COUNTER"
                           ]
                         },
                         "size": {
@@ -747,7 +749,8 @@
           "type": "string",
           "enum": [
             "EDITORIAL_FLAT",
-            "PAPER"
+            "PAPER",
+            "PRODUCT_COLLAGE"
           ]
         }
       },

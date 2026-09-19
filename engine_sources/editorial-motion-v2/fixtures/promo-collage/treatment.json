@@ -10,7 +10,7 @@
     "ink": "#191512",
     "paper": "#f2f1ee",
     "accent": "#b35c33",
-    "finish": "EDITORIAL_FLAT"
+    "finish": "PRODUCT_COLLAGE"
   },
   "voice": {
     "source": "FIXTURE",
@@ -71,7 +71,7 @@
             "kind": "system",
             "glyph": "TILE",
             "size": "hero",
-            "asset_ref": "icon.lucide.brain",
+            "asset_ref": "emoji.fluent.brain",
             "label": "memory"
           },
           {
@@ -79,21 +79,21 @@
             "kind": "agent",
             "glyph": "TILE",
             "size": "support",
-            "asset_ref": "icon.lucide.file-terminal"
+            "asset_ref": "brand.logos.claude-icon"
           },
           {
             "id": "t2",
             "kind": "agent",
             "glyph": "TILE",
             "size": "support",
-            "asset_ref": "icon.ant-design.robot-outlined"
+            "asset_ref": "brand.logos.openai-icon"
           },
           {
             "id": "t3",
             "kind": "agent",
             "glyph": "TILE",
             "size": "support",
-            "asset_ref": "icon.lucide.cpu"
+            "asset_ref": "brand.logos.cursor-icon"
           },
           {
             "id": "t4",
@@ -103,7 +103,7 @@
             "params": {
               "tone": "dark"
             },
-            "asset_ref": "icon.ant-design.code-outlined"
+            "asset_ref": "brand.logos.google-gemini-icon"
           }
         ],
         "relations": [
@@ -260,7 +260,7 @@
             "glyph": "CHIP",
             "size": "support",
             "label": "Claude",
-            "asset_ref": "icon.icon-park-outline.cpu",
+            "asset_ref": "brand.logos.claude-icon",
             "params": {
               "tags": [
                 "fast",
@@ -278,7 +278,8 @@
               "tags": [
                 "synced"
               ]
-            }
+            },
+            "asset_ref": "brand.logos.terminal"
           }
         ],
         "relations": [
@@ -381,7 +382,7 @@
             "kind": "system",
             "glyph": "TILE",
             "size": "hero",
-            "asset_ref": "icon.lucide.brain-circuit",
+            "asset_ref": "emoji.fluent.brain",
             "label": "shared"
           },
           {
@@ -396,9 +397,11 @@
           },
           {
             "id": "frm2",
-            "kind": "object",
-            "glyph": "FRAME",
-            "size": "support"
+            "kind": "evidence",
+            "glyph": "BADGE",
+            "size": "support",
+            "label": "synced",
+            "asset_ref": "icon.lucide.check"
           }
         ],
         "relations": [

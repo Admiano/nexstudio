@@ -21,6 +21,8 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const prog = (t, s, e) => (e <= s ? (t >= e ? 1 : 0) : clamp((t - s) / (e - s), 0, 1));
 
+  const DEFAULT_MOTION = { entrance: 'settle', stagger_ms: 90, camera_push: 0, camera_pan_frac: 0, transition: 'blur_dissolve', blur_px: 0, word_landing: 'tonal' };
+
   const EASE = {
     outCubic: (t) => 1 - Math.pow(1 - t, 3),
     outQuint: (t) => 1 - Math.pow(1 - t, 5),
@@ -209,9 +211,11 @@
   // One word landing: rises out of blur into focus and overshoots by a hair — weight, scale and opacity together.
   // While the unit is still being spoken, words already said fall back to the tonal ink so the current word carries;
   // once the cascade has ended every word returns to full ink. Stressed words never fall back.
-  function applyWordState(item, lt, em, tonalInk, baseWght, promoted, nextStart, cascadeEnd, muteColor) {
+  function applyWordState(item, lt, em, tonalInk, baseWght, promoted, nextStart, cascadeEnd, muteColor, landing) {
     const s = item.span.style;
-    const start = item.w.start_ms, dur = 260;
+    // 'rise' landing (collage finish): words climb further out of a softer blur and hold full ink once said.
+    const rise = landing === 'rise' ? 0.9 : 0.42, blurPx = landing === 'rise' ? 4 : 6;
+    const start = item.w.start_ms, dur = landing === 'rise' ? 300 : 260;
     const isStress = item.w.stress;
     // The stressed word is set larger and lands heavier and stays there: the emphasis is a state, not a flash.
     // Every word lands ~90 weight heavy on the variable axis and relaxes to its rest weight — kinetic ink.
@@ -220,20 +224,20 @@
     s.fontVariationSettings = `"wght" ${Math.round(wght)}`;
     // tone: 'mute' words read grey — the benchmark's mixed-tone lockup inside one sentence.
     s.color = item.w.tone === 'mute' ? muteColor : 'inherit';
-    if (lt < start) { s.opacity = '0'; s.transform = `translateY(${f2(em * 0.42)}px) scale(0.96)`; s.filter = 'blur(6px)'; return; }
+    if (lt < start) { s.opacity = '0'; s.transform = `translateY(${f2(em * rise)}px) scale(0.96)`; s.filter = `blur(${blurPx}px)`; return; }
     const p = prog(lt, start, start + dur);
     const k = EASE.outQuint(p), st = EASE.settle(p);
     let scale = lerp(0.96, 1, st);
-    const ty = (1 - k) * em * 0.42;
+    const ty = (1 - k) * em * rise;
     if (isStress && promoted) scale *= lerp(1, 1.02, EASE.pulse(prog(lt, start, start + 520)));
     let opacity = Math.min(1, k * 1.25);
-    if (!isStress && nextStart !== null) {
+    if (!isStress && nextStart !== null && landing !== 'rise') {
       const tonal = lerp(1, tonalInk, EASE.inOutCubic(prog(lt, nextStart, nextStart + 220)));
       opacity = Math.min(opacity, lerp(tonal, 1, EASE.outCubic(prog(lt, cascadeEnd, cascadeEnd + 260))));
     }
     s.opacity = opacity.toFixed(4);
     s.transform = `translateY(${f2(ty)}px) scale(${scale.toFixed(4)})`;
-    s.filter = p >= 1 ? 'none' : `blur(${f2((1 - k) * 6)}px)`;
+    s.filter = p >= 1 ? 'none' : `blur(${f2((1 - k) * blurPx)}px)`;
   }
 
   function lineStagger(p, i, n, spread) {
@@ -382,7 +386,7 @@
       const promoted = perf.some((e) => e.event === 'WORD_PROMOTION' && e.unit_index === i);
       const end = b.cascade_end_ms || node.words[node.words.length - 1].w.start_ms + 260;
       const muteColor = rgbaOf(ctx.brand.ink, 0.5);
-      node.words.forEach((item, wi) => applyWordState(item, lt, em, ctx.tonalInk, wght, promoted, wi + 1 < node.words.length ? node.words[wi + 1].w.start_ms : null, end, muteColor));
+      node.words.forEach((item, wi) => applyWordState(item, lt, em, ctx.tonalInk, wght, promoted, wi + 1 < node.words.length ? node.words[wi + 1].w.start_ms : null, end, muteColor, ctx.motion.word_landing));
     }
     node.lines.forEach((line, li) => {
       const s = lineStates[li];
@@ -467,6 +471,17 @@
         }, parent);
         break;
       }
+      case 'glow': {
+        // Collage field: a wide warm glow that drifts with the beat — the only "stage" a free canvas gets.
+        const cx = b.x + b.w * (spec.align === 'left' ? 0.3 : spec.align === 'right' ? 0.7 : 0.5);
+        const cy = b.y + b.h * 0.46;
+        node = el('div', {
+          position: 'absolute', inset: '0',
+          background: `radial-gradient(ellipse ${px(b.w * 0.9)} ${px(b.h * 0.8)} at ${px(cx)} ${px(cy)}, ${rgbaOf(brand.accent || brand.ink, 0.07)}, ${rgbaOf('#ffffff', 0.3)} 45%, ${rgbaOf(brand.ink, 0)} 75%)`,
+          transformOrigin: `${px(cx)} ${px(cy)}`,
+        }, parent);
+        break;
+      }
       case 'arc': {
         // A giant ring segment grazing the field — ambient geometry, never a diagram part.
         node = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, parent);
@@ -516,10 +531,11 @@
       const p = EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
       let scale = 1, tx = 0, ty = 0;
       if (spec.kind === 'panel' || spec.kind === 'plane' || spec.kind === 'spotlight') scale = lerp(0.985, 1, EASE.settle(p));
-      if (spec.kind === 'dotgrid' || spec.kind === 'plane') {
-        const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : 1.6);
+      if (spec.kind === 'dotgrid' || spec.kind === 'plane' || spec.kind === 'glow') {
+        const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : spec.kind === 'glow' ? 6 : 1.6);
         tx += amb.dx; ty += amb.dy;
       }
+      if (spec.kind === 'glow') scale = lerp(1.06, 1, EASE.settle(p));
       if (spec.rotation_deg) s.rotate = `${spec.rotation_deg}deg`;
       s.opacity = ((spec.opacity == null ? 1 : spec.opacity) * p).toFixed(4);
       s.transform = `translate(${f2(tx)}px, ${f2(ty)}px) scale(${scale.toFixed(4)})`;
@@ -885,6 +901,24 @@
     return out;
   }
 
+  // Colour packs reuse ids (gradients, clip paths, filters) across icons; scope them per
+  // instance so two emoji on one stage do not paint with each other's defs.
+  function scopeSvgIds(markup, scope) {
+    const ids = new Set();
+    markup.replace(/\bid="([^"]+)"/g, (m, id) => { ids.add(id); return m; });
+    if (!ids.size) return markup;
+    const tag = String(scope).replace(/[^a-zA-Z0-9_-]/g, '_');
+    let out = markup;
+    for (const id of ids) {
+      const esc = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      out = out.replace(new RegExp(`\\bid="${esc}"`, 'g'), `id="${tag}__${id}"`)
+        .replace(new RegExp(`url\\(#${esc}\\)`, 'g'), `url(#${tag}__${id})`)
+        .replace(new RegExp(`url\\("#${esc}"\\)`, 'g'), `url("#${tag}__${id}")`)
+        .replace(new RegExp(`(xlink:href|href)="#${esc}"`, 'g'), `$1="#${tag}__${id}"`);
+    }
+    return out;
+  }
+
   // Registry icon loaded into a box inside a glyph group; each part joins the entity's
   // draw-on program (stroke packs dash-draw, fill packs stagger in).
   function loadIconInto(ent, node, host, box, opts) {
@@ -895,10 +929,17 @@
       const vb = (src.getAttribute('viewBox') || `0 0 ${src.getAttribute('width') || 100} ${src.getAttribute('height') || 100}`).split(/[\s,]+/).map(Number);
       const s = Math.min(box.w / vb[2], box.h / vb[3]);
       const inner = svgEl('g', { transform: `translate(${f2(box.x + (box.w - vb[2] * s) / 2)} ${f2(box.y + (box.h - vb[3] * s) / 2)}) scale(${s.toFixed(5)}) translate(${-vb[0]} ${-vb[1]})` }, host);
-      inner.innerHTML = src.innerHTML;
+      inner.innerHTML = scopeSvgIds(src.innerHTML, ent.id);
+      const colour = ent.asset.colour || 'mono';
+      if (colour === 'brand' && ent.asset.brand_hex) host.dataset.brandHex = ent.asset.brand_hex;
       const rootStroke = src.getAttribute('stroke');
       const parts = Array.from(inner.querySelectorAll('path,circle,ellipse,line,polyline,polygon,rect'));
       const n = Math.max(1, parts.length);
+      if (colour === 'native') {
+        // Colour art keeps its own paint; it draws on as one body (opacity), never dash-by-dash.
+        node.outline.push({ path: inner, len: 0, set(v) { inner.style.opacity = clamp(v, 0, 1).toFixed(4); } });
+        return;
+      }
       parts.forEach((p, i) => {
         p.dataset.draw = 'outline';
         const stroked = (p.getAttribute('stroke') || rootStroke || 'none') !== 'none';
@@ -1168,8 +1209,10 @@
         node.extra.setGrow = (k) => node.outline[0].set(k);
         if (params.count && il.ops.some((o) => o.op === 'COUNT' && o.target === ent.id)) {
           node.extra.countMax = Math.max(1, params.count);
+          node.extra.countSuffix = params.suffix ? String(params.suffix) : '';
+          const digits = (Math.round(params.count).toLocaleString('en-US') + node.extra.countSuffix).length;
           node.extra.countText = svgEl('text', {
-            x: f2(c.x), y: f2(c.y + sw * 1.4), 'text-anchor': 'middle', 'font-size': f2(R * 0.72),
+            x: f2(c.x), y: f2(c.y + sw * 1.4), 'text-anchor': 'middle', 'font-size': f2(Math.min(R * 0.72, (R * 1.7) / Math.max(1, digits * 0.6))),
             'font-family': plan.fonts.families.data, 'font-weight': '600', fill: ink, 'font-variant-numeric': 'tabular-nums', 'fill-opacity': 0,
           }, g);
         }
@@ -1229,6 +1272,77 @@
         node.strike = strikeFor(b);
         break;
       }
+      case 'BADGE': {
+        // Glossy white disc with a deep soft shadow carrying a brand mark or colour icon.
+        const dark = params.tone === 'dark';
+        const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw / 2;
+        const disc = svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R) }, g);
+        disc.setAttribute('fill', dark ? '#171310' : '#ffffff');
+        disc.setAttribute('stroke', ink);
+        disc.setAttribute('stroke-width', f2(sw * 0.4));
+        disc.setAttribute('stroke-opacity', '0.18');
+        disc.style.filter = `drop-shadow(0 ${f2(R * 0.16)}px ${f2(R * 0.3)}px rgba(23,18,12,0.26))`;
+        node.outline.push(drawable(disc, 2 * Math.PI * R));
+        if (!dark) {
+          svgEl('path', {
+            d: `M${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}A${f2(R * 0.82)} ${f2(R * 0.82)} 0 0 1 ${f2(c.x + R * 0.82)} ${f2(c.y - R * 0.1)}Q${f2(c.x)} ${f2(c.y + R * 0.18)} ${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}Z`,
+            fill: '#ffffff', 'fill-opacity': 0.55,
+          }, g);
+        }
+        node.inkEls.push(svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R), fill: accent, 'fill-opacity': 0 }, g));
+        if (ent.asset) {
+          const host = svgEl('g', {}, g);
+          host.style.color = dark ? paper : ink;
+          node.inkEls.push(host);
+          node.extra.iconHost = host;
+          const pad = R * 0.48;
+          loadIconInto(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, opts);
+        }
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'COUNTER': {
+        // Stat card: a big tabular figure (prefix/suffix aware) over a small caption, on a light or dark body.
+        const dark = params.tone === 'dark';
+        const r = Math.min(b.w, b.h) * 0.18;
+        const body = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, g);
+        body.setAttribute('fill', dark ? '#171310' : '#ffffff');
+        body.setAttribute('stroke', ink);
+        body.setAttribute('stroke-width', f2(sw * 0.4));
+        body.setAttribute('stroke-opacity', '0.18');
+        body.style.filter = `drop-shadow(0 ${f2(b.h * 0.08)}px ${f2(b.h * 0.16)}px rgba(23,18,12,0.26))`;
+        node.outline.push(drawable(body, (b.w + b.h) * 2));
+        node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
+        const fg = dark ? paper : ink;
+        const caption = params.caption ? String(params.caption) : '';
+        const max = Math.max(1, Number(params.count) || 1);
+        const pre = params.prefix ? String(params.prefix) : '', suf = params.suffix ? String(params.suffix) : '';
+        const full = pre + Math.round(max).toLocaleString('en-US') + suf;
+        const fs = Math.min(b.h * (caption ? 0.42 : 0.5), (b.w * 0.86) / Math.max(1, full.length * 0.6));
+        const cy = caption ? b.y + b.h * 0.5 : b.y + b.h * 0.5 + fs * 0.36;
+        node.extra.countMax = max;
+        node.extra.countPrefix = pre;
+        node.extra.countSuffix = suf;
+        node.extra.countText = svgEl('text', {
+          x: f2(b.x + b.w / 2), y: f2(cy), 'text-anchor': 'middle', 'font-size': f2(fs), 'font-family': plan.fonts.families.data,
+          'font-weight': '700', fill: fg, 'font-variant-numeric': 'tabular-nums', 'letter-spacing': f2(-fs * 0.03), 'fill-opacity': 0,
+        }, g);
+        node.extra.countText.textContent = full;
+        if (caption) {
+          const cap = svgEl('text', {
+            x: f2(b.x + b.w / 2), y: f2(b.y + b.h * 0.78), 'text-anchor': 'middle', 'font-size': f2(Math.min(b.h * 0.14, (b.w * 0.86) / Math.max(1, caption.length * 0.55))),
+            'font-family': plan.fonts.families.data, 'font-weight': '500', fill: fg, 'fill-opacity': 0.62,
+          }, g);
+          cap.textContent = caption;
+        }
+        // Static readout when no COUNT op ticks it: the figure is simply part of the drawn body.
+        if (!il.ops.some((o) => o.op === 'COUNT' && o.target === ent.id)) {
+          node.extra.countText.setAttribute('fill-opacity', '1');
+          node.extra.countText = null;
+        }
+        node.strike = strikeFor(b);
+        break;
+      }
       case 'CHIP': {
         // Dark product row: icon peg left, name typeset mid-left (the inside label), tag pills right.
         const r = b.h * 0.42;
@@ -1250,11 +1364,16 @@
           svgEl('circle', { cx: px0 + peg / 2, cy: py0 + peg / 2, r: peg * 0.22, fill: ink }, g);
         }
         // Tag pills, right-aligned, hairline strokes on the dark field.
+        // Pills own the right third of the row (the label strip ends at 63%); tags that would not
+        // fit inside that budget are dropped from the end rather than run under the name.
+        const fs = b.h * 0.17, tp = b.h * 0.08;
+        const tagW = (t) => t.length * fs * 0.62 + tp * 2.6;
         const tags = (Array.isArray(params.tags) ? params.tags : []).slice(0, 3).map((t) => String(t));
-        const fs = b.h * 0.2, tp = b.h * 0.09;
+        const budget = b.w * 0.37 - b.h * 0.15;
+        while (tags.length && tags.reduce((a, t) => a + tagW(t), 0) + b.h * 0.1 * (tags.length - 1) > budget) tags.pop();
         let tx = b.x + b.w - b.h * 0.2;
         for (let i = tags.length - 1; i >= 0; i--) {
-          const tw = tags[i].length * fs * 0.62 + tp * 2.6;
+          const tw = tagW(tags[i]);
           tx -= tw;
           const th = b.h * 0.42, ty = b.y + (b.h - th) / 2;
           svgEl('path', { d: roundRectPath({ x: tx, y: ty, w: tw, h: th }, th / 2) + 'Z', fill: 'none', stroke: paper, 'stroke-width': Math.max(1, sw * 0.4), 'stroke-opacity': 0.5 }, g);
@@ -1426,11 +1545,15 @@
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
       g.style.visibility = 'visible';
-      const pe = ent.enter_duration_ms ? EASE.outQuint(prog(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms)) : 1;
+      const pEnt = ent.enter_duration_ms ? prog(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms) : 1;
+      const pe = EASE.outQuint(pEnt);
       const dim = propAt(node, 'dim', lt).v;
-      let opacity = pe * dim;
-      let scale = ent.enter_duration_ms ? lerp(0.94, 1, EASE.settle(prog(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms))) : 1;
-      let ty = ent.enter_duration_ms ? (1 - pe) * node.bb.h * 0.04 : 0;
+      const pop = ctx.motion.entrance === 'pop';
+      // 'pop' entrance: the element springs from ~60% with an easeOutBack overshoot and a short rise —
+      // the benchmark's app-tile arrival; 'settle' is the editorial 94%→100% landing.
+      let opacity = (pop ? Math.min(1, EASE.outCubic(pEnt) * 1.6) : pe) * dim;
+      let scale = pop ? lerp(0.6, 1, EASE.emphasize(pEnt)) : lerp(0.94, 1, EASE.settle(pEnt));
+      let ty = (1 - pe) * node.bb.h * (pop ? 0.1 : 0.04);
       // Ambient secondary motion once this entity's own program has fully run; the amplitude
       // shrinks with the gap to the text zone so drift can never close on the copy.
       const tzA = beat.composition.text_zone;
@@ -1450,8 +1573,10 @@
       const inkLevel = clamp(Math.max(inkP.v, swap.v >= 0.5 ? swap.v : 0), 0, 1);
       for (const e of gl.inkEls) {
         if (e === gl.extra.iconHost) {
-          // Enamel tiles keep a light glyph on both dark bodies and accent fills.
-          if (ent.glyph === 'TILE') e.style.color = (ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent)) ? paper : ink;
+          const onDark = (ent.glyph === 'TILE' || ent.glyph === 'BADGE') && ((ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent)));
+          // Brand marks paint in their brand hex on light bodies; enamel tiles keep a light glyph on dark bodies and accent fills.
+          if (e.dataset.brandHex) e.style.color = onDark ? paper : e.dataset.brandHex;
+          else if (ent.glyph === 'TILE' || ent.glyph === 'BADGE') e.style.color = onDark ? paper : ink;
           else e.style.color = inkLevel > 0.5 ? (inkP.accent || swap.accent ? accent : ink) : ink;
         }
         else { e.setAttribute('fill', inkP.accent || swap.accent ? accent : ink); e.setAttribute('fill-opacity', inkLevel.toFixed(4)); }
@@ -1468,7 +1593,7 @@
       }
       if (gl.extra.countText) {
         const c = propAt(node, 'count', lt).v;
-        gl.extra.countText.textContent = String(Math.round(c * gl.extra.countMax));
+        gl.extra.countText.textContent = (gl.extra.countPrefix || '') + Math.round(c * gl.extra.countMax).toLocaleString('en-US') + (gl.extra.countSuffix || '');
         gl.extra.countText.setAttribute('fill-opacity', (c > 0 ? Math.min(1, c * 4) : 0).toFixed(4));
         if (gl.extra.growK !== undefined) {
           const topY = node.bb.y + node.bb.h - Math.max(ill.sw, gl.extra.growK * node.bb.h);
@@ -1587,10 +1712,12 @@
   // ---------------------------------------------------------------------------
   // Beat
   // ---------------------------------------------------------------------------
-  function buildBeat(beat, plan, stage, opts, isLast) {
-    const root = el('div', { display: 'none', position: 'absolute', inset: '0', overflow: 'hidden' }, stage);
-    root.className = 'em2-beat';
-    root.dataset.beat = beat.beat_id;
+  function buildBeat(beat, plan, stage, opts, isLast, beatIndex) {
+    const outer = el('div', { display: 'none', position: 'absolute', inset: '0', overflow: 'hidden' }, stage);
+    outer.className = 'em2-beat';
+    outer.dataset.beat = beat.beat_id;
+    // Camera: every beat's picture lives inside a wrapper the film pushes/pans/dissolves as a whole.
+    const root = el('div', { position: 'absolute', inset: '0', transformOrigin: '50% 50%', willChange: 'transform, opacity, filter' }, outer);
     const bg = buildBackground(beat, plan, root);
     const media = beat.media ? buildMedia(beat.media, plan, root, opts.assetUrl) : null;
     const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts.peepsUrl) : null;
@@ -1611,6 +1738,7 @@
 
     const ctx = {
       brand: plan.brand,
+      motion: plan.motion || DEFAULT_MOTION,
       transition: tr,
       tonalInk: (plan.typography && plan.typography.tonal_ink) || 1,
       reconfigureOffset(node) {
@@ -1655,7 +1783,32 @@
       },
     };
     const ready = Promise.all([figure ? figure.ready : null, media ? mediaReady(media) : null, illustration ? illustration.ready : null]);
-    return { beat, root, bg, media, figure, data, illustration, texts, ctx, ready };
+    return { beat, root: outer, cam: root, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex };
+  }
+
+  // Film-level camera and cut treatment from the plan's motion profile. `k` is the outgoing beat's
+  // progress through its transition (0 outside it); `arrive` is the incoming beat's progress through
+  // the same window while it dresses underneath. Both are pure functions of time.
+  function applyCamera(bn, lt, k, arrive, plan, preRoll) {
+    const m = bn.ctx.motion, W = plan.canvas.w;
+    const dur = Math.max(1, bn.beat.duration_ms);
+    const p = clamp((lt + (preRoll || 0)) / dur, 0, 1);
+    const dir = bn.index % 2 === 0 ? 1 : -1;
+    // Slow push over the beat, panning a hair across so nothing is ever perfectly still.
+    let scale = 1 + m.camera_push * p;
+    let tx = dir * m.camera_pan_frac * W * (p - 0.5);
+    let opacity = 1, blur = 0;
+    if (m.transition === 'scale_through') {
+      if (k > 0) { scale *= lerp(1, 1.1, EASE.inCubic(k)); blur += m.blur_px * EASE.inCubic(k); opacity = 1 - EASE.inOutCubic(k); }
+      if (arrive != null) { scale *= lerp(0.92, 1, EASE.outCubic(arrive)); blur += m.blur_px * 0.5 * (1 - EASE.outCubic(arrive)); }
+    } else if (m.transition === 'blur_dissolve') {
+      if (k > 0) blur += m.blur_px * EASE.inCubic(k);
+      if (arrive != null) blur += m.blur_px * 0.4 * (1 - EASE.outCubic(arrive));
+    }
+    const s = bn.cam.style;
+    s.transform = `translate(${f2(tx)}px, 0px) scale(${scale.toFixed(4)})`;
+    s.opacity = opacity.toFixed(4);
+    s.filter = blur > 0.2 ? `blur(${blur.toFixed(2)}px)` : 'none';
   }
 
   function mediaReady(m) {
@@ -1712,7 +1865,7 @@
         opacity: '0.3', mixBlendMode: 'multiply',
       }, stage);
     }
-    const beats = plan.beats.map((b, i) => buildBeat(b, plan, stage, opts, i === plan.beats.length - 1));
+    const beats = plan.beats.map((b, i) => buildBeat(b, plan, stage, opts, i === plan.beats.length - 1, i));
     // Beats that ran under the previous beat's transition get that overlap time back as a
     // furniture pre-roll at takeover — voice-anchored content keeps the plan's clock.
     beats.forEach((bn, i) => {
@@ -1769,8 +1922,14 @@
         grain.style.backgroundPosition = `${-o[0]}px ${-o[1]}px`;
       }
       const t1 = performance.now();
+      const kOut = overlapIdx >= 0 ? prog(lt, tr.start_ms, tr.end_ms) : 0;
       applyBeat(bn, lt, stageFade, bn.preRoll);
-      if (overlapIdx >= 0) applyBeat(beats[overlapIdx], lt - tr.start_ms, 1, 0);
+      applyCamera(bn, lt, kOut, null, plan, bn.preRoll);
+      if (overlapIdx >= 0) {
+        const nb = beats[overlapIdx];
+        applyBeat(nb, lt - tr.start_ms, 1, 0);
+        applyCamera(nb, lt - tr.start_ms, 0, kOut, plan, 0);
+      }
       const dt = performance.now() - t1;
       perf.frames += 1;
       perf.total_ms += dt;
