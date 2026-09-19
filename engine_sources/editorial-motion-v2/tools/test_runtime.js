@@ -18,6 +18,7 @@ const FIXTURES = [
   { name: 'reply-speed', treatment: '../fixtures/reply-speed.treatment.json', out: path.join(ROOT, 'out', 'reply-speed') },
   { name: 'water-to-thirsty', treatment: '../fixtures/water-to-thirsty/treatment.json', out: path.join(ROOT, 'out', 'water') },
   { name: 'edge-forms', treatment: '../fixtures/edge-forms/treatment.json', out: path.join(ROOT, 'out', 'edge-forms') },
+  { name: 'blind-vinyl', treatment: '../fixtures/blind-vinyl/treatment.json', out: path.join(ROOT, 'out', 'blind-vinyl') },
 ];
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 

@@ -29,6 +29,7 @@ DOMAINS = {
     'nature': 'leaf tree plant flower sun moon star stars cloud rain snow drop droplet fire flame wind mountain earth globe world seed sprout forest wave ocean weather recycle eco leafs bug insect bee butterfly bird',
     'people': 'user users person people man woman child baby face smile happy sad angry hand hands thumb like dislike team group family friend human',
     'comms': 'chat message messages mail email inbox phone call reply send share comment notification bell megaphone microphone mic video camera photo image podcast radio',
+    'audio': 'music audio song sound speaker volume disc vinyl album record cassette turntable needle waveform tune melody note headphones earphone play pause player instrument guitar piano drum broadcast',
     'objects': 'lightbulb bulb idea gear gears settings tool tools wrench hammer key lock unlock shield flag target rocket search magnify zoom filter book books file files folder document pen pencil edit write award trophy medal bookmark anchor compass map pin location home house building box package gift puzzle magnet link chain infinity check cross plus minus alert warning info question help ban trash archive clipboard list table layout grid layers stack scale ruler scissors paint palette brush',
     'transport': 'car truck bus train plane ship boat bike bicycle scooter road traffic rocket',
     'tech': 'database server cloud cpu chip code terminal wifi signal antenna broadcast satellite robot ai artificial circuit network connect api plug battery power monitor screen laptop mobile device printer keyboard mouse camera video game controller',
@@ -38,7 +39,9 @@ _KEYWORDS = {d: set(v.split()) for d, v in DOMAINS.items()}
 _COLOUR = re.compile(r'(stroke|fill)="(#[0-9a-fA-F]{3,8}|rgb\([^)]*\)|hsl\([^)]*\)|[a-zA-Z]+)"')
 # Names that collide with everyday meaning but pollute coverage (brand glyphs, letters, numbers).
 _SKIP = re.compile(r'^(brand-|brand_|letter-|number-|circle-letter|square-letter|circle-number|square-number|[0-9]+$)', re.I)
-_MAX_PER_PACK = 700
+# Headroom above the admitted set: the cut is alphabetical, so widening a domain must not
+# evict previously-materialised ids from the registry (their SVGs stay on disk but unindexed).
+_MAX_PER_PACK = 800
 
 
 def _domains_for(name: str) -> list[str]:

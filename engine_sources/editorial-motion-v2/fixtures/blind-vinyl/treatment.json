@@ -1,0 +1,558 @@
+{
+  "schema": "NexStudioEditorialTreatmentV2",
+  "film_id": "fixture-blind-vinyl",
+  "note": "Blind generalization test: a treatment on a domain the engine never saw (vinyl audio), mixed authored density, FIXTURE voice. Written cold against the grammar to probe where the compiler bends.",
+  "aspects": [
+    "9x16",
+    "1x1",
+    "16x9"
+  ],
+  "fps": 30,
+  "brand": {
+    "ink": "#111111",
+    "paper": "#f6f5f1",
+    "accent": "#1f6bff",
+    "finish": "EDITORIAL_FLAT"
+  },
+  "typography": {
+    "reveal": "WORD_CASCADE",
+    "tonal_ink": 0.42,
+    "min_visual_share": 0.6
+  },
+  "voice": {
+    "source": "FIXTURE",
+    "words_per_second": 2.6
+  },
+  "media_library": [],
+  "beats": [
+    {
+      "beat_id": "b01",
+      "beat_type": "HOOK",
+      "pattern": "PROGRESSIVE_HERO_BUILD",
+      "dominant_layer": "HYBRID",
+      "narration": "A vinyl record is a photograph of sound.",
+      "energy": 0.62,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "A vinyl record is",
+          "role": "support",
+          "anchor_word": "vinyl",
+          "emphasis": 0.4,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "a photograph of sound.",
+          "role": "hero",
+          "anchor_word": "photograph",
+          "emphasis": 0.92,
+          "semantic_role": "statement",
+          "stress": [
+            "photograph"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "disc",
+            "kind": "object",
+            "glyph": "RING",
+            "size": "hero",
+            "label": "one record"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "disc",
+            "at": {
+              "word": "vinyl"
+            },
+            "duration_ms": 700
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b02",
+      "beat_type": "EXPLANATION",
+      "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "The groove is the waveform, written in plastic.",
+      "energy": 0.55,
+      "complexity": 0.55,
+      "display_units": [
+        {
+          "text": "The groove is the waveform,",
+          "role": "hero",
+          "anchor_word": "waveform",
+          "emphasis": 0.88,
+          "semantic_role": "statement",
+          "stress": [
+            "waveform"
+          ]
+        },
+        {
+          "text": "written in plastic.",
+          "role": "support",
+          "anchor_word": "plastic",
+          "emphasis": 0.45,
+          "semantic_role": "qualifier"
+        }
+      ],
+      "illustration": {
+        "form": "STATE_TRANSFORMATION",
+        "entities": [
+          {
+            "id": "wave",
+            "kind": "evidence",
+            "glyph": "CHART_LINE",
+            "size": "support",
+            "params": {
+              "points": [
+                0.5,
+                0.8,
+                0.2,
+                0.9,
+                0.1,
+                0.7,
+                0.5
+              ]
+            }
+          },
+          {
+            "id": "groove",
+            "kind": "state",
+            "glyph": "RING",
+            "size": "hero",
+            "label": "groove"
+          }
+        ],
+        "relations": [
+          {
+            "type": "transforms_into",
+            "source": "wave",
+            "target": "groove"
+          }
+        ],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "wave",
+            "at": {
+              "word": "waveform"
+            },
+            "duration_ms": 700,
+            "value_from": 0.0,
+            "value_to": 1.0
+          },
+          {
+            "op": "CONNECT",
+            "target": "wave->groove",
+            "at": {
+              "word": "written"
+            },
+            "duration_ms": 460
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b03",
+      "beat_type": "EXPLANATION",
+      "pattern": "PROCESS_RAIL",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "A needle rides it, the cartridge shakes, and a speaker sings.",
+      "energy": 0.6,
+      "complexity": 0.6,
+      "display_units": [
+        {
+          "text": "A needle rides it,",
+          "role": "support",
+          "anchor_word": "needle",
+          "emphasis": 0.4,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "the cartridge shakes, and a speaker sings.",
+          "role": "hero",
+          "anchor_word": "sings",
+          "emphasis": 0.88,
+          "semantic_role": "action",
+          "stress": [
+            "sings"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "PROCESS_PIPELINE",
+        "entities": [
+          {
+            "id": "needle",
+            "kind": "state",
+            "glyph": "ICON",
+            "size": "support",
+            "label": "needle",
+            "asset_ref": "icon.icon-park-outline.needle"
+          },
+          {
+            "id": "cart",
+            "kind": "state",
+            "glyph": "ICON",
+            "size": "support",
+            "label": "cartridge",
+            "asset_ref": "icon.lucide.audio-waveform"
+          },
+          {
+            "id": "amp",
+            "kind": "state",
+            "glyph": "ICON",
+            "size": "support",
+            "label": "amp",
+            "asset_ref": "icon.lucide.audio-lines"
+          },
+          {
+            "id": "spk",
+            "kind": "signal",
+            "glyph": "ICON",
+            "size": "hero",
+            "label": "speaker",
+            "asset_ref": "icon.lucide.monitor-speaker"
+          }
+        ],
+        "relations": [
+          {
+            "type": "flows_to",
+            "source": "needle",
+            "target": "cart"
+          },
+          {
+            "type": "flows_to",
+            "source": "cart",
+            "target": "amp"
+          },
+          {
+            "type": "flows_to",
+            "source": "amp",
+            "target": "spk"
+          }
+        ],
+        "program": [
+          {
+            "op": "CONNECT",
+            "target": "needle->cart",
+            "at": {
+              "word": "cartridge"
+            },
+            "duration_ms": 460
+          },
+          {
+            "op": "CONNECT",
+            "target": "cart->amp",
+            "at": {
+              "word": "shakes"
+            },
+            "duration_ms": 460
+          },
+          {
+            "op": "CONNECT",
+            "target": "amp->spk",
+            "at": {
+              "word": "speaker"
+            },
+            "duration_ms": 460
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b04",
+      "beat_type": "CONTRAST",
+      "pattern": "CONTRAST_RECONFIGURATION",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Stereo is two walls arguing inside one groove.",
+      "energy": 0.55,
+      "complexity": 0.55,
+      "display_units": [
+        {
+          "text": "Stereo is two walls",
+          "role": "support",
+          "anchor_word": "walls",
+          "emphasis": 0.5,
+          "semantic_role": "setup"
+        },
+        {
+          "text": "arguing inside one groove.",
+          "role": "hero",
+          "anchor_word": "arguing",
+          "emphasis": 0.9,
+          "semantic_role": "contrast",
+          "stress": [
+            "one"
+          ]
+        }
+      ],
+      "illustration": {
+        "form": "COMPARISON",
+        "entities": [
+          {
+            "id": "left",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "hero",
+            "label": "left wall"
+          },
+          {
+            "id": "right",
+            "kind": "state",
+            "glyph": "PILL",
+            "size": "support",
+            "label": "right wall"
+          }
+        ],
+        "relations": [
+          {
+            "type": "compares",
+            "source": "left",
+            "target": "right"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "left",
+            "at": {
+              "word": "walls"
+            },
+            "duration_ms": 460
+          },
+          {
+            "op": "DRAW",
+            "target": "right",
+            "at": {
+              "word": "arguing"
+            },
+            "duration_ms": 460
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b05",
+      "beat_type": "PROOF",
+      "pattern": "SEQUENTIAL_SUPPORT_LIST",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Thirty-three turns a minute, three numbers that hold.",
+      "energy": 0.5,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "Thirty-three turns a minute,",
+          "role": "hero",
+          "anchor_word": "turns",
+          "emphasis": 0.85,
+          "semantic_role": "proof",
+          "stress": [
+            "Thirty-three"
+          ]
+        },
+        {
+          "text": "three numbers that hold.",
+          "role": "support",
+          "anchor_word": "hold",
+          "emphasis": 0.45,
+          "semantic_role": "qualifier"
+        }
+      ],
+      "illustration": {
+        "form": "DATA_VISUAL",
+        "entities": [
+          {
+            "id": "rpm33",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "hero",
+            "label": "33 rpm",
+            "params": {
+              "count": 9
+            }
+          },
+          {
+            "id": "rpm45",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "45 rpm",
+            "params": {
+              "count": 6
+            }
+          },
+          {
+            "id": "rpm78",
+            "kind": "evidence",
+            "glyph": "BAR",
+            "size": "support",
+            "label": "78 rpm",
+            "params": {
+              "count": 4
+            }
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "rpm33",
+            "at": {
+              "word": "turns"
+            },
+            "duration_ms": 700,
+            "value_from": 0.0,
+            "value_to": 1.0
+          },
+          {
+            "op": "GROW",
+            "target": "rpm45",
+            "at": {
+              "word": "minute"
+            },
+            "duration_ms": 600,
+            "value_from": 0.0,
+            "value_to": 0.8
+          },
+          {
+            "op": "GROW",
+            "target": "rpm78",
+            "at": {
+              "word": "numbers"
+            },
+            "duration_ms": 600,
+            "value_from": 0.0,
+            "value_to": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b06",
+      "beat_type": "CONTRAST",
+      "pattern": "QUIET_SUPPORT_AFTER_HERO",
+      "dominant_layer": "HYBRID",
+      "narration": "Dust is the only enemy left in the room.",
+      "energy": 0.45,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "Dust is the only enemy",
+          "role": "hero",
+          "anchor_word": "enemy",
+          "emphasis": 0.88,
+          "semantic_role": "contrast",
+          "stress": [
+            "enemy"
+          ]
+        },
+        {
+          "text": "left in the room.",
+          "role": "support",
+          "anchor_word": "room",
+          "emphasis": 0.4,
+          "semantic_role": "qualifier"
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "mote",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "label": "dust",
+            "params": {
+              "count": 3,
+              "dashed": true
+            }
+          },
+          {
+            "id": "ban",
+            "kind": "signal",
+            "glyph": "PROHIBIT",
+            "size": "hero"
+          }
+        ],
+        "relations": [
+          {
+            "type": "blocks",
+            "source": "ban",
+            "target": "mote"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "mote",
+            "at": {
+              "word": "Dust"
+            },
+            "duration_ms": 600
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b07",
+      "beat_type": "PAYOFF",
+      "pattern": "PAYOFF_LOCKUP",
+      "dominant_layer": "HYBRID",
+      "narration": "So the song stays alive, pressed into plastic.",
+      "energy": 0.62,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "So the song stays alive,",
+          "role": "hero",
+          "anchor_word": "alive",
+          "emphasis": 0.92,
+          "semantic_role": "punch",
+          "stress": [
+            "alive"
+          ]
+        },
+        {
+          "text": "pressed into plastic.",
+          "role": "support",
+          "anchor_word": "plastic",
+          "emphasis": 0.45,
+          "semantic_role": "statement"
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "disc2",
+            "kind": "object",
+            "glyph": "RING",
+            "size": "hero",
+            "label": "still spinning"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "EMIT",
+            "target": "disc2",
+            "at": {
+              "word": "alive"
+            },
+            "duration_ms": 900
+          }
+        ]
+      }
+    }
+  ]
+}
