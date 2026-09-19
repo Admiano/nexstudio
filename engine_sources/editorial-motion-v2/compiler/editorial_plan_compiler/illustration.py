@@ -30,7 +30,11 @@ EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community'
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
 GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
-                'PROHIBIT': 1.0, 'BRACKET': 1.7, 'BAR': 0.46, 'ICON': 1.0}
+                'PROHIBIT': 1.0, 'BRACKET': 1.7, 'BAR': 0.46, 'ICON': 1.0,
+                'ARROW': 2.1, 'MARK_CIRCLE': 1.0, 'UNDERLINE': 5.5, 'BURST': 1.0, 'CALLOUT': 1.7, 'STICKY': 1.05,
+                'DONUT': 1.0, 'FRAME': 1.35}
+# Glyphs that carry their label inside the shape rather than in a strip below it.
+LABEL_CARRIERS = ('PILL', 'CARD', 'CALLOUT', 'STICKY')
 SIZE_WEIGHT = {'hero': 1.0, 'support': 0.64, 'minor': 0.42}
 ARROWED = {'flows_to', 'points_at', 'transforms_into'}
 LINED = ARROWED | {'connects', 'blocks'}
@@ -246,7 +250,7 @@ class IllustrationSolver:
         need = 0.0
         for e in ents:
             share = span * SIZE_WEIGHT[e.size] / total_w
-            if e.label and e.glyph in ('PILL', 'CARD'):
+            if e.label and e.glyph in LABEL_CARRIERS:
                 share = max(share, measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06)
             need += share
         need += span * gap_frac * (len(ents) - 1)
@@ -278,7 +282,7 @@ class IllustrationSolver:
 
         For an ICON the drawn artwork (not its viewBox padding) is what fills the cell; the returned bbox is
         the viewBox the runtime maps, so the art lands exactly where the solver measured it."""
-        label_h = zone['h'] * LABEL_H_FRAC if e.label and e.glyph not in ('PILL', 'CARD') else 0.0
+        label_h = zone['h'] * LABEL_H_FRAC if e.label and e.glyph not in LABEL_CARRIERS else 0.0
         if e.label:
             cell = dict(cell)
             cell['h'] = max(0.0, min(cell['y'] + cell['h'], self.caption_floor) - cell['y'])
@@ -294,8 +298,8 @@ class IllustrationSolver:
             bbox = _fit_aspect(body, vb_ar, scale)
         else:
             bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
-        if e.glyph == 'PILL' and e.label:
-            # A pill is a label carrier: it widens (up to 5:1) until its label sits at the floor size on one line.
+        if e.glyph in LABEL_CARRIERS and e.label:
+            # A label carrier widens (up to 5:1) until its label sits at the floor size on one line.
             floor = FLOOR_FRACTION['label'] * min(self.canvas)
             need = measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06
             w = min(max(bbox['w'], need), bbox['h'] * 5.0, body['w'])
@@ -314,7 +318,10 @@ class IllustrationSolver:
         # A PROHIBIT that blocks something is worn by the target, not parked beside it.
         blocks = {r.source: r.target for r in il.relations if r.type == 'blocks'}
         prohibits = {e.id for e in il.entities if e.glyph == 'PROHIBIT' and e.id in blocks}
-        top = [e for e in il.entities if e.id not in contained and e.id not in lenses and e.id not in prohibits]
+        # A MARK_CIRCLE that marks something is drawn around the target, not parked in a cell.
+        marks = {r.source: r.target for r in il.relations if r.type == 'marks'}
+        mark_circles = {e.id for e in il.entities if e.glyph == 'MARK_CIRCLE' and e.id in marks}
+        top = [e for e in il.entities if e.id not in contained and e.id not in lenses and e.id not in prohibits and e.id not in mark_circles]
         vertical = self._vertical(il, zone, len(top))
         cells: Dict[str, Dict[str, float]]
         if il.form == 'RELATIONSHIP' and len(top) >= 4:
@@ -328,7 +335,7 @@ class IllustrationSolver:
             cells = self._wrap_cells(zone, order, vertical, CONNECTOR_GAP_FRAC if lined else GAP_FRAC)
         placed: Dict[str, Dict[str, Any]] = {}
         for e in il.entities:
-            if e.id in contained or e.id in lenses or e.id in prohibits:
+            if e.id in contained or e.id in lenses or e.id in prohibits or e.id in mark_circles:
                 continue
             bbox, label_box = self._place(e, cells[e.id], zone, vertical, beat_id)
             placed[e.id] = self._entity_plan(e, bbox, label_box, failures, beat_id)
@@ -342,7 +349,7 @@ class IllustrationSolver:
                     bbox = _fit_aspect(inset, ar * (ab['h'] / ab['w']) if ab['w'] else ar)
                 else:
                     bbox = _fit_aspect(inset, self._entity_ar(e, beat_id))
-                if e.glyph in ('PILL', 'CARD') and e.label:
+                if e.glyph in LABEL_CARRIERS and e.label:
                     # A contained label carrier still earns its floor size: widen toward the host edge before breaching.
                     floor = FLOOR_FRACTION['label'] * min(self.canvas)
                     need = measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06
@@ -376,16 +383,21 @@ class IllustrationSolver:
                 bbox = _box(x, y, bw, bh)
                 placed[e.id] = self._entity_plan(e, bbox, None, failures, beat_id)
                 placed[e.id]['over'] = over_id
+        # Worn overlays: a PROHIBIT bans its target, a MARK_CIRCLE scribbles a loop around it —
+        # both are sized from the host's art box and shrunk until they clear the other neighbours.
+        worn = {e.id: (blocks[e.id], 'PROHIBIT_WITHOUT_TARGET', 'blocks') for e in il.entities if e.id in prohibits}
+        worn.update({e.id: (marks[e.id], 'MARK_CIRCLE_WITHOUT_TARGET', 'marks') for e in il.entities if e.id in mark_circles})
         for e in il.entities:
-            if e.id in prohibits:
-                host = placed.get(blocks[e.id], {}).get('art_bbox')
+            if e.id in worn:
+                host_id, err_code, wear_key = worn[e.id]
+                host = placed.get(host_id, {}).get('art_bbox')
                 if host is None:
-                    failures.append(f'PROHIBIT_WITHOUT_TARGET:{e.id}')
+                    failures.append(f'{err_code}:{e.id}')
                     bbox = _fit_aspect(zone, self._entity_ar(e, beat_id), 1.0)
                 else:
                     hx, hy = _centre(host)
                     d = max(host['w'], host['h']) * 1.2
-                    neighbours = [p['art_bbox'] for k, p in placed.items() if k != e.id and k != blocks[e.id]]
+                    neighbours = [p['art_bbox'] for k, p in placed.items() if k != e.id and k != host_id]
                     while True:
                         x = min(max(hx - d / 2, zone['x']), zone['x'] + zone['w'] - d)
                         y = min(max(hy - d / 2, zone['y']), zone['y'] + zone['h'] - d)
@@ -394,7 +406,7 @@ class IllustrationSolver:
                             break
                         d *= 0.94
                 placed[e.id] = self._entity_plan(e, bbox, None, failures, beat_id)
-                placed[e.id]['blocks'] = blocks[e.id]
+                placed[e.id][wear_key] = host_id
         # A below-label has one line and cannot hyphenate, so a word that outgrows its cell borrows
         # the inter-cell gaps: it widens symmetrically, capped at the midpoint to each neighbour's
         # label centre and at the zone edges.
@@ -423,6 +435,8 @@ class IllustrationSolver:
                     continue
                 if ents[i].get('blocks') == ents[j]['id'] or ents[j].get('blocks') == ents[i]['id']:
                     continue  # a prohibition is worn by what it blocks
+                if ents[i].get('marks') == ents[j]['id'] or ents[j].get('marks') == ents[i]['id']:
+                    continue  # a mark circle is worn by what it marks
                 if ents[i]['glyph'] == 'LENS' or ents[j]['glyph'] == 'LENS':
                     continue  # a lens is allowed to sit over what it inspects
                 if _overlap(ents[i]['art_bbox'], ents[j]['art_bbox']) > 0.5:
@@ -522,8 +536,13 @@ class IllustrationSolver:
                              'trim': ({'start': float(e.params['trim'][0]), 'end': float(e.params['trim'][1])} if e.params.get('trim') else None),
                              'chassis': e.params.get('chassis') or None}
         if e.label:
-            if e.glyph in ('PILL', 'CARD'):
-                inner = _box(bbox['x'] + bbox['w'] * 0.12, bbox['y'] + bbox['h'] * (0.2 if e.glyph == 'PILL' else 0.58), bbox['w'] * 0.76, bbox['h'] * (0.6 if e.glyph == 'PILL' else 0.3))
+            if e.glyph in LABEL_CARRIERS:
+                # Inner label boxes track the chrome each carrier draws: a callout's tail hangs below its
+                # text field, a sticky's fold owns its top strip, a card's header rule owns the middle.
+                inner_box = {'PILL': (0.12, 0.2, 0.76, 0.6), 'CARD': (0.12, 0.58, 0.76, 0.3),
+                             'CALLOUT': (0.12, 0.1, 0.76, 0.52), 'STICKY': (0.14, 0.3, 0.72, 0.45)}[e.glyph]
+                inner = _box(bbox['x'] + bbox['w'] * inner_box[0], bbox['y'] + bbox['h'] * inner_box[1],
+                             bbox['w'] * inner_box[2], bbox['h'] * inner_box[3])
                 fit = fit_text(e.label, inner, 'label', 'SemiBold', self.canvas, max_lines=1)
                 plan['label'] = {'text': e.label, 'bbox': inner, 'fit': asdict(fit), 'placement': 'inside'}
             elif label_box:
@@ -542,8 +561,8 @@ class IllustrationSolver:
         for r in il.relations:
             a, b = by_id[r.source]['art_bbox'], by_id[r.target]['art_bbox']
             rel = {'type': r.type, 'source': r.source, 'target': r.target, 'id': f'{r.source}->{r.target}', 'path': None, 'arrow': r.type in ARROWED, 'bar': r.type == 'blocks'}
-            if r.type == 'blocks' and by_id[r.source]['glyph'] == 'PROHIBIT':
-                # The overlay is the statement — no line between a ban and what it bans.
+            if (r.type == 'blocks' and by_id[r.source]['glyph'] == 'PROHIBIT') or (r.type == 'marks' and by_id[r.source]['glyph'] == 'MARK_CIRCLE'):
+                # The overlay is the statement — no line between a mark and what it marks.
                 out.append(rel)
                 continue
             if r.type in LINED:

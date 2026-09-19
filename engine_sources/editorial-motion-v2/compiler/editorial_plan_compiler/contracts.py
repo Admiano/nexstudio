@@ -25,10 +25,11 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 # Illustration program: a per-beat visual argument. Forms are topologies, glyphs are drawable
 # primitives, ops are timed state changes. None of these names is derived from wording.
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
-GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA')
+GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
+          'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME')
 ENTITY_KINDS = ('object', 'system', 'state', 'group', 'evidence', 'signal', 'agent')
 ENTITY_SIZES = ('hero', 'support', 'minor')
-RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans')
+RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans', 'marks')
 OPS = ('FILL', 'DRAW', 'CONNECT', 'EMIT', 'TRAVEL', 'GROW', 'SWAP', 'STRIKE', 'COUNT', 'INK', 'DIM', 'TRACE', 'SETTLE')
 OP_DEFAULT_MS = {'FILL': 900, 'DRAW': 520, 'CONNECT': 480, 'EMIT': 1100, 'TRAVEL': 700, 'GROW': 460, 'SWAP': 420, 'STRIKE': 380,
                  'COUNT': 620, 'INK': 320, 'DIM': 320, 'TRACE': 900, 'SETTLE': 360}

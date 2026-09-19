@@ -1,0 +1,277 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "glyph-shelf",
+ "aspects": [
+  "16x9",
+  "1x1",
+  "9x16"
+ ],
+ "brand": {
+  "ink": "#17120c",
+  "paper": "#f5f0e8",
+  "accent": "#b3472b",
+  "finish": "EDITORIAL_FLAT"
+ },
+ "voice": {
+  "source": "FIXTURE",
+  "words_per_second": 2.4
+ },
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "EXPLANATION",
+   "pattern": "SEQUENTIAL_SUPPORT_LIST",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "Notes, numbers and the mark that matters.",
+   "energy": 0.55,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "Notes and numbers",
+     "role": "hero",
+     "anchor_word": "numbers",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "the mark that matters.",
+     "role": "support",
+     "anchor_word": "mark",
+     "emphasis": 0.85,
+     "semantic_role": "qualifier"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "call",
+      "kind": "object",
+      "glyph": "CALLOUT",
+      "size": "support",
+      "label": "wait"
+     },
+     {
+      "id": "stick",
+      "kind": "evidence",
+      "glyph": "STICKY",
+      "size": "support",
+      "label": "pin it"
+     },
+     {
+      "id": "ring_d",
+      "kind": "state",
+      "glyph": "DONUT",
+      "size": "support",
+      "params": {
+       "count": 68
+      }
+     },
+     {
+      "id": "core",
+      "kind": "object",
+      "glyph": "NODE",
+      "size": "support",
+      "label": "core"
+     },
+     {
+      "id": "mark",
+      "kind": "signal",
+      "glyph": "MARK_CIRCLE",
+      "size": "minor"
+     }
+    ],
+    "relations": [
+     {
+      "type": "marks",
+      "source": "mark",
+      "target": "core"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "call",
+      "at": {
+       "word": "Notes"
+      },
+      "duration_ms": 500
+     },
+     {
+      "op": "DRAW",
+      "target": "stick",
+      "at": {
+       "word": "and"
+      },
+      "duration_ms": 460
+     },
+     {
+      "op": "GROW",
+      "target": "ring_d",
+      "at": {
+       "word": "numbers"
+      },
+      "duration_ms": 800,
+      "to": 0.68
+     },
+     {
+      "op": "COUNT",
+      "target": "ring_d",
+      "at": {
+       "word": "numbers"
+      },
+      "duration_ms": 800,
+      "to": 1
+     },
+     {
+      "op": "DRAW",
+      "target": "core",
+      "at": {
+       "word": "mark"
+      },
+      "duration_ms": 420
+     },
+     {
+      "op": "DRAW",
+      "target": "mark",
+      "at": {
+       "word": "matters."
+      },
+      "duration_ms": 520
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "PAYOFF",
+   "pattern": "PAYOFF_LOCKUP",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "Circle the winner, point at it, underline the claim.",
+   "energy": 0.6,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "Circle the winner",
+     "role": "hero",
+     "anchor_word": "Circle",
+     "emphasis": 0.92,
+     "semantic_role": "action"
+    },
+    {
+     "text": "underline the claim.",
+     "role": "support",
+     "anchor_word": "underline",
+     "emphasis": 0.85,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "RELATIONSHIP",
+    "entities": [
+     {
+      "id": "brst",
+      "kind": "signal",
+      "glyph": "BURST",
+      "size": "support",
+      "params": {
+       "rays": 9
+      }
+     },
+     {
+      "id": "arr",
+      "kind": "object",
+      "glyph": "ARROW",
+      "size": "support",
+      "params": {
+       "bend": -0.7
+      }
+     },
+     {
+      "id": "uln",
+      "kind": "object",
+      "glyph": "UNDERLINE",
+      "size": "support"
+     },
+     {
+      "id": "frm",
+      "kind": "object",
+      "glyph": "FRAME",
+      "size": "support"
+     },
+     {
+      "id": "target2",
+      "kind": "object",
+      "glyph": "RING",
+      "size": "support"
+     }
+    ],
+    "relations": [
+     {
+      "type": "points_at",
+      "source": "arr",
+      "target": "target2"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "brst",
+      "at": {
+       "word": "Circle"
+      },
+      "duration_ms": 420
+     },
+     {
+      "op": "DRAW",
+      "target": "target2",
+      "at": {
+       "word": "winner,"
+      },
+      "duration_ms": 400
+     },
+     {
+      "op": "DRAW",
+      "target": "arr",
+      "at": {
+       "word": "point"
+      },
+      "duration_ms": 460
+     },
+     {
+      "op": "CONNECT",
+      "target": "arr->target2",
+      "at": {
+       "word": "point"
+      },
+      "duration_ms": 400
+     },
+     {
+      "op": "DRAW",
+      "target": "frm",
+      "at": {
+       "word": "the"
+      },
+      "duration_ms": 380
+     },
+     {
+      "op": "DRAW",
+      "target": "uln",
+      "at": {
+       "word": "underline"
+      },
+      "duration_ms": 380
+     },
+     {
+      "op": "EMIT",
+      "target": "target2",
+      "at": {
+       "word": "claim."
+      },
+      "duration_ms": 600
+     }
+    ]
+   }
+  }
+ ]
+}
