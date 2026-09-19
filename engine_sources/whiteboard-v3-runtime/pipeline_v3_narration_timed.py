@@ -364,10 +364,16 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
         import random as _rnd
         out = []
         base = 0.0
+        beats = pl.get('beats') or []
         scenes = pl.get('sceneSpecs') or []
         for si, s in enumerate(scenes):
             wb = s.get('whiteboardRuntime') or {}
             dur = float(wb.get('sceneDuration') or 1)
+            # The video places each scene at its word-aligned beat start —
+            # narration pauses create gaps, so a cumulative-duration clock
+            # would schedule scratches early (before the ink appears).
+            bstart = (float(beats[si]['start_seconds'])
+                      if si < len(beats) else base)
             for i, st in enumerate(wb.get('drawPlan') or []):
                 role = st.get('soundRole')
                 if not role:
@@ -378,12 +384,12 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
                     out.append({
                         'role': role,
                         'file': snd.ROLE_FILE.get(role, snd.ROLE_FILE['marker.short']),
-                        'start': base + float(ps),
+                        'start': bstart + float(ps),
                         'duration': max(.05, float(pe) - float(ps)),
                         'offset': rnd.random() * 4.8,
                         'gain': snd.ROLE_GAIN.get(role, .12),
                         'seed': snd._seed(si, i, role)})
-            base += dur
+            base = bstart + dur
         if scenes:
             out.append({'role': 'cap', 'file': snd.ROLE_FILE['cap'],
                         'start': .04, 'duration': .23, 'offset': .15,
