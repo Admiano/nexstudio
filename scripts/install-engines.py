@@ -10,6 +10,7 @@ items={
  'stickman-performance':'NEXSTICK_PERFORMANCE_V2_ENGINE_SOURCE.zip',
  'sound':'SOUND_LIBRARY_V2_SOURCE.zip',
  'editorial-text-led-bundle':'EDITORIAL_TEXT_LED_BUNDLE_SOURCE.zip',
+ 'nita-motion':'NITA_MOTION_SYSTEM_ENGINE_SOURCE.zip',
 }
 ENGINES.mkdir(exist_ok=True)
 for name,archive in items.items():
