@@ -417,7 +417,12 @@ def encode_mp4(
     for p in ins:
         cmd += ['-i', str(p)]
     idx = {p: i + 1 for i, p in enumerate(ins)}
-    beds = [f'[{idx[p]}:a]' for p in ins if p != voiceover]
+    for p in ins:
+        tail = ',asplit=2[vo_sc][vo_mix]' if p is voiceover else f'[n{idx[p]}]'
+        filters.append(
+            f'[{idx[p]}:a]aformat=sample_fmts=fltp:channel_layouts=mono,'
+            f'aresample=48000{tail}')
+    beds = [f'[n{idx[p]}]' for p in ins if p != voiceover]
     if len(ins) >= 2 and voiceover:
         # VO is the timing/intelligibility authority; SFX + music bed duck
         # under it (6 dB-class duck, ~120 ms attack, ~280 ms release,
@@ -425,25 +430,26 @@ def encode_mp4(
         if len(beds) > 1:
             filters.append(
                 ''.join(beds) +
-                f'amix=inputs={len(beds)}:normalize=0[bed]')
+                f'amix=inputs={len(beds)}:normalize=0,'
+                'aformat=sample_fmts=fltp:channel_layouts=mono[bed]')
             bed_src = '[bed]'
         else:
             bed_src = beds[0]
         filters.append(
-            f'{bed_src}[{idx[voiceover]}:a]sidechaincompress='
+            f'{bed_src}[vo_sc]sidechaincompress='
             'threshold=0.02:ratio=8:attack=120:release=280[ducked];'
-            f'[ducked][{idx[voiceover]}:a]amix=inputs=2:normalize=0[m];'
+            f'[ducked][vo_mix]amix=inputs=2:normalize=0[m];'
             f'[m]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]'
         )
     elif ins:
         if len(beds) > 1:
             filters.append(
                 ''.join(beds) +
-                f'amix=inputs={len(beds)}:normalize=0,')
-            filters[-1] += f'loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]'
+                f'amix=inputs={len(beds)}:normalize=0[m];'
+                f'[m]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')
         else:
             filters.append(
-                f'[1:a]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')
+                f'{beds[0]}loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')
     if filters:
         cmd += ['-filter_complex', ';'.join(filters), '-map', '0:v', '-map', '[a]',
                 '-c:a', 'aac', '-b:a', '160k']
