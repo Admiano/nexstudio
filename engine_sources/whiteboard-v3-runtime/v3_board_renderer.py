@@ -758,7 +758,8 @@ _ICON_KEYWORDS = {
                'attorney', 'judge', 'reporter', 'editor', 'author',
                'barista', 'server', 'bartender', 'host', 'guide',
                'agent owner', 'customer agent'),
-    'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'system'),
+    'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'android',
+              'chatbot', 'automation bot'),
     'envelope': ('request', 'mail', 'email', 'message', 'letter', 'send', 'ticket',
                  'notification', 'inbox', 'invite'),
     'document': ('document', 'report', 'file', 'form', 'contract', 'invoice',
@@ -818,6 +819,16 @@ _TABLER_NODES_PATH = _ASSETS / 'icons' / 'tabler' / 'tabler-nodes-outline.json'
 _TABLER_META_PATH = _ASSETS / 'icons' / 'tabler' / 'icons.json'
 _TABLER = None
 
+# UI-furniture glyphs (menus, layout grids, control decorations) must never
+# serve as the drawing for a real-world concept.
+_TABLER_JUNK_PREFIXES = (
+    'menu', 'layout-', 'grid-', 'table-', 'row-', 'column-', 'sort-',
+    'math-', 'square-', 'letter-', 'spacing-', 'text-', 'align-',
+    'bracket', 'header', 'separator', 'section', 'breadcrumb', 'navbar',
+    'whitespace', 'marquee', 'article', 'typography', 'input-', 'forms',
+    'list-', 'box-model', 'clipboard-', 'copyleft', 'copyright',
+)
+
 
 def _tabler():
     global _TABLER
@@ -848,12 +859,14 @@ def _tabler_lookup(concept: str):
     wset = set(words) | {_singular(w) for w in words}
     best, best_score = None, 0.0
     for name, toks in index.items():
-        if name.endswith('-off'):
+        if (name.endswith('-off') or name in ('old', 'new', 'current')
+                or (name.startswith(_TABLER_JUNK_PREFIXES)
+                    and name not in ('list-check',))):
             continue
         name_parts = set(name.split('-'))
         score = 0.0
         for w in wset & toks:
-            score += 5 if w in name_parts else 3
+            score += (5 if w in name_parts else 3) + 0.15 * len(w)
         score += len(wset & name_parts)  # prefer covering more of the phrase
         score += 1.5 * len(wset & toks) / len(wset)  # phrase coverage
         score -= len(name) * 0.04
@@ -1010,15 +1023,15 @@ def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
 def _card_text_strokes(center, size, label, zone):
     """The fallback card lettered with its label — never a blank box."""
     txt = str(label).upper()
-    h = size * 0.20
-    maxw = size * 0.84
+    h = size * 0.19
+    maxw = size * 0.72
     words = txt.split()
     lines = None
     if len(words) > 1 and text_width(txt, h) > maxw:
         # two-line wrap at the most balanced word boundary
         best = min(range(1, len(words)),
-                   key=lambda i: abs(text_width(' '.join(words[:i]), h)
-                                     - text_width(' '.join(words[i:]), h)))
+                   key=lambda i: max(text_width(' '.join(words[:i]), h),
+                                     text_width(' '.join(words[i:]), h)))
         lines = [' '.join(words[:best]), ' '.join(words[best:])]
         tw = max(text_width(l, h) for l in lines)
         if tw > maxw:
@@ -1033,7 +1046,7 @@ def _card_text_strokes(center, size, label, zone):
             tw = text_width(txt, h)
         lines = [txt]
     strokes = []
-    oy = center[1] + h * (0.15 if len(lines) == 1 else -0.5)
+    oy = center[1] + h * (0.07 if len(lines) == 1 else -0.55)
     for li, ln in enumerate(lines):
         lw = text_width(ln, h)
         strokes += text_strokes(ln, (center[0] - lw / 2, oy + li * h * 1.15),
@@ -1082,8 +1095,8 @@ def _arrow_strokes(p0, p1):
 
 def _strike_strokes(size):
     """Cross-out X over a slot — the 'not this' transform."""
-    return [([(-0.62, -0.58), (0.62, 0.58)], 'accent', 1.5, False),
-            ([(0.62, -0.58), (-0.62, 0.58)], 'accent', 1.5, False)]
+    return [([(-0.52, -0.42), (0.52, 0.42)], 'accent', 1.5, False),
+            ([(0.52, -0.42), (-0.52, 0.42)], 'accent', 1.5, False)]
 
 
 def _emphasis_strokes(size):
@@ -1409,6 +1422,20 @@ def _scene_labels(scene: dict) -> list[str]:
     return labs or [scene.get('sceneId', 'scene')]
 
 
+def _group_len(g) -> float:
+    """Ink length of a group's strokes in board space (unit strokes scaled
+    by slot size; absolute entries are already board coordinates)."""
+    _kind, strokes, _c, size, _s = g
+    total = 0.0
+    for st in strokes:
+        pts = st[0]
+        absolute = st[4] if len(st) > 4 else False
+        scale = 1.0 if absolute else size
+        for a, b in zip(pts, pts[1:]):
+            total += math.hypot(b[0] - a[0], b[1] - a[1]) * scale
+    return total
+
+
 def _scene_groups(scene: dict, plan: dict, ratio: str):
     zone = scene['whiteboardRuntime']['boardZone']
     labels = _scene_labels(scene)
@@ -1508,6 +1535,26 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
         start = float(st.get('start', gi / max(1, len(groups))))
         end = float(st.get('end', (gi + 1) / max(1, len(groups))))
         out.append((g, start, max(end, start + 0.02)))
+    # Re-weight windows by real ink length so the pen draws at roughly
+    # constant physical speed — dense groups take longer, thin ones fly.
+    w0 = out[0][1]
+    w1 = out[-1][2]
+    if w1 > w0 and len(out) > 1:
+        lens = [max(1.0, _group_len(g)) for g, _s, _e in out]
+        total = sum(lens)
+        cur = w0
+        weighted = []
+        for i, (g, _s, _e) in enumerate(out):
+            seg = (w1 - w0) * lens[i] / total
+            weighted.append((g, cur, cur + max(seg, 0.02)))
+            cur += seg + 0.03
+        # keep the last end inside the original window
+        overflow = cur - 0.03 - w1
+        if overflow > 0:
+            shrink = (w1 - w0) / (cur - 0.03 - w0)
+            weighted = [(g, w0 + (s - w0) * shrink, w0 + (e - w0) * shrink)
+                        for g, s, e in weighted]
+        out = weighted
     return out
 
 
@@ -1653,8 +1700,10 @@ def render_transition_frame(prev_scene, next_scene, plan, ratio, p: float):
         lyr, _ = draw_scene_layer(scenes[j], plan, ratio, 999.0, cam, seed + j,
                                   zoom_dip)
         layers.append((lyr, 255))
+    trans = float((plan.get('pacing') or {}).get('transition_seconds', 0.62))
     if p > 0.55:
-        next_time = (p - 0.55) / 0.45 * dur * 0.5
+        # draw only the first `trans` seconds so ink is continuous at handoff
+        next_time = (p - 0.55) / 0.45 * trans
         lyr, tip = draw_scene_layer(next_scene, plan, ratio, next_time, cam,
                                     seed + idx, zoom_dip)
         layers.append((lyr, 255))
