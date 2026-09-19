@@ -1,0 +1,13 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <g>
+                    <circle cx="170" cy="130" r="40" stroke="#1A1A17" stroke-width="8" fill="none" stroke-dasharray="20 10"/>
+                </g>
+                <g style="animation-direction: reverse;">
+                    <circle cx="240" cy="180" r="30" stroke="#F5F0E4" stroke-width="6" fill="none" stroke-dasharray="15 8"/>
+                </g>
+                <path d="M120 220 H280" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="120" cy="220" r="8" fill="#F5F0E4"/>
+                <circle cx="280" cy="220" r="8" fill="#F5F0E4"/>
+            </g>
+          </svg>

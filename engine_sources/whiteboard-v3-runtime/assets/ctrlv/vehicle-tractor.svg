@@ -1,0 +1,41 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="160" ry="10" fill="#E2E8F0" opacity="0.6"/>
+            <!-- Ground -->
+            <rect x="30" y="255" width="340" height="5" rx="2" fill="#F5F0E4" opacity="0.2"/>
+
+            <g>
+                <!-- Large rear wheel -->
+                <circle  cx="145" cy="235" r="60" fill="#F5F0E4"/>
+                <circle cx="145" cy="235" r="48" fill="none" stroke="#F5F0E4" stroke-width="4" opacity="0.3"/>
+                <circle cx="145" cy="235" r="18" fill="#F5F0E4"/>
+                <!-- Tread lines -->
+                <g  stroke="#F5F0E4" stroke-width="5" stroke-linecap="round" opacity="0.4">
+                    <line x1="145" y1="175" x2="145" y2="295"/>
+                    <line x1="85" y1="235" x2="205" y2="235"/>
+                    <line x1="103" y1="193" x2="187" y2="277"/>
+                    <line x1="187" y1="193" x2="103" y2="277"/>
+                </g>
+
+                <!-- Small front wheel -->
+                <circle  cx="295" cy="245" r="30" fill="#F5F0E4"/>
+                <circle cx="295" cy="245" r="12" fill="#F5F0E4"/>
+
+                <!-- Body / Hood -->
+                <path d="M175 185 H340 V240 H175 Z" fill="#1A1A17"/>
+                <path d="M175 185 L220 155 H310 L340 185 Z" fill="#1A1A17"/>
+                <!-- Exhaust stack -->
+                <rect x="220" y="120" width="20" height="40" rx="5" fill="#F5F0E4"/>
+                <!-- Engine grill -->
+                <rect x="330" y="190" width="20" height="40" rx="4" fill="#F5F0E4" opacity="0.6"/>
+                <path d="M333 195 H345 M333 205 H345 M333 215 H345 M333 225 H345" stroke="#F5F0E4" stroke-width="2" opacity="0.5"/>
+
+                <!-- Cab -->
+                <rect x="175" y="140" width="90" height="50" rx="5" fill="#1A1A17"/>
+                <!-- Cab windows -->
+                <rect x="185" y="148" width="35" height="35" rx="4" fill="#F5F0E4" opacity="0.5"/>
+                <rect x="228" y="148" width="28" height="35" rx="4" fill="#F5F0E4" opacity="0.5"/>
+                <!-- Exhaust puff -->
+                <circle cx="232" cy="112" r="10" fill="#F5F0E4" opacity="0.5"/>
+                <circle style="animation-delay:-.4s;" cx="248" cy="98" r="7" fill="#F5F0E4" opacity="0.35"/>
+            </g>
+          </svg>

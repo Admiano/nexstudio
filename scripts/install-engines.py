@@ -5,6 +5,7 @@ SOURCES=ROOT/'engine_sources'; ENGINES=ROOT/'engines'
 items={
  'whiteboard':'WHITEBOARD_ENGINE_SOURCE.zip',
  'whiteboard-v3-system':'NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE.zip',
+ 'whiteboard-v3-approved-source':'NEXSTUDIO_WHITEBOARD_APPROVED_V3_SOURCE_FOCUSED_2026-09-18.zip',
  'explainer':'EXPLAINER_ENGINE_SOURCE.zip',
  'editorial':'EDITORIAL_MOTION_ENGINE_SOURCE.zip',
  'stickman':'STICKMAN_V5_1_ENGINE_SOURCE.zip',

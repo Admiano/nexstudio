@@ -1,0 +1,16 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Eiffel Tower Base -->
+            <path d="M140 260 L170 180 H230 L260 260 H220 L210 230 C205 220 195 220 190 230 L180 260 H140 Z" fill="#1A1A17"/>
+            <!-- Mid section -->
+            <path d="M175 160 L190 100 H210 L225 160 H175 Z" fill="#1A1A17"/>
+            <!-- Top section -->
+            <path d="M192 80 L198 30 H202 L208 80 H192 Z" fill="#1A1A17"/>
+            <!-- Platforms & Tip -->
+            <rect x="165" y="160" width="70" height="10" rx="4" fill="#F5F0E4"/>
+            <rect x="185" y="80" width="30" height="8" rx="2" fill="#F5F0E4"/>
+            <circle cx="200" cy="20" r="4" fill="#F5F0E4"/>
+            <path d="M200 30 V20" stroke="#1A1A17" stroke-width="2"/>
+            <!-- Clouds -->
+            <path d="M80 80 C80 60 120 60 120 80 H80 Z" fill="#F5F0E4" opacity="0.5"/>
+            <path d="M300 120 C300 100 340 100 340 120 H300 Z" fill="#F5F0E4" opacity="0.5" style="animation-delay:-1s"/>
+          </svg>

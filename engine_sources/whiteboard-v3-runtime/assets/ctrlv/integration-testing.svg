@@ -1,0 +1,25 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="140" ry="10" fill="#E2E8F0" opacity="0.6"/>
+            <g>
+                <!-- Modules -->
+                <rect x="80" y="80" width="60" height="60" rx="10" fill="#1A1A17"/>
+                <rect style="animation-delay: 0.5s;" x="260" y="80" width="60" height="60" rx="10" fill="#F5F0E4"/>
+                <rect style="animation-delay: 1s;" x="170" y="180" width="60" height="60" rx="10" fill="#F5F0E4"/>
+                
+                <!-- Connector Lines -->
+                <path d="M140 110 H260" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="8 8" fill="none"/>
+                <path style="animation-delay: 0.5s;" d="M110 140 L170 210" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="8 8" fill="none"/>
+                <path style="animation-delay: 1s;" d="M290 140 L230 210" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="8 8" fill="none"/>
+                
+                <!-- Data Particles flowing -->
+                <g>
+                    <circle cx="160" cy="110" r="5" fill="#F5F0E4"/>
+                    <circle style="animation-delay: 0.8s;" cx="130" cy="160" r="4" fill="#1A1A17"/>
+                    <circle style="animation-delay: 1.2s;" cx="270" cy="160" r="4" fill="#F5F0E4"/>
+                </g>
+                
+                <!-- Success Signal at Center -->
+                <circle cx="200" cy="140" r="15" fill="#F5F0E4" stroke="#1A1A17" stroke-width="3"/>
+                <path d="M195 140 L198 143 L205 137" stroke="#1A1A17" stroke-width="3" stroke-linecap="round" fill="none"/>
+            </g>
+          </svg>
