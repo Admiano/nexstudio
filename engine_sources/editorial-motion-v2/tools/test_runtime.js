@@ -269,7 +269,9 @@ async function runFixture(fx, base, browser) {
             why = lens.getAttribute('transform');
           }
           if (op.op === 'GROW') { const r = node.querySelector('rect[data-grow]') || node.querySelector('rect'); if (r) { ok = Math.abs(num(r.getAttribute('height')) / il.entities.find((x) => x.id === op.target).bbox.h - op.to) < 0.05; why = r.getAttribute('height'); } }
-          if (op.op === 'EMIT') { ok = Array.from(node.querySelectorAll('circle')).some((c) => Number(c.getAttribute('stroke-opacity')) > 0.3); }
+          // Persistent EMITs leave visible embers; a fully decaying pulse (to:0) is verified by the
+          // before/after pixel diff alone.
+          if (op.op === 'EMIT' && op.to !== 0) { ok = Array.from(node.querySelectorAll('circle')).some((c) => Number(c.getAttribute('stroke-opacity')) > 0.3); }
           rec.ops.push({ op: op.op, target: op.target, ok: Boolean(ok), why });
         }
         // Accent discipline: at the settled state only state-change ops may have introduced the accent colour.

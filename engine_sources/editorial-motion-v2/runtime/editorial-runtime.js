@@ -465,7 +465,8 @@
     return { layer, layers };
   }
 
-  function applyBackgroundState(bgNode, lt, beat) {
+  function applyBackgroundState(bgNode, lt, beat, stageFade) {
+    if (stageFade != null) bgNode.layer.style.opacity = stageFade.toFixed(4);
     if (!bgNode.layers.length) return;
     const settle = (beat.ensemble.events || []).find((e) => e.channel === 'BACKGROUND' && e.event === 'STAGE_SETTLE');
     const ss = settle ? settle.start_ms : 0, se = settle ? settle.end_ms : 0;
@@ -973,6 +974,12 @@
       default:
         throw new Error(`EditorialRuntime: unsupported glyph ${ent.glyph} (${ent.id})`);
     }
+    // Any entity can earn an EMIT pulse: build its ring lazily so the op works on every glyph.
+    if (!node.extra.rings && il.ops.some((o) => o.op === 'EMIT' && o.target === ent.id)) {
+      const c = centre(b), R = Math.hypot(b.w, b.h) / 2;
+      node.extra.R = R;
+      node.extra.rings = [svgEl('circle', { ...line, cx: c.x, cy: c.y, r: R * 0.3, stroke: accent, 'stroke-opacity': 0 }, g)];
+    }
     return node;
   }
 
@@ -1158,6 +1165,7 @@
       if (gl.extra.rings) {
         const em = propAt(node, 'emit', lt);
         const live = activeOps(node, 'EMIT', lt)[0];
+        const contained = Math.min(node.bb.w, node.bb.h) / 2;
         gl.extra.rings.forEach((ring, i, arr) => {
           let r, op;
           if (live) {
@@ -1165,8 +1173,10 @@
             r = lerp(gl.extra.R * 0.25, gl.extra.R, EASE.outCubic(p));
             op = p <= 0 ? 0 : (1 - p) * 0.9 + 0.1;
           } else {
-            r = gl.extra.R * (0.42 + (0.58 * (i + 1)) / arr.length);
-            op = em.v > 0 ? 0.55 - i * 0.12 : 0;
+            // Embers scale with the settled emit level and stay inside the entity so a
+            // quiet halo never inflates the entity's box into the copy.
+            r = contained * (0.3 + 0.55 * em.v) * (1 - i * 0.18);
+            op = em.v > 0 ? 0.55 * em.v * (1 - i * 0.22) : 0;
           }
           ring.setAttribute('r', f2(r));
           ring.setAttribute('stroke-opacity', op.toFixed(4));
@@ -1323,8 +1333,8 @@
     });
   }
 
-  function applyBeat(bn, lt) {
-    applyBackgroundState(bn.bg, lt, bn.beat);
+  function applyBeat(bn, lt, stageFade) {
+    applyBackgroundState(bn.bg, lt, bn.beat, stageFade);
     if (bn.media) applyMediaState(bn.media, lt, bn.beat, bn.ctx);
     if (bn.figure) applyFigureState(bn.figure, lt, bn.beat, bn.ctx);
     if (bn.data) applyDataState(bn.data, lt, bn.beat, bn.ctx);
@@ -1378,6 +1388,7 @@
     let raf = 0;
     let t0 = 0;
     const perf = { frames: 0, total_ms: 0, max_ms: 0 };
+    let currentOverlap = -1;
 
     function beatAt(ms) {
       for (let i = beats.length - 1; i >= 0; i -= 1) if (ms >= beats[i].beat.start_ms) return i;
@@ -1387,19 +1398,30 @@
     function seek(ms) {
       time = clamp(ms, 0, duration);
       const idx = beatAt(time);
-      if (idx !== current) {
-        // display, not visibility: children set their own visibility and would otherwise leak through.
-        beats.forEach((bn, i) => { bn.root.style.display = i === idx ? 'block' : 'none'; });
-        current = idx;
-      }
       const bn = beats[idx];
+      const lt = time - bn.beat.start_ms;
+      const tr = bn.beat.transition;
+      // L-cut overlap: while the outgoing beat runs its exit transition, the incoming
+      // beat's stage is already dressing underneath, so a cut lands on a set that is
+      // mid-arrival — never on bare paper.
+      const overlapIdx = tr && lt >= tr.start_ms && idx + 1 < beats.length ? idx + 1 : -1;
+      if (idx !== current || overlapIdx !== currentOverlap) {
+        // display, not visibility: children set their own visibility and would otherwise leak through.
+        beats.forEach((b, i) => { b.root.style.display = i === idx || i === overlapIdx ? 'block' : 'none'; });
+        bn.root.style.zIndex = overlapIdx >= 0 ? '1' : '';
+        if (overlapIdx >= 0) beats[overlapIdx].root.style.zIndex = '0';
+        current = idx;
+        currentOverlap = overlapIdx;
+      }
+      const stageFade = overlapIdx >= 0 ? 1 - EASE.inOutCubic(prog(lt, tr.start_ms, tr.end_ms)) : 1;
       if (grain) {
         const OFF = [[0, 0], [41, 17], [23, 88], [97, 53], [61, 131], [13, 73], [109, 29], [73, 107]];
         const o = OFF[Math.floor(time / 93) % OFF.length];
         grain.style.backgroundPosition = `${-o[0]}px ${-o[1]}px`;
       }
       const t1 = performance.now();
-      applyBeat(bn, time - bn.beat.start_ms);
+      applyBeat(bn, lt, stageFade);
+      if (overlapIdx >= 0) applyBeat(beats[overlapIdx], lt - tr.start_ms, 1);
       const dt = performance.now() - t1;
       perf.frames += 1;
       perf.total_ms += dt;
