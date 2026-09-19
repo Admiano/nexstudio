@@ -23,6 +23,9 @@ from .timing import BeatClock, EXIT_MS, LEAD_IN_MS, find_landing
 from .typefit import FLOOR_FRACTION, TRACKING, _face, fit_text, measure
 
 REGISTRY_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'illustration' / 'registry.json'
+# Additional licence-clean catalogues materialised by tools/build_community_registry.py; each entry is
+# resolved relative to its own registry root, so pack layout never reaches into this module.
+EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'icons-registry.json']
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
 GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
@@ -163,24 +166,32 @@ def _viewbox_for_art(art_bbox: Dict[str, float], art: Dict[str, float]) -> Dict[
 
 
 class IllustrationRegistry:
-    """Catalogue of drawable line assets P8 may reference by id. Never searched by wording here."""
+    """Catalogue of drawable line assets P8 may reference by id. Never searched by wording here.
 
-    def __init__(self, path: Path = REGISTRY_PATH):
+    Loads the authored AEV1 catalogue plus any licence-clean community catalogues listed in
+    EXTRA_REGISTRIES; ids are namespaced by their file path so packs can coexist without collisions."""
+
+    def __init__(self, path: Path = REGISTRY_PATH, extra_paths: Optional[List[Path]] = None):
         self.path = path
         self.root = path.parent
         self.items: Dict[str, Dict[str, Any]] = {}
-        if path.exists():
-            doc = json.loads(path.read_text())
-            self.items = {a['id']: a for a in doc['assets']}
-            self.version = doc.get('version')
-        else:
-            self.version = None
+        self._roots: Dict[str, Path] = {}
+        versions: List[str] = []
+        for p in [path] + list(extra_paths if extra_paths is not None else EXTRA_REGISTRIES):
+            if not p.exists():
+                continue
+            doc = json.loads(p.read_text())
+            for a in doc['assets']:
+                self.items[a['id']] = a
+                self._roots[a['id']] = p.parent
+            versions.append(str(doc.get('version') or p.name))
+        self.version = '+'.join(versions) if versions else None
 
     def resolve(self, ref: str, beat_id: str) -> Dict[str, Any]:
         item = self.items.get(ref)
         if not item:
             raise TreatmentError('ASSET_REF_UNKNOWN', f'{ref} is not in the illustration registry', beat_id)
-        p = self.root / item['path']
+        p = self._roots[ref] / item['path']
         if not p.exists():
             raise TreatmentError('ASSET_FILE_MISSING', str(p), beat_id)
         return {'id': ref, 'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'license': item['license'], 'family': item['family'],
@@ -503,18 +514,22 @@ class IllustrationSolver:
                         'params': op.params, 'state_change': op.op in STATE_CHANGE_OPS, 'anchor': op.at})
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
         # Entrance: every entity is on stage before its first op, in layout order, before the first landing.
+        # The stage must never stand empty while voice is already running: the first furniture always enters
+        # inside the lead-in, and the rest of the scene staggers after it.
         first_land = min([l for l in clock.landings_ms] or [LEAD_IN_MS + 200])
-        base = max(LEAD_IN_MS // 2, first_land - 120)
+        # The first furniture lands inside ~50ms so a cut never opens on bare paper.
+        base = max(LEAD_IN_MS // 5, min(first_land - 120, LEAD_IN_MS))
         enter: Dict[str, int] = {}
         for i, e in enumerate(ents):
             if e['id'] in carried_ids:
                 enter[e['id']] = 0
                 continue
-            t = base + i * ENTER_STAGGER_MS
+            t = min(base + i * ENTER_STAGGER_MS, first_land - 40)
+            t = max(LEAD_IN_MS // 5, t)
             first_op = min((o['start_ms'] for o in ops if o['target'] == e['id'] or o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id'])), default=None)
             if first_op is not None:
                 t = min(t, first_op - 160)
-            enter[e['id']] = max(LEAD_IN_MS // 2, int(t))
+            enter[e['id']] = max(LEAD_IN_MS // 5, int(t))
         for o in ops:
             if o['end_ms'] - o['start_ms'] < 120:
                 failures.append(f"OP_SQUEEZED:{o['op']}:{o['target']}")

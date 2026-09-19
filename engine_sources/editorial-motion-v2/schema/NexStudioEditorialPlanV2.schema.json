@@ -240,6 +240,32 @@
             "string",
             "null"
           ]
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "license": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "gain_db": {
+          "type": "number"
+        },
+        "loop": {
+          "type": "boolean"
+        },
+        "fade_in_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fade_out_ms": {
+          "type": "integer",
+          "minimum": 0
         }
       },
       "required": [
@@ -247,6 +273,24 @@
         "status",
         "path"
       ]
+    },
+    "surfaces": {
+      "type": "object",
+      "properties": {
+        "grain": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "paper": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": []
     },
     "beats": {
       "type": "array",
@@ -1401,37 +1445,6 @@
                                 "family": {
                                   "type": "string",
                                   "minLength": 1
-                                },
-                                "art_box": {
-                                  "type": "object",
-                                  "properties": {
-                                    "x": {
-                                      "type": "number",
-                                      "minimum": 0,
-                                      "maximum": 1
-                                    },
-                                    "y": {
-                                      "type": "number",
-                                      "minimum": 0,
-                                      "maximum": 1
-                                    },
-                                    "w": {
-                                      "type": "number",
-                                      "minimum": 0,
-                                      "maximum": 1
-                                    },
-                                    "h": {
-                                      "type": "number",
-                                      "minimum": 0,
-                                      "maximum": 1
-                                    }
-                                  },
-                                  "required": [
-                                    "x",
-                                    "y",
-                                    "w",
-                                    "h"
-                                  ]
                                 }
                               },
                               "required": [
@@ -1593,29 +1606,6 @@
                           },
                           "required": [],
                           "additionalProperties": false
-                        },
-                        "art_bbox": {
-                          "type": "object",
-                          "properties": {
-                            "x": {
-                              "type": "number"
-                            },
-                            "y": {
-                              "type": "number"
-                            },
-                            "w": {
-                              "type": "number"
-                            },
-                            "h": {
-                              "type": "number"
-                            }
-                          },
-                          "required": [
-                            "x",
-                            "y",
-                            "w",
-                            "h"
-                          ]
                         }
                       },
                       "required": [
@@ -1628,8 +1618,7 @@
                         "enter_ms",
                         "enter_duration_ms",
                         "carried",
-                        "state_in",
-                        "art_bbox"
+                        "state_in"
                       ]
                     },
                     "minItems": 1
