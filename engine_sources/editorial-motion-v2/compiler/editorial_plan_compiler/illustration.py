@@ -271,7 +271,10 @@ class IllustrationSolver:
         # A lens is not given a cell of its own: it sits over whatever it scans.
         scans = {r.source: r.target for r in il.relations if r.type == 'scans'}
         lenses = {e.id for e in il.entities if e.glyph == 'LENS' and il.form == 'CALLOUT_LENS'}
-        top = [e for e in il.entities if e.id not in contained and e.id not in lenses]
+        # A PROHIBIT that blocks something is worn by the target, not parked beside it.
+        blocks = {r.source: r.target for r in il.relations if r.type == 'blocks'}
+        prohibits = {e.id for e in il.entities if e.glyph == 'PROHIBIT' and e.id in blocks}
+        top = [e for e in il.entities if e.id not in contained and e.id not in lenses and e.id not in prohibits]
         vertical = self._vertical(il, zone, len(top))
         cells: Dict[str, Dict[str, float]]
         if il.form == 'RELATIONSHIP' and len(top) >= 4:
@@ -285,7 +288,7 @@ class IllustrationSolver:
             cells = self._cells(zone, order, vertical, CONNECTOR_GAP_FRAC if lined else GAP_FRAC)
         placed: Dict[str, Dict[str, Any]] = {}
         for e in il.entities:
-            if e.id in contained or e.id in lenses:
+            if e.id in contained or e.id in lenses or e.id in prohibits:
                 continue
             bbox, label_box = self._place(e, cells[e.id], zone, vertical, beat_id)
             placed[e.id] = self._entity_plan(e, bbox, label_box, failures, beat_id)
@@ -333,6 +336,39 @@ class IllustrationSolver:
                 bbox = _box(x, y, bw, bh)
                 placed[e.id] = self._entity_plan(e, bbox, None, failures, beat_id)
                 placed[e.id]['over'] = over_id
+        for e in il.entities:
+            if e.id in prohibits:
+                host = placed.get(blocks[e.id], {}).get('art_bbox')
+                if host is None:
+                    failures.append(f'PROHIBIT_WITHOUT_TARGET:{e.id}')
+                    bbox = _fit_aspect(zone, self._entity_ar(e, beat_id), 1.0)
+                else:
+                    hx, hy = _centre(host)
+                    d = max(host['w'], host['h']) * 1.2
+                    x = min(max(hx - d / 2, zone['x']), zone['x'] + zone['w'] - d)
+                    y = min(max(hy - d / 2, zone['y']), zone['y'] + zone['h'] - d)
+                    bbox = _box(x, y, d, d)
+                placed[e.id] = self._entity_plan(e, bbox, None, failures, beat_id)
+                placed[e.id]['blocks'] = blocks[e.id]
+        # A below-label has one line and cannot hyphenate, so a word that outgrows its cell borrows
+        # the inter-cell gaps: it widens symmetrically, capped at the midpoint to each neighbour's
+        # label centre and at the zone edges.
+        labelled = [p for e in il.entities if e.id in placed for p in (placed[e.id],)
+                    if p['label'] and p['label']['placement'] == 'below']
+        centres = sorted((_centre(cells[e.id])[0], e.id) for e in il.entities if e.id in cells and e.id in placed)
+        pad = min(self.canvas) * 0.008
+        for idx, (cx, eid) in enumerate(centres):
+            plan = placed[eid]
+            if not plan['label'] or plan['label'].get('placement') != 'below' or plan['label']['fit']['status'] == 'FIT':
+                continue
+            left = zone['x'] if idx == 0 else (centres[idx - 1][0] + cx) / 2
+            right = zone['x'] + zone['w'] if idx == len(centres) - 1 else (cx + centres[idx + 1][0]) / 2
+            lb = plan['label']['bbox']
+            lb['x'], lb['w'] = left + pad, right - left - pad * 2
+            plan['label']['fit'] = asdict(fit_text(plan['label']['text'], lb, 'label', 'SemiBold', self.canvas, max_lines=1))
+        for plan in labelled:
+            if plan['label']['fit']['status'] != 'FIT':
+                failures.append(f"ENTITY_LABEL_{plan['label']['fit']['status']}:{plan['id']}")
         ents = [placed[e.id] for e in il.entities]
         for i in range(len(ents)):
             if not _inside(ents[i]['art_bbox'], zone, 2):
@@ -340,6 +376,8 @@ class IllustrationSolver:
             for j in range(i + 1, len(ents)):
                 if ents[i].get('inside') == ents[j]['id'] or ents[j].get('inside') == ents[i]['id']:
                     continue
+                if ents[i].get('blocks') == ents[j]['id'] or ents[j].get('blocks') == ents[i]['id']:
+                    continue  # a prohibition is worn by what it blocks
                 if ents[i]['glyph'] == 'LENS' or ents[j]['glyph'] == 'LENS':
                     continue  # a lens is allowed to sit over what it inspects
                 if _overlap(ents[i]['art_bbox'], ents[j]['art_bbox']) > 0.5:
@@ -442,7 +480,8 @@ class IllustrationSolver:
             elif label_box:
                 fit = fit_text(e.label, label_box, 'label', 'SemiBold', self.canvas, max_lines=1)
                 plan['label'] = {'text': e.label, 'bbox': label_box, 'fit': asdict(fit), 'placement': 'below'}
-            if plan['label'] and plan['label']['fit']['status'] != 'FIT':
+            # 'below' labels are checked after the gap-borrowing pass in layout(), not here.
+            if plan['label'] and plan['label']['placement'] == 'inside' and plan['label']['fit']['status'] != 'FIT':
                 failures.append(f"ENTITY_LABEL_{plan['label']['fit']['status']}:{e.id}")
         return plan
 
@@ -454,6 +493,10 @@ class IllustrationSolver:
         for r in il.relations:
             a, b = by_id[r.source]['art_bbox'], by_id[r.target]['art_bbox']
             rel = {'type': r.type, 'source': r.source, 'target': r.target, 'id': f'{r.source}->{r.target}', 'path': None, 'arrow': r.type in ARROWED, 'bar': r.type == 'blocks'}
+            if r.type == 'blocks' and by_id[r.source]['glyph'] == 'PROHIBIT':
+                # The overlay is the statement — no line between a ban and what it bans.
+                out.append(rel)
+                continue
             if r.type in LINED:
                 ax, ay = _centre(a)
                 bx, by = _centre(b)

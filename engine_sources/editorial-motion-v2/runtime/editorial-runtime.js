@@ -904,9 +904,11 @@
       }
       case 'RING': {
         const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw, n = params.rings || 3;
-        const rings = [];
-        for (let i = 0; i < n; i += 1) rings.push(svgEl('circle', { ...line, cx: c.x, cy: c.y, r: R * 0.3, stroke: accent, 'stroke-opacity': 0 }, g));
-        node.extra.rings = rings;
+        // The glyph is a set of concentric rings; EMIT still layers its own pulse rings on top.
+        for (let i = 0; i < n; i += 1) {
+          const r = R * (n === 1 ? 1 : 0.42 + 0.58 * (i / (n - 1)));
+          node.outline.push(drawable(svgEl('circle', { ...line, cx: c.x, cy: c.y, r: f2(r) }, g), 2 * Math.PI * r));
+        }
         node.extra.R = R;
         break;
       }
@@ -1145,12 +1147,7 @@
     const ex = ctx.exitState({ block: { role: 'illustration' } }, lt);
     for (const node of ill.ents.values()) {
       const ent = node.ent, g = node.g, gl = node.glyph;
-      if (lt < ent.enter_ms) {
-        g.style.visibility = 'hidden';
-        if (node.label) node.label.wrap.style.visibility = 'hidden';
-        if (node.media) node.media.frame.style.visibility = 'hidden';
-        continue;
-      }
+      const preEntry = lt < ent.enter_ms;
       g.style.visibility = 'visible';
       const pe = ent.enter_duration_ms ? EASE.outQuint(prog(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms)) : 1;
       const dim = propAt(node, 'dim', lt).v;
@@ -1222,13 +1219,15 @@
         });
       }
       let transform = carryTransform(node, lt);
+      // 'none' (never '') keeps the declaration at a stable position in the style attribute —
+      // clearing then rewriting a decl moves it to the end, which makes the DOM differ across seek paths.
       if (ent.carry_from_bbox) {
         const from = ent.carry_from_bbox;
         const blur = velocityBlur(lt, 0, 420, EASE.inOutCubic, Math.hypot(from.x - node.bb.x, from.y - node.bb.y) + Math.abs(from.w - node.bb.w));
-        g.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
+        g.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : 'none';
       } else if (ent.enter_duration_ms) {
         const blur = velocityBlur(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms, EASE.outQuint, node.bb.h * 0.4);
-        g.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
+        g.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : 'none';
       }
       if (gl.extra.lens) {
         const p = lensPosition(node, ill, lt);
@@ -1249,6 +1248,13 @@
       if (node.media) {
         applyMediaState(node.media, lt, beat, ctx);
         node.media.frame.style.opacity = (Number(node.media.frame.style.opacity || 1) * dim).toFixed(4);
+      }
+      // Pre-entry entities still run the full property pipeline above so seek() produces the
+      // same driven-attribute set regardless of the path taken; only visibility is forced.
+      if (preEntry) {
+        g.style.visibility = 'hidden';
+        if (node.label) node.label.wrap.style.visibility = 'hidden';
+        if (node.media) node.media.frame.style.visibility = 'hidden';
       }
     }
     for (const r of ill.rels.values()) {

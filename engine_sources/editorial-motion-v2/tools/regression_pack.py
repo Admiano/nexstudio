@@ -97,7 +97,9 @@ def main() -> int:
     ap.add_argument('--skip-render', action='store_true')
     args = ap.parse_args()
 
-    root_out = Path(args.out)
+    # resolve() because compile_fixture hands outdir to a subprocess with a different cwd —
+    # a relative --out would split the compile tree from the render tree.
+    root_out = Path(args.out).resolve()
     root_out.mkdir(parents=True, exist_ok=True)
     aspects = args.aspects.split(',')
     wanted = set(args.fixture or [])
