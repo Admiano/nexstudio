@@ -946,7 +946,7 @@ def _icon_index():
     return _ICON_INDEX
 
 
-def _icon_lookup(concept: str):
+def _icon_lookup(concept: str, exclude=None):
     """Best icon for a free-text concept across all vendored icon sets,
     or None when nothing fits. Returns ('icon', dir, slug)."""
     words = [w for w in re.findall(r"[a-z0-9]+", str(concept).lower())
@@ -955,11 +955,14 @@ def _icon_lookup(concept: str):
         return None
     index = _icon_index()
     dashed = '-'.join(words)
-    if ('tabler', dashed) in index:
+    if (('tabler', dashed) in index
+            and not (exclude and ('icon', 'tabler', dashed) in exclude)):
         return ('icon', 'tabler', dashed)
     direct, expanded = _expanded(words)
     best, best_score = None, 0.0
     for (d, name), toks in index.items():
+        if exclude and ('icon', d, name) in exclude:
+            continue
         if d == 'tabler' and (
                 name.endswith('-off') or name in ('old', 'new', 'current')
                 or name.startswith(('brand-', 'steam', 'tiktok', 'meta'))
@@ -1181,7 +1184,7 @@ def _illust_ink(dir_name: str, slug: str) -> float:
     return total / side
 
 
-def _illust_lookup(concept: str):
+def _illust_lookup(concept: str, exclude=None):
     """(dir, slug) for the best matching vignette illustration, or None.
     Scene-level art beats a flat icon only when the match is strong — the
     label's main noun must land in the art's slug/title/tags — and the art
@@ -1207,6 +1210,8 @@ def _illust_lookup(concept: str):
             slug_parts = set(f.stem.split('-'))
             candidates.append((d, f.stem, slug_parts, slug_parts))
     for d, slug, slug_parts, toks in candidates:
+        if exclude and ('illust', d, slug) in exclude:
+            continue
         # a meaningful word must anchor the match — fuzzy tag overlap alone
         # ('gate open' -> 'open-notes') pulls wrong art
         if not (main & slug_parts) and not (main & toks and len(wset & toks) >= 2):
@@ -1246,7 +1251,17 @@ _EMPHASIS_TOKENS = {'important', 'critical', 'key', 'warning', 'urgent',
                     'must', 'never', 'always', 'alert', 'vital', 'best'}
 
 
-def icon_for(concept: str) -> str:
+def _asset_key(icon):
+    """Identity of the drawn asset for dedup — tuple art is keyed by its
+    file identity; plain props are generic enough to never collide."""
+    if isinstance(icon, tuple):
+        if icon[0] == 'overlay':
+            return ('overlay', _asset_key(icon[1]), _asset_key(icon[2]))
+        return tuple(icon[:3])
+    return (icon,)
+
+
+def _icon_for(concept: str, exclude=None):
     phrase = str(concept).lower().replace('-', ' ').replace('_', ' ').strip()
     words = phrase.split()
     wset = set(words)
@@ -1277,12 +1292,12 @@ def icon_for(concept: str) -> str:
         vi = _verb_icon(phrase)
         if vi:
             rest = ' '.join(w for w in words if w not in _VERB_TABLE)
-            base = _icon_lookup(rest) if rest else None
+            base = _icon_lookup(rest, exclude) if rest else None
             if base and 0 < len(rest.split()) <= 3:
                 return ('overlay', base, vi)
             return vi
         # a strong scene-vignette match beats the flat icon vocabulary
-        il = _illust_lookup(phrase)
+        il = _illust_lookup(phrase, exclude)
         if il:
             return il
         last = words[-1]
@@ -1298,7 +1313,7 @@ def icon_for(concept: str) -> str:
         # the icon vocabulary may still know the non-numeric words
         rest = ' '.join(w for w in words if not re.search(r'\d', w))
         if rest and rest not in ('min', 'minute', 'hour', 'day'):
-            hit = _icon_lookup(rest)
+            hit = _icon_lookup(rest, exclude)
             if hit:
                 return hit
         if re.search(r'\b(min|mins|minute|minutes|hour|hours|sec|seconds|day|days|am|pm)\b', phrase):
@@ -1309,10 +1324,27 @@ def icon_for(concept: str) -> str:
     # last-word bespoke art ('giant octopus' -> octopus.svg)
     if words and (_CUSTOM_DIR / f'{_slug(words[-1])}.svg').is_file():
         return ('custom', _slug(words[-1]))
-    hit = _icon_lookup(phrase)
+    hit = _icon_lookup(phrase, exclude)
     if hit:
         return hit
     return 'card'
+
+
+def icon_for(concept: str, used=None):
+    """Resolve a label to art, honouring a per-reel asset registry.
+
+    `used` maps asset key -> normalized label. An identical label reuses
+    its asset (continuity); a different label may not clone art that a
+    different label already claimed — it takes the next-best distinct
+    asset instead ('square window' vs 'window pane' must differ)."""
+    if used is None:
+        return _icon_for(concept)
+    label = ' '.join(str(concept).lower().replace('-', ' ').split())
+    excl = {k for k, v in used.items() if v != label}
+    icon = _icon_for(concept, excl)
+    key = ('card', label) if icon == 'card' else _asset_key(icon)
+    used.setdefault(key, label)
+    return icon
 
 
 def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
@@ -1471,8 +1503,8 @@ def _stable_hash(s: str) -> int:
 # Scene composition — character anchors left, props compose right; no connectors
 # ---------------------------------------------------------------------------
 
-def _scene_slots(labels: list[str], zone: dict, ratio: str):
-    icons = [icon_for(l) for l in labels]
+def _scene_slots(labels: list[str], zone: dict, ratio: str, used=None):
+    icons = [icon_for(l, used) for l in labels]
     x, y, w, h = zone['x'], zone['y'], zone['w'], zone['h']
     portrait = ratio == '9:16'
     cy = y + h * (0.54 if portrait else 0.56)
@@ -1818,7 +1850,8 @@ def _ease_inv(p: float) -> float:
 def _scene_groups(scene: dict, plan: dict, ratio: str):
     zone = scene['whiteboardRuntime']['boardZone']
     labels = _scene_labels(scene)
-    slots = _scene_slots(labels, zone, ratio)
+    slots = _scene_slots(labels, zone, ratio,
+                         plan.setdefault('_icon_used', {}))
 
     order = {'headline': -1, 'ground': 0, 'icon': 0, 'arrow': 0.5,
              'bubble': 1, 'marks': 2, 'sparkle': 2, 'strike': 2.5,
