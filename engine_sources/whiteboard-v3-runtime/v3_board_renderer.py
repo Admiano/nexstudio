@@ -718,6 +718,17 @@ _ICON_KEYWORDS = {
                'musician', 'athlete', 'engineer', 'lawyer', 'accountant',
                'designer', 'writer', 'analyst', 'consultant', 'driver',
                'chef', 'scientist', 'professor', 'builder', 'contractor',
+               'veterinarian', 'vet', 'firefighter', 'logger', 'lumberjack',
+               'plumber', 'electrician', 'mechanic', 'pilot', 'soldier',
+               'sailor', 'fisherman', 'photographer', 'waiter', 'barber',
+               'coach', 'referee', 'guard', 'officer', 'police', 'detective',
+               'janitor', 'cleaner', 'baker', 'butcher', 'cashier', 'welder',
+               'carpenter', 'mason', 'roofer', 'painter', 'technician',
+               'programmer', 'marketer', 'salesman', 'broker', 'advisor',
+               'therapist', 'surgeon', 'pharmacist', 'radiologist', 'dentist',
+               'dentist', 'ranger', 'forester', 'biologist', 'operator',
+               'inspector', 'supervisor', 'dispatcher', 'conductor',
+               'attorney', 'judge', 'reporter', 'editor', 'author',
                'agent owner', 'customer agent'),
     'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'system'),
     'envelope': ('request', 'mail', 'email', 'message', 'letter', 'send', 'ticket',
@@ -770,6 +781,138 @@ _ICON_KEYWORDS = {
 
 _PERSON_AGENT_PREFIXES = ('human', 'support', 'customer', 'live', 'service', 'real')
 
+# ---------------------------------------------------------------------------
+# Tabler vocabulary — 4,964 stroke-style icons (MIT) searched by name/tags,
+# so any domain (animals, transport, forestry, health) resolves to a real
+# drawing instead of a placeholder tile.
+# ---------------------------------------------------------------------------
+_TABLER_NODES_PATH = _ASSETS / 'icons' / 'tabler' / 'tabler-nodes-outline.json'
+_TABLER_META_PATH = _ASSETS / 'icons' / 'tabler' / 'icons.json'
+_TABLER = None
+
+
+def _tabler():
+    global _TABLER
+    if _TABLER is None:
+        nodes = json.loads(_TABLER_NODES_PATH.read_text())
+        meta = json.loads(_TABLER_META_PATH.read_text())
+        index = {}
+        for name, m in meta.items():
+            toks = set(name.split('-'))
+            toks |= {str(t).lower() for t in (m.get('tags') or [])}
+            if m.get('category'):
+                toks.add(str(m['category']).lower())
+            index[name] = toks
+        _TABLER = (nodes, index)
+    return _TABLER
+
+
+def _tabler_lookup(concept: str):
+    """Best icon name for a free-text concept, or None when nothing fits."""
+    nodes, index = _tabler()
+    words = [w for w in re.findall(r"[a-z0-9]+", str(concept).lower())
+             if len(w) > 2]
+    if not words:
+        return None
+    dashed = '-'.join(words)
+    if dashed in nodes:
+        return dashed
+    wset = set(words)
+    best, best_score = None, 0.0
+    for name, toks in index.items():
+        if name.endswith('-off'):
+            continue
+        name_parts = set(name.split('-'))
+        score = 0.0
+        for w in wset & toks:
+            score += 5 if w in name_parts else 3
+        score += len(wset & name_parts)  # prefer covering more of the phrase
+        score += 1.5 * len(wset & toks) / len(wset)  # phrase coverage
+        score -= len(name) * 0.04
+        if score > best_score:
+            best, best_score = name, score
+    return best if best_score >= 3.5 else None
+
+
+def _shape_to_d(tag: str, a: dict) -> str:
+    if tag == 'line':
+        return f"M{a.get('x1',0)} {a.get('y1',0)}L{a.get('x2',0)} {a.get('y2',0)}"
+    if tag == 'circle':
+        cx, cy, r = (float(a.get(k, 0)) for k in ('cx', 'cy', 'r'))
+        return (f"M{cx - r} {cy}a{r} {r} 0 1 0 {2 * r} 0a{r} {r} 0 1 0 "
+                f"{-2 * r} 0")
+    if tag in ('rect',):
+        x, y = float(a.get('x', 0)), float(a.get('y', 0))
+        w, h = float(a.get('width', 0)), float(a.get('height', 0))
+        rx = float(a.get('rx', 0))
+        if rx:
+            return (f"M{x + rx} {y}h{w - 2 * rx}a{rx} {rx} 0 0 1 {rx} {rx}"
+                    f"v{h - 2 * rx}a{rx} {rx} 0 0 1 {-rx} {rx}h{-w + 2 * rx}"
+                    f"a{rx} {rx} 0 0 1 {-rx} {-rx}v{-h + 2 * rx}"
+                    f"a{rx} {rx} 0 0 1 {rx} {-rx}")
+        return f"M{x} {y}h{w}v{h}h{-w}Z"
+    if tag in ('polyline', 'polygon'):
+        seq = str(a.get('points', '')).replace(',', ' ').split()
+        d = 'M' + ' L'.join(f"{seq[i]} {seq[i + 1]}"
+                            for i in range(0, len(seq) - 1, 2))
+        return d + ('Z' if tag == 'polygon' else '')
+    if tag == 'ellipse':
+        cx, cy, rx, ry = (float(a.get(k, 0)) for k in ('cx', 'cy', 'rx', 'ry'))
+        return (f"M{cx - rx} {cy}a{rx} {ry} 0 1 0 {2 * rx} 0a{rx} {ry} 0 1 0 "
+                f"{-2 * rx} 0")
+    return ''
+
+
+_TABLER_STROKE_CACHE: dict = {}
+
+
+def _tabler_strokes(name: str):
+    """Unit-space strokes for a tabler icon; decorative sub-paths get accent."""
+    if name in _TABLER_STROKE_CACHE:
+        return _TABLER_STROKE_CACHE[name]
+    nodes, _ = _tabler()
+    ds: list[str] = []
+
+    def collect(el):
+        if isinstance(el, list) and el:
+            if el[0] == 'path':
+                ds.append(el[1].get('d', ''))
+            elif el[0] in ('circle', 'rect', 'line', 'polyline', 'polygon',
+                           'ellipse'):
+                ds.append(_shape_to_d(el[0], el[1]))
+            else:
+                for ch in el:
+                    collect(ch)
+
+    collect(nodes.get(name) or [])
+    svg = ("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>"
+           + ''.join(f"<path d='{d}'/>" for d in ds if d) + '</svg>')
+    elements, _vb = svg_paths.elements_from_string(svg)
+    strokes = []
+    for polys, _fill, _closed in elements:
+        for poly in polys:
+            if len(poly) < 2:
+                continue
+            strokes.append(([(x / 24.0 - 0.5, y / 24.0 - 0.5) for x, y in poly],
+                            'ink', 0.95, False))
+    # accent the small decorative details (eyes, ticks, dots) — never big shapes
+    if len(strokes) > 3:
+        for i, (poly, _c, w, _f) in enumerate(strokes):
+            bw = max(p[0] for p in poly) - min(p[0] for p in poly)
+            bh = max(p[1] for p in poly) - min(p[1] for p in poly)
+            if bw < 0.16 and bh < 0.16:
+                strokes[i] = (poly, 'accent', w * 1.15, False)
+    _TABLER_STROKE_CACHE[name] = strokes
+    return strokes
+
+
+_STAT_RE = re.compile(r"^[\$£€]?\s*\d[\d,\.]*\s*(%|[kmbx×+]|[a-z]{1,7})?\.?$",
+                      re.I)
+_STRIKE_TOKENS = {'old', 'manual', 'before', 'outdated', 'legacy', 'broken',
+                  'without', 'no', 'boring', 'slow', 'bad'}
+_EMPHASIS_TOKENS = {'important', 'critical', 'key', 'warning', 'urgent',
+                    'must', 'never', 'always', 'alert', 'vital', 'best'}
+
 
 def icon_for(concept: str) -> str:
     phrase = str(concept).lower().replace('-', ' ').replace('_', ' ').strip()
@@ -790,24 +933,120 @@ def icon_for(concept: str) -> str:
             if last in keys:
                 return icon
     for icon, keys in _ICON_KEYWORDS.items():
-        if any(k in wset or (len(k) > 3 and k in phrase) for k in keys):
+        if any(k in wset or (len(k) >= 6 and k in phrase) for k in keys):
             return icon
+    if _STAT_RE.match(phrase):
+        return 'stat'
     if re.search(r'\d', phrase):
         if re.search(r'\b(min|mins|minute|minutes|hour|hours|sec|seconds|day|days|am|pm)\b', phrase):
             return 'clock'
         if re.search(r'(%|\$|bp|bps|\bx\b|\bk\b)', phrase):
             return 'chart'
         return 'coin'
-    return 'tile'
+    tb = _tabler_lookup(phrase)
+    if tb:
+        return ('tabler', tb)
+    return 'card'
 
 
-def _strokes_for(icon: str, pose='point', facing: int = 1, cast=None):
+def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
+    if isinstance(icon, tuple) and icon[0] == 'tabler':
+        return _tabler_strokes(icon[1])
     if icon == 'person':
         spec = cast if isinstance(cast, dict) else (cast or pose)
         return _peeps_strokes(spec, facing)
     if icon == 'agent':
         return _robot_strokes()
+    if icon == 'card':
+        return [(_rounded_rect(-0.5, -0.34, 1.0, 0.68, 0.08), 'ink', 1.0),
+                (_P((-0.34, -0.34), (0, -0.14), (-0.05, -0.26)), 'accent', 0.9)]
     return PROPS.get(icon, PROPS['tile'])
+
+
+def _card_text_strokes(center, size, label, zone):
+    """The fallback card lettered with its label — never a blank box."""
+    txt = str(label).upper()
+    h = size * 0.20
+    maxw = size * 0.84
+    words = txt.split()
+    lines = None
+    if len(words) > 1 and text_width(txt, h) > maxw:
+        # two-line wrap at the most balanced word boundary
+        best = min(range(1, len(words)),
+                   key=lambda i: abs(text_width(' '.join(words[:i]), h)
+                                     - text_width(' '.join(words[i:]), h)))
+        lines = [' '.join(words[:best]), ' '.join(words[best:])]
+        tw = max(text_width(l, h) for l in lines)
+        if tw > maxw:
+            h *= maxw / tw
+    if lines is None:
+        tw = text_width(txt, h)
+        if len(words) <= 1 and tw > maxw:  # one long word: shrink, not chop
+            h *= maxw / tw
+            tw = text_width(txt, h)
+        while tw > maxw and len(txt) > 4:
+            txt = txt[:-4] + '...'
+            tw = text_width(txt, h)
+        lines = [txt]
+    strokes = []
+    oy = center[1] + h * (0.15 if len(lines) == 1 else -0.5)
+    for li, ln in enumerate(lines):
+        lw = text_width(ln, h)
+        strokes += text_strokes(ln, (center[0] - lw / 2, oy + li * h * 1.15),
+                                h, 'ink', 0.95)
+    return strokes
+
+
+def _stat_strokes(center, size, label):
+    """A number written large — the crypto-explainer stat callout."""
+    txt = str(label).strip().upper()
+    h = size * 0.52
+    tw = text_width(txt, h)
+    maxw = size * 1.5
+    if tw > maxw:
+        h *= maxw / tw
+        tw = text_width(txt, h)
+    origin = (center[0] - tw / 2, center[1] + h * 0.15)
+    strokes = text_strokes(txt, origin, h, 'ink', 1.5)
+    strokes += [([(px + h * 0.04, py + h * 0.02) for px, py in s[0]],
+                 s[1], s[2], s[3], s[4]) for s in list(strokes)]
+    y = origin[1] + h * 0.34
+    strokes.append(([(origin[0] - tw * 0.06, y), (origin[0] + tw * 1.06, y)],
+                    'accent', 1.2, False, True))
+    return strokes
+
+
+def _arrow_strokes(p0, p1):
+    """Curved accent arrow — the drawn verb between actor and object."""
+    mx = (p0[0] + p1[0]) / 2
+    cy = min(p0[1], p1[1]) - abs(p1[0] - p0[0]) * 0.14
+    pts = [((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * mx + t * t * p1[0],
+            (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * cy + t * t * p1[1])
+           for t in (i / 18 for i in range(19))]
+    ex, ey = pts[-1][0] - pts[-2][0], pts[-1][1] - pts[-2][1]
+    m = math.hypot(ex, ey) or 1
+    ux, uy = ex / m, ey / m
+    px, py = -uy, ux
+    L = math.hypot(p1[0] - p0[0], p1[1] - p0[1]) * 0.16
+    tip = p1
+    base = (p1[0] - ux * L, p1[1] - uy * L)
+    head = [[(base[0] + px * L * 0.45, base[1] + py * L * 0.45), tip,
+             (base[0] - px * L * 0.45, base[1] - py * L * 0.45)]]
+    return [(pts, 'accent', 1.0, False, True),
+            (head[0], 'accent', 1.0, False, True)]
+
+
+def _strike_strokes(size):
+    """Cross-out X over a slot — the 'not this' transform."""
+    return [([(-0.62, -0.58), (0.62, 0.58)], 'accent', 1.5, False),
+            ([(0.62, -0.58), (-0.62, 0.58)], 'accent', 1.5, False)]
+
+
+def _emphasis_strokes(size):
+    """Loose circle around a slot — drawn emphasis on the key item."""
+    pts = [(0.62 * math.cos(a), 0.52 * math.sin(a))
+           for a in [i * math.pi / 10 + 0.2 for i in range(22)]]
+    return [(pts, 'accent', 1.3, False)]
 
 
 def _pose_for_label(label: str) -> str:
@@ -930,6 +1169,12 @@ def _scene_slots(labels: list[str], zone: dict, ratio: str):
                                 size=size, icon=icons[i], label=labels[i],
                                 pose=None, facing=1, cast=None, bubble=False)
 
+    # actors face the scene center — dialogue reads correctly at any layout
+    zcx = x + w / 2
+    for s in slots:
+        if s and s['icon'] in ('person', 'agent'):
+            s['facing'] = 1 if s['center'][0] <= zcx else -1
+
     if people:
         for s in slots:
             if s is None or s['icon'] == 'agent':
@@ -986,8 +1231,15 @@ _HATCH_COLOR = {'paper': 'pale', 'accfill': 'accdeep', 'accdeep': 'accdeep',
                 'inkfill': 'ink'}
 
 
+def _stroke_tip(pts_s, p):
+    """Analytic pen tip for a partially drawn stroke (no rasterizing)."""
+    if not pts_s:
+        return None
+    return wbp._partial(pts_s, p)[-1]
+
+
 def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
-                  seed, zoom=1.0):
+                  seed, zoom=1.0, draw=True):
     """Draw a stroke group; returns the screen-space pen tip while drawing.
 
     Outlines draw first with tapered marker strokes; filled regions then
@@ -1013,6 +1265,10 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             pts_b = [(center[0] + px * size, center[1] + py * size)
                      for px, py in pts]
         pts_s = [wbp._map_point(q, cam, ratio, zoom) for q in pts_b]
+        if not draw:
+            if 0 < p < 1:
+                tip = _stroke_tip(pts_s, p)
+            continue
         if fill:
             # marker shading pass: hatches sweep in over the last 60% of the
             # element window, following the outline
@@ -1109,19 +1365,39 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
     labels = _scene_labels(scene)
     slots = _scene_slots(labels, zone, ratio)
 
-    order = {'headline': -1, 'ground': 0, 'icon': 0, 'bubble': 1,
-             'marks': 2, 'sparkle': 2, 'caption': 3}
+    order = {'headline': -1, 'ground': 0, 'icon': 0, 'arrow': 0.5,
+             'bubble': 1, 'marks': 2, 'sparkle': 2, 'strike': 2.5,
+             'emphasis': 2.6, 'caption': 3}
     groups = [('headline', _headline_strokes(scene, zone, ratio),
                (zone['x'], zone['y']), 1.0, None)]
     for s in slots:
-        groups.append(('icon', _strokes_for(s['icon'], s.get('pose') or 'point',
-                                            s.get('facing', 1), s.get('cast')),
-                       s['center'], s['size'], s))
+        if s['icon'] == 'stat':
+            groups.append(('icon', _stat_strokes(s['center'], s['size'],
+                                                 s['label']),
+                           s['center'], s['size'], s))
+            s['no_caption'] = True
+        else:
+            groups.append(('icon', _strokes_for(
+                s['icon'], s.get('pose') or 'point', s.get('facing', 1),
+                s.get('cast')), s['center'], s['size'], s))
+        if s['icon'] == 'card':
+            groups.append(('icon', _card_text_strokes(s['center'], s['size'],
+                                                      s['label'], zone),
+                           s['center'], s['size'], s))
+            s['no_caption'] = True
         if s['icon'] in ('person', 'agent'):
             gc = (s['center'][0], s['center'][1] + s['size'] * 0.52)
             groups.append(('ground', _ground_shadow_strokes(), gc, s['size'], s))
             if s['icon'] == 'person':
                 groups.append(('marks', _motion_marks_strokes(), s['center'], s['size'], s))
+        low_lbl = str(s['label']).lower()
+        ltoks = set(re.findall(r"[a-z']+", low_lbl))
+        if ltoks & _STRIKE_TOKENS or low_lbl.startswith(('no ', 'not ')):
+            groups.append(('strike', _strike_strokes(s['size']),
+                           s['center'], s['size'], s))
+        if ltoks & _EMPHASIS_TOKENS or '!' in str(s['label']):
+            groups.append(('emphasis', _emphasis_strokes(s['size']),
+                           s['center'], s['size'], s))
         if s.get('bubble'):
             bx = min(s['center'][0] + s['size'] * 0.55 * s.get('facing', 1),
                      zone['x'] + zone['w'] - s['size'] * 0.35)
@@ -1132,10 +1408,25 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             groups.append(('sparkle', _ping_strokes(), s['center'], s['size'], s))
         if s['icon'] in ('check', 'coin', 'coins', 'rocket', 'lightbulb', 'chart', 'target'):
             groups.append(('sparkle', _sparkle_strokes(), s['center'], s['size'], s))
+    # verb arrow — the drawn relationship from actor to first object
+    person_slots = [s for s in slots if s['icon'] == 'person']
+    prop_slots = [s for s in slots if s['icon'] not in ('person', 'agent')]
+    if person_slots and prop_slots:
+        p, q = person_slots[0], prop_slots[0]
+        p0 = (p['center'][0] + p['size'] * 0.40 * p.get('facing', 1),
+              p['center'][1] - p['size'] * 0.08)
+        p1 = (q['center'][0] - q['size'] * 0.55 * p.get('facing', 1),
+              q['center'][1] - q['size'] * 0.08)
+        if abs(p1[0] - p0[0]) > p['size'] * 0.15:
+            groups.append(('arrow', _arrow_strokes(p0, p1), (0, 0), 1.0, None))
+
     # two caption rows: neighbors whose text ranges overlap drop to row 1
     prev_edge = None
     row = 0
     for s in sorted(slots, key=lambda s: s['center'][0]):
+        if s.get('no_caption'):
+            prev_edge = None
+            continue
         strokes, x0, x1 = _caption_strokes(s['center'], s['size'],
                                            s['label'], zone, row)
         if prev_edge is not None and x0 < prev_edge + 10:
@@ -1160,7 +1451,7 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
 
 
 def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
-                     cam=None, seed=7, zoom=1.0):
+                     cam=None, seed=7, zoom=1.0, draw=True):
     """Returns (layer, pen_tip_screen_or_None) — the tip feeds the hand."""
     layer = Image.new('RGBA', wbp.RATIO_SIZES[ratio], (0, 0, 0, 0))
     cam = cam or wbp._camera(scene, ratio)
@@ -1172,10 +1463,52 @@ def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
         if p <= 0:
             continue
         t = _draw_strokes(layer, strokes or [], center, size, cam, colors,
-                          ratio, p, seed + gi * 97, zoom)
+                          ratio, p, seed + gi * 97, zoom, draw)
         if p < 1 and t is not None:
             tip = t
     return layer, tip
+
+
+def _tip_at(scene, plan, ratio, t, cam, seed, zoom):
+    """Pen tip at a time — cheap analytic pass used for hand travel smoothing."""
+    _, tip = draw_scene_layer(scene, plan, ratio, t, cam, seed, zoom,
+                              draw=False)
+    return tip
+
+
+def _smooth_tip(scene, plan, ratio, scene_time, cam, seed, zoom):
+    """Hand position with travel lag and exit slide — the hand never
+    teleports between elements."""
+    tip = _tip_at(scene, plan, ratio, scene_time, cam, seed, zoom)
+    if tip is not None:
+        back = _tip_at(scene, plan, ratio, scene_time - 0.14, cam, seed, zoom)
+        if back is not None:
+            tip = (back[0] + (tip[0] - back[0]) * 0.72,
+                   back[1] + (tip[1] - back[1]) * 0.72)
+        return tip
+    # exited — find when ink last moved and slide the hand off
+    last = None
+    for back_dt in (0.08, 0.2, 0.35, 0.55):
+        b = _tip_at(scene, plan, ratio, scene_time - back_dt, cam, seed, zoom)
+        if b is not None:
+            last = (b, back_dt)
+            break
+    if last is None:
+        return None
+    (bx, by), dt = last
+    return (bx, by + dt * 90 + 14)
+
+
+def _emphasis_focus(scene, plan, ratio, scene_time):
+    """Board point + strength for camera focus on an emphasized item."""
+    for (kind, _st, center, _size, slot), start, end in _scene_groups(
+            scene, plan, ratio):
+        if kind == 'emphasis':
+            e = wbp._ease(wbp._clamp((scene_time - start) /
+                                     max(0.05, (end - start) * 0.5)))
+            if e > 0:
+                return center, e
+    return None, 0.0
 
 
 def _scene_zoom(scene, scene_time: float, ratio: str) -> float:
@@ -1208,12 +1541,17 @@ def _composite_frame(plan: dict, ratio: str, cam, layers: list[tuple[Image.Image
 def render_scene_frame(scene: dict, plan: dict, ratio: str, scene_time: float) -> Image.Image:
     cam = wbp._camera(scene, ratio)
     zoom = _scene_zoom(scene, scene_time, ratio)
+    # camera leans toward an emphasized item while its circle draws
+    focus, estrength = _emphasis_focus(scene, plan, ratio, scene_time)
+    if focus and estrength > 0:
+        cam = (cam[0] + (focus[0] - cam[0]) * 0.22 * estrength,
+               cam[1] + (focus[1] - cam[1]) * 0.22 * estrength)
+        zoom *= 1 + 0.05 * estrength
     scenes = plan.get('sceneSpecs') or [scene]
     idx = next((i for i, s in enumerate(scenes)
                 if s.get('sceneId') == scene.get('sceneId')), 0)
     wb = scene.get('whiteboardRuntime') or {}
     seed = int(wb.get('seed', 7))
-    tip = None
     layers = []
     for j in range(idx):
         lyr, _ = draw_scene_layer(scenes[j], plan, ratio, 999.0, cam,
@@ -1221,6 +1559,13 @@ def render_scene_frame(scene: dict, plan: dict, ratio: str, scene_time: float) -
         layers.append((lyr, 255))
     lyr, tip = draw_scene_layer(scene, plan, ratio, scene_time, cam,
                                 seed + idx, zoom)
+    if tip is not None:
+        # smooth with a lagging sample — hand sweeps, never teleports
+        tip = _smooth_tip(scene, plan, ratio, scene_time, cam, seed + idx,
+                          zoom)
+    elif scene_time > 0.05:
+        tip = _smooth_tip(scene, plan, ratio, scene_time, cam, seed + idx,
+                          zoom)
     layers.append((lyr, 255))
     frame = _composite_frame(plan, ratio, cam, layers, seed)
     return _overlay_hand(frame, tip, ratio, scene_time * 8 + seed)

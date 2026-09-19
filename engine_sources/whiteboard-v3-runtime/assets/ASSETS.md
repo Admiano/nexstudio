@@ -54,3 +54,12 @@ alongside. Keep this file updated when adding assets.
   included.
 - `whoosh.wav`, `pop.wav` — generated in-repo (numpy synthesis), no
   third-party rights; replaceable with a sourced pack later.
+
+## icons/tabler/
+- `tabler-nodes-outline.json`, `icons.json` — Tabler Icons v3.35.0
+  (MIT, © Paweł Kuna; npm package `@tabler/icons`). 4,964 stroke-style
+  outline icons as inline path data + a category/tag search index. This is
+  the domain-agnostic vocabulary layer: any concept label (animals,
+  healthcare, forestry, transport, finance…) resolves to a drawn icon via
+  the tag index; unresolvable labels fall back to a lettered card —
+  never a blank tile. `LICENSE` included.
