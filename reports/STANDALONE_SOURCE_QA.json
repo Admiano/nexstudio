@@ -23,9 +23,9 @@
       "detail": ""
     },
     {
-      "name": "All five authoritative engine archives present",
+      "name": "All pinned authoritative engine archives present",
       "ok": true,
-      "detail": "{\"WHITEBOARD_ENGINE_SOURCE.zip\": {\"expected\": \"25f87cb57d4a8ca99d004b443c0bd8df85a13d667596ddb0780d2c8f3884002c\", \"actual\": \"25f87cb57d4a8ca99d004b443c0bd8df85a13d667596ddb0780d2c8f3884002c\", \"ok\": true}, \"EXPLAINER_ENGINE_SOURCE.zip\": {\"expected\": \"b2782b1557515d43db78a2c1507aeebb1cae99458104c450ed63ef752a675f1b\", \"actual\": \"b2782b1557515d43db78a2c1507aeebb1cae99458104c450ed63ef752a675f1b\", \"ok\": true}, \"EDITORIAL_MOTION_ENGINE_SOURCE.zip\": {\"expected\": \"b123325962778da3e1eed66cdc48cba3c396a092b3455baf8d032ed0115e3660\", \"actual\": \"b123325962778da3e1eed66cdc48cba3c396a092b3455baf8d032ed0115e3660\", \"ok\": true}, \"STICKMAN_V5_1_ENGINE_SOURCE.zip\": {\"expected\": \"67b49cc7275cd741a70f5851bf1f98d0a8cc7dbd3b1a884f458ddac789a21178\", \"actual\": \"67b49cc7275cd741a70f5851bf1f98d0a8cc7dbd3b1a884f458ddac789a21178\", \"ok\": true}, \"SOUND_LIBRARY_V2_SOURCE.zip\": {\"expected\": \"ad60805d725b74e3e208b621b1334b8f55dee5bfbe7e517ecd05279821953428\", \"actual\": \"ad60805d725b74e3e208b621b1334b8f55dee5bfbe7e517ecd05279821953428\", \"ok\": true}}"
+      "detail": "{\"WHITEBOARD_ENGINE_SOURCE.zip\": {\"expected\": \"25f87cb57d4a8ca99d004b443c0bd8df85a13d667596ddb0780d2c8f3884002c\", \"actual\": \"25f87cb57d4a8ca99d004b443c0bd8df85a13d667596ddb0780d2c8f3884002c\", \"ok\": true}, \"EXPLAINER_ENGINE_SOURCE.zip\": {\"expected\": \"b2782b1557515d43db78a2c1507aeebb1cae99458104c450ed63ef752a675f1b\", \"actual\": \"b2782b1557515d43db78a2c1507aeebb1cae99458104c450ed63ef752a675f1b\", \"ok\": true}, \"EDITORIAL_MOTION_ENGINE_SOURCE.zip\": {\"expected\": \"b123325962778da3e1eed66cdc48cba3c396a092b3455baf8d032ed0115e3660\", \"actual\": \"b123325962778da3e1eed66cdc48cba3c396a092b3455baf8d032ed0115e3660\", \"ok\": true}, \"STICKMAN_V5_1_ENGINE_SOURCE.zip\": {\"expected\": \"67b49cc7275cd741a70f5851bf1f98d0a8cc7dbd3b1a884f458ddac789a21178\", \"actual\": \"67b49cc7275cd741a70f5851bf1f98d0a8cc7dbd3b1a884f458ddac789a21178\", \"ok\": true}, \"SOUND_LIBRARY_V2_SOURCE.zip\": {\"expected\": \"ad60805d725b74e3e208b621b1334b8f55dee5bfbe7e517ecd05279821953428\", \"actual\": \"ad60805d725b74e3e208b621b1334b8f55dee5bfbe7e517ecd05279821953428\", \"ok\": true}, \"NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE.zip\": {\"expected\": \"a786a297078db2ed093b20b7a3ce9d59e9a031980fe5df6fc6893a42dc84bc71\", \"actual\": \"a786a297078db2ed093b20b7a3ce9d59e9a031980fe5df6fc6893a42dc84bc71\", \"ok\": true}, \"NEXSTUDIO_WHITEBOARD_APPROVED_V3_SOURCE_FOCUSED_2026-09-18.zip\": {\"expected\": \"fadb4a67eb501e4ada6c30421f1c01d0891d42e55bbc017f90da077a4d2d3c5d\", \"actual\": \"fadb4a67eb501e4ada6c30421f1c01d0891d42e55bbc017f90da077a4d2d3c5d\", \"ok\": true}}"
     },
     {
       "name": "P8 vendor snapshot present",
@@ -78,10 +78,20 @@
       "expected": "ad60805d725b74e3e208b621b1334b8f55dee5bfbe7e517ecd05279821953428",
       "actual": "ad60805d725b74e3e208b621b1334b8f55dee5bfbe7e517ecd05279821953428",
       "ok": true
+    },
+    "NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE.zip": {
+      "expected": "a786a297078db2ed093b20b7a3ce9d59e9a031980fe5df6fc6893a42dc84bc71",
+      "actual": "a786a297078db2ed093b20b7a3ce9d59e9a031980fe5df6fc6893a42dc84bc71",
+      "ok": true
+    },
+    "NEXSTUDIO_WHITEBOARD_APPROVED_V3_SOURCE_FOCUSED_2026-09-18.zip": {
+      "expected": "fadb4a67eb501e4ada6c30421f1c01d0891d42e55bbc017f90da077a4d2d3c5d",
+      "actual": "fadb4a67eb501e4ada6c30421f1c01d0891d42e55bbc017f90da077a4d2d3c5d",
+      "ok": true
     }
   },
   "environment": {
-    "python": "3.12.10",
-    "node": "v24.14.0"
+    "python": "3.10.12",
+    "node": "v0.0.0"
   }
 }

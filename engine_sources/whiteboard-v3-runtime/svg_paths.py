@@ -174,19 +174,27 @@ def load_svg_strokes(path):
     vb = root.get("viewBox")
     view_box = tuple(float(v) for v in vb.split()) if vb else (0.0, 0.0, float(root.get("width", 100)), float(root.get("height", 100)))
     out = []
-    for el in root.iter():
-        tag = el.tag.rsplit("}", 1)[-1]
-        if tag != "path":
-            continue
-        d = el.get("d")
-        if not d or not re.search(r"[MLHVCSQTAZmlhvcsqtaz]", d):
-            continue
-        polys = [p for p in parse_path_d(d) if len(p) >= 2]
-        if not polys:
-            continue
-        fill = el.get("fill") or "default"
-        closed = d.rstrip().upper().endswith("Z")
-        out.append((polys, fill, closed))
+    _TR = re.compile(r"translate\(\s*(-?\d*\.?\d+(?:e[+-]?\d+)?)[ ,]+(-?\d*\.?\d+(?:e[+-]?\d+)?)\s*\)")
+
+    def walk(el, tx, ty):
+        m = _TR.search(el.get("transform") or "")
+        if m:
+            tx += float(m.group(1))
+            ty += float(m.group(2))
+        if el.tag.rsplit("}", 1)[-1] == "path":
+            d = el.get("d")
+            if d and re.search(r"[MLHVCSQTAZmlhvcsqtaz]", d):
+                polys = [
+                    [(x + tx, y + ty) for x, y in poly]
+                    for poly in parse_path_d(d)
+                    if len(poly) >= 2
+                ]
+                if polys:
+                    out.append((polys, el.get("fill") or "default", d.rstrip().upper().endswith("Z")))
+        for child in el:
+            walk(child, tx, ty)
+
+    walk(root, 0.0, 0.0)
     return out, view_box
 
 
