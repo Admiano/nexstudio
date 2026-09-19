@@ -992,12 +992,16 @@ def _dir_strokes(dir_name: str, slug: str):
     ox = (side - vbw) / 2
     oy = (side - vbh) / 2
     strokes = []
+    # library vignettes draw at a lighter pen weight than bespoke art —
+    # dense multi-path art at full width reads as a blob beside the icon set
+    weight = 0.95 if dir_name == 'custom' else 0.5
+    hatch_ok = dir_name == 'custom'
     for polys_el, fill, closed in elements:
         if fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
             color, hatch = 'ink', False
         elif str(fill).startswith('#') and fill.lower() not in (
                 'none', 'default'):
-            color, hatch = 'ink', closed
+            color, hatch = 'ink', closed and hatch_ok
         else:
             color, hatch = 'ink', False
         for poly in polys_el:
@@ -1005,7 +1009,7 @@ def _dir_strokes(dir_name: str, slug: str):
                 continue
             strokes.append(([( (x - x0 + ox) / side - 0.5,
                               (y - y0 + oy) / side - 0.5) for x, y in poly],
-                            color, 0.95, hatch))
+                            color, weight, hatch))
     return strokes or None
 
 
@@ -1768,6 +1772,21 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             weighted = [(g, w0 + (s - w0) * shrink, w0 + (e - w0) * shrink)
                         for g, s, e in weighted]
         out = weighted
+    # Sync the compiled drawPlan to the windows the pen actually uses — the
+    # sound layer schedules scratches from the same entries, so a stale
+    # window here reads as SFX running ahead of (or behind) the hand.
+    # Idempotent: re-entry re-weights identical lengths to identical times.
+    if dp:
+        spans: dict = {}
+        for gi, (_g, s_, e_) in enumerate(out):
+            j = min(gi, len(dp) - 1)
+            a, b = spans.get(j, (s_, e_))
+            spans[j] = (min(a, s_), max(b, e_))
+        for j, st in enumerate(dp):
+            if j in spans:
+                st['start'], st['end'] = spans[j]
+            else:
+                st['soundRole'] = None  # no drawn group left for this step
     return out
 
 
