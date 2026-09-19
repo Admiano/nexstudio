@@ -561,6 +561,189 @@
           }
         ]
       }
+    },
+    {
+      "beat_id": "b09",
+      "beat_type": "EMPHASIS",
+      "pattern": "CONTROLLED_EMPTY_SPACE",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Then one signal cuts through all the noise.",
+      "energy": 0.5,
+      "complexity": 0.35,
+      "display_units": [
+        {
+          "text": "Then one signal",
+          "role": "hero",
+          "anchor_word": "signal",
+          "emphasis": 0.9,
+          "semantic_role": "punch",
+          "stress": ["signal"]
+        },
+        {
+          "text": "cuts through the noise.",
+          "role": "support",
+          "anchor_word": "noise",
+          "emphasis": 0.45,
+          "semantic_role": "qualifier"
+        }
+      ],
+      "illustration": {
+        "form": "SIGNAL",
+        "entities": [
+          {
+            "id": "pulse",
+            "kind": "signal",
+            "glyph": "RING",
+            "size": "hero",
+            "label": "signal"
+          },
+          {
+            "id": "noise1",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "params": { "dashed": true }
+          },
+          {
+            "id": "noise2",
+            "kind": "state",
+            "glyph": "NODE",
+            "size": "support",
+            "params": { "dashed": true }
+          }
+        ],
+        "relations": [
+          { "type": "emits_to", "source": "pulse", "target": "noise1" }
+        ],
+        "program": [
+          {
+            "op": "EMIT",
+            "target": "pulse",
+            "at": { "word": "signal" },
+            "duration_ms": 900
+          },
+          {
+            "op": "DIM",
+            "target": "noise1",
+            "at": { "word": "noise" },
+            "duration_ms": 400,
+            "from": 1.0,
+            "to": 0.4
+          },
+          {
+            "op": "DIM",
+            "target": "noise2",
+            "at": { "word": "noise" },
+            "duration_ms": 400,
+            "from": 1.0,
+            "to": 0.4
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b10",
+      "beat_type": "PROOF",
+      "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "The trend line climbs as the habit compounds.",
+      "energy": 0.55,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "The trend line climbs",
+          "role": "support",
+          "anchor_word": "climbs",
+          "emphasis": 0.45,
+          "semantic_role": "qualifier"
+        },
+        {
+          "text": "as the habit compounds.",
+          "role": "hero",
+          "anchor_word": "compounds",
+          "emphasis": 0.9,
+          "semantic_role": "proof",
+          "stress": ["compounds"]
+        }
+      ],
+      "illustration": {
+        "form": "DATA_VISUAL",
+        "entities": [
+          {
+            "id": "trend",
+            "kind": "evidence",
+            "glyph": "CHART_LINE",
+            "size": "hero",
+            "params": { "points": [0.1, 0.3, 0.25, 0.6, 0.55, 0.9] }
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "trend",
+            "at": { "word": "climbs" },
+            "duration_ms": 1100,
+            "value_from": 0.0,
+            "value_to": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "beat_id": "b11",
+      "beat_type": "CTA",
+      "pattern": "CTA_LOCKUP",
+      "dominant_layer": "HYBRID",
+      "narration": "So keep the diff small and ship it today.",
+      "energy": 0.62,
+      "complexity": 0.35,
+      "display_units": [
+        {
+          "text": "keep the diff small,",
+          "role": "support",
+          "anchor_word": "small",
+          "emphasis": 0.5,
+          "semantic_role": "qualifier"
+        },
+        {
+          "text": "ship it today.",
+          "role": "hero",
+          "anchor_word": "ship",
+          "emphasis": 0.92,
+          "semantic_role": "punch",
+          "stress": ["ship"]
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "pr",
+            "kind": "object",
+            "glyph": "CARD",
+            "size": "hero",
+            "label": "one small PR"
+          },
+          {
+            "id": "frame",
+            "kind": "signal",
+            "glyph": "BRACKET",
+            "size": "hero"
+          }
+        ],
+        "relations": [
+          { "type": "points_at", "source": "frame", "target": "pr" }
+        ],
+        "program": [
+          {
+            "op": "SETTLE",
+            "target": "pr",
+            "at": { "word": "today" },
+            "duration_ms": 480
+          }
+        ]
+      }
     }
   ]
 }
