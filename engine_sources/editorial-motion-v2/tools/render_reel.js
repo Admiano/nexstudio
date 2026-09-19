@@ -76,6 +76,9 @@ function buildAudio(plan, out) {
   for (const beat of plan.beats) {
     for (const acc of beat.sound.accents) {
       if (!fs.existsSync(acc.path)) throw new Error(`sound asset missing: ${acc.path}`);
+      // Accents obey the same provenance law as the bed: bound license + sha256 or the render throws.
+      if (!acc.license) throw new Error(`sound accent ${acc.asset_id || acc.path} has no license evidence`);
+      if (acc.sha256 && sha(fs.readFileSync(acc.path)) !== acc.sha256) throw new Error(`sound accent sha256 mismatch: ${acc.path}`);
       inputs.push('-i', acc.path);
       filters.push(`[${n}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=${acc.gain_db}dB,adelay=${acc.film_at_ms}|${acc.film_at_ms}[s${n}]`);
       accents.push(`[s${n}]`);

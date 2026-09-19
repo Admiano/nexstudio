@@ -552,7 +552,8 @@ class IllustrationSolver:
 
     # ------------------------------------------------------------------ authored-program decoration
     @staticmethod
-    def _decorate(ops: List[Dict[str, Any]], ents: List[Dict[str, Any]], rels: List[Dict[str, Any]], latest_end: int) -> List[Dict[str, Any]]:
+    def _decorate(ops: List[Dict[str, Any]], ents: List[Dict[str, Any]], rels: List[Dict[str, Any]], latest_end: int,
+                  il: Optional[IllustrationDirective] = None, settled: int = 0) -> List[Dict[str, Any]]:
         """Secondary grammar the authoring layer shouldn't have to spell out: a drawn connector earns a
         tracer pass, the beat's last state change earns a confirmation ring, a multi-dot node counts
         itself in. Synthesized ops are state_change ops only where they spend the accent."""
@@ -565,7 +566,7 @@ class IllustrationSolver:
                 dur = min(560, max(240, int(r.get('length', 300) * 0.9)))
                 if st + dur <= latest_end:
                     extra.append({'op': 'TRACE', 'target': r['id'], 'start_ms': st, 'end_ms': st + dur,
-                                  'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}})
+                                  'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}, 'synthesized': True})
         sc = [o for o in ops if o['state_change'] and o['target'] in ent_ids]
         if sc:
             last = max(sc, key=lambda o: o['end_ms'])
@@ -573,7 +574,14 @@ class IllustrationSolver:
                 st = last['end_ms'] + 120
                 if st + 300 <= latest_end:
                     extra.append({'op': 'EMIT', 'target': last['target'], 'start_ms': st, 'end_ms': st + 420,
-                                  'from': 0.0, 'to': 0.7, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}})
+                                  'from': 0.0, 'to': 0.7, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}, 'synthesized': True})
+        elif ents:
+            # Even a quiet scene lands one confirmation — the dominant entity emits on its settle.
+            hero = max(ents, key=lambda e: e['bbox']['w'] * e['bbox']['h'])
+            st = hero['enter_ms'] + hero.get('enter_duration_ms', 0) + 120
+            if st + 300 <= latest_end:
+                extra.append({'op': 'EMIT', 'target': hero['id'], 'start_ms': st, 'end_ms': st + 420,
+                              'from': 0.0, 'to': 0.7, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}, 'synthesized': True})
         for e in ents:
             n = int((e.get('params') or {}).get('count') or 0)
             if n > 1 and not any(o['op'] == 'COUNT' and o['target'] == e['id'] for o in ops):
@@ -581,8 +589,76 @@ class IllustrationSolver:
                 dur = min(160 * n, 800)
                 if st + dur <= latest_end:
                     extra.append({'op': 'COUNT', 'target': e['id'], 'start_ms': st, 'end_ms': st + dur,
-                                  'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}})
+                                  'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}, 'synthesized': True})
+        if il is not None:
+            extra += IllustrationSolver._choreograph(il, ops + extra, ents, rels, settled, latest_end)
         return extra
+
+    # ------------------------------------------------------------------ hold choreography
+    @staticmethod
+    def _choreograph(il: IllustrationDirective, ops: List[Dict[str, Any]], ents: List[Dict[str, Any]],
+                     rels: List[Dict[str, Any]], settled: int, latest_end: int) -> List[Dict[str, Any]]:
+        """Form semantics become motion inside the hold: a pipeline sweeps its accent forward in
+        process order, a relationship banks on its hub, a transformation hands ink to its result,
+        a data visual singles out the biggest number. The author writes the argument; the hold
+        plays it. Nothing is emitted when the authored program already does the move."""
+        out: List[Dict[str, Any]] = []
+        span = latest_end - settled
+        if span < 500:
+            return out
+
+        def put(op: str, target: str, st: int, dur: int, frm: float, to: float, params: Optional[Dict[str, Any]] = None) -> None:
+            if st + dur <= latest_end:
+                out.append({'op': op, 'target': target, 'start_ms': int(st), 'end_ms': int(st + dur),
+                            'from': frm, 'to': to, 'params': params or {}, 'state_change': op in STATE_CHANGE_OPS,
+                            'anchor': {'offset_ms': int(st)}, 'synthesized': True})
+
+        if il.form == 'PROCESS_PIPELINE':
+            # The accent rides the entrance wave: each stage lights as it lands and hands off when
+            # the next lands — process order is read the moment the chain arrives.
+            order = [e['id'] for e in ents if e['glyph'] != 'LENS' and not e.get('inside')]
+            n = min(len(order), 6)
+            if n >= 2 and not any(o['op'] == 'INK' and o['to'] for o in ops):
+                for i, eid in enumerate(order[:n]):
+                    e = next(x for x in ents if x['id'] == eid)
+                    t = e['enter_ms'] + e['enter_duration_ms']
+                    put('INK', eid, t, 140, 0.0, 1.0)
+                    if i < n - 1:
+                        nx = next(x for x in ents if x['id'] == order[i + 1])
+                        put('INK', eid, nx['enter_ms'], 140, 1.0, 0.0)
+        elif il.form == 'RELATIONSHIP':
+            degree: Dict[str, int] = {}
+            for r in il.relations:
+                degree[r.source] = degree.get(r.source, 0) + 1
+                degree[r.target] = degree.get(r.target, 0) + 1
+            if degree:
+                hub = max(degree, key=degree.get)
+                drawn = max((o['end_ms'] for o in ops if o['op'] in ('CONNECT', 'DRAW')), default=settled)
+                if not any(o['op'] == 'INK' and o['target'] == hub and o['to'] for o in ops):
+                    put('INK', hub, max(settled + 120, drawn + 160), 200, 0.0, 1.0)
+        elif il.form == 'STATE_TRANSFORMATION':
+            tr = next((r for r in il.relations if r.type == 'transforms_into'), None)
+            if tr and not any(o['op'] == 'DIM' and o['target'] == tr.source for o in ops):
+                tgt_end = max((o['end_ms'] for o in ops if o['target'] == tr.target), default=settled)
+                put('DIM', tr.source, tgt_end, 260, 1.0, 0.35)
+        elif il.form == 'DATA_VISUAL':
+            nums = [(float((e.get('params') or {}).get('count') or (e.get('params') or {}).get('value') or 0), e['id'])
+                    for e in ents if e['glyph'] not in ('LENS', 'CHART_LINE') and not e.get('inside')]
+            if len(nums) >= 2:
+                peak = max(nums)[1]
+                if not any(o['op'] == 'INK' and o['target'] == peak and o['to'] for o in ops):
+                    put('INK', peak, settled + 160, 180, 0.0, 1.0)
+        elif il.form == 'CALLOUT_LENS':
+            # The grammar requires authored TRAVEL; what it doesn't author is the return — a loupe
+            # parked away from its scans subject at the cut reads stranded, so bring it home.
+            lens = next((e for e in ents if e['glyph'] == 'LENS'), None)
+            home = next((r.target for r in il.relations if r.type == 'scans'), None)
+            travels = [o for o in ops if o['op'] == 'TRAVEL' and o['target'] == (lens and lens['id'])]
+            last_over = travels[-1]['params'].get('over', [None])[-1] if travels else None
+            if lens and home and last_over and last_over != home:
+                st = travels[-1]['end_ms'] + 140
+                put('TRAVEL', lens['id'], max(st, settled + 80), 480, 0.0, 1.0, {'over': [home]})
+        return out
 
     # ------------------------------------------------------------------ entry
     def compile(self, il: IllustrationDirective, zone: Dict[str, float], clock: BeatClock, beat_id: str,
@@ -618,7 +694,7 @@ class IllustrationSolver:
         # The authored program settles the scene; decorations then ride the hold it opened, so
         # they join the op list after `settled` is measured rather than delaying it.
         settled = max([e['enter_ms'] + e['enter_duration_ms'] for e in ents] + [r['enter_ms'] + r['enter_duration_ms'] for r in rels] + [o['end_ms'] for o in ops] + [CARRY_REFRAME_MS if carry_in else 0])
-        ops += self._decorate(ops, ents, rels, clock.duration_ms - EXIT_MS - 60)
+        ops += self._decorate(ops, ents, rels, clock.duration_ms - EXIT_MS - 60, il, int(settled))
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
         state_changes = sum(o['state_change'] for o in ops)
         plan = {

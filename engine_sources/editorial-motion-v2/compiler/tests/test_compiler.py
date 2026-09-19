@@ -300,6 +300,14 @@ def test_sound_is_semantic_admitted_and_spaced(plans):
             assert p['music']['sha256'] and Path(p['music']['path']).exists()
 
 
+def test_op_events_offer_sound_candidates(plans):
+    """Illustration ops offer semantic sound candidates; EMIT/TRACE/COUNT/DRAW accents may bind."""
+    events = {a['event'] for p in plans.values() for b in p['beats'] for a in b['sound']['accents']}
+    # Only assert what the spacing/strength caps allow: at least one op-driven event family binds.
+    op_events = events & {'EMIT_CONFIRM', 'LINE_DRAW', 'COUNT_TICK', 'LOUPE_TRAVEL'}
+    assert op_events, 'no op-driven accent bound in any aspect'
+
+
 def test_provenance_declares_roles_and_no_certification(plans):
     for p in plans.values():
         prov = p['provenance']

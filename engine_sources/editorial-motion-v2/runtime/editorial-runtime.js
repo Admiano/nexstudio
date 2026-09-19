@@ -933,9 +933,19 @@
         svgEl('path', { ...line, d: polyPath([[b.x - sw, b.y + b.h], [b.x + b.w + sw, b.y + b.h]]), 'stroke-width': sw * 0.7 }, g);
         node.extra.setGrow = (k) => {
           const kk = clamp(k, 0, 1), h = Math.max(sw, kk * b.h);
+          node.extra.growK = kk;
           for (const r of [base, inkEl]) { r.setAttribute('y', f2(b.y + b.h - h)); r.setAttribute('height', f2(h)); }
           ghost.setAttribute('stroke-opacity', (clamp((1 - kk) * 1.6, 0, 1) * 0.42).toFixed(4));
         };
+        // COUNT reads as the value ticking up; the readout rides the bar's own top edge and only
+        // exists when a COUNT op drives it — a bare count param is just the datum's value.
+        if (params.count && il.ops.some((o) => o.op === 'COUNT' && o.target === ent.id)) {
+          node.extra.countMax = Math.max(1, params.count);
+          node.extra.countText = svgEl('text', {
+            x: f2(b.x + b.w / 2), y: f2(b.y - sw), 'text-anchor': 'middle', 'font-size': f2(Math.min(b.w * 0.42, sw * 6.5)),
+            'font-family': plan.fonts.families.text, 'font-weight': '600', fill: ink, 'font-variant-numeric': 'tabular-nums', 'fill-opacity': 0,
+          }, g);
+        }
         break;
       }
       case 'PROHIBIT': {
@@ -965,6 +975,24 @@
           const s = Math.min(b.w / vb[2], b.h / vb[3]);
           const inner = svgEl('g', { transform: `translate(${f2(b.x + (b.w - vb[2] * s) / 2)} ${f2(b.y + (b.h - vb[3] * s) / 2)}) scale(${s.toFixed(5)}) translate(${-vb[0]} ${-vb[1]})` }, host);
           inner.innerHTML = src.innerHTML;
+          // Packs differ: stroke icons (lucide, most line sets) dash-draw each shape; fill icons
+          // (ant-design & co) can't stroke-draw, so they stagger in as a per-part reveal. Stroke on
+          // a part may be declared on the svg root, not the shape.
+          const rootStroke = src.getAttribute('stroke');
+          const parts = Array.from(inner.querySelectorAll('path,circle,ellipse,line,polyline,polygon,rect'));
+          const n = Math.max(1, parts.length);
+          parts.forEach((p, i) => {
+            p.dataset.draw = 'outline';
+            const stroked = (p.getAttribute('stroke') || rootStroke || 'none') !== 'none';
+            let len = 0;
+            if (stroked) { try { len = p.getTotalLength() || 0; } catch (e) { len = 0; } }
+            if (stroked && len > 0) {
+              p.style.strokeDasharray = `${f2(len)} ${f2(len + 4)}`;
+              node.outline.push({ path: p, len, set(v) { p.style.strokeDashoffset = `${f2((1 - clamp(v * n - i, 0, 1)) * len)}`; } });
+            } else {
+              node.outline.push({ path: p, len: 0, set(v) { p.style.opacity = clamp(v * n - i, 0, 1).toFixed(4); p.style.strokeDashoffset = '0'; } });
+            }
+          });
         });
         node.strike = strikeFor(b);
         break;
@@ -1159,6 +1187,13 @@
           const k = clamp(c * gl.count.length - i, 0, 1);
           for (const e of item.els) e.style.opacity = EASE.outCubic(k).toFixed(4);
         });
+      }
+      if (gl.extra.countText) {
+        const c = propAt(node, 'count', lt).v;
+        const topY = node.bb.y + node.bb.h - Math.max(ill.sw, (gl.extra.growK ?? 1) * node.bb.h);
+        gl.extra.countText.textContent = String(Math.round(c * gl.extra.countMax));
+        gl.extra.countText.setAttribute('fill-opacity', (c > 0 ? Math.min(1, c * 4) : 0).toFixed(4));
+        gl.extra.countText.setAttribute('y', f2(topY - ill.sw));
       }
       if (gl.strike) {
         const s = propAt(node, 'strike', lt);
