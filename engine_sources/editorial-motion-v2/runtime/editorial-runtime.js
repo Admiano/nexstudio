@@ -209,7 +209,7 @@
   // One word landing: rises out of blur into focus and overshoots by a hair — weight, scale and opacity together.
   // While the unit is still being spoken, words already said fall back to the tonal ink so the current word carries;
   // once the cascade has ended every word returns to full ink. Stressed words never fall back.
-  function applyWordState(item, lt, em, tonalInk, baseWght, promoted, nextStart, cascadeEnd) {
+  function applyWordState(item, lt, em, tonalInk, baseWght, promoted, nextStart, cascadeEnd, muteColor) {
     const s = item.span.style;
     const start = item.w.start_ms, dur = 260;
     const isStress = item.w.stress;
@@ -218,6 +218,8 @@
     const swell = 90 * (1 - EASE.outCubic(prog(lt, start + dur, start + dur + 420)));
     const wght = Math.min(900, (isStress ? baseWght + 100 : baseWght) + swell);
     s.fontVariationSettings = `"wght" ${Math.round(wght)}`;
+    // tone: 'mute' words read grey — the benchmark's mixed-tone lockup inside one sentence.
+    s.color = item.w.tone === 'mute' ? muteColor : 'inherit';
     if (lt < start) { s.opacity = '0'; s.transform = `translateY(${f2(em * 0.42)}px) scale(0.96)`; s.filter = 'blur(6px)'; return; }
     const p = prog(lt, start, start + dur);
     const k = EASE.outQuint(p), st = EASE.settle(p);
@@ -379,7 +381,8 @@
     if (node.cascade) {
       const promoted = perf.some((e) => e.event === 'WORD_PROMOTION' && e.unit_index === i);
       const end = b.cascade_end_ms || node.words[node.words.length - 1].w.start_ms + 260;
-      node.words.forEach((item, wi) => applyWordState(item, lt, em, ctx.tonalInk, wght, promoted, wi + 1 < node.words.length ? node.words[wi + 1].w.start_ms : null, end));
+      const muteColor = rgbaOf(ctx.brand.ink, 0.5);
+      node.words.forEach((item, wi) => applyWordState(item, lt, em, ctx.tonalInk, wght, promoted, wi + 1 < node.words.length ? node.words[wi + 1].w.start_ms : null, end, muteColor));
     }
     node.lines.forEach((line, li) => {
       const s = lineStates[li];
@@ -462,6 +465,18 @@
           position: 'absolute', inset: '0',
           background: `radial-gradient(ellipse ${px(b.w * 1.2)} ${px(b.h)} at ${px(cx)} ${px(b.y + b.h * 0.5)}, ${rgbaOf(brand.accent || brand.ink, 0.05)}, ${rgbaOf(brand.ink, 0)} 62%)`,
         }, parent);
+        break;
+      }
+      case 'arc': {
+        // A giant ring segment grazing the field — ambient geometry, never a diagram part.
+        node = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, parent);
+        Object.assign(node.style, { position: 'absolute', left: '0', top: '0' });
+        const corner = spec.corner || 0;
+        const cx = corner % 2 === 0 ? b.x + b.w * 0.98 : b.x + b.w * 0.02;
+        const cy = corner < 2 ? b.y + b.h * 0.04 : b.y + b.h * 0.96;
+        const R = Math.min(W, H) * 0.62;
+        svgEl('circle', { cx, cy, r: R, fill: 'none', stroke: brand.ink, 'stroke-width': Math.max(1.2, Math.min(W, H) * 0.002), 'stroke-opacity': 0.14 }, node);
+        svgEl('circle', { cx, cy, r: R * 0.78, fill: 'none', stroke: brand.ink, 'stroke-width': Math.max(1, Math.min(W, H) * 0.0014), 'stroke-opacity': 0.08 }, node);
         break;
       }
       default:
@@ -566,6 +581,19 @@
       hostH = bb.h - barH;
       host = el('div', {
         position: 'absolute', left: '0', top: px(barH), width: '100%', height: px(hostH), overflow: 'hidden',
+      }, frame);
+    } else if (chassis === 'shot') {
+      // Floating screenshot card: no chrome — tilted, deeply shadowed, dark-rimmed like the
+      // product stills in the benchmark films. tilt is authored in degrees (params.tilt).
+      const tilt = clamp(Number(media.tilt == null ? -3.5 : media.tilt), -14, 14);
+      // The frame releases the card: no border, no clipping — the shadow belongs to the tilted host.
+      Object.assign(frame.style, { overflow: 'visible', border: 'none', borderRadius: '0', background: 'transparent' });
+      host = el('div', {
+        position: 'absolute', left: '0', top: '0', width: px(bb.w), height: px(bb.h),
+        transform: `rotate(${tilt.toFixed(2)}deg)`, transformOrigin: '50% 50%',
+        borderRadius: px(Math.min(bb.w, bb.h) * 0.045), overflow: 'hidden',
+        boxShadow: `0 ${px(bb.h * 0.05)} ${px(bb.h * 0.13)} rgba(23,18,12,0.34), 0 ${px(bb.h * 0.012)} ${px(bb.h * 0.028)} rgba(23,18,12,0.22)`,
+        outline: `1.5px solid rgba(23,18,12,0.28)`,
       }, frame);
     }
     Object.assign(node.style, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100%', objectFit: 'cover', display: 'block' });
@@ -857,6 +885,35 @@
     return out;
   }
 
+  // Registry icon loaded into a box inside a glyph group; each part joins the entity's
+  // draw-on program (stroke packs dash-draw, fill packs stagger in).
+  function loadIconInto(ent, node, host, box, opts) {
+    node.ready = fetchText(opts.assetUrl(ent.asset.path)).then((txt) => {
+      const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+      const src = doc.documentElement;
+      if (src.nodeName === 'parsererror' || !src.getAttribute) throw new Error(`icon ${ent.asset.id}: not an svg`);
+      const vb = (src.getAttribute('viewBox') || `0 0 ${src.getAttribute('width') || 100} ${src.getAttribute('height') || 100}`).split(/[\s,]+/).map(Number);
+      const s = Math.min(box.w / vb[2], box.h / vb[3]);
+      const inner = svgEl('g', { transform: `translate(${f2(box.x + (box.w - vb[2] * s) / 2)} ${f2(box.y + (box.h - vb[3] * s) / 2)}) scale(${s.toFixed(5)}) translate(${-vb[0]} ${-vb[1]})` }, host);
+      inner.innerHTML = src.innerHTML;
+      const rootStroke = src.getAttribute('stroke');
+      const parts = Array.from(inner.querySelectorAll('path,circle,ellipse,line,polyline,polygon,rect'));
+      const n = Math.max(1, parts.length);
+      parts.forEach((p, i) => {
+        p.dataset.draw = 'outline';
+        const stroked = (p.getAttribute('stroke') || rootStroke || 'none') !== 'none';
+        let len = 0;
+        if (stroked) { try { len = p.getTotalLength() || 0; } catch (e) { len = 0; } }
+        if (stroked && len > 0) {
+          p.style.strokeDasharray = `${f2(len)} ${f2(len + 4)}`;
+          node.outline.push({ path: p, len, set(v) { p.style.strokeDashoffset = `${f2((1 - clamp(v * n - i, 0, 1)) * len)}`; } });
+        } else {
+          node.outline.push({ path: p, len: 0, set(v) { p.style.opacity = clamp(v * n - i, 0, 1).toFixed(4); p.style.strokeDashoffset = '0'; } });
+        }
+      });
+    });
+  }
+
   function buildGlyph(ent, il, plan, g, sw, opts) {
     const b = bboxOf(ent.bbox), ink = plan.brand.ink, paper = plan.brand.paper, accent = il.accent || ink;
     const params = ent.params || {};
@@ -1138,33 +1195,73 @@
         host.style.color = ink;
         node.inkEls.push(host);
         node.extra.iconHost = host;
-        node.ready = fetchText(opts.assetUrl(ent.asset.path)).then((txt) => {
-          const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
-          const src = doc.documentElement;
-          if (src.nodeName === 'parsererror' || !src.getAttribute) throw new Error(`icon ${ent.asset.id}: not an svg`);
-          const vb = (src.getAttribute('viewBox') || `0 0 ${src.getAttribute('width') || 100} ${src.getAttribute('height') || 100}`).split(/[\s,]+/).map(Number);
-          const s = Math.min(b.w / vb[2], b.h / vb[3]);
-          const inner = svgEl('g', { transform: `translate(${f2(b.x + (b.w - vb[2] * s) / 2)} ${f2(b.y + (b.h - vb[3] * s) / 2)}) scale(${s.toFixed(5)}) translate(${-vb[0]} ${-vb[1]})` }, host);
-          inner.innerHTML = src.innerHTML;
-          // Packs differ: stroke icons (lucide, most line sets) dash-draw each shape; fill icons
-          // (ant-design & co) can't stroke-draw, so they stagger in as a per-part reveal. Stroke on
-          // a part may be declared on the svg root, not the shape.
-          const rootStroke = src.getAttribute('stroke');
-          const parts = Array.from(inner.querySelectorAll('path,circle,ellipse,line,polyline,polygon,rect'));
-          const n = Math.max(1, parts.length);
-          parts.forEach((p, i) => {
-            p.dataset.draw = 'outline';
-            const stroked = (p.getAttribute('stroke') || rootStroke || 'none') !== 'none';
-            let len = 0;
-            if (stroked) { try { len = p.getTotalLength() || 0; } catch (e) { len = 0; } }
-            if (stroked && len > 0) {
-              p.style.strokeDasharray = `${f2(len)} ${f2(len + 4)}`;
-              node.outline.push({ path: p, len, set(v) { p.style.strokeDashoffset = `${f2((1 - clamp(v * n - i, 0, 1)) * len)}`; } });
-            } else {
-              node.outline.push({ path: p, len: 0, set(v) { p.style.opacity = clamp(v * n - i, 0, 1).toFixed(4); p.style.strokeDashoffset = '0'; } });
-            }
-          });
-        });
+        loadIconInto(ent, node, host, b, opts);
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'TILE': {
+        // The product-collage atom: a glossy rounded-square app tile carrying a registry icon.
+        const dark = params.tone === 'dark';
+        const r = Math.min(b.w, b.h) * 0.24;
+        const base = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, g);
+        base.setAttribute('fill', dark ? '#171310' : mixColor(paper, '#ffffff', 0.72));
+        base.setAttribute('stroke', ink);
+        base.setAttribute('stroke-width', f2(sw * 0.55));
+        base.setAttribute('stroke-opacity', '0.55');
+        base.style.filter = `drop-shadow(0 ${f2(b.h * 0.07)}px ${f2(b.h * 0.13)}px rgba(23,18,12,0.28))`;
+        node.outline.push(drawable(base, (b.w + b.h) * 2));
+        if (!dark) {
+          // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
+          svgEl('path', {
+            d: `M${f2(b.x + sw / 2)} ${f2(b.y + r + sw / 2)}Q${f2(b.x + sw / 2)} ${f2(b.y + sw / 2)} ${f2(b.x + r + sw / 2)} ${f2(b.y + sw / 2)}L${f2(b.x + b.w - r - sw / 2)} ${f2(b.y + sw / 2)}Q${f2(b.x + b.w - sw / 2)} ${f2(b.y + sw / 2)} ${f2(b.x + b.w - sw / 2)} ${f2(b.y + r + sw / 2)}L${f2(b.x + b.w - sw / 2)} ${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x + sw / 2)} ${f2(b.y + b.h * 0.46)}Z`,
+            fill: '#ffffff', 'fill-opacity': 0.5,
+          }, g);
+        }
+        node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
+        if (ent.asset) {
+          const host = svgEl('g', {}, g);
+          host.style.color = dark ? paper : ink;
+          node.inkEls.push(host);
+          node.extra.iconHost = host;
+          const pad = b.w * 0.17;
+          loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
+        }
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'CHIP': {
+        // Dark product row: icon peg left, name typeset mid-left (the inside label), tag pills right.
+        const r = b.h * 0.42;
+        const body = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z' }, g);
+        body.setAttribute('fill', '#181410');
+        body.style.filter = `drop-shadow(0 ${f2(b.h * 0.1)}px ${f2(b.h * 0.2)}px rgba(23,18,12,0.3))`;
+        node.outline.push(drawable(body, (b.w + b.h) * 2));
+        node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
+        // Icon peg: a light tile clipped into the left end of the row.
+        const peg = Math.min(b.h * 0.62, b.w * 0.14);
+        const px0 = b.x + b.h * 0.19, py0 = b.y + (b.h - peg) / 2;
+        svgEl('path', { d: roundRectPath({ x: px0, y: py0, w: peg, h: peg }, peg * 0.26) + 'Z', fill: paper }, g);
+        if (ent.asset) {
+          const host = svgEl('g', {}, g);
+          host.style.color = ink;
+          const pad = peg * 0.16;
+          loadIconInto(ent, node, host, { x: px0 + pad, y: py0 + pad, w: peg - pad * 2, h: peg - pad * 2 }, opts);
+        } else {
+          svgEl('circle', { cx: px0 + peg / 2, cy: py0 + peg / 2, r: peg * 0.22, fill: ink }, g);
+        }
+        // Tag pills, right-aligned, hairline strokes on the dark field.
+        const tags = (Array.isArray(params.tags) ? params.tags : []).slice(0, 3).map((t) => String(t));
+        const fs = b.h * 0.2, tp = b.h * 0.09;
+        let tx = b.x + b.w - b.h * 0.2;
+        for (let i = tags.length - 1; i >= 0; i--) {
+          const tw = tags[i].length * fs * 0.62 + tp * 2.6;
+          tx -= tw;
+          const th = b.h * 0.42, ty = b.y + (b.h - th) / 2;
+          svgEl('path', { d: roundRectPath({ x: tx, y: ty, w: tw, h: th }, th / 2) + 'Z', fill: 'none', stroke: paper, 'stroke-width': Math.max(1, sw * 0.4), 'stroke-opacity': 0.5 }, g);
+          const te = svgEl('text', { x: tx + tw / 2, y: ty + th / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: paper, 'fill-opacity': 0.72, 'font-size': fs, 'font-weight': '500', 'font-family': plan.fonts.families.text }, g);
+          te.textContent = tags[i];
+          tx -= b.h * 0.1;
+        }
         node.strike = strikeFor(b);
         break;
       }
@@ -1194,10 +1291,11 @@
       willChange: 'transform, opacity', transformOrigin: '50% 50%',
     }, beatRoot);
     wrap.className = 'em2-il-label';
+    const onDark = ent.glyph === 'CHIP';
     const text = el('div', {
       position: 'absolute', left: '0', right: '0', top: '50%', transform: 'translateY(-50%)',
       fontFamily: `"${plan.fonts.families.text}"`, fontSize: px(lb.fit.font_px), lineHeight: String(lb.fit.line_height),
-      letterSpacing: `${lb.fit.tracking_em}em`, fontWeight: '600', color: plan.brand.ink, textAlign: 'center', whiteSpace: 'nowrap',
+      letterSpacing: `${lb.fit.tracking_em}em`, fontWeight: '600', color: onDark ? plan.brand.paper : plan.brand.ink, textAlign: ent.glyph === 'CHIP' ? 'left' : 'center', whiteSpace: 'nowrap',
     }, wrap);
     lb.fit.lines.forEach((l) => { const s = el('span', { display: 'block' }, text); s.className = 'em2-line'; s.textContent = l; });
     return { wrap, text, bb, inside: lb.placement === 'inside' };
@@ -1239,9 +1337,19 @@
         const g = svgEl('g', { 'data-relation': rel.id }, relLayer);
         r.g = g;
         r.len = rel.length || polyLength(rel.path);
-        const line = { fill: 'none', stroke: ink, 'stroke-width': sw, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
-        const p = svgEl('path', { ...line, d: polyPath(rel.path), 'stroke-dasharray': rel.rule ? `${f2(sw * 1.6)} ${f2(sw * 2.2)}` : null }, g);
-        r.path = rel.rule ? { path: p, len: r.len, set() {} } : drawable(p, r.len);
+        const line = { fill: 'none', stroke: ink, 'stroke-width': rel.thin ? Math.max(1.4, sw * 0.55) : sw, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+        const dash = rel.rule ? `${f2(sw * 1.6)} ${f2(sw * 2.2)}` : rel.dashed ? `${f2(sw * 1.5)} ${f2(sw * 2.6)}` : null;
+        const p = svgEl('path', { ...line, d: polyPath(rel.path) }, g);
+        if (dash) p.style.strokeDasharray = dash;
+        r.path = rel.rule ? { path: p, len: r.len, set() {} } : rel.dashed ? dashedDrawable(p, r.len, plan.brand.paper, sw, g) : drawable(p, r.len);
+        if (rel.dots) {
+          // Product-diagram endpoints: a dot at each rim, appearing with the line's arrival.
+          const p0 = rel.path[0], p1 = rel.path[rel.path.length - 1];
+          r.dots = [
+            svgEl('circle', { cx: p0[0], cy: p0[1], r: Math.max(2.2, sw * 1.05), fill: ink }, g),
+            svgEl('circle', { cx: p1[0], cy: p1[1], r: Math.max(2.2, sw * 1.05), fill: ink }, g),
+          ];
+        }
         const n = rel.path.length, a = rel.path[n - 2], z = rel.path[n - 1];
         const ang = Math.atan2(z[1] - a[1], z[0] - a[0]);
         if (rel.arrow) {
@@ -1341,7 +1449,11 @@
       const inkP = propAt(node, 'ink', lt);
       const inkLevel = clamp(Math.max(inkP.v, swap.v >= 0.5 ? swap.v : 0), 0, 1);
       for (const e of gl.inkEls) {
-        if (e === gl.extra.iconHost) e.style.color = inkLevel > 0.5 ? (inkP.accent || swap.accent ? accent : ink) : ink;
+        if (e === gl.extra.iconHost) {
+          // Enamel tiles keep a light glyph on both dark bodies and accent fills.
+          if (ent.glyph === 'TILE') e.style.color = (ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent)) ? paper : ink;
+          else e.style.color = inkLevel > 0.5 ? (inkP.accent || swap.accent ? accent : ink) : ink;
+        }
         else { e.setAttribute('fill', inkP.accent || swap.accent ? accent : ink); e.setAttribute('fill-opacity', inkLevel.toFixed(4)); }
       }
       if (gl.extra.setFill) { const f = propAt(node, 'fill', lt); gl.extra.setFill(f.v, f.accent); }
@@ -1414,7 +1526,7 @@
         ls.visibility = 'visible';
         ls.opacity = opacity.toFixed(4);
         ls.transform = `translateY(${f2(ty)}px) scale(${scale.toFixed(4)})`;
-        node.label.text.style.color = node.label.inside && inkLevel > 0.5 ? paper : ink;
+        node.label.text.style.color = node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
       }
       if (node.media) {
         applyMediaState(node.media, lt, beat, ctx);
@@ -1444,6 +1556,13 @@
       const head = con >= 0.985 ? 1 : 0;
       if (r.arrow) r.arrow.style.opacity = String(head);
       if (r.bar) r.bar.style.opacity = String(head);
+      if (r.dots) {
+        r.dots[0].style.opacity = con > 0.02 ? '1' : '0';
+        r.dots[1].style.opacity = head ? '1' : '0';
+        const dstroke = propAt(r, 'ink', lt);
+        const dc = dstroke.v > 0.5 && dstroke.accent ? accent : ink;
+        r.dots.forEach((d) => d.setAttribute('fill', dc));
+      }
       const inkP = propAt(r, 'ink', lt);
       const stroke = inkP.v > 0.5 && inkP.accent ? accent : ink;
       r.path.path.setAttribute('stroke', stroke);

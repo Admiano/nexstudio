@@ -153,6 +153,13 @@
                     "minLength": 1
                   }
                 },
+                "mute": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
                 "reveal": {
                   "anyOf": [
                     {
@@ -414,7 +421,9 @@
                             "CALLOUT",
                             "STICKY",
                             "DONUT",
-                            "FRAME"
+                            "FRAME",
+                            "TILE",
+                            "CHIP"
                           ]
                         },
                         "size": {
@@ -484,6 +493,14 @@
                         "target": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "style": {
+                          "type": "string",
+                          "enum": [
+                            "link",
+                            "dash",
+                            "arc"
+                          ]
                         }
                       },
                       "required": [

@@ -32,9 +32,9 @@ EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community'
 GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
                 'PROHIBIT': 1.0, 'BRACKET': 1.7, 'BAR': 0.46, 'ICON': 1.0,
                 'ARROW': 2.1, 'MARK_CIRCLE': 1.0, 'UNDERLINE': 5.5, 'BURST': 1.0, 'CALLOUT': 1.7, 'STICKY': 1.05,
-                'DONUT': 1.0, 'FRAME': 1.35}
+                'DONUT': 1.0, 'FRAME': 1.35, 'TILE': 1.0, 'CHIP': 2.9}
 # Glyphs that carry their label inside the shape rather than in a strip below it.
-LABEL_CARRIERS = ('PILL', 'CARD', 'CALLOUT', 'STICKY')
+LABEL_CARRIERS = ('PILL', 'CARD', 'CALLOUT', 'STICKY', 'CHIP')
 SIZE_WEIGHT = {'hero': 1.0, 'support': 0.64, 'minor': 0.42}
 ARROWED = {'flows_to', 'points_at', 'transforms_into'}
 LINED = ARROWED | {'connects', 'blocks'}
@@ -525,22 +525,26 @@ class IllustrationSolver:
 
     def _entity_plan(self, e: IllustrationEntity, bbox: Dict[str, float], label_box: Optional[Dict[str, float]], failures: List[str], beat_id: str) -> Dict[str, Any]:
         plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'bbox': bbox, 'art_bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
-        if e.glyph == 'ICON':
+        if e.glyph in ('ICON', 'TILE', 'CHIP') and e.asset_ref:
             plan['asset'] = self.registry.resolve(e.asset_ref, beat_id)
-            plan['art_bbox'] = _art_bbox(bbox, plan['asset']['art_box'])
+            if e.glyph == 'ICON':
+                plan['art_bbox'] = _art_bbox(bbox, plan['asset']['art_box'])
         if e.glyph == 'MEDIA':
             a = self.media_library[e.media_ref]
             nm = self.media_files.get(e.media_ref)
             plan['media'] = {'asset_id': a.asset_id, 'kind': a.kind, 'path': nm.render_path if nm else a.path, 'sha256': nm.render_sha256 if nm else None,
                              'source_size': {'w': a.width, 'h': a.height}, 'rights': a.rights, 'audio': 'MUTE',
                              'trim': ({'start': float(e.params['trim'][0]), 'end': float(e.params['trim'][1])} if e.params.get('trim') else None),
-                             'chassis': e.params.get('chassis') or None}
+                             'chassis': e.params.get('chassis') or None,
+                             'tilt': float(e.params['tilt']) if e.params.get('tilt') is not None else None}
         if e.label:
             if e.glyph in LABEL_CARRIERS:
                 # Inner label boxes track the chrome each carrier draws: a callout's tail hangs below its
                 # text field, a sticky's fold owns its top strip, a card's header rule owns the middle.
                 inner_box = {'PILL': (0.12, 0.2, 0.76, 0.6), 'CARD': (0.12, 0.58, 0.76, 0.3),
-                             'CALLOUT': (0.12, 0.1, 0.76, 0.52), 'STICKY': (0.14, 0.3, 0.72, 0.45)}[e.glyph]
+                             'CALLOUT': (0.12, 0.1, 0.76, 0.52), 'STICKY': (0.14, 0.3, 0.72, 0.45),
+                             # The right ~quarter of a chip belongs to its tag pills when authored.
+                             'CHIP': (0.19, 0.14, 0.46 if e.params.get('tags') else 0.58, 0.72)}[e.glyph]
                 inner = _box(bbox['x'] + bbox['w'] * inner_box[0], bbox['y'] + bbox['h'] * inner_box[1],
                              bbox['w'] * inner_box[2], bbox['h'] * inner_box[3])
                 fit = fit_text(e.label, inner, 'label', 'SemiBold', self.canvas, max_lines=1)
@@ -560,7 +564,36 @@ class IllustrationSolver:
         out = []
         for r in il.relations:
             a, b = by_id[r.source]['art_bbox'], by_id[r.target]['art_bbox']
-            rel = {'type': r.type, 'source': r.source, 'target': r.target, 'id': f'{r.source}->{r.target}', 'path': None, 'arrow': r.type in ARROWED, 'bar': r.type == 'blocks'}
+            rel = {'type': r.type, 'source': r.source, 'target': r.target, 'id': f'{r.source}->{r.target}', 'path': None,
+                   'arrow': r.type in ARROWED, 'bar': r.type == 'blocks', 'style': r.style}
+            if r.style:
+                # Product-diagram dress: a hairline between box edges with dot endpoints.
+                # 'arc' bows the link; 'dash'/'arc' run it dashed.
+                ax, ay = _centre(a)
+                bx, by = _centre(b)
+                dx, dy = bx - ax, by - ay
+                dist = math.hypot(dx, dy) or 1.0
+                ux, uy = dx / dist, dy / dist
+                # Distance from a box centre to its edge along the link direction — the link lands on the rim.
+                t0 = min((a['w'] / 2) / abs(ux) if abs(ux) > 1e-6 else 1e9, (a['h'] / 2) / abs(uy) if abs(uy) > 1e-6 else 1e9)
+                t1 = min((b['w'] / 2) / abs(ux) if abs(ux) > 1e-6 else 1e9, (b['h'] / 2) / abs(uy) if abs(uy) > 1e-6 else 1e9)
+                p0 = (ax + ux * (t0 + 4), ay + uy * (t0 + 4))
+                p1 = (bx - ux * (t1 + 4), by - uy * (t1 + 4))
+                if r.style == 'arc':
+                    mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
+                    bow = math.dist(p0, p1) * 0.22
+                    cx, cy = mx - uy * bow, my + ux * bow
+                    rel['path'] = [[round((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * cx + t * t * p1[0], 1),
+                                    round((1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * cy + t * t * p1[1], 1)]
+                                   for t in [i / 10 for i in range(11)]]
+                else:
+                    rel['path'] = [[round(p0[0], 1), round(p0[1], 1)], [round(p1[0], 1), round(p1[1], 1)]]
+                rel['length'] = round(sum(math.dist(rel['path'][i], rel['path'][i + 1]) for i in range(len(rel['path']) - 1)), 1)
+                rel['dots'], rel['arrow'], rel['thin'] = True, False, True
+                if r.style in ('dash', 'arc'):
+                    rel['dashed'] = True
+                out.append(rel)
+                continue
             if (r.type == 'blocks' and by_id[r.source]['glyph'] == 'PROHIBIT') or (r.type == 'marks' and by_id[r.source]['glyph'] == 'MARK_CIRCLE'):
                 # The overlay is the statement — no line between a mark and what it marks.
                 out.append(rel)
