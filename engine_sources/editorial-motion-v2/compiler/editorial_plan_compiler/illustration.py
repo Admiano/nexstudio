@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from .contracts import (
     IllustrationDirective, IllustrationEntity, IllustrationOp, STATE_CHANGE_OPS, TreatmentError,
 )
+from .authorities.native_three_aspect_composition_authority_v2 import ASPECTS as _NATIVE_ASPECTS
 from .timing import BeatClock, EXIT_MS, LEAD_IN_MS, find_landing
 from .typefit import FLOOR_FRACTION, TRACKING, _face, fit_text, measure
 
@@ -209,6 +210,10 @@ class IllustrationSolver:
         self.media_library = media_library
         self.media_files = media_files
         self.accent = accent
+        # Burned karaoke captions live in the strip below the caption-safe frame; labelled
+        # entities keep clear of it (unlabelled art may still bleed under captions).
+        _safe = _NATIVE_ASPECTS[aspect]['safe']
+        self.caption_floor = _safe[1] + _safe[3] - min(self.canvas) * 0.012
 
     # ------------------------------------------------------------------ layout
     def _cells(self, zone: Dict[str, float], ents: List[IllustrationEntity], vertical: bool, gap_frac: float = GAP_FRAC) -> Dict[str, Dict[str, float]]:
@@ -227,6 +232,36 @@ class IllustrationSolver:
             cur += size + gap
         return cells
 
+    def _wrap_cells(self, zone: Dict[str, float], ents: List[IllustrationEntity], vertical: bool, gap_frac: float = GAP_FRAC) -> Dict[str, Dict[str, float]]:
+        """Single line when it fits; otherwise wrap into two lines so inside labels keep the floor size.
+
+        A PILL/CARD's inside label cannot borrow room from neighbours, so a row of many
+        label-carriers breaches the type floor in narrow aspects — wrap before that happens.
+        """
+        span = zone['h'] if vertical else zone['w']
+        total_w = sum(SIZE_WEIGHT[e.size] for e in ents)
+        floor = FLOOR_FRACTION['label'] * min(self.canvas)
+        need = 0.0
+        for e in ents:
+            share = span * SIZE_WEIGHT[e.size] / total_w
+            if e.label and e.glyph in ('PILL', 'CARD'):
+                share = max(share, measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06)
+            need += share
+        need += span * gap_frac * (len(ents) - 1)
+        if need <= span * 1.02 or len(ents) < 2:
+            return self._cells(zone, ents, vertical, gap_frac)
+        cut = (len(ents) + 1) // 2
+        lines = [ents[:cut], ents[cut:]]
+        cells: Dict[str, Dict[str, float]] = {}
+        g = (zone['w'] if vertical else zone['h']) * gap_frac
+        strip = ((zone['w'] if vertical else zone['h']) - g) / 2
+        for i, line in enumerate(lines):
+            off = i * (strip + g)
+            sub = (_box(zone['x'] + off, zone['y'], strip, zone['h']) if vertical
+                   else _box(zone['x'], zone['y'] + off, zone['w'], strip))
+            cells.update(self._cells(sub, line, vertical, gap_frac))
+        return cells
+
     def _entity_ar(self, e: IllustrationEntity, beat_id: str = '') -> float:
         if e.glyph == 'MEDIA':
             a = self.media_library[e.media_ref]
@@ -242,6 +277,9 @@ class IllustrationSolver:
         For an ICON the drawn artwork (not its viewBox padding) is what fills the cell; the returned bbox is
         the viewBox the runtime maps, so the art lands exactly where the solver measured it."""
         label_h = zone['h'] * LABEL_H_FRAC if e.label and e.glyph not in ('PILL', 'CARD') else 0.0
+        if e.label:
+            cell = dict(cell)
+            cell['h'] = max(0.0, min(cell['y'] + cell['h'], self.caption_floor) - cell['y'])
         body = _box(cell['x'], cell['y'], cell['w'], cell['h'] - label_h)
         scale = {'hero': 0.92, 'support': 0.78, 'minor': 0.66}[e.size]
         # Weighted cells already encode size; a hero in a row keeps its full cell, supports breathe.
@@ -285,7 +323,7 @@ class IllustrationSolver:
             order = self._order(il, top)
             top_ids = {e.id for e in top}
             lined = any(r.type in LINED and r.source in top_ids and r.target in top_ids for r in il.relations)
-            cells = self._cells(zone, order, vertical, CONNECTOR_GAP_FRAC if lined else GAP_FRAC)
+            cells = self._wrap_cells(zone, order, vertical, CONNECTOR_GAP_FRAC if lined else GAP_FRAC)
         placed: Dict[str, Dict[str, Any]] = {}
         for e in il.entities:
             if e.id in contained or e.id in lenses or e.id in prohibits:
@@ -451,7 +489,10 @@ class IllustrationSolver:
     def _data_layout(self, top: List[IllustrationEntity], zone: Dict[str, float], vertical: bool) -> Dict[str, Dict[str, float]]:
         if all(e.glyph == 'BAR' for e in top):
             return self._cells(zone, top, False)
-        chart = next(e for e in top if e.glyph == 'CHART_LINE')
+        chart = next((e for e in top if e.glyph == 'CHART_LINE'), None)
+        if chart is None:
+            # BAR-led compositions with non-BAR companions (icons, pills) get the generic cell split.
+            return self._cells(zone, top, vertical)
         others = [e for e in top if e is not chart]
         if not others:
             return {chart.id: dict(zone)}
