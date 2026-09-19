@@ -954,6 +954,42 @@ def _tabler_strokes(name: str):
 
 _STAT_RE = re.compile(r"^[\$£€]?\s*\d[\d,\.]*\s*(%|[kmbx×+]|[a-z]{1,7})?\.?$",
                       re.I)
+_CUSTOM_DIR = _ASSETS / 'custom'
+
+
+def _slug(text: str) -> str:
+    return re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
+
+
+def _custom_strokes(slug: str):
+    """Unit-space strokes for a bespoke SVG in assets/custom/<slug>.svg.
+    These are commissioned/generated illustrations — they win over every
+    generic vocabulary path."""
+    path = _CUSTOM_DIR / f'{slug}.svg'
+    if not path.is_file():
+        return None
+    elements, vb = svg_paths.elements_from_string(path.read_text())
+    polys = [p for ps, _f, _c in elements for p in ps if len(p) >= 2]
+    if not polys:
+        return None
+    # extent from geometry — vtracer writes width/height, not viewBox
+    xs = [p[0] for pl in polys for p in pl]
+    ys = [p[1] for pl in polys for p in pl]
+    vbw = (vb[2] if vb and len(vb) > 2 and vb[2]
+           else max(xs) - min(xs)) or 1
+    vbh = (vb[3] if vb and len(vb) > 3 and vb[3]
+           else max(ys) - min(ys)) or 1
+    x0 = vb[0] if vb and len(vb) > 2 and vb[2] else min(xs)
+    y0 = vb[1] if vb and len(vb) > 3 and vb[3] else min(ys)
+    side = max(vbw, vbh, 1)  # normalize by the long edge, keep aspect
+    ox = (side - vbw) / 2
+    oy = (side - vbh) / 2
+    strokes = []
+    for poly in polys:
+        strokes.append(([( (x - x0 + ox) / side - 0.5,
+                          (y - y0 + oy) / side - 0.5) for x, y in poly],
+                        'ink', 0.95, False))
+    return strokes or None
 
 
 def _singular(w: str) -> str:
@@ -976,6 +1012,9 @@ def icon_for(concept: str) -> str:
     wset = set(words)
     if any(f'{k} agent' in phrase or f'{k} rep' in phrase for k in _PERSON_AGENT_PREFIXES):
         return 'person'
+    # bespoke commissioned/generated art for this exact label wins outright
+    if (_CUSTOM_DIR / f'{_slug(phrase)}.svg').is_file():
+        return ('custom', _slug(phrase))
     for icon, keys in _ICON_KEYWORDS.items():
         if any(' ' in k and k in phrase for k in keys):
             return icon
@@ -1005,6 +1044,9 @@ def icon_for(concept: str) -> str:
         if re.search(r'(%|\$|bp|bps|\bx\b|\bk\b)', phrase):
             return 'chart'
         return 'coin'
+    # last-word bespoke art ('giant octopus' -> octopus.svg)
+    if words and (_CUSTOM_DIR / f'{_slug(words[-1])}.svg').is_file():
+        return ('custom', _slug(words[-1]))
     tb = _tabler_lookup(phrase)
     if tb:
         return ('tabler', tb)
@@ -1014,6 +1056,10 @@ def icon_for(concept: str) -> str:
 def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
     if isinstance(icon, tuple) and icon[0] == 'tabler':
         return _tabler_strokes(icon[1])
+    if isinstance(icon, tuple) and icon[0] == 'custom':
+        custom = _custom_strokes(icon[1])
+        if custom:
+            return custom
     if icon == 'person':
         spec = cast if isinstance(cast, dict) else (cast or pose)
         return _peeps_strokes(spec, facing)
@@ -1517,7 +1563,8 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
         p1 = (q['center'][0] - q['size'] * 0.55 * p.get('facing', 1),
               q['center'][1] - q['size'] * 0.08)
         if abs(p1[0] - p0[0]) > p['size'] * 0.15:
-            groups.append(('arrow', _arrow_strokes(p0, p1), (0, 0), 1.0, None))
+            mid = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
+            groups.append(('arrow', _arrow_strokes(p0, p1), mid, 1.0, None))
             arrow_drawn = True
     # motion marks only when the arrow didn't already carry the action
     if not arrow_drawn:
@@ -1645,10 +1692,46 @@ def _emphasis_focus(scene, plan, ratio, scene_time):
     return None, 0.0
 
 
-def _scene_zoom(scene, scene_time: float, ratio: str) -> float:
-    """No per-scene zoom — this style holds a fixed frame on the zone so
-    every drawn element stays fully visible for the whole beat."""
-    return 1.0
+def _activity_focus(scene, plan, ratio, scene_time):
+    """Board center of the group currently being drawn + transient
+    push-in strength: eases in over the first 40% of the draw window and
+    back out before the window closes, so every hold/settle returns to
+    the full uncropped scene."""
+    for (kind, _st, center, _size, slot), start, end in _scene_groups(
+            scene, plan, ratio):
+        if center == (0, 0) or kind == 'headline':
+            continue
+        if start <= scene_time < end:
+            span = max(0.05, end - start)
+            e_in = wbp._ease(wbp._clamp((scene_time - start) /
+                                        min(0.55, span * 0.4)))
+            e_out = wbp._ease(wbp._clamp((end - scene_time) /
+                                         min(0.45, span * 0.35)))
+            return center, e_in * e_out
+    return None, 0.0
+
+
+def _scene_cam_zoom(scene, plan, ratio, scene_time: float):
+    """Cinematic push-in: while a group is drawn the camera leans toward it
+    and zooms ~10%. Lean is clamped to the zone slack so nothing drawn —
+    including edge captions and headlines — ever leaves the frame."""
+    base = wbp._camera(scene, ratio)
+    act, e = _activity_focus(scene, plan, ratio, scene_time)
+    if act is None or e <= 0:
+        return base, 1.0
+    zone = scene['whiteboardRuntime']['boardZone']
+    # board units visible in frame at zoom 1: view_w / scale1
+    wpx, hpx = wbp.RATIO_SIZES[ratio]
+    scale1 = min(wpx, hpx) / (650 if ratio != '9:16' else 760)
+    vis_w, vis_h = wpx / scale1, hpx / scale1
+    # lean toward the active element, capped so the zone's own content
+    # band is the frame boundary at peak zoom — neighbors may leave the
+    # frame briefly during a push (that's the cinematic move) but the
+    # hold between groups always returns to the full uncropped scene.
+    zcx, zcy = base
+    lean = 0.32 * e
+    cam = (zcx + (act[0] - zcx) * lean, zcy + (act[1] - zcy) * lean)
+    return cam, 1.0 + 0.14 * e
 
 
 def _alpha_scale(layer: Image.Image, alpha: int) -> Image.Image:
@@ -1670,8 +1753,7 @@ def _composite_frame(plan: dict, ratio: str, cam, layers: list[tuple[Image.Image
 
 
 def render_scene_frame(scene: dict, plan: dict, ratio: str, scene_time: float) -> Image.Image:
-    cam = wbp._camera(scene, ratio)
-    zoom = _scene_zoom(scene, scene_time, ratio)
+    cam, zoom = _scene_cam_zoom(scene, plan, ratio, scene_time)
     scenes = plan.get('sceneSpecs') or [scene]
     idx = next((i for i, s in enumerate(scenes)
                 if s.get('sceneId') == scene.get('sceneId')), 0)

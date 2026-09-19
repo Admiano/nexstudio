@@ -4,6 +4,19 @@ All assets in this directory are cleared for commercial use without
 attribution (CC0 / public domain) or under MIT with the license text kept
 alongside. Keep this file updated when adding assets.
 
+## custom/ — bespoke illustrations (the per-label "aha" path)
+
+Any label can get custom art: drop a stroke-only SVG at
+`assets/custom/<slug>.svg` where slug is the lowercased label with
+non-alphanumerics → `-`. `icon_for` resolves bespoke art ahead of every
+generic vocabulary path (full-label slug first, then last-word slug).
+
+Recipe: `python3 tools/vectorize_sketch.py art.png --name my-concept`
+(vtracer converts commissioned/hand-drawn/AI line art to strokes).
+Source art must be black marker lines on white, no fills — like the
+`bee-swarm.svg` and `crowded-platform.svg` demos in this directory,
+which were AI-generated and vectorized as pipeline demos.
+
 ## open_peeps/ — 7 authored pose SVGs
 - Source: shipped inside the approved V3 source bundle
   `NEXSTUDIO_WHITEBOARD_APPROVED_V3_SOURCE_FOCUSED_2026-09-18.zip`

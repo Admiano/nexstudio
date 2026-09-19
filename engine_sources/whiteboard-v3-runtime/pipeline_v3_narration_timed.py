@@ -29,6 +29,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -95,6 +96,89 @@ def load_plan(path: Path) -> dict:
     except Exception as e:
         raise _err('WHITEBOARD_V3_PLAN_UNREADABLE', str(e))
     return normalize_plan(plan)
+
+
+def _norm_word(w: str) -> str:
+    return re.sub(r"[^a-z0-9']+", '', str(w).lower())
+
+
+def load_word_timings(path: str | Path) -> list[dict]:
+    """Normalize a word-timings JSON to [{'word','start','end'}].
+
+    Accepts: a flat list of {word|text, start, end}, ElevenLabs-style
+    {'characters': [...], 'character_start_times_seconds': [...]} — grouped
+    into words, or whisper verbose {'segments': [{words: [...]}]}.
+    """
+    data = json.loads(Path(path).read_text())
+    words: list[dict] = []
+    if isinstance(data, list):
+        for w in data:
+            if isinstance(w, dict) and 'start' in w:
+                words.append({'word': w.get('word', w.get('text', '')),
+                              'start': float(w['start']),
+                              'end': float(w.get('end', w['start']))})
+    elif isinstance(data, dict) and data.get('segments'):
+        for seg in data['segments']:
+            for w in seg.get('words', []):
+                words.append({'word': w.get('word', ''),
+                              'start': float(w['start']),
+                              'end': float(w['end'])})
+    elif isinstance(data, dict) and data.get('characters'):
+        chars = data['characters']
+        starts = data['character_start_times_seconds']
+        ends = data['character_end_times_seconds']
+        cur, ws, we = '', None, None
+        for ch, st, en in zip(chars, starts, ends):
+            if ch in ' \n\t':
+                if cur:
+                    words.append({'word': cur, 'start': ws, 'end': we})
+                    cur = ''
+            else:
+                cur += ch
+                ws = st if ws is None else ws
+                we = en
+        if cur:
+            words.append({'word': cur, 'start': ws, 'end': we})
+    return [w for w in words if w.get('word')]
+
+
+def align_beats_to_words(plan: dict, words: list[dict]) -> dict:
+    """Audio-as-authority: re-time each beat's window to where its narration
+    is actually spoken. Sequential matcher walks the transcript once; beats
+    whose narration isn't found keep their authored timing."""
+    p = normalize_plan(plan)
+    # keep word objects parallel to normalized tokens — indices align
+    pairs = [(w, _norm_word(w['word'])) for w in words]
+    pairs = [(w, t) for w, t in pairs if t]
+    if not pairs:
+        return p
+    toks = [t for _, t in pairs]
+    ti = 0
+    for b in p['beats']:
+        narr = [_norm_word(x) for x in
+                str(b.get('narration') or '').split()]
+        narr = [x for x in narr if x]
+        if not narr:
+            continue
+        # locate the narration's first token within a scan window
+        found = None
+        for j in range(ti, min(len(toks), ti + 400)):
+            if toks[j] == narr[0]:
+                found = j
+                break
+        if found is None:
+            continue
+        end_i = min(len(toks) - 1, found + len(narr) - 1)
+        b['start_seconds'] = max(0.0, pairs[found][0]['start'] - 0.15)
+        b['duration_seconds'] = max(
+            0.5, pairs[end_i][0]['end'] - b['start_seconds'] + 0.35)
+        ti = end_i + 1
+    cursor = 0.0
+    for b in p['beats']:
+        b['start_seconds'] = max(b['start_seconds'], cursor)
+        cursor = b['start_seconds'] + b['duration_seconds']
+    p['durationSeconds'] = cursor + p['pacing']['board_reveal_seconds']
+    return p
 
 
 def normalize_plan(plan: dict) -> dict:
@@ -437,6 +521,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--variant', default=None, choices=['cluster_travel', 'giant_board_journey'])
     ap.add_argument('--fps', type=int, default=DEFAULT_FPS)
     ap.add_argument('--voiceover', default=None, help='Optional VO audio file to mix under the pen bed')
+    ap.add_argument('--word-timings', default=None,
+                    help='Word-level timing JSON (ElevenLabs /with-timestamps, '
+                         'whisper verbose_json, or flat [{word,start,end}]). '
+                         'When given, each beat window is re-aligned to where '
+                         'its narration is actually spoken — audio is the clock.')
     ap.add_argument('--keep-frames', action='store_true')
     ap.add_argument('--package-root', default=None, help='Override path to NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE')
     a = ap.parse_args(argv)
@@ -444,6 +533,8 @@ def main(argv: list[str] | None = None) -> int:
     plan = load_plan(Path(a.plan))
     if a.variant:
         plan['camera_variant'] = a.variant
+    if a.word_timings:
+        plan = align_beats_to_words(plan, load_word_timings(a.word_timings))
     receipt = render_production(
         plan,
         Path(a.out_dir),
