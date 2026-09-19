@@ -170,9 +170,17 @@ def load_svg_strokes(path):
     fill attribute (or 'default') and closed marks Z-terminated outlines.
     """
     tree = ET.parse(str(path))
-    root = tree.getroot()
+    return elements_from_root(tree.getroot())
+
+
+def elements_from_string(svg_text: str):
+    """Same as load_svg_strokes but for SVG markup already in memory."""
+    return elements_from_root(ET.fromstring(svg_text))
+
+
+def elements_from_root(root):
     vb = root.get("viewBox")
-    view_box = tuple(float(v) for v in vb.split()) if vb else (0.0, 0.0, float(root.get("width", 100)), float(root.get("height", 100)))
+    view_box = tuple(float(v) for v in vb.split()) if vb else None
     out = []
     _TR = re.compile(r"translate\(\s*(-?\d*\.?\d+(?:e[+-]?\d+)?)[ ,]+(-?\d*\.?\d+(?:e[+-]?\d+)?)\s*\)")
 
