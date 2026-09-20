@@ -28,6 +28,10 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
 GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
           'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER')
+# Housings whose only job is to carry a mark; staged without one they read as generated filler.
+CARRIER_GLYPHS = ('TILE', 'BADGE', 'CHIP')
+# Housings whose label is set inside the body, so a word alone is content.
+INSIDE_LABEL_GLYPHS = ('CHIP',)
 ENTITY_KINDS = ('object', 'system', 'state', 'group', 'evidence', 'signal', 'agent')
 ENTITY_SIZES = ('hero', 'support', 'minor')
 RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans', 'marks')
@@ -201,6 +205,10 @@ class IllustrationEntity:
         media_ref = (str(d.get('media_ref') or '').strip() or None)
         if glyph == 'ICON':
             _need(asset_ref is not None, 'ICON_WITHOUT_ASSET_REF', eid, beat_id)
+        if glyph in CARRIER_GLYPHS:
+            # A housing is never staged empty: the tile / disc / row exists to carry a mark or a word.
+            carries = asset_ref is not None or (label is not None and glyph in INSIDE_LABEL_GLYPHS)
+            _need(carries, 'CHASSIS_EMPTY', f'{eid}: {glyph} carries nothing (no asset_ref, no inside label)', beat_id)
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})

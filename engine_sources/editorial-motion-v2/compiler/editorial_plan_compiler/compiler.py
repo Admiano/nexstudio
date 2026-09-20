@@ -642,6 +642,9 @@ class BeatCompiler:
                 failures.append('FIGURE_COLLIDES_ILLUSTRATION')
             if not illustration['carried'] and illustration['state_changes'] == 0 and b.dominant_layer in ('ILLUSTRATION', 'HYBRID'):
                 warnings.append('ILLUSTRATION_WITHOUT_STATE_CHANGE')
+            for rel in illustration['relations']:
+                if rel.get('stub'):
+                    warnings.append(f"CONNECTOR_STUB_ADJACENT:{rel['id']}")
 
         # Ownership: nothing visual may sit on text, and every element stays in the safe frame.
         for name, el in (('MEDIA', media), ('FIGURE', figure)):

@@ -82,6 +82,14 @@
     };
   }
 
+  // Authorship inspection thresholds (see inspect()): a carried mark must cover a real share of
+  // its box and stay inside it; a connector reads as present above CONNECTOR_SHOWN_MIN while a
+  // body below ENDPOINT_PRESENT_MIN reads as absent.
+  const ICON_FILL_MIN = 0.2;
+  const ICON_OVERFLOW_MAX = 0.25;
+  const CONNECTOR_SHOWN_MIN = 0.25;
+  const ENDPOINT_PRESENT_MIN = 0.2;
+
   // Velocity-proportional blur during fast moves — the illusion of shutter speed.
   function velocityBlur(lt, s, e, easeFn, distPx) {
     if (lt <= s || lt >= e) return 0;
@@ -956,6 +964,8 @@
   // Registry icon loaded into a box inside a glyph group; each part joins the entity's
   // draw-on program (stroke packs dash-draw, fill packs stagger in).
   function loadIconInto(ent, node, host, box, opts) {
+    node.extra.iconBox = box;
+    host.setAttribute('data-icon-host', ent.id);
     node.ready = fetchText(opts.assetUrl(ent.asset.path)).then((txt) => {
       const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
       const src = doc.documentElement;
@@ -1393,6 +1403,7 @@
         if (ent.asset) {
           const host = svgEl('g', {}, g);
           host.style.color = ink;
+          node.extra.iconHost = host;
           const pad = peg * 0.16;
           loadIconInto(ent, node, host, { x: px0 + pad, y: py0 + pad, w: peg - pad * 2, h: peg - pad * 2 }, opts);
         } else {
@@ -1504,7 +1515,9 @@
         media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
         ready.push(mediaReady(media));
       }
-      const settledAt = Math.max(ent.enter_ms + (ent.enter_duration_ms || 0), (opsFor.get(ent.id) || []).reduce((m, o) => Math.max(m, o.end_ms), 0));
+      // Ambient life starts once the body has landed; a body waiting on a later op is still a
+      // living still, not a freeze-frame.
+      const settledAt = ent.enter_ms + (ent.enter_duration_ms || 0);
       ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt });
     }
     for (const rel of il.relations) {
@@ -1646,6 +1659,7 @@
       if (swap.v > 0 && swap.v < 1) scale *= 1 + 0.08 * EASE.pulse(swap.v);
 
       const draw = propAt(node, 'draw', lt).v;
+      node.drawV = draw;
       const drawOp = propDriver(node, 'draw', lt);
       if (drawOp && drawOp.params && drawOp.params.wipe) {
         // Wipe: stroked parts run the traveling comet; non-stroked parts pulse with the sweep.
@@ -1779,6 +1793,7 @@
       const conDriver = rel.drawn_by_op ? propDriver(r, 'connect', lt) : null;
       const wiping = Boolean(conDriver && conDriver.params && conDriver.params.wipe);
       if (wiping && r.path.setWipe) r.path.setWipe(con); else r.path.set(con);
+      r.con = con;
       const dim = propAt(r, 'dim', lt).v;
       let opacity = dim * (rel.drawn_by_op ? 1 : Math.min(1, pe * 3));
       if (ex) opacity *= ex.opacity;
@@ -2093,10 +2108,104 @@
     const ready = Promise.all([fontsReady(plan)].concat(beats.map((b) => b.ready))).then(() => seek(0));
     seek(0);
 
+    // Authorship inspection of the scene graph as seeked: what a viewer would read as a
+    // generated tell, measured from the driven DOM rather than guessed from the plan.
+    //   EMPTY_CHASSIS     a housing body is on stage with nothing inside it
+    //   ICON_UNDERFILL    the carried mark renders as a sliver of the box it was given
+    //   ICON_OVERFLOW     the carried mark leaks well outside its box (hostile viewBox)
+    //   ORPHAN_CONNECTOR  a connector is visible while an endpoint body is not
+    // Per-entity pose signatures let a frame walker find holds with no motion at all.
+    const GRAPHIC = 'path,circle,ellipse,line,polyline,polygon,rect,text,image,use';
+    function iconGeometry(node) {
+      const host = node.glyph.extra.iconHost;
+      if (!host) return null;
+      const inner = host.firstElementChild;
+      if (!inner) return null;
+      // Painted extent in host space: the union of every graphic part that is not clipped or
+      // masked (masked art may legitimately reach past the viewBox and be cut back to shape).
+      let hostM;
+      try { hostM = host.getScreenCTM(); } catch (e) { hostM = null; }
+      if (!hostM) return null;
+      const inv = hostM.inverse();
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const el of inner.querySelectorAll(GRAPHIC)) {
+        let a = el, cut = false;
+        while (a && a !== host) { if (a.hasAttribute('mask') || a.hasAttribute('clip-path')) cut = true; a = a.parentNode; }
+        if (cut || el.closest('defs,clipPath,mask,pattern,marker,symbol')) continue;
+        let bb, m;
+        try { bb = el.getBBox(); m = el.getScreenCTM(); } catch (e) { continue; }
+        if (!m || !(bb.width > 0 || bb.height > 0)) continue;
+        const M = inv.multiply(m);
+        for (const [qx, qy] of [[bb.x, bb.y], [bb.x + bb.width, bb.y], [bb.x, bb.y + bb.height], [bb.x + bb.width, bb.y + bb.height]]) {
+          const X = M.a * qx + M.c * qy + M.e, Y = M.b * qx + M.d * qy + M.f;
+          x0 = Math.min(x0, X); y0 = Math.min(y0, Y); x1 = Math.max(x1, X); y1 = Math.max(y1, Y);
+        }
+      }
+      if (!(x1 > x0 && y1 > y0)) return null;
+      const box = node.glyph.extra.iconBox;
+      const x = x0, y = y0, w = x1 - x0, h = y1 - y0;
+      const ix = Math.max(0, Math.min(x + w, box.x + box.w) - Math.max(x, box.x));
+      const iy = Math.max(0, Math.min(y + h, box.y + box.h) - Math.max(y, box.y));
+      return {
+        fill: (ix * iy) / (box.w * box.h),
+        overflow: Math.max(box.x - x, box.y - y, x + w - (box.x + box.w), y + h - (box.y + box.h)) / Math.min(box.w, box.h),
+      };
+    }
+    function inspect() {
+      const out = { time, entities: {}, findings: [] };
+      const flag = (code, beatId, id, detail) => out.findings.push({ code, beat_id: beatId, id, detail });
+      const look = (bn) => {
+        const ill = bn.illustration;
+        if (!ill) return;
+        const beatId = bn.beat.beat_id;
+        for (const node of ill.ents.values()) {
+          const g = node.g, gl = node.glyph;
+          const op = Number(g.style.opacity);
+          // Undrawn bodies (DRAW still ahead) are on the clock but not on the screen.
+          const shown = g.style.visibility !== 'hidden' && op > 0.05 && !(node.drawV < 0.02);
+          const key = `${beatId}:${node.ent.id}`;
+          out.entities[key] = shown
+            ? `${g.getAttribute('transform')}|${g.style.opacity}|${node.label ? node.label.wrap.style.transform : ''}`
+            : null;
+          if (!shown || !gl.extra.chassis) continue;
+          const body = g.querySelector('[data-draw="body"]');
+          const bodyOn = body && Number(body.style.opacity === '' ? 1 : body.style.opacity) * op > 0.15;
+          if (!bodyOn) continue;
+          const host = gl.extra.iconHost;
+          const carried = host ? host.querySelectorAll(GRAPHIC).length : 0;
+          const readout = gl.extra.countText || body.querySelector('text');
+          const inside = node.label && node.label.inside;
+          if (!carried && !readout && !inside) flag('EMPTY_CHASSIS', beatId, node.ent.id, `${node.ent.glyph} body on stage with nothing inside`);
+          if (host && carried) {
+            const geom = iconGeometry(node);
+            if (geom && geom.fill < ICON_FILL_MIN) flag('ICON_UNDERFILL', beatId, node.ent.id, `mark covers ${(geom.fill * 100).toFixed(0)}% of its box`);
+            if (geom && geom.overflow > ICON_OVERFLOW_MAX) flag('ICON_OVERFLOW', beatId, node.ent.id, `mark leaks ${(geom.overflow * 100).toFixed(0)}% of its box outside it`);
+          }
+        }
+        for (const r of ill.rels.values()) {
+          if (!r.path || !r.g) continue;
+          const s = r.g.style;
+          if (s.visibility === 'hidden' || Number(s.opacity) < CONNECTOR_SHOWN_MIN) continue;
+          if (!(r.con > 0.02)) continue;
+          for (const endId of [r.rel.source, r.rel.target]) {
+            const end = ill.ents.get(endId);
+            if (!end) continue;
+            const eg = end.g;
+            if (eg.style.visibility === 'hidden' || Number(eg.style.opacity) < ENDPOINT_PRESENT_MIN) {
+              flag('ORPHAN_CONNECTOR', beatId, r.rel.id, `connector visible while ${endId} is not`);
+            }
+          }
+        }
+      };
+      if (current >= 0) look(beats[current]);
+      if (currentOverlap >= 0) look(beats[currentOverlap]);
+      return out;
+    }
+
     return {
       version: RUNTIME_VERSION,
       plan, stage, duration, fps: plan.fps, frames: Math.ceil((duration * plan.fps) / 1000),
-      seek, frame, play, pause, fit, ready,
+      seek, frame, play, pause, fit, ready, inspect,
       // Scene-graph update cost per seek (script side only; paint is the compositor's).
       get perf() { return { frames: perf.frames, avg_ms: perf.frames ? perf.total_ms / perf.frames : 0, max_ms: perf.max_ms }; },
       get time() { return time; },

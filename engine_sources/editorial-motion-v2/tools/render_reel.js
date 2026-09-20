@@ -15,6 +15,7 @@ const http = require('http');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 const { chromium } = require('playwright-core');
+const { AuthorshipLedger } = require('./authorship_gate');
 
 const ROOT = path.resolve(__dirname, '..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.wav': 'audio/wav' };
@@ -192,14 +193,18 @@ async function main() {
 
   const total = Math.ceil(((limit || plan.duration_ms) * fps) / 1000);
   const t0 = Date.now();
-  if (!reuseFrames) {
-    for (let i = 0; i < total; i += 1) {
-      const ms = Math.round((i * 1000) / fps);
-      await page.evaluate((t) => window.__em2.seek(t), ms);
-      await page.screenshot({ path: path.join(framesDir, `f${String(i).padStart(5, '0')}.png`), clip, animations: 'disabled', caret: 'hide' });
-      if (i % 150 === 0) process.stdout.write(`${plan.aspect} ${i}/${total} (${((Date.now() - t0) / 1000).toFixed(0)}s)\n`);
-    }
+  // Authorship inspection rides the same seek as the capture: the manifest records exactly the
+  // frames that were rendered.
+  const ledger = new AuthorshipLedger(fps);
+  for (let i = 0; i < total; i += 1) {
+    const ms = Math.round((i * 1000) / fps);
+    await page.evaluate((t) => window.__em2.seek(t), ms);
+    ledger.observe(ms, await page.evaluate(() => window.__em2.inspect()));
+    if (reuseFrames) continue;
+    await page.screenshot({ path: path.join(framesDir, `f${String(i).padStart(5, '0')}.png`), clip, animations: 'disabled', caret: 'hide' });
+    if (i % 150 === 0) process.stdout.write(`${plan.aspect} ${i}/${total} (${((Date.now() - t0) / 1000).toFixed(0)}s)\n`);
   }
+  const authorship = ledger.report();
 
   // Frozen-progress contact sheet: one frame per beat at the start of its hold window, plus transition strips.
   const holdFrames = plan.beats.map((b) => Math.min(total - 1, Math.round(((b.start_ms + (b.ensemble.hold_window ? b.ensemble.hold_window.start_ms : b.duration_ms * 0.7)) * fps) / 1000)));
@@ -251,10 +256,10 @@ async function main() {
     schema: 'EditorialRenderManifestV1', runtime: await page.evaluate(() => window.__em2.version), film_id: plan.film_id, aspect: plan.aspect,
     plan_sha256: sha(fs.readFileSync(planPath)), frames: total, fps, output: plan.output, mp4: path.basename(mp4), mp4_sha256: sha(fs.readFileSync(mp4)),
     contact_sheet: `contact_${plan.aspect}.png`, transition_strip: stripFrames.length ? `transitions_${plan.aspect}.png` : null,
-    audio, captions_burned: captions, captions_policy: plan.captions_policy || 'burned', page_errors: errors, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
+    audio, captions_burned: captions, captions_policy: plan.captions_policy || 'burned', page_errors: errors, authorship, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
   };
   fs.writeFileSync(path.join(outDir, `render_${plan.aspect}.json`), JSON.stringify(manifest, null, 2));
-  console.log(JSON.stringify({ mp4, frames: total, errors: errors.length, audio }, null, 1));
+  console.log(JSON.stringify({ mp4, frames: total, errors: errors.length, audio, authorship: authorship.codes }, null, 1));
   await page.close();
   if (chromePath) await browser.close();
   srv.close();

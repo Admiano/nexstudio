@@ -12,8 +12,10 @@ const http = require('http');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { chromium } = require('playwright-core');
+const { AuthorshipLedger } = require('./authorship_gate');
 
 const ROOT = path.resolve(__dirname, '..');
+const ONLY = process.env.EM2_ONLY ? process.env.EM2_ONLY.split(',') : null;
 const FIXTURES = [
   { name: 'reply-speed', treatment: '../fixtures/reply-speed.treatment.json', out: path.join(ROOT, 'out', 'reply-speed') },
   { name: 'water-to-thirsty', treatment: '../fixtures/water-to-thirsty/treatment.json', out: path.join(ROOT, 'out', 'water') },
@@ -23,6 +25,7 @@ const FIXTURES = [
   { name: 'chassis-demo', treatment: '../fixtures/chassis-demo/treatment.json', out: path.join(ROOT, 'out', 'chassis-demo') },
   { name: 'glyph-shelf', treatment: '../fixtures/glyph-shelf/treatment.json', out: path.join(ROOT, 'out', 'glyph-shelf') },
   { name: 'promo-collage', treatment: '../fixtures/promo-collage/treatment.json', out: path.join(ROOT, 'out', 'promo-collage') },
+  { name: 'honey-nut-collage', treatment: '../fixtures/honey-nut-collage/treatment.json', out: path.join(ROOT, 'out', 'honey-nut-collage') },
 ];
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 
@@ -65,7 +68,33 @@ function check(name, ok, detail) {
   console.log(`  FAIL ${name}${detail ? ` — ${detail}` : ''}`);
 }
 
+// The frame walker itself: a pose held past the ceiling is named once, with its span; a pose
+// that moves (even by ambient drift) or leaves the stage never is.
+function ledgerSelfTest() {
+  const fps = 30, ms = (i) => Math.round((i * 1000) / fps);
+  const run = (sigOf) => {
+    const l = new AuthorshipLedger(fps);
+    for (let i = 0; i < fps * 6; i += 1) l.observe(ms(i), { entities: { 'b01:x': sigOf(i) }, findings: [] });
+    return l.report();
+  };
+  const frozen = run(() => 'translate(1 1)|1|');
+  const drifting = run((i) => `translate(${1 + 0.01 * Math.sin(i)} 1)|1|`);
+  const brief = run((i) => (i < fps * 2 ? 'a' : i < fps * 4 ? 'b' : 'c'));
+  const gone = run((i) => (i < fps * 2.5 ? 'a' : i < fps * 3.5 ? null : 'a'));
+  const f = frozen.findings[0];
+  check('authorship ledger: frozen pose named as STATIC_HOLD with its span',
+    frozen.codes.join() === 'STATIC_HOLD' && frozen.findings.length === 1 && f.beat_id === 'b01' && f.id === 'x' && f.first_ms === 0 && Math.abs(f.last_ms - 6000) < 40, JSON.stringify(frozen));
+  check('authorship ledger: drifting, re-posed and departed elements are not holds',
+    drifting.findings.length === 0 && brief.findings.length === 0 && gone.findings.length === 0 && brief.longest_static_hold_ms <= 2000 + 1000 / fps,
+    JSON.stringify({ d: drifting.codes, b: brief.longest_static_hold_ms, g: gone.longest_static_hold_ms }));
+  const dup = new AuthorshipLedger(fps);
+  for (let i = 0; i < 3; i += 1) dup.observe(ms(i), { entities: {}, findings: [{ code: 'EMPTY_CHASSIS', beat_id: 'b02', id: 'y', detail: 'd' }] });
+  const d = dup.report().findings;
+  check('authorship ledger: a per-frame finding collapses to one span', d.length === 1 && d[0].frames === 3 && d[0].first_ms === 0 && d[0].last_ms === ms(2), JSON.stringify(d));
+}
+
 async function main() {
+  ledgerSelfTest();
   const srv = await serve();
   const base = `http://127.0.0.1:${srv.address().port}`;
   const chromePath = process.env.CHROME_PATH || '';
@@ -74,6 +103,7 @@ async function main() {
     : await chromium.connectOverCDP(process.env.CDP_URL || 'http://localhost:29229');
 
   for (const fx of FIXTURES) {
+    if (ONLY && !ONLY.includes(fx.name)) continue;
     ensurePlans(fx);
     fs.writeFileSync(path.join(fx.out, '_test_page.html'), PAGE);
     await runFixture(fx, base, browser);
@@ -371,6 +401,60 @@ async function runFixture(fx, base, browser) {
         }
       }
 
+      // Authorship inspection: every rendered frame of the film, as the render tool sees it.
+      out.inspections = [];
+      for (let t = 0; t < plan.duration_ms; t += 1000 / plan.fps) {
+        await film.seek(Math.round(t));
+        out.inspections.push({ ms: Math.round(t), snap: film.inspect() });
+      }
+      // Negative proofs: break the scene graph the way a bad asset or a stray connector would, and the
+      // inspector must name it. Each mutation is undone before the next.
+      out.authorshipNeg = {};
+      const hostShown = (h) => {
+        const g = h.closest('[data-entity]');
+        return h.firstElementChild && h.querySelector('path,circle,rect,polygon,ellipse') && g.style.visibility !== 'hidden' && Number(g.style.opacity) > 0.5;
+      };
+      for (const b of plan.beats) {
+        if (!b.illustration) continue;
+        const hosted = b.illustration.entities.filter((e) => e.asset && ['TILE', 'BADGE', 'CHIP'].includes(e.glyph));
+        if (!hosted.length) continue;
+        await film.seek(b.start_ms + b.illustration.settled_ms + 40);
+        const beatNode = stage.children[plan.beats.indexOf(b)];
+        const host = Array.from(beatNode.querySelectorAll('[data-icon-host]')).find((h) => hostShown(h) && hosted.some((e) => e.id === h.dataset.iconHost));
+        if (!host) continue;
+        const inner = host.firstElementChild;
+        const codes = () => film.inspect().findings.filter((f) => f.id === host.dataset.iconHost).map((f) => f.code);
+        out.authorshipNeg.clean = codes();
+        const tf = inner.getAttribute('transform');
+        inner.setAttribute('transform', `${tf} scale(0.05)`);
+        out.authorshipNeg.underfill = codes();
+        inner.setAttribute('transform', `${tf} scale(4)`);
+        out.authorshipNeg.overflow = codes();
+        inner.setAttribute('transform', tf);
+        const html = inner.innerHTML;
+        inner.innerHTML = '';
+        out.authorshipNeg.empty = codes();
+        inner.innerHTML = html;
+        out.authorshipNeg.restored = codes();
+        break;
+      }
+      for (const b of plan.beats) {
+        if (!b.illustration || !b.illustration.relations.length) continue;
+        const rel = b.illustration.relations[0];
+        await film.seek(b.start_ms + b.illustration.settled_ms + 40);
+        const beatNode = stage.children[plan.beats.indexOf(b)];
+        const rg = beatNode.querySelector(`[data-relation="${rel.id}"]`);
+        if (!rg || rg.style.visibility === 'hidden' || Number(rg.style.opacity) < 0.3) continue;
+        const end = beatNode.querySelector(`[data-entity="${rel.source}"]`);
+        const codes = () => film.inspect().findings.filter((f) => f.id === rel.id).map((f) => f.code);
+        out.authorshipNeg.connectorClean = codes();
+        const op = end.style.opacity;
+        end.style.opacity = '0';
+        out.authorshipNeg.orphan = codes();
+        end.style.opacity = op;
+        break;
+      }
+
       // Per-frame scene-graph cost: seek every frame of the busiest illustration beat.
       const busy = plan.beats.filter((x) => x.illustration).sort((a, c) => c.illustration.ops.length - a.illustration.ops.length)[0] || plan.beats[0];
       const p0 = film.perf.frames;
@@ -396,6 +480,20 @@ async function runFixture(fx, base, browser) {
       const bad = il.ops.filter((o) => !o.ok);
       check(`illustration ${il.beat} ${il.form}: ${il.ops.length} ops, entities built once, hidden before entry, carried state, clear of copy`,
         il.entities && il.hiddenBefore && il.carried && !il.collide && bad.length === 0 && il.accent.ok, JSON.stringify({ ...il, ops: bad }));
+    }
+    {
+      const ledger = new AuthorshipLedger(plan.fps);
+      for (const { ms, snap } of r.inspections) ledger.observe(ms, snap);
+      const a = ledger.report();
+      check(`authorship: ${a.frames_inspected} frames, no generated-look tells (longest hold ${a.longest_static_hold_ms}ms)`, a.findings.length === 0, JSON.stringify(a.findings.slice(0, 6)));
+      const n = r.authorshipNeg;
+      if (n.clean !== undefined) {
+        check('authorship: inspector names a shrunken mark, a leaking mark and an emptied housing, and clears when restored',
+          n.clean.length === 0 && n.underfill.includes('ICON_UNDERFILL') && n.overflow.includes('ICON_OVERFLOW') && n.empty.includes('EMPTY_CHASSIS') && n.restored.length === 0, JSON.stringify(n));
+      }
+      if (n.connectorClean !== undefined) {
+        check('authorship: inspector names a connector whose endpoint has gone', n.connectorClean.length === 0 && n.orphan.includes('ORPHAN_CONNECTOR'), JSON.stringify(n));
+      }
     }
     for (const c of r.cascade) check(`word cascade ${c.beat}/${c.unit}: words land in order, all settle in focus, stress heavier`, c.words && c.firstOnly && c.all && c.heavier, JSON.stringify(c));
     check(`frame update under 8ms (avg ${r.perf.avg_ms.toFixed(2)}ms, max ${r.perf.max_ms.toFixed(2)}ms over ${r.perf.frames} frames)`, r.perf.avg_ms < 8, JSON.stringify(r.perf));
