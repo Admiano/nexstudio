@@ -505,3 +505,53 @@ def test_wrap_cells_keeps_a_single_line_when_shares_fit():
     ents = [IllustrationEntity(id=f'e{i}', kind='object', glyph='NODE', size='support') for i in range(3)]
     cells = s._wrap_cells({'x': 0.0, 'y': 0.0, 'w': 1200.0, 'h': 300.0}, ents, False)
     assert len({round(c['y']) for c in cells.values()}) == 1, 'unlabelled row must not wrap'
+
+
+# ---------------------------------------------------------------- authored, not generated
+
+def test_entity_labels_are_nouns_not_captions(treatment):
+    for label, code in (('the reply', 'ENTITY_LABEL_ARTICLE'), ('very long label here', 'ENTITY_LABEL_LONG'),
+                        ('lose customers', 'ENTITY_LABEL_ECHO')):
+        bad = copy.deepcopy(treatment)
+        beat = next(b for b in bad['beats'] if b.get('illustration'))
+        beat['illustration']['entities'][0]['label'] = label
+        with pytest.raises(TreatmentError) as e:
+            FilmTreatment.parse(bad)
+        assert e.value.code == code, label
+
+
+def test_one_colour_pack_per_film(tmp_path):
+    fx = ROOT / 'fixtures' / 'promo-collage' / 'treatment.json'
+    bad = json.loads(fx.read_text())
+    ent = next(e for b in bad['beats'] if b.get('illustration') for e in b['illustration']['entities']
+               if (e.get('asset_ref') or '').startswith('emoji.fluent.'))
+    ent['asset_ref'] = 'icon.icon-park-color.robot'
+    out = compile_film(bad, tmp_path, base_dir=fx.parent)
+    assert out['gate']['status'] == 'FAIL'
+    assert any(f.startswith('ASSET_PACK_MIX:emoji.fluent!=') and f.endswith('icon.icon-park-color.robot') for f in out['gate']['failures'])
+
+
+def test_no_free_floating_arcs_and_collage_links_are_uniform(collage_plans, plans):
+    for p in list(collage_plans['plans'].values()) + list(plans.values()):
+        assert not any(L['kind'] == 'arc' for b in p['beats'] for L in b['composition']['background']['layers'])
+    for p in collage_plans['plans'].values():
+        for b in p['beats']:
+            il = b.get('illustration')
+            if not il:
+                continue
+            for r in il['relations']:
+                if r['path']:
+                    assert r.get('thin') and r.get('dots') and not r.get('arrow'), r['id']
+                    assert r['length'] >= 28.0, r['id']
+
+
+def test_synthesized_ops_wait_for_the_authored_draw(collage_plans, plans):
+    for p in list(collage_plans['plans'].values()) + list(plans.values()):
+        for b in p['beats']:
+            il = b.get('illustration')
+            if not il:
+                continue
+            draw_end = {o['target']: o['end_ms'] for o in il['ops'] if o['op'] == 'DRAW'}
+            for o in il['ops']:
+                if o.get('synthesized') and o['op'] != 'DRAW' and o['target'] in draw_end:
+                    assert o['start_ms'] >= draw_end[o['target']], (b['beat_id'], o)

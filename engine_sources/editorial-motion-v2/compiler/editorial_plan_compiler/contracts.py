@@ -8,6 +8,7 @@ route layout, motif, figure or sound; wording is payload.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -56,6 +57,10 @@ MOTION_PROFILES = {
     'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise'},
 }
 DATA_KINDS = ('STAT', 'COMPARISON', 'SEQUENCE')
+# Entity labels are nouns, not captions: no leading article, at most three words, and never a
+# restatement of a display unit already set in type on the same beat.
+LABEL_MAX_WORDS = 3
+LABEL_ARTICLES = ('the', 'a', 'an')
 
 
 class TreatmentError(ValueError):
@@ -75,6 +80,25 @@ def _need(cond: bool, code: str, detail: str, beat_id: str = '') -> None:
 
 def _unit(v: Any) -> float:
     return max(0.0, min(1.0, float(v)))
+
+
+def _norm_words(text: str) -> List[str]:
+    return [w for w in re.sub(r"[^a-z0-9%]+", ' ', text.lower().replace('\u2019', "'")).split() if w]
+
+
+def check_labels(units: List['DisplayUnit'], illus: 'IllustrationDirective', beat_id: str) -> None:
+    unit_words = [_norm_words(u.text) for u in units]
+    for e in illus.entities:
+        if not e.label:
+            continue
+        words = _norm_words(e.label)
+        if not words:
+            continue
+        _need(words[0] not in LABEL_ARTICLES, 'ENTITY_LABEL_ARTICLE', f'{e.id}: label "{e.label}" opens with an article', beat_id)
+        _need(len(words) <= LABEL_MAX_WORDS, 'ENTITY_LABEL_LONG', f'{e.id}: label "{e.label}" runs past {LABEL_MAX_WORDS} words', beat_id)
+        for uw in unit_words:
+            echo = words == uw or (len(words) >= 2 and any(uw[i:i + len(words)] == words for i in range(len(uw) - len(words) + 1)))
+            _need(not echo, 'ENTITY_LABEL_ECHO', f'{e.id}: label "{e.label}" restates a display unit', beat_id)
 
 
 @dataclass
@@ -440,6 +464,7 @@ class BeatTreatment:
             _need(illus is not None and bool(units), 'HYBRID_LAYER_INCOMPLETE', 'HYBRID needs display units and an illustration', bid)
         if illus is not None:
             _need(media is None and data is None, 'ILLUSTRATION_WITH_MEDIA_OR_DATA', 'media and data belong inside the illustration as MEDIA/CHART entities', bid)
+            check_labels(units, illus, bid)
         if layer == 'FIGURE':
             _need(figure is not None, 'FIGURE_LAYER_WITHOUT_FIGURE', 'FIGURE dominant layer requires a figure directive', bid)
         if layer == 'EVIDENCE':

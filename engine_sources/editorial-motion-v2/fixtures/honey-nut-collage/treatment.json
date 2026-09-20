@@ -59,7 +59,7 @@
             "glyph": "TILE",
             "size": "hero",
             "asset_ref": "emoji.fluent.bowl-with-spoon",
-            "label": "Honey Nut"
+            "label": "cereal"
           },
           {
             "id": "sug",
@@ -67,7 +67,7 @@
             "glyph": "CHIP",
             "size": "support",
             "label": "sugar",
-            "asset_ref": "icon.icon-park-color.cube"
+            "asset_ref": "emoji.fluent.candy"
           },
           {
             "id": "hon",
@@ -75,7 +75,7 @@
             "glyph": "CHIP",
             "size": "minor",
             "label": "honey",
-            "asset_ref": "icon.icon-park-color.honey-one"
+            "asset_ref": "emoji.fluent.honey-pot"
           }
         ],
         "relations": [
@@ -172,7 +172,7 @@
             "glyph": "CHIP",
             "size": "minor",
             "label": "1",
-            "asset_ref": "icon.icon-park-color.bowl"
+            "asset_ref": "emoji.fluent.bowl-with-spoon"
           },
           {
             "id": "i2",
@@ -180,7 +180,7 @@
             "glyph": "CHIP",
             "size": "hero",
             "label": "2 sugar",
-            "asset_ref": "icon.icon-park-color.cube"
+            "asset_ref": "emoji.fluent.candy"
           }
         ],
         "relations": [
@@ -255,14 +255,15 @@
             "glyph": "CHIP",
             "size": "support",
             "label": "3 honey",
-            "asset_ref": "icon.icon-park-color.honey-one"
+            "asset_ref": "emoji.fluent.honey-pot"
           },
           {
             "id": "i4",
             "kind": "evidence",
             "glyph": "CHIP",
             "size": "support",
-            "label": "4 syrup"
+            "label": "4 syrup",
+            "asset_ref": "emoji.fluent.pancakes"
           }
         ],
         "relations": [
@@ -337,14 +338,14 @@
             "glyph": "CHIP",
             "size": "support",
             "label": "sugar",
-            "asset_ref": "icon.icon-park-color.cube"
+            "asset_ref": "emoji.fluent.candy"
           },
           {
             "id": "grams",
             "kind": "evidence",
             "glyph": "DONUT",
             "size": "hero",
-            "label": "per serving",
+            "label": "sugar",
             "params": {
               "count": 12,
               "suffix": "g"
@@ -424,21 +425,22 @@
             "glyph": "CHIP",
             "size": "minor",
             "label": "honey",
-            "asset_ref": "icon.icon-park-color.honey-one"
+            "asset_ref": "emoji.fluent.honey-pot"
           },
           {
             "id": "bs",
             "kind": "evidence",
             "glyph": "CHIP",
             "size": "minor",
-            "label": "syrup"
+            "label": "syrup",
+            "asset_ref": "emoji.fluent.pancakes"
           },
           {
             "id": "pct",
             "kind": "evidence",
             "glyph": "DONUT",
             "size": "hero",
-            "label": "daily amount",
+            "label": "daily value",
             "params": {
               "count": 24,
               "suffix": "%"
@@ -605,14 +607,14 @@
             "glyph": "TILE",
             "size": "support",
             "asset_ref": "emoji.fluent.chestnut",
-            "label": "the “nut”"
+            "label": "“nut”"
           },
           {
             "id": "flav",
             "kind": "state",
             "glyph": "CHIP",
             "size": "hero",
-            "label": "natural almond flavour"
+            "label": "flavouring"
           }
         ],
         "relations": [
@@ -693,15 +695,15 @@
             "kind": "evidence",
             "glyph": "TILE",
             "size": "hero",
-            "asset_ref": "icon.fluent-color.document-text-48",
-            "label": "allergen line"
+            "asset_ref": "emoji.fluent.receipt",
+            "label": "fine print"
           },
           {
             "id": "ok",
             "kind": "evidence",
             "glyph": "BADGE",
             "size": "support",
-            "label": "almond ingredients",
+            "label": "as written",
             "asset_ref": "emoji.fluent.check-mark"
           },
           {
@@ -800,15 +802,15 @@
             "glyph": "TILE",
             "size": "hero",
             "asset_ref": "emoji.fluent.package",
-            "label": "the box"
+            "label": "packaging"
           },
           {
             "id": "rh",
             "kind": "evidence",
             "glyph": "BADGE",
             "size": "support",
-            "label": "real honey",
-            "asset_ref": "icon.icon-park-color.honey-one"
+            "label": "claim",
+            "asset_ref": "emoji.fluent.honey-pot"
           }
         ],
         "relations": [
@@ -894,15 +896,15 @@
             "glyph": "TILE",
             "size": "minor",
             "asset_ref": "emoji.fluent.package",
-            "label": "the box"
+            "label": "packaging"
           },
           {
             "id": "rh",
             "kind": "evidence",
             "glyph": "BADGE",
             "size": "minor",
-            "label": "real honey",
-            "asset_ref": "icon.icon-park-color.honey-one"
+            "label": "claim",
+            "asset_ref": "emoji.fluent.honey-pot"
           }
         ],
         "relations": [],

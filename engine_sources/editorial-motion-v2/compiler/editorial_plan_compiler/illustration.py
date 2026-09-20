@@ -48,6 +48,8 @@ GAP_FRAC = 0.055
 # Cells joined by a drawn connector leave room for the connector itself to read as a stroke, not a tick.
 CONNECTOR_GAP_FRAC = 0.16
 COLLAGE_FORMS = ('OBJECT_STAGE', 'RELATIONSHIP', 'SIGNAL')
+# A link between rims closer than this is a stub, not a connector; the bodies read as adjacent.
+MIN_LINK_PX = 28.0
 
 
 def _box(x: float, y: float, w: float, h: float) -> Dict[str, float]:
@@ -418,6 +420,16 @@ class IllustrationSolver:
                     hx, hy = _centre(host)
                     d = max(host['w'], host['h']) * 1.2
                     neighbours = [p['art_bbox'] for k, p in placed.items() if k != e.id and k != host_id]
+                    # The host's own caption is a neighbour too: a ring may not cut through it. The
+                    # caption steps down to clear the ring when the zone allows; otherwise the ring shrinks.
+                    host_label = placed[host_id].get('label')
+                    lb = host_label['bbox'] if host_label and host_label.get('placement') == 'below' else None
+                    if lb is not None:
+                        gap = min(self.canvas) * 0.012
+                        ring_bottom = min(hy + d / 2, zone['y'] + zone['h'])
+                        if lb['y'] < ring_bottom + gap and ring_bottom + gap + lb['h'] <= zone['y'] + zone['h']:
+                            lb['y'] = ring_bottom + gap
+                        neighbours.append(lb)
                     while True:
                         x = min(max(hx - d / 2, zone['x']), zone['x'] + zone['w'] - d)
                         y = min(max(hy - d / 2, zone['y']), zone['y'] + zone['h'] - d)
@@ -630,14 +642,17 @@ class IllustrationSolver:
 
     # ------------------------------------------------------------------ relations
     @staticmethod
-    def connectors(il: IllustrationDirective, ents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def connectors(il: IllustrationDirective, ents: List[Dict[str, Any]], collage: bool = False) -> List[Dict[str, Any]]:
         by_id = {e['id']: e for e in ents}
         out = []
         for r in il.relations:
             a, b = by_id[r.source]['art_bbox'], by_id[r.target]['art_bbox']
+            # The collage register has one connector dress: every lined relation is a hairline link.
+            overlay = (r.type == 'blocks' and by_id[r.source]['glyph'] == 'PROHIBIT') or r.type == 'marks'
+            style = r.style or ('link' if collage and not overlay and (r.type in LINED or r.type == 'compares') else None)
             rel = {'type': r.type, 'source': r.source, 'target': r.target, 'id': f'{r.source}->{r.target}', 'path': None,
-                   'arrow': r.type in ARROWED, 'bar': r.type == 'blocks', 'style': r.style}
-            if r.style:
+                   'arrow': r.type in ARROWED, 'bar': r.type == 'blocks', 'style': style}
+            if style:
                 # Product-diagram dress: a hairline between box edges with dot endpoints.
                 # 'arc' bows the link; 'dash'/'arc' run it dashed.
                 ax, ay = _centre(a)
@@ -650,7 +665,11 @@ class IllustrationSolver:
                 t1 = min((b['w'] / 2) / abs(ux) if abs(ux) > 1e-6 else 1e9, (b['h'] / 2) / abs(uy) if abs(uy) > 1e-6 else 1e9)
                 p0 = (ax + ux * (t0 + 4), ay + uy * (t0 + 4))
                 p1 = (bx - ux * (t1 + 4), by - uy * (t1 + 4))
-                if r.style == 'arc':
+                if math.dist(p0, p1) < MIN_LINK_PX:
+                    # Rims this close already read as adjacent; a stub between them is a stray mark.
+                    out.append(rel)
+                    continue
+                if style == 'arc':
                     mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
                     bow = math.dist(p0, p1) * 0.22
                     cx, cy = mx - uy * bow, my + ux * bow
@@ -661,7 +680,7 @@ class IllustrationSolver:
                     rel['path'] = [[round(p0[0], 1), round(p0[1], 1)], [round(p1[0], 1), round(p1[1], 1)]]
                 rel['length'] = round(sum(math.dist(rel['path'][i], rel['path'][i + 1]) for i in range(len(rel['path']) - 1)), 1)
                 rel['dots'], rel['arrow'], rel['thin'] = True, False, True
-                if r.style in ('dash', 'arc'):
+                if style in ('dash', 'arc'):
                     rel['dashed'] = True
                 out.append(rel)
                 continue
@@ -809,7 +828,20 @@ class IllustrationSolver:
                                   'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}, 'synthesized': True})
         if il is not None:
             extra += IllustrationSolver._choreograph(il, ops + extra, ents, rels, settled, latest_end)
-        return extra
+        # Nothing synthesized may act on a body before its authored DRAW has finished — a halo or
+        # ink pulse around an undrawn chassis is a glow around nothing.
+        draw_end = {o['target']: o['end_ms'] for o in ops if o['op'] == 'DRAW' and o['target'] in ent_ids}
+        kept: List[Dict[str, Any]] = []
+        for o in extra:
+            floor = draw_end.get(o['target'])
+            if floor is None or o['op'] == 'DRAW' or o['start_ms'] >= floor:
+                kept.append(o)
+                continue
+            dur = o['end_ms'] - o['start_ms']
+            st = floor + 80
+            if st + dur <= latest_end:
+                kept.append({**o, 'start_ms': st, 'end_ms': st + dur, 'anchor': {'offset_ms': st}})
+        return kept
 
     # ------------------------------------------------------------------ hold choreography
     @staticmethod
@@ -881,7 +913,7 @@ class IllustrationSolver:
     def compile(self, il: IllustrationDirective, zone: Dict[str, float], clock: BeatClock, beat_id: str,
                 carry_source: Optional[Dict[str, Any]]) -> Tuple[Dict[str, Any], List[str]]:
         ents, failures = self.layout(il, zone, beat_id)
-        rels = self.connectors(il, ents)
+        rels = self.connectors(il, ents, self.collage)
         carried_ids = set(il.carry_entities) if carry_source else set()
         carry_in: Dict[str, Dict[str, float]] = {}
         if carry_source:

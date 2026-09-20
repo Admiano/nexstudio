@@ -275,9 +275,10 @@ async function runFixture(fx, base, browser) {
           let why = ok ? '' : 'no visible change';
           const drawn = (n, role) => Array.from(n.querySelectorAll(`[data-draw="${role}"]`));
           const outlineDone = (n) => {
-            const solid = drawn(n, 'outline'), covers = drawn(n, 'cover');
-            return (solid.length + covers.length) > 0 && solid.every((p) => num(p.style.strokeDashoffset) < 0.5)
-              && covers.every((p) => -num(p.style.strokeDashoffset) >= num(p.style.strokeDasharray) - 0.5);
+            const solid = drawn(n, 'outline'), covers = drawn(n, 'cover'), bodies = drawn(n, 'body');
+            return (solid.length + covers.length + bodies.length) > 0 && solid.every((p) => num(p.style.strokeDashoffset) < 0.5)
+              && covers.every((p) => -num(p.style.strokeDashoffset) >= num(p.style.strokeDasharray) - 0.5)
+              && bodies.every((p) => num(p.style.opacity || '1') > 0.99);
           };
           if (op.op === 'FILL') { const r = node.querySelector('rect[clip-path]'); ok = r && Math.abs(num(r.getAttribute('height')) / (node.getBBox().height || 1) - op.to) < 0.12; why = r && r.getAttribute('height'); }
           if (op.op === 'INK') { ok = Array.from(node.querySelectorAll('[fill-opacity]')).some((n) => Math.abs(Number(n.getAttribute('fill-opacity')) - op.to) < 0.02) || (node.querySelector('g') && node.querySelector('g').style.color !== ''); }
@@ -317,7 +318,10 @@ async function runFixture(fx, base, browser) {
           if (op.op === 'GROW') { const r = node.querySelector('rect[data-grow]') || node.querySelector('rect'); if (r) { ok = Math.abs(num(r.getAttribute('height')) / il.entities.find((x) => x.id === op.target).bbox.h - op.to) < 0.05; why = r.getAttribute('height'); } }
           // Persistent EMITs leave visible embers; a fully decaying pulse (to:0) is verified by the
           // before/after pixel diff alone.
-          if (op.op === 'EMIT' && op.to !== 0) { ok = Array.from(node.querySelectorAll('circle')).some((c) => Number(c.getAttribute('stroke-opacity')) > 0.3); }
+          if (op.op === 'EMIT' && op.to !== 0) {
+            ok = Array.from(node.querySelectorAll('circle')).some((c) => Number(c.getAttribute('stroke-opacity')) > 0.3)
+              || Array.from(node.querySelectorAll('[data-halo]')).some((h) => Number(h.getAttribute('fill-opacity')) > 0.05);
+          }
           rec.ops.push({ op: op.op, target: op.target, ok: Boolean(ok), why });
         }
         // Accent discipline: at the settled state only state-change ops may have introduced the accent colour.

@@ -933,7 +933,10 @@
   }
 
   // Colour packs reuse ids (gradients, clip paths, filters) across icons; scope them per
-  // instance so two emoji on one stage do not paint with each other's defs.
+  // instance so two emoji on one stage do not paint with each other's defs. A carried entity is
+  // rebuilt per beat, so the scope is a running counter rather than the entity id.
+  let iconInstance = 0;
+
   function scopeSvgIds(markup, scope) {
     const ids = new Set();
     markup.replace(/\bid="([^"]+)"/g, (m, id) => { ids.add(id); return m; });
@@ -960,7 +963,7 @@
       const vb = (src.getAttribute('viewBox') || `0 0 ${src.getAttribute('width') || 100} ${src.getAttribute('height') || 100}`).split(/[\s,]+/).map(Number);
       const s = Math.min(box.w / vb[2], box.h / vb[3]);
       const inner = svgEl('g', { transform: `translate(${f2(box.x + (box.w - vb[2] * s) / 2)} ${f2(box.y + (box.h - vb[3] * s) / 2)}) scale(${s.toFixed(5)}) translate(${-vb[0]} ${-vb[1]})` }, host);
-      inner.innerHTML = scopeSvgIds(src.innerHTML, ent.id);
+      inner.innerHTML = scopeSvgIds(src.innerHTML, `${ent.id}_${++iconInstance}`);
       const colour = ent.asset.colour || 'mono';
       if (colour === 'brand' && ent.asset.brand_hex) host.dataset.brandHex = ent.asset.brand_hex;
       const rootStroke = src.getAttribute('stroke');
@@ -1277,19 +1280,19 @@
         // The product-collage atom: a glossy rounded-square app tile carrying a registry icon.
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.24;
-        const base = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, g);
+        const body = chassisBody(node, g);
+        const base = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
         base.setAttribute('fill', dark ? '#171310' : mixColor(paper, '#ffffff', 0.72));
         base.setAttribute('stroke', ink);
         base.setAttribute('stroke-width', f2(sw * 0.55));
         base.setAttribute('stroke-opacity', '0.55');
         base.style.filter = `drop-shadow(0 ${f2(b.h * 0.07)}px ${f2(b.h * 0.13)}px rgba(23,18,12,0.28))`;
-        node.outline.push(drawable(base, (b.w + b.h) * 2));
         if (!dark) {
           // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
           svgEl('path', {
             d: `M${f2(b.x + sw / 2)} ${f2(b.y + r + sw / 2)}Q${f2(b.x + sw / 2)} ${f2(b.y + sw / 2)} ${f2(b.x + r + sw / 2)} ${f2(b.y + sw / 2)}L${f2(b.x + b.w - r - sw / 2)} ${f2(b.y + sw / 2)}Q${f2(b.x + b.w - sw / 2)} ${f2(b.y + sw / 2)} ${f2(b.x + b.w - sw / 2)} ${f2(b.y + r + sw / 2)}L${f2(b.x + b.w - sw / 2)} ${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x + sw / 2)} ${f2(b.y + b.h * 0.46)}Z`,
             fill: '#ffffff', 'fill-opacity': 0.5,
-          }, g);
+          }, body);
         }
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         if (ent.asset) {
@@ -1307,18 +1310,18 @@
         // Glossy white disc with a deep soft shadow carrying a brand mark or colour icon.
         const dark = params.tone === 'dark';
         const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw / 2;
-        const disc = svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R) }, g);
+        const body = chassisBody(node, g);
+        const disc = svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R) }, body);
         disc.setAttribute('fill', dark ? '#171310' : '#ffffff');
         disc.setAttribute('stroke', ink);
         disc.setAttribute('stroke-width', f2(sw * 0.4));
         disc.setAttribute('stroke-opacity', '0.18');
         disc.style.filter = `drop-shadow(0 ${f2(R * 0.16)}px ${f2(R * 0.3)}px rgba(23,18,12,0.26))`;
-        node.outline.push(drawable(disc, 2 * Math.PI * R));
         if (!dark) {
           svgEl('path', {
             d: `M${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}A${f2(R * 0.82)} ${f2(R * 0.82)} 0 0 1 ${f2(c.x + R * 0.82)} ${f2(c.y - R * 0.1)}Q${f2(c.x)} ${f2(c.y + R * 0.18)} ${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}Z`,
             fill: '#ffffff', 'fill-opacity': 0.55,
-          }, g);
+          }, body);
         }
         node.inkEls.push(svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R), fill: accent, 'fill-opacity': 0 }, g));
         if (ent.asset) {
@@ -1336,13 +1339,13 @@
         // Stat card: a big tabular figure (prefix/suffix aware) over a small caption, on a light or dark body.
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.18;
-        const body = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, g);
-        body.setAttribute('fill', dark ? '#171310' : '#ffffff');
-        body.setAttribute('stroke', ink);
-        body.setAttribute('stroke-width', f2(sw * 0.4));
-        body.setAttribute('stroke-opacity', '0.18');
-        body.style.filter = `drop-shadow(0 ${f2(b.h * 0.08)}px ${f2(b.h * 0.16)}px rgba(23,18,12,0.26))`;
-        node.outline.push(drawable(body, (b.w + b.h) * 2));
+        const body = chassisBody(node, g);
+        const card = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
+        card.setAttribute('fill', dark ? '#171310' : '#ffffff');
+        card.setAttribute('stroke', ink);
+        card.setAttribute('stroke-width', f2(sw * 0.4));
+        card.setAttribute('stroke-opacity', '0.18');
+        card.style.filter = `drop-shadow(0 ${f2(b.h * 0.08)}px ${f2(b.h * 0.16)}px rgba(23,18,12,0.26))`;
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         const fg = dark ? paper : ink;
         const caption = params.caption ? String(params.caption) : '';
@@ -1363,12 +1366,13 @@
           const cap = svgEl('text', {
             x: f2(b.x + b.w / 2), y: f2(b.y + b.h * 0.78), 'text-anchor': 'middle', 'font-size': f2(Math.min(b.h * 0.14, (b.w * 0.86) / Math.max(1, caption.length * 0.55))),
             'font-family': plan.fonts.families.data, 'font-weight': '500', fill: fg, 'fill-opacity': 0.62,
-          }, g);
+          }, body);
           cap.textContent = caption;
         }
         // Static readout when no COUNT op ticks it: the figure is simply part of the drawn body.
         if (!il.ops.some((o) => o.op === 'COUNT' && o.target === ent.id)) {
           node.extra.countText.setAttribute('fill-opacity', '1');
+          body.appendChild(node.extra.countText);
           node.extra.countText = null;
         }
         node.strike = strikeFor(b);
@@ -1377,22 +1381,22 @@
       case 'CHIP': {
         // Dark product row: icon peg left, name typeset mid-left (the inside label), tag pills right.
         const r = b.h * 0.42;
-        const body = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z' }, g);
-        body.setAttribute('fill', '#181410');
-        body.style.filter = `drop-shadow(0 ${f2(b.h * 0.1)}px ${f2(b.h * 0.2)}px rgba(23,18,12,0.3))`;
-        node.outline.push(drawable(body, (b.w + b.h) * 2));
+        const body = chassisBody(node, g);
+        const row = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z' }, body);
+        row.setAttribute('fill', '#181410');
+        row.style.filter = `drop-shadow(0 ${f2(b.h * 0.1)}px ${f2(b.h * 0.2)}px rgba(23,18,12,0.3))`;
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         // Icon peg: a light tile clipped into the left end of the row.
         const peg = Math.min(b.h * 0.62, b.w * 0.14);
         const px0 = b.x + b.h * 0.19, py0 = b.y + (b.h - peg) / 2;
-        svgEl('path', { d: roundRectPath({ x: px0, y: py0, w: peg, h: peg }, peg * 0.26) + 'Z', fill: paper }, g);
+        svgEl('path', { d: roundRectPath({ x: px0, y: py0, w: peg, h: peg }, peg * 0.26) + 'Z', fill: paper }, body);
         if (ent.asset) {
           const host = svgEl('g', {}, g);
           host.style.color = ink;
           const pad = peg * 0.16;
           loadIconInto(ent, node, host, { x: px0 + pad, y: py0 + pad, w: peg - pad * 2, h: peg - pad * 2 }, opts);
         } else {
-          svgEl('circle', { cx: px0 + peg / 2, cy: py0 + peg / 2, r: peg * 0.22, fill: ink }, g);
+          svgEl('circle', { cx: px0 + peg / 2, cy: py0 + peg / 2, r: peg * 0.22, fill: ink }, body);
         }
         // Tag pills, right-aligned, hairline strokes on the dark field.
         // Pills own the right third of the row (the label strip ends at 63%); tags that would not
@@ -1407,8 +1411,8 @@
           const tw = tagW(tags[i]);
           tx -= tw;
           const th = b.h * 0.42, ty = b.y + (b.h - th) / 2;
-          svgEl('path', { d: roundRectPath({ x: tx, y: ty, w: tw, h: th }, th / 2) + 'Z', fill: 'none', stroke: paper, 'stroke-width': Math.max(1, sw * 0.4), 'stroke-opacity': 0.5 }, g);
-          const te = svgEl('text', { x: tx + tw / 2, y: ty + th / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: paper, 'fill-opacity': 0.72, 'font-size': fs, 'font-weight': '500', 'font-family': plan.fonts.families.text }, g);
+          svgEl('path', { d: roundRectPath({ x: tx, y: ty, w: tw, h: th }, th / 2) + 'Z', fill: 'none', stroke: paper, 'stroke-width': Math.max(1, sw * 0.4), 'stroke-opacity': 0.5 }, body);
+          const te = svgEl('text', { x: tx + tw / 2, y: ty + th / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: paper, 'fill-opacity': 0.72, 'font-size': fs, 'font-weight': '500', 'font-family': plan.fonts.families.text }, body);
           te.textContent = tags[i];
           tx -= b.h * 0.1;
         }
@@ -1427,9 +1431,28 @@
     if (!node.extra.rings && il.ops.some((o) => o.op === 'EMIT' && o.target === ent.id)) {
       const c = centre(b), R = Math.hypot(b.w, b.h) / 2;
       node.extra.R = R;
-      node.extra.rings = [svgEl('circle', { ...line, cx: c.x, cy: c.y, r: R * 0.3, stroke: accent, 'stroke-opacity': 0 }, g)];
+      if ((plan.motion || DEFAULT_MOTION).entrance === 'pop') {
+        // Collage register: the pulse is a soft accent bloom behind the body, never a drawn ring.
+        const rr = Math.min(b.w, b.h) / 2;
+        const halo = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, rr) + 'Z', fill: accent, 'fill-opacity': 0, 'data-halo': '' }, g);
+        halo.style.filter = `blur(${f2(Math.min(b.w, b.h) * 0.22)}px)`;
+        halo.style.transformOrigin = `${f2(c.x)}px ${f2(c.y)}px`;
+        g.insertBefore(halo, g.firstChild);
+        node.extra.halo = halo;
+      } else {
+        node.extra.rings = [svgEl('circle', { ...line, cx: c.x, cy: c.y, r: R * 0.3, stroke: accent, 'stroke-opacity': 0 }, g)];
+      }
     }
     return node;
+  }
+
+  // Chassis glyphs (tile / badge / counter / chip) reveal as one body: the housing is never on
+  // stage before what it carries, so DRAW fades the whole housing instead of tracing its rim.
+  function chassisBody(node, g) {
+    const body = svgEl('g', { 'data-draw': 'body' }, g);
+    node.extra.chassis = true;
+    node.outline.push({ path: body, len: 0, set(v) { body.style.opacity = clamp(v, 0, 1).toFixed(4); } });
+    return body;
   }
 
   function buildLabel(ent, plan, beatRoot) {
@@ -1581,6 +1604,19 @@
     return `translate(${f2(T.x + tx)} ${f2(T.y + ty)}) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(${f2(-T.x)} ${f2(-T.y)})`;
   }
 
+  // The label rides its body through a carry reframe: same centre path, offset scaled with the
+  // body, so it never sits at the destination while the body is still travelling.
+  function carryLabelShift(node, lt) {
+    const from = node.ent.carry_from_bbox;
+    if (!from || !node.label) return { x: 0, y: 0 };
+    const k = EASE.inOutCubic(prog(lt, 0, 420));
+    if (k >= 1) return { x: 0, y: 0 };
+    const T = node.bb, cT = centre(T), L = centre(node.label.bb);
+    const sx = lerp(from.w / T.w, 1, k), sy = lerp(from.h / T.h, 1, k);
+    const cx = lerp(from.x + from.w / 2, cT.x, k), cy = lerp(from.y + from.h / 2, cT.y, k);
+    return { x: cx + (L.x - cT.x) * sx - L.x, y: cy + (L.y - cT.y) * sy - L.y };
+  }
+
   function applyIllustrationState(ill, lt, beat, ctx) {
     const paper = ctx.brand.paper, ink = ctx.brand.ink, accent = ill.accent;
     const ex = ctx.exitState({ block: { role: 'illustration' } }, lt);
@@ -1655,6 +1691,19 @@
         gl.strike.set(s.v);
         gl.strike.path.setAttribute('stroke', s.accent ? accent : ink);
       }
+      if (gl.extra.halo) {
+        const em = propAt(node, 'emit', lt);
+        const live = activeOps(node, 'EMIT', lt)[0];
+        let bloom = em.v > 0 ? 0.12 * em.v : 0, grow = 1.06;
+        if (live) {
+          const p = prog(lt, live.start_ms, live.end_ms);
+          bloom = Math.max(bloom, 0.34 * EASE.pulse(p));
+          grow = lerp(0.96, 1.22, EASE.outCubic(p));
+          scale *= 1 + 0.035 * EASE.pulse(p);
+        }
+        gl.extra.halo.setAttribute('fill-opacity', bloom.toFixed(4));
+        gl.extra.halo.style.transform = `scale(${grow.toFixed(4)})`;
+      }
       if (gl.extra.rings) {
         const em = propAt(node, 'emit', lt);
         const live = activeOps(node, 'EMIT', lt)[0];
@@ -1696,11 +1745,15 @@
       if (scale !== 1 || ty || tx || gl.extra.rotateDeg) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)})${gl.extra.rotateDeg ? ` rotate(${gl.extra.rotateDeg})` : ''} translate(${f2(-c.x)} ${f2(-c.y)})`;
       g.setAttribute('transform', transform.trim() || 'translate(0 0)');
       g.style.opacity = opacity.toFixed(4);
+      // Connectors read this: a link is only as present as the bodies it joins.
+      node.presence = preEntry ? 0 : dim;
       if (node.label) {
         const ls = node.label.wrap.style;
         ls.visibility = 'visible';
-        ls.opacity = opacity.toFixed(4);
-        ls.transform = `translateY(${f2(ty)}px) scale(${scale.toFixed(4)})`;
+        // A chassis label belongs to its housing: it fades in with the DRAW, not ahead of it.
+        ls.opacity = (gl.extra.chassis ? opacity * clamp(draw, 0, 1) : opacity).toFixed(4);
+        const shift = carryLabelShift(node, lt);
+        ls.transform = `translate(${f2(shift.x)}px, ${f2(ty + shift.y)}px) scale(${scale.toFixed(4)})`;
         node.label.text.style.color = node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
       }
       if (node.media) {
@@ -1729,6 +1782,10 @@
       const dim = propAt(r, 'dim', lt).v;
       let opacity = dim * (rel.drawn_by_op ? 1 : Math.min(1, pe * 3));
       if (ex) opacity *= ex.opacity;
+      // A link between an absent or dimmed body and anything else is a stray line: it inherits
+      // the weaker endpoint's presence.
+      const endA = ill.ents.get(rel.source), endB = ill.ents.get(rel.target);
+      if (endA && endB) opacity *= Math.min(endA.presence == null ? 1 : endA.presence, endB.presence == null ? 1 : endB.presence);
       s.opacity = opacity.toFixed(4);
       // Under a wipe the endpoints belong to the sweep: a dot or arrowhead shows only while
       // the traveling window covers its end of the path, and is erased with the tail.

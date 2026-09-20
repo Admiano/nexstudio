@@ -148,7 +148,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "1  Whole grain oats"
+            "label": "1  oats"
           },
           {
             "id": "i2",
@@ -169,7 +169,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "4  Brown sugar syrup"
+            "label": "4  syrup"
           },
           {
             "id": "lens",
@@ -264,7 +264,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "1  Whole grain oats"
+            "label": "1  oats"
           },
           {
             "id": "i2",
@@ -285,7 +285,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "4  Brown sugar syrup"
+            "label": "4  syrup"
           },
           {
             "id": "lens",
@@ -629,7 +629,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "hero",
-            "label": "natural almond flavour"
+            "label": "flavouring"
           }
         ],
         "relations": [
@@ -717,7 +717,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "hero",
-            "label": "almond ingredients"
+            "label": "fine print"
           },
           {
             "id": "not",
@@ -815,7 +815,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "real honey"
+            "label": "claim"
           }
         ],
         "relations": [

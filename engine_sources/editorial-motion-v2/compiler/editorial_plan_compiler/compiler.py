@@ -95,8 +95,6 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
         # Free canvas: no lifted panel, no rules. Objects float on the warm field over a soft
         # off-centre glow that alternates sides so consecutive cuts re-light the stage.
         layers.append({'kind': 'glow', 'bbox': _box(0, 0, W, H), 'align': ('left', 'right', 'center')[beat_index % 3], 'opacity': 0.55})
-        if beat_index % 4 == 3:
-            layers.append({'kind': 'arc', 'bbox': dict(safe), 'opacity': 0.6, 'corner': beat_index % 4})
         return layers
     has_panel = authored in {'CARD_STAGE', 'DOCUMENT_STAGE', 'PRODUCT_STAGE', 'LAYERED_PLANE'} or render_bg in {'CARD_STAGE', 'SPOTLIGHT_STAGE'}
     if has_panel:
@@ -117,7 +115,8 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
         elif v == 2:
             layers.append({'kind': 'wash', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'align': 'left' if beat_index % 2 else 'right'})
         elif v == 3:
-            layers.append({'kind': 'arc', 'bbox': dict(safe), 'opacity': 1.0, 'corner': beat_index % 4})
+            # A tonal wash, never a free-floating arc: an unexplained curve on the field is a stray mark.
+            layers.append({'kind': 'wash', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'align': 'right' if beat_index % 2 else 'left'})
         else:
             layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.32, 'spacing_frac': 0.08, 'radius_frac': 0.0018})
     if render_bg == 'SPOTLIGHT_STAGE':
@@ -813,6 +812,25 @@ class BeatCompiler:
         }
 
 
+def _asset_pack_mix(film: FilmTreatment, registry: IllustrationRegistry) -> List[str]:
+    """One colour pack per film. Native-colour art from different packs (3D emoji next to flat
+    icons) reads as assembled, not designed; brand marks are exempt since each is its own mark."""
+    by_pack: Dict[str, List[str]] = {}
+    for b in film.beats:
+        if not b.illustration:
+            continue
+        for e in b.illustration.entities:
+            item = registry.items.get(e.asset_ref or '')
+            if not item or item.get('colour') != 'native' or item.get('family') == 'brand':
+                continue
+            by_pack.setdefault('.'.join(e.asset_ref.split('.')[:2]), []).append(f'{b.beat_id}:{e.asset_ref}')
+    if len(by_pack) <= 1:
+        return []
+    packs = sorted(by_pack, key=lambda k: (-len(by_pack[k]), k))
+    strays = [ref for k in packs[1:] for ref in by_pack[k]]
+    return [f'ASSET_PACK_MIX:{packs[0]}!={ref}' for ref in strays]
+
+
 def _captions(beats: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     caps = []
     for bt in beats:
@@ -963,7 +981,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     root = library_root()
     lib = SoundLibrary(root) if root else None
     plans: Dict[str, Any] = {}
-    film_failures: List[str] = []
+    film_failures: List[str] = _asset_pack_mix(film, IllustrationRegistry())
     film_warnings: List[str] = []
     for aspect in film.aspects:
         bc = BeatCompiler(film, aspect, lib, normalised)
