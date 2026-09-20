@@ -2,6 +2,7 @@
   "schema": "NexStudioEditorialTreatmentV2",
   "film_id": "honey-nut-fact-check",
   "note": "Hand-authored stand-in for a NexMind P8 treatment decision over one continuous ElevenLabs voice-over (MASTER). Beats are located inside the master word stream; the audio is never cut or re-spaced. Every creative choice is P8's; the compiler resolves geometry and time only.",
+  "mood": "calm",
   "aspects": [
     "9x16",
     "1x1",
