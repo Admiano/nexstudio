@@ -21,6 +21,7 @@ from .contracts import MOTION_PROFILES, BeatTreatment, FilmTreatment, TreatmentE
 from .figures import resolve_figure
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
 from .media import NormalisedMedia, normalise_media
+from .motion import camera_move, transition_window_ms
 from .sound import SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
 from .master_timeline import MasterTimeline, extend_tail, resolve_master
 from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
@@ -662,6 +663,8 @@ class BeatCompiler:
                     if _overlap(db['bbox'], bl['bbox']) > 0:
                         failures.append(f"DATA_COLLIDES_TEXT:{bl['unit_index']}")
         # Transition: media persisting into the next beat carries the cut; otherwise the type carrier or a plain settle-cut.
+        # The camera move on top of it is one grammar for the film, picked from the energy either side of the cut.
+        next_beat = self.film.beats[beat_index + 1] if beat_index + 1 < len(self.film.beats) else None
         if media and media.get('persist_to') and media['persist_to'] != b.beat_id:
             transition = {'mode': 'EVIDENCE_PERSISTENCE', 'owner': 'MEDIA', 'start_ms': clock.duration_ms - clock.exit_ms, 'end_ms': clock.duration_ms}
         elif illustration and illustration.get('persist_to') and illustration['persist_to'] != b.beat_id:
@@ -671,7 +674,12 @@ class BeatCompiler:
             if clock.fixed_window:
                 transition['start_ms'] = max(transition['start_ms'], clock.duration_ms - clock.exit_ms)
         else:
-            transition = {'mode': 'SETTLE_CUT', 'owner': 'NONE', 'start_ms': clock.duration_ms - min(200, clock.exit_ms), 'end_ms': clock.duration_ms}
+            transition = {'mode': 'SETTLE_CUT', 'owner': 'NONE', 'start_ms': clock.duration_ms - transition_window_ms(b, next_beat, clock.exit_ms), 'end_ms': clock.duration_ms}
+        camera = camera_move(b, next_beat, transition['mode'], beat_index, MOTION_PROFILES[self.film.brand.finish]['transition'] == 'scale_through')
+        if camera is not None:
+            transition['camera'] = camera
+            if camera['move'] == 'cut':
+                transition['start_ms'] = transition['end_ms']
 
         # The settled hold is the window in which every authored element has finished arriving and nothing has
         # started leaving; typography, ensemble and object channels are reconciled to that single window.
@@ -771,10 +779,10 @@ class BeatCompiler:
                     candidates.append({'event': 'LOUPE_TRAVEL', 'at_ms': o['end_ms'], 'strength': 0.55})
         if transition['mode'] in ('TEXT_MASK_WIPE', 'LABEL_EXPAND_WIPE'):
             candidates.append({'event': 'TRANSITION_CARRIER', 'at_ms': transition['start_ms'], 'strength': 0.6})
-        # Camera transitions are cuts with motion: a scale-through is the collage's signature
-        # transition and takes a full whoosh; a blur dissolve stays a subordinate fabric sound.
-        if beat_index < len(self.film.beats) - 1 and transition['end_ms'] > transition['start_ms']:
-            sweep = {'scale_through': 0.78, 'blur_dissolve': 0.32}.get(MOTION_PROFILES[self.film.brand.finish]['transition'])
+        # Camera moves are cuts with motion: a push, pull or drift takes a full whoosh; a dissolve
+        # stays a subordinate fabric sound; a hard cut is silent.
+        if transition.get('camera') and transition['end_ms'] > transition['start_ms']:
+            sweep = {'push_through': 0.78, 'pull_back': 0.7, 'drift': 0.74, 'dissolve': 0.32}.get(transition['camera']['move'])
             if sweep:
                 candidates.append({'event': 'TRANSITION_SWEEP', 'at_ms': transition['start_ms'], 'strength': sweep})
         sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates)

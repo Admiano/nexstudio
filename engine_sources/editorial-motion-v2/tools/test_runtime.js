@@ -455,6 +455,99 @@ async function runFixture(fx, base, browser) {
         break;
       }
 
+      // Motion system: springs, motion blur, secondary motion, camera grammar.
+      const scaleOfSvg = (g) => Number((/scale\(([\d.]+)\)/.exec(g.getAttribute('transform') || '') || [0, 1])[1]);
+      const blurOn = (elm) => {
+        const m = /url\("?#([^)"]+)"?\)/.exec(elm.style.filter || '');
+        if (!m) return false;
+        const fe = document.getElementById(m[1]).querySelector('feGaussianBlur');
+        return fe.getAttribute('stdDeviation').split(' ').some((v) => Number(v) > 0.05);
+      };
+      out.motion = { springs: [], blur: [], labels: [], connectors: [], camera: [] };
+      for (const b of plan.beats) {
+        if (!b.illustration) continue;
+        const beatNode = stage.children[plan.beats.indexOf(b)];
+        for (const e of b.illustration.entities) {
+          if (!e.enter_duration_ms || e.enter_duration_ms < 120 || e.carry_from_bbox) continue;
+          const g = beatNode.querySelector(`[data-entity="${e.id}"]`);
+          const t0 = b.start_ms + e.enter_ms, d = e.enter_duration_ms;
+          const samples = [];
+          for (const f of [0.05, 0.15, 0.3, 0.5, 0.7, 0.9]) { await film.seek(Math.round(t0 + d * f)); samples.push({ f, scale: scaleOfSvg(g), opacity: Number(g.style.opacity), blur: blurOn(g) }); }
+          await film.seek(t0 + d + 600);
+          // Rest is judged only when no program op (a GROW, EMIT, SWAP…) is legitimately reshaping the body.
+          const restLt = e.enter_ms + d + 600;
+          const busy = b.illustration.ops.some((o) => o.target === e.id && o.op !== 'DRAW' && o.start_ms <= restLt && o.end_ms >= restLt);
+          const rest = { scale: busy ? 1 : scaleOfSvg(g), blur: blurOn(g) };
+          const monotone = samples.every((s, i) => i === 0 || s.opacity >= samples[i - 1].opacity - 1e-4) && samples.every((s) => s.opacity <= 1 + 1e-4);
+          const peak = Math.max(...samples.map((s) => s.scale));
+          out.motion.springs.push({ beat: b.beat_id, id: e.id, monotone, peak, overshoot: peak > 1.02, rest: Math.abs(rest.scale - 1) < 0.03 });
+          // A pop arrival (60%→100%) travels far enough per frame to smear; the editorial 94%→100% landing is below the blur floor by design.
+          out.motion.blur.push({ beat: b.beat_id, id: e.id, moving: (plan.motion || {}).entrance !== 'pop' || samples.slice(0, 3).some((s) => s.blur), still: !rest.blur });
+          if (out.motion.springs.length >= 6) break;
+        }
+        // Labels ride their bodies: the label's centre keeps its laid-out offset from the body's
+        // centre (scaled with the body) through the whole entrance and carry, whatever the lag.
+        for (const e of b.illustration.entities) {
+          const g = beatNode.querySelector(`[data-entity="${e.id}"]`);
+          const lab = beatNode.querySelector(`.em2-il-label[data-entity="${e.id}"]`);
+          if (!lab || !g || !e.label) continue;
+          const laidOut = (e.label.bbox.x + e.label.bbox.w / 2 - (e.bbox.x + e.bbox.w / 2)) / e.bbox.w;
+          const span = e.carry_from_bbox ? 420 : (e.enter_duration_ms || 0);
+          let worst = 0;
+          for (let t = b.start_ms + (e.carry_from_bbox ? 0 : e.enter_ms); t <= b.start_ms + (e.carry_from_bbox ? 0 : e.enter_ms) + span + 300; t += 1000 / plan.fps) {
+            await film.seek(Math.round(t));
+            if (Number(lab.style.opacity) < 0.2 || Number(g.style.opacity) < 0.2) continue;
+            const rb = g.getBoundingClientRect(), rl = lab.getBoundingClientRect();
+            if (!rb.width || !rl.width) continue;
+            worst = Math.max(worst, Math.abs(((rl.left + rl.width / 2) - (rb.left + rb.width / 2)) / rb.width - laidOut));
+          }
+          out.motion.labels.push({ beat: b.beat_id, id: e.id, worst, ok: worst < 0.12 });
+          if (out.motion.labels.length >= 6) break;
+        }
+        // Connectors ride their endpoints: the drawn start point keeps its offset from the
+        // source body while the body drifts through the hold.
+        for (const rel of b.illustration.relations) {
+          const rg = beatNode.querySelector(`[data-relation="${rel.id}"]`);
+          if (!rg || !rel.path) continue;
+          const near = { g: beatNode.querySelector(`[data-entity="${rel.source}"]`), ent: b.illustration.entities.find((x) => x.id === rel.source) };
+          if (!near.g || !near.ent) continue;
+          const path = rg.querySelector('path');
+          // Measured in the illustration's own canvas space so the camera's scale during a cut cannot masquerade as drift.
+          const svg = rg.closest('svg');
+          const apply = (m, p) => { const q = svg.getScreenCTM().inverse().multiply(m); return [q.a * p[0] + q.c * p[1] + q.e, q.b * p[0] + q.d * p[1] + q.f]; };
+          const centreOf = (end) => apply(end.g.getScreenCTM(), [end.ent.bbox.x + end.ent.bbox.w / 2, end.ent.bbox.y + end.ent.bbox.h / 2]);
+          const hold0 = b.start_ms + b.illustration.settled_ms + 60;
+          const at = async (t) => {
+            await film.seek(t);
+            if (Number(rg.style.opacity) < 0.3) return null;
+            const q = apply(path.getScreenCTM(), rel.path[0]), cc = centreOf(near);
+            return { x: q[0] - cc[0], y: q[1] - cc[1] };
+          };
+          const a = await at(hold0), c = await at(Math.min(hold0 + 1900, b.start_ms + b.duration_ms - 60));
+          if (!a || !c) continue;
+          out.motion.connectors.push({ beat: b.beat_id, id: rel.id, drift: Math.hypot(a.x - c.x, a.y - c.y) });
+          break;
+        }
+      }
+      // Camera: every cut is the move the compiler chose, made by the outgoing picture.
+      for (let i = 0; i + 1 < plan.beats.length; i += 1) {
+        const b = plan.beats[i], tr = b.transition;
+        if (!tr || !tr.camera || tr.end_ms <= tr.start_ms) continue;
+        const cam = stage.children[i].firstElementChild;
+        await film.seek(b.start_ms + tr.start_ms - 40);
+        const before = { tx: Number((/translate\((-?[\d.]+)px/.exec(cam.style.transform) || [0, 0])[1]), scale: Number((/scale\(([\d.]+)\)/.exec(cam.style.transform) || [0, 1])[1]) };
+        await film.seek(Math.round(b.start_ms + tr.start_ms + (tr.end_ms - tr.start_ms) * 0.4));
+        const mid = { tx: Number((/translate\((-?[\d.]+)px/.exec(cam.style.transform) || [0, 0])[1]), scale: Number((/scale\(([\d.]+)\)/.exec(cam.style.transform) || [0, 1])[1]), opacity: Number(cam.style.opacity), blur: blurOn(cam) };
+        const incoming = stage.children[i + 1];
+        const moved = cam.style.transform !== stage.children[i + 1].firstElementChild.style.transform;
+        let ok;
+        if (tr.camera.move === 'push_through') ok = mid.scale > before.scale + 0.003 && mid.opacity < 0.9;
+        else if (tr.camera.move === 'pull_back') ok = mid.scale < before.scale - 0.003 && mid.opacity < 0.9;
+        else if (tr.camera.move === 'drift') ok = Math.abs(mid.tx - before.tx) > 5 && mid.opacity < 0.9 && mid.blur;
+        else ok = Math.abs(mid.scale - before.scale) < 0.01 && Math.abs(mid.tx - before.tx) < 2;
+        out.motion.camera.push({ beat: b.beat_id, move: tr.camera.move, ok: ok && incoming.style.display === 'block' && moved, before, mid });
+      }
+
       // Per-frame scene-graph cost: seek every frame of the busiest illustration beat.
       const busy = plan.beats.filter((x) => x.illustration).sort((a, c) => c.illustration.ops.length - a.illustration.ops.length)[0] || plan.beats[0];
       const p0 = film.perf.frames;
@@ -465,7 +558,7 @@ async function runFixture(fx, base, browser) {
 
     check('rejects foreign schema', r.rejects.schema);
     check('refuses failed gate', r.rejects.gate);
-    check('runtime version exposed', r.version === 'EDITORIAL_RUNTIME_V3.0', r.version);
+    check('runtime version exposed', r.version === 'EDITORIAL_RUNTIME_V3.1', r.version);
     check(`stage is native ${plan.canvas.w}x${plan.canvas.h}`, r.stage.w === plan.canvas.w && r.stage.h === plan.canvas.h && r.stage.aspect === aspect, JSON.stringify(r.stage));
     check('frame count matches plan', r.frames === Math.ceil((plan.duration_ms * plan.fps) / 1000));
     check('captions and audio events exposed', r.captions > 0 && r.audio.voice === plan.voice.segments.length && r.audio.accents > 0 && r.audio.music === plan.music.status, JSON.stringify(r.audio));
@@ -494,6 +587,19 @@ async function runFixture(fx, base, browser) {
       if (n.connectorClean !== undefined) {
         check('authorship: inspector names a connector whose endpoint has gone', n.connectorClean.length === 0 && n.orphan.includes('ORPHAN_CONNECTOR'), JSON.stringify(n));
       }
+    }
+    {
+      const mo = r.motion;
+      const badSpring = mo.springs.filter((s) => !s.monotone || !s.rest || (plan.motion && plan.motion.spring === 'snap') !== s.overshoot);
+      if (mo.springs.length) check(`motion: ${mo.springs.length} entrances on the '${(plan.motion || {}).spring}' spring — opacity monotone, scale ${(plan.motion || {}).spring === 'snap' ? 'rings' : 'never rings'}, comes to rest`, badSpring.length === 0, JSON.stringify(badSpring));
+      const badBlur = mo.blur.filter((s) => !s.moving || !s.still);
+      if (mo.blur.length) check(`motion: ${mo.blur.length} bodies blur while travelling and clear at rest`, badBlur.length === 0, JSON.stringify(badBlur));
+      const badLabel = mo.labels.filter((l) => !l.ok);
+      if (mo.labels.length) check(`motion: ${mo.labels.length} labels ride their bodies through entrance and carry (lag ${(plan.motion || {}).label_lag_ms || 0}ms)`, badLabel.length === 0, JSON.stringify(badLabel));
+      const badConn = mo.connectors.filter((c) => c.drift > 1.5);
+      if (mo.connectors.length) check(`motion: ${mo.connectors.length} connectors ride their drifting endpoints`, badConn.length === 0, JSON.stringify(badConn));
+      const badCam = mo.camera.filter((c) => !c.ok);
+      if (mo.camera.length) check(`motion: ${mo.camera.length} cuts made as their compiled camera move (${[...new Set(mo.camera.map((c) => c.move))].join('/')})`, badCam.length === 0, JSON.stringify(badCam));
     }
     for (const c of r.cascade) check(`word cascade ${c.beat}/${c.unit}: words land in order, all settle in focus, stress heavier`, c.words && c.firstOnly && c.all && c.heavier, JSON.stringify(c));
     check(`frame update under 8ms (avg ${r.perf.avg_ms.toFixed(2)}ms, max ${r.perf.max_ms.toFixed(2)}ms over ${r.perf.frames} frames)`, r.perf.avg_ms < 8, JSON.stringify(r.perf));

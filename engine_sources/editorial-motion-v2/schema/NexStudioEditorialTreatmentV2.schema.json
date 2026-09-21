@@ -668,6 +668,12 @@
           "min_duration_ms": {
             "type": "integer",
             "minimum": 0
+          },
+          "cut": {
+            "type": "string",
+            "enum": [
+              "hard"
+            ]
           }
         },
         "required": [
