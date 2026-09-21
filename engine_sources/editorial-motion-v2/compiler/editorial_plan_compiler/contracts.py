@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from .chassis import CHASSIS
+
 AUTHORITIES = Path(__file__).resolve().parent / 'authorities'
 GRAMMAR = json.loads((AUTHORITIES / 'REFERENCE_EDITORIAL_MOTION_GRAMMAR_V1.json').read_text())
 
@@ -62,11 +64,11 @@ FILM_MOODS = ('bright', 'calm', 'dreamy', 'jazzy', 'playful', 'uplifting', 'wist
 SPRING_PRESETS = ('snap', 'settle', 'float')
 MOTION_PROFILES = {
     'EDITORIAL_FLAT': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.012, 'camera_pan_frac': 0.004, 'transition': 'blur_dissolve', 'blur_px': 6, 'word_landing': 'tonal',
-                       'spring': 'settle', 'breathe': 0.006, 'label_lag_ms': 40, 'motion_blur': 0.8},
+                       'spring': 'settle', 'breathe': 0.006, 'label_lag_ms': 40, 'motion_blur': 0.8, 'media_tilt': 0.0},
     'PAPER': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.01, 'camera_pan_frac': 0.003, 'transition': 'blur_dissolve', 'blur_px': 5, 'word_landing': 'tonal',
-              'spring': 'settle', 'breathe': 0.005, 'label_lag_ms': 40, 'motion_blur': 0.6},
+              'spring': 'settle', 'breathe': 0.005, 'label_lag_ms': 40, 'motion_blur': 0.6, 'media_tilt': 0.0},
     'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise',
-                        'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0},
+                        'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0, 'media_tilt': 1.0},
 }
 # How the film's camera carries one beat into the next; the compiler picks from beat energy,
 # a hard cut only when the treatment asks for one (beat.cut = 'hard').
@@ -226,7 +228,7 @@ class IllustrationEntity:
         params = dict(d.get('params') or {})
         if 'chassis' in params:
             _need(glyph == 'MEDIA', 'CHASSIS_ON_NON_MEDIA', f'{eid}: chassis wraps MEDIA only', beat_id)
-            _need(str(params['chassis']) in ('phone', 'browser', 'card', 'shot'), 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
+            _need(str(params['chassis']) in CHASSIS, 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
         if glyph == 'CHART_LINE':
             pts = params.get('points')
             _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)

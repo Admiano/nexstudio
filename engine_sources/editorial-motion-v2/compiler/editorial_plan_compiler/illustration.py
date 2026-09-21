@@ -12,10 +12,11 @@ import hashlib
 import json
 import math
 import re
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .chassis import chassis_aspect, housing, resolve_chassis
 from .contracts import (
     IllustrationDirective, IllustrationEntity, IllustrationOp, STATE_CHANGE_OPS, TreatmentError,
 )
@@ -216,11 +217,12 @@ class IllustrationRegistry:
 
 class IllustrationSolver:
     def __init__(self, aspect: str, canvas: Tuple[int, int], registry: IllustrationRegistry, media_library: Dict[str, Any], media_files: Dict[str, Any], accent: Optional[str],
-                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS):
+                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS, motion: Optional[Dict[str, Any]] = None):
         self.aspect = aspect
         self.canvas = canvas
         self.collage = collage
         self.stagger_ms = stagger_ms
+        self.motion = dict(motion or {})
         self.registry = registry
         self.media_library = media_library
         self.media_files = media_files
@@ -291,7 +293,7 @@ class IllustrationSolver:
     def _entity_ar(self, e: IllustrationEntity, beat_id: str = '') -> float:
         if e.glyph == 'MEDIA':
             a = self.media_library[e.media_ref]
-            return a.width / a.height
+            return chassis_aspect(resolve_chassis(a.kind, a.width, a.height, e.params.get('chassis') or None), a.width / a.height)
         if e.glyph == 'ICON':
             art = self.registry.art_box(e.asset_ref, beat_id)
             return art['w'] / art['h'] if art['h'] else 1.0
@@ -321,7 +323,7 @@ class IllustrationSolver:
         if e.glyph in LABEL_CARRIERS and e.label:
             # A label carrier widens (up to 5:1) until its label sits at the floor size on one line.
             floor = FLOOR_FRACTION['label'] * min(self.canvas)
-            need = measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06
+            need = self._label_need(e, floor) * SIZE_SCALE[e.size]
             w = min(max(bbox['w'], need), bbox['h'] * 5.0, body['w'])
             bbox = _box(body['x'] + (body['w'] - w) / 2, bbox['y'], w, bbox['h'])
         label = None
@@ -331,6 +333,9 @@ class IllustrationSolver:
 
     def layout(self, il: IllustrationDirective, zone: Dict[str, float], beat_id: str = '') -> Tuple[List[Dict[str, Any]], List[str]]:
         failures: List[str] = []
+        # The solver may adapt an entity's params to this aspect's field; the treatment's own
+        # entities are shared across aspects and must come out untouched.
+        il = replace(il, entities=[replace(e, params=dict(e.params)) for e in il.entities])
         contained = {r.target: r.source for r in il.relations if r.type == 'contains'}
         # A lens is not given a cell of its own: it sits over whatever it scans.
         scans = {r.source: r.target for r in il.relations if r.type == 'scans'}
@@ -561,7 +566,22 @@ class IllustrationSolver:
         # Flank the hero when that leaves it a bigger body than stacking the satellites beneath it.
         flank_w = _fit_aspect(_box(0, 0, zone['w'] - (side_w + gap) * n_cols, zone['h']), hero_ar)
         below_w = _fit_aspect(_box(0, 0, zone['w'], zone['h'] * 0.56), hero_ar)
-        wide = flank_w['w'] * flank_w['h'] >= below_w['w'] * below_w['h']
+        # A tall hero (a handset) fits by height and leaves the middle half empty; the flanks take
+        # that surplus so satellites are not starved beside a narrow hero. If even then a flank
+        # cannot hold its widest label at the floor size, the satellites go beneath instead.
+        surplus = zone['w'] - flank_w['w'] - gap * n_cols
+        side_w = min(max(side_w, surplus / n_cols), zone['w'] * 0.38)
+        flank_better = flank_w['w'] * flank_w['h'] >= below_w['w'] * below_w['h']
+        if flank_better and side_w < need_w:
+            # Tag pills are decoration; a chip sheds them before the hero gives up its column.
+            tagged = [e for e in sats if e.label and e.glyph == 'CHIP' and e.params.get('tags')]
+            bare = max([self._label_need(e, floor) / (0.52 / 0.30 if e in tagged else 1.0)
+                        for e in sats if e.label and e.glyph in LABEL_CARRIERS] or [0.0])
+            if tagged and side_w >= bare:
+                for e in tagged:
+                    e.params = {k: v for k, v in e.params.items() if k != 'tags'}
+                need_w = bare
+        wide = flank_better and side_w >= need_w
         if wide:
             left = [s for i, s in enumerate(sats) if i % 2 == 1]
             right = [s for i, s in enumerate(sats) if i % 2 == 0]
@@ -618,8 +638,8 @@ class IllustrationSolver:
             plan['media'] = {'asset_id': a.asset_id, 'kind': a.kind, 'path': nm.render_path if nm else a.path, 'sha256': nm.render_sha256 if nm else None,
                              'source_size': {'w': a.width, 'h': a.height}, 'rights': a.rights, 'audio': 'MUTE',
                              'trim': ({'start': float(e.params['trim'][0]), 'end': float(e.params['trim'][1])} if e.params.get('trim') else None),
-                             'chassis': e.params.get('chassis') or None,
-                             'tilt': float(e.params['tilt']) if e.params.get('tilt') is not None else None}
+                             **housing(a.kind, a.width, a.height, a.asset_id, self.motion, e.size,
+                                       e.params.get('chassis') or None, e.params.get('tilt'))}
         if e.label:
             if e.glyph in LABEL_CARRIERS:
                 # Inner label boxes track the chrome each carrier draws: a callout's tail hangs below its

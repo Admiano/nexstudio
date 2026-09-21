@@ -156,6 +156,10 @@
         "motion_blur": {
           "type": "number",
           "minimum": 0
+        },
+        "media_tilt": {
+          "type": "number",
+          "minimum": 0
         }
       },
       "required": [
@@ -167,7 +171,8 @@
         "spring",
         "breathe",
         "label_lag_ms",
-        "motion_blur"
+        "motion_blur",
+        "media_tilt"
       ]
     },
     "typography": {
@@ -1070,6 +1075,18 @@
                   "frame": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "chassis": {
+                    "type": "string",
+                    "enum": [
+                      "phone",
+                      "browser",
+                      "card",
+                      "shot"
+                    ]
+                  },
+                  "tilt": {
+                    "type": "number"
                   }
                 },
                 "required": [
@@ -1085,7 +1102,9 @@
                   "audio",
                   "enter_ms",
                   "enter_duration_ms",
-                  "frame"
+                  "frame",
+                  "chassis",
+                  "tilt"
                 ]
               },
               {
@@ -1643,14 +1662,28 @@
                                 "audio": {
                                   "const": "MUTE"
                                 },
-                                "trim": {}
+                                "trim": {},
+                                "chassis": {
+                                  "type": "string",
+                                  "enum": [
+                                    "phone",
+                                    "browser",
+                                    "card",
+                                    "shot"
+                                  ]
+                                },
+                                "tilt": {
+                                  "type": "number"
+                                }
                               },
                               "required": [
                                 "asset_id",
                                 "kind",
                                 "path",
                                 "rights",
-                                "audio"
+                                "audio",
+                                "chassis",
+                                "tilt"
                               ]
                             },
                             {

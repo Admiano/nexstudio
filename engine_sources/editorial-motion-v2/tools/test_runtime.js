@@ -26,6 +26,7 @@ const FIXTURES = [
   { name: 'glyph-shelf', treatment: '../fixtures/glyph-shelf/treatment.json', out: path.join(ROOT, 'out', 'glyph-shelf') },
   { name: 'promo-collage', treatment: '../fixtures/promo-collage/treatment.json', out: path.join(ROOT, 'out', 'promo-collage') },
   { name: 'honey-nut-collage', treatment: '../fixtures/honey-nut-collage/treatment.json', out: path.join(ROOT, 'out', 'honey-nut-collage') },
+  { name: 'media-matrix', treatment: '../fixtures/media-matrix/treatment.json', out: path.join(ROOT, 'out', 'media-matrix') },
 ];
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 
@@ -255,6 +256,51 @@ async function runFixture(fx, base, browser) {
         }
       }
 
+      // Device chassis: every housed upload (entity- or beat-level) sits in the slab the plan
+      // chose, the content never shows before its slab, the slab is never shown empty, and the
+      // content stays inside the screen through entrance, hold drift and carry reframes.
+      out.chassis = [];
+      const housed = [];
+      for (const b of plan.beats) {
+        if (b.media) housed.push({ b, md: b.media, enter: b.media.enter_ms, dur: b.media.enter_duration_ms, reframe: b.media.reframe, id: b.media.asset_id });
+        for (const e of (b.illustration ? b.illustration.entities : []).filter((x) => x.media)) housed.push({ b, md: e.media, enter: e.enter_ms, dur: e.enter_duration_ms, reframe: e.carry_from_bbox ? { start_ms: 0, end_ms: 420 } : null, id: e.media.asset_id, entity: e.id });
+      }
+      for (const h of housed) {
+        const beatNode = stage.children[plan.beats.indexOf(h.b)];
+        const frame = beatNode.querySelector(`[data-media-asset="${h.id}"]`);
+        const rec = { beat: h.b.beat_id, id: h.id, chassis: frame && frame.dataset.chassis, wanted: h.md.chassis, slab: false, screen: false, contentIn: true, neverEmpty: true, live: h.md.kind !== 'VIDEO', tilt: true, samples: 0 };
+        if (!frame) { out.chassis.push(rec); continue; }
+        const slab = frame.querySelector('.em2-slab'), screen = frame.querySelector('.em2-screen'), node = frame.querySelector('img, video');
+        rec.slab = Boolean(slab) && slab.contains(screen); rec.screen = Boolean(screen) && screen.contains(node);
+        rec.tilt = Math.abs((Number(/rotate\((-?[\d.]+)deg\)/.exec(slab.style.transform)[1]) || 0) - (h.md.tilt || 0)) < 0.02;
+        const shown = () => getComputedStyle(frame).visibility !== 'hidden' && Number(frame.style.opacity) > 0.05;
+        const t0 = h.b.start_ms;
+        const times = [];
+        for (let t = h.enter - 200; t <= h.enter + (h.dur || 0) + 60; t += 1000 / plan.fps) times.push(t);
+        if (h.reframe) for (let t = h.reframe.start_ms; t <= h.reframe.end_ms + 60; t += 1000 / plan.fps) times.push(t);
+        const settled = h.enter + (h.dur || 0);
+        for (let t = settled; t < h.b.duration_ms - 60; t += 400) times.push(t);
+        for (const lt of times) {
+          if (lt < 0) continue;
+          await film.seek(Math.round(t0 + lt));
+          const vis = shown();
+          if (lt < h.enter && vis) rec.neverEmpty = false;   // slab may not dress the stage before its content
+          if (!vis) continue;
+          rec.samples += 1;
+          // Content covers its viewport (the screen, or the pane under a browser bar) — no bare
+          // screen showing; sub-pixel slack.
+          const sr = node.parentElement.getBoundingClientRect(), nr = node.getBoundingClientRect();
+          if (nr.left > sr.left + 1.5 || nr.top > sr.top + 1.5 || nr.right < sr.right - 1.5 || nr.bottom < sr.bottom - 1.5) rec.contentIn = false;
+          if (Number(node.style.opacity || '1') < 0.05 && lt >= settled) rec.neverEmpty = false;
+        }
+        if (h.md.kind === 'VIDEO') {
+          await film.seek(Math.round(t0 + settled + 900));
+          const expected = ((h.md.trim && h.md.trim.start) || 0) + (settled + 900 - h.enter) / 1000;
+          rec.live = node.readyState >= 2 && Math.abs(node.currentTime - expected) < 0.1;
+        }
+        out.chassis.push(rec);
+      }
+
       // Still figure: composed from the compiled parts only, visible in its hold, never animated after entry.
       const fb = plan.beats.find((b) => b.figure);
       if (fb) {
@@ -416,7 +462,8 @@ async function runFixture(fx, base, browser) {
       };
       for (const b of plan.beats) {
         if (!b.illustration) continue;
-        const hosted = b.illustration.entities.filter((e) => e.asset && ['TILE', 'BADGE', 'CHIP'].includes(e.glyph));
+        // A worded chip is content in its own right, so emptying its peg is not an empty housing.
+        const hosted = b.illustration.entities.filter((e) => e.asset && (['TILE', 'BADGE'].includes(e.glyph) || (e.glyph === 'CHIP' && !e.label)));
         if (!hosted.length) continue;
         await film.seek(b.start_ms + b.illustration.settled_ms + 40);
         const beatNode = stage.children[plan.beats.indexOf(b)];
@@ -558,7 +605,7 @@ async function runFixture(fx, base, browser) {
 
     check('rejects foreign schema', r.rejects.schema);
     check('refuses failed gate', r.rejects.gate);
-    check('runtime version exposed', r.version === 'EDITORIAL_RUNTIME_V3.1', r.version);
+    check('runtime version exposed', r.version === 'EDITORIAL_RUNTIME_V3.2', r.version);
     check(`stage is native ${plan.canvas.w}x${plan.canvas.h}`, r.stage.w === plan.canvas.w && r.stage.h === plan.canvas.h && r.stage.aspect === aspect, JSON.stringify(r.stage));
     check('frame count matches plan', r.frames === Math.ceil((plan.duration_ms * plan.fps) / 1000));
     check('captions and audio events exposed', r.captions > 0 && r.audio.voice === plan.voice.segments.length && r.audio.accents > 0 && r.audio.music === plan.music.status, JSON.stringify(r.audio));
@@ -568,6 +615,8 @@ async function runFixture(fx, base, browser) {
     for (const h of r.holds) check(`hold ${h.beat}: ${h.visible}/${h.expected} blocks, inside, no collision`, h.visible === h.expected && h.inside && !h.collide, JSON.stringify(h));
     if (r.replace) check('phrase replacement A -> B', r.replace.before && r.replace.after, JSON.stringify(r.replace));
     for (const m of r.media) check(`media ${m.beat}: hidden before landing, shown after, loaded, trim`, m.hiddenBefore && m.shown && m.loaded && m.videoOk, JSON.stringify(m));
+    for (const c of r.chassis) check(`chassis ${c.beat}/${c.id}: ${c.wanted} slab, content inside screen, never empty, tilt held, live`,
+      c.chassis === c.wanted && c.slab && c.screen && c.contentIn && c.neverEmpty && c.live && c.tilt && c.samples > 3, JSON.stringify(c));
     if (r.figure) check('still figure composed from body/head/face parts', r.figure.slots.join(',') === 'body,head,face' && r.figure.paths > 3 && r.figure.stillDuringHold && r.figure.visible, JSON.stringify(r.figure));
     for (const il of r.illustration) {
       const bad = il.ops.filter((o) => !o.ok);
