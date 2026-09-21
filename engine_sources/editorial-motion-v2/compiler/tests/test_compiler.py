@@ -510,6 +510,21 @@ def test_wrap_cells_keeps_a_single_line_when_shares_fit():
     assert len({round(c['y']) for c in cells.values()}) == 1, 'unlabelled row must not wrap'
 
 
+def test_counter_caption_owes_the_label_floor():
+    from editorial_plan_compiler.illustration import IllustrationRegistry, IllustrationSolver
+    from editorial_plan_compiler.contracts import IllustrationEntity
+    s = IllustrationSolver('1x1', (1080, 1080), IllustrationRegistry(), {}, {}, None)
+    e = IllustrationEntity(id='t', kind='evidence', glyph='COUNTER', size='support', params={'count': 196, 'caption': 'bean temperature'})
+    small, tall = [], []
+    s._entity_plan(e, {'x': 0.0, 'y': 0.0, 'w': 176.0, 'h': 117.0}, None, small, 'b')
+    s._entity_plan(e, {'x': 0.0, 'y': 0.0, 'w': 300.0, 'h': 200.0}, None, tall, 'b')
+    assert small == ['COUNTER_CAPTION_FLOOR_BREACH:t'] and tall == []
+    bare = IllustrationEntity(id='t', kind='evidence', glyph='COUNTER', size='support', params={'count': 196})
+    none = []
+    s._entity_plan(bare, {'x': 0.0, 'y': 0.0, 'w': 176.0, 'h': 117.0}, None, none, 'b')
+    assert none == []
+
+
 # ---------------------------------------------------------------- authored, not generated
 
 def test_entity_labels_are_nouns_not_captions(treatment):
@@ -839,6 +854,25 @@ def test_ladder_never_substitutes_an_unrelated_mark(finder):
     # A housing that cannot typeset and has nothing to draw is unresolved, never a stand-in.
     r = f.resolve('churn', PACK, False, True)
     assert r.via == 'unresolved' and r.asset_ref is None and r.word is None
+
+
+def test_ladder_reads_a_label_by_its_head_noun(finder):
+    f, _ = finder
+    # A label the concept only qualifies names another thing: a 'coffee machine' is a machine.
+    # It is never an exact answer; beside the typeset word it may stand as the last mark.
+    coffee = f.resolve('coffee', PACK, True, True)
+    assert coffee.via == 'composite' and coffee.asset_ref == f'{PACK}.coffee-machine' and coffee.word == 'coffee'
+    assert f.resolve('coffee', PACK, False, True).via == 'unresolved'
+    # A descriptive qualifier keeps the head: 'hot beverage' is a beverage, so it may stand for
+    # coffee beside its word; a qualifier that is itself a thing ('kiwi fruit') may not for 'seed'.
+    fl = f.resolve('coffee', 'emoji.fluent-flat', True, True)
+    assert fl.via == 'composite' and fl.asset_ref == 'emoji.fluent-flat.hot-beverage' and fl.path == ['coffee', 'beverage']
+    seed = f.resolve('seed', 'emoji.fluent-flat', True, True)
+    assert seed.asset_ref != 'emoji.fluent-flat.kiwi-fruit', seed
+    # A subject with a related head still names the subject: a 'factory building' is a factory.
+    assert f.resolve('factory', PACK, True, True).asset_ref == f'{PACK}.factory-building'
+    # Two or more extra words never answer, in any pack.
+    assert f.resolve('fish', 'emoji.fluent', True, True).asset_ref != 'emoji.fluent.fish-cake-with-swirl'
 
 
 def test_ladder_stays_inside_the_film_colour_pack(finder):

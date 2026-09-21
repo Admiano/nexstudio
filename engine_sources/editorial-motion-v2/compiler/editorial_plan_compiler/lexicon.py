@@ -259,6 +259,21 @@ class AssetFinder:
         item = self.items[aid]
         return _key(_tokens(str(item.get('label') or aid.split('.')[-1].replace('-', ' '))))
 
+    def _names_other_thing(self, head: str, want: Tuple[str, ...]) -> bool:
+        """A trailing head noun that is itself a thing unrelated to the subject names something
+        else: 'coffee machine', 'document folder'. A related head ('factory building') or a word
+        the lexicon does not know as a noun ('dress longuette') is only description."""
+        if not self.lexicon.available or self.lexicon.lemma(head) is None:
+            return False
+        return not self.lexicon.related(head, ' '.join(want))
+
+    def _weak(self, aid: str, want: Tuple[str, ...]) -> bool:
+        """The subject is only the qualifier of the label's head: a 'coffee machine' is a machine, a
+        'honey pot' a pot. Such a mark never answers on its own; typeset beside its word it may."""
+        lk = self._label_key(aid)
+        extra = [t for t in lk if t not in want]
+        return set(want) <= set(lk) and len(extra) == 1 and lk[-1] == extra[0] and self._names_other_thing(extra[0], want)
+
     def _rank(self, aid: str, want: Tuple[str, ...], pack: Optional[str]) -> Tuple[float, str]:
         lk = self._label_key(aid)
         extra = [t for t in lk if t not in want]
@@ -272,6 +287,8 @@ class AssetFinder:
             score = 1.0
         if any(t in VARIANT_TOKENS for t in extra):
             score -= 1.2
+        if score < 0:
+            return (score, aid)   # a label that names another thing is not rescued by being in the right pack
         if pack and self.pack_of(aid) == pack:
             score += 1.5
         elif pack and self._native(aid) and not self._is_brand(aid):
@@ -280,16 +297,23 @@ class AssetFinder:
             score += 0.3          # collage finish: colour art first when the film has no pack yet
         return (score, aid)
 
-    def _candidates(self, phrase: str, pack: Optional[str], allow_brand: bool, exact_only: bool) -> List[str]:
+    def _candidates(self, phrase: str, pack: Optional[str], allow_brand: bool, exact_only: bool, head_only: bool = False, weak: bool = False) -> List[str]:
         want = _key(_tokens(phrase))
         if not want:
             return []
         ids: Set[str] = set(self._by_label.get(want, []))
-        if not exact_only:
+        if head_only:
+            # The phrase as the head noun of a label with one describing qualifier: 'hot beverage'
+            # is a beverage. A qualifier that is itself a thing names another thing ('kiwi fruit',
+            # 'flash payment'), and 'beverage box' is a box: neither answers.
+            for key, aids in self._by_label.items():
+                if len(key) == len(want) + 1 and key[1:] == want and self.lexicon.lemma(key[0]) is None:
+                    ids.update(aids)
+        elif not exact_only:
             pools = [self._by_term.get(t, set()) for t in want]
             if pools and all(pools):
                 ids |= set.intersection(*pools)
-        out = [a for a in ids if allow_brand or not self._is_brand(a)]
+        out = [a for a in ids if (allow_brand or not self._is_brand(a)) and self._weak(a, want) == weak]
         ranked = sorted(out, key=lambda a: self._rank(a, want, pack), reverse=True)
         return [a for a in ranked if self._rank(a, want, pack)[0] > 0]
 
@@ -303,8 +327,8 @@ class AssetFinder:
         if NUMERIC_RE.match(text):
             return Resolution(text, 'numeric', word=text)
 
-        def pick(phrase: str, allow_brand: bool = False, exact_only: bool = False) -> Optional[str]:
-            cands = self._candidates(phrase, pack, allow_brand, exact_only)
+        def pick(phrase: str, allow_brand: bool = False, exact_only: bool = False, head_only: bool = False, weak: bool = False) -> Optional[str]:
+            cands = self._candidates(phrase, pack, allow_brand, exact_only, head_only, weak)
             if allow_brand and phrase[:1].isupper():
                 # Written as a name, the name's own logo outranks a same-spelt common noun's icon.
                 cands = [a for a in cands if self._is_brand(a)] + [a for a in cands if not self._is_brand(a)]
@@ -335,9 +359,12 @@ class AssetFinder:
                 hit = pick(syn.replace('_', ' '), exact_only=True)
                 if hit is not None:
                     return Resolution(text, 'synonym', asset_ref=hit, path=[text, syn])
+            # An ancestor drawn beside the typeset word may be a qualified mark ('hot beverage' for
+            # coffee → beverage): the word says which one. Standing alone it must be the plain name.
+            composite = can_type and not named
             for depth, level in enumerate(self.lexicon.hypernym_levels(lemma), start=1):
                 for hyper in level:
-                    hit = pick(hyper.replace('_', ' '), exact_only=True)
+                    hit = pick(hyper.replace('_', ' '), exact_only=True, head_only=composite and depth == 1)
                     if hit is None:
                         continue
                     if not can_type and depth > 1:
@@ -345,6 +372,12 @@ class AssetFinder:
                     if named or not can_type:
                         return Resolution(text, 'hypernym', asset_ref=hit, word=None, path=[text, hyper])
                     return Resolution(text, 'composite', asset_ref=hit, word=text, path=[text, hyper])
+        if can_type:
+            # Last mark before type: a label the subject only qualifies ('honey pot', 'cheese wedge')
+            # drawn beside the word, which says what the picture is of.
+            hit = pick(text, weak=True)
+            if hit is not None:
+                return Resolution(text, 'composite', asset_ref=hit, word=None if named else text, path=[text, self._label_text(hit)])
         if can_type:
             return Resolution(text, 'typographic', word=text)
         return Resolution(text, 'unresolved')
