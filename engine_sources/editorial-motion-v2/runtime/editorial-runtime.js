@@ -2418,7 +2418,8 @@
       const stageFade = overlapIdx >= 0 ? 1 - EASE.inOutCubic(prog(lt, tr.start_ms, tr.end_ms)) : 1;
       if (grain) {
         const OFF = [[0, 0], [41, 17], [23, 88], [97, 53], [61, 131], [13, 73], [109, 29], [73, 107]];
-        const o = OFF[Math.floor(time / 93) % OFF.length];
+        const hold = atmo.grain_hold_ms > 0 ? atmo.grain_hold_ms : 93;
+        const o = OFF[Math.floor(time / hold) % OFF.length];
         grain.style.backgroundPosition = `${-o[0]}px ${-o[1]}px`;
       }
       const t1 = performance.now();
