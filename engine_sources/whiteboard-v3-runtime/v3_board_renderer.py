@@ -39,6 +39,29 @@ def _subtle_paper_texture(im, pal, seed):
 
 wbp._paper_texture = _subtle_paper_texture
 
+
+# The preserved adapter's board->screen scale uses a fixed 650/760-unit
+# reference, which does not match the compiler's actual zone sizes. In 9:16 the
+# view overscans ~225px past each zone's top/bottom into the neighbour zone
+# only 140px away, so the previous scene's captions bleed into frame; in 1:1 it
+# under-covers the zone and clips captions near the edges. Refit the scale to
+# the real zone dims (compiler fixes 520x900 for 9:16, 720x700 for 1:1) so the
+# frame shows exactly one zone. 16:9 keeps the locked look.
+_orig_map_point = wbp._map_point
+_ZONE_FIT = {'9:16': (520.0, 900.0), '1:1': (720.0, 700.0)}
+
+
+def _map_point_zone_fit(pt, cam, ratio, zoom=1.0):
+    zwzh = _ZONE_FIT.get(ratio)
+    if zwzh is None:
+        return _orig_map_point(pt, cam, ratio, zoom)
+    w, h = wbp.RATIO_SIZES[ratio]
+    scale = min(w / zwzh[0], h / zwzh[1]) * zoom
+    return w / 2 + (pt[0] - cam[0]) * scale, h / 2 + (pt[1] - cam[1]) * scale
+
+
+wbp._map_point = _map_point_zone_fit
+
 _ASSETS = Path(__file__).resolve().parent / 'assets'
 _ASSET_DIR = _ASSETS / 'open_peeps'
 _PEEPS_DIR = _ASSETS / 'peeps'
