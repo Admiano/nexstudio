@@ -1,0 +1,254 @@
+{
+  "schema": "NexStudioEditorialTreatmentV2",
+  "film_id": "coffee-roast-blind",
+  "note": "Blind-domain proof: a food-science explainer (coffee roasting) with a synthesized MASTER voice (edge-tts en-GB-RyanNeural, whisper-aligned). Every mark is a `concept`, none an authored asset_ref, so the film exercises the semantic ladder on nouns no fixture has seen — exact, composite and typographic rungs all land on screen.",
+  "mood": "warm",
+  "aspects": ["16x9", "1x1", "9x16"],
+  "fps": 30,
+  "brand": {
+    "ink": "#1b150f",
+    "paper": "#f3eee6",
+    "accent": "#c4692b",
+    "finish": "PRODUCT_COLLAGE"
+  },
+  "voice": {
+    "source": "MASTER",
+    "audio_path": "voice/master.mp3",
+    "alignment_path": "voice/master.words.json",
+    "head_pad_ms": 420
+  },
+  "media_library": [],
+  "beats": [
+    {
+      "beat_id": "b01",
+      "beat_type": "HOOK",
+      "pattern": "CONTRAST_RECONFIGURATION",
+      "dominant_layer": "HYBRID",
+      "narration": "A green coffee bean tastes like grass. Nothing like coffee at all.",
+      "energy": 0.62,
+      "complexity": 0.45,
+      "display_units": [
+        {"text": "A green coffee bean", "role": "support", "anchor_word": "green", "emphasis": 0.45, "semantic_role": "setup"},
+        {"text": "tastes like grass.", "role": "hero", "anchor_word": "tastes", "emphasis": 0.95, "semantic_role": "statement", "stress": ["grass."]}
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {"id": "bean", "kind": "object", "glyph": "TILE", "size": "hero", "concept": "coffee bean"},
+          {"id": "grass", "kind": "evidence", "glyph": "CHIP", "size": "support", "label": "grass", "concept": "grass"},
+          {"id": "cup", "kind": "object", "glyph": "BADGE", "size": "minor", "concept": "coffee"},
+          {"id": "notCup", "kind": "signal", "glyph": "PROHIBIT", "size": "minor"}
+        ],
+        "relations": [
+          {"type": "connects", "source": "bean", "target": "grass", "style": "link"},
+          {"type": "blocks", "source": "notCup", "target": "cup"}
+        ],
+        "program": [
+          {"op": "DRAW", "target": "bean", "at": {"word": "coffee"}, "duration_ms": 520},
+          {"op": "DRAW", "target": "grass", "at": {"word": "like"}, "duration_ms": 420},
+          {"op": "CONNECT", "target": "bean->grass", "at": {"word": "grass."}, "duration_ms": 400},
+          {"op": "DRAW", "target": "cup", "at": {"word": "coffee"}, "duration_ms": 420},
+          {"op": "DRAW", "target": "notCup", "at": {"word": "all."}, "duration_ms": 420}
+        ]
+      }
+    },
+    {
+      "beat_id": "b02",
+      "beat_type": "SETUP",
+      "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+      "dominant_layer": "HYBRID",
+      "narration": "Roasting is what changes it.",
+      "energy": 0.55,
+      "complexity": 0.35,
+      "display_units": [
+        {"text": "Roasting changes it.", "role": "hero", "anchor_word": "Roasting", "emphasis": 0.9, "semantic_role": "statement", "stress": ["Roasting"]}
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {"id": "roast", "kind": "system", "glyph": "TILE", "size": "hero", "concept": "roasting"},
+          {"id": "heat", "kind": "evidence", "glyph": "BADGE", "size": "support", "concept": "fire"}
+        ],
+        "relations": [
+          {"type": "connects", "source": "heat", "target": "roast", "style": "link"}
+        ],
+        "program": [
+          {"op": "DRAW", "target": "roast", "at": {"word": "Roasting"}, "duration_ms": 520},
+          {"op": "DRAW", "target": "heat", "at": {"word": "changes"}, "duration_ms": 420},
+          {"op": "CONNECT", "target": "heat->roast", "at": {"word": "it."}, "duration_ms": 400}
+        ]
+      }
+    },
+    {
+      "beat_id": "b03",
+      "beat_type": "EXPLANATION",
+      "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Around 160 degrees, the sugars inside start to brown.",
+      "energy": 0.58,
+      "complexity": 0.5,
+      "display_units": [
+        {"text": "Around 160°", "role": "support", "anchor_word": "Around", "emphasis": 0.45, "semantic_role": "setup"},
+        {"text": "the sugars start to brown.", "role": "hero", "anchor_word": "sugars", "emphasis": 0.9, "semantic_role": "statement", "stress": ["brown."]}
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {"id": "temp1", "kind": "evidence", "glyph": "COUNTER", "size": "hero", "params": {"count": 160, "suffix": "°C", "caption": "bean temperature"}},
+          {"id": "sugar", "kind": "evidence", "glyph": "CHIP", "size": "support", "label": "sugar", "concept": "sugar"},
+          {"id": "therm", "kind": "evidence", "glyph": "BADGE", "size": "minor", "concept": "thermometer"}
+        ],
+        "relations": [
+          {"type": "connects", "source": "temp1", "target": "sugar", "style": "link"},
+          {"type": "connects", "source": "therm", "target": "temp1", "style": "dash"}
+        ],
+        "program": [
+          {"op": "DRAW", "target": "therm", "at": {"word": "Around"}, "duration_ms": 420},
+          {"op": "DRAW", "target": "temp1", "at": {"word": "160"}, "duration_ms": 480},
+          {"op": "COUNT", "target": "temp1", "at": {"word": "degrees,"}, "duration_ms": 640},
+          {"op": "CONNECT", "target": "therm->temp1", "at": {"word": "the"}, "duration_ms": 380},
+          {"op": "DRAW", "target": "sugar", "at": {"word": "sugars"}, "duration_ms": 420},
+          {"op": "CONNECT", "target": "temp1->sugar", "at": {"word": "start"}, "duration_ms": 400},
+          {"op": "INK", "target": "sugar", "at": {"word": "brown."}, "duration_ms": 360}
+        ]
+      }
+    },
+    {
+      "beat_id": "b04",
+      "beat_type": "PROOF",
+      "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+      "dominant_layer": "HYBRID",
+      "narration": "Then, at about 196 degrees, the bean cracks. Literally. Roasters call it first crack.",
+      "energy": 0.68,
+      "complexity": 0.55,
+      "display_units": [
+        {"text": "At about 196°", "role": "support", "anchor_word": "196", "emphasis": 0.45, "semantic_role": "setup"},
+        {"text": "the bean cracks.", "role": "hero", "anchor_word": "bean", "emphasis": 0.95, "semantic_role": "statement", "stress": ["cracks."]},
+        {"text": "“first crack”", "role": "support", "anchor_word": "first", "emphasis": 0.6, "semantic_role": "qualifier"}
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {"id": "temp2", "kind": "evidence", "glyph": "COUNTER", "size": "support", "params": {"count": 196, "suffix": "°C"}},
+          {"id": "bean2", "kind": "object", "glyph": "TILE", "size": "hero", "concept": "bean"},
+          {"id": "pop", "kind": "signal", "glyph": "BADGE", "size": "minor", "concept": "collision"}
+        ],
+        "relations": [
+          {"type": "connects", "source": "temp2", "target": "bean2", "style": "dash"},
+          {"type": "connects", "source": "pop", "target": "bean2", "style": "link"}
+        ],
+        "program": [
+          {"op": "DRAW", "target": "temp2", "at": {"word": "Then,"}, "duration_ms": 480},
+          {"op": "COUNT", "target": "temp2", "at": {"word": "196"}, "duration_ms": 640},
+          {"op": "DRAW", "target": "bean2", "at": {"word": "bean"}, "duration_ms": 520},
+          {"op": "CONNECT", "target": "temp2->bean2", "at": {"word": "cracks."}, "duration_ms": 380},
+          {"op": "DRAW", "target": "pop", "at": {"word": "Literally."}, "duration_ms": 380},
+          {"op": "CONNECT", "target": "pop->bean2", "at": {"word": "Roasters"}, "duration_ms": 360},
+          {"op": "EMIT", "target": "pop", "at": {"word": "first"}, "duration_ms": 700}
+        ]
+      }
+    },
+    {
+      "beat_id": "b05",
+      "beat_type": "LIST",
+      "pattern": "SEQUENTIAL_SUPPORT_LIST",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "10 more seconds and you get a light roast. 90 more and it's dark.",
+      "energy": 0.6,
+      "complexity": 0.55,
+      "display_units": [
+        {"text": "+10 seconds", "role": "support", "anchor_word": "10", "emphasis": 0.5, "semantic_role": "setup"},
+        {"text": "Light.", "role": "hero", "anchor_word": "light", "emphasis": 0.85, "semantic_role": "statement", "stress": ["Light."]},
+        {"text": "+90 seconds", "role": "support", "anchor_word": "90", "emphasis": 0.5, "semantic_role": "setup"},
+        {"text": "Dark.", "role": "hero", "anchor_word": "dark.", "emphasis": 0.95, "semantic_role": "punch", "stress": ["Dark."]}
+      ],
+      "illustration": {
+        "form": "PROCESS_PIPELINE",
+        "entities": [
+          {"id": "s1", "kind": "evidence", "glyph": "CHIP", "size": "support", "label": "10 s", "concept": "stopwatch"},
+          {"id": "lr", "kind": "state", "glyph": "CHIP", "size": "hero", "label": "light roast", "concept": "light roast"},
+          {"id": "s2", "kind": "evidence", "glyph": "CHIP", "size": "support", "label": "90 s", "concept": "timer"},
+          {"id": "dr", "kind": "state", "glyph": "CHIP", "size": "hero", "label": "dark roast", "concept": "dark roast", "params": {"tone": "dark"}}
+        ],
+        "relations": [
+          {"type": "flows_to", "source": "s1", "target": "lr", "style": "arc"},
+          {"type": "flows_to", "source": "lr", "target": "s2", "style": "arc"},
+          {"type": "flows_to", "source": "s2", "target": "dr", "style": "arc"}
+        ],
+        "program": [
+          {"op": "DRAW", "target": "s1", "at": {"word": "10"}, "duration_ms": 400},
+          {"op": "DRAW", "target": "lr", "at": {"word": "light"}, "duration_ms": 420},
+          {"op": "CONNECT", "target": "s1->lr", "at": {"word": "roast."}, "duration_ms": 360},
+          {"op": "DRAW", "target": "s2", "at": {"word": "90"}, "duration_ms": 400},
+          {"op": "CONNECT", "target": "lr->s2", "at": {"word": "more"}, "duration_ms": 360},
+          {"op": "DRAW", "target": "dr", "at": {"word": "dark."}, "duration_ms": 420},
+          {"op": "CONNECT", "target": "s2->dr", "at": {"word": "dark."}, "duration_ms": 360}
+        ]
+      }
+    },
+    {
+      "beat_id": "b06",
+      "beat_type": "REFRAME",
+      "pattern": "CONTRAST_RECONFIGURATION",
+      "dominant_layer": "HYBRID",
+      "narration": "The darker you go, the more the bean's own flavour disappears and the more it just tastes of roast.",
+      "energy": 0.56,
+      "complexity": 0.5,
+      "display_units": [
+        {"text": "The darker you go,", "role": "support", "anchor_word": "darker", "emphasis": 0.45, "semantic_role": "setup"},
+        {"text": "the bean's own flavour disappears.", "role": "hero", "anchor_word": "flavour", "emphasis": 0.92, "semantic_role": "statement", "stress": ["disappears"]},
+        {"text": "It just tastes of roast.", "role": "support", "anchor_word": "tastes", "emphasis": 0.6, "semantic_role": "contrast"}
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {"id": "flav", "kind": "state", "glyph": "TILE", "size": "hero", "concept": "flavour"},
+          {"id": "char", "kind": "state", "glyph": "TILE", "size": "support", "concept": "fire", "params": {"tone": "dark"}}
+        ],
+        "relations": [
+          {"type": "connects", "source": "flav", "target": "char", "style": "dash"}
+        ],
+        "program": [
+          {"op": "DRAW", "target": "flav", "at": {"word": "flavour"}, "duration_ms": 520},
+          {"op": "DIM", "target": "flav", "at": {"word": "disappears"}, "duration_ms": 420},
+          {"op": "DRAW", "target": "char", "at": {"word": "tastes"}, "duration_ms": 460},
+          {"op": "CONNECT", "target": "flav->char", "at": {"word": "of"}, "duration_ms": 380}
+        ]
+      }
+    },
+    {
+      "beat_id": "b07",
+      "beat_type": "PAYOFF",
+      "pattern": "PAYOFF_LOCKUP",
+      "dominant_layer": "HYBRID",
+      "narration": "So when a bag says dark roast, it isn't telling you where the coffee came from. It's telling you how long it burned.",
+      "energy": 0.6,
+      "complexity": 0.55,
+      "display_units": [
+        {"text": "“Dark roast” on the bag", "role": "support", "anchor_word": "bag", "emphasis": 0.45, "semantic_role": "setup"},
+        {"text": "isn't where it came from.", "role": "hero", "anchor_word": "where", "emphasis": 0.9, "semantic_role": "statement", "stress": ["where"]},
+        {"text": "It's how long it burned.", "role": "hero", "anchor_word": "long", "emphasis": 1.0, "semantic_role": "punch", "stress": ["burned."]}
+      ],
+      "illustration": {
+        "form": "RELATIONSHIP",
+        "entities": [
+          {"id": "bag", "kind": "object", "glyph": "TILE", "size": "hero", "concept": "coffee bag"},
+          {"id": "origin", "kind": "evidence", "glyph": "CHIP", "size": "support", "label": "origin", "concept": "world map"},
+          {"id": "time", "kind": "evidence", "glyph": "CHIP", "size": "support", "label": "roast time", "concept": "stopwatch", "params": {"tone": "dark"}}
+        ],
+        "relations": [
+          {"type": "connects", "source": "bag", "target": "origin", "style": "dash"},
+          {"type": "connects", "source": "bag", "target": "time", "style": "link"}
+        ],
+        "program": [
+          {"op": "DRAW", "target": "bag", "at": {"word": "bag"}, "duration_ms": 520},
+          {"op": "DRAW", "target": "origin", "at": {"word": "where"}, "duration_ms": 420},
+          {"op": "CONNECT", "target": "bag->origin", "at": {"word": "came"}, "duration_ms": 380},
+          {"op": "STRIKE", "target": "origin", "at": {"word": "from."}, "duration_ms": 380},
+          {"op": "DRAW", "target": "time", "at": {"word": "long"}, "duration_ms": 420},
+          {"op": "CONNECT", "target": "bag->time", "at": {"word": "burned."}, "duration_ms": 380}
+        ]
+      }
+    }
+  ]
+}

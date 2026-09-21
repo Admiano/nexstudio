@@ -73,6 +73,7 @@ BACKGROUND_RENDER = {'SOFT_FIELD': 'SOFT_FIELD', 'GRID_FIELD': 'GRID_FIELD', 'SP
                      'DOCUMENT_STAGE': 'CARD_STAGE', 'PRODUCT_STAGE': 'CARD_STAGE', 'LAYERED_PLANE': 'CARD_STAGE'}
 MAX_LINES = {'support': 2, 'label': 1}
 HERO_SUPPORT_MIN_RATIO = 1.65
+DESCENDER_EM = 0.24       # how far a line's descenders hang below its line box (Black sans)
 
 
 def _sha_file(p: Path) -> str:
@@ -355,11 +356,20 @@ class BeatCompiler:
         by_unit = sorted(idx, key=lambda k: blocks[k]['unit_index'])
         if by_y == by_unit:
             return
-        gaps = [blocks[by_y[i + 1]]['bbox']['y'] - (blocks[by_y[i]]['bbox']['y'] + blocks[by_y[i]]['bbox']['h']) for i in range(len(by_y) - 1)]
+        gaps = sorted((blocks[by_y[i + 1]]['bbox']['y'] - (blocks[by_y[i]]['bbox']['y'] + blocks[by_y[i]]['bbox']['h']) for i in range(len(by_y) - 1)), reverse=True)
+        # The widest gap the authority drew goes under the hero, whose descenders reach below
+        # its box; the next to the pair above it; the tight ones stay between supports.
+        pairs = list(range(len(by_unit) - 1))
+        def need(i: int) -> int:
+            upper, lower = blocks[by_unit[i]]['role'], blocks[by_unit[i + 1]]['role']
+            return 0 if upper == 'hero' else 1 if lower == 'hero' else 2
+        order = sorted(pairs, key=lambda i: (need(i), i))
+        gap_at = {i: gaps[n] for n, i in enumerate(order)}
         y = blocks[by_y[0]]['bbox']['y']
         for i, k in enumerate(by_unit):
             blocks[k]['bbox'] = {**blocks[k]['bbox'], 'y': round(y, 1)}
-            y += blocks[k]['bbox']['h'] + (gaps[i] if i < len(gaps) else 0.0)
+            # A block's box ends at its last baseline's line box; the descenders hang below it.
+            y += blocks[k]['bbox']['h'] + max(gap_at.get(i, 0.0), DESCENDER_EM * blocks[k]['fit']['font_px'] if i < len(by_unit) - 1 else 0.0)
 
     def _word_cascade(self, b: BeatTreatment, blocks: List[Dict[str, Any]], events: List[Dict[str, Any]], clock: BeatClock) -> None:
         """Per-word landing times for every block: a word arrives when the voice says it.

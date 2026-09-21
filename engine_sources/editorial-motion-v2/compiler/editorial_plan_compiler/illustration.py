@@ -669,6 +669,12 @@ class IllustrationSolver:
             # 'below' labels are checked after the gap-borrowing pass in layout(), not here.
             if plan['label'] and plan['label']['placement'] == 'inside' and plan['label']['fit']['status'] != 'FIT':
                 failures.append(f"ENTITY_LABEL_{plan['label']['fit']['status']}:{e.id}")
+        if e.glyph == 'COUNTER' and e.params.get('caption'):
+            # The caption is typeset inside the card at 14% of its height (runtime COUNTER); it is
+            # inside text and owes the label floor like any carrier's label.
+            cap_px = min(bbox['h'] * 0.14, bbox['w'] * 0.86 / max(1, len(str(e.params['caption'])) * 0.55))
+            if cap_px < FLOOR_FRACTION['label'] * min(self.canvas) - 0.5:
+                failures.append(f'COUNTER_CAPTION_FLOOR_BREACH:{e.id}')
         return plan
 
     # ------------------------------------------------------------------ relations
