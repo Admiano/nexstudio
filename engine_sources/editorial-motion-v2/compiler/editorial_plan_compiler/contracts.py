@@ -55,11 +55,23 @@ FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
 FILM_MOODS = ('bright', 'calm', 'dreamy', 'jazzy', 'playful', 'uplifting', 'wistful')
 # Motion profile per finish: how elements enter, how far the camera drifts per beat, how cuts dissolve.
+#   spring        damping preset every arrival is solved with ('snap' overshoots, 'settle' barely, 'float' never)
+#   breathe       idle scale amplitude of a held element (fraction), phase-offset per element
+#   label_lag_ms  a label trails its body's arrival by this much — secondary motion
+#   motion_blur   gain on the per-frame travel that becomes directional blur (0 disables)
+SPRING_PRESETS = ('snap', 'settle', 'float')
 MOTION_PROFILES = {
-    'EDITORIAL_FLAT': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.012, 'camera_pan_frac': 0.004, 'transition': 'blur_dissolve', 'blur_px': 6, 'word_landing': 'tonal'},
-    'PAPER': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.01, 'camera_pan_frac': 0.003, 'transition': 'blur_dissolve', 'blur_px': 5, 'word_landing': 'tonal'},
-    'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise'},
+    'EDITORIAL_FLAT': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.012, 'camera_pan_frac': 0.004, 'transition': 'blur_dissolve', 'blur_px': 6, 'word_landing': 'tonal',
+                       'spring': 'settle', 'breathe': 0.006, 'label_lag_ms': 40, 'motion_blur': 0.8},
+    'PAPER': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.01, 'camera_pan_frac': 0.003, 'transition': 'blur_dissolve', 'blur_px': 5, 'word_landing': 'tonal',
+              'spring': 'settle', 'breathe': 0.005, 'label_lag_ms': 40, 'motion_blur': 0.6},
+    'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise',
+                        'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0},
 }
+# How the film's camera carries one beat into the next; the compiler picks from beat energy,
+# a hard cut only when the treatment asks for one (beat.cut = 'hard').
+CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'cut')
+CUT_MODES = ('hard',)
 DATA_KINDS = ('STAT', 'COMPARISON', 'SEQUENCE')
 # Entity labels are nouns, not captions: no leading article, at most three words, and never a
 # restatement of a display unit already set in type on the same beat.
@@ -444,6 +456,7 @@ class BeatTreatment:
     complexity: float = 0.45
     features: Dict[str, float] = field(default_factory=dict)
     min_duration_ms: int = 0
+    cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -483,8 +496,11 @@ class BeatTreatment:
         _need(len(units) <= 5, 'TOO_MANY_DISPLAY_UNITS', 'more than five display units in one beat', bid)
         _need(not (figure and media and layer == 'TEXT'), 'TEXT_BEAT_WITH_FIGURE_AND_MEDIA', 'a text-led beat may carry a figure or media, not both', bid)
         feats = {k: _unit(v) for k, v in (d.get('features') or {}).items()}
+        cut = str(d['cut']) if d.get('cut') else None
+        if cut is not None:
+            _need(cut in CUT_MODES, 'CUT_MODE_UNKNOWN', cut, bid)
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0))
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut)
 
     @property
     def has_visual(self) -> bool:

@@ -15,13 +15,16 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  const RUNTIME_VERSION = 'EDITORIAL_RUNTIME_V3.0';
+  const RUNTIME_VERSION = 'EDITORIAL_RUNTIME_V3.1';
   const STRESS_SCALE = 1.045; // mirrors typefit.STRESS_SCALE: the compiler reserves this width for stressed words
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const lerp = (a, b, t) => a + (b - a) * t;
   const prog = (t, s, e) => (e <= s ? (t >= e ? 1 : 0) : clamp((t - s) / (e - s), 0, 1));
 
-  const DEFAULT_MOTION = { entrance: 'settle', stagger_ms: 90, camera_push: 0, camera_pan_frac: 0, transition: 'blur_dissolve', blur_px: 0, word_landing: 'tonal' };
+  const DEFAULT_MOTION = { entrance: 'settle', stagger_ms: 90, camera_push: 0, camera_pan_frac: 0, transition: 'blur_dissolve', blur_px: 0, word_landing: 'tonal',
+    spring: 'settle', breathe: 0.006, label_lag_ms: 0, motion_blur: 1 };
+  const CARRY_MS = 420;      // a carried body travels to its new box in this long
+  const BREATHE_PERIOD_MS = 4000;
 
   const EASE = {
     outCubic: (t) => 1 - Math.pow(1 - t, 3),
@@ -62,6 +65,35 @@
   EASE.emphasize = cubicBezier(0.34, 1.56, 0.64, 1); // easeOutBack — controlled overshoot
   EASE.wipe = cubicBezier(0.76, 0, 0.24, 1);        // easeInOutQuart
 
+  // Spring solver. Closed-form response of a unit mass launched one unit short of rest, so every
+  // arrival is a pure function of normalised time — seekable, no simulation state. `zeta` is the
+  // damping ratio: under 1 the body overshoots and rings down, 1 is critically damped (never
+  // crosses). `launch` is the initial velocity as a fraction of the natural frequency — a body
+  // thrown toward rest rather than released, which is what a hand-keyed AE arrival looks like.
+  // Frequency is chosen so the residual at t=1 is SPRING_TOL; the last sliver is closed
+  // linearly so the curve ends exactly at 1 without a step.
+  const SPRING_TOL = 0.01;
+  const SPRING_LAUNCH = 0.35;
+  function springCurve(zeta, launch) {
+    const v = launch == null ? SPRING_LAUNCH : launch;
+    let raw;
+    if (zeta >= 1) {
+      let w = 6.64; // e^-w (1+w) = SPRING_TOL
+      for (let i = 0; i < 8; i += 1) w -= (Math.exp(-w) * (1 + w) - SPRING_TOL) / (-Math.exp(-w) * w);
+      raw = (t) => 1 - Math.exp(-w * t) * (1 + (w - v * w) * t);
+    } else {
+      const w = -Math.log(SPRING_TOL) / zeta;
+      const wd = w * Math.sqrt(1 - zeta * zeta);
+      const k = (zeta * w - v * w) / wd;
+      raw = (t) => 1 - Math.exp(-zeta * w * t) * (Math.cos(wd * t) + k * Math.sin(wd * t));
+    }
+    const end = raw(1);
+    return (t) => (t <= 0 ? 0 : t >= 1 ? 1 : raw(t) + (1 - end) * t);
+  }
+  // Presets: snap rings once (~9% over at t≈0.5), settle barely crosses (~1%), float never does.
+  const SPRING = { snap: springCurve(0.62), settle: springCurve(0.74), float: springCurve(1) };
+  const springOf = (motion, role) => SPRING[role === 'arrive' ? (SPRING[motion.spring] ? motion.spring : 'settle') : role] || SPRING.settle;
+
   function hash01(str) {
     let h = 2166136261;
     for (let i = 0; i < str.length; i += 1) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
@@ -70,15 +102,17 @@
 
   // Secondary motion: once a node's own program has settled it keeps a slow, tiny drift so holds
   // read as living stills rather than frozen frames. Pure function of lt — fully deterministic.
-  function ambientDrift(lt, id, settledAt, amp) {
+  // `breathe` is the idle scale amplitude (profile-driven; phase offset per id so held elements never breathe in unison).
+  function ambientDrift(lt, id, settledAt, amp, breathe) {
     const ramp = EASE.outCubic(prog(lt, settledAt, settledAt + 750));
     if (ramp <= 0) return { dx: 0, dy: 0, s: 1 };
     const ph = hash01(String(id)) * Math.PI * 2;
     const w = (Math.PI * 2) / 3800;
+    const wb = (Math.PI * 2) / BREATHE_PERIOD_MS;
     return {
       dx: amp * ramp * Math.sin(lt * w + ph),
       dy: amp * 0.72 * ramp * Math.sin(lt * w * 1.31 + ph * 1.63),
-      s: 1 + 0.006 * ramp * Math.sin(lt * w * 0.84 + ph * 0.53),
+      s: 1 + (breathe == null ? 0.006 : breathe) * ramp * Math.sin(lt * wb + ph * 0.53),
     };
   }
 
@@ -90,11 +124,37 @@
   const CONNECTOR_SHOWN_MIN = 0.25;
   const ENDPOINT_PRESENT_MIN = 0.2;
 
-  // Velocity-proportional blur during fast moves — the illusion of shutter speed.
-  function velocityBlur(lt, s, e, easeFn, distPx) {
-    if (lt <= s || lt >= e) return 0;
-    const dv = Math.abs(easeFn(prog(Math.min(e, lt + 40), s, e)) - easeFn(prog(lt, s, e)));
-    return clamp(dv * distPx * 0.02, 0, 2.4);
+  // Motion blur. A 180° shutter smears half a frame of travel: the per-axis blur radius is
+  // the distance a body moved since the previous frame, less a threshold that keeps idle
+  // drift crisp. Directional, so a lateral move smears sideways and a drop smears downward.
+  const BLUR_THRESHOLD_PX = 1.5;
+  const BLUR_MAX_PX = 16;
+  function motionBlurStd(dxFrame, dyFrame, gain) {
+    const g = 0.5 * (gain == null ? 1 : gain);
+    return {
+      x: clamp((Math.abs(dxFrame) - BLUR_THRESHOLD_PX) * g, 0, BLUR_MAX_PX),
+      y: clamp((Math.abs(dyFrame) - BLUR_THRESHOLD_PX) * g, 0, BLUR_MAX_PX),
+    };
+  }
+  // Travel over the last frame along an eased path of length (distX, distY).
+  function pathBlur(lt, s, e, easeFn, distX, distY, frameMs, gain) {
+    if (lt <= s || lt > e) return { x: 0, y: 0 };
+    const dv = easeFn(prog(lt, s, e)) - easeFn(prog(lt - frameMs, s, e));
+    return motionBlurStd(dv * distX, dv * distY, gain);
+  }
+  // One SVG <filter> per moving node, shared by SVG and HTML bodies alike; set() rewrites the
+  // deviation every frame and clears the filter decl when the body is still.
+  function motionBlurFilter(defs, id) {
+    const filter = svgEl('filter', { id, x: '-40%', y: '-40%', width: '180%', height: '180%', 'color-interpolation-filters': 'sRGB' }, defs);
+    const blur = svgEl('feGaussianBlur', { stdDeviation: '0 0' }, filter);
+    const url = `url(#${id})`;
+    return {
+      apply(style, std, extra) {
+        const on = std.x > 0.05 || std.y > 0.05;
+        if (on) blur.setAttribute('stdDeviation', `${std.x.toFixed(2)} ${std.y.toFixed(2)}`);
+        style.filter = on ? (extra ? `${extra} ${url}` : url) : (extra || 'none');
+      },
+    };
   }
 
   function hexRgb(hex) {
@@ -374,15 +434,23 @@
       if (ex.scale) scale *= ex.scale;
     }
 
-    // Velocity blur while the block travels: entry slide, exit rise, carrier wipes.
-    let blur = enter && enter.end_ms > enter.start_ms ? velocityBlur(lt, enter.start_ms, enter.end_ms, EASE.enter, node.bb.w * 0.1 + em * 0.5) : 0;
-    const tr = ctx.transition;
-    if (tr && lt >= tr.start_ms) blur = Math.max(blur, velocityBlur(lt, tr.start_ms, tr.end_ms, EASE.exit, node.bb.h * 0.6));
-    w.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
+    // Motion blur while the block travels, along the axis it travels: the entry slide or rise,
+    // and the exit lift (the transition carrier is clipped, not moved, so it stays sharp).
+    let std = { x: 0, y: 0 };
+    if (enter && enter.end_ms > enter.start_ms) {
+      const slide = enter.event === 'DECISIVE_SLIDE';
+      std = pathBlur(lt, enter.start_ms, enter.end_ms, EASE.outQuint, slide ? node.bb.w * 0.07 : 0, slide ? 0 : em * 0.5, ctx.frameMs, ctx.motion.motion_blur);
+    }
+    if (ex && ex.ty) {
+      const tr = ctx.transition;
+      const exitStd = pathBlur(lt, tr.start_ms, tr.end_ms, EASE.inCubic, 0, 14 * 1.5, ctx.frameMs, ctx.motion.motion_blur);
+      std = { x: Math.max(std.x, exitStd.x), y: Math.max(std.y, exitStd.y) };
+    }
+    if (node.blur) node.blur.apply(w, std); else w.filter = 'none';
 
     // Hero copy breathes after its program settles — applied to the text node so block geometry never moves.
     if (b.role === 'hero') {
-      const heroS = ambientDrift(lt, `hero-${i}`, (node.cascade ? (b.cascade_end_ms || 0) : (enter ? enter.end_ms : 0)) + 320, 0).s;
+      const heroS = ambientDrift(lt, `hero-${i}`, (node.cascade ? (b.cascade_end_ms || 0) : (enter ? enter.end_ms : 0)) + 320, 0, Math.min(ctx.motion.breathe, 0.006)).s;
       node.text.style.transform = `translateY(-50%) scale(${heroS.toFixed(4)})`;
     }
 
@@ -664,15 +732,14 @@
       const w = lerp(from.w, m.bb.w, rp), h = lerp(from.h, m.bb.h, rp);
       s.left = px(x); s.top = px(y); s.width = px(w); s.height = px(h);
       layoutFocus(m, w * (m.hostW / m.bb.w), h * (m.hostH / m.bb.h));
-      const dist = Math.hypot(from.x - m.bb.x, from.y - m.bb.y) + Math.abs(from.w - m.bb.w);
-      const blur = velocityBlur(lt, md.reframe.start_ms, md.reframe.end_ms, EASE.inOutCubic, dist);
-      s.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
+      const std = pathBlur(lt, md.reframe.start_ms, md.reframe.end_ms, EASE.inOutCubic, Math.abs(from.x - m.bb.x) + Math.abs(from.w - m.bb.w) / 2, Math.abs(from.y - m.bb.y) + Math.abs(from.h - m.bb.h) / 2, ctx.frameMs, ctx.motion.motion_blur);
+      if (m.blur) m.blur.apply(s, std); else s.filter = 'none';
     }
     // Ambient: after the frame has settled it drifts with the hold, a living still.
     const settledAt = md.reframe ? md.reframe.end_ms : md.enter_ms + (md.enter_duration_ms || 0);
     const tzM = beat.composition.text_zone;
     const gapM = Math.max(tzM.x - (m.bb.x + m.bb.w), m.bb.x - (tzM.x + tzM.w), tzM.y - (m.bb.y + m.bb.h), m.bb.y - (tzM.y + tzM.h));
-    const amb = ambientDrift(lt, `media-${md.asset_id || md.role || 'x'}`, settledAt, clamp(gapM * 0.35, 0, 1.1));
+    const amb = ambientDrift(lt, `media-${md.asset_id || md.role || 'x'}`, settledAt, clamp(gapM * 0.35, 0, 1.1), Math.min(ctx.motion.breathe, 0.006));
     tx += amb.dx; ty += amb.dy;
     const ex = ctx.exitState({ block: { role: 'media' } }, lt);
     if (ex) { opacity *= ex.opacity; ty += ex.ty; }
@@ -840,7 +907,10 @@
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const OP_PROPERTY = { DRAW: 'draw', FILL: 'fill', INK: 'ink', DIM: 'dim', GROW: 'grow', STRIKE: 'strike', SWAP: 'swap', COUNT: 'count', EMIT: 'emit', CONNECT: 'connect' };
   const PROPERTY_REST = { draw: 1, fill: 0, ink: 0, dim: 1, grow: 1, strike: 0, swap: 0, count: 1, emit: 0, connect: 1 };
-  const OP_EASE = { DRAW: 'outQuint', FILL: 'inOutCubic', INK: 'outCubic', DIM: 'inOutCubic', GROW: 'settle', STRIKE: 'outQuint', SWAP: 'settle', COUNT: 'outCubic', EMIT: 'outCubic', CONNECT: 'outQuint' };
+  // Every driven property arrives on a spring. Bounded properties (draw, fill, ink, dim, count,
+  // emit, connect, strike) ride the critically damped one so they never cross their target;
+  // GROW and SWAP are scale and may ring.
+  const OP_SPRING = { DRAW: 'float', FILL: 'float', INK: 'float', DIM: 'float', GROW: 'settle', STRIKE: 'float', SWAP: 'settle', COUNT: 'float', EMIT: 'float', CONNECT: 'float' };
 
   function svgEl(tag, attrs, parent) {
     const n = document.createElementNS(SVG_NS, tag);
@@ -1296,7 +1366,7 @@
         base.setAttribute('stroke', ink);
         base.setAttribute('stroke-width', f2(sw * 0.55));
         base.setAttribute('stroke-opacity', '0.55');
-        base.style.filter = `drop-shadow(0 ${f2(b.h * 0.07)}px ${f2(b.h * 0.13)}px rgba(23,18,12,0.28))`;
+        node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
         if (!dark) {
           // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
           svgEl('path', {
@@ -1326,7 +1396,7 @@
         disc.setAttribute('stroke', ink);
         disc.setAttribute('stroke-width', f2(sw * 0.4));
         disc.setAttribute('stroke-opacity', '0.18');
-        disc.style.filter = `drop-shadow(0 ${f2(R * 0.16)}px ${f2(R * 0.3)}px rgba(23,18,12,0.26))`;
+        node.extra.shadow = { el: disc, oy: R * 0.16, blur: R * 0.3, alpha: 0.26 };
         if (!dark) {
           svgEl('path', {
             d: `M${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}A${f2(R * 0.82)} ${f2(R * 0.82)} 0 0 1 ${f2(c.x + R * 0.82)} ${f2(c.y - R * 0.1)}Q${f2(c.x)} ${f2(c.y + R * 0.18)} ${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}Z`,
@@ -1355,7 +1425,7 @@
         card.setAttribute('stroke', ink);
         card.setAttribute('stroke-width', f2(sw * 0.4));
         card.setAttribute('stroke-opacity', '0.18');
-        card.style.filter = `drop-shadow(0 ${f2(b.h * 0.08)}px ${f2(b.h * 0.16)}px rgba(23,18,12,0.26))`;
+        node.extra.shadow = { el: card, oy: b.h * 0.08, blur: b.h * 0.16, alpha: 0.26 };
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         const fg = dark ? paper : ink;
         const caption = params.caption ? String(params.caption) : '';
@@ -1394,7 +1464,7 @@
         const body = chassisBody(node, g);
         const row = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z' }, body);
         row.setAttribute('fill', '#181410');
-        row.style.filter = `drop-shadow(0 ${f2(b.h * 0.1)}px ${f2(b.h * 0.2)}px rgba(23,18,12,0.3))`;
+        node.extra.shadow = { el: row, oy: b.h * 0.1, blur: b.h * 0.2, alpha: 0.3 };
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         // Icon peg: a light tile clipped into the left end of the row.
         const peg = Math.min(b.h * 0.62, b.w * 0.14);
@@ -1475,6 +1545,7 @@
       willChange: 'transform, opacity', transformOrigin: '50% 50%',
     }, beatRoot);
     wrap.className = 'em2-il-label';
+    wrap.dataset.entity = ent.id;
     const onDark = ent.glyph === 'CHIP';
     const text = el('div', {
       position: 'absolute', left: '0', right: '0', top: '50%', transform: 'translateY(-50%)',
@@ -1515,10 +1586,12 @@
         media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
         ready.push(mediaReady(media));
       }
+      if (media) media.blur = motionBlurFilter(opts.fx.defs, `${opts.fx.scope}-mb-media-${ent.id}`);
       // Ambient life starts once the body has landed; a body waiting on a later op is still a
       // living still, not a freeze-frame.
       const settledAt = ent.enter_ms + (ent.enter_duration_ms || 0);
-      ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt });
+      const blur = motionBlurFilter(opts.fx.defs, `${opts.fx.scope}-mb-${ent.id}`);
+      ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt, blur });
     }
     for (const rel of il.relations) {
       const r = { rel, ops: opsFor.get(rel.id) || [], state: rel.state_in || {}, path: null, arrow: null, bar: null, trace: null, strike: null, len: 0 };
@@ -1573,7 +1646,7 @@
       if (first && v === undefined) v = op.from;
       first = false;
       if (lt >= op.start_ms) {
-        const p = EASE[OP_EASE[op.op]](prog(lt, op.start_ms, op.end_ms));
+        const p = SPRING[OP_SPRING[op.op]](prog(lt, op.start_ms, op.end_ms));
         v = lerp(op.from, op.to, p);
         colorAccent = op.state_change;
       }
@@ -1607,27 +1680,71 @@
     return pos;
   }
 
-  function carryTransform(node, lt) {
-    const from = node.ent.carry_from_bbox;
-    if (!from) return '';
-    const k = EASE.inOutCubic(prog(lt, 0, 420));
-    if (k >= 1) return '';
-    const T = node.bb, sx = lerp(from.w / T.w, 1, k), sy = lerp(from.h / T.h, 1, k);
-    const tx = lerp(from.x - T.x, 0, k), ty = lerp(from.y - T.y, 0, k);
-    return `translate(${f2(T.x + tx)} ${f2(T.y + ty)}) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(${f2(-T.x)} ${f2(-T.y)})`;
+  // The motion-significant pose of a body at beat-local lt — carry travel, entrance spring and
+  // rise — as a pure function of time, so the same evaluator gives the body, its lagging label,
+  // the connectors tied to it, and (sampled one frame back) its motion blur.
+  //   carry: {sx, sy, dx, dy} the carry reframe about the body's own box (identity once landed)
+  //   scale: entrance spring;  ty: entrance rise;  cx/cy: live centre after carry and rise
+  function bodyPose(node, lt, motion) {
+    const ent = node.ent, T = node.bb;
+    const pop = motion.entrance === 'pop';
+    const pEnt = ent.enter_duration_ms ? prog(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms) : 1;
+    const arrive = springOf(motion, 'arrive')(pEnt);
+    const scale = lerp(pop ? 0.6 : 0.94, 1, arrive);
+    const ty = (1 - SPRING.settle(pEnt)) * T.h * (pop ? 0.1 : 0.04);
+    const carry = { sx: 1, sy: 1, dx: 0, dy: 0 };
+    const from = ent.carry_from_bbox;
+    if (from) {
+      const k = SPRING.float(prog(lt, 0, CARRY_MS));
+      if (k < 1) {
+        carry.sx = lerp(from.w / T.w, 1, k); carry.sy = lerp(from.h / T.h, 1, k);
+        carry.dx = lerp(from.x + from.w / 2 - (T.x + T.w / 2), 0, k); carry.dy = lerp(from.y + from.h / 2 - (T.y + T.h / 2), 0, k);
+      }
+    }
+    return { pEnt, scale, ty, carry, cx: T.x + T.w / 2 + carry.dx, cy: T.y + T.h / 2 + carry.dy + ty };
+  }
+
+  function carryTransform(node, carry) {
+    if (carry.sx === 1 && carry.sy === 1 && carry.dx === 0 && carry.dy === 0) return '';
+    const T = node.bb, cx = T.x + T.w / 2, cy = T.y + T.h / 2;
+    return `translate(${f2(cx + carry.dx)} ${f2(cy + carry.dy)}) scale(${carry.sx.toFixed(4)} ${carry.sy.toFixed(4)}) translate(${f2(-cx)} ${f2(-cy)})`;
   }
 
   // The label rides its body through a carry reframe: same centre path, offset scaled with the
   // body, so it never sits at the destination while the body is still travelling.
-  function carryLabelShift(node, lt) {
-    const from = node.ent.carry_from_bbox;
-    if (!from || !node.label) return { x: 0, y: 0 };
-    const k = EASE.inOutCubic(prog(lt, 0, 420));
-    if (k >= 1) return { x: 0, y: 0 };
+  function carryLabelShift(node, carry) {
+    if (!node.label) return { x: 0, y: 0 };
     const T = node.bb, cT = centre(T), L = centre(node.label.bb);
-    const sx = lerp(from.w / T.w, 1, k), sy = lerp(from.h / T.h, 1, k);
-    const cx = lerp(from.x + from.w / 2, cT.x, k), cy = lerp(from.y + from.h / 2, cT.y, k);
-    return { x: cx + (L.x - cT.x) * sx - L.x, y: cy + (L.y - cT.y) * sy - L.y };
+    return { x: carry.dx + (L.x - cT.x) * carry.sx - (L.x - cT.x), y: carry.dy + (L.y - cT.y) * carry.sy - (L.y - cT.y) };
+  }
+
+  // Motion blur of a body from the travel of its pose over the last frame; scale change reads as
+  // travel at the body's rim.
+  function bodyBlur(node, lt, ctx) {
+    const now = bodyPose(node, lt, ctx.motion), was = bodyPose(node, lt - ctx.frameMs, ctx.motion);
+    const T = node.bb;
+    const dsx = Math.abs(now.scale * now.carry.sx - was.scale * was.carry.sx) * T.w / 2;
+    const dsy = Math.abs(now.scale * now.carry.sy - was.scale * was.carry.sy) * T.h / 2;
+    return motionBlurStd(now.cx - was.cx + dsx, now.cy - was.cy + dsy, ctx.motion.motion_blur);
+  }
+
+  function retension(path, offA, offB) {
+    const a = offA || { dx: 0, dy: 0 }, b = offB || { dx: 0, dy: 0 };
+    if (!a.dx && !a.dy && !b.dx && !b.dy) return 'translate(0 0)';
+    const p0 = path[0], p1 = path[path.length - 1];
+    const vx0 = p1[0] - p0[0], vy0 = p1[1] - p0[1], len0 = Math.hypot(vx0, vy0);
+    if (len0 < 1) return `translate(${f2(a.dx)} ${f2(a.dy)})`;
+    const vx1 = vx0 + b.dx - a.dx, vy1 = vy0 + b.dy - a.dy, len1 = Math.hypot(vx1, vy1);
+    const rot = (Math.atan2(vy1, vx1) - Math.atan2(vy0, vx0)) * 180 / Math.PI;
+    return `translate(${f2(p0[0] + a.dx)} ${f2(p0[1] + a.dy)}) rotate(${rot.toFixed(3)}) scale(${(len1 / len0).toFixed(4)}) translate(${f2(-p0[0])} ${f2(-p0[1])})`;
+  }
+
+  // A shadow cast by one light over the stage: it leans away from the canvas centre and lifts
+  // with the body while it is still arriving.
+  function castShadow(sh, cx, cy, canvas, pEnt) {
+    const lean = clamp((cx - canvas.w / 2) / (canvas.w / 2), -1, 1) * 0.35;
+    const lift = 1 + 0.5 * (1 - pEnt);
+    sh.el.style.filter = `drop-shadow(${f2(sh.oy * lean)}px ${f2(sh.oy * lift)}px ${f2(sh.blur * lift)}px rgba(23,18,12,${(sh.alpha / lift).toFixed(3)}))`;
   }
 
   function applyIllustrationState(ill, lt, beat, ctx) {
@@ -1637,20 +1754,23 @@
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
       g.style.visibility = 'visible';
-      const pEnt = ent.enter_duration_ms ? prog(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms) : 1;
-      const pe = EASE.outQuint(pEnt);
+      const pose = bodyPose(node, lt, ctx.motion);
+      const pEnt = pose.pEnt;
       const dim = propAt(node, 'dim', lt).v;
       const pop = ctx.motion.entrance === 'pop';
-      // 'pop' entrance: the element springs from ~60% with an easeOutBack overshoot and a short rise —
-      // the benchmark's app-tile arrival; 'settle' is the editorial 94%→100% landing.
-      let opacity = (pop ? Math.min(1, EASE.outCubic(pEnt) * 1.6) : pe) * dim;
-      let scale = pop ? lerp(0.6, 1, EASE.emphasize(pEnt)) : lerp(0.94, 1, EASE.settle(pEnt));
-      let ty = (1 - pe) * node.bb.h * (pop ? 0.1 : 0.04);
-      // Ambient secondary motion once this entity's own program has fully run; the amplitude
-      // shrinks with the gap to the text zone so drift can never close on the copy.
+      // 'pop' entrance: the element springs from ~60% on the profile's spring with a short rise —
+      // the benchmark's app-tile arrival; 'settle' is the editorial 94%→100% landing. Opacity
+      // is never sprung: it ramps ahead of the body and cannot cross 1.
+      let opacity = (pop ? Math.min(1, EASE.outCubic(pEnt) * 1.6) : EASE.outQuint(pEnt)) * dim;
+      let scale = pose.scale;
+      let ty = pose.ty;
+      // Idle life once this entity's own program has fully run: a drift whose amplitude shrinks
+      // with the gap to the text zone so it can never close on the copy, and a breath whose
+      // amplitude is capped the same way.
       const tzA = beat.composition.text_zone;
       const gap = Math.max(tzA.x - (node.bb.x + node.bb.w), node.bb.x - (tzA.x + tzA.w), tzA.y - (node.bb.y + node.bb.h), node.bb.y - (tzA.y + tzA.h));
-      const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4));
+      const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
+      const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4), breathe);
       let tx = amb.dx; ty += amb.dy; scale *= amb.s;
 
       // SETTLE: a small confirming pulse; SWAP: the entity pops through a scale-and-clip beat into its new state.
@@ -1739,17 +1859,10 @@
           ring.setAttribute('stroke', em.accent || live ? accent : ink);
         });
       }
-      let transform = carryTransform(node, lt);
-      // 'none' (never '') keeps the declaration at a stable position in the style attribute —
-      // clearing then rewriting a decl moves it to the end, which makes the DOM differ across seek paths.
-      if (ent.carry_from_bbox) {
-        const from = ent.carry_from_bbox;
-        const blur = velocityBlur(lt, 0, 420, EASE.inOutCubic, Math.hypot(from.x - node.bb.x, from.y - node.bb.y) + Math.abs(from.w - node.bb.w));
-        g.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : 'none';
-      } else if (ent.enter_duration_ms) {
-        const blur = velocityBlur(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms, EASE.outQuint, node.bb.h * 0.4);
-        g.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : 'none';
-      }
+      let transform = carryTransform(node, pose.carry);
+      // Motion blur from the body's own travel over the last frame — directional, and 'none'
+      // (never '') when still so the decl keeps a stable position in the style attribute.
+      node.blur.apply(g.style, bodyBlur(node, lt, ctx));
       if (gl.extra.lens) {
         const p = lensPosition(node, ill, lt);
         gl.extra.lens.setAttribute('transform', `translate(${f2(p.x)} ${f2(p.y)})`);
@@ -1759,15 +1872,23 @@
       if (scale !== 1 || ty || tx || gl.extra.rotateDeg) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)})${gl.extra.rotateDeg ? ` rotate(${gl.extra.rotateDeg})` : ''} translate(${f2(-c.x)} ${f2(-c.y)})`;
       g.setAttribute('transform', transform.trim() || 'translate(0 0)');
       g.style.opacity = opacity.toFixed(4);
-      // Connectors read this: a link is only as present as the bodies it joins.
+      if (gl.extra.shadow) castShadow(gl.extra.shadow, pose.cx + tx, pose.cy, ctx.canvas, pEnt);
+      // Connectors read these: a link is only as present as the bodies it joins, and it follows
+      // them — the live offset of the body's centre from its laid-out box.
       node.presence = preEntry ? 0 : dim;
+      node.offset = { dx: pose.carry.dx + tx, dy: pose.carry.dy + ty };
       if (node.label) {
         const ls = node.label.wrap.style;
         ls.visibility = 'visible';
+        // Secondary motion: the label trails its body's arrival by the profile's lag, then rides
+        // the same carry path so it never sits at the destination while the body is travelling.
+        const lagged = ctx.motion.label_lag_ms > 0 && pEnt < 1 ? bodyPose(node, lt - ctx.motion.label_lag_ms, ctx.motion) : pose;
+        const labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1);
         // A chassis label belongs to its housing: it fades in with the DRAW, not ahead of it.
-        ls.opacity = (gl.extra.chassis ? opacity * clamp(draw, 0, 1) : opacity).toFixed(4);
-        const shift = carryLabelShift(node, lt);
-        ls.transform = `translate(${f2(shift.x)}px, ${f2(ty + shift.y)}px) scale(${scale.toFixed(4)})`;
+        ls.opacity = clamp(gl.extra.chassis ? labelOpacity * clamp(draw, 0, 1) : labelOpacity, 0, 1).toFixed(4);
+        const shift = carryLabelShift(node, pose.carry);
+        const lScale = lagged.scale * amb.s;
+        ls.transform = `translate(${f2(shift.x + tx)}px, ${f2(ty - pose.ty + lagged.ty + shift.y)}px) scale(${lScale.toFixed(4)})`;
         node.label.text.style.color = node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
       }
       if (node.media) {
@@ -1802,6 +1923,10 @@
       const endA = ill.ents.get(rel.source), endB = ill.ents.get(rel.target);
       if (endA && endB) opacity *= Math.min(endA.presence == null ? 1 : endA.presence, endB.presence == null ? 1 : endB.presence);
       s.opacity = opacity.toFixed(4);
+      // Re-tension: the link follows its bodies. A similarity transform maps the laid-out
+      // endpoints onto the bodies' live centres, so a carried or drifting body never leaves
+      // its connector behind.
+      r.g.setAttribute('transform', retension(rel.path, endA && endA.offset, endB && endB.offset));
       // Under a wipe the endpoints belong to the sweep: a dot or arrowhead shows only while
       // the traveling window covers its end of the path, and is erased with the tail.
       let head = con >= 0.985 ? 1 : 0;
@@ -1850,12 +1975,19 @@
     outer.dataset.beat = beat.beat_id;
     // Camera: every beat's picture lives inside a wrapper the film pushes/pans/dissolves as a whole.
     const root = el('div', { position: 'absolute', inset: '0', transformOrigin: '50% 50%', willChange: 'transform, opacity, filter' }, outer);
+    // Motion-blur filters for this beat's moving bodies live in one hidden <defs>, scoped by
+    // beat so ids never collide across beats.
+    const fxSvg = svgEl('svg', { width: 0, height: 0, 'aria-hidden': 'true' }, outer);
+    Object.assign(fxSvg.style, { position: 'absolute', width: '0', height: '0', overflow: 'hidden' });
+    const fx = { defs: svgEl('defs', {}, fxSvg), scope: `em2fx-b${beatIndex}` };
     const bg = buildBackground(beat, plan, root);
     const media = beat.media ? buildMedia(beat.media, plan, root, opts.assetUrl) : null;
+    if (media) media.blur = motionBlurFilter(fx.defs, `${fx.scope}-mb-media`);
     const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts.peepsUrl) : null;
     const data = beat.data ? buildData(beat.data, plan, root) : null;
-    const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, opts) : null;
-    const texts = beat.typography.blocks.map((b) => buildTextBlock(b, plan, root));
+    const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, { ...opts, fx }) : null;
+    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, root), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
     const tz = bboxOf(beat.composition.text_zone);
     const tr = beat.transition || { mode: 'SETTLE_CUT' };
     const carrierIndex = (() => {
@@ -1870,7 +2002,9 @@
 
     const ctx = {
       brand: plan.brand,
-      motion: plan.motion || DEFAULT_MOTION,
+      canvas: plan.canvas,
+      frameMs: 1000 / (plan.fps || 30),
+      motion: { ...DEFAULT_MOTION, ...(plan.motion || {}) },
       transition: tr,
       tonalInk: (plan.typography && plan.typography.tonal_ink) || 1,
       reconfigureOffset(node) {
@@ -1915,32 +2049,55 @@
       },
     };
     const ready = Promise.all([figure ? figure.ready : null, media ? mediaReady(media) : null, illustration ? illustration.ready : null]);
-    return { beat, root: outer, cam: root, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex };
+    return { beat, root: outer, cam: root, camBlur, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex };
   }
 
-  // Film-level camera and cut treatment from the plan's motion profile. `k` is the outgoing beat's
-  // progress through its transition (0 outside it); `arrive` is the incoming beat's progress through
-  // the same window while it dresses underneath. Both are pure functions of time.
-  function applyCamera(bn, lt, k, arrive, plan, preRoll) {
+  // Film-level camera. Every cut is a matched move the compiler chose from the beats on either
+  // side (transition.camera): the outgoing picture makes the move and the incoming picture
+  // arrives out of the same move, so the two halves read as one camera. `k` is the outgoing
+  // beat's progress through its transition (0 outside it); `arrival` is set on the incoming beat
+  // while it dresses underneath: the outgoing beat's camera and the window it arrives over.
+  // Plans without camera metadata fall back to the profile's transition name.
+  const DRIFT_FRAC = 0.06;
+  function cameraMoveOf(cam, m, index) {
+    if (cam) return cam;
+    return { move: m.transition === 'scale_through' ? 'push_through' : 'dissolve', dir: index % 2 === 0 ? 1 : -1, blur: 1 };
+  }
+  function applyCamera(bn, lt, k, arrival, plan, preRoll) {
     const m = bn.ctx.motion, W = plan.canvas.w;
     const dur = Math.max(1, bn.beat.duration_ms);
-    const p = clamp((lt + (preRoll || 0)) / dur, 0, 1);
-    const dir = bn.index % 2 === 0 ? 1 : -1;
-    // Slow push over the beat, panning a hair across so nothing is ever perfectly still.
-    let scale = 1 + m.camera_push * p;
-    let tx = dir * m.camera_pan_frac * W * (p - 0.5);
-    let opacity = 1, blur = 0;
-    if (m.transition === 'scale_through') {
-      if (k > 0) { scale *= lerp(1, 1.1, EASE.inCubic(k)); blur += m.blur_px * EASE.inCubic(k); opacity = 1 - EASE.inOutCubic(k); }
-      if (arrive != null) { scale *= lerp(0.92, 1, EASE.outCubic(arrive)); blur += m.blur_px * 0.5 * (1 - EASE.outCubic(arrive)); }
-    } else if (m.transition === 'blur_dissolve') {
-      if (k > 0) blur += m.blur_px * EASE.inCubic(k);
-      if (arrive != null) blur += m.blur_px * 0.4 * (1 - EASE.outCubic(arrive));
-    }
+    const cam = cameraMoveOf(arrival ? arrival.camera : (bn.beat.transition && bn.beat.transition.camera), m, bn.index);
+    const tr = bn.beat.transition;
+    // Slow push over the beat, panning a hair across so nothing is ever perfectly still, then
+    // the move itself. Pure in lt so the frame before can be sampled for blur.
+    const poseAt = (t) => {
+      const p = clamp((t + (preRoll || 0)) / dur, 0, 1);
+      let scale = 1 + m.camera_push * p;
+      let tx = cam.dir * m.camera_pan_frac * W * (p - 0.5);
+      let opacity = 1, defocus = 0;
+      const kk = k > 0 && tr ? prog(t, tr.start_ms, tr.end_ms) : 0;
+      if (kk > 0) {
+        const ko = EASE.inCubic(kk);
+        if (cam.move === 'push_through') { scale *= lerp(1, 1.1, ko); defocus += m.blur_px * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
+        else if (cam.move === 'pull_back') { scale *= lerp(1, 0.94, ko); defocus += m.blur_px * 0.6 * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
+        else if (cam.move === 'drift') { tx += -cam.dir * W * DRIFT_FRAC * EASE.inOutCubic(kk); opacity = 1 - EASE.inOutCubic(kk); }
+        else if (cam.move === 'dissolve') defocus += m.blur_px * ko * cam.blur;
+      }
+      if (arrival) {
+        const aa = clamp(t / Math.max(1, arrival.window_ms), 0, 1);
+        const ka = EASE.outCubic(aa);
+        if (cam.move === 'push_through') { scale *= lerp(0.92, 1, ka); defocus += m.blur_px * 0.5 * (1 - ka) * cam.blur; }
+        else if (cam.move === 'pull_back') { scale *= lerp(1.06, 1, ka); defocus += m.blur_px * 0.3 * (1 - ka) * cam.blur; }
+        else if (cam.move === 'drift') tx += cam.dir * W * DRIFT_FRAC * (1 - EASE.inOutCubic(aa));
+        else if (cam.move === 'dissolve') defocus += m.blur_px * 0.4 * (1 - ka) * cam.blur;
+      }
+      return { scale, tx, opacity, defocus };
+    };
+    const now = poseAt(lt), was = poseAt(lt - bn.ctx.frameMs);
     const s = bn.cam.style;
-    s.transform = `translate(${f2(tx)}px, 0px) scale(${scale.toFixed(4)})`;
-    s.opacity = opacity.toFixed(4);
-    s.filter = blur > 0.2 ? `blur(${blur.toFixed(2)}px)` : 'none';
+    s.transform = `translate(${f2(now.tx)}px, 0px) scale(${now.scale.toFixed(4)})`;
+    s.opacity = now.opacity.toFixed(4);
+    bn.camBlur.apply(s, motionBlurStd((now.tx - was.tx) + Math.abs(now.scale - was.scale) * W / 2, 0, m.motion_blur * cam.blur), now.defocus > 0.2 ? `blur(${now.defocus.toFixed(2)}px)` : '');
   }
 
   function mediaReady(m) {
@@ -2060,7 +2217,7 @@
       if (overlapIdx >= 0) {
         const nb = beats[overlapIdx];
         applyBeat(nb, lt - tr.start_ms, 1, 0);
-        applyCamera(nb, lt - tr.start_ms, 0, kOut, plan, 0);
+        applyCamera(nb, lt - tr.start_ms, 0, { camera: tr.camera || null, window_ms: tr.end_ms - tr.start_ms }, plan, 0);
       }
       const dt = performance.now() - t1;
       perf.frames += 1;
