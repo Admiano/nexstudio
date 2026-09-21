@@ -1541,21 +1541,23 @@
         // The product-collage atom: a glossy rounded-square app tile carrying a registry icon.
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.24;
+        const shape = roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z';
         const body = chassisBody(node, g);
-        const base = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
-        base.setAttribute('fill', dark ? housing.dark : housing.light);
-        base.setAttribute('stroke', ink);
-        base.setAttribute('stroke-width', f2(sw * 0.55));
-        base.setAttribute('stroke-opacity', '0.55');
+        // One geometry for fill, gloss and rim: the gloss is clipped to the body and the rim is
+        // stroked last, so the outline is one continuous weight around every corner.
+        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : housing.light }, body);
         node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
         if (!dark) {
           // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
+          const clipId = `em2gloss-${ent.id}-${++iconInstance}`.replace(/[^a-z0-9-]/gi, '');
+          svgEl('path', { d: shape }, svgEl('clipPath', { id: clipId }, svgEl('defs', {}, body)));
           svgEl('path', {
-            d: `M${f2(b.x + sw / 2)} ${f2(b.y + r + sw / 2)}Q${f2(b.x + sw / 2)} ${f2(b.y + sw / 2)} ${f2(b.x + r + sw / 2)} ${f2(b.y + sw / 2)}L${f2(b.x + b.w - r - sw / 2)} ${f2(b.y + sw / 2)}Q${f2(b.x + b.w - sw / 2)} ${f2(b.y + sw / 2)} ${f2(b.x + b.w - sw / 2)} ${f2(b.y + r + sw / 2)}L${f2(b.x + b.w - sw / 2)} ${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x + sw / 2)} ${f2(b.y + b.h * 0.46)}Z`,
-            fill: '#ffffff', 'fill-opacity': 0.5,
+            d: `M${f2(b.x)} ${f2(b.y)}H${f2(b.x + b.w)}V${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x)} ${f2(b.y + b.h * 0.46)}Z`,
+            fill: '#ffffff', 'fill-opacity': 0.5, 'clip-path': `url(#${clipId})`,
           }, body);
         }
-        node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
+        svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.55), 'stroke-opacity': 0.55 }, body);
+        node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
         const word = params.word ? String(params.word) : '';
         const fg = dark ? paper : ink;
         if (ent.asset) {
