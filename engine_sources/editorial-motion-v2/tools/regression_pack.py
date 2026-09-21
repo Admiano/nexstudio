@@ -68,7 +68,7 @@ def measure_frames(frames_dir: Path, fps: int):
     from PIL import Image
     import numpy as np
 
-    files = sorted(frames_dir.glob('f*.png'))
+    files = sorted(f for f in frames_dir.glob('f*.*') if f.suffix in ('.jpg', '.png'))
     prev, stds, diffs = None, [], []
     for f in files:
         a = np.asarray(Image.open(f).convert('L').resize((160, 90)), dtype=np.float32)

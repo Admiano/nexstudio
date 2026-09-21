@@ -6,11 +6,12 @@ description: How to end-to-end test the editorial-motion v2 engine (compile→re
 # Testing editorial-motion v2 (engine_sources/editorial-motion-v2)
 
 ## E2E entry point
-`python3 tools/regression_pack.py --fixture <name> --aspects 16x9 --out out/e2e` compiles the treatment, renders real frames + mp4 via `tools/render_reel.js` over CDP, mixes audio, and gates pixel health (blank/frozen/page-errors/music/captions/native-profile). Fixtures = `fixtures/<name>/treatment.json`; aspect plans land in `<out>/<fixture>/plan_<aspect>.json`, frames in `frames_<aspect>/fNNNNN.png`, mixed track in `audio_<aspect>.wav`, render manifest in `render_<aspect>.json`.
+`python3 tools/regression_pack.py --fixture <name> --aspects 16x9 --out out/e2e` compiles the treatment, renders real frames + mp4 via `tools/render_reel.js` (frame range sharded across headless Chrome workers), mixes audio, and gates pixel health (blank/frozen/page-errors/music/captions/native-profile). Fixtures = `fixtures/<name>/treatment.json`; aspect plans land in `<out>/<fixture>/plan_<aspect>.json`, frames in `frames_<aspect>/fNNNNN.jpg` (q100; `--frame-format png` for lossless), mixed track in `audio_<aspect>.wav`, render manifest in `render_<aspect>.json`.
 
 ## Environment
 - node is NOT on PATH by default: `export PATH=$HOME/.nvm/versions/node/v24.19.0/bin:$PATH`.
-- Chrome runs with CDP at http://localhost:29229; render_reel.js and tools/test_runtime.js attach to it (or set CHROME_PATH to launch headless instead). Don't run two CDP consumers at once — the render needs foreground (`page.bringToFront`).
+- Chrome runs with CDP at http://localhost:29229; tools/test_runtime.js attaches to it. render_reel.js prefers a Chrome binary (`--chrome`, `CHROME_PATH`, or `google-chrome` on PATH) and launches N isolated headless workers (`--workers`, default min(8, cores)); only without a binary does it fall back to the CDP browser with one foreground worker. Don't run two CDP consumers at once — a CDP render needs foreground (`page.bringToFront`).
+- render_reel.js writes `<film>_<aspect>.mp4` (CRF 20 master) and `<film>_<aspect>_web.mp4` (CRF 23 playback; `--web-crf 0` to skip); `render_<aspect>.json` carries `render.{capture_s,encode_s,total_s,workers}` and `mp4_bytes` for benchmarking.
 - python3 has numpy+PIL+pytest; ffmpeg/ffprobe on PATH. Sound accents only bind if a sound library resolves — `compiler/../sound-library/` or `engines/sound/NexStudio_Sound_Library_V2_Production` under the repo root, or `NEXSTUDIO_SOUND_LIBRARY_ROOT`. Without it plans get `SOUND_LIBRARY_MISSING` and zero accents.
 
 ## Compiled-plan layout (needed to write probes)
