@@ -875,6 +875,19 @@ def test_ladder_reads_a_label_by_its_head_noun(finder):
     assert f.resolve('fish', 'emoji.fluent', True, True).asset_ref != 'emoji.fluent.fish-cake-with-swirl'
 
 
+def test_a_known_compound_falls_to_its_head_only_when_it_is_a_kind_of_it(finder):
+    f, _ = finder
+    lx = f.lexicon
+    assert lx.heads_as('coffee bean', 'bean') and lx.heads_as('red wine', 'wine') and lx.heads_as('fire truck', 'truck')
+    assert not lx.heads_as('hot dog', 'dog') and not lx.heads_as('sea horse', 'horse') and not lx.heads_as('guinea pig', 'pig')
+    # 'coffee bean' climbs to seed, which no emoji pack draws: the bean mark carries the compound's name.
+    cb = f.resolve('coffee bean', 'emoji.noto', True, True)
+    assert cb.via == 'composite' and cb.asset_ref == 'emoji.noto.beans' and cb.word == 'coffee bean' and cb.path[:2] == ['coffee bean', 'bean']
+    assert f.resolve('coffee bean', 'emoji.noto', True, True, named=True).word is None
+    # 'sea horse' is a fish: no horse mark, and nothing else drawn, so it is typeset.
+    assert f.resolve('sea horse', 'emoji.noto', True, True).asset_ref != 'emoji.noto.horse'
+
+
 def test_ladder_stays_inside_the_film_colour_pack(finder):
     f, reg = finder
     for c in ('camera', 'invoice', 'almond', 'truck'):
@@ -898,13 +911,35 @@ def test_concept_ladder_fixture_resolves_every_rung_identically_in_every_aspect(
             assert (e.get('asset') or {}).get('id') == r['asset_ref']
             if r['via'] in ('composite', 'typographic', 'numeric'):
                 assert e['params']['word'] == r['word']
+            elif r['via'] == 'photo':
+                # A photograph is evidence of the concept itself: rights-clean, hashed, and named
+                # unless the housing already carries the name.
+                ph = e['photo']
+                assert ph['license'] in ('CC0 1.0', 'Public Domain') and len(ph['sha256']) == 64
+                assert Path(ph['path']).exists() and ph['landing_url'].startswith('http')
+                assert e['params'].get('word') == r['word']
+                assert (r['word'] is None) == bool(e['glyph'] == 'BADGE' or (e['glyph'] == 'CHIP' and e.get('label'))
+                                                   or e['params'].get('descriptor') == 'photo_fills')
             else:
                 assert 'word' not in e['params']
+            assert (e.get('photo') is not None) == (r['via'] == 'photo')
             if r['via'] == 'numeric':
                 assert e['params']['word_kind'] == 'numeric'
-        assert {v[0] for v in rungs.values()} >= {'exact', 'synonym', 'hypernym', 'composite', 'typographic', 'numeric'}, rungs
+            assert 'descriptor_fit' not in e['params']
+            rungs[e['id']] += (e['params'].get('descriptor'),)
+        assert {v[0] for v in rungs.values()} >= {'exact', 'synonym', 'photo', 'hypernym', 'typographic', 'numeric'}, rungs
         per_aspect.append(rungs)
     assert all(r == per_aspect[0] for r in per_aspect)
+    # A descriptor short of the label floor in a small well is settled once for the film: the
+    # photograph fills the tile alone, an ancestor's mark gives way to the name.
+    settled = {k: v[4] for k, v in per_aspect[0].items() if v[4]}
+    assert settled, per_aspect[0]
+    for k, how in settled.items():
+        via, asset_ref, word = per_aspect[0][k][:3]
+        if how == 'photo_fills':
+            assert via == 'photo' and word is None
+        else:
+            assert how == 'word_alone' and via == 'typographic' and asset_ref is None and word
 
 
 def test_concept_contract_needs_a_housing_and_refuses_an_unresolvable_icon(tmp_path):

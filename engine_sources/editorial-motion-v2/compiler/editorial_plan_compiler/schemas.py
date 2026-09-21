@@ -247,10 +247,14 @@ def plan_schema() -> Dict[str, Any]:
     ent_media = _obj({'asset_id': _str(), 'kind': _enum(c.MEDIA_KINDS), 'path': _str(), 'sha256': {'anyOf': [SHA, {'type': 'null'}]}, 'source_size': {'type': 'object'},
                       'rights': _str(), 'audio': {'const': 'MUTE'}, 'trim': {}, 'chassis': _enum(c.CHASSIS), 'tilt': {'type': 'number'}},
                      ['asset_id', 'kind', 'path', 'rights', 'audio', 'chassis', 'tilt'])
+    ent_photo = _obj({'path': _str(), 'sha256': SHA, 'source_size': {'type': 'object'}, 'rights': _str(), 'license': _enum(('CC0 1.0', 'Public Domain')),
+                      'license_url': _str(), 'source': _str(), 'source_id': _str(), 'landing_url': _str(), 'title': _str(), 'creator': _str()},
+                     ['path', 'sha256', 'source_size', 'rights', 'license', 'source', 'landing_url'])
     state_in = _obj({k: {'type': 'number'} for k in ('draw', 'fill', 'ink', 'dim', 'grow', 'strike', 'swap', 'count', 'emit', 'connect')} | {'at': _str()}, [], additionalProperties=False)
     entity = _obj({
         'id': _str(), 'kind': _enum(c.ENTITY_KINDS), 'glyph': _enum(c.GLYPHS), 'size': _enum(c.ENTITY_SIZES), 'bbox': BOX, 'params': {'type': 'object'},
         'label': {'anyOf': [label, {'type': 'null'}]}, 'asset': {'anyOf': [asset, {'type': 'null'}]}, 'media': {'anyOf': [ent_media, {'type': 'null'}]},
+        'photo': {'anyOf': [ent_photo, {'type': 'null'}]},
         'inside': _str(), 'over': _str(), 'enter_ms': MS, 'enter_duration_ms': MS, 'carried': {'type': 'boolean'}, 'carry_from_bbox': {'anyOf': [BOX, {'type': 'null'}]},
         'state_in': state_in,
     }, ['id', 'kind', 'glyph', 'size', 'bbox', 'params', 'enter_ms', 'enter_duration_ms', 'carried', 'state_in'])

@@ -30,7 +30,7 @@ const FIXTURES = [
   { name: 'concept-ladder', treatment: '../fixtures/concept-ladder/treatment.json', out: path.join(ROOT, 'out', 'concept-ladder') },
   { name: 'promo-collage-dark', treatment: '../fixtures/promo-collage-dark/treatment.json', out: path.join(ROOT, 'out', 'promo-collage-dark') },
 ];
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 
 function compilerMtime() {
   const dir = path.join(ROOT, 'compiler', 'editorial_plan_compiler');
@@ -326,11 +326,19 @@ async function runFixture(fx, base, browser) {
         for (const e of ents) {
           const res = e.params.resolution;
           const g = beatNode.querySelector(`[data-entity="${e.id}"]`);
-          const rec = { beat: b.beat_id, id: e.id, via: res.via, shown: false, mark: false, word: null, kind: null, inBox: true, family: null, tabular: false, drift: false };
+          const rec = { beat: b.beat_id, id: e.id, via: res.via, shown: false, mark: false, photo: false, word: null, kind: null, inBox: true, family: null, tabular: false, drift: false };
           if (!g) { out.concepts.push(rec); continue; }
           rec.shown = g.style.visibility !== 'hidden' && Number(g.style.opacity) > 0.5;
           const host = g.querySelector('[data-icon-host]');
-          rec.mark = Boolean(host && host.querySelector('path,circle,rect,polygon,ellipse,polyline,line'));
+          const img = host && host.querySelector('image');
+          rec.photo = Boolean(img && img.getAttribute('href') && host.hasAttribute('data-photo'));
+          if (img) {
+            // The photograph sits inside its housing's well (the well is set on the host by the chassis).
+            const body = g.querySelector('[data-draw="body"]');
+            const bb = body.getBoundingClientRect(), ib = img.getBoundingClientRect();
+            if (ib.left < bb.left - 1 || ib.top < bb.top - 1 || ib.right > bb.right + 1 || ib.bottom > bb.bottom + 1) rec.inBox = false;
+          }
+          rec.mark = !img && Boolean(host && host.querySelector('path,circle,rect,polygon,ellipse,polyline,line'));
           const wg = g.querySelector('[data-word]');
           if (wg) {
             rec.kind = wg.dataset.word;
@@ -718,14 +726,15 @@ async function runFixture(fx, base, browser) {
         ? Boolean(c.word) && c.inBox
         : true;
       const markOk = ['exact', 'synonym', 'hypernym', 'composite'].includes(c.via) ? c.mark : !c.mark;
-      const wordText = c.via === 'typographic' || c.via === 'composite' ? String(c.word || '').toLowerCase() : null;
       const resolved = plan.beats.find((b) => b.beat_id === c.beat).illustration.entities.find((e) => e.id === c.id);
       const wantWord = resolved.params.word ? String(resolved.params.word).toLowerCase() : null;
+      const photoOk = c.via === 'photo' ? c.photo && Boolean(resolved.photo) && (wantWord === null || Boolean(c.word)) : !c.photo;
+      const wordText = c.via === 'typographic' || c.via === 'composite' || (c.via === 'photo' && wantWord !== null) ? String(c.word || '').toLowerCase() : null;
       const initials = wantWord ? wantWord.split(/[\s-]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('') : null;
       const textOk = wordText === null || wordText === wantWord || (c.kind === 'monogram' && wordText === initials) || (resolved.glyph === 'CHIP' && wordText === initials);
       const numOk = c.via !== 'numeric' || (c.kind === 'numeric' && c.tabular && c.family === plan.fonts.families.data && c.word === resolved.params.word);
-      check(`concept ${c.beat}/${c.id} (${c.via}): shown, ${markOk ? 'mark as resolved' : 'mark mismatch'}, word in box, no asset drift`,
-        c.shown && markOk && wordOk && textOk && numOk && !c.drift, JSON.stringify(c));
+      check(`concept ${c.beat}/${c.id} (${c.via}): shown, ${markOk ? 'mark as resolved' : 'mark mismatch'}, ${photoOk ? 'photo as resolved' : 'photo mismatch'}, word in box, no asset drift`,
+        c.shown && markOk && photoOk && wordOk && textOk && numOk && !c.drift, JSON.stringify(c));
     }
     for (const c of r.chassis) check(`chassis ${c.beat}/${c.id}: ${c.wanted} slab, content inside screen, never empty, tilt held, live`,
       c.chassis === c.wanted && c.slab && c.screen && c.contentIn && c.neverEmpty && c.live && c.tilt && c.samples > 3, JSON.stringify(c));

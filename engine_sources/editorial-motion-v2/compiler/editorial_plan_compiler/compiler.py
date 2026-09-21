@@ -23,7 +23,8 @@ from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere
 from .figures import resolve_figure
 from .groove import fit_phase, groove_stagger
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
-from .lexicon import AssetFinder, NounLexicon
+from .evidence import PhotoEvidence
+from .lexicon import AssetFinder, NounLexicon, Resolution
 from .media import NormalisedMedia, normalise_media
 from .motion import camera_move, transition_window_ms
 from .sound import MIX, SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
@@ -74,6 +75,8 @@ BACKGROUND_RENDER = {'SOFT_FIELD': 'SOFT_FIELD', 'GRID_FIELD': 'GRID_FIELD', 'SP
 MAX_LINES = {'support': 2, 'label': 1}
 HERO_SUPPORT_MIN_RATIO = 1.65
 DESCENDER_EM = 0.24       # how far a line's descenders hang below its line box (Black sans)
+# Ladder rungs a photograph of the concept outranks: anything that stops naming the thing itself.
+PHOTO_BELOW = ('hypernym', 'composite', 'typographic')
 
 
 def _sha_file(p: Path) -> str:
@@ -852,13 +855,48 @@ def _film_pack(film: FilmTreatment, registry: IllustrationRegistry) -> Optional[
     return max(sorted(tally), key=lambda k: tally[k]) if tally else None
 
 
-def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> None:
+def settle_descriptors(plans: Dict[str, Any]) -> None:
+    """A tile drawn by a mark or photograph over the concept's own name owes that name the label
+    floor. The solver records per aspect whether the well leaves room for it; a name that is short
+    of the floor in any aspect is settled once for all of them, so the film keeps one answer: a
+    photograph fills the well alone (it *is* the concept), while an ancestor's mark gives way to
+    the name set as the mark (a mark the viewer cannot read back is worth less than the word).
+    The recorded resolution follows, so the audit says what is drawn."""
+    short = set()
+    for plan in plans.values():
+        for bt in plan['beats']:
+            for e in ((bt.get('illustration') or {}).get('entities') or []):
+                if e['params'].get('descriptor_fit') is False:
+                    short.add((bt['beat_id'], e['id']))
+    for plan in plans.values():
+        for bt in plan['beats']:
+            for e in ((bt.get('illustration') or {}).get('entities') or []):
+                if 'descriptor_fit' not in e['params']:
+                    continue
+                e['params'].pop('descriptor_fit')
+                if (bt['beat_id'], e['id']) not in short:
+                    continue
+                res = dict(e['params'].get('resolution') or {})
+                if e.get('photo'):
+                    e['params'].pop('word', None)
+                    e['params'].pop('word_kind', None)
+                    e['params']['descriptor'] = 'photo_fills'
+                    res['word'] = None
+                else:
+                    e['asset'] = None
+                    e['params']['descriptor'] = 'word_alone'
+                    res.update(via='typographic', asset_ref=None, path=[])
+                e['params']['resolution'] = res
+
+
+def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> List[str]:
     """Turn every entity `concept` into an asset_ref and/or a typeset word before any aspect is
     solved, so all aspects draw the same answer. The ladder is pinned to the film's colour pack:
-    authored marks set it, otherwise the first pass's most common pack does."""
+    authored marks set it, otherwise the first pass's most common pack does. Returns film-level
+    warnings (a photo catalogue that would not answer, so a lower rung stood in)."""
     todo = [(b, e) for b in film.beats if b.illustration for e in b.illustration.entities if e.concept and not e.asset_ref]
     if not todo:
-        return
+        return []
     finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
     pack = _film_pack(film, registry)
     if pack is None:
@@ -873,9 +911,25 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> No
     # With a colour pack in play a flat mono icon among colour art is the mix the film forbids,
     # so the ladder only offers native marks and otherwise typesets.
     native_only = pack is not None
+    evidence = PhotoEvidence(lexicon=finder.lexicon)
     for b, e in todo:
         named = e.glyph == 'CHIP' and e.label is not None
         r = finder.resolve(e.concept, pack, e.glyph in WORD_GLYPHS, native_only, named)
+        if r.via in PHOTO_BELOW and e.glyph in WORD_GLYPHS:
+            # No mark names the concept itself: a rights-clean photograph of it, set in the housing's
+            # well, beats an ancestor's mark or the bare word. The name still rides with it unless
+            # the housing already carries it.
+            rec = evidence.find(e.concept)
+            if rec is not None:
+                word = None if (named or e.glyph == 'BADGE') else e.concept
+                r = Resolution(e.concept, 'photo', asset_ref=None, word=word, path=[e.concept, rec.title])
+                e.params['photo'] = evidence.as_plan(rec)
+        if e.glyph == 'CHIP' and not named and r.via in ('composite', 'photo'):
+            # A chip's peg holds the mark or photograph and its inside label the name: an unlabelled
+            # chip drawn by an ancestor or a photograph takes its concept as that label, so the
+            # descriptor is typeset through the label fit rather than squeezed into the peg.
+            e.label = e.concept
+            r = replace(r, via='hypernym' if r.via == 'composite' else r.via, word=None)
         if r.via == 'composite' and e.glyph == 'BADGE':
             # A disc is too small for a mark and a word: it takes its own name (or monogram)
             # rather than an ancestor's mark the viewer cannot read back to the concept.
@@ -888,6 +942,7 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> No
             e.params['word'] = r.word
             e.params['word_kind'] = 'numeric' if r.via == 'numeric' else 'name'
         e.params['resolution'] = r.as_dict()
+    return [f'EVIDENCE_UNAVAILABLE:{u}' for u in evidence.unavailable]
 
 
 def _asset_pack_mix(film: FilmTreatment, registry: IllustrationRegistry) -> List[str]:
@@ -1060,9 +1115,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     lib = SoundLibrary(root) if root else None
     plans: Dict[str, Any] = {}
     registry = IllustrationRegistry()
-    _resolve_concepts(film, registry)
+    film_warnings: List[str] = _resolve_concepts(film, registry)
     film_failures: List[str] = _asset_pack_mix(film, registry)
-    film_warnings: List[str] = []
     atmosphere = film_atmosphere(asdict(film.brand))
     film_failures += brand_failures(atmosphere)
     # The bed is chosen before any beat is laid out: its tempo sets the landing-wave stagger, and once
@@ -1122,6 +1176,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
                                  for m in film.media_library.values() for nm in [normalised[m.asset_id]]],
             },
         }
+    settle_descriptors(plans)
     gate = {'status': 'FAIL' if film_failures else 'PASS', 'failures': film_failures, 'warnings': sorted(set(film_warnings)), 'duration_ms': total_ms,
             'aspects': list(plans), 'voice_source': voice_source, 'beats': len(film.beats)}
     return {'plans': plans, 'gate': gate, 'voice': [asdict(s) for s in segments]}

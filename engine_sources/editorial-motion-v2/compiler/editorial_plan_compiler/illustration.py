@@ -639,6 +639,9 @@ class IllustrationSolver:
 
     def _entity_plan(self, e: IllustrationEntity, bbox: Dict[str, float], label_box: Optional[Dict[str, float]], failures: List[str], beat_id: str) -> Dict[str, Any]:
         plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'bbox': bbox, 'art_bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
+        plan['photo'] = plan['params'].pop('photo', None)
+        if e.glyph == 'TILE' and plan['params'].get('word') and (plan['photo'] or e.asset_ref):
+            plan['params']['descriptor_fit'] = self._descriptor_fits(plan, bbox)
         if e.glyph in ('ICON', 'TILE', 'CHIP', 'BADGE') and e.asset_ref:
             plan['asset'] = self.registry.resolve(e.asset_ref, beat_id)
             if e.glyph == 'ICON':
@@ -676,6 +679,33 @@ class IllustrationSolver:
             if cap_px < FLOOR_FRACTION['label'] * min(self.canvas) - 0.5:
                 failures.append(f'COUNTER_CAPTION_FLOOR_BREACH:{e.id}')
         return plan
+
+    def _descriptor_fits(self, plan: Dict[str, Any], bbox: Dict[str, float]) -> bool:
+        """Whether a tile carrying a mark or photograph over the concept's own name can give that
+        name the label floor in the well this aspect leaves it (the runtime's band and display
+        face, one or two lines). The verdict is recorded on the entity; the film settles it once
+        across aspects (see compiler.settle_descriptors) so every aspect draws the same answer."""
+        w, h = float(bbox['w']), float(bbox['h'])
+        if plan['photo']:
+            pad = w * 0.11
+            band_w, band_h = w - pad * 2.4, h - pad * 1.9 - h * 0.59
+        else:
+            pad = w * 0.17
+            band_w, band_h = w - pad * 1.2, h - pad * 1.5 - h * 0.53
+        floor = FLOOR_FRACTION['label'] * min(self.canvas)
+        face, track = _face('hero', 'Bold'), -0.015
+        word = str(plan['params']['word'])
+        for lines in (1, 2):
+            fs = min(band_h * 0.5, (band_h / lines) / 1.12)
+            if fs < floor:
+                continue
+            if lines == 1 and measure(word, face, fs, track) <= band_w:
+                return True
+            toks = word.split(' ')
+            if lines == 2 and any(max(measure(' '.join(toks[:i]), face, fs, track),
+                                      measure(' '.join(toks[i:]), face, fs, track)) <= band_w for i in range(1, len(toks))):
+                return True
+        return False
 
     # ------------------------------------------------------------------ relations
     @staticmethod

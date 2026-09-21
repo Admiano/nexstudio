@@ -51,7 +51,7 @@
    "beat_type": "EXPLANATION",
    "pattern": "SEQUENTIAL_SUPPORT_LIST",
    "dominant_layer": "ILLUSTRATION",
-   "narration": "Twelve percent more, an invoice, some savings, and a badge for the sugar.",
+   "narration": "Twelve percent more, an invoice, some savings, a sourdough, and a badge for the sugar.",
    "energy": 0.6,
    "complexity": 0.62,
    "display_units": [
@@ -62,15 +62,21 @@
     "form": "OBJECT_STAGE",
     "entities": [
      {"id": "stat", "kind": "state", "glyph": "TILE", "size": "hero", "concept": "12%"},
+     {"id": "rev", "kind": "object", "glyph": "TILE", "size": "hero", "concept": "revenue"},
      {"id": "row1", "kind": "object", "glyph": "CHIP", "size": "support", "label": "invoice", "concept": "invoice"},
      {"id": "row2", "kind": "object", "glyph": "CHIP", "size": "support", "label": "savings", "concept": "savings"},
+     {"id": "row3", "kind": "object", "glyph": "CHIP", "size": "support", "concept": "dividend"},
+     {"id": "row4", "kind": "object", "glyph": "CHIP", "size": "support", "concept": "sourdough"},
      {"id": "b1", "kind": "object", "glyph": "BADGE", "size": "minor", "concept": "sugar"}
     ],
     "relations": [],
     "program": [
      {"op": "DRAW", "target": "stat", "at": {"word": "Twelve"}, "duration_ms": 520},
+     {"op": "DRAW", "target": "rev", "at": {"word": "more,"}, "duration_ms": 460},
      {"op": "DRAW", "target": "row1", "at": {"word": "invoice,"}, "duration_ms": 400},
      {"op": "DRAW", "target": "row2", "at": {"word": "savings,"}, "duration_ms": 400},
+     {"op": "DRAW", "target": "row3", "at": {"word": "a"}, "duration_ms": 400},
+     {"op": "DRAW", "target": "row4", "at": {"word": "sourdough,"}, "duration_ms": 400},
      {"op": "DRAW", "target": "b1", "at": {"word": "badge"}, "duration_ms": 400}
     ]
    }
