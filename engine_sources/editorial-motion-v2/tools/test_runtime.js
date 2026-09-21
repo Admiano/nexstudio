@@ -27,6 +27,7 @@ const FIXTURES = [
   { name: 'promo-collage', treatment: '../fixtures/promo-collage/treatment.json', out: path.join(ROOT, 'out', 'promo-collage') },
   { name: 'honey-nut-collage', treatment: '../fixtures/honey-nut-collage/treatment.json', out: path.join(ROOT, 'out', 'honey-nut-collage') },
   { name: 'media-matrix', treatment: '../fixtures/media-matrix/treatment.json', out: path.join(ROOT, 'out', 'media-matrix') },
+  { name: 'concept-ladder', treatment: '../fixtures/concept-ladder/treatment.json', out: path.join(ROOT, 'out', 'concept-ladder') },
 ];
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 
@@ -299,6 +300,41 @@ async function runFixture(fx, base, browser) {
           rec.live = node.readyState >= 2 && Math.abs(node.currentTime - expected) < 0.1;
         }
         out.chassis.push(rec);
+      }
+
+      // Concept ladder: every housing whose concept the compiler resolved shows, in its hold, exactly
+      // what the resolution says — a mark (exact/synonym/hypernym), a mark over the concept's own
+      // name (composite), the name alone (typographic) or the figure in tabular data type
+      // (numeric). Nothing is a bare housing and no word is set outside its box.
+      out.concepts = [];
+      for (const b of plan.beats) {
+        const ents = (b.illustration ? b.illustration.entities : []).filter((e) => e.params && e.params.resolution);
+        if (!ents.length) continue;
+        await film.seek(b.start_ms + b.illustration.settled_ms + 40);
+        const beatNode = stage.children[plan.beats.indexOf(b)];
+        for (const e of ents) {
+          const res = e.params.resolution;
+          const g = beatNode.querySelector(`[data-entity="${e.id}"]`);
+          const rec = { beat: b.beat_id, id: e.id, via: res.via, shown: false, mark: false, word: null, kind: null, inBox: true, family: null, tabular: false, drift: false };
+          if (!g) { out.concepts.push(rec); continue; }
+          rec.shown = g.style.visibility !== 'hidden' && Number(g.style.opacity) > 0.5;
+          const host = g.querySelector('[data-icon-host]');
+          rec.mark = Boolean(host && host.querySelector('path,circle,rect,polygon,ellipse,polyline,line'));
+          const wg = g.querySelector('[data-word]');
+          if (wg) {
+            rec.kind = wg.dataset.word;
+            rec.word = Array.from(wg.querySelectorAll('text')).map((t) => t.textContent).join(' ');
+            const first = wg.querySelector('text');
+            rec.family = first.getAttribute('font-family');
+            rec.tabular = first.getAttribute('font-variant-numeric') === 'tabular-nums';
+            const body = g.querySelector('[data-draw="body"]');
+            const bb = body.getBoundingClientRect(), wb = wg.getBoundingClientRect();
+            if (wb.left < bb.left - 1 || wb.top < bb.top - 1 || wb.right > bb.right + 1 || wb.bottom > bb.bottom + 1) rec.inBox = false;
+          }
+          // The film's asset never drifts off the resolved one, and the resolved one is what the plan names.
+          rec.drift = (e.asset ? e.asset.id : null) !== (res.asset_ref || null);
+          out.concepts.push(rec);
+        }
       }
 
       // Still figure: composed from the compiled parts only, visible in its hold, never animated after entry.
@@ -615,6 +651,20 @@ async function runFixture(fx, base, browser) {
     for (const h of r.holds) check(`hold ${h.beat}: ${h.visible}/${h.expected} blocks, inside, no collision`, h.visible === h.expected && h.inside && !h.collide, JSON.stringify(h));
     if (r.replace) check('phrase replacement A -> B', r.replace.before && r.replace.after, JSON.stringify(r.replace));
     for (const m of r.media) check(`media ${m.beat}: hidden before landing, shown after, loaded, trim`, m.hiddenBefore && m.shown && m.loaded && m.videoOk, JSON.stringify(m));
+    for (const c of r.concepts) {
+      const wordOk = c.via === 'composite' || c.via === 'typographic' || c.via === 'numeric'
+        ? Boolean(c.word) && c.inBox
+        : true;
+      const markOk = ['exact', 'synonym', 'hypernym', 'composite'].includes(c.via) ? c.mark : !c.mark;
+      const wordText = c.via === 'typographic' || c.via === 'composite' ? String(c.word || '').toLowerCase() : null;
+      const resolved = plan.beats.find((b) => b.beat_id === c.beat).illustration.entities.find((e) => e.id === c.id);
+      const wantWord = resolved.params.word ? String(resolved.params.word).toLowerCase() : null;
+      const initials = wantWord ? wantWord.split(/[\s-]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('') : null;
+      const textOk = wordText === null || wordText === wantWord || (c.kind === 'monogram' && wordText === initials) || (resolved.glyph === 'CHIP' && wordText === initials);
+      const numOk = c.via !== 'numeric' || (c.kind === 'numeric' && c.tabular && c.family === plan.fonts.families.data && c.word === resolved.params.word);
+      check(`concept ${c.beat}/${c.id} (${c.via}): shown, ${markOk ? 'mark as resolved' : 'mark mismatch'}, word in box, no asset drift`,
+        c.shown && markOk && wordOk && textOk && numOk && !c.drift, JSON.stringify(c));
+    }
     for (const c of r.chassis) check(`chassis ${c.beat}/${c.id}: ${c.wanted} slab, content inside screen, never empty, tilt held, live`,
       c.chassis === c.wanted && c.slab && c.screen && c.contentIn && c.neverEmpty && c.live && c.tilt && c.samples > 3, JSON.stringify(c));
     if (r.figure) check('still figure composed from body/head/face parts', r.figure.slots.join(',') === 'body,head,face' && r.figure.paths > 3 && r.figure.stillDuringHold && r.figure.visible, JSON.stringify(r.figure));

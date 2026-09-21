@@ -750,3 +750,158 @@ def test_flanking_chips_shed_tags_before_a_tall_hero_gives_up_its_column(matrix_
             assert ents['c1']['label']['fit']['status'] == 'FIT'
     assert kept['16x9'] and kept['9x16'], kept
     assert not kept['1x1'], kept
+
+
+# ---------------------------------------------------------------- item 4: semantic concept ladder, asset preflight
+
+from editorial_plan_compiler.illustration import IllustrationRegistry, TreatmentError as _IllTreatmentError  # noqa: E402
+from editorial_plan_compiler.lexicon import ABSTRACT, AssetFinder, NounLexicon  # noqa: E402
+
+LADDER = ROOT / 'fixtures' / 'concept-ladder' / 'treatment.json'
+PACK = 'icon.icon-park-color'
+
+
+@pytest.fixture(scope='module')
+def finder():
+    reg = IllustrationRegistry()
+    return AssetFinder(reg.items, NounLexicon(), reg.quarantined), reg
+
+
+@pytest.fixture(scope='module')
+def ladder_plans(tmp_path_factory):
+    return compile_film(json.loads(LADDER.read_text()), tmp_path_factory.mktemp('ladder'), base_dir=LADDER.parent)
+
+
+def _ladder_entities(p):
+    for b in p['beats']:
+        for e in (b['illustration']['entities'] if b.get('illustration') else []):
+            if e.get('params', {}).get('resolution'):
+                yield b, e
+
+
+def test_lexicon_is_vendored_with_provenance_and_walks_meaning_not_spelling():
+    info = json.loads((ROOT / 'assets' / 'community' / 'lexicon' / 'info.json').read_text())
+    assert info['license'] == 'WordNet 3.0 License' and info['synsets'] > 80000 and len(info['sha256']) == 64
+    lx = NounLexicon()
+    assert lx.lemma('almonds') == 'almond'
+    assert 'nut' in {l for lv in lx.hypernym_levels('almond') for l in lv}
+    assert 'bike' in lx.synonyms('bicycle')
+    # Abstract ancestors end a walk instead of answering for it.
+    assert not any(l in ABSTRACT for lv in lx.hypernym_levels('almond') for l in lv)
+    # Only the senses the corpus actually uses are walked: 'sugar' never becomes money, then bread.
+    assert 'bread' not in {l for lv in lx.hypernym_levels('sugar') for l in lv}
+    assert 'word' not in {l for lv in lx.hypernym_levels('loan') for l in lv}
+    # A stand-in word must mean the concept when read on its own: 'bike' does, 'word' (password) does not.
+    assert 'word' not in lx.synonyms('password') and 'bill' in lx.synonyms('invoice')
+    # Untagged lemmas walk their thing-naming sense first: a wrench is a tool before it is an injury.
+    assert 'spanner' in lx.synonyms('wrench') and 'harm' not in {l for lv in lx.hypernym_levels('wrench') for l in lv}
+
+
+def test_ladder_walks_exact_synonym_hypernym_composite_typographic_numeric_in_order(finder):
+    f, _ = finder
+    by = {c: f.resolve(c, PACK, True, True) for c in ('camera', 'invoice', 'savings', 'almond', 'kubernetes cluster', '12%', '$4.2M')}
+    assert by['camera'].via == 'exact' and by['camera'].asset_ref == f'{PACK}.camera'
+    assert by['invoice'].via == 'synonym' and by['invoice'].path == ['invoice', 'bill']
+    # An ancestor's mark stands alone only where the housing already names the concept (a labelled
+    # CHIP); a TILE draws it beside the word so the viewer can read back to the concept.
+    assert by['savings'].via == 'composite' and by['savings'].asset_ref == f'{PACK}.funds' and by['savings'].word == 'savings'
+    named = f.resolve('savings', PACK, True, True, named=True)
+    assert named.via == 'hypernym' and named.asset_ref == f'{PACK}.funds' and named.word is None and named.path == ['savings', 'fund']
+    # A stand-in must read as the concept on its own: 'agreement' (sense 6) is no subscription, so
+    # the word is set rather than a handshake drawn.
+    assert f.resolve('subscription', PACK, True, True).via == 'typographic'
+    # Composite keeps the concept: the ancestor's mark plus the concept's own name.
+    assert by['almond'].via == 'composite' and by['almond'].asset_ref == f'{PACK}.nut' and by['almond'].word == 'almond'
+    assert by['kubernetes cluster'].via == 'typographic' and by['kubernetes cluster'].asset_ref is None and by['kubernetes cluster'].word == 'kubernetes cluster'
+    assert by['12%'].via == 'numeric' and by['12%'].word == '12%'
+    assert by['$4.2M'].via == 'numeric'
+    # Every answer carries its semantic path back to the concept.
+    for r in by.values():
+        assert r.concept in (r.path[:1] or [r.concept])
+    d = by['almond'].as_dict()
+    assert d == {'concept': 'almond', 'via': 'composite', 'asset_ref': f'{PACK}.nut', 'word': 'almond', 'path': ['almond', 'nut']}
+
+
+def test_ladder_never_substitutes_an_unrelated_mark(finder):
+    f, reg = finder
+    # A common noun never takes a brand logo, however exact the spelling.
+    apple = f.resolve('apple', PACK, True, True)
+    assert reg.items[apple.asset_ref]['family'] != 'brand'
+    # A proper name does.
+    assert f.resolve('Apple', None, True, False).via == 'exact' and f.resolve('Apple', None, True, False).asset_ref.startswith('brand.')
+    # Nothing in the ladder answers with an asset the concept has no lexical path to.
+    for c in ('sugar', 'churn', 'latency', 'pantry'):
+        r = f.resolve(c, PACK, True, True)
+        assert r.via in ('typographic',) and r.asset_ref is None, (c, r)
+    # A housing that cannot typeset and has nothing to draw is unresolved, never a stand-in.
+    r = f.resolve('churn', PACK, False, True)
+    assert r.via == 'unresolved' and r.asset_ref is None and r.word is None
+
+
+def test_ladder_stays_inside_the_film_colour_pack(finder):
+    f, reg = finder
+    for c in ('camera', 'invoice', 'almond', 'truck'):
+        r = f.resolve(c, PACK, True, True)
+        if r.asset_ref:
+            assert r.asset_ref.startswith(PACK + '.'), (c, r)
+            assert reg.items[r.asset_ref]['colour'] == 'native'
+    other = f.resolve('pizza', 'emoji.fluent', True, True)
+    assert other.via == 'exact' and other.asset_ref == 'emoji.fluent.pizza'
+
+
+def test_concept_ladder_fixture_resolves_every_rung_identically_in_every_aspect(ladder_plans):
+    assert ladder_plans['gate']['status'] == 'PASS', ladder_plans['gate']['failures']
+    per_aspect = []
+    for aspect, p in ladder_plans['plans'].items():
+        rungs = {}
+        for b, e in _ladder_entities(p):
+            r = e['params']['resolution']
+            rungs[e['id']] = (r['via'], r['asset_ref'], e['params'].get('word'), e['params'].get('word_kind'))
+            # The entity carries exactly what its resolution says.
+            assert (e.get('asset') or {}).get('id') == r['asset_ref']
+            if r['via'] in ('composite', 'typographic', 'numeric'):
+                assert e['params']['word'] == r['word']
+            else:
+                assert 'word' not in e['params']
+            if r['via'] == 'numeric':
+                assert e['params']['word_kind'] == 'numeric'
+        assert {v[0] for v in rungs.values()} >= {'exact', 'synonym', 'hypernym', 'composite', 'typographic', 'numeric'}, rungs
+        per_aspect.append(rungs)
+    assert all(r == per_aspect[0] for r in per_aspect)
+
+
+def test_concept_contract_needs_a_housing_and_refuses_an_unresolvable_icon(tmp_path):
+    t = json.loads(LADDER.read_text())
+    bad = copy.deepcopy(t)
+    ent = bad['beats'][0]['illustration']['entities'][0]
+    ent['glyph'] = 'CARD'
+    with pytest.raises(TreatmentError) as e:
+        FilmTreatment.parse(bad)
+    assert e.value.code == 'CONCEPT_ON_UNHOUSED_GLYPH'
+    # ICON cannot typeset: a concept with no drawable meaning fails the compile, it is not guessed.
+    icon = copy.deepcopy(t)
+    ent = icon['beats'][0]['illustration']['entities'][1]
+    ent['glyph'] = 'ICON'
+    ent['concept'] = 'churn'
+    ent.pop('asset_ref', None)
+    with pytest.raises(TreatmentError) as e:
+        compile_film(icon, tmp_path / 'icon', base_dir=LADDER.parent)
+    assert e.value.code == 'CONCEPT_UNRESOLVED' and 'churn' in e.value.detail
+
+
+def test_preflight_quarantine_is_recorded_and_refused(tmp_path):
+    pf = json.loads((ROOT / 'assets' / 'community' / 'preflight.json').read_text())
+    assert pf['checked'] > 18000 and pf['quarantined_count'] == len(pf['quarantined']) > 0
+    assert set(pf['reasons']) <= {'UNDERPAINT', 'OVERFLOW', 'PARSE', 'RENDER_FAIL', 'VIEWBOX', 'SCRIPT', 'FOREIGN_OBJECT', 'EXTERNAL_REF', 'EXTERNAL_IMAGE'}
+    reg = IllustrationRegistry()
+    ref = sorted(pf['quarantined'])[0]
+    assert ref in reg.items and ref in reg.quarantined
+    with pytest.raises(_IllTreatmentError) as e:
+        reg.resolve(ref, "b01")
+    assert e.value.code == 'ASSET_QUARANTINED'
+    # The ladder never offers a quarantined mark either.
+    f = AssetFinder(reg.items, NounLexicon(), reg.quarantined)
+    for ref in pf['quarantined']:
+        label = ' '.join(reg.items[ref]['id'].split('.')[-1].split('-'))
+        r = f.resolve(label, None, True, False)
+        assert r.asset_ref != ref, (label, r)

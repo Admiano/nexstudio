@@ -42,6 +42,25 @@ emoji, 3D-look emoji and coloured pictograms. Ids: `brand.logos.*`,
 Brand marks are licence-clean as artwork; trademark use is the film owner's
 responsibility (see `trademark_note`). Rebuild with `tools/build_colour_registry.py`.
 
+### Preflight — `preflight.json`
+
+Every SVG in both icon registries is parsed, inlined and rasterised in the
+render browser (`tools/preflight_assets.js`). Assets that carry scripts,
+`<foreignObject>`, external references, paint under 3% of their box or spill
+more than 1% of their paint outside the viewBox are listed here with the
+reason; the compiler rejects any treatment that names one (`ASSET_QUARANTINED`)
+and the resolver never picks one. Rerun after touching either registry.
+
+## Lexicon — `lexicon/` (WordNet 3.1 nouns, WordNet 3.0 License)
+
+`noun-lexicon.json.gz` holds every noun synset (sense-ordered lemmas,
+hypernyms, lexicographer domain) plus SemCor tag counts, built by
+`tools/build_lexicon.py` from the Princeton tarball recorded in `info.json`.
+The compiler walks it to draw a concept that has no exact mark: synonym →
+hypernym → composite (ancestor mark + the concept typeset) → typographic tile →
+numeric treatment. `tools/audit_coverage.py` reports the hit rate of a noun
+list against each native-colour pack.
+
 ## Audio — `audio/` (477 files, CC0)
 
 | dir | source | use |

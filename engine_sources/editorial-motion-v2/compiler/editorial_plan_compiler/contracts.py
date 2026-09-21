@@ -34,6 +34,10 @@ GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHI
 CARRIER_GLYPHS = ('TILE', 'BADGE', 'CHIP')
 # Housings whose label is set inside the body, so a word alone is content.
 INSIDE_LABEL_GLYPHS = ('CHIP',)
+# Glyphs a `concept` can resolve onto; the housed ones can fall back to a typeset word, a bare
+# ICON cannot and must land on a mark.
+CONCEPT_GLYPHS = ('ICON', 'TILE', 'BADGE', 'CHIP')
+WORD_GLYPHS = ('TILE', 'BADGE', 'CHIP')
 ENTITY_KINDS = ('object', 'system', 'state', 'group', 'evidence', 'signal', 'agent')
 ENTITY_SIZES = ('hero', 'support', 'minor')
 RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans', 'marks')
@@ -203,6 +207,7 @@ class IllustrationEntity:
     asset_ref: Optional[str] = None   # ICON: illustration registry id
     media_ref: Optional[str] = None   # MEDIA: media_library asset_id
     params: Dict[str, Any] = field(default_factory=dict)
+    concept: Optional[str] = None     # what the mark stands for; resolved to an asset or a typeset word by the compiler
 
     @classmethod
     def parse(cls, d: Dict[str, Any], beat_id: str) -> 'IllustrationEntity':
@@ -217,12 +222,16 @@ class IllustrationEntity:
         label = ' '.join(str(d.get('label') or '').split()) or None
         asset_ref = (str(d.get('asset_ref') or '').strip() or None)
         media_ref = (str(d.get('media_ref') or '').strip() or None)
+        concept = ' '.join(str(d.get('concept') or '').split()) or None
+        if concept is not None:
+            _need(glyph in CONCEPT_GLYPHS, 'CONCEPT_ON_UNHOUSED_GLYPH', f'{eid}: concept resolves onto {"/".join(CONCEPT_GLYPHS)} only', beat_id)
+            _need(len(concept) <= 40, 'CONCEPT_TOO_LONG', f'{eid}: {concept!r}', beat_id)
         if glyph == 'ICON':
-            _need(asset_ref is not None, 'ICON_WITHOUT_ASSET_REF', eid, beat_id)
+            _need(asset_ref is not None or concept is not None, 'ICON_WITHOUT_ASSET_REF', eid, beat_id)
         if glyph in CARRIER_GLYPHS:
             # A housing is never staged empty: the tile / disc / row exists to carry a mark or a word.
-            carries = asset_ref is not None or (label is not None and glyph in INSIDE_LABEL_GLYPHS)
-            _need(carries, 'CHASSIS_EMPTY', f'{eid}: {glyph} carries nothing (no asset_ref, no inside label)', beat_id)
+            carries = asset_ref is not None or concept is not None or (label is not None and glyph in INSIDE_LABEL_GLYPHS)
+            _need(carries, 'CHASSIS_EMPTY', f'{eid}: {glyph} carries nothing (no asset_ref, no concept, no inside label)', beat_id)
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})
@@ -247,7 +256,7 @@ class IllustrationEntity:
                     params[k] = str(params[k])[:24]
         if 'tone' in params:
             _need(str(params['tone']) in ('light', 'dark'), 'TONE_UNKNOWN', f"{eid}:{params['tone']}", beat_id)
-        return cls(eid, kind, glyph, size, label, asset_ref, media_ref, params)
+        return cls(eid, kind, glyph, size, label, asset_ref, media_ref, params, concept)
 
 
 @dataclass
