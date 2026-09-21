@@ -554,9 +554,14 @@
         // beat's light and breathe without re-painting the gradient.
         const atmo = plan.atmosphere || {};
         const rx = spec.radius.x, ry = spec.radius.y;
+        const tint = atmo.bloom || brand.accent || brand.ink;
+        const peak = atmo.bloom_opacity == null ? 0.15 : atmo.bloom_opacity;
+        // Gaussian-like falloff sampled at five stops: no visible edge, no hot core.
+        const stops = [[0, 1], [22, 0.78], [44, 0.38], [66, 0.11], [88, 0]]
+          .map(([at, k]) => `${rgbaOf(tint, peak * k)} ${at}%`).join(', ');
         node = el('div', {
           position: 'absolute', left: px(-rx), top: px(-ry), width: px(rx * 2), height: px(ry * 2),
-          background: `radial-gradient(ellipse at 50% 50%, ${rgbaOf(atmo.bloom || brand.accent || brand.ink, atmo.bloom_opacity == null ? 0.3 : atmo.bloom_opacity)} 0%, ${rgbaOf(atmo.bloom || brand.paper, (atmo.bloom_opacity == null ? 0.3 : atmo.bloom_opacity) * 0.35)} 38%, ${rgbaOf(brand.paper, 0)} 72%)`,
+          background: `radial-gradient(ellipse at 50% 50%, ${stops})`,
           transformOrigin: '50% 50%', pointerEvents: 'none',
         }, parent);
         node.className = 'em2-bloom';

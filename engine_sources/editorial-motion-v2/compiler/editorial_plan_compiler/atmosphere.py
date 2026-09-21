@@ -25,13 +25,14 @@ MIN_INK_CONTRAST = 7.0
 
 VIGNETTE = {'light': 0.10, 'dark': 0.42}      # edge darkening opacity
 GRAIN = {'light': 0.045, 'dark': 0.075}       # multiply-grain opacity (dark fields hide grain; push harder)
-BLOOM_OPACITY = {'light': 0.30, 'dark': 0.36}
+BLOOM_OPACITY = {'light': 0.15, 'dark': 0.19}       # peak; the light reads as ambient, never a spot
 DEPTH_OPACITY = {'light': 0.14, 'dark': 0.22}
 DEPTH_COUNT = (2, 3)                          # far-plane shapes per beat, min..max
 DEPTH_PLANE = (0.35, 0.6)                     # parallax factor range: 0 = fixed to the frame, 1 = with content
 DEPTH_MAX_OVERLAP = 0.18                      # fraction of a shape allowed to sit under content
 DEPTH_BLUR_FRAC = 0.028                       # blur radius as a fraction of the canvas short side
 BLOOM_TRAVEL_MS = 640
+BLOOM_RADIUS = (1.45, 0.44, 1.9, 0.38)            # x: max(hero.w×, W×); y: max(hero.h×, H×)
 
 
 def _rgb(hex_colour: str) -> Tuple[int, int, int]:
@@ -161,7 +162,8 @@ def beat_atmosphere(film_id: str, beat: Dict[str, Any], canvas: Tuple[int, int],
         'at': bloom_at,
         'from': dict(prev_bloom) if prev_bloom else dict(bloom_at),
         'travel_ms': BLOOM_TRAVEL_MS,
-        'radius': {'x': round(max(hero['w'] * 1.15, W * 0.36), 1), 'y': round(max(hero['h'] * 1.5, H * 0.3), 1)},
+        'radius': {'x': round(max(hero['w'] * BLOOM_RADIUS[0], W * BLOOM_RADIUS[1]), 1),
+                   'y': round(max(hero['h'] * BLOOM_RADIUS[2], H * BLOOM_RADIUS[3]), 1)},
         'opacity': 1.0,
     }]
     # Far-plane shapes: large, defocused, out of the content's way. Placed by hash, rejected if they
