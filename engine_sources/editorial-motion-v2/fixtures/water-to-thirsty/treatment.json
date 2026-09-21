@@ -336,21 +336,21 @@
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "searching for"
+      "label": "search"
      },
      {
       "id": "q2",
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "struggling with"
+      "label": "struggle"
      },
      {
       "id": "q3",
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "looking for answers"
+      "label": "questions"
      },
      {
       "id": "lens",
@@ -444,21 +444,21 @@
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "searching for"
+      "label": "search"
      },
      {
       "id": "q2",
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "struggling with"
+      "label": "struggle"
      },
      {
       "id": "q3",
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "looking for answers"
+      "label": "questions"
      },
      {
       "id": "lens",
@@ -554,21 +554,21 @@
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "searching for"
+      "label": "search"
      },
      {
       "id": "q2",
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "struggling with"
+      "label": "struggle"
      },
      {
       "id": "q3",
       "kind": "state",
       "glyph": "PILL",
       "size": "support",
-      "label": "looking for answers"
+      "label": "questions"
      },
      {
       "id": "lens",
@@ -655,7 +655,7 @@
       "kind": "state",
       "glyph": "NODE",
       "size": "support",
-      "label": "thin air",
+      "label": "nothing",
       "params": {
        "dashed": true
       }

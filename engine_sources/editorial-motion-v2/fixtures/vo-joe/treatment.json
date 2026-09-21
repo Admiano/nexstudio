@@ -375,14 +375,14 @@
       "kind": "evidence",
       "glyph": "PILL",
       "size": "support",
-      "label": "soy lecithin"
+      "label": "lecithin"
      },
      {
       "id": "shelf",
       "kind": "evidence",
       "glyph": "BAR",
       "size": "hero",
-      "label": "shelf life"
+      "label": "longevity"
      }
     ],
     "relations": [],
@@ -673,7 +673,7 @@
       "kind": "object",
       "glyph": "RING",
       "size": "hero",
-      "label": "the real one"
+      "label": "original"
      }
     ],
     "relations": [],
