@@ -555,3 +555,78 @@ def test_synthesized_ops_wait_for_the_authored_draw(collage_plans, plans):
             for o in il['ops']:
                 if o.get('synthesized') and o['op'] != 'DRAW' and o['target'] in draw_end:
                     assert o['start_ms'] >= draw_end[o['target']], (b['beat_id'], o)
+
+
+# ---------------------------------------------------------------- item 7: anti-generated gates (compiler side)
+
+def _collage_treatment():
+    fx = ROOT / 'fixtures' / 'promo-collage' / 'treatment.json'
+    return json.loads(fx.read_text()), fx.parent
+
+
+def _beat_with_relations(t):
+    return next(b for b in t['beats'] if b.get('illustration') and b['illustration'].get('relations'))
+
+
+def test_housing_without_content_is_refused_but_a_worded_chip_is_content():
+    t, _ = _collage_treatment()
+    beat = _beat_with_relations(t)
+    tile = next(e for e in beat['illustration']['entities'] if e['glyph'] == 'TILE')
+    bad = copy.deepcopy(t)
+    ent = next(e for e in _beat_with_relations(bad)['illustration']['entities'] if e['id'] == tile['id'])
+    ent.pop('asset_ref', None)
+    ent['label'] = 'memory'
+    with pytest.raises(TreatmentError) as e:
+        FilmTreatment.parse(bad)
+    assert e.value.code == 'CHASSIS_EMPTY' and tile['id'] in e.value.detail
+    ok = copy.deepcopy(t)
+    ent = next(e for e in _beat_with_relations(ok)['illustration']['entities'] if e['id'] == tile['id'])
+    ent.pop('asset_ref', None)
+    ent['glyph'] = 'CHIP'
+    ent['label'] = 'memory'
+    FilmTreatment.parse(ok)
+
+
+def test_connector_endpoints_land_before_the_stroke_completes(tmp_path):
+    from editorial_plan_compiler.illustration import ENTER_MS
+    from editorial_plan_compiler.timing import LEAD_IN_MS
+    t, base = _collage_treatment()
+    beat = _beat_with_relations(t)
+    rel = beat['illustration']['relations'][0]
+    rid = f"{rel['source']}->{rel['target']}"
+    # Anchor the connector early with a short stroke: the solver pulls both bodies' entrances forward
+    # so the line never completes on an absent rim, and the plan proves it.
+    beat['illustration']['program'] = [o for o in beat['illustration']['program'] if o['target'] != rid]
+    beat['illustration']['program'].insert(0, {'op': 'CONNECT', 'target': rid, 'at': {'offset_ms': 300}, 'duration_ms': 200})
+    out = compile_film(t, tmp_path / 'ok', base_dir=base)
+    assert not any(f.startswith('CONNECTOR_BEFORE_ENDPOINT') for f in out['gate']['failures']), out['gate']['failures']
+    for p in out['plans'].values():
+        il = next(b for b in p['beats'] if b['beat_id'] == beat['beat_id'])['illustration']
+        r = next(r for r in il['relations'] if r['id'] == rid)
+        if r.get('stub'):
+            continue
+        ends = {e['id']: e['enter_ms'] + e['enter_duration_ms'] for e in il['entities']}
+        assert r['enter_ms'] + r['enter_duration_ms'] >= max(ends[rel['source']], ends[rel['target']]), (r, ends)
+    # A stroke that must finish before any body can have landed has no schedule: the gate names it.
+    assert LEAD_IN_MS + 120 < LEAD_IN_MS // 5 + ENTER_MS
+    beat['illustration']['program'][0] = {'op': 'CONNECT', 'target': rid, 'at': {'offset_ms': 0}, 'duration_ms': 120}
+    out = compile_film(t, tmp_path / 'bad', base_dir=base)
+    assert out['gate']['status'] == 'FAIL'
+    assert any(f.endswith(f':CONNECTOR_BEFORE_ENDPOINT:{rid}') for f in out['gate']['failures']), out['gate']['failures']
+
+
+def test_stub_links_carry_no_program(collage_plans):
+    # Bodies laid out rim-to-rim get no connector stroke, so nothing is programmed onto that link and
+    # the beat says so in a warning rather than leaving an op with no target on stage.
+    seen = 0
+    for aspect, p in collage_plans['plans'].items():
+        for b in p['beats']:
+            il = b.get('illustration')
+            if not il:
+                continue
+            stubs = {r['id'] for r in il['relations'] if r.get('stub')}
+            seen += len(stubs)
+            assert not any(o['target'] in stubs for o in il['ops']), (aspect, b['beat_id'])
+            for rid in stubs:
+                assert f'CONNECTOR_STUB_ADJACENT:{rid}' in b['gate']['warnings'], (aspect, b['beat_id'])
+    assert seen >= 1, 'fixture no longer exercises the stub path'

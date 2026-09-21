@@ -12,6 +12,8 @@ gates:
   manifest.audio.music present          (music bed bound)
   manifest.captions_burned > 0            (or captions_policy == kinetic: words live on canvas)
   manifest.native_profile == true
+  manifest.authorship.findings == []       (no generated-look tells: empty chassis, icon under-fill /
+                                            overflow, orphan connectors, static holds)
 
 Usage:
   python3 tools/regression_pack.py                    # all fixtures, all aspects
@@ -129,6 +131,15 @@ def main() -> int:
                 'captions': manifest.get('captions_burned', 0) > 0 or manifest.get('captions_policy') == 'kinetic',
                 'native_profile': manifest.get('native_profile') is True,
             }
+            authorship = manifest.get('authorship') or {}
+            # Each tell is its own check so the report names the rule that tripped, not a blanket flag.
+            if not authorship:
+                checks['authorship_evidence'] = False
+            for code in authorship.get('codes', []):
+                checks[f'authorship:{code}'] = False
+            metrics['authorship_findings'] = [
+                f"{f['code']}:{f['beat_id']}:{f['id']}@{f['first_ms']}ms" for f in authorship.get('findings', [])]
+            metrics['static_hold_longest_ms'] = authorship.get('longest_static_hold_ms')
             film['aspects'][aspect] = {'checks': checks, 'metrics': metrics, 'mp4': manifest['mp4'],
                                        'mp4_sha256': manifest['mp4_sha256']}
             failures += sum(1 for ok in checks.values() if not ok)
@@ -141,7 +152,9 @@ def main() -> int:
             bad = [k for k, ok in r['checks'].items() if not ok]
             m = r['metrics']
             print(f"{film['film']:>18} {aspect}  blank={m['blank_ms']}ms frozen={m['frozen_longest_ms']}ms"
-                  f"  {'PASS' if not bad else 'FAIL ' + ','.join(bad)}")
+                  f" hold={m.get('static_hold_longest_ms')}ms  {'PASS' if not bad else 'FAIL ' + ','.join(bad)}")
+            for f in m.get('authorship_findings', []):
+                print(f"{'':>18}   {f}")
     print(f"failures: {failures}")
     return 1 if failures else 0
 

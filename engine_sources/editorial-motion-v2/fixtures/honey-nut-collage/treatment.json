@@ -613,6 +613,7 @@
             "id": "flav",
             "kind": "state",
             "glyph": "CHIP",
+            "asset_ref": "emoji.fluent.sparkles",
             "size": "hero",
             "label": "flavouring"
           }
@@ -710,6 +711,7 @@
             "id": "alm",
             "kind": "evidence",
             "glyph": "CHIP",
+            "asset_ref": "emoji.fluent.peanuts",
             "size": "minor",
             "label": "almonds"
           }

@@ -667,6 +667,7 @@ class IllustrationSolver:
                 p1 = (bx - ux * (t1 + 4), by - uy * (t1 + 4))
                 if math.dist(p0, p1) < MIN_LINK_PX:
                     # Rims this close already read as adjacent; a stub between them is a stray mark.
+                    rel['stub'] = True
                     out.append(rel)
                     continue
                 if style == 'arc':
@@ -779,6 +780,11 @@ class IllustrationSolver:
             first_op = min((o['start_ms'] for o in ops if o['target'] == e['id'] or o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id'])), default=None)
             if first_op is not None:
                 t = min(t, first_op - 160)
+            # A body a connector lands on has finished arriving before the stroke completes.
+            joined = [o['end_ms'] for o in ops if o['op'] == 'CONNECT'
+                      and (o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id']))]
+            if joined:
+                t = min(t, min(joined) - ENTER_MS)
             enter[e['id']] = max(LEAD_IN_MS // 5, int(t))
         for o in ops:
             if o['end_ms'] - o['start_ms'] < 120:
@@ -925,6 +931,9 @@ class IllustrationSolver:
                 carry_in[cid] = prev[cid]['bbox']
         ops, enter, sf = self.schedule(il, clock, ents, carried_ids, beat_id, self.stagger_ms)
         failures += sf
+        # A stub link has no stroke on stage, so nothing may be programmed onto it.
+        stubs = {r['id'] for r in rels if r.get('stub')}
+        ops = [o for o in ops if o['target'] not in stubs]
         inherited = terminal_state(carry_source) if carry_source else {}
         for e in ents:
             e['enter_ms'] = enter[e['id']]
@@ -940,6 +949,11 @@ class IllustrationSolver:
             if connect:
                 r['enter_ms'], r['enter_duration_ms'] = connect['start_ms'], connect['end_ms'] - connect['start_ms']
                 r['drawn_by_op'] = True
+            # A connector joins two present bodies; one drawn toward a body still off stage is a stray line.
+            ends_in = max(enter[r['source']] + (0 if r['source'] in carried_ids else ENTER_MS),
+                          enter[r['target']] + (0 if r['target'] in carried_ids else ENTER_MS))
+            if r['enter_ms'] + r['enter_duration_ms'] < ends_in and not r.get('stub'):
+                failures.append(f"CONNECTOR_BEFORE_ENDPOINT:{r['id']}")
         # The authored program settles the scene; decorations then ride the hold it opened, so
         # they join the op list after `settled` is measured rather than delaying it.
         settled = max([e['enter_ms'] + e['enter_duration_ms'] for e in ents] + [r['enter_ms'] + r['enter_duration_ms'] for r in rels] + [o['end_ms'] for o in ops] + [CARRY_REFRAME_MS if carry_in else 0])
