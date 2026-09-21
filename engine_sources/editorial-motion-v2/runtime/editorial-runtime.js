@@ -548,15 +548,32 @@
         }, parent);
         break;
       }
-      case 'glow': {
-        // Collage field: a wide warm glow that drifts with the beat — the only "stage" a free canvas gets.
-        const cx = b.x + b.w * (spec.align === 'left' ? 0.3 : spec.align === 'right' ? 0.7 : 0.5);
-        const cy = b.y + b.h * 0.46;
+      case 'bloom': {
+        // The light source: a wide soft ellipse of the atmosphere's bloom tint behind the beat's hero.
+        // Drawn centred on its own box and positioned by transform so it can travel from the previous
+        // beat's light and breathe without re-painting the gradient.
+        const atmo = plan.atmosphere || {};
+        const rx = spec.radius.x, ry = spec.radius.y;
         node = el('div', {
-          position: 'absolute', inset: '0',
-          background: `radial-gradient(ellipse ${px(b.w * 0.9)} ${px(b.h * 0.8)} at ${px(cx)} ${px(cy)}, ${rgbaOf(brand.accent || brand.ink, 0.07)}, ${rgbaOf('#ffffff', 0.3)} 45%, ${rgbaOf(brand.ink, 0)} 75%)`,
-          transformOrigin: `${px(cx)} ${px(cy)}`,
+          position: 'absolute', left: px(-rx), top: px(-ry), width: px(rx * 2), height: px(ry * 2),
+          background: `radial-gradient(ellipse at 50% 50%, ${rgbaOf(atmo.bloom || brand.accent || brand.ink, atmo.bloom_opacity == null ? 0.3 : atmo.bloom_opacity)} 0%, ${rgbaOf(atmo.bloom || brand.paper, (atmo.bloom_opacity == null ? 0.3 : atmo.bloom_opacity) * 0.35)} 38%, ${rgbaOf(brand.paper, 0)} 72%)`,
+          transformOrigin: '50% 50%', pointerEvents: 'none',
         }, parent);
+        node.className = 'em2-bloom';
+        break;
+      }
+      case 'depth': {
+        // Far-plane room: a large defocused disc or tile in a field tint. It moves against the camera
+        // at its plane depth (parallax) and never sharpens — it is out of focus by construction.
+        const atmo = plan.atmosphere || {};
+        const tint = (atmo.depth_tints || [])[spec.tint] || mixColor(brand.paper, brand.ink, 0.1);
+        node = el('div', {
+          position: 'absolute', left: px(b.x), top: px(b.y), width: px(b.w), height: px(b.h),
+          background: tint, borderRadius: spec.shape === 'disc' ? '50%' : px(Math.min(b.w, b.h) * 0.24),
+          filter: `blur(${px(spec.blur_px)})`, transformOrigin: '50% 50%', pointerEvents: 'none',
+        }, parent);
+        node.className = 'em2-depth';
+        node.dataset.plane = String(spec.plane);
         break;
       }
       case 'arc': {
@@ -580,12 +597,16 @@
   function buildBackground(beat, plan, beatRoot) {
     const bg = beat.composition.background || {};
     const brand = plan.brand;
-    const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: brand.paper }, beatRoot);
+    const atmo = plan.atmosphere || {};
+    const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: atmo.field || brand.paper }, beatRoot);
     const layers = (Array.isArray(bg.layers) ? bg.layers : []).map((spec, i) => buildBgLayer(spec, plan, layer, i)).filter((l) => l.node);
-    // A barely-there vignette on every beat so the paper reads as a surface, not a void.
+    // Vignette: the field darkens toward its edges by the atmosphere's strength so the paper reads as a
+    // lit surface, not a void; the dark variant leans on it harder because it has no bloom contrast to spare.
+    const vig = atmo.vignette_opacity == null ? 0.03 : atmo.vignette_opacity;
+    const vc = atmo.vignette || brand.ink;
     el('div', {
-      position: 'absolute', inset: '0',
-      background: 'radial-gradient(ellipse 85% 80% at 50% 45%, rgba(14,14,14,0) 55%, rgba(14,14,14,0.03) 100%)',
+      position: 'absolute', inset: '0', pointerEvents: 'none',
+      background: `radial-gradient(ellipse 85% 80% at 50% 45%, ${rgbaOf(vc, 0)} 52%, ${rgbaOf(vc, vig * 0.45)} 82%, ${rgbaOf(vc, vig)} 100%)`,
     }, layer);
     return { layer, layers };
   }
@@ -606,16 +627,50 @@
       // the first content frame regardless of how long the ensemble's settle window runs.
       const ls = ss + L.i * 40, le = Math.min(se + L.i * 40, ls + 170);
       const p = EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
-      let scale = 1, tx = 0, ty = 0;
+      let scale = 1, tx = 0, ty = 0, opacity = (spec.opacity == null ? 1 : spec.opacity) * p;
       if (spec.kind === 'panel' || spec.kind === 'plane' || spec.kind === 'spotlight') scale = lerp(0.985, 1, EASE.settle(p));
-      if (spec.kind === 'dotgrid' || spec.kind === 'plane' || spec.kind === 'glow') {
-        const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : spec.kind === 'glow' ? 6 : 1.6);
+      if (spec.kind === 'dotgrid' || spec.kind === 'plane') {
+        const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : 1.6);
         tx += amb.dx; ty += amb.dy;
       }
-      if (spec.kind === 'glow') scale = lerp(1.06, 1, EASE.settle(p));
+      if (spec.kind === 'bloom') {
+        // The light is already on when the beat starts (it was lit for the previous hero) and travels to
+        // this hero over the travel window on a settle curve, then breathes: slow, wide, never still.
+        // Keyed to the beat's own clock, not the pre-rolled one: under the outgoing transition the
+        // light still sits where the previous beat left it, so the hand-over is seamless.
+        const k = EASE.settle(prog(lt, 0, spec.travel_ms || 640));
+        const amb = ambientDrift(lt, `bloom-${beat.beat_id}`, 0, 9, 0.03);
+        tx = lerp(spec.from.x, spec.at.x, k) + amb.dx;
+        ty = lerp(spec.from.y, spec.at.y, k) + amb.dy;
+        scale = amb.s;
+        opacity = spec.opacity == null ? 1 : spec.opacity;
+      }
+      if (spec.kind === 'depth') {
+        // Far plane: fades up with the stage, then drifts more slowly and more widely than anything in
+        // focus. The camera adds its counter-move (parallax) after this pass.
+        const amb = ambientDrift(lt, `depth-${beat.beat_id}-${L.i}`, 0, 4.5 * (1 - spec.plane) + 1.5, 0.012);
+        tx += amb.dx; ty += amb.dy;
+        scale = amb.s * lerp(1.04, 1, EASE.settle(p));
+      }
       if (spec.rotation_deg) s.rotate = `${spec.rotation_deg}deg`;
-      s.opacity = ((spec.opacity == null ? 1 : spec.opacity) * p).toFixed(4);
+      s.opacity = opacity.toFixed(4);
+      L.base = { tx, ty, scale };
       s.transform = `translate(${f2(tx)}px, ${f2(ty)}px) scale(${scale.toFixed(4)})`;
+    }
+  }
+
+  function applyDepthParallax(bgNode, pose, plan) {
+    // A depth shape at plane d only receives d of the camera's move: the frame-fixed remainder is
+    // undone here so the far plane slides against the content as the camera pushes or drifts.
+    const W = plan.canvas.w, H = plan.canvas.h;
+    for (const L of bgNode.layers) {
+      if (L.spec.kind !== 'depth' || !L.base) continue;
+      const d = L.spec.plane, b = L.spec.bbox;
+      const cx = b.x + b.w / 2 - W / 2, cy = b.y + b.h / 2 - H / 2;
+      const counter = 1 / (1 + (pose.scale - 1) * (1 - d));
+      const ptx = -pose.tx * (1 - d) - (cx * (pose.scale - 1) * (1 - d)) / pose.scale;
+      const pty = -(cy * (pose.scale - 1) * (1 - d)) / pose.scale;
+      L.node.style.transform = `translate(${f2(L.base.tx + ptx)}px, ${f2(L.base.ty + pty)}px) scale(${(L.base.scale * counter).toFixed(4)})`;
     }
   }
 
@@ -656,17 +711,20 @@
     frame.dataset.mediaAsset = media.asset_id;
     frame.dataset.chassis = chassis;
     const tilt = clamp(Number(media.tilt == null ? 0 : media.tilt), -14, 14);
+    const housing = housingOf(plan);
+    const shadowRgb = ((plan.atmosphere && plan.atmosphere.shadow_rgb) || [23, 18, 12]).join(',');
+    const face = plan.atmosphere ? `linear-gradient(160deg, ${mixColor(housing.light, '#ffffff', 0.35)} 0%, ${housing.light} 100%)` : SLAB_FACE;
     // The slab carries the object's own attitude (tilt + parallax); the frame carries the motion.
     const slab = el('div', {
       position: 'absolute', left: '0', top: '0', width: '100%', height: '100%',
-      borderRadius: px(m0 * geo.radius), background: SLAB_FACE, transformOrigin: '50% 50%',
+      borderRadius: px(m0 * geo.radius), background: face, transformOrigin: '50% 50%',
       transform: `rotate(${tilt.toFixed(2)}deg)`,
       boxShadow: [
-        `0 ${px(bb.h * 0.055)} ${px(bb.h * 0.16)} rgba(23,18,12,0.30)`,
-        `0 ${px(bb.h * 0.012)} ${px(bb.h * 0.03)} rgba(23,18,12,0.16)`,
-        'inset 0 0 0 1px rgba(23,18,12,0.10)',
+        `0 ${px(bb.h * 0.055)} ${px(bb.h * 0.16)} rgba(${shadowRgb},0.30)`,
+        `0 ${px(bb.h * 0.012)} ${px(bb.h * 0.03)} rgba(${shadowRgb},0.16)`,
+        `inset 0 0 0 1px rgba(${shadowRgb},0.10)`,
         'inset 0 1px 0 rgba(255,255,255,0.9)',
-        '0 1.5px 0 rgba(23,18,12,0.14)',
+        `0 1.5px 0 rgba(${shadowRgb},0.14)`,
       ].join(', '),
     }, frame);
     slab.className = 'em2-slab';
@@ -1184,8 +1242,16 @@
     });
   }
 
+  // Housing surfaces every chassis draws with, from the film's atmosphere: `light` is the field's own
+  // lifted surface, `dark` the contrasting one — so a dark-paper film gets the same grammar inverted.
+  function housingOf(plan) {
+    const h = plan.atmosphere && plan.atmosphere.housing;
+    return h || { light: '#ffffff', dark: mixColor(plan.brand.ink, plan.brand.paper, 0.05) };
+  }
+
   function buildGlyph(ent, il, plan, g, sw, opts) {
     const b = bboxOf(ent.bbox), ink = plan.brand.ink, paper = plan.brand.paper, accent = il.accent || ink;
+    const housing = housingOf(plan);
     const params = ent.params || {};
     const node = { outline: [], inkEls: [], count: [], strike: null, fill: null, extra: {} };
     const line = { fill: 'none', stroke: ink, 'stroke-width': sw, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
@@ -1477,7 +1543,7 @@
         const r = Math.min(b.w, b.h) * 0.24;
         const body = chassisBody(node, g);
         const base = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
-        base.setAttribute('fill', dark ? '#171310' : mixColor(paper, '#ffffff', 0.72));
+        base.setAttribute('fill', dark ? housing.dark : housing.light);
         base.setAttribute('stroke', ink);
         base.setAttribute('stroke-width', f2(sw * 0.55));
         base.setAttribute('stroke-opacity', '0.55');
@@ -1519,7 +1585,7 @@
         const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw / 2;
         const body = chassisBody(node, g);
         const disc = svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R) }, body);
-        disc.setAttribute('fill', dark ? '#171310' : '#ffffff');
+        disc.setAttribute('fill', dark ? housing.dark : housing.light);
         disc.setAttribute('stroke', ink);
         disc.setAttribute('stroke-width', f2(sw * 0.4));
         disc.setAttribute('stroke-opacity', '0.18');
@@ -1552,7 +1618,7 @@
         const r = Math.min(b.w, b.h) * 0.18;
         const body = chassisBody(node, g);
         const card = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
-        card.setAttribute('fill', dark ? '#171310' : '#ffffff');
+        card.setAttribute('fill', dark ? housing.dark : housing.light);
         card.setAttribute('stroke', ink);
         card.setAttribute('stroke-width', f2(sw * 0.4));
         card.setAttribute('stroke-opacity', '0.18');
@@ -1594,7 +1660,7 @@
         const r = b.h * 0.42;
         const body = chassisBody(node, g);
         const row = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z' }, body);
-        row.setAttribute('fill', '#181410');
+        row.setAttribute('fill', housing.dark);
         node.extra.shadow = { el: row, oy: b.h * 0.1, blur: b.h * 0.2, alpha: 0.3 };
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         // Icon peg: a light tile clipped into the left end of the row.
@@ -1876,10 +1942,11 @@
 
   // A shadow cast by one light over the stage: it leans away from the canvas centre and lifts
   // with the body while it is still arriving.
-  function castShadow(sh, cx, cy, canvas, pEnt) {
+  function castShadow(sh, cx, cy, canvas, pEnt, shadowRgb) {
     const lean = clamp((cx - canvas.w / 2) / (canvas.w / 2), -1, 1) * 0.35;
     const lift = 1 + 0.5 * (1 - pEnt);
-    sh.el.style.filter = `drop-shadow(${f2(sh.oy * lean)}px ${f2(sh.oy * lift)}px ${f2(sh.blur * lift)}px rgba(23,18,12,${(sh.alpha / lift).toFixed(3)}))`;
+    const rgb = (shadowRgb || [23, 18, 12]).join(',');
+    sh.el.style.filter = `drop-shadow(${f2(sh.oy * lean)}px ${f2(sh.oy * lift)}px ${f2(sh.blur * lift)}px rgba(${rgb},${(sh.alpha / lift).toFixed(3)}))`;
   }
 
   function applyIllustrationState(ill, lt, beat, ctx) {
@@ -2007,7 +2074,7 @@
       if (scale !== 1 || ty || tx || gl.extra.rotateDeg) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)})${gl.extra.rotateDeg ? ` rotate(${gl.extra.rotateDeg})` : ''} translate(${f2(-c.x)} ${f2(-c.y)})`;
       g.setAttribute('transform', transform.trim() || 'translate(0 0)');
       g.style.opacity = opacity.toFixed(4);
-      if (gl.extra.shadow) castShadow(gl.extra.shadow, pose.cx + tx, pose.cy, ctx.canvas, pEnt);
+      if (gl.extra.shadow) castShadow(gl.extra.shadow, pose.cx + tx, pose.cy, ctx.canvas, pEnt, ctx.shadowRgb);
       // Connectors read these: a link is only as present as the bodies it joins, and it follows
       // them — the live offset of the body's centre from its laid-out box.
       node.presence = preEntry ? 0 : dim;
@@ -2140,6 +2207,7 @@
 
     const ctx = {
       brand: plan.brand,
+      shadowRgb: plan.atmosphere && plan.atmosphere.shadow_rgb,
       canvas: plan.canvas,
       frameMs: 1000 / (plan.fps || 30),
       motion: { ...DEFAULT_MOTION, ...(plan.motion || {}) },
@@ -2235,6 +2303,7 @@
     const s = bn.cam.style;
     s.transform = `translate(${f2(now.tx)}px, 0px) scale(${now.scale.toFixed(4)})`;
     s.opacity = now.opacity.toFixed(4);
+    applyDepthParallax(bn.bg, now, plan);
     bn.camBlur.apply(s, motionBlurStd((now.tx - was.tx) + Math.abs(now.scale - was.scale) * W / 2, 0, m.motion_blur * cam.blur), now.defocus > 0.2 ? `blur(${now.defocus.toFixed(2)}px)` : '');
   }
 
@@ -2277,7 +2346,9 @@
     installFonts(plan, opts.fontBase);
 
     const W = plan.canvas.w, H = plan.canvas.h;
-    const stage = el('div', { position: 'relative', overflow: 'hidden', width: px(W), height: px(H), background: plan.brand.paper, color: plan.brand.ink }, mount);
+    const atmo = plan.atmosphere || {};
+    const stage = el('div', { position: 'relative', overflow: 'hidden', width: px(W), height: px(H), background: atmo.field || plan.brand.paper, color: plan.brand.ink }, mount);
+    stage.dataset.theme = atmo.theme || 'light';
     stage.className = 'em2-stage';
     stage.dataset.aspect = plan.aspect;
 
@@ -2307,7 +2378,9 @@
       grain = el('div', {
         position: 'absolute', inset: '0', zIndex: '30', pointerEvents: 'none',
         backgroundImage: `url(${opts.assetUrl(surf.grain.path)})`, backgroundSize: '256px 256px',
-        mixBlendMode: 'multiply', opacity: finish === 'PAPER' ? '0.06' : '0.04',
+        // Grain multiplies into a light field; a dark field would swallow it, so it screens instead.
+        mixBlendMode: atmo.theme === 'dark' ? 'screen' : 'multiply',
+        opacity: String(atmo.grain_opacity != null ? atmo.grain_opacity : (finish === 'PAPER' ? 0.06 : 0.04)),
       }, stage);
     }
     const duration = plan.duration_ms;

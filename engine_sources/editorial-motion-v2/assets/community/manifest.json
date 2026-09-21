@@ -2,7 +2,7 @@
  "schema": "NexStudioCommunityAssetsV1",
  "policy": "Every vendored asset carries source-pack provenance, upstream license and sha256. Icons are normalised to currentColor; ink and accent remain runtime-owned.",
  "provenance": "See packs/<name>/info.json + LICENSE per icon pack; LICENSE.txt per audio/texture dir.",
- "count": 514,
+ "count": 621,
  "assets": [
   {
    "id": "sfx.click1",
@@ -5354,174 +5354,6 @@
    }
   },
   {
-   "id": "music.adding-the-sun",
-   "kind": "music",
-   "path": "music/freepd/Adding_the_Sun.mp3",
-   "sha256": "00180cd2ffd21eb397449e9a96081502f16e4e7c82cc9a98570e6ea7256594ed",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 176.039,
-   "bpm": 89,
-   "moods": [
-    "uplifting",
-    "bright"
-   ]
-  },
-  {
-   "id": "music.bass-meant-jazz",
-   "kind": "music",
-   "path": "music/freepd/Bass_Meant_Jazz.mp3",
-   "sha256": "c876b42602e23df4e46b1c4a686e4e155d32852ea852b77a2e76fdc0c5e71745",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 279.74,
-   "bpm": 123,
-   "moods": [
-    "jazzy",
-    "calm"
-   ]
-  },
-  {
-   "id": "music.flutey-jazz",
-   "kind": "music",
-   "path": "music/freepd/Flutey_Jazz.mp3",
-   "sha256": "3f215025780c179b138de83364ab6bd6e922fc57efe4688d3f570bf93105e103",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 247.275,
-   "bpm": 99,
-   "moods": [
-    "jazzy",
-    "bright"
-   ]
-  },
-  {
-   "id": "music.happy-whistling-ukulele",
-   "kind": "music",
-   "path": "music/freepd/Happy_Whistling_Ukulele.mp3",
-   "sha256": "ed4059c8fba8673d657e85175ff54eaa32cef9e43f688f164bef585e6e65cf15",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 123.218,
-   "bpm": 65,
-   "moods": [
-    "playful",
-    "bright"
-   ]
-  },
-  {
-   "id": "music.hopeful",
-   "kind": "music",
-   "path": "music/freepd/Hopeful.mp3",
-   "sha256": "cbd585a3c26795a994495864d0e297222f9c679457a3baea7d322017973d99d9",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 113.763,
-   "bpm": 66,
-   "moods": [
-    "uplifting"
-   ]
-  },
-  {
-   "id": "music.landras-dream",
-   "kind": "music",
-   "path": "music/freepd/Landras_Dream.mp3",
-   "sha256": "fc55b6cbadaef9c2bff8645c43bf04882cc5f41fe0f1af257d11ff15c1d9aba9",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 88.924,
-   "bpm": 152,
-   "moods": [
-    "dreamy",
-    "calm"
-   ]
-  },
-  {
-   "id": "music.nordic-wist",
-   "kind": "music",
-   "path": "music/freepd/Nordic_Wist.mp3",
-   "sha256": "43b31fb96cb6a405750a0d490a09059fd28e99d4c6bf1b808fb40ce365856047",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 149.002,
-   "bpm": 96,
-   "moods": [
-    "wistful"
-   ]
-  },
-  {
-   "id": "music.study-and-relax",
-   "kind": "music",
-   "path": "music/freepd/Study_and_Relax.mp3",
-   "sha256": "9cba2a3c2d1c9d364220db1691f618a0f25b8d9cf6f2a857fe389ef614fd18a4",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 223.399,
-   "bpm": 72,
-   "moods": [
-    "calm",
-    "dreamy"
-   ]
-  },
-  {
-   "id": "music.sunday-dub",
-   "kind": "music",
-   "path": "music/freepd/Sunday_Dub.mp3",
-   "sha256": "85686c592fd9a79ebb046ad72aad154c4ef7006f874084a56cc9621b1a6ada5c",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 209.471,
-   "bpm": 103,
-   "moods": [
-    "calm",
-    "playful"
-   ]
-  },
-  {
-   "id": "music.ukulele-song",
-   "kind": "music",
-   "path": "music/freepd/Ukulele_Song.mp3",
-   "sha256": "ad54684b7dffd48dcc09c12a0093d375ea1edcaa418bad714d4f54b16a95c81d",
-   "license": "CC0-1.0",
-   "source": {
-    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
-    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
-   },
-   "duration_s": 138.591,
-   "bpm": 72,
-   "moods": [
-    "playful",
-    "uplifting"
-   ]
-  },
-  {
    "id": "texture.paper006-color-1k",
    "kind": "texture",
    "path": "textures/paper006-color-1k.jpg",
@@ -5877,6 +5709,3154 @@
     "url": "tools/synth_sfx.py"
    },
    "sha256": "b6740523cd8441c9cd05ab5a7e8f889d2557b365b788b3ce33f8ac55cd13dc5c"
+  },
+  {
+   "id": "synth.click.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.click",
+   "family": "synth",
+   "path": "assets/community/synth/click-01.wav",
+   "duration_s": 0.045,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "dbf7eecee9f6158e948d7b8da25c1bbf84e9deec5917dc8bc468c6bf7e035a01"
+  },
+  {
+   "id": "synth.click.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.click",
+   "family": "synth",
+   "path": "assets/community/synth/click-02.wav",
+   "duration_s": 0.04,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "dfd39d0e03f79cd69500e28b502bfacded6354a3b4b290233e52f6ccdf296ff6"
+  },
+  {
+   "id": "synth.click.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.click",
+   "family": "synth",
+   "path": "assets/community/synth/click-03.wav",
+   "duration_s": 0.05,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "362f24427ed9fd9ed6a9976bb02605118b235f1ebaab217df975b35fc05c88dd"
+  },
+  {
+   "id": "synth.thock.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.thock",
+   "family": "synth",
+   "path": "assets/community/synth/thock-01.wav",
+   "duration_s": 0.14,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "4c406b02be8450f3dab4862faa89e218917e2c61c64b7a14fe29aa86ef9d2057"
+  },
+  {
+   "id": "synth.thock.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.thock",
+   "family": "synth",
+   "path": "assets/community/synth/thock-02.wav",
+   "duration_s": 0.12,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "43c81803812e3fdea9b2b171668daf18fd093a0a0806545b6c3c40575a73122d"
+  },
+  {
+   "id": "synth.thock.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.thock",
+   "family": "synth",
+   "path": "assets/community/synth/thock-03.wav",
+   "duration_s": 0.16,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "7d5d997cb1aecd7986f25d9ee882ce2baa4d487df254c238f9875ff5ccd65438"
+  },
+  {
+   "id": "synth.swish.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.swish",
+   "family": "synth",
+   "path": "assets/community/synth/swish-01.wav",
+   "duration_s": 0.2,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "90e168d343149cec1192a42f62b548950f9468c032235773612781cb3674bf5e"
+  },
+  {
+   "id": "synth.swish.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.swish",
+   "family": "synth",
+   "path": "assets/community/synth/swish-02.wav",
+   "duration_s": 0.26,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "6f798b4e780211f9e20200d1396885015a252c958966b4f5d3d4380936544e79"
+  },
+  {
+   "id": "synth.swish.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.swish",
+   "family": "synth",
+   "path": "assets/community/synth/swish-03.wav",
+   "duration_s": 0.17,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "ce8c155e835cdd2719ca2ca155bffd6ea08e9cc39eb8cb2a55b196af9dfbf334"
+  },
+  {
+   "id": "music.a-waltz-for-naseem",
+   "kind": "music",
+   "title": "A Waltz For Naseem",
+   "path": "music/freepd/a-waltz-for-naseem.mp3",
+   "sha256": "e1d65004f98a9526340238726e283d9f3377508a3b86142557266f185bc4e3ac",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 78,
+   "grid_offset_ms": 511,
+   "lufs": -17.9,
+   "true_peak_dbtp": -3.6,
+   "brightness_hz": 1373,
+   "onsets_per_s": 0.96,
+   "energy": 0.427,
+   "moods": [
+    "elegant",
+    "wistful"
+   ]
+  },
+  {
+   "id": "music.adding-the-sun",
+   "kind": "music",
+   "title": "Adding the Sun",
+   "path": "music/freepd/adding-the-sun.mp3",
+   "sha256": "6338e39b23832d771f0d73f87fd771991a542d24857f1a10d0f40982d176214f",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 21,
+   "lufs": -17.0,
+   "true_peak_dbtp": -1.1,
+   "brightness_hz": 1097,
+   "onsets_per_s": 2.32,
+   "energy": 0.544,
+   "moods": [
+    "uplifting",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.ambient-bongos",
+   "kind": "music",
+   "title": "Ambient Bongos",
+   "path": "music/freepd/ambient-bongos.mp3",
+   "sha256": "cff5229aff03e0398be1a2eb945acfbbff315232c75fb5e81505a5b18d5d1091",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 87.641,
+   "bpm": 68,
+   "grid_offset_ms": 294,
+   "lufs": -17.2,
+   "true_peak_dbtp": 0.2,
+   "brightness_hz": 1820,
+   "onsets_per_s": 2.77,
+   "energy": 0.569,
+   "moods": [
+    "calm",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.and-here-we-go",
+   "kind": "music",
+   "title": "And Here We Go",
+   "path": "music/freepd/and-here-we-go.mp3",
+   "sha256": "3b6c778951572b8f3b76a90790a36b7fc7b1958b2640037e150db63457097767",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 73.064,
+   "bpm": 68,
+   "grid_offset_ms": 846,
+   "lufs": -19.2,
+   "true_peak_dbtp": -1.5,
+   "brightness_hz": 1283,
+   "onsets_per_s": 1.6,
+   "energy": 0.431,
+   "moods": [
+    "uplifting",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.and-just-like-that",
+   "kind": "music",
+   "title": "And Just Like That",
+   "path": "music/freepd/and-just-like-that.mp3",
+   "sha256": "d85450cde5f50fc2e9d2c0485da70d1213c44fd4e31c8b72147405a0b2e05232",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 114.264,
+   "bpm": 123,
+   "grid_offset_ms": 81,
+   "lufs": -15.2,
+   "true_peak_dbtp": -0.3,
+   "brightness_hz": 1108,
+   "onsets_per_s": 2.6,
+   "energy": 0.617,
+   "moods": [
+    "uplifting",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.aquarium",
+   "kind": "music",
+   "title": "Aquarium",
+   "path": "music/freepd/aquarium.mp3",
+   "sha256": "40df06a258bda87c4d3ead5f3bbe3fc765ef798132ef549339451454328e4470",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 68,
+   "grid_offset_ms": 735,
+   "lufs": -19.4,
+   "true_peak_dbtp": -3.6,
+   "brightness_hz": 1184,
+   "onsets_per_s": 1.1,
+   "energy": 0.391,
+   "moods": [
+    "dreamy",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.asking-questions",
+   "kind": "music",
+   "title": "Asking Questions",
+   "path": "music/freepd/asking-questions.mp3",
+   "sha256": "9546643c429e81375c7b3f1f870a4f876a36ad2c8127ba718c6735b5704bb14a",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 104.255,
+   "bpm": 120,
+   "grid_offset_ms": 437,
+   "lufs": -15.1,
+   "true_peak_dbtp": -0.3,
+   "brightness_hz": 570,
+   "onsets_per_s": 1.53,
+   "energy": 0.549,
+   "moods": [
+    "tense",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.backbeat",
+   "kind": "music",
+   "title": "Backbeat",
+   "path": "music/freepd/backbeat.mp3",
+   "sha256": "a9bcfaeeb4ac5e11bc82c6ca41e34aa6e8d437c9b10fd9bd4870d4d0f0f5cbf7",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 46.211,
+   "bpm": 65,
+   "grid_offset_ms": 232,
+   "lufs": -23.7,
+   "true_peak_dbtp": -11.8,
+   "brightness_hz": 353,
+   "onsets_per_s": 3.29,
+   "energy": 0.408,
+   "moods": [
+    "driving",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.bass-meant-jazz",
+   "kind": "music",
+   "title": "Bass Meant Jazz",
+   "path": "music/freepd/bass-meant-jazz.mp3",
+   "sha256": "10e72c71dfffd2859e85acaf804057f74b0074cf981b8b4795627fb85fa7ee13",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 123,
+   "grid_offset_ms": 61,
+   "lufs": -14.1,
+   "true_peak_dbtp": -1.1,
+   "brightness_hz": 450,
+   "onsets_per_s": 1.62,
+   "energy": 0.585,
+   "moods": [
+    "jazzy",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.be-chillin",
+   "kind": "music",
+   "title": "Be Chillin",
+   "path": "music/freepd/be-chillin.mp3",
+   "sha256": "95c36c9f9c22bdb813540af5b5c58ce21b3a957ebdc0f7748a5ba147e2adf26a",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 89,
+   "grid_offset_ms": 561,
+   "lufs": -17.5,
+   "true_peak_dbtp": -2.7,
+   "brightness_hz": 1055,
+   "onsets_per_s": 1.73,
+   "energy": 0.49,
+   "moods": [
+    "calm",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.beat-one",
+   "kind": "music",
+   "title": "Beat One",
+   "path": "music/freepd/beat-one.mp3",
+   "sha256": "c588e3c8f563eea433346f34924a0fac1fcc058cd794e90c70b8d60ed2fa9b60",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 117,
+   "grid_offset_ms": 341,
+   "lufs": -15.2,
+   "true_peak_dbtp": -0.0,
+   "brightness_hz": 714,
+   "onsets_per_s": 2.75,
+   "energy": 0.627,
+   "moods": [
+    "driving",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.beat-thee",
+   "kind": "music",
+   "title": "Beat Thee",
+   "path": "music/freepd/beat-thee.mp3",
+   "sha256": "8c21485e57b172ef895fac0410453669c4294d1344ff4925417f59f489ce6a5a",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 91,
+   "grid_offset_ms": 386,
+   "lufs": -16.6,
+   "true_peak_dbtp": -0.2,
+   "brightness_hz": 1085,
+   "onsets_per_s": 2.36,
+   "energy": 0.559,
+   "moods": [
+    "driving",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.bebop-for-joey",
+   "kind": "music",
+   "title": "BeBop for Joey",
+   "path": "music/freepd/bebop-for-joey.mp3",
+   "sha256": "34fe50cc38d4e599da7eb93d68608afdb837179eb16d90c70d372142d817a3a8",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 89,
+   "grid_offset_ms": 337,
+   "lufs": -18.9,
+   "true_peak_dbtp": -0.8,
+   "brightness_hz": 1023,
+   "onsets_per_s": 1.88,
+   "energy": 0.459,
+   "moods": [
+    "jazzy",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.bit-bit-loop",
+   "kind": "music",
+   "title": "Bit Bit Loop",
+   "path": "music/freepd/bit-bit-loop.mp3",
+   "sha256": "5707be0a075cab2cd2743ad25625e61982752af882885c53a9552fe6eb9175d5",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 76.852,
+   "bpm": 99,
+   "grid_offset_ms": 277,
+   "lufs": -6.9,
+   "true_peak_dbtp": 3.9,
+   "brightness_hz": 2217,
+   "onsets_per_s": 2.64,
+   "energy": 0.776,
+   "moods": [
+    "playful",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.blippy-trance",
+   "kind": "music",
+   "title": "Blippy Trance",
+   "path": "music/freepd/blippy-trance.mp3",
+   "sha256": "c4f86db9dfbd7b023078589fcedda9c0495b027a3af0849653eeae5e1c0f09a6",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 528,
+   "lufs": -12.4,
+   "true_peak_dbtp": -0.8,
+   "brightness_hz": 477,
+   "onsets_per_s": 2.08,
+   "energy": 0.666,
+   "moods": [
+    "driving",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.busybody",
+   "kind": "music",
+   "title": "Busybody",
+   "path": "music/freepd/busybody.mp3",
+   "sha256": "f1a284d3a0a04252498a94a918bc40eddb82d5671795de0d5ee747e49b6101fe",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 86.4,
+   "bpm": 68,
+   "grid_offset_ms": 74,
+   "lufs": -16.9,
+   "true_peak_dbtp": -0.6,
+   "brightness_hz": 1046,
+   "onsets_per_s": 2.18,
+   "energy": 0.538,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.celebration",
+   "kind": "music",
+   "title": "Celebration",
+   "path": "music/freepd/celebration.mp3",
+   "sha256": "d4b5be4335e20343bd9826030b7502cb2f45f9e64dcc9e655f94d286e7aa23e5",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 81,
+   "grid_offset_ms": 31,
+   "lufs": -12.8,
+   "true_peak_dbtp": -0.5,
+   "brightness_hz": 1128,
+   "onsets_per_s": 2.06,
+   "energy": 0.653,
+   "moods": [
+    "uplifting",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.circuit",
+   "kind": "music",
+   "title": "Circuit",
+   "path": "music/freepd/circuit.mp3",
+   "sha256": "e528b86b42ab60e606872a4b83a76d009cadd0e5f2b23de95926c845c66add99",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 65,
+   "grid_offset_ms": 77,
+   "lufs": -13.3,
+   "true_peak_dbtp": 0.4,
+   "brightness_hz": 1759,
+   "onsets_per_s": 1.84,
+   "energy": 0.624,
+   "moods": [
+    "driving",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.city-run",
+   "kind": "music",
+   "title": "City Run",
+   "path": "music/freepd/city-run.mp3",
+   "sha256": "35e79cc8bb74ce616975dd3b6c60536659914ae6bb641e297f4a93acc3ccb4ed",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 37.12,
+   "bpm": 120,
+   "grid_offset_ms": 187,
+   "lufs": -13.1,
+   "true_peak_dbtp": 0.8,
+   "brightness_hz": 1470,
+   "onsets_per_s": 1.89,
+   "energy": 0.633,
+   "moods": [
+    "driving",
+    "uplifting"
+   ]
+  },
+  {
+   "id": "music.city-sunshine",
+   "kind": "music",
+   "title": "City Sunshine",
+   "path": "music/freepd/city-sunshine.mp3",
+   "sha256": "d468141231b7f92d4cbe91e1bd59b21f19140e733ea678b6edff823044d779da",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 85,
+   "grid_offset_ms": 0,
+   "lufs": -14.0,
+   "true_peak_dbtp": 0.6,
+   "brightness_hz": 986,
+   "onsets_per_s": 2.22,
+   "energy": 0.628,
+   "moods": [
+    "bright",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.comic-game-loop-mischief",
+   "kind": "music",
+   "title": "Comic Game Loop - Mischief",
+   "path": "music/freepd/comic-game-loop-mischief.mp3",
+   "sha256": "102034c8afb4a259ce44166950c71353f96c1377aaa55b890267d361512951d9",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 42.736,
+   "bpm": 89,
+   "grid_offset_ms": 365,
+   "lufs": -20.0,
+   "true_peak_dbtp": -1.7,
+   "brightness_hz": 894,
+   "onsets_per_s": 2.08,
+   "energy": 0.439,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.compy-jazz",
+   "kind": "music",
+   "title": "Compy Jazz",
+   "path": "music/freepd/compy-jazz.mp3",
+   "sha256": "1f090c434398294ce36d237c409035d312849a5e069e03c40c7dae1c313a883c",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 25,
+   "lufs": -18.5,
+   "true_peak_dbtp": -1.2,
+   "brightness_hz": 750,
+   "onsets_per_s": 1.62,
+   "energy": 0.453,
+   "moods": [
+    "jazzy",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.connecting-rainbows",
+   "kind": "music",
+   "title": "Connecting Rainbows",
+   "path": "music/freepd/connecting-rainbows.mp3",
+   "sha256": "f9b6aade61195db2e2cbb3ac115b3af4f08cf245b08e6eec74f6860ad43b0e38",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 116.062,
+   "bpm": 89,
+   "grid_offset_ms": 645,
+   "lufs": -24.0,
+   "true_peak_dbtp": -7.5,
+   "brightness_hz": 884,
+   "onsets_per_s": 1.41,
+   "energy": 0.274,
+   "moods": [
+    "uplifting",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.coy-koi",
+   "kind": "music",
+   "title": "Coy Koi",
+   "path": "music/freepd/coy-koi.mp3",
+   "sha256": "fb4db704733bac880fb96c3155b0649732e1c48eec95ea8c01ce133e5058b179",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 48.065,
+   "bpm": 81,
+   "grid_offset_ms": 433,
+   "lufs": -16.4,
+   "true_peak_dbtp": 0.4,
+   "brightness_hz": 842,
+   "onsets_per_s": 2.18,
+   "energy": 0.554,
+   "moods": [
+    "calm",
+    "dreamy"
+   ]
+  },
+  {
+   "id": "music.deep-tones",
+   "kind": "music",
+   "title": "Deep Tones",
+   "path": "music/freepd/deep-tones.mp3",
+   "sha256": "dd1eeb42a7d6502b30e2376e7723664968aeb8ea51d7ecba8b9ea0d9e9de9d2c",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 81.869,
+   "bpm": 89,
+   "grid_offset_ms": 337,
+   "lufs": -25.4,
+   "true_peak_dbtp": -7.8,
+   "brightness_hz": 593,
+   "onsets_per_s": 1.12,
+   "energy": 0.213,
+   "moods": [
+    "calm",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.downtown-boogie",
+   "kind": "music",
+   "title": "Downtown Boogie",
+   "path": "music/freepd/downtown-boogie.mp3",
+   "sha256": "2861e9d6145f32466f29cf18584b59a43588f8922134e5598e992b0f2d8914b0",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 105,
+   "grid_offset_ms": 379,
+   "lufs": -10.8,
+   "true_peak_dbtp": 0.6,
+   "brightness_hz": 1717,
+   "onsets_per_s": 2.83,
+   "energy": 0.765,
+   "moods": [
+    "jazzy",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.driving-concern",
+   "kind": "music",
+   "title": "Driving Concern",
+   "path": "music/freepd/driving-concern.mp3",
+   "sha256": "e6b18a51b6f3d4033df4e2b38e5d4a0c8abb378d3f2bfb994dd37170aa640373",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 112,
+   "grid_offset_ms": 378,
+   "lufs": -15.1,
+   "true_peak_dbtp": -0.9,
+   "brightness_hz": 545,
+   "onsets_per_s": 2.34,
+   "energy": 0.603,
+   "moods": [
+    "tense",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.drop-point",
+   "kind": "music",
+   "title": "Drop Point",
+   "path": "music/freepd/drop-point.mp3",
+   "sha256": "db3791bfa3b2cbb316cd1897ded8c259d02ddd336da9276d7ac9a3eac7500014",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 112,
+   "grid_offset_ms": 289,
+   "lufs": -10.7,
+   "true_peak_dbtp": 0.8,
+   "brightness_hz": 1687,
+   "onsets_per_s": 2.13,
+   "energy": 0.721,
+   "moods": [
+    "driving",
+    "tense"
+   ]
+  },
+  {
+   "id": "music.elevate-inspirate",
+   "kind": "music",
+   "title": "Elevate Inspirate",
+   "path": "music/freepd/elevate-inspirate.mp3",
+   "sha256": "8b104674d83a68c896ef4a2206fa067b807fea5e3f43ffffe12a1b82eb5ae60e",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 64.47,
+   "bpm": 103,
+   "grid_offset_ms": 73,
+   "lufs": -18.0,
+   "true_peak_dbtp": -3.1,
+   "brightness_hz": 2431,
+   "onsets_per_s": 1.68,
+   "energy": 0.472,
+   "moods": [
+    "uplifting",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.energizing",
+   "kind": "music",
+   "title": "Energizing",
+   "path": "music/freepd/energizing.mp3",
+   "sha256": "16985fbd0068d2ab55ca2899160afcc1473409248666b46817e9c6adc61934fe",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 91,
+   "grid_offset_ms": 386,
+   "lufs": -23.7,
+   "true_peak_dbtp": -7.8,
+   "brightness_hz": 810,
+   "onsets_per_s": 1.55,
+   "energy": 0.292,
+   "moods": [
+    "driving",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.fake-it-til-you-fake-it",
+   "kind": "music",
+   "title": "Fake It Til You Fake It",
+   "path": "music/freepd/fake-it-til-you-fake-it.mp3",
+   "sha256": "488d3d55851e7426fd0280137852d651457aa781bbc31480c2dde973e8757956",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 70,
+   "grid_offset_ms": 680,
+   "lufs": -18.6,
+   "true_peak_dbtp": -0.5,
+   "brightness_hz": 629,
+   "onsets_per_s": 1.82,
+   "energy": 0.463,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.fancy-family",
+   "kind": "music",
+   "title": "Fancy Family",
+   "path": "music/freepd/fancy-family.mp3",
+   "sha256": "77e0245d23d9f9e4ab56f20e73531ea1929244df85af6bdf91980c10fc3b20ee",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 67.446,
+   "bpm": 99,
+   "grid_offset_ms": 302,
+   "lufs": -19.7,
+   "true_peak_dbtp": -3.9,
+   "brightness_hz": 1400,
+   "onsets_per_s": 3.17,
+   "energy": 0.521,
+   "moods": [
+    "elegant",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.finally-see-the-light",
+   "kind": "music",
+   "title": "Finally See The Light",
+   "path": "music/freepd/finally-see-the-light.mp3",
+   "sha256": "c1bc0b61be9b003c37ff374217e8c6593288153a71c8cf694e188113550b8524",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 92,
+   "grid_offset_ms": 0,
+   "lufs": -10.8,
+   "true_peak_dbtp": 0.7,
+   "brightness_hz": 1271,
+   "onsets_per_s": 2.45,
+   "energy": 0.739,
+   "moods": [
+    "uplifting",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.fireworks",
+   "kind": "music",
+   "title": "Fireworks",
+   "path": "music/freepd/fireworks.mp3",
+   "sha256": "6ca3d627c65401f727218cf0d208645cbe06dfd27d7c7d9d1704ec68a21efc1f",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 117,
+   "grid_offset_ms": 298,
+   "lufs": -12.4,
+   "true_peak_dbtp": 0.1,
+   "brightness_hz": 1946,
+   "onsets_per_s": 1.72,
+   "energy": 0.642,
+   "moods": [
+    "uplifting",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.flutey-jazz",
+   "kind": "music",
+   "title": "Flutey Jazz",
+   "path": "music/freepd/flutey-jazz.mp3",
+   "sha256": "7614ab8e50c25652e934b371a3be1142a154abb50a89535f268941cd8d64eb4f",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 25,
+   "lufs": -18.6,
+   "true_peak_dbtp": -1.6,
+   "brightness_hz": 824,
+   "onsets_per_s": 1.62,
+   "energy": 0.45,
+   "moods": [
+    "jazzy",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.foam-rubber",
+   "kind": "music",
+   "title": "Foam Rubber",
+   "path": "music/freepd/foam-rubber.mp3",
+   "sha256": "cbcc0b5ac5a88e4b7dd6c850331e58dd5c517df72643552ca954e30f1a9e721a",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 85,
+   "grid_offset_ms": 354,
+   "lufs": -20.2,
+   "true_peak_dbtp": -4.1,
+   "brightness_hz": 943,
+   "onsets_per_s": 1.69,
+   "energy": 0.407,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.funkeriffic",
+   "kind": "music",
+   "title": "Funkeriffic",
+   "path": "music/freepd/funkeriffic.mp3",
+   "sha256": "3ebd97988c670e5558388217cd49e6b60bcbfc1558ba523bf24f6ecf1205e062",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 112,
+   "grid_offset_ms": 378,
+   "lufs": -14.3,
+   "true_peak_dbtp": -0.4,
+   "brightness_hz": 1116,
+   "onsets_per_s": 2.11,
+   "energy": 0.612,
+   "moods": [
+    "playful",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.funky-energy-loop",
+   "kind": "music",
+   "title": "Funky Energy Loop",
+   "path": "music/freepd/funky-energy-loop.mp3",
+   "sha256": "298e017ece00940a6327ed9b7d0f8749ac4cc22853ef5b76aea87ef790151f26",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 115,
+   "grid_offset_ms": 414,
+   "lufs": -20.6,
+   "true_peak_dbtp": -5.9,
+   "brightness_hz": 1918,
+   "onsets_per_s": 2.17,
+   "energy": 0.426,
+   "moods": [
+    "driving",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.funshine",
+   "kind": "music",
+   "title": "Funshine",
+   "path": "music/freepd/funshine.mp3",
+   "sha256": "57d4c19608c57edbdc94add0f378ed010bff44326b84d915f40498ad2cfc1015",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 96,
+   "grid_offset_ms": 0,
+   "lufs": -11.3,
+   "true_peak_dbtp": 0.2,
+   "brightness_hz": 1612,
+   "onsets_per_s": 2.32,
+   "energy": 0.715,
+   "moods": [
+    "playful",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.going-bananas",
+   "kind": "music",
+   "title": "Going Bananas",
+   "path": "music/freepd/going-bananas.mp3",
+   "sha256": "b0bcbbaee88902bc6af9decc76877a52c0f7930c0994c848ad7f7c9f3cad0d0d",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 65,
+   "grid_offset_ms": 0,
+   "lufs": -9.8,
+   "true_peak_dbtp": 1.3,
+   "brightness_hz": 1944,
+   "onsets_per_s": 2.83,
+   "energy": 0.789,
+   "moods": [
+    "playful",
+    "quirky"
+   ]
+  },
+  {
+   "id": "music.gotta-keep-on-movin",
+   "kind": "music",
+   "title": "Gotta Keep On Movin",
+   "path": "music/freepd/gotta-keep-on-movin.mp3",
+   "sha256": "daf975f9bed2c18bdaeeceea8b40666c66f7e6c4cc3305013b5f336a8572f547",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 110,
+   "grid_offset_ms": 0,
+   "lufs": -13.8,
+   "true_peak_dbtp": -1.1,
+   "brightness_hz": 1734,
+   "onsets_per_s": 2.79,
+   "energy": 0.672,
+   "moods": [
+    "driving",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.groovin",
+   "kind": "music",
+   "title": "Groovin",
+   "path": "music/freepd/groovin.mp3",
+   "sha256": "ceb876663315c1b44c723130a8b0b9bd89ae48b973931bce5a1b23013cdb0ea6",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 81,
+   "grid_offset_ms": 124,
+   "lufs": -15.9,
+   "true_peak_dbtp": -0.1,
+   "brightness_hz": 1514,
+   "onsets_per_s": 3.12,
+   "energy": 0.631,
+   "moods": [
+    "playful",
+    "jazzy"
+   ]
+  },
+  {
+   "id": "music.happy-whistling-ukulele",
+   "kind": "music",
+   "title": "Happy Whistling Ukulele",
+   "path": "music/freepd/happy-whistling-ukulele.mp3",
+   "sha256": "0f461f21b4614cad7263f8ec1f30c3ac6abb6a502d0a01317dd9d56a39166221",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 65,
+   "grid_offset_ms": 0,
+   "lufs": -18.3,
+   "true_peak_dbtp": -0.6,
+   "brightness_hz": 1758,
+   "onsets_per_s": 3.01,
+   "energy": 0.552,
+   "moods": [
+    "playful",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.hear-what-they-say",
+   "kind": "music",
+   "title": "Hear What They Say",
+   "path": "music/freepd/hear-what-they-say.mp3",
+   "sha256": "b8043c22364648f20b57997cad0ecbf576493690590837849b04ee8dbb0794a5",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 115,
+   "grid_offset_ms": 348,
+   "lufs": -17.5,
+   "true_peak_dbtp": -4.1,
+   "brightness_hz": 2445,
+   "onsets_per_s": 1.57,
+   "energy": 0.48,
+   "moods": [
+    "focused",
+    "uplifting"
+   ]
+  },
+  {
+   "id": "music.hidden-truth",
+   "kind": "music",
+   "title": "Hidden Truth",
+   "path": "music/freepd/hidden-truth.mp3",
+   "sha256": "ea52351ef45405b6f138725ef780af3c47a70b05d3adb5b6349cd448e1129a29",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 98.795,
+   "bpm": 110,
+   "grid_offset_ms": 159,
+   "lufs": -17.2,
+   "true_peak_dbtp": -0.5,
+   "brightness_hz": 797,
+   "onsets_per_s": 0.91,
+   "energy": 0.445,
+   "moods": [
+    "tense",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.hippety-hop",
+   "kind": "music",
+   "title": "Hippety Hop",
+   "path": "music/freepd/hippety-hop.mp3",
+   "sha256": "0b3cd440f9c1a61781fffdf0121a75aa0b3f2fe822b5ca1d5f47e426798bbd1b",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 116.663,
+   "bpm": 70,
+   "grid_offset_ms": 251,
+   "lufs": -12.6,
+   "true_peak_dbtp": -0.2,
+   "brightness_hz": 880,
+   "onsets_per_s": 2.58,
+   "energy": 0.694,
+   "moods": [
+    "playful",
+    "quirky"
+   ]
+  },
+  {
+   "id": "music.hold-on-a-sec",
+   "kind": "music",
+   "title": "Hold on a Sec",
+   "path": "music/freepd/hold-on-a-sec.mp3",
+   "sha256": "c5cf7404ec5d013c1eb9599a54acd3cbe58d9b6ad211a7508a39d896dbe3d468",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 96,
+   "grid_offset_ms": 183,
+   "lufs": -12.7,
+   "true_peak_dbtp": -0.1,
+   "brightness_hz": 924,
+   "onsets_per_s": 2.75,
+   "energy": 0.702,
+   "moods": [
+    "quirky",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.hopeful",
+   "kind": "music",
+   "title": "Hopeful",
+   "path": "music/freepd/hopeful.mp3",
+   "sha256": "afbd9b40fbf7bc14dc8c62c5527834320056f97965726ee06c231d6a12438f2a",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 113.763,
+   "bpm": 99,
+   "grid_offset_ms": 126,
+   "lufs": -12.0,
+   "true_peak_dbtp": 0.4,
+   "brightness_hz": 888,
+   "onsets_per_s": 2.82,
+   "energy": 0.728,
+   "moods": [
+    "uplifting"
+   ]
+  },
+  {
+   "id": "music.horizon-flare",
+   "kind": "music",
+   "title": "Horizon Flare",
+   "path": "music/freepd/horizon-flare.mp3",
+   "sha256": "e75116da2209e0f5c3b3f74406907fdcff9178808df4b12a4c225180081e77eb",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 102.318,
+   "bpm": 76,
+   "grid_offset_ms": 461,
+   "lufs": -20.8,
+   "true_peak_dbtp": -4.0,
+   "brightness_hz": 619,
+   "onsets_per_s": 0.73,
+   "energy": 0.325,
+   "moods": [
+    "uplifting",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.icicles-melting",
+   "kind": "music",
+   "title": "Icicles Melting",
+   "path": "music/freepd/icicles-melting.mp3",
+   "sha256": "8983b78c9c8678418a817e9496df48ede9aa0eb2102bbf98d17275cc753f6974",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 81,
+   "grid_offset_ms": 248,
+   "lufs": -32.6,
+   "true_peak_dbtp": -17.0,
+   "brightness_hz": 618,
+   "onsets_per_s": 2.23,
+   "energy": 0.148,
+   "moods": [
+    "dreamy",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.infinite-peace",
+   "kind": "music",
+   "title": "Infinite Peace",
+   "path": "music/freepd/infinite-peace.mp3",
+   "sha256": "410d488b1c095385f71d2bdba3475395a20c2de02b4a534bac958b9608ee7a23",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 76.069,
+   "bpm": 89,
+   "grid_offset_ms": 449,
+   "lufs": -29.9,
+   "true_peak_dbtp": -13.1,
+   "brightness_hz": 858,
+   "onsets_per_s": 1.52,
+   "energy": 0.105,
+   "moods": [
+    "calm",
+    "dreamy"
+   ]
+  },
+  {
+   "id": "music.infinite-wonder",
+   "kind": "music",
+   "title": "Infinite Wonder",
+   "path": "music/freepd/infinite-wonder.mp3",
+   "sha256": "78975c1776829a8dd9a3744c0156ff7a909ff81b20f92b913c02efa4188280d7",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 112,
+   "grid_offset_ms": 0,
+   "lufs": -21.5,
+   "true_peak_dbtp": -7.4,
+   "brightness_hz": 697,
+   "onsets_per_s": 0.43,
+   "energy": 0.284,
+   "moods": [
+    "dreamy",
+    "uplifting"
+   ]
+  },
+  {
+   "id": "music.inspiration",
+   "kind": "music",
+   "title": "Inspiration",
+   "path": "music/freepd/inspiration.mp3",
+   "sha256": "a24e697126047a24de75df7e2da784866e418846bfa75bdf56ebf3273b210ac8",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 395,
+   "lufs": -11.6,
+   "true_peak_dbtp": 0.5,
+   "brightness_hz": 429,
+   "onsets_per_s": 2.76,
+   "energy": 0.736,
+   "moods": [
+    "uplifting",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.inventing-flight",
+   "kind": "music",
+   "title": "Inventing Flight",
+   "path": "music/freepd/inventing-flight.mp3",
+   "sha256": "e4783b87378d306265dd39c30465006a568f2541c79e9fd87bd7f5eb6be18f0b",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 72,
+   "grid_offset_ms": 557,
+   "lufs": -11.2,
+   "true_peak_dbtp": 0.3,
+   "brightness_hz": 1085,
+   "onsets_per_s": 1.15,
+   "energy": 0.641,
+   "moods": [
+    "uplifting",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.journey-of-hope",
+   "kind": "music",
+   "title": "Journey of Hope",
+   "path": "music/freepd/journey-of-hope.mp3",
+   "sha256": "468b8759c8085e267ccadffc4a2c7047478e93bfe9466e17099de1dfee3bf55f",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 74,
+   "grid_offset_ms": 779,
+   "lufs": -16.0,
+   "true_peak_dbtp": -1.1,
+   "brightness_hz": 1252,
+   "onsets_per_s": 1.99,
+   "energy": 0.553,
+   "moods": [
+    "uplifting",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.kalimba-relaxation-music",
+   "kind": "music",
+   "title": "Kalimba Relaxation Music",
+   "path": "music/freepd/kalimba-relaxation-music.mp3",
+   "sha256": "760d9e7eafd96d9cbc0e4ea6be491d4b7416acf5dcfb43a6fdfac2d5b5afe098",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 81,
+   "grid_offset_ms": 93,
+   "lufs": -15.9,
+   "true_peak_dbtp": -0.1,
+   "brightness_hz": 445,
+   "onsets_per_s": 0.88,
+   "energy": 0.482,
+   "moods": [
+    "calm",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.landra-s-dream",
+   "kind": "music",
+   "title": "Landra's Dream",
+   "path": "music/freepd/landra-s-dream.mp3",
+   "sha256": "58f367e6541e50e7d793e05becfa177f73d771ccd55150bf7fde34456a7fd556",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 88.921,
+   "bpm": 99,
+   "grid_offset_ms": 579,
+   "lufs": -9.5,
+   "true_peak_dbtp": -0.0,
+   "brightness_hz": 950,
+   "onsets_per_s": 2.2,
+   "energy": 0.747,
+   "moods": [
+    "dreamy",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.limit-70",
+   "kind": "music",
+   "title": "Limit 70",
+   "path": "music/freepd/limit-70.mp3",
+   "sha256": "69a259b2ad7b828d1628791539d4c533ba3ee204b40deeb7e5ecfb03f5070d82",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 103,
+   "grid_offset_ms": 169,
+   "lufs": -18.8,
+   "true_peak_dbtp": -2.0,
+   "brightness_hz": 769,
+   "onsets_per_s": 2.33,
+   "energy": 0.492,
+   "moods": [
+    "driving",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.llama-in-pajama",
+   "kind": "music",
+   "title": "Llama in Pajama",
+   "path": "music/freepd/llama-in-pajama.mp3",
+   "sha256": "8f9427450e917fcc81a384b1ad1614df4249e24b06612b78a0761fbf46633770",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 97.437,
+   "bpm": 120,
+   "grid_offset_ms": 333,
+   "lufs": -12.5,
+   "true_peak_dbtp": 0.8,
+   "brightness_hz": 1247,
+   "onsets_per_s": 2.46,
+   "energy": 0.689,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.lovely-piano-song",
+   "kind": "music",
+   "title": "Lovely Piano Song",
+   "path": "music/freepd/lovely-piano-song.mp3",
+   "sha256": "be7cfce98589ec38642f67bf169ed132c9e12e55e4220e723b3cc61b350dfd04",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 95.787,
+   "bpm": 99,
+   "grid_offset_ms": 25,
+   "lufs": -18.6,
+   "true_peak_dbtp": -3.9,
+   "brightness_hz": 534,
+   "onsets_per_s": 1.46,
+   "energy": 0.439,
+   "moods": [
+    "calm",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.lucky-break",
+   "kind": "music",
+   "title": "Lucky Break",
+   "path": "music/freepd/lucky-break.mp3",
+   "sha256": "2a9947f9ea3882997543c4f593cc1912f4ed580e8e602d22da0be67a8a5491db",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 65,
+   "grid_offset_ms": 232,
+   "lufs": -11.8,
+   "true_peak_dbtp": 0.3,
+   "brightness_hz": 1278,
+   "onsets_per_s": 1.82,
+   "energy": 0.667,
+   "moods": [
+    "playful",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.lurking-sloth",
+   "kind": "music",
+   "title": "Lurking Sloth",
+   "path": "music/freepd/lurking-sloth.mp3",
+   "sha256": "2214ef91cf0047994b64ee9db08ae7f83cec46346cff6d72f211f8053f6e6240",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 0,
+   "lufs": -18.2,
+   "true_peak_dbtp": -1.8,
+   "brightness_hz": 522,
+   "onsets_per_s": 1.95,
+   "energy": 0.484,
+   "moods": [
+    "quirky",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.magic-in-the-garden",
+   "kind": "music",
+   "title": "Magic in the Garden",
+   "path": "music/freepd/magic-in-the-garden.mp3",
+   "sha256": "8dd08f26134a36f4023aad05abcfb96ce8bedf9bed02d28c45ceaba8ee1f863c",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 377,
+   "lufs": -15.6,
+   "true_peak_dbtp": -1.7,
+   "brightness_hz": 598,
+   "onsets_per_s": 1.35,
+   "energy": 0.522,
+   "moods": [
+    "dreamy",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.managing-mischief",
+   "kind": "music",
+   "title": "Managing Mischief",
+   "path": "music/freepd/managing-mischief.mp3",
+   "sha256": "2eeb9293da78cd4eff77514cac6da94ab5a113449974da40d2079738c79c3697",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 125,
+   "lufs": -16.5,
+   "true_peak_dbtp": -0.1,
+   "brightness_hz": 1616,
+   "onsets_per_s": 2.67,
+   "energy": 0.583,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.martini-sunset",
+   "kind": "music",
+   "title": "Martini Sunset",
+   "path": "music/freepd/martini-sunset.mp3",
+   "sha256": "ddab7e37791686d5c0a5eeac1075b1b65df70acfbd155f152fb32538fd9d134f",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 70,
+   "grid_offset_ms": 0,
+   "lufs": -17.6,
+   "true_peak_dbtp": -0.2,
+   "brightness_hz": 735,
+   "onsets_per_s": 2.78,
+   "energy": 0.558,
+   "moods": [
+    "jazzy",
+    "elegant"
+   ]
+  },
+  {
+   "id": "music.meditating-beat",
+   "kind": "music",
+   "title": "Meditating Beat",
+   "path": "music/freepd/meditating-beat.mp3",
+   "sha256": "99ad22c70722b4710257b84db0ed6c47eded9a53aec5880d61fdd25e00a8d072",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 92,
+   "grid_offset_ms": 54,
+   "lufs": -17.8,
+   "true_peak_dbtp": -2.1,
+   "brightness_hz": 419,
+   "onsets_per_s": 1.46,
+   "energy": 0.463,
+   "moods": [
+    "calm",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.midnight-in-the-green-house",
+   "kind": "music",
+   "title": "Midnight in the Green House",
+   "path": "music/freepd/midnight-in-the-green-house.mp3",
+   "sha256": "ee1d712730ed112557cba0016a868ccdf03a95d301f3db188cc1f71a9d82a990",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 105,
+   "grid_offset_ms": 427,
+   "lufs": -27.1,
+   "true_peak_dbtp": -11.1,
+   "brightness_hz": 374,
+   "onsets_per_s": 1.15,
+   "energy": 0.164,
+   "moods": [
+    "dreamy",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.motions",
+   "kind": "music",
+   "title": "Motions",
+   "path": "music/freepd/motions.mp3",
+   "sha256": "c3624b31cf4d5df5b4553a3f6bf798f3df5098c0e92393b96c6108275b29dcdb",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 116.931,
+   "bpm": 117,
+   "grid_offset_ms": 234,
+   "lufs": -16.1,
+   "true_peak_dbtp": -0.1,
+   "brightness_hz": 403,
+   "onsets_per_s": 1.13,
+   "energy": 0.492,
+   "moods": [
+    "focused",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.my-giant-bunny-friend",
+   "kind": "music",
+   "title": "My Giant Bunny Friend",
+   "path": "music/freepd/my-giant-bunny-friend.mp3",
+   "sha256": "112e7b7ae97f3fc29f2425f8793f3897ed3fcd6197c734b55567db2eecbefbcd",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 101,
+   "grid_offset_ms": 247,
+   "lufs": -13.9,
+   "true_peak_dbtp": 0.3,
+   "brightness_hz": 1622,
+   "onsets_per_s": 2.86,
+   "energy": 0.674,
+   "moods": [
+    "quirky",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.mysterious-lights",
+   "kind": "music",
+   "title": "Mysterious Lights",
+   "path": "music/freepd/mysterious-lights.mp3",
+   "sha256": "41645218593537e69fb97c6ae2efc04802916ebde14761dcdc69f27b7f86c067",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 70,
+   "grid_offset_ms": 644,
+   "lufs": -14.7,
+   "true_peak_dbtp": -0.9,
+   "brightness_hz": 489,
+   "onsets_per_s": 1.32,
+   "energy": 0.547,
+   "moods": [
+    "tense",
+    "dreamy"
+   ]
+  },
+  {
+   "id": "music.new-hero-in-town",
+   "kind": "music",
+   "title": "New Hero in Town",
+   "path": "music/freepd/new-hero-in-town.mp3",
+   "sha256": "29d59a1034473ffd5efde21e3395ce7cac1d169eb185395b83058a73247f77fe",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 56.556,
+   "bpm": 86,
+   "grid_offset_ms": 319,
+   "lufs": -14.6,
+   "true_peak_dbtp": -0.4,
+   "brightness_hz": 2015,
+   "onsets_per_s": 1.86,
+   "energy": 0.586,
+   "moods": [
+    "uplifting",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.night-in-venice",
+   "kind": "music",
+   "title": "Night in Venice",
+   "path": "music/freepd/night-in-venice.mp3",
+   "sha256": "50c6e47dc7a1d1ca0013d3ed03d7cb2ce121d18c95cf6080b96de5983cdd04c6",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 115,
+   "grid_offset_ms": 479,
+   "lufs": -12.0,
+   "true_peak_dbtp": -0.2,
+   "brightness_hz": 601,
+   "onsets_per_s": 1.93,
+   "energy": 0.669,
+   "moods": [
+    "elegant",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.nordic-wist",
+   "kind": "music",
+   "title": "Nordic Wist",
+   "path": "music/freepd/nordic-wist.mp3",
+   "sha256": "0b6d371914da6b554161b87ddb78e94ae704de1c49ff6a427594fd738e3d9a7f",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 117,
+   "grid_offset_ms": 468,
+   "lufs": -13.2,
+   "true_peak_dbtp": -3.3,
+   "brightness_hz": 583,
+   "onsets_per_s": 0.95,
+   "energy": 0.567,
+   "moods": [
+    "wistful"
+   ]
+  },
+  {
+   "id": "music.nostalgic-piano",
+   "kind": "music",
+   "title": "Nostalgic Piano",
+   "path": "music/freepd/nostalgic-piano.mp3",
+   "sha256": "5df4e2ed9584f6f0a5392b4ef3b157b880b05cb7b9c2841490ae99f6be3961a5",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 0,
+   "lufs": -21.4,
+   "true_peak_dbtp": -0.4,
+   "brightness_hz": 438,
+   "onsets_per_s": 0.73,
+   "energy": 0.307,
+   "moods": [
+    "wistful",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.one-step-closer",
+   "kind": "music",
+   "title": "One Step Closer",
+   "path": "music/freepd/one-step-closer.mp3",
+   "sha256": "cef221353d41062503da0a39160fefeab4c4618aa217d07f96580ec1d43e4455",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 93.127,
+   "bpm": 99,
+   "grid_offset_ms": 377,
+   "lufs": -10.4,
+   "true_peak_dbtp": 0.5,
+   "brightness_hz": 916,
+   "onsets_per_s": 2.27,
+   "energy": 0.739,
+   "moods": [
+    "focused",
+    "uplifting"
+   ]
+  },
+  {
+   "id": "music.painting-room",
+   "kind": "music",
+   "title": "Painting Room",
+   "path": "music/freepd/painting-room.mp3",
+   "sha256": "6d601250d760c8de2f5cdc4aaba5a1d1bb043594a213cf0fc24521f77e85a48e",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 106.057,
+   "bpm": 126,
+   "grid_offset_ms": 337,
+   "lufs": -23.4,
+   "true_peak_dbtp": -4.1,
+   "brightness_hz": 437,
+   "onsets_per_s": 1.49,
+   "energy": 0.297,
+   "moods": [
+    "calm",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.parhelion",
+   "kind": "music",
+   "title": "Parhelion",
+   "path": "music/freepd/parhelion.mp3",
+   "sha256": "6431d68729bb14e269e28941a3f72bee48b6e9bfea0af9856ba45520e1433a66",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 123,
+   "grid_offset_ms": 61,
+   "lufs": -18.6,
+   "true_peak_dbtp": -3.3,
+   "brightness_hz": 670,
+   "onsets_per_s": 1.2,
+   "energy": 0.422,
+   "moods": [
+    "focused",
+    "dreamy"
+   ]
+  },
+  {
+   "id": "music.patience-party",
+   "kind": "music",
+   "title": "Patience Party",
+   "path": "music/freepd/patience-party.mp3",
+   "sha256": "c264f7a40e8d3bccabce499a4ae655b8bf5a81452abc8d6211a2460565c3898b",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 68,
+   "grid_offset_ms": 515,
+   "lufs": -17.2,
+   "true_peak_dbtp": -0.6,
+   "brightness_hz": 605,
+   "onsets_per_s": 1.31,
+   "energy": 0.471,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.piano-magic-motive",
+   "kind": "music",
+   "title": "Piano Magic Motive",
+   "path": "music/freepd/piano-magic-motive.mp3",
+   "sha256": "d1b73c6f00db120719a5f1e45da832b592a2e2c49ac2d05f827efb5d5e858bda",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 78.003,
+   "bpm": 101,
+   "grid_offset_ms": 25,
+   "lufs": -20.0,
+   "true_peak_dbtp": -0.6,
+   "brightness_hz": 644,
+   "onsets_per_s": 0.95,
+   "energy": 0.363,
+   "moods": [
+    "dreamy",
+    "elegant"
+   ]
+  },
+  {
+   "id": "music.pickled-pink",
+   "kind": "music",
+   "title": "Pickled Pink",
+   "path": "music/freepd/pickled-pink.mp3",
+   "sha256": "93ae2251083bb4feca2cd31acde71ac446e10a2d89d353d45b9bc4e786837325",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 277,
+   "lufs": -13.2,
+   "true_peak_dbtp": 0.2,
+   "brightness_hz": 1082,
+   "onsets_per_s": 2.83,
+   "energy": 0.692,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.pina-colada",
+   "kind": "music",
+   "title": "Pina Colada",
+   "path": "music/freepd/pina-colada.mp3",
+   "sha256": "97a979d88edab8061a072a7b8192c3cf968f82d8abcaa1abee8c70ac57ff2c78",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 291,
+   "lufs": -22.4,
+   "true_peak_dbtp": -6.5,
+   "brightness_hz": 785,
+   "onsets_per_s": 1.73,
+   "energy": 0.344,
+   "moods": [
+    "playful",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.pond",
+   "kind": "music",
+   "title": "Pond",
+   "path": "music/freepd/pond.mp3",
+   "sha256": "bf703819fcb6c83d5475c663acaa105350cf010277d74fc638cfd1aa75b81d88",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 437,
+   "lufs": -16.8,
+   "true_peak_dbtp": -1.0,
+   "brightness_hz": 703,
+   "onsets_per_s": 1.94,
+   "energy": 0.525,
+   "moods": [
+    "calm",
+    "dreamy"
+   ]
+  },
+  {
+   "id": "music.pump-up-your-graduation",
+   "kind": "music",
+   "title": "Pump up your Graduation",
+   "path": "music/freepd/pump-up-your-graduation.mp3",
+   "sha256": "debc2e31c1a5f501668d50e553216dd05d5c1263a52f39262b52fc316934b924",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 96,
+   "grid_offset_ms": 0,
+   "lufs": -12.1,
+   "true_peak_dbtp": 1.9,
+   "brightness_hz": 2381,
+   "onsets_per_s": 2.74,
+   "energy": 0.72,
+   "moods": [
+    "uplifting",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.relaxing-ballad",
+   "kind": "music",
+   "title": "Relaxing Ballad",
+   "path": "music/freepd/relaxing-ballad.mp3",
+   "sha256": "9fe2bd6dc487e5fab11238c72fba3f36b0d8ce098bdc0532b1daea18518b6751",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 68,
+   "grid_offset_ms": 551,
+   "lufs": -18.6,
+   "true_peak_dbtp": -3.5,
+   "brightness_hz": 837,
+   "onsets_per_s": 1.62,
+   "energy": 0.45,
+   "moods": [
+    "calm",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.river-meditation",
+   "kind": "music",
+   "title": "River Meditation",
+   "path": "music/freepd/river-meditation.mp3",
+   "sha256": "929e72a62140559ca985fdf0e7d58f2cf2deee99c7f12a0d4c52744885cc13f7",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 89,
+   "grid_offset_ms": 561,
+   "lufs": -15.0,
+   "true_peak_dbtp": 0.1,
+   "brightness_hz": 1107,
+   "onsets_per_s": 2.34,
+   "energy": 0.606,
+   "moods": [
+    "calm",
+    "dreamy"
+   ]
+  },
+  {
+   "id": "music.romantic-inspiration",
+   "kind": "music",
+   "title": "Romantic Inspiration",
+   "path": "music/freepd/romantic-inspiration.mp3",
+   "sha256": "8b14a166295424fced4713139b6ab44720c1238bff4d5e84c753ec493ee04333",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 503,
+   "lufs": -16.4,
+   "true_peak_dbtp": -0.3,
+   "brightness_hz": 823,
+   "onsets_per_s": 0.52,
+   "energy": 0.442,
+   "moods": [
+    "warm",
+    "elegant"
+   ]
+  },
+  {
+   "id": "music.rush",
+   "kind": "music",
+   "title": "Rush",
+   "path": "music/freepd/rush.mp3",
+   "sha256": "3907327f56dc983987a65ddc412691d2aadaebcde496ddc0881d5d443e91ce6d",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 101,
+   "lufs": -17.0,
+   "true_peak_dbtp": -0.7,
+   "brightness_hz": 1528,
+   "onsets_per_s": 2.98,
+   "energy": 0.588,
+   "moods": [
+    "driving",
+    "tense"
+   ]
+  },
+  {
+   "id": "music.screen-saver",
+   "kind": "music",
+   "title": "Screen Saver",
+   "path": "music/freepd/screen-saver.mp3",
+   "sha256": "aa922168c9bf3baa21abd7d00830721a5ab420fd0a7f78c627e687334be30c27",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 354,
+   "lufs": -18.0,
+   "true_peak_dbtp": -1.7,
+   "brightness_hz": 530,
+   "onsets_per_s": 1.23,
+   "energy": 0.442,
+   "moods": [
+    "calm",
+    "focused"
+   ]
+  },
+  {
+   "id": "music.shenzhen-nightlife",
+   "kind": "music",
+   "title": "Shenzhen Nightlife",
+   "path": "music/freepd/shenzhen-nightlife.mp3",
+   "sha256": "6fc6526671999086dac8e7beb323aaa5de528a6186d1abfb9e02a074d42a9f50",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 65,
+   "grid_offset_ms": 271,
+   "lufs": -8.9,
+   "true_peak_dbtp": 1.8,
+   "brightness_hz": 2701,
+   "onsets_per_s": 2.42,
+   "energy": 0.762,
+   "moods": [
+    "driving",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.shining-stars",
+   "kind": "music",
+   "title": "Shining Stars",
+   "path": "music/freepd/shining-stars.mp3",
+   "sha256": "1f16702a267b75f2b55efc88d18b91348b139e6e448855e729887298b54bf7cb",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 25,
+   "lufs": -21.5,
+   "true_peak_dbtp": -1.6,
+   "brightness_hz": 690,
+   "onsets_per_s": 0.84,
+   "energy": 0.311,
+   "moods": [
+    "dreamy",
+    "uplifting"
+   ]
+  },
+  {
+   "id": "music.silly-boy",
+   "kind": "music",
+   "title": "Silly Boy",
+   "path": "music/freepd/silly-boy.mp3",
+   "sha256": "006d84167f7b8eb7f4688a07e3daae1e0b3ce91550a3a07cb03930fe21e2f1f8",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 95.53,
+   "bpm": 70,
+   "grid_offset_ms": 716,
+   "lufs": -20.0,
+   "true_peak_dbtp": -2.6,
+   "brightness_hz": 1922,
+   "onsets_per_s": 2.66,
+   "energy": 0.477,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.slice-of-life",
+   "kind": "music",
+   "title": "Slice of Life",
+   "path": "music/freepd/slice-of-life.mp3",
+   "sha256": "cb76dc8beca94374dc29c9c6f6a5adf633b80cb024cfe74157d1b628d678d5bf",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 72,
+   "grid_offset_ms": 592,
+   "lufs": -10.7,
+   "true_peak_dbtp": -0.4,
+   "brightness_hz": 758,
+   "onsets_per_s": 2.02,
+   "energy": 0.713,
+   "moods": [
+    "warm",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.space-ambience",
+   "kind": "music",
+   "title": "Space Ambience",
+   "path": "music/freepd/space-ambience.mp3",
+   "sha256": "76c34c13c073f6e2a1ca2ea12261c640893813033bafac1f8f9f724cecd3c5a0",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 70,
+   "grid_offset_ms": 465,
+   "lufs": -15.2,
+   "true_peak_dbtp": -1.1,
+   "brightness_hz": 561,
+   "onsets_per_s": 1.04,
+   "energy": 0.513,
+   "moods": [
+    "dreamy",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.spring-chicken",
+   "kind": "music",
+   "title": "Spring Chicken",
+   "path": "music/freepd/spring-chicken.mp3",
+   "sha256": "361083a7890de9dffc65ccadde69093661ccf4cab30509542463628d804c58bd",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 86,
+   "grid_offset_ms": 261,
+   "lufs": -15.8,
+   "true_peak_dbtp": -0.8,
+   "brightness_hz": 1449,
+   "onsets_per_s": 1.76,
+   "energy": 0.543,
+   "moods": [
+    "playful",
+    "quirky"
+   ]
+  },
+  {
+   "id": "music.stereotype-news",
+   "kind": "music",
+   "title": "Stereotype News",
+   "path": "music/freepd/stereotype-news.mp3",
+   "sha256": "8aeaeb88f68d54f3fe206a91f095d7ee9798547bbe78faf9fcb3d957f686c0e5",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 65.672,
+   "bpm": 65,
+   "grid_offset_ms": 735,
+   "lufs": -10.5,
+   "true_peak_dbtp": 0.3,
+   "brightness_hz": 1295,
+   "onsets_per_s": 1.58,
+   "energy": 0.691,
+   "moods": [
+    "focused",
+    "driving"
+   ]
+  },
+  {
+   "id": "music.still-pickin",
+   "kind": "music",
+   "title": "Still Pickin",
+   "path": "music/freepd/still-pickin.mp3",
+   "sha256": "b55e281b1f06dab11fd7ddf427795375117eba8b24c3b9cda651023a62f86922",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 528,
+   "lufs": -14.4,
+   "true_peak_dbtp": -0.4,
+   "brightness_hz": 1729,
+   "onsets_per_s": 2.43,
+   "energy": 0.63,
+   "moods": [
+    "playful",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.study-and-relax",
+   "kind": "music",
+   "title": "Study and Relax",
+   "path": "music/freepd/study-and-relax.mp3",
+   "sha256": "9c03b4ffe81311dc38bc80772e0483b0a36804d6a4ff7133f9ca933e6a1f4a62",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 72,
+   "grid_offset_ms": 592,
+   "lufs": -18.9,
+   "true_peak_dbtp": -5.3,
+   "brightness_hz": 730,
+   "onsets_per_s": 1.61,
+   "energy": 0.44,
+   "moods": [
+    "calm",
+    "dreamy"
+   ]
+  },
+  {
+   "id": "music.sunday-dub",
+   "kind": "music",
+   "title": "Sunday Dub",
+   "path": "music/freepd/sunday-dub.mp3",
+   "sha256": "1b89a0fac6abdfa07b0dc4b6b67768ae894c62dcd45025656a18cdeb15989ab1",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 101,
+   "grid_offset_ms": 345,
+   "lufs": -9.3,
+   "true_peak_dbtp": 0.5,
+   "brightness_hz": 904,
+   "onsets_per_s": 2.12,
+   "energy": 0.741,
+   "moods": [
+    "calm",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.take-the-ride",
+   "kind": "music",
+   "title": "Take the Ride",
+   "path": "music/freepd/take-the-ride.mp3",
+   "sha256": "4693a64982c445a1c227daa93d4496249be0d0b81b9789551fcbef96080a4af7",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 120,
+   "grid_offset_ms": 250,
+   "lufs": -12.3,
+   "true_peak_dbtp": 1.5,
+   "brightness_hz": 2262,
+   "onsets_per_s": 2.71,
+   "energy": 0.712,
+   "moods": [
+    "driving",
+    "bright"
+   ]
+  },
+  {
+   "id": "music.take-the-sting-out-jazz-fi",
+   "kind": "music",
+   "title": "Take the Sting Out - Jazz Fi",
+   "path": "music/freepd/take-the-sting-out-jazz-fi.mp3",
+   "sha256": "0a2f826eaf08910b2cedc82d0e36f29742fe57ce3f04392d61cff78da80ec4d0",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 72,
+   "grid_offset_ms": 592,
+   "lufs": -18.9,
+   "true_peak_dbtp": -5.3,
+   "brightness_hz": 730,
+   "onsets_per_s": 1.61,
+   "energy": 0.44,
+   "moods": [
+    "jazzy",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.the-celebrated-minuet-for-piano",
+   "kind": "music",
+   "title": "The Celebrated Minuet for Piano",
+   "path": "music/freepd/the-celebrated-minuet-for-piano.mp3",
+   "sha256": "a081dccc2fc98dbb8aee815c306c2a04aa4a8ad06a27fdcd3bd832b40e9af67a",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 89,
+   "grid_offset_ms": 168,
+   "lufs": -15.0,
+   "true_peak_dbtp": -0.4,
+   "brightness_hz": 585,
+   "onsets_per_s": 2.51,
+   "energy": 0.617,
+   "moods": [
+    "elegant",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.think-about-it",
+   "kind": "music",
+   "title": "Think About It",
+   "path": "music/freepd/think-about-it.mp3",
+   "sha256": "41c93d47f3c1d3189142833e9fc0f4e04a3c07b3599bf5d9564fe1ae07d82b20",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 99,
+   "grid_offset_ms": 453,
+   "lufs": -12.6,
+   "true_peak_dbtp": -0.4,
+   "brightness_hz": 467,
+   "onsets_per_s": 0.78,
+   "energy": 0.574,
+   "moods": [
+    "focused",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.travelers-notebook",
+   "kind": "music",
+   "title": "Travelers Notebook",
+   "path": "music/freepd/travelers-notebook.mp3",
+   "sha256": "6e7eaa6aec4fc27216b93c98c35def746791298f58b73c4926a13c65779855fd",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 117,
+   "grid_offset_ms": 426,
+   "lufs": -17.5,
+   "true_peak_dbtp": -0.1,
+   "brightness_hz": 915,
+   "onsets_per_s": 0.86,
+   "energy": 0.432,
+   "moods": [
+    "wistful",
+    "warm"
+   ]
+  },
+  {
+   "id": "music.trip-up-north",
+   "kind": "music",
+   "title": "Trip Up North",
+   "path": "music/freepd/trip-up-north.mp3",
+   "sha256": "aa2c2ea7e0d63fd01dd4638c847d7d1bdbcdd245d2f426ec2c7a34cc4367ff25",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 96,
+   "grid_offset_ms": 26,
+   "lufs": -8.6,
+   "true_peak_dbtp": 1.3,
+   "brightness_hz": 1748,
+   "onsets_per_s": 2.04,
+   "energy": 0.736,
+   "moods": [
+    "wistful",
+    "calm"
+   ]
+  },
+  {
+   "id": "music.uberpunch",
+   "kind": "music",
+   "title": "Uberpunch",
+   "path": "music/freepd/uberpunch.mp3",
+   "sha256": "eaf9484ead56ce74debf1c2b7a901c8e377d005c4bd1c03ef451a24716fa2917",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 93.884,
+   "bpm": 99,
+   "grid_offset_ms": 302,
+   "lufs": -8.2,
+   "true_peak_dbtp": 0.9,
+   "brightness_hz": 1828,
+   "onsets_per_s": 2.11,
+   "energy": 0.741,
+   "moods": [
+    "driving",
+    "tense"
+   ]
+  },
+  {
+   "id": "music.ukulele-song",
+   "kind": "music",
+   "title": "Ukulele Song",
+   "path": "music/freepd/ukulele-song.mp3",
+   "sha256": "4c7696bc51681490499aa096edc13b21c7ff6441fbda9bc01eaf6aeea0fe8897",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 89,
+   "grid_offset_ms": 281,
+   "lufs": -18.0,
+   "true_peak_dbtp": 0.0,
+   "brightness_hz": 1009,
+   "onsets_per_s": 3.15,
+   "energy": 0.57,
+   "moods": [
+    "playful",
+    "uplifting"
+   ]
+  },
+  {
+   "id": "music.wakka-wakka",
+   "kind": "music",
+   "title": "Wakka Wakka",
+   "path": "music/freepd/wakka-wakka.mp3",
+   "sha256": "c4b625d755882516129cfeb5a6ebf62dc5de9c768df0f54c203d21882c12d644",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 83,
+   "grid_offset_ms": 630,
+   "lufs": -11.5,
+   "true_peak_dbtp": 0.5,
+   "brightness_hz": 1716,
+   "onsets_per_s": 2.46,
+   "energy": 0.719,
+   "moods": [
+    "quirky",
+    "playful"
+   ]
+  },
+  {
+   "id": "music.wisdom-in-the-sun",
+   "kind": "music",
+   "title": "Wisdom in the Sun",
+   "path": "music/freepd/wisdom-in-the-sun.mp3",
+   "sha256": "e8551e8bf89669f860fc7a3e58a99bf357e99b582bfc845d23234f6d2a4e4e1f",
+   "license": "CC0-1.0",
+   "source": {
+    "pack": "FreePD corpus via SoundSafari/CC0-1.0-Music",
+    "url": "https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com"
+   },
+   "excerpt": {
+    "seconds": 120.0,
+    "fade_out_s": 2.5
+   },
+   "duration_s": 120.0,
+   "bpm": 83,
+   "grid_offset_ms": 660,
+   "lufs": -19.0,
+   "true_peak_dbtp": -5.7,
+   "brightness_hz": 782,
+   "onsets_per_s": 1.22,
+   "energy": 0.411,
+   "moods": [
+    "warm",
+    "calm"
+   ]
   }
  ]
 }

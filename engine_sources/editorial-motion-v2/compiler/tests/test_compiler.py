@@ -18,6 +18,9 @@ PKG = HERE.parent
 ROOT = PKG.parent
 sys.path.insert(0, str(PKG))
 
+from editorial_plan_compiler.atmosphere import (  # noqa: E402
+    DEPTH_COUNT, DEPTH_MAX_OVERLAP, DEPTH_PLANE, MIN_INK_CONTRAST, _overlap_frac, content_boxes, contrast, film_atmosphere, hero_box,
+)
 from editorial_plan_compiler.compiler import HERO_SUPPORT_MIN_RATIO, PLAN_SCHEMA, compile_film  # noqa: E402
 from editorial_plan_compiler.contracts import FilmTreatment, TreatmentError  # noqa: E402
 from editorial_plan_compiler.figures import EXCLUDED_FACES  # noqa: E402
@@ -424,7 +427,7 @@ def test_every_beat_draws_a_stage(plans):
             bg = b['composition']['background']
             assert bg['layers'], f"{b['beat_id']} has no stage layers"
             for l in bg['layers']:
-                assert l['kind'] in {'panel', 'hairline', 'plane', 'dotgrid', 'spotlight'}, l
+                assert l['kind'] in {'panel', 'hairline', 'plane', 'dotgrid', 'spotlight', 'bloom', 'depth'}, l
 
 
 def test_no_beat_opens_empty(plans):
@@ -905,3 +908,162 @@ def test_preflight_quarantine_is_recorded_and_refused(tmp_path):
         label = ' '.join(reg.items[ref]['id'].split('.')[-1].split('-'))
         r = f.resolve(label, None, True, False)
         assert r.asset_ref != ref, (label, r)
+
+
+# ---------------------------------------------------------------- item 5: music library, groove, layered sfx, bus mix
+
+from editorial_plan_compiler.groove import ON_GRID_MS, fit_phase, groove_stagger  # noqa: E402
+from editorial_plan_compiler.sound import (  # noqa: E402
+    GLYPH_TEXTURE, LAYER_OFFSET_MS, MIX, TEXTURES, bind_film_music,
+)
+
+
+def test_music_library_is_broad_measured_and_rights_clean():
+    from editorial_plan_compiler.sound import COMMUNITY_MANIFEST
+    beds = [a for a in json.loads(COMMUNITY_MANIFEST.read_text())['assets'] if a['kind'] == 'music']
+    assert len(beds) >= 100
+    for b in beds:
+        assert b['license'].startswith('CC0') and b['source']['url'] and b['sha256']
+        assert Path(COMMUNITY_MANIFEST.parent / b['path']).exists()
+        assert 60 <= b['bpm'] <= 170 and 0 <= b['grid_offset_ms'] < 60000 / b['bpm']
+        assert 0.0 <= b['energy'] <= 1.0 and b['lufs'] < 0 and b['duration_s'] > 30
+        assert b['moods']
+    from editorial_plan_compiler.contracts import FILM_MOODS
+    assert {m for b in beds for m in b['moods']} <= set(FILM_MOODS)
+    # every authored mood has a real pool to pick from, not a single bed
+    for mood in FILM_MOODS:
+        assert sum(1 for b in beds if mood in b['moods']) >= 5, mood
+
+
+def test_music_pick_is_contextual_and_deterministic():
+    a = bind_film_music('film-a', 'calm', 30000, 0.3)
+    b = bind_film_music('film-a', 'calm', 30000, 0.3)
+    assert a == b
+    assert a['status'] == 'BOUND_CC0' and 'calm' in a['moods'] and a['duration_s'] * 1000 >= 30000
+    # energy narrows the pool to a shortlist of the nearest beds
+    assert len(a['shortlist']) <= 3 and a['pool'] > 50
+    hot = bind_film_music('film-a', 'calm', 30000, 0.9)
+    assert hot['energy'] >= a['energy']
+    # a different mood request lands in a different pool
+    assert 'driving' in bind_film_music('film-a', 'driving', 30000, 0.6)['moods']
+    # the bed trim normalises the mastering level of the source
+    assert -30 <= a['gain_db'] <= -10 and abs((a['gain_db'] + a['lufs']) - (-35.0)) < 0.11
+
+
+def test_groove_snaps_stagger_and_fits_phase():
+    # 90 bpm → eighth = 333ms, sextuplet = 111ms: 100ms authored stagger snaps to the sextuplet
+    assert groove_stagger(100, 90) == (111, 'sextuplet')
+    # too far from any subdivision: authored value kept
+    assert groove_stagger(80, 89) == (80, None)
+    assert groove_stagger(90, None) == (90, None)
+    beats = [{'start_ms': 0, 'duration_ms': 4000, 'illustration': {'entities': [
+        {'enter_ms': 400 + i * 500, 'enter_duration_ms': 100} for i in range(6)], 'relations': []},
+        'media': None, 'data': None, 'transition': None}]
+    fit = fit_phase({'bpm': 120, 'grid_offset_ms': 0, 'path': 'x.mp3'}, beats)
+    assert fit['status'] == 'PHASED' and fit['landings'] == 6
+    # 120bpm eighths are 250ms: every 500ms landing sits on the grid once the phase is right
+    assert fit['on_grid'] == 6 and fit['mean_drift_ms'] <= ON_GRID_MS
+    assert fit_phase({'bpm': None, 'path': 'x.mp3'}, beats)['status'] == 'NO_GRID'
+
+
+def test_collage_plan_carries_groove_layers_and_buses(collage_plans):
+    for aspect, p in collage_plans['plans'].items():
+        m = p['music']
+        assert m['groove']['status'] == 'PHASED' and m['start_offset_ms'] == m['groove']['start_offset_ms']
+        assert m['groove']['bpm'] == m['bpm'] and m['energy_request'] is not None
+        assert p['mix'] == MIX and p['motion']['stagger_ms'] == m['groove']['stagger_ms']
+        for b in p['beats']:
+            for a in b['sound']['accents']:
+                roles = [L['role'] for L in a['layers']]
+                assert 'body' in roles and len(roles) == len(set(roles))
+                for L in a['layers']:
+                    assert L['license'] and L['sha256'] and Path(L['path']).exists()
+                    assert L['offset_ms'] == LAYER_OFFSET_MS[L['role']]
+                    assert a['film_at_ms'] + L['offset_ms'] >= 0
+                if a['texture']:
+                    assert a['texture'] in TEXTURES
+                    if TEXTURES[a['texture']]['transient']:
+                        assert 'transient' in roles, a
+    # the collage lands tiles with the glass texture (click over pop), not a bare pop
+    textures = {a['texture'] for p in collage_plans['plans'].values() for b in p['beats'] for a in b['sound']['accents']}
+    assert 'glass' in textures
+    assert set(GLYPH_TEXTURE.values()) <= set(TEXTURES)
+
+
+# ---------------------------------------------------------------- atmosphere (designed background)
+
+def test_atmosphere_is_derived_from_the_palette_and_flips_polarity():
+    light = film_atmosphere({'ink': '#191512', 'paper': '#f2f1ee', 'accent': '#e8a317'})
+    dark = film_atmosphere({'ink': '#f1ede6', 'paper': '#15130f', 'accent': '#f0a35a'})
+    assert light['theme'] == 'light' and dark['theme'] == 'dark'
+    assert light['field'] == '#f2f1ee' and dark['field'] == '#15130f'
+    # the dark variant leans harder on vignette and grain (a dark field hides both)
+    assert dark['vignette_opacity'] > light['vignette_opacity'] and dark['grain_opacity'] > light['grain_opacity']
+    # bloom is the accent pulled toward the paper, never a raw brand colour
+    assert light['bloom'] not in ('#e8a317', '#f2f1ee') and dark['bloom'] not in ('#f0a35a', '#15130f')
+    # housing surfaces follow the field: light housing is lighter than the field on both polarities,
+    # dark housing is the contrasting surface
+    for a in (light, dark):
+        assert contrast(a['housing']['light'], a['field']) < contrast(a['housing']['dark'], a['field'])
+    # no accent: a warm neutral bloom is derived rather than reusing ink
+    plain = film_atmosphere({'ink': '#0e0e0e', 'paper': '#f7f7f5', 'accent': None})
+    assert plain['bloom'] not in ('#0e0e0e', '#f7f7f5')
+    assert film_atmosphere({'ink': '#191512', 'paper': '#f2f1ee', 'accent': '#e8a317'}) == light  # deterministic
+
+
+def test_low_contrast_brand_fails_the_film_gate():
+    fx = ROOT / 'fixtures' / 'promo-collage' / 'treatment.json'
+    t = json.loads(fx.read_text())
+    t['brand'] = {**t['brand'], 'ink': '#8a8683', 'paper': '#f2f1ee'}
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        r = compile_film(t, Path(d), base_dir=fx.parent)
+    assert any(f.startswith('BRAND_CONTRAST:') for f in r['gate']['failures'])
+    assert contrast('#8a8683', '#f2f1ee') < MIN_INK_CONTRAST
+
+
+def test_collage_beats_carry_a_hero_bloom_and_far_plane_depth(collage_plans):
+    for aspect, p in collage_plans['plans'].items():
+        W, H = p['canvas']['w'], p['canvas']['h']
+        assert p['atmosphere']['theme'] == 'light'
+        prev = None
+        for b in p['beats']:
+            layers = b['composition']['background']['layers']
+            kinds = [L['kind'] for L in layers]
+            assert 'glow' not in kinds and kinds.count('bloom') == 1
+            bloom = next(L for L in layers if L['kind'] == 'bloom')
+            hero = hero_box(b, b['composition']['safe_area'])
+            # the light sits on the beat's hero, and starts where the previous beat left it
+            assert abs(bloom['at']['x'] - (hero['x'] + hero['w'] / 2)) < 1
+            assert bloom['from'] == (prev if prev else bloom['at'])
+            prev = bloom['at']
+            depth = [L for L in layers if L['kind'] == 'depth']
+            assert len(depth) <= DEPTH_COUNT[1]
+            content = content_boxes(b)
+            for d in depth:
+                assert DEPTH_PLANE[0] <= d['plane'] <= DEPTH_PLANE[1] and d['blur_px'] > 0
+                assert d['shape'] in ('disc', 'tile') and d['tint'] in (0, 1)
+                assert 0 < d['opacity'] < 0.3
+                # far-plane shapes never sit under the content
+                assert all(_overlap_frac(d['bbox'], c) <= DEPTH_MAX_OVERLAP for c in content), (aspect, b['beat_id'])
+
+
+def test_dark_variant_compiles_with_the_same_grammar():
+    fx = ROOT / 'fixtures' / 'promo-collage-dark' / 'treatment.json'
+    light_fx = ROOT / 'fixtures' / 'promo-collage' / 'treatment.json'
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        r = compile_film(json.loads(fx.read_text()), Path(d), base_dir=fx.parent)
+    assert r['gate']['status'] == 'PASS'
+    with tempfile.TemporaryDirectory() as d:
+        light = compile_film(json.loads(light_fx.read_text()), Path(d), base_dir=light_fx.parent)
+    for aspect, p in r['plans'].items():
+        assert p['atmosphere']['theme'] == 'dark' and p['atmosphere']['shadow_rgb'] == [0, 0, 0]
+        lp = light['plans'][aspect]
+        # identical geometry, identical glyph vocabulary — only the atmosphere and surfaces change
+        for b, lb in zip(p['beats'], lp['beats']):
+            if b['illustration']:
+                assert [e['glyph'] for e in b['illustration']['entities']] == [e['glyph'] for e in lb['illustration']['entities']]
+                assert [e['bbox'] for e in b['illustration']['entities']] == [e['bbox'] for e in lb['illustration']['entities']]
+            kinds = lambda bt: {L['kind'] for L in bt['composition']['background']['layers']}  # noqa: E731
+            assert kinds(b) == kinds(lb)

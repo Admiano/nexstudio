@@ -28,11 +28,20 @@ const FIXTURES = [
   { name: 'honey-nut-collage', treatment: '../fixtures/honey-nut-collage/treatment.json', out: path.join(ROOT, 'out', 'honey-nut-collage') },
   { name: 'media-matrix', treatment: '../fixtures/media-matrix/treatment.json', out: path.join(ROOT, 'out', 'media-matrix') },
   { name: 'concept-ladder', treatment: '../fixtures/concept-ladder/treatment.json', out: path.join(ROOT, 'out', 'concept-ladder') },
+  { name: 'promo-collage-dark', treatment: '../fixtures/promo-collage-dark/treatment.json', out: path.join(ROOT, 'out', 'promo-collage-dark') },
 ];
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webm': 'video/webm', '.woff2': 'font/woff2', '.ttf': 'font/ttf' };
 
+function compilerMtime() {
+  const dir = path.join(ROOT, 'compiler', 'editorial_plan_compiler');
+  return Math.max(...fs.readdirSync(dir).filter((f) => f.endsWith('.py')).map((f) => fs.statSync(path.join(dir, f)).mtimeMs));
+}
+
 function ensurePlans(fx) {
-  if (['9x16', '1x1', '16x9'].every((a) => fs.existsSync(path.join(fx.out, `plan_${a}.json`)))) return;
+  // A plan older than the compiler (or its treatment) is stale: recompile rather than test yesterday's contract.
+  const fresh = Math.max(compilerMtime(), fs.statSync(path.join(ROOT, 'compiler', fx.treatment)).mtimeMs);
+  const plans = ['9x16', '1x1', '16x9'].map((a) => path.join(fx.out, `plan_${a}.json`));
+  if (plans.every((p) => fs.existsSync(p) && fs.statSync(p).mtimeMs >= fresh)) return;
   const r = spawnSync('python3', ['-m', 'editorial_plan_compiler', fx.treatment, fx.out], { cwd: path.join(ROOT, 'compiler'), stdio: 'inherit' });
   if (r.status !== 0) throw new Error(`fixture compile failed: ${fx.name}`);
 }
@@ -147,7 +156,9 @@ async function runFixture(fx, base, browser) {
       out.frames = film.frames;
       out.captions = film.captions.length;
       const ae = film.audioEvents();
-      out.audio = { voice: ae.voice.segments.length, accents: ae.accents.length, music: ae.music.status };
+      out.audio = { voice: ae.voice.segments.length, accents: ae.accents.length, music: ae.music.status,
+        layered: ae.accents.every((a) => Array.isArray(a.layers) && a.layers.some((L) => L.role === 'body') && a.layers.every((L) => L.license && L.sha256)),
+        groove: ae.music.groove ? ae.music.groove.status : null, start_offset_ms: ae.music.start_offset_ms };
 
       // The visible state is the active beat's subtree; hidden beats are display:none and not part of the frame.
       const snapshot = () => {
@@ -631,6 +642,52 @@ async function runFixture(fx, base, browser) {
         out.motion.camera.push({ beat: b.beat_id, move: tr.camera.move, ok: ok && incoming.style.display === 'block' && moved, before, mid });
       }
 
+      // Atmosphere: the field carries its theme; the bloom travels from the previous beat's light to the
+      // hero over the beat's opening; far-plane shapes counter the camera at their plane depth.
+      out.atmosphere = null;
+      if (plan.atmosphere) {
+        const T = (elm) => ({ tx: Number((/translate\((-?[\d.]+)px, (-?[\d.]+)px/.exec(elm.style.transform) || [0, 0, 0])[1]), ty: Number((/translate\((-?[\d.]+)px, (-?[\d.]+)px/.exec(elm.style.transform) || [0, 0, 0])[2]), scale: Number((/scale\(([\d.]+)\)/.exec(elm.style.transform) || [0, 1])[1]) });
+        const a = { theme: stage.dataset.theme, blooms: [], travels: [], parallax: [], depthTotal: 0 };
+        for (let i = 0; i < plan.beats.length; i += 1) {
+          const b = plan.beats[i];
+          const beatNode = stage.children[i];
+          const bloom = beatNode.querySelector('.em2-bloom');
+          const spec = b.composition.background.layers.find((L) => L.kind === 'bloom');
+          a.blooms.push(Boolean(bloom && spec));
+          if (!bloom || !spec) continue;
+          const depth = [...beatNode.querySelectorAll('.em2-depth')];
+          a.depthTotal += depth.length;
+          if (Math.hypot(spec.at.x - spec.from.x, spec.at.y - spec.from.y) > 4) {
+            await film.seek(b.start_ms + 16);
+            const t0 = T(bloom);
+            await film.seek(b.start_ms + (spec.travel_ms || 640) + 200);
+            const t1 = T(bloom);
+            const d0 = Math.hypot(t0.tx - spec.from.x, t0.ty - spec.from.y), d1 = Math.hypot(t1.tx - spec.at.x, t1.ty - spec.at.y);
+            const dist = Math.hypot(spec.at.x - spec.from.x, spec.at.y - spec.from.y);
+            // one frame in, the light has left `from` by no more than a sliver of the trip (plus its 9px breathe)
+            a.travels.push({ beat: b.beat_id, startNearFrom: d0 < dist * 0.12 + 14, endNearAt: d1 < 24, d0, d1, dist });
+          }
+          const tr = b.transition;
+          if (depth.length && tr && tr.camera && (tr.camera.move === 'push_through' || tr.camera.move === 'pull_back') && tr.end_ms > tr.start_ms) {
+            const cam = beatNode.firstElementChild;
+            await film.seek(b.start_ms + tr.start_ms - 40);
+            const c0 = T(cam), d0 = depth.map(T);
+            await film.seek(Math.round(b.start_ms + tr.start_ms + (tr.end_ms - tr.start_ms) * 0.9));
+            const c1 = T(cam), d1 = depth.map(T);
+            const camDelta = c1.scale - c0.scale;
+            if (Math.abs(camDelta) < 0.015) continue;
+            // a shape at plane d keeps only d of the camera's zoom: its own scale counters the rest
+            const counter = (c, d) => 1 / (1 + (c.scale - 1) * (1 - d));
+            const worst = Math.max(...depth.map((n, k) => {
+              const plane = Number(n.dataset.plane);
+              return Math.abs(d1[k].scale / d0[k].scale - counter(c1, plane) / counter(c0, plane));
+            }));
+            a.parallax.push({ beat: b.beat_id, move: tr.camera.move, camDelta, worst, ok: worst < 0.008 });
+          }
+        }
+        out.atmosphere = a;
+      }
+
       // Per-frame scene-graph cost: seek every frame of the busiest illustration beat.
       const busy = plan.beats.filter((x) => x.illustration).sort((a, c) => c.illustration.ops.length - a.illustration.ops.length)[0] || plan.beats[0];
       const p0 = film.perf.frames;
@@ -645,6 +702,11 @@ async function runFixture(fx, base, browser) {
     check(`stage is native ${plan.canvas.w}x${plan.canvas.h}`, r.stage.w === plan.canvas.w && r.stage.h === plan.canvas.h && r.stage.aspect === aspect, JSON.stringify(r.stage));
     check('frame count matches plan', r.frames === Math.ceil((plan.duration_ms * plan.fps) / 1000));
     check('captions and audio events exposed', r.captions > 0 && r.audio.voice === plan.voice.segments.length && r.audio.accents > 0 && r.audio.music === plan.music.status, JSON.stringify(r.audio));
+    // Item 5: every accent is a layered stack with provenance per layer; the bed carries its groove fit and
+    // the bus mix contract rides with the plan so the renderer and compiler agree on the same numbers.
+    check('accents layered with provenance per layer', r.audio.layered === true, JSON.stringify(r.audio));
+    check('music bed phase-fitted to the film landings', plan.music.status !== 'BOUND_CC0' || (r.audio.groove === 'PHASED' && r.audio.start_offset_ms === plan.music.groove.start_offset_ms), JSON.stringify(r.audio));
+    check('bus mix contract on the plan', plan.mix && plan.mix.buses && ['voice', 'sfx', 'music'].every((b) => plan.mix.buses[b]) && plan.mix.true_peak_dbtp < 0, JSON.stringify(plan.mix));
     check('seek is deterministic across paths', r.determinism.every(Boolean), JSON.stringify(r.determinism));
     check('frame(n) equals seek(n/fps)', r.frameAddress);
     check('nothing settled before first landing', r.preLanding);
@@ -699,6 +761,14 @@ async function runFixture(fx, base, browser) {
       if (mo.connectors.length) check(`motion: ${mo.connectors.length} connectors ride their drifting endpoints`, badConn.length === 0, JSON.stringify(badConn));
       const badCam = mo.camera.filter((c) => !c.ok);
       if (mo.camera.length) check(`motion: ${mo.camera.length} cuts made as their compiled camera move (${[...new Set(mo.camera.map((c) => c.move))].join('/')})`, badCam.length === 0, JSON.stringify(badCam));
+    }
+    if (r.atmosphere) {
+      const a = r.atmosphere;
+      check(`atmosphere: ${plan.atmosphere.theme} field on the stage, a bloom behind every beat's hero`, a.theme === plan.atmosphere.theme && a.blooms.every(Boolean), JSON.stringify({ theme: a.theme, blooms: a.blooms }));
+      const badTravel = a.travels.filter((t) => !t.startNearFrom || !t.endNearAt);
+      if (a.travels.length) check(`atmosphere: ${a.travels.length} blooms travel from the previous beat's light to the hero`, badTravel.length === 0, JSON.stringify(badTravel));
+      const badPar = a.parallax.filter((p) => !p.ok);
+      if (a.parallax.length) check(`atmosphere: ${a.depthTotal} far-plane shapes counter the camera on ${a.parallax.length} push/pull cuts`, badPar.length === 0, JSON.stringify(badPar));
     }
     for (const c of r.cascade) check(`word cascade ${c.beat}/${c.unit}: words land in order, all settle in focus, stress heavier`, c.words && c.firstOnly && c.all && c.heavier, JSON.stringify(c));
     check(`frame update under 8ms (avg ${r.perf.avg_ms.toFixed(2)}ms, max ${r.perf.max_ms.toFixed(2)}ms over ${r.perf.frames} frames)`, r.perf.avg_ms < 8, JSON.stringify(r.perf));

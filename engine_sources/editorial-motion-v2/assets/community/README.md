@@ -73,11 +73,18 @@ list against each native-colour pack.
 | paper-cutter | CaptSubtle via cc0-sounds.exi.software (CC0) | paper cuts — TEXT_MASK_WIPE / editorial feel |
 | paper-books-writing | bumblebeast via cc0-sounds.exi.software (CC0) | page turns, pencil — editorial texture |
 
-## Music — `music/freepd/` (10 tracks, CC0)
+## Music — `music/freepd/` (108 beds, CC0)
 
-FreePD corpus (Kevin MacLeod public-domain collection) fetched via the
-SoundSafari CC0-1.0-Music GitHub corpus. Calm/jazz/ukulele beds for ducking
-under voice. Closes the `SILENT_UNTIL_RIGHTS_CLEAN_SOURCE_SELECTED` gap.
+FreePD corpus (Kevin MacLeod / Bryan Teoh / Rafael Krux public-domain
+collection) fetched via the SoundSafari CC0-1.0-Music GitHub corpus and
+vendored by `tools/vendor_music.py` as 120s excerpts (96k stereo MP3 — the bed
+sits ~19 dB under the voice). Every manifest entry carries source URL, sha256
+and *measured* metadata: `duration_s`, `bpm`, `grid_offset_ms` (first-beat
+phase), `lufs`, `true_peak_dbtp`, `brightness_hz`, `onsets_per_s`, `energy`
+(0–1) plus curated `moods` drawn from `FILM_MOODS`. The compiler picks a bed by
+mood → covering duration → nearest energy → deterministic hash, trims it to a
+common level from its LUFS, and phase-fits its beat grid to the film's landings
+(`groove.py`). Re-run the vendor tool to re-measure; never hand-edit the fields.
 
 ## Textures & surfaces — `textures/`, `surfaces/`
 

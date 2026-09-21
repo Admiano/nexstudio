@@ -113,6 +113,39 @@ def shimmer(base: float, dur_s: float, seed: int) -> np.ndarray:
     return _norm(out)
 
 
+def click(f0: float, dur_s: float, seed: int) -> np.ndarray:
+    """Glossy tile click: a very short high resonance over a 2ms noise burst — the transient a lacquered
+    square makes landing on a desk."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    ring = np.sin(2 * np.pi * f0 * t) * np.exp(-t * 900.0) + 0.35 * np.sin(2 * np.pi * f0 * 2.7 * t) * np.exp(-t * 1600.0)
+    burst = rng.standard_normal(len(t)) * np.exp(-t * 2500.0)
+    burst = np.concatenate([[0.0], np.diff(burst)])
+    return _norm(ring + 0.6 * burst)
+
+
+def thock(f0: float, dur_s: float, seed: int) -> np.ndarray:
+    """Soft thock: a low, damped sine knock with a felt-like noise puff — a padded chip settling."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    knock = np.sin(2 * np.pi * f0 * (1.0 - 0.25 * (1.0 - np.exp(-t * 40.0))) * t) * np.exp(-t * 60.0)
+    puff = rng.standard_normal(len(t))
+    puff = np.convolve(puff, np.ones(24) / 24.0, mode='same') * np.exp(-t * 180.0)
+    return _norm(knock * _env_ad(len(t), 2.0, dur_s * 220.0) + 0.3 * puff)
+
+
+def swish(dur_s: float, seed: int) -> np.ndarray:
+    """Stroke swish: a short band-passed noise arc, brighter in the middle — a line drawn fast."""
+    n = int(dur_s * SR)
+    rng = np.random.default_rng(seed)
+    noise = rng.standard_normal(n)
+    # band-pass by subtracting a wide moving average from a narrow one
+    narrow = np.convolve(noise, np.ones(6) / 6.0, mode='same')
+    wide = np.convolve(noise, np.ones(60) / 60.0, mode='same')
+    env = np.sin(np.linspace(0, np.pi, n)) ** 2.2
+    return _norm((narrow - wide) * env)
+
+
 # (file slug, semantic tag, synth recipe) — params are the contract: same table, same bytes.
 SPEC: List[Tuple[str, str, Callable[[], np.ndarray]]] = [
     ('pop-01', 'synth.pop', lambda: pop(520.0, 0.11, 101)),
@@ -132,6 +165,15 @@ SPEC: List[Tuple[str, str, Callable[[], np.ndarray]]] = [
     ('shimmer-01', 'synth.shimmer', lambda: shimmer(1560.0, 0.55, 141)),
     ('shimmer-02', 'synth.shimmer', lambda: shimmer(1980.0, 0.45, 142)),
     ('shimmer-03', 'synth.shimmer', lambda: shimmer(1240.0, 0.7, 143)),
+    ('click-01', 'synth.click', lambda: click(3200.0, 0.045, 151)),
+    ('click-02', 'synth.click', lambda: click(3900.0, 0.04, 152)),
+    ('click-03', 'synth.click', lambda: click(2700.0, 0.05, 153)),
+    ('thock-01', 'synth.thock', lambda: thock(190.0, 0.14, 161)),
+    ('thock-02', 'synth.thock', lambda: thock(230.0, 0.12, 162)),
+    ('thock-03', 'synth.thock', lambda: thock(160.0, 0.16, 163)),
+    ('swish-01', 'synth.swish', lambda: swish(0.2, 171)),
+    ('swish-02', 'synth.swish', lambda: swish(0.26, 172)),
+    ('swish-03', 'synth.swish', lambda: swish(0.17, 173)),
 ]
 
 
