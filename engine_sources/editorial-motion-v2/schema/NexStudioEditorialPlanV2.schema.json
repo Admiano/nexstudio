@@ -135,6 +135,31 @@
             "tonal",
             "rise"
           ]
+        },
+        "spring": {
+          "type": "string",
+          "enum": [
+            "snap",
+            "settle",
+            "float"
+          ]
+        },
+        "breathe": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "label_lag_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "motion_blur": {
+          "type": "number",
+          "minimum": 0
+        },
+        "media_tilt": {
+          "type": "number",
+          "minimum": 0
         }
       },
       "required": [
@@ -142,7 +167,12 @@
         "stagger_ms",
         "camera_push",
         "transition",
-        "word_landing"
+        "word_landing",
+        "spring",
+        "breathe",
+        "label_lag_ms",
+        "motion_blur",
+        "media_tilt"
       ]
     },
     "typography": {
@@ -1045,6 +1075,18 @@
                   "frame": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "chassis": {
+                    "type": "string",
+                    "enum": [
+                      "phone",
+                      "browser",
+                      "card",
+                      "shot"
+                    ]
+                  },
+                  "tilt": {
+                    "type": "number"
                   }
                 },
                 "required": [
@@ -1060,7 +1102,9 @@
                   "audio",
                   "enter_ms",
                   "enter_duration_ms",
-                  "frame"
+                  "frame",
+                  "chassis",
+                  "tilt"
                 ]
               },
               {
@@ -1618,14 +1662,28 @@
                                 "audio": {
                                   "const": "MUTE"
                                 },
-                                "trim": {}
+                                "trim": {},
+                                "chassis": {
+                                  "type": "string",
+                                  "enum": [
+                                    "phone",
+                                    "browser",
+                                    "card",
+                                    "shot"
+                                  ]
+                                },
+                                "tilt": {
+                                  "type": "number"
+                                }
                               },
                               "required": [
                                 "asset_id",
                                 "kind",
                                 "path",
                                 "rights",
-                                "audio"
+                                "audio",
+                                "chassis",
+                                "tilt"
                               ]
                             },
                             {
@@ -2017,6 +2075,40 @@
               "end_ms": {
                 "type": "integer",
                 "minimum": 0
+              },
+              "camera": {
+                "type": "object",
+                "properties": {
+                  "move": {
+                    "type": "string",
+                    "enum": [
+                      "push_through",
+                      "pull_back",
+                      "drift",
+                      "dissolve",
+                      "cut"
+                    ]
+                  },
+                  "dir": {
+                    "type": "integer",
+                    "enum": [
+                      -1,
+                      0,
+                      1
+                    ]
+                  },
+                  "blur": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0
+                  }
+                },
+                "required": [
+                  "move",
+                  "dir",
+                  "blur"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [

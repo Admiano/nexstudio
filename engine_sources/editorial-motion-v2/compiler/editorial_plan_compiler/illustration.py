@@ -12,12 +12,13 @@ import hashlib
 import json
 import math
 import re
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .chassis import chassis_aspect, housing, resolve_chassis
 from .contracts import (
-    IllustrationDirective, IllustrationEntity, IllustrationOp, STATE_CHANGE_OPS, TreatmentError,
+    IllustrationDirective, IllustrationEntity, STATE_CHANGE_OPS, TreatmentError,
 )
 from .authorities.native_three_aspect_composition_authority_v2 import ASPECTS as _NATIVE_ASPECTS
 from .timing import BeatClock, EXIT_MS, LEAD_IN_MS, find_landing
@@ -28,6 +29,9 @@ REGISTRY_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'illustration' 
 # resolved relative to its own registry root, so pack layout never reaches into this module.
 EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'icons-registry.json',
                     Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'colour-registry.json']
+# tools/preflight_assets.js renders every registry SVG inline and quarantines the hostile ones
+# (geometry outside the viewBox, nothing painted, external references); the compiler refuses them.
+PREFLIGHT_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'preflight.json'
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
 GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
@@ -181,11 +185,17 @@ class IllustrationRegistry:
     Loads the authored AEV1 catalogue plus any licence-clean community catalogues listed in
     EXTRA_REGISTRIES; ids are namespaced by their file path so packs can coexist without collisions."""
 
-    def __init__(self, path: Path = REGISTRY_PATH, extra_paths: Optional[List[Path]] = None):
+    def __init__(self, path: Path = REGISTRY_PATH, extra_paths: Optional[List[Path]] = None, preflight_path: Path = PREFLIGHT_PATH):
         self.path = path
         self.root = path.parent
         self.items: Dict[str, Dict[str, Any]] = {}
         self._roots: Dict[str, Path] = {}
+        self.quarantined: Dict[str, str] = {}
+        self.preflight_version: Optional[str] = None
+        if preflight_path.exists():
+            pf = json.loads(preflight_path.read_text())
+            self.quarantined = {k: str(v) for k, v in (pf.get('quarantined') or {}).items()}
+            self.preflight_version = str(pf.get('version') or preflight_path.name)
         versions: List[str] = []
         for p in [path] + list(extra_paths if extra_paths is not None else EXTRA_REGISTRIES):
             if not p.exists():
@@ -201,6 +211,8 @@ class IllustrationRegistry:
         item = self.items.get(ref)
         if not item:
             raise TreatmentError('ASSET_REF_UNKNOWN', f'{ref} is not in the illustration registry', beat_id)
+        if ref in self.quarantined:
+            raise TreatmentError('ASSET_QUARANTINED', f'{ref}: {self.quarantined[ref]}', beat_id)
         p = self._roots[ref] / item['path']
         if not p.exists():
             raise TreatmentError('ASSET_FILE_MISSING', str(p), beat_id)
@@ -216,11 +228,12 @@ class IllustrationRegistry:
 
 class IllustrationSolver:
     def __init__(self, aspect: str, canvas: Tuple[int, int], registry: IllustrationRegistry, media_library: Dict[str, Any], media_files: Dict[str, Any], accent: Optional[str],
-                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS):
+                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS, motion: Optional[Dict[str, Any]] = None):
         self.aspect = aspect
         self.canvas = canvas
         self.collage = collage
         self.stagger_ms = stagger_ms
+        self.motion = dict(motion or {})
         self.registry = registry
         self.media_library = media_library
         self.media_files = media_files
@@ -291,7 +304,7 @@ class IllustrationSolver:
     def _entity_ar(self, e: IllustrationEntity, beat_id: str = '') -> float:
         if e.glyph == 'MEDIA':
             a = self.media_library[e.media_ref]
-            return a.width / a.height
+            return chassis_aspect(resolve_chassis(a.kind, a.width, a.height, e.params.get('chassis') or None), a.width / a.height)
         if e.glyph == 'ICON':
             art = self.registry.art_box(e.asset_ref, beat_id)
             return art['w'] / art['h'] if art['h'] else 1.0
@@ -321,7 +334,7 @@ class IllustrationSolver:
         if e.glyph in LABEL_CARRIERS and e.label:
             # A label carrier widens (up to 5:1) until its label sits at the floor size on one line.
             floor = FLOOR_FRACTION['label'] * min(self.canvas)
-            need = measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06
+            need = self._label_need(e, floor) * SIZE_SCALE[e.size]
             w = min(max(bbox['w'], need), bbox['h'] * 5.0, body['w'])
             bbox = _box(body['x'] + (body['w'] - w) / 2, bbox['y'], w, bbox['h'])
         label = None
@@ -331,6 +344,9 @@ class IllustrationSolver:
 
     def layout(self, il: IllustrationDirective, zone: Dict[str, float], beat_id: str = '') -> Tuple[List[Dict[str, Any]], List[str]]:
         failures: List[str] = []
+        # The solver may adapt an entity's params to this aspect's field; the treatment's own
+        # entities are shared across aspects and must come out untouched.
+        il = replace(il, entities=[replace(e, params=dict(e.params)) for e in il.entities])
         contained = {r.target: r.source for r in il.relations if r.type == 'contains'}
         # A lens is not given a cell of its own: it sits over whatever it scans.
         scans = {r.source: r.target for r in il.relations if r.type == 'scans'}
@@ -561,7 +577,22 @@ class IllustrationSolver:
         # Flank the hero when that leaves it a bigger body than stacking the satellites beneath it.
         flank_w = _fit_aspect(_box(0, 0, zone['w'] - (side_w + gap) * n_cols, zone['h']), hero_ar)
         below_w = _fit_aspect(_box(0, 0, zone['w'], zone['h'] * 0.56), hero_ar)
-        wide = flank_w['w'] * flank_w['h'] >= below_w['w'] * below_w['h']
+        # A tall hero (a handset) fits by height and leaves the middle half empty; the flanks take
+        # that surplus so satellites are not starved beside a narrow hero. If even then a flank
+        # cannot hold its widest label at the floor size, the satellites go beneath instead.
+        surplus = zone['w'] - flank_w['w'] - gap * n_cols
+        side_w = min(max(side_w, surplus / n_cols), zone['w'] * 0.38)
+        flank_better = flank_w['w'] * flank_w['h'] >= below_w['w'] * below_w['h']
+        if flank_better and side_w < need_w:
+            # Tag pills are decoration; a chip sheds them before the hero gives up its column.
+            tagged = [e for e in sats if e.label and e.glyph == 'CHIP' and e.params.get('tags')]
+            bare = max([self._label_need(e, floor) / (0.52 / 0.30 if e in tagged else 1.0)
+                        for e in sats if e.label and e.glyph in LABEL_CARRIERS] or [0.0])
+            if tagged and side_w >= bare:
+                for e in tagged:
+                    e.params = {k: v for k, v in e.params.items() if k != 'tags'}
+                need_w = bare
+        wide = flank_better and side_w >= need_w
         if wide:
             left = [s for i, s in enumerate(sats) if i % 2 == 1]
             right = [s for i, s in enumerate(sats) if i % 2 == 0]
@@ -618,8 +649,8 @@ class IllustrationSolver:
             plan['media'] = {'asset_id': a.asset_id, 'kind': a.kind, 'path': nm.render_path if nm else a.path, 'sha256': nm.render_sha256 if nm else None,
                              'source_size': {'w': a.width, 'h': a.height}, 'rights': a.rights, 'audio': 'MUTE',
                              'trim': ({'start': float(e.params['trim'][0]), 'end': float(e.params['trim'][1])} if e.params.get('trim') else None),
-                             'chassis': e.params.get('chassis') or None,
-                             'tilt': float(e.params['tilt']) if e.params.get('tilt') is not None else None}
+                             **housing(a.kind, a.width, a.height, a.asset_id, self.motion, e.size,
+                                       e.params.get('chassis') or None, e.params.get('tilt'))}
         if e.label:
             if e.glyph in LABEL_CARRIERS:
                 # Inner label boxes track the chrome each carrier draws: a callout's tail hangs below its
@@ -667,6 +698,7 @@ class IllustrationSolver:
                 p1 = (bx - ux * (t1 + 4), by - uy * (t1 + 4))
                 if math.dist(p0, p1) < MIN_LINK_PX:
                     # Rims this close already read as adjacent; a stub between them is a stray mark.
+                    rel['stub'] = True
                     out.append(rel)
                     continue
                 if style == 'arc':
@@ -779,6 +811,11 @@ class IllustrationSolver:
             first_op = min((o['start_ms'] for o in ops if o['target'] == e['id'] or o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id'])), default=None)
             if first_op is not None:
                 t = min(t, first_op - 160)
+            # A body a connector lands on has finished arriving before the stroke completes.
+            joined = [o['end_ms'] for o in ops if o['op'] == 'CONNECT'
+                      and (o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id']))]
+            if joined:
+                t = min(t, min(joined) - ENTER_MS)
             enter[e['id']] = max(LEAD_IN_MS // 5, int(t))
         for o in ops:
             if o['end_ms'] - o['start_ms'] < 120:
@@ -925,6 +962,9 @@ class IllustrationSolver:
                 carry_in[cid] = prev[cid]['bbox']
         ops, enter, sf = self.schedule(il, clock, ents, carried_ids, beat_id, self.stagger_ms)
         failures += sf
+        # A stub link has no stroke on stage, so nothing may be programmed onto it.
+        stubs = {r['id'] for r in rels if r.get('stub')}
+        ops = [o for o in ops if o['target'] not in stubs]
         inherited = terminal_state(carry_source) if carry_source else {}
         for e in ents:
             e['enter_ms'] = enter[e['id']]
@@ -940,6 +980,11 @@ class IllustrationSolver:
             if connect:
                 r['enter_ms'], r['enter_duration_ms'] = connect['start_ms'], connect['end_ms'] - connect['start_ms']
                 r['drawn_by_op'] = True
+            # A connector joins two present bodies; one drawn toward a body still off stage is a stray line.
+            ends_in = max(enter[r['source']] + (0 if r['source'] in carried_ids else ENTER_MS),
+                          enter[r['target']] + (0 if r['target'] in carried_ids else ENTER_MS))
+            if r['enter_ms'] + r['enter_duration_ms'] < ends_in and not r.get('stub'):
+                failures.append(f"CONNECTOR_BEFORE_ENDPOINT:{r['id']}")
         # The authored program settles the scene; decorations then ride the hold it opened, so
         # they join the op list after `settled` is measured rather than delaying it.
         settled = max([e['enter_ms'] + e['enter_duration_ms'] for e in ents] + [r['enter_ms'] + r['enter_duration_ms'] for r in rels] + [o['end_ms'] for o in ops] + [CARRY_REFRAME_MS if carry_in else 0])

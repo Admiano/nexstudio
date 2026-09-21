@@ -668,6 +668,12 @@
           "min_duration_ms": {
             "type": "integer",
             "minimum": 0
+          },
+          "cut": {
+            "type": "string",
+            "enum": [
+              "hard"
+            ]
           }
         },
         "required": [
@@ -853,9 +859,15 @@
         "bright",
         "calm",
         "dreamy",
+        "driving",
+        "elegant",
+        "focused",
         "jazzy",
         "playful",
+        "quirky",
+        "tense",
         "uplifting",
+        "warm",
         "wistful"
       ]
     },

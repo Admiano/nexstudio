@@ -112,6 +112,7 @@ def treatment_schema() -> Dict[str, Any]:
         'complexity': _unit(),
         'features': {'type': 'object', 'additionalProperties': _unit()},
         'min_duration_ms': MS,
+        'cut': _enum(c.CUT_MODES),
     }, ['beat_id', 'beat_type', 'pattern'], additionalProperties=False)
     asset = _obj({
         'asset_id': _str(),
@@ -244,7 +245,8 @@ def plan_schema() -> Dict[str, Any]:
     asset = _obj({'id': _str(), 'path': _str(), 'sha256': SHA, 'license': _str(), 'family': _str(), 'art_box': {'type': 'object'},
                   'colour': _enum(('mono', 'native', 'brand')), 'brand_hex': _str()}, ['id', 'path', 'sha256', 'license'])
     ent_media = _obj({'asset_id': _str(), 'kind': _enum(c.MEDIA_KINDS), 'path': _str(), 'sha256': {'anyOf': [SHA, {'type': 'null'}]}, 'source_size': {'type': 'object'},
-                      'rights': _str(), 'audio': {'const': 'MUTE'}, 'trim': {}}, ['asset_id', 'kind', 'path', 'rights', 'audio'])
+                      'rights': _str(), 'audio': {'const': 'MUTE'}, 'trim': {}, 'chassis': _enum(c.CHASSIS), 'tilt': {'type': 'number'}},
+                     ['asset_id', 'kind', 'path', 'rights', 'audio', 'chassis', 'tilt'])
     state_in = _obj({k: {'type': 'number'} for k in ('draw', 'fill', 'ink', 'dim', 'grow', 'strike', 'swap', 'count', 'emit', 'connect')} | {'at': _str()}, [], additionalProperties=False)
     entity = _obj({
         'id': _str(), 'kind': _enum(c.ENTITY_KINDS), 'glyph': _enum(c.GLYPHS), 'size': _enum(c.ENTITY_SIZES), 'bbox': BOX, 'params': {'type': 'object'},
@@ -280,10 +282,12 @@ def plan_schema() -> Dict[str, Any]:
         'role': _enum(c.MEDIA_ROLES), 'bbox': BOX, 'zone': BOX, 'focus': {'anyOf': [BOX, {'type': 'null'}]},
         'trim': {'anyOf': [_obj({'start': {'type': 'number'}, 'end': {'type': 'number'}}, ['start', 'end']), {'type': 'null'}]},
         'audio': {'const': 'MUTE'}, 'enter_ms': MS, 'enter_duration_ms': MS, 'carried_from': NULLABLE_STR, 'persist_to': NULLABLE_STR, 'frame': _str(),
-    }, ['asset_id', 'kind', 'rights', 'path', 'sha256', 'original_path', 'original_sha256', 'role', 'bbox', 'audio', 'enter_ms', 'enter_duration_ms', 'frame'])
+        'chassis': _enum(c.CHASSIS), 'tilt': {'type': 'number'},
+    }, ['asset_id', 'kind', 'rights', 'path', 'sha256', 'original_path', 'original_sha256', 'role', 'bbox', 'audio', 'enter_ms', 'enter_duration_ms', 'frame', 'chassis', 'tilt'])
     data = _obj({'kind': _enum(c.DATA_KINDS), 'zone': BOX, 'blocks': {'type': 'array'}, 'enter_ms': MS, 'enter_duration_ms': MS, 'stagger_ms': MS, 'style': _str()},
                 ['kind', 'zone', 'blocks', 'enter_ms', 'enter_duration_ms', 'stagger_ms'])
-    transition = _obj({'mode': _str(), 'owner': _str(), 'start_ms': MS, 'end_ms': MS}, ['mode', 'owner', 'start_ms', 'end_ms'])
+    camera = _obj({'move': _enum(c.CAMERA_MOVES), 'dir': {'type': 'integer', 'enum': [-1, 0, 1]}, 'blur': _unit()}, ['move', 'dir', 'blur'], additionalProperties=False)
+    transition = _obj({'mode': _str(), 'owner': _str(), 'start_ms': MS, 'end_ms': MS, 'camera': camera}, ['mode', 'owner', 'start_ms', 'end_ms'])
     word = _obj({'text': _str(), 'start_ms': MS, 'end_ms': MS}, ['text', 'start_ms', 'end_ms'])
     gate = _obj({'status': _enum(('PASS', 'FAIL')), 'failures': {'type': 'array', 'items': {'type': 'string'}}}, ['status', 'failures'])
     beat = _obj({
@@ -314,8 +318,10 @@ def plan_schema() -> Dict[str, Any]:
             'output': _obj({'w': {'type': 'integer'}, 'h': {'type': 'integer'}, 'scale': {'type': 'number'}}, ['w', 'h', 'scale']),
             'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES)}, ['ink', 'paper', 'finish']),
             'motion': _obj({'entrance': _enum(('settle', 'pop')), 'stagger_ms': MS, 'camera_push': {'type': 'number'}, 'camera_pan_frac': {'type': 'number'},
-                            'transition': _enum(('blur_dissolve', 'scale_through')), 'blur_px': {'type': 'number'}, 'word_landing': _enum(('tonal', 'rise'))},
-                           ['entrance', 'stagger_ms', 'camera_push', 'transition', 'word_landing']),
+                            'transition': _enum(('blur_dissolve', 'scale_through')), 'blur_px': {'type': 'number'}, 'word_landing': _enum(('tonal', 'rise')),
+                            'spring': _enum(c.SPRING_PRESETS), 'breathe': _unit(), 'label_lag_ms': MS, 'motion_blur': {'type': 'number', 'minimum': 0},
+                            'media_tilt': {'type': 'number', 'minimum': 0}},
+                           ['entrance', 'stagger_ms', 'camera_push', 'transition', 'word_landing', 'spring', 'breathe', 'label_lag_ms', 'motion_blur', 'media_tilt']),
             'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, ['reveal', 'tonal_ink']),
             'illustration_registry': _obj({'path': _str(), 'version': NULLABLE_STR}, ['path']),
             'fonts': {'type': 'object'}, 'duration_ms': {'type': 'integer', 'exclusiveMinimum': 0},

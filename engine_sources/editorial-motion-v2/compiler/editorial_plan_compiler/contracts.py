@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from .chassis import CHASSIS
+
 AUTHORITIES = Path(__file__).resolve().parent / 'authorities'
 GRAMMAR = json.loads((AUTHORITIES / 'REFERENCE_EDITORIAL_MOTION_GRAMMAR_V1.json').read_text())
 
@@ -28,6 +30,14 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
 GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
           'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER')
+# Housings whose only job is to carry a mark; staged without one they read as generated filler.
+CARRIER_GLYPHS = ('TILE', 'BADGE', 'CHIP')
+# Housings whose label is set inside the body, so a word alone is content.
+INSIDE_LABEL_GLYPHS = ('CHIP',)
+# Glyphs a `concept` can resolve onto; the housed ones can fall back to a typeset word, a bare
+# ICON cannot and must land on a mark.
+CONCEPT_GLYPHS = ('ICON', 'TILE', 'BADGE', 'CHIP')
+WORD_GLYPHS = ('TILE', 'BADGE', 'CHIP')
 ENTITY_KINDS = ('object', 'system', 'state', 'group', 'evidence', 'signal', 'agent')
 ENTITY_SIZES = ('hero', 'support', 'minor')
 RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans', 'marks')
@@ -49,13 +59,25 @@ FIGURE_POSTURES = ('standing', 'sitting')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
-FILM_MOODS = ('bright', 'calm', 'dreamy', 'jazzy', 'playful', 'uplifting', 'wistful')
+FILM_MOODS = ('bright', 'calm', 'dreamy', 'driving', 'elegant', 'focused', 'jazzy', 'playful', 'quirky', 'tense', 'uplifting', 'warm', 'wistful')
 # Motion profile per finish: how elements enter, how far the camera drifts per beat, how cuts dissolve.
+#   spring        damping preset every arrival is solved with ('snap' overshoots, 'settle' barely, 'float' never)
+#   breathe       idle scale amplitude of a held element (fraction), phase-offset per element
+#   label_lag_ms  a label trails its body's arrival by this much — secondary motion
+#   motion_blur   gain on the per-frame travel that becomes directional blur (0 disables)
+SPRING_PRESETS = ('snap', 'settle', 'float')
 MOTION_PROFILES = {
-    'EDITORIAL_FLAT': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.012, 'camera_pan_frac': 0.004, 'transition': 'blur_dissolve', 'blur_px': 6, 'word_landing': 'tonal'},
-    'PAPER': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.01, 'camera_pan_frac': 0.003, 'transition': 'blur_dissolve', 'blur_px': 5, 'word_landing': 'tonal'},
-    'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise'},
+    'EDITORIAL_FLAT': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.012, 'camera_pan_frac': 0.004, 'transition': 'blur_dissolve', 'blur_px': 6, 'word_landing': 'tonal',
+                       'spring': 'settle', 'breathe': 0.006, 'label_lag_ms': 40, 'motion_blur': 0.8, 'media_tilt': 0.0},
+    'PAPER': {'entrance': 'settle', 'stagger_ms': 90, 'camera_push': 0.01, 'camera_pan_frac': 0.003, 'transition': 'blur_dissolve', 'blur_px': 5, 'word_landing': 'tonal',
+              'spring': 'settle', 'breathe': 0.005, 'label_lag_ms': 40, 'motion_blur': 0.6, 'media_tilt': 0.0},
+    'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise',
+                        'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0, 'media_tilt': 1.0},
 }
+# How the film's camera carries one beat into the next; the compiler picks from beat energy,
+# a hard cut only when the treatment asks for one (beat.cut = 'hard').
+CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'cut')
+CUT_MODES = ('hard',)
 DATA_KINDS = ('STAT', 'COMPARISON', 'SEQUENCE')
 # Entity labels are nouns, not captions: no leading article, at most three words, and never a
 # restatement of a display unit already set in type on the same beat.
@@ -185,6 +207,7 @@ class IllustrationEntity:
     asset_ref: Optional[str] = None   # ICON: illustration registry id
     media_ref: Optional[str] = None   # MEDIA: media_library asset_id
     params: Dict[str, Any] = field(default_factory=dict)
+    concept: Optional[str] = None     # what the mark stands for; resolved to an asset or a typeset word by the compiler
 
     @classmethod
     def parse(cls, d: Dict[str, Any], beat_id: str) -> 'IllustrationEntity':
@@ -199,14 +222,22 @@ class IllustrationEntity:
         label = ' '.join(str(d.get('label') or '').split()) or None
         asset_ref = (str(d.get('asset_ref') or '').strip() or None)
         media_ref = (str(d.get('media_ref') or '').strip() or None)
+        concept = ' '.join(str(d.get('concept') or '').split()) or None
+        if concept is not None:
+            _need(glyph in CONCEPT_GLYPHS, 'CONCEPT_ON_UNHOUSED_GLYPH', f'{eid}: concept resolves onto {"/".join(CONCEPT_GLYPHS)} only', beat_id)
+            _need(len(concept) <= 40, 'CONCEPT_TOO_LONG', f'{eid}: {concept!r}', beat_id)
         if glyph == 'ICON':
-            _need(asset_ref is not None, 'ICON_WITHOUT_ASSET_REF', eid, beat_id)
+            _need(asset_ref is not None or concept is not None, 'ICON_WITHOUT_ASSET_REF', eid, beat_id)
+        if glyph in CARRIER_GLYPHS:
+            # A housing is never staged empty: the tile / disc / row exists to carry a mark or a word.
+            carries = asset_ref is not None or concept is not None or (label is not None and glyph in INSIDE_LABEL_GLYPHS)
+            _need(carries, 'CHASSIS_EMPTY', f'{eid}: {glyph} carries nothing (no asset_ref, no concept, no inside label)', beat_id)
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})
         if 'chassis' in params:
             _need(glyph == 'MEDIA', 'CHASSIS_ON_NON_MEDIA', f'{eid}: chassis wraps MEDIA only', beat_id)
-            _need(str(params['chassis']) in ('phone', 'browser', 'card', 'shot'), 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
+            _need(str(params['chassis']) in CHASSIS, 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
         if glyph == 'CHART_LINE':
             pts = params.get('points')
             _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)
@@ -225,7 +256,7 @@ class IllustrationEntity:
                     params[k] = str(params[k])[:24]
         if 'tone' in params:
             _need(str(params['tone']) in ('light', 'dark'), 'TONE_UNKNOWN', f"{eid}:{params['tone']}", beat_id)
-        return cls(eid, kind, glyph, size, label, asset_ref, media_ref, params)
+        return cls(eid, kind, glyph, size, label, asset_ref, media_ref, params, concept)
 
 
 @dataclass
@@ -436,6 +467,7 @@ class BeatTreatment:
     complexity: float = 0.45
     features: Dict[str, float] = field(default_factory=dict)
     min_duration_ms: int = 0
+    cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -475,8 +507,11 @@ class BeatTreatment:
         _need(len(units) <= 5, 'TOO_MANY_DISPLAY_UNITS', 'more than five display units in one beat', bid)
         _need(not (figure and media and layer == 'TEXT'), 'TEXT_BEAT_WITH_FIGURE_AND_MEDIA', 'a text-led beat may carry a figure or media, not both', bid)
         feats = {k: _unit(v) for k, v in (d.get('features') or {}).items()}
+        cut = str(d['cut']) if d.get('cut') else None
+        if cut is not None:
+            _need(cut in CUT_MODES, 'CUT_MODE_UNKNOWN', cut, bid)
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0))
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut)
 
     @property
     def has_visual(self) -> bool:
