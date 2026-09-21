@@ -219,6 +219,7 @@
       document.fonts.load(`900 40px "${f.display}"`),
       document.fonts.load(`italic 600 40px "${f.display}"`),
       document.fonts.load(`600 40px "${f.data}"`),
+      document.fonts.load(`700 40px "${f.display}"`),
     ]).then(() => document.fonts.ready);
   }
 
@@ -1096,6 +1097,55 @@
     return out;
   }
 
+  // A concept the registry cannot draw is typeset inside its housing — the word, or the figure,
+  // set as a designed mark. Measured with the real face so the fit is exact; a word that cannot
+  // meet the floor at two lines becomes a monogram rather than a shrunken caption.
+  const wordCanvas = document.createElement('canvas').getContext('2d');
+  function textWidth(txt, fs, family, weight) {
+    wordCanvas.font = `${weight} ${fs}px "${family}"`;
+    return wordCanvas.measureText(txt).width;
+  }
+  function fitLines(word, box, family, weight, maxLines, floorFs, maxFs, tracking) {
+    const words = word.split(' ');
+    for (let lines = 1; lines <= Math.min(maxLines, words.length); lines += 1) {
+      // Balanced split: the break that leaves the longest line shortest.
+      let best = null;
+      const splits = lines === 1 ? [[words.join(' ')]] : [];
+      if (lines === 2) for (let i = 1; i < words.length; i += 1) splits.push([words.slice(0, i).join(' '), words.slice(i).join(' ')]);
+      for (const ls of splits) {
+        const fs = Math.min(maxFs, (box.h / lines) / 1.12, ...ls.map((l) => (box.w / (textWidth(l, 100, family, weight) / 100 + tracking * l.length))));
+        if (!best || fs > best.fs) best = { lines: ls, fs };
+      }
+      if (best && best.fs >= floorFs) return best;
+    }
+    return null;
+  }
+  function wordMark(node, body, box, word, kind, fg, plan) {
+    const numeric = kind === 'numeric';
+    const family = numeric ? plan.fonts.families.data : plan.fonts.families.display;
+    const weight = numeric ? '600' : '700';
+    const tracking = numeric ? 0 : -0.015;
+    let fit = kind === 'monogram' ? null : fitLines(word, box, family, weight, numeric ? 1 : 2, box.h * 0.2, box.h * (numeric ? 0.62 : 0.5), tracking);
+    let set = kind;
+    if (!fit) {
+      const initials = word.split(/[\s-]+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+      fit = fitLines(initials, box, family, '700', 1, 1, box.h * 0.6, 0.02);
+      set = 'monogram';
+    }
+    const lh = fit.fs * 1.08, total = lh * fit.lines.length;
+    const g = svgEl('g', { 'data-word': set }, body);
+    fit.lines.forEach((l, i) => {
+      const t = svgEl('text', {
+        x: f2(box.x + box.w / 2), y: f2(box.y + box.h / 2 - total / 2 + lh * i + lh * 0.5), 'text-anchor': 'middle', 'dominant-baseline': 'central',
+        'font-size': f2(fit.fs), 'font-family': family, 'font-weight': weight, fill: fg, 'letter-spacing': f2(fit.fs * tracking),
+        'font-variant-numeric': numeric ? 'tabular-nums' : undefined,
+      }, g);
+      t.textContent = l;
+    });
+    node.extra.wordBox = box;
+    return g;
+  }
+
   // Registry icon loaded into a box inside a glyph group; each part joins the entity's
   // draw-on program (stroke packs dash-draw, fill packs stagger in).
   function loadIconInto(ent, node, host, box, opts) {
@@ -1440,13 +1490,25 @@
           }, body);
         }
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
+        const word = params.word ? String(params.word) : '';
+        const fg = dark ? paper : ink;
         if (ent.asset) {
           const host = svgEl('g', {}, g);
-          host.style.color = dark ? paper : ink;
+          host.style.color = fg;
           node.inkEls.push(host);
           node.extra.iconHost = host;
           const pad = b.w * 0.17;
-          loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
+          if (word) {
+            // Composite: the mark takes the upper body, the concept's own name is set beneath it.
+            const ih = b.h * 0.5;
+            loadIconInto(ent, node, host, { x: b.x + (b.w - ih) / 2, y: b.y + pad * 0.8, w: ih, h: ih }, opts);
+            wordMark(node, body, { x: b.x + pad * 0.6, y: b.y + pad * 0.8 + ih + b.h * 0.03, w: b.w - pad * 1.2, h: b.h - pad * 0.8 - ih - b.h * 0.03 - pad * 0.7 }, word, params.word_kind || 'name', fg, plan);
+          } else {
+            loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
+          }
+        } else if (word) {
+          const pad = b.w * 0.14;
+          wordMark(node, body, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, word, params.word_kind || 'name', fg, plan);
         }
         node.strike = strikeFor(b);
         break;
@@ -1476,6 +1538,10 @@
           node.extra.iconHost = host;
           const pad = R * 0.48;
           loadIconInto(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, opts);
+        } else if (params.word) {
+          // The disc's square inscribed in the circle carries the word or its monogram.
+          const side = R * 1.28;
+          wordMark(node, body, { x: c.x - side / 2, y: c.y - side / 2, w: side, h: side }, String(params.word), params.word_kind || 'name', dark ? paper : ink, plan);
         }
         node.strike = strikeFor(b);
         break;
@@ -1542,7 +1608,11 @@
           const pad = peg * 0.16;
           loadIconInto(ent, node, host, { x: px0 + pad, y: py0 + pad, w: peg - pad * 2, h: peg - pad * 2 }, opts);
         } else {
-          svgEl('circle', { cx: px0 + peg / 2, cy: py0 + peg / 2, r: peg * 0.22, fill: ink }, body);
+          // No mark: the peg carries the concept's monogram (or the figure), like a product avatar;
+          // the name itself is the row's inside label.
+          const word = String(params.word || ent.label || '');
+          const pad = peg * 0.14;
+          wordMark(node, body, { x: px0 + pad, y: py0 + pad, w: peg - pad * 2, h: peg - pad * 2 }, word, params.word_kind === 'numeric' ? 'numeric' : 'monogram', ink, plan);
         }
         // Tag pills, right-aligned, hairline strokes on the dark field.
         // Pills own the right third of the row (the label strip ends at 63%); tags that would not

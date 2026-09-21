@@ -1,0 +1,17 @@
+{
+  "schema": "NexStudioLexiconInfoV1",
+  "source": {
+    "pack": "WordNet 3.1",
+    "url": "https://wordnet.princeton.edu/",
+    "files": [
+      "data.noun",
+      "index.noun",
+      "cntlist.rev"
+    ],
+    "tarball_sha256": "3f7d8be8ef6ecc7167d39b10d66954ec734280b5bdcd57f7d9eafe429d11c22a"
+  },
+  "license": "WordNet 3.0 License",
+  "synsets": 82192,
+  "lemmas": 117953,
+  "sha256": "664d8011471e1446d70f4ee42c53ce7ebb4eb0560311509ef40901be6b2356ab"
+}

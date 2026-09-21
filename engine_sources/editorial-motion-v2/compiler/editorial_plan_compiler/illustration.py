@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from .chassis import chassis_aspect, housing, resolve_chassis
 from .contracts import (
-    IllustrationDirective, IllustrationEntity, IllustrationOp, STATE_CHANGE_OPS, TreatmentError,
+    IllustrationDirective, IllustrationEntity, STATE_CHANGE_OPS, TreatmentError,
 )
 from .authorities.native_three_aspect_composition_authority_v2 import ASPECTS as _NATIVE_ASPECTS
 from .timing import BeatClock, EXIT_MS, LEAD_IN_MS, find_landing
@@ -29,6 +29,9 @@ REGISTRY_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'illustration' 
 # resolved relative to its own registry root, so pack layout never reaches into this module.
 EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'icons-registry.json',
                     Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'colour-registry.json']
+# tools/preflight_assets.js renders every registry SVG inline and quarantines the hostile ones
+# (geometry outside the viewBox, nothing painted, external references); the compiler refuses them.
+PREFLIGHT_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'preflight.json'
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
 GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
@@ -182,11 +185,17 @@ class IllustrationRegistry:
     Loads the authored AEV1 catalogue plus any licence-clean community catalogues listed in
     EXTRA_REGISTRIES; ids are namespaced by their file path so packs can coexist without collisions."""
 
-    def __init__(self, path: Path = REGISTRY_PATH, extra_paths: Optional[List[Path]] = None):
+    def __init__(self, path: Path = REGISTRY_PATH, extra_paths: Optional[List[Path]] = None, preflight_path: Path = PREFLIGHT_PATH):
         self.path = path
         self.root = path.parent
         self.items: Dict[str, Dict[str, Any]] = {}
         self._roots: Dict[str, Path] = {}
+        self.quarantined: Dict[str, str] = {}
+        self.preflight_version: Optional[str] = None
+        if preflight_path.exists():
+            pf = json.loads(preflight_path.read_text())
+            self.quarantined = {k: str(v) for k, v in (pf.get('quarantined') or {}).items()}
+            self.preflight_version = str(pf.get('version') or preflight_path.name)
         versions: List[str] = []
         for p in [path] + list(extra_paths if extra_paths is not None else EXTRA_REGISTRIES):
             if not p.exists():
@@ -202,6 +211,8 @@ class IllustrationRegistry:
         item = self.items.get(ref)
         if not item:
             raise TreatmentError('ASSET_REF_UNKNOWN', f'{ref} is not in the illustration registry', beat_id)
+        if ref in self.quarantined:
+            raise TreatmentError('ASSET_QUARANTINED', f'{ref}: {self.quarantined[ref]}', beat_id)
         p = self._roots[ref] / item['path']
         if not p.exists():
             raise TreatmentError('ASSET_FILE_MISSING', str(p), beat_id)

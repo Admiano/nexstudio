@@ -18,9 +18,10 @@ from .authorities import editorial_motion_ensemble_director_v1 as ens
 from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
 from .chassis import chassis_aspect, housing
-from .contracts import MOTION_PROFILES, BeatTreatment, FilmTreatment, TreatmentError
+from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FilmTreatment, TreatmentError
 from .figures import resolve_figure
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
+from .lexicon import AssetFinder, NounLexicon
 from .media import NormalisedMedia, normalise_media
 from .motion import camera_move, transition_window_ms
 from .sound import SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
@@ -826,6 +827,56 @@ class BeatCompiler:
         }
 
 
+def _film_pack(film: FilmTreatment, registry: IllustrationRegistry) -> Optional[str]:
+    """The colour pack the film's authored native marks come from (most used wins), if any."""
+    tally: Dict[str, int] = {}
+    for b in film.beats:
+        for e in (b.illustration.entities if b.illustration else []):
+            item = registry.items.get(e.asset_ref or '')
+            if item and item.get('colour') == 'native' and item.get('family') != 'brand':
+                pack = AssetFinder.pack_of(e.asset_ref)
+                tally[pack] = tally.get(pack, 0) + 1
+    return max(sorted(tally), key=lambda k: tally[k]) if tally else None
+
+
+def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> None:
+    """Turn every entity `concept` into an asset_ref and/or a typeset word before any aspect is
+    solved, so all aspects draw the same answer. The ladder is pinned to the film's colour pack:
+    authored marks set it, otherwise the first pass's most common pack does."""
+    todo = [(b, e) for b in film.beats if b.illustration for e in b.illustration.entities if e.concept and not e.asset_ref]
+    if not todo:
+        return
+    finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
+    pack = _film_pack(film, registry)
+    if pack is None:
+        tally: Dict[str, int] = {}
+        for _b, e in todo:
+            r = finder.resolve(e.concept, None, e.glyph in WORD_GLYPHS)
+            item = registry.items.get(r.asset_ref or '')
+            if item and item.get('colour') == 'native' and item.get('family') != 'brand':
+                p = AssetFinder.pack_of(r.asset_ref)
+                tally[p] = tally.get(p, 0) + 1
+        pack = max(sorted(tally), key=lambda k: tally[k]) if tally else None
+    # With a colour pack in play a flat mono icon among colour art is the mix the film forbids,
+    # so the ladder only offers native marks and otherwise typesets.
+    native_only = pack is not None
+    for b, e in todo:
+        named = e.glyph == 'CHIP' and e.label is not None
+        r = finder.resolve(e.concept, pack, e.glyph in WORD_GLYPHS, native_only, named)
+        if r.via == 'composite' and e.glyph == 'BADGE':
+            # A disc is too small for a mark and a word: it takes its own name (or monogram)
+            # rather than an ancestor's mark the viewer cannot read back to the concept.
+            r = replace(r, via='typographic', asset_ref=None, path=[])
+        if r.via == 'unresolved':
+            # Only a bare ICON can end here (every housing typesets). Nothing stands in for it.
+            raise TreatmentError('CONCEPT_UNRESOLVED', f'{e.id}: no mark in the registry draws {e.concept!r} and {e.glyph} cannot typeset it', b.beat_id)
+        e.asset_ref = r.asset_ref
+        if r.word:
+            e.params['word'] = r.word
+            e.params['word_kind'] = 'numeric' if r.via == 'numeric' else 'name'
+        e.params['resolution'] = r.as_dict()
+
+
 def _asset_pack_mix(film: FilmTreatment, registry: IllustrationRegistry) -> List[str]:
     """One colour pack per film. Native-colour art from different packs (3D emoji next to flat
     icons) reads as assembled, not designed; brand marks are exempt since each is its own mark."""
@@ -995,7 +1046,9 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     root = library_root()
     lib = SoundLibrary(root) if root else None
     plans: Dict[str, Any] = {}
-    film_failures: List[str] = _asset_pack_mix(film, IllustrationRegistry())
+    registry = IllustrationRegistry()
+    _resolve_concepts(film, registry)
+    film_failures: List[str] = _asset_pack_mix(film, registry)
     film_warnings: List[str] = []
     for aspect in film.aspects:
         bc = BeatCompiler(film, aspect, lib, normalised)
