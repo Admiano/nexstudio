@@ -1691,6 +1691,73 @@
                             }
                           ]
                         },
+                        "photo": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "sha256": {
+                                  "type": "string",
+                                  "pattern": "^[0-9a-f]{64}$"
+                                },
+                                "source_size": {
+                                  "type": "object"
+                                },
+                                "rights": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "license": {
+                                  "type": "string",
+                                  "enum": [
+                                    "CC0 1.0",
+                                    "Public Domain"
+                                  ]
+                                },
+                                "license_url": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "source_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "landing_url": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "creator": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "path",
+                                "sha256",
+                                "source_size",
+                                "rights",
+                                "license",
+                                "source",
+                                "landing_url"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "inside": {
                           "type": "string",
                           "minLength": 1

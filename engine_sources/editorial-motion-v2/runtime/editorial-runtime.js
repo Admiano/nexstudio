@@ -1242,6 +1242,34 @@
     });
   }
 
+  // A photograph set into a housing's well: the concept ladder's evidence rung. The well is the
+  // same rounded geometry the housing itself uses (a circle for a disc), the picture fills it
+  // edge to edge and a hairline rim seats it, so it reads as an inset card, not a pasted bitmap.
+  function loadPhotoInto(ent, node, host, box, radius, opts) {
+    node.extra.iconBox = box;
+    host.setAttribute('data-icon-host', ent.id);
+    host.setAttribute('data-photo', ent.photo.source);
+    const cid = `pw_${ent.id}_${++iconInstance}`;
+    const round = radius >= Math.min(box.w, box.h) / 2;
+    const inner = svgEl('g', { 'clip-path': `url(#${cid})` }, host);
+    const img = svgEl('image', { x: f2(box.x), y: f2(box.y), width: f2(box.w), height: f2(box.h), preserveAspectRatio: 'xMidYMid slice' }, inner);
+    img.setAttribute('href', opts.assetUrl(ent.photo.path));
+    const clip = svgEl('clipPath', { id: cid }, host);
+    if (round) svgEl('circle', { cx: f2(box.x + box.w / 2), cy: f2(box.y + box.h / 2), r: f2(Math.min(box.w, box.h) / 2) }, clip);
+    else svgEl('path', { d: roundRectPath(box, radius) + 'Z' }, clip);
+    const rim = round
+      ? svgEl('circle', { cx: f2(box.x + box.w / 2), cy: f2(box.y + box.h / 2), r: f2(Math.min(box.w, box.h) / 2), fill: 'none' }, host)
+      : svgEl('path', { d: roundRectPath(box, radius) + 'Z', fill: 'none' }, host);
+    rim.setAttribute('stroke', host.style.color || '#000');
+    rim.setAttribute('stroke-width', f2(Math.max(1, box.w * 0.012)));
+    rim.setAttribute('stroke-opacity', '0.22');
+    node.outline.push({ path: inner, len: 0, set(v) { const o = clamp(v, 0, 1).toFixed(4); inner.style.opacity = o; rim.style.opacity = o; } });
+    node.ready = new Promise((resolve) => {
+      img.addEventListener('load', () => resolve(), { once: true });
+      img.addEventListener('error', () => resolve(), { once: true });
+    });
+  }
+
   // Housing surfaces every chassis draws with, from the film's atmosphere: `light` is the field's own
   // lifted surface, `dark` the contrasting one — so a dark-paper film gets the same grammar inverted.
   function housingOf(plan) {
@@ -1558,7 +1586,24 @@
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         const word = params.word ? String(params.word) : '';
         const fg = dark ? paper : ink;
-        if (ent.asset) {
+        // The name sits above the accent fill so an inked tile keeps it, in the paper colour.
+        const wordHost = svgEl('g', {}, g);
+        node.extra.wordHost = wordHost;
+        node.inkEls.push(wordHost);
+        if (ent.photo) {
+          const host = svgEl('g', {}, g);
+          host.style.color = fg;
+          node.extra.iconHost = host;
+          const pad = b.w * 0.11;
+          if (word) {
+            // Evidence: the photograph takes the upper body as an inset card, the concept's own name beneath.
+            const ih = b.h * 0.56;
+            loadPhotoInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: ih }, r * 0.55, opts);
+            wordMark(node, wordHost, { x: b.x + pad * 1.2, y: b.y + pad + ih + b.h * 0.03, w: b.w - pad * 2.4, h: b.h - pad - ih - b.h * 0.03 - pad * 0.9 }, word, params.word_kind || 'name', fg, plan);
+          } else {
+            loadPhotoInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, r * 0.6, opts);
+          }
+        } else if (ent.asset) {
           const host = svgEl('g', {}, g);
           host.style.color = fg;
           node.inkEls.push(host);
@@ -1568,13 +1613,13 @@
             // Composite: the mark takes the upper body, the concept's own name is set beneath it.
             const ih = b.h * 0.5;
             loadIconInto(ent, node, host, { x: b.x + (b.w - ih) / 2, y: b.y + pad * 0.8, w: ih, h: ih }, opts);
-            wordMark(node, body, { x: b.x + pad * 0.6, y: b.y + pad * 0.8 + ih + b.h * 0.03, w: b.w - pad * 1.2, h: b.h - pad * 0.8 - ih - b.h * 0.03 - pad * 0.7 }, word, params.word_kind || 'name', fg, plan);
+            wordMark(node, wordHost, { x: b.x + pad * 0.6, y: b.y + pad * 0.8 + ih + b.h * 0.03, w: b.w - pad * 1.2, h: b.h - pad * 0.8 - ih - b.h * 0.03 - pad * 0.7 }, word, params.word_kind || 'name', fg, plan);
           } else {
             loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
           }
         } else if (word) {
           const pad = b.w * 0.14;
-          wordMark(node, body, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, word, params.word_kind || 'name', fg, plan);
+          wordMark(node, wordHost, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, word, params.word_kind || 'name', fg, plan);
         }
         node.strike = strikeFor(b);
         break;
@@ -1597,7 +1642,14 @@
           }, body);
         }
         node.inkEls.push(svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R), fill: accent, 'fill-opacity': 0 }, g));
-        if (ent.asset) {
+        if (ent.photo) {
+          // A disc is too small for a picture and a name: the photograph alone fills the well.
+          const host = svgEl('g', {}, g);
+          host.style.color = dark ? paper : ink;
+          node.extra.iconHost = host;
+          const pad = R * 0.14;
+          loadPhotoInto(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, R, opts);
+        } else if (ent.asset) {
           const host = svgEl('g', {}, g);
           host.style.color = dark ? paper : ink;
           node.inkEls.push(host);
@@ -1605,9 +1657,12 @@
           const pad = R * 0.48;
           loadIconInto(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, opts);
         } else if (params.word) {
-          // The disc's square inscribed in the circle carries the word or its monogram.
+          // The disc's square inscribed in the circle carries the word or its monogram, above the accent fill.
+          const wordHost = svgEl('g', {}, g);
+          node.extra.wordHost = wordHost;
+          node.inkEls.push(wordHost);
           const side = R * 1.28;
-          wordMark(node, body, { x: c.x - side / 2, y: c.y - side / 2, w: side, h: side }, String(params.word), params.word_kind || 'name', dark ? paper : ink, plan);
+          wordMark(node, wordHost, { x: c.x - side / 2, y: c.y - side / 2, w: side, h: side }, String(params.word), params.word_kind || 'name', dark ? paper : ink, plan);
         }
         node.strike = strikeFor(b);
         break;
@@ -1667,7 +1722,12 @@
         const peg = Math.min(b.h * 0.62, b.w * 0.14);
         const px0 = b.x + b.h * 0.19, py0 = b.y + (b.h - peg) / 2;
         svgEl('path', { d: roundRectPath({ x: px0, y: py0, w: peg, h: peg }, peg * 0.26) + 'Z', fill: paper }, body);
-        if (ent.asset) {
+        if (ent.photo) {
+          const host = svgEl('g', {}, g);
+          host.style.color = ink;
+          node.extra.iconHost = host;
+          loadPhotoInto(ent, node, host, { x: px0, y: py0, w: peg, h: peg }, peg * 0.26, opts);
+        } else if (ent.asset) {
           const host = svgEl('g', {}, g);
           host.style.color = ink;
           node.extra.iconHost = host;
@@ -1994,7 +2054,10 @@
       const inkP = propAt(node, 'ink', lt);
       const inkLevel = clamp(Math.max(inkP.v, swap.v >= 0.5 ? swap.v : 0), 0, 1);
       for (const e of gl.inkEls) {
-        if (e === gl.extra.iconHost) {
+        if (e === gl.extra.wordHost) {
+          const onDark = (ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent));
+          for (const t of e.querySelectorAll('text')) t.setAttribute('fill', onDark ? paper : ink);
+        } else if (e === gl.extra.iconHost) {
           const onDark = (ent.glyph === 'TILE' || ent.glyph === 'BADGE') && ((ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent)));
           // Brand marks paint in their brand hex on light bodies; enamel tiles keep a light glyph on dark bodies and accent fills.
           if (e.dataset.brandHex) e.style.color = onDark ? paper : e.dataset.brandHex;
@@ -2542,7 +2605,8 @@
           if (!bodyOn) continue;
           const host = gl.extra.iconHost;
           const carried = host ? host.querySelectorAll(GRAPHIC).length : 0;
-          const readout = gl.extra.countText || body.querySelector('text');
+          const readout = gl.extra.countText || body.querySelector('text') ||
+            (gl.extra.wordHost && gl.extra.wordHost.querySelector('text'));
           const inside = node.label && node.label.inside;
           if (!carried && !readout && !inside) flag('EMPTY_CHASSIS', beatId, node.ent.id, `${node.ent.glyph} body on stage with nothing inside`);
           if (host && carried) {

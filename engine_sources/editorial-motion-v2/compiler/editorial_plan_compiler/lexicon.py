@@ -5,6 +5,8 @@ walking one rung at a time and recording which rung answered so the plan can be 
 
     exact       an asset whose label/tags are the concept itself
     synonym     an asset for a lemma sharing the concept's WordNet synset
+    photo       a CC0 / public-domain photograph of the concept itself, cached with its rights
+                (evidence.py; the compiler takes it over any rung below for a TILE/CHIP/BADGE)
     hypernym    an asset for an ancestor (almond → edible nut → nut), ≤ HYPERNYM_DEPTH up
     composite   a hypernym mark two or more rungs up, so the concept word is typeset beside it
     typographic the concept typeset inside the housing — never a random or blank mark
@@ -66,6 +68,7 @@ NUMERIC_RE = re.compile(r'^[+\-~≈]?\s*[$€£¥]?\d[\d,.\s]*[%xX×+kKmMbB]?(\s
 # WordNet lexicographer files whose synsets name things a mark can draw: animal, artifact, body,
 # food, location, object, person, plant, shape, substance.
 DEPICTABLE_FILES = frozenset((5, 6, 8, 13, 15, 17, 18, 20, 25, 27))
+PERSON_FILE = 18   # noun.person: drawable as a mark, never photographed (a likeness is not evidence)
 STOP = frozenset(('the', 'a', 'an', 'of', 'and', 'or', 'with', 'for', 'to', 'in', 'on', 'at', 'by'))
 
 
@@ -131,12 +134,18 @@ class NounLexicon:
         else:
             # No corpus evidence which sense is everyday: a mark draws things, so only the senses
             # that name things are walked ('wrench' the tool, never the injury).
-            things = [s for s in all_senses if self.depictable(s)]
+            # A lowercase noun names the thing before it names a surname ('crane': the machine
+            # and the bird, not the poets).
+            things = [s for s in all_senses if self.depictable(s) and not self.is_person(s)]
+            things = things or [s for s in all_senses if self.depictable(s)]
             all_senses = things or all_senses
         return all_senses[:limit]
 
     def depictable(self, sid: str) -> bool:
         return self.synsets[sid].get('f') in DEPICTABLE_FILES
+
+    def is_person(self, sid: str) -> bool:
+        return self.synsets[sid].get('f') == PERSON_FILE
 
     def _lemmas(self, sid: str) -> List[str]:
         lems = self.synsets[sid]['l']
@@ -200,6 +209,26 @@ class NounLexicon:
             out.update(lv)
         return out
 
+    def heads_as(self, compound: str, head: str, depth: int = 2) -> bool:
+        """Is a known compound a kind of its head word? 'coffee bean' and 'bean' are both seeds,
+        'red wine' is a wine; 'hot dog' is no dog and 'sea horse' no horse. The head's everyday
+        senses only, so 'dog' is never read as the frankfurter."""
+        lc, lh = self.lemma(compound), self.lemma(head)
+        if not lc or not lh:
+            return False
+        if lh in self.chain_lemmas(lc):
+            return True
+        heads = self.index.get(lh, [])[:3]
+        return bool(self._ancestors(self.index.get(lc, [])[:5], depth) & (self._ancestors(heads, depth) | set(heads)))
+
+    def _ancestors(self, sids: Sequence[str], depth: int) -> Set[str]:
+        out: Set[str] = set()
+        frontier = list(sids)
+        for _ in range(depth):
+            frontier = [h for s in frontier for h in self._hypernyms(s)]
+            out.update(frontier)
+        return out
+
     def related(self, a: str, b: str) -> bool:
         """True when two lemmas share an ancestor (or one is the other's ancestor) in any sense —
         the guard that keeps 'nut and bolt' from answering 'almond' while 'macadamia nut' does."""
@@ -214,7 +243,7 @@ class NounLexicon:
 @dataclass
 class Resolution:
     concept: str
-    via: str                          # exact | synonym | hypernym | composite | typographic | numeric
+    via: str                          # exact | synonym | photo | hypernym | composite | typographic | numeric
     asset_ref: Optional[str] = None
     word: Optional[str] = None        # typeset inside the housing (composite / typographic / numeric)
     path: List[str] = field(default_factory=list)   # lexicon walk that led to the asset
@@ -372,6 +401,12 @@ class AssetFinder:
                     if named or not can_type:
                         return Resolution(text, 'hypernym', asset_ref=hit, word=None, path=[text, hyper])
                     return Resolution(text, 'composite', asset_ref=hit, word=text, path=[text, hyper])
+        if lemma is not None and len(toks) > 1 and can_type and self.lexicon.heads_as(text, toks[-1]):
+            # A compound the lexicon knows but cannot climb from ('coffee bean' → seed, undrawn)
+            # is still a kind of its head: the head's mark, the compound's name beside it.
+            inner = self.resolve(toks[-1], pack, can_type, native_only, named)
+            if inner.asset_ref and inner.via in ('exact', 'synonym'):
+                return Resolution(text, 'composite', asset_ref=inner.asset_ref, word=None if named else text, path=[text, toks[-1]] + inner.path[1:])
         if can_type:
             # Last mark before type: a label the subject only qualifies ('honey pot', 'cheese wedge')
             # drawn beside the word, which says what the picture is of.

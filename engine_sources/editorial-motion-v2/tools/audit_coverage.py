@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Asset-coverage audit: walk the concept ladder for a noun list per native colour pack and report
-how each concept is drawn (exact / synonym / hypernym / composite / typographic / numeric).
+how each concept is drawn (exact / synonym / hypernym / photo / composite / typographic / numeric).
 
     python3 tools/audit_coverage.py                       # built-in cross-domain list, every pack
     python3 tools/audit_coverage.py --pack icon.icon-park-color --nouns my_nouns.txt --show
     python3 tools/audit_coverage.py --glyph ICON        # what a bare icon (no housing) can draw
+    python3 tools/audit_coverage.py --fetch             # let the photo rung query the catalogues
+
+The photo rung reads the evidence cache the way the compiler does; without ``--fetch`` it stays
+offline, so the histogram counts only photographs already cached and rights-recorded.
 
 The built-in list is a deliberately broad spread of explainer nouns — products, food, finance,
 software, health, home, travel, industry — not any one film's vocabulary. Exit status is 0; the
@@ -19,8 +23,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'compiler'))
 
+from editorial_plan_compiler.compiler import PHOTO_BELOW, WORD_GLYPHS  # noqa: E402
+from editorial_plan_compiler.evidence import PhotoEvidence  # noqa: E402
 from editorial_plan_compiler.illustration import IllustrationRegistry  # noqa: E402
-from editorial_plan_compiler.lexicon import AssetFinder, NounLexicon  # noqa: E402
+from editorial_plan_compiler.lexicon import AssetFinder, NounLexicon, Resolution  # noqa: E402
 
 NOUNS = """
 almond, apple, avocado, bread, butter, cereal, cheese, chocolate, coffee, egg, espresso, honey, milk,
@@ -51,20 +57,30 @@ def main() -> int:
     ap.add_argument('--glyph', default='TILE', choices=('TILE', 'CHIP', 'BADGE', 'ICON'), help='housing to resolve for (default TILE)')
     ap.add_argument('--show', action='store_true', help='print every resolution, not just the histogram')
     ap.add_argument('--json', type=Path, help='write the full report here')
+    ap.add_argument('--fetch', action='store_true', help='allow the photo rung to query Openverse / Commons (default: cache only)')
     args = ap.parse_args()
 
     raw = args.nouns.read_text().splitlines() if args.nouns else NOUNS.replace(',', '\n').splitlines()
     nouns = [n.strip() for n in raw if n.strip()]
     reg = IllustrationRegistry()
     finder = AssetFinder(reg.items, NounLexicon(), reg.quarantined)
+    evidence = PhotoEvidence(lexicon=finder.lexicon, online=args.fetch)
+
+    def resolve(n: str, pack: str) -> Resolution:
+        r = finder.resolve(n, pack, args.glyph != 'ICON', True, args.glyph == 'CHIP')
+        if r.via in PHOTO_BELOW and args.glyph in WORD_GLYPHS:
+            rec = evidence.find(n)
+            if rec is not None:
+                return Resolution(n, 'photo', asset_ref=None, word=None if args.glyph == 'BADGE' else n, path=[n, rec.title])
+        return r
     packs = args.pack or sorted({AssetFinder.pack_of(a) for a, it in reg.items.items()
                                  if it.get('colour') == 'native' and it.get('family') != 'brand'})
 
     report = {}
     for pack in packs:
-        rows = [finder.resolve(n, pack, args.glyph != 'ICON', True, args.glyph == 'CHIP').as_dict() for n in nouns]
+        rows = [resolve(n, pack).as_dict() for n in nouns]
         hist = collections.Counter(r['via'] for r in rows)
-        drawn = sum(1 for r in rows if r['asset_ref'])
+        drawn = sum(1 for r in rows if r['asset_ref'] or r['via'] == 'photo')
         report[pack] = {'histogram': dict(hist), 'drawn': drawn, 'total': len(rows), 'rows': rows}
         print(f"{pack:28s} drawn {drawn:3d}/{len(rows)}  " + '  '.join(f'{k}={v}' for k, v in sorted(hist.items())))
         if args.show:
