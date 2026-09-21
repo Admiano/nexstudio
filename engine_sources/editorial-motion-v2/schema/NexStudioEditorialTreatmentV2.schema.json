@@ -859,9 +859,15 @@
         "bright",
         "calm",
         "dreamy",
+        "driving",
+        "elegant",
+        "focused",
         "jazzy",
         "playful",
+        "quirky",
+        "tense",
         "uplifting",
+        "warm",
         "wistful"
       ]
     },

@@ -147,7 +147,9 @@ async function runFixture(fx, base, browser) {
       out.frames = film.frames;
       out.captions = film.captions.length;
       const ae = film.audioEvents();
-      out.audio = { voice: ae.voice.segments.length, accents: ae.accents.length, music: ae.music.status };
+      out.audio = { voice: ae.voice.segments.length, accents: ae.accents.length, music: ae.music.status,
+        layered: ae.accents.every((a) => Array.isArray(a.layers) && a.layers.some((L) => L.role === 'body') && a.layers.every((L) => L.license && L.sha256)),
+        groove: ae.music.groove ? ae.music.groove.status : null, start_offset_ms: ae.music.start_offset_ms };
 
       // The visible state is the active beat's subtree; hidden beats are display:none and not part of the frame.
       const snapshot = () => {
@@ -645,6 +647,11 @@ async function runFixture(fx, base, browser) {
     check(`stage is native ${plan.canvas.w}x${plan.canvas.h}`, r.stage.w === plan.canvas.w && r.stage.h === plan.canvas.h && r.stage.aspect === aspect, JSON.stringify(r.stage));
     check('frame count matches plan', r.frames === Math.ceil((plan.duration_ms * plan.fps) / 1000));
     check('captions and audio events exposed', r.captions > 0 && r.audio.voice === plan.voice.segments.length && r.audio.accents > 0 && r.audio.music === plan.music.status, JSON.stringify(r.audio));
+    // Item 5: every accent is a layered stack with provenance per layer; the bed carries its groove fit and
+    // the bus mix contract rides with the plan so the renderer and compiler agree on the same numbers.
+    check('accents layered with provenance per layer', r.audio.layered === true, JSON.stringify(r.audio));
+    check('music bed phase-fitted to the film landings', plan.music.status !== 'BOUND_CC0' || (r.audio.groove === 'PHASED' && r.audio.start_offset_ms === plan.music.groove.start_offset_ms), JSON.stringify(r.audio));
+    check('bus mix contract on the plan', plan.mix && plan.mix.buses && ['voice', 'sfx', 'music'].every((b) => plan.mix.buses[b]) && plan.mix.true_peak_dbtp < 0, JSON.stringify(plan.mix));
     check('seek is deterministic across paths', r.determinism.every(Boolean), JSON.stringify(r.determinism));
     check('frame(n) equals seek(n/fps)', r.frameAddress);
     check('nothing settled before first landing', r.preLanding);

@@ -59,7 +59,7 @@ FIGURE_POSTURES = ('standing', 'sitting')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
-FILM_MOODS = ('bright', 'calm', 'dreamy', 'jazzy', 'playful', 'uplifting', 'wistful')
+FILM_MOODS = ('bright', 'calm', 'dreamy', 'driving', 'elegant', 'focused', 'jazzy', 'playful', 'quirky', 'tense', 'uplifting', 'warm', 'wistful')
 # Motion profile per finish: how elements enter, how far the camera drifts per beat, how cuts dissolve.
 #   spring        damping preset every arrival is solved with ('snap' overshoots, 'settle' barely, 'float' never)
 #   breathe       idle scale amplitude of a held element (fraction), phase-offset per element
