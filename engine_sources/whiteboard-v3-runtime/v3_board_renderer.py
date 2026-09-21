@@ -51,12 +51,22 @@ _orig_map_point = wbp._map_point
 _ZONE_FIT = {'9:16': (520.0, 900.0), '1:1': (720.0, 700.0)}
 
 
+def _map_scale(ratio, zoom=1.0):
+    """Effective board->screen scale: zone-fit where we wrapped it, else the
+    preserved reference."""
+    w, h = wbp.RATIO_SIZES[ratio]
+    zwzh = _ZONE_FIT.get(ratio)
+    if zwzh is not None:
+        return min(w / zwzh[0], h / zwzh[1]) * zoom
+    return (min(w, h) / 650) * zoom
+
+
 def _map_point_zone_fit(pt, cam, ratio, zoom=1.0):
     zwzh = _ZONE_FIT.get(ratio)
     if zwzh is None:
         return _orig_map_point(pt, cam, ratio, zoom)
     w, h = wbp.RATIO_SIZES[ratio]
-    scale = min(w / zwzh[0], h / zwzh[1]) * zoom
+    scale = _map_scale(ratio, zoom)
     return w / 2 + (pt[0] - cam[0]) * scale, h / 2 + (pt[1] - cam[1]) * scale
 
 
@@ -1610,11 +1620,15 @@ def _scene_slots(labels: list[str], zone: dict, ratio: str, used=None):
         if portrait and n > 2:
             cols = 2 if n > 3 else 1
             rows = math.ceil(n / cols)
+            # tall canvas: centre a single column, spread rows across a safe
+            # band — the bottom row must leave room for icon + caption
+            y0, y1 = 0.30, 0.72
+            step_y = (y1 - y0) / (rows - 1) if rows > 1 else 0.0
             for k, i in enumerate(props):
                 col, row = k % cols, k // cols
                 slots[i] = dict(
-                    center=(x + w * (0.30 + (0.40 if cols > 1 else 0.20) * col),
-                            y + h * (0.34 + (0.62 / max(1, rows - 1) if rows > 1 else 0.0) * row)),
+                    center=(x + w * (0.50 if cols == 1 else 0.28 + 0.44 * col),
+                            y + h * (y0 + step_y * row if rows > 1 else (y0 + y1) / 2)),
                     size=prop_size * 0.95, icon=icons[i], label=labels[i],
                     pose=None, facing=1, cast=None, bubble=False)
         else:
@@ -1672,7 +1686,34 @@ def _scene_slots(labels: list[str], zone: dict, ratio: str, used=None):
             slots[people[0]]['pose'] = 'gesture'
             slots[people[0]]['cast'] = _cast_spec_for(
                 slots[people[0]]['label'], 'gesture')
+
+    # edge guard — a slot's measured artwork must stay inside the zone with a
+    # real margin: the top band belongs to the headline, and a caption needs
+    # ~0.85*size below the icon centre. Vignette strokes can be wider than
+    # 0.5*size, so extents are measured, not assumed.
+    pad = max(8.0, w * 0.025)
+    for s in slots:
+        lx, rx, ty, by = _slot_extent(s)
+        cx, cy = s['center']
+        cx = min(max(cx, x + pad + lx * s['size']),
+                 x + w - pad - rx * s['size'])
+        # bottom margin covers icon bottom + a two-line caption on row 1
+        cy = min(max(cy, y + h * 0.20 + ty * s['size']),
+                 y + h - pad - s['size'] * 1.10)
+        if (cx, cy) != s['center']:
+            s['center'] = (cx, cy)
     return [s for s in slots if s is not None]
+
+
+def _slot_extent(s):
+    """Measured half-extents of a slot's artwork as fractions of `size`."""
+    st = _strokes_for(s['icon'], s.get('pose') or 'point',
+                      s.get('facing', 1), s.get('cast'))
+    xs = [pt[0] for poly in st for pt in poly[0]]
+    ys = [pt[1] for poly in st for pt in poly[0]]
+    if not xs:
+        return 0.45, 0.45, 0.45, 0.45
+    return (-min(xs), max(xs), -min(ys), max(ys))
 
 
 # ---------------------------------------------------------------------------
@@ -1727,7 +1768,7 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
     n = len(strokes)
     if n == 0:
         return None
-    scale = (min(*wbp.RATIO_SIZES[ratio]) / (650 if ratio != '9:16' else 760))
+    scale = _map_scale(ratio)
     lw = max(2.0, size * scale * 0.028)
     tip = None
     for j, st in enumerate(strokes):
@@ -1786,10 +1827,15 @@ def _headline_strokes(scene, zone, ratio):
         return []
     h = zone['h'] * 0.075
     txt = primary.upper()[:46]
-    while text_width(txt, h) > zone['w'] * 0.9 and h > zone['h'] * 0.03:
+    # text_width already matches the rendered span at wscale — the bold second
+    # pass adds ~h*0.05. Narrow zones must keep shrinking below the usual
+    # floor rather than clip the frame edge.
+    ws = 1.35
+    while text_width(txt, h) + h * 0.08 > zone['w'] * 0.92 and h > zone['h'] * 0.024:
         h *= 0.9
-    origin = (zone['x'] + zone['w'] * 0.05, zone['y'] + h * 1.5)
-    strokes = text_strokes(txt, origin, h, 'ink', 1.35)
+    mx = zone['w'] * (0.03 if zone['w'] < zone['h'] else 0.05)
+    origin = (zone['x'] + mx, zone['y'] + h * 1.5)
+    strokes = text_strokes(txt, origin, h, 'ink', ws)
     # double-pass offset for marker boldness
     strokes += [( [(px + h * 0.045, py + h * 0.02) for px, py in s[0]],
                   s[1], s[2], s[3], s[4]) for s in list(strokes)]
@@ -1808,10 +1854,14 @@ def _shift_strokes(strokes, dx, dy):
             for s in strokes]
 
 
-def _caption_strokes(center, size, label, zone=None, row=0):
+def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
     txt = str(label).upper()
     h = size * 0.11
     maxw = min(size * 1.9, (zone['w'] * 0.42 if zone else size * 1.9))
+    if pitch:
+        # captions live in the column under their slot — never wider than the
+        # gap to the next slot, or neighbours collide
+        maxw = min(maxw, pitch * 0.92)
     words = txt.split()
     lines = [txt]
     if len(words) > 1 and text_width(txt, h) > maxw:
@@ -1824,21 +1874,27 @@ def _caption_strokes(center, size, label, zone=None, row=0):
     if tw > maxw:
         h = max(size * 0.060, h * maxw / tw)
         tw = max(text_width(l, h) for l in lines)
-    oy = center[1] + size * (0.56 + 0.30 * row)
+    oy = center[1] + size * (0.56 + 0.34 * row)
+    mg = max(10.0, (zone['w'] * 0.022) if zone else 10.0)
     strokes = []
+    left_edge = right_edge = None
     for li, ln in enumerate(lines):
         lw = text_width(ln, h)
         ox = center[0] - lw / 2
         if zone:
-            ox = min(max(ox, zone['x'] + 6), zone['x'] + zone['w'] - lw - 6)
+            ox = min(max(ox, zone['x'] + mg), zone['x'] + zone['w'] - lw - mg)
         strokes += text_strokes(ln, (ox, oy + li * h * 1.45), h, 'ink', 0.85)
+        left_edge = ox if left_edge is None else min(left_edge, ox)
+        right_edge = ox + lw if right_edge is None else max(right_edge, ox + lw)
     y = oy + (len(lines) - 1) * h * 1.45 + _text_bottom(lines[-1], h) + h * 0.16
     ox0 = min(center[0] - text_width(l, h) / 2 for l in lines)
     if zone:
-        ox0 = max(ox0, zone['x'] + 6)
+        ox0 = max(ox0, zone['x'] + mg)
     strokes.append(([(ox0 - tw * 0.03, y), (ox0 + tw * 1.03, y)],
                     'accent', 0.8, False, True))
-    return strokes, ox0, ox0 + tw
+    # collision bookkeeping needs the true rendered span (per-line edges),
+    # not min-left + widest-line width which underestimates on wraps
+    return strokes, left_edge, right_edge
 
 
 def _scene_labels(scene: dict) -> list[str]:
@@ -1964,9 +2020,16 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             continue
         dy = 0.66 if s['icon'] in ('person', 'agent') else 0.56
 
+        # horizontal gap to the nearest same-row slot — caps caption width
+        cx0 = s['center'][0]
+        pitch = min((abs(cx0 - o['center'][0]) for o in slots
+                     if o is not s
+                     and abs(o['center'][1] - s['center'][1]) < s['size'] * 0.7),
+                    default=None)
+
         def cap(r):
             st, a, b = _caption_strokes(s['center'], s['size'],
-                                        s['label'], zone, r)
+                                        s['label'], zone, r, pitch)
             if s['icon'] in ('person', 'agent'):
                 st = _shift_strokes(st, 0, s['size'] * (dy - 0.56))
             return st, a, b
