@@ -19,12 +19,13 @@ from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
 from .chassis import chassis_aspect, housing
 from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FilmTreatment, TreatmentError
+from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere
 from .figures import resolve_figure
+from .groove import fit_phase, groove_stagger
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
 from .lexicon import AssetFinder, NounLexicon
 from .media import NormalisedMedia, normalise_media
 from .motion import camera_move, transition_window_ms
-from .groove import fit_phase, groove_stagger
 from .sound import MIX, SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
 from .master_timeline import MasterTimeline, extend_tail, resolve_master
 from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
@@ -96,9 +97,8 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     st = dict(stage)
     layers: List[Dict[str, Any]] = []
     if finish == 'PRODUCT_COLLAGE':
-        # Free canvas: no lifted panel, no rules. Objects float on the warm field over a soft
-        # off-centre glow that alternates sides so consecutive cuts re-light the stage.
-        layers.append({'kind': 'glow', 'bbox': _box(0, 0, W, H), 'align': ('left', 'right', 'center')[beat_index % 3], 'opacity': 0.55})
+        # Free canvas: no lifted panel, no rules. Objects float on the field; the light (bloom behind the
+        # hero) and the far-plane depth shapes are added by `atmosphere.beat_atmosphere` once the beat is placed.
         return layers
     has_panel = authored in {'CARD_STAGE', 'DOCUMENT_STAGE', 'PRODUCT_STAGE', 'LAYERED_PLANE'} or render_bg in {'CARD_STAGE', 'SPOTLIGHT_STAGE'}
     if has_panel:
@@ -1053,6 +1053,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     _resolve_concepts(film, registry)
     film_failures: List[str] = _asset_pack_mix(film, registry)
     film_warnings: List[str] = []
+    atmosphere = film_atmosphere(asdict(film.brand))
+    film_failures += brand_failures(atmosphere)
     # The bed is chosen before any beat is laid out: its tempo sets the landing-wave stagger, and once
     # the beats exist its playback phase is fitted to their landings. Every aspect shares the one bed.
     spoken = [b for b in film.beats if b.dominant_layer != 'QUIET'] or film.beats
@@ -1062,6 +1064,14 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     for aspect in film.aspects:
         bc = BeatCompiler(film, aspect, lib, normalised, stagger_ms=stagger_ms)
         beats = [bc.compile(b, c, o, i) for i, (b, c, o) in enumerate(zip(film.beats, clocks, offsets))]
+        W, H = native.ASPECTS[aspect]['size']
+        # The field is dressed once the content is placed: the bloom follows each beat's hero from the
+        # previous beat's light, the far-plane shapes take whatever room the content leaves.
+        prev_bloom = None
+        for bt in beats:
+            atmo_layers = beat_atmosphere(film.film_id, bt, (W, H), bc.safe, prev_bloom, atmosphere)
+            prev_bloom = next(L['at'] for L in atmo_layers if L['kind'] == 'bloom')
+            bt['composition']['background']['layers'] += atmo_layers
         phase = fit_phase(music, beats)
         aspect_music = {**music, 'start_offset_ms': phase['start_offset_ms'],
                         'groove': {**phase, 'stagger_ms': stagger_ms, 'stagger_subdivision': subdivision, 'authored_stagger_ms': profile['stagger_ms']}}
@@ -1075,7 +1085,6 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         fails = [f"{bt['beat_id']}:{f}" for bt in beats for f in bt['gate']['failures']]
         film_failures += [f'{aspect}:{f}' for f in fails]
         film_warnings += [f"{aspect}:{bt['beat_id']}:{w}" for bt in beats for w in bt['gate']['warnings']]
-        W, H = native.ASPECTS[aspect]['size']
         ow, oh = OUTPUT[aspect]
         plans[aspect] = {
             'schema': PLAN_SCHEMA, 'compiler': COMPILER_VERSION, 'film_id': film.film_id, 'aspect': aspect, 'fps': film.fps,
@@ -1088,7 +1097,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'timeline': None if timeline is None else {'source': 'MASTER', 'audio_ms': timeline.audio_ms, 'head_pad_ms': timeline.head_pad_ms, 'tail_silence_ms': timeline.tail_silence_ms,
                                                        'tempo': timeline.tempo, 'beats': [{'beat_id': w.beat_id, 'start_ms': w.start_ms, 'end_ms': w.end_ms, 'speech_start_ms': w.speech_start_ms,
                                                                                           'speech_end_ms': w.speech_end_ms, 'budget_met': c.budget_met} for w, c in zip(timeline.windows, clocks)]},
-            'music': aspect_music, 'mix': MIX,
+            'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
             'beats': beats, 'captions': _captions(beats),
             'captions_policy': 'kinetic' if film.brand.finish == 'PRODUCT_COLLAGE' else 'burned',
