@@ -1,4 +1,4 @@
-CC0 1.0 Universal — Public Domain Dedication.
-These files were published under CC0 (no rights reserved). No attribution required.
-Full text: https://creativecommons.org/publicdomain/zero/1.0/legalcode
-Source and per-file provenance: see ../manifest.json (community assets manifest).
+FreePD corpus — Creative Commons Zero (CC0 1.0) / public domain.
+Tracks by Kevin MacLeod and other FreePD contributors, mirrored at
+https://github.com/SoundSafari/CC0-1.0-Music/tree/main/freepd.com after freepd.com closed.
+Vendored as 120s excerpts (see manifest.json `excerpt`). No attribution required.

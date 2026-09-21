@@ -1,0 +1,32 @@
+{
+ "version": "ASSET_PREFLIGHT_V1",
+ "thresholds": {
+  "coverage_min": 0.03,
+  "overflow_max": 0.01,
+  "raster_px": 96,
+  "edge_band_px": 1.5
+ },
+ "checked": 18507,
+ "quarantined_count": 15,
+ "reasons": {
+  "UNDERPAINT": 9,
+  "OVERFLOW": 6
+ },
+ "quarantined": {
+  "brand.logos.ember-tomster": "OVERFLOW: 14.4% of its paint lands outside the viewBox",
+  "brand.logos.marko": "OVERFLOW: 61.3% of its paint lands outside the viewBox",
+  "brand.logos.marko-icon": "OVERFLOW: 47.8% of its paint lands outside the viewBox",
+  "brand.logos.million-icon": "UNDERPAINT: paints 0.0% of its box inline",
+  "brand.logos.solidjs-icon": "UNDERPAINT: paints 0.0% of its box inline",
+  "emoji.noto.crossed-swords": "OVERFLOW: 29.9% of its paint lands outside the viewBox",
+  "emoji.noto.gorilla": "OVERFLOW: 18.7% of its paint lands outside the viewBox",
+  "emoji.noto.package": "OVERFLOW: 35.3% of its paint lands outside the viewBox",
+  "icon.healthicons.baby-male-0203m-alt": "UNDERPAINT: paints 0.0% of its box inline",
+  "icon.ri.arrow-drop-down-fill": "UNDERPAINT: paints 3.0% of its box inline",
+  "icon.ri.arrow-drop-left-fill": "UNDERPAINT: paints 3.0% of its box inline",
+  "icon.ri.arrow-drop-right-fill": "UNDERPAINT: paints 3.0% of its box inline",
+  "icon.ri.arrow-drop-up-fill": "UNDERPAINT: paints 3.0% of its box inline",
+  "icon.tabler.alert-small": "UNDERPAINT: paints 2.7% of its box inline",
+  "icon.tabler.antenna-bars-1": "UNDERPAINT: paints 2.6% of its box inline"
+ }
+}

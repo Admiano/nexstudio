@@ -15,13 +15,16 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  const RUNTIME_VERSION = 'EDITORIAL_RUNTIME_V3.0';
+  const RUNTIME_VERSION = 'EDITORIAL_RUNTIME_V3.2';
   const STRESS_SCALE = 1.045; // mirrors typefit.STRESS_SCALE: the compiler reserves this width for stressed words
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const lerp = (a, b, t) => a + (b - a) * t;
   const prog = (t, s, e) => (e <= s ? (t >= e ? 1 : 0) : clamp((t - s) / (e - s), 0, 1));
 
-  const DEFAULT_MOTION = { entrance: 'settle', stagger_ms: 90, camera_push: 0, camera_pan_frac: 0, transition: 'blur_dissolve', blur_px: 0, word_landing: 'tonal' };
+  const DEFAULT_MOTION = { entrance: 'settle', stagger_ms: 90, camera_push: 0, camera_pan_frac: 0, transition: 'blur_dissolve', blur_px: 0, word_landing: 'tonal',
+    spring: 'settle', breathe: 0.006, label_lag_ms: 0, motion_blur: 1 };
+  const CARRY_MS = 420;      // a carried body travels to its new box in this long
+  const BREATHE_PERIOD_MS = 4000;
 
   const EASE = {
     outCubic: (t) => 1 - Math.pow(1 - t, 3),
@@ -62,6 +65,35 @@
   EASE.emphasize = cubicBezier(0.34, 1.56, 0.64, 1); // easeOutBack — controlled overshoot
   EASE.wipe = cubicBezier(0.76, 0, 0.24, 1);        // easeInOutQuart
 
+  // Spring solver. Closed-form response of a unit mass launched one unit short of rest, so every
+  // arrival is a pure function of normalised time — seekable, no simulation state. `zeta` is the
+  // damping ratio: under 1 the body overshoots and rings down, 1 is critically damped (never
+  // crosses). `launch` is the initial velocity as a fraction of the natural frequency — a body
+  // thrown toward rest rather than released, which is what a hand-keyed AE arrival looks like.
+  // Frequency is chosen so the residual at t=1 is SPRING_TOL; the last sliver is closed
+  // linearly so the curve ends exactly at 1 without a step.
+  const SPRING_TOL = 0.01;
+  const SPRING_LAUNCH = 0.35;
+  function springCurve(zeta, launch) {
+    const v = launch == null ? SPRING_LAUNCH : launch;
+    let raw;
+    if (zeta >= 1) {
+      let w = 6.64; // e^-w (1+w) = SPRING_TOL
+      for (let i = 0; i < 8; i += 1) w -= (Math.exp(-w) * (1 + w) - SPRING_TOL) / (-Math.exp(-w) * w);
+      raw = (t) => 1 - Math.exp(-w * t) * (1 + (w - v * w) * t);
+    } else {
+      const w = -Math.log(SPRING_TOL) / zeta;
+      const wd = w * Math.sqrt(1 - zeta * zeta);
+      const k = (zeta * w - v * w) / wd;
+      raw = (t) => 1 - Math.exp(-zeta * w * t) * (Math.cos(wd * t) + k * Math.sin(wd * t));
+    }
+    const end = raw(1);
+    return (t) => (t <= 0 ? 0 : t >= 1 ? 1 : raw(t) + (1 - end) * t);
+  }
+  // Presets: snap rings once (~9% over at t≈0.5), settle barely crosses (~1%), float never does.
+  const SPRING = { snap: springCurve(0.62), settle: springCurve(0.74), float: springCurve(1) };
+  const springOf = (motion, role) => SPRING[role === 'arrive' ? (SPRING[motion.spring] ? motion.spring : 'settle') : role] || SPRING.settle;
+
   function hash01(str) {
     let h = 2166136261;
     for (let i = 0; i < str.length; i += 1) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
@@ -70,23 +102,59 @@
 
   // Secondary motion: once a node's own program has settled it keeps a slow, tiny drift so holds
   // read as living stills rather than frozen frames. Pure function of lt — fully deterministic.
-  function ambientDrift(lt, id, settledAt, amp) {
+  // `breathe` is the idle scale amplitude (profile-driven; phase offset per id so held elements never breathe in unison).
+  function ambientDrift(lt, id, settledAt, amp, breathe) {
     const ramp = EASE.outCubic(prog(lt, settledAt, settledAt + 750));
     if (ramp <= 0) return { dx: 0, dy: 0, s: 1 };
     const ph = hash01(String(id)) * Math.PI * 2;
     const w = (Math.PI * 2) / 3800;
+    const wb = (Math.PI * 2) / BREATHE_PERIOD_MS;
     return {
       dx: amp * ramp * Math.sin(lt * w + ph),
       dy: amp * 0.72 * ramp * Math.sin(lt * w * 1.31 + ph * 1.63),
-      s: 1 + 0.006 * ramp * Math.sin(lt * w * 0.84 + ph * 0.53),
+      s: 1 + (breathe == null ? 0.006 : breathe) * ramp * Math.sin(lt * wb + ph * 0.53),
     };
   }
 
-  // Velocity-proportional blur during fast moves — the illusion of shutter speed.
-  function velocityBlur(lt, s, e, easeFn, distPx) {
-    if (lt <= s || lt >= e) return 0;
-    const dv = Math.abs(easeFn(prog(Math.min(e, lt + 40), s, e)) - easeFn(prog(lt, s, e)));
-    return clamp(dv * distPx * 0.02, 0, 2.4);
+  // Authorship inspection thresholds (see inspect()): a carried mark must cover a real share of
+  // its box and stay inside it; a connector reads as present above CONNECTOR_SHOWN_MIN while a
+  // body below ENDPOINT_PRESENT_MIN reads as absent.
+  const ICON_FILL_MIN = 0.2;
+  const ICON_OVERFLOW_MAX = 0.25;
+  const CONNECTOR_SHOWN_MIN = 0.25;
+  const ENDPOINT_PRESENT_MIN = 0.2;
+
+  // Motion blur. A 180° shutter smears half a frame of travel: the per-axis blur radius is
+  // the distance a body moved since the previous frame, less a threshold that keeps idle
+  // drift crisp. Directional, so a lateral move smears sideways and a drop smears downward.
+  const BLUR_THRESHOLD_PX = 1.5;
+  const BLUR_MAX_PX = 16;
+  function motionBlurStd(dxFrame, dyFrame, gain) {
+    const g = 0.5 * (gain == null ? 1 : gain);
+    return {
+      x: clamp((Math.abs(dxFrame) - BLUR_THRESHOLD_PX) * g, 0, BLUR_MAX_PX),
+      y: clamp((Math.abs(dyFrame) - BLUR_THRESHOLD_PX) * g, 0, BLUR_MAX_PX),
+    };
+  }
+  // Travel over the last frame along an eased path of length (distX, distY).
+  function pathBlur(lt, s, e, easeFn, distX, distY, frameMs, gain) {
+    if (lt <= s || lt > e) return { x: 0, y: 0 };
+    const dv = easeFn(prog(lt, s, e)) - easeFn(prog(lt - frameMs, s, e));
+    return motionBlurStd(dv * distX, dv * distY, gain);
+  }
+  // One SVG <filter> per moving node, shared by SVG and HTML bodies alike; set() rewrites the
+  // deviation every frame and clears the filter decl when the body is still.
+  function motionBlurFilter(defs, id) {
+    const filter = svgEl('filter', { id, x: '-40%', y: '-40%', width: '180%', height: '180%', 'color-interpolation-filters': 'sRGB' }, defs);
+    const blur = svgEl('feGaussianBlur', { stdDeviation: '0 0' }, filter);
+    const url = `url(#${id})`;
+    return {
+      apply(style, std, extra) {
+        const on = std.x > 0.05 || std.y > 0.05;
+        if (on) blur.setAttribute('stdDeviation', `${std.x.toFixed(2)} ${std.y.toFixed(2)}`);
+        style.filter = on ? (extra ? `${extra} ${url}` : url) : (extra || 'none');
+      },
+    };
   }
 
   function hexRgb(hex) {
@@ -151,6 +219,7 @@
       document.fonts.load(`900 40px "${f.display}"`),
       document.fonts.load(`italic 600 40px "${f.display}"`),
       document.fonts.load(`600 40px "${f.data}"`),
+      document.fonts.load(`700 40px "${f.display}"`),
     ]).then(() => document.fonts.ready);
   }
 
@@ -366,15 +435,23 @@
       if (ex.scale) scale *= ex.scale;
     }
 
-    // Velocity blur while the block travels: entry slide, exit rise, carrier wipes.
-    let blur = enter && enter.end_ms > enter.start_ms ? velocityBlur(lt, enter.start_ms, enter.end_ms, EASE.enter, node.bb.w * 0.1 + em * 0.5) : 0;
-    const tr = ctx.transition;
-    if (tr && lt >= tr.start_ms) blur = Math.max(blur, velocityBlur(lt, tr.start_ms, tr.end_ms, EASE.exit, node.bb.h * 0.6));
-    w.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
+    // Motion blur while the block travels, along the axis it travels: the entry slide or rise,
+    // and the exit lift (the transition carrier is clipped, not moved, so it stays sharp).
+    let std = { x: 0, y: 0 };
+    if (enter && enter.end_ms > enter.start_ms) {
+      const slide = enter.event === 'DECISIVE_SLIDE';
+      std = pathBlur(lt, enter.start_ms, enter.end_ms, EASE.outQuint, slide ? node.bb.w * 0.07 : 0, slide ? 0 : em * 0.5, ctx.frameMs, ctx.motion.motion_blur);
+    }
+    if (ex && ex.ty) {
+      const tr = ctx.transition;
+      const exitStd = pathBlur(lt, tr.start_ms, tr.end_ms, EASE.inCubic, 0, 14 * 1.5, ctx.frameMs, ctx.motion.motion_blur);
+      std = { x: Math.max(std.x, exitStd.x), y: Math.max(std.y, exitStd.y) };
+    }
+    if (node.blur) node.blur.apply(w, std); else w.filter = 'none';
 
     // Hero copy breathes after its program settles — applied to the text node so block geometry never moves.
     if (b.role === 'hero') {
-      const heroS = ambientDrift(lt, `hero-${i}`, (node.cascade ? (b.cascade_end_ms || 0) : (enter ? enter.end_ms : 0)) + 320, 0).s;
+      const heroS = ambientDrift(lt, `hero-${i}`, (node.cascade ? (b.cascade_end_ms || 0) : (enter ? enter.end_ms : 0)) + 320, 0, Math.min(ctx.motion.breathe, 0.006)).s;
       node.text.style.transform = `translateY(-50%) scale(${heroS.toFixed(4)})`;
     }
 
@@ -471,15 +548,32 @@
         }, parent);
         break;
       }
-      case 'glow': {
-        // Collage field: a wide warm glow that drifts with the beat — the only "stage" a free canvas gets.
-        const cx = b.x + b.w * (spec.align === 'left' ? 0.3 : spec.align === 'right' ? 0.7 : 0.5);
-        const cy = b.y + b.h * 0.46;
+      case 'bloom': {
+        // The light source: a wide soft ellipse of the atmosphere's bloom tint behind the beat's hero.
+        // Drawn centred on its own box and positioned by transform so it can travel from the previous
+        // beat's light and breathe without re-painting the gradient.
+        const atmo = plan.atmosphere || {};
+        const rx = spec.radius.x, ry = spec.radius.y;
         node = el('div', {
-          position: 'absolute', inset: '0',
-          background: `radial-gradient(ellipse ${px(b.w * 0.9)} ${px(b.h * 0.8)} at ${px(cx)} ${px(cy)}, ${rgbaOf(brand.accent || brand.ink, 0.07)}, ${rgbaOf('#ffffff', 0.3)} 45%, ${rgbaOf(brand.ink, 0)} 75%)`,
-          transformOrigin: `${px(cx)} ${px(cy)}`,
+          position: 'absolute', left: px(-rx), top: px(-ry), width: px(rx * 2), height: px(ry * 2),
+          background: `radial-gradient(ellipse at 50% 50%, ${rgbaOf(atmo.bloom || brand.accent || brand.ink, atmo.bloom_opacity == null ? 0.3 : atmo.bloom_opacity)} 0%, ${rgbaOf(atmo.bloom || brand.paper, (atmo.bloom_opacity == null ? 0.3 : atmo.bloom_opacity) * 0.35)} 38%, ${rgbaOf(brand.paper, 0)} 72%)`,
+          transformOrigin: '50% 50%', pointerEvents: 'none',
         }, parent);
+        node.className = 'em2-bloom';
+        break;
+      }
+      case 'depth': {
+        // Far-plane room: a large defocused disc or tile in a field tint. It moves against the camera
+        // at its plane depth (parallax) and never sharpens — it is out of focus by construction.
+        const atmo = plan.atmosphere || {};
+        const tint = (atmo.depth_tints || [])[spec.tint] || mixColor(brand.paper, brand.ink, 0.1);
+        node = el('div', {
+          position: 'absolute', left: px(b.x), top: px(b.y), width: px(b.w), height: px(b.h),
+          background: tint, borderRadius: spec.shape === 'disc' ? '50%' : px(Math.min(b.w, b.h) * 0.24),
+          filter: `blur(${px(spec.blur_px)})`, transformOrigin: '50% 50%', pointerEvents: 'none',
+        }, parent);
+        node.className = 'em2-depth';
+        node.dataset.plane = String(spec.plane);
         break;
       }
       case 'arc': {
@@ -503,12 +597,16 @@
   function buildBackground(beat, plan, beatRoot) {
     const bg = beat.composition.background || {};
     const brand = plan.brand;
-    const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: brand.paper }, beatRoot);
+    const atmo = plan.atmosphere || {};
+    const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: atmo.field || brand.paper }, beatRoot);
     const layers = (Array.isArray(bg.layers) ? bg.layers : []).map((spec, i) => buildBgLayer(spec, plan, layer, i)).filter((l) => l.node);
-    // A barely-there vignette on every beat so the paper reads as a surface, not a void.
+    // Vignette: the field darkens toward its edges by the atmosphere's strength so the paper reads as a
+    // lit surface, not a void; the dark variant leans on it harder because it has no bloom contrast to spare.
+    const vig = atmo.vignette_opacity == null ? 0.03 : atmo.vignette_opacity;
+    const vc = atmo.vignette || brand.ink;
     el('div', {
-      position: 'absolute', inset: '0',
-      background: 'radial-gradient(ellipse 85% 80% at 50% 45%, rgba(14,14,14,0) 55%, rgba(14,14,14,0.03) 100%)',
+      position: 'absolute', inset: '0', pointerEvents: 'none',
+      background: `radial-gradient(ellipse 85% 80% at 50% 45%, ${rgbaOf(vc, 0)} 52%, ${rgbaOf(vc, vig * 0.45)} 82%, ${rgbaOf(vc, vig)} 100%)`,
     }, layer);
     return { layer, layers };
   }
@@ -529,30 +627,131 @@
       // the first content frame regardless of how long the ensemble's settle window runs.
       const ls = ss + L.i * 40, le = Math.min(se + L.i * 40, ls + 170);
       const p = EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
-      let scale = 1, tx = 0, ty = 0;
+      let scale = 1, tx = 0, ty = 0, opacity = (spec.opacity == null ? 1 : spec.opacity) * p;
       if (spec.kind === 'panel' || spec.kind === 'plane' || spec.kind === 'spotlight') scale = lerp(0.985, 1, EASE.settle(p));
-      if (spec.kind === 'dotgrid' || spec.kind === 'plane' || spec.kind === 'glow') {
-        const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : spec.kind === 'glow' ? 6 : 1.6);
+      if (spec.kind === 'dotgrid' || spec.kind === 'plane') {
+        const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : 1.6);
         tx += amb.dx; ty += amb.dy;
       }
-      if (spec.kind === 'glow') scale = lerp(1.06, 1, EASE.settle(p));
+      if (spec.kind === 'bloom') {
+        // The light is already on when the beat starts (it was lit for the previous hero) and travels to
+        // this hero over the travel window on a settle curve, then breathes: slow, wide, never still.
+        // Keyed to the beat's own clock, not the pre-rolled one: under the outgoing transition the
+        // light still sits where the previous beat left it, so the hand-over is seamless.
+        const k = EASE.settle(prog(lt, 0, spec.travel_ms || 640));
+        const amb = ambientDrift(lt, `bloom-${beat.beat_id}`, 0, 9, 0.03);
+        tx = lerp(spec.from.x, spec.at.x, k) + amb.dx;
+        ty = lerp(spec.from.y, spec.at.y, k) + amb.dy;
+        scale = amb.s;
+        opacity = spec.opacity == null ? 1 : spec.opacity;
+      }
+      if (spec.kind === 'depth') {
+        // Far plane: fades up with the stage, then drifts more slowly and more widely than anything in
+        // focus. The camera adds its counter-move (parallax) after this pass.
+        const amb = ambientDrift(lt, `depth-${beat.beat_id}-${L.i}`, 0, 4.5 * (1 - spec.plane) + 1.5, 0.012);
+        tx += amb.dx; ty += amb.dy;
+        scale = amb.s * lerp(1.04, 1, EASE.settle(p));
+      }
       if (spec.rotation_deg) s.rotate = `${spec.rotation_deg}deg`;
-      s.opacity = ((spec.opacity == null ? 1 : spec.opacity) * p).toFixed(4);
+      s.opacity = opacity.toFixed(4);
+      L.base = { tx, ty, scale };
       s.transform = `translate(${f2(tx)}px, ${f2(ty)}px) scale(${scale.toFixed(4)})`;
+    }
+  }
+
+  function applyDepthParallax(bgNode, pose, plan) {
+    // A depth shape at plane d only receives d of the camera's move: the frame-fixed remainder is
+    // undone here so the far plane slides against the content as the camera pushes or drifts.
+    const W = plan.canvas.w, H = plan.canvas.h;
+    for (const L of bgNode.layers) {
+      if (L.spec.kind !== 'depth' || !L.base) continue;
+      const d = L.spec.plane, b = L.spec.bbox;
+      const cx = b.x + b.w / 2 - W / 2, cy = b.y + b.h / 2 - H / 2;
+      const counter = 1 / (1 + (pose.scale - 1) * (1 - d));
+      const ptx = -pose.tx * (1 - d) - (cx * (pose.scale - 1) * (1 - d)) / pose.scale;
+      const pty = -(cy * (pose.scale - 1) * (1 - d)) / pose.scale;
+      L.node.style.transform = `translate(${f2(L.base.tx + ptx)}px, ${f2(L.base.ty + pty)}px) scale(${(L.base.scale * counter).toFixed(4)})`;
     }
   }
 
   // ---------------------------------------------------------------------------
   // Media (customer-supplied image / video evidence)
+  //
+  // Every upload is presented inside a device slab — the benchmark's white-bezel handset,
+  // screenshot slab, browser window or paper card — never as a bare rectangle. The compiler
+  // chose the chassis from the asset's kind and aspect (or the author's param); the runtime
+  // draws one housing language for all four so a film never mixes frame styles.
   // ---------------------------------------------------------------------------
+  const CHASSIS_GEOMETRY = {
+    // bezel: slab inset the screen sits behind (fraction of the slab's short side);
+    // radius: outer corner radius; inner: screen corner radius (same unit).
+    phone:   { bezel: 0.040, radius: 0.170, inner: 0.135 },
+    shot:    { bezel: 0.030, radius: 0.075, inner: 0.048 },
+    browser: { bezel: 0.030, radius: 0.075, inner: 0.048 },
+    card:    { bezel: 0.030, radius: 0.060, inner: 0.036 },
+  };
+  const SLAB_FACE = 'linear-gradient(160deg, #fdfdfc 0%, #f2f1ee 100%)';
+  const SCREEN_DARK = '#101012';
+  // Living stills: a screenshot taller than its screen scrolls through; anything else drifts
+  // in a slow push. Both are pure functions of lt so a seek lands on the same frame.
+  const SCROLL_TALLER_THAN = 1.15;
+  const SCROLL_MAX_TRAVEL_FRAC = 0.9;
+  const KEN_BURNS_SCALE = 0.045;
+  const SLAB_PARALLAX_DEG = 1.1;
+
   function buildMedia(media, plan, beatRoot, assetUrl) {
     const bb = bboxOf(media.bbox);
-    const brand = plan.brand;
+    const chassis = CHASSIS_GEOMETRY[media.chassis] ? media.chassis : 'shot';
+    const geo = CHASSIS_GEOMETRY[chassis];
+    const m0 = Math.min(bb.w, bb.h);
     const frame = el('div', {
       position: 'absolute', left: px(bb.x), top: px(bb.y), width: px(bb.w), height: px(bb.h), zIndex: '12',
-      overflow: 'hidden', borderRadius: px(Math.min(bb.w, bb.h) * 0.035), border: `2px solid ${brand.ink}`,
-      background: brand.paper, willChange: 'transform, opacity, clip-path',
+      overflow: 'visible', willChange: 'transform, opacity, clip-path',
     }, beatRoot);
+    frame.dataset.mediaAsset = media.asset_id;
+    frame.dataset.chassis = chassis;
+    const tilt = clamp(Number(media.tilt == null ? 0 : media.tilt), -14, 14);
+    const housing = housingOf(plan);
+    const shadowRgb = ((plan.atmosphere && plan.atmosphere.shadow_rgb) || [23, 18, 12]).join(',');
+    const face = plan.atmosphere ? `linear-gradient(160deg, ${mixColor(housing.light, '#ffffff', 0.35)} 0%, ${housing.light} 100%)` : SLAB_FACE;
+    // The slab carries the object's own attitude (tilt + parallax); the frame carries the motion.
+    const slab = el('div', {
+      position: 'absolute', left: '0', top: '0', width: '100%', height: '100%',
+      borderRadius: px(m0 * geo.radius), background: face, transformOrigin: '50% 50%',
+      transform: `rotate(${tilt.toFixed(2)}deg)`,
+      boxShadow: [
+        `0 ${px(bb.h * 0.055)} ${px(bb.h * 0.16)} rgba(${shadowRgb},0.30)`,
+        `0 ${px(bb.h * 0.012)} ${px(bb.h * 0.03)} rgba(${shadowRgb},0.16)`,
+        `inset 0 0 0 1px rgba(${shadowRgb},0.10)`,
+        'inset 0 1px 0 rgba(255,255,255,0.9)',
+        `0 1.5px 0 rgba(${shadowRgb},0.14)`,
+      ].join(', '),
+    }, frame);
+    slab.className = 'em2-slab';
+    const bezel = m0 * geo.bezel;
+    const sw = bb.w - bezel * 2, sh = bb.h - bezel * 2;
+    const pc = (v, of) => `${((v / of) * 100).toFixed(3)}%`;
+    // Screen and viewport are proportional so a reframed (carried) slab keeps its bezel ratio.
+    const screen = el('div', {
+      position: 'absolute', left: pc(bezel, bb.w), top: pc(bezel, bb.h), width: pc(sw, bb.w), height: pc(sh, bb.h),
+      borderRadius: px(m0 * geo.inner), overflow: 'hidden',
+      background: chassis === 'card' ? '#ffffff' : SCREEN_DARK,
+    }, slab);
+    screen.className = 'em2-screen';
+    let host = screen, hostW = sw, hostH = sh;
+    if (chassis === 'browser') {
+      // Window chrome inside the screen: a light bar with neutral controls and an address field.
+      const barH = sh * 0.085;
+      const bar = el('div', {
+        position: 'absolute', left: '0', top: '0', width: '100%', height: pc(barH, sh), background: '#f4f3f1',
+        borderBottom: '1px solid rgba(23,18,12,0.10)', display: 'flex', alignItems: 'center', gap: px(sw * 0.011),
+        paddingLeft: px(sw * 0.028), boxSizing: 'border-box',
+      }, screen);
+      for (let i = 0; i < 3; i += 1) el('div', { width: px(barH * 0.32), height: px(barH * 0.32), borderRadius: '50%', background: 'rgba(23,18,12,0.16)', flex: 'none' }, bar);
+      el('div', { flex: '0 1 58%', height: px(barH * 0.46), marginLeft: px(sw * 0.02), borderRadius: px(barH * 0.23), background: 'rgba(23,18,12,0.07)' }, bar);
+      hostH = sh - barH;
+      host = el('div', { position: 'absolute', left: '0', top: pc(barH, sh), width: '100%', height: pc(hostH, sh), overflow: 'hidden' }, screen);
+    }
     let node;
     if (media.kind === 'VIDEO') {
       node = document.createElement('video');
@@ -565,58 +764,44 @@
       node.decoding = 'sync';
       node.src = assetUrl(media.path);
     }
-    const chassis = media.chassis || 'card';
-    let host = frame, hostW = bb.w, hostH = bb.h;
-    if (chassis === 'phone') {
-      // Device bezel: ink body, the media is its screen; a camera slit tops the bezel.
-      const m = Math.min(bb.w, bb.h);
-      Object.assign(frame.style, {
-        borderRadius: px(m * 0.11), border: 'none', background: '#161311',
-        boxShadow: `0 ${px(bb.h * 0.025)} ${px(bb.h * 0.07)} rgba(23,18,12,0.35), inset 0 0 0 ${px(m * 0.008)} #2c2620`,
-      });
-      hostW = bb.w * 0.91; hostH = bb.h * 0.944;
-      host = el('div', {
-        position: 'absolute', left: px(bb.w * 0.045), top: px(bb.h * 0.028),
-        width: px(hostW), height: px(hostH),
-        borderRadius: px(m * 0.075), overflow: 'hidden', background: '#000',
-      }, frame);
-      el('div', {
-        position: 'absolute', left: '50%', top: px(bb.h * 0.011), transform: 'translateX(-50%)',
-        width: px(bb.w * 0.16), height: px(bb.h * 0.009), borderRadius: px(bb.h * 0.005), background: '#2c2620',
-      }, frame);
-    } else if (chassis === 'browser') {
-      // Window chrome: a top bar with traffic dots and an address pill; media is the viewport.
-      const barH = bb.h * 0.1;
-      Object.assign(frame.style, { borderRadius: px(Math.min(bb.w, bb.h) * 0.05), background: brand.paper });
-      const bar = el('div', {
-        position: 'absolute', left: '0', top: '0', width: '100%', height: px(barH),
-        borderBottom: `1.5px solid ${brand.ink}22`, display: 'flex', alignItems: 'center', gap: px(bb.w * 0.012), paddingLeft: px(bb.w * 0.03), boxSizing: 'border-box',
-      }, frame);
-      for (const c of ['#e0635a', '#e8b13e', '#5fbb63']) el('div', { width: px(barH * 0.34), height: px(barH * 0.34), borderRadius: '50%', background: c, flex: 'none' }, bar);
-      el('div', { flex: '0 1 62%', height: px(barH * 0.44), marginLeft: px(bb.w * 0.02), borderRadius: px(barH * 0.22), background: `${brand.ink}12` }, bar);
-      hostH = bb.h - barH;
-      host = el('div', {
-        position: 'absolute', left: '0', top: px(barH), width: '100%', height: px(hostH), overflow: 'hidden',
-      }, frame);
-    } else if (chassis === 'shot') {
-      // Floating screenshot card: no chrome — tilted, deeply shadowed, dark-rimmed like the
-      // product stills in the benchmark films. tilt is authored in degrees (params.tilt).
-      const tilt = clamp(Number(media.tilt == null ? -3.5 : media.tilt), -14, 14);
-      // The frame releases the card: no border, no clipping — the shadow belongs to the tilted host.
-      Object.assign(frame.style, { overflow: 'visible', border: 'none', borderRadius: '0', background: 'transparent' });
-      host = el('div', {
-        position: 'absolute', left: '0', top: '0', width: px(bb.w), height: px(bb.h),
-        transform: `rotate(${tilt.toFixed(2)}deg)`, transformOrigin: '50% 50%',
-        borderRadius: px(Math.min(bb.w, bb.h) * 0.045), overflow: 'hidden',
-        boxShadow: `0 ${px(bb.h * 0.05)} ${px(bb.h * 0.13)} rgba(23,18,12,0.34), 0 ${px(bb.h * 0.012)} ${px(bb.h * 0.028)} rgba(23,18,12,0.22)`,
-        outline: `1.5px solid rgba(23,18,12,0.28)`,
-      }, frame);
-    }
-    Object.assign(node.style, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100%', objectFit: 'cover', display: 'block' });
+    Object.assign(node.style, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100%', objectFit: 'cover', display: 'block', transformOrigin: '50% 50%' });
     host.appendChild(node);
-    const m = { media, frame, node, bb, hostW, hostH, pending: null };
+    if (chassis === 'phone') {
+      // Dynamic island: sits over the content, part of the device, never of the upload.
+      el('div', {
+        position: 'absolute', left: '50%', top: px(sh * 0.016), transform: 'translateX(-50%)',
+        width: px(sw * 0.30), height: px(sh * 0.030), borderRadius: px(sh * 0.015), background: '#000', pointerEvents: 'none',
+      }, screen);
+    }
+    // Glass: one soft diagonal highlight across the screen so the slab reads as a surface.
+    el('div', {
+      position: 'absolute', inset: '0', pointerEvents: 'none',
+      background: 'linear-gradient(115deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0) 46%)',
+    }, screen);
+    const m = { media, frame, slab, screen, node, bb, hostW, hostH, tilt, chassis, pending: null };
     layoutFocus(m, hostW, hostH);
     return m;
+  }
+
+  // Content life inside the screen. Stills that are much taller than their screen scroll
+  // through it over the hold (a phone screenshot reads top-to-bottom); other stills take a
+  // slow push. Authored focus crops and live video own their own geometry.
+  function applyContentLife(m, lt, settledAt, endMs, hw, hh) {
+    const md = m.media;
+    if (md.focus || md.kind === 'VIDEO' || !md.source_size) return;
+    const sw = md.source_size.w, sh = md.source_size.h;
+    if (!sw || !sh) return;
+    const span = Math.max(1, endMs - settledAt);
+    const p = EASE.inOutCubic(prog(lt, settledAt, settledAt + span));
+    const hostAr = hw / hh, srcAr = sw / sh;
+    if (hostAr / srcAr > SCROLL_TALLER_THAN) {
+      // Width-fit, so the still keeps its own ratio and only its vertical position moves.
+      const h = hw / srcAr;
+      const travel = Math.min(h - hh, hh * SCROLL_MAX_TRAVEL_FRAC);
+      Object.assign(m.node.style, { objectFit: 'fill', width: px(hw), height: px(h), left: '0', top: px(-travel * p), transform: 'none' });
+    } else {
+      m.node.style.transform = `scale(${(1 + KEN_BURNS_SCALE * p).toFixed(4)})`;
+    }
   }
 
   // Focus crop: the authored source region covers the frame without distortion; overflow is centred.
@@ -631,44 +816,59 @@
     Object.assign(m.node.style, { objectFit: 'fill', width: px(w), height: px(h), left: px(left), top: px(top) });
   }
 
-  function applyMediaState(m, lt, beat, ctx) {
+  // `ride` (entity-hosted media): the slab is the entity's body, so it takes the body's own pose —
+  // pop spring, carry travel, dim — instead of the evidence panel's rise; the housing and its
+  // content are one object throughout.
+  function applyMediaState(m, lt, beat, ctx, ride) {
     const md = m.media;
     const s = m.frame.style;
     const chrome = md.chrome_ms == null ? md.enter_ms : md.chrome_ms;
     // Pre-chrome still runs the pipeline at p=0 so every driven decl is rewritten — same
     // seek-determinism rule as entities and relations.
     s.visibility = lt < chrome ? 'hidden' : 'visible';
-    let tx = 0, ty = 0, opacity = 1, clip = null, scale = 1;
-    const p = EASE.outQuint(prog(lt, md.enter_ms, md.enter_ms + md.enter_duration_ms));
-    // The empty card dresses the stage first; the exhibit itself still lands on its word.
-    m.node.style.opacity = md.enter_duration_ms ? Math.min(1, p * 1.6).toFixed(4) : '1';
-    const pf = EASE.outQuint(prog(lt, chrome, chrome + Math.max(md.enter_duration_ms, 320)));
-    if (md.enter_duration_ms > 0 || lt < md.enter_ms) {
-      ty = (1 - pf) * m.bb.h * 0.08;
-      clip = [0, 0, (1 - pf) * 100, 0];
-      opacity = Math.min(1, pf * 1.6);
+    let tx = 0, ty = 0, opacity = 1, clip = null, sx = 1, sy = 1;
+    m.node.style.opacity = '1';
+    if (ride) {
+      tx = ride.dx; ty = ride.dy; sx = ride.sx; sy = ride.sy; opacity = ride.opacity;
+    } else {
+      const pf = EASE.outQuint(prog(lt, chrome, chrome + Math.max(md.enter_duration_ms, 320)));
+      if (md.enter_duration_ms > 0 || lt < md.enter_ms) {
+        ty = (1 - pf) * m.bb.h * 0.08;
+        clip = [0, 0, (1 - pf) * 100, 0];
+        opacity = Math.min(1, pf * 1.6);
+      }
     }
+    let hw = m.hostW, hh = m.hostH;
     if (md.reframe) {
       const rp = EASE.inOutCubic(prog(lt, md.reframe.start_ms, md.reframe.end_ms));
       const from = bboxOf(md.reframe.from);
       const x = lerp(from.x, m.bb.x, rp), y = lerp(from.y, m.bb.y, rp);
       const w = lerp(from.w, m.bb.w, rp), h = lerp(from.h, m.bb.h, rp);
       s.left = px(x); s.top = px(y); s.width = px(w); s.height = px(h);
-      layoutFocus(m, w * (m.hostW / m.bb.w), h * (m.hostH / m.bb.h));
-      const dist = Math.hypot(from.x - m.bb.x, from.y - m.bb.y) + Math.abs(from.w - m.bb.w);
-      const blur = velocityBlur(lt, md.reframe.start_ms, md.reframe.end_ms, EASE.inOutCubic, dist);
-      s.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
+      hw = w * (m.hostW / m.bb.w); hh = h * (m.hostH / m.bb.h);
+      layoutFocus(m, hw, hh);
+      const std = pathBlur(lt, md.reframe.start_ms, md.reframe.end_ms, EASE.inOutCubic, Math.abs(from.x - m.bb.x) + Math.abs(from.w - m.bb.w) / 2, Math.abs(from.y - m.bb.y) + Math.abs(from.h - m.bb.h) / 2, ctx.frameMs, ctx.motion.motion_blur);
+      if (m.blur) m.blur.apply(s, std); else s.filter = 'none';
     }
     // Ambient: after the frame has settled it drifts with the hold, a living still.
     const settledAt = md.reframe ? md.reframe.end_ms : md.enter_ms + (md.enter_duration_ms || 0);
+    applyContentLife(m, lt, settledAt, beat.duration_ms, hw, hh);
+    // The slab is a physical object: a faint perspective sway on top of its authored tilt.
+    const sway = ambientDrift(lt, `slab-${md.asset_id || md.role || 'x'}`, settledAt, 1, 0);
+    m.slab.style.transform = `perspective(${px(m.bb.h * 4)}) rotateX(${(-sway.dy * SLAB_PARALLAX_DEG).toFixed(3)}deg) rotateY(${(sway.dx * SLAB_PARALLAX_DEG).toFixed(3)}deg) rotate(${m.tilt.toFixed(2)}deg)`;
     const tzM = beat.composition.text_zone;
     const gapM = Math.max(tzM.x - (m.bb.x + m.bb.w), m.bb.x - (tzM.x + tzM.w), tzM.y - (m.bb.y + m.bb.h), m.bb.y - (tzM.y + tzM.h));
-    const amb = ambientDrift(lt, `media-${md.asset_id || md.role || 'x'}`, settledAt, clamp(gapM * 0.35, 0, 1.1));
-    tx += amb.dx; ty += amb.dy;
-    const ex = ctx.exitState({ block: { role: 'media' } }, lt);
+    if (!ride) {
+      const amb = ambientDrift(lt, `media-${md.asset_id || md.role || 'x'}`, settledAt, clamp(gapM * 0.35, 0, 1.1), Math.min(ctx.motion.breathe, 0.006));
+      tx += amb.dx; ty += amb.dy;
+    }
+    // A ridden slab already carries its entity's exit; the evidence panel exits as media.
+    const ex = ride ? null : ctx.exitState({ block: { role: 'media' } }, lt);
     if (ex) { opacity *= ex.opacity; ty += ex.ty; }
-    s.opacity = opacity.toFixed(4);
-    s.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${scale.toFixed(4)})`;
+    s.opacity = clamp(opacity, 0, 1).toFixed(4);
+    s.transformOrigin = '50% 50%';
+    s.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`;
+    if (ride) { if (m.blur) m.blur.apply(s, ride.blur); }
     s.clipPath = clip ? `inset(${clip.map((v) => `${clamp(v, 0, 100).toFixed(2)}%`).join(' ')})` : 'none';
     if (md.kind === 'VIDEO') {
       const trim = md.trim || { start: 0, end: 1e9 };
@@ -831,7 +1031,10 @@
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const OP_PROPERTY = { DRAW: 'draw', FILL: 'fill', INK: 'ink', DIM: 'dim', GROW: 'grow', STRIKE: 'strike', SWAP: 'swap', COUNT: 'count', EMIT: 'emit', CONNECT: 'connect' };
   const PROPERTY_REST = { draw: 1, fill: 0, ink: 0, dim: 1, grow: 1, strike: 0, swap: 0, count: 1, emit: 0, connect: 1 };
-  const OP_EASE = { DRAW: 'outQuint', FILL: 'inOutCubic', INK: 'outCubic', DIM: 'inOutCubic', GROW: 'settle', STRIKE: 'outQuint', SWAP: 'settle', COUNT: 'outCubic', EMIT: 'outCubic', CONNECT: 'outQuint' };
+  // Every driven property arrives on a spring. Bounded properties (draw, fill, ink, dim, count,
+  // emit, connect, strike) ride the critically damped one so they never cross their target;
+  // GROW and SWAP are scale and may ring.
+  const OP_SPRING = { DRAW: 'float', FILL: 'float', INK: 'float', DIM: 'float', GROW: 'settle', STRIKE: 'float', SWAP: 'settle', COUNT: 'float', EMIT: 'float', CONNECT: 'float' };
 
   function svgEl(tag, attrs, parent) {
     const n = document.createElementNS(SVG_NS, tag);
@@ -872,7 +1075,21 @@
   function drawable(path, len, role) {
     path.style.strokeDasharray = `${f2(len)} ${f2(len + 4)}`;
     path.dataset.draw = role || 'outline';
-    return { path, len, set(p) { path.style.strokeDashoffset = `${f2((1 - clamp(p, 0, 1)) * len)}`; } };
+    return {
+      path,
+      len,
+      set(p) {
+        path.style.strokeDasharray = `${f2(len)} ${f2(len + 4)}`;
+        path.style.strokeDashoffset = `${f2((1 - clamp(p, 0, 1)) * len)}`;
+      },
+      // Draw-then-erase: a fixed-length comet sweeps the path — the head draws, the tail
+      // erases behind it, and the stroke is gone again once the sweep has passed.
+      setWipe(p) {
+        const w = Math.max(10, len * 0.42);
+        path.style.strokeDasharray = `${f2(w)} ${f2(len + w)}`;
+        path.style.strokeDashoffset = `${f2(w - clamp(p, 0, 1) * (len + w))}`;
+      },
+    };
   }
   // A dashed outline cannot reveal by its own dash offset; a paper-coloured cover stroke recedes along it instead.
   function dashedDrawable(path, len, paper, sw, parent) {
@@ -884,7 +1101,23 @@
     cover.style.strokeDasharray = `${f2(len)} ${f2(len)}`;
     cover.dataset.draw = 'cover';
     path.dataset.draw = 'outline-dashed';
-    return { path, len, set(p) { cover.style.strokeDashoffset = `${f2(-clamp(p, 0, 1) * len)}`; } };
+    return {
+      path,
+      len,
+      set(p) {
+        cover.style.strokeDasharray = `${f2(len)} ${f2(len)}`;
+        cover.style.strokeDashoffset = `${f2(-clamp(p, 0, 1) * len)}`;
+      },
+      // Wipe for a dashed stroke: the cover re-closes behind the head — it masks
+      // everything except the traveling window [tail, head].
+      setWipe(p) {
+        const w = Math.max(10, len * 0.42);
+        const head = clamp(p, 0, 1) * (len + w), tail = head - w;
+        const a = Math.max(0, tail), b = Math.min(len, head);
+        cover.style.strokeDashoffset = '0';
+        cover.style.strokeDasharray = b <= a ? `${f2(len)} ${f2(len)}` : `${f2(a)} ${f2(b - a)} ${f2(len - b + w)} ${f2(len)}`;
+      },
+    };
   }
 
   function clusterCentres(b, count) {
@@ -902,7 +1135,10 @@
   }
 
   // Colour packs reuse ids (gradients, clip paths, filters) across icons; scope them per
-  // instance so two emoji on one stage do not paint with each other's defs.
+  // instance so two emoji on one stage do not paint with each other's defs. A carried entity is
+  // rebuilt per beat, so the scope is a running counter rather than the entity id.
+  let iconInstance = 0;
+
   function scopeSvgIds(markup, scope) {
     const ids = new Set();
     markup.replace(/\bid="([^"]+)"/g, (m, id) => { ids.add(id); return m; });
@@ -919,9 +1155,60 @@
     return out;
   }
 
+  // A concept the registry cannot draw is typeset inside its housing — the word, or the figure,
+  // set as a designed mark. Measured with the real face so the fit is exact; a word that cannot
+  // meet the floor at two lines becomes a monogram rather than a shrunken caption.
+  const wordCanvas = document.createElement('canvas').getContext('2d');
+  function textWidth(txt, fs, family, weight) {
+    wordCanvas.font = `${weight} ${fs}px "${family}"`;
+    return wordCanvas.measureText(txt).width;
+  }
+  function fitLines(word, box, family, weight, maxLines, floorFs, maxFs, tracking) {
+    const words = word.split(' ');
+    for (let lines = 1; lines <= Math.min(maxLines, words.length); lines += 1) {
+      // Balanced split: the break that leaves the longest line shortest.
+      let best = null;
+      const splits = lines === 1 ? [[words.join(' ')]] : [];
+      if (lines === 2) for (let i = 1; i < words.length; i += 1) splits.push([words.slice(0, i).join(' '), words.slice(i).join(' ')]);
+      for (const ls of splits) {
+        const fs = Math.min(maxFs, (box.h / lines) / 1.12, ...ls.map((l) => (box.w / (textWidth(l, 100, family, weight) / 100 + tracking * l.length))));
+        if (!best || fs > best.fs) best = { lines: ls, fs };
+      }
+      if (best && best.fs >= floorFs) return best;
+    }
+    return null;
+  }
+  function wordMark(node, body, box, word, kind, fg, plan) {
+    const numeric = kind === 'numeric';
+    const family = numeric ? plan.fonts.families.data : plan.fonts.families.display;
+    const weight = numeric ? '600' : '700';
+    const tracking = numeric ? 0 : -0.015;
+    let fit = kind === 'monogram' ? null : fitLines(word, box, family, weight, numeric ? 1 : 2, box.h * 0.2, box.h * (numeric ? 0.62 : 0.5), tracking);
+    let set = kind;
+    if (!fit) {
+      const initials = word.split(/[\s-]+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+      fit = fitLines(initials, box, family, '700', 1, 1, box.h * 0.6, 0.02);
+      set = 'monogram';
+    }
+    const lh = fit.fs * 1.08, total = lh * fit.lines.length;
+    const g = svgEl('g', { 'data-word': set }, body);
+    fit.lines.forEach((l, i) => {
+      const t = svgEl('text', {
+        x: f2(box.x + box.w / 2), y: f2(box.y + box.h / 2 - total / 2 + lh * i + lh * 0.5), 'text-anchor': 'middle', 'dominant-baseline': 'central',
+        'font-size': f2(fit.fs), 'font-family': family, 'font-weight': weight, fill: fg, 'letter-spacing': f2(fit.fs * tracking),
+        'font-variant-numeric': numeric ? 'tabular-nums' : undefined,
+      }, g);
+      t.textContent = l;
+    });
+    node.extra.wordBox = box;
+    return g;
+  }
+
   // Registry icon loaded into a box inside a glyph group; each part joins the entity's
   // draw-on program (stroke packs dash-draw, fill packs stagger in).
   function loadIconInto(ent, node, host, box, opts) {
+    node.extra.iconBox = box;
+    host.setAttribute('data-icon-host', ent.id);
     node.ready = fetchText(opts.assetUrl(ent.asset.path)).then((txt) => {
       const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
       const src = doc.documentElement;
@@ -929,7 +1216,7 @@
       const vb = (src.getAttribute('viewBox') || `0 0 ${src.getAttribute('width') || 100} ${src.getAttribute('height') || 100}`).split(/[\s,]+/).map(Number);
       const s = Math.min(box.w / vb[2], box.h / vb[3]);
       const inner = svgEl('g', { transform: `translate(${f2(box.x + (box.w - vb[2] * s) / 2)} ${f2(box.y + (box.h - vb[3] * s) / 2)}) scale(${s.toFixed(5)}) translate(${-vb[0]} ${-vb[1]})` }, host);
-      inner.innerHTML = scopeSvgIds(src.innerHTML, ent.id);
+      inner.innerHTML = scopeSvgIds(src.innerHTML, `${ent.id}_${++iconInstance}`);
       const colour = ent.asset.colour || 'mono';
       if (colour === 'brand' && ent.asset.brand_hex) host.dataset.brandHex = ent.asset.brand_hex;
       const rootStroke = src.getAttribute('stroke');
@@ -955,8 +1242,16 @@
     });
   }
 
+  // Housing surfaces every chassis draws with, from the film's atmosphere: `light` is the field's own
+  // lifted surface, `dark` the contrasting one — so a dark-paper film gets the same grammar inverted.
+  function housingOf(plan) {
+    const h = plan.atmosphere && plan.atmosphere.housing;
+    return h || { light: '#ffffff', dark: mixColor(plan.brand.ink, plan.brand.paper, 0.05) };
+  }
+
   function buildGlyph(ent, il, plan, g, sw, opts) {
     const b = bboxOf(ent.bbox), ink = plan.brand.ink, paper = plan.brand.paper, accent = il.accent || ink;
+    const housing = housingOf(plan);
     const params = ent.params || {};
     const node = { outline: [], inkEls: [], count: [], strike: null, fill: null, extra: {} };
     const line = { fill: 'none', stroke: ink, 'stroke-width': sw, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
@@ -1246,28 +1541,40 @@
         // The product-collage atom: a glossy rounded-square app tile carrying a registry icon.
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.24;
-        const base = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, g);
-        base.setAttribute('fill', dark ? '#171310' : mixColor(paper, '#ffffff', 0.72));
+        const body = chassisBody(node, g);
+        const base = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
+        base.setAttribute('fill', dark ? housing.dark : housing.light);
         base.setAttribute('stroke', ink);
         base.setAttribute('stroke-width', f2(sw * 0.55));
         base.setAttribute('stroke-opacity', '0.55');
-        base.style.filter = `drop-shadow(0 ${f2(b.h * 0.07)}px ${f2(b.h * 0.13)}px rgba(23,18,12,0.28))`;
-        node.outline.push(drawable(base, (b.w + b.h) * 2));
+        node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
         if (!dark) {
           // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
           svgEl('path', {
             d: `M${f2(b.x + sw / 2)} ${f2(b.y + r + sw / 2)}Q${f2(b.x + sw / 2)} ${f2(b.y + sw / 2)} ${f2(b.x + r + sw / 2)} ${f2(b.y + sw / 2)}L${f2(b.x + b.w - r - sw / 2)} ${f2(b.y + sw / 2)}Q${f2(b.x + b.w - sw / 2)} ${f2(b.y + sw / 2)} ${f2(b.x + b.w - sw / 2)} ${f2(b.y + r + sw / 2)}L${f2(b.x + b.w - sw / 2)} ${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x + sw / 2)} ${f2(b.y + b.h * 0.46)}Z`,
             fill: '#ffffff', 'fill-opacity': 0.5,
-          }, g);
+          }, body);
         }
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
+        const word = params.word ? String(params.word) : '';
+        const fg = dark ? paper : ink;
         if (ent.asset) {
           const host = svgEl('g', {}, g);
-          host.style.color = dark ? paper : ink;
+          host.style.color = fg;
           node.inkEls.push(host);
           node.extra.iconHost = host;
           const pad = b.w * 0.17;
-          loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
+          if (word) {
+            // Composite: the mark takes the upper body, the concept's own name is set beneath it.
+            const ih = b.h * 0.5;
+            loadIconInto(ent, node, host, { x: b.x + (b.w - ih) / 2, y: b.y + pad * 0.8, w: ih, h: ih }, opts);
+            wordMark(node, body, { x: b.x + pad * 0.6, y: b.y + pad * 0.8 + ih + b.h * 0.03, w: b.w - pad * 1.2, h: b.h - pad * 0.8 - ih - b.h * 0.03 - pad * 0.7 }, word, params.word_kind || 'name', fg, plan);
+          } else {
+            loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
+          }
+        } else if (word) {
+          const pad = b.w * 0.14;
+          wordMark(node, body, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, word, params.word_kind || 'name', fg, plan);
         }
         node.strike = strikeFor(b);
         break;
@@ -1276,18 +1583,18 @@
         // Glossy white disc with a deep soft shadow carrying a brand mark or colour icon.
         const dark = params.tone === 'dark';
         const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw / 2;
-        const disc = svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R) }, g);
-        disc.setAttribute('fill', dark ? '#171310' : '#ffffff');
+        const body = chassisBody(node, g);
+        const disc = svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R) }, body);
+        disc.setAttribute('fill', dark ? housing.dark : housing.light);
         disc.setAttribute('stroke', ink);
         disc.setAttribute('stroke-width', f2(sw * 0.4));
         disc.setAttribute('stroke-opacity', '0.18');
-        disc.style.filter = `drop-shadow(0 ${f2(R * 0.16)}px ${f2(R * 0.3)}px rgba(23,18,12,0.26))`;
-        node.outline.push(drawable(disc, 2 * Math.PI * R));
+        node.extra.shadow = { el: disc, oy: R * 0.16, blur: R * 0.3, alpha: 0.26 };
         if (!dark) {
           svgEl('path', {
             d: `M${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}A${f2(R * 0.82)} ${f2(R * 0.82)} 0 0 1 ${f2(c.x + R * 0.82)} ${f2(c.y - R * 0.1)}Q${f2(c.x)} ${f2(c.y + R * 0.18)} ${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}Z`,
             fill: '#ffffff', 'fill-opacity': 0.55,
-          }, g);
+          }, body);
         }
         node.inkEls.push(svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R), fill: accent, 'fill-opacity': 0 }, g));
         if (ent.asset) {
@@ -1297,6 +1604,10 @@
           node.extra.iconHost = host;
           const pad = R * 0.48;
           loadIconInto(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, opts);
+        } else if (params.word) {
+          // The disc's square inscribed in the circle carries the word or its monogram.
+          const side = R * 1.28;
+          wordMark(node, body, { x: c.x - side / 2, y: c.y - side / 2, w: side, h: side }, String(params.word), params.word_kind || 'name', dark ? paper : ink, plan);
         }
         node.strike = strikeFor(b);
         break;
@@ -1305,13 +1616,13 @@
         // Stat card: a big tabular figure (prefix/suffix aware) over a small caption, on a light or dark body.
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.18;
-        const body = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, g);
-        body.setAttribute('fill', dark ? '#171310' : '#ffffff');
-        body.setAttribute('stroke', ink);
-        body.setAttribute('stroke-width', f2(sw * 0.4));
-        body.setAttribute('stroke-opacity', '0.18');
-        body.style.filter = `drop-shadow(0 ${f2(b.h * 0.08)}px ${f2(b.h * 0.16)}px rgba(23,18,12,0.26))`;
-        node.outline.push(drawable(body, (b.w + b.h) * 2));
+        const body = chassisBody(node, g);
+        const card = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
+        card.setAttribute('fill', dark ? housing.dark : housing.light);
+        card.setAttribute('stroke', ink);
+        card.setAttribute('stroke-width', f2(sw * 0.4));
+        card.setAttribute('stroke-opacity', '0.18');
+        node.extra.shadow = { el: card, oy: b.h * 0.08, blur: b.h * 0.16, alpha: 0.26 };
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         const fg = dark ? paper : ink;
         const caption = params.caption ? String(params.caption) : '';
@@ -1332,12 +1643,13 @@
           const cap = svgEl('text', {
             x: f2(b.x + b.w / 2), y: f2(b.y + b.h * 0.78), 'text-anchor': 'middle', 'font-size': f2(Math.min(b.h * 0.14, (b.w * 0.86) / Math.max(1, caption.length * 0.55))),
             'font-family': plan.fonts.families.data, 'font-weight': '500', fill: fg, 'fill-opacity': 0.62,
-          }, g);
+          }, body);
           cap.textContent = caption;
         }
         // Static readout when no COUNT op ticks it: the figure is simply part of the drawn body.
         if (!il.ops.some((o) => o.op === 'COUNT' && o.target === ent.id)) {
           node.extra.countText.setAttribute('fill-opacity', '1');
+          body.appendChild(node.extra.countText);
           node.extra.countText = null;
         }
         node.strike = strikeFor(b);
@@ -1346,22 +1658,27 @@
       case 'CHIP': {
         // Dark product row: icon peg left, name typeset mid-left (the inside label), tag pills right.
         const r = b.h * 0.42;
-        const body = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z' }, g);
-        body.setAttribute('fill', '#181410');
-        body.style.filter = `drop-shadow(0 ${f2(b.h * 0.1)}px ${f2(b.h * 0.2)}px rgba(23,18,12,0.3))`;
-        node.outline.push(drawable(body, (b.w + b.h) * 2));
+        const body = chassisBody(node, g);
+        const row = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z' }, body);
+        row.setAttribute('fill', housing.dark);
+        node.extra.shadow = { el: row, oy: b.h * 0.1, blur: b.h * 0.2, alpha: 0.3 };
         node.inkEls.push(svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, r) + 'Z', fill: accent, 'fill-opacity': 0 }, g));
         // Icon peg: a light tile clipped into the left end of the row.
         const peg = Math.min(b.h * 0.62, b.w * 0.14);
         const px0 = b.x + b.h * 0.19, py0 = b.y + (b.h - peg) / 2;
-        svgEl('path', { d: roundRectPath({ x: px0, y: py0, w: peg, h: peg }, peg * 0.26) + 'Z', fill: paper }, g);
+        svgEl('path', { d: roundRectPath({ x: px0, y: py0, w: peg, h: peg }, peg * 0.26) + 'Z', fill: paper }, body);
         if (ent.asset) {
           const host = svgEl('g', {}, g);
           host.style.color = ink;
+          node.extra.iconHost = host;
           const pad = peg * 0.16;
           loadIconInto(ent, node, host, { x: px0 + pad, y: py0 + pad, w: peg - pad * 2, h: peg - pad * 2 }, opts);
         } else {
-          svgEl('circle', { cx: px0 + peg / 2, cy: py0 + peg / 2, r: peg * 0.22, fill: ink }, g);
+          // No mark: the peg carries the concept's monogram (or the figure), like a product avatar;
+          // the name itself is the row's inside label.
+          const word = String(params.word || ent.label || '');
+          const pad = peg * 0.14;
+          wordMark(node, body, { x: px0 + pad, y: py0 + pad, w: peg - pad * 2, h: peg - pad * 2 }, word, params.word_kind === 'numeric' ? 'numeric' : 'monogram', ink, plan);
         }
         // Tag pills, right-aligned, hairline strokes on the dark field.
         // Pills own the right third of the row (the label strip ends at 63%); tags that would not
@@ -1376,8 +1693,8 @@
           const tw = tagW(tags[i]);
           tx -= tw;
           const th = b.h * 0.42, ty = b.y + (b.h - th) / 2;
-          svgEl('path', { d: roundRectPath({ x: tx, y: ty, w: tw, h: th }, th / 2) + 'Z', fill: 'none', stroke: paper, 'stroke-width': Math.max(1, sw * 0.4), 'stroke-opacity': 0.5 }, g);
-          const te = svgEl('text', { x: tx + tw / 2, y: ty + th / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: paper, 'fill-opacity': 0.72, 'font-size': fs, 'font-weight': '500', 'font-family': plan.fonts.families.text }, g);
+          svgEl('path', { d: roundRectPath({ x: tx, y: ty, w: tw, h: th }, th / 2) + 'Z', fill: 'none', stroke: paper, 'stroke-width': Math.max(1, sw * 0.4), 'stroke-opacity': 0.5 }, body);
+          const te = svgEl('text', { x: tx + tw / 2, y: ty + th / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: paper, 'fill-opacity': 0.72, 'font-size': fs, 'font-weight': '500', 'font-family': plan.fonts.families.text }, body);
           te.textContent = tags[i];
           tx -= b.h * 0.1;
         }
@@ -1396,9 +1713,28 @@
     if (!node.extra.rings && il.ops.some((o) => o.op === 'EMIT' && o.target === ent.id)) {
       const c = centre(b), R = Math.hypot(b.w, b.h) / 2;
       node.extra.R = R;
-      node.extra.rings = [svgEl('circle', { ...line, cx: c.x, cy: c.y, r: R * 0.3, stroke: accent, 'stroke-opacity': 0 }, g)];
+      if ((plan.motion || DEFAULT_MOTION).entrance === 'pop') {
+        // Collage register: the pulse is a soft accent bloom behind the body, never a drawn ring.
+        const rr = Math.min(b.w, b.h) / 2;
+        const halo = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, rr) + 'Z', fill: accent, 'fill-opacity': 0, 'data-halo': '' }, g);
+        halo.style.filter = `blur(${f2(Math.min(b.w, b.h) * 0.22)}px)`;
+        halo.style.transformOrigin = `${f2(c.x)}px ${f2(c.y)}px`;
+        g.insertBefore(halo, g.firstChild);
+        node.extra.halo = halo;
+      } else {
+        node.extra.rings = [svgEl('circle', { ...line, cx: c.x, cy: c.y, r: R * 0.3, stroke: accent, 'stroke-opacity': 0 }, g)];
+      }
     }
     return node;
+  }
+
+  // Chassis glyphs (tile / badge / counter / chip) reveal as one body: the housing is never on
+  // stage before what it carries, so DRAW fades the whole housing instead of tracing its rim.
+  function chassisBody(node, g) {
+    const body = svgEl('g', { 'data-draw': 'body' }, g);
+    node.extra.chassis = true;
+    node.outline.push({ path: body, len: 0, set(v) { body.style.opacity = clamp(v, 0, 1).toFixed(4); } });
+    return body;
   }
 
   function buildLabel(ent, plan, beatRoot) {
@@ -1410,6 +1746,7 @@
       willChange: 'transform, opacity', transformOrigin: '50% 50%',
     }, beatRoot);
     wrap.className = 'em2-il-label';
+    wrap.dataset.entity = ent.id;
     const onDark = ent.glyph === 'CHIP';
     const text = el('div', {
       position: 'absolute', left: '0', right: '0', top: '50%', transform: 'translateY(-50%)',
@@ -1446,9 +1783,16 @@
       if (glyph.ready) ready.push(glyph.ready);
       const label = buildLabel(ent, plan, beatRoot);
       let media = null;
-      if (ent.glyph === 'MEDIA') media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
-      const settledAt = Math.max(ent.enter_ms + (ent.enter_duration_ms || 0), (opsFor.get(ent.id) || []).reduce((m, o) => Math.max(m, o.end_ms), 0));
-      ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt });
+      if (ent.glyph === 'MEDIA') {
+        media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
+        ready.push(mediaReady(media));
+      }
+      if (media) media.blur = motionBlurFilter(opts.fx.defs, `${opts.fx.scope}-mb-media-${ent.id}`);
+      // Ambient life starts once the body has landed; a body waiting on a later op is still a
+      // living still, not a freeze-frame.
+      const settledAt = ent.enter_ms + (ent.enter_duration_ms || 0);
+      const blur = motionBlurFilter(opts.fx.defs, `${opts.fx.scope}-mb-${ent.id}`);
+      ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt, blur });
     }
     for (const rel of il.relations) {
       const r = { rel, ops: opsFor.get(rel.id) || [], state: rel.state_in || {}, path: null, arrow: null, bar: null, trace: null, strike: null, len: 0 };
@@ -1503,7 +1847,7 @@
       if (first && v === undefined) v = op.from;
       first = false;
       if (lt >= op.start_ms) {
-        const p = EASE[OP_EASE[op.op]](prog(lt, op.start_ms, op.end_ms));
+        const p = SPRING[OP_SPRING[op.op]](prog(lt, op.start_ms, op.end_ms));
         v = lerp(op.from, op.to, p);
         colorAccent = op.state_change;
       }
@@ -1514,6 +1858,15 @@
 
   function activeOps(target, name, lt) {
     return target.ops.filter((o) => o.op === name && lt >= o.start_ms && lt <= o.end_ms);
+  }
+
+  // The op currently owning a driven property: the last matching op that has started.
+  function propDriver(target, prop, lt) {
+    let d = null;
+    for (const op of target.ops) {
+      if (OP_PROPERTY[op.op] === prop && lt >= op.start_ms) d = op;
+    }
+    return d;
   }
 
   function lensPosition(node, ill, lt) {
@@ -1528,14 +1881,72 @@
     return pos;
   }
 
-  function carryTransform(node, lt) {
-    const from = node.ent.carry_from_bbox;
-    if (!from) return '';
-    const k = EASE.inOutCubic(prog(lt, 0, 420));
-    if (k >= 1) return '';
-    const T = node.bb, sx = lerp(from.w / T.w, 1, k), sy = lerp(from.h / T.h, 1, k);
-    const tx = lerp(from.x - T.x, 0, k), ty = lerp(from.y - T.y, 0, k);
-    return `translate(${f2(T.x + tx)} ${f2(T.y + ty)}) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(${f2(-T.x)} ${f2(-T.y)})`;
+  // The motion-significant pose of a body at beat-local lt — carry travel, entrance spring and
+  // rise — as a pure function of time, so the same evaluator gives the body, its lagging label,
+  // the connectors tied to it, and (sampled one frame back) its motion blur.
+  //   carry: {sx, sy, dx, dy} the carry reframe about the body's own box (identity once landed)
+  //   scale: entrance spring;  ty: entrance rise;  cx/cy: live centre after carry and rise
+  function bodyPose(node, lt, motion) {
+    const ent = node.ent, T = node.bb;
+    const pop = motion.entrance === 'pop';
+    const pEnt = ent.enter_duration_ms ? prog(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms) : 1;
+    const arrive = springOf(motion, 'arrive')(pEnt);
+    const scale = lerp(pop ? 0.6 : 0.94, 1, arrive);
+    const ty = (1 - SPRING.settle(pEnt)) * T.h * (pop ? 0.1 : 0.04);
+    const carry = { sx: 1, sy: 1, dx: 0, dy: 0 };
+    const from = ent.carry_from_bbox;
+    if (from) {
+      const k = SPRING.float(prog(lt, 0, CARRY_MS));
+      if (k < 1) {
+        carry.sx = lerp(from.w / T.w, 1, k); carry.sy = lerp(from.h / T.h, 1, k);
+        carry.dx = lerp(from.x + from.w / 2 - (T.x + T.w / 2), 0, k); carry.dy = lerp(from.y + from.h / 2 - (T.y + T.h / 2), 0, k);
+      }
+    }
+    return { pEnt, scale, ty, carry, cx: T.x + T.w / 2 + carry.dx, cy: T.y + T.h / 2 + carry.dy + ty };
+  }
+
+  function carryTransform(node, carry) {
+    if (carry.sx === 1 && carry.sy === 1 && carry.dx === 0 && carry.dy === 0) return '';
+    const T = node.bb, cx = T.x + T.w / 2, cy = T.y + T.h / 2;
+    return `translate(${f2(cx + carry.dx)} ${f2(cy + carry.dy)}) scale(${carry.sx.toFixed(4)} ${carry.sy.toFixed(4)}) translate(${f2(-cx)} ${f2(-cy)})`;
+  }
+
+  // The label rides its body through a carry reframe: same centre path, offset scaled with the
+  // body, so it never sits at the destination while the body is still travelling.
+  function carryLabelShift(node, carry) {
+    if (!node.label) return { x: 0, y: 0 };
+    const T = node.bb, cT = centre(T), L = centre(node.label.bb);
+    return { x: carry.dx + (L.x - cT.x) * carry.sx - (L.x - cT.x), y: carry.dy + (L.y - cT.y) * carry.sy - (L.y - cT.y) };
+  }
+
+  // Motion blur of a body from the travel of its pose over the last frame; scale change reads as
+  // travel at the body's rim.
+  function bodyBlur(node, lt, ctx) {
+    const now = bodyPose(node, lt, ctx.motion), was = bodyPose(node, lt - ctx.frameMs, ctx.motion);
+    const T = node.bb;
+    const dsx = Math.abs(now.scale * now.carry.sx - was.scale * was.carry.sx) * T.w / 2;
+    const dsy = Math.abs(now.scale * now.carry.sy - was.scale * was.carry.sy) * T.h / 2;
+    return motionBlurStd(now.cx - was.cx + dsx, now.cy - was.cy + dsy, ctx.motion.motion_blur);
+  }
+
+  function retension(path, offA, offB) {
+    const a = offA || { dx: 0, dy: 0 }, b = offB || { dx: 0, dy: 0 };
+    if (!a.dx && !a.dy && !b.dx && !b.dy) return 'translate(0 0)';
+    const p0 = path[0], p1 = path[path.length - 1];
+    const vx0 = p1[0] - p0[0], vy0 = p1[1] - p0[1], len0 = Math.hypot(vx0, vy0);
+    if (len0 < 1) return `translate(${f2(a.dx)} ${f2(a.dy)})`;
+    const vx1 = vx0 + b.dx - a.dx, vy1 = vy0 + b.dy - a.dy, len1 = Math.hypot(vx1, vy1);
+    const rot = (Math.atan2(vy1, vx1) - Math.atan2(vy0, vx0)) * 180 / Math.PI;
+    return `translate(${f2(p0[0] + a.dx)} ${f2(p0[1] + a.dy)}) rotate(${rot.toFixed(3)}) scale(${(len1 / len0).toFixed(4)}) translate(${f2(-p0[0])} ${f2(-p0[1])})`;
+  }
+
+  // A shadow cast by one light over the stage: it leans away from the canvas centre and lifts
+  // with the body while it is still arriving.
+  function castShadow(sh, cx, cy, canvas, pEnt, shadowRgb) {
+    const lean = clamp((cx - canvas.w / 2) / (canvas.w / 2), -1, 1) * 0.35;
+    const lift = 1 + 0.5 * (1 - pEnt);
+    const rgb = (shadowRgb || [23, 18, 12]).join(',');
+    sh.el.style.filter = `drop-shadow(${f2(sh.oy * lean)}px ${f2(sh.oy * lift)}px ${f2(sh.blur * lift)}px rgba(${rgb},${(sh.alpha / lift).toFixed(3)}))`;
   }
 
   function applyIllustrationState(ill, lt, beat, ctx) {
@@ -1545,20 +1956,23 @@
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
       g.style.visibility = 'visible';
-      const pEnt = ent.enter_duration_ms ? prog(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms) : 1;
-      const pe = EASE.outQuint(pEnt);
+      const pose = bodyPose(node, lt, ctx.motion);
+      const pEnt = pose.pEnt;
       const dim = propAt(node, 'dim', lt).v;
       const pop = ctx.motion.entrance === 'pop';
-      // 'pop' entrance: the element springs from ~60% with an easeOutBack overshoot and a short rise —
-      // the benchmark's app-tile arrival; 'settle' is the editorial 94%→100% landing.
-      let opacity = (pop ? Math.min(1, EASE.outCubic(pEnt) * 1.6) : pe) * dim;
-      let scale = pop ? lerp(0.6, 1, EASE.emphasize(pEnt)) : lerp(0.94, 1, EASE.settle(pEnt));
-      let ty = (1 - pe) * node.bb.h * (pop ? 0.1 : 0.04);
-      // Ambient secondary motion once this entity's own program has fully run; the amplitude
-      // shrinks with the gap to the text zone so drift can never close on the copy.
+      // 'pop' entrance: the element springs from ~60% on the profile's spring with a short rise —
+      // the benchmark's app-tile arrival; 'settle' is the editorial 94%→100% landing. Opacity
+      // is never sprung: it ramps ahead of the body and cannot cross 1.
+      let opacity = (pop ? Math.min(1, EASE.outCubic(pEnt) * 1.6) : EASE.outQuint(pEnt)) * dim;
+      let scale = pose.scale;
+      let ty = pose.ty;
+      // Idle life once this entity's own program has fully run: a drift whose amplitude shrinks
+      // with the gap to the text zone so it can never close on the copy, and a breath whose
+      // amplitude is capped the same way.
       const tzA = beat.composition.text_zone;
       const gap = Math.max(tzA.x - (node.bb.x + node.bb.w), node.bb.x - (tzA.x + tzA.w), tzA.y - (node.bb.y + node.bb.h), node.bb.y - (tzA.y + tzA.h));
-      const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4));
+      const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
+      const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4), breathe);
       let tx = amb.dx; ty += amb.dy; scale *= amb.s;
 
       // SETTLE: a small confirming pulse; SWAP: the entity pops through a scale-and-clip beat into its new state.
@@ -1567,7 +1981,15 @@
       if (swap.v > 0 && swap.v < 1) scale *= 1 + 0.08 * EASE.pulse(swap.v);
 
       const draw = propAt(node, 'draw', lt).v;
-      for (const d of gl.outline) d.set(draw);
+      node.drawV = draw;
+      const drawOp = propDriver(node, 'draw', lt);
+      if (drawOp && drawOp.params && drawOp.params.wipe) {
+        // Wipe: stroked parts run the traveling comet; non-stroked parts pulse with the sweep.
+        const pulse = Math.sin(Math.PI * clamp(draw, 0, 1));
+        for (const d of gl.outline) { if (d.setWipe) d.setWipe(draw); else d.set(pulse); }
+      } else {
+        for (const d of gl.outline) d.set(draw);
+      }
 
       const inkP = propAt(node, 'ink', lt);
       const inkLevel = clamp(Math.max(inkP.v, swap.v >= 0.5 ? swap.v : 0), 0, 1);
@@ -1605,6 +2027,19 @@
         gl.strike.set(s.v);
         gl.strike.path.setAttribute('stroke', s.accent ? accent : ink);
       }
+      if (gl.extra.halo) {
+        const em = propAt(node, 'emit', lt);
+        const live = activeOps(node, 'EMIT', lt)[0];
+        let bloom = em.v > 0 ? 0.12 * em.v : 0, grow = 1.06;
+        if (live) {
+          const p = prog(lt, live.start_ms, live.end_ms);
+          bloom = Math.max(bloom, 0.34 * EASE.pulse(p));
+          grow = lerp(0.96, 1.22, EASE.outCubic(p));
+          scale *= 1 + 0.035 * EASE.pulse(p);
+        }
+        gl.extra.halo.setAttribute('fill-opacity', bloom.toFixed(4));
+        gl.extra.halo.style.transform = `scale(${grow.toFixed(4)})`;
+      }
       if (gl.extra.rings) {
         const em = propAt(node, 'emit', lt);
         const live = activeOps(node, 'EMIT', lt)[0];
@@ -1626,17 +2061,10 @@
           ring.setAttribute('stroke', em.accent || live ? accent : ink);
         });
       }
-      let transform = carryTransform(node, lt);
-      // 'none' (never '') keeps the declaration at a stable position in the style attribute —
-      // clearing then rewriting a decl moves it to the end, which makes the DOM differ across seek paths.
-      if (ent.carry_from_bbox) {
-        const from = ent.carry_from_bbox;
-        const blur = velocityBlur(lt, 0, 420, EASE.inOutCubic, Math.hypot(from.x - node.bb.x, from.y - node.bb.y) + Math.abs(from.w - node.bb.w));
-        g.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : 'none';
-      } else if (ent.enter_duration_ms) {
-        const blur = velocityBlur(lt, ent.enter_ms, ent.enter_ms + ent.enter_duration_ms, EASE.outQuint, node.bb.h * 0.4);
-        g.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : 'none';
-      }
+      let transform = carryTransform(node, pose.carry);
+      // Motion blur from the body's own travel over the last frame — directional, and 'none'
+      // (never '') when still so the decl keeps a stable position in the style attribute.
+      node.blur.apply(g.style, bodyBlur(node, lt, ctx));
       if (gl.extra.lens) {
         const p = lensPosition(node, ill, lt);
         gl.extra.lens.setAttribute('transform', `translate(${f2(p.x)} ${f2(p.y)})`);
@@ -1646,16 +2074,31 @@
       if (scale !== 1 || ty || tx || gl.extra.rotateDeg) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)})${gl.extra.rotateDeg ? ` rotate(${gl.extra.rotateDeg})` : ''} translate(${f2(-c.x)} ${f2(-c.y)})`;
       g.setAttribute('transform', transform.trim() || 'translate(0 0)');
       g.style.opacity = opacity.toFixed(4);
+      if (gl.extra.shadow) castShadow(gl.extra.shadow, pose.cx + tx, pose.cy, ctx.canvas, pEnt, ctx.shadowRgb);
+      // Connectors read these: a link is only as present as the bodies it joins, and it follows
+      // them — the live offset of the body's centre from its laid-out box.
+      node.presence = preEntry ? 0 : dim;
+      node.offset = { dx: pose.carry.dx + tx, dy: pose.carry.dy + ty };
       if (node.label) {
         const ls = node.label.wrap.style;
         ls.visibility = 'visible';
-        ls.opacity = opacity.toFixed(4);
-        ls.transform = `translateY(${f2(ty)}px) scale(${scale.toFixed(4)})`;
+        // Secondary motion: the label trails its body's arrival by the profile's lag, then rides
+        // the same carry path so it never sits at the destination while the body is travelling.
+        const lagged = ctx.motion.label_lag_ms > 0 && pEnt < 1 ? bodyPose(node, lt - ctx.motion.label_lag_ms, ctx.motion) : pose;
+        const labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1);
+        // A chassis label belongs to its housing: it fades in with the DRAW, not ahead of it.
+        ls.opacity = clamp(gl.extra.chassis ? labelOpacity * clamp(draw, 0, 1) : labelOpacity, 0, 1).toFixed(4);
+        const shift = carryLabelShift(node, pose.carry);
+        const lScale = lagged.scale * amb.s;
+        ls.transform = `translate(${f2(shift.x + tx)}px, ${f2(ty - pose.ty + lagged.ty + shift.y)}px) scale(${lScale.toFixed(4)})`;
         node.label.text.style.color = node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
       }
       if (node.media) {
-        applyMediaState(node.media, lt, beat, ctx);
-        node.media.frame.style.opacity = (Number(node.media.frame.style.opacity || 1) * dim).toFixed(4);
+        applyMediaState(node.media, lt, beat, ctx, {
+          dx: pose.carry.dx + tx, dy: pose.carry.dy + ty,
+          sx: scale * pose.carry.sx, sy: scale * pose.carry.sy,
+          opacity, blur: bodyBlur(node, lt, ctx),
+        });
       }
       // Pre-entry entities still run the full property pipeline above so seek() produces the
       // same driven-attribute set regardless of the path taken; only visibility is forced.
@@ -1673,17 +2116,36 @@
       s.visibility = lt < rel.enter_ms ? 'hidden' : 'visible';
       const pe = rel.enter_duration_ms ? prog(lt, rel.enter_ms, rel.enter_ms + rel.enter_duration_ms) : 1;
       const con = rel.drawn_by_op ? propAt(r, 'connect', lt).v : EASE.outQuint(pe);
-      r.path.set(con);
+      const conDriver = rel.drawn_by_op ? propDriver(r, 'connect', lt) : null;
+      const wiping = Boolean(conDriver && conDriver.params && conDriver.params.wipe);
+      if (wiping && r.path.setWipe) r.path.setWipe(con); else r.path.set(con);
+      r.con = con;
       const dim = propAt(r, 'dim', lt).v;
       let opacity = dim * (rel.drawn_by_op ? 1 : Math.min(1, pe * 3));
       if (ex) opacity *= ex.opacity;
+      // A link between an absent or dimmed body and anything else is a stray line: it inherits
+      // the weaker endpoint's presence.
+      const endA = ill.ents.get(rel.source), endB = ill.ents.get(rel.target);
+      if (endA && endB) opacity *= Math.min(endA.presence == null ? 1 : endA.presence, endB.presence == null ? 1 : endB.presence);
       s.opacity = opacity.toFixed(4);
-      const head = con >= 0.985 ? 1 : 0;
+      // Re-tension: the link follows its bodies. A similarity transform maps the laid-out
+      // endpoints onto the bodies' live centres, so a carried or drifting body never leaves
+      // its connector behind.
+      r.g.setAttribute('transform', retension(rel.path, endA && endA.offset, endB && endB.offset));
+      // Under a wipe the endpoints belong to the sweep: a dot or arrowhead shows only while
+      // the traveling window covers its end of the path, and is erased with the tail.
+      let head = con >= 0.985 ? 1 : 0;
+      let head0 = con > 0.02 ? 1 : 0;
+      if (wiping) {
+        const w = Math.max(10, r.len * 0.42), hd = con * (r.len + w), tl = hd - w;
+        head = hd >= r.len - 0.5 && tl < r.len ? 1 : 0;
+        head0 = hd > 0 && tl <= 0 ? 1 : 0;
+      }
       if (r.arrow) r.arrow.style.opacity = String(head);
       if (r.bar) r.bar.style.opacity = String(head);
       if (r.dots) {
-        r.dots[0].style.opacity = con > 0.02 ? '1' : '0';
-        r.dots[1].style.opacity = head ? '1' : '0';
+        r.dots[0].style.opacity = String(head0);
+        r.dots[1].style.opacity = String(head);
         const dstroke = propAt(r, 'ink', lt);
         const dc = dstroke.v > 0.5 && dstroke.accent ? accent : ink;
         r.dots.forEach((d) => d.setAttribute('fill', dc));
@@ -1718,12 +2180,19 @@
     outer.dataset.beat = beat.beat_id;
     // Camera: every beat's picture lives inside a wrapper the film pushes/pans/dissolves as a whole.
     const root = el('div', { position: 'absolute', inset: '0', transformOrigin: '50% 50%', willChange: 'transform, opacity, filter' }, outer);
+    // Motion-blur filters for this beat's moving bodies live in one hidden <defs>, scoped by
+    // beat so ids never collide across beats.
+    const fxSvg = svgEl('svg', { width: 0, height: 0, 'aria-hidden': 'true' }, outer);
+    Object.assign(fxSvg.style, { position: 'absolute', width: '0', height: '0', overflow: 'hidden' });
+    const fx = { defs: svgEl('defs', {}, fxSvg), scope: `em2fx-b${beatIndex}` };
     const bg = buildBackground(beat, plan, root);
     const media = beat.media ? buildMedia(beat.media, plan, root, opts.assetUrl) : null;
+    if (media) media.blur = motionBlurFilter(fx.defs, `${fx.scope}-mb-media`);
     const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts.peepsUrl) : null;
     const data = beat.data ? buildData(beat.data, plan, root) : null;
-    const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, opts) : null;
-    const texts = beat.typography.blocks.map((b) => buildTextBlock(b, plan, root));
+    const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, { ...opts, fx }) : null;
+    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, root), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
     const tz = bboxOf(beat.composition.text_zone);
     const tr = beat.transition || { mode: 'SETTLE_CUT' };
     const carrierIndex = (() => {
@@ -1738,7 +2207,10 @@
 
     const ctx = {
       brand: plan.brand,
-      motion: plan.motion || DEFAULT_MOTION,
+      shadowRgb: plan.atmosphere && plan.atmosphere.shadow_rgb,
+      canvas: plan.canvas,
+      frameMs: 1000 / (plan.fps || 30),
+      motion: { ...DEFAULT_MOTION, ...(plan.motion || {}) },
       transition: tr,
       tonalInk: (plan.typography && plan.typography.tonal_ink) || 1,
       reconfigureOffset(node) {
@@ -1783,32 +2255,56 @@
       },
     };
     const ready = Promise.all([figure ? figure.ready : null, media ? mediaReady(media) : null, illustration ? illustration.ready : null]);
-    return { beat, root: outer, cam: root, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex };
+    return { beat, root: outer, cam: root, camBlur, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex };
   }
 
-  // Film-level camera and cut treatment from the plan's motion profile. `k` is the outgoing beat's
-  // progress through its transition (0 outside it); `arrive` is the incoming beat's progress through
-  // the same window while it dresses underneath. Both are pure functions of time.
-  function applyCamera(bn, lt, k, arrive, plan, preRoll) {
+  // Film-level camera. Every cut is a matched move the compiler chose from the beats on either
+  // side (transition.camera): the outgoing picture makes the move and the incoming picture
+  // arrives out of the same move, so the two halves read as one camera. `k` is the outgoing
+  // beat's progress through its transition (0 outside it); `arrival` is set on the incoming beat
+  // while it dresses underneath: the outgoing beat's camera and the window it arrives over.
+  // Plans without camera metadata fall back to the profile's transition name.
+  const DRIFT_FRAC = 0.06;
+  function cameraMoveOf(cam, m, index) {
+    if (cam) return cam;
+    return { move: m.transition === 'scale_through' ? 'push_through' : 'dissolve', dir: index % 2 === 0 ? 1 : -1, blur: 1 };
+  }
+  function applyCamera(bn, lt, k, arrival, plan, preRoll) {
     const m = bn.ctx.motion, W = plan.canvas.w;
     const dur = Math.max(1, bn.beat.duration_ms);
-    const p = clamp((lt + (preRoll || 0)) / dur, 0, 1);
-    const dir = bn.index % 2 === 0 ? 1 : -1;
-    // Slow push over the beat, panning a hair across so nothing is ever perfectly still.
-    let scale = 1 + m.camera_push * p;
-    let tx = dir * m.camera_pan_frac * W * (p - 0.5);
-    let opacity = 1, blur = 0;
-    if (m.transition === 'scale_through') {
-      if (k > 0) { scale *= lerp(1, 1.1, EASE.inCubic(k)); blur += m.blur_px * EASE.inCubic(k); opacity = 1 - EASE.inOutCubic(k); }
-      if (arrive != null) { scale *= lerp(0.92, 1, EASE.outCubic(arrive)); blur += m.blur_px * 0.5 * (1 - EASE.outCubic(arrive)); }
-    } else if (m.transition === 'blur_dissolve') {
-      if (k > 0) blur += m.blur_px * EASE.inCubic(k);
-      if (arrive != null) blur += m.blur_px * 0.4 * (1 - EASE.outCubic(arrive));
-    }
+    const cam = cameraMoveOf(arrival ? arrival.camera : (bn.beat.transition && bn.beat.transition.camera), m, bn.index);
+    const tr = bn.beat.transition;
+    // Slow push over the beat, panning a hair across so nothing is ever perfectly still, then
+    // the move itself. Pure in lt so the frame before can be sampled for blur.
+    const poseAt = (t) => {
+      const p = clamp((t + (preRoll || 0)) / dur, 0, 1);
+      let scale = 1 + m.camera_push * p;
+      let tx = cam.dir * m.camera_pan_frac * W * (p - 0.5);
+      let opacity = 1, defocus = 0;
+      const kk = k > 0 && tr ? prog(t, tr.start_ms, tr.end_ms) : 0;
+      if (kk > 0) {
+        const ko = EASE.inCubic(kk);
+        if (cam.move === 'push_through') { scale *= lerp(1, 1.1, ko); defocus += m.blur_px * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
+        else if (cam.move === 'pull_back') { scale *= lerp(1, 0.94, ko); defocus += m.blur_px * 0.6 * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
+        else if (cam.move === 'drift') { tx += -cam.dir * W * DRIFT_FRAC * EASE.inOutCubic(kk); opacity = 1 - EASE.inOutCubic(kk); }
+        else if (cam.move === 'dissolve') defocus += m.blur_px * ko * cam.blur;
+      }
+      if (arrival) {
+        const aa = clamp(t / Math.max(1, arrival.window_ms), 0, 1);
+        const ka = EASE.outCubic(aa);
+        if (cam.move === 'push_through') { scale *= lerp(0.92, 1, ka); defocus += m.blur_px * 0.5 * (1 - ka) * cam.blur; }
+        else if (cam.move === 'pull_back') { scale *= lerp(1.06, 1, ka); defocus += m.blur_px * 0.3 * (1 - ka) * cam.blur; }
+        else if (cam.move === 'drift') tx += cam.dir * W * DRIFT_FRAC * (1 - EASE.inOutCubic(aa));
+        else if (cam.move === 'dissolve') defocus += m.blur_px * 0.4 * (1 - ka) * cam.blur;
+      }
+      return { scale, tx, opacity, defocus };
+    };
+    const now = poseAt(lt), was = poseAt(lt - bn.ctx.frameMs);
     const s = bn.cam.style;
-    s.transform = `translate(${f2(tx)}px, 0px) scale(${scale.toFixed(4)})`;
-    s.opacity = opacity.toFixed(4);
-    s.filter = blur > 0.2 ? `blur(${blur.toFixed(2)}px)` : 'none';
+    s.transform = `translate(${f2(now.tx)}px, 0px) scale(${now.scale.toFixed(4)})`;
+    s.opacity = now.opacity.toFixed(4);
+    applyDepthParallax(bn.bg, now, plan);
+    bn.camBlur.apply(s, motionBlurStd((now.tx - was.tx) + Math.abs(now.scale - was.scale) * W / 2, 0, m.motion_blur * cam.blur), now.defocus > 0.2 ? `blur(${now.defocus.toFixed(2)}px)` : '');
   }
 
   function mediaReady(m) {
@@ -1850,7 +2346,9 @@
     installFonts(plan, opts.fontBase);
 
     const W = plan.canvas.w, H = plan.canvas.h;
-    const stage = el('div', { position: 'relative', overflow: 'hidden', width: px(W), height: px(H), background: plan.brand.paper, color: plan.brand.ink }, mount);
+    const atmo = plan.atmosphere || {};
+    const stage = el('div', { position: 'relative', overflow: 'hidden', width: px(W), height: px(H), background: atmo.field || plan.brand.paper, color: plan.brand.ink }, mount);
+    stage.dataset.theme = atmo.theme || 'light';
     stage.className = 'em2-stage';
     stage.dataset.aspect = plan.aspect;
 
@@ -1880,7 +2378,9 @@
       grain = el('div', {
         position: 'absolute', inset: '0', zIndex: '30', pointerEvents: 'none',
         backgroundImage: `url(${opts.assetUrl(surf.grain.path)})`, backgroundSize: '256px 256px',
-        mixBlendMode: 'multiply', opacity: finish === 'PAPER' ? '0.06' : '0.04',
+        // Grain multiplies into a light field; a dark field would swallow it, so it screens instead.
+        mixBlendMode: atmo.theme === 'dark' ? 'screen' : 'multiply',
+        opacity: String(atmo.grain_opacity != null ? atmo.grain_opacity : (finish === 'PAPER' ? 0.06 : 0.04)),
       }, stage);
     }
     const duration = plan.duration_ms;
@@ -1928,14 +2428,20 @@
       if (overlapIdx >= 0) {
         const nb = beats[overlapIdx];
         applyBeat(nb, lt - tr.start_ms, 1, 0);
-        applyCamera(nb, lt - tr.start_ms, 0, kOut, plan, 0);
+        applyCamera(nb, lt - tr.start_ms, 0, { camera: tr.camera || null, window_ms: tr.end_ms - tr.start_ms }, plan, 0);
       }
       const dt = performance.now() - t1;
       perf.frames += 1;
       perf.total_ms += dt;
       if (dt > perf.max_ms) perf.max_ms = dt;
       const waits = [];
-      if (bn.media && bn.media.pending) waits.push(bn.media.pending);
+      const collectMedia = (b) => {
+        if (!b) return;
+        if (b.media && b.media.pending) waits.push(b.media.pending);
+        if (b.illustration) for (const e of b.illustration.ents.values()) if (e.media && e.media.pending) waits.push(e.media.pending);
+      };
+      collectMedia(bn);
+      if (overlapIdx >= 0) collectMedia(beats[overlapIdx]);
       return Promise.all(waits).then(() => undefined);
     }
 
@@ -1970,10 +2476,104 @@
     const ready = Promise.all([fontsReady(plan)].concat(beats.map((b) => b.ready))).then(() => seek(0));
     seek(0);
 
+    // Authorship inspection of the scene graph as seeked: what a viewer would read as a
+    // generated tell, measured from the driven DOM rather than guessed from the plan.
+    //   EMPTY_CHASSIS     a housing body is on stage with nothing inside it
+    //   ICON_UNDERFILL    the carried mark renders as a sliver of the box it was given
+    //   ICON_OVERFLOW     the carried mark leaks well outside its box (hostile viewBox)
+    //   ORPHAN_CONNECTOR  a connector is visible while an endpoint body is not
+    // Per-entity pose signatures let a frame walker find holds with no motion at all.
+    const GRAPHIC = 'path,circle,ellipse,line,polyline,polygon,rect,text,image,use';
+    function iconGeometry(node) {
+      const host = node.glyph.extra.iconHost;
+      if (!host) return null;
+      const inner = host.firstElementChild;
+      if (!inner) return null;
+      // Painted extent in host space: the union of every graphic part that is not clipped or
+      // masked (masked art may legitimately reach past the viewBox and be cut back to shape).
+      let hostM;
+      try { hostM = host.getScreenCTM(); } catch (e) { hostM = null; }
+      if (!hostM) return null;
+      const inv = hostM.inverse();
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const el of inner.querySelectorAll(GRAPHIC)) {
+        let a = el, cut = false;
+        while (a && a !== host) { if (a.hasAttribute('mask') || a.hasAttribute('clip-path')) cut = true; a = a.parentNode; }
+        if (cut || el.closest('defs,clipPath,mask,pattern,marker,symbol')) continue;
+        let bb, m;
+        try { bb = el.getBBox(); m = el.getScreenCTM(); } catch (e) { continue; }
+        if (!m || !(bb.width > 0 || bb.height > 0)) continue;
+        const M = inv.multiply(m);
+        for (const [qx, qy] of [[bb.x, bb.y], [bb.x + bb.width, bb.y], [bb.x, bb.y + bb.height], [bb.x + bb.width, bb.y + bb.height]]) {
+          const X = M.a * qx + M.c * qy + M.e, Y = M.b * qx + M.d * qy + M.f;
+          x0 = Math.min(x0, X); y0 = Math.min(y0, Y); x1 = Math.max(x1, X); y1 = Math.max(y1, Y);
+        }
+      }
+      if (!(x1 > x0 && y1 > y0)) return null;
+      const box = node.glyph.extra.iconBox;
+      const x = x0, y = y0, w = x1 - x0, h = y1 - y0;
+      const ix = Math.max(0, Math.min(x + w, box.x + box.w) - Math.max(x, box.x));
+      const iy = Math.max(0, Math.min(y + h, box.y + box.h) - Math.max(y, box.y));
+      return {
+        fill: (ix * iy) / (box.w * box.h),
+        overflow: Math.max(box.x - x, box.y - y, x + w - (box.x + box.w), y + h - (box.y + box.h)) / Math.min(box.w, box.h),
+      };
+    }
+    function inspect() {
+      const out = { time, entities: {}, findings: [] };
+      const flag = (code, beatId, id, detail) => out.findings.push({ code, beat_id: beatId, id, detail });
+      const look = (bn) => {
+        const ill = bn.illustration;
+        if (!ill) return;
+        const beatId = bn.beat.beat_id;
+        for (const node of ill.ents.values()) {
+          const g = node.g, gl = node.glyph;
+          const op = Number(g.style.opacity);
+          // Undrawn bodies (DRAW still ahead) are on the clock but not on the screen.
+          const shown = g.style.visibility !== 'hidden' && op > 0.05 && !(node.drawV < 0.02);
+          const key = `${beatId}:${node.ent.id}`;
+          out.entities[key] = shown
+            ? `${g.getAttribute('transform')}|${g.style.opacity}|${node.label ? node.label.wrap.style.transform : ''}`
+            : null;
+          if (!shown || !gl.extra.chassis) continue;
+          const body = g.querySelector('[data-draw="body"]');
+          const bodyOn = body && Number(body.style.opacity === '' ? 1 : body.style.opacity) * op > 0.15;
+          if (!bodyOn) continue;
+          const host = gl.extra.iconHost;
+          const carried = host ? host.querySelectorAll(GRAPHIC).length : 0;
+          const readout = gl.extra.countText || body.querySelector('text');
+          const inside = node.label && node.label.inside;
+          if (!carried && !readout && !inside) flag('EMPTY_CHASSIS', beatId, node.ent.id, `${node.ent.glyph} body on stage with nothing inside`);
+          if (host && carried) {
+            const geom = iconGeometry(node);
+            if (geom && geom.fill < ICON_FILL_MIN) flag('ICON_UNDERFILL', beatId, node.ent.id, `mark covers ${(geom.fill * 100).toFixed(0)}% of its box`);
+            if (geom && geom.overflow > ICON_OVERFLOW_MAX) flag('ICON_OVERFLOW', beatId, node.ent.id, `mark leaks ${(geom.overflow * 100).toFixed(0)}% of its box outside it`);
+          }
+        }
+        for (const r of ill.rels.values()) {
+          if (!r.path || !r.g) continue;
+          const s = r.g.style;
+          if (s.visibility === 'hidden' || Number(s.opacity) < CONNECTOR_SHOWN_MIN) continue;
+          if (!(r.con > 0.02)) continue;
+          for (const endId of [r.rel.source, r.rel.target]) {
+            const end = ill.ents.get(endId);
+            if (!end) continue;
+            const eg = end.g;
+            if (eg.style.visibility === 'hidden' || Number(eg.style.opacity) < ENDPOINT_PRESENT_MIN) {
+              flag('ORPHAN_CONNECTOR', beatId, r.rel.id, `connector visible while ${endId} is not`);
+            }
+          }
+        }
+      };
+      if (current >= 0) look(beats[current]);
+      if (currentOverlap >= 0) look(beats[currentOverlap]);
+      return out;
+    }
+
     return {
       version: RUNTIME_VERSION,
       plan, stage, duration, fps: plan.fps, frames: Math.ceil((duration * plan.fps) / 1000),
-      seek, frame, play, pause, fit, ready,
+      seek, frame, play, pause, fit, ready, inspect,
       // Scene-graph update cost per seek (script side only; paint is the compositor's).
       get perf() { return { frames: perf.frames, avg_ms: perf.frames ? perf.total_ms / perf.frames : 0, max_ms: perf.max_ms }; },
       get time() { return time; },

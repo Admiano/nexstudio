@@ -12,6 +12,10 @@ gates:
   manifest.audio.music present          (music bed bound)
   manifest.captions_burned > 0            (or captions_policy == kinetic: words live on canvas)
   manifest.native_profile == true
+  manifest.authorship.findings == []       (no generated-look tells: empty chassis, icon under-fill /
+                                            overflow, orphan connectors, static holds)
+  manifest.audio.loudness               (measured master: integrated within LOUDNESS_TOL_LU of target,
+                                            true peak under the ceiling — no clipping)
 
 Usage:
   python3 tools/regression_pack.py                    # all fixtures, all aspects
@@ -31,6 +35,8 @@ BLANK_MAX_MS = 400          # grain/dot-grid floor keeps "rest" frames alive; bl
 BLANK_STD = 1.5
 FROZEN_RUN_MAX_MS = 200
 FROZEN_DIFF = 0.1
+LOUDNESS_TOL_LU = 1.5
+PEAK_TOL_DB = 0.3
 
 
 def fixtures(root: Path):
@@ -129,6 +135,20 @@ def main() -> int:
                 'captions': manifest.get('captions_burned', 0) > 0 or manifest.get('captions_policy') == 'kinetic',
                 'native_profile': manifest.get('native_profile') is True,
             }
+            loud = (manifest.get('audio') or {}).get('loudness') or {}
+            checks['loudness_on_target'] = bool(loud) and abs(loud['integrated_lufs'] - loud['target_lufs']) <= LOUDNESS_TOL_LU
+            checks['no_clipping'] = bool(loud) and loud['true_peak_dbtp'] <= loud['ceiling_dbtp'] + PEAK_TOL_DB
+            metrics['loudness'] = loud
+            metrics['groove'] = (manifest.get('audio') or {}).get('groove')
+            authorship = manifest.get('authorship') or {}
+            # Each tell is its own check so the report names the rule that tripped, not a blanket flag.
+            if not authorship:
+                checks['authorship_evidence'] = False
+            for code in authorship.get('codes', []):
+                checks[f'authorship:{code}'] = False
+            metrics['authorship_findings'] = [
+                f"{f['code']}:{f['beat_id']}:{f['id']}@{f['first_ms']}ms" for f in authorship.get('findings', [])]
+            metrics['static_hold_longest_ms'] = authorship.get('longest_static_hold_ms')
             film['aspects'][aspect] = {'checks': checks, 'metrics': metrics, 'mp4': manifest['mp4'],
                                        'mp4_sha256': manifest['mp4_sha256']}
             failures += sum(1 for ok in checks.values() if not ok)
@@ -140,8 +160,13 @@ def main() -> int:
         for aspect, r in film['aspects'].items():
             bad = [k for k, ok in r['checks'].items() if not ok]
             m = r['metrics']
+            lo = m.get('loudness') or {}
+            gr = m.get('groove') or {}
             print(f"{film['film']:>18} {aspect}  blank={m['blank_ms']}ms frozen={m['frozen_longest_ms']}ms"
-                  f"  {'PASS' if not bad else 'FAIL ' + ','.join(bad)}")
+                  f" hold={m.get('static_hold_longest_ms')}ms  {lo.get('integrated_lufs')}LUFS tp={lo.get('true_peak_dbtp')}"
+                  f" grid={gr.get('on_grid_ratio')}  {'PASS' if not bad else 'FAIL ' + ','.join(bad)}")
+            for f in m.get('authorship_findings', []):
+                print(f"{'':>18}   {f}")
     print(f"failures: {failures}")
     return 1 if failures else 0
 

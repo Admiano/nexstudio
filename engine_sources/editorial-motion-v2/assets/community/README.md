@@ -42,6 +42,25 @@ emoji, 3D-look emoji and coloured pictograms. Ids: `brand.logos.*`,
 Brand marks are licence-clean as artwork; trademark use is the film owner's
 responsibility (see `trademark_note`). Rebuild with `tools/build_colour_registry.py`.
 
+### Preflight — `preflight.json`
+
+Every SVG in both icon registries is parsed, inlined and rasterised in the
+render browser (`tools/preflight_assets.js`). Assets that carry scripts,
+`<foreignObject>`, external references, paint under 3% of their box or spill
+more than 1% of their paint outside the viewBox are listed here with the
+reason; the compiler rejects any treatment that names one (`ASSET_QUARANTINED`)
+and the resolver never picks one. Rerun after touching either registry.
+
+## Lexicon — `lexicon/` (WordNet 3.1 nouns, WordNet 3.0 License)
+
+`noun-lexicon.json.gz` holds every noun synset (sense-ordered lemmas,
+hypernyms, lexicographer domain) plus SemCor tag counts, built by
+`tools/build_lexicon.py` from the Princeton tarball recorded in `info.json`.
+The compiler walks it to draw a concept that has no exact mark: synonym →
+hypernym → composite (ancestor mark + the concept typeset) → typographic tile →
+numeric treatment. `tools/audit_coverage.py` reports the hit rate of a noun
+list against each native-colour pack.
+
 ## Audio — `audio/` (477 files, CC0)
 
 | dir | source | use |
@@ -54,11 +73,18 @@ responsibility (see `trademark_note`). Rebuild with `tools/build_colour_registry
 | paper-cutter | CaptSubtle via cc0-sounds.exi.software (CC0) | paper cuts — TEXT_MASK_WIPE / editorial feel |
 | paper-books-writing | bumblebeast via cc0-sounds.exi.software (CC0) | page turns, pencil — editorial texture |
 
-## Music — `music/freepd/` (10 tracks, CC0)
+## Music — `music/freepd/` (108 beds, CC0)
 
-FreePD corpus (Kevin MacLeod public-domain collection) fetched via the
-SoundSafari CC0-1.0-Music GitHub corpus. Calm/jazz/ukulele beds for ducking
-under voice. Closes the `SILENT_UNTIL_RIGHTS_CLEAN_SOURCE_SELECTED` gap.
+FreePD corpus (Kevin MacLeod / Bryan Teoh / Rafael Krux public-domain
+collection) fetched via the SoundSafari CC0-1.0-Music GitHub corpus and
+vendored by `tools/vendor_music.py` as 120s excerpts (96k stereo MP3 — the bed
+sits ~19 dB under the voice). Every manifest entry carries source URL, sha256
+and *measured* metadata: `duration_s`, `bpm`, `grid_offset_ms` (first-beat
+phase), `lufs`, `true_peak_dbtp`, `brightness_hz`, `onsets_per_s`, `energy`
+(0–1) plus curated `moods` drawn from `FILM_MOODS`. The compiler picks a bed by
+mood → covering duration → nearest energy → deterministic hash, trims it to a
+common level from its LUFS, and phase-fits its beat grid to the film's landings
+(`groove.py`). Re-run the vendor tool to re-measure; never hand-edit the fields.
 
 ## Textures & surfaces — `textures/`, `surfaces/`
 
@@ -76,9 +102,32 @@ the future physics channel.
 
 ## Deliberately not vendored
 
-- **DOVA-SYNDROME, Sound Effect Lab, PeriTune, Amacha** (JP free-music/SFX
-  sites): licenses permit use *inside rendered works* but forbid redistributing
-  raw files — fine for a render, wrong for a repo.
+### JP/KR music & SFX sites (S-register — render-permitted, redistribution-forbidden)
+
+The benchmark audit's S-row sites permit use *inside rendered works* but forbid
+redistributing the raw files — fine for a render, wrong for a repo. None are
+vendored. When a film genuinely needs one, the legal shape is a **render-time
+fetch with a rights record**: the render downloads the file, binds it with a
+provenance entry (source URL + licence posture `RENDER_ONLY_NO_REDISTRIBUTION`),
+and never re-exports it as an asset. Until that fetch path exists they stay
+unused — CC0/CC-BY pools cover the need today.
+
+- **効果音ラボ (Sound Effect Lab)** — SFX; commercial use allowed, no
+  redistribution of raw files; attribution optional.
+- **魔王魂 (MaouDamashii)** — music + SFX; broad free-use terms including
+  commercial, file redistribution forbidden.
+- **DOVA-SYNDROME** — music; requires free membership for download, license
+  allows use in works, no redistribution.
+- **甘茶の音楽工房 (Amacha)** — music; free for commercial works, file
+  redistribution prohibited.
+- **Springin' Sound Stock** — SFX; usable in works, redistribution banned.
+- **OtoLogic** — SFX + jingles; creative use allowed, no file redistribution.
+- **공유마당 (Korea Copyright Commission 공유마당)** — CC-mixed pool: each
+  entry carries its own CC licence — only CC0/CC-BY entries are candidates;
+  CC-BY-SA and NC variants are excluded.
+
+### Other exclusions
+
 - **GSAP**: now free post-Webflow but not OSI-licensed.
 - **unDraw / Storyset / Blush**: custom licenses prohibit reuse as an asset
   library inside a competing design tool.
@@ -86,3 +135,12 @@ the future physics channel.
   but flag-worthy; skipped for cleaner licenses.
 - **Noto CJK variable fonts** (OFL): 20–100 MB per face; only worth it when a
   CJK pipeline is real.
+
+## Synth accents — `synth/`
+
+`tools/synth_sfx.py` generates a small parametric accent pool (pops, ticks,
+whooshes, risers, shimmers) as pure DSP — NexStudio-authored, zero rights
+questions, deterministic (fixed seeds), registered with `NexStudio-Authored-1.0`
+in the manifest. These bind the furniture-arrival and sweep events
+(`ELEMENT_LAND`, `TRANSITION_SWEEP`, `WIPE_SWEEP`, `COUNT_RISE`) the licensed
+pools don't cover.

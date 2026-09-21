@@ -17,15 +17,27 @@ from typing import Any, Dict, List, Optional, Tuple
 from .authorities import editorial_motion_ensemble_director_v1 as ens
 from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
-from .contracts import MOTION_PROFILES, BeatTreatment, FilmTreatment, TreatmentError
+from .chassis import chassis_aspect, housing
+from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FilmTreatment, TreatmentError
+from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere
 from .figures import resolve_figure
+from .groove import fit_phase, groove_stagger
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
+from .lexicon import AssetFinder, NounLexicon
 from .media import NormalisedMedia, normalise_media
-from .sound import SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
+from .motion import camera_move, transition_window_ms
+from .sound import MIX, SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
 from .master_timeline import MasterTimeline, extend_tail, resolve_master
 from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
 from .typefit import fit_text
 from .voice import VoiceSegment, resolve_voice
+
+
+def _cascade_settle_ms(finish: str) -> int:
+    """Word-cascade settle budget — must equal the runtime's per-profile landing
+    duration ('rise' lands a word in 300ms, 'tonal' in 260)."""
+    return 300 if MOTION_PROFILES[finish]['word_landing'] == 'rise' else CASCADE_SETTLE_MS
+
 
 COMPILER_VERSION = 'EDITORIAL_PLAN_COMPILER_V3.0'
 PLAN_SCHEMA = 'NexStudioEditorialPlanV2'
@@ -85,11 +97,8 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     st = dict(stage)
     layers: List[Dict[str, Any]] = []
     if finish == 'PRODUCT_COLLAGE':
-        # Free canvas: no lifted panel, no rules. Objects float on the warm field over a soft
-        # off-centre glow that alternates sides so consecutive cuts re-light the stage.
-        layers.append({'kind': 'glow', 'bbox': _box(0, 0, W, H), 'align': ('left', 'right', 'center')[beat_index % 3], 'opacity': 0.55})
-        if beat_index % 4 == 3:
-            layers.append({'kind': 'arc', 'bbox': dict(safe), 'opacity': 0.6, 'corner': beat_index % 4})
+        # Free canvas: no lifted panel, no rules. Objects float on the field; the light (bloom behind the
+        # hero) and the far-plane depth shapes are added by `atmosphere.beat_atmosphere` once the beat is placed.
         return layers
     has_panel = authored in {'CARD_STAGE', 'DOCUMENT_STAGE', 'PRODUCT_STAGE', 'LAYERED_PLANE'} or render_bg in {'CARD_STAGE', 'SPOTLIGHT_STAGE'}
     if has_panel:
@@ -110,7 +119,8 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
         elif v == 2:
             layers.append({'kind': 'wash', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'align': 'left' if beat_index % 2 else 'right'})
         elif v == 3:
-            layers.append({'kind': 'arc', 'bbox': dict(safe), 'opacity': 1.0, 'corner': beat_index % 4})
+            # A tonal wash, never a free-floating arc: an unexplained curve on the field is a stray mark.
+            layers.append({'kind': 'wash', 'bbox': _box(st['x'], st['y'], st['w'], st['h']), 'align': 'right' if beat_index % 2 else 'left'})
         else:
             layers.append({'kind': 'dotgrid', 'bbox': dict(safe), 'opacity': 0.32, 'spacing_frac': 0.08, 'radius_frac': 0.0018})
     if render_bg == 'SPOTLIGHT_STAGE':
@@ -179,7 +189,8 @@ def _fonts() -> Dict[str, Any]:
 
 
 class BeatCompiler:
-    def __init__(self, film: FilmTreatment, aspect: str, lib: Optional[SoundLibrary], media: Optional[Dict[str, NormalisedMedia]] = None):
+    def __init__(self, film: FilmTreatment, aspect: str, lib: Optional[SoundLibrary], media: Optional[Dict[str, NormalisedMedia]] = None,
+                 stagger_ms: Optional[int] = None):
         self.film = film
         self.aspect = aspect
         self.lib = lib
@@ -196,7 +207,7 @@ class BeatCompiler:
         self.illustrations: Dict[str, Dict[str, Any]] = {}  # beat_id -> compiled illustration (carry-over source)
         self.solver = IllustrationSolver(aspect, (self.W, self.H), IllustrationRegistry(), film.media_library, self.media_files, film.brand.accent,
                                          collage=film.brand.finish == 'PRODUCT_COLLAGE',
-                                         stagger_ms=MOTION_PROFILES[film.brand.finish]['stagger_ms'])
+                                         stagger_ms=stagger_ms or MOTION_PROFILES[film.brand.finish]['stagger_ms'], motion=MOTION_PROFILES[film.brand.finish])
 
     # ------------------------------------------------------------------ helpers
     def _native_treatment(self, b: BeatTreatment) -> str:
@@ -405,7 +416,8 @@ class BeatCompiler:
                 words.append(w)
             if words:
                 last = words[-1]['start_ms']
-                bl['cascade_end_ms'] = last + CASCADE_SETTLE_MS
+                settle = _cascade_settle_ms(self.film.brand.finish)
+                bl['cascade_end_ms'] = last + settle
                 limit = bl['exit_ms'] - 360 if bl.get('exit_ms') else clock.duration_ms - (clock.exit_ms + 40 if clock.fixed_window else 760)
                 if last > limit:
                     # Compress the cascade so the phrase finishes reading before it leaves or the beat ends.
@@ -413,7 +425,7 @@ class BeatCompiler:
                     room = max(WORD_CASCADE_MIN_STEP_MS * len(words), limit - start)
                     for w in words:
                         w['start_ms'] = int(start + (w['start_ms'] - start) * room / span)
-                    bl['cascade_end_ms'] = words[-1]['start_ms'] + CASCADE_SETTLE_MS
+                    bl['cascade_end_ms'] = words[-1]['start_ms'] + settle
                     bl['cascade_compression'] = round(room / span, 3)
             bl['words'] = words
             bl['has_stress'] = any(w['stress'] for w in words)
@@ -482,7 +494,8 @@ class BeatCompiler:
             b = replace(b, media=None)
         if b.media:
             asset = self.film.media_library[b.media.asset_id]
-            ar = asset.width / asset.height
+            house = housing(asset.kind, asset.width, asset.height, asset.asset_id, MOTION_PROFILES[self.film.brand.finish])
+            ar = chassis_aspect(house['chassis'], asset.width / asset.height)
             bbox = _contain(zone, ar, min(1.0, comp['visual_hints']['evidence_scale']))
             proof_units = [i for i, u in enumerate(b.units) if u.semantic_role in ('proof', 'evidence')]
             hero_land = max((clock.landings_ms[i] for i, u in enumerate(b.units) if u.role == 'hero'), default=LEAD_IN_MS)
@@ -496,15 +509,16 @@ class BeatCompiler:
                 'role': b.media.role, 'bbox': bbox, 'zone': zone, 'focus': b.media.focus, 'trim': b.media.trim, 'audio': 'MUTE',
                 'enter_ms': int(enter), 'enter_duration_ms': 360, 'carried_from': None, 'persist_to': b.media.persist_to, 'frame': 'EVIDENCE_PANEL',
                 'source_size': {'w': asset.width, 'h': asset.height}, 'rights': asset.rights,
-                # The empty evidence card is set-dressing: it enters inside the lead-in when the
-                # exhibit itself lands late, so a cut never opens on bare paper.
-                'chrome_ms': LEAD_IN_MS // 4 if enter > LEAD_IN_MS + 320 else None,
+                **house,
+                # A housing is the object's own body: it lands with its content, never as an empty
+                # card waiting for the exhibit.
+                'chrome_ms': None,
             }
             self.carried_media = media if b.media.persist_to and b.media.persist_to != b.beat_id else None
             return media
         carried = dict(self.carried_media)
         asset = self.film.media_library[carried['asset_id']]
-        bbox = _contain(zone, asset.width / asset.height, min(1.0, comp['visual_hints']['evidence_scale']))
+        bbox = _contain(zone, chassis_aspect(carried['chassis'], asset.width / asset.height), min(1.0, comp['visual_hints']['evidence_scale']))
         carried.update({'bbox': bbox, 'zone': zone, 'enter_ms': 0, 'enter_duration_ms': 0, 'chrome_ms': None, 'carried_from': carried.get('carried_from') or self.carried_media['asset_id'],
                         'reframe': {'from': self.carried_media['bbox'], 'start_ms': 0, 'end_ms': 420} if self.carried_media['bbox'] != bbox else None})
         if carried['persist_to'] == b.beat_id:
@@ -635,6 +649,9 @@ class BeatCompiler:
                 failures.append('FIGURE_COLLIDES_ILLUSTRATION')
             if not illustration['carried'] and illustration['state_changes'] == 0 and b.dominant_layer in ('ILLUSTRATION', 'HYBRID'):
                 warnings.append('ILLUSTRATION_WITHOUT_STATE_CHANGE')
+            for rel in illustration['relations']:
+                if rel.get('stub'):
+                    warnings.append(f"CONNECTOR_STUB_ADJACENT:{rel['id']}")
 
         # Ownership: nothing visual may sit on text, and every element stays in the safe frame.
         for name, el in (('MEDIA', media), ('FIGURE', figure)):
@@ -652,6 +669,8 @@ class BeatCompiler:
                     if _overlap(db['bbox'], bl['bbox']) > 0:
                         failures.append(f"DATA_COLLIDES_TEXT:{bl['unit_index']}")
         # Transition: media persisting into the next beat carries the cut; otherwise the type carrier or a plain settle-cut.
+        # The camera move on top of it is one grammar for the film, picked from the energy either side of the cut.
+        next_beat = self.film.beats[beat_index + 1] if beat_index + 1 < len(self.film.beats) else None
         if media and media.get('persist_to') and media['persist_to'] != b.beat_id:
             transition = {'mode': 'EVIDENCE_PERSISTENCE', 'owner': 'MEDIA', 'start_ms': clock.duration_ms - clock.exit_ms, 'end_ms': clock.duration_ms}
         elif illustration and illustration.get('persist_to') and illustration['persist_to'] != b.beat_id:
@@ -661,7 +680,12 @@ class BeatCompiler:
             if clock.fixed_window:
                 transition['start_ms'] = max(transition['start_ms'], clock.duration_ms - clock.exit_ms)
         else:
-            transition = {'mode': 'SETTLE_CUT', 'owner': 'NONE', 'start_ms': clock.duration_ms - min(200, clock.exit_ms), 'end_ms': clock.duration_ms}
+            transition = {'mode': 'SETTLE_CUT', 'owner': 'NONE', 'start_ms': clock.duration_ms - transition_window_ms(b, next_beat, clock.exit_ms), 'end_ms': clock.duration_ms}
+        camera = camera_move(b, next_beat, transition['mode'], beat_index, MOTION_PROFILES[self.film.brand.finish]['transition'] == 'scale_through')
+        if camera is not None:
+            transition['camera'] = camera
+            if camera['move'] == 'cut':
+                transition['start_ms'] = transition['end_ms']
 
         # The settled hold is the window in which every authored element has finished arriving and nothing has
         # started leaving; typography, ensemble and object channels are reconciled to that single window.
@@ -722,27 +746,52 @@ class BeatCompiler:
             if e['event'] == 'KEYWORD_HIT':
                 candidates.append({'event': 'KEYWORD_HIT', 'at_ms': e['end_ms'], 'strength': e['strength']})
         if media and media['enter_duration_ms']:
-            candidates.append({'event': 'EVIDENCE_LAND', 'at_ms': media['enter_ms'] + media['enter_duration_ms'], 'strength': 0.86})
+            candidates.append({'event': 'EVIDENCE_LAND', 'at_ms': media['enter_ms'] + media['enter_duration_ms'], 'strength': 0.86, 'glyph': 'MEDIA'})
         if media and media.get('reframe'):
             candidates.append({'event': 'SPATIAL_RECONFIGURE', 'at_ms': 0, 'strength': 0.7})
         if data:
-            candidates.append({'event': 'DATA_LAND', 'at_ms': data['enter_ms'] + data['enter_duration_ms'], 'strength': 0.8})
+            candidates.append({'event': 'DATA_LAND', 'at_ms': data['enter_ms'] + data['enter_duration_ms'], 'strength': 0.8, 'glyph': 'COUNTER'})
         if illustration and not illustration['carried']:
+            # Furniture lands audibly: a pop on each element's arrival. Under the collage's 'pop'
+            # entrance the landing wave is the film's signature sound — it wins any window it
+            # shares with a text hit (they are one fused moment, so it plays with pop texture),
+            # and the 220ms-gap law takes every ~3rd landing of an 80ms-staggered wave.
+            # Elsewhere it stays a subordinate furniture click. The accent caps decide the rest.
+            pop_entrance = MOTION_PROFILES[self.film.brand.finish]['entrance'] == 'pop'
+            for e in illustration['entities']:
+                if not e.get('carried') and e.get('enter_duration_ms'):
+                    candidates.append({'event': 'ELEMENT_LAND', 'at_ms': e['enter_ms'] + e['enter_duration_ms'], 'strength': 0.99 if pop_entrance else 0.34, 'glyph': e['glyph']})
+            for r in illustration['relations']:
+                if not r.get('drawn_by_op') and r.get('enter_duration_ms'):
+                    candidates.append({'event': 'ELEMENT_LAND', 'at_ms': r['enter_ms'] + r['enter_duration_ms'], 'strength': 0.3, 'glyph': 'CONNECTOR'})
+            glyph_of = {e['id']: e['glyph'] for e in illustration['entities']}
             for o in illustration['ops']:
                 if o['state_change'] and o['op'] != 'INK':
-                    candidates.append({'event': 'KEYWORD_HIT' if o['op'] == 'STRIKE' else 'EVIDENCE_LAND', 'at_ms': o['end_ms'], 'strength': 0.7})
+                    candidates.append({'event': 'KEYWORD_HIT' if o['op'] == 'STRIKE' else 'EVIDENCE_LAND', 'at_ms': o['end_ms'], 'strength': 0.7, 'glyph': glyph_of.get(o['target'])})
                 if o['op'] == 'INK':
                     candidates.append({'event': 'INK_WRITE', 'at_ms': o['start_ms'], 'strength': 0.72})
                 if o['op'] in ('DRAW', 'CONNECT', 'TRACE'):
-                    candidates.append({'event': 'LINE_DRAW', 'at_ms': o['end_ms'], 'strength': 0.5})
+                    if (o.get('params') or {}).get('wipe'):
+                        # A wiped stroke sweeps the stage — a whoosh at mid-sweep, not the line-draw
+                        # scratch. It is the beat's authored event, so it outranks carriers.
+                        candidates.append({'event': 'WIPE_SWEEP', 'at_ms': o['start_ms'] + (o['end_ms'] - o['start_ms']) // 3, 'strength': 0.62})
+                    else:
+                        candidates.append({'event': 'LINE_DRAW', 'at_ms': o['end_ms'], 'strength': 0.5})
                 if o['op'] == 'EMIT':
-                    candidates.append({'event': 'EMIT_CONFIRM', 'at_ms': o['end_ms'], 'strength': 0.75})
+                    candidates.append({'event': 'EMIT_CONFIRM', 'at_ms': o['end_ms'], 'strength': 0.75, 'glyph': glyph_of.get(o['target'])})
                 if o['op'] == 'COUNT':
-                    candidates.append({'event': 'COUNT_TICK', 'at_ms': o['end_ms'], 'strength': 0.5})
+                    candidates.append({'event': 'COUNT_TICK', 'at_ms': o['end_ms'], 'strength': 0.5, 'glyph': glyph_of.get(o['target'])})
+                    candidates.append({'event': 'COUNT_RISE', 'at_ms': o['start_ms'], 'strength': 0.38})
                 if o['op'] == 'TRAVEL':
                     candidates.append({'event': 'LOUPE_TRAVEL', 'at_ms': o['end_ms'], 'strength': 0.55})
         if transition['mode'] in ('TEXT_MASK_WIPE', 'LABEL_EXPAND_WIPE'):
             candidates.append({'event': 'TRANSITION_CARRIER', 'at_ms': transition['start_ms'], 'strength': 0.6})
+        # Camera moves are cuts with motion: a push, pull or drift takes a full whoosh; a dissolve
+        # stays a subordinate fabric sound; a hard cut is silent.
+        if transition.get('camera') and transition['end_ms'] > transition['start_ms']:
+            sweep = {'push_through': 0.78, 'pull_back': 0.7, 'drift': 0.74, 'dissolve': 0.32}.get(transition['camera']['move'])
+            if sweep:
+                candidates.append({'event': 'TRANSITION_SWEEP', 'at_ms': transition['start_ms'], 'strength': sweep})
         sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates)
         if self.lib is None and candidates and b.dominant_layer != 'QUIET':
             warnings.append('SOUND_LIBRARY_MISSING')
@@ -779,6 +828,75 @@ class BeatCompiler:
             'media': media, 'figure': figure, 'data': data, 'illustration': illustration, 'transition': transition, 'sound': sound,
             'gate': {'status': 'FAIL' if failures else 'PASS', 'failures': failures, 'warnings': sorted(set(warnings))},
         }
+
+
+def _film_pack(film: FilmTreatment, registry: IllustrationRegistry) -> Optional[str]:
+    """The colour pack the film's authored native marks come from (most used wins), if any."""
+    tally: Dict[str, int] = {}
+    for b in film.beats:
+        for e in (b.illustration.entities if b.illustration else []):
+            item = registry.items.get(e.asset_ref or '')
+            if item and item.get('colour') == 'native' and item.get('family') != 'brand':
+                pack = AssetFinder.pack_of(e.asset_ref)
+                tally[pack] = tally.get(pack, 0) + 1
+    return max(sorted(tally), key=lambda k: tally[k]) if tally else None
+
+
+def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> None:
+    """Turn every entity `concept` into an asset_ref and/or a typeset word before any aspect is
+    solved, so all aspects draw the same answer. The ladder is pinned to the film's colour pack:
+    authored marks set it, otherwise the first pass's most common pack does."""
+    todo = [(b, e) for b in film.beats if b.illustration for e in b.illustration.entities if e.concept and not e.asset_ref]
+    if not todo:
+        return
+    finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
+    pack = _film_pack(film, registry)
+    if pack is None:
+        tally: Dict[str, int] = {}
+        for _b, e in todo:
+            r = finder.resolve(e.concept, None, e.glyph in WORD_GLYPHS)
+            item = registry.items.get(r.asset_ref or '')
+            if item and item.get('colour') == 'native' and item.get('family') != 'brand':
+                p = AssetFinder.pack_of(r.asset_ref)
+                tally[p] = tally.get(p, 0) + 1
+        pack = max(sorted(tally), key=lambda k: tally[k]) if tally else None
+    # With a colour pack in play a flat mono icon among colour art is the mix the film forbids,
+    # so the ladder only offers native marks and otherwise typesets.
+    native_only = pack is not None
+    for b, e in todo:
+        named = e.glyph == 'CHIP' and e.label is not None
+        r = finder.resolve(e.concept, pack, e.glyph in WORD_GLYPHS, native_only, named)
+        if r.via == 'composite' and e.glyph == 'BADGE':
+            # A disc is too small for a mark and a word: it takes its own name (or monogram)
+            # rather than an ancestor's mark the viewer cannot read back to the concept.
+            r = replace(r, via='typographic', asset_ref=None, path=[])
+        if r.via == 'unresolved':
+            # Only a bare ICON can end here (every housing typesets). Nothing stands in for it.
+            raise TreatmentError('CONCEPT_UNRESOLVED', f'{e.id}: no mark in the registry draws {e.concept!r} and {e.glyph} cannot typeset it', b.beat_id)
+        e.asset_ref = r.asset_ref
+        if r.word:
+            e.params['word'] = r.word
+            e.params['word_kind'] = 'numeric' if r.via == 'numeric' else 'name'
+        e.params['resolution'] = r.as_dict()
+
+
+def _asset_pack_mix(film: FilmTreatment, registry: IllustrationRegistry) -> List[str]:
+    """One colour pack per film. Native-colour art from different packs (3D emoji next to flat
+    icons) reads as assembled, not designed; brand marks are exempt since each is its own mark."""
+    by_pack: Dict[str, List[str]] = {}
+    for b in film.beats:
+        if not b.illustration:
+            continue
+        for e in b.illustration.entities:
+            item = registry.items.get(e.asset_ref or '')
+            if not item or item.get('colour') != 'native' or item.get('family') == 'brand':
+                continue
+            by_pack.setdefault('.'.join(e.asset_ref.split('.')[:2]), []).append(f'{b.beat_id}:{e.asset_ref}')
+    if len(by_pack) <= 1:
+        return []
+    packs = sorted(by_pack, key=lambda k: (-len(by_pack[k]), k))
+    strays = [ref for k in packs[1:] for ref in by_pack[k]]
+    return [f'ASSET_PACK_MIX:{packs[0]}!={ref}' for ref in strays]
 
 
 def _captions(beats: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -881,7 +999,7 @@ def _master_clocks(film: FilmTreatment, base_dir: Path) -> Tuple[MasterTimeline,
     last = next((i for i in range(len(film.beats) - 1, -1, -1) if by_id[film.beats[i].beat_id].speech_start_ms >= 0), None)
     if last is not None and clocks[last].budget_met < 1.0:
         c = clocks[last]
-        need = max((max(c.landings_ms) + LAND_SETTLE_MS) if c.landings_ms else 0, (c.words[-1].start_ms + CASCADE_SETTLE_MS) if c.words else 0) + MIN_HOLD_MS + EXIT_MS
+        need = max((max(c.landings_ms) + LAND_SETTLE_MS) if c.landings_ms else 0, (c.words[-1].start_ms + _cascade_settle_ms(film.brand.finish)) if c.words else 0) + MIN_HOLD_MS + EXIT_MS
         extend_tail(tl, need - c.duration_ms)
         w = by_id[film.beats[last].beat_id]
         clocks[last] = _extend_for_program(window_clock(c.beat_id, [u.text for u in film.beats[last].units], [u.anchor_word for u in film.beats[last].units], w.local_words(), w.duration_ms, 'MASTER', w.pause_after_ms), film.beats[last])
@@ -931,11 +1049,32 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     root = library_root()
     lib = SoundLibrary(root) if root else None
     plans: Dict[str, Any] = {}
-    film_failures: List[str] = []
+    registry = IllustrationRegistry()
+    _resolve_concepts(film, registry)
+    film_failures: List[str] = _asset_pack_mix(film, registry)
     film_warnings: List[str] = []
+    atmosphere = film_atmosphere(asdict(film.brand))
+    film_failures += brand_failures(atmosphere)
+    # The bed is chosen before any beat is laid out: its tempo sets the landing-wave stagger, and once
+    # the beats exist its playback phase is fitted to their landings. Every aspect shares the one bed.
+    spoken = [b for b in film.beats if b.dominant_layer != 'QUIET'] or film.beats
+    music = bind_film_music(film.film_id, film.mood, total_ms, sum(b.energy for b in spoken) / len(spoken))
+    profile = MOTION_PROFILES[film.brand.finish]
+    stagger_ms, subdivision = groove_stagger(profile['stagger_ms'], music.get('bpm'))
     for aspect in film.aspects:
-        bc = BeatCompiler(film, aspect, lib, normalised)
+        bc = BeatCompiler(film, aspect, lib, normalised, stagger_ms=stagger_ms)
         beats = [bc.compile(b, c, o, i) for i, (b, c, o) in enumerate(zip(film.beats, clocks, offsets))]
+        W, H = native.ASPECTS[aspect]['size']
+        # The field is dressed once the content is placed: the bloom follows each beat's hero from the
+        # previous beat's light, the far-plane shapes take whatever room the content leaves.
+        prev_bloom = None
+        for bt in beats:
+            atmo_layers = beat_atmosphere(film.film_id, bt, (W, H), bc.safe, prev_bloom, atmosphere)
+            prev_bloom = next(L['at'] for L in atmo_layers if L['kind'] == 'bloom')
+            bt['composition']['background']['layers'] += atmo_layers
+        phase = fit_phase(music, beats)
+        aspect_music = {**music, 'start_offset_ms': phase['start_offset_ms'],
+                        'groove': {**phase, 'stagger_ms': stagger_ms, 'stagger_subdivision': subdivision, 'authored_stagger_ms': profile['stagger_ms']}}
         if bc.carried_media:
             film_failures.append(f'{aspect}:MEDIA_PERSISTENCE_UNTERMINATED')
         if bc.carried_illustration:
@@ -946,12 +1085,11 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         fails = [f"{bt['beat_id']}:{f}" for bt in beats for f in bt['gate']['failures']]
         film_failures += [f'{aspect}:{f}' for f in fails]
         film_warnings += [f"{aspect}:{bt['beat_id']}:{w}" for bt in beats for w in bt['gate']['warnings']]
-        W, H = native.ASPECTS[aspect]['size']
         ow, oh = OUTPUT[aspect]
         plans[aspect] = {
             'schema': PLAN_SCHEMA, 'compiler': COMPILER_VERSION, 'film_id': film.film_id, 'aspect': aspect, 'fps': film.fps,
             'canvas': {'w': W, 'h': H}, 'output': {'w': ow, 'h': oh, 'scale': round(ow / W, 4)},
-            'brand': asdict(film.brand), 'motion': dict(MOTION_PROFILES[film.brand.finish]), 'typography': asdict(film.typography), 'fonts': _fonts(), 'duration_ms': total_ms,
+            'brand': asdict(film.brand), 'motion': {**profile, 'stagger_ms': stagger_ms}, 'typography': asdict(film.typography), 'fonts': _fonts(), 'duration_ms': total_ms,
             'illustration_registry': {'path': str(bc.solver.registry.path), 'version': bc.solver.registry.version},
             'voice': {'source': voice_source, 'segments': [
                 {'beat_id': s.beat_id, 'source': s.source, 'audio_path': s.audio_path, 'sha256': s.audio_sha256, 'start_ms': o, 'duration_ms': s.duration_ms, 'evidence': s.evidence}
@@ -959,7 +1097,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'timeline': None if timeline is None else {'source': 'MASTER', 'audio_ms': timeline.audio_ms, 'head_pad_ms': timeline.head_pad_ms, 'tail_silence_ms': timeline.tail_silence_ms,
                                                        'tempo': timeline.tempo, 'beats': [{'beat_id': w.beat_id, 'start_ms': w.start_ms, 'end_ms': w.end_ms, 'speech_start_ms': w.speech_start_ms,
                                                                                           'speech_end_ms': w.speech_end_ms, 'budget_met': c.budget_met} for w, c in zip(timeline.windows, clocks)]},
-            'music': bind_film_music(film.film_id),
+            'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
             'beats': beats, 'captions': _captions(beats),
             'captions_policy': 'kinetic' if film.brand.finish == 'PRODUCT_COLLAGE' else 'burned',

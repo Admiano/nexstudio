@@ -74,7 +74,7 @@
       "kind": "object",
       "glyph": "ICON",
       "size": "hero",
-      "label": "first reply",
+      "label": "reply",
       "asset_ref": "icon.communication.message"
      },
      {
@@ -185,7 +185,7 @@
       "kind": "state",
       "glyph": "NODE",
       "size": "support",
-      "label": "never mattered",
+      "label": "gone",
       "params": {
        "dashed": true
       }

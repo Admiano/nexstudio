@@ -2,6 +2,7 @@
   "schema": "NexStudioEditorialTreatmentV2",
   "film_id": "honey-nut-fact-check",
   "note": "Hand-authored stand-in for a NexMind P8 treatment decision over one continuous ElevenLabs voice-over (MASTER). Beats are located inside the master word stream; the audio is never cut or re-spaced. Every creative choice is P8's; the compiler resolves geometry and time only.",
+  "mood": "calm",
   "aspects": [
     "9x16",
     "1x1",
@@ -147,7 +148,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "1  Whole grain oats"
+            "label": "1  oats"
           },
           {
             "id": "i2",
@@ -168,7 +169,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "4  Brown sugar syrup"
+            "label": "4  syrup"
           },
           {
             "id": "lens",
@@ -263,7 +264,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "1  Whole grain oats"
+            "label": "1  oats"
           },
           {
             "id": "i2",
@@ -284,7 +285,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "4  Brown sugar syrup"
+            "label": "4  syrup"
           },
           {
             "id": "lens",
@@ -628,7 +629,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "hero",
-            "label": "natural almond flavour"
+            "label": "flavouring"
           }
         ],
         "relations": [
@@ -716,7 +717,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "hero",
-            "label": "almond ingredients"
+            "label": "fine print"
           },
           {
             "id": "not",
@@ -814,7 +815,7 @@
             "kind": "state",
             "glyph": "PILL",
             "size": "support",
-            "label": "real honey"
+            "label": "claim"
           }
         ],
         "relations": [

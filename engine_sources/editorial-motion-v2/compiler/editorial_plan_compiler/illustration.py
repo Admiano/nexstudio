@@ -12,12 +12,13 @@ import hashlib
 import json
 import math
 import re
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .chassis import chassis_aspect, housing, resolve_chassis
 from .contracts import (
-    IllustrationDirective, IllustrationEntity, IllustrationOp, STATE_CHANGE_OPS, TreatmentError,
+    IllustrationDirective, IllustrationEntity, STATE_CHANGE_OPS, TreatmentError,
 )
 from .authorities.native_three_aspect_composition_authority_v2 import ASPECTS as _NATIVE_ASPECTS
 from .timing import BeatClock, EXIT_MS, LEAD_IN_MS, find_landing
@@ -28,6 +29,9 @@ REGISTRY_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'illustration' 
 # resolved relative to its own registry root, so pack layout never reaches into this module.
 EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'icons-registry.json',
                     Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'colour-registry.json']
+# tools/preflight_assets.js renders every registry SVG inline and quarantines the hostile ones
+# (geometry outside the viewBox, nothing painted, external references); the compiler refuses them.
+PREFLIGHT_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'preflight.json'
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
 GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
@@ -48,6 +52,8 @@ GAP_FRAC = 0.055
 # Cells joined by a drawn connector leave room for the connector itself to read as a stroke, not a tick.
 CONNECTOR_GAP_FRAC = 0.16
 COLLAGE_FORMS = ('OBJECT_STAGE', 'RELATIONSHIP', 'SIGNAL')
+# A link between rims closer than this is a stub, not a connector; the bodies read as adjacent.
+MIN_LINK_PX = 28.0
 
 
 def _box(x: float, y: float, w: float, h: float) -> Dict[str, float]:
@@ -179,11 +185,17 @@ class IllustrationRegistry:
     Loads the authored AEV1 catalogue plus any licence-clean community catalogues listed in
     EXTRA_REGISTRIES; ids are namespaced by their file path so packs can coexist without collisions."""
 
-    def __init__(self, path: Path = REGISTRY_PATH, extra_paths: Optional[List[Path]] = None):
+    def __init__(self, path: Path = REGISTRY_PATH, extra_paths: Optional[List[Path]] = None, preflight_path: Path = PREFLIGHT_PATH):
         self.path = path
         self.root = path.parent
         self.items: Dict[str, Dict[str, Any]] = {}
         self._roots: Dict[str, Path] = {}
+        self.quarantined: Dict[str, str] = {}
+        self.preflight_version: Optional[str] = None
+        if preflight_path.exists():
+            pf = json.loads(preflight_path.read_text())
+            self.quarantined = {k: str(v) for k, v in (pf.get('quarantined') or {}).items()}
+            self.preflight_version = str(pf.get('version') or preflight_path.name)
         versions: List[str] = []
         for p in [path] + list(extra_paths if extra_paths is not None else EXTRA_REGISTRIES):
             if not p.exists():
@@ -199,6 +211,8 @@ class IllustrationRegistry:
         item = self.items.get(ref)
         if not item:
             raise TreatmentError('ASSET_REF_UNKNOWN', f'{ref} is not in the illustration registry', beat_id)
+        if ref in self.quarantined:
+            raise TreatmentError('ASSET_QUARANTINED', f'{ref}: {self.quarantined[ref]}', beat_id)
         p = self._roots[ref] / item['path']
         if not p.exists():
             raise TreatmentError('ASSET_FILE_MISSING', str(p), beat_id)
@@ -214,11 +228,12 @@ class IllustrationRegistry:
 
 class IllustrationSolver:
     def __init__(self, aspect: str, canvas: Tuple[int, int], registry: IllustrationRegistry, media_library: Dict[str, Any], media_files: Dict[str, Any], accent: Optional[str],
-                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS):
+                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS, motion: Optional[Dict[str, Any]] = None):
         self.aspect = aspect
         self.canvas = canvas
         self.collage = collage
         self.stagger_ms = stagger_ms
+        self.motion = dict(motion or {})
         self.registry = registry
         self.media_library = media_library
         self.media_files = media_files
@@ -289,7 +304,7 @@ class IllustrationSolver:
     def _entity_ar(self, e: IllustrationEntity, beat_id: str = '') -> float:
         if e.glyph == 'MEDIA':
             a = self.media_library[e.media_ref]
-            return a.width / a.height
+            return chassis_aspect(resolve_chassis(a.kind, a.width, a.height, e.params.get('chassis') or None), a.width / a.height)
         if e.glyph == 'ICON':
             art = self.registry.art_box(e.asset_ref, beat_id)
             return art['w'] / art['h'] if art['h'] else 1.0
@@ -319,7 +334,7 @@ class IllustrationSolver:
         if e.glyph in LABEL_CARRIERS and e.label:
             # A label carrier widens (up to 5:1) until its label sits at the floor size on one line.
             floor = FLOOR_FRACTION['label'] * min(self.canvas)
-            need = measure(e.label, _face('label', 'SemiBold'), floor, TRACKING['label']) / 0.76 * 1.06
+            need = self._label_need(e, floor) * SIZE_SCALE[e.size]
             w = min(max(bbox['w'], need), bbox['h'] * 5.0, body['w'])
             bbox = _box(body['x'] + (body['w'] - w) / 2, bbox['y'], w, bbox['h'])
         label = None
@@ -329,6 +344,9 @@ class IllustrationSolver:
 
     def layout(self, il: IllustrationDirective, zone: Dict[str, float], beat_id: str = '') -> Tuple[List[Dict[str, Any]], List[str]]:
         failures: List[str] = []
+        # The solver may adapt an entity's params to this aspect's field; the treatment's own
+        # entities are shared across aspects and must come out untouched.
+        il = replace(il, entities=[replace(e, params=dict(e.params)) for e in il.entities])
         contained = {r.target: r.source for r in il.relations if r.type == 'contains'}
         # A lens is not given a cell of its own: it sits over whatever it scans.
         scans = {r.source: r.target for r in il.relations if r.type == 'scans'}
@@ -418,6 +436,16 @@ class IllustrationSolver:
                     hx, hy = _centre(host)
                     d = max(host['w'], host['h']) * 1.2
                     neighbours = [p['art_bbox'] for k, p in placed.items() if k != e.id and k != host_id]
+                    # The host's own caption is a neighbour too: a ring may not cut through it. The
+                    # caption steps down to clear the ring when the zone allows; otherwise the ring shrinks.
+                    host_label = placed[host_id].get('label')
+                    lb = host_label['bbox'] if host_label and host_label.get('placement') == 'below' else None
+                    if lb is not None:
+                        gap = min(self.canvas) * 0.012
+                        ring_bottom = min(hy + d / 2, zone['y'] + zone['h'])
+                        if lb['y'] < ring_bottom + gap and ring_bottom + gap + lb['h'] <= zone['y'] + zone['h']:
+                            lb['y'] = ring_bottom + gap
+                        neighbours.append(lb)
                     while True:
                         x = min(max(hx - d / 2, zone['x']), zone['x'] + zone['w'] - d)
                         y = min(max(hy - d / 2, zone['y']), zone['y'] + zone['h'] - d)
@@ -549,7 +577,22 @@ class IllustrationSolver:
         # Flank the hero when that leaves it a bigger body than stacking the satellites beneath it.
         flank_w = _fit_aspect(_box(0, 0, zone['w'] - (side_w + gap) * n_cols, zone['h']), hero_ar)
         below_w = _fit_aspect(_box(0, 0, zone['w'], zone['h'] * 0.56), hero_ar)
-        wide = flank_w['w'] * flank_w['h'] >= below_w['w'] * below_w['h']
+        # A tall hero (a handset) fits by height and leaves the middle half empty; the flanks take
+        # that surplus so satellites are not starved beside a narrow hero. If even then a flank
+        # cannot hold its widest label at the floor size, the satellites go beneath instead.
+        surplus = zone['w'] - flank_w['w'] - gap * n_cols
+        side_w = min(max(side_w, surplus / n_cols), zone['w'] * 0.38)
+        flank_better = flank_w['w'] * flank_w['h'] >= below_w['w'] * below_w['h']
+        if flank_better and side_w < need_w:
+            # Tag pills are decoration; a chip sheds them before the hero gives up its column.
+            tagged = [e for e in sats if e.label and e.glyph == 'CHIP' and e.params.get('tags')]
+            bare = max([self._label_need(e, floor) / (0.52 / 0.30 if e in tagged else 1.0)
+                        for e in sats if e.label and e.glyph in LABEL_CARRIERS] or [0.0])
+            if tagged and side_w >= bare:
+                for e in tagged:
+                    e.params = {k: v for k, v in e.params.items() if k != 'tags'}
+                need_w = bare
+        wide = flank_better and side_w >= need_w
         if wide:
             left = [s for i, s in enumerate(sats) if i % 2 == 1]
             right = [s for i, s in enumerate(sats) if i % 2 == 0]
@@ -606,8 +649,8 @@ class IllustrationSolver:
             plan['media'] = {'asset_id': a.asset_id, 'kind': a.kind, 'path': nm.render_path if nm else a.path, 'sha256': nm.render_sha256 if nm else None,
                              'source_size': {'w': a.width, 'h': a.height}, 'rights': a.rights, 'audio': 'MUTE',
                              'trim': ({'start': float(e.params['trim'][0]), 'end': float(e.params['trim'][1])} if e.params.get('trim') else None),
-                             'chassis': e.params.get('chassis') or None,
-                             'tilt': float(e.params['tilt']) if e.params.get('tilt') is not None else None}
+                             **housing(a.kind, a.width, a.height, a.asset_id, self.motion, e.size,
+                                       e.params.get('chassis') or None, e.params.get('tilt'))}
         if e.label:
             if e.glyph in LABEL_CARRIERS:
                 # Inner label boxes track the chrome each carrier draws: a callout's tail hangs below its
@@ -630,14 +673,17 @@ class IllustrationSolver:
 
     # ------------------------------------------------------------------ relations
     @staticmethod
-    def connectors(il: IllustrationDirective, ents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def connectors(il: IllustrationDirective, ents: List[Dict[str, Any]], collage: bool = False) -> List[Dict[str, Any]]:
         by_id = {e['id']: e for e in ents}
         out = []
         for r in il.relations:
             a, b = by_id[r.source]['art_bbox'], by_id[r.target]['art_bbox']
+            # The collage register has one connector dress: every lined relation is a hairline link.
+            overlay = (r.type == 'blocks' and by_id[r.source]['glyph'] == 'PROHIBIT') or r.type == 'marks'
+            style = r.style or ('link' if collage and not overlay and (r.type in LINED or r.type == 'compares') else None)
             rel = {'type': r.type, 'source': r.source, 'target': r.target, 'id': f'{r.source}->{r.target}', 'path': None,
-                   'arrow': r.type in ARROWED, 'bar': r.type == 'blocks', 'style': r.style}
-            if r.style:
+                   'arrow': r.type in ARROWED, 'bar': r.type == 'blocks', 'style': style}
+            if style:
                 # Product-diagram dress: a hairline between box edges with dot endpoints.
                 # 'arc' bows the link; 'dash'/'arc' run it dashed.
                 ax, ay = _centre(a)
@@ -650,7 +696,12 @@ class IllustrationSolver:
                 t1 = min((b['w'] / 2) / abs(ux) if abs(ux) > 1e-6 else 1e9, (b['h'] / 2) / abs(uy) if abs(uy) > 1e-6 else 1e9)
                 p0 = (ax + ux * (t0 + 4), ay + uy * (t0 + 4))
                 p1 = (bx - ux * (t1 + 4), by - uy * (t1 + 4))
-                if r.style == 'arc':
+                if math.dist(p0, p1) < MIN_LINK_PX:
+                    # Rims this close already read as adjacent; a stub between them is a stray mark.
+                    rel['stub'] = True
+                    out.append(rel)
+                    continue
+                if style == 'arc':
                     mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
                     bow = math.dist(p0, p1) * 0.22
                     cx, cy = mx - uy * bow, my + ux * bow
@@ -661,7 +712,7 @@ class IllustrationSolver:
                     rel['path'] = [[round(p0[0], 1), round(p0[1], 1)], [round(p1[0], 1), round(p1[1], 1)]]
                 rel['length'] = round(sum(math.dist(rel['path'][i], rel['path'][i + 1]) for i in range(len(rel['path']) - 1)), 1)
                 rel['dots'], rel['arrow'], rel['thin'] = True, False, True
-                if r.style in ('dash', 'arc'):
+                if style in ('dash', 'arc'):
                     rel['dashed'] = True
                 out.append(rel)
                 continue
@@ -760,6 +811,11 @@ class IllustrationSolver:
             first_op = min((o['start_ms'] for o in ops if o['target'] == e['id'] or o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id'])), default=None)
             if first_op is not None:
                 t = min(t, first_op - 160)
+            # A body a connector lands on has finished arriving before the stroke completes.
+            joined = [o['end_ms'] for o in ops if o['op'] == 'CONNECT'
+                      and (o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id']))]
+            if joined:
+                t = min(t, min(joined) - ENTER_MS)
             enter[e['id']] = max(LEAD_IN_MS // 5, int(t))
         for o in ops:
             if o['end_ms'] - o['start_ms'] < 120:
@@ -777,7 +833,8 @@ class IllustrationSolver:
         ent_ids = {e['id'] for e in ents}
         for r in rels:
             draw = next((o for o in ops if o['target'] == r['id'] and o['op'] in ('CONNECT', 'DRAW')), None)
-            if draw and not any(o['op'] == 'TRACE' and o['target'] == r['id'] for o in ops):
+            # A wiped connector erases itself — a tracer pass over a vanished line reads broken.
+            if draw and not (draw.get('params') or {}).get('wipe') and not any(o['op'] == 'TRACE' and o['target'] == r['id'] for o in ops):
                 st = draw['end_ms'] + 140
                 dur = min(560, max(240, int(r.get('length', 300) * 0.9)))
                 if st + dur <= latest_end:
@@ -808,7 +865,20 @@ class IllustrationSolver:
                                   'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}, 'synthesized': True})
         if il is not None:
             extra += IllustrationSolver._choreograph(il, ops + extra, ents, rels, settled, latest_end)
-        return extra
+        # Nothing synthesized may act on a body before its authored DRAW has finished — a halo or
+        # ink pulse around an undrawn chassis is a glow around nothing.
+        draw_end = {o['target']: o['end_ms'] for o in ops if o['op'] == 'DRAW' and o['target'] in ent_ids}
+        kept: List[Dict[str, Any]] = []
+        for o in extra:
+            floor = draw_end.get(o['target'])
+            if floor is None or o['op'] == 'DRAW' or o['start_ms'] >= floor:
+                kept.append(o)
+                continue
+            dur = o['end_ms'] - o['start_ms']
+            st = floor + 80
+            if st + dur <= latest_end:
+                kept.append({**o, 'start_ms': st, 'end_ms': st + dur, 'anchor': {'offset_ms': st}})
+        return kept
 
     # ------------------------------------------------------------------ hold choreography
     @staticmethod
@@ -880,7 +950,7 @@ class IllustrationSolver:
     def compile(self, il: IllustrationDirective, zone: Dict[str, float], clock: BeatClock, beat_id: str,
                 carry_source: Optional[Dict[str, Any]]) -> Tuple[Dict[str, Any], List[str]]:
         ents, failures = self.layout(il, zone, beat_id)
-        rels = self.connectors(il, ents)
+        rels = self.connectors(il, ents, self.collage)
         carried_ids = set(il.carry_entities) if carry_source else set()
         carry_in: Dict[str, Dict[str, float]] = {}
         if carry_source:
@@ -892,6 +962,9 @@ class IllustrationSolver:
                 carry_in[cid] = prev[cid]['bbox']
         ops, enter, sf = self.schedule(il, clock, ents, carried_ids, beat_id, self.stagger_ms)
         failures += sf
+        # A stub link has no stroke on stage, so nothing may be programmed onto it.
+        stubs = {r['id'] for r in rels if r.get('stub')}
+        ops = [o for o in ops if o['target'] not in stubs]
         inherited = terminal_state(carry_source) if carry_source else {}
         for e in ents:
             e['enter_ms'] = enter[e['id']]
@@ -907,6 +980,11 @@ class IllustrationSolver:
             if connect:
                 r['enter_ms'], r['enter_duration_ms'] = connect['start_ms'], connect['end_ms'] - connect['start_ms']
                 r['drawn_by_op'] = True
+            # A connector joins two present bodies; one drawn toward a body still off stage is a stray line.
+            ends_in = max(enter[r['source']] + (0 if r['source'] in carried_ids else ENTER_MS),
+                          enter[r['target']] + (0 if r['target'] in carried_ids else ENTER_MS))
+            if r['enter_ms'] + r['enter_duration_ms'] < ends_in and not r.get('stub'):
+                failures.append(f"CONNECTOR_BEFORE_ENDPOINT:{r['id']}")
         # The authored program settles the scene; decorations then ride the hold it opened, so
         # they join the op list after `settled` is measured rather than delaying it.
         settled = max([e['enter_ms'] + e['enter_duration_ms'] for e in ents] + [r['enter_ms'] + r['enter_duration_ms'] for r in rels] + [o['end_ms'] for o in ops] + [CARRY_REFRAME_MS if carry_in else 0])
@@ -941,7 +1019,8 @@ def terminal_state(plan: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         if o['op'] == 'TRAVEL':
             s['at'] = o['params']['over'][-1]
         elif o['op'] in OP_PROPERTY:
-            s[OP_PROPERTY[o['op']]] = o['to']
+            # A wiped stroke self-erases: its honest end state is undrawn.
+            s[OP_PROPERTY[o['op']]] = 0.0 if (o.get('params') or {}).get('wipe') else o['to']
     return state
 
 

@@ -8,13 +8,16 @@
  * Frame-addressable capture: the page is seeked to every frame time and the
  * stage is screenshotted, so the result is deterministic and identical to the
  * player's seek() state. Audio is assembled only from the plan's bindings
- * (voice segments, admitted sound accents, silent music slot).
+ * (voice segments, admitted sound accents with their layers, the music bed) and
+ * mixed on three buses — voice, sfx, music — into a limited, loudness-measured
+ * master, with each bus also written out as a stem.
  */
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 const { chromium } = require('playwright-core');
+const { AuthorshipLedger } = require('./authorship_gate');
 
 const ROOT = path.resolve(__dirname, '..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.wav': 'audio/wav' };
@@ -53,69 +56,168 @@ function ff(args) {
   if (r.status !== 0) throw new Error(`ffmpeg failed: ${args.join(' ')}`);
 }
 
-function buildAudio(plan, out) {
-  const inputs = [];
-  const filters = [];
+const DEFAULT_MIX = {
+  target_lufs: -16.0, true_peak_dbtp: -1.0,
+  buses: {
+    voice: { highpass_hz: 80, compressor: { threshold_db: -20, ratio: 2.0, attack_ms: 8, release_ms: 120 }, trim_db: 0 },
+    sfx: { compressor: { threshold_db: -18, ratio: 3.0, attack_ms: 3, release_ms: 90 }, trim_db: 0 },
+    music: { highpass_hz: 40, trim_db: 0, duck: { threshold: 0.1, window_db: 12, attack_ms: 30, release_ms: 450, floor_db: -8 } },
+  },
+  limiter: { attack_ms: 5, release_ms: 50 },
+};
+// With a voice on the bus the level is already set by the speaker: a big correction means a broken
+// source, so the makeup is bounded and the gate reports the miss. Without one (music + sfx only,
+// or a silent placeholder voice) the bed and accents are simply raised to the target.
+const MAKEUP_MAX_DB = { voiced: 6, unvoiced: 24 };
+const SILENT_LUFS = -50;
+const TRUE_PEAK_GUARD_DB = 0.5;
+
+function compressor(c) {
+  return `acompressor=threshold=${Math.pow(10, c.threshold_db / 20).toFixed(5)}:ratio=${c.ratio}:attack=${c.attack_ms}:release=${c.release_ms}:makeup=1`;
+}
+
+// EBU R128 measurement of a finished file: integrated loudness and true peak.
+function measureLoudness(file) {
+  const r = spawnSync('ffmpeg', ['-hide_banner', '-nostats', '-i', file, '-af', 'ebur128=peak=true', '-f', 'null', '-'], { encoding: 'utf8' });
+  const I = [...r.stderr.matchAll(/I:\s+(-?[\d.]+) LUFS/g)].pop();
+  const P = [...r.stderr.matchAll(/Peak:\s+(-?[\d.]+|-inf) dBFS/g)].pop();
+  const R = [...r.stderr.matchAll(/LRA:\s+(-?[\d.]+) LU/g)].pop();
+  if (!I || !P) throw new Error(`loudness measurement failed for ${file}`);
+  // a silent stem measures -inf true peak; the manifest keeps a finite floor
+  return { integrated_lufs: Number(I[1]), true_peak_dbtp: P[1] === '-inf' ? -120 : Number(P[1]), range_lu: R ? Number(R[1]) : null };
+}
+
+/*
+ * Bus mixer. Every source is verified (file present, license, sha256) and routed to one of
+ * three buses; each bus gets its own gain staging and dynamics; the master is summed,
+ * brought to the target loudness with a measured makeup gain, then limited to the
+ * true-peak ceiling. Two passes: mix + measure, then the same graph with the makeup applied.
+ */
+function buildAudio(plan, out, stemsDir) {
+  const mix = { ...DEFAULT_MIX, ...(plan.mix || {}) };
+  const buses = { ...DEFAULT_MIX.buses, ...(mix.buses || {}) };
   const durS = (plan.duration_ms / 1000).toFixed(3);
-  let n = 0;
-  inputs.push('-f', 'lavfi', '-t', durS, '-i', 'anullsrc=r=48000:cl=stereo');
-  n = 1;
-  const voice = [];
-  for (const seg of plan.voice.segments) {
-    if (!seg.audio_path || !fs.existsSync(seg.audio_path)) continue;
-    if (seg.start_ms + seg.duration_ms > plan.duration_ms + 1000 / plan.fps) {
-      throw new Error(`voice segment ${seg.beat_id} ends at ${seg.start_ms + seg.duration_ms}ms but the film is ${plan.duration_ms}ms; the audio would be cut`);
-    }
-    inputs.push('-i', seg.audio_path);
-    filters.push(`[${n}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay=${seg.start_ms}|${seg.start_ms}[v${n}]`);
-    voice.push(`[v${n}]`);
-    n += 1;
-  }
-  filters.push(`[0:a]${voice.join('')}amix=inputs=${voice.length + 1}:normalize=0:duration=first[vox]`);
-  const accents = [];
-  for (const beat of plan.beats) {
-    for (const acc of beat.sound.accents) {
-      if (!fs.existsSync(acc.path)) throw new Error(`sound asset missing: ${acc.path}`);
-      // Accents obey the same provenance law as the bed: bound license + sha256 or the render throws.
-      if (!acc.license) throw new Error(`sound accent ${acc.asset_id || acc.path} has no license evidence`);
-      if (acc.sha256 && sha(fs.readFileSync(acc.path)) !== acc.sha256) throw new Error(`sound accent sha256 mismatch: ${acc.path}`);
-      inputs.push('-i', acc.path);
-      const trim = acc.trim_ms ? `atrim=0:${(acc.trim_ms / 1000).toFixed(3)},afade=t=out:st=${Math.max(0, (acc.trim_ms - 120) / 1000).toFixed(3)}:d=0.12,` : '';
-      filters.push(`[${n}:a]aformat=sample_rates=48000:channel_layouts=stereo,${trim}volume=${acc.gain_db}dB,adelay=${acc.film_at_ms}|${acc.film_at_ms}[s${n}]`);
-      accents.push(`[s${n}]`);
+  const dur = plan.duration_ms / 1000;
+  const fmt = 'aformat=sample_rates=48000:channel_layouts=stereo';
+  const wantsMusic = Boolean(plan.music && plan.music.path);
+  let layerCount = 0, accentCount = 0;
+
+  const graph = (makeupDb) => {
+    const inputs = [];
+    const filters = [];
+    inputs.push('-f', 'lavfi', '-t', durS, '-i', 'anullsrc=r=48000:cl=stereo');
+    let n = 1;
+    // ---- voice bus
+    const voice = [];
+    for (const seg of plan.voice.segments) {
+      if (!seg.audio_path || !fs.existsSync(seg.audio_path)) continue;
+      if (seg.start_ms + seg.duration_ms > plan.duration_ms + 1000 / plan.fps) {
+        throw new Error(`voice segment ${seg.beat_id} ends at ${seg.start_ms + seg.duration_ms}ms but the film is ${plan.duration_ms}ms; the audio would be cut`);
+      }
+      inputs.push('-i', seg.audio_path);
+      filters.push(`[${n}:a]${fmt},adelay=${seg.start_ms}|${seg.start_ms}[v${n}]`);
+      voice.push(`[v${n}]`);
       n += 1;
     }
-  }
-  const final = ['[voxm]', ...accents];
-  let musicStatus = plan.music ? plan.music.status : 'NONE';
-  const wantsMusic = Boolean(plan.music && plan.music.path);
-  filters.push(wantsMusic && voice.length ? '[vox]asplit=2[voxm][voxk]' : '[vox]anull[voxm]');
-  if (wantsMusic) {
-    // Music is bound only with rights evidence: the plan must carry the license + sha256 of the file.
-    if (plan.music.status !== 'BOUND_CC0' || !plan.music.license) throw new Error('music slot has a path but no rights evidence');
-    if (!fs.existsSync(plan.music.path)) throw new Error(`music asset missing: ${plan.music.path}`);
-    if (plan.music.sha256 && sha(fs.readFileSync(plan.music.path)) !== plan.music.sha256) throw new Error(`music sha256 mismatch: ${plan.music.path}`);
-    inputs.push('-stream_loop', '-1', '-t', durS, '-i', plan.music.path);
-    const mi = n; n += 1;
-    const gain = plan.music.gain_db == null ? -19 : plan.music.gain_db;
-    const fin = ((plan.music.fade_in_ms || 0) / 1000).toFixed(3);
-    const fout = ((plan.music.fade_out_ms || 0) / 1000).toFixed(3);
-    const dur = plan.duration_ms / 1000;
-    filters.push(`[${mi}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=${gain}dB,afade=t=in:st=0:d=${fin},afade=t=out:st=${(dur - Number(fout)).toFixed(3)}:d=${fout}[mraw]`);
-    if (voice.length) {
-      // Sidechain-duck the bed under the voice mix; strength comes from the plan's duck_db.
-      const ratio = Math.min(20, Math.max(2, Math.abs(plan.music.duck_under_voice_db || -14) / 2.4)).toFixed(1);
-      filters.push(`[mraw][voxk]sidechaincompress=threshold=0.02:ratio=${ratio}:attack=30:release=450:makeup=1[mduck]`);
-      final.push('[mduck]');
-    } else {
-      filters.push('[mraw]anull[mduck]');
-      final.push('[mduck]');
+    const vb = buses.voice;
+    filters.push(`[0:a]${voice.join('')}amix=inputs=${voice.length + 1}:normalize=0:duration=first,highpass=f=${vb.highpass_hz},${compressor(vb.compressor)},volume=${vb.trim_db}dB[voxbus]`);
+    filters.push('[voxbus]asplit=3[voxm][voxk][voxstem]');
+    // ---- sfx bus: every accent layer is its own input
+    const layers = [];
+    accentCount = 0;
+    for (const beat of plan.beats) {
+      for (const acc of beat.sound.accents) {
+        accentCount += 1;
+        const parts = acc.layers && acc.layers.length ? acc.layers : [{ ...acc, role: 'body', offset_ms: 0 }];
+        for (const L of parts) {
+          if (!fs.existsSync(L.path)) throw new Error(`sound asset missing: ${L.path}`);
+          // Layers obey the same provenance law as the bed: bound license + sha256 or the render throws.
+          if (!L.license) throw new Error(`sound layer ${L.asset_id || L.path} has no license evidence`);
+          if (L.sha256 && sha(fs.readFileSync(L.path)) !== L.sha256) throw new Error(`sound layer sha256 mismatch: ${L.path}`);
+          const at = Math.max(0, acc.film_at_ms + (L.offset_ms || 0));
+          inputs.push('-i', L.path);
+          const trim = L.trim_ms ? `atrim=0:${(L.trim_ms / 1000).toFixed(3)},afade=t=out:st=${Math.max(0, (L.trim_ms - 120) / 1000).toFixed(3)}:d=0.12,` : '';
+          filters.push(`[${n}:a]${fmt},${trim}volume=${L.gain_db}dB,adelay=${at}|${at}[s${n}]`);
+          layers.push(`[s${n}]`);
+          n += 1;
+        }
+      }
     }
-    musicStatus = `${plan.music.status}:${path.basename(plan.music.path)}`;
+    layerCount = layers.length;
+    const sb = buses.sfx;
+    inputs.push('-f', 'lavfi', '-t', durS, '-i', 'anullsrc=r=48000:cl=stereo');
+    const sfxBase = n; n += 1;
+    filters.push(`[${sfxBase}:a]${layers.join('')}amix=inputs=${layers.length + 1}:normalize=0:duration=first,${compressor(sb.compressor)},volume=${sb.trim_db}dB[sfxbus]`);
+    filters.push('[sfxbus]asplit=2[sfxm][sfxstem]');
+    // ---- music bus
+    const mb = buses.music;
+    if (wantsMusic) {
+      // Music is bound only with rights evidence: the plan must carry the license + sha256 of the file.
+      if (plan.music.status !== 'BOUND_CC0' || !plan.music.license) throw new Error('music slot has a path but no rights evidence');
+      if (!fs.existsSync(plan.music.path)) throw new Error(`music asset missing: ${plan.music.path}`);
+      if (plan.music.sha256 && sha(fs.readFileSync(plan.music.path)) !== plan.music.sha256) throw new Error(`music sha256 mismatch: ${plan.music.path}`);
+      // The bed starts `start_offset_ms` into the file so its beat grid meets the film's landings (groove fit).
+      const start = (plan.music.start_offset_ms || 0) / 1000;
+      inputs.push('-stream_loop', '-1', '-t', (dur + start + 1).toFixed(3), '-i', plan.music.path);
+      const mi = n; n += 1;
+      const gain = plan.music.gain_db == null ? -19 : plan.music.gain_db;
+      const fin = ((plan.music.fade_in_ms || 0) / 1000).toFixed(3);
+      const fout = ((plan.music.fade_out_ms || 0) / 1000).toFixed(3);
+      filters.push(`[${mi}:a]${fmt},atrim=start=${start.toFixed(3)},asetpts=PTS-STARTPTS,highpass=f=${mb.highpass_hz},volume=${gain + (mb.trim_db || 0)}dB,` +
+        `afade=t=in:st=0:d=${fin},afade=t=out:st=${(dur - Number(fout)).toFixed(3)}:d=${fout}[mraw]`);
+      if (voice.length) {
+        // Sidechain-duck the bed under the voice bus. The compressor ratio is chosen so that a voice
+        // sitting `window_db` above the threshold pulls the bed down by exactly the plan's duck floor.
+        const depth = Math.abs(plan.music.duck_under_voice_db || mb.duck.floor_db);
+        const win = mb.duck.window_db || 12;
+        const ratio = Math.min(20, Math.max(1.2, 1 / Math.max(0.05, 1 - depth / win))).toFixed(2);
+        filters.push(`[mraw][voxk]sidechaincompress=threshold=${mb.duck.threshold}:ratio=${ratio}:attack=${mb.duck.attack_ms}:release=${mb.duck.release_ms}:makeup=1[musbus]`);
+      } else {
+        filters.push('[voxk]anullsink;[mraw]anull[musbus]');
+      }
+    } else {
+      inputs.push('-f', 'lavfi', '-t', durS, '-i', 'anullsrc=r=48000:cl=stereo');
+      filters.push(`[voxk]anullsink;[${n}:a]anull[musbus]`);
+      n += 1;
+    }
+    filters.push('[musbus]asplit=2[musm][musstem]');
+    // ---- master: sum, makeup to target, ceiling
+    // alimiter is a sample-peak limiter: run it 4x oversampled so inter-sample (true) peaks are the ones being
+    // caught, with a small guard for the residual overshoot the final decimation can reintroduce.
+    const limit = Math.pow(10, (mix.true_peak_dbtp - TRUE_PEAK_GUARD_DB) / 20).toFixed(4);
+    filters.push(`[voxm][sfxm][musm]amix=inputs=3:normalize=0:duration=first,volume=${makeupDb.toFixed(2)}dB,` +
+      `aresample=192000,alimiter=limit=${limit}:attack=${mix.limiter.attack_ms}:release=${mix.limiter.release_ms}:level=false,aresample=48000[mix]`);
+    const outs = ['-map', '[mix]', '-t', durS, '-c:a', 'pcm_s16le', out];
+    if (stemsDir) {
+      fs.mkdirSync(stemsDir, { recursive: true });
+      for (const [lbl, name] of [['voxstem', 'voice'], ['sfxstem', 'sfx'], ['musstem', 'music']]) {
+        outs.push('-map', `[${lbl}]`, '-t', durS, '-c:a', 'pcm_s16le', path.join(stemsDir, `${name}.wav`));
+      }
+    } else {
+      filters.push('[voxstem]anullsink;[sfxstem]anullsink;[musstem]anullsink');
+    }
+    ff([...inputs, '-filter_complex', filters.join(';'), ...outs]);
+  };
+
+  graph(0);
+  const first = measureLoudness(out);
+  const voiceLufs = stemsDir ? measureLoudness(path.join(stemsDir, 'voice.wav')).integrated_lufs : null;
+  const voiced = voiceLufs != null && voiceLufs > SILENT_LUFS;
+  let makeup = 0;
+  if (Number.isFinite(first.integrated_lufs)) {
+    const cap = voiced ? MAKEUP_MAX_DB.voiced : MAKEUP_MAX_DB.unvoiced;
+    makeup = Math.max(-cap, Math.min(cap, mix.target_lufs - first.integrated_lufs));
+    if (Math.abs(makeup) >= 0.3) graph(makeup); else makeup = 0;
   }
-  filters.push(`${final.join('')}amix=inputs=${final.length}:normalize=0:duration=first[mix]`);
-  ff([...inputs, '-filter_complex', filters.join(';'), '-map', '[mix]', '-t', durS, '-c:a', 'pcm_s16le', out]);
-  return { voice_segments: plan.voice.segments.length, accents: accents.length, music: musicStatus };
+  const loud = makeup ? measureLoudness(out) : first;
+  const musicStatus = wantsMusic ? `${plan.music.status}:${path.basename(plan.music.path)}` : (plan.music ? plan.music.status : 'NONE');
+  return {
+    voice_segments: plan.voice.segments.length, accents: accentCount, layers: layerCount, music: musicStatus,
+    buses: ['voice', 'sfx', 'music'], stems: stemsDir ? ['voice.wav', 'sfx.wav', 'music.wav'] : [],
+    groove: wantsMusic ? plan.music.groove : null,
+    loudness: { ...loud, target_lufs: mix.target_lufs, ceiling_dbtp: mix.true_peak_dbtp, makeup_db: Number(makeup.toFixed(2)), pre_makeup_lufs: first.integrated_lufs,
+      voice_lufs: voiceLufs, voiced },
+  };
 }
 
 // Karaoke captions: one ASS dialogue per beat with \k word timings so the spoken word highlights.
@@ -192,14 +294,18 @@ async function main() {
 
   const total = Math.ceil(((limit || plan.duration_ms) * fps) / 1000);
   const t0 = Date.now();
-  if (!reuseFrames) {
-    for (let i = 0; i < total; i += 1) {
-      const ms = Math.round((i * 1000) / fps);
-      await page.evaluate((t) => window.__em2.seek(t), ms);
-      await page.screenshot({ path: path.join(framesDir, `f${String(i).padStart(5, '0')}.png`), clip, animations: 'disabled', caret: 'hide' });
-      if (i % 150 === 0) process.stdout.write(`${plan.aspect} ${i}/${total} (${((Date.now() - t0) / 1000).toFixed(0)}s)\n`);
-    }
+  // Authorship inspection rides the same seek as the capture: the manifest records exactly the
+  // frames that were rendered.
+  const ledger = new AuthorshipLedger(fps);
+  for (let i = 0; i < total; i += 1) {
+    const ms = Math.round((i * 1000) / fps);
+    await page.evaluate((t) => window.__em2.seek(t), ms);
+    ledger.observe(ms, await page.evaluate(() => window.__em2.inspect()));
+    if (reuseFrames) continue;
+    await page.screenshot({ path: path.join(framesDir, `f${String(i).padStart(5, '0')}.png`), clip, animations: 'disabled', caret: 'hide' });
+    if (i % 150 === 0) process.stdout.write(`${plan.aspect} ${i}/${total} (${((Date.now() - t0) / 1000).toFixed(0)}s)\n`);
   }
+  const authorship = ledger.report();
 
   // Frozen-progress contact sheet: one frame per beat at the start of its hold window, plus transition strips.
   const holdFrames = plan.beats.map((b) => Math.min(total - 1, Math.round(((b.start_ms + (b.ensemble.hold_window ? b.ensemble.hold_window.start_ms : b.duration_ms * 0.7)) * fps) / 1000)));
@@ -223,7 +329,7 @@ async function main() {
   }
 
   const audioPath = path.join(outDir, `audio_${plan.aspect}.wav`);
-  const audio = buildAudio(plan, audioPath);
+  const audio = buildAudio(plan, audioPath, path.join(outDir, `stems_${plan.aspect}`));
 
   // Karaoke captions (ASS, word-timed) burned into the picture, plus an SRT sidecar.
   const assPath = path.join(outDir, `captions_${plan.aspect}.ass`);
@@ -251,10 +357,10 @@ async function main() {
     schema: 'EditorialRenderManifestV1', runtime: await page.evaluate(() => window.__em2.version), film_id: plan.film_id, aspect: plan.aspect,
     plan_sha256: sha(fs.readFileSync(planPath)), frames: total, fps, output: plan.output, mp4: path.basename(mp4), mp4_sha256: sha(fs.readFileSync(mp4)),
     contact_sheet: `contact_${plan.aspect}.png`, transition_strip: stripFrames.length ? `transitions_${plan.aspect}.png` : null,
-    audio, captions_burned: captions, captions_policy: plan.captions_policy || 'burned', page_errors: errors, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
+    audio, captions_burned: captions, captions_policy: plan.captions_policy || 'burned', page_errors: errors, authorship, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
   };
   fs.writeFileSync(path.join(outDir, `render_${plan.aspect}.json`), JSON.stringify(manifest, null, 2));
-  console.log(JSON.stringify({ mp4, frames: total, errors: errors.length, audio }, null, 1));
+  console.log(JSON.stringify({ mp4, frames: total, errors: errors.length, audio, authorship: authorship.codes }, null, 1));
   await page.close();
   if (chromePath) await browser.close();
   srv.close();
