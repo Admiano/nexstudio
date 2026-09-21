@@ -15,7 +15,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  const RUNTIME_VERSION = 'EDITORIAL_RUNTIME_V3.1';
+  const RUNTIME_VERSION = 'EDITORIAL_RUNTIME_V3.2';
   const STRESS_SCALE = 1.045; // mirrors typefit.STRESS_SCALE: the compiler reserves this width for stressed words
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -620,16 +620,79 @@
 
   // ---------------------------------------------------------------------------
   // Media (customer-supplied image / video evidence)
+  //
+  // Every upload is presented inside a device slab — the benchmark's white-bezel handset,
+  // screenshot slab, browser window or paper card — never as a bare rectangle. The compiler
+  // chose the chassis from the asset's kind and aspect (or the author's param); the runtime
+  // draws one housing language for all four so a film never mixes frame styles.
   // ---------------------------------------------------------------------------
+  const CHASSIS_GEOMETRY = {
+    // bezel: slab inset the screen sits behind (fraction of the slab's short side);
+    // radius: outer corner radius; inner: screen corner radius (same unit).
+    phone:   { bezel: 0.040, radius: 0.170, inner: 0.135 },
+    shot:    { bezel: 0.030, radius: 0.075, inner: 0.048 },
+    browser: { bezel: 0.030, radius: 0.075, inner: 0.048 },
+    card:    { bezel: 0.030, radius: 0.060, inner: 0.036 },
+  };
+  const SLAB_FACE = 'linear-gradient(160deg, #fdfdfc 0%, #f2f1ee 100%)';
+  const SCREEN_DARK = '#101012';
+  // Living stills: a screenshot taller than its screen scrolls through; anything else drifts
+  // in a slow push. Both are pure functions of lt so a seek lands on the same frame.
+  const SCROLL_TALLER_THAN = 1.15;
+  const SCROLL_MAX_TRAVEL_FRAC = 0.9;
+  const KEN_BURNS_SCALE = 0.045;
+  const SLAB_PARALLAX_DEG = 1.1;
+
   function buildMedia(media, plan, beatRoot, assetUrl) {
     const bb = bboxOf(media.bbox);
-    const brand = plan.brand;
+    const chassis = CHASSIS_GEOMETRY[media.chassis] ? media.chassis : 'shot';
+    const geo = CHASSIS_GEOMETRY[chassis];
+    const m0 = Math.min(bb.w, bb.h);
     const frame = el('div', {
       position: 'absolute', left: px(bb.x), top: px(bb.y), width: px(bb.w), height: px(bb.h), zIndex: '12',
-      overflow: 'hidden', borderRadius: px(Math.min(bb.w, bb.h) * 0.035), border: `2px solid ${brand.ink}`,
-      background: brand.paper, willChange: 'transform, opacity, clip-path',
+      overflow: 'visible', willChange: 'transform, opacity, clip-path',
     }, beatRoot);
     frame.dataset.mediaAsset = media.asset_id;
+    frame.dataset.chassis = chassis;
+    const tilt = clamp(Number(media.tilt == null ? 0 : media.tilt), -14, 14);
+    // The slab carries the object's own attitude (tilt + parallax); the frame carries the motion.
+    const slab = el('div', {
+      position: 'absolute', left: '0', top: '0', width: '100%', height: '100%',
+      borderRadius: px(m0 * geo.radius), background: SLAB_FACE, transformOrigin: '50% 50%',
+      transform: `rotate(${tilt.toFixed(2)}deg)`,
+      boxShadow: [
+        `0 ${px(bb.h * 0.055)} ${px(bb.h * 0.16)} rgba(23,18,12,0.30)`,
+        `0 ${px(bb.h * 0.012)} ${px(bb.h * 0.03)} rgba(23,18,12,0.16)`,
+        'inset 0 0 0 1px rgba(23,18,12,0.10)',
+        'inset 0 1px 0 rgba(255,255,255,0.9)',
+        '0 1.5px 0 rgba(23,18,12,0.14)',
+      ].join(', '),
+    }, frame);
+    slab.className = 'em2-slab';
+    const bezel = m0 * geo.bezel;
+    const sw = bb.w - bezel * 2, sh = bb.h - bezel * 2;
+    const pc = (v, of) => `${((v / of) * 100).toFixed(3)}%`;
+    // Screen and viewport are proportional so a reframed (carried) slab keeps its bezel ratio.
+    const screen = el('div', {
+      position: 'absolute', left: pc(bezel, bb.w), top: pc(bezel, bb.h), width: pc(sw, bb.w), height: pc(sh, bb.h),
+      borderRadius: px(m0 * geo.inner), overflow: 'hidden',
+      background: chassis === 'card' ? '#ffffff' : SCREEN_DARK,
+    }, slab);
+    screen.className = 'em2-screen';
+    let host = screen, hostW = sw, hostH = sh;
+    if (chassis === 'browser') {
+      // Window chrome inside the screen: a light bar with neutral controls and an address field.
+      const barH = sh * 0.085;
+      const bar = el('div', {
+        position: 'absolute', left: '0', top: '0', width: '100%', height: pc(barH, sh), background: '#f4f3f1',
+        borderBottom: '1px solid rgba(23,18,12,0.10)', display: 'flex', alignItems: 'center', gap: px(sw * 0.011),
+        paddingLeft: px(sw * 0.028), boxSizing: 'border-box',
+      }, screen);
+      for (let i = 0; i < 3; i += 1) el('div', { width: px(barH * 0.32), height: px(barH * 0.32), borderRadius: '50%', background: 'rgba(23,18,12,0.16)', flex: 'none' }, bar);
+      el('div', { flex: '0 1 58%', height: px(barH * 0.46), marginLeft: px(sw * 0.02), borderRadius: px(barH * 0.23), background: 'rgba(23,18,12,0.07)' }, bar);
+      hostH = sh - barH;
+      host = el('div', { position: 'absolute', left: '0', top: pc(barH, sh), width: '100%', height: pc(hostH, sh), overflow: 'hidden' }, screen);
+    }
     let node;
     if (media.kind === 'VIDEO') {
       node = document.createElement('video');
@@ -642,58 +705,44 @@
       node.decoding = 'sync';
       node.src = assetUrl(media.path);
     }
-    const chassis = media.chassis || 'card';
-    let host = frame, hostW = bb.w, hostH = bb.h;
-    if (chassis === 'phone') {
-      // Device bezel: ink body, the media is its screen; a camera slit tops the bezel.
-      const m = Math.min(bb.w, bb.h);
-      Object.assign(frame.style, {
-        borderRadius: px(m * 0.11), border: 'none', background: '#161311',
-        boxShadow: `0 ${px(bb.h * 0.025)} ${px(bb.h * 0.07)} rgba(23,18,12,0.35), inset 0 0 0 ${px(m * 0.008)} #2c2620`,
-      });
-      hostW = bb.w * 0.91; hostH = bb.h * 0.944;
-      host = el('div', {
-        position: 'absolute', left: px(bb.w * 0.045), top: px(bb.h * 0.028),
-        width: px(hostW), height: px(hostH),
-        borderRadius: px(m * 0.075), overflow: 'hidden', background: '#000',
-      }, frame);
-      el('div', {
-        position: 'absolute', left: '50%', top: px(bb.h * 0.011), transform: 'translateX(-50%)',
-        width: px(bb.w * 0.16), height: px(bb.h * 0.009), borderRadius: px(bb.h * 0.005), background: '#2c2620',
-      }, frame);
-    } else if (chassis === 'browser') {
-      // Window chrome: a top bar with traffic dots and an address pill; media is the viewport.
-      const barH = bb.h * 0.1;
-      Object.assign(frame.style, { borderRadius: px(Math.min(bb.w, bb.h) * 0.05), background: brand.paper });
-      const bar = el('div', {
-        position: 'absolute', left: '0', top: '0', width: '100%', height: px(barH),
-        borderBottom: `1.5px solid ${brand.ink}22`, display: 'flex', alignItems: 'center', gap: px(bb.w * 0.012), paddingLeft: px(bb.w * 0.03), boxSizing: 'border-box',
-      }, frame);
-      for (const c of ['#e0635a', '#e8b13e', '#5fbb63']) el('div', { width: px(barH * 0.34), height: px(barH * 0.34), borderRadius: '50%', background: c, flex: 'none' }, bar);
-      el('div', { flex: '0 1 62%', height: px(barH * 0.44), marginLeft: px(bb.w * 0.02), borderRadius: px(barH * 0.22), background: `${brand.ink}12` }, bar);
-      hostH = bb.h - barH;
-      host = el('div', {
-        position: 'absolute', left: '0', top: px(barH), width: '100%', height: px(hostH), overflow: 'hidden',
-      }, frame);
-    } else if (chassis === 'shot') {
-      // Floating screenshot card: no chrome — tilted, deeply shadowed, dark-rimmed like the
-      // product stills in the benchmark films. tilt is authored in degrees (params.tilt).
-      const tilt = clamp(Number(media.tilt == null ? -3.5 : media.tilt), -14, 14);
-      // The frame releases the card: no border, no clipping — the shadow belongs to the tilted host.
-      Object.assign(frame.style, { overflow: 'visible', border: 'none', borderRadius: '0', background: 'transparent' });
-      host = el('div', {
-        position: 'absolute', left: '0', top: '0', width: px(bb.w), height: px(bb.h),
-        transform: `rotate(${tilt.toFixed(2)}deg)`, transformOrigin: '50% 50%',
-        borderRadius: px(Math.min(bb.w, bb.h) * 0.045), overflow: 'hidden',
-        boxShadow: `0 ${px(bb.h * 0.05)} ${px(bb.h * 0.13)} rgba(23,18,12,0.34), 0 ${px(bb.h * 0.012)} ${px(bb.h * 0.028)} rgba(23,18,12,0.22)`,
-        outline: `1.5px solid rgba(23,18,12,0.28)`,
-      }, frame);
-    }
-    Object.assign(node.style, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100%', objectFit: 'cover', display: 'block' });
+    Object.assign(node.style, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100%', objectFit: 'cover', display: 'block', transformOrigin: '50% 50%' });
     host.appendChild(node);
-    const m = { media, frame, node, bb, hostW, hostH, pending: null };
+    if (chassis === 'phone') {
+      // Dynamic island: sits over the content, part of the device, never of the upload.
+      el('div', {
+        position: 'absolute', left: '50%', top: px(sh * 0.016), transform: 'translateX(-50%)',
+        width: px(sw * 0.30), height: px(sh * 0.030), borderRadius: px(sh * 0.015), background: '#000', pointerEvents: 'none',
+      }, screen);
+    }
+    // Glass: one soft diagonal highlight across the screen so the slab reads as a surface.
+    el('div', {
+      position: 'absolute', inset: '0', pointerEvents: 'none',
+      background: 'linear-gradient(115deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0) 46%)',
+    }, screen);
+    const m = { media, frame, slab, screen, node, bb, hostW, hostH, tilt, chassis, pending: null };
     layoutFocus(m, hostW, hostH);
     return m;
+  }
+
+  // Content life inside the screen. Stills that are much taller than their screen scroll
+  // through it over the hold (a phone screenshot reads top-to-bottom); other stills take a
+  // slow push. Authored focus crops and live video own their own geometry.
+  function applyContentLife(m, lt, settledAt, endMs, hw, hh) {
+    const md = m.media;
+    if (md.focus || md.kind === 'VIDEO' || !md.source_size) return;
+    const sw = md.source_size.w, sh = md.source_size.h;
+    if (!sw || !sh) return;
+    const span = Math.max(1, endMs - settledAt);
+    const p = EASE.inOutCubic(prog(lt, settledAt, settledAt + span));
+    const hostAr = hw / hh, srcAr = sw / sh;
+    if (hostAr / srcAr > SCROLL_TALLER_THAN) {
+      // Width-fit, so the still keeps its own ratio and only its vertical position moves.
+      const h = hw / srcAr;
+      const travel = Math.min(h - hh, hh * SCROLL_MAX_TRAVEL_FRAC);
+      Object.assign(m.node.style, { objectFit: 'fill', width: px(hw), height: px(h), left: '0', top: px(-travel * p), transform: 'none' });
+    } else {
+      m.node.style.transform = `scale(${(1 + KEN_BURNS_SCALE * p).toFixed(4)})`;
+    }
   }
 
   // Focus crop: the authored source region covers the frame without distortion; overflow is centred.
@@ -708,43 +757,59 @@
     Object.assign(m.node.style, { objectFit: 'fill', width: px(w), height: px(h), left: px(left), top: px(top) });
   }
 
-  function applyMediaState(m, lt, beat, ctx) {
+  // `ride` (entity-hosted media): the slab is the entity's body, so it takes the body's own pose —
+  // pop spring, carry travel, dim — instead of the evidence panel's rise; the housing and its
+  // content are one object throughout.
+  function applyMediaState(m, lt, beat, ctx, ride) {
     const md = m.media;
     const s = m.frame.style;
     const chrome = md.chrome_ms == null ? md.enter_ms : md.chrome_ms;
     // Pre-chrome still runs the pipeline at p=0 so every driven decl is rewritten — same
     // seek-determinism rule as entities and relations.
     s.visibility = lt < chrome ? 'hidden' : 'visible';
-    let tx = 0, ty = 0, opacity = 1, clip = null, scale = 1;
-    const p = EASE.outQuint(prog(lt, md.enter_ms, md.enter_ms + md.enter_duration_ms));
-    // The empty card dresses the stage first; the exhibit itself still lands on its word.
-    m.node.style.opacity = md.enter_duration_ms ? Math.min(1, p * 1.6).toFixed(4) : '1';
-    const pf = EASE.outQuint(prog(lt, chrome, chrome + Math.max(md.enter_duration_ms, 320)));
-    if (md.enter_duration_ms > 0 || lt < md.enter_ms) {
-      ty = (1 - pf) * m.bb.h * 0.08;
-      clip = [0, 0, (1 - pf) * 100, 0];
-      opacity = Math.min(1, pf * 1.6);
+    let tx = 0, ty = 0, opacity = 1, clip = null, sx = 1, sy = 1;
+    m.node.style.opacity = '1';
+    if (ride) {
+      tx = ride.dx; ty = ride.dy; sx = ride.sx; sy = ride.sy; opacity = ride.opacity;
+    } else {
+      const pf = EASE.outQuint(prog(lt, chrome, chrome + Math.max(md.enter_duration_ms, 320)));
+      if (md.enter_duration_ms > 0 || lt < md.enter_ms) {
+        ty = (1 - pf) * m.bb.h * 0.08;
+        clip = [0, 0, (1 - pf) * 100, 0];
+        opacity = Math.min(1, pf * 1.6);
+      }
     }
+    let hw = m.hostW, hh = m.hostH;
     if (md.reframe) {
       const rp = EASE.inOutCubic(prog(lt, md.reframe.start_ms, md.reframe.end_ms));
       const from = bboxOf(md.reframe.from);
       const x = lerp(from.x, m.bb.x, rp), y = lerp(from.y, m.bb.y, rp);
       const w = lerp(from.w, m.bb.w, rp), h = lerp(from.h, m.bb.h, rp);
       s.left = px(x); s.top = px(y); s.width = px(w); s.height = px(h);
-      layoutFocus(m, w * (m.hostW / m.bb.w), h * (m.hostH / m.bb.h));
+      hw = w * (m.hostW / m.bb.w); hh = h * (m.hostH / m.bb.h);
+      layoutFocus(m, hw, hh);
       const std = pathBlur(lt, md.reframe.start_ms, md.reframe.end_ms, EASE.inOutCubic, Math.abs(from.x - m.bb.x) + Math.abs(from.w - m.bb.w) / 2, Math.abs(from.y - m.bb.y) + Math.abs(from.h - m.bb.h) / 2, ctx.frameMs, ctx.motion.motion_blur);
       if (m.blur) m.blur.apply(s, std); else s.filter = 'none';
     }
     // Ambient: after the frame has settled it drifts with the hold, a living still.
     const settledAt = md.reframe ? md.reframe.end_ms : md.enter_ms + (md.enter_duration_ms || 0);
+    applyContentLife(m, lt, settledAt, beat.duration_ms, hw, hh);
+    // The slab is a physical object: a faint perspective sway on top of its authored tilt.
+    const sway = ambientDrift(lt, `slab-${md.asset_id || md.role || 'x'}`, settledAt, 1, 0);
+    m.slab.style.transform = `perspective(${px(m.bb.h * 4)}) rotateX(${(-sway.dy * SLAB_PARALLAX_DEG).toFixed(3)}deg) rotateY(${(sway.dx * SLAB_PARALLAX_DEG).toFixed(3)}deg) rotate(${m.tilt.toFixed(2)}deg)`;
     const tzM = beat.composition.text_zone;
     const gapM = Math.max(tzM.x - (m.bb.x + m.bb.w), m.bb.x - (tzM.x + tzM.w), tzM.y - (m.bb.y + m.bb.h), m.bb.y - (tzM.y + tzM.h));
-    const amb = ambientDrift(lt, `media-${md.asset_id || md.role || 'x'}`, settledAt, clamp(gapM * 0.35, 0, 1.1), Math.min(ctx.motion.breathe, 0.006));
-    tx += amb.dx; ty += amb.dy;
-    const ex = ctx.exitState({ block: { role: 'media' } }, lt);
+    if (!ride) {
+      const amb = ambientDrift(lt, `media-${md.asset_id || md.role || 'x'}`, settledAt, clamp(gapM * 0.35, 0, 1.1), Math.min(ctx.motion.breathe, 0.006));
+      tx += amb.dx; ty += amb.dy;
+    }
+    // A ridden slab already carries its entity's exit; the evidence panel exits as media.
+    const ex = ride ? null : ctx.exitState({ block: { role: 'media' } }, lt);
     if (ex) { opacity *= ex.opacity; ty += ex.ty; }
-    s.opacity = opacity.toFixed(4);
-    s.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${scale.toFixed(4)})`;
+    s.opacity = clamp(opacity, 0, 1).toFixed(4);
+    s.transformOrigin = '50% 50%';
+    s.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`;
+    if (ride) { if (m.blur) m.blur.apply(s, ride.blur); }
     s.clipPath = clip ? `inset(${clip.map((v) => `${clamp(v, 0, 100).toFixed(2)}%`).join(' ')})` : 'none';
     if (md.kind === 'VIDEO') {
       const trim = md.trim || { start: 0, end: 1e9 };
@@ -1892,8 +1957,11 @@
         node.label.text.style.color = node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
       }
       if (node.media) {
-        applyMediaState(node.media, lt, beat, ctx);
-        node.media.frame.style.opacity = (Number(node.media.frame.style.opacity || 1) * dim).toFixed(4);
+        applyMediaState(node.media, lt, beat, ctx, {
+          dx: pose.carry.dx + tx, dy: pose.carry.dy + ty,
+          sx: scale * pose.carry.sx, sy: scale * pose.carry.sy,
+          opacity, blur: bodyBlur(node, lt, ctx),
+        });
       }
       // Pre-entry entities still run the full property pipeline above so seek() produces the
       // same driven-attribute set regardless of the path taken; only visibility is forced.

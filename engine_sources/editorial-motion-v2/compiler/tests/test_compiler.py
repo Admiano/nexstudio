@@ -630,3 +630,123 @@ def test_stub_links_carry_no_program(collage_plans):
             for rid in stubs:
                 assert f'CONNECTOR_STUB_ADJACENT:{rid}' in b['gate']['warnings'], (aspect, b['beat_id'])
     assert seen >= 1, 'fixture no longer exercises the stub path'
+
+
+# ---------------------------------------------------------------- item 3: device chassis for customer media
+
+from editorial_plan_compiler.chassis import (  # noqa: E402
+    CHASSIS, PHONE_AR, PORTRAIT_AR, TILT_MAX_DEG, TILT_MIN_DEG, chassis_aspect, housing, resolve_chassis, resolve_tilt,
+)
+from editorial_plan_compiler.contracts import MOTION_PROFILES  # noqa: E402
+
+
+def test_chassis_is_inferred_from_aspect_and_kind_and_authored_choice_wins():
+    assert resolve_chassis('SCREENSHOT', 720, 2200) == 'phone'
+    assert resolve_chassis('VIDEO', 720, 1280) == 'phone'
+    assert resolve_chassis('SCREENSHOT', 1600, 1000) == 'shot'
+    assert resolve_chassis('VIDEO', 1280, 720) == 'shot'
+    assert resolve_chassis('IMAGE', 1200, 1200) == 'shot'
+    assert resolve_chassis('DOCUMENT', 1000, 1300) == 'card'
+    assert resolve_chassis('DOCUMENT', 1300, 1000) == 'card'
+    # Just under / over the portrait threshold.
+    assert resolve_chassis('IMAGE', int(PORTRAIT_AR * 1000) - 5, 1000) == 'phone'
+    assert resolve_chassis('IMAGE', int(PORTRAIT_AR * 1000) + 5, 1000) == 'shot'
+    for c in CHASSIS:
+        assert resolve_chassis('VIDEO', 1280, 720, c) == c
+    with pytest.raises(ValueError):
+        resolve_chassis('VIDEO', 1280, 720, 'tablet')
+    # A handset is a fixed object: the slab keeps the device ratio whatever the upload's.
+    assert chassis_aspect('phone', 720 / 2200) == PHONE_AR
+    assert chassis_aspect('shot', 1.6) == 1.6
+    assert chassis_aspect('browser', 1.0) == 1.0
+
+
+def test_tilt_is_profile_driven_deterministic_and_alternates_sign():
+    collage = MOTION_PROFILES['PRODUCT_COLLAGE']
+    flat = MOTION_PROFILES['EDITORIAL_FLAT']
+    a = resolve_tilt('upload-a', collage)
+    assert a == resolve_tilt('upload-a', collage)
+    assert TILT_MIN_DEG <= abs(a) <= TILT_MAX_DEG
+    signs = {resolve_tilt(f'asset-{i}', collage) > 0 for i in range(24)}
+    assert signs == {True, False}
+    assert resolve_tilt('upload-a', flat) == 0.0
+    assert resolve_tilt('upload-a', collage, size='support') == 0.0
+    assert resolve_tilt('upload-a', collage, authored=-4.5) == -4.5
+    assert resolve_tilt('upload-a', collage, authored=40) == 14.0
+    for prof in MOTION_PROFILES.values():
+        assert 'media_tilt' in prof
+    h = housing('VIDEO', 720, 1280, 'clip', collage)
+    assert h == {'chassis': 'phone', 'tilt': resolve_tilt('clip', collage)}
+
+
+@pytest.fixture(scope='module')
+def matrix_plans(tmp_path_factory):
+    fx = ROOT / 'fixtures' / 'media-matrix' / 'treatment.json'
+    return compile_film(json.loads(fx.read_text()), tmp_path_factory.mktemp('matrix'), base_dir=fx.parent)
+
+
+def _media_entities(plan):
+    for b in plan['beats']:
+        il = b.get('illustration')
+        if il:
+            for e in il['entities']:
+                if e.get('media'):
+                    yield b, e
+        if b.get('media'):
+            yield b, None
+
+
+def test_media_matrix_houses_every_upload_in_every_aspect(matrix_plans):
+    assert matrix_plans['gate']['status'] == 'PASS', matrix_plans['gate']['failures']
+    for aspect, p in matrix_plans['plans'].items():
+        seen = {}
+        for b, e in _media_entities(p):
+            md = e['media'] if e else b['media']
+            bbox = e['bbox'] if e else b['media']['bbox']
+            assert md['chassis'] in CHASSIS
+            assert isinstance(md['tilt'], (int, float))
+            seen[md['asset_id']] = (md['chassis'], md['tilt'], md['kind'])
+            # The slab's box keeps the housing ratio, not the raw upload's.
+            src = md['source_size']
+            want = chassis_aspect(md['chassis'], src['w'] / src['h'])
+            assert abs(bbox['w'] / bbox['h'] - want) < 0.03, (aspect, md['asset_id'], bbox)
+            # Housed media never leaves the frame.
+            assert bbox['x'] >= 0 and bbox['y'] >= 0
+            assert bbox['x'] + bbox['w'] <= p['canvas']['w'] + 1 and bbox['y'] + bbox['h'] <= p['canvas']['h'] + 1
+        assert seen['tall_shot'][0] == 'phone'
+        assert seen['portrait_clip'] == ('phone', seen['portrait_clip'][1], 'VIDEO')
+        assert seen['wide_ui'][0] == 'shot'
+        assert seen['square_photo'][0] == 'shot'
+        assert seen['square_clip'][0] == 'browser'   # authored override
+        assert seen['wide_clip'][0] == 'shot'        # beat-level media is housed too
+        # Heroes float (profile tilt); every hero slab has a non-zero, bounded tilt.
+        for aid in ('tall_shot', 'wide_ui', 'square_photo', 'portrait_clip'):
+            assert 0 < abs(seen[aid][1]) <= TILT_MAX_DEG, (aspect, aid, seen[aid])
+    # Housing is a pure function of the asset, so every aspect lands the same slab the same way.
+    per_aspect = [{md['asset_id']: (md['chassis'], md['tilt']) for _, e in _media_entities(p) for md in [e['media'] if e else _['media']]}
+                  for p in matrix_plans['plans'].values()]
+    assert all(pa == per_aspect[0] for pa in per_aspect)
+
+
+def test_live_video_inside_a_housing_keeps_its_trim(matrix_plans):
+    p = matrix_plans['plans']['16x9']
+    trims = {e['media']['asset_id']: e['media']['trim'] for _, e in _media_entities(p) if e and e['media']['kind'] == 'VIDEO'}
+    assert trims['portrait_clip'] == {'start': 0.3, 'end': 3.9}
+    assert trims['square_clip'] == {'start': 0.2, 'end': 3.8}
+
+
+def test_flanking_chips_shed_tags_before_a_tall_hero_gives_up_its_column(matrix_plans):
+    # The treatment's own entities are shared across aspects: shedding tags in one field must not leak.
+    fx = json.loads((ROOT / 'fixtures' / 'media-matrix' / 'treatment.json').read_text())
+    authored = {e['id']: e.get('params', {}).get('tags') for b in fx['beats'] if b.get('illustration') for e in b['illustration']['entities']}
+    assert authored['c1'] and authored['ch']
+    kept = {}
+    for aspect, p in matrix_plans['plans'].items():
+        for b in p['beats']:
+            if b['beat_id'] != 'b01':
+                continue
+            ents = {e['id']: e for e in b['illustration']['entities']}
+            kept[aspect] = bool(ents['c1']['params'].get('tags'))
+            assert ents['c1']['label']['fit']['status'] == 'FIT'
+    assert kept['16x9'] and kept['9x16'], kept
+    assert not kept['1x1'], kept

@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from .authorities import editorial_motion_ensemble_director_v1 as ens
 from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
+from .chassis import chassis_aspect, housing
 from .contracts import MOTION_PROFILES, BeatTreatment, FilmTreatment, TreatmentError
 from .figures import resolve_figure
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
@@ -203,7 +204,7 @@ class BeatCompiler:
         self.illustrations: Dict[str, Dict[str, Any]] = {}  # beat_id -> compiled illustration (carry-over source)
         self.solver = IllustrationSolver(aspect, (self.W, self.H), IllustrationRegistry(), film.media_library, self.media_files, film.brand.accent,
                                          collage=film.brand.finish == 'PRODUCT_COLLAGE',
-                                         stagger_ms=MOTION_PROFILES[film.brand.finish]['stagger_ms'])
+                                         stagger_ms=MOTION_PROFILES[film.brand.finish]['stagger_ms'], motion=MOTION_PROFILES[film.brand.finish])
 
     # ------------------------------------------------------------------ helpers
     def _native_treatment(self, b: BeatTreatment) -> str:
@@ -490,7 +491,8 @@ class BeatCompiler:
             b = replace(b, media=None)
         if b.media:
             asset = self.film.media_library[b.media.asset_id]
-            ar = asset.width / asset.height
+            house = housing(asset.kind, asset.width, asset.height, asset.asset_id, MOTION_PROFILES[self.film.brand.finish])
+            ar = chassis_aspect(house['chassis'], asset.width / asset.height)
             bbox = _contain(zone, ar, min(1.0, comp['visual_hints']['evidence_scale']))
             proof_units = [i for i, u in enumerate(b.units) if u.semantic_role in ('proof', 'evidence')]
             hero_land = max((clock.landings_ms[i] for i, u in enumerate(b.units) if u.role == 'hero'), default=LEAD_IN_MS)
@@ -504,15 +506,16 @@ class BeatCompiler:
                 'role': b.media.role, 'bbox': bbox, 'zone': zone, 'focus': b.media.focus, 'trim': b.media.trim, 'audio': 'MUTE',
                 'enter_ms': int(enter), 'enter_duration_ms': 360, 'carried_from': None, 'persist_to': b.media.persist_to, 'frame': 'EVIDENCE_PANEL',
                 'source_size': {'w': asset.width, 'h': asset.height}, 'rights': asset.rights,
-                # The empty evidence card is set-dressing: it enters inside the lead-in when the
-                # exhibit itself lands late, so a cut never opens on bare paper.
-                'chrome_ms': LEAD_IN_MS // 4 if enter > LEAD_IN_MS + 320 else None,
+                **house,
+                # A housing is the object's own body: it lands with its content, never as an empty
+                # card waiting for the exhibit.
+                'chrome_ms': None,
             }
             self.carried_media = media if b.media.persist_to and b.media.persist_to != b.beat_id else None
             return media
         carried = dict(self.carried_media)
         asset = self.film.media_library[carried['asset_id']]
-        bbox = _contain(zone, asset.width / asset.height, min(1.0, comp['visual_hints']['evidence_scale']))
+        bbox = _contain(zone, chassis_aspect(carried['chassis'], asset.width / asset.height), min(1.0, comp['visual_hints']['evidence_scale']))
         carried.update({'bbox': bbox, 'zone': zone, 'enter_ms': 0, 'enter_duration_ms': 0, 'chrome_ms': None, 'carried_from': carried.get('carried_from') or self.carried_media['asset_id'],
                         'reframe': {'from': self.carried_media['bbox'], 'start_ms': 0, 'end_ms': 420} if self.carried_media['bbox'] != bbox else None})
         if carried['persist_to'] == b.beat_id:
