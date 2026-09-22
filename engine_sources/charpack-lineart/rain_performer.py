@@ -36,7 +36,7 @@ B = dict(head='FK-Head', neck='FK-Neck', chest='FK-Chest', spine='FK-Spine', pel
          finger='FK-{F}{N}.{S}', thumb='FK-Thumb{N}.{S}')
 FC = dict(lid_upper='ACT-Eyelid_Upper.{S}', lid_close=-0.030, brow='MSTR-Eyebrow.{S}', brow_up=0.012,
           eyes='TGT-Eyes', gaze=0.10, mouth='MSTR-Mouth', lip_bot='MSTR-LowerLip', lip_top='MSTR-UpperLip',
-          lip_open=0.016, corner='ACT-Lips_Corner.{S}', corner_up=0.008, jaw_sign=-1, jaw_deg=20)
+          lip_open=0.016, corner='ACT-Lips_Corner.{S}', corner_up=0.008, jaw_sign=-1, jaw_deg=11)
 FINGERS = ('Index', 'Middle', 'Ring', 'Pinky')
 INK = ('hair', 'eyebrow', 'eyelash', 'shoe', 'jeans', 'eyedot', 'gums', 'tongue', 'teeth',
        'viewport_black', 'hairband', 'laces')
@@ -168,11 +168,12 @@ def local_loc(pb, x=0, y=0, z=0):
 
 # ---------- hand poses ----------
 HAND = {
- 'rest_thigh': dict(curl=((8, 16, 10), (12, 22, 12), (16, 26, 14), (20, 30, 16)), spread=(-4, -1, 2, 5), thumb=(6, 4)),
- 'relaxed':    dict(curl=((12, 22, 12), (16, 28, 16), (20, 32, 18), (26, 36, 20)), spread=(-3, 0, 3, 6), thumb=(10, 6)),
- 'present':    dict(curl=((0, 4, 2), (3, 8, 4), (8, 12, 6), (12, 16, 8)), spread=(-9, -3, 4, 10), thumb=(-8, -2)),
- 'open':       dict(curl=((0, 2, 0), (0, 3, 0), (4, 6, 2), (8, 10, 4)), spread=(-12, -4, 5, 13), thumb=(-14, -4)),
- 'point_soft': dict(curl=((0, 3, 2), (30, 42, 28), (36, 46, 32), (40, 50, 34)), spread=(-4, 0, 2, 4), thumb=(8, 14)),
+ 'rest_thigh': dict(curl=((4, 12, 6), (8, 17, 8), (12, 21, 10), (16, 25, 12)), spread=(-6, -1, 3, 8), thumb=(9, 6)),
+ 'relaxed':    dict(curl=((8, 17, 8), (12, 22, 10), (16, 26, 12), (20, 30, 14)), spread=(-5, 0, 4, 8), thumb=(12, 7)),
+ 'present':    dict(curl=((0, 5, 3), (2, 7, 5), (6, 11, 7), (10, 15, 9)), spread=(-10, -3, 5, 11), thumb=(-12, -3)),
+ 'open':       dict(curl=((0, 3, 0), (0, 4, 0), (3, 6, 2), (7, 9, 4)), spread=(-13, -4, 5, 14), thumb=(-16, -5)),
+ 'point_soft': dict(curl=((0, 4, 2), (34, 44, 30), (40, 50, 36), (44, 54, 40)), spread=(-2, 1, 3, 5), thumb=(10, 14)),
+ 'fist':       dict(curl=((30, 42, 30), (38, 50, 38), (44, 54, 42), (48, 58, 46)), spread=(-2, 0, 2, 4), thumb=(22, 30)),
 }
 def lerp(a, b, u): return a + (b - a) * u
 def hand_pose(S, pa, pb_, u, sgn):
@@ -226,24 +227,32 @@ SEGS = score['segments']; FPS = score.get('fps', 24)
 T_END = SEGS[-1]['t'][1] + 0.4
 F1 = int(nums[1]) if len(nums) > 1 else int(T_END * FPS)
 
-# ---------- speech: syllable + viseme plan per segment ----------
-VIS = {'A': (1.0, 0.0, 0.6), 'E': (0.55, 0.35, 0.5), 'O': (0.7, -0.35, 0.3),
-       'M': (0.0, 0.0, 0.0), 'F': (0.35, -0.1, 0.9)}
+# ---------- speech: syllable stream + smooth mouth envelope ----------
+# Talking reads as rhythmic jaw bounces on syllable onsets, not random visemes.
+# Per-syllable targets: jaw amplitude (consonants ~closed, vowels mid, stressed
+# vowels wide), mouth width, lip part. Gaussian coarticulation smooths it all.
 def segment_syllables(seg, seed):
-    """deterministic syllable stream filling the segment; stress on first + every ~1.2s."""
+    """deterministic syllable stream filling the segment; stress on first + every ~1.15s.
+    each -> (onset, dur, (jaw,width,lip) target, stress)"""
     t0, t1 = seg['t']; dur = t1 - t0
     n = max(3, round(len(seg.get('text', '')) / 4.4))
-    n = min(n, int(dur / 0.11))
+    n = min(n, int(dur / 0.12))
     rng = random.Random(seed)
     out = []; t = t0 + 0.12; last_stress = -9
-    vp = ['A', 'E', 'O', 'A', 'M', 'F', 'E', 'O', 'A', 'E']
     for i in range(n):
-        d = 0.09 + 0.05 * rng.random()
+        d = 0.11 + 0.06 * rng.random()
         stress = 1 if (i == 0 or t - last_stress > 1.15) else 0
         if stress: last_stress = t
-        out.append((t, d, vp[(i + seed) % len(vp)] if i % 5 else 'A', stress))
-        t += d + 0.015 + 0.05 * rng.random() + (0.12 if rng.random() < 0.12 else 0)
-        if t > t1 - 0.1: break
+        v = rng.random()
+        if i % 6 == 5:          # consonant cluster: near-closed
+            tgt = (0.10 + 0.08 * v, 0.0, 0.15)
+        elif stress:            # stressed vowel opens wider
+            tgt = (0.52 + 0.22 * v, 0.05 + 0.25 * (v - 0.5), 0.55)
+        else:                   # ordinary vowel: modest open
+            tgt = (0.24 + 0.26 * v, -0.15 + 0.30 * rng.random(), 0.45)
+        out.append((t, d, tgt, stress))
+        t += d + 0.02 + 0.06 * rng.random() + (0.16 if rng.random() < 0.18 else 0)
+        if t > t1 - 0.08: break
     return out
 SYL = []
 for i, s in enumerate(SEGS):
@@ -258,12 +267,12 @@ def speaking_seg(t):
 def mouth_state(t):
     j = w = l = 0.0; wsum = 0.0
     for o, d, v, s, si in SYL:
-        c = o + d * 0.45; sig = d * 0.55
+        c = o + d * 0.45; sig = 0.085
         k = math.exp(-((t - c) / sig) ** 2)
-        J, W, Lp = VIS[v]; amp = 0.75 + 0.35 * s
+        J, W, Lp = v; amp = 0.8 + 0.3 * s
         j += k * J * amp; w += k * W; l += k * Lp; wsum += k
     if wsum < 1e-6: return 0.0, 0.0, 0.0
-    return min(1, j / max(wsum, 0.8)), w / max(wsum, 0.8), min(1, l / max(wsum, 0.8))
+    return min(0.8, j / max(wsum, 0.9)), max(-1, min(1, w / max(wsum, 0.9))), min(1, l / max(wsum, 0.9))
 
 # ---------- semantic director: intent -> scheduled gestures (VITA grammar) ----------
 INTENT_MAP = {'wave': 'wave', 'explain': 'present', 'emphasis': 'emphasis',
@@ -275,16 +284,20 @@ def auto_intent(seg):
     if tx.strip().endswith('!'): return 'emphasis'
     return 'explain' if seg.get('energy', 0.7) > 0.5 else 'none'
 
-# gesture shape vectors: (ua Y,Z deltas, fa X,Z, hand X,Y,Z) + hand pose target + face adds
+# gesture shape vectors: (ua Z,Y deltas -> abduct/swing, fa X,Z -> flex/twist,
+# hand X,Y,Z wrist add) + hand pose target + two-handed probability.
+# front-facing grammar: deliberate gestures rise to chest/chin zone in front of
+# the torso and drift toward the body's midline, palms angled to camera.
 GESTV = {
- 'present':  dict(ua=(34, -14), fa=(-52, 8),  h=(-10, -80, 0), hp='present', both=0.25),
- 'emphasis': dict(ua=(26, -10), fa=(-44, 5),  h=(-8, -60, 0),  hp='present', both=0.0),
- 'question': dict(ua=(30, -12), fa=(-50, 6),  h=(-6, -68, 0),  hp='open',    both=0.4),
- 'ack':      dict(ua=(16, -6),  fa=(-26, 3),  h=(-4, -40, 0),  hp='relaxed', both=0.0),
- 'wave':     dict(ua=(58, -18), fa=(-105, 2), h=(-8, -85, 0),  hp='open',    both=0.0),
+ 'present':  dict(ua=(24, -20), fa=(-86, 6),  h=(-14, 64, 8),  hp='present', both=0.25),
+ 'emphasis': dict(ua=(20, -14), fa=(-78, 4),  h=(-6, -30, 6),  hp='fist',    both=0.0),
+ 'question': dict(ua=(26, -16), fa=(-82, 5),  h=(-12, 60, 8),  hp='open',    both=0.5),
+ 'ack':      dict(ua=(12, -8),  fa=(-40, 3),  h=(-6, 34, 4),   hp='relaxed', both=0.0),
+ 'wave':     dict(ua=(62, -14), fa=(-112, 0), h=(-8, -70, 6),  hp='open',    both=0.0),
 }
 if os.environ.get('GESTV'):
-    GESTV.update(json.loads(os.environ['GESTV']))
+    for _k, _v in json.loads(os.environ['GESTV']).items():
+        GESTV.setdefault(_k, {}).update(_v)
 if os.environ.get('FORCEG'):
     _fk, _fa = os.environ['FORCEG'].split(',')
     for i, s in enumerate(SEGS): s['intent'] = 'none'
@@ -368,9 +381,9 @@ def gaze(t):
         x += dx * k; z += (0.12 if i % 4 == 1 else -0.06) * k
     return x, z
 
-MOOD = {'neutral': dict(corner=0.12, brow=0.0, lid=0.0),
-        'smile':   dict(corner=0.75, brow=0.15, lid=0.0),
-        'serious': dict(corner=0.02, brow=-0.25, lid=0.15)}
+MOOD = {'neutral': dict(corner=0.18, brow=0.0, lid=0.0),
+        'smile':   dict(corner=0.75, brow=0.2, lid=0.14),
+        'serious': dict(corner=0.02, brow=-0.35, lid=0.18)}
 def face_base(t):
     """mood of the active segment, eased 0.5s in from the previous segment's."""
     mi = 0
@@ -386,34 +399,48 @@ def face_base(t):
 
 def head_state(t):
     si = speaking_seg(t)
-    yaw = 1.6 * math.sin(t * 0.55)
-    pitch = 1.2 * math.sin(t * 0.9)
-    roll = 1.0 * math.sin(t * 0.42)
+    yaw = 1.8 * math.sin(t * 0.55)
+    pitch = 1.4 * math.sin(t * 0.9)
+    roll = 1.1 * math.sin(t * 0.42)
     if si is not None:
+        # each stressed syllable gets a visible emphasis nod; eased nods at phrase end
         for o, d, v, s, sii in SYL:
-            if sii == si and s: pitch += 4.0 * bump(t, o - 0.06, 0.4)
+            if sii == si and s:
+                pitch += 6.5 * bump(t, o - 0.05, 0.45)
+                yaw += 2.5 * bump(t, o - 0.10, 0.55)
         if SEGS[si].get('intent') == 'question' or auto_intent(SEGS[si]) == 'question':
-            roll += 3.5 * smooth(min(1, (t - SEGS[si]['t'][0]) / 0.8))
+            roll += 4.5 * smooth(min(1, (t - SEGS[si]['t'][0]) / 0.8))
             pitch -= 1.5
         if SEGS[si].get('intent') == 'think':
             yaw += 10 * bump(t, SEGS[si]['t'][0] + 0.4, 1.4); pitch -= 2 * bump(t, SEGS[si]['t'][0] + 0.4, 1.4)
     # acknowledge gestures also nod the head
     for t0, kind, dur, side, sii, en in GEST:
         if kind in ('ack', 'wave'):
-            pitch += 5 * bump(t, t0 + 0.05, 0.5)
+            pitch += 6 * bump(t, t0 + 0.05, 0.5)
         if kind == 'question':
-            roll += 2.5 * bump(t, t0 + 0.1, dur - 0.3)
+            roll += 3.0 * bump(t, t0 + 0.1, dur - 0.3)
     return yaw, pitch, roll
 
 def brows(t):
+    """brows lead speech: pop on every stressed syllable, rise for questions."""
     up = face_base(t)['brow']
     si = speaking_seg(t)
     if si is not None:
         for o, d, v, s, sii in SYL:
-            if sii == si and s: up += 0.5 * bump(t, o - 0.10, 0.45)
+            if sii == si and s: up += 0.85 * bump(t, o - 0.10, 0.45)
     for t0, kind, dur, side, sii, en in GEST:
-        if kind == 'question': up += 0.45 * bump(t, t0 + 0.05, dur - 0.3)
-    return max(-0.4, min(1, up))
+        if kind == 'question': up += 0.5 * bump(t, t0 + 0.05, dur - 0.3)
+        if kind == 'emphasis': up += 0.35 * bump(t, t0, 0.5)
+    return max(-0.5, min(1, up))
+
+def lids(t):
+    """eyes stay alive: slight widen on stressed syllables, soften on smile."""
+    w = 0.0
+    si = speaking_seg(t)
+    if si is not None:
+        for o, d, v, s, sii in SYL:
+            if sii == si and s: w += 0.22 * bump(t, o - 0.08, 0.4)
+    return min(0.5, w)
 
 def breathe(t): return 0.45 * math.sin(t * 1.85)
 
@@ -428,13 +455,13 @@ def apply(t):
     rots([(bone('head'), [('Z', yaw * 0.7), ('X', pitch * 0.7), ('Y', roll)])])
     # face
     jaw, width, lip = mouth_state(t)
-    b = blink(t); gx, gz = gaze(t); br = brows(t)
+    b = blink(t); gx, gz = gaze(t); br = brows(t); lid_w = lids(t)
     for S in ('L', 'R'):
-        local_loc(fbone('lid_upper', S), y=FC['lid_close'] * (b + fb['lid'] * 0.6))
+        local_loc(fbone('lid_upper', S), y=FC['lid_close'] * (b + fb['lid'] * 0.6 - lid_w * 0.5))
         local_loc(fbone('brow', S), y=FC['brow_up'] * br)
-        local_loc(fbone('corner', S), y=FC['corner_up'] * (fb['corner'] + 0.25 * max(0, width)))
+        local_loc(fbone('corner', S), y=FC['corner_up'] * (fb['corner'] + 0.3 * max(0, width) + 0.15 * jaw))
     local_loc(fbone('eyes'), x=FC['gaze'] * gx, z=FC['gaze'] * gz)
-    m = fbone('mouth'); m.scale = (1 + 0.22 * width, 1, 1)
+    m = fbone('mouth'); m.scale = (1 + 0.08 * width, 1, 1)
     local_loc(fbone('lip_bot'), y=-FC['lip_open'] * lip)
     local_loc(fbone('lip_top'), y=FC['lip_open'] * 0.35 * jaw)
     j = bone('jaw'); local_rot(j, x=FC['jaw_sign'] * FC['jaw_deg'] * jaw)
@@ -454,10 +481,12 @@ def apply(t):
             af = amp * (0.5 + 0.5 * lag_f); aw = amp * (0.4 + 0.6 * lag_w)
             rots([(bone('upperarm', S), [('Z', sgn * G['ua'][0] * amp), ('Y', sgn * G['ua'][1] * amp)])])
             fX = G['fa'][0] * af
-            if kind == 'emphasis':  # small beat down at stroke end
-                fX += -14 * amp * bump(u, 0.42, 0.22)
+            if kind == 'emphasis':  # two small beats down during the hold
+                fX += -16 * amp * bump(u, 0.45, 0.26) - 10 * amp * bump(u, 0.78, 0.22)
             rots([(bone('forearm', S), [('X', fX), ('Z', sgn * G['fa'][1] * af)])])
-            hw = [ ('Y', sgn * G['h'][1] * aw), ('X', G['h'][0] * aw), ('Z', sgn * G['h'][2] * aw)]
+            # wrist twist is a world-space target (palm up / palm out): applied
+            # absolutely, NOT mirrored per side like the arm abduction is
+            hw = [ ('Y', G['h'][1] * aw), ('X', G['h'][0] * aw), ('Z', sgn * G['h'][2] * aw)]
             if kind == 'wave' and u > 0.42:
                 hw[2] = ('Z', sgn * (G['h'][2] * aw + 16 * math.sin(2 * math.pi * 2.6 * (u - 0.42)) * amp))
             brots(bone('hand', S), hw)
