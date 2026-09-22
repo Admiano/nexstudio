@@ -96,8 +96,14 @@ def _column_slot(atlas: dict, side: str, i: int, n: int) -> tuple[float, float]:
 def _lettered(text: str, cx: float, top: float, h: float,
               color='ink', ws=1.35, bold=True, max_w=None):
     if max_w:
-        while v3.text_width(text, h) > max_w and h > 5:
+        while v3.text_width(text, h) > max_w and h > 6:
             h *= 0.92
+        # never let text bleed past its slot — shrink first, truncate
+        # with an ellipsis only as the last resort
+        if v3.text_width(text, h) > max_w:
+            while text and v3.text_width(text + '..', h) > max_w:
+                text = text[:-1].rstrip()
+            text = text + '..' if text else ''
     tw = v3.text_width(text, h)
     origin = (cx - tw / 2, top)
     strokes = v3.text_strokes(text, origin, h, color, ws)
@@ -363,8 +369,12 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             else:
                 # hero beats: label floats above the satellite chips
                 sx, sy = 0.0, atlas['hero_c'][1] - atlas['hero_s'] * 0.74
+            # cell labels must fit the cell, not just the frame — a
+            # fixed frame fraction lets narrow cells' labels collide
+            lbl_w = cells[bi][2] * 0.92 if region == 'cell' \
+                else z['w'] * 0.4
             st, _o, _t, _h = _lettered(lbl, sx, sy, 20, 'ink',
-                                       max_w=z['w'] * 0.4)
+                                       max_w=lbl_w)
             add(bi, 'stage', st, size=1.0, role='marker.short')
             elements[-1]['slot'] = (f'cell{bi}' if region == 'cell'
                                     else region if region in ('left', 'right')
