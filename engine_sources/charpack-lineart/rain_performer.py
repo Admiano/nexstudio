@@ -35,8 +35,11 @@ B = dict(head='FK-Head', neck='FK-Neck', chest='FK-Chest', spine='FK-Spine', pel
          thigh='FK-Thigh.{S}', shin='FK-Shin.{S}', foot='FK-Foot.{S}',
          finger='FK-{F}{N}.{S}', thumb='FK-Thumb{N}.{S}')
 FC = dict(lid_upper='ACT-Eyelid_Upper.{S}', lid_close=-0.030, brow='MSTR-Eyebrow.{S}', brow_up=0.012,
-          eyes='TGT-Eyes', gaze=0.10, mouth='MSTR-Mouth', lip_bot='MSTR-LowerLip', lip_top='MSTR-UpperLip',
-          lip_open=0.016, corner='ACT-Lips_Corner.{S}', corner_up=0.008, jaw_sign=-1, jaw_deg=11)
+          eyes='TGT-Eyes', gaze=0.10, mouth='MSTR-Mouth',
+          lipbot_grp='P-GRP-Lip_Bot.M', lipbot_part=0.028,
+          corner='P-ACT-Lips_Corner.{S}', corner_out=0.012, corner_up=0.008,
+          cheek='DSP-MSTR-CheekRaise.{S}', cheek_up=0.012,
+          jaw_sign=-1, jaw_deg=30)
 FINGERS = ('Index', 'Middle', 'Ring', 'Pinky')
 INK = ('hair', 'eyebrow', 'eyelash', 'shoe', 'jeans', 'eyedot', 'gums', 'tongue', 'teeth',
        'viewport_black', 'hairband', 'laces')
@@ -244,12 +247,14 @@ def segment_syllables(seg, seed):
         stress = 1 if (i == 0 or t - last_stress > 1.15) else 0
         if stress: last_stress = t
         v = rng.random()
-        if i % 6 == 5:          # consonant cluster: near-closed
-            tgt = (0.10 + 0.08 * v, 0.0, 0.15)
-        elif stress:            # stressed vowel opens wider
-            tgt = (0.52 + 0.22 * v, 0.05 + 0.25 * (v - 0.5), 0.55)
+        if i % 6 == 5:          # consonant cluster: near-sealed
+            tgt = (0.08 + 0.10 * v, 0.0, 0.0, 0.3)
+        elif stress:            # stressed vowel: jaw drops far enough to show the interior
+            tgt = (0.78 + 0.22 * v, 0.15 + 0.45 * rng.random(),
+                   0.4 if rng.random() < 0.22 else 0.0, 1.0)
         else:                   # ordinary vowel: modest open
-            tgt = (0.24 + 0.26 * v, -0.15 + 0.30 * rng.random(), 0.45)
+            tgt = (0.38 + 0.30 * v, -0.10 + 0.35 * rng.random(),
+                   0.3 if rng.random() < 0.15 else 0.0, 0.85)
         out.append((t, d, tgt, stress))
         t += d + 0.02 + 0.06 * rng.random() + (0.16 if rng.random() < 0.18 else 0)
         if t > t1 - 0.08: break
@@ -265,14 +270,17 @@ def speaking_seg(t):
     return None
 
 def mouth_state(t):
-    j = w = l = 0.0; wsum = 0.0
+    """-> (open, wide, round, part): jaw openness, corner spread, pucker, lip-seal break."""
+    op = wd = rd = pt = 0.0; wsum = 0.0
     for o, d, v, s, si in SYL:
         c = o + d * 0.45; sig = 0.085
         k = math.exp(-((t - c) / sig) ** 2)
-        J, W, Lp = v; amp = 0.8 + 0.3 * s
-        j += k * J * amp; w += k * W; l += k * Lp; wsum += k
-    if wsum < 1e-6: return 0.0, 0.0, 0.0
-    return min(0.8, j / max(wsum, 0.9)), max(-1, min(1, w / max(wsum, 0.9))), min(1, l / max(wsum, 0.9))
+        O, W, R, P = v; amp = 0.8 + 0.3 * s
+        op += k * O * amp; wd += k * W; rd += k * R; pt += k * P * amp; wsum += k
+    if wsum < 1e-6: return 0.0, 0.0, 0.0, 0.0
+    den = max(wsum, 0.9)
+    return (min(0.85, op / den), max(-1, min(1, wd / den)),
+            max(0, min(1, rd / den)), min(1, pt / den))
 
 # ---------- semantic director: intent -> scheduled gestures (VITA grammar) ----------
 INTENT_MAP = {'wave': 'wave', 'explain': 'present', 'emphasis': 'emphasis',
@@ -453,18 +461,25 @@ def apply(t):
     rots([(bone('chest'), [('X', breathe(t)), ('Z', 0.7 * math.sin(t * 0.23))])])
     rots([(bone('neck'), [('Z', yaw * 0.3), ('X', pitch * 0.3)])])
     rots([(bone('head'), [('Z', yaw * 0.7), ('X', pitch * 0.7), ('Y', roll)])])
-    # face
-    jaw, width, lip = mouth_state(t)
+    # face — jaw rotation does NOT part Rain's lips (the sealed mouth rides
+    # with it): jaw drops the chin silhouette while P-GRP-Lip_Bot.M parts the
+    # lips onto the dropped edge; corners give width/lift; mouth scale narrows
+    # for rounded vowels; slight L/R asymmetry on corners/brow.
+    open_, wide, round_, part = mouth_state(t)
     b = blink(t); gx, gz = gaze(t); br = brows(t); lid_w = lids(t)
     for S in ('L', 'R'):
+        sgn = 1 if S == 'L' else -1
+        asym = 1.0 if S == 'L' else 0.82
         local_loc(fbone('lid_upper', S), y=FC['lid_close'] * (b + fb['lid'] * 0.6 - lid_w * 0.5))
-        local_loc(fbone('brow', S), y=FC['brow_up'] * br)
-        local_loc(fbone('corner', S), y=FC['corner_up'] * (fb['corner'] + 0.3 * max(0, width) + 0.15 * jaw))
+        local_loc(fbone('brow', S), y=FC['brow_up'] * br * asym)
+        local_loc(fbone('corner', S),
+                  x=-sgn * FC['corner_out'] * (wide + 0.35 * fb['corner']) * asym,
+                  y=FC['corner_up'] * (fb['corner'] + 0.35 * wide) * asym)
+        local_loc(fbone('cheek', S), z=FC['cheek_up'] * (fb['corner'] * 0.7 + 0.3 * br) * asym)
     local_loc(fbone('eyes'), x=FC['gaze'] * gx, z=FC['gaze'] * gz)
-    m = fbone('mouth'); m.scale = (1 + 0.08 * width, 1, 1)
-    local_loc(fbone('lip_bot'), y=-FC['lip_open'] * lip)
-    local_loc(fbone('lip_top'), y=FC['lip_open'] * 0.35 * jaw)
-    j = bone('jaw'); local_rot(j, x=FC['jaw_sign'] * FC['jaw_deg'] * jaw)
+    m = fbone('mouth'); m.scale = (1 - 0.28 * round_, 1, 1 - 0.12 * round_)
+    local_loc(fbone('lipbot_grp'), y=-FC['lipbot_part'] * part)
+    j = bone('jaw'); local_rot(j, x=FC['jaw_sign'] * FC['jaw_deg'] * open_)
     # gesture: torso leads, upper arm +2f, forearm +4f, wrist +6f (24fps flow lag)
     a, kind, u, side, gsi = gesture(t)
     if kind:
