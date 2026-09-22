@@ -33,6 +33,8 @@ overshoot, the active-word pop settles with a small dip, sentence
 transitions ease in-out, and the swoosh draws in with eased progress.
 Themes:
 `light` (white paper) or `dark` (near-black, accent highlight box).
+`--accent #RRGGBB` recolors the brand accent (swooshes, settled key words,
+highlight box) — defaults to the plan's `brandAuthority.accent` (#0052FF).
 Every word is guaranteed on-frame — the typesetter auto-shrinks to fit
 width and height, and the sentence-entry rise is capped so tall blocks
 never dip below the frame edge.
@@ -42,7 +44,7 @@ python engine_sources/whiteboard-v3-runtime/pipeline_kinetic_timed.py \
   engine_sources/whiteboard-v3-runtime/fixtures/kinetic_demo_plan.json \
   --out-dir out/kinetic --ratio 9:16 --voiceover vo.mp3 \
   --word-timings words.json [--face grotesk|marker] \
-  [--theme light|dark] [--watermark TEXT] [--music]
+  [--theme light|dark] [--accent #RRGGBB] [--watermark TEXT] [--music]
 ```
 
 ## Requirements

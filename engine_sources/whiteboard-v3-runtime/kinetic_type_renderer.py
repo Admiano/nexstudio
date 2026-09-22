@@ -369,13 +369,19 @@ _THEMES = {
 }
 
 
-def palette(plan: dict, theme: str = 'light') -> dict:
+def palette(plan: dict, theme: str = 'light',
+            accent: str | None = None) -> dict:
     ba = (plan.get('brandExecution') or {}).get('brandAuthority') or {}
     def hx(k, d):
         v = str(ba.get(k, d)).lstrip('#')
         return tuple(int(v[i:i + 2], 16) for i in (0, 2, 4))
     t = _THEMES[theme]
-    accent = hx('accent', '#0052FF')
+    if accent is not None:
+        v = str(accent).lstrip('#')
+        accent_rgb = tuple(int(v[i:i + 2], 16) for i in (0, 2, 4))
+    else:
+        accent_rgb = hx('accent', '#0052FF')
+    accent = accent_rgb
     pal = dict(t)
     if theme == 'dark':
         # accent text lightened for dark-bg legibility; the highlight box
@@ -393,12 +399,13 @@ _TRANS_S = 0.34
 def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
                          size: tuple[int, int], plan: dict,
                          face: str = 'grotesk', theme: str = 'light',
-                         watermark: str | None = None):
+                         watermark: str | None = None,
+                         accent: str | None = None):
     """Full frame at absolute t: active sentence centered; when a new
     sentence just became active, the previous one slides up & fades while
     the new one rises into place."""
     W, H = size
-    pal = palette(plan, theme)
+    pal = palette(plan, theme, accent=accent)
     img = Image.new('RGB', (W, H), pal['paper'])
     d = ImageDraw.Draw(img)
     if not sents:

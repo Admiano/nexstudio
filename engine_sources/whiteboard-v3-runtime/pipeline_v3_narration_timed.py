@@ -663,6 +663,10 @@ def main(argv: list[str] | None = None) -> int:
                          'whisper verbose_json, or flat [{word,start,end}]). '
                          'When given, each beat window is re-aligned to where '
                          'its narration is actually spoken — audio is the clock.')
+    ap.add_argument('--accent', default=None,
+                    help='Brand accent hex (e.g. #E11D48) — overrides the '
+                         'plan brandAuthority.accent; drives swooshes, '
+                         'accent fills and callout marks')
     ap.add_argument('--keep-frames', action='store_true')
     ap.add_argument('--package-root', default=None, help='Override path to NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE')
     a = ap.parse_args(argv)
@@ -670,6 +674,9 @@ def main(argv: list[str] | None = None) -> int:
     plan = load_plan(Path(a.plan))
     if a.variant:
         plan['camera_variant'] = a.variant
+    if a.accent:
+        plan.setdefault('brandExecution', {}).setdefault(
+            'brandAuthority', {})['accent'] = a.accent
     if a.word_timings:
         plan = align_beats_to_words(plan, load_word_timings(a.word_timings))
     receipt = render_production(
