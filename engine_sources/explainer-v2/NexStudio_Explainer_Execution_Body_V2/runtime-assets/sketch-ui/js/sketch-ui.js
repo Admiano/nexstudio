@@ -745,31 +745,42 @@ window.NexSketch = (() => {
     return { el, tl };
   };
 
-  /* HyperFrames-style mark: two rounded wedges — one pointing right (top),
-     one pointing left (bottom) — overlapping like a folded ribbon. */
-  const MARK_A = 'M26 14 Q14 12 14 26 L14 86 Q14 100 28 94 L120 62 Q130 58 121 49 L30 14 Z';
-  const MARK_B = 'M174 126 Q186 128 186 114 L186 54 Q186 40 172 46 L80 78 Q70 82 79 91 L170 126 Z';
-  const markPaths = (w, seedBase, strokeWidth, fill) => ([
-    skPath(w, MARK_A, seedBase, { strokeWidth, fill }),
-    skPath(w, MARK_B, seedBase + 1, { strokeWidth, fill }),
-  ]);
+  /* --- brand mark: the film's own identity — never a baked logo.
+     spec.mark: false → none · 'icon:<name>' → sketch icon ·
+     '<asset|path|url>' → supplied art, inkified · 'initial' | omitted →
+     the brand's first letter inside a hand-drawn mint ring. --- */
+  const brandMark = (spec, px = 88) => {
+    const mk = h('div', 'sk-brandmark', null);
+    mk.style.cssText = `width:${px}px;height:${px}px;position:relative;display:flex;align-items:center;justify-content:center;flex:none`;
+    const mode = spec.mark;
+    if (typeof mode === 'string' && mode.startsWith('icon:')) { mk._icon = icon(mode.slice(5), mk); mk._icon.style.cssText = 'width:72%;height:72%'; return mk; }
+    if (typeof mode === 'string' && mode !== 'initial') {
+      const img = document.createElement('img');
+      img.src = mediaOf(mode); img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block';
+      mk.appendChild(inkifyImg(img, spec));
+      return mk;
+    }
+    const w = svgRoot(mk, '0 0 100 100'); w.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+    mk._ring = skCircle(w, 50, 50, 84, 911, { strokeWidth: 3.4, stroke: cssVar('--sk-mint'), roughness: 1.5 });
+    mk._letter = h('span', '', mk, String(spec.brandA || 'N').slice(0, 1).toUpperCase());
+    mk._letter.style.cssText = `font-family:var(--sk-serif);font-size:${Math.round(px * 0.54)}px;color:var(--sk-ink);line-height:1`;
+    return mk;
+  };
 
-  /* --- logo mark draw-on (two rounded triangles, mint) --- */
+  /* --- logo-mark: standalone brand-mark beat --- */
   scenes['logo-mark'] = (spec) => {
     const el = h('div', '', null);
-    el.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center';
-    const w = svgRoot(el, '0 0 200 140'); w.style.width = '40%';
-    const [p1, p2] = markPaths(w, 500, 2.4, cssVar('--sk-mint'));
+    el.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;position:relative';
+    const mk = brandMark(spec, spec.px || 190);
+    el.appendChild(mk);
     const tl = NexMotion.createTimeline();
-    drawOn(tl, p1, 0.15, 0.9);
-    drawOn(tl, p2, 0.5, 0.9);
-    if (p1._fill) p1._fill.style.opacity = '0';
-    if (p2._fill) p2._fill.style.opacity = '0';
-    tl.addUpdate(1.55, 0.7, p => {
-      if (p1._fill) p1._fill.style.opacity = String(p);
-      if (p2._fill) p2._fill.style.opacity = String(p);
-    }, 'power1.inOut');
-    tl.addUpdate(2.1, 1.0, (p, raw, t) => { w.style.transform = `rotate(${Math.sin(t * 1.6) * 1.7}deg)`; }, 'none');
+    if (mk._ring) {
+      drawOn(tl, mk._ring, 0.15, 1.1);
+      tl.fromTo(mk._letter, { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.9)' }, 0.9);
+    } else {
+      tl.fromTo(mk, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.7, ease: 'power3.out' }, 0.15);
+    }
+    tl.addUpdate(1.7, 1.2, (p, raw, t) => { mk.style.transform = `rotate(${Math.sin(t * 1.6) * 1.7}deg)`; }, 'none');
     return { el, tl };
   };
 
@@ -783,9 +794,9 @@ window.NexSketch = (() => {
     const brandB = spec.brandB === undefined ? 'STUDIO' : spec.brandB;
     const second = brandB ? h('span', '', wm, brandB) : null;
     if (spec.mark !== false) {
-      const mk = h('span', 'mk', wm);
-      const w = svgRoot(mk, '0 0 200 140'); w.style.width = '100%'; w.style.height = '100%';
-      markPaths(w, 500, 4.5, cssVar('--sk-mint'));
+      const mk = brandMark(spec, spec.markPx || 56);
+      mk.classList.add('mk');
+      wm.appendChild(mk);
       wm._mark = mk;
     }
     if (spec.sub) h('div', 'sk-subline', el, spec.sub);
@@ -1219,6 +1230,90 @@ window.NexSketch = (() => {
       const wash = h('div', '', el);
       wash.style.cssText = 'position:absolute;left:6%;right:6%;top:58%;height:.2em;background:var(--sk-mint);opacity:.7;transform:scaleX(0);transform-origin:0 50%;z-index:-1;border-radius:3px';
       tl.addUpdate(0.5, 0.7, p => { wash.style.transform = `scaleX(${p})`; }, 'expo.out');
+    }
+    return { el, tl };
+  };
+
+  /* --- orbit: brand hub with items circling on a drawn ellipse — the
+     grammar for "X now supports A, B, C" / ecosystem reveals. items are
+     upright chips riding the ring; spin is continuous and deterministic. --- */
+  scenes['orbit'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;position:relative;display:flex;align-items:center;justify-content:center';
+    const items = (spec.items || []).map(it => typeof it === 'string' ? { title: it } : it);
+    const n = Math.max(items.length, 1);
+    /* drawn ring underlay */
+    const w = svgRoot(el, '0 0 1000 1000');
+    w.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
+    const ring = skEllipse(w, 500, 500, 840, 600, 913, { strokeWidth: 2.4, roughness: 1.2 });
+    const inner = spec.ring2 !== false ? skEllipse(w, 500, 500, 620, 430, 917, { strokeWidth: 1.6, roughness: 1.6, stroke: cssVar('--sk-ink-3') }) : null;
+    /* hub */
+    const hub = h('div', '', el);
+    hub.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;z-index:2';
+    const hubTitle = h('div', 'sk-wordmark', hub, spec.title || '');
+    hubTitle.style.fontSize = spec.fontSize || '58px'; hubTitle.style.gap = '0';
+    if (spec.sub) { const s = h('div', 'sk-mono', hub, spec.sub); s.style.cssText = 'font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sk-ink-2)'; }
+    /* orbiting chips — deterministic angle = base + t*spin */
+    const chips = items.map((it, i) => {
+      const c = h('div', '', el);
+      c.style.cssText = 'position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;z-index:3';
+      const dot = svgRoot(c, '0 0 24 24'); dot.style.cssText = 'width:15px;height:15px;display:block';
+      skCircle(dot, 12, 12, 15, 200 + i, { strokeWidth: 2.6, fill: i === 0 ? cssVar('--sk-mint') : cssVar('--sk-paper'), roughness: 1.3 });
+      const lab = h('div', 'sk-mono', c, it.title || ''); lab.style.cssText = 'font-size:15px;letter-spacing:.1em;text-transform:uppercase;font-weight:600';
+      if (it.sub) { const s = h('div', 'sk-mono', c, it.sub); s.style.cssText = 'font-size:10px;letter-spacing:.1em;color:var(--sk-ink-3)'; }
+      return c;
+    });
+    const CX = 50, CY = 50, RX = 42, RY = 30, SPIN = spec.spin == null ? 7 : spec.spin;
+    const tl = NexMotion.createTimeline();
+    drawOn(tl, ring, 0.15, 1.15);
+    if (inner) drawOn(tl, inner, 0.5, 0.9);
+    popIn(tl, hub, 0.15, 0.55);
+    chips.forEach((c, i) => {
+      const s = 0.55 + i * 0.28;
+      tl.fromTo(c, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(2.1)' }, s);
+    });
+    tl.addUpdate(0, 120, (p, raw, t) => {
+      chips.forEach((c, i) => {
+        const a = (-95 + i * (360 / n) + t * SPIN) * Math.PI / 180;
+        c.style.left = `${CX + RX * Math.cos(a)}%`;
+        c.style.top = `${CY + RY * Math.sin(a)}%`;
+      });
+      hub.style.transform = `translate(-50%,-50%) scale(${1 + 0.012 * Math.sin(t * 1.3)})`;
+    }, 'none');
+    return { el, tl };
+  };
+
+  /* --- kinetic-headline: words slam in one by one, landing with weight;
+     accent word gets a mint underline swipe. Stronger than a type card. --- */
+  scenes['kinetic-headline'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;position:relative';
+    const text = spec.text || spec.headline || '';
+    const head = h('h2', 'sk-display', el, text);
+    head.style.cssText = `font-size:${spec.fontSize || '62px'};max-width:92%;`;
+    const words = splitWords(head, text);
+    const accent = spec.accent; // word (string) or index (number) for mint
+    const accentIdx = typeof accent === 'number' ? accent :
+      typeof accent === 'string' ? words.findIndex(w => w.textContent.toLowerCase() === accent.toLowerCase()) : -1;
+    const tl = NexMotion.createTimeline();
+    words.forEach((wEl, i) => {
+      const s = 0.12 + i * 0.24;
+      wEl.style.display = 'inline-block'; wEl.style.transformOrigin = '50% 80%';
+      tl.fromTo(wEl, { opacity: 0, scale: 2.1, y: 26, rotation: (i % 2 ? -4 : 4) },
+        { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.45, ease: 'back.out(2.0)' }, s);
+      /* landing kick — the whole line absorbs the hit */
+      tl.addUpdate(s + 0.42, 0.18, p => { head.style.transform = `translateY(${-3.5 * Math.sin(p * Math.PI)}px)`; }, 'none');
+      if (i === accentIdx) {
+        wEl.style.position = 'relative';
+        const und = h('span', '', wEl);
+        und.style.cssText = 'position:absolute;left:-2%;right:-2%;bottom:.06em;height:.14em;background:var(--sk-mint);z-index:-1;transform:scaleX(0);transform-origin:0 50%;border-radius:3px';
+        tl.addUpdate(s + 0.4, 0.32, p => { und.style.transform = `scaleX(${p})`; }, 'power2.out');
+      }
+    });
+    if (spec.sub) {
+      const s = h('div', 'sk-mono', el, spec.sub);
+      s.style.cssText = 'font-size:13.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sk-ink-2)';
+      fadeIn(tl, s, 0.12 + words.length * 0.24 + 0.25, 0.45);
     }
     return { el, tl };
   };

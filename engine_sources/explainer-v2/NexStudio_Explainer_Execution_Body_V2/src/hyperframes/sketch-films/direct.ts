@@ -60,6 +60,10 @@ export type FilmBeat = {
   tags?: string[];
   /** End-card button label (overrides brief.cta on the close beat). */
   cta?: string;
+  /** kinetic-headline: word (string) or index (number) that gets the mint swipe. */
+  accent?: string | number;
+  /** end-card / logo-mark / orbit mark: false | 'initial' | 'icon:<name>' | media asset. */
+  mark?: string | boolean;
   /** Contrast pair. */
   a?: { title?: string; items?: string[] };
   b?: { title?: string; items?: string[] };
@@ -156,6 +160,12 @@ function classifyClause(clause: string): FilmBeat | null {
   /* quoted → pull-quote */
   const qm = c.match(/["“](.+?)["”]/);
   if (qm) return { quote: qm[1] };
+  /* "now supports X, Y and Z" → orbit beat */
+  const sup = c.match(/\b(?:now supports?|supports?|works with|integrates with|powered by)\s+(.+)/i);
+  if (sup) {
+    const items = sup[1].split(/,| and | & /).map(s => s.trim().replace(/\.$/, "")).filter(Boolean);
+    if (items.length >= 2) return { role: "support", items: items.slice(0, 6), head: "" };
+  }
   /* enumeration "a, b, c" or "a / b / c" → list (checked before figures so a
      list containing a number stays a list) */
   const parts = c.split(/,|;| \/ |·| and /).map(s => s.trim()).filter(s => s.length >= 3 && s.length <= 60);
@@ -232,6 +242,11 @@ function inferSceneType(beat: FilmBeat, ctx: { index: number; total: number; use
     const ACTION = /^(plan|design|draw|build|make|roast|grind|brew|ship|pack|send|pick|grow|cut|mix|write|record|edit|test|check|render|export|publish|launch|collect|choose|set|open|place|scan|tap|swipe|track|measure|weigh|clean|fill)\b/i;
     const actionish = beat.items.length >= 3 && beat.items.every(i => typeof i === "string" && ACTION.test(i));
     if (beat.role === "process" || stepish || actionish) return "process-rail";
+    /* short name-like entries (brands, models, integrations) belong in orbit
+       — "X now supports A, B, C" reads as a system, not a spec sheet */
+    const nameish = beat.items.length >= 2 && beat.items.length <= 6 &&
+      beat.items.every(i => { const t = typeof i === "string" ? i : (i.title || ""); return t.trim().split(/\s+/).length <= 3 && !ACTION.test(t); });
+    if (nameish && (beat.role === "proof" || beat.role === "announce" || beat.role === "support")) return "orbit";
     if (hasTitles && beat.items.length >= 3) return "feature-grid";
     return "word-list";
   }
@@ -241,7 +256,7 @@ function inferSceneType(beat: FilmBeat, ctx: { index: number; total: number; use
     case "product": return fresh(["phone-app", "agent-window", "media-frame"]);
     case "process": return "process-rail";
     case "proof": return fresh(["storyboard", "compose-graph", "render-bar", "word-list"]);
-    case "payoff": return fresh(["payoff-lockup", "type-card"]);
+    case "payoff": return fresh(["payoff-lockup", "type-card", "kinetic-headline"]);
     case "close": return "end-card";
   }
   /* head/text fallback by position — the beat just before the close is the
@@ -327,11 +342,13 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     };
     case "compose-graph": return { ...base, kicker: (base.kicker as string) || "/ PIPELINE", kickerR: "COMPOSE", title: "COMPOSE" };
     case "render-bar": return { ...base, kicker: (base.kicker as string) || "RENDER", file: `${product.toLowerCase().replace(/\s+/g, "-")}.mp4` };
+    case "orbit": return { ...base, title: beat.head || product, sub: beat.sub, items: (beat.items || []).map(i => typeof i === "string" ? { title: i } : i) };
+    case "kinetic-headline": return { ...base, text: beat.head || beat.text || "", sub: beat.sub, accent: beat.accent, index: false };
     case "payoff-lockup": return { ...base, text: beat.head || brief.tagline || "briefs in. films out.", sub: beat.sub || brief.tagline || "", index: false };
     case "end-card": {
       const brand = (beat.head || product).split(" ");
       const [a, ...rest] = brand;
-      return { ...base, brandA: a || "NEX", brandB: rest.join(" ") || "", sub: beat.sub || brief.tagline || "briefs in. films out.", pill: beat.cta || brief.cta || "Start a film", index: false };
+      return { ...base, brandA: a || "NEX", brandB: rest.join(" ") || "", sub: beat.sub || brief.tagline || "briefs in. films out.", pill: beat.cta || brief.cta || "Start a film", ...(beat.mark !== undefined ? { mark: beat.mark } : {}), index: false };
     }
     default: return { ...base, text: beat.head || beat.text || "" };
   }
@@ -550,6 +567,7 @@ export function validateSpec(spec: SketchFilmSpec): void {
     "compose-graph", "render-bar", "player", "logo-mark", "end-card",
     "hero-build", "phrase-swap", "process-rail", "payoff-lockup", "word-object-bridge",
     "chapter", "word-list", "feature-grid", "stat", "quote", "media-frame", "split", "marquee-word",
+    "orbit", "kinetic-headline",
   ]);
   if (!spec.scenes.length) throw new Error("spec.scenes empty");
   let t = 0;

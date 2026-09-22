@@ -34,7 +34,9 @@ export type SketchSceneSpec = {
     | "quote"
     | "media-frame"
     | "split"
-    | "marquee-word";
+    | "marquee-word"
+    | "orbit"
+    | "kinetic-headline";
   /** Absolute film seconds where the beat starts. */
   start: number;
   /** Beat length in film seconds. */

@@ -120,7 +120,14 @@ Content-typed primitives (domain-agnostic — the general-purpose vocabulary):
 underlines), `feature-grid` (icon cards pop+settle), `stat` (counting figure +
 suffix), `quote` (drawn quote marks + attribution), `media-frame` (framed
 image or drawn placeholder), `split` (A/B contrast), `marquee-word` (huge
-outlined word + mint wash).
+outlined word + mint wash), `orbit` (brand hub + named items circling on a
+drawn ellipse — for "X now supports A, B, C" beats), `kinetic-headline`
+(words slam in individually, landing kick + mint underline on the accent).
+
+Brand marks are never baked in: `end-card`/`logo-mark` take `mark` —
+`false` for none, `'icon:<name>'` for a sketch icon, a media asset
+name/path/URL for supplied art (inkified), or omit for the default: the
+brand's first letter in a hand-drawn mint ring.
 
 Layout discipline: every scene body lives inside `.sk-safe` (inset inside the
 furniture margins), and furniture (kickers/foot/index/`note`) owns the
