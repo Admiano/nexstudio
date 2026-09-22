@@ -7,9 +7,17 @@ outline + flat fills, pose/expression control via CLI args. Developed in the
 
 ## Layout
 
-- `render_lineart_gp.py` — headless renderer (bpy script)
+- `render_lineart_gp.py` — headless stills renderer (bpy script)
+- `podcast_char.py` / `podcast_char2.py` — line-art podcast performers
+  (recovered verbatim from the podcast session): deterministic python curves
+  driving the CloudRig controls — seats, 3/4 heads, gaze saccades, blinks,
+  brows, visemes, finger chains, shoulder-led gesture arm, listener nods,
+  breathing. v2 adds face + hands + posture performance (`still`/`anim`,
+  `closeup` modes; adapters for `rain` and `snow`). Per-frame:
+  `blender -b <char.blend> --python podcast_char2.py -- <char> <outdir> <f0> <f1>`
 - `Rain_x/Rain v3.3/` — Rain character rig, unmodified upstream pack
-  (`rain_v3.2.blend` + `textures/`)
+  (`rain_v3.2.blend` + `textures/`); podcast_char2 also needs the Snow rig
+  (download from studio.blender.org/characters/snow)
 - `outputs/` — latest renders: `rain_v25.png` (full), `v25_hands.png` (hand crops)
 
 ## Usage
