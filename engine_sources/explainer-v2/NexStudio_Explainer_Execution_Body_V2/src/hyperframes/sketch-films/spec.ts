@@ -54,6 +54,8 @@ export type SketchSceneSpec = {
   kickerR?: string;
   /** Bottom-left footnote (mono, uppercase). */
   foot?: string;
+  /** Small italic annotation inside the safe lane, bottom-left — detail layer. */
+  note?: string;
   /** Set false to hide the bottom-right "03/12" page index. */
   index?: boolean;
   /** Scene-specific params passed through to the component builder. */
@@ -72,8 +74,10 @@ export type SketchFilmSpec = {
   sfx?: { path: string; atSec: number[]; volume?: number }[];
   /** Named media assets usable from scene params (e.g. posters, card art). */
   assets?: Record<string, string>;
-  /** Override paper texture path (defaults to the vendored paper006). */
+  /** Override paper texture path (defaults to the generated warm fibred sheet). */
   paperTexture?: string;
+  /** Override speckle/grain tile path (defaults to grain-fine-256). */
+  grainTexture?: string;
   scenes: SketchSceneSpec[];
 };
 

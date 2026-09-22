@@ -126,6 +126,8 @@ window.NexSketch = (() => {
     pause: p => skPath(p, 'M9 6v12M15 6v12', 26),
     dotgrid: p => [5, 12, 19].map(y => [5, 12, 19].forEach(x => skCircle(p, x, y, 2.6, 27 + x + y))),
     clip: p => skPath(p, 'M8 12.5l7-7a3.6 3.6 0 0 1 5 5l-9 9a5.5 5.5 0 0 1-7.7-7.7l8-8', 28),
+    hash: p => skPath(p, 'M9.5 4L8 20M15.5 4L14 20M4.5 8.5h15M3.5 15.5h15', 29),
+    mic: p => { skRect(p, 9, 2.5, 6, 11, 30); skPath(p, 'M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7', 31) },
   };
   function icon(name, parent, cls) {
     const s = svgRoot(parent, '0 0 24 24', cls || 'sk-icon');
@@ -159,24 +161,37 @@ window.NexSketch = (() => {
   /* --- type card: serif statement, words rise in --- */
   scenes['type-card'] = (spec) => {
     const el = h('div', 'sk-scene-body', null);
-    el.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 9%';
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 9%;gap:14px';
     const t = h('h2', 'sk-display', el);
     t.style.fontSize = spec.fontSize || '56px';
     const words = splitWords(t, spec.text || '');
+    if (spec.accent) {
+      /* paint the matching word mint */
+      words.forEach(w => { if (w.textContent === spec.accent) w.style.color = 'var(--sk-mint-deep)'; });
+    }
+    const rule = h('div', '', el); rule.style.cssText = 'width:96px;height:8px;position:relative';
+    const rs = svgRoot(rule, '0 0 96 8'); rs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+    skLine(rs, 2, 4, 94, 4, 1005, { strokeWidth: 2.2 });
+    if (spec.sub) { const s = h('div', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:14px;color:var(--sk-ink-2);letter-spacing:.14em;text-transform:uppercase'; }
     const tl = NexMotion.createTimeline();
     words.forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 26, rotation: 1.2 }, { opacity: 1, y: 0, rotation: 0, duration: 0.55, ease: 'power3.out' }, 0.15 + i * 0.11));
+    drawOn(tl, rs, 0.3 + words.length * 0.11, 0.4, 'expo.out');
+    if (spec.sub) fadeIn(tl, el.children[el.children.length - 1], 0.6 + words.length * 0.1, 0.35);
     return { el, tl };
   };
 
-  /* --- chat prompt: icon rail + typed prompt + send --- */
+  /* --- chat prompt: icon rail + mention + typed prompt + tools rail + send.
+     The card owns the frame — ~86% width, tall field, bottom tools row. --- */
   scenes['chat-prompt'] = (spec) => {
     const el = h('div', '', null);
-    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 8%;gap:18px';
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 3%;gap:18px';
     const box = h('div', 'sk-chat', el);
     const frame = h('div', 'sk-chat-box', box);
-    const frameSvg = svgRoot(frame, '0 0 640 190');
+    frame.style.minHeight = '300px';
+    const frameSvg = svgRoot(frame, '0 0 640 300');
     frameSvg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
-    skRect(frameSvg, 6, 6, 628, 178, 41);
+    skRect(frameSvg, 6, 6, 628, 288, 41);
+    skLine(frameSvg, 6, 248, 634, 248, 42, { strokeWidth: 1.5 });   // tools-rail divider
     const rail = h('div', 'sk-chat-icorail', frame);
     (spec.icons || ['globe', 'folder', 'play', 'mail', 'cards']).forEach(n => icon(n, rail));
     const row = h('div', 'sk-chat-row', frame);
@@ -184,13 +199,17 @@ window.NexSketch = (() => {
     icon('at', h('i', '', mention));
     h('span', '', mention, spec.mention || 'Agent');
     const typedRow = h('div', 'sk-chat-row', frame);
-    typedRow.style.cssText = 'min-height:46px;align-items:flex-start';
+    typedRow.style.cssText = 'min-height:96px;align-items:flex-start;padding-top:6px';
     const typed = h('span', 'sk-typed', typedRow);
     const caret = h('span', 'sk-caret', typedRow);
     const sub = h('div', 'sk-chat-sub', frame);
-    const chip = h('span', 'sk-chip', sub, spec.mode || 'Auto');
+    sub.style.cssText += ';border-top:0;position:absolute;left:18px;right:18px;bottom:12px';
+    const tools = h('span', '', sub); tools.style.cssText = 'display:flex;gap:12px;align-items:center';
+    icon('at', tools); icon('hash', tools); icon('mic', tools);
+    const right = h('span', '', sub); right.style.cssText = 'display:flex;gap:10px;align-items:center';
+    const chip = h('span', 'sk-chip', right, spec.mode || 'Auto');
     chip.insertAdjacentHTML('beforeend', '<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="var(--sk-ink)" stroke-width="1.6" stroke-linecap="round"/></svg>');
-    const send = h('span', 'sk-send', sub); icon('up', send);
+    const send = h('span', 'sk-send', right); icon('up', send);
     const tl = NexMotion.createTimeline();
     drawOn(tl, frameSvg, 0, 0.7);
     fx(frame, 'cut-paper-pop', { delay: 0.05, duration: 0.72, intensity: 0.9 });
@@ -219,17 +238,20 @@ window.NexSketch = (() => {
     return { el, tl };
   };
 
-  /* --- agent window: browser chrome + sidebar + chat + checklist --- */
+  /* --- agent window: full desk — chrome + task sidebar + chat column +
+     checklist + composer input. Fills the safe lane; every region carries
+     real structure so the frame never reads empty. --- */
   scenes['agent-window'] = (spec) => {
     const el = h('div', '', null);
-    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:7% 5% 4.5%';
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;padding:1% 0';
     const win = h('div', 'sk-window', el);
     win.style.flex = '1';
+    win.style.minHeight = '0';
     const ws = svgRoot(win, '0 0 680 600');
     ws.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
     skRect(ws, 4, 4, 672, 592, 51);
-    skLine(ws, 4, 52, 676, 52, 52);
-    skLine(ws, 184, 52, 184, 596, 53);
+    skLine(ws, 4, 52, 676, 52, 52);            // chrome divider
+    skLine(ws, 184, 52, 184, 596, 53);         // sidebar divider
     const chrome = h('div', 'sk-chrome', win);
     const dots = h('div', 'sk-dots', chrome); dots.append(h('i'), h('i'), h('i'));
     const brand = h('span', 'sk-brand', chrome); icon('spark', brand); h('span', '', brand, spec.brand || 'STUDIO');
@@ -237,15 +259,28 @@ window.NexSketch = (() => {
     const chr = h('div', 'sk-chrome-r', chrome);
     icon('eye', chr); icon('image', chr); icon('sliders', chr); icon('list', chr);
     const body = h('div', 'sk-window-body', win);
+    /* sidebar — task list with two entries + section label */
     const side = h('div', 'sk-sidebar', body);
     const btn = h('span', 'sk-btn', side); icon('plus', btn); h('span', '', btn, spec.cta || 'New Task');
     h('div', 'sk-navlabel', side, 'Task  1');
-    const nav = h('div', 'sk-navitem', side); h('span', '', nav, spec.task || 'launch film'); h('small', '', nav, spec.taskSub || 'now');
+    const nav = h('div', 'sk-navitem on', side); h('span', '', nav, spec.task || 'launch film'); h('small', '', nav, spec.taskSub || 'now');
+    h('div', 'sk-navlabel', side, 'Queue');
+    const nav2 = h('div', 'sk-navitem', side); h('span', '', nav2, spec.task2 || 'rough cut'); h('small', '', nav2, 'idle');
+    /* main column — user bubble, agent status, checklist */
     const main = h('div', 'sk-main', body);
     const bubble = h('div', 'sk-bubble', main, spec.prompt || 'build me a launch video');
     const agent = h('div', 'sk-agent', main); h('i', 'dot', agent); h('span', '', agent, spec.status || 'Agent — planning the build…');
     const check = h('ul', 'sk-check', main);
-    (spec.checks || []).forEach(c => { const li = h('li', '', check); icon('check', li); h('span', '', li, c); });
+    (spec.checks || []).forEach((c, i) => {
+      const li = h('li', '', check); icon('check', li); h('span', '', li, c);
+      /* items beyond the first two start unchecked — they tick live */
+      if (i >= 2) li.querySelector('span').style.opacity = '.55';
+    });
+    /* composer input bar pinned to the bottom of the main column */
+    const composer = h('div', 'sk-inputline sk-composer', main);
+    const cb = h('div', 'sk-composer-box', composer);
+    h('span', 'sk-mono', cb, spec.composer || 'Reply to the agent…').style.cssText = 'font-size:12px;color:var(--sk-ink-3);letter-spacing:.04em';
+    const csend = h('span', 'sk-send', cb); icon('up', csend);
     const tl = NexMotion.createTimeline();
     drawOn(tl, ws, 0, 0.8);
     fx(win, 'drop-and-settle', { delay: 0, duration: 0.8, intensity: 0.5 });
@@ -253,11 +288,19 @@ window.NexSketch = (() => {
     fadeIn(tl, brand, 0.7); fadeIn(tl, pill, 0.75);
     [...chr.children].forEach((c, i) => fadeIn(tl, c, 0.8 + i * 0.05, 0.25));
     fadeIn(tl, btn, 0.75); fadeIn(tl, side.children[1], 0.82); fadeIn(tl, nav, 0.88);
+    fadeIn(tl, side.children[3], 0.95); fadeIn(tl, nav2, 1.0);
     popIn(tl, bubble, 0.95, 0.45);
     fadeIn(tl, agent, 1.2);
     [...check.children].forEach((li, i) => fadeIn(tl, li, 1.4 + i * 0.26, 0.3));
+    /* trailing checklist items tick over live */
+    [...check.children].forEach((li, i) => {
+      if (i < 2) return;
+      const span = li.querySelector('span');
+      tl.addUpdate(2.6 + (i - 2) * 0.5, 0.3, p => { span.style.opacity = String(0.55 + 0.45 * p); }, 'none');
+    });
+    fadeIn(tl, composer, 1.5, 0.4);
     const cur = h('div', 'sk-cursor', win); cursor(cur);
-    cur.style.right = '6%'; cur.style.bottom = '8%';
+    cur.style.right = '6%'; cur.style.bottom = '10%';
     tl.fromTo(cur, { opacity: 0, x: 60, y: 40 }, { opacity: 1, x: 0, y: 0, duration: 0.7 }, 0.5);
     tl.to(cur, { x: -90, y: -160, duration: 0.7, ease: 'power2.inOut' }, 2.2);
     tl.to(cur, { x: -60, y: -30, duration: 0.8, ease: 'power2.inOut' }, 3.0);
@@ -355,6 +398,17 @@ window.NexSketch = (() => {
     const head = h('div', 'sk-apphead', scr);
     h('b', 'sk-ui', head, spec.appTitle || 'my plants').style.cssText = 'font-size:15px';
     const hb = h('span', '', head); hb.style.cssText = 'display:flex;gap:9px'; icon('search', hb); icon('bell', hb);
+    /* week strip: 7 day ticks, two with droplet dots — reads as a schedule */
+    if (spec.week !== false) {
+      const wk = h('div', '', scr);
+      wk.style.cssText = 'display:flex;justify-content:space-between;padding:2px 6px 8px';
+      'MTWTFSS'.split('').forEach((d, i) => {
+        const cell = h('span', '', wk); cell.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;width:24px';
+        const dd = h('span', 'sk-mono', cell, d); dd.style.cssText = 'font-size:8px;color:var(--sk-ink-3);letter-spacing:.04em';
+        const dt = h('i', '', cell); dt.style.cssText = `width:5px;height:5px;border-radius:50%;${(spec.drops || [1, 3]).includes(i) ? 'background:var(--sk-mint);border:1px solid var(--sk-ink)' : 'border:1px solid var(--sk-ink-3)'}`;
+        void dd;
+      });
+    }
     const cards = h('div', 'sk-appcards', scr);
     if (spec.hero) {
       const hero = h('div', 'sk-appcard hero', cards);
@@ -406,9 +460,26 @@ window.NexSketch = (() => {
       const inner = h('div', 'miniframe', cell);
       const g = svgRoot(inner, '0 0 120 70');
       const seed = 230 + i * 7;
-      if ((i + (spec.seedOffset || 0)) % 3 === 0) { skRect(g, 14, 12, 92, 46, seed); skPath(g, 'M14 58h92', seed + 1); skCircle(g, 30, 24, 9, seed + 2); }
-      else if ((i + (spec.seedOffset || 0)) % 3 === 1) { skPath(g, 'M60 62C50 50 47 40 47 32a13 13 0 0 1 26 0c0 8-3 18-13 30zM60 62V44', seed); skPath(g, 'M40 62h40', seed + 3); }
-      else { skRect(g, 20, 18, 80, 36, seed); skCircle(g, 38, 36, 14, seed + 1); skPath(g, 'M34 36l3 3 6-7', seed + 2, { strokeWidth: 2.2 }); }
+      /* each cell is a tiny sketched frame of the film — horizon + subject */
+      const v = (i + (spec.seedOffset || 0)) % 4;
+      if (v === 0) {                                    /* landscape frame */
+        skPath(g, `M12 ${44 + (i % 2) * 4} q18 -18 34 -10 q22 -14 40 -2 q12 -8 22 4`, seed, { strokeWidth: 1.8 });
+        skCircle(g, 92, 20, 11, seed + 1);
+        skPath(g, 'M12 58h96', seed + 2, { strokeWidth: 1.4 });
+      } else if (v === 1) {                             /* figure on stage */
+        skCircle(g, 60, 24, 12, seed);
+        skPath(g, 'M60 36v18M48 42h24M52 54l-6 10M68 54l6 10', seed + 1, { strokeWidth: 1.8 });
+        skPath(g, 'M20 64h80', seed + 2, { strokeWidth: 1.4 });
+      } else if (v === 2) {                             /* UI card grid */
+        skRect(g, 14, 12, 42, 30, seed, { strokeWidth: 1.6 });
+        skRect(g, 64, 12, 42, 30, seed + 1, { strokeWidth: 1.6 });
+        skRect(g, 14, 50, 92, 12, seed + 2, { strokeWidth: 1.6 });
+        skPath(g, 'M20 22h28M20 30h20', seed + 3, { strokeWidth: 2.4, roughness: 0.3 });
+      } else {                                          /* type + underline */
+        skPath(g, 'M18 26h84', seed, { strokeWidth: 7, roughness: 0.35 });
+        skPath(g, 'M18 40h56', seed + 1, { strokeWidth: 4, roughness: 0.35 });
+        skPath(g, 'M60 54c14 -4 30 -4 42 0', seed + 2, { strokeWidth: 2.2 });
+      }
       h('div', 'lbl', cell, `${spec.cellLabel || 'FRAME'} ${String(i + 1).padStart(2, '0')}`);
       cells.push({ cell, cs });
     }
@@ -671,12 +742,13 @@ window.NexSketch = (() => {
     const head = h('div', 'sk-display', el, spec.title || 'how it moves');
     head.style.fontSize = spec.fontSize || '54px';
     const railWrap = h('div', '', el);
-    railWrap.style.cssText = 'position:relative;height:240px';
-    const svg = svgRoot(railWrap, '0 0 620 240'); svg.style.cssText = 'width:100%;height:100%';
+    railWrap.style.cssText = 'position:relative;height:320px';
+    if (spec.sub) { const s = h('p', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:14px;color:var(--sk-ink-2);margin:-14px 0 0;letter-spacing:.06em'; }
+    const svg = svgRoot(railWrap, '0 0 620 320'); svg.style.cssText = 'width:100%;height:100%';
     const steps = (spec.steps || []).slice(0, 4);
     const n = steps.length || 3;
     const xs = n === 1 ? [310] : steps.map((_, i) => 70 + i * ((620 - 140) / (n - 1)));
-    const railY = 118;
+    const railY = 130;
     /* rail line */
     const rail = skLine(svg, 56, railY, 564, railY, 800, { strokeWidth: 2.2 });
     const nodes = xs.map((x, i) => {
@@ -686,7 +758,16 @@ window.NexSketch = (() => {
       lbl.textContent = steps[i] || `step ${i + 1}`;
       const num = sv('text', { x, y: railY + 7, 'text-anchor': 'middle', 'font-family': "'DM Serif Display',serif", 'font-size': '17', fill: cssVar('--sk-ink') }, g);
       num.textContent = `0${i + 1}`;
-      return { g, c, lbl, num };
+      /* caption line under the label — spec.subs[i] or a drawn stub */
+      let cap = null;
+      if ((spec.subs || [])[i]) {
+        cap = sv('text', { x, y: railY + 102, 'text-anchor': 'middle', 'font-family': "'JetBrains Mono',monospace", 'font-size': '11.5', 'letter-spacing': '.05em', fill: cssVar('--sk-ink-3') }, g);
+        cap.textContent = spec.subs[i];
+      } else {
+        cap = skPath(g, `M${x - 24} ${railY + 96} h48`, 860 + i, { strokeWidth: 2.6, roughness: 0.35 });
+        cap.style.opacity = '.5';
+      }
+      return { g, c, lbl, num, cap };
     });
     /* focal dot rides the rail */
     const dot = skCircle(svg, xs[0], railY, 17, 900, { fill: cssVar('--sk-mint'), stroke: cssVar('--sk-ink'), strokeWidth: 1.6 });
@@ -706,6 +787,7 @@ window.NexSketch = (() => {
         if (dot._fill) dot._fill.style.transform = tf;
       }, 'power2.inOut');
       tl.fromTo(nd.lbl, { opacity: 0 }, { opacity: 1, duration: 0.3 }, at + 0.28);
+      if (nd.cap) tl.fromTo(nd.cap, { opacity: 0 }, { opacity: typeof spec.subs?.[i] === 'string' ? 1 : 0.5, duration: 0.3 }, at + 0.4);
     });
     if (spec.payoff) {
       const pw = h('div', 'sk-serif', el, spec.payoff);
@@ -782,25 +864,36 @@ window.NexSketch = (() => {
     return { el, tl };
   };
 
-  /* --- chapter: section marker — index numeral + big title + drawn rule --- */
+  /* --- chapter: section marker — index numeral + big title + drawn rule +
+     a giant ghost numeral behind the title so the frame reads composed --- */
   scenes['chapter'] = (spec) => {
     const el = h('div', '', null);
-    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px';
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;position:relative';
     if (spec.marker) {
       const mk = h('div', 'sk-mono', el, spec.marker);
       mk.style.cssText = 'font-size:15px;color:var(--sk-mint-deep);letter-spacing:.22em;font-weight:600';
     }
     const t = h('h2', 'sk-display', el, spec.text || '');
-    t.style.fontSize = spec.fontSize || '68px';
+    t.style.fontSize = spec.fontSize || '76px';
+    t.style.position = 'relative';
+    t.style.zIndex = '1';
     const rule = h('div', '', el); rule.style.cssText = 'width:110px;height:8px;position:relative';
     const rs = svgRoot(rule, '0 0 110 8'); rs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
     skLine(rs, 2, 4, 108, 4, 1000, { strokeWidth: 2.4 });
     if (spec.sub) { const s = h('p', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:14px;color:var(--sk-ink-2);margin:0;letter-spacing:.06em;max-width:80%'; }
+    /* oversized outlined numeral behind, upper-right — furniture-grade filler */
+    if (spec.numeral !== false) {
+      const gh = h('div', 'sk-outline', el, spec.numeral || '');
+      gh.style.cssText = 'position:absolute;right:-1%;top:-4%;font-size:240px;line-height:.8;opacity:.16;pointer-events:none;user-select:none';
+      if (spec.numeral === undefined) gh.textContent = String(spec.index ?? 1).padStart(2, '0');
+    }
     const tl = NexMotion.createTimeline();
     if (spec.marker) fadeIn(tl, el.children[0], 0.1, 0.3, 6);
     splitWords(t, t.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 30, rotation: 1.4 }, { opacity: 1, y: 0, rotation: 0, duration: 0.55, ease: 'power3.out' }, 0.25 + i * 0.1));
     drawOn(tl, rs, 0.35, 0.45, 'expo.out');
     if (spec.sub) fadeIn(tl, el.children[el.children.length - 1], 0.7, 0.4);
+    const ghost = el.querySelector('.sk-outline');
+    if (ghost) tl.fromTo(ghost, { opacity: 0 }, { opacity: 0.16, duration: 0.8, ease: 'power1.out' }, 0.4);
     return { el, tl };
   };
 
@@ -808,8 +901,8 @@ window.NexSketch = (() => {
      by a mint marker as it lands --- */
   scenes['word-list'] = (spec) => {
     const el = h('div', '', null);
-    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px';
-    if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = spec.titleSize || '46px'; }
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:space-evenly;gap:6px';
+    if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = spec.titleSize || '42px'; }
     const items = (spec.items || []).slice(0, 6);
     const rows = items.map((it, i) => {
       const row = h('div', '', el);
@@ -817,12 +910,19 @@ window.NexSketch = (() => {
       const idx = h('span', 'sk-mono', row, String(i + 1).padStart(2, '0'));
       idx.style.cssText = 'font-size:13px;color:var(--sk-ink-3);letter-spacing:.1em;flex:none;width:26px';
       const txt = h('span', 'sk-display', row, typeof it === 'string' ? it : it.text || '');
-      txt.style.cssText = `font-size:${spec.fontSize || '40px'};position:relative`;
-      /* marker line drawn under the phrase */
+      txt.style.cssText = `font-size:${spec.fontSize || (items.length <= 3 ? '46px' : '40px')};position:relative;line-height:1.12`;
+      /* mint marker underlines the phrase's last line — never strikes through */
       const mark = h('span', '', txt);
-      mark.style.cssText = 'position:absolute;left:-3%;right:-3%;top:74%;height:.16em;background:var(--sk-mint);opacity:.75;transform-origin:0 50%;transform:scaleX(0);z-index:-1;border-radius:2px';
+      mark.style.cssText = 'position:absolute;left:-3%;right:-3%;bottom:-0.05em;height:.15em;background:var(--sk-mint);opacity:.75;transform-origin:0 50%;transform:scaleX(0);z-index:-1;border-radius:2px';
       if (typeof it === 'object' && it.sub) { const s = h('span', 'sk-mono', row, it.sub); s.style.cssText = 'margin-left:auto;font-size:13px;color:var(--sk-ink-2)'; }
-      return { row, mark };
+      /* hairline ink rule spans the lane under each row — the editorial
+         baseline grid that keeps short lists from floating */
+      const rl = h('span', '', row);
+      rl.style.cssText = 'position:absolute;left:-2%;right:-2%;bottom:-10px;height:6px;pointer-events:none';
+      const rlSvg = svgRoot(rl, '0 0 600 6'); rlSvg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+      skLine(rlSvg, 2, 3, 598, 3, 1100 + i, { strokeWidth: 1.1 });
+      rlSvg.style.opacity = '.4';
+      return { row, mark, rlSvg };
     });
     const tl = NexMotion.createTimeline();
     let at = 0.15;
@@ -830,6 +930,7 @@ window.NexSketch = (() => {
     rows.forEach((r, i) => {
       tl.fromTo(r.row, { opacity: 0, x: -34 }, { opacity: 1, x: 0, duration: 0.42, ease: 'expo.out' }, at + i * 0.5);
       tl.addUpdate(at + i * 0.5 + 0.28, 0.34, p => { r.mark.style.transform = `scaleX(${p})`; }, 'expo.out');
+      drawOn(tl, r.rlSvg, at + i * 0.5 + 0.1, 0.3, 'expo.out');
     });
     return { el, tl };
   };
@@ -842,7 +943,7 @@ window.NexSketch = (() => {
     const items = (spec.items || []).slice(0, 6);
     const cols = items.length <= 2 ? items.length : items.length === 4 ? 2 : 3;
     const grid = h('div', '', el);
-    grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},1fr);gap:18px;align-self:center;width:100%`;
+    grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},1fr);gap:18px;align-self:stretch;width:100%;flex:1;min-height:0;grid-auto-rows:1fr`;
     const cards = items.map((it, i) => {
       const card = h('div', '', grid);
       card.style.cssText = 'position:relative;border-radius:12px;padding:20px 16px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;min-height:150px;justify-content:center';
@@ -869,7 +970,12 @@ window.NexSketch = (() => {
   scenes['stat'] = (spec) => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';
-    const big = h('div', 'sk-display', el);
+    const figWrap = h('div', '', el); figWrap.style.cssText = 'position:relative;display:flex;align-items:center;justify-content:center';
+    const ring = svgRoot(figWrap, '0 0 360 360'); ring.style.cssText = 'position:absolute;width:118%;aspect-ratio:1;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none';
+    skCircle(ring, 180, 180, 330, 1250, { strokeWidth: 1.8 });
+    skCircle(ring, 180, 180, 316, 1251, { strokeWidth: 1.1 });
+    for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; skLine(ring, 180 + Math.cos(a) * 168, 180 + Math.sin(a) * 168, 180 + Math.cos(a) * 160, 180 + Math.sin(a) * 160, 1252 + k, { strokeWidth: 2 }); }
+    const big = h('div', 'sk-display', figWrap);
     big.style.cssText = 'font-size:' + (spec.fontSize || '128px') + ';line-height:1;font-variant-numeric:tabular-nums';
     const label = h('div', 'sk-mono', el, spec.label || '');
     label.style.cssText = 'font-size:15px;color:var(--sk-ink-2);letter-spacing:.16em;text-transform:uppercase';
@@ -878,7 +984,8 @@ window.NexSketch = (() => {
     skLine(rs, 2, 4, 138, 4, 1200, { strokeWidth: 2.4 });
     if (spec.sub) { const s = h('p', 'sk-serif', el, spec.sub); s.style.cssText = 'font-style:italic;font-size:22px;color:var(--sk-ink);margin:6px 0 0'; }
     const tl = NexMotion.createTimeline();
-    popIn(tl, big, 0.15, 0.5);
+    popIn(tl, figWrap, 0.15, 0.5);
+    drawOn(tl, ring, 0.2, 0.9);
     const fmt = spec.format || ((v) => String(Math.round(v)));
     const suffix = spec.suffix || '';
     counter(tl, big, 0.4, 1.3, p => fmt(p * Number(spec.value || 0)) + suffix);
@@ -923,6 +1030,9 @@ window.NexSketch = (() => {
       skLine(g, 40, 300, 476, 300, 1404, { strokeWidth: 1.6 });
     }
     if (spec.caption) { const c = h('div', 'sk-mono', el, spec.caption); c.style.cssText = 'font-size:13px;color:var(--sk-ink-2);letter-spacing:.12em'; }
+    /* figure index, bottom-right inside the frame */
+    const fig = h('div', 'sk-mono', frame, spec.fig || 'FIG.');
+    fig.style.cssText = 'position:absolute;right:6%;bottom:5%;font-size:10px;letter-spacing:.14em;color:var(--sk-ink-3)';
     const tl = NexMotion.createTimeline();
     fx(frame, 'unfold', { delay: 0.05, duration: 0.85 });
     drawOn(tl, fs, 0.05, 1.0);
@@ -948,11 +1058,15 @@ window.NexSketch = (() => {
     const div = h('div', '', el); div.style.cssText = 'width:0;align-self:stretch;position:relative;margin:6% 0';
     const dv = svgRoot(div, '0 0 8 400'); dv.style.cssText = 'position:absolute;top:0;bottom:0;left:-4px;width:8px;height:100%';
     skLine(dv, 4, 6, 4, 394, 1500, { strokeWidth: 2.2 });
+    /* versus badge rides the divider midpoint */
+    const vs = h('div', '', div, spec.vs || 'vs');
+    vs.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--sk-paper);border:var(--sk-w) solid var(--sk-ink);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font:600 14px var(--sk-mono);letter-spacing:.04em;color:var(--sk-ink);white-space:nowrap';
     /* reposition divider between the two columns */
     div.style.order = '0'; el.insertBefore(div, b);
     const tl = NexMotion.createTimeline();
     tl.fromTo(a, { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 0.6, ease: 'expo.out' }, 0.15);
     drawOn(tl, dv, 0.55, 0.5);
+    tl.fromTo(vs, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(2)' }, 0.95);
     tl.fromTo(b, { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.6, ease: 'expo.out' }, 0.95);
     return { el, tl };
   };
@@ -960,10 +1074,11 @@ window.NexSketch = (() => {
   /* --- marquee-word: one huge word fills the frame, letters cascade --- */
   scenes['marquee-word'] = (spec) => {
     const el = h('div', '', null);
-    el.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden';
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;gap:12px';
     const t = h('h2', 'sk-outline', el, spec.word || '');
     t.style.fontSize = spec.fontSize || '170px';
     t.style.whiteSpace = 'nowrap';
+    if (spec.sub) { const s = h('div', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:15px;color:var(--sk-ink-2);letter-spacing:.18em;text-transform:uppercase'; }
     const tl = NexMotion.createTimeline();
     const letters = spec.word ? splitWords(t, spec.word) : [];
     letters.forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 46, rotation: 3 }, { opacity: 1, y: 0, rotation: 0, duration: 0.5, ease: 'expo.out' }, 0.1 + i * 0.09));
@@ -995,6 +1110,7 @@ window.NexSketch = (() => {
     if (spec.kicker) h('div', 'sk-kicker', scene, spec.kicker);
     if (spec.kickerR) h('div', 'sk-kicker tr', scene, spec.kickerR);
     if (spec.foot) h('div', 'sk-foot', scene, spec.foot);
+    if (spec.note) { const n = h('div', 'sk-mono', scene, spec.note); n.style.cssText = 'position:absolute;left:6.5%;bottom:3.4%;font-size:11px;color:var(--sk-ink-3);letter-spacing:.12em;font-style:italic'; }
     if (spec.index !== false) h('div', 'sk-index', scene, `${String(idx + 1).padStart(2, '0')}/${String(total).padStart(2, '0')}`);
   }
 
@@ -1013,6 +1129,7 @@ window.NexSketch = (() => {
     const sec = h('section', 'sk-scene');
     const cam = h('div', 'sk-cam', sec);
     const safe = h('div', 'sk-safe', cam);
+    spec.index = idx;
     const body = (scenes[spec.type] || scenes['type-card'])(spec);
     safe.appendChild(body.el);
     furniture(sec, spec, idx, total);
@@ -1033,7 +1150,8 @@ window.NexSketch = (() => {
     if (!stage) throw new Error('missing [data-nex-production-canvas] stage');
     stage.classList.add('sk-stage');
     document.documentElement.classList.add('sk'); document.body.classList.add('sk');
-    stage.style.setProperty('--sk-tex', `url('${filmSpec.paperTexture || 'sketch-ui/textures/paper006-color-1k.jpg'}')`);
+    stage.style.setProperty('--sk-tex', `url('${filmSpec.paperTexture || 'sketch-ui/textures/paper-warm-1k.png'}')`);
+    stage.style.setProperty('--sk-grain', `url('${filmSpec.grainTexture || 'sketch-ui/textures/grain-fine-256.png'}')`);
     h('div', 'sk-vignette', stage);
 
     const scenesBuilt = (filmSpec.scenes || []).map((s, i) => { const b = buildScene(s, i, filmSpec.scenes.length); stage.appendChild(b.el); return b; });
@@ -1057,14 +1175,19 @@ window.NexSketch = (() => {
 
     master.addUpdate(0, total, (p, raw, time) => {
       /* 1) scene visibility + local-time seeks */
-      scenesBuilt.forEach((b) => {
+      scenesBuilt.forEach((b, bi) => {
         const s0 = b.spec.start, s1 = b.spec.start + b.spec.duration;
         const tr = transitions.find(t => t.inEl === b.el);
         const on = (time >= s0 && time < s1) || (tr && time >= tr.end - tr.dur && time < tr.end) || (transitions.some(t => t.outEl === b.el) && time >= s1 && time < s1 + TRANSITION_DUR);
         b.el.classList.toggle('on', on);
         if (!on) return;
-        const local = Math.min(Math.max(time - s0, 0), b.tl.cursor);
-        const inDur = b.spec.transition === 'wipe' ? 0.5 : TRANSITION_KEYS[b.spec.transition] ? 0.01 : 0.3;
+        /* no dead air: while a transition is crossing onto this scene it is
+           already mid-entrance (pre-rolled), and frame 0 of the film never
+           shows an empty stage */
+        const inTr = tr && time >= tr.end - tr.dur && time < tr.end;
+        const preroll = bi === 0 ? 0.4 : (inTr ? Math.min(0.5, tr.dur * 0.75) : 0);
+        const local = Math.min(Math.max(time - s0 + preroll, 0), b.tl.cursor);
+        const inDur = b.spec.transition === 'wipe' ? 0.45 : TRANSITION_KEYS[b.spec.transition] ? 0.01 : 0.3;
         const pIn = Math.min(1, local / inDur);
         const out = s1 - time;
         /* driven transition window (incoming or outgoing): the transition

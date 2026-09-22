@@ -123,10 +123,20 @@ image or drawn placeholder), `split` (A/B contrast), `marquee-word` (huge
 outlined word + mint wash).
 
 Layout discipline: every scene body lives inside `.sk-safe` (inset inside the
-furniture margins), and furniture (kickers/foot/index) owns the margins — so
-content can never collide with chrome. Camera moves run on a `.sk-cam`
-wrapper so transition transforms never fight them. Elements that appear get
-a defined exit (cursor drifts off, caret settles) — nothing floats.
+furniture margins), and furniture (kickers/foot/index/`note`) owns the
+margins — so content can never collide with chrome. Camera moves run on a
+`.sk-cam` wrapper so transition transforms never fight them. Elements that
+appear get a defined exit (cursor drifts off, caret settles) — nothing
+floats. Composition contract per scene: subject + furniture + a detail layer
+(ghost numeral, hairline rules, rings, caption stubs, FIG labels) so no frame
+reads as a card in a void. During transition windows the incoming scene's
+clock is pre-rolled — the wipe crosses onto content already mid-entrance, so
+no frame is ever blank.
+
+Surface: warm fibred paper (`paper-warm-1k.png`, procedurally generated via
+`tools/gen-paper-texture.py`) under a fine speckle tile (`grain-fine-256.png`
+— reused from editorial-motion-v2's community surfaces) — override both per
+spec via `paperTexture` / `grainTexture`.
 
 Motion comes from two stacked layers: each scene's local timeline plus any
 `NexMotion` paper effects attached to elements (`cut-paper-pop`,

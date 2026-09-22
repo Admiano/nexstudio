@@ -34,6 +34,8 @@ const RUNTIME_FILES: Record<string, string> = {
   "sketch-ui/js/sketch-ui.js": "runtime-assets/sketch-ui/js/sketch-ui.js",
   "sketch-ui/vendor/rough.js": "runtime-assets/sketch-ui/vendor/rough.js",
   "sketch-ui/textures/paper006-color-1k.jpg": "runtime-assets/sketch-ui/textures/paper006-color-1k.jpg",
+  "sketch-ui/textures/paper-warm-1k.png": "runtime-assets/sketch-ui/textures/paper-warm-1k.png",
+  "sketch-ui/textures/grain-fine-256.png": "runtime-assets/sketch-ui/textures/grain-fine-256.png",
   "paper-motion/vendor/gsap-compat.js": "runtime-assets/paper-motion/vendor/gsap-compat.js",
   "paper-motion/runtime/motion-registry.js": "runtime-assets/paper-motion/runtime/motion-registry.js",
   "paper-motion/runtime/motion-engine.js": "runtime-assets/paper-motion/runtime/motion-engine.js",
