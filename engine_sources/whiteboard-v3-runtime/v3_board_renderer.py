@@ -834,6 +834,8 @@ _ICON_KEYWORDS = {
     ('icon', 'tabler', 'sparkles'): ('feature', 'features', 'new feature',
                                      'highlight', 'perk', 'perks',
                                      'premium', 'exclusive'),
+    ('icon', 'tabler', 'alarm-smoke'): ('ash', 'smoke', 'soot', 'smog',
+                                        'dust', 'fumes', 'exhaust'),
     ('icon', 'tabler', 'users-group'): (
         'team', 'audience', 'group', 'crowd', 'crew', 'squad', 'members',
         'workforce', 'community', 'participants', 'attendees', 'committee',
