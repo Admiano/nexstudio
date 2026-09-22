@@ -497,9 +497,14 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
         gap = 0.05
         lens = [_ink_len(e['strokes'], e['size']) for e in els]
         total = sum(lens)
+        # the per-element floor must itself fit — a crowded beat shrinks it;
+        # weighting only the remainder keeps the partition inside the beat
+        avail = dur - gap * (len(els) - 1)
+        floor = min(0.3, avail / len(els))
+        room = max(0.0, avail - floor * len(els))
         cur = 0.0
         for e, ln in zip(els, lens):
-            seg = max(0.3, (dur - gap * (len(els) - 1)) * ln / total)
+            seg = floor + room * ln / total
             e['start'], e['end'] = cur, min(dur, cur + seg)
             cur += seg + gap
         # shrink if the sum overruns the beat window

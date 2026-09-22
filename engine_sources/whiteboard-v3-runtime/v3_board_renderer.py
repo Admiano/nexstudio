@@ -771,7 +771,7 @@ def _overlay_hand(frame: Image.Image, tip, ratio: str, wobble: float = 0.0):
 _ICON_KEYWORDS = {
     'person': ('person', 'people', 'customer', 'user', 'human', 'operator',
                'worker', 'courier', 'staff', 'client', 'buyer', 'seller',
-               'employee', 'man', 'woman', 'child', 'kid', 'team', 'audience',
+               'employee', 'man', 'woman', 'child', 'kid',
                'investor', 'trader', 'founder', 'developer', 'miner', 'holder',
                'member', 'doctor', 'nurse', 'patient', 'teacher', 'student',
                'executive', 'manager', 'boss', 'ceo', 'farmer', 'artist',
@@ -789,7 +789,7 @@ _ICON_KEYWORDS = {
                'dentist', 'ranger', 'forester', 'biologist', 'operator',
                'inspector', 'supervisor', 'dispatcher', 'conductor',
                'attorney', 'judge', 'reporter', 'editor', 'author',
-               'barista', 'server', 'bartender', 'host', 'guide',
+               'barista', 'bartender', 'host', 'guide',
                'beekeeper', 'commuter', 'passenger', 'rider', 'tourist',
                'traveler', 'hiker', 'camper', 'gardener', 'rancher',
                'herder', 'shepherd', 'fisher', 'hunter', 'swimmer',
@@ -828,7 +828,16 @@ _ICON_KEYWORDS = {
               'balance', 'wallet', 'pool', 'liquidity'),
     'bank': ('bank', 'institution', 'government', 'exchange', 'company', 'office',
              'headquarters', 'organization', 'vault', 'custodian', 'hospital',
-             'pharmacy', 'clinic', 'school', 'university', 'store', 'shop'),
+             'pharmacy', 'clinic', 'store', 'shop'),
+    ('icon', 'tabler', 'school'): ('school', 'university', 'college', 'campus',
+                                  'academy', 'kindergarten'),
+    ('icon', 'tabler', 'sparkles'): ('feature', 'features', 'new feature',
+                                     'highlight', 'perk', 'perks',
+                                     'premium', 'exclusive'),
+    ('icon', 'tabler', 'users-group'): (
+        'team', 'audience', 'group', 'crowd', 'crew', 'squad', 'members',
+        'workforce', 'community', 'participants', 'attendees', 'committee',
+        'council', 'society', 'population'),
     'shield': ('shield', 'security', 'protection', 'privacy', 'insurance',
                'compliance', 'audit', 'trust', 'safety', 'secure'),
     'gear': ('automation', 'process', 'workflow', 'engine', 'mechanism', 'machine',
@@ -858,7 +867,8 @@ _VERB_TABLE = {
     'decrease': 'trending-down', 'lower': 'trending-down', 'sink': 'trending-down',
     'cheaper': 'discount', 'cut': 'discount', 'discount': 'discount',
     'rise': 'trending-up', 'rises': 'trending-up', 'grow': 'trending-up',
-    'grows': 'trending-up', 'growth': 'trending-up', 'increase': 'trending-up',
+    'grows': 'trending-up', 'grew': 'trending-up', 'grown': 'trending-up',
+    'growing': 'trending-up', 'growth': 'trending-up', 'increase': 'trending-up',
     'higher': 'trending-up', 'climb': 'trending-up', 'surge': 'trending-up',
     'boost': 'rocket', 'accelerate': 'rocket',
     'faster': 'bolt', 'instant': 'bolt', 'quick': 'bolt', 'instantly': 'bolt',
@@ -1334,6 +1344,16 @@ def _icon_for(concept: str, exclude=None):
             if base and 0 < len(rest.split()) <= 3:
                 return ('overlay', base, vi)
             return vi
+        # a single generic word resolves its own bucket first, then the
+        # flat icon, then a themed vignette ('car' is a car, not an F1
+        # scene; 'team' a group glyph, not a water-polo silhouette)
+        if len(words) == 1:
+            for icon, keys in _ICON_KEYWORDS.items():
+                if phrase in keys:
+                    return icon
+            hit = _icon_lookup(phrase, exclude)
+            if hit:
+                return hit
         # a strong scene-vignette match beats the flat icon vocabulary
         il = _illust_lookup(phrase, exclude)
         if il:
