@@ -68,12 +68,28 @@ def _sync_drawplan(plan: dict, meta: dict) -> None:
         wb.setdefault('seed', i + 7)
 
 
+# The whiteboard loader injects its house palette (cream + blue) when a
+# plan declares none. The diagram type's house style is pure white/black
+# — an authored palette or --accent still wins.
+_LOADER_PALETTE = {
+    'background': '#F5F0E4', 'ink': '#1A1A17',
+    'accent': '#0052FF', 'secondary': '#8B8577',
+}
+_DIAGRAM_PALETTE = {
+    'background': '#FFFFFF', 'ink': '#1A1A17',
+    'accent': '#1A1A17', 'secondary': '#8B8577',
+}
+
+
 def render_production(plan: dict, out_dir: Path, ratio: str = '16:9',
                       fps: int = 24,
                       voiceover: Path | None = None,
                       keep_frames: bool = False,
                       accent: str | None = None) -> dict:
     wbc, wbp, snd, v3r = p3.load_execution_body(None)
+    brand = (plan.get('brandExecution') or {}).get('brandAuthority') or {}
+    if dict(brand) == _LOADER_PALETTE:
+        plan['brandExecution']['brandAuthority'] = dict(_DIAGRAM_PALETTE)
     if ratio not in wbp.RATIO_SIZES:
         raise p3._err('DIAGRAM_RATIO_UNSUPPORTED', ratio)
     beats = plan.get('beats') or []
