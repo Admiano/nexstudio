@@ -1,0 +1,78 @@
+{
+  "id": "object.postcard.paper-01",
+  "name": "Postcard",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "mail",
+  "cssClass": "obj-postcard",
+  "renderer": "postcard",
+  "intents": [
+    "compose_paper_story",
+    "display_mail"
+  ],
+  "keywords": [
+    "paper",
+    "mail",
+    "postcard"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 22
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 75
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "page-flip",
+    "paper-slide",
+    "drop-settle"
+  ],
+  "defaultMotion": "page-flip",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.page-flip"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Postcard animated paper component",
+  "description": "A two-sided postcard with image, note and address.",
+  "attachable": false,
+  "bespokeMotion": false
+}

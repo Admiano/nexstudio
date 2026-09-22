@@ -1,0 +1,140 @@
+{
+  "id": "icon.universal.save.paper-01",
+  "name": "Save",
+  "version": "1.3.0",
+  "category": "icon",
+  "subtype": "universal",
+  "slug": "save",
+  "renderer": "save",
+  "order": 6,
+  "intents": [
+    "save_content",
+    "persist_changes"
+  ],
+  "keywords": [
+    "icon",
+    "universal",
+    "paper",
+    "save",
+    "disk",
+    "store",
+    "save"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active",
+        "completed"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "cut-paper-pop",
+        "scale-bounce",
+        "paper-slide"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.2,
+      "maximum": 3
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.35,
+    "maximum": 3
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "cut-paper-pop",
+    "scale-bounce",
+    "paper-slide"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "states": [
+    "inactive",
+    "active",
+    "completed"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "ui.save.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Save universal paper icon",
+  "description": "A reusable layered paper-style save icon for creator and agent interfaces.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": true,
+  "agentSelection": {
+    "useWhen": [
+      "save_content",
+      "persist_changes"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "action"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "id": "data.heat-blocks.paper-01",
+  "name": "Heat blocks",
+  "version": "1.9.0",
+  "category": "data-visualisation",
+  "subtype": "density",
+  "slug": "heat-blocks",
+  "renderer": "heat-blocks",
+  "order": 16,
+  "intents": [
+    "show_heat_blocks",
+    "visualise_data",
+    "explain_metric"
+  ],
+  "keywords": [
+    "data",
+    "chart",
+    "paper",
+    "animated",
+    "heat blocks",
+    "density",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "items": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 24
+    },
+    "format": {
+      "type": "enum",
+      "values": [
+        "number",
+        "compact",
+        "currency",
+        "percent"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "items"
+    ],
+    "itemFields": [
+      "label",
+      "value",
+      "change",
+      "segments",
+      "x",
+      "y"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 6,
+    "maximum": 24
+  },
+  "numberFormats": [
+    "number",
+    "compact",
+    "currency",
+    "percent"
+  ],
+  "supportsSigns": [
+    "positive",
+    "neutral",
+    "negative"
+  ],
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.2,
+    "maximum": 8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "draw-on",
+    "numeric-count"
+  ],
+  "defaultMotion": "draw-on",
+  "soundTags": [
+    "data.reveal",
+    "ui.tick",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven heat blocks",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromZero": true,
+  "usesTabularNumerals": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Activity density",
+    "format": "number",
+    "items": [
+      {
+        "label": "C1",
+        "value": 12
+      },
+      {
+        "label": "C2",
+        "value": 34
+      },
+      {
+        "label": "C3",
+        "value": 56
+      },
+      {
+        "label": "C4",
+        "value": 21
+      },
+      {
+        "label": "C5",
+        "value": 73
+      },
+      {
+        "label": "C6",
+        "value": 48
+      },
+      {
+        "label": "C7",
+        "value": 89
+      },
+      {
+        "label": "C8",
+        "value": 62
+      },
+      {
+        "label": "C9",
+        "value": 17
+      },
+      {
+        "label": "C10",
+        "value": 44
+      },
+      {
+        "label": "C11",
+        "value": 68
+      },
+      {
+        "label": "C12",
+        "value": 92
+      },
+      {
+        "label": "C13",
+        "value": 35
+      },
+      {
+        "label": "C14",
+        "value": 51
+      },
+      {
+        "label": "C15",
+        "value": 77
+      },
+      {
+        "label": "C16",
+        "value": 25
+      }
+    ]
+  }
+}

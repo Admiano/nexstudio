@@ -1,0 +1,23 @@
+.motion-layer{position:absolute;pointer-events:none;z-index:30;box-sizing:border-box}
+.motion-peel-layer{inset:-8%;background:var(--paper-surface-alt);border:var(--outline-width) solid var(--ink);clip-path:polygon(0 0,100% 0,96% 9%,100% 19%,96% 31%,100% 43%,96% 57%,100% 70%,95% 82%,100% 100%,0 100%);box-shadow:0 18px 28px rgba(0,0,0,.22)}
+.motion-impact-ring{width:55%;aspect-ratio:1;border:5px solid var(--accent);border-radius:50%;left:22.5%;top:10%;mix-blend-mode:multiply}
+.motion-draw-layer,.motion-connect-layer{inset:0;width:100%;height:100%;overflow:visible;z-index:35}
+.motion-draw-layer path,.motion-connect-layer path{fill:none;stroke:var(--primary);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.motion-ink-mask{inset:-3%;background:var(--ink);opacity:1;mix-blend-mode:multiply;clip-path:inset(0 100% 0 0 round 18px)}
+.motion-confirm-layer{width:76px;height:76px;right:8px;top:8px;filter:drop-shadow(0 7px 0 color-mix(in srgb,var(--shadow-color) 28%,transparent))}
+.motion-confirm-layer svg{width:100%;height:100%;overflow:visible}.motion-confirm-layer circle{fill:var(--paper-surface);stroke:var(--primary);stroke-width:7}.motion-confirm-layer path{fill:none;stroke:var(--ink);stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.motion-counter-badge{right:10px;bottom:10px;background:var(--highlight);color:var(--ink);border:3px solid var(--ink);padding:9px 13px;font:900 20px/1 var(--mono-font);box-shadow:5px 6px 0 var(--ink)}
+.motion-colour-fill{inset:0;background:var(--primary);mix-blend-mode:multiply;opacity:.8;transform-origin:left center;clip-path:inset(0 100% 0 0)}
+.motion-connect-nodes{inset:0}.motion-connect-nodes i{position:absolute;width:34px;height:34px;border-radius:50%;background:var(--paper-surface);border:4px solid var(--ink);box-shadow:5px 5px 0 var(--secondary)}.motion-connect-nodes i:first-child{left:10%;top:58%}.motion-connect-nodes i:last-child{right:10%;top:18%}
+.motion-marker-layer{left:-2%;right:-2%;height:.62em;bottom:.06em;background:var(--highlight);border-radius:45% 12% 34% 16%;transform-origin:left center;z-index:-1;mix-blend-mode:multiply}
+.motion-shadow-layer{width:82%;height:48%;left:50%;top:74%;border-radius:50%;background:var(--shadow-color);filter:blur(18px);z-index:-1;transform:translate(-50%,-50%);opacity:.18}
+.motion-grain-layer{inset:-14%;background-image:radial-gradient(circle,rgba(0,0,0,.38) 0 .7px,transparent .9px),repeating-linear-gradient(91deg,transparent 0 7px,rgba(255,255,255,.36) 8px 9px,transparent 10px 18px);background-size:13px 17px,auto;mix-blend-mode:multiply;opacity:.16}
+.transition-motion-layer{position:absolute;inset:-12%;z-index:80;pointer-events:none}
+.transition-paper-wipe{background:var(--paper-surface-alt);border-top:5px solid var(--ink);border-bottom:5px solid var(--ink);clip-path:polygon(0 4%,5% 0,11% 3%,18% 0,25% 4%,33% 0,41% 3%,49% 0,57% 4%,65% 0,73% 3%,82% 0,90% 4%,100% 0,100% 96%,94% 100%,86% 97%,77% 100%,68% 96%,59% 100%,50% 97%,41% 100%,32% 96%,23% 100%,14% 97%,6% 100%,0 96%)}
+.transition-page-turn{width:22%;left:44%;right:auto;background:linear-gradient(90deg,transparent,rgba(0,0,0,.42),transparent);filter:blur(14px)}
+.transition-torn-paper-reveal{width:15%;left:-8%;right:auto;background:var(--paper-surface);border-left:4px solid var(--ink);border-right:4px solid var(--ink);clip-path:polygon(18% 0,77% 0,95% 4%,70% 10%,98% 17%,73% 23%,97% 31%,69% 39%,100% 47%,70% 55%,97% 64%,71% 72%,100% 80%,70% 88%,94% 96%,78% 100%,15% 100%,2% 95%,23% 88%,0 79%,25% 70%,2% 61%,28% 52%,0 44%,26% 35%,3% 27%,27% 18%,0 10%,24% 4%)}
+.transition-collage-push{display:none}
+.transition-tape-peel{inset:auto 8% 8% 8%;height:72px;background:color-mix(in srgb,var(--secondary) 62%,transparent);border:3px solid color-mix(in srgb,var(--ink) 35%,transparent);box-shadow:0 14px 22px rgba(0,0,0,.2)}
+.transition-card-stack-shuffle{display:none}
+.transition-crumple-transition{width:260px;height:260px;left:calc(50% - 130px);top:calc(50% - 130px);border-radius:46% 54% 38% 62%/55% 43% 57% 45%;background:var(--paper-surface-alt);border:5px solid var(--ink);box-shadow:inset 24px 12px 0 color-mix(in srgb,var(--primary) 24%,transparent),inset -18px -22px 0 color-mix(in srgb,var(--secondary) 28%,transparent),0 28px 40px rgba(0,0,0,.3)}
+.transition-crumple-transition::before,.transition-crumple-transition::after{content:"";position:absolute;inset:25%;border:4px solid var(--ink);border-radius:50% 33% 54% 41%;transform:rotate(28deg)}.transition-crumple-transition::after{inset:38% 18%;transform:rotate(-39deg)}

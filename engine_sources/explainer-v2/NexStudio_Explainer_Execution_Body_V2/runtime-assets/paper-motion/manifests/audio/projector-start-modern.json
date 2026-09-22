@@ -1,0 +1,92 @@
+{
+  "id": "audio.projector-start-modern",
+  "slug": "projector-start-modern",
+  "name": "Projector Start \u2014 Modern",
+  "version": "2.2.0",
+  "category": "audio",
+  "subtype": "motion-transition",
+  "approvalStatus": "candidate",
+  "technicalStatus": "pass",
+  "editorialApproval": "pending",
+  "enabledByDefault": false,
+  "intensity": "medium",
+  "semanticTags": [
+    "archive.projector",
+    "motion.rise",
+    "motion.cinematic",
+    "ui.processing"
+  ],
+  "recommendedVisualActions": [
+    "projector-start",
+    "processing",
+    "chapter-open"
+  ],
+  "recommendedTimingOffsetSeconds": -0.12,
+  "moods": [
+    "cinematic",
+    "serious"
+  ],
+  "loopable": false,
+  "sourceMaster": "assets/audio/masters/candidate-v1/documentary-pack-v1/11_projector_start_modern.wav",
+  "productionFile": "assets/audio/production/candidate-v1/projector-start-modern.wav",
+  "provenance": "NexStudio Documentary Sound Pack V1; model-generated original procedural design; explicit editorial approval pending",
+  "licenseStatus": "original model-generated candidate; usage approval required",
+  "processing": {
+    "silenceTrim": true,
+    "protectiveFadeInMs": 6,
+    "protectiveFadeOutMs": 10,
+    "targetLufs": -18,
+    "truePeakCeilingDbfs": -1.5,
+    "originalFrames": 87360,
+    "processedFrames": 87360,
+    "trimmedSeconds": 0.0
+  },
+  "measurements": {
+    "durationSeconds": 1.82,
+    "sampleRateHz": 48000,
+    "bitDepth": 24,
+    "channels": 2,
+    "peakDbfs": -1.5,
+    "rmsDbfs": -23.43,
+    "integratedLufs": -23.88,
+    "dcOffsetMax": 4.51e-06,
+    "clippedSamples": 0,
+    "spectralCentroidHz": 2425.4,
+    "sha256": "df9e29db4b39a9197ccee506a43a46232c6b852ac08433c4453460aef3bd06d0"
+  },
+  "slots": {
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "volume": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.72
+    },
+    "timingOffset": {
+      "type": "number",
+      "minimum": -0.5,
+      "maximum": 0.5,
+      "default": -0.12
+    },
+    "alternateSound": {
+      "type": "audio-id",
+      "optional": true
+    },
+    "voiceoverDuckingDb": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 18,
+      "default": 6
+    },
+    "musicDuckingDb": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 18,
+      "default": 3
+    }
+  },
+  "accessibilityLabel": "Audition Projector Start \u2014 Modern candidate sound effect"
+}

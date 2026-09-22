@@ -1,0 +1,17 @@
+{
+  "schemaVersion":"1.0.0",
+  "description":"Maps Phase-F semantic clothing tags to Phase-B presets while respecting Phase-C presentation. Used only after family is resolved/explicitly selected.",
+  "tags": {
+    "business_casual": {"man":"man_business_casual","woman":"woman_blazer_business"},
+    "smart_casual": {"man":"man_shirt_trousers","woman":"woman_blouse_trousers","boy":"child_school_casual","girl":"child_school_casual"},
+    "shirt_trousers": {"man":"man_shirt_trousers","woman":"woman_blouse_trousers","boy":"child_school_casual","girl":"child_school_casual"},
+    "lightweight_suit": {"man":"man_light_suit","woman":"woman_blazer_business"},
+    "tshirt_trousers": {"man":"man_tshirt_trousers","woman":"woman_hoodie_jeans","boy":"child_tshirt_trousers","girl":"child_tshirt_trousers"},
+    "hoodie_jeans": {"man":"man_hoodie_jeans","woman":"woman_hoodie_jeans","boy":"child_hoodie","girl":"child_hoodie"},
+    "child_casual": {"boy":"child_tshirt_shorts","girl":"child_tshirt_shorts"},
+    "school_casual": {"boy":"child_school_casual","girl":"child_school_casual"},
+    "site_workwear": {"man":"man_workwear","woman":"woman_workwear","boy":"workwear_universal","girl":"workwear_universal","neutral":"workwear_universal"},
+    "clinical_workwear": {"man":"man_workwear","woman":"woman_workwear","neutral":"workwear_universal"},
+    "workwear": {"man":"man_workwear","woman":"woman_workwear","boy":"workwear_universal","girl":"workwear_universal","neutral":"workwear_universal"}
+  }
+}

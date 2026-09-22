@@ -1,0 +1,156 @@
+{
+  "id": "module.documentary.location-stamp.paper-01",
+  "name": "Location stamp",
+  "version": "2.0.0",
+  "category": "documentary-module",
+  "subtype": "label",
+  "slug": "location-stamp",
+  "renderer": "location-stamp",
+  "order": 7,
+  "intents": [
+    "mark_location",
+    "documentary_label"
+  ],
+  "keywords": [
+    "documentary",
+    "scrapbook",
+    "paper",
+    "animated",
+    "label",
+    "location stamp",
+    "mark_location"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "moods": [
+    "warm",
+    "serious",
+    "investigative",
+    "celebratory"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.1,
+    "maximum": 7
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "unfold",
+    "peel-reveal",
+    "drop-and-settle",
+    "stamp-impact"
+  ],
+  "defaultMotion": "paper-slide",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 36
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 80
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "location": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "source": {
+      "type": "string",
+      "maxCharacters": 120,
+      "editable": true
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "mood": {
+      "type": "enum",
+      "values": [
+        "warm",
+        "serious",
+        "investigative",
+        "celebratory"
+      ]
+    },
+    "redactions": {
+      "type": "boolean"
+    },
+    "highlight": {
+      "type": "string",
+      "maxCharacters": 80
+    },
+    "routeLabels": {
+      "type": "array",
+      "maximumItems": 6
+    },
+    "connections": {
+      "type": "array",
+      "maximumItems": 10
+    }
+  },
+  "soundTags": [
+    "documentary.label.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated location stamp documentary paper module",
+  "replaceableMedia": false,
+  "editableCitationSlots": false,
+  "configurableMood": true,
+  "agentSelection": {
+    "useWhen": [
+      "mark_location",
+      "documentary_label"
+    ],
+    "semanticRole": "label",
+    "avoidWhen": [
+      "sensationalize_without_evidence"
+    ]
+  },
+  "sampleConfig": {
+    "title": "NORTH WORKS",
+    "caption": "6.5244\u00b0 N \u00b7 3.3792\u00b0 E",
+    "media": "assets/media/documentary/city-map.svg"
+  }
+}

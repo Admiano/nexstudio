@@ -1,0 +1,128 @@
+{
+  "id": "typography.numbered-list.paper-01",
+  "name": "Numbered list",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "list",
+  "slug": "numbered-list",
+  "renderer": "numbered-list",
+  "order": 6,
+  "intents": [
+    "show_numbered_steps",
+    "present_sequence"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "list",
+    "numbered list",
+    "show_numbered_steps",
+    "present_sequence"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 54,
+      "guidance": "Maximum 54 characters; shorter copy is preferred."
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 5,
+      "itemMaxCharacters": 78
+    }
+  },
+  "characterGuidance": {
+    "title": 54,
+    "items": 5,
+    "itemCharacters": 78
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "ink-reveal",
+  "soundTags": [
+    "typography.numbered-list.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Numbered list animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_numbered_steps",
+      "present_sequence"
+    ],
+    "semanticRole": "list",
+    "copyGuidance": {
+      "title": 54,
+      "items": 5,
+      "itemCharacters": 78
+    }
+  }
+}

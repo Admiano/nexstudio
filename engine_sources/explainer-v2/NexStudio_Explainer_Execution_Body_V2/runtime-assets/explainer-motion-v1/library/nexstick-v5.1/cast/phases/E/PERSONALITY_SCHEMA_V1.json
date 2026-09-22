@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexstick://cast/v1/phase-e/personality-schema-v1",
+  "title": "NexStick Performance Personality V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gestureAmplitude", "gestureFrequency", "idleActivity", "headTiltTendency",
+    "gazeHoldDuration", "reactionLatency", "stanceWidth", "movementEnergy",
+    "turnSharpness", "armSwingScale", "bodyOpenness", "handRestOpenness",
+    "nodFrequency", "conversationListenerActivity", "movementTempoBias",
+    "anticipationAmplitude", "settleDuration"
+  ],
+  "properties": {
+    "gestureAmplitude": {"type":"number","minimum":0.60,"maximum":1.40,"x-mode":"motion-selection-and-intent"},
+    "gestureFrequency": {"type":"number","minimum":0.50,"maximum":1.50,"x-mode":"motion-selection-and-intent"},
+    "idleActivity": {"type":"number","minimum":0.50,"maximum":1.50,"x-mode":"motion-selection"},
+    "headTiltTendency": {"type":"number","minimum":0.00,"maximum":1.00,"x-mode":"attention-intent-only"},
+    "gazeHoldDuration": {"type":"number","minimum":0.60,"maximum":3.00,"x-unit":"seconds","x-mode":"attention-intent-only"},
+    "reactionLatency": {"type":"number","minimum":0.05,"maximum":0.45,"x-unit":"seconds","x-mode":"deterministic-timing-envelope"},
+    "stanceWidth": {"type":"number","minimum":0.80,"maximum":1.20,"x-mode":"motion-selection-only"},
+    "movementEnergy": {"type":"number","minimum":0.60,"maximum":1.40,"x-mode":"motion-selection"},
+    "turnSharpness": {"type":"number","minimum":0.70,"maximum":1.30,"x-mode":"motion-selection"},
+    "armSwingScale": {"type":"number","minimum":0.70,"maximum":1.30,"x-mode":"motion-selection-only"},
+    "bodyOpenness": {"type":"number","minimum":0.65,"maximum":1.35,"x-mode":"motion-selection-and-rest-intent"},
+    "handRestOpenness": {"type":"number","minimum":0.70,"maximum":1.30,"x-mode":"semantic-hand-rest-only"},
+    "nodFrequency": {"type":"number","minimum":0.00,"maximum":12.00,"x-unit":"events-per-minute","x-mode":"attention-intent-only"},
+    "conversationListenerActivity": {"type":"number","minimum":0.50,"maximum":1.50,"x-mode":"motion-selection-and-attention-intent"},
+    "movementTempoBias": {"type":"number","minimum":0.80,"maximum":1.25,"x-mode":"safe-core-time-remap-only"},
+    "anticipationAmplitude": {"type":"number","minimum":0.70,"maximum":1.30,"x-mode":"semantic-intent-only"},
+    "settleDuration": {"type":"number","minimum":0.70,"maximum":1.40,"x-mode":"deterministic-hold-envelope"}
+  },
+  "x-safety": {
+    "directJointWrite": false,
+    "proceduralGait": false,
+    "randomJitter": false,
+    "constantBounce": false,
+    "sineWavePersonality": false,
+    "contactOverride": false,
+    "gripOverrideDuringContact": false,
+    "seatSupportOverride": false,
+    "footSupportOverride": false,
+    "ownershipTimingOverrideInsideV4Core": false
+  }
+}

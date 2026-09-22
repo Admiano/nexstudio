@@ -1,0 +1,140 @@
+{
+  "id": "icon.creator.audio-waveform.paper-01",
+  "name": "Audio waveform",
+  "version": "1.4.0",
+  "category": "icon",
+  "subtype": "creator-media",
+  "group": "audio",
+  "slug": "audio-waveform",
+  "renderer": "audio-waveform",
+  "order": 9,
+  "intents": [
+    "visualize_audio",
+    "edit_audio"
+  ],
+  "keywords": [
+    "icon",
+    "creator",
+    "paper",
+    "waveform",
+    "audio",
+    "sound",
+    "timeline",
+    "levels"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "cut-paper-pop",
+        "scale-bounce",
+        "paper-slide"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.2
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.15,
+    "maximum": 3.2
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "cut-paper-pop",
+    "scale-bounce",
+    "paper-slide"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "creator.audio-waveform.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Audio waveform creator and media paper icon",
+  "description": "A reusable layered paper-style audio waveform icon for creator, media-production and publishing workflows.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": true,
+  "agentSelection": {
+    "useWhen": [
+      "visualize_audio",
+      "edit_audio"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "audio"
+  }
+}

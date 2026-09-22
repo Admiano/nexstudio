@@ -1,0 +1,86 @@
+{
+  "id": "motion.entrance.page-flip",
+  "name": "Page flip",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "entrance",
+  "key": "page-flip",
+  "intents": [
+    "animate_entrance",
+    "page_flip"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "entrance",
+    "page",
+    "flip"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power2.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power2.inOut",
+  "soundTags": [
+    "paper.page-turn.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Page flip reusable animation behaviour",
+  "description": "Flips the target into view around a paper-edge hinge.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

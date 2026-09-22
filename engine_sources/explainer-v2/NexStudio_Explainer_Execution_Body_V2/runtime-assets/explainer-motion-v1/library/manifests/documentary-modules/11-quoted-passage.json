@@ -1,0 +1,156 @@
+{
+  "id": "module.documentary.quoted-passage.paper-01",
+  "name": "Quoted passage",
+  "version": "2.0.0",
+  "category": "documentary-module",
+  "subtype": "quote",
+  "slug": "quoted-passage",
+  "renderer": "quoted-passage",
+  "order": 11,
+  "intents": [
+    "show_quoted_passage",
+    "documentary_quote"
+  ],
+  "keywords": [
+    "documentary",
+    "scrapbook",
+    "paper",
+    "animated",
+    "quote",
+    "quoted passage",
+    "show_quoted_passage"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "moods": [
+    "warm",
+    "serious",
+    "investigative",
+    "celebratory"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.1,
+    "maximum": 7
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "unfold",
+    "peel-reveal",
+    "drop-and-settle",
+    "stamp-impact"
+  ],
+  "defaultMotion": "paper-slide",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 42
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 210
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "location": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "source": {
+      "type": "string",
+      "maxCharacters": 120,
+      "editable": true
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "mood": {
+      "type": "enum",
+      "values": [
+        "warm",
+        "serious",
+        "investigative",
+        "celebratory"
+      ]
+    },
+    "redactions": {
+      "type": "boolean"
+    },
+    "highlight": {
+      "type": "string",
+      "maxCharacters": 80
+    },
+    "routeLabels": {
+      "type": "array",
+      "maximumItems": 6
+    },
+    "connections": {
+      "type": "array",
+      "maximumItems": 10
+    }
+  },
+  "soundTags": [
+    "documentary.quote.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated quoted passage documentary paper module",
+  "replaceableMedia": false,
+  "editableCitationSlots": true,
+  "configurableMood": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_quoted_passage",
+      "documentary_quote"
+    ],
+    "semanticRole": "quote",
+    "avoidWhen": [
+      "sensationalize_without_evidence"
+    ]
+  },
+  "sampleConfig": {
+    "title": "From the archive",
+    "caption": "\u201cGood work compounds quietly before the world notices.\u201d",
+    "source": "Founder\u2019s notebook \u00b7 1989"
+  }
+}

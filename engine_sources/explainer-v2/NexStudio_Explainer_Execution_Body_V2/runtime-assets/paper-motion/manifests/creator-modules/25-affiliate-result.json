@@ -1,0 +1,172 @@
+{
+  "id": "module.creator.affiliate-result.paper-01",
+  "name": "Affiliate result",
+  "version": "2.0.0",
+  "category": "creator-module",
+  "subtype": "metrics",
+  "slug": "affiliate-result",
+  "renderer": "affiliate-result",
+  "order": 25,
+  "intents": [
+    "show_affiliate_result",
+    "report_conversion"
+  ],
+  "keywords": [
+    "creator",
+    "publishing",
+    "paper",
+    "animated",
+    "platform-neutral",
+    "metrics",
+    "affiliate result",
+    "show_affiliate_result",
+    "report_conversion"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "contentStates": [
+    "short",
+    "medium",
+    "long"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 1.8,
+    "maximum": 6
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "drop-and-settle",
+    "unfold"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 88
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 240
+    },
+    "handle": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "avatar": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ]
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "video",
+        "transparent-png",
+        "website-screenshot"
+      ]
+    },
+    "logo": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ],
+      "authorizedOnly": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "contentLength": {
+      "type": "enum",
+      "values": [
+        "short",
+        "medium",
+        "long"
+      ]
+    }
+  },
+  "soundTags": [
+    "creator.module.affiliate-result.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated platform-neutral affiliate result paper module",
+  "platformNeutral": true,
+  "thirdPartyLogosBakedIn": false,
+  "authorizedLogoSlot": true,
+  "replaceableContent": true,
+  "composedFromLowerLevelComponents": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_affiliate_result",
+      "report_conversion"
+    ],
+    "semanticRole": "metrics",
+    "avoidWhen": [
+      "imitate_specific_social_platform"
+    ]
+  },
+  "sampleConfig": {
+    "title": "Affiliate performance",
+    "items": [
+      {
+        "label": "Clicks",
+        "value": 38200,
+        "change": 18
+      },
+      {
+        "label": "Trials",
+        "value": 6200,
+        "change": 26
+      },
+      {
+        "label": "Paid",
+        "value": 1480,
+        "change": 21
+      },
+      {
+        "label": "Revenue",
+        "value": 42600,
+        "change": 34
+      }
+    ]
+  }
+}

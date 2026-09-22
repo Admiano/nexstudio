@@ -1,0 +1,50 @@
+{
+  "id": "final-documentary-system-test",
+  "type": "voiceover-timing-placeholder",
+  "durationSeconds": 60,
+  "language": "en",
+  "audioFile": null,
+  "status": "timing-only",
+  "cues": [
+    {
+      "start": 0,
+      "end": 7.1,
+      "text": "The first page was small: a room, a handwritten plan and one deadline."
+    },
+    {
+      "start": 7.5,
+      "end": 14.5,
+      "text": "The people arrived before the system, and photographs became memory."
+    },
+    {
+      "start": 15,
+      "end": 22,
+      "text": "Every place added another piece to the journey."
+    },
+    {
+      "start": 22.5,
+      "end": 29.5,
+      "text": "Documents and citations kept the emotional story anchored to evidence."
+    },
+    {
+      "start": 30,
+      "end": 37,
+      "text": "Then the library became a visual language."
+    },
+    {
+      "start": 37.5,
+      "end": 44.5,
+      "text": "We stopped rebuilding and started telling."
+    },
+    {
+      "start": 45,
+      "end": 52,
+      "text": "What survived was the evidence, the people and the reason the work mattered."
+    },
+    {
+      "start": 52.5,
+      "end": 59.2,
+      "text": "Every archive is waiting for motion."
+    }
+  ]
+}

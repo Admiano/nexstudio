@@ -1,0 +1,25 @@
+{
+  "version": "5.0.0",
+  "compiled": 1,
+  "items": [
+    {
+      "key": "typing_leanback",
+      "file": "typing-leanback.fbx",
+      "semantic": "typing_leanback",
+      "duration": 19.666667,
+      "frames": 591,
+      "rootDelta": [
+        0.167385,
+        0.0,
+        -0.07815
+      ],
+      "yawDeltaDeg": 2.79,
+      "contacts": {
+        "l": 1,
+        "r": 4
+      },
+      "crop": null,
+      "status": "COMPILED_QA_PENDING"
+    }
+  ]
+}

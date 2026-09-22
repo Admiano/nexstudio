@@ -1,0 +1,128 @@
+{
+  "id": "typography.bullet-list.paper-01",
+  "name": "Bullet list",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "list",
+  "slug": "bullet-list",
+  "renderer": "bullet-list",
+  "order": 7,
+  "intents": [
+    "show_bullet_points",
+    "summarize_points"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "list",
+    "bullet list",
+    "show_bullet_points",
+    "summarize_points"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 54,
+      "guidance": "Maximum 54 characters; shorter copy is preferred."
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 6,
+      "itemMaxCharacters": 72
+    }
+  },
+  "characterGuidance": {
+    "title": 54,
+    "items": 6,
+    "itemCharacters": 72
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "paper-slide",
+  "soundTags": [
+    "typography.bullet-list.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Bullet list animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_bullet_points",
+      "summarize_points"
+    ],
+    "semanticRole": "list",
+    "copyGuidance": {
+      "title": 54,
+      "items": 6,
+      "itemCharacters": 72
+    }
+  }
+}

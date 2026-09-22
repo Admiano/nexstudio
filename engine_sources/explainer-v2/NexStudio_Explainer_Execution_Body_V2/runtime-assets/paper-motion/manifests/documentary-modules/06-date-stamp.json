@@ -1,0 +1,155 @@
+{
+  "id": "module.documentary.date-stamp.paper-01",
+  "name": "Date stamp",
+  "version": "2.0.0",
+  "category": "documentary-module",
+  "subtype": "label",
+  "slug": "date-stamp",
+  "renderer": "date-stamp",
+  "order": 6,
+  "intents": [
+    "mark_date",
+    "documentary_label"
+  ],
+  "keywords": [
+    "documentary",
+    "scrapbook",
+    "paper",
+    "animated",
+    "label",
+    "date stamp",
+    "mark_date"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "moods": [
+    "warm",
+    "serious",
+    "investigative",
+    "celebratory"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.1,
+    "maximum": 7
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "unfold",
+    "peel-reveal",
+    "drop-and-settle",
+    "stamp-impact"
+  ],
+  "defaultMotion": "paper-slide",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 28
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 70
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "location": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "source": {
+      "type": "string",
+      "maxCharacters": 120,
+      "editable": true
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "mood": {
+      "type": "enum",
+      "values": [
+        "warm",
+        "serious",
+        "investigative",
+        "celebratory"
+      ]
+    },
+    "redactions": {
+      "type": "boolean"
+    },
+    "highlight": {
+      "type": "string",
+      "maxCharacters": 80
+    },
+    "routeLabels": {
+      "type": "array",
+      "maximumItems": 6
+    },
+    "connections": {
+      "type": "array",
+      "maximumItems": 10
+    }
+  },
+  "soundTags": [
+    "documentary.label.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated date stamp documentary paper module",
+  "replaceableMedia": false,
+  "editableCitationSlots": false,
+  "configurableMood": true,
+  "agentSelection": {
+    "useWhen": [
+      "mark_date",
+      "documentary_label"
+    ],
+    "semanticRole": "label",
+    "avoidWhen": [
+      "sensationalize_without_evidence"
+    ]
+  },
+  "sampleConfig": {
+    "title": "12 OCTOBER 1994",
+    "caption": "The day the second chapter began."
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "motion.entrance.paper-slide",
+  "name": "Paper slide",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "entrance",
+  "key": "paper-slide",
+  "intents": [
+    "animate_entrance",
+    "paper_slide"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "entrance",
+    "paper",
+    "slide"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "expo.out"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "expo.out",
+  "soundTags": [
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Paper slide reusable animation behaviour",
+  "description": "Slides an element in as if pushed across a paper surface.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

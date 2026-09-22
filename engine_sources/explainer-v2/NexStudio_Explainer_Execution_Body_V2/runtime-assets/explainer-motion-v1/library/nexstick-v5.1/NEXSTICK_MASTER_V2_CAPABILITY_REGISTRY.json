@@ -1,0 +1,267 @@
+{
+  "name": "NexStick Master V2 \u2014 Unified Performance V5.1",
+  "masterVersion": "2.1.0-unified-performance-v5.1",
+  "performanceEngine": "NexPerformanceUnifiedV5@5.1.0-skin-safe-angular-continuity",
+  "status": "INTERNAL_PRODUCTION_PERFORMANCE_MASTER_SKIN_SAFE_CERTIFIED",
+  "architecture": {
+    "oneSharedMotionEngineForAllFamilies": true,
+    "skinIndependent": true,
+    "persistentWorldRoot": true,
+    "persistentWorldFacing": true,
+    "deterministicSeek": true,
+    "failClosedUnsupported": true,
+    "noLimbStretch": true,
+    "noOwnershipTeleport": true,
+    "finalContactResidualCapM": 0.035,
+    "visualBodyBoundary": "Current Authored Master is debug/regression skin only. Realistic 3D family body remains a separate visual branch and may bind to this performance master after its own visual gate.",
+    "skinSafeAngularContinuity": true,
+    "sphericalSegmentTransitionBlend": true,
+    "stableKneeBendPlaneIK": true,
+    "skinSafeLocomotionExitDecelerationSeconds": 0.4,
+    "stationaryUpperBodyPerformanceOverStableStance": [
+      "conversation",
+      "talk",
+      "give_capture"
+    ],
+    "humanoidBindingReady": true,
+    "humanoidBindingTarget": "UAL-compatible humanoid rigs; target rest translations/bone lengths preserved"
+  },
+  "cast": {
+    "families": [
+      "adult_man_average",
+      "adult_man_broad",
+      "adult_woman_average",
+      "adult_woman_tall",
+      "boy",
+      "girl",
+      "diminutive_man",
+      "diminutive_woman",
+      "diminutive_boy",
+      "diminutive_girl",
+      "neutral_adult",
+      "neutral_child"
+    ],
+    "count": 12,
+    "clothingPresets": [
+      "man_tshirt_trousers",
+      "man_shirt_trousers",
+      "man_hoodie_jeans",
+      "man_business_casual",
+      "man_light_suit",
+      "man_workwear",
+      "woman_blouse_trousers",
+      "woman_blouse_skirt",
+      "woman_dress",
+      "woman_hoodie_jeans",
+      "woman_blazer_business",
+      "woman_workwear",
+      "child_tshirt_shorts",
+      "child_tshirt_trousers",
+      "child_hoodie",
+      "child_school_casual",
+      "child_simple_dress",
+      "workwear_universal"
+    ],
+    "clothingCount": 18,
+    "personalities": [
+      "calm",
+      "cheerful",
+      "confident",
+      "shy",
+      "energetic",
+      "serious",
+      "playful",
+      "authoritative",
+      "warm",
+      "reserved"
+    ],
+    "personalityCount": 10,
+    "roles": [
+      "presenter",
+      "teacher",
+      "student",
+      "office_worker",
+      "executive",
+      "creator",
+      "technician",
+      "healthcare_worker",
+      "builder",
+      "parent",
+      "child",
+      "customer",
+      "helper",
+      "friend",
+      "salesperson"
+    ],
+    "roleCount": 15
+  },
+  "productionCapabilities": {
+    "locomotion": [
+      "idle",
+      "walk",
+      "run",
+      "captured ~90-degree turn",
+      "sit",
+      "stand",
+      "crawl",
+      "crouch"
+    ],
+    "acting": [
+      "talk",
+      "conversation",
+      "wave",
+      "celebrate",
+      "dance",
+      "captured reach",
+      "high reach",
+      "phone talk",
+      "call out",
+      "nod yes",
+      "folded-arm idle",
+      "stretch",
+      "documentary acting",
+      "presenter papers",
+      "typing + lean-back"
+    ],
+    "interaction": [
+      "semantic pickup across continuous tested height envelope",
+      "place",
+      "press",
+      "light carry",
+      "medium/two-hand carry",
+      "give/receive mechanics",
+      "paired handoff",
+      "object contact/ownership continuity",
+      "seat-bound sit/stand"
+    ],
+    "taskDonors": [
+      "consume",
+      "climb up",
+      "farm harvest",
+      "farm plant",
+      "farm water",
+      "tree chop",
+      "throw overhand",
+      "jump start/idle/land",
+      "slide start/loop/exit"
+    ],
+    "heavyCarry": "FAIL_CLOSED_NO_ADMITTED_HEAVY_DONOR",
+    "turnEnvelope": "Captured turn donor. Requests outside admitted approximately 90-degree envelope fail closed rather than procedurally rotating a pose."
+  },
+  "donorInventory": {
+    "ual2ExecutableClips": 25,
+    "rokokoSelectedExecutableClips": 6,
+    "legacyV4SearchableSources": 122,
+    "ual1AndKayKit": "retained through admitted V4 donor layer",
+    "cmuSafeCapturedSubset": "retained through admitted V4 donor layer"
+  },
+  "certification": {
+    "releaseSummary": {
+      "familiesPassed": 12,
+      "familiesTotal": 12,
+      "pickupPassed": 120,
+      "pickupTotal": 120,
+      "fixturesPassed": 48,
+      "fixturesTotal": 48,
+      "carryPassed": 48,
+      "carryTotal": 48,
+      "turnsPassed": 36,
+      "turnsTotal": 36,
+      "handoffsPassed": 5,
+      "handoffsTotal": 5,
+      "overallPass": true
+    },
+    "adversarialDeterminismSummary": {
+      "adversarialPassed": 6,
+      "adversarialTotal": 6,
+      "determinismPassed": 12,
+      "determinismTotal": 12,
+      "overallPass": true
+    },
+    "mechanicalPeaks": {
+      "maxBoundaryJumpM": {
+        "value": 4.7879999984823855e-05,
+        "family": "adult_woman_tall"
+      },
+      "maxFootSlideM": {
+        "value": 0.004180037910339677,
+        "family": "diminutive_girl"
+      },
+      "floorPenetrationM": {
+        "value": 0,
+        "family": "neutral_child"
+      },
+      "maxSegmentResidualM": {
+        "value": 2.0539125955565396e-15,
+        "family": "neutral_child"
+      },
+      "maxHorizontalAccelMps2": {
+        "value": 8.989528688787741,
+        "family": "adult_woman_tall"
+      },
+      "maxHorizontalJerkMps3": {
+        "value": 108.57965395575873,
+        "family": "adult_woman_tall"
+      }
+    },
+    "frameSanity": {
+      "count": 496,
+      "bad_decode": 0,
+      "wrong_dimensions": 0,
+      "blank": 0,
+      "black": 0,
+      "min_stddev": 16.657053526119043,
+      "max_stddev": 31.696622113439858,
+      "video": "reports/NEXSTICK_MASTER_V2_V5_1_TEMPORAL_REVIEW_NORMAL.mp4"
+    },
+    "angularContinuity60fps": {
+      "familiesPassed": 12,
+      "familiesTotal": 12,
+      "globalMaxSegmentDirectionDeltaDegPerFrame": 26.146020738760697,
+      "worst": {
+        "family": "adult_man_broad",
+        "time": 3.9166666666666665,
+        "segment": "knee_l>ankle_l",
+        "deltaDeg": 26.146020738760697,
+        "action": "talk",
+        "index": 4,
+        "transition": {
+          "from": 3,
+          "to": 4,
+          "weight": 0.147288539186444
+        }
+      },
+      "overallPass": true
+    },
+    "humanoidBinding30fps": {
+      "familiesPassed": 12,
+      "familiesTotal": 12,
+      "globalMaxLocalQuaternionFrameJumpDeg": 42.74244143754041,
+      "globalWorst": {
+        "family": "diminutive_woman",
+        "time": 3.533333333333333,
+        "bone": "calf_l",
+        "angleDeg": 42.74244143754041,
+        "action": "run",
+        "motion": "run",
+        "sequenceIndex": 3,
+        "transition": {
+          "from": 2,
+          "to": 3,
+          "weight": 0.9393750421632269,
+          "duration": 0.28,
+          "persistentWorldOffset": [
+            -0.21159706472587692,
+            0,
+            1.1720126450015025
+          ],
+          "persistentWorldYawDeg": 90.3,
+          "endWorldYawDeg": 90.3,
+          "velocityMatched": true,
+          "stanceFootAnchored": false
+        }
+      },
+      "overallPass": true
+    }
+  }
+}

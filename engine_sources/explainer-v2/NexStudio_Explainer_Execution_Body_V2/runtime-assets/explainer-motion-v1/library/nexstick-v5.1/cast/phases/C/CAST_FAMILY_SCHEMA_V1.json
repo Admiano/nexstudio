@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NexStick Cast Family Preset V1",
+  "type": "object",
+  "required": [
+    "id",
+    "lifeStage",
+    "presentation",
+    "statureClass",
+    "morphology",
+    "compatibility"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "lifeStage": {
+      "enum": [
+        "adult",
+        "child"
+      ]
+    },
+    "presentation": {
+      "enum": [
+        "man",
+        "woman",
+        "boy",
+        "girl",
+        "neutral"
+      ]
+    },
+    "statureClass": {
+      "enum": [
+        "diminutive",
+        "short",
+        "average",
+        "tall"
+      ]
+    },
+    "morphology": {
+      "type": "object",
+      "required": [
+        "overallScale",
+        "headRatio",
+        "neckLength",
+        "shoulderWidth",
+        "ribcageWidth",
+        "waistWidth",
+        "hipWidth",
+        "upperArmLength",
+        "forearmLength",
+        "handScale",
+        "thighLength",
+        "shinLength",
+        "footScale",
+        "torsoLength",
+        "limbThickness",
+        "bodyVolumeProfile",
+        "centerOfMassApprox"
+      ],
+      "properties": {
+        "overallScale": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "headRatio": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "neckLength": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "shoulderWidth": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "ribcageWidth": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "waistWidth": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "hipWidth": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "upperArmLength": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "forearmLength": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "handScale": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "thighLength": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "shinLength": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "footScale": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "torsoLength": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "limbThickness": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.6
+        },
+        "bodyVolumeProfile": {
+          "type": "object",
+          "required": [
+            "chest",
+            "waist",
+            "pelvis",
+            "limbs"
+          ],
+          "properties": {
+            "chest": {
+              "type": "number",
+              "minimum": 0.55,
+              "maximum": 1.6
+            },
+            "waist": {
+              "type": "number",
+              "minimum": 0.55,
+              "maximum": 1.6
+            },
+            "pelvis": {
+              "type": "number",
+              "minimum": 0.55,
+              "maximum": 1.6
+            },
+            "limbs": {
+              "type": "number",
+              "minimum": 0.55,
+              "maximum": 1.6
+            }
+          },
+          "additionalProperties": false
+        },
+        "centerOfMassApprox": {
+          "type": "object",
+          "required": [
+            "heightRatio",
+            "anteriorOffset"
+          ],
+          "properties": {
+            "heightRatio": {
+              "type": "number",
+              "minimum": 0.35,
+              "maximum": 0.65
+            },
+            "anteriorOffset": {
+              "type": "number",
+              "minimum": -0.1,
+              "maximum": 0.1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "compatibility": {
+      "type": "object",
+      "required": [
+        "canonicalSkeleton",
+        "motionSystem",
+        "requiresPhaseDForWorldLockedContacts",
+        "seatFitClass",
+        "reachClass"
+      ],
+      "properties": {
+        "canonicalSkeleton": {
+          "const": "NexStick-22"
+        },
+        "motionSystem": {
+          "const": "NexPerformance V4 canonical"
+        },
+        "requiresPhaseDForWorldLockedContacts": {
+          "type": "boolean"
+        },
+        "seatFitClass": {
+          "enum": [
+            "compact-child",
+            "child",
+            "compact-adult",
+            "adult",
+            "tall-adult"
+          ]
+        },
+        "reachClass": {
+          "enum": [
+            "compact",
+            "standard",
+            "extended"
+          ]
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

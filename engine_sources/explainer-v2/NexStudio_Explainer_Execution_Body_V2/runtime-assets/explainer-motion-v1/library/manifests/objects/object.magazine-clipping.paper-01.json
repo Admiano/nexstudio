@@ -1,0 +1,79 @@
+{
+  "id": "object.magazine-clipping.paper-01",
+  "name": "Magazine clipping",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "document",
+  "cssClass": "obj-magazine-clipping",
+  "renderer": "magazine-clipping",
+  "intents": [
+    "compose_paper_story",
+    "display_document"
+  ],
+  "keywords": [
+    "paper",
+    "document",
+    "magazine",
+    "clipping"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 28
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 70
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "drop-settle",
+    "lift-hover"
+  ],
+  "defaultMotion": "paper-slide",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.paper-slide"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Magazine clipping animated paper component",
+  "description": "A colourful editorial clipping with image and headline.",
+  "attachable": false,
+  "bespokeMotion": false
+}

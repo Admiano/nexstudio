@@ -1,0 +1,158 @@
+{
+  "id": "module.documentary.archival-photograph.paper-01",
+  "name": "Archival photograph",
+  "version": "2.0.0",
+  "category": "documentary-module",
+  "subtype": "photo",
+  "slug": "archival-photograph",
+  "renderer": "archival-photograph",
+  "order": 1,
+  "intents": [
+    "show_archival_photo",
+    "documentary_photo"
+  ],
+  "keywords": [
+    "documentary",
+    "scrapbook",
+    "paper",
+    "animated",
+    "photo",
+    "archival photograph",
+    "show_archival_photo"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "moods": [
+    "warm",
+    "serious",
+    "investigative",
+    "celebratory"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.1,
+    "maximum": 7
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "unfold",
+    "peel-reveal",
+    "drop-and-settle",
+    "stamp-impact"
+  ],
+  "defaultMotion": "paper-slide",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 150
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "location": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "source": {
+      "type": "string",
+      "maxCharacters": 120,
+      "editable": true
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "mood": {
+      "type": "enum",
+      "values": [
+        "warm",
+        "serious",
+        "investigative",
+        "celebratory"
+      ]
+    },
+    "redactions": {
+      "type": "boolean"
+    },
+    "highlight": {
+      "type": "string",
+      "maxCharacters": 80
+    },
+    "routeLabels": {
+      "type": "array",
+      "maximumItems": 6
+    },
+    "connections": {
+      "type": "array",
+      "maximumItems": 10
+    }
+  },
+  "soundTags": [
+    "documentary.photo.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated archival photo documentary paper module",
+  "replaceableMedia": true,
+  "editableCitationSlots": false,
+  "configurableMood": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_archival_photo",
+      "documentary_photo"
+    ],
+    "semanticRole": "photo",
+    "avoidWhen": [
+      "sensationalize_without_evidence"
+    ]
+  },
+  "sampleConfig": {
+    "title": "The first workshop",
+    "date": "1986",
+    "location": "North Works",
+    "caption": "A rented floor, twelve people and one impossible deadline.",
+    "media": "assets/media/documentary/factory-archive.svg"
+  }
+}

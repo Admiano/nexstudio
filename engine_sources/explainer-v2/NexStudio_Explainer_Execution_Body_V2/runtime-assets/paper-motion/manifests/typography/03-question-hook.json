@@ -1,0 +1,126 @@
+{
+  "id": "typography.question-hook.paper-01",
+  "name": "Question hook",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "display",
+  "slug": "question-hook",
+  "renderer": "question-hook",
+  "order": 3,
+  "intents": [
+    "ask_hook_question",
+    "open_with_question"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "display",
+    "question hook",
+    "ask_hook_question",
+    "open_with_question"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 110,
+      "guidance": "Maximum 110 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 150,
+      "guidance": "Maximum 150 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 110,
+    "body": 150
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "ink-reveal",
+  "soundTags": [
+    "typography.question-hook.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Question hook animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "ask_hook_question",
+      "open_with_question"
+    ],
+    "semanticRole": "display",
+    "copyGuidance": {
+      "title": 110,
+      "body": 150
+    }
+  }
+}

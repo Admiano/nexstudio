@@ -1,0 +1,26 @@
+{
+  "title": "Agent Operations",
+  "format": "compact",
+  "items": [
+    {
+      "label": "Tasks",
+      "value": 12840,
+      "change": 16
+    },
+    {
+      "label": "Approved",
+      "value": 10920,
+      "change": 13
+    },
+    {
+      "label": "Retries",
+      "value": 480,
+      "change": -6
+    },
+    {
+      "label": "Saved hours",
+      "value": 3620,
+      "change": 24
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "id": "typography.crossed-out-phrase.paper-01",
+  "name": "Crossed-out phrase",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "emphasis",
+  "slug": "crossed-out-phrase",
+  "renderer": "crossed-out-phrase",
+  "order": 12,
+  "intents": [
+    "cross_out_phrase",
+    "show_revision"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "emphasis",
+    "crossed out phrase",
+    "cross_out_phrase",
+    "show_revision"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 4
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 110,
+      "guidance": "Maximum 110 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 130,
+      "guidance": "Maximum 130 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 110,
+    "body": 130,
+    "emphasisWords": 4
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "ink-reveal",
+  "soundTags": [
+    "typography.crossed-out-phrase.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Crossed-out phrase animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "cross_out_phrase",
+      "show_revision"
+    ],
+    "semanticRole": "emphasis",
+    "copyGuidance": {
+      "title": 110,
+      "body": 130,
+      "emphasisWords": 4
+    }
+  }
+}

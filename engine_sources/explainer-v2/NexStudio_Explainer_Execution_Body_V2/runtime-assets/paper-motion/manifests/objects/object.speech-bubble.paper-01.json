@@ -1,0 +1,75 @@
+{
+  "id": "object.speech-bubble.paper-01",
+  "name": "Speech bubble",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "communication",
+  "cssClass": "obj-speech-bubble",
+  "renderer": "speech-bubble",
+  "intents": [
+    "compose_paper_story",
+    "display_communication"
+  ],
+  "keywords": [
+    "paper",
+    "communication",
+    "speech",
+    "bubble"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "body": {
+      "type": "string",
+      "maxCharacters": 90
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "drop-settle",
+    "paper-slide",
+    "lift-hover"
+  ],
+  "defaultMotion": "drop-settle",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.drop-settle"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Speech bubble animated paper component",
+  "description": "A paper speech bubble with editable dialogue.",
+  "attachable": false,
+  "bespokeMotion": true
+}

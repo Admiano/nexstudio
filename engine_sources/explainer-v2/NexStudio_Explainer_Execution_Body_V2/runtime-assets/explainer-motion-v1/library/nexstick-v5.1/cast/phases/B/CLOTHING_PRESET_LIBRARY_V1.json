@@ -1,0 +1,1343 @@
+{
+  "schemaVersion": "1.0.0",
+  "characterComposition": "BodyPreset + ClothingPreset + AppearancePreset",
+  "phaseOwner": "Phase B / clothing only",
+  "items": [
+    {
+      "id": "upper_tshirt",
+      "category": "upper",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "chest",
+        "pelvis",
+        "shoulder_l/r",
+        "upperarm_l/r"
+      ],
+      "silhouetteRules": {
+        "form": "tee",
+        "sleeve": "short",
+        "hem": "straight"
+      },
+      "layerPriority": 20,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "casual",
+        "clean"
+      ],
+      "roleTags": [
+        "general",
+        "student",
+        "creator"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "upper_shirt",
+      "category": "upper",
+      "compatibleBodyFamilies": [
+        "adult_man",
+        "adult_woman",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "anchorBindRegions": [
+        "chest",
+        "pelvis",
+        "shoulder_l/r",
+        "arms"
+      ],
+      "silhouetteRules": {
+        "form": "shirt",
+        "sleeve": "long",
+        "collar": "point"
+      },
+      "layerPriority": 21,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "smart",
+        "business"
+      ],
+      "roleTags": [
+        "office",
+        "manager",
+        "sales"
+      ],
+      "ageCompatibility": [
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": false
+    },
+    {
+      "id": "upper_blouse",
+      "category": "upper",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "girl",
+        "diminutive_adult",
+        "diminutive_child",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "anchorBindRegions": [
+        "chest",
+        "pelvis",
+        "shoulder_l/r",
+        "arms"
+      ],
+      "silhouetteRules": {
+        "form": "blouse",
+        "sleeve": "long",
+        "collar": "soft"
+      },
+      "layerPriority": 21,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "smart",
+        "soft-tailored"
+      ],
+      "roleTags": [
+        "office",
+        "education",
+        "general"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": false
+    },
+    {
+      "id": "upper_workshirt",
+      "category": "upper",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "chest",
+        "pelvis",
+        "shoulder_l/r",
+        "arms"
+      ],
+      "silhouetteRules": {
+        "form": "workshirt",
+        "sleeve": "long",
+        "collar": "utility"
+      },
+      "layerPriority": 21,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "workwear",
+        "utility"
+      ],
+      "roleTags": [
+        "technician",
+        "field",
+        "maker"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "lower_trousers",
+      "category": "lower",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "pelvis",
+        "hips",
+        "knees",
+        "ankles"
+      ],
+      "silhouetteRules": {
+        "form": "trousers",
+        "cut": "straight"
+      },
+      "layerPriority": 15,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "clean",
+        "smart"
+      ],
+      "roleTags": [
+        "general",
+        "office"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "lower_jeans",
+      "category": "lower",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "pelvis",
+        "hips",
+        "knees",
+        "ankles"
+      ],
+      "silhouetteRules": {
+        "form": "trousers",
+        "cut": "jeans"
+      },
+      "layerPriority": 15,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "casual",
+        "denim"
+      ],
+      "roleTags": [
+        "general",
+        "creator"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "lower_worktrousers",
+      "category": "lower",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "pelvis",
+        "hips",
+        "knees",
+        "ankles"
+      ],
+      "silhouetteRules": {
+        "form": "trousers",
+        "cut": "utility"
+      },
+      "layerPriority": 15,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "workwear",
+        "utility"
+      ],
+      "roleTags": [
+        "technician",
+        "field",
+        "maker"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "lower_shorts",
+      "category": "lower",
+      "compatibleBodyFamilies": [
+        "boy",
+        "girl",
+        "diminutive_child"
+      ],
+      "anchorBindRegions": [
+        "pelvis",
+        "hips",
+        "knees"
+      ],
+      "silhouetteRules": {
+        "form": "trousers",
+        "cut": "shorts"
+      },
+      "layerPriority": 15,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "casual",
+        "school"
+      ],
+      "roleTags": [
+        "student",
+        "general"
+      ],
+      "ageCompatibility": [
+        "child"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "lower_skirt",
+      "category": "lower",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "girl",
+        "diminutive_adult",
+        "diminutive_child",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "anchorBindRegions": [
+        "pelvis",
+        "hips",
+        "knees"
+      ],
+      "silhouetteRules": {
+        "form": "skirt",
+        "length": "midi",
+        "split": "adaptive"
+      },
+      "layerPriority": 16,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.035,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.03
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.014,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "smart",
+        "clean"
+      ],
+      "roleTags": [
+        "office",
+        "education",
+        "general"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": false
+    },
+    {
+      "id": "full_dress",
+      "category": "full_body",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "girl",
+        "diminutive_adult",
+        "diminutive_child",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "anchorBindRegions": [
+        "chest",
+        "pelvis",
+        "shoulders",
+        "arms",
+        "knees"
+      ],
+      "silhouetteRules": {
+        "form": "dress",
+        "sleeve": "short",
+        "length": "midi",
+        "split": "adaptive"
+      },
+      "layerPriority": 22,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.04,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.035
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.015,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "clean",
+        "commercial"
+      ],
+      "roleTags": [
+        "general",
+        "education",
+        "office"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": false
+    },
+    {
+      "id": "outer_hoodie",
+      "category": "outerwear",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "chest",
+        "pelvis",
+        "shoulders",
+        "arms"
+      ],
+      "silhouetteRules": {
+        "form": "hoodie",
+        "sleeve": "long",
+        "hood": true
+      },
+      "layerPriority": 30,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "casual",
+        "soft"
+      ],
+      "roleTags": [
+        "student",
+        "creator",
+        "general"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "outer_blazer",
+      "category": "outerwear",
+      "compatibleBodyFamilies": [
+        "adult_man",
+        "adult_woman",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "anchorBindRegions": [
+        "chest",
+        "pelvis",
+        "shoulders",
+        "arms"
+      ],
+      "silhouetteRules": {
+        "form": "blazer",
+        "sleeve": "long",
+        "lapel": true
+      },
+      "layerPriority": 31,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "business",
+        "tailored"
+      ],
+      "roleTags": [
+        "executive",
+        "office",
+        "sales"
+      ],
+      "ageCompatibility": [
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": false
+    },
+    {
+      "id": "outer_workjacket",
+      "category": "outerwear",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "chest",
+        "pelvis",
+        "shoulders",
+        "arms"
+      ],
+      "silhouetteRules": {
+        "form": "workjacket",
+        "sleeve": "long"
+      },
+      "layerPriority": 31,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "workwear",
+        "utility"
+      ],
+      "roleTags": [
+        "technician",
+        "field",
+        "maker"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "foot_sneakers",
+      "category": "footwear",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "ankle_l/r",
+        "toe_l/r"
+      ],
+      "silhouetteRules": {
+        "form": "shoe",
+        "sole": "sneaker"
+      },
+      "layerPriority": 40,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "shoe-covers-foot-shell"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "casual",
+        "sport"
+      ],
+      "roleTags": [
+        "general",
+        "student"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "foot_shoes",
+      "category": "footwear",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "ankle_l/r",
+        "toe_l/r"
+      ],
+      "silhouetteRules": {
+        "form": "shoe",
+        "sole": "flat"
+      },
+      "layerPriority": 40,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "shoe-covers-foot-shell"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "smart",
+        "business"
+      ],
+      "roleTags": [
+        "office",
+        "general"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "head_cap",
+      "category": "optional_headwear",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "head"
+      ],
+      "silhouetteRules": {
+        "style": "cap"
+      },
+      "layerPriority": 50,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "casual",
+        "workwear"
+      ],
+      "roleTags": [
+        "field",
+        "student",
+        "general"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    },
+    {
+      "id": "accessory_badge",
+      "category": "optional_accessory",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "anchorBindRegions": [
+        "chest"
+      ],
+      "silhouetteRules": {
+        "style": "badge"
+      },
+      "layerPriority": 55,
+      "occlusionRules": {
+        "body": "cover-bound-region",
+        "sameCategory": "higher-layer-wins",
+        "hands": "never-cover-wrist-or-hand",
+        "feet": "preserve-footwear"
+      },
+      "motionSafeExpansion": {
+        "torso": 0.018,
+        "arm": 0.012,
+        "leg": 0.014,
+        "foot": 0.008,
+        "head": 0.01,
+        "highMotion": 0.012
+      },
+      "minimumClearances": {
+        "torso": 0.012,
+        "arm": 0.008,
+        "leg": 0.009,
+        "foot": 0.006,
+        "head": 0.01
+      },
+      "styleTags": [
+        "utility",
+        "identity"
+      ],
+      "roleTags": [
+        "staff",
+        "workwear"
+      ],
+      "ageCompatibility": [
+        "child",
+        "adult",
+        "elder"
+      ],
+      "genderNeutralCompatible": true
+    }
+  ],
+  "presets": [
+    {
+      "id": "man_tshirt_trousers",
+      "label": "T-shirt + trousers",
+      "compatibleBodyFamilies": [
+        "adult_man",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_tshirt",
+        "lower": "lower_trousers",
+        "full_body": null,
+        "outerwear": null,
+        "footwear": "foot_sneakers",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "men",
+        "casual"
+      ]
+    },
+    {
+      "id": "man_shirt_trousers",
+      "label": "Shirt + trousers",
+      "compatibleBodyFamilies": [
+        "adult_man",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_shirt",
+        "lower": "lower_trousers",
+        "full_body": null,
+        "outerwear": null,
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "men",
+        "smart"
+      ]
+    },
+    {
+      "id": "man_hoodie_jeans",
+      "label": "Hoodie + jeans",
+      "compatibleBodyFamilies": [
+        "adult_man",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_tshirt",
+        "lower": "lower_jeans",
+        "full_body": null,
+        "outerwear": "outer_hoodie",
+        "footwear": "foot_sneakers",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "men",
+        "casual"
+      ]
+    },
+    {
+      "id": "man_business_casual",
+      "label": "Business casual",
+      "compatibleBodyFamilies": [
+        "adult_man",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_shirt",
+        "lower": "lower_trousers",
+        "full_body": null,
+        "outerwear": null,
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "men",
+        "business-casual"
+      ]
+    },
+    {
+      "id": "man_light_suit",
+      "label": "Lightweight blazer",
+      "compatibleBodyFamilies": [
+        "adult_man",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_shirt",
+        "lower": "lower_trousers",
+        "full_body": null,
+        "outerwear": "outer_blazer",
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "men",
+        "business"
+      ]
+    },
+    {
+      "id": "man_workwear",
+      "label": "Workwear",
+      "compatibleBodyFamilies": [
+        "adult_man",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_workshirt",
+        "lower": "lower_worktrousers",
+        "full_body": null,
+        "outerwear": "outer_workjacket",
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": "accessory_badge"
+      },
+      "styleTags": [
+        "men",
+        "workwear"
+      ]
+    },
+    {
+      "id": "woman_blouse_trousers",
+      "label": "Blouse + trousers",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_blouse",
+        "lower": "lower_trousers",
+        "full_body": null,
+        "outerwear": null,
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "women",
+        "smart"
+      ]
+    },
+    {
+      "id": "woman_blouse_skirt",
+      "label": "Blouse + skirt",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_blouse",
+        "lower": "lower_skirt",
+        "full_body": null,
+        "outerwear": null,
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "women",
+        "smart"
+      ]
+    },
+    {
+      "id": "woman_dress",
+      "label": "Dress",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": null,
+        "lower": null,
+        "full_body": "full_dress",
+        "outerwear": null,
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "women",
+        "dress"
+      ]
+    },
+    {
+      "id": "woman_hoodie_jeans",
+      "label": "Hoodie + jeans",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_tshirt",
+        "lower": "lower_jeans",
+        "full_body": null,
+        "outerwear": "outer_hoodie",
+        "footwear": "foot_sneakers",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "women",
+        "casual"
+      ]
+    },
+    {
+      "id": "woman_blazer_business",
+      "label": "Blazer business casual",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_blouse",
+        "lower": "lower_trousers",
+        "full_body": null,
+        "outerwear": "outer_blazer",
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "women",
+        "business"
+      ]
+    },
+    {
+      "id": "woman_workwear",
+      "label": "Workwear",
+      "compatibleBodyFamilies": [
+        "adult_woman",
+        "diminutive_adult",
+        "elder_adult",
+        "plus_size_adult"
+      ],
+      "items": {
+        "upper": "upper_workshirt",
+        "lower": "lower_worktrousers",
+        "full_body": null,
+        "outerwear": "outer_workjacket",
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": "accessory_badge"
+      },
+      "styleTags": [
+        "women",
+        "workwear"
+      ]
+    },
+    {
+      "id": "child_tshirt_shorts",
+      "label": "T-shirt + shorts",
+      "compatibleBodyFamilies": [
+        "boy",
+        "girl",
+        "diminutive_child"
+      ],
+      "items": {
+        "upper": "upper_tshirt",
+        "lower": "lower_shorts",
+        "full_body": null,
+        "outerwear": null,
+        "footwear": "foot_sneakers",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "children",
+        "casual"
+      ]
+    },
+    {
+      "id": "child_tshirt_trousers",
+      "label": "T-shirt + trousers",
+      "compatibleBodyFamilies": [
+        "boy",
+        "girl",
+        "diminutive_child"
+      ],
+      "items": {
+        "upper": "upper_tshirt",
+        "lower": "lower_trousers",
+        "full_body": null,
+        "outerwear": null,
+        "footwear": "foot_sneakers",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "children",
+        "casual"
+      ]
+    },
+    {
+      "id": "child_hoodie",
+      "label": "Hoodie outfit",
+      "compatibleBodyFamilies": [
+        "boy",
+        "girl",
+        "diminutive_child"
+      ],
+      "items": {
+        "upper": "upper_tshirt",
+        "lower": "lower_jeans",
+        "full_body": null,
+        "outerwear": "outer_hoodie",
+        "footwear": "foot_sneakers",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "children",
+        "casual"
+      ]
+    },
+    {
+      "id": "child_school_casual",
+      "label": "School/casual",
+      "compatibleBodyFamilies": [
+        "boy",
+        "girl",
+        "diminutive_child"
+      ],
+      "items": {
+        "upper": "upper_workshirt",
+        "lower": "lower_trousers",
+        "full_body": null,
+        "outerwear": null,
+        "footwear": "foot_shoes",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "children",
+        "school"
+      ]
+    },
+    {
+      "id": "child_simple_dress",
+      "label": "Simple dress",
+      "compatibleBodyFamilies": [
+        "girl",
+        "diminutive_child"
+      ],
+      "items": {
+        "upper": null,
+        "lower": null,
+        "full_body": "full_dress",
+        "outerwear": null,
+        "footwear": "foot_sneakers",
+        "optional_headwear": null,
+        "optional_accessory": null
+      },
+      "styleTags": [
+        "children",
+        "dress"
+      ]
+    },
+    {
+      "id": "workwear_universal",
+      "label": "Universal workwear",
+      "compatibleBodyFamilies": [
+        "*"
+      ],
+      "items": {
+        "upper": "upper_workshirt",
+        "lower": "lower_worktrousers",
+        "full_body": null,
+        "outerwear": "outer_workjacket",
+        "footwear": "foot_shoes",
+        "optional_headwear": "head_cap",
+        "optional_accessory": "accessory_badge"
+      },
+      "styleTags": [
+        "workwear",
+        "gender-neutral"
+      ]
+    }
+  ]
+}

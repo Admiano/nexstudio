@@ -1,0 +1,89 @@
+{
+  "id": "motion.transition.torn-paper-reveal",
+  "name": "Torn-paper reveal",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "transition",
+  "key": "torn-paper-reveal",
+  "intents": [
+    "animate_transition",
+    "torn_paper_reveal"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "transition",
+    "torn",
+    "paper",
+    "reveal"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.55,
+      "maximum": 1.8
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power2.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 0.95,
+    "maximum": 1.8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "editorial-scene",
+    "collage-scene",
+    "technical-scene"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power2.inOut",
+  "soundTags": [
+    "transition.tear"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Torn-paper reveal reusable animation behaviour",
+  "description": "Pulls a torn paper boundary across the outgoing scene to expose the incoming scene.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "preservesOutgoingUntilStart": true,
+  "requiresIncomingAndOutgoing": true
+}

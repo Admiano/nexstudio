@@ -10,13 +10,22 @@ items={
  'sound':'SOUND_LIBRARY_V2_SOURCE.zip',
  'editorial-text-led-bundle':'EDITORIAL_TEXT_LED_BUNDLE_SOURCE.zip',
 }
+# Tracked working trees win over their frozen archives. explainer-v2 is the
+# development fork of the Explainer execution body (HyperFrames scene work);
+# the zip stays as the pristine baseline it was extracted from.
+tracked={ 'explainer': SOURCES/'explainer-v2' }
 ENGINES.mkdir(exist_ok=True)
 for name,archive in items.items():
  target=ENGINES/name
  if target.exists(): shutil.rmtree(target)
  target.mkdir(parents=True)
- with zipfile.ZipFile(SOURCES/archive) as z: z.extractall(target)
- print(f'{name}: {target}')
+ worktree=tracked.get(name)
+ if worktree is not None and worktree.exists():
+  shutil.copytree(worktree,target,dirs_exist_ok=True)
+  print(f'{name}: {target} (tracked tree {worktree})')
+ else:
+  with zipfile.ZipFile(SOURCES/archive) as z: z.extractall(target)
+  print(f'{name}: {target}')
 
 # Explainer archive is an execution-only authored-art body beneath full NexMind P8.
 # It is self-contained and must not be supplemented with the P14.1 DirectorV3/semantic-family path.

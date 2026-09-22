@@ -1,0 +1,87 @@
+{
+  "id": "motion.action.open-and-close",
+  "name": "Open and close",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "action",
+  "key": "open-and-close",
+  "intents": [
+    "animate_action",
+    "open_and_close"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "action",
+    "open",
+    "and",
+    "close"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power2.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power2.inOut",
+  "soundTags": [
+    "paper.open-close.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Open and close reusable animation behaviour",
+  "description": "Opens then closes a target around a configurable hinge.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

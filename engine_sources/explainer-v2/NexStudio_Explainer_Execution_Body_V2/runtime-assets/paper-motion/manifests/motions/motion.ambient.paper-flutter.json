@@ -1,0 +1,88 @@
+{
+  "id": "motion.ambient.paper-flutter",
+  "name": "Paper flutter",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "ambient",
+  "key": "paper-flutter",
+  "intents": [
+    "animate_ambient",
+    "paper_flutter"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "ambient",
+    "paper",
+    "flutter"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 1.4,
+      "maximum": 8
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "sine.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 1.4,
+    "recommended": 3.2,
+    "maximum": 8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "sine.inOut",
+  "soundTags": [
+    "paper.flutter.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Paper flutter reusable animation behaviour",
+  "description": "A finite edge-and-plane flutter that retains the component\u2019s resting position.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "finiteCycles": 3,
+  "recommendedCycleDuration": 1.1
+}

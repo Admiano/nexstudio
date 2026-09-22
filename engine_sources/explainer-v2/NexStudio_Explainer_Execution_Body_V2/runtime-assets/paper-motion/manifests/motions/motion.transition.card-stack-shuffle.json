@@ -1,0 +1,89 @@
+{
+  "id": "motion.transition.card-stack-shuffle",
+  "name": "Card-stack shuffle",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "transition",
+  "key": "card-stack-shuffle",
+  "intents": [
+    "animate_transition",
+    "card_stack_shuffle"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "transition",
+    "card",
+    "stack",
+    "shuffle"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.55,
+      "maximum": 1.8
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "back.out(1.7)"
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 0.95,
+    "maximum": 1.8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "editorial-scene",
+    "collage-scene",
+    "technical-scene"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "back.out(1.7)",
+  "soundTags": [
+    "transition.card-shuffle"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Card-stack shuffle reusable animation behaviour",
+  "description": "Shuffles the outgoing card away as the incoming card rises from the stack.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "preservesOutgoingUntilStart": true,
+  "requiresIncomingAndOutgoing": true
+}

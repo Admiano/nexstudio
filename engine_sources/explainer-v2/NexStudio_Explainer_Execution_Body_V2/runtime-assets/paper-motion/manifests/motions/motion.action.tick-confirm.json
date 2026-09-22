@@ -1,0 +1,86 @@
+{
+  "id": "motion.action.tick-confirm",
+  "name": "Tick or confirm",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "action",
+  "key": "tick-confirm",
+  "intents": [
+    "animate_action",
+    "tick_confirm"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "action",
+    "tick",
+    "confirm"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power3.out"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power3.out",
+  "soundTags": [
+    "ui.confirm.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Tick or confirm reusable animation behaviour",
+  "description": "Draws and lands a paper-ink confirmation mark above or inside the target.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

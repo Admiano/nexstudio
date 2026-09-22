@@ -1,0 +1,161 @@
+{
+  "id": "module.documentary.audio-transcript-card.paper-01",
+  "name": "Audio transcript card",
+  "version": "2.0.0",
+  "category": "documentary-module",
+  "subtype": "transcript",
+  "slug": "audio-transcript-card",
+  "renderer": "audio-transcript-card",
+  "order": 28,
+  "intents": [
+    "show_audio_transcript",
+    "documentary_transcript"
+  ],
+  "keywords": [
+    "documentary",
+    "scrapbook",
+    "paper",
+    "animated",
+    "transcript",
+    "audio transcript card",
+    "show_audio_transcript"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "moods": [
+    "warm",
+    "serious",
+    "investigative",
+    "celebratory"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.1,
+    "maximum": 7
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "unfold",
+    "peel-reveal",
+    "drop-and-settle",
+    "stamp-impact"
+  ],
+  "defaultMotion": "paper-slide",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 45
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 130
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "location": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "source": {
+      "type": "string",
+      "maxCharacters": 120,
+      "editable": true
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "mood": {
+      "type": "enum",
+      "values": [
+        "warm",
+        "serious",
+        "investigative",
+        "celebratory"
+      ]
+    },
+    "redactions": {
+      "type": "boolean"
+    },
+    "highlight": {
+      "type": "string",
+      "maxCharacters": 80
+    },
+    "routeLabels": {
+      "type": "array",
+      "maximumItems": 6
+    },
+    "connections": {
+      "type": "array",
+      "maximumItems": 10
+    }
+  },
+  "soundTags": [
+    "documentary.transcript.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated audio transcript card documentary paper module",
+  "replaceableMedia": false,
+  "editableCitationSlots": true,
+  "configurableMood": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_audio_transcript",
+      "documentary_transcript"
+    ],
+    "semanticRole": "transcript",
+    "avoidWhen": [
+      "sensationalize_without_evidence"
+    ]
+  },
+  "sampleConfig": {
+    "title": "ARCHIVE AUDIO \u00b7 00:42",
+    "speaker": "MARA",
+    "caption": "The doors opened before sunrise. By eight, every table was full.",
+    "items": [
+      "00:42 The doors opened before sunrise.",
+      "00:47 By eight, every table was full.",
+      "00:53 Nobody complained about the noise."
+    ]
+  }
+}

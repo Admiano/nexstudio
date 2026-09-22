@@ -1,0 +1,133 @@
+{
+  "id": "typography.date-location-label.paper-01",
+  "name": "Date and location label",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "identity",
+  "slug": "date-location-label",
+  "renderer": "date-location-label",
+  "order": 17,
+  "intents": [
+    "show_date_and_location",
+    "set_context"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "identity",
+    "date location label",
+    "show_date_and_location",
+    "set_context"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 42,
+      "guidance": "Maximum 42 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 70,
+      "guidance": "Maximum 70 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 60,
+      "guidance": "Maximum 60 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 42,
+    "body": 70,
+    "meta": 60
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "soundTags": [
+    "typography.date-location-label.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Date and location label animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_date_and_location",
+      "set_context"
+    ],
+    "semanticRole": "identity",
+    "copyGuidance": {
+      "title": 42,
+      "body": 70,
+      "meta": 60
+    }
+  }
+}

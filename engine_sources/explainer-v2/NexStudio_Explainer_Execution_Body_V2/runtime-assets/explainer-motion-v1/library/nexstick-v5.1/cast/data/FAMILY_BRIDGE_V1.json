@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "Maps Phase-C concrete morphology families to Phase-D performance adaptation classes and Phase-B clothing family tags. No motion engines are duplicated.",
+  "families": {
+    "adult_man_average": {"performanceClass":"adult_average","clothingFamily":"adult_man","defaultClothing":"man_business_casual"},
+    "adult_man_broad": {"performanceClass":"broad_adult","clothingFamily":"adult_man","defaultClothing":"man_business_casual"},
+    "adult_woman_average": {"performanceClass":"adult_average","clothingFamily":"adult_woman","defaultClothing":"woman_blazer_business"},
+    "adult_woman_tall": {"performanceClass":"tall_adult","clothingFamily":"adult_woman","defaultClothing":"woman_blazer_business"},
+    "boy": {"performanceClass":"child","clothingFamily":"boy","defaultClothing":"child_tshirt_trousers"},
+    "girl": {"performanceClass":"child","clothingFamily":"girl","defaultClothing":"child_tshirt_trousers"},
+    "diminutive_man": {"performanceClass":"diminutive_adult","clothingFamily":"diminutive_adult","defaultClothing":"man_business_casual"},
+    "diminutive_woman": {"performanceClass":"diminutive_adult","clothingFamily":"diminutive_adult","defaultClothing":"woman_blazer_business"},
+    "diminutive_boy": {"performanceClass":"diminutive_child","clothingFamily":"diminutive_child","defaultClothing":"child_tshirt_trousers"},
+    "diminutive_girl": {"performanceClass":"diminutive_child","clothingFamily":"diminutive_child","defaultClothing":"child_simple_dress"},
+    "neutral_adult": {"performanceClass":"adult_average","clothingFamily":"neutral_adult","defaultClothing":"workwear_universal"},
+    "neutral_child": {"performanceClass":"child","clothingFamily":"neutral_child","defaultClothing":"workwear_universal"}
+  }
+}

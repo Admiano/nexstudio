@@ -1,0 +1,78 @@
+{
+  "id": "object.certificate.paper-01",
+  "name": "Certificate",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "document",
+  "cssClass": "obj-certificate",
+  "renderer": "certificate",
+  "intents": [
+    "compose_paper_story",
+    "display_document"
+  ],
+  "keywords": [
+    "paper",
+    "document",
+    "certificate"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 90
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "unfold",
+    "paper-slide",
+    "page-flip"
+  ],
+  "defaultMotion": "unfold",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.unfold"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Certificate animated paper component",
+  "description": "A bordered certificate with recipient and award slots.",
+  "attachable": false,
+  "bespokeMotion": false
+}

@@ -1,0 +1,142 @@
+{
+  "id": "icon.creator.short-video.paper-01",
+  "name": "Short video",
+  "version": "1.4.0",
+  "category": "icon",
+  "subtype": "creator-media",
+  "group": "publishing",
+  "slug": "short-video",
+  "renderer": "short-video",
+  "order": 34,
+  "intents": [
+    "create_short_video",
+    "publish_vertical_video"
+  ],
+  "keywords": [
+    "icon",
+    "creator",
+    "paper",
+    "short",
+    "video",
+    "vertical",
+    "clip",
+    "social"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active",
+        "completed"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "stamp-impact",
+        "paper-slide",
+        "scale-bounce"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.2
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.15,
+    "maximum": 3.2
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "stamp-impact",
+    "paper-slide",
+    "scale-bounce"
+  ],
+  "defaultMotion": "stamp-impact",
+  "states": [
+    "inactive",
+    "active",
+    "completed"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "creator.short-video.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Short video creator and media paper icon",
+  "description": "A reusable layered paper-style short video icon for creator, media-production and publishing workflows.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "create_short_video",
+      "publish_vertical_video"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "publishing"
+  }
+}

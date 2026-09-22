@@ -1,0 +1,168 @@
+{
+  "productionId": "sketch-film-launch-promo",
+  "width": 720,
+  "height": 720,
+  "fps": 30,
+  "durationSeconds": 38.6,
+  "music": { "path": "audio/music.mp3", "volume": 0.16 },
+  "sfx": [
+    { "path": "audio/swipe.mp3", "atSec": [3.9, 7.9, 10.9, 14.4, 18.4, 21.4, 24.4, 27.4, 30.9, 33.4], "volume": 0.32 },
+    { "path": "audio/pop.mp3", "atSec": [1.1, 1.35, 1.6, 1.85, 2.1, 2.35, 2.6, 2.85, 3.1, 8.9, 9.25, 9.6, 10.0, 29.0, 29.3, 29.6, 29.9, 30.2, 30.5], "volume": 0.30 },
+    { "path": "audio/paper.mp3", "atSec": [0.05, 21.5, 33.5], "volume": 0.36 },
+    { "path": "audio/confirm.mp3", "atSec": [35.9], "volume": 0.42 }
+  ],
+  "scenes": [
+    {
+      "id": "beat-01-prompt",
+      "type": "chat-prompt",
+      "start": 0,
+      "duration": 3.9,
+      "kicker": "BRIEF → FILM",
+      "mention": "Studio",
+      "text": "turn this brief into a launch video.",
+      "mode": "Auto",
+      "cursor": true,
+      "index": false
+    },
+    {
+      "id": "beat-02-agent",
+      "type": "agent-window",
+      "start": 3.9,
+      "duration": 4.0,
+      "transition": "wipe",
+      "kicker": "SOLO DESK",
+      "brand": "STUDIO",
+      "project": "Select Project",
+      "cta": "New Task",
+      "task": "launch film",
+      "taskSub": "now",
+      "prompt": "studio, make me a 38s launch video in the paper-sketch style",
+      "status": "Agent — planning the build…",
+      "checks": [
+        "scaffold the storyboard",
+        "bind the sketch style kit",
+        "compose 1:1 frames",
+        "master music + accents"
+      ]
+    },
+    {
+      "id": "beat-03-build",
+      "type": "step",
+      "start": 7.9,
+      "duration": 3.0,
+      "transition": "cut",
+      "kicker": "/ STEP 01",
+      "kickerR": "STEP 01",
+      "word": "BUILD",
+      "variant": "build"
+    },
+    {
+      "id": "beat-04-test",
+      "type": "step",
+      "start": 10.9,
+      "duration": 3.5,
+      "transition": "cut",
+      "kicker": "/ STEP 02",
+      "kickerR": "STEP 02",
+      "word": "TEST",
+      "variant": "test"
+    },
+    {
+      "id": "beat-05-render",
+      "type": "step",
+      "start": 14.4,
+      "duration": 4.0,
+      "transition": "cut",
+      "kicker": "/ STEP 03",
+      "kickerR": "STEP 03",
+      "word": "RENDER",
+      "variant": "render"
+    },
+    {
+      "id": "beat-06-phone",
+      "type": "phone-app",
+      "start": 18.4,
+      "duration": 3.0,
+      "transition": "wipe",
+      "kicker": "YOUR FILM — READY",
+      "kickerR": "DEMO",
+      "caption": "the output, as it lands",
+      "sub": "0:38 · 720×720 · music+accents",
+      "appTitle": "launch film",
+      "hero": "SCENE 01 — PROMPT",
+      "cards": [{ "title": "beats" }, { "title": "style" }, { "title": "audio" }, { "title": "export" }],
+      "dots": 3,
+      "tabs": ["home", "list", "plus", "eye"]
+    },
+    {
+      "id": "beat-07-claim",
+      "type": "type-card",
+      "start": 21.4,
+      "duration": 3.0,
+      "kicker": "PROOF",
+      "text": "the system already writes the script.",
+      "fontSize": "54px",
+      "index": false
+    },
+    {
+      "id": "beat-08-claim2",
+      "type": "type-card",
+      "start": 24.4,
+      "duration": 3.0,
+      "text": "now it draws the launch video too.",
+      "fontSize": "54px",
+      "index": false
+    },
+    {
+      "id": "beat-09-storyboard",
+      "type": "storyboard",
+      "start": 27.4,
+      "duration": 3.5,
+      "transition": "wipe",
+      "kicker": "THE BOARD",
+      "kickerR": "INK ONLY",
+      "foot": "EVERY BEAT, DRAWN BEFORE IT MOVES",
+      "cells": 6
+    },
+    {
+      "id": "beat-10-compose",
+      "type": "compose-graph",
+      "start": 30.9,
+      "duration": 2.5,
+      "kicker": "/ PIPELINE",
+      "kickerR": "COMPOSE",
+      "title": "COMPOSE",
+      "nodes": [
+        { "id": "a", "x": 3, "y": 10, "l": "SCRIPT", "s": "beat.copy" },
+        { "id": "b", "x": 3, "y": 62, "l": "SKETCH", "s": "ui.frames" },
+        { "id": "c", "x": 40, "y": 36, "l": "COMPOSE", "s": "scene.assembly" },
+        { "id": "d", "x": 77, "y": 10, "l": "AUDIO", "s": "music+accents" },
+        { "id": "e", "x": 77, "y": 62, "l": "RENDER", "s": "frames → mp4" }
+      ],
+      "edges": [["a", "c"], ["b", "c"], ["c", "d"], ["c", "e"]]
+    },
+    {
+      "id": "beat-11-player",
+      "type": "player",
+      "start": 33.4,
+      "duration": 2.4,
+      "transition": "wipe",
+      "kicker": "EXPORT",
+      "file": "nexstudio-launch.mp4",
+      "time": "0:12 / 0:38",
+      "innerText": "KNOW EVERY BEAT"
+    },
+    {
+      "id": "beat-12-lockup",
+      "type": "end-card",
+      "start": 35.8,
+      "duration": 2.8,
+      "transition": "cut",
+      "brandA": "NEX",
+      "brandB": "STUDIO",
+      "sub": "briefs in. films out.",
+      "pill": "Start a film",
+      "index": false
+    }
+  ]
+}

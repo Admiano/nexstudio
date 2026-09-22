@@ -1,0 +1,50 @@
+{
+  "id": "final-creator-system-test",
+  "type": "voiceover-timing-placeholder",
+  "durationSeconds": 60,
+  "language": "en",
+  "audioFile": null,
+  "status": "timing-only",
+  "cues": [
+    {
+      "start": 0,
+      "end": 7.1,
+      "text": "Your next idea deserves more than another blank timeline."
+    },
+    {
+      "start": 7.5,
+      "end": 14.5,
+      "text": "The bottleneck is rebuilding the production logic every single time."
+    },
+    {
+      "start": 15,
+      "end": 22,
+      "text": "NexStudio selects reusable scenes while your media, copy and data stay replaceable."
+    },
+    {
+      "start": 22.5,
+      "end": 29.5,
+      "text": "One library can adapt the same story across every important format."
+    },
+    {
+      "start": 30,
+      "end": 37,
+      "text": "The creator keeps the direction, the brand and the final approval."
+    },
+    {
+      "start": 37.5,
+      "end": 44.5,
+      "text": "The system handles composition, motion and validation."
+    },
+    {
+      "start": 45,
+      "end": 52,
+      "text": "Reusable does not have to look repeated."
+    },
+    {
+      "start": 52.5,
+      "end": 59.2,
+      "text": "Start with a brief. Finish with a moving paper world."
+    }
+  ]
+}
