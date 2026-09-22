@@ -1,0 +1,11 @@
+{
+  "schema": "VITA_INHERITED_ACTION_INTEGRITY_AUDIT_V4",
+  "base_file": "VITA_NEX_VRM_ADAPTER_V16_VISUAL_QUALITY_CANDIDATE.blend",
+  "current_file": "VITA_FRONT_FACING_PRESENTER_BANK_V1_4.blend",
+  "base_action_count": 212,
+  "current_action_count": 252,
+  "inherited_actions_present": 212,
+  "missing_inherited_actions": [],
+  "changed_inherited_actions": [],
+  "all_212_inherited_curve_fingerprints_match": true
+}

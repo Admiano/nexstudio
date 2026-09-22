@@ -1,0 +1,141 @@
+{
+  "file": "/mnt/data/NITA_COMPLETE_CHARACTER_MOTION_SYSTEM/01_CURRENT_CHARACTER/NITA_CERT_V4_3_FULL_RENDER_CANDIDATE.blend",
+  "dependencies": [
+    {
+      "kind": "image",
+      "name": "F00_000_00_EyeExtra_01",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_EyeHighlight_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_EyeIris_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_EyeWhite_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_Face_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_FaceBrow_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_FaceEyelash_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_FaceEyeline_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_FaceMouth_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_Hair_00_01",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_Hair_00_02",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_Hair_00_03",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_000_HairBack_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_002_Body_00",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_002_Onepiece_01",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "image",
+      "name": "F00_002_Shoes_01",
+      "filepath": "",
+      "abspath": "",
+      "packed": true,
+      "exists": null
+    },
+    {
+      "kind": "sound",
+      "name": "NITA_CERTIFICATION_AUDIO_MASTER.mp3",
+      "filepath": "/mnt/data/nita_work/NITA_CERTIFICATION_AUDIO_MASTER.mp3",
+      "abspath": "/mnt/data/nita_work/NITA_CERTIFICATION_AUDIO_MASTER.mp3",
+      "packed": true,
+      "exists": true
+    }
+  ]
+}

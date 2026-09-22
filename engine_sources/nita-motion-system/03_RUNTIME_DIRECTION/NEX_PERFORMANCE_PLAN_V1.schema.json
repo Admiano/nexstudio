@@ -1,0 +1,526 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.local/schemas/nexstick/NEX_PERFORMANCE_PLAN_V1.schema.json",
+  "title": "NexPerformancePlanV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "actorId",
+    "family",
+    "role",
+    "personality",
+    "duration",
+    "dialogueRole",
+    "performanceStyle",
+    "defaultGestureDensity",
+    "defaultExpressiveness",
+    "performanceBeats"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "actorId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "family": {
+      "enum": [
+        "adult_man_average",
+        "adult_man_broad",
+        "adult_woman_average",
+        "adult_woman_tall",
+        "boy",
+        "girl",
+        "diminutive_man",
+        "diminutive_woman",
+        "diminutive_boy",
+        "diminutive_girl",
+        "neutral_adult",
+        "neutral_child"
+      ]
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "personality": {
+      "enum": [
+        "calm",
+        "cheerful",
+        "confident",
+        "shy",
+        "energetic",
+        "serious",
+        "playful",
+        "authoritative",
+        "warm",
+        "reserved"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "dialogueRole": {
+      "enum": [
+        "speaker",
+        "listener",
+        "none"
+      ]
+    },
+    "performanceStyle": {
+      "type": "string",
+      "minLength": 1
+    },
+    "defaultGestureDensity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "defaultExpressiveness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "cameraRelationship": {
+      "enum": [
+        "direct_presenter",
+        "conversational",
+        "partner_oriented",
+        "scene_oriented",
+        "none"
+      ]
+    },
+    "performanceBeats": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/beat"
+      }
+    }
+  },
+  "$defs": {
+    "target": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "audience",
+            "person",
+            "object",
+            "location",
+            "camera",
+            "none"
+          ]
+        },
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "gesture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suppress"
+      ],
+      "properties": {
+        "suppress": {
+          "type": "boolean"
+        },
+        "gestureClass": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dominantHand": {
+          "enum": [
+            "left",
+            "right",
+            "both",
+            "none"
+          ]
+        },
+        "secondaryHandPolicy": {
+          "enum": [
+            "rest",
+            "support",
+            "compound",
+            "none"
+          ]
+        },
+        "amplitude": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "strokeTime": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "preparation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "hold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "recovery": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "semanticHandState": {
+          "enum": [
+            "relaxed",
+            "open",
+            "point",
+            "tap",
+            "pinch",
+            "precision_grip",
+            "power_grip",
+            "receive",
+            "offer",
+            "present",
+            "support_large",
+            "type",
+            "phone_hold",
+            "count",
+            "stop",
+            null
+          ]
+        },
+        "allowedFallbacks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "compoundId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "face": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expression": {
+          "enum": [
+            "neutral",
+            "attentive",
+            "happy",
+            "serious",
+            "curious",
+            "concerned",
+            "surprised",
+            "thinking",
+            "speaking"
+          ]
+        },
+        "expressionIntensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "expressionBlendFrom": {
+          "enum": [
+            "neutral",
+            "attentive",
+            "happy",
+            "serious",
+            "curious",
+            "concerned",
+            "surprised",
+            "thinking",
+            "speaking",
+            null
+          ]
+        },
+        "expressionBlendTo": {
+          "enum": [
+            "neutral",
+            "attentive",
+            "happy",
+            "serious",
+            "curious",
+            "concerned",
+            "surprised",
+            "thinking",
+            "speaking",
+            null
+          ]
+        },
+        "continuousControls": {
+          "$ref": "NEX_FACE_PERFORMANCE_CONTROLS_V1.schema.json"
+        }
+      }
+    },
+    "gaze": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "targetType": {
+          "enum": [
+            "camera",
+            "audience",
+            "person",
+            "object",
+            "location",
+            "away",
+            "forward",
+            "none"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "attentionWeight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "gazeBreakAllowed": {
+          "type": "boolean"
+        },
+        "holdDuration": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        }
+      }
+    },
+    "head": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "behavior": {
+          "enum": [
+            "neutral",
+            "attend",
+            "orient",
+            "listen",
+            "lead",
+            "react",
+            "release",
+            "none"
+          ]
+        },
+        "attention": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "nodIntent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "shakeIntent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "tiltIntent": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        }
+      }
+    },
+    "posture": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "openness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "lean": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "energy": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "chestLift": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "settleStrength": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "breathingIntent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "speech": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "speakerActive"
+      ],
+      "properties": {
+        "speakerActive": {
+          "type": "boolean"
+        },
+        "wordTimingRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "visemeTimingRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prosodyRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pauseState": {
+          "enum": [
+            "speech",
+            "micro_pause",
+            "pause",
+            "silence",
+            "none"
+          ]
+        }
+      }
+    },
+    "beat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "startTime",
+        "endTime",
+        "semanticIntent",
+        "deliveryIntent",
+        "emotionalTone",
+        "intensity",
+        "confidence",
+        "gesture",
+        "face",
+        "gaze",
+        "head",
+        "posture",
+        "speech"
+      ],
+      "properties": {
+        "startTime": {
+          "type": "number",
+          "minimum": 0
+        },
+        "endTime": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "semanticIntent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "deliveryIntent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "emotionalTone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "emphasisAnchor": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "speechTextRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "audioTimeRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "gesture": {
+          "$ref": "#/$defs/gesture"
+        },
+        "face": {
+          "$ref": "#/$defs/face"
+        },
+        "gaze": {
+          "$ref": "#/$defs/gaze"
+        },
+        "head": {
+          "$ref": "#/$defs/head"
+        },
+        "posture": {
+          "$ref": "#/$defs/posture"
+        },
+        "speech": {
+          "$ref": "#/$defs/speech"
+        }
+      }
+    }
+  }
+}
