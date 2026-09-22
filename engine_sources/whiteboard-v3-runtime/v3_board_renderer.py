@@ -1121,7 +1121,11 @@ def _dir_strokes(dir_name: str, slug: str):
     path = _ASSETS / dir_name / f'{slug}.svg'
     if not path.is_file():
         return None
-    elements, vb = svg_paths.elements_from_string(path.read_text())
+    try:
+        elements, vb = svg_paths.elements_from_string(path.read_text())
+    except Exception:
+        # a malformed SVG must not kill resolution — skip the asset
+        return None
     polys = [p for ps, _f, _c in elements for p in ps if len(p) >= 2]
     if not polys:
         return None

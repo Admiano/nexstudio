@@ -1,50 +1,91 @@
 {
-  "production_id": "NEXMIND_DIAGRAM_DEMO",
-  "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
-  "type": "diagram",
-  "diagram": {
-    "title": "How does a computer work?",
-    "hero": "laptop",
-    "summary": "INPUT → PROCESS → MEMORY → OUTPUT"
+ "production_id": "NEXMIND_DIAGRAM_DEMO",
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "type": "diagram",
+ "diagram": {
+  "title": "How does a computer work?",
+  "hero": "laptop",
+  "summary": "INPUT \u2192 PROCESS \u2192 MEMORY \u2192 OUTPUT"
+ },
+ "beats": [
+  {
+   "narration": "Every computer follows the same loop. It starts with input \u2014 keyboard, mouse, whatever you touch.",
+   "duration_seconds": 6.0,
+   "diagram": {
+    "stage": "INPUT",
+    "region": "left",
+    "elements": [
+     {
+      "icon": "keyboard",
+      "id": "kbd",
+      "at": "left"
+     },
+     {
+      "icon": "mouse",
+      "id": "mice",
+      "at": "left"
+     },
+     {
+      "arrow": {
+       "from": "kbd",
+       "to": "hero"
+      }
+     }
+    ]
+   }
   },
-  "beats": [
-    {
-      "narration": "Every computer follows the same loop. It starts with input — keyboard, mouse, whatever you touch.",
-      "duration_seconds": 6.0,
-      "diagram": {
-        "stage": "INPUT",
-        "region": "left",
-        "elements": [
-          {"icon": "keyboard", "at": "left"},
-          {"icon": "mouse", "at": "left"},
-          {"arrow": {"from": "left", "to": "hero"}}
-        ]
+  {
+   "narration": "Inside, the processor and memory do the work. The CPU thinks, and RAM holds what it needs right now.",
+   "duration_seconds": 7.0,
+   "diagram": {
+    "stage": "PROCESS + MEMORY",
+    "region": "hero",
+    "elements": [
+     {
+      "part": "cpu",
+      "label": "CPU",
+      "sub": "thinks",
+      "at": "hero-tl"
+     },
+     {
+      "part": "chip",
+      "label": "RAM",
+      "sub": "working memory",
+      "at": "hero-tr"
+     },
+     {
+      "part": "hard drive",
+      "label": "STORAGE",
+      "sub": "keeps files",
+      "at": "hero-c"
+     }
+    ]
+   }
+  },
+  {
+   "narration": "And the result comes back out to you \u2014 screen, sound, files. That is the whole machine.",
+   "duration_seconds": 6.0,
+   "diagram": {
+    "region": "right",
+    "elements": [
+     {
+      "callout": "3. OUTPUT",
+      "sub": "screen \u00b7 sound \u00b7 files",
+      "at": "right"
+     },
+     {
+      "icon": "monitor",
+      "id": "mon",
+      "at": "right"
+     },
+     {
+      "arrow": {
+       "from": "hero",
+       "to": "mon"
       }
-    },
-    {
-      "narration": "Inside, the processor and memory do the work — the CPU thinks, and RAM holds what it needs right now.",
-      "duration_seconds": 7.0,
-      "diagram": {
-        "stage": "PROCESS + MEMORY",
-        "region": "hero",
-        "elements": [
-          {"chip": "CPU", "sub": "thinks", "at": "hero-tl"},
-          {"chip": "RAM", "sub": "working memory", "at": "hero-tr"},
-          {"chip": "STORAGE", "sub": "keeps files", "at": "hero-c"}
-        ]
-      }
-    },
-    {
-      "narration": "And the result comes back out to you — screen, sound, files. That's the whole machine.",
-      "duration_seconds": 6.0,
-      "diagram": {
-        "region": "right",
-        "elements": [
-          {"callout": "3. OUTPUT", "sub": "screen · sound · files", "at": "right"},
-          {"icon": "monitor", "at": "right"},
-          {"arrow": {"from": "hero", "to": "right"}}
-        ]
-      }
-    }
-  ]
+     }
+    ]
+   }
+  }
+ ]
 }

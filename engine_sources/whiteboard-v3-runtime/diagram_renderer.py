@@ -187,6 +187,43 @@ def _arrow(x0, y0, x1, y1, color='accent') -> list:
     return [tuple(s) for s in strokes]
 
 
+def _edge_pt(b, toward) -> tuple:
+    """Point where a rect's border exits toward `toward` — parametric
+    exit of the center→target ray on the bounds rect."""
+    cx, cy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
+    dx, dy = toward[0] - cx, toward[1] - cy
+    if dx == 0 and dy == 0:
+        return cx, cy
+    t = min(
+        ((b[2] - cx) / dx if dx > 0 else (cx - b[0]) / -dx if dx < 0
+         else float('inf')),
+        ((b[3] - cy) / dy if dy > 0 else (cy - b[1]) / -dy if dy < 0
+         else float('inf')))
+    return cx + dx * t, cy + dy * t
+
+
+def _conn_pt(atlas, ref, id_map, elements, other_ref, margin=0.0) -> tuple:
+    """Arrow endpoint: element id → its bounds edge toward the other end;
+    slot/region name → its atlas point. `margin` pulls the endpoint back
+    along the ray so arrowheads sit off the target's ink."""
+    idx = id_map.get(str(ref)) if ref is not None else None
+    if idx is None:
+        return _slot_point(atlas, ref or 'hero')
+    e = elements[idx]
+    b = _elem_bounds(e)
+    if b is None:
+        return _slot_point(atlas, e.get('slot') or 'hero')
+    toward = _conn_pt(atlas, other_ref, id_map, elements, None) \
+        if other_ref is not None else atlas['hero_c']
+    px, py = _edge_pt(b, toward)
+    if margin:
+        dx, dy = px - (b[0] + b[2]) / 2, py - (b[1] + b[3]) / 2
+        d = math.hypot(dx, dy) or 1.0
+        px -= dx / d * margin
+        py -= dy / d * margin
+    return px, py
+
+
 def _icon_group(concept: str, used: dict) -> list:
     ic = v3.icon_for(concept, used)
     st = v3._strokes_for(ic)
@@ -239,11 +276,17 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
         add(0, 'headline', _headline(title, atlas), size=1.0,
             role='marker.swipe')
     hero = str(dg.get('hero') or '').strip()
+    hero_strokes: list = []
     if hero:
-        add(0, 'hero', _icon_group(hero, used), center=atlas['hero_c'],
+        hero_strokes = _icon_group(hero, used)
+        add(0, 'hero', hero_strokes, center=atlas['hero_c'],
             size=atlas['hero_s'], role='marker.swipe')
 
     # per-beat elements
+    id_map: dict = {}  # element id -> elements[] index for arrow endpoints
+    if hero_strokes:
+        id_map['hero'] = next(i for i, e in enumerate(elements)
+                              if e['kind'] == 'hero')
     col_counts = {'left': 0, 'right': 0}
     col_total = {'left': 0, 'right': 0}
     for b in beats:
@@ -273,53 +316,69 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 else 'hero'
         for el in spec.get('elements') or []:
             at = str(el.get('at', region))
-            if 'icon' in el:
+            el_id = el.get('id')
+            if at in ('left', 'right'):
                 cx, cy = _column_slot(atlas, at, col_counts.get(at, 0),
-                                      col_total.get(at, 1)) \
-                    if at in ('left', 'right') else atlas.get(
-                        at, atlas['hero_c'])
-                if at in ('left', 'right'):
-                    col_counts[at] = col_counts.get(at, 0) + 1
-                st = _icon_group(str(el['icon']), used)
-                if st:
-                    add(bi, 'icon', st, center=(cx, cy), size=140.0,
-                        role='marker.swipe')
-                else:
-                    add(bi, 'icon', _chip(el['icon'], None, cx, cy),
-                        center=(0, 0), size=1.0, role='marker.swipe')
-                elements[-1]['slot'] = at
-                if el.get('sub'):
-                    st2, _o, _t, _h = _lettered(
-                        str(el['sub']), cx, cy + 74, 14, 'ink',
-                        ws=0.95, bold=False, max_w=220)
-                    add(bi, 'caption', st2, center=(0, 0), size=1.0,
-                        role='marker.short')
-                    elements[-1]['slot'] = at
-            elif 'chip' in el:
+                                      col_total.get(at, 1))
+                col_counts[at] = col_counts.get(at, 0) + 1
+            else:
                 cx, cy = atlas.get(at, atlas['hero-c'])
-                pin = atlas['hero_c'] if at.startswith('hero') else None
+            pin = atlas['hero_c'] if at.startswith('hero') else None
+            concept = el.get('icon') or el.get('part')
+            if concept:
+                # art first — an icon/illustration that resolves; only when
+                # nothing draws does the element become a lettered chip
+                st = _icon_group(str(concept), used)
+                label = str(el.get('label') or concept)
+                if st:
+                    strokes = list(st)
+                    if pin is not None:
+                        hero_b = _elem_bounds(
+                            {'strokes': hero_strokes, 'center': atlas['hero_c'],
+                             'size': atlas['hero_s']}) or (0, 0, 0, 0)
+                        ib = (cx - 70, cy - 70, cx + 70, cy + 70)
+                        px0, py0 = _edge_pt(ib, atlas['hero_c'])
+                        px1, py1 = _edge_pt(hero_b, (cx, cy))
+                        strokes += [s + ('pin',) for s in _arrow(
+                            px0, py0, px1, py1, 'accent')]
+                    add(bi, 'icon', strokes, center=(cx, cy), size=140.0,
+                        role='marker.swipe')
+                    if el.get('label') or el.get('sub'):
+                        lines = [(str(el.get('label') or concept).upper(),
+                                  13.5, 'ink', 1.25, True)]
+                        if el.get('sub'):
+                            lines.append((str(el['sub']), 11, 'ink',
+                                          0.9, False))
+                        # caption hugs the icon's real bottom edge
+                        strokes = _text_block(lines, cx, cy + 92,
+                                              gap=7, max_w=210)
+                        elements[-1]['strokes'] += strokes
+                else:
+                    add(bi, 'chip',
+                        _chip(label, el.get('sub'), cx, cy, pin_to=pin),
+                        center=(0, 0), size=1.0, role='marker.short')
+                elements[-1]['slot'] = at
+            elif 'chip' in el:
                 add(bi, 'chip',
                     _chip(el['chip'], el.get('sub'), cx, cy, pin_to=pin),
                     center=(0, 0), size=1.0, role='marker.short')
                 elements[-1]['slot'] = at
             elif 'callout' in el:
-                cx, cy = _column_slot(atlas, at, col_counts.get(at, 0),
-                                      col_total.get(at, 1)) \
-                    if at in ('left', 'right') else atlas.get(
-                        at, atlas['hero_c'])
-                if at in ('left', 'right'):
-                    col_counts[at] = col_counts.get(at, 0) + 1
                 add(bi, 'callout',
                     _chip(el['callout'], el.get('sub'), cx, cy, accent=True),
                     center=(0, 0), size=1.0, role='marker.swipe')
                 elements[-1]['slot'] = at
             elif 'arrow' in el:
                 a = el['arrow'] if isinstance(el['arrow'], dict) else {}
-                p0 = _slot_point(atlas, a.get('from', 'left'))
-                p1 = _slot_point(atlas, a.get('to', 'hero'))
+                p0 = _conn_pt(atlas, a.get('from'), id_map, elements,
+                              a.get('to'))
+                p1 = _conn_pt(atlas, a.get('to'), id_map, elements,
+                              a.get('from'), margin=16)
                 add(bi, 'arrow', _arrow(p0[0], p0[1], p1[0], p1[1],
                                         a.get('color', 'accent')),
                     center=(0, 0), size=1.0, role='marker.short')
+            if el_id:
+                id_map[el_id] = len(elements) - 1
 
     # summary strip draws inside the last beat's window
     summary = str(dg.get('summary') or '').strip()
@@ -445,8 +504,7 @@ def _resolve_collisions(elements: list[dict], atlas: dict) -> None:
                 b[2] + margin * 0.5, b[3] + margin * 0.5)
 
     for e in elements:
-        if e['kind'] in ('chip', 'callout') and \
-                (e.get('slot') or '').startswith('hero'):
+        if (e.get('slot') or '').startswith('hero'):
             for _ in range(26):
                 b = _elem_bounds(e)
                 if not b:
@@ -461,6 +519,13 @@ def _resolve_collisions(elements: list[dict], atlas: dict) -> None:
                     forbids.append(_inflate(head_b))
                 if summ_b:
                     forbids.append(_inflate(summ_b))
+                # accent callout boxes are equally forbidden — satellite
+                # captions/art must never bleed into them
+                for co in elements:
+                    if co['kind'] == 'callout':
+                        cob = _elem_bounds(co)
+                        if cob:
+                            forbids.append(_inflate(cob))
                 bad = [f for f in forbids if _overlaps(b, f)]
                 if not bad:
                     break
@@ -505,8 +570,7 @@ def _resolve_collisions(elements: list[dict], atlas: dict) -> None:
         if e['kind'] == 'stage' and e.get('slot') == 'hero':
             b = _elem_bounds(e)
             tops = [_elem_bounds(x)[1] for x in elements
-                    if x['kind'] in ('chip', 'callout')
-                    and (x.get('slot') or '').startswith('hero')
+                    if (x.get('slot') or '').startswith('hero')
                     and _elem_bounds(x)]
             if tops and b:
                 _shift_elem(e, 0.0, min(tops) - margin * 0.6 - b[3])
