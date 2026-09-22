@@ -475,7 +475,10 @@ def encode_mp4(
         cmd += ['-i', str(p)]
     idx = {p: i + 1 for i, p in enumerate(ins)}
     for p in ins:
-        tail = ',asplit=2[vo_sc][vo_mix]' if p is voiceover else f'[n{idx[p]}]'
+        # VO splits into sidechain key + mix only when another bed exists to duck
+        tail = (',asplit=2[vo_sc][vo_mix]'
+                if p is voiceover and len(ins) > 1
+                else '[vo_mix]' if p is voiceover else f'[n{idx[p]}]')
         filters.append(
             f'[{idx[p]}:a]aformat=sample_fmts=fltp:channel_layouts=mono,'
             f'aresample=48000{tail}')
@@ -505,6 +508,10 @@ def encode_mp4(
                 ''.join(beds) +
                 f'amix=inputs={len(beds)}:normalize=0[m];'
                 f'[m]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')
+        elif voiceover and not beds:
+            # voiceover is the only input — master it straight to spec
+            filters.append(
+                f'[vo_mix]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')
         else:
             filters.append(
                 f'{beds[0]}loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]')

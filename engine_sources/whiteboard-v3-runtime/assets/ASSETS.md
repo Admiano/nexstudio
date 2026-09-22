@@ -54,6 +54,9 @@ which were AI-generated and vectorized as pipeline demos.
 - `RockSalt.ttf` — © Sideshow, SIL OFL 1.1 (chalk/marker hand)
 - `Caveat.ttf` — © Pablo Impallari, SIL OFL 1.1 (handwriting, variable
   weight)
+- `inter/` — Inter v4.1 Regular/Bold/Black TTFs — © Rasmus Andersson,
+  SIL OFL 1.1 (`inter/LICENSE.txt` included). The kinetic-type renderer's
+  grotesk display face; vendored so kinetic reels need no system fonts.
 - `OFL.txt` — the SIL Open Font License text covering the fonts above.
 - `hershey_occidental.json` — Hershey single-stroke vector font data
   (public domain; JSON encoding by scruss, dual CC0/WTFPL). 1570 glyphs —

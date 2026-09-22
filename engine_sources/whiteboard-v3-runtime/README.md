@@ -15,6 +15,25 @@ preserved execution body so every render is reproducible from versioned source.
 - **Audio finish.** 48 kHz pen/marker SFX bed from `sound_choreographer`, optional VO mixed via ffmpeg `sidechaincompress` (~120 ms attack / 280 ms release) and `loudnorm` to −16 LUFS / −1.5 dBTP.
 - **Artifacts.** MP4 (`libx264`, yuv420p, faststart), QA contact sheet, metrics JSON, execution receipt with SHA-256 of every output.
 
+## Second video type: kinetic type
+
+`pipeline_kinetic_timed.py` renders the "sentence-build" caption style as a
+sibling type — same plan contract (beats carry `narration`), same word-timing
+sync (`--word-timings` makes audio the clock), same encode + QA + receipts.
+Text is the visual: each sentence stays laid out while words flip state —
+dim future → bold now (key words get a dark highlight box + white text) →
+settled ink/accent with a hand-drawn swoosh underline. Emphasis detection is
+a deterministic function-word/proper-noun/number rule — no keyword tables,
+any domain works. Faces: `grotesk` (vendored Inter, OFL) or `marker`
+(PermanentMarker — bridges to the board's hand-drawn identity).
+
+```bash
+python engine_sources/whiteboard-v3-runtime/pipeline_kinetic_timed.py \
+  engine_sources/whiteboard-v3-runtime/fixtures/kinetic_demo_plan.json \
+  --out-dir out/kinetic --ratio 9:16 --voiceover vo.mp3 \
+  --word-timings words.json [--face grotesk|marker] [--music]
+```
+
 ## Requirements
 
 - Python 3.10+, `Pillow`, `ffmpeg`/`ffprobe` on PATH.
