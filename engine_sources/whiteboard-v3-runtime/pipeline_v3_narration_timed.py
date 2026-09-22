@@ -354,8 +354,8 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
         snd.AUDIO = sfx_dir
         snd.ROLE_FILE['marker.short'] = marker_bed.name
         snd.ROLE_FILE['marker.swipe'] = marker_bed.name
-        snd.ROLE_GAIN['marker.short'] = 0.30
-        snd.ROLE_GAIN['marker.swipe'] = 0.38
+        snd.ROLE_GAIN['marker.short'] = 0.30 * 0.7
+        snd.ROLE_GAIN['marker.swipe'] = 0.38 * 0.7
 
     # Bed loudness map: the source recording has quiet valleys between its
     # strokes (crossfaded when looped) — a random offset can land a slice on

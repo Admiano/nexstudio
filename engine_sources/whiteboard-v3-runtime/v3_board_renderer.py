@@ -737,7 +737,7 @@ def text_width(text: str, height: float) -> float:
 # -- drawing hand ------------------------------------------------------------
 
 _HAND_IMG = None
-_HAND_NIB = (3, 19)  # marker tip inside the sprite (px, source image space)
+_HAND_NIB = (5, 8)  # marker tip inside the sprite (px, source image space)
 
 
 def _hand():
