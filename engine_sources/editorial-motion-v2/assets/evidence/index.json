@@ -215,10 +215,27 @@
    "sha256": "928bb1a0c6bd34dce83f604c8eb68a6a1e043842fa6d662379487393ea3d1272",
    "width": 1400,
    "height": 1050,
-   "fetched": "2026-09-21",
-   "subjects": [],
+   "fetched": "2026-09-22",
+   "subjects": [
+    "Featured pictures on Wikipedia, English",
+    "Commons featured desktop backgrounds",
+    "Picture of week on the Czech Wikipedia",
+    "Featured pictures on Wikipedia, German",
+    "Featured pictures on Wikipedia, Persian",
+    "Featured pictures on Wikipedia, Turkish",
+    "Featured pictures on Wikipedia, Vietnamese",
+    "Featured pictures on Wikipedia, Malay",
+    "Featured pictures of food",
+    "Featured pictures of Gentianales",
+    "Featured photographs in the public domain",
+    "Featured pictures on Wikipedia, Arabic",
+    "Coffee bean textures"
+   ],
    "year": null,
-   "source_size": []
+   "source_size": [
+    1600,
+    1200
+   ]
   },
   "bed": {
    "concept": "bed",
@@ -872,21 +889,29 @@
    "query": "factory",
    "source": "wikimedia_commons",
    "provider": "commons",
-   "source_id": "151632013",
-   "title": "File:Edmonds factory.jpg",
-   "creator": "Auckland Weekly News",
-   "license": "Public Domain",
-   "license_url": "",
-   "landing_url": "https://commons.wikimedia.org/wiki/File:Edmonds_factory.jpg",
-   "file_url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Edmonds_factory.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-   "file": "factory.63c2492ab4b0.jpg",
-   "sha256": "abe179a077ba718c86c63580c38f38ec66d3623800162cfccecbecc456ec1e30",
-   "width": 750,
-   "height": 613,
-   "fetched": "2026-09-21",
-   "subjects": [],
-   "year": null,
-   "source_size": []
+   "source_id": "188776585",
+   "title": "File:Factory near Takasaki.jpg",
+   "creator": "Syced",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Factory_near_Takasaki.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Factory_near_Takasaki.jpg/1920px-Factory_near_Takasaki.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "factory.a972e0c18b18.jpg",
+   "sha256": "a8914643aeda47a9dee2af64ac0ed0198ef5e283ff2196d4b4d91641f4fc1dd2",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-22",
+   "subjects": [
+    "Buildings in Takasaki",
+    "Factories in Gunma prefecture",
+    "Factories in Japan photographed in 2026",
+    "March 2026 in Takasaki"
+   ],
+   "year": 2026,
+   "source_size": [
+    4000,
+    3000
+   ]
   },
   "ferry": {
    "concept": "ferry",
