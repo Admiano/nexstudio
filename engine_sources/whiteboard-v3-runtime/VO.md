@@ -10,8 +10,22 @@ The audio is the clock: script → VO → word timings → beat windows → scen
 | OpenAI TTS | ~$0.03 | pair with whisper verbose_json | cheap, fewer voices |
 | Azure/Google TTS | ~$0.02 | native word boundaries | solid mid tier |
 | Piper / Coqui (local) | $0 | pair with whisper.cpp / aeneas | free, lower fidelity |
+| **Kokoro (local)** — **default** | $0 | `vo_synth.py` pairs with faster-whisper | free, natural 11-voice set, MIT |
 
 A 1-min script is ~900 chars → VO is cents per minute.
+
+## Local synthesis (Kokoro, $0)
+
+```bash
+python3 vo_synth.py script.txt my_vo.wav --voice af_sarah --speed 1.0
+# writes my_vo.wav + my_vo_words.json ready for --voiceover/--word-timings
+```
+
+Requires `kokoro-onnx` + `faster-whisper` (pip) and the model files —
+`kokoro-v0_19.onnx` + `voices.npz` under `/home/ubuntu/voices/` (or pass
+`--model`/`--voices`). `[stage: x]` authoring hints are stripped before
+synthesis. Voices: af_sarah, af_bella, af_nicole, af_sky, am_adam,
+am_michael, bf_emma, bf_isabella, bm_george, bm_lewis.
 
 ## Usage
 

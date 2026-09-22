@@ -122,9 +122,15 @@ def _concepts(sentence: str, icon_for, used: dict, limit: int = 3,
     candidates = [f'{words[i]} {words[i + 1]}' for i in range(len(words) - 1)
                   if ' ' not in words[i] and ' ' not in words[i + 1]]
     scored: list[tuple[float, int, str]] = []
+    card_candidates: list[tuple[int, str]] = []
     for pos, c in enumerate(candidates + words):
         ic = icon_for(c, used)
-        if not ic or ic == 'card':
+        if not ic:
+            continue
+        if ic == 'card':
+            # nothing drawables covers this concept — remember it as a
+            # labelled-tile fallback rather than dropping the beat empty
+            card_candidates.append((pos, c))
             continue
         score = 5.0
         if ' ' in c:
@@ -149,6 +155,14 @@ def _concepts(sentence: str, icon_for, used: dict, limit: int = 3,
             continue
         picked.append(c)
         seen_words |= cw
+    if not picked:
+        # every candidate was card-level: keep the last content word as
+        # the beat's labelled element — a lettered cell beats an empty one
+        for _p, c in reversed(card_candidates):
+            picked.append(c)
+            if len(picked) >= limit:
+                break
+        picked.reverse()
     return picked
 
 
