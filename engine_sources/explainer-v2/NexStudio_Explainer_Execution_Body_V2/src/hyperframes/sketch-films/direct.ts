@@ -58,6 +58,8 @@ export type FilmBeat = {
   thumbs?: string[];
   poster?: string;
   tags?: string[];
+  /** End-card button label (overrides brief.cta on the close beat). */
+  cta?: string;
   /** Contrast pair. */
   a?: { title?: string; items?: string[] };
   b?: { title?: string; items?: string[] };
@@ -327,8 +329,9 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     case "render-bar": return { ...base, kicker: (base.kicker as string) || "RENDER", file: `${product.toLowerCase().replace(/\s+/g, "-")}.mp4` };
     case "payoff-lockup": return { ...base, text: beat.head || brief.tagline || "briefs in. films out.", sub: beat.sub || brief.tagline || "", index: false };
     case "end-card": {
-      const [a, ...rest] = product.split(" ");
-      return { ...base, brandA: a || "NEX", brandB: rest.join(" ") || "STUDIO", sub: brief.tagline || "briefs in. films out.", pill: brief.cta || "Start a film", index: false };
+      const brand = (beat.head || product).split(" ");
+      const [a, ...rest] = brand;
+      return { ...base, brandA: a || "NEX", brandB: rest.join(" ") || "", sub: beat.sub || brief.tagline || "briefs in. films out.", pill: beat.cta || brief.cta || "Start a film", index: false };
     }
     default: return { ...base, text: beat.head || beat.text || "" };
   }

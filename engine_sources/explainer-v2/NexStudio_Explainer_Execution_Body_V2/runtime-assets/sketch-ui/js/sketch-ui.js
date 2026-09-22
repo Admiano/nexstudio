@@ -780,7 +780,8 @@ window.NexSketch = (() => {
     const wm = h('div', 'sk-wordmark', el);
     wm.style.fontSize = spec.fontSize || '64px'; wm.style.flexWrap = 'wrap'; wm.style.justifyContent = 'center';
     const first = h('span', '', wm, spec.brandA || 'NEX');
-    const second = h('span', '', wm, spec.brandB || 'STUDIO');
+    const brandB = spec.brandB === undefined ? 'STUDIO' : spec.brandB;
+    const second = brandB ? h('span', '', wm, brandB) : null;
     if (spec.mark !== false) {
       const mk = h('span', 'mk', wm);
       const w = svgRoot(mk, '0 0 200 140'); w.style.width = '100%'; w.style.height = '100%';
@@ -791,7 +792,7 @@ window.NexSketch = (() => {
     if (spec.pill) { const p = h('span', 'sk-pill-cta', el, spec.pill); icon('up', p); }
     const tl = NexMotion.createTimeline();
     tl.fromTo(first, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.1);
-    tl.fromTo(second, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.25);
+    if (second) tl.fromTo(second, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.25);
     if (wm._mark) { wm._mark.style.opacity = '0'; tl.addUpdate(0.5, 0.2, p => { wm._mark.style.opacity = '1'; }, 'none'); fx(wm._mark, 'stamp-impact', { delay: 0.5, duration: 0.8, intensity: 1 }); }
     if (spec.sub) tl.fromTo(el.children[1], { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5 }, 0.8);
     if (spec.pill) tl.fromTo(el.children[el.children.length - 1], { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(1.7)' }, 1.15);
