@@ -169,7 +169,7 @@ def _subject(script: str) -> str:
 
 def build_plan(script: str, *, vtype: str = 'diagram',
                title: str = '', domain: str = '',
-               summary: str = '') -> dict:
+               summary: str = '', transition: str = '') -> dict:
     import pipeline_v3_narration_timed as p3
     p3.load_execution_body(None)
     import v3_board_renderer as v3
@@ -261,6 +261,8 @@ def build_plan(script: str, *, vtype: str = 'diagram',
                     {'arrow': {'from': region, 'to': 'hero'}}
                     if i == 0 else
                     {'arrow': {'from': 'hero', 'to': region}})
+        if transition in ('erase', 'zoom') and i > 0:
+            spec['transition'] = transition
         b['diagram'] = spec
         beats.append(b)
         t += dur
@@ -284,6 +286,9 @@ def main(argv=None) -> int:
     ap.add_argument('--title', default='')
     ap.add_argument('--domain', default='')
     ap.add_argument('--summary', default='')
+    ap.add_argument('--transition', default='',
+                    choices=('', 'erase', 'zoom'),
+                    help='per-beat canvas transition (diagram only)')
     ap.add_argument('--out', default='')
     ap.add_argument('--emit-vo', action='store_true',
                     help='print narration lines (for the TTS pass)')
@@ -295,7 +300,8 @@ def main(argv=None) -> int:
         return 0
 
     plan = build_plan(script, vtype=args.type, title=args.title,
-                      domain=args.domain, summary=args.summary)
+                      domain=args.domain, summary=args.summary,
+                      transition=args.transition)
     out = args.out or (Path(args.script).stem + '_plan.json')
     Path(out).write_text(json.dumps(plan, indent=1))
     print(out)

@@ -166,3 +166,43 @@ def test_flow_layout_chains_stage_cells():
                               and b[2] <= cx0 + wc / 2 + 1
                               and cy0 - hc / 2 - 1 <= b[1]
                               and b[3] <= cy0 + hc / 2 + 1)
+
+
+def test_erase_transition_fades_prior_beat(plan, built):
+    import copy
+    dr = pd._dr()
+    elements, meta = built
+    plan2 = copy.deepcopy(plan)
+    plan2['beats'][1]['diagram']['transition'] = 'erase'
+    t = plan2['beats'][1]['start_seconds'] + 0.3
+    fade = dr.wbp._ease(dr.wbp._clamp(0.3 / 0.7))
+    layer, _ = dr.draw_diagram_layer(
+        plan2, elements, meta['atlas'], '16:9', t, wipe=(1, fade))
+    full, _ = dr.draw_diagram_layer(
+        plan2, elements, meta['atlas'], '16:9', t)
+    # the icon's own stroke pixel fades under the wipe
+    icon = next(e for e in elements
+                if e['beat'] == 0 and e['kind'] == 'icon')
+    st = next(s for s in icon['strokes'] if len(s) < 5 or not s[4])
+    wx, wy = icon['center'][0] + st[0][0][0] * icon['size'], \
+        icon['center'][1] + st[0][0][1] * icon['size']
+    sx, sy = dr.wbp._map_point((wx, wy), (0.0, 0.0), '16:9')
+    a_wiped = max(layer.getpixel((int(sx) + dx, int(sy) + dy))[3]
+                  for dx in range(-2, 3) for dy in range(-2, 3))
+    a_full = max(full.getpixel((int(sx) + dx, int(sy) + dy))[3]
+                 for dx in range(-2, 3) for dy in range(-2, 3))
+    assert 0 < a_wiped < a_full
+
+
+def test_zoom_transition_settles_to_full_frame(plan, built):
+    import copy
+    dr = pd._dr()
+    elements, meta = built
+    plan2 = copy.deepcopy(plan)
+    plan2['beats'][1]['diagram']['transition'] = 'zoom'
+    b1 = plan2['beats'][1]['start_seconds']
+    mid = dr.render_diagram_frame(
+        plan2, elements, meta['atlas'], '16:9', b1 + 0.1)
+    late = dr.render_diagram_frame(
+        plan2, elements, meta['atlas'], '16:9', b1 + 2.0)
+    assert mid.size == late.size == (1280, 720)

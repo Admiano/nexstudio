@@ -715,12 +715,23 @@ def _active_beat(beats: list[dict], t: float) -> int:
     return idx
 
 
+# structural ink survives an 'erase' transition — the wipe clears a beat's
+# content (icons, chips, callouts, its stage label), never the furniture
+_STRUCTURAL = {'headline', 'summary', 'cellbox', 'arrow'}
+
+
 def draw_diagram_layer(plan: dict, elements: list[dict], atlas: dict,
-                       ratio: str, t: float, draw=True):
-    """Returns (layer, pen_tip_px)."""
+                       ratio: str, t: float, draw=True, wipe=None):
+    """Returns (layer, pen_tip_px).
+
+    wipe=(beat_idx, fade): an 'erase' transition in progress — elements
+    owned by beats before beat_idx whose kind isn't structural composite
+    at fade alpha, like a hand clearing the canvas for the new beat."""
     _boot()
     w, h = wbp.RATIO_SIZES[ratio]
     layer = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+    old_layer = Image.new('RGBA', (w, h), (0, 0, 0, 0)) if wipe else None
+    cutoff, fade = wipe if wipe else (-1, 1.0)
     cam = (0.0, 0.0)
     colors = v3._palette(plan)
     colors.setdefault('secondary', (139, 133, 119, 255))
@@ -733,10 +744,18 @@ def draw_diagram_layer(plan: dict, elements: list[dict], atlas: dict,
         p = wbp._ease(wbp._clamp((bt - e['start']) / span))
         if p <= 0:
             continue
-        tip_i = _draw_group(layer, e['strokes'], e['center'], e['size'],
+        target = (old_layer
+                  if old_layer is not None and e['beat'] < cutoff
+                  and e['kind'] not in _STRUCTURAL
+                  else layer)
+        tip_i = _draw_group(target, e['strokes'], e['center'], e['size'],
                             cam, colors, ratio, p, 31 + ei * 97, draw)
         if p < 1 and tip_i is not None:
             tip = tip_i
+    if old_layer is not None:
+        a = old_layer.getchannel('A').point(lambda v: int(v * fade))
+        old_layer.putalpha(a)
+        layer.alpha_composite(old_layer)
     return layer, tip
 
 
@@ -791,12 +810,59 @@ def _draw_group(layer, strokes, center, size, cam, colors, ratio, progress,
     return tip
 
 
+def _beat_at(plan: dict, t: float) -> int:
+    idx = 0
+    for i, b in enumerate(plan.get('beats') or []):
+        if float(b.get('start_seconds') or 0) <= t:
+            idx = i
+    return idx
+
+
+def _transition(plan: dict, beat_idx: int) -> tuple[str, float]:
+    """('erase'|'zoom'|'', duration) for the beat entering at beat_idx —
+    set as beat.diagram.transition / .transition_seconds."""
+    dg = ((plan.get('beats') or [{}])[beat_idx].get('diagram') or {})
+    tr = str(dg.get('transition') or '')
+    dur = float(dg.get('transition_seconds') or 0.7)
+    return tr, max(0.2, dur)
+
+
 def render_diagram_frame(plan: dict, elements: list[dict], atlas: dict,
                          ratio: str, t: float) -> Image.Image:
-    layer, tip = draw_diagram_layer(plan, elements, atlas, ratio, t)
+    bi = _beat_at(plan, t)
+    tr, td = _transition(plan, bi)
+    bt = t - float((plan['beats'][bi]).get('start_seconds') or 0)
+    tp = wbp._ease(wbp._clamp(bt / td)) if tr else 1.0
+
+    wipe = (bi, tp) if tr == 'erase' and tp < 1 else None
+    layer, tip = draw_diagram_layer(plan, elements, atlas, ratio, t,
+                                    wipe=wipe)
     if tip is None and t > 0.05:
         # lagging sample — hand trails the stroke, never teleports
         _, tip = draw_diagram_layer(plan, elements, atlas, ratio, t - 0.14,
-                                    draw=False)
+                                    draw=False, wipe=wipe)
     frame = v3._composite_frame(plan, ratio, (0.0, 0.0), [(layer, 255)], 7)
+
+    if tr == 'zoom' and tp < 1:
+        # settle-push into the incoming beat's centroid — a between-beat
+        # transition, eased open over the beat's first transition_seconds
+        pts = [e['center'] for e in elements
+               if e['beat'] == bi and e['kind'] not in
+               ('headline', 'cellbox', 'stage', 'summary')]
+        if pts:
+            cx = sum(p[0] for p in pts) / len(pts)
+            cy = sum(p[1] for p in pts) / len(pts)
+        else:
+            cx, cy = 0.0, 0.0
+        sx, sy = wbp._map_point((cx, cy), (0.0, 0.0), ratio)
+        fw, fh = frame.size
+        mag = 1.0 + 0.10 * (1 - tp)
+        cw, ch = fw / mag, fh / mag
+        x0 = wbp._clamp(sx - cw / 2, 0, fw - cw)
+        y0 = wbp._clamp(sy - ch / 2, 0, fh - ch)
+        box = (int(x0), int(y0), int(x0 + cw), int(y0 + ch))
+        frame = frame.crop(box).resize((fw, fh))
+        if tip is not None:
+            tip = ((tip[0] - x0) * mag, (tip[1] - y0) * mag)
+
     return v3._overlay_hand(frame, tip, ratio, t * 8 + 7)
