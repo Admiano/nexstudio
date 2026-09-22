@@ -20,13 +20,25 @@ export type SketchSceneSpec = {
     | "render-bar"
     | "player"
     | "logo-mark"
-    | "end-card";
+    | "end-card"
+    | "hero-build"
+    | "phrase-swap"
+    | "process-rail"
+    | "payoff-lockup"
+    | "word-object-bridge";
   /** Absolute film seconds where the beat starts. */
   start: number;
   /** Beat length in film seconds. */
   duration: number;
-  /** 'cut' (default), 'fade', or 'wipe' entrance. */
-  transition?: "cut" | "fade" | "wipe";
+  /**
+   * Entrance transition. 'cut'/'fade'/'rise'/'wipe' are inline; the rest map to
+   * paper-motion transitions: 'torn' → torn-paper-reveal, 'push' → collage-push,
+   * 'page' → page-turn, 'shuffle' → card-stack-shuffle, 'tape' → tape-peel,
+   * 'crumple' → crumple-transition, 'paper' → paper-wipe.
+   */
+  transition?: "cut" | "fade" | "rise" | "wipe" | "torn" | "push" | "page" | "shuffle" | "tape" | "crumple" | "paper";
+  /** Camera move over the beat — push scales in, pan translates (fractions of stage size). */
+  camera?: { push?: number; pan?: [number, number] };
   /** Top-left kicker text, e.g. "/ STEP 01". */
   kicker?: string;
   /** Top-right kicker text. */

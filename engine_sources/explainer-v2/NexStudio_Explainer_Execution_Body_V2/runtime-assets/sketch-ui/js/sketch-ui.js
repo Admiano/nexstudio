@@ -6,6 +6,7 @@ window.NexSketch = (() => {
   const SVGNS = 'http://www.w3.org/2000/svg';
 
   /* ---------- dom helpers ---------- */
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const h = (tag, cls, parent, text) => {
     const el = document.createElement(tag);
     if (cls) el.className = cls;
@@ -87,6 +88,10 @@ window.NexSketch = (() => {
       }, ease);
     });
   }
+  /* paper-motion effect applied to an element — returns its child timeline;
+     the master collects `[data-active-motion]` elements and seeks their
+     `__nexMotionTimeline` at scene-local time, so effects stay seekable */
+  const fx = (el, key, opts = {}) => { try { return NexMotion.apply(el, key, opts); } catch { return null; } };
   const fadeIn = (tl, el, s, d = 0.35, dy = 12) => tl.fromTo(el, { opacity: 0, y: dy }, { opacity: 1, y: 0, duration: d, ease: 'power2.out' }, s);
   const popIn = (tl, el, s, d = 0.4) => tl.fromTo(el, { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: d, ease: 'back.out(1.7)' }, s);
   /* numeric / text counters driven by seekable updates */
@@ -188,6 +193,7 @@ window.NexSketch = (() => {
     const send = h('span', 'sk-send', sub); icon('up', send);
     const tl = NexMotion.createTimeline();
     drawOn(tl, frameSvg, 0, 0.7);
+    fx(frame, 'cut-paper-pop', { delay: 0.05, duration: 0.72, intensity: 0.9 });
     [...rail.children].forEach((c, i) => popIn(tl, c, 0.5 + i * 0.07, 0.3));
     fadeIn(tl, mention, 0.55);
     fadeIn(tl, chip, 0.9); fadeIn(tl, send, 0.95);
@@ -197,12 +203,19 @@ window.NexSketch = (() => {
     tl.addUpdate(1.0 + Math.max(0.8, text.length * 0.05), 0.35, p => { send.style.transform = `scale(${1 + 0.12 * Math.sin(p * Math.PI)})`; }, 'none');
     if (spec.cursor) {
       const cur = h('div', 'sk-cursor', el); cursor(cur);
-      cur.style.left = '62%'; cur.style.top = '58%';
+      /* enters bottom-right, glides to the send button, clicks, drifts off */
+      cur.style.left = '58%'; cur.style.top = '64%';
       tl.fromTo(cur, { opacity: 0, x: 70, y: 60 }, { opacity: 1, x: 0, y: 0, duration: 0.9, ease: 'power2.out' }, 0.15);
-      tl.to(cur, { x: -40, y: -58, duration: 0.55, ease: 'power2.inOut' }, 0.75);
+      tl.to(cur, { x: 92, y: 58, duration: 0.55, ease: 'power2.inOut' }, 0.75);
       tl.to(cur, { scale: 0.82, duration: 0.12, ease: 'power1.out' }, 1.35);
       tl.to(cur, { scale: 1, duration: 0.15, ease: 'back.out(2)' }, 1.5);
+      /* nothing stays stray — cursor drifts off once the click lands */
+      const leave = Math.max(2.3, (spec.duration || 4) - 0.9);
+      tl.to(cur, { opacity: 0, x: -54, y: -78, duration: 0.45, ease: 'power2.in' }, leave);
     }
+    /* caret stops blinking and settles once typing is done */
+    const caretEnd = 1.0 + Math.max(0.8, text.length * 0.05);
+    tl.addUpdate(caretEnd + 1.1, 0.3, p => { caret.style.opacity = String(1 - p); }, 'power1.inOut');
     return { el, tl };
   };
 
@@ -235,6 +248,7 @@ window.NexSketch = (() => {
     (spec.checks || []).forEach(c => { const li = h('li', '', check); icon('check', li); h('span', '', li, c); });
     const tl = NexMotion.createTimeline();
     drawOn(tl, ws, 0, 0.8);
+    fx(win, 'drop-and-settle', { delay: 0, duration: 0.8, intensity: 0.5 });
     [...dots.children].forEach((d, i) => popIn(tl, d, 0.6 + i * 0.06, 0.25));
     fadeIn(tl, brand, 0.7); fadeIn(tl, pill, 0.75);
     [...chr.children].forEach((c, i) => fadeIn(tl, c, 0.8 + i * 0.05, 0.25));
@@ -247,6 +261,7 @@ window.NexSketch = (() => {
     tl.fromTo(cur, { opacity: 0, x: 60, y: 40 }, { opacity: 1, x: 0, y: 0, duration: 0.7 }, 0.5);
     tl.to(cur, { x: -90, y: -160, duration: 0.7, ease: 'power2.inOut' }, 2.2);
     tl.to(cur, { x: -60, y: -30, duration: 0.8, ease: 'power2.inOut' }, 3.0);
+    tl.to(cur, { opacity: 0, x: -20, y: 46, duration: 0.4, ease: 'power2.in' }, Math.max(3.9, (spec.duration || 5) - 0.7));
     return { el, tl };
   };
 
@@ -363,6 +378,7 @@ window.NexSketch = (() => {
     const tb = h('div', 'sk-tabbar', scr); (spec.tabs || ['home', 'list', 'plus', 'eye']).forEach(n => icon(n, tb));
     const tl = NexMotion.createTimeline();
     drawOn(tl, ps, 0, 1.0);
+    fx(ph, 'drop-and-settle', { delay: 0.02, duration: 0.9, intensity: 0.55 });
     fadeIn(tl, head, 0.8); fadeIn(tl, scr.children[0], 0.7);
     [...cards.children].forEach((c, i) => tl.fromTo(c, { opacity: 0, x: -26 }, { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }, 1.0 + i * 0.18));
     fadeIn(tl, pd, 1.6); [...tb.children].forEach((c, i) => popIn(tl, c, 1.7 + i * 0.07, 0.3));
@@ -375,8 +391,9 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:2% 8%;gap:14px';
     const headRow = h('div', 'sk-board-head', el);
-    const title = h('h2', 'sk-outline', headRow, 'STORYBOARD'); title.style.fontSize = spec.fontSize || '96px';
-    const meta = h('div', 'sk-mono', headRow); meta.style.cssText = 'text-align:right;font-size:14px;color:var(--sk-ink-2);display:flex;flex-direction:column;gap:5px;align-items:flex-end;max-width:34%';
+    headRow.style.position = 'relative';
+    const title = h('h2', 'sk-outline', headRow, 'STORYBOARD'); title.style.fontSize = spec.fontSize || '72px';
+    const meta = h('div', 'sk-mono', headRow); meta.style.cssText = 'position:absolute;right:0;top:0;text-align:right;font-size:14px;color:var(--sk-ink-2);display:flex;flex-direction:column;gap:5px;white-space:nowrap';
     const counterEl = h('span', '', meta, 'FRAMES 0/12');
     if (spec.note) h('span', '', meta, spec.note).style.cssText = 'font-size:10px;letter-spacing:.1em;color:var(--sk-ink-3);line-height:1.5';
     const grid = h('div', 'sk-cells', el);
@@ -397,7 +414,7 @@ window.NexSketch = (() => {
     }
     const tl = NexMotion.createTimeline();
     tl.fromTo(title, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.05);
-    cells.forEach(({ cell, cs }, i) => { drawOn(tl, cs, 0.4 + i * 0.16, 0.55); fadeIn(tl, cell.children[1], 0.55 + i * 0.16, 0.3); tl.addUpdate(0.6 + i * 0.16, 0.4, p => { counterEl.textContent = `FRAMES ${Math.min(12, Math.round((i + p) * (12 / nCells)))}/12`; }, 'none'); });
+    cells.forEach(({ cell, cs }, i) => { drawOn(tl, cs, 0.4 + i * 0.16, 0.55); fadeIn(tl, cell.children[1], 0.55 + i * 0.16, 0.3); fadeIn(tl, cell.children[2], 0.62 + i * 0.16, 0.25, 4); tl.addUpdate(0.6 + i * 0.16, 0.4, p => { counterEl.textContent = `FRAMES ${Math.min(12, Math.round((i + p) * (12 / nCells)))}/12`; }, 'none'); });
     fadeIn(tl, meta, 0.9);
     return { el, tl };
   };
@@ -575,14 +592,210 @@ window.NexSketch = (() => {
     const tl = NexMotion.createTimeline();
     tl.fromTo(first, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.1);
     tl.fromTo(second, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.25);
-    if (wm._mark) { wm._mark.style.opacity = '0'; tl.addUpdate(0.5, 0.9, p => { wm._mark.style.opacity = String(p); wm._mark.style.transform = `scale(${0.6 + 0.4 * p}) rotate(${(1 - p) * -14}deg)`; }, 'back.out(1.7)'); }
+    if (wm._mark) { wm._mark.style.opacity = '0'; tl.addUpdate(0.5, 0.2, p => { wm._mark.style.opacity = '1'; }, 'none'); fx(wm._mark, 'stamp-impact', { delay: 0.5, duration: 0.8, intensity: 1 }); }
     if (spec.sub) tl.fromTo(el.children[1], { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5 }, 0.8);
     if (spec.pill) tl.fromTo(el.children[el.children.length - 1], { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(1.7)' }, 1.15);
     return { el, tl };
   };
 
+  /* --- hero-build: PROGRESSIVE_HERO_BUILD in paper form — semantic phrase
+     chunks rise in stages; the payoff keyword promotes in scale; optional
+     support object sits at low dominance to the side --- */
+  scenes['hero-build'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px';
+    const lines = spec.lines || [spec.text || 'the whole idea, drawn.'];
+    const stage = spec.promote != null ? Math.max(0, lines.length - 1) : -1;
+    const lineEls = lines.map((line, i) => {
+      const row = h('div', 'sk-display', el);
+      row.style.fontSize = spec.fontSize || (i === stage ? '76px' : '60px');
+      row.style.lineHeight = '1.06';
+      const words = splitWords(row, line);
+      return { row, words };
+    });
+    /* optional support object — a small sketched frame with a glyph, kept
+       subordinate (the grammar's "support visual at low dominance") */
+    let support = null;
+    if (spec.support !== false) {
+      support = h('div', '', el);
+      support.style.cssText = 'position:absolute;right:4%;bottom:14%;width:150px;height:120px;opacity:.55';
+      const ws = svgRoot(support, '0 0 150 120');
+      skRect(ws, 4, 4, 142, 112, 700);
+      skPath(ws, spec.supportIcon === 'play' ? 'M62 34 L100 60 L62 86 Z' : 'M40 84 L68 56 L82 70 L108 42 M40 84 h72', 701, { strokeWidth: 2 });
+    }
+    const tl = NexMotion.createTimeline();
+    lineEls.forEach(({ row, words }, i) => {
+      const at = 0.15 + i * 0.34;
+      /* mask-rise per word, tight ~90ms stagger — semantic chunk lands whole */
+      words.forEach((w, j) => tl.fromTo(w, { opacity: 0, y: 26, rotation: -1.4 }, { opacity: 1, y: 0, rotation: 0, duration: 0.42, ease: 'expo.out' }, at + j * 0.09));
+      if (i === stage) tl.fromTo(row, { scale: 1 }, { scale: 1.09, duration: 0.5, ease: 'back.out(1.7)' }, at + words.length * 0.09 + 0.14);
+    });
+    if (support) {
+      const ws = support.querySelector('svg');
+      drawOn(tl, ws, 0.5, 0.9);
+      tl.addUpdate(0.4, 1.4, p => { support.style.opacity = String(0.55 * (0.4 + 0.6 * p)); }, 'power2.out');
+    }
+    if (spec.caption) { const c = h('div', 'sk-mono', el, spec.caption); c.style.cssText = 'margin-top:20px;font-size:13px;color:var(--sk-ink-2);letter-spacing:.1em'; fadeIn(tl, c, 0.5 + lines.length * 0.34, 0.4); }
+    return { el, tl };
+  };
+
+  /* --- phrase-swap: PHRASE_REPLACEMENT — one word slot swaps in place via a
+     paper mask; used for "X, not Y" reframes --- */
+  scenes['phrase-swap'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px';
+    const lead = h('div', 'sk-display', el, spec.lead || 'not another tool —');
+    lead.style.fontSize = spec.fontSize || '58px';
+    const slot = h('div', '', el);
+    slot.style.cssText = 'position:relative;height:1.3em;font-family:var(--sk-serif);font-size:' + (spec.slotSize || '96px') + ';line-height:1.1';
+    const wA = h('span', 'sk-outline', slot, spec.swapFrom || 'rendered.');
+    const wB = h('span', '', slot, spec.swapTo || 'directed.');
+    wB.style.cssText = 'position:absolute;left:0;top:0;color:var(--sk-mint-deep);font-style:italic';
+    const tl = NexMotion.createTimeline();
+    splitWords(lead, lead.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.4, ease: 'expo.out' }, 0.1 + i * 0.1));
+    tl.fromTo(wA, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: 'expo.out' }, 0.5);
+    const swapAt = spec.swapAt ?? 1.6;
+    /* strike through A, then mask-swap to B */
+    tl.addUpdate(swapAt, 0.34, p => { wA.style.opacity = String(1 - p); wA.style.transform = `translateY(${-p * 12}px)`; }, 'power2.in');
+    tl.addUpdate(swapAt + 0.22, 0.5, p => { wB.style.clipPath = `inset(0 ${(1 - p) * 100}% 0 0)`; wB.style.opacity = '1'; }, 'expo.out');
+    if (spec.caption) { const c = h('div', 'sk-mono', el, spec.caption); c.style.cssText = 'margin-top:26px;font-size:13px;color:var(--sk-ink-2);letter-spacing:.1em'; fadeIn(tl, c, swapAt + 0.6, 0.4); }
+    return { el, tl };
+  };
+
+  /* --- process-rail: PROCESS_RAIL — nodes on a drawn rail; a focal dot
+     travels node to node while each label resolves; rail can collapse into
+     a payoff word at the end --- */
+  scenes['process-rail'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:30px';
+    const head = h('div', 'sk-display', el, spec.title || 'how it moves');
+    head.style.fontSize = spec.fontSize || '54px';
+    const railWrap = h('div', '', el);
+    railWrap.style.cssText = 'position:relative;height:240px';
+    const svg = svgRoot(railWrap, '0 0 620 240'); svg.style.cssText = 'width:100%;height:100%';
+    const steps = (spec.steps || []).slice(0, 4);
+    const n = steps.length || 3;
+    const xs = n === 1 ? [310] : steps.map((_, i) => 70 + i * ((620 - 140) / (n - 1)));
+    const railY = 118;
+    /* rail line */
+    const rail = skLine(svg, 56, railY, 564, railY, 800, { strokeWidth: 2.2 });
+    const nodes = xs.map((x, i) => {
+      const g = sv('g', {}, svg);
+      const c = skCircle(g, x, railY, 34, 810 + i, { fill: cssVar('--sk-surface') });
+      const lbl = sv('text', { x, y: railY + 78, 'text-anchor': 'middle', 'font-family': "'JetBrains Mono',monospace", 'font-size': '15', 'letter-spacing': '.08em', fill: cssVar('--sk-ink-2') }, g);
+      lbl.textContent = steps[i] || `step ${i + 1}`;
+      const num = sv('text', { x, y: railY + 7, 'text-anchor': 'middle', 'font-family': "'DM Serif Display',serif", 'font-size': '17', fill: cssVar('--sk-ink') }, g);
+      num.textContent = `0${i + 1}`;
+      return { g, c, lbl, num };
+    });
+    /* focal dot rides the rail */
+    const dot = skCircle(svg, xs[0], railY, 17, 900, { fill: cssVar('--sk-mint'), stroke: cssVar('--sk-ink'), strokeWidth: 1.6 });
+    const tl = NexMotion.createTimeline();
+    splitWords(head, head.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'expo.out' }, 0.05 + i * 0.09));
+    drawOn(tl, rail, 0.35, 0.7, 'power2.inOut');
+    nodes.forEach((nd, i) => {
+      const at = 0.75 + i * 0.55;
+      /* node pop + label resolve + focal dot travel */
+      tl.fromTo(nd.g, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.7)', transformOrigin: `${xs[i]}px ${railY}px` }, at);
+      /* dot is a rough <g> + its _fill sibling — move via translate, not cx */
+      tl.addUpdate(at, 0.5, (p, raw) => {
+        if (i > 0 && raw < 0.02) return; /* hold position until this leg starts */
+        const x0 = xs[Math.max(0, i - 1)], x1 = xs[i];
+        const tf = `translateX(${x0 + (x1 - x0) * p - xs[0]}px)`;
+        dot.style.transform = tf;
+        if (dot._fill) dot._fill.style.transform = tf;
+      }, 'power2.inOut');
+      tl.fromTo(nd.lbl, { opacity: 0 }, { opacity: 1, duration: 0.3 }, at + 0.28);
+    });
+    if (spec.payoff) {
+      const pw = h('div', 'sk-serif', el, spec.payoff);
+      pw.style.cssText = 'font-style:italic;font-size:30px;color:var(--sk-ink);text-align:center';
+      fadeIn(tl, pw, 0.9 + n * 0.55, 0.5);
+      /* rail relaxes: dot settles to rest, rail fades slightly */
+      tl.addUpdate(0.9 + n * 0.55, 0.6, p => { rail.style.opacity = String(1 - p * 0.45); }, 'power2.out');
+    }
+    return { el, tl };
+  };
+
+  /* --- payoff-lockup: PAYOFF_LOCKUP — convergent settle: parts arrive from
+     their own edges into one decisive lockup; longest clean hold --- */
+  scenes['payoff-lockup'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center';
+    const hero = h('div', 'sk-display', el, spec.text || 'films that draw themselves.');
+    hero.style.fontSize = spec.fontSize || '68px';
+    hero.style.maxWidth = '92%';
+    const rule = h('div', '', el); rule.style.cssText = 'width:120px;height:8px;position:relative';
+    const ruleSvg = svgRoot(rule, '0 0 120 8'); ruleSvg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+    skLine(ruleSvg, 2, 4, 118, 4, 950, { strokeWidth: 2.4 });
+    if (spec.sub) h('div', 'sk-mono', el, spec.sub).style.cssText = 'font-size:14px;color:var(--sk-ink-2);letter-spacing:.12em';
+    if (spec.pill) { const p = h('span', 'sk-pill-cta', el, spec.pill); icon('up', p); }
+    const tl = NexMotion.createTimeline();
+    /* words converge — each line-half slides in from a different edge */
+    const words = splitWords(hero, hero.textContent);
+    words.forEach((w, i) => {
+      const dir = i % 2 === 0 ? -1 : 1;
+      tl.fromTo(w, { opacity: 0, x: dir * 60, rotation: dir * 2.5 }, { opacity: 1, x: 0, rotation: 0, duration: 0.55, ease: 'expo.out' }, 0.15 + i * 0.1);
+    });
+    drawOn(tl, ruleSvg, 0.15 + words.length * 0.1 + 0.15, 0.5, 'expo.out');
+    const after = el.children;
+    if (spec.sub) tl.fromTo(after[2], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45 }, 0.7 + words.length * 0.1);
+    if (spec.pill) tl.fromTo(after[after.length - 1], { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(1.7)' }, 0.95 + words.length * 0.1);
+    return { el, tl };
+  };
+
+  /* --- word-object-bridge: WORD_OBJECT_BRIDGE — a keyword lands, then a
+     sketched object draws out of its anchor point and takes over --- */
+  scenes['word-object-bridge'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;position:relative';
+    const line = h('div', 'sk-display', el);
+    line.style.fontSize = spec.fontSize || '58px';
+    const before = h('span', '', line, (spec.before || 'the ') + ' ');
+    const key = h('span', '', line, spec.keyword || 'object');
+    key.style.cssText = 'position:relative;color:var(--sk-ink);white-space:nowrap';
+    const after = h('span', '', line, ' ' + (spec.after || 'does the work.'));
+    /* the object draws from under the keyword, then keyword recedes to label */
+    const obj = h('div', '', el);
+    obj.style.cssText = 'position:absolute;left:8%;top:46%;width:34%;height:44%';
+    const ov = svgRoot(obj, '0 0 210 160'); ov.style.cssText = 'width:100%;height:100%';
+    const shapeKind = spec.object || 'card';
+    const shapes = [];
+    if (shapeKind === 'phone') {
+      shapes.push(skRect(ov, 70, 8, 76, 144, 960)); shapes.push(skCircle(ov, 108, 136, 8, 961)); shapes.push(skRect(ov, 78, 20, 60, 96, 962));
+    } else if (shapeKind === 'window') {
+      shapes.push(skRect(ov, 8, 14, 194, 132, 960)); shapes.push(skRect(ov, 8, 14, 194, 26, 961)); shapes.push(skLine(ov, 20, 68, 120, 68, 963)); shapes.push(skLine(ov, 20, 92, 150, 92, 964)); shapes.push(skLine(ov, 20, 116, 96, 116, 965));
+    } else { /* card */
+      shapes.push(skRect(ov, 12, 18, 186, 124, 960)); shapes.push(skCircle(ov, 46, 62, 34, 961)); shapes.push(skLine(ov, 74, 50, 168, 50, 962)); shapes.push(skLine(ov, 74, 74, 148, 74, 963)); shapes.push(skLine(ov, 26, 112, 184, 112, 964));
+    }
+    const tag = h('div', 'sk-mono', obj, spec.keyword || 'object');
+    tag.style.cssText = 'position:absolute;left:0;bottom:-6px;font-size:12px;color:var(--sk-ink-2);letter-spacing:.12em';
+    const tl = NexMotion.createTimeline();
+    splitWords(before, before.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.35, ease: 'expo.out' }, 0.05 + i * 0.07));
+    tl.fromTo(key, { opacity: 0, scale: 1.25, filter: 'none' }, { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(1.7)' }, 0.32);
+    splitWords(after, after.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.35, ease: 'expo.out' }, 0.55 + i * 0.07));
+    drawOn(tl, ov, 1.0, 1.0);
+    tl.addUpdate(1.15, 0.5, p => { tag.style.opacity = String(p); }, 'power2.out');
+    /* keyword shrinks into a label over the object it named */
+    tl.addUpdate(1.35, 0.6, p => { key.style.transform = `scale(${1 - p * 0.12})`; key.style.opacity = String(1 - p * 0.35); }, 'power2.inOut');
+    tag.style.opacity = '0';
+    return { el, tl };
+  };
+
   /* ============================================================
      FILM MASTER — spec → stage + per-scene windows + __timelines
+
+     Scene DOM:  <section.sk-scene> (transition transforms + visibility)
+                   └─ .sk-cam      (camera push/pan — never fights transitions)
+                      └─ .sk-safe  (content area inside furniture margins)
+     Furniture (kickers/foot/index) lives in the margins — content can never
+     collide with it because .sk-safe owns the inside lane.
+
+     Motion layering: each scene returns a base timeline `tl` that the master
+     seeks at local time. Any child element carrying a NexMotion effect
+     (`[data-active-motion]`) gets its `__nexMotionTimeline` seeked at the same
+     local time — so paper-motion effects stay deterministic under frame
+     stepping.
      ============================================================ */
   function furniture(scene, spec, idx, total) {
     if (spec.kicker) h('div', 'sk-kicker', scene, spec.kicker);
@@ -591,13 +804,35 @@ window.NexSketch = (() => {
     if (spec.index !== false) h('div', 'sk-index', scene, `${String(idx + 1).padStart(2, '0')}/${String(total).padStart(2, '0')}`);
   }
 
+  /* effects applied through NexMotion live on their own child timeline —
+     collect them so the master can seek them at scene-local time */
+  function collectEffects(root) {
+    const out = [];
+    (root.querySelectorAll?.('[data-active-motion]') || []).forEach(el => {
+      if (el.__nexMotionTimeline) out.push(el.__nexMotionTimeline);
+    });
+    if (root.__nexMotionTimeline) out.push(root.__nexMotionTimeline);
+    return out;
+  }
+
   function buildScene(spec, idx, total) {
     const sec = h('section', 'sk-scene');
+    const cam = h('div', 'sk-cam', sec);
+    const safe = h('div', 'sk-safe', cam);
     const body = (scenes[spec.type] || scenes['type-card'])(spec);
-    sec.appendChild(body.el);
+    safe.appendChild(body.el);
     furniture(sec, spec, idx, total);
-    return { spec, el: sec, tl: body.tl };
+    return { spec, el: sec, cam, tl: body.tl, fx: collectEffects(sec) };
   }
+
+  /* spec.transition → NexMotion transition key; 'fade'/'wipe'/'rise' are
+     handled inline (no registry def needed) */
+  const TRANSITION_KEYS = {
+    torn: 'torn-paper-reveal', push: 'collage-push', page: 'page-turn',
+    shuffle: 'card-stack-shuffle', tape: 'tape-peel', crumple: 'crumple-transition',
+    paper: 'paper-wipe',
+  };
+  const TRANSITION_DUR = 0.62;
 
   function start(filmSpec) {
     const stage = document.querySelector('[data-nex-production-canvas]');
@@ -608,24 +843,66 @@ window.NexSketch = (() => {
     h('div', 'sk-vignette', stage);
 
     const scenesBuilt = (filmSpec.scenes || []).map((s, i) => { const b = buildScene(s, i, filmSpec.scenes.length); stage.appendChild(b.el); return b; });
+
+    /* pre-build transition timelines for boundary pairs */
+    const transitions = [];
+    for (let i = 1; i < scenesBuilt.length; i++) {
+      const prev = scenesBuilt[i - 1], next = scenesBuilt[i];
+      const key = TRANSITION_KEYS[next.spec.transition];
+      if (!key) continue;
+      try {
+        const tl = NexMotion.transition(prev.el, next.el, key, { duration: TRANSITION_DUR, intensity: 1 });
+        tl.pause();
+        transitions.push({ tl, outEl: prev.el, inEl: next.el, end: next.spec.start, dur: TRANSITION_DUR });
+      } catch (_) { /* unknown key → inline fade below */ }
+    }
+
     const total = filmSpec.durationSeconds;
     const master = NexMotion.createTimeline();
     master.pause();
 
     master.addUpdate(0, total, (p, raw, time) => {
-      scenesBuilt.forEach((b, i) => {
+      /* 1) scene visibility + local-time seeks */
+      scenesBuilt.forEach((b) => {
         const s0 = b.spec.start, s1 = b.spec.start + b.spec.duration;
-        const on = time >= s0 && time < s1;
+        const tr = transitions.find(t => t.inEl === b.el);
+        const on = (time >= s0 && time < s1) || (tr && time >= tr.end - tr.dur && time < tr.end) || (transitions.some(t => t.outEl === b.el) && time >= s1 && time < s1 + TRANSITION_DUR);
         b.el.classList.toggle('on', on);
         if (!on) return;
         const local = Math.min(Math.max(time - s0, 0), b.tl.cursor);
-        const inDur = b.spec.transition === 'wipe' ? 0.5 : 0.28;
+        const inDur = b.spec.transition === 'wipe' ? 0.5 : TRANSITION_KEYS[b.spec.transition] ? 0.01 : 0.3;
         const pIn = Math.min(1, local / inDur);
         const out = s1 - time;
-        b.el.style.opacity = String(Math.min(1, pIn < 1 ? 0.2 + 0.8 * pIn : 1, out < 0.22 ? Math.max(0, out / 0.22) : 1));
-        b.el.style.transform = pIn < 1 ? `translateY(${(1 - pIn) * 26}px)` : '';
-        if (b.spec.transition === 'wipe' && pIn < 1) b.el.style.clipPath = `inset(0 ${(1 - pIn) * 100}% 0 0)`; else b.el.style.clipPath = '';
+        /* driven transition window (incoming or outgoing): the transition
+           timeline owns opacity/transform/clip — skip master's writes */
+        const driven = transitions.some(t => (t.inEl === b.el || t.outEl === b.el) && time >= t.end - t.dur && time < t.end);
+        if (!driven) {
+          const rise = b.spec.transition === 'rise';
+          b.el.style.opacity = String(Math.min(1, pIn < 1 ? 0.2 + 0.8 * pIn : 1, out < 0.22 && !transitions.some(t => t.outEl === b.el) ? Math.max(0, out / 0.22) : 1));
+          b.el.style.transform = pIn < 1 ? `translateY(${(1 - pIn) * (rise ? 60 : 26)}px)` : '';
+          if (b.spec.transition === 'wipe' && pIn < 1) b.el.style.clipPath = `inset(0 ${(1 - pIn) * 100}% 0 0)`; else if (!TRANSITION_KEYS[b.spec.transition]) b.el.style.clipPath = '';
+        }
         b.tl.seek(local);
+        b.fx.forEach(f => f.seek(local));
+        /* camera: push/pan on .sk-cam — transition transforms stay on .sk-scene */
+        const cam = b.spec.camera || {};
+        const cpush = Number(cam.push || 0), cpan = cam.pan || [0, 0];
+        if (cpush || cpan[0] || cpan[1]) {
+          const cp = Math.min(1, Math.max(0, local / Math.max(0.001, b.spec.duration)));
+          const eased = 1 - Math.pow(1 - cp, 3);
+          b.cam.style.transform = `translate(${cpan[0] * eased * 100}%, ${cpan[1] * eased * 100}%) scale(${1 + cpush * eased})`;
+        }
+      });
+      /* 2) driven transitions write after scenes so they win the contested props */
+      transitions.forEach(t => {
+        const lt = clamp((time - (t.end - t.dur)) / t.dur, 0, 1) * t.dur;
+        if (time >= t.end - t.dur && time <= t.end) {
+          t.outEl.classList.add('on'); t.inEl.classList.add('on');
+          t.tl.seek(lt);
+        } else if (time >= t.end) {
+          t.tl.seek(t.dur);
+          t.outEl.classList.remove('on');
+        }
       });
     }, 'none');
     master.seek(0);

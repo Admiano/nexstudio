@@ -16,6 +16,35 @@ tsx src/hyperframes/sketch-films/render.ts \
 Requires `google-chrome`/`chromium` on PATH (`CHROMIUM_EXECUTABLE_PATH` also
 works) and `ffmpeg`/`ffprobe`.
 
+## Direct a film from a prompt
+
+`direct.ts` is the director layer: a free-text brief → beat plan → scene
+selection → validated `SketchFilmSpec`. It is what keeps the system from
+being a fixed template — the brief decides which scene types appear (and in
+which order), the copy, the transitions, and the camera moves.
+
+```bash
+tsx src/hyperframes/sketch-films/direct-cli.ts \
+  "make a launch film for an agent that turns a text brief into a finished sketch-style video" \
+  src/hyperframes/sketch-films/specs/directed-demo \
+  [--duration 38] [--product "NEX STUDIO"] [--cta "..."] [--tagline "..."] [--seed 97]
+
+tsx src/hyperframes/sketch-films/render.ts \
+  src/hyperframes/sketch-films/specs/directed-demo/spec.json \
+  out/directed-demo.mp4
+```
+
+How it composes a brief: verbs become numbered `step` beats (or a
+`process-rail` when the pipeline is generic); interface/product picks follow
+the subject (`chat-prompt`, `phone-app`, `agent-window`); proof picks one of
+`storyboard` / `compose-graph` / `render-bar` / `word-object-bridge`; a hook
+opens (`type-card` / `hero-build` / `phrase-swap`) and a `payoff-lockup` +
+`end-card` close. No scene type repeats unless the narrative calls for it.
+`validateSpec` guarantees scenes tile the timeline and types are legal.
+
+Copy is deterministic by default; inject an LLM (or any source) per beat via
+`directToSpec(brief, { copywriter })`.
+
 ## Spec shape
 
 ```jsonc
@@ -29,7 +58,8 @@ works) and `ffmpeg`/`ffprobe`.
     {
       "id": "beat-01", "type": "chat-prompt",
       "start": 0, "duration": 3.9,
-      "transition": "wipe",            // or "fade" (default), "cut"
+      "transition": "wipe",            // see transitions below
+      "camera": { "push": 0.05 },      // optional push/pan
       "kicker": "BRIEF → FILM",        // furniture (top-left mono)
       "kickerR": "...", "foot": "...", // more furniture
       "prompt": "turn this brief into a launch video."
@@ -37,6 +67,11 @@ works) and `ffmpeg`/`ffprobe`.
   ]
 }
 ```
+
+Transitions: `cut`/`fade`/`rise`/`wipe` are inline; `torn`, `push`, `page`,
+`shuffle`, `tape`, `crumple`, `paper` map to the paper-motion transition
+library (torn-paper reveal, collage push, page turn, card-stack shuffle,
+tape peel, crumple, paper wipe).
 
 Asset paths are relative to the spec file. Music gets `id:"music"` (loop);
 SFX get `id:"sound-effect"` with `cueTimesSec` auto-derived from each scene's
@@ -50,7 +85,22 @@ typewriter, cursor), `agent-window` (browser chrome + sidebar + checklist),
 `render`), `phone-app`, `storyboard` (cell draw-on + FRAMES counter),
 `compose-graph` (node + wire draw-on + mint travel dots), `render-bar`,
 `player` (player chrome + mini product), `logo-mark` (two-wedge draw-on mark),
-`end-card` (brand lockup + pill).
+`end-card` (brand lockup + pill), `hero-build` (progressive phrase-chunk
+reveals + keyword promote), `phrase-swap` (word replaced in place via mask),
+`process-rail` (travelling focal dot + sequential label resolve),
+`payoff-lockup` (convergent settle + longest hold), `word-object-bridge`
+(keyword recedes as the named object draws itself).
+
+Layout discipline: every scene body lives inside `.sk-safe` (inset inside the
+furniture margins), and furniture (kickers/foot/index) owns the margins — so
+content can never collide with chrome. Camera moves run on a `.sk-cam`
+wrapper so transition transforms never fight them. Elements that appear get
+a defined exit (cursor drifts off, caret settles) — nothing floats.
+
+Motion comes from two stacked layers: each scene's local timeline plus any
+`NexMotion` paper effects attached to elements (`cut-paper-pop`,
+`drop-and-settle`, `stamp-impact`, `ink-reveal`, …), both sought
+deterministically per frame by the master timeline.
 
 ## How it works
 

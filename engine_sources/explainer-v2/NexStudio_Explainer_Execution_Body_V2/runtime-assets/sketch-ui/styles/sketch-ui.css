@@ -32,6 +32,28 @@ html.sk,body.sk{margin:0;height:100%;background:var(--sk-paper);color:var(--sk-i
 
 .sk-scene{position:absolute;inset:0;display:flex;flex-direction:column;z-index:1;visibility:hidden}
 .sk-scene.on{visibility:visible}
+.sk-cam{position:absolute;inset:0;display:flex;flex-direction:column;will-change:transform,opacity}
+.sk-safe{position:absolute;top:9%;bottom:8%;left:6.5%;right:6.5%;display:flex;flex-direction:column}
+.motion-layer{position:absolute;inset:0;pointer-events:none}
+.transition-motion-layer{position:absolute;pointer-events:none;z-index:6}
+[data-motion-layer]{pointer-events:none}
+.motion-connect-layer,.motion-draw-layer{width:100%;height:100%}
+.motion-connect-layer path,.motion-draw-layer path{stroke:var(--sk-ink);stroke-width:2;fill:none}
+.motion-peel-layer{background:var(--sk-paper-2);border:var(--sk-w) solid var(--sk-ink);border-radius:12px}
+.motion-ink-mask{background:var(--sk-paper)}
+.motion-colour-fill{position:absolute;inset:0}
+.motion-marker-layer{position:absolute;left:-4%;right:-4%;top:62%;height:.34em;background:var(--sk-mint);opacity:.78;transform-origin:0 50%;z-index:-1;border-radius:2px}
+.motion-impact-ring{position:absolute;inset:-18%;border:2.5px solid var(--sk-mint);border-radius:50%}
+.motion-shadow-layer{position:absolute;left:50%;top:50%;width:70%;height:30%;transform:translate(-50%,-50%);background:var(--sk-ink);filter:blur(14px);border-radius:50%}
+.motion-confirm-layer svg{width:100%;height:100%;stroke:var(--sk-ink);stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.transition-torn-paper-reveal{left:-6%;top:-10%;width:7%;height:120%;background:var(--sk-surface);border-right:var(--sk-w) solid var(--sk-ink);transform:rotate(.8deg)}
+.transition-paper-wipe{top:-14%;left:0;width:64%;height:128%;background:var(--sk-paper-2);border-radius:8px;box-shadow:0 18px 40px rgba(47,42,30,.22);transform:skewX(-6deg)}
+.transition-page-turn{top:0;bottom:0;left:-4%;width:24%;background:linear-gradient(90deg,transparent,rgba(47,42,30,.18) 70%,rgba(47,42,30,.32))}
+.transition-tape-peel{top:8%;left:38%;width:24%;height:8%;background:rgba(240,228,199,.85);border:1.5px dashed var(--sk-ink-3);border-radius:3px}
+.transition-card-stack-shuffle{display:none}
+.transition-crumple-transition{top:32%;left:34%;width:32%;height:36%;background:var(--sk-paper-2);border:var(--sk-w) solid var(--sk-ink);border-radius:14px;box-shadow:0 12px 26px rgba(47,42,30,.2)}
+.transition-collage-push{display:none}
+.sk .sk-scene{z-index:1}
 
 /* scene furniture */
 .sk-kicker{position:absolute;top:5.6%;left:6.2%;font:600 16px/1 var(--sk-mono);letter-spacing:.06em;color:var(--sk-ink-2)}
@@ -67,7 +89,7 @@ html.sk,body.sk{margin:0;height:100%;background:var(--sk-paper);color:var(--sk-i
 .sk-mention{display:inline-flex;align-items:center;gap:7px;font:600 13px var(--sk-ui);color:var(--sk-ink);padding:3px 10px 3px 5px;border-radius:9px;border:var(--sk-w) solid var(--sk-ink)}
 .sk-mention i{width:18px;height:18px;display:inline-flex}
 .sk-mention i svg{width:100%;height:100%}
-.sk-typed{font-family:var(--sk-serif);font-size:32px;color:var(--sk-ink);min-height:38px;letter-spacing:0;line-height:1.15}
+.sk-typed{font-family:var(--sk-serif);font-size:26px;color:var(--sk-ink);min-height:30px;letter-spacing:0;line-height:1.2;overflow-wrap:anywhere}
 .sk-chat-box .sk-chat-row+.sk-chat-row{margin-top:6px}
 .sk-caret{display:inline-block;width:2.5px;height:.95em;background:var(--sk-ink);vertical-align:-.08em;margin-left:1px}
 .sk-chat-sub{display:flex;align-items:center;justify-content:space-between;padding-top:2px}
@@ -88,7 +110,7 @@ html.sk,body.sk{margin:0;height:100%;background:var(--sk-paper);color:var(--sk-i
 .sk-chrome-r{display:flex;gap:10px;margin-left:auto;align-items:center}
 .sk-chrome-r svg{width:15px;height:15px}
 .sk-window-body{flex:1;display:flex;min-height:0}
-.sk-sidebar{width:27%;padding:16px 14px;display:flex;flex-direction:column;gap:12px}
+.sk-sidebar{width:27%;padding:16px 14px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;overflow:hidden}
 .sk-btn{display:inline-flex;align-items:center;gap:7px;justify-content:center;font:600 13.5px var(--sk-ui);padding:9px 12px;border-radius:10px;border:var(--sk-w) solid var(--sk-ink)}
 .sk-btn svg{width:15px;height:15px}
 .sk-navlabel{font:600 11px var(--sk-mono);color:var(--sk-ink-2);letter-spacing:.1em;text-transform:uppercase}
