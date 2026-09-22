@@ -145,3 +145,24 @@ def test_cli_smoke(tmp_path):
                          .read_text())
     assert receipt['renderer']['type'] == 'diagram'
     assert receipt['duration_seconds'] > 15
+
+
+def test_flow_layout_chains_stage_cells():
+    p3.load_execution_body(None)
+    plan = p3.load_plan(FIXTURE.parent / 'devin_flow_demo_plan.json')
+    elements, meta = pd._dr().build_elements(plan, '16:9')
+    kinds = [e['kind'] for e in elements]
+    # no hero in flow — beats are stage cells
+    assert 'hero' not in kinds
+    assert kinds.count('cellbox') == 3
+    # connector arrows chain the cells
+    assert kinds.count('arrow') >= 2
+    # every cell's content stays inside its box
+    for i, (cx0, cy0, wc, hc) in enumerate(meta['atlas']['cells']):
+        for e in elements:
+            if e.get('slot') == f'cell{i}' and e['kind'] != 'stage':
+                b = pd._dr()._elem_bounds(e)
+                assert b and (cx0 - wc / 2 - 1 <= b[0]
+                              and b[2] <= cx0 + wc / 2 + 1
+                              and cy0 - hc / 2 - 1 <= b[1]
+                              and b[3] <= cy0 + hc / 2 + 1)

@@ -270,17 +270,26 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                          'size': size, 'beat': bi})
         plans[bi].append({'role': role})
 
-    # headline + hero draw during beat 0
+    # headline + hero draw during beat 0 — except in 'flow' layout,
+    # which has no hero: beats are stage cells chained left to right
+    flow = str(dg.get('layout') or '') == 'flow'
     title = str(dg.get('title') or '').strip()
     if title:
         add(0, 'headline', _headline(title, atlas), size=1.0,
             role='marker.swipe')
     hero = str(dg.get('hero') or '').strip()
     hero_strokes: list = []
-    if hero:
+    if hero and not flow:
         hero_strokes = _icon_group(hero, used)
         add(0, 'hero', hero_strokes, center=atlas['hero_c'],
             size=atlas['hero_s'], role='marker.swipe')
+
+    cells: list[tuple[float, float, float, float]] = []
+    if flow and beats:
+        span = z['w'] * 0.86
+        cw = span / len(beats)
+        cells = [(-span / 2 + cw * (i + 0.5), z['h'] * 0.06,
+                  cw - 34, z['h'] * 0.50) for i in range(len(beats))]
 
     # per-beat elements
     id_map: dict = {}  # element id -> elements[] index for arrow endpoints
@@ -295,15 +304,39 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             at = el.get('at', spec.get('region', 'hero-c'))
             if at in col_total:
                 col_total[at] += 1
+    cell_total_cells: dict = {}
+    for bi, b in enumerate(beats):
+        spec = b.get('diagram') or {}
+        cell_total_cells[bi] = sum(
+            1 for el in (spec.get('elements') or [])
+            if str(el.get('at', spec.get('region', 'cell'))) == 'cell')
     for bi, b in enumerate(beats):
         spec = b.get('diagram') or {}
         region = spec.get('region') or (
+            'cell' if flow else
             'left' if bi == 0 else
             ('right' if bi == len(beats) - 1 else 'hero'))
+        if flow and region == 'cell':
+            # stage cell: frame box + connector arrow from the previous
+            # cell's right edge — process content reads as a chain
+            cx0, cy0, wc, hc = cells[bi]
+            add(bi, 'cellbox', [(v3._rounded_rect(cx0, cy0, wc, hc, 16),
+                                 'ink', 1.0, False, True)],
+                center=(0, 0), size=1.0, role='marker.swipe')
+            elements[-1]['slot'] = f'cellbox{bi}'
+            if bi > 0:
+                px0 = cells[bi - 1][0] + cells[bi - 1][2] / 2 + 6
+                px1 = cx0 - wc / 2 - 6
+                add(bi, 'arrow',
+                    _arrow(px0, cy0, px1, cy0, 'accent'),
+                    center=(0, 0), size=1.0, role='marker.short')
         stage = str(spec.get('stage') or '').strip()
         if stage:
             lbl = f'{bi + 1}. {stage.upper()}'[:32]
-            if region in ('left', 'right'):
+            if region == 'cell':
+                sx = cells[bi][0]
+                sy = cells[bi][1] - cells[bi][3] / 2 - 34
+            elif region in ('left', 'right'):
                 sx = atlas[region]
                 sy = -z['h'] * 0.30
             else:
@@ -312,18 +345,35 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             st, _o, _t, _h = _lettered(lbl, sx, sy, 20, 'ink',
                                        max_w=z['w'] * 0.4)
             add(bi, 'stage', st, size=1.0, role='marker.short')
-            elements[-1]['slot'] = region if region in ('left', 'right') \
-                else 'hero'
+            elements[-1]['slot'] = (f'cell{bi}' if region == 'cell'
+                                    else region if region in ('left', 'right')
+                                    else 'hero')
         for el in spec.get('elements') or []:
             at = str(el.get('at', region))
             el_id = el.get('id')
-            if at in ('left', 'right'):
+            in_cell = flow and at == 'cell'
+            if in_cell:
+                # stack inside this beat's stage cell — icon size shrinks
+                # with item count so icon+caption stacks stay inside the box
+                cx0, cy0, wc, hc = cells[bi]
+                idx = col_counts.get(f'cell{bi}', 0)
+                col_counts[f'cell{bi}'] = idx + 1
+                n = cell_total_cells.get(bi, 1)
+                cx = cx0
+                span = hc * 0.56
+                cy = (cy0 - span / 2 if n == 1 else
+                      cy0 - span / 2 + span * idx / (n - 1))
+                icon_size = min(140.0, wc * 0.46,
+                                hc * 0.28 if n <= 2 else hc * 0.185)
+            elif at in ('left', 'right'):
                 cx, cy = _column_slot(atlas, at, col_counts.get(at, 0),
                                       col_total.get(at, 1))
                 col_counts[at] = col_counts.get(at, 0) + 1
+                icon_size = 140.0
             else:
                 cx, cy = atlas.get(at, atlas['hero-c'])
-            pin = atlas['hero_c'] if at.startswith('hero') else None
+                icon_size = 140.0
+            pin = (atlas['hero_c'] if at.startswith('hero') else None)
             concept = el.get('icon') or el.get('part')
             if concept:
                 # art first — an icon/illustration that resolves; only when
@@ -341,33 +391,37 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                         px1, py1 = _edge_pt(hero_b, (cx, cy))
                         strokes += [s + ('pin',) for s in _arrow(
                             px0, py0, px1, py1, 'accent')]
-                    add(bi, 'icon', strokes, center=(cx, cy), size=140.0,
-                        role='marker.swipe')
+                    add(bi, 'icon', strokes, center=(cx, cy),
+                        size=icon_size, role='marker.swipe')
                     if el.get('label') or el.get('sub'):
+                        small = in_cell and cell_total_cells.get(bi, 1) > 2
                         lines = [(str(el.get('label') or concept).upper(),
-                                  13.5, 'ink', 1.25, True)]
+                                  12 if small else 13.5, 'ink',
+                                  1.25, True)]
                         if el.get('sub'):
-                            lines.append((str(el['sub']), 11, 'ink',
+                            lines.append((str(el['sub']),
+                                          10 if small else 11, 'ink',
                                           0.9, False))
                         # caption hugs the icon's real bottom edge
-                        strokes = _text_block(lines, cx, cy + 92,
-                                              gap=7, max_w=210)
+                        strokes = _text_block(
+                            lines, cx, cy + icon_size * 0.5 + 16,
+                            gap=6, max_w=(wc - 40) if in_cell else 210)
                         elements[-1]['strokes'] += strokes
                 else:
                     add(bi, 'chip',
                         _chip(label, el.get('sub'), cx, cy, pin_to=pin),
                         center=(0, 0), size=1.0, role='marker.short')
-                elements[-1]['slot'] = at
+                elements[-1]['slot'] = f'cell{bi}' if in_cell else at
             elif 'chip' in el:
                 add(bi, 'chip',
                     _chip(el['chip'], el.get('sub'), cx, cy, pin_to=pin),
                     center=(0, 0), size=1.0, role='marker.short')
-                elements[-1]['slot'] = at
+                elements[-1]['slot'] = f'cell{bi}' if in_cell else at
             elif 'callout' in el:
                 add(bi, 'callout',
                     _chip(el['callout'], el.get('sub'), cx, cy, accent=True),
                     center=(0, 0), size=1.0, role='marker.swipe')
-                elements[-1]['slot'] = at
+                elements[-1]['slot'] = f'cell{bi}' if in_cell else at
             elif 'arrow' in el:
                 a = el['arrow'] if isinstance(el['arrow'], dict) else {}
                 p0 = _conn_pt(atlas, a.get('from'), id_map, elements,
@@ -380,6 +434,7 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             if el_id:
                 id_map[el_id] = len(elements) - 1
 
+    atlas['cells'] = cells
     # summary strip draws inside the last beat's window
     summary = str(dg.get('summary') or '').strip()
     if summary and beats:
@@ -566,6 +621,23 @@ def _resolve_collisions(elements: list[dict], atlas: dict) -> None:
                     _shift_elem(e, 0.0, deficit)
                     for x in items:
                         _shift_elem(x, 0.0, deficit)
+    # flow layout: restack each stage cell's contents inside its box and
+    # float the stage label just above the box top
+    for i, (cx0, cy0, wc, hc) in enumerate(atlas.get('cells') or []):
+        items = [e for e in elements if e.get('slot') == f'cell{i}'
+                 and e['kind'] != 'stage']
+        items.sort(key=lambda e: (_elem_bounds(e) or (0, 0, 0, 0))[1])
+        cursor = cy0 - hc / 2 + hc * 0.11
+        for e in items:
+            b = _elem_bounds(e)
+            if not b:
+                continue
+            _shift_elem(e, 0.0, cursor - b[1])
+            cursor = _elem_bounds(e)[3] + margin * 0.6
+        for e in elements:
+            if e['kind'] == 'stage' and e.get('slot') == f'cell{i}':
+                b = _elem_bounds(e)
+                _shift_elem(e, 0.0, cy0 - hc / 2 - margin * 0.5 - b[3])
     for e in elements:
         if e['kind'] == 'stage' and e.get('slot') == 'hero':
             b = _elem_bounds(e)
