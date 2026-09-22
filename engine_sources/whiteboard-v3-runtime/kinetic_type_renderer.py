@@ -79,10 +79,27 @@ def _font(face: str, bold: bool, size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(str(bld if bold else reg), size)
 
 
+def _track_for(size: int) -> int:
+    """Negative letter-tracking at display sizes — the tight spacing that
+    makes big kinetic type read as designed type, not default type."""
+    return max(0, int(size * 0.022))
+
+
 def _tw(word: str, size: int, face: str, bold: bool = True) -> int:
+    """Kerning-aware word width: `getlength` applies the font's shaping
+    (kerning pairs, advances); tracking is then removed per gap."""
     f = _font(face, bold, size)
-    b = f.getbbox(word)
-    return b[2] - b[0]
+    return int(f.getlength(word) - _track_for(size) * (len(word) - 1))
+
+
+def _draw_word(d: ImageDraw.ImageDraw, x: float, y: float, word: str,
+               f: ImageFont.FreeTypeFont, fill, size: int):
+    """Draw a word char-by-char preserving pair kerning (advance = delta of
+    prefix lengths) minus tracking — _tw stays consistent with the ink."""
+    track = _track_for(size)
+    for j, ch in enumerate(word):
+        cx = x + f.getlength(word[:j]) - j * track
+        d.text((cx, y), ch, font=f, fill=fill)
 
 
 def typeset(sentence: dict, size: int, face: str, frame_w: int,
@@ -307,8 +324,8 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
                 f = _font(face, bold, sz)
                 tw_s = _tw(w['word'], sz, face, bold)
             ccol = fade(col) if a < 1 else col
-            draw.text((x + (tw - tw_s) / 2, y + (size - sz) * 0.55),
-                      w['word'], font=f, fill=ccol)
+            _draw_word(draw, x + (tw - tw_s) / 2, y + (size - sz) * 0.55,
+                       w['word'], f, ccol, sz)
             if emph and age > 0.25:
                 _swoosh(draw, x - size * 0.06, x + tw + size * 0.06,
                         y + size * 1.22,
