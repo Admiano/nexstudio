@@ -1361,7 +1361,8 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
             for icon, keys in _ICON_KEYWORDS.items():
                 if phrase in keys:
                     return icon
-            hit = _icon_lookup(phrase, exclude)
+            hit = _icon_lookup(phrase, exclude) or (
+                _word_form_icon(phrase, exclude) if _depth < 2 else None)
             if hit:
                 return hit
         # a strong scene-vignette match beats the flat icon vocabulary
@@ -1375,6 +1376,12 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
     for icon, keys in _ICON_KEYWORDS.items():
         if any(k in wset or (len(k) >= 6 and k in phrase) for k in keys):
             return icon
+    # the phrase as a whole isn't drawable — try the tail word's
+    # derivations and synonyms before lettering anything
+    if _depth < 2 and words:
+        hit = _word_form_icon(words[-1], exclude)
+        if hit:
+            return hit
     if _STAT_RE.match(phrase):
         return 'stat'
     if re.search(r'\d', phrase):
@@ -1401,12 +1408,133 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
         comp = _composed_parts(words, exclude)
         if comp:
             return comp
-    return 'card'
+    # nothing covers the phrase — the artist draws a hand-drawn emblem
+    # (blob/burst/banner picked deterministically) so the concept is
+    # still ink on the board, not a plain boxed word
+    shape = _EMBLEM_SHAPES[
+        sum(ord(c) for c in phrase) % len(_EMBLEM_SHAPES)]
+    return ('emblem', shape)
 
 
 # concepts that resolve to nothing meaningful — a part only joins a
 # composition when it draws real art, not another card or empty tile
 _COMPOSE_REJECT = (None, 'card', 'tile')
+
+
+def _is_emblem(icon) -> bool:
+    return isinstance(icon, tuple) and icon[0] == 'emblem'
+
+
+# Abstract words that carry no drawable surface of their own get mapped
+# to the closest drawable idea — 'kill' draws a skull, 'headlines' a
+# newspaper, 'say' a speech balloon. Curated and domain-agnostic; extend
+# when a word class surfaces, never per-plan.
+_SYNONYMS: dict[str, tuple[str, ...]] = {
+    'say': ('speech',), 'says': ('speech',), 'said': ('speech',),
+    'speak': ('speech',), 'speaks': ('speech',), 'tell': ('speech',),
+    'tells': ('speech',), 'claim': ('speech',), 'claims': ('speech',),
+    'rumor': ('speech',), 'rumour': ('speech',), 'quote': ('speech',),
+    'headline': ('newspaper',), 'headlines': ('newspaper',),
+    'news': ('newspaper',), 'press': ('newspaper',), 'article': ('newspaper',),
+    'report': ('newspaper',), 'coverage': ('newspaper',),
+    'journal': ('newspaper',), 'headline': ('newspaper',),
+    'hype': ('megaphone',), 'buzz': ('megaphone',), 'hysteria': ('megaphone',),
+    'announcement': ('megaphone',), 'debate': ('speech',),
+    'fact': ('check',), 'facts': ('check',), 'truth': ('check',),
+    'proof': ('check',), 'evidence': ('check',), 'confirmed': ('check',),
+    'reality': ('eye',), 'visible': ('eye',),
+    'story': ('book',), 'stories': ('book',), 'tale': ('book',),
+    'myth': ('book',), 'fiction': ('book',), 'narrative': ('book',),
+    'kill': ('skull',), 'kills': ('skull',), 'death': ('skull',),
+    'die': ('skull',), 'dead': ('skull',), 'doom': ('skull',),
+    'threat': ('skull',), 'menace': ('skull',), 'apocalypse': ('skull',),
+    'existential': ('skull',),
+    'desire': ('heart',), 'desires': ('heart',), 'want': ('heart',),
+    'wish': ('heart',), 'wishlist': ('heart',),
+    'choice': ('fork',), 'choose': ('fork',), 'decision': ('fork',),
+    'decide': ('fork',), 'option': ('fork',), 'options': ('fork',),
+    'control': ('switch',), 'controls': ('switch',), 'operate': ('switch',),
+    'inside': ('container',), 'within': ('container',),
+    'bias': ('balance',), 'fair': ('balance',), 'unfair': ('balance',),
+    'misuse': ('warning',), 'abuse': ('warning',),
+    'think': ('brain',), 'thought': ('brain',), 'mind': ('brain',),
+    'consciousness': ('brain',), 'sentience': ('brain',),
+    'belief': ('brain',), 'believe': ('brain',), 'know': ('brain',),
+    'aware': ('eye',), 'notice': ('eye',),
+    'lie': ('cancel',), 'lies': ('cancel',), 'false': ('cancel',),
+    'fake': ('cancel',), 'wrong': ('cancel',), 'mistake': ('cancel',),
+    'end': ('flag',), 'ends': ('flag',), 'over': ('flag',),
+    'finish': ('flag',), 'finished': ('flag',),
+    'everyone': ('group',), 'everybody': ('group',), 'people': ('group',),
+    'society': ('group',), 'humanity': ('globe',), 'world': ('globe',),
+    'rule': ('book',), 'rules': ('book',), 'law': ('balance',),
+    'limit': ('warning',), 'limits': ('warning',),
+    'fear': ('skull', 'warning'),  # fear icon may be excluded -> warning
+    'panic': ('skull',), 'afraid': ('skull',),
+    'safe': ('shield',), 'guard': ('shield',), 'protect': ('shield',),
+    'future': ('jetpack',), 'tomorrow': ('sun',),
+    'stop': ('cancel',), 'halt': ('cancel',),
+    'use': ('tools',), 'useful': ('tools',),
+    'us': ('group',),
+}
+
+_DERIVE_SUFFIX: tuple[tuple[str, str], ...] = (
+    ('ies', 'y'), ('ied', 'y'), ('ing', ''), ('ing', 'e'), ('ed', ''),
+    ('ed', 'e'), ('ers', ''), ('er', ''), ('ors', ''), ('or', ''),
+    ('ist', ''), ('ly', ''), ('es', ''), ('s', ''))
+
+
+def _word_form_icon(word: str, exclude):
+    """Derivational forms then drawable synonyms — the artist resolves
+    the IDEA of an abstract word before it is lettered."""
+    forms: list[str] = []
+    for suf, repl in _DERIVE_SUFFIX:
+        if word.endswith(suf) and len(word) > len(suf) + 2:
+            f = word[:-len(suf)] + repl
+            if f != word and f not in forms:
+                forms.append(f)
+    for f in forms + list(_SYNONYMS.get(word, ())) :
+        ic = _icon_for(f, exclude, _depth=2)
+        if ic not in _COMPOSE_REJECT and not _is_emblem(ic):
+            return ic
+    return None
+
+
+# the last-resort artist layer: a hand-drawn emblem — blob, burst or
+# banner picked deterministically per phrase — so every concept on the
+# board is drawn ink, never a plain boxed word
+_EMBLEM_SHAPES = ('blob', 'burst', 'banner')
+
+
+def _emblem_strokes(shape: str) -> list:
+    n = 28
+    if shape == 'burst':
+        # twelve-point starburst, alternating radii
+        pts = [(0.36 * (1.0 if i % 2 == 0 else 0.62) * math.cos(
+            2 * math.pi * i / 24),
+            0.36 * (1.0 if i % 2 == 0 else 0.62) * math.sin(
+                2 * math.pi * i / 24)) for i in range(24)]
+        pts.append(pts[0])
+        return [(pts, 'ink', 1.0), (_ellipse(0, 0, 0.20, 0.20, n),
+                                    'ink', 0.8)]
+    if shape == 'banner':
+        # flag ribbon: wavy top and bottom, swallowtail right edge
+        pts = ([(-0.36 + 0.72 * t, -0.24 + 0.04 * math.sin(t * 6.3))
+                for t in (i / 10 for i in range(11))]
+               + [(0.36, -0.02), (0.30, 0.24)]
+               + [(0.36 - 0.72 * t, 0.24 + 0.04 * math.sin(t * 6.3))
+                  for t in (i / 10 for i in range(11))] + [(-0.36, -0.24)])
+        return [(pts, 'ink', 1.0)]
+    # blob: hand-wobbled double-outline cloud
+    pts1 = [(0.36 * math.cos(a) * (1 + 0.10 * math.sin(5 * a)),
+             0.30 * math.sin(a) * (1 + 0.10 * math.cos(4 * a)))
+            for a in (2 * math.pi * i / n for i in range(n))]
+    pts2 = [(0.33 * math.cos(a) * (1 + 0.08 * math.cos(4 * a)),
+             0.27 * math.sin(a) * (1 + 0.08 * math.sin(5 * a)))
+            for a in (2 * math.pi * i / n for i in range(n))]
+    pts1.append(pts1[0])
+    pts2.append(pts2[0])
+    return [(pts1, 'ink', 1.0), (pts2, 'ink', 0.7)]
 
 
 def _composed_parts(words, exclude=None):
@@ -1417,7 +1545,8 @@ def _composed_parts(words, exclude=None):
         for cuts in _cut_positions(n, nparts):
             spans = [' '.join(words[a:b]) for a, b in cuts]
             parts = [_icon_for(s, exclude, _depth=1) for s in spans]
-            if all(p not in _COMPOSE_REJECT for p in parts):
+            if all(p not in _COMPOSE_REJECT and not _is_emblem(p)
+                   for p in parts):
                 return ('composed', tuple(parts))
     return None
 
@@ -1513,6 +1642,8 @@ def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
             cx = -0.5 + slot_w * (i + 0.5)
             out += _shift_strokes(st, scale, cx, 0.0)
         return out
+    if isinstance(icon, tuple) and icon[0] == 'emblem':
+        return _emblem_strokes(icon[1])
     if icon == 'card':
         return [(_rounded_rect(0, 0, 1.0, 0.68, 0.08), 'ink', 1.0)]
     return PROPS.get(icon, PROPS['tile'])

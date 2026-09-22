@@ -36,7 +36,9 @@ def test_elements_cover_every_beat(built):
             'arrow', 'summary'} <= kinds
 
 
-def test_concept_without_art_falls_back_to_chip():
+def test_concept_without_art_draws_emblem_not_box():
+    # the artist layer's contract: an unresolvable concept still draws
+    # ink (a hand-drawn emblem) — never an empty cell or plain box
     p3.load_execution_body(None)
     plan = {
         'productionId': 'T', 'beats': [
@@ -48,8 +50,10 @@ def test_concept_without_art_falls_back_to_chip():
         'diagram': {'title': 'T', 'hero': 'laptop'},
     }
     elements, _ = pd._dr().build_elements(plan, '16:9')
-    chips = [e for e in elements if e['kind'] == 'chip']
-    assert len(chips) == 1 and chips[0]['slot'] == 'hero-tl'
+    assert not [e for e in elements if e['kind'] == 'chip']
+    emblems = [e for e in elements if e['kind'] == 'icon'
+               and e['strokes']]
+    assert emblems and emblems[0]['slot'] == 'hero-tl'
 
 
 def test_windows_stay_inside_beat_span(plan, built):

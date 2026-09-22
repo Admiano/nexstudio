@@ -147,30 +147,45 @@ def _concepts(sentence: str, icon_for, used: dict, limit: int = 3,
     scored.sort(key=lambda t: -t[0])
     picked: list[str] = []
     seen_words: set[str] = set()
+    seen_tails: set[str] = set()
     for _s, _p, c in scored:
         if len(picked) >= limit:
             break
         cw = set(c.split())
-        if cw & seen_words:
+        # captions derive from the tail word — 'story fact' and 'fact'
+        # would both draw a tile labelled FACT
+        if cw & seen_words or c.split()[-1] in seen_tails:
             continue
         picked.append(c)
         seen_words |= cw
+        seen_tails.add(c.split()[-1])
     if not picked:
-        # every candidate was card-level: keep the last content word as
-        # the beat's labelled element — a lettered cell beats an empty one
-        for _p, c in reversed(card_candidates):
-            picked.append(c)
-            if len(picked) >= limit:
-                break
+        # nothing resolved above emblem level: keep the last content
+        # words so the beat still draws labelled emblems, not an empty
+        # cell
+        for w in reversed(words):
+            if w not in seen_tails:
+                picked.append(w)
+                seen_tails.add(w)
+                if len(picked) >= limit:
+                    break
         picked.reverse()
     return picked
 
 
 def _stage_label(sentence: str, hint: str) -> str:
     if hint:
-        return hint[:20]
+        return hint[:14]
     words = _content_words(sentence)
-    return ' '.join(words[:2])[:20] if words else sentence[:20]
+    # cells are narrow — fit the label to ~10 chars so adjacent stage
+    # labels never run into each other
+    out = ''
+    for w in words:
+        cand = f'{out} {w}'.strip()
+        if len(cand) > 10 and out:
+            break
+        out = cand
+    return (out or sentence)[:14]
 
 
 def _subject(script: str) -> str:
