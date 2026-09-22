@@ -169,7 +169,8 @@ def _subject(script: str) -> str:
 
 def build_plan(script: str, *, vtype: str = 'diagram',
                title: str = '', domain: str = '',
-               summary: str = '', transition: str = '') -> dict:
+               summary: str = '', transition: str = '',
+               page_size: int = 4) -> dict:
     import pipeline_v3_narration_timed as p3
     p3.load_execution_body(None)
     import v3_board_renderer as v3
@@ -263,6 +264,10 @@ def build_plan(script: str, *, vtype: str = 'diagram',
                     {'arrow': {'from': 'hero', 'to': region}})
         if transition in ('erase', 'zoom') and i > 0:
             spec['transition'] = transition
+        elif flow and page_size and i > 0 and i % page_size == 0:
+            # a long script pages: the outgoing cells wipe and the next
+            # chapter refills the same grid slots
+            spec['transition'] = 'erase'
         b['diagram'] = spec
         beats.append(b)
         t += dur
@@ -289,6 +294,8 @@ def main(argv=None) -> int:
     ap.add_argument('--transition', default='',
                     choices=('', 'erase', 'zoom'),
                     help='per-beat canvas transition (diagram only)')
+    ap.add_argument('--page-size', type=int, default=4,
+                    help='flow cells per board page before an erase turn')
     ap.add_argument('--out', default='')
     ap.add_argument('--emit-vo', action='store_true',
                     help='print narration lines (for the TTS pass)')
@@ -301,7 +308,8 @@ def main(argv=None) -> int:
 
     plan = build_plan(script, vtype=args.type, title=args.title,
                       domain=args.domain, summary=args.summary,
-                      transition=args.transition)
+                      transition=args.transition,
+                      page_size=args.page_size)
     out = args.out or (Path(args.script).stem + '_plan.json')
     Path(out).write_text(json.dumps(plan, indent=1))
     print(out)

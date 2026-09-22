@@ -290,11 +290,27 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             size=atlas['hero_s'], role='marker.swipe')
 
     cells: list[tuple[float, float, float, float]] = []
+    page_of: list[int] = [0] * len(beats)
     if flow and beats:
+        # an 'erase' beat opens a new page: its cells reuse the grid slots
+        # and the previous page's furniture wipes with its content
+        pg = 0
+        starts = {}
+        for bi, b in enumerate(beats):
+            if bi and (b.get('diagram') or {}).get('transition') == 'erase':
+                pg += 1
+            page_of[bi] = pg
+            starts.setdefault(pg, bi)
+        counts: dict = {}
+        for p in page_of:
+            counts[p] = counts.get(p, 0) + 1
         span = z['w'] * 0.86
-        cw = span / len(beats)
-        cells = [(-span / 2 + cw * (i + 0.5), z['h'] * 0.06,
-                  cw - 34, z['h'] * 0.50) for i in range(len(beats))]
+        for bi in range(len(beats)):
+            n = counts[page_of[bi]]
+            cw = span / n
+            local = bi - starts[page_of[bi]]
+            cells.append((-span / 2 + cw * (local + 0.5), z['h'] * 0.06,
+                          cw - 34, z['h'] * 0.50))
 
     # per-beat elements
     id_map: dict = {}  # element id -> elements[] index for arrow endpoints
@@ -329,7 +345,7 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                                  'ink', 1.0, False, True)],
                 center=(0, 0), size=1.0, role='marker.swipe')
             elements[-1]['slot'] = f'cellbox{bi}'
-            if bi > 0:
+            if bi > 0 and page_of[bi] == page_of[bi - 1]:
                 px0 = cells[bi - 1][0] + cells[bi - 1][2] / 2 + 6
                 px1 = cx0 - wc / 2 - 6
                 add(bi, 'arrow',
@@ -720,9 +736,10 @@ def _active_beat(beats: list[dict], t: float) -> int:
     return idx
 
 
-# structural ink survives an 'erase' transition — the wipe clears a beat's
-# content (icons, chips, callouts, its stage label), never the furniture
-_STRUCTURAL = {'headline', 'summary', 'cellbox', 'arrow'}
+# structural ink survives an 'erase' transition — the wipe clears the
+# outgoing page entirely (cells, arrows, icons, labels); only the
+# headline and a drawn summary strip persist into the next page
+_STRUCTURAL = {'headline', 'summary'}
 
 
 def draw_diagram_layer(plan: dict, elements: list[dict], atlas: dict,
@@ -749,10 +766,11 @@ def draw_diagram_layer(plan: dict, elements: list[dict], atlas: dict,
         p = wbp._ease(wbp._clamp((bt - e['start']) / span))
         if p <= 0:
             continue
-        target = (old_layer
-                  if old_layer is not None and e['beat'] < cutoff
-                  and e['kind'] not in _STRUCTURAL
-                  else layer)
+        dead = (old_layer is not None and e['beat'] < cutoff
+                and e['kind'] not in _STRUCTURAL)
+        if dead and fade <= 0.0:
+            continue
+        target = old_layer if dead else layer
         tip_i = _draw_group(target, e['strokes'], e['center'], e['size'],
                             cam, colors, ratio, p, 31 + ei * 97, draw)
         if p < 1 and tip_i is not None:
@@ -839,7 +857,18 @@ def render_diagram_frame(plan: dict, elements: list[dict], atlas: dict,
     bt = t - float((plan['beats'][bi]).get('start_seconds') or 0)
     tp = wbp._ease(wbp._clamp(bt / td)) if tr else 1.0
 
-    wipe = (bi, tp) if tr == 'erase' and tp < 1 else None
+    # the most recent 'erase' already entered wipes all earlier beats'
+    # non-structural ink — a page turn: faded out over the transition,
+    # then gone for good, not just during the wipe animation
+    wipe = None
+    for wi in range(bi, 0, -1):
+        wt, wd = _transition(plan, wi)
+        if wt != 'erase':
+            continue
+        wstart = float(plan['beats'][wi].get('start_seconds') or 0)
+        if t >= wstart:
+            wipe = (wi, 1.0 - wbp._ease(wbp._clamp((t - wstart) / wd)))
+        break
     layer, tip = draw_diagram_layer(plan, elements, atlas, ratio, t,
                                     wipe=wipe)
     if tip is None and t > 0.05:
