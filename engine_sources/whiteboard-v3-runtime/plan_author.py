@@ -177,8 +177,53 @@ def build_plan(script: str, *, vtype: str = 'diagram',
     beats_in = _sentences(script)
     flow = bool(_PROCESS_CUES.search(script)) or len(beats_in) >= 4
     used: dict = {}
+    pid = re.sub(r'\W+', '_', (title or 'UNTITLED').upper())
+    if vtype == 'kinetic':
+        beats = [{'beat_id': f'k{i + 1:02d}', 'narration': s,
+                  'duration_seconds': max(3.2, len(s.split()) * 0.42 + 1.2)}
+                 for i, (s, _h) in enumerate(beats_in)]
+        return {'schema': 'NexMindKineticPlanV1',
+                'production_id': pid,
+                'type': 'kinetic',
+                'beats': beats}
+    if vtype == 'whiteboard':
+        wb_beats = []
+        t = 0.0
+        for i, (sentence, hint) in enumerate(beats_in):
+            dur = max(3.2, len(sentence.split()) * 0.42 + 1.2)
+            concepts = _concepts(sentence, v3.icon_for, used,
+                                 domain=domain)
+            hero = next(
+                (c for c in concepts
+                 if v3.icon_for(c, used) in ('person', 'agent')),
+                concepts[0] if concepts else _subject(sentence))
+            rest = [c for c in concepts if c != hero]
+            wb_beats.append({
+                'beat_id': f'{i + 1:02d}_{hero.split()[-1]}',
+                'start_seconds': round(t, 3),
+                'duration_seconds': round(dur, 3),
+                'narration': sentence,
+                'scene': {
+                    'sceneId': f'{i + 1:02d}_{hero.split()[-1]}',
+                    'heroRole': hero,
+                    'supportingRoles': rest[:3],
+                    'screenCopy': {
+                        'primary': _stage_label(sentence, hint).upper()},
+                    'semanticRelationships': ([{
+                        'source': hero, 'target': rest[0], 'kind': 'acts'
+                    }] if rest else []),
+                }})
+            t += dur
+        return {'schema': 'NexMindWhiteboardV3NarrationTimedPlanV1',
+                'production_id': pid,
+                'camera_variant': 'cluster_travel',
+                'output_ratios': ['16:9'],
+                'pacing': {'transition_seconds': 0.62,
+                           'board_reveal_seconds': 0.72},
+                'beats': wb_beats}
+
+    beats = []
     t = 0.0
-    beats: list[dict] = []
     for i, (sentence, hint) in enumerate(beats_in):
         dur = max(3.2, len(sentence.split()) * 0.42 + 1.2)
         b: dict = {
@@ -186,57 +231,48 @@ def build_plan(script: str, *, vtype: str = 'diagram',
             'start_seconds': round(t, 3),
             'duration_seconds': round(dur, 3),
         }
-        if vtype == 'diagram':
-            stage = _stage_label(sentence, hint)
-            concepts = _concepts(sentence, v3.icon_for, used, domain=domain)
+        stage = _stage_label(sentence, hint)
+        concepts = _concepts(sentence, v3.icon_for, used, domain=domain)
 
-            def _el(c: str, at: str, label: str) -> dict:
-                if v3.icon_for(c, used) == 'person':
-                    return {'person': c, 'label': label, 'at': at}
-                return {'icon': c, 'label': label, 'at': at}
+        def _el(c: str, at: str, label: str) -> dict:
+            if v3.icon_for(c, used) == 'person':
+                return {'person': c, 'label': label, 'at': at}
+            return {'icon': c, 'label': label, 'at': at}
 
-            spec: dict = {'stage': stage}
-            if flow:
-                spec['region'] = 'cell'
+        spec: dict = {'stage': stage}
+        if flow:
+            spec['region'] = 'cell'
+            spec['elements'] = [
+                _el(c, 'cell', c.split()[-1].upper())
+                for c in concepts]
+        else:
+            region = ('left' if i == 0 else
+                      'right' if i == len(beats_in) - 1 else 'hero')
+            spec['region'] = region
+            if region == 'hero':
                 spec['elements'] = [
-                    _el(c, 'cell', c.split()[-1].upper())
-                    for c in concepts]
+                    {'part': c, 'label': c.upper(), 'at': a}
+                    for c, a in zip(
+                        concepts, ('hero-tl', 'hero-tr', 'hero-c'))]
             else:
-                region = ('left' if i == 0 else
-                          'right' if i == len(beats_in) - 1 else 'hero')
-                spec['region'] = region
-                if region == 'hero':
-                    spec['elements'] = [
-                        {'part': c, 'label': c.upper(), 'at': a}
-                        for c, a in zip(
-                            concepts, ('hero-tl', 'hero-tr', 'hero-c'))]
-                else:
-                    spec['elements'] = [
-                        _el(c, region, c.upper()) for c in concepts]
-                    if i == 0:
-                        spec['elements'].append(
-                            {'arrow': {'from': region, 'to': 'hero'}})
-                    else:
-                        spec['elements'].append(
-                            {'arrow': {'from': 'hero', 'to': region}})
-            b['diagram'] = spec
+                spec['elements'] = [
+                    _el(c, region, c.upper()) for c in concepts]
+                spec['elements'].append(
+                    {'arrow': {'from': region, 'to': 'hero'}}
+                    if i == 0 else
+                    {'arrow': {'from': 'hero', 'to': region}})
+        b['diagram'] = spec
         beats.append(b)
         t += dur
 
-    plan: dict = {
-        'productionId': re.sub(r'\W+', '_', (title or 'UNTITLED').upper()),
-        'beats': beats,
+    dg: dict = {
+        'title': title or _subject(script).title(),
+        'summary': summary,
+        'layout': 'flow' if flow else 'satellite',
     }
-    if vtype == 'diagram':
-        dg: dict = {
-            'title': title or _subject(script).title(),
-            'summary': summary,
-            'layout': 'flow' if flow else 'satellite',
-        }
-        if not flow:
-            dg['hero'] = _subject(script) or 'object'
-        plan['diagram'] = dg
-    return plan
+    if not flow:
+        dg['hero'] = _subject(script) or 'object'
+    return {'production_id': pid, 'beats': beats, 'diagram': dg}
 
 
 def main(argv=None) -> int:
@@ -244,7 +280,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('script', help='script text file (one beat per line)')
     ap.add_argument('--type', default='diagram',
-                    choices=('diagram', 'kinetic'))
+                    choices=('diagram', 'kinetic', 'whiteboard'))
     ap.add_argument('--title', default='')
     ap.add_argument('--domain', default='')
     ap.add_argument('--summary', default='')
