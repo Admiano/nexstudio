@@ -23,9 +23,15 @@ sync (`--word-timings` makes audio the clock), same encode + QA + receipts.
 Text is the visual: each sentence stays laid out while words flip state —
 dim future → bold now (key words get a dark highlight box + white text) →
 settled ink/accent with a hand-drawn swoosh underline. Emphasis detection is
-a deterministic function-word/proper-noun/number rule — no keyword tables,
-any domain works. Faces: `grotesk` (vendored Inter, OFL) or `marker`
-(PermanentMarker — bridges to the board's hand-drawn identity). Themes:
+a deterministic function-word/proper-noun/number rule plus a per-sentence
+cap — no keyword tables, any domain works. Faces: `condensed` (default —
+vendored Barlow Condensed, OFL; the heavy condensed display face that
+fills lines at 9:16), `grotesk` (vendored Inter), or `marker`
+(PermanentMarker — bridges to the board's hand-drawn identity).
+Word-state changes are eased: the highlight box grows in with a slight
+overshoot, the active-word pop settles with a small dip, sentence
+transitions ease in-out, and the swoosh draws in with eased progress.
+Themes:
 `light` (white paper) or `dark` (near-black, accent highlight box).
 Every word is guaranteed on-frame — the typesetter auto-shrinks to fit
 width and height, and the sentence-entry rise is capped so tall blocks

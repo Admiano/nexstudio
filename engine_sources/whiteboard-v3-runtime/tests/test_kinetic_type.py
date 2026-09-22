@@ -111,8 +111,9 @@ def test_typeset_wraps_and_fits():
         assert total <= 540 - 2 * 64 + 2
 
 
-def test_marker_face_renders():
-    img = _frame_at(1.0, face='marker')
+@pytest.mark.parametrize('face', sorted(ktr._FACES))
+def test_each_face_renders(face):
+    img = _frame_at(1.0, face=face)
     from PIL import ImageStat
     assert ImageStat.Stat(img.convert('L')).stddev[0] > 4
 

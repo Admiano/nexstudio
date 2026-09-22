@@ -20,7 +20,11 @@ from PIL import Image, ImageDraw, ImageFont
 _FONTS = Path(__file__).resolve().parent / 'assets' / 'fonts'
 
 _FACES = {
-    # Inter (OFL) — condensed-feel grotesk, matches commercial refs
+    # Barlow Condensed (OFL) — the condensed display grotesk; fills lines
+    # at 9:16 and reads as designed type. ExtraBold = active/settled emph.
+    'condensed': (_FONTS / 'barlow-condensed' / 'BarlowCondensed-Regular.ttf',
+                  _FONTS / 'barlow-condensed' / 'BarlowCondensed-ExtraBold.ttf'),
+    # Inter (OFL) — clean grotesk, matches commercial refs
     'grotesk': (_FONTS / 'inter' / 'Inter-Regular.ttf',
                 _FONTS / 'inter' / 'Inter-Bold.ttf'),
     # marker face — bridges to the whiteboard house style
@@ -237,6 +241,19 @@ def _ease_out(p: float) -> float:
     return 1 - (1 - p) ** 3
 
 
+def _ease_in_out(p: float) -> float:
+    p = max(0.0, min(1.0, p))
+    return p * p * (3 - 2 * p)
+
+
+def _ease_out_back(p: float, s: float = 1.5) -> float:
+    """Ease-out with a slight overshoot — the snappy settle you see on
+    highlight boxes and pops in reference kinetic type."""
+    p = max(0.0, min(1.0, p))
+    q = p - 1
+    return 1 + (s + 1) * q * q * q + s * q * q
+
+
 def _swoosh(d: ImageDraw.ImageDraw, x0, x1, y, color, prog: float,
             lw: int = 4):
     """Hand-drawn accent underline — a smooth marker swipe that dips below
@@ -292,26 +309,29 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
                 col, bold = dim, emph
             elif t < hold:
                 bold = True
-                g = _ease_out(min(1.0, max(0.0, age) / 0.14))
+                g = _ease_out_back(min(1.0, max(0.0, age) / 0.15), 1.7)
                 if emph:
-                    # the highlight box grows in from the left while the
-                    # word's color eases ink -> white
+                    # the highlight box grows in from the left with a
+                    # slight overshoot while text eases ink -> white
                     pad = max(8, int(size * 0.16))
                     dcol = fade(boxc)
                     draw.rounded_rectangle(
                         [x - pad, y - size * 0.06,
-                         x + tw * g + pad, y + size * 1.14],
+                         x + tw * min(1.05, g) + pad, y + size * 1.14],
                         radius=size * 0.18, fill=dcol)
-                    col = _lerp(ink, (255, 255, 255), g)
+                    col = _lerp(ink, (255, 255, 255),
+                                min(1.0, age / 0.12))
                 else:
-                    col = _lerp(dim, ink, g)
+                    col = _lerp(dim, ink, min(1.0, g))
             else:
                 st = _ease_out(min(1.0, (t - hold) / 0.14))
                 col = _lerp(ink, acc, st) if emph else ink
                 bold = emph
             pop = 1.0
-            if 0 <= age < 0.16:
-                pop = 1.0 + 0.12 * (1 - _ease_out(age / 0.16))
+            if 0 <= age < 0.20:
+                # overshoot settle: 1.12 -> dips ~0.98 -> rests at 1.0
+                pe = _ease_out_back(age / 0.20, 1.9)
+                pop = 1.0 + 0.12 * (1 - min(1.08, pe))
             sz = max(8, int(size * pop))
             f = _font(face, bold, sz)
             tw_s = _tw(w['word'], sz, face, bold)
@@ -330,7 +350,7 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
                 _swoosh(draw, x - size * 0.06, x + tw + size * 0.06,
                         y + size * 1.22,
                         acc if a >= 1 else fade(acc),
-                        prog=min(1.0, (age - 0.25) / 0.28),
+                        prog=_ease_out(min(1.0, (age - 0.25) / 0.28)),
                         lw=max(3, size // 16))
             x += tw + gap
         y += lh
@@ -391,7 +411,7 @@ def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
             break
     age = t - sents[i]['start']
     if i > 0 and age < _TRANS_S:
-        q = _ease_out(age / _TRANS_S)
+        q = _ease_in_out(age / _TRANS_S)
         # previous sentence exits fully upward; the new one rises in — a
         # small shift would leave two tall blocks overlapping mid-frame
         render_sentence(d, specs[i - 1], t, W, H, pal,
@@ -401,7 +421,8 @@ def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
         enter = min(H * 0.30,
                     max(0.0, H * 0.54 - specs[i]['block_h'] / 2 - 8))
         render_sentence(d, specs[i], t, W, H, pal,
-                        alpha=q, y_shift=enter * (1 - q), face=face)
+                        alpha=min(1.0, q * 1.15),
+                        y_shift=enter * (1 - q), face=face)
     else:
         render_sentence(d, specs[i], t, W, H, pal, face=face)
     wm = watermark if watermark is not None else plan.get('watermark')
@@ -414,6 +435,8 @@ def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
     return img
 
 
-def base_size(ratio_w: int, ratio_h: int) -> int:
-    """Nominal type size per frame — 9:16 text carries the whole frame."""
-    return max(40, int(min(ratio_w, ratio_h) * 0.115))
+def base_size(ratio_w: int, ratio_h: int, face: str = 'grotesk') -> int:
+    """Nominal type size per frame — 9:16 text carries the whole frame.
+    The condensed face runs ~8% larger: its narrow glyphs afford it."""
+    f = 0.125 if face == 'condensed' else 0.115
+    return max(40, int(min(ratio_w, ratio_h) * f))

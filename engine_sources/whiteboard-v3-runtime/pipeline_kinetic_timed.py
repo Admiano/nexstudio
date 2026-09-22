@@ -37,7 +37,7 @@ def render_frames(plan: dict, ratio: str, fps: int, face: str,
     wbp = core.load_execution_body(None)[1]
     size = wbp.RATIO_SIZES[ratio]
     sents = ktr.sentence_words(plan, word_times)
-    specs = [ktr.typeset(s, ktr.base_size(*size), face, size[0],
+    specs = [ktr.typeset(s, ktr.base_size(*size, face), face, size[0],
                          frame_h=size[1])
              for s in sents]
     if not sents:
@@ -52,7 +52,7 @@ def render_frames(plan: dict, ratio: str, fps: int, face: str,
 
 
 def render_production(plan: dict, out_dir: Path, ratio: str = '9:16',
-                      fps: int = 24, face: str = 'grotesk',
+                      fps: int = 24, face: str = 'condensed',
                       voiceover: Path | None = None,
                       word_times: list[dict] | None = None,
                       music: bool = False,
@@ -143,8 +143,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--ratio', default='9:16',
                     choices=['16:9', '1:1', '9:16'])
     ap.add_argument('--fps', type=int, default=24)
-    ap.add_argument('--face', default='grotesk',
-                    choices=sorted(ktr._FACES))
+    ap.add_argument('--face', default='condensed',
+                    choices=sorted(ktr._FACES),
+                    help='Display face: condensed (default, Barlow Condensed '
+                         'ExtraBold emph), grotesk (Inter), marker (hand)')
     ap.add_argument('--theme', default='light', choices=sorted(ktr._THEMES),
                     help='Background theme: white paper or near-black')
     ap.add_argument('--watermark', default=None,

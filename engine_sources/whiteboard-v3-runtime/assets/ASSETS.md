@@ -57,6 +57,12 @@ which were AI-generated and vectorized as pipeline demos.
 - `inter/` — Inter v4.1 Regular/Bold/Black TTFs — © Rasmus Andersson,
   SIL OFL 1.1 (`inter/LICENSE.txt` included). The kinetic-type renderer's
   grotesk display face; vendored so kinetic reels need no system fonts.
+- `barlow-condensed/` — Barlow Condensed Regular/Bold/ExtraBold TTFs —
+  © The Barlow Project Authors, SIL OFL 1.1 (`barlow-condensed/OFL.txt`,
+  from github.com/jpt/barlow via google/fonts). The kinetic renderer's
+  default `--face condensed` display face; Regular carries plain text and
+  ExtraBold carries active/emphasized words — the heavy condensed display
+  look that fills lines at 9:16.
 - `OFL.txt` — the SIL Open Font License text covering the fonts above.
 - `hershey_occidental.json` — Hershey single-stroke vector font data
   (public domain; JSON encoding by scruss, dual CC0/WTFPL). 1570 glyphs —
