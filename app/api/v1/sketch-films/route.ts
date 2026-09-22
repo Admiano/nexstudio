@@ -32,6 +32,8 @@ export async function GET(request: Request) {
       seed: "deterministic variation seed",
       media: "{name: url|data-uri|repo-relative path} — art staged into the film; scenes reference the name and render it inkified",
       theme: "{paper?, ink?, accent?, accentDeep?} — brand color tokens (hex/rgb/hsl)",
+      paperStock: "warm|ivory|kraft|newsprint — named paper preset",
+      layout: "editorial|poster|deck — film-level presentation weight (per-beat params.layout overrides)",
     },
     sceneTypes: [
       "chapter", "type-card", "hero-build", "phrase-swap", "word-list", "feature-grid",
@@ -84,7 +86,7 @@ export async function POST(request: Request) {
       compileArgs.push(String(body.prompt));
     }
     compileArgs.push(specDir);
-    for (const k of ["duration", "product", "tagline", "cta", "seed"] as const) {
+    for (const k of ["duration", "product", "tagline", "cta", "seed", "layout", "paperStock"] as const) {
       if (body[k] != null) compileArgs.push(`--${k}`, String(body[k]));
     }
     /* media: {name: url | data-uri | repo-relative path} — stage files next to

@@ -143,7 +143,17 @@ no frame is ever blank.
 Surface: warm fibred paper (`paper-warm-1k.png`, procedurally generated via
 `tools/gen-paper-texture.py`) under a fine speckle tile (`grain-fine-256.png`
 — reused from editorial-motion-v2's community surfaces) — override both per
-spec via `paperTexture` / `grainTexture`.
+spec via `paperTexture` / `grainTexture`, or pick a named `paperStock`
+(`warm` | `ivory` | `kraft` | `newsprint`; explicit `theme` tokens win over
+the stock's tints).
+
+Theme + layout: `spec.theme` (`{paper, paper2, ink, ink2, accent,
+accentDeep, texture, stock}`) sets brand tokens on documentElement and the
+stage so rough.js strokes resolve them too; CLI accepts `--theme file.json`
+or `--accent/--accent-deep/--paper/--ink`. `spec.layout` sets the film's
+presentation weight — `editorial` (default), `poster` (type-forward,
+display scale ×1.22, centered lane, wide-tracked kickers), `deck`
+(tighter lane, scale ×0.92); a scene-level `layout` overrides per beat.
 
 Media + inkify: `spec.assets` (`{name: path-relative-to-spec}`) stages files
 into `media/`; scene params (`media`, `poster`, `thumbs`, phone card `img`)

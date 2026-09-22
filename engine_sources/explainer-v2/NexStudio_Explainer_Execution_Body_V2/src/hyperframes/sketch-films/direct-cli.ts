@@ -21,7 +21,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 const args = process.argv.slice(2);
 const opt = (name: string) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : undefined; };
-const OPT_NAMES = ["--script", "--media", "--theme", "--duration", "--product", "--cta", "--tagline", "--seed", "--accent", "--accent-deep", "--paper", "--ink"];
+const OPT_NAMES = ["--script", "--media", "--theme", "--duration", "--product", "--cta", "--tagline", "--seed", "--accent", "--accent-deep", "--paper", "--ink", "--layout", "--paper-stock", "--paperStock"];
 const positional = args.filter((a, i) => !a.startsWith("--") && (i === 0 || !OPT_NAMES.includes(args[i - 1] || "")));
 const scriptPath = opt("script");
 const mediaPath = opt("media");
@@ -60,6 +60,8 @@ const spec = directToSpec({
   seed: opt("seed") ? Number(opt("seed")) : undefined,
   media,
   theme,
+  paperStock: opt("paper-stock") || opt("paperStock"),
+  layout: opt("layout") as "editorial" | "poster" | "deck" | undefined,
 });
 
 fs.mkdirSync(path.join(outDir, "audio"), { recursive: true });

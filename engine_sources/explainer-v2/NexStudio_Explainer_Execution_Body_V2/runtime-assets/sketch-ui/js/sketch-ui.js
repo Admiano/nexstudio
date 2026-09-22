@@ -96,6 +96,9 @@ window.NexSketch = (() => {
   const popIn = (tl, el, s, d = 0.4) => tl.fromTo(el, { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: d, ease: 'back.out(1.7)' }, s);
   /* numeric / text counters driven by seekable updates */
   const counter = (tl, el, s, d, fmt) => tl.addUpdate(s, d, (p) => { el.textContent = fmt(p); }, 'none');
+  /* display-type scale hook — 'poster'/'deck' layout modes scale via
+     --sk-display-scale on the stage or scene section */
+  const fsize = (v) => `calc(${v} * var(--sk-display-scale,1))`;
   /* typewriter */
   const typewrite = (tl, el, text, s, d) => tl.addUpdate(s, d, (p) => {
     el.textContent = text.slice(0, Math.round(text.length * p));
@@ -197,7 +200,7 @@ window.NexSketch = (() => {
     const el = h('div', 'sk-scene-body', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 9%;gap:14px';
     const t = h('h2', 'sk-display', el);
-    t.style.fontSize = spec.fontSize || '56px';
+    t.style.fontSize = fsize(spec.fontSize || '56px');
     const words = splitWords(t, spec.text || '');
     if (spec.accent) {
       /* paint the matching word mint */
@@ -368,7 +371,7 @@ window.NexSketch = (() => {
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:2% 8%;gap:8px';
     const word = h('h2', 'sk-outline', el, spec.word || 'STEP');
     word.style.marginTop = '4%';
-    word.style.fontSize = spec.fontSize || '150px';
+    word.style.fontSize = fsize(spec.fontSize || '150px');
     const ill = h('div', 'sk-step-ill', el);
     ill.style.cssText += ';height:46%;justify-content:center;align-items:center';
     if (spec.caption) {
@@ -462,7 +465,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:7%';
     const left = h('div', '', el); left.style.cssText = 'display:flex;flex-direction:column;gap:10px;max-width:34%';
-    if (spec.caption) { const c = h('h3', 'sk-display', left, spec.caption); c.style.fontSize = '40px'; }
+    if (spec.caption) { const c = h('h3', 'sk-display', left, spec.caption); c.style.fontSize = fsize('40px'); }
     if (spec.sub) { h('p', 'sk-mono', left, spec.sub).style.cssText = 'font-size:13px;color:var(--sk-ink-2);margin:0'; }
     const ph = h('div', 'sk-phone', el); ph.style.cssText = 'width:272px;height:540px;flex:none';
     const ps = svgRoot(ph, '0 0 272 540'); ps.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
@@ -552,7 +555,7 @@ window.NexSketch = (() => {
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:2% 8%;gap:14px';
     const headRow = h('div', 'sk-board-head', el);
     headRow.style.position = 'relative';
-    const title = h('h2', 'sk-outline', headRow, 'STORYBOARD'); title.style.fontSize = spec.fontSize || '72px';
+    const title = h('h2', 'sk-outline', headRow, 'STORYBOARD'); title.style.fontSize = fsize(spec.fontSize || '72px');
     const meta = h('div', 'sk-mono', headRow); meta.style.cssText = 'position:absolute;right:0;top:0;text-align:right;font-size:14px;color:var(--sk-ink-2);display:flex;flex-direction:column;gap:5px;white-space:nowrap';
     const counterEl = h('span', '', meta, 'FRAMES 0/12');
     if (spec.note) h('span', '', meta, spec.note).style.cssText = 'font-size:10px;letter-spacing:.1em;color:var(--sk-ink-3);line-height:1.5';
@@ -611,7 +614,7 @@ window.NexSketch = (() => {
   scenes['compose-graph'] = (spec) => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:4% 7%;gap:10px';
-    if (spec.title) { const t = h('h2', 'sk-outline', el, spec.title); t.style.fontSize = spec.fontSize || '92px'; }
+    if (spec.title) { const t = h('h2', 'sk-outline', el, spec.title); t.style.fontSize = fsize(spec.fontSize || '92px'); }
     const wrap = h('div', 'sk-graph', el); wrap.style.cssText += ';flex:1;min-height:0';
     const wires = svgRoot(wrap, '0 0 620 400', 'sk-wires');
     const nodes = spec.nodes || [
@@ -654,7 +657,7 @@ window.NexSketch = (() => {
   scenes['render-bar'] = (spec) => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 10%;gap:20px';
-    const title = h('h2', 'sk-outline', el, spec.word || 'RENDER'); title.style.fontSize = spec.fontSize || '120px';
+    const title = h('h2', 'sk-outline', el, spec.word || 'RENDER'); title.style.fontSize = fsize(spec.fontSize || '120px');
     const barWrap = h('div', 'sk-prog', el);
     const bar = h('div', 'sk-prog-bar', barWrap);
     const bs = svgRoot(bar, '0 0 560 30', null); bs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
@@ -791,7 +794,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';
     const wm = h('div', 'sk-wordmark', el);
-    wm.style.fontSize = spec.fontSize || '64px'; wm.style.flexWrap = 'wrap'; wm.style.justifyContent = 'center';
+    wm.style.fontSize = fsize(spec.fontSize || '64px'); wm.style.flexWrap = 'wrap'; wm.style.justifyContent = 'center';
     const first = h('span', '', wm, spec.brandA ?? '');
     const brandB = spec.brandB === undefined ? '' : spec.brandB;
     const second = brandB ? h('span', '', wm, brandB) : null;
@@ -822,7 +825,7 @@ window.NexSketch = (() => {
     const stage = spec.promote != null ? Math.max(0, lines.length - 1) : -1;
     const lineEls = lines.map((line, i) => {
       const row = h('div', 'sk-display', el);
-      row.style.fontSize = spec.fontSize || (i === stage ? '76px' : '60px');
+      row.style.fontSize = fsize(spec.fontSize || (i === stage ? '76px' : '60px'));
       row.style.lineHeight = '1.06';
       const words = splitWords(row, line);
       return { row, words };
@@ -859,7 +862,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px';
     const lead = h('div', 'sk-display', el, spec.lead || 'not another tool —');
-    lead.style.fontSize = spec.fontSize || '58px';
+    lead.style.fontSize = fsize(spec.fontSize || '58px');
     const slot = h('div', '', el);
     slot.style.cssText = 'position:relative;height:1.3em;font-family:var(--sk-serif);font-size:' + (spec.slotSize || '96px') + ';line-height:1.1';
     const wA = h('span', 'sk-outline', slot, spec.swapFrom || 'rendered.');
@@ -883,7 +886,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:30px';
     const head = h('div', 'sk-display', el, spec.title || 'how it moves');
-    head.style.fontSize = spec.fontSize || '54px';
+    head.style.fontSize = fsize(spec.fontSize || '54px');
     const railWrap = h('div', '', el);
     railWrap.style.cssText = 'position:relative;height:320px';
     if (spec.sub) { const s = h('p', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:14px;color:var(--sk-ink-2);margin:-14px 0 0;letter-spacing:.06em'; }
@@ -964,7 +967,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center';
     const hero = h('div', 'sk-display', el, spec.text || 'films that draw themselves.');
-    hero.style.fontSize = spec.fontSize || '68px';
+    hero.style.fontSize = fsize(spec.fontSize || '68px');
     hero.style.maxWidth = '92%';
     const rule = h('div', '', el); rule.style.cssText = 'width:120px;height:8px;position:relative';
     const ruleSvg = svgRoot(rule, '0 0 120 8'); ruleSvg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
@@ -991,7 +994,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;position:relative';
     const line = h('div', 'sk-display', el);
-    line.style.fontSize = spec.fontSize || '58px';
+    line.style.fontSize = fsize(spec.fontSize || '58px');
     const before = h('span', '', line, (spec.before || 'the ') + ' ');
     const key = h('span', '', line, spec.keyword || 'object');
     key.style.cssText = 'position:relative;color:var(--sk-ink);white-space:nowrap';
@@ -1033,7 +1036,7 @@ window.NexSketch = (() => {
       mk.style.cssText = 'font-size:15px;color:var(--sk-mint-deep);letter-spacing:.22em;font-weight:600';
     }
     const t = h('h2', 'sk-display', el, spec.text || '');
-    t.style.fontSize = spec.fontSize || '76px';
+    t.style.fontSize = fsize(spec.fontSize || '76px');
     t.style.position = 'relative';
     t.style.zIndex = '1';
     const rule = h('div', '', el); rule.style.cssText = 'width:110px;height:8px;position:relative';
@@ -1061,7 +1064,7 @@ window.NexSketch = (() => {
   scenes['word-list'] = (spec) => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:space-evenly;gap:6px';
-    if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = spec.titleSize || '42px'; }
+    if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = fsize(spec.titleSize || '42px'); }
     const items = (spec.items || []).slice(0, 6);
     const rows = items.map((it, i) => {
       const row = h('div', '', el);
@@ -1069,7 +1072,7 @@ window.NexSketch = (() => {
       const idx = h('span', 'sk-mono', row, String(i + 1).padStart(2, '0'));
       idx.style.cssText = 'font-size:13px;color:var(--sk-ink-3);letter-spacing:.1em;flex:none;width:26px';
       const txt = h('span', 'sk-display', row, typeof it === 'string' ? it : it.text || '');
-      txt.style.cssText = `font-size:${spec.fontSize || (items.length <= 3 ? '46px' : '40px')};position:relative;line-height:1.12`;
+      txt.style.cssText = `font-size:calc(${spec.fontSize || (items.length <= 3 ? '46px' : '40px')} * var(--sk-display-scale,1));position:relative;line-height:1.12`;
       /* mint marker underlines the phrase's last line — never strikes through */
       const mark = h('span', '', txt);
       mark.style.cssText = 'position:absolute;left:-3%;right:-3%;bottom:-0.05em;height:.15em;background:var(--sk-mint);opacity:.75;transform-origin:0 50%;transform:scaleX(0);z-index:-1;border-radius:2px';
@@ -1098,7 +1101,7 @@ window.NexSketch = (() => {
   scenes['feature-grid'] = (spec) => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px';
-    if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = spec.titleSize || '44px'; t.style.textAlign = 'center'; }
+    if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = fsize(spec.titleSize || '44px'); t.style.textAlign = 'center'; }
     const items = (spec.items || []).slice(0, 6);
     const cols = items.length <= 2 ? items.length : items.length === 4 ? 2 : 3;
     const grid = h('div', '', el);
@@ -1135,7 +1138,7 @@ window.NexSketch = (() => {
     skCircle(ring, 180, 180, 316, 1251, { strokeWidth: 1.1 });
     for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; skLine(ring, 180 + Math.cos(a) * 168, 180 + Math.sin(a) * 168, 180 + Math.cos(a) * 160, 180 + Math.sin(a) * 160, 1252 + k, { strokeWidth: 2 }); }
     const big = h('div', 'sk-display', figWrap);
-    big.style.cssText = 'font-size:' + (spec.fontSize || '128px') + ';line-height:1;font-variant-numeric:tabular-nums';
+    big.style.cssText = 'font-size:calc(' + (spec.fontSize || '128px') + ' * var(--sk-display-scale,1));line-height:1;font-variant-numeric:tabular-nums';
     const label = h('div', 'sk-mono', el, spec.label || '');
     label.style.cssText = 'font-size:15px;color:var(--sk-ink-2);letter-spacing:.16em;text-transform:uppercase';
     const rule = h('div', '', el); rule.style.cssText = 'width:140px;height:8px;position:relative';
@@ -1159,7 +1162,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:0 4%';
     const q = h('div', 'sk-serif', el, `“${spec.text || ''}”`);
-    q.style.cssText = `font-size:${spec.fontSize || '44px'};line-height:1.22;font-style:italic;color:var(--sk-ink)`;
+    q.style.cssText = `font-size:calc(${spec.fontSize || '44px'} * var(--sk-display-scale,1));line-height:1.22;font-style:italic;color:var(--sk-ink)`;
     const qs = svgRoot(el, '0 0 46 34'); qs.style.cssText = 'position:absolute;width:52px;height:38px;left:2%;top:16%';
     skPath(qs, 'M6 30 C6 16 14 6 24 4 M30 30 C30 16 38 6 46 4', 1300, { strokeWidth: 2.6 });
     if (spec.by) { const b = h('div', 'sk-mono', el, `— ${spec.by}`); b.style.cssText = 'font-size:14px;color:var(--sk-ink-2);letter-spacing:.12em'; }
@@ -1210,7 +1213,7 @@ window.NexSketch = (() => {
       const col = h('div', '', el);
       col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 5%';
       const h2 = h('div', i === 0 ? 'sk-outline' : 'sk-display', col, side.title || (i ? 'AFTER' : 'BEFORE'));
-      h2.style.fontSize = '46px';
+      h2.style.fontSize = fsize('46px');
       const lines = (side.items || []).slice(0, 3);
       lines.forEach(t => { const l = h('div', 'sk-mono', col, t); l.style.cssText = 'font-size:14px;color:var(--sk-ink-2);letter-spacing:.04em;text-align:center;line-height:1.5'; });
       return col;
@@ -1237,7 +1240,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;gap:12px';
     const t = h('h2', 'sk-outline', el, spec.word || '');
-    t.style.fontSize = spec.fontSize || '170px';
+    t.style.fontSize = fsize(spec.fontSize || '170px');
     t.style.whiteSpace = 'nowrap';
     if (spec.sub) { const s = h('div', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:15px;color:var(--sk-ink-2);letter-spacing:.18em;text-transform:uppercase'; }
     const tl = NexMotion.createTimeline();
@@ -1269,7 +1272,7 @@ window.NexSketch = (() => {
     const hub = h('div', '', el);
     hub.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;z-index:2';
     const hubTitle = h('div', 'sk-wordmark', hub, spec.title || '');
-    hubTitle.style.fontSize = spec.fontSize || '58px'; hubTitle.style.gap = '0';
+    hubTitle.style.fontSize = fsize(spec.fontSize || '58px'); hubTitle.style.gap = '0';
     if (spec.sub) { const s = h('div', 'sk-mono', hub, spec.sub); s.style.cssText = 'font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sk-ink-2)'; }
     /* orbiting chips — deterministic angle = base + t*spin */
     const chips = items.map((it, i) => {
@@ -1310,7 +1313,7 @@ window.NexSketch = (() => {
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;position:relative';
     const text = spec.text || spec.headline || '';
     const head = h('h2', 'sk-display', el, text);
-    head.style.cssText = `font-size:${spec.fontSize || '62px'};max-width:92%;`;
+    head.style.cssText = `font-size:calc(${spec.fontSize || '62px'} * var(--sk-display-scale,1));max-width:92%;`;
     const words = splitWords(head, text);
     const accent = spec.accent; // word (string) or index (number) for mint
     const accentIdx = typeof accent === 'number' ? accent :
@@ -1373,8 +1376,11 @@ window.NexSketch = (() => {
     return out;
   }
 
-  function buildScene(spec, idx, total) {
+  function buildScene(spec, idx, total, filmSpec) {
     const sec = h('section', 'sk-scene');
+    /* layout mode — scene-level spec.layout wins over the film default */
+    const layout = spec.layout || (filmSpec && filmSpec.layout);
+    if (layout) sec.classList.add(`layout-${layout}`);
     const cam = h('div', 'sk-cam', sec);
     const safe = h('div', 'sk-safe', cam);
     spec.index = idx;
@@ -1400,15 +1406,26 @@ window.NexSketch = (() => {
     document.documentElement.classList.add('sk'); document.body.classList.add('sk');
     /* per-film theme tokens — brand accent, ink, paper stock */
     const theme = filmSpec.theme || {};
+    /* paper-stock presets: a stock supplies texture + tints; explicit
+       theme tokens and paperTexture always override the stock */
+    const PAPER_STOCKS = {
+      warm:      {},
+      ivory:     { paper: '#f7f4ec', paper2: '#efeadd' },
+      kraft:     { paper: '#e7d9bb', paper2: '#dcc9a4', texture: 'sketch-ui/textures/paper006-color-1k.jpg' },
+      newsprint: { paper: '#f2f1ec', paper2: '#e6e4dc', ink: '#26241f', texture: 'sketch-ui/textures/paper006-color-1k.jpg' },
+    };
+    const stock = PAPER_STOCKS[filmSpec.paperStock || theme.stock || 'warm'] || {};
     const THEME_VARS = {
       paper: '--sk-paper', paper2: '--sk-paper-2', ink: '--sk-ink', ink2: '--sk-ink-2',
       accent: '--sk-mint', accentDeep: '--sk-mint-deep', surface: '--sk-surface',
     };
     for (const [k, v] of Object.entries(THEME_VARS)) {
       /* documentElement so rough.js stroke colors (cssVar()) resolve too */
-      if (theme[k]) { stage.style.setProperty(v, theme[k]); document.documentElement.style.setProperty(v, theme[k]); }
+      const val = theme[k] || stock[k];
+      if (val) { stage.style.setProperty(v, val); document.documentElement.style.setProperty(v, val); }
     }
-    stage.style.setProperty('--sk-tex', `url('${filmSpec.paperTexture || theme.texture || 'sketch-ui/textures/paper-warm-1k.png'}')`);
+    if (filmSpec.layout) stage.classList.add(`layout-${filmSpec.layout}`);
+    stage.style.setProperty('--sk-tex', `url('${filmSpec.paperTexture || theme.texture || stock.texture || 'sketch-ui/textures/paper-warm-1k.png'}')`);
     stage.style.setProperty('--sk-grain', `url('${filmSpec.grainTexture || 'sketch-ui/textures/grain-fine-256.png'}')`);
     h('div', 'sk-vignette', stage);
     /* inkify filter + media asset index */
@@ -1419,7 +1436,7 @@ window.NexSketch = (() => {
       assetIndex[name] = `media/${name}${ext}`;
     }
 
-    const scenesBuilt = (filmSpec.scenes || []).map((s, i) => { const b = buildScene(s, i, filmSpec.scenes.length); stage.appendChild(b.el); return b; });
+    const scenesBuilt = (filmSpec.scenes || []).map((s, i) => { const b = buildScene(s, i, filmSpec.scenes.length, filmSpec); stage.appendChild(b.el); return b; });
 
     /* pre-build transition timelines for boundary pairs */
     const transitions = [];

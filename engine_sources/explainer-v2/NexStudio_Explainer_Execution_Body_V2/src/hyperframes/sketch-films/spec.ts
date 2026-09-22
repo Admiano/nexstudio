@@ -84,6 +84,13 @@ export type SketchFilmSpec = {
   assets?: Record<string, string>;
   /** Override paper texture path (defaults to the generated warm fibred sheet). */
   paperTexture?: string;
+  /** Named paper stock: warm (default) | ivory | kraft | newsprint —
+      supplies texture + tints; explicit theme tokens still win. */
+  paperStock?: string;
+  /** Presentation weight: 'editorial' (default) | 'poster' (type-forward,
+      centered lane) | 'deck' (tighter lane). A scene-level `layout`
+      overrides the film default per beat. */
+  layout?: "editorial" | "poster" | "deck";
   /** Override speckle/grain tile path (defaults to grain-fine-256). */
   grainTexture?: string;
   /**
@@ -97,6 +104,8 @@ export type SketchFilmSpec = {
     ink?: string; ink2?: string;
     accent?: string; accentDeep?: string;
     texture?: string;
+    /** Named paper stock — same values as top-level paperStock. */
+    stock?: string;
   };
   scenes: SketchSceneSpec[];
 };

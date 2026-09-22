@@ -207,3 +207,14 @@ html.sk,body.sk{margin:0;height:100%;background:var(--sk-paper);color:var(--sk-i
 
 /* word cascade helpers */
 .sk-riser{overflow:hidden;display:inline-block;vertical-align:bottom}
+
+/* layout modes — the director's per-film/per-scene presentation weight.
+   'poster' scales display type up and centers the lane; 'deck' tightens
+   the lane and adds a footer lean; 'editorial' is the unset default. */
+.sk-stage.layout-poster,.sk-scene.layout-poster{--sk-display-scale:1.22}
+/* text-align only — align-items would shrink-wrap full-bleed SVG scenes */
+.sk-stage.layout-poster .sk-safe,.sk-scene.layout-poster .sk-safe{text-align:center}
+.sk-stage.layout-poster .sk-display,.sk-scene.layout-poster .sk-display{text-align:center}
+.sk-stage.layout-poster .sk-kicker,.sk-scene.layout-poster .sk-kicker{letter-spacing:.3em}
+.sk-stage.layout-deck,.sk-scene.layout-deck{--sk-display-scale:.92}
+.sk-stage.layout-deck .sk-safe,.sk-scene.layout-deck .sk-safe{top:12%;bottom:12%}

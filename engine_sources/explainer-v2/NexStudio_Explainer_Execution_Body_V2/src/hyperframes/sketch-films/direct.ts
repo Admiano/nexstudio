@@ -93,6 +93,11 @@ export type FilmBrief = {
   media?: Record<string, string>;
   /** Per-film theme tokens — brand accent, ink, paper. */
   theme?: SketchFilmSpec["theme"];
+  /** Named paper stock (warm | ivory | kraft | newsprint). */
+  paperStock?: string;
+  /** Presentation weight for the whole film (editorial | poster | deck);
+      a beat's params.layout overrides per scene. */
+  layout?: SketchFilmSpec["layout"];
   /** Beat indices that get UI/product scenes even without explicit asks. */
   flavor?: "paper" | "product";
 };
@@ -545,6 +550,8 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
     ],
     ...(brief.media ? { assets: brief.media } : {}),
     ...(brief.theme ? { theme: brief.theme } : {}),
+    ...(brief.paperStock ? { paperStock: brief.paperStock } : {}),
+    ...(brief.layout ? { layout: brief.layout } : {}),
     scenes,
   };
   validateSpec(spec);
