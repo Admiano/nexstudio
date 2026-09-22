@@ -18,7 +18,8 @@ outline + flat fills, pose/expression control via CLI args. Developed in the
 - `Rain_x/Rain v3.3/` — Rain character rig, unmodified upstream pack
   (`rain_v3.2.blend` + `textures/`); podcast_char2 also needs the Snow rig
   (download from studio.blender.org/characters/snow)
-- `outputs/` — latest renders: `rain_v25.png` (full), `v25_hands.png` (hand crops)
+- `outputs/` — latest renders: `rain_v26.png` (full), `v26_hands.png` (hand crops),
+  `rain_v25.png` / `v25_hands.png` (pre-palm-proportion pass, kept for reference)
 
 ## Usage
 
@@ -44,6 +45,8 @@ Args after `--` (positional, all optional with tuned defaults):
 | 10 | LIP_SEAM_WHITE | 1 | seam faces skin-white |
 | 11 | mode | — | `face` or `hands` pass |
 | 12+ | LIP_OCC, SMILE_UP/OUT, LIP_TUBE, HAIR_GREY/CREASE, HAND_CREASE, PONY_SWING, ELBOW_BEND, ARM_SLIM, FORE_TWIST, WRIST_LEAN | see header | pose/detail tuning |
+| 24 | PALM_THIN | 0.65 | palm depth scale, rest space — the rig's palm is ~0.63× as deep as it is wide vs a ~0.35 canon; 0.65 pulls palm+finger skin toward the palm plane |
+| 25 | HAND_SCALE | 0.92 | uniform whole-hand scale — stock hand/forearm is 0.80 (top of the 0.72–0.78 canon); 0.92 → 158mm hand, 0.74× forearm |
 
 ## License
 

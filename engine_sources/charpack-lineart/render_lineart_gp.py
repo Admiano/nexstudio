@@ -27,6 +27,8 @@ ELBOW_BEND  = float(argv[20]) if len(argv) > 20 else -17.0
 ARM_SLIM    = float(argv[21]) if len(argv) > 21 else 0.007   # m, normal-inset of arm skin
 FORE_TWIST  = float(argv[22]) if len(argv) > 22 else 0.3     # share of pronation done by forearm
 WRIST_LEAN  = float(argv[23]) if len(argv) > 23 else 0.0     # deg, hand leans toward thigh off the forearm line
+PALM_THIN   = float(argv[24]) if len(argv) > 24 else 0.65    # palm depth scale, rest space (1 = off)
+HAND_SCALE  = float(argv[25]) if len(argv) > 25 else 0.92    # uniform whole-hand scale (1 = off)
 
 scene = bpy.context.scene
 scene.render.engine = 'BLENDER_EEVEE'
@@ -252,6 +254,30 @@ if body and ARM_SLIM > 0:
     ds.direction = 'NORMAL'; ds.strength = -ARM_SLIM; ds.mid_level = 0.0; ds.vertex_group = 'armslim'
     body.modifiers.move(len(body.modifiers) - 1, body.modifiers.find('Armature'))
 
+# palms: the rig's palm is ~0.63x as deep as it is wide (canon is ~0.35); pull the
+# palm+finger skin toward the palm plane in rest space so the depth ratio lands right.
+if body and PALM_THIN < 1.0:
+    rig_ob = bpy.data.objects.get('RIG-rain')
+    bw2w = body.matrix_world
+    for suf in ('.L', '.R'):
+        wrist = rig_ob.matrix_world @ rig_ob.data.bones['FK-Hand' + suf].head_local
+        mcp = rig_ob.matrix_world @ rig_ob.data.bones['FK-Middle1' + suf].head_local
+        thumb = rig_ob.matrix_world @ rig_ob.data.bones['FK-Thumb1' + suf].head_local
+        palm_dir = (mcp - wrist).normalized()
+        width_dir = palm_dir.cross(palm_dir.cross(thumb - wrist)).normalized()
+        thick_dir = palm_dir.cross(width_dir).normalized()
+        plane_p = wrist + palm_dir * ((mcp - wrist).length * 0.5)
+        gi = {g.index: 1.0 for g in body.vertex_groups if g.name.startswith('DEF-Hand' + suf)}
+        for g in body.vertex_groups:
+            if any(g.name.startswith('DEF-' + f + suf) for f in ('Index', 'Middle', 'Ring', 'Pinky', 'Thumb')):
+                gi[g.index] = 0.7
+        for v in body.data.vertices:
+            w = min(1.0, sum(g.weight * gi[g.group] for g in v.groups if g.group in gi))
+            if w <= 0.0: continue
+            cw = bw2w @ v.co
+            d = (cw - plane_p).dot(thick_dir)
+            v.co = bw2w.inverted() @ (cw - thick_dir * d * (1.0 - PALM_THIN) * w)
+
 # hands: knuckle / nail creases. Body copy masked to the hand+finger weights.
 if body:
     hc = body.copy(); hc.data = body.data.copy(); hc.name = 'GEO-rain-handdetail'
@@ -461,6 +487,11 @@ def rot_axis(b, axis, angle):
 for side, s in (('.L', 1.0), ('.R', -1.0)):
     hb = pb.get('FK-Hand' + side)
     if not hb: continue
+    if HAND_SCALE != 1.0:
+        # whole-hand scale (palm + fingers); preserved through the matrix posing below
+        hs = Matrix.Scale(HAND_SCALE, 4)
+        hb.matrix = hb.matrix @ hs
+        bpy.context.view_layer.update()
     palm_local = hb.matrix.to_3x3().inverted() @ Vector((-s, 0.0, 0.0))   # palm faces thigh now
     # pronate ~35 deg about the hand's own axis -> back of hand turns toward camera
     rot_axis(hb, bdir(hb), s * math.radians(PRONATE * (1.0 - FORE_TWIST)))
