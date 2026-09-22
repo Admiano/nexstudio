@@ -177,21 +177,18 @@ def test_erase_transition_fades_prior_beat(plan, built):
     t = plan2['beats'][1]['start_seconds'] + 0.3
     fade = dr.wbp._ease(dr.wbp._clamp(0.3 / 0.7))
     layer, _ = dr.draw_diagram_layer(
-        plan2, elements, meta['atlas'], '16:9', t, wipe=(1, fade))
+        plan2, elements, meta['atlas'], '16:9', t, wipe=(1, fade, 0.7))
     full, _ = dr.draw_diagram_layer(
         plan2, elements, meta['atlas'], '16:9', t)
-    # the icon's own stroke pixel fades under the wipe
-    icon = next(e for e in elements
-                if e['beat'] == 0 and e['kind'] == 'icon')
-    st = next(s for s in icon['strokes'] if len(s) < 5 or not s[4])
-    wx, wy = icon['center'][0] + st[0][0][0] * icon['size'], \
-        icon['center'][1] + st[0][0][1] * icon['size']
-    sx, sy = dr.wbp._map_point((wx, wy), (0.0, 0.0), '16:9')
-    a_wiped = max(layer.getpixel((int(sx) + dx, int(sy) + dy))[3]
-                  for dx in range(-2, 3) for dy in range(-2, 3))
-    a_full = max(full.getpixel((int(sx) + dx, int(sy) + dy))[3]
-                 for dx in range(-2, 3) for dy in range(-2, 3))
-    assert 0 < a_wiped < a_full
+    # the sweep erases prior ink left of the eraser edge but keeps
+    # whatever is right of it — total ink drops without going black
+    erase_x = int(layer.width * fade)
+    wiped_left = sum(1 for v in layer.crop((0, 0, erase_x, layer.height))
+                     .getdata() if v[3] > 128)
+    full_left = sum(1 for v in full.crop((0, 0, erase_x, layer.height))
+                    .getdata() if v[3] > 128)
+    assert wiped_left < full_left
+    assert sum(1 for v in layer.getdata() if v[3] > 128) > 0
 
 
 def test_zoom_transition_settles_to_full_frame(plan, built):

@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import math
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 def _boot():
     # v3_board_renderer imports the preserved execution body
@@ -746,29 +746,43 @@ def draw_diagram_layer(plan: dict, elements: list[dict], atlas: dict,
                        ratio: str, t: float, draw=True, wipe=None):
     """Returns (layer, pen_tip_px).
 
-    wipe=(beat_idx, fade): an 'erase' transition in progress — elements
-    owned by beats before beat_idx whose kind isn't structural composite
-    at fade alpha, like a hand clearing the canvas for the new beat."""
+    wipe=(beat_idx, erase_p, hold): a page-turn erase in progress —
+    elements owned by beats before beat_idx whose kind isn't structural
+    are swept away left-to-right (surviving only right of the eraser
+    edge); elements of beats at/after beat_idx hold their ink until the
+    wipe has run for `hold` seconds, so the two pages never overlap."""
     _boot()
     w, h = wbp.RATIO_SIZES[ratio]
     layer = Image.new('RGBA', (w, h), (0, 0, 0, 0))
     old_layer = Image.new('RGBA', (w, h), (0, 0, 0, 0)) if wipe else None
-    cutoff, fade = wipe if wipe else (-1, 1.0)
+    cutoff, erase_p, hold = wipe if wipe else (-1, 0.0, 0.0)
     cam = (0.0, 0.0)
     colors = v3._palette(plan)
     colors.setdefault('secondary', (139, 133, 119, 255))
     beats = plan.get('beats') or []
+    erase_beats = {i for i in range(len(beats))
+                   if _transition(plan, i)[0] == 'erase'}
     tip = None
     for ei, e in enumerate(elements):
         b = beats[e['beat']] if e['beat'] < len(beats) else {}
         bt = t - float(b.get('start_seconds') or 0)
+        # incoming-page elements wait for the wipe to finish before inking
+        if old_layer is not None and e['beat'] >= cutoff:
+            bt -= hold
         span = max(0.05, e['end'] - e['start'])
         p = wbp._ease(wbp._clamp((bt - e['start']) / span))
         if p <= 0:
             continue
-        dead = (old_layer is not None and e['beat'] < cutoff
-                and e['kind'] not in _STRUCTURAL)
-        if dead and fade <= 0.0:
+        dead = False
+        if old_layer is not None and e['kind'] not in _STRUCTURAL:
+            killer = min((k for k in erase_beats if k > e['beat']),
+                         default=None)
+            if killer is not None and killer < cutoff:
+                # an earlier page turn already erased this ink — it stays
+                # dead; redrawing it into the sweep would ghost-doubled it
+                continue
+            dead = killer == cutoff
+        if dead and erase_p >= 1.0:
             continue
         target = old_layer if dead else layer
         tip_i = _draw_group(target, e['strokes'], e['center'], e['size'],
@@ -776,9 +790,17 @@ def draw_diagram_layer(plan: dict, elements: list[dict], atlas: dict,
         if p < 1 and tip_i is not None:
             tip = tip_i
     if old_layer is not None:
-        a = old_layer.getchannel('A').point(lambda v: int(v * fade))
-        old_layer.putalpha(a)
-        layer.alpha_composite(old_layer)
+        # the sweep: outgoing ink survives right of the eraser edge; the
+        # live layer (headline, incoming page) stays on top everywhere
+        erase_x = int(w * erase_p)
+        mask = Image.new('L', (w, h), 0)
+        ImageDraw.Draw(mask).rectangle([erase_x, 0, w, h], fill=255)
+        old_masked = Image.composite(
+            old_layer, Image.new('RGBA', (w, h), (0, 0, 0, 0)), mask)
+        layer = Image.alpha_composite(old_masked, layer)
+        if erase_p < 1.0:
+            # the hand rides the eraser edge during a page turn
+            tip = (float(erase_x), h * 0.55)
     return layer, tip
 
 
@@ -867,7 +889,9 @@ def render_diagram_frame(plan: dict, elements: list[dict], atlas: dict,
             continue
         wstart = float(plan['beats'][wi].get('start_seconds') or 0)
         if t >= wstart:
-            wipe = (wi, 1.0 - wbp._ease(wbp._clamp((t - wstart) / wd)))
+            # erase fraction sweeps 0 -> 1 over the transition; incoming
+            # content holds for the wipe's full duration
+            wipe = (wi, wbp._ease(wbp._clamp((t - wstart) / wd)), wd)
         break
     layer, tip = draw_diagram_layer(plan, elements, atlas, ratio, t,
                                     wipe=wipe)
