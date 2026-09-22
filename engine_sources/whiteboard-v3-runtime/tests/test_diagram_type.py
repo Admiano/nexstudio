@@ -71,14 +71,40 @@ def test_all_ink_stays_on_board(plan, built):
                 assert abs(y) <= z['h'] * 0.52, (e['kind'], y, z['h'])
 
 
-def test_past_beats_mute_and_persistent_never(plan, built):
+def test_text_block_is_box_centered(plan):
+    dr = pd._dr()
+    # the union ink bounds of a two-line block must center on its box
+    st = dr._text_block([('CPU', 18.5, 'ink', 1.35, True),
+                         ('thinks', 13.0, 'ink', 0.95, False)],
+                        50.0, 70.0, gap=9.0)
+    xs = [p[0] for s in st for p in s[0]]
+    ys = [p[1] for s in st for p in s[0]]
+    assert abs((min(xs) + max(xs)) / 2 - 50.0) < 0.5
+    assert abs((min(ys) + max(ys)) / 2 - 70.0) < 0.5
+
+
+def test_drawn_elements_keep_full_ink(plan, built):
     elements, meta = built
-    # force active beat = 2 by rendering at its start
     beats = plan['beats']
     t = float(beats[2]['start_seconds']) + 0.01
     layer, _tip = pd._dr().draw_diagram_layer(plan, elements, meta['atlas'],
-                                           '16:9', t)
-    assert layer.getbbox() is not None
+                                              '16:9', t)
+    # elements drawn during earlier beats must NOT fade to pale — count
+    # near-pale pixels (the old mute color ~ (212,208,196)) vs ink pixels
+    px = layer.load()
+    w, h = layer.size
+    pale = ink = 0
+    for x in range(0, w, 7):
+        for y in range(0, h, 7):
+            p = px[x, y]
+            if p[3] < 40:
+                continue
+            if p[0] < 90 and p[1] < 90:
+                ink += 1
+            elif 195 < p[0] < 235 and p[3] > 200:
+                pale += 1
+    assert ink > 0
+    assert pale == 0
 
 
 @pytest.mark.parametrize('ratio', ['16:9', '1:1', '9:16'])

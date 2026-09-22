@@ -108,6 +108,26 @@ def _lettered(text: str, cx: float, top: float, h: float,
     return strokes, origin, tw, h
 
 
+def _text_block(lines, cx: float, cy: float, gap: float = 8.0,
+                max_w=None) -> list:
+    """Stacked text lines centered exactly on (cx, cy) on BOTH axes —
+    the union ink bounds of all lines are recentered, so container text
+    can never sit off-middle regardless of line count or glyph skew."""
+    groups = []
+    y = 0.0
+    for txt, h, color, ws, bold in lines:
+        st, _o, _t, _h = _lettered(txt, 0.0, y, h, color, ws=ws,
+                                   bold=bold, max_w=max_w)
+        groups.append(st)
+        y += _h + gap
+    xs = [p[0] for g in groups for s in g for p in s[0]]
+    ys = [p[1] for g in groups for s in g for p in s[0]]
+    dx = cx - (min(xs) + max(xs)) / 2
+    dy = cy - (min(ys) + max(ys)) / 2
+    return [([(px + dx, py + dy) for px, py in s[0]], *s[1:])
+            for g in groups for s in g]
+
+
 def _headline(text: str, atlas: dict) -> list:
     z = atlas['zone']
     h = min(z['h'] * 0.055, 34.0)
@@ -139,20 +159,16 @@ def _chip(label: str, sub: str | None, cx: float, cy: float,
         # short pointer from the box edge toward the hero's edge
         dx, dy = pin_to[0] - cx, pin_to[1] - cy
         d = math.hypot(dx, dy) or 1.0
-        x0 = cx + dx / d * w_b * 0.42
-        y0 = cy + dy / d * h_b * 0.55
+        x0 = cx + dx / d * w_b * 0.5
+        y0 = cy + dy / d * h_b * 0.5
         strokes += _arrow(x0, y0, cx + dx / d * (d * 0.55),
                           cy + dy / d * (d * 0.55), 'accent')
     strokes.append((v3._rounded_rect(cx, cy, w_b, h_b, min(w_b * 0.12, 18)),
                     'accent' if accent else 'ink', 1.0, False, True))
-    st, _o, _t, _h = _lettered(str(label).upper(), cx,
-                               cy - h_b * 0.36, h_l, 'ink', max_w=w_b - 24)
-    strokes += st
+    lines = [(str(label).upper(), h_l, 'ink', 1.35, True)]
     if sub:
-        st, _o, _t, _h = _lettered(str(sub), cx, cy + h_b * 0.10,
-                                   h_s, 'ink', ws=0.95, bold=False,
-                                   max_w=w_b - 20)
-        strokes += st
+        lines.append((str(sub), h_s, 'ink', 0.95, False))
+    strokes += _text_block(lines, cx, cy, gap=9.0, max_w=w_b - 24)
     return strokes
 
 
@@ -304,9 +320,8 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
         w_b = min(z['w'] * 0.92, tw + 72)
         strokes = [(v3._rounded_rect(bx, by, w_b, 60, 16),
                     'ink', 1.0, False, True)]
-        st, _o, _t, _h = _lettered(txt, bx, by - 18, 18, 'ink',
-                                   max_w=w_b - 24)
-        strokes += st
+        strokes += _text_block([(txt, 18, 'ink', 1.35, True)],
+                               bx, by, max_w=w_b - 24)
         add(len(beats) - 1, 'summary', strokes, center=(0, 0), size=1.0,
             role='marker.swipe')
 
@@ -363,11 +378,8 @@ def _slot_point(atlas: dict, name: str) -> tuple[float, float]:
 
 
 # ---------------------------------------------------------------------------
-# Frame render — cumulative layer; elements of past beats draw muted
+# Frame render — cumulative layer; every drawn element keeps full ink
 # ---------------------------------------------------------------------------
-
-_MUTED = {'ink': 'pale', 'accent': 'pale', 'accdeep': 'pale',
-          'inkfill': 'pale', 'accfill': 'paper'}
 
 
 def _active_beat(beats: list[dict], t: float) -> int:
@@ -387,11 +399,7 @@ def draw_diagram_layer(plan: dict, elements: list[dict], atlas: dict,
     cam = (0.0, 0.0)
     colors = v3._palette(plan)
     colors.setdefault('secondary', (139, 133, 119, 255))
-    muted = dict(colors)
-    for k, m in _MUTED.items():
-        muted[k] = colors[m]
     beats = plan.get('beats') or []
-    active = _active_beat(beats, t)
     tip = None
     for ei, e in enumerate(elements):
         b = beats[e['beat']] if e['beat'] < len(beats) else {}
@@ -400,11 +408,8 @@ def draw_diagram_layer(plan: dict, elements: list[dict], atlas: dict,
         p = wbp._ease(wbp._clamp((bt - e['start']) / span))
         if p <= 0:
             continue
-        # headline, hero and the summary strip are persistent — never muted
-        persistent = e['kind'] in ('headline', 'hero', 'summary')
-        cols = colors if (persistent or e['beat'] >= active) else muted
         tip_i = _draw_group(layer, e['strokes'], e['center'], e['size'],
-                            cam, cols, ratio, p, 31 + ei * 97, draw)
+                            cam, colors, ratio, p, 31 + ei * 97, draw)
         if p < 1 and tip_i is not None:
             tip = tip_i
     return layer, tip
