@@ -30,7 +30,7 @@ RECEIPT_SCHEMA = 'NexMindWhiteboardV3ReconstructedExecutionReceiptV1'
 
 def render_frames(plan: dict, ratio: str, fps: int, face: str,
                   word_times: list[dict] | None = None,
-                  theme: str = 'light',
+                  theme: str = 'light', watermark: str | None = None,
                   ) -> Iterator[tuple[float, object]]:
     """Yield (t_seconds, PIL RGB frame) across the narration timeline."""
     from PIL import Image  # noqa: F401  (frame contract)
@@ -47,7 +47,7 @@ def render_frames(plan: dict, ratio: str, fps: int, face: str,
     t = 0.0
     while t < end:
         yield t, ktr.render_kinetic_frame(sents, specs, t, size, plan, face,
-                                          theme=theme)
+                                          theme=theme, watermark=watermark)
         t += step
 
 
@@ -57,7 +57,8 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '9:16',
                       word_times: list[dict] | None = None,
                       music: bool = False,
                       keep_frames: bool = False,
-                      theme: str = 'light') -> dict:
+                      theme: str = 'light',
+                      watermark: str | None = None) -> dict:
     wbc, wbp, snd, _v3r = core.load_execution_body(None)
     if ratio not in wbp.RATIO_SIZES:
         raise core._err('KINETIC_RATIO_UNSUPPORTED', ratio)
@@ -74,7 +75,7 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '9:16',
     frame_count = 0
     try:
         for t, frame in render_frames(plan, ratio, fps, face, word_times,
-                                      theme=theme):
+                                      theme=theme, watermark=watermark):
             frame.save(frames_dir / f'f{frame_count:05d}.png')
             frame_count += 1
 
@@ -146,6 +147,8 @@ def main(argv: list[str] | None = None) -> int:
                     choices=sorted(ktr._FACES))
     ap.add_argument('--theme', default='light', choices=sorted(ktr._THEMES),
                     help='Background theme: white paper or near-black')
+    ap.add_argument('--watermark', default=None,
+                    help='Optional small centered footer (brand/channel name)')
     ap.add_argument('--voiceover', default=None)
     ap.add_argument('--word-timings', default=None,
                     help='Word-level timing JSON (whisper verbose_json, '
@@ -164,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
         plan, Path(a.out_dir), ratio=a.ratio, fps=a.fps, face=a.face,
         voiceover=Path(a.voiceover) if a.voiceover else None,
         word_times=word_times, music=a.music, keep_frames=a.keep_frames,
-        theme=a.theme)
+        theme=a.theme, watermark=a.watermark)
     print(json.dumps(receipt, indent=2))
     return 0
 

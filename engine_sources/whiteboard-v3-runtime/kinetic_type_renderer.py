@@ -39,7 +39,8 @@ _FUNC = frozenset(
     'even still back out up down off around through between while during '
     'before after because until although though unless since whether both '
     'there here where when why how say says said tell tells told get gets '
-    'got make makes made let lets go goes went come comes came'.split())
+    'got make makes made let lets go goes went come comes came per vs ok '
+    'okay yeah really thing things way ways lot lots kind kinds stuff '.split())
 
 
 def _norm(w: str) -> str:
@@ -52,14 +53,19 @@ def _emphasized(word: str, sentence_first: bool) -> bool:
     Emphasized: open-class words (not function words), digits/numbers, and
     TitleCase words that aren't sentence-initial (proper nouns)."""
     tok = _norm(word)
-    if not tok or tok in _FUNC:
+    if not tok:
+        return False
+    stem = tok.split("'")[0]          # contractions inherit their stem's
+    if stem != tok and stem in _FUNC:  # class — "what's"/"that's" stay flat
+        return False
+    if tok in _FUNC or stem in _FUNC:
         return False
     stripped = word.strip('"\'“”‘’')
     if not sentence_first and stripped[:1].isupper() and len(tok) > 1:
         return True                      # proper noun
     if any(c.isdigit() for c in stripped):
         return True                      # numbers always pop
-    return len(tok) >= 4
+    return len(stem) >= 4
 
 
 def split_sentences(text: str) -> list[str]:
@@ -91,13 +97,30 @@ def typeset(sentence: dict, size: int, face: str, frame_w: int,
     """
     gap = max(10, int(size * gap_ratio))
     words = sentence['words']
+    # per-sentence emphasis cap — content-dense narration would otherwise
+    # accent nearly every word. Keep the strongest candidates: digits >
+    # proper nouns > longest open-class words; ties go to the earlier word.
+    cap = max(2, math.ceil(len(words) * 0.35))
+    cands = []
+    for i, w in enumerate(words):
+        e = w.get('emph')
+        if e is None:
+            e = _emphasized(w['word'], sentence_first=(i == 0))
+        if e:
+            tok = _norm(w['word'])
+            raw = w['word'].strip('"\'“”‘’')
+            sc = (100 if any(c.isdigit() for c in raw) else 0) \
+                + (50 if raw[:1].isupper() else 0) + len(tok)
+            cands.append((sc, -i, i))
+    keep = {i for _sc, _ni, i in sorted(cands, reverse=True)[:cap]}
 
     def lay(sz):
         items = []
         for i, w in enumerate(words):
             emph = w.get('emph')
             if emph is None:
-                emph = _emphasized(w['word'], sentence_first=(i == 0))
+                emph = _emphasized(w['word'], sentence_first=(i == 0)) \
+                    and i in keep
             items.append({'w': w, 'emph': emph,
                           'tw': _tw(w['word'], sz, face, True)})
         lines, cur_w = [[]], 0
@@ -199,17 +222,23 @@ def _ease_out(p: float) -> float:
 
 def _swoosh(d: ImageDraw.ImageDraw, x0, x1, y, color, prog: float,
             lw: int = 4):
-    """Hand-drawn accent underline — wobbles like a marker swipe, draws in
+    """Hand-drawn accent underline — a smooth marker swipe that dips below
+    the line with a tapered brush (thin ends, fat belly), drawn in
     left-to-right over the first ~0.28 s after the word is spoken."""
-    n = 18
+    n = 28
     upto = max(2, int(round(n * min(1.0, prog))))
-    pts = []
+    top, bot = [], []
     for i in range(upto):
         q = i / (n - 1)
-        pts.append((x0 + (x1 - x0) * q,
-                    y + math.sin(q * 5.8 + 0.4) * lw * 0.55 + q * lw * 0.4))
-    if len(pts) >= 2:
-        d.line(pts, fill=color, width=lw, joint='curve')
+        dip = math.sin(math.pi * q) * lw * 1.35          # bows below the line
+        wob = math.sin(q * 9.2 + 0.7) * lw * 0.22        # faint hand wobble
+        th = lw * (0.45 + 0.55 * math.sin(math.pi * q))  # tapered ends
+        cx = x0 + (x1 - x0) * q
+        cy = y + dip + wob + q * lw * 0.30
+        top.append((cx, cy - th / 2))
+        bot.append((cx, cy + th / 2))
+    if len(top) >= 2:
+        d.polygon(top + bot[::-1], fill=color)
 
 
 def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
@@ -240,22 +269,28 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
             tw = it['tw']
             age = t - w['start']
             span = max(0.05, w['end'] - w['start'])
+            hold = w['end'] + min(0.12, span * 0.4)
             emph = it['emph']
             if age < -0.02:
                 col, bold = dim, emph
-            elif t < w['end'] + min(0.12, span * 0.4):
+            elif t < hold:
                 bold = True
+                g = _ease_out(min(1.0, max(0.0, age) / 0.14))
                 if emph:
+                    # the highlight box grows in from the left while the
+                    # word's color eases ink -> white
                     pad = max(8, int(size * 0.16))
                     dcol = fade(boxc)
                     draw.rounded_rectangle(
-                        [x - pad, y - size * 0.06, x + tw + pad,
-                         y + size * 1.14], radius=size * 0.18, fill=dcol)
-                    col = (255, 255, 255)
+                        [x - pad, y - size * 0.06,
+                         x + tw * g + pad, y + size * 1.14],
+                        radius=size * 0.18, fill=dcol)
+                    col = _lerp(ink, (255, 255, 255), g)
                 else:
-                    col = ink
+                    col = _lerp(dim, ink, g)
             else:
-                col = acc if emph else ink
+                st = _ease_out(min(1.0, (t - hold) / 0.14))
+                col = _lerp(ink, acc, st) if emph else ink
                 bold = emph
             pop = 1.0
             if 0 <= age < 0.16:
@@ -284,11 +319,16 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
         y += lh
 
 
+def _lerp(c1, c2, u):
+    u = max(0.0, min(1.0, u))
+    return tuple(int(a + (b - a) * u) for a, b in zip(c1, c2))
+
+
 _THEMES = {
     'light': {'paper': (252, 252, 250), 'ink': (22, 22, 20),
-              'dim': (186, 183, 174), 'box': (22, 22, 24)},
+              'dim': (172, 168, 158), 'box': (22, 22, 24)},
     'dark': {'paper': (18, 18, 16), 'ink': (245, 242, 235),
-             'dim': (118, 115, 106), 'box': None},  # box <- accent
+             'dim': (128, 124, 113), 'box': None},  # box <- accent
 }
 
 
@@ -315,7 +355,8 @@ _TRANS_S = 0.34
 
 def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
                          size: tuple[int, int], plan: dict,
-                         face: str = 'grotesk', theme: str = 'light'):
+                         face: str = 'grotesk', theme: str = 'light',
+                         watermark: str | None = None):
     """Full frame at absolute t: active sentence centered; when a new
     sentence just became active, the previous one slides up & fades while
     the new one rises into place."""
@@ -346,6 +387,13 @@ def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
                         alpha=q, y_shift=enter * (1 - q), face=face)
     else:
         render_sentence(d, specs[i], t, W, H, pal, face=face)
+    wm = watermark if watermark is not None else plan.get('watermark')
+    if wm:
+        ws = max(11, int(H * 0.022))
+        wf = _font(face, False, ws)
+        wb = wf.getbbox(wm)
+        d.text(((W - (wb[2] - wb[0])) / 2, H * 0.955 - wb[1]),
+               wm, font=wf, fill=pal['dim'])
     return img
 
 

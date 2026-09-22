@@ -36,7 +36,7 @@ python engine_sources/whiteboard-v3-runtime/pipeline_kinetic_timed.py \
   engine_sources/whiteboard-v3-runtime/fixtures/kinetic_demo_plan.json \
   --out-dir out/kinetic --ratio 9:16 --voiceover vo.mp3 \
   --word-timings words.json [--face grotesk|marker] \
-  [--theme light|dark] [--music]
+  [--theme light|dark] [--watermark TEXT] [--music]
 ```
 
 ## Requirements
