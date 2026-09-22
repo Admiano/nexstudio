@@ -224,12 +224,17 @@ def _conn_pt(atlas, ref, id_map, elements, other_ref, margin=0.0) -> tuple:
     return px, py
 
 
-def _icon_group(concept: str, used: dict) -> list:
-    ic = v3.icon_for(concept, used)
-    st = v3._strokes_for(ic)
+def _icon_group(concept: str, used: dict, cast=None, facing: int = 1,
+                force=None) -> list:
+    ic = force or v3.icon_for(concept, used)
     if ic == 'card':
         # lettered fallback card is built by the caller with the label
         return []
+    if ic == 'person':
+        spec = cast if isinstance(cast, dict) \
+            else v3._cast_spec_for(concept, 'point')
+        return v3._strokes_for(ic, cast=spec, facing=facing) or []
+    st = v3._strokes_for(ic)
     return st or []
 
 
@@ -375,10 +380,28 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 icon_size = 140.0
             pin = (atlas['hero_c'] if at.startswith('hero') else None)
             concept = el.get('icon') or el.get('part')
+            person_spec = el.get('person')
+            if person_spec is not None:
+                # explicit character element: {"person": "<role>"} or a
+                # cast spec dict — a string seeds a deterministic variant
+                concept = (str(person_spec) if isinstance(person_spec, str)
+                           else str(el.get('label') or 'person'))
+                cast = (person_spec if isinstance(person_spec, dict)
+                        else v3._cast_spec_for(concept, 'point'))
+            else:
+                cast = None
             if concept:
-                # art first — an icon/illustration that resolves; only when
-                # nothing draws does the element become a lettered chip
-                st = _icon_group(str(concept), used)
+                # face characters toward the stage centre so left/right
+                # satellites look into the composition, not off-canvas
+                facing = -1 if cx > atlas['hero_c'][0] else 1
+                st = _icon_group(str(concept), used, cast=cast,
+                                 facing=facing,
+                                 force='person' if person_spec is not None
+                                 else None)
+                if st and (person_spec is not None
+                           or v3.icon_for(str(concept), used) == 'person'):
+                    # figures are taller than props — keep them readable
+                    icon_size *= 1.3
                 label = str(el.get('label') or concept)
                 if st:
                     # satellite/cell icons draw a touch heavier than the
@@ -391,7 +414,10 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                         hero_b = _elem_bounds(
                             {'strokes': hero_strokes, 'center': atlas['hero_c'],
                              'size': atlas['hero_s']}) or (0, 0, 0, 0)
-                        ib = (cx - 70, cy - 70, cx + 70, cy + 70)
+                        ib = _elem_bounds(
+                            {'strokes': strokes, 'center': (cx, cy),
+                             'size': icon_size}) or (
+                                cx - 70, cy - 70, cx + 70, cy + 70)
                         px0, py0 = _edge_pt(ib, atlas['hero_c'])
                         px1, py1 = _edge_pt(hero_b, (cx, cy))
                         strokes += [s + ('pin',) for s in _arrow(
@@ -407,9 +433,15 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                             lines.append((str(el['sub']),
                                           10 if small else 11, 'ink',
                                           0.9, False))
-                        # caption hugs the icon's real bottom edge
+                        # caption hugs the element's real ink bottom —
+                        # figures aren't vertically centered like icons
+                        b = _elem_bounds(
+                            {'strokes': strokes, 'center': (cx, cy),
+                             'size': icon_size})
+                        cap_y = (b[3] + 16) if b else \
+                            cy + icon_size * 0.5 + 16
                         strokes = _text_block(
-                            lines, cx, cy + icon_size * 0.5 + 16,
+                            lines, cx, cap_y,
                             gap=6, max_w=(wc - 40) if in_cell else 210)
                         elements[-1]['strokes'] += strokes
                 else:

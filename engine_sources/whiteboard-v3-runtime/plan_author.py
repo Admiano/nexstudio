@@ -189,12 +189,17 @@ def build_plan(script: str, *, vtype: str = 'diagram',
         if vtype == 'diagram':
             stage = _stage_label(sentence, hint)
             concepts = _concepts(sentence, v3.icon_for, used, domain=domain)
+
+            def _el(c: str, at: str, label: str) -> dict:
+                if v3.icon_for(c, used) == 'person':
+                    return {'person': c, 'label': label, 'at': at}
+                return {'icon': c, 'label': label, 'at': at}
+
             spec: dict = {'stage': stage}
             if flow:
                 spec['region'] = 'cell'
                 spec['elements'] = [
-                    {'icon': c, 'label': c.split()[-1].upper(),
-                     'at': 'cell'}
+                    _el(c, 'cell', c.split()[-1].upper())
                     for c in concepts]
             else:
                 region = ('left' if i == 0 else
@@ -207,7 +212,7 @@ def build_plan(script: str, *, vtype: str = 'diagram',
                             concepts, ('hero-tl', 'hero-tr', 'hero-c'))]
                 else:
                     spec['elements'] = [
-                        {'icon': c, 'at': region} for c in concepts]
+                        _el(c, region, c.upper()) for c in concepts]
                     if i == 0:
                         spec['elements'].append(
                             {'arrow': {'from': region, 'to': 'hero'}})
