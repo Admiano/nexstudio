@@ -80,7 +80,8 @@ def _tw(word: str, size: int, face: str, bold: bool = True) -> int:
 
 
 def typeset(sentence: dict, size: int, face: str, frame_w: int,
-            margin: int = 64, gap_ratio: float = 0.22):
+            margin: int = 64, gap_ratio: float = 0.22,
+            frame_h: int | None = None):
     """Sentence -> wrapped lines of word slots at final (bold) widths.
 
     `sentence` is {'words': [{'word','start','end','emph'}...]}.
@@ -111,12 +112,15 @@ def typeset(sentence: dict, size: int, face: str, frame_w: int,
         return lines, widest
 
     size = int(size)
+    vmargin = max(48, int(frame_h * 0.08)) if frame_h else 0
     while True:
         lines, widest = lay(size)
-        if widest <= frame_w - 2 * margin or size <= 18:
+        lh = int(size * 1.42)
+        fits_w = widest <= frame_w - 2 * margin
+        fits_h = frame_h is None or lh * len(lines) <= frame_h - 2 * vmargin
+        if (fits_w and fits_h) or size <= 18:
             break
         size = int(size * 0.90)
-    lh = int(size * 1.42)
     return {'lines': lines, 'size': size, 'lh': lh,
             'block_h': lh * len(lines), 'gap': gap}
 
@@ -224,6 +228,9 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
     acc = pal.get('accent', (0, 82, 255))
     boxc = pal.get('box', (24, 24, 26))
     a = max(0.0, min(1.0, alpha))
+    bg = pal.get('paper', (252, 252, 250))
+    fade = lambda c: tuple(int(ch * a) + int(bg[j] * (1 - a))
+                           for j, ch in enumerate(c))
     y = frame_h * 0.46 - spec['block_h'] / 2 + y_shift
     for line in spec['lines']:
         total = sum(it['tw'] for it in line) + gap * (len(line) - 1)
@@ -240,7 +247,7 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
                 bold = True
                 if emph:
                     pad = max(8, int(size * 0.16))
-                    dcol = tuple(int(c * a) + int(255 * (1 - a)) for c in boxc)
+                    dcol = fade(boxc)
                     draw.rounded_rectangle(
                         [x - pad, y - size * 0.06, x + tw + pad,
                          y + size * 1.14], radius=size * 0.18, fill=dcol)
@@ -256,31 +263,51 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
             sz = max(8, int(size * pop))
             f = _font(face, bold, sz)
             tw_s = _tw(w['word'], sz, face, bold)
-            ccol = tuple(int(c * a) + int(245 * (1 - a)) for c in col) \
-                if a < 1 else col
+            # the active-word pop widens past its slot — clamp so the
+            # popped word can never cross the frame edge
+            cx = x + tw / 2
+            max_tw = 2 * min(cx - 8, frame_w - 8 - cx)
+            if tw_s > max_tw:
+                sz = max(8, int(sz * max_tw / tw_s))
+                f = _font(face, bold, sz)
+                tw_s = _tw(w['word'], sz, face, bold)
+            ccol = fade(col) if a < 1 else col
             draw.text((x + (tw - tw_s) / 2, y + (size - sz) * 0.55),
                       w['word'], font=f, fill=ccol)
             if emph and age > 0.25:
                 _swoosh(draw, x - size * 0.06, x + tw + size * 0.06,
                         y + size * 1.22,
-                        acc if a >= 1 else tuple(
-                            int(c * a) + int(245 * (1 - a)) for c in acc),
+                        acc if a >= 1 else fade(acc),
                         prog=min(1.0, (age - 0.25) / 0.28),
                         lw=max(3, size // 16))
             x += tw + gap
         y += lh
 
 
-def palette(plan: dict) -> dict:
+_THEMES = {
+    'light': {'paper': (252, 252, 250), 'ink': (22, 22, 20),
+              'dim': (186, 183, 174), 'box': (22, 22, 24)},
+    'dark': {'paper': (18, 18, 16), 'ink': (245, 242, 235),
+             'dim': (118, 115, 106), 'box': None},  # box <- accent
+}
+
+
+def palette(plan: dict, theme: str = 'light') -> dict:
     ba = (plan.get('brandExecution') or {}).get('brandAuthority') or {}
     def hx(k, d):
         v = str(ba.get(k, d)).lstrip('#')
         return tuple(int(v[i:i + 2], 16) for i in (0, 2, 4))
-    return {'paper': hx('background', '#F5F2EB'),
-            'ink': hx('ink', '#1C1C1A'),
-            'accent': hx('accent', '#0052FF'),
-            'dim': hx('secondary', '#CBC7BE'),
-            'box': (24, 24, 26)}
+    t = _THEMES[theme]
+    accent = hx('accent', '#0052FF')
+    pal = dict(t)
+    if theme == 'dark':
+        # accent text lightened for dark-bg legibility; the highlight box
+        # uses the raw brand accent so it reads as the same brand
+        pal['accent'] = tuple(int(c + (255 - c) * 0.38) for c in accent)
+        pal['box'] = accent
+    else:
+        pal['accent'] = accent
+    return pal
 
 
 _TRANS_S = 0.34
@@ -288,12 +315,12 @@ _TRANS_S = 0.34
 
 def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
                          size: tuple[int, int], plan: dict,
-                         face: str = 'grotesk'):
+                         face: str = 'grotesk', theme: str = 'light'):
     """Full frame at absolute t: active sentence centered; when a new
     sentence just became active, the previous one slides up & fades while
     the new one rises into place."""
     W, H = size
-    pal = palette(plan)
+    pal = palette(plan, theme)
     img = Image.new('RGB', (W, H), pal['paper'])
     d = ImageDraw.Draw(img)
     if not sents:
@@ -311,8 +338,12 @@ def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
         # small shift would leave two tall blocks overlapping mid-frame
         render_sentence(d, specs[i - 1], t, W, H, pal,
                         alpha=1.0 - q, y_shift=-(H * 0.55) * q, face=face)
+        # cap the entry rise so a tall block's bottom never dips below
+        # the frame — no word is ever partially out of frame
+        enter = min(H * 0.30,
+                    max(0.0, H * 0.54 - specs[i]['block_h'] / 2 - 8))
         render_sentence(d, specs[i], t, W, H, pal,
-                        alpha=q, y_shift=H * 0.30 * (1 - q), face=face)
+                        alpha=q, y_shift=enter * (1 - q), face=face)
     else:
         render_sentence(d, specs[i], t, W, H, pal, face=face)
     return img

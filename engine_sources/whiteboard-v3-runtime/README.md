@@ -25,13 +25,18 @@ dim future → bold now (key words get a dark highlight box + white text) →
 settled ink/accent with a hand-drawn swoosh underline. Emphasis detection is
 a deterministic function-word/proper-noun/number rule — no keyword tables,
 any domain works. Faces: `grotesk` (vendored Inter, OFL) or `marker`
-(PermanentMarker — bridges to the board's hand-drawn identity).
+(PermanentMarker — bridges to the board's hand-drawn identity). Themes:
+`light` (white paper) or `dark` (near-black, accent highlight box).
+Every word is guaranteed on-frame — the typesetter auto-shrinks to fit
+width and height, and the sentence-entry rise is capped so tall blocks
+never dip below the frame edge.
 
 ```bash
 python engine_sources/whiteboard-v3-runtime/pipeline_kinetic_timed.py \
   engine_sources/whiteboard-v3-runtime/fixtures/kinetic_demo_plan.json \
   --out-dir out/kinetic --ratio 9:16 --voiceover vo.mp3 \
-  --word-timings words.json [--face grotesk|marker] [--music]
+  --word-timings words.json [--face grotesk|marker] \
+  [--theme light|dark] [--music]
 ```
 
 ## Requirements

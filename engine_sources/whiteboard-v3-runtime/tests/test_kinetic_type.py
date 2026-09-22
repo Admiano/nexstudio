@@ -44,13 +44,15 @@ def _sents(plan):
     return ktr.sentence_words(plan, word_times)
 
 
-def _frame_at(t, face='grotesk'):
+def _frame_at(t, face='grotesk', ratio='9:16', theme='light'):
     plan = _plan()
     sents = _sents(plan)
     wbp = pipe.load_execution_body()[1]
-    size = wbp.RATIO_SIZES['9:16']
-    specs = [ktr.typeset(s, ktr.base_size(*size), face, size[0]) for s in sents]
-    return ktr.render_kinetic_frame(sents, specs, t, size, plan, face)
+    size = wbp.RATIO_SIZES[ratio]
+    specs = [ktr.typeset(s, ktr.base_size(*size), face, size[0],
+                         frame_h=size[1]) for s in sents]
+    return ktr.render_kinetic_frame(sents, specs, t, size, plan, face,
+                                  theme=theme)
 
 
 def _frame_bytes(img) -> bytes:
@@ -113,6 +115,43 @@ def test_marker_face_renders():
     img = _frame_at(1.0, face='marker')
     from PIL import ImageStat
     assert ImageStat.Stat(img.convert('L')).stddev[0] > 4
+
+
+def test_dark_theme_renders():
+    img = _frame_at(1.0, theme='dark')
+    from PIL import ImageStat
+    st = ImageStat.Stat(img.convert('L'))
+    assert st.mean[0] < 80          # dark background dominates
+    assert st.stddev[0] > 4         # but text is present
+
+
+def test_layout_never_leaves_frame():
+    """Every word slot must stay inside the frame at rest AND during the
+    entry transition (the rise is capped so tall blocks can't dip below)."""
+    plan = _plan()
+    sents = _sents(plan)
+    wbp = pipe.load_execution_body()[1]
+    for ratio, (W, H) in wbp.RATIO_SIZES.items():
+        margin = 64
+        vmargin = max(48, int(H * 0.08))
+        for s in sents:
+            spec = ktr.typeset(s, ktr.base_size(W, H), 'grotesk', W,
+                               frame_h=H)
+            # block fits vertically at rest
+            assert spec['block_h'] <= H - 2 * vmargin, (
+                ratio, s['text'], spec['block_h'])
+            # every line fits horizontally
+            for line in spec['lines']:
+                total = (sum(it['tw'] for it in line)
+                         + spec['gap'] * (len(line) - 1))
+                assert total <= W - 2 * margin + 2
+            # transition start: entry shift keeps block bottom on-frame
+            enter = min(H * 0.30,
+                        max(0.0, H * 0.54 - spec['block_h'] / 2 - 8))
+            bottom = H * 0.46 + spec['block_h'] / 2 + enter
+            assert bottom <= H + 1e-6, (ratio, s['text'], bottom)
+            top = H * 0.46 - spec['block_h'] / 2
+            assert top >= 0, (ratio, s['text'], top)
 
 
 # --- determinism + golden frames --------------------------------------------

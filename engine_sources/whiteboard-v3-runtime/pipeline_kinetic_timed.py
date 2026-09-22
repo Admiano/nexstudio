@@ -30,13 +30,15 @@ RECEIPT_SCHEMA = 'NexMindWhiteboardV3ReconstructedExecutionReceiptV1'
 
 def render_frames(plan: dict, ratio: str, fps: int, face: str,
                   word_times: list[dict] | None = None,
+                  theme: str = 'light',
                   ) -> Iterator[tuple[float, object]]:
     """Yield (t_seconds, PIL RGB frame) across the narration timeline."""
     from PIL import Image  # noqa: F401  (frame contract)
     wbp = core.load_execution_body(None)[1]
     size = wbp.RATIO_SIZES[ratio]
     sents = ktr.sentence_words(plan, word_times)
-    specs = [ktr.typeset(s, ktr.base_size(*size), face, size[0])
+    specs = [ktr.typeset(s, ktr.base_size(*size), face, size[0],
+                         frame_h=size[1])
              for s in sents]
     if not sents:
         return
@@ -44,7 +46,8 @@ def render_frames(plan: dict, ratio: str, fps: int, face: str,
     end = sents[-1]['end'] + 0.9  # settle hold on the last sentence
     t = 0.0
     while t < end:
-        yield t, ktr.render_kinetic_frame(sents, specs, t, size, plan, face)
+        yield t, ktr.render_kinetic_frame(sents, specs, t, size, plan, face,
+                                          theme=theme)
         t += step
 
 
@@ -53,7 +56,8 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '9:16',
                       voiceover: Path | None = None,
                       word_times: list[dict] | None = None,
                       music: bool = False,
-                      keep_frames: bool = False) -> dict:
+                      keep_frames: bool = False,
+                      theme: str = 'light') -> dict:
     wbc, wbp, snd, _v3r = core.load_execution_body(None)
     if ratio not in wbp.RATIO_SIZES:
         raise core._err('KINETIC_RATIO_UNSUPPORTED', ratio)
@@ -69,7 +73,8 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '9:16',
     frames_dir = Path(tempfile.mkdtemp(prefix='kinetic-frames-'))
     frame_count = 0
     try:
-        for t, frame in render_frames(plan, ratio, fps, face, word_times):
+        for t, frame in render_frames(plan, ratio, fps, face, word_times,
+                                      theme=theme):
             frame.save(frames_dir / f'f{frame_count:05d}.png')
             frame_count += 1
 
@@ -139,6 +144,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--fps', type=int, default=24)
     ap.add_argument('--face', default='grotesk',
                     choices=sorted(ktr._FACES))
+    ap.add_argument('--theme', default='light', choices=sorted(ktr._THEMES),
+                    help='Background theme: white paper or near-black')
     ap.add_argument('--voiceover', default=None)
     ap.add_argument('--word-timings', default=None,
                     help='Word-level timing JSON (whisper verbose_json, '
@@ -156,7 +163,8 @@ def main(argv: list[str] | None = None) -> int:
     receipt = render_production(
         plan, Path(a.out_dir), ratio=a.ratio, fps=a.fps, face=a.face,
         voiceover=Path(a.voiceover) if a.voiceover else None,
-        word_times=word_times, music=a.music, keep_frames=a.keep_frames)
+        word_times=word_times, music=a.music, keep_frames=a.keep_frames,
+        theme=a.theme)
     print(json.dumps(receipt, indent=2))
     return 0
 
