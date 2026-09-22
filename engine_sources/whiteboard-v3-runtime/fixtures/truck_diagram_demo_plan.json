@@ -1,0 +1,89 @@
+{
+  "production_id": "NEXMIND_TRUCK_DIAGRAM_DEMO",
+  "aspect_ratios": [
+    "16:9"
+  ],
+  "diagram": {
+    "title": "How does a garbage truck work?",
+    "hero": "truck",
+    "summary": "COLLECT \u2192 CRUSH \u2192 DUMP"
+  },
+  "brandExecution": {
+    "brandAuthority": {
+      "accent": "#0052FF"
+    }
+  },
+  "beats": [
+    {
+      "narration": "A garbage truck does more than carry trash. It starts at the curb \u2014 the crew or the arm lifts every bin on the route.",
+      "diagram": {
+        "region": "left",
+        "stage": "COLLECT",
+        "elements": [
+          {
+            "icon": "house",
+            "at": "left"
+          },
+          {
+            "icon": "trash bin",
+            "at": "left"
+          },
+          {
+            "arrow": {
+              "from": "left",
+              "to": "hero"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "narration": "Inside, a plate pushes the load into the body and compacts it \u2014 crushing the trash so the truck can carry tons more.",
+      "diagram": {
+        "region": "hero",
+        "stage": "COMPACT",
+        "elements": [
+          {
+            "chip": "LIFT",
+            "sub": "arm tips the bin",
+            "at": "hero-tl"
+          },
+          {
+            "chip": "CRUSH",
+            "sub": "plate compacts",
+            "at": "hero-tr"
+          },
+          {
+            "chip": "HAUL",
+            "sub": "holds tons",
+            "at": "hero-c"
+          }
+        ]
+      }
+    },
+    {
+      "narration": "When the body is full, the truck drives to the landfill or transfer station and tips the whole load out.",
+      "diagram": {
+        "region": "right",
+        "stage": "DUMP",
+        "elements": [
+          {
+            "callout": "3. DUMP",
+            "sub": "landfill \u00b7 transfer",
+            "at": "right"
+          },
+          {
+            "icon": "dump site",
+            "at": "right"
+          },
+          {
+            "arrow": {
+              "from": "hero",
+              "to": "right"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
