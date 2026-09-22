@@ -1,0 +1,181 @@
+{
+  "schema": "NITA_CERT_V4_3_FULL_ACTING_CRITIC",
+  "source": "/mnt/data/nita_work/NITA_CERT_V4_3_AUDIO_EMBEDDED_CANDIDATE.blend",
+  "frame_range": [
+    1,
+    534
+  ],
+  "fps": 30,
+  "audio_duration_sec": 17.78938775510204,
+  "v42_to_v43_evaluated_identity": {
+    "body": {
+      "v42_sha256": "eefa7697da84c9ca3a06095023e9f1618efe297c5bdb35942f32fb957c871a4b",
+      "v43_sha256": "eefa7697da84c9ca3a06095023e9f1618efe297c5bdb35942f32fb957c871a4b",
+      "identical": true
+    },
+    "eyes": {
+      "v42_sha256": "0470751df6d903d290f647494a3286d07e86bc3a8443d5490fe91ecca2195cd9",
+      "v43_sha256": "0470751df6d903d290f647494a3286d07e86bc3a8443d5490fe91ecca2195cd9",
+      "identical": true
+    },
+    "fingers": {
+      "v42_sha256": "bf3a5c479a7dd5b7ace2dc40797626a8b1f1a63f5ae18954e1eec434a3c92175",
+      "v43_sha256": "bf3a5c479a7dd5b7ace2dc40797626a8b1f1a63f5ae18954e1eec434a3c92175",
+      "identical": true
+    },
+    "face": {
+      "v42_sha256": "eeca78480af3e3a5c5dbf57836c216459cfecab9b8885e9f1479fd40c83d8872",
+      "v43_sha256": "eeca78480af3e3a5c5dbf57836c216459cfecab9b8885e9f1479fd40c83d8872",
+      "identical": true
+    },
+    "J_Bip_L_Hand": {
+      "identical": true
+    },
+    "J_Bip_R_Hand": {
+      "identical": false
+    }
+  },
+  "hands": {
+    "L": {
+      "max_pos_step_m": 0.004833110922542668,
+      "p95_pos_step_m": 0.0021979297980280416,
+      "max_abs_acc_delta_m_per_frame2": 0.0026862827712483385,
+      "max_abs_jerk_m_per_frame3": 0.0030269620047068614,
+      "max_wrist_ang_step_deg": 0.9718490617993556,
+      "max_abs_ang_jerk_deg_per_frame3": 0.5771059491395842
+    },
+    "R": {
+      "max_pos_step_m": 0.004231566211242011,
+      "p95_pos_step_m": 0.0021864004274877408,
+      "max_abs_acc_delta_m_per_frame2": 0.0020543991530950646,
+      "max_abs_jerk_m_per_frame3": 0.00264383729170576,
+      "max_wrist_ang_step_deg": 1.0332926503025917,
+      "max_abs_ang_jerk_deg_per_frame3": 0.6407372979033323
+    }
+  },
+  "bilateral_hand_speed_corr": 0.33663696556823475,
+  "max_hand_jump_pass_under_2cm": true,
+  "head_periodicity": {
+    "max_abs_autocorr_lag_0_5_to_6s": [
+      15,
+      0.37213067518271076
+    ],
+    "top5": [
+      [
+        15,
+        0.37213067518271076
+      ],
+      [
+        16,
+        0.2667203763572166
+      ],
+      [
+        28,
+        0.25684355770139183
+      ],
+      [
+        27,
+        0.23701283558860142
+      ],
+      [
+        29,
+        0.2237493578064776
+      ]
+    ]
+  },
+  "blink": {
+    "event_frames": [
+      129,
+      305,
+      399,
+      488
+    ],
+    "count": 4,
+    "rate_per_min": 13.48314606741573,
+    "intervals_sec": [
+      5.866666666666666,
+      3.1333333333333333,
+      2.966666666666667
+    ],
+    "interval_cv_sample": 0.40821819679831417
+  },
+  "face_audio_verified_unchanged_from_v42": {
+    "v42_values": {
+      "voiced_viseme_mean": 0.2586887776249779,
+      "quiet_viseme_mean": 0.0,
+      "voiced_peak": 0.8292878270149231,
+      "quiet_peak": 0.0
+    },
+    "face_eval_hash_identical": true,
+    "note": "V4.3 did not alter face curves; V4.2 face/audio metric remains applicable."
+  },
+  "finger_articulation_verified_unchanged_from_v42": {
+    "v42_values": {
+      "mean_local_rotation_deg_min": 23.037195772737327,
+      "max": 23.037195772737327,
+      "range": 0.0,
+      "note": "local finger joints remain effectively static; no independent finger jitter layer"
+    },
+    "finger_eval_hash_identical": true
+  },
+  "limits": {
+    "still_run_sec_upper_bound": 2.1666666666666665,
+    "still_run_reason": "V4.3 changes only right-hand G1 by adding movement; all body/head/left-hand/face/gaze evaluation is unchanged, so the prior longest still run cannot increase.",
+    "penetrations": 0,
+    "gaze_offlens_ratio_relative_gt2deg": 0.31835205992509363,
+    "gaze_reason": "Eye evaluation hash is identical V4.2\u2192V4.3; G1 repair does not touch gaze.",
+    "gesture_stress_offsets_sec": [
+      -0.02133333333333365,
+      -0.12966666666666704
+    ]
+  },
+  "rendered_frame_discontinuity": {
+    "source_frames": 534,
+    "resolution": [
+      640,
+      360
+    ],
+    "engine": "BLENDER_WORKBENCH_PRIVATE_DIAGNOSTIC",
+    "mean_abs_pixel_diff": {
+      "median": 0.035902779549360275,
+      "p95": 0.10518055409193039,
+      "p99": 0.1435472071170807,
+      "max": 0.1827777773141861,
+      "max_transition_into_frame": 32
+    },
+    "gesture_boundary_checks": {
+      "G1_start": {
+        "frame": 115,
+        "transition_mad": 0.019930556416511536,
+        "percentile_of_all_transitions": 14.258911819887429
+      },
+      "G1_apex": {
+        "frame": 147,
+        "transition_mad": 0.0225694440305233,
+        "percentile_of_all_transitions": 20.26266416510319
+      },
+      "G1_end": {
+        "frame": 252,
+        "transition_mad": 0.1024305522441864,
+        "percentile_of_all_transitions": 93.80863039399625
+      },
+      "G2_start": {
+        "frame": 360,
+        "transition_mad": 0.029999999329447746,
+        "percentile_of_all_transitions": 36.772983114446525
+      },
+      "G2_apex": {
+        "frame": 437,
+        "transition_mad": 0.06277777999639511,
+        "percentile_of_all_transitions": 80.86303939962477
+      },
+      "G2_end": {
+        "frame": 512,
+        "transition_mad": 0.06263888627290726,
+        "percentile_of_all_transitions": 80.67542213883677
+      }
+    }
+  },
+  "mechanical_gate_pass": true,
+  "status": "MECHANICAL_PASS__PREMIUM_SPARSE_VISUAL_REVIEW_COMPLETE__FULL_PREMIUM_MOTION_RENDER_PENDING"
+}

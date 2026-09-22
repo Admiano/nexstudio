@@ -1,0 +1,146 @@
+{
+  "schema": "VITA_FRONT_FACING_SEMANTIC_ROUTER_V3_NATURAL",
+  "status": "CANDIDATE_NOT_FROZEN",
+  "fps": 30,
+  "architecture": {
+    "living_floor": "VITA_FFG_LIVING_CHATTER_V1",
+    "head_living_floor": "VITA_FFG_HEAD_CHATTER_V1",
+    "ordinary_fingers": "VITA-native relaxed shape; no donor finger animation",
+    "gesture_flow": "torso lead -> shoulder +1f -> upper arm +2f -> forearm +4f -> wrist +5f",
+    "count_policy": "continuous 1/2/3 sequence only",
+    "energy_policy": "continuous captured torso/head life; hands are semantic events, not activity generators"
+  },
+  "budget": {
+    "stillness_first": true,
+    "min_seconds_between_deliberate_gestures": 3.0,
+    "max_deliberate_gestures_per_10s": 2,
+    "avoid_repeat_last_n": 3,
+    "ordinary_hand_zone": "waist_to_lower_ribs",
+    "hands_subordinate_to_face": true,
+    "gesture_blend_frames": [
+      14,
+      20
+    ],
+    "no_exact_canonical_reset_required": true,
+    "prefer_head_face_gaze_for_agree_disagree_question": true
+  },
+  "primitives": {
+    "QUIET_NO_GESTURE": {
+      "p": 1.0,
+      "body": null
+    },
+    "MICRO_BEAT": {
+      "p": 0.22,
+      "body": [
+        "VITA_FFG_MICRO_BEAT_L_FLOW_V5",
+        "VITA_FFG_MICRO_BEAT_R_FLOW_V5"
+      ]
+    },
+    "LOW_PALM_UP_OFFER": {
+      "p": 0.26,
+      "body": [
+        "VITA_FFG_CLARIFY_L_FLOW_V5"
+      ]
+    },
+    "SELF_REFERENCE": {
+      "p": 0.14,
+      "body": [
+        "VITA_FFG_MICRO_BEAT_R_FLOW_V5"
+      ]
+    },
+    "SMALL_OUTWARD_OFFER_INVITATION": {
+      "p": 0.24,
+      "body": [
+        "VITA_FFG_CLARIFY_L_FLOW_V5"
+      ]
+    },
+    "CONTRAST": {
+      "p": 0.3,
+      "body": [
+        "VITA_FFG_COMPARE_B_FLOW_V5"
+      ]
+    },
+    "PRECISION_SPECIFIC_POINT": {
+      "p": 0.32,
+      "body": [
+        "VITA_FFG_PRECISION_R_CAM_V3"
+      ]
+    },
+    "LIST_COUNT_SEQUENCE_123": {
+      "p": 0.65,
+      "body": [
+        "VITA_FFG_COUNT_SEQUENCE_123_R_V1"
+      ]
+    },
+    "CLARIFICATION": {
+      "p": 0.3,
+      "body": [
+        "VITA_FFG_CLARIFY_L_FLOW_V5"
+      ]
+    },
+    "LOW_TWO_HAND_EXPANSION": {
+      "p": 0.16,
+      "body": [
+        "VITA_FFG_COMPARE_B_FLOW_V5"
+      ]
+    },
+    "LOW_TWO_HAND_COMPRESSION_SUMMARY": {
+      "p": 0.25,
+      "body": [
+        "VITA_FFG_SUMMARY_B_FLOW_V5"
+      ]
+    },
+    "COMPARISON_TWO_SIDES": {
+      "p": 0.34,
+      "body": [
+        "VITA_FFG_COMPARE_B_FLOW_V5"
+      ]
+    },
+    "ASSURANCE_SETTLE": {
+      "p": 0.24,
+      "body": [
+        "VITA_FFG_ASSURE_L_FLOW_V5"
+      ]
+    },
+    "UNCERTAINTY_QUALIFICATION": {
+      "p": 0.18,
+      "body": [
+        "VITA_FFG_QUALIFY_R_FLOW_V5"
+      ]
+    },
+    "STORYTELLING_BEAT": {
+      "p": 0.26,
+      "body": [
+        "VITA_FFG_STORY_R_FLOW_V5",
+        "VITA_FFG_MICRO_BEAT_L_FLOW_V5"
+      ]
+    },
+    "IMPORTANT_POINT": {
+      "p": 0.36,
+      "body": [
+        "VITA_FFG_IMPORTANT_R_FLOW_V5",
+        "VITA_FFG_PRECISION_R_CAM_V3"
+      ]
+    },
+    "POSITIVE_ACKNOWLEDGEMENT": {
+      "p": 0.0,
+      "body": null,
+      "head_face_only": true
+    },
+    "NEGATIVE_CORRECTION": {
+      "p": 0.0,
+      "body": null,
+      "head_face_only": true
+    },
+    "QUESTION_INVITATION": {
+      "p": 0.0,
+      "body": null,
+      "head_face_gaze_only": true
+    },
+    "PRE_TURN": {
+      "p": 0.0,
+      "body": null,
+      "head_face_gaze_only": true
+    }
+  }
+}
