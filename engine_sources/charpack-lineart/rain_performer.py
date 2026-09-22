@@ -36,10 +36,10 @@ B = dict(head='FK-Head', neck='FK-Neck', chest='FK-Chest', spine='FK-Spine', pel
          finger='FK-{F}{N}.{S}', thumb='FK-Thumb{N}.{S}')
 FC = dict(lid_upper='ACT-Eyelid_Upper.{S}', lid_close=-0.030, brow='MSTR-Eyebrow.{S}', brow_up=0.012,
           eyes='TGT-Eyes', gaze=0.10, mouth='MSTR-Mouth',
-          lipbot_grp='P-GRP-Lip_Bot.M', lipbot_part=0.028,
+          lipbot_grp='P-GRP-Lip_Bot.M', lipbot_part=0.030,
+          liptop_grp='P-GRP-Lip_Top.M', liptop_lift=0.016,
           corner='P-ACT-Lips_Corner.{S}', corner_out=0.012, corner_up=0.008,
-          cheek='DSP-MSTR-CheekRaise.{S}', cheek_up=0.012,
-          jaw_sign=-1, jaw_deg=30)
+          jaw_sign=-1, jaw_deg=8)
 FINGERS = ('Index', 'Middle', 'Ring', 'Pinky')
 INK = ('hair', 'eyebrow', 'eyelash', 'shoe', 'jeans', 'eyedot', 'gums', 'tongue', 'teeth',
        'viewport_black', 'hairband', 'laces')
@@ -472,13 +472,13 @@ def apply(t):
         asym = 1.0 if S == 'L' else 0.82
         local_loc(fbone('lid_upper', S), y=FC['lid_close'] * (b + fb['lid'] * 0.6 - lid_w * 0.5))
         local_loc(fbone('brow', S), y=FC['brow_up'] * br * asym)
-        local_loc(fbone('corner', S),
-                  x=-sgn * FC['corner_out'] * (wide + 0.35 * fb['corner']) * asym,
-                  y=FC['corner_up'] * (fb['corner'] + 0.35 * wide) * asym)
-        local_loc(fbone('cheek', S), z=FC['cheek_up'] * (fb['corner'] * 0.7 + 0.3 * br) * asym)
+        local_loc(fbone('corner', S), y=FC['corner_up'] * fb['corner'] * asym)
     local_loc(fbone('eyes'), x=FC['gaze'] * gx, z=FC['gaze'] * gz)
     m = fbone('mouth'); m.scale = (1 - 0.28 * round_, 1, 1 - 0.12 * round_)
+    # lips part into a real opening; the top lip lifts a touch so the hole
+    # reads at presentation size — no silhouette movement (jaw is accent only)
     local_loc(fbone('lipbot_grp'), y=-FC['lipbot_part'] * part)
+    local_loc(fbone('liptop_grp'), y=FC['liptop_lift'] * open_)
     j = bone('jaw'); local_rot(j, x=FC['jaw_sign'] * FC['jaw_deg'] * open_)
     # gesture: torso leads, upper arm +2f, forearm +4f, wrist +6f (24fps flow lag)
     a, kind, u, side, gsi = gesture(t)
