@@ -227,7 +227,8 @@ window.NexSketch = (() => {
     skRect(frameSvg, 6, 6, 628, 288, 41);
     skLine(frameSvg, 6, 248, 634, 248, 42, { strokeWidth: 1.5 });   // tools-rail divider
     const rail = h('div', 'sk-chat-icorail', frame);
-    (spec.icons || ['globe', 'folder', 'play', 'mail', 'cards']).forEach(n => icon(n, rail));
+    /* real composer affordances only — no decorative filler */
+    (spec.icons || ['clip', 'image', 'at', 'mic']).forEach(n => icon(n, rail));
     const row = h('div', 'sk-chat-row', frame);
     const mention = h('span', 'sk-mention', row);
     icon('at', h('i', '', mention));
@@ -238,11 +239,11 @@ window.NexSketch = (() => {
     const caret = h('span', 'sk-caret', typedRow);
     const sub = h('div', 'sk-chat-sub', frame);
     sub.style.cssText += ';border-top:0;position:absolute;left:18px;right:18px;bottom:12px';
-    const tools = h('span', '', sub); tools.style.cssText = 'display:flex;gap:12px;align-items:center';
-    icon('at', tools); icon('hash', tools); icon('mic', tools);
+    const tools = h('span', '', sub); tools.style.cssText = 'display:flex;gap:10px;align-items:center';
+    /* tags are the semantic content of this rail — the glyphs stay out */
     (spec.tags || []).slice(0, 3).forEach(t => {
       const tag = h('span', 'sk-chip', tools, `#${t}`);
-      tag.style.cssText = 'font-size:10px;padding:2px 7px;margin-left:-4px';
+      tag.style.cssText = 'font-size:10px;padding:2px 7px';
     });
     const right = h('span', '', sub); right.style.cssText = 'display:flex;gap:10px;align-items:center';
     const chip = h('span', 'sk-chip', right, spec.mode || 'Auto');
@@ -253,22 +254,23 @@ window.NexSketch = (() => {
     fx(frame, 'cut-paper-pop', { delay: 0.05, duration: 0.72, intensity: 0.9 });
     [...rail.children].forEach((c, i) => popIn(tl, c, 0.5 + i * 0.07, 0.3));
     fadeIn(tl, mention, 0.55);
-    fadeIn(tl, chip, 0.9); fadeIn(tl, send, 0.95);
+    fadeIn(tl, chip, 0.75); fadeIn(tl, send, 0.8);
     const text = spec.text || '';
-    caretBlink(tl, caret, 0.6, Math.max(1.4, text.length * 0.055 + 1));
-    typewrite(tl, typed, text, 1.0, Math.max(0.8, text.length * 0.05));
+    caretBlink(tl, caret, 0.4, Math.max(1.4, text.length * 0.055 + 1));
+    typewrite(tl, typed, text, 0.55, Math.max(0.8, text.length * 0.05));
     tl.addUpdate(1.0 + Math.max(0.8, text.length * 0.05), 0.35, p => { send.style.transform = `scale(${1 + 0.12 * Math.sin(p * Math.PI)})`; }, 'none');
     if (spec.cursor) {
       const cur = h('div', 'sk-cursor', el); cursor(cur);
-      /* enters bottom-right, glides to the send button, clicks, drifts off */
-      cur.style.left = '58%'; cur.style.top = '64%';
-      tl.fromTo(cur, { opacity: 0, x: 70, y: 60 }, { opacity: 1, x: 0, y: 0, duration: 0.9, ease: 'power2.out' }, 0.15);
-      tl.to(cur, { x: 92, y: 58, duration: 0.55, ease: 'power2.inOut' }, 0.75);
-      tl.to(cur, { scale: 0.82, duration: 0.12, ease: 'power1.out' }, 1.35);
-      tl.to(cur, { scale: 1, duration: 0.15, ease: 'back.out(2)' }, 1.5);
+      /* enters, tracks along the typed line, drops to send, clicks, drifts off */
+      cur.style.left = '26%'; cur.style.top = '26%';
+      tl.fromTo(cur, { opacity: 0, x: 130, y: 90 }, { opacity: 1, x: 0, y: 0, duration: 0.7, ease: 'power2.out' }, 0.1);
+      tl.to(cur, { x: 150, y: 26, duration: 0.65, ease: 'power2.inOut' }, 0.9);
+      tl.to(cur, { x: 205, y: 112, duration: 0.5, ease: 'power2.inOut' }, 1.75);
+      tl.to(cur, { scale: 0.8, duration: 0.1, ease: 'power1.out' }, 2.3);
+      tl.to(cur, { scale: 1, duration: 0.16, ease: 'back.out(2)' }, 2.42);
       /* nothing stays stray — cursor drifts off once the click lands */
-      const leave = Math.max(2.3, (spec.duration || 4) - 0.9);
-      tl.to(cur, { opacity: 0, x: -54, y: -78, duration: 0.45, ease: 'power2.in' }, leave);
+      const leave = Math.max(2.9, (spec.duration || 4) - 0.6);
+      tl.to(cur, { opacity: 0, x: -60, y: -82, duration: 0.4, ease: 'power2.in' }, leave);
     }
     /* caret stops blinking and settles once typing is done */
     const caretEnd = 1.0 + Math.max(0.8, text.length * 0.05);
@@ -292,7 +294,7 @@ window.NexSketch = (() => {
     skLine(ws, 184, 52, 184, 596, 53);         // sidebar divider
     const chrome = h('div', 'sk-chrome', win);
     const dots = h('div', 'sk-dots', chrome); dots.append(h('i'), h('i'), h('i'));
-    const brand = h('span', 'sk-brand', chrome); icon('spark', brand); h('span', '', brand, spec.brand || 'STUDIO');
+    const brand = h('span', 'sk-brand', chrome); icon('spark', brand); h('span', '', brand, spec.brand ?? '');
     const pill = h('span', 'sk-pill', chrome, spec.project || 'Select Project'); h('i', 'caret-down', pill);
     const chr = h('div', 'sk-chrome-r', chrome);
     icon('eye', chr); icon('image', chr); icon('sliders', chr); icon('list', chr);
@@ -790,8 +792,8 @@ window.NexSketch = (() => {
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';
     const wm = h('div', 'sk-wordmark', el);
     wm.style.fontSize = spec.fontSize || '64px'; wm.style.flexWrap = 'wrap'; wm.style.justifyContent = 'center';
-    const first = h('span', '', wm, spec.brandA || 'NEX');
-    const brandB = spec.brandB === undefined ? 'STUDIO' : spec.brandB;
+    const first = h('span', '', wm, spec.brandA ?? '');
+    const brandB = spec.brandB === undefined ? '' : spec.brandB;
     const second = brandB ? h('span', '', wm, brandB) : null;
     if (spec.mark !== false) {
       const mk = brandMark(spec, spec.markPx || 56);
@@ -887,23 +889,39 @@ window.NexSketch = (() => {
     if (spec.sub) { const s = h('p', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:14px;color:var(--sk-ink-2);margin:-14px 0 0;letter-spacing:.06em'; }
     const svg = svgRoot(railWrap, '0 0 620 320'); svg.style.cssText = 'width:100%;height:100%';
     const steps = (spec.steps || []).slice(0, 4);
-    const n = steps.length || 3;
-    const xs = n === 1 ? [310] : steps.map((_, i) => 70 + i * ((620 - 140) / (n - 1)));
-    const railY = 130;
+    /* steps accept strings or {label|title, sub, icon} — icons sit inside the
+       node, numeral moves above it */
+    const metas = steps.map((s, i) => typeof s === 'string'
+      ? { label: s, sub: (spec.subs || [])[i] }
+      : { label: s.label || s.title || '', sub: s.sub ?? (spec.subs || [])[i], icon: s.icon });
+    const n = metas.length || 3;
+    const xs = n === 1 ? [310] : metas.map((_, i) => 70 + i * ((620 - 140) / (n - 1)));
+    const railY = 140;
     /* rail line */
     const rail = skLine(svg, 56, railY, 564, railY, 800, { strokeWidth: 2.2 });
+    /* hairline ticks quarter the legs — texture, not furniture */
+    for (let i = 0; i < n - 1; i++) {
+      const mx = (xs[i] + xs[i + 1]) / 2;
+      skLine(svg, mx, railY - 5, mx, railY + 5, 840 + i, { strokeWidth: 1.1 });
+    }
     const nodes = xs.map((x, i) => {
+      const m = metas[i] || {};
       const g = sv('g', {}, svg);
-      const c = skCircle(g, x, railY, 34, 810 + i, { fill: cssVar('--sk-surface') });
-      const lbl = sv('text', { x, y: railY + 78, 'text-anchor': 'middle', 'font-family': "'JetBrains Mono',monospace", 'font-size': '15', 'letter-spacing': '.08em', fill: cssVar('--sk-ink-2') }, g);
-      lbl.textContent = steps[i] || `step ${i + 1}`;
-      const num = sv('text', { x, y: railY + 7, 'text-anchor': 'middle', 'font-family': "'DM Serif Display',serif", 'font-size': '17', fill: cssVar('--sk-ink') }, g);
+      const c = skCircle(g, x, railY, 38, 810 + i, { fill: cssVar('--sk-surface') });
+      const lbl = sv('text', { x, y: railY + 78, 'text-anchor': 'middle', 'font-family': "'JetBrains Mono',monospace", 'font-size': '16', 'letter-spacing': '.08em', fill: cssVar('--sk-ink-2') }, g);
+      lbl.textContent = m.label || `step ${i + 1}`;
+      if (m.icon) {
+        const ic = icon(m.icon, g);
+        ic.setAttribute('x', String(x - 10)); ic.setAttribute('y', String(railY - 10));
+        ic.setAttribute('width', '20'); ic.setAttribute('height', '20');
+      }
+      const num = sv('text', { x, y: m.icon ? railY - 32 : railY + 7, 'text-anchor': 'middle', 'font-family': "'DM Serif Display',serif", 'font-size': m.icon ? '15' : '17', fill: m.icon ? cssVar('--sk-ink-3') : cssVar('--sk-ink') }, g);
       num.textContent = `0${i + 1}`;
-      /* caption line under the label — spec.subs[i] or a drawn stub */
+      /* caption line under the label — step sub or a drawn stub */
       let cap = null;
-      if ((spec.subs || [])[i]) {
+      if (m.sub) {
         cap = sv('text', { x, y: railY + 102, 'text-anchor': 'middle', 'font-family': "'JetBrains Mono',monospace", 'font-size': '11.5', 'letter-spacing': '.05em', fill: cssVar('--sk-ink-3') }, g);
-        cap.textContent = spec.subs[i];
+        cap.textContent = m.sub;
       } else {
         cap = skPath(g, `M${x - 24} ${railY + 96} h48`, 860 + i, { strokeWidth: 2.6, roughness: 0.35 });
         cap.style.opacity = '.5';
@@ -1026,7 +1044,7 @@ window.NexSketch = (() => {
     if (spec.numeral !== false) {
       const gh = h('div', 'sk-outline', el, spec.numeral || '');
       gh.style.cssText = 'position:absolute;right:-1%;top:-4%;font-size:240px;line-height:.8;opacity:.16;pointer-events:none;user-select:none';
-      if (spec.numeral === undefined) gh.textContent = String(spec.index ?? 1).padStart(2, '0');
+      if (spec.numeral === undefined) gh.textContent = String((Number(spec.index) || 0) + 1).padStart(2, '0');
     }
     const tl = NexMotion.createTimeline();
     if (spec.marker) fadeIn(tl, el.children[0], 0.1, 0.3, 6);
@@ -1246,7 +1264,7 @@ window.NexSketch = (() => {
     const w = svgRoot(el, '0 0 1000 1000');
     w.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
     const ring = skEllipse(w, 500, 500, 840, 600, 913, { strokeWidth: 2.4, roughness: 1.2 });
-    const inner = spec.ring2 !== false ? skEllipse(w, 500, 500, 620, 430, 917, { strokeWidth: 1.6, roughness: 1.6, stroke: cssVar('--sk-ink-3') }) : null;
+    const inner = spec.ring2 === true ? skEllipse(w, 500, 500, 620, 430, 917, { strokeWidth: 1.6, roughness: 1.6, stroke: cssVar('--sk-ink-3') }) : null;
     /* hub */
     const hub = h('div', '', el);
     hub.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;z-index:2';
@@ -1259,11 +1277,13 @@ window.NexSketch = (() => {
       c.style.cssText = 'position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;z-index:3';
       const dot = svgRoot(c, '0 0 24 24'); dot.style.cssText = 'width:15px;height:15px;display:block';
       skCircle(dot, 12, 12, 15, 200 + i, { strokeWidth: 2.6, fill: i === 0 ? cssVar('--sk-mint') : cssVar('--sk-paper'), roughness: 1.3 });
-      const lab = h('div', 'sk-mono', c, it.title || ''); lab.style.cssText = 'font-size:15px;letter-spacing:.1em;text-transform:uppercase;font-weight:600';
-      if (it.sub) { const s = h('div', 'sk-mono', c, it.sub); s.style.cssText = 'font-size:10px;letter-spacing:.1em;color:var(--sk-ink-3)'; }
+      const lab = h('div', 'sk-mono', c, it.title || '');
+      /* paper halo keeps the label off the ring stroke it rides on */
+      lab.style.cssText = 'font-size:15px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:var(--sk-paper);padding:2px 8px;border-radius:5px;box-decoration-break:clone';
+      if (it.sub) { const s = h('div', 'sk-mono', c, it.sub); s.style.cssText = 'font-size:10px;letter-spacing:.1em;color:var(--sk-ink-3);background:var(--sk-paper);padding:1px 5px;border-radius:4px'; }
       return c;
     });
-    const CX = 50, CY = 50, RX = 42, RY = 30, SPIN = spec.spin == null ? 7 : spec.spin;
+    const CX = 50, CY = 50, RX = spec.rx ?? 38, RY = spec.ry ?? 29, SPIN = spec.spin == null ? 7 : spec.spin;
     const tl = NexMotion.createTimeline();
     drawOn(tl, ring, 0.15, 1.15);
     if (inner) drawOn(tl, inner, 0.5, 0.9);
@@ -1297,14 +1317,15 @@ window.NexSketch = (() => {
       typeof accent === 'string' ? words.findIndex(w => w.textContent.toLowerCase() === accent.toLowerCase()) : -1;
     const tl = NexMotion.createTimeline();
     words.forEach((wEl, i) => {
-      const s = 0.12 + i * 0.24;
+      const s = 0.12 + i * 0.3;
       wEl.style.display = 'inline-block'; wEl.style.transformOrigin = '50% 80%';
-      tl.fromTo(wEl, { opacity: 0, scale: 2.1, y: 26, rotation: (i % 2 ? -4 : 4) },
-        { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.45, ease: 'back.out(2.0)' }, s);
+      wEl.style.marginRight = '.08em';
+      tl.fromTo(wEl, { opacity: 0, scale: 1.7, y: 24, rotation: (i % 2 ? -2.5 : 2.5) },
+        { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.42, ease: 'back.out(2.0)' }, s);
       /* landing kick — the whole line absorbs the hit */
       tl.addUpdate(s + 0.42, 0.18, p => { head.style.transform = `translateY(${-3.5 * Math.sin(p * Math.PI)}px)`; }, 'none');
       if (i === accentIdx) {
-        wEl.style.position = 'relative';
+        wEl.style.position = 'relative'; wEl.style.fontStyle = 'italic';
         const und = h('span', '', wEl);
         und.style.cssText = 'position:absolute;left:-2%;right:-2%;bottom:.06em;height:.14em;background:var(--sk-mint);z-index:-1;transform:scaleX(0);transform-origin:0 50%;border-radius:3px';
         tl.addUpdate(s + 0.4, 0.32, p => { und.style.transform = `scaleX(${p})`; }, 'power2.out');
@@ -1313,7 +1334,7 @@ window.NexSketch = (() => {
     if (spec.sub) {
       const s = h('div', 'sk-mono', el, spec.sub);
       s.style.cssText = 'font-size:13.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sk-ink-2)';
-      fadeIn(tl, s, 0.12 + words.length * 0.24 + 0.25, 0.45);
+      fadeIn(tl, s, 0.12 + words.length * 0.3 + 0.25, 0.45);
     }
     return { el, tl };
   };
@@ -1377,7 +1398,17 @@ window.NexSketch = (() => {
     if (!stage) throw new Error('missing [data-nex-production-canvas] stage');
     stage.classList.add('sk-stage');
     document.documentElement.classList.add('sk'); document.body.classList.add('sk');
-    stage.style.setProperty('--sk-tex', `url('${filmSpec.paperTexture || 'sketch-ui/textures/paper-warm-1k.png'}')`);
+    /* per-film theme tokens — brand accent, ink, paper stock */
+    const theme = filmSpec.theme || {};
+    const THEME_VARS = {
+      paper: '--sk-paper', paper2: '--sk-paper-2', ink: '--sk-ink', ink2: '--sk-ink-2',
+      accent: '--sk-mint', accentDeep: '--sk-mint-deep', surface: '--sk-surface',
+    };
+    for (const [k, v] of Object.entries(THEME_VARS)) {
+      /* documentElement so rough.js stroke colors (cssVar()) resolve too */
+      if (theme[k]) { stage.style.setProperty(v, theme[k]); document.documentElement.style.setProperty(v, theme[k]); }
+    }
+    stage.style.setProperty('--sk-tex', `url('${filmSpec.paperTexture || theme.texture || 'sketch-ui/textures/paper-warm-1k.png'}')`);
     stage.style.setProperty('--sk-grain', `url('${filmSpec.grainTexture || 'sketch-ui/textures/grain-fine-256.png'}')`);
     h('div', 'sk-vignette', stage);
     /* inkify filter + media asset index */

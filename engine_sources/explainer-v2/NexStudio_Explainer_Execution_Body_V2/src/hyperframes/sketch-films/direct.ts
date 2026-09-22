@@ -34,7 +34,7 @@ export type FilmBeat = {
   /** Secondary line under the head. */
   sub?: string;
   /** List content — strings, or {title, sub, icon} cards. */
-  items?: (string | { title?: string; text?: string; sub?: string; icon?: string })[];
+  items?: (string | { title?: string; label?: string; text?: string; sub?: string; icon?: string })[];
   /** Big figure. */
   stat?: number;
   format?: string;
@@ -91,6 +91,8 @@ export type FilmBrief = {
   seed?: number;
   /** Named media assets scenes can reference ({name: spec-relative path}). */
   media?: Record<string, string>;
+  /** Per-film theme tokens — brand accent, ink, paper. */
+  theme?: SketchFilmSpec["theme"];
   /** Beat indices that get UI/product scenes even without explicit asks. */
   flavor?: "paper" | "product";
 };
@@ -303,8 +305,9 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     case "process-rail": return {
       ...base, title: beat.head || "how it moves",
       steps: (beat.items || []).map(i => {
-        const s = typeof i === "string" ? i : i.title || i.text || "";
-        return UPPER(s.length > 10 ? s.split(/\s+/)[0] : s);
+        if (typeof i === "string") return UPPER(i.length > 10 ? i.split(/\s+/)[0] : i);
+        const lbl = i.label || i.title || i.text || "";
+        return { label: UPPER(lbl.length > 10 ? lbl.split(/\s+/)[0] : lbl), sub: i.sub, icon: i.icon };
       }),
       payoff: beat.sub || "every beat drawn before it moves.",
     };
@@ -319,14 +322,15 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     }
     case "word-object-bridge": return { ...base, keyword: beat.keyword || kw[0] || "idea", before: "the", after: beat.sub || "does the work.", object: beat.object || "card" };
     /* product-UI scenes */
-    case "chat-prompt": return { ...base, kicker: (base.kicker as string) || "BRIEF → FILM", mention: "Studio", text: short(brief.prompt || beat.head || "", 52), mode: "Auto", cursor: true, index: false, ...(beat.tags ? { tags: beat.tags } : {}) };
+    case "chat-prompt": return { ...base, kicker: (base.kicker as string) || "BRIEF → FILM", mention: brief.product || "Agent", text: short(beat.head || brief.prompt || "", 52), mode: "Auto", cursor: true, index: false, ...(beat.tags ? { tags: beat.tags } : {}) };
     case "agent-window": return {
       ...base, kicker: (base.kicker as string) || "THE DESK",
-      prompt: short(brief.prompt || beat.head || "", 68),
-      status: "Agent — planning the build…",
+      brand: (brief.product || "Studio").toUpperCase(),
+      prompt: short(beat.head || brief.prompt || "", 68),
+      status: beat.sub || `${brief.product || "Agent"} — on it…`,
       ...(beat.tasks ? { tasks: beat.tasks } : {}),
       ...(beat.messages ? { messages: beat.messages } : {}),
-      checks: beat.items?.map(i => typeof i === "string" ? i : i.title || "") || ["scaffold the storyboard", "bind the sketch style kit", "compose 1:1 frames", "master music + accents"],
+      checks: beat.items?.map(i => typeof i === "string" ? i : i.title || "") || ["take the brief", "do the work", "ship it"],
     };
     case "phone-app": return {
       ...base, kicker: (base.kicker as string) || "YOUR FILM — READY",
@@ -540,6 +544,7 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
       { path: "audio/confirm.mp3", atSec: last ? [round1(last.start + Math.min(1.6, last.duration - 0.8))] : [], volume: 0.42 },
     ],
     ...(brief.media ? { assets: brief.media } : {}),
+    ...(brief.theme ? { theme: brief.theme } : {}),
     scenes,
   };
   validateSpec(spec);

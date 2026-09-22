@@ -21,7 +21,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 const args = process.argv.slice(2);
 const opt = (name: string) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : undefined; };
-const positional = args.filter((a, i) => !a.startsWith("--") && (i === 0 || args[i - 1] !== "--script") && !["--duration", "--product", "--cta", "--tagline", "--seed", "--media"].includes(args[i - 1] || ""));
+const OPT_NAMES = ["--script", "--media", "--theme", "--duration", "--product", "--cta", "--tagline", "--seed", "--accent", "--accent-deep", "--paper", "--ink"];
+const positional = args.filter((a, i) => !a.startsWith("--") && (i === 0 || !OPT_NAMES.includes(args[i - 1] || "")));
 const scriptPath = opt("script");
 const mediaPath = opt("media");
 const outDir = path.resolve(positional[positional.length - 1] || "");
@@ -40,6 +41,14 @@ let media: Record<string, string> | undefined;
 if (mediaPath) {
   media = JSON.parse(fs.readFileSync(path.resolve(mediaPath), "utf8"));
 }
+/* per-film theme: --theme theme.json wins, else built from color flags */
+let theme: Record<string, string> | undefined;
+const themePath = opt("theme");
+if (themePath) theme = JSON.parse(fs.readFileSync(path.resolve(themePath), "utf8"));
+const colorTheme = { accent: opt("accent"), accentDeep: opt("accent-deep"), paper: opt("paper"), ink: opt("ink") };
+if (!theme && Object.values(colorTheme).some(Boolean)) {
+  theme = Object.fromEntries(Object.entries(colorTheme).filter(([, v]) => v)) as Record<string, string>;
+}
 
 const spec = directToSpec({
   prompt: scriptPath ? undefined : positional[0],
@@ -50,6 +59,7 @@ const spec = directToSpec({
   cta: opt("cta"),
   seed: opt("seed") ? Number(opt("seed")) : undefined,
   media,
+  theme,
 });
 
 fs.mkdirSync(path.join(outDir, "audio"), { recursive: true });

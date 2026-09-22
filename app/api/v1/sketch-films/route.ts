@@ -31,6 +31,7 @@ export async function GET(request: Request) {
       cta: "end-card button text",
       seed: "deterministic variation seed",
       media: "{name: url|data-uri|repo-relative path} — art staged into the film; scenes reference the name and render it inkified",
+      theme: "{paper?, ink?, accent?, accentDeep?} — brand color tokens (hex/rgb/hsl)",
     },
     sceneTypes: [
       "chapter", "type-card", "hero-build", "phrase-swap", "word-list", "feature-grid",
@@ -123,6 +124,12 @@ export async function POST(request: Request) {
         writeFileSync(mp, JSON.stringify(staged));
         compileArgs.push("--media", mp);
       }
+    }
+    /* theme: {paper?, ink?, accent?, accentDeep?…} — brand color tokens */
+    if (body.theme && typeof body.theme === "object" && !Array.isArray(body.theme)) {
+      const tp = path.join(specDir, "theme.json");
+      writeFileSync(tp, JSON.stringify(body.theme));
+      compileArgs.push("--theme", tp);
     }
     const compiled = spawn(TSX, compileArgs, { cwd: ENGINE, env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}` } });
     let compileErr = "";

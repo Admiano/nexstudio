@@ -86,6 +86,18 @@ export type SketchFilmSpec = {
   paperTexture?: string;
   /** Override speckle/grain tile path (defaults to grain-fine-256). */
   grainTexture?: string;
+  /**
+   * Per-film theme tokens — brand accents and paper/ink colors, applied as
+   * CSS custom properties at boot (so both DOM elements and rough.js stroke
+   * colors resolve them). All optional; hex/rgb/hsl strings.
+   * `accent`/`accentDeep` drive the mint→brand accent; `texture` overrides paperTexture.
+   */
+  theme?: {
+    paper?: string; paper2?: string; surface?: string;
+    ink?: string; ink2?: string;
+    accent?: string; accentDeep?: string;
+    texture?: string;
+  };
   scenes: SketchSceneSpec[];
 };
 
