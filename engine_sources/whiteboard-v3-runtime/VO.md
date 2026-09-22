@@ -9,8 +9,9 @@ The audio is the clock: script → VO → word timings → beat windows → scen
 | ElevenLabs Flash/Turbo | ~$0.05 | `/with-timestamps` (char-level → grouped) | best quality, 3000+ voices, voice cloning |
 | OpenAI TTS | ~$0.03 | pair with whisper verbose_json | cheap, fewer voices |
 | Azure/Google TTS | ~$0.02 | native word boundaries | solid mid tier |
+| **edge-tts** — **default** | $0 | `vo_synth.py --engine edge` | Microsoft neural voices, no key, needs network — closest free thing to paid VO |
+| Kokoro (local) | $0 | `vo_synth.py --engine kokoro` | fully offline, 11 voices, MIT |
 | Piper / Coqui (local) | $0 | pair with whisper.cpp / aeneas | free, lower fidelity |
-| **Kokoro (local)** — **default** | $0 | `vo_synth.py` pairs with faster-whisper | free, natural 11-voice set, MIT |
 
 A 1-min script is ~900 chars → VO is cents per minute.
 
