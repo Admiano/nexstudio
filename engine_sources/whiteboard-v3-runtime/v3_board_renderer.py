@@ -1309,7 +1309,7 @@ def _asset_key(icon):
     return (icon,)
 
 
-def _icon_for(concept: str, exclude=None):
+def _icon_for(concept: str, exclude=None, _depth: int = 0):
     phrase = str(concept).lower().replace('-', ' ').replace('_', ' ').strip()
     words = phrase.split()
     wset = set(words)
@@ -1385,7 +1385,46 @@ def _icon_for(concept: str, exclude=None):
     hit = _icon_lookup(phrase, exclude)
     if hit:
         return hit
+    # no single asset covers the phrase — the artist layer composes it
+    # from its parts ('solar panel' draws sun + panel, not a lettered box)
+    if _depth == 0 and len(words) >= 2:
+        comp = _composed_parts(words, exclude)
+        if comp:
+            return comp
     return 'card'
+
+
+# concepts that resolve to nothing meaningful — a part only joins a
+# composition when it draws real art, not another card or empty tile
+_COMPOSE_REJECT = (None, 'card', 'tile')
+
+
+def _composed_parts(words, exclude=None):
+    """Split a phrase into 2-3 contiguous spans each resolving to real art.
+    Prefers the fewest parts; all parts must resolve or the split fails."""
+    n = len(words)
+    for nparts in range(2, min(4, n + 1)):
+        for cuts in _cut_positions(n, nparts):
+            spans = [' '.join(words[a:b]) for a, b in cuts]
+            parts = [_icon_for(s, exclude, _depth=1) for s in spans]
+            if all(p not in _COMPOSE_REJECT for p in parts):
+                return ('composed', tuple(parts))
+    return None
+
+
+def _cut_positions(n: int, nparts: int):
+    """Contiguous span boundaries [(a0,b0), ...] covering range(n) in
+    nparts non-empty pieces, roughly balanced cuts first."""
+    if nparts == 2:
+        order = sorted(range(1, n), key=lambda i: abs(2 * i - n))
+        return [[(0, i), (i, n)] for i in order]
+    # nparts == 3: middle cut between the balanced outer cuts
+    out = []
+    for i in range(1, n - 1):
+        for j in range(i + 1, n):
+            out.append([(0, i), (i, j), (j, n)])
+    out.sort(key=lambda c: max(b - a for a, b in c))
+    return out
 
 
 def icon_for(concept: str, used=None):
@@ -1447,6 +1486,23 @@ def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
         return _peeps_strokes(spec, facing)
     if icon == 'agent':
         return _robot_strokes()
+    if isinstance(icon, tuple) and icon[0] == 'composed':
+        parts = []
+        for p in icon[1]:
+            st = _strokes_for(p)
+            if st:
+                parts.append(st)
+        if not parts:
+            return None
+        # the phrase's glyphs sit side by side inside the unit box
+        out = []
+        n = len(parts)
+        slot_w = 1.0 / n
+        for i, st in enumerate(parts):
+            scale = slot_w * 0.9
+            cx = -0.5 + slot_w * (i + 0.5)
+            out += _shift_strokes(st, scale, cx, 0.0)
+        return out
     if icon == 'card':
         return [(_rounded_rect(0, 0, 1.0, 0.68, 0.08), 'ink', 1.0)]
     return PROPS.get(icon, PROPS['tile'])
@@ -1873,7 +1929,7 @@ def _headline_strokes(scene, zone, ratio):
     return strokes
 
 
-def _shift_strokes(strokes, dx, dy):
+def _move_strokes(strokes, dx, dy):
     return [([(px + dx, py + dy) for px, py in s[0]], *s[1:])
             for s in strokes]
 
@@ -2055,7 +2111,7 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             st, a, b = _caption_strokes(s['center'], s['size'],
                                         s['label'], zone, r, pitch)
             if s['icon'] in ('person', 'agent'):
-                st = _shift_strokes(st, 0, s['size'] * (dy - 0.56))
+                st = _move_strokes(st, 0, s['size'] * (dy - 0.56))
             return st, a, b
 
         strokes, x0, x1 = cap(0)
