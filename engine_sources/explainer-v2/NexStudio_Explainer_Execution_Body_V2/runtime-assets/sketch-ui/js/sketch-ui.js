@@ -373,9 +373,25 @@ window.NexSketch = (() => {
       const cap = h('div', 'sk-mono', el, spec.caption);
       cap.style.cssText = 'margin-top:auto;padding-bottom:2%;font-size:12px;letter-spacing:.1em;color:var(--sk-ink-3);text-transform:uppercase';
     }
+    /* metadata column — mono annotations stacked at the right edge,
+       plus an optional result badge like the ref's "(ALL PASSING" */
+    let metaCol = null;
+    if (spec.meta || spec.result) {
+      metaCol = h('div', '', el);
+      metaCol.style.cssText = 'position:absolute;right:1%;top:52%;display:flex;flex-direction:column;gap:5px;align-items:flex-end;text-align:right;max-width:30%';
+      if (spec.result) {
+        const rb = h('span', 'sk-mono', metaCol, spec.result);
+        rb.style.cssText = 'font-size:14px;font-weight:700;letter-spacing:.04em;color:var(--sk-ink);border:1.6px solid var(--sk-ink);border-radius:8px;padding:4px 9px;background:var(--sk-mint)';
+      }
+      (spec.meta || []).slice(0, 4).forEach(m => {
+        const mm = h('span', 'sk-mono', metaCol, m);
+        mm.style.cssText = 'font-size:10px;letter-spacing:.08em;color:var(--sk-ink-3);text-transform:uppercase';
+      });
+    }
     const tl = NexMotion.createTimeline();
     const letters = spec.word ? splitWords(word, spec.word) : [];
     letters.forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.1 + i * 0.13));
+    if (metaCol) fadeIn(tl, metaCol, 1.05, 0.4);
 
     const variant = spec.variant || 'build';
     if (variant === 'build') {
@@ -468,13 +484,34 @@ window.NexSketch = (() => {
     const cards = h('div', 'sk-appcards', scr);
     if (spec.hero) {
       const hero = h('div', 'sk-appcard hero', cards);
-      hero.style.cssText = 'flex-direction:column;align-items:stretch;padding:0;overflow:hidden;height:118px;position:relative';
-      const hv = svgRoot(hero, '0 0 220 118'); hv.style.cssText = 'width:100%;height:100%';
+      const rich = typeof spec.hero === 'object';
+      hero.style.cssText = `flex-direction:column;align-items:stretch;padding:0;overflow:hidden;height:${rich ? 190 : 118}px;position:relative`;
+      const hv = svgRoot(hero, '0 0 220 118'); hv.style.cssText = `width:100%;height:${rich ? '104px' : '100%'};flex:none`;
       skRect(hv, 2, 2, 216, 114, 170);
-      skPath(hv, 'M108 96 C 78 66 72 46 72 32 a36 36 0 0 1 72 0 c0 14 -6 34 -36 64 z', 171, { strokeWidth: 2.2 });
-      skPath(hv, 'M108 96 V 60', 172, { strokeWidth: 2.2 });
-      skPath(hv, 'M60 96 h96', 173, { strokeWidth: 2 });
-      const cap = h('div', 'sk-mono', hero, spec.hero); cap.style.cssText = 'position:absolute;left:10px;bottom:8px;font-size:10px;letter-spacing:.1em;color:var(--sk-ink-2)';
+      const heroImg = rich && spec.hero.img ? mediaOf(spec.hero.img) : null;
+      if (heroImg) {
+        const im = h('img', '', hero); im.src = heroImg;
+        im.style.cssText = 'position:absolute;left:2%;top:2%;width:96%;height:96px;object-fit:cover';
+        inkifyImg(im, spec);
+      } else {
+        skPath(hv, 'M108 96 C 78 66 72 46 72 32 a36 36 0 0 1 72 0 c0 14 -6 34 -36 64 z', 171, { strokeWidth: 2.2 });
+        skPath(hv, 'M108 96 V 60', 172, { strokeWidth: 2.2 });
+        skPath(hv, 'M60 96 h96', 173, { strokeWidth: 2 });
+      }
+      const heroTitle = rich ? spec.hero.title : spec.hero;
+      if (rich) {
+        const ttl = h('div', 'sk-mono', hero, heroTitle || '');
+        ttl.style.cssText = 'padding:4px 10px 2px;font-size:12px;letter-spacing:.08em;color:var(--sk-ink);font-weight:700';
+        const chipRow = h('div', '', hero); chipRow.style.cssText = 'display:flex;gap:5px;padding:2px 10px 4px;flex-wrap:wrap';
+        (spec.hero.chips || []).slice(0, 4).forEach(c => { const ch = h('span', 'sk-mono', chipRow, c); ch.style.cssText = 'font-size:8px;letter-spacing:.06em;border:1px solid var(--sk-ink-3);border-radius:5px;padding:2px 5px;color:var(--sk-ink-2)'; });
+        if (spec.hero.cta) {
+          const b = h('div', 'sk-mono', hero, spec.hero.cta);
+          b.style.cssText = 'margin:auto 10px 8px;text-align:center;font-size:9px;letter-spacing:.1em;border:1.5px solid var(--sk-ink);border-radius:7px;padding:5px 0;background:var(--sk-mint);color:var(--sk-ink);font-weight:700';
+        }
+      } else {
+        const cap = h('div', 'sk-mono', hero, heroTitle || '');
+        cap.style.cssText = 'position:absolute;left:10px;bottom:8px;font-size:10px;letter-spacing:.1em;color:var(--sk-ink-2)';
+      }
     }
     (spec.cards || []).forEach(c => {
       const card = h('div', 'sk-appcard', cards);
@@ -657,6 +694,15 @@ window.NexSketch = (() => {
       const img = h('img', '', view); img.src = posterSrc; img.alt = '';
       img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
       inkifyImg(img, spec);
+      /* headline may overlay the poster like the ref's "KNOW EVERY LEAF" */
+      if (spec.innerTitle || spec.innerSub) {
+        const headline = h('div', '', view); innerHeadline = headline;
+        headline.style.cssText = 'position:absolute;left:47%;right:5%;top:22%;display:flex;flex-direction:column;gap:10px';
+        const hl = h('div', 'sk-ui', headline, spec.innerTitle || '');
+        hl.style.cssText = 'font-weight:800;font-size:26px;letter-spacing:.02em;line-height:1.15';
+        const sub = h('div', 'sk-mono', headline, spec.innerSub || '');
+        sub.style.cssText = 'font-size:13px;color:var(--sk-ink-2);letter-spacing:.08em';
+      }
     }
     else {
       // sketched mini product frame: card list left, headline right (like the ref)
