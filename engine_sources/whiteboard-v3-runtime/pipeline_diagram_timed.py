@@ -131,6 +131,12 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '16:9',
     (out_dir / f'{name}_METRICS.json').write_text(
         json.dumps(metrics, indent=2) + '\n')
 
+    try:
+        import review_page
+        review_page.write_review(plan, out_dir, name, metrics)
+    except Exception:
+        pass  # the review page is a convenience surface, never a blocker
+
     receipt = {
         'schema': RECEIPT_SCHEMA,
         'renderer': {

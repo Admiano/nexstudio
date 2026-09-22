@@ -381,7 +381,12 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 st = _icon_group(str(concept), used)
                 label = str(el.get('label') or concept)
                 if st:
-                    strokes = list(st)
+                    # satellite/cell icons draw a touch heavier than the
+                    # library default so small art doesn't read spindly
+                    strokes = [
+                        (s[0], s[1], min(1.0, (s[2] or 1.0) * 1.45),
+                         *s[3:]) if len(s) >= 3 else s
+                        for s in st]
                     if pin is not None:
                         hero_b = _elem_bounds(
                             {'strokes': hero_strokes, 'center': atlas['hero_c'],
