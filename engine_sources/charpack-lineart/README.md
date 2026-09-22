@@ -15,11 +15,24 @@ outline + flat fills, pose/expression control via CLI args. Developed in the
   breathing. v2 adds face + hands + posture performance (`still`/`anim`,
   `closeup` modes; adapters for `rain` and `snow`). Per-frame:
   `blender -b <char.blend> --python podcast_char2.py -- <char> <outdir> <f0> <f1>`
+- `rain_performer.py` — front-facing presenter (Synthesia-style avatar).
+  Score-driven: a JSON list of timed speech segments goes through a
+  VITA-grammar semantic director (stillness-first, <=2 deliberate
+  gestures/10s, >=3s spacing, avoid-repeat-last-3, torso->shoulder->elbow->
+  wrist flow lag, hands subordinate to face, hand-safety zone) that
+  schedules parametric gestures (wave/present/emphasis/question/ack) over
+  an always-on idle layer (breathing, weight shift, gaze saccades, blinks,
+  viseme lipsync from generated syllable timing, per-segment moods).
+  Uses the v26 palm/arm proportion fixes (PALM_THIN/HAND_SCALE).
+  `scores/demo_presenter.json` is the reference score.
+  `blender -b "Rain_x/Rain v3.3/rain_v3.2.blend" --python rain_performer.py --
+   scores/demo_presenter.json <outdir> [still] [bust|waist|closeup] [f0 f1]`
 - `Rain_x/Rain v3.3/` — Rain character rig, unmodified upstream pack
   (`rain_v3.2.blend` + `textures/`); podcast_char2 also needs the Snow rig
   (download from studio.blender.org/characters/snow)
 - `outputs/` — latest renders: `rain_v26.png` (full), `v26_hands.png` (hand crops),
-  `rain_v25.png` / `v25_hands.png` (pre-palm-proportion pass, kept for reference)
+  `rain_v25.png` / `v25_hands.png` (pre-palm-proportion pass, kept for reference),
+  `performer_demo/` — rain_performer sample frames
 
 ## Usage
 

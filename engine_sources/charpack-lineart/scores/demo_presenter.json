@@ -1,0 +1,15 @@
+{
+  "fps": 24,
+  "segments": [
+    {"t": [0.0, 2.8],   "text": "Hey, I'm Rain.", "intent": "wave", "mood": "smile", "energy": 0.9},
+    {"t": [3.0, 7.2],   "text": "Today I'll show you how the presenter system works.",
+     "intent": "explain", "mood": "neutral", "energy": 0.8},
+    {"t": [7.4, 10.2],  "text": "Here's the thing, though.", "intent": "none", "mood": "neutral", "energy": 0.5},
+    {"t": [10.5, 13.2], "text": "Gestures stay deliberate — never flailing.",
+     "intent": "emphasis", "mood": "serious", "energy": 0.85},
+    {"t": [13.4, 16.0], "text": "Want to see it in action?", "intent": "question", "mood": "smile", "energy": 0.7},
+    {"t": [16.2, 20.8], "text": "It listens to the pacing, holds stillness between beats, and lets the face lead.",
+     "intent": "none", "mood": "neutral", "energy": 0.5},
+    {"t": [21.0, 23.4], "text": "Alright — let's go.", "intent": "ack", "mood": "smile", "energy": 0.8}
+  ]
+}
