@@ -1,0 +1,154 @@
+{
+  "productionId": "sketch-film-scripted",
+  "width": 720,
+  "height": 720,
+  "fps": 30,
+  "durationSeconds": 26,
+  "music": {
+    "path": "../launch-promo/audio/music.mp3",
+    "volume": 0.16
+  },
+  "sfx": [
+    {
+      "path": "../launch-promo/audio/swipe.mp3",
+      "atSec": [
+        3.8,
+        8.6,
+        12.7,
+        16.1,
+        19.5,
+        23.3
+      ],
+      "volume": 0.32
+    },
+    {
+      "path": "../launch-promo/audio/pop.mp3",
+      "atSec": [
+        0.6,
+        0.8,
+        1.1,
+        4.4,
+        4.6,
+        4.9,
+        9.2,
+        9.4,
+        9.7,
+        9.9,
+        10.2,
+        13.3,
+        13.5,
+        13.8,
+        16.7,
+        16.9,
+        17.2,
+        20.1,
+        20.3,
+        20.6,
+        23.9,
+        24.1,
+        24.4,
+        24.7
+      ],
+      "volume": 0.3
+    },
+    {
+      "path": "../launch-promo/audio/paper.mp3",
+      "atSec": [
+        0.1
+      ],
+      "volume": 0.36
+    },
+    {
+      "path": "../launch-promo/audio/confirm.mp3",
+      "atSec": [
+        24.9
+      ],
+      "volume": 0.42
+    }
+  ],
+  "scenes": [
+    {
+      "id": "beat-01-type-card",
+      "type": "type-card",
+      "start": 0,
+      "duration": 3.8,
+      "transition": "cut",
+      "kicker": "THE PITCH",
+      "text": "your gym. your clock. your plan."
+    },
+    {
+      "id": "beat-02-chapter",
+      "type": "chapter",
+      "start": 3.8,
+      "duration": 4.8,
+      "transition": "fade",
+      "kicker": "HOW YOU TALK",
+      "text": "built around your week",
+      "marker": "02"
+    },
+    {
+      "id": "beat-03-word-list",
+      "type": "word-list",
+      "start": 8.6,
+      "duration": 4.1,
+      "transition": "shuffle",
+      "camera": {
+        "push": 0.06
+      },
+      "items": [
+        "lift",
+        "run",
+        "recover",
+        "repeat"
+      ]
+    },
+    {
+      "id": "beat-04-stat",
+      "type": "stat",
+      "start": 12.7,
+      "duration": 3.4,
+      "transition": "push",
+      "value": 6,
+      "suffix": "min",
+      "label": "average session setup"
+    },
+    {
+      "id": "beat-05-quote",
+      "type": "quote",
+      "start": 16.1,
+      "duration": 3.4,
+      "transition": "page",
+      "text": "i stopped skipping leg day",
+      "by": "member since april"
+    },
+    {
+      "id": "beat-06-payoff-lockup",
+      "type": "payoff-lockup",
+      "start": 19.5,
+      "duration": 3.8,
+      "transition": "page",
+      "camera": {
+        "push": 0.05
+      },
+      "kicker": "THE POINT",
+      "text": "strong, on schedule.",
+      "sub": "PLANS FROM $9",
+      "index": false
+    },
+    {
+      "id": "beat-07-end-card",
+      "type": "end-card",
+      "start": 23.3,
+      "duration": 2.7,
+      "transition": "torn",
+      "camera": {
+        "push": 0.05
+      },
+      "brandA": "REP",
+      "brandB": "STUDIO",
+      "sub": "briefs in. films out.",
+      "pill": "Start training",
+      "index": false
+    }
+  ]
+}

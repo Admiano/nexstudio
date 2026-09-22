@@ -1,32 +1,44 @@
 /**
- * CLI: prompt → spec directory (spec.json + audio assets).
+ * CLI: prompt OR structured script → spec directory (spec.json + audio).
  *
  *   tsx src/hyperframes/sketch-films/direct-cli.ts \
  *     "make a film about how our agent turns a brief into a launch video" \
- *     src/hyperframes/sketch-films/specs/generated \
- *     [--duration 38] [--product "NEX STUDIO"] [--seed 97]
+ *     src/hyperframes/sketch-films/specs/generated
  *
+ *   tsx src/hyperframes/sketch-films/direct-cli.ts \
+ *     --script beats.json \
+ *     src/hyperframes/sketch-films/specs/generated
+ *
+ * Options: [--duration 38] [--product "NEX STUDIO"] [--cta "..."] [--tagline "..."] [--seed 97]
  * Then render with render.ts as usual.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { directToSpec } from "./direct.js";
+import { directToSpec, type FilmBeat } from "./direct.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 const args = process.argv.slice(2);
-const promptArg = args[0];
-const outDir = args[1] && !args[1].startsWith("--") ? path.resolve(args[1]) : undefined;
 const opt = (name: string) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : undefined; };
+const positional = args.filter((a, i) => !a.startsWith("--") && (i === 0 || args[i - 1] !== "--script") && !["--duration", "--product", "--cta", "--tagline", "--seed"].includes(args[i - 1] || ""));
+const scriptPath = opt("script");
+const outDir = path.resolve(positional[positional.length - 1] || "");
 
-if (!promptArg || !outDir || args[0]?.startsWith("--")) {
-  console.error('usage: direct-cli.ts "<prompt>" <outDir> [--duration 38] [--product "NEX STUDIO"] [--cta "..."] [--tagline "..."] [--seed 97]');
+if (!outDir || (!scriptPath && !positional[0])) {
+  console.error('usage: direct-cli.ts "<prompt>"|--script beats.json <outDir> [--duration 38] [--product "NEX STUDIO"] [--cta "..."] [--tagline "..."] [--seed 97]');
   process.exit(2);
 }
 
+let script: FilmBeat[] | undefined;
+if (scriptPath) {
+  script = JSON.parse(fs.readFileSync(path.resolve(scriptPath), "utf8"));
+  if (!Array.isArray(script)) { console.error("--script must be a JSON array of beats"); process.exit(2); }
+}
+
 const spec = directToSpec({
-  prompt: promptArg,
+  prompt: scriptPath ? undefined : positional[0],
+  script,
   duration: opt("duration") ? Number(opt("duration")) : undefined,
   product: opt("product"),
   tagline: opt("tagline"),
@@ -42,4 +54,4 @@ for (const f of ["music.mp3", "swipe.mp3", "pop.mp3", "paper.mp3", "confirm.mp3"
 }
 fs.writeFileSync(path.join(outDir, "spec.json"), JSON.stringify(spec, null, 2) + "\n");
 console.log(`wrote ${path.join(outDir, "spec.json")} — ${spec.scenes.length} beats, ${spec.durationSeconds}s`);
-spec.scenes.forEach(s => console.log(`  ${s.start.toFixed(1).padStart(5)}s +${s.duration.toFixed(1)}s  ${s.type}`));
+spec.scenes.forEach(s => console.log(`  ${s.start.toFixed(1).padStart(5)}s +${s.duration.toFixed(1)}s  ${s.type}  ${String((s as Record<string, unknown>).text ?? (s as Record<string, unknown>).title ?? "")}`));

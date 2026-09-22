@@ -34,16 +34,40 @@ tsx src/hyperframes/sketch-films/render.ts \
   out/directed-demo.mp4
 ```
 
-How it composes a brief: verbs become numbered `step` beats (or a
-`process-rail` when the pipeline is generic); interface/product picks follow
-the subject (`chat-prompt`, `phone-app`, `agent-window`); proof picks one of
-`storyboard` / `compose-graph` / `render-bar` / `word-object-bridge`; a hook
-opens (`type-card` / `hero-build` / `phrase-swap`) and a `payoff-lockup` +
-`end-card` close. No scene type repeats unless the narrative calls for it.
-`validateSpec` guarantees scenes tile the timeline and types are legal.
+Two input modes, one compiler:
+
+- `prompt` (free text): the prompt is split into clauses and each clause is
+  classified by content shape — claims → headline scenes, enumerations →
+  `word-list`/`feature-grid`/`process-rail`, figures → `stat`, quotations →
+  `quote`, contrasts → `split`, product-interface asks → `chat-prompt` /
+  `phone-app` / `agent-window`. Verb sequences become `process-rail` steps.
+- `script` (`FilmBeat[]`): the caller supplies structured beats
+  (`head`/`sub`/`items`/`stat`/`quote`/`media`/`a`+`b`/`word`/`keyword`,
+  optional `role`, `sceneType` pin, per-beat `duration`); the compiler maps
+  each beat to the scene type that best carries its content.
+
+```bash
+tsx src/hyperframes/sketch-films/direct-cli.ts \
+  --script beats.json out/spec-dir
+```
+
+Either way the compiler dedupes scene types (a type repeats only when the
+narrative carries it twice — pinned beats are never overridden; an inferred
+beat colliding with a pinned neighbour is re-typed), times the film from role
+weights, assigns transitions + camera moves, derives SFX cues, and runs
+`validateSpec` (scenes tile the timeline, required params present, no adjacent
+duplicate types).
 
 Copy is deterministic by default; inject an LLM (or any source) per beat via
 `directToSpec(brief, { copywriter })`.
+
+## API
+
+`POST /api/v1/sketch-films` accepts JSON `{prompt}` or `{script}` or `{spec}`
+(plus `duration`/`product`/`tagline`/`cta`/`seed`), compiles via the director,
+and renders async. Poll `GET /api/v1/sketch-films/{jobId}`; the film lands at
+`outputs.film`. `GET /api/v1/sketch-films` returns the accepted body shape
+and scene types.
 
 ## Spec shape
 
@@ -90,6 +114,13 @@ reveals + keyword promote), `phrase-swap` (word replaced in place via mask),
 `process-rail` (travelling focal dot + sequential label resolve),
 `payoff-lockup` (convergent settle + longest hold), `word-object-bridge`
 (keyword recedes as the named object draws itself).
+
+Content-typed primitives (domain-agnostic — the general-purpose vocabulary):
+`chapter` (section marker + rule), `word-list` (phrases land with mint
+underlines), `feature-grid` (icon cards pop+settle), `stat` (counting figure +
+suffix), `quote` (drawn quote marks + attribution), `media-frame` (framed
+image or drawn placeholder), `split` (A/B contrast), `marquee-word` (huge
+outlined word + mint wash).
 
 Layout discipline: every scene body lives inside `.sk-safe` (inset inside the
 furniture margins), and furniture (kickers/foot/index) owns the margins — so

@@ -25,7 +25,16 @@ export type SketchSceneSpec = {
     | "phrase-swap"
     | "process-rail"
     | "payoff-lockup"
-    | "word-object-bridge";
+    | "word-object-bridge"
+    /* content-typed primitives — domain-agnostic, driven by content params */
+    | "chapter"
+    | "word-list"
+    | "feature-grid"
+    | "stat"
+    | "quote"
+    | "media-frame"
+    | "split"
+    | "marquee-word";
   /** Absolute film seconds where the beat starts. */
   start: number;
   /** Beat length in film seconds. */

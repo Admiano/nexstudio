@@ -782,6 +782,200 @@ window.NexSketch = (() => {
     return { el, tl };
   };
 
+  /* --- chapter: section marker — index numeral + big title + drawn rule --- */
+  scenes['chapter'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px';
+    if (spec.marker) {
+      const mk = h('div', 'sk-mono', el, spec.marker);
+      mk.style.cssText = 'font-size:15px;color:var(--sk-mint-deep);letter-spacing:.22em;font-weight:600';
+    }
+    const t = h('h2', 'sk-display', el, spec.text || '');
+    t.style.fontSize = spec.fontSize || '68px';
+    const rule = h('div', '', el); rule.style.cssText = 'width:110px;height:8px;position:relative';
+    const rs = svgRoot(rule, '0 0 110 8'); rs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+    skLine(rs, 2, 4, 108, 4, 1000, { strokeWidth: 2.4 });
+    if (spec.sub) { const s = h('p', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:14px;color:var(--sk-ink-2);margin:0;letter-spacing:.06em;max-width:80%'; }
+    const tl = NexMotion.createTimeline();
+    if (spec.marker) fadeIn(tl, el.children[0], 0.1, 0.3, 6);
+    splitWords(t, t.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 30, rotation: 1.4 }, { opacity: 1, y: 0, rotation: 0, duration: 0.55, ease: 'power3.out' }, 0.25 + i * 0.1));
+    drawOn(tl, rs, 0.35, 0.45, 'expo.out');
+    if (spec.sub) fadeIn(tl, el.children[el.children.length - 1], 0.7, 0.4);
+    return { el, tl };
+  };
+
+  /* --- word-list: semantic list — phrases land one at a time, each underlined
+     by a mint marker as it lands --- */
+  scenes['word-list'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px';
+    if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = spec.titleSize || '46px'; }
+    const items = (spec.items || []).slice(0, 6);
+    const rows = items.map((it, i) => {
+      const row = h('div', '', el);
+      row.style.cssText = 'display:flex;align-items:baseline;gap:14px;position:relative';
+      const idx = h('span', 'sk-mono', row, String(i + 1).padStart(2, '0'));
+      idx.style.cssText = 'font-size:13px;color:var(--sk-ink-3);letter-spacing:.1em;flex:none;width:26px';
+      const txt = h('span', 'sk-display', row, typeof it === 'string' ? it : it.text || '');
+      txt.style.cssText = `font-size:${spec.fontSize || '40px'};position:relative`;
+      /* marker line drawn under the phrase */
+      const mark = h('span', '', txt);
+      mark.style.cssText = 'position:absolute;left:-3%;right:-3%;top:74%;height:.16em;background:var(--sk-mint);opacity:.75;transform-origin:0 50%;transform:scaleX(0);z-index:-1;border-radius:2px';
+      if (typeof it === 'object' && it.sub) { const s = h('span', 'sk-mono', row, it.sub); s.style.cssText = 'margin-left:auto;font-size:13px;color:var(--sk-ink-2)'; }
+      return { row, mark };
+    });
+    const tl = NexMotion.createTimeline();
+    let at = 0.15;
+    if (spec.title) { splitWords(el.children[0], el.children[0].textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.4, ease: 'expo.out' }, i * 0.08)); at = 0.45; }
+    rows.forEach((r, i) => {
+      tl.fromTo(r.row, { opacity: 0, x: -34 }, { opacity: 1, x: 0, duration: 0.42, ease: 'expo.out' }, at + i * 0.5);
+      tl.addUpdate(at + i * 0.5 + 0.28, 0.34, p => { r.mark.style.transform = `scaleX(${p})`; }, 'expo.out');
+    });
+    return { el, tl };
+  };
+
+  /* --- feature-grid: N sketched cards (glyph + label) popping with settle --- */
+  scenes['feature-grid'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px';
+    if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = spec.titleSize || '44px'; t.style.textAlign = 'center'; }
+    const items = (spec.items || []).slice(0, 6);
+    const cols = items.length <= 2 ? items.length : items.length === 4 ? 2 : 3;
+    const grid = h('div', '', el);
+    grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},1fr);gap:18px;align-self:center;width:100%`;
+    const cards = items.map((it, i) => {
+      const card = h('div', '', grid);
+      card.style.cssText = 'position:relative;border-radius:12px;padding:20px 16px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;min-height:150px;justify-content:center';
+      const cs = svgRoot(card, '0 0 200 160'); cs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
+      skRect(cs, 4, 4, 192, 152, 1100 + i);
+      const g = svgRoot(card, '0 0 44 44'); g.style.cssText = 'width:44px;height:44px';
+      (typeof it === 'object' && it.icon ? ICONS[it.icon] || ICONS.spark : ICONS[(['leaf', 'cube', 'wrench', 'spark', 'play', 'check'])[i % 6]])(g);
+      g.setAttribute('stroke', cssVar('--sk-ink')); g.setAttribute('stroke-width', '1.7'); g.setAttribute('fill', 'none');
+      const ttl = h('b', 'sk-ui', card, typeof it === 'string' ? it : it.title || it.text || '');
+      ttl.style.cssText = 'font-size:16px;font-weight:600';
+      if (typeof it === 'object' && it.sub) { const s = h('span', 'sk-mono', card, it.sub); s.style.cssText = 'font-size:11.5px;color:var(--sk-ink-2)'; }
+      return { card, cs };
+    });
+    const tl = NexMotion.createTimeline();
+    if (spec.title) fadeIn(tl, el.children[0], 0.05, 0.4, 10);
+    cards.forEach((c, i) => {
+      drawOn(tl, c.cs, 0.25 + i * 0.18, 0.55);
+      tl.fromTo(c.card, { opacity: 0, scale: 0.9, y: 14 }, { opacity: 1, scale: 1, y: 0, duration: 0.42, ease: 'back.out(1.7)' }, 0.3 + i * 0.18);
+    });
+    return { el, tl };
+  };
+
+  /* --- stat: giant counting figure + rule + label --- */
+  scenes['stat'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';
+    const big = h('div', 'sk-display', el);
+    big.style.cssText = 'font-size:' + (spec.fontSize || '128px') + ';line-height:1;font-variant-numeric:tabular-nums';
+    const label = h('div', 'sk-mono', el, spec.label || '');
+    label.style.cssText = 'font-size:15px;color:var(--sk-ink-2);letter-spacing:.16em;text-transform:uppercase';
+    const rule = h('div', '', el); rule.style.cssText = 'width:140px;height:8px;position:relative';
+    const rs = svgRoot(rule, '0 0 140 8'); rs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+    skLine(rs, 2, 4, 138, 4, 1200, { strokeWidth: 2.4 });
+    if (spec.sub) { const s = h('p', 'sk-serif', el, spec.sub); s.style.cssText = 'font-style:italic;font-size:22px;color:var(--sk-ink);margin:6px 0 0'; }
+    const tl = NexMotion.createTimeline();
+    popIn(tl, big, 0.15, 0.5);
+    const fmt = spec.format || ((v) => String(Math.round(v)));
+    const suffix = spec.suffix || '';
+    counter(tl, big, 0.4, 1.3, p => fmt(p * Number(spec.value || 0)) + suffix);
+    drawOn(tl, rs, 0.9, 0.5, 'expo.out');
+    fadeIn(tl, label, 1.05, 0.35, 6);
+    if (spec.sub) fadeIn(tl, el.children[el.children.length - 1], 1.3, 0.4);
+    return { el, tl };
+  };
+
+  /* --- quote: pull-quote with drawn marks + attribution --- */
+  scenes['quote'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:0 4%';
+    const q = h('div', 'sk-serif', el, `“${spec.text || ''}”`);
+    q.style.cssText = `font-size:${spec.fontSize || '44px'};line-height:1.22;font-style:italic;color:var(--sk-ink)`;
+    const qs = svgRoot(el, '0 0 46 34'); qs.style.cssText = 'position:absolute;width:52px;height:38px;left:2%;top:16%';
+    skPath(qs, 'M6 30 C6 16 14 6 24 4 M30 30 C30 16 38 6 46 4', 1300, { strokeWidth: 2.6 });
+    if (spec.by) { const b = h('div', 'sk-mono', el, `— ${spec.by}`); b.style.cssText = 'font-size:14px;color:var(--sk-ink-2);letter-spacing:.12em'; }
+    const tl = NexMotion.createTimeline();
+    drawOn(tl, qs, 0.1, 0.5);
+    splitWords(q, q.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: 'expo.out' }, 0.35 + i * 0.055));
+    if (spec.by) fadeIn(tl, el.children[el.children.length - 1], 0.5 + (spec.text || '').split(' ').length * 0.055, 0.35);
+    return { el, tl };
+  };
+
+  /* --- media-frame: framed visual slot — real image or drawn placeholder --- */
+  scenes['media-frame'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px';
+    const frame = h('div', '', el);
+    frame.style.cssText = 'position:relative;width:min(78%,560px);aspect-ratio:4/3';
+    const fs = svgRoot(frame, '0 0 560 420'); fs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+    skRect(fs, 6, 6, 548, 408, 1400, { roughness: 1.7 });
+    skRect(fs, 22, 22, 516, 340, 1401, { strokeWidth: 1.4 });
+    if (spec.media) {
+      const im = h('img', '', frame); im.src = spec.media;
+      im.style.cssText = 'position:absolute;left:4.5%;top:5.5%;width:91%;height:81%;object-fit:cover;opacity:.92;filter:grayscale(.35) contrast(1.02)';
+    } else {
+      const g = svgRoot(frame, '0 0 516 340'); g.style.cssText = 'position:absolute;left:4.5%;top:5.5%;width:91%;height:81%';
+      skPath(g, 'M60 260 L170 130 L240 210 L300 150 L410 260', 1402, { strokeWidth: 2.4 });
+      skCircle(g, 340, 92, 44, 1403);
+      skLine(g, 40, 300, 476, 300, 1404, { strokeWidth: 1.6 });
+    }
+    if (spec.caption) { const c = h('div', 'sk-mono', el, spec.caption); c.style.cssText = 'font-size:13px;color:var(--sk-ink-2);letter-spacing:.12em'; }
+    const tl = NexMotion.createTimeline();
+    fx(frame, 'unfold', { delay: 0.05, duration: 0.85 });
+    drawOn(tl, fs, 0.05, 1.0);
+    if (spec.media) tl.fromTo(frame.children[1], { opacity: 0, scale: 1.06 }, { opacity: 0.92, scale: 1, duration: 0.7, ease: 'power2.out' }, 0.7);
+    if (spec.caption) fadeIn(tl, el.children[el.children.length - 1], 1.1, 0.35);
+    return { el, tl };
+  };
+
+  /* --- split: two-column contrast (A vs B / before vs after) --- */
+  scenes['split'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;align-items:stretch;justify-content:center;gap:0';
+    const mk = (side, i) => {
+      const col = h('div', '', el);
+      col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 5%';
+      const h2 = h('div', i === 0 ? 'sk-outline' : 'sk-display', col, side.title || (i ? 'AFTER' : 'BEFORE'));
+      h2.style.fontSize = '46px';
+      const lines = (side.items || []).slice(0, 3);
+      lines.forEach(t => { const l = h('div', 'sk-mono', col, t); l.style.cssText = 'font-size:14px;color:var(--sk-ink-2);letter-spacing:.04em;text-align:center;line-height:1.5'; });
+      return col;
+    };
+    const a = mk(spec.a || {}, 0), b = mk(spec.b || {}, 1);
+    const div = h('div', '', el); div.style.cssText = 'width:0;align-self:stretch;position:relative;margin:6% 0';
+    const dv = svgRoot(div, '0 0 8 400'); dv.style.cssText = 'position:absolute;top:0;bottom:0;left:-4px;width:8px;height:100%';
+    skLine(dv, 4, 6, 4, 394, 1500, { strokeWidth: 2.2 });
+    /* reposition divider between the two columns */
+    div.style.order = '0'; el.insertBefore(div, b);
+    const tl = NexMotion.createTimeline();
+    tl.fromTo(a, { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 0.6, ease: 'expo.out' }, 0.15);
+    drawOn(tl, dv, 0.55, 0.5);
+    tl.fromTo(b, { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.6, ease: 'expo.out' }, 0.95);
+    return { el, tl };
+  };
+
+  /* --- marquee-word: one huge word fills the frame, letters cascade --- */
+  scenes['marquee-word'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden';
+    const t = h('h2', 'sk-outline', el, spec.word || '');
+    t.style.fontSize = spec.fontSize || '170px';
+    t.style.whiteSpace = 'nowrap';
+    const tl = NexMotion.createTimeline();
+    const letters = spec.word ? splitWords(t, spec.word) : [];
+    letters.forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 46, rotation: 3 }, { opacity: 1, y: 0, rotation: 0, duration: 0.5, ease: 'expo.out' }, 0.1 + i * 0.09));
+    if (spec.fillMint) {
+      /* mint wash sweeps under the word */
+      const wash = h('div', '', el);
+      wash.style.cssText = 'position:absolute;left:6%;right:6%;top:58%;height:.2em;background:var(--sk-mint);opacity:.7;transform:scaleX(0);transform-origin:0 50%;z-index:-1;border-radius:3px';
+      tl.addUpdate(0.5, 0.7, p => { wash.style.transform = `scaleX(${p})`; }, 'expo.out');
+    }
+    return { el, tl };
+  };
+
   /* ============================================================
      FILM MASTER — spec → stage + per-scene windows + __timelines
 
