@@ -1,0 +1,108 @@
+{
+  "productionId": "sketch-film-inkify-demo",
+  "width": 720,
+  "height": 720,
+  "fps": 30,
+  "durationSeconds": 24,
+  "music": { "path": "audio/music.mp3", "volume": 0.16 },
+  "sfx": [
+    { "path": "audio/swipe.mp3", "atSec": [4, 8, 12, 16, 19], "volume": 0.32 },
+    { "path": "audio/pop.mp3", "atSec": [0.6, 4.6, 8.6, 12.6, 16.6, 19.6], "volume": 0.3 },
+    { "path": "audio/confirm.mp3", "atSec": [22.5], "volume": 0.42 }
+  ],
+  "assets": {
+    "plant": "media/plant.png",
+    "mug": "media/mug.png"
+  },
+  "scenes": [
+    {
+      "id": "b01-chapter",
+      "type": "chapter",
+      "start": 0,
+      "duration": 4,
+      "transition": "cut",
+      "numeral": "01",
+      "head": "Supply the art.",
+      "sub": "any image joins the ink",
+      "camera": { "push": 0.04 }
+    },
+    {
+      "id": "b02-media",
+      "type": "media-frame",
+      "start": 4,
+      "duration": 4,
+      "transition": "torn",
+      "media": "mug",
+      "caption": "photo, inkified",
+      "kicker": "/ FIG 1",
+      "note": "feConvolve edge-pass → multiply on paper"
+    },
+    {
+      "id": "b03-agent",
+      "type": "agent-window",
+      "start": 8,
+      "duration": 4,
+      "transition": "push",
+      "kicker": "THE DESK",
+      "tasks": [
+        { "title": "launch film", "sub": "now", "on": true },
+        { "title": "rough cut", "sub": "idle" },
+        { "title": "mix pass", "sub": "queued" }
+      ],
+      "messages": [
+        { "from": "user", "text": "build me a launch film" },
+        { "from": "agent", "text": "on it — boarding the plant spot" }
+      ],
+      "checks": ["block the frames", "inkify the art", "mix the foley"],
+      "camera": { "push": 0.03 }
+    },
+    {
+      "id": "b04-storyboard",
+      "type": "storyboard",
+      "start": 12,
+      "duration": 4,
+      "transition": "push",
+      "cells": ["BRIEF", "DESK", "MUG", "BOARD", "PHONE", "LOCKUP"],
+      "thumbs": ["plant", "mug", null, null, "plant", null],
+      "kickerR": "INK ONLY",
+      "foot": "every cell names a real beat"
+    },
+    {
+      "id": "b05-phone",
+      "type": "phone-app",
+      "start": 16,
+      "duration": 3,
+      "transition": "page",
+      "appTitle": "nursery",
+      "caption": "the output, as it lands",
+      "cards": [
+        { "title": "monstera deliciosa", "sub": "shipped frame", "meta": "4s", "img": "plant" },
+        { "title": "glacier mug", "sub": "product frame", "meta": "2s", "img": "mug" },
+        { "title": "end card", "sub": "brand lockup", "icon": "flag" }
+      ],
+      "week": true,
+      "drops": [1, 3, 5]
+    },
+    {
+      "id": "b06-player",
+      "type": "player",
+      "start": 19,
+      "duration": 3,
+      "transition": "wipe",
+      "file": "nursery-promo.mp4",
+      "poster": "plant"
+    },
+    {
+      "id": "b07-end",
+      "type": "end-card",
+      "start": 22,
+      "duration": 2,
+      "transition": "torn",
+      "brandA": "NEX",
+      "brandB": "STUDIO",
+      "sub": "art in. film out.",
+      "pill": "Start a film",
+      "index": false
+    }
+  ]
+}

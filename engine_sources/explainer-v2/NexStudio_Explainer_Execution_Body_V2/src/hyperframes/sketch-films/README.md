@@ -138,6 +138,28 @@ Surface: warm fibred paper (`paper-warm-1k.png`, procedurally generated via
 — reused from editorial-motion-v2's community surfaces) — override both per
 spec via `paperTexture` / `grainTexture`.
 
+Media + inkify: `spec.assets` (`{name: path-relative-to-spec}`) stages files
+into `media/`; scene params (`media`, `poster`, `thumbs`, phone card `img`)
+accept the bare asset name or an inline path/URL. Every `<img>` runs through
+the `#sk-inkify` SVG filter — saturate→blur→edge-convolve→invert → dark
+lines on white, multiply-blended into the paper — so supplied art reads as
+part of the ink world. `inkify: false` on a scene falls back to plain
+grayscale.
+
+Structured product content: the UI-mockup scenes take real content, not
+chrome placeholders — `agent-window` accepts `tasks` ({title, sub, on}) for
+the sidebar and `messages` ({from, text}) for a chat transcript;
+`phone-app` cards take {title, sub, meta, img, icon}; `storyboard` takes
+`cells` as a label array and `thumbs` (inkified) per cell; `chat-prompt`
+takes `tags` chips; `step` takes a `caption`. `FilmBeat` carries the same
+fields (`tasks`/`messages`/`cards`/`cells`/`thumbs`/`poster`/`tags`) and
+`FilmBrief.media` flows to `spec.assets`. When a scripted film doesn't say,
+the director's enrichment pass fills the mockups from the film itself —
+sidebar tasks and board cells name the actual beats, phone cards carry the
+brief's items. `POST /api/v1/sketch-films` also accepts `media`:
+`{name: url | data-uri | repo-relative path}`, staged into the job's spec
+dir before compile.
+
 Motion comes from two stacked layers: each scene's local timeline plus any
 `NexMotion` paper effects attached to elements (`cut-paper-pop`,
 `drop-and-settle`, `stamp-impact`, `ink-reveal`, …), both sought

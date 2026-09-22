@@ -45,9 +45,19 @@ export type FilmBeat = {
   /** Pull-quote. */
   quote?: string;
   by?: string;
-  /** Showcase media (spec-relative path or URL) with optional caption. */
+  /** Showcase media (asset name or spec-relative path/URL) with optional caption. */
   media?: string;
   caption?: string;
+  /** Product-mockup content (optional — the scene fills from the brief otherwise).
+      agent-window: sidebar tasks; phone-app: card rows; storyboard: cell labels/thumbs;
+      player: poster + row titles; chat-prompt: tool tags. */
+  tasks?: { title?: string; sub?: string; on?: boolean }[];
+  messages?: { from?: "user" | "agent"; text?: string }[];
+  cards?: { title?: string; sub?: string; meta?: string; img?: string; icon?: string }[];
+  cells?: string[];
+  thumbs?: string[];
+  poster?: string;
+  tags?: string[];
   /** Contrast pair. */
   a?: { title?: string; items?: string[] };
   b?: { title?: string; items?: string[] };
@@ -73,6 +83,8 @@ export type FilmBrief = {
   tagline?: string;
   cta?: string;
   seed?: number;
+  /** Named media assets scenes can reference ({name: spec-relative path}). */
+  media?: Record<string, string>;
   /** Beat indices that get UI/product scenes even without explicit asks. */
   flavor?: "paper" | "product";
 };
@@ -290,10 +302,27 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     }
     case "word-object-bridge": return { ...base, keyword: beat.keyword || kw[0] || "idea", before: "the", after: beat.sub || "does the work.", object: beat.object || "card" };
     /* product-UI scenes */
-    case "chat-prompt": return { ...base, kicker: (base.kicker as string) || "BRIEF → FILM", mention: "Studio", text: short(brief.prompt || beat.head || "", 52), mode: "Auto", cursor: true, index: false };
-    case "agent-window": return { ...base, kicker: (base.kicker as string) || "THE DESK", prompt: short(brief.prompt || beat.head || "", 68), status: "Agent — planning the build…", checks: beat.items?.map(i => typeof i === "string" ? i : i.title || "") || ["scaffold the storyboard", "bind the sketch style kit", "compose 1:1 frames", "master music + accents"] };
-    case "phone-app": return { ...base, kicker: (base.kicker as string) || "YOUR FILM — READY", caption: beat.head || "the output, as it lands", appTitle: product.toLowerCase(), cards: (beat.items || [{ title: "beats" }, { title: "style" }, { title: "audio" }, { title: "export" }]).map(i => typeof i === "string" ? { title: i } : i) };
-    case "storyboard": return { ...base, kicker: (base.kicker as string) || "THE BOARD", kickerR: "INK ONLY", foot: "EVERY BEAT, DRAWN BEFORE IT MOVES", cells: 6 };
+    case "chat-prompt": return { ...base, kicker: (base.kicker as string) || "BRIEF → FILM", mention: "Studio", text: short(brief.prompt || beat.head || "", 52), mode: "Auto", cursor: true, index: false, ...(beat.tags ? { tags: beat.tags } : {}) };
+    case "agent-window": return {
+      ...base, kicker: (base.kicker as string) || "THE DESK",
+      prompt: short(brief.prompt || beat.head || "", 68),
+      status: "Agent — planning the build…",
+      ...(beat.tasks ? { tasks: beat.tasks } : {}),
+      ...(beat.messages ? { messages: beat.messages } : {}),
+      checks: beat.items?.map(i => typeof i === "string" ? i : i.title || "") || ["scaffold the storyboard", "bind the sketch style kit", "compose 1:1 frames", "master music + accents"],
+    };
+    case "phone-app": return {
+      ...base, kicker: (base.kicker as string) || "YOUR FILM — READY",
+      caption: beat.head || "the output, as it lands",
+      appTitle: product.toLowerCase(),
+      cards: beat.cards || (beat.items || [{ title: "beats" }, { title: "style" }, { title: "audio" }, { title: "export" }]).map(i => typeof i === "string" ? { title: i } : i),
+    };
+    case "storyboard": return {
+      ...base, kicker: (base.kicker as string) || "THE BOARD", kickerR: "INK ONLY",
+      foot: "EVERY BEAT, DRAWN BEFORE IT MOVES",
+      cells: beat.cells || 6,
+      ...(beat.thumbs ? { thumbs: beat.thumbs } : {}),
+    };
     case "compose-graph": return { ...base, kicker: (base.kicker as string) || "/ PIPELINE", kickerR: "COMPOSE", title: "COMPOSE" };
     case "render-bar": return { ...base, kicker: (base.kicker as string) || "RENDER", file: `${product.toLowerCase().replace(/\s+/g, "-")}.mp4` };
     case "payoff-lockup": return { ...base, text: beat.head || brief.tagline || "briefs in. films out.", sub: beat.sub || brief.tagline || "", index: false };
@@ -437,6 +466,36 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
     t += d;
   });
 
+  /* 3b) product-mockup enrichment: a scene that asked for a UI mockup shows the
+        film's own content — sidebar tasks and board cells name the real beats,
+        phone cards carry the brief's items, prompt text echoes the brief */
+  const headOf = (i: number): string =>
+    typed[i]?.beat.head || typed[i]?.beat.text || typed[i]?.type.replace(/-/g, " ") || "beat";
+  scenes.forEach((scene, i) => {
+    if (scene.type === "agent-window" && !scene.tasks) {
+      const tasks = typed
+        .map((t, ti) => ({ t, ti }))
+        .filter(({ ti }) => ti !== i)
+        .slice(0, 2)
+        .map(({ t, ti }) => ({ title: short(headOf(ti), 20), sub: ti < i ? "done" : "idle", on: false }));
+      scene.tasks = [{ title: short(headOf(i), 20), sub: "now", on: true }, ...tasks];
+      if (!scene.messages && brief.prompt) {
+        scene.messages = [
+          { from: "user", text: short(brief.prompt, 60) },
+          { from: "agent", text: `on it — ${short(headOf(Math.min(i + 1, typed.length - 1)), 40)}` },
+        ];
+      }
+    }
+    if (scene.type === "storyboard" && !Array.isArray(scene.cells)) {
+      scene.cells = typed.slice(0, 6).map((t, ti) =>
+        UPPER((keywordsOf(headOf(ti))[0] || t.type.replace(/-/g, " ").slice(0, 9)).slice(0, 9)));
+    }
+    if (scene.type === "chat-prompt" && !scene.tags) {
+      const tags = keywordsOf(brief.prompt || "").filter(k => k.length > 3).slice(0, 3);
+      if (tags.length) scene.tags = tags;
+    }
+  });
+
   /* 4) SFX cues: swipe on real transitions, pops on entrances, paper on
         first + board-like scenes, confirm on close */
   const swipes: number[] = [], pops: number[] = [], papers: number[] = [0.05];
@@ -460,6 +519,7 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
       { path: "audio/paper.mp3", atSec: dedupe(papers), volume: 0.36 },
       { path: "audio/confirm.mp3", atSec: last ? [round1(last.start + Math.min(1.6, last.duration - 0.8))] : [], volume: 0.42 },
     ],
+    ...(brief.media ? { assets: brief.media } : {}),
     scenes,
   };
   validateSpec(spec);

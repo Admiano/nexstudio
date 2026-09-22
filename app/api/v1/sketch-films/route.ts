@@ -30,6 +30,7 @@ export async function GET(request: Request) {
       tagline: "payoff line",
       cta: "end-card button text",
       seed: "deterministic variation seed",
+      media: "{name: url|data-uri|repo-relative path} — art staged into the film; scenes reference the name and render it inkified",
     },
     sceneTypes: [
       "chapter", "type-card", "hero-build", "phrase-swap", "word-list", "feature-grid",
@@ -84,6 +85,44 @@ export async function POST(request: Request) {
     compileArgs.push(specDir);
     for (const k of ["duration", "product", "tagline", "cta", "seed"] as const) {
       if (body[k] != null) compileArgs.push(`--${k}`, String(body[k]));
+    }
+    /* media: {name: url | data-uri | repo-relative path} — stage files next to
+       the spec so spec-relative asset paths resolve at bundle time */
+    if (body.media && typeof body.media === "object" && !Array.isArray(body.media)) {
+      const staged: Record<string, string> = {};
+      for (const [name, src] of Object.entries(body.media as Record<string, unknown>)) {
+        if (typeof src !== "string" || !/^[a-zA-Z0-9_-]{1,48}$/.test(name)) continue;
+        try {
+          if (src.startsWith("http://") || src.startsWith("https://")) {
+            const res = await fetch(src);
+            if (!res.ok) continue;
+            const buf = Buffer.from(await res.arrayBuffer());
+            const mExt = src.match(/\.(png|jpe?g|webp|gif|svg|mp4)(\?|$)/i);
+            const ext = (mExt ? mExt[1] : "png").toLowerCase().replace("jpeg", "jpg");
+            const fp = path.join(specDir, `asset-${name}.${ext}`);
+            writeFileSync(fp, buf);
+            staged[name] = path.relative(specDir, fp);
+          } else if (src.startsWith("data:")) {
+            const m = src.match(/^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,(.+)$/i);
+            if (!m) continue;
+            const ext = { png: "png", jpg: "jpg", jpeg: "jpg", webp: "webp", gif: "gif", "svg+xml": "svg" }[m[1].toLowerCase()] || "png";
+            const fp = path.join(specDir, `asset-${name}.${ext}`);
+            writeFileSync(fp, Buffer.from(m[2], "base64"));
+            staged[name] = path.relative(specDir, fp);
+          } else {
+            const fp = path.resolve(process.cwd(), src);
+            const ext = path.extname(fp) || ".png";
+            const dest = path.join(specDir, `asset-${name}${ext}`);
+            copyFileSync(fp, dest);
+            staged[name] = path.relative(specDir, dest);
+          }
+        } catch { /* drop a bad asset rather than fail the film */ }
+      }
+      if (Object.keys(staged).length) {
+        const mp = path.join(specDir, "media.json");
+        writeFileSync(mp, JSON.stringify(staged));
+        compileArgs.push("--media", mp);
+      }
     }
     const compiled = spawn(TSX, compileArgs, { cwd: ENGINE, env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}` } });
     let compileErr = "";

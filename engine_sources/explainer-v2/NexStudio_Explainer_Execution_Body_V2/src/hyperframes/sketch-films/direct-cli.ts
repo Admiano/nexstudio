@@ -21,12 +21,13 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 const args = process.argv.slice(2);
 const opt = (name: string) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : undefined; };
-const positional = args.filter((a, i) => !a.startsWith("--") && (i === 0 || args[i - 1] !== "--script") && !["--duration", "--product", "--cta", "--tagline", "--seed"].includes(args[i - 1] || ""));
+const positional = args.filter((a, i) => !a.startsWith("--") && (i === 0 || args[i - 1] !== "--script") && !["--duration", "--product", "--cta", "--tagline", "--seed", "--media"].includes(args[i - 1] || ""));
 const scriptPath = opt("script");
+const mediaPath = opt("media");
 const outDir = path.resolve(positional[positional.length - 1] || "");
 
 if (!outDir || (!scriptPath && !positional[0])) {
-  console.error('usage: direct-cli.ts "<prompt>"|--script beats.json <outDir> [--duration 38] [--product "NEX STUDIO"] [--cta "..."] [--tagline "..."] [--seed 97]');
+  console.error('usage: direct-cli.ts "<prompt>"|--script beats.json <outDir> [--duration 38] [--product "NEX STUDIO"] [--cta "..."] [--tagline "..."] [--seed 97] [--media media.json]');
   process.exit(2);
 }
 
@@ -34,6 +35,10 @@ let script: FilmBeat[] | undefined;
 if (scriptPath) {
   script = JSON.parse(fs.readFileSync(path.resolve(scriptPath), "utf8"));
   if (!Array.isArray(script)) { console.error("--script must be a JSON array of beats"); process.exit(2); }
+}
+let media: Record<string, string> | undefined;
+if (mediaPath) {
+  media = JSON.parse(fs.readFileSync(path.resolve(mediaPath), "utf8"));
 }
 
 const spec = directToSpec({
@@ -44,6 +49,7 @@ const spec = directToSpec({
   tagline: opt("tagline"),
   cta: opt("cta"),
   seed: opt("seed") ? Number(opt("seed")) : undefined,
+  media,
 });
 
 fs.mkdirSync(path.join(outDir, "audio"), { recursive: true });

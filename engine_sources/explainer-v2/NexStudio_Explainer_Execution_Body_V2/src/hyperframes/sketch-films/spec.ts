@@ -72,7 +72,13 @@ export type SketchFilmSpec = {
   music?: { path: string; volume?: number };
   /** SFX accents — one entry per sound file, cued at atSec times. */
   sfx?: { path: string; atSec: number[]; volume?: number }[];
-  /** Named media assets usable from scene params (e.g. posters, card art). */
+  /**
+   * Named media assets usable from scene params ({name: spec-relative path}).
+   * Scene params (media, poster, thumbs, card img) accept the bare name —
+   * they resolve to media/<name><ext> in the bundle. Each <img> renders through
+   * the #sk-inkify SVG filter (edges → dark-line-on-white, multiply-blended onto
+   * the paper) unless the scene sets `inkify: false` for a plain grayscale photo.
+   */
   assets?: Record<string, string>;
   /** Override paper texture path (defaults to the generated warm fibred sheet). */
   paperTexture?: string;

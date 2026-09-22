@@ -104,6 +104,40 @@ window.NexSketch = (() => {
     el.style.opacity = (Math.floor(t * 2.2) % 2 === 0) ? '1' : '0';
   }, 'none');
 
+  /* ---------- media assets + inkify ----------
+     spec.assets {name: rel-path} → bundle 'media/<name><ext>'; a scene
+     param referencing a bare name resolves through this index. */
+  let assetIndex = {};
+  const mediaOf = (v) => {
+    if (!v) return null;
+    if (v.includes('/') || v.startsWith('data:') || v.startsWith('http')) return v;
+    return assetIndex[v] || `media/${v}`;
+  };
+  /* images join the paper world via the #sk-inkify filter — edges extracted,
+     inverted to dark-line-on-white, then multiply-blended onto the sheet */
+  const inkifyImg = (img, spec) => {
+    if (spec.inkify === false) {
+      img.style.filter = 'grayscale(.35) contrast(1.02)';
+      img.style.opacity = '.92';
+    } else {
+      img.style.filter = 'url(#sk-inkify)';
+      img.style.mixBlendMode = 'multiply';
+      img.style.opacity = '.9';
+    }
+    return img;
+  };
+  const INKIFY_DEFS = `<svg width="0" height="0" style="position:absolute;overflow:hidden"><defs>
+    <filter id="sk-inkify" x="-8%" y="-8%" width="116%" height="116%">
+      <feColorMatrix type="saturate" values="0"/>
+      <feGaussianBlur stdDeviation="0.55"/>
+      <feConvolveMatrix order="3" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1" preserveAlpha="true"/>
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="-4.5" intercept="2.6"/>
+        <feFuncG type="linear" slope="-4.5" intercept="2.6"/>
+        <feFuncB type="linear" slope="-4.5" intercept="2.6"/>
+      </feComponentTransfer>
+    </filter></defs></svg>`;
+
   /* ---------- icons (thin ink strokes, 24x24 vb) ---------- */
   const ICONS = {
     globe: p => { skCircle(p, 12, 12, 18, 1); skPath(p, 'M3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18', 2) },
@@ -206,6 +240,10 @@ window.NexSketch = (() => {
     sub.style.cssText += ';border-top:0;position:absolute;left:18px;right:18px;bottom:12px';
     const tools = h('span', '', sub); tools.style.cssText = 'display:flex;gap:12px;align-items:center';
     icon('at', tools); icon('hash', tools); icon('mic', tools);
+    (spec.tags || []).slice(0, 3).forEach(t => {
+      const tag = h('span', 'sk-chip', tools, `#${t}`);
+      tag.style.cssText = 'font-size:10px;padding:2px 7px;margin-left:-4px';
+    });
     const right = h('span', '', sub); right.style.cssText = 'display:flex;gap:10px;align-items:center';
     const chip = h('span', 'sk-chip', right, spec.mode || 'Auto');
     chip.insertAdjacentHTML('beforeend', '<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="var(--sk-ink)" stroke-width="1.6" stroke-linecap="round"/></svg>');
@@ -259,16 +297,29 @@ window.NexSketch = (() => {
     const chr = h('div', 'sk-chrome-r', chrome);
     icon('eye', chr); icon('image', chr); icon('sliders', chr); icon('list', chr);
     const body = h('div', 'sk-window-body', win);
-    /* sidebar — task list with two entries + section label */
+    /* sidebar — task list driven by spec.tasks [{title, sub, on}] */
     const side = h('div', 'sk-sidebar', body);
     const btn = h('span', 'sk-btn', side); icon('plus', btn); h('span', '', btn, spec.cta || 'New Task');
-    h('div', 'sk-navlabel', side, 'Task  1');
-    const nav = h('div', 'sk-navitem on', side); h('span', '', nav, spec.task || 'launch film'); h('small', '', nav, spec.taskSub || 'now');
-    h('div', 'sk-navlabel', side, 'Queue');
-    const nav2 = h('div', 'sk-navitem', side); h('span', '', nav2, spec.task2 || 'rough cut'); h('small', '', nav2, 'idle');
-    /* main column — user bubble, agent status, checklist */
+    const taskList = (spec.tasks || [
+      { title: spec.task || 'launch film', sub: spec.taskSub || 'now', on: true },
+      { title: spec.task2 || 'rough cut', sub: 'idle' },
+    ]).slice(0, 3);
+    taskList.forEach((t, ti) => {
+      h('div', 'sk-navlabel', side, ti === 0 ? 'Task  1' : ti === 1 ? 'Queue' : 'Done');
+      const nav = h('div', 'sk-navitem' + (t.on || ti === 0 ? ' on' : ''), side);
+      h('span', '', nav, t.title || `task ${ti + 1}`); h('small', '', nav, t.sub || (ti === 0 ? 'now' : 'idle'));
+    });
+    /* main column — chat transcript (spec.messages), or prompt+status+checklist */
     const main = h('div', 'sk-main', body);
-    const bubble = h('div', 'sk-bubble', main, spec.prompt || 'build me a launch video');
+    let bubble = null;
+    if (spec.messages && spec.messages.length) {
+      spec.messages.slice(0, 4).forEach(m => {
+        const b = h('div', 'sk-bubble' + (m.from === 'agent' ? ' alt' : ''), main, m.text || '');
+        if (m.from === 'agent') b.style.alignSelf = 'flex-start';
+      });
+    } else {
+      bubble = h('div', 'sk-bubble', main, spec.prompt || 'build me a launch video');
+    }
     const agent = h('div', 'sk-agent', main); h('i', 'dot', agent); h('span', '', agent, spec.status || 'Agent — planning the build…');
     const check = h('ul', 'sk-check', main);
     (spec.checks || []).forEach((c, i) => {
@@ -287,9 +338,10 @@ window.NexSketch = (() => {
     [...dots.children].forEach((d, i) => popIn(tl, d, 0.6 + i * 0.06, 0.25));
     fadeIn(tl, brand, 0.7); fadeIn(tl, pill, 0.75);
     [...chr.children].forEach((c, i) => fadeIn(tl, c, 0.8 + i * 0.05, 0.25));
-    fadeIn(tl, btn, 0.75); fadeIn(tl, side.children[1], 0.82); fadeIn(tl, nav, 0.88);
-    fadeIn(tl, side.children[3], 0.95); fadeIn(tl, nav2, 1.0);
-    popIn(tl, bubble, 0.95, 0.45);
+    fadeIn(tl, btn, 0.75);
+    [...side.children].forEach((c, i) => { if (i > 0) fadeIn(tl, c, 0.82 + i * 0.05, 0.25); });
+    if (bubble) popIn(tl, bubble, 0.95, 0.45);
+    if (spec.messages) [...main.querySelectorAll('.sk-bubble')].forEach((b, i) => popIn(tl, b, 0.85 + i * 0.3, 0.4));
     fadeIn(tl, agent, 1.2);
     [...check.children].forEach((li, i) => fadeIn(tl, li, 1.4 + i * 0.26, 0.3));
     /* trailing checklist items tick over live */
@@ -317,6 +369,10 @@ window.NexSketch = (() => {
     word.style.fontSize = spec.fontSize || '150px';
     const ill = h('div', 'sk-step-ill', el);
     ill.style.cssText += ';height:46%;justify-content:center;align-items:center';
+    if (spec.caption) {
+      const cap = h('div', 'sk-mono', el, spec.caption);
+      cap.style.cssText = 'margin-top:auto;padding-bottom:2%;font-size:12px;letter-spacing:.1em;color:var(--sk-ink-3);text-transform:uppercase';
+    }
     const tl = NexMotion.createTimeline();
     const letters = spec.word ? splitWords(word, spec.word) : [];
     letters.forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.1 + i * 0.13));
@@ -423,10 +479,21 @@ window.NexSketch = (() => {
     (spec.cards || []).forEach(c => {
       const card = h('div', 'sk-appcard', cards);
       const th = h('div', 'th', card);
-      if (c.img) { const im = new Image(); im.src = c.img; th.appendChild(im); }
+      const cimg = mediaOf(c.img);
+      if (cimg) { const im = new Image(); im.src = cimg; inkifyImg(im, spec); th.appendChild(im); }
+      else if (c.icon && ICONS[c.icon]) { icon(c.icon, th); }
       else { const g = svgRoot(th, '0 0 40 40'); skPath(g, 'M20 33c-7-8-9-14-9-19a9 9 0 0 1 18 0c0 5-2 11-9 19zM20 33v-8', 150, { strokeWidth: 2 }); }
-      const ln = h('div', 'ln', card); h('i'); h('i').style.width = '45%';
-      if (c.title) { const b = h('b', 'sk-ui', card, c.title); b.style.cssText = 'font-size:12px;position:absolute;right:8px;top:8px'; card.style.position = 'relative'; }
+      /* real copy when supplied, drawn stubs otherwise */
+      if (c.title || c.sub) {
+        const tx = h('div', '', card); tx.style.cssText = 'flex:1;display:flex;flex-direction:column;gap:3px;min-width:0';
+        if (c.title) { const b = h('b', 'sk-ui', tx, c.title); b.style.cssText = 'font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'; }
+        if (c.sub) { const s = h('span', 'sk-mono', tx, c.sub); s.style.cssText = 'font-size:9px;color:var(--sk-ink-3);letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'; }
+      } else {
+        const ln = h('div', 'ln', card); h('i'); h('i').style.width = '45%';
+      }
+      const meta = c.meta || c.badge;
+      if (meta) { const m = h('span', 'sk-mono', card, meta); m.style.cssText = 'margin-left:auto;font-size:9px;color:var(--sk-ink-2);letter-spacing:.08em;border:1px solid var(--sk-ink-3);border-radius:6px;padding:2px 5px;flex:none'; }
+      else if (c.title) { const b = h('b', 'sk-ui', card, c.tag || ''); if (c.tag) { b.style.cssText = 'font-size:12px;margin-left:auto;flex:none'; card.style.position = 'relative'; } }
     });
     const pd = h('div', 'sk-pagedots', scr); (spec.dots || 3) && Array.from({ length: spec.dots || 3 }).forEach((_, i) => { const d = h('i', '', pd); if (i === 0) d.classList.add('on'); });
     const tb = h('div', 'sk-tabbar', scr); (spec.tabs || ['home', 'list', 'plus', 'eye']).forEach(n => icon(n, tb));
@@ -452,13 +519,23 @@ window.NexSketch = (() => {
     if (spec.note) h('span', '', meta, spec.note).style.cssText = 'font-size:10px;letter-spacing:.1em;color:var(--sk-ink-3);line-height:1.5';
     const grid = h('div', 'sk-cells', el);
     const cells = [];
-    const nCells = spec.cells ?? 6;
+    /* cells: a count, or an array of labels — e.g. the film's own beat names */
+    const cellSpecs = Array.isArray(spec.cells) ? spec.cells : null;
+    const nCells = cellSpecs ? cellSpecs.length : (spec.cells ?? 6);
     for (let i = 0; i < nCells; i++) {
       const cell = h('div', 'sk-cell', grid);
       const cs = svgRoot(cell, '0 0 160 100'); cs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
       skRect(cs, 3, 3, 154, 94, 200 + i);
       const inner = h('div', 'miniframe', cell);
+      /* real art when thumbs are supplied — inkified onto the paper */
+      const thumbSrc = mediaOf((spec.thumbs || [])[i]);
+      if (thumbSrc) {
+        const im = h('img', '', inner); im.src = thumbSrc;
+        im.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+        inkifyImg(im, spec);
+      }
       const g = svgRoot(inner, '0 0 120 70');
+      if (thumbSrc) g.style.display = 'none';
       const seed = 230 + i * 7;
       /* each cell is a tiny sketched frame of the film — horizon + subject */
       const v = (i + (spec.seedOffset || 0)) % 4;
@@ -480,7 +557,8 @@ window.NexSketch = (() => {
         skPath(g, 'M18 40h56', seed + 1, { strokeWidth: 4, roughness: 0.35 });
         skPath(g, 'M60 54c14 -4 30 -4 42 0', seed + 2, { strokeWidth: 2.2 });
       }
-      h('div', 'lbl', cell, `${spec.cellLabel || 'FRAME'} ${String(i + 1).padStart(2, '0')}`);
+      const lblText = cellSpecs ? String(cellSpecs[i]) : `${spec.cellLabel || 'FRAME'} ${String(i + 1).padStart(2, '0')}`;
+      h('div', 'lbl', cell, lblText);
       cells.push({ cell, cs });
     }
     const tl = NexMotion.createTimeline();
@@ -574,7 +652,12 @@ window.NexSketch = (() => {
     h('span', 'sk-mono', chrome, spec.file || 'launch.mp4').style.cssText = 'font-size:12px;color:var(--sk-ink-2)';
     const view = h('div', 'sk-player-view', pl);
     let innerTl = null; let innerHeadline = null;
-    if (spec.poster) { const img = h('img', '', view); img.src = spec.poster; img.alt = ''; }
+    const posterSrc = mediaOf(spec.poster);
+    if (posterSrc) {
+      const img = h('img', '', view); img.src = posterSrc; img.alt = '';
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+      inkifyImg(img, spec);
+    }
     else {
       // sketched mini product frame: card list left, headline right (like the ref)
       const g = svgRoot(view, '0 0 620 380');
@@ -1020,9 +1103,11 @@ window.NexSketch = (() => {
     const fs = svgRoot(frame, '0 0 560 420'); fs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
     skRect(fs, 6, 6, 548, 408, 1400, { roughness: 1.7 });
     skRect(fs, 22, 22, 516, 340, 1401, { strokeWidth: 1.4 });
-    if (spec.media) {
-      const im = h('img', '', frame); im.src = spec.media;
-      im.style.cssText = 'position:absolute;left:4.5%;top:5.5%;width:91%;height:81%;object-fit:cover;opacity:.92;filter:grayscale(.35) contrast(1.02)';
+    const mediaSrc = mediaOf(spec.media);
+    if (mediaSrc) {
+      const im = h('img', '', frame); im.src = mediaSrc;
+      im.style.cssText = 'position:absolute;left:4.5%;top:5.5%;width:91%;height:81%;object-fit:cover';
+      inkifyImg(im, spec);
     } else {
       const g = svgRoot(frame, '0 0 516 340'); g.style.cssText = 'position:absolute;left:4.5%;top:5.5%;width:91%;height:81%';
       skPath(g, 'M60 260 L170 130 L240 210 L300 150 L410 260', 1402, { strokeWidth: 2.4 });
@@ -1153,6 +1238,13 @@ window.NexSketch = (() => {
     stage.style.setProperty('--sk-tex', `url('${filmSpec.paperTexture || 'sketch-ui/textures/paper-warm-1k.png'}')`);
     stage.style.setProperty('--sk-grain', `url('${filmSpec.grainTexture || 'sketch-ui/textures/grain-fine-256.png'}')`);
     h('div', 'sk-vignette', stage);
+    /* inkify filter + media asset index */
+    stage.insertAdjacentHTML('beforeend', INKIFY_DEFS);
+    assetIndex = {};
+    for (const [name, rel] of Object.entries(filmSpec.assets || {})) {
+      const ext = (rel.match(/\.[^./\\]+$/) || ['.png'])[0];
+      assetIndex[name] = `media/${name}${ext}`;
+    }
 
     const scenesBuilt = (filmSpec.scenes || []).map((s, i) => { const b = buildScene(s, i, filmSpec.scenes.length); stage.appendChild(b.el); return b; });
 
