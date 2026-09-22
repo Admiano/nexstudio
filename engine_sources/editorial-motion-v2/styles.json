@@ -1,0 +1,871 @@
+{
+ "version": 1,
+ "styles": [
+  {
+   "id": "tiles",
+   "name": "Tiles",
+   "tagline": "Colour icons in tiles \u2014 the default explainer collage look",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#191512",
+    "paper": "#f2f1ee",
+    "accent": "#2f6fb3"
+   },
+   "asset_family": "colour_icons",
+   "template_fixture": "ai-leverage",
+   "captions": "none"
+  },
+  {
+   "id": "photo_story",
+   "name": "Photo Story",
+   "tagline": "Real photos in tiles \u2014 evidence-led, documentary feel",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#1b150f",
+    "paper": "#f3eee6",
+    "accent": "#c4692b"
+   },
+   "asset_family": "photos",
+   "template_fixture": "ai-leverage-v2",
+   "captions": "none"
+  },
+  {
+   "id": "sketch",
+   "name": "Sketch",
+   "tagline": "Black wireframe icons in tiles \u2014 clean, technical, brand-safe",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#17161a",
+    "paper": "#fbfaf7",
+    "accent": "#2f6fb3"
+   },
+   "asset_family": "mono_icons",
+   "template_fixture": "style-glyph",
+   "captions": "none"
+  },
+  {
+   "id": "emoji",
+   "name": "Emoji",
+   "tagline": "Emoji tiles \u2014 playful, casual, social-native",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#191512",
+    "paper": "#fdfbf8",
+    "accent": "#e0496b"
+   },
+   "asset_family": "emoji",
+   "template_fixture": "style-pop",
+   "captions": "none"
+  },
+  {
+   "id": "ink",
+   "name": "Ink",
+   "tagline": "Line art on warm paper \u2014 the quiet editorial look",
+   "finish": "EDITORIAL_FLAT",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#1b150f",
+    "paper": "#f6f1e7",
+    "accent": "#8a5a2b"
+   },
+   "asset_family": "mono_icons",
+   "template_fixture": "style-ink",
+   "captions": "burned",
+   "variants": [
+    {
+     "id": "paper",
+     "name": "Paper",
+     "tagline": "Ink look on textured stock",
+     "finish": "PAPER",
+     "palette": {
+      "ink": "#241d12",
+      "paper": "#efe7d2",
+      "accent": "#6e4f26"
+     },
+     "template_fixture": "style-paper"
+    }
+   ]
+  },
+  {
+   "id": "poster",
+   "name": "Poster",
+   "tagline": "One big tile + big type per beat \u2014 poster-card staging",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "BLOCK",
+   "palette": {
+    "ink": "#14120f",
+    "paper": "#f4f2ed",
+    "accent": "#c2542a"
+   },
+   "asset_family": "mono_icons",
+   "template_fixture": "style-headline",
+   "captions": "none"
+  }
+ ],
+ "entity_bank": {
+  "person": {
+   "colour": "icon.icon-park-color.user",
+   "mono": "icon.icon-park-outline.every-user",
+   "emoji": "emoji.noto.bust-in-silhouette",
+   "photo": "hard-hat"
+  },
+  "people": {
+   "colour": "icon.icon-park-color.peoples",
+   "mono": "icon.icon-park-outline.people",
+   "emoji": "emoji.noto.busts-in-silhouette",
+   "photo": "hard-hat"
+  },
+  "team": {
+   "colour": "icon.icon-park-color.peoples",
+   "mono": "icon.icon-park-outline.people",
+   "emoji": "emoji.noto.busts-in-silhouette",
+   "photo": "hard-hat"
+  },
+  "two": {
+   "colour": "icon.icon-park-color.peoples",
+   "mono": "icon.icon-park-outline.people",
+   "emoji": "emoji.noto.busts-in-silhouette",
+   "photo": "hard-hat"
+  },
+  "engineer": {
+   "colour": "icon.icon-park-color.user",
+   "mono": "icon.icon-park-outline.data-user",
+   "emoji": "emoji.noto.office-worker",
+   "photo": "hard-hat"
+  },
+  "engineers": {
+   "colour": "icon.icon-park-color.user",
+   "mono": "icon.icon-park-outline.data-user",
+   "emoji": "emoji.noto.office-worker",
+   "photo": "hard-hat"
+  },
+  "worker": {
+   "colour": "icon.icon-park-color.user",
+   "mono": "icon.icon-park-outline.data-user",
+   "emoji": "emoji.noto.office-worker",
+   "photo": "hard-hat"
+  },
+  "builder": {
+   "colour": "icon.icon-park-color.hammer-and-anvil",
+   "mono": "icon.icon-park-outline.hammer-and-anvil",
+   "emoji": "emoji.noto.construction-worker",
+   "photo": "toolbox"
+  },
+  "money": {
+   "photo": "bank",
+   "mono": "icon.icon-park-outline.paper-money",
+   "emoji": "emoji.noto.money-bag",
+   "colour": "icon.icon-park-color.paper-money"
+  },
+  "dollar": {
+   "photo": "bank",
+   "mono": "icon.icon-park-outline.paper-money-two",
+   "emoji": "emoji.noto.dollar-banknote",
+   "colour": "icon.icon-park-color.paper-money-two"
+  },
+  "dollars": {
+   "photo": "bank",
+   "mono": "icon.icon-park-outline.paper-money-two",
+   "emoji": "emoji.noto.dollar-banknote",
+   "colour": "icon.icon-park-color.paper-money-two"
+  },
+  "million": {
+   "photo": "bank",
+   "mono": "icon.icon-park-outline.paper-money",
+   "emoji": "emoji.noto.money-bag",
+   "colour": "icon.icon-park-color.paper-money"
+  },
+  "millions": {
+   "photo": "bank",
+   "mono": "icon.icon-park-outline.paper-money",
+   "emoji": "emoji.noto.money-bag",
+   "colour": "icon.icon-park-color.paper-money"
+  },
+  "bank": {
+   "photo": "bank",
+   "mono": "icon.icon-park-outline.bank-card",
+   "emoji": "emoji.noto.classical-building"
+  },
+  "cost": {
+   "photo": "bank",
+   "mono": "icon.icon-park-outline.paper-money",
+   "emoji": "emoji.noto.money-bag",
+   "colour": "icon.icon-park-color.paper-money"
+  },
+  "cash": {
+   "photo": "bank",
+   "mono": "icon.icon-park-outline.paper-money-two",
+   "emoji": "emoji.noto.dollar-banknote",
+   "colour": "icon.icon-park-color.paper-money-two"
+  },
+  "month": {
+   "colour": "icon.icon-park-color.calendar-thirty",
+   "mono": "icon.icon-park-outline.calendar-thirty",
+   "emoji": "emoji.noto.calendar"
+  },
+  "months": {
+   "colour": "icon.icon-park-color.calendar-thirty",
+   "mono": "icon.icon-park-outline.calendar-thirty",
+   "emoji": "emoji.noto.calendar"
+  },
+  "year": {
+   "colour": "icon.icon-park-color.calendar-thirty",
+   "mono": "icon.icon-park-outline.calendar-thirty",
+   "emoji": "emoji.noto.calendar"
+  },
+  "years": {
+   "colour": "icon.icon-park-color.calendar-thirty",
+   "mono": "icon.icon-park-outline.calendar-thirty",
+   "emoji": "emoji.noto.calendar"
+  },
+  "week": {
+   "colour": "icon.icon-park-color.calendar-thirty",
+   "mono": "icon.icon-park-outline.calendar-thirty",
+   "emoji": "emoji.noto.calendar"
+  },
+  "time": {
+   "colour": "icon.icon-park-color.hourglass",
+   "mono": "icon.icon-park-outline.hourglass-full",
+   "emoji": "emoji.noto.hourglass-done",
+   "photo": "watch"
+  },
+  "idea": {
+   "colour": "icon.icon-park-color.thunderbolt",
+   "mono": "icon.icon-park-outline.lightning",
+   "emoji": "emoji.noto.light-bulb",
+   "photo": "lamp"
+  },
+  "light": {
+   "colour": "icon.icon-park-color.thunderbolt",
+   "mono": "icon.icon-park-outline.lightning",
+   "emoji": "emoji.noto.light-bulb",
+   "photo": "lamp"
+  },
+  "ai": {
+   "colour": "icon.icon-park-color.robot",
+   "mono": "icon.icon-park-outline.brain",
+   "emoji": "emoji.noto.robot",
+   "photo": "brain"
+  },
+  "robot": {
+   "colour": "icon.icon-park-color.robot",
+   "mono": "icon.icon-park-outline.robot",
+   "emoji": "emoji.noto.robot"
+  },
+  "model": {
+   "colour": "icon.icon-park-color.robot",
+   "mono": "icon.icon-park-outline.brain",
+   "emoji": "emoji.noto.robot",
+   "photo": "brain"
+  },
+  "models": {
+   "colour": "icon.icon-park-color.robot",
+   "mono": "icon.icon-park-outline.brain",
+   "emoji": "emoji.noto.robot",
+   "photo": "brain"
+  },
+  "brain": {
+   "colour": "icon.icon-park-color.robot",
+   "mono": "icon.icon-park-outline.brain",
+   "emoji": "emoji.noto.robot",
+   "photo": "brain"
+  },
+  "build": {
+   "colour": "icon.icon-park-color.hammer-and-anvil",
+   "mono": "icon.icon-park-outline.hammer-and-anvil",
+   "emoji": "emoji.noto.toolbox",
+   "photo": "toolbox"
+  },
+  "built": {
+   "colour": "icon.icon-park-color.hammer-and-anvil",
+   "mono": "icon.icon-park-outline.hammer-and-anvil",
+   "emoji": "emoji.noto.toolbox",
+   "photo": "toolbox"
+  },
+  "building": {
+   "colour": "icon.icon-park-color.building-two",
+   "mono": "icon.icon-park-outline.building-three",
+   "emoji": "emoji.noto.office-building",
+   "photo": "warehouse"
+  },
+  "tool": {
+   "colour": "icon.icon-park-color.hammer-and-anvil",
+   "mono": "icon.icon-park-outline.hammer-and-anvil",
+   "emoji": "emoji.noto.toolbox",
+   "photo": "toolbox"
+  },
+  "tools": {
+   "colour": "icon.icon-park-color.hammer-and-anvil",
+   "mono": "icon.icon-park-outline.hammer-and-anvil",
+   "emoji": "emoji.noto.toolbox",
+   "photo": "toolbox"
+  },
+  "drive": {
+   "colour": "icon.icon-park-color.thunderbolt",
+   "mono": "icon.icon-park-outline.lightning",
+   "emoji": "emoji.noto.high-voltage",
+   "photo": "toolbox"
+  },
+  "work": {
+   "colour": "icon.icon-park-color.laptop",
+   "mono": "icon.icon-park-outline.collect-laptop",
+   "emoji": "emoji.noto.laptop",
+   "photo": "terminal"
+  },
+  "product": {
+   "colour": "icon.icon-park-color.laptop",
+   "mono": "icon.icon-park-outline.collect-laptop",
+   "emoji": "emoji.noto.laptop",
+   "photo": "terminal"
+  },
+  "code": {
+   "colour": "icon.icon-park-color.laptop",
+   "mono": "icon.icon-park-outline.code-computer",
+   "emoji": "emoji.noto.laptop",
+   "photo": "terminal"
+  },
+  "app": {
+   "colour": "icon.icon-park-color.laptop",
+   "mono": "icon.icon-park-outline.code-computer",
+   "emoji": "emoji.noto.mobile-phone",
+   "photo": "terminal"
+  },
+  "computer": {
+   "colour": "icon.icon-park-color.laptop",
+   "mono": "icon.icon-park-outline.code-computer",
+   "emoji": "emoji.noto.laptop",
+   "photo": "monitor"
+  },
+  "screen": {
+   "colour": "icon.icon-park-color.laptop",
+   "mono": "icon.icon-park-outline.code-computer",
+   "emoji": "emoji.noto.laptop",
+   "photo": "monitor"
+  },
+  "win": {
+   "colour": "icon.icon-park-color.trophy",
+   "mono": "icon.icon-park-outline.gold-medal",
+   "emoji": "emoji.noto.trophy"
+  },
+  "trophy": {
+   "colour": "icon.icon-park-color.trophy",
+   "mono": "icon.icon-park-outline.gold-medal",
+   "emoji": "emoji.noto.trophy"
+  },
+  "compete": {
+   "colour": "icon.icon-park-color.trophy",
+   "mono": "icon.icon-park-outline.gold-medal",
+   "emoji": "emoji.noto.trophy"
+  },
+  "level": {
+   "colour": "icon.icon-park-color.trophy",
+   "mono": "icon.icon-park-outline.gold-medal",
+   "emoji": "emoji.noto.trophy"
+  },
+  "launch": {
+   "colour": "icon.icon-park-color.rocket",
+   "mono": "icon.icon-park-outline.rocket",
+   "emoji": "emoji.noto.rocket"
+  },
+  "rocket": {
+   "colour": "icon.icon-park-color.rocket",
+   "mono": "icon.icon-park-outline.rocket",
+   "emoji": "emoji.noto.rocket"
+  },
+  "ship": {
+   "colour": "icon.icon-park-color.rocket",
+   "mono": "icon.icon-park-outline.rocket",
+   "emoji": "emoji.noto.rocket"
+  },
+  "grow": {
+   "colour": "icon.icon-park-color.trending-up",
+   "mono": "icon.icon-park-outline.chart-graph",
+   "emoji": "emoji.noto.chart-increasing"
+  },
+  "growth": {
+   "colour": "icon.icon-park-color.trending-up",
+   "mono": "icon.icon-park-outline.chart-graph",
+   "emoji": "emoji.noto.chart-increasing"
+  },
+  "chart": {
+   "colour": "icon.icon-park-color.trending-up",
+   "mono": "icon.icon-park-outline.chart-graph",
+   "emoji": "emoji.noto.chart-increasing"
+  },
+  "leverage": {
+   "colour": "icon.icon-park-color.muscle",
+   "mono": "icon.icon-park-outline.hammer-and-anvil",
+   "emoji": "emoji.noto.flexed-biceps"
+  },
+  "power": {
+   "colour": "icon.icon-park-color.thunderbolt",
+   "mono": "icon.icon-park-outline.lightning",
+   "emoji": "emoji.noto.high-voltage"
+  },
+  "fast": {
+   "colour": "icon.icon-park-color.thunderbolt",
+   "mono": "icon.icon-park-outline.lightning",
+   "emoji": "emoji.noto.high-voltage"
+  },
+  "speed": {
+   "colour": "icon.icon-park-color.thunderbolt",
+   "mono": "icon.icon-park-outline.lightning",
+   "emoji": "emoji.noto.high-voltage"
+  },
+  "dream": {
+   "colour": "icon.icon-park-color.moon",
+   "mono": "icon.icon-park-outline.moon",
+   "emoji": "emoji.noto.crescent-moon"
+  },
+  "moon": {
+   "colour": "icon.icon-park-color.moon",
+   "mono": "icon.icon-park-outline.moon",
+   "emoji": "emoji.noto.crescent-moon"
+  },
+  "access": {
+   "photo": "key",
+   "mono": "icon.icon-park-outline.bolt-one",
+   "emoji": "emoji.noto.credit-card"
+  },
+  "key": {
+   "photo": "key",
+   "mono": "icon.icon-park-outline.bolt-one",
+   "emoji": "emoji.noto.credit-card"
+  },
+  "subscription": {
+   "colour": "icon.icon-park-color.chip",
+   "mono": "icon.icon-park-outline.chip",
+   "emoji": "emoji.noto.credit-card"
+  },
+  "subscriptions": {
+   "colour": "icon.icon-park-color.chip",
+   "mono": "icon.icon-park-outline.chip",
+   "emoji": "emoji.noto.credit-card"
+  },
+  "chip": {
+   "colour": "icon.icon-park-color.chip",
+   "mono": "icon.icon-park-outline.chip",
+   "emoji": "emoji.noto.credit-card"
+  },
+  "home": {
+   "colour": "icon.icon-park-color.xiaodu-home",
+   "mono": "icon.icon-park-outline.home",
+   "emoji": "emoji.noto.house-with-garden"
+  },
+  "house": {
+   "colour": "icon.icon-park-color.xiaodu-home",
+   "mono": "icon.icon-park-outline.home",
+   "emoji": "emoji.noto.house-with-garden"
+  },
+  "world": {
+   "colour": "icon.icon-park-color.globe",
+   "mono": "icon.icon-park-outline.globe",
+   "emoji": "emoji.noto.globe-showing-americas"
+  },
+  "globe": {
+   "colour": "icon.icon-park-color.globe",
+   "mono": "icon.icon-park-outline.globe",
+   "emoji": "emoji.noto.globe-showing-americas"
+  },
+  "big": {
+   "colour": "icon.icon-park-color.building-two",
+   "mono": "icon.icon-park-outline.building-three",
+   "emoji": "emoji.noto.office-building",
+   "photo": "warehouse"
+  },
+  "company": {
+   "colour": "icon.icon-park-color.building-two",
+   "mono": "icon.icon-park-outline.building-three",
+   "emoji": "emoji.noto.office-building",
+   "photo": "warehouse"
+  },
+  "companies": {
+   "colour": "icon.icon-park-color.building-two",
+   "mono": "icon.icon-park-outline.building-three",
+   "emoji": "emoji.noto.office-building",
+   "photo": "warehouse"
+  },
+  "factory": {
+   "colour": "icon.icon-park-color.building-two",
+   "mono": "icon.icon-park-outline.building-three",
+   "emoji": "emoji.noto.factory",
+   "photo": "factory"
+  },
+  "office": {
+   "colour": "icon.icon-park-color.building-two",
+   "mono": "icon.icon-park-outline.building-three",
+   "emoji": "emoji.noto.office-building",
+   "photo": "warehouse"
+  },
+  "star": {
+   "colour": "icon.icon-park-color.star",
+   "mono": "icon.icon-park-outline.gold-medal",
+   "emoji": "emoji.noto.star"
+  },
+  "search": {
+   "mono": "icon.icon-park-outline.file-search-two",
+   "emoji": "emoji.noto.light-bulb"
+  },
+  "lock": {
+   "photo": "key",
+   "mono": "icon.icon-park-outline.file-lock",
+   "emoji": "emoji.noto.credit-card"
+  },
+  "safe": {
+   "photo": "key",
+   "mono": "icon.icon-park-outline.people-safe",
+   "emoji": "emoji.noto.shield"
+  },
+  "secure": {
+   "photo": "key",
+   "mono": "icon.icon-park-outline.people-safe",
+   "emoji": "emoji.noto.shield"
+  },
+  "coffee": {
+   "photo": "coffee",
+   "mono": "icon.icon-park-outline.cup-four",
+   "emoji": "emoji.noto.teacup-without-handle"
+  },
+  "video": {
+   "colour": "icon.icon-park-color.video-one",
+   "mono": "icon.icon-park-outline.code-computer",
+   "emoji": "emoji.noto.video-game"
+  },
+  "camera": {
+   "colour": "icon.icon-park-color.micro-slr-camera",
+   "mono": "icon.icon-park-outline.collect-laptop",
+   "emoji": "emoji.noto.video-game",
+   "photo": "camera"
+  },
+  "music": {
+   "colour": "icon.icon-park-color.music-one",
+   "mono": "icon.icon-park-outline.music",
+   "emoji": "emoji.noto.video-game"
+  },
+  "book": {
+   "photo": "document",
+   "mono": "icon.icon-park-outline.file-search-two",
+   "emoji": "emoji.noto.light-bulb"
+  },
+  "document": {
+   "photo": "document",
+   "mono": "icon.icon-park-outline.file-search-two",
+   "emoji": "emoji.noto.light-bulb"
+  },
+  "folder": {
+   "colour": "icon.icon-park-color.folder-one",
+   "mono": "icon.icon-park-outline.file-search-two",
+   "emoji": "emoji.noto.light-bulb",
+   "photo": "folder"
+  },
+  "phone": {
+   "photo": "monitor",
+   "mono": "icon.icon-park-outline.collect-laptop",
+   "emoji": "emoji.noto.mobile-phone"
+  },
+  "flag": {
+   "colour": "icon.icon-park-color.flag",
+   "mono": "icon.icon-park-outline.flag",
+   "emoji": "emoji.noto.crossed-flags"
+  },
+  "target": {
+   "colour": "icon.icon-park-color.target-one",
+   "mono": "icon.icon-park-outline.chart-graph",
+   "emoji": "emoji.noto.chart-increasing"
+  },
+  "gift": {
+   "colour": "icon.icon-park-color.gift-box",
+   "mono": "icon.icon-park-outline.cup-four",
+   "emoji": "emoji.noto.wrapped-gift"
+  },
+  "shop": {
+   "colour": "icon.icon-park-color.shopping-cart",
+   "mono": "icon.icon-park-outline.shopping-cart-del",
+   "emoji": "emoji.noto.shopping-bags"
+  },
+  "store": {
+   "colour": "icon.icon-park-color.shopping-cart",
+   "mono": "icon.icon-park-outline.shopping-cart-del",
+   "emoji": "emoji.noto.shopping-bags"
+  },
+  "warning": {
+   "mono": "icon.icon-park-outline.file-lock",
+   "emoji": "emoji.noto.warning"
+  },
+  "game": {
+   "mono": "icon.icon-park-outline.game-console-one",
+   "emoji": "emoji.noto.video-game"
+  },
+  "train": {
+   "photo": "train"
+  },
+  "plane": {
+   "photo": "airplane"
+  },
+  "travel": {
+   "photo": "airplane"
+  },
+  "car": {
+   "photo": "car"
+  },
+  "dog": {
+   "photo": "dog"
+  },
+  "cat": {
+   "photo": "cat"
+  },
+  "fish": {
+   "photo": "fish"
+  },
+  "bird": {
+   "photo": "bird"
+  },
+  "flower": {
+   "photo": "flower"
+  },
+  "tree": {
+   "photo": "tree"
+  },
+  "mountain": {
+   "photo": "mountain"
+  },
+  "watch": {
+   "photo": "watch"
+  },
+  "vinyl": {
+   "photo": "vinyl-record"
+  },
+  "violin": {
+   "photo": "violin"
+  },
+  "guitar": {
+   "photo": "guitar"
+  },
+  "microphone": {
+   "photo": "microphone"
+  },
+  "mic": {
+   "photo": "microphone"
+  },
+  "hospital": {
+   "photo": "hospital"
+  },
+  "health": {
+   "photo": "hospital"
+  },
+  "shirt": {
+   "photo": "shirt"
+  },
+  "dress": {
+   "photo": "dress"
+  },
+  "shoe": {
+   "photo": "sneaker"
+  },
+  "sneaker": {
+   "photo": "sneaker"
+  },
+  "umbrella": {
+   "photo": "umbrella"
+  },
+  "bed": {
+   "photo": "bed"
+  },
+  "sleep": {
+   "photo": "bed"
+  },
+  "sofa": {
+   "photo": "sofa"
+  },
+  "table": {
+   "photo": "table"
+  },
+  "window": {
+   "photo": "window"
+  },
+  "door": {
+   "photo": "door"
+  },
+  "wine": {
+   "photo": "wine"
+  },
+  "tea": {
+   "photo": "tea"
+  },
+  "egg": {
+   "photo": "egg"
+  },
+  "milk": {
+   "photo": "milk"
+  },
+  "cheese": {
+   "photo": "cheese"
+  },
+  "chocolate": {
+   "photo": "chocolate"
+  },
+  "sugar": {
+   "photo": "sugar"
+  },
+  "pill": {
+   "photo": "pill"
+  },
+  "tooth": {
+   "photo": "tooth"
+  },
+  "printer": {
+   "photo": "printer"
+  },
+  "keyboard": {
+   "photo": "keyboard"
+  },
+  "monitor": {
+   "photo": "monitor"
+  },
+  "sensor": {
+   "photo": "sensor"
+  },
+  "router": {
+   "photo": "router"
+  },
+  "drone": {
+   "photo": "drone"
+  },
+  "battery": {
+   "photo": "battery"
+  },
+  "cable": {
+   "photo": "cable"
+  },
+  "wrench": {
+   "photo": "wrench"
+  },
+  "scooter": {
+   "photo": "scooter"
+  },
+  "motorcycle": {
+   "photo": "motorcycle"
+  },
+  "bicycle": {
+   "photo": "bicycle"
+  },
+  "bus": {
+   "photo": "bus"
+  },
+  "truck": {
+   "photo": "truck"
+  },
+  "ferry": {
+   "photo": "ferry"
+  },
+  "crane": {
+   "photo": "crane"
+  },
+  "tractor": {
+   "photo": "tractor"
+  },
+  "tent": {
+   "photo": "tent"
+  },
+  "grass": {
+   "photo": "grass"
+  },
+  "sun": {
+   "photo": "sun"
+  },
+  "butter": {
+   "photo": "butter"
+  },
+  "rice": {
+   "photo": "rice"
+  },
+  "cereal": {
+   "photo": "cereal"
+  },
+  "pantry": {
+   "photo": "pantry"
+  },
+  "pencil": {
+   "photo": "pencil"
+  },
+  "piano": {
+   "photo": "piano"
+  },
+  "speaker": {
+   "photo": "speaker"
+  },
+  "headphones": {
+   "photo": "headphones"
+  },
+  "glasses": {
+   "photo": "glasses"
+  },
+  "thermostat": {
+   "photo": "thermostat"
+  },
+  "tablet": {
+   "photo": "tablet"
+  },
+  "quartz": {
+   "photo": "quartz"
+  },
+  "yogurt": {
+   "photo": "yogurt"
+  },
+  "espresso": {
+   "photo": "espresso"
+  },
+  "sourdough": {
+   "photo": "sourdough"
+  },
+  "avocado": {
+   "photo": "avocado"
+  },
+  "tomato": {
+   "photo": "tomato"
+  },
+  "apple": {
+   "photo": "apple"
+  },
+  "almond": {
+   "photo": "almond"
+  },
+  "bandage": {
+   "photo": "bandage"
+  },
+  "backpack": {
+   "photo": "backpack"
+  },
+  "syringe": {
+   "photo": "syringe"
+  },
+  "vaccine": {
+   "photo": "vaccine"
+  },
+  "stethoscope": {
+   "photo": "stethoscope"
+  },
+  "microscope": {
+   "photo": "microscope"
+  },
+  "hotel": {
+   "photo": "hotel"
+  },
+  "lavender": {
+   "photo": "lavender"
+  },
+  "pillow": {
+   "photo": "pillow"
+  },
+  "bean": {
+   "photo": "bean"
+  },
+  "bread": {
+   "photo": "bread"
+  }
+ }
+}

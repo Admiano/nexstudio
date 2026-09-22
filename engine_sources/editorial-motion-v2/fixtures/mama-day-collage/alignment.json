@@ -1,0 +1,364 @@
+{
+ "words": [
+  {
+   "text": " Before",
+   "start_ms": 0,
+   "end_ms": 340
+  },
+  {
+   "text": " the",
+   "start_ms": 340,
+   "end_ms": 580
+  },
+  {
+   "text": " sun",
+   "start_ms": 580,
+   "end_ms": 840
+  },
+  {
+   "text": " fully",
+   "start_ms": 840,
+   "end_ms": 1200
+  },
+  {
+   "text": " woke,",
+   "start_ms": 1200,
+   "end_ms": 1560
+  },
+  {
+   "text": " Mama",
+   "start_ms": 2040,
+   "end_ms": 2200
+  },
+  {
+   "text": " was",
+   "start_ms": 2200,
+   "end_ms": 2480
+  },
+  {
+   "text": " already",
+   "start_ms": 2480,
+   "end_ms": 2820
+  },
+  {
+   "text": " up.",
+   "start_ms": 2820,
+   "end_ms": 3120
+  },
+  {
+   "text": " She",
+   "start_ms": 3860,
+   "end_ms": 4060
+  },
+  {
+   "text": " prepared",
+   "start_ms": 4060,
+   "end_ms": 4400
+  },
+  {
+   "text": " breakfast,",
+   "start_ms": 4400,
+   "end_ms": 4880
+  },
+  {
+   "text": " making",
+   "start_ms": 5340,
+   "end_ms": 5540
+  },
+  {
+   "text": " sure",
+   "start_ms": 5540,
+   "end_ms": 5880
+  },
+  {
+   "text": " her",
+   "start_ms": 5880,
+   "end_ms": 6080
+  },
+  {
+   "text": " boys",
+   "start_ms": 6080,
+   "end_ms": 6380
+  },
+  {
+   "text": " started",
+   "start_ms": 6380,
+   "end_ms": 6740
+  },
+  {
+   "text": " the",
+   "start_ms": 6740,
+   "end_ms": 6920
+  },
+  {
+   "text": " day",
+   "start_ms": 6920,
+   "end_ms": 7160
+  },
+  {
+   "text": " with",
+   "start_ms": 7160,
+   "end_ms": 7340
+  },
+  {
+   "text": " full",
+   "start_ms": 7340,
+   "end_ms": 7680
+  },
+  {
+   "text": " bellies",
+   "start_ms": 7680,
+   "end_ms": 8200
+  },
+  {
+   "text": " and",
+   "start_ms": 8200,
+   "end_ms": 8480
+  },
+  {
+   "text": " happy",
+   "start_ms": 8480,
+   "end_ms": 8840
+  },
+  {
+   "text": " hearts.",
+   "start_ms": 8840,
+   "end_ms": 9300
+  },
+  {
+   "text": " Then",
+   "start_ms": 10120,
+   "end_ms": 10660
+  },
+  {
+   "text": " came",
+   "start_ms": 10660,
+   "end_ms": 10960
+  },
+  {
+   "text": " the",
+   "start_ms": 10960,
+   "end_ms": 11160
+  },
+  {
+   "text": " laundry,",
+   "start_ms": 11160,
+   "end_ms": 11520
+  },
+  {
+   "text": " washing,",
+   "start_ms": 12080,
+   "end_ms": 12600
+  },
+  {
+   "text": " rinsing,",
+   "start_ms": 13000,
+   "end_ms": 13440
+  },
+  {
+   "text": " folding,",
+   "start_ms": 13700,
+   "end_ms": 13980
+  },
+  {
+   "text": " the",
+   "start_ms": 14660,
+   "end_ms": 14740
+  },
+  {
+   "text": " quiet",
+   "start_ms": 14740,
+   "end_ms": 15060
+  },
+  {
+   "text": " work",
+   "start_ms": 15060,
+   "end_ms": 15360
+  },
+  {
+   "text": " that",
+   "start_ms": 15360,
+   "end_ms": 15640
+  },
+  {
+   "text": " never",
+   "start_ms": 15640,
+   "end_ms": 15960
+  },
+  {
+   "text": " really",
+   "start_ms": 15960,
+   "end_ms": 16280
+  },
+  {
+   "text": " ends.",
+   "start_ms": 16280,
+   "end_ms": 16660
+  },
+  {
+   "text": " By",
+   "start_ms": 17520,
+   "end_ms": 17980
+  },
+  {
+   "text": " afternoon,",
+   "start_ms": 17980,
+   "end_ms": 18480
+  },
+  {
+   "text": " the",
+   "start_ms": 18940,
+   "end_ms": 19060
+  },
+  {
+   "text": " smell",
+   "start_ms": 19060,
+   "end_ms": 19300
+  },
+  {
+   "text": " of",
+   "start_ms": 19300,
+   "end_ms": 19500
+  },
+  {
+   "text": " freshly",
+   "start_ms": 19500,
+   "end_ms": 19840
+  },
+  {
+   "text": " baked",
+   "start_ms": 19840,
+   "end_ms": 20320
+  },
+  {
+   "text": " bread",
+   "start_ms": 20320,
+   "end_ms": 20700
+  },
+  {
+   "text": " filled",
+   "start_ms": 20700,
+   "end_ms": 21020
+  },
+  {
+   "text": " the",
+   "start_ms": 21020,
+   "end_ms": 21240
+  },
+  {
+   "text": " house.",
+   "start_ms": 21240,
+   "end_ms": 21540
+  },
+  {
+   "text": " She",
+   "start_ms": 22180,
+   "end_ms": 22420
+  },
+  {
+   "text": " smiled",
+   "start_ms": 22420,
+   "end_ms": 22880
+  },
+  {
+   "text": " as",
+   "start_ms": 22880,
+   "end_ms": 23080
+  },
+  {
+   "text": " she",
+   "start_ms": 23080,
+   "end_ms": 23220
+  },
+  {
+   "text": " prepared",
+   "start_ms": 23220,
+   "end_ms": 23460
+  },
+  {
+   "text": " the",
+   "start_ms": 23460,
+   "end_ms": 23700
+  },
+  {
+   "text": " beans",
+   "start_ms": 23700,
+   "end_ms": 24000
+  },
+  {
+   "text": " to",
+   "start_ms": 24000,
+   "end_ms": 24220
+  },
+  {
+   "text": " go",
+   "start_ms": 24220,
+   "end_ms": 24340
+  },
+  {
+   "text": " with",
+   "start_ms": 24340,
+   "end_ms": 24560
+  },
+  {
+   "text": " it.",
+   "start_ms": 24560,
+   "end_ms": 24740
+  },
+  {
+   "text": " Another",
+   "start_ms": 24740,
+   "end_ms": 25740
+  },
+  {
+   "text": " simple",
+   "start_ms": 25740,
+   "end_ms": 26200
+  },
+  {
+   "text": " day,",
+   "start_ms": 26200,
+   "end_ms": 26580
+  },
+  {
+   "text": " another",
+   "start_ms": 27140,
+   "end_ms": 27420
+  },
+  {
+   "text": " thousand",
+   "start_ms": 27420,
+   "end_ms": 28040
+  },
+  {
+   "text": " little",
+   "start_ms": 28040,
+   "end_ms": 28400
+  },
+  {
+   "text": " ways",
+   "start_ms": 28400,
+   "end_ms": 28780
+  },
+  {
+   "text": " she",
+   "start_ms": 28780,
+   "end_ms": 29060
+  },
+  {
+   "text": " loved",
+   "start_ms": 29060,
+   "end_ms": 29380
+  },
+  {
+   "text": " her",
+   "start_ms": 29380,
+   "end_ms": 29600
+  },
+  {
+   "text": " family.",
+   "start_ms": 29600,
+   "end_ms": 29960
+  }
+ ]
+}
