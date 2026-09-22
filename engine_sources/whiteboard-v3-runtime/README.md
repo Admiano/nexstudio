@@ -47,6 +47,28 @@ python engine_sources/whiteboard-v3-runtime/pipeline_kinetic_timed.py \
   [--theme light|dark] [--accent #RRGGBB] [--watermark TEXT] [--music]
 ```
 
+### Diagram type — cumulative annotated canvas
+
+`pipeline_diagram_timed.py` renders the "build-the-diagram" explainer style
+(reference: annotated whiteboard explainers). One persistent board:
+hand-lettered headline + accent underline on top, a hero illustration at
+center, then each beat adds elements — numbered stage labels, icons,
+callout chips with pin arrows, connector arrows — that draw on
+stroke-by-stroke. Elements of earlier beats stay on the board muted while
+the active beat draws in full ink/accent; an optional summary strip closes
+the piece. Same plan contract, word-timing sync, per-stroke scratch SFX,
+encode + QA + receipts. Elements are declared per beat under `diagram`
+(see `fixtures/diagram_demo_plan.json`); art resolves through the same
+asset registry — unresolved concepts fall back to lettered chips (the
+hybrid artist slot).
+
+```bash
+python engine_sources/whiteboard-v3-runtime/pipeline_diagram_timed.py \
+  engine_sources/whiteboard-v3-runtime/fixtures/diagram_demo_plan.json \
+  --out-dir out/diagram --ratio 16:9 --voiceover vo.mp3 \
+  --word-timings words.json [--accent #RRGGBB]
+```
+
 ## Requirements
 
 - Python 3.10+, `Pillow`, `ffmpeg`/`ffprobe` on PATH.

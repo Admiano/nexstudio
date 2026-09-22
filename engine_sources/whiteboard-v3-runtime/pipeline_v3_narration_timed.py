@@ -357,6 +357,37 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
         snd.ROLE_GAIN['marker.short'] = 0.30
         snd.ROLE_GAIN['marker.swipe'] = 0.38
 
+    # Bed loudness map: the source recording has quiet valleys between its
+    # strokes (crossfaded when looped) — a random offset can land a slice on
+    # silence while the pen is visibly inking. Index the bed's windows whose
+    # envelope stays above a floor so every emitted scratch actually sounds.
+    def _loud_windows(wav_path: Path, span_s: float) -> list[float]:
+        import wave
+        import numpy as np
+        w = wave.open(str(wav_path))
+        n, sr = w.getnframes(), w.getframerate()
+        e = np.abs(np.frombuffer(w.readframes(n), dtype=np.int16)
+                   ).astype(np.float32)
+        b = int(sr * 0.05)  # 50ms bins
+        env = e[:n // b * b].reshape(-1, b).mean(1)
+        floor = np.percentile(env, 35)
+        span_bins = max(1, int(span_s / 0.05))
+        starts = []
+        for i in range(0, max(1, len(env) - span_bins)):
+            if env[i:i + span_bins].min() >= floor:
+                starts.append(i * 0.05)
+        return starts or [0.0]
+
+    _loud_cache: dict[tuple, list[float]] = {}
+
+    def bed_offset(bed_name: str, span_s: float, rnd) -> float:
+        key = (bed_name, round(span_s, 2))
+        if key not in _loud_cache:
+            _loud_cache[key] = _loud_windows(
+                sfx_dir / bed_name, min(span_s, 5.9))
+        wins = _loud_cache[key]
+        return wins[int(rnd.random() * len(wins)) % len(wins)]
+
     # Emit one scratch event per polyline pen-down interval (written into the
     # drawPlan by the renderer) — the sound plays only while the pen inks,
     # never during lifts or travel between strokes.
@@ -386,7 +417,12 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
                         'file': snd.ROLE_FILE.get(role, snd.ROLE_FILE['marker.short']),
                         'start': bstart + float(ps),
                         'duration': max(.05, float(pe) - float(ps)),
-                        'offset': rnd.random() * 4.8,
+                        'offset': (bed_offset(marker_bed.name,
+                                            float(pe) - float(ps), rnd)
+                                   if (marker_bed.is_file() and
+                                       snd.ROLE_FILE.get(role)
+                                       == marker_bed.name)
+                                   else rnd.random() * 4.8),
                         'gain': snd.ROLE_GAIN.get(role, .12),
                         'seed': snd._seed(si, i, role)})
             base = bstart + dur
