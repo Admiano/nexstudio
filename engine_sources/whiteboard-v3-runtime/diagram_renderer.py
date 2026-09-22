@@ -71,10 +71,10 @@ def _atlas(ratio: str, hero_size: float) -> dict:
         # boxes inside it) — each gets a pin arrow back into the hero.
         'hero-tl': (-s * 0.52, hy - s * 0.50),
         'hero-tr': (s * 0.52, hy - s * 0.50),
-        'hero-c': (0.0, hy + s * 0.58),
+        'hero-c': (0.0, hy + s * 0.55),
         'hero-bl': (-s * 0.52, hy + s * 0.38),
         'hero-br': (s * 0.52, hy + s * 0.38),
-        'bottom': (0.0, z['h'] * 0.40),
+        'bottom': (0.0, z['h'] * 0.44),
         'headline_y': -z['h'] * 0.44,
     }
 
@@ -161,8 +161,12 @@ def _chip(label: str, sub: str | None, cx: float, cy: float,
         d = math.hypot(dx, dy) or 1.0
         x0 = cx + dx / d * w_b * 0.5
         y0 = cy + dy / d * h_b * 0.5
-        strokes += _arrow(x0, y0, cx + dx / d * (d * 0.55),
-                          cy + dy / d * (d * 0.55), 'accent')
+        # 'pin'-tagged strokes reach INTO the hero by design — excluded
+        # from the chip's collision bounds or the resolver would push the
+        # box away from its own pointer forever
+        strokes += [s + ('pin',) for s in _arrow(
+            x0, y0, cx + dx / d * (d * 0.55), cy + dy / d * (d * 0.55),
+            'accent')]
     strokes.append((v3._rounded_rect(cx, cy, w_b, h_b, min(w_b * 0.12, 18)),
                     'accent' if accent else 'ink', 1.0, False, True))
     lines = [(str(label).upper(), h_l, 'ink', 1.35, True)]
@@ -265,6 +269,8 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             st, _o, _t, _h = _lettered(lbl, sx, sy, 20, 'ink',
                                        max_w=z['w'] * 0.4)
             add(bi, 'stage', st, size=1.0, role='marker.short')
+            elements[-1]['slot'] = region if region in ('left', 'right') \
+                else 'hero'
         for el in spec.get('elements') or []:
             at = str(el.get('at', region))
             if 'icon' in el:
@@ -281,18 +287,21 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 else:
                     add(bi, 'icon', _chip(el['icon'], None, cx, cy),
                         center=(0, 0), size=1.0, role='marker.swipe')
+                elements[-1]['slot'] = at
                 if el.get('sub'):
                     st2, _o, _t, _h = _lettered(
                         str(el['sub']), cx, cy + 74, 14, 'ink',
                         ws=0.95, bold=False, max_w=220)
                     add(bi, 'caption', st2, center=(0, 0), size=1.0,
                         role='marker.short')
+                    elements[-1]['slot'] = at
             elif 'chip' in el:
                 cx, cy = atlas.get(at, atlas['hero-c'])
                 pin = atlas['hero_c'] if at.startswith('hero') else None
                 add(bi, 'chip',
                     _chip(el['chip'], el.get('sub'), cx, cy, pin_to=pin),
                     center=(0, 0), size=1.0, role='marker.short')
+                elements[-1]['slot'] = at
             elif 'callout' in el:
                 cx, cy = _column_slot(atlas, at, col_counts.get(at, 0),
                                       col_total.get(at, 1)) \
@@ -303,6 +312,7 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 add(bi, 'callout',
                     _chip(el['callout'], el.get('sub'), cx, cy, accent=True),
                     center=(0, 0), size=1.0, role='marker.swipe')
+                elements[-1]['slot'] = at
             elif 'arrow' in el:
                 a = el['arrow'] if isinstance(el['arrow'], dict) else {}
                 p0 = _slot_point(atlas, a.get('from', 'left'))
@@ -324,6 +334,8 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                                bx, by, max_w=w_b - 24)
         add(len(beats) - 1, 'summary', strokes, center=(0, 0), size=1.0,
             role='marker.swipe')
+
+    _resolve_collisions(elements, atlas)
 
     # assign beat-relative windows weighted by ink length
     for bi, b in enumerate(beats):
@@ -362,6 +374,146 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             spec['pen'] = sorted(pen)
             spec['soundRole'] = spec.pop('role')
     return elements, {'atlas': atlas, 'plans': plans}
+
+
+def _elem_bounds(e):
+    xs, ys = [], []
+    for st in e['strokes']:
+        if len(st) > 5 and st[5] == 'pin':
+            continue
+        absolute = len(st) > 4 and st[4]
+        for px, py in st[0]:
+            xs.append(px if absolute else e['center'][0] + px * e['size'])
+            ys.append(py if absolute else e['center'][1] + py * e['size'])
+    return (min(xs), min(ys), max(xs), max(ys)) if xs else None
+
+
+def _shift_elem(e, dx, dy):
+    """Move an element: absolute-stroke pts translate directly; relative
+    (icon/hero) strokes move via their center."""
+    moved_rel = False
+    new = []
+    for st in e['strokes']:
+        absolute = len(st) > 4 and st[4]
+        if absolute:
+            new.append(([(px + dx, py + dy) for px, py in st[0]],) + st[1:])
+        else:
+            new.append(st)
+            moved_rel = True
+    e['strokes'] = new
+    if moved_rel:
+        e['center'] = (e['center'][0] + dx, e['center'][1] + dy)
+
+
+def _overlaps(a, b):
+    return a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1]
+
+
+def _bounds_in_band(e, y0: float, y1: float):
+    """Ink bounds of element restricted to strokes inside [y0, y1] — a
+    tall hero's full bbox overstates what a top satellite must avoid
+    (up there only its antenna has ink, not its whole width)."""
+    xs, ys = [], []
+    for st in e['strokes']:
+        if len(st) > 5 and st[5] == 'pin':
+            continue
+        absolute = len(st) > 4 and st[4]
+        for px, py in st[0]:
+            yy = py if absolute else e['center'][1] + py * e['size']
+            if y0 <= yy <= y1:
+                xs.append(px if absolute else e['center'][0] + px * e['size'])
+                ys.append(yy)
+    return (min(xs), min(ys), max(xs), max(ys)) if xs else None
+
+
+def _resolve_collisions(elements: list[dict], atlas: dict) -> None:
+    """Measured-bounds layout repair. Nominal slots can place ink on top
+    of other ink (icons touching, chips on the hero's edge, stage labels
+    on callout boxes) — resolve with real bounds: re-stack each column
+    with a minimum gap, push hero-satellite chips radially off the hero,
+    and float stage labels just above their region's topmost ink."""
+    z = atlas['zone']
+    margin = 24.0
+    hero_e = next((e for e in elements if e['kind'] == 'hero'), None)
+    head_b = next((_elem_bounds(e) for e in elements
+                   if e['kind'] == 'headline'), None)
+    summ_b = next((_elem_bounds(e) for e in elements
+                   if e['kind'] == 'summary'), None)
+
+    def _inflate(b):
+        return (b[0] - margin * 0.5, b[1] - margin * 0.5,
+                b[2] + margin * 0.5, b[3] + margin * 0.5)
+
+    for e in elements:
+        if e['kind'] in ('chip', 'callout') and \
+                (e.get('slot') or '').startswith('hero'):
+            for _ in range(26):
+                b = _elem_bounds(e)
+                if not b:
+                    break
+                forbids = []
+                if hero_e:
+                    hb = _bounds_in_band(hero_e, b[1] - margin,
+                                         b[3] + margin)
+                    if hb:
+                        forbids.append(_inflate(hb))
+                if head_b:
+                    forbids.append(_inflate(head_b))
+                if summ_b:
+                    forbids.append(_inflate(summ_b))
+                bad = [f for f in forbids if _overlaps(b, f)]
+                if not bad:
+                    break
+                cx, cy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
+                dx = dy = 0.0
+                for f in bad:
+                    ddx = cx - (f[0] + f[2]) / 2
+                    ddy = cy - (f[1] + f[3]) / 2
+                    dd = math.hypot(ddx, ddy) or 1.0
+                    dx += ddx / dd
+                    dy += ddy / dd
+                d = math.hypot(dx, dy) or 1.0
+                _shift_elem(e, dx / d * 12.0, dy / d * 12.0)
+    for col in ('left', 'right'):
+        items = [e for e in elements if e.get('slot') == col]
+        items.sort(key=lambda e: (_elem_bounds(e) or (0, 0, 0, 0))[1])
+        cursor = -z['h'] * 0.20
+        for e in items:
+            b = _elem_bounds(e)
+            if not b:
+                continue
+            _shift_elem(e, 0.0, cursor - b[1])
+            cursor = _elem_bounds(e)[3] + margin
+        for e in elements:
+            if e['kind'] == 'stage' and e.get('slot') == col:
+                b = _elem_bounds(e)
+                top = min((_elem_bounds(x)[1] for x in items
+                           if _elem_bounds(x)), default=b[1])
+                _shift_elem(e, 0.0, top - margin * 0.6 - b[3])
+                # never float into the headline zone — drop the column
+                # stack down by the deficit instead
+                head = next((f for f in forbids), None)
+                hb = next((_elem_bounds(x) for x in elements
+                           if x['kind'] == 'headline'), None)
+                b = _elem_bounds(e)
+                if hb and b and b[1] < hb[3] + margin * 0.4:
+                    deficit = hb[3] + margin * 0.4 - b[1]
+                    _shift_elem(e, 0.0, deficit)
+                    for x in items:
+                        _shift_elem(x, 0.0, deficit)
+    for e in elements:
+        if e['kind'] == 'stage' and e.get('slot') == 'hero':
+            b = _elem_bounds(e)
+            tops = [_elem_bounds(x)[1] for x in elements
+                    if x['kind'] in ('chip', 'callout')
+                    and (x.get('slot') or '').startswith('hero')
+                    and _elem_bounds(x)]
+            if tops and b:
+                _shift_elem(e, 0.0, min(tops) - margin * 0.6 - b[3])
+                # never into the headline zone either
+                b = _elem_bounds(e)
+                if head_b and b[1] < head_b[3] + margin * 0.4:
+                    _shift_elem(e, 0.0, head_b[3] + margin * 0.4 - b[1])
 
 
 def _slot_point(atlas: dict, name: str) -> tuple[float, float]:
