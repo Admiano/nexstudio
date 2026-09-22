@@ -126,12 +126,14 @@ def _headline(text: str, atlas: dict) -> list:
 def _chip(label: str, sub: str | None, cx: float, cy: float,
           accent=False, pin_to: tuple | None = None) -> list:
     """Rounded box sized to its label + optional sub-line + a pin arrow
-    when it annotates the hero from outside its bounds."""
-    h_l, h_s = 15.0, 10.0
+    when it annotates the hero from outside its bounds.
+    Sub-lines stay in ink (not 'secondary'): pale thin strokes at small
+    sizes read as out-of-focus rather than deliberately muted."""
+    h_l, h_s = 18.5, 13.0
     tw = v3.text_width(str(label).upper(), h_l)
     sw = v3.text_width(str(sub), h_s) if sub else 0.0
-    w_b = max(120.0, max(tw, sw) + 44)
-    h_b = 60.0 if sub else 44.0
+    w_b = max(140.0, max(tw, sw) + 56)
+    h_b = 78.0 if sub else 52.0
     strokes = []
     if pin_to is not None:
         # short pointer from the box edge toward the hero's edge
@@ -144,12 +146,12 @@ def _chip(label: str, sub: str | None, cx: float, cy: float,
     strokes.append((v3._rounded_rect(cx, cy, w_b, h_b, min(w_b * 0.12, 18)),
                     'accent' if accent else 'ink', 1.0, False, True))
     st, _o, _t, _h = _lettered(str(label).upper(), cx,
-                               cy - h_b * 0.40, h_l, 'ink', max_w=w_b - 20)
+                               cy - h_b * 0.36, h_l, 'ink', max_w=w_b - 24)
     strokes += st
     if sub:
-        st, _o, _t, _h = _lettered(str(sub), cx, cy + h_b * 0.08,
-                                   h_s, 'secondary', ws=1.0, bold=False,
-                                   max_w=w_b - 16)
+        st, _o, _t, _h = _lettered(str(sub), cx, cy + h_b * 0.10,
+                                   h_s, 'ink', ws=0.95, bold=False,
+                                   max_w=w_b - 20)
         strokes += st
     return strokes
 
@@ -244,7 +246,7 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             else:
                 # hero beats: label floats above the satellite chips
                 sx, sy = 0.0, atlas['hero_c'][1] - atlas['hero_s'] * 0.74
-            st, _o, _t, _h = _lettered(lbl, sx, sy, 18, 'ink',
+            st, _o, _t, _h = _lettered(lbl, sx, sy, 20, 'ink',
                                        max_w=z['w'] * 0.4)
             add(bi, 'stage', st, size=1.0, role='marker.short')
         for el in spec.get('elements') or []:
@@ -265,8 +267,8 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                         center=(0, 0), size=1.0, role='marker.swipe')
                 if el.get('sub'):
                     st2, _o, _t, _h = _lettered(
-                        str(el['sub']), cx, cy + 62, 13, 'secondary',
-                        ws=1.0, bold=False, max_w=200)
+                        str(el['sub']), cx, cy + 74, 14, 'ink',
+                        ws=0.95, bold=False, max_w=220)
                     add(bi, 'caption', st2, center=(0, 0), size=1.0,
                         role='marker.short')
             elif 'chip' in el:
@@ -299,10 +301,10 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
         bx, by = atlas['bottom']
         txt = summary.upper()[:60]
         tw = v3.text_width(txt, 17)
-        w_b = min(z['w'] * 0.92, tw + 60)
-        strokes = [(v3._rounded_rect(bx, by, w_b, 56, 16),
+        w_b = min(z['w'] * 0.92, tw + 72)
+        strokes = [(v3._rounded_rect(bx, by, w_b, 60, 16),
                     'ink', 1.0, False, True)]
-        st, _o, _t, _h = _lettered(txt, bx, by - 17, 17, 'ink',
+        st, _o, _t, _h = _lettered(txt, bx, by - 18, 18, 'ink',
                                    max_w=w_b - 24)
         strokes += st
         add(len(beats) - 1, 'summary', strokes, center=(0, 0), size=1.0,
