@@ -21,6 +21,8 @@ import svg_paths  # noqa: E402
 
 _DETAIL_CLASSES = {'pb-face', 'pb-fold', 'pb-trim', 'pb-seam', 'pb-detail'}
 _SKIP_CLASSES = {'pb-shadow', 'pb-rim'}
+_FILL_CLASSES = {'pb-hair', 'pb-foot'}        # solid-ink regions
+_HATCH_CLASSES = {'pb-top', 'pb-sleeve'}      # garment shading strokes
 _SCALE = 4  # raster oversampling
 
 
@@ -94,13 +96,25 @@ def figure_strokes(svg_path, height=260.0):
         key = next((c for c in cls.split() if c in _SKIP_CLASSES), None)
         if key or any(c in _SKIP_CLASSES for c in cls.split()):
             continue
+        # degenerate geometry guard: a detail poly spanning nearly the whole
+        # figure is a renderer artifact (e.g. pb-fold's ~2m ellipse under
+        # stride poses) — drop it, never let it ink.
+        polys = [p for p in polys
+                 if not ((max(x for x, _ in p) - min(x for x, _ in p) > vw * 0.85)
+                         or (max(y for _, y in p) - min(y for _, y in p) > vh * 0.85))]
         is_detail = any(c in _DETAIL_CLASSES for c in cls.split())
+        is_fill = any(c in _FILL_CLASSES for c in cls.split())
+        is_hatch = any(c in _HATCH_CLASSES for c in cls.split())
         for p in polys:
             sp = [(x * _SCALE + ox, y * _SCALE + oy) for x, y in p]
             if is_detail:
                 details.append(sp)
             else:
                 md.polygon(sp, fill=255)
+            if is_fill:
+                details.append(('fill', sp))
+            elif is_hatch:
+                details.append(('hatch', sp))
     # union silhouette contours
     arr = np.asarray(mask)
     import matplotlib
@@ -130,6 +144,42 @@ def figure_strokes(svg_path, height=260.0):
             strokes.append(([(float((x - ox) * k), float((y - oy) * k))
                              for x, y in simp], False))
     for d in details:
+        if isinstance(d, tuple) and d[0] in ('fill', 'hatch'):
+            kind, sp = d
+            if kind == 'fill':
+                strokes.append(([(float((x - ox) * k), float((y - oy) * k))
+                                 for x, y in sp], 'fill'))
+                continue
+            # hatch: diagonal strokes clipped inside the polygon
+            xs = [p[0] for p in sp]; ys = [p[1] for p in sp]
+            try:
+                from matplotlib.path import Path as _MPath
+                clip = _MPath(sp)
+                x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+                diag = max(x1 - x0, y1 - y0)
+                step = max(6.0, diag / 6)
+                off = -diag
+                while off < diag:
+                    seg = []
+                    for i in range(25):
+                        t = i / 24
+                        px = x0 + (x1 - x0) * t
+                        py = y0 + (y1 - y0) * t + off   # slope +1 diagonal
+                        if clip.contains_point((px, py)):
+                            seg.append((px, py))
+                        elif len(seg) > 1:
+                            strokes.append(([(float((x - ox) * k), float((y - oy) * k))
+                                             for x, y in seg], True))
+                            seg = []
+                        else:
+                            seg = []
+                    if len(seg) > 1:
+                        strokes.append(([(float((x - ox) * k), float((y - oy) * k))
+                                         for x, y in seg], True))
+                    off += step
+            except Exception:
+                pass
+            continue
         simp = _rdp([tuple(p) for p in d], 0.8)
         if len(simp) >= 2:
             strokes.append(([(float((x - ox) * k), float((y - oy) * k))

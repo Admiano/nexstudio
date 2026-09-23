@@ -178,7 +178,7 @@ def _papercast_strokes(cast_id):
     st = []
     for pts, det in _line_cast.figure_strokes(p, height=260.0):
         if len(pts) > 1:
-            st.append((pts, 'ink', 0.7 if det else 1.0, False, False))
+            st.append((pts, 'ink', 0.7 if det else 1.0, det == 'fill', False))
     _PC_CACHE[cast_id] = st or None
     return _PC_CACHE[cast_id]
 

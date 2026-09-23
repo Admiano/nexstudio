@@ -2,7 +2,7 @@
 
 | Artifact | Identity |
 |---|---|
-- `v3_board_sections.py` — sha256 `d4990cbf26844953d4b78762f22a5b7ec36405588d29f717eaa195d2450e1ccb`
+- `v3_board_sections.py` — sha256 `25ebc37572067e309b25707d9521846ca89461185349fcaa67cb343c222e5f0c`
 | Original renderer | `…/WHITEBOARD_ELITE_RUNTIME/vendor/pipeline_v3_narration_timed.py` |
 | Recorded sha256 | `c91f2bc50cb634c993ff307ef01bb4177d9478a290bf0b4da042adee260f9c34` |
 | Standalone source preserved | **no** (`06_provenance/EXACT_ARTIFACT_GAP.json`) |
@@ -36,5 +36,6 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `vo_synth.py` (edge/kokoro VO + timings) | `3e51653659e0cc56fd4bf4439906bacd4e788b6506ab1e1b3b6b9e500b106466` |
 | `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `d9465acd46896c29dc3620a9be69115fa2faee9748b2be12cdbb09f2460d8630` |
 | `tools/nexstick/mocap.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `db0c394d4c1c98016f686248808e4101c72623b2a0a53b008a9c2d3e4e94a543` |
-| `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `1b313ad721ad6fbce8d14b5faac27b818a8bd09d0f717c98f6a47853e7df9158` |
-| `tools/nexstick/walk_proof3.py` | nexstick motion bridge (mocap->paperbook rig proof) | `bfdac89775ee9b845987338409571e09d92c734ade594c87c2a97759d57a1f1b` |
+| `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `29d086458577efbfc84a851590a90801f668171ae795736016d660fd2e661adb` |
+| `tools/nexstick/walk_proof3.py` | nexstick motion bridge (mocap->paperbook rig proof) | `513b574787af34dc50a82d91626f12d73b7291f5b88e2ac19763eecb88c157f6` |
+| `tools/paper_cast/line_cast.py` | paper-cast line-art tracer (silhouette union, fills, hatching) | `3a43f15b05450dd3b909d8cc242e76bae0a7c50b729c34e5134e57ac3d2492ee` |

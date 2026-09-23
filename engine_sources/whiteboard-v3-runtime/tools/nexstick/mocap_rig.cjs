@@ -77,10 +77,15 @@ for (let i = 0; i < nF; i++) {
   const st = V5.sample(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const pose = poseFromMocap(st.pose3d);
-  const out = Renderer.renderPose({ proportion, height: 1000, view: 'profile-left', pose, look: { top: { garment: 'shirt' } }, face: 'neutral' });
-  // strip decorative layers: pb-fold emits a degenerate 2m ellipse under
-  // stride poses; rim/shadow/trim aren't part of the line-art look anyway.
-  const svg = out.svg.replace(/<g class="pb-(fold|rim|shadow|trim)"[^>]*>.*?<\/g>/gs, '');
+  const out = Renderer.renderPose({ proportion, height: 1000, view: 'profile-left', pose, look: { top: { garment: 'jacket' } }, face: 'neutral', background: false, grain: false });
+  // strip only non-line layers (rim highlights, contact shadow) and any
+  // degenerate element (pb-fold can emit a ~2m ellipse under stride poses);
+  // every garment/detail stroke stays for the elite look.
+  const svg = out.svg
+    .replace(/<g class="pb-(rim|shadow)"[^>]*>.*?<\/g>/gs, '')
+    .replace(/<defs>.*?<\/defs>/s, '')
+    .replace(/<g class="pb-fold"[^>]*>\s*<ellipse[^>]*ry="([0-9.]+)"[^>]*\/><\/g>/gs,
+             (m, ry) => (+ry > 200 ? '' : m));
   const p = path.join(outDir, `g${String(i).padStart(3, '0')}.svg`);
   fs.writeFileSync(p, svg);
   meta.push({ t, pose, root: st.pose3d.root });

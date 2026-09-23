@@ -16,7 +16,7 @@ sys.path.insert(0, str(RUNTIME / 'tools' / 'paper_cast'))
 import line_cast  # noqa: E402
 
 W, H, FPS = 1280, 720, 24
-DRAW_S, WALK_S = 2.4, 5.0
+DRAW_S, WALK_S = 2.4, 2.6
 GROUND_Y = int(H * 0.78)
 MARGIN_X = 140
 FIG_PX = int(H * 0.58)          # rendered figure height
@@ -63,9 +63,13 @@ def draw_figure(img, fr, cx_px, ground_y, scale, n_show=None):
     for poly, detail in strokes[:n]:
         pts = [(cx_px - (x - fr['cx']) * scale,   # mirror x: face leads +x travel
                 ground_y - (0 - y) * scale) for x, y in poly]
-        if len(pts) > 1:
-            d.line(pts, fill=0, width=max(2, int(scale * (6 if not detail else 4))), joint='curve')
-            last_tip = pts[-1]
+        if len(pts) < 2:
+            continue
+        if detail == 'fill':
+            d.polygon(pts, fill=0)
+        else:
+            d.line(pts, fill=0, width=max(2, int(scale * (6 if not detail else 3))), joint='curve')
+        last_tip = pts[-1]
     return last_tip
 
 
@@ -98,7 +102,7 @@ def main():
             # real mocap root travel (metres) -> px at figure scale
             x_m = (fr['root_m'] - root0)
             px_m = scale * 1000 / 1.68   # svg height 1000 == 1.68 m figure
-            cx = MARGIN_X + 90 + x_m * px_m
+            cx = min(MARGIN_X + 90 + x_m * px_m, W - MARGIN_X - 40)
             if cx > W + 260:
                 break
             draw_figure(img, fr, cx, GROUND_Y, scale)
