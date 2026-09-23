@@ -32,9 +32,13 @@ def _subtle_paper_texture(im, pal, seed):
     rnd = random.Random(seed)
     d = ImageDraw.Draw(im)
     w, h = im.size
+    # speckle picks up a whisper of the ink colour over the paper —
+    # subtle on white boards, a faint chalk grain on dark ones
+    speck = tuple(int(pal['bgc'][i] * 0.92 + pal['inkc'][i] * 0.08)
+                  for i in range(3)) + (255,)
     for _ in range(max(14, int(w * h / 46000))):
         x, y = rnd.randrange(w), rnd.randrange(h)
-        d.point((x, y), fill=(238, 235, 228, 255))
+        d.point((x, y), fill=speck)
 
 
 wbp._paper_texture = _subtle_paper_texture

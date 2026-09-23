@@ -224,15 +224,36 @@ def normalize_plan(plan: dict) -> dict:
         ),
     }
     p['durationSeconds'] = cursor + p['pacing']['board_reveal_seconds']
-    # Warm paper + blue accent — the reel's house palette; overridable per plan.
+    # White paper + black ink — the locked commercial look; overridable
+    # per plan or via --theme/--accent.
     if not p.get('brandExecution'):
         p['brandExecution'] = {
             'brandAuthority': {
-                'background': '#F5F0E4', 'ink': '#1A1A17',
-                'accent': '#0052FF', 'secondary': '#8B8577',
+                'background': '#FFFFFF', 'ink': '#1A1A17',
+                'accent': '#1A1A17', 'secondary': '#8B8577',
             }
         }
     return p
+
+
+# user-selectable board themes — light is the white-paper commercial
+# default; dark is the chalk-on-blackboard variant with the same hand
+_THEME_PALETTES = {
+    'light': {'background': '#FFFFFF', 'ink': '#1A1A17',
+              'accent': '#1A1A17', 'secondary': '#8B8577'},
+    'dark': {'background': '#121211', 'ink': '#F5F4EF',
+             'accent': '#F5F4EF', 'secondary': '#8B8577'},
+}
+
+
+def apply_theme(plan: dict, theme: str) -> dict:
+    """Swap the plan's palette for a named theme — beats the injected
+    default AND any authored palette; --accent still wins afterwards."""
+    pal = _THEME_PALETTES.get(theme)
+    if pal:
+        plan.setdefault('brandExecution', {})[
+            'brandAuthority'] = dict(pal)
+    return plan
 
 
 # ---------------------------------------------------------------------------
@@ -699,6 +720,9 @@ def main(argv: list[str] | None = None) -> int:
                          'whisper verbose_json, or flat [{word,start,end}]). '
                          'When given, each beat window is re-aligned to where '
                          'its narration is actually spoken — audio is the clock.')
+    ap.add_argument('--theme', default=None, choices=['light', 'dark'],
+                    help='Board theme — dark draws white ink on a black '
+                         'board (hand unchanged); light is the default')
     ap.add_argument('--accent', default=None,
                     help='Brand accent hex (e.g. #E11D48) — overrides the '
                          'plan brandAuthority.accent; drives swooshes, '
@@ -710,6 +734,8 @@ def main(argv: list[str] | None = None) -> int:
     plan = load_plan(Path(a.plan))
     if a.variant:
         plan['camera_variant'] = a.variant
+    if a.theme:
+        apply_theme(plan, a.theme)
     if a.accent:
         plan.setdefault('brandExecution', {}).setdefault(
             'brandAuthority', {})['accent'] = a.accent

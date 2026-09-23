@@ -199,6 +199,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--ratio', default='16:9',
                     choices=['16:9', '1:1', '9:16'])
     ap.add_argument('--fps', type=int, default=24)
+    ap.add_argument('--theme', default=None, choices=['light', 'dark'],
+                    help='Board theme — dark draws white ink on a black '
+                         'board (hand unchanged); light is the default')
     ap.add_argument('--accent', default=None,
                     help='Brand accent hex (e.g. #E11D48) — overrides the '
                          'plan brandAuthority.accent')
@@ -217,6 +220,8 @@ def main(argv: list[str] | None = None) -> int:
     page_size = a.page_size or (3 if a.ratio == '9:16' else None)
     if page_size:
         _repage_flow(plan, page_size)
+    if a.theme:
+        p3.apply_theme(plan, a.theme)
     if a.accent:
         plan.setdefault('brandExecution', {}).setdefault(
             'brandAuthority', {})['accent'] = a.accent

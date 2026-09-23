@@ -140,3 +140,28 @@ def test_end_to_end_encode(tmp_path):
         assert float(out['format']['duration']) == pytest.approx(plan['durationSeconds'], abs=0.6)
     assert receipt['renderer']['reconstruction'] is True
     assert (tmp_path / f"{plan['production_id']}_QA.jpg").exists()
+
+
+# --- themes -----------------------------------------------------------------
+
+def test_default_palette_is_white_paper_black_ink(tmp_path, monkeypatch):
+    plan_file = tmp_path / 'plan.json'
+    bare = _plan()
+    bare.pop('brandExecution', None)
+    plan_file.write_text(json.dumps(bare))
+    loaded = pipe.load_plan(plan_file)
+    brand = loaded['brandExecution']['brandAuthority']
+    assert brand['background'] == '#FFFFFF'
+    assert brand['ink'] == '#1A1A17'
+    assert brand['accent'] == '#1A1A17'
+
+
+def test_dark_theme_swaps_paper_and_ink():
+    plan = _plan()
+    pipe.apply_theme(plan, 'dark')
+    brand = plan['brandExecution']['brandAuthority']
+    assert brand['background'] == '#121211'
+    assert brand['ink'] == '#F5F4EF'
+    assert brand['accent'] == brand['ink']
+    pipe.apply_theme(plan, 'light')
+    assert plan['brandExecution']['brandAuthority']['background'] == '#FFFFFF'

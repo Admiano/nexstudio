@@ -11,7 +11,7 @@ preserved execution body so every render is reproducible from versioned source.
 
 - **Narration is the clock.** Each beat's `duration_seconds` (VO segment) is the scene window; drawing completes inside it and holds — the compiler's per-stroke `drawPlan` plus the comprehension doctrine do the pacing.
 - **One evolving board world.** Scenes live at authored board zones; the camera travels between zones (`cluster_travel` 0.62 s moves) and finishes with a pull-back reveal of the whole accumulated board (`giant_board_journey` uses 0.72 s travel).
-- **Authored-illustration board renderer.** `v3_board_renderer.py` draws the reel's visual language at explainer grade: real illustrated characters from the shipped Open Peeps pose library (`assets/open_peeps/`, V15/V16 donor lineage of the approved source bundle) rendered as progressive pen strokes with tonal fills (paper skin, ink hair/features, bold accent clothing), a 20-prop filled illustration vocabulary (envelope, document, card stack, funnel, wrench, circled check, chart, clock, phone, laptop, coin, bank, shield, gear, lightbulb, rocket, network, target, question card), thought bubbles, motion marks, ground shadows, notification pings, sparkles, small-caps captions, and an underlined bold headline on warm paper. `svg_paths.py` converts authored SVG paths to sampled polylines for the draw-on. Concepts resolve to visuals noun-first (`customer request` → envelope + ping, `human agent` → person, `AI agent` → robot, `12 min` → clock). No connector lines.
+- **Authored-illustration board renderer.** `v3_board_renderer.py` draws the reel's visual language at explainer grade: real illustrated characters from the shipped Open Peeps pose library (`assets/open_peeps/`, V15/V16 donor lineage of the approved source bundle) rendered as progressive pen strokes with tonal fills (paper skin, ink hair/features, bold accent clothing), a 20-prop filled illustration vocabulary (envelope, document, card stack, funnel, wrench, circled check, chart, clock, phone, laptop, coin, bank, shield, gear, lightbulb, rocket, network, target, question card), thought bubbles, motion marks, ground shadows, notification pings, sparkles, small-caps captions, and an underlined bold headline on white paper. `svg_paths.py` converts authored SVG paths to sampled polylines for the draw-on. Concepts resolve to visuals noun-first (`customer request` → envelope + ping, `human agent` → person, `AI agent` → robot, `12 min` → clock). No connector lines.
 - **Audio finish.** 48 kHz pen/marker SFX bed from `sound_choreographer`, optional VO mixed via ffmpeg `sidechaincompress` (~120 ms attack / 280 ms release) and `loudnorm` to −16 LUFS / −1.5 dBTP.
 - **Artifacts.** MP4 (`libx264`, yuv420p, faststart), QA contact sheet, metrics JSON, execution receipt with SHA-256 of every output.
 
@@ -66,8 +66,13 @@ hybrid artist slot).
 python engine_sources/whiteboard-v3-runtime/pipeline_diagram_timed.py \
   engine_sources/whiteboard-v3-runtime/fixtures/diagram_demo_plan.json \
   --out-dir out/diagram --ratio 16:9 --voiceover vo.mp3 \
-  --word-timings words.json [--accent #RRGGBB]
+  --word-timings words.json [--theme light|dark] [--accent #RRGGBB]
 ```
+
+Both renderers default to white paper + black ink. `--theme dark` swaps to
+a black board with white ink (the hand sprite is unchanged); `--accent`
+recolors brand accents, and `--page-size N` re-inserts erase page turns
+every N flow cells (9:16 defaults to 3 per scene).
 
 ## Requirements
 
