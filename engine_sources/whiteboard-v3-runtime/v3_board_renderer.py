@@ -2470,6 +2470,8 @@ _SLICE_SPAN = {
     'caption':  (0.52, 1.00),
     'strike':   (0.45, 0.90),
     'emphasis': (0.60, 1.00),
+    'divider':  (0.00, 0.95),
+    'plabel':   (0.00, 0.90),
 }
 _FOCAL_BOOST = 1.55
 _PERSON_BOOST = 1.85
@@ -2490,29 +2492,25 @@ def _cubic_pts(p0, c1, c2, p3, n=26):
 
 
 def _journey_items(plan: dict, ratio: str):
-    """Compose every beat's drawable groups into illustrated elements and
-    lay them along a flowing path — heading first, then each element inked
-    in turn, with a drawn connector carrying the pen between elements."""
+    """Panel-board model — the reference form: a heading band on top, then
+    the board divided into labeled panels (drawn divider lines), each
+    panel getting one beat's composed illustration element by element."""
     cache = (plan.get('_journey_items') or {}).get(ratio)
     if cache:
         return cache
     beats = plan.get('beats') or []
     scenes = plan.get('sceneSpecs') or []
-    zw, zh = 1040.0, 620.0
-    margin, gap_x, gap_y = 100.0, 24.0, 30.0
-    row_w = zw * 1.9
+    margin = 100.0
+    pw, ph = 1500.0, 1020.0
 
     items = []
     title = _journey_title(plan)
+    head_h = 0.0
     if title:
-        # the piece title gets a full-width band — headline sizing keys off
-        # zone height, so feed it a tall band to get real display letters
-        head_zone = {'x': 0.0, 'y': 0.0, 'w': row_w, 'h': zh * 2.1}
+        head_zone = {'x': 0.0, 'y': 0.0, 'w': pw * 2.0, 'h': 620.0}
         fake = {'screenCopy': {'primary': title}}
         st = _headline_strokes(fake, head_zone, ratio)
         if st:
-            # the reveal canvas renders each element as one viewport tile —
-            # shrink a heading wider than a viewport so its ends don't clip
             hb = _group_world_bounds(('h', st, (0.0, 0.0), 1.0, None))
             hw_ = hb[2] - hb[0]
             cap = wbp.RATIO_SIZES[ratio][0] / _map_scale(ratio) * 0.62
@@ -2525,9 +2523,70 @@ def _journey_items(plan: dict, ratio: str):
                                       None), 0.15, 1.5)],
                           'bounds': (hb := _group_world_bounds(
                               ('headline', st, (0.0, 0.0), 1.0, None))),
-                          'art_bounds': hb, 'bi': 0, 'boost': 1.0})
+                          'art_bounds': hb, 'bi': None, 'boost': 1.0,
+                          'panel': (hb[0] + (hb[2] - hb[0]) / 2,
+                                    hb[1] + (hb[3] - hb[1]) / 2),
+                          'center': ((hb[0] + hb[2]) / 2,
+                                     (hb[1] + hb[3]) / 2),
+                          'bounds2': hb, 'w': hb[2] - hb[0],
+                          'h': hb[3] - hb[1], 't0': 0.15, 't1': 1.5,
+                          'beat': -1})
+            head_h = (hb[3] - hb[1]) + 140.0
+
+    n = max(1, len(beats))
+    cols = max(1, math.ceil(math.sqrt(n * (pw / ph))))
+    rows = max(1, math.ceil(n / cols))
+    gy0 = margin + head_h
+
+    def _wobble_line(p0, p1, n=26, wob=9.0):
+        pts = []
+        for i in range(n):
+            f = i / (n - 1)
+            x = p0[0] + (p1[0] - p0[0]) * f
+            y = p0[1] + (p1[1] - p0[1]) * f
+            pts.append((x + math.sin(i * 1.7) * wob,
+                        y + math.cos(i * 1.3) * wob * 0.6))
+        return pts
+
     for bi, (beat, scene) in enumerate(zip(beats, scenes)):
         b0 = float(beat.get('start_seconds', 0.0))
+        col, row = bi % cols, bi // cols
+        px = margin + col * pw
+        py = gy0 + row * ph
+        pctr = (px + pw / 2, py + ph / 2)
+        beat_items = []
+
+        # divider lines — the hand-drawn separators that make it a panel
+        if col > 0:
+            pts = _wobble_line((px - 30, py + 10), (px - 30, py + ph - 10))
+            g = ('divider', [(pts, 'ink', 0.9, False, True)],
+                 (px - 30, py + ph / 2), 1.0, None)
+            beat_items.append({'groups': [(g, 0.0, 1.0)],
+                               'wgt': 0.28, 'panel': pctr})
+        if row > 0:
+            pts = _wobble_line((px + 10, py - 30), (px + pw - 10, py - 30))
+            g = ('divider', [(pts, 'ink', 0.9, False, True)],
+                 (px + pw / 2, py - 30), 1.0, None)
+            beat_items.append({'groups': [(g, 0.0, 1.0)],
+                               'wgt': 0.28, 'panel': pctr})
+
+        # panel label — the beat's role, hand-lettered small at top-left
+        label = (beat.get('heroRole') or '').strip().upper()
+        if not label:
+            sid = str(beat.get('beat_id') or '')
+            label = sid.split('_', 1)[-1].replace('_', ' ').upper()
+        if label:
+            st = _card_text_strokes((px + pw * 0.5, py + 60),
+                                    640.0, label,
+                                    {'x': px + 40, 'y': py + 20,
+                                     'w': pw * 0.6, 'h': 110})
+            if st:
+                g = ('plabel', st, (px + 40 + pw * 0.30, py + 52),
+                     1.0, None)
+                beat_items.append({'groups': [(g, 0.0, 1.0)],
+                                   'wgt': 0.42, 'panel': pctr})
+
+        # the beat's elements — person+prop merged cluster, ordered parts
         bundle: dict = {}
         order = []
         last_key = None
@@ -2535,7 +2594,6 @@ def _journey_items(plan: dict, ratio: str):
             if g[0] == 'headline':
                 continue
             if g[4] is None and last_key is not None:
-                # relation arrows / loose marks annotate the element before
                 bundle[last_key].append((g, b0 + s, b0 + e))
                 continue
             key = id(g[4]) if g[4] is not None else id(g)
@@ -2544,8 +2602,6 @@ def _journey_items(plan: dict, ratio: str):
                 order.append(key)
             bundle[key].append((g, b0 + s, b0 + e))
             last_key = key
-        # a person + their prop reads as one interaction — merge the first
-        # prop bundle into the person's element cluster
         pk = next((k for k in order
                    if bundle[k] and bundle[k][0][0][4]
                    and bundle[k][0][0][4].get('icon') in ('person', 'agent')),
@@ -2553,22 +2609,18 @@ def _journey_items(plan: dict, ratio: str):
         if pk is not None:
             qk = next((k for k in order if k != pk), None)
             if qk is not None:
-                # the prop's caption stacks under the person's instead of
-                # overlapping it inside the cluster
                 for g2, s2, e2 in bundle[qk]:
                     if g2[0] == 'caption':
-                        # sit exactly under the person's caption: measure
-                        # both blocks' ink and stack them
                         pc = next((g3[0] for g3 in bundle[pk]
                                    if g3[0][0] == 'caption'), None)
                         drop = g2[3] * 0.6
                         if pc is not None:
-                            pmax = max(py for st in pc[1]
-                                       for _, py in st[0])
-                            cmin = min(py for st in g2[1]
-                                       for _, py in st[0])
+                            pmax = max(py_ for st in pc[1]
+                                       for _, py_ in st[0])
+                            cmin = min(py_ for st in g2[1]
+                                       for _, py_ in st[0])
                             drop = pmax - cmin + 10.0
-                        st2 = [([(px, py + drop) for px, py in st[0]],)
+                        st2 = [([(px_, py_ + drop) for px_, py_ in st[0]],)
                                + tuple(st[1:]) for st in g2[1]]
                         bundle[pk].append(
                             ((g2[0], st2, g2[2], g2[3], g2[4]), s2, e2))
@@ -2579,18 +2631,12 @@ def _journey_items(plan: dict, ratio: str):
         for key in order:
             gs = bundle[key]
             b = None
-            ab = None
             for g, _s, _e in gs:
                 gb = _group_world_bounds(g)
                 b = gb if b is None else (min(b[0], gb[0]),
                                           min(b[1], gb[1]),
                                           max(b[2], gb[2]),
                                           max(b[3], gb[3]))
-                if g[0] not in ('caption', 'headline'):
-                    ab = gb if ab is None else (min(ab[0], gb[0]),
-                                                min(ab[1], gb[1]),
-                                                max(ab[2], gb[2]),
-                                                max(ab[3], gb[3]))
             boost = 1.0
             for g, _s, _e in gs:
                 if g[4] is not None and g[4].get('icon') in ('person',
@@ -2599,95 +2645,88 @@ def _journey_items(plan: dict, ratio: str):
                     break
                 if g[0] == 'icon':
                     boost = max(boost, _FOCAL_BOOST)
-            items.append({'groups': gs, 'bounds': b,
-                          'art_bounds': ab or b, 'bi': bi,
-                          'boost': boost})
+            beat_items.append({'groups': gs, 'bounds': b,
+                               'wgt': 1.0, 'panel': pctr,
+                               'boost': boost})
 
-    # one element inks at a time — each gets its full slice of the beat and
-    # its parts land in phases: art, then annotation, then caption. The
-    # tail of each slice is reserved for the connector that leads into it.
-    i0 = 0
-    while i0 < len(items):
-        if items[i0].get('bi') is None:
-            i0 += 1
-            continue
-        j = i0
-        while j < len(items) and items[j].get('bi') == items[i0]['bi']:
-            j += 1
-        grp = items[i0:j]
-        beat = beats[items[i0]['bi']]
-        b0 = float(beat.get('start_seconds', 0.0))
-        b1 = b0 + float(beat.get('duration_seconds', 3.0))
-        di = (b1 - b0) / len(grp)
-        for k, it in enumerate(grp):
-            s0 = b0 + k * di
+        # weighted slices — divider/label land fast, elements breathe
+        dur = float(beat.get('duration_seconds', 3.0))
+        tw = sum(it['wgt'] for it in beat_items)
+        unit = dur / max(1e-6, tw)
+        t_acc = b0
+        for it in beat_items:
+            wd = it['wgt'] * unit
+            s0 = t_acc
             it['groups'] = [
-                (g, s0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[0] * di,
-                 s0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[1] * di)
+                (g, s0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[0] * wd,
+                 s0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[1] * wd)
                 for g, _s, _e in it['groups']
             ]
-        i0 = j
+            t_acc += wd
 
-    # path placement — a packed flow: rows sit tight, alternate rows
-    # offset half a cell so elements nestle into the gaps above them,
-    # baselines drift so it reads designed, not gridded
-    x = margin
-    y = margin
-    cur: list = []
-    row_i = 0
-
-    def _flush_row(row_items, y_top):
-        rh = max(it['h'] for it in row_items)
-        for it in row_items:
-            it['cy'] = y_top + rh / 2
-        return y_top + rh * 0.88 + gap_y
-
-    for it in items:
-        b = it['bounds']
-        ab = it['art_bounds']
-        bo = it['boost']
-        it['w'] = max(30.0, (b[2] - b[0]) * bo)
-        it['h'] = max(30.0, (b[3] - b[1]) * bo)
-        it['bc'] = ((b[0] + b[2]) / 2, (b[1] + b[3]) / 2)
-        if x + it['w'] > margin + row_w and cur:
-            y = _flush_row(cur, y)
-            cur = []
-            row_i += 1
-            x = margin + (row_i % 2) * 170.0
-        it['cx'] = x + it['w'] / 2
-        x += it['w'] + gap_x
-        cur.append(it)
-    if cur:
-        _flush_row(cur, y)
-    for seq_i, it in enumerate(items):
-        it['cy'] += math.sin(seq_i * 2.17) * 20.0
-
-    # relocate each element to its path position, scaled uniformly about
-    # its own center (unit-space strokes follow center+size; absolute
-    # strokes — lettering/arrows — transform around the old center)
-    for it in items:
-        dx = it['cx'] - it['bc'][0]
-        dy = it['cy'] - it['bc'][1]
-        bo = it['boost']
-        moved = []
-        for g, s, e in it['groups']:
-            kind, strokes, center, size, slot = g
-            st2 = []
-            for st in strokes:
-                if len(st) > 4 and st[4]:
-                    st2.append(([(it['cx'] + (px - it['bc'][0]) * bo,
-                                  it['cy'] + (py - it['bc'][1]) * bo)
-                                 for px, py in st[0]],) + tuple(st[1:]))
-                else:
-                    st2.append(st)
-            moved.append(((kind, st2, (it['cx'], it['cy']), size * bo,
-                           slot), s, e))
-        it['groups'] = moved
-        it['center'] = (it['cx'], it['cy'])
-        it['bounds2'] = (it['cx'] - it['w'] / 2, it['cy'] - it['h'] / 2,
-                         it['cx'] + it['w'] / 2, it['cy'] + it['h'] / 2)
-        it['t0'] = min(s for _, s, _ in moved)
-        it['t1'] = max(e for _, _, e in moved)
+        # element placement inside the panel's content rect
+        elems = [it for it in beat_items
+                 if it['groups'] and it['groups'][0][0][0] not in
+                 ('divider', 'plabel')]
+        cx0, cy0 = px + 90.0, py + 190.0
+        cw, ch = pw - 180.0, ph - 270.0
+        k = len(elems)
+        if k:
+            rws = 1 if k <= 3 else 2
+            for r in range(rws):
+                row_elems = elems[r * math.ceil(k / rws):
+                                  (r + 1) * math.ceil(k / rws)]
+                for j, it in enumerate(row_elems):
+                    fx = (j + 1) / (len(row_elems) + 1)
+                    fy = (r + 0.56) / (rws + 0.1)
+                    it['slot'] = (cx0 + cw * fx, cy0 + ch * fy,
+                                  cw / (len(row_elems) + 1) * 0.98,
+                                  ch / (rws + 0.35))
+        for it in elems:
+            b = it['bounds']
+            w = max(30.0, b[2] - b[0])
+            h = max(30.0, b[3] - b[1])
+            sx, sy, sw, sh = it['slot']
+            bo2 = min(2.6, (sw * 0.96) / w, (sh * 0.96) / h)
+            bcx, bcy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
+            moved = []
+            for g, s, e in it['groups']:
+                kind, strokes, center, size, slot = g
+                st2 = []
+                for st in strokes:
+                    if len(st) > 4 and st[4]:
+                        st2.append(([(sx + (px_ - bcx) * bo2,
+                                      sy + (py_ - bcy) * bo2)
+                                     for px_, py_ in st[0]],)
+                                   + tuple(st[1:]))
+                    else:
+                        st2.append(st)
+                moved.append(((kind, st2, (sx, sy), size * bo2, slot),
+                              s, e))
+            it['groups'] = moved
+            it['center'] = (sx, sy)
+            it['w'], it['h'] = w * bo2, h * bo2
+            it['bounds2'] = (sx - it['w'] / 2, sy - it['h'] / 2,
+                             sx + it['w'] / 2, sy + it['h'] / 2)
+        for it in beat_items:
+            if 'bounds' not in it:
+                gb = None
+                for g, _s, _e in it['groups']:
+                    b2 = _group_world_bounds(g)
+                    gb = b2 if gb is None else (min(gb[0], b2[0]),
+                                                min(gb[1], b2[1]),
+                                                max(gb[2], b2[2]),
+                                                max(gb[3], b2[3]))
+                it['bounds'] = gb
+                it['center'] = ((gb[0] + gb[2]) / 2,
+                                (gb[1] + gb[3]) / 2)
+                it['w'] = gb[2] - gb[0]
+                it['h'] = gb[3] - gb[1]
+                it['bounds2'] = gb
+            it['t0'] = min(s for _, s, _ in it['groups'])
+            it['t1'] = max(e for _, _, e in it['groups'])
+            it['beat'] = bi
+        items.extend(beat_items)
 
     out = {'items': items, 'connectors': []}
     plan.setdefault('_journey_items', {})[ratio] = out
@@ -2727,39 +2766,38 @@ def render_journey_frame(plan: dict, ratio: str, t: float):
 
     # pass 1 under the previous camera: where is the pen right now?
     _l0, tip0 = _draw_pass(cam0, 1.0)
-    if tip0 is not None:
-        # screen tip back to world coords under cam0, then double-smoothed —
-        # the raw tip jumps at every pen lift; the camera must glide, never
-        # stutter. Two-stage lerp = the editorial follow.
-        wtip = (cam0[0] + (tip0[0] - view_w / 2) / scale,
-                cam0[1] + (tip0[1] - view_h / 2) / scale)
-        ts = plan.get('_journey_tipsmooth')
-        ts = wtip if ts is None else (
-            ts[0] + (wtip[0] - ts[0]) * 0.30,
-            ts[1] + (wtip[1] - ts[1]) * 0.30)
-        plan['_journey_tipsmooth'] = ts
-        target = (ts[0], ts[1] + view_h * 0.05 / scale)
+    # panel camera: hold on the panel whose beat is drawing — the pen tip
+    # only nudges the frame; between beats the camera pans to the next
+    # panel shortly before its first ink lands
+    cur = None
+    nxt = None
+    for it in items:
+        if it['t0'] <= t < it['t1']:
+            cur = it
+        if it['t0'] > t:
+            nxt = it
+            break
+    if cur is not None:
+        cx, cy = cur.get('center') or cur['panel']
+        target = (cx, cy)
+        if tip0 is not None:
+            wtip = (cam0[0] + (tip0[0] - view_w / 2) / scale,
+                    cam0[1] + (tip0[1] - view_h / 2) / scale)
+            target = (cx + (wtip[0] - cx) * 0.10,
+                      cy + (wtip[1] - cy) * 0.10)
+    elif nxt is not None and t > nxt['t0'] - 1.0:
+        target = nxt['panel']
     else:
-        # pen lifted: glide to the next element only shortly before it inks
-        nxt = None
-        for it in items:
-            if it['t0'] > t:
-                nxt = it
-                break
-        if nxt is not None and t > nxt['t0'] - 1.2:
-            target = nxt['center']
-        else:
-            target = cam0
+        target = cam0
     # pursuit — heavily damped so the camera reads as a smooth pan
-    k = 0.13
+    k = 0.14
     cam = (cam0[0] + (target[0] - cam0[0]) * k,
            cam0[1] + (target[1] - cam0[1]) * k)
     if t <= 1e-6:
         cam = items[0]['center']
         plan.pop('_journey_tipsmooth', None)
     plan['_journey_campos'] = cam
-    dist = math.hypot(target[0] - cam[0], target[1] - cam[1]) * scale
-    zoom = 1.0 - min(0.15, dist * 0.0009)
+    zoom = 0.96
     layer, tip = _draw_pass(cam, zoom)
     if tip is None:
         tip = plan.get('_journey_tip')
