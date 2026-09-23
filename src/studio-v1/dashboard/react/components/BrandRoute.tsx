@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useStudioBrands } from "../hooks.js";
-import { studioMutation } from "../api.js";
-import { ErrorState, LoadState } from "./shared.js";
-import { MemoryPanel } from "./MemoryPanel.js";
+import { useStudioBrands } from "../hooks";
+import { studioMutation } from "../api";
+import { ErrorState, LoadState } from "./shared";
+import { MemoryPanel } from "./MemoryPanel";
 
 function lines(value: string) { return value.split(/\n|,/).map((part) => part.trim()).filter(Boolean); }
 export function BrandRoute() {
