@@ -556,7 +556,9 @@ def encode_mp4(
     idx = {p: i + 1 for i, p in enumerate(ins)}
     for p in ins:
         # VO splits into sidechain key + mix only when another bed exists to duck
-        tail = (',asplit=2[vo_sc][vo_mix]'
+        tail = (f',asplit=2[vo_sc][vo_mix];'
+                f'[vo_sc]apad,atrim=0:{duration:.3f}[vo_scp];'
+                f'[vo_mix]apad,atrim=0:{duration:.3f}[vo_mixp]'
                 if p is voiceover and len(ins) > 1
                 else '[vo_mix]' if p is voiceover else f'[n{idx[p]}]')
         filters.append(
@@ -575,11 +577,20 @@ def encode_mp4(
         else:
             filters.append(
                 f'{beds[0]}aformat=sample_fmts=fltp:channel_layouts=mono[bed]')
+        # pad the bed to the video duration first — sidechaincompress ends
+        # when the VO key ends, which would kill the bed (and, via
+        # -shortest, the video) before the ending montage plays.
+        bed_src = '[bed]'
+        # pad the bed + the VO key/mix to the video duration —
+        # sidechaincompress ends when the VO key ends, which would kill
+        # the bed (and, via -shortest, the video) before the ending.
         bed_src = '[bed]'
         filters.append(
-            f'{bed_src}[vo_sc]sidechaincompress='
+            f'{bed_src}apad,atrim=0:{duration:.3f}[bedp]')
+        filters.append(
+            f'[bedp][vo_scp]sidechaincompress='
             'threshold=0.02:ratio=8:attack=120:release=280[ducked];'
-            f'[ducked][vo_mix]amix=inputs=2:normalize=0[m];'
+            f'[ducked][vo_mixp]amix=inputs=2:normalize=0[m];'
             f'[m]loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:{duration:.3f}[a]'
         )
     elif ins:
@@ -661,6 +672,13 @@ def render_production(
     plan.update(compiled)
     beats = plan['beats']
     duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] + plan['pacing']['board_reveal_seconds']
+    if plan.get('camera_variant') == 'board_sections':
+        # the audio/mix duration must cover the whole video timeline —
+        # the ending (wipe + Thanks + montage) plays after the last beat;
+        # anything shorter lets -shortest clip the montage off.
+        import v3_board_sections as _v3bs
+        duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] \
+            + _v3bs.ending_seconds(plan, ratio)
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
