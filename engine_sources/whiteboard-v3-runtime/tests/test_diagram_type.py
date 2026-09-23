@@ -207,3 +207,38 @@ def test_zoom_transition_settles_to_full_frame(plan, built):
     late = dr.render_diagram_frame(
         plan2, elements, meta['atlas'], '16:9', b1 + 2.0)
     assert mid.size == late.size == (1280, 720)
+
+
+def test_columns_with_stage_labels_do_not_crash():
+    """Regression: the column restack referenced `forbids` from the
+    satellite loop — any column+stage-label plan without hero satellites
+    raised UnboundLocalError."""
+    p3.load_execution_body(None)
+    plan = {
+        'production_id': 'COL_STAGE',
+        'beats': [
+            {'narration': 'a',
+             'diagram': {'stage': 'ONE',
+                         'elements': [{'icon': 'tree', 'at': 'left'}]}},
+            {'narration': 'b',
+             'diagram': {'stage': 'TWO',
+                         'elements': [{'icon': 'leaf', 'at': 'right'}]}},
+        ],
+        'diagram': {'title': 'T', 'layout': 'satellite', 'hero': 'house'},
+    }
+    elements, meta = pd._dr().build_elements(plan, '16:9')
+    assert any(e['kind'] == 'stage' for e in elements)
+
+
+def test_person_element_uses_semantic_pose():
+    """A character element picks its pose from the role's semantics —
+    'nurse' poses as the doc, never the flat default."""
+    p3.load_execution_body(None)
+    import v3_board_renderer as v3
+    dr = pd._dr()
+    st_nurse = dr._icon_group('nurse', {}, facing=1, force='person')
+    st_point = v3._strokes_for(
+        'person', cast=v3._cast_spec_for('nurse', 'point'), facing=1)
+    assert st_nurse and st_nurse != st_point
+    # a generic role still draws a real figure
+    assert dr._icon_group('helper', {}, facing=1, force='person')

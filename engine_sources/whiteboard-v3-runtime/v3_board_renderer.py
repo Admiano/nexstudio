@@ -813,7 +813,7 @@ _ICON_KEYWORDS = {
                 'account', 'dashboard', 'portfolio'),
     'stack': ('queue', 'routine', 'stack', 'backlog', 'cases', 'tickets', 'batch',
               'list', 'docs', 'papers', 'blocks'),
-    'funnel': ('funnel', 'filter', 'triage', 'sort', 'screen', 'pipeline'),
+    'funnel': ('funnel', 'filter', 'triage', 'sort', 'pipeline'),
     'tool': ('tool', 'wrench', 'settings', 'fix', 'repair', 'utility', 'configure'),
     'check': ('check', 'validate', 'done', 'verified', 'approve', 'success',
               'complete', 'confirm', 'correct'),
@@ -830,9 +830,8 @@ _ICON_KEYWORDS = {
              'reward', 'stake', 'deposit'),
     'coins': ('savings', 'wealth', 'funds', 'capital', 'treasury', 'earnings',
               'balance', 'wallet', 'pool', 'liquidity'),
-    'bank': ('bank', 'institution', 'government', 'exchange', 'company', 'office',
-             'headquarters', 'organization', 'vault', 'custodian', 'hospital',
-             'pharmacy', 'clinic', 'store', 'shop'),
+    'bank': ('bank', 'institution', 'exchange', 'company',
+             'headquarters', 'organization', 'vault', 'custodian'),
     ('icon', 'tabler', 'school'): ('school', 'university', 'college', 'campus',
                                   'academy', 'kindergarten'),
     ('icon', 'tabler', 'sparkles'): ('feature', 'features', 'new feature',
@@ -1358,15 +1357,22 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
             if base and 0 < len(rest.split()) <= 3:
                 return ('overlay', base, vi)
             return vi
-        # a single generic word resolves its own bucket first, then the
-        # flat icon, then a themed vignette ('car' is a car, not an F1
-        # scene; 'team' a group glyph, not a water-polo silhouette)
+        # a single generic word resolves a literal icon match first —
+        # 'cloud' draws a cloud, 'moon' a moon — then its semantic bucket,
+        # then the flat index, then a themed vignette ('car' is a car,
+        # not an F1 scene; 'team' a group glyph, not water-polo)
         if len(words) == 1:
+            lit = _icon_lookup(phrase, exclude)
+            if (isinstance(lit, tuple) and lit[0] == 'icon'
+                    and lit[2] == phrase):
+                return lit
             for icon, keys in _ICON_KEYWORDS.items():
                 if phrase in keys:
                     return icon
-            hit = _icon_lookup(phrase, exclude) or (
-                _word_form_icon(phrase, exclude) if _depth < 2 else None)
+            # derivations and synonyms rank above the fuzzy flat hit —
+            # 'head' should draw a face, not the HTTP-HEAD icon
+            hit = ((_word_form_icon(phrase, exclude) if _depth < 2 else None)
+                   or lit)
             if hit:
                 return hit
         # a strong scene-vignette match beats the flat icon vocabulary
@@ -1480,6 +1486,40 @@ _SYNONYMS: dict[str, tuple[str, ...]] = {
     'stop': ('cancel',), 'halt': ('cancel',),
     'use': ('tools',), 'useful': ('tools',),
     'us': ('group',),
+    # literal-word fixes — words the fuzzy index resolves to an off-sense
+    # glyph (its own flat/bucket hit is wrong or absent)
+    'screen': ('device tablet', 'laptop'),
+    'office': ('building',), 'government': ('building', 'flag'),
+    'leader': ('person', 'flag'), 'head': ('face',),
+    'forest': ('tree', 'plant'), 'grass': ('leaf', 'plant'),
+    'jungle': ('tree', 'leaf'), 'floor': ('home', 'wall'),
+    'lake': ('water',), 'river': ('water',), 'ocean': ('water',),
+    'nose': ('face',), 'leg': ('run',), 'read': ('book',),
+    'trade': ('chart', 'coins'), 'vote': ('check', 'flag'),
+    'wire': ('plug', 'bolt'), 'memory': ('brain',),
+    'court': ('gavel', 'scale'), 'crime': ('gavel', 'warning'),
+    'environment': ('leaf', 'globe', 'tree'),
+    'business': ('building', 'chart'), 'charge': ('bolt', 'plug'),
+    'imagine': ('thought', 'brain'), 'astronaut': ('space', 'rocket'),
+    'magma': ('volcano', 'fire'), 'teach': ('school', 'book'),
+    'today': ('calendar',), 'season': ('leaf', 'calendar'),
+    'minute': ('clock',), 'coal': ('fire', 'bolt'),
+    'nature': ('leaf', 'tree', 'globe'), 'night': ('moon', 'star'),
+    'food': ('bread', 'apple'), 'root': ('plant', 'tree'),
+    'generator': ('bolt', 'plug'), 'traffic': ('road', 'car'),
+    'band': ('music', 'guitar'), 'climate': ('sun', 'cloud'),
+    'morning': ('sun',), 'creative': ('lightbulb', 'brush'),
+    'design': ('brush', 'pencil'), 'draw': ('pencil',),
+    'electric': ('bolt', 'plug'), 'speaker': ('megaphone', 'music'),
+    'thunder': ('bolt',), 'store': ('shopping', 'building'),
+    'soil': ('plant', 'wheat'),
+    'pharmacy': ('pill', 'medicine'), 'clinic': ('hospital', 'pill'),
+    'shop': ('basket', 'shopping'),
+    # people by another name — a video about YOU should draw a person
+    'you': ('person',), 'your': ('person',), 'we': ('group', 'person'),
+    'viewer': ('person', 'eye'), 'reader': ('person', 'book'),
+    'citizen': ('person', 'flag'), 'candidate': ('person', 'check'),
+    'guest': ('person',), 'client': ('person',),
 }
 
 _DERIVE_SUFFIX: tuple[tuple[str, str], ...] = (
@@ -1497,7 +1537,9 @@ def _word_form_icon(word: str, exclude):
             f = word[:-len(suf)] + repl
             if f != word and f not in forms:
                 forms.append(f)
-    for f in forms + list(_SYNONYMS.get(word, ())) :
+    # curated synonyms first — a truncated stem ('gras', 'lead') hits fuzzy
+    # junk ('festival-mardi-gras', 'letter-l') before any synonym is tried
+    for f in list(_SYNONYMS.get(word, ())) + forms:
         ic = _icon_for(f, exclude, _depth=2)
         if ic not in _COMPOSE_REJECT and not _is_emblem(ic):
             return ic

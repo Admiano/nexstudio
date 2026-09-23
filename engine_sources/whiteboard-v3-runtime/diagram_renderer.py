@@ -237,8 +237,10 @@ def _icon_group(concept: str, used: dict, cast=None, facing: int = 1,
         # lettered fallback card is built by the caller with the label
         return []
     if ic == 'person':
+        # pose follows the role's semantics ('nurse' poses as doc,
+        # 'manager' crosses arms, 'winner' cheers) — never a flat default
         spec = cast if isinstance(cast, dict) \
-            else v3._cast_spec_for(concept, 'point')
+            else v3._cast_spec_for(concept, v3._pose_for_label(concept))
         return v3._strokes_for(ic, cast=spec, facing=facing) or []
     st = v3._strokes_for(ic)
     return st or []
@@ -267,7 +269,8 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
     _boot()
     dg = plan.get('diagram') or {}
     z = _zone(ratio)
-    hero_size = min(z['w'] * 0.34, z['h'] * 0.44)
+    # editorial share: the hero is the subject, so it takes real canvas
+    hero_size = min(z['w'] * 0.40, z['h'] * 0.50)
     atlas = _atlas(ratio, hero_size)
     used: dict = {}
     beats = plan.get('beats') or []
@@ -431,13 +434,23 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                     icon_size = min(140.0, wc * 0.46,
                                     hc * 0.28 if n <= 2 else hc * 0.185)
             elif at in ('left', 'right'):
-                cx, cy = _column_slot(atlas, at, col_counts.get(at, 0),
-                                      col_total.get(at, 1))
-                col_counts[at] = col_counts.get(at, 0) + 1
-                icon_size = 140.0
+                idx = col_counts.get(at, 0)
+                cx, cy = _column_slot(atlas, at, idx, col_total.get(at, 1))
+                col_counts[at] = idx + 1
+                # rhythmic sizing + a small alternating outward drift — a
+                # column of identical glyphs reads as a list, not a
+                # composition
+                icon_size = 140.0 * (1.14, 0.88, 1.0, 0.92)[idx % 4]
+                cx += (atlas['zone']['w'] * 0.02 * (idx % 2)
+                       * (1 if at == 'right' else -1))
             else:
                 cx, cy = atlas.get(at, atlas['hero-c'])
-                icon_size = 140.0
+                # satellites get a per-slot scale — tl/tr anchor the hero,
+                # bl/br sit quieter beneath
+                icon_size = 140.0 * {
+                    'hero-tl': 1.12, 'hero-tr': 1.12,
+                    'hero-bl': 0.92, 'hero-br': 0.92,
+                    'hero-c': 1.0}.get(at, 1.0)
             pin = (atlas['hero_c'] if at.startswith('hero') else None)
             concept = el.get('icon') or el.get('part')
             person_spec = el.get('person')
@@ -447,7 +460,8 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 concept = (str(person_spec) if isinstance(person_spec, str)
                            else str(el.get('label') or 'person'))
                 cast = (person_spec if isinstance(person_spec, dict)
-                        else v3._cast_spec_for(concept, 'point'))
+                        else v3._cast_spec_for(
+                            concept, v3._pose_for_label(concept)))
             else:
                 cast = None
             if concept:
@@ -715,7 +729,6 @@ def _resolve_collisions(elements: list[dict], atlas: dict) -> None:
                 _shift_elem(e, 0.0, top - margin * 0.6 - b[3])
                 # never float into the headline zone — drop the column
                 # stack down by the deficit instead
-                head = next((f for f in forbids), None)
                 hb = next((_elem_bounds(x) for x in elements
                            if x['kind'] == 'headline'), None)
                 b = _elem_bounds(e)
