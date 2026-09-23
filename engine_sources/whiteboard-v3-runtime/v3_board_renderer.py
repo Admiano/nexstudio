@@ -2499,8 +2499,8 @@ def _journey_items(plan: dict, ratio: str):
     beats = plan.get('beats') or []
     scenes = plan.get('sceneSpecs') or []
     zw, zh = 1040.0, 620.0
-    margin, gap_x, gap_y = 120.0, 95.0, 140.0
-    row_w = zw * 3.05
+    margin, gap_x, gap_y = 100.0, 24.0, 30.0
+    row_w = zw * 1.9
 
     items = []
     title = _journey_title(plan)
@@ -2523,9 +2523,9 @@ def _journey_items(plan: dict, ratio: str):
                         for px, py in s[0]],) + tuple(s[1:]) for s in st]
             items.append({'groups': [(('headline', st, (0.0, 0.0), 1.0,
                                       None), 0.15, 1.5)],
-                          'bounds': _group_world_bounds(
-                              ('headline', st, (0.0, 0.0), 1.0, None)),
-                          'bi': 0, 'boost': 1.0})
+                          'bounds': (hb := _group_world_bounds(
+                              ('headline', st, (0.0, 0.0), 1.0, None))),
+                          'art_bounds': hb, 'bi': 0, 'boost': 1.0})
     for bi, (beat, scene) in enumerate(zip(beats, scenes)):
         b0 = float(beat.get('start_seconds', 0.0))
         bundle: dict = {}
@@ -2579,12 +2579,18 @@ def _journey_items(plan: dict, ratio: str):
         for key in order:
             gs = bundle[key]
             b = None
+            ab = None
             for g, _s, _e in gs:
                 gb = _group_world_bounds(g)
                 b = gb if b is None else (min(b[0], gb[0]),
                                           min(b[1], gb[1]),
                                           max(b[2], gb[2]),
                                           max(b[3], gb[3]))
+                if g[0] not in ('caption', 'headline'):
+                    ab = gb if ab is None else (min(ab[0], gb[0]),
+                                                min(ab[1], gb[1]),
+                                                max(ab[2], gb[2]),
+                                                max(ab[3], gb[3]))
             boost = 1.0
             for g, _s, _e in gs:
                 if g[4] is not None and g[4].get('icon') in ('person',
@@ -2593,7 +2599,8 @@ def _journey_items(plan: dict, ratio: str):
                     break
                 if g[0] == 'icon':
                     boost = max(boost, _FOCAL_BOOST)
-            items.append({'groups': gs, 'bounds': b, 'bi': bi,
+            items.append({'groups': gs, 'bounds': b,
+                          'art_bounds': ab or b, 'bi': bi,
                           'boost': boost})
 
     # one element inks at a time — each gets its full slice of the beat and
@@ -2614,30 +2621,30 @@ def _journey_items(plan: dict, ratio: str):
         di = (b1 - b0) / len(grp)
         for k, it in enumerate(grp):
             s0 = b0 + k * di
-            it['cgap'] = min(0.9, max(0.18, di * 0.16))
-            wd = di - it['cgap']
             it['groups'] = [
-                (g, s0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[0] * wd,
-                 s0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[1] * wd)
+                (g, s0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[0] * di,
+                 s0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[1] * di)
                 for g, _s, _e in it['groups']
             ]
         i0 = j
 
-    # path placement — sizes vary with the boost, baselines drift so the
-    # flow reads as a designed spread, not a grid
+    # path placement — a packed flow: rows sit tight, alternate rows
+    # offset half a cell so elements nestle into the gaps above them,
+    # baselines drift so it reads designed, not gridded
     x = margin
     y = margin
     cur: list = []
-    seq = 0
+    row_i = 0
 
     def _flush_row(row_items, y_top):
         rh = max(it['h'] for it in row_items)
         for it in row_items:
             it['cy'] = y_top + rh / 2
-        return y_top + rh + gap_y
+        return y_top + rh * 0.88 + gap_y
 
     for it in items:
         b = it['bounds']
+        ab = it['art_bounds']
         bo = it['boost']
         it['w'] = max(30.0, (b[2] - b[0]) * bo)
         it['h'] = max(30.0, (b[3] - b[1]) * bo)
@@ -2645,15 +2652,15 @@ def _journey_items(plan: dict, ratio: str):
         if x + it['w'] > margin + row_w and cur:
             y = _flush_row(cur, y)
             cur = []
-            x = margin
+            row_i += 1
+            x = margin + (row_i % 2) * 170.0
         it['cx'] = x + it['w'] / 2
-        seq += 1
         x += it['w'] + gap_x
         cur.append(it)
     if cur:
         _flush_row(cur, y)
     for seq_i, it in enumerate(items):
-        it['cy'] += math.sin(seq_i * 2.17) * 24.0
+        it['cy'] += math.sin(seq_i * 2.17) * 20.0
 
     # relocate each element to its path position, scaled uniformly about
     # its own center (unit-space strokes follow center+size; absolute
@@ -2682,48 +2689,7 @@ def _journey_items(plan: dict, ratio: str):
         it['t0'] = min(s for _, s, _ in moved)
         it['t1'] = max(e for _, _, e in moved)
 
-    # connectors — an inked path the pen draws while traveling between
-    # elements: the canvas becomes one continuous line of drawing
-    connectors = []
-    for a, b in zip(items, items[1:]):
-        row_break = abs(b['center'][1] - a['center'][1]) > 120
-        if row_break:
-            p0 = (a['center'][0] + a['w'] * 0.30, a['bounds2'][3])
-            p3 = (b['bounds2'][0] - 10.0, b['center'][1])
-        else:
-            p0 = (a['bounds2'][2], a['center'][1])
-            p3 = (b['bounds2'][0], b['center'][1])
-        d = math.hypot(p3[0] - p0[0], p3[1] - p0[1])
-        if d < 40:
-            continue
-        bow = min(220.0, d * 0.34) if row_break else min(90.0, d * 0.30)
-        sgn = 1.0 if row_break else -1.0
-        # long row transitions get a real S-curve; short hops a soft bow
-        c1 = (p0[0] + (p3[0] - p0[0]) * 0.38, p0[1] + sgn * bow)
-        c2 = (p0[0] + (p3[0] - p0[0]) * 0.72,
-              p3[1] - sgn * bow * (0.9 if row_break else 0.5))
-        pts = _cubic_pts(p0, c1, c2, p3)
-        tx = pts[-1][0] - pts[-3][0]
-        ty = pts[-1][1] - pts[-3][1]
-        L = max(1e-3, math.hypot(tx, ty))
-        tx, ty = tx / L, ty / L
-        ah = 10.0
-        head = [[pts[-1], (pts[-1][0] - tx * ah - ty * ah * 0.5,
-                            pts[-1][1] - ty * ah + tx * ah * 0.5)],
-                [pts[-1], (pts[-1][0] - tx * ah + ty * ah * 0.5,
-                            pts[-1][1] - ty * ah - tx * ah * 0.5)]]
-        # the connector owns the reserved tail of the previous item's
-        # slice — the pen sweeps it in right before the next element inks
-        s = a['t1'] + 0.02
-        e = b['t0'] - 0.02
-        if e <= s:
-            continue
-        strokes = [(pts, 'ink', 1.15, False, True)]
-        strokes += [(seg, 'ink', 1.15, False, True) for seg in head]
-        connectors.append({'strokes': strokes, 's': s, 'e': e,
-                           'center': ((p0[0] + p3[0]) / 2,
-                                      (p0[1] + p3[1]) / 2)})
-    out = {'items': items, 'connectors': connectors}
+    out = {'items': items, 'connectors': []}
     plan.setdefault('_journey_items', {})[ratio] = out
     return out
 
@@ -2757,14 +2723,6 @@ def render_journey_frame(plan: dict, ratio: str, t: float):
                                    colors, ratio, p, seed + gi, zoom)
                 if t2:
                     tip = t2
-        for ci, c in enumerate(flow.get('connectors') or []):
-            p = wbp._ease(wbp._clamp((t - c['s']) / max(0.05, c['e'] - c['s'])))
-            if p <= 0:
-                continue
-            t2 = _draw_strokes(layer, c['strokes'], c['center'], 1.0, cam,
-                               colors, ratio, p, seed + 900 + ci, zoom)
-            if t2:
-                tip = t2
         return layer, tip
 
     # pass 1 under the previous camera: where is the pen right now?
@@ -2831,17 +2789,6 @@ def journey_world_canvas(plan: dict, ratio: str):
              max(it['center'][0] + hw for it in items))
     y1 = max(max(it['bounds2'][3] for it in items),
              max(it['center'][1] + hh for it in items))
-    for c in flow.get('connectors') or []:
-        for st in c['strokes']:
-            for px_, py_ in st[0]:
-                x0 = min(x0, px_)
-                y0 = min(y0, py_)
-                x1 = max(x1, px_)
-                y1 = max(y1, py_)
-        x0 = min(x0, c['center'][0] - hw)
-        y0 = min(y0, c['center'][1] - hh)
-        x1 = max(x1, c['center'][0] + hw)
-        y1 = max(y1, c['center'][1] + hh)
     m = int(0.04 * view_w)
     W = int((x1 - x0) * scale) + 2 * m
     H = int((y1 - y0) * scale) + 2 * m
@@ -2856,13 +2803,6 @@ def journey_world_canvas(plan: dict, ratio: str):
                           colors, ratio, 1.0, seed + j, 1.0)
         px = int((it['center'][0] - x0) * scale + m - view_w / 2)
         py = int((it['center'][1] - y0) * scale + m - view_h / 2)
-        canvas.paste(tile.convert('RGB'), (px, py), tile.split()[3])
-    for j, c in enumerate(flow.get('connectors') or []):
-        tile = Image.new('RGBA', (view_w, view_h), (0, 0, 0, 0))
-        _draw_strokes(tile, c['strokes'], c['center'], 1.0, c['center'],
-                      colors, ratio, 1.0, seed + 900 + j, 1.0)
-        px = int((c['center'][0] - x0) * scale + m - view_w / 2)
-        py = int((c['center'][1] - y0) * scale + m - view_h / 2)
         canvas.paste(tile.convert('RGB'), (px, py), tile.split()[3])
     need_w = int(canvas.height * view_w / view_h)
     need_h = int(canvas.width * view_h / view_w)
