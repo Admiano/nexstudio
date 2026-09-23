@@ -203,6 +203,13 @@ def _bundle_scene_groups(scene, plan, ratio):
                 else:
                     merged[pk]['groups'].append((g, s, e))
             merged.pop(qk)
+    # reference rule: mostly bare icons — captions stay on labeled figures,
+    # stat/card tiles, and the section's lead element; the rest drop
+    for i, it in enumerate(merged):
+        keep_cap = (_is_person_item(it) or i == 0)
+        if not keep_cap:
+            it['groups'] = [ge for ge in it['groups']
+                            if ge[0][0] != 'caption']
     # long captions -> speech bubble wrapping the text
     for it in merged:
         for gi, (g, s, e) in enumerate(it['groups']):
@@ -249,110 +256,112 @@ def _build(plan, ratio):
         sections.append({'beat': beat, 'bi': bi, 'items': merged,
                          'label': _section_label(beat)})
 
-    # chunk into boards
-    boards = []
-    cur = []
-    for sec in sections:
-        cur.append(sec)
-        if len(cur) >= MAX_SECTIONS_PER_BOARD:
-            boards.append(cur)
-            cur = []
-    if cur:
-        boards.append(cur)
+    # one canvas, loose flow cells — a section claims the next free cell;
+    # when all cells are live, the oldest section's ink fades off to make
+    # room. No hard-coded divisions; lines only appear if authored.
+    ncol_, nrow_ = {'16:9': (3, 2), '1:1': (2, 2), '9:16': (2, 3)}[ratio]
+    bx0, by0, bw, bh = board_rect
+    cells = []
+    for r_ in range(nrow_):
+        for c_ in range(ncol_):
+            cells.append((bx0 + bw * c_ / ncol_, by0 + bh * r_ / nrow_,
+                          bw / ncol_, bh / nrow_))
+    cell_owner = [-1] * len(cells)
+    fade_items = []   # (section_index, fade_t0, fade_t1)
+    FADE_IN, FADE_OUT = 0.38, 0.55
 
     out_sections = []
-    for board in boards:
-        regs, divs = _regions(len(board), board_rect)
-        t0 = board[0]['beat']['start_seconds']
-        t1 = (board[-1]['beat']['start_seconds']
-              + board[-1]['beat']['duration_seconds'])
-        # dividers ink fast at the board's opening
-        div_items = []
-        for k, (p0, p1) in enumerate(divs):
-            st = [( _wobble_line(p0, p1, seed=11 + k), 'ink', 0.55,
-                    False, True)]
-            g = ('divider', st, (0, 0), 1.0, None)
-            div_items.append({'groups': [(g, t0 + 0.05,
-                                          t0 + 0.05 + min(0.55, t1 - t0))],
-                              'bounds': _group_world_bounds(g)})
-        for si, sec in enumerate(board):
-            rx, ry, rw, rh = regs[si]
-            heading_h = rh * 0.11
-            label = sec['label']
-            hgt = heading_h * 0.62
-            maxw = rw * 0.72
-            tw = text_width(label, hgt)
-            if tw > maxw:
-                hgt *= maxw / tw
-            hst = text_strokes(label, (rx + rw * 0.04, ry + rh * 0.04),
-                               hgt, 'ink', 1.0)
-            items = []
-            if hst:
-                g = ('plabel', [(p, c, ws, False, True)
-                                for p, c, ws, *_ in hst], (0, 0), 1.0, None)
-                items.append({'groups': [(g, 0.0, 1.0)], 'wgt': 0.55,
-                              'kind': 'plabel'})
-            cx0, cy0 = rx + rw * 0.05, ry + rh * 0.04 + heading_h
-            cw, ch = rw * 0.9, rh - heading_h - rh * 0.08
-            elems = sec['items']
-            k = len(elems)
-            if k:
-                rws = 1 if k <= 3 else 2
-                ncol = math.ceil(k / rws)
-                for j, it in enumerate(elems):
-                    r_ = j % rws
-                    c_ = j // rws
-                    fx = (c_ + 0.5) / ncol
-                    fy = (r_ + 0.62) / (rws + 0.25)
-                    sw = cw / ncol * 0.92
-                    sh = ch / (rws + 0.25)
-                    b = it['bounds']
-                    w = max(30.0, b[2] - b[0])
-                    h = max(30.0, b[3] - b[1])
-                    bo2 = min(2.6, (sw * 0.97) / w, (sh * 0.97) / h)
-                    bcx, bcy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
-                    sx, sy = cx0 + cw * fx, cy0 + ch * fy
-                    moved = []
-                    for g, s, e in it['groups']:
-                        kind, strokes, center, size, slot = g
-                        st2 = []
-                        for st in strokes:
-                            if len(st) > 4 and st[4]:
-                                st2.append((
-                                    [(sx + (px_ - bcx) * bo2,
-                                      sy + (py_ - bcy) * bo2)
-                                     for px_, py_ in st[0]],) + tuple(st[1:]))
-                            else:
-                                st2.append(st)
-                        moved.append(((kind, _remap_strokes(st2),
-                                       (sx + (center[0] - bcx) * bo2,
-                                        sy + (center[1] - bcy) * bo2),
-                                       size * bo2, slot), s, e))
-                    it['groups'] = moved
-                    it['w'], it['h'] = w * bo2, h * bo2
-                    it['bounds2'] = (sx - it['w'] / 2, sy - it['h'] / 2,
-                                     sx + it['w'] / 2, sy + it['h'] / 2)
-                    items.append({'groups': moved, 'wgt': 1.0,
-                                  'kind': 'elem',
-                                  'bounds2': it['bounds2']})
-            # weighted slices across the beat
-            dur = float(sec['beat'].get('duration_seconds', 3.0))
-            b0 = sec['beat']['start_seconds']
-            twt = sum(it['wgt'] for it in items)
-            unit = dur / max(1e-6, twt)
-            acc = b0
-            for it in items:
-                wd = it['wgt'] * unit
-                it['groups'] = [
-                    (g, acc + _SLICE_SPAN.get(g[0], (0.0, 1.0))[0] * wd,
-                     acc + _SLICE_SPAN.get(g[0], (0.0, 1.0))[1] * wd)
-                    for g, _s, _e in it['groups']]
-                acc += wd
-            sec['items2'] = items
-            sec['region'] = (rx, ry, rw, rh)
-            out_sections.append(sec)
-        board[0]['_board_divs'] = div_items
-        board[0]['_board_t'] = (t0, t1)
+    for si, sec in enumerate(sections):
+        t0 = sec['beat']['start_seconds']
+        t1 = t0 + float(sec['beat'].get('duration_seconds', 3.0))
+        cell = next((ci for ci, o in enumerate(cell_owner) if o < 0), None)
+        if cell is None:
+            # evict the oldest occupying section
+            cell = min(range(len(cells)), key=lambda ci: cell_owner[ci])
+            old = cell_owner[cell]
+            if old >= 0:
+                fade_items.append((old, t0 - FADE_IN, t0 + FADE_OUT))
+        cell_owner[cell] = si
+        rx, ry, rw, rh = cells[cell]
+        sec['cell'] = cell
+        sec['t_window'] = (t0, t1)
+
+        # small section label at the cell's top edge — the "sometimes text"
+        label = sec['label']
+        items = []
+        heading_h = rh * 0.16
+        hgt = heading_h * 0.52
+        maxw = rw * 0.8
+        tw = text_width(label, hgt)
+        if tw > maxw:
+            hgt *= maxw / tw
+        hst = text_strokes(label, (rx + rw * 0.04, ry + rh * 0.03),
+                           hgt, 'ink', 0.9)
+        if hst:
+            g = ('plabel', [(p, c, ws, False, True)
+                            for p, c, ws, *_ in hst], (0, 0), 1.0, None)
+            items.append({'groups': [(g, 0.0, 1.0)], 'wgt': 0.4,
+                          'kind': 'plabel'})
+        cx0, cy0 = rx + rw * 0.06, ry + rh * 0.05 + heading_h
+        cw, ch = rw * 0.88, rh - heading_h - rh * 0.10
+        elems = sec['items']
+        k = len(elems)
+        if k:
+            rws = 1 if k <= 2 else 2
+            ncol = math.ceil(k / rws)
+            for j, it in enumerate(elems):
+                r_ = j % rws
+                c_ = j // rws
+                fx = (c_ + 0.5) / ncol
+                fy = (r_ + 0.6) / (rws + 0.2)
+                sw = cw / ncol * 0.94
+                sh = ch / (rws + 0.2)
+                b = it['bounds']
+                w = max(30.0, b[2] - b[0])
+                h = max(30.0, b[3] - b[1])
+                bo2 = min(2.6, (sw * 0.97) / w, (sh * 0.97) / h)
+                bcx, bcy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
+                sx, sy = cx0 + cw * fx, cy0 + ch * fy
+                moved = []
+                for g, s, e in it['groups']:
+                    kind, strokes, center, size, slot = g
+                    st2 = []
+                    for st in strokes:
+                        if len(st) > 4 and st[4]:
+                            st2.append((
+                                [(sx + (px_ - bcx) * bo2,
+                                  sy + (py_ - bcy) * bo2)
+                                 for px_, py_ in st[0]],) + tuple(st[1:]))
+                        else:
+                            st2.append(st)
+                    moved.append(((kind, _remap_strokes(st2),
+                                   (sx + (center[0] - bcx) * bo2,
+                                    sy + (center[1] - bcy) * bo2),
+                                   size * bo2, slot), s, e))
+                it['groups'] = moved
+                it['w'], it['h'] = w * bo2, h * bo2
+                it['bounds2'] = (sx - it['w'] / 2, sy - it['h'] / 2,
+                                 sx + it['w'] / 2, sy + it['h'] / 2)
+                items.append({'groups': moved, 'wgt': 1.0,
+                              'kind': 'elem', 'bounds2': it['bounds2']})
+        # weighted slices across the beat
+        dur = float(sec['beat'].get('duration_seconds', 3.0))
+        twt = sum(it['wgt'] for it in items)
+        unit = dur / max(1e-6, twt)
+        acc = t0
+        for it in items:
+            wd = it['wgt'] * unit
+            it['groups'] = [
+                (g, acc + _SLICE_SPAN.get(g[0], (0.0, 1.0))[0] * wd,
+                 acc + _SLICE_SPAN.get(g[0], (0.0, 1.0))[1] * wd)
+                for g, _s, _e in it['groups']]
+            acc += wd
+        sec['items2'] = items
+        out_sections.append(sec)
+
+    # fade windows recorded on the evicted sections
+    for old_si, ft0, ft1 in fade_items:
+        out_sections[old_si]['fade'] = (max(0.0, ft0), ft1)
 
     # montage mini-cards: every section's art scaled into a grid cell
     nsec = len(out_sections)
@@ -433,7 +442,7 @@ def _build(plan, ratio):
         'dur': WIPE_SECONDS + THANKS_SECONDS + CELL_SECONDS * len(montage)
                + END_HOLD,
     }
-    flow = {'boards': boards, 'sections': out_sections,
+    flow = {'sections': out_sections,
             'ending': ending, 'board_rect': board_rect,
             'total_beats_end': total_beats_end}
     cache[ratio] = flow
@@ -445,80 +454,70 @@ def ending_seconds(plan, ratio):
 
 
 def render_board_frame(plan: dict, ratio: str, t: float):
-    """Fixed-camera frame: boards draw in place, wipe between boards,
-    ending = wipe -> Thanks+heart -> montage grid -> hold."""
+    """Fixed-camera frame on one canvas: sections draw in place; an evicted
+    section's ink fades off to free its cell; ending = board wipe ->
+    Thanks+heart -> montage grid -> hold."""
     flow = _build(plan, ratio)
     colors = _colors(plan)
     vw, vh = wbp.RATIO_SIZES[ratio]
     cam = (0.0, 0.0)
     zoom = 1.0
-    scale = _map_scale(ratio)
     seed = 11
     layer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
     tip = None
     t_end = flow['total_beats_end']
+    pal = wbp._pal(plan)
 
-    def progress_draw(groups, base_seed):
+    def draw_groups(groups, base_seed, onto=None):
         nonlocal tip
+        tgt = layer if onto is None else onto
         for g, s, e in groups:
             p = wbp._ease(wbp._clamp((t - s) / max(0.05, e - s)))
             if p <= 0:
                 continue
-            t2 = _draw_strokes(layer, g[1], g[2], g[3], cam, colors,
+            t2 = _draw_strokes(tgt, g[1], g[2], g[3], cam, colors,
                                ratio, p, base_seed, zoom)
-            if t2:
+            if t2 and onto is None:
                 tip = t2
-        return
+
+    def draw_full(groups, tgt):
+        for g, _s, _e in groups:
+            _draw_strokes(tgt, g[1], g[2], g[3], cam, colors,
+                          ratio, 1.0, 0, zoom)
 
     if t < t_end:
-        # find active board
-        board = None
-        for bd in flow['boards']:
-            bt0, bt1 = bd[0]['_board_t']
-            if bt0 <= t < bt1 + 1e-9:
-                board = bd
-        last_board = flow['boards'][-1]
-        # draw all sections of the active board (its full window)
-        if board is not None:
-            bt0, bt1 = board[0]['_board_t']
-            for it in board[0].get('_board_divs', []):
-                progress_draw(it['groups'], seed + 5)
-            for sec in board:
+        fade_layers = []
+        for sec in flow['sections']:
+            fade = sec.get('fade')
+            if fade is not None and t >= fade[1]:
+                continue                     # fully faded off
+            if fade is not None and t >= fade[0]:
+                # fading out: draw complete ink onto its own layer
+                fl = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
                 for it in sec['items2']:
-                    progress_draw(it['groups'], seed + sec['bi'] * 7)
-            # wipe during the tail of a non-last board
-            if board is not last_board:
-                w0 = bt1 - WIPE_SECONDS
-                if t >= w0:
-                    p = wbp._clamp((t - w0) / WIPE_SECONDS)
-                    from PIL import ImageDraw
-                    d = ImageDraw.Draw(layer)
-                    pal = wbp._pal(plan)
-                    d.rectangle([-8, -8, vw * p + 26, vh + 8],
-                                fill=pal['bgc'])
-        frame = _composite_frame(plan, ratio, cam, [(layer, 255)], seed)
+                    draw_full(it['groups'], fl)
+                p = wbp._clamp((t - fade[0]) / max(0.05, fade[1] - fade[0]))
+                fade_layers.append((fl, int(255 * (1.0 - p))))
+                continue
+            for it in sec['items2']:
+                draw_groups(it['groups'], seed + sec['bi'] * 7)
+        frame = _composite_frame(
+            plan, ratio, cam, [(layer, 255)] + fade_layers, seed)
         return _overlay_hand(frame, tip, ratio, t * 8 + seed)
 
-    # -------- ending --------
+    # -------- ending: wipe the whole board, thanks, montage --------
     ending = flow['ending']
     rel = t - t_end
-    pal = wbp._pal(plan)
-    # wipe of the final board
     if rel < WIPE_SECONDS:
         p = wbp._clamp(rel / WIPE_SECONDS)
-        from PIL import ImageDraw
-        d = ImageDraw.Draw(layer)
-        # draw remaining final-board ink then cover progressively
-        for it in flow['boards'][-1][0].get('_board_divs', []):
-            progress_draw(it['groups'], seed + 5)
-        for sec in flow['boards'][-1]:
+        for sec in flow['sections']:
+            if sec.get('fade') and t >= sec['fade'][1]:
+                continue
             for it in sec['items2']:
-                for g, s, e in it['groups']:
-                    _draw_strokes(layer, g[1], g[2], g[3], cam, colors,
-                                  ratio, 1.0, seed + sec['bi'] * 7, zoom)
+                draw_full(it['groups'], layer)
+        d = ImageDraw.Draw(layer)
         d.rectangle([-8, -8, vw * p + 26, vh + 8], fill=pal['bgc'])
     else:
-        # thanks
         tt = rel - WIPE_SECONDS
         for gi, g in enumerate(ending['thanks']):
             p = wbp._ease(wbp._clamp(
