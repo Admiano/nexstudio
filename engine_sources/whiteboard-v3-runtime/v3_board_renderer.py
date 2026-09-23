@@ -1520,6 +1520,27 @@ _SYNONYMS: dict[str, tuple[str, ...]] = {
     'viewer': ('person', 'eye'), 'reader': ('person', 'book'),
     'citizen': ('person', 'flag'), 'candidate': ('person', 'check'),
     'guest': ('person',), 'client': ('person',),
+    # commerce/logistics vocabulary — drawn as literal art, not emblems
+    'fulfillment': ('package', 'building'), 'fulfil': ('package',),
+    'product': ('package',), 'products': ('packages',),
+    'worker': ('person', 'helmet'), 'workers': ('group', 'person'),
+    'staff': ('group', 'person'), 'employee': ('person',),
+    'conveyor': ('assembly', 'packages'), 'belt': ('assembly',),
+    'overnight': ('moon', 'star'), 'nighttime': ('moon',),
+    'neighborhood': ('home', 'building'), 'neighbourhood': ('home',),
+    'neighbor': ('person', 'home'), 'neighbour': ('person',),
+    'neighbors': ('group', 'person'), 'neighbours': ('group',),
+    'distance': ('route', 'map'), 'machine': ('cpu', 'gear'),
+    'shelf': ('stack', 'books'), 'shelves': ('stack', 'books'),
+    'robot': ('robot',), 'robots': ('robot',), 'bot': ('robot',),
+    'drives': ('robot', 'truck'), 'locker': ('lock', 'package'),
+    'doorstep': ('home', 'package'), 'door': ('home',),
+    'order': ('package', 'check'), 'orders': ('packages',),
+    'customer': ('person',), 'customers': ('group', 'person'),
+    'van': ('truck',), 'vehicle': ('truck', 'car'),
+    'hub': ('building', 'packages'), 'station': ('building',),
+    'scan': ('scan',), 'scanner': ('scan',), 'sort': ('sort',),
+    'sorted': ('sort',), 'sorting': ('sort',), 'zip': ('map', 'pin'),
 }
 
 _DERIVE_SUFFIX: tuple[tuple[str, str], ...] = (
