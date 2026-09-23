@@ -1,4 +1,4 @@
-import type { DashboardProject } from "../../domain/dashboard.js";
+import type { DashboardProject } from "../../domain/dashboard";
 function familyLabel(value: DashboardProject["family"]): string { return value.replaceAll("_", " ").toLowerCase().replace(/(^|\s)\S/g, (letter) => letter.toUpperCase()); }
 export function ProjectCard({ project, onOpen }: { project: DashboardProject; onOpen: (id: string) => void }) {
   const video = project.previewUrl || (!project.coverUrl ? project.latestOutputUrl : null);

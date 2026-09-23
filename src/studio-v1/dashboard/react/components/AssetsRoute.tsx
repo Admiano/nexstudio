@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useStudioAssets, useStudioBrands, useStudioCast } from "../hooks.js";
-import { studioMutation } from "../api.js";
-import { ErrorState, LoadState } from "./shared.js";
-import { MemoryPanel } from "./MemoryPanel.js";
+import { useStudioAssets, useStudioBrands, useStudioCast } from "../hooks";
+import { studioMutation } from "../api";
+import { ErrorState, LoadState } from "./shared";
+import { MemoryPanel } from "./MemoryPanel";
 
 function FilesView() {
   const assets = useStudioAssets();

@@ -1,10 +1,10 @@
-import type { StudioDashboardGateway } from "./gateway.js";
-import type { ProductionDraftRecord } from "../domain/contracts.js";
-import { projectFromProductionDraft } from "./production-draft-adapter.js";
-import { sortDashboardProjects } from "../domain/dashboard.js";
-import type { StudioAssetPage } from "../domain/assets.js";
-import type { StudioBalance, StudioBillingHistory } from "../domain/billing.js";
-import type { StudioBrandCollection, StudioCastCollection, StudioMemoryCollection, StudioMemoryScope, StudioSeriesCollection } from "../domain/creative-memory.js";
+import type { StudioDashboardGateway } from "./gateway";
+import type { ProductionDraftRecord } from "../domain/contracts";
+import { projectFromProductionDraft } from "./production-draft-adapter";
+import { sortDashboardProjects } from "../domain/dashboard";
+import type { StudioAssetPage } from "../domain/assets";
+import type { StudioBalance, StudioBillingHistory } from "../domain/billing";
+import type { StudioBrandCollection, StudioCastCollection, StudioMemoryCollection, StudioMemoryScope, StudioSeriesCollection } from "../domain/creative-memory";
 
 export interface StudioDashboardEndpointConfig {
   work: string;
