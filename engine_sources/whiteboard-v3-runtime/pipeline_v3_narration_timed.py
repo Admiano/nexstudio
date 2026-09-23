@@ -213,7 +213,7 @@ def normalize_plan(plan: dict) -> dict:
     p['beats'] = norm_beats
     p['sceneSpecs'] = [b['scene'] for b in norm_beats]
     pacing = p.get('pacing') or {}
-    variant = str(p.get('camera_variant') or 'giant_board_journey')
+    variant = str(p.get('camera_variant') or 'board_sections')
     p['camera_variant'] = variant
     trans_default = GIANT_BOARD_TRAVEL_SECONDS if variant == 'giant_board_journey' else CLUSTER_TRANSITION_SECONDS
     p['pacing'] = {
@@ -318,12 +318,17 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
     """Yield (t_seconds, PIL RGB frame) across the narration-timed timeline."""
     beats = plan['beats']
     scenes = plan['sceneSpecs']
-    journey = plan.get('camera_variant') == 'giant_board_journey'
+    variant = plan.get('camera_variant')
+    journey = variant == 'giant_board_journey'
+    boards = variant == 'board_sections'
     pacing = plan['pacing']
     trans = pacing['transition_seconds']
     reveal = pacing['board_reveal_seconds']
     step = 1.0 / fps
     total = beats[-1]['start_seconds'] + beats[-1]['duration_seconds']
+    if boards:
+        import v3_board_sections as v3bs
+        total += v3bs.ending_seconds(plan, ratio)
 
     t = 0.0
     while t < total - 1e-9:
@@ -331,6 +336,12 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
             # one continuous drawing — the camera follows the pen along
             # the flow path; no scene boundaries, no tile zones
             yield t, v3r.render_journey_frame(plan, ratio, t)
+            t += step
+            continue
+        if boards:
+            # fixed camera on one board; sections draw in place,
+            # wipes between boards, ending thanks + montage
+            yield t, v3bs.render_board_frame(plan, ratio, t)
             t += step
             continue
         # Current beat = last beat whose window has opened; a completed beat holds.
@@ -349,7 +360,7 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
         yield t, frame
         t += step
 
-    if reveal > 0:
+    if reveal > 0 and not boards:
         if journey:
             canvas, start_view, end_view = v3r.journey_world_canvas(
                 plan, ratio)
@@ -724,7 +735,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('plan', help='Narration-timed plan JSON (NexMindWhiteboardV3NarrationTimedPlanV1)')
     ap.add_argument('--out-dir', default='out')
     ap.add_argument('--ratio', default=None, choices=['16:9', '1:1', '9:16'])
-    ap.add_argument('--variant', default=None, choices=['cluster_travel', 'giant_board_journey'])
+    ap.add_argument('--variant', default=None, choices=['cluster_travel', 'giant_board_journey', 'board_sections'])
     ap.add_argument('--fps', type=int, default=DEFAULT_FPS)
     ap.add_argument('--voiceover', default=None, help='Optional VO audio file to mix under the pen bed')
     ap.add_argument('--word-timings', default=None,

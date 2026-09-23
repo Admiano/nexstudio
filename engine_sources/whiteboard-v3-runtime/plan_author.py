@@ -274,7 +274,7 @@ def build_plan(script: str, *, vtype: str = 'diagram',
             t += dur
         return {'schema': 'NexMindWhiteboardV3NarrationTimedPlanV1',
                 'production_id': pid,
-                'camera_variant': 'giant_board_journey',
+                'camera_variant': 'board_sections',
                 'output_ratios': ['16:9'],
                 'pacing': {'transition_seconds': 1.5,
                            'board_reveal_seconds': 1.5},
