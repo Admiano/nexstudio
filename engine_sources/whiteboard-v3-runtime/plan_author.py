@@ -274,10 +274,10 @@ def build_plan(script: str, *, vtype: str = 'diagram',
             t += dur
         return {'schema': 'NexMindWhiteboardV3NarrationTimedPlanV1',
                 'production_id': pid,
-                'camera_variant': 'cluster_travel',
+                'camera_variant': 'giant_board_journey',
                 'output_ratios': ['16:9'],
-                'pacing': {'transition_seconds': 0.62,
-                           'board_reveal_seconds': 0.72},
+                'pacing': {'transition_seconds': 1.5,
+                           'board_reveal_seconds': 1.5},
                 'beats': wb_beats}
 
     beats = []

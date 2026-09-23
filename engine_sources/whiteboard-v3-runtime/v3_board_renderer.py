@@ -2478,11 +2478,21 @@ def render_scene_frame(scene: dict, plan: dict, ratio: str, scene_time: float) -
 
 def render_transition_frame(prev_scene, next_scene, plan, ratio, p: float):
     """Camera slide between zones; previous scenes stay on the board. Zoom
-    relaxes mid-move (pull back to travel, push in to arrive)."""
+    relaxes mid-move (pull back to travel, push in to arrive). The
+    giant-board journey bows the path and pulls back far enough that the
+    already-inked world reads around the frame edge."""
     c0 = wbp._camera(prev_scene, ratio)
     c1 = wbp._camera(next_scene, ratio)
     q = wbp._ease(wbp._clamp(p))
+    journey = plan.get('camera_variant') == 'giant_board_journey'
     cam = (c0[0] + (c1[0] - c0[0]) * q, c0[1] + (c1[1] - c0[1]) * q)
+    if journey:
+        # bow the flight path perpendicular — a sweep across the board,
+        # not a conveyor-belt slide
+        dx, dy = c1[0] - c0[0], c1[1] - c0[1]
+        d = math.hypot(dx, dy) or 1.0
+        bow = math.sin(math.pi * q) * 0.10 * d
+        cam = (cam[0] - dy / d * bow, cam[1] + dx / d * bow)
     scenes = plan.get('sceneSpecs') or [next_scene]
     idx = next((i for i, s in enumerate(scenes)
                 if s.get('sceneId') == next_scene.get('sceneId')), len(scenes) - 1)
@@ -2492,7 +2502,7 @@ def render_transition_frame(prev_scene, next_scene, plan, ratio, p: float):
     next_time = 0.0
     tip = None
     layers = []
-    zoom_dip = 1.0 - 0.05 * math.sin(math.pi * q)
+    zoom_dip = 1.0 - (0.34 if journey else 0.05) * math.sin(math.pi * q)
     for j in range(idx):
         lyr, _ = draw_scene_layer(scenes[j], plan, ratio, 999.0, cam, seed + j,
                                   zoom_dip)
