@@ -42,6 +42,28 @@ _STOP = {
     'thing', 'things', 'way', 'ways', 'lot', 'lots', 'kind', 'every',
     'much', 'many', 'first', 'second', 'third', 'also', 'well', 'even',
     'still', 'new', 'now', 'one', 'two', 'three', 'like', 'really',
+    # contraction stems (apostrophe tail already dropped) + discourse
+    # fillers — none of these can stand on a board as a label or icon
+    'don', 'doesn', 'didn', 'isn', 'aren', 'wasn', 'weren', 'won',
+    'wouldn', 'couldn', 'shouldn', 'can', 'cannot', 'mustn', 'mightn',
+    'needn', 'shan', 'ain', 'll', 've', 're', 'd',
+    'whatever', 'whenever', 'wherever', 'whoever', 'whichever',
+    'however', 'although', 'though', 'anyway', 'anyways', 'anymore',
+    'besides', 'otherwise', 'meanwhile', 'somewhere', 'anywhere',
+    'everywhere', 'nowhere', 'somehow', 'something', 'anything',
+    'everything', 'nothing', 'somebody', 'anybody', 'everybody',
+    'nobody', 'someone', 'anyone', 'everyone', 'maybe', 'perhaps',
+    'probably', 'certainly', 'surely', 'basically', 'actually',
+    'literally', 'generally', 'usually', 'sometimes', 'often',
+    'always', 'never', 'yes', 'yeah', 'okay', 'right',
+    # prepositions/conjunctions that draw nothing sensible
+    'whether', 'around', 'within', 'without', 'upon', 'onto', 'toward',
+    'towards', 'beyond', 'among', 'across', 'along', 'against', 'except',
+    'plus', 'per', 'via', 'amid', 'inside', 'outside', 'beside',
+    'under', 'above', 'below', 'behind', 'despite', 'unless',
+    'since', 'ago', 'yet', 'either', 'neither', 'rather',
+    'instead', 'aside', 'apart', 'according', 'regarding', 'including',
+    'given', 'considering', 'depending', 'owing', 'due', 'worth',
 }
 
 # process cue words -> flow layout (stage chain) rather than the
@@ -82,8 +104,14 @@ def _sentences(script: str) -> list[tuple[str, str]]:
 
 
 def _content_words(sentence: str) -> list[str]:
-    return [w.lower() for w in _WORD_RE.findall(sentence)
-            if w.lower() not in _STOP and len(w) >= 3]
+    # drop apostrophe tails first ("that's" -> "that", "don't" -> "don")
+    # so the stoplist sees the stem — fillers can't leak into labels
+    out = []
+    for w in _WORD_RE.findall(sentence):
+        stem = w.lower().split("'")[0]
+        if len(stem) >= 3 and stem not in _STOP:
+            out.append(stem)
+    return out
 
 
 def _bigrams(words: list[str]) -> list[str]:
