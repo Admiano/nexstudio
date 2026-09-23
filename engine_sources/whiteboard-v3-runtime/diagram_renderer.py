@@ -317,10 +317,13 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             n = counts[page_of[bi]]
             local = bi - starts[page_of[bi]]
             if vert_cells:
-                span = z['h'] * 0.56
+                # fill the safe zone below the headline — a centered
+                # start would push the bottom cells out of frame
+                span = z['h'] * 0.60
                 ch = span / n
-                cells.append((0.0, z['h'] * 0.045 + ch * (local + 0.5),
-                              z['w'] * 0.90, ch - 36))
+                top = -z['h'] * 0.30
+                cells.append((0.0, top + ch * (local + 0.5),
+                              z['w'] * 0.90, ch - 32))
             else:
                 span = z['w'] * 0.86
                 cw = span / n
