@@ -2,7 +2,7 @@
 
 | Artifact | Identity |
 |---|---|
-- `v3_board_sections.py` — sha256 `c41e91537f1946ac35c76a3dd0389dae8e2d2b138748c822984266e4ef561731`
+- `v3_board_sections.py` — sha256 `d4990cbf26844953d4b78762f22a5b7ec36405588d29f717eaa195d2450e1ccb`
 | Original renderer | `…/WHITEBOARD_ELITE_RUNTIME/vendor/pipeline_v3_narration_timed.py` |
 | Recorded sha256 | `c91f2bc50cb634c993ff307ef01bb4177d9478a290bf0b4da042adee260f9c34` |
 | Standalone source preserved | **no** (`06_provenance/EXACT_ARTIFACT_GAP.json`) |

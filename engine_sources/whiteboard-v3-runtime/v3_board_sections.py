@@ -147,12 +147,65 @@ def _section_label(beat):
     return label.title()
 
 
+_AGENT_WORDS = {
+    'investor','trader','doctor','nurse','patient','customer','consumer',
+    'user','shopper','buyer','seller','worker','employee','manager','boss',
+    'founder','ceo','student','teacher','child','mother','father','parent',
+    'driver','pilot','farmer','scientist','developer','engineer','designer',
+    'artist','audience','viewer','reader','team','crowd','people','person',
+    'man','woman','guy','kid','baby','elder','senior','client','partner',
+    'competitor','regulator','hacker','guard','soldier','politician','voter',
+    'citizen','tourist','neighbor','friend','colleague','staff','agent',
+    'mom','dad','grandma','grandpa','coach','athlete','chef','writer',
+    'analyst','banker','miner','farmer','nurse','surgeon','technician',
+    'customer','employee','employer','landlord','tenant','buyer','dealer',
+}
+
+
+def _agent_word(beat):
+    text = (str(beat.get('heroRole') or '') + ' ' +
+            str(beat.get('beat_id') or '') + ' ' +
+            str(beat.get('narration') or '')).lower()
+    toks = re.findall(r"[a-z']+", text)
+    for w in toks:
+        if w in _AGENT_WORDS:
+            return w
+    return None
+
+
+def _person_item(label, beat_i):
+    """A situational human figure (open-peeps composition) labeled under —
+    injected when the narration names an actor but no person slot exists."""
+    pose = v3r._pose_for_label(label)
+    cast = v3r._cast_spec_for(label, pose)
+    st = v3r._strokes_for('person', pose, 1, cast)
+    slot = {'icon': 'person', 'label': label, 'cast': cast,
+            'facing': 1, 'center': (0, 0), 'size': 1.0}
+    gs = [('icon', st, (0, 0), 1.0, slot)]
+    gs.append(('ground', v3r._ground_shadow_strokes(),
+               (0, 0.52), 1.0, slot))
+    lbl = label.replace('_', ' ').title()
+    tw_ = text_width(lbl, 0.16)
+    cap = text_strokes(lbl, (-tw_ / 2, 0.56), 0.16, 'ink', 0.95)
+    if cap:
+        gs.append(('caption', [(p, c, ws, f, False)
+                               for p, c, ws, f, *_ in cap],
+                   (0, 0), 1.0, slot))
+    xs = [q[0] for g in gs for s_ in g[1] for q in s_[0] if len(q) > 1]
+    ys = [q[1] for g in gs for s_ in g[1] for q in s_[0] if len(q) > 1]
+    b = (min(xs) if xs else -0.4, min(ys) if ys else -0.5,
+         max(xs) if xs else 0.4, max(ys) if ys else 0.5)
+    return {'groups': [(g, 0.0, 1.0) for g in gs],
+            'bounds': b, 'label': label, 'w': b[2] - b[0],
+            'h': b[3] - b[1], 'bi': beat_i}
+
+
 def _is_person_item(it):
     return any(g[4] is not None and g[4].get('icon') in ('person', 'agent')
                for g, _s, _e in it['groups'])
 
 
-def _bundle_scene_groups(scene, plan, ratio):
+def _bundle_scene_groups(scene, plan, ratio, beat=None):
     """_scene_groups minus the zone headline, merged into element bundles
     (icon+caption, person+prop cluster) — same model the journey uses."""
     groups = v3r._scene_groups(scene, plan, ratio)
@@ -203,6 +256,12 @@ def _bundle_scene_groups(scene, plan, ratio):
                 else:
                     merged[pk]['groups'].append((g, s, e))
             merged.pop(qk)
+    # character situations: the narration names an actor but no figure was
+    # drawn — inject a situational peep (the reference is full of them)
+    if not any(_is_person_item(it) for it in merged):
+        w = _agent_word(beat or {})
+        if w:
+            merged.insert(0, _person_item(w, 0))
     # text only where it's intended: figures get name labels; authored
     # chip/label elements keep theirs; everything else draws bare
     for it in merged:
@@ -244,7 +303,7 @@ def _build(plan, ratio):
 
     sections = []
     for bi, (beat, scene) in enumerate(zip(beats, scenes)):
-        merged = _bundle_scene_groups(scene, plan, ratio)
+        merged = _bundle_scene_groups(scene, plan, ratio, beat)
         for it in merged:
             b = None
             for g, _s, _e in it['groups']:
@@ -268,6 +327,7 @@ def _build(plan, ratio):
                           bw / ncol_, bh / nrow_))
     cell_item = [-1] * len(cells)     # -> item uid
     live_order = []                   # item uids in birth order
+    placed_bounds = []                # bounds2 of every placed element
     u_cell = {}                       # uid -> cell index
     u_anchor = {}                     # uid -> is anchor
     item_by_uid = {}                  # uid -> item dict
@@ -330,8 +390,9 @@ def _build(plan, ratio):
             it['uid'] = uid
             rx, ry, rw, rh = cells[cell]
             sw, sh = rw * 0.9, rh * 0.86
-            # importance: anchors + lead elements draw bigger
-            wgt = 1.5 if person else (1.2 if j == 0 else 0.9)
+            # importance spread: figures ~2x leads, props ~0.6x; light jitter
+            wgt = 1.9 if person else (1.3 if j == 0 else 0.62)
+            wgt *= 0.92 + 0.16 * ((uid * 2654435761) % 97) / 97.0
             b = it['bounds']
             w = max(30.0, b[2] - b[0])
             h = max(30.0, b[3] - b[1])
@@ -339,25 +400,54 @@ def _build(plan, ratio):
             bcx, bcy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
             sx = rx + rw * 0.5 + rw * 0.05 * ((j % 2) * 2 - 1)
             sy = ry + rh * 0.52 + rh * 0.06 * ((si + j) % 3 - 1)
+
+            # padding rule: nothing may ever graze another element that is
+            # still live when this one lands — shrink until clear
+            pad = rw * 0.05
+            def _b2(sc):
+                return (sx - w * bo2 * sc / 2, sy - h * bo2 * sc / 2,
+                        sx + w * bo2 * sc / 2, sy + h * bo2 * sc / 2)
+            scale = 1.0
+            for _try in range(6):
+                bb = _b2(scale)
+                hit = False
+                for ob in placed_bounds:
+                    if not (bb[2] + pad <= ob[0] or bb[0] - pad >= ob[2] or
+                            bb[3] + pad <= ob[1] or bb[1] - pad >= ob[3]):
+                        hit = True
+                        break
+                if not hit:
+                    break
+                scale *= 0.86
+            bo2 *= scale
+            it['bounds2'] = _b2(scale)
+            placed_bounds.append(it['bounds2'])
             moved = []
+            flip = (person and sx > 0.0 and
+                    not any((g[4] or {}).get('facing', 1) < 0
+                            for g, _s, _e in it['groups']))
             for g, s, e in it['groups']:
                 kind, strokes, center, size, slot = g
                 st2 = []
                 for st in strokes:
                     if len(st) > 4 and st[4]:
                         st2.append((
-                            [(sx + (px_ - bcx) * bo2,
+                            [(sx + ((bcx - px_) if flip
+                                    else (px_ - bcx)) * bo2,
                               sy + (py_ - bcy) * bo2)
                              for px_, py_ in st[0]],) + tuple(st[1:]))
+                    elif flip:
+                        st2.append((([( -q[0], q[1])
+                                      if len(q) > 1 else q
+                                      for q in st[0]]),) + tuple(st[1:]))
                     else:
                         st2.append(st)
                 moved.append(((kind, _remap_strokes(st2),
-                               (sx + (center[0] - bcx) * bo2,
+                               (sx + ((bcx - center[0]) if flip
+                                      else (center[0] - bcx)) * bo2,
                                 sy + (center[1] - bcy) * bo2),
                                size * bo2, slot), s, e))
             it['groups'] = moved
-            it['bounds2'] = (sx - w * bo2 / 2, sy - h * bo2 / 2,
-                             sx + w * bo2 / 2, sy + h * bo2 / 2)
             # the element inks across its slice of the beat
             it0 = t0 + j * slot_dur
             it1 = it0 + slot_dur
