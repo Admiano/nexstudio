@@ -310,13 +310,22 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
         counts: dict = {}
         for p in page_of:
             counts[p] = counts.get(p, 0) + 1
-        span = z['w'] * 0.86
+        # portrait stacks wide landscape cells vertically — columns at
+        # 9:16 would be slivers; rows keep real room for art + labels
+        vert_cells = z['h'] > z['w']
         for bi in range(len(beats)):
             n = counts[page_of[bi]]
-            cw = span / n
             local = bi - starts[page_of[bi]]
-            cells.append((-span / 2 + cw * (local + 0.5), z['h'] * 0.06,
-                          cw - 34, z['h'] * 0.50))
+            if vert_cells:
+                span = z['h'] * 0.56
+                ch = span / n
+                cells.append((0.0, z['h'] * 0.045 + ch * (local + 0.5),
+                              z['w'] * 0.90, ch - 36))
+            else:
+                span = z['w'] * 0.86
+                cw = span / n
+                cells.append((-span / 2 + cw * (local + 0.5),
+                              z['h'] * 0.06, cw - 34, z['h'] * 0.50))
 
     # per-beat elements
     id_map: dict = {}  # element id -> elements[] index for arrow endpoints
@@ -352,17 +361,27 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 center=(0, 0), size=1.0, role='marker.swipe')
             elements[-1]['slot'] = f'cellbox{bi}'
             if bi > 0 and page_of[bi] == page_of[bi - 1]:
-                px0 = cells[bi - 1][0] + cells[bi - 1][2] / 2 + 6
-                px1 = cx0 - wc / 2 - 6
-                add(bi, 'arrow',
-                    _arrow(px0, cy0, px1, cy0, 'accent'),
-                    center=(0, 0), size=1.0, role='marker.short')
+                if z['h'] > z['w']:
+                    # stacked cells chain downward
+                    px0 = px1 = cx0
+                    py0 = cells[bi - 1][1] + cells[bi - 1][3] / 2 + 6
+                    py1 = cy0 - hc / 2 - 6
+                    add(bi, 'arrow', _arrow(px0, py0, px1, py1, 'accent'),
+                        center=(0, 0), size=1.0, role='marker.short')
+                else:
+                    px0 = cells[bi - 1][0] + cells[bi - 1][2] / 2 + 6
+                    px1 = cx0 - wc / 2 - 6
+                    add(bi, 'arrow',
+                        _arrow(px0, cy0, px1, cy0, 'accent'),
+                        center=(0, 0), size=1.0, role='marker.short')
         stage = str(spec.get('stage') or '').strip()
         if stage:
             lbl = f'{bi + 1}. {stage.upper()}'[:32]
             if region == 'cell':
                 sx = cells[bi][0]
-                sy = cells[bi][1] - cells[bi][3] / 2 - 34
+                sy = (cells[bi][1] - cells[bi][3] / 2 - 22
+                      if z['h'] > z['w'] else
+                      cells[bi][1] - cells[bi][3] / 2 - 34)
             elif region in ('left', 'right'):
                 sx = atlas[region]
                 sy = -z['h'] * 0.30
@@ -373,7 +392,8 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
             # fixed frame fraction lets narrow cells' labels collide
             lbl_w = cells[bi][2] * 0.92 if region == 'cell' \
                 else z['w'] * 0.4
-            st, _o, _t, _h = _lettered(lbl, sx, sy, 20, 'ink',
+            lbl_h = 15 if (region == 'cell' and z['h'] > z['w']) else 20
+            st, _o, _t, _h = _lettered(lbl, sx, sy, lbl_h, 'ink',
                                        max_w=lbl_w)
             add(bi, 'stage', st, size=1.0, role='marker.short')
             elements[-1]['slot'] = (f'cell{bi}' if region == 'cell'
@@ -390,12 +410,20 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 idx = col_counts.get(f'cell{bi}', 0)
                 col_counts[f'cell{bi}'] = idx + 1
                 n = cell_total_cells.get(bi, 1)
-                cx = cx0
-                span = hc * 0.56
-                cy = (cy0 - span / 2 if n == 1 else
-                      cy0 - span / 2 + span * idx / (n - 1))
-                icon_size = min(140.0, wc * 0.46,
-                                hc * 0.28 if n <= 2 else hc * 0.185)
+                if z['h'] > z['w']:
+                    # landscape cell: items sit side by side, captions under
+                    span = wc * 0.74
+                    cx = (cx0 if n == 1 else
+                          cx0 - span / 2 + span * idx / (n - 1))
+                    cy = cy0 - hc * 0.10
+                    icon_size = min(140.0, hc * 0.40, span / n * 0.62)
+                else:
+                    cx = cx0
+                    span = hc * 0.56
+                    cy = (cy0 - span / 2 if n == 1 else
+                          cy0 - span / 2 + span * idx / (n - 1))
+                    icon_size = min(140.0, wc * 0.46,
+                                    hc * 0.28 if n <= 2 else hc * 0.185)
             elif at in ('left', 'right'):
                 cx, cy = _column_slot(atlas, at, col_counts.get(at, 0),
                                       col_total.get(at, 1))
@@ -498,6 +526,7 @@ def build_elements(plan: dict, ratio: str) -> tuple[list[dict], dict]:
                 id_map[el_id] = len(elements) - 1
 
     atlas['cells'] = cells
+    atlas['cells_vertical'] = bool(flow and z['h'] > z['w'])
     # summary strip draws inside the last beat's window
     summary = str(dg.get('summary') or '').strip()
     if summary and beats:
@@ -691,21 +720,39 @@ def _resolve_collisions(elements: list[dict], atlas: dict) -> None:
                         _shift_elem(x, 0.0, deficit)
     # flow layout: restack each stage cell's contents inside its box and
     # float the stage label just above the box top
+    vert_cells = atlas.get('cells_vertical')
     for i, (cx0, cy0, wc, hc) in enumerate(atlas.get('cells') or []):
         items = [e for e in elements if e.get('slot') == f'cell{i}'
                  and e['kind'] != 'stage']
-        items.sort(key=lambda e: (_elem_bounds(e) or (0, 0, 0, 0))[1])
-        cursor = cy0 - hc / 2 + hc * 0.11
-        for e in items:
-            b = _elem_bounds(e)
-            if not b:
-                continue
-            _shift_elem(e, 0.0, cursor - b[1])
-            cursor = _elem_bounds(e)[3] + margin * 0.6
+        if vert_cells:
+            # landscape cell: items stay side by side, centered as a
+            # group — never restacked into a column
+            items.sort(key=lambda e: (_elem_bounds(e) or (0, 0, 0, 0))[0])
+            span = wc * 0.78
+            for idx, e in enumerate(items):
+                b = _elem_bounds(e)
+                if not b:
+                    continue
+                tx = (cx0 if len(items) == 1 else
+                      cx0 - span / 2 + span * (idx + 0.5) / len(items))
+                _shift_elem(e, tx - (b[0] + b[2]) / 2,
+                            cy0 + hc * 0.03 - (b[1] + b[3]) / 2)
+        else:
+            items.sort(key=lambda e: (_elem_bounds(e) or (0, 0, 0, 0))[1])
+            cursor = cy0 - hc / 2 + hc * 0.11
+            for e in items:
+                b = _elem_bounds(e)
+                if not b:
+                    continue
+                _shift_elem(e, 0.0, cursor - b[1])
+                cursor = _elem_bounds(e)[3] + margin * 0.6
         for e in elements:
             if e['kind'] == 'stage' and e.get('slot') == f'cell{i}':
                 b = _elem_bounds(e)
-                _shift_elem(e, 0.0, cy0 - hc / 2 - margin * 0.5 - b[3])
+                # stacked cells share a tight gap — the label centers in
+                # it instead of hanging half a margin above the box
+                gap_lift = 6 if vert_cells else margin * 0.5
+                _shift_elem(e, 0.0, cy0 - hc / 2 - gap_lift - b[3])
     for e in elements:
         if e['kind'] == 'stage' and e.get('slot') == 'hero':
             b = _elem_bounds(e)
