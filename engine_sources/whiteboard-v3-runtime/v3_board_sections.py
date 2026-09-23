@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import math
 import re
+import svg_paths
 import random
 
 from PIL import Image, ImageDraw
@@ -147,6 +148,94 @@ def _section_label(beat):
     return label.title()
 
 
+from pathlib import Path as _Path
+_PC_DIR = _Path(__file__).resolve().parent / 'assets' / 'paper_cast'
+_PC_CACHE: dict = {}
+
+import sys as _sys
+_sys.path.insert(0, str(_Path(__file__).resolve().parent
+                        / 'tools' / 'paper_cast'))
+try:
+    import line_cast as _line_cast
+except Exception:
+    _line_cast = None
+
+
+def _papercast_strokes(cast_id):
+    """Paper-cast figure -> unit-space strokes (~260 tall, feet at 0) —
+    ONE continuous body silhouette plus face/garment detail strokes,
+    traced from the merged masses (line_cast) rather than per-part
+    outlines."""
+    if cast_id in _PC_CACHE:
+        return _PC_CACHE[cast_id]
+    p = _PC_DIR / f'{cast_id}.svg'
+    if not p.exists():
+        _PC_CACHE[cast_id] = None
+        return None
+    if _line_cast is None:
+        _PC_CACHE[cast_id] = None
+        return None
+    st = []
+    for pts, det in _line_cast.figure_strokes(p, height=260.0):
+        if len(pts) > 1:
+            st.append((pts, 'ink', 0.7 if det else 1.0, False, False))
+    _PC_CACHE[cast_id] = st or None
+    return _PC_CACHE[cast_id]
+
+
+# role word -> paper-cast member
+_CAST_MAP = {
+    'parent': 'parent', 'mother': 'parent', 'father': 'parent',
+    'mom': 'parent', 'dad': 'parent',
+    'child': 'child', 'kid': 'child', 'baby': 'toddler', 'toddler': 'toddler',
+    'investor': 'executive', 'executive': 'executive', 'boss': 'executive',
+    'manager': 'executive', 'ceo': 'executive', 'founder': 'executive',
+    'doctor': 'healthcare-worker', 'nurse': 'healthcare-worker',
+    'patient': 'healthcare-worker', 'medic': 'healthcare-worker',
+    'surgeon': 'healthcare-worker', 'clinician': 'healthcare-worker',
+    'teacher': 'teacher', 'professor': 'teacher', 'instructor': 'teacher',
+    'student': 'student', 'pupil': 'student', 'teen': 'student',
+    'worker': 'office-worker', 'employee': 'office-worker',
+    'staff': 'office-worker', 'employer': 'office-worker',
+    'builder': 'builder', 'construction': 'builder',
+    'technician': 'technician', 'engineer': 'technician',
+    'mechanic': 'technician',
+    'customer': 'customer', 'shopper': 'customer', 'buyer': 'customer',
+    'client': 'customer', 'consumer': 'customer',
+    'helper': 'support-helper', 'assistant': 'support-helper',
+    'salesperson': 'salesperson', 'seller': 'salesperson',
+    'dealer': 'salesperson', 'landlord': 'salesperson',
+    'friend': 'peer-friend', 'partner': 'peer-friend',
+    'colleague': 'peer-friend', 'neighbor': 'peer-friend',
+    'mentor': 'mentor', 'coach': 'mentor', 'elder': 'mentor',
+    'senior': 'mentor', 'grandma': 'mentor', 'grandpa': 'mentor',
+    'analyst': 'analyst', 'scientist': 'analyst', 'banker': 'analyst',
+    'reporter': 'field-reporter', 'journalist': 'field-reporter',
+    'presenter': 'presenter', 'speaker': 'presenter', 'host': 'presenter',
+    'artist': 'creator', 'designer': 'creator', 'writer': 'creator',
+    'developer': 'creator',
+    'chef': 'support-helper', 'driver': 'office-worker',
+    'pilot': 'technician', 'farmer': 'builder', 'guard': 'executive',
+    'soldier': 'executive', 'politician': 'executive',
+    'voter': 'customer', 'citizen': 'customer', 'tourist': 'customer',
+    'athlete': 'builder', 'miner': 'builder', 'hacker': 'technician',
+    'thief': 'technician', 'regulator': 'executive',
+    'competitor': 'peer-friend', 'agent': 'office-worker',
+    'audience': 'customer', 'viewer': 'customer', 'reader': 'student',
+    'crowd': 'customer', 'team': 'office-worker', 'people': 'customer',
+    'person': 'presenter', 'man': 'customer', 'woman': 'customer',
+    'guy': 'customer', 'user': 'office-worker',
+}
+
+
+def _papercast_for(label):
+    low = str(label).lower()
+    for w, cid in _CAST_MAP.items():
+        if w in low.split() or (len(w) > 4 and w in low):
+            return cid
+    return None
+
+
 _AGENT_WORDS = {
     'investor','trader','doctor','nurse','patient','customer','consumer',
     'user','shopper','buyer','seller','worker','employee','manager','boss',
@@ -174,11 +263,15 @@ def _agent_word(beat):
 
 
 def _person_item(label, beat_i):
-    """A situational human figure (open-peeps composition) labeled under —
-    injected when the narration names an actor but no person slot exists."""
-    pose = v3r._pose_for_label(label)
-    cast = v3r._cast_spec_for(label, pose)
-    st = v3r._strokes_for('person', pose, 1, cast)
+    """A situational human figure — paper-cast member when the role maps,
+    open-peeps otherwise — labeled under."""
+    pcid = _papercast_for(label)
+    st = _papercast_strokes(pcid) if pcid else None
+    cast = None
+    if st is None:
+        pose = v3r._pose_for_label(label)
+        cast = v3r._cast_spec_for(label, pose)
+        st = v3r._strokes_for('person', pose, 1, cast)
     slot = {'icon': 'person', 'label': label, 'cast': cast,
             'facing': 1, 'center': (0, 0), 'size': 1.0}
     gs = [('icon', st, (0, 0), 1.0, slot)]
@@ -256,6 +349,35 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
                 else:
                     merged[pk]['groups'].append((g, s, e))
             merged.pop(qk)
+    # upgrade authored people to the paper-cast figure their label maps to
+    for it in merged:
+        if _is_person_item(it):
+            lbl = ''
+            for g, _s, _e in it['groups']:
+                if g[4] and g[4].get('label'):
+                    lbl = g[4]['label']
+                    break
+            cid = _papercast_for(lbl)
+            if cid:
+                st = _papercast_strokes(cid)
+                if st:
+                    ng = []
+                    for g, s, e in it['groups']:
+                        if g[0] == 'icon':
+                            ng.append((('icon', st, (0, 0), 1.0, g[4]),
+                                       s, e))
+                        else:
+                            ng.append((g, s, e))
+                    it['groups'] = ng
+                    xs_ = [q[0] for s_ in st for q in s_[0]
+                           if len(q) > 1]
+                    ys_ = [q[1] for s_ in st for q in s_[0]
+                           if len(q) > 1]
+                    if xs_ and ys_:
+                        it['bounds'] = (min(xs_), min(ys_),
+                                        max(xs_), max(ys_))
+                    it['w'] = it['bounds'][2] - it['bounds'][0]
+                    it['h'] = it['bounds'][3] - it['bounds'][1]
     # character situations: the narration names an actor but no figure was
     # drawn — inject a situational peep (the reference is full of them)
     if not any(_is_person_item(it) for it in merged):
