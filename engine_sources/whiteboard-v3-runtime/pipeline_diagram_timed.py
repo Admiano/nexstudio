@@ -173,6 +173,23 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '16:9',
     return receipt
 
 
+def _repage_flow(plan: dict, page_size: int) -> None:
+    """Re-split flow pages every `page_size` cell beats — replaces the
+    plan's authored erase schedule with real page turns at the new
+    cadence. No-op for non-flow plans."""
+    if str((plan.get('diagram') or {}).get('layout') or '') != 'flow':
+        return
+    beats = plan.get('beats') or []
+    n = 0
+    for b in beats:
+        d = b.setdefault('diagram', {})
+        if n and n % page_size == 0:
+            d['transition'] = 'erase'
+        else:
+            d.pop('transition', None)
+        n += 1
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description='NexMind diagram-type narration-timed renderer')
@@ -190,9 +207,16 @@ def main(argv: list[str] | None = None) -> int:
                     help='Word-level timing JSON — audio is the clock')
     ap.add_argument('--keep-frames', action='store_true')
     ap.add_argument('--package-root', default=None)
+    ap.add_argument('--page-size', type=int, default=None,
+                    help='Override flow page size — re-inserts erase page '
+                         'turns every N cell beats (portrait looks best '
+                         'at 3; plans stay ratio-agnostic)')
     a = ap.parse_args(argv)
 
     plan = p3.load_plan(Path(a.plan))
+    page_size = a.page_size or (3 if a.ratio == '9:16' else None)
+    if page_size:
+        _repage_flow(plan, page_size)
     if a.accent:
         plan.setdefault('brandExecution', {}).setdefault(
             'brandAuthority', {})['accent'] = a.accent
