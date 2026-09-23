@@ -103,20 +103,23 @@ def test_compile_produces_board_world_and_drawplan():
 
 # --- giant-board journey ----------------------------------------------------
 
-def test_journey_spreads_zones_and_reveals_world():
-    """giant_board_journey: each scene gets its own world zone so the
-    camera truly travels; the reveal renders the real board, not a grid."""
+def test_journey_flows_elements_and_reveals_canvas():
+    """giant_board_journey: one continuous drawing — elements laid along
+    a flowing path (heading first), the camera chases the pen, and the
+    reveal renders the literal canvas at real positions."""
     plan, wbp, v3r = _compiled({'camera_variant': 'giant_board_journey'})
-    zones = pipe._journey_zones(plan, '16:9')
-    assert len({(z['x'], z['y']) for z in zones}) == len(zones) > 1
-    cams = {wbp._camera(s, '16:9') for s in plan['sceneSpecs']}
-    assert len(cams) == len(zones)
-    canvas, sv, ev = pipe._world_canvas(
-        wbp, v3r, plan, '16:9', plan['sceneSpecs'])
-    assert canvas.size[0] > 2000 and sv[2] - sv[0] == 1280
-    f = v3r.render_transition_frame(
-        plan['sceneSpecs'][0], plan['sceneSpecs'][1], plan, '16:9', 0.5)
+    flow = v3r._journey_items(plan, '16:9')
+    items = flow['items']
+    assert len(items) > len(plan['sceneSpecs'])
+    assert items[0]['groups'][0][0][0] == 'headline'
+    # every element sits at a distinct path position, ordered in time
+    assert len({it['center'] for it in items}) == len(items)
+    assert all(it['t0'] < it['t1'] for it in items)
+    # draw pass + reveal canvas
+    f = v3r.render_journey_frame(plan, '16:9', 1.0)
     assert f.size == (1280, 720)
+    canvas, sv, ev = v3r.journey_world_canvas(plan, '16:9')
+    assert canvas.size[0] > 2000 and sv[2] - sv[0] == 1280
 
 
 # --- determinism + golden frames --------------------------------------------

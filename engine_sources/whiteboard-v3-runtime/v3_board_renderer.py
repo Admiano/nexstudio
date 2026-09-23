@@ -2426,6 +2426,297 @@ def _smooth_tip(scene, plan, ratio, scene_time, cam, seed, zoom):
     return (bx, by + dt * 90 + 14)
 
 
+# ---------------------------------------------------------------------------
+# Giant-board journey — one continuous drawing on a huge canvas: a heading
+# first, then every element inked along a flowing path while the camera
+# follows the pen, and the reveal pulls out to the whole infographic.
+# ---------------------------------------------------------------------------
+
+def _group_world_bounds(g):
+    _kind, strokes, center, size, _slot = g
+    xs, ys = [], []
+    for st in strokes:
+        absolute = st[4] if len(st) > 4 else False
+        for px, py in st[0]:
+            if absolute:
+                xs.append(px)
+                ys.append(py)
+            else:
+                xs.append(center[0] + px * size)
+                ys.append(center[1] + py * size)
+    if not xs:
+        return (center[0], center[1], center[0], center[1])
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def _journey_title(plan: dict) -> str:
+    title = str(plan.get('title') or '').strip()
+    if title:
+        return title
+    pid = str(plan.get('production_id') or '').strip()
+    drop = {'NEXMIND', 'WHITEBOARD', 'V3', 'DEMO', 'RECONSTRUCTION', 'PLAN'}
+    words = [w for w in pid.replace('-', ' ').replace('_', ' ').split()
+             if w.upper() not in drop]
+    return ' '.join(words).title()
+
+
+def _journey_items(plan: dict, ratio: str):
+    """Flatten every beat's drawable groups into per-slot elements and lay
+    them out along a flowing left-to-right path that wraps row to row —
+    one continuous reading order across the whole canvas. Each element's
+    strokes are translated to its path position once and cached."""
+    cache = (plan.get('_journey_items') or {}).get(ratio)
+    if cache:
+        return cache
+    beats = plan.get('beats') or []
+    scenes = plan.get('sceneSpecs') or []
+    zw, zh = 1040.0, 620.0
+    margin, gap_x, gap_y = 120.0, 95.0, 150.0
+    row_w = zw * 3.05
+
+    items = []
+    title = _journey_title(plan)
+    if title:
+        # the piece title gets a full-width band — headline sizing keys off
+        # zone height, so feed it a tall band to get real display letters
+        head_zone = {'x': 0.0, 'y': 0.0, 'w': row_w, 'h': zh * 2.1}
+        fake = {'screenCopy': {'primary': title}}
+        st = _headline_strokes(fake, head_zone, ratio)
+        if st:
+            # the reveal canvas renders each element as one viewport tile —
+            # shrink a heading wider than a viewport so its ends don't clip
+            hb = _group_world_bounds(('h', st, (0.0, 0.0), 1.0, None))
+            hw_ = hb[2] - hb[0]
+            cap = wbp.RATIO_SIZES[ratio][0] / _map_scale(ratio) * 0.62
+            if hw_ > cap:
+                k = cap / hw_
+                ox, oy = hb[0], hb[1]
+                st = [([(ox + (px - ox) * k, oy + (py - oy) * k)
+                        for px, py in s[0]],) + tuple(s[1:]) for s in st]
+            items.append({'groups': [(('headline', st, (0.0, 0.0), 1.0,
+                                      None), 0.15, 1.5)],
+                          'bounds': _group_world_bounds(
+                              ('headline', st, (0.0, 0.0), 1.0, None))})
+    for bi, (beat, scene) in enumerate(zip(beats, scenes)):
+        b0 = float(beat.get('start_seconds', 0.0))
+        bundle: dict = {}
+        order = []
+        for g, s, e in _scene_groups(scene, plan, ratio):
+            if g[0] == 'headline':
+                continue
+            key = id(g[4]) if g[4] is not None else id(g)
+            if key not in bundle:
+                bundle[key] = []
+                order.append(key)
+            bundle[key].append((g, b0 + s, b0 + e))
+        for key in order:
+            gs = bundle[key]
+            b = None
+            for g, _s, _e in gs:
+                gb = _group_world_bounds(g)
+                b = gb if b is None else (min(b[0], gb[0]),
+                                          min(b[1], gb[1]),
+                                          max(b[2], gb[2]),
+                                          max(b[3], gb[3]))
+            items.append({'groups': gs, 'bounds': b, 'bi': bi})
+
+    # one element inks at a time: re-slice each beat's items into
+    # sequential windows (icon/caption inside an item keep their offsets)
+    i0 = 0
+    while i0 < len(items):
+        if items[i0].get('bi') is None:
+            i0 += 1
+            continue
+        j = i0
+        while j < len(items) and items[j].get('bi') == items[i0]['bi']:
+            j += 1
+        grp = items[i0:j]
+        b0 = min(s for it in grp for _, s, _ in it['groups'])
+        b1 = max(e for it in grp for _, _, e in it['groups'])
+        dur = max(0.4, b1 - b0)
+        di = dur / len(grp)
+        for k, it in enumerate(grp):
+            s0 = b0 + k * di
+            it['groups'] = [
+                (g, s0 + (s - b0) / dur * di, s0 + (e - b0) / dur * di)
+                for g, s, e in it['groups']
+            ]
+        i0 = j
+
+    # path placement — measure each element, flow it, wrap to next row
+    x = margin
+    y = margin
+    cur: list = []
+
+    def _flush_row(row_items, y_top):
+        rh = max(it['h'] for it in row_items)
+        for it in row_items:
+            it['cy'] = y_top + rh / 2
+        return y_top + rh + gap_y
+
+    for it in items:
+        b = it['bounds']
+        it['w'] = max(30.0, b[2] - b[0])
+        it['h'] = max(30.0, b[3] - b[1])
+        it['bc'] = ((b[0] + b[2]) / 2, (b[1] + b[3]) / 2)
+        if x + it['w'] > margin + row_w and cur:
+            y = _flush_row(cur, y)
+            cur = []
+            x = margin
+        it['cx'] = x + it['w'] / 2
+        x += it['w'] + gap_x
+        cur.append(it)
+    if cur:
+        _flush_row(cur, y)
+
+    # relocate every group to its path position (unit-space strokes move
+    # with their center; absolute strokes — lettering/arrows — translate)
+    for it in items:
+        dx = it['cx'] - it['bc'][0]
+        dy = it['cy'] - it['bc'][1]
+        moved = []
+        for g, s, e in it['groups']:
+            kind, strokes, center, size, slot = g
+            st2 = []
+            for st in strokes:
+                if len(st) > 4 and st[4]:
+                    st2.append(([(px + dx, py + dy)
+                                 for px, py in st[0]],) + tuple(st[1:]))
+                else:
+                    st2.append(st)
+            moved.append(((kind, st2, (center[0] + dx, center[1] + dy),
+                           size, slot), s, e))
+        it['groups'] = moved
+        it['center'] = (it['cx'], it['cy'])
+        b0_, b1_, b2_, b3_ = it['bounds']
+        it['bounds2'] = (b0_ + dx, b1_ + dy, b2_ + dx, b3_ + dy)
+        it['t0'] = min(s for _, s, _ in moved)
+        it['t1'] = max(e for _, _, e in moved)
+    out = {'items': items}
+    plan.setdefault('_journey_items', {})[ratio] = out
+    return out
+
+
+def render_journey_frame(plan: dict, ratio: str, t: float):
+    """Continuous-drawing frame: the heading inks first, then each element
+    draws at its path position in narration order; all prior ink stays on
+    the board and the camera chases the pen tip. While nothing is being
+    drawn (the gap before the next element) it glides to that element."""
+    flow = _journey_items(plan, ratio)
+    items = flow['items']
+    if not items:
+        return Image.new('RGB', wbp.RATIO_SIZES[ratio],
+                         tuple(wbp._pal(plan)['bgc'][:3]))
+    colors = _palette(plan)
+    view_w, view_h = wbp.RATIO_SIZES[ratio]
+    scale = _map_scale(ratio)
+    seed = 11
+    cam0 = plan.get('_journey_campos') or items[0]['center']
+
+    def _draw_pass(cam, zoom):
+        layer = Image.new('RGBA', (view_w, view_h), (0, 0, 0, 0))
+        tip = None
+        for gi, it in enumerate(items):
+            for g, s, e in it['groups']:
+                _kind, strokes, center, size, _slot = g
+                p = wbp._ease(wbp._clamp((t - s) / max(0.05, e - s)))
+                if p <= 0:
+                    continue
+                t2 = _draw_strokes(layer, strokes, center, size, cam,
+                                   colors, ratio, p, seed + gi, zoom)
+                if t2:
+                    tip = t2
+        return layer, tip
+
+    # pass 1 under the previous camera: where is the pen right now?
+    _l0, tip0 = _draw_pass(cam0, 1.0)
+    if tip0 is not None:
+        # screen tip back to world coords under cam0
+        target = (cam0[0] + (tip0[0] - view_w / 2) / scale,
+                  cam0[1] + (tip0[1] - view_h / 2) / scale)
+        target = (target[0], target[1] + view_h * 0.06 / scale)
+    else:
+        # pen lifted: glide to the next element only in the ~1.1s before
+        # it inks — earlier than that the camera would sit on blank board
+        nxt = None
+        for it in items:
+            if it['t0'] > t:
+                nxt = it
+                break
+        if nxt is not None and t > nxt['t0'] - 1.1:
+            target = nxt['center']
+        else:
+            target = cam0
+    # pursuit — the camera chases; pen speed sets its own pace
+    k = 0.16
+    cam = (cam0[0] + (target[0] - cam0[0]) * k,
+           cam0[1] + (target[1] - cam0[1]) * k)
+    if t <= 1e-6:
+        cam = items[0]['center']
+    plan['_journey_campos'] = cam
+    dist = math.hypot(target[0] - cam[0], target[1] - cam[1]) * scale
+    zoom = 1.0 - min(0.18, dist * 0.0011)
+    layer, tip = _draw_pass(cam, zoom)
+    if tip is None:
+        tip = plan.get('_journey_tip')
+    else:
+        plan['_journey_tip'] = tip
+    frame = _composite_frame(plan, ratio, cam, [(layer, 255)], seed)
+    return _overlay_hand(frame, tip, ratio, t * 8 + seed)
+
+
+def journey_world_canvas(plan: dict, ratio: str):
+    """The literal infographic: every element rendered at its real path
+    position on one canvas — the pull-out reveal."""
+    flow = _journey_items(plan, ratio)
+    items = flow['items']
+    pal = wbp._pal(plan)
+    view_w, view_h = wbp.RATIO_SIZES[ratio]
+    scale = _map_scale(ratio)
+    # element tiles paint a full viewport around each center — the canvas
+    # must cover tile extents, not just stroke bounds, or edge items clip
+    hw = view_w / (2 * scale)
+    hh = view_h / (2 * scale)
+    x0 = min(min(it['bounds2'][0] for it in items),
+             min(it['center'][0] - hw for it in items))
+    y0 = min(min(it['bounds2'][1] for it in items),
+             min(it['center'][1] - hh for it in items))
+    x1 = max(max(it['bounds2'][2] for it in items),
+             max(it['center'][0] + hw for it in items))
+    y1 = max(max(it['bounds2'][3] for it in items),
+             max(it['center'][1] + hh for it in items))
+    m = int(0.04 * view_w)
+    W = int((x1 - x0) * scale) + 2 * m
+    H = int((y1 - y0) * scale) + 2 * m
+    canvas = Image.new('RGB', (W, H), tuple(pal['bgc'][:3]))
+    colors = _palette(plan)
+    seed = 11
+    for j, it in enumerate(items):
+        tile = Image.new('RGBA', (view_w, view_h), (0, 0, 0, 0))
+        for g, _s, _e in it['groups']:
+            _kind, strokes, center, size, _slot = g
+            _draw_strokes(tile, strokes, center, size, it['center'],
+                          colors, ratio, 1.0, seed + j, 1.0)
+        px = int((it['center'][0] - x0) * scale + m - view_w / 2)
+        py = int((it['center'][1] - y0) * scale + m - view_h / 2)
+        canvas.paste(tile.convert('RGB'), (px, py), tile.split()[3])
+    need_w = int(canvas.height * view_w / view_h)
+    need_h = int(canvas.width * view_h / view_w)
+    pw, ph = max(canvas.width, need_w), max(canvas.height, need_h)
+    if (pw, ph) != canvas.size:
+        padded = Image.new('RGB', (pw, ph), tuple(pal['bgc'][:3]))
+        ox, oy = (pw - canvas.width) // 2, (ph - canvas.height) // 2
+        padded.paste(canvas, (ox, oy))
+        canvas = padded
+    else:
+        ox = oy = 0
+    cx = int((items[-1]['center'][0] - x0) * scale + m + ox - view_w / 2)
+    cy = int((items[-1]['center'][1] - y0) * scale + m + oy - view_h / 2)
+    start_view = (max(0, cx), max(0, cy), cx + view_w, cy + view_h)
+    end_view = (0, 0, canvas.width, canvas.height)
+    return canvas, start_view, end_view
+
+
 def _scene_cam_zoom(scene, plan, ratio, scene_time: float):
     """Fixed frame per zone — this whiteboard style never zooms mid-scene.
     Only the inter-scene transition travels the board."""

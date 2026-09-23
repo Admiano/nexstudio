@@ -260,78 +260,6 @@ def apply_theme(plan: dict, theme: str) -> dict:
 # Rendering
 # ---------------------------------------------------------------------------
 
-def _journey_zones(plan: dict, ratio: str) -> list[dict]:
-    """Giant-board layout: spread the scene zones along a meandering path
-    on one big world canvas so the camera genuinely travels between
-    scenes — the signature whiteboard-explainer look. Zones are written
-    into each scene's `ratioZones[ratio]` once and cached on the plan so
-    scene rendering and the final reveal agree on world positions."""
-    scenes = plan.get('sceneSpecs') or []
-    cached = (plan.get('_journey_zones') or {}).get(ratio)
-    if cached:
-        return cached
-    zw, zh = 1040.0, 620.0
-    stride_x, stride_y = zw * 1.55, zh * 0.92
-    zones = []
-    for i, s in enumerate(scenes):
-        z = {'x': i * stride_x, 'y': ((i % 3) - 1) * stride_y,
-             'w': zw, 'h': zh}
-        wb = s.setdefault('whiteboardRuntime', {})
-        # draw code keys on boardZone; the camera reads ratioZones first —
-        # keep them the same rect so ink and camera agree
-        wb['boardZone'] = dict(z)
-        wb.setdefault('ratioZones', {})[ratio] = dict(z)
-        zones.append(z)
-    plan.setdefault('_journey_zones', {})[ratio] = zones
-    return zones
-
-
-def _world_canvas(wbp, v3r, plan: dict, ratio: str, scenes: list[dict]):
-    """The literal board the camera visited: every scene rendered at its
-    real journey-zone position on one canvas — the reveal shows the world
-    the video traveled through, not a rearranged grid."""
-    from PIL import Image
-    size = wbp.RATIO_SIZES[ratio]
-    view_w, view_h = size
-    pal = plan.get('_pal') or wbp._pal(plan)
-    zones = _journey_zones(plan, ratio)
-    x0 = min(z['x'] for z in zones)
-    y0 = min(z['y'] for z in zones)
-    x1 = max(z['x'] + z['w'] for z in zones)
-    y1 = max(z['y'] + z['h'] for z in zones)
-    sx = view_w / zones[0]['w']
-    m = int(0.09 * view_w)
-    W = int((x1 - x0) * sx) + 2 * m
-    H = int((y1 - y0) * sx) + 2 * m
-    canvas = Image.new('RGB', (W, H), tuple(pal['bgc'][:3]))
-    seed = 7
-    for j, (s, z) in enumerate(zip(scenes, zones)):
-        cam = (z['x'] + z['w'] / 2, z['y'] + z['h'] / 2)
-        lyr, _ = v3r.draw_scene_layer(s, plan, ratio, 999.0, cam,
-                                      seed + j, 1.0)
-        tile = Image.new('RGBA', size, pal['bgc'])
-        tile.alpha_composite(lyr)
-        canvas.paste(tile.convert('RGB'),
-                     (m + int((z['x'] - x0) * sx),
-                      m + int((z['y'] - y0) * sx)))
-    # pad to the output aspect so the pull-back lands with even margins
-    need_w = int(canvas.height * view_w / view_h)
-    need_h = int(canvas.width * view_h / view_w)
-    pw, ph = max(canvas.width, need_w), max(canvas.height, need_h)
-    if (pw, ph) != canvas.size:
-        padded = Image.new('RGB', (pw, ph), tuple(pal['bgc'][:3]))
-        ox, oy = (pw - canvas.width) // 2, (ph - canvas.height) // 2
-        padded.paste(canvas, (ox, oy))
-        canvas = padded
-    else:
-        ox = oy = 0
-    lx, ly = m + (zones[-1]['x'] - x0) * sx, m + (zones[-1]['y'] - y0) * sx
-    start_view = (int(lx + ox), int(ly + oy),
-                  int(lx + ox + view_w), int(ly + oy + view_h))
-    end_view = (0, 0, canvas.width, canvas.height)
-    return canvas, start_view, end_view
-
-
 def _board_canvas(wbp, v3r, plan: dict, ratio: str, scenes: list[dict]):
     """Composite every fully-drawn scene into a grid mosaic with breathing
     space — N scenes lay out ceil(sqrt(N)) columns by however many rows
@@ -391,8 +319,6 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
     beats = plan['beats']
     scenes = plan['sceneSpecs']
     journey = plan.get('camera_variant') == 'giant_board_journey'
-    if journey:
-        _journey_zones(plan, ratio)
     pacing = plan['pacing']
     trans = pacing['transition_seconds']
     reveal = pacing['board_reveal_seconds']
@@ -401,6 +327,12 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
 
     t = 0.0
     while t < total - 1e-9:
+        if journey:
+            # one continuous drawing — the camera follows the pen along
+            # the flow path; no scene boundaries, no tile zones
+            yield t, v3r.render_journey_frame(plan, ratio, t)
+            t += step
+            continue
         # Current beat = last beat whose window has opened; a completed beat holds.
         idx = 0
         for i, b in enumerate(beats):
@@ -419,8 +351,8 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
 
     if reveal > 0:
         if journey:
-            canvas, start_view, end_view = _world_canvas(
-                wbp, v3r, plan, ratio, scenes)
+            canvas, start_view, end_view = v3r.journey_world_canvas(
+                plan, ratio)
         else:
             canvas, start_view, end_view = _board_canvas(
                 wbp, v3r, plan, ratio, scenes)
