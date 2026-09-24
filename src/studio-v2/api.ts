@@ -110,7 +110,7 @@ async function postForm<T>(url: string, form: FormData): Promise<T> {
 
 export const studioApi = {
   work: (signal?: AbortSignal) =>
-    readJson<{ productions: Array<DashboardProject & { prompt?: string | null }>; fetchedAt?: string }>("/api/v1/studio/productions", signal)
+    readJson<{ productions: Array<DashboardProject & { prompt?: string | null; engine?: { kind: EngineKind; jobId: string; phase: string | null; failureCode: string | null; outputs?: Record<string, string> | null } | null }>; fetchedAt?: string }>("/api/v1/studio/productions", signal)
       .then((p) => ({ projects: p.productions, fetchedAt: p.fetchedAt ?? new Date().toISOString() })),
   brands: (signal?: AbortSignal) => readJson<{ brands: StudioBrandRoot[] }>("/api/v1/studio/brands", signal),
   series: (signal?: AbortSignal) => readJson<{ series: StudioSeriesRoot[] }>("/api/v1/studio/series", signal),

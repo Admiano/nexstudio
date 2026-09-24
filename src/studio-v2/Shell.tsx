@@ -21,7 +21,7 @@ export interface ComposerState {
 }
 
 export default function Shell({ view }: { view: ViewId }) {
-  const { balance } = useStudio();
+  const { balance, projects } = useStudio();
   const [sheet, setSheet] = useState<SheetId | null>(null);
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -104,10 +104,25 @@ export default function Shell({ view }: { view: ViewId }) {
       </header>
       <main>
         <section className={`view ${view === "create" ? "active" : ""}`} id="view-create">
-          <CreateView composer={composer} setPrompt={setPrompt} setFamily={setFamily} setMode={setMode} removeContext={removeContext} openSheet={setSheet} openFlow={flowApi.openFlow} onOpenWork={(id) => setHistoryId(id)} openSeries={openSeries} notify={notify} />
+          <CreateView composer={composer} setPrompt={setPrompt} setFamily={setFamily} setMode={setMode} removeContext={removeContext} openSheet={setSheet} openFlow={flowApi.openFlow} onOpenWork={(id) => {
+            const p = projects.find((x) => x.id === id);
+            if (p?.engine?.jobId) {
+              const done = p.engine.outputs && Object.keys(p.engine.outputs).length > 0;
+              flowApi.openFlow(done
+                ? { stage: "review", jobKind: p.engine.kind, jobId: p.engine.jobId, jobOutputs: p.engine.outputs ?? {} }
+                : { stage: "production", jobKind: p.engine.kind, jobId: p.engine.jobId });
+              return;
+            }
+            setHistoryId(id);
+          }} openSeries={openSeries} notify={notify} />
         </section>
         <section className={`view ${view === "work" ? "active" : ""}`} id="view-work">
-          <WorkView onOpenHistory={(id) => setHistoryId(id)} onContinue={(id) => setHistoryId(id)} />
+          <WorkView onOpenHistory={(id) => setHistoryId(id)} onOpenJob={(p) => {
+            const done = p.engine.outputs && Object.keys(p.engine.outputs).length > 0;
+            flowApi.openFlow(done
+              ? { stage: "review", jobKind: p.engine.kind, jobId: p.engine.jobId, jobOutputs: p.engine.outputs ?? {} }
+              : { stage: "production", jobKind: p.engine.kind, jobId: p.engine.jobId });
+          }} />
         </section>
         <section className={`view ${view === "brand" ? "active" : ""}`} id="view-brand">
           <BrandView openSheet={setSheet} notify={notify} openSeries={openSeries} />

@@ -1,0 +1,161 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "xr-7add6316",
+ "note": "auto-authored by make_reel.py (style=tiles)",
+ "aspects": [
+  "16x9",
+  "1x1",
+  "9x16"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#191512",
+  "paper": "#f2f1ee",
+  "accent": "#2f6fb3",
+  "finish": "PRODUCT_COLLAGE"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "SETUP",
+   "pattern": "PROGRESSIVE_HERO_BUILD",
+   "dominant_layer": "HYBRID",
+   "narration": "Describe  it  naturally.",
+   "energy": 0.55,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "Describe  it  naturally.",
+     "role": "hero",
+     "anchor_word": "Describe",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_describe",
+      "kind": "object",
+      "glyph": "TILE",
+      "concept": " Describe",
+      "size": "hero"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_describe",
+      "at": {
+       "word": " Describe"
+      },
+      "duration_ms": 550
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "EXPLANATION",
+   "pattern": "PROGRESSIVE_HERO_BUILD",
+   "dominant_layer": "HYBRID",
+   "narration": "Add  anything  useful.",
+   "energy": 0.65,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "Add  anything  useful.",
+     "role": "hero",
+     "anchor_word": "Add",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_add",
+      "kind": "object",
+      "glyph": "TILE",
+      "concept": " Add",
+      "size": "hero"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_add",
+      "at": {
+       "word": " Add"
+      },
+      "duration_ms": 550
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "PAYOFF",
+   "pattern": "PAYOFF_LOCKUP",
+   "dominant_layer": "HYBRID",
+   "narration": "Next,  mind  will  shape  the  production  and  show  you  the  direction  before  anything  is  made.",
+   "energy": 0.75,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "Next,",
+     "role": "support",
+     "anchor_word": "Next,",
+     "emphasis": 0.5,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "mind  will  shape  the  production  and  show  you  the  direction  before  anything  is  made.",
+     "role": "hero",
+     "anchor_word": "mind",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_next",
+      "kind": "object",
+      "glyph": "TILE",
+      "concept": " Next",
+      "size": "hero"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_next",
+      "at": {
+       "word": " Next,"
+      },
+      "duration_ms": 550
+     }
+    ]
+   }
+  }
+ ]
+}

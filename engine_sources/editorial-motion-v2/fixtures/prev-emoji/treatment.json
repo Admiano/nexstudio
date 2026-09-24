@@ -1,0 +1,203 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "prev-emoji",
+ "note": "auto-authored by make_reel.py (style=emoji)",
+ "aspects": [
+  "16x9"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#191512",
+  "paper": "#fdfbf8",
+  "accent": "#e0496b",
+  "finish": "PRODUCT_COLLAGE"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "SETUP",
+   "pattern": "PROGRESSIVE_HERO_BUILD",
+   "dominant_layer": "HYBRID",
+   "narration": "Your  team  builds  the  app.  Money  grows.",
+   "energy": 0.55,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "Your team builds,",
+     "role": "support",
+     "anchor_word": "Your",
+     "emphasis": 0.45,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "the app. Money grows.",
+     "role": "hero",
+     "anchor_word": "the",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_team",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "emoji.noto.busts-in-silhouette",
+      "size": "hero"
+     },
+     {
+      "id": "e2_build",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "emoji.noto.toolbox",
+      "size": "support"
+     },
+     {
+      "id": "e3_app",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "emoji.noto.mobile-phone",
+      "size": "minor"
+     },
+     {
+      "id": "e4_money",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "emoji.noto.money-bag",
+      "size": "support"
+     }
+    ],
+    "relations": [
+     {
+      "type": "connects",
+      "source": "e1_team",
+      "target": "e2_build"
+     },
+     {
+      "type": "connects",
+      "source": "e2_build",
+      "target": "e3_app"
+     },
+     {
+      "type": "connects",
+      "source": "e3_app",
+      "target": "e4_money"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_team",
+      "at": {
+       "word": " team"
+      },
+      "duration_ms": 550
+     },
+     {
+      "op": "DRAW",
+      "target": "e2_build",
+      "at": {
+       "word": " builds"
+      },
+      "duration_ms": 550
+     },
+     {
+      "op": "DRAW",
+      "target": "e3_app",
+      "at": {
+       "word": " app."
+      },
+      "duration_ms": 550
+     },
+     {
+      "op": "DRAW",
+      "target": "e4_money",
+      "at": {
+       "word": " Money"
+      },
+      "duration_ms": 550
+     },
+     {
+      "op": "CONNECT",
+      "target": "e1_team->e2_build",
+      "at": {
+       "word": " builds"
+      },
+      "duration_ms": 350
+     },
+     {
+      "op": "CONNECT",
+      "target": "e2_build->e3_app",
+      "at": {
+       "word": " app."
+      },
+      "duration_ms": 350
+     },
+     {
+      "op": "CONNECT",
+      "target": "e3_app->e4_money",
+      "at": {
+       "word": " Money"
+      },
+      "duration_ms": 350
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "PAYOFF",
+   "pattern": "PAYOFF_LOCKUP",
+   "dominant_layer": "HYBRID",
+   "narration": "The  plan  works.",
+   "energy": 0.75,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "The  plan  works.",
+     "role": "hero",
+     "anchor_word": "The",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_work",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "emoji.noto.laptop",
+      "size": "hero"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_work",
+      "at": {
+       "word": " works."
+      },
+      "duration_ms": 550
+     }
+    ]
+   }
+  }
+ ]
+}

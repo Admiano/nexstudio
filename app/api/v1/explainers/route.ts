@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
+import { createEngineDraft } from "@/lib/engine-jobs";
 
 export const runtime = "nodejs";
 
@@ -129,6 +130,19 @@ export async function POST(request: Request) {
     }
   });
   child.unref();
+
+  // Jobs are work items — surface them in Work alongside real productions.
+  try {
+    await createEngineDraft({
+      ownerUserId: auth.session!.userId,
+      kind: "explainer",
+      jobId,
+      videoType: style,
+      script: script || "",
+      duration: durationRaw || null,
+      voice: script ? voice : null,
+    });
+  } catch { /* a missing draft never blocks the render */ }
 
   return json({ jobId, status: "running", statusUrl: `/api/v1/explainers/${jobId}` }, id, { status: 202 });
 }

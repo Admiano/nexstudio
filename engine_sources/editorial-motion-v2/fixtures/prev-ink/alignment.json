@@ -1,0 +1,54 @@
+{
+ "words": [
+  {
+   "text": " Your",
+   "start_ms": 0,
+   "end_ms": 220
+  },
+  {
+   "text": " team",
+   "start_ms": 220,
+   "end_ms": 460
+  },
+  {
+   "text": " builds",
+   "start_ms": 460,
+   "end_ms": 780
+  },
+  {
+   "text": " the",
+   "start_ms": 780,
+   "end_ms": 1020
+  },
+  {
+   "text": " app.",
+   "start_ms": 1020,
+   "end_ms": 1300
+  },
+  {
+   "text": " Money",
+   "start_ms": 1860,
+   "end_ms": 2020
+  },
+  {
+   "text": " grows.",
+   "start_ms": 2020,
+   "end_ms": 2380
+  },
+  {
+   "text": " The",
+   "start_ms": 3060,
+   "end_ms": 3200
+  },
+  {
+   "text": " plan",
+   "start_ms": 3200,
+   "end_ms": 3500
+  },
+  {
+   "text": " works.",
+   "start_ms": 3500,
+   "end_ms": 3820
+  }
+ ]
+}

@@ -23,10 +23,13 @@ function bucket(p: DashboardProject): Filter | "other" {
   return "other";
 }
 
-export function WorkView({ onOpenHistory, onContinue }: { onOpenHistory: (id: string) => void; onContinue: (id: string) => void }) {
+export function WorkView({ onOpenHistory, onOpenJob }: {
+  onOpenHistory: (id: string) => void;
+  onOpenJob: (p: { engine: { kind: "whiteboard" | "explainer"; jobId: string; outputs?: Record<string, string> | null }; id: string }) => void;
+}) {
   const { projects } = useStudio();
   const [filter, setFilter] = useState<Filter>("all");
-  const sorted = useMemo(() => sortDashboardProjects(projects), [projects]);
+  const sorted = useMemo(() => sortDashboardProjects(projects) as typeof projects, [projects]);
   const needs = sorted.filter((p) => p.needsAction).length;
   const making = sorted.filter((p) => bucket(p) === "production").length;
   const ready = sorted.filter((p) => bucket(p) === "ready").length;
@@ -69,8 +72,10 @@ export function WorkView({ onOpenHistory, onContinue }: { onOpenHistory: (id: st
             : dot === "ready" ? "Ready to open"
             : "In direction";
           const family = (p.family || "").toLowerCase();
+          const job = p.engine?.jobId ? { engine: { kind: p.engine.kind, jobId: p.engine.jobId, outputs: p.engine.outputs }, id: p.id } : null;
+          const open = () => (job ? onOpenJob(job) : onOpenHistory(p.id));
           return (
-            <article key={p.id} className="work-row" onClick={() => onOpenHistory(p.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") onOpenHistory(p.id); }}>
+            <article key={p.id} className="work-row" onClick={open} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") open(); }}>
               <div className={`work-thumb-v2 ${family}`} style={p.coverUrl ? { backgroundImage: `url(${p.coverUrl})`, backgroundSize: "cover" } : undefined}>
                 <span className="work-thumb-state">{p.statusLabel}</span>
               </div>
@@ -89,8 +94,8 @@ export function WorkView({ onOpenHistory, onContinue }: { onOpenHistory: (id: st
                 <span>{detail}</span>
               </div>
               <div className="work-row-actions">
-                <button className="work-open" onClick={(e) => { e.stopPropagation(); onContinue(p.id); }}>Open →</button>
-                <button className="work-history-btn" onClick={(e) => { e.stopPropagation(); onOpenHistory(p.id); }}>History</button>
+                <button className="work-open" onClick={(e) => { e.stopPropagation(); open(); }}>Open →</button>
+                {!job && <button className="work-history-btn" onClick={(e) => { e.stopPropagation(); onOpenHistory(p.id); }}>History</button>}
               </div>
             </article>
           );
