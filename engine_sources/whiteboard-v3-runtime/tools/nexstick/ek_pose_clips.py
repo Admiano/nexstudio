@@ -51,12 +51,15 @@ def fk(spec):
     j = {}
     j['root'] = [0, 0, 0]
     j['pelvis'] = list(p['pelvis'])
-    td = d(p['torso_pitch'], 0, up=True)
-    j['spine'] = add(j['pelvis'], td, L['spine'])
-    j['chest'] = add(j['spine'], td, L['chest'])
-    j['neck'] = add(j['chest'], td, L['neck'])
+    # The back curves: a real bend distributes along the column — the
+    # lumbar end stays planted, the bend accumulates toward the neck.
+    # One rigid rod for the whole torso is what reads as a hinge.
+    tp = p['torso_pitch']
+    j['spine'] = add(j['pelvis'], d(tp * 0.42, 0, up=True), L['spine'])
+    j['chest'] = add(j['spine'], d(tp * 0.74, 0, up=True), L['chest'])
+    j['neck'] = add(j['chest'], d(tp, 0, up=True), L['neck'])
     hd = d(p['head_pitch'] if p['head_pitch'] is not None
-           else p['torso_pitch'], 0, up=True)
+           else tp, 0, up=True)
     j['head'] = add(j['neck'], hd, L['head'])
     for s, sgn in (('l', -1), ('r', 1)):
         j[f'clavicle_{s}'] = add(j['chest'], [sgn * 0.09, 0.02, 0])
@@ -224,6 +227,10 @@ K = {
     ],
 }
 
+# ballistic clips overshoot their end pose instead of easing dead to it
+BALLISTIC = {'EX_KETTLEBELL_SWING', 'EX_BURPEE', 'EX_JUMPING_JACK',
+             'EX_SIT_UP', 'EX_MOUNTAIN_CLIMBER'}
+
 def build():
     clips = {}
     fps = 30
@@ -231,21 +238,33 @@ def build():
         seg_t = 0.55  # per keyframe transition
         n_keys = len(keys)
         cyc = 2 * (n_keys - 1) * seg_t   # out-and-back rep
-        dur = cyc
+        n_reps = 2                     # two visibly-different reps per clip
+        dur = cyc * n_reps
         n = max(8, int(dur * fps))
         frames = []
         times = []
         for i in range(n + 1):
             t = i / fps
+            rep = int(t / cyc)
+            # humans never hit the same rep twice: deterministic per-rep
+            # amplitude/tempo wobble, seeded by clip name + rep index
+            seed = sum(ord(c) for c in name) + rep * 37
+            amp = 1 + 0.045 * math.sin(seed * 1.71)
+            tempo = 1 + 0.05 * math.sin(seed * 0.97)
+            tt = t * tempo
             # ping-pong through keyposes for a rep cycle
-            pos = (t / seg_t) % (2 * (n_keys - 1))
+            pos = (tt / seg_t) % (2 * (n_keys - 1))
             if pos > n_keys - 1:
                 pos = 2 * (n_keys - 1) - pos
             i0 = int(pos)
             i1 = min(i0 + 1, n_keys - 1)
             w = pos - i0
-            # ease at keyframe ends
+            # ease at keyframe ends; ballistic moves carry momentum
+            # through the extended pose (slight overshoot, snaps back)
             w = w * w * (3 - 2 * w)
+            if name in BALLISTIC:
+                w += 0.09 * math.sin(math.pi * w)
+            w *= amp
             A = fk(keys[i0])
             B = fk(keys[i1])
             fr = []
@@ -257,7 +276,7 @@ def build():
             frames.append(fr)
             times.append(round(t, 4))
         clips[name] = dict(
-            duration=round(dur, 4), fps=fps, loop=True,
+            duration=round(dur, 4), fps=fps, loop=True, reps=n_reps,
             source='nexstudio:ek-canonical-poses (Everkinetic keypose study)',
             license='CC BY-SA 4.0 — Bryl Lim / Everkinetic (pose reference)',
             semantic=name.lower(), tags=['exercise', 'canonical', 'keypose'],

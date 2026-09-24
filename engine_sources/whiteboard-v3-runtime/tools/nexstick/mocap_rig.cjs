@@ -105,6 +105,15 @@ const nF = Number(process.argv[4] || 16), fps = Number(process.argv[5] || 24);
 const proportion = process.argv[6] || 'adult-average';
 fs.mkdirSync(outDir, { recursive: true });
 
+// Wardrobe follows physics: nobody deadlifts in an A-line skirt. Floor /
+// hang / athletic clips dress fitted (vest + shorts) so the garment reads
+// as body contour; upright story motions keep the draped wardrobe.
+const clipRef = (req.cmuClip || req.action || '').toUpperCase();
+const athletic = /^(EX_|.*(CRAWL|CLIMB|LADDER|HOPSCOTCH|CARTWHEEL|STRETCH|YOGA|BOXING|JOG|RUN_|SPRINT|DIVE|SWIM|FALL|ROLL))/.test(clipRef);
+const look = athletic
+  ? { top: { garment: 'vest' }, bottom: { garment: 'shorts' } }
+  : { top: { garment: 'jacket' } };
+
 const meta = [];
 for (let i = 0; i < nF; i++) {
   const t = i / fps;
@@ -123,7 +132,7 @@ for (let i = 0; i < nF; i++) {
         z: pel[2] * scale,
       },
     },
-    look: { top: { garment: 'jacket' } }, face: 'warm', background: false, grain: false,
+    look, face: 'warm', background: false, grain: false,
     hands: {
       left: st.hands && st.hands.left && st.hands.left.pose,
       right: st.hands && st.hands.right && st.hands.right.pose,

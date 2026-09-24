@@ -489,6 +489,13 @@
         if (hd.details) emit(depth + 0.001, `<g class="pb-detail" fill="none">${hd.details}</g>`);
       } else {
         emit(depth, piece(solid, isUpper ? cappedMass(part.a, part.b, part.widthFrom, part.widthTo, 'end') : limbMass(part.a, part.b, part.widthFrom, part.widthTo), `pb-${part.kind}`));
+        // Proximal joint disc: at extreme limb angles a shoulder or hip can
+        // part from the torso edge inside the union silhouette — a cap at
+        // the joint keeps the limb visually attached at any pose.
+        if (isUpper || /thigh/.test(part.id)) {
+          const jr = part.widthFrom * 0.74;
+          emit(depth - 0.0005, piece(solid, `<circle cx="${round(part.a.x)}" cy="${round(part.a.y)}" r="${round(jr)}"/>`, 'pb-joint'));
+        }
       }
 
       if (isUpper && look.top.sleeve > 0.05 && look.top.sleeve < 1) {
@@ -524,11 +531,19 @@
         const shin = figure.parts.find((p) => p.id === `${side}-shin`);
         if (fore && J[`${side}Shoulder`] && J[`${side}Elbow`] && J[`${side}Wrist`]) {
           const c = bendCrease(J[`${side}Shoulder`], J[`${side}Elbow`], J[`${side}Wrist`], fore.widthFrom, inkStroke);
-          if (c) emit(fore.depth + 0.001, `<g class="pb-detail" fill="none">${c}</g>`);
+          if (c) {
+            emit(fore.depth + 0.001, `<g class="pb-detail" fill="none">${c}</g>`);
+            const e = J[`${side}Elbow`];
+            emit(fore.depth - 0.0005, piece(shade(look.skin, fore.depth, span), `<circle cx="${round(e.x)}" cy="${round(e.y)}" r="${round(fore.widthFrom * 0.7)}"/>`, 'pb-joint'));
+          }
         }
         if (shin && J[`${side}Hip`] && J[`${side}Knee`] && J[`${side}Ankle`]) {
           const c = bendCrease(J[`${side}Hip`], J[`${side}Knee`], J[`${side}Ankle`], shin.widthFrom, inkStroke);
-          if (c) emit(shin.depth + 0.001, `<g class="pb-detail" fill="none">${c}</g>`);
+          if (c) {
+            emit(shin.depth + 0.001, `<g class="pb-detail" fill="none">${c}</g>`);
+            const k = J[`${side}Knee`];
+            emit(shin.depth - 0.0005, piece(shade(look.skin, shin.depth, span), `<circle cx="${round(k.x)}" cy="${round(k.y)}" r="${round(shin.widthFrom * 0.7)}"/>`, 'pb-joint'));
+          }
         }
       }
     }
