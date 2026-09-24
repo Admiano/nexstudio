@@ -85,6 +85,8 @@ def get_strip(spec: dict, seconds: float, fps: int = 12):
     if not (out / 'g000.svg').exists():
         out.mkdir(parents=True, exist_ok=True)
         req = {'cmuClip': clip}
+        if spec.get('style'):
+            req['style'] = spec['style']
         if spec.get('visemes'):
             req['visemes'] = str(spec['visemes'])
         if spec.get('visemeOffset') is not None:

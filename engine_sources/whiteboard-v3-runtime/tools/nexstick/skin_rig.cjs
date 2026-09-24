@@ -158,6 +158,28 @@ function handSvg(wx, wy, dirx, diry, state, R2, skin) {
   return out;
 }
 
+// line-art hand: outlined palm + finger strokes, same semantic states
+function handLineSvg(wx, wy, dirx, diry, state, R2) {
+  const fl = Math.hypot(dirx, diry) || 1;
+  const fx = dirx / fl, fy = diry / fl;
+  const knuckle = { x: wx + fx * R2(R.hand * 0.85), y: wy + fy * R2(R.hand * 0.85) };
+  const spreads = {
+    open: 26, present: 30, wave: 34, spread: 40, point: 8, tap: 10,
+    pinch: 4, grip: 2, curl: 2, receive: 22, give: 24, relaxed: 6,
+  };
+  const len = { point: 0.13, tap: 0.12, wave: 0.115 }[state] || 0.10;
+  const sp = spreads[state] ?? spreads.relaxed;
+  let out = `<circle cx="${round(wx)}" cy="${round(wy)}" r="${round(R2(R.hand * 0.95))}" `
+    + `fill="white" stroke="${INK}" stroke-width="${round(R2(0.014))}"/>`;
+  for (let f = -1; f <= 1; f++) {
+    const a = f * sp * RAD * 0.5;
+    const dx = fx * Math.cos(a) - fy * Math.sin(a);
+    const dy = fx * Math.sin(a) + fy * Math.cos(a);
+    out += stroke(`M ${round(knuckle.x)} ${round(knuckle.y)} L ${round(knuckle.x + dx * R2(len))} ${round(knuckle.y + dy * R2(len))}`, R2(0.016));
+  }
+  return out;
+}
+
 /**
  * Render one skeleton frame to an SVG document.
  * p3: {joint: [x,y,z]} meters y-up.
@@ -184,6 +206,19 @@ function skeletonSvg(p3, opts = {}) {
 
   const parts = [];
   const push = (d, cls, fill, svg) => parts.push({ d, cls, fill, svg });
+  const lineMode = opts.style === 'line';
+  // Line-art mode ("stick" style for whiteboards): bones draw as weighted
+  // center-line strokes instead of filled capsule masses; garment masses
+  // and joint-weld discs are dropped entirely; the head becomes an
+  // outlined shape so the face stays anchored; hair keeps its solid ink.
+  const capL = (ax, ay, bx, by, r, f = 0.62) => lineMode
+    ? stroke(`M ${round(ax)} ${round(ay)} L ${round(bx)} ${round(by)}`, r * 2 * f)
+    : capsule2(ax, ay, bx, by, r);
+  const capG = (ax, ay, bx, by, r) => lineMode ? '' : capsule2(ax, ay, bx, by, r);
+  const dotL = (x, y, r) => lineMode ? '' : disc(x, y, r);
+  const ellL = (x, y, rx, ry) => lineMode
+    ? `<ellipse cx="${round(x)}" cy="${round(y)}" rx="${round(rx)}" ry="${round(ry)}" fill="white" stroke="${INK}" stroke-width="${round(S * 0.012)}"/>`
+    : ell(x, y, rx, ry);
 
   const handL = opts.handL || 'relaxed', handR = opts.handR || 'relaxed';
   // true projected depth per segment: the near limb sorts above the torso
@@ -198,13 +233,13 @@ function skeletonSvg(p3, opts = {}) {
     const LW = far ? 0.8 : 1;
     const R3 = (v) => R2(v * LW);
     const dShin = dSeg(knee, ank), dThigh = dSeg(hip, knee), dFoot = dSeg(ank, toe);
-    push(dShin - 0.001, 'pb-limb', SKIN, capsule2(knee.x, knee.y, ank.x, ank.y, R2(R.shin * LW)));
+    push(dShin - 0.001, 'pb-limb', SKIN, capL(knee.x, knee.y, ank.x, ank.y, R2(R.shin * LW)));
     const st = lerp3([hip.x, hip.y], [knee.x, knee.y], SHORTS_LEN);
-    push(dThigh + 0.002, 'pb-bottom', BOTTOM, capsule2(hip.x, hip.y, st[0], st[1], R2(R.thigh * SHORTS_W * LW)));
-    push(dThigh + 0.001, 'pb-limb', SKIN, capsule2(hip.x, hip.y, knee.x, knee.y, R2(R.thigh * LW)));
-    push(dSeg(knee, knee) - 0.002, 'pb-joint', SKIN, disc(knee.x, knee.y, R2((R.thigh + R.shin) * 0.42 * LW)));
-    push(dFoot + 0.001, 'pb-foot', SHOE, capsule2(ank.x, ank.y, toe.x, toe.y, R2(R.foot * LW)));
-    push(dFoot + 0.001, 'pb-foot', SHOE, disc(ank.x, ank.y, R2(R.foot * 1.15 * LW)));
+    push(dThigh + 0.002, 'pb-bottom', BOTTOM, capG(hip.x, hip.y, st[0], st[1], R2(R.thigh * SHORTS_W * LW)));
+    push(dThigh + 0.001, 'pb-limb', SKIN, capL(hip.x, hip.y, knee.x, knee.y, R2(R.thigh * LW)));
+    push(dSeg(knee, knee) - 0.002, 'pb-joint', SKIN, dotL(knee.x, knee.y, R2((R.thigh + R.shin) * 0.42 * LW)));
+    push(dFoot + 0.001, 'pb-foot', SHOE, capL(ank.x, ank.y, toe.x, toe.y, R2(R.foot * LW), 0.9));
+    push(dFoot + 0.001, 'pb-foot', SHOE, dotL(ank.x, ank.y, R2(R.foot * 1.15 * LW)));
     // sole line along the foot bottom
     push(dFoot + 0.002, 'pb-detail', 'none',
       stroke(`M ${round(ank.x - R2(R.foot) * 0.4)} ${round(ank.y + R2(R.foot))} L ${round(toe.x)} ${round(toe.y + R2(R.foot))}`, S * 0.008));
@@ -213,50 +248,65 @@ function skeletonSvg(p3, opts = {}) {
     const dUarm = dSeg(sho, elb), dFarm = dSeg(elb, wr), dHand = wr.d;
     // sleeve: widened capsule over the upper-arm top
     const sl = lerp3([sho.x, sho.y], [elb.x, elb.y], SLEEVE_LEN);
-    push(dUarm + 0.002, 'pb-sleeve', TOP, capsule2(sho.x, sho.y, sl[0], sl[1], R2(R.uarm * TEE_W * LW)));
+    push(dUarm + 0.002, 'pb-sleeve', TOP, capG(sho.x, sho.y, sl[0], sl[1], R2(R.uarm * TEE_W * LW)));
     // sleeve hem seam
-    push(dUarm + 0.003, 'pb-detail', 'none',
+    if (!lineMode) push(dUarm + 0.003, 'pb-detail', 'none',
       seam(sl[0], sl[1], elb.x - sho.x, elb.y - sho.y, R2(R.uarm * TEE_W * LW) * 0.92, S * 0.006));
-    push(dFarm, 'pb-limb', SKIN, capsule2(elb.x, elb.y, wr.x, wr.y, R2(R.farm * LW)));
-    push(dUarm + 0.001, 'pb-limb', SKIN, capsule2(sho.x, sho.y, elb.x, elb.y, R2(R.uarm * LW)));
-    push(elb.d + 0.001, 'pb-joint', SKIN, disc(elb.x, elb.y, R2((R.uarm + R.farm) * 0.4 * LW)));
+    push(dFarm, 'pb-limb', SKIN, capL(elb.x, elb.y, wr.x, wr.y, R2(R.farm * LW)));
+    push(dUarm + 0.001, 'pb-limb', SKIN, capL(sho.x, sho.y, elb.x, elb.y, R2(R.uarm * LW)));
+    push(elb.d + 0.001, 'pb-joint', SKIN, dotL(elb.x, elb.y, R2((R.uarm + R.farm) * 0.4 * LW)));
     // hand on the true wrist, fingers fan along the forearm direction,
     // spread from the clip's semantic hand state
     const st2 = s === 'L' ? handL : handR;
-    push(dHand + 0.002, 'pb-hand', SKIN, handSvg(wr.x, wr.y, wr.x - elb.x, wr.y - elb.y, st2, far ? R3 : R2, SKIN));
+    push(dHand + 0.002, 'pb-hand', SKIN, lineMode
+      ? handLineSvg(wr.x, wr.y, wr.x - elb.x, wr.y - elb.y, st2, far ? R3 : R2)
+      : handSvg(wr.x, wr.y, wr.x - elb.x, wr.y - elb.y, st2, far ? R3 : R2, SKIN));
   }
 
   // torso column on the true spine chain + pelvis & chest welds
   const pel = q[J.pelvis], sp = q[J.spine], ch = q[J.chest], nk = q[J.neck], hd = q[J.head];
-  const tee = (ax, ay, bx, by, r) => push(0, 'pb-top', TOP, capsule2(ax, ay, bx, by, r));
-  tee(pel.x, pel.y, sp.x, sp.y, R2(R.spine * TEE_W));
-  tee(sp.x, sp.y, ch.x, ch.y, R2(R.chest * TEE_W));
-  tee(ch.x, ch.y, nk.x, nk.y, R2(R.neckSeg * 1.5 * TEE_W));
-  push(0.01, 'pb-torso', SKIN, disc(pel.x, pel.y, R2(R.pelvis)));
-  push(0.01, 'pb-top', TOP, disc(ch.x, ch.y, R2(R.chest * TEE_W * 0.98)));
+  if (lineMode) {
+    // one weighted stroke along the bent spine — the "body line" of the
+    // stick figure (thicker than limbs so it reads as a torso)
+    push(0, 'pb-top', TOP, stroke(
+      `M ${round(pel.x)} ${round(pel.y)} L ${round(sp.x)} ${round(sp.y)} L ${round(ch.x)} ${round(ch.y)} L ${round(nk.x)} ${round(nk.y)}`,
+      R2(R.chest * 1.15)));
+    push(0.005, 'pb-limb', SKIN, stroke(
+      `M ${round(q[J.hipL].x)} ${round(q[J.hipL].y)} L ${round(q[J.hipR].x)} ${round(q[J.hipR].y)}`,
+      R2(R.hipJoint * 1.1)));
+  } else {
+    const tee = (ax, ay, bx, by, r) => push(0, 'pb-top', TOP, capsule2(ax, ay, bx, by, r));
+    tee(pel.x, pel.y, sp.x, sp.y, R2(R.spine * TEE_W));
+    tee(sp.x, sp.y, ch.x, ch.y, R2(R.chest * TEE_W));
+    tee(ch.x, ch.y, nk.x, nk.y, R2(R.neckSeg * 1.5 * TEE_W));
+    push(0.01, 'pb-torso', SKIN, disc(pel.x, pel.y, R2(R.pelvis)));
+    push(0.01, 'pb-top', TOP, disc(ch.x, ch.y, R2(R.chest * TEE_W * 0.98)));
+  }
   // waistband seam where the tee meets the shorts — perpendicular to the
   // lower-spine bone so it follows the bent torso
-  const wMid = lerp3([pel.x, pel.y], [sp.x, sp.y], 0.2);
-  push(0.02, 'pb-detail', 'none',
-    seam(wMid[0], wMid[1], sp.x - pel.x, sp.y - pel.y, R2(R.spine * TEE_W) * 0.9, S * 0.007));
-  // collar seam at the neck base
-  const cMid = lerp3([ch.x, ch.y], [nk.x, nk.y], 0.75);
-  push(0.02, 'pb-detail', 'none',
-    seam(cMid[0], cMid[1], nk.x - ch.x, nk.y - ch.y, R2(R.neckSeg * 1.5 * TEE_W) * 0.95, S * 0.007));
+  if (!lineMode) {
+    const wMid = lerp3([pel.x, pel.y], [sp.x, sp.y], 0.2);
+    push(0.02, 'pb-detail', 'none',
+      seam(wMid[0], wMid[1], sp.x - pel.x, sp.y - pel.y, R2(R.spine * TEE_W) * 0.9, S * 0.007));
+    // collar seam at the neck base
+    const cMid = lerp3([ch.x, ch.y], [nk.x, nk.y], 0.75);
+    push(0.02, 'pb-detail', 'none',
+      seam(cMid[0], cMid[1], nk.x - ch.x, nk.y - ch.y, R2(R.neckSeg * 1.5 * TEE_W) * 0.95, S * 0.007));
+  }
 
   const clL = q[J.clavL], clR = q[J.clavR];
-  push(0.02, 'pb-top', TOP, capsule2(clL.x, clL.y, clR.x, clR.y, R2(R.clavicle)));
+  push(0.02, 'pb-top', TOP, capL(clL.x, clL.y, clR.x, clR.y, R2(R.clavicle), 0.75));
   for (const s of ['L', 'R']) {
-    push(0.03, 'pb-joint', TOP, disc(q[J['sho' + s]].x, q[J['sho' + s]].y, R2(R.deltoid)));
-    push(0.03, 'pb-joint', SKIN, disc(q[J['hip' + s]].x, q[J['hip' + s]].y, R2(R.hipJoint)));
+    push(0.03, 'pb-joint', TOP, dotL(q[J['sho' + s]].x, q[J['sho' + s]].y, R2(R.deltoid)));
+    push(0.03, 'pb-joint', SKIN, dotL(q[J['hip' + s]].x, q[J['hip' + s]].y, R2(R.hipJoint)));
   }
 
   // neck + head; face rides the head's TRUE azimuth — frontal heads get
   // centered features, profile heads get them on the leading edge,
   // turned-away heads show only hair. No more dead-profile or phantom face.
-  push(0.4, 'pb-neck', SKIN, capsule2(nk.x, nk.y, hd.x, hd.y, R2(R.neckCap)));
+  push(0.4, 'pb-neck', SKIN, capL(nk.x, nk.y, hd.x, hd.y, R2(R.neckCap), 0.7));
   const hr = { x: hd.x, y: hd.y - R2(0.02) };
-  push(0.4, 'pb-head', SKIN, ell(hr.x, hr.y, R2(R.headX), R2(R.headY)));
+  push(0.4, 'pb-head', SKIN, ellL(hr.x, hr.y, R2(R.headX), R2(R.headY)));
   // head world azimuth after the same presentation rotation
   const headAzW = (opts.headAz ?? opts.bodyAz ?? -90) + ((opts.presentAz ?? -38) - (opts.bodyAz ?? -90));
   const camAz = -90;                                  // camera sits on -x
@@ -508,6 +558,7 @@ for (let i = 0; i < nF; i++) {
     handL: st.hands && st.hands.left && st.hands.left.pose,
     handR: st.hands && st.hands.right && st.hands.right.pose,
     mouth: req.mouth || (VTL ? VTL(t) : undefined),
+    style: req.style,
     prop: req.prop
       ? (Array.isArray(req.prop) ? req.prop : [req.prop])
       : [...autoProps, ...(SEATED ? ['chair'] : [])],
