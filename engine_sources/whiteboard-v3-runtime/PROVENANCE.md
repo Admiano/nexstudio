@@ -47,7 +47,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/ek_pose_clips.py` | Everkinetic canonical keypose -> vault FK generator (CC BY-SA 4.0) | `1900285b742c10a667e6e0def196cea56b584bc1eea1bb564754a7091508ac72` |
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |
 | `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `16018c7c3633c0d4bf2d7e9e640b02ae60aeac18a691657a209aea5c70d1f350` |
-| `tools/nexstick/skin_rig.cjs` | skin-on-skeleton dev renderer (tools only) | `77c5e10963cf28b185be956361ebd526aa547dbbf3b364cb2f0bc34bf269b481` |
+| `tools/nexstick/skin_rig.cjs` | skin-on-skeleton dev renderer (tools only) | `9c888ae90f378d3e91f59079c0dc708a236f6406eb678ffc8f228bf0b1051219` |
 | `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `f7ca82447e5e54f1bd25c3f4e3be8db232a3397de8dec3b71626e88db0a80918` |
 | `tools/nexstick/fx_marks.cjs` | cartoon mark layer: velocity speed lines, impact bursts, foot-plant dust | `e0dce5bde5eceffc823eaa078ea3e7071aadd597adf36502a38ba7c2647b8749` |
 | `tools/nexstick/clip_select.cjs` | narration text -> vault clip pattern table (82 clips) | `3913a2c66165dcd1c959c4c5f3342900517bedee7a9a07226d52a1a74756337d` |
