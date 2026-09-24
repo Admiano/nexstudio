@@ -18,6 +18,8 @@ function load(f) {
   return m.exports;
 }
 const Renderer = load('paperbook-figure.js');
+const Acting = load('cast-acting.js');
+const Rig = load('paper-cast-rig.js');
 const V5 = nodeReq(BOOT);
 let CMU = null;
 try { CMU = nodeReq(path.resolve(__dirname, 'cmu_sampler.cjs')); } catch (e) { /* vault not built yet */ }
@@ -108,6 +110,14 @@ fs.mkdirSync(outDir, { recursive: true });
 // Wardrobe follows physics: nobody deadlifts in an A-line skirt. Floor /
 // hang / athletic clips dress fitted (vest + shorts) so the garment reads
 // as body contour; upright story motions keep the draped wardrobe.
+// narration-driven clip pick: "say"/"text" resolves through clip_select
+// when no explicit clip was requested.
+if (!req.cmuClip && (req.say || req.text)) {
+  const pick = require('./clip_select.cjs')
+    .selectClip(req.say || req.text, CMU ? CMU.vault().clips : null);
+  if (pick) req.cmuClip = pick;
+}
+
 const clipRef = (req.cmuClip || req.action || '').toUpperCase();
 const athletic = /^(EX_|.*(CRAWL|CLIMB|LADDER|HOPSCOTCH|CARTWHEEL|STRETCH|YOGA|BOXING|JOG|RUN_|SPRINT|DIVE|SWIM|FALL|ROLL))/.test(clipRef);
 const look = athletic
@@ -144,13 +154,35 @@ const jointScreen = (j, pel, pitchDeg, root) => {
   return { x: -(rz + root.z), y: -(ry + root.y) };
 };
 
+// acting layer: breath + sway + weight + head life on top of the mocap
+// pose, plus timed gesture beats (req.beats) and Face.at (blink/gaze).
+// The mocap pose is rebuilt per frame as the performer's base, so gesture
+// reaches blend from wherever the body actually is.
+const ACTING = !!(req.acting || (req.beats && req.beats.length));
+const beatClock = req.beatOffset || 0;
+
 const meta = [];
 let prevPose3d = null, prevPlant = { l: 0, r: 0 };
 for (let i = 0; i < nF; i++) {
   const t = i / fps;
   const st = sampleAny(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
-  const { pose, world } = poseFromMocap(st.pose3d);
+  const { pose: mocapPose, world } = poseFromMocap(st.pose3d);
+  let pose = mocapPose;
+  let actingFace = null;
+  if (ACTING) {
+    const perf = Acting.perform({
+      pose: mocapPose, proportion,
+      beats: (req.beats || []).map(b => ({ ...b, at: b.at + beatClock, end: b.end + beatClock })),
+      personality: req.personality,
+      emotion: req.emotion || 'warm',
+      gaze: req.gaze, listening: req.listening,
+      id: req.id || 'mocap-fig',
+    });
+    const a = perf.at(t);
+    pose = a.pose;
+    actingFace = a.face;
+  }
   const scale = SCALE;         // rig units per meter (~adult 1.55m skeleton)
   const pel = world.pelvis || [0, 0.877, 0];
   const root = {
@@ -159,9 +191,11 @@ for (let i = 0; i < nF; i++) {
     z: pel[2] * scale,
   };
   const viseme = visemeAt(t);
-  const face = VISEMES
-    ? { emotion: 'warm', speaking: true, viseme: viseme || 'rest', id: 'fig' }
-    : 'warm';
+  const face = actingFace
+    ? actingFace
+    : VISEMES
+      ? { emotion: 'warm', speaking: true, viseme: viseme || 'rest', id: 'fig' }
+      : 'warm';
   const out = Renderer.renderPose({
     proportion, height: 1000, view: 'profile-left', pose,
     world: { pitch: world.pitch, root },
