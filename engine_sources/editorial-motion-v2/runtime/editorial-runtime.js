@@ -578,19 +578,27 @@
           `radial-gradient(ellipse ${px(b.w * 0.42)} ${px(b.h * 0.8)} at ${px(b.w * (0.5 + 0.45 * br()))} ${px(b.h * (0.25 + 0.55 * br()))}, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)}, ${rgbaOf(spec.tone, 0)} 70%)`,
         ].join(',');
         if (spec.ragged) {
-          const n = 14, edge = Math.min(b.h * 0.3, Math.min(W, H) * 0.022);
-          const u = (k) => (Math.imul((spec.seed ^ (k * 0x9E3779B1)) >>> 0, 2654435761) >>> 0) / 4294967296;
-          const clip = (amp) => {
-            let pts = `0px ${px(b.h)},0px ${px(amp * (0.4 + 0.6 * u(0)))}`;
-            for (let i = 1; i <= n; i++) pts += `,${px((b.w * i) / n)} ${px(amp * (0.3 + 0.7 * u(i)))}`;
+          const edge = Math.min(b.h * 0.3, Math.min(W, H) * 0.022);
+          const er = rng(spec.seed ^ 0x7ab1);
+          // One torn profile drives all three layers — the lip, the fill and the pool
+          // share the same rip (low-freq wobble + hi-freq fuzz, scraps profile).
+          const prof = edgeProfile(b.w, 'torn', edge, er, 0);
+          const clip = (k, lift) => {
+            let pts = `0px ${px(b.h)}`;
+            for (const p of prof) pts += `,${px(p.t)} ${px(Math.max(0, b.h * 0.02 + edge * k - p.off * 0.5 - lift))}`;
             pts += `,${px(b.w)} ${px(b.h)}`;
             return `polygon(${pts})`;
           };
           // The exposed paper edge: the same tear, a sliver taller, in near-white behind the fill.
           const lip = el('div', { position: 'absolute', inset: '0', background: mixColor(brand.paper, '#ffffff', 0.55) }, wraps);
-          lip.style.clipPath = clip(edge * 1.5);
+          lip.style.clipPath = clip(0.4, edge * 0.45);
           wraps.insertBefore(lip, fill);
-          fill.style.clipPath = clip(edge);
+          fill.style.clipPath = clip(0.4, 0);
+          // Pigment pools along the torn edge and settles low — the band reads painted,
+          // not filled.
+          const pool = el('div', { position: 'absolute', inset: '0',
+            background: `linear-gradient(180deg, ${rgbaOf(mixColor(spec.tone, '#000000', 0.4), 0)} 38%, ${rgbaOf(mixColor(spec.tone, '#000000', 0.4), 0.24)} 88%, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.34)} 100%)` }, wraps);
+          pool.style.clipPath = clip(0.52, 0);
         }
         if (spec.mark) {
           const mb = spec.mark.bbox;
@@ -1215,36 +1223,68 @@
     let t = seed >>> 0;
     return () => { t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   }
-  // Hand-cut card edge: each side bows a few points off the straight line — the die-cut edge
+  // Paper edge profile (after og2701/scraps' tear model): a torn edge is low-frequency
+  // wobble — anchors about every 1/26 of the run, smoothstep-interpolated — plus
+  // high-frequency fuzz sampled every ~1/60. A cut edge is 1-3 near-straight scissor
+  // strokes with tiny drift. `bias` shifts the whole line outward (the fibrous lip).
+  function edgeProfile(len, style, amp, r, bias) {
+    const pts = [];
+    if (style === 'cut') {
+      const n = 1 + Math.floor(r() * 2);
+      pts.push({ t: 0, off: (r() * 2 - 1) * amp * 0.35 });
+      for (let i = 1; i < n; i++) pts.push({ t: (len * i) / n + (r() * 2 - 1) * len * 0.06, off: (r() * 2 - 1) * amp });
+      pts.push({ t: len, off: (r() * 2 - 1) * amp * 0.35 });
+      return pts.map((p) => ({ t: p.t, off: p.off + bias }));
+    }
+    const nA = Math.max(2, Math.round(len / 26));
+    const anchors = [];
+    for (let i = 0; i <= nA; i++) anchors.push((r() * 2 - 1) * amp);
+    const step = Math.max(1, len / 60);
+    for (let t = 0; t < len; t += step) {
+      const u = (t / len) * nA, i = Math.min(nA - 1, Math.floor(u)), f = u - i;
+      const s = f * f * (3 - 2 * f);
+      pts.push({ t, off: anchors[i] * (1 - s) + anchors[i + 1] * s + (r() * 2 - 1) * amp * 0.55 });
+    }
+    pts.push({ t: len, off: anchors[nA] });
+    return pts.map((p) => ({ t: p.t, off: p.off + bias }));
+  }
+  // Walk the rect perimeter clockwise; positive offsets push outward.
+  function edgeRectPts(b, style, amp, r, bias) {
+    const sides = [
+      { len: b.w, map: (t, o) => [b.x + t, b.y - o] },
+      { len: b.h, map: (t, o) => [b.x + b.w + o, b.y + t] },
+      { len: b.w, map: (t, o) => [b.x + b.w - t, b.y + b.h + o] },
+      { len: b.h, map: (t, o) => [b.x - o, b.y + b.h - t] },
+    ];
+    const out = [];
+    for (const s of sides) for (const p of edgeProfile(s.len, style, amp, r, bias || 0)) out.push(s.map(p.t, p.off));
+    return out;
+  }
+  // Hand-cut card edge: a torn two-frequency wobble around the rect — the die-cut edge
   // around every sticker in the paper language.
   function cutRectPath(b, seed, j) {
-    const r = rng(seed);
-    const c = [[b.x, b.y], [b.x + b.w, b.y], [b.x + b.w, b.y + b.h], [b.x, b.y + b.h]];
-    const pts = [];
-    for (let i = 0; i < 4; i++) {
-      const a = c[i], d = c[(i + 1) % 4];
-      pts.push(a);
-      const nx = -(d[1] - a[1]), ny = d[0] - a[0], L = Math.hypot(nx, ny) || 1;
-      const o = (r() - 0.5) * 2 * j;
-      pts.push([(a[0] + d[0]) / 2 + (nx / L) * o, (a[1] + d[1]) / 2 + (ny / L) * o]);
-    }
-    return polyPath(pts) + 'Z';
+    return polyPath(edgeRectPts(b, 'torn', j, rng(seed), 0)) + 'Z';
   }
-  // Organic die-cut blob: the irregular white edge a sticker is cut along.
+  // The fibrous fringe of a tear: the same wobble a little wider and a hair outward —
+  // the white core of the paper showing along the rip.
+  function tornFringePath(b, seed, j) {
+    return polyPath(edgeRectPts(b, 'torn', j * 1.25, rng(seed ^ 0x51ab), Math.max(1, j * 0.5))) + 'Z';
+  }
+  // Organic die-cut blob: low-frequency wobble plus fuzz on the radius — the irregular
+  // white edge a sticker is cut along.
   function cutBlobPath(cx, cy, rx, ry, seed) {
     const r = rng(seed);
-    const n = 14, pts = [];
+    const n = 26, anchors = [];
+    for (let i = 0; i < 9; i++) anchors.push((r() * 2 - 1) * 0.14);
+    const pts = [];
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2;
-      const k = 1 + (r() - 0.5) * 0.2;
+      const u = (i / n) * (anchors.length - 1), ai = Math.min(anchors.length - 2, Math.floor(u)), f = u - ai;
+      const s = f * f * (3 - 2 * f);
+      const k = 1 + anchors[ai] * (1 - s) + anchors[ai + 1] * s + (r() - 0.5) * 0.075;
       pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]);
     }
-    let d = `M${f2((pts[n - 1][0] + pts[0][0]) / 2)} ${f2((pts[n - 1][1] + pts[0][1]) / 2)}`;
-    for (let i = 0; i < n; i++) {
-      const p = pts[i], q = pts[(i + 1) % n];
-      d += `Q${f2(p[0])} ${f2(p[1])} ${f2((p[0] + q[0]) / 2)} ${f2((p[1] + q[1]) / 2)}`;
-    }
-    return d + 'Z';
+    return polyPath(pts) + 'Z';
   }
   // ----------------------------- Paper art ----------------------------------
   // The paper language's picture vocabulary: every concept the film names is drawn
@@ -1956,7 +1996,18 @@
       els.push(under);
     }
     const body = svgEl('g', {}, g);
+    // Pigment pooling: every fill lays a darker, blurred rim of its own pigment a hair
+    // beneath the paint — the way watercolour settles at the edge of a wash.
+    const poolBlur = `pabl_${uid}`;
+    {
+      const defs0 = svgEl('defs', {}, body);
+      const bf = svgEl('filter', { id: poolBlur, x: '-15%', y: '-15%', width: '130%', height: '130%' }, defs0);
+      svgEl('feGaussianBlur', { stdDeviation: '1.1' }, bf);
+    }
     for (const p of parts) {
+      if (!p.sw && p.op >= 0.5 && p.tone !== 'paper') {
+        svgEl('path', { d: p.d, fill: mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.3), 'fill-opacity': f2(Math.min(0.4, p.op * 0.3)), transform: p.tf || undefined, filter: `url(#${poolBlur})` }, body);
+      }
       const elp = p.sw
         ? svgEl('path', { d: p.d, fill: 'none', stroke: paintTone(p.tone, plan), 'stroke-width': f2(p.sw), 'stroke-linecap': 'round', 'stroke-opacity': f2(p.op), transform: p.tf || undefined }, body)
         : svgEl('path', { d: p.d, fill: paintTone(p.tone, plan), 'fill-opacity': f2(p.op), transform: p.tf || undefined }, body);
@@ -2732,8 +2783,11 @@
         const dark = params.tone === 'dark';
         const seed = seedHash(String(ent.id));
         const m = sw * 1.3, r = Math.min(b.w, b.h) * 0.06;
-        const shape = cutRectPath({ x: b.x + m, y: b.y + m, w: b.w - m * 2, h: b.h - m * 2 }, seed, Math.min(b.w, b.h) * 0.05);
+        const cardB = { x: b.x + m, y: b.y + m, w: b.w - m * 2, h: b.h - m * 2 };
+        const shape = cutRectPath(cardB, seed, Math.min(b.w, b.h) * 0.05);
         const body = chassisBody(node, g);
+        // The fibrous fringe: the rip's white core peeks a hair past the face.
+        svgEl('path', { d: tornFringePath(cardB, seed, Math.min(b.w, b.h) * 0.05), fill: mixColor(plan.brand.paper, '#ffffff', 0.85), 'fill-opacity': dark ? 0.5 : 0.9 }, body);
         const base = svgEl('path', { d: shape, fill: dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.55) }, body);
         node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
         svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.4), 'stroke-opacity': dark ? 0.14 : 0.2 }, body);
@@ -2841,7 +2895,10 @@
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.18;
         const body = chassisBody(node, g);
-        const card = svgEl('path', { d: cutRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, seedHash(String(ent.id)), Math.min(b.w, b.h) * 0.04) }, body);
+        const statB = { x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw };
+        const statSeed = seedHash(String(ent.id));
+        svgEl('path', { d: tornFringePath(statB, statSeed, Math.min(b.w, b.h) * 0.04), fill: mixColor(plan.brand.paper, '#ffffff', 0.85), 'fill-opacity': dark ? 0.5 : 0.9 }, body);
+        const card = svgEl('path', { d: cutRectPath(statB, statSeed, Math.min(b.w, b.h) * 0.04) }, body);
         card.setAttribute('fill', dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.5));
         card.setAttribute('stroke', ink);
         card.setAttribute('stroke-width', f2(sw * 0.4));
@@ -3496,6 +3553,92 @@
   // beat's progress through its transition (0 outside it); `arrival` is set on the incoming beat
   // while it dresses underneath: the outgoing beat's camera and the window it arrives over.
   // Plans without camera metadata fall back to the profile's transition name.
+  // A real page turn, geometry after MengTo/sketchbook: the outgoing scene becomes a leaf of
+  // N nested strips whose tangent sweeps an arc — the sheet bends instead of pivoting like a
+  // door. Each strip carries a front face (the scene, sliced) and a back face (the print
+  // ghosted through the paper); |cos(theta)| per strip drives shade and specular, a shadow
+  // band tracks the fold across the page below, and the leaf leaves the stage entirely.
+  const PAGE_STRIPS = 20, PAGE_BETA = 0.6;
+  function buildPageLeaf(bn, plan) {
+    const W = plan.canvas.w, H = plan.canvas.h;
+    const dir = bn._leafDir > 0 ? 1 : -1;
+    const sw = W / PAGE_STRIPS;
+    const shade = `rgba(${((plan.atmosphere && plan.atmosphere.shadow_rgb) || [52, 38, 20]).join(',')},A)`;
+    const leaf = el('div', {
+      position: 'absolute', left: '0', top: '0', width: px(W), height: px(H), display: 'none',
+      transformStyle: 'preserve-3d', transformOrigin: dir > 0 ? '0% 50%' : '100% 50%',
+      willChange: 'transform', pointerEvents: 'none',
+    });
+    // The shadow the lifting leaf throws onto the page beneath it.
+    const shadow = el('div', {
+      position: 'absolute', top: '0', bottom: '0', width: px(W * 0.24), left: '0', opacity: '0',
+      background: `linear-gradient(90deg, transparent 0%, ${shade.replace('A', '0.5')} 50%, transparent 100%)`,
+      filter: `blur(${px(W * 0.012)})`, pointerEvents: 'none', willChange: 'transform, opacity',
+    });
+    // Snapshot the settled picture once per leaf — a turning page is printed paper, not live ink.
+    const snap = (() => {
+      const s = bn.cam.cloneNode(true);
+      s.style.transform = 'none'; s.style.opacity = '1'; s.style.visibility = 'visible'; s.style.filter = 'none';
+      return s;
+    })();
+    const origin = dir > 0 ? '0% 50%' : '100% 50%';
+    const side = dir > 0 ? 'left' : 'right';
+    let host = leaf;
+    const strips = [];
+    for (let i = 0; i < PAGE_STRIPS; i++) {
+      const st = el('div', { position: 'absolute', top: '0', bottom: '0', width: px(sw), transformStyle: 'preserve-3d', transformOrigin: origin }, host);
+      st.style[side] = i === 0 ? '0' : '100%';
+      if (i > 0) st.style.transform = `rotateY(calc(${dir > 0 ? '' : '-1 * '}var(--ptd)))`;
+      const fi = dir > 0 ? i : PAGE_STRIPS - 1 - i;
+      const front = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', filter: 'blur(var(--pb,0px))' }, st);
+      const fw = el('div', { position: 'absolute', left: px(-fi * sw), top: '0', width: px(W), height: px(H) }, front);
+      fw.appendChild(snap.cloneNode(true));
+      const back = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', filter: 'blur(var(--pb,0px))' }, st);
+      const bw = el('div', { position: 'absolute', left: px(-fi * sw), top: '0', width: px(W), height: px(H) }, back);
+      bw.appendChild(snap.cloneNode(true));
+      // Print-through: ink ghosts faintly through the back of the sheet.
+      el('div', { position: 'absolute', inset: '0', background: rgbaOf(plan.brand.paper, 0.62) }, back);
+      const shF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
+      const glF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
+      const shB = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, back);
+      const glB = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, back);
+      strips.push({ st, shF, glF, shB, glB });
+      host = st;
+    }
+    return { el: leaf, shadow, strips, dir, sw };
+  }
+  function drivePageLeaf(bn, kke, plan) {
+    const leaf = bn._leaf;
+    if (!leaf) return;
+    const W = plan.canvas.w, D = 180 / Math.PI;
+    const th = Math.PI * kke;
+    const beta = PAGE_BETA * Math.sin(Math.PI * kke);
+    const tt = th + beta, td = (2 * beta) / PAGE_STRIPS;
+    leaf.el.style.display = '';
+    leaf.el.style.transform = `rotateY(${f2(-leaf.dir * tt * D)}deg)`;
+    leaf.el.style.setProperty('--ptd', `${f2(td * D)}deg`);
+    leaf.el.style.setProperty('--pb', `${f2(Math.sin(Math.PI * kke) * 2.2)}px`);
+    for (let i = 0; i < PAGE_STRIPS; i++) {
+      const l1 = Math.abs(Math.cos(tt - i * td)), l2 = Math.abs(Math.cos(tt - (i + 1) * td));
+      const a1 = (1 - l1) * 0.55, a2 = (1 - l2) * 0.55;
+      const g1 = Math.max(0, l1 - 0.72) * 0.5, g2 = Math.max(0, l2 - 0.72) * 0.5;
+      const { shF, glF, shB, glB } = leaf.strips[i];
+      shF.style.background = `linear-gradient(90deg, rgba(52,38,20,${f2(a1)}), rgba(52,38,20,${f2(a2)}))`;
+      shB.style.background = `linear-gradient(90deg, rgba(52,38,20,${f2(a2)}), rgba(52,38,20,${f2(a1)}))`;
+      glF.style.background = `linear-gradient(105deg, transparent 32%, rgba(255,255,255,${f2(g1)}) 50%, transparent 68%)`;
+      glB.style.background = `linear-gradient(105deg, transparent 32%, rgba(255,255,255,${f2(g2)}) 50%, transparent 68%)`;
+    }
+    // The fold's leading edge: where the sheet still touches the page below.
+    const xEdge = leaf.dir > 0 ? W * 0.5 * (1 + Math.cos(tt)) : W * 0.5 * (1 - Math.cos(tt));
+    leaf.shadow.style.transform = `translateX(${f2(xEdge - W * 0.12)}px)`;
+    leaf.shadow.style.opacity = f2(Math.sin(Math.PI * kke) * 0.6);
+  }
+  function settlePageLeaf(bn) {
+    if (!bn._leaf) return;
+    bn._leaf.el.style.display = 'none';
+    bn._leaf.shadow.style.opacity = '0';
+  }
+
   const DRIFT_FRAC = 0.06;
   function cameraMoveOf(cam, m, index) {
     if (cam) return cam;
@@ -3521,16 +3664,7 @@
         else if (cam.move === 'pull_back') { scale *= lerp(1, 0.94, ko); defocus += m.blur_px * 0.6 * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
         else if (cam.move === 'drift') { tx += -cam.dir * W * DRIFT_FRAC * EASE.inOutCubic(kk); opacity = 1 - EASE.inOutCubic(kk); }
         else if (cam.move === 'dissolve') defocus += m.blur_px * ko * cam.blur;
-        else if (cam.move === 'page') {
-          // A page lifted off: the whole beat slides up-sideways on a peel rotation,
-          // staying opaque until it is out of frame — paper leaves, it does not fade.
-          const kp = EASE.inOutCubic(kk);
-          ty = -plan.canvas.h * 0.62 * kp;
-          tx += cam.dir * W * 0.42 * kp;
-          rot = cam.dir * 7.5 * kp;
-          scale *= lerp(1, 0.94, kp * 0.5);
-          opacity = kk < 0.9 ? 1 : 1 - (kk - 0.9) / 0.1;
-        }
+        // 'page' is not a pose: the leaf overlay turns the picture — the cam itself hides.
       }
       if (arrival) {
         const aa = clamp(t / Math.max(1, arrival.window_ms), 0, 1);
@@ -3539,7 +3673,7 @@
         else if (cam.move === 'pull_back') { scale *= lerp(1.06, 1, ka); defocus += m.blur_px * 0.3 * (1 - ka) * cam.blur; }
         else if (cam.move === 'drift') tx += cam.dir * W * DRIFT_FRAC * (1 - EASE.inOutCubic(aa));
         else if (cam.move === 'dissolve') defocus += m.blur_px * 0.4 * (1 - ka) * cam.blur;
-        else if (cam.move === 'page') { ty = plan.canvas.h * 0.3 * (1 - ka); rot = -cam.dir * 3.5 * (1 - ka); }
+        // 'page': the incoming page lies flat under the turning leaf — no arrival move.
       }
       return { scale, tx, ty, rot, opacity, defocus };
     };
@@ -3547,6 +3681,33 @@
     const s = bn.cam.style;
     s.transform = `translate(${f2(now.tx)}px, ${f2(now.ty || 0)}px) rotate(${(now.rot || 0).toFixed(3)}deg) scale(${now.scale.toFixed(4)})`;
     s.opacity = now.opacity.toFixed(4);
+    // The leaf swap: during a page turn the cam yields to the printed leaf; outside it the
+    // leaf rests. Built lazily on the first transition frame so the snapshot is the settled
+    // picture; live video media can't freeze into print, so it falls back to the flat peel.
+    const pageActive = cam.move === 'page' && tr && lt >= tr.start_ms && lt <= tr.end_ms && !arrival;
+    if (bn._hasVideo === undefined) bn._hasVideo = Boolean(bn.cam.querySelector('video'));
+    if (pageActive && !bn._hasVideo) {
+      if (!bn._leaf) {
+        bn._leafDir = cam.dir >= 0 ? 1 : -1;
+        bn._leaf = buildPageLeaf(bn, plan);
+        bn.root.appendChild(bn._leaf.shadow);
+        bn.root.appendChild(bn._leaf.el);
+      }
+      drivePageLeaf(bn, EASE.inOutCubic(prog(lt, tr.start_ms, tr.end_ms)), plan);
+      s.visibility = 'hidden';
+    } else {
+      settlePageLeaf(bn);
+      if (pageActive) {
+        // Video fallback: the flat peel for pages carrying live media.
+        const kp = EASE.inOutCubic(prog(lt, tr.start_ms, tr.end_ms));
+        s.transform += ` translateY(${f2(-plan.canvas.h * 0.62 * kp)}px) rotate(${(cam.dir * 7.5 * kp).toFixed(3)}deg)`;
+        s.opacity = kp < 0.9 ? '1' : f2(1 - (kp - 0.9) / 0.1);
+      }
+      // Once the leaf has taken this beat's picture the cam must not reappear over the
+      // revealed next scene — a turned page stays turned until the beat ends. Before the
+      // transition (a backward scrub) the live picture is still the truth.
+      s.visibility = bn._leaf && tr && lt >= tr.start_ms ? 'hidden' : '';
+    }
     applyDepthParallax(bn.bg, now, plan);
     bn.camBlur.apply(s, motionBlurStd((now.tx - was.tx) + Math.abs(now.scale - was.scale) * W / 2, Math.abs((now.ty || 0) - (was.ty || 0)), m.motion_blur * cam.blur), now.defocus > 0.2 ? `blur(${now.defocus.toFixed(2)}px)` : '');
   }
@@ -3589,7 +3750,7 @@
 
     const W = plan.canvas.w, H = plan.canvas.h;
     const atmo = plan.atmosphere || {};
-    const stage = el('div', { position: 'relative', overflow: 'hidden', width: px(W), height: px(H), background: atmo.field || plan.brand.paper, color: plan.brand.ink }, mount);
+    const stage = el('div', { position: 'relative', overflow: 'hidden', width: px(W), height: px(H), background: atmo.field || plan.brand.paper, color: plan.brand.ink, perspective: px(W * 2.4) }, mount);
     stage.dataset.theme = atmo.theme || 'light';
     stage.className = 'em2-stage';
     stage.dataset.aspect = plan.aspect;
