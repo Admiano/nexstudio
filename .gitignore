@@ -65,3 +65,4 @@ engine_sources/*/out/
 Thumbs.db
 .vscode/
 .idea/
+engine_sources/*/fixtures/
