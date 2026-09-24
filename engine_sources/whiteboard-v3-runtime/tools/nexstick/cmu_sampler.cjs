@@ -75,9 +75,19 @@ function sample(ref, t, opts = {}) {
   }
   const hands = c.hands || {};
   const auto = handStates(ref, tt);
+  let roty = null, roty0 = 0;
+  if (c.roty && c.roty.length) {
+    // wrap-aware angular lerp of the head's world azimuth
+    const r0 = c.roty[i], r1 = (c.roty[i + 1] !== undefined) ? c.roty[i + 1] : r0;
+    let d = r1 - r0;
+    if (d > 180) d -= 360; else if (d < -180) d += 360;
+    roty = r0 + d * w;
+    roty0 = c.roty[0];
+    if (mirror) { roty = -roty; roty0 = -roty0; }
+  }
   return {
     engine: 'NexCMUSamplerV5', action: c.semantic, time: raw, duration: c.duration,
-    pose3d: pose,
+    pose3d: pose, roty, roty0,
     hands: {
       left: { pose: hands.left || auto.left, orientation: 'edge-left' },
       right: { pose: hands.right || auto.right, orientation: 'edge-right' },

@@ -43,6 +43,17 @@ const swingUp = d => Math.atan2(d[0], d[1]) * DEG;
 const wrap = a => { a = ((a + 180) % 360 + 360) % 360 - 180; return a; };
 const bone = (p, a, b) => nrm(sub(p[b], p[a]));
 
+// Body facing azimuth from the lateral skeleton axes (clavicle + hip
+// lines): a person facing +z has their LEFT side at +x, so
+// facing = (-dz, dx) of the (left - right) lateral vector. Positions
+// carry this whole-body turn that a fixed view would flatten away.
+function bodyAz(p3) {
+  const lc = sub(p3['clavicle_l'], p3['clavicle_r']);
+  const lh = sub(p3['hip_l'], p3['hip_r']);
+  const fx = -(lc[2] + lh[2]), fz = lc[0] + lh[0];
+  return Math.atan2(fx, fz) * DEG;
+}
+
 function poseFromMocap(p3) {
   // Body frame: the spine axis (pelvis->neck) IS the figure's up-axis.
   // World pitch P is how far that axis leans/lies in the sagittal plane;
@@ -92,8 +103,8 @@ function poseFromMocap(p3) {
       spine: { tilt: wrap(tSpine - P) + pelvicTuck, swing: sSpine },
       chest: { tilt: wrap(tChest - tSpine), swing: sChest - sSpine },
       neck: { tilt: wrap(tNeck - tChest), swing: sNeck - sChest },
-      head: { yaw: 0, pitch: tHead - tNeck },   // nod from the head bone; yaw
-                                              // unrecoverable from positions
+      head: { yaw: 0, pitch: tHead - tNeck },   // yaw injected by caller
+                                              // when the clip carries roty
       legLeft: L.leg, legRight: R.leg,
       armLeft: L.arm, armRight: R.arm,
     },
@@ -146,12 +157,14 @@ const BALLISTIC = /^(EX_BURPEE|EX_JUMPING_JACK|.*(JUMP|HOPSCOTCH|CARTWHEEL|DIVE|
 const SCALE = 1000 / 1.55;
 // world-space joint -> figure screen coords (mirrors paper-cast-rig's
 // world transform + profile-left projection: x_screen = -z, y = -y)
-const jointScreen = (j, pel, pitchDeg, root) => {
+const jointScreen = (j, pel, pitchDeg, root, yawRad) => {
   const dx = (j[0] - pel[0]) * SCALE, dy = (j[1] - pel[1]) * SCALE,
         dz = (j[2] - pel[2]) * SCALE;
   const p = pitchDeg * Math.PI / 180, pc = Math.cos(p), ps = Math.sin(p);
   const ry = dy * pc - dz * ps, rz = dy * ps + dz * pc;
-  return { x: -(rz + root.z), y: -(ry + root.y) };
+  const yw = (yawRad === undefined ? -Math.PI / 2 : yawRad);
+  return { x: dx * Math.cos(yw) + (rz + root.z) * Math.sin(yw),
+           y: -(ry + root.y) };
 };
 
 // acting layer: breath + sway + weight + head life on top of the mocap
@@ -161,6 +174,51 @@ const jointScreen = (j, pel, pitchDeg, root) => {
 const ACTING = !!(req.acting || (req.beats && req.beats.length));
 const beatClock = req.beatOffset || 0;
 
+// Baseline facing at t=0: the head's relative yaw = its world azimuth
+// change vs its own t=0, re-expressed in the current body frame
+// (local BVH joint axes are arbitrary, so differences cancel the offset).
+const st0 = sampleAny(req, 0);
+const az0 = st0.pose3d ? bodyAz(st0.pose3d) : 0;
+// Baseline facing for the view: circular mean of the body azimuth over
+// the clip — frame 0 can be a calibration pose (actor turning to mark),
+// so the dominant facing is the honest "forward" of the performance.
+const azBase = (() => {
+  let sx = 0, sz = 0, n = 0;
+  const dur = (st0.duration || nF / fps);
+  for (let k = 0; k < 8; k++) {
+    const s = sampleAny(req, dur * k / 8);
+    if (!s.pose3d) continue;
+    const a = bodyAz(s.pose3d) / DEG;
+    sx += Math.sin(a); sz += Math.cos(a); n++;
+  }
+  return n ? Math.atan2(sx / n, sz / n) * DEG : az0;
+})();
+
+// ---- optional second figure: two-person scenes (shake hands, talk,
+// comfort). req.other = {cmuClip|say|action, z, facing:'left'|'right',
+// proportion, front}. Each figure keeps its own facing baseline.
+const OTHER = req.other && (req.other.cmuClip || req.other.say || req.other.text || req.other.action);
+let oAzBase = 0, oAz0 = 0, oReq = null;
+if (OTHER) {
+  oReq = { ...req.other };
+  if (!oReq.cmuClip && (oReq.say || oReq.text)) {
+    const pk = require('./clip_select.cjs')
+      .selectClip(oReq.say || oReq.text, CMU ? CMU.vault().clips : null);
+    if (pk) oReq.cmuClip = pk;
+  }
+  const s0 = sampleAny(oReq, 0);
+  oAz0 = s0.pose3d ? bodyAz(s0.pose3d) : 0;
+  let sx = 0, sz = 0, n = 0;
+  const dur = s0.duration || nF / fps;
+  for (let k = 0; k < 8; k++) {
+    const s = sampleAny(oReq, dur * k / 8);
+    if (!s.pose3d) continue;
+    const a = bodyAz(s.pose3d) / DEG;
+    sx += Math.sin(a); sz += Math.cos(a); n++;
+  }
+  oAzBase = n ? Math.atan2(sx / n, sz / n) * DEG : oAz0;
+}
+
 const meta = [];
 let prevPose3d = null, prevPlant = { l: 0, r: 0 };
 for (let i = 0; i < nF; i++) {
@@ -168,6 +226,13 @@ for (let i = 0; i < nF; i++) {
   const st = sampleAny(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const { pose: mocapPose, world } = poseFromMocap(st.pose3d);
+  const az = bodyAz(st.pose3d);
+  if (st.roty !== null && st.roty !== undefined) {
+    mocapPose.head.yaw = wrap(st.roty - st.roty0 + az0 - az);
+  }
+  // Capture world axes are arbitrary — re-baseline facing to the clip's
+  // own t=0 so every clip opens profile-left and turns stay relative.
+  const viewYaw = -90 + wrap(az - azBase);
   let pose = mocapPose;
   let actingFace = null;
   if (ACTING) {
@@ -197,7 +262,7 @@ for (let i = 0; i < nF; i++) {
       ? { emotion: 'warm', speaking: true, viseme: viseme || 'rest', id: 'fig' }
       : 'warm';
   const out = Renderer.renderPose({
-    proportion, height: 1000, view: 'profile-left', pose,
+    proportion, height: 1000, view: viewYaw, pose,
     world: { pitch: world.pitch, root },
     look, face, background: false, grain: false,
     hands: {
@@ -250,6 +315,46 @@ for (let i = 0; i < nF; i++) {
       const g = marks.map(m =>
         `<g class="${m.cls}" fill="none"><path d="${m.d}" stroke="#2a1c12" stroke-width="${m.w.toFixed(1)}" stroke-linecap="round"/></g>`).join('');
       svg = svg.replace('</svg>', g + '</svg>');
+    }
+  }
+  if (OTHER) {
+    const st2 = sampleAny(oReq, t + (oReq.t || 0));
+    if (st2 && !st2.blocked) {
+      const { pose: p2, world: w2 } = poseFromMocap(st2.pose3d);
+      const az2 = bodyAz(st2.pose3d);
+      if (st2.roty !== null && st2.roty !== undefined) {
+        p2.head.yaw = wrap(st2.roty - st2.roty0 + oAz0 - az2);
+      }
+      const pel2 = w2.pelvis || [0, 0.877, 0];
+      const out2 = Renderer.renderPose({
+        proportion: oReq.proportion || proportion, height: 1000,
+        view: (oReq.facing === 'right' ? 90 : -90) + wrap(az2 - oAzBase),
+        pose: p2,
+        world: { pitch: w2.pitch,
+                 root: { x: 0, y: (pel2[1] - 0.877) * scale,
+                         z: ((oReq.z || 0) + pel2[2]) * scale } },
+        look: oReq.look || look, face: oReq.emotion || 'warm',
+        background: false, grain: false,
+        hands: {
+          left: st2.hands && st2.hands.left && st2.hands.left.pose,
+          right: st2.hands && st2.hands.right && st2.hands.right.pose,
+        },
+      });
+      let svg2 = out2.svg
+        .replace(/<g class="pb-(rim|shadow)"[^>]*>.*?<\/g>/gs, '')
+        .replace(/<defs>.*?<\/defs>/s, '')
+        .replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
+      if (oReq.front) svg = svg.replace('</svg>', svg2 + '</svg>');
+      else svg = svg.replace(/(<svg[^>]*>)/, '$1' + svg2);
+      // the first figure's viewBox only spans its own silhouette — grow
+      // the canvas to cover the partner's offset + body width.
+      svg = svg.replace(/viewBox="(-?[0-9.]+) (-?[0-9.]+) ([0-9.]+) ([0-9.]+)"/,
+        (m, x0, y0, w, h) => {
+          const need = Math.abs((oReq.z || 0)) * scale + 520;
+          const x0n = Math.min(+x0, +x0 + Math.min(0, (oReq.z || 0) * scale) - 120);
+          const x1n = Math.max(+x0 + +w, +x0 + Math.max(0, (oReq.z || 0) * scale) + need);
+          return `viewBox="${x0n.toFixed(1)} ${y0} ${(x1n - x0n).toFixed(1)} ${h}"`;
+        });
     }
   }
   prevPose3d = st.pose3d;

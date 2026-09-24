@@ -103,7 +103,7 @@ def mv(m, v):
             m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2],
             m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2])
 
-def fk_positions(node, vals, cols, parent_rot, parent_pos, out):
+def fk_positions(node, vals, cols, parent_rot, parent_pos, out, rots=None):
     pos = tuple(parent_pos[k] + mv(parent_rot, node.offset)[k] for k in range(3))
     rotm = parent_rot
     for ch in node.channels:
@@ -115,8 +115,10 @@ def fk_positions(node, vals, cols, parent_rot, parent_pos, out):
         else:
             rotm = mmul(rotm, rot(ch, vals[cols[(node.name, ch)]]))
     out[node.name] = pos
+    if rots is not None:
+        rots[node.name] = rotm
     for ch in node.children:
-        fk_positions(ch, vals, cols, rotm, pos, out)
+        fk_positions(ch, vals, cols, rotm, pos, out, rots)
 
 # ---- map CMU -> 22 joints ----
 
@@ -180,11 +182,15 @@ def convert(path, name, semantic, tags, scale=INCH_M, fps_in=120.0):
     p0pos = {}
     fk_positions(root, motion[0], cols, ident, (0, 0, 0), p0pos)
     norm = TARGET_PELVIS_H / max(1e-6, p0pos['Hips'][1] * scale)
-    frames, times = [], []
+    frames, times, roty = [], [], []
     pos0 = None
     for i in range(0, len(motion), step):
         pos = {}
-        fk_positions(root, motion[i], cols, ident, (0, 0, 0), pos)
+        rots = {}
+        fk_positions(root, motion[i], cols, ident, (0, 0, 0), pos, rots)
+        rh = rots.get('Head')
+        # head joint's world azimuth (deg) — positions alone can't see head yaw
+        roty.append(round(math.degrees(math.atan2(rh[0][2], rh[2][2])), 3) if rh else 0.0)
         fr = map_frame(pos)
         if pos0 is None:
             pos0 = [fr[1][0], 0.0, fr[1][2]]
@@ -202,7 +208,7 @@ def convert(path, name, semantic, tags, scale=INCH_M, fps_in=120.0):
         'duration': min(dur, round(times[-1], 6) or dur), 'fps': OUT_FPS, 'loop': False,
         'source': 'cmu-mocap', 'license': 'CMU-free-all-uses',
         'semantic': semantic, 'tags': tags,
-        'times': times, 'frames': frames,
+        'times': times, 'frames': frames, 'roty': roty,
         'rootDelta': delta, 'contacts': contacts_for(frames, times), 'features': [],
     }
 
