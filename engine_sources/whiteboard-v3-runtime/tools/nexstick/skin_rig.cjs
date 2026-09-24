@@ -325,9 +325,11 @@ function skeletonSvg(p3, opts = {}) {
 
   const xs = [], ys = [];
   for (const k of Object.keys(q)) { xs.push(q[k].x); ys.push(q[k].y); }
-  const pad = R2(0.35);
+  const pad = R2(0.10);
   const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad;
-  const y0 = Math.min(...ys) - pad - R2(0.35), y1 = Math.max(...ys) + pad + R2(0.25);
+  // small headroom for hair/reach above the head joint; feet sit near the
+  // bottom edge so strips can bottom-align the figure on the ground line
+  const y0 = Math.min(...ys) - pad - R2(0.12), y1 = Math.max(...ys) + pad;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${round(x0)} ${round(y0)} ${round(x1 - x0)} ${round(y1 - y0)}">`
     + `<g class="pb-figure">\n${body}\n</g></svg>`;
 }
@@ -433,8 +435,9 @@ if (req.visemes) {
   try {
     const vc = JSON.parse(fs.readFileSync(req.visemes, 'utf8'));
     const cues = vc.cues || vc;
+    const vo = req.visOffset || 0;
     VTL = (t) => {
-      for (const c of cues) if (c.start <= t && t <= c.end) return c.viseme;
+      for (const c of cues) if (c.start - vo <= t && t <= c.end - vo) return c.viseme;
       return 'rest';
     };
   } catch (e) { /* visemes unreadable */ }

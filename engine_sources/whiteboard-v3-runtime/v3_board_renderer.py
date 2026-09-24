@@ -2242,12 +2242,21 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
     groups = [('headline', _headline_strokes(scene, zone, ratio),
                (zone['x'], zone['y']), 1.0, None)]
     mark_groups = []
+    fm_slot = None
     for s in slots:
         if s['icon'] == 'stat':
             groups.append(('icon', _stat_strokes(s['center'], s['size'],
                                                  s['label']),
                            s['center'], s['size'], s))
             s['no_caption'] = True
+        elif (s['icon'] in ('person', 'agent')
+                and scene.get('figureMotion') and fm_slot is None):
+            # the animated figure replaces the drawn person at this slot —
+            # empty group keeps the draw window + caption cadence intact
+            fm_slot = s
+            scene['_fm_anchor'] = dict(center=s['center'], size=s['size'],
+                                       facing=s.get('facing', 1))
+            groups.append(('icon', [], s['center'], s['size'], s))
         else:
             groups.append(('icon', _strokes_for(
                 s['icon'], s.get('pose') or 'point', s.get('facing', 1),
@@ -2260,7 +2269,7 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
         if s['icon'] in ('person', 'agent'):
             gc = (s['center'][0], s['center'][1] + s['size'] * 0.52)
             groups.append(('ground', _ground_shadow_strokes(), gc, s['size'], s))
-            if s['icon'] == 'person':
+            if s['icon'] == 'person' and s is not fm_slot:
                 mark_groups.append(('marks', _motion_marks_strokes(),
                                     s['center'], s['size'], s))
         low_lbl = str(s['label']).lower()
@@ -2395,6 +2404,11 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                 st['pen'] = sorted(pens[j])
             else:
                 st['soundRole'] = None  # no drawn group left for this step
+    if fm_slot is not None:
+        for g, s_, e_ in out:
+            if g[4] is fm_slot:
+                scene['_fm_window'] = (s_, e_)
+                break
     return out
 
 
@@ -2938,6 +2952,8 @@ def render_scene_frame(scene: dict, plan: dict, ratio: str, scene_time: float) -
                           zoom)
     layers.append((lyr, 255))
     frame = _composite_frame(plan, ratio, cam, layers, seed)
+    frame = _figure_motion_overlay(frame, scene, plan, ratio, cam, zoom,
+                                   scene_time)
     return _overlay_hand(frame, tip, ratio, scene_time * 8 + seed)
 
 
@@ -2981,3 +2997,68 @@ def render_transition_frame(prev_scene, next_scene, plan, ratio, p: float):
         layers.append((lyr, 255))
     frame = _composite_frame(plan, ratio, cam, layers, seed)
     return _overlay_hand(frame, tip, ratio, p * 30 + seed)
+
+
+_FM_MOD = None
+
+
+def _fm_mod():
+    """tools/nexstick/fig_motion — lazy: node/strips only run when a scene
+    actually carries a motion figure."""
+    global _FM_MOD
+    if _FM_MOD is None:
+        import importlib.util
+        p = Path(__file__).resolve().parent / 'tools' / 'nexstick' / 'fig_motion.py'
+        spec = importlib.util.spec_from_file_location('nexstick_fig_motion', p)
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        _FM_MOD = m
+    return _FM_MOD
+
+
+def _figure_motion_overlay(frame, scene, plan, ratio, cam, zoom, scene_time):
+    """Composite the animated mocap figure over the drawn board at the
+    person slot. Pops in during the slot's draw window, then plays the clip
+    for the rest of the beat; the ground shadow and caption still draw."""
+    fm = scene.get('figureMotion')
+    if not fm:
+        return frame
+    anchor = scene.get('_fm_anchor')
+    if not anchor:
+        zone = (scene.get('whiteboardRuntime') or {}).get('boardZone') or {}
+        zw = float(zone.get('w', 1))
+        zh = float(zone.get('h', 1))
+        size = min(zw, zh) * 0.5
+        anchor = {'center': (float(zone.get('x', 0)) + zw * 0.26,
+                             float(zone.get('y', 0)) + zh * 0.86 - size * 0.5),
+                  'size': size, 'facing': 1}
+    win = scene.get('_fm_window') or (0.45, 1.1)
+    dt = scene_time - win[0]
+    if dt < -0.05:
+        return frame
+    dur = float((scene.get('whiteboardRuntime') or {}).get('sceneDuration')
+                or scene.get('timingOverrideSeconds') or 4.0)
+    spec = dict(fm)
+    if spec.get('visemes'):
+        spec['visemeOffset'] = float(spec.get('beatStart', 0.0)) + win[0]
+    if anchor.get('facing', 1) == 1:
+        spec['mirror'] = True  # skin_rig presents facing-left
+    strip = _fm_mod().get_strip(spec, max(dur - win[0], 0.6), fps=12)
+    if not strip:
+        return frame
+    img = strip[min(len(strip) - 1, max(0, int(dt * 12)))]
+    sc = _pop_scale(wbp._clamp(dt / 0.4))
+    w, h = wbp.RATIO_SIZES[ratio]
+    scale = min(w, h) / (650 if ratio != '9:16' else 760) * zoom
+    h_px = anchor['size'] * float(fm.get('scale', 0.95)) * scale * sc
+    img2 = img.resize((max(1, int(img.width * h_px / img.height)),
+                       max(1, int(h_px))), Image.LANCZOS)
+    fx, fy = wbp._map_point(
+        (anchor['center'][0], anchor['center'][1] + anchor['size'] * 0.5),
+        cam, ratio, zoom)
+    out = frame.convert('RGBA')
+    tile = Image.new('RGBA', out.size, (0, 0, 0, 0))
+    tile.alpha_composite(img2, (int(fx - img2.width / 2),
+                                int(fy - img2.height)))
+    return Image.alpha_composite(out, tile).convert('RGB')
+

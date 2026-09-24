@@ -208,6 +208,13 @@ def normalize_plan(plan: dict) -> dict:
         b['start_seconds'] = float(start) if start is not None else cursor
         cursor = b['start_seconds'] + dur
         scene['timingOverrideSeconds'] = dur
+        # an animated figure on this beat: 'figure' -> scene.figureMotion
+        # {clip} or {say} resolved via clip_select; {visemes} carries a
+        # rhubarb cues path with beatStart offset for clip-local timing
+        if b.get('figure'):
+            fm = dict(b['figure'])
+            fm['beatStart'] = b['start_seconds']
+            scene['figureMotion'] = fm
         b['scene'] = scene
         norm_beats.append(b)
     p['beats'] = norm_beats

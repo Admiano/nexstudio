@@ -26,8 +26,8 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 
 | Artifact | sha256 |
 |---|---|
-| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `88bd20621f7609d45224f01a341d233274e0d3e23f71a63da817b64e8019b0fe` |
-| `v3_board_renderer.py` (whiteboard draw layer) | `95f809914e8025abc1b937a8e5678a090860c3fa359ec64b2b5bd6be0bc43d4c` |
+| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `9d6603b08a6f7803b96a81afd840cd0ccc2c1bb5630c8b20f165a137379bd264` |
+| `v3_board_renderer.py` (whiteboard draw layer) | `1b82bfcd540c65865d7515d8ca0f354fade14e03482b454472b1ec63b7d3f076` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
 | `pipeline_diagram_timed.py` (diagram pipeline) | `c00cf324b135932cf071206c52f993cf8a4c1e788ede8ae6fe0caaad658c5f48` |
@@ -47,7 +47,8 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/ek_pose_clips.py` | Everkinetic canonical keypose -> vault FK generator (CC BY-SA 4.0) | `1900285b742c10a667e6e0def196cea56b584bc1eea1bb564754a7091508ac72` |
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |
 | `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `16018c7c3633c0d4bf2d7e9e640b02ae60aeac18a691657a209aea5c70d1f350` |
-| `tools/nexstick/skin_rig.cjs` | skin-on-skeleton renderer: true-joint masses, real-depth occlusion sort | `9d3ca8c2afcbfa75172ca50492ea9b34ead7bb4cc9f2754e7072f84969fa7cdc` |
+| `tools/nexstick/skin_rig.cjs` | skin-on-skeleton renderer: true-joint masses, real-depth occlusion sort |
+| `tools/nexstick/fig_motion.py` | board bridge: clip_select→skin_rig strip renderer (cairosvg PNG tiles, cached) | `156b1e165d30b49612098e427b0f096cdd9425332aba7484a3290f726e34265d` | `0bd128ce5ce779d147fed7418484cbfdd0043ad5329594d6df98057495795806` |
 | `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `43c6dbc64883af40334f8962a2dbb0b08946f99e329ca2779aa96031b9985a26` |
 | `tools/nexstick/fx_marks.cjs` | cartoon mark layer: velocity speed lines, impact bursts, foot-plant dust | `e0dce5bde5eceffc823eaa078ea3e7071aadd597adf36502a38ba7c2647b8749` |
 | `tools/nexstick/clip_select.cjs` | narration text -> vault clip pattern table (260+ clips) | `72fbb3cd9e59a05fef0f174cff74a32412a15c7dc10a89694109171dd3fe528b` |
