@@ -2398,6 +2398,16 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
     return out
 
 
+def _pop_scale(p: float) -> float:
+    """POP spring (dampingRatio 0.8, appllama grammar) mapped onto the draw
+    progress: the element lands slightly oversize then settles. Applies to
+    icon/figure groups only — headline/text stay flat."""
+    if p <= 0 or p >= 1:
+        return 1.0
+    # underdamped settle: one soft overshoot (~+7%) then back to 1
+    return 1.0 + 0.07 * math.sin(p * math.pi * 2.2) * math.exp(-3.2 * p)
+
+
 def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
                      cam=None, seed=7, zoom=1.0, draw=True):
     """Returns (layer, pen_tip_screen_or_None) — the tip feeds the hand."""
@@ -2410,7 +2420,8 @@ def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
         p = wbp._ease(wbp._clamp((scene_time - start) / max(0.05, end - start)))
         if p <= 0:
             continue
-        t = _draw_strokes(layer, strokes or [], center, size, cam, colors,
+        sz = size * (_pop_scale(p) if kind == 'icon' else 1.0)
+        t = _draw_strokes(layer, strokes or [], center, sz, cam, colors,
                           ratio, p, seed + gi * 97, zoom, draw)
         if p < 1 and t is not None:
             tip = t

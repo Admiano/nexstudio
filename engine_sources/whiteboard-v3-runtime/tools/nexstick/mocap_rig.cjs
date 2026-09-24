@@ -114,25 +114,58 @@ const look = athletic
   ? { top: { garment: 'vest' }, bottom: { garment: 'shorts' } }
   : { top: { garment: 'jacket' } };
 
+// viseme timeline: req.visemes = path to visemes.py output (rhubarb cues)
+// or an inline [{start,end,viseme}] array — speaking figures lip-sync to VO.
+let VISEMES = null;
+if (req.visemes) {
+  const raw = typeof req.visemes === 'string'
+    ? JSON.parse(fs.readFileSync(req.visemes, 'utf8'))
+    : req.visemes;
+  VISEMES = raw.cues || raw;
+}
+const visemeAt = (t) => {
+  if (!VISEMES) return null;
+  const c = VISEMES.find(c => c.start <= t && t <= c.end);
+  return c ? c.viseme : 'rest';
+};
+
+// cartoon mark layer: speed streaks + impact bursts + foot-plant dust,
+// all derived from the same motion data driving the skeleton.
+const FX = req.fx ? require('./fx_marks.cjs') : null;
+const BALLISTIC = /^(EX_BURPEE|EX_JUMPING_JACK|.*(JUMP|HOPSCOTCH|CARTWHEEL|DIVE|SPRINT))/.test(clipRef);
+const SCALE = 1000 / 1.55;
+// world-space joint -> figure screen coords (mirrors paper-cast-rig's
+// world transform + profile-left projection: x_screen = -z, y = -y)
+const jointScreen = (j, pel, pitchDeg, root) => {
+  const dx = (j[0] - pel[0]) * SCALE, dy = (j[1] - pel[1]) * SCALE,
+        dz = (j[2] - pel[2]) * SCALE;
+  const p = pitchDeg * Math.PI / 180, pc = Math.cos(p), ps = Math.sin(p);
+  const ry = dy * pc - dz * ps, rz = dy * ps + dz * pc;
+  return { x: -(rz + root.z), y: -(ry + root.y) };
+};
+
 const meta = [];
+let prevPose3d = null, prevPlant = { l: 0, r: 0 };
 for (let i = 0; i < nF; i++) {
   const t = i / fps;
   const st = sampleAny(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const { pose, world } = poseFromMocap(st.pose3d);
-  const scale = 1000 / 1.55;   // rig units per meter (~adult 1.55m skeleton)
+  const scale = SCALE;         // rig units per meter (~adult 1.55m skeleton)
   const pel = world.pelvis || [0, 0.877, 0];
+  const root = {
+    x: 0,
+    y: (pel[1] - 0.877) * scale,
+    z: pel[2] * scale,
+  };
+  const viseme = visemeAt(t);
+  const face = VISEMES
+    ? { emotion: 'warm', speaking: true, viseme: viseme || 'rest', id: 'fig' }
+    : 'warm';
   const out = Renderer.renderPose({
     proportion, height: 1000, view: 'profile-left', pose,
-    world: {
-      pitch: world.pitch,
-      root: {
-        x: 0,
-        y: (pel[1] - 0.877) * scale,
-        z: pel[2] * scale,
-      },
-    },
-    look, face: 'warm', background: false, grain: false,
+    world: { pitch: world.pitch, root },
+    look, face, background: false, grain: false,
     hands: {
       left: st.hands && st.hands.left && st.hands.left.pose,
       right: st.hands && st.hands.right && st.hands.right.pose,
@@ -141,11 +174,52 @@ for (let i = 0; i < nF; i++) {
   // strip only non-line layers (rim highlights, contact shadow) and any
   // degenerate element (pb-fold can emit a ~2m ellipse under stride poses);
   // every garment/detail stroke stays for the elite look.
-  const svg = out.svg
+  let svg = out.svg
     .replace(/<g class="pb-(rim|shadow)"[^>]*>.*?<\/g>/gs, '')
     .replace(/<defs>.*?<\/defs>/s, '')
     .replace(/<g class="pb-fold"[^>]*>\s*<ellipse[^>]*ry="([0-9.]+)"[^>]*\/><\/g>/gs,
              (m, ry) => (+ry > 200 ? '' : m));
+  // squash on impact onset for ballistic clips — a ~3-frame cartoon
+  // settle when a foot plants after airborne motion (sx+, sy-).
+  const plantNow = st.plant || { l: 0, r: 0 };
+  const impact = BALLISTIC &&
+    ((plantNow.l === 1 && prevPlant.l !== 1) ||
+     (plantNow.r === 1 && prevPlant.r !== 1));
+  if (impact) {
+    const a = jointScreen(pel, pel, world.pitch, root);
+    svg = svg.replace(/<svg([^>]*)>([\s\S]*)<\/svg>/,
+      `<svg$1><g transform="translate(${a.x.toFixed(1)},${a.y.toFixed(1)}) scale(1.05,0.92) translate(${(-a.x).toFixed(1)},${(-a.y).toFixed(1)})">$2</g></svg>`);
+  }
+  if (FX) {
+    const marks = FX.marksForFrame({
+      pPrev: prevPose3d, pNow: st.pose3d, dt: 1 / fps,
+      plant: plantNow, contactsPrev: prevPlant,
+      proj: (j) => jointScreen(j, pel, world.pitch, root), S: scale,
+    });
+    if (BALLISTIC && impact) {
+      // radial burst around the contact ankle
+      for (const side of ['l', 'r']) {
+        if (!(plantNow[side] === 1 && prevPlant[side] !== 1)) continue;
+        const a = jointScreen(st.pose3d['ankle_' + side], pel, world.pitch, root);
+        for (let k = 0; k < 8; k++) {
+          const th = (k / 8) * Math.PI * 2 + 0.3;
+          marks.push({
+            cls: 'pb-fx-burst',
+            d: `M ${a.x + Math.cos(th) * 22} ${a.y + Math.sin(th) * 22} ` +
+               `L ${a.x + Math.cos(th) * 48} ${a.y + Math.sin(th) * 48}`,
+            w: scale * 0.011,
+          });
+        }
+      }
+    }
+    if (marks.length) {
+      const g = marks.map(m =>
+        `<g class="${m.cls}" fill="none"><path d="${m.d}" stroke="#2a1c12" stroke-width="${m.w.toFixed(1)}" stroke-linecap="round"/></g>`).join('');
+      svg = svg.replace('</svg>', g + '</svg>');
+    }
+  }
+  prevPose3d = st.pose3d;
+  prevPlant = plantNow;
   const p = path.join(outDir, `g${String(i).padStart(3, '0')}.svg`);
   fs.writeFileSync(p, svg);
   meta.push({ t, pose, root: st.pose3d.root });

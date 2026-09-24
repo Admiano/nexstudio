@@ -43,3 +43,15 @@ python3 pipeline_v3_narration_timed.py plan.json \
 `align_beats_to_words` walks the transcript once and re-times each beat to
 where its `narration` text is spoken (first narration token → start, last →
 end + small tail). Beats whose narration isn't found keep authored timing.
+
+## Lip-sync (visemes)
+
+`tools/vo/visemes.py` turns the VO wav into a mouth-shape timeline via
+Rhubarb Lip Sync (MIT). The binary is not committed (90MB); fetch once:
+
+    mkdir -p tools/vo/bin && cd tools/vo/bin
+    curl -sL -o r.zip https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.14.0/Rhubarb-Lip-Sync-1.14.0-Linux.zip
+    unzip -oq r.zip && mv Rhubarb-Lip-Sync-1.14.0-Linux/rhubarb . && mv Rhubarb-Lip-Sync-1.14.0-Linux/res . && chmod +x rhubarb
+
+Then: `python3 tools/vo/visemes.py vo.wav vo_visemes.json` and pass
+`"visemes": "<path>"` in the mocap_rig request JSON for speaking figures.
