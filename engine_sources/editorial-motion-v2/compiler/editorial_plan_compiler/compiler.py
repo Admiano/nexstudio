@@ -19,7 +19,7 @@ from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
 from .chassis import chassis_aspect, housing
 from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirective, FilmTreatment, TreatmentError
-from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere
+from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
@@ -929,6 +929,49 @@ def settle_descriptors(plans: Dict[str, Any]) -> None:
                 e['params']['resolution'] = res
 
 
+def _backdrop_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], brand: Brand) -> List[Dict[str, Any]]:
+    """Diorama planes a treatment authored for this beat, cut in the film's palette and laid at
+    their parallax depth. `auto` tones deepen as the plane nears the content; a concept that
+    resolved to a mark perches on its band's torn edge like a pinned cut-out."""
+    if not btr.backdrop:
+        return []
+    W, H = canvas
+    short = min(W, H)
+    overhang = W * 0.10  # parallax travel must never reveal a band's edge
+    out: List[Dict[str, Any]] = []
+    for i, p in enumerate(btr.backdrop):
+        tone, depth = p['tone'], p['depth']
+        if tone == 'auto':
+            hex_tone = mix(brand.paper, brand.ink, 0.06 + 0.20 * depth)
+        elif tone == 'accent':
+            hex_tone = brand.accent or brand.ink
+        elif tone == 'ink':
+            hex_tone = brand.ink
+        elif tone == 'paper':
+            hex_tone = brand.paper
+        else:
+            hex_tone = tone
+        band = p['band']
+        y = H * band['top'] - short * 0.015
+        h = H * band['height'] + short * 0.03
+        seed = int(hashlib.sha256(f'{film_id}:band:{btr.beat_id}:{i}'.encode()).hexdigest()[:12], 16)
+        layer: Dict[str, Any] = {'kind': 'band',
+                                 'bbox': {'x': round(-overhang, 1), 'y': round(y, 1),
+                                          'w': round(W + 2 * overhang, 1), 'h': round(h, 1)},
+                                 'tone': hex_tone, 'plane': depth, 'ragged': bool(p.get('ragged')), 'seed': seed}
+        asset = p.get('asset')
+        if asset:
+            mh = short * (0.09 + 0.13 * depth)
+            art = asset.get('art_box') or {'w': 1, 'h': 1}
+            mw = mh * max(0.25, art['w'] / max(1, art['h']))
+            xf = 0.18 + 0.55 * (((seed >> 6) & 0x7F) / 127.0)
+            layer['mark'] = {'path': asset['path'], 'sha256': asset.get('sha256'),
+                             'bbox': {'x': round(-overhang + (W + 2 * overhang) * xf, 1),
+                                      'y': round(y - mh * 0.82, 1), 'w': round(mw, 1), 'h': round(mh, 1)}}
+        out.append(layer)
+    return out
+
+
 def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> List[str]:
     """Turn every entity `concept` into an asset_ref and/or a typeset word before any aspect is
     solved, so all aspects draw the same answer. The ladder is pinned to the film's colour pack:
@@ -936,8 +979,9 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
     warnings (a photo catalogue that would not answer, so a lower rung stood in)."""
     todo = [(b, e) for b in film.beats if b.illustration for e in b.illustration.entities if e.concept and not e.asset_ref]
     prop_todo = [b for b in film.beats if b.figure and b.figure.prop]
+    backdrop_todo = [(b, p) for b in film.beats if b.backdrop for p in b.backdrop if p.get('concept')]
     motif = film.world.motif if film.world and film.world.motif else None
-    if not todo and not prop_todo and not motif:
+    if not todo and not prop_todo and not motif and not backdrop_todo:
         return []
     finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
     pack = _film_pack(film, registry)
@@ -998,6 +1042,14 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
         p['asset_ref'] = r.asset_ref
         p['asset'] = registry.resolve(r.asset_ref, b.beat_id) if r.asset_ref else None
         p['word'] = r.word if r.word else (None if r.asset_ref or p.get('photo') else p['concept'])
+        p['resolution'] = r.as_dict()
+    for b, p in backdrop_todo:
+        # A backdrop silhouette mark wants vector art: the ladder ends at asset_ref — a photo or
+        # typeset tag would break the paper plane, so the plane still paints and drops the mark.
+        r = finder.resolve(p['concept'], pack, True, native_only)
+        p['via'] = r.via
+        p['asset_ref'] = r.asset_ref
+        p['asset'] = registry.resolve(r.asset_ref, b.beat_id) if r.asset_ref else None
         p['resolution'] = r.as_dict()
     if motif:
         # The film's signature mark rides the same ladder once — every aspect and every beat
@@ -1204,10 +1256,13 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         # The field is dressed once the content is placed: the bloom follows each beat's hero from the
         # previous beat's light, the far-plane shapes take whatever room the content leaves.
         prev_bloom = None
-        for bt in beats:
+        for bt, btr in zip(beats, film.beats):
+            backdrop = _backdrop_layers(film.film_id, btr, (W, H), film.brand)
             atmo_layers = beat_atmosphere(film.film_id, bt, (W, H), bc.safe, prev_bloom, atmosphere)
             prev_bloom = next(L['at'] for L in atmo_layers if L['kind'] == 'bloom')
-            bt['composition']['background']['layers'] += atmo_layers
+            # Painter's order inside the bg layer: stage furniture, then the authored diorama,
+            # then the hero's light and the ambient far-plane dust over it.
+            bt['composition']['background']['layers'] += backdrop + atmo_layers
         phase = fit_phase(music, beats)
         aspect_music = {**music, 'start_offset_ms': phase['start_offset_ms'],
                         'groove': {**phase, 'stagger_ms': stagger_ms, 'stagger_subdivision': subdivision, 'authored_stagger_ms': profile['stagger_ms']}}

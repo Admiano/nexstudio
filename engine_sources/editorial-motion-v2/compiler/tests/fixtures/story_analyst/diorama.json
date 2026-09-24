@@ -1,0 +1,84 @@
+{
+ "script": "Beyond the dunes the sea waits. A gull rides the wind. We packed the sailcloth and left at dawn.",
+ "payload": {
+  "film": {
+   "thesis": "Departure is the answer — the sea was always past the dunes.",
+   "motif": "paper boat",
+   "mood": "wistful",
+   "note": "a seaside diorama the type plays inside: same planes for the shore scene, dawn for the departure",
+   "brand": {"ink": "#243640", "paper": "#f2e9d5", "accent": "#c4703a", "finish": "PAPER"},
+   "world": {"grain": "grain-fine", "motif": {"concept": "waves", "corner": "bottom-left"}}
+  },
+  "cast": {
+   "sailor": {
+    "posture": "standing",
+    "head": "bun-2",
+    "skin": "#a26a42"
+   }
+  },
+  "scenes": [
+   {"name": "The shore", "covers": [1, 2], "setting": "dunes against the sea", "visual_metaphor": "the answer is over the next rise"},
+   {"name": "Departure", "covers": [3], "setting": "the waterline at dawn", "visual_metaphor": "leaving is the lesson"}
+  ],
+  "entities": [
+   {"concept": "sailboat", "stands_for": "the way out"},
+   {"concept": "lighthouse", "stands_for": "what calls you forward"},
+   {"concept": "bird", "stands_for": "freedom"}
+  ],
+  "beats": [
+   {"groups": [0],
+    "beat_type": "HOOK", "pattern": "CONTROLLED_EMPTY_SPACE", "dominant_layer": "TEXT",
+    "energy": 0.35, "complexity": 0.3,
+    "display_units": [
+     {"text": "Beyond the dunes", "role": "hero", "semantic_role": "statement", "emphasis": 0.85, "anchor_word": "dunes"},
+     {"text": "the sea waits", "role": "support", "semantic_role": "setup", "emphasis": 0.4}
+    ],
+    "backdrop": [
+     {"tone": "auto", "band": {"top": 0.10, "height": 0.52}, "depth": 0.15, "concept": "bird"},
+     {"tone": "accent", "band": {"top": 0.58, "height": 0.22}, "depth": 0.45, "ragged": true, "concept": "lighthouse"},
+     {"tone": "ink", "band": {"top": 0.76, "height": 0.28}, "depth": 0.75, "ragged": true, "concept": "sailboat"}
+    ]},
+   {"groups": [1],
+    "beat_type": "EMPHASIS", "pattern": "PHRASE_REPLACEMENT", "dominant_layer": "TEXT",
+    "energy": 0.5, "complexity": 0.35,
+    "display_units": [
+     {"text": "a gull", "role": "support", "semantic_role": "setup", "emphasis": 0.4},
+     {"text": "rides the wind", "role": "hero", "semantic_role": "statement", "emphasis": 0.9, "anchor_word": "wind"}
+    ],
+    "illustration": {
+     "form": "OBJECT_STAGE",
+     "entities": [
+      {"id": "gull", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "bird"},
+      {"id": "swell", "kind": "object", "glyph": "CHIP", "size": "minor", "concept": "waves", "label": "wind"}
+     ],
+     "relations": [],
+     "program": [
+      {"op": "DRAW", "target": "gull", "at": {"word": "gull"}, "duration_ms": 800},
+      {"op": "DRAW", "target": "swell", "at": {"word": "wind"}, "duration_ms": 700}
+     ]
+    },
+    "backdrop": [
+     {"tone": "auto", "band": {"top": 0.10, "height": 0.52}, "depth": 0.15, "concept": "bird"},
+     {"tone": "accent", "band": {"top": 0.58, "height": 0.22}, "depth": 0.45, "ragged": true, "concept": "lighthouse"},
+     {"tone": "ink", "band": {"top": 0.76, "height": 0.28}, "depth": 0.75, "ragged": true, "concept": "sailboat"}
+    ]},
+   {"groups": [2],
+    "beat_type": "PAYOFF", "pattern": "PAYOFF_LOCKUP", "dominant_layer": "FIGURE",
+    "energy": 0.6, "complexity": 0.4,
+    "figure": {
+     "valence": 0.4, "arousal": 0.5, "posture": "standing", "facing": "CAMERA",
+     "justification": "the sailor leaves at dawn — the film's human payoff",
+     "character": "sailor", "track": {"enter": "none", "exit": "right"},
+     "prop": {"concept": "paper boat", "hand": "auto"}
+    },
+    "display_units": [
+     {"text": "packed the sailcloth", "role": "support", "semantic_role": "setup", "emphasis": 0.5},
+     {"text": "left at dawn", "role": "hero", "semantic_role": "payoff", "emphasis": 0.95, "anchor_word": "dawn"}
+    ],
+    "backdrop": [
+     {"tone": "#e8b98a", "band": {"top": 0.06, "height": 0.6}, "depth": 0.2, "concept": "sun"},
+     {"tone": "ink", "band": {"top": 0.7, "height": 0.34}, "depth": 0.7, "ragged": true, "concept": "sailboat"}
+    ]}
+  ]
+ }
+}

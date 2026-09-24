@@ -62,6 +62,12 @@ CAST_MEMBER_CAP = 6
 # The world bible: film-level look authored per script, not per style preset.
 WORLD_GRAINS = ('grain-fine', 'dots-24', 'grid-24', 'graph-paper', 'hatch-45')
 WORLD_CORNERS = ('top-left', 'top-right', 'bottom-left', 'bottom-right')
+# Diorama backdrops: stacked paper planes per beat. tone resolves 'auto' by depth (far = pale,
+# near = dark), or an authored ink|paper|accent|#hex; band is the plane's vertical slice of the
+# stage; depth is its parallax factor — 0 frame-fixed (sky) .. 1 with the content (ground).
+BACKDROP_TONES = ('ink', 'paper', 'accent', 'auto')
+BACKDROP_PLANE_CAP = 4
+HEX_COLOUR_RE = re.compile(r'^#[0-9a-fA-F]{3,8}$')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
@@ -536,6 +542,7 @@ class BeatTreatment:
     features: Dict[str, float] = field(default_factory=dict)
     min_duration_ms: int = 0
     cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
+    backdrop: Optional[List[Dict[str, Any]]] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -578,8 +585,27 @@ class BeatTreatment:
         cut = str(d['cut']) if d.get('cut') else None
         if cut is not None:
             _need(cut in CUT_MODES, 'CUT_MODE_UNKNOWN', cut, bid)
+        backdrop = None
+        rb = d.get('backdrop')
+        if rb is not None:
+            _need(isinstance(rb, list) and 1 <= len(rb) <= BACKDROP_PLANE_CAP, 'BACKDROP_PLANE_CAP', f'at most {BACKDROP_PLANE_CAP} planes', bid)
+            backdrop = []
+            for p in rb:
+                _need(isinstance(p, dict), 'BACKDROP_PLANE_INVALID', 'a plane must be an object', bid)
+                tone = str(p.get('tone') or 'auto')
+                _need(tone in BACKDROP_TONES or bool(HEX_COLOUR_RE.match(tone)), 'BACKDROP_TONE_UNKNOWN', tone, bid)
+                band = p.get('band') or {}
+                top = _unit(band.get('top', 0.5))
+                height = float(band.get('height') or 0.2)
+                _need(0.05 <= height <= 0.7 and top + height <= 1.05, 'BACKDROP_BAND_INVALID', f'top {top} height {height}', bid)
+                depth = _unit(p.get('depth', 0.4))
+                concept = ' '.join(str(p.get('concept') or '').split())
+                _need(len(concept) <= 40, 'BACKDROP_CONCEPT_LONG', concept, bid)
+                backdrop.append({'tone': tone, 'band': {'top': top, 'height': height}, 'depth': depth,
+                                 'ragged': bool(p.get('ragged')), 'concept': concept or None})
+            backdrop.sort(key=lambda p: p['depth'])
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut)
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop)
 
     @property
     def has_visual(self) -> bool:

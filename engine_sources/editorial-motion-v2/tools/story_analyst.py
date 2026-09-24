@@ -193,6 +193,15 @@ Rules:
   picks the overlay texture and `motif` {concept, corner} stamps the film's
   signature mark in a corner of every beat (the thread the viewer follows
   between scenes). A film that looks like every other film is a failure.
+- Set the SCENE, not just the stage: `backdrop` on a beat is the diorama it
+  plays in — up to 4 cut-paper planes drawn far to near, each
+  {tone: ink|paper|accent|auto|#hex, band: {top: 0..1, height},
+   depth: 0..1, ragged?: bool, concept?: str<=40}. depth ~0.15 is sky, ~0.45
+  far hills, ~0.7 the ground the action stands on; `auto` tones deepen as the
+  plane nears; `ragged` tears the top edge; `concept` adds a silhouette perched
+  on that plane's torn edge (a lighthouse on the far hill, a gull in the sky).
+  Beats in the same scene reuse that scene's backdrop — the film moving
+  between authored places is the point.
 - `mood` picks the music bed; choose from the enum.
 
 Output: one JSON object only."""
@@ -225,6 +234,7 @@ def _user_payload(script: str, groups: List[List[Dict[str, Any]]], style: Dict[s
             "concept_glyphs": list(c.CONCEPT_GLYPHS),
             "figure_track_sides": list(c.FIGURE_TRACK_SIDES), "figure_hands": list(c.FIGURE_HANDS),
             "world_grains": list(c.WORLD_GRAINS), "world_corners": list(c.WORLD_CORNERS),
+            "backdrop_tones": list(c.BACKDROP_TONES), "backdrop_plane_cap": c.BACKDROP_PLANE_CAP,
             "finishes": list(c.FINISHES),
         },
         "registry_asset_count": len(registry_ids),
@@ -250,6 +260,8 @@ def _user_payload(script: str, groups: List[List[Dict[str, Any]]], style: Dict[s
                                     "states": [{"at": {"word": "w"} | {"offset_ms": 0},
                                                "pose": "id|null", "face": "id|null"}],
                                     "pose": "id|null", "face": "id|null"} ,
+                        "backdrop": [{"tone": "enum|#hex", "band": {"top": 0.0, "height": 0.2},
+                                       "depth": 0.0, "ragged": False, "concept": "str<=40|null"}],
                         "data": {"kind": "enum", "value": "str", "label": "str"},
                         "media": {"asset_id": "from media_library", "role": "enum"},
                         "illustration": {"form": "enum",
@@ -340,6 +352,33 @@ def _clamp(v: Any, lo: float = 0.0, hi: float = 1.0, default: float = 0.5) -> fl
 def _titleish_id(raw: Any, fallback: str) -> str:
     s = re.sub(r"[^A-Za-z0-9_-]+", "_", str(raw or "").strip()).strip("_")
     return s or fallback
+
+
+def _conform_backdrop(raw: Any) -> Optional[List[Dict[str, Any]]]:
+    """Normalize the LLM's backdrop planes to the contract: <=4 dicts, an enum tone or #hex,
+    band in bounds, depth 0..1, concept <=40 — sorted far to near; malformed planes drop out."""
+    if not isinstance(raw, list):
+        return None
+    out: List[Dict[str, Any]] = []
+    for p in raw[: c.BACKDROP_PLANE_CAP]:
+        if not isinstance(p, dict):
+            continue
+        tone = str(p.get("tone") or "auto")
+        if tone not in c.BACKDROP_TONES and not re.fullmatch(r"#[0-9a-fA-F]{3,8}", tone):
+            tone = "auto"
+        band = p.get("band") if isinstance(p.get("band"), dict) else {}
+        top = _clamp(band.get("top", 0.55), 0.0, 0.9, 0.55)
+        height = _clamp(band.get("height", 0.2), 0.05, 0.7, 0.2)
+        if top + height > 1.05:
+            height = max(0.05, 1.05 - top)
+        concept = " ".join(str(p.get("concept") or "").split())
+        plane: Dict[str, Any] = {"tone": tone, "band": {"top": round(top, 3), "height": round(height, 3)},
+                                 "depth": round(_clamp(p.get("depth", 0.4)), 3), "ragged": bool(p.get("ragged"))}
+        if concept and len(concept) <= 40:
+            plane["concept"] = concept
+        out.append(plane)
+    out.sort(key=lambda q: q["depth"])
+    return out or None
 
 
 # Glyphs with a designed inside-label box (mirrors illustration.LABEL_CARRIERS);
@@ -893,6 +932,9 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
                                  "energy": _clamp(rb.get("energy", 0.6)),
                                  "complexity": _clamp(rb.get("complexity", 0.45)),
                                  "display_units": units}
+        backdrop = _conform_backdrop(rb.get("backdrop"))
+        if backdrop:
+            beat["backdrop"] = backdrop
         if figure:
             beat["figure"] = figure
         if media:
