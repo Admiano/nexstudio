@@ -1,0 +1,78 @@
+{
+  "script": "Our memory is not a video recording. Every time we recall something, we rebuild it from pieces — and the pieces can change. That is why two witnesses disagree.",
+  "payload": {
+    "film": {"thesis": "memory is rebuilt, not replayed", "motif": "shifting mosaic tiles", "mood": "NOT_A_MOOD"},
+    "scenes": [{"name": "not a recording", "covers": [1]}, {"name": "rebuilt", "covers": [2]}, {"name": "witnesses", "covers": [3]}],
+    "entities": [{"concept": "mosaic of pieces", "as": "memory fragments"}],
+    "beats": [
+      {
+        "groups": [0], "beat_type": "INTRO", "pattern": "NOT_A_PATTERN",
+        "dominant_layer": "BOGUS", "energy": 9.5, "complexity": -2,
+        "display_units": [
+          {"text": "the meaning of existence", "role": "hero"},
+          {"text": "not a video recording", "role": "hero", "stress": ["not", "ghost"], "anchor_word": "recording", "semantic_role": "statement"},
+          {"text": "Our memory is", "role": "hero", "semantic_role": "setup"},
+          {"text": "video recording", "role": "hero", "anchor_word": "video"}
+        ],
+        "illustration": {
+          "form": "CALLOUT_LENS",
+          "entities": [
+            {"id": "rec", "kind": "object", "glyph": "NOT_A_GLYPH", "size": "huge", "asset_ref": "icon.fake.not-real-asset", "concept": "this concept is far too long to ever fit inside the forty character contract limit"},
+            {"id": "rec", "kind": "alien", "glyph": "TILE", "label": "the video recording on the screen"},
+            {"id": "e3", "kind": "object", "glyph": "MEDIA"},
+            {"id": "e4", "kind": "object", "glyph": "TILE"},
+            {"id": "e5", "kind": "object", "glyph": "ICON", "concept": "camcorder"},
+            {"id": "e6", "kind": "object", "glyph": "ICON", "concept": "video frame"},
+            {"id": "e7", "kind": "object", "glyph": "ICON", "concept": "pause button"},
+            {"id": "e8", "kind": "object", "glyph": "ICON", "concept": "play symbol"}
+          ],
+          "relations": [{"type": "teleports", "source": "rec", "target": "ghost"}, {"type": "connects", "source": "e5", "target": "e5"}],
+          "program": [
+            {"op": "TELEPORT", "target": "rec", "at": {"word": "ghostword", "unit": 99, "offset_ms": 5}, "duration_ms": 99999, "params": {"wipe": true}},
+            {"op": "CONNECT", "target": "e5->e8", "at": {"unit": 0}},
+            {"op": "DRAW", "target": "missing", "at": {"offset_ms": -3}},
+            {"op": "DRAW", "target": "e5", "at": {"unit": 1}, "duration_ms": 400}
+          ]
+        }
+      },
+      {
+        "groups": [2], "beat_type": "PAYOFF",
+        "pattern": "PROCESS_RAIL", "dominant_layer": "HYBRID",
+        "display_units": [{"text": "we rebuild it from pieces", "role": "hero", "semantic_role": "statement", "anchor_word": "rebuild"}],
+        "illustration": {
+          "form": "PROCESS_PIPELINE",
+          "entities": [
+            {"id": "m1", "kind": "object", "glyph": "ICON", "concept": "mosaic tile"},
+            {"id": "m2", "kind": "object", "glyph": "ICON", "concept": "mosaic tile"},
+            {"id": "m3", "kind": "object", "glyph": "ICON", "concept": "mosaic tile"}
+          ],
+          "relations": [],
+          "program": [
+            {"op": "DRAW", "target": "m1", "at": {"word": "rebuild"}, "duration_ms": 400},
+            {"op": "DRAW", "target": "m2", "at": {"word": "pieces"}, "duration_ms": 400},
+            {"op": "DRAW", "target": "m3", "at": {"word": "pieces"}, "duration_ms": 400}
+          ]
+        },
+        "metaphor": "memory assembled tile by tile"
+      },
+      {
+        "groups": [], "beat_type": "CTA", "pattern": "CTA_LOCKUP",
+        "display_units": [{"text": "two witnesses disagree", "role": "hero", "anchor_word": "disagree"}],
+        "data": {"kind": "NOT_A_KIND", "value": "2"},
+        "illustration": {
+          "form": "COMPARISON",
+          "entities": [
+            {"id": "w1", "kind": "agent", "glyph": "ICON", "concept": "witness one"},
+            {"id": "w2", "kind": "agent", "glyph": "ICON", "concept": "witness two"}
+          ],
+          "relations": [{"type": "compares", "source": "w1", "target": "w2"}],
+          "program": [
+            {"op": "DRAW", "target": "w1", "at": {"word": "two"}, "duration_ms": 400},
+            {"op": "DRAW", "target": "w2", "at": {"word": "witnesses"}, "duration_ms": 400},
+            {"op": "CONNECT", "target": "w1->w2", "at": {"word": "disagree"}, "duration_ms": 400}
+          ]
+        }
+      }
+    ]
+  }
+}

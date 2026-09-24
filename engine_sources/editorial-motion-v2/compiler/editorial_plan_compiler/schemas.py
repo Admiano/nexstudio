@@ -58,6 +58,7 @@ def treatment_schema() -> Dict[str, Any]:
     entity = _obj({
         'id': _str(), 'kind': _enum(c.ENTITY_KINDS), 'glyph': _enum(c.GLYPHS), 'size': _enum(c.ENTITY_SIZES),
         'label': NULLABLE_STR, 'asset_ref': NULLABLE_STR, 'media_ref': NULLABLE_STR,
+        'concept': {'type': ['string', 'null'], 'maxLength': 40},
         'params': {'type': 'object'},
     }, ['id', 'kind', 'glyph'], additionalProperties=False)
     relation = _obj({'type': _enum(c.RELATION_TYPES), 'source': _str(), 'target': _str(), 'style': _enum(c.RELATION_STYLES)}, ['type', 'source', 'target'], additionalProperties=False)

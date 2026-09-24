@@ -1,0 +1,141 @@
+{
+  "script": "Meet Ember. Your coffee arrives every morning, roasted the night before, ground for your machine. Skip the queue, skip the stale shelf. First box is free. One tap, and mornings start tasting like they should.",
+  "payload": {
+    "film": {
+      "thesis": "Fresh-roasted coffee on subscription beats queue-and-stale mornings.",
+      "motif": "steam that rises off every good thing",
+      "mood": "warm",
+      "note": "product ad; brisk pace, one proof beat with customer media"
+    },
+    "scenes": [
+      {"name": "meet the brand", "covers": ["b01"], "setting": "kitchen counter at dawn", "visual_metaphor": "cup as a rising sun"},
+      {"name": "the pipeline", "covers": ["b02"], "setting": "roastery to door", "visual_metaphor": "coffee on an assembly rail"},
+      {"name": "the old way", "covers": ["b03"], "setting": "grey queue", "visual_metaphor": "queue and shelf literally crossed off"},
+      {"name": "the offer", "covers": ["b04"], "setting": "doorstep", "visual_metaphor": "first box as a gift"},
+      {"name": "the ritual", "covers": ["b05"], "setting": "kitchen again", "visual_metaphor": "one tap releases the steam motif"}
+    ],
+    "entities": [
+      {"concept": "steaming cup", "as": "the product promise", "introduced": "b01"},
+      {"concept": "gift box", "as": "the free first box", "introduced": "b04"},
+      {"concept": "steam wisp", "as": "freshness, the film's motif", "introduced": "b01"}
+    ],
+    "beats": [
+      {
+        "groups": [0], "beat_type": "HOOK", "pattern": "HERO_SCALE_PROMOTION",
+        "dominant_layer": "HYBRID", "energy": 0.8, "complexity": 0.4,
+        "display_units": [
+          {"text": "Meet Ember", "role": "hero", "semantic_role": "statement", "emphasis": 1.0, "anchor_word": "Ember"}
+        ],
+        "illustration": {
+          "form": "OBJECT_STAGE",
+          "entities": [
+            {"id": "cup", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "steaming coffee cup"},
+            {"id": "brand", "kind": "object", "glyph": "CHIP", "size": "support", "label": "Ember"},
+            {"id": "steam", "kind": "signal", "glyph": "ICON", "size": "minor", "concept": "steam wisp"}
+          ],
+          "relations": [{"type": "marks", "source": "brand", "target": "cup"}],
+          "program": [
+            {"op": "DRAW", "target": "cup", "at": {"word": "Meet"}, "duration_ms": 600},
+            {"op": "EMIT", "target": "steam", "at": {"word": "Ember"}, "duration_ms": 800},
+            {"op": "DRAW", "target": "brand", "at": {"word": "Ember"}, "duration_ms": 350}
+          ]
+        },
+        "metaphor": "brand name lands as the steam hits — warm = Ember"
+      },
+      {
+        "groups": [1], "beat_type": "EXPLANATION", "pattern": "PROCESS_RAIL",
+        "dominant_layer": "HYBRID", "energy": 0.65, "complexity": 0.55,
+        "display_units": [
+          {"text": "Your coffee arrives every morning", "role": "hero", "semantic_role": "statement", "emphasis": 0.85, "anchor_word": "arrives"},
+          {"text": "roasted the night before", "role": "support", "semantic_role": "qualifier", "emphasis": 0.5, "anchor_word": "roasted"},
+          {"text": "ground for your machine", "role": "support", "semantic_role": "qualifier", "emphasis": 0.5, "anchor_word": "ground"}
+        ],
+        "illustration": {
+          "form": "PROCESS_PIPELINE",
+          "entities": [
+            {"id": "roaster", "kind": "object", "glyph": "ICON", "size": "support", "concept": "roasting drum"},
+            {"id": "grinder", "kind": "object", "glyph": "ICON", "size": "support", "concept": "coffee grinder"},
+            {"id": "doorstep", "kind": "object", "glyph": "ICON", "size": "support", "concept": "doorstep parcel"}
+          ],
+          "relations": [
+            {"type": "flows_to", "source": "roaster", "target": "grinder", "style": "link"},
+            {"type": "flows_to", "source": "grinder", "target": "doorstep", "style": "link"}
+          ],
+          "program": [
+            {"op": "DRAW", "target": "roaster", "at": {"word": "roasted"}, "duration_ms": 500},
+            {"op": "CONNECT", "target": "roaster->grinder", "at": {"word": "before"}, "duration_ms": 400},
+            {"op": "DRAW", "target": "grinder", "at": {"word": "ground"}, "duration_ms": 450},
+            {"op": "CONNECT", "target": "grinder->doorstep", "at": {"word": "machine"}, "duration_ms": 400},
+            {"op": "DRAW", "target": "doorstep", "at": {"word": "morning"}, "duration_ms": 500}
+          ]
+        },
+        "metaphor": "roast-grind-deliver drawn as one continuous rail"
+      },
+      {
+        "groups": [2], "beat_type": "CONTRAST", "pattern": "CONTRAST_RECONFIGURATION",
+        "dominant_layer": "HYBRID", "energy": 0.6, "complexity": 0.45,
+        "display_units": [
+          {"text": "Skip the queue", "role": "hero", "semantic_role": "punch", "emphasis": 0.9, "stress": ["Skip"], "anchor_word": "queue"},
+          {"text": "the stale shelf", "role": "support", "semantic_role": "contrast", "emphasis": 0.55, "anchor_word": "stale"}
+        ],
+        "illustration": {
+          "form": "COMPARISON",
+          "entities": [
+            {"id": "queue", "kind": "object", "glyph": "ICON", "size": "support", "concept": "long queue"},
+            {"id": "shelf", "kind": "object", "glyph": "ICON", "size": "support", "concept": "dusty shelf"}
+          ],
+          "relations": [{"type": "compares", "source": "queue", "target": "shelf", "style": "dash"}],
+          "program": [
+            {"op": "DRAW", "target": "queue", "at": {"word": "queue"}, "duration_ms": 500},
+            {"op": "DRAW", "target": "shelf", "at": {"word": "shelf"}, "duration_ms": 500},
+            {"op": "STRIKE", "target": "queue->shelf", "at": {"word": "Skip"}, "duration_ms": 420}
+          ]
+        },
+        "metaphor": "the old way is literally struck through"
+      },
+      {
+        "groups": [3], "beat_type": "PROOF", "pattern": "PROGRESSIVE_HERO_BUILD",
+        "dominant_layer": "HYBRID", "energy": 0.7, "complexity": 0.5,
+        "display_units": [
+          {"text": "First box is free", "role": "hero", "semantic_role": "proof", "emphasis": 0.95, "stress": ["free"], "anchor_word": "free"}
+        ],
+        "illustration": {
+          "form": "OBJECT_STAGE",
+          "entities": [
+            {"id": "gift", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "gift box"},
+            {"id": "shot", "kind": "evidence", "glyph": "MEDIA", "size": "support", "media_ref": "media1"}
+          ],
+          "relations": [],
+          "program": [
+            {"op": "DRAW", "target": "gift", "at": {"word": "box"}, "duration_ms": 600},
+            {"op": "DRAW", "target": "shot", "at": {"word": "free"}, "duration_ms": 500}
+          ]
+        },
+        "metaphor": "the free box is staged like a gift; the real product shot is the proof"
+      },
+      {
+        "groups": [4], "beat_type": "CTA", "pattern": "CTA_LOCKUP",
+        "dominant_layer": "HYBRID", "energy": 0.75, "complexity": 0.45,
+        "display_units": [
+          {"text": "One tap", "role": "support", "semantic_role": "action", "emphasis": 0.6, "anchor_word": "tap"},
+          {"text": "tasting like they should", "role": "hero", "semantic_role": "punch", "emphasis": 0.95, "anchor_word": "tasting"}
+        ],
+        "illustration": {
+          "form": "OBJECT_STAGE",
+          "entities": [
+            {"id": "tap", "kind": "object", "glyph": "ICON", "size": "support", "concept": "finger tap"},
+            {"id": "cup2", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "steaming coffee cup"},
+            {"id": "steam2", "kind": "signal", "glyph": "ICON", "size": "minor", "concept": "steam wisp"}
+          ],
+          "relations": [{"type": "emits_to", "source": "tap", "target": "cup2"}],
+          "program": [
+            {"op": "DRAW", "target": "tap", "at": {"word": "tap"}, "duration_ms": 400},
+            {"op": "DRAW", "target": "cup2", "at": {"word": "tasting"}, "duration_ms": 550},
+            {"op": "EMIT", "target": "steam2", "at": {"word": "should"}, "duration_ms": 700}
+          ]
+        },
+        "metaphor": "the tap releases the steam motif again — payoff image mirrors the hook"
+      }
+    ]
+  }
+}

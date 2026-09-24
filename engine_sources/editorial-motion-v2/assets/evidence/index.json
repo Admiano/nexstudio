@@ -670,6 +670,32 @@
    "year": null,
    "source_size": []
   },
+  "coffee grinder": {
+   "concept": "coffee grinder",
+   "query": "coffee grinder",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "109524898",
+   "title": "File:Coffee grinder 2.jpg",
+   "creator": "Flanoz",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Coffee_grinder_2.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Coffee_grinder_2.jpg/1920px-Coffee_grinder_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "coffee-grinder.cfe0d7972fae.jpg",
+   "sha256": "3179df426b1da7b17eff6e9e5af9ab75c5046d80d2702bf278eead6af425b302",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Wall mounted hand coffee mills"
+   ],
+   "year": 2021,
+   "source_size": [
+    4000,
+    3000
+   ]
+  },
   "crane": {
    "concept": "crane",
    "query": "crane",
@@ -1258,6 +1284,32 @@
    "subjects": [],
    "year": null,
    "source_size": []
+  },
+  "long queue": {
+   "concept": "long queue",
+   "query": "long queue",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "131378136",
+   "title": "File:Long queue (27705649093).jpg",
+   "creator": "freestocks.org from Olsztyn, Poland",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Long_queue_(27705649093).jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Long_queue_%2827705649093%29.jpg/1920px-Long_queue_%2827705649093%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "long-queue.9b26565a3932.jpg",
+   "sha256": "e08acb8269e8804c3777b491d73ce022b8b3053fdcc59760cae056b220818d03",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Stock photographs"
+   ],
+   "year": 2016,
+   "source_size": [
+    5056,
+    3371
+   ]
   },
   "microphone": {
    "concept": "microphone",

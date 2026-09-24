@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """make_reel.py — one command: VO in, poster-framed reels out.
 
-Pipeline: script/voice-file -> voice.mp3 + alignment.json -> auto-treatment
-(style from styles.json, entities from entity_bank, customer media via
-media_library) -> regression_pack render -> web file -> poster-framed file.
+Pipeline: script/voice-file -> voice.mp3 + alignment.json -> treatment
+(style from styles.json; the story analyst authors arc/scenes/entities/motif
+when configured — see story_analyst.py — else the entity_bank keyword path;
+customer media via media_library) -> regression_pack render -> web file ->
+poster-framed file.
 
   python3 tools/make_reel.py --script "A few years ago, ..." --voice bm_george \
       --style tiles --media desk.png clip.mp4 --out out/my-reel
@@ -20,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 from generate_voice import synth, align, VOICES  # noqa: E402
+import story_analyst  # noqa: E402
 
 STYLES = json.loads((ROOT / "styles.json").read_text())
 STYLE_MAP = {s["id"]: s for s in STYLES["styles"]}
@@ -170,8 +173,52 @@ def pick_entities(gwords, family, already):
     return out
 
 
+def _media_library(media_files):
+    library = []
+    for mi, p in enumerate(media_files):
+        p = Path(p)
+        kind = "VIDEO" if p.suffix.lower() in VIDEO_EXTS else "IMAGE"
+        entry = {"asset_id": f"media{mi+1}", "kind": kind, "path": f"media/{p.name}"}
+        wh = probe_dims(p, kind)
+        if wh:
+            entry["width"], entry["height"] = wh
+            if kind == "VIDEO":
+                entry["duration_s"] = probe_dur(p)
+        library.append(entry)
+    return library
+
+
+def _script_text(args, words):
+    text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
+    return text.strip() or " ".join(w["text"] for w in words).strip()
+
+
 def build_treatment(args, style, words, media_files, film_id):
+    """-> (treatment, storyboard_or_None, source) — story analyst first per --analyst
+    mode, legacy keyword bank otherwise."""
     groups = chunk_beats(words)
+    aspects = [a.strip() for a in args.aspects.split(",")]
+    media_library = _media_library(media_files)
+    mode = story_analyst.analyst_mode(args)
+    if mode != "keywords":
+        try:
+            treatment, storyboard = story_analyst.build_llm_treatment(
+                _script_text(args, words), words, groups, style,
+                media_library, film_id, aspects)
+            treatment["note"] = (treatment.get("note") or "") + f" [story-analyst model={story_analyst.analyst_config()['model'] or 'replay'}, style={style['id']}]"
+            return treatment, storyboard, "story_analyst"
+        except story_analyst.AnalystUnavailable as e:
+            if mode == "llm":
+                sys.exit(f"story analyst unavailable: {e}")
+            log(f"story analyst unavailable ({e}) — keyword fallback")
+        except story_analyst.AnalystInvalid as e:
+            if mode == "llm":
+                sys.exit(f"story analyst output invalid: {e}")
+            log(f"story analyst invalid ({e}) — keyword fallback")
+    return _keyword_treatment(args, style, words, groups, media_files, media_library, film_id), None, "keywords"
+
+
+def _keyword_treatment(args, style, words, groups, media_files, media_library, film_id):
     beats, used_kw = [], set()
     fam = style["asset_family"]
     fam_key = {"colour_icons": "colour", "mono_icons": "mono", "emoji": "emoji", "photos": "photo"}[fam]
@@ -190,8 +237,8 @@ def build_treatment(args, style, words, media_files, film_id):
             ents.append([ent, anchor])
         medias = media_slots.get(bi, [])
         for mi, mf in medias:
-            ents.insert(0, ([{"id": f"media{mi+1}", "kind": "evidence", "glyph": "MEDIA",
-                              "media_ref": f"media{mi+1}"}, g[0]["text"]]))
+            ents.insert(0, [{"id": f"media{mi+1}", "kind": "evidence", "glyph": "MEDIA",
+                             "media_ref": f"media{mi+1}"}, g[0]["text"]])
         sizes = ["hero", "support", "minor", "support", "minor", "support", "minor"]
         entities, program = [], []
         for ei, (ent, anchor) in enumerate(ents):
@@ -220,17 +267,6 @@ def build_treatment(args, style, words, media_files, film_id):
                                            for i in range(1, len(entities))],
                              "program": program},
         })
-    media_library = []
-    for mi, p in enumerate(media_files):
-        p = Path(p)
-        kind = "VIDEO" if p.suffix.lower() in VIDEO_EXTS else "IMAGE"
-        entry = {"asset_id": f"media{mi+1}", "kind": kind, "path": f"media/{p.name}"}
-        wh = probe_dims(p, kind)
-        if wh:
-            entry["width"], entry["height"] = wh
-            if kind == "VIDEO":
-                entry["duration_s"] = probe_dur(p)
-        media_library.append(entry)
     return {
         "schema": "NexStudioEditorialTreatmentV2",
         "film_id": film_id,
@@ -305,6 +341,10 @@ def main():
     ap.add_argument("--film-id")
     ap.add_argument("--treatment", help="use an existing treatment.json instead of auto-authoring")
     ap.add_argument("--fixture-voice", help="fixture dir already containing voice.mp3+alignment.json (with --treatment)")
+    ap.add_argument("--analyst", choices=["auto", "llm", "keywords"], default=None,
+                    help="treatment source: auto uses the LLM story analyst when configured "
+                         "(STUDIO_ANALYST or --analyst; NEXMIND_STORY_ANALYST_* for provider), "
+                         "keywords forces the legacy entity-bank path")
     ap.add_argument("--no-poster", action="store_true")
     args = ap.parse_args()
 
@@ -333,9 +373,12 @@ def main():
             dst.parent.mkdir(exist_ok=True)
             subprocess.run(["cp", str(mf), str(dst)], check=True)
         media = [fixture_dir / "media" / Path(mf).name for mf in args.media]
-        treatment = build_treatment(args, style, words, media, film_id)
+        treatment, storyboard, tsource = build_treatment(args, style, words, media, film_id)
         (fixture_dir / "treatment.json").write_text(json.dumps(treatment, indent=1))
+        if storyboard:
+            (fixture_dir / "storyboard.json").write_text(json.dumps(storyboard, indent=1))
         treatment_src = fixture_dir / "treatment.json"
+        log(f"treatment source: {tsource}")
 
     log(f"rendering {args.aspects} @ {style['id']} ...")
     env = dict(os.environ)
@@ -351,6 +394,10 @@ def main():
     stem = fixture_dir.name
     dims = {"16x9": (1920, 1080), "1x1": (1080, 1080), "9x16": (1080, 1920)}
     manifest = {"film_id": film_id, "style": style["id"], "outputs": {}}
+    if not args.treatment:
+        manifest["treatment_source"] = tsource
+        if storyboard:
+            manifest["storyboard"] = str(fixture_dir / "storyboard.json")
     for aspect in args.aspects.split(","):
         a = aspect.strip()
         rd = out_dir / stem
