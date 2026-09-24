@@ -540,10 +540,28 @@ if (req.visemes) {
 }
 
 const meta = [];
+// temporal de-jitter: exponential smoothing on the 22 sampled joints.
+// Mocap carries millimetre-scale noise that masses hid but strokes show
+// as leg/hand wobble; alpha 0.55 keeps real motion within ~1 frame.
+const SMOOTH_A = 0.55;
+let prevP3 = null;
+const smoothP3 = (p3) => {
+  if (!prevP3) { prevP3 = p3; return p3; }
+  const out = {};
+  for (const k of Object.keys(p3)) {
+    const a = p3[k], b = prevP3[k] || a;
+    out[k] = [a[0] + (b[0] - a[0]) * (1 - SMOOTH_A),
+              a[1] + (b[1] - a[1]) * (1 - SMOOTH_A),
+              a[2] + (b[2] - a[2]) * (1 - SMOOTH_A)];
+  }
+  prevP3 = out;
+  return out;
+};
 for (let i = 0; i < nF; i++) {
   const t = i / fps;
   const st = sampleAny(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
+  st.pose3d = smoothP3(st.pose3d);
   const az = trackAz(st.pose3d);
   // presentation: baseline at the clip family's readable axis, real turns
   // damped through tanh — a true joint-space yaw rotation, so the body
