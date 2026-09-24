@@ -35,3 +35,13 @@ description: How to run the NexStudio Next.js app locally and authenticate the b
 - Renders are fast in practice (whiteboard kinetic ~20s for a 3-beat script; explainer ~55s) — 9-40s mp4s, h264+aac.
 - **Explainer entity-bank trap**: `tools/make_reel.py` builds illustration entities only from words in `styles.json` `entity_bank` (~78 words have `colour` assets for the tiles style: team/app/money/time/win/rocket/...). A natural script whose words aren't in the bank produces ZERO entities → engine gate `ILLUSTRATION_TOO_FEW_ENTITIES` → exit 1 → UI shows honest "render failed — try again". To get a render through, write the script from bank words (e.g. "Your team builds the app. Money grows. Time wins. The rocket ships.").
 - Whiteboard kinetic renders ANY script (text-only); use it for the quick E2E sanity job.
+
+## Second explainer trap — legibility gate
+Beyond the entity bank, explainers also fail the `gate_report.json` LEGIBILITY gate when beats can't hold ≥ minimum on-screen time at the target length (`LEGIBLE_HOLD_*_UNDER_*`, `CASCADE_OVERRUNS_EXIT`). Long/multi-line scripts are the usual trigger. Two gates can kill a render for different reasons — check `gate_report.json` `failures[]` to tell which.
+
+## Audit interaction gotchas (V2 flow + overlays)
+- The NexMind flow is an overlay over the app, persisted via `sessionStorage nx.flow`. While a flow stage is open it covers ALL views and blocks clicks (elementFromPoint → `.review-canvas`/`.direction-stage`). Reach it via the real flow (Create submit) or a Work row → history → "Open review →"; a minimal hand-injected `nx.flow` renders nothing. Clear stuck overlays with `sessionStorage.removeItem('nx.flow')` + reload, or the stage's own `.review-back` / "← Work" control.
+- Backdrop-close classes differ per overlay: `.overlay.open`, `.credit-utility.open`, `.series-edit-overlay.open`, `.sheet-backdrop.open`. To close from automation, dispatch `click` on the backdrop element itself (the panel is a child — target the element with the `.open` class).
+- The direction stage scrolls internally on `.direction-stage` (scrollHeight >> clientHeight) — `window.scrollTo` does NOT reach the decision/voice/length/speed sections; set `element.scrollTop` instead.
+- Sign-out invalidates the session server-side and redirects to `/` — re-mint a session via psql afterwards if more authed testing is needed.
+- Mobile (≤760px): composer tool buttons collapse to icon-only (`span{display:none}`) with 40px targets — they still open the sheets; `.mobile-nav` bottom bar has Create/Work/Brand/Library (no Series).

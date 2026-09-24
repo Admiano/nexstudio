@@ -2,6 +2,7 @@ import path from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
+import { friendlyEngineError } from "@/lib/engine-jobs";
 
 export const runtime = "nodejs";
 
@@ -28,5 +29,6 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   return json({
     jobId: id, type: req.type, voice: req.voice, theme: req.theme, accent: req.accent,
     aspects: req.aspects, createdAt: req.createdAt, progress, ...status,
+    ...(status.status === "failed" && !status.error ? { error: friendlyEngineError(dir) } : {}),
   }, auth.id);
 }

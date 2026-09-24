@@ -649,6 +649,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
   const outputs = flow.jobOutputs ?? null;
   const outputKeys = useMemo(() => Object.keys(outputs ?? {}), [outputs]);
   const [aspect, setAspect] = useState("16x9");
+  const [videoFailed, setVideoFailed] = useState(false);
   const activeAspect = outputs?.[aspect] ? aspect : (outputKeys[0] ?? "16x9");
   async function act(action: "approve" | "revision", note?: string) {
     if (outputs) {
@@ -678,12 +679,17 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
       <div className="review-wrap">
         <section className="review-canvas">
           <div className={`review-video-shell ${outputs ? (activeAspect === "9x16" ? "vertical" : activeAspect === "1x1" ? "square" : "") : ""}`}>
-            {outputs ? (
-              <video key={activeAspect} className="review-video" controls playsInline src={outputs[activeAspect]} />
+            {videoFailed ? (
+              <div className="review-video review-video-empty">
+                <span className="review-unavailable">Video unavailable</span>
+                <span className="review-unavailable-sub">This production's render file is no longer on disk — try a new render.</span>
+              </div>
+            ) : outputs ? (
+              <video key={activeAspect} className="review-video" controls playsInline src={outputs[activeAspect]} onError={() => setVideoFailed(true)} />
             ) : flow.productionId ? (
-              <video className="review-video" controls playsInline src={`/api/v1/productions/${flow.productionId}/output`} poster={`/api/v1/productions/${flow.productionId}/poster`} />
+              <video className="review-video" controls playsInline src={`/api/v1/productions/${flow.productionId}/output`} poster={`/api/v1/productions/${flow.productionId}/poster`} onError={() => setVideoFailed(true)} />
             ) : <div className="review-video" />}
-            <span className="review-version-tag">Ready to review</span>
+            {!videoFailed && <span className="review-version-tag">Ready to review</span>}
           </div>
           {outputs && outputKeys.length > 1 && (
             <div className="aspect-switch">
@@ -694,17 +700,18 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
           )}
         </section>
         <aside className="review-side">
-          <div className="micro">Your video is ready</div>
-          <h1>Review the finished video.</h1>
-          <p>Watch the version NexStudio made from your approved direction. Download it, publish it, or ask NexMind for a revision.</p>
+          <div className="micro">{videoFailed ? "Your video isn't here" : "Your video is ready"}</div>
+          <h1>{videoFailed ? "This render is no longer available." : "Review the finished video."}</h1>
+          <p>{videoFailed ? "The render file for this production was removed from the server — your brief and direction are safe. Start a new render to get a fresh file." : "Watch the version NexStudio made from your approved direction. Download it, publish it, or ask NexMind for a revision."}</p>
           <div className="review-meta">
             <span><b>{ASPECT_LABEL[activeAspect] ?? "16:9"}</b> shown</span>
             <span><b>{outputs ? outputKeys.length : 1}</b> screens</span>
             <span>{flow.duration ? `${flow.duration} sec` : "Version 1"}</span>
           </div>
           <div className="review-actions">
-            <a className="review-primary light" href={outputs ? outputs[activeAspect] : `/api/v1/productions/${flow.productionId}/output`} download>↓ Download</a>
-            <button className="review-primary" disabled={busy} onClick={() => void act("approve")}>↗ Publish</button>
+            {!videoFailed && <a className="review-primary light" href={outputs ? outputs[activeAspect] : `/api/v1/productions/${flow.productionId}/output`} download>↓ Download</a>}
+            {!videoFailed && <button className="review-primary" disabled={busy} onClick={() => void act("approve")}>↗ Publish</button>}
+            {videoFailed && <button className="review-primary" onClick={api.closeFlow}>Back to Create</button>}
           </div>
           {outputs
             ? <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "direction", jobId: undefined, jobOutputs: undefined })}><span className="spark">✦</span> Revise brief</button>
@@ -733,7 +740,7 @@ function PublishStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             </a>
           ))}
         </div>
-        <div className="publish-detail">
+        <div className="publish-detail open">
           <div className="publish-specs">
             <div className="publish-spec"><label>Version</label><b>Prepared</b></div>
             <div className="publish-spec"><label>Format</label><b>{flow.aspectRatio ?? "16:9"}</b></div>
