@@ -5,6 +5,7 @@ import { requireTrustedOrigin } from "@/lib/route-auth";
 import { json, problem, requestId, zodProblem } from "@/lib/http";
 import { nexMindRoleRouting } from "@/lib/nexmind-routing";
 import { checkScriptLines, checkText } from "@/lib/content-guard";
+import { writeLocalScript } from "@/lib/studio-script-local";
 
 export const runtime = "nodejs";
 
@@ -91,6 +92,18 @@ export async function POST(request: Request) {
     return problem(id, 422, "BRIEF_NOT_ALLOWED", "This brief can't be produced", `Remove this content and try again: ${briefCheck.flagged[0] ?? "flagged content"}.`);
   }
 
+  // No provider key in this environment → deterministic local writer.
+  // The local path still passes the same output guard before anything is shown.
+  if (!apiKey()) {
+    const local = writeLocalScript(brief, duration, beats);
+    const guard = checkScriptLines(local.lines);
+    if (!guard.ok) {
+      return problem(id, 422, "SCRIPT_NOT_ALLOWED", "NexMind couldn't write a safe script for this brief", "Rephrase the brief and try again.");
+    }
+    if (!local.lines.length) return problem(id, 503, "SCRIPT_EMPTY", "Script generation returned nothing", "Try again.");
+    return json({ status: "ready", source: "local", script: local.lines.join("\n"), lines: local.lines, title: local.title }, id);
+  }
+
   try {
     let out = await writeScript(brief, family, videoType, duration, beats);
     let lines = (out.lines ?? []).map((l) => l.trim()).filter(Boolean);
@@ -106,7 +119,7 @@ export async function POST(request: Request) {
       }
     }
     if (lines.length < 2) return problem(id, 503, "SCRIPT_EMPTY", "Script generation returned nothing", "Try again.");
-    return json({ status: "ready", script: lines.join("\n"), lines, title: (out.title ?? "").trim() || null }, id);
+    return json({ status: "ready", source: "nexmind", script: lines.join("\n"), lines, title: (out.title ?? "").trim() || null }, id);
   } catch {
     return problem(id, 503, "SCRIPT_UNAVAILABLE", "Script generation unavailable", "Choose Script mode to paste your own narration, or try again later.");
   }
