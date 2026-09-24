@@ -31,17 +31,29 @@ function sampleAny(req, t) {
 const DEG = 180 / Math.PI;
 const nrm = v => { const l = Math.hypot(v[0], v[1], v[2]) || 1e-9; return [v[0] / l, v[1] / l, v[2] / l]; };
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-const tiltDown = d => Math.asin(Math.max(-1, Math.min(1, d[2]))) * DEG;      // z fwd
+// Full-range sagittal pitch: 0 = straight down/up, +90 = forward,
+// -90 = backward, ±180 = straight up/down. asin() degenerates on
+// overhead/lying poses (pull-up arms, prone legs) — atan2 covers them.
+const tiltDown = d => Math.atan2(d[2], -d[1]) * DEG;                        // from -y
 const swingDown = d => Math.atan2(d[0], -d[1]) * DEG;                       // x lateral
-const tiltUp = d => Math.asin(Math.max(-1, Math.min(1, d[2]))) * DEG;
+const tiltUp = d => Math.atan2(d[2], d[1]) * DEG;                           // from +y
 const swingUp = d => Math.atan2(d[0], d[1]) * DEG;
+const wrap = a => { a = ((a + 180) % 360 + 360) % 360 - 180; return a; };
 const bone = (p, a, b) => nrm(sub(p[b], p[a]));
 
 function poseFromMocap(p3) {
+  // Body frame: the spine axis (pelvis->neck) IS the figure's up-axis.
+  // World pitch P is how far that axis leans/lies in the sagittal plane;
+  // every absolute bone tilt is expressed relative to it, so the rig can
+  // re-apply P as a whole-figure world rotation (stand -> sit -> prone).
+  const spineDir = nrm(sub(p3['neck'], p3['pelvis']));
+  const P = Math.atan2(spineDir[2], spineDir[1]) * DEG;      // + = lies forward
+  const S = Math.atan2(spineDir[0], spineDir[1]) * DEG;      // lateral lean
+
   const tSpine = tiltUp(bone(p3, 'pelvis', 'spine'));
   const tChest = tiltUp(bone(p3, 'spine', 'chest'));
   const tNeck = tiltUp(bone(p3, 'chest', 'neck'));
-  const sSpine = swingUp(bone(p3, 'pelvis', 'spine'));
+  const sSpine = swingUp(bone(p3, 'pelvis', 'spine')) - S;
   const sChest = swingUp(bone(p3, 'spine', 'chest'));
   const sNeck = swingUp(bone(p3, 'chest', 'neck'));
 
@@ -51,28 +63,39 @@ function poseFromMocap(p3) {
     const ft = bone(p3, `ankle_${side}`, `toe_${side}`);
     const ua = bone(p3, `shoulder_${side}`, `elbow_${side}`);
     const fa = bone(p3, `elbow_${side}`, `wrist_${side}`);
+    // Body-frame tilts: body-down sits at pitch -P in world terms, so a
+    // limb's deviation from the body's own down-axis is tilt + P.
     const leg = {
-      hip: { tilt: tiltDown(th), swing: sgn * swingDown(th) },
-      knee: { tilt: tiltDown(sh) - tiltDown(th), swing: sgn * (swingDown(sh) - swingDown(th)) },
-      ankle: { tilt: tiltDown(ft) - 90 },
+      hip: { tilt: tiltDown(th) + P, swing: sgn * swingDown(th) },
+      knee: { tilt: wrap(tiltDown(sh) - tiltDown(th)), swing: sgn * wrap(swingDown(sh) - swingDown(th)) },
+      ankle: { tilt: wrap(tiltDown(ft) + P - 90) },
     };
     const arm = {
-      shoulder: { tilt: tiltDown(ua), swing: sgn * swingDown(ua) },
-      elbow: { tilt: tiltDown(fa) - tiltDown(ua), swing: sgn * (swingDown(fa) - swingDown(ua)) },
+      shoulder: { tilt: wrap(tiltDown(ua) + P), swing: sgn * swingDown(ua) },
+      elbow: { tilt: wrap(tiltDown(fa) - tiltDown(ua)), swing: sgn * wrap(swingDown(fa) - swingDown(ua)) },
     };
     return { leg, arm };
   };
   const L = limb('l', -1), R = limb('r', +1);
   const tHead = tiltUp(bone(p3, 'neck', 'head'));
 
+  // Pelvic coupling: a real pelvis rotates with deep hip flexion (sit,
+  // squat, bend). The rigid torso slab must pitch with it or the thigh
+  // reads as bolted onto a pillar — the "dislocated waist" look.
+  const hipFlex = Math.max(L.leg.hip.tilt, R.leg.hip.tilt);
+  const pelvicTuck = Math.max(0, Math.min(55, hipFlex - 72)) * 0.55;
+
   return {
-    spine: { tilt: tSpine, swing: sSpine },
-    chest: { tilt: tChest - tSpine, swing: sChest - sSpine },
-    neck: { tilt: tNeck - tChest, swing: sNeck - sChest },
-    head: { yaw: 0, pitch: tHead - tNeck },   // nod from the head bone; yaw
-                                            // unrecoverable from positions
-    legLeft: L.leg, legRight: R.leg,
-    armLeft: L.arm, armRight: R.arm,
+    pose: {
+      spine: { tilt: wrap(tSpine - P) + pelvicTuck, swing: sSpine },
+      chest: { tilt: wrap(tChest - tSpine), swing: sChest - sSpine },
+      neck: { tilt: wrap(tNeck - tChest), swing: sNeck - sChest },
+      head: { yaw: 0, pitch: tHead - tNeck },   // nod from the head bone; yaw
+                                              // unrecoverable from positions
+      legLeft: L.leg, legRight: R.leg,
+      armLeft: L.arm, armRight: R.arm,
+    },
+    world: { pitch: P, pelvis: p3.pelvis },
   };
 }
 
@@ -87,9 +110,19 @@ for (let i = 0; i < nF; i++) {
   const t = i / fps;
   const st = sampleAny(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
-  const pose = poseFromMocap(st.pose3d);
+  const { pose, world } = poseFromMocap(st.pose3d);
+  const scale = 1000 / 1.55;   // rig units per meter (~adult 1.55m skeleton)
+  const pel = world.pelvis || [0, 0.877, 0];
   const out = Renderer.renderPose({
     proportion, height: 1000, view: 'profile-left', pose,
+    world: {
+      pitch: world.pitch,
+      root: {
+        x: 0,
+        y: (pel[1] - 0.877) * scale,
+        z: pel[2] * scale,
+      },
+    },
     look: { top: { garment: 'jacket' } }, face: 'warm', background: false, grain: false,
     hands: {
       left: st.hands && st.hands.left && st.hands.left.pose,

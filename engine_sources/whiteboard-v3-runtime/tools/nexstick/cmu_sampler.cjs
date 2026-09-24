@@ -7,9 +7,17 @@
 const path = require('path');
 const fs = require('fs');
 const VAULT_PATH = path.resolve(__dirname, 'compiled', 'cmu_motion_vault_v5.json');
+const EX_PATH = path.resolve(__dirname, 'compiled', 'exercise_vault_v5.json');
 let V = null;
 function vault() {
-  if (!V) V = JSON.parse(fs.readFileSync(VAULT_PATH, 'utf8'));
+  if (!V) {
+    V = JSON.parse(fs.readFileSync(VAULT_PATH, 'utf8'));
+    // exercise keypose vault (Everkinetic canonical poses, CC BY-SA 4.0)
+    try {
+      const ex = JSON.parse(fs.readFileSync(EX_PATH, 'utf8'));
+      if (ex && ex.clips) Object.assign(V.clips, ex.clips);
+    } catch (e) { /* exercise vault not built yet */ }
+  }
   return V;
 }
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
@@ -66,13 +74,48 @@ function sample(ref, t, opts = {}) {
     }
   }
   const hands = c.hands || {};
+  const auto = handStates(ref, tt);
   return {
     engine: 'NexCMUSamplerV5', action: c.semantic, time: raw, duration: c.duration,
     pose3d: pose,
-    hands: { left: { pose: hands.left || 'relaxed', orientation: 'edge-left' }, right: { pose: hands.right || 'relaxed', orientation: 'edge-right' } },
-    motion: { source: 'cmu-mocap', license: 'CMU-free-all-uses', clip: ref, semantic: c.semantic },
+    hands: {
+      left: { pose: hands.left || auto.left, orientation: 'edge-left' },
+      right: { pose: hands.right || auto.right, orientation: 'edge-right' },
+    },
+    motion: { source: c.source || 'cmu-mocap', license: c.license || 'CMU-free-all-uses', clip: ref, semantic: c.semantic },
     donorContacts: active, footPlant: plant, blocked: false,
   };
+}
+/* Clip-semantic hand states — a ladder hand grips, a carry hand curls,
+ * a talk hand presents. Alternating phase keeps gesture hands alive.
+ */
+const HAND_RULES = [
+  [/LADDER|CLIMB|STAIR/, 'grip'],
+  [/CARRY|CRATE|BOX|CHAIR|CART|LIFT/, 'curl'],
+  [/SWEEP|MOP|BROOM|PAINT|WASH|VACUUM|SHOVEL/, 'grip'],
+  [/PIANO|TYPE|WRITE|CHALK|KEYBOARD/, 'tap'],
+  [/PHONE|CALL/, 'pinch'],
+  [/THROW|CATCH|TOSS/, 'open'],
+  [/WAVE/, 'wave'],
+  [/HANDSHAKE|SHAKE|GREET/, 'give'],
+  [/COMFORT|RUB|HUG|EMBRACE/, 'open'],
+  [/JUMP|HOP|CARTWHEEL|LEAP/, 'open'],
+  [/DANCE|JOY|CHEER|CELEBRATE|HAPPY/, 'open'],
+  [/SCARED|AFRAID|FRIGHT/, 'spread'],
+  [/PUSH_UP|PLANK|CRAWL|MOUNTAIN|BEAR|BIRD_DOG|DOWNWARD/, 'spread'],
+  [/PULL_UP|DIP|DEADLIFT|KETTLEBELL|PRESS|CURL|SQUAT|LUNGE|JUMPING_JACK|SIT_UP|GLUTE|BURPEE/, 'grip'],
+];
+const GESTURE_RE = /TALK|INTERVIEW|PRESENT|TEACH|GESTURE|DIRECT|EXPLAIN|ARGUE/;
+function handStates(ref, tt) {
+  for (const [re, st] of HAND_RULES) if (re.test(ref)) return { left: st, right: st };
+  if (GESTURE_RE.test(ref)) {
+    const ph = Math.floor(tt / 0.85) % 3;
+    return {
+      left: ph === 0 ? 'present' : ph === 1 ? 'open' : 'relaxed',
+      right: ph === 2 ? 'present' : ph === 1 ? 'open' : 'relaxed',
+    };
+  }
+  return { left: 'relaxed', right: 'relaxed' };
 }
 function catalog() { const V = vault(); return Object.keys(V.clips).map((k) => ({ ref: k, semantic: V.clips[k].semantic, duration: V.clips[k].duration, tags: V.clips[k].tags })); }
 module.exports = { version: '5.0.0-cmu-corpus', sample, catalog, vault };

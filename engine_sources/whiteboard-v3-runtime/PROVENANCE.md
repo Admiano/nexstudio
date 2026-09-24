@@ -42,4 +42,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/paper_cast/paperbook-figure.js` | paperbook figure renderer (vendored; + bend-crease/finger detail for line-art figures) | `a1704be03f45b7973ce7adb73d585458c506bb3040a5c6dd73b36860c04ea299` |
 | `tools/nexstick/bvh_to_vault.py` | CMU BVH -> V5 vault converter (FK, joint map, foot contacts) | `e54b119ef960372bd8f975e0e6d8f2e8ac68d0ae111fdcb9dc4c230782fbbc81` |
 | `tools/nexstick/cmu_sampler.cjs` | CMU vault sampler (V5 sample contract) | `c5f0b288e27e58e1370b831b1de1ae5a28f598ce6f90e09c0004e89eadd67c10` |
-| `tools/nexstick/compiled/cmu_motion_vault_v5.json` | 64-clip CMU corpus (free-for-all-uses license) | `26acf94c5413e177b2090520dc87e7b315ec48a126520e5e21a75346d4edd20a` |
+| `tools/nexstick/compiled/cmu_motion_vault_v5.json` | 64-clip CMU corpus (free-for-all-uses license) | `806de412cf227a1866990b46e09a708581e493c5fbce614a9c092b79f3e98e3d` |
+| `tools/paper_cast/paper-cast-rig.js` | Paper-cast rig: articulated figure builder (+ world pitch/root transform for floor & air poses) | `baad9aac4820be72339dc1e817769472d69c55240f094c01ac3196744dadc046` |
+| `tools/nexstick/ek_pose_clips.py` | Everkinetic canonical keypose -> vault FK generator (CC BY-SA 4.0) | `137ed0142bbea1a80976430c762b6af2cbbe27d6e7659a609816d21b02b753a9` |
+| `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `ab4bee4b1ad4ce7b6ac8034cf6e8f48ae415614ef83362940140d9395ed54c77` |

@@ -196,6 +196,24 @@
     limbSide('left');
     limbSide('right');
 
+    // World transform: pitch rotates the whole figure about the x axis
+    // (standing -> prone/supine/leaning), root translates pelvis — what
+    // sits, lies, hangs, or jumps actually is.
+    const world = opts.world || null;
+    if (world && (world.pitch || world.root)) {
+      const pitch = num(world.pitch, 0) * RAD;
+      const pc = Math.cos(pitch), ps = Math.sin(pitch);
+      const root = world.root || { x: 0, y: 0, z: 0 };
+      const px = joints.pelvis.x, py = joints.pelvis.y, pz = joints.pelvis.z;
+      for (const j of Object.values(joints)) {
+        const y = j.y * pc - j.z * ps;
+        const z = j.y * ps + j.z * pc;
+        j.x = j.x + (root.x || 0) - px;
+        j.y = y + (root.y || 0) - py;
+        j.z = z + (root.z || 0) - pz;
+      }
+    }
+
     const project = (p) => ({
       x: p.x * cos + p.z * sin,
       y: -p.y,
