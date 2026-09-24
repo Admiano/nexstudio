@@ -104,6 +104,13 @@ def treatment_schema() -> Dict[str, Any]:
         'label': {'type': 'string'},
         'secondary': NULLABLE_STR,
     }, ['kind', 'value'], additionalProperties=False)
+    backdrop_plane = _obj({
+        'tone': {'anyOf': [_enum(c.BACKDROP_TONES), {'type': 'string', 'pattern': '^#[0-9a-fA-F]{3,8}$'}]},
+        'band': _obj({'top': _unit(), 'height': {'type': 'number', 'minimum': 0.05, 'maximum': 0.7}}, [], additionalProperties=False),
+        'depth': _unit(),
+        'ragged': {'type': 'boolean'},
+        'concept': {'anyOf': [{'type': 'string', 'maxLength': 40}, {'type': 'null'}]},
+    }, [], additionalProperties=False)
     beat = _obj({
         'beat_id': _str(),
         'beat_type': _enum(c.BEAT_TYPES),
@@ -111,6 +118,7 @@ def treatment_schema() -> Dict[str, Any]:
         'dominant_layer': _enum(c.DOMINANT_LAYERS),
         'narration': {'type': 'string'},
         'display_units': {'type': 'array', 'items': unit, 'maxItems': 5},
+        'backdrop': {'anyOf': [{'type': 'array', 'items': backdrop_plane, 'minItems': 1, 'maxItems': c.BACKDROP_PLANE_CAP}, {'type': 'null'}]},
         'figure': {'anyOf': [figure, {'type': 'null'}]},
         'media': {'anyOf': [media, {'type': 'null'}]},
         'data': {'anyOf': [data, {'type': 'null'}]},

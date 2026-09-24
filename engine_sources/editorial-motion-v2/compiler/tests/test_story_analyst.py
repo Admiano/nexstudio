@@ -225,6 +225,41 @@ def test_world_bible_conforms_and_gates(tmp_path):
         assert plan["brand"]["ink"] == "#16212e"
 
 
+def test_diorama_backdrop_conforms_and_gates(tmp_path):
+    """Phase 05 diorama: authored paper planes must survive conform, validate against
+    the contract, land as parallax band layers in every aspect, and pass the gate."""
+    fx, words, groups, treatment, storyboard = conform_fixture("diorama")
+    FilmTreatment.parse(treatment)
+    beats = treatment["beats"]
+    # scene reuse: the shore scene repeats its planes verbatim
+    assert beats[0]["backdrop"] == beats[1]["backdrop"]
+    assert len(beats[0]["backdrop"]) == 3
+    # far->near sort is guaranteed by the contract
+    depths = [p["depth"] for p in beats[2]["backdrop"]]
+    assert depths == sorted(depths)
+    fdir = make_fixture_dir(tmp_path, words)
+    result = gate_for(treatment, fdir, tmp_path)
+    assert result["gate"]["status"] == "PASS", result["gate"]["failures"]
+    for aspect, plan in result["plans"].items():
+        b1 = next(b for b in plan["beats"] if b["beat_id"] == "b01")
+        bands = [l for l in b1["composition"]["background"]["layers"] if l["kind"] == "band"]
+        assert len(bands) == 3
+        assert [l["plane"] for l in bands] == [0.15, 0.45, 0.75]
+        # every resolved silhouette mark perches on its band's edge and is servable
+        marks = [l["mark"] for l in bands if l.get("mark")]
+        assert len(marks) == 3
+        assert all(Path(m["path"]).is_absolute() for m in marks)
+        # bands sit under the hero's light and any ambient dust (painter's order)
+        kinds = [l["kind"] for l in b1["composition"]["background"]["layers"]]
+        assert max(i for i, k in enumerate(kinds) if k == "band") < kinds.index("bloom")
+        if "depth" in kinds:
+            assert max(i for i, k in enumerate(kinds) if k == "band") < min(i for i, k in enumerate(kinds) if k == "depth")
+        # dawn beats get a different diorama — the film moves between authored places
+        b3 = next(b for b in plan["beats"] if b["beat_id"] == "b03")
+        dawn = [l for l in b3["composition"]["background"]["layers"] if l["kind"] == "band"]
+        assert len(dawn) == 2 and dawn[0]["tone"] == "#e8b98a"
+
+
 def test_world_bible_defaults_clean(tmp_path):
     """Absent a world block nothing changes — surfaces keep the default grain."""
     fx, words, groups, treatment, _ = conform_fixture("purpose")

@@ -476,7 +476,7 @@
   // ---------------------------------------------------------------------------
   // Background
   // ---------------------------------------------------------------------------
-  function buildBgLayer(spec, plan, parent, idx) {
+  function buildBgLayer(spec, plan, parent, idx, assetUrl) {
     const brand = plan.brand;
     const W = plan.canvas.w, H = plan.canvas.h;
     const b = spec.bbox;
@@ -548,6 +548,37 @@
         }, parent);
         break;
       }
+      case 'band': {
+        // Diorama plane: a cut-paper band spanning the stage at its parallax depth. `ragged`
+        // gives the fill a torn top edge seeded by the compiler; a resolved mark perches on
+        // that edge — a cut-out pinned to its own plane (the wrapper stays unclipped so the
+        // mark can stand proud of the band).
+        node = el('div', {
+          position: 'absolute', left: px(b.x), top: px(b.y), width: px(b.w), height: px(b.h),
+          transformOrigin: '50% 50%', pointerEvents: 'none',
+        }, parent);
+        const fill = el('div', { position: 'absolute', inset: '0', background: spec.tone }, node);
+        if (spec.ragged) {
+          const n = 14, edge = Math.min(b.h * 0.3, Math.min(W, H) * 0.022);
+          const u = (k) => (Math.imul((spec.seed ^ (k * 0x9E3779B1)) >>> 0, 2654435761) >>> 0) / 4294967296;
+          let pts = `0px ${px(b.h)},0px ${px(edge * (0.4 + 0.6 * u(0)))}`;
+          for (let i = 1; i <= n; i++) pts += `,${px((b.w * i) / n)} ${px(edge * (0.3 + 0.7 * u(i)))}`;
+          pts += `,${px(b.w)} ${px(b.h)}`;
+          fill.style.clipPath = `polygon(${pts})`;
+        }
+        if (spec.mark) {
+          const mb = spec.mark.bbox;
+          const img = el('img', {
+            position: 'absolute', left: px(mb.x - b.x), top: px(mb.y - b.y),
+            width: px(mb.w), height: px(mb.h), opacity: '0.9', pointerEvents: 'none',
+          }, node);
+          img.src = assetUrl ? assetUrl(spec.mark.path) : spec.mark.path;
+          img.style.filter = `blur(${((1 - spec.plane) * 1.6).toFixed(2)}px)`;
+        }
+        node.className = 'em2-band';
+        node.dataset.plane = String(spec.plane);
+        break;
+      }
       case 'bloom': {
         // The light source: a wide soft ellipse of the atmosphere's bloom tint behind the beat's hero.
         // Drawn centred on its own box and positioned by transform so it can travel from the previous
@@ -599,12 +630,12 @@
     return { spec, node, i: idx };
   }
 
-  function buildBackground(beat, plan, beatRoot) {
+  function buildBackground(beat, plan, beatRoot, assetUrl) {
     const bg = beat.composition.background || {};
     const brand = plan.brand;
     const atmo = plan.atmosphere || {};
     const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: atmo.field || brand.paper }, beatRoot);
-    const layers = (Array.isArray(bg.layers) ? bg.layers : []).map((spec, i) => buildBgLayer(spec, plan, layer, i)).filter((l) => l.node);
+    const layers = (Array.isArray(bg.layers) ? bg.layers : []).map((spec, i) => buildBgLayer(spec, plan, layer, i, assetUrl)).filter((l) => l.node);
     // Vignette: the field darkens toward its edges by the atmosphere's strength so the paper reads as a
     // lit surface, not a void; the dark variant leans on it harder because it has no bloom contrast to spare.
     const vig = atmo.vignette_opacity == null ? 0.03 : atmo.vignette_opacity;
@@ -634,7 +665,7 @@
       const p = EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
       let scale = 1, tx = 0, ty = 0, opacity = (spec.opacity == null ? 1 : spec.opacity) * p;
       if (spec.kind === 'panel' || spec.kind === 'plane' || spec.kind === 'spotlight') scale = lerp(0.985, 1, EASE.settle(p));
-      if (spec.kind === 'dotgrid' || spec.kind === 'plane') {
+      if (spec.kind === 'dotgrid' || spec.kind === 'plane' || spec.kind === 'band') {
         const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : 1.6);
         tx += amb.dx; ty += amb.dy;
       }
@@ -669,7 +700,7 @@
     // undone here so the far plane slides against the content as the camera pushes or drifts.
     const W = plan.canvas.w, H = plan.canvas.h;
     for (const L of bgNode.layers) {
-      if (L.spec.kind !== 'depth' || !L.base) continue;
+      if ((L.spec.kind !== 'depth' && L.spec.kind !== 'band') || !L.base) continue;
       const d = L.spec.plane, b = L.spec.bbox;
       const cx = b.x + b.w / 2 - W / 2, cy = b.y + b.h / 2 - H / 2;
       const counter = 1 / (1 + (pose.scale - 1) * (1 - d));
@@ -2335,7 +2366,7 @@
     const fxSvg = svgEl('svg', { width: 0, height: 0, 'aria-hidden': 'true' }, outer);
     Object.assign(fxSvg.style, { position: 'absolute', width: '0', height: '0', overflow: 'hidden' });
     const fx = { defs: svgEl('defs', {}, fxSvg), scope: `em2fx-b${beatIndex}` };
-    const bg = buildBackground(beat, plan, root);
+    const bg = buildBackground(beat, plan, root, opts.assetUrl);
     const media = beat.media ? buildMedia(beat.media, plan, root, opts.assetUrl) : null;
     if (media) media.blur = motionBlurFilter(fx.defs, `${fx.scope}-mb-media`);
     const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts) : null;
