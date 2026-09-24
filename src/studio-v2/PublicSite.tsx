@@ -56,10 +56,10 @@ export function PublicSite({ authed }: { authed: boolean }) {
                   </div>
                 )}
                 {demo === "thinking" && (
-                  <div className="pw-thinking show"><div><div aria-hidden="true" className="pw-orbit" /><b>Shaping the production</b><small>Brief · format · story · visual language · sound</small></div></div>
+                  <div className="pw-thinking on"><div><div aria-hidden="true" className="pw-orbit" /><b>Shaping the production</b><small>Brief · format · story · visual language · sound</small></div></div>
                 )}
                 {demo === "direction" && (
-                  <div className="pw-direction show">
+                  <div className="pw-direction on">
                     <div className="pw-dir-label">Here’s what I’d build</div>
                     <h3>A sharp 30-second Illustrated Story with a hard opening and three visual turns.</h3>
                     <div className="pw-dir-meta"><div><span>Treatment</span><b>Illustrated Stories</b></div><div><span>Master</span><b>9:16</b></div><div><span>Length</span><b>30 sec</b></div></div>
