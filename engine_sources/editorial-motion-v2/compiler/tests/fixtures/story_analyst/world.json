@@ -1,0 +1,127 @@
+{
+ "script": "At dusk the lighthouse keeper climbs the stairs. He trims the wick and checks the glass. Ships pass in the dark, trusting the beam. Every light is a promise kept.",
+ "payload": {
+  "film": {
+   "thesis": "The smallest kept promise is a light that stays on.",
+   "motif": "paper boat",
+   "mood": "wistful",
+   "note": "nocturne register — ink navy, cream paper, amber accent; hatch grain",
+   "brand": {
+    "ink": "#16212e",
+    "paper": "#efe7d3",
+    "accent": "#d98a2b",
+    "finish": "PAPER"
+   },
+   "world": {
+    "grain": "hatch-45",
+    "motif": {"concept": "paper boat", "corner": "top-right"}
+   }
+  },
+  "scenes": [
+   {"name": "Dusk", "covers": [0], "setting": "a lighthouse stairwell", "visual_metaphor": "ascent is duty"},
+   {"name": "The tending", "covers": [1], "setting": "the lamp room", "visual_metaphor": "care is a craft"},
+   {"name": "The watch", "covers": [2, 3], "setting": "the sea at night", "visual_metaphor": "a beam is a handshake"}
+  ],
+  "entities": [
+   {"concept": "lighthouse", "stands_for": "duty"},
+   {"concept": "paper boat", "stands_for": "fragile things carried through dark water"}
+  ],
+  "beats": [
+   {
+    "groups": [0],
+    "beat_type": "HOOK",
+    "pattern": "CONTROLLED_EMPTY_SPACE",
+    "dominant_layer": "ILLUSTRATION",
+    "energy": 0.35,
+    "complexity": 0.35,
+    "display_units": [
+     {"text": "the lighthouse keeper", "role": "hero", "semantic_role": "statement", "emphasis": 0.9, "anchor_word": "keeper"},
+     {"text": "climbs the stairs", "role": "support", "semantic_role": "setup", "emphasis": 0.5}
+    ],
+    "illustration": {
+     "form": "OBJECT_STAGE",
+     "entities": [
+      {"id": "tower", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "lighthouse"},
+      {"id": "dusk", "kind": "state", "glyph": "TILE", "size": "minor", "concept": "dusk sky"}
+     ],
+     "relations": [],
+     "program": [
+      {"op": "DRAW", "target": "dusk", "at": {"word": "dusk"}, "duration_ms": 900},
+      {"op": "DRAW", "target": "tower", "at": {"word": "lighthouse"}, "duration_ms": 800}
+     ]
+    }
+   },
+   {
+    "groups": [1],
+    "beat_type": "SETUP",
+    "pattern": "FIGURE_GROUND_PARE",
+    "dominant_layer": "ILLUSTRATION",
+    "energy": 0.4,
+    "complexity": 0.4,
+    "display_units": [
+     {"text": "trims the wick", "role": "hero", "semantic_role": "action", "emphasis": 0.9, "anchor_word": "wick"}
+    ],
+    "illustration": {
+     "form": "PROGRESSIVE_BUILD",
+     "entities": [
+      {"id": "flame", "kind": "object", "glyph": "TILE", "size": "hero", "concept": "candle flame"},
+      {"id": "glass", "kind": "prop", "glyph": "CHIP", "size": "support", "concept": "glass lens"}
+     ],
+     "relations": [{"type": "modifies", "source": "flame", "target": "glass", "style": "link"}],
+     "program": [
+      {"op": "DRAW", "target": "flame", "at": {"word": "wick"}, "duration_ms": 700},
+      {"op": "DRAW", "target": "glass", "at": {"word": "glass"}, "duration_ms": 700},
+      {"op": "CONNECT", "target": "flame->glass", "at": {"word": "checks"}, "duration_ms": 600}
+     ]
+    }
+   },
+   {
+    "groups": [2],
+    "beat_type": "CONTRAST",
+    "pattern": "CONTRAST_RECONFIGURATION",
+    "dominant_layer": "ILLUSTRATION",
+    "energy": 0.55,
+    "complexity": 0.55,
+    "display_units": [
+     {"text": "trusting the beam", "role": "hero", "semantic_role": "statement", "emphasis": 0.9, "anchor_word": "beam"}
+    ],
+    "illustration": {
+     "form": "COMPARISON",
+     "entities": [
+      {"id": "ship", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "sailing ship"},
+      {"id": "beam", "kind": "state", "glyph": "TILE", "size": "support", "concept": "light beam"}
+     ],
+     "relations": [{"type": "causes", "source": "beam", "target": "ship", "style": "arc"}],
+     "program": [
+      {"op": "DRAW", "target": "beam", "at": {"word": "dark"}, "duration_ms": 700},
+      {"op": "DRAW", "target": "ship", "at": {"word": "Ships"}, "duration_ms": 700},
+      {"op": "CONNECT", "target": "beam->ship", "at": {"word": "trusting"}, "duration_ms": 600}
+     ]
+    }
+   },
+   {
+    "groups": [3],
+    "beat_type": "PAYOFF",
+    "pattern": "PAYOFF_LOCKUP",
+    "dominant_layer": "ILLUSTRATION",
+    "energy": 0.45,
+    "complexity": 0.35,
+    "display_units": [
+     {"text": "a promise kept", "role": "hero", "semantic_role": "punch", "emphasis": 0.95, "anchor_word": "promise"}
+    ],
+    "illustration": {
+     "form": "OBJECT_STAGE",
+     "entities": [
+      {"id": "boat", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "paper boat"},
+      {"id": "light", "kind": "state", "glyph": "TILE", "size": "minor", "concept": "warm glow"}
+     ],
+     "relations": [],
+     "program": [
+      {"op": "DRAW", "target": "boat", "at": {"word": "light"}, "duration_ms": 800},
+      {"op": "DRAW", "target": "light", "at": {"word": "promise"}, "duration_ms": 700}
+     ]
+    }
+   }
+  ]
+ }
+}

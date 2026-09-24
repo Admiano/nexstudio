@@ -1313,6 +1313,33 @@
    "year": null,
    "source_size": []
   },
+  "lighthouse": {
+   "concept": "lighthouse",
+   "query": "lighthouse",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "2839073",
+   "title": "File:Currituck lighthouse.jpg",
+   "creator": "Warfieldian",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Currituck_lighthouse.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Currituck_lighthouse.jpg/1920px-Currituck_lighthouse.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "lighthouse.194f083293bd.jpg",
+   "sha256": "64bddfc73f0867714348b96801009fe4d6d59ab3f527691e27bee9b2f81c0476",
+   "width": 937,
+   "height": 1400,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Currituck Beach Lighthouse",
+    "National Register of Historic Places with known IDs"
+   ],
+   "year": null,
+   "source_size": [
+    2592,
+    3872
+   ]
+  },
   "long queue": {
    "concept": "long queue",
    "query": "long queue",
@@ -1541,6 +1568,32 @@
     2500
    ]
   },
+  "paper boat": {
+   "concept": "paper boat",
+   "query": "paper boat",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "154519706",
+   "title": "File:Paper boat.jpg",
+   "creator": "Mohanraj55",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Paper_boat.jpg",
+   "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Paper_boat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file": "paper-boat.f6d2610da181.jpg",
+   "sha256": "6b9189fdacbacbf2eddcf3c40601e1113df3f07371bbe16bc538e58d146281d0",
+   "width": 650,
+   "height": 1156,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Paper boats"
+   ],
+   "year": 2024,
+   "source_size": [
+    650,
+    1156
+   ]
+  },
   "pencil": {
    "concept": "pencil",
    "query": "pencil",
@@ -1740,6 +1793,38 @@
    "source_size": [
     640,
     480
+   ]
+  },
+  "sailing ship": {
+   "concept": "sailing ship",
+   "query": "sailing ship",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "147306585",
+   "title": "File:Baghlah sailing ship.jpg",
+   "creator": "Aliparsa",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Baghlah_sailing_ship.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Baghlah_sailing_ship.jpg/1920px-Baghlah_sailing_ship.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "sailing-ship.b5567b3adab6.jpg",
+   "sha256": "0352094c05630c10877035bc613a0c6128e4d4fce0f72c8852a45e71024388bc",
+   "width": 1400,
+   "height": 1028,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "1974 in Iran",
+    "Sailing ships",
+    "Dhows",
+    "Ships in Hormozgan Province",
+    "Baghlah",
+    "Persian Gulf in Iran",
+    "Ships in the Persian Gulf"
+   ],
+   "year": 1974,
+   "source_size": [
+    6380,
+    4686
    ]
   },
   "scooter": {

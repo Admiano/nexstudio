@@ -936,7 +936,8 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
     warnings (a photo catalogue that would not answer, so a lower rung stood in)."""
     todo = [(b, e) for b in film.beats if b.illustration for e in b.illustration.entities if e.concept and not e.asset_ref]
     prop_todo = [b for b in film.beats if b.figure and b.figure.prop]
-    if not todo and not prop_todo:
+    motif = film.world.motif if film.world and film.world.motif else None
+    if not todo and not prop_todo and not motif:
         return []
     finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
     pack = _film_pack(film, registry)
@@ -998,6 +999,21 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
         p['asset'] = registry.resolve(r.asset_ref, b.beat_id) if r.asset_ref else None
         p['word'] = r.word if r.word else (None if r.asset_ref or p.get('photo') else p['concept'])
         p['resolution'] = r.as_dict()
+    if motif:
+        # The film's signature mark rides the same ladder once — every aspect and every beat
+        # stamps the same answer.
+        r = finder.resolve(motif['concept'], pack, True, native_only)
+        motif['via'] = r.via
+        if r.via in PHOTO_BELOW:
+            rec = evidence.find(motif['concept'])
+            if rec is not None:
+                motif['photo'] = evidence.as_plan(rec)
+                r = replace(r, via='photo', asset_ref=None, path=[motif['concept'], rec.title])
+                motif['via'] = r.via
+        motif['asset_ref'] = r.asset_ref
+        motif['asset'] = registry.resolve(r.asset_ref, '') if r.asset_ref else None
+        motif['word'] = r.word if r.word else (None if r.asset_ref or motif.get('photo') else motif['concept'])
+        motif['resolution'] = r.as_dict()
     return [f'EVIDENCE_UNAVAILABLE:{u}' for u in evidence.unavailable]
 
 
@@ -1218,7 +1234,11 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
                                                        'tempo': timeline.tempo, 'beats': [{'beat_id': w.beat_id, 'start_ms': w.start_ms, 'end_ms': w.end_ms, 'speech_start_ms': w.speech_start_ms,
                                                                                           'speech_end_ms': w.speech_end_ms, 'budget_met': c.budget_met} for w, c in zip(timeline.windows, clocks)]},
             'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
-            'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
+            'surfaces': {'grain': community_surface('surface', (film.world.grain if film.world else None) or 'grain-fine'),
+                         'paper': community_surface('texture', 'paper006-color')},
+            'motif': ({'corner': film.world.motif['corner'], 'concept': film.world.motif['concept'], 'via': film.world.motif.get('via'),
+                       'asset': film.world.motif.get('asset'), 'photo': film.world.motif.get('photo'), 'word': film.world.motif.get('word')}
+                      if film.world and film.world.motif else None),
             'beats': beats, 'captions': _captions(beats),
             'captions_policy': 'kinetic' if film.brand.finish == 'PRODUCT_COLLAGE' else 'burned',
             'gate': {'status': 'FAIL' if fails else 'PASS', 'failures': fails},

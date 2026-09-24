@@ -201,6 +201,41 @@ def test_performer_cast_conforms_and_gates(tmp_path):
     assert b5["figure"]["track"]["enter"] == "right"
 
 
+def test_world_bible_conforms_and_gates(tmp_path):
+    """Phase 04 world bible: authored palette + grain + motif mark must survive conform,
+    validate against the contract, and land identically in every aspect's plan."""
+    fx, words, groups, treatment, storyboard = conform_fixture("world")
+    FilmTreatment.parse(treatment)
+    # authored brand wins over the style preset
+    assert treatment["brand"]["ink"] == "#16212e"
+    assert treatment["brand"]["paper"] == "#efe7d3"
+    assert treatment["brand"]["accent"] == "#d98a2b"
+    assert treatment["brand"]["finish"] == "PAPER"
+    assert treatment["world"]["grain"] == "hatch-45"
+    assert treatment["world"]["motif"]["concept"] == "paper boat"
+    assert storyboard["world"]["motif"]["concept"] == "paper boat"
+    fdir = make_fixture_dir(tmp_path, words)
+    result = gate_for(treatment, fdir, tmp_path)
+    assert result["gate"]["status"] == "PASS", result["gate"]["failures"]
+    for aspect, plan in result["plans"].items():
+        m = plan.get("motif")
+        assert m and m["corner"] == "top-right" and m["concept"] == "paper boat"
+        assert m["asset"] or m["photo"] or m["word"]
+        assert "hatch-45" in (plan["surfaces"]["grain"]["path"] if plan["surfaces"]["grain"] else "")
+        assert plan["brand"]["ink"] == "#16212e"
+
+
+def test_world_bible_defaults_clean(tmp_path):
+    """Absent a world block nothing changes — surfaces keep the default grain."""
+    fx, words, groups, treatment, _ = conform_fixture("purpose")
+    assert "world" not in treatment
+    fdir = make_fixture_dir(tmp_path, words)
+    result = gate_for(treatment, fdir, tmp_path)
+    assert result["gate"]["status"] == "PASS"
+    assert result["plans"]["16x9"].get("motif") is None
+    assert "grain-fine" in result["plans"]["16x9"]["surfaces"]["grain"]["path"]
+
+
 def test_performer_unknown_character_dropped(tmp_path):
     """A figure referencing a cast member that was not declared must lose the
     reference, not fail: contract parse raises PERFORMER_CHARACTER_UNKNOWN otherwise."""

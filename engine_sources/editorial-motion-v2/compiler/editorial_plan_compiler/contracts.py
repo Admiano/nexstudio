@@ -59,6 +59,9 @@ FIGURE_POSTURES = ('standing', 'sitting')
 FIGURE_TRACK_SIDES = ('left', 'right', 'none')
 FIGURE_HANDS = ('left', 'right', 'auto')
 CAST_MEMBER_CAP = 6
+# The world bible: film-level look authored per script, not per style preset.
+WORLD_GRAINS = ('grain-fine', 'dots-24', 'grid-24', 'graph-paper', 'hatch-45')
+WORLD_CORNERS = ('top-left', 'top-right', 'bottom-left', 'bottom-right')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
@@ -619,6 +622,15 @@ class TypographyMode:
 
 
 @dataclass
+class World:
+    """The film's visual bible: a grain/overlay pick and a recurring motif emblem stamped in a
+    corner of every beat (the thread the viewer follows between scenes). Authored per film."""
+
+    grain: Optional[str] = None
+    motif: Optional[Dict[str, Any]] = None  # {concept, corner} -> resolved to a mark in _resolve_concepts
+
+
+@dataclass
 class FilmTreatment:
     film_id: str
     beats: List[BeatTreatment]
@@ -630,6 +642,7 @@ class FilmTreatment:
     typography: TypographyMode = field(default_factory=TypographyMode)
     mood: Optional[str] = None
     cast: Dict[str, CastMember] = field(default_factory=dict)
+    world: Optional[World] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -652,6 +665,20 @@ class FilmTreatment:
             _need(bool(mid) and len(mid) <= 32, 'CAST_MEMBER_ID_INVALID', str(cid))
             _need(isinstance(m, dict), 'CAST_MEMBER_INVALID', str(cid))
             cast[mid] = CastMember.parse(mid, m)
+        world = None
+        world_d = d.get('world')
+        if isinstance(world_d, dict):
+            grain = str(world_d.get('grain') or '').strip() or None
+            _need(grain is None or grain in WORLD_GRAINS, 'WORLD_GRAIN_UNKNOWN', grain or '')
+            motif = world_d.get('motif')
+            if motif is not None:
+                _need(isinstance(motif, dict), 'WORLD_MOTIF_INVALID', 'motif must be an object')
+                concept = ' '.join(str(motif.get('concept') or '').split())
+                _need(0 < len(concept) <= 40, 'WORLD_MOTIF_CONCEPT', concept)
+                corner = str(motif.get('corner') or 'bottom-right')
+                _need(corner in WORLD_CORNERS, 'WORLD_CORNER_UNKNOWN', corner)
+                motif = {**motif, 'concept': concept, 'corner': corner}
+            world = World(grain, motif)
         by_id = {b.beat_id: b for b in beats}
         for b in beats:
             il = b.illustration
@@ -696,4 +723,4 @@ class FilmTreatment:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, cast)
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, cast, world)

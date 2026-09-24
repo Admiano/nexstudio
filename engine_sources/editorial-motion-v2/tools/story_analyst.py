@@ -187,6 +187,12 @@ Rules:
   (e.g. a question mark, a seed that grows) that pays off at the end; `scenes`
   group beats into authored moments with a setting and a visual_metaphor each;
   `entities` is the metaphor inventory — concept -> what it stands for.
+- Author the film's WORLD, not just its beats: `film.brand` is the palette you
+  choose for THIS script's register — ink/paper/accent hex colours and finish
+  (EDITORIAL_FLAT | PAPER | PRODUCT_COLLAGE) — plus `film.world`: `grain`
+  picks the overlay texture and `motif` {concept, corner} stamps the film's
+  signature mark in a corner of every beat (the thread the viewer follows
+  between scenes). A film that looks like every other film is a failure.
 - `mood` picks the music bed; choose from the enum.
 
 Output: one JSON object only."""
@@ -218,10 +224,15 @@ def _user_payload(script: str, groups: List[List[Dict[str, Any]]], style: Dict[s
             "figure_facings": list(c.FIGURE_FACINGS), "moods": list(c.FILM_MOODS),
             "concept_glyphs": list(c.CONCEPT_GLYPHS),
             "figure_track_sides": list(c.FIGURE_TRACK_SIDES), "figure_hands": list(c.FIGURE_HANDS),
+            "world_grains": list(c.WORLD_GRAINS), "world_corners": list(c.WORLD_CORNERS),
+            "finishes": list(c.FINISHES),
         },
         "registry_asset_count": len(registry_ids),
         "output_contract": {
-            "film": {"thesis": "str", "motif": "str <=40 chars", "mood": "one of moods", "note": "str"},
+            "film": {"thesis": "str", "motif": "str <=40 chars", "mood": "one of moods", "note": "str",
+                      "brand": {"ink": "#hex", "paper": "#hex", "accent": "#hex|null",
+                                "finish": "EDITORIAL_FLAT|PAPER|PRODUCT_COLLAGE"},
+                      "world": {"grain": "enum", "motif": {"concept": "str<=40", "corner": "enum"}}},
             "cast": {"character_id": {"posture": "enum", "head": "part id|null",
                                        "face": "part id|null", "skin": "tone|null"}},
             "scenes": [{"name": "str", "covers": ["beat index 1-based"], "setting": "str",
@@ -951,6 +962,34 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
         treatment["mood"] = mood
     if cast:
         treatment["cast"] = cast
+    # The world bible: the analyst's authored look overrides the style preset — each colour is
+    # validated as a hex swatch and the finish/grain confined to their enums; anything else the
+    # model writes falls back to the preset rather than breaking the contract.
+    rb = film.get("brand")
+    if isinstance(rb, dict):
+        brand = dict(treatment["brand"])
+        for k in ("ink", "paper", "accent"):
+            v = str(rb.get(k) or "").strip()
+            if re.fullmatch(r"#[0-9a-fA-F]{3,8}", v):
+                brand[k] = v
+        fin = _enum(rb.get("finish"), c.FINISHES, None)
+        if fin:
+            brand["finish"] = fin
+        treatment["brand"] = brand
+    rw = film.get("world")
+    if isinstance(rw, dict):
+        world: Dict[str, Any] = {}
+        grain = _enum(rw.get("grain"), c.WORLD_GRAINS, None)
+        if grain:
+            world["grain"] = grain
+        rm = rw.get("motif")
+        if isinstance(rm, dict):
+            concept = " ".join(str(rm.get("concept") or "").split())[:40]
+            corner = _enum(rm.get("corner"), c.WORLD_CORNERS, "bottom-right")
+            if concept:
+                world["motif"] = {"concept": concept, "corner": corner}
+        if world:
+            treatment["world"] = world
     storyboard = {
         "schema": "NexStudioStoryboardV1",
         "film_id": film_id,
@@ -963,6 +1002,7 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
         "scenes": [s for s in (payload.get("scenes") or []) if isinstance(s, dict)],
         "entities": [e for e in (payload.get("entities") or []) if isinstance(e, dict)],
         "cast": cast or None,
+        "world": treatment.get("world"),
         "metaphors": metaphors,
     }
     return treatment, storyboard
