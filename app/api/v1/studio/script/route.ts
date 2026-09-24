@@ -46,7 +46,12 @@ function apiKey(): string | undefined {
 }
 
 async function writeScript(brief: string, family: string, videoType: string, duration: number, beats: { purposeTitle: string; description: string }[] | undefined, extraInstruction?: string) {
-  const routing = nexMindRoleRouting("studio_script");
+  // Prefer the provider-neutral routing registry; when nothing is configured
+  // fall back to an explicit env model or a small default (local servers ignore it).
+  let model = process.env.STUDIO_SCRIPT_MODEL?.trim() || "gpt-4o-mini";
+  try {
+    model = nexMindRoleRouting("studio_script").model || model;
+  } catch { /* no registry configured — use the env/default model */ }
   const beatHint = beats?.length
     ? `\nDirection beats to cover (one line per beat, same order):\n${beats.map((b, i) => `${i + 1}. ${b.purposeTitle} — ${b.description}`).join("\n")}`
     : "";
@@ -66,11 +71,11 @@ async function writeScript(brief: string, family: string, videoType: string, dur
     },
     { role: "user", content: `Customer brief: ${brief}${beatHint}` },
   ], {
-    model: routing.model,
+    model,
     apiUrl: process.env.STUDIO_SCRIPT_OPENAI_API_URL?.trim() || process.env.STUDIO_PLAN_PREVIEW_OPENAI_API_URL?.trim() || "https://api.openai.com/v1",
     apiKey: apiKey(),
     maxTokens: 900,
-    timeoutMs: 20_000,
+    timeoutMs: 60_000,
     jsonSchema: { name: "studio_script", schema: outputSchema as unknown as Record<string, unknown> },
   });
   return parseProviderJson(result.content) as { lines?: string[]; title?: string; refused?: boolean; reason?: string };
