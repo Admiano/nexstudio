@@ -585,9 +585,9 @@ class BeatCompiler:
                 for st in d.states:
                     at = st.get('at') or {}
                     if 'word' in at:
-                        target = str(at['word']).lower()
-                        hit = next((w for w in clock.words if str(w.text).lower() == target), None)
-                        at_ms = int(hit.start_ms) if hit else int(clock.duration_ms * 0.5)
+                        hit = find_landing(list(clock.words), str(at['word']))
+                        hit_w = clock.words[hit] if hit is not None else None
+                        at_ms = int(hit_w.start_ms) if hit_w else int(clock.duration_ms * 0.5)
                     else:
                         at_ms = int(at.get('offset_ms') or 0)
                     at_ms = max(int(enter) + 120, min(at_ms, clock.duration_ms - 350))
