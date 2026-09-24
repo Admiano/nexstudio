@@ -36,7 +36,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `vo_synth.py` (edge/kokoro VO + timings) | `3e51653659e0cc56fd4bf4439906bacd4e788b6506ab1e1b3b6b9e500b106466` |
 | `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `d9465acd46896c29dc3620a9be69115fa2faee9748b2be12cdbb09f2460d8630` |
 | `tools/nexstick/mocap.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `db0c394d4c1c98016f686248808e4101c72623b2a0a53b008a9c2d3e4e94a543` |
-| `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `bb367b1f1ee41af1b9eaf63b8fcd114fc3aa7c0a7d9d4e6fe41b6294caee0150` |
+| `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `0afb9c2c63464ed3f0efded77921116afd71934f8933c96e9535a0a914817756` |
 | `tools/nexstick/walk_proof3.py` | nexstick motion bridge (mocap->paperbook rig proof) | `513b574787af34dc50a82d91626f12d73b7291f5b88e2ac19763eecb88c157f6` |
 | `tools/paper_cast/line_cast.py` | paper-cast line-art tracer (silhouette union, fills, hatching) | `3a43f15b05450dd3b909d8cc242e76bae0a7c50b729c34e5134e57ac3d2492ee` |
 | `tools/paper_cast/paperbook-figure.js` | paperbook figure renderer (vendored; + bend-crease/finger detail for line-art figures) | `6df839b773241c40d6f1791110e29ed2e7e8f73ac2842e8e13a236ddf45b523e` |
@@ -46,7 +46,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/paper_cast/paper-cast-rig.js` | Paper-cast rig: articulated figure builder (+ world pitch/root transform for floor & air poses) | `baad9aac4820be72339dc1e817769472d69c55240f094c01ac3196744dadc046` |
 | `tools/nexstick/ek_pose_clips.py` | Everkinetic canonical keypose -> vault FK generator (CC BY-SA 4.0) | `1900285b742c10a667e6e0def196cea56b584bc1eea1bb564754a7091508ac72` |
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |
-| `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `52db24329b0e002016e91593e57cb186019161eb1255659c7209c743b659794b` |
+| `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `f9e68096102d9b07e558b7bbbac68a101b776a23b08280b92128dfee2d398125` |
 | `tools/nexstick/skin_rig.cjs` | skin-on-skeleton dev renderer (tools only) | `77c5e10963cf28b185be956361ebd526aa547dbbf3b364cb2f0bc34bf269b481` |
 | `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `f7ca82447e5e54f1bd25c3f4e3be8db232a3397de8dec3b71626e88db0a80918` |
 | `tools/nexstick/fx_marks.cjs` | cartoon mark layer: velocity speed lines, impact bursts, foot-plant dust | `e0dce5bde5eceffc823eaa078ea3e7071aadd597adf36502a38ba7c2647b8749` |

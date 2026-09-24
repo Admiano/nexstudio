@@ -34,7 +34,7 @@
     robe: { hem: 1.02, spread: 1.04, waist: 1.12, legs: 'skirt', flare: 1.5, sleeve: 1, trim: [] },
     kurta: { hem: 0.62, spread: 1.02, waist: 1.02, legs: 'bare', sleeve: 0.7, trim: ['placket'] },
     dress: { hem: 1, spread: 0.98, waist: 0.88, legs: 'skirt', flare: 1.6, sleeve: 0.2, trim: [] },
-    vest: { hem: 0.26, spread: 1.04, waist: 1, legs: 'bare', sleeve: 0, trim: ['band'] }
+    vest: { hem: 0.26, spread: 1.04, waist: 1, legs: 'bare', sleeve: 0, trim: [] }
   };
 
   /** Worn over the garment: an apron is the waiter, the cook and the smith. */

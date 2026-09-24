@@ -92,6 +92,15 @@ function poseFromMocap(p3) {
   const L = limb('l', -1), R = limb('r', +1);
   const tHead = tiltUp(bone(p3, 'neck', 'head'));
 
+  // Arms hanging near vertical: settle them just behind the hip line so
+  // hands rest at the body's edge instead of landing ON the torso front
+  // (the "arms inside the clothes" read at profile views). Poses that
+  // genuinely carry the arm forward/back (|tilt| >= 14) are untouched.
+  for (const arm of [L.arm, R.arm]) {
+    const t = arm.shoulder.tilt;
+    if (Math.abs(t) < 14) arm.shoulder.tilt = Math.min(t, -9);
+  }
+
   // Pelvic coupling: a real pelvis rotates with deep hip flexion (sit,
   // squat, bend). The rigid torso slab must pitch with it or the thigh
   // reads as bolted onto a pillar — the "dislocated waist" look.
@@ -177,8 +186,26 @@ const beatClock = req.beatOffset || 0;
 // Baseline facing at t=0: the head's relative yaw = its world azimuth
 // change vs its own t=0, re-expressed in the current body frame
 // (local BVH joint axes are arbitrary, so differences cancel the offset).
+const NOYAW = !!process.env.NOYAW;
 const st0 = sampleAny(req, 0);
 const az0 = st0.pose3d ? bodyAz(st0.pose3d) : 0;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+// Constant offset between the head joint's world azimuth and the body's
+// facing azimuth: BVH local axes are arbitrary, so measure the median
+// (roty - az) over the clip and cancel it — real turns survive, the
+// convention bias doesn't.
+const headOff = (() => {
+  const ds = [];
+  const dur = st0.duration || nF / fps;
+  for (let k = 0; k < 12; k++) {
+    const s = sampleAny(req, dur * k / 12);
+    if (s.roty !== null && s.roty !== undefined && s.pose3d) {
+      ds.push(wrap(s.roty - bodyAz(s.pose3d)));
+    }
+  }
+  ds.sort((a, b) => a - b);
+  return ds.length ? ds[ds.length >> 1] : 0;
+})();
 // Baseline facing for the view: circular mean of the body azimuth over
 // the clip — frame 0 can be a calibration pose (actor turning to mark),
 // so the dominant facing is the honest "forward" of the performance.
@@ -198,7 +225,7 @@ const azBase = (() => {
 // comfort). req.other = {cmuClip|say|action, z, facing:'left'|'right',
 // proportion, front}. Each figure keeps its own facing baseline.
 const OTHER = req.other && (req.other.cmuClip || req.other.say || req.other.text || req.other.action);
-let oAzBase = 0, oAz0 = 0, oReq = null;
+let oAzBase = 0, oAz0 = 0, oReq = null, oHeadOff = 0;
 if (OTHER) {
   oReq = { ...req.other };
   if (!oReq.cmuClip && (oReq.say || oReq.text)) {
@@ -217,6 +244,15 @@ if (OTHER) {
     sx += Math.sin(a); sz += Math.cos(a); n++;
   }
   oAzBase = n ? Math.atan2(sx / n, sz / n) * DEG : oAz0;
+  const ds = [];
+  for (let k = 0; k < 12; k++) {
+    const s = sampleAny(oReq, dur * k / 12);
+    if (s.roty !== null && s.roty !== undefined && s.pose3d) {
+      ds.push(wrap(s.roty - bodyAz(s.pose3d)));
+    }
+  }
+  ds.sort((a, b) => a - b);
+  oHeadOff = ds.length ? ds[ds.length >> 1] : 0;
 }
 
 const meta = [];
@@ -227,12 +263,18 @@ for (let i = 0; i < nF; i++) {
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const { pose: mocapPose, world } = poseFromMocap(st.pose3d);
   const az = bodyAz(st.pose3d);
-  if (st.roty !== null && st.roty !== undefined) {
-    mocapPose.head.yaw = wrap(st.roty - st.roty0 + az0 - az);
+  if (st.roty !== null && st.roty !== undefined && !NOYAW) {
+    // relative head yaw = head's world-azimuth delta vs clip baseline,
+    // re-expressed in the body frame (cancels arbitrary BVH local axes)
+    mocapPose.head.yaw = clamp(
+      wrap(st.roty - az - headOff), -80, 80);
   }
   // Capture world axes are arbitrary — re-baseline facing to the clip's
-  // own t=0 so every clip opens profile-left and turns stay relative.
-  const viewYaw = -90 + wrap(az - azBase);
+  // dominant azimuth so every clip opens profile-left. Real turns damp
+  // into the rig's good envelope (±~35° lean toward camera): the paper-
+  // rig silhouette reads broken near-frontal, so a turn reads as lean +
+  // head yaw rather than crossing into frontal/back territory.
+  const viewYaw = NOYAW ? -90 : -90 + 38 * Math.tanh(wrap(az - azBase) / 55);
   let pose = mocapPose;
   let actingFace = null;
   if (ACTING) {
@@ -322,8 +364,8 @@ for (let i = 0; i < nF; i++) {
     if (st2 && !st2.blocked) {
       const { pose: p2, world: w2 } = poseFromMocap(st2.pose3d);
       const az2 = bodyAz(st2.pose3d);
-      if (st2.roty !== null && st2.roty !== undefined) {
-        p2.head.yaw = wrap(st2.roty - st2.roty0 + oAz0 - az2);
+      if (st2.roty !== null && st2.roty !== undefined && !NOYAW) {
+        p2.head.yaw = clamp(wrap(st2.roty - az2 - oHeadOff), -80, 80);
       }
       const pel2 = w2.pelvis || [0, 0.877, 0];
       const out2 = Renderer.renderPose({
