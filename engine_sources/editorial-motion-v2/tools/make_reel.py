@@ -346,6 +346,10 @@ def main():
                          "(STUDIO_ANALYST or --analyst; NEXMIND_STORY_ANALYST_* for provider), "
                          "keywords forces the legacy entity-bank path")
     ap.add_argument("--no-poster", action="store_true")
+    ap.add_argument("--no-review", action="store_true",
+                    help="skip the film-level certification pass (certification.json)")
+    ap.add_argument("--strict-review", action="store_true",
+                    help="exit non-zero when the film certification verdict is FAIL")
     args = ap.parse_args()
 
     style = style_of(args.style)
@@ -415,6 +419,19 @@ def main():
             manifest["outputs"][a] = str(poster)
         else:
             manifest["outputs"][a] = str(web)
+    if not args.no_review:
+        sys.path.insert(0, str(TOOLS))
+        import film_review
+        cert = film_review.certify(out_dir / stem, [], out_dir / stem / "gate_report.json")
+        (out_dir / stem / "certification.json").write_text(json.dumps(cert, indent=1) + "\n")
+        bad = [c for c in cert["checks"] if c["status"] == "FAIL"]
+        log(f"certification: {cert['verdict']} "
+            f"({cert['counts']['PASS']} pass, {cert['counts']['WARN']} warn, "
+            f"{cert['counts']['FAIL']} fail, {cert['counts']['SKIP']} skip)")
+        for c in bad:
+            log(f"  FAIL [{c['scope']}] {c['id']}: {c['detail']}")
+        if cert["verdict"] == "FAIL" and args.strict_review:
+            sys.exit("certification failed")
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=1))
     log("done:")
     for a, p in manifest["outputs"].items():

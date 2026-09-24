@@ -723,6 +723,33 @@
     3072
    ]
   },
+  "crescent moon": {
+   "concept": "crescent moon",
+   "query": "crescent moon",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "148521542",
+   "title": "File:Crescent Moon (cropped).JPG",
+   "creator": "P. Bramwell Y0kwetahoe",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Crescent_Moon_(cropped).JPG",
+   "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Crescent_Moon_%28cropped%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file": "crescent-moon.9990084ccec7.jpg",
+   "sha256": "7c852c6cbf50f194e34fb446fc64138f8a7b4328d48ffc8b1b4012d2a4014f01",
+   "width": 1330,
+   "height": 1330,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Waxing crescent moon",
+    "Extracted images"
+   ],
+   "year": 2008,
+   "source_size": [
+    1330,
+    1330
+   ]
+  },
   "document": {
    "concept": "document",
    "query": "document",
@@ -1129,6 +1156,32 @@
    "subjects": [],
    "year": null,
    "source_size": []
+  },
+  "half moon": {
+   "concept": "half moon",
+   "query": "half moon",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "4637015",
+   "title": "File:Half moon bay1.JPG",
+   "creator": "Intothewoods29",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Half_moon_bay1.JPG",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Half_moon_bay1.JPG/1920px-Half_moon_bay1.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "half-moon.fd464f56ae2a.jpg",
+   "sha256": "eb3a04ebeb5f3d56d9e58c6b9bae37a179f46531d9824006b9066237d35268d0",
+   "width": 1400,
+   "height": 1191,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Buildings in Half Moon Bay, California"
+   ],
+   "year": 2008,
+   "source_size": [
+    2560,
+    2178
+   ]
   },
   "hard hat": {
    "concept": "hard hat",
@@ -2075,6 +2128,32 @@
    "source_size": [
     8160,
     6120
+   ]
+  },
+  "sunflower": {
+   "concept": "sunflower",
+   "query": "sunflower",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "153483472",
+   "title": "File:Common Sunflower 🌻.jpg",
+   "creator": "Nedia020415",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Common_Sunflower_%F0%9F%8C%BB.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Common_Sunflower_%F0%9F%8C%BB.jpg/1920px-Common_Sunflower_%F0%9F%8C%BB.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "sunflower.44f7fec1ae02.jpg",
+   "sha256": "6fe790481fcfdde58f1d8f51ad89d97a41a881d3260b0ef3132b523380d8e103",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Sunflowers"
+   ],
+   "year": 2024,
+   "source_size": [
+    4032,
+    3024
    ]
   },
   "syringe": {

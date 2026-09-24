@@ -27,8 +27,13 @@
   ],
   "beats": [
    {"groups": [0],
-    "beat_type": "HOOK", "pattern": "CONTROLLED_EMPTY_SPACE", "dominant_layer": "TEXT",
+    "beat_type": "HOOK", "pattern": "CONTROLLED_EMPTY_SPACE", "dominant_layer": "FIGURE",
     "energy": 0.35, "complexity": 0.3,
+    "figure": {
+     "valence": 0.2, "arousal": 0.4, "posture": "standing", "facing": "CAMERA",
+     "justification": "the sailor arrives on the shore — the recurring performer enters",
+     "character": "sailor", "track": {"enter": "left", "exit": "none"}
+    },
     "display_units": [
      {"text": "Beyond the dunes", "role": "hero", "semantic_role": "statement", "emphasis": 0.85, "anchor_word": "dunes"},
      {"text": "the sea waits", "role": "support", "semantic_role": "setup", "emphasis": 0.4}
