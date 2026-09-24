@@ -965,7 +965,7 @@ def _backdrop_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], 
             art = asset.get('art_box') or {'w': 1, 'h': 1}
             mw = mh * max(0.25, art['w'] / max(1, art['h']))
             xf = 0.18 + 0.55 * (((seed >> 6) & 0x7F) / 127.0)
-            layer['mark'] = {'path': asset['path'], 'sha256': asset.get('sha256'),
+            layer['mark'] = {'path': asset['path'], 'sha256': asset.get('sha256'), 'concept': p.get('concept'),
                              'bbox': {'x': round(-overhang + (W + 2 * overhang) * xf, 1),
                                       'y': round(y - mh * 0.82, 1), 'w': round(mw, 1), 'h': round(mh, 1)}}
         out.append(layer)

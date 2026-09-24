@@ -594,18 +594,33 @@
         }
         if (spec.mark) {
           const mb = spec.mark.bbox;
-          // The perched mark is a sticker too: a wobbly paper edge peeks out from under the art.
-          const pad = Math.max(6, mb.w * 0.2);
-          const pw = mb.w + pad * 2, ph = mb.h + pad * 2;
-          const psvg = svgEl('svg', { viewBox: `0 0 ${pw} ${ph}` }, node);
-          Object.assign(psvg.style, { position: 'absolute', left: px(mb.x - b.x - pad), top: px(mb.y - b.y - pad), width: px(pw), height: px(ph), overflow: 'visible', pointerEvents: 'none', filter: `drop-shadow(0 ${px(ph * 0.03)} ${px(ph * 0.05)} ${rgbaOf(brand.ink, 0.22)})` });
-          svgEl('path', { d: cutBlobPath(pw / 2, ph / 2, pw * 0.46, ph * 0.46, spec.seed ^ 0x7e5), fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': 0.95 }, psvg);
-          const img = el('img', {
-            position: 'absolute', left: px(mb.x - b.x), top: px(mb.y - b.y),
-            width: px(mb.w), height: px(mb.h), opacity: '0.9', pointerEvents: 'none',
-          }, node);
-          img.src = assetUrl ? assetUrl(spec.mark.path) : spec.mark.path;
-          img.style.filter = `blur(${((1 - spec.plane) * 1.6).toFixed(2)}px)`;
+          const mk = spec.mark.concept && paperArtKey(spec.mark.concept);
+          if (mk) {
+            // Perched illustration: the same composed collage as glyph marks — a
+            // die-cut sticker pinned to its own plane.
+            const pad = Math.max(4, mb.w * 0.06);
+            const pw = mb.w + pad * 2, ph = mb.h + pad * 2;
+            const psvg = svgEl('svg', { viewBox: `0 0 ${pw} ${ph}` }, node);
+            Object.assign(psvg.style, { position: 'absolute', left: px(mb.x - b.x - pad), top: px(mb.y - b.y - pad), width: px(pw), height: px(ph), overflow: 'visible', pointerEvents: 'none', filter: `drop-shadow(0 ${px(ph * 0.03)} ${px(ph * 0.05)} ${rgbaOf(brand.ink, 0.22)})` });
+            const art = paperArtGroup(mk, spec.seed ^ 0x7e5, plan, `bm_${(spec.seed >>> 0).toString(36)}`);
+            if (art) {
+              const inner = svgEl('g', { transform: `translate(${f2(pad)} ${f2(pad)}) scale(${f2(mb.w / 100)} ${f2(mb.h / 100)})` }, psvg);
+              inner.appendChild(art.g);
+            }
+          } else {
+            // Fallback silhouette: a wobbly paper edge peeks out from under the art.
+            const pad = Math.max(6, mb.w * 0.2);
+            const pw = mb.w + pad * 2, ph = mb.h + pad * 2;
+            const psvg = svgEl('svg', { viewBox: `0 0 ${pw} ${ph}` }, node);
+            Object.assign(psvg.style, { position: 'absolute', left: px(mb.x - b.x - pad), top: px(mb.y - b.y - pad), width: px(pw), height: px(ph), overflow: 'visible', pointerEvents: 'none', filter: `drop-shadow(0 ${px(ph * 0.03)} ${px(ph * 0.05)} ${rgbaOf(brand.ink, 0.22)})` });
+            svgEl('path', { d: cutBlobPath(pw / 2, ph / 2, pw * 0.46, ph * 0.46, spec.seed ^ 0x7e5), fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': 0.95 }, psvg);
+            const img = el('img', {
+              position: 'absolute', left: px(mb.x - b.x), top: px(mb.y - b.y),
+              width: px(mb.w), height: px(mb.h), opacity: '0.9', pointerEvents: 'none',
+            }, node);
+            img.src = assetUrl ? assetUrl(spec.mark.path) : spec.mark.path;
+            img.style.filter = `blur(${((1 - spec.plane) * 1.6).toFixed(2)}px)`;
+          }
         }
         node.className = 'em2-band';
         node.dataset.plane = String(spec.plane);
@@ -1024,7 +1039,13 @@
         willChange: 'transform', filter: `drop-shadow(0 ${px(size * 0.05)} ${px(size * 0.08)} ${rgbaOf(plan.brand.ink, 0.28)})`,
       }, host);
       f.prop = prop;
-      const propReady = p.asset && p.asset.path
+      const propArtKey = paperArtKey(p.concept);
+      const propReady = propArtKey
+        ? Promise.resolve((() => {
+            const psvg = paperArtSvg(propArtKey, seedHash(`prop:${p.concept}`), plan, `prop_${fig.name || 'f'}`);
+            if (psvg) { psvg.setAttribute('width', '100%'); psvg.setAttribute('height', '100%'); prop.appendChild(psvg); }
+          })())
+        : p.asset && p.asset.path
         ? fetchText(opts.assetUrl(p.asset.path)).then((txt) => {
             const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
             const psvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1248,6 +1269,548 @@
     }
     return d + 'Z';
   }
+  // ----------------------------- Paper art ----------------------------------
+  // The paper language's picture vocabulary: every concept the film names is drawn
+  // as a composed collage of cut-paper pieces — filled, wobbly-edged shapes laid
+  // over a white die-cut edge — never a stroked icon glyph. Pieces are authored in
+  // a normalized 100x100 space; `edge !== 0` pieces contribute to the union white
+  // border, `op`/`rot` plus seeded jitter keep every cut unique. Tones resolve
+  // against the film's palette where symbolic, else a fixed watercolour register.
+  const PAPER_TONES = {
+    sun: '#f2b54a', sunlit: '#f7d98b', brass: '#e0b352',
+    snow: '#f7f4ec', moonlit: '#e8dfc6', moonshade: '#b5a988', night: '#2f3c60', slate: '#5b6b8c',
+    grey: '#b9b4a6', steel: '#8a94a6', sky: '#a9c9de', water: '#7fb3d5', deep: '#3f5a80',
+    leaf: '#6fa86f', sage: '#93b58a', stem: '#4e7a4e', soil: '#6b4f3a', wood: '#9a7856',
+    skin: '#e8b98e', petal: '#e79fb0', blush: '#d96a6a', warm: '#d97f4e', fire: '#e0684a',
+  };
+  function paintTone(tone, plan) {
+    if (!tone) return plan.brand.ink;
+    if (tone[0] === '#') return tone;
+    if (tone === 'ink') return plan.brand.ink;
+    if (tone === 'accent') return plan.brand.accent || plan.brand.ink;
+    if (tone === 'paper') return plan.brand.paper;
+    return PAPER_TONES[tone] || plan.brand.ink;
+  }
+  const STAR_PTS = [[50, 4], [62, 37], [96, 38], [69, 60], [78, 94], [50, 73], [22, 94], [31, 60], [4, 38], [38, 37]];
+  const PAPER_ART = {
+    sun: [
+      { s: 'rays', cx: 50, cy: 50, r0: 32, r1: 47, n: 10, w: 9, tone: 'sun' },
+      { s: 'blob', cx: 50, cy: 50, r: 25, tone: 'sun' },
+      { s: 'blob', cx: 41, cy: 40, rx: 9, ry: 6, tone: 'sunlit', op: 0.55, edge: 0 },
+    ],
+    'moon-full': [
+      { s: 'blob', cx: 50, cy: 50, r: 30, tone: 'moonlit' },
+      { s: 'blob', cx: 39, cy: 41, rx: 7, ry: 5.5, tone: 'moonshade', op: 0.7, edge: 0 },
+      { s: 'blob', cx: 59, cy: 58, rx: 4.5, ry: 4, tone: 'moonshade', op: 0.6, edge: 0 },
+      { s: 'blob', cx: 53, cy: 33, rx: 3, ry: 2.5, tone: 'moonshade', op: 0.5, edge: 0 },
+    ],
+    'moon-crescent': [
+      { s: 'crescent', cx: 48, cy: 50, r: 30, bite: 0.62, tone: 'moonlit' },
+      { s: 'blob', cx: 40, cy: 42, rx: 3.5, ry: 3, tone: 'moonshade', op: 0.5, edge: 0 },
+    ],
+    'moon-half': [
+      { s: 'halfdisc', cx: 50, cy: 50, r: 30, tone: 'moonlit' },
+      { s: 'blob', cx: 56, cy: 43, rx: 4, ry: 3.4, tone: 'moonshade', op: 0.6, edge: 0 },
+      { s: 'blob', cx: 58, cy: 60, rx: 3, ry: 2.6, tone: 'moonshade', op: 0.5, edge: 0 },
+    ],
+    star: [{ s: 'path', pts: STAR_PTS, tone: 'brass' }],
+    stars: [
+      { s: 'path', pts: STAR_PTS, k: 0.42, ox: 8, oy: 10, tone: 'brass' },
+      { s: 'path', pts: STAR_PTS, k: 0.3, ox: 58, oy: 30, tone: 'snow' },
+      { s: 'path', pts: STAR_PTS, k: 0.22, ox: 42, oy: 62, tone: 'brass', op: 0.85 },
+    ],
+    cloud: [
+      { s: 'blob', cx: 50, cy: 62, rx: 34, ry: 18, tone: 'snow' },
+      { s: 'blob', cx: 33, cy: 52, rx: 15, ry: 13, tone: 'snow' },
+      { s: 'blob', cx: 62, cy: 48, rx: 19, ry: 16, tone: 'snow' },
+      { s: 'blob', cx: 44, cy: 58, rx: 20, ry: 14, tone: 'snow' },
+      { s: 'blob', cx: 62, cy: 52, rx: 8, ry: 6, tone: 'paper', op: 0.5, edge: 0 },
+    ],
+    rain: [
+      { s: 'blob', cx: 50, cy: 40, rx: 30, ry: 15, tone: 'sky' },
+      { s: 'blob', cx: 36, cy: 32, rx: 13, ry: 11, tone: 'sky' },
+      { s: 'blob', cx: 60, cy: 29, rx: 17, ry: 14, tone: 'sky' },
+      { s: 'petal', cx: 32, cy: 66, rx: 4.5, ry: 8, tone: 'water' },
+      { s: 'petal', cx: 50, cy: 72, rx: 4.5, ry: 8, tone: 'water' },
+      { s: 'petal', cx: 68, cy: 64, rx: 4.5, ry: 8, tone: 'water' },
+    ],
+    storm: [
+      { s: 'blob', cx: 50, cy: 36, rx: 30, ry: 15, tone: 'slate' },
+      { s: 'blob', cx: 62, cy: 27, rx: 17, ry: 13, tone: 'slate' },
+      { s: 'path', pts: [[55, 52], [40, 74], [49, 74], [43, 94], [64, 68], [54, 68]], tone: 'brass' },
+    ],
+    rainbow: [
+      { s: 'arc', cx: 50, cy: 82, r: 42, a0: 180, a1: 360, t: 7, tone: 'blush' },
+      { s: 'arc', cx: 50, cy: 82, r: 33, a0: 180, a1: 360, t: 7, tone: 'brass' },
+      { s: 'arc', cx: 50, cy: 82, r: 24, a0: 180, a1: 360, t: 7, tone: 'leaf' },
+      { s: 'blob', cx: 16, cy: 78, rx: 11, ry: 7, tone: 'snow' },
+      { s: 'blob', cx: 84, cy: 78, rx: 11, ry: 7, tone: 'snow' },
+    ],
+    earth: [
+      { s: 'blob', cx: 50, cy: 50, r: 31, tone: 'water' },
+      { s: 'blob', cx: 38, cy: 40, rx: 13, ry: 9, rot: -20, tone: 'leaf', edge: 0 },
+      { s: 'blob', cx: 61, cy: 58, rx: 11, ry: 8, rot: 30, tone: 'leaf', edge: 0 },
+      { s: 'blob', cx: 55, cy: 30, rx: 7, ry: 4.5, rot: 15, tone: 'leaf', edge: 0 },
+    ],
+    seed: [
+      { s: 'blob', cx: 50, cy: 55, rx: 13, ry: 17, rot: -18, tone: 'soil' },
+      { s: 'blob', cx: 45, cy: 47, rx: 4, ry: 6, rot: -18, tone: 'skin', op: 0.4, edge: 0 },
+    ],
+    sprout: [
+      { s: 'blob', cx: 50, cy: 84, rx: 27, ry: 9, tone: 'soil' },
+      { s: 'rect', x: 48, y: 44, w: 4.5, h: 34, tone: 'stem' },
+      { s: 'petal', cx: 38, cy: 52, rx: 13, ry: 6.5, rot: -28, tone: 'leaf' },
+      { s: 'petal', cx: 62, cy: 48, rx: 13, ry: 6.5, rot: 28, tone: 'leaf' },
+      { s: 'petal', cx: 50, cy: 40, rx: 11, ry: 6, rot: 90, tone: 'sage' },
+    ],
+    plant: [
+      { s: 'path', pts: [[34, 62], [66, 62], [61, 92], [39, 92]], tone: 'wood' },
+      { s: 'rect', x: 48, y: 36, w: 4.5, h: 28, tone: 'stem' },
+      { s: 'petal', cx: 39, cy: 46, rx: 12, ry: 6, rot: -28, tone: 'leaf' },
+      { s: 'petal', cx: 61, cy: 42, rx: 12, ry: 6, rot: 28, tone: 'leaf' },
+    ],
+    leaf: [
+      { s: 'petal', cx: 50, cy: 48, rx: 17, ry: 34, rot: -25, tone: 'leaf' },
+      { s: 'path', pts: [[44, 78], [47, 50], [50, 22]], tone: 'stem', stroke: 2.4, edge: 0 },
+    ],
+    leaves: [
+      { s: 'petal', cx: 34, cy: 52, rx: 12, ry: 26, rot: -35, tone: 'leaf' },
+      { s: 'petal', cx: 62, cy: 48, rx: 12, ry: 26, rot: 30, tone: 'sage' },
+      { s: 'petal', cx: 50, cy: 60, rx: 10, ry: 22, rot: 0, tone: 'leaf', op: 0.9 },
+    ],
+    flower: [
+      { s: 'rect', x: 48, y: 52, w: 4.5, h: 38, tone: 'stem' },
+      { s: 'petal', cx: 50, cy: 22, rx: 8, ry: 13, tone: 'petal' },
+      { s: 'petal', cx: 30, cy: 36, rx: 8, ry: 13, rot: -62, tone: 'petal' },
+      { s: 'petal', cx: 70, cy: 36, rx: 8, ry: 13, rot: 62, tone: 'petal' },
+      { s: 'petal', cx: 37, cy: 50, rx: 8, ry: 12, rot: -130, tone: 'petal' },
+      { s: 'petal', cx: 63, cy: 50, rx: 8, ry: 12, rot: 130, tone: 'petal' },
+      { s: 'blob', cx: 50, cy: 38, r: 9, tone: 'sun' },
+      { s: 'petal', cx: 40, cy: 72, rx: 11, ry: 5, rot: -20, tone: 'leaf' },
+    ],
+    sunflower: [
+      { s: 'rect', x: 48, y: 55, w: 5, h: 38, tone: 'stem' },
+      { s: 'petal', cx: 50, cy: 20, rx: 7, ry: 12, tone: 'brass' },
+      { s: 'petal', cx: 68, cy: 28, rx: 7, ry: 12, rot: 55, tone: 'brass' },
+      { s: 'petal', cx: 72, cy: 48, rx: 7, ry: 12, rot: 105, tone: 'brass' },
+      { s: 'petal', cx: 32, cy: 28, rx: 7, ry: 12, rot: -55, tone: 'brass' },
+      { s: 'petal', cx: 28, cy: 48, rx: 7, ry: 12, rot: -105, tone: 'brass' },
+      { s: 'blob', cx: 50, cy: 38, r: 12, tone: 'soil' },
+    ],
+    tree: [
+      { s: 'rect', x: 45, y: 58, w: 10, h: 34, tone: 'wood' },
+      { s: 'blob', cx: 50, cy: 40, rx: 27, ry: 25, tone: 'leaf' },
+      { s: 'blob', cx: 32, cy: 50, rx: 14, ry: 12, tone: 'leaf' },
+      { s: 'blob', cx: 68, cy: 50, rx: 14, ry: 12, tone: 'sage' },
+    ],
+    pine: [
+      { s: 'path', pts: [[50, 8], [72, 42], [28, 42]], tone: 'leaf' },
+      { s: 'path', pts: [[50, 30], [78, 66], [22, 66]], tone: 'sage' },
+      { s: 'rect', x: 45, y: 66, w: 10, h: 22, tone: 'wood' },
+    ],
+    roots: [
+      { s: 'path', pts: [[48, 30], [52, 30], [44, 62], [34, 80], [42, 60]], tone: 'soil' },
+      { s: 'path', pts: [[48, 30], [52, 30], [52, 66], [48, 86], [48, 60]], tone: 'wood' },
+      { s: 'path', pts: [[48, 30], [52, 30], [60, 60], [70, 76], [58, 62]], tone: 'soil' },
+      { s: 'blob', cx: 50, cy: 30, rx: 14, ry: 7, tone: 'soil' },
+    ],
+    drop: [
+      { s: 'petal', cx: 50, cy: 52, rx: 20, ry: 28, tone: 'water' },
+      { s: 'blob', cx: 42, cy: 44, rx: 5, ry: 8, rot: -15, tone: 'snow', op: 0.55, edge: 0 },
+    ],
+    wave: [
+      { s: 'path', pts: [[4, 62], [22, 46], [40, 62], [58, 46], [76, 62], [94, 52], [94, 92], [4, 92]], tone: 'water' },
+      { s: 'path', pts: [[4, 76], [24, 64], [44, 76], [64, 64], [94, 78], [94, 94], [4, 94]], tone: 'deep', op: 0.7 },
+    ],
+    mountain: [
+      { s: 'path', pts: [[8, 90], [38, 30], [50, 52], [64, 26], [92, 90]], tone: 'slate' },
+      { s: 'path', pts: [[38, 30], [44, 42], [38, 45], [32, 42]], tone: 'snow' },
+      { s: 'path', pts: [[64, 26], [71, 39], [64, 42], [57, 39]], tone: 'snow' },
+    ],
+    hill: [
+      { s: 'path', pts: [[2, 96], [24, 62], [52, 76], [78, 58], [98, 84], [98, 98], [2, 98]], tone: 'sage' },
+      { s: 'path', pts: [[2, 98], [40, 80], [70, 88], [98, 78], [98, 98]], tone: 'leaf' },
+    ],
+    fire: [
+      { s: 'petal', cx: 50, cy: 56, rx: 21, ry: 30, tone: 'fire' },
+      { s: 'petal', cx: 50, cy: 62, rx: 13, ry: 21, tone: 'warm', edge: 0 },
+      { s: 'petal', cx: 50, cy: 68, rx: 6.5, ry: 13, tone: 'sunlit', edge: 0 },
+    ],
+    hand: [
+      { s: 'blob', cx: 50, cy: 60, rx: 21, ry: 20, tone: 'skin' },
+      { s: 'rect', x: 30, y: 28, w: 9, h: 30, rot: -8, tone: 'skin' },
+      { s: 'rect', x: 43, y: 24, w: 9, h: 32, tone: 'skin' },
+      { s: 'rect', x: 56, y: 26, w: 9, h: 30, rot: 4, tone: 'skin' },
+      { s: 'rect', x: 68, y: 34, w: 9, h: 24, rot: 14, tone: 'skin' },
+      { s: 'blob', cx: 28, cy: 62, rx: 9, ry: 11, rot: -35, tone: 'skin' },
+    ],
+    eye: [
+      { s: 'petal', cx: 50, cy: 50, rx: 34, ry: 18, rot: 90, tone: 'snow' },
+      { s: 'blob', cx: 50, cy: 50, r: 11, tone: 'deep', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 4.5, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 46, cy: 45, r: 2.5, tone: 'snow', edge: 0 },
+    ],
+    heart: [
+      { s: 'path', pts: [[50, 84], [20, 54], [14, 32], [28, 16], [44, 20], [50, 32], [56, 20], [72, 16], [86, 32], [80, 54]], tone: 'blush' },
+    ],
+    magnifier: [
+      { s: 'blob', cx: 42, cy: 42, r: 21, tone: 'sky', op: 0.45, edge: 0 },
+      { s: 'ring', cx: 42, cy: 42, r: 23, t: 7, tone: 'steel' },
+      { s: 'rect', x: 58, y: 58, w: 10, h: 30, rot: -45, tone: 'wood' },
+    ],
+    telescope: [
+      { s: 'rect', x: 18, y: 38, w: 46, h: 15, rot: -18, tone: 'brass' },
+      { s: 'rect', x: 60, y: 44, w: 14, h: 11, rot: -18, tone: 'wood' },
+      { s: 'rect', x: 36, y: 52, w: 5, h: 32, rot: -8, tone: 'wood' },
+      { s: 'rect', x: 24, y: 82, w: 30, h: 6, tone: 'wood' },
+    ],
+    book: [
+      { s: 'rect', x: 26, y: 24, w: 50, h: 56, rot: -3, tone: 'accent' },
+      { s: 'rect', x: 22, y: 28, w: 50, h: 52, rot: -3, tone: 'paper' },
+      { s: 'rect', x: 22, y: 28, w: 6, h: 52, rot: -3, tone: 'blush' },
+    ],
+    gift: [
+      { s: 'rect', x: 24, y: 44, w: 52, h: 42, tone: 'blush' },
+      { s: 'rect', x: 19, y: 32, w: 62, h: 14, tone: 'accent' },
+      { s: 'rect', x: 44, y: 32, w: 12, h: 54, tone: 'paper', op: 0.9 },
+      { s: 'petal', cx: 42, cy: 24, rx: 9, ry: 6, rot: -30, tone: 'paper' },
+      { s: 'petal', cx: 58, cy: 24, rx: 9, ry: 6, rot: 30, tone: 'paper' },
+    ],
+    lightbulb: [
+      { s: 'blob', cx: 50, cy: 40, r: 23, tone: 'sun' },
+      { s: 'blob', cx: 42, cy: 33, rx: 7, ry: 5, tone: 'sunlit', op: 0.6, edge: 0 },
+      { s: 'rect', x: 41, y: 62, w: 18, h: 10, tone: 'steel' },
+      { s: 'rect', x: 43, y: 73, w: 14, h: 6, tone: 'steel' },
+    ],
+    key: [
+      { s: 'ring', cx: 34, cy: 40, r: 14, t: 7, tone: 'brass' },
+      { s: 'rect', x: 44, y: 36, w: 44, h: 9, tone: 'brass' },
+      { s: 'rect', x: 76, y: 44, w: 7, h: 12, tone: 'brass' },
+      { s: 'rect', x: 63, y: 44, w: 7, h: 12, tone: 'brass' },
+    ],
+    house: [
+      { s: 'rect', x: 28, y: 46, w: 44, h: 38, tone: 'paper' },
+      { s: 'path', pts: [[20, 46], [50, 20], [80, 46]], tone: 'blush' },
+      { s: 'rect', x: 44, y: 62, w: 13, h: 22, tone: 'wood' },
+      { s: 'rect', x: 60, y: 52, w: 9, h: 9, tone: 'sky' },
+    ],
+    cup: [
+      { s: 'path', pts: [[32, 40], [68, 40], [64, 80], [36, 80]], tone: 'accent' },
+      { s: 'arc', cx: 71, cy: 55, r: 10, a0: -80, a1: 80, t: 6, tone: 'accent' },
+      { s: 'rect', x: 28, y: 84, w: 44, h: 5, tone: 'wood' },
+    ],
+    clock: [
+      { s: 'blob', cx: 50, cy: 50, r: 31, tone: 'paper' },
+      { s: 'rect', x: 48, y: 30, w: 4, h: 20, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 50, y: 48, w: 16, h: 4, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 3, tone: 'blush', edge: 0 },
+    ],
+    compass: [
+      { s: 'blob', cx: 50, cy: 50, r: 30, tone: 'paper' },
+      { s: 'path', pts: [[50, 30], [56, 50], [50, 70], [44, 50]], tone: 'blush', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 4, tone: 'ink', edge: 0 },
+    ],
+    letter: [
+      { s: 'rect', x: 20, y: 32, w: 60, h: 40, tone: 'paper' },
+      { s: 'path', pts: [[21, 33], [50, 56], [79, 33]], tone: 'snow', edge: 0 },
+    ],
+    balloon: [
+      { s: 'blob', cx: 50, cy: 34, rx: 19, ry: 23, tone: 'blush' },
+      { s: 'path', pts: [[50, 57], [46, 63], [54, 63]], tone: 'blush' },
+      { s: 'path', pts: [[49, 63], [46, 76], [53, 86], [50, 93]], tone: 'grey', stroke: 2.2, edge: 0 },
+    ],
+    kite: [
+      { s: 'path', pts: [[50, 12], [74, 40], [50, 68], [26, 40]], tone: 'sky' },
+      { s: 'path', pts: [[49, 68], [46, 80], [53, 88]], tone: 'grey', stroke: 2.2, edge: 0 },
+      { s: 'rect', x: 44, y: 74, w: 8, h: 5, rot: -30, tone: 'blush', edge: 0 },
+      { s: 'rect', x: 50, y: 82, w: 8, h: 5, rot: 30, tone: 'brass', edge: 0 },
+    ],
+    bird: [
+      { s: 'path', pts: [[30, 54], [14, 44], [16, 62]], tone: 'slate' },
+      { s: 'blob', cx: 48, cy: 52, rx: 20, ry: 14, tone: 'slate' },
+      { s: 'blob', cx: 62, cy: 40, r: 9, tone: 'slate' },
+      { s: 'path', pts: [[70, 38], [82, 42], [70, 46]], tone: 'brass' },
+      { s: 'petal', cx: 44, cy: 48, rx: 12, ry: 7, rot: -25, tone: 'sky', edge: 0 },
+      { s: 'blob', cx: 64, cy: 37, r: 2.2, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 46, y: 66, w: 3, h: 10, tone: 'wood' },
+    ],
+    butterfly: [
+      { s: 'petal', cx: 34, cy: 42, rx: 13, ry: 19, rot: -18, tone: 'blush' },
+      { s: 'petal', cx: 66, cy: 42, rx: 13, ry: 19, rot: 18, tone: 'blush' },
+      { s: 'petal', cx: 38, cy: 64, rx: 9, ry: 12, rot: -35, tone: 'sky' },
+      { s: 'petal', cx: 62, cy: 64, rx: 9, ry: 12, rot: 35, tone: 'sky' },
+      { s: 'rect', x: 48.5, y: 30, w: 3, h: 34, tone: 'ink', edge: 0 },
+    ],
+    cat: [
+      { s: 'path', pts: [[36, 30], [40, 14], [48, 26]], tone: 'grey' },
+      { s: 'path', pts: [[64, 30], [60, 14], [52, 26]], tone: 'grey' },
+      { s: 'blob', cx: 50, cy: 38, r: 15, tone: 'grey' },
+      { s: 'blob', cx: 48, cy: 68, rx: 22, ry: 18, tone: 'grey' },
+      { s: 'path', pts: [[66, 74], [84, 58], [90, 66], [72, 82]], tone: 'grey' },
+      { s: 'blob', cx: 44, cy: 35, r: 2.4, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 56, cy: 35, r: 2.4, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 42, r: 2, tone: 'blush', edge: 0 },
+    ],
+    fish: [
+      { s: 'blob', cx: 46, cy: 52, rx: 23, ry: 14, tone: 'water' },
+      { s: 'path', pts: [[66, 52], [86, 38], [86, 66]], tone: 'deep' },
+      { s: 'blob', cx: 38, cy: 47, r: 2.6, tone: 'ink', edge: 0 },
+      { s: 'petal', cx: 52, cy: 52, rx: 8, ry: 5, rot: -15, tone: 'deep', op: 0.4, edge: 0 },
+    ],
+    boat: [
+      { s: 'path', pts: [[18, 62], [82, 62], [70, 80], [30, 80]], tone: 'wood' },
+      { s: 'rect', x: 48.5, y: 24, w: 3.5, h: 38, tone: 'wood' },
+      { s: 'path', pts: [[54, 26], [54, 58], [78, 58]], tone: 'paper' },
+      { s: 'path', pts: [[46, 32], [46, 58], [26, 58]], tone: 'snow' },
+    ],
+    lighthouse: [
+      { s: 'path', pts: [[41, 90], [59, 90], [56, 34], [44, 34]], tone: 'paper' },
+      { s: 'rect', x: 43, y: 48, w: 14, h: 8, rot: -2, tone: 'blush' },
+      { s: 'rect', x: 43.5, y: 64, w: 13.5, h: 8, rot: -2, tone: 'blush' },
+      { s: 'rect', x: 42, y: 24, w: 16, h: 10, tone: 'slate' },
+      { s: 'path', pts: [[58, 28], [88, 20], [88, 38]], tone: 'sunlit', op: 0.55, edge: 0 },
+    ],
+    wind: [
+      { s: 'arc', cx: 44, cy: 34, r: 16, a0: 185, a1: 340, t: 6, tone: 'grey', edge: 0 },
+      { s: 'arc', cx: 56, cy: 58, r: 21, a0: 185, a1: 340, t: 6, tone: 'grey', edge: 0 },
+      { s: 'arc', cx: 40, cy: 78, r: 11, a0: 185, a1: 330, t: 5, tone: 'grey', edge: 0 },
+    ],
+    apple: [
+      { s: 'blob', cx: 50, cy: 56, r: 22, tone: 'blush' },
+      { s: 'rect', x: 49, y: 26, w: 3.5, h: 12, rot: 12, tone: 'wood' },
+      { s: 'petal', cx: 60, cy: 32, rx: 9, ry: 5, rot: 35, tone: 'leaf' },
+      { s: 'blob', cx: 41, cy: 48, rx: 5, ry: 7, tone: 'snow', op: 0.35, edge: 0 },
+    ],
+    mushroom: [
+      { s: 'path', pts: [[38, 92], [44, 56], [56, 56], [62, 92]], tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 44, rx: 28, ry: 18, tone: 'blush' },
+      { s: 'blob', cx: 38, cy: 38, r: 4, tone: 'snow', edge: 0 },
+      { s: 'blob', cx: 58, cy: 46, r: 5, tone: 'snow', edge: 0 },
+    ],
+    snowflake: [
+      { s: 'rect', x: 48, y: 20, w: 4, h: 60, tone: 'sky' },
+      { s: 'rect', x: 48, y: 20, w: 4, h: 60, rot: 60, tone: 'sky' },
+      { s: 'rect', x: 48, y: 20, w: 4, h: 60, rot: -60, tone: 'sky' },
+      { s: 'blob', cx: 50, cy: 50, r: 6, tone: 'snow', edge: 0 },
+    ],
+    candle: [
+      { s: 'rect', x: 42, y: 52, w: 16, h: 36, tone: 'paper' },
+      { s: 'petal', cx: 50, cy: 40, rx: 7, ry: 12, tone: 'sun' },
+      { s: 'petal', cx: 50, cy: 44, rx: 3.5, ry: 7, tone: 'sunlit', edge: 0 },
+    ],
+    moon_stars: [],
+  };
+  // Phrases collapse onto the nearest drawn concept — modifiers (colours, moods,
+  // counts) never block the mark the noun beneath them owns.
+  const PAPER_ALIAS = {
+    moon: 'moon-full', 'full-moon': 'moon-full', 'same-moon': 'moon-full',
+    'crescent-moon': 'moon-crescent', crescent: 'moon-crescent', 'half-moon': 'moon-half',
+    'cloudy-night': 'cloud', 'heavy-rain': 'rain', drizzle: 'rain', shower: 'rain',
+    'rain-cloud': 'rain', lightning: 'storm', thunder: 'storm',
+    globe: 'earth', world: 'earth', planet: 'earth',
+    seedling: 'sprout', sapling: 'sprout', shoot: 'sprout', sprig: 'sprout',
+    'hand-down': 'hand', 'magnifying-glass': 'magnifier', magnifying: 'magnifier',
+    envelope: 'letter', mail: 'letter', sailboat: 'boat', ship: 'boat',
+    sunflower: 'sunflower', bulb: 'lightbulb', idea: 'lightbulb', light: 'sun',
+    sunshine: 'sun', firelight: 'fire', flame: 'fire', droplet: 'drop', water: 'drop',
+    ocean: 'wave', sea: 'wave', hills: 'hill', mountains: 'mountain', dove: 'bird',
+    'night-sky': 'stars', snowflake: 'snowflake', 'gift-box': 'gift', present: 'gift',
+    breeze: 'wind', question: 'lightbulb',
+  };
+  function paperArtKey(concept) {
+    if (!concept) return null;
+    const norm = String(concept).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    if (!norm) return null;
+    const k = norm.replace(/\s+/g, '-');
+    const direct = PAPER_ALIAS[k] || k;
+    if (PAPER_ART[direct]) return direct;
+    const words = norm.split(' ');
+    for (let drop = 1; drop < words.length; drop += 1) {
+      for (const c of [words.slice(drop).join('-'), words.slice(0, words.length - drop).join('-')]) {
+        const a = PAPER_ALIAS[c] || c;
+        if (PAPER_ART[a]) return a;
+      }
+    }
+    for (const w of words) {
+      const a = PAPER_ALIAS[w] || w;
+      if (PAPER_ART[a]) return a;
+    }
+    return null;
+  }
+  // Expand one authored piece into flat parts in normalized space. `stroke` pieces
+  // draw as ink lines (veins, strings); everything else is a filled cut shape.
+  function paperPieceParts(pc, seed) {
+    const r = rng(seed);
+    const jx = (r() - 0.5) * 2.4, jy = (r() - 0.5) * 2.4;
+    const rot = (pc.rot || 0) + (r() - 0.5) * 4;
+    const cx = pc.cx != null ? pc.cx : (pc.x != null ? pc.x + pc.w / 2 : 50);
+    const cy = pc.cy != null ? pc.cy : (pc.y != null ? pc.y + pc.h / 2 : 50);
+    const tf = `translate(${f2(jx)} ${f2(jy)}) rotate(${f2(rot)} ${f2(cx)} ${f2(cy)})`;
+    const edge = pc.edge !== 0;
+    const out = [];
+    const push = (d, o) => out.push({ d, tf, edge, tone: pc.tone, op: pc.op == null ? 1 : pc.op, sw: pc.stroke || 0, ...o });
+    const arcD = (rax, ray, x0, y0, x1, y1, sweep) => `M${f2(x0)} ${f2(y0)}A${f2(rax)} ${f2(ray)} 0 0 ${sweep} ${f2(x1)} ${f2(y1)}`;
+    switch (pc.s) {
+      case 'blob':
+        push(cutBlobPath(cx, cy, pc.rx || pc.r || 10, pc.ry || pc.r || 10, seed));
+        break;
+      case 'rect':
+        push(cutRectPath({ x: pc.x, y: pc.y, w: pc.w, h: pc.h }, seed, Math.min(pc.w, pc.h) * 0.16));
+        break;
+      case 'path': {
+        const k = pc.k || 1, ox = pc.ox || 0, oy = pc.oy || 0;
+        if (pc.stroke) {
+          push(polyPath(pc.pts.map((p) => [ox + p[0] * k, oy + p[1] * k])), { edge: 0 });
+        } else {
+          const pts = pc.pts.map((p) => [ox + p[0] * k + (r() - 0.5) * 1.6, oy + p[1] * k + (r() - 0.5) * 1.6]);
+          push(polyPath(pts) + 'Z');
+        }
+        break;
+      }
+      case 'petal': {
+        const rx = pc.rx || 8, ry = pc.ry || 14, k = 1 + (r() - 0.5) * 0.12;
+        push(`M${f2(cx)} ${f2(cy - ry)}Q${f2(cx + rx * k)} ${f2(cy - ry * 0.1)} ${f2(cx)} ${f2(cy + ry)}Q${f2(cx - rx * k)} ${f2(cy - ry * 0.1)} ${f2(cx)} ${f2(cy - ry)}Z`);
+        break;
+      }
+      case 'crescent': {
+        const rr = pc.r || 26, bite = pc.bite == null ? 0.62 : pc.bite;
+        push(`M${f2(cx + rr * 0.1)} ${f2(cy - rr)}A${f2(rr)} ${f2(rr)} 0 1 0 ${f2(cx + rr * 0.1)} ${f2(cy + rr)}A${f2(rr * bite)} ${f2(rr * bite)} 0 1 1 ${f2(cx + rr * 0.1)} ${f2(cy - rr)}Z`);
+        break;
+      }
+      case 'halfdisc': {
+        const rr = pc.r || 26;
+        push(`M${f2(cx)} ${f2(cy - rr)}A${f2(rr)} ${f2(rr)} 0 0 1 ${f2(cx)} ${f2(cy + rr)}Z`);
+        break;
+      }
+      case 'rays': {
+        for (let i = 0; i < (pc.n || 8); i += 1) {
+          const a = (i / (pc.n || 8)) * 360 + (r() - 0.5) * 8;
+          out.push({
+            d: cutRectPath({ x: cx - (pc.w || 7) / 2, y: cy - pc.r1, w: pc.w || 7, h: pc.r1 - pc.r0 }, seed ^ (i * 0x9e37), 1.4),
+            tf: `translate(${f2(jx)} ${f2(jy)}) rotate(${f2(a)} ${f2(cx)} ${f2(cy)})`,
+            edge, tone: pc.tone, op: pc.op == null ? 1 : pc.op, sw: 0,
+          });
+        }
+        break;
+      }
+      case 'ring': {
+        const rr = pc.r || 20;
+        push(`${arcD(rr, rr, cx - rr, cy, cx + rr, cy, 1)}${arcD(rr, rr, cx + rr, cy, cx - rr, cy, 1)}`, { sw: pc.t || 5 });
+        break;
+      }
+      case 'arc': {
+        const rr = pc.r || 20, a0 = (pc.a0 == null ? 0 : pc.a0) * Math.PI / 180, a1 = (pc.a1 == null ? 180 : pc.a1) * Math.PI / 180;
+        const x0 = cx + Math.cos(a0) * rr, y0 = cy + Math.sin(a0) * rr;
+        const x1 = cx + Math.cos(a1) * rr, y1 = cy + Math.sin(a1) * rr;
+        const sweep = ((a1 - a0 + Math.PI * 4) % (Math.PI * 2)) <= Math.PI ? 1 : 0;
+        push(arcD(rr, rr, x0, y0, x1, y1, sweep), { sw: pc.t || 5, edge: 0 });
+        break;
+      }
+      default:
+        break;
+    }
+    return out;
+  }
+  // One composed illustration: die-cut edge under all pieces, each piece a painted
+  // fill, a clipped wash + two seeded blotches over the union for the watercolour
+  // settle. Returns the art's <g> in normalized 100x100 space plus its flat els
+  // for draw-on staggering.
+  function paperArtGroup(key, seed, plan, uid) {
+    const pieces = PAPER_ART[key] || [];
+    const parts = [];
+    pieces.forEach((pc, i) => parts.push(...paperPieceParts(pc, seed ^ (i * 0x9e3779b1))));
+    if (!parts.length) return null;
+    const g = svgEl('g', {}, null);
+    const edgeParts = parts.filter((p) => p.edge && !p.sw);
+    const els = [];
+    if (edgeParts.length) {
+      const under = svgEl('g', { transform: 'translate(50 50) scale(1.09) translate(-50 -50)' }, g);
+      for (const p of edgeParts) svgEl('path', { d: p.d, fill: mixColor(plan.brand.paper, '#ffffff', 0.62), transform: p.tf || undefined }, under);
+      els.push(under);
+    }
+    const body = svgEl('g', {}, g);
+    for (const p of parts) {
+      const elp = p.sw
+        ? svgEl('path', { d: p.d, fill: 'none', stroke: paintTone(p.tone, plan), 'stroke-width': f2(p.sw), 'stroke-linecap': 'round', 'stroke-opacity': f2(p.op), transform: p.tf || undefined }, body)
+        : svgEl('path', { d: p.d, fill: paintTone(p.tone, plan), 'fill-opacity': f2(p.op), transform: p.tf || undefined }, body);
+      els.push(elp);
+    }
+    if (edgeParts.length) {
+      const defs = svgEl('defs', {}, g);
+      const clip = svgEl('clipPath', { id: `pac_${uid}` }, defs);
+      for (const p of edgeParts) svgEl('path', { d: p.d, transform: p.tf || undefined }, clip);
+      const grad = svgEl('linearGradient', { id: `paw_${uid}`, x1: '0', y1: '0', x2: '0.3', y2: '1' }, defs);
+      svgEl('stop', { offset: '0', 'stop-color': '#ffffff', 'stop-opacity': '0.16' }, grad);
+      svgEl('stop', { offset: '0.45', 'stop-color': '#ffffff', 'stop-opacity': '0' }, grad);
+      svgEl('stop', { offset: '1', 'stop-color': plan.brand.ink, 'stop-opacity': '0.1' }, grad);
+      const wr = rng(seed ^ 0x51ab);
+      const wash = svgEl('g', { 'clip-path': `url(#pac_${uid})` }, g);
+      svgEl('rect', { x: '-10', y: '-10', width: '120', height: '120', fill: `url(#paw_${uid})` }, wash);
+      svgEl('path', { d: cutBlobPath(22 + wr() * 26, 24 + wr() * 28, 26, 20, seed ^ 0x77aa), fill: '#ffffff', 'fill-opacity': '0.1' }, wash);
+      svgEl('path', { d: cutBlobPath(55 + wr() * 28, 56 + wr() * 26, 30, 24, seed ^ 0x33cc), fill: plan.brand.ink, 'fill-opacity': '0.06' }, wash);
+      els.push(wash);
+    }
+    return { g, els };
+  }
+  // Nominal extent of an art composition in normalized space — the fit that
+  // scales each illustration to fill its sticker rather than float inside it.
+  function paperBounds(key) {
+    let x0 = 100, y0 = 100, x1 = 0, y1 = 0;
+    const box = (a, b, c, d) => { x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d); };
+    for (const pc of PAPER_ART[key] || []) {
+      const cx = pc.cx != null ? pc.cx : (pc.x != null ? pc.x + pc.w / 2 : 50);
+      const cy = pc.cy != null ? pc.cy : (pc.y != null ? pc.y + pc.h / 2 : 50);
+      switch (pc.s) {
+        case 'blob': box(cx - (pc.rx || pc.r || 10), cy - (pc.ry || pc.r || 10), cx + (pc.rx || pc.r || 10), cy + (pc.ry || pc.r || 10)); break;
+        case 'rect': box(pc.x, pc.y, pc.x + pc.w, pc.y + pc.h); break;
+        case 'path': {
+          const k = pc.k || 1, xs = pc.pts.map((p) => (pc.ox || 0) + p[0] * k), ys = pc.pts.map((p) => (pc.oy || 0) + p[1] * k);
+          box(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys));
+          break;
+        }
+        case 'petal': { const m = Math.max(pc.rx || 8, pc.ry || 14); box(cx - m, cy - m, cx + m, cy + m); break; }
+        case 'crescent': case 'halfdisc': box(cx - (pc.r || 26), cy - (pc.r || 26), cx + (pc.r || 26), cy + (pc.r || 26)); break;
+        case 'rays': box(cx - pc.r1, cy - pc.r1, cx + pc.r1, cy + pc.r1); break;
+        case 'ring': case 'arc': { const m = (pc.r || 20) + (pc.t || 5); box(cx - m, cy - m, cx + m, cy + m); break; }
+        default: break;
+      }
+    }
+    return { x: x0, y: y0, w: Math.max(1, x1 - x0), h: Math.max(1, y1 - y0), cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
+  }
+  // Animated mount: art draws on piece by piece inside `box` (stage coords), lifted
+  // by a soft shadow. Falls back to the registry icon, then the typeset word.
+  function paintPaperArt(ent, node, host, box, plan, opts) {
+    const key = paperArtKey(ent.concept);
+    if (key) {
+      const art = paperArtGroup(key, seedHash(`${ent.id}:${key}`), plan, `${ent.id}_${++iconInstance}`);
+      if (art) {
+        const bb = paperBounds(key);
+        const s = Math.min((box.w * 0.9) / bb.w, (box.h * 0.9) / bb.h);
+        const wrap = svgEl('g', { transform: `translate(${f2(box.x + box.w / 2)} ${f2(box.y + box.h / 2)}) scale(${f2(s)}) translate(${f2(-bb.cx)} ${f2(-bb.cy)})` }, host);
+        wrap.appendChild(art.g);
+        node.extra.iconBox = box;
+        node.extra.shadow = { el: wrap, oy: box.h * 0.045, blur: box.h * 0.09, alpha: 0.2 };
+        host.setAttribute('data-icon-host', ent.id);
+        const n = art.els.length;
+        art.els.forEach((e, i) => node.outline.push({ path: e, len: 0, set(v) { e.style.opacity = clamp(v * n - i, 0, 1).toFixed(4); } }));
+        return true;
+      }
+    }
+    if (ent.asset) { loadIconInto(ent, node, host, box, opts); return true; }
+    return false;
+  }
+  // Static mount (backdrop marks, the motif stamp): same art, no draw-on program.
+  function paperArtSvg(key, seed, plan, uid) {
+    const art = paperArtGroup(key, seed, plan, uid);
+    if (!art) return null;
+    const s = svgEl('svg', { viewBox: '0 0 100 100' }, null);
+    const bb = paperBounds(key);
+    const k = Math.min(88 / bb.w, 88 / bb.h);
+    const fit = svgEl('g', { transform: `translate(50 50) scale(${f2(k)}) translate(${f2(-bb.cx)} ${f2(-bb.cy)})` }, s);
+    fit.appendChild(art.g);
+    return s;
+  }
+
   function pointAlong(pts, k) {
     const total = polyLength(pts);
     let d = clamp(k, 0, 1) * total;
@@ -1761,7 +2324,9 @@
         host.style.color = ink;
         node.inkEls.push(host);
         node.extra.iconHost = host;
-        loadIconInto(ent, node, host, b, opts);
+        if (!paintPaperArt(ent, node, host, { x: b.x + b.w * 0.08, y: b.y + b.h * 0.08, w: b.w * 0.84, h: b.h * 0.84 }, plan, opts)) {
+          wordMark(node, host, b, String(params.word || ent.concept || ent.id), 'name', ink, plan);
+        }
         node.strike = strikeFor(b);
         break;
       }
@@ -1796,20 +2361,26 @@
           } else {
             loadPhotoInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, r * 0.6, opts);
           }
-        } else if (ent.asset) {
+        } else if (paperArtKey(ent.concept)) {
+          // Painted collage art in place of the icon: the concept is illustrated,
+          // not indexed. The word still rides beneath when the housing carries one.
+          const host = svgEl('g', {}, g);
+          node.extra.iconHost = host;
+          const pad = b.w * 0.13;
+          if (word) {
+            const ih = b.h * 0.56;
+            paintPaperArt(ent, node, host, { x: b.x + (b.w - ih) / 2, y: b.y + pad * 0.7, w: ih, h: ih }, plan, opts);
+            wordMark(node, wordHost, { x: b.x + pad * 0.6, y: b.y + pad * 0.7 + ih + b.h * 0.02, w: b.w - pad * 1.2, h: b.h - pad * 0.7 - ih - b.h * 0.02 - pad * 0.7 }, word, params.word_kind || 'name', fg, plan);
+          } else {
+            paintPaperArt(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, plan, opts);
+          }
+        } else if (ent.asset && !word) {
           const host = svgEl('g', {}, g);
           host.style.color = fg;
           node.inkEls.push(host);
           node.extra.iconHost = host;
           const pad = b.w * 0.17;
-          if (word) {
-            // Composite: the mark takes the upper body, the concept's own name is set beneath it.
-            const ih = b.h * 0.5;
-            loadIconInto(ent, node, host, { x: b.x + (b.w - ih) / 2, y: b.y + pad * 0.8, w: ih, h: ih }, opts);
-            wordMark(node, wordHost, { x: b.x + pad * 0.6, y: b.y + pad * 0.8 + ih + b.h * 0.03, w: b.w - pad * 1.2, h: b.h - pad * 0.8 - ih - b.h * 0.03 - pad * 0.7 }, word, params.word_kind || 'name', fg, plan);
-          } else {
-            loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
-          }
+          loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
         } else if (word) {
           const pad = b.w * 0.14;
           wordMark(node, wordHost, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, word, params.word_kind || 'name', fg, plan);
@@ -1846,7 +2417,12 @@
           node.extra.iconHost = host;
           const pad = R * 0.14;
           loadPhotoInto(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, R, opts);
-        } else if (ent.asset) {
+        } else if (paperArtKey(ent.concept)) {
+          const host = svgEl('g', {}, g);
+          node.extra.iconHost = host;
+          const pad = R * 0.5;
+          paintPaperArt(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, plan, opts);
+        } else if (ent.asset && !params.word) {
           const host = svgEl('g', {}, g);
           host.style.color = dark ? paper : ink;
           node.inkEls.push(host);
@@ -2641,7 +3217,12 @@
         transform: `rotate(${h === 'left' ? -4 : 4}deg)`,
         filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.18))',
       }, stage);
-      if (m.asset && m.asset.path) {
+      const motifArt = paperArtKey(m.concept) && paperArtSvg(paperArtKey(m.concept), seedHash(String(m.concept)), plan, 'motif');
+      if (motifArt) {
+        motifArt.setAttribute('width', '100%');
+        motifArt.setAttribute('height', '100%');
+        host.appendChild(motifArt);
+      } else if (m.asset && m.asset.path) {
         fetchText(opts.assetUrl(m.asset.path)).then((txt) => {
           const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
           const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

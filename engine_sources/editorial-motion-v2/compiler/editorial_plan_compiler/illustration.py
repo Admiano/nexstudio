@@ -638,7 +638,7 @@ class IllustrationSolver:
         return cells
 
     def _entity_plan(self, e: IllustrationEntity, bbox: Dict[str, float], label_box: Optional[Dict[str, float]], failures: List[str], beat_id: str) -> Dict[str, Any]:
-        plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'bbox': bbox, 'art_bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
+        plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'concept': e.concept, 'bbox': bbox, 'art_bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
         plan['photo'] = plan['params'].pop('photo', None)
         if e.glyph == 'TILE' and plan['params'].get('word') and (plan['photo'] or e.asset_ref):
             plan['params']['descriptor_fit'] = self._descriptor_fits(plan, bbox)
