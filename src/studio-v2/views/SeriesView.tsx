@@ -11,6 +11,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
   const [activeId, setActiveId] = useState<string | null>(focusId);
   const [memory, setMemory] = useState<StudioMemoryItemRecord[]>([]);
   const [editor, setEditor] = useState<null | { mode: "new" | "continuity" | "identity" }>(null);
+  const [epLayout, setEpLayout] = useState<"list" | "tiles">("list");
 
   useEffect(() => { if (focusId) setActiveId(focusId); }, [focusId]);
 
@@ -84,7 +85,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
         <div className="series-head-actions"><button className="secondary" onClick={() => setEditor({ mode: "new" })}>+ New series</button><button className="primary" onClick={() => void makeNextEpisode()}>Make next episode</button></div>
       </div>
       <div className="series-switcher">
-        {series.map((s) => <button key={s.id} className={`series-chip ${s.id === current?.id ? "active" : ""}`} onClick={() => setActiveId(s.id)}>{s.name}</button>)}
+        {series.map((s) => <button key={s.id} aria-pressed={s.id === current?.id} className={`series-switch ${s.id === current?.id ? "active" : ""}`} onClick={() => setActiveId(s.id)}>{s.name}</button>)}
       </div>
       <section className="series-stage">
         <div className="series-stage-main">
@@ -113,27 +114,46 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
         </section>
         <section className="series-brand-card">
           <div className="series-card-head"><h3>Linked Brand</h3><button onClick={() => setEditor({ mode: "identity" })}>Change</button></div>
-          <div className="series-brand-lock">{linkedBrand ? <div className="brand-mini"><span className="ico">{linkedBrand.name[0]}</span><b>{linkedBrand.name}</b></div> : <span className="muted">No brand linked</span>}</div>
+          <div className="series-brand-lock">{linkedBrand ? <><span className="mark">{linkedBrand.name[0]}</span><span><b>{linkedBrand.name}</b><span>{linkedBrand.description || "Production identity"}</span></span></> : <><span className="mark">—</span><span><b>No linked Brand</b><span>Link one from the brand page</span></span></>}</div>
           <p>When a Brand is linked, it joins Create automatically with the Series. Series memory still owns episode-to-episode continuity.</p>
         </section>
       </div>
       <div className="series-rules-grid">
-        <section className="series-rule-card"><span className="series-mini-label">Characters</span><h3>Who stays consistent</h3><div className="series-rule-list"><span className="rule-chip muted">Define via continuity memory</span></div></section>
-        <section className="series-rule-card"><span className="series-mini-label">World</span><h3>What remains true</h3><div className="series-rule-list"><span className="rule-chip muted">{current?.description || "Define via continuity memory"}</span></div></section>
-        <section className="series-rule-card"><span className="series-mini-label">Rules</span><h3>Production guardrails</h3><div className="series-rule-list"><span className="rule-chip muted">{rules ? "Rules active" : "Define via continuity memory"}</span></div></section>
+        <section className="series-rule-card"><span className="series-mini-label">Characters</span><h3>Who stays consistent</h3><div className="series-rule-list"><div className="series-empty-rule">Define via continuity memory.</div></div></section>
+        <section className="series-rule-card"><span className="series-mini-label">World</span><h3>What remains true</h3><div className="series-rule-list"><div className="series-rule-item"><b>Premise</b><span>{current?.description || "Define via continuity memory."}</span></div></div></section>
+        <section className="series-rule-card"><span className="series-mini-label">Rules</span><h3>Production guardrails</h3><div className="series-rule-list"><div className="series-rule-item"><b>{rules ? "Rules active" : "No rules yet"}</b><span>{rules ? "Guardrails are attached to this series." : "Define via continuity memory."}</span></div></div></section>
       </div>
       <section className="series-episodes">
-        <div className="series-episodes-head"><h3>Episode history</h3><span>{episodes.length} episode{episodes.length === 1 ? "" : "s"}</span></div>
-        <div className="episode-list">
-          {episodes.map((ep) => (
-            <button key={ep.id} className="episode-row" onClick={() => onOpenHistory(ep.productionId)}>
-              <span className="ep-num">E{String(ep.episodeOrdinal).padStart(2, "0")}</span>
-              <b>{ep.title || `Episode ${ep.episodeOrdinal}`}</b>
-              <span className="ep-date">{new Date(ep.createdAt).toLocaleDateString()}</span>
-            </button>
-          ))}
-          {episodes.length === 0 && <p className="empty-note">No episodes yet — make the first one from Create.</p>}
+        <div className="series-episodes-head"><h3>Episode history</h3><span>{episodes.length} episode{episodes.length === 1 ? "" : "s"}</span>
+          <div className="view-toggle" role="group" aria-label="Layout">
+            <button className={epLayout === "list" ? "active" : ""} onClick={() => setEpLayout("list")} aria-pressed={epLayout === "list"}><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" /></svg>List</button>
+            <button className={epLayout === "tiles" ? "active" : ""} onClick={() => setEpLayout("tiles")} aria-pressed={epLayout === "tiles"}><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></svg>Tiles</button>
+          </div>
         </div>
+        {epLayout === "tiles" ? (
+          <div className="episode-tiles">
+            {episodes.map((ep, i) => (
+              <button key={ep.id} className="episode-tile" onClick={() => onOpenHistory(ep.productionId)}>
+                <span className="ep-num">E{String(ep.episodeOrdinal).padStart(2, "0")}</span>
+                <b>{ep.title || `Episode ${ep.episodeOrdinal}`}</b>
+                <span className="ep-date">{new Date(ep.createdAt).toLocaleDateString()}</span>
+              </button>
+            ))}
+            {episodes.length === 0 && <div className="episode-row"><span className="episode-num">EP <b>01</b></span><div className="episode-copy"><h4>No episode yet</h4><p>Make the first episode and NexMind will begin building continuity from real work.</p></div><div className="episode-status"><b>Ready</b><span>Continuity prepared</span></div><button onClick={() => void makeNextEpisode()}>Create</button></div>}
+          </div>
+        ) : (
+          <div className="episode-list">
+            {episodes.map((ep, i) => (
+              <div key={ep.id} className={`episode-row${i === 0 ? " latest" : ""}`}>
+                <span className="episode-num">EP <b>{String(ep.episodeOrdinal).padStart(2, "0")}</b></span>
+                <div className="episode-copy"><h4>{ep.title || `Episode ${ep.episodeOrdinal}`}</h4><p>Series episode</p></div>
+                <div className="episode-status"><b>Saved</b><span>{new Date(ep.createdAt).toLocaleDateString()}</span></div>
+                <button onClick={() => onOpenHistory(ep.productionId)}>Open</button>
+              </div>
+            ))}
+            {episodes.length === 0 && <div className="episode-row"><span className="episode-num">EP <b>01</b></span><div className="episode-copy"><h4>No episode yet</h4><p>Make the first episode and NexMind will begin building continuity from real work.</p></div><div className="episode-status"><b>Ready</b><span>Continuity prepared</span></div><button onClick={() => void makeNextEpisode()}>Create</button></div>}
+          </div>
+        )}
       </section>
       {editor && <SeriesEditor mode={editor.mode} series={current} onClose={() => setEditor(null)} onCreate={createSeries} onTeach={teachContinuity} />}
     </div>
@@ -159,11 +179,11 @@ function SeriesEditor({ mode, series, onClose, onCreate, onTeach }: {
         <div className="panel-head"><div><p>Series continuity</p><h2>{isNew ? "New series" : isTeach ? "Teach NexMind continuity" : "Edit series"}</h2></div><button aria-label="Close series editor" className="panel-close" onClick={onClose}>×</button></div>
         <div className="series-edit-body"><div className="series-edit-grid">
           {isTeach ? (
-            <div className="field"><label>What should stay true from episode to episode?</label><textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Characters, world rules, recurring segments, tone…" /></div>
+            <div className="focus-field"><label>What should stay true from episode to episode?</label><textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Characters, world rules, recurring segments, tone…" /></div>
           ) : (
             <>
-              <div className="field"><label>Name</label><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Series name" /></div>
-              <div className="field"><label>Premise</label><textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="What is this series about?" /></div>
+              <div className="focus-field"><label>Name</label><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Series name" /></div>
+              <div className="focus-field"><label>Premise</label><textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="What is this series about?" /></div>
             </>
           )}
         </div>

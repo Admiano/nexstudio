@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Eyebrow, useStudio } from "../App";
+import { Eyebrow, route, useStudio, type ContextChip } from "../App";
 import { studioApi } from "../api";
-import type { StudioAsset } from "@/studio-v1/dashboard/domain/assets";
+import type { StudioAsset, StudioAssetKind } from "@/studio-v1/dashboard/domain/assets";
 import type { SheetId } from "../overlays/Sheets";
 
 type LibFilter = "all" | "brand" | "image" | "video" | "audio" | "document" | "reference";
@@ -18,19 +18,27 @@ const LIB_FILTERS: Array<{ key: LibFilter; label: string }> = [
   { key: "reference", label: "References" },
 ];
 
-function kindOf(a: StudioAsset): LibFilter | "other" {
-  const mime = a.mimeType || "";
-  if (mime.startsWith("image/")) return "image";
-  if (mime.startsWith("video/")) return "video";
-  if (mime.startsWith("audio/")) return "audio";
-  if (mime.includes("pdf") || mime.includes("document") || mime.includes("text")) return "document";
-  return "other";
+function filterOf(a: StudioAsset): LibFilter {
+  if (a.kind === "logo") return "brand";
+  if (a.kind === "image" || a.kind === "video" || a.kind === "audio") return a.kind;
+  if (a.kind === "document") return "document";
+  return "reference";
 }
 
-export function LibraryView({ openSheet, notify }: { openSheet: (s: SheetId) => void; notify: (m: string) => void }) {
+function fmtSize(bytes: number | null): string {
+  if (bytes == null) return "—";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const RECENT_MS = 7 * 24 * 3600 * 1000;
+
+export function LibraryView({ openSheet, notify, addContext }: { openSheet: (s: SheetId) => void; notify: (m: string) => void; addContext: (chip: ContextChip) => void }) {
   const { assets, refresh } = useStudio();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<LibFilter>("all");
+  const [layout, setLayout] = useState<"tiles" | "list">("tiles");
   const [detail, setDetail] = useState<StudioAsset | null>(null);
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -40,11 +48,12 @@ export function LibraryView({ openSheet, notify }: { openSheet: (s: SheetId) => 
     return assets.filter((a) => {
       if (q && !(a.name || "").toLowerCase().includes(q)) return false;
       if (filter === "all") return true;
-      if (filter === "brand") return false;
-      if (filter === "reference") return false;
-      return kindOf(a) === filter;
+      return filterOf(a) === filter;
     });
   }, [assets, search, filter]);
+
+  const brandLinked = useMemo(() => assets.filter((a) => a.kind === "logo").length, [assets]);
+  const recentlyUsed = useMemo(() => assets.filter((a) => Date.now() - Date.parse(a.updatedAt) < RECENT_MS).length, [assets]);
 
   async function ingest(files: FileList | null) {
     if (!files?.length) return;
@@ -61,6 +70,30 @@ export function LibraryView({ openSheet, notify }: { openSheet: (s: SheetId) => 
     }
   }
 
+  function useInVideo(a: StudioAsset) {
+    addContext({ kind: "file", refId: a.id, label: a.name || "Asset" });
+    setDetail(null);
+    route("create");
+  }
+
+  async function removeAsset(a: StudioAsset) {
+    try {
+      await studioApi.deleteAsset(a.id);
+      setDetail(null);
+      await refresh(["assets"]);
+      notify("Removed from reusable Library.");
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Could not remove the asset.");
+    }
+  }
+
+  const toggle = (
+    <div className="view-toggle" role="group" aria-label="Layout">
+      <button className={layout === "tiles" ? "active" : ""} onClick={() => setLayout("tiles")} aria-pressed={layout === "tiles"}><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></svg>Tiles</button>
+      <button className={layout === "list" ? "active" : ""} onClick={() => setLayout("list")} aria-pressed={layout === "list"}><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" /></svg>List</button>
+    </div>
+  );
+
   return (
     <div className="library-v2">
       <div className="v2-page-head">
@@ -76,10 +109,10 @@ export function LibraryView({ openSheet, notify }: { openSheet: (s: SheetId) => 
         <button onClick={() => fileRef.current?.click()}>Choose files</button>
       </div>
       <div className="library-summary">
-        <div className="lib-summary-main"><span>Ready to use</span><strong>Your reusable production material.</strong></div>
+        <div className="lib-summary-main"><span>Ready to use</span><strong>{assets.length ? `${assets.length} reusable item${assets.length === 1 ? "" : "s"} ready for production.` : "Your reusable production material."}</strong></div>
         <div className="lib-summary-cell"><span>Assets</span><strong>{assets.length}</strong></div>
-        <div className="lib-summary-cell"><span>Brand-linked</span><strong>0</strong></div>
-        <div className="lib-summary-cell"><span>Used recently</span><strong>0</strong></div>
+        <div className="lib-summary-cell"><span>Brand-linked</span><strong>{brandLinked}</strong></div>
+        <div className="lib-summary-cell"><span>Used recently</span><strong>{recentlyUsed}</strong></div>
       </div>
       <div className="library-controls">
         <div className="library-filters">
@@ -87,36 +120,71 @@ export function LibraryView({ openSheet, notify }: { openSheet: (s: SheetId) => 
             <button key={f.key} aria-pressed={filter === f.key} className={`lib-filter ${filter === f.key ? "active" : ""}`} onClick={() => setFilter(f.key)}>{f.label}</button>
           ))}
         </div>
+        {toggle}
         <span className="library-sort">Most recently used first</span>
       </div>
-      <div className="library-grid">
-        {filtered.map((a) => (
-          <button key={a.id} className="lib-card" onClick={() => setDetail(a)}>
-            <div className={`lib-thumb kind-${kindOf(a)}`} />
-            <div className="lib-meta"><b>{a.name || "Untitled"}</b><span>{a.mimeType || "file"} · {a.status}</span></div>
-          </button>
-        ))}
-        {filtered.length === 0 && <p className="empty-note">No assets match — upload something to get started.</p>}
-      </div>
-      {detail && <AssetDetail asset={detail} onClose={() => setDetail(null)} />}
+      {layout === "tiles" ? (
+        <div className="library-grid">
+          {filtered.map((a) => (
+            <button key={a.id} className="asset-card" onClick={() => setDetail(a)}>
+              <div className={`asset-preview ${a.kind}`} data-mark={(a.name || "A")[0].toUpperCase()}>
+                {a.previewUrl ? <img src={a.previewUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+                <span className="asset-badge">{a.kind === "logo" ? "brand" : a.kind}</span>
+                {a.rightsAttested ? <i className="asset-ready" /> : null}
+              </div>
+              <div className="asset-meta">
+                <b>{a.name || "Untitled"}</b>
+                <p>{a.kind === "logo" ? "Brand asset" : a.mimeType || "Reusable production context"}</p>
+                <div className="asset-foot"><span>{fmtSize(a.sizeBytes)}</span><span>{a.sourceProductionId ? "Used in production" : "Not used yet"}</span></div>
+              </div>
+            </button>
+          ))}
+          {filtered.length === 0 && <div className="library-empty">Nothing matches this view. Try another filter or add something new.</div>}
+        </div>
+      ) : (
+        <div className="library-rows work-list">
+          {filtered.map((a) => (
+            <article key={a.id} className="work-row" onClick={() => setDetail(a)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") setDetail(a); }}>
+              <div className="work-thumb-v2 asset" data-mark={(a.name || "A")[0].toUpperCase()} style={a.previewUrl ? { backgroundImage: `url(${a.previewUrl})`, backgroundSize: "cover" } : undefined}>
+                <span className="work-thumb-state">{a.status}</span>
+              </div>
+              <div className="work-info">
+                <h3>{a.name || "Untitled"}</h3>
+                <p>{a.kind === "logo" ? "Brand asset" : a.mimeType || "file"} · {fmtSize(a.sizeBytes)}</p>
+                <div className="work-tags"><span>{a.kind}</span>{a.rightsAttested ? <span>Ready to use</span> : null}</div>
+              </div>
+              <div className="work-state-v2"><b><span className={`state-dot st-${a.status === "ready" ? "ready" : "production"}`} />{a.status === "ready" ? "Ready" : a.status}</b><span>{a.sourceProductionId ? "Used in production" : "Not used yet"}</span></div>
+              <div className="work-row-actions"><button className="work-open" onClick={(e) => { e.stopPropagation(); setDetail(a); }}>Open →</button></div>
+            </article>
+          ))}
+          {filtered.length === 0 && <div className="work-empty"><b>Nothing here.</b><p>Try another filter or add something new.</p></div>}
+        </div>
+      )}
+      {detail && <AssetDetail asset={detail} onClose={() => setDetail(null)} onUse={() => useInVideo(detail)} onRemove={() => void removeAsset(detail)} />}
     </div>
   );
 }
 
-function AssetDetail({ asset, onClose }: { asset: StudioAsset; onClose: () => void }) {
+function AssetDetail({ asset, onClose, onUse, onRemove }: { asset: StudioAsset; onClose: () => void; onUse: () => void; onRemove: () => void }) {
+  const [busy, setBusy] = useState(false);
   return (
     <div aria-hidden="true" className="asset-detail-overlay open" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <section className="asset-detail-panel">
         <div className="panel-head"><div><p>Library asset</p><h2>{asset.name || "Asset"}</h2></div><button aria-label="Close asset details" className="panel-close" onClick={onClose}>×</button></div>
-        <div className="asset-detail-preview"><div className={`lib-thumb kind-${kindOf(asset)}`} style={{ height: 160 }} /></div>
-        <p className="asset-detail-note">Uploaded material is rights-attested and traceable to the productions that use it.</p>
-        <div className="asset-detail-grid">
-          <div className="asset-detail-fact"><span>Type</span><b>{asset.mimeType || "—"}</b></div>
-          <div className="asset-detail-fact"><span>Status</span><b>{asset.status}</b></div>
-          <div className="asset-detail-fact"><span>Rights</span><b>Attested</b></div>
-          <div className="asset-detail-fact"><span>Added</span><b>{asset.createdAt ? new Date(asset.createdAt).toLocaleDateString() : "—"}</b></div>
+        <div className={`asset-detail-preview asset-preview ${asset.kind}`} data-mark={(asset.name || "A")[0].toUpperCase()}>
+          {asset.previewUrl ? <img src={asset.previewUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
         </div>
-        <div className="asset-actions"><button className="primary" onClick={onClose}>Use in new video</button></div>
+        <p className="asset-detail-note">{asset.mimeType || "Reusable production context"} · {fmtSize(asset.sizeBytes)}</p>
+        <div className="asset-detail-grid">
+          <div className="asset-detail-fact"><span>Type</span><b>{asset.kind === "logo" ? "Brand asset" : asset.kind[0].toUpperCase() + asset.kind.slice(1)}</b></div>
+          <div className="asset-detail-fact"><span>Brand</span><b>{asset.kind === "logo" ? "Brand-linked" : "Not linked"}</b></div>
+          <div className="asset-detail-fact"><span>Rights</span><b>{asset.rightsAttested ? "Ready to use" : "Unverified"}</b></div>
+          <div className="asset-detail-fact"><span>Used</span><b>{asset.sourceProductionId ? "In a production" : "Not used yet"}</b></div>
+        </div>
+        <div className="asset-actions">
+          <button className="primary" onClick={onUse}>Use in new video</button>
+        </div>
+        <button className="panel-danger" disabled={busy} onClick={async () => { setBusy(true); try { await Promise.resolve(onRemove()); } finally { setBusy(false); } }}>{busy ? "Removing…" : "Remove from reusable Library"}</button>
       </section>
     </div>
   );

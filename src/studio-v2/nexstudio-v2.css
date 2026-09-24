@@ -1807,3 +1807,34 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .direction-script-lines.pending i:nth-child(3){width:64%}
 @keyframes nxScriptShimmer{0%{background-position:120% 0}100%{background-position:-80% 0}}
 @media (max-width:760px){.direction-script{padding:12px 14px}.direction-script-lines li{font-size:11.5px}}
+
+/* List / tiles toggle — same pill language as work filters */
+.view-toggle{display:inline-flex;gap:4px;padding:3px;border:1px solid #d8d7d1;border-radius:999px;background:rgba(255,255,255,.55)}
+.view-toggle button{border:0;border-radius:999px;padding:6px 13px;font-size:10.5px;font-weight:750;color:#62645c;background:transparent;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.view-toggle button.active{background:rgba(255,176,0,.12);color:var(--accent-ink);box-shadow:inset 0 0 0 1px rgba(255,176,0,.32)}
+.view-toggle svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+/* Work tiles — cards reuse work-thumb-v2 / work-info / work-tags / state-dot */
+.work-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.work-tile{border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.62);padding:10px;display:flex;flex-direction:column;gap:11px;cursor:pointer;text-align:left;transition:transform var(--normal) var(--ease),box-shadow var(--normal) var(--ease),border-color var(--fast) ease}
+.work-tile:hover{transform:translateY(-2px);border-color:var(--outline-soft);box-shadow:0 12px 30px rgba(17,22,18,.07)}
+.work-tile .work-thumb-v2{height:140px;border-radius:14px}
+.work-tile .work-info h3{font-size:14.5px}
+.work-tile .work-tile-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.work-tile .work-state-v2{display:flex;flex-direction:column;gap:2px;font-size:10px;color:var(--muted)}
+.work-tile .work-state-v2 b{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--ink)}
+.work-tile .work-open{flex:0 0 auto}
+@media (max-width:650px){.work-tiles{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:9px}.work-tile .work-thumb-v2{height:104px}}
+
+/* Series episodes as tiles */
+.episode-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.episode-tile{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.6);padding:16px 15px;display:flex;flex-direction:column;gap:8px;text-align:left;cursor:pointer;transition:transform var(--normal) var(--ease),border-color var(--fast) ease}
+.episode-tile:hover{transform:translateY(-2px);border-color:var(--outline-soft)}
+.episode-tile .ep-num{width:38px;height:38px;border-radius:12px;background:rgba(17,22,18,.05);display:grid;place-items:center;font-size:11px;font-weight:850}
+.episode-tile b{font-size:13px}
+.episode-tile .ep-date{font-size:10px;color:var(--muted)}
+
+/* Library list variant — reuse work rows */
+.library-rows .work-thumb-v2.asset{background:linear-gradient(140deg,#e8e6df,#f4efe5)}
+.library-rows .work-thumb-v2.asset:before{content:attr(data-mark);position:absolute;inset:0;display:grid;place-items:center;font-size:22px;font-weight:830;color:#5c5f57}
+.library-rows .work-thumb-v2{position:relative;overflow:hidden}

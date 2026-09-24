@@ -44,11 +44,12 @@ export interface ProblemDetail {
   detail?: string;
 }
 
-async function readJson<T>(url: string, signal?: AbortSignal): Promise<T> {
+async function readJson<T>(url: string, signal?: AbortSignal, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     credentials: "include",
-    headers: { Accept: "application/json" },
     cache: "no-store",
+    ...init,
+    headers: { Accept: "application/json", ...(init?.headers ?? {}) },
     signal,
   });
   if (!response.ok) {
@@ -153,6 +154,10 @@ export const studioApi = {
     postJson<unknown>(`/api/v1/studio/productions/${productionId}/purchase`, { quoteId }, signal),
   review: (productionId: string, input: { action: "approve" } | { action: "revision"; note?: string; timestampSeconds?: number }, signal?: AbortSignal) =>
     postJson<unknown>(`/api/v1/productions/${productionId}/review`, input, signal),
+  updateBrand: (id: string, input: { name?: string; description?: string | null }, signal?: AbortSignal) =>
+    readJson<{ brand: StudioBrandRoot }>(`/api/v1/studio/brands/${id}`, signal, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(input) }),
+  deleteAsset: (id: string, signal?: AbortSignal) =>
+    readJson<{ id: string; removed: boolean }>(`/api/v1/studio/assets/${id}`, signal, { method: "DELETE" }),
   createBrand: (input: { name: string; slug?: string; description?: string; authority?: Record<string, unknown> }, signal?: AbortSignal) =>
     postJson<{ brandId: string }>("/api/v1/studio/brands", input, signal),
   createSeries: (input: { name: string; description?: string; brandId?: string; bible?: Record<string, unknown> }, signal?: AbortSignal) =>

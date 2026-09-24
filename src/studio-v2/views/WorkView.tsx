@@ -29,6 +29,7 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
 }) {
   const { projects } = useStudio();
   const [filter, setFilter] = useState<Filter>("all");
+  const [layout, setLayout] = useState<"list" | "tiles">("list");
   const sorted = useMemo(() => sortDashboardProjects(projects) as typeof projects, [projects]);
   const needs = sorted.filter((p) => p.needsAction).length;
   const making = sorted.filter((p) => bucket(p) === "production").length;
@@ -57,9 +58,13 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
             <button key={f.key} aria-pressed={filter === f.key} className={`work-filter ${filter === f.key ? "active" : ""}`} onClick={() => setFilter(f.key)}>{f.label}</button>
           ))}
         </div>
+        <div className="view-toggle" role="group" aria-label="Layout">
+          <button className={layout === "list" ? "active" : ""} onClick={() => setLayout("list")} aria-pressed={layout === "list"}><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" /></svg>List</button>
+          <button className={layout === "tiles" ? "active" : ""} onClick={() => setLayout("tiles")} aria-pressed={layout === "tiles"}><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></svg>Tiles</button>
+        </div>
         <span className="work-sort">Most recently updated first</span>
       </div>
-      <div className="work-list">
+      <div className={layout === "tiles" ? "work-tiles" : "work-list"}>
         {list.map((p) => {
           const s = (p.state || "").toUpperCase();
           const dot = p.statusTone === "recovering" || s.includes("REVISION") ? "revision"
@@ -74,25 +79,23 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
           const family = (p.family || "").toLowerCase();
           const job = p.engine?.jobId ? { engine: { kind: p.engine.kind, jobId: p.engine.jobId, outputs: p.engine.outputs }, id: p.id } : null;
           const open = () => (job ? onOpenJob(job) : onOpenHistory(p.id));
+          const thumb = <div className={`work-thumb-v2 ${family}`} style={p.coverUrl ? { backgroundImage: `url(${p.coverUrl})`, backgroundSize: "cover" } : undefined}><span className="work-thumb-state">{p.statusLabel}</span></div>;
+          const info = <div className="work-info"><h3>{p.title}</h3><p>{p.family}{p.videoType ? ` · ${p.videoType}` : ""}{p.durationSeconds ? ` · ${p.durationSeconds} sec` : ""}</p><div className="work-tags"><span>{p.family}</span>{p.videoType ? <span>{p.videoType}</span> : null}{p.durationSeconds ? <span>{p.durationSeconds}s</span> : null}{p.seriesId ? <span>Series</span> : null}</div></div>;
+          const state = <div className="work-state-v2"><b><span className={`state-dot st-${dot}`} />{p.statusLabel}</b><span>{detail}</span></div>;
+          if (layout === "tiles") {
+            return (
+              <article key={p.id} className="work-tile" onClick={open} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") open(); }}>
+                {thumb}
+                {info}
+                <div className="work-tile-foot">{state}<button className="work-open" onClick={(e) => { e.stopPropagation(); open(); }}>Open →</button></div>
+              </article>
+            );
+          }
           return (
             <article key={p.id} className="work-row" onClick={open} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") open(); }}>
-              <div className={`work-thumb-v2 ${family}`} style={p.coverUrl ? { backgroundImage: `url(${p.coverUrl})`, backgroundSize: "cover" } : undefined}>
-                <span className="work-thumb-state">{p.statusLabel}</span>
-              </div>
-              <div className="work-info">
-                <h3>{p.title}</h3>
-                <p>{p.family}{p.videoType ? ` · ${p.videoType}` : ""}{p.durationSeconds ? ` · ${p.durationSeconds} sec` : ""}</p>
-                <div className="work-tags">
-                  <span>{p.family}</span>
-                  {p.videoType ? <span>{p.videoType}</span> : null}
-                  {p.durationSeconds ? <span>{p.durationSeconds}s</span> : null}
-                  {p.seriesId ? <span>Series</span> : null}
-                </div>
-              </div>
-              <div className="work-state-v2">
-                <b><span className={`state-dot st-${dot}`} />{p.statusLabel}</b>
-                <span>{detail}</span>
-              </div>
+              {thumb}
+              {info}
+              {state}
               <div className="work-row-actions">
                 <button className="work-open" onClick={(e) => { e.stopPropagation(); open(); }}>Open →</button>
                 {!job && <button className="work-history-btn" onClick={(e) => { e.stopPropagation(); onOpenHistory(p.id); }}>History</button>}

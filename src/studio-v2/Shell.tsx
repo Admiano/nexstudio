@@ -125,10 +125,10 @@ export default function Shell({ view }: { view: ViewId }) {
           }} />
         </section>
         <section className={`view ${view === "brand" ? "active" : ""}`} id="view-brand">
-          <BrandView openSheet={setSheet} notify={notify} openSeries={openSeries} />
+          <BrandView openSheet={setSheet} notify={notify} openSeries={openSeries} onOpenWork={(id) => setHistoryId(id)} />
         </section>
         <section className={`view ${view === "library" ? "active" : ""}`} id="view-library">
-          <LibraryView openSheet={setSheet} notify={notify} />
+          <LibraryView openSheet={setSheet} notify={notify} addContext={addContext} />
         </section>
         <section className={`view ${view === "series" ? "active" : ""}`} id="view-series">
           <SeriesView focusId={seriesFocus} openSheet={setSheet} notify={notify} onOpenHistory={(id) => setHistoryId(id)} />
