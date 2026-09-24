@@ -71,6 +71,7 @@ function PreviewChip({ video, label, desc, selected, onSelect }: { video: string
 const MIND_STEPS = [
   { key: "understand", title: "Understanding the brief", copy: "Bringing your intent, context and production direction together." },
   { key: "shape", title: "Shaping the production direction", copy: "Choosing the family, format and structure before anything is made." },
+  { key: "write", title: "Writing your narration", copy: "NexMind is turning your intent into a spoken script for the boards." },
   { key: "ready", title: "Direction is ready", copy: "Review every part of it — nothing has been produced yet." },
 ];
 
@@ -124,6 +125,23 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
           if (!productionId) { api.patchFlow({ stage: "closed", error: "The draft could not be created." }); return; }
         }
         api.patchFlow({ productionId, family, videoType });
+        // Brief → NexMind narration (script mode stays verbatim). Part of the mind
+        // pipeline so direction lands with the finished script, not a pending card.
+        let generatedScript: string | undefined;
+        if (engineKind && !flow.script) {
+          setMindStep(2);
+          try {
+            const s = await studioApi.script({
+              brief,
+              family,
+              videoType,
+              duration: flow.duration ?? 45,
+            });
+            if (s.status === "ready" && s.script) generatedScript = s.script;
+          } catch { /* verbatim-brief fallback */ }
+          if (!alive) return;
+          if (generatedScript) api.patchFlow({ generatedScript });
+        }
         // plan preview → direction bridge (skip for engine families — the draft is bookkeeping only)
         if (productionId) {
           try {
@@ -141,7 +159,7 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
         } else {
           api.patchFlow({ stage: "direction" });
         }
-        setMindStep(2);
+        setMindStep(3);
       } catch (e) {
         if (!alive) return;
         const msg = e instanceof Error ? e.message : "Production could not start.";

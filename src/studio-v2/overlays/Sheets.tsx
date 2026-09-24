@@ -18,7 +18,7 @@ export function PickerSheets({ open, onClose, composer, addContext, openSeries, 
   if (!open) return null;
   if (open === "files") return <FilesSheet onClose={onClose} addContext={addContext} notify={notify} />;
   if (open === "reference") return <ReferenceSheet onClose={onClose} addContext={addContext} />;
-  if (open === "brand") return <BrandSheet onClose={onClose} addContext={addContext} />;
+  if (open === "brand") return <BrandSheet onClose={onClose} addContext={addContext} notify={notify} />;
   if (open === "series") return <SeriesSheet onClose={onClose} addContext={addContext} openSeries={openSeries} notify={notify} />;
   return null;
 }
@@ -67,8 +67,27 @@ function ReferenceSheet({ onClose, addContext }: { onClose: () => void; addConte
   );
 }
 
-function BrandSheet({ onClose, addContext }: { onClose: () => void; addContext: (c: ContextChip) => void }) {
-  const { brands } = useStudio();
+function BrandSheet({ onClose, addContext, notify }: { onClose: () => void; addContext: (c: ContextChip) => void; notify: (m: string) => void }) {
+  const { brands, refresh } = useStudio();
+  const [creating, setCreating] = useState(false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function create() {
+    if (!name.trim()) return;
+    setBusy(true);
+    try {
+      const r = await studioApi.createBrand({ name: name.trim(), description: description.trim() || undefined });
+      await refresh(["brands"]);
+      const id = (r as { brandId?: string }).brandId;
+      if (id) addContext({ kind: "brand", refId: id, label: name.trim() });
+      onClose();
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Could not create brand.");
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <Overlay onClose={onClose}>
       <SheetHead eyebrow="Brand" title="Which brand should guide this?" onClose={onClose} />
@@ -80,8 +99,19 @@ function BrandSheet({ onClose, addContext }: { onClose: () => void; addContext: 
             <span className="arrow">→</span>
           </button>
         ))}
-        {brands.length === 0 && <p className="empty-note">No brands yet — create one from the Brand view.</p>}
+        {brands.length === 0 && <p className="empty-note">No brands yet.</p>}
       </div>
+      {creating ? (
+        <div className="field">
+          <label>Brand name</label>
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Acme Studio" />
+          <label style={{ marginTop: 10 }}>Description <span style={{ textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What this brand sounds and looks like" />
+          <button className="sheet-action" disabled={busy || !name.trim()} onClick={() => void create()}>{busy ? "Creating…" : "Create brand"}</button>
+        </div>
+      ) : (
+        <div className="series-sheet-foot"><button className="manage" onClick={() => { onClose(); route("brand"); }}>Manage brands</button><button className="new" onClick={() => setCreating(true)}>+ New brand</button></div>
+      )}
     </Overlay>
   );
 }
