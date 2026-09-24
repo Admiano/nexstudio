@@ -50,6 +50,15 @@ const R = {
 };
 const TEE_W = 1.22, SHORTS_W = 1.28, SHORTS_LEN = 0.42, SLEEVE_LEN = 0.35;
 
+// mouth shape vocabulary baked from the NEX performance-carrier mouth rig
+// (NEX_MOUTH_MINIMAL shape keys, head-local x=lateral y=opening, meters)
+let MOUTH = null;
+try {
+  MOUTH = JSON.parse(fs.readFileSync(
+    path.resolve(__dirname, 'compiled', 'mouth_shapes.json'), 'utf8'));
+} catch (e) { /* mouth shapes not baked */ }
+const MOUTH_WIDE = { ah: '#33231b', oh: '#33231b', fv: '#33231b' };
+
 const J = {
   pelvis: 'pelvis', spine: 'spine', chest: 'chest', neck: 'neck', head: 'head',
   clavL: 'clavicle_l', clavR: 'clavicle_r',
@@ -258,8 +267,22 @@ function skeletonSvg(p3, opts = {}) {
     push(0.42, 'pb-detail', 'none',
       `<circle cx="${round(ex - R2(R.headX) * spread * 0.5)}" cy="${round(ey)}" r="${round(S * 0.009)}" fill="${INK}"/>`
       + (Math.abs(fOff) > 0.35 ? '' :
-        `<circle cx="${round(ex + R2(R.headX) * spread * 0.5)}" cy="${round(ey)}" r="${round(S * 0.009)}" fill="${INK}"/>`)
-      + `<path d="M ${round(ex - R2(0.012))} ${round(ey + R2(0.035))} Q ${round(ex)} ${round(ey + R2(0.05))} ${round(ex + R2(0.012))} ${round(ey + R2(0.03))}" stroke="${INK}" stroke-width="${round(S * 0.007)}" fill="none"/>`);
+        `<circle cx="${round(ex + R2(R.headX) * spread * 0.5)}" cy="${round(ey)}" r="${round(S * 0.009)}" fill="${INK}"/>`));
+  }
+  // mouth from the carrier rig's real viseme shapes — the loop narrows
+  // with the head's turn, so speech reads in any facing direction.
+  if (MOUTH && facing > 0.05) {
+    const name = (opts.mouth || 'rest').toUpperCase();
+    const loop = MOUTH.shapes[name] || MOUTH.shapes.REST;
+    const ax = MOUTH.anchor[0], ay = MOUTH.anchor[1];
+    const k = R2(R.headX * 1.35) / 0.1545;   // rig mouth ~1.35 head radii wide
+    const mx = hr.x + fOff * R2(R.headX) * 0.45;
+    const my = hr.y + R2(0.045);
+    const d = loop.map((p, i) =>
+      `${i ? 'L' : 'M'} ${round(mx + (p[0] - ax) * k * facing)} ${round(my - (p[1] - ay) * k)}`).join(' ') + ' Z';
+    const fill = MOUTH_WIDE[name.toLowerCase()] || 'none';
+    push(0.43, 'pb-detail', 'none',
+      `<path d="${d}" stroke="${INK}" stroke-width="${round(S * 0.007)}" fill="${fill}"/>`);
   }
   // hair: cap biased to the side the head is turned AWAY from
   const hOff = -Math.sign(fOff || 1) * (0.55 + 0.45 * Math.abs(fOff));
@@ -368,6 +391,19 @@ const trackAz = (p3) => {
   return azSm;
 };
 
+// optional viseme timeline (rhubarb cues json) -> per-frame mouth shape
+let VTL = null;
+if (req.visemes) {
+  try {
+    const vc = JSON.parse(fs.readFileSync(req.visemes, 'utf8'));
+    const cues = vc.cues || vc;
+    VTL = (t) => {
+      for (const c of cues) if (c.start <= t && t <= c.end) return c.viseme;
+      return 'rest';
+    };
+  } catch (e) { /* visemes unreadable */ }
+}
+
 const meta = [];
 for (let i = 0; i < nF; i++) {
   const t = i / fps;
@@ -385,6 +421,7 @@ for (let i = 0; i < nF; i++) {
     scale: 645, bodyAz: az, presentAz, headAz,
     handL: st.hands && st.hands.left && st.hands.left.pose,
     handR: st.hands && st.hands.right && st.hands.right.pose,
+    mouth: req.mouth || (VTL ? VTL(t) : undefined),
   });
   fs.writeFileSync(path.join(outDir, `g${String(i).padStart(3, '0')}.svg`), svg);
   meta.push({ t, root: st.pose3d.root || [0, 0, 0] });

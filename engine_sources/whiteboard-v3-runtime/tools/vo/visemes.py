@@ -3,20 +3,21 @@
     python3 tools/vo/visemes.py vo.wav out_visemes.json
 
 Rhubarb (MIT, bundled binary at tools/vo/bin/rhubarb) emits Preston-Blair
-mouth cues A-H,X; we normalize them onto cast-face's five visemes
-(rest/ah/oh/ee/mm). The JSON is consumed per frame by the figure render
-path (mocap_rig req.visemes) — deterministic, no runtime LLM.
+mouth cues A-H,X; we normalize them onto the carrier rig's seven mouth
+shapes (rest/mbp/ah/ee/oh/fv/relax). The JSON is consumed per frame by
+the figure render paths (req.visemes) — deterministic, no runtime LLM.
 """
 import json, subprocess, sys, tempfile
 from pathlib import Path
 
 RHUBARB = Path(__file__).resolve().parent / 'bin' / 'rhubarb'
 
-# Preston-Blair -> our 5 visemes.
+# Preston-Blair -> carrier-rig mouth shapes
+# (NEX_MOUTH_MINIMAL keys: REST/MBP/AH/EE/OH/FV/RELAX).
 #  A mbp closed | B slight-open | C open | D wide | E fv | F oo/uu | G L | H ee | X rest
 SHAPE_MAP = {
-    'A': 'mm', 'B': 'rest', 'C': 'ah', 'D': 'ah', 'E': 'rest',
-    'F': 'oh', 'G': 'ee', 'H': 'ee', 'X': 'rest',
+    'A': 'mbp', 'B': 'relax', 'C': 'ah', 'D': 'ah', 'E': 'fv',
+    'F': 'oh', 'G': 'relax', 'H': 'ee', 'X': 'rest',
 }
 
 

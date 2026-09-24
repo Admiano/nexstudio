@@ -47,9 +47,10 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/ek_pose_clips.py` | Everkinetic canonical keypose -> vault FK generator (CC BY-SA 4.0) | `1900285b742c10a667e6e0def196cea56b584bc1eea1bb564754a7091508ac72` |
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |
 | `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `16018c7c3633c0d4bf2d7e9e640b02ae60aeac18a691657a209aea5c70d1f350` |
-| `tools/nexstick/skin_rig.cjs` | skin-on-skeleton renderer: true-joint masses, real-depth occlusion sort | `9437b9b48ec0693907796b6780381c3cd2904e9f72c11731d8380699f4e37d60` |
-| `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `f7ca82447e5e54f1bd25c3f4e3be8db232a3397de8dec3b71626e88db0a80918` |
+| `tools/nexstick/skin_rig.cjs` | skin-on-skeleton renderer: true-joint masses, real-depth occlusion sort | `0c5bb39dc66cf62a957f6dad30485143984d4db3fc6f3e88938aac0073ca5ae9` |
+| `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `43c6dbc64883af40334f8962a2dbb0b08946f99e329ca2779aa96031b9985a26` |
 | `tools/nexstick/fx_marks.cjs` | cartoon mark layer: velocity speed lines, impact bursts, foot-plant dust | `e0dce5bde5eceffc823eaa078ea3e7071aadd597adf36502a38ba7c2647b8749` |
 | `tools/nexstick/clip_select.cjs` | narration text -> vault clip pattern table (260+ clips) | `72fbb3cd9e59a05fef0f174cff74a32412a15c7dc10a89694109171dd3fe528b` |
 | `tools/nexstick/bake_blend_vault.py` | Blender .blend -> V5 vault action baker (PERFORMANCE_CARRIER rigs) | `b8029a278ba97f5b4f30172636eba7890154745b98cf9a6f1b56883bfdab9d21` |
 | `tools/nexstick/compiled/nex_vault_v5.json` | 182 authored actions from the NexMind performance-carrier rigs (internal) | `e6982c7aacea2b7f07e49dbf134d4640fb02cbcb628a1a88e08abf8821cea3fa` |
+| `tools/nexstick/compiled/mouth_shapes.json` | 7 viseme mouth loops baked from NEX_MOUTH_MINIMAL (internal) | `f55a341bf3b6b38133e2b5a0252b232a22457f32a34c9251dbcda3d07ee37659` |
