@@ -84,6 +84,12 @@ def treatment_schema() -> Dict[str, Any]:
         'formality': _unit(),
         'facing': _enum(c.FIGURE_FACINGS),
         'justification': _str(),
+        'character': NULLABLE_STR,
+        'track': {'anyOf': [_obj({'enter': _enum(c.FIGURE_TRACK_SIDES), 'exit': _enum(c.FIGURE_TRACK_SIDES)}, [], additionalProperties=False), {'type': 'null'}]},
+        'prop': {'anyOf': [_obj({'concept': {'type': 'string', 'maxLength': 40}, 'hand': _enum(c.FIGURE_HANDS)}, ['concept'], additionalProperties=True), {'type': 'null'}]},
+        'states': {'anyOf': [{'type': 'array', 'items': _obj({'at': anchor, 'pose': NULLABLE_STR, 'face': NULLABLE_STR, 'head': NULLABLE_STR}, ['at'], additionalProperties=False), 'minItems': 1, 'maxItems': 3}, {'type': 'null'}]},
+        'pose': NULLABLE_STR,
+        'face': NULLABLE_STR,
     }, ['valence', 'arousal', 'justification'], additionalProperties=False)
     media = _obj({
         'asset_id': _str(),
@@ -133,6 +139,10 @@ def treatment_schema() -> Dict[str, Any]:
         'alignment_path': _str(),
         'head_pad_ms': MS,
     }, [])
+    cast_member = _obj({
+        'posture': _enum(c.FIGURE_POSTURES),
+        'head': NULLABLE_STR, 'face': NULLABLE_STR, 'skin': NULLABLE_STR, 'garment': NULLABLE_STR,
+    }, [], additionalProperties=False)
     return {
         '$schema': DRAFT,
         '$id': f'https://nexstudio.dev/schema/{c.SCHEMA}.json',
@@ -144,6 +154,7 @@ def treatment_schema() -> Dict[str, Any]:
             'aspects': {'type': 'array', 'items': _enum(c.ASPECTS), 'uniqueItems': True, 'minItems': 1},
             'fps': _enum_int((24, 25, 30, 60)),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
+            'cast': {'type': 'object', 'additionalProperties': cast_member, 'maxProperties': c.CAST_MEMBER_CAP},
             'media_library': {'type': 'array', 'items': asset},
             'brand': _obj({'ink': _str(), 'paper': _str(), 'accent': NULLABLE_STR, 'finish': _enum(c.FINISHES)}, []),
             'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, []),

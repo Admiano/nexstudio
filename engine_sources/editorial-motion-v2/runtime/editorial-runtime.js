@@ -906,7 +906,21 @@
     return out;
   }
 
-  function buildFigure(fig, plan, beatRoot, peepsUrl) {
+  function figurePartGroup(part, palette, peepsUrl) {
+    return fetchText(peepsUrl(part.file)).then((txt) => {
+      const doc = new DOMParser().parseFromString(recolor(txt, palette), 'image/svg+xml');
+      const src = doc.documentElement;
+      const vbSrc = (src.getAttribute('viewBox') || `0 0 ${part.source_size.w} ${part.source_size.h}`).split(/[\s,]+/).map(Number);
+      const nested = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      const sx = part.frame.w / vbSrc[2], sy = part.frame.h / vbSrc[3];
+      nested.setAttribute('transform', `translate(${part.frame.x} ${part.frame.y}) scale(${sx.toFixed(5)} ${sy.toFixed(5)}) translate(${-vbSrc[0]} ${-vbSrc[1]})`);
+      nested.setAttribute('data-slot', part.slot);
+      nested.innerHTML = src.innerHTML;
+      return { part, nested };
+    });
+  }
+
+  function buildFigure(fig, plan, beatRoot, opts) {
     const bb = bboxOf(fig.bbox);
     const host = el('div', {
       position: 'absolute', left: px(bb.x), top: px(bb.y), width: px(bb.w), height: px(bb.h), zIndex: '14',
@@ -922,21 +936,50 @@
     if (fig.mirror) g.setAttribute('transform', `translate(${vb[0] * 2 + vb[2]} 0) scale(-1 1)`);
     svg.appendChild(g);
     host.appendChild(svg);
-    const ready = Promise.all(fig.parts.map((part) => fetchText(peepsUrl(part.file)).then((txt) => {
-      const doc = new DOMParser().parseFromString(recolor(txt, fig.palette), 'image/svg+xml');
-      const src = doc.documentElement;
-      const vbSrc = (src.getAttribute('viewBox') || `0 0 ${part.source_size.w} ${part.source_size.h}`).split(/[\s,]+/).map(Number);
-      const nested = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      const sx = part.frame.w / vbSrc[2], sy = part.frame.h / vbSrc[3];
-      nested.setAttribute('transform', `translate(${part.frame.x} ${part.frame.y}) scale(${sx.toFixed(5)} ${sy.toFixed(5)}) translate(${-vbSrc[0]} ${-vbSrc[1]})`);
-      nested.setAttribute('data-slot', part.slot);
-      nested.innerHTML = src.innerHTML;
-      return { part, nested };
-    }))).then((items) => {
-      // Slot order is authored by the compiler: body → head → face.
-      for (const it of items) g.appendChild(it.nested);
-    });
-    return { fig, host, bb, ready };
+    const f = { fig, host, bb, ready: null, slotEls: {}, stateSwaps: null, appliedState: -1, prop: null };
+    const stateParts = [];
+    for (const st of fig.states || []) for (const sw of st.swaps) stateParts.push({ st, sw });
+    const ready = Promise.all([
+      Promise.all(fig.parts.map((part) => figurePartGroup(part, fig.palette, opts.peepsUrl))).then((items) => {
+        // Slot order is authored by the compiler: body → head → face.
+        for (const it of items) { g.appendChild(it.nested); f.slotEls[it.part.slot] = it.nested; }
+      }),
+      // State morph parts are prefetched too: the swap itself must be instant at lt, not on a fetch.
+      Promise.all(stateParts.map(({ st, sw }) => figurePartGroup(sw, fig.palette, opts.peepsUrl).then(({ nested }) => {
+        (st._prepared = st._prepared || []).push({ slot: sw.slot, innerHTML: nested.innerHTML, transform: nested.getAttribute('transform') });
+      }))),
+    ]);
+    if (fig.states) f.stateSwaps = fig.states;
+    if (fig.prop) {
+      const p = fig.prop;
+      const size = bb.w * 0.3;
+      const prop = el('div', {
+        position: 'absolute', left: `${(p.anchor.x * 100).toFixed(2)}%`, top: `${(p.anchor.y * 100).toFixed(2)}%`,
+        width: px(size), height: px(size), transform: 'translate(-50%,-50%)', transformOrigin: '50% 15%',
+        willChange: 'transform',
+      }, host);
+      f.prop = prop;
+      const propReady = p.asset && p.asset.path
+        ? fetchText(opts.assetUrl(p.asset.path)).then((txt) => {
+            const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+            const psvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            psvg.setAttribute('viewBox', doc.documentElement.getAttribute('viewBox') || `0 0 ${p.asset.width || 400} ${p.asset.height || 400}`);
+            psvg.setAttribute('width', '100%'); psvg.setAttribute('height', '100%');
+            psvg.innerHTML = doc.documentElement.innerHTML;
+            prop.appendChild(psvg);
+          })
+        : p.photo && p.photo.path
+          ? Promise.resolve(prop.appendChild(Object.assign(el('img', { width: '100%', height: '100%', objectFit: 'cover', borderRadius: px(size * 0.08) }), { src: opts.assetUrl(p.photo.path) })))
+          : Promise.resolve((() => {
+              prop.style.cssText += `;background:${plan.brand.paper};border:${px(Math.max(1, size * 0.02))} solid ${plan.brand.ink};border-radius:${px(size * 0.1)};box-shadow:0 ${px(size * 0.05)} ${px(size * 0.12)} rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;`;
+              const tag = el('span', { fontFamily: `"${plan.fonts.families.display}"`, fontWeight: '700', fontSize: px(size * 0.3), color: plan.brand.ink, whiteSpace: 'nowrap' }, prop);
+              tag.textContent = String(p.word || p.concept || '');
+            })());
+      f.ready = Promise.all([ready, propReady]);
+    } else {
+      f.ready = ready;
+    }
+    return f;
   }
 
   function applyFigureState(f, lt, beat, ctx) {
@@ -944,11 +987,48 @@
     const s = f.host.style;
     s.visibility = lt < fig.enter_ms ? 'hidden' : 'visible';
     const p = EASE.outQuint(prog(lt, fig.enter_ms, fig.enter_ms + fig.enter_duration_ms));
-    let opacity = p, ty = (1 - p) * f.bb.h * 0.05, scale = lerp(0.985, 1, p);
+    let opacity = p, ty = (1 - p) * f.bb.h * 0.05, scale = lerp(0.985, 1, p), tx = 0, tilt = 0;
+    const tr = fig.track;
+    if (tr) {
+      const stage = f.bb.w * 1.3 + 60;
+      if (tr.enter !== 'none' && lt < tr.enter_ms + tr.enter_duration_ms) {
+        // Walking in from a wing: horizontal travel with a two-step bob and a hair of tilt.
+        const q = EASE.outCubic(prog(lt, tr.enter_ms, tr.enter_ms + tr.enter_duration_ms));
+        const dir = tr.enter === 'left' ? -1 : 1;
+        tx = dir * stage * (1 - q);
+        tilt = dir * (1 - q) * 4;
+        ty += Math.abs(Math.sin(q * Math.PI * 3)) * f.bb.h * 0.012;
+        opacity = Math.max(opacity, Math.min(1, q * 3));
+      } else if (tr.exit !== 'none' && lt >= tr.exit_start_ms) {
+        const q = EASE.inCubic(prog(lt, tr.exit_start_ms, tr.exit_start_ms + tr.exit_duration_ms));
+        const dir = tr.exit === 'left' ? -1 : 1;
+        tx = dir * stage * q;
+        tilt = dir * q * 4;
+        ty += Math.abs(Math.sin(q * Math.PI * 3)) * f.bb.h * 0.012;
+      }
+    }
     const ex = ctx.exitState({ block: { role: 'figure' } }, lt);
     if (ex) { opacity *= ex.opacity; ty += ex.ty; }
     s.opacity = opacity.toFixed(4);
-    s.transform = `translateY(${ty.toFixed(2)}px) scale(${scale.toFixed(4)})`;
+    s.transform = `translateX(${tx.toFixed(2)}px) translateY(${ty.toFixed(2)}px) rotate(${tilt.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
+    if (f.prop) {
+      const sway = Math.sin(lt * 0.0042) * 3.5;
+      f.prop.style.transform = `translate(-50%,-50%) rotate(${sway.toFixed(2)}deg)`;
+    }
+    // Performer states: a puppet cuts poses, it does not tween — instant swap at its authored ms.
+    if (f.stateSwaps) {
+      let idx = -1;
+      for (let i = 0; i < f.stateSwaps.length; i++) if (lt >= f.stateSwaps[i].at_ms) idx = i;
+      if (idx !== f.appliedState) {
+        f.appliedState = idx;
+        if (idx >= 0) {
+          for (const sw of f.stateSwaps[idx]._prepared || []) {
+            const el2 = f.slotEls[sw.slot];
+            if (el2) { el2.innerHTML = sw.innerHTML; el2.setAttribute('transform', sw.transform); }
+          }
+        }
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -2258,7 +2338,7 @@
     const bg = buildBackground(beat, plan, root);
     const media = beat.media ? buildMedia(beat.media, plan, root, opts.assetUrl) : null;
     if (media) media.blur = motionBlurFilter(fx.defs, `${fx.scope}-mb-media`);
-    const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts.peepsUrl) : null;
+    const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts) : null;
     const data = beat.data ? buildData(beat.data, plan, root) : null;
     const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, { ...opts, fx }) : null;
     const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, root), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));

@@ -174,6 +174,15 @@ Rules:
 - `figure` (a still person) only on beats about a human state; requires
   justification. `data` only when the narration cites a number. `media`
   references only ids from the supplied media_library, when present.
+- Performer option: if the script suits a recurring character, declare it in
+  `cast` (id -> {posture, head?, face?, skin?}) and set `figure.character` to
+  that id — the figure then keeps ONE identity across beats while its face
+  still tracks the beat's emotion. With a cast member you may also add:
+  `track` {enter: left|right|none, exit: left|right|none} (it walks on/off the
+  stage between scenes), `prop` {concept, hand: left|right|auto} (a thing it
+  holds — e.g. a magnifier, a gift box), and `states` (<=3) each {at: {word|
+  offset_ms}, pose?, face?, head?} to morph its body/expression mid-beat.
+  `pose`/`face` at figure level pin exact part ids when you know them.
 - Author the arc, not just the beats: `film.motif` is ONE recurring visual idea
   (e.g. a question mark, a seed that grows) that pays off at the end; `scenes`
   group beats into authored moments with a setting and a visual_metaphor each;
@@ -208,10 +217,13 @@ def _user_payload(script: str, groups: List[List[Dict[str, Any]]], style: Dict[s
             "data_kinds": list(c.DATA_KINDS), "figure_postures": list(c.FIGURE_POSTURES),
             "figure_facings": list(c.FIGURE_FACINGS), "moods": list(c.FILM_MOODS),
             "concept_glyphs": list(c.CONCEPT_GLYPHS),
+            "figure_track_sides": list(c.FIGURE_TRACK_SIDES), "figure_hands": list(c.FIGURE_HANDS),
         },
         "registry_asset_count": len(registry_ids),
         "output_contract": {
             "film": {"thesis": "str", "motif": "str <=40 chars", "mood": "one of moods", "note": "str"},
+            "cast": {"character_id": {"posture": "enum", "head": "part id|null",
+                                       "face": "part id|null", "skin": "tone|null"}},
             "scenes": [{"name": "str", "covers": ["beat index 1-based"], "setting": "str",
                         "visual_metaphor": "str"}],
             "beats": [{"groups": [0], "beat_type": "enum", "pattern": "enum",
@@ -221,7 +233,12 @@ def _user_payload(script: str, groups: List[List[Dict[str, Any]]], style: Dict[s
                                             "stress": ["word"], "anchor_word": "word"}],
                         "figure": {"valence": -1.0, "arousal": 0.0, "posture": "enum",
                                     "energy": 0.0, "formality": 0.0, "facing": "enum",
-                                    "justification": "str"} ,
+                                    "justification": "str", "character": "cast id|null",
+                                    "track": {"enter": "enum", "exit": "enum"},
+                                    "prop": {"concept": "str<=40", "hand": "enum"},
+                                    "states": [{"at": {"word": "w"} | {"offset_ms": 0},
+                                               "pose": "id|null", "face": "id|null"}],
+                                    "pose": "id|null", "face": "id|null"} ,
                         "data": {"kind": "enum", "value": "str", "label": "str"},
                         "media": {"asset_id": "from media_library", "role": "enum"},
                         "illustration": {"form": "enum",
@@ -703,6 +720,16 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
         raise AnalystInvalid("payload has no beats[]")
     media_ids = {m["asset_id"] for m in media_library}
     media_kinds = {m["asset_id"]: m.get("kind", "IMAGE") for m in media_library}
+    cast: Dict[str, Dict[str, Any]] = {}
+    for cid, m in (payload.get("cast") or {}).items():
+        mid = str(cid).strip()
+        if not mid or len(cast) >= c.CAST_MEMBER_CAP or not isinstance(m, dict):
+            continue
+        member = {"posture": _enum(m.get("posture"), c.FIGURE_POSTURES, "standing")}
+        for pin in ("head", "face", "skin", "garment"):
+            if str(m.get(pin) or "").strip():
+                member[pin] = str(m[pin]).strip()
+        cast[mid] = member
     group_texts = [" ".join(w["text"] for w in g).strip() for g in groups]
     group_word_sets = [set(_norm_seq(t)) for t in group_texts]
     used: set = set()
@@ -756,6 +783,40 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
                       "formality": _clamp(rf.get("formality", 0.5)),
                       "facing": _enum(rf.get("facing"), c.FIGURE_FACINGS, "TOWARD_TEXT"),
                       "justification": " ".join(str(rf["justification"]).split())}
+            char = str(rf.get("character") or "").strip()
+            if char and char in cast:
+                figure["character"] = char
+            rt = rf.get("track")
+            if isinstance(rt, dict):
+                track = {k: _enum(rt.get(k), c.FIGURE_TRACK_SIDES, "none") for k in ("enter", "exit")}
+                if track["enter"] != "none" or track["exit"] != "none":
+                    figure["track"] = track
+            rp = rf.get("prop")
+            if isinstance(rp, dict):
+                concept = " ".join(str(rp.get("concept") or "").split())[:40]
+                if concept:
+                    figure["prop"] = {"concept": concept, "hand": _enum(rp.get("hand"), c.FIGURE_HANDS, "auto")}
+            rs = rf.get("states")
+            if isinstance(rs, list):
+                states = []
+                for st in rs[:3]:
+                    if not isinstance(st, dict) or not any(st.get(k) for k in ("pose", "face", "head")):
+                        continue
+                    at = st.get("at") or {}
+                    if "word" in at and str(at["word"]).lower() in nwords:
+                        states.append({"at": {"word": str(at["word"])},
+                                       **{k: str(st[k]) for k in ("pose", "face", "head") if st.get(k)}})
+                    elif "offset_ms" in at:
+                        try:
+                            states.append({"at": {"offset_ms": max(0, int(at["offset_ms"]))},
+                                           **{k: str(st[k]) for k in ("pose", "face", "head") if st.get(k)}})
+                        except (TypeError, ValueError):
+                            pass
+                if states:
+                    figure["states"] = states
+            for pin in ("pose", "face"):
+                if str(rf.get(pin) or "").strip():
+                    figure[pin] = str(rf[pin]).strip()
         data = None
         rd = rb.get("data")
         if isinstance(rd, dict) and str(rd.get("value") or "").strip():
@@ -888,6 +949,8 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
     }
     if mood:
         treatment["mood"] = mood
+    if cast:
+        treatment["cast"] = cast
     storyboard = {
         "schema": "NexStudioStoryboardV1",
         "film_id": film_id,
@@ -899,6 +962,7 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
         },
         "scenes": [s for s in (payload.get("scenes") or []) if isinstance(s, dict)],
         "entities": [e for e in (payload.get("entities") or []) if isinstance(e, dict)],
+        "cast": cast or None,
         "metaphors": metaphors,
     }
     return treatment, storyboard

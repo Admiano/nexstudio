@@ -163,3 +163,55 @@ def test_empty_payload_is_invalid():
         story_analyst.conform({}, [], {}, "x", ASPECTS, [], set())
     with pytest.raises(story_analyst.AnalystInvalid):
         story_analyst.conform({"beats": "nope"}, [], {}, "x", ASPECTS, [], set())
+
+
+def test_performer_cast_conforms_and_gates(tmp_path):
+    """Phase 03 performer: cast identity + track/prop/states must survive conform,
+    validate against the contract, and pass the compile gate."""
+    fx, words, groups, treatment, storyboard = conform_fixture("performer")
+    FilmTreatment.parse(treatment)
+    assert treatment["cast"]["scout"]["head"] == "bun-2"
+    assert storyboard["cast"]["scout"]["posture"] == "standing"
+    beats = treatment["beats"]
+    figures = [b["figure"] for b in beats if b.get("figure")]
+    assert all(f.get("character") == "scout" for f in figures)
+    assert beats[0]["figure"]["track"] == {"enter": "left", "exit": "none"}
+    assert beats[1]["figure"]["prop"]["concept"] == "magnifying glass"
+    assert beats[2]["figure"]["states"][0]["face"] == "concerned"
+    assert beats[4]["figure"]["face"] == "smile"
+    fdir = make_fixture_dir(tmp_path, words)
+    result = gate_for(treatment, fdir, tmp_path)
+    assert result["gate"]["status"] == "PASS", result["gate"]["failures"]
+    plans = result["plans"]["16x9"]["beats"]
+    b2 = next(b for b in plans if b["beat_id"] == "b02")
+    fig = b2["figure"]
+    assert fig["character"] == "scout"
+    prop = fig["prop"]
+    assert prop["hand"] == "right"
+    assert prop["asset"] or prop["photo"] or prop["word"]  # resolved somewhere on the ladder
+    b3 = next(b for b in plans if b["beat_id"] == "b03")
+    states = b3["figure"]["states"]
+    assert 1 <= len(states) <= 3
+    assert all(s["at_ms"] > 0 and s["swaps"] for s in states)
+    # identity persistence: the cast seed makes the head identical across beats
+    heads = {p["part_id"] for p in fig["parts"] if p["slot"] == "head"}
+    assert heads == {"bun-2"}
+    b5 = next(b for b in plans if b["beat_id"] == "b05")
+    assert {p["part_id"] for p in b5["figure"]["parts"] if p["slot"] == "head"} == heads
+    assert b5["figure"]["track"]["enter"] == "right"
+
+
+def test_performer_unknown_character_dropped(tmp_path):
+    """A figure referencing a cast member that was not declared must lose the
+    reference, not fail: contract parse raises PERFORMER_CHARACTER_UNKNOWN otherwise."""
+    fx, words, groups, treatment, _ = conform_fixture("performer")
+    treatment["cast"].pop("scout")
+    with pytest.raises(Exception):
+        FilmTreatment.parse(treatment)
+    # conform-time repair: unknown character simply isn't carried
+    fx2, words2, groups2, treatment2, _ = conform_fixture("performer")
+    payload = dict(fx2["payload"])
+    payload["cast"] = {}
+    t2, _sb = story_analyst.conform(payload, groups2, make_reel.style_of("tiles"),
+                                  "analyst-perf2", ASPECTS, [], story_analyst._registry_ids())
+    assert all(not b.get("figure") or "character" not in b["figure"] for b in t2["beats"])

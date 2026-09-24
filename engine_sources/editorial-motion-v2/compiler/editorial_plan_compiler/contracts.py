@@ -56,6 +56,9 @@ SEMANTIC_ROLES = ('statement', 'setup', 'contrast', 'proof', 'punch', 'qualifier
 MEDIA_KINDS = ('IMAGE', 'SCREENSHOT', 'DOCUMENT', 'VIDEO')
 MEDIA_ROLES = ('EVIDENCE', 'PROOF', 'CONTEXT')
 FIGURE_POSTURES = ('standing', 'sitting')
+FIGURE_TRACK_SIDES = ('left', 'right', 'none')
+FIGURE_HANDS = ('left', 'right', 'auto')
+CAST_MEMBER_CAP = 6
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
@@ -381,7 +384,11 @@ class IllustrationDirective:
 
 @dataclass
 class FigureDirective:
-    """A still Open Peeps figure appears only when the beat is about a person's state."""
+    """A still Open Peeps figure appears only when the beat is about a person's state.
+
+    `character` names a film-cast member so the figure keeps one identity across beats; `track`
+    slides it on/off the stage (walks between scenes); `prop` pins a concept to a hand anchor;
+    `states` morph pose/face parts mid-beat so the performer can react inside its beat."""
 
     valence: float  # -1 .. 1
     arousal: float  # 0 .. 1
@@ -390,6 +397,12 @@ class FigureDirective:
     formality: float = 0.5
     facing: str = 'TOWARD_TEXT'
     justification: str = ''
+    character: Optional[str] = None
+    track: Optional[Dict[str, str]] = None
+    prop: Optional[Dict[str, Any]] = None
+    states: Optional[List[Dict[str, Any]]] = None
+    pose: Optional[str] = None
+    face: Optional[str] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any], beat_id: str) -> 'FigureDirective':
@@ -399,6 +412,30 @@ class FigureDirective:
         _need(facing in FIGURE_FACINGS, 'FIGURE_FACING_UNKNOWN', facing, beat_id)
         just = ' '.join(str(d.get('justification') or '').split())
         _need(bool(just), 'FIGURE_UNJUSTIFIED', 'figure directive must state the human state it embodies', beat_id)
+        character = (str(d.get('character') or '').strip() or None)
+        _need(character is None or len(character) <= 32, 'FIGURE_CHARACTER_INVALID', character or '', beat_id)
+        track = d.get('track')
+        if track is not None:
+            _need(isinstance(track, dict), 'FIGURE_TRACK_INVALID', 'track must be an object', beat_id)
+            for k in ('enter', 'exit'):
+                side = str(track.get(k) or 'none')
+                _need(side in FIGURE_TRACK_SIDES, 'FIGURE_TRACK_SIDE_UNKNOWN', side, beat_id)
+                track[k] = side
+        prop = d.get('prop')
+        if prop is not None:
+            _need(isinstance(prop, dict), 'FIGURE_PROP_INVALID', 'prop must be an object', beat_id)
+            concept = ' '.join(str(prop.get('concept') or '').split())
+            _need(0 < len(concept) <= 40, 'FIGURE_PROP_CONCEPT', concept, beat_id)
+            hand = str(prop.get('hand') or 'auto')
+            _need(hand in FIGURE_HANDS, 'FIGURE_HAND_UNKNOWN', hand, beat_id)
+            prop = {**prop, 'concept': concept, 'hand': hand}
+        states = d.get('states')
+        if states is not None:
+            _need(isinstance(states, list) and 1 <= len(states) <= 3, 'FIGURE_STATES_CAP', 'at most 3 states', beat_id)
+            for st in states:
+                _need(isinstance(st, dict) and any(st.get(k) for k in ('pose', 'face', 'head')), 'FIGURE_STATE_INVALID', 'a state needs a pose, face or head part to swap', beat_id)
+                at = st.get('at') or {}
+                _need(sum(1 for k in ('word', 'offset_ms') if k in at) == 1, 'FIGURE_STATE_AT', 'state needs exactly one of word/offset_ms', beat_id)
         return cls(
             valence=max(-1.0, min(1.0, float(d.get('valence', 0)))),
             arousal=_unit(d.get('arousal', 0.5)),
@@ -407,7 +444,35 @@ class FigureDirective:
             formality=_unit(d.get('formality', 0.5)),
             facing=facing,
             justification=just,
+            character=character,
+            track={k: str(v) for k, v in track.items()} if isinstance(track, dict) else None,
+            prop=prop,
+            states=states,
+            pose=(str(d.get('pose') or '').strip() or None),
+            face=(str(d.get('face') or '').strip() or None),
         )
+
+
+@dataclass
+class CastMember:
+    """A named performer identity held consistent across the film. Optional part pins fix the
+    composition/parts; otherwise the member's seed keeps the same picks on every beat it plays."""
+
+    posture: str = 'standing'
+    head: Optional[str] = None
+    face: Optional[str] = None
+    skin: Optional[str] = None
+    garment: Optional[str] = None
+
+    @classmethod
+    def parse(cls, member_id: str, d: Dict[str, Any]) -> 'CastMember':
+        posture = str(d.get('posture') or 'standing')
+        _need(posture in FIGURE_POSTURES, 'CAST_POSTURE_UNKNOWN', posture, member_id)
+        return cls(posture=posture,
+                   head=(str(d.get('head') or '').strip() or None),
+                   face=(str(d.get('face') or '').strip() or None),
+                   skin=(str(d.get('skin') or '').strip() or None),
+                   garment=(str(d.get('garment') or '').strip() or None))
 
 
 @dataclass
@@ -564,6 +629,7 @@ class FilmTreatment:
     fps: int = 30
     typography: TypographyMode = field(default_factory=TypographyMode)
     mood: Optional[str] = None
+    cast: Dict[str, CastMember] = field(default_factory=dict)
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -578,6 +644,14 @@ class FilmTreatment:
         for a in aspects:
             _need(a in ASPECTS, 'ASPECT_UNKNOWN', a)
         library = {m.asset_id: m for m in (MediaAsset.parse(x) for x in (d.get('media_library') or []))}
+        cast_d = d.get('cast') or {}
+        _need(isinstance(cast_d, dict) and len(cast_d) <= CAST_MEMBER_CAP, 'CAST_MEMBER_CAP', f'at most {CAST_MEMBER_CAP} cast members')
+        cast: Dict[str, CastMember] = {}
+        for cid, m in cast_d.items():
+            mid = str(cid).strip()
+            _need(bool(mid) and len(mid) <= 32, 'CAST_MEMBER_ID_INVALID', str(cid))
+            _need(isinstance(m, dict), 'CAST_MEMBER_INVALID', str(cid))
+            cast[mid] = CastMember.parse(mid, m)
         by_id = {b.beat_id: b for b in beats}
         for b in beats:
             il = b.illustration
@@ -594,6 +668,8 @@ class FilmTreatment:
                         _need(ce in src_ids, 'CARRY_ENTITY_NOT_IN_SOURCE', f'{ce} not in {il.carry_from}', b.beat_id)
                 if il.persist_to:
                     _need(il.persist_to in ids and ids.index(il.persist_to) > ids.index(b.beat_id), 'ILLUSTRATION_PERSIST_TARGET_INVALID', il.persist_to, b.beat_id)
+            if b.figure and b.figure.character:
+                _need(b.figure.character in cast, 'PERFORMER_CHARACTER_UNKNOWN', b.figure.character, b.beat_id)
             if b.media:
                 _need(b.media.asset_id in library, 'MEDIA_ASSET_NOT_IN_LIBRARY', b.media.asset_id, b.beat_id)
                 if b.media.persist_to:
@@ -620,4 +696,4 @@ class FilmTreatment:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood)
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, cast)
