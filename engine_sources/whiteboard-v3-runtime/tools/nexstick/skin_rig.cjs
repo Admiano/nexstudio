@@ -284,6 +284,26 @@ function skeletonSvg(p3, opts = {}) {
     push(0.43, 'pb-detail', 'none',
       `<path d="${d}" stroke="${INK}" stroke-width="${round(S * 0.007)}" fill="${fill}"/>`);
   }
+  // prop layer: line-art chair under seated clips (dims mined from the
+  // carrier rig's SUPPORT_CHAIR mesh — seat 0.46m, back top 0.92m).
+  // Ink strokes only; drawn under the figure so the body occludes it.
+  if (opts.prop === 'chair') {
+    const toek = (q[J.toeL].x + q[J.toeR].x) / 2, hipx = (q[J.hipL].x + q[J.hipR].x) / 2;
+    const dir = Math.sign(toek - hipx) || 1;       // where the sitter faces
+    const seatY = -0.46 * S, backTop = -0.92 * S;
+    const backX = pel.x - dir * R2(0.20), frontX = pel.x + dir * R2(0.14);
+    const ink = (d, w) => push(-0.5, 'pb-detail', 'none', stroke(d, w));
+    // seat slab (double edge)
+    ink(`M ${round(backX)} ${round(seatY)} L ${round(frontX)} ${round(seatY)}`, S * 0.01);
+    ink(`M ${round(backX)} ${round(seatY + S * 0.014)} L ${round(frontX)} ${round(seatY + S * 0.014)}`, S * 0.01);
+    // backrest
+    ink(`M ${round(backX)} ${round(seatY)} L ${round(backX - dir * R2(0.05))} ${round(backTop)}`, S * 0.012);
+    ink(`M ${round(backX - dir * R2(0.05))} ${round(backTop)} L ${round(backX + dir * R2(0.05))} ${round(backTop)}`, S * 0.01);
+    ink(`M ${round(backX + dir * R2(0.05))} ${round(backTop)} L ${round(backX)} ${round(seatY)}`, S * 0.012);
+    // legs to the floor (y=0 in this projection)
+    ink(`M ${round(frontX - dir * R2(0.02))} ${round(seatY + S * 0.014)} L ${round(frontX - dir * R2(0.04))} 0`, S * 0.01);
+    ink(`M ${round(backX + dir * R2(0.02))} ${round(seatY + S * 0.014)} L ${round(backX + dir * R2(0.04))} 0`, S * 0.01);
+  }
   // hair: cap biased to the side the head is turned AWAY from
   const hOff = -Math.sign(fOff || 1) * (0.55 + 0.45 * Math.abs(fOff));
   push(0.41, 'pb-hair', HAIR,
@@ -391,6 +411,11 @@ const trackAz = (p3) => {
   return azSm;
 };
 
+// chair prop for seated actions (pelvis parked at chair height + name hint)
+const SEATED = (req.cmuClip || req.action || '')
+  .match(/SIT|SEATED|GESTURE|ATTENTION|PHRASE|THINK|LISTEN|QUESTION|PRESENT|EXPLAIN|EMPHASIS|AGREE|REST|RECOVER/i)
+  && st0.pose3d && st0.pose3d.pelvis[1] < 0.85;
+
 // optional viseme timeline (rhubarb cues json) -> per-frame mouth shape
 let VTL = null;
 if (req.visemes) {
@@ -422,6 +447,7 @@ for (let i = 0; i < nF; i++) {
     handL: st.hands && st.hands.left && st.hands.left.pose,
     handR: st.hands && st.hands.right && st.hands.right.pose,
     mouth: req.mouth || (VTL ? VTL(t) : undefined),
+    prop: req.prop || (SEATED ? 'chair' : undefined),
   });
   fs.writeFileSync(path.join(outDir, `g${String(i).padStart(3, '0')}.svg`), svg);
   meta.push({ t, root: st.pose3d.root || [0, 0, 0] });
