@@ -59,13 +59,8 @@ def build_voice(args, script_text: str | None, work: Path) -> tuple[Path, Path |
     text = re.sub(r"\[[^\]]*\]", " ", script_text or "").strip()
     if not text:
         raise RuntimeError("VOICE_REQUIRED: script produced no narration text")
-    # ~145 wpm speaking pace; a target duration retimes the narration within a
-    # natural range rather than cutting words
-    speed = 1.0
-    if args.duration and args.duration > 0:
-        est = len(text.split()) * 0.42
-        speed = min(max(est / args.duration, 0.75), 1.5)
-    speed = min(max(speed * (getattr(args, 'speed', None) or 1.0), 0.6), 2.0)
+    # Narration speed is the user's choice only; duration never retimes the voice.
+    speed = min(max(getattr(args, 'speed', None) or 1.0, 0.6), 2.0)
     vo_synth.synth_edge(text, vo_wav, voice=VOICES[args.voice], speed=speed)
     words = work / "vo_words.json"
     try:
@@ -97,7 +92,7 @@ def main() -> int:
     ap.add_argument("--accent", default=None, help="highlight hex color (kinetic)")
     ap.add_argument("--title", default="NEXSTUDIO")
     ap.add_argument("--aspects", default="16:9,1x1,9:16")
-    ap.add_argument("--duration", type=float, default=None, help="target seconds; narration pacing adjusts toward it")
+    ap.add_argument("--duration", type=float, default=None, help="target seconds preference")
     ap.add_argument("--speed", type=float, default=1.0, help="user narration speed multiplier")
     ap.add_argument("--out", required=True)
     ap.add_argument("--job-id", required=True)

@@ -23,7 +23,8 @@ export interface FlowState {
   jobKind?: EngineKind;
   jobId?: string;
   jobOutputs?: Record<string, string>;
-  engine?: { wbType?: string; wbTheme?: string; wbAccent?: string; style?: string; voice?: string };
+  engine?: { wbType?: string; wbTheme?: string; wbAccent?: string; style?: string; voice?: string; speed?: string };
+  script?: string;
   error?: string;
 }
 
@@ -229,7 +230,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     try {
       if (kind) {
         const fd = new FormData();
-        fd.set("script", flow.prompt ?? "");
+        fd.set("script", flow.script ?? flow.prompt ?? "");
         fd.set("voice", engine.voice);
         fd.set("aspects", "16x9,1x1,9x16");
         fd.set("duration", String(flow.duration ?? 45));
@@ -290,7 +291,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
               {(flow.contexts ?? []).map((c) => <span key={`${c.kind}:${c.refId}`} className="ctx-pill">{c.label}</span>)}
             </div>
           </section>
-          <section className="direction-briefline reveal" style={{ ["--d" as string]: ".1s" }}><div><label>Your brief</label><b>{flow.prompt}</b></div><button onClick={api.closeFlow}>Edit brief</button></section>
+          <section className="direction-briefline reveal" style={{ ["--d" as string]: ".1s" }}><div><label>{flow.script ? "Your script" : "Your brief"}</label><b>{flow.prompt}</b></div><button onClick={api.closeFlow}>Edit brief</button></section>
           <section className="decision-row two reveal" style={{ ["--d" as string]: ".16s" }}>
             <div className="decision"><label>Production</label><strong>{FAMILY_LABEL[flow.family ?? ""] ?? flow.family ?? "Explainer"}</strong><span>{flow.family ? "Your selection" : "NexMind selected"}</span></div>
             <div className="decision"><label>Format</label><strong>All screens</strong><span>16:9 · 9:16 · 1:1</span></div>

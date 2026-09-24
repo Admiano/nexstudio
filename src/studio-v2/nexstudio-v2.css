@@ -1748,3 +1748,9 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .production-stage[data-phase="finish"] .nx-comp-object i:nth-child(2){animation:nxCompBreath 4.6s ease-in-out infinite alternate}
 
 @media(prefers-reduced-motion:reduce){.nx-scene-layout b,.nx-scene-layout em,.nx-scene-layout u,.nx-scene:nth-child(1),.nx-comp-rule,.nx-layer-stack i,.nx-motion-path i,.nx-sound-bed .nx-sync-head,.nx-comp-object i,.nx-prod-world-v2:before,.nx-final-lock:before{animation:none!important}}
+
+/* Composer — brief/script mode */
+.composer{position:relative}
+.composer-mode{position:absolute;top:13px;right:13px;display:flex;gap:2px;background:rgba(17,22,18,.055);border-radius:9px;padding:2px;z-index:3}
+.composer-mode button{border:0;background:transparent;padding:5px 11px;font:700 10px/1 inherit;color:var(--muted);border-radius:7px;cursor:pointer;transition:.2s var(--ease)}
+.composer-mode button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(17,22,18,.10)}

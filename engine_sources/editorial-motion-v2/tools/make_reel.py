@@ -59,13 +59,8 @@ def make_voice(args, fixture_dir):
         text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
         if not text.strip():
             sys.exit("need --script/--script-file or --voice-file")
-        # ~145 wpm speaking pace; a target duration retimes the narration within a
-        # natural range rather than cutting words
-        speed = 1.0
-        if getattr(args, "duration", None) and args.duration > 0:
-            est = len(text.split()) * 0.42
-            speed = min(max(est / args.duration, 0.75), 1.5)
-        speed = min(max(speed * (getattr(args, 'speed', None) or 1.0), 0.6), 2.0)
+        # Narration speed is the user's choice only; duration never retimes the voice.
+        speed = min(max(getattr(args, 'speed', None) or 1.0, 0.6), 2.0)
         dur = synth(text.strip(), args.voice, out_wav, speed=speed)
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),

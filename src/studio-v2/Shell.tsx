@@ -17,6 +17,7 @@ export interface ComposerState {
   prompt: string;
   contexts: ContextChip[];
   family: string | null;
+  mode?: "brief" | "script";
 }
 
 export default function Shell({ view }: { view: ViewId }) {
@@ -71,6 +72,7 @@ export default function Shell({ view }: { view: ViewId }) {
 
   const setPrompt = useCallback((prompt: string) => setComposer((c) => ({ ...c, prompt })), []);
   const setFamily = useCallback((family: string | null) => setComposer((c) => ({ ...c, family })), []);
+  const setMode = useCallback((mode: "brief" | "script") => setComposer((c) => ({ ...c, mode })), []);
 
   const flowApi = useMemo(() => ({
     openFlow: (initial: FlowState) => setFlow(initial),
@@ -102,7 +104,7 @@ export default function Shell({ view }: { view: ViewId }) {
       </header>
       <main>
         <section className={`view ${view === "create" ? "active" : ""}`} id="view-create">
-          <CreateView composer={composer} setPrompt={setPrompt} setFamily={setFamily} removeContext={removeContext} openSheet={setSheet} openFlow={flowApi.openFlow} onOpenWork={(id) => setHistoryId(id)} openSeries={openSeries} notify={notify} />
+          <CreateView composer={composer} setPrompt={setPrompt} setFamily={setFamily} setMode={setMode} removeContext={removeContext} openSheet={setSheet} openFlow={flowApi.openFlow} onOpenWork={(id) => setHistoryId(id)} openSeries={openSeries} notify={notify} />
         </section>
         <section className={`view ${view === "work" ? "active" : ""}`} id="view-work">
           <WorkView onOpenHistory={(id) => setHistoryId(id)} onContinue={(id) => setHistoryId(id)} />

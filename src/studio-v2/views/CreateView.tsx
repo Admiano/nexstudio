@@ -15,10 +15,11 @@ const FAMILIES = [
   { key: "editorial-motion", label: "Illustrated Stories", desc: "Editorial motion and expressive storytelling.", soon: true },
 ];
 
-export function CreateView({ composer, setPrompt, setFamily, removeContext, openSheet, openFlow, onOpenWork, openSeries, notify }: {
+export function CreateView({ composer, setPrompt, setFamily, setMode, removeContext, openSheet, openFlow, onOpenWork, openSeries, notify }: {
   composer: ComposerState;
   setPrompt: (v: string) => void;
   setFamily: (v: string | null) => void;
+  setMode: (v: "brief" | "script") => void;
   removeContext: (c: ContextChip) => void;
   openSheet: (s: SheetId) => void;
   openFlow: (f: FlowState) => void;
@@ -35,7 +36,7 @@ export function CreateView({ composer, setPrompt, setFamily, removeContext, open
   async function submitBrief() {
     const prompt = composer.prompt.trim();
     if (prompt.length < 8) { notify("Describe the video in a few words first."); return; }
-    openFlow({ stage: "mind", prompt, contexts: composer.contexts, family: composer.family });
+    openFlow({ stage: "mind", prompt, script: composer.mode === "script" ? prompt : undefined, contexts: composer.contexts, family: composer.family });
   }
 
   function onKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -62,7 +63,11 @@ export function CreateView({ composer, setPrompt, setFamily, removeContext, open
               </button>
             ))}
           </div>
-          <textarea aria-label="Describe your video" className="prompt" value={composer.prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={onKey} placeholder="Make a 45-second launch video explaining why agent payments need a better primitive…" />
+          <div className="composer-mode" role="group" aria-label="Input mode">
+            <button type="button" className={composer.mode !== "script" ? "on" : ""} onClick={() => setMode("brief")}>Brief</button>
+            <button type="button" className={composer.mode === "script" ? "on" : ""} onClick={() => setMode("script")}>Script</button>
+          </div>
+          <textarea aria-label="Describe your video" className="prompt" value={composer.prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={onKey} placeholder={composer.mode === "script" ? "Paste your script — NexStudio voices and illustrates it exactly as written…" : "Make a 45-second launch video explaining why agent payments need a better primitive…"} />
           <div className="composer-foot">
             <div aria-label="Add context" className="tools">
               <button className="tool" onClick={() => openSheet("files")} title="Add files"><svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg><span>Files</span></button>
