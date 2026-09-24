@@ -191,6 +191,84 @@
   }
 
   /**
+   * Articulated hand — the whiteboard performer's semantic digit projection,
+   * ported to rig space. Five digits with per-finger curl/spread driven by a
+   * hand state (relaxed/open/point/pinch/grip/…), so a pointing figure really
+   * points and a gripping one really grips.
+   */
+  const HAND_STATES = {
+    relaxed: { spread: 0.34, curl: 0.30, index: 0.78, thumb: 0.60 },
+    open: { spread: 0.86, curl: 0.06, index: 1.00, thumb: 0.82 },
+    present: { spread: 0.72, curl: 0.08, index: 0.96, thumb: 0.82 },
+    point: { spread: 0.24, curl: 0.72, index: 1.34, thumb: 0.58 },
+    tap: { spread: 0.20, curl: 0.76, index: 1.24, thumb: 0.52 },
+    pinch: { spread: 0.18, curl: 0.58, index: 0.88, thumb: 0.88 },
+    grip: { spread: 0.18, curl: 0.88, index: 0.60, thumb: 0.66 },
+    receive: { spread: 0.76, curl: 0.12, index: 0.96, thumb: 0.84 },
+    give: { spread: 0.60, curl: 0.18, index: 0.92, thumb: 0.78 },
+    wave: { spread: 0.55, curl: 0.15, index: 1.00, thumb: 0.80 }
+  };
+  const _DIGITS = [
+    { name: 'thumb', off: -0.62, L: 0.66 },
+    { name: 'index', off: -0.30, L: 0.98 },
+    { name: 'middle', off: 0.0, L: 1.04 },
+    { name: 'ring', off: 0.27, L: 0.95 },
+    { name: 'little', off: 0.50, L: 0.80 }
+  ];
+
+  /**
+   * @returns {{mass:string, details:string}} mass geometry merges into the
+   * silhouette (fingers are part of the outline); details are inner strokes.
+   */
+  function handDigitShapes(part, semName, stroke) {
+    const sem = HAND_STATES[semName] || HAND_STATES.relaxed;
+    const a = part.a;
+    const b = part.b;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const fx = dx / len;
+    const fy = dy / len;
+    const tx = -fy;
+    const ty = fx;
+    const w = part.widthFrom;
+    const sideSign = part.side === 'right' ? 1 : -1;
+    const palm = { x: a.x + fx * len * 0.5, y: a.y + fy * len * 0.5 };
+    const masses = [
+      limbMass({ x: a.x, y: a.y }, palm, w * 0.95, w * 0.85),
+      `<ellipse cx="${round(palm.x)}" cy="${round(palm.y)}" rx="${round(w * 0.6)}" ry="${round(w * 0.52)}" transform="rotate(${round(Math.atan2(fy, fx) * 180 / Math.PI)} ${round(palm.x)} ${round(palm.y)})"/>`
+    ];
+    const details = [];
+    for (const d of _DIGITS) {
+      const factor = d.name === 'thumb' ? sem.thumb : (d.name === 'index' ? sem.index : 1.0);
+      const curl = (semName === 'point' || semName === 'tap') && d.name === 'index'
+        ? 0.02
+        : semName === 'pinch' && (d.name === 'thumb' || d.name === 'index')
+          ? 0.42
+          : sem.curl;
+      const spread = d.off * w * 1.1 * sem.spread * sideSign;
+      const base = { x: palm.x + tx * spread + fx * w * 0.32, y: palm.y + ty * spread + fy * w * 0.32 };
+      let dvx = fx + tx * d.off * 0.62 * sem.spread * sideSign;
+      let dvy = fy + ty * d.off * 0.62 * sem.spread * sideSign;
+      const dl = Math.hypot(dvx, dvy) || 1;
+      dvx /= dl; dvy /= dl;
+      const digLen = w * 1.25 * d.L * factor;
+      const mid = { x: base.x + dvx * digLen * 0.52, y: base.y + dvy * digLen * 0.52 };
+      let bvx = dvx + tx * sideSign * curl * 0.75;
+      let bvy = dvy + ty * sideSign * curl * 0.75;
+      const bl = Math.hypot(bvx, bvy) || 1;
+      bvx /= bl; bvy /= bl;
+      const tip = { x: mid.x + bvx * digLen * 0.48 * (1 - 0.42 * curl), y: mid.y + bvy * digLen * 0.48 * (1 - 0.42 * curl) };
+      const dw = d.name === 'thumb' ? w * 0.4 : w * 0.32;
+      masses.push(limbMass(base, tip, dw, dw * 0.8));
+      if (d.name !== 'thumb' && d.name !== 'little') {
+        details.push(`<path d="M ${round(base.x)} ${round(base.y)} L ${round(mid.x)} ${round(mid.y)}" fill="none" stroke="${stroke}" stroke-width="${round(w * 0.07)}" stroke-linecap="round" opacity="0.5"/>`);
+      }
+    }
+    return { mass: masses.join(''), details: details.join('') };
+  }
+
+  /**
    * A hand: palm and thumb rather than the tapered tube the limb builder
    * gives every other segment. At book scale this is the difference between
    * a hand on an oar and a stick touching it.
@@ -405,8 +483,10 @@
       if (isFoot) {
         for (const s of footShapes(part, solid, mix(look.shoes.bare ? look.skin : look.shoes.color, '#1a120c', 0.42))) emit(depth, piece(s.fill, s.svg, 'pb-foot'));
       } else if (isHand) {
-        emit(depth, piece(solid, handShape(part), 'pb-hand'));
-        emit(depth + 0.001, `<g class="pb-detail" fill="none" stroke="${mix(look.skin, '#1c150f', 0.55)}">${fingerMarks(part)}</g>`);
+        const handState = (opts.hands && (opts.hands[part.side] || opts.hands.both)) || opts.hand || 'relaxed';
+        const hd = handDigitShapes(part, handState, mix(look.skin, '#1c150f', 0.55));
+        emit(depth, piece(solid, hd.mass, 'pb-hand'));
+        if (hd.details) emit(depth + 0.001, `<g class="pb-detail" fill="none">${hd.details}</g>`);
       } else {
         emit(depth, piece(solid, isUpper ? cappedMass(part.a, part.b, part.widthFrom, part.widthTo, 'end') : limbMass(part.a, part.b, part.widthFrom, part.widthTo), `pb-${part.kind}`));
       }

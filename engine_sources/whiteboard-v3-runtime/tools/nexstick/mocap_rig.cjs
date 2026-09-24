@@ -55,11 +55,14 @@ function poseFromMocap(p3) {
     return { leg, arm };
   };
   const L = limb('l', -1), R = limb('r', +1);
+  const tHead = tiltUp(bone(p3, 'neck', 'head'));
 
   return {
     spine: { tilt: tSpine, swing: sSpine },
     chest: { tilt: tChest - tSpine, swing: sChest - sSpine },
     neck: { tilt: tNeck - tChest, swing: sNeck - sChest },
+    head: { yaw: 0, pitch: tHead - tNeck },   // nod from the head bone; yaw
+                                            // unrecoverable from positions
     legLeft: L.leg, legRight: R.leg,
     armLeft: L.arm, armRight: R.arm,
   };
@@ -77,7 +80,14 @@ for (let i = 0; i < nF; i++) {
   const st = V5.sample(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const pose = poseFromMocap(st.pose3d);
-  const out = Renderer.renderPose({ proportion, height: 1000, view: 'profile-left', pose, look: { top: { garment: 'jacket' } }, face: 'warm', background: false, grain: false });
+  const out = Renderer.renderPose({
+    proportion, height: 1000, view: 'profile-left', pose,
+    look: { top: { garment: 'jacket' } }, face: 'warm', background: false, grain: false,
+    hands: {
+      left: st.hands && st.hands.left && st.hands.left.pose,
+      right: st.hands && st.hands.right && st.hands.right.pose,
+    },
+  });
   // strip only non-line layers (rim highlights, contact shadow) and any
   // degenerate element (pb-fold can emit a ~2m ellipse under stride poses);
   // every garment/detail stroke stays for the elite look.
