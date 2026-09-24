@@ -677,6 +677,13 @@ def render_production(
     compiled = wbc.compile_whiteboard_plan(plan, {'ratio': ratio})
     compiled['_pal'] = wbp._pal(compiled)
     plan.update(compiled)
+    # the compiler rebuilds sceneSpecs — re-attach figure specs dropped there
+    for b, sc in zip(plan.get('beats') or [],
+                     plan.get('sceneSpecs') or []):
+        if b.get('figure'):
+            fm = dict(b['figure'])
+            fm['beatStart'] = b['start_seconds']
+            sc['figureMotion'] = fm
     beats = plan['beats']
     duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] + plan['pacing']['board_reveal_seconds']
     if plan.get('camera_variant') == 'board_sections':

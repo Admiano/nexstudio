@@ -70,6 +70,49 @@ def _rasterize(svg_dir: Path):
     return frames
 
 
+BAKED_ROOT = HERE / 'baked'
+
+
+def _baked_strip(clip: str, spec: dict, seconds: float, fps: int):
+    """Pre-baked line-art sprite frames (meshrig/mh_bake.py output) -> RGBA
+    tiles. Loops or trims to the requested duration; mirrors on request."""
+    from PIL import Image
+    d = BAKED_ROOT / clip
+    meta_p = d / 'meta.json'
+    if not meta_p.exists():
+        return None
+    meta = json.loads(meta_p.read_text())
+    src_fps = float(meta.get('fps') or meta.get('sourceFps') or 24)
+    frames = sorted(d.glob('f*.png'))
+    if not frames:
+        return None
+    t0 = float(spec.get('t', 0.0))
+    n = max(2, int(math.ceil(seconds * fps)))
+    step = src_fps / fps
+    imgs = []
+    for i in range(n):
+        fi = int(t0 * src_fps + i * step) % len(frames)
+        img = Image.open(frames[fi]).convert('RGBA')
+        if spec.get('mirror'):
+            img = img.transpose(Image.FLIP_LEFT_RIGHT)
+        imgs.append(img)
+    # trim the union transparent margin so callers can bottom-anchor on the
+    # figure's lowest real pixel (a plank pose sits above its frame floor)
+    box = None
+    for img in imgs:
+        b = img.getchannel('A').getbbox()
+        box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]),
+                                     max(box[2], b[2]), max(box[3], b[3]))
+    if box and (box[0] > 0 or box[1] > 0
+                or box[2] < imgs[0].width or box[3] < imgs[0].height):
+        pad = max(2, int(imgs[0].width * 0.02))
+        box = (max(0, box[0] - pad), max(0, box[1] - pad),
+               min(imgs[0].width, box[2] + pad),
+               min(imgs[0].height, box[3] + pad))
+        imgs = [img.crop(box) for img in imgs]
+    return imgs
+
+
 def get_strip(spec: dict, seconds: float, fps: int = 12):
     """(spec, duration) -> list of RGBA frames covering the beat. Cached."""
     clip = resolve_clip(spec)
@@ -79,6 +122,10 @@ def get_strip(spec: dict, seconds: float, fps: int = 12):
            json.dumps(spec, sort_keys=True))
     if key in _STRIPS:
         return _STRIPS[key]
+    baked = _baked_strip(clip, spec, seconds, fps)
+    if baked is not None:
+        _STRIPS[key] = baked
+        return baked
     n = max(2, int(math.ceil(seconds * fps)))
     tag = re.sub(r'[^A-Za-z0-9_]+', '_', clip)
     out = _STRIP_ROOT / f"{tag}_{hashlib.sha1(repr(key).encode()).hexdigest()[:8]}"

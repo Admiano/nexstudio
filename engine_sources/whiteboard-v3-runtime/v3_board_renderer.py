@@ -2254,6 +2254,7 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             # the animated figure replaces the drawn person at this slot —
             # empty group keeps the draw window + caption cadence intact
             fm_slot = s
+            scene['_fm_slot'] = s
             scene['_fm_anchor'] = dict(center=s['center'], size=s['size'],
                                        facing=s.get('facing', 1))
             groups.append(('icon', [], s['center'], s['size'], s))

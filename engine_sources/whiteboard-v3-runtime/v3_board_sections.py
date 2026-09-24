@@ -352,6 +352,11 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
     # upgrade authored people to the paper-cast figure their label maps to
     for it in merged:
         if _is_person_item(it):
+            # the animated mocap figure owns this slot — keep its group
+            # strokeless so the drawn icon doesn't fight the overlay
+            if any(g[4] is scene.get('_fm_slot')
+                   for g, _s, _e in it['groups']):
+                continue
             lbl = ''
             for g, _s, _e in it['groups']:
                 if g[4] and g[4].get('label'):
@@ -550,22 +555,24 @@ def _build(plan, ratio):
                             for g, _s, _e in it['groups']))
             for g, s, e in it['groups']:
                 kind, strokes, center, size, slot = g
+                # captions/labels stay unmirrored — text must read left->right
+                gflip = flip and kind not in ('caption', 'plabel')
                 st2 = []
                 for st in strokes:
                     if len(st) > 4 and st[4]:
                         st2.append((
-                            [(sx + ((bcx - px_) if flip
+                            [(sx + ((bcx - px_) if gflip
                                     else (px_ - bcx)) * bo2,
                               sy + (py_ - bcy) * bo2)
                              for px_, py_ in st[0]],) + tuple(st[1:]))
-                    elif flip:
+                    elif gflip:
                         st2.append((([( -q[0], q[1])
                                       if len(q) > 1 else q
                                       for q in st[0]]),) + tuple(st[1:]))
                     else:
                         st2.append(st)
                 moved.append(((kind, _remap_strokes(st2),
-                               (sx + ((bcx - center[0]) if flip
+                               (sx + ((bcx - center[0]) if gflip
                                       else (center[0] - bcx)) * bo2,
                                 sy + (center[1] - bcy) * bo2),
                                size * bo2, slot), s, e))
@@ -581,6 +588,26 @@ def _build(plan, ratio):
                 for g, _s, _e in it['groups']]
             it['t_window'] = (it0, it1)
             it['kind'] = 'elem'
+            fm_slot = (scenes[sec['bi']].get('_fm_slot')
+                       if sec['bi'] < len(scenes) else None)
+            if (fm_slot is not None and 'fm' not in sec
+                    and any(g[4] is fm_slot for g, _s, _e in it['groups'])):
+                fx0, fy0, fx1, fy1 = it['bounds2']
+                # the claimed slot left an empty group — give the figure a
+                # cell-sized box when the empty bounds stay degenerate
+                if fx1 - fx0 < rw * 0.45 or fy1 - fy0 < rh * 0.45:
+                    fx0, fy0 = rx + rw * 0.10, ry + rh * 0.10
+                    fx1, fy1 = rx + rw * 0.90, ry + rh * 0.90
+                # keep the figure's crown below the board title row
+                fy0 = max(fy0, title_item['bounds2'][3] + rh * 0.04)
+                # feet land on the drawn ground shadow, not the cell floor
+                gnd = next((g[2] for g, _s, _e in it['groups']
+                            if g[0] == 'ground'), None)
+                if gnd is not None:
+                    fy1 = gnd[1] + rh * 0.02
+                sec['fm'] = {'bounds2': (fx0, fy0, fx1, fy1),
+                             't0': it0 - t0,
+                             'facing': fm_slot.get('facing', 1)}
             placed.append(it)
         sec['items2'] = placed
 
@@ -728,6 +755,22 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             draw_groups(it['groups'], seed + it['uid'] * 7)
         frame = _composite_frame(
             plan, ratio, cam, [(layer, 255)] + fade_layers, seed)
+        sec = next((s for s in reversed(flow['sections'])
+                    if s.get('t_window') and s['t_window'][0] <= t), None)
+        if sec is not None and sec.get('fm'):
+            b2 = sec['fm']['bounds2']
+            fh = b2[3] - b2[1]
+            scene_ = (plan.get('sceneSpecs') or [])[sec['bi']] \
+                if sec['bi'] < len(plan.get('sceneSpecs') or []) else None
+            if scene_ is not None:
+                scene_['_fm_anchor'] = {
+                    'center': ((b2[0] + b2[2]) / 2, (b2[1] + b2[3]) / 2),
+                    'size': fh, 'facing': sec['fm']['facing']}
+                scene_['_fm_window'] = (sec['fm']['t0'],
+                                        sec['fm']['t0'] + 1e9)
+                frame = v3r._figure_motion_overlay(
+                    frame, scene_, plan, ratio, cam, zoom,
+                    t - sec['beat']['start_seconds'])
         return _overlay_hand(frame, tip, ratio, t * 8 + seed)
 
     # -------- ending: wipe the whole board, thanks, montage --------

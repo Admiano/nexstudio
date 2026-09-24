@@ -2,7 +2,7 @@
 
 | Artifact | Identity |
 |---|---|
-- `v3_board_sections.py` — sha256 `ed0547f48bc00d93438a7244bda37f0c9c4e70cf144135258df09a8704e44f06`
+- `v3_board_sections.py` — sha256 `34cf976e61abfd297392b2d50b02acb6dd5cbd2ad05bbcf1422ff70863fa0dbf`
 | Original renderer | `…/WHITEBOARD_ELITE_RUNTIME/vendor/pipeline_v3_narration_timed.py` |
 | Recorded sha256 | `c91f2bc50cb634c993ff307ef01bb4177d9478a290bf0b4da042adee260f9c34` |
 | Standalone source preserved | **no** (`06_provenance/EXACT_ARTIFACT_GAP.json`) |
@@ -26,8 +26,8 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 
 | Artifact | sha256 |
 |---|---|
-| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `9d6603b08a6f7803b96a81afd840cd0ccc2c1bb5630c8b20f165a137379bd264` |
-| `v3_board_renderer.py` (whiteboard draw layer) | `1b82bfcd540c65865d7515d8ca0f354fade14e03482b454472b1ec63b7d3f076` |
+| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `00b95207feb5277d854f55b244009dd80857a005ded55e6412078e8c8241dfd1` |
+| `v3_board_renderer.py` (whiteboard draw layer) | `f0a58492ad4dd1c7f68ba535615d3bf66ec11e677c04efd2bf5ed479fedf7623` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
 | `pipeline_diagram_timed.py` (diagram pipeline) | `c00cf324b135932cf071206c52f993cf8a4c1e788ede8ae6fe0caaad658c5f48` |
@@ -48,10 +48,13 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |
 | `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `16018c7c3633c0d4bf2d7e9e640b02ae60aeac18a691657a209aea5c70d1f350` |
 | `tools/nexstick/skin_rig.cjs` | skin-on-skeleton renderer: true-joint masses, real-depth occlusion sort |
-| `tools/nexstick/fig_motion.py` | board bridge: clip_select→skin_rig strip renderer (cairosvg PNG tiles, cached) | `844991fe040c0e56f1fef21a1658e7d93f4770e420b9bf5b5c20c079c96fff24` | `0bd128ce5ce779d147fed7418484cbfdd0043ad5329594d6df98057495795806` |
+| `tools/nexstick/fig_motion.py` | board bridge: clip_select→baked PNG strips (mesh sprites, alpha-bbox anchored) w/ skin_rig fallback | `3ab313258a3d6a54357049d9c0c21f283845dd4c03813e26ce4c0411394ad15e` |
 | `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `43c6dbc64883af40334f8962a2dbb0b08946f99e329ca2779aa96031b9985a26` |
 | `tools/nexstick/fx_marks.cjs` | cartoon mark layer: velocity speed lines, impact bursts, foot-plant dust | `e0dce5bde5eceffc823eaa078ea3e7071aadd597adf36502a38ba7c2647b8749` |
 | `tools/nexstick/clip_select.cjs` | narration text -> vault clip pattern table (260+ clips) | `72fbb3cd9e59a05fef0f174cff74a32412a15c7dc10a89694109171dd3fe528b` |
 | `tools/nexstick/bake_blend_vault.py` | Blender .blend -> V5 vault action baker (PERFORMANCE_CARRIER rigs) | `b8029a278ba97f5b4f30172636eba7890154745b98cf9a6f1b56883bfdab9d21` |
 | `tools/nexstick/compiled/nex_vault_v5.json` | 182 authored actions from the NexMind performance-carrier rigs (internal) | `e6982c7aacea2b7f07e49dbf134d4640fb02cbcb628a1a88e08abf8821cea3fa` |
 | `tools/nexstick/compiled/mouth_shapes.json` | 7 viseme mouth loops baked from NEX_MOUTH_MINIMAL (internal) | `f55a341bf3b6b38133e2b5a0252b232a22457f32a34c9251dbcda3d07ee37659` |
+| `tools/nexstick/meshrig/mh_bake.py` | MakeHuman rig -> Freestyle line-art sprite baker (CC0 body + authored weights) | `dd051ff31cb06f069be8c5f05306186dcf70e6358bf19ff0b399a971d8ed2411` |
+| `tools/nexstick/meshrig/bake_parallel.sh` | parallel bake driver (xargs -P, env: BLEND/VAULT/OUTROOT/RES/CAM) | `807eb706cf51cdc79493b2ce9762f4fe5df5f08aa78b849d09e62455a5efbb2a` |
+| `tools/nexstick/baked/<CLIP>/` | baked PNG sprite frames + meta.json per clip (generated; regen via bake_parallel.sh) | generated — see per-clip meta.json |
