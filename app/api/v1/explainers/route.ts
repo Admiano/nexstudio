@@ -59,6 +59,10 @@ export async function POST(request: Request) {
   if (durationRaw && (!Number.isFinite(durationRaw) || durationRaw < 5 || durationRaw > 600))
     return problem(id, 422, "DURATION_RANGE", "Invalid length", "Target length must be 5–600 seconds.");
 
+  const speedRaw = Number(form.get("speed") ?? 0);
+  if (speedRaw && (!Number.isFinite(speedRaw) || speedRaw < 0.7 || speedRaw > 1.5))
+    return problem(id, 422, "SPEED_RANGE", "Invalid speed", "Narration speed must be 0.7–1.5×.");
+
   const jobId = `xr-${randomUUID().slice(0, 8)}`;
   const dir = path.join(JOBS, jobId);
   const mediaDir = path.join(dir, "media");
@@ -67,6 +71,7 @@ export async function POST(request: Request) {
   const args: string[] = [path.join(ENGINE, "tools", "make_reel.py"), "--style", style,
     "--aspects", aspects.join(","), "--out", path.join(dir, "out"), "--film-id", jobId];
   if (durationRaw) args.push("--duration", String(durationRaw));
+    if (speedRaw) args.push("--speed", String(speedRaw));
 
   if (voiceFile instanceof File) {
     const vf = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);

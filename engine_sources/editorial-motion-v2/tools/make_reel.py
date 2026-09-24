@@ -65,6 +65,7 @@ def make_voice(args, fixture_dir):
         if getattr(args, "duration", None) and args.duration > 0:
             est = len(text.split()) * 0.42
             speed = min(max(est / args.duration, 0.75), 1.5)
+        speed = min(max(speed * (getattr(args, 'speed', None) or 1.0), 0.6), 2.0)
         dur = synth(text.strip(), args.voice, out_wav, speed=speed)
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
@@ -312,6 +313,7 @@ def main():
     ap.add_argument("--media", nargs="*", default=[])
     ap.add_argument("--aspects", default="16x9,1x1,9x16")
     ap.add_argument("--duration", type=float, default=None, help="target seconds; narration pacing adjusts toward it")
+    ap.add_argument("--speed", type=float, default=1.0, help="user narration speed multiplier")
     ap.add_argument("--out", required=True)
     ap.add_argument("--film-id")
     ap.add_argument("--treatment", help="use an existing treatment.json instead of auto-authoring")

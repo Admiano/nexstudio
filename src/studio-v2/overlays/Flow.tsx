@@ -47,10 +47,24 @@ function engineKindOf(family?: string | null): EngineKind | null {
 }
 
 const MS_VOICES = [
-  { id: "emma", label: "Emma" }, { id: "ava", label: "Ava" },
-  { id: "andrew", label: "Andrew" }, { id: "brian", label: "Brian" },
-  { id: "sonia", label: "Sonia" }, { id: "natasha", label: "Natasha" },
+  { id: "emma", label: "Emma", tag: "US" }, { id: "ava", label: "Ava", tag: "US" },
+  { id: "andrew", label: "Andrew", tag: "US" }, { id: "brian", label: "Brian", tag: "US" },
+  { id: "sonia", label: "Sonia", tag: "UK" }, { id: "natasha", label: "Natasha", tag: "AU" },
 ];
+
+function PreviewChip({ video, label, desc, selected, onSelect }: { video: string; label: string; desc?: string; selected: boolean; onSelect: () => void }) {
+  const ref = useRef<HTMLVideoElement | null>(null);
+  const play = () => { const v = ref.current; if (v) { v.currentTime = 0; void v.play().catch(() => {}); } };
+  const stop = () => { const v = ref.current; if (v) { v.pause(); v.currentTime = 0; } };
+  return (
+    <button type="button" className={`opt-chip preview ${selected ? "on" : ""}`}
+      onMouseEnter={play} onMouseLeave={stop}
+      onClick={() => { onSelect(); play(); }}>
+      <span className="preview-frame"><video ref={ref} muted loop playsInline preload="metadata" src={video} /></span>
+      <span className="preview-copy"><b>{label}</b>{desc ? <span>{desc}</span> : null}</span>
+    </button>
+  );
+}
 
 const MIND_STEPS = [
   { key: "understand", title: "Understanding the brief", copy: "Bringing your intent, context and production direction together." },
@@ -186,9 +200,19 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const kind = engineKindOf(flow.family);
   const [engine, setEngine] = useState(() => ({
     wbType: "kinetic-text", wbTheme: "light", wbAccent: "#2f6fb3",
-    style: "tiles", voice: "emma",
+    style: "tiles", voice: "emma", speed: "1.0",
     ...(flow.engine ?? {}),
   }));
+  const [pacingOpen, setPacingOpen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingVoice, setPlayingVoice] = useState<string | null>(null);
+  const playVoice = (id: string) => {
+    const a = audioRef.current ?? (audioRef.current = new Audio());
+    if (playingVoice === id) { a.pause(); setPlayingVoice(null); return; }
+    a.src = `/previews/voices/${id}.mp3`;
+    a.onended = () => setPlayingVoice(null);
+    void a.play().then(() => setPlayingVoice(id)).catch(() => setPlayingVoice(null));
+  };
   const [styles, setStyles] = useState<Array<{ id: string; name: string; tagline?: string }>>([]);
   useEffect(() => {
     if (kind !== "explainer") return;
@@ -209,6 +233,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         fd.set("voice", engine.voice);
         fd.set("aspects", "16x9,1x1,9x16");
         fd.set("duration", String(flow.duration ?? 45));
+        fd.set("speed", engine.speed);
         if (kind === "whiteboard") {
           fd.set("type", engine.wbType);
           fd.set("theme", engine.wbTheme);
@@ -266,20 +291,38 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             </div>
           </section>
           <section className="direction-briefline reveal" style={{ ["--d" as string]: ".1s" }}><div><label>Your brief</label><b>{flow.prompt}</b></div><button onClick={api.closeFlow}>Edit brief</button></section>
-          <section className="decision-row reveal" style={{ ["--d" as string]: ".16s" }}>
+          <section className="decision-row two reveal" style={{ ["--d" as string]: ".16s" }}>
             <div className="decision"><label>Production</label><strong>{FAMILY_LABEL[flow.family ?? ""] ?? flow.family ?? "Explainer"}</strong><span>{flow.family ? "Your selection" : "NexMind selected"}</span></div>
-            <div className="decision"><label>Format</label><strong>{kind ? "All screens" : (flow.aspectRatio ?? "16:9")}</strong><span>{kind ? "16:9 · 9:16 · 1:1" : (flow.aspectRatio === "9:16" ? "Vertical" : "Landscape")}</span></div>
-            <div className="decision"><label>Length</label><strong>{flow.duration ?? 45} sec</strong><span>Target · pacing adjusts</span></div>
-            <div className="decision"><label>Voice</label><strong>{MS_VOICES.find((v) => v.id === engine.voice)?.label ?? "Emma"}</strong><span>Microsoft neural</span></div>
+            <div className="decision"><label>Format</label><strong>All screens</strong><span>16:9 · 9:16 · 1:1</span></div>
+          </section>
+          <section className="direction-grid reveal" style={{ ["--d" as string]: ".2s" }}>
+            <div className="story-main">
+              <div className="story-label"><h2>How the story moves</h2><span>{beats.length} intentional beats</span></div>
+              <div className="story-path">
+                {beats.map((b, i) => (
+                  <article key={i} className="story-beat"><span className="beat-num">{String(i + 1).padStart(2, "0")}</span><div className="beat-copy"><b>{b.purposeTitle}</b><p>{b.description}</p></div><div className={`beat-visual v${(i % 4) + 1}`} /></article>
+                ))}
+              </div>
+            </div>
+            <aside className="creative-side">
+              <h2>Creative treatment</h2>
+              <div className="creative-sticky">
+                <div className="direction-preview"><div className="preview-grid" /><div className="preview-orbit" /><div className="preview-type"><small>NexMind treatment</small><b>Clarity with motion.</b></div></div>
+                <div className="creative-list">
+                  <div className="creative-item"><label>Look</label><b>Editorial, restrained and spatially clean</b></div>
+                  <div className="creative-item"><label>Rhythm</label><b>Confident pacing with room for ideas to land</b></div>
+                  <div className="creative-item"><label>Sound</label><b>Purposeful voice, subtle texture, no filler</b></div>
+                </div>
+              </div>
+            </aside>
           </section>
           {kind === "whiteboard" && (
-            <section className="options-band reveal" style={{ ["--d" as string]: ".2s" }}>
+            <section className="options-band reveal" style={{ ["--d" as string]: ".26s" }}>
               <div className="opt-group">
-                <label>Whiteboard</label>
-                <div className="opt-row">
-                  {[["kinetic-text", "Text-driven", "Type animates with the narration"], ["hand-drawn-board", "Hand-drawn", "The hand draws the board"]].map(([v, l, d]) => (
-                    <button key={v} type="button" className={`opt-chip ${engine.wbType === v ? "on" : ""}`} onClick={() => setOpt("wbType", v)}><b>{l}</b><span>{d}</span></button>
-                  ))}
+                <label>Whiteboard <span className="opt-hint">hover to preview · tap to select</span></label>
+                <div className="opt-row previews">
+                  <PreviewChip video="/previews/wb-kinetic.mp4" label="Text-driven" desc="Type animates with the narration" selected={engine.wbType === "kinetic-text"} onSelect={() => setOpt("wbType", "kinetic-text")} />
+                  <PreviewChip video="/previews/wb-hand.mp4" label="Hand-drawn" desc="The hand draws the board" selected={engine.wbType === "hand-drawn-board"} onSelect={() => setOpt("wbType", "hand-drawn-board")} />
                 </div>
               </div>
               <div className="opt-group">
@@ -302,64 +345,62 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             </section>
           )}
           {kind === "explainer" && (
-            <section className="options-band reveal" style={{ ["--d" as string]: ".2s" }}>
+            <section className="options-band reveal" style={{ ["--d" as string]: ".26s" }}>
               <div className="opt-group">
-                <label>Style</label>
-                <div className="opt-row">
+                <label>Style <span className="opt-hint">hover to preview · tap to select</span></label>
+                <div className="opt-row previews">
                   {(styles.length ? styles : [{ id: "tiles", name: "Tiles" }]).map((s) => (
-                    <button key={s.id} type="button" className={`opt-chip ${engine.style === s.id ? "on" : ""}`} onClick={() => setOpt("style", s.id)}><b>{s.name}</b>{s.tagline ? <span>{s.tagline}</span> : null}</button>
+                    <PreviewChip key={s.id} video={`/previews/xr-${s.id}.mp4`} label={s.name} desc={s.tagline} selected={engine.style === s.id} onSelect={() => setOpt("style", s.id)} />
                   ))}
                 </div>
               </div>
             </section>
           )}
           {kind && (
-            <section className="options-band reveal" style={{ ["--d" as string]: ".24s" }}>
-              <div className="opt-group">
-                <label>Length <span className="opt-hint">target seconds · narration pacing adjusts to it</span></label>
-                <div className="opt-row">
-                  {[15, 30, 45, 60].map((s) => (
-                    <button key={s} type="button" className={`opt-chip small ${flow.duration === s ? "on" : ""}`} onClick={() => api.patchFlow({ duration: s })}><b>{s}s</b></button>
-                  ))}
-                  <div className="opt-stepper">
-                    <button type="button" aria-label="Shorter" onClick={() => api.patchFlow({ duration: Math.max(5, (flow.duration ?? 45) - 5) })}>−</button>
-                    <input aria-label="Custom length in seconds" inputMode="numeric" type="number" min={5} max={600} step={5} value={flow.duration ?? 45} onChange={(e) => { const v = Math.round(Number(e.target.value)); if (Number.isFinite(v)) api.patchFlow({ duration: Math.min(600, Math.max(5, v)) }); }} />
-                    <button type="button" aria-label="Longer" onClick={() => api.patchFlow({ duration: Math.min(600, (flow.duration ?? 45) + 5) })}>+</button>
-                    <span>sec</span>
+            <section className={`options-band pacing ${pacingOpen ? "open" : ""} reveal`} style={{ ["--d" as string]: ".3s" }}>
+              <button type="button" className="band-head" aria-expanded={pacingOpen} onClick={() => setPacingOpen((o) => !o)}>
+                <span className="band-head-copy"><label>Voice & pacing</label><b>{MS_VOICES.find((v) => v.id === engine.voice)?.label ?? "Emma"} · {flow.duration ?? 45}s · {engine.speed}×</b></span>
+                <i className="band-caret" aria-hidden="true">⌄</i>
+              </button>
+              {pacingOpen && (
+                <div className="band-body">
+                  <div className="opt-group">
+                    <label>Voice <span className="opt-hint">Microsoft neural · ▶ plays a sample</span></label>
+                    <div className="opt-row">
+                      {MS_VOICES.map((v) => (
+                        <div key={v.id} className={`voice-chip ${engine.voice === v.id ? "on" : ""}`}>
+                          <button type="button" className="voice-name" onClick={() => setOpt("voice", v.id)}><b>{v.label}</b><span>{v.tag}</span></button>
+                          <button type="button" aria-label={`Hear ${v.label}`} className="voice-play" onClick={() => playVoice(v.id)}>{playingVoice === v.id ? "■" : "▶"}</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="opt-group">
+                    <label>Length <span className="opt-hint">target seconds · narration pacing adjusts to it</span></label>
+                    <div className="opt-row">
+                      {[15, 30, 45, 60].map((s) => (
+                        <button key={s} type="button" className={`opt-chip small ${flow.duration === s ? "on" : ""}`} onClick={() => api.patchFlow({ duration: s })}><b>{s}s</b></button>
+                      ))}
+                      <div className="opt-stepper">
+                        <button type="button" aria-label="Shorter" onClick={() => api.patchFlow({ duration: Math.max(5, (flow.duration ?? 45) - 5) })}>−</button>
+                        <input aria-label="Custom length in seconds" inputMode="numeric" type="number" min={5} max={600} step={5} value={flow.duration ?? 45} onChange={(e) => { const v = Math.round(Number(e.target.value)); if (Number.isFinite(v)) api.patchFlow({ duration: Math.min(600, Math.max(5, v)) }); }} />
+                        <button type="button" aria-label="Longer" onClick={() => api.patchFlow({ duration: Math.min(600, (flow.duration ?? 45) + 5) })}>+</button>
+                        <span>sec</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="opt-group">
+                    <label>Narration speed <span className="opt-hint">multiplies the pacing</span></label>
+                    <div className="opt-row">
+                      {["0.9", "1.0", "1.1", "1.25"].map((s) => (
+                        <button key={s} type="button" className={`opt-chip small ${engine.speed === s ? "on" : ""}`} onClick={() => setOpt("speed", s)}><b>{s}×</b></button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="opt-group">
-                <label>Voice <span className="opt-hint">Microsoft neural · reads your script</span></label>
-                <div className="opt-row">
-                  {MS_VOICES.map((v) => (
-                    <button key={v.id} type="button" className={`opt-chip small ${engine.voice === v.id ? "on" : ""}`} onClick={() => setOpt("voice", v.id)}><b>{v.label}</b></button>
-                  ))}
-                </div>
-              </div>
+              )}
             </section>
           )}
-          <section className="direction-grid reveal" style={{ ["--d" as string]: ".23s" }}>
-            <div className="story-main">
-              <div className="story-label"><h2>How the story moves</h2><span>{beats.length} intentional beats</span></div>
-              <div className="story-path">
-                {beats.map((b, i) => (
-                  <article key={i} className="story-beat"><span className="beat-num">{String(i + 1).padStart(2, "0")}</span><div className="beat-copy"><b>{b.purposeTitle}</b><p>{b.description}</p></div><div className={`beat-visual v${(i % 4) + 1}`} /></article>
-                ))}
-              </div>
-            </div>
-            <aside className="creative-side">
-              <h2>Creative treatment</h2>
-              <div className="creative-sticky">
-                <div className="direction-preview"><div className="preview-grid" /><div className="preview-orbit" /><div className="preview-type"><small>NexMind treatment</small><b>Clarity with motion.</b></div></div>
-                <div className="creative-list">
-                  <div className="creative-item"><label>Look</label><b>Editorial, restrained and spatially clean</b></div>
-                  <div className="creative-item"><label>Rhythm</label><b>Confident pacing with room for ideas to land</b></div>
-                  <div className="creative-item"><label>Sound</label><b>Purposeful voice, subtle texture, no filler</b></div>
-                </div>
-              </div>
-            </aside>
-          </section>
         </main>
       </div>
       <div className="direction-dock">

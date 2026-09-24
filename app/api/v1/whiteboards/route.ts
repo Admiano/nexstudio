@@ -67,6 +67,10 @@ export async function POST(request: Request) {
   if (durationRaw && (!Number.isFinite(durationRaw) || durationRaw < 5 || durationRaw > 600))
     return problem(id, 422, "DURATION_RANGE", "Invalid length", "Target length must be 5–600 seconds.");
 
+  const speedRaw = Number(form.get("speed") ?? 0);
+  if (speedRaw && (!Number.isFinite(speedRaw) || speedRaw < 0.7 || speedRaw > 1.5))
+    return problem(id, 422, "SPEED_RANGE", "Invalid speed", "Narration speed must be 0.7–1.5×.");
+
   const jobId = `wb-${randomUUID().slice(0, 8)}`;
   const dir = path.join(JOBS, jobId);
   mkdirSync(dir, { recursive: true });
@@ -77,6 +81,7 @@ export async function POST(request: Request) {
     "--aspects", aspects.map((a) => a.replace("x", ":")).join(","),
     "--out", path.join(dir, "out"), "--job-id", jobId];
   if (durationRaw) args.push("--duration", String(durationRaw));
+    if (speedRaw) args.push("--speed", String(speedRaw));
 
   const scriptPath = path.join(dir, "script.txt");
   if (script) {
