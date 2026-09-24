@@ -36,7 +36,10 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `vo_synth.py` (edge/kokoro VO + timings) | `3e51653659e0cc56fd4bf4439906bacd4e788b6506ab1e1b3b6b9e500b106466` |
 | `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `d9465acd46896c29dc3620a9be69115fa2faee9748b2be12cdbb09f2460d8630` |
 | `tools/nexstick/mocap.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `db0c394d4c1c98016f686248808e4101c72623b2a0a53b008a9c2d3e4e94a543` |
-| `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `ec629c049e4c740f8a010d31f43fd4087373b780c2ab6e7977153a4362336353` |
+| `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `19e6bec47f0826d6ee408979423a3a5f0bd03b1df372a8da2ab0966413a5eab7` |
 | `tools/nexstick/walk_proof3.py` | nexstick motion bridge (mocap->paperbook rig proof) | `513b574787af34dc50a82d91626f12d73b7291f5b88e2ac19763eecb88c157f6` |
 | `tools/paper_cast/line_cast.py` | paper-cast line-art tracer (silhouette union, fills, hatching) | `3a43f15b05450dd3b909d8cc242e76bae0a7c50b729c34e5134e57ac3d2492ee` |
-| `tools/paper_cast/paperbook-figure.js` | paperbook figure renderer (vendored; + bend-crease/finger detail for line-art figures) | `e5e77ffe2f590c88e8e575434384d378b2fe16aef82fba7cf11f01a5eb77b500` |
+| `tools/paper_cast/paperbook-figure.js` | paperbook figure renderer (vendored; + bend-crease/finger detail for line-art figures) | `a1704be03f45b7973ce7adb73d585458c506bb3040a5c6dd73b36860c04ea299` |
+| `tools/nexstick/bvh_to_vault.py` | CMU BVH -> V5 vault converter (FK, joint map, foot contacts) | `e54b119ef960372bd8f975e0e6d8f2e8ac68d0ae111fdcb9dc4c230782fbbc81` |
+| `tools/nexstick/cmu_sampler.cjs` | CMU vault sampler (V5 sample contract) | `c5f0b288e27e58e1370b831b1de1ae5a28f598ce6f90e09c0004e89eadd67c10` |
+| `tools/nexstick/compiled/cmu_motion_vault_v5.json` | 64-clip CMU corpus (free-for-all-uses license) | `26acf94c5413e177b2090520dc87e7b315ec48a126520e5e21a75346d4edd20a` |

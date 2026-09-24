@@ -19,6 +19,14 @@ function load(f) {
 }
 const Renderer = load('paperbook-figure.js');
 const V5 = nodeReq(BOOT);
+let CMU = null;
+try { CMU = nodeReq(path.resolve(__dirname, 'cmu_sampler.cjs')); } catch (e) { /* vault not built yet */ }
+function sampleAny(req, t) {
+  if (CMU && req.cmuClip) return CMU.sample(req.cmuClip, t, req);
+  const st = V5.sample(req, t);
+  if (st.blocked && CMU && !CMU.sample(req.action || '', 0).blocked) return CMU.sample(req.action, t, req);
+  return st;
+}
 
 const DEG = 180 / Math.PI;
 const nrm = v => { const l = Math.hypot(v[0], v[1], v[2]) || 1e-9; return [v[0] / l, v[1] / l, v[2] / l]; };
@@ -77,7 +85,7 @@ fs.mkdirSync(outDir, { recursive: true });
 const meta = [];
 for (let i = 0; i < nF; i++) {
   const t = i / fps;
-  const st = V5.sample(req, t);
+  const st = sampleAny(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const pose = poseFromMocap(st.pose3d);
   const out = Renderer.renderPose({

@@ -495,6 +495,22 @@
         const end = { x: part.a.x + (part.b.x - part.a.x) * look.top.sleeve, y: part.a.y + (part.b.y - part.a.y) * look.top.sleeve };
         emit(depth, piece(shade(look.top.color, part.depth, span), cappedMass(part.a, end, part.widthFrom * 1.1, part.widthFrom * 1.04, 'none'), 'pb-sleeve'));
       }
+      // Garment construction: where a long sleeve takes over the arm it needs
+      // a shoulder seam and a wrist cuff, or the limb reads as a fold of the
+      // torso's cloth rather than an arm inside a sleeve.
+      if (sleeved && (isUpper || isFore)) {
+        const ux = (part.b.x - part.a.x) / (Math.hypot(part.b.x - part.a.x, part.b.y - part.a.y) || 1);
+        const uy = (part.b.y - part.a.y) / (Math.hypot(part.b.x - part.a.x, part.b.y - part.a.y) || 1);
+        const seamAt = isUpper ? 0.16 : 0.82;
+        const hw = (isUpper ? part.widthFrom : part.widthTo) * (isFore ? 0.62 : 0.5);
+        const cx = part.a.x + ux * Math.hypot(part.b.x - part.a.x, part.b.y - part.a.y) * seamAt;
+        const cy = part.a.y + uy * Math.hypot(part.b.x - part.a.x, part.b.y - part.a.y) * seamAt;
+        const px = -uy, py = ux;
+        const bow = hw * 0.34;
+        const mx = cx + (isFore ? ux : -ux) * bow;
+        const my = cy + (isFore ? uy : -uy) * bow;
+        emit(depth + 0.001, `<g class="pb-detail" fill="none"><path d="M ${round(cx - px * hw)} ${round(cy - py * hw)} Q ${round(mx)} ${round(my)} ${round(cx + px * hw)} ${round(cy + py * hw)}" stroke="${mix(look.top.color, '#1c150f', 0.55)}" stroke-width="${round(hw * 0.16)}" stroke-linecap="round"/></g>`);
+      }
     }
 
     // Joint creases follow the actual bend of each elbow and knee: the ink
