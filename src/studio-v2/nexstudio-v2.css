@@ -1754,3 +1754,26 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .composer-mode{position:absolute;top:13px;right:13px;display:flex;gap:2px;background:rgba(17,22,18,.055);border-radius:9px;padding:2px;z-index:3}
 .composer-mode button{border:0;background:transparent;padding:5px 11px;font:700 10px/1 inherit;color:var(--muted);border-radius:7px;cursor:pointer;transition:.2s var(--ease)}
 .composer-mode button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(17,22,18,.10)}
+
+/* Direction — style + pacing sit side by side in their own containers */
+.options-duo{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-top:26px;align-items:start}
+.options-duo .options-band{margin-top:0;padding:16px 18px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.38)}
+.options-duo .opt-group{margin-bottom:14px}
+.options-duo .opt-group:last-child{margin-bottom:0}
+.options-duo .opt-row.sub{gap:22px;align-items:flex-start}
+.options-duo .opt-row.sub .opt-group{margin-bottom:0}
+.options-duo .opt-chip.preview{max-width:196px}
+.options-duo .pacing .band-head{padding:0}
+.options-duo .pacing .band-body{margin-top:16px;padding-bottom:0}
+
+@media (max-width:1020px){
+  .options-duo{grid-template-columns:1fr;gap:12px}
+  .options-duo .opt-row.sub{flex-direction:row;gap:18px;flex-wrap:wrap}
+  /* mobile-first: preview cards become a snap-scroll rail instead of a tall stack */
+  .opt-row.previews{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:0 -18px;padding:0 18px 6px}
+  .opt-row.previews .opt-chip.preview{flex:0 0 64%;max-width:none;scroll-snap-align:start}
+}
+@media (max-width:480px){
+  .opt-row.previews .opt-chip.preview{flex-basis:78%}
+  .opt-row.previews .opt-chip.preview .preview-copy span{display:none}
+}

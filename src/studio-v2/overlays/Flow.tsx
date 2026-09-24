@@ -296,7 +296,96 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             <div className="decision"><label>Production</label><strong>{FAMILY_LABEL[flow.family ?? ""] ?? flow.family ?? "Explainer"}</strong><span>{flow.family ? "Your selection" : "NexMind selected"}</span></div>
             <div className="decision"><label>Format</label><strong>All screens</strong><span>16:9 · 9:16 · 1:1</span></div>
           </section>
-          <section className="direction-grid reveal" style={{ ["--d" as string]: ".2s" }}>
+          {kind && (
+            <section className="options-duo reveal" style={{ ["--d" as string]: ".2s" }}>
+              {kind === "whiteboard" && (
+                <section className="options-band style-box">
+                  <div className="opt-group">
+                    <label>Whiteboard <span className="opt-hint">hover to preview · tap to select</span></label>
+                    <div className="opt-row previews">
+                      <PreviewChip video="/previews/wb-kinetic.mp4" label="Text-driven" desc="Type animates with the narration" selected={engine.wbType === "kinetic-text"} onSelect={() => setOpt("wbType", "kinetic-text")} />
+                      <PreviewChip video="/previews/wb-hand.mp4" label="Hand-drawn" desc="The hand draws the board" selected={engine.wbType === "hand-drawn-board"} onSelect={() => setOpt("wbType", "hand-drawn-board")} />
+                    </div>
+                  </div>
+                  <div className="opt-row sub">
+                    <div className="opt-group">
+                      <label>Board</label>
+                      <div className="opt-row">
+                        {[["light", "White"], ["dark", "Black"]].map(([v, l]) => (
+                          <button key={v} type="button" className={`opt-chip small ${engine.wbTheme === v ? "on" : ""}`} onClick={() => setOpt("wbTheme", v)}><b>{l}</b></button>
+                        ))}
+                      </div>
+                    </div>
+                    {engine.wbType === "kinetic-text" && (
+                      <div className="opt-group">
+                        <label>Highlight</label>
+                        <div className="opt-row">
+                          <input aria-label="Highlight color" className="opt-color" type="color" value={engine.wbAccent} onChange={(e) => setOpt("wbAccent", e.target.value)} />
+                          <span className="opt-value">{engine.wbAccent}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+              {kind === "explainer" && (
+                <section className="options-band style-box">
+                  <div className="opt-group">
+                    <label>Style <span className="opt-hint">hover to preview · tap to select</span></label>
+                    <div className="opt-row previews">
+                      {(styles.length ? styles : [{ id: "tiles", name: "Tiles" }]).map((s) => (
+                        <PreviewChip key={s.id} video={`/previews/xr-${s.id}.mp4`} label={s.name} desc={s.tagline} selected={engine.style === s.id} onSelect={() => setOpt("style", s.id)} />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+              <section className={`options-band pacing ${pacingOpen ? "open" : ""}`}>
+                <button type="button" className="band-head" aria-expanded={pacingOpen} onClick={() => setPacingOpen((o) => !o)}>
+                  <span className="band-head-copy"><label>Voice & pacing</label><b>{MS_VOICES.find((v) => v.id === engine.voice)?.label ?? "Emma"} · {flow.duration ?? 45}s · {engine.speed}×</b></span>
+                  <i className="band-caret" aria-hidden="true">⌄</i>
+                </button>
+                {pacingOpen && (
+                  <div className="band-body">
+                    <div className="opt-group">
+                      <label>Voice <span className="opt-hint">Microsoft neural · ▶ plays a sample</span></label>
+                      <div className="opt-row">
+                        {MS_VOICES.map((v) => (
+                          <div key={v.id} className={`voice-chip ${engine.voice === v.id ? "on" : ""}`}>
+                            <button type="button" className="voice-name" onClick={() => setOpt("voice", v.id)}><b>{v.label}</b><span>{v.tag}</span></button>
+                            <button type="button" aria-label={`Hear ${v.label}`} className="voice-play" onClick={() => playVoice(v.id)}>{playingVoice === v.id ? "■" : "▶"}</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="opt-group">
+                      <label>Length <span className="opt-hint">target seconds</span></label>
+                      <div className="opt-row">
+                        {[15, 30, 45, 60].map((s) => (
+                          <button key={s} type="button" className={`opt-chip small ${flow.duration === s ? "on" : ""}`} onClick={() => api.patchFlow({ duration: s })}><b>{s}s</b></button>
+                        ))}
+                        <div className="opt-stepper">
+                          <button type="button" aria-label="Shorter" onClick={() => api.patchFlow({ duration: Math.max(5, (flow.duration ?? 45) - 5) })}>−</button>
+                          <input aria-label="Custom length in seconds" inputMode="numeric" type="number" min={5} max={600} step={5} value={flow.duration ?? 45} onChange={(e) => { const v = Math.round(Number(e.target.value)); if (Number.isFinite(v)) api.patchFlow({ duration: Math.min(600, Math.max(5, v)) }); }} />
+                          <button type="button" aria-label="Longer" onClick={() => api.patchFlow({ duration: Math.min(600, (flow.duration ?? 45) + 5) })}>+</button>
+                          <span>sec</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="opt-group">
+                      <label>Narration speed <span className="opt-hint">multiplies the pacing</span></label>
+                      <div className="opt-row">
+                        {["0.9", "1.0", "1.1", "1.25"].map((s) => (
+                          <button key={s} type="button" className={`opt-chip small ${engine.speed === s ? "on" : ""}`} onClick={() => setOpt("speed", s)}><b>{s}×</b></button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </section>
+            </section>
+          )}
+          <section className="direction-grid reveal" style={{ ["--d" as string]: ".26s" }}>
             <div className="story-main">
               <div className="story-label"><h2>How the story moves</h2><span>{beats.length} intentional beats</span></div>
               <div className="story-path">
@@ -317,91 +406,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
               </div>
             </aside>
           </section>
-          {kind === "whiteboard" && (
-            <section className="options-band reveal" style={{ ["--d" as string]: ".26s" }}>
-              <div className="opt-group">
-                <label>Whiteboard <span className="opt-hint">hover to preview · tap to select</span></label>
-                <div className="opt-row previews">
-                  <PreviewChip video="/previews/wb-kinetic.mp4" label="Text-driven" desc="Type animates with the narration" selected={engine.wbType === "kinetic-text"} onSelect={() => setOpt("wbType", "kinetic-text")} />
-                  <PreviewChip video="/previews/wb-hand.mp4" label="Hand-drawn" desc="The hand draws the board" selected={engine.wbType === "hand-drawn-board"} onSelect={() => setOpt("wbType", "hand-drawn-board")} />
-                </div>
-              </div>
-              <div className="opt-group">
-                <label>Board</label>
-                <div className="opt-row">
-                  {[["light", "White"], ["dark", "Black"]].map(([v, l]) => (
-                    <button key={v} type="button" className={`opt-chip small ${engine.wbTheme === v ? "on" : ""}`} onClick={() => setOpt("wbTheme", v)}><b>{l}</b></button>
-                  ))}
-                </div>
-              </div>
-              {engine.wbType === "kinetic-text" && (
-                <div className="opt-group">
-                  <label>Highlight</label>
-                  <div className="opt-row">
-                    <input aria-label="Highlight color" className="opt-color" type="color" value={engine.wbAccent} onChange={(e) => setOpt("wbAccent", e.target.value)} />
-                    <span className="opt-value">{engine.wbAccent}</span>
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
-          {kind === "explainer" && (
-            <section className="options-band reveal" style={{ ["--d" as string]: ".26s" }}>
-              <div className="opt-group">
-                <label>Style <span className="opt-hint">hover to preview · tap to select</span></label>
-                <div className="opt-row previews">
-                  {(styles.length ? styles : [{ id: "tiles", name: "Tiles" }]).map((s) => (
-                    <PreviewChip key={s.id} video={`/previews/xr-${s.id}.mp4`} label={s.name} desc={s.tagline} selected={engine.style === s.id} onSelect={() => setOpt("style", s.id)} />
-                  ))}
-                </div>
-              </div>
-            </section>
-          )}
-          {kind && (
-            <section className={`options-band pacing ${pacingOpen ? "open" : ""} reveal`} style={{ ["--d" as string]: ".3s" }}>
-              <button type="button" className="band-head" aria-expanded={pacingOpen} onClick={() => setPacingOpen((o) => !o)}>
-                <span className="band-head-copy"><label>Voice & pacing</label><b>{MS_VOICES.find((v) => v.id === engine.voice)?.label ?? "Emma"} · {flow.duration ?? 45}s · {engine.speed}×</b></span>
-                <i className="band-caret" aria-hidden="true">⌄</i>
-              </button>
-              {pacingOpen && (
-                <div className="band-body">
-                  <div className="opt-group">
-                    <label>Voice <span className="opt-hint">Microsoft neural · ▶ plays a sample</span></label>
-                    <div className="opt-row">
-                      {MS_VOICES.map((v) => (
-                        <div key={v.id} className={`voice-chip ${engine.voice === v.id ? "on" : ""}`}>
-                          <button type="button" className="voice-name" onClick={() => setOpt("voice", v.id)}><b>{v.label}</b><span>{v.tag}</span></button>
-                          <button type="button" aria-label={`Hear ${v.label}`} className="voice-play" onClick={() => playVoice(v.id)}>{playingVoice === v.id ? "■" : "▶"}</button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="opt-group">
-                    <label>Length <span className="opt-hint">target seconds · narration pacing adjusts to it</span></label>
-                    <div className="opt-row">
-                      {[15, 30, 45, 60].map((s) => (
-                        <button key={s} type="button" className={`opt-chip small ${flow.duration === s ? "on" : ""}`} onClick={() => api.patchFlow({ duration: s })}><b>{s}s</b></button>
-                      ))}
-                      <div className="opt-stepper">
-                        <button type="button" aria-label="Shorter" onClick={() => api.patchFlow({ duration: Math.max(5, (flow.duration ?? 45) - 5) })}>−</button>
-                        <input aria-label="Custom length in seconds" inputMode="numeric" type="number" min={5} max={600} step={5} value={flow.duration ?? 45} onChange={(e) => { const v = Math.round(Number(e.target.value)); if (Number.isFinite(v)) api.patchFlow({ duration: Math.min(600, Math.max(5, v)) }); }} />
-                        <button type="button" aria-label="Longer" onClick={() => api.patchFlow({ duration: Math.min(600, (flow.duration ?? 45) + 5) })}>+</button>
-                        <span>sec</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="opt-group">
-                    <label>Narration speed <span className="opt-hint">multiplies the pacing</span></label>
-                    <div className="opt-row">
-                      {["0.9", "1.0", "1.1", "1.25"].map((s) => (
-                        <button key={s} type="button" className={`opt-chip small ${engine.speed === s ? "on" : ""}`} onClick={() => setOpt("speed", s)}><b>{s}×</b></button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
+
         </main>
       </div>
       <div className="direction-dock">
