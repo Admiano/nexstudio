@@ -1,5 +1,5 @@
 import { createContext, useContext, type PropsWithChildren } from "react";
-import type { StudioDashboardGateway } from "../adapters/gateway.js";
+import type { StudioDashboardGateway } from "../adapters/gateway";
 
 const GatewayContext = createContext<StudioDashboardGateway | null>(null);
 
