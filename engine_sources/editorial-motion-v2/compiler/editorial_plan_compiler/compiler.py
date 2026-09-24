@@ -18,9 +18,9 @@ from .authorities import editorial_motion_ensemble_director_v1 as ens
 from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
 from .chassis import chassis_aspect, housing
-from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FilmTreatment, TreatmentError
+from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirective, FilmTreatment, TreatmentError
 from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere
-from .figures import resolve_figure
+from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
 from .evidence import PhotoEvidence
@@ -540,7 +540,7 @@ class BeatCompiler:
             self.carried_media = carried
         return carried
 
-    def _figure(self, b: BeatTreatment, comp: Dict[str, Any], clock: BeatClock, ensemble: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def _figure(self, b: BeatTreatment, comp: Dict[str, Any], clock: BeatClock, ensemble: Dict[str, Any], failures: List[str]) -> Optional[Dict[str, Any]]:
         if not b.figure:
             return None
         zone = comp['visual_zone']
@@ -550,7 +550,16 @@ class BeatCompiler:
         facing_left = not (b.figure.facing == 'TOWARD_TEXT' and text_cx > zone_cx + 40)
         if b.figure.facing == 'AWAY':
             facing_left = text_cx > zone_cx
-        fig = resolve_figure(b.figure, b.beat_id, self.film.film_id, self.film.brand, facing_left=facing_left)
+        d = b.figure
+        try:
+            fig = resolve_figure(d, b.beat_id, self.film.film_id, self.film.brand, facing_left=facing_left,
+                                 cast_member=self.film.cast.get(d.character) if d.character else None,
+                                 character=d.character)
+        except FigurePartError as e:
+            failures.append(str(e))
+            fig = resolve_figure(FigureDirective(valence=d.valence, arousal=d.arousal, posture=d.posture, energy=d.energy,
+                                                 formality=d.formality, facing=d.facing, justification=d.justification),
+                                 b.beat_id, self.film.film_id, self.film.brand, facing_left=facing_left)
         bbox = _contain(zone, fig['composition']['aspect'], 1.0, anchor='bottom')
         ev = next((e for e in ensemble['events'] if e['channel'] == 'CHARACTER'), None)
         enter = ev['start_ms'] if ev else min(clock.duration_ms - 900, max(clock.landings_ms or [LEAD_IN_MS]) + 200)
@@ -558,6 +567,37 @@ class BeatCompiler:
         # still arrives inside the lead-in rather than leaving the stage empty.
         enter = max(LEAD_IN_MS // 4 + 20, min(int(enter), LEAD_IN_MS + 220))
         fig.update({'bbox': bbox, 'zone': zone, 'enter_ms': int(enter), 'enter_duration_ms': 300, 'entrance': 'SETTLE_RISE', 'ground_line': round(bbox['y'] + bbox['h'], 1)})
+        if d.track:
+            dur_in = int(min(750, max(420, clock.duration_ms * 0.12)))
+            dur_out = int(min(560, max(360, clock.duration_ms * 0.1)))
+            fig['track'] = {'enter': d.track['enter'], 'exit': d.track['exit'],
+                            'enter_ms': int(enter), 'enter_duration_ms': dur_in,
+                            'exit_start_ms': int(clock.duration_ms - dur_out - 60), 'exit_duration_ms': dur_out}
+        if d.prop:
+            hand = d.prop['hand']
+            side = ('right', 'left')[hand == 'left' or (hand == 'auto' and fig['mirror'])]
+            fig['prop'] = {'hand': side, 'anchor': {'x': 0.04 if side == 'left' else 0.96, 'y': 0.60},
+                           'concept': d.prop['concept'], 'via': d.prop.get('via'),
+                           'asset': d.prop.get('asset'), 'photo': d.prop.get('photo'), 'word': d.prop.get('word')}
+        if d.states:
+            try:
+                states = []
+                for st in d.states:
+                    at = st.get('at') or {}
+                    if 'word' in at:
+                        target = str(at['word']).lower()
+                        hit = next((w for w in clock.words if str(w.text).lower() == target), None)
+                        at_ms = int(hit.start_ms) if hit else int(clock.duration_ms * 0.5)
+                    else:
+                        at_ms = int(at.get('offset_ms') or 0)
+                    at_ms = max(int(enter) + 120, min(at_ms, clock.duration_ms - 350))
+                    swaps = resolve_state_parts(st, PEEPS_INDEX['compositions'][fig['posture']], fig['posture'], b.beat_id)
+                    if swaps:
+                        states.append({'at_ms': at_ms, 'swaps': swaps})
+                if states:
+                    fig['states'] = sorted(states, key=lambda s: s['at_ms'])
+            except FigurePartError as e:
+                failures.append(str(e))
         return fig
 
     def _data(self, b: BeatTreatment, comp: Dict[str, Any], clock: BeatClock) -> Optional[Dict[str, Any]]:
@@ -645,7 +685,7 @@ class BeatCompiler:
         warnings += ensemble['warnings']
 
         media = self._media(b, comp, clock, typ)
-        figure = self._figure(b, comp, clock, ensemble)
+        figure = self._figure(b, comp, clock, ensemble, failures)
         data = self._data(b, comp, clock)
         illustration, ilf = self._illustration(b, comp, clock)
         failures += ilf
@@ -895,7 +935,8 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
     authored marks set it, otherwise the first pass's most common pack does. Returns film-level
     warnings (a photo catalogue that would not answer, so a lower rung stood in)."""
     todo = [(b, e) for b in film.beats if b.illustration for e in b.illustration.entities if e.concept and not e.asset_ref]
-    if not todo:
+    prop_todo = [b for b in film.beats if b.figure and b.figure.prop]
+    if not todo and not prop_todo:
         return []
     finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
     pack = _film_pack(film, registry)
@@ -942,6 +983,21 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
             e.params['word'] = r.word
             e.params['word_kind'] = 'numeric' if r.via == 'numeric' else 'name'
         e.params['resolution'] = r.as_dict()
+    for b in prop_todo:
+        # A performer's prop rides the same ladder: named mark, otherwise a photo, else a typeset tag.
+        p = b.figure.prop
+        r = finder.resolve(p['concept'], pack, True, native_only)
+        p['via'] = r.via
+        if r.via in PHOTO_BELOW:
+            rec = evidence.find(p['concept'])
+            if rec is not None:
+                p['photo'] = evidence.as_plan(rec)
+                r = replace(r, via='photo', asset_ref=None, path=[p['concept'], rec.title])
+                p['via'] = r.via
+        p['asset_ref'] = r.asset_ref
+        p['asset'] = registry.resolve(r.asset_ref, b.beat_id) if r.asset_ref else None
+        p['word'] = r.word if r.word else (None if r.asset_ref or p.get('photo') else p['concept'])
+        p['resolution'] = r.as_dict()
     return [f'EVIDENCE_UNAVAILABLE:{u}' for u in evidence.unavailable]
 
 

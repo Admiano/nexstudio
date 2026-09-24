@@ -1039,6 +1039,34 @@
    "year": null,
    "source_size": []
   },
+  "fork road": {
+   "concept": "fork in the road",
+   "query": "fork road",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "160709939",
+   "title": "File:Inside North Fork Road (36944864194).jpg",
+   "creator": "GlacierNPS",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Inside_North_Fork_Road_(36944864194).jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Inside_North_Fork_Road_%2836944864194%29.jpg/1920px-Inside_North_Fork_Road_%2836944864194%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "fork-in-the-road.e8552177e738.jpg",
+   "sha256": "86ddc21b0ac2c86db03bdf4cd1331381fbe089aa1830b2a0e490fc081b248b11",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "North Fork Road",
+    "U.S. National Park Service Flickr files uploaded by OptimusPrimeBot",
+    "United States National Park Service images (review needed)"
+   ],
+   "year": 2017,
+   "source_size": [
+    5472,
+    3648
+   ]
+  },
   "glass": {
    "concept": "glasses",
    "query": "glasses",
@@ -1309,6 +1337,33 @@
    "source_size": [
     5056,
     3371
+   ]
+  },
+  "magnifying glass": {
+   "concept": "magnifying glass",
+   "query": "magnifying glass",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "159118433",
+   "title": "File:Magnifying glass (53501034130).jpg",
+   "creator": "BLM Alaska",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Magnifying_glass_(53501034130).jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Magnifying_glass_%2853501034130%29.jpg/1920px-Magnifying_glass_%2853501034130%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "magnifying-glass.d9816099c0bd.jpg",
+   "sha256": "02a67a7c314a0536157c6349eb34099241e8e29971a859cb25d3821186221a14",
+   "width": 1400,
+   "height": 1243,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "United States Bureau of Land Management images (review needed)",
+    "U.S. Bureau of Land Management Flickr files uploaded by OptimusPrimeBot"
+   ],
+   "year": 2023,
+   "source_size": [
+    2696,
+    2392
    ]
   },
   "microphone": {

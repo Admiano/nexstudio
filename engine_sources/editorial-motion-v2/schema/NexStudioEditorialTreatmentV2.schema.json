@@ -226,6 +226,164 @@
                   "justification": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "character": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "track": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "enter": {
+                            "type": "string",
+                            "enum": [
+                              "left",
+                              "right",
+                              "none"
+                            ]
+                          },
+                          "exit": {
+                            "type": "string",
+                            "enum": [
+                              "left",
+                              "right",
+                              "none"
+                            ]
+                          }
+                        },
+                        "required": [],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "prop": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "concept": {
+                            "type": "string",
+                            "maxLength": 40
+                          },
+                          "hand": {
+                            "type": "string",
+                            "enum": [
+                              "left",
+                              "right",
+                              "auto"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "concept"
+                        ],
+                        "additionalProperties": true
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "states": {
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "at": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "word": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "word"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "unit": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    }
+                                  },
+                                  "required": [
+                                    "unit"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "offset_ms": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    }
+                                  },
+                                  "required": [
+                                    "offset_ms"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "pose": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "face": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "head": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "at"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "minItems": 1,
+                        "maxItems": 3
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "pose": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "face": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": [
@@ -691,6 +849,48 @@
         "additionalProperties": false
       },
       "minItems": 1
+    },
+    "cast": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "posture": {
+            "type": "string",
+            "enum": [
+              "standing",
+              "sitting"
+            ]
+          },
+          "head": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "face": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "skin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "garment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "maxProperties": 6
     },
     "media_library": {
       "type": "array",
