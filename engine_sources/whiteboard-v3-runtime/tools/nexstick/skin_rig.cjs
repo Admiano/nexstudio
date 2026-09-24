@@ -288,10 +288,11 @@ function skeletonSvg(p3, opts = {}) {
     push(0.43, 'pb-detail', 'none',
       `<path d="${d}" stroke="${INK}" stroke-width="${round(S * 0.007)}" fill="${fill}"/>`);
   }
-  // prop layer: line-art chair under seated clips (dims mined from the
-  // carrier rig's SUPPORT_CHAIR mesh — seat 0.46m, back top 0.92m).
-  // Ink strokes only; drawn under the figure so the body occludes it.
-  if (opts.prop === 'chair') {
+  // prop layer: line-art props for activity clips. The chair sits UNDER
+  // the figure (seated on it); hand props hang off the wrists and draw at
+  // the hands' depth so the grip occludes correctly.
+  const propList = Array.isArray(opts.prop) ? opts.prop : (opts.prop ? [opts.prop] : []);
+  if (propList.includes('chair')) {
     const toek = (q[J.toeL].x + q[J.toeR].x) / 2, hipx = (q[J.hipL].x + q[J.hipR].x) / 2;
     const dir = Math.sign(toek - hipx) || 1;       // where the sitter faces
     const seatY = -0.46 * S, backTop = -0.92 * S;
@@ -307,6 +308,41 @@ function skeletonSvg(p3, opts = {}) {
     // legs to the floor (y=0 in this projection)
     ink(`M ${round(frontX - dir * R2(0.02))} ${round(seatY + S * 0.014)} L ${round(frontX - dir * R2(0.04))} 0`, S * 0.01);
     ink(`M ${round(backX + dir * R2(0.02))} ${round(seatY + S * 0.014)} L ${round(backX + dir * R2(0.04))} 0`, S * 0.01);
+  }
+  // hand props: broom (shaft through the hands to the floor ahead), box
+  // (between the wrists), phone (at the wrist nearer the ear), marker
+  // (nib past the near hand), cup (at the near hand).
+  const wrA = { x: (q[J.wrL].x + q[J.wrR].x) / 2, y: (q[J.wrL].y + q[J.wrR].y) / 2,
+                d: (q[J.wrL].d + q[J.wrR].d) / 2 };
+  const dirP = Math.sign((q[J.toeL].x + q[J.toeR].x) / 2 - (q[J.hipL].x + q[J.hipR].x) / 2) || 1;
+  const wNear = q[J.wrL].d < q[J.wrR].d ? q[J.wrL] : q[J.wrR];
+  const propExt = [];                       // prop tips join the viewBox bbox
+  for (const prop of propList) {
+    if (prop === 'chair') continue;
+    const ink = (d, w, dd = 0) => push(wrA.d - 0.02 + dd, 'pb-detail', 'none', stroke(d, w));
+    if (prop === 'broom') {
+      const top = { x: wrA.x - dirP * R2(0.10), y: wrA.y - R2(0.30) };
+      const tip = { x: wrA.x + dirP * R2(0.30), y: R2(0.015) };
+      propExt.push(top, { x: tip.x + dirP * R2(0.08), y: tip.y + R2(0.11) });
+      ink(`M ${round(top.x)} ${round(top.y)} L ${round(tip.x)} ${round(tip.y)}`, S * 0.016);
+      for (const k of [-2, -1, 0, 1, 2])
+        ink(`M ${round(tip.x)} ${round(tip.y)} L ${round(tip.x + dirP * R2(0.03 + k * 0.014))} ${round(tip.y + R2(0.10 - Math.abs(k) * 0.018))}`, S * 0.008, 0.01);
+    } else if (prop === 'box') {
+      const bw = R2(0.38), bh = R2(0.26), bx = wrA.x, by = wrA.y + R2(0.04);
+      ink(`M ${round(bx - bw / 2)} ${round(by)} L ${round(bx + bw / 2)} ${round(by)} L ${round(bx + bw / 2)} ${round(by + bh)} L ${round(bx - bw / 2)} ${round(by + bh)} Z`, S * 0.011);
+      ink(`M ${round(bx - bw / 2)} ${round(by)} L ${round(bx - bw / 2 + dirP * bw * 0.16)} ${round(by - R2(0.05))} L ${round(bx + bw / 2 + dirP * bw * 0.16)} ${round(by - R2(0.05))} L ${round(bx + bw / 2)} ${round(by)}`, S * 0.011);
+    } else if (prop === 'phone') {
+      const wp = Math.hypot(q[J.wrL].x - hr.x, q[J.wrL].y - hr.y) < Math.hypot(q[J.wrR].x - hr.x, q[J.wrR].y - hr.y) ? q[J.wrL] : q[J.wrR];
+      push(wp.d - 0.07, 'pb-detail', 'none', stroke(
+        `M ${round(wp.x - R2(0.012))} ${round(wp.y - R2(0.045))} L ${round(wp.x + R2(0.018))} ${round(wp.y - R2(0.035))} L ${round(wp.x + R2(0.008))} ${round(wp.y + R2(0.055))} L ${round(wp.x - R2(0.022))} ${round(wp.y + R2(0.045))} Z`, S * 0.008));
+    } else if (prop === 'marker') {
+      propExt.push({ x: wNear.x + dirP * R2(0.08), y: wNear.y });
+      ink(`M ${round(wNear.x - dirP * R2(0.02))} ${round(wNear.y + R2(0.01))} L ${round(wNear.x + dirP * R2(0.055))} ${round(wNear.y - R2(0.02))}`, S * 0.02);
+      ink(`M ${round(wNear.x + dirP * R2(0.055))} ${round(wNear.y - R2(0.02))} L ${round(wNear.x + dirP * R2(0.075))} ${round(wNear.y - R2(0.025))}`, S * 0.03, 0.01);
+    } else if (prop === 'cup') {
+      ink(`M ${round(wNear.x - R2(0.03))} ${round(wNear.y)} L ${round(wNear.x + R2(0.03))} ${round(wNear.y)} L ${round(wNear.x + R2(0.02))} ${round(wNear.y + R2(0.065))} L ${round(wNear.x - R2(0.02))} ${round(wNear.y + R2(0.065))} Z`, S * 0.008);
+      ink(`M ${round(wNear.x + R2(0.03))} ${round(wNear.y + R2(0.012))} Q ${round(wNear.x + R2(0.055))} ${round(wNear.y + R2(0.02))} ${round(wNear.x + R2(0.035))} ${round(wNear.y + R2(0.045))}`, S * 0.007);
+    }
   }
   // hair: cap biased to the side the head is turned AWAY from
   const hOff = -Math.sign(fOff || 1) * (0.55 + 0.45 * Math.abs(fOff));
@@ -325,6 +361,7 @@ function skeletonSvg(p3, opts = {}) {
 
   const xs = [], ys = [];
   for (const k of Object.keys(q)) { xs.push(q[k].x); ys.push(q[k].y); }
+  for (const p of propExt) { xs.push(p.x); ys.push(p.y); }
   const pad = R2(0.10);
   const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad;
   // small headroom for hair/reach above the head joint; feet sit near the
@@ -428,6 +465,15 @@ const trackAz = (p3) => {
 const SEATED = (req.cmuClip || req.action || '')
   .match(/SIT|SEATED|GESTURE|ATTENTION|PHRASE|THINK|LISTEN|QUESTION|PRESENT|EXPLAIN|EMPHASIS|AGREE|REST|RECOVER/i)
   && st0.pose3d && st0.pose3d.pelvis[1] < 0.85;
+// activity props auto-attach by clip name (same pattern as the chair)
+const PROP_RULES = [
+  [/SWEEP|BROOM/i, 'broom'],
+  [/PICKUP|CARRY|CARRYING|SUITCASE|LUGGAGE|\bBOX\b/i, 'box'],
+  [/PHONE|CALL/i, 'phone'],
+  [/WRITE|WRITING|MARKER/i, 'marker'],
+  [/DRINK|COFFEE|SIP|CUP/i, 'cup'],
+];
+const autoProps = PROP_RULES.filter(([re]) => re.test(req.cmuClip || '')).map(([, p]) => p);
 
 // optional viseme timeline (rhubarb cues json) -> per-frame mouth shape
 let VTL = null;
@@ -462,7 +508,9 @@ for (let i = 0; i < nF; i++) {
     handL: st.hands && st.hands.left && st.hands.left.pose,
     handR: st.hands && st.hands.right && st.hands.right.pose,
     mouth: req.mouth || (VTL ? VTL(t) : undefined),
-    prop: req.prop || (SEATED ? 'chair' : undefined),
+    prop: req.prop
+      ? (Array.isArray(req.prop) ? req.prop : [req.prop])
+      : [...autoProps, ...(SEATED ? ['chair'] : [])],
   });
   fs.writeFileSync(path.join(outDir, `g${String(i).padStart(3, '0')}.svg`), svg);
   meta.push({ t, root: st.pose3d.root || [0, 0, 0] });
