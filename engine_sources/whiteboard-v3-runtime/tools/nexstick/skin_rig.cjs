@@ -176,39 +176,41 @@ function skeletonSvg(p3, opts = {}) {
   const parts = [];
   const push = (d, cls, fill, svg) => parts.push({ d, cls, fill, svg });
 
-  const sideDepth = (s) => q[J['sho' + s]].d;
   const handL = opts.handL || 'relaxed', handR = opts.handR || 'relaxed';
+  // true projected depth per segment: the near limb sorts above the torso
+  // fill, the far limb under it — an arm crossing the body reads as
+  // crossing in front or behind, never dissolving into the mass.
+  const dSeg = (a, b) => (a.d + b.d) / 2;
 
   for (const s of ['L', 'R']) {
-    const far = sideDepth(s) < 0;
-    const dArm = -10 + (far ? -0.2 : 0.2);
-    const dLeg = -10 + (far ? -0.1 : 0.1);
     const hip = q[J['hip' + s]], knee = q[J['knee' + s]], ank = q[J['ank' + s]], toe = q[J['toe' + s]];
-    push(dLeg, 'pb-limb', SKIN, capsule2(knee.x, knee.y, ank.x, ank.y, R2(R.shin)));
+    const dShin = dSeg(knee, ank), dThigh = dSeg(hip, knee), dFoot = dSeg(ank, toe);
+    push(dShin - 0.001, 'pb-limb', SKIN, capsule2(knee.x, knee.y, ank.x, ank.y, R2(R.shin)));
     const st = lerp3([hip.x, hip.y], [knee.x, knee.y], SHORTS_LEN);
-    push(dLeg + 0.01, 'pb-bottom', BOTTOM, capsule2(hip.x, hip.y, st[0], st[1], R2(R.thigh * SHORTS_W)));
-    push(dLeg + 0.02, 'pb-limb', SKIN, capsule2(hip.x, hip.y, knee.x, knee.y, R2(R.thigh)));
-    push(dLeg, 'pb-joint', SKIN, disc(knee.x, knee.y, R2((R.thigh + R.shin) * 0.42)));
-    push(dLeg + 0.03, 'pb-foot', SHOE, capsule2(ank.x, ank.y, toe.x, toe.y, R2(R.foot)));
-    push(dLeg + 0.03, 'pb-foot', SHOE, disc(ank.x, ank.y, R2(R.foot * 1.15)));
+    push(dThigh + 0.002, 'pb-bottom', BOTTOM, capsule2(hip.x, hip.y, st[0], st[1], R2(R.thigh * SHORTS_W)));
+    push(dThigh + 0.001, 'pb-limb', SKIN, capsule2(hip.x, hip.y, knee.x, knee.y, R2(R.thigh)));
+    push(dSeg(knee, knee) - 0.002, 'pb-joint', SKIN, disc(knee.x, knee.y, R2((R.thigh + R.shin) * 0.42)));
+    push(dFoot + 0.001, 'pb-foot', SHOE, capsule2(ank.x, ank.y, toe.x, toe.y, R2(R.foot)));
+    push(dFoot + 0.001, 'pb-foot', SHOE, disc(ank.x, ank.y, R2(R.foot * 1.15)));
     // sole line along the foot bottom
-    push(dLeg + 0.04, 'pb-detail', 'none',
+    push(dFoot + 0.002, 'pb-detail', 'none',
       stroke(`M ${round(ank.x - R2(R.foot) * 0.4)} ${round(ank.y + R2(R.foot))} L ${round(toe.x)} ${round(toe.y + R2(R.foot))}`, S * 0.008));
     // arms
     const sho = q[J['sho' + s]], elb = q[J['elb' + s]], wr = q[J['wr' + s]];
+    const dUarm = dSeg(sho, elb), dFarm = dSeg(elb, wr), dHand = wr.d;
     // sleeve: widened capsule over the upper-arm top
     const sl = lerp3([sho.x, sho.y], [elb.x, elb.y], SLEEVE_LEN);
-    push(dArm + 0.005, 'pb-sleeve', TOP, capsule2(sho.x, sho.y, sl[0], sl[1], R2(R.uarm * TEE_W)));
+    push(dUarm + 0.002, 'pb-sleeve', TOP, capsule2(sho.x, sho.y, sl[0], sl[1], R2(R.uarm * TEE_W)));
     // sleeve hem seam
-    push(dArm + 0.006, 'pb-detail', 'none',
+    push(dUarm + 0.003, 'pb-detail', 'none',
       seam(sl[0], sl[1], elb.x - sho.x, elb.y - sho.y, R2(R.uarm * TEE_W) * 0.92, S * 0.006));
-    push(dArm, 'pb-limb', SKIN, capsule2(elb.x, elb.y, wr.x, wr.y, R2(R.farm)));
-    push(dArm, 'pb-limb', SKIN, capsule2(sho.x, sho.y, elb.x, elb.y, R2(R.uarm)));
-    push(dArm, 'pb-joint', SKIN, disc(elb.x, elb.y, R2((R.uarm + R.farm) * 0.4)));
+    push(dFarm, 'pb-limb', SKIN, capsule2(elb.x, elb.y, wr.x, wr.y, R2(R.farm)));
+    push(dUarm + 0.001, 'pb-limb', SKIN, capsule2(sho.x, sho.y, elb.x, elb.y, R2(R.uarm)));
+    push(elb.d + 0.001, 'pb-joint', SKIN, disc(elb.x, elb.y, R2((R.uarm + R.farm) * 0.4)));
     // hand on the true wrist, fingers fan along the forearm direction,
     // spread from the clip's semantic hand state
     const st2 = s === 'L' ? handL : handR;
-    push(dArm + 0.02, 'pb-hand', SKIN, handSvg(wr.x, wr.y, wr.x - elb.x, wr.y - elb.y, st2, R2, SKIN));
+    push(dHand + 0.002, 'pb-hand', SKIN, handSvg(wr.x, wr.y, wr.x - elb.x, wr.y - elb.y, st2, R2, SKIN));
   }
 
   // torso column on the true spine chain + pelvis & chest welds

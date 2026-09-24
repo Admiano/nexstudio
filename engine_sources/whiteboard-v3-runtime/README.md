@@ -74,6 +74,26 @@ a black board with white ink (the hand sprite is unchanged); `--accent`
 recolors brand accents, and `--page-size N` re-inserts erase page turns
 every N flow cells (9:16 defaults to 3 per scene).
 
+## Character performance system (tools/nexstick)
+
+Skin-on-skeleton renderer (`skin_rig.cjs`) draws masses directly on the
+vault's true 3D joints — capsule per bone, real-depth occlusion sort so a
+swinging arm crosses in front of or behind the torso correctly. Motion
+vaults in `tools/nexstick/compiled/`:
+
+- `cmu_motion_vault_v5.json` — 64 CMU mocap clips (free for all uses)
+- `nex_vault_v5.json` — 182 actions baked from the NexMind
+  performance-carrier Blender rigs: `NEX_HOST_*` standing host gestures,
+  `NEX_GESTURE_*`/`NEX_ATTENTION_*`/`NEX_PHRASE_*` seated host actions,
+  `NEX_MECHANIC_*`/`NEX_ACTPRIM_*` exercise library, `NEX_MOTION_*` /
+  `NEX_STICKMAN_*` core set (walk/run/sit/wave/dance/sad/boxing/jump…)
+- `exercise_vault_v5.json` — Everkinetic keypose reps (CC BY-SA 4.0)
+
+`clip_select.cjs` maps narration text to a clip (`he does a push up` →
+`NEX_MECHANIC_PUSHUP_CYCLE`). `bake_blend_vault.py` re-bakes vault JSON
+from a rig .blend (Blender headless: `blender -b rig.blend --python
+bake_blend_vault.py -- out.json ARMATURE_OBJECT NEX_`).
+
 ## Requirements
 
 - Python 3.10+, `Pillow`, `ffmpeg`/`ffprobe` on PATH.

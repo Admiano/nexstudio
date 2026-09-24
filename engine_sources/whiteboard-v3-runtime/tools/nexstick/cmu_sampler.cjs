@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const VAULT_PATH = path.resolve(__dirname, 'compiled', 'cmu_motion_vault_v5.json');
 const EX_PATH = path.resolve(__dirname, 'compiled', 'exercise_vault_v5.json');
+const NEX_PATH = path.resolve(__dirname, 'compiled', 'nex_vault_v5.json');
 let V = null;
 function vault() {
   if (!V) {
@@ -17,6 +18,11 @@ function vault() {
       const ex = JSON.parse(fs.readFileSync(EX_PATH, 'utf8'));
       if (ex && ex.clips) Object.assign(V.clips, ex.clips);
     } catch (e) { /* exercise vault not built yet */ }
+    // NexMind performance-carrier vault (authored actions, internal)
+    try {
+      const nx = JSON.parse(fs.readFileSync(NEX_PATH, 'utf8'));
+      if (nx && nx.clips) Object.assign(V.clips, nx.clips);
+    } catch (e) { /* performance vault not baked yet */ }
   }
   return V;
 }
