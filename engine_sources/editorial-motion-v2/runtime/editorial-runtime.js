@@ -976,27 +976,6 @@
     return svgCache.get(url);
   }
 
-  function recolor(svgText, palette) {
-    let out = svgText;
-    for (const [from, to] of Object.entries(palette || {})) {
-      out = out.split(from).join(to).split(from.toUpperCase()).join(to);
-    }
-    return out;
-  }
-
-  function figurePartGroup(part, palette, peepsUrl) {
-    return fetchText(peepsUrl(part.file)).then((txt) => {
-      const doc = new DOMParser().parseFromString(recolor(txt, palette), 'image/svg+xml');
-      const src = doc.documentElement;
-      const vbSrc = (src.getAttribute('viewBox') || `0 0 ${part.source_size.w} ${part.source_size.h}`).split(/[\s,]+/).map(Number);
-      const nested = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      const sx = part.frame.w / vbSrc[2], sy = part.frame.h / vbSrc[3];
-      nested.setAttribute('transform', `translate(${part.frame.x} ${part.frame.y}) scale(${sx.toFixed(5)} ${sy.toFixed(5)}) translate(${-vbSrc[0]} ${-vbSrc[1]})`);
-      nested.setAttribute('data-slot', part.slot);
-      nested.innerHTML = src.innerHTML;
-      return { part, nested };
-    });
-  }
 
   function buildFigure(fig, plan, beatRoot, opts) {
     const bb = bboxOf(fig.bbox);
@@ -1004,31 +983,29 @@
       position: 'absolute', left: px(bb.x), top: px(bb.y), width: px(bb.w), height: px(bb.h), zIndex: '14',
       willChange: 'transform, opacity', transformOrigin: '50% 100%',
     }, beatRoot);
-    const vb = fig.composition.view_box;
+    // The performer is cut paper, same material as every mark on stage: a 100×140
+    // sheet of layered pieces — no borrowed clip-art.
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', vb.join(' '));
+    svg.setAttribute('viewBox', '0 0 100 140');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.setAttribute('preserveAspectRatio', 'xMidYMax meet');
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    if (fig.mirror) g.setAttribute('transform', `translate(${vb[0] * 2 + vb[2]} 0) scale(-1 1)`);
+    if (fig.mirror) g.setAttribute('transform', 'translate(100 0) scale(-1 1)');
     svg.appendChild(g);
     host.appendChild(svg);
     // Lifted off the page: the puppet reads as a cut-out sitting on the paper, not flat ink.
     svg.style.filter = `drop-shadow(0 ${px(bb.h * 0.012)} ${px(bb.h * 0.022)} ${rgbaOf(plan.brand.ink, 0.3)})`;
     const f = { fig, host, bb, ready: null, slotEls: {}, stateSwaps: null, appliedState: -1, prop: null };
-    const stateParts = [];
-    for (const st of fig.states || []) for (const sw of st.swaps) stateParts.push({ st, sw });
-    const ready = Promise.all([
-      Promise.all(fig.parts.map((part) => figurePartGroup(part, fig.palette, opts.peepsUrl))).then((items) => {
-        // Slot order is authored by the compiler: body → head → face.
-        for (const it of items) { g.appendChild(it.nested); f.slotEls[it.part.slot] = it.nested; }
-      }),
-      // State morph parts are prefetched too: the swap itself must be instant at lt, not on a fetch.
-      Promise.all(stateParts.map(({ st, sw }) => figurePartGroup(sw, fig.palette, opts.peepsUrl).then(({ nested }) => {
-        (st._prepared = st._prepared || []).push({ slot: sw.slot, innerHTML: nested.innerHTML, transform: nested.getAttribute('transform') });
-      }))),
-    ]);
+    const figSeed = seedHash(`figure:${fig.character || 'anon'}:${fig.pose && fig.pose.id || ''}`);
+    const built = paperFigureSlots(fig, figSeed, plan, `fig_${fig.character || 'f'}`);
+    g.appendChild(built.edge);
+    for (const slot of ['body', 'head', 'face']) { g.appendChild(built.slots[slot]); f.slotEls[slot] = built.slots[slot]; }
+    // State morph parts are pre-rendered paper slots too: the swap is instant at lt.
+    for (const st of fig.states || []) for (const sw of st.swaps) {
+      (st._prepared = st._prepared || []).push({ slot: sw.slot, innerHTML: paperSlotInner(sw.slot, sw.part_id, fig, figSeed, plan), transform: '' });
+    }
+    const ready = Promise.resolve();
     if (fig.states) f.stateSwaps = fig.states;
     if (fig.prop) {
       const p = fig.prop;
@@ -1598,6 +1575,239 @@
       { s: 'petal', cx: 50, cy: 40, rx: 7, ry: 12, tone: 'sun' },
       { s: 'petal', cx: 50, cy: 44, rx: 3.5, ry: 7, tone: 'sunlit', edge: 0 },
     ],
+    // Transport — driving/riding/flying all read as paper vehicles on the same wheels.
+    car: [
+      { s: 'rect', x: 14, y: 46, w: 72, h: 24, tone: 'accent' },
+      { s: 'blob', cx: 38, cy: 42, r: 14, tone: 'accent' },
+      { s: 'rect', x: 40, y: 30, w: 26, h: 18, tone: 'accent' },
+      { s: 'rect', x: 44, y: 33, w: 9, h: 13, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 55, y: 33, w: 9, h: 13, tone: 'sky', edge: 0 },
+      { s: 'blob', cx: 28, cy: 72, r: 8, tone: 'ink' },
+      { s: 'blob', cx: 72, cy: 72, r: 8, tone: 'ink' },
+      { s: 'blob', cx: 28, cy: 72, r: 3.4, tone: 'paper', edge: 0 },
+      { s: 'blob', cx: 72, cy: 72, r: 3.4, tone: 'paper', edge: 0 },
+    ],
+    bus: [
+      { s: 'rect', x: 12, y: 34, w: 76, h: 36, tone: 'sun' },
+      { s: 'rect', x: 18, y: 40, w: 14, h: 12, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 36, y: 40, w: 14, h: 12, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 54, y: 40, w: 14, h: 12, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 72, y: 40, w: 10, h: 12, tone: 'sky', edge: 0 },
+      { s: 'blob', cx: 26, cy: 72, r: 7.5, tone: 'ink' },
+      { s: 'blob', cx: 74, cy: 72, r: 7.5, tone: 'ink' },
+    ],
+    bicycle: [
+      { s: 'ring', cx: 28, cy: 64, r: 16, t: 4, tone: 'ink' },
+      { s: 'ring', cx: 72, cy: 64, r: 16, t: 4, tone: 'ink' },
+      { s: 'path', pts: [[28, 64], [46, 38], [60, 64], [28, 64]], tone: 'accent' },
+      { s: 'path', pts: [[60, 64], [72, 64], [70, 36]], tone: 'accent' },
+      { s: 'rect', x: 40, y: 32, w: 16, h: 6, tone: 'ink' },
+      { s: 'rect', x: 66, y: 30, w: 14, h: 5, tone: 'ink' },
+    ],
+    train: [
+      { s: 'rect', x: 10, y: 40, w: 80, h: 28, tone: 'brass' },
+      { s: 'rect', x: 60, y: 26, w: 24, h: 16, tone: 'brass' },
+      { s: 'rect', x: 16, y: 48, w: 72, h: 6, tone: 'paper', edge: 0 },
+      { s: 'rect', x: 20, y: 20, w: 10, h: 14, tone: 'ink' },
+      { s: 'blob', cx: 25, cy: 14, r: 6, tone: 'grey' },
+      { s: 'blob', cx: 24, cy: 72, r: 7, tone: 'ink' },
+      { s: 'blob', cx: 48, cy: 72, r: 7, tone: 'ink' },
+      { s: 'blob', cx: 74, cy: 72, r: 7, tone: 'ink' },
+    ],
+    rocket: [
+      { s: 'path', pts: [[50, 12], [64, 36], [64, 66], [36, 66], [36, 36]], tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 44, r: 8, tone: 'sky', edge: 0 },
+      { s: 'path', pts: [[36, 56], [22, 78], [36, 70]], tone: 'accent' },
+      { s: 'path', pts: [[64, 56], [78, 78], [64, 70]], tone: 'accent' },
+      { s: 'petal', cx: 50, cy: 78, rx: 7, ry: 13, tone: 'sun' },
+      { s: 'petal', cx: 50, cy: 80, rx: 3.5, ry: 7, tone: 'sunlit', edge: 0 },
+    ],
+    plane: [
+      { s: 'path', pts: [[12, 56], [88, 44], [88, 54], [52, 62], [12, 62]], tone: 'paper' },
+      { s: 'path', pts: [[46, 44], [60, 20], [68, 44]], tone: 'accent' },
+      { s: 'path', pts: [[16, 56], [10, 36], [22, 52]], tone: 'accent' },
+    ],
+    // Home + waking.
+    sunrise: [
+      { s: 'halfdisc', cx: 50, cy: 66, r: 24, tone: 'sun' },
+      { s: 'halfdisc', cx: 50, cy: 66, r: 15, tone: 'sunlit', edge: 0 },
+      { s: 'path', pts: [[0, 78], [30, 62], [60, 74], [100, 66], [100, 100], [0, 100]], tone: 'soil' },
+      { s: 'rect', x: 46, y: 30, w: 8, h: 14, tone: 'sun', edge: 0 },
+      { s: 'rect', x: 24, y: 42, w: 8, h: 12, rot: -38, tone: 'sun', edge: 0 },
+      { s: 'rect', x: 68, y: 42, w: 8, h: 12, rot: 38, tone: 'sun', edge: 0 },
+    ],
+    alarm_clock: [
+      { s: 'blob', cx: 50, cy: 54, r: 26, tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 54, r: 20, tone: 'accent', edge: 0 },
+      { s: 'blob', cx: 50, cy: 54, r: 16, tone: 'paper', edge: 0 },
+      { s: 'rect', x: 48.5, y: 40, w: 3, h: 15, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 50, y: 52, w: 11, h: 3, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 36, cy: 24, r: 7, tone: 'accent' },
+      { s: 'blob', cx: 64, cy: 24, r: 7, tone: 'accent' },
+      { s: 'rect', x: 40, y: 80, w: 7, h: 8, rot: 18, tone: 'ink' },
+      { s: 'rect', x: 56, y: 80, w: 7, h: 8, rot: -18, tone: 'ink' },
+    ],
+    bed: [
+      { s: 'rect', x: 12, y: 30, w: 8, h: 44, tone: 'wood' },
+      { s: 'rect', x: 16, y: 52, w: 74, h: 20, tone: 'accent' },
+      { s: 'rect', x: 50, y: 46, w: 40, h: 10, tone: 'paper' },
+      { s: 'blob', cx: 26, cy: 46, r: 9, tone: 'paper' },
+      { s: 'rect', x: 12, y: 72, w: 8, h: 10, tone: 'wood' },
+      { s: 'rect', x: 82, y: 72, w: 8, h: 10, tone: 'wood' },
+    ],
+    door: [
+      { s: 'rect', x: 26, y: 16, w: 48, h: 72, tone: 'wood' },
+      { s: 'rect', x: 33, y: 24, w: 15, h: 24, tone: 'soil', edge: 0 },
+      { s: 'rect', x: 33, y: 56, w: 15, h: 24, tone: 'soil', edge: 0 },
+      { s: 'rect', x: 53, y: 24, w: 15, h: 24, tone: 'soil', edge: 0 },
+      { s: 'rect', x: 53, y: 56, w: 15, h: 24, tone: 'soil', edge: 0 },
+      { s: 'blob', cx: 66, cy: 52, r: 3.5, tone: 'brass', edge: 0 },
+    ],
+    window: [
+      { s: 'rect', x: 20, y: 20, w: 60, h: 60, tone: 'sky' },
+      { s: 'rect', x: 20, y: 20, w: 60, h: 6, tone: 'wood', edge: 0 },
+      { s: 'rect', x: 20, y: 74, w: 60, h: 6, tone: 'wood', edge: 0 },
+      { s: 'rect', x: 47, y: 20, w: 6, h: 60, tone: 'wood', edge: 0 },
+      { s: 'rect', x: 20, y: 47, w: 60, h: 6, tone: 'wood', edge: 0 },
+      { s: 'blob', cx: 64, cy: 34, r: 7, tone: 'sun', edge: 0 },
+    ],
+    // Tools + marks.
+    pencil: [
+      { s: 'rect', x: 43, y: 18, w: 14, h: 52, tone: 'sun' },
+      { s: 'path', pts: [[43, 70], [57, 70], [50, 88]], tone: 'wood' },
+      { s: 'path', pts: [[46.5, 76], [53.5, 76], [50, 86]], tone: 'ink', edge: 0 },
+      { s: 'rect', x: 43, y: 18, w: 14, h: 8, tone: 'accent', edge: 0 },
+    ],
+    scissors: [
+      { s: 'ring', cx: 36, cy: 66, r: 10, t: 6, tone: 'accent' },
+      { s: 'ring', cx: 64, cy: 66, r: 10, t: 6, tone: 'accent' },
+      { s: 'path', pts: [[40, 60], [52, 18], [58, 22], [48, 60]], tone: 'steel' },
+      { s: 'path', pts: [[60, 60], [48, 18], [42, 22], [52, 60]], tone: 'steel' },
+      { s: 'blob', cx: 50, cy: 44, r: 3.5, tone: 'ink', edge: 0 },
+    ],
+    gear: [
+      { s: 'ring', cx: 50, cy: 50, r: 22, t: 10, tone: 'steel' },
+      { s: 'blob', cx: 50, cy: 50, r: 8, tone: 'paper', edge: 0 },
+      { s: 'rect', x: 45, y: 14, w: 10, h: 14, tone: 'steel' },
+      { s: 'rect', x: 45, y: 72, w: 10, h: 14, tone: 'steel' },
+      { s: 'rect', x: 14, y: 45, w: 14, h: 10, tone: 'steel' },
+      { s: 'rect', x: 72, y: 45, w: 14, h: 10, tone: 'steel' },
+      { s: 'rect', x: 22, y: 24, w: 10, h: 12, rot: -45, tone: 'steel' },
+      { s: 'rect', x: 68, y: 24, w: 10, h: 12, rot: 45, tone: 'steel' },
+      { s: 'rect', x: 22, y: 66, w: 10, h: 12, rot: 45, tone: 'steel' },
+      { s: 'rect', x: 68, y: 66, w: 10, h: 12, rot: -45, tone: 'steel' },
+    ],
+    lock: [
+      { s: 'rect', x: 26, y: 42, w: 48, h: 44, tone: 'brass' },
+      { s: 'arc', cx: 50, cy: 42, r: 16, a0: 180, a1: 360, t: 7, tone: 'steel' },
+      { s: 'blob', cx: 50, cy: 60, r: 6, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 47, y: 62, w: 6, h: 12, tone: 'ink', edge: 0 },
+    ],
+    shield: [
+      { s: 'path', pts: [[50, 12], [82, 24], [82, 52], [50, 88], [18, 52], [18, 24]], tone: 'steel' },
+      { s: 'path', pts: [[50, 22], [72, 30], [72, 50], [50, 76], [28, 50], [28, 30]], tone: 'paper', edge: 0 },
+      { s: 'path', pts: [[40, 48], [47, 58], [62, 34], [66, 38], [48, 68], [36, 52]], tone: 'accent', edge: 0 },
+    ],
+    flag: [
+      { s: 'rect', x: 28, y: 14, w: 5, h: 72, tone: 'wood' },
+      { s: 'path', pts: [[33, 16], [80, 24], [72, 40], [80, 56], [33, 48]], tone: 'accent' },
+    ],
+    anchor: [
+      { s: 'ring', cx: 50, cy: 22, r: 9, t: 5, tone: 'steel' },
+      { s: 'rect', x: 46, y: 28, w: 8, h: 48, tone: 'steel' },
+      { s: 'rect', x: 28, y: 40, w: 44, h: 7, tone: 'steel' },
+      { s: 'arc', cx: 50, cy: 62, r: 26, a0: 15, a1: 165, t: 8, tone: 'steel' },
+      { s: 'path', pts: [[24, 66], [18, 78], [32, 76]], tone: 'steel' },
+      { s: 'path', pts: [[76, 66], [82, 78], [68, 76]], tone: 'steel' },
+    ],
+    map: [
+      { s: 'path', pts: [[14, 26], [38, 18], [62, 26], [86, 18], [86, 66], [62, 74], [38, 66], [14, 74]], tone: 'paper' },
+      { s: 'path', pts: [[14, 26], [14, 74], [38, 66], [38, 18]], tone: 'sky', edge: 0 },
+      { s: 'path', pts: [[62, 26], [62, 74], [86, 66], [86, 18]], tone: 'leaf', edge: 0 },
+      { s: 'petal', cx: 50, cy: 40, rx: 7, ry: 9, rot: 180, tone: 'accent', edge: 0 },
+      { s: 'blob', cx: 50, cy: 44, r: 2.6, tone: 'paper', edge: 0 },
+    ],
+    target: [
+      { s: 'blob', cx: 50, cy: 50, r: 34, tone: 'accent' },
+      { s: 'ring', cx: 50, cy: 50, r: 24, t: 8, tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 50, r: 14, tone: 'accent' },
+      { s: 'blob', cx: 50, cy: 50, r: 5, tone: 'paper', edge: 0 },
+      { s: 'path', pts: [[74, 26], [88, 12], [90, 20], [80, 30]], tone: 'ink', edge: 0 },
+    ],
+    ladder: [
+      { s: 'rect', x: 30, y: 10, w: 6, h: 80, tone: 'wood' },
+      { s: 'rect', x: 64, y: 10, w: 6, h: 80, tone: 'wood' },
+      { s: 'rect', x: 30, y: 22, w: 40, h: 6, tone: 'wood' },
+      { s: 'rect', x: 30, y: 40, w: 40, h: 6, tone: 'wood' },
+      { s: 'rect', x: 30, y: 58, w: 40, h: 6, tone: 'wood' },
+      { s: 'rect', x: 30, y: 76, w: 40, h: 6, tone: 'wood' },
+    ],
+    stairs: [
+      { s: 'rect', x: 14, y: 66, w: 20, h: 20, tone: 'wood' },
+      { s: 'rect', x: 34, y: 48, w: 20, h: 38, tone: 'wood' },
+      { s: 'rect', x: 54, y: 30, w: 20, h: 56, tone: 'wood' },
+      { s: 'rect', x: 74, y: 14, w: 20, h: 72, tone: 'wood' },
+    ],
+    hourglass: [
+      { s: 'path', pts: [[26, 18], [74, 18], [58, 48], [42, 48]], tone: 'sky' },
+      { s: 'path', pts: [[42, 54], [58, 54], [74, 82], [26, 82]], tone: 'sky' },
+      { s: 'path', pts: [[42, 56], [58, 56], [68, 78], [32, 78]], tone: 'sun', edge: 0 },
+      { s: 'rect', x: 22, y: 12, w: 56, h: 8, tone: 'wood' },
+      { s: 'rect', x: 22, y: 80, w: 56, h: 8, tone: 'wood' },
+    ],
+    coin: [
+      { s: 'blob', cx: 50, cy: 50, r: 32, tone: 'brass' },
+      { s: 'ring', cx: 50, cy: 50, r: 23, t: 3, tone: 'sunlit', edge: 0 },
+      { s: 'rect', x: 46, y: 30, w: 8, h: 40, tone: 'sunlit', edge: 0 },
+      { s: 'rect', x: 38, y: 36, w: 24, h: 5, tone: 'sunlit', edge: 0 },
+      { s: 'rect', x: 38, y: 59, w: 24, h: 5, tone: 'sunlit', edge: 0 },
+    ],
+    trophy: [
+      { s: 'path', pts: [[30, 20], [70, 20], [66, 52], [50, 62], [34, 52]], tone: 'brass' },
+      { s: 'ring', cx: 24, cy: 32, r: 8, t: 5, tone: 'brass' },
+      { s: 'ring', cx: 76, cy: 32, r: 8, t: 5, tone: 'brass' },
+      { s: 'rect', x: 45, y: 60, w: 10, h: 12, tone: 'brass' },
+      { s: 'rect', x: 32, y: 72, w: 36, h: 10, tone: 'wood' },
+    ],
+    crown: [
+      { s: 'path', pts: [[22, 66], [22, 38], [36, 52], [50, 30], [64, 52], [78, 38], [78, 66]], tone: 'brass' },
+      { s: 'rect', x: 22, y: 66, w: 56, h: 10, tone: 'brass' },
+      { s: 'blob', cx: 50, cy: 60, r: 4, tone: 'accent', edge: 0 },
+    ],
+    phone: [
+      { s: 'rect', x: 32, y: 14, w: 36, h: 72, tone: 'ink' },
+      { s: 'rect', x: 36, y: 22, w: 28, h: 52, tone: 'paper', edge: 0 },
+      { s: 'blob', cx: 50, cy: 80, r: 3, tone: 'paper', edge: 0 },
+    ],
+    laptop: [
+      { s: 'rect', x: 22, y: 24, w: 56, h: 38, tone: 'ink' },
+      { s: 'rect', x: 27, y: 29, w: 46, h: 28, tone: 'paper', edge: 0 },
+      { s: 'path', pts: [[14, 68], [86, 68], [80, 78], [20, 78]], tone: 'ink' },
+    ],
+    camera: [
+      { s: 'rect', x: 16, y: 34, w: 68, h: 44, tone: 'ink' },
+      { s: 'blob', cx: 50, cy: 56, r: 15, tone: 'paper', edge: 0 },
+      { s: 'blob', cx: 50, cy: 56, r: 8, tone: 'steel', edge: 0 },
+      { s: 'rect', x: 22, y: 26, w: 18, h: 10, tone: 'ink' },
+      { s: 'blob', cx: 74, cy: 42, r: 4, tone: 'accent', edge: 0 },
+    ],
+    dog: [
+      { s: 'blob', cx: 52, cy: 58, r: 22, tone: 'wood' },
+      { s: 'blob', cx: 34, cy: 34, r: 15, tone: 'wood' },
+      { s: 'path', pts: [[24, 24], [16, 40], [28, 40]], tone: 'soil' },
+      { s: 'path', pts: [[44, 24], [52, 40], [40, 40]], tone: 'soil' },
+      { s: 'blob', cx: 34, cy: 40, r: 5.5, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 30, cy: 32, r: 2, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 38, cy: 32, r: 2, tone: 'ink', edge: 0 },
+      { s: 'path', pts: [[70, 44], [88, 34], [82, 50]], tone: 'wood' },
+    ],
+    music_note: [
+      { s: 'blob', cx: 34, cy: 72, rx: 10, ry: 8, tone: 'ink' },
+      { s: 'blob', cx: 66, cy: 64, rx: 10, ry: 8, tone: 'ink' },
+      { s: 'rect', x: 41, y: 24, w: 5, h: 48, tone: 'ink' },
+      { s: 'rect', x: 73, y: 16, w: 5, h: 48, tone: 'ink' },
+      { s: 'rect', x: 41, y: 18, w: 37, h: 9, rot: -8, tone: 'ink' },
+    ],
     moon_stars: [],
   };
   // Phrases collapse onto the nearest drawn concept — modifiers (colours, moods,
@@ -1616,6 +1826,23 @@
     ocean: 'wave', sea: 'wave', hills: 'hill', mountains: 'mountain', dove: 'bird',
     'night-sky': 'stars', snowflake: 'snowflake', 'gift-box': 'gift', present: 'gift',
     breeze: 'wind', question: 'lightbulb',
+    drive: 'car', driving: 'car', taxi: 'car', ride: 'car', vehicle: 'car',
+    van: 'bus', tram: 'train', subway: 'train', locomotive: 'train', bike: 'bicycle', cycle: 'bicycle',
+    cycling: 'bicycle', launch: 'rocket', spaceship: 'rocket', shuttle: 'rocket', jet: 'plane',
+    airplane: 'plane', flight: 'plane', fly: 'plane',
+    morning: 'sunrise', sunrise: 'sunrise', dawn: 'sunrise', wakeup: 'alarm_clock', 'wake-up': 'alarm_clock',
+    'alarm-clock': 'alarm_clock', sleep: 'bed', bedtime: 'bed', doorway: 'door', exit: 'door',
+    money: 'coin', dollar: 'coin', cents: 'coin', payment: 'coin', gold: 'coin', prize: 'trophy',
+    winner: 'trophy', award: 'trophy', trophy: 'trophy', goal: 'target', aim: 'target', bullseye: 'target',
+    progress: 'stairs', climb: 'ladder', climbing: 'ladder', steps: 'stairs', engine: 'gear', machine: 'gear',
+    settings: 'gear', motor: 'gear', security: 'lock', safe: 'lock', locked: 'lock', protect: 'shield',
+    defense: 'shield', camera: 'camera', photo: 'camera', picture: 'camera', computer: 'laptop',
+    device: 'phone', mobile: 'phone', telephone: 'phone', call: 'phone', pen: 'pencil', write: 'pencil',
+    writing: 'pencil', draw: 'pencil', cut: 'scissors', craft: 'scissors', map: 'map', navigate: 'map',
+    direction: 'map', country: 'flag', nation: 'flag', puppy: 'dog', hound: 'dog', song: 'music_note',
+    tune: 'music_note', melody: 'music_note', music: 'music_note', 'music-note': 'music_note',
+    timer: 'hourglass', waiting: 'hourglass', 'old': 'hourglass', royalty: 'crown', king: 'crown',
+    queen: 'crown', 'alarm': 'alarm_clock',
   };
   function paperArtKey(concept) {
     if (!concept) return null;
@@ -1809,6 +2036,175 @@
     const fit = svgEl('g', { transform: `translate(50 50) scale(${f2(k)}) translate(${f2(-bb.cx)} ${f2(-bb.cy)})` }, s);
     fit.appendChild(art.g);
     return s;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Paper performer — the film's character is cut from the same paper as every
+  // other mark: no clip-art bodies, no icon men. Built in a 100×140 space as
+  // stacked die-cut pieces: shadowed paper silhouette behind, painted pieces on
+  // top. Slots ('body' | 'head' | 'face') are addressable so performer states
+  // cut poses and faces the way a puppeteer swaps a head.
+  // ---------------------------------------------------------------------------
+  const FIGURE_FACE = {
+    // face keyword family -> {brows, eyes, mouth}
+    smile: { brows: 'up', eyes: 'dot', mouth: 'smile' },
+    calm: { brows: 'none', eyes: 'dot', mouth: 'calm' },
+    surprised: { brows: 'up', eyes: 'open', mouth: 'o' },
+    sleepy: { brows: 'none', eyes: 'closed', mouth: 'calm' },
+    determined: { brows: 'down', eyes: 'dot', mouth: 'flat' },
+    concerned: { brows: 'down', eyes: 'dot', mouth: 'sad' },
+  };
+  function paperFaceKind(id) {
+    const s = String(id || '').toLowerCase();
+    if (/smile|happy|cheers|laugh|grin|loving|excited/.test(s)) return 'smile';
+    if (/surprised|shock|awe|wonder/.test(s)) return 'surprised';
+    if (/sleep|tired|meditate|calm-down|rested/.test(s)) return 'sleepy';
+    if (/angry|grumpy|furious|rage|determined|serious/.test(s)) return 'determined';
+    if (/sad|concern|worr|suspicious|fear|doubt|confus/.test(s)) return 'concerned';
+    return 'calm';
+  }
+  function paperHairKind(id, seed) {
+    const s = String(id || '').toLowerCase();
+    if (/beanie|hat|cap|fedora|turban|hijab/.test(s)) return 'cap';
+    if (/bun|topknot/.test(s)) return 'bun';
+    if (/afro|curly|curl/.test(s)) return 'curls';
+    if (/braid|pony|long|straight/.test(s)) return 'bob';
+    if (/bald|shaved|none|gray/.test(s)) return seed % 3 === 0 ? 'bald' : 'crop';
+    if (/hood/.test(s)) return 'hood';
+    return ['mop', 'crop', 'bob', 'curls'][seed % 4];
+  }
+  function paperArmPose(poseId, posture) {
+    const s = String(poseId || '').toLowerCase();
+    if (posture === 'sitting') return 'seated';
+    if (/hold|carry|bucket|bag|read|phone|book|selfie|present/.test(s)) return 'carry';
+    if (/wave|point|reach|teach|explain|dance|walk/.test(s)) return 'reach';
+    return 'rest';
+  }
+
+  // One figure: {slots: {body:[els], head:[els], face:[els]}, edge: els} in 100×140 space.
+  // Silhouette pieces double as the die-cut edge in paper white behind everything.
+  function paperFigureSlots(fig, seed, plan, uid) {
+    const ink = plan.brand.ink;
+    const skin = fig.palette && fig.palette['#d08b5b'] || '#e8b98e';
+    const garment = (plan.brand.accent && plan.brand.accent !== '#000000') ? plan.brand.accent : paintTone('warm', plan);
+    const garmentDark = mixColor(garment, ink, 0.25);
+    const hairTone = [ink, paintTone('soil', plan), paintTone('wood', plan), paintTone('grey', plan), paintTone('sun', plan)][seed % 5];
+    const posture = fig.posture || 'standing';
+    const sitting = posture === 'sitting';
+    // A figure holding a prop carries it in that hand; the other arm rests. The hand is a
+    // screen side — mirrored figures flip the drawing, so the carry arm XORs with the mirror.
+    const arms = fig.prop && fig.prop.hand
+      ? `carry-${(fig.prop.hand === 'left') !== Boolean(fig.mirror) ? 'left' : 'right'}`
+      : paperArmPose(fig.pose && fig.pose.id, posture);
+    const hair = paperHairKind(fig.parts && fig.parts.find((p) => p.slot === 'head') && fig.parts.find((p) => p.slot === 'head').part_id, seed);
+    const faceKind = paperFaceKind(fig.emotion && fig.emotion.face);
+    const pieces = { body: [], head: [], face: [] };
+    const edge = [];
+    const put = (slot, e) => pieces[slot].push(e);
+    const edgePut = (e) => { e.setAttribute('fill', '#fdfcf8'); e.setAttribute('stroke', 'none'); edge.push(e); };
+
+    // Legs + feet (or a seated lap).
+    if (sitting) {
+      for (const sx of [-9, 9]) {
+        const leg = svgEl('ellipse', { cx: 50 + sx, cy: 116, rx: 8.5, ry: 5.6, fill: garmentDark });
+        put('body', leg);
+      }
+      edgePut(svgEl('ellipse', { cx: 50, cy: 113, rx: 21, ry: 10 }));
+    } else {
+      for (const sx of [-7.5, 7.5]) {
+        put('body', svgEl('rect', { x: 50 + sx - 4.4, y: 96, width: 8.8, height: 30, rx: 4.2, fill: garmentDark }));
+        put('body', svgEl('ellipse', { cx: 50 + sx, cy: 127.5, rx: 7.6, ry: 4.6, fill: ink }));
+        edgePut(svgEl('rect', { x: 50 + sx - 5.4, y: 95, width: 10.8, height: 34, rx: 5.4 }));
+      }
+    }
+    // Torso: a rounded paper tunic, slightly wider at the hips.
+    const torso = svgEl('path', { d: 'M32 62 Q50 55 68 62 L71 100 Q50 107 29 100 Z', fill: garment });
+    put('body', torso);
+    edgePut(svgEl('path', { d: 'M30 60 Q50 52 70 60 L73.5 102 Q50 110 26.5 102 Z' }));
+    // Arms by posture: rested at the sides, reached forward (prop hand), or one raised.
+    const armAt = (sx, kind) => {
+      if (kind === 'rest') return svgEl('rect', { x: 50 + sx * 24 - 4, y: 63, width: 8, height: 26, rx: 4, fill: garment, transform: `rotate(${sx * 8} ${50 + sx * 24} 63)` });
+      if (kind === 'seated') return svgEl('rect', { x: 50 + sx * 20 - 4, y: 74, width: 8, height: 24, rx: 4, fill: garment, transform: `rotate(${sx * 46} ${50 + sx * 20} 74)` });
+      if (kind === 'reach' && sx < 0) return svgEl('rect', { x: 0, y: 0, width: 8, height: 28, rx: 4, fill: garment, transform: `translate(${50 + sx * 24} 60) rotate(${sx * 58})` });
+      if (kind === 'carry') return svgEl('rect', { x: 0, y: 0, width: 8, height: 24, rx: 4, fill: garment, transform: `translate(${50 + sx * 24} 64) rotate(${sx * 30})` });
+      return svgEl('rect', { x: 50 + sx * 24 - 4, y: 63, width: 8, height: 26, rx: 4, fill: garment, transform: `rotate(${sx * 8} ${50 + sx * 24} 63)` });
+    };
+    const armLeft = arms === 'reach' ? 'reach' : arms === 'carry-left' ? 'carry' : arms === 'carry-right' ? 'rest' : arms;
+    const armRight = arms === 'reach' || arms === 'carry-left' ? 'rest' : arms === 'carry-right' ? 'carry' : arms;
+    put('body', armAt(-1, armLeft));
+    put('body', armAt(1, armRight));
+    edgePut(svgEl('rect', { x: 21, y: 60, width: 10, height: 29, rx: 5, transform: 'rotate(-8 26 60)' }));
+    edgePut(svgEl('rect', { x: 69, y: 60, width: 10, height: 29, rx: 5, transform: 'rotate(8 74 60)' }));
+    // Hands on the arm ends (skin dots).
+    for (const sx of [-1, 1]) {
+      const hx = arms === 'reach' && sx < 0 ? 50 + sx * 34 : 50 + sx * 24;
+      const hy = arms === 'reach' && sx < 0 ? 88 : 92;
+      put('body', svgEl('circle', { cx: hx, cy: hy, r: 4.4, fill: skin }));
+    }
+    // Head: skin blob + neck.
+    put('body', svgEl('rect', { x: 45.5, y: 50, width: 9, height: 12, rx: 3.4, fill: skin }));
+    put('head', svgEl('ellipse', { cx: 50, cy: 32, rx: 17.5, ry: 19, fill: skin }));
+    edgePut(svgEl('ellipse', { cx: 50, cy: 31.5, rx: 19.5, ry: 21 }));
+    // Ears as tiny skin dots; hair sits over the skull.
+    put('head', svgEl('circle', { cx: 32.6, cy: 33, r: 2.6, fill: skin }));
+    put('head', svgEl('circle', { cx: 67.4, cy: 33, r: 2.6, fill: skin }));
+    if (hair === 'mop') put('head', svgEl('path', { d: 'M33 30 Q31 12 50 11 Q69 12 67 30 Q63 20 57 22 Q61 15 50 15 Q39 15 43 22 Q37 20 33 30 Z', fill: hairTone }));
+    else if (hair === 'crop') put('head', svgEl('path', { d: 'M34 27 Q36 12 50 12 Q64 12 66 27 Q60 18 50 18 Q40 18 34 27 Z', fill: hairTone }));
+    else if (hair === 'bob') { put('head', svgEl('path', { d: 'M31 32 Q29 10 50 10 Q71 10 69 32 L66 44 Q68 26 60 22 Q62 14 50 14 Q38 14 40 22 Q32 26 34 44 Z', fill: hairTone })); }
+    else if (hair === 'curls') { for (let i = 0; i < 5; i += 1) put('head', svgEl('circle', { cx: 36 + i * 7, cy: 16 + Math.abs(i - 2) * 1.5, r: 5.6, fill: hairTone })); }
+    else if (hair === 'bun') { put('head', svgEl('path', { d: 'M34 28 Q35 12 50 12 Q65 12 66 28 Q60 19 50 19 Q40 19 34 28 Z', fill: hairTone })); put('head', svgEl('circle', { cx: 50, cy: 9, r: 5.5, fill: hairTone })); }
+    else if (hair === 'cap') { put('head', svgEl('path', { d: 'M32 28 Q34 10 50 10 Q66 10 68 28 Z', fill: garmentDark })); put('head', svgEl('rect', { x: 30, y: 26, width: 40, height: 4.4, rx: 2.2, fill: garmentDark })); }
+    else if (hair === 'hood') put('head', svgEl('path', { d: 'M29 34 Q27 8 50 8 Q73 8 71 34 L66 30 Q70 16 50 15 Q30 16 34 30 Z', fill: garmentDark }));
+    // Face: ink strokes — dots or closed arcs, a mouth by family, brows when shown.
+    const fk = FIGURE_FACE[faceKind] || FIGURE_FACE.calm;
+    const eyeY = 32;
+    if (fk.eyes === 'closed') {
+      for (const sx of [-6.4, 6.4]) put('face', svgEl('path', { d: `M${50 + sx - 2.4} ${eyeY} q2.4 2.2 4.8 0`, stroke: ink, 'stroke-width': 1.6, fill: 'none', 'stroke-linecap': 'round' }));
+    } else {
+      for (const sx of [-6.4, 6.4]) put('face', svgEl('circle', { cx: 50 + sx, cy: eyeY, r: fk.eyes === 'open' ? 2.4 : 1.9, fill: ink }));
+    }
+    const mouth = { smile: 'M45 41 q5 4.5 10 0', calm: 'M46 41.5 q4 1.6 8 0', flat: 'M46 42 h8', sad: 'M45 43.5 q5 -4 10 0', o: null }[fk.mouth];
+    if (fk.mouth === 'o') put('face', svgEl('ellipse', { cx: 50, cy: 43, rx: 3.4, ry: 4, fill: 'none', stroke: ink, 'stroke-width': 1.5 }));
+    else put('face', svgEl('path', { d: mouth, stroke: ink, 'stroke-width': 1.6, fill: 'none', 'stroke-linecap': 'round' }));
+    if (fk.brows !== 'none') for (const sx of [-6.4, 6.4]) {
+      put('face', svgEl('path', { d: `M${50 + sx - 2.6} ${fk.brows === 'up' ? 25.4 : 26.4} q2.6 ${fk.brows === 'up' ? -1.6 : 1.4} 5.2 0`, stroke: ink, 'stroke-width': 1.3, fill: 'none', 'stroke-linecap': 'round' }));
+    }
+    // Cheek blush dots, faint — the puppet reads warm without them being loud.
+    for (const sx of [-10.4, 10.4]) put('face', svgEl('circle', { cx: 50 + sx, cy: 38.5, r: 2.1, fill: paintTone('petal', plan), opacity: 0.4 }));
+
+    const wrap = {};
+    for (const [slot, els] of Object.entries(pieces)) {
+      const g = svgEl('g', { 'data-slot': slot }, null);
+      for (const e of els) g.appendChild(e);
+      wrap[slot] = g;
+    }
+    const edgeG = svgEl('g', { opacity: 1 }, null);
+    for (const e of edge) edgeG.appendChild(e);
+    // The die-cut edge is the silhouette grown ~4% about the body centre.
+    edgeG.setAttribute('transform', 'translate(50 74) scale(1.045) translate(-50 -74)');
+    return { slots: wrap, edge: edgeG, sitting, arms };
+  }
+
+  // A state's swap is re-rendered as a paper slot: face ids pick expressions,
+  // head ids pick hair, pose ids pick arm postures — same contract, new material.
+  function paperSlotInner(slot, partId, fig, seed, plan) {
+    if (slot === 'face') {
+      const kind = paperFaceKind(partId);
+      const fake = { ...fig, emotion: { ...fig.emotion, face: partId } };
+      const s = paperFigureSlots(fake, seed, plan, 'sw');
+      return s.slots.face.innerHTML;
+    }
+    if (slot === 'head') {
+      const fake = { ...fig, parts: fig.parts.map((p) => p.slot === 'head' ? { ...p, part_id: partId } : p) };
+      const s = paperFigureSlots(fake, seed, plan, 'sw');
+      return s.slots.head.innerHTML;
+    }
+    if (slot === 'body') {
+      const fake = { ...fig, pose: { ...fig.pose, id: partId } };
+      const s = paperFigureSlots(fake, seed, plan, 'sw');
+      return s.slots.body.innerHTML;
+    }
+    return '';
   }
 
   function pointAlong(pts, k) {
@@ -3118,12 +3514,23 @@
       let tx = cam.dir * m.camera_pan_frac * W * (p - 0.5);
       let opacity = 1, defocus = 0;
       const kk = k > 0 && tr ? prog(t, tr.start_ms, tr.end_ms) : 0;
+      let rot = 0, ty = 0;
       if (kk > 0) {
         const ko = EASE.inCubic(kk);
         if (cam.move === 'push_through') { scale *= lerp(1, 1.1, ko); defocus += m.blur_px * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
         else if (cam.move === 'pull_back') { scale *= lerp(1, 0.94, ko); defocus += m.blur_px * 0.6 * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
         else if (cam.move === 'drift') { tx += -cam.dir * W * DRIFT_FRAC * EASE.inOutCubic(kk); opacity = 1 - EASE.inOutCubic(kk); }
         else if (cam.move === 'dissolve') defocus += m.blur_px * ko * cam.blur;
+        else if (cam.move === 'page') {
+          // A page lifted off: the whole beat slides up-sideways on a peel rotation,
+          // staying opaque until it is out of frame — paper leaves, it does not fade.
+          const kp = EASE.inOutCubic(kk);
+          ty = -plan.canvas.h * 0.62 * kp;
+          tx += cam.dir * W * 0.42 * kp;
+          rot = cam.dir * 7.5 * kp;
+          scale *= lerp(1, 0.94, kp * 0.5);
+          opacity = kk < 0.9 ? 1 : 1 - (kk - 0.9) / 0.1;
+        }
       }
       if (arrival) {
         const aa = clamp(t / Math.max(1, arrival.window_ms), 0, 1);
@@ -3132,15 +3539,16 @@
         else if (cam.move === 'pull_back') { scale *= lerp(1.06, 1, ka); defocus += m.blur_px * 0.3 * (1 - ka) * cam.blur; }
         else if (cam.move === 'drift') tx += cam.dir * W * DRIFT_FRAC * (1 - EASE.inOutCubic(aa));
         else if (cam.move === 'dissolve') defocus += m.blur_px * 0.4 * (1 - ka) * cam.blur;
+        else if (cam.move === 'page') { ty = plan.canvas.h * 0.3 * (1 - ka); rot = -cam.dir * 3.5 * (1 - ka); }
       }
-      return { scale, tx, opacity, defocus };
+      return { scale, tx, ty, rot, opacity, defocus };
     };
     const now = poseAt(lt), was = poseAt(lt - bn.ctx.frameMs);
     const s = bn.cam.style;
-    s.transform = `translate(${f2(now.tx)}px, 0px) scale(${now.scale.toFixed(4)})`;
+    s.transform = `translate(${f2(now.tx)}px, ${f2(now.ty || 0)}px) rotate(${(now.rot || 0).toFixed(3)}deg) scale(${now.scale.toFixed(4)})`;
     s.opacity = now.opacity.toFixed(4);
     applyDepthParallax(bn.bg, now, plan);
-    bn.camBlur.apply(s, motionBlurStd((now.tx - was.tx) + Math.abs(now.scale - was.scale) * W / 2, 0, m.motion_blur * cam.blur), now.defocus > 0.2 ? `blur(${now.defocus.toFixed(2)}px)` : '');
+    bn.camBlur.apply(s, motionBlurStd((now.tx - was.tx) + Math.abs(now.scale - was.scale) * W / 2, Math.abs((now.ty || 0) - (was.ty || 0)), m.motion_blur * cam.blur), now.defocus > 0.2 ? `blur(${now.defocus.toFixed(2)}px)` : '');
   }
 
   function mediaReady(m) {
@@ -3175,10 +3583,8 @@
     if (plan.gate && plan.gate.status !== 'PASS') throw new Error(`EditorialRuntime: refusing to render a plan whose gate is ${plan.gate.status}`);
     const opts = Object.assign({
       fontBase: '../assets/fonts/',
-      peepsBase: '../assets/peeps/',
       assetUrl: (p) => p,
     }, options || {});
-    opts.peepsUrl = opts.peepsUrl || ((file) => opts.peepsBase + file);
     installFonts(plan, opts.fontBase);
 
     const W = plan.canvas.w, H = plan.canvas.h;
@@ -3471,5 +3877,5 @@
     };
   }
 
-  return { createEditorialFilm, RUNTIME_VERSION, EASE, _internals: { prog, lineStagger, recolor, propAt, pointAlong, polyLength, OP_PROPERTY, PROPERTY_REST } };
+  return { createEditorialFilm, RUNTIME_VERSION, EASE, _internals: { prog, lineStagger, propAt, pointAlong, polyLength, OP_PROPERTY, PROPERTY_REST } };
 });

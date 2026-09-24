@@ -2,7 +2,7 @@
  "schema": "NexStudioCommunityAssetsV1",
  "policy": "Every vendored asset carries source-pack provenance, upstream license and sha256. Icons are normalised to currentColor; ink and accent remain runtime-owned.",
  "provenance": "See packs/<name>/info.json + LICENSE per icon pack; LICENSE.txt per audio/texture dir.",
- "count": 621,
+ "count": 660,
  "assets": [
   {
    "id": "sfx.click1",
@@ -5473,370 +5473,6 @@
    "sha256": "88fc314fb9140b51212de202f8498b53788c23e988c003ec172f82f8ee4a3bcb"
   },
   {
-   "id": "synth.pop.01",
-   "kind": "sfx",
-   "semantic_tag": "synth.pop",
-   "family": "synth",
-   "path": "assets/community/synth/pop-01.wav",
-   "duration_s": 0.11,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "85973f9a0ab75769c4a45035b27492cfcf42f753d75199b994b5a17a160f1a12"
-  },
-  {
-   "id": "synth.pop.02",
-   "kind": "sfx",
-   "semantic_tag": "synth.pop",
-   "family": "synth",
-   "path": "assets/community/synth/pop-02.wav",
-   "duration_s": 0.09,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "069ec8f34257301a6b510755f81b4786e00332a3a2301a819764dda1c7c9e1ad"
-  },
-  {
-   "id": "synth.pop.03",
-   "kind": "sfx",
-   "semantic_tag": "synth.pop",
-   "family": "synth",
-   "path": "assets/community/synth/pop-03.wav",
-   "duration_s": 0.13,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "5eda2386a45cd1a401b6f6123d3e936475cee9f85f14f9dbf65bdd4c028e9159"
-  },
-  {
-   "id": "synth.pop.04",
-   "kind": "sfx",
-   "semantic_tag": "synth.pop",
-   "family": "synth",
-   "path": "assets/community/synth/pop-04.wav",
-   "duration_s": 0.08,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "aff130447af639a5475fcbbc68de4e6bcd2dc6fbbb2db9f4058f13e7a29ee723"
-  },
-  {
-   "id": "synth.tick.01",
-   "kind": "sfx",
-   "semantic_tag": "synth.tick",
-   "family": "synth",
-   "path": "assets/community/synth/tick-01.wav",
-   "duration_s": 0.05,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "ef0af3aade95b9799c9521041f3d8314d32a53cbd3f6825d0bad79094452c8e3"
-  },
-  {
-   "id": "synth.tick.02",
-   "kind": "sfx",
-   "semantic_tag": "synth.tick",
-   "family": "synth",
-   "path": "assets/community/synth/tick-02.wav",
-   "duration_s": 0.04,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "c31a5a2ce50de1d3c52e95715b02cab4488b582de939c07634bd7849a5355aea"
-  },
-  {
-   "id": "synth.tick.03",
-   "kind": "sfx",
-   "semantic_tag": "synth.tick",
-   "family": "synth",
-   "path": "assets/community/synth/tick-03.wav",
-   "duration_s": 0.06,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "6c57a7992170bc250eeb630ac1a9bb9eb1e807118d2f9a485426eef615ecf5cb"
-  },
-  {
-   "id": "synth.whoosh.01",
-   "kind": "sfx",
-   "semantic_tag": "synth.whoosh",
-   "family": "synth",
-   "path": "assets/community/synth/whoosh-01.wav",
-   "duration_s": 0.42,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "d897661ac8bf4fc5c7b1c8787e2663e12825e5579a4e3622d8a32fac3fc20ac1"
-  },
-  {
-   "id": "synth.whoosh.02",
-   "kind": "sfx",
-   "semantic_tag": "synth.whoosh",
-   "family": "synth",
-   "path": "assets/community/synth/whoosh-02.wav",
-   "duration_s": 0.55,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "aef3bf1ca0224b92edf6e456a430354ca4dec137166cd268cd4a0445a41d1e21"
-  },
-  {
-   "id": "synth.whoosh.03",
-   "kind": "sfx",
-   "semantic_tag": "synth.whoosh",
-   "family": "synth",
-   "path": "assets/community/synth/whoosh-03.wav",
-   "duration_s": 0.34,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "377af7e8d3d05da0d929111b1914226d41a462928e4d108e3fe3890382b5a172"
-  },
-  {
-   "id": "synth.whoosh.04",
-   "kind": "sfx",
-   "semantic_tag": "synth.whoosh",
-   "family": "synth",
-   "path": "assets/community/synth/whoosh-04.wav",
-   "duration_s": 0.62,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "b263932181f5e2e17c738e297c457f20f8cb809d257194b3c76b4a6f3ade00eb"
-  },
-  {
-   "id": "synth.riser.01",
-   "kind": "sfx",
-   "semantic_tag": "synth.riser",
-   "family": "synth",
-   "path": "assets/community/synth/riser-01.wav",
-   "duration_s": 0.7,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "123be11d0958b010e05c1cd55a66ead8708af35454f3ae1c11cd708cde22b1d0"
-  },
-  {
-   "id": "synth.riser.02",
-   "kind": "sfx",
-   "semantic_tag": "synth.riser",
-   "family": "synth",
-   "path": "assets/community/synth/riser-02.wav",
-   "duration_s": 0.55,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "94241c33d5de6d8620cfe5f1fc5c0023b737f61d8c8edddae4dc19ad3172f3d2"
-  },
-  {
-   "id": "synth.riser.03",
-   "kind": "sfx",
-   "semantic_tag": "synth.riser",
-   "family": "synth",
-   "path": "assets/community/synth/riser-03.wav",
-   "duration_s": 0.85,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "214dfc40f964adb64bcd7ae7f6c0c6ab851aff44de6eaf4c5195549f272c81f9"
-  },
-  {
-   "id": "synth.shimmer.01",
-   "kind": "sfx",
-   "semantic_tag": "synth.shimmer",
-   "family": "synth",
-   "path": "assets/community/synth/shimmer-01.wav",
-   "duration_s": 0.55,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "d41a18bc744054ce056ceaa1e654851c0f17618f4a0aadf9e8c59dffc71a1b4c"
-  },
-  {
-   "id": "synth.shimmer.02",
-   "kind": "sfx",
-   "semantic_tag": "synth.shimmer",
-   "family": "synth",
-   "path": "assets/community/synth/shimmer-02.wav",
-   "duration_s": 0.45,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "7609a8678c6155768bc4405dcc503d13c291be54265a23278a134e773e3c9245"
-  },
-  {
-   "id": "synth.shimmer.03",
-   "kind": "sfx",
-   "semantic_tag": "synth.shimmer",
-   "family": "synth",
-   "path": "assets/community/synth/shimmer-03.wav",
-   "duration_s": 0.7,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "b6740523cd8441c9cd05ab5a7e8f889d2557b365b788b3ce33f8ac55cd13dc5c"
-  },
-  {
-   "id": "synth.click.01",
-   "kind": "sfx",
-   "semantic_tag": "synth.click",
-   "family": "synth",
-   "path": "assets/community/synth/click-01.wav",
-   "duration_s": 0.045,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "dbf7eecee9f6158e948d7b8da25c1bbf84e9deec5917dc8bc468c6bf7e035a01"
-  },
-  {
-   "id": "synth.click.02",
-   "kind": "sfx",
-   "semantic_tag": "synth.click",
-   "family": "synth",
-   "path": "assets/community/synth/click-02.wav",
-   "duration_s": 0.04,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "dfd39d0e03f79cd69500e28b502bfacded6354a3b4b290233e52f6ccdf296ff6"
-  },
-  {
-   "id": "synth.click.03",
-   "kind": "sfx",
-   "semantic_tag": "synth.click",
-   "family": "synth",
-   "path": "assets/community/synth/click-03.wav",
-   "duration_s": 0.05,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "362f24427ed9fd9ed6a9976bb02605118b235f1ebaab217df975b35fc05c88dd"
-  },
-  {
-   "id": "synth.thock.01",
-   "kind": "sfx",
-   "semantic_tag": "synth.thock",
-   "family": "synth",
-   "path": "assets/community/synth/thock-01.wav",
-   "duration_s": 0.14,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "4c406b02be8450f3dab4862faa89e218917e2c61c64b7a14fe29aa86ef9d2057"
-  },
-  {
-   "id": "synth.thock.02",
-   "kind": "sfx",
-   "semantic_tag": "synth.thock",
-   "family": "synth",
-   "path": "assets/community/synth/thock-02.wav",
-   "duration_s": 0.12,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "43c81803812e3fdea9b2b171668daf18fd093a0a0806545b6c3c40575a73122d"
-  },
-  {
-   "id": "synth.thock.03",
-   "kind": "sfx",
-   "semantic_tag": "synth.thock",
-   "family": "synth",
-   "path": "assets/community/synth/thock-03.wav",
-   "duration_s": 0.16,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "7d5d997cb1aecd7986f25d9ee882ce2baa4d487df254c238f9875ff5ccd65438"
-  },
-  {
-   "id": "synth.swish.01",
-   "kind": "sfx",
-   "semantic_tag": "synth.swish",
-   "family": "synth",
-   "path": "assets/community/synth/swish-01.wav",
-   "duration_s": 0.2,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "90e168d343149cec1192a42f62b548950f9468c032235773612781cb3674bf5e"
-  },
-  {
-   "id": "synth.swish.02",
-   "kind": "sfx",
-   "semantic_tag": "synth.swish",
-   "family": "synth",
-   "path": "assets/community/synth/swish-02.wav",
-   "duration_s": 0.26,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "6f798b4e780211f9e20200d1396885015a252c958966b4f5d3d4380936544e79"
-  },
-  {
-   "id": "synth.swish.03",
-   "kind": "sfx",
-   "semantic_tag": "synth.swish",
-   "family": "synth",
-   "path": "assets/community/synth/swish-03.wav",
-   "duration_s": 0.17,
-   "license": "NexStudio-Authored-1.0",
-   "source": {
-    "pack": "NexStudio procedural SFX",
-    "url": "tools/synth_sfx.py"
-   },
-   "sha256": "ce8c155e835cdd2719ca2ca155bffd6ea08e9cc39eb8cb2a55b196af9dfbf334"
-  },
-  {
    "id": "music.a-waltz-for-naseem",
    "kind": "music",
    "title": "A Waltz For Naseem",
@@ -8857,6 +8493,916 @@
     "warm",
     "calm"
    ]
+  },
+  {
+   "id": "synth.pop.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.pop",
+   "family": "synth",
+   "path": "assets/community/synth/pop-01.wav",
+   "duration_s": 0.11,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "85973f9a0ab75769c4a45035b27492cfcf42f753d75199b994b5a17a160f1a12"
+  },
+  {
+   "id": "synth.pop.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.pop",
+   "family": "synth",
+   "path": "assets/community/synth/pop-02.wav",
+   "duration_s": 0.09,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "069ec8f34257301a6b510755f81b4786e00332a3a2301a819764dda1c7c9e1ad"
+  },
+  {
+   "id": "synth.pop.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.pop",
+   "family": "synth",
+   "path": "assets/community/synth/pop-03.wav",
+   "duration_s": 0.13,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "5eda2386a45cd1a401b6f6123d3e936475cee9f85f14f9dbf65bdd4c028e9159"
+  },
+  {
+   "id": "synth.pop.04",
+   "kind": "sfx",
+   "semantic_tag": "synth.pop",
+   "family": "synth",
+   "path": "assets/community/synth/pop-04.wav",
+   "duration_s": 0.08,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "aff130447af639a5475fcbbc68de4e6bcd2dc6fbbb2db9f4058f13e7a29ee723"
+  },
+  {
+   "id": "synth.tick.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.tick",
+   "family": "synth",
+   "path": "assets/community/synth/tick-01.wav",
+   "duration_s": 0.05,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "ef0af3aade95b9799c9521041f3d8314d32a53cbd3f6825d0bad79094452c8e3"
+  },
+  {
+   "id": "synth.tick.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.tick",
+   "family": "synth",
+   "path": "assets/community/synth/tick-02.wav",
+   "duration_s": 0.04,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "c31a5a2ce50de1d3c52e95715b02cab4488b582de939c07634bd7849a5355aea"
+  },
+  {
+   "id": "synth.tick.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.tick",
+   "family": "synth",
+   "path": "assets/community/synth/tick-03.wav",
+   "duration_s": 0.06,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "6c57a7992170bc250eeb630ac1a9bb9eb1e807118d2f9a485426eef615ecf5cb"
+  },
+  {
+   "id": "synth.whoosh.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.whoosh",
+   "family": "synth",
+   "path": "assets/community/synth/whoosh-01.wav",
+   "duration_s": 0.42,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "d897661ac8bf4fc5c7b1c8787e2663e12825e5579a4e3622d8a32fac3fc20ac1"
+  },
+  {
+   "id": "synth.whoosh.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.whoosh",
+   "family": "synth",
+   "path": "assets/community/synth/whoosh-02.wav",
+   "duration_s": 0.55,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "aef3bf1ca0224b92edf6e456a430354ca4dec137166cd268cd4a0445a41d1e21"
+  },
+  {
+   "id": "synth.whoosh.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.whoosh",
+   "family": "synth",
+   "path": "assets/community/synth/whoosh-03.wav",
+   "duration_s": 0.34,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "377af7e8d3d05da0d929111b1914226d41a462928e4d108e3fe3890382b5a172"
+  },
+  {
+   "id": "synth.whoosh.04",
+   "kind": "sfx",
+   "semantic_tag": "synth.whoosh",
+   "family": "synth",
+   "path": "assets/community/synth/whoosh-04.wav",
+   "duration_s": 0.62,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "b263932181f5e2e17c738e297c457f20f8cb809d257194b3c76b4a6f3ade00eb"
+  },
+  {
+   "id": "synth.riser.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.riser",
+   "family": "synth",
+   "path": "assets/community/synth/riser-01.wav",
+   "duration_s": 0.7,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "123be11d0958b010e05c1cd55a66ead8708af35454f3ae1c11cd708cde22b1d0"
+  },
+  {
+   "id": "synth.riser.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.riser",
+   "family": "synth",
+   "path": "assets/community/synth/riser-02.wav",
+   "duration_s": 0.55,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "94241c33d5de6d8620cfe5f1fc5c0023b737f61d8c8edddae4dc19ad3172f3d2"
+  },
+  {
+   "id": "synth.riser.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.riser",
+   "family": "synth",
+   "path": "assets/community/synth/riser-03.wav",
+   "duration_s": 0.85,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "214dfc40f964adb64bcd7ae7f6c0c6ab851aff44de6eaf4c5195549f272c81f9"
+  },
+  {
+   "id": "synth.shimmer.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.shimmer",
+   "family": "synth",
+   "path": "assets/community/synth/shimmer-01.wav",
+   "duration_s": 0.55,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "d41a18bc744054ce056ceaa1e654851c0f17618f4a0aadf9e8c59dffc71a1b4c"
+  },
+  {
+   "id": "synth.shimmer.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.shimmer",
+   "family": "synth",
+   "path": "assets/community/synth/shimmer-02.wav",
+   "duration_s": 0.45,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "7609a8678c6155768bc4405dcc503d13c291be54265a23278a134e773e3c9245"
+  },
+  {
+   "id": "synth.shimmer.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.shimmer",
+   "family": "synth",
+   "path": "assets/community/synth/shimmer-03.wav",
+   "duration_s": 0.7,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "b6740523cd8441c9cd05ab5a7e8f889d2557b365b788b3ce33f8ac55cd13dc5c"
+  },
+  {
+   "id": "synth.click.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.click",
+   "family": "synth",
+   "path": "assets/community/synth/click-01.wav",
+   "duration_s": 0.045,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "dbf7eecee9f6158e948d7b8da25c1bbf84e9deec5917dc8bc468c6bf7e035a01"
+  },
+  {
+   "id": "synth.click.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.click",
+   "family": "synth",
+   "path": "assets/community/synth/click-02.wav",
+   "duration_s": 0.04,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "dfd39d0e03f79cd69500e28b502bfacded6354a3b4b290233e52f6ccdf296ff6"
+  },
+  {
+   "id": "synth.click.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.click",
+   "family": "synth",
+   "path": "assets/community/synth/click-03.wav",
+   "duration_s": 0.05,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "362f24427ed9fd9ed6a9976bb02605118b235f1ebaab217df975b35fc05c88dd"
+  },
+  {
+   "id": "synth.thock.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.thock",
+   "family": "synth",
+   "path": "assets/community/synth/thock-01.wav",
+   "duration_s": 0.14,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "4c406b02be8450f3dab4862faa89e218917e2c61c64b7a14fe29aa86ef9d2057"
+  },
+  {
+   "id": "synth.thock.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.thock",
+   "family": "synth",
+   "path": "assets/community/synth/thock-02.wav",
+   "duration_s": 0.12,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "43c81803812e3fdea9b2b171668daf18fd093a0a0806545b6c3c40575a73122d"
+  },
+  {
+   "id": "synth.thock.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.thock",
+   "family": "synth",
+   "path": "assets/community/synth/thock-03.wav",
+   "duration_s": 0.16,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "7d5d997cb1aecd7986f25d9ee882ce2baa4d487df254c238f9875ff5ccd65438"
+  },
+  {
+   "id": "synth.swish.01",
+   "kind": "sfx",
+   "semantic_tag": "synth.swish",
+   "family": "synth",
+   "path": "assets/community/synth/swish-01.wav",
+   "duration_s": 0.2,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "90e168d343149cec1192a42f62b548950f9468c032235773612781cb3674bf5e"
+  },
+  {
+   "id": "synth.swish.02",
+   "kind": "sfx",
+   "semantic_tag": "synth.swish",
+   "family": "synth",
+   "path": "assets/community/synth/swish-02.wav",
+   "duration_s": 0.26,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "6f798b4e780211f9e20200d1396885015a252c958966b4f5d3d4380936544e79"
+  },
+  {
+   "id": "synth.swish.03",
+   "kind": "sfx",
+   "semantic_tag": "synth.swish",
+   "family": "synth",
+   "path": "assets/community/synth/swish-03.wav",
+   "duration_s": 0.17,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "ce8c155e835cdd2719ca2ca155bffd6ea08e9cc39eb8cb2a55b196af9dfbf334"
+  },
+  {
+   "id": "synth.paper.01",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.rustle",
+   "family": "craft",
+   "path": "assets/community/synth/paper-rustle-01.wav",
+   "duration_s": 0.5,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "0fea788c8ecc5882fe2159fde226a1d8a840542565ae83e5a0ac113324752c35"
+  },
+  {
+   "id": "synth.paper.02",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.rustle",
+   "family": "craft",
+   "path": "assets/community/synth/paper-rustle-02.wav",
+   "duration_s": 0.38,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "59e6616fb9de4301d5dc97a5d7a0cac2bcd314b8390ca260bdf432954c42b810"
+  },
+  {
+   "id": "synth.paper.03",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.rustle",
+   "family": "craft",
+   "path": "assets/community/synth/paper-rustle-03.wav",
+   "duration_s": 0.62,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "d3869f48c8d054829de9bad1fd47a0a4ea5a00c5e9f6a9dd8d2a3815f3e951ae"
+  },
+  {
+   "id": "synth.paper.01",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.tap",
+   "family": "craft",
+   "path": "assets/community/synth/paper-tap-01.wav",
+   "duration_s": 0.16,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "f018a7f5e909eecee21205a0ddeac0bc02d47cef076278bb46ca2f48a33a95e9"
+  },
+  {
+   "id": "synth.paper.02",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.tap",
+   "family": "craft",
+   "path": "assets/community/synth/paper-tap-02.wav",
+   "duration_s": 0.13,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "ec78cadeb51f8f22396bbf1c0a15afcbf6fc19783308913dac8523171035b05a"
+  },
+  {
+   "id": "synth.paper.03",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.tap",
+   "family": "craft",
+   "path": "assets/community/synth/paper-tap-03.wav",
+   "duration_s": 0.19,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "10522b2908309552beaf0e40876e702ad0f91e61f83a9f81e57f21459658fe56"
+  },
+  {
+   "id": "synth.paper.01",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.page",
+   "family": "craft",
+   "path": "assets/community/synth/paper-page-01.wav",
+   "duration_s": 0.5,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "302d238bb40bee9d97cf82ebec56fa590a33ec9260e4769eaee48ad2d5dacfd1"
+  },
+  {
+   "id": "synth.paper.02",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.page",
+   "family": "craft",
+   "path": "assets/community/synth/paper-page-02.wav",
+   "duration_s": 0.4,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "7c42107b1b731b603c2907f81144e692cf66c84974dc7d82f086a1e6a1020fca"
+  },
+  {
+   "id": "synth.paper.03",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.page",
+   "family": "craft",
+   "path": "assets/community/synth/paper-page-03.wav",
+   "duration_s": 0.58,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "54872197da202613a7cc27c92061e0b6db2f25ed76d36ae1f7aadc7edc9b6a73"
+  },
+  {
+   "id": "synth.paper.01",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.tear",
+   "family": "craft",
+   "path": "assets/community/synth/paper-tear-01.wav",
+   "duration_s": 0.42,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "a9238f77b63425da0bc3f76362741c2e8472c4a70851cf78145e92833964ad06"
+  },
+  {
+   "id": "synth.paper.02",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.tear",
+   "family": "craft",
+   "path": "assets/community/synth/paper-tear-02.wav",
+   "duration_s": 0.3,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "180aa1ea518b9a49a327fb81725beac18234901f49ce6c4aef1cfdc29d8bf4af"
+  },
+  {
+   "id": "synth.paper.01",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.step",
+   "family": "craft",
+   "path": "assets/community/synth/paper-step-01.wav",
+   "duration_s": 0.18,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "30c6711a735ade12b9754faa5bc37b172b3f628dd2bcec08e3c3892d84d525f8"
+  },
+  {
+   "id": "synth.paper.02",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.step",
+   "family": "craft",
+   "path": "assets/community/synth/paper-step-02.wav",
+   "duration_s": 0.15,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "17224347b229a77a18be687765658aa6b59b912b7748c4b486f624468dfc8cf2"
+  },
+  {
+   "id": "synth.paper.03",
+   "kind": "sfx",
+   "semantic_tag": "craft.paper.step",
+   "family": "craft",
+   "path": "assets/community/synth/paper-step-03.wav",
+   "duration_s": 0.21,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "e2dbeba11606c75fa81706b35429028e6c0fb21c800b6dd3b27b3490f56e9372"
+  },
+  {
+   "id": "synth.rain.01",
+   "kind": "sfx",
+   "semantic_tag": "amb.rain",
+   "family": "amb",
+   "path": "assets/community/synth/amb-rain-01.wav",
+   "duration_s": 2.6,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "2c26d8d4f5d34a980e7bf23b4d3a224a9f20e2d6c66893ff51c698c12a07befa"
+  },
+  {
+   "id": "synth.rain.02",
+   "kind": "sfx",
+   "semantic_tag": "amb.rain",
+   "family": "amb",
+   "path": "assets/community/synth/amb-rain-02.wav",
+   "duration_s": 3.1,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "8b9073d6ddce9134e702eeeedf29c931334084552089a689b8b29be49ee41d28"
+  },
+  {
+   "id": "synth.wind.01",
+   "kind": "sfx",
+   "semantic_tag": "amb.wind",
+   "family": "amb",
+   "path": "assets/community/synth/amb-wind-01.wav",
+   "duration_s": 3.2,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "5c38f986bd5821bc4eebe1f20f7ece74bf29d66a14af441be313f0b3249ae2b9"
+  },
+  {
+   "id": "synth.wind.02",
+   "kind": "sfx",
+   "semantic_tag": "amb.wind",
+   "family": "amb",
+   "path": "assets/community/synth/amb-wind-02.wav",
+   "duration_s": 2.7,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "fb4d0a262177cbcaced74e66fffa3ea78420196ce4a86cab51978ae9a518d051"
+  },
+  {
+   "id": "synth.water.01",
+   "kind": "sfx",
+   "semantic_tag": "amb.water",
+   "family": "amb",
+   "path": "assets/community/synth/amb-water-01.wav",
+   "duration_s": 3.0,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "66ffa14ed1b7c2ebe066b1963d573a0ae906203e4c31335665d586cb417f8705"
+  },
+  {
+   "id": "synth.water.02",
+   "kind": "sfx",
+   "semantic_tag": "amb.water",
+   "family": "amb",
+   "path": "assets/community/synth/amb-water-02.wav",
+   "duration_s": 2.5,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "b1075e721821b7ee320eb47358db56e97333367779c00c35b979e9a7c3908bad"
+  },
+  {
+   "id": "synth.birds.01",
+   "kind": "sfx",
+   "semantic_tag": "amb.birds",
+   "family": "amb",
+   "path": "assets/community/synth/amb-birds-01.wav",
+   "duration_s": 2.8,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "0ffb9d9f1a98b018e9e8847c4e69d3e377c309a98640dab4f06c902a2ce6bae3"
+  },
+  {
+   "id": "synth.birds.02",
+   "kind": "sfx",
+   "semantic_tag": "amb.birds",
+   "family": "amb",
+   "path": "assets/community/synth/amb-birds-02.wav",
+   "duration_s": 3.4,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "99e5498607e97a3d39a00f600782472d256c46fe77e5dc326e5ffbbdd30337da"
+  },
+  {
+   "id": "synth.crickets.01",
+   "kind": "sfx",
+   "semantic_tag": "amb.crickets",
+   "family": "amb",
+   "path": "assets/community/synth/amb-crickets-01.wav",
+   "duration_s": 3.0,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "3f3af02ffc0bce179c4a2eabf044d07de5a23a018c70c99b1a7ce18dc4b48103"
+  },
+  {
+   "id": "synth.crickets.02",
+   "kind": "sfx",
+   "semantic_tag": "amb.crickets",
+   "family": "amb",
+   "path": "assets/community/synth/amb-crickets-02.wav",
+   "duration_s": 2.6,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "70728dd0edd6a9178adc49219c635eb58b66e24a8026067b18f01a32519ce4af"
+  },
+  {
+   "id": "synth.fire.01",
+   "kind": "sfx",
+   "semantic_tag": "amb.fire",
+   "family": "amb",
+   "path": "assets/community/synth/amb-fire-01.wav",
+   "duration_s": 2.8,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "009fc76afa89bec9b10bed7ad34ea9300e991d52746aa63e154f81617b41ee83"
+  },
+  {
+   "id": "synth.water.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.water.drop",
+   "family": "foley",
+   "path": "assets/community/synth/foley-drop-01.wav",
+   "duration_s": 0.5,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "66672273fa169b604fe5aad59b91132510611e244a0058df7b161177d0d721a4"
+  },
+  {
+   "id": "synth.water.02",
+   "kind": "sfx",
+   "semantic_tag": "foley.water.drop",
+   "family": "foley",
+   "path": "assets/community/synth/foley-drop-02.wav",
+   "duration_s": 0.42,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "f79b0bbb853ae46f88ec062ab4cc624274b3da9ae4728640c0902fabd823a41e"
+  },
+  {
+   "id": "synth.grow.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.grow",
+   "family": "foley",
+   "path": "assets/community/synth/foley-grow-01.wav",
+   "duration_s": 0.6,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "1a5b183abbc5ec26ab7188c4cd226678c7fe6aeaef7a936d77c022091c5bd08a"
+  },
+  {
+   "id": "synth.grow.02",
+   "kind": "sfx",
+   "semantic_tag": "foley.grow",
+   "family": "foley",
+   "path": "assets/community/synth/foley-grow-02.wav",
+   "duration_s": 0.48,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "d0f21c326cc6464714c196dbb564090c8ade5fb42d81e43c344df450d494df78"
+  },
+  {
+   "id": "synth.sparkle.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.sparkle",
+   "family": "foley",
+   "path": "assets/community/synth/foley-sparkle-01.wav",
+   "duration_s": 0.8,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "fd9c717b45c7ba5e979468ea9b6792e746b7aa77d97e15da5e076a42698de61a"
+  },
+  {
+   "id": "synth.sparkle.02",
+   "kind": "sfx",
+   "semantic_tag": "foley.sparkle",
+   "family": "foley",
+   "path": "assets/community/synth/foley-sparkle-02.wav",
+   "duration_s": 0.66,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "f77982fc1c98ca442804ee624a55a45a6797d04c9c8d4e98cc773c4f33e89d4b"
+  },
+  {
+   "id": "synth.chime.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.chime",
+   "family": "foley",
+   "path": "assets/community/synth/foley-chime-01.wav",
+   "duration_s": 0.9,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "7a24d17f30930e159ea1a5a937f0a074df300b33aca59e29be7a986c9b9f373d"
+  },
+  {
+   "id": "synth.chime.02",
+   "kind": "sfx",
+   "semantic_tag": "foley.chime",
+   "family": "foley",
+   "path": "assets/community/synth/foley-chime-02.wav",
+   "duration_s": 0.7,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "f06e7030815eb096a26f8712851478b959d2203dccf56b7c7b8fb9b55d583e8d"
+  },
+  {
+   "id": "synth.engine.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.engine",
+   "family": "foley",
+   "path": "assets/community/synth/foley-engine-01.wav",
+   "duration_s": 1.0,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "9e3c7fa72ab1ee75fb0a3d6903bbfff1edf91753ab8348de72ca1ee5d4435c9e"
+  },
+  {
+   "id": "synth.engine.02",
+   "kind": "sfx",
+   "semantic_tag": "foley.engine",
+   "family": "foley",
+   "path": "assets/community/synth/foley-engine-02.wav",
+   "duration_s": 0.8,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "8d6064afb151f161489e9d07bb28dfe311fe338f8b53c3d18068aa8ae5309507"
+  },
+  {
+   "id": "synth.heart.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.heart",
+   "family": "foley",
+   "path": "assets/community/synth/foley-heart-01.wav",
+   "duration_s": 0.9,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "5bd4339c9cc8332c8122e251e9c985fef798285199501d33fe71f72337448c03"
+  },
+  {
+   "id": "synth.heart.02",
+   "kind": "sfx",
+   "semantic_tag": "foley.heart",
+   "family": "foley",
+   "path": "assets/community/synth/foley-heart-02.wav",
+   "duration_s": 0.74,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "f7e954bdc8d754571e7bce7b6668216b3badc2afe15fdb638a6b3713bbb61e86"
+  },
+  {
+   "id": "synth.alarm.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.alarm",
+   "family": "foley",
+   "path": "assets/community/synth/foley-alarm-01.wav",
+   "duration_s": 0.9,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "b5bb60598f51ebdc9754a624969c3d6a32e426de165a2d06842b9f9e8d4aaa9d"
+  },
+  {
+   "id": "synth.alarm.02",
+   "kind": "sfx",
+   "semantic_tag": "foley.alarm",
+   "family": "foley",
+   "path": "assets/community/synth/foley-alarm-02.wav",
+   "duration_s": 0.72,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "2d0bd3def3d5ea6d2d124d3ab1c31a993128db52196af1bf965f7c191df5dfa0"
   }
  ]
 }

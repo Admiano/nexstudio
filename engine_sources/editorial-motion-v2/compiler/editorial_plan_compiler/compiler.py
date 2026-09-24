@@ -27,7 +27,7 @@ from .evidence import PhotoEvidence
 from .lexicon import AssetFinder, NounLexicon, Resolution
 from .media import NormalisedMedia, normalise_media
 from .motion import camera_move, transition_window_ms
-from .sound import MIX, SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
+from .sound import MIX, SoundLibrary, bind_beat_ambience, bind_beat_sound, bind_film_music, community_surface, library_root
 from .master_timeline import MasterTimeline, extend_tail, resolve_master
 from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
 from .typefit import fit_text
@@ -576,7 +576,9 @@ class BeatCompiler:
         if d.prop:
             hand = d.prop['hand']
             side = ('right', 'left')[hand == 'left' or (hand == 'auto' and fig['mirror'])]
-            fig['prop'] = {'hand': side, 'anchor': {'x': 0.04 if side == 'left' else 0.96, 'y': 0.60},
+            # Anchor sits on the paper figure's carry hand (its arm angles inward ~30°):
+            # a fraction of the figure's 100x140 sheet, where the prop is centred.
+            fig['prop'] = {'hand': side, 'anchor': {'x': 0.22 if side == 'left' else 0.78, 'y': 0.66},
                            'concept': d.prop['concept'], 'via': d.prop.get('via'),
                            'asset': d.prop.get('asset'), 'photo': d.prop.get('photo'), 'word': d.prop.get('word')}
         if d.states:
@@ -813,7 +815,7 @@ class BeatCompiler:
             pop_entrance = MOTION_PROFILES[self.film.brand.finish]['entrance'] == 'pop'
             for e in illustration['entities']:
                 if not e.get('carried') and e.get('enter_duration_ms'):
-                    candidates.append({'event': 'ELEMENT_LAND', 'at_ms': e['enter_ms'] + e['enter_duration_ms'], 'strength': 0.99 if pop_entrance else 0.34, 'glyph': e['glyph']})
+                    candidates.append({'event': 'ELEMENT_LAND', 'at_ms': e['enter_ms'] + e['enter_duration_ms'], 'strength': 0.99 if pop_entrance else 0.34, 'glyph': e['glyph'], 'concept': e.get('concept')})
             for r in illustration['relations']:
                 if not r.get('drawn_by_op') and r.get('enter_duration_ms'):
                     candidates.append({'event': 'ELEMENT_LAND', 'at_ms': r['enter_ms'] + r['enter_duration_ms'], 'strength': 0.3, 'glyph': 'CONNECTOR'})
@@ -839,13 +841,26 @@ class BeatCompiler:
                     candidates.append({'event': 'LOUPE_TRAVEL', 'at_ms': o['end_ms'], 'strength': 0.55})
         if transition['mode'] in ('TEXT_MASK_WIPE', 'LABEL_EXPAND_WIPE'):
             candidates.append({'event': 'TRANSITION_CARRIER', 'at_ms': transition['start_ms'], 'strength': 0.6})
+        if figure and figure.get('track') and figure['track'].get('enter', 'none') != 'none':
+            # The puppet walks in on paper: a soft footfall as the stride settles.
+            tr = figure['track']
+            for step in (0.38, 0.78):
+                candidates.append({'event': 'FIGURE_STEP', 'at_ms': int(tr['enter_ms'] + tr['enter_duration_ms'] * step), 'strength': 0.4})
         # Camera moves are cuts with motion: a push, pull or drift takes a full whoosh; a dissolve
         # stays a subordinate fabric sound; a hard cut is silent.
         if transition.get('camera') and transition['end_ms'] > transition['start_ms']:
-            sweep = {'push_through': 0.78, 'pull_back': 0.7, 'drift': 0.74, 'dissolve': 0.32}.get(transition['camera']['move'])
+            sweep = {'push_through': 0.78, 'pull_back': 0.7, 'drift': 0.74, 'page': 0.86, 'dissolve': 0.32}.get(transition['camera']['move'])
             if sweep:
                 candidates.append({'event': 'TRANSITION_SWEEP', 'at_ms': transition['start_ms'], 'strength': sweep})
         sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates)
+        if b.dominant_layer != 'QUIET':
+            amb_concepts = [e.get('concept') for e in (illustration or {}).get('entities', [])] + [m.get('concept') for m in (illustration or {}).get('marks', [])] + [p.get('concept') for p in (b.backdrop or [])]
+            amb_tones = [p.get('tone') for p in (b.backdrop or [])]
+            amb = bind_beat_ambience(self.lib, self.film.film_id, b.beat_id, [c for c in amb_concepts if c], [t for t in amb_tones if t], int(clock.duration_ms))
+            if amb:
+                amb['at_ms'] = int(beat_offset_ms)
+                amb['dur_ms'] = int(clock.duration_ms)
+                sound['ambience'] = amb
         if self.lib is None and candidates and b.dominant_layer != 'QUIET':
             warnings.append('SOUND_LIBRARY_MISSING')
 

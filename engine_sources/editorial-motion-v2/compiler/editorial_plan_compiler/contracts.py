@@ -88,7 +88,7 @@ MOTION_PROFILES = {
 }
 # How the film's camera carries one beat into the next; the compiler picks from beat energy,
 # a hard cut only when the treatment asks for one (beat.cut = 'hard').
-CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'cut')
+CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'page', 'cut')
 CUT_MODES = ('hard',)
 DATA_KINDS = ('STAT', 'COMPARISON', 'SEQUENCE')
 # Entity labels are nouns, not captions: no leading article, at most three words, and never a

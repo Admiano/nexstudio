@@ -168,6 +168,22 @@ function buildAudio(plan, out, stemsDir) {
     const layers = [];
     accentCount = 0;
     for (const beat of plan.beats) {
+      if (beat.sound.ambience && beat.sound.ambience.path) {
+        // The air the scene stands in: a looped ambience under the whole beat, faded at both
+        // ends so consecutive scenes hand their rooms over rather than pop between them.
+        const amb = beat.sound.ambience;
+        if (!fs.existsSync(amb.path)) throw new Error(`ambience asset missing: ${amb.path}`);
+        if (!amb.license) throw new Error(`ambience ${amb.asset_id || amb.path} has no license evidence`);
+        if (amb.sha256 && sha(fs.readFileSync(amb.path)) !== amb.sha256) throw new Error(`ambience sha256 mismatch: ${amb.path}`);
+        const ambDur = ((amb.dur_ms || beat.duration_ms) / 1000).toFixed(3);
+        const fade = ((amb.fade_ms || 600) / 1000).toFixed(3);
+        const at = Math.max(0, amb.at_ms || 0);
+        inputs.push('-stream_loop', '-1', '-t', ambDur, '-i', amb.path);
+        filters.push(`[${n}:a]${fmt},atrim=0:${ambDur},asetpts=PTS-STARTPTS,volume=${amb.gain_db}dB,` +
+          `afade=t=in:st=0:d=${fade},afade=t=out:st=${(Math.max(0, parseFloat(ambDur) - parseFloat(fade))).toFixed(3)}:d=${fade},adelay=${at}|${at}[s${n}]`);
+        layers.push(`[s${n}]`);
+        n += 1;
+      }
       for (const acc of beat.sound.accents) {
         accentCount += 1;
         const parts = acc.layers && acc.layers.length ? acc.layers : [{ ...acc, role: 'body', offset_ms: 0 }];
