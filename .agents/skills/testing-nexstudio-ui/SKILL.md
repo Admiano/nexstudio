@@ -26,3 +26,12 @@ description: How to run the NexStudio Next.js app locally and authenticate the b
 ## Gotchas
 - `pgrep -f "postgres -D"` / `pgrep -f "next dev"` inside an exec call matches the exec's own command line — check `postmaster.pid` / `curl localhost:3000` instead.
 - Browser console via the `browser_console` tool only returns output wrapped in `console.log(...)` inside your script.
+- Chrome's real viewport is 1600x1069 while `computer` screenshots are scaled to 1024x768 — the direction-stage "Create video" dock (`position:fixed; bottom:0`) lands behind the OS taskbar in screenshots. Click it via CDP `Input.dispatchMouseEvent` at real CSS coords (query `getBoundingClientRect` via `Runtime.evaluate` first).
+
+## Engine jobs E2E
+- `POST /api/v1/whiteboards` and `/api/v1/explainers` are multipart (`-F`); they REQUIRE `-H "Origin: http://localhost:3000"` (same-origin guard → 403 `ORIGIN_REQUIRED` without it) and the session cookie.
+- Job dirs: `engine_sources/whiteboard-v3-runtime/out/whiteboard-jobs/wb-*/` and `engine_sources/editorial-motion-v2/out/explainer-jobs/xr-*/` — each has `request.json`, `status.json` (`{"status":"running|done|failed", ...}`), `files/<aspect>.mp4`, and a `gate_report.json` on failure.
+- Whiteboard params: `script` (or `voiceFile`), `type`=kinetic-text|hand-drawn-board, `theme`=light|dark, `accent`=#hex (3-8 hex digits), `aspects`=16x9,1x1,9x16. Explainer: `style` from `styles.json` + `voice`=emma|ava|andrew|brian|sonia|natasha.
+- Renders are fast in practice (whiteboard kinetic ~20s for a 3-beat script; explainer ~55s) — 9-40s mp4s, h264+aac.
+- **Explainer entity-bank trap**: `tools/make_reel.py` builds illustration entities only from words in `styles.json` `entity_bank` (~78 words have `colour` assets for the tiles style: team/app/money/time/win/rocket/...). A natural script whose words aren't in the bank produces ZERO entities → engine gate `ILLUSTRATION_TOO_FEW_ENTITIES` → exit 1 → UI shows honest "render failed — try again". To get a render through, write the script from bank words (e.g. "Your team builds the app. Money grows. Time wins. The rocket ships.").
+- Whiteboard kinetic renders ANY script (text-only); use it for the quick E2E sanity job.
