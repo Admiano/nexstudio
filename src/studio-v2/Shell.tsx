@@ -25,7 +25,23 @@ export default function Shell({ view }: { view: ViewId }) {
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [historyId, setHistoryId] = useState<string | null>(null);
+  // flow survives refresh: stored per-tab so a reload returns to the same stage
   const [flow, setFlow] = useState<FlowState | null>(null);
+  const [flowReady, setFlowReady] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("nx.flow");
+      if (raw) setFlow(JSON.parse(raw) as FlowState);
+    } catch { /* corrupt storage — start clean */ }
+    setFlowReady(true);
+  }, []);
+  useEffect(() => {
+    if (!flowReady) return;
+    try {
+      if (flow) sessionStorage.setItem("nx.flow", JSON.stringify(flow));
+      else sessionStorage.removeItem("nx.flow");
+    } catch { /* storage full/blocked — non-fatal */ }
+  }, [flow, flowReady]);
   const [seriesFocus, setSeriesFocus] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [composer, setComposer] = useState<ComposerState>({ prompt: "", contexts: [], family: null });
