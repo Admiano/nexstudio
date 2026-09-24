@@ -18,11 +18,14 @@ up. swing abducts toward ±x. Feet/ankles land near y=0 when standing.
 """
 import json, math, sys, os
 
+# MUST match cmu_motion_vault_v5.json's joints order exactly — the sampler
+# zips frame rows by the merged vault's joint list; a different order
+# crosses left/right joints and the skeleton comes apart.
 JOINTS = ['root', 'pelvis', 'spine', 'chest', 'neck', 'head',
-          'clavicle_l', 'clavicle_r', 'shoulder_l', 'shoulder_r',
-          'elbow_l', 'elbow_r', 'wrist_l', 'wrist_r',
-          'hip_l', 'hip_r', 'knee_l', 'knee_r', 'ankle_l', 'ankle_r',
-          'toe_l', 'toe_r']
+          'clavicle_l', 'shoulder_l', 'elbow_l', 'wrist_l',
+          'clavicle_r', 'shoulder_r', 'elbow_r', 'wrist_r',
+          'hip_l', 'knee_l', 'ankle_l', 'toe_l',
+          'hip_r', 'knee_r', 'ankle_r', 'toe_r']
 
 # adult-average skeleton, meters, y-up (matches vault pelvis height)
 L = dict(thigh=0.42, shin=0.43, spine=0.15, chest=0.16, neck=0.10,
