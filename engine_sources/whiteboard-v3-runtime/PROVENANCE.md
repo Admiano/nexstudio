@@ -26,7 +26,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 
 | Artifact | sha256 |
 |---|---|
-| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `00b95207feb5277d854f55b244009dd80857a005ded55e6412078e8c8241dfd1` |
+| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `60e44515d87bfddff01e7c5726fb09842a5b567b70da42ff72a78a1305635f3f` |
 | `v3_board_renderer.py` (whiteboard draw layer) | `f0a58492ad4dd1c7f68ba535615d3bf66ec11e677c04efd2bf5ed479fedf7623` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
@@ -58,3 +58,5 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/meshrig/mh_bake.py` | MakeHuman rig -> Freestyle line-art sprite baker (CC0 body + authored weights) | `dd051ff31cb06f069be8c5f05306186dcf70e6358bf19ff0b399a971d8ed2411` |
 | `tools/nexstick/meshrig/bake_parallel.sh` | parallel bake driver (xargs -P, env: BLEND/VAULT/OUTROOT/RES/CAM) | `807eb706cf51cdc79493b2ce9762f4fe5df5f08aa78b849d09e62455a5efbb2a` |
 | `tools/nexstick/baked/<CLIP>/` | baked PNG sprite frames + meta.json per clip (generated; regen via bake_parallel.sh) | generated — see per-clip meta.json |
+| `v3_shorts.py` | rigged-shorts mode: stage floor + walk-cycle entrances/exits + figure-as-protagonist | `e432cd6e9bd410b1b2525f05f6df8fb880ae23fb0e4cac6a6e995dab7bd13a5a` |
+| `v3_comic.py` | comic/storyboard mode: self-drawing panels, posed sprites, speech bubbles | `223027c58c071666efa1e81f9feed1c421ef7ff6384978be04c12bf5efc8ff15` |

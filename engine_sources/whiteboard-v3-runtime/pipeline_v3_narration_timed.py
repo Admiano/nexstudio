@@ -328,6 +328,8 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
     variant = plan.get('camera_variant')
     journey = variant == 'giant_board_journey'
     boards = variant == 'board_sections'
+    shorts = variant == 'shorts'
+    comic = variant == 'comic'
     pacing = plan['pacing']
     trans = pacing['transition_seconds']
     reveal = pacing['board_reveal_seconds']
@@ -336,6 +338,12 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
     if boards:
         import v3_board_sections as v3bs
         total += v3bs.ending_seconds(plan, ratio)
+    if shorts:
+        import v3_shorts as v3sh
+        total += v3sh.ending_seconds(plan, ratio)
+    if comic:
+        import v3_comic as v3cm
+        total += v3cm.ending_seconds(plan, ratio)
 
     t = 0.0
     while t < total - 1e-9:
@@ -349,6 +357,18 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
             # fixed camera on one board; sections draw in place,
             # wipes between boards, ending thanks + montage
             yield t, v3bs.render_board_frame(plan, ratio, t)
+            t += step
+            continue
+        if shorts:
+            # stage mode — the character performs center-frame on a
+            # floor line; walk-cycle entrances/exits, caption per beat
+            yield t, v3sh.render_short_frame(plan, ratio, t)
+            t += step
+            continue
+        if comic:
+            # comic page — one panel per beat draws itself in order:
+            # border, posed figure, speech bubble, narration box
+            yield t, v3cm.render_comic_frame(plan, ratio, t)
             t += step
             continue
         # Current beat = last beat whose window has opened; a completed beat holds.
@@ -693,6 +713,12 @@ def render_production(
         import v3_board_sections as _v3bs
         duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] \
             + _v3bs.ending_seconds(plan, ratio)
+    if plan.get('camera_variant') in ('shorts', 'comic'):
+        import v3_shorts as _v3sh
+        import v3_comic as _v3cm
+        mod = _v3sh if plan['camera_variant'] == 'shorts' else _v3cm
+        duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] \
+            + mod.ending_seconds(plan, ratio)
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -767,7 +793,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('plan', help='Narration-timed plan JSON (NexMindWhiteboardV3NarrationTimedPlanV1)')
     ap.add_argument('--out-dir', default='out')
     ap.add_argument('--ratio', default=None, choices=['16:9', '1:1', '9:16'])
-    ap.add_argument('--variant', default=None, choices=['cluster_travel', 'giant_board_journey', 'board_sections'])
+    ap.add_argument('--variant', default=None, choices=['cluster_travel', 'giant_board_journey', 'board_sections', 'shorts', 'comic'])
     ap.add_argument('--fps', type=int, default=DEFAULT_FPS)
     ap.add_argument('--voiceover', default=None, help='Optional VO audio file to mix under the pen bed')
     ap.add_argument('--word-timings', default=None,

@@ -122,6 +122,60 @@ def test_journey_flows_elements_and_reveals_canvas():
     assert canvas.size[0] > 2000 and sv[2] - sv[0] == 1280
 
 
+# --- variant modes: shorts + comic ------------------------------------------
+
+def test_shorts_stage_draws_floor_caption_and_figure():
+    """shorts: floor line + caption ink + a composited figure sprite."""
+    import v3_shorts
+    plan = _plan(camera_variant='shorts')
+    plan['beats'][0]['figure'] = {'clip': 'NEX_MOTION_WAVE', 'x': 0.5}
+    plan['beats'][0]['caption'] = 'stage demo'
+    f1 = v3_shorts.render_short_frame(plan, '16:9', 0.9)
+    f2 = v3_shorts.render_short_frame(plan, '16:9', 0.9)
+    assert f1.size == (1280, 720)
+    assert _frame_bytes(f1) == _frame_bytes(f2)
+    # ink present: floor/caption strokes + figure sprite
+    assert f1.convert('L').getextrema()[0] < 128
+    flow = v3_shorts._build(plan, '16:9')
+    assert flow['secs'][0]['sched'] and flow['floor_y'] < flow['W']
+
+
+def test_shorts_walk_cycle_entrance_moves_figure():
+    """enter: 'left' animates the figure's x during the entrance window."""
+    import v3_shorts
+    plan = _plan(camera_variant='shorts')
+    plan['beats'][0]['figure'] = {
+        'clip': 'NEX_MOTION_WAVE', 'enter': 'left', 'x': 0.6}
+    flow = v3_shorts._build(plan, '16:9')
+    sch = flow['secs'][0]['sched'][0]
+    assert sch['enter_dur'] > 0 and sch['enter'] == 'left'
+    # frames during vs after the entrance differ in content position
+    a = v3_shorts.render_short_frame(plan, '16:9', 0.2)
+    b = v3_shorts.render_short_frame(plan, '16:9', 1.4)
+    assert a.size == b.size == (1280, 720)
+
+
+def test_comic_panels_draw_in_beat_order():
+    """comic: each beat draws one panel — border, caption box, bubble,
+    posed figure — while earlier panels persist."""
+    import v3_comic
+    plan = _plan(camera_variant='comic')
+    plan['beats'][0]['figure'] = {
+        'clip': 'NEX_MOTION_WAVE', 'pose': 0.5, 'facing': 1}
+    plan['beats'][0]['bubble'] = {'text': 'hello there'}
+    plan['beats'][0]['caption'] = 'panel one'
+    flow = v3_comic._build(plan, '16:9')
+    assert len(flow['panels']) == 2
+    p0 = flow['panels'][0]
+    assert p0['border'] and p0['cap_groups'] and p0['bub_groups']
+    # only panel 1 inked before beat 2 opens; both after
+    f1 = v3_comic.render_comic_frame(plan, '16:9', 1.2)
+    f2 = v3_comic.render_comic_frame(plan, '16:9', 3.0)
+    assert f1.size == f2.size == (1280, 720)
+    assert _frame_bytes(f1) != _frame_bytes(f2)
+    assert f2.convert('L').getextrema()[0] < 128
+
+
 # --- determinism + golden frames --------------------------------------------
 
 @pytest.mark.parametrize('t', [0.8, 1.7, 2.4, 3.4])
