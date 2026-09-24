@@ -185,6 +185,10 @@ def build_treatment(args, style, words, media_files, film_id):
         bid = f"b{bi+1:02d}"
         narration = clean(" ".join(w["text"] for w in g))
         picked = pick_entities(g, fam_key, used_kw)
+        if not picked:
+            anchor = next((w["text"] for w in g if word_key(w["text"]) not in STOPWORDS), g[0]["text"])
+            picked = [({"id": f"e1_{word_key(anchor) or 'idea'}", "kind": "object", "glyph": "TILE",
+                        "concept": anchor.strip(".,!?;:'\"“”()[]")[:40] or "idea"}, anchor)]
         ents = []
         for ent, anchor in picked:
             ents.append([ent, anchor])
