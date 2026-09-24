@@ -1838,3 +1838,52 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .library-rows .work-thumb-v2.asset{background:linear-gradient(140deg,#e8e6df,#f4efe5)}
 .library-rows .work-thumb-v2.asset:before{content:attr(data-mark);position:absolute;inset:0;display:grid;place-items:center;font-size:22px;font-weight:830;color:#5c5f57}
 .library-rows .work-thumb-v2{position:relative;overflow:hidden}
+
+/* ── ambient stage motion: every production phase stays alive ── */
+.production-stage[data-phase="story"] .nx-story-beat{animation:nxBeatIn 720ms var(--nx-ease) forwards,nxBeatFocus 5.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*110ms),calc(.9s + var(--i,0)*1400ms)}
+@keyframes nxBeatFocus{0%,100%{box-shadow:inset 0 0 0 0 rgba(255,176,0,0);transform:translateY(0)}20%{box-shadow:inset 0 0 0 1px rgba(255,176,0,.34),0 8px 26px rgba(255,176,0,.05);transform:translateY(-4px)}42%{box-shadow:inset 0 0 0 0 rgba(255,176,0,0);transform:translateY(0)}}
+.production-stage[data-phase="story"] .nx-story-beat em u:last-child{animation:nxBeatBars 2s ease-in-out infinite alternate;animation-delay:calc(var(--i,0)*260ms)}
+@keyframes nxBeatBars{from{opacity:.5;transform:scaleY(.7)}to{opacity:1;transform:scaleY(1)}}
+
+.production-stage[data-phase="direction"] .nx-scene{animation:nxSceneGlow 6s ease-in-out infinite}
+.production-stage[data-phase="direction"] .nx-scene:nth-child(2){animation-delay:1.5s}
+.production-stage[data-phase="direction"] .nx-scene:nth-child(3){animation-delay:3s}
+.production-stage[data-phase="direction"] .nx-scene:nth-child(4){animation-delay:4.5s}
+@keyframes nxSceneGlow{0%,100%{border-color:rgba(255,176,0,.22);box-shadow:inset 0 0 0 0 rgba(255,176,0,0)}50%{border-color:rgba(255,176,0,.55);box-shadow:inset 0 0 0 1px rgba(255,176,0,.1)}}
+.production-stage[data-phase="direction"] .nx-scene-layout b{animation:nxLayoutDrift 7s ease-in-out infinite alternate}
+.production-stage[data-phase="direction"] .nx-scene:nth-child(even) .nx-scene-layout b{animation-delay:1.2s}
+@keyframes nxLayoutDrift{from{transform:translate(0,0) scale(1)}to{transform:translate(3%,4%) scale(1.045)}}
+.production-stage[data-phase="direction"] .nx-scene-layout em{animation:nxLayoutSlide 5.6s ease-in-out infinite alternate}
+@keyframes nxLayoutSlide{from{transform:translateX(0)}to{transform:translateX(-9%)}}
+.production-stage[data-phase="direction"] .nx-scene-layout u{animation:nxDotBreath 2.8s ease-in-out infinite alternate}
+@keyframes nxDotBreath{from{transform:scale(1)}to{transform:scale(1.18)}}
+
+@keyframes nxFormBreathe{from{transform:rotate(0deg) scale(1)}to{transform:rotate(-2.5deg) scale(1.045)}}
+@keyframes nxFormBreath2{from{transform:translate(0,0) scale(1)}to{transform:translate(-8%,-10%) scale(1.1)}}
+@keyframes nxRuleFlow{from{transform:translateY(0)}to{transform:translateY(-14%)}}
+@keyframes nxRuleGrow{from{width:38px}to{width:64px}}
+.production-stage[data-phase="scenes"] .nx-comp-object i:nth-child(1){animation:nxFormBreathe 6.4s ease-in-out infinite alternate}
+.production-stage[data-phase="scenes"] .nx-comp-object i:nth-child(2){animation:nxFormBreath2 5.2s ease-in-out .6s infinite alternate}
+.production-stage[data-phase="scenes"] .nx-comp-object i:nth-child(3){animation:nxRuleFlow 3.8s ease-in-out infinite alternate}
+.production-stage[data-phase="scenes"] .nx-comp-rule{animation:nxRuleGrow 4.2s ease-in-out infinite alternate}
+.production-stage[data-phase="scenes"] .nx-layer-stack{animation:nxStackFloat 7s ease-in-out infinite alternate}
+@keyframes nxStackFloat{from{transform:translate(0,0)}to{transform:translate(-7px,6px)}}
+
+.production-stage[data-phase="life"] .nx-motion-path i{animation:nxTravelLoop 3.4s cubic-bezier(.4,.05,.35,.95) infinite}
+@keyframes nxTravelLoop{0%{left:10%;bottom:6%;opacity:0}9%{opacity:1}45%{left:48%;bottom:42%}80%{left:82%;bottom:74%;opacity:1}90%{left:82%;bottom:74%;opacity:0}91%{left:10%;bottom:6%;opacity:0}100%{left:10%;bottom:6%;opacity:0}}
+.production-stage[data-phase="life"] .nx-comp-object i:nth-child(2){animation:nxFormBreath2 5.2s ease-in-out .6s infinite alternate}
+
+.production-stage[data-phase="sound"] .nx-sound-bed .nx-sync-head{transition:none;animation:nxSyncSweep 4.6s cubic-bezier(.35,.1,.35,.9) infinite}
+@keyframes nxSyncSweep{0%{width:0;opacity:1}70%{width:100%;opacity:1}86%{width:100%;opacity:1}93%{width:100%;opacity:0}94%{width:0;opacity:0}100%{width:0;opacity:0}}
+.production-stage[data-phase="sound"] .nx-cut-timeline b{animation:nxCutSweep 4.6s cubic-bezier(.35,.1,.35,.9) infinite}
+@keyframes nxCutSweep{0%{left:0;opacity:1}70%{left:calc(100% - 1px);opacity:1}86%{opacity:1}93%{opacity:0}100%{left:0;opacity:0}}
+.production-stage[data-phase="sound"] .nx-comp-object i:nth-child(1){animation:nxFormBreathe 6.4s ease-in-out infinite alternate}
+.production-stage[data-phase="sound"] .nx-comp-object i:nth-child(2){animation:nxFormBreath2 5.2s ease-in-out .6s infinite alternate}
+
+.production-stage[data-phase="finish"] .nx-final-mark{animation:nxMarkPulse 2.6s ease-out infinite}
+@keyframes nxMarkPulse{0%{box-shadow:0 0 0 0 rgba(91,213,143,.32)}70%{box-shadow:0 0 0 16px rgba(91,213,143,0)}100%{box-shadow:0 0 0 0 rgba(91,213,143,0)}}
+.production-stage[data-phase="finish"] .nx-sound-bed i{animation:nxWave 900ms ease-in-out infinite alternate;animation-delay:var(--d)}
+
+@media(prefers-reduced-motion:reduce){
+  .nx-story-beat,.nx-story-beat em u,.nx-scene,.nx-scene-layout b,.nx-scene-layout em,.nx-scene-layout u,.nx-comp-object i,.nx-comp-rule,.nx-layer-stack,.nx-motion-path i,.nx-sound-bed .nx-sync-head,.nx-cut-timeline b,.nx-final-mark{animation:none!important}
+}
