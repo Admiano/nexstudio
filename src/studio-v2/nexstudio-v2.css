@@ -1777,3 +1777,10 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
   .opt-row.previews .opt-chip.preview{flex-basis:78%}
   .opt-row.previews .opt-chip.preview .preview-copy span{display:none}
 }
+
+/* Voice & pacing — always expanded, never a dropdown */
+.options-duo .pacing .band-head{cursor:default;padding:0 0 14px}
+.options-duo .pacing .band-caret{display:none}
+@media (max-width:1020px){
+  .options-duo .pacing{order:-1}
+}

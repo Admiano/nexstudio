@@ -204,7 +204,6 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     style: "tiles", voice: "emma", speed: "1.0",
     ...(flow.engine ?? {}),
   }));
-  const [pacingOpen, setPacingOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   const playVoice = (id: string) => {
@@ -340,13 +339,11 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                   </div>
                 </section>
               )}
-              <section className={`options-band pacing ${pacingOpen ? "open" : ""}`}>
-                <button type="button" className="band-head" aria-expanded={pacingOpen} onClick={() => setPacingOpen((o) => !o)}>
+              <section className="options-band pacing open">
+                <div className="band-head">
                   <span className="band-head-copy"><label>Voice & pacing</label><b>{MS_VOICES.find((v) => v.id === engine.voice)?.label ?? "Emma"} · {flow.duration ?? 45}s · {engine.speed}×</b></span>
-                  <i className="band-caret" aria-hidden="true">⌄</i>
-                </button>
-                {pacingOpen && (
-                  <div className="band-body">
+                </div>
+                <div className="band-body">
                     <div className="opt-group">
                       <label>Voice <span className="opt-hint">Microsoft neural · ▶ plays a sample</span></label>
                       <div className="opt-row">
@@ -381,7 +378,6 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                       </div>
                     </div>
                   </div>
-                )}
               </section>
             </section>
           )}
