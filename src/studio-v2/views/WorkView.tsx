@@ -57,21 +57,47 @@ export function WorkView({ onOpenHistory, onContinue }: { onOpenHistory: (id: st
         <span className="work-sort">Most recently updated first</span>
       </div>
       <div className="work-list">
-        {list.map((p) => (
-          <button key={p.id} className="work-row" onClick={() => onOpenHistory(p.id)}>
-            <div className={`work-thumb tone-${p.statusTone ?? "neutral"}`} style={p.coverUrl ? { backgroundImage: `url(${p.coverUrl})`, backgroundSize: "cover" } : undefined} />
-            <div className="work-row-main">
-              <b>{p.title}</b>
-              <span>{p.family}{p.videoType ? ` · ${p.videoType}` : ""}{p.durationSeconds ? ` · ${p.durationSeconds} sec` : ""}</span>
-            </div>
-            <div className="work-row-side">
-              <span className={`work-status tone-${p.statusTone ?? "neutral"}`}>{p.statusLabel}</span>
-              {p.seriesId ? <span className="work-series-chip">Series</span> : null}
-              <span className="work-open" onClick={(e) => { e.stopPropagation(); onContinue(p.id); }}>Open →</span>
-            </div>
-          </button>
-        ))}
-        {list.length === 0 && <p className="empty-note">Nothing in this view yet.</p>}
+        {list.map((p) => {
+          const s = (p.state || "").toUpperCase();
+          const dot = p.statusTone === "recovering" || s.includes("REVISION") ? "revision"
+            : p.statusTone === "ready" || s === "COMPLETE" || s.includes("REVIEW") || s.includes("READY") ? "ready"
+            : s.includes("PRODUCTION") || s.includes("PLANNING") || s.includes("PENDING") || s.includes("RETRY") ? "production"
+            : s.includes("PUBLISH") || s.includes("DELIVER") ? "published"
+            : "direction";
+          const detail = p.needsAction ? "Waiting on you"
+            : dot === "production" ? "Rendering now"
+            : dot === "ready" ? "Ready to open"
+            : "In direction";
+          const family = (p.family || "").toLowerCase();
+          return (
+            <article key={p.id} className="work-row" onClick={() => onOpenHistory(p.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") onOpenHistory(p.id); }}>
+              <div className={`work-thumb-v2 ${family}`} style={p.coverUrl ? { backgroundImage: `url(${p.coverUrl})`, backgroundSize: "cover" } : undefined}>
+                <span className="work-thumb-state">{p.statusLabel}</span>
+              </div>
+              <div className="work-info">
+                <h3>{p.title}</h3>
+                <p>{p.family}{p.videoType ? ` · ${p.videoType}` : ""}{p.durationSeconds ? ` · ${p.durationSeconds} sec` : ""}</p>
+                <div className="work-tags">
+                  <span>{p.family}</span>
+                  {p.videoType ? <span>{p.videoType}</span> : null}
+                  {p.durationSeconds ? <span>{p.durationSeconds}s</span> : null}
+                  {p.seriesId ? <span>Series</span> : null}
+                </div>
+              </div>
+              <div className="work-state-v2">
+                <b><span className={`state-dot st-${dot}`} />{p.statusLabel}</b>
+                <span>{detail}</span>
+              </div>
+              <div className="work-row-actions">
+                <button className="work-open" onClick={(e) => { e.stopPropagation(); onContinue(p.id); }}>Open →</button>
+                <button className="work-history-btn" onClick={(e) => { e.stopPropagation(); onOpenHistory(p.id); }}>History</button>
+              </div>
+            </article>
+          );
+        })}
+        {list.length === 0 && (
+          <div className="work-empty"><b>Nothing here yet.</b><p>Start a new video and it lands in this list.</p></div>
+        )}
       </div>
     </div>
   );
