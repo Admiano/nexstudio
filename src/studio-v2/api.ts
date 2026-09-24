@@ -137,6 +137,8 @@ export const studioApi = {
     readJson<ProductionDetail>(`/api/v1/studio/production-drafts/${productionId}`, signal),
   recommend: (prompt: string, signal?: AbortSignal) =>
     postJson<{ status: string; recommendation?: { family: string; videoType: string; reason: string } }>("/api/v1/studio/recommendation", { prompt }, signal),
+  script: (input: { brief: string; family: string; videoType: string; duration: number; beats?: Array<{ purposeTitle: string; description: string }> }, signal?: AbortSignal) =>
+    postJson<{ status: string; script?: string; lines?: string[]; title?: string | null }>("/api/v1/studio/script", input, signal),
   createDraft: (input: {
     id: string; family: string; videoType: string; prompt: string;
     duration?: number | null; aspectRatio?: string | null; voicePreference?: string | null;

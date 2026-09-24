@@ -18,6 +18,7 @@ type NexMindResolvedRoute = {
 
 const ROLE_CAPABILITY: Record<string, string> = {
   studio_plan_preview: "creative_reasoning",
+  studio_script: "creative_reasoning",
 };
 
 function text(value: unknown): string {

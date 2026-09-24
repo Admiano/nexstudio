@@ -1792,3 +1792,18 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
   .direction-briefline{padding:12px 14px;gap:12px}
   .direction-briefline b{-webkit-line-clamp:3}
 }
+
+/* NexMind script card — brief mode narration preview */
+.direction-script{margin-top:14px;border:1px solid var(--outline-soft);border-radius:18px;background:var(--surface-low);padding:15px 18px 17px}
+.direction-script-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:10px}
+.direction-script-head label{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted2);font-weight:800}
+.direction-script-head span{font-size:9.5px;color:var(--muted)}
+.direction-script-lines{margin:0;padding:0 0 0 0;list-style:none;display:grid;gap:8px}
+.direction-script-lines li{font-size:12px;line-height:1.5;color:var(--ink);padding-left:20px;position:relative}
+.direction-script-lines li:before{content:counter(list-item);position:absolute;left:0;top:1px;font-size:8.5px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+.direction-script-lines.pending{display:grid;gap:9px}
+.direction-script-lines.pending i{height:11px;border-radius:6px;background:linear-gradient(90deg,rgba(17,22,18,.055),rgba(17,22,18,.10),rgba(17,22,18,.055));background-size:200% 100%;animation:nxScriptShimmer 1.6s ease-in-out infinite}
+.direction-script-lines.pending i:nth-child(2){width:82%}
+.direction-script-lines.pending i:nth-child(3){width:64%}
+@keyframes nxScriptShimmer{0%{background-position:120% 0}100%{background-position:-80% 0}}
+@media (max-width:760px){.direction-script{padding:12px 14px}.direction-script-lines li{font-size:11.5px}}

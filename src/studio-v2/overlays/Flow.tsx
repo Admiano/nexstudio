@@ -25,6 +25,7 @@ export interface FlowState {
   jobOutputs?: Record<string, string>;
   engine?: { wbType?: string; wbTheme?: string; wbAccent?: string; style?: string; voice?: string; speed?: string };
   script?: string;
+  generatedScript?: string;
   error?: string;
 }
 
@@ -222,6 +223,28 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
       .catch(() => {});
     return () => { alive = false; };
   }, [kind]);
+
+  // Brief mode: NexMind writes the narration script. Script mode stays verbatim.
+  const [scriptState, setScriptState] = useState<"pending" | "ready" | "unavailable">(() => (flow.generatedScript || flow.script ? "ready" : "pending"));
+  useEffect(() => {
+    if (!kind || flow.script || flow.generatedScript || !flow.prompt) return;
+    let alive = true;
+    studioApi.script({
+      brief: flow.prompt,
+      family: flow.family ?? kind,
+      videoType: flow.videoType ?? (kind === "whiteboard" ? "hand-drawn-board" : "tiles"),
+      duration: flow.duration ?? 45,
+      beats: flow.beats?.map((b) => ({ purposeTitle: b.purposeTitle, description: b.description })),
+    }).then((r) => {
+      if (!alive) return;
+      if (r.status === "ready" && r.script) {
+        api.patchFlow({ generatedScript: r.script });
+        setScriptState("ready");
+      } else setScriptState("unavailable");
+    }).catch(() => { if (alive) setScriptState("unavailable"); });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kind]);
   const setOpt = (k: keyof typeof engine, v: string) => setEngine((e) => ({ ...e, [k]: v }));
 
   async function createVideo() {
@@ -229,7 +252,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     try {
       if (kind) {
         const fd = new FormData();
-        fd.set("script", flow.script ?? flow.prompt ?? "");
+        fd.set("script", flow.script ?? flow.generatedScript ?? flow.prompt ?? "");
         fd.set("voice", engine.voice);
         fd.set("aspects", "16x9,1x1,9x16");
         fd.set("duration", String(flow.duration ?? 45));
@@ -291,6 +314,21 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             </div>
           </section>
           <section className="direction-briefline reveal" style={{ ["--d" as string]: ".1s" }}><div><label>{flow.script ? "Your script" : "Your brief"}</label><b>{flow.prompt}</b></div><button onClick={api.closeFlow}>Edit brief</button></section>
+          {kind && !flow.script && (scriptState === "ready" || scriptState === "pending") && (
+            <section className="direction-script reveal" style={{ ["--d" as string]: ".13s" }}>
+              <div className="direction-script-head">
+                <label>Narration — written by NexMind</label>
+                <span>{scriptState === "ready" ? "Read exactly as written" : "Writing…"}</span>
+              </div>
+              {scriptState === "ready" && flow.generatedScript ? (
+                <ol className="direction-script-lines">
+                  {flow.generatedScript.split("\n").filter(Boolean).map((l, i) => <li key={i}>{l}</li>)}
+                </ol>
+              ) : (
+                <div className="direction-script-lines pending"><i /><i /><i /></div>
+              )}
+            </section>
+          )}
           <section className="decision-row two reveal" style={{ ["--d" as string]: ".16s" }}>
             <div className="decision"><label>Production</label><strong>{FAMILY_LABEL[flow.family ?? ""] ?? flow.family ?? "Explainer"}</strong><span>{flow.family ? "Your selection" : "NexMind selected"}</span></div>
             <div className="decision"><label>Format</label><strong>All screens</strong><span>16:9 · 9:16 · 1:1</span></div>
