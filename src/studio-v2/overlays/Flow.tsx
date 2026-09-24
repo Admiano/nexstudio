@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatUSD, MindSpark, useStudio, type ContextChip } from "../App";
 import { studioApi, type EngineKind } from "../api";
+import { ensureNxPresence } from "../nx-presence";
 
 export type FlowStage = "mind" | "direction" | "closed" | "production" | "review" | "publish" | "revision";
 
@@ -146,6 +147,7 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
 }
 
 function MindStage({ step }: { step: number }) {
+  useEffect(() => { ensureNxPresence(); }, []);
   const s = MIND_STEPS[Math.min(step, MIND_STEPS.length - 1)];
   return (
     <div className="mind-stage open" data-step={s.key} id="mindStage">
@@ -153,7 +155,7 @@ function MindStage({ step }: { step: number }) {
       <div aria-hidden="true" className="nx-mind-field">
         <div className="nx-field-rail top" /><div className="nx-field-rail right" /><div className="nx-field-rail bottom" /><div className="nx-field-rail left" />
         <div className="nx-field-axis x" /><div className="nx-field-axis y" />
-        <div aria-hidden="true" className="nx-field-core nx-presence nx-presence--core" data-mode="matrix" data-state="listening" />
+        <div aria-hidden="true" className="nx-field-core nx-presence nx-presence--core" data-mode="matrix" data-nx-presence="" data-state="thinking"><canvas /></div>
         <div className="nx-field-word w1">CONTEXT</div><div className="nx-field-word w2">DIRECTION</div>
       </div>
       <div className="mind-wrap"><div className="micro">NexMind</div><h2>{s.title}</h2><p>{s.copy}</p><div className="mind-progress">{MIND_STEPS.map((m, i) => <i key={m.key} className={i <= step ? "active" : ""} />)}</div></div>

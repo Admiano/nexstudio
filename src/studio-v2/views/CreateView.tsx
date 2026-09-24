@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { ensureNxPresence } from "../nx-presence";
 import type { ComposerState } from "../Shell";
 import { route, useStudio, type ContextChip } from "../App";
 import type { FlowState } from "../overlays/Flow";
@@ -26,6 +27,7 @@ export function CreateView({ composer, setPrompt, setFamily, removeContext, open
   notify: (m: string) => void;
 }) {
   const { projects, series } = useStudio();
+  useEffect(() => { ensureNxPresence(); }, []);
   const recent = useMemo(() => sortDashboardProjects(projects).slice(0, 3), [projects]);
   const attachedSeries = composer.contexts.find((c) => c.kind === "series");
   const seriesObj = attachedSeries ? series.find((s) => s.id === attachedSeries.refId) : null;
@@ -45,7 +47,7 @@ export function CreateView({ composer, setPrompt, setFamily, removeContext, open
   return (
     <div className="create-wrap">
       <div className="hero">
-        <div className="eyebrow"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-state="idle" /> NexMind · Creative production</div>
+        <div className="eyebrow"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state="idle"><canvas /></span> NexMind · Creative production</div>
         <h1>What do you want to make?</h1>
         <p className="lead">Describe it naturally. Add anything useful. NexMind will shape the production and show you the direction before anything is made.</p>
       </div>

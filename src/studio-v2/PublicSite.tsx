@@ -1,7 +1,62 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ensureNxPresence } from "./nx-presence";
+
+const FAMILY_ART: Record<string, ReactNode> = {
+  explainer: (
+    <svg aria-hidden="true" preserveAspectRatio="xMidYMid slice" role="presentation" viewBox="0 0 320 150">
+      <rect fill="#63736A" height="150" width="320" />
+      <path d="M-12 104 C44 104 72 104 116 104" fill="none" stroke="#F3EEE4" strokeLinecap="round" strokeWidth="2.2" />
+      <path d="M-12 76 C48 76 92 76 143 76" fill="none" opacity=".88" stroke="#F3EEE4" strokeLinecap="round" strokeWidth="2.2" />
+      <path d="M-12 48 C62 48 115 48 170 48" fill="none" opacity=".72" stroke="#F3EEE4" strokeLinecap="round" strokeWidth="2.2" />
+      <circle cx="213" cy="76" fill="#F3EEE4" r="37" />
+      <circle cx="213" cy="76" fill="#63736A" r="11" />
+      <circle cx="270" cy="111" fill="#E9B89B" r="18" />
+    </svg>
+  ),
+  whiteboard: (
+    <svg aria-hidden="true" preserveAspectRatio="xMidYMid slice" role="presentation" viewBox="0 0 320 150">
+      <rect fill="#F4F1E9" height="150" width="320" />
+      <path d="M34 105 C73 75 109 64 149 72 C181 78 199 98 236 97 C260 97 276 87 289 71" fill="none" stroke="#20241F" strokeLinecap="round" strokeWidth="2.5" />
+      <path d="M58 112 C77 115 96 114 114 108" fill="none" opacity=".58" stroke="#20241F" strokeLinecap="round" strokeWidth="2" />
+      <circle cx="149" cy="72" fill="none" r="22" stroke="#20241F" strokeWidth="2.2" />
+      <circle cx="149" cy="72" fill="#FFB000" r="5" />
+      <path d="M225 43 C242 39 258 40 274 47" fill="none" stroke="#20241F" strokeLinecap="round" strokeWidth="2" />
+      <path d="M254 34 L275 47 L252 53" fill="none" stroke="#20241F" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+    </svg>
+  ),
+  character: (
+    <svg aria-hidden="true" preserveAspectRatio="xMidYMid slice" role="presentation" viewBox="0 0 320 150">
+      <rect fill="#CFC1B2" height="150" width="320" />
+      <rect fill="#BDAA98" height="29" width="320" x="0" y="121" />
+      <circle cx="167" cy="47" fill="#E9B99B" r="25" />
+      <path d="M132 84 C145 69 190 69 204 84 C212 94 217 111 219 150 H116 C119 112 123 95 132 84Z" fill="#F4F0E7" />
+      <path d="M199 91 C218 97 231 107 243 119" fill="none" stroke="#F4F0E7" strokeLinecap="round" strokeWidth="15" />
+      <circle cx="246" cy="121" fill="#E9B99B" r="7" />
+      <path d="M132 92 C116 99 105 109 98 120" fill="none" opacity=".92" stroke="#F4F0E7" strokeLinecap="round" strokeWidth="14" />
+      <circle cx="96" cy="121" fill="#E9B99B" r="6.5" />
+    </svg>
+  ),
+  illustrated: (
+    <svg aria-hidden="true" preserveAspectRatio="xMidYMid slice" role="presentation" viewBox="0 0 320 150">
+      <rect fill="#D8C9BC" height="150" width="320" />
+      <circle cx="236" cy="52" fill="#E7B995" r="38" />
+      <g transform="rotate(-6 160 76)">
+        <rect fill="#F6F2E9" height="112" width="154" x="83" y="20" />
+        <rect fill="#EEE7DB" height="112" width="17" x="83" y="20" />
+        <path d="M115 101 C130 80 151 69 174 68 C197 66 215 76 237 98 L237 132 L115 132Z" fill="#2A2D29" />
+        <circle cx="189" cy="59" fill="#FFB000" r="12" />
+      </g>
+      <rect fill="#2A2D29" height="7" opacity=".88" rx="3.5" width="50" x="46" y="39" />
+      <rect fill="#2A2D29" height="5" opacity=".45" rx="2.5" width="31" x="46" y="52" />
+    </svg>
+  ),
+};
+
+const RECOMP_LAYERS = <><i className="rc-rule a" /><i className="rc-rule b faint" /><i className="rc-mass" /><i className="rc-signal" /></>;
+const GHOST_LAYERS = <><i className="build-pencil" /><span className="build-ghost-lines"><i /><i /></span></>;
 
 const FAMILIES = [
   { key: "explainer", name: "Explainer", desc: "Make complex systems instantly understandable without flattening the idea.", art: "explainer" },
@@ -19,6 +74,8 @@ export function PublicSite({ authed }: { authed: boolean }) {
   useEffect(() => {
     if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("signin") === "1") setSignIn(true);
   }, []);
+
+  useEffect(() => { ensureNxPresence(); }, []);
 
   useEffect(() => {
     const els = Array.from(document.querySelectorAll<HTMLElement>(".pw-reveal:not(.in)"));
@@ -56,7 +113,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
           </div>
           <div className="pw-live pw-reveal in">
             <div className="pw-demo">
-              <div className="pw-demo-top"><div className="pw-demo-brand"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-state="idle" /> NexMind</div><span className="pw-demo-status">{demo === "compose" ? "Waiting for your brief" : demo === "thinking" ? "Shaping the production" : "Direction ready"}</span></div>
+              <div className="pw-demo-top"><div className="pw-demo-brand"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state={demo === "thinking" ? "thinking" : demo === "direction" ? "ready" : "idle"}><canvas /></span> NexMind</div><span className="pw-demo-status">{demo === "compose" ? "Waiting for your brief" : demo === "thinking" ? "Shaping the production" : "Direction ready"}</span></div>
               <div className="pw-demo-body">
                 {demo === "compose" && (
                   <div className="pw-demo-state">
@@ -88,7 +145,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
               {FAMILIES.map((f, i) => (
                 <button key={f.key} aria-label={`Choose ${f.name}`} className={`pw-family pw-reveal ${f.soon ? "soon" : ""}`} data-delay={String(i)} onClick={() => { if (f.soon) return; sessionStorage.setItem("nx.family", f.key); enter(); }}>
                   {f.soon && <em className="pw-soon-tag">Coming soon</em>}
-                  <div aria-hidden="true" className="pw-family-media"><div className="pw-family-frame"><div className={`family-native family-native-${f.art}`} /></div></div>
+                  <div aria-hidden="true" className="pw-family-media"><div className="pw-family-frame"><div className={`family-native family-native-${f.art}`}>{FAMILY_ART[f.art]}</div></div></div>
                   <div className="pw-family-copy"><b>{f.name}</b><span>{f.desc}</span></div>
                 </button>
               ))}
@@ -99,11 +156,11 @@ export function PublicSite({ authed }: { authed: boolean }) {
           <div className="pw-wrap">
             <div className="pw-proof-grid">
               <article className="pw-proof-card recompose pw-reveal">
-                <div className="pw-proof-visual"><div className="recomp-artboard" aria-hidden="true"><div className="recomp-board wide" data-ratio="16:9" /><div className="recomp-board tall" data-ratio="9:16" /><div className="recomp-board square" data-ratio="1:1" /></div></div>
+                <div className="pw-proof-visual"><div className="recomp-artboard" aria-hidden="true"><div className="recomp-board wide" data-ratio="16:9">{RECOMP_LAYERS}</div><div className="recomp-board tall" data-ratio="9:16">{RECOMP_LAYERS}</div><div className="recomp-board square" data-ratio="1:1">{RECOMP_LAYERS}</div></div></div>
                 <div className="pw-proof-copy"><span className="pw-proof-label">Native recomposition</span><h3>Same direction. Different frame.</h3><p>Headline, subject, negative space and supporting copy are deliberately restaged for 16:9, 9:16 and 1:1 instead of cropped from one master.</p></div>
               </article>
               <article className="pw-proof-card production pw-reveal" data-delay="1">
-                <div className="pw-proof-visual"><div className="build-artboard" aria-hidden="true"><div className="build-ghost g1" /><div className="build-ghost g2" /><div className="build-ghost g3" /><div className="build-work"><div className="build-preview" /><div className="build-meta"><div className="build-meta-top"><span>Same work</span><b>V3 · Ready</b></div><div className="build-lineage"><span>V1</span><i /><span>V2</span><i /><span>V3</span><i /></div></div></div></div></div>
+                <div className="pw-proof-visual"><div className="build-artboard" aria-hidden="true"><div className="build-ghost g1">{GHOST_LAYERS}</div><div className="build-ghost g2">{GHOST_LAYERS}</div><div className="build-ghost g3">{GHOST_LAYERS}</div><div className="build-work"><div className="build-preview"><i className="bp-line" /><i className="bp-mass" /><i className="bp-signal" /></div><div className="build-meta"><div className="build-meta-top"><span>Same work</span><b>V3 · Ready</b></div><div className="build-meta-signal"><i /><i /><i /></div><div className="build-lineage"><span>V1</span><i /><em /><span>V2</span><i /><em /><span>V3</span><i /></div></div></div></div></div>
                 <div className="pw-proof-copy"><span className="pw-proof-label">Production, not editing</span><h3>You direct. NexStudio builds.</h3><p>You approve the creative direction, then review the result. Revisions go back through NexMind instead of forcing you into a timeline editor.</p></div>
               </article>
             </div>
@@ -119,7 +176,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
                 <div className="mind-context-card"><div className="mind-context-ico">S</div><div className="mind-context-copy"><b>Series</b><span>Continuity preserved across episodes</span></div><i className="mind-context-check" /></div>
                 <div className="mind-context-card"><div className="mind-context-ico">↗</div><div className="mind-context-copy"><b>Reference</b><span>Links and uploads become production context</span></div><i className="mind-context-check" /></div>
               </div>
-              <div className="mind-core-shell"><div className="mind-core-unit"><span aria-hidden="true" className="nx-presence nx-presence--hero" data-mode="fluid" data-state="listening" /><b>NexMind</b><span>resolving the production</span></div><i className="mind-core-arrow" /></div>
+              <div className="mind-core-shell"><div className="mind-core-unit"><span aria-hidden="true" className="nx-presence nx-presence--hero" data-mode="fluid" data-nx-presence="" data-state="listening"><canvas /></span><b>NexMind</b><span>resolving the production</span></div><i className="mind-core-arrow" /></div>
               <div className="mind-direction-card"><div className="mind-direction-label">Creative direction</div><h3>Start with the friction. Make the mechanism visible.</h3><div className="mind-direction-meta"><span>Illustrated Stories</span><span>30 sec</span><span>9:16</span></div><div className="mind-decision"><label>Opening</label><b>Lead with the problem people already feel.</b></div><div className="mind-decision"><label>Treatment</label><b>Editorial type + restrained illustration + one dominant visual system.</b></div><div className="mind-decision"><label>Voice</label><b>Confident, direct, no unnecessary performance.</b></div><div className="mind-direction-ready"><i /> Ready for your approval</div></div>
             </div>
           </div>
