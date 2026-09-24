@@ -208,6 +208,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         fd.set("script", flow.prompt ?? "");
         fd.set("voice", engine.voice);
         fd.set("aspects", "16x9,1x1,9x16");
+        fd.set("duration", String(flow.duration ?? 45));
         if (kind === "whiteboard") {
           fd.set("type", engine.wbType);
           fd.set("theme", engine.wbTheme);
@@ -248,7 +249,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   }
 
   return (
-    <div aria-hidden="true" className="direction-stage open" id="directionStage">
+    <div aria-hidden="true" className="direction-stage open reveal" id="directionStage">
       <div className="direction-shell">
         <header className="direction-top">
           <button className="direction-back" onClick={api.closeFlow}>← <span className="direction-back-full">Back to brief</span><span className="direction-back-short">Brief</span></button>
@@ -267,8 +268,8 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
           <section className="direction-briefline reveal" style={{ ["--d" as string]: ".1s" }}><div><label>Your brief</label><b>{flow.prompt}</b></div><button onClick={api.closeFlow}>Edit brief</button></section>
           <section className="decision-row reveal" style={{ ["--d" as string]: ".16s" }}>
             <div className="decision"><label>Production</label><strong>{FAMILY_LABEL[flow.family ?? ""] ?? flow.family ?? "Explainer"}</strong><span>{flow.family ? "Your selection" : "NexMind selected"}</span></div>
-            <div className="decision"><label>Format</label><strong>{flow.aspectRatio ?? "16:9"}</strong><span>{flow.aspectRatio === "9:16" ? "Vertical" : "Landscape"}</span></div>
-            <div className="decision"><label>Length</label><strong>{flow.duration ?? 45} sec</strong><span>Target, not a hard cut</span></div>
+            <div className="decision"><label>Format</label><strong>{kind ? "All screens" : (flow.aspectRatio ?? "16:9")}</strong><span>{kind ? "16:9 · 9:16 · 1:1" : (flow.aspectRatio === "9:16" ? "Vertical" : "Landscape")}</span></div>
+            <div className="decision"><label>Length</label><strong>{flow.duration ?? 45} sec</strong><span>Target · pacing adjusts</span></div>
             <div className="decision"><label>Voice</label><strong>{MS_VOICES.find((v) => v.id === engine.voice)?.label ?? "Emma"}</strong><span>Microsoft neural</span></div>
           </section>
           {kind === "whiteboard" && (
@@ -314,6 +315,20 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
           )}
           {kind && (
             <section className="options-band reveal" style={{ ["--d" as string]: ".24s" }}>
+              <div className="opt-group">
+                <label>Length <span className="opt-hint">target seconds · narration pacing adjusts to it</span></label>
+                <div className="opt-row">
+                  {[15, 30, 45, 60].map((s) => (
+                    <button key={s} type="button" className={`opt-chip small ${flow.duration === s ? "on" : ""}`} onClick={() => api.patchFlow({ duration: s })}><b>{s}s</b></button>
+                  ))}
+                  <div className="opt-stepper">
+                    <button type="button" aria-label="Shorter" onClick={() => api.patchFlow({ duration: Math.max(5, (flow.duration ?? 45) - 5) })}>−</button>
+                    <input aria-label="Custom length in seconds" inputMode="numeric" type="number" min={5} max={600} step={5} value={flow.duration ?? 45} onChange={(e) => { const v = Math.round(Number(e.target.value)); if (Number.isFinite(v)) api.patchFlow({ duration: Math.min(600, Math.max(5, v)) }); }} />
+                    <button type="button" aria-label="Longer" onClick={() => api.patchFlow({ duration: Math.min(600, (flow.duration ?? 45) + 5) })}>+</button>
+                    <span>sec</span>
+                  </div>
+                </div>
+              </div>
               <div className="opt-group">
                 <label>Voice <span className="opt-hint">Microsoft neural · reads your script</span></label>
                 <div className="opt-row">

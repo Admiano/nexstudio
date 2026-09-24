@@ -63,6 +63,10 @@ export async function POST(request: Request) {
   if (!aspects.length)
     return problem(id, 422, "ASPECT_UNKNOWN", "No valid aspect", `Pick from: ${[...ASPECTS].join(", ")}.`);
 
+  const durationRaw = Number(form.get("duration") ?? 0);
+  if (durationRaw && (!Number.isFinite(durationRaw) || durationRaw < 5 || durationRaw > 600))
+    return problem(id, 422, "DURATION_RANGE", "Invalid length", "Target length must be 5–600 seconds.");
+
   const jobId = `wb-${randomUUID().slice(0, 8)}`;
   const dir = path.join(JOBS, jobId);
   mkdirSync(dir, { recursive: true });
@@ -72,6 +76,7 @@ export async function POST(request: Request) {
     "--voice", voice, "--title", jobId.toUpperCase(),
     "--aspects", aspects.map((a) => a.replace("x", ":")).join(","),
     "--out", path.join(dir, "out"), "--job-id", jobId];
+  if (durationRaw) args.push("--duration", String(durationRaw));
 
   const scriptPath = path.join(dir, "script.txt");
   if (script) {

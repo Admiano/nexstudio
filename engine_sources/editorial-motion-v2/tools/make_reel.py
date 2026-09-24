@@ -59,7 +59,13 @@ def make_voice(args, fixture_dir):
         text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
         if not text.strip():
             sys.exit("need --script/--script-file or --voice-file")
-        dur = synth(text.strip(), args.voice, out_wav)
+        # ~145 wpm speaking pace; a target duration retimes the narration within a
+        # natural range rather than cutting words
+        speed = 1.0
+        if getattr(args, "duration", None) and args.duration > 0:
+            est = len(text.split()) * 0.42
+            speed = min(max(est / args.duration, 0.75), 1.5)
+        dur = synth(text.strip(), args.voice, out_wav, speed=speed)
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
                         "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", str(norm)], check=True)
@@ -305,6 +311,7 @@ def main():
     ap.add_argument("--style", default="tiles")
     ap.add_argument("--media", nargs="*", default=[])
     ap.add_argument("--aspects", default="16x9,1x1,9x16")
+    ap.add_argument("--duration", type=float, default=None, help="target seconds; narration pacing adjusts toward it")
     ap.add_argument("--out", required=True)
     ap.add_argument("--film-id")
     ap.add_argument("--treatment", help="use an existing treatment.json instead of auto-authoring")

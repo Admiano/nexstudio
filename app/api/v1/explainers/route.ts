@@ -55,6 +55,10 @@ export async function POST(request: Request) {
   if (!aspects.length)
     return problem(id, 422, "ASPECT_UNKNOWN", "No valid aspect", `Pick from: ${[...ASPECTS].join(", ")}.`);
 
+  const durationRaw = Number(form.get("duration") ?? 0);
+  if (durationRaw && (!Number.isFinite(durationRaw) || durationRaw < 5 || durationRaw > 600))
+    return problem(id, 422, "DURATION_RANGE", "Invalid length", "Target length must be 5–600 seconds.");
+
   const jobId = `xr-${randomUUID().slice(0, 8)}`;
   const dir = path.join(JOBS, jobId);
   const mediaDir = path.join(dir, "media");
@@ -62,6 +66,7 @@ export async function POST(request: Request) {
 
   const args: string[] = [path.join(ENGINE, "tools", "make_reel.py"), "--style", style,
     "--aspects", aspects.join(","), "--out", path.join(dir, "out"), "--film-id", jobId];
+  if (durationRaw) args.push("--duration", String(durationRaw));
 
   if (voiceFile instanceof File) {
     const vf = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);

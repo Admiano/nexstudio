@@ -20,14 +20,15 @@ VOICES = {
 }
 
 
-def synth(text: str, voice: str, out_wav: Path):
+def synth(text: str, voice: str, out_wav: Path, speed: float = 1.0):
     import asyncio, subprocess, tempfile
     from pathlib import Path as P
     import edge_tts, soundfile as sf
+    rate = f'{"+" if speed >= 1 else "-"}{abs(int((speed - 1) * 100))}%'
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
         mp3 = P(tmp.name)
     try:
-        asyncio.run(edge_tts.Communicate(text, VOICES[voice]).save(str(mp3)))
+        asyncio.run(edge_tts.Communicate(text, VOICES[voice], rate=rate).save(str(mp3)))
         subprocess.run(["ffmpeg", "-y", "-i", str(mp3), "-ar", "24000", "-ac", "1", str(out_wav)],
                        check=True, capture_output=True)
     finally:
