@@ -371,6 +371,7 @@ const PHASE_ORDER = ["PREPARING", "SHAPING_STORY", "VISUAL_DIRECTION", "DIRECTIN
 
 function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const [proj, setProj] = useState<{ title?: string; detail?: string; phase?: string; status?: string } | null>(null);
+  const [jobProgress, setJobProgress] = useState<{ phase?: string; aspect?: string; aspectsDone?: number; aspectsTotal?: number } | null>(null);
   // Engine job path: poll the job until outputs land
   useEffect(() => {
     if (!flow.jobId || !flow.jobKind) return;
@@ -379,6 +380,7 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
       try {
         const s = await studioApi.engineJobStatus(flow.jobKind!, flow.jobId!);
         if (!alive) return;
+        if (s.progress) setJobProgress(s.progress);
         if (s.status === "done") {
           const outputs = s.outputs ?? {};
           if (Object.keys(outputs).length) {
@@ -414,12 +416,21 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     return () => { alive = false; clearInterval(t); };
   }, [flow.productionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const idx = Math.max(0, PHASE_ORDER.indexOf(proj?.phase ?? "PREPARING"));
+  const JOB_STEP: Record<string, number> = { voice: 0, direction: 1, render: 2, packaging: 3, finishing: 3 };
+  const idx = flow.jobKind
+    ? (jobProgress ? (JOB_STEP[jobProgress.phase ?? ""] ?? 1) : 0)
+    : Math.max(0, PHASE_ORDER.indexOf(proj?.phase ?? "PREPARING"));
   const jobCopy = flow.jobKind === "whiteboard"
     ? { title: "The hand is moving.", detail: "Voice, plan and board are rendering — one pass per screen, so all three sizes land together." }
     : flow.jobKind === "explainer"
       ? { title: "The film is being cut.", detail: "Script, voice and style are rendering — one pass per screen, so all three sizes land together." }
       : null;
+  const JOB_PHASE: Record<string, string> = { voice: "Recording the voiceover.", direction: "Setting the direction.", render: "Rendering the screens.", packaging: "Finishing the files.", finishing: "Finishing the files." };
+  const jobDetail = flow.jobKind && jobProgress?.phase
+    ? jobProgress.phase === "render" && jobProgress.aspectsTotal
+      ? `Rendering the screens — ${jobProgress.aspectsDone ?? 0} of ${jobProgress.aspectsTotal} done${jobProgress.aspect ? `, now on ${ASPECT_LABEL[jobProgress.aspect] ?? jobProgress.aspect}` : ""}.`
+      : JOB_PHASE[jobProgress.phase] ?? jobCopy?.detail
+    : jobCopy?.detail;
   return (
     <div aria-hidden="true" className="production-stage open" data-phase="story" id="productionStage">
       <header className="production-top">
@@ -430,7 +441,7 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         <div className="production-copy">
           <div className="micro">NexStudio Studio</div>
           <h1>{jobCopy?.title ?? proj?.title ?? "Preparing the production."}</h1>
-          <p>{jobCopy?.detail ?? proj?.detail ?? "The Studio is checking the approved brief and what the production system can safely make."}</p>
+          <p>{jobDetail ?? proj?.detail ?? "The Studio is checking the approved brief and what the production system can safely make."}</p>
         </div>
         <div className="production-steps">
           {["Story", "Visuals", "Motion", "Sound", "Review"].map((s, i) => <div key={s} className={`pstep ${i <= idx ? "on" : ""}`}><span>{s}</span></div>)}
@@ -497,7 +508,9 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
           <p className="review-meta">{outputs ? "Rendered in all three screens — pick a size, approve or download." : "Approve it to publish, or send it back to NexMind with a revision note."}</p>
           <div className="review-actions">
             <button className="review-primary" disabled={busy} onClick={() => void act("approve")}>Approve & publish →</button>
-            {!outputs && <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}>Revise with NexMind</button>}
+            {outputs
+              ? <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "direction", jobId: undefined, jobOutputs: undefined })}>Revise brief</button>
+              : <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}>Revise with NexMind</button>}
             <a className="review-download" href={outputs ? outputs[activeAspect] : `/api/v1/productions/${flow.productionId}/output`} download>Download MP4</a>
           </div>
           <p className="review-privacy">Publishing hands the files to you — nothing is posted on your behalf.</p>

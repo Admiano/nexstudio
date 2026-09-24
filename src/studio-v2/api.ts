@@ -89,6 +89,7 @@ export interface EngineJobStatus {
   outputs?: Record<string, string>;
   exitCode?: number;
   error?: string;
+  progress?: { phase?: string; aspect?: string; aspectsDone?: number; aspectsTotal?: number } | null;
 }
 
 export type EngineKind = "explainer" | "whiteboard";

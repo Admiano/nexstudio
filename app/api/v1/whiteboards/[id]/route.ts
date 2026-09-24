@@ -23,8 +23,10 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     return problem(auth.id, 404, "JOB_NOT_FOUND", "Whiteboard job not found", "No whiteboard job with that id exists.");
   const statusPath = path.join(dir, "status.json");
   const status = existsSync(statusPath) ? JSON.parse(readFileSync(statusPath, "utf8")) : { status: "running" };
+  const progressPath = path.join(dir, "progress.json");
+  const progress = existsSync(progressPath) ? JSON.parse(readFileSync(progressPath, "utf8")) : null;
   return json({
     jobId: id, type: req.type, voice: req.voice, theme: req.theme, accent: req.accent,
-    aspects: req.aspects, createdAt: req.createdAt, ...status,
+    aspects: req.aspects, createdAt: req.createdAt, progress, ...status,
   }, auth.id);
 }

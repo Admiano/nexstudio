@@ -13,7 +13,7 @@ media_library) -> regression_pack render -> web file -> poster-framed file.
 Env: node must be on PATH for the renderer (nvm v24.x):
   export PATH=$HOME/.nvm/versions/node/v24.19.0/bin:$PATH
 """
-import argparse, json, os, re, subprocess, sys, uuid
+import argparse, json, os, re, subprocess, sys, time, uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -315,6 +315,14 @@ def main():
     style = style_of(args.style)
     film_id = args.film_id or f"reel-{uuid.uuid4().hex[:8]}"
     out_dir = Path(args.out); out_dir.mkdir(parents=True, exist_ok=True)
+    progress_file = out_dir.parent / "progress.json"
+    aspect_list = [a.strip() for a in args.aspects.split(",") if a.strip()]
+
+    def progress(**payload):
+        try:
+            progress_file.write_text(json.dumps(payload))
+        except OSError:
+            pass
 
     if args.treatment:
         treatment_src = Path(args.treatment)
@@ -331,26 +339,43 @@ def main():
         fixture_dir = ROOT / "fixtures" / film_id
         fixture_dir.mkdir(parents=True, exist_ok=True)
         log(f"fixture → {fixture_dir}")
+        progress(phase="voice")
         words = make_voice(args, fixture_dir)
         for mf in args.media:
             dst = fixture_dir / "media" / Path(mf).name
             dst.parent.mkdir(exist_ok=True)
             subprocess.run(["cp", str(mf), str(dst)], check=True)
         media = [fixture_dir / "media" / Path(mf).name for mf in args.media]
+        progress(phase="direction")
         treatment = build_treatment(args, style, words, media, film_id)
         (fixture_dir / "treatment.json").write_text(json.dumps(treatment, indent=1))
         treatment_src = fixture_dir / "treatment.json"
 
     log(f"rendering {args.aspects} @ {style['id']} ...")
+    progress(phase="render", aspectsDone=0, aspectsTotal=len(aspect_list))
     env = dict(os.environ)
     env["PATH"] = os.path.expanduser("~/.nvm/versions/node/v24.19.0/bin") + ":" + env["PATH"]
-    r = subprocess.run([sys.executable, str(TOOLS / "regression_pack.py"),
-                        "--fixture", fixture_dir.name, "--aspects", args.aspects,
-                        "--out", str(out_dir.resolve())],
-                       env=env, capture_output=True, text=True)
-    print(r.stdout[-2500:] or r.stderr[-2500:])
+    r = subprocess.Popen([sys.executable, str(TOOLS / "regression_pack.py"),
+                          "--fixture", fixture_dir.name, "--aspects", args.aspects,
+                          "--out", str(out_dir.resolve())],
+                         env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    captured: list[str] = []
+    film_out = out_dir / fixture_dir.name
+    while True:
+        line = r.stdout.readline() if r.stdout else ""
+        if line:
+            captured.append(line)
+        else:
+            if r.poll() is not None:
+                break
+            time.sleep(1)
+        done = sum(1 for a in aspect_list if (film_out / f"render_{a}.json").exists())
+        progress(phase="render", aspectsDone=done, aspectsTotal=len(aspect_list))
+    tail = "".join(captured)[-2500:]
+    print(tail)
     if r.returncode != 0:
         sys.exit(f"render failed ({r.returncode})")
+    progress(phase="finishing", aspectsDone=len(aspect_list), aspectsTotal=len(aspect_list))
 
     stem = fixture_dir.name
     dims = {"16x9": (1920, 1080), "1x1": (1080, 1080), "9x16": (1080, 1920)}

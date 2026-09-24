@@ -97,17 +97,28 @@ def main() -> int:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="wbjob-", dir=out))
+    progress_file = out.parent / "progress.json"
+
+    def progress(**payload):
+        try:
+            progress_file.write_text(json.dumps(payload))
+        except OSError:
+            pass
 
     script_text = Path(args.script).read_text() if args.script else None
     if not script_text and not args.voice_file:
         raise RuntimeError("SCRIPT_REQUIRED: send --script or --voice-file")
 
+    progress(phase="voice")
     vo_wav, words_json = build_voice(args, script_text, work)
+    progress(phase="direction")
     plan_path = build_plan(args, script_text or "", work)
 
     pipeline = ROOT / PIPELINES[args.type]
     outputs: dict[str, str] = {}
-    for aspect in [a.strip() for a in args.aspects.split(",") if a.strip()]:
+    aspect_list = [a.strip() for a in args.aspects.split(",") if a.strip()]
+    for ai, aspect in enumerate(aspect_list):
+        progress(phase="render", aspect=aspect, aspectsDone=ai, aspectsTotal=len(aspect_list))
         ratio_dir = out / aspect.replace(":", "x")
         cmd = [sys.executable, str(pipeline), str(plan_path),
                "--out-dir", str(ratio_dir), "--ratio", aspect,
@@ -121,6 +132,7 @@ def main() -> int:
         if mp4s:
             outputs[aspect] = str(mp4s[0])
 
+    progress(phase="packaging", aspectsDone=len(outputs), aspectsTotal=len(aspect_list))
     (out / "manifest.json").write_text(json.dumps(
         {"jobId": args.job_id, "outputs": outputs}, indent=1))
     print(json.dumps({"ok": True, "outputs": outputs}))
