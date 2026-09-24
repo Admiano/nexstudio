@@ -193,14 +193,18 @@ function skeletonSvg(p3, opts = {}) {
 
   for (const s of ['L', 'R']) {
     const hip = q[J['hip' + s]], knee = q[J['knee' + s]], ank = q[J['ank' + s]], toe = q[J['toe' + s]];
+    // far-side limbs draw narrower so they never read as the near arm/leg
+    const far = (q[J['sho' + s]].d + q[J['hip' + s]].d) / 2 < 0;
+    const LW = far ? 0.8 : 1;
+    const R3 = (v) => R2(v * LW);
     const dShin = dSeg(knee, ank), dThigh = dSeg(hip, knee), dFoot = dSeg(ank, toe);
-    push(dShin - 0.001, 'pb-limb', SKIN, capsule2(knee.x, knee.y, ank.x, ank.y, R2(R.shin)));
+    push(dShin - 0.001, 'pb-limb', SKIN, capsule2(knee.x, knee.y, ank.x, ank.y, R2(R.shin * LW)));
     const st = lerp3([hip.x, hip.y], [knee.x, knee.y], SHORTS_LEN);
-    push(dThigh + 0.002, 'pb-bottom', BOTTOM, capsule2(hip.x, hip.y, st[0], st[1], R2(R.thigh * SHORTS_W)));
-    push(dThigh + 0.001, 'pb-limb', SKIN, capsule2(hip.x, hip.y, knee.x, knee.y, R2(R.thigh)));
-    push(dSeg(knee, knee) - 0.002, 'pb-joint', SKIN, disc(knee.x, knee.y, R2((R.thigh + R.shin) * 0.42)));
-    push(dFoot + 0.001, 'pb-foot', SHOE, capsule2(ank.x, ank.y, toe.x, toe.y, R2(R.foot)));
-    push(dFoot + 0.001, 'pb-foot', SHOE, disc(ank.x, ank.y, R2(R.foot * 1.15)));
+    push(dThigh + 0.002, 'pb-bottom', BOTTOM, capsule2(hip.x, hip.y, st[0], st[1], R2(R.thigh * SHORTS_W * LW)));
+    push(dThigh + 0.001, 'pb-limb', SKIN, capsule2(hip.x, hip.y, knee.x, knee.y, R2(R.thigh * LW)));
+    push(dSeg(knee, knee) - 0.002, 'pb-joint', SKIN, disc(knee.x, knee.y, R2((R.thigh + R.shin) * 0.42 * LW)));
+    push(dFoot + 0.001, 'pb-foot', SHOE, capsule2(ank.x, ank.y, toe.x, toe.y, R2(R.foot * LW)));
+    push(dFoot + 0.001, 'pb-foot', SHOE, disc(ank.x, ank.y, R2(R.foot * 1.15 * LW)));
     // sole line along the foot bottom
     push(dFoot + 0.002, 'pb-detail', 'none',
       stroke(`M ${round(ank.x - R2(R.foot) * 0.4)} ${round(ank.y + R2(R.foot))} L ${round(toe.x)} ${round(toe.y + R2(R.foot))}`, S * 0.008));
@@ -209,17 +213,17 @@ function skeletonSvg(p3, opts = {}) {
     const dUarm = dSeg(sho, elb), dFarm = dSeg(elb, wr), dHand = wr.d;
     // sleeve: widened capsule over the upper-arm top
     const sl = lerp3([sho.x, sho.y], [elb.x, elb.y], SLEEVE_LEN);
-    push(dUarm + 0.002, 'pb-sleeve', TOP, capsule2(sho.x, sho.y, sl[0], sl[1], R2(R.uarm * TEE_W)));
+    push(dUarm + 0.002, 'pb-sleeve', TOP, capsule2(sho.x, sho.y, sl[0], sl[1], R2(R.uarm * TEE_W * LW)));
     // sleeve hem seam
     push(dUarm + 0.003, 'pb-detail', 'none',
-      seam(sl[0], sl[1], elb.x - sho.x, elb.y - sho.y, R2(R.uarm * TEE_W) * 0.92, S * 0.006));
-    push(dFarm, 'pb-limb', SKIN, capsule2(elb.x, elb.y, wr.x, wr.y, R2(R.farm)));
-    push(dUarm + 0.001, 'pb-limb', SKIN, capsule2(sho.x, sho.y, elb.x, elb.y, R2(R.uarm)));
-    push(elb.d + 0.001, 'pb-joint', SKIN, disc(elb.x, elb.y, R2((R.uarm + R.farm) * 0.4)));
+      seam(sl[0], sl[1], elb.x - sho.x, elb.y - sho.y, R2(R.uarm * TEE_W * LW) * 0.92, S * 0.006));
+    push(dFarm, 'pb-limb', SKIN, capsule2(elb.x, elb.y, wr.x, wr.y, R2(R.farm * LW)));
+    push(dUarm + 0.001, 'pb-limb', SKIN, capsule2(sho.x, sho.y, elb.x, elb.y, R2(R.uarm * LW)));
+    push(elb.d + 0.001, 'pb-joint', SKIN, disc(elb.x, elb.y, R2((R.uarm + R.farm) * 0.4 * LW)));
     // hand on the true wrist, fingers fan along the forearm direction,
     // spread from the clip's semantic hand state
     const st2 = s === 'L' ? handL : handR;
-    push(dHand + 0.002, 'pb-hand', SKIN, handSvg(wr.x, wr.y, wr.x - elb.x, wr.y - elb.y, st2, R2, SKIN));
+    push(dHand + 0.002, 'pb-hand', SKIN, handSvg(wr.x, wr.y, wr.x - elb.x, wr.y - elb.y, st2, far ? R3 : R2, SKIN));
   }
 
   // torso column on the true spine chain + pelvis & chest welds
@@ -366,6 +370,13 @@ if (!req.cmuClip && (req.say || req.text)) {
   if (pick) req.cmuClip = pick;
 }
 
+// locomotion reads cleanest near-profile (legs split, each arm keeps its
+// own silhouette edge); hosts/gestures keep the 3/4 presentation.
+const LOCO_CLIP = req.cmuClip ? sampler.vault().clips[req.cmuClip] : null;
+const LOCO = !!(LOCO_CLIP && (LOCO_CLIP.rootDelta ||
+  /WALK|RUN|JOG|PACE|CYCLE|CLIMB|STAIR|HOP|MARCH|CARRY|CRAWL/i.test(req.cmuClip || '')));
+const BASE_AZ = LOCO ? -16 : -38;
+
 // confident-sample baselines (degenerate lateral frames excluded)
 const st0 = sampleAny(req, 0);
 const az0 = (() => {
@@ -435,10 +446,11 @@ for (let i = 0; i < nF; i++) {
   const st = sampleAny(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const az = trackAz(st.pose3d);
-  // presentation: baseline at the good 3/4-left axis, real turns damped
-  // through tanh into [-76, 0] — a true joint-space yaw rotation, so the
-  // body keeps its captured pose under any facing.
-  const presentAz = -38 + 38 * Math.tanh(wrap(az - azBase) / 55);
+  // presentation: baseline at the clip family's readable axis, real turns
+  // damped through tanh — a true joint-space yaw rotation, so the body
+  // keeps its captured pose under any facing.
+  const presentAz = clamp(BASE_AZ - BASE_AZ * Math.tanh(wrap(az - azBase) / 55),
+    LOCO ? -62 : -76, LOCO ? 12 : 0);
   const headAz = (st.roty !== null && st.roty !== undefined)
     ? az + clamp(wrap(st.roty - az - headOff), -80, 80)
     : az;
