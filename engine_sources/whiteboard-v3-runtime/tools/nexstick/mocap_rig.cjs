@@ -77,7 +77,7 @@ for (let i = 0; i < nF; i++) {
   const st = V5.sample(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const pose = poseFromMocap(st.pose3d);
-  const out = Renderer.renderPose({ proportion, height: 1000, view: 'profile-left', pose, look: { top: { garment: 'jacket' } }, face: 'neutral', background: false, grain: false });
+  const out = Renderer.renderPose({ proportion, height: 1000, view: 'profile-left', pose, look: { top: { garment: 'jacket' } }, face: 'warm', background: false, grain: false });
   // strip only non-line layers (rim highlights, contact shadow) and any
   // degenerate element (pb-fold can emit a ~2m ellipse under stride poses);
   // every garment/detail stroke stays for the elite look.

@@ -213,6 +213,53 @@
     ].join('');
   }
 
+  /**
+   * A crease where a joint actually bends. The mark sits inside the V the two
+   * limb segments form, so it only appears when cloth would genuinely bunch —
+   * detail a fixed asset cannot carry, because it follows the pose.
+   */
+  function bendCrease(prev, joint, next, width, stroke) {
+    const ax = joint.x - prev.x;
+    const ay = joint.y - prev.y;
+    const bx = next.x - joint.x;
+    const by = next.y - joint.y;
+    const al = Math.hypot(ax, ay) || 1;
+    const bl = Math.hypot(bx, by) || 1;
+    let ix = bx / bl - ax / al;
+    let iy = by / bl - ay / al;
+    const il = Math.hypot(ix, iy);
+    if (il < 0.28) return '';   // straighter than ~16 degrees: no bunch
+    ix /= il; iy /= il;
+    const px = -iy;
+    const py = ix;
+    const cxp = joint.x + ix * width * 0.2;
+    const cyp = joint.y + iy * width * 0.2;
+    const hw = width * 0.34;
+    const bow = width * 0.14;
+    return `<path d="M ${round(cxp - px * hw)} ${round(cyp - py * hw)} Q ${round(cxp + ix * bow)} ${round(cyp + iy * bow)} ${round(cxp + px * hw)} ${round(cyp + py * hw)}" fill="none" stroke="${stroke}" stroke-width="${round(width * 0.07)}" stroke-linecap="round"/>`;
+  }
+
+  /** Finger separations: two short strokes inside the palm, along its length. */
+  function fingerMarks(part) {
+    const a = part.a;
+    const b = part.b;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len;
+    const uy = dy / len;
+    const w = part.widthFrom;
+    const nx = -uy;
+    const ny = ux;
+    const marks = [];
+    for (const off of [-0.2, 0.2]) {
+      const sx = a.x + ux * len * 0.58 + nx * w * off;
+      const sy = a.y + uy * len * 0.58 + ny * w * off;
+      marks.push(`<path d="M ${round(sx)} ${round(sy)} L ${round(sx + ux * len * 0.34)} ${round(sy + uy * len * 0.34)}" fill="none" stroke-width="${round(w * 0.12)}" stroke-linecap="round"/>`);
+    }
+    return marks.join('');
+  }
+
   /** A shoe: the mass, plus a sole that puts the foot on the floor. */
   function footShapes(part, fill, shadeColor) {
     const a = part.a;
@@ -359,6 +406,7 @@
         for (const s of footShapes(part, solid, mix(look.shoes.bare ? look.skin : look.shoes.color, '#1a120c', 0.42))) emit(depth, piece(s.fill, s.svg, 'pb-foot'));
       } else if (isHand) {
         emit(depth, piece(solid, handShape(part), 'pb-hand'));
+        emit(depth + 0.001, `<g class="pb-detail" fill="none" stroke="${mix(look.skin, '#1c150f', 0.55)}">${fingerMarks(part)}</g>`);
       } else {
         emit(depth, piece(solid, isUpper ? cappedMass(part.a, part.b, part.widthFrom, part.widthTo, 'end') : limbMass(part.a, part.b, part.widthFrom, part.widthTo), `pb-${part.kind}`));
       }
@@ -366,6 +414,26 @@
       if (isUpper && look.top.sleeve > 0.05 && look.top.sleeve < 1) {
         const end = { x: part.a.x + (part.b.x - part.a.x) * look.top.sleeve, y: part.a.y + (part.b.y - part.a.y) * look.top.sleeve };
         emit(depth, piece(shade(look.top.color, part.depth, span), cappedMass(part.a, end, part.widthFrom * 1.1, part.widthFrom * 1.04, 'none'), 'pb-sleeve'));
+      }
+    }
+
+    // Joint creases follow the actual bend of each elbow and knee: the ink
+    // sits inside the V the segments form and only appears where the pose
+    // really bunches cloth or skin.
+    if (opts.creases !== false) {
+      const J = figure.joints;
+      const inkStroke = mix(look.skin, '#1c150f', 0.5);
+      for (const side of ['left', 'right']) {
+        const fore = figure.parts.find((p) => p.id === `${side}-fore-arm`);
+        const shin = figure.parts.find((p) => p.id === `${side}-shin`);
+        if (fore && J[`${side}Shoulder`] && J[`${side}Elbow`] && J[`${side}Wrist`]) {
+          const c = bendCrease(J[`${side}Shoulder`], J[`${side}Elbow`], J[`${side}Wrist`], fore.widthFrom, inkStroke);
+          if (c) emit(fore.depth + 0.001, `<g class="pb-detail" fill="none">${c}</g>`);
+        }
+        if (shin && J[`${side}Hip`] && J[`${side}Knee`] && J[`${side}Ankle`]) {
+          const c = bendCrease(J[`${side}Hip`], J[`${side}Knee`], J[`${side}Ankle`], shin.widthFrom, inkStroke);
+          if (c) emit(shin.depth + 0.001, `<g class="pb-detail" fill="none">${c}</g>`);
+        }
       }
     }
 
