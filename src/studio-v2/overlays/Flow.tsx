@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatUSD, MindSpark, useStudio, type ContextChip } from "../App";
-import { studioApi } from "../api";
+import { studioApi, type EngineKind } from "../api";
 
 export type FlowStage = "mind" | "direction" | "closed" | "production" | "review" | "publish" | "revision";
 
@@ -19,6 +19,10 @@ export interface FlowState {
   beats?: Array<{ start: number; end: number; purposeTitle: string; description: string }>;
   quoteId?: string;
   amountMinor?: number;
+  jobKind?: EngineKind;
+  jobId?: string;
+  jobOutputs?: Record<string, string>;
+  engine?: { wbType?: string; wbTheme?: string; wbAccent?: string; style?: string; voice?: string };
   error?: string;
 }
 
@@ -32,9 +36,20 @@ export interface FlowApi {
 const FAMILY_LABEL: Record<string, string> = {
   explainer: "Explainer", EXPLAINER: "Explainer",
   whiteboard: "Whiteboard", WHITEBOARD: "Whiteboard",
-  stickman: "Character", STICKMAN: "Character",
-  "editorial-motion": "Illustrated Stories", EDITORIAL_MOTION: "Illustrated Stories",
 };
+
+function engineKindOf(family?: string | null): EngineKind | null {
+  const f = (family ?? "explainer").toLowerCase();
+  if (f === "whiteboard") return "whiteboard";
+  if (f === "explainer") return "explainer";
+  return null;
+}
+
+const MS_VOICES = [
+  { id: "emma", label: "Emma" }, { id: "ava", label: "Ava" },
+  { id: "andrew", label: "Andrew" }, { id: "brian", label: "Brian" },
+  { id: "sonia", label: "Sonia" }, { id: "natasha", label: "Natasha" },
+];
 
 const MIND_STEPS = [
   { key: "understand", title: "Understanding the brief", copy: "Bringing your intent, context and production direction together." },
@@ -43,11 +58,8 @@ const MIND_STEPS = [
 ];
 
 const DEFAULT_VIDEO_TYPE: Record<string, string> = {
-  explainer: "product-explainer",
-  whiteboard: "concept-breakdown",
-  stickman: "short-story",
-  "editorial-motion": "kinetic-text-story",
-  editorial_motion: "kinetic-text-story",
+  explainer: "tiles",
+  whiteboard: "kinetic-text",
 };
 
 export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
@@ -70,37 +82,46 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
           } catch { /* fall through to defaults */ }
         }
         family = family ?? "explainer";
+        videoType = DEFAULT_VIDEO_TYPE[family.toLowerCase()] ?? videoType ?? "tiles";
         if (!alive) return;
         setMindStep(1);
-        const sources = (flow.contexts ?? []).filter((c) => c.kind === "file" || c.kind === "reference").map((c) => ({
-          kind: c.kind === "file" ? "UPLOAD" as const : "URL" as const,
-          label: c.label,
-          reference: c.refId,
-        }));
-        const brandCtx = flow.contexts?.find((c) => c.kind === "brand");
-        const draft = await studioApi.createDraft({
-          id: crypto.randomUUID(),
-          family: (family ?? "explainer").toUpperCase().replace(/-/g, "_"),
-          videoType: videoType ?? DEFAULT_VIDEO_TYPE[(family ?? "explainer").toLowerCase()] ?? "product-explainer",
-          prompt: brief,
-          sources,
-          brandContext: brandCtx ? { brandId: brandCtx.refId, name: brandCtx.label } : undefined,
-        });
-        const productionId = (draft as { id?: string; productionId?: string }).productionId ?? (draft as { id?: string }).id;
-        if (!alive) return;
-        if (!productionId) { api.patchFlow({ stage: "closed", error: "The draft could not be created." }); return; }
-        api.patchFlow({ productionId, family, videoType });
-        // plan preview → direction bridge
-        try {
-          const preview = await studioApi.planPreview(productionId);
+        const engineKind = engineKindOf(family);
+        let productionId: string | undefined;
+        if (!engineKind) {
+          const sources = (flow.contexts ?? []).filter((c) => c.kind === "file" || c.kind === "reference").map((c) => ({
+            kind: c.kind === "file" ? "UPLOAD" as const : "URL" as const,
+            label: c.label,
+            reference: c.refId,
+          }));
+          const brandCtx = flow.contexts?.find((c) => c.kind === "brand");
+          const draft = await studioApi.createDraft({
+            id: crypto.randomUUID(),
+            family: family.toUpperCase().replace(/-/g, "_"),
+            videoType,
+            prompt: brief,
+            sources,
+            brandContext: brandCtx ? { brandId: brandCtx.refId, name: brandCtx.label } : undefined,
+          });
+          productionId = (draft as { id?: string; productionId?: string }).productionId ?? (draft as { id?: string }).id;
           if (!alive) return;
-          const p = preview as { status?: string; thesis?: string; recommendedDuration?: number; beats?: FlowState["beats"]; missingInput?: string[] };
-          if (p?.status === "ready" || p?.beats) {
-            api.patchFlow({ stage: "direction", thesis: p.thesis, beats: p.beats, duration: p.recommendedDuration ?? flow.duration });
-          } else {
+          if (!productionId) { api.patchFlow({ stage: "closed", error: "The draft could not be created." }); return; }
+        }
+        api.patchFlow({ productionId, family, videoType });
+        // plan preview → direction bridge (skip for engine families — the draft is bookkeeping only)
+        if (productionId) {
+          try {
+            const preview = await studioApi.planPreview(productionId);
+            if (!alive) return;
+            const p = preview as { status?: string; thesis?: string; recommendedDuration?: number; beats?: FlowState["beats"]; missingInput?: string[] };
+            if (p?.status === "ready" || p?.beats) {
+              api.patchFlow({ stage: "direction", thesis: p.thesis, beats: p.beats, duration: p.recommendedDuration ?? flow.duration });
+            } else {
+              api.patchFlow({ stage: "direction" });
+            }
+          } catch {
             api.patchFlow({ stage: "direction" });
           }
-        } catch {
+        } else {
           api.patchFlow({ stage: "direction" });
         }
         setMindStep(2);
@@ -160,10 +181,43 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const beats = flow.beats?.length ? flow.beats : DEFAULT_BEATS;
   const costLabel = flow.amountMinor != null ? formatUSD(flow.amountMinor) : "…";
 
+  const kind = engineKindOf(flow.family);
+  const [engine, setEngine] = useState(() => ({
+    wbType: "kinetic-text", wbTheme: "light", wbAccent: "#2f6fb3",
+    style: "tiles", voice: "emma",
+    ...(flow.engine ?? {}),
+  }));
+  const [styles, setStyles] = useState<Array<{ id: string; name: string; tagline?: string }>>([]);
+  useEffect(() => {
+    if (kind !== "explainer") return;
+    let alive = true;
+    studioApi.explainerCatalog()
+      .then((c) => { if (alive && c.styles?.length) setStyles(c.styles); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [kind]);
+  const setOpt = (k: keyof typeof engine, v: string) => setEngine((e) => ({ ...e, [k]: v }));
+
   async function createVideo() {
-    if (!flow.productionId) return;
     setBusy(true);
     try {
+      if (kind) {
+        const fd = new FormData();
+        fd.set("script", flow.prompt ?? "");
+        fd.set("voice", engine.voice);
+        fd.set("aspects", "16x9,1x1,9x16");
+        if (kind === "whiteboard") {
+          fd.set("type", engine.wbType);
+          fd.set("theme", engine.wbTheme);
+          if (engine.wbType === "kinetic-text" && engine.wbAccent) fd.set("accent", engine.wbAccent);
+        } else {
+          fd.set("style", engine.style);
+        }
+        const job = await studioApi.createEngineJob(kind, fd);
+        api.patchFlow({ stage: "production", jobKind: kind, jobId: job.jobId, engine });
+        return;
+      }
+      if (!flow.productionId) return;
       const q = await studioApi.quote(flow.productionId) as { quoteId?: string; amountMinor?: number; finalAmountMinor?: number };
       const amount = q.finalAmountMinor ?? q.amountMinor ?? 0;
       api.patchFlow({ quoteId: q.quoteId, amountMinor: amount });
@@ -213,8 +267,61 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             <div className="decision"><label>Production</label><strong>{FAMILY_LABEL[flow.family ?? ""] ?? flow.family ?? "Explainer"}</strong><span>{flow.family ? "Your selection" : "NexMind selected"}</span></div>
             <div className="decision"><label>Format</label><strong>{flow.aspectRatio ?? "16:9"}</strong><span>{flow.aspectRatio === "9:16" ? "Vertical" : "Landscape"}</span></div>
             <div className="decision"><label>Length</label><strong>{flow.duration ?? 45} sec</strong><span>Target, not a hard cut</span></div>
-            <div className="decision"><label>Voice</label><strong>Warm, assured</strong><span>Natural delivery</span></div>
+            <div className="decision"><label>Voice</label><strong>{MS_VOICES.find((v) => v.id === engine.voice)?.label ?? "Emma"}</strong><span>Microsoft neural</span></div>
           </section>
+          {kind === "whiteboard" && (
+            <section className="options-band reveal" style={{ ["--d" as string]: ".2s" }}>
+              <div className="opt-group">
+                <label>Whiteboard</label>
+                <div className="opt-row">
+                  {[["kinetic-text", "Text-driven", "Type animates with the narration"], ["hand-drawn-board", "Hand-drawn", "The hand draws the board"]].map(([v, l, d]) => (
+                    <button key={v} type="button" className={`opt-chip ${engine.wbType === v ? "on" : ""}`} onClick={() => setOpt("wbType", v)}><b>{l}</b><span>{d}</span></button>
+                  ))}
+                </div>
+              </div>
+              <div className="opt-group">
+                <label>Board</label>
+                <div className="opt-row">
+                  {[["light", "White"], ["dark", "Black"]].map(([v, l]) => (
+                    <button key={v} type="button" className={`opt-chip small ${engine.wbTheme === v ? "on" : ""}`} onClick={() => setOpt("wbTheme", v)}><b>{l}</b></button>
+                  ))}
+                </div>
+              </div>
+              {engine.wbType === "kinetic-text" && (
+                <div className="opt-group">
+                  <label>Highlight</label>
+                  <div className="opt-row">
+                    <input aria-label="Highlight color" className="opt-color" type="color" value={engine.wbAccent} onChange={(e) => setOpt("wbAccent", e.target.value)} />
+                    <span className="opt-value">{engine.wbAccent}</span>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+          {kind === "explainer" && (
+            <section className="options-band reveal" style={{ ["--d" as string]: ".2s" }}>
+              <div className="opt-group">
+                <label>Style</label>
+                <div className="opt-row">
+                  {(styles.length ? styles : [{ id: "tiles", name: "Tiles" }]).map((s) => (
+                    <button key={s.id} type="button" className={`opt-chip ${engine.style === s.id ? "on" : ""}`} onClick={() => setOpt("style", s.id)}><b>{s.name}</b>{s.tagline ? <span>{s.tagline}</span> : null}</button>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+          {kind && (
+            <section className="options-band reveal" style={{ ["--d" as string]: ".24s" }}>
+              <div className="opt-group">
+                <label>Voice <span className="opt-hint">Microsoft neural · reads your script</span></label>
+                <div className="opt-row">
+                  {MS_VOICES.map((v) => (
+                    <button key={v.id} type="button" className={`opt-chip small ${engine.voice === v.id ? "on" : ""}`} onClick={() => setOpt("voice", v.id)}><b>{v.label}</b></button>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
           <section className="direction-grid reveal" style={{ ["--d" as string]: ".23s" }}>
             <div className="story-main">
               <div className="story-label"><h2>How the story moves</h2><span>{beats.length} intentional beats</span></div>
@@ -246,7 +353,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         </div>
         <div className="direction-dock-inner">
           <div className="adjuster"><span className="spark">✦</span><input value={adjust} onChange={(e) => setAdjust(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") setAdjust(""); }} placeholder="Tell NexMind what to change…" /><button aria-label="Apply direction change" className="adjust-go" onClick={() => setAdjust("")}>↑</button></div>
-          <button aria-label="Create video" className="credit-next" disabled={busy} onClick={() => void createVideo()}><span className="full">{busy ? "Starting…" : <>Create video <span className="cost-label">· <b>{costLabel}</b></span></>}</span><span>→</span></button>
+          <button aria-label="Create video" className="credit-next" disabled={busy} onClick={() => void createVideo()}><span className="full">{busy ? "Starting…" : <>Create video {!kind && <span className="cost-label">· <b>{costLabel}</b></span>}</>}</span><span>→</span></button>
         </div>
       </div>
     </div>
@@ -264,8 +371,33 @@ const PHASE_ORDER = ["PREPARING", "SHAPING_STORY", "VISUAL_DIRECTION", "DIRECTIN
 
 function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const [proj, setProj] = useState<{ title?: string; detail?: string; phase?: string; status?: string } | null>(null);
+  // Engine job path: poll the job until outputs land
   useEffect(() => {
-    if (!flow.productionId) return;
+    if (!flow.jobId || !flow.jobKind) return;
+    let alive = true;
+    const poll = async () => {
+      try {
+        const s = await studioApi.engineJobStatus(flow.jobKind!, flow.jobId!);
+        if (!alive) return;
+        if (s.status === "done") {
+          const outputs = s.outputs ?? {};
+          if (Object.keys(outputs).length) {
+            api.patchFlow({ stage: "review", jobOutputs: outputs });
+          } else {
+            api.patchFlow({ stage: "closed", error: "The render finished but produced no files — try again." });
+          }
+        } else if (s.status === "failed") {
+          api.patchFlow({ stage: "closed", error: s.error || "The render failed — try again." });
+        }
+      } catch { /* keep polling */ }
+    };
+    void poll();
+    const t = setInterval(poll, 4000);
+    return () => { alive = false; clearInterval(t); };
+  }, [flow.jobId, flow.jobKind]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!flow.productionId || flow.jobId) return;
     let alive = true;
     const poll = async () => {
       try {
@@ -283,6 +415,11 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   }, [flow.productionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const idx = Math.max(0, PHASE_ORDER.indexOf(proj?.phase ?? "PREPARING"));
+  const jobCopy = flow.jobKind === "whiteboard"
+    ? { title: "The hand is moving.", detail: "Voice, plan and board are rendering — one pass per screen, so all three sizes land together." }
+    : flow.jobKind === "explainer"
+      ? { title: "The film is being cut.", detail: "Script, voice and style are rendering — one pass per screen, so all three sizes land together." }
+      : null;
   return (
     <div aria-hidden="true" className="production-stage open" data-phase="story" id="productionStage">
       <header className="production-top">
@@ -292,8 +429,8 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
       <main className="production-main">
         <div className="production-copy">
           <div className="micro">NexStudio Studio</div>
-          <h1>{proj?.title ?? "Preparing the production."}</h1>
-          <p>{proj?.detail ?? "The Studio is checking the approved brief and what the production system can safely make."}</p>
+          <h1>{jobCopy?.title ?? proj?.title ?? "Preparing the production."}</h1>
+          <p>{jobCopy?.detail ?? proj?.detail ?? "The Studio is checking the approved brief and what the production system can safely make."}</p>
         </div>
         <div className="production-steps">
           {["Story", "Visuals", "Motion", "Sound", "Review"].map((s, i) => <div key={s} className={`pstep ${i <= idx ? "on" : ""}`}><span>{s}</span></div>)}
@@ -303,9 +440,19 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   );
 }
 
+const ASPECT_LABEL: Record<string, string> = { "16x9": "16:9", "9x16": "9:16", "1x1": "1:1" };
+
 function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; refresh: () => Promise<void> }) {
   const [busy, setBusy] = useState(false);
+  const outputs = flow.jobOutputs ?? null;
+  const outputKeys = useMemo(() => Object.keys(outputs ?? {}), [outputs]);
+  const [aspect, setAspect] = useState("16x9");
+  const activeAspect = outputs?.[aspect] ? aspect : (outputKeys[0] ?? "16x9");
   async function act(action: "approve" | "revision", note?: string) {
+    if (outputs) {
+      if (action === "approve") api.patchFlow({ stage: "publish" });
+      return;
+    }
     if (!flow.productionId) return;
     setBusy(true);
     try {
@@ -328,19 +475,30 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
       </header>
       <div className="review-wrap">
         <section className="review-canvas">
-          <div className="review-video-shell">
-            {flow.productionId ? <video className="review-video" controls playsInline src={`/api/v1/productions/${flow.productionId}/output`} poster={`/api/v1/productions/${flow.productionId}/poster`} /> : <div className="review-video" />}
+          <div className={`review-video-shell ${outputs ? (activeAspect === "9x16" ? "vertical" : activeAspect === "1x1" ? "square" : "") : ""}`}>
+            {outputs ? (
+              <video key={activeAspect} className="review-video" controls playsInline src={outputs[activeAspect]} />
+            ) : flow.productionId ? (
+              <video className="review-video" controls playsInline src={`/api/v1/productions/${flow.productionId}/output`} poster={`/api/v1/productions/${flow.productionId}/poster`} />
+            ) : <div className="review-video" />}
             <span className="review-version-tag">Ready to review</span>
           </div>
+          {outputs && outputKeys.length > 1 && (
+            <div className="aspect-switch">
+              {outputKeys.map((k) => (
+                <button key={k} type="button" className={`aspect-chip ${activeAspect === k ? "on" : ""}`} onClick={() => setAspect(k)}>{ASPECT_LABEL[k] ?? k}</button>
+              ))}
+            </div>
+          )}
         </section>
         <aside className="review-side">
           <div className="micro">NexStudio</div>
           <h1>Your video is ready.</h1>
-          <p className="review-meta">Approve it to publish, or send it back to NexMind with a revision note.</p>
+          <p className="review-meta">{outputs ? "Rendered in all three screens — pick a size, approve or download." : "Approve it to publish, or send it back to NexMind with a revision note."}</p>
           <div className="review-actions">
             <button className="review-primary" disabled={busy} onClick={() => void act("approve")}>Approve & publish →</button>
-            <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}>Revise with NexMind</button>
-            <a className="review-download" href={`/api/v1/productions/${flow.productionId}/output`} download>Download MP4</a>
+            {!outputs && <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}>Revise with NexMind</button>}
+            <a className="review-download" href={outputs ? outputs[activeAspect] : `/api/v1/productions/${flow.productionId}/output`} download>Download MP4</a>
           </div>
           <p className="review-privacy">Publishing hands the files to you — nothing is posted on your behalf.</p>
         </aside>
@@ -352,13 +510,15 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
 const DESTINATIONS = ["YouTube", "TikTok", "Instagram", "X", "Threads", "Facebook"];
 
 function PublishStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
+  const primaryOutput = flow.jobOutputs?.["16x9"] ?? Object.values(flow.jobOutputs ?? {})[0];
+  const outputUrl = primaryOutput ?? `/api/v1/productions/${flow.productionId}/output`;
   return (
     <div aria-hidden="true" className="publish-overlay open" id="publishOverlay" onClick={(e) => { if (e.target === e.currentTarget) api.closeFlow(); }}>
       <section className="publish-shell" role="dialog" aria-modal="true">
         <div className="sheet-head"><div><div className="micro">Publish · Privacy first</div><h2>Take it everywhere.</h2><p>NexStudio prepares the file and caption for each destination — you keep your own accounts. Nothing is posted on your behalf.</p></div><button aria-label="Close publish" className="sheet-close" onClick={api.closeFlow}>×</button></div>
         <div className="platform-grid">
           {DESTINATIONS.map((d) => (
-            <a key={d} className="platform" href={`/api/v1/productions/${flow.productionId}/output`} download>
+            <a key={d} className="platform" href={outputUrl} download>
               <span className="platform-ico">{d.slice(0, 2).toUpperCase()}</span>
               <span><b>{d}</b><span>{d === "YouTube" ? "MP4 + title + description" : "MP4 + caption"}</span></span>
             </a>

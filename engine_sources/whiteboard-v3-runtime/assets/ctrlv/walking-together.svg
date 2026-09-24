@@ -1,0 +1,26 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Pathway -->
+        <path d="M0 260 H400" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="10 10"/>
+        
+        <!-- Two People silhouettes -->
+        <g>
+            <!-- Friend 1 -->
+            <g transform="translate(140, 0)">
+                <circle cx="0" cy="100" r="20" fill="#1A1A17"/>
+                <path d="M0 120 V200 L-15 250 M0 200 L15 250" stroke="#1A1A17" stroke-width="12" stroke-linecap="round"/>
+                <path d="M0 140 L-20 180" stroke="#1A1A17" stroke-width="8" stroke-linecap="round"/>
+            </g>
+            
+            <!-- Friend 2 -->
+            <g transform="translate(260, 0)">
+                <circle cx="0" cy="100" r="20" fill="#F5F0E4"/>
+                <path style="animation-delay: -0.5s" d="M0 120 V200 L-15 250 M0 200 L15 250" stroke="#F5F0E4" stroke-width="12" stroke-linecap="round"/>
+                <path d="M0 140 L20 180" stroke="#F5F0E4" stroke-width="8" stroke-linecap="round"/>
+            </g>
+        </g>
+        
+        <!-- Dialogue Bubble (Simplified) -->
+        <g style="animation-delay: -1s">
+            <path d="M200 80 Q220 50 180 50" stroke="#F5F0E4" stroke-width="3" fill="none"/>
+        </g>
+    </svg>

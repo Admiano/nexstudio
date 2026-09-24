@@ -1,0 +1,202 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "PV_ink.paper",
+ "note": "auto-authored by make_reel.py (style=paper)",
+ "aspects": [
+  "16x9"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#241d12",
+  "paper": "#efe7d2",
+  "accent": "#6e4f26",
+  "finish": "PAPER"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "SETUP",
+   "pattern": "PROGRESSIVE_HERO_BUILD",
+   "dominant_layer": "HYBRID",
+   "narration": "Your  camera,  your  lights  in  your  desk,  all  in  one  room.",
+   "energy": 0.55,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "Your  camera,",
+     "role": "support",
+     "anchor_word": "Your",
+     "emphasis": 0.5,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "your  lights  in  your  desk,",
+     "role": "hero",
+     "anchor_word": "your",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "all  in  one  room.",
+     "role": "support",
+     "anchor_word": "all",
+     "emphasis": 0.5,
+     "semantic_role": "qualifier"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_camera",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "icon.icon-park-outline.collect-laptop",
+      "size": "hero"
+     },
+     {
+      "id": "e2_light",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "icon.icon-park-outline.lightning",
+      "size": "support"
+     }
+    ],
+    "relations": [
+     {
+      "type": "connects",
+      "source": "e1_camera",
+      "target": "e2_light"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_camera",
+      "at": {
+       "word": " camera,"
+      },
+      "duration_ms": 550
+     },
+     {
+      "op": "DRAW",
+      "target": "e2_light",
+      "at": {
+       "word": " lights"
+      },
+      "duration_ms": 550
+     },
+     {
+      "op": "CONNECT",
+      "target": "e1_camera->e2_light",
+      "at": {
+       "word": " lights"
+      },
+      "duration_ms": 350
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "EXPLANATION",
+   "pattern": "PROGRESSIVE_HERO_BUILD",
+   "dominant_layer": "HYBRID",
+   "narration": "The  robot  arm  lifts  the  box  and  places  it  on  the  shelf.",
+   "energy": 0.65,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "The robot arm,",
+     "role": "support",
+     "anchor_word": "The",
+     "emphasis": 0.45,
+     "semantic_role": "setup"
+    },
+    {
+     "text": "lifts the box and places it on the shelf.",
+     "role": "hero",
+     "anchor_word": "lifts",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_robot",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "icon.icon-park-outline.robot",
+      "size": "hero"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_robot",
+      "at": {
+       "word": " robot"
+      },
+      "duration_ms": 550
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "PAYOFF",
+   "pattern": "PAYOFF_LOCKUP",
+   "dominant_layer": "HYBRID",
+   "narration": "Three  screens  light  up  at  once.",
+   "energy": 0.75,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "Three  screens  light  up  at  once.",
+     "role": "hero",
+     "anchor_word": "Three",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_screen",
+      "kind": "object",
+      "glyph": "TILE",
+      "asset_ref": "icon.icon-park-outline.code-computer",
+      "size": "hero"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_screen",
+      "at": {
+       "word": " screens"
+      },
+      "duration_ms": 550
+     }
+    ]
+   }
+  }
+ ]
+}

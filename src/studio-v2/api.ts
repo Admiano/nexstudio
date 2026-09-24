@@ -3,7 +3,7 @@
 import type { StudioAsset, StudioAssetPage } from "@/studio-v1/dashboard/domain/assets";
 import type { StudioBalance, StudioBillingHistory } from "@/studio-v1/dashboard/domain/billing";
 import type { DashboardProject } from "@/studio-v1/dashboard/domain/dashboard";
-import type { StudioBrandRoot, StudioCastRoot, StudioMemoryCollection, StudioMemoryScope, StudioSeriesRoot } from "@/studio-v1/dashboard/domain/creative-memory";
+import type { StudioBrandRoot, StudioMemoryCollection, StudioMemoryScope, StudioSeriesRoot } from "@/studio-v1/dashboard/domain/creative-memory";
 
 export interface ProductionDetail {
   id: string;
@@ -83,12 +83,35 @@ async function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Pr
   return payload as T;
 }
 
+export interface EngineJobStatus {
+  jobId: string;
+  status: "running" | "done" | "failed";
+  outputs?: Record<string, string>;
+  exitCode?: number;
+  error?: string;
+}
+
+export type EngineKind = "explainer" | "whiteboard";
+
+async function postForm<T>(url: string, form: FormData): Promise<T> {
+  const response = await fetch(url, { method: "POST", credentials: "include", body: form });
+  if (!response.ok) {
+    const parsed = await response.json().catch(() => null) as (ProblemDetail & { problem?: ProblemDetail }) | null;
+    const err = new Error(parsed?.title || parsed?.problem?.title || `Request failed (${response.status})`) as Error & { code?: string; status?: number };
+    err.code = parsed?.code ?? parsed?.problem?.code;
+    err.status = response.status;
+    throw err;
+  }
+  const payload = await response.json() as { data?: T } | T;
+  if (payload && typeof payload === "object" && "data" in payload) return (payload as { data: T }).data;
+  return payload as T;
+}
+
 export const studioApi = {
   work: (signal?: AbortSignal) =>
     readJson<{ productions: Array<DashboardProject & { prompt?: string | null }>; fetchedAt?: string }>("/api/v1/studio/productions", signal)
       .then((p) => ({ projects: p.productions, fetchedAt: p.fetchedAt ?? new Date().toISOString() })),
   brands: (signal?: AbortSignal) => readJson<{ brands: StudioBrandRoot[] }>("/api/v1/studio/brands", signal),
-  cast: (signal?: AbortSignal) => readJson<{ cast: StudioCastRoot[] }>("/api/v1/studio/cast", signal),
   series: (signal?: AbortSignal) => readJson<{ series: StudioSeriesRoot[] }>("/api/v1/studio/series", signal),
   memory: (scope: StudioMemoryScope, scopeRefId: string, signal?: AbortSignal) =>
     readJson<StudioMemoryCollection>(`/api/v1/studio/memory?scope=${scope}&scopeRefId=${encodeURIComponent(scopeRefId)}`, signal),
@@ -143,6 +166,14 @@ export const studioApi = {
   },
   requestAccountExport: (signal?: AbortSignal) => postJson<unknown>("/api/v1/account/data", { type: "EXPORT" }, signal),
   accountData: (signal?: AbortSignal) => readJson<{ items: Array<{ id: string; type: string; status: string; downloadUrl: string | null }> }>("/api/v1/account/data", signal),
+  explainerCatalog: (signal?: AbortSignal) =>
+    readJson<{ styles: Array<{ id: string; name: string; tagline?: string; variants?: Array<{ id: string; name: string }> }>; voices: string[]; aspects: string[] }>("/api/v1/explainers", signal),
+  whiteboardCatalog: (signal?: AbortSignal) =>
+    readJson<{ types: Array<{ id: string; name: string }>; themes: string[]; voices: string[]; aspects: string[] }>("/api/v1/whiteboards", signal),
+  createEngineJob: (kind: EngineKind, form: FormData) =>
+    postForm<{ jobId: string; status: string; statusUrl: string }>(`/api/v1/${kind}s`, form),
+  engineJobStatus: (kind: EngineKind, jobId: string, signal?: AbortSignal) =>
+    readJson<EngineJobStatus>(`/api/v1/${kind}s/${jobId}`, signal),
   signIn: (email: string) => postJson<unknown>("/api/v1/auth/email/request", { email }),
   signOut: () => postJson<unknown>("/api/v1/auth/logout", {}),
   uploadAsset: async (file: File, signal?: AbortSignal): Promise<StudioAsset> => {

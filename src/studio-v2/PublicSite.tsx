@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 const FAMILIES = [
   { key: "explainer", name: "Explainer", desc: "Make complex systems instantly understandable without flattening the idea.", art: "explainer" },
   { key: "whiteboard", name: "Whiteboard", desc: "Reason visually in real time so the viewer follows the thinking, not just the answer.", art: "whiteboard" },
-  { key: "stickman", name: "Character", desc: "Carry the message through performance, gesture, framing and believable physical intent.", art: "character" },
-  { key: "editorial-motion", name: "Illustrated Stories", desc: "Build narrative meaning through typography, illustration, staging and editorial rhythm.", art: "illustrated" },
+  { key: "stickman", name: "Character", desc: "Carry the message through performance, gesture, framing and believable physical intent.", art: "character", soon: true },
+  { key: "editorial-motion", name: "Illustrated Stories", desc: "Build narrative meaning through typography, illustration, staging and editorial rhythm.", art: "illustrated", soon: true },
 ];
 
 export function PublicSite({ authed }: { authed: boolean }) {
@@ -76,7 +76,8 @@ export function PublicSite({ authed }: { authed: boolean }) {
             <div className="pw-section-head pw-reveal"><div><div className="pw-kicker"><i /> Production families</div></div><div><h2>Choose a direction. Or don’t.</h2><p>NexMind can infer the right production treatment from the brief. When you already know what you want, give it a nudge. Either way, you stay in one flow.</p></div></div>
             <div className="pw-families">
               {FAMILIES.map((f, i) => (
-                <button key={f.key} aria-label={`Choose ${f.name}`} className="pw-family pw-reveal" data-delay={String(i)} onClick={() => { sessionStorage.setItem("nx.family", f.key); enter(); }}>
+                <button key={f.key} aria-label={`Choose ${f.name}`} className={`pw-family pw-reveal ${f.soon ? "soon" : ""}`} data-delay={String(i)} onClick={() => { if (f.soon) return; sessionStorage.setItem("nx.family", f.key); enter(); }}>
+                  {f.soon && <em className="pw-soon-tag">Coming soon</em>}
                   <div aria-hidden="true" className="pw-family-media"><div className="pw-family-frame"><div className={`family-native family-native-${f.art}`} /></div></div>
                   <div className="pw-family-copy"><b>{f.name}</b><span>{f.desc}</span></div>
                 </button>

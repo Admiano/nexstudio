@@ -15,16 +15,12 @@ const SOURCES_KEY = "studio.initialSources.v1";
 const FAMILY_TO_CANONICAL: Record<FamilyId, StudioProductionFamily> = {
   explainer: "EXPLAINER",
   whiteboard: "WHITEBOARD",
-  stickman: "STICKMAN",
-  "editorial-motion": "EDITORIAL_MOTION",
 };
 
 const WORK_FILTERS: Array<{ id: "all" | FamilyId; label: string }> = [
   { id: "all", label: "All" },
   { id: "explainer", label: "Explainer" },
   { id: "whiteboard", label: "Whiteboard" },
-  { id: "stickman", label: "Stickman" },
-  { id: "editorial-motion", label: "Editorial Motion" },
 ];
 
 const DELIVERY_FORMATS = [
@@ -48,7 +44,7 @@ type StagedFile = { name: string; size: number; type: string };
 function CertifiedPreview({ item, hero = false }: { item: ProductionVideoType; hero?: boolean }) {
   if (!item.previewVideo?.src || !item.posterFrame) return null;
   return <div className={hero ? "sv1-certified-media sv1-hero-certified-media" : "sv1-certified-media"}>
-    <video muted loop playsInline autoPlay={hero} preload={hero ? "metadata" : "none"} poster={item.posterFrame} aria-label={`${item.name} certified Studio preview`}>
+    <video muted loop playsInline autoPlay={hero} preload={hero ? "metadata" : "none"} poster={item.posterFrame ?? undefined} aria-label={`${item.name} certified Studio preview`}>
       <source src={item.previewVideo.src} type={item.previewVideo.type || "video/mp4"}/>
     </video>
   </div>;
@@ -116,12 +112,7 @@ function FamilyVisual({ family }: { family: FamilyId }) {
   if (family === "whiteboard") return <div className="nxs-family-art" aria-hidden="true">
     <span className="nxs-board-stroke a"/><span className="nxs-board-stroke b"/><span className="nxs-board-circle"/><span className="nxs-board-arrow">→</span>
   </div>;
-  if (family === "stickman") return <div className="nxs-family-art" aria-hidden="true">
-    <span className="nxs-stick-head"/><span className="nxs-stick-body"/><span className="nxs-stick-arm a"/><span className="nxs-stick-arm b"/><span className="nxs-stick-leg a"/><span className="nxs-stick-leg b"/><span className="nxs-stick-prop"/>
-  </div>;
-  return <div className="nxs-family-art" aria-hidden="true">
-    <span className="nxs-editorial-type">MOVE</span><span className="nxs-editorial-rule a"/><span className="nxs-editorial-rule b"/><span className="nxs-editorial-block"/>
-  </div>;
+  return null;
 }
 
 function ShowcaseFilm({ item, onSelect, reducedMotion }: { item: ProductionVideoType; onSelect: () => void; reducedMotion: boolean }) {
@@ -145,7 +136,7 @@ function ShowcaseFilm({ item, onSelect, reducedMotion }: { item: ProductionVideo
     onPointerLeave={() => { if (!reducedMotion) videoRef.current?.pause(); }}
     whileTap={reducedMotion ? undefined : { scale: .985 }}>
     <span className="nxs-film-frame">
-      <video ref={videoRef} muted loop playsInline preload="metadata" poster={item.posterFrame} aria-label={`${item.name} NexStudio film preview`}>
+      <video ref={videoRef} muted loop playsInline preload="metadata" poster={item.posterFrame ?? undefined} aria-label={`${item.name} NexStudio film preview`}>
         <source src={item.previewVideo?.src} type={item.previewVideo?.type || "video/mp4"}/>
       </video>
       <i className="nxs-film-play" aria-hidden="true">▶</i>

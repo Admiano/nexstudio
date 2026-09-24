@@ -1,6 +1,6 @@
 import { humanStatusFor, type ProductionState } from "./production-state";
 
-export type ProductionFamily = "EXPLAINER" | "WHITEBOARD" | "STICKMAN" | "EDITORIAL_MOTION";
+export type ProductionFamily = "EXPLAINER" | "WHITEBOARD";
 
 export interface DashboardProject {
   id: string;
@@ -45,5 +45,5 @@ export function sortDashboardProjects(projects: readonly DashboardProject[]): Da
 }
 
 export function isProductionFamily(value: unknown): value is ProductionFamily {
-  return ["EXPLAINER", "WHITEBOARD", "STICKMAN", "EDITORIAL_MOTION"].includes(String(value));
+  return ["EXPLAINER", "WHITEBOARD"].includes(String(value));
 }

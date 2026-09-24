@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-ALLOWED_FAMILIES={"EXPLAINER","WHITEBOARD","STICKMAN","EDITORIAL_MOTION"}
+ALLOWED_FAMILIES={"EXPLAINER","WHITEBOARD"}
 
 class AdapterBlocked(RuntimeError):
     def __init__(self, code:str, detail:str=""):

@@ -8,10 +8,10 @@ import type { SheetId } from "../overlays/Sheets";
 import { sortDashboardProjects } from "@/studio-v1/dashboard/domain/dashboard";
 
 const FAMILIES = [
-  { key: "explainer", label: "Explainer", desc: "Clear ideas, products and systems." },
-  { key: "whiteboard", label: "Whiteboard", desc: "Drawn reasoning and visual teaching." },
-  { key: "stickman", label: "Character", desc: "Performance, dialogue and physicality." },
-  { key: "editorial-motion", label: "Illustrated Stories", desc: "Editorial motion and expressive storytelling." },
+  { key: "explainer", label: "Explainer", desc: "Clear ideas, products and systems.", soon: false },
+  { key: "whiteboard", label: "Whiteboard", desc: "Drawn reasoning and visual teaching.", soon: false },
+  { key: "stickman", label: "Character", desc: "Performance, dialogue and physicality.", soon: true },
+  { key: "editorial-motion", label: "Illustrated Stories", desc: "Editorial motion and expressive storytelling.", soon: true },
 ];
 
 export function CreateView({ composer, setPrompt, setFamily, removeContext, openSheet, openFlow, onOpenWork, openSeries, notify }: {
@@ -89,8 +89,10 @@ export function CreateView({ composer, setPrompt, setFamily, removeContext, open
         <div className="section-head"><h2>Or give NexMind a direction</h2><p>Optional · it can infer this for you</p></div>
         <div className="directions">
           {FAMILIES.map((f) => (
-            <button key={f.key} aria-pressed={composer.family === f.key} className={`direction ${composer.family === f.key ? "selected" : ""}`} data-family={f.key} onClick={() => setFamily(composer.family === f.key ? null : f.key)}>
+            <button key={f.key} aria-pressed={composer.family === f.key} aria-disabled={f.soon} className={`direction ${composer.family === f.key ? "active" : ""} ${f.soon ? "soon" : ""}`} data-family={f.key}
+              onClick={() => f.soon ? notify(`${f.label} is coming soon — still being shaped.`) : setFamily(composer.family === f.key ? null : f.key)}>
               <span className="check">✓</span>
+              {f.soon && <em className="soon-tag">Coming soon</em>}
               <span className="dir-icon"><svg fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><rect height="14" rx="2" width="16" x="4" y="5" /><path d="M8 9h8M8 13h5" /></svg></span>
               <b>{f.label}</b><span>{f.desc}</span>
             </button>

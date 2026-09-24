@@ -8,20 +8,6 @@ from pathlib import Path
 from typing import Any, Dict
 
 ROOT = Path(__file__).resolve().parents[2]
-def _default_stickman_registry() -> Path:
-    configured = os.getenv("STUDIO_STICKMAN_ENGINE_ROOT", "").strip()
-    roots = [Path(configured)] if configured else []
-    roots += [ROOT / "engines" / "stickman"]
-    for base in roots:
-        base = base if base.is_absolute() else (ROOT / base).resolve()
-        candidates = [base, *[x for x in base.glob("*") if x.is_dir()]] if base.exists() else []
-        for candidate in candidates:
-            registry = candidate / "NEXSTICK_MASTER_V2_CAPABILITY_REGISTRY.json"
-            if registry.exists():
-                return registry
-    return ROOT / "engines" / "stickman" / "NEXSTICK_MASTER_V2_UNIFIED_PERFORMANCE_V5_1_CLEAN_2026-08-13" / "NEXSTICK_MASTER_V2_CAPABILITY_REGISTRY.json"
-
-DEFAULT_STICKMAN_REGISTRY = _default_stickman_registry()
 
 
 def canonical_hash(value: Any) -> str:
@@ -29,105 +15,18 @@ def canonical_hash(value: Any) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
-def _requirements() -> Dict[str, set[str]]:
-    # These are standalone-adapter requirements, not merely engine-donor claims.
-    # P8 must only author motions that the current deterministic evidence adapter
-    # can execute without inventing props, targets, world anchors or contact.
-    return {
-        "REACH": {"high_reach_target"},
-        "PRESENT": {"presentation_prop"},
-        "TYPE": {"typing_surface"},
-        "PHONE_HOLD": {"phone_prop"},
-    }
+def load_current_capability_packet() -> Dict[str, Any]:
+    """Performer-capability packet for P8.
 
-
-def build_stickman_v5_1_override(registry: Dict[str, Any]) -> Dict[str, Any]:
-    """Map the current V5.1 performance master into P8's frozen performer vocabulary.
-
-    `STICKMAN_V2` is retained only as a P8 schema compatibility alias. The evidence
-    packet is explicitly rebound to the current V5.1 authority. Capabilities that
-    are not explicitly proven by the V5.1 registry stay fail-closed.
+    The stickman performer registry was retired with the character offerings;
+    P8 now plans only against the family execution authorities bound into the
+    capability graph below. The packet shape is retained so callers keep working.
     """
-    caps = registry.get("productionCapabilities") or {}
-    interaction = set(caps.get("interaction") or [])
-    acting = set(caps.get("acting") or [])
-    locomotion = set(caps.get("locomotion") or [])
-
-    supported = {
-        "HOLD",
-        "WALK",
-        "RUN",
-        "REACH",
-        "PRESENT",
-        "TYPE",
-        "PHONE_HOLD",
-    }
-    # This packet describes the CURRENT STANDALONE ADAPTER, not every donor in
-    # the V5.1 engine. A verb stays blocked until its engine binding, world/contact
-    # requirements and strict sequence QA are all connected end-to-end.
-    blocked = {
-        "LOOK": "STANDALONE_ADAPTER_LOOK_TARGET_BINDING_NOT_PROVEN",
-        "SPRINT": "CURRENT_V5_1_SPRINT_DONOR_NOT_CERTIFIED",
-        "SIT": "STANDALONE_ADAPTER_SEAT_WORLD_BINDING_PENDING",
-        "STAND": "STANDALONE_ADAPTER_SEAT_WORLD_BINDING_PENDING",
-        "POINT": "CURRENT_V5_1_POINT_VERB_NOT_CERTIFIED",
-        "PRESS": "STANDALONE_ADAPTER_BUTTON_TARGET_BINDING_PENDING",
-        "TAP": "CURRENT_V5_1_TAP_VERB_NOT_CERTIFIED",
-        "PICKUP": "STANDALONE_ADAPTER_GRIP_WORLD_BINDING_PENDING",
-        "PLACE": "STANDALONE_ADAPTER_SUPPORT_WORLD_BINDING_PENDING",
-        "CARRY_LIGHT": "STANDALONE_ADAPTER_CARRY_WORLD_BINDING_PENDING",
-        "CARRY_HEAVY": "FAIL_CLOSED_NO_ADMITTED_HEAVY_DONOR",
-        "DANCE": "STANDALONE_ADAPTER_DANCE_STRICT_JERK_QA_NOT_PROVEN",
-        "HANDOFF_DIRECT": "STANDALONE_ADAPTER_PAIRED_HANDOFF_BINDING_PENDING",
-        "HANDOFF_PLACE_AND_TAKE": "STANDALONE_ADAPTER_PAIRED_HANDOFF_BINDING_PENDING",
-        "SIDESTEP": "CURRENT_V5_1_SIDESTEP_DONOR_NOT_CERTIFIED",
-        "LATERAL_REPOSITION": "CURRENT_V5_1_LATERAL_REPOSITION_NOT_CERTIFIED",
-    }
-
-    evidence = {
-        "authority": registry.get("name"),
-        "masterVersion": registry.get("masterVersion"),
-        "engine": registry.get("performanceEngine"),
-        "status": registry.get("status"),
-        "compatibilityAlias": "P8_STICKMAN_V2_SCHEMA_ALIAS_TO_CURRENT_V5_1",
-        "sourceRegistrySha256": canonical_hash(registry),
-        "contactCorrectionMaxM": (registry.get("architecture") or {}).get("finalContactResidualCapM"),
-        "ownership": "contact/load gated; no ownership teleport",
-        "directHandoff": "V5.1 engine evidence exists, but standalone paired-handoff adapter binding remains fail-closed until connected",
-        "standaloneAdapterSupportedVerbs": sorted(supported),
-        "heavyCarry": caps.get("heavyCarry"),
-        "families": list((registry.get("cast") or {}).get("families") or []),
-        "certification": deepcopy((registry.get("certification") or {}).get("releaseSummary") or {}),
-        "sourceSignals": {
-            "locomotion": sorted(locomotion),
-            "acting": sorted(acting),
-            "interaction": sorted(interaction),
-        },
-    }
-    return {
-        "supported": supported,
-        "blocked": blocked,
-        "requirements": _requirements(),
-        "evidence": evidence,
-    }
-
-
-def load_current_capability_packet(path: str | Path = DEFAULT_STICKMAN_REGISTRY) -> Dict[str, Any]:
-    p = Path(path)
-    registry = json.loads(p.read_text(encoding="utf-8"))
     return {
         "schema": "StudioNexMindCapabilityPacketV1",
-        "authorities": {
-            "stickman": {
-                "registry": registry,
-                "sha256": canonical_hash(registry),
-            }
-        },
-        "performerOverrides": {
-            "STICKMAN_V2": build_stickman_v5_1_override(registry),
-        },
+        "authorities": {},
+        "performerOverrides": {},
     }
-
 
 
 def _art_generation_available() -> bool:
@@ -179,13 +78,6 @@ def build_capability_graph(request: Dict[str, Any], packet: Dict[str, Any]) -> D
     base = deepcopy(request.get("capabilityGraph") or {})
     supplied_authority=deepcopy(base.get("familyExecutionAuthority") or {})
     authorities={"family_execution_body": supplied_authority if supplied_authority else _fallback_family_execution_authority(family)}
-    if family == "STICKMAN":
-        authorities["stickman"]={
-            "name": packet["authorities"]["stickman"]["registry"].get("name"),
-            "masterVersion": packet["authorities"]["stickman"]["registry"].get("masterVersion"),
-            "performanceEngine": packet["authorities"]["stickman"]["registry"].get("performanceEngine"),
-            "registrySha256": packet["authorities"]["stickman"]["sha256"],
-        }
     base.update({
         "schema": "StudioNexMindCapabilityGraphV2",
         "production_family": family,

@@ -297,7 +297,7 @@ def remux_nocaption(frames_dir, audio_wav, out_mp4):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--script"); ap.add_argument("--script-file"); ap.add_argument("--voice-file")
-    ap.add_argument("--voice", default="bm_george", choices=sorted(VOICES))
+    ap.add_argument("--voice", default="emma", choices=sorted(VOICES))
     ap.add_argument("--style", default="tiles")
     ap.add_argument("--media", nargs="*", default=[])
     ap.add_argument("--aspects", default="16x9,1x1,9x16")

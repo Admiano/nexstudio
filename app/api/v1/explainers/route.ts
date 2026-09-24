@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 const ENGINE = process.env.EXPLAINER_ENGINE_DIR
   ?? path.join(process.cwd(), "engine_sources", "editorial-motion-v2");
 const JOBS = path.join(ENGINE, "out", "explainer-jobs");
-const VOICES = ["af_bella","af_sarah","am_onyx","am_adam","bf_emma","bf_isabella","bm_george","bm_lewis"];
+const VOICES = ["emma","ava","andrew","brian","sonia","natasha"];
 const ASPECTS = new Set(["16x9", "1x1", "9x16"]);
 
 function stylesList() {
@@ -44,9 +44,9 @@ export async function POST(request: Request) {
   const script = String(form.get("script") ?? "").trim();
   const voiceFile = form.get("voiceFile");
   if (!script && !(voiceFile instanceof File))
-    return problem(id, 422, "VOICE_REQUIRED", "Voice required", "Send 'script' (for a Kokoro voice) or a 'voiceFile' upload.");
+    return problem(id, 422, "VOICE_REQUIRED", "Voice required", "Send 'script' (for a Microsoft voice) or a 'voiceFile' upload.");
 
-  const voice = String(form.get("voice") ?? "bm_george");
+  const voice = String(form.get("voice") ?? "emma");
   if (script && !VOICES.includes(voice))
     return problem(id, 422, "VOICE_UNKNOWN", "Unknown voice", `Pick one of: ${VOICES.join(", ")}.`);
 

@@ -66,7 +66,7 @@ export type StudioNexMindP8Request = {
   productionId: string;
   workflowRunId: string;
   projectVersion: number;
-  family: "EXPLAINER" | "WHITEBOARD" | "STICKMAN" | "EDITORIAL_MOTION";
+  family: "EXPLAINER" | "WHITEBOARD";
   videoType: string;
   prompt: string;
   planPreview: null | {
@@ -129,7 +129,7 @@ export type StudioNexMindP8FinalizeRequest = {
     schema: "StudioTasteCalibrationSnapshotV1";
     records: Array<{
       productionId: string;
-      family: "EXPLAINER" | "WHITEBOARD" | "STICKMAN" | "EDITORIAL_MOTION";
+      family: "EXPLAINER" | "WHITEBOARD";
       evidenceHash: string;
       p8BuildHash: string;
       judgeEnsembleHash: string;

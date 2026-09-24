@@ -269,7 +269,7 @@ export async function runStandaloneNexMindP8Activity(activity: { id: string; wor
     productionId: run.productionId,
     workflowRunId: run.id,
     projectVersion: run.projectVersion,
-    family: draft.family!,
+    family: draft.family as StudioNexMindP8Request["family"],
     videoType: draft.videoType || "",
     prompt: draft.prompt || "",
     planPreview: preview ? {

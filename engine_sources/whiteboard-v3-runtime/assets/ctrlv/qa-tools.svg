@@ -1,0 +1,7 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g>
+            <circle cx="200" cy="140" r="60" stroke="#1A1A17" stroke-width="8" fill="#1A1A17" opacity="0.1"/>
+            <path d="M180 140 L220 180 M220 100 L180 140" stroke="#1A1A17" stroke-width="8" stroke-linecap="round"/>
+        </g>
+        <text x="200" y="240" text-anchor="middle" font-family="Inter" font-weight="900" font-size="40" fill="#F5F0E4">Q A</text>
+    </svg>

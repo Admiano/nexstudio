@@ -5,7 +5,6 @@ from contracts import AdapterBlocked,AdapterReplan
 from execution_plan import compile_execution_plan, compatibility_board
 from whiteboard_adapter import build_internal_evidence
 from explainer_adapter import build_internal_evidence as build_explainer_evidence
-from editorial_adapter import build_internal_evidence as build_editorial_evidence
 
 def _meta(plan):
     if not isinstance(plan,dict): return {}
@@ -34,10 +33,6 @@ def main():
         family=request.get("family")
         if family=="WHITEBOARD": out=build_internal_evidence(request)
         elif family=="EXPLAINER": out=build_explainer_evidence(request)
-        elif family=="STICKMAN":
-            from stickman_adapter import build_internal_evidence as build_stickman_evidence
-            out=build_stickman_evidence(request)
-        elif family=="EDITORIAL_MOTION": out=build_editorial_evidence(request)
         else: raise AdapterBlocked("FAMILY_ENGINE_ADAPTER_NOT_IMPLEMENTED",str(family))
         out={**out,**_meta(plan)}
         json.dump(out,sys.stdout,separators=(",",":"));sys.stdout.write("\n")
