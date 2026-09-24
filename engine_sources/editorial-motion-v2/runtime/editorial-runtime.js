@@ -2514,6 +2514,46 @@
       }, stage);
     }
     const beats = plan.beats.map((b, i) => buildBeat(b, plan, stage, opts, i === plan.beats.length - 1, i));
+    // World-bible motif: the film's signature mark, stamped in a corner of every beat — the
+    // through-line the eye follows across scenes. Quiet by design: tonal ink, paper-card clipped.
+    const motifEl = (() => {
+      const m = plan.motif;
+      if (!m) return null;
+      const size = Math.round(Math.min(W, H) * 0.085);
+      const inset = Math.round(Math.min(W, H) * 0.045);
+      const pos = { left: 'auto', right: 'auto', top: 'auto', bottom: 'auto' };
+      const [v, h] = (m.corner || 'bottom-right').split('-');
+      pos[v === 'top' ? 'top' : 'bottom'] = px(inset);
+      pos[h === 'left' ? 'left' : 'right'] = px(inset);
+      const host = el('div', {
+        position: 'absolute', ...pos, width: px(size), height: px(size), zIndex: '25',
+        opacity: '0.24', pointerEvents: 'none', willChange: 'transform',
+        transform: `rotate(${h === 'left' ? -4 : 4}deg)`,
+        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.18))',
+      }, stage);
+      if (m.asset && m.asset.path) {
+        fetchText(opts.assetUrl(m.asset.path)).then((txt) => {
+          const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+          const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          s.setAttribute('viewBox', doc.documentElement.getAttribute('viewBox') || '0 0 400 400');
+          s.setAttribute('width', '100%'); s.setAttribute('height', '100%');
+          s.innerHTML = doc.documentElement.innerHTML;
+          host.appendChild(s);
+        }).catch(() => host.remove());
+      } else if (m.photo && m.photo.path) {
+        const img = el('img', { width: '100%', height: '100%', objectFit: 'cover',
+                                borderRadius: px(size * 0.1), border: `${px(Math.max(1, size * 0.02))} solid ${plan.brand.ink}` });
+        img.src = opts.assetUrl(m.photo.path);
+        host.appendChild(img);
+      } else {
+        // typographic tag — the word itself becomes the emblem
+        host.style.cssText += `;display:flex;align-items:center;justify-content:center;width:auto;height:auto;padding:${px(size * 0.18)} ${px(size * 0.34)};background:${plan.brand.paper};border:${px(Math.max(1, size * 0.02))} solid ${plan.brand.ink};border-radius:${px(size * 0.16)};`;
+        const t = el('span', { fontFamily: `"${plan.fonts.families.display}"`, fontSize: px(size * 0.34),
+                               fontWeight: '600', letterSpacing: '0.04em', color: plan.brand.ink, whiteSpace: 'nowrap' }, host);
+        t.textContent = m.word || m.concept || '';
+      }
+      return host;
+    })();
     // Beats that ran under the previous beat's transition get that overlap time back as a
     // furniture pre-roll at takeover — voice-anchored content keeps the plan's clock.
     beats.forEach((bn, i) => {
