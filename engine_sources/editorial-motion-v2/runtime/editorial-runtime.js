@@ -557,17 +557,49 @@
           position: 'absolute', left: px(b.x), top: px(b.y), width: px(b.w), height: px(b.h),
           transformOrigin: '50% 50%', pointerEvents: 'none',
         }, parent);
-        const fill = el('div', { position: 'absolute', inset: '0', background: spec.tone }, node);
+        // Painted-paper silhouette: an feTurbulence displacement wobbles the band's edges so it
+        // reads torn/wet, not machine-cut. A shared field keeps the torn lip parallel to the edge.
+        const tid = `em2tex${(spec.seed >>> 0).toString(36)}`;
+        const texSvg = svgEl('svg', { width: '0', height: '0', viewBox: '0 0 1 1' }, node);
+        Object.assign(texSvg.style, { position: 'absolute' });
+        const texDefs = svgEl('defs', {}, texSvg);
+        const texFilter = svgEl('filter', { id: tid, x: '-5%', y: '-30%', width: '110%', height: '160%' }, texDefs);
+        svgEl('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.011 0.05', numOctaves: '2', seed: String(spec.seed % 89), result: 'n' }, texFilter);
+        svgEl('feDisplacementMap', { in: 'SourceGraphic', in2: 'n', scale: f2(Math.min(b.h * 0.16, 13)), xChannelSelector: 'R', yChannelSelector: 'G' }, texFilter);
+        const wraps = el('div', { position: 'absolute', inset: '0' }, node);
+        wraps.style.filter = `url(#${tid})`;
+        const fill = el('div', { position: 'absolute', inset: '0', background: spec.tone }, wraps);
+        // Painted fill: a light slope plus two seeded blotches read as watercolour settling into
+        // the paper rather than a flat vector field.
+        const br = rng(spec.seed ^ 0x51ab);
+        fill.style.backgroundImage = [
+          `linear-gradient(165deg, ${rgbaOf(mixColor(spec.tone, '#ffffff', 0.5), 0.22)} 0%, ${rgbaOf(spec.tone, 0)} 42%, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)} 100%)`,
+          `radial-gradient(ellipse ${px(b.w * 0.5)} ${px(b.h * 0.9)} at ${px(b.w * (0.15 + 0.35 * br()))} ${px(b.h * (0.2 + 0.5 * br()))}, ${rgbaOf(mixColor(spec.tone, '#ffffff', 0.65), 0.2)}, ${rgbaOf(spec.tone, 0)} 70%)`,
+          `radial-gradient(ellipse ${px(b.w * 0.42)} ${px(b.h * 0.8)} at ${px(b.w * (0.5 + 0.45 * br()))} ${px(b.h * (0.25 + 0.55 * br()))}, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)}, ${rgbaOf(spec.tone, 0)} 70%)`,
+        ].join(',');
         if (spec.ragged) {
           const n = 14, edge = Math.min(b.h * 0.3, Math.min(W, H) * 0.022);
           const u = (k) => (Math.imul((spec.seed ^ (k * 0x9E3779B1)) >>> 0, 2654435761) >>> 0) / 4294967296;
-          let pts = `0px ${px(b.h)},0px ${px(edge * (0.4 + 0.6 * u(0)))}`;
-          for (let i = 1; i <= n; i++) pts += `,${px((b.w * i) / n)} ${px(edge * (0.3 + 0.7 * u(i)))}`;
-          pts += `,${px(b.w)} ${px(b.h)}`;
-          fill.style.clipPath = `polygon(${pts})`;
+          const clip = (amp) => {
+            let pts = `0px ${px(b.h)},0px ${px(amp * (0.4 + 0.6 * u(0)))}`;
+            for (let i = 1; i <= n; i++) pts += `,${px((b.w * i) / n)} ${px(amp * (0.3 + 0.7 * u(i)))}`;
+            pts += `,${px(b.w)} ${px(b.h)}`;
+            return `polygon(${pts})`;
+          };
+          // The exposed paper edge: the same tear, a sliver taller, in near-white behind the fill.
+          const lip = el('div', { position: 'absolute', inset: '0', background: mixColor(brand.paper, '#ffffff', 0.55) }, wraps);
+          lip.style.clipPath = clip(edge * 1.5);
+          wraps.insertBefore(lip, fill);
+          fill.style.clipPath = clip(edge);
         }
         if (spec.mark) {
           const mb = spec.mark.bbox;
+          // The perched mark is a sticker too: a wobbly paper edge peeks out from under the art.
+          const pad = Math.max(6, mb.w * 0.2);
+          const pw = mb.w + pad * 2, ph = mb.h + pad * 2;
+          const psvg = svgEl('svg', { viewBox: `0 0 ${pw} ${ph}` }, node);
+          Object.assign(psvg.style, { position: 'absolute', left: px(mb.x - b.x - pad), top: px(mb.y - b.y - pad), width: px(pw), height: px(ph), overflow: 'visible', pointerEvents: 'none', filter: `drop-shadow(0 ${px(ph * 0.03)} ${px(ph * 0.05)} ${rgbaOf(brand.ink, 0.22)})` });
+          svgEl('path', { d: cutBlobPath(pw / 2, ph / 2, pw * 0.46, ph * 0.46, spec.seed ^ 0x7e5), fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': 0.95 }, psvg);
           const img = el('img', {
             position: 'absolute', left: px(mb.x - b.x), top: px(mb.y - b.y),
             width: px(mb.w), height: px(mb.h), opacity: '0.9', pointerEvents: 'none',
@@ -967,6 +999,8 @@
     if (fig.mirror) g.setAttribute('transform', `translate(${vb[0] * 2 + vb[2]} 0) scale(-1 1)`);
     svg.appendChild(g);
     host.appendChild(svg);
+    // Lifted off the page: the puppet reads as a cut-out sitting on the paper, not flat ink.
+    svg.style.filter = `drop-shadow(0 ${px(bb.h * 0.012)} ${px(bb.h * 0.022)} ${rgbaOf(plan.brand.ink, 0.3)})`;
     const f = { fig, host, bb, ready: null, slotEls: {}, stateSwaps: null, appliedState: -1, prop: null };
     const stateParts = [];
     for (const st of fig.states || []) for (const sw of st.swaps) stateParts.push({ st, sw });
@@ -987,7 +1021,7 @@
       const prop = el('div', {
         position: 'absolute', left: `${(p.anchor.x * 100).toFixed(2)}%`, top: `${(p.anchor.y * 100).toFixed(2)}%`,
         width: px(size), height: px(size), transform: 'translate(-50%,-50%)', transformOrigin: '50% 15%',
-        willChange: 'transform',
+        willChange: 'transform', filter: `drop-shadow(0 ${px(size * 0.05)} ${px(size * 0.08)} ${rgbaOf(plan.brand.ink, 0.28)})`,
       }, host);
       f.prop = prop;
       const propReady = p.asset && p.asset.path
@@ -1172,6 +1206,47 @@
     let l = 0;
     for (let i = 1; i < pts.length; i += 1) l += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
     return l;
+  }
+
+  function seedHash(s) {
+    let h = 0x811C9DC5;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function rng(seed) {
+    let t = seed >>> 0;
+    return () => { t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  // Hand-cut card edge: each side bows a few points off the straight line — the die-cut edge
+  // around every sticker in the paper language.
+  function cutRectPath(b, seed, j) {
+    const r = rng(seed);
+    const c = [[b.x, b.y], [b.x + b.w, b.y], [b.x + b.w, b.y + b.h], [b.x, b.y + b.h]];
+    const pts = [];
+    for (let i = 0; i < 4; i++) {
+      const a = c[i], d = c[(i + 1) % 4];
+      pts.push(a);
+      const nx = -(d[1] - a[1]), ny = d[0] - a[0], L = Math.hypot(nx, ny) || 1;
+      const o = (r() - 0.5) * 2 * j;
+      pts.push([(a[0] + d[0]) / 2 + (nx / L) * o, (a[1] + d[1]) / 2 + (ny / L) * o]);
+    }
+    return polyPath(pts) + 'Z';
+  }
+  // Organic die-cut blob: the irregular white edge a sticker is cut along.
+  function cutBlobPath(cx, cy, rx, ry, seed) {
+    const r = rng(seed);
+    const n = 14, pts = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      const k = 1 + (r() - 0.5) * 0.2;
+      pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]);
+    }
+    let d = `M${f2((pts[n - 1][0] + pts[0][0]) / 2)} ${f2((pts[n - 1][1] + pts[0][1]) / 2)}`;
+    for (let i = 0; i < n; i++) {
+      const p = pts[i], q = pts[(i + 1) % n];
+      d += `Q${f2(p[0])} ${f2(p[1])} ${f2((p[0] + q[0]) / 2)} ${f2((p[1] + q[1]) / 2)}`;
+    }
+    return d + 'Z';
   }
   function pointAlong(pts, k) {
     const total = polyLength(pts);
@@ -1673,6 +1748,15 @@
         break;
       }
       case 'ICON': {
+        // Die-cut sticker: the mark rides on its own wobbly paper edge with a soft shadow —
+        // the collage register, not a floating icon.
+        const body = chassisBody(node, g);
+        const c = centre(b), seed = seedHash(String(ent.id));
+        const blob = svgEl('path', {
+          d: cutBlobPath(c.x, c.y, Math.max(b.w, sw * 8) * 0.58, Math.max(b.h, sw * 8) * 0.58, seed),
+          fill: mixColor(plan.brand.paper, '#ffffff', 0.62), 'fill-opacity': 0.96,
+        }, body);
+        node.extra.shadow = { el: blob, oy: b.h * 0.05, blur: b.h * 0.11, alpha: 0.24 };
         const host = svgEl('g', {}, g);
         host.style.color = ink;
         node.inkEls.push(host);
@@ -1682,25 +1766,16 @@
         break;
       }
       case 'TILE': {
-        // The product-collage atom: a glossy rounded-square app tile carrying a registry icon.
+        // Die-cut paper card: an irregular hand-cut edge around the mark — the evidence-board
+        // atom, not an app icon. No gloss, a whisper of ink rim, and a few degrees off true.
         const dark = params.tone === 'dark';
-        const r = Math.min(b.w, b.h) * 0.24;
-        const shape = roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z';
+        const seed = seedHash(String(ent.id));
+        const m = sw * 1.3, r = Math.min(b.w, b.h) * 0.06;
+        const shape = cutRectPath({ x: b.x + m, y: b.y + m, w: b.w - m * 2, h: b.h - m * 2 }, seed, Math.min(b.w, b.h) * 0.05);
         const body = chassisBody(node, g);
-        // One geometry for fill, gloss and rim: the gloss is clipped to the body and the rim is
-        // stroked last, so the outline is one continuous weight around every corner.
-        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : housing.light }, body);
+        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.55) }, body);
         node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
-        if (!dark) {
-          // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
-          const clipId = `em2gloss-${ent.id}-${++iconInstance}`.replace(/[^a-z0-9-]/gi, '');
-          svgEl('path', { d: shape }, svgEl('clipPath', { id: clipId }, svgEl('defs', {}, body)));
-          svgEl('path', {
-            d: `M${f2(b.x)} ${f2(b.y)}H${f2(b.x + b.w)}V${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x)} ${f2(b.y + b.h * 0.46)}Z`,
-            fill: '#ffffff', 'fill-opacity': 0.5, 'clip-path': `url(#${clipId})`,
-          }, body);
-        }
-        svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.55), 'stroke-opacity': 0.55 }, body);
+        svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.4), 'stroke-opacity': dark ? 0.14 : 0.2 }, body);
         node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
         const word = params.word ? String(params.word) : '';
         const fg = dark ? paper : ink;
@@ -1739,27 +1814,31 @@
           const pad = b.w * 0.14;
           wordMark(node, wordHost, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, word, params.word_kind || 'name', fg, plan);
         }
+        // Hand-placed: every card sits a few degrees off true.
+        const trr = rng(seed ^ 0x5bd1e995);
+        node.extra.rotateDeg = f2((trr() - 0.5) * 5.6);
+        if (ent.photo) {
+          // Washi tape across the top of an evidence photo — the cork-board gesture.
+          const tw = b.w * 0.34, th = b.h * 0.085, tx = b.x + b.w * 0.5, ty = b.y + b.h * 0.02;
+          const td = `M${f2(-tw / 2)} ${f2(th * 0.28)}L${f2(tw / 2)} 0L${f2(tw / 2)} ${f2(th * 0.82)}L${f2(-tw / 2)} ${f2(th)}Z`;
+          svgEl('path', { d: td, fill: accent, 'fill-opacity': 0.38, transform: `translate(${f2(tx)} ${f2(ty)}) rotate(${f2(-5 + (trr() - 0.5) * 8)})` }, g);
+        }
         node.strike = strikeFor(b);
         break;
       }
       case 'BADGE': {
-        // Glossy white disc with a deep soft shadow carrying a brand mark or colour icon.
+        // Die-cut disc: a wobbly paper circle — the sticker version of the old glossy badge.
         const dark = params.tone === 'dark';
         const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw / 2;
         const body = chassisBody(node, g);
-        const disc = svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R) }, body);
-        disc.setAttribute('fill', dark ? housing.dark : housing.light);
+        const discD = cutBlobPath(c.x, c.y, R, R, seedHash(String(ent.id)));
+        const disc = svgEl('path', { d: discD }, body);
+        disc.setAttribute('fill', dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.55));
         disc.setAttribute('stroke', ink);
         disc.setAttribute('stroke-width', f2(sw * 0.4));
-        disc.setAttribute('stroke-opacity', '0.18');
+        disc.setAttribute('stroke-opacity', '0.2');
         node.extra.shadow = { el: disc, oy: R * 0.16, blur: R * 0.3, alpha: 0.26 };
-        if (!dark) {
-          svgEl('path', {
-            d: `M${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}A${f2(R * 0.82)} ${f2(R * 0.82)} 0 0 1 ${f2(c.x + R * 0.82)} ${f2(c.y - R * 0.1)}Q${f2(c.x)} ${f2(c.y + R * 0.18)} ${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}Z`,
-            fill: '#ffffff', 'fill-opacity': 0.55,
-          }, body);
-        }
-        node.inkEls.push(svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R), fill: accent, 'fill-opacity': 0 }, g));
+        node.inkEls.push(svgEl('path', { d: discD, fill: accent, 'fill-opacity': 0 }, g));
         if (ent.photo) {
           // A disc is too small for a picture and a name: the photograph alone fills the well.
           const host = svgEl('g', {}, g);
@@ -1790,8 +1869,8 @@
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.18;
         const body = chassisBody(node, g);
-        const card = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
-        card.setAttribute('fill', dark ? housing.dark : housing.light);
+        const card = svgEl('path', { d: cutRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, seedHash(String(ent.id)), Math.min(b.w, b.h) * 0.04) }, body);
+        card.setAttribute('fill', dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.5));
         card.setAttribute('stroke', ink);
         card.setAttribute('stroke-width', f2(sw * 0.4));
         card.setAttribute('stroke-opacity', '0.18');
