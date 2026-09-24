@@ -1,0 +1,48 @@
+{
+  "version": "V11",
+  "character": "Host",
+  "fixes": {
+    "mouth": {
+      "issue": "V10 flat ellipse aperture (V9_lip_bound_aperture): a single 2D ink patch that could only scale as a whole. No lip part, no interior, no teeth or tongue read.",
+      "root_cause": "The lip fold is a continuous welded crease - every edge in the lip band has exactly 2 incident faces and the lips vertex group shares zero verts with the interior cavity shell, so the mesh mouth can never part without fragile topology surgery.",
+      "v11_solution": "Articulating decal (same idiom as V9/V10, richer): three stacked plates vertex-parented to the aperture anchor vert 455 - V11_mouth_interior (dark opening, ring+center fan), V11_mouth_teeth (white upper band), V11_mouth_tongue (mid-tone patch). Shape keys driven by the already-baked viseme envelope: V11_open <- max(0,min(1,(v-0.04)/0.5))*(1-c*0.85) on !ex-jawOpen/V3_closed; V11_wide/round/FV morphs gated by open so they only modulate an actual opening. Interior Basis is a thin crescent seam; modulation keys store (morph - open + thin) deltas so stacked keys land exactly on target shapes.",
+      "supersedes": "V9_lip_bound_aperture (hidden, kept in file for provenance)"
+    },
+    "chin_mark": {
+      "issue": "V10 jaw mark was bone-parented to 'head' - it stayed rigid while the chin skin drops ~13mm under !ex-jawOpen, so the mark separated from the jawline when the mouth opened wide.",
+      "v11_solution": "Kept the head-bone parent and baked 360 location keys tracking the chin vert under the mark center, displacing in head-bone space. The mark now rides the deforming jaw skin."
+    },
+    "phoneme_sync": {
+      "issue": "Unverified in the handoff - the baked viseme envelope was never checked against the audio.",
+      "verification": "Per-frame RMS energy of host_15s.wav vs !ex-jawOpen value. Frame-wise Pearson r=0.478 is expected for a phoneme (not loudness) envelope; at segment level all 8 detected speech segments show mouth activity and 86% of quiet frames are fully closed. Envelope leads audio by ~1 frame (anticipation, correct for lipsync)."
+    }
+  },
+  "sync_report": {
+    "audio": "audio/host_15s.wav (16kHz mono, 15.0s = 360 frames @24fps)",
+    "speech_segments": [
+      {"span": "1-30", "jaw_max": 0.32, "jaw_mean": 0.155},
+      {"span": "53-82", "jaw_max": 0.44, "jaw_mean": 0.125},
+      {"span": "99-119", "jaw_max": 0.32, "jaw_mean": 0.179},
+      {"span": "132-146", "jaw_max": 0.26, "jaw_mean": 0.207},
+      {"span": "169-222", "jaw_max": 0.28, "jaw_mean": 0.135},
+      {"span": "240-263", "jaw_max": 0.28, "jaw_mean": 0.162},
+      {"span": "272-288", "jaw_max": 0.26, "jaw_mean": 0.094},
+      {"span": "310-341", "jaw_max": 0.26, "jaw_mean": 0.096}
+    ],
+    "segments_with_mouth_activity": "8/8",
+    "pearson_r": 0.478,
+    "lead_frames": -1,
+    "quiet_closed_fraction": 0.86
+  },
+  "verified_renders": {
+    "host": ["previews/V11_host_f1.png", "previews/V11_host_f13.png", "previews/V11_host_f60.png", "previews/V11_host_f110.png"],
+    "guest": ["previews/V11_guest_f60.png"],
+    "excerpt": "previews/V11_mouth_excerpt.mp4"
+  },
+  "still_open": [
+    "Mouth is a decal, not geometry - profile/3-4 views will read flat; acceptable for the current front-facing shots.",
+    "Teeth band is subtle; could be raised if reads need more bite.",
+    "Eyes/hair/acting/garment design/hand ink/posture/gesture timing per handoff - broad directed work, unchanged.",
+    "No finished 30-second reel yet."
+  ]
+}
