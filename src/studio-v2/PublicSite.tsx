@@ -20,6 +20,16 @@ export function PublicSite({ authed }: { authed: boolean }) {
     if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("signin") === "1") setSignIn(true);
   }, []);
 
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll<HTMLElement>(".pw-reveal:not(.in)"));
+    if (!("IntersectionObserver" in window)) { els.forEach((el) => el.classList.add("in")); return; }
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }, { threshold: 0.12 });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   const enter = () => {
     if (brief.trim()) sessionStorage.setItem("nx.brief", brief);
     if (authed) router.push("/studio"); else setSignIn(true);
