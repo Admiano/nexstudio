@@ -33,7 +33,7 @@ VOICES = {
 
 PIPELINES = {
     "kinetic": "pipeline_kinetic_timed.py",
-    "board": "pipeline_v3_narration_timed.py",
+    "board": "pipeline_diagram_timed.py",
 }
 
 
@@ -74,7 +74,7 @@ def build_plan(args, script_text: str, work: Path) -> Path:
     import plan_author
     plan = plan_author.build_plan(
         script_text,
-        vtype="whiteboard" if args.type == "board" else "kinetic",
+        vtype="diagram" if args.type == "board" else "kinetic",
         title=args.title,
     )
     plan_path = work / "plan.json"
