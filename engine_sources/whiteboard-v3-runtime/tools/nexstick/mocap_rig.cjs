@@ -24,9 +24,10 @@ const V5 = nodeReq(BOOT);
 let CMU = null;
 try { CMU = nodeReq(path.resolve(__dirname, 'cmu_sampler.cjs')); } catch (e) { /* vault not built yet */ }
 function sampleAny(req, t) {
-  if (CMU && req.cmuClip) return CMU.sample(req.cmuClip, t, req);
-  const st = V5.sample(req, t);
-  if (st.blocked && CMU && !CMU.sample(req.action || '', 0).blocked) return CMU.sample(req.action, t, req);
+  const off = req.t || 0;
+  if (CMU && req.cmuClip) return CMU.sample(req.cmuClip, t + off, req);
+  const st = V5.sample(req, t + off);
+  if (st.blocked && CMU && !CMU.sample(req.action || '', 0).blocked) return CMU.sample(req.action, t + off, req);
   return st;
 }
 
@@ -47,12 +48,18 @@ const bone = (p, a, b) => nrm(sub(p[b], p[a]));
 // lines): a person facing +z has their LEFT side at +x, so
 // facing = (-dz, dx) of the (left - right) lateral vector. Positions
 // carry this whole-body turn that a fixed view would flatten away.
-function bodyAz(p3) {
+function bodyAzMag(p3) {
   const lc = sub(p3['clavicle_l'], p3['clavicle_r']);
   const lh = sub(p3['hip_l'], p3['hip_r']);
   const fx = -(lc[2] + lh[2]), fz = lc[0] + lh[0];
-  return Math.atan2(fx, fz) * DEG;
+  // When the figure faces dead-on frontal/profile — or twists its spine past
+  // ~90° — the lateral sum collapses and atan2(near-0, near-0) emits noise:
+  // 90° single-frame facing jumps that rock the whole figure. `mag` lets
+  // callers hold the last confident reading instead of trusting the angle.
+  return { az: Math.atan2(fx, fz) * DEG, mag: Math.hypot(fx, fz) };
 }
+function bodyAz(p3) { return bodyAzMag(p3).az; }
+const AZ_MIN_MAG = 0.12;
 
 function poseFromMocap(p3) {
   // Body frame: the spine axis (pelvis->neck) IS the figure's up-axis.
@@ -98,7 +105,9 @@ function poseFromMocap(p3) {
   // genuinely carry the arm forward/back (|tilt| >= 14) are untouched.
   for (const arm of [L.arm, R.arm]) {
     const t = arm.shoulder.tilt;
-    if (Math.abs(t) < 14) arm.shoulder.tilt = Math.min(t, -9);
+    // continuous push-out: O(t) = t - 0.8*(14 - |t|) — dead-hanging arms
+    // settle ~11 back, |t|=14 passes through, no pop at the band edge.
+    if (Math.abs(t) < 14) arm.shoulder.tilt = t - (14 - Math.abs(t)) * 0.8;
   }
 
   // Pelvic coupling: a real pelvis rotates with deep hip flexion (sit,
@@ -187,20 +196,54 @@ const beatClock = req.beatOffset || 0;
 // change vs its own t=0, re-expressed in the current body frame
 // (local BVH joint axes are arbitrary, so differences cancel the offset).
 const NOYAW = !!process.env.NOYAW;
+// Calibration lead-in: CMU captures open with the actor in T-pose for a
+// fraction of a second. Detect and skip it (as a req.t start offset) so
+// renders begin on the performance, not the marker pose.
+const isTPose = (p3) => {
+  const cdx = Math.hypot(p3.clavicle_l[0] - p3.clavicle_r[0], p3.clavicle_l[2] - p3.clavicle_r[2]);
+  const wdx = Math.hypot(p3.wrist_l[0] - p3.wrist_r[0], p3.wrist_l[2] - p3.wrist_r[2]);
+  const wy = (p3.wrist_l[1] + p3.wrist_r[1]) / 2;
+  const cy = (p3.clavicle_l[1] + p3.clavicle_r[1]) / 2;
+  return cdx > 1e-3 && wdx > 1.55 * cdx && wy > cy - 0.06;
+};
+const leadIn = (r) => {
+  const s0 = sampleAny(r, 0);
+  if (!s0.pose3d || !isTPose(s0.pose3d)) return 0;
+  const dur = s0.duration || 2;
+  for (let t = 0.1; t < Math.min(2.0, dur); t += 0.1) {
+    const s = sampleAny(r, t);
+    if (s.pose3d && !isTPose(s.pose3d)) return t;
+  }
+  return 0;
+};
+req.t = (req.t || 0) + leadIn(req);
 const st0 = sampleAny(req, 0);
-const az0 = st0.pose3d ? bodyAz(st0.pose3d) : 0;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+// First confident facing sample in the clip's opening half-second —
+// frame 0 can be a calibration pose or a degenerate-axis frame.
+const az0 = (() => {
+  const dur = st0.duration || nF / fps;
+  for (let k = 0; k < 16; k++) {
+    const s = sampleAny(req, Math.min(dur * k / 15 * 0.5, dur));
+    if (s.pose3d) {
+      const c = bodyAzMag(s.pose3d);
+      if (c.mag > AZ_MIN_MAG) return c.az;
+    }
+  }
+  return st0.pose3d ? bodyAz(st0.pose3d) : 0;
+})();
 // Constant offset between the head joint's world azimuth and the body's
 // facing azimuth: BVH local axes are arbitrary, so measure the median
-// (roty - az) over the clip and cancel it — real turns survive, the
-// convention bias doesn't.
+// (roty - az) over confident samples and cancel it — real turns survive,
+// the convention bias doesn't.
 const headOff = (() => {
   const ds = [];
   const dur = st0.duration || nF / fps;
-  for (let k = 0; k < 12; k++) {
-    const s = sampleAny(req, dur * k / 12);
+  for (let k = 0; k < 24 && ds.length < 12; k++) {
+    const s = sampleAny(req, dur * k / 24);
     if (s.roty !== null && s.roty !== undefined && s.pose3d) {
-      ds.push(wrap(s.roty - bodyAz(s.pose3d)));
+      const c = bodyAzMag(s.pose3d);
+      if (c.mag > AZ_MIN_MAG) ds.push(wrap(s.roty - c.az));
     }
   }
   ds.sort((a, b) => a - b);
@@ -212,14 +255,31 @@ const headOff = (() => {
 const azBase = (() => {
   let sx = 0, sz = 0, n = 0;
   const dur = (st0.duration || nF / fps);
-  for (let k = 0; k < 8; k++) {
-    const s = sampleAny(req, dur * k / 8);
+  for (let k = 0; k < 16 && n < 8; k++) {
+    const s = sampleAny(req, dur * k / 16);
     if (!s.pose3d) continue;
-    const a = bodyAz(s.pose3d) / DEG;
+    const c = bodyAzMag(s.pose3d);
+    if (c.mag <= AZ_MIN_MAG) continue;
+    const a = c.az / DEG;
     sx += Math.sin(a); sz += Math.cos(a); n++;
   }
   return n ? Math.atan2(sx / n, sz / n) * DEG : az0;
 })();
+// Smoothed facing tracker: degenerate frames hold the last confident
+// azimuth, confident frames ease toward the new reading — real turns
+// track within ~100ms, jitter never reaches the view.
+let azSm = az0;
+const trackAz = (p3) => {
+  const c = bodyAzMag(p3);
+  if (c.mag > AZ_MIN_MAG) azSm += wrap(c.az - azSm) * 0.35;
+  return azSm;
+};
+let oAzSm = 0;
+const trackOAz = (p3) => {
+  const c = bodyAzMag(p3);
+  if (c.mag > AZ_MIN_MAG) oAzSm += wrap(c.az - oAzSm) * 0.35;
+  return oAzSm;
+};
 
 // ---- optional second figure: two-person scenes (shake hands, talk,
 // comfort). req.other = {cmuClip|say|action, z, facing:'left'|'right',
@@ -233,22 +293,33 @@ if (OTHER) {
       .selectClip(oReq.say || oReq.text, CMU ? CMU.vault().clips : null);
     if (pk) oReq.cmuClip = pk;
   }
+  oReq.t = (oReq.t || 0) + leadIn(oReq);
   const s0 = sampleAny(oReq, 0);
-  oAz0 = s0.pose3d ? bodyAz(s0.pose3d) : 0;
-  let sx = 0, sz = 0, n = 0;
   const dur = s0.duration || nF / fps;
-  for (let k = 0; k < 8; k++) {
-    const s = sampleAny(oReq, dur * k / 8);
+  for (let k = 0; k < 16; k++) {
+    const s = sampleAny(oReq, Math.min(dur * k / 15 * 0.5, dur));
+    if (s.pose3d) {
+      const c = bodyAzMag(s.pose3d);
+      if (c.mag > AZ_MIN_MAG) { oAz0 = c.az; break; }
+    }
+  }
+  let sx = 0, sz = 0, n = 0;
+  for (let k = 0; k < 16 && n < 8; k++) {
+    const s = sampleAny(oReq, dur * k / 16);
     if (!s.pose3d) continue;
-    const a = bodyAz(s.pose3d) / DEG;
+    const c = bodyAzMag(s.pose3d);
+    if (c.mag <= AZ_MIN_MAG) continue;
+    const a = c.az / DEG;
     sx += Math.sin(a); sz += Math.cos(a); n++;
   }
   oAzBase = n ? Math.atan2(sx / n, sz / n) * DEG : oAz0;
+  oAzSm = oAz0;
   const ds = [];
-  for (let k = 0; k < 12; k++) {
-    const s = sampleAny(oReq, dur * k / 12);
+  for (let k = 0; k < 24 && ds.length < 12; k++) {
+    const s = sampleAny(oReq, dur * k / 24);
     if (s.roty !== null && s.roty !== undefined && s.pose3d) {
-      ds.push(wrap(s.roty - bodyAz(s.pose3d)));
+      const c = bodyAzMag(s.pose3d);
+      if (c.mag > AZ_MIN_MAG) ds.push(wrap(s.roty - c.az));
     }
   }
   ds.sort((a, b) => a - b);
@@ -262,7 +333,7 @@ for (let i = 0; i < nF; i++) {
   const st = sampleAny(req, t);
   if (st.blocked) { console.error('blocked', st.failure); break; }
   const { pose: mocapPose, world } = poseFromMocap(st.pose3d);
-  const az = bodyAz(st.pose3d);
+  const az = trackAz(st.pose3d);
   if (st.roty !== null && st.roty !== undefined && !NOYAW) {
     // relative head yaw = head's world-azimuth delta vs clip baseline,
     // re-expressed in the body frame (cancels arbitrary BVH local axes)
@@ -270,11 +341,12 @@ for (let i = 0; i < nF; i++) {
       wrap(st.roty - az - headOff), -80, 80);
   }
   // Capture world axes are arbitrary — re-baseline facing to the clip's
-  // dominant azimuth so every clip opens profile-left. Real turns damp
-  // into the rig's good envelope (±~35° lean toward camera): the paper-
-  // rig silhouette reads broken near-frontal, so a turn reads as lean +
-  // head yaw rather than crossing into frontal/back territory.
-  const viewYaw = NOYAW ? -90 : -90 + 38 * Math.tanh(wrap(az - azBase) / 55);
+  // dominant azimuth so every clip presents at the rig's GOOD axis:
+  // three-quarter-left (-38°) — face readable, both limbs separated.
+  // Dead profile (-90) reads flat/lifeless; frontal reads broken. Real
+  // turns damp through tanh into the [-76, 0] window: a turn reads as
+  // lean + head yaw, never crossing into back-facing territory.
+  const viewYaw = NOYAW ? -90 : -38 + 38 * Math.tanh(wrap(az - azBase) / 55);
   let pose = mocapPose;
   let actingFace = null;
   if (ACTING) {
@@ -360,17 +432,17 @@ for (let i = 0; i < nF; i++) {
     }
   }
   if (OTHER) {
-    const st2 = sampleAny(oReq, t + (oReq.t || 0));
+    const st2 = sampleAny(oReq, t);
     if (st2 && !st2.blocked) {
       const { pose: p2, world: w2 } = poseFromMocap(st2.pose3d);
-      const az2 = bodyAz(st2.pose3d);
+      const az2 = trackOAz(st2.pose3d);
       if (st2.roty !== null && st2.roty !== undefined && !NOYAW) {
         p2.head.yaw = clamp(wrap(st2.roty - az2 - oHeadOff), -80, 80);
       }
       const pel2 = w2.pelvis || [0, 0.877, 0];
       const out2 = Renderer.renderPose({
         proportion: oReq.proportion || proportion, height: 1000,
-        view: (oReq.facing === 'right' ? 90 : -90) + wrap(az2 - oAzBase),
+        view: (oReq.facing === 'right' ? 38 : -38) + 38 * Math.tanh(wrap(az2 - oAzBase) / 55),
         pose: p2,
         world: { pitch: w2.pitch,
                  root: { x: 0, y: (pel2[1] - 0.877) * scale,
