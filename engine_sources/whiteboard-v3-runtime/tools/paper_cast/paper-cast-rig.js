@@ -246,23 +246,41 @@
     const hipSpan = support(hipHalf);
     const waistFactor = proportion.waist ?? 1;
     const waistSpan = support(((shoulderHalf + hipHalf) / 2) * waistFactor);
-    const waistY = (screen.chest.y + screen.pelvis.y) / 2 + (screen.pelvis.y - screen.chest.y) * 0.12;
+    // The spine bends where pelvis->chest meets chest->neck: garment anchors
+    // sit on that chain and each level's spread follows the local spine
+    // normal, so the chest-to-waist region folds under a bend instead of
+    // floating off the midline and ballooning the garment outline.
+    const segDir = (a, b) => {
+      const ddx = b.x - a.x, ddy = b.y - a.y;
+      const dd = Math.hypot(ddx, ddy) || 1;
+      return { x: ddx / dd, y: ddy / dd };
+    };
+    const loD = segDir(screen.pelvis, screen.chest);   // up the lower spine
+    const upD = (Math.hypot(screen.neck.x - screen.chest.x, screen.neck.y - screen.chest.y) < 1)
+      ? loD
+      : segDir(screen.chest, screen.neck);             // up the upper spine
+    const loN = { x: -loD.y, y: loD.x };
+    const upN = { x: -upD.y, y: upD.x };
+    // The waist is where soft mass shows — a point on the lower spine 38% of
+    // the way up from pelvis to chest, fanned along the pelvis-plane normal.
+    const waistC = {
+      x: screen.pelvis.x + (screen.chest.x - screen.pelvis.x) * 0.38,
+      y: screen.pelvis.y + (screen.chest.y - screen.pelvis.y) * 0.38
+    };
     const torso = {
       id: 'torso',
       kind: 'torso',
       depth: (screen.chest.depth + screen.pelvis.depth) / 2,
-      shoulderLeft: { x: screen.chest.x - shoulderSpan, y: screen.leftShoulder.y },
-      shoulderRight: { x: screen.chest.x + shoulderSpan, y: screen.rightShoulder.y },
-      hipLeft: { x: screen.pelvis.x - hipSpan, y: screen.leftHip.y },
-      hipRight: { x: screen.pelvis.x + hipSpan, y: screen.rightHip.y },
+      shoulderLeft: { x: screen.chest.x - upN.x * shoulderSpan, y: screen.chest.y - upN.y * shoulderSpan },
+      shoulderRight: { x: screen.chest.x + upN.x * shoulderSpan, y: screen.chest.y + upN.y * shoulderSpan },
+      hipLeft: { x: screen.pelvis.x - loN.x * hipSpan, y: screen.pelvis.y - loN.y * hipSpan },
+      hipRight: { x: screen.pelvis.x + loN.x * hipSpan, y: screen.pelvis.y + loN.y * hipSpan },
       chest: screen.chest,
       pelvis: screen.pelvis,
+      neck: screen.neck,
       taper: proportion.torsoTaper,
-      // The waist is where soft mass shows, so it is projected like the
-      // shoulders and hips rather than interpolated between them by whatever
-      // draws the clothes.
-      waistLeft: { x: screen.chest.x - waistSpan, y: waistY },
-      waistRight: { x: screen.chest.x + waistSpan, y: waistY },
+      waistLeft: { x: waistC.x - loN.x * waistSpan, y: waistC.y - loN.y * waistSpan },
+      waistRight: { x: waistC.x + loN.x * waistSpan, y: waistC.y + loN.y * waistSpan },
       waist: waistFactor
     };
 

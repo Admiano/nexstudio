@@ -41,12 +41,12 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/paper_cast/line_cast.py` | paper-cast line-art tracer (silhouette union, fills, hatching) | `3a43f15b05450dd3b909d8cc242e76bae0a7c50b729c34e5134e57ac3d2492ee` |
 | `tools/paper_cast/paperbook-figure.js` | paperbook figure renderer (vendored; + bend-crease/finger detail for line-art figures) | `6df839b773241c40d6f1791110e29ed2e7e8f73ac2842e8e13a236ddf45b523e` |
 | `tools/nexstick/bvh_to_vault.py` | CMU BVH -> V5 vault converter (FK, joint map, foot contacts) | `af117dfbc64dc8d260b5e52731b60fbbdeb126282aa477aef0daf129d4458b86` |
-| `tools/nexstick/cmu_sampler.cjs` | CMU vault sampler (V5 sample contract) | `9e3f65a1d9c7868e4f64c3852287198d15784e6b6f4f4342c03df57e4263dd5e` |
+| `tools/nexstick/cmu_sampler.cjs` | CMU vault sampler (V5 sample contract) | `6be0c12521aa4101c0441e7159447ae66a30d92e9508b9dc7634e8ed5f9c1d74` |
 | `tools/nexstick/compiled/cmu_motion_vault_v5.json` | 64-clip CMU corpus (free-for-all-uses license) | `806de412cf227a1866990b46e09a708581e493c5fbce614a9c092b79f3e98e3d` |
-| `tools/paper_cast/paper-cast-rig.js` | Paper-cast rig: articulated figure builder (+ world pitch/root transform for floor & air poses) | `baad9aac4820be72339dc1e817769472d69c55240f094c01ac3196744dadc046` |
+| `tools/paper_cast/paper-cast-rig.js` | Paper-cast rig: articulated figure builder (+ world pitch/root transform for floor & air poses) | `819b50feb27ab3c5661719046b1ee485ccd57a7f4a5dfc24b86fd6a28aab653a` |
 | `tools/nexstick/ek_pose_clips.py` | Everkinetic canonical keypose -> vault FK generator (CC BY-SA 4.0) | `1900285b742c10a667e6e0def196cea56b584bc1eea1bb564754a7091508ac72` |
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |
-| `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `f9e68096102d9b07e558b7bbbac68a101b776a23b08280b92128dfee2d398125` |
+| `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `16018c7c3633c0d4bf2d7e9e640b02ae60aeac18a691657a209aea5c70d1f350` |
 | `tools/nexstick/skin_rig.cjs` | skin-on-skeleton dev renderer (tools only) | `77c5e10963cf28b185be956361ebd526aa547dbbf3b364cb2f0bc34bf269b481` |
 | `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `f7ca82447e5e54f1bd25c3f4e3be8db232a3397de8dec3b71626e88db0a80918` |
 | `tools/nexstick/fx_marks.cjs` | cartoon mark layer: velocity speed lines, impact bursts, foot-plant dust | `e0dce5bde5eceffc823eaa078ea3e7071aadd597adf36502a38ba7c2647b8749` |

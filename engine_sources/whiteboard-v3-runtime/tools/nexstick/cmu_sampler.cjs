@@ -51,7 +51,7 @@ function sample(ref, t, opts = {}) {
   let pose = {};
   for (let j = 0; j < V.joints.length; j++) {
     const n = V.joints[j], p0 = c.frames[i][j], p1 = c.frames[i + 1][j] || c.frames[i][j];
-    pose[n] = [p0[0] + (p1[0] - p0[0]) * w, p0[1] + (p1[0] - p0[1]) * w, p0[2] + (p1[0] - p0[2]) * w];
+    pose[n] = [p0[0] + (p1[0] - p0[0]) * w, p0[1] + (p1[1] - p0[1]) * w, p0[2] + (p1[2] - p0[2]) * w];
   }
   let cycleOffset = [0, 0, 0];
   if (loop && cycle && c.rootDelta) {
