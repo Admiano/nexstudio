@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { formatUSD, MindSpark, useStudio, type ContextChip } from "../App";
 import { studioApi, type EngineKind } from "../api";
 import { ensureNxPresence } from "../nx-presence";
@@ -389,6 +389,7 @@ const PHASE_ORDER = ["PREPARING", "SHAPING_STORY", "VISUAL_DIRECTION", "DIRECTIN
 function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const [proj, setProj] = useState<{ title?: string; detail?: string; phase?: string; status?: string } | null>(null);
   const [jobProgress, setJobProgress] = useState<{ phase?: string; aspect?: string; aspectsDone?: number; aspectsTotal?: number } | null>(null);
+  useEffect(() => { ensureNxPresence(); }, []);
   // Engine job path: poll the job until outputs land
   useEffect(() => {
     if (!flow.jobId || !flow.jobKind) return;
@@ -448,22 +449,96 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
       ? `Rendering the screens — ${jobProgress.aspectsDone ?? 0} of ${jobProgress.aspectsTotal} done${jobProgress.aspect ? `, now on ${ASPECT_LABEL[jobProgress.aspect] ?? jobProgress.aspect}` : ""}.`
       : JOB_PHASE[jobProgress.phase] ?? jobCopy?.detail
     : jobCopy?.detail;
+  const V2_PHASES: Array<{ key: string; label: string }> = [
+    { key: "story", label: "Building the story" },
+    { key: "direction", label: "Directing the scenes" },
+    { key: "scenes", label: "Composing the visuals" },
+    { key: "life", label: "Bringing it to life" },
+    { key: "sound", label: "Finishing sound" },
+    { key: "finish", label: "Preparing final video" },
+  ];
+  const v2phase = flow.jobKind
+    ? (jobProgress?.phase === "render"
+      ? ((jobProgress.aspectsDone ?? 0) / Math.max(1, jobProgress.aspectsTotal ?? 3) >= 0.66 ? "sound"
+        : (jobProgress.aspectsDone ?? 0) / Math.max(1, jobProgress.aspectsTotal ?? 3) >= 0.33 ? "life" : "scenes")
+      : ({ voice: "story", direction: "direction", packaging: "finish", finishing: "finish" } as Record<string, string>)[jobProgress?.phase ?? ""] ?? "story")
+    : V2_PHASES[Math.min(Math.max(idx, 0), 5)].key;
+  const v2idx = V2_PHASES.findIndex((p) => p.key === v2phase);
+  const frac = flow.jobKind
+    ? (jobProgress?.phase === "render" && jobProgress.aspectsTotal
+      ? (2 + 3 * ((jobProgress.aspectsDone ?? 0) / jobProgress.aspectsTotal)) / 6
+      : (v2idx + 0.5) / 6)
+    : (idx + 1) / PHASE_ORDER.length;
+  const progressX = Math.round(8 + 304 * Math.min(0.97, Math.max(0.08, frac)));
+  const prodBeats = flow.beats?.length
+    ? flow.beats.slice(0, 4).map((b) => b.purposeTitle)
+    : ["Open on the tension", "Frame what matters", "Make it tangible", "Land the takeaway"];
+  while (prodBeats.length < 4) prodBeats.push(prodBeats[prodBeats.length - 1] ?? "Land the takeaway");
   return (
-    <div aria-hidden="true" className="production-stage open" data-phase="story" id="productionStage">
+    <div aria-hidden="true" className="production-stage open" data-phase={v2phase} id="productionStage">
       <header className="production-top">
-        <button aria-label="Leave production and keep working" className="production-leave" onClick={api.closeFlow}>← Keep working</button>
-        <div className="production-id"><span className="production-live"><i /> In production</span></div>
+        <button aria-label="Leave production and return to Work" className="production-exit" onClick={api.closeFlow}>← <span>Work</span></button>
+        <div className="production-brand">
+          <span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state="thinking"><canvas /></span>
+          <span className="production-brand-full">NexStudio · Production</span>
+          <span className="production-brand-short">Production</span>
+        </div>
+        <div className="production-credit"><i /><span>Credits secured</span></div>
       </header>
-      <main className="production-main">
-        <div className="production-copy">
-          <div className="micro">NexStudio Studio</div>
-          <h1>{jobCopy?.title ?? proj?.title ?? "Preparing the production."}</h1>
-          <p>{jobDetail ?? proj?.detail ?? "The Studio is checking the approved brief and what the production system can safely make."}</p>
-        </div>
-        <div className="production-steps">
-          {["Story", "Visuals", "Motion", "Sound", "Review"].map((s, i) => <div key={s} className={`pstep ${i <= idx ? "on" : ""}`}><span>{s}</span></div>)}
-        </div>
-      </main>
+      <div className="production-wrap">
+        <section className="production-canvas">
+          <div className="production-frame" id="productionFrame">
+            <div className="nx-prod-world nx-prod-world-v2">
+              <div aria-hidden="true" className="nx-story-assembly">
+                {prodBeats.map((b, i) => (
+                  <div key={i} className="nx-story-beat"><span>{String(i + 1).padStart(2, "0")}</span><i /><b>{b}</b><em><u /><u /></em></div>
+                ))}
+              </div>
+              <div aria-hidden="true" className="nx-scene-assembly">
+                {["s1", "s2", "s3", "s4"].map((s, i) => (
+                  <div key={s} className={`nx-scene ${s}`}><span>{String(i + 1).padStart(2, "0")}</span><div className="nx-scene-layout"><b /><em /><u /></div></div>
+                ))}
+              </div>
+              <div aria-hidden="true" className="nx-composition">
+                <div className="nx-comp-kicker">NexMind direction</div>
+                <div className="nx-comp-title">One idea.<br />Fully resolved.</div>
+                <div className="nx-comp-rule" />
+                <div className="nx-comp-object"><i /><i /><i /></div>
+                <div className="nx-comp-caption"><span>CONTEXT</span><b>→</b><span>DIRECTION</span></div>
+                <div aria-hidden="true" className="nx-layer-stack"><i /><i /><i /></div>
+                <div aria-hidden="true" className="nx-motion-echo"><i /><i /><i /></div>
+                <div aria-hidden="true" className="nx-cut-timeline"><i /><i /><i /><i /><i /><b /></div>
+                <div className="nx-motion-path"><i /><b /></div>
+              </div>
+              <div aria-hidden="true" className="nx-sound-bed"><span>SYNC</span>
+                {[18, 38, 62, 31, 76, 52, 88, 44, 68, 29, 81, 56, 92, 43, 72, 34, 66, 48, 84, 37, 58, 26, 74, 42].map((h, i) => (
+                  <i key={i} style={{ "--h": `${h}%`, "--d": `${(i * 0.035).toFixed(2)}s` } as CSSProperties} />
+                ))}
+                <b className="nx-sync-head" />
+              </div>
+              <div aria-hidden="true" className="nx-final-lock"><span>FINAL CUT</span><div className="nx-final-mark">✓</div><i /></div>
+            </div>
+          </div>
+        </section>
+        <aside className="production-side">
+          <div className="production-mind-status">
+            <span aria-hidden="true" className="nx-presence nx-presence--status" data-mode="matrix" data-nx-presence="" data-state="thinking"><canvas /></span>
+            <div className="micro">NexMind is making your video</div>
+          </div>
+          <h1 id="productionTitle">{jobCopy?.title ?? proj?.title ?? "Preparing the production."}</h1>
+          <p id="productionCopy">{jobDetail ?? proj?.detail ?? "The Studio is checking the approved brief and what the production system can safely make."}</p>
+          <svg aria-hidden="true" className="nx-production-progress" viewBox="0 0 320 18" preserveAspectRatio="none">
+            <path className="nx-progress-track" d="M8 9 H312" />
+            <path className="nx-progress-live" d={`M8 9 H${progressX}`} />
+          </svg>
+          <div className="phase-list" id="phaseList">
+            {V2_PHASES.map((p, i) => (
+              <div key={p.key} className={`phase ${i < v2idx ? "done" : i === v2idx ? "active" : ""}`} data-p={p.key}><i />{p.label}</div>
+            ))}
+          </div>
+          <div className="production-note">You can leave this screen. Your production keeps running — come back to review the screens.</div>
+        </aside>
+      </div>
     </div>
   );
 }
@@ -520,17 +595,22 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
           )}
         </section>
         <aside className="review-side">
-          <div className="micro">NexStudio</div>
-          <h1>Your video is ready.</h1>
-          <p className="review-meta">{outputs ? "Rendered in all three screens — pick a size, approve or download." : "Approve it to publish, or send it back to NexMind with a revision note."}</p>
-          <div className="review-actions">
-            <button className="review-primary" disabled={busy} onClick={() => void act("approve")}>Approve & publish →</button>
-            {outputs
-              ? <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "direction", jobId: undefined, jobOutputs: undefined })}>Revise brief</button>
-              : <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}>Revise with NexMind</button>}
-            <a className="review-download" href={outputs ? outputs[activeAspect] : `/api/v1/productions/${flow.productionId}/output`} download>Download MP4</a>
+          <div className="micro">Your video is ready</div>
+          <h1>Review the finished video.</h1>
+          <p>Watch the version NexStudio made from your approved direction. Download it, publish it, or ask NexMind for a revision.</p>
+          <div className="review-meta">
+            <span><b>{ASPECT_LABEL[activeAspect] ?? "16:9"}</b> shown</span>
+            <span><b>{outputs ? outputKeys.length : 1}</b> screens</span>
+            <span>{flow.duration ? `${flow.duration} sec` : "Version 1"}</span>
           </div>
-          <p className="review-privacy">Publishing hands the files to you — nothing is posted on your behalf.</p>
+          <div className="review-actions">
+            <a className="review-primary light" href={outputs ? outputs[activeAspect] : `/api/v1/productions/${flow.productionId}/output`} download>↓ Download</a>
+            <button className="review-primary" disabled={busy} onClick={() => void act("approve")}>↗ Publish</button>
+          </div>
+          {outputs
+            ? <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "direction", jobId: undefined, jobOutputs: undefined })}><span className="spark">✦</span> Revise brief</button>
+            : <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}><span className="spark">✦</span> Revise with NexMind</button>}
+          <div className="review-privacy">Publishing does not require you to connect a social account — NexStudio prepares the file and hands it to you.</div>
         </aside>
       </div>
     </div>
