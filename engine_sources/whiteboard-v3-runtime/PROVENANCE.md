@@ -58,7 +58,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/meshrig/mh_bake.py` | MakeHuman rig -> Freestyle line-art sprite baker (CC0 body + authored weights; meta['heads'] jaw anchors for viseme mouths) | `eb3c362342d9eae248a1201336aef0dfecfce8e4019ae17313b2453045a80436` |
 | `tools/nexstick/meshrig/make_variant.py` | character-variant .blend builder: vertex-group silhouette reshape + hair/garment primitives (female/suit/slim) | `49c2903d515bce5f4a1a6dfa5950b5c68a8d44b5347c2223ec306f4c5c422a5e` |
 | `tools/nexstick/meshrig/bake_parallel.sh` | parallel bake driver (xargs -P, env: BLEND/VAULT/OUTROOT/RES/CAM) | `807eb706cf51cdc79493b2ce9762f4fe5df5f08aa78b849d09e62455a5efbb2a` |
-| `tools/nexstick/baked/<CLIP>/` | baked PNG sprite frames + meta.json per clip (generated; regen via bake_parallel.sh) | generated — see per-clip meta.json |
+| `tools/nexstick/baked/<CLIP>/` | baked PNG sprite frames + meta.json per clip (generated; regen via bake_parallel.sh). `<CLIP>@<variant>` dirs = same clip baked on a make_variant.py body (female/suit/slim) | generated — see per-clip meta.json |
 | `v3_shorts.py` | rigged-shorts mode: stage floor + walk-cycle entrances/exits + figure-as-protagonist | `e432cd6e9bd410b1b2525f05f6df8fb880ae23fb0e4cac6a6e995dab7bd13a5a` |
 | `v3_comic.py` | comic/storyboard mode: self-drawing panels, posed sprites, speech bubbles | `b89ee39c4a847709bfbcacbed04976fe1c4cb9d1a61e5e8e5f9eb4b01017e1a2` |
 
