@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Eyebrow, route, useStudio } from "../App";
+import { loadViewed, markViewed } from "../viewed";
 import { sortDashboardProjects, type DashboardProject } from "@/studio-v1/dashboard/domain/dashboard";
 
 type Filter = "all" | "needs" | "production" | "ready" | "published";
@@ -30,6 +31,7 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
   const { projects } = useStudio();
   const [filter, setFilter] = useState<Filter>("all");
   const [layout, setLayout] = useState<"list" | "tiles">("list");
+  const [viewed] = useState<Set<string>>(() => loadViewed());
   const sorted = useMemo(() => sortDashboardProjects(projects) as typeof projects, [projects]);
   const needs = sorted.filter((p) => p.needsAction).length;
   const making = sorted.filter((p) => bucket(p) === "production").length;
@@ -78,8 +80,9 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
             : "In direction";
           const family = (p.family || "").toLowerCase();
           const job = p.engine?.jobId ? { engine: { kind: p.engine.kind, jobId: p.engine.jobId, outputs: p.engine.outputs }, id: p.id } : null;
-          const open = () => (job ? onOpenJob(job) : onOpenHistory(p.id));
-          const thumb = <div className={`work-thumb-v2 ${family}`} style={p.coverUrl ? { backgroundImage: `url(${p.coverUrl})`, backgroundSize: "cover" } : undefined}><span className="work-thumb-state">{p.statusLabel}</span></div>;
+          const isNew = dot === "ready" && !viewed.has(p.id);
+          const open = () => { markViewed(p.id); (job ? onOpenJob(job) : onOpenHistory(p.id)); };
+          const thumb = <div className={`work-thumb-v2 ${family}`} style={p.coverUrl ? { backgroundImage: `url(${p.coverUrl})`, backgroundSize: "cover" } : undefined}><span className="work-thumb-state">{p.statusLabel}</span>{isNew && <span className="work-new">New</span>}</div>;
           const info = <div className="work-info"><h3>{p.title}</h3><p>{p.family}{p.videoType ? ` · ${p.videoType}` : ""}{p.durationSeconds ? ` · ${p.durationSeconds} sec` : ""}</p><div className="work-tags"><span>{p.family}</span>{p.videoType ? <span>{p.videoType}</span> : null}{p.durationSeconds ? <span>{p.durationSeconds}s</span> : null}{p.seriesId ? <span>Series</span> : null}</div></div>;
           const state = <div className="work-state-v2"><b><span className={`state-dot st-${dot}`} />{p.statusLabel}</b><span>{detail}</span></div>;
           if (layout === "tiles") {

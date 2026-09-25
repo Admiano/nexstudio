@@ -12,6 +12,7 @@ import { FlowOverlay, type FlowState } from "./overlays/Flow";
 import { PickerSheets, type SheetId } from "./overlays/Sheets";
 import { HistoryOverlay } from "./overlays/History";
 import { route, useStudio, formatUSD, type ContextChip, type ViewId } from "./App";
+import { loadViewed, markViewed } from "./viewed";
 
 export interface ComposerState {
   prompt: string;
@@ -45,6 +46,8 @@ export default function Shell({ view }: { view: ViewId }) {
   }, [flow, flowReady]);
   const [seriesFocus, setSeriesFocus] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [viewed, setViewed] = useState<Set<string>>(() => (typeof window === "undefined" ? new Set() : loadViewed()));
   const [composer, setComposer] = useState<ComposerState>({ prompt: "", contexts: [], family: null });
 
   const notify = useCallback((msg: string) => {
@@ -74,6 +77,21 @@ export default function Shell({ view }: { view: ViewId }) {
   const setFamily = useCallback((family: string | null) => setComposer((c) => ({ ...c, family })), []);
   const setMode = useCallback((mode: "brief" | "script") => setComposer((c) => ({ ...c, mode })), []);
 
+  const openJobFlow = useCallback((p: { id: string; engine: { kind: "whiteboard" | "explainer"; jobId: string; outputs?: Record<string, string> | null } }) => {
+    markViewed(p.id);
+    setViewed(loadViewed());
+    const done = p.engine.outputs && Object.keys(p.engine.outputs).length > 0;
+    setFlow(done
+      ? { stage: "review", jobKind: p.engine.kind, jobId: p.engine.jobId, jobOutputs: p.engine.outputs ?? {} }
+      : { stage: "production", jobKind: p.engine.kind, jobId: p.engine.jobId });
+  }, []);
+
+  // Finished-but-unviewed engine renders — the in-app completion feed.
+  const finishedUnviewed = useMemo(() => projects.filter((p) => {
+    const done = p.engine?.outputs && Object.keys(p.engine.outputs).length > 0;
+    return done && !viewed.has(p.id);
+  }), [projects, viewed]);
+
   const flowApi = useMemo(() => ({
     openFlow: (initial: FlowState) => setFlow(initial),
     closeFlow: () => setFlow(null),
@@ -96,6 +114,26 @@ export default function Shell({ view }: { view: ViewId }) {
           ))}
         </nav>
         <div className="account">
+          <div className="bell-wrap">
+            <button aria-label="Notifications" className={`bell ${finishedUnviewed.length > 0 ? "has-new" : ""}`} onClick={() => setBellOpen((v) => !v)}>
+              <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8" /><path d="M13.7 21a2 2 0 0 1-3.4 0" /></svg>
+              {finishedUnviewed.length > 0 && <span className="bell-count">{finishedUnviewed.length}</span>}
+            </button>
+            {bellOpen && (
+              <div className="bell-drop">
+                <div className="bell-head"><b>Activity</b>{finishedUnviewed.length > 0 ? <span>{finishedUnviewed.length} new</span> : <span>You're caught up</span>}</div>
+                {finishedUnviewed.slice(0, 6).map((p) => (
+                  <button key={p.id} className="bell-item" onClick={() => { setBellOpen(false); openJobFlow({ id: p.id, engine: { kind: p.engine!.kind, jobId: p.engine!.jobId, outputs: p.engine!.outputs } }); }}>
+                    <span className="bell-dot" />
+                    <span className="bell-item-copy"><b>{p.title}</b><span>Finished rendering — ready to review</span></span>
+                    <span className="bell-go">→</span>
+                  </button>
+                ))}
+                {finishedUnviewed.length === 0 && <div className="bell-empty"><b>Nothing waiting.</b><p>When a video finishes rendering, it shows up here.</p></div>}
+                <button className="bell-all" onClick={() => { setBellOpen(false); route("work"); }}>View all work →</button>
+              </div>
+            )}
+          </div>
           <button aria-label="Open credits" className="credits" onClick={() => setCreditsOpen(true)}>
             <span className="credit-dot" /><span>{balance ? formatUSD(balance.availableMinor) : "—"}</span>
           </button>
@@ -107,22 +145,15 @@ export default function Shell({ view }: { view: ViewId }) {
           <CreateView composer={composer} setPrompt={setPrompt} setFamily={setFamily} setMode={setMode} removeContext={removeContext} openSheet={setSheet} openFlow={flowApi.openFlow} onOpenWork={(id) => {
             const p = projects.find((x) => x.id === id);
             if (p?.engine?.jobId) {
-              const done = p.engine.outputs && Object.keys(p.engine.outputs).length > 0;
-              flowApi.openFlow(done
-                ? { stage: "review", jobKind: p.engine.kind, jobId: p.engine.jobId, jobOutputs: p.engine.outputs ?? {} }
-                : { stage: "production", jobKind: p.engine.kind, jobId: p.engine.jobId });
+              openJobFlow({ id: p.id, engine: { kind: p.engine.kind, jobId: p.engine.jobId, outputs: p.engine.outputs } });
               return;
             }
+            markViewed(id);
             setHistoryId(id);
           }} openSeries={openSeries} notify={notify} />
         </section>
         <section className={`view ${view === "work" ? "active" : ""}`} id="view-work">
-          <WorkView onOpenHistory={(id) => setHistoryId(id)} onOpenJob={(p) => {
-            const done = p.engine.outputs && Object.keys(p.engine.outputs).length > 0;
-            flowApi.openFlow(done
-              ? { stage: "review", jobKind: p.engine.kind, jobId: p.engine.jobId, jobOutputs: p.engine.outputs ?? {} }
-              : { stage: "production", jobKind: p.engine.kind, jobId: p.engine.jobId });
-          }} />
+          <WorkView onOpenHistory={(id) => { markViewed(id); setHistoryId(id); }} onOpenJob={(p) => openJobFlow({ id: p.id, engine: { kind: p.engine.kind, jobId: p.engine.jobId, outputs: p.engine.outputs } })} />
         </section>
         <section className={`view ${view === "brand" ? "active" : ""}`} id="view-brand">
           <BrandView openSheet={setSheet} notify={notify} openSeries={openSeries} onOpenWork={(id) => setHistoryId(id)} />

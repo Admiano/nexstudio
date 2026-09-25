@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { formatUSD, MindSpark, useStudio, type ContextChip } from "../App";
+import { formatUSD, MindSpark, route, useStudio, type ContextChip } from "../App";
 import { studioApi, type EngineKind } from "../api";
 import { ensureNxPresence } from "../nx-presence";
 
@@ -34,6 +34,7 @@ export interface FlowApi {
   closeFlow: () => void;
   patchFlow: (p: Partial<FlowState>) => void;
   notify: (m: string) => void;
+  openSeries?: (id: string | null) => void;
 }
 
 const FAMILY_LABEL: Record<string, string> = {
@@ -716,6 +717,16 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
           {outputs
             ? <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "direction", jobId: undefined, jobOutputs: undefined })}><span className="spark">✦</span> Revise brief</button>
             : <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}><span className="spark">✦</span> Revise with NexMind</button>}
+          {(() => { const seriesChip = (flow.contexts ?? []).find((c) => c.kind === "series"); return (
+          <div className="review-next">
+            <span>What's next</span>
+            <div className="review-next-row">
+              {seriesChip && api.openSeries && <button className="review-next-btn" onClick={() => api.openSeries!(seriesChip.refId)}>Make the next episode →</button>}
+              <button className="review-next-btn" onClick={() => { api.closeFlow(); route("create"); }}>Make another one →</button>
+              <button className="review-next-btn" onClick={() => { api.closeFlow(); route("work"); }}>View in Work →</button>
+            </div>
+          </div>
+          ); })()}
           <div className="review-privacy">Publishing does not require you to connect a social account — NexStudio prepares the file and hands it to you.</div>
         </aside>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ensureNxPresence } from "../nx-presence";
 import type { ComposerState } from "../Shell";
 import { route, useStudio, type ContextChip } from "../App";
@@ -55,6 +55,21 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
 
   const canSubmit = composer.prompt.trim().length >= 8;
 
+  const [welcomed, setWelcomed] = useState(true);
+  useEffect(() => {
+    try { setWelcomed(localStorage.getItem("nx.welcomed") === "1"); } catch { setWelcomed(true); }
+  }, []);
+  function dismissOnboard() {
+    setWelcomed(true);
+    try { localStorage.setItem("nx.welcomed", "1"); } catch { /* banner returns next visit — harmless */ }
+  }
+  const EXAMPLE_BRIEF = "Make a 45-second explainer about how pour-over coffee works — bloom, pour, and drawdown — warm and visual.";
+  function tryExample() {
+    setMode("brief");
+    setPrompt(EXAMPLE_BRIEF);
+    dismissOnboard();
+  }
+
   return (
     <div className="create-wrap">
       <div className="hero">
@@ -62,6 +77,18 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
         <h1>What do you want to make?</h1>
         <p className="lead">Describe it naturally. Add anything useful. NexMind will shape the production and show you the direction before anything is made.</p>
       </div>
+      {!welcomed && (
+        <div className="onboard">
+          <div className="onboard-head"><div><span className="onboard-tag">First time here</span><b>Four steps to a finished video</b></div><button aria-label="Dismiss intro" className="onboard-x" onClick={dismissOnboard}>×</button></div>
+          <div className="onboard-steps">
+            <div className="onboard-step"><i>1</i><span><b>Describe it</b>Your words — or paste a ready script</span></div>
+            <div className="onboard-step"><i>2</i><span><b>NexMind writes</b>The story and the direction</span></div>
+            <div className="onboard-step"><i>3</i><span><b>You approve</b>Nothing renders without your yes</span></div>
+            <div className="onboard-step"><i>4</i><span><b>It renders</b>16:9, 9:16 and 1:1 in one pass</span></div>
+          </div>
+          <div className="onboard-foot"><button className="onboard-try" onClick={tryExample}>Try this brief →</button><span className="onboard-note">First video takes ~3–6 minutes to render.</span></div>
+        </div>
+      )}
       <div className="composer-shell">
         <div className="composer" id="composer">
           <div className="context-dock" id="contextDock">
