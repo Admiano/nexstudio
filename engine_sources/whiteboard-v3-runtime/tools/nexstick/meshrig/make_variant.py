@@ -15,7 +15,7 @@ Variant specs (silhouette deltas — the look lives in Freestyle contour):
 import bpy
 import argparse
 import sys
-from mathutils import Vector
+from mathutils import Vector, kdtree
 
 argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 ap = argparse.ArgumentParser()
@@ -83,6 +83,159 @@ for names, (sx, sy, sz) in spec['regions']:
 
 def _bone_head(nm):
     return arm.matrix_world @ arm.data.bones[nm].head_local
+
+
+def _bone_tail(nm):
+    return arm.matrix_world @ arm.data.bones[nm].tail_local
+
+
+def _attach(o):
+    o.parent = arm
+    mod = o.modifiers.new('arm', 'ARMATURE')
+    mod.object = arm
+    return o
+
+
+def _copy_weights(o, source):
+    # each garment vert inherits the blend weights of the nearest body vert,
+    # so clothing deforms with the body it covers (sleeves bend at the elbow)
+    kd = kdtree.KDTree(len(source.data.vertices))
+    mw = source.matrix_world
+    for i, v in enumerate(source.data.vertices):
+        kd.insert(mw @ v.co, i)
+    kd.balance()
+    gname = {g.index: g.name for g in source.vertex_groups}
+    omw = o.matrix_world
+    for v in o.data.vertices:
+        _co, idx, _d = kd.find(omw @ v.co)
+        for g in source.data.vertices[idx].groups:
+            vg = o.vertex_groups.get(gname[g.group]) or \
+                o.vertex_groups.new(name=gname[g.group])
+            vg.add([v.index], g.weight, 'REPLACE')
+
+
+def _limb_r(bone):
+    gi = vgi.get(bone.lower())
+    if gi is None:
+        return None
+    a, b = _bone_head(bone), _bone_tail(bone)
+    d = b - a
+    dn = d.normalized()
+    rs = []
+    for v in mesh.data.vertices:
+        w = next((g.weight for g in v.groups if g.group == gi), 0.0)
+        if w <= 0.4:
+            continue
+        p = mesh.matrix_world @ v.co
+        t = (p - a).dot(dn)
+        if 0 <= t <= d.length:
+            rs.append(((p - a) - dn * t).length)
+    return max(rs) if rs else None
+
+
+def _tube(name, bone, r_head, r_tail, t0=0.0, t1=1.0):
+    a, b = _bone_head(bone), _bone_tail(bone)
+    d = b - a
+    p0 = a + d * t0
+    p1 = a + d * t1
+    dd = p1 - p0
+    bpy.ops.mesh.primitive_cone_add(
+        vertices=14, radius1=r_head, radius2=r_tail, depth=dd.length,
+        location=(p0 + p1) / 2)
+    o = bpy.context.active_object
+    o.name = name
+    o.rotation_mode = 'QUATERNION'
+    o.rotation_quaternion = dd.to_track_quat('Z', 'Y')
+    bpy.ops.object.transform_apply(rotation=True)
+    _attach(o)
+    _copy_weights(o, mesh)
+    return o
+
+
+def _region_pts(names, wmin=0.4):
+    gis = [vgi[n] for n in names if n in vgi]
+    return [mesh.matrix_world @ v.co for v in mesh.data.vertices
+            if any(g.group in gis and g.weight > wmin for g in v.groups)]
+
+
+def _shell(name, a, b, rings, nseg=18):
+    # open-ended tube following an axis; `rings` = [(t, rx, ry)] — each ring
+    # gets many verts so nearest-body weights deform it like skin. Rest pose
+    # is near-vertical so the fixed X/Y basis tracks lateral/front-back.
+    import math
+    d = b - a
+    L = d.length
+    dn = d.normalized()
+    u = dn.cross(Vector((0, 1, 0)))
+    if u.length < 0.1:
+        u = dn.cross(Vector((1, 0, 0)))
+    u = u.normalized()
+    v = dn.cross(u).normalized()
+    verts = []
+    for t, rx, ry in rings:
+        for i in range(nseg):
+            ang = 2 * math.pi * i / nseg
+            p = a + dn * (t * L) + u * math.cos(ang) * rx \
+                + v * math.sin(ang) * ry
+            verts.append(p)
+    faces = []
+    for r in range(len(rings) - 1):
+        for i in range(nseg):
+            j = (i + 1) % nseg
+            r0, r1 = r * nseg, (r + 1) * nseg
+            faces.append((r0 + i, r0 + j, r1 + j, r1 + i))
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([tuple(p) for p in verts], [], faces)
+    me.update()
+    o = bpy.data.objects.new(name, me)
+    bpy.context.scene.collection.objects.link(o)
+    _attach(o)
+    _copy_weights(o, mesh)
+    return o
+
+
+def _band(name, center, rx, ry, h):
+    # thin garment band hugging the body — renders its edge loops as a
+    # garment line (collar / hem / cuff) with minimal deformable surface
+    _shell(name, center - Vector((0, 0, h / 2)),
+           center + Vector((0, 0, h / 2)),
+           [(0.0, rx, ry), (1.0, rx, ry)], nseg=22)
+
+
+def _band_at(name, bone, t, grow=1.10):
+    # band wrapped around a bone at fraction t along it
+    a, b = _bone_head(bone), _bone_tail(bone)
+    c = a + (b - a) * t
+    pts = _region_pts([bone.lower()], 0.25)
+    rx = max((abs((p - c).x) for p in pts), default=0.5) * grow
+    ry = max((abs((p - c).y) for p in pts), default=0.5) * grow
+    _band(name, c, rx, ry, 0.18)
+
+
+def _jacket():
+    # garment lines only: collar band at the neck, hem band at the hips.
+    # A full torso shell deforms badly under pose; thin bands stay honest.
+    _band_at('COLLAR', 'neck01', 0.3, 1.25)
+    _band_at('HEM', 'root', 0.75, 1.10)
+
+
+def _suit():
+    _jacket()
+    for s in ('.L', '.R'):
+        ru = _limb_r('upperarm01' + s) or 0.9
+        rf = _limb_r('lowerarm01' + s) or 0.8
+        _tube('SLEEVE_U' + s, 'upperarm01' + s, ru * 1.55, ru * 1.30)
+        _tube('SLEEVE_F' + s, 'lowerarm01' + s, rf * 1.45, rf * 1.25)
+        rt = _limb_r('upperleg01' + s) or 1.2
+        rs = _limb_r('lowerleg01' + s) or 0.9
+        _tube('PANT_U' + s, 'upperleg01' + s, rt * 1.22, rs * 1.28,
+              t0=0.35)
+        _tube('PANT_L' + s, 'lowerleg01' + s, rs * 1.24, rs * 1.18)
+
+
+_garments = {'suit': _suit}
+if a.variant in _garments:
+    _garments[a.variant]()
 
 
 def _add_uv(name, loc, scale, parent_bone):
