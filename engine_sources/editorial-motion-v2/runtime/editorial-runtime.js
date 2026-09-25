@@ -4014,7 +4014,10 @@
       const fw = el('div', { position: 'absolute', left: px(-i * sw), top: '0', width: px(rect.w), height: px(rect.h) }, front);
       fw.appendChild(frontFace.el.cloneNode(true));
       const back = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', filter: 'blur(var(--pb,0px))' }, st);
-      const bw = el('div', { position: 'absolute', left: px(-i * sw), top: '0', width: px(rect.w), height: px(rect.h) }, back);
+      // The back of the sheet is the next left page: at strip i (leaf-local x' = [i*sw,(i+1)*sw])
+      // it shows the face's slice [rect.w-(i+1)*sw, rect.w-i*sw] — mirrored by the clip's own
+      // rotateY(180deg), so the print reads correctly mid-turn and lies right when it lands.
+      const bw = el('div', { position: 'absolute', left: px((i + 1) * sw - rect.w), top: '0', width: px(rect.w), height: px(rect.h) }, back);
       bw.appendChild(backFace.el.cloneNode(true));
       el('div', { position: 'absolute', inset: '0', background: rgbaOf(plan.brand.paper, 0.14) }, back);
       const shF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
