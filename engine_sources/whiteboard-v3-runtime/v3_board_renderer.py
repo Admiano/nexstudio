@@ -999,6 +999,11 @@ def _icon_index():
                 toks = set(slug.split('-')) | set(m.get('keywords', ()))
                 toks |= set(str(m.get('group', '')).lower().replace('&', ' ').split())
                 idx[('fluent', slug)] = {t for t in toks if len(t) > 1}
+        om = _ASSETS / 'openmoji' / 'index.json'
+        if om.is_file():
+            for slug, m in json.loads(om.read_text()).items():
+                toks = set(slug.split('-')) | set(m.get('tokens', ()))
+                idx[('openmoji', slug)] = {t for t in toks if len(t) > 1}
         _ICON_INDEX = idx
     return _ICON_INDEX
 

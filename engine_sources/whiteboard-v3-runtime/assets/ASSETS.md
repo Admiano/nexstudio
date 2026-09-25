@@ -123,3 +123,11 @@ which were AI-generated and vectorized as pipeline demos.
 - `marker-scratch-bed-48k.wav` — synthesized fallback bed.
 - `pencil-bed-48k.wav`, `pen-cap-48k.wav` — preserved-runtime audio assets.
 
+
+### icons/openmoji
+- `assets/openmoji/` — 473 people/activity line-art glyphs (base set;
+  skin-tone variants dropped), flattened to stroke-only paths by
+  `tools/openmoji_pack.py` + `index.json` (slug → tokens/annotation/group).
+  OpenMoji project, CC BY-SA 4.0 — attribution required in any shipped
+  video that draws them (see `assets/openmoji/LICENSE-NOTICE.txt`).
+  Downloadable set: https://github.com/hfg-gmuend/openmoji/releases
