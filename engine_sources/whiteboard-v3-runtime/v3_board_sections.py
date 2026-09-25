@@ -59,7 +59,34 @@ def _colors(plan):
     # plan accent (brand-authored or --accent) still wins for 'accent'
     if acc and acc[:3] not in ((51, 51, 51), (17, 17, 17)):
         cols['a_orange'] = acc
+    # authored hex tones on role dicts register as named channels
+    for b in (plan.get('beats') or []):
+        sc = b.get('scene') or {}
+        roles = ([sc.get('heroRole')]
+                 + list(sc.get('supportingRoles') or []))
+        for r in roles:
+            if isinstance(r, dict):
+                t = str(r.get('tone') or '')
+                if re.match(r'^#[0-9a-fA-F]{6}$', t):
+                    cols[t] = (int(t[1:3], 16), int(t[3:5], 16),
+                               int(t[5:7], 16), 255)
     return cols
+
+
+_VIGNETTES: dict = {}
+
+
+def _vignette(frame: Image.Image, ratio: str) -> Image.Image:
+    """Reference-style paper vignette — fixed camera-light edge darkening
+    (~18% at the corners), applied to the composed frame."""
+    m = _VIGNETTES.get(ratio)
+    if m is None:
+        vw, vh = wbp.RATIO_SIZES[ratio]
+        g = Image.radial_gradient('L').resize((vw, vh))
+        m = g.point(lambda v: max(0, 255 - int(0.55 * max(0, v - 110))))
+        _VIGNETTES[ratio] = Image.merge('RGB', (m, m, m))
+    from PIL import ImageChops
+    return ImageChops.multiply(frame.convert('RGB'), _VIGNETTES[ratio])
 
 
 def _remap_col(col):
@@ -321,19 +348,23 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
                       (slot or {}).get('label', '') if slot else ''}
             merged.append(placed)
         placed['groups'].append((g, s, e))
-    # merge prop cluster into person cluster (interaction composition)
-    pk = None
-    for i, it in enumerate(merged):
-        if _is_person_item(it):
-            pk = i
-            break
-    if pk is not None and len(merged) > 1:
-        qk = next((i for i, it in enumerate(merged) if i != pk), None)
-        if qk is not None:
-            for g, s, e in merged[qk]['groups']:
+    # merge each prop cluster into its nearest person cluster
+    # (interaction composition) — multi-person scenes pair by proximity
+    persons = [it for it in merged if _is_person_item(it)]
+    if persons and len(merged) > len(persons):
+        def _cx(it):
+            xs = [q[0] for g, _s, _e in it['groups']
+                  for st in g[1] for q in st[0] if len(q) > 1]
+            return sum(xs) / len(xs) if xs else 0.0
+        for it in list(merged):
+            if _is_person_item(it):
+                continue
+            host = min(persons,
+                       key=lambda p: abs(_cx(p) - _cx(it)))
+            pc = next((g3 for g3 in host['groups']
+                       if g3[0][0] == 'caption'), None)
+            for g, s, e in it['groups']:
                 if g[0] == 'caption':
-                    pc = next((g3 for g3 in merged[pk]['groups']
-                               if g3[0][0] == 'caption'), None)
                     drop = g[2][1] * 0.6 + g[3] * 0.4
                     if pc is not None:
                         pmax = max(p_[1] for st in pc[0][1]
@@ -344,17 +375,18 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
                     st2 = [([(p_[0], p_[1] + drop) for p_ in st[0]
                              if len(p_) > 1],) + tuple(st[1:])
                            for st in g[1]]
-                    merged[pk]['groups'].append(
+                    host['groups'].append(
                         ((g[0], st2, g[2], g[3], g[4]), s, e))
                 else:
-                    merged[pk]['groups'].append((g, s, e))
-            merged.pop(qk)
+                    host['groups'].append((g, s, e))
+            merged.remove(it)
     # upgrade authored people to the paper-cast figure their label maps to
     for it in merged:
         if _is_person_item(it):
             # the animated mocap figure owns this slot — keep its group
             # strokeless so the drawn icon doesn't fight the overlay
             if any(g[4] is scene.get('_fm_slot')
+                   or g[4] is scene.get('_fm2_slot')
                    for g, _s, _e in it['groups']):
                 continue
             lbl = ''
@@ -395,6 +427,10 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
         if not _is_person_item(it):
             it['groups'] = [ge for ge in it['groups']
                             if ge[0][0] != 'caption']
+    # the reference idiom is still figures + clean items — motion-mark
+    # scribbles read as noise here, so this mode drops them
+    for it in merged:
+        it['groups'] = [ge for ge in it['groups'] if ge[0][0] != 'marks']
     # long captions -> speech bubble wrapping the text
     for it in merged:
         for gi, (g, s, e) in enumerate(it['groups']):
@@ -520,6 +556,10 @@ def _build(plan, ratio):
             # importance spread: figures ~2x leads, props ~0.6x; light jitter
             wgt = 1.9 if person else (1.3 if j == 0 else 0.62)
             wgt *= 0.92 + 0.16 * ((uid * 2654435761) % 97) / 97.0
+            # authored role dicts may hand-tune the element's board weight
+            aw = next((float(g[4]['wgt']) for g, _s, _e in it['groups']
+                       if g[4] and g[4].get('wgt')), 1.0)
+            wgt *= aw
             b = it['bounds']
             w = max(30.0, b[2] - b[0])
             h = max(30.0, b[3] - b[1])
@@ -590,24 +630,28 @@ def _build(plan, ratio):
             it['kind'] = 'elem'
             fm_slot = (scenes[sec['bi']].get('_fm_slot')
                        if sec['bi'] < len(scenes) else None)
-            if (fm_slot is not None and 'fm' not in sec
-                    and any(g[4] is fm_slot for g, _s, _e in it['groups'])):
-                fx0, fy0, fx1, fy1 = it['bounds2']
-                # the claimed slot left an empty group — give the figure a
-                # cell-sized box when the empty bounds stay degenerate
-                if fx1 - fx0 < rw * 0.45 or fy1 - fy0 < rh * 0.45:
-                    fx0, fy0 = rx + rw * 0.10, ry + rh * 0.10
-                    fx1, fy1 = rx + rw * 0.90, ry + rh * 0.90
-                # keep the figure's crown below the board title row
-                fy0 = max(fy0, title_item['bounds2'][3] + rh * 0.04)
-                # feet land on the drawn ground shadow, not the cell floor
-                gnd = next((g[2] for g, _s, _e in it['groups']
-                            if g[0] == 'ground'), None)
-                if gnd is not None:
-                    fy1 = gnd[1] + rh * 0.02
-                sec['fm'] = {'bounds2': (fx0, fy0, fx1, fy1),
-                             't0': it0 - t0,
-                             'facing': fm_slot.get('facing', 1)}
+            fm2_slot = (scenes[sec['bi']].get('_fm2_slot')
+                        if sec['bi'] < len(scenes) else None)
+            for fkey, fslot in (('fm', fm_slot), ('fm2', fm2_slot)):
+                if (fslot is not None and fkey not in sec
+                        and any(g[4] is fslot
+                                for g, _s, _e in it['groups'])):
+                    fx0, fy0, fx1, fy1 = it['bounds2']
+                    # the claimed slot left an empty group — give the figure
+                    # a cell-sized box when the empty bounds stay degenerate
+                    if fx1 - fx0 < rw * 0.45 or fy1 - fy0 < rh * 0.45:
+                        fx0, fy0 = rx + rw * 0.10, ry + rh * 0.10
+                        fx1, fy1 = rx + rw * 0.90, ry + rh * 0.90
+                    # keep the figure's crown below the board title row
+                    fy0 = max(fy0, title_item['bounds2'][3] + rh * 0.10)
+                    # feet land on the drawn ground shadow, not the cell floor
+                    gnd = next((g[2] for g, _s, _e in it['groups']
+                                if g[0] == 'ground'), None)
+                    if gnd is not None:
+                        fy1 = gnd[1] + rh * 0.02
+                    sec[fkey] = {'bounds2': (fx0, fy0, fx1, fy1),
+                                 't0': it0 - t0,
+                                 'facing': fslot.get('facing', 1)}
             placed.append(it)
         sec['items2'] = placed
 
@@ -755,23 +799,36 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             draw_groups(it['groups'], seed + it['uid'] * 7)
         frame = _composite_frame(
             plan, ratio, cam, [(layer, 255)] + fade_layers, seed)
-        sec = next((s for s in reversed(flow['sections'])
-                    if s.get('t_window') and s['t_window'][0] <= t), None)
-        if sec is not None and sec.get('fm'):
-            b2 = sec['fm']['bounds2']
-            fh = b2[3] - b2[1]
-            scene_ = (plan.get('sceneSpecs') or [])[sec['bi']] \
-                if sec['bi'] < len(plan.get('sceneSpecs') or []) else None
-            if scene_ is not None:
-                scene_['_fm_anchor'] = {
+        spec_list = plan.get('sceneSpecs') or []
+        for sec in flow['sections']:
+            if not (sec.get('t_window') and sec['t_window'][0] <= t):
+                continue
+            if not (sec.get('fm') or sec.get('fm2')):
+                continue
+            scene_ = spec_list[sec['bi']] \
+                if sec['bi'] < len(spec_list) else None
+            if scene_ is None:
+                continue
+            for fkey in ('fm', 'fm2'):
+                if not sec.get(fkey):
+                    continue
+                b2 = sec[fkey]['bounds2']
+                # the figure is a protagonist, not a thumbnail — floor its
+                # size at ~3/4 of a board cell so it reads at reference scale
+                fh = max(b2[3] - b2[1], (flow['board_rect'][3] / 2) * 0.72)
+                b2 = (b2[0], b2[3] - fh, b2[2], b2[3])
+                scene_['_fm' + fkey[2:] + '_anchor'] = {
                     'center': ((b2[0] + b2[2]) / 2, (b2[1] + b2[3]) / 2),
-                    'size': fh, 'facing': sec['fm']['facing']}
-                scene_['_fm_window'] = (sec['fm']['t0'],
-                                        sec['fm']['t0'] + 1e9)
-                frame = v3r._figure_motion_overlay(
-                    frame, scene_, plan, ratio, cam, zoom,
-                    t - sec['beat']['start_seconds'])
-        return _overlay_hand(frame, tip, ratio, t * 8 + seed)
+                    'size': fh, 'facing': sec[fkey]['facing']}
+                scene_['_fm' + fkey[2:] + '_window'] = (
+                    sec[fkey]['t0'], sec[fkey]['t0'] + 1e9)
+            # figures persist like the ink around them: once drawn they stay
+            # on the board across later beats, holding their final pose
+            frame = v3r._figure_motion_overlay(
+                frame, scene_, plan, ratio, cam, zoom,
+                t - sec['beat']['start_seconds'])
+        return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed),
+                         ratio)
 
     # -------- ending: wipe the whole board, thanks, montage --------
     ending = flow['ending']
@@ -817,4 +874,4 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                 if t2:
                     tip = t2
     frame = _composite_frame(plan, ratio, cam, [(layer, 255)], seed)
-    return _overlay_hand(frame, tip, ratio, t * 8 + seed)
+    return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed), ratio)

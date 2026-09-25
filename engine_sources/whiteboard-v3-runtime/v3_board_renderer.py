@@ -1861,8 +1861,17 @@ def _stable_hash(s: str) -> int:
 # Scene composition — character anchors left, props compose right; no connectors
 # ---------------------------------------------------------------------------
 
-def _scene_slots(labels: list[str], zone: dict, ratio: str, used=None):
-    icons = [icon_for(l, used) for l in labels]
+def _scene_slots(labels: list, zone: dict, ratio: str, used=None):
+    # role dicts carry {label, icon?, tone?, scale?, facing?, bubble?};
+    # strings resolve their icon from the label text
+    def _rl(l):
+        return str(l.get('label') or '') if isinstance(l, dict) else str(l)
+    extra = [l if isinstance(l, dict) else {} for l in labels]
+    labs = [_rl(l) for l in labels]
+    icons = [icon_for(str(e['icon']), used)
+             if e.get('icon') else icon_for(labs[i], used)
+             for i, e in enumerate(extra)]
+    labels = labs
     x, y, w, h = zone['x'], zone['y'], zone['w'], zone['h']
     portrait = ratio == '9:16'
     cy = y + h * (0.54 if portrait else 0.56)
@@ -2011,6 +2020,16 @@ def _scene_slots(labels: list[str], zone: dict, ratio: str, used=None):
                  y + h - pad - s['size'] * 1.10)
         if (cx, cy) != s['center']:
             s['center'] = (cx, cy)
+    # authored role dicts stamp their styling onto the resolved slot
+    for i, s in enumerate(slots):
+        if s is None:
+            continue
+        e = extra[i]
+        if e.get('scale'):
+            s['size'] *= float(e['scale'])
+        for k in ('tone', 'facing', 'bubble', 'no_caption', 'wgt'):
+            if k in e:
+                s[k] = e[k]
     return [s for s in slots if s is not None]
 
 
@@ -2165,8 +2184,9 @@ def _move_strokes(strokes, dx, dy):
 
 def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
     txt = str(label).upper()
-    h = size * 0.11
-    maxw = min(size * 1.9, (zone['w'] * 0.42 if zone else size * 1.9))
+    # reference captions are small footnote text, not headline-sized
+    h = size * 0.075
+    maxw = min(size * 1.6, (zone['w'] * 0.40 if zone else size * 1.6))
     if pitch:
         # captions live in the column under their slot — never wider than the
         # gap to the next slot, or neighbours collide
@@ -2206,12 +2226,19 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
     return strokes, left_edge, right_edge
 
 
-def _scene_labels(scene: dict) -> list[str]:
-    labs: list[str] = []
+def _scene_labels(scene: dict) -> list:
+    # entries are role strings or authored dicts {label, icon?, tone?,
+    # scale?, facing?, bubble?} — dicts carry per-item styling downstream
+    labs: list = []
     hero = scene.get('heroRole')
     if hero:
-        labs.append(str(hero))
-    labs += [str(r) for r in (scene.get('supportingRoles') or []) if str(r).strip()]
+        labs.append(hero if isinstance(hero, dict) else str(hero))
+    for r in (scene.get('supportingRoles') or []):
+        if isinstance(r, dict):
+            if str(r.get('label') or '').strip():
+                labs.append(r)
+        elif str(r).strip():
+            labs.append(str(r))
     if not labs:
         for v in (scene.get('semanticBeats') or scene.get('visualAnchors') or
                   scene.get('visuals') or []):
@@ -2300,9 +2327,17 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                 s['sprite'] = (ic[1], ic[2])
                 groups.append(('icon', [], s['center'], s['size'], s))
             else:
-                groups.append(('icon', _strokes_for(
+                ist = _strokes_for(
                     ic, s.get('pose') or 'point', s.get('facing', 1),
-                    s.get('cast')), s['center'], s['size'], s))
+                    s.get('cast'))
+                # authored tone recolors the whole element (accent-colored
+                # art — orange coin, teal tag, red arrow — the reference's
+                # signature against black ink)
+                if s.get('tone'):
+                    tone = str(s['tone'])
+                    ist = [tuple([x_[0], tone] + list(x_[2:]))
+                           for x_ in ist]
+                groups.append(('icon', ist, s['center'], s['size'], s))
         if s['icon'] == 'card':
             groups.append(('icon', _card_text_strokes(s['center'], s['size'],
                                                       s['label'], zone),

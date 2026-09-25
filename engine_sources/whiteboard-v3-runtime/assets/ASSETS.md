@@ -170,3 +170,19 @@ which were AI-generated and vectorized as pipeline demos.
 - `fig_motion.resolve_clip` prefers the proto cast for say-resolved
   clips via `_PROTO_ALIASES`; plans may also name PROTO_* clips
   verbatim in beat.figure.
+
+## Whiteboard-crypto authoring fields (board_sections)
+
+- `beat.figure` / `beat.figure2` — `{clip, still:true, pose:0..1}` pins a
+  proto still in the named pose; first/second person slots are claimed
+  automatically (icon group stays empty, ground shadow + caption persist).
+  Figures persist on the board across later beats, holding their pose.
+- role dicts — `heroRole`/`supportingRoles` entries accept
+  `{label, icon?, tone?, scale?, facing?, bubble?, no_caption?, wgt?}`:
+  `icon` names an icon-vocab word; `tone` a named accent or `#rrggbb`;
+  `scale` multiplies slot size; `facing` mirrors the person; `bubble`
+  draws a caption bubble; `no_caption` suppresses the footnote; `wgt`
+  rescales placement (use <1 for small props like arrows).
+- named accents: `a_orange`, `a_blue`, `a_green`, `a_red`, `a_yellow` —
+  `accent`/`accfill`/`accdeep` remap to orange/blue channels; the board
+  adds a soft vignette to every frame.

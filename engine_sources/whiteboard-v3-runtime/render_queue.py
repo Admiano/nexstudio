@@ -37,7 +37,8 @@ def run_queue(queue_dir: Path, ratio: str = '16:9',
     results = []
     plans = sorted(queue_dir.glob('*.json'))
     plans = [p for p in plans
-             if not p.stem.endswith(('_words', '_receipt', '_metrics'))]
+             if p.name != 'QUEUE_REPORT.json'
+             and not p.stem.endswith(('_words', '_receipt', '_metrics'))]
     for pf in plans:
         plan = p3.load_plan(pf)
         name = plan.get('production_id') or pf.stem

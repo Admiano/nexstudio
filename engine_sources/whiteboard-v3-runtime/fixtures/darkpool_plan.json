@@ -1,0 +1,189 @@
+{
+  "production_id": "darkpool_wbc",
+  "title": "What Is A Dark Pool",
+  "camera_variant": "board_sections",
+  "pacing": {
+    "lead_in_seconds": 0.6,
+    "transition_seconds": 0.9
+  },
+  "beats": [
+    {
+      "beat_id": "01_whale",
+      "duration_seconds": 5.0,
+      "narration": "Imagine a whale \u2014 an investor sitting on six hundred million dollars of bitcoin.",
+      "scene": {
+        "sceneId": "01_whale",
+        "heroRole": "investor",
+        "supportingRoles": [
+          {
+            "label": "$600,000,000",
+            "icon": "coins",
+            "tone": "a_orange"
+          }
+        ],
+        "screenCopy": {
+          "primary": "THE WHALE"
+        }
+      },
+      "figure": {
+        "clip": "PROTO_IDLE",
+        "still": true,
+        "pose": 0.4
+      }
+    },
+    {
+      "beat_id": "02_problem",
+      "duration_seconds": 4.6,
+      "narration": "Selling that much on a public exchange would crash the price before the trade finishes.",
+      "scene": {
+        "sceneId": "02_problem",
+        "heroRole": "trader",
+        "supportingRoles": [
+          {
+            "label": "the price crashes mid-trade",
+            "icon": "arrow-down",
+            "tone": "a_red"
+          }
+        ],
+        "screenCopy": {
+          "primary": "THE PROBLEM"
+        }
+      },
+      "figure": {
+        "clip": "PROTO_HIT",
+        "still": true,
+        "pose": 0.35
+      }
+    },
+    {
+      "beat_id": "03_selling",
+      "duration_seconds": 5.0,
+      "narration": "Selling bitcoins individually to a single buyer is slow \u2014 and every fill moves the market.",
+      "scene": {
+        "sceneId": "03_selling",
+        "heroRole": "seller",
+        "supportingRoles": [
+          "buyer",
+          {
+            "label": "$39,000",
+            "icon": "coins",
+            "tone": "a_orange"
+          }
+        ],
+        "screenCopy": {
+          "primary": "SELLING INDIVIDUALLY"
+        }
+      },
+      "figure": {
+        "clip": "PROTO_WALK",
+        "still": true,
+        "pose": 0.5
+      },
+      "figure2": {
+        "clip": "PROTO_IDLE",
+        "still": true,
+        "pose": 0.6
+      }
+    },
+    {
+      "beat_id": "04_slippage",
+      "duration_seconds": 5.2,
+      "narration": "To sell immediately you accept a lower price \u2014 that's slippage. Thirty-nine thousand becomes thirty-four.",
+      "scene": {
+        "sceneId": "04_slippage",
+        "heroRole": {
+          "label": "avoid slippage",
+          "icon": "warning"
+        },
+        "supportingRoles": [
+          {
+            "label": "$39,000",
+            "icon": "coins",
+            "tone": "a_orange"
+          },
+          {
+            "label": "$34,980",
+            "icon": "coins",
+            "tone": "a_blue"
+          },
+          {
+            "label": "expect a price drop",
+            "icon": "arrow-down",
+            "tone": "a_red",
+            "wgt": 0.35
+          }
+        ],
+        "screenCopy": {
+          "primary": "SLIPPAGE"
+        }
+      }
+    },
+    {
+      "beat_id": "05_volatility",
+      "duration_seconds": 5.4,
+      "narration": "A big sell order adds supply, demand drops, and the price follows it down.",
+      "scene": {
+        "sceneId": "05_volatility",
+        "heroRole": "trader",
+        "supportingRoles": [
+          {
+            "label": "price",
+            "icon": "chart",
+            "tone": "a_orange"
+          },
+          {
+            "label": "more supply",
+            "icon": "note",
+            "tone": "a_blue"
+          },
+          {
+            "label": "demand drops",
+            "icon": "note",
+            "tone": "a_red"
+          },
+          {
+            "label": "price drops",
+            "icon": "note",
+            "tone": "a_green"
+          }
+        ],
+        "screenCopy": {
+          "primary": "VOLATILITY"
+        }
+      },
+      "figure": {
+        "clip": "PROTO_IDLE",
+        "still": true,
+        "pose": 0.5
+      }
+    },
+    {
+      "beat_id": "06_darkpool",
+      "duration_seconds": 5.2,
+      "narration": "So whales fear selling in the open. A dark pool lets them trade the whole block privately.",
+      "scene": {
+        "sceneId": "06_darkpool",
+        "heroRole": "investor",
+        "supportingRoles": [
+          {
+            "label": "whale selling",
+            "icon": "whale",
+            "tone": "a_blue"
+          },
+          {
+            "label": "sounds like they are hiding trades!",
+            "icon": "brain"
+          }
+        ],
+        "screenCopy": {
+          "primary": "FEAR OF A WHALE"
+        }
+      },
+      "figure": {
+        "clip": "PROTO_IDLE",
+        "still": true,
+        "pose": 0.45
+      }
+    }
+  ]
+}

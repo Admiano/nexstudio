@@ -253,29 +253,37 @@ def get_strip(spec: dict, seconds: float, fps: int = 12):
         return _STRIPS[key]
     baked = _baked_strip(clip, spec, seconds, fps)
     if baked is not None:
-        _STRIPS[key] = baked
-        return baked
-    n = max(2, int(math.ceil(seconds * fps)))
-    tag = re.sub(r'[^A-Za-z0-9_]+', '_', clip)
-    out = _STRIP_ROOT / f"{tag}_{hashlib.sha1(repr(key).encode()).hexdigest()[:8]}"
-    if not (out / 'g000.svg').exists():
-        out.mkdir(parents=True, exist_ok=True)
-        req = {'cmuClip': clip}
-        if spec.get('style'):
-            req['style'] = spec['style']
-        if spec.get('visemes'):
-            req['visemes'] = str(spec['visemes'])
-        if spec.get('visemeOffset') is not None:
-            req['visOffset'] = float(spec['visemeOffset'])
-        if spec.get('t'):
-            req['t'] = float(spec['t'])
-        if spec.get('mirror'):
-            req['mirror'] = True
-        r = subprocess.run(
-            [NODE, str(SKIN_RIG), json.dumps(req), str(out), str(n), str(fps)],
-            capture_output=True, text=True, timeout=600)
-        if r.returncode != 0:
-            _STRIPS[key] = []
-            return []
-    _STRIPS[key] = _rasterize(out)
-    return _STRIPS[key]
+        imgs = baked
+    else:
+        n = max(2, int(math.ceil(seconds * fps)))
+        tag = re.sub(r'[^A-Za-z0-9_]+', '_', clip)
+        out = _STRIP_ROOT / f"{tag}_{hashlib.sha1(repr(key).encode()).hexdigest()[:8]}"
+        if not (out / 'g000.svg').exists():
+            out.mkdir(parents=True, exist_ok=True)
+            req = {'cmuClip': clip}
+            if spec.get('style'):
+                req['style'] = spec['style']
+            if spec.get('visemes'):
+                req['visemes'] = str(spec['visemes'])
+            if spec.get('visemeOffset') is not None:
+                req['visOffset'] = float(spec['visemeOffset'])
+            if spec.get('t'):
+                req['t'] = float(spec['t'])
+            if spec.get('mirror'):
+                req['mirror'] = True
+            r = subprocess.run(
+                [NODE, str(SKIN_RIG), json.dumps(req), str(out), str(n), str(fps)],
+                capture_output=True, text=True, timeout=600)
+            if r.returncode != 0:
+                _STRIPS[key] = []
+                return []
+        imgs = _rasterize(out)
+    # 'still'/'pose': freeze the strip on one frame — the whiteboard-crypto
+    # idiom keeps figures posed rather than animating in place
+    if imgs and (spec.get('still') or spec.get('pose') is not None):
+        i = min(len(imgs) - 1,
+                max(0, int(round(float(spec.get('pose', 0.5))
+                                 * (len(imgs) - 1)))))
+        imgs = [imgs[i]] * len(imgs)
+    _STRIPS[key] = imgs
+    return imgs

@@ -2,7 +2,7 @@
 
 | Artifact | Identity |
 |---|---|
-- `v3_board_sections.py` — sha256 `34cf976e61abfd297392b2d50b02acb6dd5cbd2ad05bbcf1422ff70863fa0dbf`
+- `v3_board_sections.py` — sha256 `14a128bfeefd735c83989642487c79c093a697d05bbcf1422ff70863fa0dbf`
 | Original renderer | `…/WHITEBOARD_ELITE_RUNTIME/vendor/pipeline_v3_narration_timed.py` |
 | Recorded sha256 | `c91f2bc50cb634c993ff307ef01bb4177d9478a290bf0b4da042adee260f9c34` |
 | Standalone source preserved | **no** (`06_provenance/EXACT_ARTIFACT_GAP.json`) |
@@ -27,14 +27,14 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | Artifact | sha256 |
 |---|---|
 | `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `455ce3ef8927be484c52862a6e4f77c3f383b58532071f2d5babd1f0a8459840` |
-| `v3_board_renderer.py` (whiteboard draw layer) | `f72315759b087989716feeca921eb11bfe48995fa8cae765c7e3b2479da87582` |
+| `v3_board_renderer.py` (whiteboard draw layer) | `03d3449d6f54b1c56eaf74078bffa153f2b700cb256a05eca2da22f193a19f15` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
 | `pipeline_diagram_timed.py` (diagram pipeline) | `c00cf324b135932cf071206c52f993cf8a4c1e788ede8ae6fe0caaad658c5f48` |
 | `diagram_renderer.py` (diagram draw layer) | `8d8858c35fb3050e82de7513e57e535d62f3c599f2ac84a6eae5d32fe57f097e` |
 | `plan_author.py` (script→plan decision layer) | `9913a725b7b8ea3fc76e79e33f6f2d34bbe87c9f758bc6ba58627bc0ca3d0372` |
 | `vo_synth.py` (edge/kokoro VO + timings) | `3e51653659e0cc56fd4bf4439906bacd4e788b6506ab1e1b3b6b9e500b106466` |
-| `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `32d79c06a9fdad99db31bb738b7c6b6fdf10f8b238a7361fe1b8d8b3b1df7567` |
+| `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `8af55ead7a0026fd3dd11f7e2abb2f825dae93fba52e90876eed8955461b89fb` |
 | `tools/nexstick/mocap.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `db0c394d4c1c98016f686248808e4101c72623b2a0a53b008a9c2d3e4e94a543` |
 | `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `c516720538ec072d8323a0dd9969df1f9c9869cd6526504f2efd0b04d944f06c` |
 | `tools/nexstick/walk_proof3.py` | nexstick motion bridge (mocap->paperbook rig proof) | `513b574787af34dc50a82d91626f12d73b7291f5b88e2ac19763eecb88c157f6` |
@@ -48,7 +48,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |
 | `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `16018c7c3633c0d4bf2d7e9e640b02ae60aeac18a691657a209aea5c70d1f350` |
 | `tools/nexstick/skin_rig.cjs` | skin-on-skeleton renderer: true-joint masses, real-depth occlusion sort |
-| `tools/nexstick/fig_motion.py` | board bridge: clip_select→baked PNG strips (proto cast preferred via _PROTO_ALIASES, mesh sprites, alpha-bbox anchored) w/ skin_rig fallback | `fdefed3b77faa09d94b0e0b8638d68db0b74281f30954822a273783cdca76bd9` |
+| `tools/nexstick/fig_motion.py` | board bridge: clip_select→baked PNG strips (proto cast preferred via _PROTO_ALIASES, mesh sprites, alpha-bbox anchored) w/ skin_rig fallback | `201c3c86ee0aba7e49761598a37ef283cf1476e1e6f9508bb0ebab84f35863c9` |
 | `tools/nexstick/proto_pack.py` | RGS proto pack -> baked sprite dirs importer (CC0 cast) | `3a21b0cda4d1b68ca339a1dbf68de90ae257b222f0b34aaa1451f549de2dec6c` |
 | `tools/nexstick/proto_rig.py` | exercise vault -> proto-style sprite renderer (exercise-only additions to the cast) | `6baab4e9e7f4f0548a402bf291553d8552db66047576fca193b528f56420e653` |
 | `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `43c6dbc64883af40334f8962a2dbb0b08946f99e329ca2779aa96031b9985a26` |
