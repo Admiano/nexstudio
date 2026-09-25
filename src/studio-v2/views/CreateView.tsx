@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ensureNxPresence } from "../nx-presence";
 import type { ComposerState } from "../Shell";
 import { route, useStudio, type ContextChip } from "../App";
+import { studioApi } from "../api";
 import type { FlowState } from "../overlays/Flow";
 import type { SheetId } from "../overlays/Sheets";
 import { sortDashboardProjects } from "@/studio-v1/dashboard/domain/dashboard";
@@ -37,6 +38,16 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
       setFamily(preselect);
       sessionStorage.removeItem("nx.family");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Studio defaults: a saved default family preselects in the composer (once).
+  useEffect(() => {
+    if (composer.family) return;
+    let alive = true;
+    studioApi.accountPreferences().then((r) => {
+      if (alive && r.preferences.defaultFamily) setFamily(r.preferences.defaultFamily);
+    }).catch(() => {});
+    return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const recent = useMemo(() => sortDashboardProjects(projects).slice(0, 3), [projects]);

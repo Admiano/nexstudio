@@ -7,11 +7,12 @@ import { BrandView } from "./views/BrandView";
 import { LibraryView } from "./views/LibraryView";
 import { SeriesView } from "./views/SeriesView";
 import { CreditsSheet } from "./overlays/Credits";
-import { AccountSheet } from "./overlays/Account";
+import { AccountSheet, initialsOf } from "./overlays/Account";
 import { FlowOverlay, type FlowState } from "./overlays/Flow";
 import { PickerSheets, type SheetId } from "./overlays/Sheets";
 import { HistoryOverlay } from "./overlays/History";
 import { route, useStudio, formatUSD, type ContextChip, type ViewId } from "./App";
+import { studioApi } from "./api";
 import { loadViewed, markViewed } from "./viewed";
 
 export interface ComposerState {
@@ -26,6 +27,12 @@ export default function Shell({ view }: { view: ViewId }) {
   const [sheet, setSheet] = useState<SheetId | null>(null);
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [profile, setProfile] = useState<{ displayName: string | null; email: string | null } | null>(null);
+  useEffect(() => {
+    const ctl = new AbortController();
+    studioApi.accountProfile(ctl.signal).then((r) => setProfile(r.profile)).catch(() => {});
+    return () => ctl.abort();
+  }, []);
   const [historyId, setHistoryId] = useState<string | null>(null);
   // flow survives refresh: stored per-tab so a reload returns to the same stage
   const [flow, setFlow] = useState<FlowState | null>(null);
@@ -137,7 +144,7 @@ export default function Shell({ view }: { view: ViewId }) {
           <button aria-label="Open credits" className="credits" onClick={() => setCreditsOpen(true)}>
             <span className="credit-dot" /><span>{balance ? formatUSD(balance.availableMinor) : "—"}</span>
           </button>
-          <button aria-label="Open account" className="avatar" onClick={() => setAccountOpen(true)}>CM</button>
+          <button aria-label="Open account" className="avatar" onClick={() => setAccountOpen(true)}>{initialsOf(profile?.displayName, profile?.email)}</button>
         </div>
       </header>
       <main>
@@ -174,7 +181,7 @@ export default function Shell({ view }: { view: ViewId }) {
       </nav>
       <PickerSheets open={sheet} onClose={() => setSheet(null)} composer={composer} addContext={addContext} openSeries={openSeries} notify={notify} />
       {creditsOpen && <CreditsSheet onClose={() => setCreditsOpen(false)} notify={notify} />}
-      {accountOpen && <AccountSheet onClose={() => setAccountOpen(false)} notify={notify} />}
+      {accountOpen && <AccountSheet onClose={() => setAccountOpen(false)} notify={notify} profile={profile} onProfile={setProfile} openCredits={() => { setAccountOpen(false); setCreditsOpen(true); }} />}
       {historyId && <HistoryOverlay productionId={historyId} onClose={() => setHistoryId(null)} openSeries={openSeries} onReview={(id) => { setHistoryId(null); flowApi.openFlow({ stage: "review", productionId: id }); }} notify={notify} />}
       {flow && <FlowOverlay flow={flow} api={flowApi} />}
       {toast ? <div className="toast show">{toast}</div> : null}

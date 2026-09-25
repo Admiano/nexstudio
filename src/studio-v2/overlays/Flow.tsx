@@ -224,6 +224,18 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     style: "tiles", voice: "emma", speed: "1.0",
     ...(flow.engine ?? {}),
   }));
+  // Studio defaults: saved voice/length fill anything the flow didn't already set.
+  useEffect(() => {
+    let alive = true;
+    studioApi.accountPreferences().then((r) => {
+      if (!alive) return;
+      const p = r.preferences;
+      if (p.defaultVoice && !flow.engine?.voice) setEngine((e) => ({ ...e, voice: p.defaultVoice as string }));
+      if (p.defaultDuration != null && flow.duration == null) api.patchFlow({ duration: p.defaultDuration });
+    }).catch(() => {});
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   const playVoice = (id: string) => {

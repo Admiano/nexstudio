@@ -2136,3 +2136,49 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
   .account-tabs button small{display:none}
   .acct-tab-ico{width:20px;height:20px}
 }
+
+/* ── account: editable profile / preferences / payment methods / per-session revoke / deletion flow ── */
+.acct-field-row{display:flex;align-items:flex-end;gap:10px;margin-top:16px}
+.acct-field-row .account-field{margin-top:0}
+.acct-field-grow{flex:1;min-width:0}
+.acct-field-btn{height:41px;padding:0 18px}
+.acct-topup{margin-top:12px;width:100%}
+
+.acct-methods{display:grid;gap:9px;margin-top:12px}
+.acct-method{display:flex;align-items:center;gap:13px;border:1px solid var(--line);background:rgba(255,255,255,.45);border-radius:15px;padding:13px 15px;cursor:pointer;transition:.22s var(--ease);text-align:left}
+.acct-method:hover{border-color:rgba(17,22,18,.22);background:rgba(255,255,255,.75)}
+.acct-method.on{border-color:rgba(255,176,0,.42);background:rgba(255,176,0,.06);box-shadow:inset 0 0 0 1px rgba(255,176,0,.14)}
+.acct-method-ico{width:34px;height:34px;border-radius:11px;background:rgba(17,22,18,.06);display:grid;place-items:center;font-size:14px;color:var(--muted);flex:none}
+.acct-method.on .acct-method-ico{background:rgba(255,176,0,.16);color:var(--accent-ink)}
+.acct-method-ico.usd{color:#2b7a4b}
+.acct-method-copy{flex:1;min-width:0;display:grid;gap:2px}
+.acct-method-copy b{font-size:11.5px;letter-spacing:-.02em}
+.acct-method-copy span{font-size:9px;color:var(--muted);line-height:1.4}
+.acct-method-check{width:20px;height:20px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:9px;color:transparent;flex:none;transition:.2s var(--ease)}
+.acct-method.on .acct-method-check{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+
+.acct-set-card{margin-top:12px}
+.preference-row.pref-col{grid-template-columns:1fr}
+.acct-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.acct-chip-row .opt-chip{min-width:0}
+
+.acct-revoke{font-size:9px;font-weight:800;letter-spacing:.03em;color:#a33;border:1px solid rgba(176,66,44,.28);background:rgba(176,66,44,.05);border-radius:999px;padding:7px 13px;cursor:pointer;transition:.2s var(--ease);flex:none}
+.acct-revoke:hover:not(:disabled){background:rgba(176,66,44,.12)}
+.acct-revoke:disabled{opacity:.4;cursor:not-allowed}
+
+.acct-danger-btn{flex:none;font-size:9.5px;font-weight:850;letter-spacing:.03em;color:#fff;background:#a33;border:0;border-radius:999px;padding:10px 16px;cursor:pointer;transition:.2s var(--ease)}
+.acct-danger-btn:hover:not(:disabled){background:#8f2f22}
+.acct-danger-btn:disabled{opacity:.45;cursor:not-allowed}
+.acct-danger-cancel{flex:none;font-size:9.5px;font-weight:850;letter-spacing:.03em;color:var(--ink);border:1px solid var(--line);background:rgba(255,255,255,.6);border-radius:999px;padding:10px 16px;cursor:pointer;transition:.2s var(--ease)}
+.acct-danger-cancel:hover:not(:disabled){border-color:rgba(17,22,18,.3)}
+.acct-danger-cancel:disabled{opacity:.45;cursor:not-allowed}
+.acct-danger-note{margin-top:12px;font-size:9.5px;color:var(--muted);line-height:1.5;padding:10px 13px;border:1px solid rgba(255,176,0,.3);background:rgba(255,176,0,.06);border-radius:12px}
+.acct-dev-link{display:inline-block;margin-top:8px;font-size:9.5px;font-weight:800;color:var(--accent-ink);text-decoration:none}
+.acct-dev-link:hover{text-decoration:underline}
+
+@media(max-width:640px){
+  .acct-field-row{flex-direction:column;align-items:stretch}
+  .acct-field-btn{height:38px}
+  .acct-methods{gap:8px}
+  .acct-chip-row{gap:6px}
+}

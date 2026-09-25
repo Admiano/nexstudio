@@ -185,6 +185,13 @@ export const studioApi = {
   engineJobStatus: (kind: EngineKind, jobId: string, signal?: AbortSignal) =>
     readJson<EngineJobStatus>(`/api/v1/${kind}s/${jobId}`, signal),
   signIn: (email: string) => postJson<unknown>("/api/v1/auth/email/request", { email }),
+  accountProfile: (signal?: AbortSignal) => readJson<{ profile: { displayName: string | null; email: string | null } }>("/api/v1/account/profile", signal),
+  updateProfile: (displayName: string, signal?: AbortSignal) => readJson<{ profile: { displayName: string | null; email: string | null } }>("/api/v1/account/profile", signal, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ displayName }) }),
+  accountPreferences: (signal?: AbortSignal) => readJson<{ preferences: { notifyRendersEmail: boolean; notifyUpdatesEmail: boolean; defaultVoice: string | null; defaultDuration: number | null; defaultFamily: string | null; paymentMethod: "card" | "usdc" } }>("/api/v1/account/preferences", signal),
+  updatePreferences: (input: Record<string, unknown>, signal?: AbortSignal) => readJson<{ preferences: { notifyRendersEmail: boolean; notifyUpdatesEmail: boolean; defaultVoice: string | null; defaultDuration: number | null; defaultFamily: string | null; paymentMethod: "card" | "usdc" } }>("/api/v1/account/preferences", signal, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) }),
+  revokeSession: (id: string, signal?: AbortSignal) => readJson<{ revoked: boolean; current: boolean }>(`/api/v1/account/sessions/${id}`, signal, { method: "DELETE" }),
+  requestDeletion: (signal?: AbortSignal) => postJson<{ requested: boolean; email: string | null; devConfirmUrl?: string }>("/api/v1/account/deletion-request", {}, signal),
+  cancelDeletion: (signal?: AbortSignal) => readJson<{ cancelled: boolean }>("/api/v1/account/deletion-request", signal, { method: "DELETE" }),
   signOut: () => postJson<unknown>("/api/v1/auth/logout", {}),
   uploadAsset: async (file: File, signal?: AbortSignal): Promise<StudioAsset> => {
     const form = new FormData();
