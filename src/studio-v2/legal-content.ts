@@ -85,7 +85,7 @@ export const TERMS: Doc = {
       title: "Leaving",
       body: [
         "You can request account deletion from your account settings at any time. We send a confirmation link to your email, and nothing is deleted until you confirm. Once confirmed, your productions, memory, sessions, and billing history are removed. Export your data first if you want a copy.",
-        "We can suspend or close accounts that break the acceptable use section, fail to pay, or create risk for other users or for us. If we close your account without cause, unspent credits are refunded.",
+        "We can suspend or close accounts that break the acceptable use section, fail to pay, or create risk for other users or for us. If we close your account for a breach of these terms, unspent credits are forfeited. Otherwise unspent credits are returned to the original payment method.",
       ],
     },
     {
@@ -108,14 +108,14 @@ export const TERMS: Doc = {
       id: "changes",
       title: "Changes to these terms",
       body: [
-        "When these terms change in a way that matters, we email you before it takes effect. Continuing to use NexStudio after that means you accept the new terms. The current version always lives on this page with its date.",
+        "We may update these terms at any time, at our discretion. The version on this page is the current one and applies from the date shown. Continued use of NexStudio after an update means you accept it.",
       ],
     },
     {
       id: "contact",
       title: "Contact",
       body: [
-        "Questions about these terms: legal@nexstudio.studio. For anything about your account, use the account drawer in the studio first; most issues are solved there.",
+        "Questions about these terms: legal@nexmarkets.xyz. For anything about your account, use the account drawer in the studio first; most issues are solved there.",
       ],
     },
   ],
@@ -128,14 +128,6 @@ export const PRIVACY: Doc = {
   intro: "What we collect, why, and how you take it back. Short enough to read, specific enough to mean something.",
   updated: "September 2026",
   sections: [
-    {
-      id: "summary",
-      title: "The short version",
-      body: [
-        "We collect what the service needs to work: your email, your productions, your settings, and the sessions signed into your account. We do not sell your data, we do not run advertising trackers, and we do not use your videos to train models.",
-        "Everything NexMind remembers for you is visible in the product. You can export all of your data or delete your account yourself, without asking anyone.",
-      ],
-    },
     {
       id: "collected",
       title: "What we collect",
@@ -169,7 +161,7 @@ export const PRIVACY: Doc = {
       title: "Who sees it",
       body: [
         "Infrastructure providers that host the application and store your files. Payment processors that run checkout for card or USDC. The AI provider that helps NexMind write and plan, which receives the brief and context needed for the job and nothing more.",
-        "Each processor sees only what its job requires, under contract, and only while we use them. We do not sell, rent, or trade your data, and there are no third-party advertising cookies on NexStudio.",
+        "Each processor receives only what its job requires and only while we use them. We do not sell, rent, or trade your data, and there are no third-party advertising cookies on NexStudio.",
         "We disclose data when the law genuinely requires it, and to you whenever you ask for it.",
       ],
     },
@@ -207,8 +199,8 @@ export const PRIVACY: Doc = {
       id: "changes",
       title: "Changes and contact",
       body: [
-        "Material changes to this policy are announced by email before they apply. The current version lives on this page with its date.",
-        "Privacy questions and requests: privacy@nexstudio.studio.",
+        "We may update this policy at any time, at our discretion. The version on this page is the current one and applies from the date shown. Continued use after an update means you accept it.",
+        "Privacy questions and requests: privacy@nexmarkets.xyz.",
       ],
     },
   ],
