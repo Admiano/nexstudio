@@ -34,7 +34,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `diagram_renderer.py` (diagram draw layer) | `8d8858c35fb3050e82de7513e57e535d62f3c599f2ac84a6eae5d32fe57f097e` |
 | `plan_author.py` (script→plan decision layer) | `9913a725b7b8ea3fc76e79e33f6f2d34bbe87c9f758bc6ba58627bc0ca3d0372` |
 | `vo_synth.py` (edge/kokoro VO + timings) | `3e51653659e0cc56fd4bf4439906bacd4e788b6506ab1e1b3b6b9e500b106466` |
-| `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `d9465acd46896c29dc3620a9be69115fa2faee9748b2be12cdbb09f2460d8630` |
+| `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `32d79c06a9fdad99db31bb738b7c6b6fdf10f8b238a7361fe1b8d8b3b1df7567` |
 | `tools/nexstick/mocap.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `db0c394d4c1c98016f686248808e4101c72623b2a0a53b008a9c2d3e4e94a543` |
 | `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `c516720538ec072d8323a0dd9969df1f9c9869cd6526504f2efd0b04d944f06c` |
 | `tools/nexstick/walk_proof3.py` | nexstick motion bridge (mocap->paperbook rig proof) | `513b574787af34dc50a82d91626f12d73b7291f5b88e2ac19763eecb88c157f6` |
@@ -60,7 +60,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/meshrig/bake_parallel.sh` | parallel bake driver (xargs -P, env: BLEND/VAULT/OUTROOT/RES/CAM) | `807eb706cf51cdc79493b2ce9762f4fe5df5f08aa78b849d09e62455a5efbb2a` |
 | `tools/nexstick/baked/<CLIP>/` | baked PNG sprite frames + meta.json per clip (generated; regen via bake_parallel.sh). `<CLIP>@<variant>` dirs = same clip baked on a make_variant.py body (female/suit/slim) | generated — see per-clip meta.json |
 | `v3_shorts.py` | rigged-shorts mode: stage floor + walk-cycle entrances/exits + figure-as-protagonist | `e432cd6e9bd410b1b2525f05f6df8fb880ae23fb0e4cac6a6e995dab7bd13a5a` |
-| `v3_comic.py` | comic/storyboard mode: self-drawing panels, posed sprites, speech bubbles | `b89ee39c4a847709bfbcacbed04976fe1c4cb9d1a61e5e8e5f9eb4b01017e1a2` |
+| `v3_comic.py` | comic/storyboard mode: self-drawing panels, posed sprites, speech bubbles | `e60ff2f7bbadbf95914f7b95378c11eea1f2f221421c31fdc2cddc709669efa9` |
 
 | `tools/openmoji_pack.py` | OpenMoji -> assets/openmoji pack builder (flatten shapes+transforms to strokes) | `aa299b382bf6a7277a1ebe0f86d6074949ec85620b3556d83aec42c2a2247e45` |
 | `assets/openmoji/` | 473 people/activity line-art glyphs + index.json (OpenMoji, CC BY-SA 4.0; LICENSE-NOTICE inside) | `c4584e573cbb7e10c06d1b7d6992d26e801240c4c10a102f4f0f4353b9dece17` (index) |

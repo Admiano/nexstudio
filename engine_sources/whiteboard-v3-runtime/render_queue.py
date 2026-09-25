@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """render_queue — batch render runner.
 
-Consumes a directory of plans and renders each through the diagram
-pipeline (the other types are planned). A plan file may sit next to its
-audio companions:
+Consumes a directory of plans and renders each through the pipeline its
+camera_variant selects: named variants (board_sections, cluster_travel,
+giant_board_journey, shorts, comic) go through the narration-timed
+pipeline; plans without a variant go through the diagram pipeline.
+A plan file may sit next to its audio companions:
     my_plan.json        plan (required)
     my_plan_vo.wav      voiceover for that plan (optional)
     my_plan_words.json  word timings           (optional)
@@ -19,6 +21,11 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# every named camera_variant renders through pipeline_v3_narration_timed;
+# plans with no variant belong to the diagram pipeline
+P3_VARIANTS = {'board_sections', 'cluster_travel', 'giant_board_journey',
+               'shorts', 'comic'}
 
 
 def run_queue(queue_dir: Path, ratio: str = '16:9',
@@ -38,10 +45,15 @@ def run_queue(queue_dir: Path, ratio: str = '16:9',
         vo = pf.with_name(pf.stem + '_vo.wav')
         t0 = time.time()
         try:
-            receipt = pd.render_production(
-                plan, out_dir, ratio=ratio,
-                voiceover=vo if vo.exists() else None,
-                accent=accent)
+            if str(plan.get('camera_variant') or '') in P3_VARIANTS:
+                receipt = p3.render_production(
+                    plan, out_dir, ratio=ratio,
+                    voiceover=vo if vo.exists() else None)
+            else:
+                receipt = pd.render_production(
+                    plan, out_dir, ratio=ratio,
+                    voiceover=vo if vo.exists() else None,
+                    accent=accent)
             results.append({'plan': pf.name, 'ok': True,
                             'out': str(out_dir),
                             'duration_s': receipt['duration_seconds'],
