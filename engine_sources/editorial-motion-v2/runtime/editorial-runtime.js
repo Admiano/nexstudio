@@ -4152,10 +4152,10 @@
     } else if (layout === 'vignette') {
       // Painted right on the page: the art fills the page and dissolves into the
       // stock at its edges — no plate, no keyline. A caption line beneath.
-      slotRect = { x: pad * 0.3, y: ph * 0.05, w: pw - pad * 0.6, h: ph * 0.86 };
+      slotRect = { x: pad * 0.3, y: ph * 0.05, w: pw - pad * 0.6, h: ph * 0.80 };
       slotMask = `radial-gradient(ellipse 88% 86% at 50% 46%, rgba(0,0,0,1) 60%, rgba(0,0,0,0.45) 82%, rgba(0,0,0,0) 94%)`;
       framed = false;
-      colRect = { x: pad, y: ph * 0.885, w: pw - pad * 2 };
+      colRect = { x: pad, y: ph * 0.875, w: pw - pad * 2 };
     } else if (layout === 'spot') {
       // A spot illustration: the small free-floating mark picture-books drop in the
       // margin — art unframed mid-page, generous prose beneath.
@@ -4164,14 +4164,14 @@
       framed = false;
       colRect = { x: pad, y: ph * 0.58, w: pw - pad * 2 };
     } else if (layout === 'diagonal') {
-      slotRect = { x: pad * 0.4, y: ph * 0.06, w: pw - pad * 0.8, h: ph * 0.86 };
-      const flip = pcut === 'left' ? -1 : 1; // right default: art fills upper-right triangle
-      const a = flip === 1 ? [[0, 0], [1, 0], [1, 0.34], [0.42, 1]] : [[0, 0], [1, 0], [0.58, 1], [0, 0.34]];
+      // The plate's bottom edge is cut on a slant — art above, the whole print block
+      // safe in the strip under the cut's lowest point.
+      slotRect = { x: pad * 0.4, y: ph * 0.05, w: pw - pad * 0.8, h: ph * 0.78 };
+      const flip = pcut === 'left' ? -1 : 1; // right default: the cut dips toward the fore-edge
+      const a = flip === 1 ? [[0, 0], [1, 0], [1, 0.80], [0, 0.60]] : [[0, 0], [1, 0], [1, 0.60], [0, 0.80]];
       slotClip = `polygon(${a.map(([px2, py2]) => `${f2(px2 * 100)}% ${f2(py2 * 100)}%`).join(',')})`;
       divider = { kind: 'diag', pts: a, rect: slotRect };
-      // The print column must stay inside the cut's safe triangle for its full height —
-      // the diagonal crosses it lowest at the column's bottom corner.
-      colRect = flip === 1 ? { x: pad, y: ph * 0.60, w: pw * 0.28 } : { x: pw * 0.625, y: ph * 0.60, w: pw * 0.30 };
+      colRect = { x: pad, y: ph * 0.72, w: pw - pad * 2 };
     } else if (layout === 'zipped' || layout === 'scissor') {
       const cutY = ph * 0.56;
       slotRect = { x: pad * 0.4, y: ph * 0.055, w: pw - pad * 0.8, h: cutY - ph * 0.055 };
@@ -4194,8 +4194,13 @@
       colRect = { x: pad, y: ph * 0.105, w: pw - pad * 2 };
     }
     if (colRect) {
-      const col = el('div', { position: 'absolute', left: px(colRect.x), top: px(colRect.y), width: px(colRect.w) }, face);
+      // Vignette pages center their caption under the painting — clear of the
+      // corner folios, which sit at the foot of the same strip.
+      const centered = layout === 'vignette';
+      const col = el('div', { position: 'absolute', left: px(centered ? pad : colRect.x), top: px(colRect.y), width: px(centered ? pw - pad * 2 : colRect.w), textAlign: centered ? 'center' : '' }, face);
       const titleEl = el('div', { fontFamily: PB_HAND, fontWeight: '640', fontSize: px(pw * (layout === 'half' ? 0.058 : layout === 'full' ? 0.050 : 0.044)), lineHeight: '1.12', color: ink, letterSpacing: '0.002em' }, col);
+      // Letterpress bite: light caught on the pressed edge below, ink shade above.
+      titleEl.style.textShadow = `0 ${px(Math.max(0.5, pw * 0.0011))} 0 rgba(255,252,240,0.55), 0 ${px(-Math.max(0.5, pw * 0.0011))} 0 ${rgbaOf(ink, 0.22)}`;
       titleEl.textContent = titleText;
       if (mats.includes('foil')) {
         // Foil stamping: a gold leaf pressed into the letterforms.
@@ -4209,15 +4214,15 @@
         marginTop: px(ph * 0.018), maxWidth: px(colRect.w * 0.94),
       }, col);
       const narration = bn.beat.narration || '';
-      if (narration && layout === 'half') {
+      if (narration && /[A-Za-z]/.test(narration[0]) && (layout === 'half' || layout === 'spot')) {
         // The initial: a versal three lines tall pressed in the accent ink, the rest
-        // of the line running around it — the manuscript opening a chapter takes.
+        // of the word running around it — the manuscript opening a chapter takes.
         const cap = el('span', {
           fontFamily: PB_SERIF, fontWeight: '700', float: 'left',
           fontSize: px(pw * 0.0305 * 3.35), lineHeight: '0.82',
           color: plan.brand.accent || ink, margin: `${px(ph * 0.006)} ${px(pw * 0.012)} 0 0`,
         }, prose);
-        cap.textContent = narration[0];
+        cap.textContent = narration[0].toUpperCase();
         prose.appendChild(document.createTextNode(narration.slice(1)));
       } else {
         prose.textContent = narration;
@@ -4355,6 +4360,24 @@
     });
     el('div', { position: 'absolute', inset: '0', backgroundImage: speckleUrl, opacity: '0.9' }, face);
     pbOrnamentArc(face, rect, plan);
+    if (side === 'right') {
+      // The book always closes on words: the last right page is the colophon.
+      const ink2 = plan.brand.ink;
+      const fin = el('div', {
+        position: 'absolute', left: '0', right: '0', top: px(rect.h * 0.42), textAlign: 'center',
+        fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(rect.w * 0.075), letterSpacing: '0.04em',
+        color: rgbaOf(ink2, 0.62),
+      }, face);
+      fin.textContent = 'The End';
+      el('div', {
+        position: 'absolute', left: px(rect.w * 0.38), top: px(rect.h * 0.55), width: px(rect.w * 0.24), height: px(Math.max(0.8, rect.w * 0.003)),
+        background: rgbaOf(ink2, 0.3),
+      }, face);
+      el('div', {
+        position: 'absolute', left: '0', right: '0', top: px(rect.h * 0.60), textAlign: 'center',
+        fontFamily: PB_SERIF, fontStyle: 'italic', fontSize: px(rect.w * 0.026), color: rgbaOf(ink2, 0.45),
+      }, face).textContent = plan.film_id ? plan.film_id.replace(/[-_]+/g, ' ') : '';
+    }
     return { el: face, stillVp: null, liveVp: null, slot: null, index: -1 };
   }
 

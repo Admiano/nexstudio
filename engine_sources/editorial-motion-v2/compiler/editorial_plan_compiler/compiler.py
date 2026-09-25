@@ -22,7 +22,7 @@ from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirect
 from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
-from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
+from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
 from .bankart import BankArt
 from .evidence import PhotoEvidence
 from .lexicon import AssetFinder, NounLexicon, Resolution
@@ -185,6 +185,140 @@ def _remap(bbox: Dict[str, float], src: Dict[str, float], dst: Dict[str, float])
     sx = dst['w'] / max(1.0, src['w'])
     sy = dst['h'] / max(1.0, src['h'])
     return _box(dst['x'] + (bbox['x'] - src['x']) * sx, dst['y'] + (bbox['y'] - src['y']) * sy, bbox['w'] * sx, bbox['h'] * sy)
+
+
+# The paperbook plate crops the whole canvas to cover its slot; only the centered
+# crop of the canvas is actually printed on the page. Mirrors paperbookRects +
+# the per-layout slotRects in the runtime, in canvas coordinates.
+def _pb_slot_crop(layout: str, W: int, H: int) -> Dict[str, float]:
+    pw, ph = W * 0.38, H * 0.80
+    pad = pw * 0.082
+    slots = {
+        'full': (pw - pad, ph * 0.86),
+        'vignette': (pw - pad * 0.6, ph * 0.80),
+        'spot': (pw * 0.60, ph * 0.44),
+        'diagonal': (pw - pad * 0.8, ph * 0.78),
+        'zipped': (pw - pad * 0.8, ph * 0.505),
+        'scissor': (pw - pad * 0.8, ph * 0.505),
+        'half': (pw - pad * 2.15, ph * 0.46),
+    }
+    sw, sh = slots.get(layout, slots['half'])
+    k = max(sw / W, sh / H)
+    vw, vh = sw / k, sh / k
+    return _box((W - vw) / 2, (H - vh) / 2, vw, vh)
+
+
+def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[str, Any]],
+                             figure: Optional[Dict[str, Any]], W: int, H: int, dur_ms: float) -> None:
+    """Recompose the beat's entities as a page illustration: bank art gets plate-scale
+    mounting, marks spread into a scene, the figure stands at picture-book size —
+    all inside the slot's visible canvas crop, not the word-tile zone."""
+    pg = getattr(btr, 'page', None) or {}
+    vis = _pb_slot_crop(pg.get('layout') or 'half', W, H)
+    vx, vy = vis['x'] + vis['w'] * 0.045, vis['y'] + vis['h'] * 0.06
+    vw, vh = vis['w'] * 0.91, vis['h'] * 0.88
+    ents = (illustration or {}).get('entities') or []
+    photos = [e for e in ents if e.get('photo') and e.get('art_bbox')]
+    marks = [e for e in ents if e.get('art_bbox') and e not in photos]
+
+    def put(e: Dict[str, Any], box: Dict[str, float]) -> None:
+        e['art_bbox'] = dict(box)
+        if e.get('bbox'):
+            e['bbox'] = dict(box)
+        if e.get('label') and e['label'].get('bbox'):
+            lb = e['label']['bbox']
+            e['label']['bbox'] = _box(box['x'], box['y'] + box['h'] + lb['h'] * 0.15, box['w'], lb['h'])
+
+    # Bank art is the plate's artwork, not a chip: single piece hangs centered like a
+    # mounted plate; a series lands as a gallery (row, hero + stack, or a grid).
+    n = len(photos)
+    if n == 1:
+        cells = [_box(vx + vw * 0.10, vy + vh * 0.06, vw * 0.80, vh * 0.86)]
+    elif n == 2:
+        g = vw * 0.06
+        cw = (vw - g) / 2
+        cells = [_box(vx + i * (cw + g), vy + vh * 0.14, cw, vh * 0.72) for i in range(2)]
+    elif n == 3:
+        g = vw * 0.05
+        cw = (vw - 2 * g) / 3
+        cells = [_box(vx + i * (cw + g), vy + vh * 0.20, cw, vh * 0.62) for i in range(3)]
+    else:
+        g = vw * 0.05
+        cw, ch = (vw - g) / 2, (vh * 0.94 - g) / 2
+        cells = [_box(vx + (i % 2) * (cw + g), vy + (i // 2) * (ch + g), cw, ch) for i in range(min(n, 4))]
+    for e, cell in zip(photos, cells):
+        sz = (e.get('photo') or {}).get('source_size') or {}
+        ab = e['art_bbox']
+        ar = (sz['w'] / sz['h']) if sz.get('w') and sz.get('h') else (ab['w'] / ab['h'] if ab['h'] else 1.0)
+        put(e, _fit_aspect(cell, ar))
+
+    # The performer is a storybook character: stands at least ~40% of plate height,
+    # feet near the plate floor, shifted to whichever flank the artwork leaves open.
+    if figure and figure.get('bbox'):
+        fb = dict(figure['bbox'])
+        f = max(1.0, (vis['h'] * 0.40) / max(1.0, fb['h']))
+        nw, nh = fb['w'] * f, fb['h'] * f
+        bottom = min(fb['y'] + fb['h'], vy + vh)
+        cx = fb['x'] + fb['w'] / 2
+        candidates = [cx - nw / 2] + [vx + vw * p - nw / 2 for p in (0.14, 0.86, 0.32, 0.68, 0.50)]
+        trial = None
+        for cand in candidates:
+            cand = min(max(cand, vx), vx + vw - nw)
+            trial = _box(cand, bottom - nh, nw, nh)
+            if all(_overlap(trial, e['art_bbox']) <= 0 for e in photos):
+                break
+        figure['bbox'] = trial
+        fb = trial
+
+    # Marks compose the scene itself when there is no bank art: the biggest subject
+    # anchors center-low, satellites spread across thirds like a staged diorama. With
+    # artwork mounted they stay as small accents clamped inside the crop.
+    if marks and not photos:
+        order = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
+        anchors = [(0.50, 0.62, 0.52), (0.24, 0.38, 0.34), (0.76, 0.34, 0.32),
+                   (0.20, 0.72, 0.28), (0.80, 0.70, 0.26), (0.50, 0.22, 0.24)]
+        for i, e in enumerate(order):
+            ax, ay, hf = anchors[i % len(anchors)]
+            ab = e['art_bbox']
+            s = min(2.6, (vh * hf) / max(1.0, ab['h']))
+            nw2, nh2 = ab['w'] * s, ab['h'] * s
+            box = _box(vx + ax * vw - nw2 / 2, vy + ay * vh - nh2 / 2, nw2, nh2)
+            for _ in range(4):
+                if figure and _overlap(box, figure['bbox']) > 0:
+                    box['x'] += vw * 0.20
+                    if box['x'] + box['w'] > vx + vw:
+                        box['x'] = vx
+                else:
+                    break
+            box['x'] = min(max(box['x'], vx), vx + vw - box['w'])
+            box['y'] = min(max(box['y'], vy), vy + vh - box['h'])
+            put(e, box)
+    elif marks:
+        # Photographic plate: art marks step back to small accents strung across
+        # the frame's lower band, kept off the figure.
+        acc = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
+        n_acc = len(acc)
+        for i, e in enumerate(acc):
+            ab = e['art_bbox']
+            s = min(1.4, (vh * 0.24) / max(1.0, ab['h']))
+            box = _box(0, 0, ab['w'] * s, ab['h'] * s)
+            t = (i + 1) / (n_acc + 1)
+            box['x'] = vx + vw * t - box['w'] / 2
+            box['y'] = vy + vh * 0.72 - box['h'] / 2
+            for _ in range(4):
+                if figure and _overlap(box, figure['bbox']) > 0:
+                    box['y'] = vy + vh * 0.08 if box['y'] > vy + vh * 0.4 else vy + vh - box['h'] - vh * 0.04
+                    box['x'] += vw * 0.18
+                    box['x'] = min(max(box['x'], vx), vx + vw - box['w'])
+                else:
+                    break
+            put(e, box)
+
+    # A plate is a settled illustration: every element has arrived by the page's
+    # first half — no subject may pop in during the last third of the read.
+    for e in ents:
+        if e.get('enter_ms', 0) > dur_ms * 0.62:
+            e['enter_ms'] = int(dur_ms * 0.62)
 
 
 def _fonts() -> Dict[str, Any]:
@@ -705,12 +839,18 @@ class BeatCompiler:
         data = self._data(b, comp, clock)
         illustration, ilf = self._illustration(b, comp, clock)
         failures += ilf
+        if getattr(self.film.world, 'book', None) == 'paperbook':
+            _compose_paperbook_plate(b, illustration, figure, self.W, self.H, clock.duration_ms)
         if illustration:
             if not _inside(illustration['zone'], self.frame, 2):
                 failures.append('ILLUSTRATION_OUTSIDE_FRAME')
             for ent in illustration['entities']:
                 boxes = [ent['art_bbox']] + ([ent['label']['bbox']] if ent.get('label') else [])
                 for bx in boxes:
+                    # The paperbook page prints its own words; in-canvas text blocks are
+                    # never painted there, so entities cannot collide with them.
+                    if getattr(self.film.world, 'book', None) == 'paperbook':
+                        break
                     for bl in typ['blocks']:
                         if _overlap(bx, bl['bbox']) > 0:
                             failures.append(f"ILLUSTRATION_COLLIDES_TEXT:{ent['id']}:{bl['unit_index']}")
@@ -988,7 +1128,8 @@ _SCENE_ELEMENT_SIZE = {
 }
 
 
-def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], brand: Brand) -> List[Dict[str, Any]]:
+def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], brand: Brand,
+                  sky_concepts: Optional[set] = None) -> List[Dict[str, Any]]:
     """The environment engine: the treatment declares a setting and mood, and this composes
     that world out of paper pieces — outdoor skies and grounds, interior walls and furniture,
     starfields, underwater depth, urban skylines, underground soil — all in the film's palette.
@@ -996,6 +1137,7 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
     scene's ground line. Under paperbook they land as flat matte pieces with fibre speckle."""
     if not btr.scene:
         return []
+    sky_concepts = sky_concepts or set()
     W, H = canvas
     short = min(W, H)
     overhang = W * 0.10
@@ -1098,7 +1240,11 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         out.append(band(-0.02, 1.04, mix(ink, paper, 0.05), 0.05, False, 1))
         out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H}, 2, 260))
         out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.55}, 12, 120, 0.05))
-        out.append({'kind': 'arc', 'bbox': {'x': -W * 0.1, 'y': H * 0.1, 'w': W * 1.2, 'h': H * 0.9}, 'corner': 1, 'plane': 0.1})
+        # The great circle is an orbit path, not a ring around a body: skipped when a
+        # celestial subject is on the plate, else the sun reads as Saturn.
+        sky_bodies = {'sun', 'moon', 'planet', 'star', 'moon-full', 'moon-crescent', 'comet'}
+        if not (sky_concepts & sky_bodies):
+            out.append({'kind': 'arc', 'bbox': {'x': -W * 0.1, 'y': H * 0.1, 'w': W * 1.2, 'h': H * 0.9}, 'corner': 1, 'plane': 0.1})
         out.append(piece('planet', W * 0.55, H * 0.30, short * 0.36, short * 0.36, accent, 0.18, 3))
         out.append(piece('moon', W * 0.12, H * 0.14, short * 0.1, short * 0.1, mix(paper, '#f5edd8', 0.4), 0.14, 4))
         out.append(piece('comet', W * 0.05, H * 0.08, W * 0.22, short * 0.04, mix(paper, accent, 0.5), 0.12, 5))
@@ -1489,7 +1635,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         prev_bloom = None
         for bt, btr in zip(beats, film.beats):
             backdrop = _backdrop_layers(film.film_id, btr, (W, H), film.brand)
-            scene = _scene_layers(film.film_id, btr, (W, H), film.brand)
+            sky_concepts = {e.get('concept') for e in ((bt.get('illustration') or {}).get('entities') or []) if e.get('concept')}
+            scene = _scene_layers(film.film_id, btr, (W, H), film.brand, sky_concepts)
             atmo_layers = beat_atmosphere(film.film_id, bt, (W, H), bc.safe, prev_bloom, atmosphere)
             prev_bloom = next(L['at'] for L in atmo_layers if L['kind'] == 'bloom')
             # Painter's order inside the bg layer: stage furniture, then the authored world

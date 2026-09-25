@@ -58,7 +58,7 @@
         "energy": 0.5,
         "formality": 0.5,
         "facing": "CAMERA",
-        "justification": "the gardener finds the sleeping seed — our guide for the whole film",
+        "justification": "the gardener finds the sleeping seed \u2014 our guide for the whole film",
         "character": "gardener",
         "track": {
           "enter": "left",
@@ -212,7 +212,7 @@
       },
       "page": {
         "title": "The Rain Comes",
-        "quote": "and the seed drinks deep",
+        "quote": "Rain falls, roots drink.",
         "layout": "vignette",
         "cut": "top"
       },
@@ -425,7 +425,7 @@
       },
       "page": {
         "title": "Reaching for the Sun",
-        "quote": "a green shoot climbs",
+        "quote": "Every shoot learns the sun.",
         "layout": "half"
       },
       "scene": {
@@ -567,7 +567,7 @@
         "energy": 0.5,
         "formality": 0.5,
         "facing": "CAMERA",
-        "justification": "the gardener presents the bloom — the patient payoff of the whole arc",
+        "justification": "the gardener presents the bloom \u2014 the patient payoff of the whole arc",
         "character": "gardener",
         "track": {
           "enter": "none",
@@ -626,7 +626,7 @@
       },
       "page": {
         "title": "A Flower Opens",
-        "quote": "where there was nothing",
+        "quote": "Light becomes leaf becomes bloom.",
         "layout": "half",
         "materials": [
           "ribbon",
