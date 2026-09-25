@@ -1,0 +1,156 @@
+{
+  "id": "cast.student.paper-01",
+  "name": "Student",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "student",
+  "slug": "student",
+  "renderer": "paper-cast-figure",
+  "role": "student",
+  "ageBand": "teen",
+  "proportion": "teen",
+  "formality": "casual",
+  "intents": [
+    "receive_information",
+    "ask_question",
+    "show_progress",
+    "react"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "student",
+    "learner",
+    "class",
+    "study",
+    "question",
+    "homework"
+  ],
+  "useCases": [
+    "explainer",
+    "education"
+  ],
+  "personalities": [
+    "curious",
+    "shy",
+    "energetic"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "poses": [
+    "listen-attentive",
+    "think-considering",
+    "work-at-surface",
+    "walk-stride",
+    "celebrate-lift"
+  ],
+  "defaultPose": "listen-attentive",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#f0c9a4",
+    "hair": {
+      "color": "#8c6239",
+      "length": 0.5
+    },
+    "top": {
+      "color": "#c65f4a",
+      "sleeve": 0.4
+    },
+    "bottom": {
+      "color": "#41506b"
+    },
+    "shoes": {
+      "color": "#ddd8d0"
+    },
+    "accent": "#5aa9a3"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.student",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Student paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "receive_information",
+      "ask_question",
+      "show_progress",
+      "react"
+    ],
+    "storyRole": "student",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}
