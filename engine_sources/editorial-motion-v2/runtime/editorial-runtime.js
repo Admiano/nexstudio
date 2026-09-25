@@ -478,6 +478,82 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Scene-engine primitives: flat paper objects — a window, a hill, a planet — drawn as
+  // svg silhouettes in the film's palette inside a 0..100 box (each with a hard shadow
+  // from the 'piece' wrapper). The artist's vocabulary for "any environment".
+  // ---------------------------------------------------------------------------
+  function scenePiece(shape, seed, tone, plan) {
+    const brand = plan.brand;
+    const dk = (k) => mixColor(tone, '#000000', k);
+    const lt = (k) => mixColor(tone, '#ffffff', k);
+    const inkL = (k) => mixColor(brand.ink, tone, k);
+    const paperTone = (k) => mixColor(brand.paper, tone, k);
+    const svg = svgEl('svg', { viewBox: '0 0 100 100', preserveAspectRatio: 'none' });
+    Object.assign(svg.style, { width: '100%', height: '100%', display: 'block', overflow: 'visible' });
+    const r = rng(seed ^ 0x5a17);
+    const P = (d, fill, op) => svgEl('path', { d, fill: fill || tone, 'fill-opacity': op == null ? 1 : op }, svg);
+    const R = (x, y, w, h, fill, op) => svgEl('rect', { x: f2(x), y: f2(y), width: f2(w), height: f2(h), fill: fill || tone, 'fill-opacity': op == null ? 1 : op }, svg);
+    const C = (cx, cy, rad, fill, op) => svgEl('circle', { cx: f2(cx), cy: f2(cy), r: f2(rad), fill: fill || tone, 'fill-opacity': op == null ? 1 : op }, svg);
+    const E = (cx, cy, rx, ry, fill, op) => svgEl('ellipse', { cx: f2(cx), cy: f2(cy), rx: f2(rx), ry: f2(ry), fill: fill || tone, 'fill-opacity': op == null ? 1 : op }, svg);
+    const speck = () => {
+      // Gouache grain inside the silhouette: seeded pinpricks of paper showing through.
+      for (let i = 0; i < 14; i++) {
+        svgEl('circle', { cx: f2(8 + r() * 84), cy: f2(8 + r() * 84), r: f2(0.5 + r() * 0.9), fill: paperTone(0.9), 'fill-opacity': f2(0.10 + r() * 0.10) }, svg);
+      }
+    };
+    switch (shape) {
+      case 'sun': { C(50, 50, 26); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; P(`M${f2(50 + Math.cos(a) * 34)} ${f2(50 + Math.sin(a) * 34)} L${f2(50 + Math.cos(a + 0.12) * 48)} ${f2(50 + Math.sin(a + 0.12) * 48)} L${f2(50 + Math.cos(a - 0.12) * 48)} ${f2(50 + Math.sin(a - 0.12) * 48)}Z`); } speck(); break; }
+      case 'moon': { P('M50 12 A38 38 0 1 0 50 88 A30 38 0 1 1 50 12 Z'); C(38, 40, 5, dk(0.12), 0.5); C(58, 62, 3.4, dk(0.12), 0.5); break; }
+      case 'planet': { C(50, 52, 30); P('M14 66 Q50 50 86 34 L86 44 Q50 60 14 76Z', lt(0.35), 0.9); C(42, 42, 7, lt(0.25), 0.6); speck(); break; }
+      case 'star': { P('M50 8 L58 38 L90 40 L64 58 L73 90 L50 70 L27 90 L36 58 L10 40 L42 38 Z'); speck(); break; }
+      case 'comet': { E(70, 50, 20, 9); P('M62 46 L4 50 L62 54Z'); P('M60 41 L20 38 L62 47Z', lt(0.4), 0.7); break; }
+      case 'ring': { E(50, 50, 46, 14, 'none'); svgEl('ellipse', { cx: 50, cy: 50, rx: 46, ry: 14, fill: 'none', stroke: tone, 'stroke-width': 5 }, svg); break; }
+      case 'cloud': { P('M8 72 Q2 52 22 50 Q20 32 42 32 Q52 18 68 30 Q88 26 90 46 Q98 58 88 70 L10 74Z'); speck(); break; }
+      case 'hill': { P(`M0 100 L0 ${f2(70 - r() * 20)} Q${f2(30 + r() * 40)} ${f2(20 + r() * 30)} 100 ${f2(66 - r() * 18)} L100 100Z`); speck(); break; }
+      case 'mountain': { P('M0 100 L38 20 L52 46 L68 14 L100 100Z'); P('M30 32 L38 20 L48 40 L42 38Z', paperTone(0.7)); P('M60 28 L68 14 L80 44 L70 40Z', paperTone(0.7)); speck(); break; }
+      case 'cliff': { P(`M0 100 L0 ${f2(20 + r() * 15)} L${f2(30 + r() * 20)} ${f2(30 + r() * 10)} L${f2(50 + r() * 15)} 100Z`); speck(); break; }
+      case 'rock': case 'stone': case 'pebble': { P(`M10 82 Q4 60 24 52 Q34 34 56 40 Q82 42 90 62 Q94 80 78 86 L14 88Z`); speck(); break; }
+      case 'log': { R(4, 40, 92, 26); C(6, 53, 13, lt(0.3)); P('M20 40 L20 66 M46 40 L46 66 M70 40 L70 66', 'none'); for (const x of [20, 46, 70]) svgEl('line', { x1: x, y1: 42, x2: x, y2: 64, stroke: dk(0.3), 'stroke-width': 2 }, svg); break; }
+      case 'house': { R(16, 44, 68, 56); P('M8 44 L50 12 L92 44Z', dk(0.25)); R(42, 66, 16, 34, dk(0.4)); R(24, 54, 12, 12, paperTone(0.8)); R(64, 54, 12, 12, paperTone(0.8)); break; }
+      case 'hut': { P('M18 46 Q50 30 82 46 L82 88 L18 88Z'); P('M10 44 Q50 6 90 44 L82 46 Q50 16 18 46Z', dk(0.3)); R(44, 62, 13, 26, dk(0.4)); break; }
+      case 'tent': { P('M8 92 L50 16 L92 92Z'); P('M50 16 L50 92 L92 92Z', dk(0.18)); P('M38 92 L50 62 L62 92Z', dk(0.45)); break; }
+      case 'fence': { for (let i = 0; i < 6; i++) R(4 + i * 16, 20, 9, 66, i % 2 ? tone : dk(0.08)); R(0, 38, 100, 9, dk(0.15)); R(0, 62, 100, 9, dk(0.15)); break; }
+      case 'sign': { R(46, 34, 8, 66); R(22, 10, 60, 30, lt(0.2)); R(26, 17, 52, 4, dk(0.2), 0.6); R(26, 26, 40, 4, dk(0.2), 0.6); break; }
+      case 'window': { R(10, 8, 80, 84, paperTone(0.85)); R(14, 12, 72, 76, lt(0.55)); R(46, 12, 8, 76, paperTone(0.9)); R(14, 46, 72, 8, paperTone(0.9)); P('M10 8 L90 8 L90 92 L10 92Z M14 12 L14 88 L86 88 L86 12Z', tone); break; }
+      case 'door': { P('M20 92 L20 26 Q20 10 50 10 Q80 10 80 26 L80 92Z'); C(70, 58, 3.4, dk(0.4)); P('M24 30 Q50 16 76 30 L76 36 Q50 24 24 36Z', dk(0.15)); break; }
+      case 'table': { R(4, 34, 92, 9); R(10, 43, 8, 50, dk(0.2)); R(82, 43, 8, 50, dk(0.2)); break; }
+      case 'chair': { R(18, 8, 10, 84); R(18, 44, 60, 10); R(24, 54, 9, 38, dk(0.15)); R(66, 54, 9, 38, dk(0.15)); break; }
+      case 'stool': { E(50, 30, 34, 12); R(30, 38, 8, 52, dk(0.15)); R(62, 38, 8, 52, dk(0.15)); break; }
+      case 'shelf': case 'beam': { R(0, 40, 100, 16); for (let i = 0; i < 4; i++) R(10 + i * 24, 18, 14, 22, lt(0.25 + (i % 2) * 0.15)); break; }
+      case 'bookshelf': { R(6, 6, 88, 88, dk(0.15)); for (const yy of [12, 42, 72]) { for (let i = 0; i < 5; i++) R(12 + i * 15 + r() * 3, yy + r() * 4, 11, 20, i % 2 ? lt(0.3) : paperTone(0.6)); } break; }
+      case 'lamp': { R(46, 40, 8, 50); P('M30 40 L40 8 L60 8 L70 40Z', lt(0.3)); E(50, 90, 20, 6, dk(0.25)); break; }
+      case 'streetlamp': { R(46, 16, 8, 84); P('M38 16 Q50 2 62 16 L58 28 L42 28Z', lt(0.4)); C(50, 20, 6, paperTone(0.9)); break; }
+      case 'rug': { E(50, 50, 48, 34); E(50, 50, 34, 22, dk(0.12)); E(50, 50, 20, 12, lt(0.2)); break; }
+      case 'bed': { R(4, 50, 92, 34); R(4, 26, 12, 58, dk(0.2)); R(8, 30, 30, 16, paperTone(0.8)); R(42, 52, 52, 26, lt(0.25)); break; }
+      case 'sofa': { R(10, 40, 80, 40); R(4, 30, 16, 54, dk(0.15)); R(80, 30, 16, 54, dk(0.15)); R(16, 36, 68, 16, lt(0.2)); break; }
+      case 'poster': case 'frame': { R(16, 10, 68, 80, dk(0.2)); R(21, 15, 58, 70, paperTone(0.75)); P('M30 60 Q50 30 70 60Z', lt(0.4)); C(62, 32, 8, lt(0.5)); break; }
+      case 'pot': { P('M28 44 L72 44 L66 92 L34 92Z'); R(24, 36, 52, 10, dk(0.15)); P('M50 36 Q36 14 26 20 Q40 22 50 36 M50 36 Q64 12 76 18 Q62 22 50 36', dk(0.35)); break; }
+      case 'vase': { P('M40 30 L60 30 L66 46 L62 92 L38 92 L34 46Z'); break; }
+      case 'curtain': { P('M14 6 L86 6 L82 94 L74 88 L66 94 L58 88 L50 94 L42 88 L34 94 L26 88 L18 94Z'); for (const x of [30, 50, 70]) P(`M${x} 8 L${x - 4} 90 L${x + 2} 90Z`, dk(0.12), 0.5); break; }
+      case 'pillar': { R(24, 16, 52, 72); R(18, 8, 64, 10, lt(0.2)); R(18, 86, 64, 10, dk(0.2)); for (const x of [34, 50, 66]) P(`M${x - 3} 18 L${x - 3} 84 L${x + 3} 84 L${x + 3} 18Z`, dk(0.08)); break; }
+      case 'arch': { P('M12 92 L12 40 Q50 4 88 40 L88 92 L74 92 L74 44 Q50 22 26 44 L26 92Z'); break; }
+      case 'crate': { R(8, 20, 84, 72); P('M8 20 L92 92 M92 20 L8 92', 'none'); svgEl('line', { x1: 10, y1: 22, x2: 90, y2: 90, stroke: dk(0.3), 'stroke-width': 4 }, svg); svgEl('line', { x1: 90, y1: 22, x2: 10, y2: 90, stroke: dk(0.3), 'stroke-width': 4 }, svg); break; }
+      case 'barrel': { E(50, 50, 40, 46); R(10, 32, 80, 10, dk(0.2), 0.6); R(10, 60, 80, 10, dk(0.2), 0.6); break; }
+      case 'kelp': { for (const [ox, h] of [[-16, 80], [2, 95], [18, 70]]) { P(`M${f2(50 + ox)} 100 Q${f2(42 + ox)} ${f2(60 - h * 0.1)} ${f2(52 + ox)} ${f2(50 - h * 0.25)} Q${f2(62 + ox)} ${f2(45 - h * 0.3)} ${f2(50 + ox)} ${f2(100 - h)} L${f2(56 + ox)} ${f2(100 - h)} Q${f2(64 + ox)} ${f2(50 - h * 0.2)} ${f2(56 + ox)} ${f2(60 - h * 0.05)} L${f2(58 + ox)} 100Z`, mixColor(tone, brand.accent || tone, 0.4)); } break; }
+      case 'coral': { for (const [ox, s] of [[-20, 0.9], [0, 1], [18, 0.8]]) { P(`M${f2(50 + ox)} 90 Q${f2(44 + ox)} 60 ${f2(50 + ox)} 44 L${f2(50 + ox)} ${f2(50 - 22 * s)} M${f2(50 + ox)} 66 Q${f2(60 + ox)} 58 ${f2(64 + ox)} ${f2(48 - 16 * s)} M${f2(50 + ox)} 72 Q${f2(38 + ox)} 66 ${f2(36 + ox)} ${f2(52 - 14 * s)}`, 'none'); svgEl('path', { d: `M${f2(50 + ox)} 90 Q${f2(44 + ox)} 60 ${f2(50 + ox)} 44 L${f2(50 + ox)} ${f2(50 - 22 * s)} M${f2(50 + ox)} 66 Q${f2(60 + ox)} 58 ${f2(64 + ox)} ${f2(48 - 16 * s)} M${f2(50 + ox)} 72 Q${f2(38 + ox)} 66 ${f2(36 + ox)} ${f2(52 - 14 * s)}`, stroke: tone, 'stroke-width': 7, fill: 'none', 'stroke-linecap': 'round' }, svg); } break; }
+      case 'sandcastle': { R(20, 56, 60, 36); R(14, 40, 16, 52); R(70, 40, 16, 52); P('M14 40 L14 30 L22 36 L30 30 L30 40Z', dk(0.15)); P('M70 40 L70 30 L78 36 L86 30 L86 40Z', dk(0.15)); R(46, 66, 10, 26, dk(0.3)); break; }
+      case 'building': case 'tower': { R(18, 6, 64, 90); for (let yy = 0; yy < 6; yy++) for (let xx = 0; xx < 3; xx++) if (r() < 0.5) R(24 + xx * 19, 12 + yy * 14, 10, 8, paperTone(0.85)); break; }
+      case 'skyline': { let x = 0; while (x < 100) { const tw2 = 8 + r() * 10, th = 30 + r() * 68; R(x, 100 - th, tw2, th, tone); if (r() < 0.3) R(x + tw2 * 0.3, 100 - th - 8, tw2 * 0.4, 9, dk(0.2)); x += tw2 * (0.9 + r() * 0.3); } break; }
+      case 'car': { P('M8 64 L16 44 L40 38 L70 38 L88 46 L94 64 L92 74 L8 74Z'); C(28, 74, 9, dk(0.45)); C(72, 74, 9, dk(0.45)); R(20, 46, 22, 12, paperTone(0.85)); R(50, 46, 24, 12, paperTone(0.85)); break; }
+      case 'boat': { P('M10 62 L90 62 L78 84 L22 84Z'); R(48, 14, 5, 48, dk(0.3)); P('M53 16 L82 58 L53 58Z', paperTone(0.75)); P('M47 20 L22 58 L47 58Z', lt(0.3)); break; }
+      case 'wave': { P(`M0 70 Q12 ${f2(55 + r() * 10)} 25 70 T50 70 T75 70 T100 70 L100 100 L0 100Z`); break; }
+      case 'shaft': { P('M30 0 L70 0 L96 100 L4 100Z', tone, 0.9); break; }
+      default: { P(cutBlobPath(50, 50, 42, 40, seed)); break; }
+    }
+    return svg;
+  }
+
+  // ---------------------------------------------------------------------------
   // Background
   // ---------------------------------------------------------------------------
   function buildBgLayer(spec, plan, parent, idx, assetUrl) {
@@ -485,6 +561,11 @@
     const W = plan.canvas.w, H = plan.canvas.h;
     const b = spec.bbox;
     let node = null;
+    // Paperbook plates are matte paper, not a lit field: glow furniture (blooms, spotlights,
+    // defocused depth discs) never enters — its blurred blobs are what read as drifting bubbles.
+    if (PAPERBOOK(plan) && (spec.kind === 'bloom' || spec.kind === 'spotlight' || spec.kind === 'depth')) {
+      return { spec, node: null, i: idx };
+    }
     switch (spec.kind) {
       case 'panel': {
         const fill = spec.fill === 'paper_lift' ? mixColor(brand.paper, '#ffffff', 0.55) : brand.paper;
@@ -563,24 +644,36 @@
         }, parent);
         // Painted-paper silhouette: an feTurbulence displacement wobbles the band's edges so it
         // reads torn/wet, not machine-cut. A shared field keeps the torn lip parallel to the edge.
-        const tid = `em2tex${(spec.seed >>> 0).toString(36)}`;
-        const texSvg = svgEl('svg', { width: '0', height: '0', viewBox: '0 0 1 1' }, node);
-        Object.assign(texSvg.style, { position: 'absolute' });
-        const texDefs = svgEl('defs', {}, texSvg);
-        const texFilter = svgEl('filter', { id: tid, x: '-5%', y: '-30%', width: '110%', height: '160%' }, texDefs);
-        svgEl('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.011 0.05', numOctaves: '2', seed: String(spec.seed % 89), result: 'n' }, texFilter);
-        svgEl('feDisplacementMap', { in: 'SourceGraphic', in2: 'n', scale: f2(Math.min(b.h * 0.16, 13)), xChannelSelector: 'R', yChannelSelector: 'G' }, texFilter);
+        // Paperbook skips it — page stills clone the cam and url(#) filters do not paint inside
+        // the clipped slot tree in capture; the torn clip-path profile carries the edge instead.
         const wraps = el('div', { position: 'absolute', inset: '0' }, node);
-        wraps.style.filter = `url(#${tid})`;
+        if (!PAPERBOOK(plan)) {
+          const tid = `em2tex${(spec.seed >>> 0).toString(36)}`;
+          const texSvg = svgEl('svg', { width: '0', height: '0', viewBox: '0 0 1 1' }, node);
+          Object.assign(texSvg.style, { position: 'absolute' });
+          const texDefs = svgEl('defs', {}, texSvg);
+          const texFilter = svgEl('filter', { id: tid, x: '-5%', y: '-30%', width: '110%', height: '160%' }, texDefs);
+          svgEl('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.011 0.05', numOctaves: '2', seed: String(spec.seed % 89), result: 'n' }, texFilter);
+          svgEl('feDisplacementMap', { in: 'SourceGraphic', in2: 'n', scale: f2(Math.min(b.h * 0.16, 13)), xChannelSelector: 'R', yChannelSelector: 'G' }, texFilter);
+          wraps.style.filter = `url(#${tid})`;
+        }
         const fill = el('div', { position: 'absolute', inset: '0', background: spec.tone }, wraps);
-        // Painted fill: a light slope plus two seeded blotches read as watercolour settling into
-        // the paper rather than a flat vector field.
-        const br = rng(spec.seed ^ 0x51ab);
-        fill.style.backgroundImage = [
-          `linear-gradient(165deg, ${rgbaOf(mixColor(spec.tone, '#ffffff', 0.5), 0.22)} 0%, ${rgbaOf(spec.tone, 0)} 42%, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)} 100%)`,
-          `radial-gradient(ellipse ${px(b.w * 0.5)} ${px(b.h * 0.9)} at ${px(b.w * (0.15 + 0.35 * br()))} ${px(b.h * (0.2 + 0.5 * br()))}, ${rgbaOf(mixColor(spec.tone, '#ffffff', 0.65), 0.2)}, ${rgbaOf(spec.tone, 0)} 70%)`,
-          `radial-gradient(ellipse ${px(b.w * 0.42)} ${px(b.h * 0.8)} at ${px(b.w * (0.5 + 0.45 * br()))} ${px(b.h * (0.25 + 0.55 * br()))}, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)}, ${rgbaOf(spec.tone, 0)} 70%)`,
-        ].join(',');
+        if (PAPERBOOK(plan)) {
+          // Matte gouache: the sheet's own fibre speckle stands in for gradient modelling —
+          // flat colour like a screen-printed plate, never a lit gradient or soft blotches.
+          const fibre = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, fill);
+          fibre.style.backgroundImage = pbSpeckle(plan);
+          fibre.style.opacity = '0.5';
+        } else {
+          // Painted fill: a light slope plus two seeded blotches read as watercolour settling into
+          // the paper rather than a flat vector field.
+          const br = rng(spec.seed ^ 0x51ab);
+          fill.style.backgroundImage = [
+            `linear-gradient(165deg, ${rgbaOf(mixColor(spec.tone, '#ffffff', 0.5), 0.22)} 0%, ${rgbaOf(spec.tone, 0)} 42%, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)} 100%)`,
+            `radial-gradient(ellipse ${px(b.w * 0.5)} ${px(b.h * 0.9)} at ${px(b.w * (0.15 + 0.35 * br()))} ${px(b.h * (0.2 + 0.5 * br()))}, ${rgbaOf(mixColor(spec.tone, '#ffffff', 0.65), 0.2)}, ${rgbaOf(spec.tone, 0)} 70%)`,
+            `radial-gradient(ellipse ${px(b.w * 0.42)} ${px(b.h * 0.8)} at ${px(b.w * (0.5 + 0.45 * br()))} ${px(b.h * (0.25 + 0.55 * br()))}, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)}, ${rgbaOf(spec.tone, 0)} 70%)`,
+          ].join(',');
+        }
         if (spec.ragged) {
           const edge = Math.min(b.h * 0.3, Math.min(W, H) * 0.022);
           const er = rng(spec.seed ^ 0x7ab1);
@@ -636,6 +729,100 @@
         }
         node.className = 'em2-band';
         node.dataset.plane = String(spec.plane);
+        break;
+      }
+      case 'piece': {
+        // Scene-engine primitive: one flat paper object of the environment — a window, a hill,
+        // a planet, kelp — cut in the film's palette with a hard offset shadow. `art` pieces are
+        // resolved concept marks standing in the world instead of a primitive shape.
+        const pb = spec.bbox;
+        node = el('div', {
+          position: 'absolute', left: px(pb.x), top: px(pb.y), width: px(pb.w), height: px(pb.h),
+          transformOrigin: '50% 100%', pointerEvents: 'none',
+          filter: `drop-shadow(${px(Math.min(W, H) * 0.006)} ${px(Math.min(W, H) * 0.008)} 0 ${rgbaOf(brand.ink, 0.28)})`,
+        }, parent);
+        if (spec.shape === 'art') {
+          const art = spec.concept && paperArtKey(spec.concept);
+          if (art) {
+            const psvg = svgEl('svg', { viewBox: `0 0 ${pb.w} ${pb.h}` }, node);
+            Object.assign(psvg.style, { width: '100%', height: '100%', overflow: 'visible' });
+            const g = paperArtGroup(art, spec.seed, plan, `sp_${(spec.seed >>> 0).toString(36)}`);
+            if (g && g.g) {
+              const inner = svgEl('g', { transform: `scale(${f2(pb.w / 100)} ${f2(pb.h / 100)})` }, psvg);
+              inner.appendChild(g.g);
+            }
+          } else if (spec.asset && spec.asset.path) {
+            const img = el('img', { position: 'absolute', inset: '0', width: '100%', height: '100%', opacity: '0.9' }, node);
+            img.src = assetUrl ? assetUrl(spec.asset.path) : spec.asset.path;
+          }
+        } else {
+          const body = scenePiece(spec.shape, spec.seed, spec.tone, plan);
+          if (body) node.appendChild(body);
+        }
+        node.className = 'em2-piece';
+        node.dataset.plane = String(spec.plane);
+        break;
+      }
+      case 'stars': {
+        // A seeded scatter of cut-paper stars — tiny diamonds and dots, matte ink-on-paper,
+        // no glow. Parallax-barely-moving (near plane 0) so the field sits still behind all.
+        node = svgEl('svg', { viewBox: `0 0 ${spec.bbox.w} ${spec.bbox.h}` }, parent);
+        Object.assign(node.style, { position: 'absolute', left: px(spec.bbox.x), top: px(spec.bbox.y), width: px(spec.bbox.w), height: px(spec.bbox.h), pointerEvents: 'none' });
+        const sr = rng(spec.seed);
+        for (let i = 0; i < spec.count; i++) {
+          const sx = sr() * spec.bbox.w, sy = sr() * spec.bbox.h, r = (0.6 + sr() * 2.1) * (Math.min(W, H) / 720);
+          if (sr() < 0.22) {
+            svgEl('path', { d: `M${f2(sx)} ${f2(sy - r * 2)} L${f2(sx + r * 0.55)} ${f2(sy - r * 0.55)} L${f2(sx + r * 2)} ${f2(sy)} L${f2(sx + r * 0.55)} ${f2(sy + r * 0.55)} L${f2(sx)} ${f2(sy + r * 2)} L${f2(sx - r * 0.55)} ${f2(sy + r * 0.55)} L${f2(sx - r * 2)} ${f2(sy)} L${f2(sx - r * 0.55)} ${f2(sy - r * 0.55)}Z`, fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': f2(0.55 + sr() * 0.4) }, node);
+          } else {
+            svgEl('circle', { cx: f2(sx), cy: f2(sy), r: f2(r), fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': f2(0.35 + sr() * 0.5) }, node);
+          }
+        }
+        node.setAttribute('class', 'em2-stars');
+        node.setAttribute('data-plane', String(spec.plane));
+        break;
+      }
+      case 'shaft': {
+        // A light shaft is a sheet of translucent vellum-cut paper, not a beam of photons —
+        // flat pale strip, tilted, in front of the deep planes.
+        node = el('div', {
+          position: 'absolute', left: px(spec.bbox.x), top: px(spec.bbox.y), width: px(spec.bbox.w), height: px(spec.bbox.h),
+          background: rgbaOf(spec.tone, 0.16), pointerEvents: 'none',
+          transform: `rotate(${f2(spec.tilt_deg)}deg)`, transformOrigin: '50% 0%',
+        }, parent);
+        node.className = 'em2-shaft';
+        node.dataset.plane = String(spec.plane);
+        break;
+      }
+      case 'windows': {
+        // Urban silhouette: a strip of cut towers with lit windows — the night-city read.
+        node = svgEl('svg', { viewBox: `0 0 ${spec.bbox.w} ${spec.bbox.h}`, preserveAspectRatio: 'none' }, parent);
+        Object.assign(node.style, { position: 'absolute', left: px(spec.bbox.x), top: px(spec.bbox.y), width: px(spec.bbox.w), height: px(spec.bbox.h), pointerEvents: 'none' });
+        const wr = rng(spec.seed), bw2 = spec.bbox.w, bh2 = spec.bbox.h;
+        let cx2 = 0;
+        const towers = [];
+        while (cx2 < bw2) {
+          const tw = bw2 * (0.07 + wr() * 0.09);
+          const th = bh2 * (0.45 + wr() * 0.55);
+          towers.push({ x: cx2, w: tw, h: th });
+          cx2 += tw * (0.82 + wr() * 0.30);
+        }
+        for (const t of towers) {
+          svgEl('rect', { x: f2(t.x), y: f2(bh2 - t.h), width: f2(t.w), height: f2(t.h), fill: spec.tone }, node);
+          if (spec.silhouette) {
+            const cols = Math.max(1, Math.floor(t.w / (spec.bbox.w * 0.022)));
+            const rows = Math.max(2, Math.floor(t.h / (spec.bbox.h * 0.13)));
+            for (let ry = 0; ry < rows; ry++) for (let cxr = 0; cxr < cols; cxr++) {
+              if (wr() < 0.30) {
+                svgEl('rect', {
+                  x: f2(t.x + t.w * 0.14 + cxr * (t.w * 0.72 / cols)), y: f2(bh2 - t.h + t.h * 0.10 + ry * (t.h * 0.8 / rows)),
+                  width: f2(t.w * 0.10), height: f2(t.h * 0.10), fill: spec.lit, 'fill-opacity': f2(0.5 + wr() * 0.5),
+                }, node);
+              }
+            }
+          }
+        }
+        node.setAttribute('class', 'em2-windows');
+        node.setAttribute('data-plane', String(spec.plane));
         break;
       }
       case 'bloom': {
@@ -720,12 +907,15 @@
     }
     // Vignette: the field darkens toward its edges by the atmosphere's strength so the paper reads as a
     // lit surface, not a void; the dark variant leans on it harder because it has no bloom contrast to spare.
-    const vig = atmo.vignette_opacity == null ? 0.03 : atmo.vignette_opacity;
-    const vc = atmo.vignette || brand.ink;
-    el('div', {
-      position: 'absolute', inset: '0', pointerEvents: 'none',
-      background: `radial-gradient(ellipse 85% 80% at 50% 45%, ${rgbaOf(vc, 0)} 52%, ${rgbaOf(vc, vig * 0.45)} 82%, ${rgbaOf(vc, vig)} 100%)`,
-    }, layer);
+    // Paperbook plates skip it — matte stock stays one tone to the edge.
+    if (!PAPERBOOK(plan)) {
+      const vig = atmo.vignette_opacity == null ? 0.03 : atmo.vignette_opacity;
+      const vc = atmo.vignette || brand.ink;
+      el('div', {
+        position: 'absolute', inset: '0', pointerEvents: 'none',
+        background: `radial-gradient(ellipse 85% 80% at 50% 45%, ${rgbaOf(vc, 0)} 52%, ${rgbaOf(vc, vig * 0.45)} 82%, ${rgbaOf(vc, vig)} 100%)`,
+      }, layer);
+    }
     return { layer, layers };
   }
 
@@ -782,7 +972,7 @@
     // undone here so the far plane slides against the content as the camera pushes or drifts.
     const W = plan.canvas.w, H = plan.canvas.h;
     for (const L of bgNode.layers) {
-      if ((L.spec.kind !== 'depth' && L.spec.kind !== 'band') || !L.base) continue;
+      if (!/^(depth|band|piece|stars|shaft|windows)$/.test(L.spec.kind) || !L.base) continue;
       const d = L.spec.plane, b = L.spec.bbox;
       const cx = b.x + b.w / 2 - W / 2, cy = b.y + b.h / 2 - H / 2;
       const counter = 1 / (1 + (pose.scale - 1) * (1 - d));
@@ -2421,6 +2611,34 @@
     return out;
   }
 
+  // Cloned DOM (page stills, leaf faces) duplicates every def id — url(#id) then resolves to the
+  // first match in document order, often an element hidden inside a display:none tree, and the
+  // filtered node vanishes. Re-scoping rewrites ids and every url(#)/href reference in the clone
+  // so each copy binds only to its own defs.
+  function rescopeCloneIds(root, scope) {
+    const tag = `em2c${scope}`;
+    const map = new Map();
+    root.querySelectorAll('[id]').forEach((n) => { const nid = `${tag}__${n.id}`; map.set(n.id, nid); n.id = nid; });
+    if (!map.size) return;
+    const ATTRS = ['filter', 'clip-path', 'mask', 'fill', 'stroke', 'href', 'xlink:href', 'marker-start', 'marker-mid', 'marker-end'];
+    root.querySelectorAll('*').forEach((n) => {
+      ATTRS.forEach((a) => {
+        const v = n.getAttribute && n.getAttribute(a);
+        if (!v || v.indexOf('#') < 0) return;
+        let nv = v;
+        map.forEach((nid, oid) => { nv = nv.split(`#${oid}`).join(`#${nid}`); });
+        if (nv !== v) n.setAttribute(a, nv);
+      });
+      ['filter', 'clipPath', 'maskImage', 'WebkitMaskImage'].forEach((p) => {
+        const v = n.style && n.style[p];
+        if (!v || v.indexOf('#') < 0) return;
+        let nv = v;
+        map.forEach((nid, oid) => { nv = nv.split(`#${oid}`).join(`#${nid}`); });
+        n.style[p] = nv;
+      });
+    });
+  }
+
   // A concept the registry cannot draw is typeset inside its housing — the word, or the figure,
   // set as a designed mark. Measured with the real face so the fit is exact; a word that cannot
   // meet the floor at two lines becomes a monogram rather than a shrunken caption.
@@ -3551,14 +3769,13 @@
     const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, { ...opts, fx }) : null;
     // All typography lives in one layer so book mode can demote the whole lockup at once.
     const textHost = el('div', { position: 'absolute', inset: '0', zIndex: '40', pointerEvents: 'none' }, root);
-    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, textHost), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
-    // Picture-book captioning: the page's art is the hero — headline blocks are hidden (the
-    // karaoke caption prints those same words under the plate) and the remaining support
-    // annotations shrink into a caption band along the page's lower inside edge.
-    if (plan.book === 'paperbook' && texts.length) {
-      // The spread prints its own words — no burned caption or title on the plate.
-      texts.forEach((t) => { t.wrap.style.display = 'none'; });
-    } else if (plan.book && texts.length) {
+    // Picture-book captioning: the page's art is the hero — the spread prints its own words,
+    // so no text blocks are built for the plate at all (a display:none wrap still carries a
+    // plate child that can paint over the illustration).
+    const texts = plan.book === 'paperbook'
+      ? []
+      : beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, textHost), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    if (plan.book && plan.book !== 'paperbook' && texts.length) {
       const pr = bookPageRect(plan);
       const caps = texts.filter((t) => { const hero = t.block.role === 'hero'; if (hero) t.wrap.style.display = 'none'; return !hero; });
       const u = caps.reduce((a, t) => ({ x0: Math.min(a.x0, t.bb.x), y0: Math.min(a.y0, t.bb.y), x1: Math.max(a.x1, t.bb.x + t.bb.w), y1: Math.max(a.y1, t.bb.y + t.bb.h) }), { x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9 });
@@ -3689,10 +3906,10 @@
       const fi = dir > 0 ? i : PAGE_STRIPS - 1 - i;
       const front = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', filter: 'blur(var(--pb,0px))' }, st);
       const fw = el('div', { position: 'absolute', left: px(-fi * sw), top: '0', width: px(W), height: px(H) }, front);
-      fw.appendChild(snap.cloneNode(true));
+      const fc = snap.cloneNode(true); rescopeCloneIds(fc, `pf${bn.index}f${i}`); fw.appendChild(fc);
       const back = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', filter: 'blur(var(--pb,0px))' }, st);
       const bw = el('div', { position: 'absolute', left: px(-fi * sw), top: '0', width: px(W), height: px(H) }, back);
-      bw.appendChild(snap.cloneNode(true));
+      const bc = snap.cloneNode(true); rescopeCloneIds(bc, `pf${bn.index}b${i}`); bw.appendChild(bc);
       // Print-through: ink ghosts faintly through the back of the sheet.
       el('div', { position: 'absolute', inset: '0', background: rgbaOf(plan.brand.paper, 0.62) }, back);
       const shF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
@@ -3868,30 +4085,109 @@
     const hero = (bn.beat && bn.beat.typography && (bn.beat.typography.blocks || []).find((b) => b.role === 'hero')) || null;
     const titleText = pg.title || (hero && hero.text) || (bn.beat.narration || '').split(/\s+/).slice(0, 6).join(' ');
     const pad = pw * 0.082;
-    const col = el('div', { position: 'absolute', left: px(pad), top: px(ph * 0.105), width: px(pw - pad * 2) }, face);
-    el('div', { fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(pw * 0.062), lineHeight: '1.06', color: ink, letterSpacing: '0.005em' }, col).textContent = titleText;
-    const prose = el('div', {
-      fontFamily: PB_SERIF, fontSize: px(pw * 0.0315), lineHeight: '1.44', color: rgbaOf(ink, 0.84),
-      marginTop: px(ph * 0.018), maxWidth: px(pw * 0.72),
-    }, col);
-    prose.textContent = bn.beat.narration || '';
-    // The illustration: the beat's own scene pressed into a plate under the words.
-    const slotRect = { x: pad, y: ph * 0.415, w: pw - pad * 2.15, h: ph * 0.46 };
+    const layout = pg.layout || 'half';
+    const pcut = pg.cut || '';
+    const mats = pg.materials || [];
+    // Layout grammar — each page carries its print and its plate its own way:
+    //   full     the plate is the page, no print at all (illustration alone)
+    //   half     print column above, plate below (the classic spread)
+    //   diagonal the page is cut on a diagonal — plate fills the upper triangle,
+    //            print sits in the lower corner, a cut lip runs along the join
+    //   zipped   a zigzag cut divides art above from print below
+    //   scissor  the same split torn by hand — a ragged deckle lip
+    let slotRect, colRect = null, slotClip = null, divider = null;
+    if (layout === 'full') {
+      slotRect = { x: pad * 0.5, y: ph * 0.055, w: pw - pad, h: ph * 0.86 };
+    } else if (layout === 'diagonal') {
+      slotRect = { x: pad * 0.4, y: ph * 0.06, w: pw - pad * 0.8, h: ph * 0.86 };
+      const flip = pcut === 'left' ? -1 : 1; // right default: art fills upper-right triangle
+      const a = flip === 1 ? [[0, 0], [1, 0], [1, 0.34], [0.42, 1]] : [[0, 0], [1, 0], [0.58, 1], [0, 0.34]];
+      slotClip = `polygon(${a.map(([px2, py2]) => `${f2(px2 * 100)}% ${f2(py2 * 100)}%`).join(',')})`;
+      divider = { kind: 'diag', pts: a, rect: slotRect };
+      colRect = flip === 1 ? { x: pad, y: ph * 0.58, w: pw * 0.34 } : { x: pw * 0.62, y: ph * 0.58, w: pw * 0.34 };
+    } else if (layout === 'zipped' || layout === 'scissor') {
+      const cutY = ph * 0.56;
+      slotRect = { x: pad * 0.4, y: ph * 0.055, w: pw - pad * 0.8, h: cutY - ph * 0.055 };
+      const n = layout === 'zipped' ? 14 : 26;
+      const er = rng(seedHash(`pbcut:${plan.film_id}:${i}`));
+      let pts = `0% 0%, 100% 0%, `;
+      const tail = [];
+      for (let k = n; k >= 0; k--) {
+        const xx = (k / n) * 100;
+        const dy = layout === 'zipped'
+          ? (k % 2 ? slotRect.h * 0.92 : slotRect.h)
+          : slotRect.h * (0.96 + (er() - 0.5) * 0.10);
+        tail.push(`${f2(xx)}% ${f2(dy / slotRect.h * 100)}%`);
+      }
+      slotClip = `polygon(0% 0%, 100% 0%, ${tail.join(', ')})`;
+      divider = { kind: layout, n, seed: seedHash(`pbcut:${plan.film_id}:${i}`), y: slotRect.y + slotRect.h };
+      colRect = { x: pad, y: cutY + ph * 0.02, w: pw - pad * 2 };
+    } else {
+      slotRect = { x: pad, y: ph * 0.415, w: pw - pad * 2.15, h: ph * 0.46 };
+      colRect = { x: pad, y: ph * 0.105, w: pw - pad * 2 };
+    }
+    if (colRect) {
+      const col = el('div', { position: 'absolute', left: px(colRect.x), top: px(colRect.y), width: px(colRect.w) }, face);
+      const titleEl = el('div', { fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(pw * (layout === 'half' ? 0.062 : 0.052)), lineHeight: '1.06', color: ink, letterSpacing: '0.005em' }, col);
+      titleEl.textContent = titleText;
+      if (mats.includes('foil')) {
+        // Foil stamping: a gold leaf pressed into the letterforms.
+        titleEl.style.backgroundImage = `linear-gradient(115deg, ${mixColor(ink, '#caa94e', 0.75)} 0%, ${mixColor('#caa94e', '#fff4d0', 0.6)} 38%, ${mixColor(ink, '#a07c2e', 0.6)} 62%, ${mixColor('#caa94e', '#fff0c0', 0.55)} 100%)`;
+        titleEl.style.webkitBackgroundClip = 'text';
+        titleEl.style.backgroundClip = 'text';
+        titleEl.style.color = 'transparent';
+      }
+      const prose = el('div', {
+        fontFamily: PB_SERIF, fontSize: px(pw * 0.0315), lineHeight: '1.44', color: rgbaOf(ink, 0.84),
+        marginTop: px(ph * 0.018), maxWidth: px(colRect.w * 0.94),
+      }, col);
+      prose.textContent = bn.beat.narration || '';
+    }
+    // The illustration: the beat's own scene pressed into the plate this layout cut.
     const slot = el('div', {
       position: 'absolute', left: px(slotRect.x), top: px(slotRect.y), width: px(slotRect.w), height: px(slotRect.h),
       overflow: 'hidden', borderRadius: px(pw * 0.012),
       boxShadow: `0 ${px(ph * 0.006)} ${px(ph * 0.014)} ${rgbaOf(ink, 0.18)}, inset 0 0 0 ${px(Math.max(1, pw * 0.0016))} ${rgbaOf(ink, 0.14)}`,
     }, face);
+    if (slotClip) slot.style.clipPath = slotClip;
+    if (divider) {
+      // The cut edge: a sliver of exposed raw stock running along the cut — torn or zigzagged,
+      // the white lip a real paper cut leaves.
+      const dEl = svgEl('svg', { viewBox: `0 0 ${slotRect.w} ${f2(ph * 0.05)}` }, face);
+      const dh = ph * 0.05;
+      let dp;
+      if (divider.kind === 'diag') {
+        const [p1, p2] = [divider.pts[divider.pts.length - 2], divider.pts[divider.pts.length - 1]];
+        Object.assign(dEl.style, { position: 'absolute', left: px(slotRect.x), top: px(slotRect.y), width: px(slotRect.w), height: px(slotRect.h), pointerEvents: 'none' });
+        dEl.setAttribute('viewBox', `0 0 ${slotRect.w} ${slotRect.h}`);
+        const x1 = p1[0] * slotRect.w, y1 = p1[1] * slotRect.h, x2 = p2[0] * slotRect.w, y2 = p2[1] * slotRect.h;
+        svgEl('path', { d: `M${f2(x1)} ${f2(y1)} L${f2(x2)} ${f2(y2)}`, stroke: mixColor(paper, '#ffffff', 0.7), 'stroke-width': f2(ph * 0.012), 'stroke-linecap': 'round' }, dEl);
+        svgEl('path', { d: `M${f2(x1)} ${f2(y1)} L${f2(x2)} ${f2(y2)}`, stroke: rgbaOf(ink, 0.25), 'stroke-width': f2(ph * 0.003), 'stroke-linecap': 'round' }, dEl);
+      } else {
+        Object.assign(dEl.style, { position: 'absolute', left: px(slotRect.x), top: px(divider.y - dh * 0.5), width: px(slotRect.w), height: px(dh), pointerEvents: 'none', overflow: 'visible' });
+        const dr = rng(divider.seed ^ 0x33);
+        dp = `M0 ${f2(dh * 0.5)} `;
+        for (let k = 1; k <= divider.n; k++) {
+          const xx = (k / divider.n) * slotRect.w;
+          const yy = divider.kind === 'zipped' ? dh * (k % 2 ? 0.15 : 0.85) : dh * (0.3 + dr() * 0.45);
+          dp += `L${f2(xx)} ${f2(yy)} `;
+        }
+        svgEl('path', { d: dp, fill: 'none', stroke: mixColor(paper, '#ffffff', 0.7), 'stroke-width': f2(ph * 0.010), 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, dEl);
+      }
+    }
     const W0 = plan.canvas.w, H0 = plan.canvas.h;
     const k = Math.max(slotRect.w / W0, slotRect.h / H0);
     const tf = `translate(${f2((slotRect.w - W0 * k) / 2)}px,${f2((slotRect.h - H0 * k) / 2)}px) scale(${k.toFixed(4)})`;
     // Viewports carry the canvas box at canvas scale; the slot does the clipping.
     const stillVp = el('div', { position: 'absolute', left: '0', top: '0', width: px(W0), height: px(H0), transformOrigin: '0 0', transform: tf, background: plan.brand.paper }, slot);
     const liveVp = el('div', { position: 'absolute', left: '0', top: '0', width: px(W0), height: px(H0), transformOrigin: '0 0', transform: tf, display: 'none' }, slot);
-    if (pg.quote) {
+    if (pg.quote && colRect) {
+      // The pull-quote lives under the print column; on a 'half' page that's still the
+      // line under the plate, on cut layouts it closes the lower text block.
+      const qTop = layout === 'half' ? slotRect.y + slotRect.h + ph * 0.018 : colRect.y + ph * 0.145;
       const q = el('div', {
-        position: 'absolute', left: px(slotRect.x), top: px(slotRect.y + slotRect.h + ph * 0.018), width: px(slotRect.w),
-        fontFamily: PB_SERIF, fontStyle: 'italic', fontSize: px(pw * 0.031), color: rgbaOf(ink, 0.72), textAlign: 'center',
+        position: 'absolute', left: px(layout === 'half' ? slotRect.x : colRect.x), top: px(qTop), width: px(layout === 'half' ? slotRect.w : colRect.w),
+        fontFamily: PB_SERIF, fontStyle: 'italic', fontSize: px(pw * 0.031), color: rgbaOf(ink, 0.72), textAlign: layout === 'diagonal' ? 'left' : 'center',
       }, face);
       q.textContent = `“${pg.quote}”`;
     }
@@ -3900,6 +4196,45 @@
       fontFamily: PB_SERIF, fontSize: px(pw * 0.026), color: rgbaOf(ink, 0.55),
     }, face);
     folio.textContent = String(i + 1);
+    // Material drops — the modern paper-book furniture this page carries.
+    if (mats.includes('vellum')) {
+      // A tissue guard: a translucent vellum sheet laid over the plate, deckled at its
+      // free edge and a degree off-square, throwing the faintest hard shadow.
+      const vv = el('div', {
+        position: 'absolute', left: px(slotRect.x - pw * 0.012), top: px(slotRect.y - ph * 0.01),
+        width: px(slotRect.w + pw * 0.024), height: px(slotRect.h + ph * 0.02),
+        background: rgbaOf(mixColor(paper, '#ffffff', 0.5), 0.42), pointerEvents: 'none',
+        transform: `rotate(${side === 'left' ? -0.8 : 0.8}deg)`, transformOrigin: '50% 0%',
+        boxShadow: `${px(pw * 0.008)} ${px(ph * 0.01)} 0 ${rgbaOf(ink, 0.10)}`,
+      }, face);
+      vv.style.clipPath = `polygon(0% 0%, 100% 0%, 100% 96%, 96% 100%, 4% 100%, 0% 97%)`;
+    }
+    if (mats.includes('ribbon')) {
+      // A silk marker ribbon folded over the page's top edge at the outer corner.
+      const rx = side === 'left' ? pad * 0.9 : pw - pad * 1.3;
+      const rib = el('div', {
+        position: 'absolute', left: px(rx), top: '0', width: px(pw * 0.035), height: px(ph * 0.115),
+        background: `linear-gradient(90deg, ${mixColor('#a03a4a', ink, 0.15)} 0%, ${mixColor('#c05a6a', ink, 0.08)} 50%, ${mixColor('#8a2f3e', ink, 0.18)} 100%)`,
+        pointerEvents: 'none', boxShadow: `0 ${px(ph * 0.004)} ${px(ph * 0.008)} ${rgbaOf(ink, 0.3)}`,
+      }, face);
+      rib.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 50% 92%, 0% 100%)';
+    }
+    if (mats.includes('deckle') || mats.includes('sticker')) {
+      // A loose die-cut sticker tucked at the page's outer corner — the motif mark,
+      // deckled and tilted like a child pressed it into the book.
+      const sArt = paperArtSvg((plan.motif && plan.motif.concept) || 'leaf', seedHash(`pbstk:${i}`), plan, `stk${i}`);
+      if (sArt) {
+        const sz = pw * (mats.includes('sticker') ? 0.16 : 0.11);
+        const st = el('div', {
+          position: 'absolute',
+          [side === 'left' ? 'left' : 'right']: px(pw * 0.03), bottom: px(ph * 0.10),
+          width: px(sz), height: px(sz), pointerEvents: 'none',
+          transform: `rotate(${side === 'left' ? -14 : 12}deg)`,
+          filter: `drop-shadow(${px(pw * 0.006)} ${px(ph * 0.007)} 0 ${rgbaOf(ink, 0.3)})`,
+        }, face);
+        st.appendChild(sArt);
+      }
+    }
     return { el: face, stillVp, liveVp, slot, index: i };
   }
 
@@ -3966,7 +4301,7 @@
     const rightBase = mkPage(R.right, 'right');
     const leafHost = el('div', { position: 'absolute', inset: '0', zIndex: '6', pointerEvents: 'none', transformStyle: 'preserve-3d' }, bookGroup);
     const lamp = el('div', {
-      position: 'absolute', inset: '0', zIndex: '7', pointerEvents: 'none', mixBlendMode: 'soft-light',
+      position: 'absolute', inset: '0', zIndex: '7', pointerEvents: 'none', mixBlendMode: 'soft-light', display: 'none',
       background: `radial-gradient(95% 82% at 34% 10%, rgba(255,242,205,0.85) 0%, rgba(255,242,205,0.20) 52%, rgba(${sh},0.30) 100%)`,
       opacity: '0.65',
     }, bookGroup);
@@ -4012,13 +4347,13 @@
       if (i > 0) st.style.transform = 'rotateY(var(--ptd))';
       const front = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', filter: 'blur(var(--pb,0px))' }, st);
       const fw = el('div', { position: 'absolute', left: px(-i * sw), top: '0', width: px(rect.w), height: px(rect.h) }, front);
-      fw.appendChild(frontFace.el.cloneNode(true));
+      const fc = frontFace.el.cloneNode(true); rescopeCloneIds(fc, `sl${frontFace.index}f${i}`); fw.appendChild(fc);
       const back = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', filter: 'blur(var(--pb,0px))' }, st);
       // The back of the sheet is the next left page: at strip i (leaf-local x' = [i*sw,(i+1)*sw])
       // it shows the face's slice [rect.w-(i+1)*sw, rect.w-i*sw] — mirrored by the clip's own
       // rotateY(180deg), so the print reads correctly mid-turn and lies right when it lands.
       const bw = el('div', { position: 'absolute', left: px((i + 1) * sw - rect.w), top: '0', width: px(rect.w), height: px(rect.h) }, back);
-      bw.appendChild(backFace.el.cloneNode(true));
+      const bc = backFace.el.cloneNode(true); rescopeCloneIds(bc, `sl${backFace.index}b${i}`); bw.appendChild(bc);
       el('div', { position: 'absolute', inset: '0', background: rgbaOf(plan.brand.paper, 0.14) }, back);
       const shF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
       const glF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
@@ -4227,18 +4562,13 @@
     if (paperbook) {
       spread = buildPaperbook(bookGroup, plan, beats, opts);
       beats.forEach((b) => { b.root.style.display = 'none'; });
-      // Each page's plate needs its illustration before the film starts: settle every beat
-      // at its end state and press that picture into the page's still viewport.
+      // Each page's plate mounts its own beat's cam permanently — an inactive cam stays
+      // frozen at its end state (it is the pressed still); only the live beat is driven.
       for (const bn of beats) {
         const ltEnd = bn.beat.duration_ms;
         applyBeat(bn, ltEnd, 1, 0);
         applyCamera(bn, ltEnd, 0, null, plan, 0);
-        const still = bn.cam.cloneNode(true);
-        still.style.transform = 'none';
-        still.style.opacity = '1';
-        still.style.visibility = 'visible';
-        still.style.filter = 'none';
-        spread.faces[bn.index].stillVp.appendChild(still);
+        spread.faces[bn.index].liveVp.appendChild(bn.cam);
       }
     } else if (bookPage) bookLamp = buildBookChrome(bookGroup, plan, bookPage);
     // World-bible motif: the film's signature mark, stamped in a corner of every beat — the
@@ -4356,14 +4686,16 @@
         // shows its pressed still.
         for (let j = 0; j < beats.length; j += 1) {
           const fj = spread.faces[j], bj = beats[j];
-          if (j === idx && !flipping && !bj._hasVideo) {
-            if (bj.cam.parentNode !== fj.liveVp) fj.liveVp.appendChild(bj.cam);
-            fj.liveVp.style.display = '';
-            fj.stillVp.style.display = 'none';
-          } else {
+          if (bj._hasVideo) {
+            // Video beats park their cam in root and show only the pressed still.
             if (bj.cam.parentNode !== bj.root) bj.root.appendChild(bj.cam);
             fj.liveVp.style.display = 'none';
             fj.stillVp.style.display = '';
+          } else {
+            // Every face permanently mounts its own cam; inactive ones freeze at end state.
+            if (bj.cam.parentNode !== fj.liveVp) fj.liveVp.appendChild(bj.cam);
+            fj.liveVp.style.display = '';
+            fj.stillVp.style.display = 'none';
           }
         }
         if (flipping) {

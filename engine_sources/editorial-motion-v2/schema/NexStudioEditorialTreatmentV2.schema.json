@@ -254,6 +254,53 @@
               }
             ]
           },
+          "scene": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "setting": {
+                    "type": "string",
+                    "enum": [
+                      "outdoor",
+                      "indoor",
+                      "space",
+                      "underwater",
+                      "urban",
+                      "ground",
+                      "abstract"
+                    ]
+                  },
+                  "mood": {
+                    "type": "string",
+                    "enum": [
+                      "day",
+                      "dawn",
+                      "dusk",
+                      "night",
+                      "storm",
+                      "golden"
+                    ]
+                  },
+                  "elements": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 40
+                    },
+                    "maxItems": 8
+                  }
+                },
+                "required": [
+                  "setting"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "figure": {
             "anyOf": [
               {
@@ -1012,6 +1059,39 @@
                   "quote": {
                     "type": "string",
                     "maxLength": 120
+                  },
+                  "layout": {
+                    "type": "string",
+                    "enum": [
+                      "half",
+                      "full",
+                      "diagonal",
+                      "zipped",
+                      "scissor"
+                    ]
+                  },
+                  "cut": {
+                    "type": "string",
+                    "enum": [
+                      "left",
+                      "right",
+                      "top",
+                      "bottom"
+                    ]
+                  },
+                  "materials": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "vellum",
+                        "foil",
+                        "ribbon",
+                        "deckle",
+                        "sticker"
+                      ]
+                    },
+                    "maxItems": 3
                   }
                 },
                 "required": [],

@@ -50,27 +50,7 @@
           "anchor_word": "soil"
         }
       ],
-      "backdrop": [
-        {
-          "tone": "auto",
-          "band": {
-            "top": 0.08,
-            "height": 0.52
-          },
-          "depth": 0.15,
-          "ragged": false
-        },
-        {
-          "tone": "ink",
-          "band": {
-            "top": 0.6,
-            "height": 0.4
-          },
-          "depth": 0.7,
-          "ragged": true,
-          "concept": "seedling"
-        }
-      ],
+      "backdrop": null,
       "figure": {
         "valence": 0.2,
         "arousal": 0.35,
@@ -135,7 +115,16 @@
         }
       },
       "page": {
-        "title": "The Sleeping Seed"
+        "title": "The Sleeping Seed",
+        "layout": "full"
+      },
+      "scene": {
+        "setting": "ground",
+        "mood": "dusk",
+        "elements": [
+          "stone",
+          "root"
+        ]
       }
     },
     {
@@ -161,27 +150,7 @@
           "anchor_word": "drinks"
         }
       ],
-      "backdrop": [
-        {
-          "tone": "auto",
-          "band": {
-            "top": 0.08,
-            "height": 0.52
-          },
-          "depth": 0.15,
-          "ragged": false
-        },
-        {
-          "tone": "ink",
-          "band": {
-            "top": 0.6,
-            "height": 0.4
-          },
-          "depth": 0.7,
-          "ragged": true,
-          "concept": "seedling"
-        }
-      ],
+      "backdrop": null,
       "illustration": {
         "form": "OBJECT_STAGE",
         "entities": [
@@ -243,7 +212,17 @@
       },
       "page": {
         "title": "The Rain Comes",
-        "quote": "and the seed drinks deep"
+        "quote": "and the seed drinks deep",
+        "layout": "zipped",
+        "cut": "top"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "storm",
+        "elements": [
+          "cloud",
+          "cloud"
+        ]
       }
     },
     {
@@ -269,27 +248,7 @@
           "emphasis": 0.5
         }
       ],
-      "backdrop": [
-        {
-          "tone": "#241f16",
-          "band": {
-            "top": 0.06,
-            "height": 0.6
-          },
-          "depth": 0.3,
-          "ragged": false
-        },
-        {
-          "tone": "ink",
-          "band": {
-            "top": 0.64,
-            "height": 0.36
-          },
-          "depth": 0.75,
-          "ragged": true,
-          "concept": "tree"
-        }
-      ],
+      "backdrop": null,
       "illustration": {
         "form": "OBJECT_STAGE",
         "entities": [
@@ -367,7 +326,18 @@
         ]
       },
       "page": {
-        "title": "Roots Hunt for Water"
+        "title": "Roots Hunt for Water",
+        "layout": "diagonal",
+        "cut": "left"
+      },
+      "scene": {
+        "setting": "ground",
+        "mood": "night",
+        "elements": [
+          "stone",
+          "stone",
+          "seedling"
+        ]
       }
     },
     {
@@ -393,37 +363,7 @@
           "anchor_word": "sun"
         }
       ],
-      "backdrop": [
-        {
-          "tone": "auto",
-          "band": {
-            "top": 0.06,
-            "height": 0.55
-          },
-          "depth": 0.12,
-          "ragged": false,
-          "concept": "sun"
-        },
-        {
-          "tone": "accent",
-          "band": {
-            "top": 0.6,
-            "height": 0.16
-          },
-          "depth": 0.5,
-          "ragged": true
-        },
-        {
-          "tone": "ink",
-          "band": {
-            "top": 0.74,
-            "height": 0.26
-          },
-          "depth": 0.8,
-          "ragged": true,
-          "concept": "seedling"
-        }
-      ],
+      "backdrop": null,
       "illustration": {
         "form": "RELATIONSHIP",
         "entities": [
@@ -485,7 +425,16 @@
       },
       "page": {
         "title": "Reaching for the Sun",
-        "quote": "a green shoot climbs"
+        "quote": "a green shoot climbs",
+        "layout": "half"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "day",
+        "elements": [
+          "hill",
+          "flower"
+        ]
       }
     },
     {
@@ -511,37 +460,7 @@
           "emphasis": 0.55
         }
       ],
-      "backdrop": [
-        {
-          "tone": "auto",
-          "band": {
-            "top": 0.06,
-            "height": 0.55
-          },
-          "depth": 0.12,
-          "ragged": false,
-          "concept": "sun"
-        },
-        {
-          "tone": "accent",
-          "band": {
-            "top": 0.6,
-            "height": 0.16
-          },
-          "depth": 0.5,
-          "ragged": true
-        },
-        {
-          "tone": "ink",
-          "band": {
-            "top": 0.74,
-            "height": 0.26
-          },
-          "depth": 0.8,
-          "ragged": true,
-          "concept": "seedling"
-        }
-      ],
+      "backdrop": null,
       "illustration": {
         "form": "OBJECT_STAGE",
         "entities": [
@@ -602,7 +521,19 @@
         ]
       },
       "page": {
-        "title": "Hands to Catch the Light"
+        "title": "Hands to Catch the Light",
+        "layout": "scissor",
+        "materials": [
+          "deckle"
+        ]
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "golden",
+        "elements": [
+          "hill",
+          "bird"
+        ]
       }
     },
     {
@@ -628,38 +559,7 @@
           "anchor_word": "flower"
         }
       ],
-      "backdrop": [
-        {
-          "tone": "#e8b98a",
-          "band": {
-            "top": 0.05,
-            "height": 0.55
-          },
-          "depth": 0.18,
-          "ragged": false,
-          "concept": "butterfly"
-        },
-        {
-          "tone": "accent",
-          "band": {
-            "top": 0.6,
-            "height": 0.16
-          },
-          "depth": 0.5,
-          "ragged": true,
-          "concept": "sun"
-        },
-        {
-          "tone": "ink",
-          "band": {
-            "top": 0.72,
-            "height": 0.28
-          },
-          "depth": 0.8,
-          "ragged": true,
-          "concept": "tree"
-        }
-      ],
+      "backdrop": null,
       "figure": {
         "valence": 0.6,
         "arousal": 0.55,
@@ -726,7 +626,20 @@
       },
       "page": {
         "title": "A Flower Opens",
-        "quote": "where there was nothing"
+        "quote": "where there was nothing",
+        "layout": "half",
+        "materials": [
+          "ribbon",
+          "foil"
+        ]
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "dawn",
+        "elements": [
+          "fence",
+          "flower"
+        ]
       }
     }
   ],

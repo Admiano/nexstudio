@@ -67,6 +67,16 @@ WORLD_CORNERS = ('top-left', 'top-right', 'bottom-left', 'bottom-right')
 # stage; depth is its parallax factor — 0 frame-fixed (sky) .. 1 with the content (ground).
 BACKDROP_TONES = ('ink', 'paper', 'accent', 'auto')
 BACKDROP_PLANE_CAP = 4
+# Scene engine: a beat declares its setting and mood and the compiler composes that
+# environment from paper pieces — any place, not one fixed horizon stack.
+SCENE_SETTINGS = ('outdoor', 'indoor', 'space', 'underwater', 'urban', 'ground', 'abstract')
+SCENE_MOODS = ('day', 'dawn', 'dusk', 'night', 'storm', 'golden')
+SCENE_ELEMENT_CAP = 8
+# Page layout grammar: how the paperbook page carries its print and its plate.
+PAGE_LAYOUTS = ('half', 'full', 'diagonal', 'zipped', 'scissor')
+PAGE_CUTS = ('left', 'right', 'top', 'bottom')
+# Material drops: modern paper-book materials layered onto the page.
+PAGE_MATERIALS = ('vellum', 'foil', 'ribbon', 'deckle', 'sticker')
 HEX_COLOUR_RE = re.compile(r'^#[0-9a-fA-F]{3,8}$')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
@@ -590,7 +600,8 @@ class BeatTreatment:
     min_duration_ms: int = 0
     cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
     backdrop: Optional[List[Dict[str, Any]]] = None
-    page: Optional[Dict[str, Any]] = None  # paperbook: {title, quote} printed on the beat's page
+    scene: Optional[Dict[str, Any]] = None  # {setting, mood, elements[]} — the environment engine
+    page: Optional[Dict[str, Any]] = None  # paperbook: {title, quote, layout, cut, materials}
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -652,6 +663,18 @@ class BeatTreatment:
                 backdrop.append({'tone': tone, 'band': {'top': top, 'height': height}, 'depth': depth,
                                  'ragged': bool(p.get('ragged')), 'concept': concept or None})
             backdrop.sort(key=lambda p: p['depth'])
+        scene = None
+        sc = d.get('scene')
+        if sc is not None:
+            _need(isinstance(sc, dict), 'BEAT_SCENE_INVALID', 'scene must be an object', bid)
+            setting = str(sc.get('setting') or '')
+            _need(setting in SCENE_SETTINGS, 'BEAT_SCENE_SETTING_UNKNOWN', setting, bid)
+            mood = str(sc.get('mood') or 'day')
+            _need(mood in SCENE_MOODS, 'BEAT_SCENE_MOOD_UNKNOWN', mood, bid)
+            elements = [' '.join(str(e).split()) for e in (sc.get('elements') or []) if str(e).strip()]
+            _need(len(elements) <= SCENE_ELEMENT_CAP, 'BEAT_SCENE_ELEMENT_CAP', f'at most {SCENE_ELEMENT_CAP} elements', bid)
+            _need(all(len(e) <= 40 for e in elements), 'BEAT_SCENE_ELEMENT_LONG', bid)
+            scene = {'setting': setting, 'mood': mood, 'elements': elements}
         page = None
         pg = d.get('page')
         if pg is not None:
@@ -659,9 +682,19 @@ class BeatTreatment:
             title = ' '.join(str(pg.get('title') or '').split())
             quote = ' '.join(str(pg.get('quote') or '').split())
             _need(len(title) <= 60 and len(quote) <= 120, 'BEAT_PAGE_TEXT_LONG', bid)
-            page = {k: v for k, v in {'title': title or None, 'quote': quote or None}.items() if v}
+            layout = str(pg.get('layout') or 'half')
+            _need(layout in PAGE_LAYOUTS, 'BEAT_PAGE_LAYOUT_UNKNOWN', layout, bid)
+            pcut = str(pg.get('cut') or '')
+            _need(not pcut or pcut in PAGE_CUTS, 'BEAT_PAGE_CUT_UNKNOWN', pcut, bid)
+            materials = [str(m) for m in (pg.get('materials') or [])]
+            _need(all(m in PAGE_MATERIALS for m in materials), 'BEAT_PAGE_MATERIAL_UNKNOWN', ','.join(materials), bid)
+            _need(len(materials) <= 3, 'BEAT_PAGE_MATERIAL_CAP', bid)
+            page = {k: v for k, v in {'title': title or None, 'quote': quote or None,
+                                      'layout': layout if layout != 'half' else None,
+                                      'cut': pcut or None,
+                                      'materials': materials or None}.items() if v}
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop, page)
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop, scene, page)
 
     @property
     def has_visual(self) -> bool:

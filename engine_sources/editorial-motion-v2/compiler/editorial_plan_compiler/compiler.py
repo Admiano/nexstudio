@@ -960,6 +960,187 @@ def settle_descriptors(plans: Dict[str, Any]) -> None:
                 e['params']['resolution'] = res
 
 
+# Scene engine: elements that are drawn as paper primitives in the runtime rather than
+# resolved through the art ladder. Anything not named here resolves as a concept mark.
+SCENE_PROP_SHAPES = {
+    'arch', 'beam', 'bed', 'boat', 'bookshelf', 'building', 'car', 'chair', 'cliff', 'cloud',
+    'comet', 'coral', 'crate', 'curtain', 'door', 'fence', 'frame', 'hill', 'house', 'hut',
+    'kelp', 'lamp', 'log', 'moon', 'mountain', 'pebble', 'pillar', 'planet', 'poster', 'pot',
+    'ring', 'rock', 'rug', 'sandcastle', 'shaft', 'shelf', 'sign', 'skyline', 'sofa', 'star',
+    'stone', 'stool', 'streetlamp', 'sun', 'table', 'tent', 'tower', 'vase', 'wave', 'window',
+}
+# Where an element sits by default, as (width, height) fractions of the canvas short edge.
+_SCENE_ELEMENT_SIZE = {
+    'window': (0.30, 0.40), 'door': (0.24, 0.5), 'table': (0.42, 0.30), 'chair': (0.24, 0.3),
+    'stool': (0.2, 0.24), 'shelf': (0.4, 0.1), 'bookshelf': (0.34, 0.55), 'lamp': (0.12, 0.5),
+    'rug': (0.5, 0.16), 'bed': (0.55, 0.3), 'sofa': (0.5, 0.3), 'poster': (0.24, 0.3),
+    'frame': (0.2, 0.24), 'pot': (0.16, 0.2), 'vase': (0.12, 0.2), 'curtain': (0.16, 0.55),
+    'pillar': (0.1, 0.65), 'fence': (0.5, 0.14), 'house': (0.4, 0.36), 'hut': (0.32, 0.3),
+    'tent': (0.36, 0.3), 'mountain': (0.6, 0.4), 'hill': (0.55, 0.2), 'cliff': (0.4, 0.5),
+    'log': (0.3, 0.1), 'cloud': (0.4, 0.14), 'star': (0.12, 0.12), 'planet': (0.4, 0.4),
+    'moon': (0.2, 0.2), 'comet': (0.4, 0.1), 'ring': (0.5, 0.16), 'kelp': (0.12, 0.5),
+    'coral': (0.24, 0.26), 'rock': (0.22, 0.14), 'stone': (0.16, 0.1), 'pebble': (0.1, 0.07),
+    'sandcastle': (0.3, 0.28), 'building': (0.24, 0.6), 'tower': (0.18, 0.7), 'sign': (0.2, 0.3),
+    'streetlamp': (0.1, 0.55), 'car': (0.34, 0.16), 'boat': (0.32, 0.16), 'shaft': (0.24, 0.7),
+    'wave': (0.4, 0.12), 'sun': (0.24, 0.24), 'arch': (0.3, 0.5), 'beam': (0.5, 0.06),
+    'crate': (0.2, 0.2), 'barrel': (0.18, 0.24), 'skyline': (1.0, 0.35),
+}
+
+
+def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], brand: Brand) -> List[Dict[str, Any]]:
+    """The environment engine: the treatment declares a setting and mood, and this composes
+    that world out of paper pieces — outdoor skies and grounds, interior walls and furniture,
+    starfields, underwater depth, urban skylines, underground soil — all in the film's palette.
+    Elements are paper primitives (windows, tables, kelp) or resolved art marks placed on the
+    scene's ground line. Under paperbook they land as flat matte pieces with fibre speckle."""
+    if not btr.scene:
+        return []
+    W, H = canvas
+    short = min(W, H)
+    overhang = W * 0.10
+    sc = btr.scene
+    setting, mood = sc['setting'], sc.get('mood') or 'day'
+    resolved = sc.get('resolved') or {}
+    ink, paper, accent = brand.ink, brand.paper, brand.accent or brand.ink
+    seed0 = int(hashlib.sha256(f'{film_id}:scene:{btr.beat_id}'.encode()).hexdigest()[:12], 16)
+    out: List[Dict[str, Any]] = []
+
+    def band(top: float, height: float, tone: str, plane: float, ragged: bool = True, i: int = 0) -> Dict[str, Any]:
+        y = H * top - short * 0.015
+        h = H * height + short * 0.03
+        return {'kind': 'band',
+                'bbox': {'x': round(-overhang, 1), 'y': round(y, 1), 'w': round(W + 2 * overhang, 1), 'h': round(h, 1)},
+                'tone': tone, 'plane': plane, 'ragged': ragged, 'seed': seed0 ^ (i * 0x7ab1)}
+
+    def piece(shape: str, x: float, y: float, w: float, h: float, tone: str,
+              plane: float = 0.5, i: int = 0, **kw) -> Dict[str, Any]:
+        spec = {'kind': 'piece', 'shape': shape,
+                'bbox': {'x': round(x, 1), 'y': round(y, 1), 'w': round(w, 1), 'h': round(h, 1)},
+                'tone': tone, 'plane': plane, 'seed': seed0 ^ (i * 0x51ab)}
+        spec.update(kw)
+        return spec
+
+    # Mood drives the palette: the same outdoor recipe reads noon or midnight from it.
+    if mood == 'night':
+        sky, mid, gnd, glow = mix(ink, paper, 0.10), mix(ink, paper, 0.20), mix(ink, paper, 0.30), mix(paper, '#ffe9a8', 0.5)
+    elif mood == 'dusk':
+        sky, mid, gnd, glow = mix(accent, ink, 0.42), mix(ink, accent, 0.28), mix(ink, paper, 0.36), mix(accent, '#ffffff', 0.35)
+    elif mood == 'dawn':
+        sky, mid, gnd, glow = mix(accent, paper, 0.55), mix(paper, accent, 0.20), mix(ink, paper, 0.18), mix(accent, '#ffffff', 0.5)
+    elif mood == 'storm':
+        sky, mid, gnd, glow = mix(ink, paper, 0.28), mix(ink, paper, 0.40), mix(ink, paper, 0.48), mix(paper, ink, 0.2)
+    elif mood == 'golden':
+        sky, mid, gnd, glow = mix(accent, '#ffffff', 0.42), mix(paper, accent, 0.26), mix(ink, accent, 0.28), mix(accent, '#ffffff', 0.55)
+    else:  # day
+        sky, mid, gnd, glow = mix(paper, accent, 0.16), mix(paper, ink, 0.10), mix(ink, paper, 0.24), mix(accent, '#ffffff', 0.45)
+
+    def stars(bbox: Dict[str, float], i: int, density: int = 90, plane: float = 0.08) -> Dict[str, Any]:
+        return {'kind': 'stars', 'bbox': bbox, 'count': density, 'seed': seed0 ^ (i * 0x33), 'plane': plane}
+
+    def shaft(bbox: Dict[str, float], i: int, tilt: float = 14.0, plane: float = 0.3) -> Dict[str, Any]:
+        return {'kind': 'shaft', 'bbox': bbox, 'tone': mix(paper, glow, 0.5), 'tilt_deg': tilt, 'seed': seed0 ^ (i * 0x21), 'plane': plane}
+
+    def celestial(i: int) -> None:
+        """Sun or moon placed by mood — a flat paper disc, never a glow."""
+        if mood in ('day', 'golden'):
+            out.append(piece('sun', W * 0.72, H * 0.06, short * 0.17, short * 0.17, glow, 0.1, i))
+        elif mood == 'dawn':
+            out.append(piece('sun', W * 0.30, H * 0.30, short * 0.2, short * 0.2, glow, 0.1, i))
+        elif mood == 'dusk':
+            out.append(piece('sun', W * 0.62, H * 0.42, short * 0.16, short * 0.16, mix(accent, ink, 0.1), 0.1, i))
+        elif mood == 'night':
+            out.append(piece('moon', W * 0.70, H * 0.05, short * 0.14, short * 0.14, mix(paper, '#f5edd8', 0.5), 0.1, i))
+
+    def clouds(i: int, n: int = 2) -> None:
+        for k in range(n):
+            sx = ((seed0 >> (k * 5)) & 0x3F) / 63.0
+            out.append(piece('cloud', W * (0.08 + 0.62 * sx), H * (0.05 + 0.13 * k), W * 0.18, H * 0.13,
+                             mix(paper, '#ffffff', 0.65 if mood != 'storm' else 0.15), 0.16, i + k))
+
+    def elements_on(ground_top: float, plane: float = 0.6) -> None:
+        """Scene elements land on the ground line, seeded across the width; prop shapes draw
+        as paper primitives, everything else as a resolved art mark standing in the world."""
+        for k, name in enumerate(sc['elements'][:8]):
+            key = name.lower().strip()
+            sx = ((seed0 >> (k * 7)) & 0x7F) / 127.0
+            x = W * (0.08 + 0.62 * sx)
+            w_frac, h_frac = _SCENE_ELEMENT_SIZE.get(key, (0.24, 0.3))
+            if key in SCENE_PROP_SHAPES:
+                out.append(piece(key, x, ground_top - H * h_frac * 0.6, W * w_frac, H * h_frac,
+                                 mix(ink, paper, 0.30 + 0.1 * (k % 3)), plane, 40 + k))
+            else:
+                asset = resolved.get(name)
+                mh = short * 0.16
+                art = (asset or {}).get('art_box') or {'w': 1, 'h': 1}
+                mw = mh * max(0.25, art['w'] / max(1, art['h']))
+                out.append({'kind': 'piece', 'shape': 'art', 'concept': name, 'asset': asset,
+                            'bbox': {'x': round(x, 1), 'y': round(ground_top - mh, 1), 'w': round(mw, 1), 'h': round(mh, 1)},
+                            'tone': '', 'plane': plane, 'seed': seed0 ^ (k * 0x99)})
+
+    if setting == 'outdoor':
+        out.append(band(-0.02, 0.62, sky, 0.10, False, 1))
+        celestial(2)
+        if mood != 'night':
+            clouds(4, 2 if mood != 'storm' else 3)
+        else:
+            out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.5}, 8))
+        out.append(band(0.52, 0.24, mid, 0.30, True, 6))
+        out.append(band(0.66, 0.38, gnd, 0.55, True, 7))
+        elements_on(H * 0.80)
+    elif setting == 'indoor':
+        wall = mix(paper, ink, 0.07 if mood != 'night' else 0.3)
+        out.append(band(-0.02, 0.72, wall, 0.12, False, 1))
+        out.append(band(0.70, 0.34, mix(ink, paper, 0.22), 0.5, False, 2))
+        out.append(piece('beam', -overhang, H * 0.685, W + 2 * overhang, H * 0.02, mix(ink, wall, 0.35), 0.4, 3))
+        elements_on(H * 0.70)
+    elif setting == 'space':
+        out.append(band(-0.02, 1.04, mix(ink, paper, 0.05), 0.05, False, 1))
+        out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H}, 2, 140))
+        out.append({'kind': 'arc', 'bbox': {'x': -W * 0.1, 'y': H * 0.1, 'w': W * 1.2, 'h': H * 0.9}, 'corner': 1, 'plane': 0.1})
+        out.append(piece('planet', W * 0.55, H * 0.30, short * 0.36, short * 0.36, accent, 0.18, 3))
+        out.append(piece('moon', W * 0.12, H * 0.14, short * 0.1, short * 0.1, mix(paper, '#f5edd8', 0.4), 0.14, 4))
+        out.append(piece('comet', W * 0.05, H * 0.08, W * 0.22, short * 0.04, mix(paper, accent, 0.5), 0.12, 5))
+        elements_on(H * 0.95)
+    elif setting == 'underwater':
+        deep1, deep2, deep3 = mix(ink, accent, 0.35), mix(ink, accent, 0.5), mix(ink, accent, 0.62)
+        out.append(band(-0.02, 0.42, deep1, 0.08, False, 1))
+        out.append(band(0.30, 0.45, deep2, 0.2, False, 2))
+        out.append(shaft({'x': W * 0.18, 'y': 0, 'w': W * 0.16, 'h': H * 0.85}, 3, 12.0))
+        out.append(shaft({'x': W * 0.55, 'y': 0, 'w': W * 0.10, 'h': H * 0.7}, 4, -9.0))
+        out.append(band(0.60, 0.45, deep3, 0.4, True, 5))
+        out.append(band(0.80, 0.24, mix(ink, paper, 0.28), 0.55, True, 6))
+        elements_on(H * 0.88)
+    elif setting == 'urban':
+        out.append(band(-0.02, 0.55, sky, 0.10, False, 1))
+        if mood == 'night':
+            out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.4}, 8, 70))
+        celestial(3)
+        out.append({'kind': 'windows', 'bbox': {'x': -overhang, 'y': H * 0.28, 'w': W + 2 * overhang, 'h': H * 0.30},
+                    'tone': mix(ink, paper, 0.45), 'lit': glow, 'seed': seed0 ^ 0x77, 'plane': 0.22, 'rows': 4, 'silhouette': True})
+        out.append({'kind': 'windows', 'bbox': {'x': -overhang, 'y': H * 0.44, 'w': W + 2 * overhang, 'h': H * 0.30},
+                    'tone': mix(ink, paper, 0.30), 'lit': glow, 'seed': seed0 ^ 0x78, 'plane': 0.42, 'rows': 5, 'silhouette': True})
+        out.append(band(0.72, 0.32, mix(ink, paper, 0.16), 0.55, False, 6))
+        elements_on(H * 0.84)
+    elif setting == 'ground':
+        out.append(band(-0.02, 0.14, sky, 0.08, False, 1))
+        out.append(band(0.10, 0.40, mix(ink, accent, 0.55), 0.3, True, 2))
+        out.append(band(0.46, 0.34, mix(ink, accent, 0.68), 0.45, True, 3))
+        out.append(band(0.76, 0.28, mix(ink, paper, 0.5), 0.58, True, 4))
+        for k in range(4):
+            sx = ((seed0 >> (k * 6)) & 0x7F) / 127.0
+            out.append(piece('stone', W * (0.06 + 0.8 * sx), H * (0.25 + 0.55 * ((seed0 >> k) & 3) / 4.0),
+                             W * 0.08, short * 0.05, mix(paper, ink, 0.3), 0.5, 10 + k))
+        elements_on(H * 0.55)
+    else:  # abstract — a colour field with authored geometry, never a pattern tile
+        out.append(band(-0.02, 1.04, mix(paper, accent, 0.10), 0.08, False, 1))
+        out.append({'kind': 'arc', 'bbox': {'x': -W * 0.05, 'y': -H * 0.1, 'w': W * 1.1, 'h': H * 1.1}, 'corner': (seed0 & 3), 'plane': 0.12})
+        for k, sh in enumerate(('planet', 'beam', 'cloud')):
+            out.append(piece(sh, W * (0.15 + 0.3 * k), H * (0.2 + 0.22 * k), short * 0.2, short * 0.12,
+                             mix(accent, ink, 0.15 * k), 0.3, 5 + k))
+        elements_on(H * 0.85)
+    return out
+
+
 def _backdrop_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], brand: Brand) -> List[Dict[str, Any]]:
     """Diorama planes a treatment authored for this beat, cut in the film's palette and laid at
     their parallax depth. `auto` tones deepen as the plane nears the content; a concept that
@@ -1011,8 +1192,9 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
     todo = [(b, e) for b in film.beats if b.illustration for e in b.illustration.entities if e.concept and not e.asset_ref]
     prop_todo = [b for b in film.beats if b.figure and b.figure.prop]
     backdrop_todo = [(b, p) for b in film.beats if b.backdrop for p in b.backdrop if p.get('concept')]
+    scene_todo = [(b, e) for b in film.beats if b.scene for e in b.scene['elements'] if e.lower().strip() not in SCENE_PROP_SHAPES]
     motif = film.world.motif if film.world and film.world.motif else None
-    if not todo and not prop_todo and not motif and not backdrop_todo:
+    if not todo and not prop_todo and not motif and not backdrop_todo and not scene_todo:
         return []
     finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
     pack = _film_pack(film, registry)
@@ -1082,6 +1264,12 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
         p['asset_ref'] = r.asset_ref
         p['asset'] = registry.resolve(r.asset_ref, b.beat_id) if r.asset_ref else None
         p['resolution'] = r.as_dict()
+    for b, e in scene_todo:
+        # A scene element that is not a paper primitive resolves the same way — it stands in
+        # the world as its own art mark (a tree, a fish, a telescope on the ground line).
+        r = finder.resolve(e, pack, True, native_only)
+        if r.asset_ref:
+            b.scene.setdefault('resolved', {})[e] = registry.resolve(r.asset_ref, b.beat_id)
     if motif:
         # The film's signature mark rides the same ladder once — every aspect and every beat
         # stamps the same answer.
@@ -1289,11 +1477,12 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         prev_bloom = None
         for bt, btr in zip(beats, film.beats):
             backdrop = _backdrop_layers(film.film_id, btr, (W, H), film.brand)
+            scene = _scene_layers(film.film_id, btr, (W, H), film.brand)
             atmo_layers = beat_atmosphere(film.film_id, bt, (W, H), bc.safe, prev_bloom, atmosphere)
             prev_bloom = next(L['at'] for L in atmo_layers if L['kind'] == 'bloom')
-            # Painter's order inside the bg layer: stage furniture, then the authored diorama,
-            # then the hero's light and the ambient far-plane dust over it.
-            bt['composition']['background']['layers'] += backdrop + atmo_layers
+            # Painter's order inside the bg layer: stage furniture, then the authored world
+            # (scene environment and/or diorama planes), then the hero's light over it.
+            bt['composition']['background']['layers'] += backdrop + scene + atmo_layers
         phase = fit_phase(music, beats)
         aspect_music = {**music, 'start_offset_ms': phase['start_offset_ms'],
                         'groove': {**phase, 'stagger_ms': stagger_ms, 'stagger_subdivision': subdivision, 'authored_stagger_ms': profile['stagger_ms']}}

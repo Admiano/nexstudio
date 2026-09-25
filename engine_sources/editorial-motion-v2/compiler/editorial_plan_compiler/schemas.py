@@ -124,6 +124,10 @@ def treatment_schema() -> Dict[str, Any]:
         'narration': {'type': 'string'},
         'display_units': {'type': 'array', 'items': unit, 'maxItems': 5},
         'backdrop': {'anyOf': [{'type': 'array', 'items': backdrop_plane, 'minItems': 1, 'maxItems': c.BACKDROP_PLANE_CAP}, {'type': 'null'}]},
+        'scene': {'anyOf': [_obj({'setting': _enum(c.SCENE_SETTINGS),
+                                 'mood': _enum(c.SCENE_MOODS),
+                                 'elements': {'type': 'array', 'items': {'type': 'string', 'maxLength': 40}, 'maxItems': c.SCENE_ELEMENT_CAP}},
+                                ['setting'], additionalProperties=False), {'type': 'null'}]},
         'figure': {'anyOf': [figure, {'type': 'null'}]},
         'media': {'anyOf': [media, {'type': 'null'}]},
         'data': {'anyOf': [data, {'type': 'null'}]},
@@ -134,7 +138,10 @@ def treatment_schema() -> Dict[str, Any]:
         'min_duration_ms': MS,
         'cut': _enum(c.CUT_MODES),
         'page': {'anyOf': [_obj({'title': {'type': 'string', 'maxLength': 60},
-                                 'quote': {'type': 'string', 'maxLength': 120}}, [], additionalProperties=False), {'type': 'null'}]},
+                                 'quote': {'type': 'string', 'maxLength': 120},
+                                 'layout': _enum(c.PAGE_LAYOUTS),
+                                 'cut': _enum(c.PAGE_CUTS),
+                                 'materials': {'type': 'array', 'items': _enum(c.PAGE_MATERIALS), 'maxItems': 3}}, [], additionalProperties=False), {'type': 'null'}]},
     }, ['beat_id', 'beat_type', 'pattern'], additionalProperties=False)
     asset = _obj({
         'asset_id': _str(),
