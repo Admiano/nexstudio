@@ -283,7 +283,9 @@ function writeCaptions(plan, out) {
   const W = plan.output.w, H = plan.output.h;
   const safe = plan.beats[0] && plan.beats[0].composition.safe_area;
   const scale = plan.output.scale || 1;
-  const marginV = Math.max(24, Math.round((plan.canvas.h - (safe ? safe.y + safe.h : plan.canvas.h)) * scale * 0.7));
+  const marginV = plan.book
+    ? Math.round(H * 0.075)  // inside the page's lower edge — captions live on the book page
+    : Math.max(24, Math.round((plan.canvas.h - (safe ? safe.y + safe.h : plan.canvas.h)) * scale * 0.7));
   const accent = (plan.brand.accent || '#e8a317').replace('#', '');
   const accentAss = `&H00${accent.slice(4, 6)}${accent.slice(2, 4)}${accent.slice(0, 2)}`;
   const inkAss = `&H00${(plan.brand.ink || '#141414').replace('#', '').slice(4, 6)}${(plan.brand.ink || '#141414').replace('#', '').slice(2, 4)}${(plan.brand.ink || '#141414').replace('#', '').slice(0, 2)}`;

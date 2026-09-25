@@ -979,6 +979,9 @@
                 "hatch-45"
               ]
             },
+            "book": {
+              "type": "boolean"
+            },
             "motif": {
               "type": "object",
               "properties": {

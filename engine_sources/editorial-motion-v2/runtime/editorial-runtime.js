@@ -691,6 +691,29 @@
     const atmo = plan.atmosphere || {};
     const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: atmo.field || brand.paper }, beatRoot);
     const layers = (Array.isArray(bg.layers) ? bg.layers : []).map((spec, i) => buildBgLayer(spec, plan, layer, i, assetUrl)).filter((l) => l.node);
+    // Book-mode sky: when the authored diorama leaves the page's upper region bare, a tall washed
+    // band drops from the page top to the first horizon — every spread reads as a full painted
+    // plate, not a sticker field on empty paper.
+    if (plan.book) {
+      const pr = bookPageRect(plan);
+      const bands = (Array.isArray(bg.layers) ? bg.layers : []).filter((s) => s.kind === 'band');
+      if (pr) {
+        const horizon = bands.length ? Math.min(...bands.map((s) => s.bbox.y)) : pr.y + pr.h;
+        if (horizon > pr.y + pr.h * 0.4) {
+          const field = atmo.field || brand.paper;
+          const topBand = bands.reduce((a, s) => (a && a.bbox.y <= s.bbox.y ? a : s), null);
+          const tone = topBand ? mixColor(topBand.tone, field, 0.55) : mixColor(field, brand.accent || brand.ink, 0.14);
+          const sky = buildBgLayer(
+            { kind: 'band', bbox: { x: -W * 0.05, y: -H * 0.02, w: W * 1.1, h: horizon + H * 0.04 }, tone, seed: seedHash(`${beat.beat_id}-sky`), plane: 0.14, opacity: 0.85 },
+            plan, layer, -1, assetUrl,
+          );
+          if (sky.node) {
+            layer.insertBefore(sky.node, layers.length ? layers[0].node : layer.firstChild);
+            layers.unshift(sky);
+          }
+        }
+      }
+    }
     // Vignette: the field darkens toward its edges by the atmosphere's strength so the paper reads as a
     // lit surface, not a void; the dark variant leans on it harder because it has no bloom contrast to spare.
     const vig = atmo.vignette_opacity == null ? 0.03 : atmo.vignette_opacity;
@@ -3480,7 +3503,22 @@
     const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts) : null;
     const data = beat.data ? buildData(beat.data, plan, root) : null;
     const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, { ...opts, fx }) : null;
-    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, root), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    // All typography lives in one layer so book mode can demote the whole lockup at once.
+    const textHost = el('div', { position: 'absolute', inset: '0', zIndex: '40', pointerEvents: 'none' }, root);
+    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, textHost), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    // Picture-book captioning: the page's art is the hero — headline blocks are hidden (the
+    // karaoke caption prints those same words under the plate) and the remaining support
+    // annotations shrink into a caption band along the page's lower inside edge.
+    if (plan.book && texts.length) {
+      const pr = bookPageRect(plan);
+      const caps = texts.filter((t) => { const hero = t.block.role === 'hero'; if (hero) t.wrap.style.display = 'none'; return !hero; });
+      const u = caps.reduce((a, t) => ({ x0: Math.min(a.x0, t.bb.x), y0: Math.min(a.y0, t.bb.y), x1: Math.max(a.x1, t.bb.x + t.bb.w), y1: Math.max(a.y1, t.bb.y + t.bb.h) }), { x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9 });
+      if (caps.length) {
+        const s = Math.min(1, (pr.w * 0.7) / (u.x1 - u.x0), (pr.h * 0.055) / (u.y1 - u.y0));
+        textHost.style.transformOrigin = '0 0';
+        textHost.style.transform = `translate(${f2(pr.x + pr.w / 2 - s * (u.x0 + u.x1) / 2)}px,${f2(pr.y + pr.h * 0.875 - s * u.y1)}px) scale(${f2(s)})`;
+      }
+    }
     const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
     const tz = bboxOf(beat.composition.text_zone);
     const tr = beat.transition || { mode: 'SETTLE_CUT' };
@@ -3559,14 +3597,22 @@
   // ghosted through the paper); |cos(theta)| per strip drives shade and specular, a shadow
   // band tracks the fold across the page below, and the leaf leaves the stage entirely.
   const PAGE_STRIPS = 20, PAGE_BETA = 0.6;
+  // The page the animated paperbook lives inside: a deckled aged leaf inset on a lit desk.
+  function bookPageRect(plan) {
+    if (!plan.book) return null;
+    const W = plan.canvas.w, H = plan.canvas.h;
+    const ix = Math.round(W * 0.032), iy = Math.round(H * 0.04);
+    return { x: ix, y: iy, w: W - ix * 2, h: H - iy * 2 };
+  }
   function buildPageLeaf(bn, plan) {
     const W = plan.canvas.w, H = plan.canvas.h;
     const dir = bn._leafDir > 0 ? 1 : -1;
+    const hinge = plan.book ? (bookPageRect(plan) || { x: 0 }).x : (dir > 0 ? 0 : W);
     const sw = W / PAGE_STRIPS;
     const shade = `rgba(${((plan.atmosphere && plan.atmosphere.shadow_rgb) || [52, 38, 20]).join(',')},A)`;
     const leaf = el('div', {
       position: 'absolute', left: '0', top: '0', width: px(W), height: px(H), display: 'none',
-      transformStyle: 'preserve-3d', transformOrigin: dir > 0 ? '0% 50%' : '100% 50%',
+      transformStyle: 'preserve-3d', transformOrigin: `${px(hinge)} 50%`,
       willChange: 'transform', pointerEvents: 'none',
     });
     // The shadow the lifting leaf throws onto the page beneath it.
@@ -3605,7 +3651,7 @@
       strips.push({ st, shF, glF, shB, glB });
       host = st;
     }
-    return { el: leaf, shadow, strips, dir, sw };
+    return { el: leaf, shadow, strips, dir, sw, hinge };
   }
   function drivePageLeaf(bn, kke, plan) {
     const leaf = bn._leaf;
@@ -3629,7 +3675,7 @@
       glB.style.background = `linear-gradient(105deg, transparent 32%, rgba(255,255,255,${f2(g2)}) 50%, transparent 68%)`;
     }
     // The fold's leading edge: where the sheet still touches the page below.
-    const xEdge = leaf.dir > 0 ? W * 0.5 * (1 + Math.cos(tt)) : W * 0.5 * (1 - Math.cos(tt));
+    const xEdge = leaf.hinge + (leaf.dir > 0 ? W * 0.5 * (1 + Math.cos(tt)) : W * 0.5 * (1 - Math.cos(tt)));
     leaf.shadow.style.transform = `translateX(${f2(xEdge - W * 0.12)}px)`;
     leaf.shadow.style.opacity = f2(Math.sin(Math.PI * kke) * 0.6);
   }
@@ -3637,6 +3683,76 @@
     if (!bn._leaf) return;
     bn._leaf.el.style.display = 'none';
     bn._leaf.shadow.style.opacity = '0';
+  }
+
+  // The book object the animated paperbook lives inside: the remaining pages peeking past the
+  // fore-edge and tail, the binding gutter shadow at the spine, an engraved illustration frame
+  // inside the page edge, and a soft aged vignette so the page reads lit rather than flat.
+  function buildBookChrome(stage, plan, pr) {
+    const W = plan.canvas.w, H = plan.canvas.h;
+    const chrome = el('div', { position: 'absolute', inset: '0', zIndex: '30', pointerEvents: 'none' }, stage);
+    const minDim = Math.min(W, H);
+    const paperDark = mixColor(plan.brand.paper, '#c9b490', 0.55);
+    const shadeRgb = (plan.atmosphere && plan.atmosphere.shadow_rgb) || [52, 38, 20];
+    const sh = shadeRgb.join(',');
+    const edgeW = Math.max(2, minDim * 0.004);
+    for (const [ox, oy] of [[6, 3], [13, 7]]) {
+      el('div', {
+        position: 'absolute', left: px(pr.x + ox * 0.5), top: px(pr.y + pr.h + oy), width: px(pr.w - ox), height: px(edgeW),
+        background: `linear-gradient(180deg, ${paperDark}, ${mixColor(paperDark, '#8f7a55', 0.5)})`,
+        borderRadius: '0 0 45% 45%', opacity: '0.9',
+      }, chrome);
+      el('div', {
+        position: 'absolute', left: px(pr.x + pr.w + ox), top: px(pr.y + oy * 0.5), width: px(edgeW), height: px(pr.h - oy),
+        background: `linear-gradient(90deg, ${paperDark}, ${mixColor(paperDark, '#8f7a55', 0.5)})`,
+        borderRadius: '0 45% 45% 0', opacity: '0.9',
+      }, chrome);
+    }
+    // Spine gutter: the binding shadow inside the left edge and the crease line itself.
+    el('div', {
+      position: 'absolute', left: px(pr.x), top: px(pr.y), width: px(pr.w * 0.09), height: px(pr.h),
+      background: `linear-gradient(90deg, rgba(${sh},0.42) 0%, rgba(${sh},0.14) 50%, transparent 100%)`,
+    }, chrome);
+    el('div', {
+      position: 'absolute', left: px(pr.x + pr.w * 0.014), top: px(pr.y), width: px(Math.max(1.5, W * 0.0014)), height: px(pr.h),
+      background: `linear-gradient(180deg, rgba(${sh},0.45), rgba(${sh},0.68) 50%, rgba(${sh},0.45))`,
+    }, chrome);
+    // Engraved illustration frame: two hairline rules a little inside the page edge.
+    const fr = minDim * 0.016;
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, 'aria-hidden': 'true' }, chrome);
+    Object.assign(svg.style, { position: 'absolute', inset: '0', width: '100%', height: '100%' });
+    const framePath = (rect, seed, amp, wpx, op) => svgEl('path', {
+      d: polyPath(edgeRectPts(rect, 'cut', amp, rng(seedHash(seed)), 0)) + 'Z',
+      fill: 'none', stroke: plan.brand.ink, 'stroke-width': f2(wpx), 'stroke-opacity': op,
+    }, svg);
+    framePath({ x: pr.x + fr, y: pr.y + fr, w: pr.w - fr * 2, h: pr.h - fr * 2 }, 'book-frame-outer', minDim * 0.0022, Math.max(1, minDim * 0.0028), '0.5');
+    framePath({ x: pr.x + fr * 1.5, y: pr.y + fr * 1.5, w: pr.w - fr * 3, h: pr.h - fr * 3 }, 'book-frame-inner', minDim * 0.0016, Math.max(0.8, minDim * 0.0016), '0.35');
+    // Printer's ornaments: the film's motif mark stamped into the frame's four inner corners,
+    // turned to face the page's heart — the fleuron furniture of an old picture book.
+    const fleu = paperArtSvg((plan.motif && plan.motif.concept) || 'leaf', 'book-fleuron', plan, 'bf');
+    if (fleu) {
+      const fs = minDim * 0.036, frs = pr.x + fr * 2.3, frt = pr.y + fr * 2.3, frx = pr.x + pr.w - fr * 2.3, fry = pr.y + pr.h - fr * 2.3;
+      for (const [fx2, fy2, rot] of [[frs, frt, -45], [frx, frt, 45], [frx, fry, 135], [frs, fry, -135]]) {
+        const holder = el('div', {
+          position: 'absolute', left: px(fx2 - fs / 2), top: px(fy2 - fs / 2), width: px(fs), height: px(fs),
+          transform: `rotate(${rot}deg)`, opacity: '0.6',
+        }, chrome);
+        holder.appendChild(fleu.cloneNode(true));
+      }
+    }
+    // Aged light.
+    el('div', {
+      position: 'absolute', left: px(pr.x), top: px(pr.y), width: px(pr.w), height: px(pr.h),
+      background: `radial-gradient(115% 120% at 46% 42%, transparent 58%, rgba(${sh},0.15) 100%)`,
+    }, chrome);
+    // Lamp light: a slow warm pool over the spread, driven per frame in seek() — firelight on
+    // paper, and the ambient motion that keeps a settled page alive.
+    const lamp = el('div', {
+      position: 'absolute', inset: '0', zIndex: '2', pointerEvents: 'none', mixBlendMode: 'soft-light',
+      background: `radial-gradient(92% 80% at 30% 9%, rgba(255,238,190,0.95) 0%, rgba(255,238,190,0.28) 46%, rgba(24,12,4,0.6) 100%)`,
+      opacity: '0.7',
+    }, chrome);
+    return lamp;
   }
 
   const DRIFT_FRAC = 0.06;
@@ -3684,11 +3800,12 @@
     // The leaf swap: during a page turn the cam yields to the printed leaf; outside it the
     // leaf rests. Built lazily on the first transition frame so the snapshot is the settled
     // picture; live video media can't freeze into print, so it falls back to the flat peel.
-    const pageActive = cam.move === 'page' && tr && lt >= tr.start_ms && lt <= tr.end_ms && !arrival;
+    // In the paperbook every cut is a page turn — the leaf is the film's signature move.
+    const pageActive = (cam.move === 'page' || plan.book) && tr && lt >= tr.start_ms && lt <= tr.end_ms && !arrival;
     if (bn._hasVideo === undefined) bn._hasVideo = Boolean(bn.cam.querySelector('video'));
     if (pageActive && !bn._hasVideo) {
       if (!bn._leaf) {
-        bn._leafDir = cam.dir >= 0 ? 1 : -1;
+        bn._leafDir = plan.book ? 1 : (cam.dir >= 0 ? 1 : -1);
         bn._leaf = buildPageLeaf(bn, plan);
         bn.root.appendChild(bn._leaf.shadow);
         bn.root.appendChild(bn._leaf.el);
@@ -3766,12 +3883,35 @@
         opacity: '0.3', mixBlendMode: 'multiply',
       }, stage);
     }
-    const beats = plan.beats.map((b, i) => buildBeat(b, plan, stage, opts, i === plan.beats.length - 1, i));
+    // Animated-paperbook chassis: the film lives inside a bound old book — a deckled aged page
+    // clipped over the art on a lit desk. Every cut turns the curled leaf at the spine.
+    const bookPage = bookPageRect(plan);
+    let beatHost = stage;
+    let bookGroup = null;
+    let bookLamp = null;
+    if (bookPage) {
+      const deskA = mixColor('#1d140d', plan.brand.ink, 0.3), deskB = mixColor('#3a2a1a', plan.brand.accent || '#8a6a3a', 0.18);
+      stage.style.background = `radial-gradient(120% 110% at 50% 46%, ${deskB} 0%, ${deskA} 62%, #120c07 100%)`;
+      const pts = edgeRectPts(bookPage, 'torn', Math.min(W, H) * 0.011, rng(seedHash('book-page-deckle')), 0)
+        .map((p) => `${f2(p[0])}px ${f2(p[1])}px`).join(',');
+      // Everything bound to the book — page, beats, chrome — lives in one group so seek() can
+      // breathe the whole volume: a slow drift and turn, like a book resting on a desk.
+      bookGroup = el('div', {
+        position: 'absolute', inset: '0', transformOrigin: '50% 58%', willChange: 'transform',
+      }, stage);
+      beatHost = el('div', {
+        position: 'absolute', inset: '0', zIndex: '0',
+        background: `linear-gradient(100deg, ${mixColor(plan.brand.paper, '#e6d6b4', 0.5)} 0%, ${plan.brand.paper} 55%, ${mixColor(plan.brand.paper, '#dfcba6', 0.4)} 100%)`,
+        clipPath: `polygon(${pts})`,
+      }, bookGroup);
+    }
+    const beats = plan.beats.map((b, i) => buildBeat(b, plan, beatHost, opts, i === plan.beats.length - 1, i));
+    if (bookPage) bookLamp = buildBookChrome(bookGroup, plan, bookPage);
     // World-bible motif: the film's signature mark, stamped in a corner of every beat — the
     // through-line the eye follows across scenes. Quiet by design: tonal ink, paper-card clipped.
     const motifEl = (() => {
       const m = plan.motif;
-      if (!m) return null;
+      if (!m || bookPage) return null;
       const size = Math.round(Math.min(W, H) * 0.085);
       const inset = Math.round(Math.min(W, H) * 0.045);
       const pos = { left: 'auto', right: 'auto', top: 'auto', bottom: 'auto' };
@@ -3869,6 +4009,10 @@
         const hold = atmo.grain_hold_ms > 0 ? atmo.grain_hold_ms : 93;
         const o = OFF[Math.floor(time / hold) % OFF.length];
         grain.style.backgroundPosition = `${-o[0]}px ${-o[1]}px`;
+      }
+      if (bookGroup) {
+        bookGroup.style.transform = `translate(${f2(4 * Math.sin(time * 0.00105))}px,${f2(2.6 * Math.sin(time * 0.00087 + 1.4))}px) rotate(${f2(0.14 * Math.sin(time * 0.00062))}deg)`;
+        if (bookLamp) bookLamp.style.opacity = f2(0.55 + 0.3 * Math.sin(time * 0.00078 + 0.5));
       }
       const t1 = performance.now();
       const kOut = overlapIdx >= 0 ? prog(lt, tr.start_ms, tr.end_ms) : 0;

@@ -654,6 +654,7 @@ class World:
 
     grain: Optional[str] = None
     motif: Optional[Dict[str, Any]] = None  # {concept, corner} -> resolved to a mark in _resolve_concepts
+    book: bool = False                    # animated-paperbook chassis: beats become pages of a bound book
 
 
 @dataclass
@@ -704,7 +705,7 @@ class FilmTreatment:
                 corner = str(motif.get('corner') or 'bottom-right')
                 _need(corner in WORLD_CORNERS, 'WORLD_CORNER_UNKNOWN', corner)
                 motif = {**motif, 'concept': concept, 'corner': corner}
-            world = World(grain, motif)
+            world = World(grain, motif, bool(world_d.get('book')))
         by_id = {b.beat_id: b for b in beats}
         for b in beats:
             il = b.illustration

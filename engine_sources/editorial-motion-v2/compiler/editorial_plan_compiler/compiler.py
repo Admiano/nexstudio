@@ -1306,6 +1306,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', (film.world.grain if film.world else None) or 'grain-fine'),
                          'paper': community_surface('texture', 'paper006-color')},
+            'book': bool(film.world and film.world.book),
             'motif': ({'corner': film.world.motif['corner'], 'concept': film.world.motif['concept'], 'via': film.world.motif.get('via'),
                        'asset': film.world.motif.get('asset'), 'photo': film.world.motif.get('photo'), 'word': film.world.motif.get('word')}
                       if film.world and film.world.motif else None),
