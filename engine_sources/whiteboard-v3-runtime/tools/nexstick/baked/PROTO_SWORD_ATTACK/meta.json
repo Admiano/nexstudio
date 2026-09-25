@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_SWORD_ATTACK",
+ "frames": 6,
+ "fps": 8.0,
+ "res": [
+  401,
+  262
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "rgs-proto",
+ "license": "CC0"
+}

@@ -152,3 +152,21 @@ which were AI-generated and vectorized as pipeline demos.
   609 base emoji baked (skin-tone variant dirs skipped); joins the
   sprite-slot path alongside animicons — naming a notomoji slug in an
   icon slot plays the animated emoji.
+
+### characters/proto (the whiteboard cast)
+- `tools/nexstick/baked/PROTO_*/` — RGS_Dev 'Animated Prototype
+  Character' pack (CC0, user-supplied zip; https://rgsdev.itch.io/).
+  `tools/nexstick/proto_pack.py` imports each action set to baked dirs:
+  PROTO_IDLE/WALK/RUN/JUMP/ROLL/SLIDE/ATTACK/HIT/DEATH plus weapon
+  variants (PROTO_SWORD_*, PROTO_PISTOL_*, PROTO_RIFLE_*).
+- `tools/nexstick/baked/PROTO_EX_*/` — the exercise set drawn from
+  `compiled/exercise_vault_v5.json` by `tools/nexstick/proto_rig.py` in
+  the same proto style (circle head, tapered torso, stick limbs, dot
+  hands, shoe tips). 18 clips (push-up, plank, burpee, squat, lunge,
+  deadlift, jumping jack, bear crawl, mountain climber, dips, curls,
+  presses, pulls, bird-dog, glute bridge, sit-up, kettlebell swing,
+  downward dog). Per the cast's charter only exercise motions are added
+  to what the pack already has.
+- `fig_motion.resolve_clip` prefers the proto cast for say-resolved
+  clips via `_PROTO_ALIASES`; plans may also name PROTO_* clips
+  verbatim in beat.figure.

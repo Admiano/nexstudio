@@ -30,6 +30,66 @@ _CANVAS = (300, 400)  # strip tile; content bottom-aligns, headroom for reach
 
 _STRIPS: dict = {}
 
+# The proto cast (RGS pack + vault-drawn exercises) is the whiteboard
+# character — say-resolved clips prefer it wherever its set covers the
+# motion. Vault clip name -> baked PROTO_* dir.
+_PROTO_ALIASES = {
+    'NEX_MOTION_WALK': 'PROTO_WALK', 'CMU_WALK': 'PROTO_WALK',
+    'NEX_MOTION_RUN': 'PROTO_RUN', 'CMU_RUN': 'PROTO_RUN',
+    'NEX_MOTION_JUMP': 'PROTO_JUMP', 'CMU_JUMP': 'PROTO_JUMP',
+    'NEX_MOTION_IDLE': 'PROTO_IDLE', 'NEX_MOTION_LIVING_IDLE': 'PROTO_IDLE',
+    'NEX_MOTION_SIT': 'PROTO_IDLE',
+    'NEX_MECHANIC_PUSHUP_CYCLE': 'PROTO_EX_PUSH_UP',
+    'NEX_ACTPRIM_PUSHUP_CYCLE_V1': 'PROTO_EX_PUSH_UP',
+    'NEX_MECHANIC_PLANK_DYNAMIC': 'PROTO_EX_PLANK',
+    'NEX_ACTPRIM_PLANK_DYNAMIC_V1': 'PROTO_EX_PLANK',
+    'NEX_MECHANIC_BURPEE_CYCLE': 'PROTO_EX_BURPEE',
+    'NEX_ACTPRIM_BURPEE_CYCLE_V1_SUPPORT_DEPENDENT': 'PROTO_EX_BURPEE',
+    'NEX_MECHANIC_LUNGE': 'PROTO_EX_LUNGE',
+    'NEX_ACTPRIM_LUNGE_V1': 'PROTO_EX_LUNGE',
+    'NEX_MECHANIC_PARTIAL_SQUAT': 'PROTO_EX_SQUAT',
+    'NEX_ACTPRIM_PARTIAL_SQUAT_V1': 'PROTO_EX_SQUAT',
+    'NEX_ACTPRIM_SINGLE_LEG_SQUAT_V1': 'PROTO_EX_SQUAT',
+    'NEX_MECHANIC_HIP_HINGE': 'PROTO_EX_DEADLIFT',
+    'NEX_ACTPRIM_HIP_HINGE_V1': 'PROTO_EX_DEADLIFT',
+    'NEX_MECHANIC_BALLISTIC_HINGE': 'PROTO_EX_KETTLEBELL_SWING',
+    'NEX_MECHANIC_CRAWL_CYCLE_BEAR': 'PROTO_EX_BEAR_CRAWL',
+    'NEX_ACTPRIM_CRAWL_CYCLE_V1_BEAR': 'PROTO_EX_BEAR_CRAWL',
+    'NEX_MECHANIC_CRAWL_CYCLE_INCHWORM': 'PROTO_EX_MOUNTAIN_CLIMBER',
+    'NEX_ACTPRIM_INCHWORM_CYCLE_V1': 'PROTO_EX_MOUNTAIN_CLIMBER',
+    'NEX_MECHANIC_JUMPING_JACK_CYCLE': 'PROTO_EX_JUMPING_JACK',
+    'NEX_ACTPRIM_JUMPING_JACK_CYCLE_V1': 'PROTO_EX_JUMPING_JACK',
+    'NEX_MECHANIC_DIP_CYCLE': 'PROTO_EX_DIP',
+    'NEX_ACTPRIM_DIP_CYCLE_V1_SUPPORT_DEPENDENT': 'PROTO_EX_DIP',
+    'NEX_MECHANIC_CURL_BILATERAL': 'PROTO_EX_BICEP_CURL',
+    'NEX_ACTPRIM_CURL_BILATERAL_V1': 'PROTO_EX_BICEP_CURL',
+    'NEX_MECHANIC_VERTICAL_PRESS': 'PROTO_EX_OVERHEAD_PRESS',
+    'NEX_MECHANIC_OVERHEAD_REACH_BILATERAL': 'PROTO_EX_OVERHEAD_PRESS',
+    'NEX_MECHANIC_VERTICAL_PULL': 'PROTO_EX_PULL_UP',
+    'NEX_MECHANIC_ROW_PULL_RIGHT': 'PROTO_EX_PULL_UP',
+    'NEX_MECHANIC_CONTRALATERAL_CORE_CYCLE_BIRD_DOG': 'PROTO_EX_BIRD_DOG',
+    'NEX_MECHANIC_CONTRALATERAL_CORE_CYCLE_BRIDGE_MARCH':
+        'PROTO_EX_GLUTE_BRIDGE',
+    'NEX_MECHANIC_CORE_FLEXEXTEND': 'PROTO_EX_SIT_UP',
+    'NEX_MECHANIC_BACK_EXTENSION': 'PROTO_EX_GLUTE_BRIDGE',
+    'NEX_MECHANIC_KNEE_FLEXEXTEND': 'PROTO_EX_SQUAT',
+}
+
+
+def _proto_alias(clip: str) -> str:
+    """Map a resolved vault clip to its proto-cast baked dir when one
+    exists — verbatim PROTO_* names pass through untouched."""
+    if clip.startswith('PROTO_'):
+        return clip
+    cand = _PROTO_ALIASES.get(clip)
+    if cand and (BAKED_ROOT / cand / 'meta.json').exists():
+        return cand
+    if clip.startswith('EX_'):
+        cand = f'PROTO_{clip}'
+        if (BAKED_ROOT / cand / 'meta.json').exists():
+            return cand
+    return clip
+
 
 def resolve_clip(spec: dict) -> str | None:
     """'clip' verbatim, else 'say' text through the clip_select table."""
@@ -46,7 +106,8 @@ def resolve_clip(spec: dict) -> str | None:
          "console.log(cs.selectClip(process.argv[1],sm.vault().clips)||'')",
          str(say)],
         cwd=str(HERE), capture_output=True, text=True, timeout=60)
-    return out.stdout.strip() or None
+    resolved = out.stdout.strip() or None
+    return _proto_alias(resolved) if resolved else None
 
 
 def _rasterize(svg_dir: Path):

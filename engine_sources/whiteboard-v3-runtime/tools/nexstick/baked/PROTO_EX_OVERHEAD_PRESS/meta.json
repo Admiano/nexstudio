@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_EX_OVERHEAD_PRESS",
+ "frames": 67,
+ "fps": 30.0,
+ "res": [
+  174,
+  491
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "proto_rig",
+ "license": "CC BY-SA 4.0 \u2014 Bryl Lim / Everkinetic (pose reference)"
+}

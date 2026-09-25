@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_RIFLE_ATTACK",
+ "frames": 2,
+ "fps": 8.0,
+ "res": [
+  159,
+  177
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "rgs-proto",
+ "license": "CC0"
+}

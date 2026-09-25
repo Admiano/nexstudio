@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_EX_GLUTE_BRIDGE",
+ "frames": 67,
+ "fps": 30.0,
+ "res": [
+  286,
+  372
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "proto_rig",
+ "license": "CC BY-SA 4.0 \u2014 Bryl Lim / Everkinetic (pose reference)"
+}

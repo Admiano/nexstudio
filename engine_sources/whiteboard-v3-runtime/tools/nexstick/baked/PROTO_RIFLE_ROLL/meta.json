@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_RIFLE_ROLL",
+ "frames": 7,
+ "fps": 8.0,
+ "res": [
+  188,
+  139
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "rgs-proto",
+ "license": "CC0"
+}
