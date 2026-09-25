@@ -561,6 +561,17 @@ class BeatCompiler:
                                                  formality=d.formality, facing=d.facing, justification=d.justification),
                                  b.beat_id, self.film.film_id, self.film.brand, facing_left=facing_left)
         bbox = _contain(zone, fig['composition']['aspect'], 1.0, anchor='bottom')
+        if getattr(self.film.world, 'book', None) == 'paperbook':
+            # The paperbook's plate crops to a wide band of the canvas: the performer must
+            # stand at picture-book scale inside it, not caption scale. Grows toward the
+            # zone's floor so the ground line stays put, capped at what the safe frame fits.
+            cx = bbox['x'] + bbox['w'] / 2
+            bottom = bbox['y'] + bbox['h']
+            k = min(2.6, (bottom - self.safe['y']) / bbox['h'],
+                    (self.safe['w'] - 8) / bbox['w'],
+                    2 * (cx - self.safe['x']) / bbox['w'],
+                    2 * (self.safe['x'] + self.safe['w'] - cx) / bbox['w'])
+            bbox = _box(cx - bbox['w'] * k / 2, bottom - bbox['h'] * k, bbox['w'] * k, bbox['h'] * k)
         ev = next((e for e in ensemble['events'] if e['channel'] == 'CHARACTER'), None)
         enter = ev['start_ms'] if ev else min(clock.duration_ms - 900, max(clock.landings_ms or [LEAD_IN_MS]) + 200)
         # A performer is part of the stage, not a payload: when the character event sits late the figure
@@ -715,9 +726,12 @@ class BeatCompiler:
             if el:
                 if not _inside(el['bbox'], self.frame, 2):
                     failures.append(f'{name}_OUTSIDE_FRAME')
-                for bl in typ['blocks']:
-                    if _overlap(el['bbox'], bl['bbox']) > 0:
-                        failures.append(f"{name}_COLLIDES_TEXT:{bl['unit_index']}")
+                # The paperbook demotes all in-canvas text (page faces carry prose
+                # outside the scene), so nothing visual can collide with it there.
+                if getattr(self.film.world, 'book', None) != 'paperbook':
+                    for bl in typ['blocks']:
+                        if _overlap(el['bbox'], bl['bbox']) > 0:
+                            failures.append(f"{name}_COLLIDES_TEXT:{bl['unit_index']}")
         if data:
             for db in data['blocks']:
                 if db['fit']['status'] != 'FIT':
@@ -895,7 +909,7 @@ class BeatCompiler:
                 'native_profile': comp['native_profile'], 'derived_by_scaling': comp['derived_by_scaling'], 'authority': comp['authority_version'],
             },
             'typography': typ, 'ensemble': {'events': ensemble['events'], 'dominant_sequence': ensemble['dominant_sequence'], 'hold_window': ensemble['hold_window'], 'transition_window': ensemble['transition_window']},
-            'media': media, 'figure': figure, 'data': data, 'illustration': illustration, 'transition': transition, 'sound': sound,
+            'media': media, 'figure': figure, 'data': data, 'illustration': illustration, 'transition': transition, 'sound': sound, 'page': b.page,
             'gate': {'status': 'FAIL' if failures else 'PASS', 'failures': failures, 'warnings': sorted(set(warnings))},
         }
 
@@ -1308,7 +1322,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', (film.world.grain if film.world else None) or 'grain-fine'),
                          'paper': community_surface('texture', 'paper006-color')},
-            'book': bool(film.world and film.world.book),
+            'book': (film.world.book if film.world else False),
             'motif': ({'corner': film.world.motif['corner'], 'concept': film.world.motif['concept'], 'via': film.world.motif.get('via'),
                        'asset': film.world.motif.get('asset'), 'photo': film.world.motif.get('photo'), 'word': film.world.motif.get('word')}
                       if film.world and film.world.motif else None),

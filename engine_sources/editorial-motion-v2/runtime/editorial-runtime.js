@@ -201,6 +201,8 @@
 @font-face{font-family:"${f.families.text}";src:url("${fontBase}${f.display.file}") format("woff2");font-weight:100 900;font-style:normal;font-display:block}
 @font-face{font-family:"${f.families.text}";src:url("${fontBase}${f.display_italic.file}") format("woff2");font-weight:100 900;font-style:italic;font-display:block}
 @font-face{font-family:"${f.families.data}";src:url("${fontBase}${f.data.file}") format("truetype");font-weight:600;font-display:block}
+@font-face{font-family:"EB Garamond";src:url("${fontBase}EBGaramond-var.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:block}
+@font-face{font-family:"EB Garamond";src:url("${fontBase}EBGaramond-italic-var.woff2") format("woff2");font-weight:100 900;font-style:italic;font-display:block}
 .em2-stage,.em2-stage *{box-sizing:border-box;margin:0;padding:0}
 .em2-stage{position:relative;overflow:hidden;contain:strict;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
 .em2-beat{position:absolute;inset:0}
@@ -220,6 +222,8 @@
       document.fonts.load(`italic 600 40px "${f.display}"`),
       document.fonts.load(`600 40px "${f.data}"`),
       document.fonts.load(`700 40px "${f.display}"`),
+      document.fonts.load(`600 40px "EB Garamond"`),
+      document.fonts.load(`italic 400 40px "EB Garamond"`),
     ]).then(() => document.fonts.ready);
   }
 
@@ -2051,7 +2055,7 @@
     const g = svgEl('g', {}, null);
     const edgeParts = parts.filter((p) => p.edge && !p.sw);
     const els = [];
-    if (edgeParts.length) {
+    if (edgeParts.length && plan.book !== 'paperbook') {
       const under = svgEl('g', { transform: 'translate(50 50) scale(1.09) translate(-50 -50)' }, g);
       for (const p of edgeParts) svgEl('path', { d: p.d, fill: mixColor(plan.brand.paper, '#ffffff', 0.62), transform: p.tf || undefined }, under);
       els.push(under);
@@ -2819,15 +2823,17 @@
         break;
       }
       case 'ICON': {
-        // Die-cut sticker: the mark rides on its own wobbly paper edge with a soft shadow —
-        // the collage register, not a floating icon.
         const body = chassisBody(node, g);
-        const c = centre(b), seed = seedHash(String(ent.id));
-        const blob = svgEl('path', {
-          d: cutBlobPath(c.x, c.y, Math.max(b.w, sw * 8) * 0.58, Math.max(b.h, sw * 8) * 0.58, seed),
-          fill: mixColor(plan.brand.paper, '#ffffff', 0.62), 'fill-opacity': 0.96,
-        }, body);
-        node.extra.shadow = { el: blob, oy: b.h * 0.05, blur: b.h * 0.11, alpha: 0.24 };
+        if (plan.book !== 'paperbook') {
+          // Die-cut sticker: the mark rides on its own wobbly paper edge with a soft shadow —
+          // the collage register, not a floating icon.
+          const c = centre(b), seed = seedHash(String(ent.id));
+          const blob = svgEl('path', {
+            d: cutBlobPath(c.x, c.y, Math.max(b.w, sw * 8) * 0.58, Math.max(b.h, sw * 8) * 0.58, seed),
+            fill: mixColor(plan.brand.paper, '#ffffff', 0.62), 'fill-opacity': 0.96,
+          }, body);
+          node.extra.shadow = { el: blob, oy: b.h * 0.05, blur: b.h * 0.11, alpha: 0.24 };
+        }
         const host = svgEl('g', {}, g);
         host.style.color = ink;
         node.inkEls.push(host);
@@ -2847,11 +2853,13 @@
         const cardB = { x: b.x + m, y: b.y + m, w: b.w - m * 2, h: b.h - m * 2 };
         const shape = cutRectPath(cardB, seed, Math.min(b.w, b.h) * 0.05);
         const body = chassisBody(node, g);
-        // The fibrous fringe: the rip's white core peeks a hair past the face.
-        svgEl('path', { d: tornFringePath(cardB, seed, Math.min(b.w, b.h) * 0.05), fill: mixColor(plan.brand.paper, '#ffffff', 0.85), 'fill-opacity': dark ? 0.5 : 0.9 }, body);
-        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.55) }, body);
-        node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
-        svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.4), 'stroke-opacity': dark ? 0.14 : 0.2 }, body);
+        if (plan.book !== 'paperbook') {
+          // The fibrous fringe: the rip's white core peeks a hair past the face.
+          svgEl('path', { d: tornFringePath(cardB, seed, Math.min(b.w, b.h) * 0.05), fill: mixColor(plan.brand.paper, '#ffffff', 0.85), 'fill-opacity': dark ? 0.5 : 0.9 }, body);
+          const base = svgEl('path', { d: shape, fill: dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.55) }, body);
+          node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
+          svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.4), 'stroke-opacity': dark ? 0.14 : 0.2 }, body);
+        }
         node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
         const word = params.word ? String(params.word) : '';
         const fg = dark ? paper : ink;
@@ -3547,7 +3555,10 @@
     // Picture-book captioning: the page's art is the hero — headline blocks are hidden (the
     // karaoke caption prints those same words under the plate) and the remaining support
     // annotations shrink into a caption band along the page's lower inside edge.
-    if (plan.book && texts.length) {
+    if (plan.book === 'paperbook' && texts.length) {
+      // The spread prints its own words — no burned caption or title on the plate.
+      texts.forEach((t) => { t.wrap.style.display = 'none'; });
+    } else if (plan.book && texts.length) {
       const pr = bookPageRect(plan);
       const caps = texts.filter((t) => { const hero = t.block.role === 'hero'; if (hero) t.wrap.style.display = 'none'; return !hero; });
       const u = caps.reduce((a, t) => ({ x0: Math.min(a.x0, t.bb.x), y0: Math.min(a.y0, t.bb.y), x1: Math.max(a.x1, t.bb.x + t.bb.w), y1: Math.max(a.y1, t.bb.y + t.bb.h) }), { x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9 });
@@ -3620,7 +3631,7 @@
       },
     };
     const ready = Promise.all([figure ? figure.ready : null, media ? mediaReady(media) : null, illustration ? illustration.ready : null]);
-    return { beat, root: outer, cam: root, camBlur, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex };
+    return { beat, root: outer, cam: root, camBlur, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex, _hasVideo: Boolean(media && media.media && media.media.kind === 'VIDEO') };
   }
 
   // Film-level camera. Every cut is a matched move the compiler chose from the beats on either
@@ -3795,6 +3806,259 @@
     return lamp;
   }
 
+  // ---------------------------------------------------------------------------
+  // The paperbook (uploaded storybook system): an open spread on a warm surface.
+  // Every beat is one page — a serif title, a prose column of its narration, a
+  // gouache illustration panel beneath — and once a page is read its leaf turns
+  // at the spine, printed face and all. Two beats read per spread: left then right.
+  // ---------------------------------------------------------------------------
+  const PAPERBOOK = (plan) => Boolean(plan && plan.book === 'paperbook');
+  const PB_SERIF = '"EB Garamond","Iowan Old Style","Liberation Serif","DejaVu Serif",Georgia,serif';
+
+  function paperbookRects(plan) {
+    const W = plan.canvas.w, H = plan.canvas.h;
+    const bw = Math.round(W * 0.76), bh = Math.round(H * 0.80);
+    const bx = Math.round((W - bw) / 2), by = Math.round(H * 0.072);
+    const pw = Math.round(bw / 2);
+    return {
+      book: { x: bx, y: by, w: bw, h: bh },
+      left: { x: bx, y: by, w: pw, h: bh },
+      right: { x: bx + bw - pw, y: by, w: pw, h: bh },
+      spine: bx + bw / 2,
+    };
+  }
+
+  // The little irregular dashes and flecks of the stock — sparse, seeded, everywhere on a page.
+  function pbSpeckle(plan) {
+    const r = rng(seedHash(`pb-speckle:${plan.film_id}`));
+    let marks = '';
+    for (let i = 0; i < 42; i += 1) {
+      const x = f2(r() * 120), y = f2(r() * 120);
+      if (r() > 0.45) {
+        const w = f2(0.8 + r() * 2.6), rot = f2(r() * 90 - 45);
+        marks += `<rect x="${x}" y="${y}" width="${w}" height="0.9" rx="0.45" fill="${plan.brand.ink}" opacity="${f2(0.04 + r() * 0.09)}" transform="rotate(${rot} ${x} ${y})"/>`;
+      } else {
+        marks += `<circle cx="${x}" cy="${y}" r="${f2(0.5 + r() * 0.9)}" fill="${plan.brand.ink}" opacity="${f2(0.03 + r() * 0.07)}"/>`;
+      }
+    }
+    return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">${marks}</svg>`)}")`;
+  }
+
+  function pbOrnamentArc(face, rect, plan) {
+    const w = rect.w * 0.105, h = w * 0.36;
+    const arc = svgEl('svg', { viewBox: '0 0 60 22', width: px(w), height: px(h), 'aria-hidden': 'true' }, face);
+    Object.assign(arc.style, { position: 'absolute', left: px(rect.w / 2 - w / 2), top: px(rect.h * 0.048), opacity: '0.55' });
+    const tone = mixColor(plan.brand.ink, '#b0766a', 0.72);
+    svgEl('path', { d: 'M 5 19 A 25 14 0 0 1 55 19', fill: 'none', stroke: tone, 'stroke-width': '1.7', 'stroke-linecap': 'round' }, arc);
+  }
+
+  // One page of the book for one beat: title + prose + illustration panel + folio.
+  function buildPageFace(bn, i, side, plan, R, speckleUrl) {
+    const rect = { w: R.left.w, h: R.left.h };
+    const ink = plan.brand.ink, paper = plan.brand.paper;
+    const pw = rect.w, ph = rect.h;
+    const face = el('div', {
+      position: 'absolute', inset: '0', overflow: 'hidden',
+      background: `linear-gradient(${side === 'left' ? '97deg' : '83deg'}, ${mixColor(paper, '#e2d0ac', 0.26)} 0%, ${paper} 58%, ${mixColor(paper, '#e6d4b2', 0.2)} 100%)`,
+    });
+    face.dataset.page = String(i + 1);
+    el('div', { position: 'absolute', inset: '0', backgroundImage: speckleUrl, opacity: '0.9', pointerEvents: 'none' }, face);
+    pbOrnamentArc(face, rect, plan);
+    const pg = (bn.beat && bn.beat.page) || {};
+    const hero = (bn.beat && bn.beat.typography && (bn.beat.typography.blocks || []).find((b) => b.role === 'hero')) || null;
+    const titleText = pg.title || (hero && hero.text) || (bn.beat.narration || '').split(/\s+/).slice(0, 6).join(' ');
+    const pad = pw * 0.082;
+    const col = el('div', { position: 'absolute', left: px(pad), top: px(ph * 0.105), width: px(pw - pad * 2) }, face);
+    el('div', { fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(pw * 0.062), lineHeight: '1.06', color: ink, letterSpacing: '0.005em' }, col).textContent = titleText;
+    const prose = el('div', {
+      fontFamily: PB_SERIF, fontSize: px(pw * 0.0315), lineHeight: '1.44', color: rgbaOf(ink, 0.84),
+      marginTop: px(ph * 0.018), maxWidth: px(pw * 0.72),
+    }, col);
+    prose.textContent = bn.beat.narration || '';
+    // The illustration: the beat's own scene pressed into a plate under the words.
+    const slotRect = { x: pad, y: ph * 0.415, w: pw - pad * 2.15, h: ph * 0.46 };
+    const slot = el('div', {
+      position: 'absolute', left: px(slotRect.x), top: px(slotRect.y), width: px(slotRect.w), height: px(slotRect.h),
+      overflow: 'hidden', borderRadius: px(pw * 0.012),
+      boxShadow: `0 ${px(ph * 0.006)} ${px(ph * 0.014)} ${rgbaOf(ink, 0.18)}, inset 0 0 0 ${px(Math.max(1, pw * 0.0016))} ${rgbaOf(ink, 0.14)}`,
+    }, face);
+    const W0 = plan.canvas.w, H0 = plan.canvas.h;
+    const k = Math.max(slotRect.w / W0, slotRect.h / H0);
+    const tf = `translate(${f2((slotRect.w - W0 * k) / 2)}px,${f2((slotRect.h - H0 * k) / 2)}px) scale(${k.toFixed(4)})`;
+    // Viewports carry the canvas box at canvas scale; the slot does the clipping.
+    const stillVp = el('div', { position: 'absolute', left: '0', top: '0', width: px(W0), height: px(H0), transformOrigin: '0 0', transform: tf, background: plan.brand.paper }, slot);
+    const liveVp = el('div', { position: 'absolute', left: '0', top: '0', width: px(W0), height: px(H0), transformOrigin: '0 0', transform: tf, display: 'none' }, slot);
+    if (pg.quote) {
+      const q = el('div', {
+        position: 'absolute', left: px(slotRect.x), top: px(slotRect.y + slotRect.h + ph * 0.018), width: px(slotRect.w),
+        fontFamily: PB_SERIF, fontStyle: 'italic', fontSize: px(pw * 0.031), color: rgbaOf(ink, 0.72), textAlign: 'center',
+      }, face);
+      q.textContent = `“${pg.quote}”`;
+    }
+    const folio = el('div', {
+      position: 'absolute', bottom: px(ph * 0.03), [side === 'left' ? 'left' : 'right']: px(pw * 0.05),
+      fontFamily: PB_SERIF, fontSize: px(pw * 0.026), color: rgbaOf(ink, 0.55),
+    }, face);
+    folio.textContent = String(i + 1);
+    return { el: face, stillVp, liveVp, slot, index: i };
+  }
+
+  function buildEndpaper(plan, R, side, speckleUrl) {
+    const rect = { w: R.left.w, h: R.left.h };
+    const face = el('div', {
+      position: 'absolute', inset: '0', overflow: 'hidden',
+      background: `linear-gradient(${side === 'left' ? '97deg' : '83deg'}, ${mixColor(plan.brand.paper, '#e2d0ac', 0.26)} 0%, ${plan.brand.paper} 58%, ${mixColor(plan.brand.paper, '#e6d4b2', 0.2)} 100%)`,
+    });
+    el('div', { position: 'absolute', inset: '0', backgroundImage: speckleUrl, opacity: '0.9' }, face);
+    pbOrnamentArc(face, rect, plan);
+    return { el: face, stillVp: null, liveVp: null, slot: null, index: -1 };
+  }
+
+  // The bound volume: cover edge around two tinted pages, page-stack at the fore-edge,
+  // a gutter shadow at the spine, and the lamp pool over it all.
+  function buildPaperbook(bookGroup, plan, beats, opts) {
+    const W = plan.canvas.w, H = plan.canvas.h;
+    const R = paperbookRects(plan);
+    const ink = plan.brand.ink, paper = plan.brand.paper;
+    const speckleUrl = pbSpeckle(plan);
+    const sh = ((plan.atmosphere && plan.atmosphere.shadow_rgb) || [52, 38, 20]).join(',');
+    // The book's own shadow pooled on the surface beneath it.
+    el('div', {
+      position: 'absolute', left: px(R.book.x - R.book.w * 0.025), top: px(R.book.y + R.book.h + H * 0.012),
+      width: px(R.book.w * 1.05), height: px(H * 0.05),
+      background: `radial-gradient(50% 50% at 50% 50%, rgba(${sh},0.34) 0%, transparent 72%)`,
+    }, bookGroup);
+    // The cover: a hair of board edging the page block on three sides.
+    const cm = R.book.h * 0.022;
+    el('div', {
+      position: 'absolute', left: px(R.book.x - cm), top: px(R.book.y - cm * 0.6),
+      width: px(R.book.w + cm * 2), height: px(R.book.h + cm * 1.8),
+      borderRadius: px(H * 0.007),
+      background: `linear-gradient(170deg, ${mixColor('#6a5744', ink, 0.18)} 0%, ${mixColor('#51412f', ink, 0.12)} 100%)`,
+      boxShadow: `0 ${px(H * 0.01)} ${px(H * 0.03)} rgba(${sh},0.35)`,
+    }, bookGroup);
+    const mkPage = (rect, side) => {
+      const base = el('div', { position: 'absolute', left: px(rect.x), top: px(rect.y), width: px(rect.w), height: px(rect.h), overflow: 'hidden' }, bookGroup);
+      base.style.background = `linear-gradient(${side === 'left' ? '97deg' : '83deg'}, ${mixColor(paper, '#e2d0ac', 0.26)} 0%, ${paper} 58%, ${mixColor(paper, '#e6d4b2', 0.2)} 100%)`;
+      // The gutter: light falls off into the spine on each page's inner edge.
+      const chromeEls = [];
+      chromeEls.push(el('div', {
+        position: 'absolute', top: '0', bottom: '0', width: px(rect.w * 0.10),
+        [side === 'left' ? 'right' : 'left']: '0', zIndex: '4', pointerEvents: 'none',
+        background: `linear-gradient(${side === 'left' ? '270deg' : '90deg'}, rgba(${sh},0.30) 0%, rgba(${sh},0.10) 45%, transparent 100%)`,
+      }, base));
+      // The stack of unturned leaves peeking at the fore-edge and tail.
+      const paperDark = mixColor(paper, '#c9b490', 0.55);
+      for (const [ox, oy] of [[2.5, 1.5], [5, 3.5]]) {
+        chromeEls.push(el('div', {
+          position: 'absolute', [side === 'left' ? 'left' : 'right']: px(-ox), top: px(oy), width: px(Math.max(1.2, W * 0.0012)), height: px(rect.h - oy * 1.6),
+          background: paperDark, zIndex: '-1',
+        }, base));
+        chromeEls.push(el('div', {
+          position: 'absolute', [side === 'left' ? 'right' : 'left']: px(oy), bottom: px(-ox), width: px(rect.w - oy * 1.6), height: px(Math.max(1.2, W * 0.0012)),
+          background: paperDark, zIndex: '-1',
+        }, base));
+      }
+      base._chrome = chromeEls;
+      return base;
+    };
+    const leftBase = mkPage(R.left, 'left');
+    const rightBase = mkPage(R.right, 'right');
+    const leafHost = el('div', { position: 'absolute', inset: '0', zIndex: '6', pointerEvents: 'none', transformStyle: 'preserve-3d' }, bookGroup);
+    const lamp = el('div', {
+      position: 'absolute', inset: '0', zIndex: '7', pointerEvents: 'none', mixBlendMode: 'soft-light',
+      background: `radial-gradient(95% 82% at 34% 10%, rgba(255,242,205,0.85) 0%, rgba(255,242,205,0.20) 52%, rgba(${sh},0.30) 100%)`,
+      opacity: '0.65',
+    }, bookGroup);
+    const faces = beats.map((bn, i) => buildPageFace(bn, i, i % 2 === 1 ? 'right' : 'left', plan, R, speckleUrl));
+    const endL = buildEndpaper(plan, R, 'left', speckleUrl);
+    const endR = buildEndpaper(plan, R, 'right', speckleUrl);
+    const spread = {
+      R, leftBase, rightBase, leafHost, lamp, faces,
+      ends: { left: endL, right: endR },
+      leaf: null, leafIdx: -1, _l: null, _r: null,
+    };
+    setPbFace(leftBase, faces[0] || endL);
+    setPbFace(rightBase, faces[1] || endR);
+    return spread;
+  }
+
+  function setPbFace(base, face) {
+    if (base._face === face) return;
+    base.replaceChildren(face.el, ...(base._chrome || []));
+    base._face = face;
+  }
+
+  // The turning leaf: right page lifts at the spine and lands on the left — the
+  // same bent-strip geometry as the single-page book, hinged on the gutter line.
+  function buildSpreadLeaf(plan, spread, frontFace, backFace) {
+    const rect = spread.R.right;
+    const sh = ((plan.atmosphere && plan.atmosphere.shadow_rgb) || [52, 38, 20]).join(',');
+    const leaf = el('div', {
+      position: 'absolute', left: px(rect.x), top: px(rect.y), width: px(rect.w), height: px(rect.h), display: 'none',
+      transformStyle: 'preserve-3d', transformOrigin: '0% 50%', willChange: 'transform', pointerEvents: 'none', zIndex: '8',
+    });
+    const shadow = el('div', {
+      position: 'absolute', top: px(rect.y), height: px(rect.h), width: px(rect.w * 0.3), opacity: '0',
+      background: `linear-gradient(90deg, transparent 0%, rgba(${sh},0.42) 50%, transparent 100%)`,
+      filter: `blur(${px(rect.w * 0.035)})`, pointerEvents: 'none', willChange: 'transform, opacity',
+    });
+    const sw = rect.w / PAGE_STRIPS;
+    let host = leaf;
+    const strips = [];
+    for (let i = 0; i < PAGE_STRIPS; i++) {
+      const st = el('div', { position: 'absolute', top: '0', bottom: '0', width: px(sw), transformStyle: 'preserve-3d', transformOrigin: '0% 50%' }, host);
+      st.style.left = i === 0 ? '0' : '100%';
+      if (i > 0) st.style.transform = 'rotateY(var(--ptd))';
+      const front = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', filter: 'blur(var(--pb,0px))' }, st);
+      const fw = el('div', { position: 'absolute', left: px(-i * sw), top: '0', width: px(rect.w), height: px(rect.h) }, front);
+      fw.appendChild(frontFace.el.cloneNode(true));
+      const back = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', filter: 'blur(var(--pb,0px))' }, st);
+      const bw = el('div', { position: 'absolute', left: px(-i * sw), top: '0', width: px(rect.w), height: px(rect.h) }, back);
+      bw.appendChild(backFace.el.cloneNode(true));
+      el('div', { position: 'absolute', inset: '0', background: rgbaOf(plan.brand.paper, 0.14) }, back);
+      const shF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
+      const glF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
+      const shB = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, back);
+      const glB = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, back);
+      strips.push({ st, shF, glF, shB, glB });
+      host = st;
+    }
+    return { el: leaf, shadow, strips, sw, rect };
+  }
+
+  function driveSpreadLeaf(leaf, kke, plan) {
+    const D = 180 / Math.PI, rect = leaf.rect;
+    const th = Math.PI * kke;
+    const beta = PAGE_BETA * Math.sin(Math.PI * kke);
+    const tt = th + beta, td = (2 * beta) / PAGE_STRIPS;
+    leaf.el.style.display = '';
+    leaf.el.style.transform = `rotateY(${f2(-tt * D)}deg)`;
+    leaf.el.style.setProperty('--ptd', `${f2(td * D)}deg`);
+    leaf.el.style.setProperty('--pb', `${f2(Math.sin(Math.PI * kke) * 1.8)}px`);
+    for (let i = 0; i < PAGE_STRIPS; i++) {
+      const l1 = Math.abs(Math.cos(tt - i * td)), l2 = Math.abs(Math.cos(tt - (i + 1) * td));
+      const a1 = (1 - l1) * 0.5, a2 = (1 - l2) * 0.5;
+      const g1 = Math.max(0, l1 - 0.72) * 0.5, g2 = Math.max(0, l2 - 0.72) * 0.5;
+      const { shF, glF, shB, glB } = leaf.strips[i];
+      shF.style.background = `linear-gradient(90deg, rgba(52,38,20,${f2(a1)}), rgba(52,38,20,${f2(a2)}))`;
+      shB.style.background = `linear-gradient(90deg, rgba(52,38,20,${f2(a2)}), rgba(52,38,20,${f2(a1)}))`;
+      glF.style.background = `linear-gradient(105deg, transparent 32%, rgba(255,255,255,${f2(g1)}) 50%, transparent 68%)`;
+      glB.style.background = `linear-gradient(105deg, transparent 32%, rgba(255,255,255,${f2(g2)}) 50%, transparent 68%)`;
+    }
+    const xEdge = rect.x + rect.w * Math.cos(tt);
+    leaf.shadow.style.left = px(xEdge - rect.w * 0.15);
+    leaf.shadow.style.opacity = f2(Math.sin(Math.PI * kke) * 0.55);
+  }
+
+  function settleSpreadLeaf(spread) {
+    if (!spread.leaf) return;
+    spread.leaf.el.style.display = 'none';
+    spread.leaf.shadow.style.opacity = '0';
+    spread.leaf = null;
+    spread.leafIdx = -1;
+  }
+
   const DRIFT_FRAC = 0.06;
   function cameraMoveOf(cam, m, index) {
     if (cam) return cam;
@@ -3812,7 +4076,7 @@
       let scale = 1 + m.camera_push * p;
       let tx = cam.dir * m.camera_pan_frac * W * (p - 0.5);
       let opacity = 1, defocus = 0;
-      const kk = k > 0 && tr ? prog(t, tr.start_ms, tr.end_ms) : 0;
+      const kk = !PAPERBOOK(plan) && k > 0 && tr ? prog(t, tr.start_ms, tr.end_ms) : 0;
       let rot = 0, ty = 0;
       if (kk > 0) {
         const ko = EASE.inCubic(kk);
@@ -3841,7 +4105,7 @@
     // leaf rests. Built lazily on the first transition frame so the snapshot is the settled
     // picture; live video media can't freeze into print, so it falls back to the flat peel.
     // In the paperbook every cut is a page turn — the leaf is the film's signature move.
-    const pageActive = (cam.move === 'page' || plan.book) && tr && lt >= tr.start_ms && lt <= tr.end_ms && !arrival;
+    const pageActive = !PAPERBOOK(plan) && (cam.move === 'page' || plan.book) && tr && lt >= tr.start_ms && lt <= tr.end_ms && !arrival;
     if (bn._hasVideo === undefined) bn._hasVideo = Boolean(bn.cam.querySelector('video'));
     if (pageActive && !bn._hasVideo) {
       if (!bn._leaf) {
@@ -3925,11 +4189,20 @@
     }
     // Animated-paperbook chassis: the film lives inside a bound old book — a deckled aged page
     // clipped over the art on a lit desk. Every cut turns the curled leaf at the spine.
-    const bookPage = bookPageRect(plan);
+    const paperbook = PAPERBOOK(plan);
+    const bookPage = paperbook ? null : bookPageRect(plan);
     let beatHost = stage;
     let bookGroup = null;
     let bookLamp = null;
-    if (bookPage) {
+    if (paperbook) {
+      // A warm putty surface under the spread — table light, not walnut gloom.
+      stage.style.background = `radial-gradient(130% 115% at 50% 38%, ${mixColor('#b8ac9a', plan.brand.paper, 0.12)} 0%, ${mixColor('#8f8271', plan.brand.ink, 0.10)} 74%, #6e6355 100%)`;
+      bookGroup = el('div', {
+        position: 'absolute', inset: '0', transformOrigin: '50% 58%', willChange: 'transform',
+      }, stage);
+      // Beats build hidden: their scenes mount inside the pages' illustration plates.
+      beatHost = el('div', { position: 'absolute', left: '0', top: '0', width: px(W), height: px(H), visibility: 'hidden' }, bookGroup);
+    } else if (bookPage) {
       // Warm walnut desk under the lamp pool: deep but alive, not burnt.
       const deskA = mixColor('#43311f', plan.brand.ink, 0.22), deskB = mixColor('#6b5438', plan.brand.accent || '#8a6a3a', 0.2);
       stage.style.background = `radial-gradient(120% 110% at 50% 42%, ${deskB} 0%, ${deskA} 64%, #2a1f12 100%)`;
@@ -3947,12 +4220,29 @@
       }, bookGroup);
     }
     const beats = plan.beats.map((b, i) => buildBeat(b, plan, beatHost, opts, i === plan.beats.length - 1, i));
-    if (bookPage) bookLamp = buildBookChrome(bookGroup, plan, bookPage);
+    let spread = null;
+    if (paperbook) {
+      spread = buildPaperbook(bookGroup, plan, beats, opts);
+      beats.forEach((b) => { b.root.style.display = 'none'; });
+      // Each page's plate needs its illustration before the film starts: settle every beat
+      // at its end state and press that picture into the page's still viewport.
+      for (const bn of beats) {
+        const ltEnd = bn.beat.duration_ms;
+        applyBeat(bn, ltEnd, 1, 0);
+        applyCamera(bn, ltEnd, 0, null, plan, 0);
+        const still = bn.cam.cloneNode(true);
+        still.style.transform = 'none';
+        still.style.opacity = '1';
+        still.style.visibility = 'visible';
+        still.style.filter = 'none';
+        spread.faces[bn.index].stillVp.appendChild(still);
+      }
+    } else if (bookPage) bookLamp = buildBookChrome(bookGroup, plan, bookPage);
     // World-bible motif: the film's signature mark, stamped in a corner of every beat — the
     // through-line the eye follows across scenes. Quiet by design: tonal ink, paper-card clipped.
     const motifEl = (() => {
       const m = plan.motif;
-      if (!m || bookPage) return null;
+      if (!m || bookPage || paperbook) return null;
       const size = Math.round(Math.min(W, H) * 0.085);
       const inset = Math.round(Math.min(W, H) * 0.045);
       const pos = { left: 'auto', right: 'auto', top: 'auto', bottom: 'auto' };
@@ -4035,16 +4325,56 @@
       // L-cut overlap: while the outgoing beat runs its exit transition, the incoming
       // beat's stage is already dressing underneath, so a cut lands on a set that is
       // mid-arrival — never on bare paper.
-      const overlapIdx = tr && lt >= tr.start_ms && idx + 1 < beats.length ? idx + 1 : -1;
+      const overlapIdx = spread ? -1 : (tr && lt >= tr.start_ms && idx + 1 < beats.length ? idx + 1 : -1);
       if (idx !== current || overlapIdx !== currentOverlap) {
         // display, not visibility: children set their own visibility and would otherwise leak through.
-        beats.forEach((b, i) => { b.root.style.display = i === idx || i === overlapIdx ? 'block' : 'none'; });
-        bn.root.style.zIndex = overlapIdx >= 0 ? '1' : '';
-        if (overlapIdx >= 0) beats[overlapIdx].root.style.zIndex = '0';
+        if (!spread) {
+          beats.forEach((b, i) => { b.root.style.display = i === idx || i === overlapIdx ? 'block' : 'none'; });
+          bn.root.style.zIndex = overlapIdx >= 0 ? '1' : '';
+          if (overlapIdx >= 0) beats[overlapIdx].root.style.zIndex = '0';
+        }
         current = idx;
         currentOverlap = overlapIdx;
       }
       const stageFade = overlapIdx >= 0 ? 1 - EASE.inOutCubic(prog(lt, tr.start_ms, tr.end_ms)) : 1;
+      if (spread) {
+        // Two pages per spread: even beats read on the left, odd on the right. A page turn
+        // happens only at an odd beat's end — the leaf carries its whole printed face over.
+        const odd = idx % 2 === 1;
+        const flipping = odd && tr && lt >= tr.start_ms && lt < tr.end_ms;
+        const passed = odd && tr && lt >= tr.end_ms;
+        const sIdx = Math.floor(idx / 2) + (passed ? 1 : 0);
+        const lIdx = sIdx * 2, rIdx = sIdx * 2 + 1;
+        setPbFace(spread.leftBase, spread.faces[lIdx] || spread.ends.left);
+        // While the leaf travels, the right side already shows the next spread's right page.
+        const rShow = rIdx + (flipping ? 2 : 0);
+        setPbFace(spread.rightBase, spread.faces[rShow] || spread.ends.right);
+        // The live scene mounts only in the page currently being read; every other plate
+        // shows its pressed still.
+        for (let j = 0; j < beats.length; j += 1) {
+          const fj = spread.faces[j], bj = beats[j];
+          if (j === idx && !flipping && !bj._hasVideo) {
+            if (bj.cam.parentNode !== fj.liveVp) fj.liveVp.appendChild(bj.cam);
+            fj.liveVp.style.display = '';
+            fj.stillVp.style.display = 'none';
+          } else {
+            if (bj.cam.parentNode !== bj.root) bj.root.appendChild(bj.cam);
+            fj.liveVp.style.display = 'none';
+            fj.stillVp.style.display = '';
+          }
+        }
+        if (flipping) {
+          if (!spread.leaf || spread.leafIdx !== idx) {
+            settleSpreadLeaf(spread);
+            const backFace = spread.faces[idx + 1] || spread.ends.left;
+            spread.leaf = buildSpreadLeaf(plan, spread, spread.faces[idx], backFace);
+            spread.leafIdx = idx;
+            spread.leafHost.appendChild(spread.leaf.el);
+            spread.leafHost.appendChild(spread.leaf.shadow);
+          }
+          driveSpreadLeaf(spread.leaf, EASE.inOutCubic(prog(lt, tr.start_ms, tr.end_ms)), plan);
+        } else if (spread.leaf) settleSpreadLeaf(spread);
+      }
       if (grain) {
         const OFF = [[0, 0], [41, 17], [23, 88], [97, 53], [61, 131], [13, 73], [109, 29], [73, 107]];
         const hold = atmo.grain_hold_ms > 0 ? atmo.grain_hold_ms : 93;

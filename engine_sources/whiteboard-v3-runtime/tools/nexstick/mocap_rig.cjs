@@ -149,9 +149,9 @@ if (!req.cmuClip && (req.say || req.text)) {
 
 const clipRef = (req.cmuClip || req.action || '').toUpperCase();
 const athletic = /^(EX_|.*(CRAWL|CLIMB|LADDER|HOPSCOTCH|CARTWHEEL|STRETCH|YOGA|BOXING|JOG|RUN_|SPRINT|DIVE|SWIM|FALL|ROLL))/.test(clipRef);
-const look = athletic
+const look = req.look || (athletic
   ? { top: { garment: 'vest' }, bottom: { garment: 'shorts' } }
-  : { top: { garment: 'jacket' } };
+  : { top: { garment: 'jacket' } });
 
 // viseme timeline: req.visemes = path to visemes.py output (rhubarb cues)
 // or an inline [{start,end,viseme}] array — speaking figures lip-sync to VO.

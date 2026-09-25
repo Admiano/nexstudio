@@ -590,6 +590,7 @@ class BeatTreatment:
     min_duration_ms: int = 0
     cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
     backdrop: Optional[List[Dict[str, Any]]] = None
+    page: Optional[Dict[str, Any]] = None  # paperbook: {title, quote} printed on the beat's page
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -651,8 +652,16 @@ class BeatTreatment:
                 backdrop.append({'tone': tone, 'band': {'top': top, 'height': height}, 'depth': depth,
                                  'ragged': bool(p.get('ragged')), 'concept': concept or None})
             backdrop.sort(key=lambda p: p['depth'])
+        page = None
+        pg = d.get('page')
+        if pg is not None:
+            _need(isinstance(pg, dict), 'BEAT_PAGE_INVALID', 'page must be an object', bid)
+            title = ' '.join(str(pg.get('title') or '').split())
+            quote = ' '.join(str(pg.get('quote') or '').split())
+            _need(len(title) <= 60 and len(quote) <= 120, 'BEAT_PAGE_TEXT_LONG', bid)
+            page = {k: v for k, v in {'title': title or None, 'quote': quote or None}.items() if v}
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop)
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop, page)
 
     @property
     def has_visual(self) -> bool:
@@ -701,7 +710,7 @@ class World:
 
     grain: Optional[str] = None
     motif: Optional[Dict[str, Any]] = None  # {concept, corner} -> resolved to a mark in _resolve_concepts
-    book: bool = False                    # animated-paperbook chassis: beats become pages of a bound book
+    book: Any = False                     # True = bound-book chassis; 'paperbook' = two-page storybook spread
 
 
 @dataclass
@@ -752,7 +761,9 @@ class FilmTreatment:
                 corner = str(motif.get('corner') or 'bottom-right')
                 _need(corner in WORLD_CORNERS, 'WORLD_CORNER_UNKNOWN', corner)
                 motif = {**motif, 'concept': concept, 'corner': corner}
-            world = World(grain, motif, bool(world_d.get('book')))
+            book_v = world_d.get('book')
+            book = 'paperbook' if str(book_v).strip().lower() == 'paperbook' else bool(book_v)
+            world = World(grain, motif, book)
         by_id = {b.beat_id: b for b in beats}
         for b in beats:
             il = b.illustration

@@ -999,6 +999,28 @@
             "enum": [
               "hard"
             ]
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 60
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 120
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -1068,7 +1090,14 @@
               ]
             },
             "book": {
-              "type": "boolean"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "const": "paperbook"
+                }
+              ]
             },
             "motif": {
               "type": "object",

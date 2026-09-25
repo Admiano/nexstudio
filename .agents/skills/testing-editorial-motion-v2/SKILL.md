@@ -36,5 +36,13 @@ description: How to end-to-end test the editorial-motion v2 engine (compile→re
 - Standalone: `python3 tools/story_analyst.py --selftest` (config/availability), `--script-file --alignment --replay --style --out` writes treatment.json + storyboard.json without rendering.
 - **Known crash**: `runtime/editorial-runtime.js` `iconGeometry()` calls `hostM.inverse()` unguarded — an entity at `scale(0)` (e.g. the pre-op window of an analyst `GROW` op, which conforms with `from:0`) makes the CTM singular and `inspect()` throws `InvalidStateError: matrix is not invertible`, killing the render mid-capture. If renders die this way, bisect the failing seek with a playwright probe that calls `window.__em2.seek(t)` then `window.__em2.inspect()` per frame.
 
+## Paperbook figure motion (NexStick mocap baked sprites)
+- Treatments with a `figure.motion` on a beat get baked by `tools/bake_motion.cjs` (wraps whiteboard-v3 `mocap_rig.cjs`) during render → `work/motion-bNN.json` (0-based beat index) + `work/plan.motion.json` (plan patched with `figure.motion.asset`). Sprite = `NexStudioFigureSpriteV1`: `frames[]` are full per-frame SVGs, `loop_from` marks the walk→idle boundary. A failed bake falls back to a *still* figure — so "the figure moved" must be proven, not assumed.
+- Fastest ground-truth check: extract a few `frames[i]` SVGs from `motion-bNN.json` and rasterize with `inkscape -o out.png -w 220` — distinct limb poses across indices prove animation. Then confirm the same animation in rendered frames via region pixel-diff (figure area diffs ~1–18% frame-to-frame; a still-figure fallback diffs ≈0) and position tracking (walk-in translates inward, idle sways in place, walk-off drifts toward exit).
+- Props (magnifier/telescope/sunflower/star) are separate entities beside the figure — verify them by zooming a tight crop around the figure in an extracted frame.
+- Page turns: at each beat boundary, extract ±0.1–0.3s frames — a real flip shows a curled leaf mid-flip about the left spine (vertical curl pleats / pale leaf covering), not an instant content swap.
+- Poster mp4s add ~1.0s still lead over the `_web` film time (film 16.8s → poster 17.8s); account for it when mapping beat times for playback annotation.
+- Clean re-render check: `python3 tools/make_reel.py --treatment fixtures/<id>/treatment.json --fixture-voice fixtures/<id> --aspects 16x9 --out <dir>` re-bakes sprites; `make_reel` captures render_reel's stdout so bake log lines won't appear in the top-level log — verify via `work/motion-bNN.json` + `plan.motion.json` existence and compare a same-timestamp frame to the certified output (deterministic pipeline should be pixel-identical).
+
 ## Devin Secrets Needed
 None.

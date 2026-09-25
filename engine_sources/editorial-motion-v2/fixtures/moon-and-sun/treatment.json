@@ -1,0 +1,940 @@
+{
+  "schema": "NexStudioEditorialTreatmentV2",
+  "film_id": "moon-and-sun",
+  "note": "day gives way to night; the astronomer watches, then leaves as the dawn band rises",
+  "aspects": [
+    "16x9",
+    "1x1",
+    "9x16"
+  ],
+  "fps": 30,
+  "brand": {
+    "ink": "#1b2440",
+    "paper": "#f0e7d4",
+    "accent": "#d9a441",
+    "finish": "PAPER"
+  },
+  "typography": {
+    "reveal": "WORD_CASCADE",
+    "tonal_ink": 0.42,
+    "min_visual_share": 0.6
+  },
+  "voice": {
+    "source": "MASTER",
+    "audio_path": "voice.mp3",
+    "alignment_path": "alignment.json",
+    "head_pad_ms": 350
+  },
+  "media_library": [],
+  "beats": [
+    {
+      "beat_id": "b01",
+      "beat_type": "HOOK",
+      "pattern": "CONTROLLED_EMPTY_SPACE",
+      "dominant_layer": "TEXT",
+      "narration": "The  sun  burns  at  the  center  of  everything.",
+      "energy": 0.4,
+      "complexity": 0.3,
+      "display_units": [
+        {
+          "text": "the sun burns",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.5
+        },
+        {
+          "text": "at the center of everything",
+          "role": "hero",
+          "semantic_role": "statement",
+          "emphasis": 0.9,
+          "anchor_word": "center"
+        }
+      ],
+      "backdrop": [
+        {
+          "tone": "auto",
+          "band": {
+            "top": 0.06,
+            "height": 0.55
+          },
+          "depth": 0.15,
+          "ragged": false,
+          "concept": "sun"
+        },
+        {
+          "tone": "accent",
+          "band": {
+            "top": 0.6,
+            "height": 0.18
+          },
+          "depth": 0.5,
+          "ragged": true
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.76,
+            "height": 0.24
+          },
+          "depth": 0.8,
+          "ragged": true
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "sun",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "sun"
+          },
+          {
+            "id": "everything",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "star"
+          }
+        ],
+        "relations": [
+          {
+            "type": "emits_to",
+            "source": "sun",
+            "target": "everything",
+            "style": "arc"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "sun",
+            "at": {
+              "word": "sun"
+            },
+            "duration_ms": 800,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "everything",
+            "at": {
+              "word": "everything"
+            },
+            "duration_ms": 600,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "CONNECT",
+            "target": "sun->everything",
+            "at": {
+              "word": "everything"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "The Burning Sun"
+      }
+    },
+    {
+      "beat_id": "b02",
+      "beat_type": "SETUP",
+      "pattern": "PHRASE_REPLACEMENT",
+      "dominant_layer": "FIGURE",
+      "narration": "The  moon  makes  no  light  of  its  own.",
+      "energy": 0.4,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "the moon",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.5
+        },
+        {
+          "text": "makes no light of its own",
+          "role": "hero",
+          "semantic_role": "contrast",
+          "emphasis": 0.9,
+          "anchor_word": "own"
+        }
+      ],
+      "backdrop": [
+        {
+          "tone": "#161d33",
+          "band": {
+            "top": 0.05,
+            "height": 0.56
+          },
+          "depth": 0.15,
+          "ragged": false,
+          "concept": "moon"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.58,
+            "height": 0.18
+          },
+          "depth": 0.45,
+          "ragged": true,
+          "concept": "cloudy-night"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.74,
+            "height": 0.26
+          },
+          "depth": 0.8,
+          "ragged": true
+        }
+      ],
+      "figure": {
+        "valence": 0.2,
+        "arousal": 0.4,
+        "posture": "standing",
+        "energy": 0.5,
+        "formality": 0.5,
+        "facing": "CAMERA",
+        "justification": "the astronomer takes up the night watch — the film’s witness",
+        "character": "astronomer",
+        "track": {
+          "enter": "left",
+          "exit": "none"
+        },
+        "prop": {
+          "concept": "telescope",
+          "hand": "auto"
+        },
+        "states": [
+          {
+            "at": {
+              "offset_ms": 830
+            },
+            "face": "eyes-closed"
+          },
+          {
+            "at": {
+              "offset_ms": 1070
+            },
+            "pose": "standing-pointing-finger-1",
+            "face": "awe"
+          },
+          {
+            "at": {
+              "offset_ms": 1510
+            },
+            "face": "loving-grin-2"
+          }
+        ],
+        "face": "awe",
+        "motion": {
+          "chain": [
+            {
+              "clip": "CMU_WALK",
+              "seconds": 1.3
+            },
+            {
+              "clip": "CMU_WAIT_IDLE",
+              "seconds": 2.4
+            }
+          ],
+          "look": {
+            "skin": "#98603c",
+            "hair": {
+              "color": "#1c1712",
+              "style": "bun"
+            },
+            "head": {
+              "kind": "kufi",
+              "color": "#3d4a6b",
+              "trimColor": "#d8c48a"
+            },
+            "top": {
+              "color": "#3d4a6b",
+              "garment": "robe"
+            },
+            "bottom": {
+              "color": "#2c2f45",
+              "garment": "trousers"
+            },
+            "shoes": {
+              "color": "#241f18"
+            },
+            "ink": "#2a2f42"
+          }
+        }
+      },
+      "page": {
+        "title": "The Silent Moon",
+        "quote": "it makes no light of its own"
+      }
+    },
+    {
+      "beat_id": "b03",
+      "beat_type": "EMPHASIS",
+      "pattern": "WORD_OBJECT_BRIDGE",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Every  night  it  borrows  the  sun's  fire,  shining  back  what  it  receives.",
+      "energy": 0.55,
+      "complexity": 0.55,
+      "display_units": [
+        {
+          "text": "it borrows the sun's fire",
+          "role": "hero",
+          "semantic_role": "action",
+          "emphasis": 0.9,
+          "anchor_word": "borrows"
+        },
+        {
+          "text": "shining back what it receives",
+          "role": "support",
+          "semantic_role": "qualifier",
+          "emphasis": 0.5
+        }
+      ],
+      "backdrop": [
+        {
+          "tone": "#161d33",
+          "band": {
+            "top": 0.05,
+            "height": 0.56
+          },
+          "depth": 0.15,
+          "ragged": false,
+          "concept": "moon"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.58,
+            "height": 0.18
+          },
+          "depth": 0.45,
+          "ragged": true,
+          "concept": "cloudy-night"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.74,
+            "height": 0.26
+          },
+          "depth": 0.8,
+          "ragged": true
+        }
+      ],
+      "illustration": {
+        "form": "RELATIONSHIP",
+        "entities": [
+          {
+            "id": "sun",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "sun"
+          },
+          {
+            "id": "moon",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "moon"
+          }
+        ],
+        "relations": [
+          {
+            "type": "emits_to",
+            "source": "sun",
+            "target": "moon",
+            "style": "arc"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "moon",
+            "at": {
+              "word": "it"
+            },
+            "duration_ms": 600,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "sun",
+            "at": {
+              "unit": 0
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "CONNECT",
+            "target": "sun->moon",
+            "at": {
+              "word": "borrows"
+            },
+            "duration_ms": 900,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "EMIT",
+            "target": "moon",
+            "at": {
+              "word": "shining"
+            },
+            "duration_ms": 800,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "Borrowed Fire",
+        "quote": "shining back what it receives"
+      }
+    },
+    {
+      "beat_id": "b04",
+      "beat_type": "EXPLANATION",
+      "pattern": "PROCESS_RAIL",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "As  it  circles  the  Earth,  we  watch  its  face  change.",
+      "energy": 0.55,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "as it circles the earth",
+          "role": "hero",
+          "semantic_role": "action",
+          "emphasis": 0.85,
+          "anchor_word": "circles"
+        },
+        {
+          "text": "we watch its face change",
+          "role": "support",
+          "semantic_role": "qualifier",
+          "emphasis": 0.5
+        }
+      ],
+      "backdrop": [
+        {
+          "tone": "#161d33",
+          "band": {
+            "top": 0.05,
+            "height": 0.56
+          },
+          "depth": 0.15,
+          "ragged": false,
+          "concept": "moon"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.58,
+            "height": 0.18
+          },
+          "depth": 0.45,
+          "ragged": true,
+          "concept": "cloudy-night"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.74,
+            "height": 0.26
+          },
+          "depth": 0.8,
+          "ragged": true
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "earth",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "earth"
+          },
+          {
+            "id": "moon",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "moon"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "earth",
+            "at": {
+              "word": "earth"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "moon",
+            "at": {
+              "word": "it"
+            },
+            "duration_ms": 500,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "TRAVEL",
+            "target": "moon",
+            "at": {
+              "word": "circles"
+            },
+            "duration_ms": 1400,
+            "params": {
+              "over": [
+                "earth"
+              ]
+            },
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "A Changing Face"
+      }
+    },
+    {
+      "beat_id": "b05",
+      "beat_type": "EMPHASIS",
+      "pattern": "SEQUENTIAL_SUPPORT_LIST",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Full  moon,  half  moon,  a  sliver  of  light,  still  the  same  moon,",
+      "energy": 0.6,
+      "complexity": 0.55,
+      "display_units": [
+        {
+          "text": "full moon, half moon, a sliver of light",
+          "role": "hero",
+          "semantic_role": "proof",
+          "emphasis": 0.8,
+          "anchor_word": "sliver"
+        },
+        {
+          "text": "still the same moon",
+          "role": "support",
+          "semantic_role": "contrast",
+          "emphasis": 0.6
+        }
+      ],
+      "backdrop": [
+        {
+          "tone": "#161d33",
+          "band": {
+            "top": 0.05,
+            "height": 0.56
+          },
+          "depth": 0.15,
+          "ragged": false,
+          "concept": "moon"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.58,
+            "height": 0.18
+          },
+          "depth": 0.45,
+          "ragged": true,
+          "concept": "cloudy-night"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.74,
+            "height": 0.26
+          },
+          "depth": 0.8,
+          "ragged": true
+        }
+      ],
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "moon",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "moon"
+          },
+          {
+            "id": "full",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "full moon"
+          },
+          {
+            "id": "half",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "half moon"
+          },
+          {
+            "id": "sliver",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "crescent moon"
+          },
+          {
+            "id": "same",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "same moon"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "full",
+            "at": {
+              "word": "full"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "half",
+            "at": {
+              "word": "half"
+            },
+            "duration_ms": 950,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "sliver",
+            "at": {
+              "word": "sliver"
+            },
+            "duration_ms": 900,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "moon",
+            "at": {
+              "word": "light"
+            },
+            "duration_ms": 900,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "same",
+            "at": {
+              "word": "same"
+            },
+            "duration_ms": 600,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "The Phases",
+        "quote": "still the same moon"
+      }
+    },
+    {
+      "beat_id": "b06",
+      "beat_type": "EMPHASIS",
+      "pattern": "WORD_OBJECT_BRIDGE",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "two  partners  in  the  sky,  one  makes  the  light,",
+      "energy": 0.6,
+      "complexity": 0.45,
+      "display_units": [
+        {
+          "text": "two partners in the sky",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.5
+        },
+        {
+          "text": "one makes the light",
+          "role": "hero",
+          "semantic_role": "statement",
+          "emphasis": 0.85,
+          "anchor_word": "light"
+        }
+      ],
+      "backdrop": [
+        {
+          "tone": "#161d33",
+          "band": {
+            "top": 0.05,
+            "height": 0.52
+          },
+          "depth": 0.15,
+          "ragged": false,
+          "concept": "cloudy-night"
+        },
+        {
+          "tone": "#e8b98a",
+          "band": {
+            "top": 0.6,
+            "height": 0.16
+          },
+          "depth": 0.5,
+          "ragged": true
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.74,
+            "height": 0.26
+          },
+          "depth": 0.8,
+          "ragged": true,
+          "concept": "moon"
+        }
+      ],
+      "illustration": {
+        "form": "RELATIONSHIP",
+        "entities": [
+          {
+            "id": "sun",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "sun"
+          },
+          {
+            "id": "moon",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "moon"
+          }
+        ],
+        "relations": [
+          {
+            "type": "emits_to",
+            "source": "sun",
+            "target": "moon",
+            "style": "arc"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "sun",
+            "at": {
+              "word": "partners"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "moon",
+            "at": {
+              "word": "sky"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "CONNECT",
+            "target": "sun->moon",
+            "at": {
+              "word": "light"
+            },
+            "duration_ms": 900,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "Two Partners"
+      }
+    },
+    {
+      "beat_id": "b07",
+      "beat_type": "PAYOFF",
+      "pattern": "PAYOFF_LOCKUP",
+      "dominant_layer": "FIGURE",
+      "narration": "one  carries  it  through  the  dark.",
+      "energy": 0.7,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "one carries it",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.55
+        },
+        {
+          "text": "through the dark",
+          "role": "hero",
+          "semantic_role": "punch",
+          "emphasis": 0.95,
+          "anchor_word": "dark"
+        }
+      ],
+      "backdrop": [
+        {
+          "tone": "#161d33",
+          "band": {
+            "top": 0.05,
+            "height": 0.5
+          },
+          "depth": 0.15,
+          "ragged": false,
+          "concept": "cloudy-night"
+        },
+        {
+          "tone": "#e8b98a",
+          "band": {
+            "top": 0.58,
+            "height": 0.18
+          },
+          "depth": 0.5,
+          "ragged": true,
+          "concept": "sun"
+        },
+        {
+          "tone": "ink",
+          "band": {
+            "top": 0.74,
+            "height": 0.26
+          },
+          "depth": 0.8,
+          "ragged": true,
+          "concept": "moon"
+        }
+      ],
+      "figure": {
+        "valence": 0.6,
+        "arousal": 0.55,
+        "posture": "standing",
+        "energy": 0.5,
+        "formality": 0.5,
+        "facing": "CAMERA",
+        "justification": "the astronomer carries the light through the dark — the payoff he watched all film",
+        "character": "astronomer",
+        "track": {
+          "enter": "none",
+          "exit": "right"
+        },
+        "prop": {
+          "concept": "star",
+          "hand": "auto"
+        },
+        "states": [
+          {
+            "at": {
+              "offset_ms": 258
+            },
+            "face": "loving-grin-2"
+          },
+          {
+            "at": {
+              "offset_ms": 1238
+            },
+            "face": "cheeky"
+          }
+        ],
+        "face": "calm",
+        "motion": {
+          "chain": [
+            {
+              "clip": "NEX_GESTURE_PRESENT",
+              "seconds": 2.0
+            },
+            {
+              "clip": "CMU_WALK",
+              "seconds": 1.4
+            }
+          ],
+          "loop": false,
+          "look": {
+            "skin": "#98603c",
+            "hair": {
+              "color": "#1c1712",
+              "style": "bun"
+            },
+            "head": {
+              "kind": "kufi",
+              "color": "#3d4a6b",
+              "trimColor": "#d8c48a"
+            },
+            "top": {
+              "color": "#3d4a6b",
+              "garment": "robe"
+            },
+            "bottom": {
+              "color": "#2c2f45",
+              "garment": "trousers"
+            },
+            "shoes": {
+              "color": "#241f18"
+            },
+            "ink": "#2a2f42"
+          }
+        }
+      },
+      "page": {
+        "title": "Carried Through the Dark",
+        "quote": "one carries the light"
+      }
+    }
+  ],
+  "cast": {
+    "astronomer": {
+      "posture": "standing",
+      "head": "flat-top",
+      "skin": "#7a4f2e",
+      "garment": "hoodie"
+    }
+  },
+  "world": {
+    "grain": "dots-24",
+    "motif": {
+      "concept": "star",
+      "corner": "top-right"
+    },
+    "book": "paperbook"
+  }
+}

@@ -1,0 +1,90 @@
+{
+ "schema": "NexStudioStoryboardV1",
+ "film_id": "moon-and-sun",
+ "arc": {
+  "thesis": "The moon shines on borrowed fire \u2014 one partner makes the light, the other carries it.",
+  "motif": "star",
+  "mood": null,
+  "beat_arc": {
+   "b01": "HOOK",
+   "b02": "SETUP",
+   "b03": "EMPHASIS",
+   "b04": "EXPLANATION",
+   "b05": "EMPHASIS",
+   "b06": "EMPHASIS",
+   "b07": "PAYOFF"
+  }
+ },
+ "scenes": [
+  {
+   "name": "Day",
+   "covers": [
+    1
+   ],
+   "setting": "the sun alone at center",
+   "visual_metaphor": "maker"
+  },
+  {
+   "name": "The night watch",
+   "covers": [
+    2,
+    3,
+    4,
+    5
+   ],
+   "setting": "the same dark sky",
+   "visual_metaphor": "the loan of light"
+  },
+  {
+   "name": "Dawn",
+   "covers": [
+    6,
+    7
+   ],
+   "setting": "sunrise edges the night sky",
+   "visual_metaphor": "the partnership made visible"
+  }
+ ],
+ "entities": [
+  {
+   "concept": "sun",
+   "stands_for": "maker"
+  },
+  {
+   "concept": "full-moon",
+   "stands_for": "borrowed"
+  },
+  {
+   "concept": "earth",
+   "stands_for": "us, watching"
+  },
+  {
+   "concept": "glowing-star",
+   "stands_for": "the watching night"
+  },
+  {
+   "concept": "new-moon",
+   "stands_for": "the dark face"
+  },
+  {
+   "concept": "first-quarter-moon-face",
+   "stands_for": "the half face"
+  }
+ ],
+ "cast": {
+  "astronomer": {
+   "posture": "standing",
+   "head": "flat-top",
+   "skin": "#7a4f2e",
+   "garment": "hoodie"
+  }
+ },
+ "world": {
+  "grain": "dots-24",
+  "motif": {
+   "concept": "star",
+   "corner": "top-right"
+  }
+ },
+ "metaphors": {}
+}

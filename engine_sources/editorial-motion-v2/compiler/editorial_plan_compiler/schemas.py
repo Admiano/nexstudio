@@ -133,6 +133,8 @@ def treatment_schema() -> Dict[str, Any]:
         'features': {'type': 'object', 'additionalProperties': _unit()},
         'min_duration_ms': MS,
         'cut': _enum(c.CUT_MODES),
+        'page': {'anyOf': [_obj({'title': {'type': 'string', 'maxLength': 60},
+                                 'quote': {'type': 'string', 'maxLength': 120}}, [], additionalProperties=False), {'type': 'null'}]},
     }, ['beat_id', 'beat_type', 'pattern'], additionalProperties=False)
     asset = _obj({
         'asset_id': _str(),
@@ -168,7 +170,7 @@ def treatment_schema() -> Dict[str, Any]:
             'fps': _enum_int((24, 25, 30, 60)),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'cast': {'type': 'object', 'additionalProperties': cast_member, 'maxProperties': c.CAST_MEMBER_CAP},
-            'world': {'anyOf': [_obj({'grain': _enum(c.WORLD_GRAINS), 'book': {'type': 'boolean'},
+            'world': {'anyOf': [_obj({'grain': _enum(c.WORLD_GRAINS), 'book': {'anyOf': [{'type': 'boolean'}, {'const': 'paperbook'}]},
                                        'motif': _obj({'concept': {'type': 'string', 'maxLength': 40},
                                                       'corner': _enum(c.WORLD_CORNERS)}, ['concept'], additionalProperties=False)},
                                       [], additionalProperties=False), {'type': 'null'}]},
@@ -332,6 +334,7 @@ def plan_schema() -> Dict[str, Any]:
         'media': {'anyOf': [media, {'type': 'null'}]}, 'figure': {'anyOf': [figure, {'type': 'null'}]}, 'data': {'anyOf': [data, {'type': 'null'}]},
         'illustration': {'anyOf': [illustration, {'type': 'null'}]},
         'transition': transition, 'sound': _strip(sound_events_schema()), 'gate': gate,
+        'page': {'anyOf': [_obj({'title': NULLABLE_STR, 'quote': NULLABLE_STR}, []), {'type': 'null'}]},
     }, ['beat_id', 'beat_type', 'pattern', 'dominant_layer', 'start_ms', 'duration_ms', 'composition', 'typography', 'ensemble', 'illustration', 'transition', 'sound', 'gate'])
     segment = _obj({'beat_id': _str(), 'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')), 'audio_path': _str(), 'sha256': SHA, 'start_ms': MS, 'duration_ms': MS,
                     'evidence': {'type': 'object'}}, ['beat_id', 'source', 'audio_path', 'sha256', 'start_ms', 'duration_ms'])
