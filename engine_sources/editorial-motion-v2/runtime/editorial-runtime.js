@@ -3286,8 +3286,9 @@
     if (!node.extra.rings && il.ops.some((o) => o.op === 'EMIT' && o.target === ent.id)) {
       const c = centre(b), R = Math.hypot(b.w, b.h) / 2;
       node.extra.R = R;
-      if ((plan.motion || DEFAULT_MOTION).entrance === 'pop') {
+      if (!PAPERBOOK(plan) && (plan.motion || DEFAULT_MOTION).entrance === 'pop') {
         // Collage register: the pulse is a soft accent bloom behind the body, never a drawn ring.
+        // Under the paperbook a blurred halo is out of register — the pulse draws as a ring instead.
         const rr = Math.min(b.w, b.h) / 2;
         const halo = svgEl('path', { d: roundRectPath({ x: b.x, y: b.y, w: b.w, h: b.h }, rr) + 'Z', fill: accent, 'fill-opacity': 0, 'data-halo': '' }, g);
         halo.style.filter = `blur(${f2(Math.min(b.w, b.h) * 0.22)}px)`;
@@ -4104,7 +4105,9 @@
       const a = flip === 1 ? [[0, 0], [1, 0], [1, 0.34], [0.42, 1]] : [[0, 0], [1, 0], [0.58, 1], [0, 0.34]];
       slotClip = `polygon(${a.map(([px2, py2]) => `${f2(px2 * 100)}% ${f2(py2 * 100)}%`).join(',')})`;
       divider = { kind: 'diag', pts: a, rect: slotRect };
-      colRect = flip === 1 ? { x: pad, y: ph * 0.58, w: pw * 0.34 } : { x: pw * 0.62, y: ph * 0.58, w: pw * 0.34 };
+      // The print column must stay inside the cut's safe triangle for its full height —
+      // the diagonal crosses it lowest at the column's bottom corner.
+      colRect = flip === 1 ? { x: pad, y: ph * 0.60, w: pw * 0.28 } : { x: pw * 0.625, y: ph * 0.60, w: pw * 0.30 };
     } else if (layout === 'zipped' || layout === 'scissor') {
       const cutY = ph * 0.56;
       slotRect = { x: pad * 0.4, y: ph * 0.055, w: pw - pad * 0.8, h: cutY - ph * 0.055 };
@@ -4128,7 +4131,7 @@
     }
     if (colRect) {
       const col = el('div', { position: 'absolute', left: px(colRect.x), top: px(colRect.y), width: px(colRect.w) }, face);
-      const titleEl = el('div', { fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(pw * (layout === 'half' ? 0.062 : 0.052)), lineHeight: '1.06', color: ink, letterSpacing: '0.005em' }, col);
+      const titleEl = el('div', { fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(pw * (layout === 'half' ? 0.060 : layout === 'full' ? 0.052 : 0.046)), lineHeight: '1.08', color: ink, letterSpacing: '0.005em' }, col);
       titleEl.textContent = titleText;
       if (mats.includes('foil')) {
         // Foil stamping: a gold leaf pressed into the letterforms.
@@ -4142,12 +4145,22 @@
         marginTop: px(ph * 0.018), maxWidth: px(colRect.w * 0.94),
       }, col);
       prose.textContent = bn.beat.narration || '';
+      if (pg.quote && layout !== 'half') {
+        // On cut layouts the quote closes the column — inside the safe triangle, never
+        // laid across the cut lip.
+        const q = el('div', {
+          fontFamily: PB_SERIF, fontStyle: 'italic', fontSize: px(pw * 0.029), lineHeight: '1.3',
+          color: rgbaOf(ink, 0.70), marginTop: px(ph * 0.020),
+        }, col);
+        q.textContent = `“${pg.quote}”`;
+      }
     }
-    // The illustration: the beat's own scene pressed into the plate this layout cut.
+    // The illustration: the beat's own scene pressed into the plate this layout cut — a
+    // square plate with an engraved keyline, ink sunk into the stock, never a rounded card.
     const slot = el('div', {
       position: 'absolute', left: px(slotRect.x), top: px(slotRect.y), width: px(slotRect.w), height: px(slotRect.h),
-      overflow: 'hidden', borderRadius: px(pw * 0.012),
-      boxShadow: `0 ${px(ph * 0.006)} ${px(ph * 0.014)} ${rgbaOf(ink, 0.18)}, inset 0 0 0 ${px(Math.max(1, pw * 0.0016))} ${rgbaOf(ink, 0.14)}`,
+      overflow: 'hidden',
+      boxShadow: `inset 0 0 0 ${px(Math.max(0.8, pw * 0.0012))} ${rgbaOf(ink, 0.24)}, 0 ${px(ph * 0.004)} ${px(ph * 0.010)} ${rgbaOf(ink, 0.13)}`,
     }, face);
     if (slotClip) slot.style.clipPath = slotClip;
     if (divider) {
@@ -4181,13 +4194,19 @@
     // Viewports carry the canvas box at canvas scale; the slot does the clipping.
     const stillVp = el('div', { position: 'absolute', left: '0', top: '0', width: px(W0), height: px(H0), transformOrigin: '0 0', transform: tf, background: plan.brand.paper }, slot);
     const liveVp = el('div', { position: 'absolute', left: '0', top: '0', width: px(W0), height: px(H0), transformOrigin: '0 0', transform: tf, display: 'none' }, slot);
-    if (pg.quote && colRect) {
-      // The pull-quote lives under the print column; on a 'half' page that's still the
-      // line under the plate, on cut layouts it closes the lower text block.
-      const qTop = layout === 'half' ? slotRect.y + slotRect.h + ph * 0.018 : colRect.y + ph * 0.145;
+    // Ink sits IN the stock, not on it: paper tooth and a faint halftone multiplied over the
+    // art, like the impression of a real printed plate.
+    el('div', {
+      position: 'absolute', inset: '0', pointerEvents: 'none', zIndex: '5', mixBlendMode: 'multiply', opacity: '0.55',
+      backgroundImage: `radial-gradient(${rgbaOf(ink, 0.10)} ${px(Math.max(0.5, pw * 0.0009))}, transparent ${px(Math.max(0.6, pw * 0.0011))}), ${speckleUrl}`,
+      backgroundSize: `${px(Math.max(2.5, pw * 0.007))} ${px(Math.max(2.5, pw * 0.007))}, auto`,
+    }, slot);
+    if (pg.quote && colRect && layout === 'half') {
+      // The pull-quote lives as the line under the plate on a 'half' page.
+      const qTop = slotRect.y + slotRect.h + ph * 0.018;
       const q = el('div', {
-        position: 'absolute', left: px(layout === 'half' ? slotRect.x : colRect.x), top: px(qTop), width: px(layout === 'half' ? slotRect.w : colRect.w),
-        fontFamily: PB_SERIF, fontStyle: 'italic', fontSize: px(pw * 0.031), color: rgbaOf(ink, 0.72), textAlign: layout === 'diagonal' ? 'left' : 'center',
+        position: 'absolute', left: px(slotRect.x), top: px(qTop), width: px(slotRect.w),
+        fontFamily: PB_SERIF, fontStyle: 'italic', fontSize: px(pw * 0.031), color: rgbaOf(ink, 0.72), textAlign: 'center',
       }, face);
       q.textContent = `“${pg.quote}”`;
     }
@@ -4249,51 +4268,122 @@
     return { el: face, stillVp: null, liveVp: null, slot: null, index: -1 };
   }
 
-  // The bound volume: cover edge around two tinted pages, page-stack at the fore-edge,
-  // a gutter shadow at the spine, and the lamp pool over it all.
+  // The bound volume, built as a physical object: cast shadows pooled on the desk, cloth
+  // cover boards overhanging the page block, the striped edges of the unread leaves at the
+  // fore-edge and tail, a gutter valley at the spine, and a marker ribbon draping out.
   function buildPaperbook(bookGroup, plan, beats, opts) {
     const W = plan.canvas.w, H = plan.canvas.h;
     const R = paperbookRects(plan);
     const ink = plan.brand.ink, paper = plan.brand.paper;
     const speckleUrl = pbSpeckle(plan);
     const sh = ((plan.atmosphere && plan.atmosphere.shadow_rgb) || [52, 38, 20]).join(',');
-    // The book's own shadow pooled on the surface beneath it.
-    el('div', {
-      position: 'absolute', left: px(R.book.x - R.book.w * 0.025), top: px(R.book.y + R.book.h + H * 0.012),
-      width: px(R.book.w * 1.05), height: px(H * 0.05),
-      background: `radial-gradient(50% 50% at 50% 50%, rgba(${sh},0.34) 0%, transparent 72%)`,
+    const minDim = Math.min(W, H);
+    const castY = R.book.y + R.book.h;
+    // The book sits on a surface: its shadow is a soft pool underneath, three densities —
+    // ambient, contact, and the hair-thin line at the board's edge — fading to nothing.
+    for (const [iw, ih, iy, op, blur] of [[1.10, 0.17, -0.055, 0.30, 26], [0.88, 0.105, -0.028, 0.38, 10], [0.68, 0.055, -0.012, 0.34, 4]]) {
+      el('div', {
+        position: 'absolute', left: px(R.book.x + R.book.w * (1 - iw) / 2), top: px(castY + R.book.h * iy),
+        width: px(R.book.w * iw), height: px(R.book.h * ih), borderRadius: '50%', pointerEvents: 'none',
+        background: `radial-gradient(50% 50% at 50% 50%, rgba(${sh},${op}) 0%, transparent 72%)`,
+        filter: `blur(${px(blur)})`,
+      }, bookGroup);
+    }
+    // The cover: cloth boards edging the page block on three sides — the rim of the volume
+    // you see before its pages. Woven fine lines + a blind-embossed border on the lip.
+    const over = R.book.h * 0.019, overTop = R.book.h * 0.012;
+    const cloth = mixColor('#43362a', ink, 0.30), cloth2 = mixColor('#2e211a', ink, 0.34);
+    const cover = el('div', {
+      position: 'absolute', left: px(R.book.x - over), top: px(R.book.y - overTop),
+      width: px(R.book.w + over * 2), height: px(R.book.h + overTop + over),
+      borderRadius: px(minDim * 0.006), pointerEvents: 'none',
+      background: `linear-gradient(168deg, ${mixColor(cloth, '#8a6a4a', 0.30)} 0%, ${cloth} 44%, ${cloth2} 100%)`,
+      boxShadow: `0 ${px(H * 0.005)} ${px(H * 0.016)} rgba(${sh},0.42)`,
     }, bookGroup);
-    // The cover: a hair of board edging the page block on three sides.
-    const cm = R.book.h * 0.022;
     el('div', {
-      position: 'absolute', left: px(R.book.x - cm), top: px(R.book.y - cm * 0.6),
-      width: px(R.book.w + cm * 2), height: px(R.book.h + cm * 1.8),
-      borderRadius: px(H * 0.007),
-      background: `linear-gradient(170deg, ${mixColor('#6a5744', ink, 0.18)} 0%, ${mixColor('#51412f', ink, 0.12)} 100%)`,
-      boxShadow: `0 ${px(H * 0.01)} ${px(H * 0.03)} rgba(${sh},0.35)`,
+      position: 'absolute', inset: '0', borderRadius: 'inherit', opacity: '0.5',
+      backgroundImage: `repeating-linear-gradient(0deg, rgba(255,250,240,0.032) 0 1px, transparent 1px ${px(Math.max(2.4, minDim * 0.004))}), repeating-linear-gradient(90deg, rgba(16,10,5,0.11) 0 1px, transparent 1px ${px(Math.max(2.4, minDim * 0.004))})`,
+    }, cover);
+    el('div', {
+      position: 'absolute', inset: px(R.book.h * 0.006), borderRadius: 'inherit',
+      border: `${px(Math.max(1, minDim * 0.0016))} solid rgba(${sh},0.30)`,
+    }, cover);
+    // The silk marker tail: slips out of the page block at the tail and drapes over the
+    // board's bottom edge onto the desk — drawn before the pages so it leaves their stack.
+    const ribW = Math.max(5, R.book.w * 0.0085), ribX = R.spine + R.left.w * 0.11;
+    const rib = el('div', {
+      position: 'absolute', left: px(ribX - ribW / 2), top: px(castY - minDim * 0.004), width: px(ribW),
+      height: px(over + H * 0.055), pointerEvents: 'none', zIndex: '2',
+      background: `linear-gradient(90deg, ${mixColor('#7e2a38', ink, 0.2)} 0%, ${mixColor('#b04a58', ink, 0.1)} 45%, ${mixColor('#6e2430', ink, 0.22)} 100%)`,
+      boxShadow: `${px(ribW * 0.4)} ${px(ribW * 0.6)} ${px(ribW * 0.8)} rgba(${sh},0.4)`,
     }, bookGroup);
+    rib.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 96%, 50% 100%, 0% 96%)';
+    // The page block: hairline stripes of leaf-ends at the fore-edges, head and tail. The
+    // right stack visibly thins as spreads are read and the left fills in — tracked in seek.
+    const edgeMax = Math.max(4.5, R.book.h * 0.016);
+    const edgeTone = mixColor(paper, '#cbb694', 0.42), edgeLine = mixColor(paper, '#9c835c', 0.5);
+    const edgeBg = (vert) => `repeating-linear-gradient(${vert ? '0deg' : '90deg'}, ${edgeLine} 0 ${px(Math.max(0.8, minDim * 0.0011))}, ${edgeTone} ${px(Math.max(0.8, minDim * 0.0011))} ${px(Math.max(1.9, minDim * 0.0028))}), linear-gradient(${vert ? '90deg' : '0deg'}, rgba(${sh},0.30), rgba(${sh},0) 26%, rgba(${sh},0) 74%, rgba(${sh},0.36))`;
+    const foreR = el('div', {
+      position: 'absolute', left: px(R.right.x + R.right.w), top: px(R.book.y - edgeMax * 0.1),
+      width: px(edgeMax), height: px(R.book.h + edgeMax * 0.2), pointerEvents: 'none',
+      background: edgeBg(true), borderRadius: '0 2px 2px 0',
+    }, bookGroup);
+    const foreL = el('div', {
+      position: 'absolute', left: px(R.left.x - edgeMax * 0.2 - 1.2), top: px(R.book.y - edgeMax * 0.1),
+      width: px(edgeMax * 0.2 + 1.2), height: px(R.book.h + edgeMax * 0.2), pointerEvents: 'none',
+      background: edgeBg(true), borderRadius: '2px 0 0 2px',
+    }, bookGroup);
+    el('div', {
+      position: 'absolute', left: px(R.book.x - edgeMax * 0.08), top: px(castY),
+      width: px(R.book.w + edgeMax * 0.16), height: px(edgeMax * 0.75), pointerEvents: 'none',
+      background: edgeBg(false), borderRadius: '0 0 2px 2px',
+    }, bookGroup);
+    el('div', {
+      position: 'absolute', left: px(R.book.x), top: px(R.book.y - edgeMax * 0.5),
+      width: px(R.book.w), height: px(edgeMax * 0.5), pointerEvents: 'none', opacity: '0.75',
+      background: edgeBg(false), borderRadius: '2px 2px 0 0',
+    }, bookGroup);
+    // The gutter valley: the pages rolling down into the binding — a dark crease with its
+    // soft falloff and the bright roll where the page lifts out of it.
+    const gw = R.book.w * 0.020;
+    el('div', {
+      position: 'absolute', left: px(R.spine - gw * 1.6), top: px(R.book.y - edgeMax * 0.1),
+      width: px(gw * 3.2), height: px(R.book.h + edgeMax * 0.2), zIndex: '5', pointerEvents: 'none',
+      background: `linear-gradient(90deg, transparent, rgba(${sh},0.15) 20%, rgba(${sh},0.46) 50%, rgba(${sh},0.15) 80%, transparent)`,
+    }, bookGroup);
+    el('div', {
+      position: 'absolute', left: px(R.spine - minDim * 0.0012), top: px(R.book.y - edgeMax * 0.1),
+      width: px(minDim * 0.0024), height: px(R.book.h + edgeMax * 0.2), zIndex: '5', pointerEvents: 'none',
+      background: `linear-gradient(180deg, rgba(${sh},0.22), rgba(${sh},0.62) 30%, rgba(${sh},0.62) 70%, rgba(${sh},0.22))`,
+    }, bookGroup);
+    for (const sgn of [-1, 1]) {
+      el('div', {
+        position: 'absolute', left: px(R.spine + (sgn < 0 ? -gw * 2.9 : gw * 1.7)), top: px(R.book.y),
+        width: px(gw * 1.2), height: px(R.book.h), zIndex: '5', pointerEvents: 'none',
+        background: `linear-gradient(${sgn < 0 ? '90deg' : '270deg'}, transparent, rgba(255,251,238,0.26))`,
+      }, bookGroup);
+    }
     const mkPage = (rect, side) => {
-      const base = el('div', { position: 'absolute', left: px(rect.x), top: px(rect.y), width: px(rect.w), height: px(rect.h), overflow: 'hidden' }, bookGroup);
+      const base = el('div', { position: 'absolute', left: px(rect.x), top: px(rect.y), width: px(rect.w), height: px(rect.h), overflow: 'hidden', zIndex: '3' }, bookGroup);
       base.style.background = `linear-gradient(${side === 'left' ? '97deg' : '83deg'}, ${mixColor(paper, '#e2d0ac', 0.26)} 0%, ${paper} 58%, ${mixColor(paper, '#e6d4b2', 0.2)} 100%)`;
-      // The gutter: light falls off into the spine on each page's inner edge.
       const chromeEls = [];
+      // The gutter roll: light falls off into the spine on each page's inner edge.
       chromeEls.push(el('div', {
         position: 'absolute', top: '0', bottom: '0', width: px(rect.w * 0.10),
         [side === 'left' ? 'right' : 'left']: '0', zIndex: '4', pointerEvents: 'none',
-        background: `linear-gradient(${side === 'left' ? '270deg' : '90deg'}, rgba(${sh},0.30) 0%, rgba(${sh},0.10) 45%, transparent 100%)`,
+        background: `linear-gradient(${side === 'left' ? '270deg' : '90deg'}, rgba(${sh},0.32) 0%, rgba(${sh},0.11) 45%, transparent 100%)`,
       }, base));
-      // The stack of unturned leaves peeking at the fore-edge and tail.
-      const paperDark = mixColor(paper, '#c9b490', 0.55);
-      for (const [ox, oy] of [[2.5, 1.5], [5, 3.5]]) {
-        chromeEls.push(el('div', {
-          position: 'absolute', [side === 'left' ? 'left' : 'right']: px(-ox), top: px(oy), width: px(Math.max(1.2, W * 0.0012)), height: px(rect.h - oy * 1.6),
-          background: paperDark, zIndex: '-1',
-        }, base));
-        chromeEls.push(el('div', {
-          position: 'absolute', [side === 'left' ? 'right' : 'left']: px(oy), bottom: px(-ox), width: px(rect.w - oy * 1.6), height: px(Math.max(1.2, W * 0.0012)),
-          background: paperDark, zIndex: '-1',
-        }, base));
-      }
+      // The fore-edge catching light — a bright hairline where the leaf meets the air.
+      chromeEls.push(el('div', {
+        position: 'absolute', top: '0', bottom: '0', width: px(Math.max(1.6, rect.w * 0.005)),
+        [side === 'left' ? 'left' : 'right']: '0', zIndex: '4', pointerEvents: 'none',
+        background: `linear-gradient(${side === 'left' ? '90deg' : '270deg'}, rgba(255,252,240,0.45), transparent)`,
+      }, base));
+      // Foxing: the warm age tint creeping in from the leaf's edges.
+      chromeEls.push(el('div', {
+        position: 'absolute', inset: '0', zIndex: '4', pointerEvents: 'none',
+        background: `radial-gradient(125% 112% at ${side === 'left' ? '10%' : '90%'} 50%, transparent 60%, rgba(176,138,78,0.10) 88%, rgba(118,88,45,0.17) 100%)`,
+      }, base));
       base._chrome = chromeEls;
       return base;
     };
@@ -4309,7 +4399,7 @@
     const endL = buildEndpaper(plan, R, 'left', speckleUrl);
     const endR = buildEndpaper(plan, R, 'right', speckleUrl);
     const spread = {
-      R, leftBase, rightBase, leafHost, lamp, faces,
+      R, leftBase, rightBase, leafHost, lamp, faces, foreL, foreR, edgeMax,
       ends: { left: endL, right: endR },
       leaf: null, leafIdx: -1, _l: null, _r: null,
     };
@@ -4536,8 +4626,14 @@
       // A warm putty surface under the spread — table light, not walnut gloom.
       stage.style.background = `radial-gradient(130% 115% at 50% 38%, ${mixColor('#b8ac9a', plan.brand.paper, 0.12)} 0%, ${mixColor('#8f8271', plan.brand.ink, 0.10)} 74%, #6e6355 100%)`;
       bookGroup = el('div', {
-        position: 'absolute', inset: '0', transformOrigin: '50% 58%', willChange: 'transform',
+        position: 'absolute', inset: '0', transformOrigin: '50% 58%', willChange: 'transform', transformStyle: 'preserve-3d',
       }, stage);
+      // The book is a photographed object, not a flat card: it leans back into the desk and
+      // turns a hair toward the light — restrained tilt, projected by the stage's perspective.
+      bookGroup._tilt = el('div', {
+        position: 'absolute', inset: '0', transformStyle: 'preserve-3d',
+        transform: `rotateX(5.4deg) rotateY(-3.1deg)`,
+      }, bookGroup);
       // Beats build hidden: their scenes mount inside the pages' illustration plates.
       beatHost = el('div', { position: 'absolute', left: '0', top: '0', width: px(W), height: px(H), visibility: 'hidden' }, bookGroup);
     } else if (bookPage) {
@@ -4560,7 +4656,7 @@
     const beats = plan.beats.map((b, i) => buildBeat(b, plan, beatHost, opts, i === plan.beats.length - 1, i));
     let spread = null;
     if (paperbook) {
-      spread = buildPaperbook(bookGroup, plan, beats, opts);
+      spread = buildPaperbook(bookGroup._tilt, plan, beats, opts);
       beats.forEach((b) => { b.root.style.display = 'none'; });
       // Each page's plate mounts its own beat's cam permanently — an inactive cam stays
       // frozen at its end state (it is the pressed still); only the live beat is driven.
@@ -4627,8 +4723,12 @@
     });
     let grain = null;
     if (surf.grain && surf.grain.path) {
+      // Under the paperbook the grain lives on the book — paper grain belongs on paper,
+      // not scattered across the desk. Elsewhere it textures the whole field.
+      const gb = paperbook ? paperbookRects(plan).book : null;
       grain = el('div', {
-        position: 'absolute', inset: '0', zIndex: '30', pointerEvents: 'none',
+        position: 'absolute', zIndex: '30', pointerEvents: 'none',
+        ...(gb ? { left: px(gb.x - gb.w * 0.03), top: px(gb.y - gb.h * 0.03), width: px(gb.w * 1.06), height: px(gb.h * 1.06) } : { inset: '0' }),
         backgroundImage: `url(${opts.assetUrl(surf.grain.path)})`, backgroundSize: '256px 256px',
         // Grain multiplies into a light field; a dark field would swallow it, so it screens instead.
         mixBlendMode: atmo.theme === 'dark' ? 'screen' : 'multiply',
@@ -4682,6 +4782,14 @@
         // While the leaf travels, the right side already shows the next spread's right page.
         const rShow = rIdx + (flipping ? 2 : 0);
         setPbFace(spread.rightBase, spread.faces[rShow] || spread.ends.right);
+        // The book spends its leaves: the right fore-edge thins and the left fills in as
+        // spreads turn — the thickness of pages still to read against pages already read.
+        const maxS = Math.max(1, Math.ceil(beats.length / 2) - 1);
+        const sprog = clamp(sIdx / maxS, 0, 1);
+        spread.foreR.style.width = px(spread.edgeMax * (1 - sprog * 0.78) + 1.2);
+        const lw = spread.edgeMax * (0.22 + sprog * 0.78) + 1.2;
+        spread.foreL.style.width = px(lw);
+        spread.foreL.style.left = px(spread.R.left.x - lw);
         // The live scene mounts only in the page currently being read; every other plate
         // shows its pressed still.
         for (let j = 0; j < beats.length; j += 1) {

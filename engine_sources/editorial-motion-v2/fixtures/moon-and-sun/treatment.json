@@ -811,7 +811,7 @@
     }
   },
   "world": {
-    "grain": "dots-24",
+    "grain": "grain-fine",
     "motif": {
       "concept": "star",
       "corner": "top-right"

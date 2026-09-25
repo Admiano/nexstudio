@@ -1081,7 +1081,7 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         out.append(band(-0.02, 0.62, sky, 0.10, False, 1))
         celestial(2)
         if mood != 'night':
-            clouds(4, 2 if mood != 'storm' else 3)
+            clouds(4, 3 if mood != 'storm' else 4)
         else:
             out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.5}, 8))
         out.append(band(0.52, 0.24, mid, 0.30, True, 6))
@@ -1095,7 +1095,8 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         elements_on(H * 0.70)
     elif setting == 'space':
         out.append(band(-0.02, 1.04, mix(ink, paper, 0.05), 0.05, False, 1))
-        out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H}, 2, 140))
+        out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H}, 2, 260))
+        out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.55}, 12, 120, 0.05))
         out.append({'kind': 'arc', 'bbox': {'x': -W * 0.1, 'y': H * 0.1, 'w': W * 1.2, 'h': H * 0.9}, 'corner': 1, 'plane': 0.1})
         out.append(piece('planet', W * 0.55, H * 0.30, short * 0.36, short * 0.36, accent, 0.18, 3))
         out.append(piece('moon', W * 0.12, H * 0.14, short * 0.1, short * 0.1, mix(paper, '#f5edd8', 0.4), 0.14, 4))
@@ -1126,10 +1127,10 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         out.append(band(0.10, 0.40, mix(ink, accent, 0.55), 0.3, True, 2))
         out.append(band(0.46, 0.34, mix(ink, accent, 0.68), 0.45, True, 3))
         out.append(band(0.76, 0.28, mix(ink, paper, 0.5), 0.58, True, 4))
-        for k in range(4):
+        for k in range(7):
             sx = ((seed0 >> (k * 6)) & 0x7F) / 127.0
-            out.append(piece('stone', W * (0.06 + 0.8 * sx), H * (0.25 + 0.55 * ((seed0 >> k) & 3) / 4.0),
-                             W * 0.08, short * 0.05, mix(paper, ink, 0.3), 0.5, 10 + k))
+            out.append(piece('stone', W * (0.04 + 0.86 * sx), H * (0.25 + 0.58 * ((seed0 >> k) & 7) / 8.0),
+                             W * (0.05 + 0.05 * ((seed0 >> (k * 3)) & 3) / 3.0), short * 0.05, mix(paper, ink, 0.3), 0.5, 10 + k))
         elements_on(H * 0.55)
     else:  # abstract — a colour field with authored geometry, never a pattern tile
         out.append(band(-0.02, 1.04, mix(paper, accent, 0.10), 0.08, False, 1))
