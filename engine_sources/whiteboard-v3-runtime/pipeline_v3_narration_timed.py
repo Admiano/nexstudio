@@ -215,6 +215,10 @@ def normalize_plan(plan: dict) -> dict:
             fm = dict(b['figure'])
             fm['beatStart'] = b['start_seconds']
             scene['figureMotion'] = fm
+        if b.get('figure2'):
+            fm2 = dict(b['figure2'])
+            fm2['beatStart'] = b['start_seconds']
+            scene['figureMotion2'] = fm2
         b['scene'] = scene
         norm_beats.append(b)
     p['beats'] = norm_beats
@@ -704,6 +708,10 @@ def render_production(
             fm = dict(b['figure'])
             fm['beatStart'] = b['start_seconds']
             sc['figureMotion'] = fm
+        if b.get('figure2'):
+            fm2 = dict(b['figure2'])
+            fm2['beatStart'] = b['start_seconds']
+            sc['figureMotion2'] = fm2
     beats = plan['beats']
     duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] + plan['pacing']['board_reveal_seconds']
     if plan.get('camera_variant') == 'board_sections':

@@ -26,7 +26,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 
 | Artifact | sha256 |
 |---|---|
-| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `60e44515d87bfddff01e7c5726fb09842a5b567b70da42ff72a78a1305635f3f` |
+| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `455ce3ef8927be484c52862a6e4f77c3f383b58532071f2d5babd1f0a8459840` |
 | `v3_board_renderer.py` (whiteboard draw layer) | `f72315759b087989716feeca921eb11bfe48995fa8cae765c7e3b2479da87582` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
