@@ -128,8 +128,8 @@ export function PublicSite({ authed }: { authed: boolean }) {
                 {demo === "direction" && (
                   <div className="pw-direction on">
                     <div className="pw-dir-label">Here’s what I’d build</div>
-                    <h3>A sharp 30-second Illustrated Story with a hard opening and three visual turns.</h3>
-                    <div className="pw-dir-meta"><div><span>Treatment</span><b>Explainer</b></div><div><span>Master</span><b>9:16</b></div><div><span>Length</span><b>30 sec</b></div></div>
+                    <h3>A sharp 30-second Explainer with a hard opening and three visual turns.</h3>
+                    <div className="pw-dir-meta"><div><span>Treatment</span><b>Explainer</b></div><div><span>Format</span><b>All screens</b></div><div><span>Length</span><b>30 sec</b></div></div>
                     <div className="pw-dir-beats"><div><i>01</i><span>Open on the friction people already feel.</span></div><div><i>02</i><span>Turn the problem into a visual system.</span></div><div><i>03</i><span>Reveal the product as the clean resolution.</span></div></div>
                     <div className="pw-dir-actions"><button className="accept" onClick={enter}>Use this direction →</button><button className="change" onClick={() => setDemo("compose")}>Change request</button></div>
                   </div>
@@ -177,7 +177,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
                 <div className="mind-context-card"><div className="mind-context-ico">↗</div><div className="mind-context-copy"><b>Reference</b><span>Links and uploads become production context</span></div><i className="mind-context-check" /></div>
               </div>
               <div className="mind-core-shell"><div className="mind-core-unit"><span aria-hidden="true" className="nx-presence nx-presence--hero" data-mode="fluid" data-nx-presence="" data-state="listening"><canvas /></span><b>NexMind</b><span>resolving the production</span></div><i className="mind-core-arrow" /></div>
-              <div className="mind-direction-card"><div className="mind-direction-label">Creative direction</div><h3>Start with the friction. Make the mechanism visible.</h3><div className="mind-direction-meta"><span>Explainer</span><span>30 sec</span><span>9:16</span></div><div className="mind-decision"><label>Opening</label><b>Lead with the problem people already feel.</b></div><div className="mind-decision"><label>Treatment</label><b>Clear staged visuals + typed motion + one dominant visual system.</b></div><div className="mind-decision"><label>Voice</label><b>Confident, direct, no unnecessary performance.</b></div><div className="mind-direction-ready"><i /> Ready for your approval</div></div>
+              <div className="mind-direction-card"><div className="mind-direction-label">Creative direction</div><h3>Start with the friction. Make the mechanism visible.</h3><div className="mind-direction-meta"><span>Explainer</span><span>30 sec</span><span>All screens</span></div><div className="mind-decision"><label>Opening</label><b>Lead with the problem people already feel.</b></div><div className="mind-decision"><label>Treatment</label><b>Clear staged visuals + typed motion + one dominant visual system.</b></div><div className="mind-decision"><label>Voice</label><b>Confident, direct, no unnecessary performance.</b></div><div className="mind-direction-ready"><i /> Ready for your approval</div></div>
             </div>
           </div>
         </section>

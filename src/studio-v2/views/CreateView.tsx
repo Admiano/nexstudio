@@ -30,13 +30,22 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
 }) {
   const { projects, series } = useStudio();
   useEffect(() => { ensureNxPresence(); }, []);
-  // The public site writes the family the visitor tapped into nx.family; honor it once.
+  // The public site hands off the tapped family and the typed brief; honor both once.
   useEffect(() => {
-    if (composer.family) return;
-    const preselect = sessionStorage.getItem("nx.family");
-    if (preselect && FAMILIES.some((f) => f.key === preselect && !f.soon)) {
-      setFamily(preselect);
-      sessionStorage.removeItem("nx.family");
+    if (!composer.family) {
+      const preselect = sessionStorage.getItem("nx.family");
+      if (preselect && FAMILIES.some((f) => f.key === preselect && !f.soon)) {
+        setFamily(preselect);
+        sessionStorage.removeItem("nx.family");
+      }
+    }
+    if (!composer.prompt.trim()) {
+      const carried = sessionStorage.getItem("nx.brief");
+      if (carried?.trim()) {
+        setPrompt(carried.trim());
+        setMode("brief");
+        sessionStorage.removeItem("nx.brief");
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
