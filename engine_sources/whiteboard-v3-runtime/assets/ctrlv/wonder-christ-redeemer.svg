@@ -1,0 +1,16 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="120" ry="10" fill="#E2E8F0" opacity="0.6"/>
+            <!-- Corcovado Mountain -->
+            <path d="M80 270 Q200 150 320 270 Z" fill="#F5F0E4" opacity="0.2"/>
+            <!-- Statue Base -->
+            <rect x="185" y="240" width="30" height="30" fill="#1A1A17" opacity="0.8"/>
+            <!-- Body -->
+            <path d="M180 240 L190 100 H210 L220 240 Z" fill="#1A1A17"/>
+            <!-- Outstretched Arms -->
+            <path d="M110 120 Q200 100 290 120" stroke="#1A1A17" stroke-width="15" stroke-linecap="round" fill="none"/>
+            <!-- Head -->
+            <circle cx="200" cy="85" r="15" fill="#1A1A17"/>
+            <!-- Halo/Sun behind -->
+            <circle cx="200" cy="85" r="40" fill="#F5F0E4" opacity="0.1"/>
+            <path d="M200 45 V25 M200 125 V145 M160 85 H140 M240 85 H260" stroke="#F5F0E4" stroke-width="2" stroke-linecap="round"/>
+          </svg>

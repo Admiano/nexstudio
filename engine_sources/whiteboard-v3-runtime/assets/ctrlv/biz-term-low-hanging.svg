@@ -1,0 +1,14 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <path d="M100 40 C100 40 100 120 200 120 C300 120 300 40 300 40" stroke="#F5F0E4" stroke-width="12" fill="none" stroke-linecap="round"/>
+                <g>
+                    <circle cx="150" cy="180" r="20" fill="#F5F0E4"/>
+                    <path d="M150 160 V150" stroke="#F5F0E4" stroke-width="4"/>
+                </g>
+                <g style="animation-delay: 0.5s;">
+                    <circle cx="250" cy="170" r="20" fill="#F5F0E4"/>
+                    <path d="M250 150 V140" stroke="#F5F0E4" stroke-width="4"/>
+                </g>
+                <path d="M120 230 H280" stroke="#1A1A17" stroke-width="4" stroke-dasharray="10 10"/>
+            </g>
+          </svg>

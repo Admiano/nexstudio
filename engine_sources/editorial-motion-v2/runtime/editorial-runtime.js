@@ -1036,8 +1036,35 @@
     for (const st of fig.states || []) for (const sw of st.swaps) {
       (st._prepared = st._prepared || []).push({ slot: sw.slot, innerHTML: paperSlotInner(sw.slot, sw.part_id, fig, figSeed, plan), transform: '' });
     }
-    const ready = Promise.resolve();
+    let ready = Promise.resolve();
     if (fig.states) f.stateSwaps = fig.states;
+    // Mocap sprite: when the plan carries a baked motion clip, a second svg swaps
+    // frame groups per seek. The paper figure stays as fallback until the fetch lands.
+    if (fig.motion && fig.motion.asset) {
+      f.motion = fig.motion;
+      f.motionData = null;
+      const msvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      msvg.setAttribute('width', '100%');
+      msvg.setAttribute('height', '100%');
+      msvg.setAttribute('preserveAspectRatio', 'xMidYMax meet');
+      msvg.style.filter = svg.style.filter;
+      msvg.style.display = 'none';
+      if (fig.mirror) msvg.style.transform = 'scaleX(-1)';
+      const mframe = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      msvg.appendChild(mframe);
+      host.appendChild(msvg);
+      f.mframe = mframe; f.msvg = msvg; f._lastFrame = -1;
+      ready = fetchText(opts.assetUrl(fig.motion.asset)).then((txt) => {
+        const md = JSON.parse(txt);
+        md._inner = md.frames.map((fr) => fr.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, ''));
+        md._vb = md.frame_vb || md.frames.map(() => md.viewBox);
+        md.loop_from = Math.min(md.loop_from ?? md.frames.length - 1, md.frames.length - 1);
+        msvg.setAttribute('viewBox', md._vb[0].join(' '));
+        f.motionData = md;
+        msvg.style.display = '';
+        svg.style.display = 'none';
+      }).catch(() => { f.motionData = null; });
+    }
     if (fig.prop) {
       const p = fig.prop;
       const size = bb.w * 0.3;
@@ -1105,6 +1132,17 @@
     if (ex) { opacity *= ex.opacity; ty += ex.ty; }
     s.opacity = opacity.toFixed(4);
     s.transform = `translateX(${tx.toFixed(2)}px) translateY(${ty.toFixed(2)}px) rotate(${tilt.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
+    if (f.motionData && f.mframe) {
+      const md = f.motionData;
+      const fi = Math.max(0, Math.floor((Math.max(0, lt - fig.enter_ms) / 1000) * md.fps));
+      const tail = Math.max(1, md.frames.length - md.loop_from);
+      const i2 = fi < md.loop_from ? fi : md.loop_from + ((fi - md.loop_from) % tail);
+      if (i2 !== f._lastFrame) {
+        f._lastFrame = i2;
+        f.msvg.setAttribute('viewBox', md._vb[i2].join(' '));
+        f.mframe.innerHTML = md._inner[i2];
+      }
+    }
     if (f.prop) {
       const sway = Math.sin(lt * 0.0042) * 3.5;
       f.prop.style.transform = `translate(-50%,-50%) rotate(${sway.toFixed(2)}deg)`;
@@ -3601,7 +3639,9 @@
   function bookPageRect(plan) {
     if (!plan.book) return null;
     const W = plan.canvas.w, H = plan.canvas.h;
-    const ix = Math.round(W * 0.032), iy = Math.round(H * 0.04);
+    // Enough desk around the leaf for the binding, the page stack and the lamp pool to read
+    // as an object — a page edge-to-edge stops looking like a book at all.
+    const ix = Math.round(W * 0.078), iy = Math.round(H * 0.088);
     return { x: ix, y: iy, w: W - ix * 2, h: H - iy * 2 };
   }
   function buildPageLeaf(bn, plan) {
@@ -3743,13 +3783,13 @@
     // Aged light.
     el('div', {
       position: 'absolute', left: px(pr.x), top: px(pr.y), width: px(pr.w), height: px(pr.h),
-      background: `radial-gradient(115% 120% at 46% 42%, transparent 58%, rgba(${sh},0.15) 100%)`,
+      background: `radial-gradient(115% 120% at 46% 42%, transparent 62%, rgba(${sh},0.1) 100%)`,
     }, chrome);
     // Lamp light: a slow warm pool over the spread, driven per frame in seek() — firelight on
     // paper, and the ambient motion that keeps a settled page alive.
     const lamp = el('div', {
       position: 'absolute', inset: '0', zIndex: '2', pointerEvents: 'none', mixBlendMode: 'soft-light',
-      background: `radial-gradient(92% 80% at 30% 9%, rgba(255,238,190,0.95) 0%, rgba(255,238,190,0.28) 46%, rgba(24,12,4,0.6) 100%)`,
+      background: `radial-gradient(92% 80% at 30% 9%, rgba(255,240,196,0.9) 0%, rgba(255,240,196,0.22) 48%, rgba(52,38,20,0.34) 100%)`,
       opacity: '0.7',
     }, chrome);
     return lamp;
@@ -3890,8 +3930,9 @@
     let bookGroup = null;
     let bookLamp = null;
     if (bookPage) {
-      const deskA = mixColor('#1d140d', plan.brand.ink, 0.3), deskB = mixColor('#3a2a1a', plan.brand.accent || '#8a6a3a', 0.18);
-      stage.style.background = `radial-gradient(120% 110% at 50% 46%, ${deskB} 0%, ${deskA} 62%, #120c07 100%)`;
+      // Warm walnut desk under the lamp pool: deep but alive, not burnt.
+      const deskA = mixColor('#43311f', plan.brand.ink, 0.22), deskB = mixColor('#6b5438', plan.brand.accent || '#8a6a3a', 0.2);
+      stage.style.background = `radial-gradient(120% 110% at 50% 42%, ${deskB} 0%, ${deskA} 64%, #2a1f12 100%)`;
       const pts = edgeRectPts(bookPage, 'torn', Math.min(W, H) * 0.011, rng(seedHash('book-page-deckle')), 0)
         .map((p) => `${f2(p[0])}px ${f2(p[1])}px`).join(',');
       // Everything bound to the book — page, beats, chrome — lives in one group so seek() can
@@ -3901,7 +3942,7 @@
       }, stage);
       beatHost = el('div', {
         position: 'absolute', inset: '0', zIndex: '0',
-        background: `linear-gradient(100deg, ${mixColor(plan.brand.paper, '#e6d6b4', 0.5)} 0%, ${plan.brand.paper} 55%, ${mixColor(plan.brand.paper, '#dfcba6', 0.4)} 100%)`,
+        background: `linear-gradient(100deg, ${mixColor(plan.brand.paper, '#e6d6b4', 0.32)} 0%, ${plan.brand.paper} 55%, ${mixColor(plan.brand.paper, '#dfcba6', 0.24)} 100%)`,
         clipPath: `polygon(${pts})`,
       }, bookGroup);
     }

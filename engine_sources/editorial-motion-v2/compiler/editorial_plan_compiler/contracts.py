@@ -412,6 +412,7 @@ class FigureDirective:
     states: Optional[List[Dict[str, Any]]] = None
     pose: Optional[str] = None
     face: Optional[str] = None
+    motion: Optional[Dict[str, Any]] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any], beat_id: str) -> 'FigureDirective':
@@ -445,6 +446,7 @@ class FigureDirective:
                 _need(isinstance(st, dict) and any(st.get(k) for k in ('pose', 'face', 'head')), 'FIGURE_STATE_INVALID', 'a state needs a pose, face or head part to swap', beat_id)
                 at = st.get('at') or {}
                 _need(sum(1 for k in ('word', 'offset_ms') if k in at) == 1, 'FIGURE_STATE_AT', 'state needs exactly one of word/offset_ms', beat_id)
+        motion = _figure_motion(d.get('motion'), beat_id)
         return cls(
             valence=max(-1.0, min(1.0, float(d.get('valence', 0)))),
             arousal=_unit(d.get('arousal', 0.5)),
@@ -459,7 +461,52 @@ class FigureDirective:
             states=states,
             pose=(str(d.get('pose') or '').strip() or None),
             face=(str(d.get('face') or '').strip() or None),
+            motion=motion,
         )
+
+
+# Locomotion-style clips hold a cycle; one-shots (a wave, a sit-down, a pick-up) play
+# once and settle on their final frame.
+_FIGURE_MOTION_LOCOMOTION = re.compile(
+    r'WALK|RUN|JOG|SPRINT|IDLE|WAIT|PACE|STAIRS|CYCLE|HOLD|PLANK|MARCH|DANCE|SWIM|CRAWL|CLIMB|POSE|BREATHE',
+    re.IGNORECASE)
+
+
+def _figure_motion(d: Any, beat_id: str) -> Optional[Dict[str, Any]]:
+    """`motion` turns the still figure into a mocap performer: one clip or a short chain
+    (walk in, then idle) baked to SVG frames at render time and swapped per frame."""
+    if d is None:
+        return None
+    _need(isinstance(d, dict), 'FIGURE_MOTION_INVALID', 'motion must be an object', beat_id)
+
+    def _seg(sd: Any, i: int) -> Dict[str, Any]:
+        _need(isinstance(sd, dict), 'FIGURE_MOTION_SEG', f'motion segment {i} must be an object', beat_id)
+        clip = str(sd.get('clip') or sd.get('cmu_clip') or '').strip()
+        action = str(sd.get('action') or '').strip()
+        _need(bool(clip) != bool(action), 'FIGURE_MOTION_CLIP', f'motion segment {i} needs exactly one of clip/action', beat_id)
+        seconds = float(sd.get('seconds') or 0)
+        _need(0 < seconds <= 30, 'FIGURE_MOTION_SECONDS', str(seconds), beat_id)
+        return {'clip': clip or None, 'action': action or None, 'seconds': seconds}
+
+    if d.get('chain') is not None:
+        chain = d['chain']
+        _need(isinstance(chain, list) and 1 <= len(chain) <= 4, 'FIGURE_MOTION_CHAIN', 'chain takes 1-4 segments', beat_id)
+        segs = [_seg(sd, i) for i, sd in enumerate(chain)]
+        clip_name = segs[-1]['clip'] or segs[-1]['action'] or ''
+    else:
+        segs = [_seg(d, 0)]
+        clip_name = segs[0]['clip'] or segs[0]['action'] or ''
+    look = d.get('look')
+    _need(look is None or isinstance(look, dict), 'FIGURE_MOTION_LOOK', 'look must be an object', beat_id)
+    return {
+        'chain': segs,
+        'loop': bool(d.get('loop', bool(_FIGURE_MOTION_LOCOMOTION.search(clip_name)))),
+        'speed_mps': float(d.get('speed_mps') or 1.1),
+        'look': look,
+        'proportion': str(d.get('proportion') or 'adult-average'),
+        'emotion': str(d.get('emotion') or 'warm'),
+        't': float(d.get('t') or 0),
+    }
 
 
 @dataclass

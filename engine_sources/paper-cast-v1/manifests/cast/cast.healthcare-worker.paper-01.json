@@ -1,0 +1,157 @@
+{
+  "id": "cast.healthcare-worker.paper-01",
+  "name": "Healthcare worker",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "healthcare_worker",
+  "slug": "healthcare-worker",
+  "renderer": "paper-cast-figure",
+  "role": "healthcare_worker",
+  "ageBand": "adult",
+  "proportion": "adult-average",
+  "formality": "uniform",
+  "intents": [
+    "care_for_person",
+    "explain_procedure",
+    "reassure",
+    "record_observation"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "healthcare_worker",
+    "healthcare",
+    "nurse",
+    "clinician",
+    "doctor",
+    "patient",
+    "clinic"
+  ],
+  "useCases": [
+    "healthcare",
+    "explainer",
+    "documentary"
+  ],
+  "personalities": [
+    "warm",
+    "calm",
+    "authoritative"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium"
+  ],
+  "poses": [
+    "listen-attentive",
+    "explain-open-hands",
+    "work-at-surface",
+    "hand-over",
+    "idle-stance"
+  ],
+  "defaultPose": "listen-attentive",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#f0c9a4",
+    "hair": {
+      "color": "#d8d3cc",
+      "length": 0.26
+    },
+    "top": {
+      "color": "#e8ece9",
+      "sleeve": 0.6
+    },
+    "bottom": {
+      "color": "#4f7f76"
+    },
+    "shoes": {
+      "color": "#f2f0ea"
+    },
+    "accent": "#3f8f7f"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.healthcare_worker",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Healthcare worker paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "care_for_person",
+      "explain_procedure",
+      "reassure",
+      "record_observation"
+    ],
+    "storyRole": "healthcare_worker",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

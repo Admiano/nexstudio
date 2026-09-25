@@ -581,6 +581,8 @@ class BeatCompiler:
             fig['prop'] = {'hand': side, 'anchor': {'x': 0.22 if side == 'left' else 0.78, 'y': 0.66},
                            'concept': d.prop['concept'], 'via': d.prop.get('via'),
                            'asset': d.prop.get('asset'), 'photo': d.prop.get('photo'), 'word': d.prop.get('word')}
+        if d.motion:
+            fig['motion'] = d.motion
         if d.states:
             try:
                 states = []

@@ -1,0 +1,28 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Market Grid / Nodes -->
+                <g fill="#F5F0E4" opacity="0.3">
+                    <circle cx="120" cy="80" r="8"/> <circle cx="200" cy="80" r="8"/> <circle cx="280" cy="80" r="8"/>
+                    <circle cx="120" cy="140" r="8"/> <circle cx="200" cy="140" r="8"/> <circle cx="280" cy="140" r="8"/>
+                    <circle cx="120" cy="200" r="8"/> <circle cx="200" cy="200" r="8"/> <circle cx="280" cy="200" r="8"/>
+                </g>
+                <!-- Central Product / Entry Point -->
+                <circle cx="200" cy="140" r="16" fill="#1A1A17"/>
+                <!-- Penetration / Spreading lines -->
+                <g stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 6">
+                    <path d="M180 140 L135 140"/>
+                    <path d="M220 140 L265 140"/>
+                    <path d="M200 120 L200 95"/>
+                    <path d="M200 160 L200 185"/>
+                    <path d="M185 125 L135 95"/>
+                    <path d="M215 155 L265 185"/>
+                </g>
+                <!-- Captured nodes lighting up -->
+                <g>
+                    <circle cx="120" cy="140" r="10" fill="#F5F0E4"/>
+                    <circle cx="280" cy="140" r="10" fill="#F5F0E4"/>
+                    <circle cx="200" cy="80" r="10" fill="#F5F0E4"/>
+                    <circle cx="280" cy="200" r="10" fill="#F5F0E4"/>
+                </g>
+            </g>
+          </svg>

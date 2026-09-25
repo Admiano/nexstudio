@@ -1,0 +1,35 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Curvature of Earth/Planet -->
+            <path d="M60 270 Q200 220 340 270 V290 H60 Z" fill="#F5F0E4" opacity="0.2"/>
+            
+            <!-- Orbital Station / Data Center -->
+            <g>
+                <!-- Massive Solar Arrays -->
+                <path d="M70 140 L160 100 V120 L70 160 Z" fill="#F5F0E4" opacity="0.8"/>
+                <path d="M330 140 L240 100 V120 L330 160 Z" fill="#F5F0E4" opacity="0.8"/>
+                <!-- Grid on Solars -->
+                <path d="M100 130 L130 115 M100 145 L130 130 M270 130 L300 115 M270 145 L300 130" stroke="white" stroke-width="2" opacity="0.5"/>
+                
+                <!-- Central Core Hub -->
+                <circle cx="200" cy="130" r="40" fill="#1A1A17"/>
+                <ellipse cx="200" cy="130" rx="40" ry="15" fill="#F5F0E4" opacity="0.1"/>
+                
+                <!-- Server Racks inside Dome/Ring (Abstracted as lines) -->
+                <rect x="180" y="110" width="8" height="20" fill="#F5F0E4" opacity="0.8"/>
+                <rect x="196" y="110" width="8" height="20" fill="#F5F0E4" opacity="0.8"/>
+                <rect x="212" y="110" width="8" height="20" fill="#F5F0E4" opacity="0.8"/>
+                <circle cx="184" cy="115" r="2" fill="#F5F0E4"/>
+                <circle cx="200" cy="120" r="2" fill="#F5F0E4"/>
+                <circle cx="216" cy="115" r="2" fill="#F5F0E4"/>
+                
+                <!-- Comms Dish -->
+                <path d="M180 90 Q200 70 220 90 Z" fill="#1A1A17"/>
+            </g>
+            
+            <!-- Data Beaming to Planet -->
+            <path d="M190 170 L170 240 M210 170 L230 240" stroke="#F5F0E4" stroke-width="3" stroke-dasharray="8 6" fill="none" opacity="0.6"/>
+            <path d="M200 170 V240" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
+            
+            <circle cx="100" cy="60" r="3" fill="#F5F0E4"/>
+            <circle cx="300" cy="70" r="4" fill="#F5F0E4" style="animation-delay:-0.5s"/>
+          </svg>

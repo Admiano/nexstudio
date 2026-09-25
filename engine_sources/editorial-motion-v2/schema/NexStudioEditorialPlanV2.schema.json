@@ -1273,6 +1273,9 @@
                   },
                   "ground_line": {
                     "type": "number"
+                  },
+                  "motion": {
+                    "type": "object"
                   }
                 },
                 "required": [

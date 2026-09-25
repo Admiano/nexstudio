@@ -90,6 +90,11 @@ def treatment_schema() -> Dict[str, Any]:
         'states': {'anyOf': [{'type': 'array', 'items': _obj({'at': anchor, 'pose': NULLABLE_STR, 'face': NULLABLE_STR, 'head': NULLABLE_STR}, ['at'], additionalProperties=False), 'minItems': 1, 'maxItems': 3}, {'type': 'null'}]},
         'pose': NULLABLE_STR,
         'face': NULLABLE_STR,
+        'motion': {'anyOf': [_obj({
+            'clip': NULLABLE_STR, 'action': NULLABLE_STR, 'cmu_clip': NULLABLE_STR, 'seconds': {'type': 'number', 'minimum': 0},
+            'chain': {'anyOf': [{'type': 'array', 'items': _obj({'clip': NULLABLE_STR, 'action': NULLABLE_STR, 'seconds': {'type': 'number'}}, []), 'minItems': 1, 'maxItems': 4}, {'type': 'null'}]},
+            'loop': {'type': 'boolean'}, 'speed_mps': {'type': 'number'}, 'look': {'type': 'object'}, 'proportion': _str(), 'emotion': _str(), 't': {'type': 'number'},
+        }, []), {'type': 'null'}]},
     }, ['valence', 'arousal', 'justification'], additionalProperties=False)
     media = _obj({
         'asset_id': _str(),
@@ -302,7 +307,8 @@ def plan_schema() -> Dict[str, Any]:
     figure = _obj({'library': {'const': 'OPEN_PEEPS'}, 'still': {'const': True}, 'framing': {'const': 'FULL_BODY'}, 'posture': _enum(c.FIGURE_POSTURES),
                    'parts': {'type': 'array', 'items': part, 'minItems': 1}, 'palette': {'type': 'object'}, 'mirror': {'type': 'boolean'},
                    'facing': _enum(c.FIGURE_FACINGS), 'emotion': {'type': 'object'}, 'pose': {'type': 'object'}, 'justification': _str(),
-                   'bbox': BOX, 'zone': BOX, 'enter_ms': MS, 'enter_duration_ms': MS, 'entrance': _str(), 'ground_line': {'type': 'number'}},
+                   'bbox': BOX, 'zone': BOX, 'enter_ms': MS, 'enter_duration_ms': MS, 'entrance': _str(), 'ground_line': {'type': 'number'},
+                   'motion': {'type': 'object'}},
                   ['library', 'still', 'framing', 'parts', 'facing', 'justification', 'bbox', 'enter_ms', 'enter_duration_ms'])
     media = _obj({
         'asset_id': _str(), 'kind': _enum(c.MEDIA_KINDS), 'rights': _str(), 'path': _str(), 'sha256': SHA,

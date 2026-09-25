@@ -456,6 +456,94 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "motion": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "clip": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "action": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "cmu_clip": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "seconds": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "chain": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "clip": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "action": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "seconds": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": []
+                                },
+                                "minItems": 1,
+                                "maxItems": 4
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "loop": {
+                            "type": "boolean"
+                          },
+                          "speed_mps": {
+                            "type": "number"
+                          },
+                          "look": {
+                            "type": "object"
+                          },
+                          "proportion": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "emotion": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "t": {
+                            "type": "number"
+                          }
+                        },
+                        "required": []
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [

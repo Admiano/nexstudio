@@ -1,0 +1,11 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Joined Pieces -->
+                <path d="M120 90 H195 V130 A 20 20 0 1 1 195 170 V210 H120 V170 A 20 20 0 1 0 120 130 Z" fill="#1A1A17" opacity="0.9"/>
+                <path d="M198 90 H280 V130 A 20 20 0 1 0 280 170 V210 H198 V170 A 20 20 0 1 0 198 130 Z" fill="#F5F0E4" opacity="0.9"/>
+                <!-- Glowing Seam dissolving -->
+                <path d="M196.5 90 V130 A 20 20 0 1 1 196.5 170 V210" stroke="#F5F0E4" stroke-width="3" fill="none"/>
+                <!-- Merging spark -->
+                <circle cx="196.5" cy="150" r="5" fill="#F5F0E4"/>
+            </g>
+          </svg>

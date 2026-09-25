@@ -1,0 +1,73 @@
+{
+  "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+  "production_id": "SHORTS_DEMO",
+  "camera_variant": "shorts",
+  "output_ratios": ["16:9"],
+  "beats": [
+    {
+      "beat_id": "01_enter",
+      "start_seconds": 0,
+      "duration_seconds": 4.0,
+      "narration": "The host walks in and takes the stage.",
+      "caption": "enter the host",
+      "figure": {
+        "clip": "NEX_HOST_PRESENT_OPEN",
+        "enter": "left",
+        "facing": 1,
+        "x": 0.42
+      },
+      "scene": {"sceneId": "01_enter", "heroRole": "host", "supportingRoles": [], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    },
+    {
+      "beat_id": "02_explain",
+      "start_seconds": 4.0,
+      "duration_seconds": 4.5,
+      "narration": "She explains how the system works.",
+      "caption": "how it works",
+      "figure": {
+        "clip": "NEX_HOST_EXPLAIN_MEDIUM",
+        "facing": 1,
+        "x": 0.5
+      },
+      "scene": {"sceneId": "02_explain", "heroRole": "host", "supportingRoles": [], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    },
+    {
+      "beat_id": "03_two",
+      "start_seconds": 8.5,
+      "duration_seconds": 4.5,
+      "narration": "A friend joins to celebrate.",
+      "caption": "a friend joins",
+      "figures": [
+        {"clip": "NEX_HOST_QUESTION_OPEN", "x": 0.38, "facing": 1},
+        {"clip": "NEX_MOTION_WAVE", "x": 0.68, "facing": -1}
+      ],
+      "scene": {"sceneId": "03_two", "heroRole": "host", "supportingRoles": ["friend"], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    },
+    {
+      "beat_id": "04_workout",
+      "start_seconds": 13.0,
+      "duration_seconds": 4.5,
+      "narration": "Then she demonstrates a push-up.",
+      "caption": "the push-up",
+      "figure": {
+        "clip": "NEX_MECHANIC_PUSHUP_CYCLE",
+        "x": 0.5
+      },
+      "scene": {"sceneId": "04_workout", "heroRole": "athlete", "supportingRoles": [], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    },
+    {
+      "beat_id": "05_exit",
+      "start_seconds": 17.5,
+      "duration_seconds": 4.0,
+      "narration": "She waves goodbye and walks off.",
+      "caption": "that's a wrap",
+      "figure": {
+        "clip": "NEX_MOTION_WAVE",
+        "x": 0.5,
+        "facing": 1,
+        "exit": "right"
+      },
+      "scene": {"sceneId": "05_exit", "heroRole": "host", "supportingRoles": [], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    }
+  ]
+}

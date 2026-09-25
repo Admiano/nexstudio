@@ -1,0 +1,31 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Rolodex/Cards Layout -->
+                
+                <!-- Back Card -->
+                <rect x="150" y="60" width="140" height="180" rx="8" fill="#F5F0E4" opacity="0.1"/>
+                <!-- Middle Card -->
+                <rect x="130" y="80" width="140" height="180" rx="8" fill="#F5F0E4" opacity="0.2"/>
+                
+                <!-- Front Active Card -->
+                <rect x="110" y="100" width="140" height="180" rx="8" fill="#F5F0E4" stroke="#1A1A17" stroke-width="4"/>
+                
+                <!-- Profile Picture Placeholder -->
+                <circle cx="180" cy="140" r="20" fill="#F5F0E4" opacity="0.2"/>
+                <!-- Profile abstract (head & shoulders) -->
+                <circle cx="180" cy="135" r="8" fill="#F5F0E4"/>
+                <path d="M165 155 C165 145 195 145 195 155" fill="#F5F0E4"/>
+                
+                <!-- Contact Details -->
+                <path d="M140 180 H220 M140 195 H200" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                <path d="M140 220 H220" stroke="#1A1A17" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+                <path d="M140 240 H190" stroke="#1A1A17" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            </g>
+            
+            <!-- Floating connection nodes -->
+            <g>
+                <circle cx="280" cy="120" r="10" fill="#F5F0E4"/>
+                <circle cx="280" cy="200" r="8" fill="#1A1A17"/>
+                <path d="M250 140 L280 120 M250 160 L280 200 M280 120 L280 200" stroke="#F5F0E4" stroke-width="2" stroke-dasharray="4 4"/>
+            </g>
+          </svg>
