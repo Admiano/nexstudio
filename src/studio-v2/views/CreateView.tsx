@@ -91,6 +91,22 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
       )}
       <div className="composer-shell">
         <div className="composer" id="composer">
+          <div className="composer-head">
+            <div className="composer-head-copy">
+              <span className="composer-eyebrow">{composer.mode === "script" ? "Your script" : "Your brief"}</span>
+              <b>{composer.mode === "script" ? "Finished narration — voiced and illustrated exactly as written" : "Describe the video — NexMind writes the story and direction"}</b>
+            </div>
+            <div className="composer-mode" role="group" aria-label="Input mode">
+              <button type="button" className={composer.mode !== "script" ? "on" : ""} onClick={() => setMode("brief")} title="Describe the idea — NexMind writes it">
+                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                Brief
+              </button>
+              <button type="button" className={composer.mode === "script" ? "on" : ""} onClick={() => setMode("script")} title="Paste finished narration — used verbatim">
+                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6M9 13h6M9 17h6" /></svg>
+                Script
+              </button>
+            </div>
+          </div>
           <div className="context-dock" id="contextDock">
             {composer.contexts.map((c) => (
               <button key={`${c.kind}:${c.refId}`} className={`ctx ctx-${c.kind}`} onClick={() => removeContext(c)} title="Remove context">
@@ -99,10 +115,6 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
                 <span className="ctx-x">×</span>
               </button>
             ))}
-          </div>
-          <div className="composer-mode" role="group" aria-label="Input mode">
-            <button type="button" className={composer.mode !== "script" ? "on" : ""} onClick={() => setMode("brief")}>Brief</button>
-            <button type="button" className={composer.mode === "script" ? "on" : ""} onClick={() => setMode("script")}>Script</button>
           </div>
           <textarea aria-label="Describe your video" className="prompt" value={composer.prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={onKey} placeholder={composer.mode === "script" ? "Paste your script — NexStudio voices and illustrates it exactly as written…" : "Make a 45-second launch video explaining why agent payments need a better primitive…"} />
           <div className="composer-foot">
@@ -114,6 +126,7 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
             </div>
             <button className="create-btn" disabled={!canSubmit} onClick={() => void submitBrief()}><span>Create</span><svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M5 12h14M14 7l5 5-5 5" /></svg></button>
           </div>
+          <span className="composer-inkline" aria-hidden="true" />
         </div>
         {seriesObj && (
           <div className="series-carry" style={{ display: "flex" }}>

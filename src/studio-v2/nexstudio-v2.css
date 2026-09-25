@@ -1980,3 +1980,48 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .review-next-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .review-next-btn{height:36px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.5);color:var(--ink);font-size:10.5px;font-weight:750;padding:0 14px;cursor:pointer}
 .review-next-btn:hover{border-color:var(--accent-ink);color:var(--accent-ink);background:rgba(255,176,0,.07)}
+
+/* ── composer: title bar, visible mode switch, paper input, real tool chips ── */
+.composer-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;padding:9px 12px 3px}
+.composer-head-copy{display:grid;gap:4px;min-width:0}
+.composer-eyebrow{font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent-ink);font-weight:850}
+.composer-head-copy b{font-size:12.5px;letter-spacing:-.015em;font-weight:750;line-height:1.35}
+
+.composer-mode{position:static;display:flex;gap:3px;background:rgba(17,22,18,.055);border:1px solid rgba(17,22,18,.09);border-radius:12px;padding:3px;z-index:3;flex:none}
+.composer-mode button{border:0;background:transparent;padding:8px 13px;font:800 10.5px/1 inherit;letter-spacing:.02em;color:var(--muted);border-radius:9px;cursor:pointer;transition:.22s var(--ease);display:inline-flex;align-items:center;gap:7px;border:1px solid transparent}
+.composer-mode button svg{width:11px;height:11px}
+.composer-mode button:not(.on):hover{color:var(--ink)}
+.composer-mode button.on{background:#fff;color:var(--ink);box-shadow:0 2px 9px rgba(17,22,18,.13);border-color:rgba(17,22,18,.07)}
+
+/* ruled-paper textarea — lines sit under each text line */
+.prompt{background-image:repeating-linear-gradient(transparent 0,transparent 28.4px,rgba(17,22,18,.055) 28.4px,rgba(17,22,18,.055) 28.9px);background-position:0 44.5px;background-attachment:local}
+
+/* ink line draws across the foot when you're writing */
+.composer-inkline{position:absolute;left:20px;right:20px;bottom:9px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent),rgba(255,176,0,.18));transform:scaleX(0);transform-origin:left;transition:transform .55s var(--ease);pointer-events:none}
+.composer:focus-within .composer-inkline{transform:scaleX(1)}
+
+/* tool chips — bordered, icon-led, lift on hover */
+.composer-foot{border-top:1px solid var(--line2);margin-top:2px;padding:9px 8px 10px}
+.tools{gap:7px}
+.tool{height:36px!important;border:1px solid var(--line2)!important;background:rgba(255,255,255,.55)!important;color:var(--muted)!important;padding:0 13px!important;border-radius:11px!important;display:flex;gap:8px;align-items:center;font-size:11.5px;font-weight:700;letter-spacing:.015em}
+.tool svg{width:14px;height:14px;color:var(--muted2);transition:color .2s}
+.tool:hover{background:#fff!important;border-color:rgba(17,22,18,.24)!important;color:var(--ink)!important;transform:translateY(-1px);box-shadow:0 5px 14px rgba(17,22,18,.07)}
+.tool:hover svg{color:var(--accent-ink)}
+.tool:active{transform:none}
+
+@media (max-width:760px){
+  .composer-head{flex-direction:column;align-items:stretch;gap:10px;padding:10px 10px 4px}
+  .composer-mode{align-self:flex-start}
+  .composer-mode button{padding:8px 15px}
+  .composer-head-copy b{font-size:11.5px}
+  .prompt{min-height:132px}
+  .tool{width:auto!important;min-width:0!important;flex-direction:row!important;gap:7px!important;padding:0 11px!important;height:36px!important}
+  .tool svg{width:14px!important;height:14px!important}
+  .tool span{display:block!important;font-size:11px!important;font-weight:700!important}
+}
+@media (max-width:760px){
+  .composer-foot{flex-direction:column;align-items:stretch;gap:12px;padding:11px 8px 10px}
+  .tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tool{justify-content:flex-start}
+  .create-btn{height:48px;justify-content:center;font-size:13.5px}
+}
