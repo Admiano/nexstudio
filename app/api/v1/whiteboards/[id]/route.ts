@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
 import { friendlyEngineError } from "@/lib/engine-jobs";
+import { maybeNotifyRenderDone } from "@/lib/render-notify";
 
 export const runtime = "nodejs";
 
@@ -24,6 +25,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     return problem(auth.id, 404, "JOB_NOT_FOUND", "Whiteboard job not found", "No whiteboard job with that id exists.");
   const statusPath = path.join(dir, "status.json");
   const status = existsSync(statusPath) ? JSON.parse(readFileSync(statusPath, "utf8")) : { status: "running" };
+  if (status.status === "done") void maybeNotifyRenderDone(dir, req.userId, req.script ?? "");
   const progressPath = path.join(dir, "progress.json");
   const progress = existsSync(progressPath) ? JSON.parse(readFileSync(progressPath, "utf8")) : null;
   return json({

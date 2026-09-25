@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
-import { createEngineDraft } from "@/lib/engine-jobs";
+import { createEngineDraft, renderCapacity, runningEngineJobs } from "@/lib/engine-jobs";
 
 export const runtime = "nodejs";
 
@@ -71,6 +71,9 @@ export async function POST(request: Request) {
   const speedRaw = Number(form.get("speed") ?? 0);
   if (speedRaw && (!Number.isFinite(speedRaw) || speedRaw < 0.7 || speedRaw > 1.5))
     return problem(id, 422, "SPEED_RANGE", "Invalid speed", "Narration speed must be 0.7–1.5×.");
+
+  if (runningEngineJobs() >= renderCapacity())
+    return problem(id, 429, "RENDER_AT_CAPACITY", "The render floor is full right now", "A few renders are already running — try again in a minute. Your brief and direction are saved.");
 
   const jobId = `wb-${randomUUID().slice(0, 8)}`;
   const dir = path.join(JOBS, jobId);

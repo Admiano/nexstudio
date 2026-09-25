@@ -43,6 +43,35 @@ export function friendlyEngineError(dir: string): string | undefined {
   return undefined;
 }
 
+// Renders in flight across both engine families. A job counts as running when
+// it has no status.json yet (or status "running") and was created within the
+// last hour — older orphans from crashed workers don't hold the gate forever.
+export function runningEngineJobs(): number {
+  const cutoff = Date.now() - 60 * 60 * 1000;
+  let running = 0;
+  for (const kind of ["whiteboard", "explainer"] as EngineKind[]) {
+    const jobsDir = engineJobsDir(kind);
+    if (!existsSync(jobsDir)) continue;
+    for (const entry of readdirSync(jobsDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      try {
+        const dir = path.join(jobsDir, entry.name);
+        const req = JSON.parse(readFileSync(path.join(dir, "request.json"), "utf8"));
+        if (!req.createdAt || new Date(req.createdAt).getTime() < cutoff) continue;
+        const statusPath = path.join(dir, "status.json");
+        const status = existsSync(statusPath) ? JSON.parse(readFileSync(statusPath, "utf8")).status : "running";
+        if (status === "running") running++;
+      } catch { /* unreadable job dir — skip */ }
+    }
+  }
+  return running;
+}
+
+export function renderCapacity(): number {
+  const cap = parseInt(process.env.STUDIO_MAX_CONCURRENT_RENDERS ?? "4", 10);
+  return Number.isFinite(cap) && cap > 0 ? cap : 4;
+}
+
 export interface EngineJobRead {
   status: "running" | "done" | "failed" | "unknown";
   phase?: string;
