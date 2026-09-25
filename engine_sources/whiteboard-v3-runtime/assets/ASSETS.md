@@ -131,3 +131,10 @@ which were AI-generated and vectorized as pipeline demos.
   OpenMoji project, CC BY-SA 4.0 — attribution required in any shipped
   video that draws them (see `assets/openmoji/LICENSE-NOTICE.txt`).
   Downloadable set: https://github.com/hfg-gmuend/openmoji/releases
+
+### icons/animicons
+- `assets/animicons/` — 79 self-animating icon sprite strips (useAnimations
+  Lottie set) baked by `tools/animicons_pack.py`; `index.json` maps slug →
+  lookup tokens. Icons marked `animicon` play their own animation inside
+  their draw window instead of stroking on. CC-BY 4.0 — attribution
+  required in shipped video (see `assets/animicons/LICENSE-NOTICE.txt`).

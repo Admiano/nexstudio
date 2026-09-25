@@ -1004,6 +1004,11 @@ def _icon_index():
             for slug, m in json.loads(om.read_text()).items():
                 toks = set(slug.split('-')) | set(m.get('tokens', ()))
                 idx[('openmoji', slug)] = {t for t in toks if len(t) > 1}
+        ai = _ASSETS / 'animicons' / 'index.json'
+        if ai.is_file():
+            for slug, m in json.loads(ai.read_text()).items():
+                toks = set(slug.split('-')) | set(m.get('tokens', ()))
+                idx[('animicon', slug)] = {t for t in toks if len(t) > 1}
         _ICON_INDEX = idx
     return _ICON_INDEX
 
@@ -1041,6 +1046,8 @@ def _icon_lookup(concept: str, exclude=None):
         score += 1.5 * len(direct & toks) / len(direct)
         if d == 'tabler':
             score += 0.15                     # cleanest stroke style wins ties
+        if d == 'animicon':
+            score += 0.30                     # animated art wins ties outright
         score -= len(name) * 0.04
         if score > best_score:
             best, best_score = ('icon', d, name), score
@@ -1676,6 +1683,8 @@ def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
         verb = _strokes_for(icon[2]) or []
         return base + _shift_strokes(verb, 0.40, 0.56, 0.56, color='accent')
     if isinstance(icon, tuple) and icon[0] == 'icon':
+        if icon[1] == 'animicon':
+            return []  # sprite-animated slot — no strokes
         if icon[1] == 'tabler':
             return _tabler_strokes(icon[2])
         st = _dir_strokes(icon[1], icon[2])
@@ -2264,9 +2273,22 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                                        facing=s.get('facing', 1))
             groups.append(('icon', [], s['center'], s['size'], s))
         else:
-            groups.append(('icon', _strokes_for(
-                s['icon'], s.get('pose') or 'point', s.get('facing', 1),
-                s.get('cast')), s['center'], s['size'], s))
+            ic = s['icon']
+            up_key = ic if isinstance(ic, str) else (
+                ic[2] if isinstance(ic, tuple) and len(ic) == 3
+                and ic[0] == 'icon' and ic[1] in ('tabler', 'phosphor', 'fluent')
+                else None)
+            if up_key in _ANIM_UPGRADE:
+                ic = ('icon', 'animicon', _ANIM_UPGRADE[up_key])
+            if isinstance(ic, tuple) and ic[0] == 'icon' \
+                    and ic[1] == 'animicon':
+                # animated icon — reserve the draw window, sprite pastes in
+                s['animicon'] = ic[2]
+                groups.append(('icon', [], s['center'], s['size'], s))
+            else:
+                groups.append(('icon', _strokes_for(
+                    ic, s.get('pose') or 'point', s.get('facing', 1),
+                    s.get('cast')), s['center'], s['size'], s))
         if s['icon'] == 'card':
             groups.append(('icon', _card_text_strokes(s['center'], s['size'],
                                                       s['label'], zone),
@@ -2418,6 +2440,59 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
     return out
 
 
+# static icon names that upgrade to the animated sprite when it exists —
+# a checkmark that ticks itself beats four strokes
+_ANIM_UPGRADE = {
+    'check': 'checkmark', 'settings': 'settings', 'gear': 'settings',
+    'heart': 'heart', 'star': 'star', 'lock': 'lock',
+    'eye': 'visibility', 'mail': 'mail', 'envelope': 'mail', 'home': 'home',
+    'search': 'searchToX', 'menu': 'menu', 'play': 'playPause',
+    'video': 'video', 'download': 'download', 'upload': 'share',
+    'trash': 'trash', 'calendar': 'calendar', 'folder': 'folder',
+    'edit': 'edit', 'bell': 'notification',
+    'warning': 'alertTriangle', 'alert': 'alertCircle',
+    'help': 'help', 'question': 'help', 'mic': 'microphone',
+    'archive': 'archive', 'bookmark': 'bookmark', 'film': 'video2',
+    'increase': 'arrowUp', 'decrease': 'arrowDown', 'infinity': 'infinity',
+}
+_ANIMICONS_DIR = _ASSETS / 'animicons'
+_ANIMICON_CACHE = {}
+
+
+def _animicon_meta(slug: str):
+    if slug not in _ANIMICON_CACHE:
+        mp = _ANIMICONS_DIR / slug / 'meta.json'
+        _ANIMICON_CACHE[slug] = (
+            json.loads(mp.read_text()) if mp.is_file() else None)
+    return _ANIMICON_CACHE[slug]
+
+
+def _animicon_frame(slug: str, idx: int):
+    key = (slug, idx)
+    if key not in _ANIMICON_CACHE:
+        fp = _ANIMICONS_DIR / slug / f'f{idx:04d}.png'
+        _ANIMICON_CACHE[key] = (Image.open(fp).convert('RGBA')
+                                if fp.is_file() else None)
+    return _ANIMICON_CACHE[key]
+
+
+def _paste_animicon(layer, slug, center, size, cam, ratio, zoom, p):
+    """Paste frame p of the animated icon into the slot — the icon plays its
+    own animation across its draw window and holds the last frame."""
+    meta = _animicon_meta(slug)
+    if not meta:
+        return
+    n = meta['frames']
+    img = _animicon_frame(slug, min(n - 1, max(0, int(p * n))))
+    if img is None:
+        return
+    scale = _map_scale(ratio, zoom)
+    w = max(8, int(size * scale))
+    im = img.resize((w, w), Image.LANCZOS)
+    sx, sy = wbp._map_point(center, cam, ratio, zoom)
+    layer.alpha_composite(im, (int(sx - w / 2), int(sy - w / 2)))
+
+
 def _pop_scale(p: float) -> float:
     """POP spring (dampingRatio 0.8, appllama grammar) mapped onto the draw
     progress: the element lands slightly oversize then settles. Applies to
@@ -2439,6 +2514,11 @@ def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
             _scene_groups(scene, plan, ratio)):
         p = wbp._ease(wbp._clamp((scene_time - start) / max(0.05, end - start)))
         if p <= 0:
+            continue
+        if slot and slot.get('animicon'):
+            if draw:
+                _paste_animicon(layer, slot['animicon'], center,
+                                size * _pop_scale(p), cam, ratio, zoom, p)
             continue
         sz = size * (_pop_scale(p) if kind == 'icon' else 1.0)
         t = _draw_strokes(layer, strokes or [], center, sz, cam, colors,

@@ -1,0 +1,735 @@
+{
+ "activity": {
+  "tokens": [
+   "activity",
+   "ekg",
+   "health",
+   "heartbeat",
+   "pulse",
+   "vitals"
+  ]
+ },
+ "airplay": {
+  "tokens": [
+   "airplay",
+   "cast",
+   "screen",
+   "share"
+  ]
+ },
+ "alertCircle": {
+  "tokens": [
+   "alert",
+   "attention",
+   "circle",
+   "notice",
+   "warning"
+  ]
+ },
+ "alertOctagon": {
+  "tokens": [
+   "alert",
+   "danger",
+   "error",
+   "forbidden",
+   "octagon",
+   "stop"
+  ]
+ },
+ "alertTriangle": {
+  "tokens": [
+   "alert",
+   "caution",
+   "danger",
+   "error",
+   "triangle",
+   "warning"
+  ]
+ },
+ "archive": {
+  "tokens": [
+   "archive",
+   "box",
+   "old",
+   "storage"
+  ]
+ },
+ "arrowDown": {
+  "tokens": [
+   "arrow",
+   "decrease",
+   "down",
+   "drop",
+   "fall",
+   "lower"
+  ]
+ },
+ "arrowDownCircle": {
+  "tokens": [
+   "arrow",
+   "circle",
+   "decrease",
+   "down",
+   "drop"
+  ]
+ },
+ "arrowLeftCircle": {
+  "tokens": [
+   "arrow",
+   "back",
+   "circle",
+   "left",
+   "previous"
+  ]
+ },
+ "arrowRightCircle": {
+  "tokens": [
+   "arrow",
+   "circle",
+   "forward",
+   "go",
+   "next",
+   "right"
+  ]
+ },
+ "arrowUp": {
+  "tokens": [
+   "arrow",
+   "grow",
+   "increase",
+   "raise",
+   "rise",
+   "up"
+  ]
+ },
+ "arrowUpCircle": {
+  "tokens": [
+   "arrow",
+   "circle",
+   "increase",
+   "rise",
+   "up"
+  ]
+ },
+ "behance": {
+  "tokens": [
+   "behance",
+   "design",
+   "portfolio"
+  ]
+ },
+ "bookmark": {
+  "tokens": [
+   "bookmark",
+   "flag",
+   "keep",
+   "save",
+   "tag"
+  ]
+ },
+ "calendar": {
+  "tokens": [
+   "calendar",
+   "date",
+   "day",
+   "event",
+   "month",
+   "schedule"
+  ]
+ },
+ "checkBox": {
+  "tokens": [
+   "box",
+   "check",
+   "checkbox",
+   "list",
+   "select",
+   "task",
+   "todo"
+  ]
+ },
+ "checkmark": {
+  "tokens": [
+   "check",
+   "checkmark",
+   "complete",
+   "correct",
+   "done",
+   "good",
+   "success",
+   "tick",
+   "yes"
+  ]
+ },
+ "codepen": {
+  "tokens": [
+   "code",
+   "codepen",
+   "demo"
+  ]
+ },
+ "copy": {
+  "tokens": [
+   "clone",
+   "copy",
+   "duplicate",
+   "file"
+  ]
+ },
+ "download": {
+  "tokens": [
+   "download",
+   "get",
+   "receive",
+   "save"
+  ]
+ },
+ "dribbble": {
+  "tokens": [
+   "design",
+   "dribbble"
+  ]
+ },
+ "edit": {
+  "tokens": [
+   "change",
+   "edit",
+   "modify",
+   "pen",
+   "pencil",
+   "write"
+  ]
+ },
+ "error": {
+  "tokens": [
+   "cross",
+   "error",
+   "fail",
+   "incorrect",
+   "no",
+   "wrong"
+  ]
+ },
+ "explore": {
+  "tokens": [
+   "compass",
+   "direction",
+   "explore",
+   "location",
+   "map",
+   "navigation",
+   "pin"
+  ]
+ },
+ "facebook": {
+  "tokens": [
+   "facebook",
+   "meta",
+   "social"
+  ]
+ },
+ "folder": {
+  "tokens": [
+   "directory",
+   "documents",
+   "files",
+   "folder"
+  ]
+ },
+ "github": {
+  "tokens": [
+   "code",
+   "fork",
+   "git",
+   "github",
+   "repository"
+  ]
+ },
+ "heart": {
+  "tokens": [
+   "favorite",
+   "heart",
+   "like",
+   "love",
+   "valentine"
+  ]
+ },
+ "help": {
+  "tokens": [
+   "faq",
+   "help",
+   "info",
+   "question",
+   "support"
+  ]
+ },
+ "home": {
+  "tokens": [
+   "home",
+   "house",
+   "main",
+   "start"
+  ]
+ },
+ "infinity": {
+  "tokens": [
+   "endless",
+   "forever",
+   "infinite",
+   "infinity",
+   "loop",
+   "unlimited"
+  ]
+ },
+ "info": {
+  "tokens": [
+   "about",
+   "details",
+   "help",
+   "info",
+   "information"
+  ]
+ },
+ "instagram": {
+  "tokens": [
+   "instagram",
+   "photo",
+   "social"
+  ]
+ },
+ "linkedin": {
+  "tokens": [
+   "job",
+   "linkedin",
+   "professional",
+   "social",
+   "work"
+  ]
+ },
+ "loading": {
+  "tokens": [
+   "loading",
+   "progress",
+   "spinner",
+   "wait",
+   "working"
+  ]
+ },
+ "loading2": {
+  "tokens": [
+   "loading",
+   "loading2",
+   "progress",
+   "spinner",
+   "wait",
+   "working"
+  ]
+ },
+ "loading3": {
+  "tokens": [
+   "loading",
+   "loading3",
+   "progress",
+   "spinner",
+   "wait",
+   "working"
+  ]
+ },
+ "lock": {
+  "tokens": [
+   "lock",
+   "locked",
+   "padlock",
+   "private",
+   "secure",
+   "security"
+  ]
+ },
+ "mail": {
+  "tokens": [
+   "email",
+   "inbox",
+   "letter",
+   "mail",
+   "message",
+   "send"
+  ]
+ },
+ "maximizeMinimize": {
+  "tokens": [
+   "enlarge",
+   "expand",
+   "fullscreen",
+   "maximize",
+   "minimize",
+   "shrink"
+  ]
+ },
+ "maximizeMinimize2": {
+  "tokens": [
+   "enlarge",
+   "expand",
+   "fullscreen",
+   "maximize",
+   "minimize2",
+   "shrink"
+  ]
+ },
+ "menu": {
+  "tokens": [
+   "hamburger",
+   "lines",
+   "list",
+   "menu",
+   "navigation"
+  ]
+ },
+ "menu2": {
+  "tokens": [
+   "list",
+   "menu",
+   "menu2",
+   "navigation"
+  ]
+ },
+ "menu3": {
+  "tokens": [
+   "list",
+   "menu",
+   "menu3",
+   "navigation"
+  ]
+ },
+ "menu4": {
+  "tokens": [
+   "list",
+   "menu",
+   "menu4",
+   "navigation"
+  ]
+ },
+ "microphone": {
+  "tokens": [
+   "audio",
+   "mic",
+   "microphone",
+   "record",
+   "speak",
+   "talk",
+   "voice"
+  ]
+ },
+ "microphone2": {
+  "tokens": [
+   "audio",
+   "mic",
+   "microphone",
+   "microphone2",
+   "mute",
+   "record",
+   "voice"
+  ]
+ },
+ "notification": {
+  "tokens": [
+   "alarm",
+   "alert",
+   "bell",
+   "notification",
+   "reminder",
+   "ring"
+  ]
+ },
+ "notification2": {
+  "tokens": [
+   "alarm",
+   "alert",
+   "bell",
+   "notification",
+   "notification2",
+   "ring"
+  ]
+ },
+ "playPause": {
+  "tokens": [
+   "media",
+   "pause",
+   "play",
+   "start",
+   "stop",
+   "video"
+  ]
+ },
+ "playPauseCircle": {
+  "tokens": [
+   "circle",
+   "media",
+   "pause",
+   "play",
+   "video"
+  ]
+ },
+ "plusToX": {
+  "tokens": [
+   "add",
+   "close",
+   "create",
+   "plus",
+   "toggle"
+  ]
+ },
+ "pocket": {
+  "tokens": [
+   "later",
+   "pocket",
+   "read",
+   "save"
+  ]
+ },
+ "radioButton": {
+  "tokens": [
+   "button",
+   "choice",
+   "circle",
+   "option",
+   "radio",
+   "select"
+  ]
+ },
+ "scrollDown": {
+  "tokens": [
+   "down",
+   "finger",
+   "move",
+   "scroll",
+   "swipe"
+  ]
+ },
+ "searchToX": {
+  "tokens": [
+   "find",
+   "lookup",
+   "magnifier",
+   "query",
+   "search"
+  ]
+ },
+ "settings": {
+  "tokens": [
+   "cog",
+   "config",
+   "gear",
+   "options",
+   "settings"
+  ]
+ },
+ "settings2": {
+  "tokens": [
+   "cog",
+   "config",
+   "gear",
+   "options",
+   "settings",
+   "settings2",
+   "tools"
+  ]
+ },
+ "share": {
+  "tokens": [
+   "publish",
+   "send",
+   "share",
+   "social",
+   "upload"
+  ]
+ },
+ "skipBack": {
+  "tokens": [
+   "back",
+   "previous",
+   "rewind",
+   "skip"
+  ]
+ },
+ "skipForward": {
+  "tokens": [
+   "fast",
+   "forward",
+   "next",
+   "skip"
+  ]
+ },
+ "star": {
+  "tokens": [
+   "best",
+   "favorite",
+   "featured",
+   "rating",
+   "star"
+  ]
+ },
+ "thumbUp": {
+  "tokens": [
+   "approve",
+   "good",
+   "like",
+   "thumb",
+   "thumbs",
+   "up",
+   "yes"
+  ]
+ },
+ "toggle": {
+  "tokens": [
+   "disable",
+   "enable",
+   "off",
+   "switch",
+   "toggle"
+  ]
+ },
+ "trash": {
+  "tokens": [
+   "bin",
+   "delete",
+   "garbage",
+   "remove",
+   "trash"
+  ]
+ },
+ "trash2": {
+  "tokens": [
+   "bin",
+   "delete",
+   "garbage",
+   "remove",
+   "trash",
+   "trash2"
+  ]
+ },
+ "twitter": {
+  "tokens": [
+   "bird",
+   "social",
+   "tweet",
+   "twitter"
+  ]
+ },
+ "userMinus": {
+  "tokens": [
+   "delete",
+   "minus",
+   "person",
+   "remove",
+   "user"
+  ]
+ },
+ "userPlus": {
+  "tokens": [
+   "add",
+   "invite",
+   "new",
+   "person",
+   "plus",
+   "signup",
+   "user"
+  ]
+ },
+ "userX": {
+  "tokens": [
+   "ban",
+   "block",
+   "delete",
+   "person",
+   "remove",
+   "user"
+  ]
+ },
+ "video": {
+  "tokens": [
+   "camera",
+   "film",
+   "movie",
+   "play",
+   "record",
+   "video"
+  ]
+ },
+ "video2": {
+  "tokens": [
+   "camera",
+   "film",
+   "movie",
+   "record",
+   "video",
+   "video2"
+  ]
+ },
+ "visibility": {
+  "tokens": [
+   "eye",
+   "look",
+   "see",
+   "show",
+   "view",
+   "visibility",
+   "visible",
+   "watch"
+  ]
+ },
+ "visibility2": {
+  "tokens": [
+   "eye",
+   "hide",
+   "look",
+   "see",
+   "view",
+   "visibility2",
+   "watch"
+  ]
+ },
+ "volume": {
+  "tokens": [
+   "audio",
+   "loud",
+   "sound",
+   "speaker",
+   "volume"
+  ]
+ },
+ "youtube": {
+  "tokens": [
+   "play",
+   "video",
+   "watch",
+   "youtube"
+  ]
+ },
+ "youtube2": {
+  "tokens": [
+   "play",
+   "video",
+   "watch",
+   "youtube",
+   "youtube2"
+  ]
+ },
+ "zoomIn": {
+  "tokens": [
+   "closer",
+   "enlarge",
+   "magnify",
+   "search",
+   "zoom"
+  ]
+ },
+ "zoomOut": {
+  "tokens": [
+   "farther",
+   "out",
+   "search",
+   "shrink",
+   "zoom"
+  ]
+ }
+}

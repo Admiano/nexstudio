@@ -27,7 +27,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | Artifact | sha256 |
 |---|---|
 | `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `60e44515d87bfddff01e7c5726fb09842a5b567b70da42ff72a78a1305635f3f` |
-| `v3_board_renderer.py` (whiteboard draw layer) | `e5252dbd277e942f8d470a13cda3eb4e05d8dbe0a72339ae5f9f31a012915886` |
+| `v3_board_renderer.py` (whiteboard draw layer) | `25b47ed0caf756488087ee4be5cfeeb95d4a55fa9360e3179b3c59236f42d39d` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
 | `pipeline_diagram_timed.py` (diagram pipeline) | `c00cf324b135932cf071206c52f993cf8a4c1e788ede8ae6fe0caaad658c5f48` |
@@ -63,3 +63,5 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 
 | `tools/openmoji_pack.py` | OpenMoji -> assets/openmoji pack builder (flatten shapes+transforms to strokes) | `aa299b382bf6a7277a1ebe0f86d6074949ec85620b3556d83aec42c2a2247e45` |
 | `assets/openmoji/` | 473 people/activity line-art glyphs + index.json (OpenMoji, CC BY-SA 4.0; LICENSE-NOTICE inside) | `c4584e573cbb7e10c06d1b7d6992d26e801240c4c10a102f4f0f4353b9dece17` (index) |
+| `tools/animicons_pack.py` | useAnimations Lottie -> assets/animicons PNG strip baker (lottie->svg->png per frame) | `3d556dd1d956790bf43c55bf4f607caf2fb9d29d464c6e5469c24e37c25ceeeb` |
+| `assets/animicons/` | 79 self-animating icon sprite strips + index.json (useAnimations, CC-BY 4.0; LICENSE-NOTICE inside) | `3dfcd5cd21e4688baa18990b00ed9d071279147bc240638a5080584f845d396e` (index) |

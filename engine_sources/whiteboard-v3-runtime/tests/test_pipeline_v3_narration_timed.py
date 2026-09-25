@@ -176,6 +176,27 @@ def test_comic_panels_draw_in_beat_order():
     assert f2.convert('L').getextrema()[0] < 128
 
 
+def test_animicon_slots_play_baked_sprite():
+    """Icons in the upgrade map emit animicon slots whose sprite pastes
+    inside the slot's draw window instead of stroking on."""
+    wbc, wbp, _, v3r = pipe.load_execution_body()
+    plan = _plan()
+    compiled = wbc.compile_whiteboard_plan(plan, {'ratio': '16:9'})
+    plan.update(compiled)
+    marked = [
+        (kind, slot.get('animicon'))
+        for sc in plan['sceneSpecs']
+        for (kind, _st, _c, _s, slot), _w0, _w1
+        in v3r._scene_groups(sc, plan, '16:9')
+        if kind == 'icon' and slot and slot.get('animicon')]
+    assert marked, 'no animicon slot resolved'
+    slug = marked[0][1]
+    meta = v3r._animicon_meta(slug)
+    assert meta['frames'] > 1 and meta['w'] > 0
+    fr = v3r._animicon_frame(slug, int(meta['frames'] / 2))
+    assert fr.size[0] == meta['w'] and fr.mode == 'RGBA'
+
+
 # --- determinism + golden frames --------------------------------------------
 
 @pytest.mark.parametrize('t', [0.8, 1.7, 2.4, 3.4])
