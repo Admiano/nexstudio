@@ -213,7 +213,7 @@
       "page": {
         "title": "The Rain Comes",
         "quote": "and the seed drinks deep",
-        "layout": "zipped",
+        "layout": "vignette",
         "cut": "top"
       },
       "scene": {
@@ -522,7 +522,7 @@
       },
       "page": {
         "title": "Hands to Catch the Light",
-        "layout": "scissor",
+        "layout": "spot",
         "materials": [
           "deckle"
         ]

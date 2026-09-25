@@ -1067,7 +1067,9 @@
                       "full",
                       "diagonal",
                       "zipped",
-                      "scissor"
+                      "scissor",
+                      "vignette",
+                      "spot"
                     ]
                   },
                   "cut": {

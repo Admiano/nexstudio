@@ -226,7 +226,7 @@
       "page": {
         "title": "The Silent Moon",
         "quote": "it makes no light of its own",
-        "layout": "diagonal",
+        "layout": "vignette",
         "cut": "right"
       },
       "scene": {
@@ -557,7 +557,7 @@
       "page": {
         "title": "The Phases",
         "quote": "still the same moon",
-        "layout": "half",
+        "layout": "spot",
         "materials": [
           "vellum"
         ]
@@ -798,7 +798,8 @@
       },
       "page": {
         "title": "Carried Through the Dark",
-        "quote": "one carries the light"
+        "quote": "one carries the light",
+        "layout": "vignette"
       }
     }
   ],

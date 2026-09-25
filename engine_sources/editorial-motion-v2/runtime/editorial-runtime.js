@@ -203,6 +203,7 @@
 @font-face{font-family:"${f.families.data}";src:url("${fontBase}${f.data.file}") format("truetype");font-weight:600;font-display:block}
 @font-face{font-family:"EB Garamond";src:url("${fontBase}EBGaramond-var.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:block}
 @font-face{font-family:"EB Garamond";src:url("${fontBase}EBGaramond-italic-var.woff2") format("woff2");font-weight:100 900;font-style:italic;font-display:block}
+@font-face{font-family:"Playpen Sans";src:url("${fontBase}PlaypenSans-var.ttf") format("truetype");font-weight:100 800;font-style:normal;font-display:block}
 .em2-stage,.em2-stage *{box-sizing:border-box;margin:0;padding:0}
 .em2-stage{position:relative;overflow:hidden;contain:strict;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
 .em2-beat{position:absolute;inset:0}
@@ -224,6 +225,8 @@
       document.fonts.load(`700 40px "${f.display}"`),
       document.fonts.load(`600 40px "EB Garamond"`),
       document.fonts.load(`italic 400 40px "EB Garamond"`),
+      document.fonts.load(`600 40px "Playpen Sans"`),
+      document.fonts.load(`800 40px "Playpen Sans"`),
     ]).then(() => document.fonts.ready);
   }
 
@@ -659,8 +662,32 @@
         }
         const fill = el('div', { position: 'absolute', inset: '0', background: spec.tone }, wraps);
         if (PAPERBOOK(plan)) {
-          // Matte gouache: the sheet's own fibre speckle stands in for gradient modelling —
-          // flat colour like a screen-printed plate, never a lit gradient or soft blotches.
+          // Matte gouache, hand-laid: url(#) filters do not paint inside the cloned slot
+          // tree, so the pigment stack is pure CSS — a light slope, seeded sponge
+          // blotches, pigment pooling toward the lower edge, a tonal halftone field
+          // denser in the shadow half, then the sheet's fibre speckle.
+          const br = rng(spec.seed ^ 0x51ab);
+          const lt = mixColor(spec.tone, '#ffffff', 0.55);
+          const dk = mixColor(spec.tone, '#000000', 0.5);
+          const blot = [
+            `linear-gradient(168deg, ${rgbaOf(lt, 0.16)} 0%, ${rgbaOf(spec.tone, 0)} 44%, ${rgbaOf(dk, 0.10)} 100%)`,
+            `linear-gradient(180deg, ${rgbaOf(dk, 0)} 55%, ${rgbaOf(dk, 0.22)} 100%)`,
+          ];
+          for (let bi = 0; bi < 4; bi += 1) {
+            const bx = b.w * (0.08 + 0.84 * br()), by = b.h * (0.12 + 0.76 * br());
+            const bw2 = b.w * (0.24 + 0.34 * br()), bh2 = b.h * (0.5 + 0.5 * br());
+            const ct = br() < 0.5 ? lt : dk;
+            blot.push(`radial-gradient(ellipse ${px(bw2)} ${px(bh2)} at ${px(bx)} ${px(by)}, ${rgbaOf(ct, 0.10)}, ${rgbaOf(spec.tone, 0)} 68%)`);
+          }
+          fill.style.backgroundImage = blot.join(',');
+          // Tonal halftone: a dot field masked to the shadow side — print texture that
+          // dies out across the light, not a uniform screen.
+          const half = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, fill);
+          const dotDir = 120 + br() * 60;
+          half.style.backgroundImage = `radial-gradient(circle, ${rgbaOf(dk, 0.5)} ${f2(b.w * 0.0035)}px, transparent ${f2(b.w * 0.0042)}px)`;
+          half.style.backgroundSize = `${px(b.w * 0.028)} ${px(b.w * 0.028)}`;
+          half.style.webkitMaskImage = `linear-gradient(${f2(dotDir)}deg, rgba(0,0,0,0.16), rgba(0,0,0,0) 62%)`;
+          half.style.maskImage = half.style.webkitMaskImage;
           const fibre = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, fill);
           fibre.style.backgroundImage = pbSpeckle(plan);
           fibre.style.opacity = '0.5';
@@ -2251,21 +2278,31 @@
       els.push(under);
     }
     const body = svgEl('g', {}, g);
-    // Pigment pooling: every fill lays a darker, blurred rim of its own pigment a hair
-    // beneath the paint — the way watercolour settles at the edge of a wash.
     const poolBlur = `pabl_${uid}`;
     {
       const defs0 = svgEl('defs', {}, body);
       const bf = svgEl('filter', { id: poolBlur, x: '-15%', y: '-15%', width: '130%', height: '130%' }, defs0);
       svgEl('feGaussianBlur', { stdDeviation: '1.1' }, bf);
     }
+    const mr = rng(seed ^ 0x61c3);
+    const mdx = f2(0.7 + mr() * 0.9), mdy = f2(0.5 + mr() * 0.8);
     for (const p of parts) {
-      if (!p.sw && p.op >= 0.5 && p.tone !== 'paper') {
-        svgEl('path', { d: p.d, fill: mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.3), 'fill-opacity': f2(Math.min(0.4, p.op * 0.3)), transform: p.tf || undefined, filter: `url(#${poolBlur})` }, body);
+      if (!p.sw && p.op >= 0.4 && p.tone !== 'paper') {
+        // Plate misregistration: a darker copy of the fill offset a hair reads as a
+        // second print pass gone a touch off-register — and stands in for the pooled
+        // rim inside cloned slots, where url(#) filters do not paint.
+        const dupe = svgEl('path', { d: p.d, fill: mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.42), 'fill-opacity': f2(Math.min(0.16, p.op * 0.16)), transform: `translate(${mdx} ${mdy}) ${p.tf || ''}`.trim() }, body);
+        els.push(dupe);
+        if (plan.book !== 'paperbook') {
+          svgEl('path', { d: p.d, fill: mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.3), 'fill-opacity': f2(Math.min(0.4, p.op * 0.3)), transform: p.tf || undefined, filter: `url(#${poolBlur})` }, body);
+        }
       }
+      // Pigment edge: a same-path stroke a tone deeper than the fill reads as paint
+      // gathered at the cut edge — hand-laid, not bucket-filled.
+      const edgeInk = p.sw || p.op < 0.35 || p.tone === 'paper' ? 'none' : mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.45);
       const elp = p.sw
         ? svgEl('path', { d: p.d, fill: 'none', stroke: paintTone(p.tone, plan), 'stroke-width': f2(p.sw), 'stroke-linecap': 'round', 'stroke-opacity': f2(p.op), transform: p.tf || undefined }, body)
-        : svgEl('path', { d: p.d, fill: paintTone(p.tone, plan), 'fill-opacity': f2(p.op), transform: p.tf || undefined }, body);
+        : svgEl('path', { d: p.d, fill: paintTone(p.tone, plan), 'fill-opacity': f2(p.op), stroke: edgeInk, 'stroke-width': f2(1.1), 'stroke-opacity': edgeInk === 'none' ? '0' : '0.3', 'stroke-linejoin': 'round', transform: p.tf || undefined }, body);
       els.push(elp);
     }
     if (edgeParts.length) {
@@ -2279,8 +2316,18 @@
       const wr = rng(seed ^ 0x51ab);
       const wash = svgEl('g', { 'clip-path': `url(#pac_${uid})` }, g);
       svgEl('rect', { x: '-10', y: '-10', width: '120', height: '120', fill: `url(#paw_${uid})` }, wash);
-      svgEl('path', { d: cutBlobPath(22 + wr() * 26, 24 + wr() * 28, 26, 20, seed ^ 0x77aa), fill: '#ffffff', 'fill-opacity': '0.1' }, wash);
-      svgEl('path', { d: cutBlobPath(55 + wr() * 28, 56 + wr() * 26, 30, 24, seed ^ 0x33cc), fill: plan.brand.ink, 'fill-opacity': '0.06' }, wash);
+      for (let bi = 0; bi < 5; bi += 1) {
+        const bt = wr() < 0.55 ? '#ffffff' : plan.brand.ink;
+        svgEl('path', { d: cutBlobPath(12 + wr() * 76, 14 + wr() * 72, 14 + wr() * 22, 12 + wr() * 20, seed ^ (0x77aa + bi * 0x1f1f)), fill: bt, 'fill-opacity': f2(bt === '#ffffff' ? 0.05 + wr() * 0.09 : 0.04 + wr() * 0.08) }, wash);
+      }
+      // Halftone shading: seeded dots concentrated toward the shadowed corner so the
+      // pigment reads printed, not flat.
+      const hd = rng(seed ^ 0x2bd1);
+      const hx = 30 + hd() * 40, hy = 58 + hd() * 30;
+      for (let di = 0; di < 34; di += 1) {
+        const a = hd() * Math.PI * 2, dd = Math.pow(hd(), 1.6) * 26;
+        svgEl('circle', { cx: f2(hx + Math.cos(a) * dd), cy: f2(hy + Math.sin(a) * dd * 0.72), r: f2(0.55 + hd() * 0.85), fill: plan.brand.ink, 'fill-opacity': f2(0.05 + hd() * 0.1) }, wash);
+      }
       els.push(wash);
     }
     return { g, els };
@@ -4032,6 +4079,9 @@
   // ---------------------------------------------------------------------------
   const PAPERBOOK = (plan) => Boolean(plan && plan.book === 'paperbook');
   const PB_SERIF = '"EB Garamond","Iowan Old Style","Liberation Serif","DejaVu Serif",Georgia,serif';
+  // The hand face: children's-book lettering with per-glyph alternates baked into
+  // the font (calt) — letterforms vary like handwriting, never a uniform UI face.
+  const PB_HAND = '"Playpen Sans","Segoe Print","Comic Sans MS",cursive';
 
   function paperbookRects(plan) {
     const W = plan.canvas.w, H = plan.canvas.h;
@@ -4096,9 +4146,23 @@
     //            print sits in the lower corner, a cut lip runs along the join
     //   zipped   a zigzag cut divides art above from print below
     //   scissor  the same split torn by hand — a ragged deckle lip
-    let slotRect, colRect = null, slotClip = null, divider = null;
+    let slotRect, colRect = null, slotClip = null, divider = null, slotMask = null, framed = true;
     if (layout === 'full') {
       slotRect = { x: pad * 0.5, y: ph * 0.055, w: pw - pad, h: ph * 0.86 };
+    } else if (layout === 'vignette') {
+      // Painted right on the page: the art fills the page and dissolves into the
+      // stock at its edges — no plate, no keyline. A caption line beneath.
+      slotRect = { x: pad * 0.3, y: ph * 0.05, w: pw - pad * 0.6, h: ph * 0.86 };
+      slotMask = `radial-gradient(ellipse 88% 86% at 50% 46%, rgba(0,0,0,1) 60%, rgba(0,0,0,0.45) 82%, rgba(0,0,0,0) 94%)`;
+      framed = false;
+      colRect = { x: pad, y: ph * 0.885, w: pw - pad * 2 };
+    } else if (layout === 'spot') {
+      // A spot illustration: the small free-floating mark picture-books drop in the
+      // margin — art unframed mid-page, generous prose beneath.
+      slotRect = { x: pw * 0.20, y: ph * 0.10, w: pw * 0.60, h: ph * 0.44 };
+      slotMask = `radial-gradient(ellipse 86% 84% at 50% 50%, rgba(0,0,0,1) 56%, rgba(0,0,0,0.5) 78%, rgba(0,0,0,0) 90%)`;
+      framed = false;
+      colRect = { x: pad, y: ph * 0.58, w: pw - pad * 2 };
     } else if (layout === 'diagonal') {
       slotRect = { x: pad * 0.4, y: ph * 0.06, w: pw - pad * 0.8, h: ph * 0.86 };
       const flip = pcut === 'left' ? -1 : 1; // right default: art fills upper-right triangle
@@ -4131,7 +4195,7 @@
     }
     if (colRect) {
       const col = el('div', { position: 'absolute', left: px(colRect.x), top: px(colRect.y), width: px(colRect.w) }, face);
-      const titleEl = el('div', { fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(pw * (layout === 'half' ? 0.060 : layout === 'full' ? 0.052 : 0.046)), lineHeight: '1.08', color: ink, letterSpacing: '0.005em' }, col);
+      const titleEl = el('div', { fontFamily: PB_HAND, fontWeight: '640', fontSize: px(pw * (layout === 'half' ? 0.058 : layout === 'full' ? 0.050 : 0.044)), lineHeight: '1.12', color: ink, letterSpacing: '0.002em' }, col);
       titleEl.textContent = titleText;
       if (mats.includes('foil')) {
         // Foil stamping: a gold leaf pressed into the letterforms.
@@ -4141,10 +4205,23 @@
         titleEl.style.color = 'transparent';
       }
       const prose = el('div', {
-        fontFamily: PB_SERIF, fontSize: px(pw * 0.0315), lineHeight: '1.44', color: rgbaOf(ink, 0.84),
+        fontFamily: PB_HAND, fontWeight: '430', fontSize: px(pw * 0.0305), lineHeight: '1.5', color: rgbaOf(ink, 0.86),
         marginTop: px(ph * 0.018), maxWidth: px(colRect.w * 0.94),
       }, col);
-      prose.textContent = bn.beat.narration || '';
+      const narration = bn.beat.narration || '';
+      if (narration && layout === 'half') {
+        // The initial: a versal three lines tall pressed in the accent ink, the rest
+        // of the line running around it — the manuscript opening a chapter takes.
+        const cap = el('span', {
+          fontFamily: PB_SERIF, fontWeight: '700', float: 'left',
+          fontSize: px(pw * 0.0305 * 3.35), lineHeight: '0.82',
+          color: plan.brand.accent || ink, margin: `${px(ph * 0.006)} ${px(pw * 0.012)} 0 0`,
+        }, prose);
+        cap.textContent = narration[0];
+        prose.appendChild(document.createTextNode(narration.slice(1)));
+      } else {
+        prose.textContent = narration;
+      }
       if (pg.quote && layout !== 'half') {
         // On cut layouts the quote closes the column — inside the safe triangle, never
         // laid across the cut lip.
@@ -4160,9 +4237,10 @@
     const slot = el('div', {
       position: 'absolute', left: px(slotRect.x), top: px(slotRect.y), width: px(slotRect.w), height: px(slotRect.h),
       overflow: 'hidden',
-      boxShadow: `inset 0 0 0 ${px(Math.max(0.8, pw * 0.0012))} ${rgbaOf(ink, 0.24)}, 0 ${px(ph * 0.004)} ${px(ph * 0.010)} ${rgbaOf(ink, 0.13)}`,
+      boxShadow: framed ? `inset 0 0 0 ${px(Math.max(0.8, pw * 0.0012))} ${rgbaOf(ink, 0.24)}, 0 ${px(ph * 0.004)} ${px(ph * 0.010)} ${rgbaOf(ink, 0.13)}` : 'none',
     }, face);
     if (slotClip) slot.style.clipPath = slotClip;
+    if (slotMask) { slot.style.webkitMaskImage = slotMask; slot.style.maskImage = slotMask; }
     if (divider) {
       // The cut edge: a sliver of exposed raw stock running along the cut — torn or zigzagged,
       // the white lip a real paper cut leaves.
@@ -4212,9 +4290,21 @@
     }
     const folio = el('div', {
       position: 'absolute', bottom: px(ph * 0.03), [side === 'left' ? 'left' : 'right']: px(pw * 0.05),
-      fontFamily: PB_SERIF, fontSize: px(pw * 0.026), color: rgbaOf(ink, 0.55),
+      fontFamily: PB_HAND, fontWeight: '450', fontSize: px(pw * 0.026), color: rgbaOf(ink, 0.55),
     }, face);
     folio.textContent = String(i + 1);
+    // Bank-art attribution: picture books credit their illustrators — a hairline
+    // line under the plate in faint ink, like the copyright margin of a real book.
+    const credits = (((bn.beat || {}).illustration || {}).entities || [])
+      .filter((e) => e.photo && /^bank:/.test(e.photo.source || '') && e.photo.credit)
+      .map((e) => e.photo.credit);
+    if (credits.length) {
+      const cr = el('div', {
+        position: 'absolute', bottom: px(ph * 0.068), left: px(pad),
+        fontFamily: PB_SERIF, fontStyle: 'italic', fontSize: px(pw * 0.016), color: rgbaOf(ink, 0.5),
+      }, face);
+      cr.textContent = `Illustration: ${[...new Set(credits)].join(' · ')}`;
+    }
     // Material drops — the modern paper-book furniture this page carries.
     if (mats.includes('vellum')) {
       // A tissue guard: a translucent vellum sheet laid over the plate, deckled at its

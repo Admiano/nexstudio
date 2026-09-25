@@ -23,6 +23,7 @@ from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
+from .bankart import BankArt
 from .evidence import PhotoEvidence
 from .lexicon import AssetFinder, NounLexicon, Resolution
 from .media import NormalisedMedia, normalise_media
@@ -1212,6 +1213,9 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
     # so the ladder only offers native marks and otherwise typesets.
     native_only = pack is not None
     evidence = PhotoEvidence(lexicon=finder.lexicon)
+    # Paperbook paints its concepts: a real picture-book plate from the open-licensed
+    # bank outranks a photograph; other dialects keep photo evidence first.
+    bankart = BankArt() if film.world and film.world.book == 'paperbook' else None
     for b, e in todo:
         named = e.glyph == 'CHIP' and e.label is not None
         r = finder.resolve(e.concept, pack, e.glyph in WORD_GLYPHS, native_only, named)
@@ -1220,11 +1224,18 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
             # well, beats an ancestor's mark or the bare word. The name still rides with it unless
             # the housing already carries it.
             rec = evidence.find(e.concept)
+            if bankart is not None:
+                brec = bankart.find(e.concept)
+                if brec is not None:
+                    word = None if (named or e.glyph == 'BADGE') else e.concept
+                    r = Resolution(e.concept, 'bank', asset_ref=None, word=word, path=[e.concept, brec['desc']])
+                    e.params['photo'] = bankart.as_plan(brec)
+                    rec = None
             if rec is not None:
                 word = None if (named or e.glyph == 'BADGE') else e.concept
                 r = Resolution(e.concept, 'photo', asset_ref=None, word=word, path=[e.concept, rec.title])
                 e.params['photo'] = evidence.as_plan(rec)
-        if e.glyph == 'CHIP' and not named and r.via in ('composite', 'photo'):
+        if e.glyph == 'CHIP' and not named and r.via in ('composite', 'photo', 'bank'):
             # A chip's peg holds the mark or photograph and its inside label the name: an unlabelled
             # chip drawn by an ancestor or a photograph takes its concept as that label, so the
             # descriptor is typeset through the label fit rather than squeezed into the peg.
