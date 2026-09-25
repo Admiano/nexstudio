@@ -184,16 +184,16 @@ def test_animicon_slots_play_baked_sprite():
     compiled = wbc.compile_whiteboard_plan(plan, {'ratio': '16:9'})
     plan.update(compiled)
     marked = [
-        (kind, slot.get('animicon'))
+        slot['sprite']
         for sc in plan['sceneSpecs']
         for (kind, _st, _c, _s, slot), _w0, _w1
         in v3r._scene_groups(sc, plan, '16:9')
-        if kind == 'icon' and slot and slot.get('animicon')]
+        if kind == 'icon' and slot and slot.get('sprite')]
     assert marked, 'no animicon slot resolved'
-    slug = marked[0][1]
-    meta = v3r._animicon_meta(slug)
+    pack, slug = marked[0]
+    meta = v3r._sprite_meta(pack, slug)
     assert meta['frames'] > 1 and meta['w'] > 0
-    fr = v3r._animicon_frame(slug, int(meta['frames'] / 2))
+    fr = v3r._sprite_frame(pack, slug, int(meta['frames'] / 2))
     assert fr.size[0] == meta['w'] and fr.mode == 'RGBA'
 
 

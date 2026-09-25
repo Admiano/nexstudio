@@ -138,3 +138,15 @@ which were AI-generated and vectorized as pipeline demos.
   lookup tokens. Icons marked `animicon` play their own animation inside
   their draw window instead of stroking on. CC-BY 4.0 — attribution
   required in shipped video (see `assets/animicons/LICENSE-NOTICE.txt`).
+
+### fx particle marks
+- `assets/fx/` — 29 Kenney Particle Pack sprites (CC0) rebaked to 128px
+  alpha PNGs (luminance→alpha); `index.json` maps mark names (spark,
+  star, magic, smoke, glow, trail, twirl, ring, slash, dust...) to
+  variants. 'fx' groups paste them alpha-tinted in the accent color at
+  an icon's corner — upgrade of the procedural sparkle marks.
+
+### icons/notomoji (baking)
+- `assets/notomoji/` — Noto animated emoji (CC-BY 4.0) baked by
+  `tools/notomoji_pack.py` to 160px palette PNG strips + index.json.
+  ~600 base emoji; joins the sprite-slot path alongside animicons.

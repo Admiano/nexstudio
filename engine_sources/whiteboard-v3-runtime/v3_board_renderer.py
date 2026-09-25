@@ -1009,6 +1009,11 @@ def _icon_index():
             for slug, m in json.loads(ai.read_text()).items():
                 toks = set(slug.split('-')) | set(m.get('tokens', ()))
                 idx[('animicon', slug)] = {t for t in toks if len(t) > 1}
+        nm = _ASSETS / 'notomoji' / 'index.json'
+        if nm.is_file():
+            for slug, m in json.loads(nm.read_text()).items():
+                toks = set(slug.split('-')) | set(m.get('tokens', ()))
+                idx[('notomoji', slug)] = {t for t in toks if len(t) > 1}
         _ICON_INDEX = idx
     return _ICON_INDEX
 
@@ -1048,6 +1053,8 @@ def _icon_lookup(concept: str, exclude=None):
             score += 0.15                     # cleanest stroke style wins ties
         if d == 'animicon':
             score += 0.30                     # animated art wins ties outright
+        if d == 'notomoji':
+            score += 0.05                     # emoji accent — must win on tokens
         score -= len(name) * 0.04
         if score > best_score:
             best, best_score = ('icon', d, name), score
@@ -1683,7 +1690,7 @@ def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
         verb = _strokes_for(icon[2]) or []
         return base + _shift_strokes(verb, 0.40, 0.56, 0.56, color='accent')
     if isinstance(icon, tuple) and icon[0] == 'icon':
-        if icon[1] == 'animicon':
+        if icon[1] in ('animicon', 'notomoji'):
             return []  # sprite-animated slot — no strokes
         if icon[1] == 'tabler':
             return _tabler_strokes(icon[2])
@@ -2251,8 +2258,8 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                          plan.setdefault('_icon_used', {}))
 
     order = {'headline': -1, 'ground': 0, 'icon': 0, 'arrow': 0.5,
-             'bubble': 1, 'marks': 2, 'sparkle': 2, 'strike': 2.5,
-             'emphasis': 2.6, 'caption': 3}
+             'bubble': 1, 'marks': 2, 'sparkle': 2, 'fx': 2.2,
+             'strike': 2.5, 'emphasis': 2.6, 'caption': 3}
     groups = [('headline', _headline_strokes(scene, zone, ratio),
                (zone['x'], zone['y']), 1.0, None)]
     mark_groups = []
@@ -2281,9 +2288,9 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             if up_key in _ANIM_UPGRADE:
                 ic = ('icon', 'animicon', _ANIM_UPGRADE[up_key])
             if isinstance(ic, tuple) and ic[0] == 'icon' \
-                    and ic[1] == 'animicon':
-                # animated icon — reserve the draw window, sprite pastes in
-                s['animicon'] = ic[2]
+                    and ic[1] in ('animicon', 'notomoji'):
+                # animated sprite slot — reserve the draw window, sprite pastes in
+                s['sprite'] = (ic[1], ic[2])
                 groups.append(('icon', [], s['center'], s['size'], s))
             else:
                 groups.append(('icon', _strokes_for(
@@ -2316,8 +2323,12 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             groups.append(('bubble', _bubble_strokes(), bc, s['size'] * 0.62, s))
         if s['icon'] in ('envelope', 'phone', 'question'):
             groups.append(('sparkle', _ping_strokes(), s['center'], s['size'], s))
-        if s['icon'] in ('check', 'coin', 'coins', 'rocket', 'lightbulb', 'chart', 'target'):
-            groups.append(('sparkle', _sparkle_strokes(), s['center'], s['size'], s))
+        fx_key = s['icon'] if isinstance(s['icon'], str) else (
+            s['icon'][2] if isinstance(s['icon'], tuple)
+            and len(s['icon']) == 3 and s['icon'][0] == 'icon' else None)
+        if fx_key in ('check', 'coin', 'coins', 'rocket', 'lightbulb', 'chart', 'target'):
+            s['fx'] = 'spark'
+            groups.append(('fx', [], s['center'], s['size'], s))
     # verb arrow — the drawn relationship from actor to first object
     arrow_drawn = False
     person_slots = [s for s in slots if s['icon'] == 'person']
@@ -2455,41 +2466,85 @@ _ANIM_UPGRADE = {
     'archive': 'archive', 'bookmark': 'bookmark', 'film': 'video2',
     'increase': 'arrowUp', 'decrease': 'arrowDown', 'infinity': 'infinity',
 }
-_ANIMICONS_DIR = _ASSETS / 'animicons'
+_SPRITE_DIRS = {'animicon': _ASSETS / 'animicons',
+                'notomoji': _ASSETS / 'notomoji'}
 _ANIMICON_CACHE = {}
 
 
-def _animicon_meta(slug: str):
-    if slug not in _ANIMICON_CACHE:
-        mp = _ANIMICONS_DIR / slug / 'meta.json'
-        _ANIMICON_CACHE[slug] = (
-            json.loads(mp.read_text()) if mp.is_file() else None)
-    return _ANIMICON_CACHE[slug]
-
-
-def _animicon_frame(slug: str, idx: int):
-    key = (slug, idx)
+def _sprite_meta(pack: str, slug: str):
+    key = ('meta', pack, slug)
     if key not in _ANIMICON_CACHE:
-        fp = _ANIMICONS_DIR / slug / f'f{idx:04d}.png'
+        mp = _SPRITE_DIRS[pack] / slug / 'meta.json'
+        _ANIMICON_CACHE[key] = (
+            json.loads(mp.read_text()) if mp.is_file() else None)
+    return _ANIMICON_CACHE[key]
+
+
+def _sprite_frame(pack: str, slug: str, idx: int):
+    key = (pack, slug, idx)
+    if key not in _ANIMICON_CACHE:
+        fp = _SPRITE_DIRS[pack] / slug / f'f{idx:04d}.png'
         _ANIMICON_CACHE[key] = (Image.open(fp).convert('RGBA')
                                 if fp.is_file() else None)
     return _ANIMICON_CACHE[key]
 
 
-def _paste_animicon(layer, slug, center, size, cam, ratio, zoom, p):
-    """Paste frame p of the animated icon into the slot — the icon plays its
-    own animation across its draw window and holds the last frame."""
-    meta = _animicon_meta(slug)
+def _paste_sprite(layer, pack, slug, center, size, cam, ratio, zoom, p):
+    """Paste frame p of the animated sprite into the slot — the icon plays
+    its own animation across its draw window and holds the last frame."""
+    meta = _sprite_meta(pack, slug)
     if not meta:
         return
     n = meta['frames']
-    img = _animicon_frame(slug, min(n - 1, max(0, int(p * n))))
+    img = _sprite_frame(pack, slug, min(n - 1, max(0, int(p * n))))
     if img is None:
         return
     scale = _map_scale(ratio, zoom)
     w = max(8, int(size * scale))
     im = img.resize((w, w), Image.LANCZOS)
     sx, sy = wbp._map_point(center, cam, ratio, zoom)
+    layer.alpha_composite(im, (int(sx - w / 2), int(sy - w / 2)))
+
+
+_FX_DIR = _ASSETS / 'fx'
+_FX_INDEX = None
+_FX_CACHE = {}
+
+
+def _fx_index():
+    global _FX_INDEX
+    if _FX_INDEX is None:
+        ip = _FX_DIR / 'index.json'
+        _FX_INDEX = json.loads(ip.read_text()) if ip.is_file() else {}
+    return _FX_INDEX
+
+
+def _fx_image(mark: str, seed: int):
+    key = (mark, seed)
+    if key not in _FX_CACHE:
+        files = _fx_index().get(mark) or []
+        if not files:
+            _FX_CACHE[key] = None
+        else:
+            fn = files[(seed // 97) % len(files)]
+            _FX_CACHE[key] = Image.open(_FX_DIR / fn).convert('RGBA')
+    return _FX_CACHE[key]
+
+
+def _paste_fx(layer, mark, center, size, cam, ratio, zoom, p, colors, seed):
+    """Kenney CC0 particle sprite as an accent mark — alpha-tinted to the
+    accent color, pops in over the first 45% of the window, then holds."""
+    img = _fx_image(mark, seed)
+    if img is None:
+        return
+    k = _pop_scale(min(1.0, p / 0.45))
+    w = max(6, int(size * 0.5 * _map_scale(ratio, zoom) * k))
+    accent = colors.get('accent', (60, 60, 60, 255))
+    tint = Image.new('RGBA', img.size, tuple(accent[:3]) + (255,))
+    tint.putalpha(img.split()[3])
+    im = tint.resize((w, w), Image.LANCZOS)
+    bc = (center[0] + size * 0.38, center[1] - size * 0.35)
+    sx, sy = wbp._map_point(bc, cam, ratio, zoom)
     layer.alpha_composite(im, (int(sx - w / 2), int(sy - w / 2)))
 
 
@@ -2515,10 +2570,15 @@ def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
         p = wbp._ease(wbp._clamp((scene_time - start) / max(0.05, end - start)))
         if p <= 0:
             continue
-        if slot and slot.get('animicon'):
+        if slot and slot.get('sprite'):
             if draw:
-                _paste_animicon(layer, slot['animicon'], center,
-                                size * _pop_scale(p), cam, ratio, zoom, p)
+                _paste_sprite(layer, *slot['sprite'], center,
+                              size * _pop_scale(p), cam, ratio, zoom, p)
+            continue
+        if kind == 'fx':
+            if draw and slot and slot.get('fx'):
+                _paste_fx(layer, slot['fx'], center, size, cam,
+                          ratio, zoom, p, colors, seed + gi * 97)
             continue
         sz = size * (_pop_scale(p) if kind == 'icon' else 1.0)
         t = _draw_strokes(layer, strokes or [], center, sz, cam, colors,
