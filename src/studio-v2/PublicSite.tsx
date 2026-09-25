@@ -183,7 +183,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
         </section>
         <section className="pw-final"><div className="pw-final-inner pw-reveal"><div className="pw-kicker"><i /> NexStudio</div><h2>Make something worth watching.</h2><p>Start with the brief. NexMind will take it from there—and show you the direction before production begins.</p><button className="pw-solid" onClick={enter}>Open NexStudio →</button></div></section>
       </main>
-      <footer className="pw-footer"><span>© 2026 NexStudio · Powered by NexMind</span><div className="pw-footer-links"><a href="#make">Make</a><a href="#nexmind">NexMind</a></div></footer>
+      <footer className="pw-footer"><span>© 2026 NexStudio · Powered by NexMind</span><div className="pw-footer-links"><a href="#make">Make</a><a href="#nexmind">NexMind</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
       {signIn && <SignInSheet onClose={() => setSignIn(false)} />}
     </div>
   );
@@ -220,6 +220,7 @@ function SignInSheet({ onClose }: { onClose: () => void }) {
             <div className="field"><label>Email</label><input autoFocus type="email" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void submit(); }} placeholder="you@company.com" /></div>
             {error && <p className="field-error">{error}</p>}
             <button className="sheet-action" disabled={busy} onClick={() => void submit()}>{busy ? "Sending…" : "Email me a sign-in link"}</button>
+            <p className="sheet-legal">By continuing you agree to the <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
           </>
         )}
       </div>
