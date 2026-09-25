@@ -67,4 +67,5 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/animicons_pack.py` | useAnimations Lottie -> assets/animicons PNG strip baker (lottie->svg->png per frame) | `3d556dd1d956790bf43c55bf4f607caf2fb9d29d464c6e5469c24e37c25ceeeb` |
 | `assets/animicons/` | 79 self-animating icon sprite strips + index.json (useAnimations, CC-BY 4.0; LICENSE-NOTICE inside) | `3dfcd5cd21e4688baa18990b00ed9d071279147bc240638a5080584f845d396e` (index) |
 | `tools/notomoji_pack.py` | Noto animated emoji Lottie -> assets/notomoji palette-PNG strips baker | `aa125f6b777579571a0edf00d93fe1bbb15209286f821456735fb3e97969c05d` |
+| `assets/notomoji/` | 609 Noto animated emoji sprite strips (CC-BY 4.0; Google Noto Animated Emoji set) | `d20225817302efd2f9042ac372bd46e28033a83b2d9216d0f0ffa772ebd7725b` (index) |
 | `assets/fx/` | 29 Kenney Particle Pack sprites, luminance->alpha 128px (CC0) + index.json | `9f432141510ec12bde37d14470eb7d0121340261f742bcaa4f41351e11fbe1e6` (index) |

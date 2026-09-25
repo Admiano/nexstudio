@@ -146,7 +146,9 @@ which were AI-generated and vectorized as pipeline demos.
   variants. 'fx' groups paste them alpha-tinted in the accent color at
   an icon's corner — upgrade of the procedural sparkle marks.
 
-### icons/notomoji (baking)
+### icons/notomoji
 - `assets/notomoji/` — Noto animated emoji (CC-BY 4.0) baked by
   `tools/notomoji_pack.py` to 160px palette PNG strips + index.json.
-  ~600 base emoji; joins the sprite-slot path alongside animicons.
+  609 base emoji baked (skin-tone variant dirs skipped); joins the
+  sprite-slot path alongside animicons — naming a notomoji slug in an
+  icon slot plays the animated emoji.
