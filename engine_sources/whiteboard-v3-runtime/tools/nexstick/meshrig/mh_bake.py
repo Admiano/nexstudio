@@ -91,8 +91,13 @@ def pose_frame(fr):
         if ds: emp[bn][1].location = jp(ds, fr)
 
 # --- render setup ---
+KEEP = {'MH_BODY'}
 for o in list(bpy.data.objects):
-    if o.name != 'MH_BODY' and o.type in ('MESH', 'LIGHT'):
+    if o.type == 'MESH' and any(
+            m.type == 'ARMATURE' for m in o.modifiers):
+        KEEP.add(o.name)          # rig-bound extras (hair, garments) survive
+for o in list(bpy.data.objects):
+    if o.name not in KEEP and o.type in ('MESH', 'LIGHT'):
         bpy.data.objects.remove(o)
 for p in mesh.data.polygons: p.use_smooth = True
 mat = bpy.data.materials.new('hold'); mat.use_nodes = True
@@ -100,8 +105,10 @@ nt = mat.node_tree; nt.nodes.clear()
 outn = nt.nodes.new('ShaderNodeOutputMaterial')
 hold = nt.nodes.new('ShaderNodeHoldout')
 nt.links.new(hold.outputs['Holdout'], outn.inputs['Surface'])
-if mesh.data.materials: mesh.data.materials[0] = mat
-else: mesh.data.materials.append(mat)
+for o in list(bpy.data.objects):
+    if o.type == 'MESH':
+        if o.data.materials: o.data.materials[0] = mat
+        else: o.data.materials.append(mat)
 scene.render.engine = 'BLENDER_EEVEE'
 scene.render.use_freestyle = True
 rw, rh = (int(x) for x in a.res.split('x'))
@@ -127,12 +134,30 @@ cam.rotation_euler = (Vector((0, 0, 0.5)) - cam.location).to_track_quat('-Z', 'Y
 scene.camera = cam
 
 import os
+from bpy_extras.object_utils import world_to_camera_view
 os.makedirs(a.out, exist_ok=True)
+
+def proj(p):
+    nd = world_to_camera_view(scene, cam, Vector(p))
+    return (nd.x * rw, (1.0 - nd.y) * rh)
+
+heads = {}
 for fr in range(a.start, end + 1):
     pose_frame(fr); scene.frame_set(fr); bpy.context.view_layer.update()
     scene.render.filepath = os.path.join(a.out, 'f%04d.png' % fr)
     bpy.ops.render.render(write_still=True)
+    # mouth anchor: jaw-bone head pos -> sprite px, plus px-per-vault-meter
+    # and the facing sign / foreshorten factor (mouth shrinks as head turns)
+    jw = arm.matrix_world @ arm.pose.bones['jaw'].head
+    jx, jy = proj(jw)
+    fx, _ = proj(jw + Vector((0, -4.0, 0)))   # face fwd = -Y; 0.4m at S=10
+    ax, _ay = proj(jw)
+    bx, _by = proj(jw + Vector((0, 0, 10.0)))  # 1 vault meter at S=10
+    s_px = math.dist((ax, _ay), (bx, _by))
+    heads[str(fr)] = [round(jx, 2), round(jy, 2), round(s_px, 2),
+                      1 if fx > jx else -1,
+                      round(abs(fx - jx) / max(1e-4, 0.4 * s_px), 3)]
 meta = {'clip': a.clip, 'frames': end + 1, 'fps': a.fps, 'sourceFps': float(c['fps']),
-        'res': [rw, rh], 'cam': a.cam}
+        'res': [rw, rh], 'cam': a.cam, 'heads': heads}
 json.dump(meta, open(os.path.join(a.out, 'meta.json'), 'w'))
 print('BAKED', a.clip, 'frames', end + 1 - a.start)

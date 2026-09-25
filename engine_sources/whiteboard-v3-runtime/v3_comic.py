@@ -81,12 +81,24 @@ def _build(plan, ratio):
     aspect = vw / vh
     cols = max(1, math.ceil(math.sqrt(n * aspect)))
     rows = max(1, math.ceil(n / cols))
+    # multi-page: a page holds at most 3 rows; overflow beats continue on
+    # the next page which starts blank — the page flips when the active
+    # beat crosses the boundary
+    max_rows = 3
+    pages = max(1, math.ceil(rows / max_rows))
+    if pages > 1:
+        per_page = cols * max_rows
+        rows = max_rows
+    else:
+        per_page = n
     pw = (W - 2 * m - (cols - 1) * gap) / cols
     ph = (H - 2 * m - (rows - 1) * gap) / rows
 
     panels = []
     for bi, beat in enumerate(beats):
-        col, row = bi % cols, bi // cols
+        page = bi // per_page
+        slot_i = bi % per_page
+        col, row = slot_i % cols, slot_i // cols
         rect = (-W / 2 + m + col * (pw + gap),
                 -H / 2 + m + row * (ph + gap),
                 -W / 2 + m + col * (pw + gap) + pw,
@@ -154,7 +166,8 @@ def _build(plan, ratio):
                            for p_, c_, ws_, *_ in tst]
 
         panels.append({
-            'bi': bi, 't0': t0, 't1': t1, 'dur': dur, 'rect': rect,
+            'bi': bi, 'page': page, 't0': t0, 't1': t1, 'dur': dur,
+            'rect': rect,
             'border': _panel_border(rect, bi * 7 + 3),
             'cap_groups': cap_groups,
             'bub_groups': bub_groups,
@@ -227,9 +240,15 @@ def render_comic_frame(plan: dict, ratio: str, t: float):
             (lt - win[0] * sec['dur'])
             / max(0.1, (win[1] - win[0]) * sec['dur'])))
 
+    # current page = the page of the latest started panel — the page flips
+    # when a new page's first beat begins
+    page = 0
+    for sec in flow['panels']:
+        if t >= sec['t0']:
+            page = sec.get('page', 0)
     fig_overlays = []   # (img, cx, fy, h, clip_rect_px, reveal_p)
     for sec in flow['panels']:
-        if t < sec['t0']:
+        if t < sec['t0'] or sec.get('page', 0) != page:
             continue
         g_seed = seed + sec['bi'] * 13
         p = local_p(sec, W_BORDER)

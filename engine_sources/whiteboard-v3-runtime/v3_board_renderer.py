@@ -2271,13 +2271,20 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                            s['center'], s['size'], s))
             s['no_caption'] = True
         elif (s['icon'] in ('person', 'agent')
-                and scene.get('figureMotion') and fm_slot is None):
+                and scene.get('figureMotion')
+                and (fm_slot is None
+                     or (scene.get('figureMotion2')
+                         and scene.get('_fm2_slot') is None))):
             # the animated figure replaces the drawn person at this slot —
-            # empty group keeps the draw window + caption cadence intact
-            fm_slot = s
-            scene['_fm_slot'] = s
-            scene['_fm_anchor'] = dict(center=s['center'], size=s['size'],
-                                       facing=s.get('facing', 1))
+            # empty group keeps the draw window + caption cadence intact.
+            # A second person slot claims scene['figureMotion2'] when given.
+            key = '' if fm_slot is None else '2'
+            if fm_slot is None:
+                fm_slot = s
+            scene['_fm' + key + '_slot'] = s
+            scene['_fm' + key + '_anchor'] = dict(
+                center=s['center'], size=s['size'],
+                facing=s.get('facing', 1))
             groups.append(('icon', [], s['center'], s['size'], s))
         else:
             ic = s['icon']
@@ -2304,7 +2311,8 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
         if s['icon'] in ('person', 'agent'):
             gc = (s['center'][0], s['center'][1] + s['size'] * 0.52)
             groups.append(('ground', _ground_shadow_strokes(), gc, s['size'], s))
-            if s['icon'] == 'person' and s is not fm_slot:
+            if (s['icon'] == 'person' and s is not fm_slot
+                    and s is not scene.get('_fm2_slot')):
                 mark_groups.append(('marks', _motion_marks_strokes(),
                                     s['center'], s['size'], s))
         low_lbl = str(s['label']).lower()
@@ -2448,6 +2456,12 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             if g[4] is fm_slot:
                 scene['_fm_window'] = (s_, e_)
                 break
+        fm2 = scene.get('_fm2_slot')
+        if fm2 is not None:
+            for g, s_, e_ in out:
+                if g[4] is fm2:
+                    scene['_fm2_window'] = (s_, e_)
+                    break
     return out
 
 
@@ -2489,9 +2503,11 @@ def _sprite_frame(pack: str, slug: str, idx: int):
     return _ANIMICON_CACHE[key]
 
 
-def _paste_sprite(layer, pack, slug, center, size, cam, ratio, zoom, p):
+def _paste_sprite(layer, pack, slug, center, size, cam, ratio, zoom, p,
+                  mono=None):
     """Paste frame p of the animated sprite into the slot — the icon plays
-    its own animation across its draw window and holds the last frame."""
+    its own animation across its draw window and holds the last frame.
+    mono=<rgba> flattens the sprite to a single ink tone (pure-line look)."""
     meta = _sprite_meta(pack, slug)
     if not meta:
         return
@@ -2501,6 +2517,10 @@ def _paste_sprite(layer, pack, slug, center, size, cam, ratio, zoom, p):
         return
     scale = _map_scale(ratio, zoom)
     w = max(8, int(size * scale))
+    if mono:
+        tint = Image.new('RGBA', img.size, tuple(mono[:3]) + (255,))
+        tint.putalpha(img.split()[3])
+        img = tint
     im = img.resize((w, w), Image.LANCZOS)
     sx, sy = wbp._map_point(center, cam, ratio, zoom)
     layer.alpha_composite(im, (int(sx - w / 2), int(sy - w / 2)))
@@ -2572,8 +2592,10 @@ def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
             continue
         if slot and slot.get('sprite'):
             if draw:
+                mono = colors.get('ink') if plan.get('sprite_ink') else None
                 _paste_sprite(layer, *slot['sprite'], center,
-                              size * _pop_scale(p), cam, ratio, zoom, p)
+                              size * _pop_scale(p), cam, ratio, zoom, p,
+                              mono=mono)
             continue
         if kind == 'fx':
             if draw and slot and slot.get('fx'):
@@ -3165,11 +3187,19 @@ def _fm_mod():
 def _figure_motion_overlay(frame, scene, plan, ratio, cam, zoom, scene_time):
     """Composite the animated mocap figure over the drawn board at the
     person slot. Pops in during the slot's draw window, then plays the clip
-    for the rest of the beat; the ground shadow and caption still draw."""
-    fm = scene.get('figureMotion')
-    if not fm:
-        return frame
-    anchor = scene.get('_fm_anchor')
+    for the rest of the beat; the ground shadow and caption still draw.
+    scene['figureMotion2'] draws a second figure at the next person slot."""
+    for key in ('', '2'):
+        fm = scene.get('figureMotion' + key)
+        if not fm:
+            continue
+        frame = _fm_one(frame, scene, fm, key, plan, ratio, cam, zoom,
+                        scene_time)
+    return frame
+
+
+def _fm_one(frame, scene, fm, key, plan, ratio, cam, zoom, scene_time):
+    anchor = scene.get('_fm' + key + '_anchor')
     if not anchor:
         zone = (scene.get('whiteboardRuntime') or {}).get('boardZone') or {}
         zw = float(zone.get('w', 1))
@@ -3178,7 +3208,7 @@ def _figure_motion_overlay(frame, scene, plan, ratio, cam, zoom, scene_time):
         anchor = {'center': (float(zone.get('x', 0)) + zw * 0.26,
                              float(zone.get('y', 0)) + zh * 0.86 - size * 0.5),
                   'size': size, 'facing': 1}
-    win = scene.get('_fm_window') or (0.45, 1.1)
+    win = scene.get('_fm' + key + '_window') or (0.45, 1.1)
     dt = scene_time - win[0]
     if dt < -0.05:
         return frame

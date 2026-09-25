@@ -77,8 +77,13 @@ def _baked_strip(clip: str, spec: dict, seconds: float, fps: int):
     """Pre-baked line-art sprite frames (meshrig/mh_bake.py output) -> RGBA
     tiles. Loops or trims to the requested duration; mirrors on request."""
     from PIL import Image
-    d = BAKED_ROOT / clip
+    variant = spec.get('variant')
+    d = (BAKED_ROOT / f'{clip}@{variant}' if variant
+         else BAKED_ROOT / clip)
     meta_p = d / 'meta.json'
+    if not meta_p.exists() and variant:
+        d = BAKED_ROOT / clip          # unbaked variant falls back to base
+        meta_p = d / 'meta.json'
     if not meta_p.exists():
         return None
     meta = json.loads(meta_p.read_text())
@@ -90,12 +95,14 @@ def _baked_strip(clip: str, spec: dict, seconds: float, fps: int):
     n = max(2, int(math.ceil(seconds * fps)))
     step = src_fps / fps
     imgs = []
+    src_idx = []
     for i in range(n):
         fi = int(t0 * src_fps + i * step) % len(frames)
         img = Image.open(frames[fi]).convert('RGBA')
         if spec.get('mirror'):
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
         imgs.append(img)
+        src_idx.append(fi)
     # trim the union transparent margin so callers can bottom-anchor on the
     # figure's lowest real pixel (a plank pose sits above its frame floor)
     box = None
@@ -110,7 +117,68 @@ def _baked_strip(clip: str, spec: dict, seconds: float, fps: int):
                min(imgs[0].width, box[2] + pad),
                min(imgs[0].height, box[3] + pad))
         imgs = [img.crop(box) for img in imgs]
+    if spec.get('visemes') and meta.get('heads'):
+        _stamp_mouths(imgs, src_idx, meta['heads'], box or
+                      (0, 0, 0, 0), spec, fps)
     return imgs
+
+
+_MOUTH = None
+_VISEMES: dict = {}
+
+
+def _mouth_shapes():
+    global _MOUTH
+    if _MOUTH is None:
+        p = HERE / 'compiled' / 'mouth_shapes.json'
+        _MOUTH = json.loads(p.read_text()) if p.is_file() else {}
+    return _MOUTH
+
+
+def _viseme_at(path: str, t: float) -> str:
+    if path not in _VISEMES:
+        try:
+            vc = json.loads(Path(path).read_text())
+            _VISEMES[path] = vc.get('cues') or vc
+        except Exception:
+            _VISEMES[path] = []
+    for c in _VISEMES[path]:
+        if c['start'] <= t <= c['end']:
+            return c['viseme']
+    return 'rest'
+
+
+def _stamp_mouths(imgs, src_idx, heads, box, spec, fps):
+    """Draw the rig's real viseme mouth onto each baked frame at the jaw
+    anchor stored in meta['heads']; hidden when the head turns away."""
+    from PIL import ImageDraw
+    m = _mouth_shapes()
+    if not m.get('shapes'):
+        return
+    vo = float(spec.get('visemeOffset') or 0.0)
+    mirror = bool(spec.get('mirror'))
+    for i, img in enumerate(imgs):
+        h = heads.get(str(src_idx[i]))
+        if not h:
+            continue
+        jx, jy, s_px, fdir, wide = h
+        if wide < 0.35:
+            continue
+        jx -= box[0]; jy -= box[1]
+        if mirror:
+            jx = img.width - jx
+            fdir = -fdir
+        name = _viseme_at(spec['visemes'], i / fps + vo).upper()
+        loop = m['shapes'].get(name) or m['shapes']['REST']
+        ax, ay = m['anchor'][0], m['anchor'][1]
+        k = s_px * 0.9                    # rig mouth ~its native meter size
+        mx = jx + fdir * s_px * 0.015     # lips sit just fwd/up of the jaw
+        my = jy - s_px * 0.035
+        pts = [(mx + (p[0] - ax) * k * fdir, my - (p[1] - ay) * k)
+               for p in loop]
+        d = ImageDraw.Draw(img)
+        d.line(pts + [pts[0]], fill=(40, 40, 40, 255),
+               width=max(1, int(s_px * 0.008)))
 
 
 def get_strip(spec: dict, seconds: float, fps: int = 12):

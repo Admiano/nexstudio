@@ -27,7 +27,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | Artifact | sha256 |
 |---|---|
 | `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `60e44515d87bfddff01e7c5726fb09842a5b567b70da42ff72a78a1305635f3f` |
-| `v3_board_renderer.py` (whiteboard draw layer) | `32233f894bb093d74ad5e248f64507a848b5d1f46c891183fbb7917f58d45de1` |
+| `v3_board_renderer.py` (whiteboard draw layer) | `f72315759b087989716feeca921eb11bfe48995fa8cae765c7e3b2479da87582` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
 | `pipeline_diagram_timed.py` (diagram pipeline) | `c00cf324b135932cf071206c52f993cf8a4c1e788ede8ae6fe0caaad658c5f48` |
@@ -48,18 +48,19 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |
 | `tools/paper_cast/cast-wardrobe.js` | cast wardrobe (body-axis garment paths) | `16018c7c3633c0d4bf2d7e9e640b02ae60aeac18a691657a209aea5c70d1f350` |
 | `tools/nexstick/skin_rig.cjs` | skin-on-skeleton renderer: true-joint masses, real-depth occlusion sort |
-| `tools/nexstick/fig_motion.py` | board bridge: clip_select→baked PNG strips (mesh sprites, alpha-bbox anchored) w/ skin_rig fallback | `3ab313258a3d6a54357049d9c0c21f283845dd4c03813e26ce4c0411394ad15e` |
+| `tools/nexstick/fig_motion.py` | board bridge: clip_select→baked PNG strips (mesh sprites, alpha-bbox anchored) w/ skin_rig fallback | `d5cd5ab36e41e0e68034ecd34728c29529f0357823446c88bc5723a19e5bb43f` |
 | `tools/vo/visemes.py` | rhubarb bridge — VO wav to viseme timeline (Preston-Blair -> cast-face) | `43c6dbc64883af40334f8962a2dbb0b08946f99e329ca2779aa96031b9985a26` |
 | `tools/nexstick/fx_marks.cjs` | cartoon mark layer: velocity speed lines, impact bursts, foot-plant dust | `e0dce5bde5eceffc823eaa078ea3e7071aadd597adf36502a38ba7c2647b8749` |
 | `tools/nexstick/clip_select.cjs` | narration text -> vault clip pattern table (260+ clips) | `72fbb3cd9e59a05fef0f174cff74a32412a15c7dc10a89694109171dd3fe528b` |
 | `tools/nexstick/bake_blend_vault.py` | Blender .blend -> V5 vault action baker (PERFORMANCE_CARRIER rigs) | `b8029a278ba97f5b4f30172636eba7890154745b98cf9a6f1b56883bfdab9d21` |
 | `tools/nexstick/compiled/nex_vault_v5.json` | 182 authored actions from the NexMind performance-carrier rigs (internal) | `e6982c7aacea2b7f07e49dbf134d4640fb02cbcb628a1a88e08abf8821cea3fa` |
 | `tools/nexstick/compiled/mouth_shapes.json` | 7 viseme mouth loops baked from NEX_MOUTH_MINIMAL (internal) | `f55a341bf3b6b38133e2b5a0252b232a22457f32a34c9251dbcda3d07ee37659` |
-| `tools/nexstick/meshrig/mh_bake.py` | MakeHuman rig -> Freestyle line-art sprite baker (CC0 body + authored weights) | `dd051ff31cb06f069be8c5f05306186dcf70e6358bf19ff0b399a971d8ed2411` |
+| `tools/nexstick/meshrig/mh_bake.py` | MakeHuman rig -> Freestyle line-art sprite baker (CC0 body + authored weights; meta['heads'] jaw anchors for viseme mouths) | `eb3c362342d9eae248a1201336aef0dfecfce8e4019ae17313b2453045a80436` |
+| `tools/nexstick/meshrig/make_variant.py` | character-variant .blend builder: vertex-group silhouette reshape + hair/garment primitives (female/suit/slim) | `49c2903d515bce5f4a1a6dfa5950b5c68a8d44b5347c2223ec306f4c5c422a5e` |
 | `tools/nexstick/meshrig/bake_parallel.sh` | parallel bake driver (xargs -P, env: BLEND/VAULT/OUTROOT/RES/CAM) | `807eb706cf51cdc79493b2ce9762f4fe5df5f08aa78b849d09e62455a5efbb2a` |
 | `tools/nexstick/baked/<CLIP>/` | baked PNG sprite frames + meta.json per clip (generated; regen via bake_parallel.sh) | generated — see per-clip meta.json |
 | `v3_shorts.py` | rigged-shorts mode: stage floor + walk-cycle entrances/exits + figure-as-protagonist | `e432cd6e9bd410b1b2525f05f6df8fb880ae23fb0e4cac6a6e995dab7bd13a5a` |
-| `v3_comic.py` | comic/storyboard mode: self-drawing panels, posed sprites, speech bubbles | `223027c58c071666efa1e81f9feed1c421ef7ff6384978be04c12bf5efc8ff15` |
+| `v3_comic.py` | comic/storyboard mode: self-drawing panels, posed sprites, speech bubbles | `b89ee39c4a847709bfbcacbed04976fe1c4cb9d1a61e5e8e5f9eb4b01017e1a2` |
 
 | `tools/openmoji_pack.py` | OpenMoji -> assets/openmoji pack builder (flatten shapes+transforms to strokes) | `aa299b382bf6a7277a1ebe0f86d6074949ec85620b3556d83aec42c2a2247e45` |
 | `assets/openmoji/` | 473 people/activity line-art glyphs + index.json (OpenMoji, CC BY-SA 4.0; LICENSE-NOTICE inside) | `c4584e573cbb7e10c06d1b7d6992d26e801240c4c10a102f4f0f4353b9dece17` (index) |
