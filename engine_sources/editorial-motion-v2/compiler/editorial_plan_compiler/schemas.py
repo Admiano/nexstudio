@@ -163,7 +163,7 @@ def treatment_schema() -> Dict[str, Any]:
             'fps': _enum_int((24, 25, 30, 60)),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'cast': {'type': 'object', 'additionalProperties': cast_member, 'maxProperties': c.CAST_MEMBER_CAP},
-            'world': {'anyOf': [_obj({'grain': _enum(c.WORLD_GRAINS),
+            'world': {'anyOf': [_obj({'grain': _enum(c.WORLD_GRAINS), 'book': {'type': 'boolean'},
                                        'motif': _obj({'concept': {'type': 'string', 'maxLength': 40},
                                                       'corner': _enum(c.WORLD_CORNERS)}, ['concept'], additionalProperties=False)},
                                       [], additionalProperties=False), {'type': 'null'}]},

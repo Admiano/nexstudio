@@ -20,29 +20,60 @@ ACCENT_TRIM_MS = 1500
 MAX_ACCENTS_PER_BEAT = 3
 MIN_ACCENT_GAP_MS = 220
 
-# Visible event -> semantic tag family (structural, never topic-based).
+# Visible event -> semantic tag family. Authored tags only: every accent in this
+# category is built by our own synth bank (craft / synth / foley), never the UI library.
+# Order matters — the first tag is the intended sound; the rest are its authored variants.
 EVENT_TAGS = {
-    'WORD_PROMOTION': ('type.tick', 'type.pluck'),
-    'KEYWORD_HIT': ('type.tick',),
-    'LABEL_INVERT': ('type.pluck',),
-    'PHRASE_REPLACE': ('motion.ui.contract',),
-    'SPATIAL_RECONFIGURE': ('motion.ui.expand',),
-    'EVIDENCE_LAND': ('impact.soft.medium', 'impact.plate.light'),
-    'DATA_LAND': ('impact.generic.light',),
-    'TRANSITION_CARRIER': ('motion.ui.expand', 'motion.ui.contract', 'legacy.paper.rustle.light'),
-    'LINE_DRAW': ('whiteboard.marker.line', 'type.scratch', 'foley.write.pencil'),
-    # INK is a write moment: owner-supplied foley only — no synthetic tick may out-vote the texture.
+    'WORD_PROMOTION': ('synth.tick', 'craft.paper.tap'),
+    'KEYWORD_HIT': ('craft.paper.tap', 'synth.tick'),
+    'LABEL_INVERT': ('synth.click', 'craft.paper.tap'),
+    'PHRASE_REPLACE': ('craft.paper.rustle', 'synth.swish'),
+    'SPATIAL_RECONFIGURE': ('craft.paper.rustle', 'craft.paper.page'),
+    'EVIDENCE_LAND': ('craft.paper.tap', 'synth.thock'),
+    'DATA_LAND': ('synth.thock', 'synth.tick'),
+    'TRANSITION_CARRIER': ('craft.paper.page', 'craft.paper.rustle'),
+    'LINE_DRAW': ('foley.write.pencil', 'foley.write.chalk', 'synth.swish'),
+    # INK is a write moment: foley only — no synthetic tick may out-vote the texture.
     'INK_WRITE': ('foley.write.chalk', 'foley.write.pencil', 'foley.write.blackboard'),
-    'EMIT_CONFIRM': ('ui.confirm', 'legacy.ui.confirm.chime'),
-    'COUNT_TICK': ('legacy.ui.level.tick', 'ui.switch.tactile'),
-    'LOUPE_TRAVEL': ('legacy.ui.navigation.swipe', 'motion.ui.contract'),
-    # Furniture arrival / sweeps: the benchmark's pops on every landed element, whooshes on cut-throughs.
-    'ELEMENT_LAND': ('synth.pop', 'legacy.ui.pop.bright', 'legacy.ui.pop.tap'),
-    'TRANSITION_SWEEP': ('synth.whoosh', 'motion.ui.whoosh', 'motion.ui.expand'),
-    'WIPE_SWEEP': ('motion.ui.whoosh', 'synth.shimmer'),
-    'COUNT_RISE': ('synth.riser', 'legacy.ui.level.up'),
+    'EMIT_CONFIRM': ('foley.chime', 'synth.shimmer'),
+    'COUNT_TICK': ('craft.paper.tap', 'synth.click'),
+    'LOUPE_TRAVEL': ('craft.paper.rustle', 'synth.swish'),
+    # Furniture arrival / sweeps: paper landing on paper — the category's fabric.
+    'ELEMENT_LAND': ('craft.paper.tap', 'synth.pop'),
+    'TRANSITION_SWEEP': ('craft.paper.page', 'synth.whoosh'),
+    'WIPE_SWEEP': ('craft.paper.page', 'synth.shimmer'),
+    'COUNT_RISE': ('synth.riser', 'synth.shimmer'),
+    'FIGURE_STEP': ('craft.paper.step', 'craft.paper.tap'),
 }
-GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0, 'ui': -19.0, 'legacy': -18.0, 'whiteboard': -20.0, 'foley': -20.0, 'synth': -16.0}
+GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0, 'ui': -19.0, 'legacy': -18.0, 'whiteboard': -20.0, 'foley': -18.0, 'synth': -16.0, 'craft': -19.0, 'amb': -27.0}
+
+# What a shown thing sounds like: a landed entity whose concept is in the map takes its foley
+# as the accent body instead of the structural landing sound. Concepts unknown to the map keep
+# the event's structural pick — the fabric sound.
+CONCEPT_FOLEY = {
+    'rain': 'foley.water.drop', 'water': 'foley.water.drop', 'sea': 'foley.water.drop', 'ocean': 'foley.water.drop',
+    'river': 'foley.water.drop', 'wave': 'foley.water.drop', 'drop': 'foley.water.drop', 'rain-cloud': 'foley.water.drop',
+    'seed': 'foley.grow', 'sprout': 'foley.grow', 'grow': 'foley.grow', 'leaf': 'foley.grow', 'flower': 'foley.grow',
+    'tree': 'foley.grow', 'root': 'foley.grow', 'plant': 'foley.grow', 'bud': 'foley.grow', 'branch': 'foley.grow',
+    'moon': 'foley.sparkle', 'moon-full': 'foley.sparkle', 'moon-half': 'foley.sparkle', 'moon-crescent': 'foley.sparkle',
+    'star': 'foley.sparkle', 'stars': 'foley.sparkle', 'night': 'foley.sparkle', 'sparkle': 'foley.sparkle',
+    'sun': 'foley.chime', 'sunrise': 'foley.chime', 'dawn': 'foley.chime', 'light': 'foley.chime', 'bulb': 'foley.chime',
+    'idea': 'foley.chime', 'fire': 'foley.chime',
+    'heart': 'foley.heart', 'love': 'foley.heart', 'life': 'foley.heart', 'baby': 'foley.heart',
+    'clock': 'foley.alarm', 'alarm': 'foley.alarm', 'wake': 'foley.alarm', 'morning': 'foley.alarm', 'time': 'foley.alarm',
+    'car': 'foley.engine', 'bus': 'foley.engine', 'train': 'foley.engine', 'drive': 'foley.engine',
+    'rocket': 'foley.engine', 'engine': 'foley.engine', 'machine': 'foley.engine', 'factory': 'foley.engine',
+}
+# The air a scene stands in: the first matching tag wins the beat's ambience slot.
+SCENE_AMB = {
+    'amb.rain': {'rain', 'rain-cloud', 'storm', 'thunder'},
+    'amb.water': {'water', 'sea', 'ocean', 'river', 'wave', 'boat', 'sailboat', 'fish', 'lake'},
+    'amb.crickets': {'night', 'moon', 'moon-full', 'moon-half', 'moon-crescent', 'star', 'stars', 'moonlight', 'owl'},
+    'amb.birds': {'bird', 'dawn', 'sunrise', 'morning', 'spring', 'forest'},
+    'amb.fire': {'fire', 'campfire', 'candle'},
+    'amb.wind': {'wind', 'sky', 'cloud', 'mountain', 'hill', 'flag', 'kite', 'leaf'},
+}
+BACKDROP_AMB = {'night': 'amb.crickets', 'deep': 'amb.water', 'slate': 'amb.crickets', 'sky': 'amb.wind', 'water': 'amb.water'}
 
 
 def library_root() -> Optional[Path]:
@@ -88,11 +119,14 @@ class SoundLibrary:
             self.by_tag[a['semantic_tag']].sort(key=lambda x: x['assetId'])
 
     def pick(self, tags: tuple, seed: str) -> Optional[Dict[str, Any]]:
-        pool = [a for t in tags for a in self.by_tag.get(t, [])]
-        if not pool:
-            return None
-        h = int(hashlib.sha256(seed.encode()).hexdigest()[:8], 16)
-        return pool[h % len(pool)]
+        # First tag with assets wins: the tuple is an ordered preference, not a pool —
+        # so the event's intended sound can't be out-voted by a fallback.
+        for t in tags:
+            pool = self.by_tag.get(t, [])
+            if pool:
+                h = int(hashlib.sha256(seed.encode()).hexdigest()[:8], 16)
+                return pool[h % len(pool)]
+        return None
 
 
 # Layered accent design. Every landing is three sounds, not one: a transient that gives the
@@ -101,21 +135,22 @@ class SoundLibrary:
 # clicks, a soft chip thocks, a counter ticks and rings, a stroke swishes: one vocabulary
 # heard the way it is seen. Layers ride the same slot, so the ≤3 accents / ≥220ms law is
 # unchanged; they are offsets inside one accent.
+# Every housing is a paper object now: cards and tiles tap and rustle, badges and chips land
+# with a soft thock under a paper tail. Only numerals keep metal; strokes keep their drawn line.
 TEXTURES = {
-    'glass': {'transient': ('synth.click',), 'tail': ()},
-    'soft': {'transient': ('synth.thock',), 'tail': ()},
+    'paper': {'transient': ('craft.paper.tap',), 'tail': ('craft.paper.rustle',)},
+    'soft': {'transient': ('synth.thock',), 'tail': ('craft.paper.rustle',)},
     'metal': {'transient': ('synth.tick',), 'tail': ('synth.shimmer',)},
     'stroke': {'transient': ('synth.swish',), 'tail': ()},
-    'paper': {'transient': ('synth.thock',), 'tail': ('legacy.paper.rustle.light',)},
 }
 GLYPH_TEXTURE = {
-    'TILE': 'glass', 'CARD': 'glass', 'FRAME': 'glass', 'MEDIA': 'glass', 'LENS': 'glass',
-    'CHIP': 'soft', 'PILL': 'soft', 'BADGE': 'soft', 'STICKY': 'paper', 'CALLOUT': 'paper', 'NODE': 'soft', 'VESSEL': 'soft', 'ICON': 'soft',
+    'TILE': 'paper', 'CARD': 'paper', 'FRAME': 'paper', 'MEDIA': 'paper', 'LENS': 'paper',
+    'CHIP': 'paper', 'PILL': 'paper', 'BADGE': 'soft', 'STICKY': 'paper', 'CALLOUT': 'paper', 'NODE': 'paper', 'VESSEL': 'paper', 'ICON': 'paper',
     'COUNTER': 'metal', 'RING': 'metal', 'DONUT': 'metal', 'MARK_CIRCLE': 'metal', 'CHART_LINE': 'metal', 'BAR': 'metal', 'BURST': 'metal',
     'ARROW': 'stroke', 'UNDERLINE': 'stroke', 'BRACKET': 'stroke', 'PROHIBIT': 'stroke', 'CONNECTOR': 'stroke',
 }
 # Events whose body takes texture layers; the rest (type hits, whooshes, risers) are single sounds by design.
-LAYERED_EVENTS = {'ELEMENT_LAND': 'glass', 'EVIDENCE_LAND': 'glass', 'DATA_LAND': 'metal', 'EMIT_CONFIRM': 'metal', 'COUNT_TICK': 'metal'}
+LAYERED_EVENTS = {'ELEMENT_LAND': 'paper', 'EVIDENCE_LAND': 'paper', 'DATA_LAND': 'metal', 'EMIT_CONFIRM': 'metal', 'COUNT_TICK': 'metal'}
 LAYER_OFFSET_MS = {'transient': -8, 'body': 0, 'tail': 45}
 LAYER_GAIN_DB = {'transient': -3.0, 'body': 0.0, 'tail': -8.0}
 TAIL_TRIM_MS = 700
@@ -147,6 +182,11 @@ def bind_beat_sound(lib: Optional[SoundLibrary], film_id: str, beat_id: str, bea
         tags = EVENT_TAGS.get(c['event'])
         if not tags or len(chosen) >= MAX_ACCENTS_PER_BEAT:
             silenced.append(c['event']); continue
+        # A landing entity with a known sound plays its own foley — water plips, a sprout
+        # sproings — in front of the fabric tap it would otherwise take.
+        concept_foley = CONCEPT_FOLEY.get(str(c.get('concept') or '').lower())
+        if concept_foley and c['event'] in ('ELEMENT_LAND', 'EVIDENCE_LAND'):
+            tags = (concept_foley,) + tags
         if c['event'] == 'TRANSITION_CARRIER' and energy < 0.5:
             silenced.append(c['event']); continue
         if any(abs(c['at_ms'] - x['beat_at_ms']) < MIN_ACCENT_GAP_MS for x in chosen):
@@ -185,6 +225,45 @@ def bind_beat_sound(lib: Optional[SoundLibrary], film_id: str, beat_id: str, bea
         })
     chosen.sort(key=lambda a: a['beat_at_ms'])
     return {'accents': chosen, 'silenced': silenced, 'reason': None}
+
+
+AMBIENCE_FADE_MS = 620
+AMBIENCE_GAIN_DB = GAIN_DB['amb']
+
+
+def bind_beat_ambience(lib: Optional[SoundLibrary], film_id: str, beat_id: str,
+                       concepts: List[str], backdrop_tones: List[str], duration_ms: int) -> Optional[Dict[str, Any]]:
+    """The air a beat stands in: one quiet loop picked from what the scene shows — rain over a
+    rain-cloud, crickets under a night diorama, water at the sea. Entities outrank backdrop
+    tones; the first map hit wins so the loudest story sound is the one heard."""
+    if lib is None or not duration_ms:
+        return None
+    tag = None
+    for amb, keys in SCENE_AMB.items():
+        if any(str(c).lower() in keys for c in concepts):
+            tag = amb
+            break
+    if tag is None:
+        for tone in backdrop_tones:
+            if tone in BACKDROP_AMB:
+                tag = BACKDROP_AMB[tone]
+                break
+    if tag is None:
+        return None
+    asset = lib.pick((tag,), f'{film_id}:{beat_id}:ambience')
+    if not asset:
+        return None
+    return {
+        'tag': tag,
+        'asset_id': asset['assetId'],
+        'path': str(lib.root / asset['path']),
+        'sha256': asset['productionSha256'],
+        'license': asset['license'],
+        'duration_s': asset['durationSeconds'],
+        'gain_db': AMBIENCE_GAIN_DB,
+        'fade_ms': AMBIENCE_FADE_MS,
+        'loop': True,
+    }
 
 
 COMMUNITY_MANIFEST = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'manifest.json'

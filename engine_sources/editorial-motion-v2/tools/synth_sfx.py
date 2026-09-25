@@ -146,6 +146,251 @@ def swish(dur_s: float, seed: int) -> np.ndarray:
     return _norm((narrow - wide) * env)
 
 
+# ---------------------------------------------------------------------------
+# Craft foley + ambience — the paper-film's own vocabulary. Not UI sounds:
+# the sound a thing makes (rain falls, water plips, a sprout sproings, a page
+# turns) and the air a scene stands in (crickets at night, birds at dawn).
+# ---------------------------------------------------------------------------
+
+def _noise(n: int, seed: int) -> np.ndarray:
+    return np.random.default_rng(seed).standard_normal(n)
+
+
+def _smooth(x: np.ndarray, w: int) -> np.ndarray:
+    return np.convolve(x, np.ones(w) / w, mode='same')
+
+
+def _hipass(x: np.ndarray) -> np.ndarray:
+    return np.concatenate([[0.0], np.diff(x)])
+
+
+def paper_rustle(dur_s: float, seed: int) -> np.ndarray:
+    """Paper crinkle: high-passed noise driven through a jittery amplitude gate —
+    a handful of micro-folds, not one rub."""
+    n = int(dur_s * SR)
+    rng = np.random.default_rng(seed)
+    noise = _hipass(_hipass(_noise(n, seed)))
+    gate = np.zeros(n)
+    for _ in range(int(dur_s * 26) + 3):
+        w = int(rng.uniform(120, 700))
+        c = int(rng.uniform(w, n))
+        gate[c - w:c] += rng.uniform(0.3, 1.0) * np.linspace(1.0, 0.0, w)
+    gate = _smooth(np.clip(gate, 0, 1.6), 180)
+    env = np.sin(np.linspace(0, np.pi, n)) ** 0.9
+    return _norm(noise * gate * env)
+
+
+def paper_tap(dur_s: float, seed: int) -> np.ndarray:
+    """A paper card settling onto the stage: a dull slap (lowpassed noise burst)
+    with a felt knock under it — matte, never plasticky."""
+    t = _t(dur_s)
+    slap = _smooth(_noise(len(t), seed), 60) * np.exp(-t * 300.0)
+    knock = np.sin(2 * np.pi * 210.0 * t) * np.exp(-t * 120.0) * 0.5
+    crinkle = _hipass(_noise(len(t), seed + 7)) * np.exp(-t * 900.0) * 0.35
+    return _norm(slap * _env_ad(len(t), 0.6, dur_s * 180.0) + knock + crinkle)
+
+
+def paper_page(dur_s: float, seed: int) -> np.ndarray:
+    """A page being lifted across: a slow band sweep of noise with a paper flutter
+    riding on it — the transition sound, not a whoosh."""
+    n = int(dur_s * SR)
+    rng = np.random.default_rng(seed)
+    noise = rng.standard_normal(n)
+    w = np.linspace(26, 240, n).astype(int)  # closing filter = the page settles
+    y = np.cumsum(np.concatenate([[0.0], noise]))
+    lo = np.maximum(0, np.arange(n + 1) - np.concatenate([w, [w[-1]]]))
+    sm = y[np.arange(n) + 1] - y[lo[:n]]
+    out = sm / np.maximum(1, np.concatenate([w, [w[-1]]])[:n])
+    flutter = _hipass(_noise(n, seed + 3)) * (0.35 + 0.65 * (np.sin(np.linspace(0, np.pi * 3, n)) ** 2))
+    env = np.sin(np.linspace(0, np.pi, n)) ** 1.3
+    return _norm(out * env + 0.35 * flutter * env)
+
+
+def paper_tear(dur_s: float, seed: int) -> np.ndarray:
+    """A controlled rip: staccato noise fibres pulling apart down a closing filter."""
+    n = int(dur_s * SR)
+    rng = np.random.default_rng(seed)
+    noise = rng.standard_normal(n)
+    win = np.linspace(12, 200, n).astype(int)
+    y = np.cumsum(np.concatenate([[0.0], noise]))
+    lo = np.maximum(0, np.arange(n + 1) - np.concatenate([win, [win[-1]]]))
+    sm = (y[np.arange(n) + 1] - y[lo[:n]]) / np.maximum(1, win[:n])
+    tear_gate = np.clip(0.25 + np.abs(_hipass(_smooth(_noise(n, seed + 11), 400))) * 8.0, 0, 1.4)
+    env = np.sin(np.linspace(0, np.pi, n)) ** 1.1
+    return _norm(sm * tear_gate * env)
+
+
+def amb_rain(dur_s: float, seed: int) -> np.ndarray:
+    """Rainfall loop: soft lowpassed wash plus sparse droplet ticks — reads at -28dB."""
+    n = int(dur_s * SR)
+    rng = np.random.default_rng(seed)
+    wash = _smooth(_noise(n, seed), 240)
+    drops = np.zeros(n)
+    for _ in range(int(dur_s * 34)):
+        c = int(rng.uniform(0, n - 300))
+        f = rng.uniform(900, 2600)
+        tt = np.arange(300) / SR
+        drops[c:c + 300] += np.sin(2 * np.pi * f * tt) * np.exp(-tt * 220.0) * rng.uniform(0.15, 0.5)
+    env = np.sin(np.linspace(0, np.pi, n)) ** 0.5
+    return _norm((wash * 0.8 + drops * 0.4) * env)
+
+
+def amb_wind(dur_s: float, seed: int) -> np.ndarray:
+    """Wind loop: brown noise breathing through a slow LFO — low, open air."""
+    n = int(dur_s * SR)
+    t = _t(dur_s)
+    brown = np.cumsum(_noise(n, seed))
+    brown = _smooth(brown, 400)
+    lfo = 0.55 + 0.45 * np.sin(2 * np.pi * 0.4 * t + seed) * np.sin(2 * np.pi * 0.13 * t + seed * 0.7)
+    env = np.sin(np.linspace(0, np.pi, n)) ** 0.5
+    return _norm(brown * lfo * env)
+
+
+def amb_water(dur_s: float, seed: int) -> np.ndarray:
+    """Lapping water loop: band-limited noise swelling in slow waves plus a wandering
+    low gurgle — the sea / a riverbank, not a tap."""
+    n = int(dur_s * SR)
+    t = _t(dur_s)
+    lap = _smooth(_noise(n, seed), 300) * (0.5 + 0.5 * np.sin(2 * np.pi * 0.5 * t + 1.0))
+    gurgle_f = 300 + 140 * np.sin(2 * np.pi * 0.23 * t + seed)
+    gurgle = np.sin(2 * np.pi * np.cumsum(gurgle_f) / SR) * _smooth(np.abs(_noise(n, seed + 5)), 500) * 3.0
+    env = np.sin(np.linspace(0, np.pi, n)) ** 0.5
+    return _norm((lap * 0.7 + gurgle * 0.5) * env)
+
+
+def amb_birds(dur_s: float, seed: int) -> np.ndarray:
+    """Sparse morning birdsong: short FM chirps at random onsets over a faint air bed —
+    dawn and open field, kept light enough to sit under voice."""
+    n = int(dur_s * SR)
+    rng = np.random.default_rng(seed)
+    out = _smooth(_noise(n, seed), 800) * 0.05
+    for _ in range(int(dur_s * 7) + 2):
+        c = int(rng.uniform(0, n - 2200))
+        f0 = rng.uniform(2400, 4200)
+        chirps = rng.integers(1, 4)
+        for k in range(chirps):
+            cc = c + k * rng.integers(300, 700)
+            if cc + 260 >= n:
+                break
+            tt = np.arange(260) / SR
+            fm = np.sin(2 * np.pi * (f0 + rng.uniform(-400, 900) * tt / 0.005) * tt)
+            out[cc:cc + 260] += fm * np.exp(-tt * 30.0) * rng.uniform(0.25, 0.6)
+    env = np.sin(np.linspace(0, np.pi, n)) ** 0.5
+    return _norm(out * env)
+
+
+def amb_crickets(dur_s: float, seed: int) -> np.ndarray:
+    """Night crickets loop: two detuned pulse trains at cricket rate over a low dark bed."""
+    n = int(dur_s * SR)
+    t = _t(dur_s)
+    bed = _smooth(_noise(n, seed), 900) * 0.08
+    out = np.copy(bed)
+    for f0, rate, ph in ((4300.0, 13.0, 0.0), (4700.0, 11.0, 0.6)):
+        pulses = np.maximum(0.0, np.sin(2 * np.pi * rate * t + ph)) ** 8
+        out += np.sin(2 * np.pi * f0 * t) * pulses * 0.3
+    env = np.sin(np.linspace(0, np.pi, n)) ** 0.5
+    return _norm(out * env)
+
+
+def amb_fire(dur_s: float, seed: int) -> np.ndarray:
+    """Fire crackle loop: a low hiss bed with random pops of varying size."""
+    n = int(dur_s * SR)
+    rng = np.random.default_rng(seed)
+    hiss = _smooth(_noise(n, seed), 120) * 0.3
+    pops = np.zeros(n)
+    for _ in range(int(dur_s * 22)):
+        c = int(rng.uniform(0, n - 600))
+        w = int(rng.uniform(80, 500))
+        pops[c:c + w] += _noise(w, seed + c) * np.exp(-np.arange(w) / (w * 0.3)) * rng.uniform(0.2, 1.0)
+    env = np.sin(np.linspace(0, np.pi, n)) ** 0.5
+    return _norm((hiss + pops * 0.7) * env)
+
+
+def foley_drop(dur_s: float, seed: int) -> np.ndarray:
+    """Water plip: a rising sine chirp into a tiny noise splash."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    chirp = np.sin(2 * np.pi * (700 + 900 * t / dur_s) * t) * np.exp(-t * 25.0)
+    splash = _hipass(rng.standard_normal(len(t))) * np.exp(-t * 160.0) * 0.4
+    return _norm(chirp * _env_ad(len(t), 4.0, dur_s * 200.0) + splash * (t > dur_s * 0.55))
+
+
+def foley_grow(dur_s: float, seed: int) -> np.ndarray:
+    """Growth sproing: a cartoon spring — pitch dips then rebounds up, ring decaying —
+    plus a soft soil pop at the start."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    f = 320.0 + 240.0 * np.tanh((t / dur_s - 0.28) * 6.0)
+    spring = np.sin(2 * np.pi * np.cumsum(f) / SR)
+    wobble = 1.0 + 0.25 * np.sin(2 * np.pi * 22.0 * t) * np.exp(-t * 8.0)
+    pop_ = np.sin(2 * np.pi * 180.0 * t) * np.exp(-t * 200.0) * 0.6
+    return _norm(spring * wobble * np.exp(-t * 7.0) * _env_ad(len(t), 6.0, dur_s * 500.0) + pop_)
+
+
+def foley_sparkle(dur_s: float, seed: int) -> np.ndarray:
+    """Celestial sparkle: a tiny high bell arpeggio, staggered — moon, stars, magic."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    out = np.zeros(len(t))
+    notes = rng.choice([1568.0, 1760.0, 2093.0, 2349.0, 2637.0], size=4, replace=False)
+    for i, f0 in enumerate(notes):
+        lag = i * 0.07 + rng.uniform(0, 0.02)
+        tt = np.maximum(0.0, t - lag)
+        out += np.sin(2 * np.pi * f0 * tt) * np.exp(-tt * 14.0) * (t >= lag) * (0.5 - i * 0.09)
+        out += np.sin(2 * np.pi * f0 * 2.01 * tt) * np.exp(-tt * 30.0) * (t >= lag) * 0.1
+    return _norm(out)
+
+
+def foley_chime(dur_s: float, seed: int) -> np.ndarray:
+    """Warm chime: two mallet partials — daylight, arrival, gentle reveal."""
+    t = _t(dur_s)
+    out = np.sin(2 * np.pi * 660.0 * t) * np.exp(-t * 9.0)
+    out += 0.5 * np.sin(2 * np.pi * 990.0 * t) * np.exp(-t * 14.0)
+    out += 0.18 * np.sin(2 * np.pi * 1320.0 * t) * np.exp(-t * 22.0)
+    return _norm(out * _env_ad(len(t), 3.0, dur_s * 300.0))
+
+
+def foley_engine(dur_s: float, seed: int) -> np.ndarray:
+    """Vehicle hum: a low two-tone drone with a slow judder plus tyre-noise wash —
+    driving, machinery, things that run."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    judder = 1.0 + 0.3 * np.sin(2 * np.pi * 7.0 * t)
+    hum = (np.sin(2 * np.pi * 82.0 * t) + 0.5 * np.sin(2 * np.pi * 123.0 * t)) * judder
+    road = _smooth(rng.standard_normal(len(t)), 90) * 0.5
+    env = np.sin(np.linspace(0, np.pi, len(t))) ** 1.2
+    return _norm((hum * 0.7 + road) * env)
+
+
+def foley_heart(dur_s: float, seed: int) -> np.ndarray:
+    """Heartbeat: two soft low thumps, lub-dub — warmth, life, courage beats."""
+    t = _t(dur_s)
+    lub = np.sin(2 * np.pi * 60.0 * t) * np.exp(-t * 40.0)
+    tt = np.maximum(0.0, t - dur_s * 0.42)
+    dub = np.sin(2 * np.pi * 52.0 * tt) * np.exp(-tt * 45.0) * (t >= dur_s * 0.42) * 0.8
+    return _norm((lub + dub) * _env_ad(len(t), 4.0, dur_s * 400.0))
+
+
+def foley_alarm(dur_s: float, seed: int) -> np.ndarray:
+    """Little bell alarm: three bright metal tings — waking, attention, o'clock."""
+    t = _t(dur_s)
+    out = np.zeros(len(t))
+    for i in range(3):
+        lag = i * dur_s * 0.26
+        tt = np.maximum(0.0, t - lag)
+        ring = np.sin(2 * np.pi * 2100.0 * tt) + 0.4 * np.sin(2 * np.pi * 3310.0 * tt)
+        out += ring * np.exp(-tt * 26.0) * (t >= lag)
+    return _norm(out)
+
+
+def foley_step(dur_s: float, seed: int) -> np.ndarray:
+    """A soft paper step: felt thud plus a short rustle — the puppet's footfall."""
+    t = _t(dur_s)
+    thud = np.sin(2 * np.pi * 140.0 * t) * np.exp(-t * 90.0) * 0.7
+    rustle = _hipass(_noise(len(t), seed)) * np.exp(-t * 160.0) * 0.45
+    return _norm(thud + rustle)
+
+
 # (file slug, semantic tag, synth recipe) — params are the contract: same table, same bytes.
 SPEC: List[Tuple[str, str, Callable[[], np.ndarray]]] = [
     ('pop-01', 'synth.pop', lambda: pop(520.0, 0.11, 101)),
@@ -174,6 +419,48 @@ SPEC: List[Tuple[str, str, Callable[[], np.ndarray]]] = [
     ('swish-01', 'synth.swish', lambda: swish(0.2, 171)),
     ('swish-02', 'synth.swish', lambda: swish(0.26, 172)),
     ('swish-03', 'synth.swish', lambda: swish(0.17, 173)),
+    # --- the paper film's own fabric
+    ('paper-rustle-01', 'craft.paper.rustle', lambda: paper_rustle(0.5, 201)),
+    ('paper-rustle-02', 'craft.paper.rustle', lambda: paper_rustle(0.38, 202)),
+    ('paper-rustle-03', 'craft.paper.rustle', lambda: paper_rustle(0.62, 203)),
+    ('paper-tap-01', 'craft.paper.tap', lambda: paper_tap(0.16, 211)),
+    ('paper-tap-02', 'craft.paper.tap', lambda: paper_tap(0.13, 212)),
+    ('paper-tap-03', 'craft.paper.tap', lambda: paper_tap(0.19, 213)),
+    ('paper-page-01', 'craft.paper.page', lambda: paper_page(0.5, 221)),
+    ('paper-page-02', 'craft.paper.page', lambda: paper_page(0.4, 222)),
+    ('paper-page-03', 'craft.paper.page', lambda: paper_page(0.58, 223)),
+    ('paper-tear-01', 'craft.paper.tear', lambda: paper_tear(0.42, 231)),
+    ('paper-tear-02', 'craft.paper.tear', lambda: paper_tear(0.3, 232)),
+    ('paper-step-01', 'craft.paper.step', lambda: foley_step(0.18, 241)),
+    ('paper-step-02', 'craft.paper.step', lambda: foley_step(0.15, 242)),
+    ('paper-step-03', 'craft.paper.step', lambda: foley_step(0.21, 243)),
+    # --- ambience loops (bed under a beat, mixed quiet)
+    ('amb-rain-01', 'amb.rain', lambda: amb_rain(2.6, 251)),
+    ('amb-rain-02', 'amb.rain', lambda: amb_rain(3.1, 252)),
+    ('amb-wind-01', 'amb.wind', lambda: amb_wind(3.2, 261)),
+    ('amb-wind-02', 'amb.wind', lambda: amb_wind(2.7, 262)),
+    ('amb-water-01', 'amb.water', lambda: amb_water(3.0, 271)),
+    ('amb-water-02', 'amb.water', lambda: amb_water(2.5, 272)),
+    ('amb-birds-01', 'amb.birds', lambda: amb_birds(2.8, 281)),
+    ('amb-birds-02', 'amb.birds', lambda: amb_birds(3.4, 282)),
+    ('amb-crickets-01', 'amb.crickets', lambda: amb_crickets(3.0, 291)),
+    ('amb-crickets-02', 'amb.crickets', lambda: amb_crickets(2.6, 292)),
+    ('amb-fire-01', 'amb.fire', lambda: amb_fire(2.8, 295)),
+    # --- foley hits: the sound the shown thing makes
+    ('foley-drop-01', 'foley.water.drop', lambda: foley_drop(0.5, 301)),
+    ('foley-drop-02', 'foley.water.drop', lambda: foley_drop(0.42, 302)),
+    ('foley-grow-01', 'foley.grow', lambda: foley_grow(0.6, 311)),
+    ('foley-grow-02', 'foley.grow', lambda: foley_grow(0.48, 312)),
+    ('foley-sparkle-01', 'foley.sparkle', lambda: foley_sparkle(0.8, 321)),
+    ('foley-sparkle-02', 'foley.sparkle', lambda: foley_sparkle(0.66, 322)),
+    ('foley-chime-01', 'foley.chime', lambda: foley_chime(0.9, 331)),
+    ('foley-chime-02', 'foley.chime', lambda: foley_chime(0.7, 332)),
+    ('foley-engine-01', 'foley.engine', lambda: foley_engine(1.0, 341)),
+    ('foley-engine-02', 'foley.engine', lambda: foley_engine(0.8, 342)),
+    ('foley-heart-01', 'foley.heart', lambda: foley_heart(0.9, 351)),
+    ('foley-heart-02', 'foley.heart', lambda: foley_heart(0.74, 352)),
+    ('foley-alarm-01', 'foley.alarm', lambda: foley_alarm(0.9, 361)),
+    ('foley-alarm-02', 'foley.alarm', lambda: foley_alarm(0.72, 362)),
 ]
 
 
@@ -189,7 +476,7 @@ def main() -> None:
             'id': f'synth.{tag.split(".")[1]}.{slug.rsplit("-", 1)[1]}',
             'kind': 'sfx',
             'semantic_tag': tag,
-            'family': 'synth',
+            'family': tag.split('.')[0],
             'path': f'assets/community/synth/{slug}.wav',
             'duration_s': round((len(data) - 44) / 2 / SR, 3),
             'license': LICENSE,

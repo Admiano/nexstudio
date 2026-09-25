@@ -1053,9 +1053,9 @@ def test_collage_plan_carries_groove_layers_and_buses(collage_plans):
                     assert a['texture'] in TEXTURES
                     if TEXTURES[a['texture']]['transient']:
                         assert 'transient' in roles, a
-    # the collage lands tiles with the glass texture (click over pop), not a bare pop
+    # the collage lands tiles with the paper texture (tap + rustle over the body), not a bare pop
     textures = {a['texture'] for p in collage_plans['plans'].values() for b in p['beats'] for a in b['sound']['accents']}
-    assert 'glass' in textures
+    assert 'paper' in textures
     assert set(GLYPH_TEXTURE.values()) <= set(TEXTURES)
 
 

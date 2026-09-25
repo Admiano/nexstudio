@@ -557,23 +557,78 @@
           position: 'absolute', left: px(b.x), top: px(b.y), width: px(b.w), height: px(b.h),
           transformOrigin: '50% 50%', pointerEvents: 'none',
         }, parent);
-        const fill = el('div', { position: 'absolute', inset: '0', background: spec.tone }, node);
+        // Painted-paper silhouette: an feTurbulence displacement wobbles the band's edges so it
+        // reads torn/wet, not machine-cut. A shared field keeps the torn lip parallel to the edge.
+        const tid = `em2tex${(spec.seed >>> 0).toString(36)}`;
+        const texSvg = svgEl('svg', { width: '0', height: '0', viewBox: '0 0 1 1' }, node);
+        Object.assign(texSvg.style, { position: 'absolute' });
+        const texDefs = svgEl('defs', {}, texSvg);
+        const texFilter = svgEl('filter', { id: tid, x: '-5%', y: '-30%', width: '110%', height: '160%' }, texDefs);
+        svgEl('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.011 0.05', numOctaves: '2', seed: String(spec.seed % 89), result: 'n' }, texFilter);
+        svgEl('feDisplacementMap', { in: 'SourceGraphic', in2: 'n', scale: f2(Math.min(b.h * 0.16, 13)), xChannelSelector: 'R', yChannelSelector: 'G' }, texFilter);
+        const wraps = el('div', { position: 'absolute', inset: '0' }, node);
+        wraps.style.filter = `url(#${tid})`;
+        const fill = el('div', { position: 'absolute', inset: '0', background: spec.tone }, wraps);
+        // Painted fill: a light slope plus two seeded blotches read as watercolour settling into
+        // the paper rather than a flat vector field.
+        const br = rng(spec.seed ^ 0x51ab);
+        fill.style.backgroundImage = [
+          `linear-gradient(165deg, ${rgbaOf(mixColor(spec.tone, '#ffffff', 0.5), 0.22)} 0%, ${rgbaOf(spec.tone, 0)} 42%, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)} 100%)`,
+          `radial-gradient(ellipse ${px(b.w * 0.5)} ${px(b.h * 0.9)} at ${px(b.w * (0.15 + 0.35 * br()))} ${px(b.h * (0.2 + 0.5 * br()))}, ${rgbaOf(mixColor(spec.tone, '#ffffff', 0.65), 0.2)}, ${rgbaOf(spec.tone, 0)} 70%)`,
+          `radial-gradient(ellipse ${px(b.w * 0.42)} ${px(b.h * 0.8)} at ${px(b.w * (0.5 + 0.45 * br()))} ${px(b.h * (0.25 + 0.55 * br()))}, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.14)}, ${rgbaOf(spec.tone, 0)} 70%)`,
+        ].join(',');
         if (spec.ragged) {
-          const n = 14, edge = Math.min(b.h * 0.3, Math.min(W, H) * 0.022);
-          const u = (k) => (Math.imul((spec.seed ^ (k * 0x9E3779B1)) >>> 0, 2654435761) >>> 0) / 4294967296;
-          let pts = `0px ${px(b.h)},0px ${px(edge * (0.4 + 0.6 * u(0)))}`;
-          for (let i = 1; i <= n; i++) pts += `,${px((b.w * i) / n)} ${px(edge * (0.3 + 0.7 * u(i)))}`;
-          pts += `,${px(b.w)} ${px(b.h)}`;
-          fill.style.clipPath = `polygon(${pts})`;
+          const edge = Math.min(b.h * 0.3, Math.min(W, H) * 0.022);
+          const er = rng(spec.seed ^ 0x7ab1);
+          // One torn profile drives all three layers — the lip, the fill and the pool
+          // share the same rip (low-freq wobble + hi-freq fuzz, scraps profile).
+          const prof = edgeProfile(b.w, 'torn', edge, er, 0);
+          const clip = (k, lift) => {
+            let pts = `0px ${px(b.h)}`;
+            for (const p of prof) pts += `,${px(p.t)} ${px(Math.max(0, b.h * 0.02 + edge * k - p.off * 0.5 - lift))}`;
+            pts += `,${px(b.w)} ${px(b.h)}`;
+            return `polygon(${pts})`;
+          };
+          // The exposed paper edge: the same tear, a sliver taller, in near-white behind the fill.
+          const lip = el('div', { position: 'absolute', inset: '0', background: mixColor(brand.paper, '#ffffff', 0.55) }, wraps);
+          lip.style.clipPath = clip(0.4, edge * 0.45);
+          wraps.insertBefore(lip, fill);
+          fill.style.clipPath = clip(0.4, 0);
+          // Pigment pools along the torn edge and settles low — the band reads painted,
+          // not filled.
+          const pool = el('div', { position: 'absolute', inset: '0',
+            background: `linear-gradient(180deg, ${rgbaOf(mixColor(spec.tone, '#000000', 0.4), 0)} 38%, ${rgbaOf(mixColor(spec.tone, '#000000', 0.4), 0.24)} 88%, ${rgbaOf(mixColor(spec.tone, '#000000', 0.5), 0.34)} 100%)` }, wraps);
+          pool.style.clipPath = clip(0.52, 0);
         }
         if (spec.mark) {
           const mb = spec.mark.bbox;
-          const img = el('img', {
-            position: 'absolute', left: px(mb.x - b.x), top: px(mb.y - b.y),
-            width: px(mb.w), height: px(mb.h), opacity: '0.9', pointerEvents: 'none',
-          }, node);
-          img.src = assetUrl ? assetUrl(spec.mark.path) : spec.mark.path;
-          img.style.filter = `blur(${((1 - spec.plane) * 1.6).toFixed(2)}px)`;
+          const mk = spec.mark.concept && paperArtKey(spec.mark.concept);
+          if (mk) {
+            // Perched illustration: the same composed collage as glyph marks — a
+            // die-cut sticker pinned to its own plane.
+            const pad = Math.max(4, mb.w * 0.06);
+            const pw = mb.w + pad * 2, ph = mb.h + pad * 2;
+            const psvg = svgEl('svg', { viewBox: `0 0 ${pw} ${ph}` }, node);
+            Object.assign(psvg.style, { position: 'absolute', left: px(mb.x - b.x - pad), top: px(mb.y - b.y - pad), width: px(pw), height: px(ph), overflow: 'visible', pointerEvents: 'none', filter: `drop-shadow(0 ${px(ph * 0.03)} ${px(ph * 0.05)} ${rgbaOf(brand.ink, 0.22)})` });
+            const art = paperArtGroup(mk, spec.seed ^ 0x7e5, plan, `bm_${(spec.seed >>> 0).toString(36)}`);
+            if (art) {
+              const inner = svgEl('g', { transform: `translate(${f2(pad)} ${f2(pad)}) scale(${f2(mb.w / 100)} ${f2(mb.h / 100)})` }, psvg);
+              inner.appendChild(art.g);
+            }
+          } else {
+            // Fallback silhouette: a wobbly paper edge peeks out from under the art.
+            const pad = Math.max(6, mb.w * 0.2);
+            const pw = mb.w + pad * 2, ph = mb.h + pad * 2;
+            const psvg = svgEl('svg', { viewBox: `0 0 ${pw} ${ph}` }, node);
+            Object.assign(psvg.style, { position: 'absolute', left: px(mb.x - b.x - pad), top: px(mb.y - b.y - pad), width: px(pw), height: px(ph), overflow: 'visible', pointerEvents: 'none', filter: `drop-shadow(0 ${px(ph * 0.03)} ${px(ph * 0.05)} ${rgbaOf(brand.ink, 0.22)})` });
+            svgEl('path', { d: cutBlobPath(pw / 2, ph / 2, pw * 0.46, ph * 0.46, spec.seed ^ 0x7e5), fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': 0.95 }, psvg);
+            const img = el('img', {
+              position: 'absolute', left: px(mb.x - b.x), top: px(mb.y - b.y),
+              width: px(mb.w), height: px(mb.h), opacity: '0.9', pointerEvents: 'none',
+            }, node);
+            img.src = assetUrl ? assetUrl(spec.mark.path) : spec.mark.path;
+            img.style.filter = `blur(${((1 - spec.plane) * 1.6).toFixed(2)}px)`;
+          }
         }
         node.className = 'em2-band';
         node.dataset.plane = String(spec.plane);
@@ -636,6 +691,29 @@
     const atmo = plan.atmosphere || {};
     const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: atmo.field || brand.paper }, beatRoot);
     const layers = (Array.isArray(bg.layers) ? bg.layers : []).map((spec, i) => buildBgLayer(spec, plan, layer, i, assetUrl)).filter((l) => l.node);
+    // Book-mode sky: when the authored diorama leaves the page's upper region bare, a tall washed
+    // band drops from the page top to the first horizon — every spread reads as a full painted
+    // plate, not a sticker field on empty paper.
+    if (plan.book) {
+      const pr = bookPageRect(plan);
+      const bands = (Array.isArray(bg.layers) ? bg.layers : []).filter((s) => s.kind === 'band');
+      if (pr) {
+        const horizon = bands.length ? Math.min(...bands.map((s) => s.bbox.y)) : pr.y + pr.h;
+        if (horizon > pr.y + pr.h * 0.4) {
+          const field = atmo.field || brand.paper;
+          const topBand = bands.reduce((a, s) => (a && a.bbox.y <= s.bbox.y ? a : s), null);
+          const tone = topBand ? mixColor(topBand.tone, field, 0.55) : mixColor(field, brand.accent || brand.ink, 0.14);
+          const sky = buildBgLayer(
+            { kind: 'band', bbox: { x: -W * 0.05, y: -H * 0.02, w: W * 1.1, h: horizon + H * 0.04 }, tone, seed: seedHash(`${beat.beat_id}-sky`), plane: 0.14, opacity: 0.85 },
+            plan, layer, -1, assetUrl,
+          );
+          if (sky.node) {
+            layer.insertBefore(sky.node, layers.length ? layers[0].node : layer.firstChild);
+            layers.unshift(sky);
+          }
+        }
+      }
+    }
     // Vignette: the field darkens toward its edges by the atmosphere's strength so the paper reads as a
     // lit surface, not a void; the dark variant leans on it harder because it has no bloom contrast to spare.
     const vig = atmo.vignette_opacity == null ? 0.03 : atmo.vignette_opacity;
@@ -929,27 +1007,6 @@
     return svgCache.get(url);
   }
 
-  function recolor(svgText, palette) {
-    let out = svgText;
-    for (const [from, to] of Object.entries(palette || {})) {
-      out = out.split(from).join(to).split(from.toUpperCase()).join(to);
-    }
-    return out;
-  }
-
-  function figurePartGroup(part, palette, peepsUrl) {
-    return fetchText(peepsUrl(part.file)).then((txt) => {
-      const doc = new DOMParser().parseFromString(recolor(txt, palette), 'image/svg+xml');
-      const src = doc.documentElement;
-      const vbSrc = (src.getAttribute('viewBox') || `0 0 ${part.source_size.w} ${part.source_size.h}`).split(/[\s,]+/).map(Number);
-      const nested = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      const sx = part.frame.w / vbSrc[2], sy = part.frame.h / vbSrc[3];
-      nested.setAttribute('transform', `translate(${part.frame.x} ${part.frame.y}) scale(${sx.toFixed(5)} ${sy.toFixed(5)}) translate(${-vbSrc[0]} ${-vbSrc[1]})`);
-      nested.setAttribute('data-slot', part.slot);
-      nested.innerHTML = src.innerHTML;
-      return { part, nested };
-    });
-  }
 
   function buildFigure(fig, plan, beatRoot, opts) {
     const bb = bboxOf(fig.bbox);
@@ -957,29 +1014,29 @@
       position: 'absolute', left: px(bb.x), top: px(bb.y), width: px(bb.w), height: px(bb.h), zIndex: '14',
       willChange: 'transform, opacity', transformOrigin: '50% 100%',
     }, beatRoot);
-    const vb = fig.composition.view_box;
+    // The performer is cut paper, same material as every mark on stage: a 100×140
+    // sheet of layered pieces — no borrowed clip-art.
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', vb.join(' '));
+    svg.setAttribute('viewBox', '0 0 100 140');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.setAttribute('preserveAspectRatio', 'xMidYMax meet');
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    if (fig.mirror) g.setAttribute('transform', `translate(${vb[0] * 2 + vb[2]} 0) scale(-1 1)`);
+    if (fig.mirror) g.setAttribute('transform', 'translate(100 0) scale(-1 1)');
     svg.appendChild(g);
     host.appendChild(svg);
+    // Lifted off the page: the puppet reads as a cut-out sitting on the paper, not flat ink.
+    svg.style.filter = `drop-shadow(0 ${px(bb.h * 0.012)} ${px(bb.h * 0.022)} ${rgbaOf(plan.brand.ink, 0.3)})`;
     const f = { fig, host, bb, ready: null, slotEls: {}, stateSwaps: null, appliedState: -1, prop: null };
-    const stateParts = [];
-    for (const st of fig.states || []) for (const sw of st.swaps) stateParts.push({ st, sw });
-    const ready = Promise.all([
-      Promise.all(fig.parts.map((part) => figurePartGroup(part, fig.palette, opts.peepsUrl))).then((items) => {
-        // Slot order is authored by the compiler: body → head → face.
-        for (const it of items) { g.appendChild(it.nested); f.slotEls[it.part.slot] = it.nested; }
-      }),
-      // State morph parts are prefetched too: the swap itself must be instant at lt, not on a fetch.
-      Promise.all(stateParts.map(({ st, sw }) => figurePartGroup(sw, fig.palette, opts.peepsUrl).then(({ nested }) => {
-        (st._prepared = st._prepared || []).push({ slot: sw.slot, innerHTML: nested.innerHTML, transform: nested.getAttribute('transform') });
-      }))),
-    ]);
+    const figSeed = seedHash(`figure:${fig.character || 'anon'}:${fig.pose && fig.pose.id || ''}`);
+    const built = paperFigureSlots(fig, figSeed, plan, `fig_${fig.character || 'f'}`);
+    g.appendChild(built.edge);
+    for (const slot of ['body', 'head', 'face']) { g.appendChild(built.slots[slot]); f.slotEls[slot] = built.slots[slot]; }
+    // State morph parts are pre-rendered paper slots too: the swap is instant at lt.
+    for (const st of fig.states || []) for (const sw of st.swaps) {
+      (st._prepared = st._prepared || []).push({ slot: sw.slot, innerHTML: paperSlotInner(sw.slot, sw.part_id, fig, figSeed, plan), transform: '' });
+    }
+    const ready = Promise.resolve();
     if (fig.states) f.stateSwaps = fig.states;
     if (fig.prop) {
       const p = fig.prop;
@@ -987,10 +1044,16 @@
       const prop = el('div', {
         position: 'absolute', left: `${(p.anchor.x * 100).toFixed(2)}%`, top: `${(p.anchor.y * 100).toFixed(2)}%`,
         width: px(size), height: px(size), transform: 'translate(-50%,-50%)', transformOrigin: '50% 15%',
-        willChange: 'transform',
+        willChange: 'transform', filter: `drop-shadow(0 ${px(size * 0.05)} ${px(size * 0.08)} ${rgbaOf(plan.brand.ink, 0.28)})`,
       }, host);
       f.prop = prop;
-      const propReady = p.asset && p.asset.path
+      const propArtKey = paperArtKey(p.concept);
+      const propReady = propArtKey
+        ? Promise.resolve((() => {
+            const psvg = paperArtSvg(propArtKey, seedHash(`prop:${p.concept}`), plan, `prop_${fig.name || 'f'}`);
+            if (psvg) { psvg.setAttribute('width', '100%'); psvg.setAttribute('height', '100%'); prop.appendChild(psvg); }
+          })())
+        : p.asset && p.asset.path
         ? fetchText(opts.assetUrl(p.asset.path)).then((txt) => {
             const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
             const psvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1173,6 +1236,1051 @@
     for (let i = 1; i < pts.length; i += 1) l += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
     return l;
   }
+
+  function seedHash(s) {
+    let h = 0x811C9DC5;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function rng(seed) {
+    let t = seed >>> 0;
+    return () => { t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  // Paper edge profile (after og2701/scraps' tear model): a torn edge is low-frequency
+  // wobble — anchors about every 1/26 of the run, smoothstep-interpolated — plus
+  // high-frequency fuzz sampled every ~1/60. A cut edge is 1-3 near-straight scissor
+  // strokes with tiny drift. `bias` shifts the whole line outward (the fibrous lip).
+  function edgeProfile(len, style, amp, r, bias) {
+    const pts = [];
+    if (style === 'cut') {
+      const n = 1 + Math.floor(r() * 2);
+      pts.push({ t: 0, off: (r() * 2 - 1) * amp * 0.35 });
+      for (let i = 1; i < n; i++) pts.push({ t: (len * i) / n + (r() * 2 - 1) * len * 0.06, off: (r() * 2 - 1) * amp });
+      pts.push({ t: len, off: (r() * 2 - 1) * amp * 0.35 });
+      return pts.map((p) => ({ t: p.t, off: p.off + bias }));
+    }
+    const nA = Math.max(2, Math.round(len / 26));
+    const anchors = [];
+    for (let i = 0; i <= nA; i++) anchors.push((r() * 2 - 1) * amp);
+    const step = Math.max(1, len / 60);
+    for (let t = 0; t < len; t += step) {
+      const u = (t / len) * nA, i = Math.min(nA - 1, Math.floor(u)), f = u - i;
+      const s = f * f * (3 - 2 * f);
+      pts.push({ t, off: anchors[i] * (1 - s) + anchors[i + 1] * s + (r() * 2 - 1) * amp * 0.55 });
+    }
+    pts.push({ t: len, off: anchors[nA] });
+    return pts.map((p) => ({ t: p.t, off: p.off + bias }));
+  }
+  // Walk the rect perimeter clockwise; positive offsets push outward.
+  function edgeRectPts(b, style, amp, r, bias) {
+    const sides = [
+      { len: b.w, map: (t, o) => [b.x + t, b.y - o] },
+      { len: b.h, map: (t, o) => [b.x + b.w + o, b.y + t] },
+      { len: b.w, map: (t, o) => [b.x + b.w - t, b.y + b.h + o] },
+      { len: b.h, map: (t, o) => [b.x - o, b.y + b.h - t] },
+    ];
+    const out = [];
+    for (const s of sides) for (const p of edgeProfile(s.len, style, amp, r, bias || 0)) out.push(s.map(p.t, p.off));
+    return out;
+  }
+  // Hand-cut card edge: a torn two-frequency wobble around the rect — the die-cut edge
+  // around every sticker in the paper language.
+  function cutRectPath(b, seed, j) {
+    return polyPath(edgeRectPts(b, 'torn', j, rng(seed), 0)) + 'Z';
+  }
+  // The fibrous fringe of a tear: the same wobble a little wider and a hair outward —
+  // the white core of the paper showing along the rip.
+  function tornFringePath(b, seed, j) {
+    return polyPath(edgeRectPts(b, 'torn', j * 1.25, rng(seed ^ 0x51ab), Math.max(1, j * 0.5))) + 'Z';
+  }
+  // Organic die-cut blob: low-frequency wobble plus fuzz on the radius — the irregular
+  // white edge a sticker is cut along.
+  function cutBlobPath(cx, cy, rx, ry, seed) {
+    const r = rng(seed);
+    const n = 26, anchors = [];
+    for (let i = 0; i < 9; i++) anchors.push((r() * 2 - 1) * 0.14);
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      const u = (i / n) * (anchors.length - 1), ai = Math.min(anchors.length - 2, Math.floor(u)), f = u - ai;
+      const s = f * f * (3 - 2 * f);
+      const k = 1 + anchors[ai] * (1 - s) + anchors[ai + 1] * s + (r() - 0.5) * 0.075;
+      pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]);
+    }
+    return polyPath(pts) + 'Z';
+  }
+  // ----------------------------- Paper art ----------------------------------
+  // The paper language's picture vocabulary: every concept the film names is drawn
+  // as a composed collage of cut-paper pieces — filled, wobbly-edged shapes laid
+  // over a white die-cut edge — never a stroked icon glyph. Pieces are authored in
+  // a normalized 100x100 space; `edge !== 0` pieces contribute to the union white
+  // border, `op`/`rot` plus seeded jitter keep every cut unique. Tones resolve
+  // against the film's palette where symbolic, else a fixed watercolour register.
+  const PAPER_TONES = {
+    sun: '#f2b54a', sunlit: '#f7d98b', brass: '#e0b352',
+    snow: '#f7f4ec', moonlit: '#e8dfc6', moonshade: '#b5a988', night: '#2f3c60', slate: '#5b6b8c',
+    grey: '#b9b4a6', steel: '#8a94a6', sky: '#a9c9de', water: '#7fb3d5', deep: '#3f5a80',
+    leaf: '#6fa86f', sage: '#93b58a', stem: '#4e7a4e', soil: '#6b4f3a', wood: '#9a7856',
+    skin: '#e8b98e', petal: '#e79fb0', blush: '#d96a6a', warm: '#d97f4e', fire: '#e0684a',
+  };
+  function paintTone(tone, plan) {
+    if (!tone) return plan.brand.ink;
+    if (tone[0] === '#') return tone;
+    if (tone === 'ink') return plan.brand.ink;
+    if (tone === 'accent') return plan.brand.accent || plan.brand.ink;
+    if (tone === 'paper') return plan.brand.paper;
+    return PAPER_TONES[tone] || plan.brand.ink;
+  }
+  const STAR_PTS = [[50, 4], [62, 37], [96, 38], [69, 60], [78, 94], [50, 73], [22, 94], [31, 60], [4, 38], [38, 37]];
+  const PAPER_ART = {
+    sun: [
+      { s: 'rays', cx: 50, cy: 50, r0: 32, r1: 47, n: 10, w: 9, tone: 'sun' },
+      { s: 'blob', cx: 50, cy: 50, r: 25, tone: 'sun' },
+      { s: 'blob', cx: 41, cy: 40, rx: 9, ry: 6, tone: 'sunlit', op: 0.55, edge: 0 },
+    ],
+    'moon-full': [
+      { s: 'blob', cx: 50, cy: 50, r: 30, tone: 'moonlit' },
+      { s: 'blob', cx: 39, cy: 41, rx: 7, ry: 5.5, tone: 'moonshade', op: 0.7, edge: 0 },
+      { s: 'blob', cx: 59, cy: 58, rx: 4.5, ry: 4, tone: 'moonshade', op: 0.6, edge: 0 },
+      { s: 'blob', cx: 53, cy: 33, rx: 3, ry: 2.5, tone: 'moonshade', op: 0.5, edge: 0 },
+    ],
+    'moon-crescent': [
+      { s: 'crescent', cx: 48, cy: 50, r: 30, bite: 0.62, tone: 'moonlit' },
+      { s: 'blob', cx: 40, cy: 42, rx: 3.5, ry: 3, tone: 'moonshade', op: 0.5, edge: 0 },
+    ],
+    'moon-half': [
+      { s: 'halfdisc', cx: 50, cy: 50, r: 30, tone: 'moonlit' },
+      { s: 'blob', cx: 56, cy: 43, rx: 4, ry: 3.4, tone: 'moonshade', op: 0.6, edge: 0 },
+      { s: 'blob', cx: 58, cy: 60, rx: 3, ry: 2.6, tone: 'moonshade', op: 0.5, edge: 0 },
+    ],
+    star: [{ s: 'path', pts: STAR_PTS, tone: 'brass' }],
+    stars: [
+      { s: 'path', pts: STAR_PTS, k: 0.42, ox: 8, oy: 10, tone: 'brass' },
+      { s: 'path', pts: STAR_PTS, k: 0.3, ox: 58, oy: 30, tone: 'snow' },
+      { s: 'path', pts: STAR_PTS, k: 0.22, ox: 42, oy: 62, tone: 'brass', op: 0.85 },
+    ],
+    cloud: [
+      { s: 'blob', cx: 50, cy: 62, rx: 34, ry: 18, tone: 'snow' },
+      { s: 'blob', cx: 33, cy: 52, rx: 15, ry: 13, tone: 'snow' },
+      { s: 'blob', cx: 62, cy: 48, rx: 19, ry: 16, tone: 'snow' },
+      { s: 'blob', cx: 44, cy: 58, rx: 20, ry: 14, tone: 'snow' },
+      { s: 'blob', cx: 62, cy: 52, rx: 8, ry: 6, tone: 'paper', op: 0.5, edge: 0 },
+    ],
+    rain: [
+      { s: 'blob', cx: 50, cy: 40, rx: 30, ry: 15, tone: 'sky' },
+      { s: 'blob', cx: 36, cy: 32, rx: 13, ry: 11, tone: 'sky' },
+      { s: 'blob', cx: 60, cy: 29, rx: 17, ry: 14, tone: 'sky' },
+      { s: 'petal', cx: 32, cy: 66, rx: 4.5, ry: 8, tone: 'water' },
+      { s: 'petal', cx: 50, cy: 72, rx: 4.5, ry: 8, tone: 'water' },
+      { s: 'petal', cx: 68, cy: 64, rx: 4.5, ry: 8, tone: 'water' },
+    ],
+    storm: [
+      { s: 'blob', cx: 50, cy: 36, rx: 30, ry: 15, tone: 'slate' },
+      { s: 'blob', cx: 62, cy: 27, rx: 17, ry: 13, tone: 'slate' },
+      { s: 'path', pts: [[55, 52], [40, 74], [49, 74], [43, 94], [64, 68], [54, 68]], tone: 'brass' },
+    ],
+    rainbow: [
+      { s: 'arc', cx: 50, cy: 82, r: 42, a0: 180, a1: 360, t: 7, tone: 'blush' },
+      { s: 'arc', cx: 50, cy: 82, r: 33, a0: 180, a1: 360, t: 7, tone: 'brass' },
+      { s: 'arc', cx: 50, cy: 82, r: 24, a0: 180, a1: 360, t: 7, tone: 'leaf' },
+      { s: 'blob', cx: 16, cy: 78, rx: 11, ry: 7, tone: 'snow' },
+      { s: 'blob', cx: 84, cy: 78, rx: 11, ry: 7, tone: 'snow' },
+    ],
+    earth: [
+      { s: 'blob', cx: 50, cy: 50, r: 31, tone: 'water' },
+      { s: 'blob', cx: 38, cy: 40, rx: 13, ry: 9, rot: -20, tone: 'leaf', edge: 0 },
+      { s: 'blob', cx: 61, cy: 58, rx: 11, ry: 8, rot: 30, tone: 'leaf', edge: 0 },
+      { s: 'blob', cx: 55, cy: 30, rx: 7, ry: 4.5, rot: 15, tone: 'leaf', edge: 0 },
+    ],
+    seed: [
+      { s: 'blob', cx: 50, cy: 55, rx: 13, ry: 17, rot: -18, tone: 'soil' },
+      { s: 'blob', cx: 45, cy: 47, rx: 4, ry: 6, rot: -18, tone: 'skin', op: 0.4, edge: 0 },
+    ],
+    sprout: [
+      { s: 'blob', cx: 50, cy: 84, rx: 27, ry: 9, tone: 'soil' },
+      { s: 'rect', x: 48, y: 44, w: 4.5, h: 34, tone: 'stem' },
+      { s: 'petal', cx: 38, cy: 52, rx: 13, ry: 6.5, rot: -28, tone: 'leaf' },
+      { s: 'petal', cx: 62, cy: 48, rx: 13, ry: 6.5, rot: 28, tone: 'leaf' },
+      { s: 'petal', cx: 50, cy: 40, rx: 11, ry: 6, rot: 90, tone: 'sage' },
+    ],
+    plant: [
+      { s: 'path', pts: [[34, 62], [66, 62], [61, 92], [39, 92]], tone: 'wood' },
+      { s: 'rect', x: 48, y: 36, w: 4.5, h: 28, tone: 'stem' },
+      { s: 'petal', cx: 39, cy: 46, rx: 12, ry: 6, rot: -28, tone: 'leaf' },
+      { s: 'petal', cx: 61, cy: 42, rx: 12, ry: 6, rot: 28, tone: 'leaf' },
+    ],
+    leaf: [
+      { s: 'petal', cx: 50, cy: 48, rx: 17, ry: 34, rot: -25, tone: 'leaf' },
+      { s: 'path', pts: [[44, 78], [47, 50], [50, 22]], tone: 'stem', stroke: 2.4, edge: 0 },
+    ],
+    leaves: [
+      { s: 'petal', cx: 34, cy: 52, rx: 12, ry: 26, rot: -35, tone: 'leaf' },
+      { s: 'petal', cx: 62, cy: 48, rx: 12, ry: 26, rot: 30, tone: 'sage' },
+      { s: 'petal', cx: 50, cy: 60, rx: 10, ry: 22, rot: 0, tone: 'leaf', op: 0.9 },
+    ],
+    flower: [
+      { s: 'rect', x: 48, y: 52, w: 4.5, h: 38, tone: 'stem' },
+      { s: 'petal', cx: 50, cy: 22, rx: 8, ry: 13, tone: 'petal' },
+      { s: 'petal', cx: 30, cy: 36, rx: 8, ry: 13, rot: -62, tone: 'petal' },
+      { s: 'petal', cx: 70, cy: 36, rx: 8, ry: 13, rot: 62, tone: 'petal' },
+      { s: 'petal', cx: 37, cy: 50, rx: 8, ry: 12, rot: -130, tone: 'petal' },
+      { s: 'petal', cx: 63, cy: 50, rx: 8, ry: 12, rot: 130, tone: 'petal' },
+      { s: 'blob', cx: 50, cy: 38, r: 9, tone: 'sun' },
+      { s: 'petal', cx: 40, cy: 72, rx: 11, ry: 5, rot: -20, tone: 'leaf' },
+    ],
+    sunflower: [
+      { s: 'rect', x: 48, y: 55, w: 5, h: 38, tone: 'stem' },
+      { s: 'petal', cx: 50, cy: 20, rx: 7, ry: 12, tone: 'brass' },
+      { s: 'petal', cx: 68, cy: 28, rx: 7, ry: 12, rot: 55, tone: 'brass' },
+      { s: 'petal', cx: 72, cy: 48, rx: 7, ry: 12, rot: 105, tone: 'brass' },
+      { s: 'petal', cx: 32, cy: 28, rx: 7, ry: 12, rot: -55, tone: 'brass' },
+      { s: 'petal', cx: 28, cy: 48, rx: 7, ry: 12, rot: -105, tone: 'brass' },
+      { s: 'blob', cx: 50, cy: 38, r: 12, tone: 'soil' },
+    ],
+    tree: [
+      { s: 'rect', x: 45, y: 58, w: 10, h: 34, tone: 'wood' },
+      { s: 'blob', cx: 50, cy: 40, rx: 27, ry: 25, tone: 'leaf' },
+      { s: 'blob', cx: 32, cy: 50, rx: 14, ry: 12, tone: 'leaf' },
+      { s: 'blob', cx: 68, cy: 50, rx: 14, ry: 12, tone: 'sage' },
+    ],
+    pine: [
+      { s: 'path', pts: [[50, 8], [72, 42], [28, 42]], tone: 'leaf' },
+      { s: 'path', pts: [[50, 30], [78, 66], [22, 66]], tone: 'sage' },
+      { s: 'rect', x: 45, y: 66, w: 10, h: 22, tone: 'wood' },
+    ],
+    roots: [
+      { s: 'path', pts: [[48, 30], [52, 30], [44, 62], [34, 80], [42, 60]], tone: 'soil' },
+      { s: 'path', pts: [[48, 30], [52, 30], [52, 66], [48, 86], [48, 60]], tone: 'wood' },
+      { s: 'path', pts: [[48, 30], [52, 30], [60, 60], [70, 76], [58, 62]], tone: 'soil' },
+      { s: 'blob', cx: 50, cy: 30, rx: 14, ry: 7, tone: 'soil' },
+    ],
+    drop: [
+      { s: 'petal', cx: 50, cy: 52, rx: 20, ry: 28, tone: 'water' },
+      { s: 'blob', cx: 42, cy: 44, rx: 5, ry: 8, rot: -15, tone: 'snow', op: 0.55, edge: 0 },
+    ],
+    wave: [
+      { s: 'path', pts: [[4, 62], [22, 46], [40, 62], [58, 46], [76, 62], [94, 52], [94, 92], [4, 92]], tone: 'water' },
+      { s: 'path', pts: [[4, 76], [24, 64], [44, 76], [64, 64], [94, 78], [94, 94], [4, 94]], tone: 'deep', op: 0.7 },
+    ],
+    mountain: [
+      { s: 'path', pts: [[8, 90], [38, 30], [50, 52], [64, 26], [92, 90]], tone: 'slate' },
+      { s: 'path', pts: [[38, 30], [44, 42], [38, 45], [32, 42]], tone: 'snow' },
+      { s: 'path', pts: [[64, 26], [71, 39], [64, 42], [57, 39]], tone: 'snow' },
+    ],
+    hill: [
+      { s: 'path', pts: [[2, 96], [24, 62], [52, 76], [78, 58], [98, 84], [98, 98], [2, 98]], tone: 'sage' },
+      { s: 'path', pts: [[2, 98], [40, 80], [70, 88], [98, 78], [98, 98]], tone: 'leaf' },
+    ],
+    fire: [
+      { s: 'petal', cx: 50, cy: 56, rx: 21, ry: 30, tone: 'fire' },
+      { s: 'petal', cx: 50, cy: 62, rx: 13, ry: 21, tone: 'warm', edge: 0 },
+      { s: 'petal', cx: 50, cy: 68, rx: 6.5, ry: 13, tone: 'sunlit', edge: 0 },
+    ],
+    hand: [
+      { s: 'blob', cx: 50, cy: 60, rx: 21, ry: 20, tone: 'skin' },
+      { s: 'rect', x: 30, y: 28, w: 9, h: 30, rot: -8, tone: 'skin' },
+      { s: 'rect', x: 43, y: 24, w: 9, h: 32, tone: 'skin' },
+      { s: 'rect', x: 56, y: 26, w: 9, h: 30, rot: 4, tone: 'skin' },
+      { s: 'rect', x: 68, y: 34, w: 9, h: 24, rot: 14, tone: 'skin' },
+      { s: 'blob', cx: 28, cy: 62, rx: 9, ry: 11, rot: -35, tone: 'skin' },
+    ],
+    eye: [
+      { s: 'petal', cx: 50, cy: 50, rx: 34, ry: 18, rot: 90, tone: 'snow' },
+      { s: 'blob', cx: 50, cy: 50, r: 11, tone: 'deep', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 4.5, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 46, cy: 45, r: 2.5, tone: 'snow', edge: 0 },
+    ],
+    heart: [
+      { s: 'path', pts: [[50, 84], [20, 54], [14, 32], [28, 16], [44, 20], [50, 32], [56, 20], [72, 16], [86, 32], [80, 54]], tone: 'blush' },
+    ],
+    magnifier: [
+      { s: 'blob', cx: 42, cy: 42, r: 21, tone: 'sky', op: 0.45, edge: 0 },
+      { s: 'ring', cx: 42, cy: 42, r: 23, t: 7, tone: 'steel' },
+      { s: 'rect', x: 58, y: 58, w: 10, h: 30, rot: -45, tone: 'wood' },
+    ],
+    telescope: [
+      { s: 'rect', x: 18, y: 38, w: 46, h: 15, rot: -18, tone: 'brass' },
+      { s: 'rect', x: 60, y: 44, w: 14, h: 11, rot: -18, tone: 'wood' },
+      { s: 'rect', x: 36, y: 52, w: 5, h: 32, rot: -8, tone: 'wood' },
+      { s: 'rect', x: 24, y: 82, w: 30, h: 6, tone: 'wood' },
+    ],
+    book: [
+      { s: 'rect', x: 26, y: 24, w: 50, h: 56, rot: -3, tone: 'accent' },
+      { s: 'rect', x: 22, y: 28, w: 50, h: 52, rot: -3, tone: 'paper' },
+      { s: 'rect', x: 22, y: 28, w: 6, h: 52, rot: -3, tone: 'blush' },
+    ],
+    gift: [
+      { s: 'rect', x: 24, y: 44, w: 52, h: 42, tone: 'blush' },
+      { s: 'rect', x: 19, y: 32, w: 62, h: 14, tone: 'accent' },
+      { s: 'rect', x: 44, y: 32, w: 12, h: 54, tone: 'paper', op: 0.9 },
+      { s: 'petal', cx: 42, cy: 24, rx: 9, ry: 6, rot: -30, tone: 'paper' },
+      { s: 'petal', cx: 58, cy: 24, rx: 9, ry: 6, rot: 30, tone: 'paper' },
+    ],
+    lightbulb: [
+      { s: 'blob', cx: 50, cy: 40, r: 23, tone: 'sun' },
+      { s: 'blob', cx: 42, cy: 33, rx: 7, ry: 5, tone: 'sunlit', op: 0.6, edge: 0 },
+      { s: 'rect', x: 41, y: 62, w: 18, h: 10, tone: 'steel' },
+      { s: 'rect', x: 43, y: 73, w: 14, h: 6, tone: 'steel' },
+    ],
+    key: [
+      { s: 'ring', cx: 34, cy: 40, r: 14, t: 7, tone: 'brass' },
+      { s: 'rect', x: 44, y: 36, w: 44, h: 9, tone: 'brass' },
+      { s: 'rect', x: 76, y: 44, w: 7, h: 12, tone: 'brass' },
+      { s: 'rect', x: 63, y: 44, w: 7, h: 12, tone: 'brass' },
+    ],
+    house: [
+      { s: 'rect', x: 28, y: 46, w: 44, h: 38, tone: 'paper' },
+      { s: 'path', pts: [[20, 46], [50, 20], [80, 46]], tone: 'blush' },
+      { s: 'rect', x: 44, y: 62, w: 13, h: 22, tone: 'wood' },
+      { s: 'rect', x: 60, y: 52, w: 9, h: 9, tone: 'sky' },
+    ],
+    cup: [
+      { s: 'path', pts: [[32, 40], [68, 40], [64, 80], [36, 80]], tone: 'accent' },
+      { s: 'arc', cx: 71, cy: 55, r: 10, a0: -80, a1: 80, t: 6, tone: 'accent' },
+      { s: 'rect', x: 28, y: 84, w: 44, h: 5, tone: 'wood' },
+    ],
+    clock: [
+      { s: 'blob', cx: 50, cy: 50, r: 31, tone: 'paper' },
+      { s: 'rect', x: 48, y: 30, w: 4, h: 20, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 50, y: 48, w: 16, h: 4, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 3, tone: 'blush', edge: 0 },
+    ],
+    compass: [
+      { s: 'blob', cx: 50, cy: 50, r: 30, tone: 'paper' },
+      { s: 'path', pts: [[50, 30], [56, 50], [50, 70], [44, 50]], tone: 'blush', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 4, tone: 'ink', edge: 0 },
+    ],
+    letter: [
+      { s: 'rect', x: 20, y: 32, w: 60, h: 40, tone: 'paper' },
+      { s: 'path', pts: [[21, 33], [50, 56], [79, 33]], tone: 'snow', edge: 0 },
+    ],
+    balloon: [
+      { s: 'blob', cx: 50, cy: 34, rx: 19, ry: 23, tone: 'blush' },
+      { s: 'path', pts: [[50, 57], [46, 63], [54, 63]], tone: 'blush' },
+      { s: 'path', pts: [[49, 63], [46, 76], [53, 86], [50, 93]], tone: 'grey', stroke: 2.2, edge: 0 },
+    ],
+    kite: [
+      { s: 'path', pts: [[50, 12], [74, 40], [50, 68], [26, 40]], tone: 'sky' },
+      { s: 'path', pts: [[49, 68], [46, 80], [53, 88]], tone: 'grey', stroke: 2.2, edge: 0 },
+      { s: 'rect', x: 44, y: 74, w: 8, h: 5, rot: -30, tone: 'blush', edge: 0 },
+      { s: 'rect', x: 50, y: 82, w: 8, h: 5, rot: 30, tone: 'brass', edge: 0 },
+    ],
+    bird: [
+      { s: 'path', pts: [[30, 54], [14, 44], [16, 62]], tone: 'slate' },
+      { s: 'blob', cx: 48, cy: 52, rx: 20, ry: 14, tone: 'slate' },
+      { s: 'blob', cx: 62, cy: 40, r: 9, tone: 'slate' },
+      { s: 'path', pts: [[70, 38], [82, 42], [70, 46]], tone: 'brass' },
+      { s: 'petal', cx: 44, cy: 48, rx: 12, ry: 7, rot: -25, tone: 'sky', edge: 0 },
+      { s: 'blob', cx: 64, cy: 37, r: 2.2, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 46, y: 66, w: 3, h: 10, tone: 'wood' },
+    ],
+    butterfly: [
+      { s: 'petal', cx: 34, cy: 42, rx: 13, ry: 19, rot: -18, tone: 'blush' },
+      { s: 'petal', cx: 66, cy: 42, rx: 13, ry: 19, rot: 18, tone: 'blush' },
+      { s: 'petal', cx: 38, cy: 64, rx: 9, ry: 12, rot: -35, tone: 'sky' },
+      { s: 'petal', cx: 62, cy: 64, rx: 9, ry: 12, rot: 35, tone: 'sky' },
+      { s: 'rect', x: 48.5, y: 30, w: 3, h: 34, tone: 'ink', edge: 0 },
+    ],
+    cat: [
+      { s: 'path', pts: [[36, 30], [40, 14], [48, 26]], tone: 'grey' },
+      { s: 'path', pts: [[64, 30], [60, 14], [52, 26]], tone: 'grey' },
+      { s: 'blob', cx: 50, cy: 38, r: 15, tone: 'grey' },
+      { s: 'blob', cx: 48, cy: 68, rx: 22, ry: 18, tone: 'grey' },
+      { s: 'path', pts: [[66, 74], [84, 58], [90, 66], [72, 82]], tone: 'grey' },
+      { s: 'blob', cx: 44, cy: 35, r: 2.4, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 56, cy: 35, r: 2.4, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 42, r: 2, tone: 'blush', edge: 0 },
+    ],
+    fish: [
+      { s: 'blob', cx: 46, cy: 52, rx: 23, ry: 14, tone: 'water' },
+      { s: 'path', pts: [[66, 52], [86, 38], [86, 66]], tone: 'deep' },
+      { s: 'blob', cx: 38, cy: 47, r: 2.6, tone: 'ink', edge: 0 },
+      { s: 'petal', cx: 52, cy: 52, rx: 8, ry: 5, rot: -15, tone: 'deep', op: 0.4, edge: 0 },
+    ],
+    boat: [
+      { s: 'path', pts: [[18, 62], [82, 62], [70, 80], [30, 80]], tone: 'wood' },
+      { s: 'rect', x: 48.5, y: 24, w: 3.5, h: 38, tone: 'wood' },
+      { s: 'path', pts: [[54, 26], [54, 58], [78, 58]], tone: 'paper' },
+      { s: 'path', pts: [[46, 32], [46, 58], [26, 58]], tone: 'snow' },
+    ],
+    lighthouse: [
+      { s: 'path', pts: [[41, 90], [59, 90], [56, 34], [44, 34]], tone: 'paper' },
+      { s: 'rect', x: 43, y: 48, w: 14, h: 8, rot: -2, tone: 'blush' },
+      { s: 'rect', x: 43.5, y: 64, w: 13.5, h: 8, rot: -2, tone: 'blush' },
+      { s: 'rect', x: 42, y: 24, w: 16, h: 10, tone: 'slate' },
+      { s: 'path', pts: [[58, 28], [88, 20], [88, 38]], tone: 'sunlit', op: 0.55, edge: 0 },
+    ],
+    wind: [
+      { s: 'arc', cx: 44, cy: 34, r: 16, a0: 185, a1: 340, t: 6, tone: 'grey', edge: 0 },
+      { s: 'arc', cx: 56, cy: 58, r: 21, a0: 185, a1: 340, t: 6, tone: 'grey', edge: 0 },
+      { s: 'arc', cx: 40, cy: 78, r: 11, a0: 185, a1: 330, t: 5, tone: 'grey', edge: 0 },
+    ],
+    apple: [
+      { s: 'blob', cx: 50, cy: 56, r: 22, tone: 'blush' },
+      { s: 'rect', x: 49, y: 26, w: 3.5, h: 12, rot: 12, tone: 'wood' },
+      { s: 'petal', cx: 60, cy: 32, rx: 9, ry: 5, rot: 35, tone: 'leaf' },
+      { s: 'blob', cx: 41, cy: 48, rx: 5, ry: 7, tone: 'snow', op: 0.35, edge: 0 },
+    ],
+    mushroom: [
+      { s: 'path', pts: [[38, 92], [44, 56], [56, 56], [62, 92]], tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 44, rx: 28, ry: 18, tone: 'blush' },
+      { s: 'blob', cx: 38, cy: 38, r: 4, tone: 'snow', edge: 0 },
+      { s: 'blob', cx: 58, cy: 46, r: 5, tone: 'snow', edge: 0 },
+    ],
+    snowflake: [
+      { s: 'rect', x: 48, y: 20, w: 4, h: 60, tone: 'sky' },
+      { s: 'rect', x: 48, y: 20, w: 4, h: 60, rot: 60, tone: 'sky' },
+      { s: 'rect', x: 48, y: 20, w: 4, h: 60, rot: -60, tone: 'sky' },
+      { s: 'blob', cx: 50, cy: 50, r: 6, tone: 'snow', edge: 0 },
+    ],
+    candle: [
+      { s: 'rect', x: 42, y: 52, w: 16, h: 36, tone: 'paper' },
+      { s: 'petal', cx: 50, cy: 40, rx: 7, ry: 12, tone: 'sun' },
+      { s: 'petal', cx: 50, cy: 44, rx: 3.5, ry: 7, tone: 'sunlit', edge: 0 },
+    ],
+    // Transport — driving/riding/flying all read as paper vehicles on the same wheels.
+    car: [
+      { s: 'rect', x: 14, y: 46, w: 72, h: 24, tone: 'accent' },
+      { s: 'blob', cx: 38, cy: 42, r: 14, tone: 'accent' },
+      { s: 'rect', x: 40, y: 30, w: 26, h: 18, tone: 'accent' },
+      { s: 'rect', x: 44, y: 33, w: 9, h: 13, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 55, y: 33, w: 9, h: 13, tone: 'sky', edge: 0 },
+      { s: 'blob', cx: 28, cy: 72, r: 8, tone: 'ink' },
+      { s: 'blob', cx: 72, cy: 72, r: 8, tone: 'ink' },
+      { s: 'blob', cx: 28, cy: 72, r: 3.4, tone: 'paper', edge: 0 },
+      { s: 'blob', cx: 72, cy: 72, r: 3.4, tone: 'paper', edge: 0 },
+    ],
+    bus: [
+      { s: 'rect', x: 12, y: 34, w: 76, h: 36, tone: 'sun' },
+      { s: 'rect', x: 18, y: 40, w: 14, h: 12, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 36, y: 40, w: 14, h: 12, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 54, y: 40, w: 14, h: 12, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 72, y: 40, w: 10, h: 12, tone: 'sky', edge: 0 },
+      { s: 'blob', cx: 26, cy: 72, r: 7.5, tone: 'ink' },
+      { s: 'blob', cx: 74, cy: 72, r: 7.5, tone: 'ink' },
+    ],
+    bicycle: [
+      { s: 'ring', cx: 28, cy: 64, r: 16, t: 4, tone: 'ink' },
+      { s: 'ring', cx: 72, cy: 64, r: 16, t: 4, tone: 'ink' },
+      { s: 'path', pts: [[28, 64], [46, 38], [60, 64], [28, 64]], tone: 'accent' },
+      { s: 'path', pts: [[60, 64], [72, 64], [70, 36]], tone: 'accent' },
+      { s: 'rect', x: 40, y: 32, w: 16, h: 6, tone: 'ink' },
+      { s: 'rect', x: 66, y: 30, w: 14, h: 5, tone: 'ink' },
+    ],
+    train: [
+      { s: 'rect', x: 10, y: 40, w: 80, h: 28, tone: 'brass' },
+      { s: 'rect', x: 60, y: 26, w: 24, h: 16, tone: 'brass' },
+      { s: 'rect', x: 16, y: 48, w: 72, h: 6, tone: 'paper', edge: 0 },
+      { s: 'rect', x: 20, y: 20, w: 10, h: 14, tone: 'ink' },
+      { s: 'blob', cx: 25, cy: 14, r: 6, tone: 'grey' },
+      { s: 'blob', cx: 24, cy: 72, r: 7, tone: 'ink' },
+      { s: 'blob', cx: 48, cy: 72, r: 7, tone: 'ink' },
+      { s: 'blob', cx: 74, cy: 72, r: 7, tone: 'ink' },
+    ],
+    rocket: [
+      { s: 'path', pts: [[50, 12], [64, 36], [64, 66], [36, 66], [36, 36]], tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 44, r: 8, tone: 'sky', edge: 0 },
+      { s: 'path', pts: [[36, 56], [22, 78], [36, 70]], tone: 'accent' },
+      { s: 'path', pts: [[64, 56], [78, 78], [64, 70]], tone: 'accent' },
+      { s: 'petal', cx: 50, cy: 78, rx: 7, ry: 13, tone: 'sun' },
+      { s: 'petal', cx: 50, cy: 80, rx: 3.5, ry: 7, tone: 'sunlit', edge: 0 },
+    ],
+    plane: [
+      { s: 'path', pts: [[12, 56], [88, 44], [88, 54], [52, 62], [12, 62]], tone: 'paper' },
+      { s: 'path', pts: [[46, 44], [60, 20], [68, 44]], tone: 'accent' },
+      { s: 'path', pts: [[16, 56], [10, 36], [22, 52]], tone: 'accent' },
+    ],
+    // Home + waking.
+    sunrise: [
+      { s: 'halfdisc', cx: 50, cy: 66, r: 24, tone: 'sun' },
+      { s: 'halfdisc', cx: 50, cy: 66, r: 15, tone: 'sunlit', edge: 0 },
+      { s: 'path', pts: [[0, 78], [30, 62], [60, 74], [100, 66], [100, 100], [0, 100]], tone: 'soil' },
+      { s: 'rect', x: 46, y: 30, w: 8, h: 14, tone: 'sun', edge: 0 },
+      { s: 'rect', x: 24, y: 42, w: 8, h: 12, rot: -38, tone: 'sun', edge: 0 },
+      { s: 'rect', x: 68, y: 42, w: 8, h: 12, rot: 38, tone: 'sun', edge: 0 },
+    ],
+    alarm_clock: [
+      { s: 'blob', cx: 50, cy: 54, r: 26, tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 54, r: 20, tone: 'accent', edge: 0 },
+      { s: 'blob', cx: 50, cy: 54, r: 16, tone: 'paper', edge: 0 },
+      { s: 'rect', x: 48.5, y: 40, w: 3, h: 15, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 50, y: 52, w: 11, h: 3, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 36, cy: 24, r: 7, tone: 'accent' },
+      { s: 'blob', cx: 64, cy: 24, r: 7, tone: 'accent' },
+      { s: 'rect', x: 40, y: 80, w: 7, h: 8, rot: 18, tone: 'ink' },
+      { s: 'rect', x: 56, y: 80, w: 7, h: 8, rot: -18, tone: 'ink' },
+    ],
+    bed: [
+      { s: 'rect', x: 12, y: 30, w: 8, h: 44, tone: 'wood' },
+      { s: 'rect', x: 16, y: 52, w: 74, h: 20, tone: 'accent' },
+      { s: 'rect', x: 50, y: 46, w: 40, h: 10, tone: 'paper' },
+      { s: 'blob', cx: 26, cy: 46, r: 9, tone: 'paper' },
+      { s: 'rect', x: 12, y: 72, w: 8, h: 10, tone: 'wood' },
+      { s: 'rect', x: 82, y: 72, w: 8, h: 10, tone: 'wood' },
+    ],
+    door: [
+      { s: 'rect', x: 26, y: 16, w: 48, h: 72, tone: 'wood' },
+      { s: 'rect', x: 33, y: 24, w: 15, h: 24, tone: 'soil', edge: 0 },
+      { s: 'rect', x: 33, y: 56, w: 15, h: 24, tone: 'soil', edge: 0 },
+      { s: 'rect', x: 53, y: 24, w: 15, h: 24, tone: 'soil', edge: 0 },
+      { s: 'rect', x: 53, y: 56, w: 15, h: 24, tone: 'soil', edge: 0 },
+      { s: 'blob', cx: 66, cy: 52, r: 3.5, tone: 'brass', edge: 0 },
+    ],
+    window: [
+      { s: 'rect', x: 20, y: 20, w: 60, h: 60, tone: 'sky' },
+      { s: 'rect', x: 20, y: 20, w: 60, h: 6, tone: 'wood', edge: 0 },
+      { s: 'rect', x: 20, y: 74, w: 60, h: 6, tone: 'wood', edge: 0 },
+      { s: 'rect', x: 47, y: 20, w: 6, h: 60, tone: 'wood', edge: 0 },
+      { s: 'rect', x: 20, y: 47, w: 60, h: 6, tone: 'wood', edge: 0 },
+      { s: 'blob', cx: 64, cy: 34, r: 7, tone: 'sun', edge: 0 },
+    ],
+    // Tools + marks.
+    pencil: [
+      { s: 'rect', x: 43, y: 18, w: 14, h: 52, tone: 'sun' },
+      { s: 'path', pts: [[43, 70], [57, 70], [50, 88]], tone: 'wood' },
+      { s: 'path', pts: [[46.5, 76], [53.5, 76], [50, 86]], tone: 'ink', edge: 0 },
+      { s: 'rect', x: 43, y: 18, w: 14, h: 8, tone: 'accent', edge: 0 },
+    ],
+    scissors: [
+      { s: 'ring', cx: 36, cy: 66, r: 10, t: 6, tone: 'accent' },
+      { s: 'ring', cx: 64, cy: 66, r: 10, t: 6, tone: 'accent' },
+      { s: 'path', pts: [[40, 60], [52, 18], [58, 22], [48, 60]], tone: 'steel' },
+      { s: 'path', pts: [[60, 60], [48, 18], [42, 22], [52, 60]], tone: 'steel' },
+      { s: 'blob', cx: 50, cy: 44, r: 3.5, tone: 'ink', edge: 0 },
+    ],
+    gear: [
+      { s: 'ring', cx: 50, cy: 50, r: 22, t: 10, tone: 'steel' },
+      { s: 'blob', cx: 50, cy: 50, r: 8, tone: 'paper', edge: 0 },
+      { s: 'rect', x: 45, y: 14, w: 10, h: 14, tone: 'steel' },
+      { s: 'rect', x: 45, y: 72, w: 10, h: 14, tone: 'steel' },
+      { s: 'rect', x: 14, y: 45, w: 14, h: 10, tone: 'steel' },
+      { s: 'rect', x: 72, y: 45, w: 14, h: 10, tone: 'steel' },
+      { s: 'rect', x: 22, y: 24, w: 10, h: 12, rot: -45, tone: 'steel' },
+      { s: 'rect', x: 68, y: 24, w: 10, h: 12, rot: 45, tone: 'steel' },
+      { s: 'rect', x: 22, y: 66, w: 10, h: 12, rot: 45, tone: 'steel' },
+      { s: 'rect', x: 68, y: 66, w: 10, h: 12, rot: -45, tone: 'steel' },
+    ],
+    lock: [
+      { s: 'rect', x: 26, y: 42, w: 48, h: 44, tone: 'brass' },
+      { s: 'arc', cx: 50, cy: 42, r: 16, a0: 180, a1: 360, t: 7, tone: 'steel' },
+      { s: 'blob', cx: 50, cy: 60, r: 6, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 47, y: 62, w: 6, h: 12, tone: 'ink', edge: 0 },
+    ],
+    shield: [
+      { s: 'path', pts: [[50, 12], [82, 24], [82, 52], [50, 88], [18, 52], [18, 24]], tone: 'steel' },
+      { s: 'path', pts: [[50, 22], [72, 30], [72, 50], [50, 76], [28, 50], [28, 30]], tone: 'paper', edge: 0 },
+      { s: 'path', pts: [[40, 48], [47, 58], [62, 34], [66, 38], [48, 68], [36, 52]], tone: 'accent', edge: 0 },
+    ],
+    flag: [
+      { s: 'rect', x: 28, y: 14, w: 5, h: 72, tone: 'wood' },
+      { s: 'path', pts: [[33, 16], [80, 24], [72, 40], [80, 56], [33, 48]], tone: 'accent' },
+    ],
+    anchor: [
+      { s: 'ring', cx: 50, cy: 22, r: 9, t: 5, tone: 'steel' },
+      { s: 'rect', x: 46, y: 28, w: 8, h: 48, tone: 'steel' },
+      { s: 'rect', x: 28, y: 40, w: 44, h: 7, tone: 'steel' },
+      { s: 'arc', cx: 50, cy: 62, r: 26, a0: 15, a1: 165, t: 8, tone: 'steel' },
+      { s: 'path', pts: [[24, 66], [18, 78], [32, 76]], tone: 'steel' },
+      { s: 'path', pts: [[76, 66], [82, 78], [68, 76]], tone: 'steel' },
+    ],
+    map: [
+      { s: 'path', pts: [[14, 26], [38, 18], [62, 26], [86, 18], [86, 66], [62, 74], [38, 66], [14, 74]], tone: 'paper' },
+      { s: 'path', pts: [[14, 26], [14, 74], [38, 66], [38, 18]], tone: 'sky', edge: 0 },
+      { s: 'path', pts: [[62, 26], [62, 74], [86, 66], [86, 18]], tone: 'leaf', edge: 0 },
+      { s: 'petal', cx: 50, cy: 40, rx: 7, ry: 9, rot: 180, tone: 'accent', edge: 0 },
+      { s: 'blob', cx: 50, cy: 44, r: 2.6, tone: 'paper', edge: 0 },
+    ],
+    target: [
+      { s: 'blob', cx: 50, cy: 50, r: 34, tone: 'accent' },
+      { s: 'ring', cx: 50, cy: 50, r: 24, t: 8, tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 50, r: 14, tone: 'accent' },
+      { s: 'blob', cx: 50, cy: 50, r: 5, tone: 'paper', edge: 0 },
+      { s: 'path', pts: [[74, 26], [88, 12], [90, 20], [80, 30]], tone: 'ink', edge: 0 },
+    ],
+    ladder: [
+      { s: 'rect', x: 30, y: 10, w: 6, h: 80, tone: 'wood' },
+      { s: 'rect', x: 64, y: 10, w: 6, h: 80, tone: 'wood' },
+      { s: 'rect', x: 30, y: 22, w: 40, h: 6, tone: 'wood' },
+      { s: 'rect', x: 30, y: 40, w: 40, h: 6, tone: 'wood' },
+      { s: 'rect', x: 30, y: 58, w: 40, h: 6, tone: 'wood' },
+      { s: 'rect', x: 30, y: 76, w: 40, h: 6, tone: 'wood' },
+    ],
+    stairs: [
+      { s: 'rect', x: 14, y: 66, w: 20, h: 20, tone: 'wood' },
+      { s: 'rect', x: 34, y: 48, w: 20, h: 38, tone: 'wood' },
+      { s: 'rect', x: 54, y: 30, w: 20, h: 56, tone: 'wood' },
+      { s: 'rect', x: 74, y: 14, w: 20, h: 72, tone: 'wood' },
+    ],
+    hourglass: [
+      { s: 'path', pts: [[26, 18], [74, 18], [58, 48], [42, 48]], tone: 'sky' },
+      { s: 'path', pts: [[42, 54], [58, 54], [74, 82], [26, 82]], tone: 'sky' },
+      { s: 'path', pts: [[42, 56], [58, 56], [68, 78], [32, 78]], tone: 'sun', edge: 0 },
+      { s: 'rect', x: 22, y: 12, w: 56, h: 8, tone: 'wood' },
+      { s: 'rect', x: 22, y: 80, w: 56, h: 8, tone: 'wood' },
+    ],
+    coin: [
+      { s: 'blob', cx: 50, cy: 50, r: 32, tone: 'brass' },
+      { s: 'ring', cx: 50, cy: 50, r: 23, t: 3, tone: 'sunlit', edge: 0 },
+      { s: 'rect', x: 46, y: 30, w: 8, h: 40, tone: 'sunlit', edge: 0 },
+      { s: 'rect', x: 38, y: 36, w: 24, h: 5, tone: 'sunlit', edge: 0 },
+      { s: 'rect', x: 38, y: 59, w: 24, h: 5, tone: 'sunlit', edge: 0 },
+    ],
+    trophy: [
+      { s: 'path', pts: [[30, 20], [70, 20], [66, 52], [50, 62], [34, 52]], tone: 'brass' },
+      { s: 'ring', cx: 24, cy: 32, r: 8, t: 5, tone: 'brass' },
+      { s: 'ring', cx: 76, cy: 32, r: 8, t: 5, tone: 'brass' },
+      { s: 'rect', x: 45, y: 60, w: 10, h: 12, tone: 'brass' },
+      { s: 'rect', x: 32, y: 72, w: 36, h: 10, tone: 'wood' },
+    ],
+    crown: [
+      { s: 'path', pts: [[22, 66], [22, 38], [36, 52], [50, 30], [64, 52], [78, 38], [78, 66]], tone: 'brass' },
+      { s: 'rect', x: 22, y: 66, w: 56, h: 10, tone: 'brass' },
+      { s: 'blob', cx: 50, cy: 60, r: 4, tone: 'accent', edge: 0 },
+    ],
+    phone: [
+      { s: 'rect', x: 32, y: 14, w: 36, h: 72, tone: 'ink' },
+      { s: 'rect', x: 36, y: 22, w: 28, h: 52, tone: 'paper', edge: 0 },
+      { s: 'blob', cx: 50, cy: 80, r: 3, tone: 'paper', edge: 0 },
+    ],
+    laptop: [
+      { s: 'rect', x: 22, y: 24, w: 56, h: 38, tone: 'ink' },
+      { s: 'rect', x: 27, y: 29, w: 46, h: 28, tone: 'paper', edge: 0 },
+      { s: 'path', pts: [[14, 68], [86, 68], [80, 78], [20, 78]], tone: 'ink' },
+    ],
+    camera: [
+      { s: 'rect', x: 16, y: 34, w: 68, h: 44, tone: 'ink' },
+      { s: 'blob', cx: 50, cy: 56, r: 15, tone: 'paper', edge: 0 },
+      { s: 'blob', cx: 50, cy: 56, r: 8, tone: 'steel', edge: 0 },
+      { s: 'rect', x: 22, y: 26, w: 18, h: 10, tone: 'ink' },
+      { s: 'blob', cx: 74, cy: 42, r: 4, tone: 'accent', edge: 0 },
+    ],
+    dog: [
+      { s: 'blob', cx: 52, cy: 58, r: 22, tone: 'wood' },
+      { s: 'blob', cx: 34, cy: 34, r: 15, tone: 'wood' },
+      { s: 'path', pts: [[24, 24], [16, 40], [28, 40]], tone: 'soil' },
+      { s: 'path', pts: [[44, 24], [52, 40], [40, 40]], tone: 'soil' },
+      { s: 'blob', cx: 34, cy: 40, r: 5.5, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 30, cy: 32, r: 2, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 38, cy: 32, r: 2, tone: 'ink', edge: 0 },
+      { s: 'path', pts: [[70, 44], [88, 34], [82, 50]], tone: 'wood' },
+    ],
+    music_note: [
+      { s: 'blob', cx: 34, cy: 72, rx: 10, ry: 8, tone: 'ink' },
+      { s: 'blob', cx: 66, cy: 64, rx: 10, ry: 8, tone: 'ink' },
+      { s: 'rect', x: 41, y: 24, w: 5, h: 48, tone: 'ink' },
+      { s: 'rect', x: 73, y: 16, w: 5, h: 48, tone: 'ink' },
+      { s: 'rect', x: 41, y: 18, w: 37, h: 9, rot: -8, tone: 'ink' },
+    ],
+    moon_stars: [],
+  };
+  // Phrases collapse onto the nearest drawn concept — modifiers (colours, moods,
+  // counts) never block the mark the noun beneath them owns.
+  const PAPER_ALIAS = {
+    moon: 'moon-full', 'full-moon': 'moon-full', 'same-moon': 'moon-full',
+    'crescent-moon': 'moon-crescent', crescent: 'moon-crescent', 'half-moon': 'moon-half',
+    'cloudy-night': 'cloud', 'heavy-rain': 'rain', drizzle: 'rain', shower: 'rain',
+    'rain-cloud': 'rain', lightning: 'storm', thunder: 'storm',
+    globe: 'earth', world: 'earth', planet: 'earth',
+    seedling: 'sprout', sapling: 'sprout', shoot: 'sprout', sprig: 'sprout',
+    'hand-down': 'hand', 'magnifying-glass': 'magnifier', magnifying: 'magnifier',
+    envelope: 'letter', mail: 'letter', sailboat: 'boat', ship: 'boat',
+    sunflower: 'sunflower', bulb: 'lightbulb', idea: 'lightbulb', light: 'sun',
+    sunshine: 'sun', firelight: 'fire', flame: 'fire', droplet: 'drop', water: 'drop',
+    ocean: 'wave', sea: 'wave', hills: 'hill', mountains: 'mountain', dove: 'bird',
+    'night-sky': 'stars', snowflake: 'snowflake', 'gift-box': 'gift', present: 'gift',
+    breeze: 'wind', question: 'lightbulb',
+    drive: 'car', driving: 'car', taxi: 'car', ride: 'car', vehicle: 'car',
+    van: 'bus', tram: 'train', subway: 'train', locomotive: 'train', bike: 'bicycle', cycle: 'bicycle',
+    cycling: 'bicycle', launch: 'rocket', spaceship: 'rocket', shuttle: 'rocket', jet: 'plane',
+    airplane: 'plane', flight: 'plane', fly: 'plane',
+    morning: 'sunrise', sunrise: 'sunrise', dawn: 'sunrise', wakeup: 'alarm_clock', 'wake-up': 'alarm_clock',
+    'alarm-clock': 'alarm_clock', sleep: 'bed', bedtime: 'bed', doorway: 'door', exit: 'door',
+    money: 'coin', dollar: 'coin', cents: 'coin', payment: 'coin', gold: 'coin', prize: 'trophy',
+    winner: 'trophy', award: 'trophy', trophy: 'trophy', goal: 'target', aim: 'target', bullseye: 'target',
+    progress: 'stairs', climb: 'ladder', climbing: 'ladder', steps: 'stairs', engine: 'gear', machine: 'gear',
+    settings: 'gear', motor: 'gear', security: 'lock', safe: 'lock', locked: 'lock', protect: 'shield',
+    defense: 'shield', camera: 'camera', photo: 'camera', picture: 'camera', computer: 'laptop',
+    device: 'phone', mobile: 'phone', telephone: 'phone', call: 'phone', pen: 'pencil', write: 'pencil',
+    writing: 'pencil', draw: 'pencil', cut: 'scissors', craft: 'scissors', map: 'map', navigate: 'map',
+    direction: 'map', country: 'flag', nation: 'flag', puppy: 'dog', hound: 'dog', song: 'music_note',
+    tune: 'music_note', melody: 'music_note', music: 'music_note', 'music-note': 'music_note',
+    timer: 'hourglass', waiting: 'hourglass', 'old': 'hourglass', royalty: 'crown', king: 'crown',
+    queen: 'crown', 'alarm': 'alarm_clock',
+  };
+  function paperArtKey(concept) {
+    if (!concept) return null;
+    const norm = String(concept).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    if (!norm) return null;
+    const k = norm.replace(/\s+/g, '-');
+    const direct = PAPER_ALIAS[k] || k;
+    if (PAPER_ART[direct]) return direct;
+    const words = norm.split(' ');
+    for (let drop = 1; drop < words.length; drop += 1) {
+      for (const c of [words.slice(drop).join('-'), words.slice(0, words.length - drop).join('-')]) {
+        const a = PAPER_ALIAS[c] || c;
+        if (PAPER_ART[a]) return a;
+      }
+    }
+    for (const w of words) {
+      const a = PAPER_ALIAS[w] || w;
+      if (PAPER_ART[a]) return a;
+    }
+    return null;
+  }
+  // Expand one authored piece into flat parts in normalized space. `stroke` pieces
+  // draw as ink lines (veins, strings); everything else is a filled cut shape.
+  function paperPieceParts(pc, seed) {
+    const r = rng(seed);
+    const jx = (r() - 0.5) * 2.4, jy = (r() - 0.5) * 2.4;
+    const rot = (pc.rot || 0) + (r() - 0.5) * 4;
+    const cx = pc.cx != null ? pc.cx : (pc.x != null ? pc.x + pc.w / 2 : 50);
+    const cy = pc.cy != null ? pc.cy : (pc.y != null ? pc.y + pc.h / 2 : 50);
+    const tf = `translate(${f2(jx)} ${f2(jy)}) rotate(${f2(rot)} ${f2(cx)} ${f2(cy)})`;
+    const edge = pc.edge !== 0;
+    const out = [];
+    const push = (d, o) => out.push({ d, tf, edge, tone: pc.tone, op: pc.op == null ? 1 : pc.op, sw: pc.stroke || 0, ...o });
+    const arcD = (rax, ray, x0, y0, x1, y1, sweep) => `M${f2(x0)} ${f2(y0)}A${f2(rax)} ${f2(ray)} 0 0 ${sweep} ${f2(x1)} ${f2(y1)}`;
+    switch (pc.s) {
+      case 'blob':
+        push(cutBlobPath(cx, cy, pc.rx || pc.r || 10, pc.ry || pc.r || 10, seed));
+        break;
+      case 'rect':
+        push(cutRectPath({ x: pc.x, y: pc.y, w: pc.w, h: pc.h }, seed, Math.min(pc.w, pc.h) * 0.16));
+        break;
+      case 'path': {
+        const k = pc.k || 1, ox = pc.ox || 0, oy = pc.oy || 0;
+        if (pc.stroke) {
+          push(polyPath(pc.pts.map((p) => [ox + p[0] * k, oy + p[1] * k])), { edge: 0 });
+        } else {
+          const pts = pc.pts.map((p) => [ox + p[0] * k + (r() - 0.5) * 1.6, oy + p[1] * k + (r() - 0.5) * 1.6]);
+          push(polyPath(pts) + 'Z');
+        }
+        break;
+      }
+      case 'petal': {
+        const rx = pc.rx || 8, ry = pc.ry || 14, k = 1 + (r() - 0.5) * 0.12;
+        push(`M${f2(cx)} ${f2(cy - ry)}Q${f2(cx + rx * k)} ${f2(cy - ry * 0.1)} ${f2(cx)} ${f2(cy + ry)}Q${f2(cx - rx * k)} ${f2(cy - ry * 0.1)} ${f2(cx)} ${f2(cy - ry)}Z`);
+        break;
+      }
+      case 'crescent': {
+        const rr = pc.r || 26, bite = pc.bite == null ? 0.62 : pc.bite;
+        push(`M${f2(cx + rr * 0.1)} ${f2(cy - rr)}A${f2(rr)} ${f2(rr)} 0 1 0 ${f2(cx + rr * 0.1)} ${f2(cy + rr)}A${f2(rr * bite)} ${f2(rr * bite)} 0 1 1 ${f2(cx + rr * 0.1)} ${f2(cy - rr)}Z`);
+        break;
+      }
+      case 'halfdisc': {
+        const rr = pc.r || 26;
+        push(`M${f2(cx)} ${f2(cy - rr)}A${f2(rr)} ${f2(rr)} 0 0 1 ${f2(cx)} ${f2(cy + rr)}Z`);
+        break;
+      }
+      case 'rays': {
+        for (let i = 0; i < (pc.n || 8); i += 1) {
+          const a = (i / (pc.n || 8)) * 360 + (r() - 0.5) * 8;
+          out.push({
+            d: cutRectPath({ x: cx - (pc.w || 7) / 2, y: cy - pc.r1, w: pc.w || 7, h: pc.r1 - pc.r0 }, seed ^ (i * 0x9e37), 1.4),
+            tf: `translate(${f2(jx)} ${f2(jy)}) rotate(${f2(a)} ${f2(cx)} ${f2(cy)})`,
+            edge, tone: pc.tone, op: pc.op == null ? 1 : pc.op, sw: 0,
+          });
+        }
+        break;
+      }
+      case 'ring': {
+        const rr = pc.r || 20;
+        push(`${arcD(rr, rr, cx - rr, cy, cx + rr, cy, 1)}${arcD(rr, rr, cx + rr, cy, cx - rr, cy, 1)}`, { sw: pc.t || 5 });
+        break;
+      }
+      case 'arc': {
+        const rr = pc.r || 20, a0 = (pc.a0 == null ? 0 : pc.a0) * Math.PI / 180, a1 = (pc.a1 == null ? 180 : pc.a1) * Math.PI / 180;
+        const x0 = cx + Math.cos(a0) * rr, y0 = cy + Math.sin(a0) * rr;
+        const x1 = cx + Math.cos(a1) * rr, y1 = cy + Math.sin(a1) * rr;
+        const sweep = ((a1 - a0 + Math.PI * 4) % (Math.PI * 2)) <= Math.PI ? 1 : 0;
+        push(arcD(rr, rr, x0, y0, x1, y1, sweep), { sw: pc.t || 5, edge: 0 });
+        break;
+      }
+      default:
+        break;
+    }
+    return out;
+  }
+  // One composed illustration: die-cut edge under all pieces, each piece a painted
+  // fill, a clipped wash + two seeded blotches over the union for the watercolour
+  // settle. Returns the art's <g> in normalized 100x100 space plus its flat els
+  // for draw-on staggering.
+  function paperArtGroup(key, seed, plan, uid) {
+    const pieces = PAPER_ART[key] || [];
+    const parts = [];
+    pieces.forEach((pc, i) => parts.push(...paperPieceParts(pc, seed ^ (i * 0x9e3779b1))));
+    if (!parts.length) return null;
+    const g = svgEl('g', {}, null);
+    const edgeParts = parts.filter((p) => p.edge && !p.sw);
+    const els = [];
+    if (edgeParts.length) {
+      const under = svgEl('g', { transform: 'translate(50 50) scale(1.09) translate(-50 -50)' }, g);
+      for (const p of edgeParts) svgEl('path', { d: p.d, fill: mixColor(plan.brand.paper, '#ffffff', 0.62), transform: p.tf || undefined }, under);
+      els.push(under);
+    }
+    const body = svgEl('g', {}, g);
+    // Pigment pooling: every fill lays a darker, blurred rim of its own pigment a hair
+    // beneath the paint — the way watercolour settles at the edge of a wash.
+    const poolBlur = `pabl_${uid}`;
+    {
+      const defs0 = svgEl('defs', {}, body);
+      const bf = svgEl('filter', { id: poolBlur, x: '-15%', y: '-15%', width: '130%', height: '130%' }, defs0);
+      svgEl('feGaussianBlur', { stdDeviation: '1.1' }, bf);
+    }
+    for (const p of parts) {
+      if (!p.sw && p.op >= 0.5 && p.tone !== 'paper') {
+        svgEl('path', { d: p.d, fill: mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.3), 'fill-opacity': f2(Math.min(0.4, p.op * 0.3)), transform: p.tf || undefined, filter: `url(#${poolBlur})` }, body);
+      }
+      const elp = p.sw
+        ? svgEl('path', { d: p.d, fill: 'none', stroke: paintTone(p.tone, plan), 'stroke-width': f2(p.sw), 'stroke-linecap': 'round', 'stroke-opacity': f2(p.op), transform: p.tf || undefined }, body)
+        : svgEl('path', { d: p.d, fill: paintTone(p.tone, plan), 'fill-opacity': f2(p.op), transform: p.tf || undefined }, body);
+      els.push(elp);
+    }
+    if (edgeParts.length) {
+      const defs = svgEl('defs', {}, g);
+      const clip = svgEl('clipPath', { id: `pac_${uid}` }, defs);
+      for (const p of edgeParts) svgEl('path', { d: p.d, transform: p.tf || undefined }, clip);
+      const grad = svgEl('linearGradient', { id: `paw_${uid}`, x1: '0', y1: '0', x2: '0.3', y2: '1' }, defs);
+      svgEl('stop', { offset: '0', 'stop-color': '#ffffff', 'stop-opacity': '0.16' }, grad);
+      svgEl('stop', { offset: '0.45', 'stop-color': '#ffffff', 'stop-opacity': '0' }, grad);
+      svgEl('stop', { offset: '1', 'stop-color': plan.brand.ink, 'stop-opacity': '0.1' }, grad);
+      const wr = rng(seed ^ 0x51ab);
+      const wash = svgEl('g', { 'clip-path': `url(#pac_${uid})` }, g);
+      svgEl('rect', { x: '-10', y: '-10', width: '120', height: '120', fill: `url(#paw_${uid})` }, wash);
+      svgEl('path', { d: cutBlobPath(22 + wr() * 26, 24 + wr() * 28, 26, 20, seed ^ 0x77aa), fill: '#ffffff', 'fill-opacity': '0.1' }, wash);
+      svgEl('path', { d: cutBlobPath(55 + wr() * 28, 56 + wr() * 26, 30, 24, seed ^ 0x33cc), fill: plan.brand.ink, 'fill-opacity': '0.06' }, wash);
+      els.push(wash);
+    }
+    return { g, els };
+  }
+  // Nominal extent of an art composition in normalized space — the fit that
+  // scales each illustration to fill its sticker rather than float inside it.
+  function paperBounds(key) {
+    let x0 = 100, y0 = 100, x1 = 0, y1 = 0;
+    const box = (a, b, c, d) => { x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d); };
+    for (const pc of PAPER_ART[key] || []) {
+      const cx = pc.cx != null ? pc.cx : (pc.x != null ? pc.x + pc.w / 2 : 50);
+      const cy = pc.cy != null ? pc.cy : (pc.y != null ? pc.y + pc.h / 2 : 50);
+      switch (pc.s) {
+        case 'blob': box(cx - (pc.rx || pc.r || 10), cy - (pc.ry || pc.r || 10), cx + (pc.rx || pc.r || 10), cy + (pc.ry || pc.r || 10)); break;
+        case 'rect': box(pc.x, pc.y, pc.x + pc.w, pc.y + pc.h); break;
+        case 'path': {
+          const k = pc.k || 1, xs = pc.pts.map((p) => (pc.ox || 0) + p[0] * k), ys = pc.pts.map((p) => (pc.oy || 0) + p[1] * k);
+          box(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys));
+          break;
+        }
+        case 'petal': { const m = Math.max(pc.rx || 8, pc.ry || 14); box(cx - m, cy - m, cx + m, cy + m); break; }
+        case 'crescent': case 'halfdisc': box(cx - (pc.r || 26), cy - (pc.r || 26), cx + (pc.r || 26), cy + (pc.r || 26)); break;
+        case 'rays': box(cx - pc.r1, cy - pc.r1, cx + pc.r1, cy + pc.r1); break;
+        case 'ring': case 'arc': { const m = (pc.r || 20) + (pc.t || 5); box(cx - m, cy - m, cx + m, cy + m); break; }
+        default: break;
+      }
+    }
+    return { x: x0, y: y0, w: Math.max(1, x1 - x0), h: Math.max(1, y1 - y0), cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
+  }
+  // Animated mount: art draws on piece by piece inside `box` (stage coords), lifted
+  // by a soft shadow. Falls back to the registry icon, then the typeset word.
+  function paintPaperArt(ent, node, host, box, plan, opts) {
+    const key = paperArtKey(ent.concept);
+    if (key) {
+      const art = paperArtGroup(key, seedHash(`${ent.id}:${key}`), plan, `${ent.id}_${++iconInstance}`);
+      if (art) {
+        const bb = paperBounds(key);
+        const s = Math.min((box.w * 0.9) / bb.w, (box.h * 0.9) / bb.h);
+        const wrap = svgEl('g', { transform: `translate(${f2(box.x + box.w / 2)} ${f2(box.y + box.h / 2)}) scale(${f2(s)}) translate(${f2(-bb.cx)} ${f2(-bb.cy)})` }, host);
+        wrap.appendChild(art.g);
+        node.extra.iconBox = box;
+        node.extra.shadow = { el: wrap, oy: box.h * 0.045, blur: box.h * 0.09, alpha: 0.2 };
+        host.setAttribute('data-icon-host', ent.id);
+        const n = art.els.length;
+        art.els.forEach((e, i) => node.outline.push({ path: e, len: 0, set(v) { e.style.opacity = clamp(v * n - i, 0, 1).toFixed(4); } }));
+        return true;
+      }
+    }
+    if (ent.asset) { loadIconInto(ent, node, host, box, opts); return true; }
+    return false;
+  }
+  // Static mount (backdrop marks, the motif stamp): same art, no draw-on program.
+  function paperArtSvg(key, seed, plan, uid) {
+    const art = paperArtGroup(key, seed, plan, uid);
+    if (!art) return null;
+    const s = svgEl('svg', { viewBox: '0 0 100 100' }, null);
+    const bb = paperBounds(key);
+    const k = Math.min(88 / bb.w, 88 / bb.h);
+    const fit = svgEl('g', { transform: `translate(50 50) scale(${f2(k)}) translate(${f2(-bb.cx)} ${f2(-bb.cy)})` }, s);
+    fit.appendChild(art.g);
+    return s;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Paper performer — the film's character is cut from the same paper as every
+  // other mark: no clip-art bodies, no icon men. Built in a 100×140 space as
+  // stacked die-cut pieces: shadowed paper silhouette behind, painted pieces on
+  // top. Slots ('body' | 'head' | 'face') are addressable so performer states
+  // cut poses and faces the way a puppeteer swaps a head.
+  // ---------------------------------------------------------------------------
+  const FIGURE_FACE = {
+    // face keyword family -> {brows, eyes, mouth}
+    smile: { brows: 'up', eyes: 'dot', mouth: 'smile' },
+    calm: { brows: 'none', eyes: 'dot', mouth: 'calm' },
+    surprised: { brows: 'up', eyes: 'open', mouth: 'o' },
+    sleepy: { brows: 'none', eyes: 'closed', mouth: 'calm' },
+    determined: { brows: 'down', eyes: 'dot', mouth: 'flat' },
+    concerned: { brows: 'down', eyes: 'dot', mouth: 'sad' },
+  };
+  function paperFaceKind(id) {
+    const s = String(id || '').toLowerCase();
+    if (/smile|happy|cheers|laugh|grin|loving|excited/.test(s)) return 'smile';
+    if (/surprised|shock|awe|wonder/.test(s)) return 'surprised';
+    if (/sleep|tired|meditate|calm-down|rested/.test(s)) return 'sleepy';
+    if (/angry|grumpy|furious|rage|determined|serious/.test(s)) return 'determined';
+    if (/sad|concern|worr|suspicious|fear|doubt|confus/.test(s)) return 'concerned';
+    return 'calm';
+  }
+  function paperHairKind(id, seed) {
+    const s = String(id || '').toLowerCase();
+    if (/beanie|hat|cap|fedora|turban|hijab/.test(s)) return 'cap';
+    if (/bun|topknot/.test(s)) return 'bun';
+    if (/afro|curly|curl/.test(s)) return 'curls';
+    if (/braid|pony|long|straight/.test(s)) return 'bob';
+    if (/bald|shaved|none|gray/.test(s)) return seed % 3 === 0 ? 'bald' : 'crop';
+    if (/hood/.test(s)) return 'hood';
+    return ['mop', 'crop', 'bob', 'curls'][seed % 4];
+  }
+  function paperArmPose(poseId, posture) {
+    const s = String(poseId || '').toLowerCase();
+    if (posture === 'sitting') return 'seated';
+    if (/hold|carry|bucket|bag|read|phone|book|selfie|present/.test(s)) return 'carry';
+    if (/wave|point|reach|teach|explain|dance|walk/.test(s)) return 'reach';
+    return 'rest';
+  }
+
+  // One figure: {slots: {body:[els], head:[els], face:[els]}, edge: els} in 100×140 space.
+  // Silhouette pieces double as the die-cut edge in paper white behind everything.
+  function paperFigureSlots(fig, seed, plan, uid) {
+    const ink = plan.brand.ink;
+    const skin = fig.palette && fig.palette['#d08b5b'] || '#e8b98e';
+    const garment = (plan.brand.accent && plan.brand.accent !== '#000000') ? plan.brand.accent : paintTone('warm', plan);
+    const garmentDark = mixColor(garment, ink, 0.25);
+    const hairTone = [ink, paintTone('soil', plan), paintTone('wood', plan), paintTone('grey', plan), paintTone('sun', plan)][seed % 5];
+    const posture = fig.posture || 'standing';
+    const sitting = posture === 'sitting';
+    // A figure holding a prop carries it in that hand; the other arm rests. The hand is a
+    // screen side — mirrored figures flip the drawing, so the carry arm XORs with the mirror.
+    const arms = fig.prop && fig.prop.hand
+      ? `carry-${(fig.prop.hand === 'left') !== Boolean(fig.mirror) ? 'left' : 'right'}`
+      : paperArmPose(fig.pose && fig.pose.id, posture);
+    const hair = paperHairKind(fig.parts && fig.parts.find((p) => p.slot === 'head') && fig.parts.find((p) => p.slot === 'head').part_id, seed);
+    const faceKind = paperFaceKind(fig.emotion && fig.emotion.face);
+    const pieces = { body: [], head: [], face: [] };
+    const edge = [];
+    const put = (slot, e) => pieces[slot].push(e);
+    const edgePut = (e) => { e.setAttribute('fill', '#fdfcf8'); e.setAttribute('stroke', 'none'); edge.push(e); };
+
+    // Legs + feet (or a seated lap).
+    if (sitting) {
+      for (const sx of [-9, 9]) {
+        const leg = svgEl('ellipse', { cx: 50 + sx, cy: 116, rx: 8.5, ry: 5.6, fill: garmentDark });
+        put('body', leg);
+      }
+      edgePut(svgEl('ellipse', { cx: 50, cy: 113, rx: 21, ry: 10 }));
+    } else {
+      for (const sx of [-7.5, 7.5]) {
+        put('body', svgEl('rect', { x: 50 + sx - 4.4, y: 96, width: 8.8, height: 30, rx: 4.2, fill: garmentDark }));
+        put('body', svgEl('ellipse', { cx: 50 + sx, cy: 127.5, rx: 7.6, ry: 4.6, fill: ink }));
+        edgePut(svgEl('rect', { x: 50 + sx - 5.4, y: 95, width: 10.8, height: 34, rx: 5.4 }));
+      }
+    }
+    // Torso: a rounded paper tunic, slightly wider at the hips.
+    const torso = svgEl('path', { d: 'M32 62 Q50 55 68 62 L71 100 Q50 107 29 100 Z', fill: garment });
+    put('body', torso);
+    edgePut(svgEl('path', { d: 'M30 60 Q50 52 70 60 L73.5 102 Q50 110 26.5 102 Z' }));
+    // Arms by posture: rested at the sides, reached forward (prop hand), or one raised.
+    const armAt = (sx, kind) => {
+      if (kind === 'rest') return svgEl('rect', { x: 50 + sx * 24 - 4, y: 63, width: 8, height: 26, rx: 4, fill: garment, transform: `rotate(${sx * 8} ${50 + sx * 24} 63)` });
+      if (kind === 'seated') return svgEl('rect', { x: 50 + sx * 20 - 4, y: 74, width: 8, height: 24, rx: 4, fill: garment, transform: `rotate(${sx * 46} ${50 + sx * 20} 74)` });
+      if (kind === 'reach' && sx < 0) return svgEl('rect', { x: 0, y: 0, width: 8, height: 28, rx: 4, fill: garment, transform: `translate(${50 + sx * 24} 60) rotate(${sx * 58})` });
+      if (kind === 'carry') return svgEl('rect', { x: 0, y: 0, width: 8, height: 24, rx: 4, fill: garment, transform: `translate(${50 + sx * 24} 64) rotate(${sx * 30})` });
+      return svgEl('rect', { x: 50 + sx * 24 - 4, y: 63, width: 8, height: 26, rx: 4, fill: garment, transform: `rotate(${sx * 8} ${50 + sx * 24} 63)` });
+    };
+    const armLeft = arms === 'reach' ? 'reach' : arms === 'carry-left' ? 'carry' : arms === 'carry-right' ? 'rest' : arms;
+    const armRight = arms === 'reach' || arms === 'carry-left' ? 'rest' : arms === 'carry-right' ? 'carry' : arms;
+    put('body', armAt(-1, armLeft));
+    put('body', armAt(1, armRight));
+    edgePut(svgEl('rect', { x: 21, y: 60, width: 10, height: 29, rx: 5, transform: 'rotate(-8 26 60)' }));
+    edgePut(svgEl('rect', { x: 69, y: 60, width: 10, height: 29, rx: 5, transform: 'rotate(8 74 60)' }));
+    // Hands on the arm ends (skin dots).
+    for (const sx of [-1, 1]) {
+      const hx = arms === 'reach' && sx < 0 ? 50 + sx * 34 : 50 + sx * 24;
+      const hy = arms === 'reach' && sx < 0 ? 88 : 92;
+      put('body', svgEl('circle', { cx: hx, cy: hy, r: 4.4, fill: skin }));
+    }
+    // Head: skin blob + neck.
+    put('body', svgEl('rect', { x: 45.5, y: 50, width: 9, height: 12, rx: 3.4, fill: skin }));
+    put('head', svgEl('ellipse', { cx: 50, cy: 32, rx: 17.5, ry: 19, fill: skin }));
+    edgePut(svgEl('ellipse', { cx: 50, cy: 31.5, rx: 19.5, ry: 21 }));
+    // Ears as tiny skin dots; hair sits over the skull.
+    put('head', svgEl('circle', { cx: 32.6, cy: 33, r: 2.6, fill: skin }));
+    put('head', svgEl('circle', { cx: 67.4, cy: 33, r: 2.6, fill: skin }));
+    if (hair === 'mop') put('head', svgEl('path', { d: 'M33 30 Q31 12 50 11 Q69 12 67 30 Q63 20 57 22 Q61 15 50 15 Q39 15 43 22 Q37 20 33 30 Z', fill: hairTone }));
+    else if (hair === 'crop') put('head', svgEl('path', { d: 'M34 27 Q36 12 50 12 Q64 12 66 27 Q60 18 50 18 Q40 18 34 27 Z', fill: hairTone }));
+    else if (hair === 'bob') { put('head', svgEl('path', { d: 'M31 32 Q29 10 50 10 Q71 10 69 32 L66 44 Q68 26 60 22 Q62 14 50 14 Q38 14 40 22 Q32 26 34 44 Z', fill: hairTone })); }
+    else if (hair === 'curls') { for (let i = 0; i < 5; i += 1) put('head', svgEl('circle', { cx: 36 + i * 7, cy: 16 + Math.abs(i - 2) * 1.5, r: 5.6, fill: hairTone })); }
+    else if (hair === 'bun') { put('head', svgEl('path', { d: 'M34 28 Q35 12 50 12 Q65 12 66 28 Q60 19 50 19 Q40 19 34 28 Z', fill: hairTone })); put('head', svgEl('circle', { cx: 50, cy: 9, r: 5.5, fill: hairTone })); }
+    else if (hair === 'cap') { put('head', svgEl('path', { d: 'M32 28 Q34 10 50 10 Q66 10 68 28 Z', fill: garmentDark })); put('head', svgEl('rect', { x: 30, y: 26, width: 40, height: 4.4, rx: 2.2, fill: garmentDark })); }
+    else if (hair === 'hood') put('head', svgEl('path', { d: 'M29 34 Q27 8 50 8 Q73 8 71 34 L66 30 Q70 16 50 15 Q30 16 34 30 Z', fill: garmentDark }));
+    // Face: ink strokes — dots or closed arcs, a mouth by family, brows when shown.
+    const fk = FIGURE_FACE[faceKind] || FIGURE_FACE.calm;
+    const eyeY = 32;
+    if (fk.eyes === 'closed') {
+      for (const sx of [-6.4, 6.4]) put('face', svgEl('path', { d: `M${50 + sx - 2.4} ${eyeY} q2.4 2.2 4.8 0`, stroke: ink, 'stroke-width': 1.6, fill: 'none', 'stroke-linecap': 'round' }));
+    } else {
+      for (const sx of [-6.4, 6.4]) put('face', svgEl('circle', { cx: 50 + sx, cy: eyeY, r: fk.eyes === 'open' ? 2.4 : 1.9, fill: ink }));
+    }
+    const mouth = { smile: 'M45 41 q5 4.5 10 0', calm: 'M46 41.5 q4 1.6 8 0', flat: 'M46 42 h8', sad: 'M45 43.5 q5 -4 10 0', o: null }[fk.mouth];
+    if (fk.mouth === 'o') put('face', svgEl('ellipse', { cx: 50, cy: 43, rx: 3.4, ry: 4, fill: 'none', stroke: ink, 'stroke-width': 1.5 }));
+    else put('face', svgEl('path', { d: mouth, stroke: ink, 'stroke-width': 1.6, fill: 'none', 'stroke-linecap': 'round' }));
+    if (fk.brows !== 'none') for (const sx of [-6.4, 6.4]) {
+      put('face', svgEl('path', { d: `M${50 + sx - 2.6} ${fk.brows === 'up' ? 25.4 : 26.4} q2.6 ${fk.brows === 'up' ? -1.6 : 1.4} 5.2 0`, stroke: ink, 'stroke-width': 1.3, fill: 'none', 'stroke-linecap': 'round' }));
+    }
+    // Cheek blush dots, faint — the puppet reads warm without them being loud.
+    for (const sx of [-10.4, 10.4]) put('face', svgEl('circle', { cx: 50 + sx, cy: 38.5, r: 2.1, fill: paintTone('petal', plan), opacity: 0.4 }));
+
+    const wrap = {};
+    for (const [slot, els] of Object.entries(pieces)) {
+      const g = svgEl('g', { 'data-slot': slot }, null);
+      for (const e of els) g.appendChild(e);
+      wrap[slot] = g;
+    }
+    const edgeG = svgEl('g', { opacity: 1 }, null);
+    for (const e of edge) edgeG.appendChild(e);
+    // The die-cut edge is the silhouette grown ~4% about the body centre.
+    edgeG.setAttribute('transform', 'translate(50 74) scale(1.045) translate(-50 -74)');
+    return { slots: wrap, edge: edgeG, sitting, arms };
+  }
+
+  // A state's swap is re-rendered as a paper slot: face ids pick expressions,
+  // head ids pick hair, pose ids pick arm postures — same contract, new material.
+  function paperSlotInner(slot, partId, fig, seed, plan) {
+    if (slot === 'face') {
+      const kind = paperFaceKind(partId);
+      const fake = { ...fig, emotion: { ...fig.emotion, face: partId } };
+      const s = paperFigureSlots(fake, seed, plan, 'sw');
+      return s.slots.face.innerHTML;
+    }
+    if (slot === 'head') {
+      const fake = { ...fig, parts: fig.parts.map((p) => p.slot === 'head' ? { ...p, part_id: partId } : p) };
+      const s = paperFigureSlots(fake, seed, plan, 'sw');
+      return s.slots.head.innerHTML;
+    }
+    if (slot === 'body') {
+      const fake = { ...fig, pose: { ...fig.pose, id: partId } };
+      const s = paperFigureSlots(fake, seed, plan, 'sw');
+      return s.slots.body.innerHTML;
+    }
+    return '';
+  }
+
   function pointAlong(pts, k) {
     const total = polyLength(pts);
     let d = clamp(k, 0, 1) * total;
@@ -1673,34 +2781,39 @@
         break;
       }
       case 'ICON': {
+        // Die-cut sticker: the mark rides on its own wobbly paper edge with a soft shadow —
+        // the collage register, not a floating icon.
+        const body = chassisBody(node, g);
+        const c = centre(b), seed = seedHash(String(ent.id));
+        const blob = svgEl('path', {
+          d: cutBlobPath(c.x, c.y, Math.max(b.w, sw * 8) * 0.58, Math.max(b.h, sw * 8) * 0.58, seed),
+          fill: mixColor(plan.brand.paper, '#ffffff', 0.62), 'fill-opacity': 0.96,
+        }, body);
+        node.extra.shadow = { el: blob, oy: b.h * 0.05, blur: b.h * 0.11, alpha: 0.24 };
         const host = svgEl('g', {}, g);
         host.style.color = ink;
         node.inkEls.push(host);
         node.extra.iconHost = host;
-        loadIconInto(ent, node, host, b, opts);
+        if (!paintPaperArt(ent, node, host, { x: b.x + b.w * 0.08, y: b.y + b.h * 0.08, w: b.w * 0.84, h: b.h * 0.84 }, plan, opts)) {
+          wordMark(node, host, b, String(params.word || ent.concept || ent.id), 'name', ink, plan);
+        }
         node.strike = strikeFor(b);
         break;
       }
       case 'TILE': {
-        // The product-collage atom: a glossy rounded-square app tile carrying a registry icon.
+        // Die-cut paper card: an irregular hand-cut edge around the mark — the evidence-board
+        // atom, not an app icon. No gloss, a whisper of ink rim, and a few degrees off true.
         const dark = params.tone === 'dark';
-        const r = Math.min(b.w, b.h) * 0.24;
-        const shape = roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z';
+        const seed = seedHash(String(ent.id));
+        const m = sw * 1.3, r = Math.min(b.w, b.h) * 0.06;
+        const cardB = { x: b.x + m, y: b.y + m, w: b.w - m * 2, h: b.h - m * 2 };
+        const shape = cutRectPath(cardB, seed, Math.min(b.w, b.h) * 0.05);
         const body = chassisBody(node, g);
-        // One geometry for fill, gloss and rim: the gloss is clipped to the body and the rim is
-        // stroked last, so the outline is one continuous weight around every corner.
-        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : housing.light }, body);
+        // The fibrous fringe: the rip's white core peeks a hair past the face.
+        svgEl('path', { d: tornFringePath(cardB, seed, Math.min(b.w, b.h) * 0.05), fill: mixColor(plan.brand.paper, '#ffffff', 0.85), 'fill-opacity': dark ? 0.5 : 0.9 }, body);
+        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.55) }, body);
         node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
-        if (!dark) {
-          // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
-          const clipId = `em2gloss-${ent.id}-${++iconInstance}`.replace(/[^a-z0-9-]/gi, '');
-          svgEl('path', { d: shape }, svgEl('clipPath', { id: clipId }, svgEl('defs', {}, body)));
-          svgEl('path', {
-            d: `M${f2(b.x)} ${f2(b.y)}H${f2(b.x + b.w)}V${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x)} ${f2(b.y + b.h * 0.46)}Z`,
-            fill: '#ffffff', 'fill-opacity': 0.5, 'clip-path': `url(#${clipId})`,
-          }, body);
-        }
-        svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.55), 'stroke-opacity': 0.55 }, body);
+        svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.4), 'stroke-opacity': dark ? 0.14 : 0.2 }, body);
         node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
         const word = params.word ? String(params.word) : '';
         const fg = dark ? paper : ink;
@@ -1721,45 +2834,55 @@
           } else {
             loadPhotoInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, r * 0.6, opts);
           }
-        } else if (ent.asset) {
+        } else if (paperArtKey(ent.concept)) {
+          // Painted collage art in place of the icon: the concept is illustrated,
+          // not indexed. The word still rides beneath when the housing carries one.
+          const host = svgEl('g', {}, g);
+          node.extra.iconHost = host;
+          const pad = b.w * 0.13;
+          if (word) {
+            const ih = b.h * 0.56;
+            paintPaperArt(ent, node, host, { x: b.x + (b.w - ih) / 2, y: b.y + pad * 0.7, w: ih, h: ih }, plan, opts);
+            wordMark(node, wordHost, { x: b.x + pad * 0.6, y: b.y + pad * 0.7 + ih + b.h * 0.02, w: b.w - pad * 1.2, h: b.h - pad * 0.7 - ih - b.h * 0.02 - pad * 0.7 }, word, params.word_kind || 'name', fg, plan);
+          } else {
+            paintPaperArt(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, plan, opts);
+          }
+        } else if (ent.asset && !word) {
           const host = svgEl('g', {}, g);
           host.style.color = fg;
           node.inkEls.push(host);
           node.extra.iconHost = host;
           const pad = b.w * 0.17;
-          if (word) {
-            // Composite: the mark takes the upper body, the concept's own name is set beneath it.
-            const ih = b.h * 0.5;
-            loadIconInto(ent, node, host, { x: b.x + (b.w - ih) / 2, y: b.y + pad * 0.8, w: ih, h: ih }, opts);
-            wordMark(node, wordHost, { x: b.x + pad * 0.6, y: b.y + pad * 0.8 + ih + b.h * 0.03, w: b.w - pad * 1.2, h: b.h - pad * 0.8 - ih - b.h * 0.03 - pad * 0.7 }, word, params.word_kind || 'name', fg, plan);
-          } else {
-            loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
-          }
+          loadIconInto(ent, node, host, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, opts);
         } else if (word) {
           const pad = b.w * 0.14;
           wordMark(node, wordHost, { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 }, word, params.word_kind || 'name', fg, plan);
+        }
+        // Hand-placed: every card sits a few degrees off true.
+        const trr = rng(seed ^ 0x5bd1e995);
+        node.extra.rotateDeg = f2((trr() - 0.5) * 5.6);
+        if (ent.photo) {
+          // Washi tape across the top of an evidence photo — the cork-board gesture.
+          const tw = b.w * 0.34, th = b.h * 0.085, tx = b.x + b.w * 0.5, ty = b.y + b.h * 0.02;
+          const td = `M${f2(-tw / 2)} ${f2(th * 0.28)}L${f2(tw / 2)} 0L${f2(tw / 2)} ${f2(th * 0.82)}L${f2(-tw / 2)} ${f2(th)}Z`;
+          svgEl('path', { d: td, fill: accent, 'fill-opacity': 0.38, transform: `translate(${f2(tx)} ${f2(ty)}) rotate(${f2(-5 + (trr() - 0.5) * 8)})` }, g);
         }
         node.strike = strikeFor(b);
         break;
       }
       case 'BADGE': {
-        // Glossy white disc with a deep soft shadow carrying a brand mark or colour icon.
+        // Die-cut disc: a wobbly paper circle — the sticker version of the old glossy badge.
         const dark = params.tone === 'dark';
         const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw / 2;
         const body = chassisBody(node, g);
-        const disc = svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R) }, body);
-        disc.setAttribute('fill', dark ? housing.dark : housing.light);
+        const discD = cutBlobPath(c.x, c.y, R, R, seedHash(String(ent.id)));
+        const disc = svgEl('path', { d: discD }, body);
+        disc.setAttribute('fill', dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.55));
         disc.setAttribute('stroke', ink);
         disc.setAttribute('stroke-width', f2(sw * 0.4));
-        disc.setAttribute('stroke-opacity', '0.18');
+        disc.setAttribute('stroke-opacity', '0.2');
         node.extra.shadow = { el: disc, oy: R * 0.16, blur: R * 0.3, alpha: 0.26 };
-        if (!dark) {
-          svgEl('path', {
-            d: `M${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}A${f2(R * 0.82)} ${f2(R * 0.82)} 0 0 1 ${f2(c.x + R * 0.82)} ${f2(c.y - R * 0.1)}Q${f2(c.x)} ${f2(c.y + R * 0.18)} ${f2(c.x - R * 0.82)} ${f2(c.y - R * 0.1)}Z`,
-            fill: '#ffffff', 'fill-opacity': 0.55,
-          }, body);
-        }
-        node.inkEls.push(svgEl('circle', { cx: f2(c.x), cy: f2(c.y), r: f2(R), fill: accent, 'fill-opacity': 0 }, g));
+        node.inkEls.push(svgEl('path', { d: discD, fill: accent, 'fill-opacity': 0 }, g));
         if (ent.photo) {
           // A disc is too small for a picture and a name: the photograph alone fills the well.
           const host = svgEl('g', {}, g);
@@ -1767,7 +2890,12 @@
           node.extra.iconHost = host;
           const pad = R * 0.14;
           loadPhotoInto(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, R, opts);
-        } else if (ent.asset) {
+        } else if (paperArtKey(ent.concept)) {
+          const host = svgEl('g', {}, g);
+          node.extra.iconHost = host;
+          const pad = R * 0.5;
+          paintPaperArt(ent, node, host, { x: c.x - R + pad, y: c.y - R + pad, w: 2 * (R - pad), h: 2 * (R - pad) }, plan, opts);
+        } else if (ent.asset && !params.word) {
           const host = svgEl('g', {}, g);
           host.style.color = dark ? paper : ink;
           node.inkEls.push(host);
@@ -1790,8 +2918,11 @@
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.18;
         const body = chassisBody(node, g);
-        const card = svgEl('path', { d: roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z' }, body);
-        card.setAttribute('fill', dark ? housing.dark : housing.light);
+        const statB = { x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw };
+        const statSeed = seedHash(String(ent.id));
+        svgEl('path', { d: tornFringePath(statB, statSeed, Math.min(b.w, b.h) * 0.04), fill: mixColor(plan.brand.paper, '#ffffff', 0.85), 'fill-opacity': dark ? 0.5 : 0.9 }, body);
+        const card = svgEl('path', { d: cutRectPath(statB, statSeed, Math.min(b.w, b.h) * 0.04) }, body);
+        card.setAttribute('fill', dark ? housing.dark : mixColor(plan.brand.paper, '#ffffff', 0.5));
         card.setAttribute('stroke', ink);
         card.setAttribute('stroke-width', f2(sw * 0.4));
         card.setAttribute('stroke-opacity', '0.18');
@@ -2372,7 +3503,22 @@
     const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts) : null;
     const data = beat.data ? buildData(beat.data, plan, root) : null;
     const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, { ...opts, fx }) : null;
-    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, root), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    // All typography lives in one layer so book mode can demote the whole lockup at once.
+    const textHost = el('div', { position: 'absolute', inset: '0', zIndex: '40', pointerEvents: 'none' }, root);
+    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, textHost), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    // Picture-book captioning: the page's art is the hero — headline blocks are hidden (the
+    // karaoke caption prints those same words under the plate) and the remaining support
+    // annotations shrink into a caption band along the page's lower inside edge.
+    if (plan.book && texts.length) {
+      const pr = bookPageRect(plan);
+      const caps = texts.filter((t) => { const hero = t.block.role === 'hero'; if (hero) t.wrap.style.display = 'none'; return !hero; });
+      const u = caps.reduce((a, t) => ({ x0: Math.min(a.x0, t.bb.x), y0: Math.min(a.y0, t.bb.y), x1: Math.max(a.x1, t.bb.x + t.bb.w), y1: Math.max(a.y1, t.bb.y + t.bb.h) }), { x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9 });
+      if (caps.length) {
+        const s = Math.min(1, (pr.w * 0.7) / (u.x1 - u.x0), (pr.h * 0.055) / (u.y1 - u.y0));
+        textHost.style.transformOrigin = '0 0';
+        textHost.style.transform = `translate(${f2(pr.x + pr.w / 2 - s * (u.x0 + u.x1) / 2)}px,${f2(pr.y + pr.h * 0.875 - s * u.y1)}px) scale(${f2(s)})`;
+      }
+    }
     const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
     const tz = bboxOf(beat.composition.text_zone);
     const tr = beat.transition || { mode: 'SETTLE_CUT' };
@@ -2445,6 +3591,170 @@
   // beat's progress through its transition (0 outside it); `arrival` is set on the incoming beat
   // while it dresses underneath: the outgoing beat's camera and the window it arrives over.
   // Plans without camera metadata fall back to the profile's transition name.
+  // A real page turn, geometry after MengTo/sketchbook: the outgoing scene becomes a leaf of
+  // N nested strips whose tangent sweeps an arc — the sheet bends instead of pivoting like a
+  // door. Each strip carries a front face (the scene, sliced) and a back face (the print
+  // ghosted through the paper); |cos(theta)| per strip drives shade and specular, a shadow
+  // band tracks the fold across the page below, and the leaf leaves the stage entirely.
+  const PAGE_STRIPS = 20, PAGE_BETA = 0.6;
+  // The page the animated paperbook lives inside: a deckled aged leaf inset on a lit desk.
+  function bookPageRect(plan) {
+    if (!plan.book) return null;
+    const W = plan.canvas.w, H = plan.canvas.h;
+    const ix = Math.round(W * 0.032), iy = Math.round(H * 0.04);
+    return { x: ix, y: iy, w: W - ix * 2, h: H - iy * 2 };
+  }
+  function buildPageLeaf(bn, plan) {
+    const W = plan.canvas.w, H = plan.canvas.h;
+    const dir = bn._leafDir > 0 ? 1 : -1;
+    const hinge = plan.book ? (bookPageRect(plan) || { x: 0 }).x : (dir > 0 ? 0 : W);
+    const sw = W / PAGE_STRIPS;
+    const shade = `rgba(${((plan.atmosphere && plan.atmosphere.shadow_rgb) || [52, 38, 20]).join(',')},A)`;
+    const leaf = el('div', {
+      position: 'absolute', left: '0', top: '0', width: px(W), height: px(H), display: 'none',
+      transformStyle: 'preserve-3d', transformOrigin: `${px(hinge)} 50%`,
+      willChange: 'transform', pointerEvents: 'none',
+    });
+    // The shadow the lifting leaf throws onto the page beneath it.
+    const shadow = el('div', {
+      position: 'absolute', top: '0', bottom: '0', width: px(W * 0.24), left: '0', opacity: '0',
+      background: `linear-gradient(90deg, transparent 0%, ${shade.replace('A', '0.5')} 50%, transparent 100%)`,
+      filter: `blur(${px(W * 0.012)})`, pointerEvents: 'none', willChange: 'transform, opacity',
+    });
+    // Snapshot the settled picture once per leaf — a turning page is printed paper, not live ink.
+    const snap = (() => {
+      const s = bn.cam.cloneNode(true);
+      s.style.transform = 'none'; s.style.opacity = '1'; s.style.visibility = 'visible'; s.style.filter = 'none';
+      return s;
+    })();
+    const origin = dir > 0 ? '0% 50%' : '100% 50%';
+    const side = dir > 0 ? 'left' : 'right';
+    let host = leaf;
+    const strips = [];
+    for (let i = 0; i < PAGE_STRIPS; i++) {
+      const st = el('div', { position: 'absolute', top: '0', bottom: '0', width: px(sw), transformStyle: 'preserve-3d', transformOrigin: origin }, host);
+      st.style[side] = i === 0 ? '0' : '100%';
+      if (i > 0) st.style.transform = `rotateY(calc(${dir > 0 ? '' : '-1 * '}var(--ptd)))`;
+      const fi = dir > 0 ? i : PAGE_STRIPS - 1 - i;
+      const front = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', filter: 'blur(var(--pb,0px))' }, st);
+      const fw = el('div', { position: 'absolute', left: px(-fi * sw), top: '0', width: px(W), height: px(H) }, front);
+      fw.appendChild(snap.cloneNode(true));
+      const back = el('div', { position: 'absolute', inset: '0', overflow: 'hidden', backfaceVisibility: 'hidden', webkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', filter: 'blur(var(--pb,0px))' }, st);
+      const bw = el('div', { position: 'absolute', left: px(-fi * sw), top: '0', width: px(W), height: px(H) }, back);
+      bw.appendChild(snap.cloneNode(true));
+      // Print-through: ink ghosts faintly through the back of the sheet.
+      el('div', { position: 'absolute', inset: '0', background: rgbaOf(plan.brand.paper, 0.62) }, back);
+      const shF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
+      const glF = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, front);
+      const shB = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, back);
+      const glB = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, back);
+      strips.push({ st, shF, glF, shB, glB });
+      host = st;
+    }
+    return { el: leaf, shadow, strips, dir, sw, hinge };
+  }
+  function drivePageLeaf(bn, kke, plan) {
+    const leaf = bn._leaf;
+    if (!leaf) return;
+    const W = plan.canvas.w, D = 180 / Math.PI;
+    const th = Math.PI * kke;
+    const beta = PAGE_BETA * Math.sin(Math.PI * kke);
+    const tt = th + beta, td = (2 * beta) / PAGE_STRIPS;
+    leaf.el.style.display = '';
+    leaf.el.style.transform = `rotateY(${f2(-leaf.dir * tt * D)}deg)`;
+    leaf.el.style.setProperty('--ptd', `${f2(td * D)}deg`);
+    leaf.el.style.setProperty('--pb', `${f2(Math.sin(Math.PI * kke) * 2.2)}px`);
+    for (let i = 0; i < PAGE_STRIPS; i++) {
+      const l1 = Math.abs(Math.cos(tt - i * td)), l2 = Math.abs(Math.cos(tt - (i + 1) * td));
+      const a1 = (1 - l1) * 0.55, a2 = (1 - l2) * 0.55;
+      const g1 = Math.max(0, l1 - 0.72) * 0.5, g2 = Math.max(0, l2 - 0.72) * 0.5;
+      const { shF, glF, shB, glB } = leaf.strips[i];
+      shF.style.background = `linear-gradient(90deg, rgba(52,38,20,${f2(a1)}), rgba(52,38,20,${f2(a2)}))`;
+      shB.style.background = `linear-gradient(90deg, rgba(52,38,20,${f2(a2)}), rgba(52,38,20,${f2(a1)}))`;
+      glF.style.background = `linear-gradient(105deg, transparent 32%, rgba(255,255,255,${f2(g1)}) 50%, transparent 68%)`;
+      glB.style.background = `linear-gradient(105deg, transparent 32%, rgba(255,255,255,${f2(g2)}) 50%, transparent 68%)`;
+    }
+    // The fold's leading edge: where the sheet still touches the page below.
+    const xEdge = leaf.hinge + (leaf.dir > 0 ? W * 0.5 * (1 + Math.cos(tt)) : W * 0.5 * (1 - Math.cos(tt)));
+    leaf.shadow.style.transform = `translateX(${f2(xEdge - W * 0.12)}px)`;
+    leaf.shadow.style.opacity = f2(Math.sin(Math.PI * kke) * 0.6);
+  }
+  function settlePageLeaf(bn) {
+    if (!bn._leaf) return;
+    bn._leaf.el.style.display = 'none';
+    bn._leaf.shadow.style.opacity = '0';
+  }
+
+  // The book object the animated paperbook lives inside: the remaining pages peeking past the
+  // fore-edge and tail, the binding gutter shadow at the spine, an engraved illustration frame
+  // inside the page edge, and a soft aged vignette so the page reads lit rather than flat.
+  function buildBookChrome(stage, plan, pr) {
+    const W = plan.canvas.w, H = plan.canvas.h;
+    const chrome = el('div', { position: 'absolute', inset: '0', zIndex: '30', pointerEvents: 'none' }, stage);
+    const minDim = Math.min(W, H);
+    const paperDark = mixColor(plan.brand.paper, '#c9b490', 0.55);
+    const shadeRgb = (plan.atmosphere && plan.atmosphere.shadow_rgb) || [52, 38, 20];
+    const sh = shadeRgb.join(',');
+    const edgeW = Math.max(2, minDim * 0.004);
+    for (const [ox, oy] of [[6, 3], [13, 7]]) {
+      el('div', {
+        position: 'absolute', left: px(pr.x + ox * 0.5), top: px(pr.y + pr.h + oy), width: px(pr.w - ox), height: px(edgeW),
+        background: `linear-gradient(180deg, ${paperDark}, ${mixColor(paperDark, '#8f7a55', 0.5)})`,
+        borderRadius: '0 0 45% 45%', opacity: '0.9',
+      }, chrome);
+      el('div', {
+        position: 'absolute', left: px(pr.x + pr.w + ox), top: px(pr.y + oy * 0.5), width: px(edgeW), height: px(pr.h - oy),
+        background: `linear-gradient(90deg, ${paperDark}, ${mixColor(paperDark, '#8f7a55', 0.5)})`,
+        borderRadius: '0 45% 45% 0', opacity: '0.9',
+      }, chrome);
+    }
+    // Spine gutter: the binding shadow inside the left edge and the crease line itself.
+    el('div', {
+      position: 'absolute', left: px(pr.x), top: px(pr.y), width: px(pr.w * 0.09), height: px(pr.h),
+      background: `linear-gradient(90deg, rgba(${sh},0.42) 0%, rgba(${sh},0.14) 50%, transparent 100%)`,
+    }, chrome);
+    el('div', {
+      position: 'absolute', left: px(pr.x + pr.w * 0.014), top: px(pr.y), width: px(Math.max(1.5, W * 0.0014)), height: px(pr.h),
+      background: `linear-gradient(180deg, rgba(${sh},0.45), rgba(${sh},0.68) 50%, rgba(${sh},0.45))`,
+    }, chrome);
+    // Engraved illustration frame: two hairline rules a little inside the page edge.
+    const fr = minDim * 0.016;
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, 'aria-hidden': 'true' }, chrome);
+    Object.assign(svg.style, { position: 'absolute', inset: '0', width: '100%', height: '100%' });
+    const framePath = (rect, seed, amp, wpx, op) => svgEl('path', {
+      d: polyPath(edgeRectPts(rect, 'cut', amp, rng(seedHash(seed)), 0)) + 'Z',
+      fill: 'none', stroke: plan.brand.ink, 'stroke-width': f2(wpx), 'stroke-opacity': op,
+    }, svg);
+    framePath({ x: pr.x + fr, y: pr.y + fr, w: pr.w - fr * 2, h: pr.h - fr * 2 }, 'book-frame-outer', minDim * 0.0022, Math.max(1, minDim * 0.0028), '0.5');
+    framePath({ x: pr.x + fr * 1.5, y: pr.y + fr * 1.5, w: pr.w - fr * 3, h: pr.h - fr * 3 }, 'book-frame-inner', minDim * 0.0016, Math.max(0.8, minDim * 0.0016), '0.35');
+    // Printer's ornaments: the film's motif mark stamped into the frame's four inner corners,
+    // turned to face the page's heart — the fleuron furniture of an old picture book.
+    const fleu = paperArtSvg((plan.motif && plan.motif.concept) || 'leaf', 'book-fleuron', plan, 'bf');
+    if (fleu) {
+      const fs = minDim * 0.036, frs = pr.x + fr * 2.3, frt = pr.y + fr * 2.3, frx = pr.x + pr.w - fr * 2.3, fry = pr.y + pr.h - fr * 2.3;
+      for (const [fx2, fy2, rot] of [[frs, frt, -45], [frx, frt, 45], [frx, fry, 135], [frs, fry, -135]]) {
+        const holder = el('div', {
+          position: 'absolute', left: px(fx2 - fs / 2), top: px(fy2 - fs / 2), width: px(fs), height: px(fs),
+          transform: `rotate(${rot}deg)`, opacity: '0.6',
+        }, chrome);
+        holder.appendChild(fleu.cloneNode(true));
+      }
+    }
+    // Aged light.
+    el('div', {
+      position: 'absolute', left: px(pr.x), top: px(pr.y), width: px(pr.w), height: px(pr.h),
+      background: `radial-gradient(115% 120% at 46% 42%, transparent 58%, rgba(${sh},0.15) 100%)`,
+    }, chrome);
+    // Lamp light: a slow warm pool over the spread, driven per frame in seek() — firelight on
+    // paper, and the ambient motion that keeps a settled page alive.
+    const lamp = el('div', {
+      position: 'absolute', inset: '0', zIndex: '2', pointerEvents: 'none', mixBlendMode: 'soft-light',
+      background: `radial-gradient(92% 80% at 30% 9%, rgba(255,238,190,0.95) 0%, rgba(255,238,190,0.28) 46%, rgba(24,12,4,0.6) 100%)`,
+      opacity: '0.7',
+    }, chrome);
+    return lamp;
+  }
+
   const DRIFT_FRAC = 0.06;
   function cameraMoveOf(cam, m, index) {
     if (cam) return cam;
@@ -2463,12 +3773,14 @@
       let tx = cam.dir * m.camera_pan_frac * W * (p - 0.5);
       let opacity = 1, defocus = 0;
       const kk = k > 0 && tr ? prog(t, tr.start_ms, tr.end_ms) : 0;
+      let rot = 0, ty = 0;
       if (kk > 0) {
         const ko = EASE.inCubic(kk);
         if (cam.move === 'push_through') { scale *= lerp(1, 1.1, ko); defocus += m.blur_px * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
         else if (cam.move === 'pull_back') { scale *= lerp(1, 0.94, ko); defocus += m.blur_px * 0.6 * ko * cam.blur; opacity = 1 - EASE.inOutCubic(kk); }
         else if (cam.move === 'drift') { tx += -cam.dir * W * DRIFT_FRAC * EASE.inOutCubic(kk); opacity = 1 - EASE.inOutCubic(kk); }
         else if (cam.move === 'dissolve') defocus += m.blur_px * ko * cam.blur;
+        // 'page' is not a pose: the leaf overlay turns the picture — the cam itself hides.
       }
       if (arrival) {
         const aa = clamp(t / Math.max(1, arrival.window_ms), 0, 1);
@@ -2477,15 +3789,44 @@
         else if (cam.move === 'pull_back') { scale *= lerp(1.06, 1, ka); defocus += m.blur_px * 0.3 * (1 - ka) * cam.blur; }
         else if (cam.move === 'drift') tx += cam.dir * W * DRIFT_FRAC * (1 - EASE.inOutCubic(aa));
         else if (cam.move === 'dissolve') defocus += m.blur_px * 0.4 * (1 - ka) * cam.blur;
+        // 'page': the incoming page lies flat under the turning leaf — no arrival move.
       }
-      return { scale, tx, opacity, defocus };
+      return { scale, tx, ty, rot, opacity, defocus };
     };
     const now = poseAt(lt), was = poseAt(lt - bn.ctx.frameMs);
     const s = bn.cam.style;
-    s.transform = `translate(${f2(now.tx)}px, 0px) scale(${now.scale.toFixed(4)})`;
+    s.transform = `translate(${f2(now.tx)}px, ${f2(now.ty || 0)}px) rotate(${(now.rot || 0).toFixed(3)}deg) scale(${now.scale.toFixed(4)})`;
     s.opacity = now.opacity.toFixed(4);
+    // The leaf swap: during a page turn the cam yields to the printed leaf; outside it the
+    // leaf rests. Built lazily on the first transition frame so the snapshot is the settled
+    // picture; live video media can't freeze into print, so it falls back to the flat peel.
+    // In the paperbook every cut is a page turn — the leaf is the film's signature move.
+    const pageActive = (cam.move === 'page' || plan.book) && tr && lt >= tr.start_ms && lt <= tr.end_ms && !arrival;
+    if (bn._hasVideo === undefined) bn._hasVideo = Boolean(bn.cam.querySelector('video'));
+    if (pageActive && !bn._hasVideo) {
+      if (!bn._leaf) {
+        bn._leafDir = plan.book ? 1 : (cam.dir >= 0 ? 1 : -1);
+        bn._leaf = buildPageLeaf(bn, plan);
+        bn.root.appendChild(bn._leaf.shadow);
+        bn.root.appendChild(bn._leaf.el);
+      }
+      drivePageLeaf(bn, EASE.inOutCubic(prog(lt, tr.start_ms, tr.end_ms)), plan);
+      s.visibility = 'hidden';
+    } else {
+      settlePageLeaf(bn);
+      if (pageActive) {
+        // Video fallback: the flat peel for pages carrying live media.
+        const kp = EASE.inOutCubic(prog(lt, tr.start_ms, tr.end_ms));
+        s.transform += ` translateY(${f2(-plan.canvas.h * 0.62 * kp)}px) rotate(${(cam.dir * 7.5 * kp).toFixed(3)}deg)`;
+        s.opacity = kp < 0.9 ? '1' : f2(1 - (kp - 0.9) / 0.1);
+      }
+      // Once the leaf has taken this beat's picture the cam must not reappear over the
+      // revealed next scene — a turned page stays turned until the beat ends. Before the
+      // transition (a backward scrub) the live picture is still the truth.
+      s.visibility = bn._leaf && tr && lt >= tr.start_ms ? 'hidden' : '';
+    }
     applyDepthParallax(bn.bg, now, plan);
-    bn.camBlur.apply(s, motionBlurStd((now.tx - was.tx) + Math.abs(now.scale - was.scale) * W / 2, 0, m.motion_blur * cam.blur), now.defocus > 0.2 ? `blur(${now.defocus.toFixed(2)}px)` : '');
+    bn.camBlur.apply(s, motionBlurStd((now.tx - was.tx) + Math.abs(now.scale - was.scale) * W / 2, Math.abs((now.ty || 0) - (was.ty || 0)), m.motion_blur * cam.blur), now.defocus > 0.2 ? `blur(${now.defocus.toFixed(2)}px)` : '');
   }
 
   function mediaReady(m) {
@@ -2520,15 +3861,13 @@
     if (plan.gate && plan.gate.status !== 'PASS') throw new Error(`EditorialRuntime: refusing to render a plan whose gate is ${plan.gate.status}`);
     const opts = Object.assign({
       fontBase: '../assets/fonts/',
-      peepsBase: '../assets/peeps/',
       assetUrl: (p) => p,
     }, options || {});
-    opts.peepsUrl = opts.peepsUrl || ((file) => opts.peepsBase + file);
     installFonts(plan, opts.fontBase);
 
     const W = plan.canvas.w, H = plan.canvas.h;
     const atmo = plan.atmosphere || {};
-    const stage = el('div', { position: 'relative', overflow: 'hidden', width: px(W), height: px(H), background: atmo.field || plan.brand.paper, color: plan.brand.ink }, mount);
+    const stage = el('div', { position: 'relative', overflow: 'hidden', width: px(W), height: px(H), background: atmo.field || plan.brand.paper, color: plan.brand.ink, perspective: px(W * 2.4) }, mount);
     stage.dataset.theme = atmo.theme || 'light';
     stage.className = 'em2-stage';
     stage.dataset.aspect = plan.aspect;
@@ -2544,12 +3883,35 @@
         opacity: '0.3', mixBlendMode: 'multiply',
       }, stage);
     }
-    const beats = plan.beats.map((b, i) => buildBeat(b, plan, stage, opts, i === plan.beats.length - 1, i));
+    // Animated-paperbook chassis: the film lives inside a bound old book — a deckled aged page
+    // clipped over the art on a lit desk. Every cut turns the curled leaf at the spine.
+    const bookPage = bookPageRect(plan);
+    let beatHost = stage;
+    let bookGroup = null;
+    let bookLamp = null;
+    if (bookPage) {
+      const deskA = mixColor('#1d140d', plan.brand.ink, 0.3), deskB = mixColor('#3a2a1a', plan.brand.accent || '#8a6a3a', 0.18);
+      stage.style.background = `radial-gradient(120% 110% at 50% 46%, ${deskB} 0%, ${deskA} 62%, #120c07 100%)`;
+      const pts = edgeRectPts(bookPage, 'torn', Math.min(W, H) * 0.011, rng(seedHash('book-page-deckle')), 0)
+        .map((p) => `${f2(p[0])}px ${f2(p[1])}px`).join(',');
+      // Everything bound to the book — page, beats, chrome — lives in one group so seek() can
+      // breathe the whole volume: a slow drift and turn, like a book resting on a desk.
+      bookGroup = el('div', {
+        position: 'absolute', inset: '0', transformOrigin: '50% 58%', willChange: 'transform',
+      }, stage);
+      beatHost = el('div', {
+        position: 'absolute', inset: '0', zIndex: '0',
+        background: `linear-gradient(100deg, ${mixColor(plan.brand.paper, '#e6d6b4', 0.5)} 0%, ${plan.brand.paper} 55%, ${mixColor(plan.brand.paper, '#dfcba6', 0.4)} 100%)`,
+        clipPath: `polygon(${pts})`,
+      }, bookGroup);
+    }
+    const beats = plan.beats.map((b, i) => buildBeat(b, plan, beatHost, opts, i === plan.beats.length - 1, i));
+    if (bookPage) bookLamp = buildBookChrome(bookGroup, plan, bookPage);
     // World-bible motif: the film's signature mark, stamped in a corner of every beat — the
     // through-line the eye follows across scenes. Quiet by design: tonal ink, paper-card clipped.
     const motifEl = (() => {
       const m = plan.motif;
-      if (!m) return null;
+      if (!m || bookPage) return null;
       const size = Math.round(Math.min(W, H) * 0.085);
       const inset = Math.round(Math.min(W, H) * 0.045);
       const pos = { left: 'auto', right: 'auto', top: 'auto', bottom: 'auto' };
@@ -2562,7 +3924,12 @@
         transform: `rotate(${h === 'left' ? -4 : 4}deg)`,
         filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.18))',
       }, stage);
-      if (m.asset && m.asset.path) {
+      const motifArt = paperArtKey(m.concept) && paperArtSvg(paperArtKey(m.concept), seedHash(String(m.concept)), plan, 'motif');
+      if (motifArt) {
+        motifArt.setAttribute('width', '100%');
+        motifArt.setAttribute('height', '100%');
+        host.appendChild(motifArt);
+      } else if (m.asset && m.asset.path) {
         fetchText(opts.assetUrl(m.asset.path)).then((txt) => {
           const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
           const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -2642,6 +4009,10 @@
         const hold = atmo.grain_hold_ms > 0 ? atmo.grain_hold_ms : 93;
         const o = OFF[Math.floor(time / hold) % OFF.length];
         grain.style.backgroundPosition = `${-o[0]}px ${-o[1]}px`;
+      }
+      if (bookGroup) {
+        bookGroup.style.transform = `translate(${f2(4 * Math.sin(time * 0.00105))}px,${f2(2.6 * Math.sin(time * 0.00087 + 1.4))}px) rotate(${f2(0.14 * Math.sin(time * 0.00062))}deg)`;
+        if (bookLamp) bookLamp.style.opacity = f2(0.55 + 0.3 * Math.sin(time * 0.00078 + 0.5));
       }
       const t1 = performance.now();
       const kOut = overlapIdx >= 0 ? prog(lt, tr.start_ms, tr.end_ms) : 0;
@@ -2811,5 +4182,5 @@
     };
   }
 
-  return { createEditorialFilm, RUNTIME_VERSION, EASE, _internals: { prog, lineStagger, recolor, propAt, pointAlong, polyLength, OP_PROPERTY, PROPERTY_REST } };
+  return { createEditorialFilm, RUNTIME_VERSION, EASE, _internals: { prog, lineStagger, propAt, pointAlong, polyLength, OP_PROPERTY, PROPERTY_REST } };
 });

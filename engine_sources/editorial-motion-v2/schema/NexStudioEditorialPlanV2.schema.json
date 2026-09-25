@@ -2153,6 +2153,7 @@
                       "pull_back",
                       "drift",
                       "dissolve",
+                      "page",
                       "cut"
                     ]
                   },

@@ -88,7 +88,7 @@ MOTION_PROFILES = {
 }
 # How the film's camera carries one beat into the next; the compiler picks from beat energy,
 # a hard cut only when the treatment asks for one (beat.cut = 'hard').
-CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'cut')
+CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'page', 'cut')
 CUT_MODES = ('hard',)
 DATA_KINDS = ('STAT', 'COMPARISON', 'SEQUENCE')
 # Entity labels are nouns, not captions: no leading article, at most three words, and never a
@@ -654,6 +654,7 @@ class World:
 
     grain: Optional[str] = None
     motif: Optional[Dict[str, Any]] = None  # {concept, corner} -> resolved to a mark in _resolve_concepts
+    book: bool = False                    # animated-paperbook chassis: beats become pages of a bound book
 
 
 @dataclass
@@ -704,7 +705,7 @@ class FilmTreatment:
                 corner = str(motif.get('corner') or 'bottom-right')
                 _need(corner in WORLD_CORNERS, 'WORLD_CORNER_UNKNOWN', corner)
                 motif = {**motif, 'concept': concept, 'corner': corner}
-            world = World(grain, motif)
+            world = World(grain, motif, bool(world_d.get('book')))
         by_id = {b.beat_id: b for b in beats}
         for b in beats:
             il = b.illustration
