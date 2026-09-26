@@ -709,6 +709,9 @@
           // blotches, pigment pooling toward the lower edge, a tonal halftone field
           // denser in the shadow half, then the sheet's fibre speckle.
           const br = rng(spec.seed ^ 0x51ab);
+          // Pigment drift: hand-mixed gouache is never one flat tone — each piece
+          // leans a few degrees warm or cool like a fresh dip of the brush.
+          fill.style.background = mixColor(spec.tone, br() < 0.5 ? '#e0a868' : '#7890b0', 0.05 + br() * 0.07);
           const lt = mixColor(spec.tone, '#ffffff', 0.55);
           const dk = mixColor(spec.tone, '#000000', 0.5);
           const blot = [
@@ -724,11 +727,14 @@
           fill.style.backgroundImage = blot.join(',');
           // Tonal halftone: a dot field masked to the shadow side — print texture that
           // dies out across the light, not a uniform screen.
-          const half = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, fill);
+          const half = el('div', { position: 'absolute', inset: '-20%', pointerEvents: 'none' }, fill);
           const dotDir = 120 + br() * 60;
+          // The screen sits off-square like a real press angle — an axis-aligned dot
+          // lattice reads as rows of stripes; rotated it reads as print texture.
+          half.style.transform = `rotate(${f2(9 + br() * 12)}deg)`;
           half.style.backgroundImage = `radial-gradient(circle, ${rgbaOf(dk, 0.5)} ${f2(b.w * 0.0035)}px, transparent ${f2(b.w * 0.0042)}px)`;
           half.style.backgroundSize = `${px(b.w * 0.028)} ${px(b.w * 0.028)}`;
-          half.style.webkitMaskImage = `linear-gradient(${f2(dotDir)}deg, rgba(0,0,0,0.16), rgba(0,0,0,0) 62%)`;
+          half.style.webkitMaskImage = `linear-gradient(${f2(dotDir)}deg, rgba(0,0,0,0.13), rgba(0,0,0,0) 62%)`;
           half.style.maskImage = half.style.webkitMaskImage;
           const fibre = el('div', { position: 'absolute', inset: '0', pointerEvents: 'none' }, fill);
           fibre.style.backgroundImage = pbSpeckle(plan);
@@ -1445,6 +1451,55 @@
   }
 
 
+  // The mocap sprite bakes a body but no face — this draws the little ink face
+  // that rides the head region, rebuilt whenever a state swaps the expression.
+  function drawMocapFace(fsvg, fk, plan) {
+    fsvg.innerHTML = '';
+    const inkC = plan.brand.ink;
+    const NS = 'http://www.w3.org/2000/svg';
+    const eyesG = document.createElementNS(NS, 'g');
+    if (fk.eyes === 'closed') {
+      for (const sx of [-7, 7]) {
+        const e = document.createElementNS(NS, 'path');
+        e.setAttribute('d', `M${20 + sx - 2.6} 10 q2.6 2.4 5.2 0`); e.setAttribute('stroke', inkC);
+        e.setAttribute('stroke-width', '1.8'); e.setAttribute('fill', 'none'); e.setAttribute('stroke-linecap', 'round');
+        eyesG.appendChild(e);
+      }
+    } else {
+      for (const sx of [-7, 7]) {
+        const e = document.createElementNS(NS, 'circle');
+        e.setAttribute('cx', String(20 + sx)); e.setAttribute('cy', '10'); e.setAttribute('r', fk.eyes === 'open' ? '2.7' : '2.1'); e.setAttribute('fill', inkC);
+        eyesG.appendChild(e);
+      }
+    }
+    fsvg.appendChild(eyesG);
+    if (fk.brows !== 'none') for (const sx of [-7, 7]) {
+      const b2 = document.createElementNS(NS, 'path');
+      b2.setAttribute('d', `M${20 + sx - 3} ${fk.brows === 'up' ? 3.2 : 4.6} q3 ${fk.brows === 'up' ? -1.8 : 1.6} 6 0`);
+      b2.setAttribute('stroke', inkC); b2.setAttribute('stroke-width', '1.5'); b2.setAttribute('fill', 'none'); b2.setAttribute('stroke-linecap', 'round');
+      fsvg.appendChild(b2);
+    }
+    const mouthD = { smile: 'M14 18 q6 5 12 0', calm: 'M15 18.5 q5 2 10 0', flat: 'M15 19 h10', sad: 'M14 20 q6 -4.5 12 0', o: null }[fk.mouth];
+    if (fk.mouth === 'o') {
+      const m = document.createElementNS(NS, 'ellipse');
+      m.setAttribute('cx', '20'); m.setAttribute('cy', '19'); m.setAttribute('rx', '3.8'); m.setAttribute('ry', '4.4');
+      m.setAttribute('fill', 'none'); m.setAttribute('stroke', inkC); m.setAttribute('stroke-width', '1.7');
+      fsvg.appendChild(m);
+    } else if (mouthD) {
+      const m = document.createElementNS(NS, 'path');
+      m.setAttribute('d', mouthD); m.setAttribute('stroke', inkC); m.setAttribute('stroke-width', '1.8');
+      m.setAttribute('fill', 'none'); m.setAttribute('stroke-linecap', 'round');
+      fsvg.appendChild(m);
+    }
+    for (const sx of [-12, 12]) {
+      const ch = document.createElementNS(NS, 'circle');
+      ch.setAttribute('cx', String(20 + sx)); ch.setAttribute('cy', '14.5'); ch.setAttribute('r', '2.4');
+      ch.setAttribute('fill', paintTone('petal', plan)); ch.setAttribute('opacity', '0.4');
+      fsvg.appendChild(ch);
+    }
+    return eyesG;
+  }
+
   function buildFigure(fig, plan, beatRoot, opts, beat) {
     const bb = bboxOf(fig.bbox);
     const host = el('div', {
@@ -1506,54 +1561,16 @@
       f.mframe = mframe; f.msvg = msvg; f._lastFrame = -1;
       // Expression overlay: the sprite bakes a body but not a face. A small ink
       // face rides the head region of the host — eyes/brows/mouth from the same
-      // FIGURE_FACE grammar as the paper figure, blinking on its own clock.
+      // FIGURE_FACE grammar as the paper figure, blinking on its own clock, and
+      // redrawn when a state swap asks for a new expression.
       {
         const fk = FIGURE_FACE[paperFaceKind(fig.emotion && fig.emotion.face)] || FIGURE_FACE.calm;
         const fsvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         fsvg.setAttribute('viewBox', '0 0 40 24');
         fsvg.style.cssText = `position:absolute;left:50%;top:7%;width:34%;height:auto;transform:translateX(-50%);pointer-events:none;z-index:3`;
-        const inkC = plan.brand.ink;
-        const eyesG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        if (fk.eyes === 'closed') {
-          for (const sx of [-7, 7]) {
-            const e = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            e.setAttribute('d', `M${20 + sx - 2.6} 10 q2.6 2.4 5.2 0`); e.setAttribute('stroke', inkC);
-            e.setAttribute('stroke-width', '1.8'); e.setAttribute('fill', 'none'); e.setAttribute('stroke-linecap', 'round');
-            eyesG.appendChild(e);
-          }
-        } else {
-          for (const sx of [-7, 7]) {
-            const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            e.setAttribute('cx', String(20 + sx)); e.setAttribute('cy', '10'); e.setAttribute('r', fk.eyes === 'open' ? '2.7' : '2.1'); e.setAttribute('fill', inkC);
-            eyesG.appendChild(e);
-          }
-        }
-        fsvg.appendChild(eyesG);
-        f._eyes = eyesG;
-        if (fk.brows !== 'none') for (const sx of [-7, 7]) {
-          const b2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          b2.setAttribute('d', `M${20 + sx - 3} ${fk.brows === 'up' ? 3.2 : 4.6} q3 ${fk.brows === 'up' ? -1.8 : 1.6} 6 0`);
-          b2.setAttribute('stroke', inkC); b2.setAttribute('stroke-width', '1.5'); b2.setAttribute('fill', 'none'); b2.setAttribute('stroke-linecap', 'round');
-          fsvg.appendChild(b2);
-        }
-        const mouthD = { smile: 'M14 18 q6 5 12 0', calm: 'M15 18.5 q5 2 10 0', flat: 'M15 19 h10', sad: 'M14 20 q6 -4.5 12 0', o: null }[fk.mouth];
-        if (fk.mouth === 'o') {
-          const m = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-          m.setAttribute('cx', '20'); m.setAttribute('cy', '19'); m.setAttribute('rx', '3.8'); m.setAttribute('ry', '4.4');
-          m.setAttribute('fill', 'none'); m.setAttribute('stroke', inkC); m.setAttribute('stroke-width', '1.7');
-          fsvg.appendChild(m);
-        } else if (mouthD) {
-          const m = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          m.setAttribute('d', mouthD); m.setAttribute('stroke', inkC); m.setAttribute('stroke-width', '1.8');
-          m.setAttribute('fill', 'none'); m.setAttribute('stroke-linecap', 'round');
-          fsvg.appendChild(m);
-        }
-        for (const sx of [-12, 12]) {
-          const ch = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          ch.setAttribute('cx', String(20 + sx)); ch.setAttribute('cy', '14.5'); ch.setAttribute('r', '2.4');
-          ch.setAttribute('fill', paintTone('petal', plan)); ch.setAttribute('opacity', '0.4');
-          fsvg.appendChild(ch);
-        }
+        f._eyes = drawMocapFace(fsvg, fk, plan);
+        f._faceKind = fk;
+        f._plan = plan;
         host.appendChild(fsvg);
         f.faceSvg = fsvg;
         f.faceBaseY = 7;
@@ -1632,6 +1649,14 @@
         ty += Math.abs(Math.sin(q * Math.PI * 3)) * f.bb.h * 0.012;
       }
     }
+    if (f._gesture && lt < f._gesture.until) {
+      // The gesture beat: a reach reads as a lean toward the held thing — the body
+      // tips a few degrees and the prop arm comes up. Sine up-down, seeded side.
+      const gq = Math.sin(prog(lt, f._gesture.at, f._gesture.until) * Math.PI);
+      const dir = fig.prop && fig.prop.anchor && fig.prop.anchor.x < 0.5 ? -1 : 1;
+      tilt += dir * gq * 3.2;
+      ty -= gq * f.bb.h * 0.010;
+    } else if (f._gesture) f._gesture = null;
     const ex = ctx.exitState({ block: { role: 'figure' } }, lt);
     if (ex) { opacity *= ex.opacity; ty += ex.ty; }
     s.opacity = opacity.toFixed(4);
@@ -1658,7 +1683,14 @@
     }
     if (f.prop) {
       const sway = Math.sin(lt * 0.0042) * 3.5;
-      f.prop.style.transform = `translate(-50%,-50%) rotate(${sway.toFixed(2)}deg)`;
+      let lift = '', prot = sway;
+      if (f._gesture && lt < f._gesture.until) {
+        // The gesture lifts the held thing — a telescope raised to the sky, a map held out.
+        const gq = Math.sin(prog(lt, f._gesture.at, f._gesture.until) * Math.PI);
+        lift = ` translateY(${(-gq * 18).toFixed(2)}%)`;
+        prot = sway + (fig.prop.anchor && fig.prop.anchor.x >= 0.5 ? -1 : 1) * gq * 18;
+      }
+      f.prop.style.transform = `translate(-50%,-50%)${lift} rotate(${prot.toFixed(2)}deg)`;
     }
     // Performer states: a puppet cuts poses, it does not tween — instant swap at its authored ms.
     if (f.stateSwaps) {
@@ -1670,6 +1702,16 @@
           for (const sw of f.stateSwaps[idx]._prepared || []) {
             const el2 = f.slotEls[sw.slot];
             if (el2) { el2.innerHTML = sw.innerHTML; el2.setAttribute('transform', sw.transform); }
+            // Under a mocap sprite the paper slots are hidden — the swap still acts:
+            // a face swap redraws the ink overlay, a pose swap plays as a lean that
+            // raises the prop — point, present, offer.
+            if (f.motionData && f.faceSvg && sw.slot === 'face') {
+              f._faceKind = FIGURE_FACE[paperFaceKind(sw.part_id)] || FIGURE_FACE.calm;
+              f._eyes = drawMocapFace(f.faceSvg, f._faceKind, f._plan);
+            }
+            if (f.motionData && sw.slot === 'body' && paperArmPose(sw.part_id, fig.posture) === 'reach') {
+              f._gesture = { at: lt, until: lt + 1400 };
+            }
           }
         }
       }
@@ -4784,6 +4826,28 @@
     return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">${marks}</svg>`)}")`;
   }
 
+  // The endpiece: the small ornament a printer drops in the space a short text
+  // leaves at the foot of its column — a lozenge on a vine, seeded per page.
+  function pbEndpiece(face, rect, plan, i, cx, cy, w) {
+    const ink = plan.brand.ink;
+    const r = rng(seedHash(`pb-end:${plan.film_id}:${i}`));
+    const h = w * 0.16;
+    const svg = svgEl('svg', { viewBox: '0 0 100 16', 'aria-hidden': 'true' }, face);
+    Object.assign(svg.style, {
+      position: 'absolute', left: px(cx - w / 2), top: px(cy - h / 2),
+      width: px(w), height: px(h), pointerEvents: 'none', overflow: 'visible',
+    });
+    svgEl('path', { d: 'M50 3 L57 8 L50 13 L43 8 Z', fill: rgbaOf(ink, 0.55) }, svg);
+    svgEl('path', { d: 'M40 8 C 30 4, 18 4, 8 8', fill: 'none', stroke: rgbaOf(ink, 0.5), 'stroke-width': 1.1, 'stroke-linecap': 'round' }, svg);
+    svgEl('path', { d: 'M60 8 C 70 4, 82 4, 92 8', fill: 'none', stroke: rgbaOf(ink, 0.5), 'stroke-width': 1.1, 'stroke-linecap': 'round' }, svg);
+    for (const s of [-1, 1]) {
+      const lx = 50 + s * (24 + r() * 8);
+      svgEl('ellipse', { cx: f2(lx), cy: f2(5.2 + r() * 1.4), rx: 2.6, ry: 1.1, fill: rgbaOf(ink, 0.4), transform: `rotate(${f2(s * (18 + r() * 10))} ${f2(lx)} 6)` }, svg);
+    }
+    svgEl('circle', { cx: 8, cy: 8, r: 1.3, fill: rgbaOf(ink, 0.45) }, svg);
+    svgEl('circle', { cx: 92, cy: 8, r: 1.3, fill: rgbaOf(ink, 0.45) }, svg);
+  }
+
   // Foxing + tide lines: seeded rust specks and pale water rings, denser toward
   // the leaf's edges the way age works in from the exposed margins.
   function pbAge(face, rect, plan, key) {
@@ -4965,18 +5029,19 @@
       // hierarchy a printed page carries.
       const titleEl = el('div', { fontFamily: PB_SERIF, fontWeight: '700', fontSize: px(pw * (layout === 'half' || layout === 'portrait' ? 0.054 : layout === 'full' || layout === 'vignette' ? 0.048 : 0.042)), lineHeight: '1.14', color: ink, letterSpacing: '0.006em' }, col);
       // Letterpress bite: light caught on the pressed edge below, ink shade above.
-      titleEl.style.textShadow = `0 ${px(Math.max(0.5, pw * 0.0011))} 0 rgba(255,252,240,0.55), 0 ${px(-Math.max(0.5, pw * 0.0011))} 0 ${rgbaOf(ink, 0.22)}`;
+      titleEl.style.textShadow = `0 ${px(Math.max(0.5, pw * 0.0011))} 0 rgba(255,252,240,0.38), 0 ${px(-Math.max(0.5, pw * 0.0011))} 0 ${rgbaOf(ink, 0.20)}`;
       titleEl.textContent = titleText;
       if (mats.includes('foil')) {
-        // Foil stamping: a gold leaf pressed into the letterforms.
-        titleEl.style.backgroundImage = `linear-gradient(115deg, ${mixColor(ink, '#caa94e', 0.75)} 0%, ${mixColor('#caa94e', '#fff4d0', 0.6)} 38%, ${mixColor(ink, '#a07c2e', 0.6)} 62%, ${mixColor('#caa94e', '#fff0c0', 0.55)} 100%)`;
+        // Foil stamping: ink-dark letterforms with a single gold sheen band —
+        // readable at text size, still metal.
+        titleEl.style.backgroundImage = `linear-gradient(115deg, ${ink} 30%, ${mixColor(ink, '#caa94e', 0.55)} 43%, ${mixColor('#caa94e', '#fff4d0', 0.45)} 50%, ${mixColor(ink, '#caa94e', 0.55)} 57%, ${ink} 70%)`;
         titleEl.style.webkitBackgroundClip = 'text';
         titleEl.style.backgroundClip = 'text';
         titleEl.style.color = 'transparent';
       }
       const prose = el('div', {
-        fontFamily: PB_HAND, fontWeight: '430', fontSize: px(pw * 0.0305), lineHeight: '1.5', color: rgbaOf(ink, 0.86),
-        marginTop: px(ph * 0.018), maxWidth: px(colRect.w * 0.94),
+        fontFamily: PB_HAND, fontWeight: '430', fontSize: px(pw * 0.0325), lineHeight: '1.55', color: rgbaOf(ink, 0.86),
+        marginTop: px(ph * 0.018), maxWidth: px(colRect.w * 0.96),
         // Jittered hand: contextual alternates make each glyph draw a different
         // allograph (kako-jun/jitter baked into the typeface, not post-editing).
         fontFeatureSettings: '"calt" 1', fontVariationSettings: '"wght" 430',
@@ -4993,6 +5058,15 @@
           color: rgbaOf(ink, 0.70), marginTop: px(ph * 0.020),
         }, col);
         q.textContent = `“${pg.quote}”`;
+      }
+    }
+    // Endpiece: the printer's mark that fills the air a short column leaves —
+    // the spot a real spread never leaves empty.
+    if (colRect) {
+      const ornY = { half: 0.33, portrait: 0.245, spot: 0.86, diagonal: 0.915, series: 0.875, zipped: 0.865, scissor: 0.865, vignette: 0.90 }[layout];
+      if (ornY) {
+        const cx = layout === 'vignette' ? pw / 2 : colRect.x + colRect.w / 2;
+        pbEndpiece(face, rect, plan, i, cx, ph * ornY, pw * 0.30);
       }
     }
     // The illustration: the beat's own scene pressed into the plate this layout cut — a
@@ -5052,6 +5126,17 @@
     // Viewports carry the canvas box at canvas scale; the slot does the clipping.
     const stillVp = el('div', { position: 'absolute', left: '0', top: '0', width: px(W0), height: px(H0), transformOrigin: '0 0', transform: tf, background: vpBg }, slot);
     const liveVp = el('div', { position: 'absolute', left: '0', top: '0', width: px(W0), height: px(H0), transformOrigin: '0 0', transform: tf, display: 'none' }, slot);
+    if (!onPaper) {
+      // One light field over the whole plate: the glaze every piece shares — a
+      // pale wash on the scene's light side, the ink pooling toward the dark.
+      const ldx = (((((bn.beat || {}).composition || {}).background || {}).layers || [])
+        .map((l) => l.lit_dx).find((v) => typeof v === 'number' && v !== 0)) || 0;
+      const pale = mixColor('#fff8e8', paper, 0.4);
+      el('div', {
+        position: 'absolute', inset: '0', pointerEvents: 'none', zIndex: '4',
+        background: `linear-gradient(${ldx >= 0 ? '100deg' : '80deg'}, ${rgbaOf(pale, 0.14)} 0%, rgba(0,0,0,0) 46%, ${rgbaOf(ink, 0.10)} 100%)`,
+      }, slot);
+    }
     if (framed) {
       // A plate that IS cut into the page keeps a painter's edge shade just inside
       // its cut — the only edge a cut layout draws.
@@ -5201,7 +5286,7 @@
     }, bookGroup);
     el('div', {
       position: 'absolute', inset: '0', borderRadius: 'inherit', opacity: '0.5',
-      backgroundImage: `repeating-linear-gradient(0deg, rgba(255,250,240,0.032) 0 1px, transparent 1px ${px(Math.max(2.4, minDim * 0.004))}), repeating-linear-gradient(90deg, rgba(16,10,5,0.11) 0 1px, transparent 1px ${px(Math.max(2.4, minDim * 0.004))})`,
+      backgroundImage: `repeating-linear-gradient(0deg, rgba(255,250,240,0.024) 0 1px, transparent 1px ${px(Math.max(3.2, minDim * 0.005))}), repeating-linear-gradient(90deg, rgba(16,10,5,0.045) 0 1px, transparent 1px ${px(Math.max(3.2, minDim * 0.005))})`,
     }, cover);
     el('div', {
       position: 'absolute', inset: px(R.book.h * 0.006), borderRadius: 'inherit',
