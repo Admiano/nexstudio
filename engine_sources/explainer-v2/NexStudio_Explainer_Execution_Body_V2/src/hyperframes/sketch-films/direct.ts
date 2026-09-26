@@ -78,6 +78,8 @@ export type FilmBeat = {
   duration?: number;
   /** Pin an entrance transition (any spec transition key). */
   transition?: SketchSceneSpec["transition"];
+  /** Hand-annotation marks over tagged scene elements — see spec.callouts. */
+  callouts?: SketchSceneSpec["callouts"];
   /** Scene-level extra fields passed through verbatim. */
   params?: Record<string, unknown>;
 };
@@ -315,7 +317,7 @@ const UPPER = (s: string) => s.toUpperCase();
 function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBrief, rng: () => number): Partial<SketchSceneSpec> {
   const product = brief.product || "NEX STUDIO";
   const kw = keywordsOf(brief.prompt || beat.head || "");
-  const base: Record<string, unknown> = { ...(beat.params || {}) };
+  const base: Record<string, unknown> = { ...(beat.params || {}), ...(beat.callouts ? { callouts: beat.callouts } : {}) };
   const roleKick: Record<string, string> = {
     hook: "THE PITCH", interface: "HOW YOU TALK", process: "HOW IT MOVES",
     product: "WHAT YOU GET", proof: "UNDER THE HOOD", payoff: "THE POINT", close: "",

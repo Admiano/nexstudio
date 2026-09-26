@@ -185,7 +185,7 @@ window.NexFilm = (() => {
       const mk = h('div', 'pf-mono', row, String(spec.marker));
       mk.style.cssText = `font-size:${fsize('15px')};letter-spacing:.3em;color:var(--pf-accent);font-weight:600`;
     }
-    const head = h('h2', 'pf-display', el, spec.text || '');
+    const head = h('h2', 'pf-display', el, spec.text || ''); head.dataset.cap = 'title';
     head.style.cssText = `font-size:${fsize(spec.fontSize || '58px')};max-width:94%`;
     const rule = h('div', 'pf-rule', el);
     rule.style.cssText = 'width:120px;transform-origin:0 50%';
@@ -201,7 +201,7 @@ window.NexFilm = (() => {
   scenes['type-card'] = (spec) => {
     const el = h('div', '', null);
     center(el);
-    const head = h('h2', 'pf-display', el, spec.text || '');
+    const head = h('h2', 'pf-display', el, spec.text || ''); head.dataset.cap = 'title';
     head.style.cssText = `font-size:${fsize(spec.fontSize || '64px')};max-width:92%`;
     const tl = NexMotion.createTimeline();
     splitWords(head, spec.text || '').forEach((w, i) =>
@@ -216,7 +216,7 @@ window.NexFilm = (() => {
     const lines = spec.lines || [spec.text || ''];
     const tl = NexMotion.createTimeline();
     lines.forEach((line, i) => {
-      const l = h('h2', 'pf-display', el, line);
+      const l = h('h2', 'pf-display', el, line); l.dataset.cap = 'line-' + i;
       l.style.cssText = `font-size:${fsize('66px')};line-height:1.02`;
       tl.fromTo(l, { opacity: 0, y: 34, clipPath: 'inset(-10% 0 80% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(-10% 0 -10% 0)', duration: 0.6, ease: 'power3.out' }, 0.18 + i * 0.32);
     });
@@ -231,7 +231,7 @@ window.NexFilm = (() => {
     const el = h('div', '', null);
     center(el);
     const text = spec.text || spec.headline || '';
-    const head = h('h2', 'pf-display', el, text);
+    const head = h('h2', 'pf-display', el, text); head.dataset.cap = 'title';
     head.style.cssText = `font-size:${fsize(spec.fontSize || '62px')};max-width:94%`;
     const words = splitWords(head, text);
     const accent = spec.accent;
@@ -240,7 +240,7 @@ window.NexFilm = (() => {
     const tl = NexMotion.createTimeline();
     words.forEach((wEl, i) => {
       const s = 0.1 + i * 0.24;
-      wEl.style.display = 'inline-block'; wEl.style.transformOrigin = '50% 80%';
+      wEl.style.display = 'inline-block'; wEl.style.transformOrigin = '50% 80%'; wEl.dataset.cap = 'word-' + i;
       wEl.style.marginRight = '.09em';
       tl.fromTo(wEl, { opacity: 0, scale: 1.55, y: 26, rotation: i % 2 ? -2 : 2 },
         { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.38, ease: 'back.out(2.1)' }, s);
@@ -268,7 +268,7 @@ window.NexFilm = (() => {
     const tl = NexMotion.createTimeline();
     if (spec.title) fadeIn(tl, el.firstChild, 0.1, 0.35);
     items.forEach((it, i) => {
-      const row = h('div', '', el);
+      const row = h('div', '', el); row.dataset.cap = 'item-' + i;
       row.style.cssText = 'display:flex;align-items:baseline;gap:18px;padding:13px 0;border-bottom:1px solid var(--pf-line)';
       const no = h('span', 'pf-mono', row, String(i + 1).padStart(2, '0'));
       no.style.cssText = 'font-size:12px;color:var(--pf-accent);letter-spacing:.1em';
@@ -297,7 +297,7 @@ window.NexFilm = (() => {
     if (spec.title) fadeIn(tl, el.firstChild, 0.1, 0.4);
     items.forEach((it, i) => {
       const o = typeof it === 'string' ? { title: it } : it;
-      const card = h('div', 'pf-card', grid);
+      const card = h('div', 'pf-card', grid); card.dataset.cap = 'item-' + i;
       card.style.cssText = 'padding:16px 15px;display:flex;flex-direction:column;gap:9px;min-height:96px;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.05)';
       const top = h('div', '', card);
       top.style.cssText = 'display:flex;align-items:center;gap:9px';
@@ -325,7 +325,7 @@ window.NexFilm = (() => {
     const arc = sv('circle', { cx: 60, cy: 60, r: 52, fill: 'none', stroke: cssVar('--pf-accent'), 'stroke-width': 3, 'stroke-linecap': 'round' }, ring);
     const num = h('div', '', wrap);
     num.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px';
-    const val = h('span', 'pf-display', num, '0');
+    const val = h('span', 'pf-display', num, '0'); val.dataset.cap = 'stat';
     val.style.cssText = `font-size:${fsize('96px')};font-weight:700;letter-spacing:-.04em`;
     if (spec.label) { const lb = h('span', 'pf-mono', num, spec.label); lb.style.cssText = 'font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--pf-muted);max-width:70%;text-align:center'; }
     const tl = NexMotion.createTimeline();
@@ -346,7 +346,7 @@ window.NexFilm = (() => {
     stack(el, 18, '0 7%');
     const mark = h('div', 'pf-display', el, '“');
     mark.style.cssText = `font-size:${fsize('110px')};line-height:.6;color:var(--pf-accent);height:.5em`;
-    const q = h('div', 'pf-display', el, spec.text || '');
+    const q = h('div', 'pf-display', el, spec.text || ''); q.dataset.cap = 'title';
     q.style.cssText = `font-size:${fsize('40px')};font-weight:600;line-height:1.18;letter-spacing:-.015em;max-width:92%`;
     const tl = NexMotion.createTimeline();
     tl.fromTo(mark, { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, 0.15);
@@ -365,6 +365,7 @@ window.NexFilm = (() => {
     const el = h('div', '', null);
     stack(el, 14, '0 4%');
     const frame = h('div', '', el);
+    frame.dataset.cap = 'frame';
     frame.style.cssText = 'position:relative;flex:1;border-radius:20px;overflow:hidden;border:1px solid var(--pf-line);box-shadow:0 24px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);background:var(--pf-card)';
     const src = mediaOf(spec.media);
     let inner;
@@ -413,6 +414,7 @@ window.NexFilm = (() => {
       return p;
     };
     const pa = mkPanel(spec.a, false), pb = mkPanel(spec.b, true);
+    pa.dataset.cap = 'a'; pb.dataset.cap = 'b';
     const vs = h('div', '', row, 'vs');
     vs.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:var(--pf-bg);border:1px solid var(--pf-line);display:flex;align-items:center;justify-content:center;font:700 13px var(--pf-display);color:var(--pf-accent);z-index:2';
     const tl = NexMotion.createTimeline();
@@ -428,7 +430,7 @@ window.NexFilm = (() => {
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;overflow:hidden;position:relative';
     const word = String(spec.word || 'FILM').toUpperCase();
     const band = h('div', '', el);
-    band.style.cssText = 'white-space:nowrap;display:flex;will-change:transform';
+    band.style.cssText = 'white-space:nowrap;display:flex;will-change:transform'; band.dataset.cap = 'title';
     const spans = [];
     for (let i = 0; i < 4; i++) {
       const w = h('span', 'pf-outline', band, word + '  ·  ');
@@ -456,7 +458,7 @@ window.NexFilm = (() => {
     rings.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
     const ringE = sv('ellipse', { cx: cx, cy: cy, rx: 218, ry: 148, fill: 'none', stroke: cssVar('--pf-line'), 'stroke-width': 1.2 }, rings);
     const ringDash = sv('ellipse', { cx: cx, cy: cy, rx: 218, ry: 148, fill: 'none', stroke: cssVar('--pf-accent'), 'stroke-width': 1.4, 'stroke-dasharray': '2 10', opacity: .8 }, rings);
-    const centerTile = markTile(field, spec, 96);
+    const centerTile = markTile(field, spec, 96); centerTile.dataset.cap = 'hub';
     centerTile.style.position = 'absolute';
     centerTile.style.left = (cx - 48) + 'px'; centerTile.style.top = (cy - 48) + 'px';
     const items = (spec.items || []).slice(0, 5);
@@ -476,7 +478,7 @@ window.NexFilm = (() => {
       const o = typeof it === 'string' ? { title: it } : it;
       const ang = -Math.PI / 2 + (i / items.length) * Math.PI * 2;
       const x = cx + 218 * Math.cos(ang), y = cy + 148 * Math.sin(ang);
-      const chip = h('div', 'pf-chip acc', field);
+      const chip = h('div', 'pf-chip acc', field); chip.dataset.cap = 'item-' + i;
       chip.style.cssText += `;position:absolute;left:0;top:0;padding:10px 16px;background:var(--pf-card);font-family:var(--pf-display);font-size:15px;font-weight:600;letter-spacing:0;color:var(--pf-fg);white-space:nowrap;box-shadow:0 10px 28px rgba(0,0,0,.4)`;
       const lbl = h('span', '', chip, o.title || '');
       if (o.sub) { const s = h('span', '', chip, o.sub); s.style.cssText = 'color:var(--pf-muted);font-weight:400;font-size:12px'; }
@@ -529,7 +531,7 @@ window.NexFilm = (() => {
     const nodes = [];
     steps.forEach((st, i) => {
       const o = typeof st === 'string' ? { label: st } : st;
-      const col = h('div', '', row);
+      const col = h('div', '', row); col.dataset.cap = 'item-' + i;
       col.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:12px;width:${100 / steps.length}%`;
       const node = h('div', '', col);
       node.style.cssText = 'width:52px;height:52px;border-radius:50%;background:var(--pf-card);border:1.5px solid var(--pf-line);display:flex;align-items:center;justify-content:center;position:relative;z-index:1';
@@ -564,7 +566,7 @@ window.NexFilm = (() => {
   scenes['payoff-lockup'] = (spec) => {
     const el = h('div', '', null);
     center(el);
-    const head = h('h2', 'pf-display', el, spec.text || '');
+    const head = h('h2', 'pf-display', el, spec.text || ''); head.dataset.cap = 'title';
     head.style.cssText = `font-size:${fsize('56px')};max-width:92%`;
     const bar = h('div', 'pf-accbar', el);
     bar.style.cssText = 'width:200px;transform-origin:50% 50%';
@@ -583,13 +585,13 @@ window.NexFilm = (() => {
     bloom.style.cssText = 'position:absolute;left:50%;top:44%;width:70%;height:56%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--pf-accent) 26%,transparent),transparent 72%);opacity:0;filter:blur(10px)';
     const tile = markTile(el, spec, 84);
     const name = [spec.brandA, spec.brandB].filter(Boolean).join(' ');
-    const wm = h('div', 'pf-display', el, name);
+    const wm = h('div', 'pf-display', el, name); wm.dataset.cap = 'brand';
     wm.style.cssText = `font-size:${fsize('46px')};letter-spacing:-.02em`;
     const tag = h('div', '', el, spec.sub || '');
     tag.style.cssText = 'font-size:14px;color:var(--pf-muted)';
     let pill = null;
     if (spec.pill) {
-      pill = h('div', '', el, spec.pill);
+      pill = h('div', '', el, spec.pill); pill.dataset.cap = 'cta';
       pill.style.cssText = 'margin-top:10px;padding:13px 26px;border-radius:99px;background:var(--pf-accent);color:var(--pf-bg);font:600 14px var(--pf-display);letter-spacing:.01em;box-shadow:0 8px 28px color-mix(in srgb,var(--pf-accent) 40%,transparent)';
     }
     const tl = NexMotion.createTimeline();
@@ -605,7 +607,7 @@ window.NexFilm = (() => {
   scenes['chat-prompt'] = (spec) => {
     const el = h('div', '', null);
     center(el);
-    const card = h('div', 'pf-card', el);
+    const card = h('div', 'pf-card', el); card.dataset.cap = 'input';
     card.style.cssText = 'width:88%;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05)';
     const av = h('div', '', card);
     av.style.cssText = 'width:34px;height:34px;border-radius:50%;flex:none;background:color-mix(in srgb,var(--pf-accent) 22%,var(--pf-card));display:flex;align-items:center;justify-content:center';
@@ -1019,10 +1021,121 @@ window.NexFilm = (() => {
     const body = (scenes[spec.type] || scenes['type-card'])(spec);
     safe.appendChild(body.el);
     furniture(sec, spec, idx, total);
+    mountCallouts(sec, spec, body.tl);
     return { spec, el: sec, cam, tl: body.tl, fx: collectEffects(sec) };
   }
 
-  /* surface-native transitions — CSS/DOM, driven inside the master update */
+  /* --- callouts: rough-notation-style annotations over live elements -------
+     spec.callouts: [{ type, target, at, dur, color, pad }]
+     type: 'circle'|'underline'|'box'|'strike'|'highlight'|'bracket'|'crossed'
+     target: data-cap name ('title','stat','frame','brand','cta','hub','input'…)
+             or a number → item-N / word-N. Empty → first tagged element. */
+  const mulberry = (a) => () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const resolveCap = (sec, target) => {
+    if (target == null) return sec.querySelector('[data-cap]');
+    if (typeof target === 'number')
+      return sec.querySelector(`[data-cap="item-${target}"]`) || sec.querySelector(`[data-cap="word-${target}"]`) || sec.querySelectorAll('[data-cap]')[target] || null;
+    return sec.querySelector(`[data-cap="${target}"]`);
+  };
+  const jitterPath = (pts, rnd, amp) => pts.map((p, i) => (i === 0 ? `M` : `L`) + (p[0] + (rnd() - 0.5) * amp).toFixed(1) + ' ' + (p[1] + (rnd() - 0.5) * amp).toFixed(1)).join(' ');
+  const ellipsePts = (cx, cy, rx, ry, n = 26, rot = 0) => Array.from({ length: n + 1 }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 + rot;
+    return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
+  });
+  /* returns [{d, w2}] stroke paths or {fill:true,d} — lengths measured at mount */
+  const calloutPaths = (type, w, hgt, rnd) => {
+    const J = 2.2;
+    switch (type) {
+      case 'circle': {
+        const a = jitterPath(ellipsePts(w / 2, hgt / 2, w / 2 * 0.96, hgt / 2 * 0.88, 30), rnd, J) + ' Z';
+        const b = jitterPath(ellipsePts(w / 2, hgt / 2, w / 2 * 0.93, hgt / 2 * 0.91, 30, 0.35), rnd, J) + ' Z';
+        return [{ d: a }, { d: b }];
+      }
+      case 'underline': {
+        const y = hgt - 3;
+        const wave = (dy) => jitterPath([[0, y + dy], [w * 0.25, y - 1.5 + dy], [w * 0.5, y + 0.5 + dy], [w * 0.75, y - 1 + dy], [w, y + dy]], rnd, 1.4);
+        return [{ d: wave(0) }, { d: wave(2.4) }];
+      }
+      case 'strike': {
+        const y = hgt * 0.55;
+        return [{ d: jitterPath([[0, y], [w * 0.33, y - 2], [w * 0.66, y + 1.5], [w, y - 1]], rnd, 1.6) }];
+      }
+      case 'box': {
+        const a = jitterPath([[0, 0], [w, 0], [w, hgt], [0, hgt], [0, 0]], rnd, J);
+        const b = jitterPath([[1.5, 1.5], [w + 1, -1], [w - 1, hgt + 1], [-1, hgt - 1], [1.5, 1.5]], rnd, J);
+        return [{ d: a }, { d: b }];
+      }
+      case 'bracket': {
+        const bx = 7;
+        return [
+          { d: jitterPath([[bx + 8, 2], [2, 2], [2, hgt - 2], [bx + 8, hgt - 2]], rnd, 1.2) },
+          { d: jitterPath([[w - bx - 8, 2], [w - 2, 2], [w - 2, hgt - 2], [w - bx - 8, hgt - 2]], rnd, 1.2) },
+        ];
+      }
+      case 'crossed': {
+        return [
+          { d: jitterPath([[2, 2], [w / 2, hgt / 2], [w - 2, hgt - 2]], rnd, 1.8) },
+          { d: jitterPath([[w - 2, 2], [w / 2, hgt / 2], [2, hgt - 2]], rnd, 1.8) },
+        ];
+      }
+      case 'highlight':
+      default: /* highlight */
+        return [{ fill: true, d: `M0 ${hgt * 0.12} L${w} ${hgt * 0.1} L${w} ${hgt * 0.92} L0 ${hgt * 0.9} Z` }];
+    }
+  };
+  const mountCallouts = (sec, spec, tl) => {
+    const list = spec.callouts || [];
+    if (!list.length) return;
+    const rnd = mulberry((spec.index || 0) * 7919 + 13);
+    /* mount lazily at each callout's own start — by then the target's entrance
+       has settled, so its rect is the final box (mounting at t=0 would pin the
+       mark to the mid-entrance position) */
+    list.forEach((c, ci) => {
+      const at = typeof c.at === 'number' ? c.at : 1.1 + ci * 0.55;
+      let done = false;
+      tl.addUpdate(Math.max(0.02, at - 0.02), 0.02, () => {
+        if (done) return; done = true;
+        const target = resolveCap(sec, c.target);
+        if (!target) return;
+        const r = target.getBoundingClientRect(), hr = sec.getBoundingClientRect();
+        const pad = c.pad ?? (c.type === 'circle' ? 12 : 6);
+        const x = r.left - hr.left - pad, y = r.top - hr.top - pad;
+        const w = r.width + pad * 2, hg = r.height + pad * 2;
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${hg}px;overflow:visible;pointer-events:none;z-index:7`;
+        sec.appendChild(svg);
+        const color = c.color || cssVar('--pf-accent');
+        const paths = calloutPaths(c.type || 'circle', w, hg, rnd);
+        const dur = c.dur ?? 0.55;
+        paths.forEach((pp, pi) => {
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          if (pp.fill) {
+            p.setAttribute('d', pp.d);
+            p.setAttribute('fill', color); p.setAttribute('fill-opacity', '0.24');
+            p.setAttribute('stroke', color); p.setAttribute('stroke-opacity', '0.5'); p.setAttribute('stroke-width', '1');
+            p.style.transformOrigin = '0 50%';
+            const pi_at = at + pi * 0.08;
+            p.style.transform = 'scaleX(0)';
+            tl.addUpdate(pi_at, dur, (q) => { p.style.transform = `scaleX(${q})`; }, 'power3.out');
+          } else {
+            p.setAttribute('d', pp.d);
+            p.setAttribute('fill', 'none');
+            p.setAttribute('stroke', color);
+            p.setAttribute('stroke-width', String(c.strokeWidth || 2.2));
+            p.setAttribute('stroke-linecap', 'round');
+            p.setAttribute('stroke-linejoin', 'round');
+            svg.appendChild(p);
+            const L = p.getTotalLength() || w * 2 + hg * 2;
+            p.style.strokeDasharray = String(L);
+            p.style.strokeDashoffset = String(L);
+            const pi_at = at + pi * (dur * 0.55);
+            tl.addUpdate(pi_at, dur, (q) => { p.style.strokeDashoffset = String(L * (1 - q)); }, 'power2.out');
+          }
+          svg.appendChild(p);
+        });
+      }, 'none');
+    });
+  };
   const T_MAP = {
     torn: 'mask', push: 'slide', page: 'zoom', shuffle: 'slide',
     tape: 'wipe', crumple: 'zoom', paper: 'slide',

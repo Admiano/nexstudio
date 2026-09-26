@@ -67,6 +67,11 @@ export type SketchSceneSpec = {
   foot?: string;
   /** Small italic annotation inside the safe lane, bottom-left — detail layer. */
   note?: string;
+  /** Hand-annotation marks drawn over tagged elements (rough-notation style).
+      type: 'circle'|'underline'|'box'|'strike'|'highlight'|'bracket'|'crossed';
+      target: a data-cap name ('title','stat','frame','brand','cta','hub','input'
+      …) or a number → item-N/word-N; at: local-time start; pad/dur optional. */
+  callouts?: { type?: string; target?: string | number; at?: number; dur?: number; color?: string; pad?: number; strokeWidth?: number }[];
   /** Set false to hide the bottom-right "03/12" page index. */
   index?: boolean;
   /** Scene-specific params passed through to the component builder. */

@@ -1035,7 +1035,7 @@ window.NexSketch = (() => {
       const mk = h('div', 'sk-mono', el, spec.marker);
       mk.style.cssText = 'font-size:15px;color:var(--sk-mint-deep);letter-spacing:.22em;font-weight:600';
     }
-    const t = h('h2', 'sk-display', el, spec.text || '');
+    const t = h('h2', 'sk-display', el, spec.text || ''); t.dataset.cap = 'title';
     t.style.fontSize = fsize(spec.fontSize || '76px');
     t.style.position = 'relative';
     t.style.zIndex = '1';
@@ -1067,7 +1067,7 @@ window.NexSketch = (() => {
     if (spec.title) { const t = h('h2', 'sk-display', el, spec.title); t.style.fontSize = fsize(spec.titleSize || '42px'); }
     const items = (spec.items || []).slice(0, 6);
     const rows = items.map((it, i) => {
-      const row = h('div', '', el);
+      const row = h('div', '', el); row.dataset.cap = 'item-' + i;
       row.style.cssText = 'display:flex;align-items:baseline;gap:14px;position:relative';
       const idx = h('span', 'sk-mono', row, String(i + 1).padStart(2, '0'));
       idx.style.cssText = 'font-size:13px;color:var(--sk-ink-3);letter-spacing:.1em;flex:none;width:26px';
@@ -1107,7 +1107,7 @@ window.NexSketch = (() => {
     const grid = h('div', '', el);
     grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},1fr);gap:18px;align-self:stretch;width:100%;flex:1;min-height:0;grid-auto-rows:1fr`;
     const cards = items.map((it, i) => {
-      const card = h('div', '', grid);
+      const card = h('div', '', grid); card.dataset.cap = 'item-' + i;
       card.style.cssText = 'position:relative;border-radius:12px;padding:20px 16px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;min-height:150px;justify-content:center';
       const cs = svgRoot(card, '0 0 200 160'); cs.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
       skRect(cs, 4, 4, 192, 152, 1100 + i);
@@ -1137,7 +1137,7 @@ window.NexSketch = (() => {
     skCircle(ring, 180, 180, 330, 1250, { strokeWidth: 1.8 });
     skCircle(ring, 180, 180, 316, 1251, { strokeWidth: 1.1 });
     for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; skLine(ring, 180 + Math.cos(a) * 168, 180 + Math.sin(a) * 168, 180 + Math.cos(a) * 160, 180 + Math.sin(a) * 160, 1252 + k, { strokeWidth: 2 }); }
-    const big = h('div', 'sk-display', figWrap);
+    const big = h('div', 'sk-display', figWrap); big.dataset.cap = 'stat';
     big.style.cssText = 'font-size:calc(' + (spec.fontSize || '128px') + ' * var(--sk-display-scale,1));line-height:1;font-variant-numeric:tabular-nums';
     const label = h('div', 'sk-mono', el, spec.label || '');
     label.style.cssText = 'font-size:15px;color:var(--sk-ink-2);letter-spacing:.16em;text-transform:uppercase';
@@ -1161,7 +1161,7 @@ window.NexSketch = (() => {
   scenes['quote'] = (spec) => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:0 4%';
-    const q = h('div', 'sk-serif', el, `“${spec.text || ''}”`);
+    const q = h('div', 'sk-serif', el, `“${spec.text || ''}”`); q.dataset.cap = 'title';
     q.style.cssText = `font-size:calc(${spec.fontSize || '44px'} * var(--sk-display-scale,1));line-height:1.22;font-style:italic;color:var(--sk-ink)`;
     const qs = svgRoot(el, '0 0 46 34'); qs.style.cssText = 'position:absolute;width:52px;height:38px;left:2%;top:16%';
     skPath(qs, 'M6 30 C6 16 14 6 24 4 M30 30 C30 16 38 6 46 4', 1300, { strokeWidth: 2.6 });
@@ -1312,7 +1312,7 @@ window.NexSketch = (() => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;position:relative';
     const text = spec.text || spec.headline || '';
-    const head = h('h2', 'sk-display', el, text);
+    const head = h('h2', 'sk-display', el, text); head.dataset.cap = 'title';
     head.style.cssText = `font-size:calc(${spec.fontSize || '62px'} * var(--sk-display-scale,1));max-width:92%;`;
     const words = splitWords(head, text);
     const accent = spec.accent; // word (string) or index (number) for mint
@@ -1321,6 +1321,7 @@ window.NexSketch = (() => {
     const tl = NexMotion.createTimeline();
     words.forEach((wEl, i) => {
       const s = 0.12 + i * 0.3;
+      wEl.dataset.cap = 'word-' + i;
       wEl.style.display = 'inline-block'; wEl.style.transformOrigin = '50% 80%';
       wEl.style.marginRight = '.08em';
       tl.fromTo(wEl, { opacity: 0, scale: 1.7, y: 24, rotation: (i % 2 ? -2.5 : 2.5) },
@@ -1365,6 +1366,107 @@ window.NexSketch = (() => {
     if (spec.index !== false) h('div', 'sk-index', scene, `${String(idx + 1).padStart(2, '0')}/${String(total).padStart(2, '0')}`);
   }
 
+  /* --- callouts: hand-inked annotations over tagged elements ----------------
+     spec.callouts: [{ type, target, at, dur, color, pad }] — ink strokes on
+     this surface (rough-notation geometry, seeded wobble for the hand feel). */
+  const mulberry2 = (a) => () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const resolveCap = (sec, target) => {
+    if (target == null) return sec.querySelector('[data-cap]');
+    if (typeof target === 'number')
+      return sec.querySelector(`[data-cap="item-${target}"]`) || sec.querySelector(`[data-cap="word-${target}"]`) || sec.querySelectorAll('[data-cap]')[target] || null;
+    return sec.querySelector(`[data-cap="${target}"]`);
+  };
+  const jPath = (pts, rnd, amp) => pts.map((p, i) => (i === 0 ? `M` : `L`) + (p[0] + (rnd() - 0.5) * amp).toFixed(1) + ' ' + (p[1] + (rnd() - 0.5) * amp).toFixed(1)).join(' ');
+  const ellPts = (cx, cy, rx, ry, n = 28, rot = 0) => Array.from({ length: n + 1 }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 + rot;
+    return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
+  });
+  const calloutPaths = (type, w, hgt, rnd) => {
+    const J = 3.4; // sketch jitter — looser hand
+    switch (type) {
+      case 'circle':
+        return [
+          { d: jPath(ellPts(w / 2, hgt / 2, w / 2 * 0.97, hgt / 2 * 0.9, 30), rnd, J) + ' Z' },
+          { d: jPath(ellPts(w / 2, hgt / 2, w / 2 * 0.93, hgt / 2 * 0.94, 30, 0.4), rnd, J) + ' Z' },
+        ];
+      case 'underline': {
+        const y = hgt - 2;
+        const wave = (dy) => jPath([[0, y + dy], [w * 0.2, y - 2 + dy], [w * 0.45, y + 1 + dy], [w * 0.7, y - 1.5 + dy], [w, y + dy]], rnd, 2.2);
+        return [{ d: wave(0) }, { d: wave(3) }];
+      }
+      case 'strike':
+        return [{ d: jPath([[0, hgt * 0.55], [w * 0.35, hgt * 0.52], [w * 0.68, hgt * 0.58], [w, hgt * 0.53]], rnd, 2.6) }];
+      case 'box':
+        return [
+          { d: jPath([[0, 0], [w, 0], [w, hgt], [0, hgt], [0, 0]], rnd, J) },
+          { d: jPath([[2, 2], [w + 1, -1.5], [w - 1, hgt + 1.5], [-1.5, hgt - 1], [2, 2]], rnd, J) },
+        ];
+      case 'bracket':
+        return [
+          { d: jPath([[12, 2], [2, 2], [2, hgt - 2], [12, hgt - 2]], rnd, 1.8) },
+          { d: jPath([[w - 12, 2], [w - 2, 2], [w - 2, hgt - 2], [w - 12, hgt - 2]], rnd, 1.8) },
+        ];
+      case 'crossed':
+        return [
+          { d: jPath([[2, 2], [w / 2, hgt / 2], [w - 2, hgt - 2]], rnd, 2.4) },
+          { d: jPath([[w - 2, 2], [w / 2, hgt / 2], [2, hgt - 2]], rnd, 2.4) },
+        ];
+      case 'highlight':
+      default:
+        return [{ fill: true, d: `M0 ${hgt * 0.14} L${w} ${hgt * 0.1} L${w} ${hgt * 0.94} L0 ${hgt * 0.88} Z` }];
+    }
+  };
+  const mountCallouts = (sec, spec, tl) => {
+    const list = spec.callouts || [];
+    if (!list.length) return;
+    const rnd = mulberry2((spec.index || 0) * 7919 + 13);
+    list.forEach((c, ci) => {
+      const at = typeof c.at === 'number' ? c.at : 1.1 + ci * 0.55;
+      let done = false;
+      tl.addUpdate(Math.max(0.02, at - 0.02), 0.02, () => {
+        if (done) return; done = true;
+        const target = resolveCap(sec, c.target);
+        if (!target) return;
+        const r = target.getBoundingClientRect(), hr = sec.getBoundingClientRect();
+        const pad = c.pad ?? (c.type === 'circle' ? 14 : 7);
+        const x = r.left - hr.left - pad, y = r.top - hr.top - pad;
+        const w = r.width + pad * 2, hg = r.height + pad * 2;
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${hg}px;overflow:visible;pointer-events:none;z-index:7`;
+        sec.appendChild(svg);
+        const accent = c.color || cssVar('--sk-mint-deep');
+        const ink = cssVar('--sk-ink');
+        const paths = calloutPaths(c.type || 'circle', w, hg, rnd);
+        const dur = c.dur ?? 0.6;
+        paths.forEach((pp, pi) => {
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          if (pp.fill) {
+            p.setAttribute('d', pp.d);
+            p.setAttribute('fill', accent); p.setAttribute('fill-opacity', '0.3');
+            p.setAttribute('stroke', 'none');
+            p.style.transformOrigin = '0 50%';
+            p.style.transform = 'scaleX(0)';
+            tl.addUpdate(at + pi * 0.08, dur, (q) => { p.style.transform = `scaleX(${q})`; }, 'power3.out');
+          } else {
+            p.setAttribute('d', pp.d);
+            p.setAttribute('fill', 'none');
+            /* first pass inks, second pass accents — the red-pencil look */
+            p.setAttribute('stroke', pi === 0 && paths.length > 1 ? ink : accent);
+            p.setAttribute('stroke-width', String(c.strokeWidth || 2.4));
+            p.setAttribute('stroke-linecap', 'round');
+            p.setAttribute('stroke-linejoin', 'round');
+            svg.appendChild(p);
+            const L = p.getTotalLength() || w * 2 + hg * 2;
+            p.style.strokeDasharray = String(L);
+            p.style.strokeDashoffset = String(L);
+            tl.addUpdate(at + pi * (dur * 0.5), dur, (q) => { p.style.strokeDashoffset = String(L * (1 - q)); }, 'power2.out');
+          }
+          svg.appendChild(p);
+        });
+      }, 'none');
+    });
+  };
+
   /* effects applied through NexMotion live on their own child timeline —
      collect them so the master can seek them at scene-local time */
   function collectEffects(root) {
@@ -1387,6 +1489,7 @@ window.NexSketch = (() => {
     const body = (scenes[spec.type] || scenes['type-card'])(spec);
     safe.appendChild(body.el);
     furniture(sec, spec, idx, total);
+    mountCallouts(sec, spec, body.tl);
     return { spec, el: sec, cam, tl: body.tl, fx: collectEffects(sec) };
   }
 
