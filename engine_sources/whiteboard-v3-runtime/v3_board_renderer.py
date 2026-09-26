@@ -79,7 +79,9 @@ wbp._map_point = _map_point_zone_fit
 _ASSETS = Path(__file__).resolve().parent / 'assets'
 _ASSET_DIR = _ASSETS / 'open_peeps'
 _PEEPS_DIR = _ASSETS / 'peeps'
-_HAND_PATH = _ASSETS / 'hand' / 'drawing-hand.png'
+# real photographed hand (CC-BY, Sharpie grip) preferred over the illustration
+_HAND_PATH = _ASSETS / 'hand' / 'drawing-hand-real.png'
+_HAND_PATH_ALT = _ASSETS / 'hand' / 'drawing-hand.png'
 _FONT_DIR = _ASSETS / 'fonts'
 
 # Authored Open Peeps pose library: the V15/V16 donor-lineage files shipped in
@@ -742,13 +744,17 @@ def text_width(text: str, height: float) -> float:
 # -- drawing hand ------------------------------------------------------------
 
 _HAND_IMG = None
-_HAND_NIB = (5, 8)  # marker tip inside the sprite (px, source image space)
+# marker nib position per sprite (px, source image space)
+_HAND_NIBS = {_HAND_PATH.name: (10, 205), _HAND_PATH_ALT.name: (5, 8)}
 
 
 def _hand():
     global _HAND_IMG
-    if _HAND_IMG is None and _HAND_PATH.exists():
-        _HAND_IMG = Image.open(_HAND_PATH).convert('RGBA')
+    if _HAND_IMG is None:
+        for p in (_HAND_PATH, _HAND_PATH_ALT):
+            if p.exists():
+                _HAND_IMG = Image.open(p).convert('RGBA')
+                break
     return _HAND_IMG
 
 
@@ -761,7 +767,9 @@ def _overlay_hand(frame: Image.Image, tip, ratio: str, wobble: float = 0.0):
     scale = (h * 0.24) / hand.height
     hw, hh = int(hand.width * scale), int(hand.height * scale)
     img = hand.resize((hw, hh), Image.LANCZOS)
-    nx, ny = _HAND_NIB[0] * scale, _HAND_NIB[1] * scale
+    nib = _HAND_NIBS.get(_HAND_PATH.name, (5, 8)) if _HAND_PATH.exists() \
+        else _HAND_NIBS[_HAND_PATH_ALT.name]
+    nx, ny = nib[0] * scale, nib[1] * scale
     # wobble: the hand breathes with the stroke, ±1.5px
     dx = tip[0] - nx + math.sin(wobble) * 1.5
     dy = tip[1] - ny + math.cos(wobble * 1.3) * 1.2

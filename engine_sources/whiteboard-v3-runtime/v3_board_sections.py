@@ -1037,7 +1037,13 @@ def _travel_tip(flow, ratio, cam, zoom, t):
         f = wbp._ease(wbp._clamp((t - prev[0]) / max(0.05, nxt[0] - prev[0])))
         tip_w = (prev[1][0] + (nxt[1][0] - prev[1][0]) * f,
                  prev[1][1] + (nxt[1][1] - prev[1][1]) * f)
-    return wbp._map_point(tip_w, cam, ratio, zoom)
+    sx, sy = wbp._map_point(tip_w, cam, ratio, zoom)
+    # off-view travel means the hand is out of frame — it re-enters with the
+    # next in-view element rather than pinning to the edge
+    vw, vh = wbp.RATIO_SIZES[ratio]
+    if not (-40 <= sx <= vw + 40 and -40 <= sy <= vh + 40):
+        return None
+    return (sx, sy)
 
 
 def _camera_at(flow, ratio, t):
@@ -1126,7 +1132,8 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                 continue
             t2 = _draw_strokes(tgt, g[1], g[2], g[3], cam, colors,
                                ratio, p, base_seed, zoom)
-            if t2 and onto is None:
+            if t2 and onto is None \
+                    and -40 <= t2[0] <= vw + 40 and -40 <= t2[1] <= vh + 40:
                 tip = t2
 
     def draw_full(groups, tgt):
@@ -1147,7 +1154,7 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             if p > 0:
                 t2 = _draw_strokes(layer, g[1], g[2], g[3], cam, colors,
                                    ratio, p, seed + 31, zoom)
-                if t2:
+                if t2 and -40 <= t2[0] <= vw + 40 and -40 <= t2[1] <= vh + 40:
                     tip = t2
         for it in flow['items']:
             fade = it.get('fade')
@@ -1194,9 +1201,12 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             frame = v3r._figure_motion_overlay(
                 frame, scene_, plan, ratio, cam, zoom,
                 t - sec['beat']['start_seconds'])
-            # while a figure is being drawn the hand rides its outline tip
+            # while a figure is being drawn the hand rides its outline tip —
+            # but only when it's actually on the view screen: a figure
+            # tracing in another region must not teleport the hand off-frame
             ft = scene_.pop('_fm_tip', None) or scene_.pop('_fm2_tip', None)
-            if ft is not None:
+            if ft is not None and -40 <= ft[0] <= vw + 40 \
+                    and -40 <= ft[1] <= vh + 40:
                 tip = ft
         # section titles: every started beat's title persists inside its own
         # region — it inks in as the camera arrives and stays
@@ -1214,7 +1224,8 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                                cam, colors, ratio, p,
                                seed + 71 + sec_['bi'] * 13, zoom)
             drew = True
-            if t2 and sec_['t_window'][0] <= t <= sec_['t_window'][0] + 1.2:
+            if t2 and sec_['t_window'][0] <= t <= sec_['t_window'][0] + 1.2 \
+                    and -40 <= t2[0] <= vw + 40 and -40 <= t2[1] <= vh + 40:
                 tip = t2
         if drew:
             frame.paste(tlayer, (0, 0), tlayer)
