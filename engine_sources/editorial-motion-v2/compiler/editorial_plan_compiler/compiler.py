@@ -22,12 +22,12 @@ from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
 from .chassis import chassis_aspect, housing
 from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirective, FilmTreatment, TreatmentError
-from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, mix
+from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, hrot, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
 from .bankart import BankArt
-from .papercut import papercut_image, tonal_ramp
+from .papercut import papercut_image, papercut_coverage, tonal_ramp
 from .evidence import PhotoEvidence
 from .lexicon import AssetFinder, NounLexicon, Resolution
 from .media import NormalisedMedia, normalise_media
@@ -1284,11 +1284,41 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
     else:  # day
         sky, mid, gnd, glow = mix(paper, accent, 0.16), mix(paper, ink, 0.10), mix(ink, paper, 0.24), mix(accent, '#ffffff', 0.45)
 
+    # Harmony expansion (jacoblockett pattern): a scene is not two inks — hills run
+    # green, water runs blue, evening burns warm. Each family is a hue rotation of
+    # the film's anchors so the film keeps its identity but the world gains colour.
+    seed_h = (seed0 % 97) / 97.0  # per-beat drift keeps sibling spreads related, not identical
+    flora = hrot(accent, 112, 1.55, -0.10)                 # hills/ground → green family
+    flora = mix(flora, ink, 0.30)
+    flora_deep = hrot(accent, 105, 1.5, -0.18)             # near ground → deeper green
+    flora_deep = mix(flora_deep, ink, 0.45)
+    water = hrot(ink, 12, 1.4)                             # sea/river → deeper blue
+    warmth = hrot(accent, -30, 1.35)                       # sunlight/fire → warm family
+
     def stars(bbox: Dict[str, float], i: int, density: int = 90, plane: float = 0.08) -> Dict[str, Any]:
         return {'kind': 'stars', 'bbox': bbox, 'count': density, 'seed': seed0 ^ (i * 0x33), 'plane': plane}
 
     def shaft(bbox: Dict[str, float], i: int, tilt: float = 14.0, plane: float = 0.3) -> Dict[str, Any]:
         return {'kind': 'shaft', 'bbox': bbox, 'tone': mix(paper, glow, 0.5), 'tilt_deg': tilt, 'seed': seed0 ^ (i * 0x21), 'plane': plane}
+
+    # Living layers: weather and wildlife that move while the page is read —
+    # rain that falls, birds that cross, fireflies that wander. The runtime
+    # animates their children per frame; the compiler only casts the world.
+    def rain(i: int) -> Dict[str, Any]:
+        return {'kind': 'rain', 'bbox': {'x': round(-overhang, 1), 'y': 0,
+                                         'w': round(W + 2 * overhang, 1), 'h': round(H, 1)},
+                'count': 110, 'seed': seed0 ^ (i * 0x1f), 'plane': 0.7,
+                'tone': mix(paper, '#ffffff', 0.55)}
+
+    def birds(i: int, n: int = 3) -> Dict[str, Any]:
+        return {'kind': 'birds', 'bbox': {'x': round(-overhang, 1), 'y': round(H * 0.10, 1),
+                                          'w': round(W + 2 * overhang, 1), 'h': round(H * 0.35, 1)},
+                'count': n, 'seed': seed0 ^ (i * 0x45), 'plane': 0.2, 'tone': mix(ink, paper, 0.18)}
+
+    def fireflies(i: int, n: int = 9) -> Dict[str, Any]:
+        return {'kind': 'fireflies', 'bbox': {'x': 0, 'y': round(H * 0.30, 1),
+                                              'w': round(W, 1), 'h': round(H * 0.6, 1)},
+                'count': n, 'seed': seed0 ^ (i * 0x5b), 'plane': 0.55, 'tone': glow}
 
     def celestial(i: int) -> None:
         """Sun or moon placed by mood — a flat paper disc, never a glow."""
@@ -1340,14 +1370,22 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         else:
             out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.5}, 8))
             out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.30}, 9, 60, 0.05))
+        if mood == 'storm':
+            out.append(rain(45))
+        elif mood in ('day', 'golden'):
+            out.append(birds(46))
+        else:
+            out.append(fireflies(47))
         out.append(band(0.52, 0.24, mid, 0.30, True, 6))
         # Far hills sit between the mid band and the ground — the middle distance
-        # every landscape needs.
+        # every landscape needs. Lit moods green them; night/storm stay ink-dark.
+        veg = mood in ('day', 'dawn', 'dusk', 'golden')
         for k in range(2):
             sx = ((seed0 >> (k * 11 + 5)) & 0x7F) / 127.0
+            ht = mix(flora if veg else mid, gnd, 0.35 + 0.2 * k)
             out.append(piece('hill', W * (-0.06 + 0.55 * sx), H * (0.44 + 0.05 * k), W * (0.42 + 0.1 * k), H * 0.22,
-                             mix(mid, gnd, 0.4 + 0.2 * k), 0.38 + k * 0.06, 32 + k))
-        out.append(band(0.66, 0.38, gnd, 0.55, True, 7))
+                             ht, 0.38 + k * 0.06, 32 + k))
+        out.append(band(0.66, 0.38, mix(flora_deep, gnd, 0.45) if veg else gnd, 0.55, True, 7))
         elements_on(H * 0.80)
         # Ground scatter: tufts and stones at the feet of the world, near plane.
         for k in range(6):
@@ -1355,8 +1393,9 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
             sy = ((seed0 >> (k * 4 + 2)) & 0xF) / 15.0
             shape = ('tuft', 'stone', 'tuft', 'bush', 'tuft', 'stone')[k % 6] if mood != 'night' else ('tuft', 'stone')[k % 2]
             sw = W * (0.05 + 0.05 * ((seed0 >> (k * 3)) & 3) / 3.0)
+            fl_t = mix(flora, gnd, 0.3 + 0.1 * (k % 2)) if veg and shape in ('tuft', 'bush') else mix(ink, paper, 0.30 + 0.08 * (k % 3))
             out.append(piece(shape, W * (0.03 + 0.9 * sx), H * (0.74 + 0.20 * sy) - short * 0.05,
-                             sw, short * (0.06 + 0.03 * (k % 3)), mix(ink, paper, 0.30 + 0.08 * (k % 3)), 0.62 + 0.05 * (k % 2), 34 + k))
+                             sw, short * (0.06 + 0.03 * (k % 3)), fl_t, 0.62 + 0.05 * (k % 2), 34 + k))
     elif setting == 'indoor':
         wall = mix(paper, ink, 0.07 if mood != 'night' else 0.3)
         out.append(band(-0.02, 0.72, wall, 0.12, False, 1))
@@ -1389,7 +1428,10 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
                          mix(accent, ink, 0.35), 0.30, 34))
         elements_on(H * 0.95)
     elif setting == 'underwater':
-        deep1, deep2, deep3 = mix(ink, accent, 0.35), mix(ink, accent, 0.5), mix(ink, accent, 0.62)
+        # Water runs blue even when the accent doesn't: rotate the deeps into the
+        # water family, then deepen with plane as before.
+        w = water if mood in ('day', 'dawn', 'golden') else mix(ink, accent, 0.4)
+        deep1, deep2, deep3 = mix(w, ink, 0.35), mix(w, ink, 0.5), mix(w, ink, 0.62)
         out.append(band(-0.02, 0.42, deep1, 0.08, False, 1))
         out.append(band(0.30, 0.45, deep2, 0.2, False, 2))
         out.append(shaft({'x': W * 0.18, 'y': 0, 'w': W * 0.16, 'h': H * 0.85}, 3, 12.0))
@@ -1428,6 +1470,10 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         out.append(band(0.10, 0.40, mix(ink, accent, 0.55), 0.3, True, 2))
         out.append(band(0.46, 0.34, mix(ink, accent, 0.68), 0.45, True, 3))
         out.append(band(0.76, 0.28, mix(ink, paper, 0.5), 0.58, True, 4))
+        if mood in ('dusk', 'night'):
+            out.append(fireflies(48, 7))
+        if mood == 'storm':
+            out.append(rain(49))
         for k in range(7):
             sx = ((seed0 >> (k * 6)) & 0x7F) / 127.0
             out.append(piece('stone', W * (0.04 + 0.86 * sx), H * (0.25 + 0.58 * ((seed0 >> k) & 7) / 8.0),
@@ -1538,13 +1584,23 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
                         dest = work_dir / 'papercut' / f"{brec['id'].replace('/', '_').replace(':', '_')}.png"
                         if not dest.exists():
                             papercut_image(plan['path'], str(dest), ramp)
-                        drec = {'path': str(dest), 'sha256': _sha_file(dest), 'source_size': None}
                         with Image.open(dest) as dim:
-                            drec['source_size'] = {'w': dim.width, 'h': dim.height}
-                        plan.update(drec)
-                        plan['papercut_of'] = brec['id']
-                    e.params['photo'] = plan
-                    rec = None
+                            drec = {'path': str(dest), 'sha256': _sha_file(dest), 'source_size': {'w': dim.width, 'h': dim.height}}
+                        # Coverage gate: a print that is almost all paper mounts as a blank
+                        # card — drop it and let the concept ladder keep climbing.
+                        inked = papercut_coverage(str(dest), ramp[0])
+                        if inked < 0.10:
+                            brec = None
+                            r = replace(r, via='typographic', asset_ref=None, word=None)
+                            e.params.pop('photo', None)
+                            rec = None
+                        else:
+                            plan.update(drec)
+                            plan['papercut_of'] = brec['id']
+                            plan['ink_coverage'] = inked
+                    if brec is not None:
+                        e.params['photo'] = plan
+                        rec = None
             if rec is not None:
                 word = None if (named or e.glyph == 'BADGE') else e.concept
                 r = Resolution(e.concept, 'photo', asset_ref=None, word=word, path=[e.concept, rec.title])
@@ -1564,7 +1620,8 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
             raise TreatmentError('CONCEPT_UNRESOLVED', f'{e.id}: no mark in the registry draws {e.concept!r} and {e.glyph} cannot typeset it', b.beat_id)
         e.asset_ref = r.asset_ref
         if r.word:
-            e.params['word'] = r.word
+            # A concept id is an index, not a word — the page never typesets an underscore.
+            e.params['word'] = r.word.replace('_', ' ')
             e.params['word_kind'] = 'numeric' if r.via == 'numeric' else 'name'
         e.params['resolution'] = r.as_dict()
     for b in prop_todo:
@@ -1580,7 +1637,9 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
                 p['via'] = r.via
         p['asset_ref'] = r.asset_ref
         p['asset'] = registry.resolve(r.asset_ref, b.beat_id) if r.asset_ref else None
-        p['word'] = r.word if r.word else (None if r.asset_ref or p.get('photo') else p['concept'])
+        p['word'] = (r.word if r.word else (None if r.asset_ref or p.get('photo') else p['concept']))
+        if p['word']:
+            p['word'] = p['word'].replace('_', ' ')
         p['resolution'] = r.as_dict()
     for b, p in backdrop_todo:
         # A backdrop silhouette mark wants vector art: the ladder ends at asset_ref — a photo or

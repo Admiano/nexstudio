@@ -51,6 +51,18 @@ def _dist(c: Tuple[int, int, int], t: Tuple[int, int, int]) -> float:
     return dl * dl + dr * dr + dg * dg + db * db
 
 
+def papercut_coverage(dest: str, paper: Tuple[int, int, int]) -> float:
+    """Fraction of a papercut print that is ink rather than paper."""
+    im = Image.open(dest).convert('RGB')
+    px = im.load()
+    inked = 0
+    for y in range(im.size[1]):
+        for x in range(im.size[0]):
+            if _dist(px[x, y], paper) > 40 * 40:
+                inked += 1
+    return inked / (im.size[0] * im.size[1])
+
+
 def papercut_image(src: str, dest: str, ramp: List[Tuple[int, int, int]],
                    n_colors: int = 6, max_w: int = 900) -> dict:
     """Posterize `src` into `dest`, palette-locked to `ramp`. Returns the record."""
@@ -99,7 +111,17 @@ def papercut_image(src: str, dest: str, ramp: List[Tuple[int, int, int]],
     out = Image.composite(ghost, out, paper_mask)
     # Close the pinholes: a 3px median keeps the poster flats clean without melting detail.
     out = out.filter(ImageFilter.MedianFilter(3))
+    # How much of the print is actually inked: a white-on-white source (a sketch on
+    # blank stock, a logo on a white field) re-prints as a near-empty sheet — the
+    # caller drops such plates rather than mounting a blank card.
+    px2 = out.load()
+    inked = 0
+    for y in range(out.size[1]):
+        for x in range(out.size[0]):
+            if _dist(px2[x, y], ramp[0]) > 40 * 40:
+                inked += 1
+    coverage = inked / (out.size[0] * out.size[1])
     Path(dest).parent.mkdir(parents=True, exist_ok=True)
     out.save(dest, optimize=True)
     h = hashlib.sha256(Path(dest).read_bytes()).hexdigest()
-    return {'path': dest, 'sha256': h, 'size': {'w': out.width, 'h': out.height}}
+    return {'path': dest, 'sha256': h, 'size': {'w': out.width, 'h': out.height}, 'ink_coverage': coverage}

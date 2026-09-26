@@ -803,11 +803,12 @@
         const sr = rng(spec.seed);
         for (let i = 0; i < spec.count; i++) {
           const sx = sr() * spec.bbox.w, sy = sr() * spec.bbox.h, r = (0.6 + sr() * 2.1) * (Math.min(W, H) / 720);
-          if (sr() < 0.22) {
-            svgEl('path', { d: `M${f2(sx)} ${f2(sy - r * 2)} L${f2(sx + r * 0.55)} ${f2(sy - r * 0.55)} L${f2(sx + r * 2)} ${f2(sy)} L${f2(sx + r * 0.55)} ${f2(sy + r * 0.55)} L${f2(sx)} ${f2(sy + r * 2)} L${f2(sx - r * 0.55)} ${f2(sy + r * 0.55)} L${f2(sx - r * 2)} ${f2(sy)} L${f2(sx - r * 0.55)} ${f2(sy - r * 0.55)}Z`, fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': f2(0.55 + sr() * 0.4) }, node);
-          } else {
-            svgEl('circle', { cx: f2(sx), cy: f2(sy), r: f2(r), fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': f2(0.35 + sr() * 0.5) }, node);
-          }
+          const st = sr() < 0.22
+            ? svgEl('path', { d: `M${f2(sx)} ${f2(sy - r * 2)} L${f2(sx + r * 0.55)} ${f2(sy - r * 0.55)} L${f2(sx + r * 2)} ${f2(sy)} L${f2(sx + r * 0.55)} ${f2(sy + r * 0.55)} L${f2(sx)} ${f2(sy + r * 2)} L${f2(sx - r * 0.55)} ${f2(sy + r * 0.55)} L${f2(sx - r * 2)} ${f2(sy)} L${f2(sx - r * 0.55)} ${f2(sy - r * 0.55)}Z`, fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': f2(0.55 + sr() * 0.4) }, node)
+            : svgEl('circle', { cx: f2(sx), cy: f2(sy), r: f2(r), fill: mixColor(brand.paper, '#ffffff', 0.7), 'fill-opacity': f2(0.35 + sr() * 0.5) }, node);
+          // Twinkle tags: seek() pulses each star on its own phase.
+          st.dataset.ph = f2(sr());
+          st.dataset.o = st.getAttribute('fill-opacity');
         }
         node.setAttribute('class', 'em2-stars');
         node.setAttribute('data-plane', String(spec.plane));
@@ -845,16 +846,76 @@
             const rows = Math.max(2, Math.floor(t.h / (spec.bbox.h * 0.13)));
             for (let ry = 0; ry < rows; ry++) for (let cxr = 0; cxr < cols; cxr++) {
               if (wr() < 0.30) {
-                svgEl('rect', {
+                const lit = svgEl('rect', {
                   x: f2(t.x + t.w * 0.14 + cxr * (t.w * 0.72 / cols)), y: f2(bh2 - t.h + t.h * 0.10 + ry * (t.h * 0.8 / rows)),
                   width: f2(t.w * 0.10), height: f2(t.h * 0.10), fill: spec.lit, 'fill-opacity': f2(0.5 + wr() * 0.5),
                 }, node);
+                lit.dataset.lit = '1'; lit.dataset.ph = f2(wr()); lit.dataset.o = lit.getAttribute('fill-opacity');
               }
             }
           }
         }
         node.setAttribute('class', 'em2-windows');
         node.setAttribute('data-plane', String(spec.plane));
+        break;
+      }
+      case 'rain': {
+        // Falling rain: a field of slanted paper streaks. Children carry data-ph
+        // (phase) so seek() loops each drop's fall — deterministic at any frame.
+        node = svgEl('svg', { viewBox: `0 0 ${spec.bbox.w} ${spec.bbox.h}`, preserveAspectRatio: 'none' }, parent);
+        Object.assign(node.style, { position: 'absolute', left: px(spec.bbox.x), top: px(spec.bbox.y), width: px(spec.bbox.w), height: px(spec.bbox.h), pointerEvents: 'none' });
+        const rr = rng(spec.seed);
+        const slant = spec.bbox.h * 0.045;
+        for (let i = 0; i < spec.count; i++) {
+          const rx = rr() * spec.bbox.w, ry = rr() * spec.bbox.h, rl = spec.bbox.h * (0.035 + rr() * 0.05);
+          const drop = svgEl('line', {
+            x1: f2(rx), y1: f2(ry), x2: f2(rx + slant), y2: f2(ry + rl),
+            stroke: spec.tone, 'stroke-width': f2(Math.min(W, H) * 0.0016), 'stroke-linecap': 'round', 'stroke-opacity': f2(0.3 + rr() * 0.4),
+          }, node);
+          drop.dataset.ph = f2(rr());
+          drop.dataset.sp = f2(0.55 + rr() * 0.5);
+        }
+        node.setAttribute('class', 'em2-rain');
+        node.dataset.plane = String(spec.plane);
+        break;
+      }
+      case 'birds': {
+        // Distant birds crossing the sky — small paired-wing strokes that fly and flap.
+        node = svgEl('svg', { viewBox: `0 0 ${spec.bbox.w} ${spec.bbox.h}`, preserveAspectRatio: 'none' }, parent);
+        Object.assign(node.style, { position: 'absolute', left: px(spec.bbox.x), top: px(spec.bbox.y), width: px(spec.bbox.w), height: px(spec.bbox.h), pointerEvents: 'none' });
+        const vr = rng(spec.seed);
+        for (let i = 0; i < spec.count; i++) {
+          const bs = spec.bbox.w * (0.008 + vr() * 0.008);
+          const bird = svgEl('path', {
+            d: `M${f2(-bs)} 0 Q${f2(-bs * 0.5)} ${f2(-bs * 0.55)} 0 0 Q${f2(bs * 0.5)} ${f2(-bs * 0.55)} ${f2(bs)} 0`,
+            fill: 'none', stroke: spec.tone, 'stroke-width': f2(bs * 0.16), 'stroke-linecap': 'round',
+          }, node);
+          bird.dataset.ph = f2(vr());
+          bird.dataset.sp = f2(0.35 + vr() * 0.4);
+          bird.dataset.y = f2(vr() * spec.bbox.h);
+          bird.dataset.s = f2(bs);
+        }
+        node.setAttribute('class', 'em2-birds');
+        node.dataset.plane = String(spec.plane);
+        break;
+      }
+      case 'fireflies': {
+        // Wandering sparks — small discs that drift and pulse while the page is read.
+        node = svgEl('svg', { viewBox: `0 0 ${spec.bbox.w} ${spec.bbox.h}`, preserveAspectRatio: 'none' }, parent);
+        Object.assign(node.style, { position: 'absolute', left: px(spec.bbox.x), top: px(spec.bbox.y), width: px(spec.bbox.w), height: px(spec.bbox.h), pointerEvents: 'none' });
+        const fr = rng(spec.seed);
+        for (let i = 0; i < spec.count; i++) {
+          const fly = svgEl('circle', {
+            cx: f2(fr() * spec.bbox.w), cy: f2(fr() * spec.bbox.h), r: f2(Math.min(W, H) * (0.004 + fr() * 0.004)),
+            fill: spec.tone, 'fill-opacity': f2(0.5 + fr() * 0.4),
+          }, node);
+          fly.dataset.ph = f2(fr());
+          fly.dataset.sp = f2(0.5 + fr() * 0.6);
+          fly.dataset.ox = fly.getAttribute('cx'); fly.dataset.oy = fly.getAttribute('cy');
+          fly.dataset.o = fly.getAttribute('fill-opacity');
+        }
+        node.setAttribute('class', 'em2-fireflies');
+        node.dataset.plane = String(spec.plane);
         break;
       }
       case 'bloom': {
@@ -951,9 +1012,10 @@
     return { layer, layers };
   }
 
-  function applyBackgroundState(bgNode, lt, beat, stageFade, preRoll) {
+  function applyBackgroundState(bgNode, lt, beat, stageFade, preRoll, canvas) {
     if (stageFade != null) bgNode.layer.style.opacity = stageFade.toFixed(4);
     if (!bgNode.layers.length) return;
+    const W = canvas.w, H = canvas.h;
     const settle = (beat.ensemble.events || []).find((e) => e.channel === 'BACKGROUND' && e.event === 'STAGE_SETTLE');
     const ss = settle ? settle.start_ms : 0, se = settle ? settle.end_ms : 0;
     // The ensemble's settled-hold window owns the ambient pass: parallax engages only inside it.
@@ -992,7 +1054,87 @@
         tx += amb.dx; ty += amb.dy;
         scale = amb.s * lerp(1.04, 1, EASE.settle(p));
       }
-      if (spec.rotation_deg) s.rotate = `${spec.rotation_deg}deg`;
+      // Painting performance (mona-lisa/autoportrait pattern in our dialect): the
+      // plate doesn't pop in — it paints itself. Far planes wash in first as a
+      // bottom-up wipe (paint floods a page upward), mid pieces stamp down with a
+      // paper-press settle, details (stars, windows, weather) speckle in last.
+      const paintT = EASE.outCubic(prog(lt, spec.plane * 260, spec.plane * 260 + 620));
+      if (spec.kind === 'band') {
+        if (paintT < 1) L.node.style.clipPath = `inset(${(100 - paintT * 100).toFixed(2)}% -2% -4% -2%)`;
+        else if (L.node.style.clipPath) L.node.style.clipPath = '';
+      } else if (spec.kind === 'piece' || spec.kind === 'windows') {
+        opacity *= Math.min(1, paintT * 1.6);
+        scale *= lerp(0.72, 1, EASE.settle(paintT));
+      } else if (spec.kind === 'stars' || spec.kind === 'fireflies' || spec.kind === 'rain' || spec.kind === 'birds') {
+        // Speckle-in: each child waits its own moment inside the first 1.1s.
+        for (const c of L.node.children) {
+          const cT = EASE.outCubic(prog(lt, Number(c.dataset.ph) * 900, Number(c.dataset.ph) * 900 + 320));
+          c.style.opacity = cT < 1 ? cT.toFixed(3) : '';
+        }
+      }
+      // Living scene: the world's children keep moving while the page is read —
+      // weather falls, birds cross, flora sways, lights flicker. All pure
+      // functions of lt: a seek lands on the same frame.
+      let rot = spec.rotation_deg || 0;
+      if (spec.kind === 'stars') {
+        for (const c of L.node.children) {
+          const o = Number(c.dataset.o || 0.5);
+          c.setAttribute('fill-opacity', f2(o * (0.55 + 0.45 * Math.sin(lt * 0.0016 + Number(c.dataset.ph) * 6.28))));
+        }
+      } else if (spec.kind === 'windows') {
+        for (const c of L.node.children) {
+          if (!c.dataset.lit) continue;
+          const o = Number(c.dataset.o || 0.6);
+          c.setAttribute('fill-opacity', f2(o * (0.7 + 0.3 * Math.sin(lt * 0.0011 + Number(c.dataset.ph) * 12.57))));
+        }
+      } else if (spec.kind === 'shaft') {
+        // Light sheets sway a breath around their tilt.
+        rot = spec.tilt_deg + Math.sin(lt * 0.0006 + spec.seed % 7) * 1.6;
+        opacity *= 0.85 + 0.15 * Math.sin(lt * 0.0009 + spec.seed % 13);
+      } else if (spec.kind === 'piece') {
+        const shp = spec.shape, ph = (spec.seed % 997) / 997 * 6.283;
+        if (shp === 'cloud') {
+          // Clouds sail — a slow loop across the sky; the wrap point sits
+          // off-stage so the re-entry is never seen.
+          const span = W * 1.35, spd = W * 0.007;
+          tx += ((lt * spd / 1000 + ph * span) % span) - span * 0.5;
+          ty += Math.sin(lt * 0.0005 + ph) * H * 0.004;
+        } else if (shp === 'bubble') {
+          // Bubbles rise on a loop, fading near the surface.
+          const span = spec.bbox.y + spec.bbox.h;
+          ty -= (lt * 0.028 * (0.7 + ph * 0.2) + ph * span) % span;
+          opacity *= 0.55 + 0.45 * Math.sin(lt * 0.003 + ph * 9);
+        } else if (shp === 'kelp' || shp === 'tuft' || shp === 'bush' || shp === 'flower') {
+          rot += Math.sin(lt * 0.0011 + ph) * 2.4; // rooted sway
+        } else if (shp === 'comet' || shp === 'rock') {
+          tx += Math.sin(lt * 0.0004 + ph) * W * 0.008;
+          ty += Math.cos(lt * 0.0005 + ph) * H * 0.006;
+        } else if (shp === 'sun' || shp === 'moon' || shp === 'planet') {
+          scale *= 1 + Math.sin(lt * 0.0007 + ph) * 0.008; // celestial bodies breathe
+        }
+      } else if (spec.kind === 'rain') {
+        const bh = spec.bbox.h;
+        for (const c of L.node.children) {
+          const off = ((lt * Number(c.dataset.sp) * 0.9 + Number(c.dataset.ph) * bh) % bh);
+          c.setAttribute('transform', `translate(0 ${f2(off - bh * 0.05)})`);
+        }
+      } else if (spec.kind === 'birds') {
+        const bw2 = spec.bbox.w;
+        for (const c of L.node.children) {
+          const x = ((lt * Number(c.dataset.sp) * 0.05 + Number(c.dataset.ph) * bw2) % (bw2 * 1.1)) - bw2 * 0.05;
+          const flap = Math.sin(lt * 0.012 + Number(c.dataset.ph) * 40);
+          c.setAttribute('transform', `translate(${f2(x)} ${f2(Number(c.dataset.y) + Math.sin(lt * 0.001 + Number(c.dataset.ph) * 9) * spec.bbox.h * 0.05)}) scale(${f2(1)} ${f2(0.55 + 0.45 * Math.abs(flap))})`);
+        }
+      } else if (spec.kind === 'fireflies') {
+        for (const c of L.node.children) {
+          const ph = Number(c.dataset.ph) * 6.283, sp = Number(c.dataset.sp);
+          const wx = Math.sin(lt * 0.0006 * sp + ph) * spec.bbox.w * 0.05;
+          const wy = Math.cos(lt * 0.0008 * sp + ph * 1.7) * spec.bbox.h * 0.06;
+          c.setAttribute('transform', `translate(${f2(wx)} ${f2(wy)})`);
+          c.setAttribute('fill-opacity', f2(Number(c.dataset.o || 0.6) * (0.45 + 0.55 * Math.abs(Math.sin(lt * 0.002 * sp + ph)))));
+        }
+      }
+      if (rot) s.rotate = `${f2(rot)}deg`;
       s.opacity = opacity.toFixed(4);
       L.base = { tx, ty, scale };
       s.transform = `translate(${f2(tx)}px, ${f2(ty)}px) scale(${scale.toFixed(4)})`;
@@ -1280,6 +1422,60 @@
       msvg.appendChild(mframe);
       host.appendChild(msvg);
       f.mframe = mframe; f.msvg = msvg; f._lastFrame = -1;
+      // Expression overlay: the sprite bakes a body but not a face. A small ink
+      // face rides the head region of the host — eyes/brows/mouth from the same
+      // FIGURE_FACE grammar as the paper figure, blinking on its own clock.
+      {
+        const fk = FIGURE_FACE[paperFaceKind(fig.emotion && fig.emotion.face)] || FIGURE_FACE.calm;
+        const fsvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        fsvg.setAttribute('viewBox', '0 0 40 24');
+        fsvg.style.cssText = `position:absolute;left:50%;top:7%;width:34%;height:auto;transform:translateX(-50%);pointer-events:none;z-index:3`;
+        const inkC = plan.brand.ink;
+        const eyesG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        if (fk.eyes === 'closed') {
+          for (const sx of [-7, 7]) {
+            const e = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            e.setAttribute('d', `M${20 + sx - 2.6} 10 q2.6 2.4 5.2 0`); e.setAttribute('stroke', inkC);
+            e.setAttribute('stroke-width', '1.8'); e.setAttribute('fill', 'none'); e.setAttribute('stroke-linecap', 'round');
+            eyesG.appendChild(e);
+          }
+        } else {
+          for (const sx of [-7, 7]) {
+            const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            e.setAttribute('cx', String(20 + sx)); e.setAttribute('cy', '10'); e.setAttribute('r', fk.eyes === 'open' ? '2.7' : '2.1'); e.setAttribute('fill', inkC);
+            eyesG.appendChild(e);
+          }
+        }
+        fsvg.appendChild(eyesG);
+        f._eyes = eyesG;
+        if (fk.brows !== 'none') for (const sx of [-7, 7]) {
+          const b2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          b2.setAttribute('d', `M${20 + sx - 3} ${fk.brows === 'up' ? 3.2 : 4.6} q3 ${fk.brows === 'up' ? -1.8 : 1.6} 6 0`);
+          b2.setAttribute('stroke', inkC); b2.setAttribute('stroke-width', '1.5'); b2.setAttribute('fill', 'none'); b2.setAttribute('stroke-linecap', 'round');
+          fsvg.appendChild(b2);
+        }
+        const mouthD = { smile: 'M14 18 q6 5 12 0', calm: 'M15 18.5 q5 2 10 0', flat: 'M15 19 h10', sad: 'M14 20 q6 -4.5 12 0', o: null }[fk.mouth];
+        if (fk.mouth === 'o') {
+          const m = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+          m.setAttribute('cx', '20'); m.setAttribute('cy', '19'); m.setAttribute('rx', '3.8'); m.setAttribute('ry', '4.4');
+          m.setAttribute('fill', 'none'); m.setAttribute('stroke', inkC); m.setAttribute('stroke-width', '1.7');
+          fsvg.appendChild(m);
+        } else if (mouthD) {
+          const m = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          m.setAttribute('d', mouthD); m.setAttribute('stroke', inkC); m.setAttribute('stroke-width', '1.8');
+          m.setAttribute('fill', 'none'); m.setAttribute('stroke-linecap', 'round');
+          fsvg.appendChild(m);
+        }
+        for (const sx of [-12, 12]) {
+          const ch = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          ch.setAttribute('cx', String(20 + sx)); ch.setAttribute('cy', '14.5'); ch.setAttribute('r', '2.4');
+          ch.setAttribute('fill', paintTone('petal', plan)); ch.setAttribute('opacity', '0.4');
+          fsvg.appendChild(ch);
+        }
+        host.appendChild(fsvg);
+        f.faceSvg = fsvg;
+        f.faceBaseY = 7;
+      }
       ready = fetchText(opts.assetUrl(fig.motion.asset)).then((txt) => {
         const md = JSON.parse(txt);
         md._inner = md.frames.map((fr) => fr.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, ''));
@@ -1368,6 +1564,15 @@
         f.msvg.setAttribute('viewBox', md._vb[i2].join(' '));
         f.mframe.innerHTML = md._inner[i2];
       }
+    }
+    if (f._eyes) {
+      // Blink: a 140ms lid dip every ~4.2s, phase-offset per figure so casts
+      // never blink in unison; plus a light head-sway following the body.
+      const phase = (fig.character ? String(fig.character).length : 1) * 731;
+      const bt = (lt + phase) % 4200;
+      const lid = bt < 140 ? Math.sin((bt / 140) * Math.PI) : 0;
+      f._eyes.setAttribute('transform', `translate(0 ${f2(10 * lid)}) scale(1 ${f2(1 - lid * 0.92)}) translate(0 ${f2(-10 * lid)})`);
+      f.faceSvg.style.top = `${(f.faceBaseY + Math.sin(lt * 0.0016 + phase) * 0.6).toFixed(2)}%`;
     }
     if (f.prop) {
       const sway = Math.sin(lt * 0.0042) * 3.5;
@@ -2142,6 +2347,287 @@
       { s: 'rect', x: 41, y: 18, w: 37, h: 9, rot: -8, tone: 'ink' },
     ],
     moon_stars: [],
+    // ---- Domain pack: science + space ----
+    atom: [
+      { s: 'blob', cx: 50, cy: 50, r: 8, tone: 'accent' },
+      { s: 'ring', cx: 50, cy: 50, r: 30, t: 3.4, tone: 'ink', edge: 0 },
+      { s: 'ring', cx: 50, cy: 50, r: 30, t: 3.4, tone: 'ink', edge: 0, rot: 60, squash: 0.34 },
+      { s: 'ring', cx: 50, cy: 50, r: 30, t: 3.4, tone: 'ink', edge: 0, rot: -60, squash: 0.34 },
+    ],
+    dna: [
+      { s: 'rect', x: 38, y: 18, w: 5, h: 64, rot: -14, tone: 'water' },
+      { s: 'rect', x: 57, y: 18, w: 5, h: 64, rot: 14, tone: 'water' },
+      { s: 'rect', x: 36, y: 30, w: 28, h: 5, tone: 'accent', edge: 0 },
+      { s: 'rect', x: 38, y: 48, w: 24, h: 5, tone: 'leaf', edge: 0 },
+      { s: 'rect', x: 36, y: 66, w: 28, h: 5, tone: 'blush', edge: 0 },
+    ],
+    microscope: [
+      { s: 'rect', x: 30, y: 82, w: 40, h: 7, tone: 'ink' },
+      { s: 'path', pts: [[34, 82], [34, 30], [46, 30], [46, 48], [56, 56], [56, 82]], tone: 'steel' },
+      { s: 'rect', x: 40, y: 14, w: 10, h: 22, rot: -12, tone: 'ink' },
+      { s: 'rect', x: 42, y: 60, w: 18, h: 4, tone: 'brass', edge: 0 },
+    ],
+    brain: [
+      { s: 'blob', cx: 50, cy: 52, rx: 32, ry: 26, tone: 'blush' },
+      { s: 'blob', cx: 36, cy: 44, rx: 14, ry: 12, tone: 'blush', edge: 0 },
+      { s: 'blob', cx: 64, cy: 44, rx: 14, ry: 12, tone: 'blush', edge: 0 },
+      { s: 'path', pts: [[34, 58], [44, 50], [52, 60], [64, 52]], tone: 'accent', stroke: 3, edge: 0 },
+      { s: 'path', pts: [[40, 38], [50, 44], [60, 36]], tone: 'accent', stroke: 3, edge: 0 },
+    ],
+    robot: [
+      { s: 'rect', x: 26, y: 18, w: 48, h: 36, tone: 'steel' },
+      { s: 'blob', cx: 40, cy: 34, r: 6, tone: 'sky', edge: 0 },
+      { s: 'blob', cx: 60, cy: 34, r: 6, tone: 'sky', edge: 0 },
+      { s: 'rect', x: 38, y: 45, w: 24, h: 4, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 48, y: 8, w: 4, h: 12, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 8, r: 4, tone: 'accent', edge: 0 },
+      { s: 'rect', x: 32, y: 58, w: 36, h: 30, tone: 'steel' },
+      { s: 'rect', x: 18, y: 58, w: 8, h: 22, tone: 'ink' },
+      { s: 'rect', x: 74, y: 58, w: 8, h: 22, tone: 'ink' },
+    ],
+    chip: [
+      { s: 'rect', x: 30, y: 30, w: 40, h: 40, tone: 'ink' },
+      { s: 'rect', x: 38, y: 38, w: 24, h: 24, tone: 'leaf', edge: 0 },
+      { s: 'rect', x: 22, y: 36, w: 8, h: 4, tone: 'ink' },
+      { s: 'rect', x: 22, y: 48, w: 8, h: 4, tone: 'ink' },
+      { s: 'rect', x: 22, y: 60, w: 8, h: 4, tone: 'ink' },
+      { s: 'rect', x: 70, y: 36, w: 8, h: 4, tone: 'ink' },
+      { s: 'rect', x: 70, y: 48, w: 8, h: 4, tone: 'ink' },
+      { s: 'rect', x: 70, y: 60, w: 8, h: 4, tone: 'ink' },
+    ],
+    satellite: [
+      { s: 'rect', x: 40, y: 38, w: 20, h: 24, rot: -20, tone: 'steel' },
+      { s: 'rect', x: 14, y: 40, w: 20, h: 12, rot: -20, tone: 'sky' },
+      { s: 'rect', x: 66, y: 40, w: 20, h: 12, rot: -20, tone: 'sky' },
+      { s: 'blob', cx: 50, cy: 50, r: 3.4, tone: 'accent', edge: 0 },
+      { s: 'arc', cx: 50, cy: 84, r: 18, a0: 200, a1: 340, t: 3, tone: 'ink', edge: 0 },
+    ],
+    planet_ringed: [
+      { s: 'blob', cx: 50, cy: 50, r: 24, tone: 'accent' },
+      { s: 'blob', cx: 42, cy: 42, rx: 8, ry: 6, tone: 'sunlit', op: 0.5, edge: 0 },
+      { s: 'ring', cx: 50, cy: 50, r: 36, t: 6, tone: 'brass', rot: -18, squash: 0.32 },
+    ],
+    galaxy: [
+      { s: 'path', pts: [[50, 50], [62, 44], [74, 46], [80, 56], [72, 64], [58, 62], [50, 56], [40, 58], [30, 52], [34, 42]], tone: 'sky', op: 0.85 },
+      { s: 'blob', cx: 50, cy: 50, r: 7, tone: 'sunlit', edge: 0 },
+      { s: 'path', pts: STAR_PTS, k: 0.16, ox: 16, oy: 20, tone: 'snow', edge: 0 },
+      { s: 'path', pts: STAR_PTS, k: 0.13, ox: 72, oy: 72, tone: 'snow', edge: 0 },
+    ],
+    // ---- Domain pack: sport ----
+    soccer_ball: [
+      { s: 'blob', cx: 50, cy: 50, r: 30, tone: 'snow' },
+      { s: 'path', pts: [[50, 38], [61, 46], [57, 59], [43, 59], [39, 46]], tone: 'ink', edge: 0 },
+      { s: 'path', pts: [[50, 22], [58, 30], [42, 30]], tone: 'ink', edge: 0, op: 0.85 },
+      { s: 'path', pts: [[22, 46], [34, 50], [30, 62], [20, 58]], tone: 'ink', edge: 0, op: 0.85 },
+      { s: 'path', pts: [[78, 46], [66, 50], [70, 62], [80, 58]], tone: 'ink', edge: 0, op: 0.85 },
+    ],
+    basketball: [
+      { s: 'blob', cx: 50, cy: 50, r: 30, tone: 'fire' },
+      { s: 'rect', x: 20, y: 48, w: 60, h: 4, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 48, y: 20, w: 4, h: 60, tone: 'ink', edge: 0 },
+      { s: 'path', pts: [[22, 30], [40, 44], [60, 44], [78, 30]], tone: 'ink', stroke: 4, edge: 0 },
+      { s: 'path', pts: [[22, 70], [40, 56], [60, 56], [78, 70]], tone: 'ink', stroke: 4, edge: 0 },
+    ],
+    tennis: [
+      { s: 'blob', cx: 50, cy: 50, r: 26, tone: 'sun' },
+      { s: 'arc', cx: 50, cy: 50, r: 20, a0: 140, a1: 260, t: 5, tone: 'snow', edge: 0 },
+      { s: 'arc', cx: 50, cy: 50, r: 20, a0: -40, a1: 80, t: 5, tone: 'snow', edge: 0 },
+    ],
+    racket: [
+      { s: 'blob', cx: 50, cy: 38, rx: 20, ry: 26, tone: 'accent' },
+      { s: 'blob', cx: 50, cy: 38, rx: 14, ry: 19, tone: 'paper', edge: 0 },
+      { s: 'rect', x: 47, y: 62, w: 7, h: 28, rot: 8, tone: 'wood' },
+    ],
+    medal: [
+      { s: 'blob', cx: 50, cy: 62, r: 18, tone: 'brass' },
+      { s: 'path', pts: [[38, 8], [50, 40], [62, 8]], tone: 'accent', edge: 0 },
+      { s: 'blob', cx: 50, cy: 62, r: 9, tone: 'sunlit', edge: 0 },
+    ],
+    whistle: [
+      { s: 'blob', cx: 44, cy: 56, rx: 24, ry: 18, tone: 'steel' },
+      { s: 'rect', x: 62, y: 44, w: 22, h: 12, tone: 'steel' },
+      { s: 'blob', cx: 40, cy: 54, r: 6, tone: 'ink', edge: 0 },
+    ],
+    // ---- Domain pack: animals ----
+    rabbit: [
+      { s: 'blob', cx: 50, cy: 62, rx: 18, ry: 16, tone: 'paper' },
+      { s: 'blob', cx: 50, cy: 34, r: 13, tone: 'paper' },
+      { s: 'petal', cx: 42, cy: 16, rx: 5, ry: 13, rot: -10, tone: 'paper' },
+      { s: 'petal', cx: 58, cy: 16, rx: 5, ry: 13, rot: 10, tone: 'paper' },
+      { s: 'blob', cx: 45, cy: 32, r: 2.2, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 55, cy: 32, r: 2.2, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 38, r: 2, tone: 'blush', edge: 0 },
+    ],
+    owl: [
+      { s: 'blob', cx: 50, cy: 54, rx: 22, ry: 26, tone: 'wood' },
+      { s: 'blob', cx: 40, cy: 38, r: 9, tone: 'paper' },
+      { s: 'blob', cx: 60, cy: 38, r: 9, tone: 'paper' },
+      { s: 'blob', cx: 40, cy: 38, r: 3.6, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 60, cy: 38, r: 3.6, tone: 'ink', edge: 0 },
+      { s: 'path', pts: [[50, 44], [46, 52], [54, 52]], tone: 'brass', edge: 0 },
+      { s: 'path', pts: [[34, 18], [42, 30], [30, 28]], tone: 'wood' },
+      { s: 'path', pts: [[66, 18], [58, 30], [70, 28]], tone: 'wood' },
+    ],
+    whale: [
+      { s: 'blob', cx: 46, cy: 56, rx: 34, ry: 18, tone: 'deep' },
+      { s: 'path', pts: [[74, 50], [92, 40], [86, 58], [92, 72], [72, 62]], tone: 'deep' },
+      { s: 'blob', cx: 30, cy: 52, r: 3, tone: 'paper', edge: 0 },
+      { s: 'path', pts: [[20, 70], [46, 76], [72, 68]], tone: 'paper', stroke: 4, edge: 0 },
+      { s: 'path', pts: [[40, 30], [38, 18], [44, 22]], tone: 'deep' },
+      { s: 'path', pts: [[50, 30], [52, 16], [46, 22]], tone: 'deep' },
+    ],
+    turtle: [
+      { s: 'blob', cx: 50, cy: 56, rx: 26, ry: 18, tone: 'leaf' },
+      { s: 'path', pts: [[36, 48], [50, 42], [64, 48], [60, 60], [40, 60]], tone: 'sage', edge: 0 },
+      { s: 'blob', cx: 18, cy: 54, r: 8, tone: 'leaf' },
+      { s: 'blob', cx: 16, cy: 52, r: 2, tone: 'ink', edge: 0 },
+      { s: 'petal', cx: 78, cy: 62, rx: 8, ry: 4, rot: 20, tone: 'leaf' },
+    ],
+    bee: [
+      { s: 'blob', cx: 50, cy: 56, rx: 20, ry: 14, tone: 'sun' },
+      { s: 'rect', x: 40, y: 44, w: 6, h: 26, rot: 90, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 54, y: 44, w: 6, h: 26, rot: 90, tone: 'ink', edge: 0 },
+      { s: 'petal', cx: 42, cy: 34, rx: 10, ry: 6, rot: -30, tone: 'snow', op: 0.8 },
+      { s: 'petal', cx: 58, cy: 34, rx: 10, ry: 6, rot: 30, tone: 'snow', op: 0.8 },
+      { s: 'path', pts: [[70, 56], [80, 58], [70, 62]], tone: 'ink', edge: 0 },
+    ],
+    frog: [
+      { s: 'blob', cx: 50, cy: 62, rx: 26, ry: 18, tone: 'leaf' },
+      { s: 'blob', cx: 38, cy: 42, r: 8, tone: 'leaf' },
+      { s: 'blob', cx: 62, cy: 42, r: 8, tone: 'leaf' },
+      { s: 'blob', cx: 38, cy: 42, r: 3, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 62, cy: 42, r: 3, tone: 'ink', edge: 0 },
+      { s: 'path', pts: [[38, 66], [50, 72], [62, 66]], tone: 'ink', stroke: 3, edge: 0 },
+    ],
+    fox: [
+      { s: 'blob', cx: 50, cy: 56, rx: 22, ry: 18, tone: 'fire' },
+      { s: 'path', pts: [[34, 40], [30, 16], [46, 32]], tone: 'fire' },
+      { s: 'path', pts: [[66, 40], [70, 16], [54, 32]], tone: 'fire' },
+      { s: 'path', pts: [[36, 56], [50, 76], [64, 56], [64, 42], [36, 42]], tone: 'paper', edge: 0, op: 0.9 },
+      { s: 'blob', cx: 43, cy: 48, r: 2.6, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 57, cy: 48, r: 2.6, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 66, r: 3, tone: 'ink', edge: 0 },
+    ],
+    lion: [
+      { s: 'blob', cx: 50, cy: 50, r: 32, tone: 'soil' },
+      { s: 'blob', cx: 50, cy: 50, r: 22, tone: 'sun' },
+      { s: 'blob', cx: 42, cy: 46, r: 3, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 58, cy: 46, r: 3, tone: 'ink', edge: 0 },
+      { s: 'path', pts: [[46, 58], [50, 62], [54, 58]], tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 54, r: 3, tone: 'soil', edge: 0 },
+    ],
+    elephant: [
+      { s: 'blob', cx: 48, cy: 52, rx: 26, ry: 20, tone: 'grey' },
+      { s: 'blob', cx: 74, cy: 44, rx: 14, ry: 12, tone: 'grey' },
+      { s: 'rect', x: 76, y: 50, w: 9, h: 26, rot: 12, tone: 'grey' },
+      { s: 'blob', cx: 30, cy: 40, rx: 12, ry: 14, tone: 'slate' },
+      { s: 'blob', cx: 72, cy: 42, r: 2.6, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 34, y: 68, w: 8, h: 18, tone: 'grey' },
+      { s: 'rect', x: 58, y: 68, w: 8, h: 18, tone: 'grey' },
+    ],
+    // ---- Domain pack: nature / weather ----
+    volcano: [
+      { s: 'path', pts: [[10, 90], [38, 30], [62, 30], [90, 90]], tone: 'soil' },
+      { s: 'path', pts: [[38, 30], [62, 30], [56, 42], [44, 42]], tone: 'fire' },
+      { s: 'petal', cx: 50, cy: 20, rx: 6, ry: 10, tone: 'fire' },
+      { s: 'blob', cx: 44, cy: 14, r: 5, tone: 'warm' },
+      { s: 'blob', cx: 58, cy: 18, r: 4, tone: 'warm' },
+    ],
+    cactus: [
+      { s: 'rect', x: 44, y: 24, w: 12, h: 62, tone: 'leaf' },
+      { s: 'path', pts: [[44, 44], [30, 44], [30, 30], [24, 30], [24, 52], [44, 52]], tone: 'leaf' },
+      { s: 'path', pts: [[56, 58], [70, 58], [70, 44], [76, 44], [76, 66], [56, 66]], tone: 'sage' },
+      { s: 'blob', cx: 50, cy: 20, r: 6, tone: 'blush', edge: 0 },
+    ],
+    iceberg: [
+      { s: 'path', pts: [[20, 56], [34, 26], [48, 40], [62, 22], [80, 56]], tone: 'snow' },
+      { s: 'rect', x: 10, y: 56, w: 80, h: 4, tone: 'water', edge: 0 },
+      { s: 'path', pts: [[28, 60], [44, 88], [60, 78], [72, 60]], tone: 'sky', op: 0.8 },
+    ],
+    tornado: [
+      { s: 'path', pts: [[26, 20], [74, 20], [66, 34], [34, 34]], tone: 'slate' },
+      { s: 'path', pts: [[34, 38], [68, 38], [60, 52], [40, 52]], tone: 'grey' },
+      { s: 'path', pts: [[42, 56], [60, 56], [55, 70], [46, 70]], tone: 'slate' },
+      { s: 'path', pts: [[46, 74], [56, 74], [50, 88]], tone: 'grey' },
+    ],
+    umbrella: [
+      { s: 'path', pts: [[50, 22], [86, 50], [68, 44], [50, 50], [32, 44], [14, 50]], tone: 'blush' },
+      { s: 'rect', x: 48, y: 48, w: 4.5, h: 36, tone: 'wood' },
+      { s: 'arc', cx: 55, cy: 84, r: 7, a0: 0, a1: 180, t: 4.5, tone: 'wood' },
+      { s: 'path', pts: [[50, 14], [50, 24], [53, 20]], tone: 'wood', edge: 0 },
+    ],
+    shell: [
+      { s: 'path', pts: [[50, 84], [22, 60], [30, 34], [50, 22], [70, 34], [78, 60]], tone: 'blush' },
+      { s: 'path', pts: [[50, 82], [50, 30]], tone: 'paper', stroke: 3, edge: 0 },
+      { s: 'path', pts: [[34, 74], [38, 36]], tone: 'paper', stroke: 3, edge: 0 },
+      { s: 'path', pts: [[66, 74], [62, 36]], tone: 'paper', stroke: 3, edge: 0 },
+    ],
+    coral: [
+      { s: 'rect', x: 46, y: 44, w: 8, h: 44, tone: 'blush' },
+      { s: 'rect', x: 32, y: 54, w: 8, h: 30, rot: -24, tone: 'blush' },
+      { s: 'rect', x: 60, y: 50, w: 8, h: 34, rot: 24, tone: 'accent' },
+      { s: 'rect', x: 20, y: 62, w: 7, h: 22, rot: -38, tone: 'accent' },
+      { s: 'rect', x: 72, y: 62, w: 7, h: 22, rot: 38, tone: 'blush' },
+    ],
+    mushroom_cluster: [
+      { s: 'path', pts: [[30, 92], [34, 66], [42, 66], [46, 92]], tone: 'paper' },
+      { s: 'blob', cx: 38, cy: 58, rx: 16, ry: 10, tone: 'blush' },
+      { s: 'path', pts: [[56, 92], [60, 74], [66, 74], [70, 92]], tone: 'paper' },
+      { s: 'blob', cx: 63, cy: 68, rx: 12, ry: 8, tone: 'accent' },
+    ],
+    // ---- Domain pack: arts + music ----
+    guitar: [
+      { s: 'blob', cx: 50, cy: 64, rx: 20, ry: 16, tone: 'wood' },
+      { s: 'blob', cx: 50, cy: 48, rx: 14, ry: 12, tone: 'wood' },
+      { s: 'blob', cx: 50, cy: 52, r: 5, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 48, y: 10, w: 4.5, h: 40, tone: 'wood' },
+      { s: 'rect', x: 43, y: 6, w: 14, h: 8, tone: 'ink' },
+    ],
+    drum: [
+      { s: 'rect', x: 28, y: 44, w: 44, h: 34, tone: 'accent' },
+      { s: 'blob', cx: 50, cy: 44, rx: 22, ry: 7, tone: 'paper' },
+      { s: 'rect', x: 20, y: 20, w: 4, h: 22, rot: 20, tone: 'wood' },
+      { s: 'rect', x: 76, y: 20, w: 4, h: 22, rot: -20, tone: 'wood' },
+      { s: 'blob', cx: 26, cy: 18, r: 4, tone: 'wood', edge: 0 },
+      { s: 'blob', cx: 74, cy: 18, r: 4, tone: 'wood', edge: 0 },
+    ],
+    palette_art: [
+      { s: 'blob', cx: 48, cy: 50, rx: 32, ry: 26, tone: 'wood' },
+      { s: 'blob', cx: 34, cy: 42, r: 4.5, tone: 'blush', edge: 0 },
+      { s: 'blob', cx: 46, cy: 34, r: 4.5, tone: 'sun', edge: 0 },
+      { s: 'blob', cx: 60, cy: 38, r: 4.5, tone: 'leaf', edge: 0 },
+      { s: 'blob', cx: 66, cy: 52, r: 4.5, tone: 'water', edge: 0 },
+      { s: 'blob', cx: 62, cy: 62, r: 6, tone: 'paper', edge: 0 },
+    ],
+    paintbrush: [
+      { s: 'rect', x: 46, y: 14, w: 7, h: 46, rot: -22, tone: 'wood' },
+      { s: 'path', pts: [[38, 62], [52, 66], [48, 88], [34, 80]], tone: 'blush' },
+      { s: 'rect', x: 41, y: 56, w: 10, h: 6, rot: -22, tone: 'brass', edge: 0 },
+    ],
+    // ---- Domain pack: misc life ----
+    bell: [
+      { s: 'path', pts: [[32, 70], [36, 44], [42, 28], [50, 24], [58, 28], [64, 44], [68, 70]], tone: 'brass' },
+      { s: 'rect', x: 28, y: 70, w: 44, h: 7, tone: 'brass' },
+      { s: 'blob', cx: 50, cy: 82, r: 5, tone: 'ink' },
+    ],
+    candle_lantern: [
+      { s: 'rect', x: 32, y: 26, w: 36, h: 52, tone: 'ink' },
+      { s: 'rect', x: 37, y: 32, w: 26, h: 40, tone: 'sunlit', edge: 0 },
+      { s: 'petal', cx: 50, cy: 52, rx: 4.5, ry: 8, tone: 'sun', edge: 0 },
+      { s: 'arc', cx: 50, cy: 26, r: 10, a0: 180, a1: 360, t: 4, tone: 'ink', edge: 0 },
+    ],
+    paper_boat: [
+      { s: 'path', pts: [[14, 62], [86, 62], [66, 82], [34, 82]], tone: 'paper' },
+      { s: 'path', pts: [[50, 30], [72, 62], [50, 62]], tone: 'paper', edge: 0 },
+      { s: 'path', pts: [[50, 38], [28, 62], [50, 62]], tone: 'snow', edge: 0 },
+    ],
+    hot_air_balloon: [
+      { s: 'blob', cx: 50, cy: 40, rx: 26, ry: 30, tone: 'blush' },
+      { s: 'path', pts: [[50, 10], [64, 22], [64, 56], [50, 68], [36, 56], [36, 22]], tone: 'accent', edge: 0, op: 0.5 },
+      { s: 'rect', x: 42, y: 76, w: 16, h: 12, tone: 'wood' },
+      { s: 'rect', x: 38, y: 66, w: 3, h: 12, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 59, y: 66, w: 3, h: 12, tone: 'ink', edge: 0 },
+    ],
   };
   // Phrases collapse onto the nearest drawn concept — modifiers (colours, moods,
   // counts) never block the mark the noun beneath them owns.
@@ -2176,6 +2662,48 @@
     tune: 'music_note', melody: 'music_note', music: 'music_note', 'music-note': 'music_note',
     timer: 'hourglass', waiting: 'hourglass', 'old': 'hourglass', royalty: 'crown', king: 'crown',
     queen: 'crown', 'alarm': 'alarm_clock',
+    // ---- Domain pack aliases ----
+    molecule: 'atom', particle: 'atom', physics: 'atom', nucleus: 'atom',
+    gene: 'dna', genetics: 'dna', helix: 'dna', chromosome: 'dna', heredity: 'dna',
+    laboratory: 'microscope', lab: 'microscope', biology: 'microscope', cells: 'microscope',
+    mind: 'brain', think: 'brain', thinking: 'brain', intelligence: 'brain', ai: 'brain',
+    bot: 'robot', android: 'robot', machine_ai: 'robot',
+    processor: 'chip', computer_chip: 'chip', circuit: 'chip', microchip: 'chip', cpu: 'chip',
+    satellite_dish: 'satellite', 'satellite-dish': 'satellite', orbit: 'satellite',
+    saturn: 'planet_ringed', 'ringed-planet': 'planet_ringed', planets: 'planet_ringed',
+    universe: 'galaxy', cosmos: 'galaxy', milkyway: 'galaxy', 'milky-way': 'galaxy',
+    football: 'soccer_ball', soccer: 'soccer_ball', 'soccer-ball': 'soccer_ball', ball: 'soccer_ball',
+    hoop: 'basketball', 'basket-ball': 'basketball',
+    'tennis-ball': 'tennis', golf: 'tennis', 'ping-pong': 'tennis',
+    'tennis-racket': 'racket', bat: 'racket',
+    champion: 'medal', gold_medal: 'medal', 'gold-medal': 'medal', olympic: 'medal', olympics: 'medal',
+    referee: 'whistle',
+    bunny: 'rabbit', hare: 'rabbit',
+    'night-owl': 'owl', wise: 'owl',
+    'blue-whale': 'whale', orca: 'whale',
+    tortoise: 'turtle', 'sea-turtle': 'turtle',
+    honeybee: 'bee', insect: 'bee', bug: 'bee',
+    toad: 'frog',
+    wolf: 'fox', clever: 'fox',
+    'lion-king': 'lion', jungle: 'lion',
+    mammoth: 'elephant',
+    eruption: 'volcano', lava: 'volcano',
+    desert: 'cactus', succulent: 'cactus',
+    arctic: 'iceberg', antarctic: 'iceberg', glacier: 'iceberg',
+    hurricane: 'tornado', cyclone: 'tornado', twister: 'tornado',
+    rain_protection: 'umbrella', parasol: 'umbrella',
+    seashell: 'shell', beach: 'shell',
+    reef: 'coral', 'coral-reef': 'coral',
+    mushrooms: 'mushroom_cluster', fungi: 'mushroom_cluster',
+    acoustic: 'guitar', rock_music: 'guitar',
+    percussion: 'drum', beat: 'drum',
+    painting: 'palette_art', painter: 'palette_art', artist: 'palette_art',
+    brush: 'paintbrush',
+    school_bell: 'bell', church: 'bell', notification: 'bell',
+    lantern: 'candle_lantern', lamp: 'candle_lantern',
+    'paper-boat': 'paper_boat', origami: 'paper_boat',
+    balloon_ride: 'hot_air_balloon', 'hot-air-balloon': 'hot_air_balloon',
+    snow: 'snowflake', winter: 'snowflake',
   };
   function paperArtKey(concept) {
     if (!concept) return null;
@@ -2254,8 +2782,9 @@
         break;
       }
       case 'ring': {
-        const rr = pc.r || 20;
-        push(`${arcD(rr, rr, cx - rr, cy, cx + rr, cy, 1)}${arcD(rr, rr, cx + rr, cy, cx - rr, cy, 1)}`, { sw: pc.t || 5 });
+        const rr = pc.r || 20, sq = pc.squash || 1;
+        const ry2 = rr * sq;
+        push(`${arcD(rr, ry2, cx - rr, cy, cx + rr, cy, 1)}${arcD(rr, ry2, cx + rr, cy, cx - rr, cy, 1)}`, { sw: pc.t || 5 });
         break;
       }
       case 'arc': {
@@ -3152,7 +3681,28 @@
         const wordHost = svgEl('g', {}, g);
         node.extra.wordHost = wordHost;
         node.inkEls.push(wordHost);
-        if (ent.photo) {
+        if (plan.book === 'paperbook' && ent.photo && /^bank:/.test(ent.photo.source || '')) {
+          // A page in a picture book: the bank painting IS the plate — no card
+          // housing, no tape, no label pasted on the art. The torn mask cuts it
+          // like a tipped-in plate, an ink rim seats it in the stock.
+          const plateSeed = seedHash(`${ent.id}-plate`);
+          const tear = cutRectPath(b, plateSeed, Math.min(b.w, b.h) * 0.035) + 'Z';
+          const cid = `bp_${ent.id}_${++iconInstance}`;
+          const clip = svgEl('clipPath', { id: cid }, g);
+          svgEl('path', { d: tear }, clip);
+          const inner = svgEl('g', { 'clip-path': `url(#${cid})` }, g);
+          const img = svgEl('image', { x: f2(b.x), y: f2(b.y), width: f2(b.w), height: f2(b.h), preserveAspectRatio: 'xMidYMid slice' }, inner);
+          img.setAttribute('href', opts.assetUrl(ent.photo.path));
+          img.setAttribute('data-photo', ent.photo.source);
+          svgEl('path', { d: tear, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.5), 'stroke-opacity': 0.3 }, g);
+          node.extra.iconBox = { ...b };
+          node.extra.iconHost = inner;
+          node.outline.push({ path: inner, len: 0, set(v) { inner.style.opacity = clamp(v, 0, 1).toFixed(4); } });
+          node.ready = new Promise((resolve) => {
+            img.addEventListener('load', () => resolve(), { once: true });
+            img.addEventListener('error', () => resolve(), { once: true });
+          });
+        } else if (ent.photo) {
           const host = svgEl('g', {}, g);
           host.style.color = fg;
           node.extra.iconHost = host;
@@ -4856,7 +5406,7 @@
   }
 
   function applyBeat(bn, lt, stageFade, preRoll) {
-    applyBackgroundState(bn.bg, lt, bn.beat, stageFade, preRoll);
+    applyBackgroundState(bn.bg, lt, bn.beat, stageFade, preRoll, bn.ctx.canvas);
     if (bn.media) applyMediaState(bn.media, lt, bn.beat, bn.ctx);
     if (bn.figure) applyFigureState(bn.figure, lt, bn.beat, bn.ctx);
     if (bn.data) applyDataState(bn.data, lt, bn.beat, bn.ctx);
