@@ -1683,8 +1683,94 @@ window.NexSketch = (() => {
     safe.appendChild(body.el);
     furniture(sec, spec, idx, total);
     mountCallouts(sec, spec, body.tl);
+    applyMicroFx(sec, spec, body.tl);
     return { spec, el: sec, cam, tl: body.tl, fx: collectEffects(sec) };
   }
+
+  /* --- micro-effects: hand-drawn punctuation — burst / confetti / ring ----
+     burst:   true | { at?, x?, y?, count?, r?, colors?, size? }
+     confetti:true | { at?, dur?, count?, colors? }
+     ring:    true | { at?, x?, y?, r0?, r1?, color? }  ink shockwave        */
+  const applyMicroFx = (sec, spec, tl) => {
+    const b = spec.burst, c = spec.confetti, r = spec.ring;
+    if (!b && !c && !r) return;
+    const host = h('div', '', sec);
+    host.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:40';
+    const ink = cssVar('--sk-ink'), mint = cssVar('--sk-mint-deep');
+    const rnd = mulberry2((spec.index || 0) * 6151 + 97);
+    const norm = (v) => (v === true ? {} : v || {});
+    if (b) {
+      const o = norm(b);
+      const at = o.at ?? 1, count = o.count ?? 12, rad = o.r ?? 140;
+      const colors = o.colors || [ink, mint, ink];
+      const cx = (o.x ?? 0.5) * 100, cy = (o.y ?? 0.5) * 100;
+      const parts = [];
+      for (let i = 0; i < count; i++) {
+        const p = h('span', '', host);
+        const ang = (i / count) * Math.PI * 2 + rnd() * 0.55;
+        const dist = rad * (0.5 + rnd() * 0.8);
+        const sz = (o.size ?? 8) * (0.55 + rnd());
+        const dot = rnd() > 0.5;
+        p.style.cssText = `position:absolute;left:${cx}%;top:${cy}%;width:${sz}px;height:${dot ? sz : 2.5}px;border-radius:${dot ? '50%' : '0'};background:${colors[Math.floor(rnd() * colors.length)]};opacity:0`;
+        parts.push({ p, ang, dist, wob: rnd() * 14 - 7 });
+      }
+      tl.addUpdate(at, 0.8, (p) => {
+        if (p <= 0) { parts.forEach(x => x.p.style.opacity = '0'); return; }
+        const e = 1 - Math.pow(1 - p, 3);
+        parts.forEach(({ p: el, ang, dist, wob }) => {
+          el.style.transform = `translate(calc(-50% + ${Math.cos(ang) * dist * e}px), calc(-50% + ${Math.sin(ang) * dist * e + Math.sin(p * 9) * wob * 0.3}px)) rotate(${e * (90 + wob * 6)}deg)`;
+          el.style.opacity = String(Math.max(0, 1 - p * p));
+        });
+      }, 'none');
+    }
+    if (r) {
+      const o = norm(r);
+      const at = o.at ?? 0.8, r1 = o.r1 ?? 180;
+      const cx = (o.x ?? 0.5), cy = (o.y ?? 0.5);
+      const ringEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      ringEl.setAttribute('viewBox', '0 0 640 536');
+      ringEl.setAttribute('preserveAspectRatio', 'none');
+      const col = o.color || mint;
+      ringEl.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+      host.appendChild(ringEl);
+      const ell = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      ell.setAttribute('cx', String(cx * 640)); ell.setAttribute('cy', String(cy * 536));
+      ell.setAttribute('fill', 'none'); ell.setAttribute('stroke', col);
+      ell.setAttribute('stroke-width', '3'); ell.setAttribute('stroke-dasharray', '7 9');
+      ell.setAttribute('stroke-linecap', 'round');
+      ringEl.appendChild(ell);
+      tl.addUpdate(at, 0.7, (p) => {
+        if (p <= 0) { ell.style.opacity = '0'; return; }
+        const e = 1 - Math.pow(1 - p, 3);
+        ell.setAttribute('rx', String(10 + (o.r0 ?? 0) + r1 * e));
+        ell.setAttribute('ry', String((10 + (o.r0 ?? 0) + r1 * e) * 0.8));
+        ell.style.opacity = String(0.85 * (1 - p));
+      }, 'none');
+    }
+    if (c) {
+      const o = norm(c);
+      const at = o.at ?? 0, dur = o.dur ?? 2.6, count = o.count ?? 36;
+      const palette = o.colors || [ink, mint, cssVar('--sk-paper-edge') || ink];
+      const bits = [];
+      for (let i = 0; i < count; i++) {
+        const el = h('span', '', host);
+        const x0 = rnd() * 100, speed = 0.55 + rnd() * 0.6, sway = 8 + rnd() * 26;
+        const phase = rnd() * Math.PI * 2, rot = (rnd() - 0.5) * 640;
+        const w = 4 + rnd() * 6, dot = rnd() > 0.65;
+        el.style.cssText = `position:absolute;left:${x0}%;top:-4%;width:${w}px;height:${dot ? w : 2.5}px;border-radius:${dot ? '50%' : '0'};background:${palette[Math.floor(rnd() * palette.length)]};opacity:0`;
+        bits.push({ el, x0, speed, sway, phase, rot });
+      }
+      tl.addUpdate(at, dur, (p) => {
+        bits.forEach(({ el, x0, speed, sway, phase, rot }) => {
+          const lp = Math.max(0, Math.min(1, p * speed));
+          el.style.top = (-4 + lp * 112) + '%';
+          el.style.left = (x0 + Math.sin(p * 5 + phase) * sway / 10) + '%';
+          el.style.transform = `rotate(${rot * p}deg)`;
+          el.style.opacity = String(p > 0 ? Math.min(1, (1 - p) * 4) : 0);
+        });
+      }, 'none');
+    }
+  };
 
   /* spec.transition → NexMotion transition key; 'fade'/'wipe'/'rise' are
      handled inline (no registry def needed) */

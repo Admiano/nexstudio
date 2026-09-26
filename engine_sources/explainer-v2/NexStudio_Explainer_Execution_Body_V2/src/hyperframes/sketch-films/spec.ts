@@ -73,6 +73,10 @@ export type SketchSceneSpec = {
       target: a data-cap name ('title','stat','frame','brand','cta','hub','input'
       …) or a number → item-N/word-N; at: local-time start; pad/dur optional. */
   callouts?: { type?: string; target?: string | number; at?: number; dur?: number; color?: string; pad?: number; strokeWidth?: number }[];
+  /* micro-effects — mojs-style punctuation stepped via seek */
+  burst?: boolean | { at?: number; x?: number; y?: number; count?: number; r?: number; colors?: string[]; size?: number };
+  confetti?: boolean | { at?: number; dur?: number; count?: number; colors?: string[] };
+  ring?: boolean | { at?: number; x?: number; y?: number; r0?: number; r1?: number; color?: string };
   /** Set false to hide the bottom-right "03/12" page index. */
   index?: boolean;
   /** Scene-specific params passed through to the component builder. */
@@ -105,6 +109,9 @@ export type SketchFilmSpec = {
    * the paper) unless the scene sets `inkify: false` for a plain grayscale photo.
    */
   assets?: Record<string, string>;
+  /** Inline SVG text for `.svg` assets — injected by the assembler so the
+      runtime can draw-on logo art deterministically (vivus-style). */
+  svgAssets?: Record<string, string>;
   /** Override paper texture path (defaults to the generated warm fibred sheet). */
   paperTexture?: string;
   /** Named paper stock: warm (default) | ivory | kraft | newsprint —

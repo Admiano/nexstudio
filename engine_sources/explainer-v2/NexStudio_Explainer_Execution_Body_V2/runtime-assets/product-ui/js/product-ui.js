@@ -1232,8 +1232,88 @@ window.NexFilm = (() => {
     safe.appendChild(body.el);
     furniture(sec, spec, idx, total);
     mountCallouts(sec, spec, body.tl);
+    applyMicroFx(sec, spec, body.tl);
     return { spec, el: sec, cam, tl: body.tl, fx: collectEffects(sec) };
   }
+
+  /* --- micro-effects: mojs-style punctuation, stepped via seek ------------
+     spec.fx or shorthand flags:
+       burst:   true | { at?, x?, y?, count?, r?, colors?, size? }
+       confetti:true | { at?, dur?, count?, colors? }
+       ring:    true | { at?, x?, y?, r0?, r1?, color? }  expanding shockwave
+     x/y are fractions of the section (0..1); defaults center.             */
+  const applyMicroFx = (sec, spec, tl) => {
+    const b = spec.burst, c = spec.confetti, r = spec.ring;
+    if (!b && !c && !r) return;
+    const host = h('div', '', sec);
+    host.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:40';
+    const acc = cssVar('--pf-accent'), fg = cssVar('--pf-fg');
+    const rnd = mulberry((spec.index || 0) * 6151 + 97);
+    const norm = (v) => (v === true ? {} : v || {});
+    if (b) {
+      const o = norm(b);
+      const at = o.at ?? 1, count = o.count ?? 14, rad = o.r ?? 150;
+      const colors = o.colors || [acc, fg, acc];
+      const cx = (o.x ?? 0.5) * 100, cy = (o.y ?? 0.5) * 100;
+      const parts = [];
+      for (let i = 0; i < count; i++) {
+        const p = h('span', '', host);
+        const ang = (i / count) * Math.PI * 2 + rnd() * 0.5;
+        const dist = rad * (0.55 + rnd() * 0.75);
+        const sz = (o.size ?? 9) * (0.6 + rnd() * 0.9);
+        const round = rnd() > 0.55;
+        p.style.cssText = `position:absolute;left:${cx}%;top:${cy}%;width:${sz}px;height:${round ? sz : sz * 0.5}px;border-radius:${round ? '50%' : '2px'};background:${colors[Math.floor(rnd() * colors.length)]};opacity:0`;
+        parts.push({ p, ang, dist });
+      }
+      tl.addUpdate(at, 0.85, (p) => {
+        if (p <= 0) { parts.forEach(x => x.p.style.opacity = '0'); return; }
+        const e = 1 - Math.pow(1 - p, 3.2);
+        parts.forEach(({ p: el, ang, dist }) => {
+          el.style.transform = `translate(calc(-50% + ${Math.cos(ang) * dist * e}px), calc(-50% + ${Math.sin(ang) * dist * e}px)) rotate(${e * 160}deg) scale(${1 - e * 0.65})`;
+          el.style.opacity = String(Math.max(0, 1 - Math.pow(p, 1.5)));
+        });
+      }, 'none');
+    }
+    if (r) {
+      const o = norm(r);
+      const at = o.at ?? 0.8, r1 = o.r1 ?? 190;
+      const cx = (o.x ?? 0.5) * 100, cy = (o.y ?? 0.5) * 100;
+      const ringEl = h('span', '', host);
+      const col = o.color || acc;
+      ringEl.style.cssText = `position:absolute;left:${cx}%;top:${cy}%;border:2px solid ${col};border-radius:50%;opacity:0;transform:translate(-50%,-50%)`;
+      tl.addUpdate(at, 0.7, (p) => {
+        if (p <= 0) { ringEl.style.opacity = '0'; return; }
+        const e = 1 - Math.pow(1 - p, 3);
+        const d = 14 + (o.r0 ?? 0) + r1 * e;
+        ringEl.style.width = ringEl.style.height = d + 'px';
+        ringEl.style.opacity = String(0.9 * (1 - p));
+      }, 'none');
+    }
+    if (c) {
+      const o = norm(c);
+      const at = o.at ?? 0, dur = o.dur ?? 2.6, count = o.count ?? 44;
+      const palette = o.colors || [acc, fg, cssVar('--pf-muted'), '#ffffff'];
+      const bits = [];
+      for (let i = 0; i < count; i++) {
+        const el = h('span', '', host);
+        const x0 = rnd() * 100, speed = 0.55 + rnd() * 0.6, sway = 6 + rnd() * 22;
+        const phase = rnd() * Math.PI * 2, rot = (rnd() - 0.5) * 900;
+        const w = 5 + rnd() * 7, round = rnd() > 0.7;
+        el.style.cssText = `position:absolute;left:${x0}%;top:-4%;width:${w}px;height:${round ? w : w * 0.55}px;border-radius:${round ? '50%' : '1px'};background:${palette[Math.floor(rnd() * palette.length)]};opacity:0`;
+        bits.push({ el, x0, speed, sway, phase, rot });
+      }
+      tl.addUpdate(at, dur, (p) => {
+        bits.forEach(({ el, x0, speed, sway, phase, rot }) => {
+          const lp = Math.max(0, Math.min(1, p * speed + (p > 0 ? (speed - 1) * 0 : 0)));
+          const y = -4 + lp * 112;
+          el.style.top = y + '%';
+          el.style.left = (x0 + Math.sin(p * 5 + phase) * sway / 10) + '%';
+          el.style.transform = `rotate(${rot * p}deg)`;
+          el.style.opacity = String(p > 0 ? Math.min(1, (1 - p) * 4) : 0);
+        });
+      }, 'none');
+    }
+  };
 
   /* --- callouts: rough-notation-style annotations over live elements -------
      spec.callouts: [{ type, target, at, dur, color, pad }]
