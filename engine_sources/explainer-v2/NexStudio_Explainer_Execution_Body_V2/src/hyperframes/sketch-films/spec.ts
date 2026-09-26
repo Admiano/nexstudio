@@ -101,6 +101,12 @@ export type SketchFilmSpec = {
   music?: { path: string; volume?: number };
   /** SFX accents — one entry per sound file, cued at atSec times. */
   sfx?: { path: string; atSec: number[]; volume?: number }[];
+  /** Composite-render internals: render ONLY this scene index, transitions
+      off — the compositor rebuilds transitions in pixel space via xfade. */
+  segment?: number;
+  /** Post-production pass on the final composite: light temporal blur
+      (motion blur) + film grain. Set false to render raw. */
+  postFx?: false | { motionBlur?: boolean; grain?: number; vignette?: boolean };
   /**
    * Named media assets usable from scene params ({name: spec-relative path}).
    * Scene params (media, poster, thumbs, card img) accept the bare name —

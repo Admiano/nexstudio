@@ -19,7 +19,9 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { assembleSketchFilmBundle } from "./assemble.js";
 import type { SketchFilmSpec } from "./spec.js";
-import { renderSelfHostedChromium } from "../self-hosted-renderer.js";
+import { renderSelfHostedChromium, audioArguments } from "../self-hosted-renderer.js";
+import { mkdtemp } from "node:fs/promises";
+import * as os from "node:os";
 
 const execFileAsync = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -81,10 +83,111 @@ async function bakePoster(videoPath: string, spec: SketchFilmSpec): Promise<{ po
   }
 }
 
+/* --- composite render: AE-grade pixel transitions --------------------------
+   Each scene renders in isolation (spec.segment), then ffmpeg xfade rebuilds
+   the transitions in frame space — real deformation, not clip-path approxi-
+   mations. A light post pass (temporal blur = motion blur + grain) lands
+   on top. `cut` boundaries get a 0.1s micro-fade so the chain stays xfade. */
+const XFADE: Record<string, string> = {
+  fade: "fade", fadefilter: "fadegrays", wipe: "wipeleft", push: "slideleft",
+  collage: "diagbr", doors: "vertopen", squeeze: "squeezev", crosswarp: "distance",
+  iris: "circleopen", diamond: "rectcrop", clockwipe: "radial", blinds: "hrslice",
+  crosshatch: "hlslice", dreamy: "fadegrays", swirl: "distance", linearblur: "hblur",
+  dissolve: "dissolve", pixelize: "pixelize", starwipe: "circlecrop",
+  torn: "hlslice", page: "wiperight", crumple: "pixelize", tape: "wipebl",
+  shuffle: "vdslice", zoom: "distance", rise: "slideup", morph: "distance",
+};
+
+async function compositeRender(spec: SketchFilmSpec, specDir: string, outPath: string): Promise<number> {
+  const workDir = await mkdtemp(path.join(os.tmpdir(), "nexfilm-composite-"));
+  const filesDir = path.join(workDir, "files");
+  const segPaths: string[] = [];
+  const scenes = spec.scenes;
+  for (let i = 0; i < scenes.length; i++) {
+    const segSpec: SketchFilmSpec = {
+      ...spec, scenes, segment: i,
+      durationSeconds: scenes[i].duration,
+      music: undefined, sfx: [], shareCopy: undefined, posterSec: undefined,
+    };
+    const segBundle = await assembleSketchFilmBundle(segSpec, { engineRoot, specDir });
+    const segPath = path.join(workDir, `seg-${String(i).padStart(2, "0")}.mp4`);
+    const r = await renderSelfHostedChromium(segBundle, { fps: spec.fps, outputPath: segPath });
+    if (r.status !== "completed") throw new Error(`segment ${i} render failed: ${r.status}`);
+    segPaths.push(segPath);
+    console.error(`  segment ${i + 1}/${scenes.length} rendered (${scenes[i].type}, ${scenes[i].duration}s)`);
+  }
+
+  /* xfade chain — offset accumulates: out_len += dur_i - T_i.
+     boundaryT[i] = the overlap consumed when scene i enters. */
+  const n = segPaths.length;
+  const vdurs = scenes.map(s => s.duration);
+  const vfilters: string[] = [];
+  const boundaryT: number[] = [0];
+  let outLen = vdurs[0];
+  let prev = "[0:v]";
+  for (let i = 1; i < n; i++) {
+    const tr = scenes[i].transition || "fade";
+    const name = tr === "cut" ? "fade" : (XFADE[tr] ?? "fade");
+    const T = tr === "cut" ? 0.1 : Math.min(0.7, Math.max(0.4, Math.min(vdurs[i - 1], vdurs[i]) * 0.15));
+    const offset = Math.max(0, outLen - T);
+    const label = i === n - 1 ? "vchain" : `vx${i}`;
+    vfilters.push(`${prev}[${i}:v]xfade=transition=${name}:duration=${T.toFixed(3)}:offset=${offset.toFixed(3)}[${label}]`);
+    prev = `[${label}]`;
+    outLen += vdurs[i] - T;
+    boundaryT[i] = T;
+  }
+  /* post pass — temporal blur + grain, off via spec.postFx === false */
+  const post = spec.postFx === false ? "" : spec.postFx && spec.postFx.motionBlur === false ? "" : "tmix=frames=3:weights='1 2 1',";
+  const grain = spec.postFx === false ? 0 : (spec.postFx?.grain ?? 4);
+  const postChain = `${post}${grain ? `noise=alls=${grain}:allf=t,` : ""}format=yuv420p`;
+  vfilters.push(`[vchain]${postChain}[vout]`);
+
+  /* audio: film-level tracks muxed over the composite — reuse the shared
+     audio graph builder, shifting its input indices past the n seg inputs */
+  /* cue remap: a film-time cue inside scene j shifts by every overlap that
+     boundary ≤ scene j consumed, so SFX still land on their moments */
+  const sceneStarts = scenes.map(s => s.start ?? 0);
+  const shiftCue = (c: number) => {
+    let shift = 0;
+    for (let i = 1; i < n; i++) if (sceneStarts[i] <= c + 1e-6) shift += boundaryT[i];
+    return Math.max(0, c - shift);
+  };
+  const specAdj: SketchFilmSpec = {
+    ...spec,
+    durationSeconds: outLen,
+    sfx: (spec.sfx ?? []).map(x => ({ ...x, atSec: x.atSec.map(shiftCue) })),
+  };
+  const bundle = await assembleSketchFilmBundle(specAdj, { engineRoot, specDir });
+  await mkdir(filesDir, { recursive: true });
+  for (const [rel, value] of Object.entries(bundle.files)) {
+    const target = path.resolve(filesDir, rel);
+    if (!target.startsWith(path.resolve(filesDir) + path.sep)) throw new Error(`unsafe path ${rel}`);
+    await mkdir(path.dirname(target), { recursive: true });
+    await writeFile(target, typeof value === "string" ? value : Buffer.from(value));
+  }
+  const audio = audioArguments(bundle, filesDir);
+  const audioFilters = audio.filters.map(f => f.replace(/\[(\d+):a\]/g, (_m, k) => `[${Number(k) + n - 1}:a]`));
+  const args = [
+    "-y", "-v", "warning",
+    ...segPaths.flatMap(p => ["-i", p]),
+    ...audio.inputs,
+    "-filter_complex", [...vfilters, ...audioFilters].join(";"),
+    "-map", "[vout]",
+    ...(audio.outputLabel ? ["-map", `[${audio.outputLabel}]`] : ["-an"]),
+    "-t", String(outLen), "-r", String(spec.fps),
+    "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p",
+    ...(audio.outputLabel ? ["-c:a", "aac", "-b:a", "160k"] : []),
+    outPath,
+  ];
+  await execFileAsync("ffmpeg", args, { timeout: 300_000, maxBuffer: 8 << 20 });
+  console.error(`  composite: ${n} segments → ${outLen.toFixed(1)}s via xfade`);
+  return outLen;
+}
+
 async function main() {
   const [, , specArg, outArg, ...rest] = process.argv;
   if (!specArg || !outArg) {
-    console.error("usage: render.ts <spec.json> <out.mp4> [--inspect <dir>] [--no-poster]");
+    console.error("usage: render.ts <spec.json> <out.mp4> [--inspect <dir>] [--no-poster] [--compose]");
     process.exit(2);
   }
   const specPath = path.resolve(specArg);
@@ -92,8 +195,9 @@ async function main() {
   const inspectIdx = rest.indexOf("--inspect");
   const inspectDir = inspectIdx >= 0 ? path.resolve(rest[inspectIdx + 1]) : undefined;
   const noPoster = rest.includes("--no-poster");
+  const compose = rest.includes("--compose");
 
-  const spec = JSON.parse(await readFile(specPath, "utf8")) as SketchFilmSpec;
+  let spec = JSON.parse(await readFile(specPath, "utf8")) as SketchFilmSpec;
   const bundle = await assembleSketchFilmBundle(spec, {
     engineRoot,
     specDir: path.dirname(specPath),
@@ -114,13 +218,19 @@ async function main() {
     ),
   );
 
-  const result = await renderSelfHostedChromium(bundle, {
-    fps: spec.fps,
-    outputPath: outPath,
-    inspectionFrameDirectory: inspectDir,
-  });
-  console.log(JSON.stringify({ bundlePath, result }, null, 2));
-  if (result.status !== "completed") process.exit(1);
+  if (compose) {
+    const outLen = await compositeRender(spec, path.dirname(specPath), outPath);
+    spec = { ...spec, durationSeconds: outLen, posterSec: Math.min(spec.posterSec ?? outLen - 0.5, outLen - 0.3) };
+    console.log(JSON.stringify({ bundlePath, result: { status: "completed", localOutputPath: outPath, mode: "composite" } }, null, 2));
+  } else {
+    const result = await renderSelfHostedChromium(bundle, {
+      fps: spec.fps,
+      outputPath: outPath,
+      inspectionFrameDirectory: inspectDir,
+    });
+    console.log(JSON.stringify({ bundlePath, result }, null, 2));
+    if (result.status !== "completed") process.exit(1);
+  }
 
   /* delivery pass: verify → poster → share copy → report */
   const probe = await probeFile(outPath, spec);

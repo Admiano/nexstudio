@@ -1953,6 +1953,33 @@ window.NexSketch = (() => {
 
     const scenesBuilt = (filmSpec.scenes || []).map((s, i) => { const b = buildScene(s, i, filmSpec.scenes.length, filmSpec); stage.appendChild(b.el); return b; });
 
+    /* segment mode — xfade composite renders one scene in isolation:
+       no in-DOM transition, no section windows, local clock only */
+    if (typeof filmSpec.segment === 'number') {
+      const b = scenesBuilt[filmSpec.segment];
+      scenesBuilt.forEach(x => { if (x !== b) x.el.style.display = 'none'; });
+      b.el.classList.add('on');
+      const master = NexMotion.createTimeline();
+      master.pause();
+      master.addUpdate(0, filmSpec.durationSeconds, (p, raw, time) => {
+        const local = Math.min(Math.max(time, 0), b.tl.cursor);
+        b.tl.seek(local);
+        b.fx.forEach(f => f.seek(local));
+        const cam = b.spec.camera || {};
+        const cpush = Number(cam.push || 0), cpan = cam.pan || [0, 0];
+        if (cpush || cpan[0] || cpan[1]) {
+          const cp = Math.min(1, Math.max(0, local / Math.max(0.001, b.spec.duration)));
+          const eased = 1 - Math.pow(1 - cp, 3);
+          b.cam.style.transform = `translate(${cpan[0] * eased * 100}%, ${cpan[1] * eased * 100}%) scale(${1 + cpush * eased})`;
+        }
+      }, 'none');
+      master.seek(0);
+      window.__timelines = window.__timelines || {};
+      window.__timelines[filmSpec.productionId || 'film-segment'] = master;
+      window.seekComposition = t => master.seek(t);
+      return master;
+    }
+
     /* pre-build transition timelines for boundary pairs */
     const transitions = [];
     for (let i = 1; i < scenesBuilt.length; i++) {
