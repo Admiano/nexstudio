@@ -1,0 +1,110 @@
+{
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "production_id": "NEXMIND_WHITEBOARD_V3_TOKENSTOCK_DEMO",
+ "camera_variant": "cluster_travel",
+ "output_ratios": [
+  "16:9"
+ ],
+ "pacing": {
+  "transition_seconds": 1.2,
+  "board_reveal_seconds": 3.4
+ },
+ "beats": [
+  {
+   "beat_id": "01_hook",
+   "start_seconds": 0,
+   "duration_seconds": 5.5,
+   "narration": "A tokenized stock is a real share, held as a token on the blockchain.",
+   "scene": {
+    "sceneId": "01_hook",
+    "heroRole": "tokenized stock",
+    "supportingRoles": [
+     "stock certificate",
+     "blockchain vault"
+    ],
+    "screenCopy": {
+     "primary": "REAL SHARES, ON-CHAIN"
+    },
+    "semanticRelationships": [
+     {
+      "source": "stock certificate",
+      "target": "blockchain vault",
+      "kind": "becomes"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_access",
+   "start_seconds": 6.8,
+   "duration_seconds": 6.0,
+   "narration": "Fractional tokens open the market to a global investor with fifty dollars.",
+   "scene": {
+    "sceneId": "02_access",
+    "heroRole": "global investor",
+    "supportingRoles": [
+     "fractional token",
+     "$50 entry"
+    ],
+    "screenCopy": {
+     "primary": "ANYONE CAN BUY"
+    },
+    "semanticRelationships": [
+     {
+      "source": "global investor",
+      "target": "fractional token",
+      "kind": "buys"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_speed",
+   "start_seconds": 14.0,
+   "duration_seconds": 6.2,
+   "narration": "Trades settle in seconds around the clock, replacing slow paper settlement.",
+   "scene": {
+    "sceneId": "03_speed",
+    "heroRole": "instant settlement",
+    "supportingRoles": [
+     "old two day settlement",
+     "24/7 trading"
+    ],
+    "screenCopy": {
+     "primary": "ALWAYS OPEN"
+    },
+    "semanticRelationships": [
+     {
+      "source": "instant settlement",
+      "target": "24/7 trading",
+      "kind": "enables"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_close",
+   "start_seconds": 21.5,
+   "duration_seconds": 5.0,
+   "narration": "Lower fees, transparent ownership, programmable dividends.",
+   "scene": {
+    "sceneId": "04_close",
+    "heroRole": "lower fees",
+    "supportingRoles": [
+     "transparent ownership",
+     "programmable dividend"
+    ],
+    "screenCopy": {
+     "primary": "THE BENEFITS"
+    },
+    "semanticRelationships": [
+     {
+      "source": "programmable dividend",
+      "target": "lower fees",
+      "kind": "compounds"
+     }
+    ]
+   }
+  }
+ ]
+}

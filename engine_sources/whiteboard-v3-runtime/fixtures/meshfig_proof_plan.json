@@ -1,0 +1,84 @@
+{
+  "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+  "production_id": "MESHFIG_LINEART_PROOF",
+  "camera_variant": "board_sections",
+  "output_ratios": [
+    "16:9"
+  ],
+  "beats": [
+    {
+      "beat_id": "01_wave",
+      "start_seconds": 0,
+      "duration_seconds": 3.0,
+      "narration": "Meet our presenter \u2014 she waves hello.",
+      "figure": {
+        "clip": "NEX_MOTION_WAVE"
+      },
+      "scene": {
+        "sceneId": "01_wave",
+        "heroRole": "host",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": "HELLO"
+        },
+        "semanticRelationships": []
+      }
+    },
+    {
+      "beat_id": "02_explain",
+      "start_seconds": 3.0,
+      "duration_seconds": 4.5,
+      "narration": "She explains how the system works.",
+      "figure": {
+        "clip": "NEX_HOST_EXPLAIN_MEDIUM"
+      },
+      "scene": {
+        "sceneId": "02_explain",
+        "heroRole": "host",
+        "supportingRoles": [
+          "system"
+        ],
+        "screenCopy": {
+          "primary": "HOW IT WORKS"
+        },
+        "semanticRelationships": []
+      }
+    },
+    {
+      "beat_id": "03_sit",
+      "start_seconds": 7.5,
+      "duration_seconds": 4.5,
+      "narration": "Then she takes a seat.",
+      "figure": {
+        "clip": "NEX_MOTION_SIT"
+      },
+      "scene": {
+        "sceneId": "03_sit",
+        "heroRole": "host",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": "SEATED"
+        },
+        "semanticRelationships": []
+      }
+    },
+    {
+      "beat_id": "04_pushup",
+      "start_seconds": 12.0,
+      "duration_seconds": 4.5,
+      "narration": "And demonstrates a push-up.",
+      "figure": {
+        "clip": "NEX_MECHANIC_PUSHUP_CYCLE"
+      },
+      "scene": {
+        "sceneId": "04_pushup",
+        "heroRole": "host",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": "THE PUSH-UP"
+        },
+        "semanticRelationships": []
+      }
+    }
+  ]
+}

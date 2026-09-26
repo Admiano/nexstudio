@@ -1,0 +1,20 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Bezier Curve -->
+                <path d="M80 220 Q200 40 320 220" stroke="#1A1A17" stroke-width="8" stroke-linecap="round" fill="none"/>
+                
+                <!-- Anchors and Handles -->
+                <line x1="80" y1="220" x2="200" y2="40" stroke="#F5F0E4" stroke-width="2" stroke-dasharray="4 4"/>
+                <line x1="320" y1="220" x2="200" y2="40" stroke="#F5F0E4" stroke-width="2" stroke-dasharray="4 4"/>
+                
+                <rect x="70" y="210" width="20" height="20" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                <rect style="animation-delay: 0.2s;" x="310" y="210" width="20" height="20" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                <circle cx="200" cy="40" r="12" fill="#F5F0E4"/>
+                
+                <!-- Pen Tool Icon -->
+                <g >
+                    <path d="M200 100 L215 130 H185 Z" fill="#F5F0E4"/>
+                    <path d="M200 45 L200 100" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                </g>
+            </g>
+          </svg>

@@ -1,0 +1,32 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g style="animation-duration: 6s;">
+                <!-- Battery Pack -->
+                <rect x="180" y="220" width="80" height="40" rx="4" fill="#F5F0E4"/>
+                <rect x="190" y="210" width="60" height="10" fill="#F5F0E4"/>
+                
+                <!-- Handle -->
+                <path d="M180 140 L220 220 L240 220 L210 140 Z" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                <!-- Trigger -->
+                <path style="animation-duration: 5s;" d="M165 150 C190 150 190 180 165 180 Z" fill="#F5F0E4"/>
+                
+                <!-- Main Body -->
+                <rect x="80" y="80" width="160" height="80" rx="20" fill="#1A1A17" stroke="#F5F0E4" stroke-width="8"/>
+                <path d="M100 150 L220 150 L220 90 L100 90 Z" fill="#F5F0E4" opacity="0.2"/>
+                
+                <!-- Chuck -->
+                <rect x="40" y="100" width="40" height="40" rx="4" fill="#F5F0E4"/>
+                <path d="M45 100 V140 M55 100 V140 M65 100 V140 M75 100 V140" stroke="#F5F0E4" stroke-width="2" opacity="0.4"/>
+                
+                <!-- Drill Bit -->
+                <g transform="translate(40, 120)">
+                    <g style="animation-duration: 1s; animation-iteration-count: infinite;">
+                        <line x1="0" y1="0" x2="-40" y2="0" stroke="#F5F0E4" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M0 -4 L-40 4 M0 4 L-40 -4" stroke="#F5F0E4" stroke-width="2"/>
+                    </g>
+                    <!-- Wood Shavings / Sparks -->
+                    <circle style="animation-duration: 4s;" cx="-50" cy="-10" r="4" fill="#F5F0E4"/>
+                    <circle style="animation-duration: 4s; animation-delay: 0.2s;" cx="-40" cy="15" r="3" fill="#F5F0E4"/>
+                    <circle style="animation-duration: 4s; animation-delay: 0.4s;" cx="-60" cy="5" r="5" fill="#F5F0E4"/>
+                </g>
+            </g>
+          </svg>

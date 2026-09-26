@@ -1,0 +1,157 @@
+{
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "production_id": "NEXMIND_WHITEBOARD_V3_ROUNDWINDOWS",
+ "camera_variant": "cluster_travel",
+ "output_ratios": [
+  "16:9"
+ ],
+ "pacing": {
+  "transition_seconds": 1.2,
+  "board_reveal_seconds": 2.8
+ },
+ "beats": [
+  {
+   "beat_id": "01_square",
+   "start_seconds": 0,
+   "duration_seconds": 6,
+   "narration": "Early airplanes had square windows, and it nearly broke them.",
+   "scene": {
+    "sceneId": "01_square",
+    "heroRole": "airplane",
+    "supportingRoles": [
+     "square window",
+     "tiny crack"
+    ],
+    "screenCopy": {
+     "primary": "SQUARE WINDOWS"
+    },
+    "semanticRelationships": [
+     {
+      "source": "airplane",
+      "target": "square window",
+      "kind": "has"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_stress",
+   "start_seconds": 6,
+   "duration_seconds": 7,
+   "narration": "Sharp corners concentrate stress, so tiny cracks formed and jets ripped apart in the sky.",
+   "scene": {
+    "sceneId": "02_stress",
+    "heroRole": "sharp corner",
+    "supportingRoles": [
+     "stress crack",
+     "broken jet"
+    ],
+    "screenCopy": {
+     "primary": "STRESS CONCENTRATES"
+    },
+    "semanticRelationships": [
+     {
+      "source": "sharp corner",
+      "target": "stress crack",
+      "kind": "causes"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_fix",
+   "start_seconds": 13,
+   "duration_seconds": 4,
+   "narration": "The fix was beautifully simple: round the corners.",
+   "scene": {
+    "sceneId": "03_fix",
+    "heroRole": "round window",
+    "supportingRoles": [
+     "square window"
+    ],
+    "screenCopy": {
+     "primary": "ROUND THE CORNERS"
+    },
+    "semanticRelationships": [
+     {
+      "source": "round window",
+      "target": "square window",
+      "kind": "replaces"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_curves",
+   "start_seconds": 17,
+   "duration_seconds": 4,
+   "narration": "Curves spread pressure evenly around the frame.",
+   "scene": {
+    "sceneId": "04_curves",
+    "heroRole": "curve",
+    "supportingRoles": [
+     "pressure",
+     "window frame"
+    ],
+    "screenCopy": {
+     "primary": "PRESSURE SPREADS"
+    },
+    "semanticRelationships": [
+     {
+      "source": "curve",
+      "target": "pressure",
+      "kind": "distributes"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "05_layers",
+   "start_seconds": 21,
+   "duration_seconds": 6,
+   "narration": "Modern windows are actually three layers thick, with a tiny breather hole in the middle pane.",
+   "scene": {
+    "sceneId": "05_layers",
+    "heroRole": "three layers",
+    "supportingRoles": [
+     "breather hole",
+     "window pane"
+    ],
+    "screenCopy": {
+     "primary": "3 LAYERS THICK"
+    },
+    "semanticRelationships": [
+     {
+      "source": "window pane",
+      "target": "breather hole",
+      "kind": "has"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "06_safer",
+   "start_seconds": 27,
+   "duration_seconds": 5,
+   "narration": "One small curve, and an entire industry got safer.",
+   "scene": {
+    "sceneId": "06_safer",
+    "heroRole": "airline industry",
+    "supportingRoles": [
+     "safety shield",
+     "small curve"
+    ],
+    "screenCopy": {
+     "primary": "ONE SMALL CURVE"
+    },
+    "semanticRelationships": [
+     {
+      "source": "small curve",
+      "target": "safety shield",
+      "kind": "enables"
+     }
+    ]
+   }
+  }
+ ]
+}

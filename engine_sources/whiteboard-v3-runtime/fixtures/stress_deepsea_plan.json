@@ -1,0 +1,104 @@
+{
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "production_id": "NEXMIND_WHITEBOARD_V3_DEEPSEA_DEMO",
+ "camera_variant": "cluster_travel",
+ "output_ratios": [
+  "16:9"
+ ],
+ "pacing": {
+  "transition_seconds": 0.62,
+  "board_reveal_seconds": 0.72
+ },
+ "beats": [
+  {
+   "beat_id": "01_descent",
+   "start_seconds": 0,
+   "duration_seconds": 4.8,
+   "narration": "A marine biologist descends in a research submarine to map the reef.",
+   "scene": {
+    "sceneId": "01_descent",
+    "heroRole": "marine biologist",
+    "supportingRoles": [
+     "research submarine",
+     "coral reef"
+    ],
+    "screenCopy": {
+     "primary": "TWO KILOMETERS DOWN"
+    },
+    "semanticRelationships": [
+     {
+      "source": "marine biologist",
+      "target": "research submarine",
+      "kind": "pilots"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_encounter",
+   "start_seconds": 4.8,
+   "duration_seconds": 5.0,
+   "narration": "Below the light zone a giant octopus drifts past the viewport.",
+   "scene": {
+    "sceneId": "02_encounter",
+    "heroRole": "research submarine",
+    "supportingRoles": [
+     "giant octopus",
+     "oxygen tanks"
+    ],
+    "screenCopy": {
+     "primary": "THE MIDNIGHT ZONE"
+    },
+    "semanticRelationships": [
+     {
+      "source": "research submarine",
+      "target": "giant octopus",
+      "kind": "observes"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_mapping",
+   "start_seconds": 9.8,
+   "duration_seconds": 4.9,
+   "narration": "Sonar pings map the canyon faster than the old towed sled ever could.",
+   "scene": {
+    "sceneId": "03_mapping",
+    "heroRole": "sonar array",
+    "supportingRoles": [
+     "old towed sled",
+     "critical depth"
+    ],
+    "screenCopy": {
+     "primary": "MAPPING THE CANYON"
+    },
+    "semanticRelationships": [
+     {
+      "source": "sonar array",
+      "target": "critical depth",
+      "kind": "measures"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_archive",
+   "start_seconds": 14.7,
+   "duration_seconds": 5.0,
+   "narration": "Every dive banks hours of footage into the archive.",
+   "scene": {
+    "sceneId": "04_archive",
+    "heroRole": "archive vault",
+    "supportingRoles": [
+     "footage reel",
+     "432 hours"
+    ],
+    "screenCopy": {
+     "primary": "HOURS BANKED"
+    },
+    "semanticRelationships": []
+   }
+  }
+ ]
+}

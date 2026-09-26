@@ -8,7 +8,9 @@ EXPECTED={
  'EXPLAINER_ENGINE_SOURCE.zip':'b2782b1557515d43db78a2c1507aeebb1cae99458104c450ed63ef752a675f1b',
  'EDITORIAL_MOTION_ENGINE_SOURCE.zip':'b123325962778da3e1eed66cdc48cba3c396a092b3455baf8d032ed0115e3660',
  'STICKMAN_V5_1_ENGINE_SOURCE.zip':'67b49cc7275cd741a70f5851bf1f98d0a8cc7dbd3b1a884f458ddac789a21178',
- 'SOUND_LIBRARY_V2_SOURCE.zip':'ad60805d725b74e3e208b621b1334b8f55dee5bfbe7e517ecd05279821953428'}
+ 'SOUND_LIBRARY_V2_SOURCE.zip':'ad60805d725b74e3e208b621b1334b8f55dee5bfbe7e517ecd05279821953428',
+ 'NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE.zip':'a786a297078db2ed093b20b7a3ce9d59e9a031980fe5df6fc6893a42dc84bc71',
+ 'NEXSTUDIO_WHITEBOARD_APPROVED_V3_SOURCE_FOCUSED_2026-09-18.zip':'fadb4a67eb501e4ada6c30421f1c01d0891d42e55bbc017f90da077a4d2d3c5d'}
 def sha(p):
  h=hashlib.sha256();
  with p.open('rb') as f:
@@ -37,7 +39,7 @@ add('Standalone package identity',(json.loads((ROOT/'package.json').read_text(en
 add('No legacy host application/source/session references',not brand_hits,json.dumps(brand_hits[:8]))
 add('No browser route mounted at /studio',not browser_mount,json.dumps(browser_mount[:8]))
 add('Root Studio application routes present',all((ROOT/x).exists() for x in required))
-add('All five authoritative engine archives present',len(hashes)==5 and all(x['ok'] for x in hashes.values()),json.dumps(hashes))
+add('All pinned authoritative engine archives present',len(hashes)>=5 and all(x['ok'] for x in hashes.values()),json.dumps(hashes))
 add('P8 vendor snapshot present',(ROOT/'vendor/nexmind-god-mode-p8/src/nexmind_god_mode').exists())
 home=(ROOT/'src/studio-v1/react/StudioPublicExperience.tsx').read_text(encoding='utf-8')
 add('Public homepage does not lead with $2 pricing','$2' not in home and '$2/min' not in home)

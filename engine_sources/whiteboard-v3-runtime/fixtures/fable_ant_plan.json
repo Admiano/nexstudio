@@ -1,0 +1,152 @@
+{
+  "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+  "production_id": "FABLE_ANT",
+  "camera_variant": "comic",
+  "output_ratios": [
+    "9:16"
+  ],
+  "beats": [
+    {
+      "beat_id": "01_hopper",
+      "start_seconds": 0,
+      "duration_seconds": 5.0,
+      "narration": "The grasshopper laughs it off.",
+      "caption": "the grasshopper",
+      "figure": {
+        "clip": "PROTO_JUMP",
+        "pose": 0.33,
+        "facing": 1
+      },
+      "bubble": {
+        "text": "winter's far away"
+      },
+      "scene": {
+        "sceneId": "01",
+        "heroRole": "hopper",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": ""
+        },
+        "semanticRelationships": []
+      }
+    },
+    {
+      "beat_id": "02_ant",
+      "start_seconds": 5.0,
+      "duration_seconds": 5.0,
+      "narration": "The ant keeps working anyway.",
+      "caption": "the ant",
+      "figure": {
+        "clip": "PROTO_EX_DEADLIFT",
+        "pose": 0.8,
+        "facing": 1
+      },
+      "bubble": {
+        "text": "stocking up"
+      },
+      "scene": {
+        "sceneId": "02",
+        "heroRole": "ant",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": ""
+        },
+        "semanticRelationships": []
+      }
+    },
+    {
+      "beat_id": "03_mock",
+      "start_seconds": 10.0,
+      "duration_seconds": 5.0,
+      "narration": "Hop can't understand it.",
+      "caption": "the mockery",
+      "figure": {
+        "clip": "PROTO_IDLE",
+        "facing": 1
+      },
+      "bubble": {
+        "text": "why even bother?"
+      },
+      "scene": {
+        "sceneId": "03",
+        "heroRole": "hopper",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": ""
+        },
+        "semanticRelationships": []
+      }
+    },
+    {
+      "beat_id": "04_winter",
+      "start_seconds": 15.0,
+      "duration_seconds": 5.0,
+      "narration": "Then the cold front hits.",
+      "caption": "winter hits",
+      "figure": {
+        "clip": "PROTO_SLIDE",
+        "pose": 0.4,
+        "facing": 1
+      },
+      "bubble": {
+        "text": "it's freezing\u2014"
+      },
+      "scene": {
+        "sceneId": "04",
+        "heroRole": "hopper",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": ""
+        },
+        "semanticRelationships": []
+      }
+    },
+    {
+      "beat_id": "05_share",
+      "start_seconds": 20.0,
+      "duration_seconds": 5.0,
+      "narration": "The ant explains as he shares.",
+      "caption": "the ant shares",
+      "figure": {
+        "clip": "PROTO_WALK",
+        "pose": 0.2,
+        "facing": 1
+      },
+      "bubble": {
+        "text": "work compounds"
+      },
+      "scene": {
+        "sceneId": "05",
+        "heroRole": "ant",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": ""
+        },
+        "semanticRelationships": []
+      }
+    },
+    {
+      "beat_id": "06_lesson",
+      "start_seconds": 25.0,
+      "duration_seconds": 5.0,
+      "narration": "The lesson lands.",
+      "caption": "the lesson",
+      "figure": {
+        "clip": "PROTO_IDLE",
+        "facing": 1
+      },
+      "bubble": {
+        "text": "shortcuts vs foundations"
+      },
+      "scene": {
+        "sceneId": "06",
+        "heroRole": "narrator",
+        "supportingRoles": [],
+        "screenCopy": {
+          "primary": ""
+        },
+        "semanticRelationships": []
+      }
+    }
+  ]
+}

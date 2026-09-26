@@ -1,0 +1,361 @@
+{
+  "name": "crypto",
+  "domain": "crypto / defi / web3 explainers",
+  "glyphs": {
+    "bitcoin-coin": {
+      "keywords": [
+        "bitcoin",
+        "btc",
+        "coin",
+        "crypto",
+        "currency",
+        "sats"
+      ],
+      "motif": "coin",
+      "tone": "#F7931A",
+      "fill": true
+    },
+    "candlestick-chart": {
+      "keywords": [
+        "chart",
+        "candle",
+        "candlestick",
+        "price",
+        "market",
+        "trading",
+        "graph"
+      ],
+      "motif": "chart",
+      "tone": "a_red"
+    },
+    "pool-cylinder": {
+      "keywords": [
+        "pool",
+        "liquidity",
+        "reservoir",
+        "depth",
+        "barrel",
+        "fund"
+      ],
+      "motif": "pool",
+      "tone": "a_blue",
+      "fill": true
+    },
+    "vault-safe": {
+      "keywords": [
+        "vault",
+        "safe",
+        "custody",
+        "secure",
+        "cold",
+        "storage",
+        "deposit"
+      ],
+      "motif": "vault",
+      "tone": "a_blue"
+    },
+    "shield-check": {
+      "keywords": [
+        "shield",
+        "protect",
+        "security",
+        "audit",
+        "verified",
+        "safe",
+        "guard"
+      ],
+      "motif": "shield",
+      "tone": "a_green",
+      "fill": true
+    },
+    "chain-link": {
+      "keywords": [
+        "chain",
+        "blockchain",
+        "link",
+        "network",
+        "ledger",
+        "connected",
+        "blocks"
+      ]
+    },
+    "ledger-book": {
+      "keywords": [
+        "ledger",
+        "book",
+        "record",
+        "accounting",
+        "journal",
+        "register",
+        "transactions"
+      ]
+    },
+    "whale": {
+      "keywords": [
+        "whale",
+        "big",
+        "holder",
+        "institution",
+        "giant",
+        "large"
+      ],
+      "tone": "a_blue",
+      "fill": true
+    },
+    "key": {
+      "keywords": [
+        "key",
+        "private",
+        "access",
+        "seed",
+        "phrase",
+        "password",
+        "unlock"
+      ],
+      "tone": "a_yellow"
+    },
+    "block-cube": {
+      "keywords": [
+        "block",
+        "cube",
+        "blockchain",
+        "mine",
+        "mined",
+        "data"
+      ]
+    },
+    "eye-off": {
+      "keywords": [
+        "hidden",
+        "dark",
+        "invisible",
+        "anonymous",
+        "private",
+        "secret",
+        "off"
+      ]
+    },
+    "network-nodes": {
+      "keywords": [
+        "network",
+        "nodes",
+        "peer",
+        "distributed",
+        "decentralized",
+        "mesh",
+        "p2p"
+      ]
+    },
+    "exchange-swap": {
+      "keywords": [
+        "swap",
+        "exchange",
+        "trade",
+        "convert",
+        "transfer",
+        "arrows"
+      ]
+    },
+    "wallet": {
+      "keywords": [
+        "wallet",
+        "address",
+        "balance",
+        "hold",
+        "store",
+        "account"
+      ],
+      "tone": "#F7931A"
+    },
+    "lock-closed": {
+      "keywords": [
+        "lock",
+        "locked",
+        "encrypt",
+        "escrow",
+        "frozen",
+        "vested"
+      ]
+    },
+    "trend-up": {
+      "keywords": [
+        "up",
+        "gain",
+        "rise",
+        "pump",
+        "growth",
+        "bull",
+        "bullish",
+        "green"
+      ],
+      "motif": "uptrend",
+      "tone": "a_green"
+    },
+    "trend-down": {
+      "keywords": [
+        "down",
+        "loss",
+        "drop",
+        "dump",
+        "crash",
+        "bear",
+        "bearish",
+        "red",
+        "decline"
+      ],
+      "motif": "downtrend",
+      "tone": "a_red"
+    },
+    "gas-fee": {
+      "keywords": [
+        "gas",
+        "fee",
+        "fees",
+        "cost",
+        "transaction cost"
+      ],
+      "tone": "#F7931A"
+    },
+    "rocket": {
+      "keywords": [
+        "rocket",
+        "moon",
+        "launch",
+        "moonshot",
+        "surge",
+        "lambo"
+      ]
+    },
+    "bank-building": {
+      "keywords": [
+        "bank",
+        "banking",
+        "institution",
+        "government",
+        "regulator",
+        "fed",
+        "treasury"
+      ],
+      "tone": "a_blue"
+    },
+    "alert-triangle": {
+      "keywords": [
+        "warning",
+        "alert",
+        "risk",
+        "danger",
+        "caution",
+        "risky"
+      ],
+      "tone": "a_yellow",
+      "fill": true
+    },
+    "magnify": {
+      "keywords": [
+        "search",
+        "inspect",
+        "audit",
+        "look",
+        "find",
+        "analyze",
+        "research",
+        "magnifier"
+      ]
+    },
+    "robot-bot": {
+      "keywords": [
+        "bot",
+        "robot",
+        "algorithm",
+        "algo",
+        "automated",
+        "ai",
+        "automation"
+      ],
+      "tone": "a_blue"
+    },
+    "percent-fee": {
+      "keywords": [
+        "percent",
+        "percentage",
+        "fee",
+        "commission",
+        "rate",
+        "apr",
+        "apy",
+        "yield"
+      ]
+    },
+    "hourglass": {
+      "keywords": [
+        "time",
+        "wait",
+        "delay",
+        "pending",
+        "hourglass",
+        "duration",
+        "epoch"
+      ]
+    },
+    "laptop-trade": {
+      "keywords": [
+        "trade",
+        "trader",
+        "laptop",
+        "desk",
+        "screen",
+        "trading"
+      ],
+      "tone": "a_blue"
+    },
+    "target-aim": {
+      "keywords": [
+        "target",
+        "aim",
+        "goal",
+        "precision",
+        "sniper",
+        "objective"
+      ],
+      "tone": "a_red"
+    },
+    "fire-hot": {
+      "keywords": [
+        "fire",
+        "hot",
+        "burn",
+        "burned",
+        "trending",
+        "viral"
+      ],
+      "tone": "#D34541",
+      "fill": true
+    },
+    "trophy": {
+      "keywords": [
+        "trophy",
+        "win",
+        "winner",
+        "reward",
+        "prize",
+        "victory",
+        "champion"
+      ],
+      "tone": "a_yellow",
+      "fill": true
+    },
+    "hand-coin": {
+      "keywords": [
+        "tip",
+        "donate",
+        "pay",
+        "paying",
+        "hand",
+        "receive",
+        "spend",
+        "offer"
+      ],
+      "motif": "payment"
+    }
+  }
+}
