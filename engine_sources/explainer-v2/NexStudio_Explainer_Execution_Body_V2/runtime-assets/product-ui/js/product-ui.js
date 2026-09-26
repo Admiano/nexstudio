@@ -60,6 +60,49 @@ window.NexFilm = (() => {
     path.style.strokeDasharray = String(len); path.style.strokeDashoffset = String(len); path.style.opacity = '0';
     tl.addUpdate(s, d, p => { path.style.strokeDashoffset = String(len * (1 - p)); path.style.opacity = p > 0 ? '1' : '0'; }, ease);
   };
+  /* --- decodeIn: scrambl-style decode — chars cycle glyphs then lock L→R.
+     Deterministic under seek: glyph choice is a pure hash of (index, step). */
+  const GLYPHS = '!<>-_/[]{}=+*^?#·—';
+  const decodeIn = (tl, el, text, s, d, lockEnd = 0.8) => {
+    const chars = [...text], n = chars.length;
+    const glyph = (i, step) => GLYPHS[(((i * 2654435761) ^ (step * 40503)) >>> 0) % GLYPHS.length];
+    tl.addUpdate(s, d, (p, raw, t) => {
+      const step = Math.floor(t * 22);
+      let out = '';
+      for (let i = 0; i < n; i++) {
+        const lock = 0.08 + 0.72 * (i / Math.max(1, n)) * lockEnd;
+        if (chars[i] === ' ') { out += ' '; continue; }
+        if (p >= lock) { out += chars[i]; continue; }
+        if (p < lock - 0.18) { out += ''; continue; }
+        out += glyph(i, step);
+      }
+      el.textContent = out;
+    }, 'none');
+    tl.addUpdate(s + d + 0.01, 0.01, (p) => { if (p > 0) el.textContent = text; }, 'none');
+  };
+  /* --- wheelify: number-flow-style odometer digits — each digit is a masked
+     column strip of 0-9 that rolls to its final digit during count-up. */
+  const wheelify = (el, prefix, digits, suffix, color) => {
+    el.textContent = '';
+    el.style.cssText += ';display:inline-flex;align-items:baseline;overflow:hidden;height:1em;line-height:1';
+    const cols = [];
+    if (prefix) { const p = h('span', '', el, prefix); p.style.lineHeight = '1'; }
+    for (let i = 0; i < digits; i++) {
+      const col = h('span', '', el);
+      col.style.cssText = 'display:inline-block;height:1em;overflow:hidden;vertical-align:top';
+      const strip = h('span', '', col);
+      strip.style.cssText = 'display:block;will-change:transform';
+      for (let d = 0; d <= 9; d++) h('span', '', strip, String(d)).style.cssText = 'display:block;height:1em;line-height:1';
+      cols.push(strip);
+    }
+    if (suffix) { const s = h('span', '', el, suffix); s.style.lineHeight = '1'; if (color) s.style.color = color; }
+    return (v) => {
+      const str = String(v).padStart(digits, '0');
+      cols.forEach((strip, i) => {
+        strip.style.transform = `translateY(${-(Number(str[i]) || 0)}em)`;
+      });
+    };
+  };
 
   /* ---------- media assets ---------- */
   let assetIndex = {};
@@ -185,13 +228,15 @@ window.NexFilm = (() => {
       const mk = h('div', 'pf-mono', row, String(spec.marker));
       mk.style.cssText = `font-size:${fsize('15px')};letter-spacing:.3em;color:var(--pf-accent);font-weight:600`;
     }
-    const head = h('h2', 'pf-display', el, spec.text || ''); head.dataset.cap = 'title';
+    const decode = spec.reveal === 'decode';
+    const head = h('h2', 'pf-display', el, decode ? '' : spec.text || ''); head.dataset.cap = 'title';
     head.style.cssText = `font-size:${fsize(spec.fontSize || '58px')};max-width:94%`;
     const rule = h('div', 'pf-rule', el);
     rule.style.cssText = 'width:120px;transform-origin:0 50%';
     const tl = NexMotion.createTimeline();
     if (spec.marker) fadeIn(tl, row, 0.15, 0.4);
-    tl.fromTo(head, { opacity: 0, y: 26, clipPath: 'inset(0 0 60% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0 -10% 0)', duration: 0.7, ease: 'power3.out' }, 0.28);
+    if (decode) decodeIn(tl, head, spec.text || '', 0.28, 1.4);
+    else tl.fromTo(head, { opacity: 0, y: 26, clipPath: 'inset(0 0 60% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0 -10% 0)', duration: 0.7, ease: 'power3.out' }, 0.28);
     tl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: 'power2.out' }, 0.75);
     if (spec.sub) fadeIn(tl, sub(el, spec.sub), 0.95, 0.45);
     return { el, tl };
@@ -201,10 +246,12 @@ window.NexFilm = (() => {
   scenes['type-card'] = (spec) => {
     const el = h('div', '', null);
     center(el);
+    const decode = spec.reveal === 'decode';
     const head = h('h2', 'pf-display', el, spec.text || ''); head.dataset.cap = 'title';
     head.style.cssText = `font-size:${fsize(spec.fontSize || '64px')};max-width:92%`;
     const tl = NexMotion.createTimeline();
-    splitWords(head, spec.text || '').forEach((w, i) =>
+    if (decode) decodeIn(tl, head, spec.text || '', 0.2, 1.5);
+    else splitWords(head, spec.text || '').forEach((w, i) =>
       tl.fromTo(w, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.15 + i * 0.09));
     if (spec.sub) fadeIn(tl, sub(el, spec.sub), 0.9, 0.4);
     return { el, tl };
@@ -288,8 +335,20 @@ window.NexFilm = (() => {
     const blurMax = spec.blur ?? 11;
     const accent = spec.accent; // trailing word(s) colored: number = last-N chars, string = word match
     const tl = NexMotion.createTimeline();
+    const decode = spec.reveal === 'decode';
+    if (decode) chars.forEach(c => { c.style.opacity = '0'; });
     chars.forEach((c, i) => {
       const s = 0.06 + i * stagger;
+      if (decode) {
+        const orig = c.textContent;
+        tl.addUpdate(s, 0.42, (p, raw, t) => {
+          const step = Math.floor(t * 22);
+          c.textContent = p >= 0.92 ? orig : GLYPHS[(((i * 2654435761) ^ (step * 40503)) >>> 0) % GLYPHS.length];
+          c.style.opacity = p > 0 ? '1' : '0';
+        }, 'none');
+        tl.addUpdate(s + 0.45, 0.01, (p) => { if (p > 0) c.textContent = orig; }, 'none');
+        return;
+      }
       const depth = 1 - i / n;                     // first chars are "fastest"
       const blur = blurMax * (0.45 + 0.55 * depth);
       const dy = (26 + 22 * depth).toFixed(1);
@@ -394,8 +453,15 @@ window.NexFilm = (() => {
     arc.style.strokeDasharray = String(C); arc.style.strokeDashoffset = String(C);
     tl.addUpdate(0.2, 1.5, p => { arc.style.strokeDashoffset = String(C * (1 - p * 0.999)); }, 'power3.out');
     const to = Number(spec.value || 0), fmt = spec.format;
-    const pre = (fmt && fmt.match(/^\D+/)) ? fmt.match(/^\D+/)[0] : '';
-    counter(tl, val, 0.35, 1.5, p => pre + Math.round(to * p).toLocaleString() + (spec.suffix || ''));
+    const wheel = spec.digits === 'wheel' || (spec.digits !== 'flat' && !fmt);
+    if (wheel) {
+      const nd = String(Math.max(1, Math.round(to))).length;
+      const set = wheelify(val, '', nd, spec.suffix || '', cssVar('--pf-accent'));
+      tl.addUpdate(0.35, 1.5, p => set(Math.round(to * p)), 'power3.out');
+    } else {
+      const pre = (fmt && fmt.match(/^\D+/)) ? fmt.match(/^\D+/)[0] : '';
+      counter(tl, val, 0.35, 1.5, p => pre + Math.round(to * p).toLocaleString() + (spec.suffix || ''));
+    }
     popIn(tl, num, 0.15, 0.5);
     if (spec.sub) fadeIn(tl, sub(el, spec.sub), 1.5, 0.4);
     return { el, tl };
@@ -1154,8 +1220,8 @@ window.NexFilm = (() => {
     list.forEach((c, ci) => {
       const at = typeof c.at === 'number' ? c.at : 1.1 + ci * 0.55;
       let done = false;
-      tl.addUpdate(Math.max(0.02, at - 0.02), 0.02, () => {
-        if (done) return; done = true;
+      tl.addUpdate(Math.max(0.02, at - 0.02), 0.02, (p) => {
+        if (done || p <= 0) return; done = true;
         const target = resolveCap(sec, c.target);
         if (!target) return;
         const r = target.getBoundingClientRect(), hr = sec.getBoundingClientRect();

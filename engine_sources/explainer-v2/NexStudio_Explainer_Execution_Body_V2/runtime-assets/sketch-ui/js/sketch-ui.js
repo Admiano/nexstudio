@@ -96,6 +96,47 @@ window.NexSketch = (() => {
   const popIn = (tl, el, s, d = 0.4) => tl.fromTo(el, { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: d, ease: 'back.out(1.7)' }, s);
   /* numeric / text counters driven by seekable updates */
   const counter = (tl, el, s, d, fmt) => tl.addUpdate(s, d, (p) => { el.textContent = fmt(p); }, 'none');
+  /* --- decodeIn: seeded glyph-scramble reveal — chars cycle then lock L→R.
+     Pure function of (index, frame-step) → deterministic under seek. */
+  const GLYPHS = '!<>-_/[]{}=+*^?#·—';
+  const glyphAt = (i, step) => GLYPHS[(((i * 2654435761) ^ (step * 40503)) >>> 0) % GLYPHS.length];
+  const decodeIn = (tl, el, text, s, d) => {
+    const chars = [...text], n = chars.length;
+    tl.addUpdate(s, d, (p, raw, t) => {
+      const step = Math.floor(t * 22);
+      let out = '';
+      for (let i = 0; i < n; i++) {
+        const lock = 0.08 + 0.72 * (i / Math.max(1, n));
+        if (chars[i] === ' ') { out += ' '; continue; }
+        if (p >= lock) { out += chars[i]; continue; }
+        if (p < lock - 0.18) continue;
+        out += glyphAt(i, step);
+      }
+      el.textContent = out;
+    }, 'none');
+    tl.addUpdate(s + d + 0.01, 0.01, (p) => { if (p > 0) el.textContent = text; }, 'none');
+  };
+  /* --- wheelify: number-flow odometer digits — masked 0-9 column strips
+     that roll to their final digit during the count-up. */
+  const wheelify = (el, prefix, digits, suffix, color) => {
+    el.textContent = '';
+    el.style.cssText += ';display:inline-flex;align-items:baseline;overflow:hidden;height:1em;line-height:1';
+    const cols = [];
+    if (prefix) h('span', '', el, prefix).style.lineHeight = '1';
+    for (let i = 0; i < digits; i++) {
+      const col = h('span', '', el);
+      col.style.cssText = 'display:inline-block;height:1em;overflow:hidden;vertical-align:top';
+      const strip = h('span', '', col);
+      strip.style.cssText = 'display:block;will-change:transform';
+      for (let d = 0; d <= 9; d++) h('span', '', strip, String(d)).style.cssText = 'display:block;height:1em;line-height:1';
+      cols.push(strip);
+    }
+    if (suffix) { const s = h('span', '', el, suffix); s.style.lineHeight = '1'; if (color) s.style.color = color; }
+    return (v) => {
+      const str = String(v).padStart(digits, '0');
+      cols.forEach((strip, i) => { strip.style.transform = `translateY(${-(Number(str[i]) || 0)}em)`; });
+    };
+  };
   /* display-type scale hook — 'poster'/'deck' layout modes scale via
      --sk-display-scale on the stage or scene section */
   const fsize = (v) => `calc(${v} * var(--sk-display-scale,1))`;
@@ -199,9 +240,10 @@ window.NexSketch = (() => {
   scenes['type-card'] = (spec) => {
     const el = h('div', 'sk-scene-body', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 9%;gap:14px';
-    const t = h('h2', 'sk-display', el);
+    const decode = spec.reveal === 'decode';
+    const t = h('h2', 'sk-display', el); t.dataset.cap = 'title';
     t.style.fontSize = fsize(spec.fontSize || '56px');
-    const words = splitWords(t, spec.text || '');
+    const words = splitWords(t, decode ? '' : spec.text || '');
     if (spec.accent) {
       /* paint the matching word mint */
       words.forEach(w => { if (w.textContent === spec.accent) w.style.color = 'var(--sk-mint-deep)'; });
@@ -211,8 +253,9 @@ window.NexSketch = (() => {
     skLine(rs, 2, 4, 94, 4, 1005, { strokeWidth: 2.2 });
     if (spec.sub) { const s = h('div', 'sk-mono', el, spec.sub); s.style.cssText = 'font-size:14px;color:var(--sk-ink-2);letter-spacing:.14em;text-transform:uppercase'; }
     const tl = NexMotion.createTimeline();
-    words.forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 26, rotation: 1.2 }, { opacity: 1, y: 0, rotation: 0, duration: 0.55, ease: 'power3.out' }, 0.15 + i * 0.11));
-    drawOn(tl, rs, 0.3 + words.length * 0.11, 0.4, 'expo.out');
+    if (decode) decodeIn(tl, t, spec.text || '', 0.2, 1.5);
+    else words.forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 26, rotation: 1.2 }, { opacity: 1, y: 0, rotation: 0, duration: 0.55, ease: 'power3.out' }, 0.15 + i * 0.11));
+    drawOn(tl, rs, 0.3 + (decode ? 12 : words.length) * 0.11, 0.4, 'expo.out');
     if (spec.sub) fadeIn(tl, el.children[el.children.length - 1], 0.6 + words.length * 0.1, 0.35);
     return { el, tl };
   };
@@ -1051,7 +1094,8 @@ window.NexSketch = (() => {
     }
     const tl = NexMotion.createTimeline();
     if (spec.marker) fadeIn(tl, el.children[0], 0.1, 0.3, 6);
-    splitWords(t, t.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 30, rotation: 1.4 }, { opacity: 1, y: 0, rotation: 0, duration: 0.55, ease: 'power3.out' }, 0.25 + i * 0.1));
+    if (spec.reveal === 'decode') decodeIn(tl, t, spec.text || '', 0.25, 1.4);
+    else splitWords(t, t.textContent).forEach((w, i) => tl.fromTo(w, { opacity: 0, y: 30, rotation: 1.4 }, { opacity: 1, y: 0, rotation: 0, duration: 0.55, ease: 'power3.out' }, 0.25 + i * 0.1));
     drawOn(tl, rs, 0.35, 0.45, 'expo.out');
     if (spec.sub) fadeIn(tl, el.children[el.children.length - 1], 0.7, 0.4);
     const ghost = el.querySelector('.sk-outline');
@@ -1150,7 +1194,13 @@ window.NexSketch = (() => {
     drawOn(tl, ring, 0.2, 0.9);
     const fmt = spec.format || ((v) => String(Math.round(v)));
     const suffix = spec.suffix || '';
-    counter(tl, big, 0.4, 1.3, p => fmt(p * Number(spec.value || 0)) + suffix);
+    if (spec.digits === 'wheel') {
+      const nd = String(Math.max(1, Math.round(Number(spec.value || 0)))).length;
+      const set = wheelify(big, '', nd, suffix, cssVar('--sk-mint-deep'));
+      tl.addUpdate(0.4, 1.3, p => set(Math.round(p * Number(spec.value || 0))), 'power3.out');
+    } else {
+      counter(tl, big, 0.4, 1.3, p => fmt(p * Number(spec.value || 0)) + suffix);
+    }
     drawOn(tl, rs, 0.9, 0.5, 'expo.out');
     fadeIn(tl, label, 1.05, 0.35, 6);
     if (spec.sub) fadeIn(tl, el.children[el.children.length - 1], 1.3, 0.4);
@@ -1374,8 +1424,20 @@ window.NexSketch = (() => {
     const blurMax = spec.blur ?? 9;
     const accent = spec.accent;
     const tl = NexMotion.createTimeline();
+    const decode = spec.reveal === 'decode';
+    if (decode) chars.forEach(c => { c.style.opacity = '0'; });
     chars.forEach((c, i) => {
       const s = 0.06 + i * stagger;
+      if (decode) {
+        const orig = c.textContent;
+        tl.addUpdate(s, 0.42, (p, raw, t) => {
+          const step = Math.floor(t * 22);
+          c.textContent = p >= 0.92 ? orig : glyphAt(i, step);
+          c.style.opacity = p > 0 ? '1' : '0';
+        }, 'none');
+        tl.addUpdate(s + 0.45, 0.01, (p) => { if (p > 0) c.textContent = orig; }, 'none');
+        return;
+      }
       const depth = 1 - i / n;
       const blur = blurMax * (0.45 + 0.55 * depth);
       const dy = 24 + 20 * depth;
@@ -1485,8 +1547,8 @@ window.NexSketch = (() => {
     list.forEach((c, ci) => {
       const at = typeof c.at === 'number' ? c.at : 1.1 + ci * 0.55;
       let done = false;
-      tl.addUpdate(Math.max(0.02, at - 0.02), 0.02, () => {
-        if (done) return; done = true;
+      tl.addUpdate(Math.max(0.02, at - 0.02), 0.02, (p) => {
+        if (done || p <= 0) return; done = true;
         const target = resolveCap(sec, c.target);
         if (!target) return;
         const r = target.getBoundingClientRect(), hr = sec.getBoundingClientRect();
