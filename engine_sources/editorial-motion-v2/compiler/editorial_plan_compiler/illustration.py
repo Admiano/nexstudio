@@ -1026,6 +1026,7 @@ class IllustrationSolver:
         settled = max([e['enter_ms'] + e['enter_duration_ms'] for e in ents] + [r['enter_ms'] + r['enter_duration_ms'] for r in rels] + [o['end_ms'] for o in ops] + [CARRY_REFRAME_MS if carry_in else 0])
         ops += self._decorate(ops, ents, rels, clock.duration_ms - EXIT_MS - 60, il, int(settled))
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
+        assign_actions(ents, zone)
         state_changes = sum(o['state_change'] for o in ops)
         plan = {
             'form': il.form, 'zone': zone, 'entities': ents, 'relations': rels, 'ops': ops, 'settled_ms': int(settled),
@@ -1040,6 +1041,86 @@ class IllustrationSolver:
 OP_PROPERTY = {'DRAW': 'draw', 'FILL': 'fill', 'INK': 'ink', 'DIM': 'dim', 'GROW': 'grow', 'STRIKE': 'strike', 'SWAP': 'swap',
                'COUNT': 'count', 'EMIT': 'emit', 'CONNECT': 'connect'}
 PROPERTY_REST = {'draw': 1.0, 'fill': 0.0, 'ink': 0.0, 'dim': 1.0, 'grow': 1.0, 'strike': 0.0, 'swap': 0.0, 'count': 1.0, 'emit': 0.0, 'connect': 1.0}
+
+
+# Story actions: the plate keeps its still environment, but the subject the narration
+# is about moves — plants grow from the soil, moons go dark, balls get kicked, counted
+# objects pop in one at a time. Assigned per concept, evaluated on the beat's own clock.
+LOOP_ACTIONS = {'orbit', 'pulse', 'spin', 'swim', 'flutter', 'wave', 'breathe'}
+
+
+def _action_for(concept: str, ready_ms: int, zone: Dict[str, float], bbox: Dict[str, float]) -> Optional[Dict[str, Any]]:
+    n = concept.lower().replace('_', '-')
+
+    def has(*ws: str) -> bool:
+        return any(w in n for w in ws)
+
+    if has('roots', 'root'):
+        # Roots grow the other way — down from the seed, anchored at the top.
+        return {'kind': 'grow', 'at': ready_ms + 150, 'dur': 1500, 'anchor': 'top'}
+    if has('plant', 'sprout', 'seedling', 'seed', 'flower', 'tree', 'pine', 'mushroom', 'cactus',
+           'shoot', 'vine', 'leaf', 'leaves', 'grass', 'tuft', 'kelp', 'reed', 'stem', 'bud'):
+        return {'kind': 'grow', 'at': ready_ms + 150, 'dur': 1500}
+    if has('moon'):
+        return {'kind': 'phase', 'at': ready_ms + 320, 'dur': 1700}
+    if has('soccer', 'football', 'basketball', 'tennis-ball', 'ball'):
+        # The kick travels toward the plate's open side.
+        cx = float(bbox['x']) + float(bbox['w']) / 2
+        zx, zw = float(zone.get('x') or 0), float(zone.get('w') or 1)
+        return {'kind': 'kick', 'at': ready_ms + 320, 'dur': 950, 'dir': -1 if cx > zx + zw * 0.6 else 1}
+    if has('rocket', 'balloon', 'kite', 'sunrise', 'firework'):
+        return {'kind': 'rise', 'at': ready_ms + 320, 'dur': 2300}
+    if has('drop', 'rain', 'snow', 'waterfall', 'tear'):
+        return {'kind': 'fall', 'at': ready_ms + 200, 'dur': 1300}
+    if has('earth', 'planet', 'saturn', 'satellite', 'globe', 'orbit', 'comet'):
+        return {'kind': 'orbit'}
+    if has('fish', 'whale', 'turtle', 'shark', 'dolphin', 'coral', 'shell', 'boat', 'ship'):
+        return {'kind': 'swim'}
+    if has('bird', 'butterfly', 'bee', 'owl', 'dragonfly'):
+        return {'kind': 'flutter'}
+    if has('gear', 'wheel', 'windmill', 'clock', 'hourglass', 'fan'):
+        return {'kind': 'spin'}
+    if has('flag', 'banner', 'pennant'):
+        return {'kind': 'wave'}
+    if has('sun', 'star', 'heart', 'bulb', 'candle', 'lantern', 'bell', 'trophy', 'medal',
+           'crown', 'gem', 'coin', 'fire', 'volcano'):
+        return {'kind': 'pulse'}
+    if has('storm', 'cloud', 'fog', 'mist', 'hill', 'mountain'):
+        return {'kind': 'breathe'}
+    return None
+
+
+def assign_actions(ents: List[Dict[str, Any]], zone: Dict[str, float]) -> None:
+    """Attach a story action to each subject entity — authored or concept-derived.
+
+    Guards: garnish (`support_*`) marks never loop, and a plate with several moons is a
+    phases chart — its cells stay fixed so the sequence reads."""
+    from collections import Counter
+    subjects = [e for e in ents if not str(e.get('id') or '').startswith('support_')]
+    counts = Counter(str(e.get('concept') or '') for e in subjects)
+    moons = sum(1 for e in subjects if 'moon' in str(e.get('concept') or '').lower())
+    pop_idx: Dict[str, int] = {}
+    for e in ents:
+        if e.get('carried') or e.get('action'):
+            continue
+        concept = str(e.get('concept') or '').lower().replace('_', '-')
+        if not concept:
+            continue
+        ready = int(e.get('enter_ms') or 0) + int(e.get('enter_duration_ms') or 0)
+        act = _action_for(concept, ready, zone, e.get('bbox') or {})
+        if act and act['kind'] == 'phase' and moons > 1:
+            act = None  # a phases row teaches the sequence — it must not blur it
+        if act is None and counts.get(concept, 0) >= 3:
+            # A counting plate: several of a kind land as a counted sequence, each
+            # popping in with a spring — the "one… two… three" of a picture book.
+            idx = pop_idx.get(concept, 0)
+            pop_idx[concept] = idx + 1
+            act = {'kind': 'pop', 'at': ready + idx * 240, 'dur': 380}
+        if act is None:
+            # Living-still fallback: even a resting mark settles imperceptibly — nothing
+            # on a living page is ever dead-frozen.
+            act = {'kind': 'breathe'}
+        e['action'] = act
 
 
 def terminal_state(plan: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:

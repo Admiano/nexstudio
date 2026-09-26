@@ -3059,6 +3059,16 @@
         node.extra.iconBox = box;
         node.extra.shadow = { el: wrap, oy: box.h * 0.045, blur: box.h * 0.09, alpha: 0.2 };
         host.setAttribute('data-icon-host', ent.id);
+        if (ent.action && ent.action.kind === 'phase') {
+          // The eclipse shadow: a dark paper disc slides across the face, clipped to the
+          // moon's own disc so the bite edge stays clean — the moon goes dark.
+          const clipId = `ph_${ent.id}`;
+          const defs = svgEl('defs', {}, art.g);
+          const cp = svgEl('clipPath', { id: clipId }, defs);
+          svgEl('circle', { cx: 50, cy: 50, r: 34 }, cp);
+          const covG = svgEl('g', { 'clip-path': `url(#${clipId})` }, art.g);
+          node.extra.phaseCover = svgEl('circle', { cx: 50, cy: 50, r: 36, fill: '#10161f', 'fill-opacity': 0, transform: 'translate(-118 0)' }, covG);
+        }
         const n = art.els.length;
         art.els.forEach((e, i) => node.outline.push({ path: e, len: 0, set(v) { e.style.opacity = clamp(v * n - i, 0, 1).toFixed(4); } }));
         return true;
@@ -4279,6 +4289,60 @@
     sh.el.style.filter = `drop-shadow(${f2(sh.oy * lean)}px ${f2(sh.oy * lift)}px ${f2(sh.blur * lift)}px rgba(${rgb},${(sh.alpha / lift).toFixed(3)}))`;
   }
 
+  // Story actions: the plate's environment stays printed and still, but the subject the
+  // narration is about moves — plants grow from the soil, moons go dark, balls kick,
+  // counted objects pop in one by one. Deterministic on lt; one-shots hold their end state.
+  function storyAction(act, node, lt) {
+    const bb = node.bb;
+    const oneShot = act.dur ? clamp(prog(lt, act.at, act.at + act.dur), 0, 1) : null;
+    switch (act.kind) {
+      case 'grow': {
+        const e = EASE.settle(oneShot);
+        return { sy: Math.max(0.03, e), s: 0.88 + 0.12 * e, anchor: act.anchor === 'top' ? 'top' : 'bottom', rot: Math.sin(oneShot * Math.PI) * 3 * (act.at % 3 - 1) };
+      }
+      case 'pop': {
+        const e = EASE.settle(oneShot);
+        return { s: Math.max(0.02, e), op: Math.min(1, oneShot * 3.2) };
+      }
+      case 'phase':
+        return { phase: EASE.inOutCubic(oneShot), dx: Math.sin(lt * 0.0009 + bb.x) * 0.6, rot: Math.sin(lt * 0.0007) * 0.4 };
+      case 'kick': {
+        // Flies a short arc and lands — the pressed still shows where it came to rest.
+        const q = EASE.outCubic(oneShot), dir = act.dir || 1;
+        return { dx: dir * bb.w * 1.9 * q, dy: -Math.sin(oneShot * Math.PI) * bb.h * 1.4, rot: dir * oneShot * 480 };
+      }
+      case 'rise': {
+        const q = EASE.outCubic(oneShot);
+        return { dy: -bb.h * 1.25 * q, rot: Math.sin(oneShot * Math.PI) * 6, op: oneShot > 0.88 ? (1 - oneShot) / 0.12 : 1 };
+      }
+      case 'fall': {
+        const q = EASE.inCubic(oneShot);
+        return { dy: bb.h * 1.4 * q, op: oneShot > 0.82 ? (1 - oneShot) / 0.18 : 1 };
+      }
+      case 'orbit': {
+        const w = 0.0009, r = Math.min(bb.w, bb.h) * 0.11;
+        return { dx: Math.cos(lt * w) * r, dy: Math.sin(lt * w) * r * 0.55, rot: Math.sin(lt * w) * 5 };
+      }
+      case 'pulse':
+        return { s: 1 + 0.05 * Math.sin(lt * 0.0028 + (bb.x % 37)) };
+      case 'spin':
+        return { rot: (lt * 0.045) % 360 };
+      case 'swim':
+        return { dx: Math.sin(lt * 0.0016 + bb.y * 0.01) * bb.w * 0.15, rot: Math.sin(lt * 0.0016 + 0.7) * 5 };
+      case 'flutter':
+        return { dy: Math.sin(lt * 0.006) * bb.h * 0.07, rot: Math.sin(lt * 0.004) * 7 };
+      case 'wave':
+        return { rot: Math.sin(lt * 0.003) * 4.5, anchor: 'bottom' };
+      case 'breathe': {
+        // Living still: sub-pixel settle so a printed mark never reads dead-frozen.
+        const b = Math.sin(lt * 0.0009 + (bb.x * 0.7 + bb.y) * 0.011);
+        return { dx: b * 0.5, rot: b * 0.4 };
+      }
+      default:
+        return null;
+    }
+  }
+
   function applyIllustrationState(ill, lt, beat, ctx) {
     const paper = ctx.brand.paper, ink = ctx.brand.ink, accent = ill.accent;
     const ex = ctx.exitState({ block: { role: 'illustration' } }, lt);
@@ -4403,8 +4467,21 @@
         gl.extra.lens.setAttribute('transform', `translate(${f2(p.x)} ${f2(p.y)})`);
       }
       if (ex) { opacity *= ex.opacity; ty += ex.ty; }
+      const act = ent.action ? storyAction(ent.action, node, lt) : null;
+      if (act) {
+        tx += act.dx || 0; ty += act.dy || 0;
+        if (act.op != null) opacity *= act.op;
+        if (act.phase != null && gl.extra.phaseCover) {
+          gl.extra.phaseCover.setAttribute('transform', `translate(${f2(-118 * (1 - act.phase))} 0)`);
+          gl.extra.phaseCover.setAttribute('fill-opacity', (0.62 * Math.min(1, act.phase * 4)).toFixed(3));
+        }
+      }
       const c = centre(node.bb);
-      if (scale !== 1 || ty || tx || gl.extra.rotateDeg) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)})${gl.extra.rotateDeg ? ` rotate(${gl.extra.rotateDeg})` : ''} translate(${f2(-c.x)} ${f2(-c.y)})`;
+      const anchorY = act && act.anchor === 'bottom' ? node.bb.y + node.bb.h : act && act.anchor === 'top' ? node.bb.y : c.y;
+      const rot = (gl.extra.rotateDeg || 0) + (act && act.rot ? act.rot : 0);
+      const sx = scale * (act && act.s != null ? act.s : 1);
+      const sy = act && act.sy != null ? scale * act.sy : sx;
+      if (sx !== 1 || sy !== 1 || ty || tx || rot) transform += ` translate(${f2(c.x + tx)} ${f2(anchorY + ty)}) scale(${f2(sx)}${sy !== sx ? ` ${f2(sy)}` : ''})${rot ? ` rotate(${f2(rot)})` : ''} translate(${f2(-c.x)} ${f2(-anchorY)})`;
       g.setAttribute('transform', transform.trim() || 'translate(0 0)');
       g.style.opacity = opacity.toFixed(4);
       if (gl.extra.shadow) castShadow(gl.extra.shadow, pose.cx + tx, pose.cy, ctx.canvas, pEnt, ctx.shadowRgb);

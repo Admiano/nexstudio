@@ -25,7 +25,7 @@ from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirect
 from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, hrot, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
-from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
+from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect, assign_actions
 from .bankart import BankArt
 from .papercut import papercut_image, papercut_coverage, tonal_ramp
 from .evidence import PhotoEvidence
@@ -455,6 +455,9 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
     for e in ents:
         if e.get('enter_ms', 0) > dur_ms * 0.62:
             e['enter_ms'] = int(dur_ms * 0.62)
+    # Support marks join the entities after the solver ran — assign their story
+    # actions here (and re-resolve authored subjects now that bboxes are final).
+    assign_actions(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh})
     return illustration
 
 
