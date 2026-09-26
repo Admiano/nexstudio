@@ -1,0 +1,275 @@
+{
+  "name": "business",
+  "domain": "business / finance / corporate / startup explainers",
+  "glyphs": {
+    "briefcase": {
+      "keywords": [
+        "briefcase",
+        "work",
+        "job",
+        "business",
+        "corporate",
+        "career",
+        "office"
+      ],
+      "motif": "work"
+    },
+    "handshake": {
+      "keywords": [
+        "deal",
+        "handshake",
+        "partnership",
+        "agreement",
+        "merger",
+        "collaboration",
+        "trust"
+      ],
+      "motif": "deal",
+      "tone": "a_yellow"
+    },
+    "chart-bars": {
+      "keywords": [
+        "chart",
+        "bars",
+        "metrics",
+        "kpi",
+        "growth",
+        "revenue",
+        "statistics",
+        "bar chart"
+      ],
+      "motif": "chart",
+      "tone": "a_blue"
+    },
+    "pie-chart": {
+      "keywords": [
+        "pie",
+        "share",
+        "market share",
+        "split",
+        "allocation",
+        "breakdown"
+      ],
+      "tone": "a_blue"
+    },
+    "presentation": {
+      "keywords": [
+        "presentation",
+        "pitch",
+        "deck",
+        "slides",
+        "boardroom",
+        "demo"
+      ],
+      "tone": "a_red"
+    },
+    "calculator": {
+      "keywords": [
+        "calculator",
+        "math",
+        "accounting",
+        "budget",
+        "numbers",
+        "finance"
+      ],
+      "tone": "a_blue"
+    },
+    "dollar-sign": {
+      "keywords": [
+        "dollar",
+        "money",
+        "usd",
+        "profit",
+        "price",
+        "cost",
+        "revenue",
+        "salary"
+      ],
+      "motif": "money",
+      "tone": "a_green",
+      "fill": true
+    },
+    "money-bag": {
+      "keywords": [
+        "money bag",
+        "cash",
+        "capital",
+        "funding",
+        "investment",
+        "bankroll",
+        "savings"
+      ],
+      "tone": "a_green",
+      "fill": true
+    },
+    "office-building": {
+      "keywords": [
+        "office",
+        "company",
+        "headquarters",
+        "hq",
+        "corporate",
+        "building",
+        "enterprise"
+      ],
+      "tone": "a_blue"
+    },
+    "necktie": {
+      "keywords": [
+        "tie",
+        "suit",
+        "executive",
+        "professional",
+        "boss",
+        "formal"
+      ],
+      "tone": "a_blue"
+    },
+    "contract-pen": {
+      "keywords": [
+        "contract",
+        "sign",
+        "signature",
+        "agreement",
+        "legal",
+        "document",
+        "terms"
+      ],
+      "motif": "contract"
+    },
+    "stamp": {
+      "keywords": [
+        "stamp",
+        "approved",
+        "official",
+        "certified",
+        "seal",
+        "authorize"
+      ],
+      "tone": "a_red"
+    },
+    "meeting-table": {
+      "keywords": [
+        "meeting",
+        "board",
+        "conference",
+        "team",
+        "discussion",
+        "negotiation"
+      ]
+    },
+    "megaphone": {
+      "keywords": [
+        "megaphone",
+        "announce",
+        "marketing",
+        "promotion",
+        "advertise",
+        "shout"
+      ],
+      "motif": "marketing",
+      "tone": "a_red"
+    },
+    "badge-id": {
+      "keywords": [
+        "badge",
+        "id",
+        "employee",
+        "identity",
+        "access card",
+        "staff"
+      ],
+      "tone": "a_blue"
+    },
+    "card-pay": {
+      "keywords": [
+        "credit card",
+        "payment",
+        "card",
+        "checkout",
+        "purchase",
+        "debit"
+      ],
+      "motif": "payment",
+      "tone": "a_blue"
+    },
+    "scales-justice": {
+      "keywords": [
+        "scales",
+        "justice",
+        "legal",
+        "law",
+        "balance",
+        "court",
+        "regulation"
+      ],
+      "tone": "a_yellow"
+    },
+    "inbox": {
+      "keywords": [
+        "inbox",
+        "email",
+        "mail",
+        "messages",
+        "outreach",
+        "contact"
+      ],
+      "tone": "a_blue"
+    },
+    "lightbulb": {
+      "keywords": [
+        "idea",
+        "lightbulb",
+        "innovation",
+        "insight",
+        "brainstorm",
+        "eureka"
+      ],
+      "motif": "idea",
+      "tone": "a_yellow"
+    },
+    "calendar": {
+      "keywords": [
+        "calendar",
+        "schedule",
+        "date",
+        "deadline",
+        "appointment",
+        "quarter"
+      ],
+      "tone": "a_red"
+    },
+    "coffee-cup": {
+      "keywords": [
+        "coffee",
+        "break",
+        "meeting",
+        "cafe",
+        "morning",
+        "espresso"
+      ]
+    },
+    "phone-call": {
+      "keywords": [
+        "call",
+        "phone",
+        "contact",
+        "support",
+        "sales call",
+        "outreach"
+      ],
+      "tone": "a_blue"
+    },
+    "growth-arrow": {
+      "keywords": [
+        "growth",
+        "up",
+        "increase",
+        "scaling",
+        "trajectory",
+        "hockey stick"
+      ],
+      "tone": "a_green"
+    }
+  }
+}

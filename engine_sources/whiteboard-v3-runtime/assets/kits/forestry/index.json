@@ -1,0 +1,248 @@
+{
+  "name": "forestry",
+  "domain": "forestry / logging / environment / outdoors explainers",
+  "glyphs": {
+    "tree-pine": {
+      "keywords": [
+        "pine",
+        "tree",
+        "conifer",
+        "evergreen",
+        "spruce",
+        "fir",
+        "forest"
+      ],
+      "motif": "tree",
+      "tone": "a_green",
+      "fill": true
+    },
+    "tree-leafy": {
+      "keywords": [
+        "tree",
+        "oak",
+        "deciduous",
+        "leafy",
+        "canopy",
+        "shade"
+      ],
+      "tone": "a_green",
+      "fill": true
+    },
+    "leaf": {
+      "keywords": [
+        "leaf",
+        "leaves",
+        "foliage",
+        "green",
+        "photosynthesis"
+      ],
+      "motif": "leaf",
+      "tone": "a_green",
+      "fill": true
+    },
+    "seedling": {
+      "keywords": [
+        "seedling",
+        "sapling",
+        "plant",
+        "grow",
+        "sprout",
+        "reforest",
+        "new growth"
+      ],
+      "tone": "a_green"
+    },
+    "log-stack": {
+      "keywords": [
+        "logs",
+        "timber",
+        "lumber",
+        "wood",
+        "harvest",
+        "stacked",
+        "cut wood"
+      ],
+      "motif": "logs"
+    },
+    "tree-stump": {
+      "keywords": [
+        "stump",
+        "deforestation",
+        "cut down",
+        "logged",
+        "clearcut"
+      ],
+      "motif": "stump"
+    },
+    "axe": {
+      "keywords": [
+        "axe",
+        "chop",
+        "lumberjack",
+        "hatchet",
+        "cut"
+      ],
+      "tone": "a_blue"
+    },
+    "saw": {
+      "keywords": [
+        "saw",
+        "cut",
+        "handsaw",
+        "carpentry",
+        "mill"
+      ]
+    },
+    "chainsaw": {
+      "keywords": [
+        "chainsaw",
+        "felling",
+        "power saw",
+        "logging"
+      ],
+      "tone": "a_yellow"
+    },
+    "mountain": {
+      "keywords": [
+        "mountain",
+        "peak",
+        "hill",
+        "terrain",
+        "alpine",
+        "elevation"
+      ]
+    },
+    "river": {
+      "keywords": [
+        "river",
+        "stream",
+        "creek",
+        "water",
+        "flow",
+        "watershed",
+        "tributary"
+      ],
+      "tone": "a_blue"
+    },
+    "campfire": {
+      "keywords": [
+        "fire",
+        "campfire",
+        "wildfire",
+        "burn",
+        "forest fire",
+        "flame"
+      ],
+      "motif": "fire",
+      "tone": "a_red",
+      "fill": true
+    },
+    "mushroom": {
+      "keywords": [
+        "mushroom",
+        "fungi",
+        "fungus",
+        "forage",
+        "toadstool"
+      ],
+      "tone": "a_red"
+    },
+    "compass": {
+      "keywords": [
+        "compass",
+        "navigation",
+        "direction",
+        "orient",
+        "bearing"
+      ],
+      "tone": "a_yellow"
+    },
+    "binoculars": {
+      "keywords": [
+        "binoculars",
+        "survey",
+        "spot",
+        "watch",
+        "observe",
+        "scout"
+      ],
+      "tone": "a_blue"
+    },
+    "log-truck": {
+      "keywords": [
+        "truck",
+        "logging truck",
+        "haul",
+        "transport",
+        "harvest truck"
+      ],
+      "tone": "a_blue"
+    },
+    "recycle-leaf": {
+      "keywords": [
+        "recycle",
+        "sustainable",
+        "sustainability",
+        "conservation",
+        "eco",
+        "renewable"
+      ],
+      "tone": "a_green"
+    },
+    "sun-cloud": {
+      "keywords": [
+        "weather",
+        "sun",
+        "cloud",
+        "climate",
+        "day",
+        "sunny"
+      ],
+      "tone": "a_yellow"
+    },
+    "rain-cloud": {
+      "keywords": [
+        "rain",
+        "storm",
+        "precipitation",
+        "wet",
+        "drizzle",
+        "monsoon"
+      ],
+      "tone": "a_blue"
+    },
+    "forest-stand": {
+      "keywords": [
+        "forest",
+        "woods",
+        "stand",
+        "grove",
+        "trees",
+        "woodland",
+        "wilderness"
+      ],
+      "tone": "a_green",
+      "fill": true
+    },
+    "acorn": {
+      "keywords": [
+        "acorn",
+        "seed",
+        "oak seed",
+        "nut",
+        "germination"
+      ]
+    },
+    "trail-sign": {
+      "keywords": [
+        "sign",
+        "trail",
+        "direction",
+        "marker",
+        "path",
+        "guidepost"
+      ],
+      "tone": "a_green"
+    }
+  }
+}

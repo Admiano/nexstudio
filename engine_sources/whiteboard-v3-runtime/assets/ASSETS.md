@@ -224,7 +224,26 @@ glyph (tabler-style 24x24 stroke art). Manifest entry:
 - Kits draw at bespoke weight (0.95) like `custom/` art — denser glyph
   art is expected and correct.
 
-Current kits: `crypto` (15 glyphs: bitcoin-coin, candlestick-chart,
-pool-cylinder, vault-safe, shield-check, chain-link, ledger-book, whale,
-key, block-cube, eye-off, network-nodes, exchange-swap, wallet,
-lock-closed).
+Current kits: `crypto` (bitcoin-coin, candlestick-chart, pool-cylinder,
+vault-safe, shield-check, whale, ledger-book, key, chain-link,
+block-cube, network-nodes, exchange-swap, wallet, lock-closed, eye-off,
+trend-up, trend-down, gas-fee, rocket, bank-building, alert-triangle,
+magnify, robot-bot, percent-fee, hourglass, laptop-trade, target-aim,
+fire-hot, trophy, hand-coin — 30 glyphs); `healthcare` (stethoscope,
+heart-pulse, pill, syringe, thermometer, ambulance, hospital-cross,
+brain, dna, bone, bandage, microscope, virus, tooth, baby, wheelchair,
+clipboard-vitals, face-mask, blood-drop, lungs, eye-vision — 21);
+`animals` (dog, cat, bird, fish, elephant, lion, rabbit, turtle, owl,
+bear, butterfly, bee, snake, horse, penguin, deer, monkey, fox, cow,
+chicken, pig, duck, frog — 23); `forestry` (tree-pine, tree-leafy, leaf,
+seedling, log-stack, tree-stump, axe, saw, chainsaw, mountain, river,
+campfire, mushroom, compass, binoculars, log-truck, recycle-leaf,
+sun-cloud, rain-cloud, forest-stand, acorn, trail-sign — 22);
+`transportation` (car, truck, bus, train, plane, ship, bicycle,
+motorcycle, helicopter, traffic-light, gas-pump, road-sign, map-pin,
+anchor, bridge, steering-wheel, tire, pedestrian, ev-charge, parking,
+subway, scooter — 22); `business` (briefcase, handshake, chart-bars,
+pie-chart, presentation, calculator, dollar-sign, money-bag,
+office-building, necktie, contract-pen, stamp, meeting-table, megaphone,
+badge-id, card-pay, scales-justice, inbox, lightbulb, calendar,
+coffee-cup, phone-call, growth-arrow — 23).

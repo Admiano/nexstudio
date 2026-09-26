@@ -1,0 +1,183 @@
+{
+ "production_id": "vaccines_how",
+ "title": "How Vaccines Work",
+ "camera_variant": "board_sections",
+ "pacing": {
+  "transition_seconds": 0.55,
+  "board_reveal_seconds": 0.8
+ },
+ "art_kit": "healthcare",
+ "beats": [
+  {
+   "beat_id": "01_hook",
+   "title": "The Idea",
+   "duration_seconds": 5.2,
+   "narration": "How do vaccines work? Your body learns to fight a virus before you ever meet it.",
+   "scene": {
+    "sceneId": "hook",
+    "heroRole": {
+     "label": "Vaccine",
+     "icon": "kit:healthcare:syringe",
+     "tone": "a_blue",
+     "scale": 1.25
+    },
+    "supportingRoles": [
+     {
+      "label": "virus",
+      "icon": "kit:healthcare:virus",
+      "tone": "a_green",
+      "scale": 1.05
+     },
+     {
+      "label": "your immune system",
+      "chip": "a_blue",
+      "scale": 0.9
+     },
+     {
+      "label": "training, not sickness",
+      "icon": "kit:healthcare:clipboard-vitals",
+      "chip": "a_red",
+      "scale": 0.85
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_mechanism",
+   "title": "Training Day",
+   "duration_seconds": 5.2,
+   "narration": "A vaccine carries a harmless piece of the virus \u2014 your immune system studies it and builds a defense.",
+   "scene": {
+    "sceneId": "mechanism",
+    "heroRole": {
+     "label": "Immune Cells",
+     "icon": "kit:healthcare:blood-drop",
+     "tone": "a_red",
+     "scale": 1.2
+    },
+    "supportingRoles": [
+     {
+      "label": "harmless sample",
+      "icon": "kit:healthcare:virus",
+      "scale": 0.95
+     },
+     {
+      "label": "memory formed",
+      "icon": "kit:healthcare:brain",
+      "chip": "a_green",
+      "scale": 1.0
+     },
+     {
+      "label": "the lab",
+      "icon": "kit:healthcare:microscope",
+      "tone": "a_blue",
+      "scale": 0.9
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_protection",
+   "title": "Real Protection",
+   "duration_seconds": 5.2,
+   "narration": "Next time the real virus shows up, your body recognizes it instantly \u2014 and destroys it before it spreads.",
+   "scene": {
+    "sceneId": "protection",
+    "heroRole": {
+     "label": "Antibodies",
+     "icon": "kit:healthcare:hospital-cross",
+     "tone": "a_red",
+     "scale": 1.2
+    },
+    "supportingRoles": [
+     {
+      "label": "virus blocked",
+      "icon": "kit:healthcare:virus",
+      "chip": "a_red",
+      "scale": 0.9
+     },
+     {
+      "label": "fever? checked",
+      "icon": "kit:healthcare:thermometer",
+      "tone": "a_red",
+      "scale": 0.85
+     },
+     {
+      "label": "you stay well",
+      "icon": "kit:healthcare:heart-pulse",
+      "chip": "a_green",
+      "scale": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_community",
+   "title": "Herd Effect",
+   "duration_seconds": 5.2,
+   "narration": "When enough people are protected, the virus runs out of hosts \u2014 that shields babies and the vulnerable.",
+   "scene": {
+    "sceneId": "community",
+    "heroRole": {
+     "label": "Community",
+     "icon": "kit:healthcare:face-mask",
+     "tone": "a_blue",
+     "scale": 1.2
+    },
+    "supportingRoles": [
+     {
+      "label": "babies shielded",
+      "icon": "kit:healthcare:baby",
+      "chip": "a_blue",
+      "scale": 0.95
+     },
+     {
+      "label": "fewer hospital trips",
+      "icon": "kit:healthcare:ambulance",
+      "scale": 0.9
+     },
+     {
+      "label": "spread stops",
+      "icon": "kit:healthcare:virus",
+      "chip": "a_green",
+      "scale": 0.85
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "05_close",
+   "title": "The Takeaway",
+   "duration_seconds": 5.2,
+   "narration": "Vaccines are rehearsal for your immune system \u2014 a drill that saves millions of lives every year.",
+   "scene": {
+    "sceneId": "close",
+    "heroRole": {
+     "label": "Vaccines",
+     "icon": "kit:healthcare:syringe",
+     "tone": "a_blue",
+     "scale": 1.25
+    },
+    "supportingRoles": [
+     {
+      "label": "millions protected",
+      "icon": "kit:healthcare:heart-pulse",
+      "chip": "a_red",
+      "scale": 1.05
+     },
+     {
+      "label": "ask your doctor",
+      "icon": "kit:healthcare:stethoscope",
+      "chip": "a_blue",
+      "scale": 0.95
+     },
+     {
+      "label": "small poke, big shield",
+      "icon": "kit:healthcare:bandage",
+      "scale": 0.85
+     }
+    ]
+   }
+  }
+ ]
+}

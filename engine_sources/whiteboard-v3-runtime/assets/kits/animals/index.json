@@ -1,0 +1,251 @@
+{
+  "name": "animals",
+  "domain": "animals / nature / pets / wildlife explainers",
+  "glyphs": {
+    "dog": {
+      "keywords": [
+        "dog",
+        "puppy",
+        "pet",
+        "canine",
+        "bark",
+        "labrador"
+      ],
+      "motif": "pet",
+      "tone": "a_yellow"
+    },
+    "cat": {
+      "keywords": [
+        "cat",
+        "kitten",
+        "pet",
+        "feline",
+        "meow",
+        "kitty"
+      ]
+    },
+    "bird": {
+      "keywords": [
+        "bird",
+        "fly",
+        "wings",
+        "sparrow",
+        "crow",
+        "eagle"
+      ],
+      "motif": "bird",
+      "tone": "a_blue"
+    },
+    "fish": {
+      "keywords": [
+        "fish",
+        "aquatic",
+        "ocean",
+        "swim",
+        "trout",
+        "salmon",
+        "pond"
+      ],
+      "motif": "fish"
+    },
+    "elephant": {
+      "keywords": [
+        "elephant",
+        "tusk",
+        "big",
+        "safari",
+        "jumbo",
+        "trunk"
+      ],
+      "tone": "a_blue"
+    },
+    "lion": {
+      "keywords": [
+        "lion",
+        "king",
+        "mane",
+        "safari",
+        "predator",
+        "cat big"
+      ],
+      "motif": "lion",
+      "tone": "a_yellow"
+    },
+    "rabbit": {
+      "keywords": [
+        "rabbit",
+        "bunny",
+        "hare",
+        "hop",
+        "easter"
+      ]
+    },
+    "turtle": {
+      "keywords": [
+        "turtle",
+        "tortoise",
+        "slow",
+        "shell",
+        "reptile"
+      ],
+      "tone": "a_green"
+    },
+    "owl": {
+      "keywords": [
+        "owl",
+        "wise",
+        "night",
+        "nocturnal",
+        "hoot"
+      ],
+      "motif": "owl"
+    },
+    "bear": {
+      "keywords": [
+        "bear",
+        "grizzly",
+        "cub",
+        "forest",
+        "hibernate",
+        "teddy"
+      ],
+      "motif": "bear"
+    },
+    "butterfly": {
+      "keywords": [
+        "butterfly",
+        "insect",
+        "wings",
+        "metamorphosis",
+        "moth"
+      ],
+      "tone": "a_blue"
+    },
+    "bee": {
+      "keywords": [
+        "bee",
+        "honey",
+        "hive",
+        "pollinator",
+        "sting",
+        "bumble"
+      ],
+      "motif": "bee",
+      "tone": "a_yellow"
+    },
+    "snake": {
+      "keywords": [
+        "snake",
+        "serpent",
+        "reptile",
+        "viper",
+        "python",
+        "slither"
+      ]
+    },
+    "horse": {
+      "keywords": [
+        "horse",
+        "pony",
+        "stallion",
+        "equestrian",
+        "mare",
+        "race"
+      ]
+    },
+    "penguin": {
+      "keywords": [
+        "penguin",
+        "arctic",
+        "antarctic",
+        "ice",
+        "cold",
+        "waddle"
+      ]
+    },
+    "deer": {
+      "keywords": [
+        "deer",
+        "buck",
+        "antlers",
+        "doe",
+        "stag",
+        "fawn"
+      ]
+    },
+    "monkey": {
+      "keywords": [
+        "monkey",
+        "ape",
+        "primate",
+        "chimp",
+        "banana"
+      ],
+      "motif": "monkey"
+    },
+    "fox": {
+      "keywords": [
+        "fox",
+        "clever",
+        "cunning",
+        "red",
+        "vulpine"
+      ],
+      "tone": "a_red"
+    },
+    "cow": {
+      "keywords": [
+        "cow",
+        "cattle",
+        "milk",
+        "dairy",
+        "farm",
+        "beef",
+        "bull"
+      ]
+    },
+    "chicken": {
+      "keywords": [
+        "chicken",
+        "hen",
+        "rooster",
+        "poultry",
+        "egg",
+        "cluck",
+        "farm"
+      ]
+    },
+    "pig": {
+      "keywords": [
+        "pig",
+        "pork",
+        "piglet",
+        "farm",
+        "hog",
+        "swine"
+      ],
+      "tone": "a_yellow"
+    },
+    "duck": {
+      "keywords": [
+        "duck",
+        "quack",
+        "pond",
+        "duckling",
+        "waterfowl"
+      ],
+      "tone": "a_green"
+    },
+    "frog": {
+      "keywords": [
+        "frog",
+        "toad",
+        "amphibian",
+        "pond",
+        "hop",
+        "ribbit"
+      ],
+      "tone": "a_green"
+    }
+  }
+}

@@ -1042,7 +1042,7 @@ def _kit_probe(phrase: str, exclude=None):
         score -= len(name) * 0.04
         if score > best_score:
             best, best_score = ('icon', d, name), score
-    return best if best_score >= 4.0 else None
+    return best if best_score >= 3.5 else None
 
 
 def _synonyms():

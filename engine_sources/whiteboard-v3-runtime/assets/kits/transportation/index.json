@@ -1,0 +1,250 @@
+{
+  "name": "transportation",
+  "domain": "transport / logistics / vehicles / mobility explainers",
+  "glyphs": {
+    "car": {
+      "keywords": [
+        "car",
+        "auto",
+        "vehicle",
+        "drive",
+        "sedan",
+        "automobile",
+        "ride"
+      ],
+      "motif": "car",
+      "tone": "a_blue"
+    },
+    "truck": {
+      "keywords": [
+        "truck",
+        "delivery",
+        "freight",
+        "cargo",
+        "semi",
+        "lorry",
+        "haul"
+      ],
+      "motif": "truck",
+      "tone": "a_blue"
+    },
+    "bus": {
+      "keywords": [
+        "bus",
+        "transit",
+        "public transport",
+        "coach",
+        "school bus"
+      ],
+      "tone": "a_yellow"
+    },
+    "train": {
+      "keywords": [
+        "train",
+        "rail",
+        "railway",
+        "locomotive",
+        "metro",
+        "commuter"
+      ],
+      "motif": "train",
+      "tone": "a_blue"
+    },
+    "plane": {
+      "keywords": [
+        "plane",
+        "flight",
+        "airplane",
+        "airline",
+        "aviation",
+        "fly",
+        "jet"
+      ],
+      "motif": "plane",
+      "tone": "a_blue"
+    },
+    "ship": {
+      "keywords": [
+        "ship",
+        "boat",
+        "cargo ship",
+        "vessel",
+        "maritime",
+        "ferry",
+        "container"
+      ],
+      "motif": "ship",
+      "tone": "a_blue"
+    },
+    "bicycle": {
+      "keywords": [
+        "bike",
+        "bicycle",
+        "cycling",
+        "pedal",
+        "commute",
+        "ride share"
+      ]
+    },
+    "motorcycle": {
+      "keywords": [
+        "motorcycle",
+        "motorbike",
+        "moped",
+        "scooter bike",
+        "harley"
+      ]
+    },
+    "helicopter": {
+      "keywords": [
+        "helicopter",
+        "chopper",
+        "rotor",
+        "airlift",
+        "heli"
+      ],
+      "tone": "a_blue"
+    },
+    "traffic-light": {
+      "keywords": [
+        "traffic light",
+        "signal",
+        "stoplight",
+        "intersection",
+        "red light",
+        "green light"
+      ],
+      "motif": "signal"
+    },
+    "gas-pump": {
+      "keywords": [
+        "gas",
+        "fuel",
+        "petrol",
+        "gas station",
+        "fill up",
+        "diesel",
+        "pump"
+      ],
+      "tone": "a_red"
+    },
+    "road-sign": {
+      "keywords": [
+        "sign",
+        "road sign",
+        "direction",
+        "yield",
+        "stop sign",
+        "traffic sign"
+      ],
+      "tone": "a_yellow"
+    },
+    "map-pin": {
+      "keywords": [
+        "location",
+        "pin",
+        "map",
+        "destination",
+        "gps",
+        "address",
+        "marker"
+      ],
+      "motif": "pin",
+      "tone": "a_red",
+      "fill": true
+    },
+    "anchor": {
+      "keywords": [
+        "anchor",
+        "port",
+        "dock",
+        "harbor",
+        "mooring"
+      ]
+    },
+    "bridge": {
+      "keywords": [
+        "bridge",
+        "crossing",
+        "span",
+        "infrastructure",
+        "overpass"
+      ],
+      "tone": "a_blue"
+    },
+    "steering-wheel": {
+      "keywords": [
+        "steering",
+        "drive",
+        "driver",
+        "wheel",
+        "control",
+        "autopilot"
+      ]
+    },
+    "tire": {
+      "keywords": [
+        "tire",
+        "wheel",
+        "tyre",
+        "flat",
+        "rubber",
+        "traction"
+      ],
+      "tone": "a_blue"
+    },
+    "pedestrian": {
+      "keywords": [
+        "pedestrian",
+        "walk",
+        "walking",
+        "crosswalk",
+        "foot",
+        "walker"
+      ]
+    },
+    "ev-charge": {
+      "keywords": [
+        "ev",
+        "electric",
+        "charging",
+        "charge",
+        "electric vehicle",
+        "tesla",
+        "battery"
+      ],
+      "motif": "ev",
+      "tone": "a_green"
+    },
+    "parking": {
+      "keywords": [
+        "parking",
+        "park",
+        "lot",
+        "garage",
+        "space"
+      ],
+      "tone": "a_blue"
+    },
+    "subway": {
+      "keywords": [
+        "subway",
+        "metro",
+        "underground",
+        "tube",
+        "transit"
+      ],
+      "tone": "a_red"
+    },
+    "scooter": {
+      "keywords": [
+        "scooter",
+        "vespa",
+        "moped",
+        "e-scooter",
+        "lime"
+      ],
+      "tone": "a_blue"
+    }
+  }
+}

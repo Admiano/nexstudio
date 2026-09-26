@@ -1,0 +1,244 @@
+{
+  "name": "healthcare",
+  "domain": "health / medical / wellness explainers",
+  "glyphs": {
+    "stethoscope": {
+      "keywords": [
+        "doctor",
+        "stethoscope",
+        "physician",
+        "nurse",
+        "checkup",
+        "clinic",
+        "medical"
+      ],
+      "motif": "doctor",
+      "tone": "a_blue"
+    },
+    "heart-pulse": {
+      "keywords": [
+        "heart",
+        "pulse",
+        "cardio",
+        "heartbeat",
+        "cardiac",
+        "ekg",
+        "vitals"
+      ],
+      "motif": "heart",
+      "tone": "a_red",
+      "fill": true
+    },
+    "pill-capsule": {
+      "keywords": [
+        "pill",
+        "medicine",
+        "drug",
+        "capsule",
+        "medication",
+        "dose",
+        "pharmacy"
+      ],
+      "motif": "pill"
+    },
+    "syringe": {
+      "keywords": [
+        "vaccine",
+        "injection",
+        "syringe",
+        "shot",
+        "immunization",
+        "dose"
+      ],
+      "motif": "vaccine",
+      "tone": "a_blue"
+    },
+    "thermometer": {
+      "keywords": [
+        "fever",
+        "temperature",
+        "thermometer",
+        "sick",
+        "hot"
+      ],
+      "tone": "a_red"
+    },
+    "ambulance": {
+      "keywords": [
+        "ambulance",
+        "emergency",
+        "er",
+        "hospital transport",
+        "911",
+        "urgent"
+      ]
+    },
+    "hospital-cross": {
+      "keywords": [
+        "hospital",
+        "clinic",
+        "medical center",
+        "cross",
+        "health center",
+        "pharmacy"
+      ],
+      "motif": "hospital",
+      "tone": "a_red",
+      "fill": true
+    },
+    "brain": {
+      "keywords": [
+        "brain",
+        "mental",
+        "mind",
+        "neuro",
+        "psychology",
+        "cognitive",
+        "memory"
+      ]
+    },
+    "dna": {
+      "keywords": [
+        "dna",
+        "gene",
+        "genetic",
+        "genome",
+        "heredity",
+        "biology",
+        "chromosome"
+      ],
+      "motif": "dna"
+    },
+    "bone": {
+      "keywords": [
+        "bone",
+        "skeleton",
+        "orthopedic",
+        "fracture",
+        "calcium"
+      ]
+    },
+    "bandage": {
+      "keywords": [
+        "bandage",
+        "wound",
+        "injury",
+        "first aid",
+        "heal",
+        "cut"
+      ],
+      "tone": "a_yellow"
+    },
+    "microscope": {
+      "keywords": [
+        "microscope",
+        "lab",
+        "research",
+        "science",
+        "experiment",
+        "pathology"
+      ],
+      "tone": "a_blue"
+    },
+    "virus": {
+      "keywords": [
+        "virus",
+        "bacteria",
+        "infection",
+        "germ",
+        "pathogen",
+        "covid",
+        "flu"
+      ],
+      "motif": "virus",
+      "tone": "a_green",
+      "fill": true
+    },
+    "tooth": {
+      "keywords": [
+        "tooth",
+        "dental",
+        "dentist",
+        "cavity",
+        "teeth",
+        "oral"
+      ]
+    },
+    "baby": {
+      "keywords": [
+        "baby",
+        "infant",
+        "newborn",
+        "child",
+        "pediatric",
+        "maternity"
+      ]
+    },
+    "wheelchair": {
+      "keywords": [
+        "wheelchair",
+        "disability",
+        "accessibility",
+        "mobility",
+        "disabled",
+        "handicap"
+      ]
+    },
+    "clipboard-vitals": {
+      "keywords": [
+        "chart",
+        "vitals",
+        "clipboard",
+        "record",
+        "diagnosis",
+        "report",
+        "insurance"
+      ],
+      "tone": "a_blue"
+    },
+    "face-mask": {
+      "keywords": [
+        "mask",
+        "face mask",
+        "protection",
+        "pandemic",
+        "surgical mask",
+        "ppe"
+      ],
+      "tone": "a_blue"
+    },
+    "blood-drop": {
+      "keywords": [
+        "blood",
+        "donation",
+        "transfusion",
+        "blood type",
+        "hemoglobin",
+        "drop"
+      ],
+      "tone": "a_red",
+      "fill": true
+    },
+    "lungs": {
+      "keywords": [
+        "lungs",
+        "breathing",
+        "respiratory",
+        "oxygen",
+        "asthma",
+        "pulmonary"
+      ]
+    },
+    "eye-vision": {
+      "keywords": [
+        "eye",
+        "vision",
+        "sight",
+        "optometry",
+        "ophthalmology",
+        "see"
+      ],
+      "tone": "a_blue"
+    }
+  }
+}
