@@ -4109,18 +4109,51 @@
 
   // The little irregular dashes and flecks of the stock — sparse, seeded, everywhere on a page.
   function pbSpeckle(plan) {
+    // Handmade stock (Rollpie washi recipe): long kozo fibres, speck, and the
+    // faint laid lines the paper mould's bamboo screen leaves in the sheet.
     const r = rng(seedHash(`pb-speckle:${plan.film_id}`));
     let marks = '';
     for (let i = 0; i < 42; i += 1) {
       const x = f2(r() * 120), y = f2(r() * 120);
       if (r() > 0.45) {
-        const w = f2(0.8 + r() * 2.6), rot = f2(r() * 90 - 45);
-        marks += `<rect x="${x}" y="${y}" width="${w}" height="0.9" rx="0.45" fill="${plan.brand.ink}" opacity="${f2(0.04 + r() * 0.09)}" transform="rotate(${rot} ${x} ${y})"/>`;
+        const w = f2(1.6 + r() * 5.2), rot = f2(r() * 90 - 45);
+        marks += `<rect x="${x}" y="${y}" width="${w}" height="0.7" rx="0.35" fill="${plan.brand.ink}" opacity="${f2(0.04 + r() * 0.09)}" transform="rotate(${rot} ${x} ${y})"/>`;
       } else {
         marks += `<circle cx="${x}" cy="${y}" r="${f2(0.5 + r() * 0.9)}" fill="${plan.brand.ink}" opacity="${f2(0.03 + r() * 0.07)}"/>`;
       }
     }
+    for (let y = 7; y < 120; y += 7) {
+      marks += `<line x1="0" y1="${y}" x2="120" y2="${y}" stroke="${plan.brand.ink}" stroke-width="0.35" opacity="0.028"/>`;
+    }
     return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">${marks}</svg>`)}")`;
+  }
+
+  // Foxing + tide lines: seeded rust specks and pale water rings, denser toward
+  // the leaf's edges the way age works in from the exposed margins.
+  function pbAge(face, rect, plan, key) {
+    const ink = plan.brand.ink;
+    const rust = mixColor('#9a5f2a', ink, 0.15), tide = mixColor('#8a6a3c', ink, 0.2);
+    const r = rng(seedHash(`pb-age:${plan.film_id}:${key}`));
+    const svg = svgEl('svg', { viewBox: `0 0 ${rect.w} ${rect.h}`, 'aria-hidden': 'true' }, face);
+    Object.assign(svg.style, { position: 'absolute', left: '0', top: '0', width: px(rect.w), height: px(rect.h), pointerEvents: 'none', zIndex: '5' });
+    const edgeBias = () => {
+      const t = r();
+      return t < 0.4 ? t * 0.35 : t > 0.6 ? 0.65 + (t - 0.6) * 0.875 : t;
+    };
+    for (let i = 0; i < 26; i++) {
+      const x = edgeBias() * rect.w, y = r() * rect.h;
+      const rad = rect.w * (0.003 + r() * 0.011);
+      svgEl('circle', { cx: f2(x), cy: f2(y), r: f2(rad), fill: rgbaOf(rust, 0.05 + r() * 0.10) }, svg);
+    }
+    for (let i = 0; i < 2; i++) {
+      const x = rect.w * (0.2 + r() * 0.6), y = rect.h * (0.15 + r() * 0.7), rad = rect.w * (0.08 + r() * 0.10);
+      svgEl('ellipse', { cx: f2(x), cy: f2(y), rx: f2(rad), ry: f2(rad * (0.6 + r() * 0.5)), fill: 'none', stroke: rgbaOf(tide, 0.06 + r() * 0.05), 'stroke-width': f2(rect.w * 0.006) }, svg);
+    }
+    // Tonal mottle: age never falls evenly — a few broad, faint darker drifts.
+    for (let i = 0; i < 4; i++) {
+      const x = r() * rect.w, y = r() * rect.h, rad = rect.w * (0.16 + r() * 0.22);
+      svgEl('ellipse', { cx: f2(x), cy: f2(y), rx: f2(rad), ry: f2(rad * 0.7), fill: rgbaOf(tide, 0.035 + r() * 0.03) }, svg);
+    }
   }
 
   function pbOrnamentArc(face, rect, plan) {
@@ -4142,6 +4175,28 @@
     });
     face.dataset.page = String(i + 1);
     el('div', { position: 'absolute', inset: '0', backgroundImage: speckleUrl, opacity: '0.9', pointerEvents: 'none' }, face);
+    pbAge(face, rect, plan, String(i));
+    // Cockled fore-edge: handmade leaves never trim true — a wandering stock-coloured
+    // lip along the outer edge, with the shadow of the undulation beneath it.
+    const cockleR = rng(seedHash(`pb-cockle:${plan.film_id}:${i}`));
+    const outX = side === 'left' ? 0 : pw;
+    el('div', {
+      position: 'absolute', inset: '0', pointerEvents: 'none', zIndex: '6',
+      background: `linear-gradient(${side === 'left' ? '90deg' : '270deg'}, ${rgbaOf(ink, 0.10)}, transparent ${px(pw * 0.012)})`,
+    }, face);
+    const cSvg = svgEl('svg', { viewBox: `0 0 ${pw} ${ph}`, 'aria-hidden': 'true' }, face);
+    Object.assign(cSvg.style, { position: 'absolute', left: '0', top: '0', width: px(pw), height: px(ph), pointerEvents: 'none', zIndex: '6' });
+    let cd = `M${f2(outX)} 0 `;
+    for (let s = 0; s <= 14; s++) cd += `L${f2(outX + (cockleR() - 0.5) * pw * 0.007)} ${f2((s / 14) * ph)} `;
+    svgEl('path', { d: cd, fill: 'none', stroke: mixColor(paper, '#ffffff', 0.55), 'stroke-width': f2(pw * 0.005), 'stroke-linejoin': 'round' }, cSvg);
+    // A dog-eared corner: the small fold a well-read page carries at its outer foot.
+    if (side === 'right' && i % 3 === 1) {
+      const de = pw * 0.045;
+      const f = svgEl('svg', { viewBox: `0 0 ${de} ${de}`, width: px(de), height: px(de), 'aria-hidden': 'true' }, face);
+      Object.assign(f.style, { position: 'absolute', right: '0', bottom: '0', pointerEvents: 'none', zIndex: '6' });
+      svgEl('path', { d: `M${f2(de)} 0 L${f2(de)} ${f2(de)} L0 ${f2(de)} Z`, fill: mixColor(paper, ink, 0.10), stroke: rgbaOf(ink, 0.18), 'stroke-width': f2(de * 0.03) }, f);
+      svgEl('path', { d: `M${f2(de)} 0 L${f2(de)} ${f2(de)} L0 ${f2(de)} Z`, fill: 'none', stroke: 'rgba(255,252,240,0.5)', 'stroke-width': f2(de * 0.02), transform: `translate(${f2(-de * 0.06)},${f2(-de * 0.06)})` }, f);
+    }
     pbOrnamentArc(face, rect, plan);
     const pg = (bn.beat && bn.beat.page) || {};
     const hero = (bn.beat && bn.beat.typography && (bn.beat.typography.blocks || []).find((b) => b.role === 'hero')) || null;
@@ -4233,6 +4288,8 @@
         fontFamily: PB_HAND, fontWeight: '430', fontSize: px(pw * 0.0305), lineHeight: '1.5', color: rgbaOf(ink, 0.86),
         marginTop: px(ph * 0.018), maxWidth: px(colRect.w * 0.94),
       }, col);
+      // Ink soak: the letterform blooms a hair into the absorbent stock.
+      prose.style.textShadow = `0 0 ${px(Math.max(0.4, pw * 0.0008))} ${rgbaOf(ink, 0.30)}`;
       const narration = bn.beat.narration || '';
       if (narration && /[A-Za-z]/.test(narration[0]) && (layout === 'half' || layout === 'spot')) {
         // The initial: a versal three lines tall pressed in the accent ink, the rest
@@ -4317,6 +4374,17 @@
       backgroundImage: `radial-gradient(${rgbaOf(ink, 0.10)} ${px(Math.max(0.5, pw * 0.0009))}, transparent ${px(Math.max(0.6, pw * 0.0011))}), ${speckleUrl}`,
       backgroundSize: `${px(Math.max(2.5, pw * 0.007))} ${px(Math.max(2.5, pw * 0.007))}, auto`,
     }, slot);
+    // Baren marks: the circular printing pad leaves overlapping rub rings on a
+    // hand-printed plate (YMM4-Ukiyoe layer) — faint arcs multiplied over the art.
+    {
+      const br = rng(seedHash(`pb-baren:${plan.film_id}:${i}`));
+      const bSvg = svgEl('svg', { viewBox: `0 0 ${slotRect.w} ${slotRect.h}`, 'aria-hidden': 'true' }, slot);
+      Object.assign(bSvg.style, { position: 'absolute', left: '0', top: '0', width: px(slotRect.w), height: px(slotRect.h), pointerEvents: 'none', zIndex: '5', mixBlendMode: 'multiply' });
+      for (let b = 0; b < 5; b++) {
+        const bx = br() * slotRect.w, by = br() * slotRect.h, brad = slotRect.w * (0.18 + br() * 0.30);
+        svgEl('circle', { cx: f2(bx), cy: f2(by), r: f2(brad), fill: 'none', stroke: rgbaOf(ink, 0.030 + br() * 0.035), 'stroke-width': f2(brad * 0.35) }, bSvg);
+      }
+    }
     if (pg.quote && colRect && layout === 'half') {
       // The pull-quote lives as the line under the plate on a 'half' page.
       const qTop = slotRect.y + slotRect.h + ph * 0.018;
@@ -4392,6 +4460,7 @@
       background: `linear-gradient(${side === 'left' ? '97deg' : '83deg'}, ${mixColor(plan.brand.paper, '#e2d0ac', 0.26)} 0%, ${plan.brand.paper} 58%, ${mixColor(plan.brand.paper, '#e6d4b2', 0.2)} 100%)`,
     });
     el('div', { position: 'absolute', inset: '0', backgroundImage: speckleUrl, opacity: '0.9' }, face);
+    pbAge(face, rect, plan, `end-${side}`);
     pbOrnamentArc(face, rect, plan);
     if (side === 'right') {
       // The book always closes on words: the last right page is the colophon,
@@ -4528,6 +4597,18 @@
         background: `linear-gradient(${sgn < 0 ? '90deg' : '270deg'}, transparent, rgba(255,251,238,0.26))`,
       }, bookGroup);
     }
+    // Headbands: the striped silk caps an old binding shows at the head and tail
+    // of the spine — alternating thread wraps in ink and cream.
+    const hbW = gw * 1.35, hbH = Math.max(3, minDim * 0.006);
+    for (const yy of [R.book.y - hbH * 0.15, R.book.y + R.book.h - hbH * 0.85]) {
+      el('div', {
+        position: 'absolute', left: px(R.spine - hbW * 0.7), top: px(yy),
+        width: px(hbW * 1.4), height: px(hbH), zIndex: '5', pointerEvents: 'none',
+        borderRadius: px(hbH * 0.5),
+        background: `repeating-linear-gradient(90deg, ${mixColor(ink, '#7e2a38', 0.5)} 0 ${px(hbW * 0.14)}, ${mixColor(paper, '#f4ead2', 0.8)} ${px(hbW * 0.14)} ${px(hbW * 0.28)})`,
+        boxShadow: `0 ${px(hbH * 0.3)} ${px(hbH * 0.5)} rgba(${sh},0.3)`,
+      }, bookGroup);
+    }
     const mkPage = (rect, side) => {
       const base = el('div', { position: 'absolute', left: px(rect.x), top: px(rect.y), width: px(rect.w), height: px(rect.h), overflow: 'hidden', zIndex: '3' }, bookGroup);
       base.style.background = `linear-gradient(${side === 'left' ? '97deg' : '83deg'}, ${mixColor(paper, '#e2d0ac', 0.26)} 0%, ${paper} 58%, ${mixColor(paper, '#e6d4b2', 0.2)} 100%)`;
@@ -4550,6 +4631,7 @@
         background: `radial-gradient(125% 112% at ${side === 'left' ? '10%' : '90%'} 50%, transparent 60%, rgba(176,138,78,0.10) 88%, rgba(118,88,45,0.17) 100%)`,
       }, base));
       base._chrome = chromeEls;
+      pbAge(base, rect, plan, `base-${side}`);
       return base;
     };
     const leftBase = mkPage(R.left, 'left');
