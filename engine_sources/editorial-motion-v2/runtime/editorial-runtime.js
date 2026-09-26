@@ -551,6 +551,11 @@
       case 'boat': { P('M10 62 L90 62 L78 84 L22 84Z'); R(48, 14, 5, 48, dk(0.3)); P('M53 16 L82 58 L53 58Z', paperTone(0.75)); P('M47 20 L22 58 L47 58Z', lt(0.3)); break; }
       case 'wave': { P(`M0 70 Q12 ${f2(55 + r() * 10)} 25 70 T50 70 T75 70 T100 70 L100 100 L0 100Z`); break; }
       case 'shaft': { P('M30 0 L70 0 L96 100 L4 100Z', tone, 0.9); break; }
+      case 'tuft': { for (const [ox, lean, hh] of [[-22, -0.3, 74], [-8, -0.08, 96], [6, 0.1, 86], [20, 0.32, 66]]) { P(`M${f2(50 + ox)} 100 Q${f2(50 + ox + lean * 26)} ${f2(100 - hh * 0.55)} ${f2(50 + ox + lean * 40)} ${f2(100 - hh)} Q${f2(50 + ox + lean * 30)} ${f2(100 - hh * 0.5)} ${f2(52 + ox)} 100Z`, dk(0.06 * (Math.abs(ox) % 3))); } break; }
+      case 'bush': { C(34, 66, 24); C(58, 56, 30); C(76, 70, 20); P('M8 100 L8 86 Q50 76 92 86 L92 100Z', dk(0.12)); speck(); break; }
+      case 'flower': { for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 - Math.PI / 2; svgEl('ellipse', { cx: f2(50 + Math.cos(a) * 17), cy: f2(38 + Math.sin(a) * 15), rx: 10, ry: 8, fill: i % 2 ? tone : lt(0.18) }, svg); } C(50, 38, 9, paperTone(0.85)); P('M50 46 Q46 70 48 100 L54 100 Q52 70 50 46Z', dk(0.3)); P('M50 78 Q34 74 30 62 Q44 66 50 78Z', dk(0.25)); P('M50 84 Q66 80 70 68 Q56 72 50 84Z', dk(0.25)); break; }
+      case 'bubble': { C(50, 50, 40, 'none'); svgEl('circle', { cx: 50, cy: 50, r: 40, fill: lt(0.5), 'fill-opacity': 0.22, stroke: lt(0.6), 'stroke-width': 4 }, svg); C(36, 34, 9, paperTone(0.9)); break; }
+      case 'reed': { for (const [ox, hh, head] of [[-18, 78, 1], [2, 96, 1], [22, 62, 0]]) { P(`M${f2(50 + ox)} 100 Q${f2(48 + ox)} ${f2(100 - hh * 0.5)} ${f2(50 + ox)} ${f2(100 - hh)} L${f2(53 + ox)} ${f2(100 - hh)} Q${f2(51 + ox)} ${f2(100 - hh * 0.5)} ${f2(53 + ox)} 100Z`); if (head) E(50 + ox + 1.5, 100 - hh - 7, 7, 12, dk(0.35)); } break; }
       default: { P(cutBlobPath(50, 50, 42, 40, seed)); break; }
     }
     return svg;
@@ -4198,7 +4203,9 @@
       // corner folios, which sit at the foot of the same strip.
       const centered = layout === 'vignette';
       const col = el('div', { position: 'absolute', left: px(centered ? pad : colRect.x), top: px(colRect.y), width: px(centered ? pw - pad * 2 : colRect.w), textAlign: centered ? 'center' : '' }, face);
-      const titleEl = el('div', { fontFamily: PB_HAND, fontWeight: '640', fontSize: px(pw * (layout === 'half' ? 0.058 : layout === 'full' ? 0.050 : 0.044)), lineHeight: '1.12', color: ink, letterSpacing: '0.002em' }, col);
+      // Display vs text: titles set in the serif face, body in the hand — the
+      // hierarchy a printed page carries.
+      const titleEl = el('div', { fontFamily: PB_SERIF, fontWeight: '700', fontSize: px(pw * (layout === 'half' ? 0.056 : layout === 'full' ? 0.048 : 0.042)), lineHeight: '1.14', color: ink, letterSpacing: '0.006em' }, col);
       // Letterpress bite: light caught on the pressed edge below, ink shade above.
       titleEl.style.textShadow = `0 ${px(Math.max(0.5, pw * 0.0011))} 0 rgba(255,252,240,0.55), 0 ${px(-Math.max(0.5, pw * 0.0011))} 0 ${rgbaOf(ink, 0.22)}`;
       titleEl.textContent = titleText;

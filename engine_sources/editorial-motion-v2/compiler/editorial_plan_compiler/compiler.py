@@ -1225,16 +1225,40 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         celestial(2)
         if mood != 'night':
             clouds(4, 3 if mood != 'storm' else 4)
+            # A second, farther cloud layer so the sky has depth, not one stripe of weather.
+            for k in range(2):
+                sx = ((seed0 >> (k * 9 + 3)) & 0x3F) / 63.0
+                out.append(piece('cloud', W * (0.15 + 0.55 * sx), H * (0.24 + 0.07 * k), W * 0.10, H * 0.07,
+                                 mix(paper, sky, 0.45), 0.18, 30 + k))
         else:
             out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.5}, 8))
+            out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.30}, 9, 60, 0.05))
         out.append(band(0.52, 0.24, mid, 0.30, True, 6))
+        # Far hills sit between the mid band and the ground — the middle distance
+        # every landscape needs.
+        for k in range(2):
+            sx = ((seed0 >> (k * 11 + 5)) & 0x7F) / 127.0
+            out.append(piece('hill', W * (-0.06 + 0.55 * sx), H * (0.44 + 0.05 * k), W * (0.42 + 0.1 * k), H * 0.22,
+                             mix(mid, gnd, 0.4 + 0.2 * k), 0.38 + k * 0.06, 32 + k))
         out.append(band(0.66, 0.38, gnd, 0.55, True, 7))
         elements_on(H * 0.80)
+        # Ground scatter: tufts and stones at the feet of the world, near plane.
+        for k in range(6):
+            sx = ((seed0 >> (k * 6 + 9)) & 0x7F) / 127.0
+            sy = ((seed0 >> (k * 4 + 2)) & 0xF) / 15.0
+            shape = ('tuft', 'stone', 'tuft', 'bush', 'tuft', 'stone')[k % 6] if mood != 'night' else ('tuft', 'stone')[k % 2]
+            sw = W * (0.05 + 0.05 * ((seed0 >> (k * 3)) & 3) / 3.0)
+            out.append(piece(shape, W * (0.03 + 0.9 * sx), H * (0.74 + 0.20 * sy) - short * 0.05,
+                             sw, short * (0.06 + 0.03 * (k % 3)), mix(ink, paper, 0.30 + 0.08 * (k % 3)), 0.62 + 0.05 * (k % 2), 34 + k))
     elif setting == 'indoor':
         wall = mix(paper, ink, 0.07 if mood != 'night' else 0.3)
         out.append(band(-0.02, 0.72, wall, 0.12, False, 1))
         out.append(band(0.70, 0.34, mix(ink, paper, 0.22), 0.5, False, 2))
         out.append(piece('beam', -overhang, H * 0.685, W + 2 * overhang, H * 0.02, mix(ink, wall, 0.35), 0.4, 3))
+        # Rooms read by their furnishing: a window or picture on the wall, a rug underfoot.
+        out.append(piece('window', W * 0.08, H * 0.14, W * 0.16, H * 0.30, mix(ink, wall, 0.5), 0.2, 30))
+        out.append(piece('frame', W * (0.58 + 0.1 * ((seed0 >> 4) & 3) / 3.0), H * 0.16, W * 0.11, H * 0.17, mix(ink, wall, 0.4), 0.2, 31))
+        out.append(piece('rug', W * 0.30, H * 0.80, W * 0.4, H * 0.14, mix(accent, ink, 0.4), 0.52, 32))
         elements_on(H * 0.70)
     elif setting == 'space':
         out.append(band(-0.02, 1.04, mix(ink, paper, 0.05), 0.05, False, 1))
@@ -1248,6 +1272,14 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         out.append(piece('planet', W * 0.55, H * 0.30, short * 0.36, short * 0.36, accent, 0.18, 3))
         out.append(piece('moon', W * 0.12, H * 0.14, short * 0.1, short * 0.1, mix(paper, '#f5edd8', 0.4), 0.14, 4))
         out.append(piece('comet', W * 0.05, H * 0.08, W * 0.22, short * 0.04, mix(paper, accent, 0.5), 0.12, 5))
+        # Asteroid drift and a farther planet — the void needs bodies at depth.
+        for k in range(3):
+            sx = ((seed0 >> (k * 8 + 1)) & 0x7F) / 127.0
+            sy = ((seed0 >> (k * 5 + 7)) & 0x3F) / 63.0
+            out.append(piece('rock', W * (0.10 + 0.8 * sx), H * (0.35 + 0.5 * sy),
+                             short * (0.03 + 0.04 * (k % 2)), short * 0.045, mix(ink, paper, 0.35), 0.32, 30 + k))
+        out.append(piece('planet', W * (0.02 + 0.2 * ((seed0 >> 9) & 3) / 3.0), H * 0.62, short * 0.10, short * 0.10,
+                         mix(accent, ink, 0.35), 0.30, 34))
         elements_on(H * 0.95)
     elif setting == 'underwater':
         deep1, deep2, deep3 = mix(ink, accent, 0.35), mix(ink, accent, 0.5), mix(ink, accent, 0.62)
@@ -1257,6 +1289,16 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         out.append(shaft({'x': W * 0.55, 'y': 0, 'w': W * 0.10, 'h': H * 0.7}, 4, -9.0))
         out.append(band(0.60, 0.45, deep3, 0.4, True, 5))
         out.append(band(0.80, 0.24, mix(ink, paper, 0.28), 0.55, True, 6))
+        # Rising bubbles and kelp on the bed — water reads by what drifts through it.
+        for k in range(4):
+            sx = ((seed0 >> (k * 7 + 3)) & 0x7F) / 127.0
+            sy = ((seed0 >> (k * 4 + 6)) & 0x3F) / 63.0
+            out.append(piece('bubble', W * (0.10 + 0.75 * sx), H * (0.18 + 0.5 * sy),
+                             short * (0.04 + 0.02 * (k % 2)), short * 0.05, mix(paper, accent, 0.4), 0.45, 30 + k))
+        for k in range(3):
+            sx = ((seed0 >> (k * 9 + 11)) & 0x7F) / 127.0
+            out.append(piece('kelp', W * (0.05 + 0.85 * sx), H * 0.86 - short * 0.16,
+                             W * 0.08, short * 0.17, mix(ink, accent, 0.55), 0.6, 36 + k))
         elements_on(H * 0.88)
     elif setting == 'urban':
         out.append(band(-0.02, 0.55, sky, 0.10, False, 1))
@@ -1268,6 +1310,11 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         out.append({'kind': 'windows', 'bbox': {'x': -overhang, 'y': H * 0.44, 'w': W + 2 * overhang, 'h': H * 0.30},
                     'tone': mix(ink, paper, 0.30), 'lit': glow, 'seed': seed0 ^ 0x78, 'plane': 0.42, 'rows': 5, 'silhouette': True})
         out.append(band(0.72, 0.32, mix(ink, paper, 0.16), 0.55, False, 6))
+        # Street furniture in the near plane — the street level the eye lands on.
+        for k in range(2):
+            sx = ((seed0 >> (k * 10 + 4)) & 0x7F) / 127.0
+            out.append(piece('streetlamp', W * (0.10 + 0.72 * sx), H * 0.72 - short * 0.30,
+                             W * 0.07, short * 0.31, mix(ink, paper, 0.18), 0.7, 30 + k))
         elements_on(H * 0.84)
     elif setting == 'ground':
         out.append(band(-0.02, 0.14, sky, 0.08, False, 1))

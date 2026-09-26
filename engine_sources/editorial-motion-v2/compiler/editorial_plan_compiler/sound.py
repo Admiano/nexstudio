@@ -277,7 +277,7 @@ MIX = {
         'sfx': {'compressor': {'threshold_db': -18, 'ratio': 3.0, 'attack_ms': 3, 'release_ms': 90}, 'trim_db': 0.0},
         'music': {'highpass_hz': 40, 'trim_db': 0.0,
                   # bed drops by floor_db when the voice sits window_db above the sidechain threshold
-                  'duck': {'threshold': 0.1, 'window_db': 12, 'attack_ms': 30, 'release_ms': 450, 'floor_db': -8.0}},
+                  'duck': {'threshold': 0.1, 'window_db': 12, 'attack_ms': 30, 'release_ms': 750, 'floor_db': -6.0}},
     },
     'limiter': {'attack_ms': 5, 'release_ms': 50},
 }
