@@ -1,18 +1,16 @@
 """Board-sections render mode — the whiteboard-crypto form.
 
 Evidence model (from frame analysis of the reference):
-  * ONE canvas larger than the frame, pre-divided into regions with
-    hand-drawn divider lines; each section owns a region.
-  * The camera is locked on the whole canvas — no pans, zooms, or drift;
-    the whole accumulating board is visible the entire video.
-  * Nothing is ever wiped or evicted — every stroke persists to the end.
-  * Each region composes a vignette: hand-lettered title at its top, a hero
-    element at its centre, satellites (people, objects, chips, captions)
-    arranged around it.
+  * Each beat is its own full-frame scene — a still shot, no camera
+    movement of any kind. When the next beat opens, the previous scene's
+    ink fades off the paper as the new title letters in.
+  * Each scene composes a vignette: hand-lettered title at its top, a hero
+    element at its centre, satellites (objects, chips, captions) arranged
+    around it. A human figure appears only in scenes that ask for one.
   * Multi-accent ink: black lettering/art + accent colors on fills, marks.
-  * Ending: "Thanks" + a heart inks into a free region on the same canvas.
+  * Ending: "Thanks" + a heart draws centred on the empty board.
 
-Beats map 1:1 to sections, and sections map 1:1 to regions on the canvas.
+Beats map 1:1 to scenes.
 """
 from __future__ import annotations
 
@@ -197,28 +195,6 @@ def _heart_strokes(center, size):
         y = 13 * math.cos(a) - 5 * math.cos(2 * a) - 2 * math.cos(3 * a) - math.cos(4 * a)
         pts.append((center[0] + x * size / 34, center[1] - y * size / 34))
     return [(pts, 'a_red', 1.6, True, True)]
-
-
-def _regions(n, rect):
-    """Free-form regions like the reference: halves / L-shape / quadrants."""
-    x0, y0, w, h = rect
-    if n <= 1:
-        return [rect], []
-    if n == 2:
-        div = [(((x0 + w / 2), y0 + h * 0.06), ((x0 + w / 2), y0 + h * 0.94))]
-        return [(x0, y0, w / 2, h), (x0 + w / 2, y0, w / 2, h)], div
-    if n == 3:
-        div = [((x0 + w * 0.56, y0 + h * 0.06), (x0 + w * 0.56, y0 + h * 0.94)),
-               ((x0, y0 + h * 0.52), (x0 + w * 0.52, y0 + h * 0.52))]
-        return [(x0, y0, w * 0.54, h * 0.5),
-                (x0, y0 + h * 0.54, w * 0.54, h * 0.46),
-                (x0 + w * 0.58, y0, w * 0.42, h)], div
-    div = [((x0 + w / 2, y0 + h * 0.05), (x0 + w / 2, y0 + h * 0.95)),
-           ((x0, y0 + h * 0.52), (x0 + w, y0 + h * 0.52))]
-    return [(x0, y0, w / 2, h * 0.5),
-            (x0 + w / 2, y0, w / 2, h * 0.5),
-            (x0, y0 + h * 0.54, w / 2, h * 0.46),
-            (x0 + w / 2, y0 + h * 0.54, w / 2, h * 0.46)], div
 
 
 def _section_label(beat):
@@ -553,52 +529,18 @@ def _build(plan, ratio):
         sections.append({'beat': beat, 'bi': bi, 'items': merged,
                          'label': _section_label(beat)})
 
-    # Region canvas: the world is ~1.3x the frame — just enough margin for
-    # divider lines and breathing room under a locked camera. Each beat
-    # owns a region; nothing is ever evicted — ink persists to the end.
-    # Divider strokes between regions draw live as sections open.
+    # Per-scene layout: every beat composes its own full-frame scene in the
+    # same content rect — no shared canvas, no moving camera. When the next
+    # beat opens, the previous scene's ink fades off the paper.
     del board_rect
     nsec = len(sections)
-    W2, H2 = W * 1.3, H * 1.3
-    m2 = 0.03 * W
-    bx0, by0 = -W2 / 2 + m2, -H2 / 2 + m2 * 1.15
-    bw, bh = W2 - 2 * m2, H2 - 2 * m2 * 1.45
+    m2 = 0.04 * W
+    bx0, by0 = -W / 2 + m2, -H / 2 + m2 * 1.15
+    bw, bh = W - 2 * m2, H - 2 * m2 * 1.45
     board_rect = (bx0, by0, bw, bh)
-    header = bh * 0.085                     # persistent global-title strip
-    # near-frame-aspect regions: rows/cols chosen so each region lands
-    # close to the frame's proportions under the locked full view
-    rows = max(1, round(math.sqrt(max(1, nsec) * 0.9)))
-    cols = max(1, math.ceil(nsec / rows))
-    ax0, ay0, aw, ah = bx0, by0 + header, bw, bh - header
-    rw_, rh_ = aw / cols, ah / rows
-    regions = [(ax0 + rw_ * c, ay0 + rh_ * r, rw_, rh_)
-               for r in range(rows) for c in range(cols)]
-
-    # divider strokes: one wobbled line per shared interior edge, inked at
-    # the start of the first section that borders it
-    divs = []
-    for c in range(1, cols):
-        sis = [si for si in range(nsec)
-               if si % cols in (c - 1, c) or si % cols == c]
-        if not sis:
-            continue
-        x = ax0 + rw_ * c
-        pts = _wobble_line((x, ay0 + rh_ * 0.02), (x, ay0 + ah - rh_ * 0.02),
-                           n=40, wob=rh_ * 0.005, seed=c * 31 + 7)
-        divs.append((('divider', [(pts, 'ink', 0.85, False, True)],
-                      (0, 0), 1.0, None),
-                     sections[sis[0]]['beat']['start_seconds'], None))
-    for r in range(1, rows):
-        sis = [si for si in range(nsec) if si // cols in (r - 1, r)]
-        if not sis:
-            continue
-        y = ay0 + rh_ * r
-        pts = _wobble_line((ax0 + aw * 0.01, y), (ax0 + aw * 0.99, y),
-                           n=64, wob=rw_ * 0.005, seed=r * 17 + 3)
-        divs.append((('divider', [(pts, 'ink', 0.85, False, True)],
-                      (0, 0), 1.0, None),
-                     sections[sis[0]]['beat']['start_seconds'], None))
-    placed_bounds = []                # bounds2 of every placed element
+    header = bh * 0.10                      # persistent global-title strip
+    rw_, rh_ = bw, bh - header
+    region = (bx0, by0 + header, rw_, rh_)  # every section owns the frame
     uid = 0
 
     # board title drawn once, top-left — the persistent anchor text
@@ -626,8 +568,11 @@ def _build(plan, ratio):
         t1 = t0 + float(sec['beat'].get('duration_seconds', 3.0))
         sec['t_window'] = (t0, t1)
         dur = t1 - t0
-        rx, ry, rw, rh = regions[si]
+        rx, ry, rw, rh = region
         sec['region'] = (rx, ry, rw, rh)
+        placed_bounds = []            # each scene lays out from a clean
+                                      # frame — no carryover from prior
+                                      # scenes' placements
         # per-section title — lettered at the top of the region it owns
         ttl = str(sec['beat'].get('title') or sec.get('label') or '').strip()
         title_h = 0.0
@@ -650,18 +595,29 @@ def _build(plan, ratio):
         sec['content'] = (cx0, cy0, cw, ch)
         items = sec['items']
         k = len(items)
-        # figure strips claim the region edges before any item lands so
-        # satellites keep clear of where a drawn figure will stand
+        # figure strips claim the scene edges before any item lands so
+        # satellites keep clear of where a drawn figure will stand — but
+        # only when the beat actually stages a person item; a figure never
+        # appears on its own
         fsc = scenes[sec['bi']] if sec['bi'] < len(scenes) else {}
+        has_person = any(_is_person_item(it) for it in items)
         fm_bounds = {}
-        if fsc.get('figureMotion'):
+        if has_person and fsc.get('figureMotion'):
             fm_bounds['fm'] = (cx0, cy0 + ch * 0.03,
                                cx0 + cw * 0.32, cy0 + ch * 0.99)
             placed_bounds.append(fm_bounds['fm'])
-        if fsc.get('figureMotion2'):
+        if has_person and fsc.get('figureMotion2'):
             fm_bounds['fm2'] = (cx0 + cw * 0.68, cy0 + ch * 0.03,
                                 cx0 + cw, cy0 + ch * 0.99)
             placed_bounds.append(fm_bounds['fm2'])
+        # scene separation: everything this scene places fades off the
+        # paper as the next scene opens — the incoming title letters while
+        # the outgoing ink dissolves
+        nxt_t0 = (beats[sec['bi'] + 1]['start_seconds']
+                  if sec['bi'] + 1 < len(beats) else None)
+        sec['fade'] = ((nxt_t0 - 0.15, nxt_t0 + 0.45)
+                       if nxt_t0 is not None
+                       else (t1, t1 + WIPE_SECONDS * 0.8))
         if not k:
             sec['items2'] = []
             continue
@@ -937,33 +893,22 @@ def _build(plan, ratio):
                     'uid': uid, 'fade': None, 'kind': 'elem',
                     't_window': (ds, de)})
                 placed_bounds.append(doodles[-1]['bounds2'])
-        # a figure beat with no person slot still stages the figure — park
-        # it on the region's edge strip rather than dropping it entirely
-        for fkey in ('fm', 'fm2'):
-            if fkey in sec or not fsc.get('figureMotion' + fkey[2:]):
-                continue
-            strip = fm_bounds.get(fkey)
-            if strip is None:
-                strip = (cx0, cy0 + ch * 0.03, cx0 + cw * 0.32,
-                         cy0 + ch * 0.99)
-                placed_bounds.append(strip)
-            sec[fkey] = {'bounds2': strip, 't0': slot_dur * 0.15,
-                         'facing': 1}
+        fade = sec['fade']
+        for it in placed:
+            if it is not None:
+                it['fade'] = fade
+        for d in doodles:
+            d['fade'] = fade
         sec['items2'] = [it for it in placed if it is not None] + doodles
 
     out_sections = sections
     all_items = [it for sec in out_sections for it in sec['items2']]
 
     total_beats_end = beats[-1]['start_seconds'] + beats[-1]['duration_seconds']
-    # ending: the camera eases out to the full accumulated canvas (the
-    # reference's reveal), then "Thanks" + heart ink into the first unused
-    # region — or centre-right when every region is occupied
-    if nsec < len(regions):
-        frx, fry, frw, frh = regions[nsec]
-        th_cx, th_cy = frx + frw * 0.5, fry + frh * 0.52
-    else:
-        th_cx, th_cy = bx0 + bw * 0.62, by0 + bh * 0.52
-    th_h = rh_ * 0.34
+    # ending: the last scene's ink has faded off — "Thanks" + a heart draw
+    # centred on the empty board
+    th_cx, th_cy = bx0 + bw * 0.42, by0 + bh * 0.52
+    th_h = rh_ * 0.30
     th_w = text_width('Thanks', th_h)
     if th_w > rw_ * 0.72:
         th_h *= rw_ * 0.72 / th_w
@@ -984,8 +929,8 @@ def _build(plan, ratio):
         'dur': WIPE_SECONDS + THANKS_SECONDS + END_HOLD,
     }
     flow = {'sections': out_sections, 'items': all_items,
-            'title_item': title_item, 'dividers': divs,
-            'ending': ending, 'board_rect': board_rect,
+            'title_item': title_item, 'ending': ending,
+            'board_rect': board_rect,
             'total_beats_end': total_beats_end}
     cache[ratio] = flow
     return flow
@@ -1023,9 +968,6 @@ def _travel_tip(flow, ratio, cam, zoom, t):
     _add(flow['title_item']['groups'])
     for it in flow['items']:
         _add(it['groups'])
-    for g, s, e in flow['dividers']:
-        if s is not None and g[1]:
-            segs.append((s, s + 0.9, g[1][0][0][0], g[1][0][0][-1]))
     for sec in flow['sections']:
         if sec.get('title_st') and sec.get('t_window'):
             st_ = sec['title_st']
@@ -1104,16 +1046,6 @@ def render_board_frame(plan: dict, ratio: str, t: float):
         ti = flow['title_item']
         if t >= ti['groups'][0][1]:
             draw_groups(ti['groups'], seed)
-        for g, s, e in flow['dividers']:
-            if s is None:
-                continue
-            gg = (g, s, s + 0.9)
-            p = wbp._ease(wbp._clamp((t - gg[1]) / max(0.05, gg[2] - gg[1])))
-            if p > 0:
-                t2 = _draw_strokes(layer, g[1], g[2], g[3], cam, colors,
-                                   ratio, p, seed + 31, zoom)
-                if t2 and -40 <= t2[0] <= vw + 40 and -40 <= t2[1] <= vh + 40:
-                    tip = t2
         for it in flow['items']:
             fade = it.get('fade')
             if fade is not None and t >= fade[1]:
@@ -1130,7 +1062,8 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             plan, ratio, cam, [(layer, 255)] + fade_layers, seed)
         spec_list = plan.get('sceneSpecs') or []
         for sec in flow['sections']:
-            if not (sec.get('t_window') and sec['t_window'][0] <= t):
+            if not (sec.get('t_window') and sec['t_window'][0] <= t
+                    and t < sec['t_window'][1] + 0.2):
                 continue
             if not (sec.get('fm') or sec.get('fm2')):
                 continue
@@ -1143,8 +1076,7 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                     continue
                 b2 = sec[fkey]['bounds2']
                 # the figure is a protagonist, not a thumbnail — floor its
-                # size at ~55% of its region height so it reads at reference
-                # scale through the follow-cam
+                # size at ~55% of the scene height
                 fh = max(b2[3] - b2[1],
                          (sec['region'][3] if sec.get('region') else 300.0)
                          * 0.55)
@@ -1152,10 +1084,13 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                 scene_['_fm' + fkey[2:] + '_anchor'] = {
                     'center': ((b2[0] + b2[2]) / 2, (b2[1] + b2[3]) / 2),
                     'size': fh, 'facing': sec[fkey]['facing']}
+                # the figure exists only inside its own scene — it exits
+                # when the scene closes, never persisting into the next
                 scene_['_fm' + fkey[2:] + '_window'] = (
-                    sec[fkey]['t0'], sec[fkey]['t0'] + 1e9)
-            # figures persist like the ink around them: once drawn they stay
-            # on the board across later beats, holding their final pose
+                    sec[fkey]['t0'],
+                    sec['t_window'][1] - sec['t_window'][0] + 0.15)
+            # the figure lives only inside its scene — the fm window ends
+            # with the scene so it steps off as the scene fades
             frame = v3r._figure_motion_overlay(
                 frame, scene_, plan, ratio, cam, zoom,
                 t - sec['beat']['start_seconds'])
@@ -1166,14 +1101,20 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             if ft is not None and -40 <= ft[0] <= vw + 40 \
                     and -40 <= ft[1] <= vh + 40:
                 tip = ft
-        # section titles: every started beat's title persists inside its own
-        # region — it inks in as the camera arrives and stays
-        tlayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
-        drew = False
+        # section titles: a scene's title inks in as it opens and fades off
+        # with the rest of that scene's ink
         for sec_ in flow['sections']:
             if not (sec_.get('title_st') and sec_.get('t_window')
                     and sec_['t_window'][0] <= t):
                 continue
+            sf = sec_.get('fade')
+            alpha = 255
+            if sf is not None and t >= sf[0]:
+                if t >= sf[1]:
+                    continue
+                alpha = int(255 * (1.0 - wbp._clamp(
+                    (t - sf[0]) / max(0.05, sf[1] - sf[0]))))
+            tlayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
             p = wbp._ease(wbp._clamp(
                 (t - sec_['t_window'][0]) / 1.1))
             if p <= 0:
@@ -1181,60 +1122,34 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             t2 = _draw_strokes(tlayer, sec_['title_st'], (0.0, 0.0), 1.0,
                                cam, colors, ratio, p,
                                seed + 71 + sec_['bi'] * 13, zoom)
-            drew = True
+            if alpha < 255:
+                tlayer.putalpha(tlayer.split()[3].point(
+                    lambda v: int(v * alpha / 255)))
+            frame.paste(tlayer, (0, 0), tlayer)
             if t2 and sec_['t_window'][0] <= t <= sec_['t_window'][0] + 1.2 \
                     and -40 <= t2[0] <= vw + 40 and -40 <= t2[1] <= vh + 40:
                 tip = t2
-        if drew:
-            frame.paste(tlayer, (0, 0), tlayer)
         if tip is None:
             tip = _travel_tip(flow, ratio, cam, zoom, t)
         return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed),
                          ratio)
 
-    # -------- ending: reveal the whole canvas, then Thanks + heart --------
+    # -------- ending: the last scene has faded off; Thanks + heart draw
+    # centred on the empty board --------
     ending = flow['ending']
     rel = t - t_end
     draw_full(flow['title_item']['groups'], layer)
-    for g, s, e in flow['dividers']:
-        if s is not None:
-            _draw_strokes(layer, g[1], g[2], g[3], cam, colors, ratio, 1.0,
-                          seed + 31, zoom)
+    # during the wipe window the outgoing scene's ink finishes its fade
+    fade_layers = []
     for it in flow['items']:
-        draw_full(it['groups'], layer)
-    frame = _composite_frame(plan, ratio, cam, [(layer, 255)], seed)
-    # figures stay on the canvas through the reveal
-    spec_list = plan.get('sceneSpecs') or []
-    for sec in flow['sections']:
-        if not (sec.get('t_window') and sec['t_window'][0] <= t):
-            continue
-        scene_ = spec_list[sec['bi']] if sec['bi'] < len(spec_list) else None
-        if scene_ is None:
-            continue
-        for fkey in ('fm', 'fm2'):
-            if not sec.get(fkey):
-                continue
-            b2 = sec[fkey]['bounds2']
-            fh = max(b2[3] - b2[1],
-                     (sec['region'][3] if sec.get('region') else 300.0)
-                     * 0.55)
-            b2 = (b2[0], b2[3] - fh, b2[2], b2[3])
-            scene_['_fm' + fkey[2:] + '_anchor'] = {
-                'center': ((b2[0] + b2[2]) / 2, (b2[1] + b2[3]) / 2),
-                'size': fh, 'facing': sec[fkey]['facing']}
-            scene_['_fm' + fkey[2:] + '_window'] = (sec[fkey]['t0'],
-                                                   sec[fkey]['t0'] + 1e9)
-        frame = v3r._figure_motion_overlay(
-            frame, scene_, plan, ratio, cam, zoom,
-            t - sec['beat']['start_seconds'])
-    # section titles persist through the reveal
-    tlayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
-    for sec_ in flow['sections']:
-        if sec_.get('title_st') and sec_.get('t_window'):
-            _draw_strokes(tlayer, sec_['title_st'], (0.0, 0.0), 1.0, cam,
-                          colors, ratio, 1.0, seed + 71 + sec_['bi'] * 13,
-                          zoom)
-    frame.paste(tlayer, (0, 0), tlayer)
+        fade = it.get('fade')
+        if fade is not None and fade[0] <= t < fade[1]:
+            fl = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
+            draw_full(it['groups'], fl)
+            p = wbp._clamp((t - fade[0]) / max(0.05, fade[1] - fade[0]))
+            fade_layers.append((fl, int(255 * (1.0 - p))))
+    frame = _composite_frame(plan, ratio, cam,
+                             [(layer, 255)] + fade_layers, seed)
     tt = rel - WIPE_SECONDS
     if tt > 0:
         elayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
