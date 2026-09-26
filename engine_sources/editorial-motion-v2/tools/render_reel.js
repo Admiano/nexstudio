@@ -436,7 +436,13 @@ async function main() {
   const captureS = (Date.now() - t0) / 1000;
   // Authorship inspection rode the same seek as the capture; replaying the snapshots in frame order
   // gives the ledger the serial view it needs for static-hold runs.
-  const ledger = new AuthorshipLedger(fps);
+  // Under the paperbook a printed page is still by design — only an entity carrying a
+  // story action may move, so only those keys can be flagged for a static hold.
+  const animatedKeys = plan.book === 'paperbook'
+    ? new Map(plan.beats.flatMap((b) => (((b.illustration || {}).entities) || []).filter((e) => e.action)
+        .map((e) => [`${b.beat_id}:${e.id}`, e.action.at == null ? null : [b.start_ms + e.action.at, b.start_ms + e.action.at + (e.action.dur || 0)]])))
+    : null;
+  const ledger = new AuthorshipLedger(fps, animatedKeys);
   for (let i = 0; i < total; i += 1) ledger.observe(Math.round((i * 1000) / fps), snaps[i]);
   const authorship = ledger.report();
 
@@ -506,7 +512,7 @@ async function main() {
     frame_format: frameFormat, frame_quality: frameFormat === 'png' ? null : frameQuality,
     render: { workers, chrome: chromePath ? 'headless' : 'cdp', capture_s: Number(captureS.toFixed(1)), encode_s: Number(encodeS.toFixed(1)), total_s: Number(((Date.now() - t0) / 1000).toFixed(1)) },
     contact_sheet: `contact_${plan.aspect}.png`, transition_strip: stripFrames.length ? `transitions_${plan.aspect}.png` : null,
-    audio, captions_burned: captions, captions_policy: plan.captions_policy || 'burned', page_errors: errors, authorship, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
+    audio, captions_burned: captions, captions_policy: plan.captions_policy || 'burned', book: plan.book || null, page_errors: errors, authorship, native_profile: plan.beats.every((b) => b.composition.native_profile && !b.composition.derived_by_scaling),
   };
   fs.writeFileSync(path.join(outDir, `render_${plan.aspect}.json`), JSON.stringify(manifest, null, 2));
   console.log(JSON.stringify({ mp4, mp4_mb: Number((manifest.mp4_bytes / 1e6).toFixed(1)), web_mb: webMp4 ? Number((manifest.web_mp4_bytes / 1e6).toFixed(1)) : null, frames: total, render: manifest.render, errors: errors.length, audio, authorship: authorship.codes }, null, 1));

@@ -4305,7 +4305,7 @@
         return { s: Math.max(0.02, e), op: Math.min(1, oneShot * 3.2) };
       }
       case 'phase':
-        return { phase: EASE.inOutCubic(oneShot), dx: Math.sin(lt * 0.0009 + bb.x) * 0.6, rot: Math.sin(lt * 0.0007) * 0.4 };
+        return { phase: EASE.inOutCubic(oneShot) };
       case 'kick': {
         // Flies a short arc and lands — the pressed still shows where it came to rest.
         const q = EASE.outCubic(oneShot), dir = act.dir || 1;
@@ -4362,12 +4362,16 @@
       let ty = pose.ty;
       // Idle life once this entity's own program has fully run: a drift whose amplitude shrinks
       // with the gap to the text zone so it can never close on the copy, and a breath whose
-      // amplitude is capped the same way.
-      const tzA = beat.composition.text_zone;
-      const gap = Math.max(tzA.x - (node.bb.x + node.bb.w), node.bb.x - (tzA.x + tzA.w), tzA.y - (node.bb.y + node.bb.h), node.bb.y - (tzA.y + tzA.h));
-      const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
-      const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4), breathe);
-      let tx = amb.dx; ty += amb.dy; scale *= amb.s;
+      // amplitude is capped the same way. A printed page never does this — under the
+      // paperbook only the focus element's own story action may move.
+      let tx = 0;
+      if (ctx.book !== 'paperbook') {
+        const tzA = beat.composition.text_zone;
+        const gap = Math.max(tzA.x - (node.bb.x + node.bb.w), node.bb.x - (tzA.x + tzA.w), tzA.y - (node.bb.y + node.bb.h), node.bb.y - (tzA.y + tzA.h));
+        const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
+        const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4), breathe);
+        tx = amb.dx; ty += amb.dy; scale *= amb.s;
+      }
 
       // SETTLE: a small confirming pulse; SWAP: the entity pops through a scale-and-clip beat into its new state.
       for (const op of activeOps(node, 'SETTLE', lt)) scale *= 1 + 0.03 * EASE.pulse(prog(lt, op.start_ms, op.end_ms));
@@ -4634,6 +4638,7 @@
 
     const ctx = {
       brand: plan.brand,
+      book: plan.book,
       shadowRgb: plan.atmosphere && plan.atmosphere.shadow_rgb,
       canvas: plan.canvas,
       frameMs: 1000 / (plan.fps || 30),
@@ -5876,7 +5881,10 @@
         grain.style.backgroundPosition = `${-o[0]}px ${-o[1]}px`;
       }
       if (bookGroup) {
-        bookGroup.style.transform = `translate(${f2(1.6 * Math.sin(time * 0.00105))}px,${f2(1.1 * Math.sin(time * 0.00087 + 1.4))}px) rotate(${f2(0.05 * Math.sin(time * 0.00062))}deg)`;
+        // The paperbook reads as a photographed still object — the volume never
+        // breathes or drifts; only the turning leaf and the focus element move.
+        bookGroup.style.transform = paperbook ? '' :
+          `translate(${f2(1.6 * Math.sin(time * 0.00105))}px,${f2(1.1 * Math.sin(time * 0.00087 + 1.4))}px) rotate(${f2(0.05 * Math.sin(time * 0.00062))}deg)`;
         if (bookLamp) bookLamp.style.opacity = f2(0.55 + 0.3 * Math.sin(time * 0.00078 + 0.5));
       }
       const t1 = performance.now();

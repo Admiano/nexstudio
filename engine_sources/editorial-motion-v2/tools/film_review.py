@@ -267,16 +267,23 @@ def _check_render(checks: List[Dict[str, Any]], reel_dir: Path, aspect: str) -> 
                f"{f['beat_id']}:{f['id']}@{f['first_ms']}ms")
 
 
-def _check_frames(checks: List[Dict[str, Any]], reel_dir: Path, aspect: str, fps: int) -> None:
+def _check_frames(checks: List[Dict[str, Any]], reel_dir: Path, aspect: str, fps: int,
+                  plan: Optional[Dict[str, Any]] = None) -> None:
     frames_dir = reel_dir / f'frames_{aspect}'
     if not frames_dir.is_dir():
         return
     met = measure_frames(frames_dir, fps)
     _check(checks, 'blank_frames', aspect,
            'PASS' if met['blank_ms'] <= BLANK_MAX_MS else 'FAIL', f"{met['blank_ms']}ms blank")
-    _check(checks, 'frozen_frames', aspect,
-           'PASS' if met['frozen_longest_ms'] <= FROZEN_RUN_MAX_MS else 'FAIL',
-           f"{met['frozen_longest_ms']}ms frozen run")
+    if plan and plan.get('book') == 'paperbook':
+        # A printed page is still by design: pixel-identical runs are correct outside an
+        # element's action window — the authorship gate's STATIC_HOLD owns that check.
+        _check(checks, 'frozen_frames', aspect, 'SKIP',
+               f"paperbook: printed pages may hold still ({met['frozen_longest_ms']}ms longest run)")
+    else:
+        _check(checks, 'frozen_frames', aspect,
+               'PASS' if met['frozen_longest_ms'] <= FROZEN_RUN_MAX_MS else 'FAIL',
+               f"{met['frozen_longest_ms']}ms frozen run")
 
 
 def certify(reel_dir: Path, plan_paths: Sequence[Path], gate_path: Optional[Path], fps: int = 15) -> Dict[str, Any]:
@@ -306,7 +313,7 @@ def certify(reel_dir: Path, plan_paths: Sequence[Path], gate_path: Optional[Path
         _check_plates(plan, aspect, checks)
         if reel_dir:
             _check_render(checks, reel_dir, aspect)
-            _check_frames(checks, reel_dir, aspect, fps)
+            _check_frames(checks, reel_dir, aspect, fps, plan)
     _check_parity(plans, checks)
     verdict = ('FAIL' if any(c['status'] == 'FAIL' for c in checks)
                else 'WARN' if any(c['status'] == 'WARN' for c in checks) else 'PASS')

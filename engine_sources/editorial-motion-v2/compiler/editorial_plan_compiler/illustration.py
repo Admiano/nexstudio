@@ -1046,7 +1046,7 @@ PROPERTY_REST = {'draw': 1.0, 'fill': 0.0, 'ink': 0.0, 'dim': 1.0, 'grow': 1.0, 
 # Story actions: the plate keeps its still environment, but the subject the narration
 # is about moves — plants grow from the soil, moons go dark, balls get kicked, counted
 # objects pop in one at a time. Assigned per concept, evaluated on the beat's own clock.
-LOOP_ACTIONS = {'orbit', 'pulse', 'spin', 'swim', 'flutter', 'wave', 'breathe'}
+LOOP_ACTIONS = {'orbit', 'pulse', 'spin', 'swim', 'flutter', 'wave'}
 
 
 def _action_for(concept: str, ready_ms: int, zone: Dict[str, float], bbox: Dict[str, float]) -> Optional[Dict[str, Any]]:
@@ -1059,7 +1059,7 @@ def _action_for(concept: str, ready_ms: int, zone: Dict[str, float], bbox: Dict[
         # Roots grow the other way — down from the seed, anchored at the top.
         return {'kind': 'grow', 'at': ready_ms + 150, 'dur': 1500, 'anchor': 'top'}
     if has('plant', 'sprout', 'seedling', 'seed', 'flower', 'tree', 'pine', 'mushroom', 'cactus',
-           'shoot', 'vine', 'leaf', 'leaves', 'grass', 'tuft', 'kelp', 'reed', 'stem', 'bud'):
+           'shoot', 'sapling', 'vine', 'leaf', 'leaves', 'grass', 'tuft', 'kelp', 'reed', 'stem', 'bud'):
         return {'kind': 'grow', 'at': ready_ms + 150, 'dur': 1500}
     if has('moon'):
         return {'kind': 'phase', 'at': ready_ms + 320, 'dur': 1700}
@@ -1080,69 +1080,135 @@ def _action_for(concept: str, ready_ms: int, zone: Dict[str, float], bbox: Dict[
         return {'kind': 'flutter'}
     if has('gear', 'wheel', 'windmill', 'clock', 'hourglass', 'fan'):
         return {'kind': 'spin'}
-    if has('flag', 'banner', 'pennant'):
+    if has('flag', 'banner', 'pennant', 'sail', 'curtain', 'ribbon', 'target', 'goal'):
         return {'kind': 'wave'}
     if has('sun', 'star', 'heart', 'bulb', 'candle', 'lantern', 'bell', 'trophy', 'medal',
            'crown', 'gem', 'coin', 'fire', 'volcano'):
         return {'kind': 'pulse'}
-    if has('storm', 'cloud', 'fog', 'mist', 'hill', 'mountain'):
-        return {'kind': 'breathe'}
     return None
 
 
-def assign_actions(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Optional[int] = None) -> None:
-    """Attach a story action to each subject entity — authored or concept-derived.
+# Focus matching: a printed page is still, so only the subject the narration actually
+# names may act. Concept tokens match narration words by exact/prefix/plural form, and
+# a few cross-word synonyms keep "the seed" able to wake its "seedling".
+FOCUS_SYNONYMS = {
+    'soccer': ('ball', 'football'), 'football': ('ball', 'soccer'), 'basketball': ('ball',),
+    'seedling': ('seed', 'plant', 'sprout', 'shoot'), 'seed': ('seedling', 'plant'),
+    'sprout': ('seedling', 'shoot', 'plant'), 'shoot': ('sprout', 'seedling', 'plant'),
+    'sapling': ('shoot', 'seedling', 'plant', 'tree'), 'drop': ('rain', 'water', 'raindrop'),
+    'ship': ('boat', 'sail'), 'boat': ('ship', 'sail'), 'planet': ('earth', 'world'),
+    'earth': ('planet', 'world'), 'home': ('house',), 'house': ('home',),
+    'moon': ('lunar',), 'butterfly': ('bird',), 'flower': ('blossom', 'bloom'),
+    'target': ('net', 'goal'), 'net': ('goal', 'mesh'), 'wave': ('sea', 'ocean', 'water'),
+    'leaves': ('leaf',), 'leaf': ('leaves',), 'stars': ('star',), 'star': ('stars',),
+}
 
-    Guards: garnish (`support_*`) marks never loop, and a plate with several moons is a
-    phases chart — its cells stay fixed so the sequence reads. `window_ms` is the latest
-    beat-local time a one-shot action may still be running (the hold ends on schedule;
-    nothing may be mid-flight as the page turns)."""
+
+def _narration_words(narration: Optional[str]) -> set:
+    import re
+    return {w for w in re.split(r'[^a-z]+', (narration or '').lower()) if len(w) >= 3}
+
+
+def _is_focus(concept: str, words: set) -> bool:
+    import re
+    toks = [t for t in re.split(r'[-_\s]+', concept.lower()) if len(t) >= 3]
+    forms = set(toks)
+    for t in toks:
+        forms.update(FOCUS_SYNONYMS.get(t, ()))
+        if t.endswith('s'):
+            forms.add(t[:-1])
+        else:
+            forms.add(t + 's')
+    for w in words:
+        for t in forms:
+            if t == w or (len(t) >= 4 and t.startswith(w)) or (len(w) >= 4 and w.startswith(t)):
+                return True
+    return False
+
+
+def assign_actions(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Optional[int] = None,
+                   narration: Optional[str] = None) -> None:
+    """Attach a story action to the subject the narration is about — and nothing else.
+
+    The page is a printed page: everything sits still except the element in focus.
+    `narration` is the beat's spoken line; a subject acts only when its concept (or a
+    close synonym) is named there. When the line names no subject, the plate's primary
+    subject alone acts. Counted sets (≥3 of a kind) always pop in sequence — the count
+    is the action. Guards: garnish (`support_*`) marks never act, and a plate with
+    several moons is a phases chart — its cells stay fixed so the sequence reads.
+    `window_ms` is the latest beat-local time a one-shot action may still be running
+    (the hold ends on schedule; nothing may be mid-flight as the page turns)."""
     from collections import Counter
     subjects = [e for e in ents if not str(e.get('id') or '').startswith('support_')]
     counts = Counter(str(e.get('concept') or '') for e in subjects)
     moons = sum(1 for e in subjects if 'moon' in str(e.get('concept') or '').lower())
+    words = _narration_words(narration) if narration is not None else None
     pop_idx: Dict[str, int] = {}
+    acted = False
     for e in ents:
-        if e.get('carried') or e.get('action'):
-            continue
+        if str(e.get('id') or '').startswith('support_'):
+            e.pop('action', None)
+            continue  # garnish marks sit still — they are the printed environment
+        if e.get('action'):
+            continue  # an action already fixed upstream (e.g. carry choreography) stands
         concept = str(e.get('concept') or '').lower().replace('_', '-')
         if not concept:
             continue
         ready = int(e.get('enter_ms') or 0) + int(e.get('enter_duration_ms') or 0)
-        is_subject = not str(e.get('id') or '').startswith('support_')
-        if is_subject and counts.get(concept, 0) >= 3:
+        if counts.get(concept, 0) >= 3:
             # A counting plate: several of a kind land as a counted sequence, each
             # popping in with a spring — the "one… two… three" of a picture book.
-            # Counted sets outrank the concept's ambient action — "five stars" pop
-            # in one by one; they don't just twinkle. The cadence compresses when the
-            # hold cannot fit the full count at a readable pace.
+            # The cadence compresses when the hold cannot fit the full count at a
+            # readable pace.
             n_pop = counts[concept]
             space = 240
             if window_ms is not None:
                 space = max(110, min(240, int((window_ms - 380 - ready) / max(1, n_pop - 1))))
             idx = pop_idx.get(concept, 0)
             pop_idx[concept] = idx + 1
-            act = {'kind': 'pop', 'at': ready + idx * space, 'dur': 380}
-        else:
+            act: Optional[Dict[str, Any]] = {'kind': 'pop', 'at': ready + idx * space, 'dur': 380}
+        elif words is None or _is_focus(concept, words):
             act = _action_for(concept, ready, zone, e.get('bbox') or {})
             if act and act['kind'] == 'phase' and moons > 1:
                 act = None  # a phases row teaches the sequence — it must not blur it
-        if act is None:
-            # Living-still fallback: even a resting mark settles imperceptibly — nothing
-            # on a living page is ever dead-frozen.
-            act = {'kind': 'breathe'}
-        if window_ms is not None and act['kind'] not in LOOP_ACTIONS and 'at' in act:
+        else:
+            act = None  # named subjects act; everything else is printed still
+        if act is not None and window_ms is not None and act['kind'] not in LOOP_ACTIONS and 'at' in act:
             # The action must land before the hold closes: run it earlier rather than
             # let it bleed into the page turn. A subject that only arrives inside the
-            # exit window has no room for its beat — it settles instead.
+            # exit window has no room for its beat — it stays printed still.
             latest_at = int(window_ms) - 200
             if ready > latest_at:
-                act = {'kind': 'breathe'}
+                act = None
             else:
                 if act['at'] > latest_at:
                     act['at'] = max(ready, latest_at)
                 act['dur'] = min(int(act.get('dur') or 600), max(200, int(window_ms) - act['at']))
+        if act is None:
+            e.pop('action', None)
+            continue
         e['action'] = act
+        acted = True
+    if words is not None and not acted and subjects:
+        # The line named nothing on the plate — the primary subject is still the focus.
+        heroes = [e for e in subjects if e.get('size') == 'hero']
+        pool = heroes or subjects
+        e = max(pool, key=lambda x: float((x.get('bbox') or {}).get('w') or 0) * float((x.get('bbox') or {}).get('h') or 0))
+        concept = str(e.get('concept') or '').lower().replace('_', '-')
+        ready = int(e.get('enter_ms') or 0) + int(e.get('enter_duration_ms') or 0)
+        act = _action_for(concept, ready, zone, e.get('bbox') or {})
+        if act and act['kind'] == 'phase' and moons > 1:
+            act = None
+        if act is not None and window_ms is not None and act['kind'] not in LOOP_ACTIONS and 'at' in act:
+            latest_at = int(window_ms) - 200
+            if ready > latest_at:
+                act = None
+            else:
+                if act['at'] > latest_at:
+                    act['at'] = max(ready, latest_at)
+                act['dur'] = min(int(act.get('dur') or 600), max(200, int(window_ms) - act['at']))
+        if act is not None:
+            e['action'] = act
 
 
 def terminal_state(plan: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:

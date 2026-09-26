@@ -455,9 +455,14 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
     for e in ents:
         if e.get('enter_ms', 0) > dur_ms * 0.62:
             e['enter_ms'] = int(dur_ms * 0.62)
-    # Support marks join the entities after the solver ran — assign their story
-    # actions here (and re-resolve authored subjects now that bboxes are final).
-    assign_actions(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh}, dur_ms - EXIT_MS - 60)
+    # Support marks join the entities after the solver ran — and every action is
+    # re-assigned under the book rule: the page sits still except the subject the
+    # narration names. Pre-clear so entities placed before the recompose are judged
+    # with their final bboxes.
+    for e in illustration['entities']:
+        e.pop('action', None)
+    assign_actions(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh}, dur_ms - EXIT_MS - 60,
+                   narration=getattr(btr, 'narration', None))
     return illustration
 
 
