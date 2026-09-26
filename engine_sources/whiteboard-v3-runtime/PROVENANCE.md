@@ -2,7 +2,7 @@
 
 | Artifact | Identity |
 |---|---|
-- `v3_board_sections.py` — sha256 `3a3c72484002f8aba00e996f9b5df680ed3797040a4cee3f3f2b3e1da2feb3d9`
+- `v3_board_sections.py` — sha256 `8aeadcac31fba245c5a65b527fab851b919e7242dd7f793269baf4c04cf1399b`
 | Original renderer | `…/WHITEBOARD_ELITE_RUNTIME/vendor/pipeline_v3_narration_timed.py` |
 | Recorded sha256 | `c91f2bc50cb634c993ff307ef01bb4177d9478a290bf0b4da042adee260f9c34` |
 | Standalone source preserved | **no** (`06_provenance/EXACT_ARTIFACT_GAP.json`) |
@@ -27,7 +27,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | Artifact | sha256 |
 |---|---|
 | `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `455ce3ef8927be484c52862a6e4f77c3f383b58532071f2d5babd1f0a8459840` |
-| `v3_board_renderer.py` (whiteboard draw layer) | `819981c24f5feefdc9e0cd8323792ea5dc781b5f6ae1669f7fa62a43ccac7b75` |
+| `v3_board_renderer.py` (whiteboard draw layer) | `db6a90339d9c9f8986d3df80f15ea4cec34ffe5772d02aa00acb979636fc321c` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
 | `pipeline_diagram_timed.py` (diagram pipeline) | `c00cf324b135932cf071206c52f993cf8a4c1e788ede8ae6fe0caaad658c5f48` |

@@ -356,22 +356,35 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
             xs = [q[0] for g, _s, _e in it['groups']
                   for st in g[1] for q in st[0] if len(q) > 1]
             return sum(xs) / len(xs) if xs else 0.0
+        # running caption floor per person — each merged caption stacks
+        # below whatever sits lowest so labels never share a baseline
+        cap_floor = {}
+        for p in persons:
+            pc = next((g3 for g3 in p['groups'] if g3[0][0] == 'caption'),
+                      None)
+            cap_floor[id(p)] = (
+                max(p_[1] for st in pc[0][1] for p_ in st[0] if len(p_) > 1)
+                if pc is not None else None)
         for it in list(merged):
             if _is_person_item(it):
                 continue
             host = min(persons,
                        key=lambda p: abs(_cx(p) - _cx(it)))
-            pc = next((g3 for g3 in host['groups']
-                       if g3[0][0] == 'caption'), None)
             for g, s, e in it['groups']:
                 if g[0] == 'caption':
+                    # chip boxes stay beside their own icon inside the
+                    # cluster; plain labels stack under the figure
+                    is_chip = bool(g[4] and g[4].get('chip'))
                     drop = g[2][1] * 0.6 + g[3] * 0.4
-                    if pc is not None:
-                        pmax = max(p_[1] for st in pc[0][1]
-                                   for p_ in st[0] if len(p_) > 1)
+                    floor_ = cap_floor.get(id(host))
+                    if floor_ is not None and not is_chip:
                         cmin = min(p_[1] for st in g[1]
                                    for p_ in st[0] if len(p_) > 1)
-                        drop = pmax - cmin + 10.0
+                        cmax0 = max(p_[1] for st in g[1]
+                                    for p_ in st[0] if len(p_) > 1)
+                        drop = floor_ - cmin + 10.0
+                        cap_floor[id(host)] = (cmax0 + drop
+                                               + (cmax0 - cmin) * 0.5)
                     st2 = [([(p_[0], p_[1] + drop) for p_ in st[0]
                              if len(p_) > 1],) + tuple(st[1:])
                            for st in g[1]]
@@ -492,11 +505,15 @@ def _build(plan, ratio):
     # clusters) anchor — they are the last thing ever evicted.
     ncol_, nrow_ = {'16:9': (4, 2), '1:1': (3, 2), '9:16': (2, 3)}[ratio]
     bx0, by0, bw, bh = board_rect
+    # when beats carry titles, the top strip belongs to them — the grid
+    # starts below it so no element ever lands inside the header band
+    band = bh * 0.115 if any(b.get('title') for b in beats) else 0.0
     cells = []
     for r_ in range(nrow_):
         for c_ in range(ncol_):
-            cells.append((bx0 + bw * c_ / ncol_, by0 + bh * r_ / nrow_,
-                          bw / ncol_, bh / nrow_))
+            cells.append((bx0 + bw * c_ / ncol_,
+                          by0 + band + (bh - band) * r_ / nrow_,
+                          bw / ncol_, (bh - band) / nrow_))
     cell_item = [-1] * len(cells)     # -> item uid
     live_order = []                   # item uids in birth order
     placed_bounds = []                # bounds2 of every placed element
@@ -549,35 +566,82 @@ def _build(plan, ratio):
         if not k:
             sec['items2'] = []
             continue
-        # stagger element ink across the beat; each claims its own slot
-        slot_dur = dur / k
+        # title draws first, then items ink one at a time in beat order
+        lead = min(0.9, dur * 0.15) if ttl else 0.0
+        slot_dur = max(0.35, (dur - lead) / k)
         placed = []
         sec_cells = []   # cells this beat's items occupy — cluster target
         for j, it in enumerate(items):
             uid += 1
             person = _is_person_item(it)
             anchor = person or bool(sec['beat'].get('heroRole'))
-            # compose each beat as a cluster: later items take the free cell
-            # nearest this beat's existing cells instead of row-major fill
+            # compose each beat as a cluster: prefer free cells nearest this
+            # beat's existing cells; when the pick can only fit cramped,
+            # try the next-nearest free cell before shrinking below the floor
             free = [ci for ci, o in enumerate(cell_item) if o < 0]
-            cell = None
-            if free:
-                if sec_cells:
-                    cell = min(free, key=lambda ci: min(
-                        abs(divmod(ci, ncol_)[0] - divmod(uc, ncol_)[0])
-                        + abs(divmod(ci, ncol_)[1] - divmod(uc, ncol_)[1])
-                        for uc in sec_cells))
-                else:
-                    cell = free[0]
-            if cell is None:
+
+            def _d(ci):
+                return min(
+                    (abs(divmod(ci, ncol_)[0] - divmod(uc, ncol_)[0])
+                     + abs(divmod(ci, ncol_)[1] - divmod(uc, ncol_)[1])
+                     for uc in sec_cells), default=0)
+            candidates = sorted(free, key=_d)
+            if not candidates:
                 # evict the oldest live non-anchor item
                 vict = next((u for u in live_order
                              if not u_anchor.get(u)), live_order[0])
-                cell = u_cell[vict]
                 it_old = item_by_uid[vict]
-                ft0 = t0 + j * slot_dur - FADE_IN
+                ft0 = t0 + lead + j * slot_dur - FADE_IN
                 it_old['fade'] = (max(0.0, ft0), ft0 + FADE_OUT)
                 live_order.remove(vict)
+                candidates = [u_cell[vict]]
+            b = it['bounds']
+            w = max(30.0, b[2] - b[0])
+            h = max(30.0, b[3] - b[1])
+            bcx, bcy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
+            # authored role dicts may hand-tune the element's board weight
+            aw = next((float(g[4]['wgt']) for g, _s, _e in it['groups']
+                       if g[4] and g[4].get('wgt')), 1.0)
+            cell = candidates[0]
+            scale = 1.0
+            last_try = candidates[min(2, len(candidates) - 1)]
+            for ci_try in candidates[:3]:
+                cell = ci_try
+                rx, ry, rw, rh = cells[cell]
+                sw, sh = rw * 0.9, rh * 0.86
+                # importance spread: figures ~2x leads, props ~0.8x — a tight
+                # size band keeps every element at a readable, uniform weight
+                wgt = 1.9 if person else (1.3 if j == 0 else 0.78)
+                wgt *= 0.96 + 0.08 * ((uid * 2654435761) % 97) / 97.0
+                wgt *= aw
+                bo2 = min(3.2, wgt * (sw * 0.95) / w, wgt * (sh * 0.95) / h)
+                sx = rx + rw * 0.5 + rw * 0.05 * ((j % 2) * 2 - 1)
+                sy = ry + rh * 0.52 + rh * 0.06 * ((si + j) % 3 - 1)
+
+                # padding rule: nothing may ever graze another element that
+                # is still live when this one lands — shrink until clear
+                pad = rw * 0.08
+                def _b2(sc):
+                    return (sx - w * bo2 * sc / 2, sy - h * bo2 * sc / 2,
+                            sx + w * bo2 * sc / 2, sy + h * bo2 * sc / 2)
+                scale = 1.0
+                for _try in range(7):
+                    bb = _b2(scale)
+                    hit = False
+                    for ob in placed_bounds:
+                        if not (bb[2] + pad <= ob[0] or bb[0] - pad >= ob[2]
+                                or bb[3] + pad <= ob[1]
+                                or bb[1] - pad >= ob[3]):
+                            hit = True
+                            break
+                    if not hit:
+                        break
+                    scale *= 0.86
+                if scale >= 0.55 or ci_try == last_try:
+                    break
+            bo2 *= scale
+            it['bounds2'] = _b2(scale)
+            placed_bounds.append(it['bounds2'])
             cell_item[cell] = uid
             sec_cells.append(cell)
             live_order.append(uid)
@@ -585,44 +649,6 @@ def _build(plan, ratio):
             u_anchor[uid] = bool(anchor)
             item_by_uid[uid] = it
             it['uid'] = uid
-            rx, ry, rw, rh = cells[cell]
-            sw, sh = rw * 0.9, rh * 0.86
-            # importance spread: figures ~2x leads, props ~0.6x; light jitter
-            wgt = 1.9 if person else (1.3 if j == 0 else 0.62)
-            wgt *= 0.92 + 0.16 * ((uid * 2654435761) % 97) / 97.0
-            # authored role dicts may hand-tune the element's board weight
-            aw = next((float(g[4]['wgt']) for g, _s, _e in it['groups']
-                       if g[4] and g[4].get('wgt')), 1.0)
-            wgt *= aw
-            b = it['bounds']
-            w = max(30.0, b[2] - b[0])
-            h = max(30.0, b[3] - b[1])
-            bo2 = min(3.2, wgt * (sw * 0.95) / w, wgt * (sh * 0.95) / h)
-            bcx, bcy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
-            sx = rx + rw * 0.5 + rw * 0.05 * ((j % 2) * 2 - 1)
-            sy = ry + rh * 0.52 + rh * 0.06 * ((si + j) % 3 - 1)
-
-            # padding rule: nothing may ever graze another element that is
-            # still live when this one lands — shrink until clear
-            pad = rw * 0.05
-            def _b2(sc):
-                return (sx - w * bo2 * sc / 2, sy - h * bo2 * sc / 2,
-                        sx + w * bo2 * sc / 2, sy + h * bo2 * sc / 2)
-            scale = 1.0
-            for _try in range(6):
-                bb = _b2(scale)
-                hit = False
-                for ob in placed_bounds:
-                    if not (bb[2] + pad <= ob[0] or bb[0] - pad >= ob[2] or
-                            bb[3] + pad <= ob[1] or bb[1] - pad >= ob[3]):
-                        hit = True
-                        break
-                if not hit:
-                    break
-                scale *= 0.86
-            bo2 *= scale
-            it['bounds2'] = _b2(scale)
-            placed_bounds.append(it['bounds2'])
             moved = []
             flip = (person and sx > 0.0 and
                     not any((g[4] or {}).get('facing', 1) < 0
@@ -651,8 +677,8 @@ def _build(plan, ratio):
                                 sy + (center[1] - bcy) * bo2),
                                size * bo2, slot), s, e))
             it['groups'] = moved
-            # the element inks across its slice of the beat
-            it0 = t0 + j * slot_dur
+            # the element inks across its slice of the beat, after the title
+            it0 = t0 + lead + j * slot_dur
             it1 = it0 + slot_dur
             it['groups'] = [
                 (g, it0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[0]
@@ -676,6 +702,11 @@ def _build(plan, ratio):
                     if fx1 - fx0 < rw * 0.45 or fy1 - fy0 < rh * 0.45:
                         fx0, fy0 = rx + rw * 0.10, ry + rh * 0.10
                         fx1, fy1 = rx + rw * 0.90, ry + rh * 0.90
+                        # register the real footprint so later elements keep
+                        # clearance instead of landing inside the figure
+                        it['bounds2'] = (fx0, fy0, fx1, fy1)
+                        if placed_bounds:
+                            placed_bounds[-1] = it['bounds2']
                     # keep the figure's crown below the board title row
                     fy0 = max(fy0, title_item['bounds2'][3] + rh * 0.10)
                     # feet land on the drawn ground shadow, not the cell floor
@@ -686,6 +717,28 @@ def _build(plan, ratio):
                     sec[fkey] = {'bounds2': (fx0, fy0, fx1, fy1),
                                  't0': it0 - t0,
                                  'facing': fslot.get('facing', 1)}
+                    # the slot's caption anchors under the figure's feet,
+                    # not the degenerate point the slot occupied; multiple
+                    # captions stack downward instead of sharing a baseline
+                    fbx = sec[fkey]['bounds2']
+                    cfloor = fbx[3]
+                    for g2, s2, e2 in it['groups']:
+                        if g2[0] != 'caption':
+                            continue
+                        cb = _group_world_bounds(g2)
+                        cdx = (fbx[0] + fbx[2]) / 2 - (cb[0] + cb[2]) / 2
+                        cdy = cfloor + (cb[3] - cb[1]) * 0.25 - cb[1]
+                        g2[1][:] = [
+                            ([(p_[0] + cdx, p_[1] + cdy)
+                              for p_ in st2[0]],) + tuple(st2[1:])
+                            for st2 in g2[1]]
+                        cfloor = cb[3] + cdy + (cb[3] - cb[1]) * 0.35
+                        it['bounds2'] = (min(it['bounds2'][0], cb[0] + cdx),
+                                         min(it['bounds2'][1], cb[1] + cdy),
+                                         max(it['bounds2'][2], cb[2] + cdx),
+                                         max(it['bounds2'][3], cb[3] + cdy))
+                        if placed_bounds:
+                            placed_bounds[-1] = it['bounds2']
             placed.append(it)
         # a figure beat with no person slot still stages the figure — park
         # it in the last free board cell rather than dropping it entirely
@@ -702,6 +755,7 @@ def _build(plan, ratio):
             sec[fkey] = {'bounds2': (frx + frw * 0.14, fy0,
                                      frx + frw * 0.86, fry + frh * 0.94),
                          't0': slot_dur * 0.15, 'facing': 1}
+            placed_bounds.append(sec[fkey]['bounds2'])
         sec['items2'] = placed
 
     out_sections = sections

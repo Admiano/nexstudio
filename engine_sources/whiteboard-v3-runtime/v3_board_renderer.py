@@ -2097,7 +2097,10 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
     if n == 0:
         return None
     scale = _map_scale(ratio)
-    lw = max(2.0, size * scale * 0.028)
+    # uniform marker weight: unit-space groups (size>4) get their line width
+    # from a banded slot size so tiny/huge elements don't draw thin or fat
+    lws = min(max(size, 72.0), 170.0) if size > 4 else size
+    lw = max(2.0, lws * scale * 0.028)
     tip = None
     for j, st in enumerate(strokes):
         pts, col, wscale = st[0], st[1], st[2]
@@ -2207,7 +2210,7 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None,
     if tw > maxw:
         h = max(size * 0.105, h * maxw / tw)
         tw = max(text_width(l, h) for l in lines)
-    oy = center[1] + size * (0.56 + 0.34 * row)
+    oy = center[1] + size * (0.62 + 0.30 * row)
     mg = max(10.0, (zone['w'] * 0.022) if zone else 10.0)
     strokes = []
     left_edge = right_edge = None
@@ -2223,7 +2226,7 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None,
     if chip:
         # boxed label tag — the reference's colored chips: accent box,
         # ink text inside; chip may be a tone name or #rrggbb
-        pad = h * 0.50
+        pad = h * 0.55
         bx0 = (left_edge - pad) if left_edge is not None \
             else center[0] - tw / 2 - pad
         bx1 = (right_edge + pad) if right_edge is not None \
@@ -2738,17 +2741,20 @@ def _journey_title(plan: dict) -> str:
 
 
 _SLICE_SPAN = {
-    'ground':   (0.00, 0.50),
-    'icon':     (0.00, 0.62),
-    'arrow':    (0.50, 0.85),
-    'marks':    (0.55, 0.90),
-    'sparkle':  (0.60, 0.95),
-    'bubble':   (0.30, 0.80),
-    'caption':  (0.52, 1.00),
-    'strike':   (0.45, 0.90),
-    'emphasis': (0.60, 1.00),
-    'divider':  (0.00, 0.95),
-    'plabel':   (0.00, 0.90),
+    # one element at a time: each group's window mostly clears the previous
+    # group's before it starts, so the hand visibly finishes a thing before
+    # the next appears
+    'ground':   (0.00, 0.18),
+    'divider':  (0.00, 0.50),
+    'plabel':   (0.00, 0.85),
+    'icon':     (0.05, 0.55),
+    'bubble':   (0.50, 0.70),
+    'caption':  (0.64, 0.97),
+    'arrow':    (0.86, 1.00),
+    'marks':    (0.88, 1.00),
+    'sparkle':  (0.90, 1.00),
+    'strike':   (0.86, 1.00),
+    'emphasis': (0.86, 1.00),
 }
 _FOCAL_BOOST = 1.55
 _PERSON_BOOST = 1.85
