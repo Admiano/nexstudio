@@ -7,7 +7,7 @@ import type { StudioMemoryItemRecord } from "@/studio-v1/dashboard/domain/creati
 import type { SheetId } from "../overlays/Sheets";
 
 export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focusId: string | null; openSheet: (s: SheetId) => void; notify: (m: string) => void; onOpenHistory: (id: string) => void }) {
-  const { series, brands, refresh } = useStudio();
+  const { series, brands, refresh, loading } = useStudio();
   const [activeId, setActiveId] = useState<string | null>(focusId);
   const [memory, setMemory] = useState<StudioMemoryItemRecord[]>([]);
   const [editor, setEditor] = useState<null | { mode: "new" | "continuity" | "identity" | "brand" }>(null);
@@ -95,7 +95,17 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
       <div className="series-v2">
         <button className="series-back" onClick={() => route("work")}>← Back to Work</button>
         <div className="series-head"><div><Eyebrow>Series continuity</Eyebrow><h1>Series</h1><p>A continuing body of work with memory attached.</p></div><div className="series-head-actions"><button className="primary" onClick={() => setEditor({ mode: "new" })}>+ New series</button></div></div>
-        <div className="library-drop"><span><b>No series yet.</b> Create one to give a body of work its own memory and identity.</span><button onClick={() => setEditor({ mode: "new" })}>+ New series</button></div>
+        {loading ? (
+          <div className="work-list rise">{[0, 1].map((i) => (
+            <div key={i} className="work-row work-sk" aria-hidden="true">
+              <div className="work-thumb-v2 sk-block" />
+              <div className="work-info"><div className="sk-line sk-lg" /><div className="sk-line sk-sm sk-gap" /></div>
+              <div className="work-state-v2"><div className="sk-line sk-md" /></div>
+            </div>
+          ))}</div>
+        ) : (
+          <div className="library-drop"><span><b>No series yet.</b> Create one to give a body of work its own memory and identity.</span><button onClick={() => setEditor({ mode: "new" })}>+ New series</button></div>
+        )}
         {editor && <SeriesEditor mode={editor.mode} onClose={() => setEditor(null)} onCreate={createSeries} onTeach={teachContinuity} />}
       </div>
     );

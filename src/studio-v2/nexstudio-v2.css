@@ -2222,3 +2222,33 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .sheet-legal{margin-top:12px;font-size:9.5px;color:var(--muted2);text-align:center;line-height:1.5}
 .sheet-legal a{color:var(--accent-ink);font-weight:750;text-decoration:none}
 .sheet-legal a:hover{text-decoration:underline}
+
+/* POLISH PASS — skeleton loading, mount stagger, remaining hover states */
+@keyframes skSlide{0%{background-position:130% 0}100%{background-position:-130% 0}}
+.sk-block,.sk-line,.sk-chip{background:linear-gradient(100deg,rgba(17,22,18,.045) 38%,rgba(17,22,18,.105) 50%,rgba(17,22,18,.045) 62%);background-size:240% 100%;animation:skSlide 1.6s ease-in-out infinite}
+.sk-line{height:10px;border-radius:999px;width:100%}
+.sk-line.sk-lg{height:16px;width:52%}
+.sk-line.sk-md{width:36%}
+.sk-line.sk-sm{height:8px;width:64%}
+.sk-line.sk-gap{margin:9px 0 0}
+.sk-chip{display:inline-block;width:46px;height:18px;border-radius:999px}
+.work-sk{pointer-events:none}
+.work-sk .work-info{min-width:0}
+.work-sk .work-thumb-v2{min-height:78px}
+.asset-card.work-sk{padding:10px}
+.asset-preview.sk-block{border-radius:14px}
+
+@keyframes riseIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.rise>*{animation:riseIn .46s var(--ease) backwards}
+.rise>*:nth-child(2){animation-delay:.04s}.rise>*:nth-child(3){animation-delay:.08s}.rise>*:nth-child(4){animation-delay:.12s}
+.rise>*:nth-child(5){animation-delay:.16s}.rise>*:nth-child(6){animation-delay:.2s}.rise>*:nth-child(7){animation-delay:.24s}
+.rise>*:nth-child(n+8){animation-delay:.28s}
+@media(prefers-reduced-motion:reduce){.rise>*{animation:none!important}.sk-block,.sk-line,.sk-chip{animation:none!important}}
+
+.work-filter:hover{border-color:rgba(17,22,18,.28);background:rgba(255,255,255,.8);color:var(--ink)}
+.view-toggle button:hover{color:var(--ink)}
+.bell:hover{background:rgba(255,255,255,.82);border-color:rgba(17,22,18,.2);color:var(--ink)}
+.pw-family{cursor:pointer}
+.acct-sessions .acct-session{animation:riseIn .4s var(--ease) backwards}
+.acct-sessions .acct-session:nth-child(2){animation-delay:.05s}
+.acct-sessions .acct-session:nth-child(n+3){animation-delay:.1s}

@@ -28,7 +28,7 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
   onOpenHistory: (id: string) => void;
   onOpenJob: (p: { engine: { kind: "whiteboard" | "explainer"; jobId: string; outputs?: Record<string, string> | null }; id: string }) => void;
 }) {
-  const { projects } = useStudio();
+  const { projects, loading } = useStudio();
   const [filter, setFilter] = useState<Filter>("all");
   const [layout, setLayout] = useState<"list" | "tiles">("list");
   const [viewed] = useState<Set<string>>(() => loadViewed());
@@ -66,7 +66,7 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
         </div>
         <span className="work-sort">Most recently updated first</span>
       </div>
-      <div className={layout === "tiles" ? "work-tiles" : "work-list"}>
+      <div className={layout === "tiles" ? "work-tiles rise" : "work-list rise"}>
         {list.map((p) => {
           const s = (p.state || "").toUpperCase();
           const dot = p.statusTone === "recovering" || s.includes("REVISION") ? "revision"
@@ -106,7 +106,14 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
             </article>
           );
         })}
-        {list.length === 0 && (
+        {list.length === 0 && loading && [0, 1, 2].map((i) => (
+          <div key={i} className="work-row work-sk" aria-hidden="true">
+            <div className="work-thumb-v2 sk-block" />
+            <div className="work-info"><div className="sk-line sk-lg" /><div className="sk-line sk-sm sk-gap" /><div className="work-tags"><span className="sk-chip" /><span className="sk-chip" /></div></div>
+            <div className="work-state-v2"><div className="sk-line sk-md" /><div className="sk-line sk-sm" /></div>
+          </div>
+        ))}
+        {list.length === 0 && !loading && (
           <div className="work-empty"><b>Nothing here yet.</b><p>Start a new video and it lands in this list.</p></div>
         )}
       </div>

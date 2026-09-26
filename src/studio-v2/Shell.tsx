@@ -67,6 +67,20 @@ export default function Shell({ view }: { view: ViewId }) {
     return () => clearTimeout(t);
   }, [toast]);
 
+  // Esc peels the topmost overlay off, in stacking order.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (bellOpen) { setBellOpen(false); return; }
+      if (creditsOpen) { setCreditsOpen(false); return; }
+      if (accountOpen) { setAccountOpen(false); return; }
+      if (sheet) { setSheet(null); return; }
+      if (historyId) setHistoryId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [bellOpen, creditsOpen, accountOpen, sheet, historyId]);
+
   const openSeries = useCallback((id: string | null) => {
     setSeriesFocus(id);
     route("series");
@@ -184,7 +198,7 @@ export default function Shell({ view }: { view: ViewId }) {
       {accountOpen && <AccountSheet onClose={() => setAccountOpen(false)} notify={notify} profile={profile} onProfile={setProfile} openCredits={() => { setAccountOpen(false); setCreditsOpen(true); }} />}
       {historyId && <HistoryOverlay productionId={historyId} onClose={() => setHistoryId(null)} openSeries={openSeries} onReview={(id) => { setHistoryId(null); flowApi.openFlow({ stage: "review", productionId: id }); }} notify={notify} />}
       {flow && <FlowOverlay flow={flow} api={flowApi} />}
-      {toast ? <div className="toast show">{toast}</div> : null}
+      {toast ? <div className="toast show" role="status" aria-live="polite">{toast}</div> : null}
     </div>
   );
 }

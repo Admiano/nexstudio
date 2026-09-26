@@ -62,6 +62,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
   const [section, setSection] = useState<Section>("profile");
   const { balance, ledger } = useStudio();
   const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
   const [exports, setExports] = useState<Array<{ id: string; type: string; status: string; downloadUrl: string | null }>>([]);
   const [busy, setBusy] = useState(false);
   const [name, setName] = useState(profile?.displayName ?? "");
@@ -72,7 +73,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
 
   useEffect(() => {
     const ctl = new AbortController();
-    studioApi.accountSessions(ctl.signal).then((r) => setSessions(r.sessions)).catch(() => {});
+    studioApi.accountSessions(ctl.signal).then((r) => setSessions(r.sessions)).catch(() => {}).finally(() => setSessionsLoading(false));
     studioApi.accountData(ctl.signal).then((r) => setExports(r.items ?? [])).catch(() => setExports([]));
     studioApi.accountPreferences(ctl.signal).then((r) => setPrefs(r.preferences as Prefs)).catch(() => {});
     return () => ctl.abort();
@@ -314,7 +315,13 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
                           : <button className="acct-revoke" disabled={busy} onClick={() => void revokeSession(s.id)}>Revoke</button>}
                       </div>
                     ))}
-                    {sessions.length === 0 && (
+                    {sessionsLoading && [0, 1].map((i) => (
+                      <div key={i} className="acct-session work-sk" aria-hidden="true" style={{ pointerEvents: "none" }}>
+                        <div className="sk-block" style={{ width: 34, height: 34, borderRadius: 10 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}><div className="sk-line sk-md" /><div className="sk-line sk-sm sk-gap" /></div>
+                      </div>
+                    ))}
+                    {!sessionsLoading && sessions.length === 0 && (
                       <div className="acct-empty"><span className="acct-empty-ico">▣</span><b>No sign-ins found.</b><p>Your sessions will appear here.</p></div>
                     )}
                   </div>

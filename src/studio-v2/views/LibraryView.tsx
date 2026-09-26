@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Eyebrow, route, useStudio, type ContextChip } from "../App";
 import { studioApi } from "../api";
 import type { StudioAsset, StudioAssetKind } from "@/studio-v1/dashboard/domain/assets";
@@ -35,13 +35,20 @@ function fmtSize(bytes: number | null): string {
 const RECENT_MS = 7 * 24 * 3600 * 1000;
 
 export function LibraryView({ openSheet, notify, addContext }: { openSheet: (s: SheetId) => void; notify: (m: string) => void; addContext: (chip: ContextChip) => void }) {
-  const { assets, refresh } = useStudio();
+  const { assets, refresh, loading } = useStudio();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<LibFilter>("all");
   const [layout, setLayout] = useState<"tiles" | "list">("tiles");
   const [detail, setDetail] = useState<StudioAsset | null>(null);
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!detail) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDetail(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [detail]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -124,11 +131,17 @@ export function LibraryView({ openSheet, notify, addContext }: { openSheet: (s: 
         <span className="library-sort">Most recently used first</span>
       </div>
       {layout === "tiles" ? (
-        <div className="library-grid">
+        <div className="library-grid rise">
+          {filtered.length === 0 && loading && [0, 1, 2, 3].map((i) => (
+            <div key={i} className="asset-card work-sk" aria-hidden="true">
+              <div className="asset-preview sk-block" />
+              <div className="asset-meta"><div className="sk-line sk-md" /><div className="sk-line sk-sm sk-gap" /></div>
+            </div>
+          ))}
           {filtered.map((a) => (
             <button key={a.id} className="asset-card" onClick={() => setDetail(a)}>
               <div className={`asset-preview ${a.kind}`} data-mark={(a.name || "A")[0].toUpperCase()}>
-                {a.previewUrl ? <img src={a.previewUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+                {a.previewUrl ? <img src={a.previewUrl} alt="" loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
                 <span className="asset-badge">{a.kind === "logo" ? "brand" : a.kind}</span>
                 {a.rightsAttested ? <i className="asset-ready" /> : null}
               </div>
@@ -139,10 +152,10 @@ export function LibraryView({ openSheet, notify, addContext }: { openSheet: (s: 
               </div>
             </button>
           ))}
-          {filtered.length === 0 && <div className="library-empty">Nothing matches this view. Try another filter or add something new.</div>}
+          {filtered.length === 0 && !loading && <div className="library-empty">Nothing matches this view. Try another filter or add something new.</div>}
         </div>
       ) : (
-        <div className="library-rows work-list">
+        <div className="library-rows work-list rise">
           {filtered.map((a) => (
             <article key={a.id} className="work-row" onClick={() => setDetail(a)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") setDetail(a); }}>
               <div className="work-thumb-v2 asset" data-mark={(a.name || "A")[0].toUpperCase()} style={a.previewUrl ? { backgroundImage: `url(${a.previewUrl})`, backgroundSize: "cover" } : undefined}>
@@ -157,7 +170,14 @@ export function LibraryView({ openSheet, notify, addContext }: { openSheet: (s: 
               <div className="work-row-actions"><button className="work-open" onClick={(e) => { e.stopPropagation(); setDetail(a); }}>Open →</button></div>
             </article>
           ))}
-          {filtered.length === 0 && <div className="work-empty"><b>Nothing here.</b><p>Try another filter or add something new.</p></div>}
+          {filtered.length === 0 && loading && [0, 1, 2].map((i) => (
+            <div key={i} className="work-row work-sk" aria-hidden="true">
+              <div className="work-thumb-v2 sk-block" />
+              <div className="work-info"><div className="sk-line sk-lg" /><div className="sk-line sk-sm sk-gap" /></div>
+              <div className="work-state-v2"><div className="sk-line sk-md" /></div>
+            </div>
+          ))}
+          {filtered.length === 0 && !loading && <div className="work-empty"><b>Nothing here.</b><p>Try another filter or add something new.</p></div>}
         </div>
       )}
       {detail && <AssetDetail asset={detail} onClose={() => setDetail(null)} onUse={() => useInVideo(detail)} onRemove={() => void removeAsset(detail)} />}
@@ -172,7 +192,7 @@ function AssetDetail({ asset, onClose, onUse, onRemove }: { asset: StudioAsset; 
       <section className="asset-detail-panel">
         <div className="panel-head"><div><p>Library asset</p><h2>{asset.name || "Asset"}</h2></div><button aria-label="Close asset details" className="panel-close" onClick={onClose}>×</button></div>
         <div className={`asset-detail-preview asset-preview ${asset.kind}`} data-mark={(asset.name || "A")[0].toUpperCase()}>
-          {asset.previewUrl ? <img src={asset.previewUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+          {asset.previewUrl ? <img src={asset.previewUrl} alt="" loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
         </div>
         <p className="asset-detail-note">{asset.mimeType || "Reusable production context"} · {fmtSize(asset.sizeBytes)}</p>
         <div className="asset-detail-grid">

@@ -75,7 +75,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
   openSeries: (id: string) => void;
   onOpenWork: (id: string) => void;
 }) {
-  const { brands, projects, series, refresh } = useStudio();
+  const { brands, projects, series, refresh, loading } = useStudio();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [memory, setMemory] = useState<StudioMemoryItemRecord[]>([]);
   const [editor, setEditor] = useState<null | { mode: "new" | "identity" | "voice" | "memory" }>(null);
@@ -174,7 +174,17 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
         <div className="v2-page-head">
           <div><Eyebrow>Brand memory</Eyebrow><h1>What NexStudio knows.</h1><p>Your brand is not a settings form. It is reusable production context: identity, voice, visual rules and guidance NexMind carries into every video you attach it to.</p></div>
         </div>
-        <div className="library-drop"><span><b>No brands yet.</b> Create one and NexMind starts learning what it should sound and look like.</span><button onClick={() => setEditor({ mode: "new" })}>+ New brand</button></div>
+        {loading ? (
+          <div className="work-list rise">{[0, 1].map((i) => (
+            <div key={i} className="work-row work-sk" aria-hidden="true">
+              <div className="work-thumb-v2 sk-block" />
+              <div className="work-info"><div className="sk-line sk-lg" /><div className="sk-line sk-sm sk-gap" /></div>
+              <div className="work-state-v2"><div className="sk-line sk-md" /></div>
+            </div>
+          ))}</div>
+        ) : (
+          <div className="library-drop"><span><b>No brands yet.</b> Create one and NexMind starts learning what it should sound and look like.</span><button onClick={() => setEditor({ mode: "new" })}>+ New brand</button></div>
+        )}
         {editor?.mode === "new" && <BrandEditor mode="new" onClose={() => setEditor(null)} onNew={createBrand} />}
       </div>
     );
