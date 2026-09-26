@@ -2258,3 +2258,6 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .pw-nav a:hover{color:var(--ink)}
 @keyframes badgePop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.14)}100%{transform:scale(1);opacity:1}}
 .bell-count{animation:badgePop .34s var(--ease) backwards}
+
+/* keyboard focus rings on card surfaces */
+.work-row:focus-visible,.work-tile:focus-visible,.asset-card:focus-visible,.account-tab:focus-visible,.pw-family:focus-visible,.series-card:focus-visible,.brand-card:focus-visible,.lib-filter:focus-visible,.work-filter:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
