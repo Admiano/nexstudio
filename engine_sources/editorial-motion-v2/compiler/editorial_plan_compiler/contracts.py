@@ -67,6 +67,17 @@ WORLD_CORNERS = ('top-left', 'top-right', 'bottom-left', 'bottom-right')
 # stage; depth is its parallax factor — 0 frame-fixed (sky) .. 1 with the content (ground).
 BACKDROP_TONES = ('ink', 'paper', 'accent', 'auto')
 BACKDROP_PLANE_CAP = 4
+# Scene engine: a beat declares its setting and mood and the compiler composes that
+# environment from paper pieces — any place, not one fixed horizon stack.
+SCENE_SETTINGS = ('outdoor', 'indoor', 'space', 'underwater', 'urban', 'ground', 'abstract', 'paper')
+SCENE_MOODS = ('day', 'dawn', 'dusk', 'night', 'storm', 'golden')
+SCENE_ELEMENT_CAP = 8
+# Page layout grammar: how the paperbook page carries its print and its plate —
+# the four classic illustration types plus the cut family.
+PAGE_LAYOUTS = ('half', 'full', 'diagonal', 'zipped', 'scissor', 'vignette', 'spot', 'series', 'portrait')
+PAGE_CUTS = ('left', 'right', 'top', 'bottom')
+# Material drops: modern paper-book materials layered onto the page.
+PAGE_MATERIALS = ('vellum', 'foil', 'ribbon', 'deckle', 'sticker')
 HEX_COLOUR_RE = re.compile(r'^#[0-9a-fA-F]{3,8}$')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
@@ -412,6 +423,7 @@ class FigureDirective:
     states: Optional[List[Dict[str, Any]]] = None
     pose: Optional[str] = None
     face: Optional[str] = None
+    motion: Optional[Dict[str, Any]] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any], beat_id: str) -> 'FigureDirective':
@@ -445,6 +457,7 @@ class FigureDirective:
                 _need(isinstance(st, dict) and any(st.get(k) for k in ('pose', 'face', 'head')), 'FIGURE_STATE_INVALID', 'a state needs a pose, face or head part to swap', beat_id)
                 at = st.get('at') or {}
                 _need(sum(1 for k in ('word', 'offset_ms') if k in at) == 1, 'FIGURE_STATE_AT', 'state needs exactly one of word/offset_ms', beat_id)
+        motion = _figure_motion(d.get('motion'), beat_id)
         return cls(
             valence=max(-1.0, min(1.0, float(d.get('valence', 0)))),
             arousal=_unit(d.get('arousal', 0.5)),
@@ -459,7 +472,52 @@ class FigureDirective:
             states=states,
             pose=(str(d.get('pose') or '').strip() or None),
             face=(str(d.get('face') or '').strip() or None),
+            motion=motion,
         )
+
+
+# Locomotion-style clips hold a cycle; one-shots (a wave, a sit-down, a pick-up) play
+# once and settle on their final frame.
+_FIGURE_MOTION_LOCOMOTION = re.compile(
+    r'WALK|RUN|JOG|SPRINT|IDLE|WAIT|PACE|STAIRS|CYCLE|HOLD|PLANK|MARCH|DANCE|SWIM|CRAWL|CLIMB|POSE|BREATHE',
+    re.IGNORECASE)
+
+
+def _figure_motion(d: Any, beat_id: str) -> Optional[Dict[str, Any]]:
+    """`motion` turns the still figure into a mocap performer: one clip or a short chain
+    (walk in, then idle) baked to SVG frames at render time and swapped per frame."""
+    if d is None:
+        return None
+    _need(isinstance(d, dict), 'FIGURE_MOTION_INVALID', 'motion must be an object', beat_id)
+
+    def _seg(sd: Any, i: int) -> Dict[str, Any]:
+        _need(isinstance(sd, dict), 'FIGURE_MOTION_SEG', f'motion segment {i} must be an object', beat_id)
+        clip = str(sd.get('clip') or sd.get('cmu_clip') or '').strip()
+        action = str(sd.get('action') or '').strip()
+        _need(bool(clip) != bool(action), 'FIGURE_MOTION_CLIP', f'motion segment {i} needs exactly one of clip/action', beat_id)
+        seconds = float(sd.get('seconds') or 0)
+        _need(0 < seconds <= 30, 'FIGURE_MOTION_SECONDS', str(seconds), beat_id)
+        return {'clip': clip or None, 'action': action or None, 'seconds': seconds}
+
+    if d.get('chain') is not None:
+        chain = d['chain']
+        _need(isinstance(chain, list) and 1 <= len(chain) <= 4, 'FIGURE_MOTION_CHAIN', 'chain takes 1-4 segments', beat_id)
+        segs = [_seg(sd, i) for i, sd in enumerate(chain)]
+        clip_name = segs[-1]['clip'] or segs[-1]['action'] or ''
+    else:
+        segs = [_seg(d, 0)]
+        clip_name = segs[0]['clip'] or segs[0]['action'] or ''
+    look = d.get('look')
+    _need(look is None or isinstance(look, dict), 'FIGURE_MOTION_LOOK', 'look must be an object', beat_id)
+    return {
+        'chain': segs,
+        'loop': bool(d.get('loop', bool(_FIGURE_MOTION_LOCOMOTION.search(clip_name)))),
+        'speed_mps': float(d.get('speed_mps') or 1.1),
+        'look': look,
+        'proportion': str(d.get('proportion') or 'adult-average'),
+        'emotion': str(d.get('emotion') or 'warm'),
+        't': float(d.get('t') or 0),
+    }
 
 
 @dataclass
@@ -543,6 +601,8 @@ class BeatTreatment:
     min_duration_ms: int = 0
     cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
     backdrop: Optional[List[Dict[str, Any]]] = None
+    scene: Optional[Dict[str, Any]] = None  # {setting, mood, elements[]} — the environment engine
+    page: Optional[Dict[str, Any]] = None  # paperbook: {title, quote, layout, cut, materials}
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -604,8 +664,38 @@ class BeatTreatment:
                 backdrop.append({'tone': tone, 'band': {'top': top, 'height': height}, 'depth': depth,
                                  'ragged': bool(p.get('ragged')), 'concept': concept or None})
             backdrop.sort(key=lambda p: p['depth'])
+        scene = None
+        sc = d.get('scene')
+        if sc is not None:
+            _need(isinstance(sc, dict), 'BEAT_SCENE_INVALID', 'scene must be an object', bid)
+            setting = str(sc.get('setting') or '')
+            _need(setting in SCENE_SETTINGS, 'BEAT_SCENE_SETTING_UNKNOWN', setting, bid)
+            mood = str(sc.get('mood') or 'day')
+            _need(mood in SCENE_MOODS, 'BEAT_SCENE_MOOD_UNKNOWN', mood, bid)
+            elements = [' '.join(str(e).split()) for e in (sc.get('elements') or []) if str(e).strip()]
+            _need(len(elements) <= SCENE_ELEMENT_CAP, 'BEAT_SCENE_ELEMENT_CAP', f'at most {SCENE_ELEMENT_CAP} elements', bid)
+            _need(all(len(e) <= 40 for e in elements), 'BEAT_SCENE_ELEMENT_LONG', bid)
+            scene = {'setting': setting, 'mood': mood, 'elements': elements}
+        page = None
+        pg = d.get('page')
+        if pg is not None:
+            _need(isinstance(pg, dict), 'BEAT_PAGE_INVALID', 'page must be an object', bid)
+            title = ' '.join(str(pg.get('title') or '').split())
+            quote = ' '.join(str(pg.get('quote') or '').split())
+            _need(len(title) <= 60 and len(quote) <= 120, 'BEAT_PAGE_TEXT_LONG', bid)
+            layout = str(pg.get('layout') or 'half')
+            _need(layout in PAGE_LAYOUTS, 'BEAT_PAGE_LAYOUT_UNKNOWN', layout, bid)
+            pcut = str(pg.get('cut') or '')
+            _need(not pcut or pcut in PAGE_CUTS, 'BEAT_PAGE_CUT_UNKNOWN', pcut, bid)
+            materials = [str(m) for m in (pg.get('materials') or [])]
+            _need(all(m in PAGE_MATERIALS for m in materials), 'BEAT_PAGE_MATERIAL_UNKNOWN', ','.join(materials), bid)
+            _need(len(materials) <= 3, 'BEAT_PAGE_MATERIAL_CAP', bid)
+            page = {k: v for k, v in {'title': title or None, 'quote': quote or None,
+                                      'layout': layout if layout != 'half' else None,
+                                      'cut': pcut or None,
+                                      'materials': materials or None}.items() if v}
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop)
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop, scene, page)
 
     @property
     def has_visual(self) -> bool:
@@ -654,7 +744,7 @@ class World:
 
     grain: Optional[str] = None
     motif: Optional[Dict[str, Any]] = None  # {concept, corner} -> resolved to a mark in _resolve_concepts
-    book: bool = False                    # animated-paperbook chassis: beats become pages of a bound book
+    book: Any = False                     # True = bound-book chassis; 'paperbook' = two-page storybook spread
 
 
 @dataclass
@@ -705,7 +795,9 @@ class FilmTreatment:
                 corner = str(motif.get('corner') or 'bottom-right')
                 _need(corner in WORLD_CORNERS, 'WORLD_CORNER_UNKNOWN', corner)
                 motif = {**motif, 'concept': concept, 'corner': corner}
-            world = World(grain, motif, bool(world_d.get('book')))
+            book_v = world_d.get('book')
+            book = 'paperbook' if str(book_v).strip().lower() == 'paperbook' else bool(book_v)
+            world = World(grain, motif, book)
         by_id = {b.beat_id: b for b in beats}
         for b in beats:
             il = b.illustration

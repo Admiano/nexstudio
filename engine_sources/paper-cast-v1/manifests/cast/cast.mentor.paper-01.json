@@ -1,0 +1,156 @@
+{
+  "id": "cast.mentor.paper-01",
+  "name": "Mentor",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "mentor",
+  "slug": "mentor",
+  "renderer": "paper-cast-figure",
+  "role": "mentor",
+  "ageBand": "senior",
+  "proportion": "senior",
+  "formality": "smart-casual",
+  "intents": [
+    "advise",
+    "reflect",
+    "teach_step",
+    "set_direction"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "mentor",
+    "senior",
+    "advisor",
+    "experience",
+    "coach",
+    "veteran"
+  ],
+  "useCases": [
+    "documentary",
+    "business",
+    "education"
+  ],
+  "personalities": [
+    "calm",
+    "authoritative",
+    "warm"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium"
+  ],
+  "poses": [
+    "think-considering",
+    "explain-open-hands",
+    "sit-and-talk",
+    "listen-attentive",
+    "idle-stance"
+  ],
+  "defaultPose": "think-considering",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#c1895f",
+    "hair": {
+      "color": "#d8d3cc",
+      "length": 0.2
+    },
+    "top": {
+      "color": "#6a6f5c",
+      "sleeve": 0.9
+    },
+    "bottom": {
+      "color": "#454038"
+    },
+    "shoes": {
+      "color": "#3a2f27"
+    },
+    "accent": "#a8763f"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.mentor",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Mentor paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "advise",
+      "reflect",
+      "teach_step",
+      "set_direction"
+    ],
+    "storyRole": "mentor",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

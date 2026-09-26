@@ -10,8 +10,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import random
 from dataclasses import asdict, replace
 from pathlib import Path
+
+from PIL import Image
 from typing import Any, Dict, List, Optional, Tuple
 
 from .authorities import editorial_motion_ensemble_director_v1 as ens
@@ -19,10 +22,12 @@ from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
 from .chassis import chassis_aspect, housing
 from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirective, FilmTreatment, TreatmentError
-from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, mix
+from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, hrot, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
-from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy
+from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
+from .bankart import BankArt
+from .papercut import papercut_image, papercut_coverage, tonal_ramp
 from .evidence import PhotoEvidence
 from .lexicon import AssetFinder, NounLexicon, Resolution
 from .media import NormalisedMedia, normalise_media
@@ -184,6 +189,273 @@ def _remap(bbox: Dict[str, float], src: Dict[str, float], dst: Dict[str, float])
     sx = dst['w'] / max(1.0, src['w'])
     sy = dst['h'] / max(1.0, src['h'])
     return _box(dst['x'] + (bbox['x'] - src['x']) * sx, dst['y'] + (bbox['y'] - src['y']) * sy, bbox['w'] * sx, bbox['h'] * sy)
+
+
+# The paperbook plate crops the whole canvas to cover its slot; only the centered
+# crop of the canvas is actually printed on the page. Mirrors paperbookRects +
+# the per-layout slotRects in the runtime, in canvas coordinates.
+def _pb_slot_crop(layout: str, W: int, H: int) -> Dict[str, float]:
+    pw, ph = W * 0.38, H * 0.80
+    pad = pw * 0.082
+    slots = {
+        'full': (pw - pad, ph * 0.86),
+        'vignette': (pw, ph * 0.92),
+        'portrait': (pw - pad * 0.8, ph * 0.58),
+        'spot': (pw * 0.60, ph * 0.44),
+        'diagonal': (pw - pad * 0.8, ph * 0.78),
+        'zipped': (pw - pad * 0.8, ph * 0.505),
+        'scissor': (pw - pad * 0.8, ph * 0.505),
+        'series': (pw - pad, ph * 0.44),
+        'half': (pw - pad * 2.15, ph * 0.46),
+    }
+    sw, sh = slots.get(layout, slots['half'])
+    k = max(sw / W, sh / H)
+    vw, vh = sw / k, sh / k
+    return _box((W - vw) / 2, (H - vh) / 2, vw, vh)
+
+
+def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[str, Any]],
+                             figure: Optional[Dict[str, Any]], W: int, H: int, dur_ms: float) -> None:
+    """Recompose the beat's entities as a page illustration: bank art gets plate-scale
+    mounting, marks spread into a scene, the figure stands at picture-book size —
+    all inside the slot's visible canvas crop, not the word-tile zone."""
+    pg = getattr(btr, 'page', None) or {}
+    # A character alone on a spread stands on the paper itself (the picture-book
+    # portrait page): when the script gives a figure and nothing else to draw,
+    # the page becomes a paper field — wavy ink rows, a pale halo, the performer
+    # at standing height — not a framed plate.
+    _empty_il = not ((illustration or {}).get('entities'))
+    if figure and _empty_il and (pg.get('layout') or 'half') in ('half', 'spot'):
+        pg['layout'] = 'portrait'
+        if getattr(btr, 'page', None) is None:
+            btr.page = pg
+        scene0 = getattr(btr, 'scene', None) or {}
+        if str(scene0.get('setting') or '') in ('', 'abstract'):
+            scene0['setting'] = 'paper'
+        scene0.setdefault('mood', 'day')
+        scene0.setdefault('elements', [])
+        btr.scene = scene0
+    vis = _pb_slot_crop(pg.get('layout') or 'half', W, H)
+    # Content never prints closer than the safe frame: the slot may bleed to the
+    # page edge, but figures and marks must stay inside the 24px frame.
+    _fr = _box(24.0, 24.0, W - 48.0, H - 48.0)
+    _ix = max(vis['x'], _fr['x']); _iy = max(vis['y'], _fr['y'])
+    vis = _box(_ix, _iy, max(1.0, min(vis['x'] + vis['w'], _fr['x'] + _fr['w']) - _ix),
+               max(1.0, min(vis['y'] + vis['h'], _fr['y'] + _fr['h']) - _iy))
+    vx, vy = vis['x'] + vis['w'] * 0.045, vis['y'] + vis['h'] * 0.06
+    vw, vh = vis['w'] * 0.91, vis['h'] * 0.88
+    ents = (illustration or {}).get('entities') or []
+    photos = [e for e in ents if e.get('photo') and e.get('art_bbox')]
+    marks = [e for e in ents if e.get('art_bbox') and e not in photos]
+
+    # Authored density: a picture-book plate needs ~3 subjects to read as a scene, not
+    # a spot check. When the script supplies too few, the compiler restocks it from the
+    # scene's own vocabulary — night grows stars, soil grows flowers — seeded per beat so
+    # the same page always grows the same life. Supports are marks, never photos.
+    scene = getattr(btr, 'scene', None) or {}
+    setting = str(scene.get('setting') or 'outdoor')
+    _SUPPORT_POOLS = {
+        'space':      ['star', 'stars', 'moon-crescent', 'star', 'earth'],
+        'underwater': ['fish', 'wave', 'drop', 'fish'],
+        'indoor':     ['window', 'book', 'plant', 'cup', 'candle'],
+        'urban':      ['cloud', 'bird', 'star', 'kite'],
+        'ground':     ['mushroom', 'flower', 'leaf', 'butterfly'],
+        'abstract':   ['star', 'leaf', 'drop', 'heart'],
+        'outdoor':    ['butterfly', 'flower', 'bird', 'cloud', 'leaf', 'mushroom'],
+    }
+    pool = list(_SUPPORT_POOLS.get(setting, _SUPPORT_POOLS['outdoor']))
+    mood = str(scene.get('mood') or '')
+    if mood in ('night', 'dusk', 'dawn') and setting not in ('ground', 'indoor', 'underwater'):
+        pool = [c for c in ('star', 'stars', 'moon-crescent') if c not in {e.get('concept') for e in ents}] + pool
+    present = {e.get('concept') for e in ents}
+    subjects = len(photos) + len(marks) + (1 if figure else 0)
+    if not photos and subjects < 3:
+        rng = random.Random(f"{getattr(btr, 'beat_id', 'beat')}:support")
+        if illustration is None:
+            # Figure walks into an otherwise empty plate: the spread still needs a scene,
+            # so the composer fabricates the minimal illustration the runtime can mount.
+            zx, zy = max(vis['x'], 24.0), max(vis['y'], 24.0)
+            zf = _box(zx, zy, max(1.0, min(vis['x'] + vis['w'], W - 24.0) - zx), max(1.0, min(vis['y'] + vis['h'], H - 24.0) - zy))
+            illustration = {'form': 'SCENE', 'zone': zf, 'entities': [], 'relations': [],
+                            'ops': [], 'marks': [], 'settled_ms': 0, 'accent': None,
+                            'accent_policy': 'STATE_CHANGE_OPS_ONLY', 'state_changes': 0,
+                            'carry_from': None, 'persist_to': None, 'carried': False,
+                            'registry_version': 'supports'}
+            ents = illustration['entities']
+        wanted = min(2, 3 - subjects)
+        added = 0
+        for concept in pool:
+            if added >= wanted:
+                break
+            if concept in present:
+                continue
+            size = 110 + rng.random() * 60
+            e = {'id': f"support_{concept}_{added}", 'concept': concept, 'kind': 'object',
+                 'glyph': 'ICON', 'size': 'support', 'label': None, 'media': None, 'photo': None,
+                 'asset': None, 'carried': False, 'carry_from_bbox': None, 'state_in': {},
+                 'enter_ms': int(60 + rng.random() * 120), 'enter_duration_ms': 420,
+                 'bbox': _box(0, 0, size, size), 'art_bbox': _box(0, 0, size, size),
+                 'params': {'resolution': {'via': 'support', 'concept': concept}}}
+            illustration['entities'].append(e)
+            marks.append(e)
+            present.add(concept)
+            added += 1
+
+    def put(e: Dict[str, Any], box: Dict[str, float]) -> None:
+        e['art_bbox'] = dict(box)
+        if e.get('bbox'):
+            e['bbox'] = dict(box)
+        if e.get('label') and e['label'].get('bbox'):
+            lb = e['label']['bbox']
+            e['label']['bbox'] = _box(box['x'], box['y'] + box['h'] + lb['h'] * 0.15, box['w'], lb['h'])
+
+    # Bank art is the plate's artwork, not a chip: single piece hangs centered like a
+    # mounted plate; a series lands as a gallery (row, hero + stack, or a grid).
+    n = len(photos)
+    if n == 1:
+        cells = [_box(vx + vw * 0.10, vy + vh * 0.06, vw * 0.80, vh * 0.86)]
+    elif n == 2:
+        g = vw * 0.06
+        cw = (vw - g) / 2
+        cells = [_box(vx + i * (cw + g), vy + vh * 0.14, cw, vh * 0.72) for i in range(2)]
+    elif n == 3:
+        g = vw * 0.05
+        cw = (vw - 2 * g) / 3
+        cells = [_box(vx + i * (cw + g), vy + vh * 0.20, cw, vh * 0.62) for i in range(3)]
+    else:
+        g = vw * 0.05
+        cw, ch = (vw - g) / 2, (vh * 0.94 - g) / 2
+        cells = [_box(vx + (i % 2) * (cw + g), vy + (i // 2) * (ch + g), cw, ch) for i in range(min(n, 4))]
+    for e, cell in zip(photos, cells):
+        sz = (e.get('photo') or {}).get('source_size') or {}
+        ab = e['art_bbox']
+        ar = (sz['w'] / sz['h']) if sz.get('w') and sz.get('h') else (ab['w'] / ab['h'] if ab['h'] else 1.0)
+        put(e, _fit_aspect(cell, ar))
+
+    # The performer is a storybook character: stands at least ~40% of plate height,
+    # feet near the plate floor, shifted to whichever flank the artwork leaves open.
+    # On portrait pages the figure is the page — nearer three-quarters of its field.
+    if figure and figure.get('bbox'):
+        fb = dict(figure['bbox'])
+        fig_frac = 0.78 if (pg.get('layout') == 'portrait') else 0.40
+        # Scale toward the target share of the visible field — down as well as up —
+        # and never wider than the field itself.
+        f = (vh * fig_frac) / max(1.0, fb['h'])
+        f = min(f, (vw * 0.92) / max(1.0, fb['w']))
+        f = max(0.05, f)
+        nw, nh = fb['w'] * f, fb['h'] * f
+        bottom = min(fb['y'] + fb['h'], vy + vh)
+        cx = fb['x'] + fb['w'] / 2
+        candidates = [cx - nw / 2] + [vx + vw * p - nw / 2 for p in (0.14, 0.86, 0.32, 0.68, 0.50)]
+        trial = None
+        for cand in candidates:
+            cand = min(max(cand, vx), vx + vw - nw)
+            trial = _box(cand, bottom - nh, nw, nh)
+            if all(_overlap(trial, e['art_bbox']) <= 0 for e in photos):
+                break
+        figure['bbox'] = trial
+        fb = trial
+
+    # Marks compose the scene itself when there is no bank art: the biggest subject
+    # anchors center-low, satellites spread across thirds like a staged diorama. With
+    # artwork mounted they stay as small accents clamped inside the crop.
+    if marks and not photos and pg.get('layout') == 'series':
+        # The picture-book sequence page: one framed panel per subject across the
+        # plate — phases of a moon, steps of a process — gutters between, prose below.
+        order = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
+        n_cells = max(2, min(5, len(order)))
+        cw = vw / n_cells
+        for i, e in enumerate(order):
+            cell_no = min(i, n_cells - 1)
+            share = 1.0 if i < n_cells else 0.6
+            offx = 0.0 if i < n_cells else cw * 0.34
+            offy = 0.0 if i < n_cells else vh * 0.30
+            ab = e['art_bbox']
+            ar = ab['w'] / ab['h'] if ab['h'] else 1.0
+            cell = _box(vx + cell_no * cw + cw * 0.07 + offx, vy + vh * 0.10 + offy,
+                        cw * 0.86 * share, vh * 0.72 * share)
+            put(e, _fit_aspect(cell, ar))
+    elif marks and not photos:
+        order = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
+        # Focal hierarchy: the largest subject is the hero — dominant, biased to a
+        # lower-left/thirds anchor; satellites recede around it on a spiral of thirds.
+        anchors = [(0.46, 0.58, 0.64), (0.22, 0.36, 0.30), (0.78, 0.33, 0.28),
+                   (0.16, 0.72, 0.22), (0.84, 0.70, 0.20), (0.52, 0.18, 0.18)]
+        for i, e in enumerate(order):
+            ax, ay, hf = anchors[i % len(anchors)]
+            ab = e['art_bbox']
+            # Synthesised supports are garnish, not the subject — they stay small
+            # so an authored hero never loses the plate to a decoration.
+            if (e.get('params') or {}).get('resolution', {}).get('via') == 'support':
+                hf = min(hf, 0.36)
+            s = min(3.2, (vh * hf) / max(1.0, ab['h']))
+            nw2, nh2 = ab['w'] * s, ab['h'] * s
+            box = _box(vx + ax * vw - nw2 / 2, vy + ay * vh - nh2 / 2, nw2, nh2)
+            for _ in range(4):
+                if figure and _overlap(box, figure['bbox']) > 0:
+                    box['x'] += vw * 0.20
+                    if box['x'] + box['w'] > vx + vw:
+                        box['x'] = vx
+                else:
+                    break
+            box['x'] = min(max(box['x'], vx), vx + vw - box['w'])
+            box['y'] = min(max(box['y'], vy), vy + vh - box['h'])
+            put(e, box)
+    elif marks:
+        # Photographic plate: art marks step back to small accents strung across
+        # the frame's lower band, kept off the figure.
+        acc = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
+        n_acc = len(acc)
+        for i, e in enumerate(acc):
+            ab = e['art_bbox']
+            s = min(1.4, (vh * 0.24) / max(1.0, ab['h']))
+            box = _box(0, 0, ab['w'] * s, ab['h'] * s)
+            t = (i + 1) / (n_acc + 1)
+            box['x'] = vx + vw * t - box['w'] / 2
+            box['y'] = vy + vh * 0.72 - box['h'] / 2
+            for _ in range(4):
+                if figure and _overlap(box, figure['bbox']) > 0:
+                    box['y'] = vy + vh * 0.08 if box['y'] > vy + vh * 0.4 else vy + vh - box['h'] - vh * 0.04
+                    box['x'] += vw * 0.18
+                    box['x'] = min(max(box['x'], vx), vx + vw - box['w'])
+                else:
+                    break
+            put(e, box)
+
+    # Last resort de-overlap: a mark still touching the performer after the anchors
+    # (narrow aspects crowd the crop) is walked to a free top-edge slot, shrinking as
+    # it goes; a support that cannot clear is simply dropped — it was a garnish.
+    if figure:
+        fb = figure['bbox']
+        for e in list(marks):
+            b2 = e['art_bbox']
+            if _overlap(b2, fb) <= 0:
+                continue
+            placed = False
+            for sc2 in (1.0, 0.7, 0.5):
+                w2, h2 = b2['w'] * sc2, b2['h'] * sc2
+                for px in (0.06, 0.94, 0.25, 0.75, 0.5):
+                    cand = _box(vx + px * vw - w2 / 2, vy + vh * 0.02, w2, h2)
+                    if cand['x'] < vx - 1 or cand['x'] + cand['w'] > vx + vw + 1:
+                        continue
+                    if _overlap(cand, fb) <= 0 and all(_overlap(cand, m['art_bbox']) <= 0 for m in marks if m is not e):
+                        put(e, cand)
+                        placed = True
+                        break
+                if placed:
+                    break
+            if not placed:
+                for lst in (ents, marks):
+                    if e in lst:
+                        lst.remove(e)
+                illustration['entities'] = [x for x in illustration['entities'] if x is not e]
+
+    # A plate is a settled illustration: every element has arrived by the page's
+    # first half — no subject may pop in during the last third of the read.
+    for e in ents:
+        if e.get('enter_ms', 0) > dur_ms * 0.62:
+            e['enter_ms'] = int(dur_ms * 0.62)
+    return illustration
 
 
 def _fonts() -> Dict[str, Any]:
@@ -561,6 +833,17 @@ class BeatCompiler:
                                                  formality=d.formality, facing=d.facing, justification=d.justification),
                                  b.beat_id, self.film.film_id, self.film.brand, facing_left=facing_left)
         bbox = _contain(zone, fig['composition']['aspect'], 1.0, anchor='bottom')
+        if getattr(self.film.world, 'book', None) == 'paperbook':
+            # The paperbook's plate crops to a wide band of the canvas: the performer must
+            # stand at picture-book scale inside it, not caption scale. Grows toward the
+            # zone's floor so the ground line stays put, capped at what the safe frame fits.
+            cx = bbox['x'] + bbox['w'] / 2
+            bottom = bbox['y'] + bbox['h']
+            k = min(2.6, (bottom - self.safe['y']) / bbox['h'],
+                    (self.safe['w'] - 8) / bbox['w'],
+                    2 * (cx - self.safe['x']) / bbox['w'],
+                    2 * (self.safe['x'] + self.safe['w'] - cx) / bbox['w'])
+            bbox = _box(cx - bbox['w'] * k / 2, bottom - bbox['h'] * k, bbox['w'] * k, bbox['h'] * k)
         ev = next((e for e in ensemble['events'] if e['channel'] == 'CHARACTER'), None)
         enter = ev['start_ms'] if ev else min(clock.duration_ms - 900, max(clock.landings_ms or [LEAD_IN_MS]) + 200)
         # A performer is part of the stage, not a payload: when the character event sits late the figure
@@ -581,6 +864,8 @@ class BeatCompiler:
             fig['prop'] = {'hand': side, 'anchor': {'x': 0.22 if side == 'left' else 0.78, 'y': 0.66},
                            'concept': d.prop['concept'], 'via': d.prop.get('via'),
                            'asset': d.prop.get('asset'), 'photo': d.prop.get('photo'), 'word': d.prop.get('word')}
+        if d.motion:
+            fig['motion'] = d.motion
         if d.states:
             try:
                 states = []
@@ -691,12 +976,18 @@ class BeatCompiler:
         data = self._data(b, comp, clock)
         illustration, ilf = self._illustration(b, comp, clock)
         failures += ilf
+        if getattr(self.film.world, 'book', None) == 'paperbook':
+            illustration = _compose_paperbook_plate(b, illustration, figure, self.W, self.H, clock.duration_ms)
         if illustration:
             if not _inside(illustration['zone'], self.frame, 2):
                 failures.append('ILLUSTRATION_OUTSIDE_FRAME')
             for ent in illustration['entities']:
                 boxes = [ent['art_bbox']] + ([ent['label']['bbox']] if ent.get('label') else [])
                 for bx in boxes:
+                    # The paperbook page prints its own words; in-canvas text blocks are
+                    # never painted there, so entities cannot collide with them.
+                    if getattr(self.film.world, 'book', None) == 'paperbook':
+                        break
                     for bl in typ['blocks']:
                         if _overlap(bx, bl['bbox']) > 0:
                             failures.append(f"ILLUSTRATION_COLLIDES_TEXT:{ent['id']}:{bl['unit_index']}")
@@ -713,9 +1004,12 @@ class BeatCompiler:
             if el:
                 if not _inside(el['bbox'], self.frame, 2):
                     failures.append(f'{name}_OUTSIDE_FRAME')
-                for bl in typ['blocks']:
-                    if _overlap(el['bbox'], bl['bbox']) > 0:
-                        failures.append(f"{name}_COLLIDES_TEXT:{bl['unit_index']}")
+                # The paperbook demotes all in-canvas text (page faces carry prose
+                # outside the scene), so nothing visual can collide with it there.
+                if getattr(self.film.world, 'book', None) != 'paperbook':
+                    for bl in typ['blocks']:
+                        if _overlap(el['bbox'], bl['bbox']) > 0:
+                            failures.append(f"{name}_COLLIDES_TEXT:{bl['unit_index']}")
         if data:
             for db in data['blocks']:
                 if db['fit']['status'] != 'FIT':
@@ -893,7 +1187,7 @@ class BeatCompiler:
                 'native_profile': comp['native_profile'], 'derived_by_scaling': comp['derived_by_scaling'], 'authority': comp['authority_version'],
             },
             'typography': typ, 'ensemble': {'events': ensemble['events'], 'dominant_sequence': ensemble['dominant_sequence'], 'hold_window': ensemble['hold_window'], 'transition_window': ensemble['transition_window']},
-            'media': media, 'figure': figure, 'data': data, 'illustration': illustration, 'transition': transition, 'sound': sound,
+            'media': media, 'figure': figure, 'data': data, 'illustration': illustration, 'transition': transition, 'sound': sound, 'page': b.page,
             'gate': {'status': 'FAIL' if failures else 'PASS', 'failures': failures, 'warnings': sorted(set(warnings))},
         }
 
@@ -944,6 +1238,320 @@ def settle_descriptors(plans: Dict[str, Any]) -> None:
                 e['params']['resolution'] = res
 
 
+# Scene engine: elements that are drawn as paper primitives in the runtime rather than
+# resolved through the art ladder. Anything not named here resolves as a concept mark.
+SCENE_PROP_SHAPES = {
+    'arch', 'beam', 'bed', 'boat', 'bookshelf', 'building', 'car', 'chair', 'cliff', 'cloud',
+    'comet', 'coral', 'crate', 'curtain', 'door', 'fence', 'frame', 'hill', 'house', 'hut',
+    'kelp', 'lamp', 'log', 'moon', 'mountain', 'pebble', 'pillar', 'planet', 'poster', 'pot',
+    'ring', 'rock', 'rug', 'sandcastle', 'shaft', 'shelf', 'sign', 'skyline', 'sofa', 'star',
+    'stone', 'stool', 'streetlamp', 'sun', 'table', 'tent', 'tower', 'vase', 'wave', 'window',
+}
+# Where an element sits by default, as (width, height) fractions of the canvas short edge.
+_SCENE_ELEMENT_SIZE = {
+    'window': (0.30, 0.40), 'door': (0.24, 0.5), 'table': (0.42, 0.30), 'chair': (0.24, 0.3),
+    'stool': (0.2, 0.24), 'shelf': (0.4, 0.1), 'bookshelf': (0.34, 0.55), 'lamp': (0.12, 0.5),
+    'rug': (0.5, 0.16), 'bed': (0.55, 0.3), 'sofa': (0.5, 0.3), 'poster': (0.24, 0.3),
+    'frame': (0.2, 0.24), 'pot': (0.16, 0.2), 'vase': (0.12, 0.2), 'curtain': (0.16, 0.55),
+    'pillar': (0.1, 0.65), 'fence': (0.5, 0.14), 'house': (0.4, 0.36), 'hut': (0.32, 0.3),
+    'tent': (0.36, 0.3), 'mountain': (0.6, 0.4), 'hill': (0.55, 0.2), 'cliff': (0.4, 0.5),
+    'log': (0.3, 0.1), 'cloud': (0.4, 0.14), 'star': (0.12, 0.12), 'planet': (0.4, 0.4),
+    'moon': (0.2, 0.2), 'comet': (0.4, 0.1), 'ring': (0.5, 0.16), 'kelp': (0.12, 0.5),
+    'coral': (0.24, 0.26), 'rock': (0.22, 0.14), 'stone': (0.16, 0.1), 'pebble': (0.1, 0.07),
+    'sandcastle': (0.3, 0.28), 'building': (0.24, 0.6), 'tower': (0.18, 0.7), 'sign': (0.2, 0.3),
+    'streetlamp': (0.1, 0.55), 'car': (0.34, 0.16), 'boat': (0.32, 0.16), 'shaft': (0.24, 0.7),
+    'wave': (0.4, 0.12), 'sun': (0.24, 0.24), 'arch': (0.3, 0.5), 'beam': (0.5, 0.06),
+    'crate': (0.2, 0.2), 'barrel': (0.18, 0.24), 'skyline': (1.0, 0.35),
+}
+
+
+def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], brand: Brand,
+                  sky_concepts: Optional[set] = None) -> List[Dict[str, Any]]:
+    """The environment engine: the treatment declares a setting and mood, and this composes
+    that world out of paper pieces — outdoor skies and grounds, interior walls and furniture,
+    starfields, underwater depth, urban skylines, underground soil — all in the film's palette.
+    Elements are paper primitives (windows, tables, kelp) or resolved art marks placed on the
+    scene's ground line. Under paperbook they land as flat matte pieces with fibre speckle."""
+    if not btr.scene:
+        return []
+    sky_concepts = sky_concepts or set()
+    W, H = canvas
+    short = min(W, H)
+    overhang = W * 0.10
+    sc = btr.scene
+    setting, mood = sc['setting'], sc.get('mood') or 'day'
+    resolved = sc.get('resolved') or {}
+    ink, paper, accent = brand.ink, brand.paper, brand.accent or brand.ink
+    seed0 = int(hashlib.sha256(f'{film_id}:scene:{btr.beat_id}'.encode()).hexdigest()[:12], 16)
+    out: List[Dict[str, Any]] = []
+
+    def band(top: float, height: float, tone: str, plane: float, ragged: bool = True, i: int = 0) -> Dict[str, Any]:
+        y = H * top - short * 0.015
+        h = H * height + short * 0.03
+        return {'kind': 'band',
+                'bbox': {'x': round(-overhang, 1), 'y': round(y, 1), 'w': round(W + 2 * overhang, 1), 'h': round(h, 1)},
+                'tone': tone, 'plane': plane, 'ragged': ragged, 'seed': seed0 ^ (i * 0x7ab1)}
+
+    # One light source per spread: the sky body's side (suns sit right of the plate,
+    # dawn's sun is low-left, storm light is a top-down wash). Every lit piece carries
+    # the direction so the runtime can paint a rim where the world catches it and drop
+    # the contact shadow on the dark side.
+    light_dx = {'day': 1.0, 'golden': 1.0, 'dawn': -1.0, 'dusk': 1.0,
+                'night': 1.0, 'storm': 0.0}.get(mood, float((seed0 & 1) * 2 - 1))
+    _LIT_SKIP = {'sun', 'moon', 'cloud', 'comet', 'beam', 'star'}
+    _CONTACT = {'bush', 'tuft', 'stone', 'mushroom', 'flower', 'streetlamp', 'kelp'}
+
+    def piece(shape: str, x: float, y: float, w: float, h: float, tone: str,
+              plane: float = 0.5, i: int = 0, **kw) -> Dict[str, Any]:
+        spec = {'kind': 'piece', 'shape': shape,
+                'bbox': {'x': round(x, 1), 'y': round(y, 1), 'w': round(w, 1), 'h': round(h, 1)},
+                'tone': tone, 'plane': plane, 'seed': seed0 ^ (i * 0x51ab)}
+        if shape not in _LIT_SKIP:
+            spec['lit_dx'] = light_dx
+        if shape in _CONTACT:
+            spec['contact'] = True
+        spec.update(kw)
+        return spec
+
+    # Mood drives the palette: the same outdoor recipe reads noon or midnight from it.
+    if mood == 'night':
+        sky, mid, gnd, glow = mix(ink, paper, 0.10), mix(ink, paper, 0.20), mix(ink, paper, 0.30), mix(paper, '#ffe9a8', 0.5)
+    elif mood == 'dusk':
+        sky, mid, gnd, glow = mix(accent, ink, 0.42), mix(ink, accent, 0.28), mix(ink, paper, 0.36), mix(accent, '#ffffff', 0.35)
+    elif mood == 'dawn':
+        sky, mid, gnd, glow = mix(accent, paper, 0.55), mix(paper, accent, 0.20), mix(ink, paper, 0.18), mix(accent, '#ffffff', 0.5)
+    elif mood == 'storm':
+        sky, mid, gnd, glow = mix(ink, paper, 0.28), mix(ink, paper, 0.40), mix(ink, paper, 0.48), mix(paper, ink, 0.2)
+    elif mood == 'golden':
+        sky, mid, gnd, glow = mix(accent, '#ffffff', 0.42), mix(paper, accent, 0.26), mix(ink, accent, 0.28), mix(accent, '#ffffff', 0.55)
+    else:  # day
+        sky, mid, gnd, glow = mix(paper, accent, 0.16), mix(paper, ink, 0.10), mix(ink, paper, 0.24), mix(accent, '#ffffff', 0.45)
+
+    # Harmony expansion (jacoblockett pattern): a scene is not two inks — hills run
+    # green, water runs blue, evening burns warm. Each family is a hue rotation of
+    # the film's anchors so the film keeps its identity but the world gains colour.
+    seed_h = (seed0 % 97) / 97.0  # per-beat drift keeps sibling spreads related, not identical
+    flora = hrot(accent, 112, 1.55, -0.10)                 # hills/ground → green family
+    flora = mix(flora, ink, 0.30)
+    flora_deep = hrot(accent, 105, 1.5, -0.18)             # near ground → deeper green
+    flora_deep = mix(flora_deep, ink, 0.45)
+    water = hrot(ink, 12, 1.4)                             # sea/river → deeper blue
+    warmth = hrot(accent, -30, 1.35)                       # sunlight/fire → warm family
+
+    def stars(bbox: Dict[str, float], i: int, density: int = 90, plane: float = 0.08) -> Dict[str, Any]:
+        return {'kind': 'stars', 'bbox': bbox, 'count': density, 'seed': seed0 ^ (i * 0x33), 'plane': plane}
+
+    def shaft(bbox: Dict[str, float], i: int, tilt: float = 14.0, plane: float = 0.3) -> Dict[str, Any]:
+        return {'kind': 'shaft', 'bbox': bbox, 'tone': mix(paper, glow, 0.5), 'tilt_deg': tilt, 'seed': seed0 ^ (i * 0x21), 'plane': plane}
+
+    # Living layers: weather and wildlife that move while the page is read —
+    # rain that falls, birds that cross, fireflies that wander. The runtime
+    # animates their children per frame; the compiler only casts the world.
+    def rain(i: int) -> Dict[str, Any]:
+        return {'kind': 'rain', 'bbox': {'x': round(-overhang, 1), 'y': 0,
+                                         'w': round(W + 2 * overhang, 1), 'h': round(H, 1)},
+                'count': 110, 'seed': seed0 ^ (i * 0x1f), 'plane': 0.7,
+                'tone': mix(paper, '#ffffff', 0.55)}
+
+    def birds(i: int, n: int = 3) -> Dict[str, Any]:
+        return {'kind': 'birds', 'bbox': {'x': round(-overhang, 1), 'y': round(H * 0.10, 1),
+                                          'w': round(W + 2 * overhang, 1), 'h': round(H * 0.35, 1)},
+                'count': n, 'seed': seed0 ^ (i * 0x45), 'plane': 0.2, 'tone': mix(ink, paper, 0.18)}
+
+    def fireflies(i: int, n: int = 9) -> Dict[str, Any]:
+        return {'kind': 'fireflies', 'bbox': {'x': 0, 'y': round(H * 0.30, 1),
+                                              'w': round(W, 1), 'h': round(H * 0.6, 1)},
+                'count': n, 'seed': seed0 ^ (i * 0x5b), 'plane': 0.55, 'tone': glow}
+
+    def celestial(i: int) -> None:
+        """Sun or moon placed by mood — a flat paper disc, never a glow."""
+        if mood in ('day', 'golden'):
+            out.append(piece('sun', W * 0.72, H * 0.06, short * 0.17, short * 0.17, glow, 0.1, i))
+        elif mood == 'dawn':
+            out.append(piece('sun', W * 0.30, H * 0.30, short * 0.2, short * 0.2, glow, 0.1, i))
+        elif mood == 'dusk':
+            out.append(piece('sun', W * 0.62, H * 0.42, short * 0.16, short * 0.16, mix(accent, ink, 0.1), 0.1, i))
+        elif mood == 'night':
+            out.append(piece('moon', W * 0.70, H * 0.05, short * 0.14, short * 0.14, mix(paper, '#f5edd8', 0.5), 0.1, i))
+
+    def clouds(i: int, n: int = 2) -> None:
+        for k in range(n):
+            sx = ((seed0 >> (k * 5)) & 0x3F) / 63.0
+            out.append(piece('cloud', W * (0.08 + 0.62 * sx), H * (0.05 + 0.13 * k), W * 0.18, H * 0.13,
+                             mix(paper, '#ffffff', 0.65 if mood != 'storm' else 0.15), 0.16, i + k))
+
+    def elements_on(ground_top: float, plane: float = 0.6) -> None:
+        """Scene elements land on the ground line, seeded across the width; prop shapes draw
+        as paper primitives, everything else as a resolved art mark standing in the world."""
+        for k, name in enumerate(sc['elements'][:8]):
+            key = name.lower().strip()
+            sx = ((seed0 >> (k * 7)) & 0x7F) / 127.0
+            x = W * (0.08 + 0.62 * sx)
+            w_frac, h_frac = _SCENE_ELEMENT_SIZE.get(key, (0.24, 0.3))
+            if key in SCENE_PROP_SHAPES:
+                out.append(piece(key, x, ground_top - H * h_frac * 0.6, W * w_frac, H * h_frac,
+                                 mix(ink, paper, 0.30 + 0.1 * (k % 3)), plane, 40 + k))
+            else:
+                asset = resolved.get(name)
+                mh = short * 0.16
+                art = (asset or {}).get('art_box') or {'w': 1, 'h': 1}
+                mw = mh * max(0.25, art['w'] / max(1, art['h']))
+                out.append({'kind': 'piece', 'shape': 'art', 'concept': name, 'asset': asset,
+                            'bbox': {'x': round(x, 1), 'y': round(ground_top - mh, 1), 'w': round(mw, 1), 'h': round(mh, 1)},
+                            'tone': '', 'plane': plane, 'seed': seed0 ^ (k * 0x99),
+                            'lit_dx': light_dx, 'contact': True})
+
+    if setting == 'paper':
+        # Standing-on-the-page: no painted ground, no sky — the page itself is the
+        # world (its own wavy ink field shows through the slot's transparent
+        # viewport). All a paper page carries is a pale halo behind the subject
+        # and the odd faint wash drifting by; elements float on the stock.
+        out.append(piece('disc', W * (0.56 + 0.10 * ((seed0 >> 3) & 1)), H * 0.07,
+                         short * 0.30, short * 0.30, mix(paper, glow, 0.40), 0.08, 1))
+        out.append(piece('disc', W * 0.10, H * 0.52, short * 0.22, short * 0.22,
+                         mix(paper, accent, 0.10), 0.06, 2))
+        elements_on(H * 0.86, 0.6)
+    elif setting == 'outdoor':
+        out.append(band(-0.02, 0.62, sky, 0.10, False, 1))
+        celestial(2)
+        if mood != 'night':
+            clouds(4, 3 if mood != 'storm' else 4)
+            # A second, farther cloud layer so the sky has depth, not one stripe of weather.
+            for k in range(2):
+                sx = ((seed0 >> (k * 9 + 3)) & 0x3F) / 63.0
+                out.append(piece('cloud', W * (0.15 + 0.55 * sx), H * (0.24 + 0.07 * k), W * 0.10, H * 0.07,
+                                 mix(paper, sky, 0.45), 0.18, 30 + k))
+        else:
+            out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.5}, 8))
+            out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.30}, 9, 60, 0.05))
+        if mood == 'storm':
+            out.append(rain(45))
+        elif mood in ('day', 'golden'):
+            out.append(birds(46))
+        else:
+            out.append(fireflies(47))
+        out.append(band(0.52, 0.24, mid, 0.30, True, 6))
+        # Far hills sit between the mid band and the ground — the middle distance
+        # every landscape needs. Lit moods green them; night/storm stay ink-dark.
+        veg = mood in ('day', 'dawn', 'dusk', 'golden')
+        for k in range(2):
+            sx = ((seed0 >> (k * 11 + 5)) & 0x7F) / 127.0
+            ht = mix(flora if veg else mid, gnd, 0.35 + 0.2 * k)
+            out.append(piece('hill', W * (-0.06 + 0.55 * sx), H * (0.44 + 0.05 * k), W * (0.42 + 0.1 * k), H * 0.22,
+                             ht, 0.38 + k * 0.06, 32 + k))
+        out.append(band(0.66, 0.38, mix(flora_deep, gnd, 0.45) if veg else gnd, 0.55, True, 7))
+        elements_on(H * 0.80)
+        # Ground scatter: tufts and stones at the feet of the world, near plane.
+        for k in range(6):
+            sx = ((seed0 >> (k * 6 + 9)) & 0x7F) / 127.0
+            sy = ((seed0 >> (k * 4 + 2)) & 0xF) / 15.0
+            shape = ('tuft', 'stone', 'tuft', 'bush', 'tuft', 'stone')[k % 6] if mood != 'night' else ('tuft', 'stone')[k % 2]
+            sw = W * (0.05 + 0.05 * ((seed0 >> (k * 3)) & 3) / 3.0)
+            fl_t = mix(flora, gnd, 0.3 + 0.1 * (k % 2)) if veg and shape in ('tuft', 'bush') else mix(ink, paper, 0.30 + 0.08 * (k % 3))
+            out.append(piece(shape, W * (0.03 + 0.9 * sx), H * (0.74 + 0.20 * sy) - short * 0.05,
+                             sw, short * (0.06 + 0.03 * (k % 3)), fl_t, 0.62 + 0.05 * (k % 2), 34 + k))
+        # Foreground fringe: bushes nearer than the subject, cropped by the page's lower
+        # edge — the depth cue a still camera needs. Darker than the ground plane.
+        for k in range(2):
+            sx = ((seed0 >> (k * 13 + 21)) & 0x7F) / 127.0
+            fg_t = mix(flora_deep, ink, 0.42) if veg else mix(ink, paper, 0.20)
+            out.append(piece('bush', W * (-0.04 + 0.72 * sx), H * 0.91,
+                             W * (0.30 + 0.14 * k), short * 0.17, fg_t, 0.92, 60 + k))
+    elif setting == 'indoor':
+        wall = mix(paper, ink, 0.07 if mood != 'night' else 0.3)
+        out.append(band(-0.02, 0.72, wall, 0.12, False, 1))
+        out.append(band(0.70, 0.34, mix(ink, paper, 0.22), 0.5, False, 2))
+        out.append(piece('beam', -overhang, H * 0.685, W + 2 * overhang, H * 0.02, mix(ink, wall, 0.35), 0.4, 3))
+        # Rooms read by their furnishing: a window or picture on the wall, a rug underfoot.
+        out.append(piece('window', W * 0.08, H * 0.14, W * 0.16, H * 0.30, mix(ink, wall, 0.5), 0.2, 30))
+        out.append(piece('frame', W * (0.58 + 0.1 * ((seed0 >> 4) & 3) / 3.0), H * 0.16, W * 0.11, H * 0.17, mix(ink, wall, 0.4), 0.2, 31))
+        out.append(piece('rug', W * 0.30, H * 0.80, W * 0.4, H * 0.14, mix(accent, ink, 0.4), 0.52, 32))
+        elements_on(H * 0.70)
+    elif setting == 'space':
+        out.append(band(-0.02, 1.04, mix(ink, paper, 0.05), 0.05, False, 1))
+        out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H}, 2, 260))
+        out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.55}, 12, 120, 0.05))
+        # The great circle is an orbit path, not a ring around a body: skipped when a
+        # celestial subject is on the plate, else the sun reads as Saturn.
+        sky_bodies = {'sun', 'moon', 'planet', 'star', 'moon-full', 'moon-crescent', 'comet'}
+        if not (sky_concepts & sky_bodies):
+            out.append({'kind': 'arc', 'bbox': {'x': -W * 0.1, 'y': H * 0.1, 'w': W * 1.2, 'h': H * 0.9}, 'corner': 1, 'plane': 0.1})
+        out.append(piece('planet', W * 0.55, H * 0.30, short * 0.36, short * 0.36, accent, 0.18, 3))
+        out.append(piece('moon', W * 0.12, H * 0.14, short * 0.1, short * 0.1, mix(paper, '#f5edd8', 0.4), 0.14, 4))
+        out.append(piece('comet', W * 0.05, H * 0.08, W * 0.22, short * 0.04, mix(paper, accent, 0.5), 0.12, 5))
+        # Asteroid drift and a farther planet — the void needs bodies at depth.
+        for k in range(3):
+            sx = ((seed0 >> (k * 8 + 1)) & 0x7F) / 127.0
+            sy = ((seed0 >> (k * 5 + 7)) & 0x3F) / 63.0
+            out.append(piece('rock', W * (0.10 + 0.8 * sx), H * (0.35 + 0.5 * sy),
+                             short * (0.03 + 0.04 * (k % 2)), short * 0.045, mix(ink, paper, 0.35), 0.32, 30 + k))
+        out.append(piece('planet', W * (0.02 + 0.2 * ((seed0 >> 9) & 3) / 3.0), H * 0.62, short * 0.10, short * 0.10,
+                         mix(accent, ink, 0.35), 0.30, 34))
+        elements_on(H * 0.95)
+    elif setting == 'underwater':
+        # Water runs blue even when the accent doesn't: rotate the deeps into the
+        # water family, then deepen with plane as before.
+        w = water if mood in ('day', 'dawn', 'golden') else mix(ink, accent, 0.4)
+        deep1, deep2, deep3 = mix(w, ink, 0.35), mix(w, ink, 0.5), mix(w, ink, 0.62)
+        out.append(band(-0.02, 0.42, deep1, 0.08, False, 1))
+        out.append(band(0.30, 0.45, deep2, 0.2, False, 2))
+        out.append(shaft({'x': W * 0.18, 'y': 0, 'w': W * 0.16, 'h': H * 0.85}, 3, 12.0))
+        out.append(shaft({'x': W * 0.55, 'y': 0, 'w': W * 0.10, 'h': H * 0.7}, 4, -9.0))
+        out.append(band(0.60, 0.45, deep3, 0.4, True, 5))
+        out.append(band(0.80, 0.24, mix(ink, paper, 0.28), 0.55, True, 6))
+        # Rising bubbles and kelp on the bed — water reads by what drifts through it.
+        for k in range(4):
+            sx = ((seed0 >> (k * 7 + 3)) & 0x7F) / 127.0
+            sy = ((seed0 >> (k * 4 + 6)) & 0x3F) / 63.0
+            out.append(piece('bubble', W * (0.10 + 0.75 * sx), H * (0.18 + 0.5 * sy),
+                             short * (0.04 + 0.02 * (k % 2)), short * 0.05, mix(paper, accent, 0.4), 0.45, 30 + k))
+        for k in range(3):
+            sx = ((seed0 >> (k * 9 + 11)) & 0x7F) / 127.0
+            out.append(piece('kelp', W * (0.05 + 0.85 * sx), H * 0.86 - short * 0.16,
+                             W * 0.08, short * 0.17, mix(ink, accent, 0.55), 0.6, 36 + k))
+        elements_on(H * 0.88)
+    elif setting == 'urban':
+        out.append(band(-0.02, 0.55, sky, 0.10, False, 1))
+        if mood == 'night':
+            out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.4}, 8, 70))
+        celestial(3)
+        out.append({'kind': 'windows', 'bbox': {'x': -overhang, 'y': H * 0.28, 'w': W + 2 * overhang, 'h': H * 0.30},
+                    'tone': mix(ink, paper, 0.45), 'lit': glow, 'seed': seed0 ^ 0x77, 'plane': 0.22, 'rows': 4, 'silhouette': True,
+                    'lit_dx': light_dx})
+        out.append({'kind': 'windows', 'bbox': {'x': -overhang, 'y': H * 0.44, 'w': W + 2 * overhang, 'h': H * 0.30},
+                    'tone': mix(ink, paper, 0.30), 'lit': glow, 'seed': seed0 ^ 0x78, 'plane': 0.42, 'rows': 5, 'silhouette': True,
+                    'lit_dx': light_dx})
+        out.append(band(0.72, 0.32, mix(ink, paper, 0.16), 0.55, False, 6))
+        # Street furniture in the near plane — the street level the eye lands on.
+        for k in range(2):
+            sx = ((seed0 >> (k * 10 + 4)) & 0x7F) / 127.0
+            out.append(piece('streetlamp', W * (0.10 + 0.72 * sx), H * 0.72 - short * 0.30,
+                             W * 0.07, short * 0.31, mix(ink, paper, 0.18), 0.7, 30 + k))
+        elements_on(H * 0.84)
+    elif setting == 'ground':
+        out.append(band(-0.02, 0.14, sky, 0.08, False, 1))
+        out.append(band(0.10, 0.40, mix(ink, accent, 0.55), 0.3, True, 2))
+        out.append(band(0.46, 0.34, mix(ink, accent, 0.68), 0.45, True, 3))
+        out.append(band(0.76, 0.28, mix(ink, paper, 0.5), 0.58, True, 4))
+        if mood in ('dusk', 'night'):
+            out.append(fireflies(48, 7))
+        if mood == 'storm':
+            out.append(rain(49))
+        for k in range(7):
+            sx = ((seed0 >> (k * 6)) & 0x7F) / 127.0
+            out.append(piece('stone', W * (0.04 + 0.86 * sx), H * (0.25 + 0.58 * ((seed0 >> k) & 7) / 8.0),
+                             W * (0.05 + 0.05 * ((seed0 >> (k * 3)) & 3) / 3.0), short * 0.05, mix(paper, ink, 0.3), 0.5, 10 + k))
+        elements_on(H * 0.55)
+    else:  # abstract — a colour field with authored geometry, never a pattern tile
+        out.append(band(-0.02, 1.04, mix(paper, accent, 0.10), 0.08, False, 1))
+        out.append({'kind': 'arc', 'bbox': {'x': -W * 0.05, 'y': -H * 0.1, 'w': W * 1.1, 'h': H * 1.1}, 'corner': (seed0 & 3), 'plane': 0.12})
+        for k, sh in enumerate(('planet', 'beam', 'cloud')):
+            out.append(piece(sh, W * (0.15 + 0.3 * k), H * (0.2 + 0.22 * k), short * 0.2, short * 0.12,
+                             mix(accent, ink, 0.15 * k), 0.3, 5 + k))
+        elements_on(H * 0.85)
+    return out
+
+
 def _backdrop_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], brand: Brand) -> List[Dict[str, Any]]:
     """Diorama planes a treatment authored for this beat, cut in the film's palette and laid at
     their parallax depth. `auto` tones deepen as the plane nears the content; a concept that
@@ -987,7 +1595,7 @@ def _backdrop_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], 
     return out
 
 
-def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> List[str]:
+def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_dir: Optional[Path] = None) -> List[str]:
     """Turn every entity `concept` into an asset_ref and/or a typeset word before any aspect is
     solved, so all aspects draw the same answer. The ladder is pinned to the film's colour pack:
     authored marks set it, otherwise the first pass's most common pack does. Returns film-level
@@ -995,8 +1603,9 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
     todo = [(b, e) for b in film.beats if b.illustration for e in b.illustration.entities if e.concept and not e.asset_ref]
     prop_todo = [b for b in film.beats if b.figure and b.figure.prop]
     backdrop_todo = [(b, p) for b in film.beats if b.backdrop for p in b.backdrop if p.get('concept')]
+    scene_todo = [(b, e) for b in film.beats if b.scene for e in b.scene['elements'] if e.lower().strip() not in SCENE_PROP_SHAPES]
     motif = film.world.motif if film.world and film.world.motif else None
-    if not todo and not prop_todo and not motif and not backdrop_todo:
+    if not todo and not prop_todo and not motif and not backdrop_todo and not scene_todo:
         return []
     finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
     pack = _film_pack(film, registry)
@@ -1013,6 +1622,9 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
     # so the ladder only offers native marks and otherwise typesets.
     native_only = pack is not None
     evidence = PhotoEvidence(lexicon=finder.lexicon)
+    # Paperbook paints its concepts: a real picture-book plate from the open-licensed
+    # bank outranks a photograph; other dialects keep photo evidence first.
+    bankart = BankArt() if film.world and film.world.book == 'paperbook' else None
     for b, e in todo:
         named = e.glyph == 'CHIP' and e.label is not None
         r = finder.resolve(e.concept, pack, e.glyph in WORD_GLYPHS, native_only, named)
@@ -1021,11 +1633,42 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
             # well, beats an ancestor's mark or the bare word. The name still rides with it unless
             # the housing already carries it.
             rec = evidence.find(e.concept)
+            if bankart is not None:
+                brec = bankart.find(e.concept)
+                if brec is not None:
+                    word = None if (named or e.glyph == 'BADGE') else e.concept
+                    r = Resolution(e.concept, 'bank', asset_ref=None, word=word, path=[e.concept, brec['desc']])
+                    plan = bankart.as_plan(brec)
+                    if work_dir is not None:
+                        # Papercut-ify (onionsvg/cutter principle): the imported plate is
+                        # re-printed in the film's own inks — quantized then remapped to the
+                        # brand ramp — so it reads as page illustration, not pasted photo.
+                        ramp = tonal_ramp(film.brand.paper, film.brand.ink, film.brand.accent or '#b8263b')
+                        dest = work_dir / 'papercut' / f"{brec['id'].replace('/', '_').replace(':', '_')}.png"
+                        if not dest.exists():
+                            papercut_image(plan['path'], str(dest), ramp)
+                        with Image.open(dest) as dim:
+                            drec = {'path': str(dest), 'sha256': _sha_file(dest), 'source_size': {'w': dim.width, 'h': dim.height}}
+                        # Coverage gate: a print that is almost all paper mounts as a blank
+                        # card — drop it and let the concept ladder keep climbing.
+                        inked = papercut_coverage(str(dest), ramp[0])
+                        if inked < 0.10:
+                            brec = None
+                            r = replace(r, via='typographic', asset_ref=None, word=None)
+                            e.params.pop('photo', None)
+                            rec = None
+                        else:
+                            plan.update(drec)
+                            plan['papercut_of'] = brec['id']
+                            plan['ink_coverage'] = inked
+                    if brec is not None:
+                        e.params['photo'] = plan
+                        rec = None
             if rec is not None:
                 word = None if (named or e.glyph == 'BADGE') else e.concept
                 r = Resolution(e.concept, 'photo', asset_ref=None, word=word, path=[e.concept, rec.title])
                 e.params['photo'] = evidence.as_plan(rec)
-        if e.glyph == 'CHIP' and not named and r.via in ('composite', 'photo'):
+        if e.glyph == 'CHIP' and not named and r.via in ('composite', 'photo', 'bank'):
             # A chip's peg holds the mark or photograph and its inside label the name: an unlabelled
             # chip drawn by an ancestor or a photograph takes its concept as that label, so the
             # descriptor is typeset through the label fit rather than squeezed into the peg.
@@ -1040,7 +1683,8 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
             raise TreatmentError('CONCEPT_UNRESOLVED', f'{e.id}: no mark in the registry draws {e.concept!r} and {e.glyph} cannot typeset it', b.beat_id)
         e.asset_ref = r.asset_ref
         if r.word:
-            e.params['word'] = r.word
+            # A concept id is an index, not a word — the page never typesets an underscore.
+            e.params['word'] = r.word.replace('_', ' ')
             e.params['word_kind'] = 'numeric' if r.via == 'numeric' else 'name'
         e.params['resolution'] = r.as_dict()
     for b in prop_todo:
@@ -1056,7 +1700,9 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
                 p['via'] = r.via
         p['asset_ref'] = r.asset_ref
         p['asset'] = registry.resolve(r.asset_ref, b.beat_id) if r.asset_ref else None
-        p['word'] = r.word if r.word else (None if r.asset_ref or p.get('photo') else p['concept'])
+        p['word'] = (r.word if r.word else (None if r.asset_ref or p.get('photo') else p['concept']))
+        if p['word']:
+            p['word'] = p['word'].replace('_', ' ')
         p['resolution'] = r.as_dict()
     for b, p in backdrop_todo:
         # A backdrop silhouette mark wants vector art: the ladder ends at asset_ref — a photo or
@@ -1066,6 +1712,12 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
         p['asset_ref'] = r.asset_ref
         p['asset'] = registry.resolve(r.asset_ref, b.beat_id) if r.asset_ref else None
         p['resolution'] = r.as_dict()
+    for b, e in scene_todo:
+        # A scene element that is not a paper primitive resolves the same way — it stands in
+        # the world as its own art mark (a tree, a fish, a telescope on the ground line).
+        r = finder.resolve(e, pack, True, native_only)
+        if r.asset_ref:
+            b.scene.setdefault('resolved', {})[e] = registry.resolve(r.asset_ref, b.beat_id)
     if motif:
         # The film's signature mark rides the same ladder once — every aspect and every beat
         # stamps the same answer.
@@ -1254,7 +1906,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     lib = SoundLibrary(root) if root else None
     plans: Dict[str, Any] = {}
     registry = IllustrationRegistry()
-    film_warnings: List[str] = _resolve_concepts(film, registry)
+    film_warnings: List[str] = _resolve_concepts(film, registry, work_dir)
     film_failures: List[str] = _asset_pack_mix(film, registry)
     atmosphere = film_atmosphere(asdict(film.brand))
     film_failures += brand_failures(atmosphere)
@@ -1273,11 +1925,13 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         prev_bloom = None
         for bt, btr in zip(beats, film.beats):
             backdrop = _backdrop_layers(film.film_id, btr, (W, H), film.brand)
+            sky_concepts = {e.get('concept') for e in ((bt.get('illustration') or {}).get('entities') or []) if e.get('concept')}
+            scene = _scene_layers(film.film_id, btr, (W, H), film.brand, sky_concepts)
             atmo_layers = beat_atmosphere(film.film_id, bt, (W, H), bc.safe, prev_bloom, atmosphere)
             prev_bloom = next(L['at'] for L in atmo_layers if L['kind'] == 'bloom')
-            # Painter's order inside the bg layer: stage furniture, then the authored diorama,
-            # then the hero's light and the ambient far-plane dust over it.
-            bt['composition']['background']['layers'] += backdrop + atmo_layers
+            # Painter's order inside the bg layer: stage furniture, then the authored world
+            # (scene environment and/or diorama planes), then the hero's light over it.
+            bt['composition']['background']['layers'] += backdrop + scene + atmo_layers
         phase = fit_phase(music, beats)
         aspect_music = {**music, 'start_offset_ms': phase['start_offset_ms'],
                         'groove': {**phase, 'stagger_ms': stagger_ms, 'stagger_subdivision': subdivision, 'authored_stagger_ms': profile['stagger_ms']}}
@@ -1306,7 +1960,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', (film.world.grain if film.world else None) or 'grain-fine'),
                          'paper': community_surface('texture', 'paper006-color')},
-            'book': bool(film.world and film.world.book),
+            'book': (film.world.book if film.world else False),
             'motif': ({'corner': film.world.motif['corner'], 'concept': film.world.motif['concept'], 'via': film.world.motif.get('via'),
                        'asset': film.world.motif.get('asset'), 'photo': film.world.motif.get('photo'), 'word': film.world.motif.get('word')}
                       if film.world and film.world.motif else None),

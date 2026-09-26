@@ -1,0 +1,689 @@
+{
+  "schema": "NexStudioEditorialTreatmentV2",
+  "film_id": "the-final-whistle",
+  "note": "last night of the season — a football story: stadium night, rain, the goal, the cup",
+  "aspects": [
+    "16x9",
+    "1x1",
+    "9x16"
+  ],
+  "fps": 30,
+  "brand": {
+    "ink": "#1c2f4a",
+    "paper": "#efe8d4",
+    "accent": "#d4a017",
+    "finish": "PAPER"
+  },
+  "typography": {
+    "reveal": "WORD_CASCADE",
+    "tonal_ink": 0.42,
+    "min_visual_share": 0.6
+  },
+  "voice": {
+    "source": "MASTER",
+    "audio_path": "voice.mp3",
+    "alignment_path": "alignment.json",
+    "head_pad_ms": 350
+  },
+  "media_library": [],
+  "cast": {
+    "captain": {
+      "posture": "standing",
+      "head": "flat-top",
+      "skin": "#6b4a2f",
+      "garment": "shirt"
+    }
+  },
+  "world": {
+    "grain": "grain-fine",
+    "motif": {
+      "concept": "soccer_ball",
+      "corner": "top-right"
+    },
+    "book": "paperbook"
+  },
+  "beats": [
+    {
+      "beat_id": "b01",
+      "beat_type": "HOOK",
+      "pattern": "CONTROLLED_EMPTY_SPACE",
+      "dominant_layer": "TEXT",
+      "narration": "On  the  last  night  of  the  season,  a  whole  town  held  its  breath.",
+      "energy": 0.4,
+      "complexity": 0.35,
+      "display_units": [
+        {
+          "text": "a whole town",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.5
+        },
+        {
+          "text": "held its breath",
+          "role": "hero",
+          "semantic_role": "statement",
+          "emphasis": 0.9,
+          "anchor_word": "breath"
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "whistle",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "whistle"
+          },
+          {
+            "id": "flag",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "flag"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "whistle",
+            "at": {
+              "word": "town"
+            },
+            "duration_ms": 800,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "flag",
+            "at": {
+              "word": "breath"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "The Last Night",
+        "layout": "half",
+        "materials": [
+          "foil"
+        ]
+      },
+      "scene": {
+        "setting": "urban",
+        "mood": "night",
+        "elements": [
+          "streetlamp",
+          "window"
+        ]
+      }
+    },
+    {
+      "beat_id": "b02",
+      "beat_type": "SETUP",
+      "pattern": "PHRASE_REPLACEMENT",
+      "dominant_layer": "FIGURE",
+      "narration": "The  captain  walked  out  under  the  lights,  alone,  boots  laced  tight.",
+      "energy": 0.5,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "the captain",
+          "role": "hero",
+          "semantic_role": "statement",
+          "emphasis": 0.8,
+          "anchor_word": "captain"
+        },
+        {
+          "text": "under the lights",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.6
+        }
+      ],
+      "backdrop": null,
+      "figure": {
+        "valence": 0.4,
+        "arousal": 0.5,
+        "posture": "standing",
+        "energy": 0.6,
+        "formality": 0.3,
+        "facing": "CAMERA",
+        "justification": "the captain steps out — the film's hero",
+        "character": "captain",
+        "track": {
+          "enter": "left",
+          "exit": "none"
+        },
+        "prop": {
+          "concept": "soccer_ball",
+          "hand": "auto"
+        },
+        "states": [
+          {
+            "at": {
+              "offset_ms": 1100
+            },
+            "face": "driven"
+          },
+          {
+            "at": {
+              "offset_ms": 1800
+            },
+            "face": "smile"
+          }
+        ],
+        "face": "driven",
+        "motion": {
+          "chain": [
+            {
+              "clip": "CMU_WALK",
+              "seconds": 1.3
+            },
+            {
+              "clip": "CMU_WAIT_IDLE",
+              "seconds": 2.4
+            }
+          ],
+          "look": {
+            "skin": "#6b4a2f",
+            "hair": {
+              "color": "#17100b",
+              "style": "coils"
+            },
+            "top": {
+              "color": "#b8352c",
+              "garment": "shirt"
+            },
+            "bottom": {
+              "color": "#efe8d4",
+              "garment": "trousers"
+            },
+            "shoes": {
+              "color": "#241a12"
+            },
+            "ink": "#1c2f4a"
+          }
+        }
+      },
+      "page": {
+        "title": "Under the Lights",
+        "quote": "Eleven men. One badge.",
+        "layout": "vignette",
+        "cut": "left"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "night",
+        "elements": [
+          "flag"
+        ]
+      }
+    },
+    {
+      "beat_id": "b03",
+      "beat_type": "EMPHASIS",
+      "pattern": "PROCESS_RAIL",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "Then  the  rain  came  down  like  static,  and  still  nobody  left.",
+      "energy": 0.55,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "rain like static",
+          "role": "hero",
+          "semantic_role": "statement",
+          "emphasis": 0.85,
+          "anchor_word": "static"
+        },
+        {
+          "text": "nobody left",
+          "role": "support",
+          "semantic_role": "contrast",
+          "emphasis": 0.7
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "umbrella",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "umbrella"
+          },
+          {
+            "id": "drop",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "drop"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "umbrella",
+            "at": {
+              "word": "static"
+            },
+            "duration_ms": 800,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "drop",
+            "at": {
+              "word": "left"
+            },
+            "duration_ms": 600,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "Rain Like Static",
+        "layout": "zipped"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "storm",
+        "elements": [
+          "umbrella"
+        ]
+      }
+    },
+    {
+      "beat_id": "b04",
+      "beat_type": "EXPLANATION",
+      "pattern": "PROCESS_RAIL",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "The  ball  moved  faster  than  the  weather.",
+      "energy": 0.65,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "the ball",
+          "role": "hero",
+          "semantic_role": "statement",
+          "emphasis": 0.9,
+          "anchor_word": "ball"
+        },
+        {
+          "text": "faster than the weather",
+          "role": "support",
+          "semantic_role": "proof",
+          "emphasis": 0.7
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "ball",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "soccer_ball"
+          },
+          {
+            "id": "goal",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "target"
+          }
+        ],
+        "relations": [
+          {
+            "type": "connects",
+            "source": "ball",
+            "target": "goal",
+            "style": "dash"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "ball",
+            "at": {
+              "word": "ball"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "goal",
+            "at": {
+              "word": "faster"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "TRAVEL",
+            "target": "ball",
+            "at": {
+              "word": "weather"
+            },
+            "duration_ms": 900,
+            "params": {
+              "over": [
+                "goal"
+              ]
+            },
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "Faster Than Weather",
+        "layout": "full"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "storm",
+        "elements": [
+          "flag"
+        ]
+      }
+    },
+    {
+      "beat_id": "b05",
+      "beat_type": "EMPHASIS",
+      "pattern": "CONTRAST_RECONFIGURATION",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "One  touch,  one  strike,  and  the  net  billowed  like  a  sail.",
+      "energy": 0.85,
+      "complexity": 0.6,
+      "display_units": [
+        {
+          "text": "one strike",
+          "role": "hero",
+          "semantic_role": "punch",
+          "emphasis": 1.0,
+          "anchor_word": "strike"
+        },
+        {
+          "text": "the net billowed",
+          "role": "support",
+          "semantic_role": "contrast",
+          "emphasis": 0.8
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "ball2",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "soccer_ball"
+          },
+          {
+            "id": "net",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "target"
+          },
+          {
+            "id": "flash",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "storm"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "net",
+            "at": {
+              "word": "strike"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "ball2",
+            "at": {
+              "word": "touch"
+            },
+            "duration_ms": 600,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "flash",
+            "at": {
+              "word": "sail"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "The Strike",
+        "layout": "scissor"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "storm",
+        "elements": [
+          "flag"
+        ]
+      }
+    },
+    {
+      "beat_id": "b06",
+      "beat_type": "EMPHASIS",
+      "pattern": "HERO_SCALE_PROMOTION",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "The  cup  rose  under  the  floodlights,  and  the  town  rose  with  it.",
+      "energy": 0.8,
+      "complexity": 0.55,
+      "display_units": [
+        {
+          "text": "the cup",
+          "role": "hero",
+          "semantic_role": "evidence",
+          "emphasis": 0.95,
+          "anchor_word": "cup"
+        },
+        {
+          "text": "the town rose with it",
+          "role": "support",
+          "semantic_role": "contrast",
+          "emphasis": 0.75
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "cup",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "trophy"
+          },
+          {
+            "id": "medal",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "medal"
+          },
+          {
+            "id": "flag2",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "flag"
+          }
+        ],
+        "relations": [],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "cup",
+            "at": {
+              "word": "cup"
+            },
+            "duration_ms": 900,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "medal",
+            "at": {
+              "word": "floodlights"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "flag2",
+            "at": {
+              "word": "town"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "The Cup Rises",
+        "quote": "Gold is heavier than it looks.",
+        "layout": "diagonal"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "golden",
+        "elements": [
+          "fire"
+        ]
+      }
+    },
+    {
+      "beat_id": "b07",
+      "beat_type": "PAYOFF",
+      "pattern": "PAYOFF_LOCKUP",
+      "dominant_layer": "FIGURE",
+      "narration": "Some  nights  end.  This  one  never  did.",
+      "energy": 0.5,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "this one never did",
+          "role": "hero",
+          "semantic_role": "punch",
+          "emphasis": 0.9,
+          "anchor_word": "never"
+        }
+      ],
+      "backdrop": null,
+      "figure": {
+        "valence": 0.6,
+        "arousal": 0.4,
+        "posture": "standing",
+        "energy": 0.5,
+        "formality": 0.3,
+        "facing": "CAMERA",
+        "justification": "the captain walks off carrying the cup — the season won",
+        "character": "captain",
+        "track": {
+          "enter": "none",
+          "exit": "right"
+        },
+        "prop": {
+          "concept": "trophy",
+          "hand": "auto"
+        },
+        "states": [
+          {
+            "at": {
+              "offset_ms": 800
+            },
+            "face": "smile"
+          }
+        ],
+        "face": "smile",
+        "motion": {
+          "chain": [
+            {
+              "clip": "CMU_WAIT_IDLE",
+              "seconds": 1.2
+            },
+            {
+              "clip": "CMU_WALK",
+              "seconds": 1.6
+            }
+          ],
+          "look": {
+            "skin": "#6b4a2f",
+            "hair": {
+              "color": "#17100b",
+              "style": "coils"
+            },
+            "top": {
+              "color": "#b8352c",
+              "garment": "shirt"
+            },
+            "bottom": {
+              "color": "#efe8d4",
+              "garment": "trousers"
+            },
+            "shoes": {
+              "color": "#241a12"
+            },
+            "ink": "#1c2f4a"
+          }
+        }
+      },
+      "page": {
+        "title": "Never Did",
+        "layout": "vignette",
+        "cut": "right"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "dawn",
+        "elements": [
+          "flag"
+        ]
+      }
+    }
+  ]
+}

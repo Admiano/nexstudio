@@ -1,0 +1,34 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            
+            <!--Medical / Tech display background-->
+            <rect x="120" y="60" width="160" height="100" rx="10" fill="#F5F0E4" opacity="0.1"/>
+            <path d="M140 120 L160 100 L180 130 L200 90 L220 110 L240 80 L260 120" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <circle cx="240" cy="80" r="5" fill="#F5F0E4"/>
+
+            <g>
+                <!-- Arm Base / Shoulder (Human side fading in) -->
+                <path d="M70 240 Q100 200 140 220 L160 260 Z" fill="#1A1A17" opacity="0.5"/>
+                
+                <!-- Bionic Upper Arm -->
+                <path d="M140 220 L200 180 L220 210 L160 260 Z" fill="#F5F0E4"/>
+                <!-- Upper Arm Plates -->
+                <path d="M145 225 L195 190 M155 240 L205 205" stroke="#1A1A17" stroke-width="6" stroke-linecap="round"/>
+                
+                <!-- Mechanical Elbow Joint -->
+                <circle cx="210" cy="195" r="15" fill="#F5F0E4" stroke="#1A1A17" stroke-width="4"/>
+                <circle  cx="210" cy="195" r="6" fill="#F5F0E4"/>
+                
+                <!-- Bionic Forearm -->
+                <path d="M210 195 L280 160 L295 185 L220 215 Z" fill="#F5F0E4"/>
+                <path d="M225 190 L275 165 M235 205 L285 180" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                
+                <!-- Robotic Hand/Fingers -->
+                <path d="M280 160 L310 145 L325 165 L295 185 Z" fill="#1A1A17"/>
+                <!-- Fingers reaching out -->
+                <path d="M310 145 L340 130 M315 155 L350 140 M320 165 L345 155" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+            </g>
+            
+            <!--Glowing Interface from Hand-->
+            <path d="M350 140 Q370 120 360 90" stroke="#F5F0E4" stroke-width="3" stroke-dasharray="4 4" fill="none"/>
+            <circle cx="360" cy="90" r="8" fill="#F5F0E4"/>
+          </svg>

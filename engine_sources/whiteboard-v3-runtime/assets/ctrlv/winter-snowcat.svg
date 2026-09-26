@@ -1,0 +1,27 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="160" ry="12" fill="#E2E8F0"/>
+            <path d="M60 260 Q120 160 200 200 T360 260 Z" fill="#F5F0E4" opacity="0.15"/>
+            <!-- Tracks -->
+            <path d="M100 240 L140 200 H260 L300 240 Z" fill="#F5F0E4" opacity="0.8"/>
+            <circle  cx="140" cy="240" r="15" fill="#F5F0E4"/>
+            <circle  cx="200" cy="240" r="15" fill="#F5F0E4"/>
+            <circle  cx="260" cy="240" r="15" fill="#F5F0E4"/>
+            <!-- Main Body -->
+            <path d="M120 210 H280 L280 160 Q260 120 180 120 L140 160 Z" fill="#1A1A17"/>
+            <!-- Cabin -->
+            <path d="M150 160 L180 130 H250 V160 Z" fill="white" opacity="0.9"/>
+            <path d="M160 155 L180 135 H240 V155 Z" fill="#F5F0E4" opacity="0.8"/>
+            <path d="M200 135 V155" stroke="#1A1A17" stroke-width="4"/>
+            <!-- Back cargo / machinery -->
+            <rect x="250" y="160" width="30" height="40" fill="#F5F0E4" opacity="0.9"/>
+            <rect x="260" y="140" width="10" height="20" fill="#F5F0E4"/>
+            <!-- Front Plow / Blade -->
+            <path d="M80 240 Q100 200 120 200 V240 Z" fill="#1A1A17"/>
+            <path d="M80 240 L100 200" stroke="#F5F0E4" stroke-width="4"/>
+            <!-- Snow particles flying from plow -->
+            <circle cx="60" cy="220" r="6" fill="white"/>
+            <circle cx="40" cy="240" r="4" fill="white" style="animation-delay:-0.5s"/>
+            <!-- Exhaust -->
+            <circle cx="265" cy="110" r="15" fill="#F5F0E4" opacity="0.4"/>
+            <circle cx="270" cy="80" r="20" fill="#F5F0E4" opacity="0.2" style="animation-delay:-0.5s"/>
+          </svg>

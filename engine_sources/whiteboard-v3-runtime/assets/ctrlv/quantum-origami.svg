@@ -1,0 +1,24 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Folding Hexagon / Origami Structure -->
+                <polygon points="150,80 250,80 300,150 250,220 150,220 100,150" fill="#1A1A17" opacity="0.2" stroke="#1A1A17" stroke-width="2"/>
+                
+                <!-- Folded facets -->
+                <polygon points="150,80 250,80 200,150" fill="#1A1A17" opacity="0.8"/>
+                <polygon points="150,80 100,150 200,150" fill="#F5F0E4"/>
+                <polygon points="250,80 300,150 200,150" fill="#F5F0E4"/>
+                
+                <!-- Transforming / Folding Flaps -->
+                <g >
+                    <polygon points="250,220 150,220 200,150" fill="#1A1A17" opacity="0.5"/>
+                    <path d="M200 150 L250 220 L150 220 Z" stroke="#F5F0E4" stroke-width="4" fill="none"/>
+                </g>
+                
+                <!-- Quantum Nodes -->
+                <circle cx="200" cy="150" r="12" fill="#F5F0E4"/>
+                <circle cx="150" cy="80" r="8" fill="#F5F0E4"/>
+                <circle cx="250" cy="80" r="8" fill="#F5F0E4"/>
+                <circle cx="100" cy="150" r="8" fill="#F5F0E4"/>
+                <circle cx="300" cy="150" r="8" fill="#1A1A17"/>
+            </g>
+          </svg>

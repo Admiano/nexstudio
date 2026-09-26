@@ -90,6 +90,11 @@ def treatment_schema() -> Dict[str, Any]:
         'states': {'anyOf': [{'type': 'array', 'items': _obj({'at': anchor, 'pose': NULLABLE_STR, 'face': NULLABLE_STR, 'head': NULLABLE_STR}, ['at'], additionalProperties=False), 'minItems': 1, 'maxItems': 3}, {'type': 'null'}]},
         'pose': NULLABLE_STR,
         'face': NULLABLE_STR,
+        'motion': {'anyOf': [_obj({
+            'clip': NULLABLE_STR, 'action': NULLABLE_STR, 'cmu_clip': NULLABLE_STR, 'seconds': {'type': 'number', 'minimum': 0},
+            'chain': {'anyOf': [{'type': 'array', 'items': _obj({'clip': NULLABLE_STR, 'action': NULLABLE_STR, 'seconds': {'type': 'number'}}, []), 'minItems': 1, 'maxItems': 4}, {'type': 'null'}]},
+            'loop': {'type': 'boolean'}, 'speed_mps': {'type': 'number'}, 'look': {'type': 'object'}, 'proportion': _str(), 'emotion': _str(), 't': {'type': 'number'},
+        }, []), {'type': 'null'}]},
     }, ['valence', 'arousal', 'justification'], additionalProperties=False)
     media = _obj({
         'asset_id': _str(),
@@ -119,6 +124,10 @@ def treatment_schema() -> Dict[str, Any]:
         'narration': {'type': 'string'},
         'display_units': {'type': 'array', 'items': unit, 'maxItems': 5},
         'backdrop': {'anyOf': [{'type': 'array', 'items': backdrop_plane, 'minItems': 1, 'maxItems': c.BACKDROP_PLANE_CAP}, {'type': 'null'}]},
+        'scene': {'anyOf': [_obj({'setting': _enum(c.SCENE_SETTINGS),
+                                 'mood': _enum(c.SCENE_MOODS),
+                                 'elements': {'type': 'array', 'items': {'type': 'string', 'maxLength': 40}, 'maxItems': c.SCENE_ELEMENT_CAP}},
+                                ['setting'], additionalProperties=False), {'type': 'null'}]},
         'figure': {'anyOf': [figure, {'type': 'null'}]},
         'media': {'anyOf': [media, {'type': 'null'}]},
         'data': {'anyOf': [data, {'type': 'null'}]},
@@ -128,6 +137,11 @@ def treatment_schema() -> Dict[str, Any]:
         'features': {'type': 'object', 'additionalProperties': _unit()},
         'min_duration_ms': MS,
         'cut': _enum(c.CUT_MODES),
+        'page': {'anyOf': [_obj({'title': {'type': 'string', 'maxLength': 60},
+                                 'quote': {'type': 'string', 'maxLength': 120},
+                                 'layout': _enum(c.PAGE_LAYOUTS),
+                                 'cut': _enum(c.PAGE_CUTS),
+                                 'materials': {'type': 'array', 'items': _enum(c.PAGE_MATERIALS), 'maxItems': 3}}, [], additionalProperties=False), {'type': 'null'}]},
     }, ['beat_id', 'beat_type', 'pattern'], additionalProperties=False)
     asset = _obj({
         'asset_id': _str(),
@@ -163,7 +177,7 @@ def treatment_schema() -> Dict[str, Any]:
             'fps': _enum_int((24, 25, 30, 60)),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'cast': {'type': 'object', 'additionalProperties': cast_member, 'maxProperties': c.CAST_MEMBER_CAP},
-            'world': {'anyOf': [_obj({'grain': _enum(c.WORLD_GRAINS), 'book': {'type': 'boolean'},
+            'world': {'anyOf': [_obj({'grain': _enum(c.WORLD_GRAINS), 'book': {'anyOf': [{'type': 'boolean'}, {'const': 'paperbook'}]},
                                        'motif': _obj({'concept': {'type': 'string', 'maxLength': 40},
                                                       'corner': _enum(c.WORLD_CORNERS)}, ['concept'], additionalProperties=False)},
                                       [], additionalProperties=False), {'type': 'null'}]},
@@ -302,7 +316,8 @@ def plan_schema() -> Dict[str, Any]:
     figure = _obj({'library': {'const': 'OPEN_PEEPS'}, 'still': {'const': True}, 'framing': {'const': 'FULL_BODY'}, 'posture': _enum(c.FIGURE_POSTURES),
                    'parts': {'type': 'array', 'items': part, 'minItems': 1}, 'palette': {'type': 'object'}, 'mirror': {'type': 'boolean'},
                    'facing': _enum(c.FIGURE_FACINGS), 'emotion': {'type': 'object'}, 'pose': {'type': 'object'}, 'justification': _str(),
-                   'bbox': BOX, 'zone': BOX, 'enter_ms': MS, 'enter_duration_ms': MS, 'entrance': _str(), 'ground_line': {'type': 'number'}},
+                   'bbox': BOX, 'zone': BOX, 'enter_ms': MS, 'enter_duration_ms': MS, 'entrance': _str(), 'ground_line': {'type': 'number'},
+                   'motion': {'type': 'object'}},
                   ['library', 'still', 'framing', 'parts', 'facing', 'justification', 'bbox', 'enter_ms', 'enter_duration_ms'])
     media = _obj({
         'asset_id': _str(), 'kind': _enum(c.MEDIA_KINDS), 'rights': _str(), 'path': _str(), 'sha256': SHA,
@@ -326,6 +341,7 @@ def plan_schema() -> Dict[str, Any]:
         'media': {'anyOf': [media, {'type': 'null'}]}, 'figure': {'anyOf': [figure, {'type': 'null'}]}, 'data': {'anyOf': [data, {'type': 'null'}]},
         'illustration': {'anyOf': [illustration, {'type': 'null'}]},
         'transition': transition, 'sound': _strip(sound_events_schema()), 'gate': gate,
+        'page': {'anyOf': [_obj({'title': NULLABLE_STR, 'quote': NULLABLE_STR}, []), {'type': 'null'}]},
     }, ['beat_id', 'beat_type', 'pattern', 'dominant_layer', 'start_ms', 'duration_ms', 'composition', 'typography', 'ensemble', 'illustration', 'transition', 'sound', 'gate'])
     segment = _obj({'beat_id': _str(), 'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')), 'audio_path': _str(), 'sha256': SHA, 'start_ms': MS, 'duration_ms': MS,
                     'evidence': {'type': 'object'}}, ['beat_id', 'source', 'audio_path', 'sha256', 'start_ms', 'duration_ms'])

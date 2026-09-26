@@ -1,0 +1,780 @@
+/**
+ * Validation suite for the paper cast system:
+ *   node tools/test-paper-cast.js
+ */
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.resolve(__dirname, '..');
+const Rig = require(path.join(ROOT, 'runtime', 'paper-cast-rig.js'));
+const Renderer = require(path.join(ROOT, 'runtime', 'paper-cast-renderer.js'));
+const Context = require(path.join(ROOT, 'runtime', 'cast-context.js'));
+const Cast = require(path.join(ROOT, 'runtime', 'paper-cast.js'));
+
+const results = [];
+function test(name, fn) {
+  try {
+    fn();
+    results.push({ name, ok: true });
+  } catch (error) {
+    results.push({ name, ok: false, error: error.message });
+  }
+}
+
+const VIEW_AXES = Object.keys(Rig.VIEW_AXES);
+Cast.init();
+
+test('manifest inventory matches the generated registry and the files on disk', () => {
+  const index = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifests', 'cast-index.json'), 'utf8'));
+  const files = fs.readdirSync(path.join(ROOT, 'manifests', 'cast')).filter((f) => f.endsWith('.json'));
+  assert.strictEqual(index.count, index.entries.length);
+  assert.strictEqual(files.length, index.count);
+  assert.strictEqual(Cast.registry.entries.length, index.count);
+  const ids = new Set(index.entries.map((e) => e.id));
+  assert.strictEqual(ids.size, index.count, 'cast ids must be unique');
+});
+
+test('every manifest pose exists in the pose library', () => {
+  const poseIds = new Set(Cast.poses.poses.map((p) => p.id));
+  for (const entry of Cast.registry.entries) {
+    for (const id of entry.poses) assert.ok(poseIds.has(id), `${entry.id} → unknown pose ${id}`);
+    assert.ok(entry.poses.includes(entry.defaultPose), `${entry.id} default pose not in pose list`);
+  }
+});
+
+test('rig builds a figure on all eight view axes', () => {
+  for (const axis of VIEW_AXES) {
+    const figure = Rig.build({ view: axis, height: 900 });
+    assert.strictEqual(figure.view.axis, axis);
+    assert.ok(figure.parts.length >= 13, `${axis}: expected limb + torso + head parts`);
+    assert.ok(figure.bounds.maxX > figure.bounds.minX && figure.bounds.maxY > figure.bounds.minY, `${axis}: empty bounds`);
+    for (const part of figure.parts) assert.ok(Number.isFinite(part.depth), `${axis}: non-finite depth`);
+  }
+});
+
+test('profile views compress the silhouette and back views hide the face', () => {
+  const width = (axis) => {
+    const f = Rig.build({ view: axis, height: 900 });
+    return f.bounds.maxX - f.bounds.minX;
+  };
+  assert.ok(width('profile-right') < width('front') * 0.8, 'profile should be narrower than front');
+  const back = Rig.build({ view: 'back', height: 900 });
+  assert.ok(back.head.facing < -0.9, 'back view head should face away from camera');
+  assert.ok(!Renderer.render(back, {}).svg.includes('pc-head-face'), 'back view must not draw facial features');
+});
+
+test('parts are emitted far-to-near so the far arm sits behind the torso', () => {
+  const figure = Rig.build({ view: 'three-quarter-right', height: 900 });
+  const depths = figure.parts.map((p) => p.depth);
+  assert.deepStrictEqual(depths, [...depths].sort((a, b) => a - b), 'parts must be depth sorted');
+  const torso = figure.parts.findIndex((p) => p.kind === 'torso');
+  // Turned to stage right, so the character's right side is the one facing away.
+  const farArm = figure.parts.findIndex((p) => p.id === 'right-upper-arm');
+  const nearArm = figure.parts.findIndex((p) => p.id === 'left-upper-arm');
+  assert.ok(farArm < torso, 'far arm must draw before the torso');
+  assert.ok(nearArm > torso, 'near arm must draw after the torso');
+});
+
+test('head yaw is independent of body yaw', () => {
+  const figure = Rig.build({ view: 'profile-right', pose: { head: { yaw: -90 } }, height: 900 });
+  assert.strictEqual(figure.view.axis, 'profile-right');
+  assert.strictEqual(figure.head.viewAxis, 'front');
+  assert.ok(figure.head.facing > 0.99, 'head should address the camera while the body stays in profile');
+});
+
+test('rendering is deterministic for a seed and varies with it', () => {
+  const opts = { view: 'three-quarter-left', height: 900, paperStyle: 'handmade-scrapbook', seed: 'abc' };
+  assert.strictEqual(Renderer.renderPose(opts).svg, Renderer.renderPose(opts).svg);
+  assert.notStrictEqual(Renderer.renderPose(opts).svg, Renderer.renderPose({ ...opts, seed: 'xyz' }).svg);
+});
+
+test('every archetype renders in every pose and view axis without NaN geometry', () => {
+  let rendered = 0;
+  for (const entry of Cast.registry.entries) {
+    for (const pose of entry.poses) {
+      for (const axis of entry.viewAxes) {
+        const out = Cast.renderFigure({ id: entry.id, pose, viewAxis: axis });
+        assert.ok(!/NaN|Infinity|undefined/.test(out.svg), `${entry.id}/${pose}/${axis} produced invalid geometry`);
+        assert.ok(out.svg.startsWith('<svg') && out.svg.endsWith('</svg>'));
+        rendered += 1;
+      }
+    }
+  }
+  assert.ok(rendered >= 600, `expected a broad render sweep, got ${rendered}`);
+});
+
+test('script context extracts role, action and target', () => {
+  const ctx = Context.analyze('The technician crouches and inspects the machine, then points at the fault on the screen.');
+  assert.strictEqual(ctx.role, 'technician');
+  assert.ok(['inspect-crouch', 'point-at-detail'].includes(ctx.action));
+  assert.strictEqual(ctx.addressing, 'content');
+});
+
+test('addressing the content turns the body away from the camera', () => {
+  const scene = Cast.renderScene({ script: 'The analyst turns to the chart on the screen and points at the spike.' });
+  const member = scene.cast[0];
+  assert.strictEqual(member.role, 'analyst');
+  assert.notStrictEqual(member.view.viewAxis, 'front');
+  assert.strictEqual(member.view.addressing, 'content');
+  assert.ok(scene.svg.includes('data-view-axis="' + member.view.viewAxis + '"'));
+});
+
+test('addressing the viewer produces a camera-facing body', () => {
+  const scene = Cast.renderScene({ script: 'The presenter welcomes the audience and speaks to camera.' });
+  assert.strictEqual(scene.cast[0].view.addressing, 'camera');
+  assert.strictEqual(scene.cast[0].view.viewAxis, 'front');
+});
+
+test('two characters in conversation face each other, not the camera', () => {
+  const scene = Cast.renderScene({ script: 'The customer asks the support agent a question and they talk to each other.', castSize: 2 });
+  assert.strictEqual(scene.cast.length, 2);
+  const [left, right] = scene.cast;
+  assert.ok(left.stage.x < right.stage.x);
+  assert.ok(left.view.yaw > 0, 'the left character should turn toward stage right');
+  assert.ok(right.view.yaw < 0, 'the right character should turn toward stage left');
+  assert.notStrictEqual(left.id, right.id);
+});
+
+test('selection is contextual: different scripts cast different characters', () => {
+  const picks = [
+    'The nurse explains the procedure to the patient.',
+    'The builder carries boxes across the site.',
+    'The child listens to the story and celebrates.',
+    'The executive sets the strategy for the board.'
+  ].map((script) => Cast.plan({ script }).cast[0].role);
+  assert.deepStrictEqual(picks, ['healthcare_worker', 'builder', 'child', 'executive']);
+});
+
+test('walking uses a locomotion pose and never a front view', () => {
+  const plan = Cast.plan({ script: 'The reporter walks across the field toward the crowd.' });
+  assert.strictEqual(plan.cast[0].pose, 'walk-stride');
+  assert.notStrictEqual(plan.cast[0].view.viewAxis, 'front');
+});
+
+test('paper styles change the cut without breaking the SVG', () => {
+  for (const style of Object.keys(Renderer.PAPER_STYLES)) {
+    const out = Cast.renderFigure({ id: 'cast.presenter.paper-01', paperStyle: style });
+    assert.ok(out.svg.includes('<path'), `${style} produced no paper shapes`);
+  }
+});
+
+test('scene svg is valid for each aspect ratio', () => {
+  for (const ratio of ['16:9', '1:1', '9:16']) {
+    const scene = Cast.renderScene({ script: 'The teacher explains the diagram to the class.', aspectRatio: ratio });
+    const frame = Cast.FRAMES[ratio];
+    assert.ok(scene.svg.includes(`viewBox="0 0 ${frame.width} ${frame.height}"`));
+    assert.strictEqual((scene.svg.match(/<svg/g) || []).length, 1);
+  }
+});
+
+test('a profile torso keeps its body depth instead of collapsing to a line', () => {
+  const width = (axis) => {
+    const t = Rig.build({ proportion: 'adult-average', height: 600, view: axis, pose: {} }).torso;
+    return t.shoulderRight.x - t.shoulderLeft.x;
+  };
+  const front = width('front');
+  for (const axis of ['profile-left', 'profile-right']) {
+    assert.ok(width(axis) > front * 0.45, `${axis} torso collapsed to ${width(axis).toFixed(1)}`);
+  }
+});
+
+test('feet stand on the stage ground line at every view axis', () => {
+  for (const axis of VIEW_AXES) {
+    const figure = Rig.build({ proportion: 'adult-average', height: 600, view: axis, pose: {} });
+    const feet = figure.parts.filter((p) => p.kind === 'foot');
+    assert.ok(feet.every((f) => f.b.y > f.a.y), `${axis}: a foot has no visible height`);
+    assert.ok(Math.abs(figure.ground - Math.max(...feet.map((f) => f.b.y + f.widthTo * 0.5))) < 1e-6);
+  }
+  // On stage a member is lifted by its ground line, not by its padded bounds,
+  // so the shoes touch the dashed floor instead of hovering above it.
+  const frame = Cast.FRAMES['16:9'];
+  const scene = Cast.renderScene({ script: 'The presenter welcomes the audience.', aspectRatio: '16:9' });
+  const figure = Rig.build({ proportion: scene.cast[0].proportion, height: frame.height * frame.figureHeight, view: scene.cast[0].view.viewAxis, pose: { ...scene.cast[0].poseAngles, head: { ...(scene.cast[0].poseAngles.head || {}), yaw: scene.cast[0].view.headYaw } } });
+  const lift = Number(/translate\(0 (-?[\d.]+)\)/.exec(scene.svg)[1]);
+  assert.ok(Math.abs(lift + figure.ground) < 0.02, `member sits ${(lift + figure.ground).toFixed(1)} off the ground line`);
+  assert.ok(scene.svg.includes(`y1="${frame.height * frame.ground}"`));
+});
+
+test('a four-hander is laid out without overlapping silhouettes', () => {
+  for (const ratio of ['16:9', '1:1', '9:16']) {
+    const scene = Cast.renderScene({ script: 'The teacher, student, doctor and builder discuss plans together.', aspectRatio: ratio });
+    assert.strictEqual(scene.cast.length, 4);
+    const xs = [...scene.svg.matchAll(/class="pc-stage-member"[^>]*transform="translate\((-?[\d.]+) /g)].map((m) => Number(m[1]));
+    assert.strictEqual(xs.length, 4);
+    const sorted = [...xs].sort((a, b) => a - b);
+    for (let i = 1; i < sorted.length; i += 1) {
+      assert.ok(sorted[i] - sorted[i - 1] > Cast.FRAMES[ratio].width * 0.1, `${ratio}: members ${i - 1}/${i} are stacked`);
+    }
+  }
+});
+
+test('every named role in a beat is cast, not silently dropped', () => {
+  const plan = Cast.plan({ script: 'The teacher, student, doctor and builder discuss plans together.' });
+  assert.deepStrictEqual(plan.cast.map((m) => m.role), ['teacher', 'student', 'healthcare_worker', 'builder']);
+});
+
+test('travel and exit beats orient along the direction of movement', () => {
+  const travel = Cast.plan({ script: 'The reporter walks across the field toward the crowd.' }).cast[0];
+  assert.strictEqual(travel.view.addressing, 'travel');
+  assert.ok(travel.view.viewAxis.startsWith('profile'), `expected a profile, got ${travel.view.viewAxis}`);
+  const exit = Cast.plan({ script: 'The builder carries boxes across the site and heads out of frame.' }).cast[0];
+  assert.strictEqual(exit.view.addressing, 'exit');
+  assert.notStrictEqual(exit.view.viewAxis, 'front');
+});
+
+test('poses are chosen so the body can actually face what it addresses', () => {
+  const beats = [
+    'The teacher explains the diagram while the student listens.',
+    'The customer asks the support agent a question and they talk to each other.',
+    'The analyst turns to the chart on the screen and points at the spike.',
+    'The reporter walks across the field toward the crowd.'
+  ];
+  for (const script of beats) {
+    const plan = Cast.plan({ script });
+    assert.deepStrictEqual(plan.warnings.filter((w) => w.includes('cannot face')), [], `${script} -> ${plan.warnings.join('; ')}`);
+  }
+});
+
+test('the figure carries one merged contour instead of per-part outlines', () => {
+  const svg = Renderer.renderPose({ proportion: 'adult-average', height: 400, view: 'three-quarter-right', pose: {} }).svg;
+  const cuts = [...svg.matchAll(/class="pc-cut"/g)].length;
+  assert.ok(cuts > 8, `expected a silhouette pass, found ${cuts} cut shapes`);
+  const ink = Renderer.resolveLook({}).ink;
+  for (const el of svg.match(/<(?:path|ellipse)[^>]*class="pc-(?:torso|head|neck|hair|limb|foot|hand|sleeve)[^"]*"[^>]*>/g) || []) {
+    assert.ok(!el.includes(`stroke="${ink}"`), `body fill still draws its own ink seam: ${el.slice(0, 80)}`);
+  }
+});
+
+test('limb bends are padded so a joint never opens a notch in the silhouette', () => {
+  const svg = Renderer.renderPose({ proportion: 'adult-average', height: 400, view: 'profile-right', pose: { armRight: { shoulder: { tilt: 40 }, elbow: { tilt: 100 } } } }).svg;
+  assert.ok(/class="pc-joint/.test(svg), 'expected joint pads on the limbs');
+  assert.ok(/class="pc-hand-end/.test(svg), 'expected a rounded hand end rather than a square cut strip');
+});
+
+test('a timed scene is deterministic and different from its neighbouring second', () => {
+  const script = 'The analyst turns to the chart on the screen and points at the spike.';
+  const a = Cast.renderScene({ script, time: 2, duration: 5 }).svg;
+  const b = Cast.renderScene({ script, time: 2, duration: 5 }).svg;
+  const c = Cast.renderScene({ script, time: 3.5, duration: 5 }).svg;
+  assert.strictEqual(a, b, 'the same second must render the same frame');
+  assert.notStrictEqual(a, c, 'a later second must move the performance on');
+});
+
+test('a walking beat travels across the stage instead of standing still', () => {
+  const member = Cast.plan({ script: 'The reporter walks across the field toward the crowd, then heads out of frame.' }).cast[0];
+  const start = Cast.Performance.frame(member, 0.5, { duration: 5 });
+  const end = Cast.Performance.frame(member, 4.5, { duration: 5 });
+  assert.ok(Cast.Performance.moving(member), 'a walking beat must be read as locomotion');
+  assert.ok(Math.abs(end.offsetX - start.offsetX) > 0.1, 'the walker should cover ground');
+});
+
+test('a standing beat breathes without sliding off its mark', () => {
+  const member = Cast.plan({ script: 'A presenter welcomes the audience and speaks to camera.' }).cast[0];
+  const frames = [0.4, 1.3, 2.6, 4.1].map((t) => Cast.Performance.frame(member, t, { duration: 5 }));
+  for (const f of frames) assert.ok(Math.abs(f.offsetX) < 0.02, `a standing figure drifted by ${f.offsetX}`);
+  const tilts = frames.map((f) => f.pose.chest.tilt);
+  assert.ok(new Set(tilts.map((t) => Math.round(t * 100))).size > 1, 'a standing figure must still breathe');
+});
+
+// ---------------------------------------------------------------------------
+// Parametric bodies, contact goals, relations and the paperbook skin.
+// ---------------------------------------------------------------------------
+
+const Body = require(path.join(ROOT, 'runtime', 'cast-body.js'));
+const Contact = require(path.join(ROOT, 'runtime', 'cast-contact.js'));
+const Relation = require(path.join(ROOT, 'runtime', 'cast-relation.js'));
+const Paperbook = require(path.join(ROOT, 'runtime', 'paperbook-figure.js'));
+const Wardrobe = require(path.join(ROOT, 'runtime', 'cast-wardrobe.js'));
+
+test('an infant is not a shrunken adult: head, limbs and stature all change shape', () => {
+  const infant = Body.body('infant');
+  const toddler = Body.body('toddler');
+  const adult = Body.body({ age: 30 });
+  const headShare = (b) => b.head / b.stature;
+  assert.ok(headShare(infant) > headShare(toddler), 'infants are the most top-heavy');
+  assert.ok(headShare(toddler) > headShare(adult) * 1.5, 'a toddler head reads much larger than an adult head');
+  assert.ok(infant.stature < toddler.stature && toddler.stature < adult.stature);
+  // Lengths are fractions of the body's own height, so this is shape, not size.
+  assert.ok(infant.thigh < adult.thigh * 0.8, 'an infant has short legs for its own height');
+});
+
+test('age is continuous, not a set of presets', () => {
+  const heights = [0.5, 2, 5, 9, 14, 30, 74].map((age) => Body.heightFor({ age }, 1000));
+  for (let i = 1; i < heights.length - 1; i += 1) assert.ok(heights[i] > heights[i - 1], `age ${i} should be taller`);
+  const between = Body.body({ age: 2.5 });
+  const two = Body.body({ age: 2 });
+  const three = Body.body({ age: 3 });
+  assert.ok(between.stature > two.stature && between.stature < three.stature, 'in-between ages interpolate');
+  assert.strictEqual(Body.ageBandOf(1.4), 'toddler');
+  assert.strictEqual(Body.ageBandOf(0.4), 'infant');
+});
+
+test('a build changes mass without changing the age read', () => {
+  const slight = Body.body({ age: 30, build: 'slight' });
+  const broad = Body.body({ age: 30, build: 'broad' });
+  assert.ok(broad.shoulderWidth > slight.shoulderWidth && broad.bodyDepth > slight.bodyDepth);
+  assert.strictEqual(Math.round(broad.head * 1000), Math.round(slight.head * 1000));
+});
+
+test('a hand goal is reached: the character grips the prop instead of miming it', () => {
+  const proportion = Body.body({ age: 32 });
+  const oar = { id: 'oar', anchors: { grip: { x: 0.06, y: 0.12, z: 0.26 } } };
+  const solved = Contact.solve({
+    proportion,
+    goals: [{ effector: 'rightHand', at: Contact.anchor(oar, 'grip') }]
+  });
+  assert.ok(solved.reached, `hand missed the oar by ${solved.residual}`);
+  const joints = Contact.joints(proportion, solved.pose);
+  const d = Math.hypot(joints.rightHand.x - 0.06, joints.rightHand.y - 0.12, joints.rightHand.z - 0.26);
+  assert.ok(d < 0.02, `solved pose does not put the hand on the anchor (${d})`);
+});
+
+test('a foot goal plants the foot where the ground is, and unreachable goals say so', () => {
+  const proportion = Body.body({ age: 30 });
+  // Goals are pelvis-relative fractions of height, and the solver bends joints
+  // rather than moving the root, so a step forward stays inside the leg's reach.
+  const mark = { x: 0.09, y: -0.44, z: 0.17 };
+  const step = Contact.solve({ proportion, goals: [{ effector: 'rightToe', at: mark }] });
+  assert.ok(step.reached, `foot missed its mark by ${step.residual}`);
+  const toe = Contact.joints(proportion, step.pose).rightToe;
+  assert.ok(Math.hypot(toe.x - mark.x, toe.y - mark.y, toe.z - mark.z) < 0.02, 'the foot must land on the mark');
+  assert.ok(step.pose.legRight.ankle.tilt !== 0, 'the ankle angles into the ground contact');
+  const far = Contact.solve({ proportion, goals: [{ effector: 'rightHand', at: { x: 3, y: 2, z: 3 } }] });
+  assert.ok(!far.reached && far.residual > 0.5, 'an out-of-reach goal must report failure, not fake success');
+});
+
+test('solving is deterministic and leaves untouched limbs alone', () => {
+  const proportion = Body.body({ age: 30 });
+  const goals = [{ effector: 'leftHand', at: { x: -0.08, y: 0.2, z: 0.24 } }];
+  const a = Contact.solve({ proportion, goals });
+  const b = Contact.solve({ proportion, goals });
+  assert.deepStrictEqual(a.pose, b.pose);
+  assert.deepStrictEqual(a.pose.legRight, Rig.mergePose({}).legRight, 'a hand goal must not rearrange the legs');
+});
+
+test('carry-on-back holds the pair together: child above the hips, hands in contact', () => {
+  const rel = Relation.relate('carry-on-back', { carrier: { body: { age: 31 } }, carried: { body: { age: 3 } }, height: 900 });
+  assert.strictEqual(rel.participants.length, 2);
+  const [carrier, child] = rel.participants;
+  assert.ok(child.height < carrier.height * 0.6, 'the child must be drawn as a child');
+  assert.ok(child.origin.y > 0.3, 'the child rides on the back, it does not stand on the floor');
+  assert.ok(child.origin.z < carrier.origin.z, 'the child is behind the carrier');
+  assert.ok(rel.residual < 0.05, `contacts drifted by ${rel.residual}`);
+  assert.ok(rel.preferredViews.length, 'a stacked pair must tell the compositor which views read');
+});
+
+test('support-walk puts both hands on the same point and the toddler mid-step', () => {
+  const rel = Relation.relate('support-walk', { adult: { body: { age: 34 } }, toddler: { body: { age: 1.3 } }, height: 900 });
+  const [adult, toddler] = rel.participants;
+  assert.ok(rel.residual < 0.05, `the hands did not meet (${rel.residual})`);
+  const contact = rel.contacts[0];
+  assert.ok(contact.between.some((e) => e.startsWith('adult')) && contact.between.some((e) => e.startsWith('toddler')));
+  const joints = Contact.joints(toddler.proportion, toddler.pose);
+  assert.ok(Math.abs(joints.leftToe.z - joints.rightToe.z) > 0.04, 'one foot must be ahead of the other');
+  assert.ok(adult.pose.spine.tilt > 4, 'the adult has to stoop to hold a toddler hand');
+});
+
+test('the paperbook renderer draws a valid, deterministic, patterned figure', () => {
+  const look = { skin: '#b07f56', top: { color: '#7ba3bd' }, bottom: { garment: 'wrapper', color: '#e2d6bb', pattern: 'diamond', patternColor: '#b6552f' } };
+  const svg = Paperbook.renderPose({ proportion: Body.body({ age: 30 }), height: 900, view: 'three-quarter-right', look, id: 'a' }).svg;
+  assert.ok(svg.startsWith('<svg') && svg.endsWith('</svg>'));
+  assert.ok(!/NaN|undefined/.test(svg), 'the figure contains an unresolved coordinate');
+  assert.ok(svg.includes('<pattern'), 'a patterned wrapper must emit its pattern');
+  assert.strictEqual(svg, Paperbook.renderPose({ proportion: Body.body({ age: 30 }), height: 900, view: 'three-quarter-right', look, id: 'a' }).svg);
+});
+
+test('a relation renders as one interleaved illustration, not two pasted figures', () => {
+  const rel = Relation.relate('carry-on-back', { carrier: { body: { age: 31 }, yaw: 72 }, carried: { body: { age: 3 }, yaw: 72 }, height: 900 });
+  const scene = Paperbook.renderRelation(rel, {});
+  assert.ok(!/NaN|undefined/.test(scene.svg));
+  const ids = [...scene.svg.matchAll(/data-id="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(ids.includes('carrier') && ids.includes('carried'), 'both bodies must be drawn');
+  const order = ids.join(' ');
+  assert.ok(/carried .*carrier|carrier .*carried/.test(order));
+  assert.ok(new Set(ids).size === 2 && ids.length > 4, 'bodies must be split into depth-sorted parts');
+});
+
+test('the public API exposes the artist, not just the catalogue', () => {
+  const scene = Cast.illustrate('support-walk', { adult: { body: { age: 30 } }, toddler: { body: { age: 1.4 } }, height: 800 });
+  assert.ok(scene.svg.includes('<svg'));
+  assert.ok(Cast.body('toddler').stature < 0.6);
+});
+
+test('mass is a separate axis: it thickens the waist, not the frame', () => {
+  const lean = Body.body({ age: 40 });
+  const heavy = Body.body({ age: 40, mass: 0.8 });
+  assert.strictEqual(heavy.shoulderWidth, lean.shoulderWidth, 'mass must not widen the shoulder frame');
+  assert.ok(heavy.waist > lean.waist * 1.3, 'a heavy body carries weight at the waist');
+  assert.ok(heavy.bodyDepth > lean.bodyDepth, 'weight reads in depth as well as width');
+  assert.strictEqual(Body.ageBandOf(heavy.age), Body.ageBandOf(lean.age), 'mass must not change the age band');
+  assert.ok(Body.body({ age: 40, build: 'broad' }).waist < heavy.waist, 'a broad frame is not the same thing as a heavy body');
+});
+
+test('the rig projects a waist so a garment has something to follow', () => {
+  const heavy = Rig.build({ proportion: Body.body({ age: 40, mass: 0.9 }), height: 900, view: 'front' });
+  const lean = Rig.build({ proportion: Body.body({ age: 40 }), height: 900, view: 'front' });
+  const span = (f) => f.torso.waistRight.x - f.torso.waistLeft.x;
+  assert.ok(span(heavy) > span(lean) * 1.25, 'the heavy waist must be projected wider');
+  assert.ok(heavy.torso.waistLeft.y > heavy.torso.chest.y && heavy.torso.waistLeft.y < heavy.torso.pelvis.y, 'the waist sits between chest and pelvis');
+  assert.ok(heavy.bounds.minX <= heavy.torso.waistLeft.x && heavy.bounds.maxX >= heavy.torso.waistRight.x, 'bounds must contain the waist');
+});
+
+test('garments are silhouettes, not colours: each cut draws a different outline', () => {
+  const figure = Rig.build({ proportion: Body.body({ age: 30 }), height: 900, view: 'front' });
+  const paths = new Set();
+  for (const name of Object.keys(Wardrobe.GARMENTS)) {
+    const cut = Wardrobe.GARMENTS[name];
+    const d = Wardrobe.torsoPath(figure.torso, { spread: cut.spread, waist: cut.waist, hem: cut.hem, flare: cut.flare });
+    assert.ok(!/NaN|undefined/.test(d), `${name} produced an unresolved coordinate`);
+    paths.add(d);
+  }
+  assert.ok(paths.size >= Object.keys(Wardrobe.GARMENTS).length - 1, 'garments must not collapse onto one outline');
+});
+
+test('trim and overlays draw the marks that make a uniform a uniform', () => {
+  const figure = Rig.build({ proportion: Body.body({ age: 30 }), height: 900, view: 'front' });
+  const trim = Wardrobe.trimShapes(figure.torso, { trim: ['collar', 'placket', 'belt', 'band', 'badge'], trimColor: '#333' });
+  assert.strictEqual(trim.length, 5, 'every requested trim must be drawn');
+  assert.strictEqual(Wardrobe.trimShapes(figure.torso, { trim: [] }).length, 0);
+  const apron = Wardrobe.overlayShapes(figure.torso, figure.joints, { kind: 'apron', color: '#33413f' });
+  assert.ok(apron.length && !/NaN|undefined/.test(apron.map((s) => s.svg).join('')));
+  assert.strictEqual(Wardrobe.overlayShapes(figure.torso, figure.joints, { kind: 'nonesuch' }).length, 0);
+});
+
+test('headwear covers the hair when the garment says it does', () => {
+  const figure = Rig.build({ proportion: Body.body({ age: 30 }), height: 900, view: 'three-quarter-right' });
+  const head = figure.parts.find((p) => p.kind === 'head');
+  assert.strictEqual(Wardrobe.headwearShapes(head, null).shapes.length, 0, 'a bare head wears nothing');
+  for (const kind of Object.keys(Wardrobe.HEADWEAR)) {
+    const worn = Wardrobe.headwearShapes(head, { kind, color: '#7b5a86' });
+    const svg = [...worn.shapes, ...worn.front].map((s) => s.svg).join('');
+    assert.ok(svg.length, `${kind} drew nothing`);
+    assert.ok(!/NaN|undefined/.test(svg), `${kind} produced an unresolved coordinate`);
+    assert.strictEqual(worn.coversHair, Wardrobe.HEADWEAR[kind].coversHair);
+  }
+  assert.ok(Wardrobe.headwearShapes(head, { kind: 'hijab' }).coversHair, 'a hijab replaces the hair rather than sitting on it');
+});
+
+test('a uniformed figure renders differently from the same body in a shirt', () => {
+  const proportion = Body.body({ age: 36, build: 'broad' });
+  const draw = (look) => Paperbook.renderPose({ proportion, height: 800, view: 'three-quarter-right', look, id: 'r' }).svg;
+  const plain = draw({ skin: '#dda87c', top: { color: '#c25a34' } });
+  const fireman = draw({
+    skin: '#dda87c',
+    head: { kind: 'helmet', color: '#b4462a' },
+    top: { garment: 'coverall', color: '#c25a34', trim: ['collar', 'belt', 'band'], bandColor: '#f2d64b' }
+  });
+  assert.ok(!/NaN|undefined/.test(fireman));
+  assert.notStrictEqual(fireman, plain, 'garment and headwear must change the drawing');
+  assert.ok(fireman.includes('pb-headwear') && fireman.includes('pb-trim'));
+  assert.ok(fireman.includes('#f2d64b'), 'the hi-vis band must reach the page');
+  assert.strictEqual(fireman, draw({
+    skin: '#dda87c',
+    head: { kind: 'helmet', color: '#b4462a' },
+    top: { garment: 'coverall', color: '#c25a34', trim: ['collar', 'belt', 'band'], bandColor: '#f2d64b' }
+  }), 'the same outfit must render identically');
+});
+
+test('hair, beard and a covered head are all drawable', () => {
+  const proportion = Body.body({ age: 44 });
+  const draw = (look) => Paperbook.renderPose({ proportion, height: 800, view: 'front', look, id: 'h' }).svg;
+  for (const style of ['bun', 'tuft', 'long', 'afro', 'coils', 'shaved']) {
+    const svg = draw({ hair: { style, color: '#241c17' } });
+    assert.ok(!/NaN|undefined/.test(svg), `${style} produced an unresolved coordinate`);
+  }
+  assert.ok(draw({ hair: { style: 'shaved', color: '#241c17', beard: true } }).includes('pb-beard'));
+  const veiled = draw({ hair: { style: 'long', color: '#241c17' }, head: { kind: 'hijab', color: '#7b5a86' } });
+  assert.ok(!veiled.includes('pb-hair'), 'hair must not be drawn under a hijab');
+});
+
+test('the public API lists what a character can wear', () => {
+  const w = Cast.wardrobe();
+  for (const name of ['coverall', 'robe', 'kurta', 'dress']) assert.ok(w.garments.includes(name), `${name} missing`);
+  for (const name of ['hijab', 'turban', 'helmet', 'headtie']) assert.ok(w.headwear.includes(name), `${name} missing`);
+  assert.ok(w.overlays.includes('apron'));
+});
+
+const Props = require(path.join(ROOT, 'runtime', 'cast-props.js'));
+const Roles = require(path.join(ROOT, 'runtime', 'cast-roles.js'));
+
+test('a prop supplies both its grips and its drawing', () => {
+  assert.strictEqual(Props.grips('nonexistent-prop').length, 0, 'an unknown prop must grip nothing');
+  const one = Props.grips('grocery-bag');
+  assert.strictEqual(one.length, 1);
+  assert.strictEqual(one[0].effector, 'rightHand');
+  const mirrored = Props.grips('grocery-bag', { side: 'left' });
+  assert.strictEqual(mirrored[0].effector, 'leftHand');
+  assert.ok(Math.abs(mirrored[0].at.x + one[0].at.x) < 1e-9, 'the left-hand grip must mirror the right');
+  const two = Props.grips('hose').map((g) => g.effector).sort();
+  assert.deepStrictEqual(two, ['leftHand', 'rightHand'], 'a hose needs both hands');
+});
+
+test('a held prop is drawn from the hands that hold it', () => {
+  const proportion = Body.body({ age: 34 });
+  const grips = Props.grips('tray');
+  const solved = Contact.solve({ proportion, pose: Rig.mergePose({}), goals: grips, tolerance: 0.03 });
+  assert.ok(solved.residual < 0.05, `tray grip unreached: ${solved.residual}`);
+  const figure = Rig.build({ proportion, height: 800, view: 'three-quarter-right', pose: solved.pose });
+  const shapes = Props.shapes('tray', figure, {});
+  assert.ok(shapes.length, 'the tray must draw something');
+  const box = Props.extent('tray', figure, {});
+  const hand = figure.joints.rightHand;
+  assert.ok(box.minX <= hand.x && box.maxX >= hand.x, 'the prop box must contain the hand holding it');
+  assert.strictEqual(Props.shapes('nope', figure, {}).length, 0);
+});
+
+test('props reach the page and widen the frame around them', () => {
+  const proportion = Body.body({ age: 34 });
+  const bare = Paperbook.renderPose({ proportion, height: 800, view: 'three-quarter-right', id: 'p' });
+  const withOar = Paperbook.renderPose({ proportion, height: 800, view: 'three-quarter-right', id: 'p', props: ['oar'] });
+  assert.ok(withOar.svg.includes('pb-prop'), 'the prop must be drawn');
+  assert.ok(!/NaN|undefined/.test(withOar.svg));
+  assert.ok(withOar.width > bare.width, 'an oar must not be cropped off the spread');
+});
+
+test('role words resolve to an outfit, a prop and a body', () => {
+  const fireman = Roles.resolve('a fireman runs to the boat');
+  assert.strictEqual(fireman.role, 'firefighter');
+  assert.strictEqual(fireman.look.head.kind, 'helmet');
+  assert.strictEqual(fireman.prop, 'hose');
+
+  assert.strictEqual(Roles.resolve('a police officer').role, 'police-officer', 'the longer phrase must win over "officer"');
+  assert.strictEqual(Roles.resolve('a waiter serving food').prop, 'tray');
+  assert.strictEqual(Roles.resolve('carrying groceries home').prop, 'grocery-bag');
+  assert.strictEqual(Roles.resolve('a farmer').prop, 'hoe');
+
+  const unknown = Roles.resolve('a shimmering thought');
+  assert.strictEqual(unknown.recognised, false, 'an unmatched line must say so rather than guess');
+  assert.strictEqual(unknown.prop, null);
+});
+
+test('modifiers change the body and the dress without losing the job', () => {
+  const elder = Roles.resolve('an elderly Muslim farmer');
+  assert.strictEqual(elder.role, 'farmer');
+  assert.strictEqual(elder.prop, 'hoe', 'the tool survives the modifiers');
+  assert.ok(elder.body.age > 60);
+
+  const heavy = Roles.resolve('an obese man');
+  assert.ok(heavy.body.mass > 0.5, 'mass, not a wider build, carries weight');
+
+  const hijabi = Roles.resolve('a woman in a hijab');
+  assert.strictEqual(hijabi.look.head.kind, 'hijab');
+  assert.ok(!hijabi.look.skin, 'dress must not imply a complexion');
+
+  const sikh = Roles.resolve('an Indian man in a turban');
+  assert.strictEqual(sikh.look.head.kind, 'turban');
+  assert.strictEqual(sikh.look.bottom.pattern, null, 'a kurta must not keep a wrapper under it');
+
+  const tones = ['a white nurse', 'a black nurse', 'an Indian nurse'].map((t) => Roles.resolve(t).look.skin);
+  assert.strictEqual(new Set(tones).size, 3, 'each complexion word must reach the skin');
+});
+
+test('a line of script draws itself, hands on the prop', () => {
+  const lines = ['a fireman', 'a police officer', 'an elderly farmer', 'a waiter serving food', 'a woman in a hijab carrying groceries', 'an obese man carrying a crate', 'a fisherman rowing'];
+  const seen = new Set();
+  for (const line of lines) {
+    const drawn = Cast.illustrateRole(line, { height: 700 });
+    assert.ok(!/NaN|undefined/.test(drawn.svg), `${line} produced an unresolved coordinate`);
+    assert.ok(drawn.svg.startsWith('<svg') && drawn.svg.endsWith('</svg>'), `${line} produced invalid svg`);
+    assert.ok(drawn.residual < 0.03, `${line} could not reach its prop: ${(drawn.residual * 100).toFixed(1)}%`);
+    assert.ok(drawn.svg.includes('pb-prop'), `${line} lost its prop`);
+    seen.add(drawn.svg);
+  }
+  assert.strictEqual(seen.size, lines.length, 'every role must draw a different picture');
+  assert.strictEqual(Cast.illustrateRole('a fireman', { height: 700 }).svg, Cast.illustrateRole('a fireman', { height: 700 }).svg, 'the same line must draw the same character');
+});
+
+test('a relation can be given a prop by name', () => {
+  const rowing = Relation.relate('grip-prop', { propId: 'oar', actor: { body: { age: 34 } }, height: 900 });
+  assert.ok(rowing.participants[0].residual < 0.03, `oar unreached: ${rowing.participants[0].residual}`);
+  assert.strictEqual(rowing.contacts.length, 2, 'an oar is a two-handed contact');
+  const svg = Paperbook.renderRelation(rowing, { view: 'three-quarter-right' }).svg;
+  assert.ok(svg.includes('pb-prop'), 'the named prop must be drawn into the scene');
+  assert.ok(!/NaN|undefined/.test(svg));
+});
+
+test('the public API lists the props and roles a story can use', () => {
+  const props = Cast.props().map((p) => p.id);
+  for (const id of ['grocery-bag', 'tray', 'hose', 'hoe', 'basket']) assert.ok(props.includes(id), `${id} missing`);
+  const roles = Cast.roles().map((r) => r.id);
+  for (const id of ['firefighter', 'police-officer', 'farmer', 'waiter']) assert.ok(roles.includes(id), `${id} missing`);
+  assert.strictEqual(Cast.describeRole('a waiter').role, 'waiter');
+  assert.strictEqual(Cast.describeRole('a waiter', { prop: null }).prop, null, 'an author must be able to empty the hands');
+});
+
+const World = require(path.join(ROOT, 'runtime', 'cast-world.js'));
+const Face = require(path.join(ROOT, 'runtime', 'cast-face.js'));
+const Acting = require(path.join(ROOT, 'runtime', 'cast-acting.js'));
+
+const STAGE = () => World.scene({
+  features: [
+    { id: 'chair', kind: 'chair', at: { x: -0.1 }, facing: 15 },
+    { id: 'table', kind: 'table', at: { x: 0, z: 0.5 }, facing: 180 },
+    { id: 'shelf', kind: 'shelf', at: { x: 0.2, z: -0.3 }, facing: 180 }
+  ]
+});
+
+test('a staged world names its contact points instead of leaving them to be guessed', () => {
+  const scene = STAGE();
+  const seat = scene.anchor('chair.seat');
+  const edge = scene.anchor('table.edge');
+  assert.ok(seat && edge, 'a chair has a seat and a table has an edge');
+  assert.ok(seat.y > 0.2 && seat.y < 0.6, `a seat sits at hip height, got ${seat.y}`);
+  assert.ok(edge.y > seat.y, 'a table top is above a chair seat');
+  // The chair is turned, so its seat is not on the world axis it was placed on.
+  assert.ok(Math.abs(seat.z) > 0.001 || Math.abs(seat.x + 0.1) > 0.001, 'anchors follow the feature facing');
+  assert.strictEqual(scene.anchor('nothing.here'), null, 'an unknown anchor is null, not an invented point');
+  const post = World.approach(scene.get('table'));
+  assert.ok(Number.isFinite(post.at.x) && Number.isFinite(post.yaw), 'a feature says where to stand and which way to face');
+});
+
+test('anchored relations put the body on the furniture, not near it', () => {
+  const scene = STAGE();
+  const cases = [
+    ['sit-on', { scene, feature: scene.get('chair') }, 0.02],
+    ['lean-on', { scene, feature: scene.get('table') }, 0.03],
+    ['reach-to', { scene, feature: scene.get('shelf'), at: 'shelf.top' }, 0.03],
+    ['work-at-table', { scene, feature: scene.get('table') }, 0.03],
+    ['place-on', { scene, feature: scene.get('table'), at: 'table.top' }, 0.03],
+    ['pick-up', { at: { x: 0.1, y: 0.12, z: 0.26 } }, 0.03],
+    ['hand-over', { giver: {}, receiver: { body: { age: 9 } } }, 0.04],
+    ['shake-hands', {}, 0.03],
+    ['hold-hands', { left: {}, right: { body: { age: 6 } } }, 0.03]
+  ];
+  for (const [kind, spec, tolerance] of cases) {
+    const relation = Relation.relate(kind, { ...spec, height: 900 });
+    assert.ok(relation.contacts.length > 0, `${kind} produced no contact`);
+    assert.ok(relation.residual <= tolerance, `${kind} residual ${(relation.residual * 100).toFixed(2)}% over ${(tolerance * 100).toFixed(0)}%`);
+    for (const c of relation.contacts) assert.ok(Number.isFinite(c.at.x) && Number.isFinite(c.at.y), `${kind} contact is not a point`);
+    const again = Relation.relate(kind, { ...spec, height: 900 });
+    assert.deepStrictEqual(again.participants.map((p) => p.pose), relation.participants.map((p) => p.pose), `${kind} must be deterministic`);
+  }
+});
+
+test('a seat too tall for the body leaves the feet off the floor and says so', () => {
+  const scene = World.scene({ features: [{ id: 'stool', kind: 'stool' }] });
+  const child = Relation.relate('sit-on', { scene, feature: scene.get('stool'), actor: { body: { age: 5 } }, height: 900 });
+  const adult = Relation.relate('sit-on', { scene, feature: scene.get('stool'), height: 900 });
+  assert.ok(adult.residual < 0.02, `an adult reaches the floor from a stool: ${adult.residual}`);
+  assert.ok(child.residual > 0.02, 'a five-year-old on a bar stool dangles, and the residual must admit it');
+});
+
+test('the world a relation was staged against can be drawn behind it', () => {
+  const scene = STAGE();
+  const svg = Paperbook.renderRelation(Relation.relate('sit-on', { scene, feature: scene.get('chair'), height: 900 }), { scene }).svg;
+  assert.ok(svg.includes('data-feature="chair"'), 'the chair being sat on must be in the picture');
+  assert.ok(!/NaN|undefined/.test(svg));
+});
+
+test('a face is a state the story sets, not a fixed drawing', () => {
+  const neutral = Face.state({ emotion: 'neutral' });
+  const worried = Face.state({ emotion: 'concern' });
+  assert.ok(worried.browTilt > neutral.browTilt, 'worry lifts the inner brow');
+  assert.ok(worried.mouthCurve < neutral.mouthCurve, 'worry turns the mouth down');
+  assert.ok(Face.state({ emotion: 'surprise' }).eyeOpen > neutral.eyeOpen);
+  assert.ok(Face.state({ listening: true }).brow > neutral.brow, 'listening is drawn above the eyes');
+  assert.strictEqual(Face.state({ emotion: 'not-a-feeling' }).emotion, 'neutral', 'an unknown feeling falls back rather than guessing');
+  const gaze = Face.state({ gaze: 'left' }).gaze;
+  assert.ok(gaze.x < 0, 'looking left moves the eyes left');
+});
+
+test('blinking and speech are functions of time, so a spread freezes the same way twice', () => {
+  const spec = { id: 'adanna', emotion: 'warm', speaking: true };
+  const samples = [];
+  for (let t = 0; t <= 4; t += 0.05) samples.push(Face.at(spec, t));
+  assert.deepStrictEqual(Face.at(spec, 1.35), Face.at(spec, 1.35), 'the same second must draw the same face');
+  assert.ok(samples.some((s) => s.eyeOpen < 0.15), 'the character blinks somewhere in four seconds');
+  assert.ok(samples.every((s) => s.eyeOpen >= 0 && s.mouthOpen <= 1));
+  assert.ok(new Set(samples.map((s) => s.viseme)).size > 2, 'a speaking mouth must move');
+  // Two characters must not blink in lockstep.
+  const other = [];
+  for (let t = 0; t <= 4; t += 0.05) other.push(Face.at({ ...spec, id: 'chidi' }, t).eyeOpen);
+  assert.notDeepStrictEqual(other, samples.map((s) => s.eyeOpen));
+});
+
+test('a gesture is prepared, struck, held and released rather than switched on', () => {
+  const act = Acting.perform({ id: 'adanna', beats: [{ at: 0.5, kind: 'point', target: { x: 0.22, y: 0.3, z: 0.3 }, say: 'over there' }] });
+  const phases = [];
+  for (let t = 0; t <= act.duration; t += 0.05) {
+    const f = act.at(t);
+    if (!phases.length || phases[phases.length - 1] !== f.phase) phases.push(f.phase);
+  }
+  assert.deepStrictEqual(phases, ['idle', 'prepare', 'stroke', 'hold', 'release', 'idle'], `phases were ${phases.join(' → ')}`);
+  assert.ok(act.residual < 0.03, `the gesture could not reach its target: ${act.residual}`);
+  const hold = act.at(1.2);
+  const rest = act.at(0.1);
+  assert.ok(Math.abs(hold.pose.armRight.shoulder.tilt - rest.pose.armRight.shoulder.tilt) > 10, 'the arm must actually move');
+  // Anticipation goes the other way first: that is what makes it read as intent.
+  const prep = act.at(0.6);
+  assert.ok((prep.pose.armRight.shoulder.tilt - rest.pose.armRight.shoulder.tilt) * (hold.pose.armRight.shoulder.tilt - rest.pose.armRight.shoulder.tilt) <= 0, 'the prepare phase must draw back, not creep forward');
+  assert.deepStrictEqual(act.at(1.2), act.at(1.2), 'sampling must be deterministic');
+  assert.ok(hold.face.speaking, 'a line said during a beat moves the mouth');
+});
+
+test('weight shifts and the body settles instead of snapping back', () => {
+  const act = Acting.perform({ id: 'chidi', beats: [{ at: 0.3, kind: 'offer', hand: 'right' }] });
+  const held = act.at(0.3 + 0.26 + 0.3 + 0.4);
+  assert.ok(Math.abs(held.weight) > 0.5, 'a held gesture puts the weight on a leg');
+  assert.ok(Math.abs(held.pose.hipRoll) > 0.5, 'the weight shift is visible in the hips');
+  const settling = [];
+  for (let t = act.beats[0].end - 0.3; t < act.beats[0].end + 0.5; t += 0.02) settling.push(act.at(t).pose.armRight.shoulder.tilt);
+  const jumps = settling.slice(1).map((v, i) => Math.abs(v - settling[i]));
+  assert.ok(Math.max(...jumps) < 6, `the release must not snap: largest step ${Math.max(...jumps).toFixed(1)}°`);
+});
+
+test('in dialogue the listener looks at the speaker and nods, and the turn passes', () => {
+  const scene = Acting.dialogue({
+    cast: [{ id: 'a' }, { id: 'b' }],
+    lines: [
+      { speaker: 'a', at: 0.4, duration: 1.6, text: 'the water is rising', emotion: 'concern' },
+      { speaker: 'b', at: 2.4, duration: 1.4, text: 'then we move the boats', emotion: 'warm' }
+    ]
+  });
+  assert.strictEqual(scene.speakerAt(1), 'a');
+  assert.strictEqual(scene.speakerAt(3), 'b');
+  assert.strictEqual(scene.speakerAt(2.1), null, 'the gap between lines belongs to nobody');
+  const mid = scene.at(1);
+  assert.ok(mid.a.face.speaking, 'the speaker speaks');
+  assert.ok(!mid.b.face.speaking && mid.b.face.listening, 'the other one listens rather than freezing');
+  assert.ok(mid.b.face.gaze.x !== 0, 'a listener looks at the speaker');
+  const later = scene.at(3);
+  assert.ok(later.b.face.speaking && !later.a.face.speaking, 'the turn passes');
+});
+
+test('an acted frame draws, with the face the beat asked for', () => {
+  const act = Acting.perform({ id: 'adanna', emotion: 'warm', beats: [{ at: 0.2, kind: 'wave', emotion: 'joy' }] });
+  const frame = act.at(0.9);
+  const svg = Paperbook.renderPose({ height: 800, pose: frame.pose, view: 'three-quarter-right', face: frame.face, look: { top: { garment: 'tunic' } } }).svg;
+  assert.ok(svg.includes('pb-face'), 'the face must be drawn');
+  assert.ok(!/NaN|undefined/.test(svg), 'no broken numbers may reach the page');
+  assert.ok(/<path|<ellipse/.test(svg));
+});
+
+test('the polish pass is on the page: contact shadows, folds, hands and feet', () => {
+  const svg = Paperbook.renderPose({ height: 800, view: 'three-quarter-right' }).svg;
+  for (const cls of ['pb-shadow', 'pb-fold', 'pb-hand', 'pb-foot']) {
+    assert.ok(svg.includes(cls), `${cls} missing from the drawing`);
+  }
+  // A kneeling body rests on a knee, so the shadow must not stay under the feet.
+  const kneeling = Relation.relate('pick-up', { at: { x: 0.05, y: 0.05, z: 0.24 }, kneel: true, height: 900 });
+  const scene = Paperbook.renderRelation(kneeling, {});
+  assert.ok(scene.svg.includes('pb-shadow'));
+  assert.ok(!/NaN|undefined/.test(scene.svg));
+});
+
+test('the public API exposes the world, the acting and the face', () => {
+  assert.ok(typeof Cast.stage === 'function' && typeof Cast.perform === 'function' && typeof Cast.face === 'function');
+  const relations = Cast.relations();
+  for (const kind of ['sit-on', 'lean-on', 'reach-to', 'work-at-table', 'hand-over', 'hold-hands']) {
+    assert.ok(relations.includes(kind), `${kind} is not reachable through the public API`);
+  }
+  assert.strictEqual(Cast.face({ emotion: 'joy' }).emotion, 'joy');
+  assert.ok(Cast.perform({ id: 'x', beats: [{ at: 0, kind: 'nod' }] }).at(0.3).pose);
+});
+
+const failed = results.filter((r) => !r.ok);
+for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `\n      ${r.error}`}`);
+console.log(`\n${results.length - failed.length}/${results.length} passed`);
+process.exit(failed.length ? 1 : 0);

@@ -1,0 +1,30 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Checklist Board -->
+                <rect x="130" y="60" width="140" height="200" rx="10" fill="#F5F0E4" stroke="#1A1A17" stroke-width="4"/>
+                <path d="M150 90 H250 M150 100 H210" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round"/>
+                
+                <!-- Checklist Items -->
+                <g transform="translate(150, 130)">
+                    <rect x="0" y="0" width="20" height="20" rx="4" fill="#F5F0E4" opacity="0.2"/>
+                    <path d="M4 10 L8 14 L16 6" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M30 10 H90" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round"/>
+                </g>
+                <g transform="translate(150, 170)">
+                    <rect x="0" y="0" width="20" height="20" rx="4" fill="#F5F0E4" opacity="0.2"/>
+                    <path style="animation-delay: 0.5s;" d="M4 10 L8 14 L16 6" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M30 10 H80" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round"/>
+                </g>
+                <g transform="translate(150, 210)">
+                    <rect x="0" y="0" width="20" height="20" rx="4" fill="#F5F0E4" opacity="0.1"/>
+                    <path d="M30 10 H70" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round"/>
+                </g>
+                
+                <!-- Confetti/Celebration elements -->
+                <circle cx="100" cy="100" r="5" fill="#F5F0E4"/>
+                <path style="animation-delay: -0.2s;" d="M90 130 L110 120" stroke="#1A1A17" stroke-width="4" stroke-linecap="round"/>
+                <circle style="animation-delay: -0.4s;" cx="300" cy="180" r="6" fill="#F5F0E4"/>
+                <path style="animation-delay: -0.6s;" d="M280 140 L290 150" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                <path style="animation-delay: -0.8s;" d="M290 90 Q300 70 310 90" stroke="#1A1A17" stroke-width="4" stroke-linecap="round" fill="none"/>
+            </g>
+          </svg>

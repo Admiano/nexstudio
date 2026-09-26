@@ -1,0 +1,107 @@
+{
+ "schema": "NexStudioStoryboardV1",
+ "film_id": "how-plants-grow",
+ "arc": {
+  "thesis": "Growth is patient work: sleep, drink, dig, climb, open.",
+  "motif": "leaf",
+  "mood": null,
+  "beat_arc": {
+   "b01": "HOOK",
+   "b02": "SETUP",
+   "b03": "EXPLANATION",
+   "b04": "EMPHASIS",
+   "b05": "EMPHASIS",
+   "b06": "PAYOFF"
+  }
+ },
+ "scenes": [
+  {
+   "name": "Under the soil",
+   "covers": [
+    1,
+    2
+   ],
+   "setting": "the dark bed where it begins",
+   "visual_metaphor": "everything starts hidden"
+  },
+  {
+   "name": "Deep roots",
+   "covers": [
+    3
+   ],
+   "setting": "below the surface",
+   "visual_metaphor": "growth reaches down before it reaches up"
+  },
+  {
+   "name": "The open field",
+   "covers": [
+    4,
+    5
+   ],
+   "setting": "sunlight and sky",
+   "visual_metaphor": "the world answers effort"
+  },
+  {
+   "name": "Morning",
+   "covers": [
+    6
+   ],
+   "setting": "the field at dawn",
+   "visual_metaphor": "the bloom is the payoff"
+  }
+ ],
+ "entities": [
+  {
+   "concept": "seedling",
+   "stands_for": "the sleeping potential"
+  },
+  {
+   "concept": "heavy-rain",
+   "stands_for": "the giving sky"
+  },
+  {
+   "concept": "roots",
+   "stands_for": "the hidden search"
+  },
+  {
+   "concept": "water",
+   "stands_for": "what it needs"
+  },
+  {
+   "concept": "sapling",
+   "stands_for": "the reach"
+  },
+  {
+   "concept": "leaves",
+   "stands_for": "the gathering"
+  },
+  {
+   "concept": "sun",
+   "stands_for": "what it reaches for"
+  },
+  {
+   "concept": "tree",
+   "stands_for": "the payoff"
+  },
+  {
+   "concept": "butterfly",
+   "stands_for": "the morning visitor"
+  }
+ ],
+ "cast": {
+  "gardener": {
+   "posture": "standing",
+   "head": "hat-beanie",
+   "skin": "#8a5a3b",
+   "garment": "button-shirt-1"
+  }
+ },
+ "world": {
+  "grain": "grain-fine",
+  "motif": {
+   "concept": "leaf",
+   "corner": "bottom-right"
+  }
+ },
+ "metaphors": {}
+}

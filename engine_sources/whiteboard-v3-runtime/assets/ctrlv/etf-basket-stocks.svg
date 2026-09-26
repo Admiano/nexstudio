@@ -1,0 +1,9 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 220 H300 L320 150 H80 Z" stroke="#F5F0E4" stroke-width="4" fill="#F5F0E4"/>
+        <g>
+            <circle cx="150" cy="130" r="20" fill="#1A1A17" opacity="0.8"/>
+            <circle cx="200" cy="110" r="20" fill="#F5F0E4" opacity="0.8"/>
+            <circle cx="250" cy="130" r="20" fill="#F5F0E4" opacity="0.8"/>
+        </g>
+        <text x="200" y="200" text-anchor="middle" font-family="Inter" font-weight="900" font-size="24" fill="#F5F0E4">ETF</text>
+    </svg>

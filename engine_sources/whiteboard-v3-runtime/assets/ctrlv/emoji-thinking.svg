@@ -1,0 +1,27 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <circle cx="200" cy="150" r="100" fill="#1A1A17"/>
+                
+                <!-- Eyes looking up -->
+                <ellipse cx="160" cy="120" rx="16" ry="16" fill="#F5F0E4"/>
+                <ellipse cx="240" cy="120" rx="16" ry="16" fill="#F5F0E4"/>
+                <circle cx="165" cy="115" r="5" fill="#1A1A17"/>
+                <circle cx="245" cy="115" r="5" fill="#1A1A17"/>
+                
+                <!-- Eyebrows -->
+                <path d="M140 100 Q160 90 180 105" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round" fill="none"/>
+                <path d="M220 90 Q240 80 260 95" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round" fill="none"/>
+                
+                <!-- Mouth -->
+                <path d="M170 180 Q200 190 230 170" stroke="#F5F0E4" stroke-width="8" stroke-linecap="round" fill="none"/>
+                
+                <!-- Hand -->
+                <g transform="translate(130, 200)">
+                    <g>
+                    <rect x="0" y="0" width="30" height="40" rx="15" fill="#F5F0E4"/>
+                    <rect x="15" y="-30" width="15" height="40" rx="7.5" fill="#F5F0E4" transform="rotate(30)"/>
+                    <path d="M20 -30 L20 0" stroke="white" stroke-width="2" opacity="0.5"/>
+                </g>
+                </g>
+            </g>
+          </svg>

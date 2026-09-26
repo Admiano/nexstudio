@@ -1,0 +1,104 @@
+{
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "production_id": "NEXMIND_WHITEBOARD_V3_BEEKEEPER_DEMO",
+ "camera_variant": "cluster_travel",
+ "output_ratios": [
+  "16:9"
+ ],
+ "pacing": {
+  "transition_seconds": 0.62,
+  "board_reveal_seconds": 0.72
+ },
+ "beats": [
+  {
+   "beat_id": "01_apiary",
+   "start_seconds": 0,
+   "duration_seconds": 4.8,
+   "narration": "A beekeeper lifts a frame heavy with comb from the hive.",
+   "scene": {
+    "sceneId": "01_apiary",
+    "heroRole": "beekeeper",
+    "supportingRoles": [
+     "beehive",
+     "honeycomb frame"
+    ],
+    "screenCopy": {
+     "primary": "FIRST LIGHT AT THE APIARY"
+    },
+    "semanticRelationships": [
+     {
+      "source": "beekeeper",
+      "target": "beehive",
+      "kind": "tends"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_scouts",
+   "start_seconds": 4.8,
+   "duration_seconds": 5.0,
+   "narration": "Scout bees return with a map to the wildflower field.",
+   "scene": {
+    "sceneId": "02_scouts",
+    "heroRole": "scout bees",
+    "supportingRoles": [
+     "wildflower field",
+     "nectar"
+    ],
+    "screenCopy": {
+     "primary": "THE SCOUT MAP"
+    },
+    "semanticRelationships": [
+     {
+      "source": "scout bees",
+      "target": "wildflower field",
+      "kind": "locate"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_protect",
+   "start_seconds": 9.8,
+   "duration_seconds": 4.9,
+   "narration": "We cut the old pesticide spray \u2014 the critical bloom stays untouched.",
+   "scene": {
+    "sceneId": "03_protect",
+    "heroRole": "old pesticide spray",
+    "supportingRoles": [
+     "critical bloom",
+     "bee swarm"
+    ],
+    "screenCopy": {
+     "primary": "PROTECT THE BLOOM"
+    },
+    "semanticRelationships": [
+     {
+      "source": "bee swarm",
+      "target": "critical bloom",
+      "kind": "pollinates"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_impact",
+   "start_seconds": 14.7,
+   "duration_seconds": 5.0,
+   "narration": "One colony moves a third of everything you eat.",
+   "scene": {
+    "sceneId": "04_impact",
+    "heroRole": "honey jars",
+    "supportingRoles": [
+     "80% of crops",
+     "harvest crate"
+    ],
+    "screenCopy": {
+     "primary": "ONE COLONY"
+    },
+    "semanticRelationships": []
+   }
+  }
+ ]
+}

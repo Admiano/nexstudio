@@ -1,0 +1,23 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="130" ry="10" fill="#E2E8F0"/>
+            <g style="animation-duration: 0.5s;">
+              <circle cx="200" cy="145" r="90" fill="#F5F0E4" opacity="0.7"/>
+              <!-- Wide scared eyes -->
+              <circle cx="172" cy="135" r="22" fill="#F5F0E4"/>
+              <circle cx="228" cy="135" r="22" fill="#F5F0E4"/>
+              <circle cx="172" cy="135" r="10" fill="#F5F0E4"/>
+              <circle cx="228" cy="135" r="10" fill="#F5F0E4"/>
+              <!-- Pupils contracted small -->
+              <circle cx="172" cy="135" r="4" fill="#F5F0E4"/>
+              <circle cx="228" cy="135" r="4" fill="#F5F0E4"/>
+              <!-- Open mouth O shape -->
+              <ellipse cx="200" cy="180" rx="22" ry="18" fill="#F5F0E4"/>
+              <!-- Raised scared brows -->
+              <path d="M152 108 Q172 95 192 108 M208 108 Q228 95 248 108" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round" fill="none"/>
+            </g>
+            <!-- Sweat drops -->
+            <g fill="#1A1A17" opacity="0.8">
+              <ellipse cx="285" cy="110" rx="4" ry="7"/>
+              <ellipse cx="300" cy="140" rx="4" ry="7"/>
+            </g>
+          </svg>

@@ -254,6 +254,54 @@
               }
             ]
           },
+          "scene": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "setting": {
+                    "type": "string",
+                    "enum": [
+                      "outdoor",
+                      "indoor",
+                      "space",
+                      "underwater",
+                      "urban",
+                      "ground",
+                      "abstract",
+                      "paper"
+                    ]
+                  },
+                  "mood": {
+                    "type": "string",
+                    "enum": [
+                      "day",
+                      "dawn",
+                      "dusk",
+                      "night",
+                      "storm",
+                      "golden"
+                    ]
+                  },
+                  "elements": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 40
+                    },
+                    "maxItems": 8
+                  }
+                },
+                "required": [
+                  "setting"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "figure": {
             "anyOf": [
               {
@@ -455,6 +503,94 @@
                     "type": [
                       "string",
                       "null"
+                    ]
+                  },
+                  "motion": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "clip": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "action": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "cmu_clip": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "seconds": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "chain": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "clip": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "action": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "seconds": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": []
+                                },
+                                "minItems": 1,
+                                "maxItems": 4
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "loop": {
+                            "type": "boolean"
+                          },
+                          "speed_mps": {
+                            "type": "number"
+                          },
+                          "look": {
+                            "type": "object"
+                          },
+                          "proportion": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "emotion": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "t": {
+                            "type": "number"
+                          }
+                        },
+                        "required": []
+                      },
+                      {
+                        "type": "null"
+                      }
                     ]
                   }
                 },
@@ -911,6 +1047,65 @@
             "enum": [
               "hard"
             ]
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 60
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "layout": {
+                    "type": "string",
+                    "enum": [
+                      "half",
+                      "full",
+                      "diagonal",
+                      "zipped",
+                      "scissor",
+                      "vignette",
+                      "spot",
+                      "series",
+                      "portrait"
+                    ]
+                  },
+                  "cut": {
+                    "type": "string",
+                    "enum": [
+                      "left",
+                      "right",
+                      "top",
+                      "bottom"
+                    ]
+                  },
+                  "materials": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "vellum",
+                        "foil",
+                        "ribbon",
+                        "deckle",
+                        "sticker"
+                      ]
+                    },
+                    "maxItems": 3
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -980,7 +1175,14 @@
               ]
             },
             "book": {
-              "type": "boolean"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "const": "paperbook"
+                }
+              ]
             },
             "motif": {
               "type": "object",

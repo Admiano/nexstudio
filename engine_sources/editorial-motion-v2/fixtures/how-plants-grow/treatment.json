@@ -1,0 +1,662 @@
+{
+  "schema": "NexStudioEditorialTreatmentV2",
+  "film_id": "how-plants-grow",
+  "note": "the garden diorama: underground first, then the field, dawn for the bloom",
+  "aspects": [
+    "16x9",
+    "1x1",
+    "9x16"
+  ],
+  "fps": 30,
+  "brand": {
+    "ink": "#2e3a23",
+    "paper": "#f2e9d5",
+    "accent": "#7a9a4e",
+    "finish": "PAPER"
+  },
+  "typography": {
+    "reveal": "WORD_CASCADE",
+    "tonal_ink": 0.42,
+    "min_visual_share": 0.6
+  },
+  "voice": {
+    "source": "MASTER",
+    "audio_path": "voice.mp3",
+    "alignment_path": "alignment.json",
+    "head_pad_ms": 350
+  },
+  "media_library": [],
+  "beats": [
+    {
+      "beat_id": "b01",
+      "beat_type": "HOOK",
+      "pattern": "CONTROLLED_EMPTY_SPACE",
+      "dominant_layer": "FIGURE",
+      "narration": "A  seed  sleeps  in  the  dark  soil,",
+      "energy": 0.3,
+      "complexity": 0.3,
+      "display_units": [
+        {
+          "text": "A seed",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.4
+        },
+        {
+          "text": "sleeps in the dark soil",
+          "role": "hero",
+          "semantic_role": "statement",
+          "emphasis": 0.85,
+          "anchor_word": "soil"
+        }
+      ],
+      "backdrop": null,
+      "figure": {
+        "valence": 0.2,
+        "arousal": 0.35,
+        "posture": "standing",
+        "energy": 0.5,
+        "formality": 0.5,
+        "facing": "CAMERA",
+        "justification": "the gardener finds the sleeping seed \u2014 our guide for the whole film",
+        "character": "gardener",
+        "track": {
+          "enter": "left",
+          "exit": "none"
+        },
+        "prop": {
+          "concept": "magnifying glass",
+          "hand": "auto"
+        },
+        "states": [
+          {
+            "at": {
+              "offset_ms": 1150
+            },
+            "face": "eyes-closed"
+          }
+        ],
+        "face": "calm",
+        "motion": {
+          "chain": [
+            {
+              "clip": "CMU_WALK",
+              "seconds": 1.3
+            },
+            {
+              "clip": "CMU_WAIT_IDLE",
+              "seconds": 2.4
+            }
+          ],
+          "look": {
+            "skin": "#c1895f",
+            "hair": {
+              "color": "#2c2318",
+              "style": "tuft"
+            },
+            "head": {
+              "kind": "hat",
+              "color": "#7a9a4e",
+              "trimColor": "#5e7a3a"
+            },
+            "top": {
+              "color": "#8a7a55",
+              "garment": "shirt"
+            },
+            "bottom": {
+              "color": "#4c4636",
+              "garment": "trousers"
+            },
+            "shoes": {
+              "color": "#3a3228"
+            },
+            "ink": "#3a3028"
+          }
+        }
+      },
+      "page": {
+        "title": "The Sleeping Seed",
+        "layout": "full"
+      },
+      "scene": {
+        "setting": "ground",
+        "mood": "dusk",
+        "elements": [
+          "stone",
+          "root"
+        ]
+      }
+    },
+    {
+      "beat_id": "b02",
+      "beat_type": "SETUP",
+      "pattern": "PHRASE_REPLACEMENT",
+      "dominant_layer": "TEXT",
+      "narration": "then  the  rain  comes  and  the  seed  drinks  deep,",
+      "energy": 0.45,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "the rain comes",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.5
+        },
+        {
+          "text": "the seed drinks deep",
+          "role": "hero",
+          "semantic_role": "action",
+          "emphasis": 0.85,
+          "anchor_word": "drinks"
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "rain",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "heavy-rain"
+          },
+          {
+            "id": "seedling",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "seedling"
+          }
+        ],
+        "relations": [
+          {
+            "type": "emits_to",
+            "source": "rain",
+            "target": "seedling",
+            "style": "arc"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "rain",
+            "at": {
+              "word": "rain"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "CONNECT",
+            "target": "rain->seedling",
+            "at": {
+              "word": "comes"
+            },
+            "duration_ms": 600,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "GROW",
+            "target": "seedling",
+            "at": {
+              "word": "drinks"
+            },
+            "duration_ms": 800,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "The Rain Comes",
+        "quote": "Rain falls, roots drink.",
+        "layout": "vignette",
+        "cut": "top"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "storm",
+        "elements": [
+          "cloud",
+          "cloud"
+        ]
+      }
+    },
+    {
+      "beat_id": "b03",
+      "beat_type": "EXPLANATION",
+      "pattern": "WORD_OBJECT_BRIDGE",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "a  root  pushes  down  hunting  for  water,",
+      "energy": 0.5,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "a root pushes down",
+          "role": "hero",
+          "semantic_role": "action",
+          "emphasis": 0.85,
+          "anchor_word": "root"
+        },
+        {
+          "text": "hunting for water",
+          "role": "support",
+          "semantic_role": "qualifier",
+          "emphasis": 0.5
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "roots",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "roots"
+          },
+          {
+            "id": "push",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "hand-down"
+          },
+          {
+            "id": "drop",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "water"
+          }
+        ],
+        "relations": [
+          {
+            "type": "points_at",
+            "source": "push",
+            "target": "drop",
+            "style": "dash"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "roots",
+            "at": {
+              "word": "root"
+            },
+            "duration_ms": 600,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "push",
+            "at": {
+              "word": "pushes"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "drop",
+            "at": {
+              "word": "water"
+            },
+            "duration_ms": 600,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "CONNECT",
+            "target": "push->drop",
+            "at": {
+              "word": "hunting"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "Roots Hunt for Water",
+        "layout": "diagonal",
+        "cut": "left"
+      },
+      "scene": {
+        "setting": "ground",
+        "mood": "night",
+        "elements": [
+          "stone",
+          "stone",
+          "seedling"
+        ]
+      }
+    },
+    {
+      "beat_id": "b04",
+      "beat_type": "EMPHASIS",
+      "pattern": "HERO_SCALE_PROMOTION",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "a  green  shoot  climbs  toward  the  sun,",
+      "energy": 0.6,
+      "complexity": 0.45,
+      "display_units": [
+        {
+          "text": "a green shoot",
+          "role": "support",
+          "semantic_role": "setup",
+          "emphasis": 0.5
+        },
+        {
+          "text": "climbs toward the sun",
+          "role": "hero",
+          "semantic_role": "action",
+          "emphasis": 0.9,
+          "anchor_word": "sun"
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "RELATIONSHIP",
+        "entities": [
+          {
+            "id": "shoot",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "sapling"
+          },
+          {
+            "id": "sun",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "sun"
+          }
+        ],
+        "relations": [
+          {
+            "type": "points_at",
+            "source": "shoot",
+            "target": "sun",
+            "style": "arc"
+          }
+        ],
+        "program": [
+          {
+            "op": "DRAW",
+            "target": "sun",
+            "at": {
+              "word": "sun"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "GROW",
+            "target": "shoot",
+            "at": {
+              "word": "shoot"
+            },
+            "duration_ms": 900,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "CONNECT",
+            "target": "shoot->sun",
+            "at": {
+              "word": "climbs"
+            },
+            "duration_ms": 800,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "Reaching for the Sun",
+        "quote": "Every shoot learns the sun.",
+        "layout": "half"
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "day",
+        "elements": [
+          "hill",
+          "flower"
+        ]
+      }
+    },
+    {
+      "beat_id": "b05",
+      "beat_type": "EMPHASIS",
+      "pattern": "PROGRESSIVE_HERO_BUILD",
+      "dominant_layer": "ILLUSTRATION",
+      "narration": "the  leaves  unfold  like  little  hands  to  catch  the  light,",
+      "energy": 0.65,
+      "complexity": 0.5,
+      "display_units": [
+        {
+          "text": "the leaves unfold",
+          "role": "hero",
+          "semantic_role": "action",
+          "emphasis": 0.85,
+          "anchor_word": "unfold"
+        },
+        {
+          "text": "to catch the light",
+          "role": "support",
+          "semantic_role": "qualifier",
+          "emphasis": 0.55
+        }
+      ],
+      "backdrop": null,
+      "illustration": {
+        "form": "OBJECT_STAGE",
+        "entities": [
+          {
+            "id": "leaf",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "hero",
+            "concept": "leaves"
+          },
+          {
+            "id": "ray",
+            "kind": "object",
+            "glyph": "TILE",
+            "size": "support",
+            "concept": "sun"
+          }
+        ],
+        "relations": [
+          {
+            "type": "emits_to",
+            "source": "ray",
+            "target": "leaf",
+            "style": "arc"
+          }
+        ],
+        "program": [
+          {
+            "op": "GROW",
+            "target": "leaf",
+            "at": {
+              "word": "unfold"
+            },
+            "duration_ms": 900,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "DRAW",
+            "target": "ray",
+            "at": {
+              "word": "light"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          },
+          {
+            "op": "CONNECT",
+            "target": "ray->leaf",
+            "at": {
+              "word": "catch"
+            },
+            "duration_ms": 700,
+            "from": 0.0,
+            "to": 1.0
+          }
+        ]
+      },
+      "page": {
+        "title": "Hands to Catch the Light",
+        "layout": "spot",
+        "materials": [
+          "deckle"
+        ]
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "golden",
+        "elements": [
+          "hill",
+          "bird"
+        ]
+      }
+    },
+    {
+      "beat_id": "b06",
+      "beat_type": "PAYOFF",
+      "pattern": "PAYOFF_LOCKUP",
+      "dominant_layer": "FIGURE",
+      "narration": "and  one  morning,  where  there  was  nothing,  a  flower  opens.",
+      "energy": 0.7,
+      "complexity": 0.4,
+      "display_units": [
+        {
+          "text": "where there was nothing",
+          "role": "support",
+          "semantic_role": "contrast",
+          "emphasis": 0.5
+        },
+        {
+          "text": "a flower opens",
+          "role": "hero",
+          "semantic_role": "punch",
+          "emphasis": 0.95,
+          "anchor_word": "flower"
+        }
+      ],
+      "backdrop": null,
+      "figure": {
+        "valence": 0.6,
+        "arousal": 0.55,
+        "posture": "standing",
+        "energy": 0.5,
+        "formality": 0.5,
+        "facing": "CAMERA",
+        "justification": "the gardener presents the bloom \u2014 the patient payoff of the whole arc",
+        "character": "gardener",
+        "track": {
+          "enter": "none",
+          "exit": "right"
+        },
+        "prop": {
+          "concept": "sunflower",
+          "hand": "auto"
+        },
+        "states": [
+          {
+            "at": {
+              "offset_ms": 2335
+            },
+            "face": "loving-grin-1"
+          }
+        ],
+        "face": "calm",
+        "motion": {
+          "chain": [
+            {
+              "clip": "NEX_GESTURE_PRESENT",
+              "seconds": 2.2
+            },
+            {
+              "clip": "CMU_WALK",
+              "seconds": 1.4
+            }
+          ],
+          "loop": false,
+          "look": {
+            "skin": "#c1895f",
+            "hair": {
+              "color": "#2c2318",
+              "style": "tuft"
+            },
+            "head": {
+              "kind": "hat",
+              "color": "#7a9a4e",
+              "trimColor": "#5e7a3a"
+            },
+            "top": {
+              "color": "#8a7a55",
+              "garment": "shirt"
+            },
+            "bottom": {
+              "color": "#4c4636",
+              "garment": "trousers"
+            },
+            "shoes": {
+              "color": "#3a3228"
+            },
+            "ink": "#3a3028"
+          }
+        }
+      },
+      "page": {
+        "title": "A Flower Opens",
+        "quote": "Light becomes leaf becomes bloom.",
+        "layout": "half",
+        "materials": [
+          "ribbon",
+          "foil"
+        ]
+      },
+      "scene": {
+        "setting": "outdoor",
+        "mood": "dawn",
+        "elements": [
+          "fence",
+          "flower"
+        ]
+      }
+    }
+  ],
+  "cast": {
+    "gardener": {
+      "posture": "standing",
+      "head": "hat-beanie",
+      "skin": "#8a5a3b",
+      "garment": "button-shirt-1"
+    }
+  },
+  "world": {
+    "grain": "grain-fine",
+    "motif": {
+      "concept": "leaf",
+      "corner": "bottom-right"
+    },
+    "book": "paperbook"
+  }
+}

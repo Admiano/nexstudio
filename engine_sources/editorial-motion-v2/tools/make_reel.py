@@ -303,11 +303,14 @@ def probe_dur(p):
 
 
 # ---------- poster ----------
-def posterize(frames_dir, src_mp4, out_mp4, w, h, tmp):
-    last = sorted(Path(frames_dir).glob("f*.jpg"))[-1]
+def posterize(frames_dir, src_mp4, out_mp4, w, h, tmp, first_frame=False):
+    # The poster intro is a held still fading into frame 0. Editorial styles hold the
+    # end card; a paperbook holds its opening spread — a book does not open on its last page.
+    fs = sorted(Path(frames_dir).glob("f*.jpg"))
+    still = fs[0] if first_frame else fs[-1]
     seg, vout = tmp / f"seg_{h}_{uuid.uuid4().hex[:6]}.mp4", tmp / f"v_{h}_{uuid.uuid4().hex[:6]}.mp4"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-framerate", "30", "-t", "1.6",
-                    "-i", str(last), "-vf", f"scale={w}:{h},format=yuv420p",
+                    "-i", str(still), "-vf", f"scale={w}:{h},format=yuv420p",
                     "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-an", str(seg)], check=True)
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(seg), "-i", str(src_mp4),
                     "-filter_complex",
@@ -396,6 +399,10 @@ def main():
         sys.exit(f"render failed ({r.returncode})")
 
     stem = fixture_dir.name
+    try:
+        book = (json.loads(Path(treatment_src).read_text()).get("world") or {}).get("book")
+    except Exception:
+        book = None
     dims = {"16x9": (1920, 1080), "1x1": (1080, 1080), "9x16": (1080, 1920)}
     manifest = {"film_id": film_id, "style": style["id"], "outputs": {}}
     if not args.treatment:
@@ -415,7 +422,7 @@ def main():
         if not args.no_poster:
             w, h = dims[a]
             poster = rd / f"{stem}_{a}_poster.mp4"
-            posterize(frames, web, poster, w, h, out_dir)
+            posterize(frames, web, poster, w, h, out_dir, first_frame=(book == "paperbook"))
             manifest["outputs"][a] = str(poster)
         else:
             manifest["outputs"][a] = str(web)

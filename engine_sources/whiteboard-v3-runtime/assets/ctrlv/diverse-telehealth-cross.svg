@@ -1,0 +1,27 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Tablet / Screen -->
+                <rect x="100" y="50" width="200" height="200" rx="15" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                <circle cx="200" cy="230" r="8" fill="#F5F0E4"/>
+                
+                <!-- Medical Cross Background -->
+                <g>
+                    <path d="M180 80 H220 V120 H260 V160 H220 V200 H180 V160 H140 V120 H180 Z" fill="#F5F0E4" opacity="0.2"/>
+                </g>
+                
+                <!-- Stethoscope forming a heart/connection -->
+                <path d="M140 100 C140 70 200 70 200 100 C200 130 170 160 170 190" stroke="#1A1A17" stroke-width="8" stroke-linecap="round" fill="none"/>
+                
+                <ellipse cx="140" cy="100" rx="15" ry="5" fill="#1A1A17" transform="rotate(-30 140 100)"/>
+                <circle cx="170" cy="200" r="15" fill="#F5F0E4"/>
+                <circle cx="170" cy="200" r="5" fill="#F5F0E4"/>
+                
+                <!-- Connection Signal -->
+                <g transform="translate(240, 90)">
+                    <g>
+                    <path d="M0 20 A 20 20 0 0 0 20 0 M5 15 A 10 10 0 0 0 15 5" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    <circle cx="0" cy="0" r="4" fill="#F5F0E4"/>
+                </g>
+                </g>
+            </g>
+          </svg>

@@ -1,0 +1,8 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g style="transform-origin: 200px 150px">
+            <path d="M200 150 L200 50 A100 100 0 0 1 300 150 Z" fill="#1A1A17"/>
+            <path d="M200 150 L300 150 A100 100 0 0 1 200 250 Z" fill="#F5F0E4"/>
+            <path d="M200 150 L200 250 A100 100 0 0 1 100 150 Z" fill="#F5F0E4"/>
+            <path d="M200 150 L100 150 A100 100 0 0 1 200 50 Z" fill="#F5F0E4" opacity="0.8"/>
+        </g>
+    </svg>

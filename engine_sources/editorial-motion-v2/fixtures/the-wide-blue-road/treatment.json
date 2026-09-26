@@ -1,0 +1,769 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "the-wide-blue-road",
+ "note": "how sailors found their way before engines \u2014 port, noon sun, night stars, storm, landfall",
+ "aspects": [
+  "16x9",
+  "1x1",
+  "9x16"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#23415c",
+  "paper": "#f2e8d0",
+  "accent": "#c65a3a",
+  "finish": "PAPER"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "HOOK",
+   "pattern": "CONTROLLED_EMPTY_SPACE",
+   "dominant_layer": "TEXT",
+   "narration": "Before  engines  and  satellites,  the  ocean  was  the  widest  road  on  earth.",
+   "energy": 0.45,
+   "complexity": 0.35,
+   "display_units": [
+    {
+     "text": "the ocean",
+     "role": "support",
+     "semantic_role": "setup",
+     "emphasis": 0.5
+    },
+    {
+     "text": "the widest road on earth",
+     "role": "hero",
+     "semantic_role": "statement",
+     "emphasis": 0.9,
+     "anchor_word": "road"
+    }
+   ],
+   "backdrop": null,
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "map",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "map"
+     },
+     {
+      "id": "boat",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "boat"
+     }
+    ],
+    "relations": [
+     {
+      "type": "connects",
+      "source": "boat",
+      "target": "map",
+      "style": "dash"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "map",
+      "at": {
+       "word": "ocean"
+      },
+      "duration_ms": 800,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "boat",
+      "at": {
+       "word": "road"
+      },
+      "duration_ms": 700,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "TRAVEL",
+      "target": "boat",
+      "at": {
+       "word": "earth"
+      },
+      "duration_ms": 1200,
+      "params": {
+       "over": [
+        "map"
+       ]
+      },
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   },
+   "page": {
+    "title": "The Widest Road",
+    "layout": "half",
+    "materials": [
+     "foil"
+    ]
+   },
+   "scene": {
+    "setting": "urban",
+    "mood": "dusk",
+    "elements": [
+     "boat"
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "SETUP",
+   "pattern": "PHRASE_REPLACEMENT",
+   "dominant_layer": "FIGURE",
+   "narration": "A  sailor  steps  aboard  with  nothing  but  the  sky  for  company.",
+   "energy": 0.4,
+   "complexity": 0.4,
+   "display_units": [
+    {
+     "text": "a sailor steps aboard",
+     "role": "support",
+     "semantic_role": "setup",
+     "emphasis": 0.5
+    },
+    {
+     "text": "nothing but the sky",
+     "role": "hero",
+     "semantic_role": "statement",
+     "emphasis": 0.9,
+     "anchor_word": "sky"
+    }
+   ],
+   "backdrop": null,
+   "figure": {
+    "valence": 0.3,
+    "arousal": 0.45,
+    "posture": "standing",
+    "energy": 0.55,
+    "formality": 0.4,
+    "facing": "CAMERA",
+    "justification": "the sailor steps aboard \u2014 the film's navigator",
+    "character": "sailor",
+    "track": {
+     "enter": "left",
+     "exit": "none"
+    },
+    "prop": {
+     "concept": "telescope",
+     "hand": "auto"
+    },
+    "states": [
+     {
+      "at": {
+       "offset_ms": 900
+      },
+      "face": "eyes-closed"
+     },
+     {
+      "at": {
+       "offset_ms": 1200
+      },
+      "pose": "standing-pointing-finger-1",
+      "face": "awe"
+     },
+     {
+      "at": {
+       "offset_ms": 1900
+      },
+      "face": "loving-grin-2"
+     }
+    ],
+    "face": "awe",
+    "motion": {
+     "chain": [
+      {
+       "clip": "CMU_WALK",
+       "seconds": 1.3
+      },
+      {
+       "clip": "CMU_WAIT_IDLE",
+       "seconds": 2.4
+      }
+     ],
+     "look": {
+      "skin": "#8a5a3b",
+      "hair": {
+       "color": "#231a12",
+       "style": "coils"
+      },
+      "head": {
+       "kind": "cap",
+       "color": "#d84f35",
+       "trimColor": "#f2e8d0"
+      },
+      "top": {
+       "color": "#e8e0cc",
+       "garment": "shirt"
+      },
+      "bottom": {
+       "color": "#23415c",
+       "garment": "trousers"
+      },
+      "shoes": {
+       "color": "#3a2c20"
+      },
+      "ink": "#23415c"
+     }
+    },
+    "pose": "standing-walking-3"
+   },
+   "page": {
+    "title": "Nothing But the Sky",
+    "quote": "The sky keeps the sea's secrets.",
+    "layout": "vignette",
+    "cut": "left"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dawn",
+    "elements": [
+     "boat"
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "EMPHASIS",
+   "pattern": "PROCESS_RAIL",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "At  noon  the  sun  told  him  how  far  north  he  stood.",
+   "energy": 0.55,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "at noon the sun told him",
+     "role": "hero",
+     "semantic_role": "action",
+     "emphasis": 0.85,
+     "anchor_word": "sun"
+    },
+    {
+     "text": "how far north he stood",
+     "role": "support",
+     "semantic_role": "qualifier",
+     "emphasis": 0.5
+    }
+   ],
+   "backdrop": null,
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "sun",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "sun"
+     },
+     {
+      "id": "wave",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "wave"
+     },
+     {
+      "id": "boat2",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "boat"
+     }
+    ],
+    "relations": [
+     {
+      "type": "emits_to",
+      "source": "sun",
+      "target": "boat2",
+      "style": "arc"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "sun",
+      "at": {
+       "word": "sun"
+      },
+      "duration_ms": 700,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "wave",
+      "at": {
+       "word": "north"
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "TRAVEL",
+      "target": "boat2",
+      "at": {
+       "word": "stood"
+      },
+      "duration_ms": 1100,
+      "params": {
+       "over": [
+        "wave"
+       ]
+      },
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   },
+   "page": {
+    "title": "The Noon Sun",
+    "layout": "zipped"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day",
+    "elements": [
+     "wave",
+     "boat"
+    ]
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "EXPLANATION",
+   "pattern": "PROCESS_RAIL",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "At  night  the  stars  turned  into  a  compass.",
+   "energy": 0.5,
+   "complexity": 0.45,
+   "display_units": [
+    {
+     "text": "at night the stars",
+     "role": "hero",
+     "semantic_role": "action",
+     "emphasis": 0.85,
+     "anchor_word": "stars"
+    },
+    {
+     "text": "turned into a compass",
+     "role": "support",
+     "semantic_role": "qualifier",
+     "emphasis": 0.5
+    }
+   ],
+   "backdrop": null,
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "stars",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "stars"
+     },
+     {
+      "id": "compass",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "compass"
+     }
+    ],
+    "relations": [
+     {
+      "type": "transforms_into",
+      "source": "stars",
+      "target": "compass",
+      "style": "arc"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "stars",
+      "at": {
+       "word": "stars"
+      },
+      "duration_ms": 800,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "compass",
+      "at": {
+       "word": "compass"
+      },
+      "duration_ms": 700,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "EMIT",
+      "target": "stars",
+      "at": {
+       "word": "turned"
+      },
+      "duration_ms": 900,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   },
+   "page": {
+    "title": "The Star Compass",
+    "quote": "A map no hand had drawn.",
+    "layout": "full"
+   },
+   "scene": {
+    "setting": "space",
+    "mood": "night",
+    "elements": [
+     "moon"
+    ]
+   }
+  },
+  {
+   "beat_id": "b05",
+   "beat_type": "EMPHASIS",
+   "pattern": "CONTRAST_RECONFIGURATION",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "Storms  tried  to  send  him  home:  rain  on  a  slate  dark  sea.",
+   "energy": 0.7,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "storms tried to send him home",
+     "role": "hero",
+     "semantic_role": "contrast",
+     "emphasis": 0.9,
+     "anchor_word": "storms"
+    },
+    {
+     "text": "rain on a slate dark sea",
+     "role": "support",
+     "semantic_role": "qualifier",
+     "emphasis": 0.55
+    }
+   ],
+   "backdrop": null,
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "storm",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "storm"
+     },
+     {
+      "id": "sea",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "wave"
+     },
+     {
+      "id": "boat3",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "boat"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "storm",
+      "at": {
+       "word": "storms"
+      },
+      "duration_ms": 700,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "GROW",
+      "target": "sea",
+      "at": {
+       "word": "rain"
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "TRAVEL",
+      "target": "boat3",
+      "at": {
+       "word": "sea"
+      },
+      "duration_ms": 1200,
+      "params": {
+       "over": [
+        "sea"
+       ]
+      },
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   },
+   "page": {
+    "title": "The Slate-Dark Sea",
+    "layout": "scissor"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "storm",
+    "elements": [
+     "rain",
+     "wave",
+     "boat"
+    ]
+   }
+  },
+  {
+   "beat_id": "b06",
+   "beat_type": "EMPHASIS",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "Then  green  rose  on  the  horizon  \u2014  land.",
+   "energy": 0.6,
+   "complexity": 0.4,
+   "display_units": [
+    {
+     "text": "then green rose",
+     "role": "support",
+     "semantic_role": "setup",
+     "emphasis": 0.5
+    },
+    {
+     "text": "land",
+     "role": "hero",
+     "semantic_role": "statement",
+     "emphasis": 0.95,
+     "anchor_word": "land"
+    }
+   ],
+   "backdrop": null,
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "hill",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "hill"
+     },
+     {
+      "id": "bird",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "bird"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "hill",
+      "at": {
+       "word": "green"
+      },
+      "duration_ms": 800,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "TRAVEL",
+      "target": "bird",
+      "at": {
+       "word": "horizon"
+      },
+      "duration_ms": 900,
+      "params": {
+       "over": [
+        "hill"
+       ]
+      },
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   },
+   "page": {
+    "title": "Green on the Horizon",
+    "quote": "Land is a colour before it is a place.",
+    "layout": "spot",
+    "materials": [
+     "ribbon",
+     "deckle"
+    ]
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "golden",
+    "elements": [
+     "hill",
+     "bird"
+    ]
+   }
+  },
+  {
+   "beat_id": "b07",
+   "beat_type": "PAYOFF",
+   "pattern": "PAYOFF_LOCKUP",
+   "dominant_layer": "FIGURE",
+   "narration": "He  crossed  the  whole  world  by  a  map  drawn  in  light.",
+   "energy": 0.35,
+   "complexity": 0.35,
+   "display_units": [
+    {
+     "text": "he crossed the whole world",
+     "role": "support",
+     "semantic_role": "setup",
+     "emphasis": 0.55
+    },
+    {
+     "text": "by a map drawn in light",
+     "role": "hero",
+     "semantic_role": "statement",
+     "emphasis": 0.9,
+     "anchor_word": "light"
+    }
+   ],
+   "backdrop": null,
+   "figure": {
+    "valence": 0.5,
+    "arousal": 0.3,
+    "posture": "standing",
+    "energy": 0.45,
+    "formality": 0.4,
+    "facing": "CAMERA",
+    "justification": "the sailor walks off carrying the map \u2014 the voyage won",
+    "character": "sailor",
+    "track": {
+     "enter": "none",
+     "exit": "right"
+    },
+    "prop": {
+     "concept": "map",
+     "hand": "auto"
+    },
+    "states": [
+     {
+      "at": {
+       "offset_ms": 800
+      },
+      "face": "loving-grin-2"
+     },
+     {
+      "at": {
+       "offset_ms": 1400
+      },
+      "pose": "standing-easing-1",
+      "face": "awe"
+     }
+    ],
+    "face": "calm",
+    "motion": {
+     "chain": [
+      {
+       "clip": "CMU_WAIT_IDLE",
+       "seconds": 1.6
+      },
+      {
+       "clip": "CMU_WALK",
+       "seconds": 1.6
+      }
+     ],
+     "look": {
+      "skin": "#8a5a3b",
+      "hair": {
+       "color": "#231a12",
+       "style": "coils"
+      },
+      "head": {
+       "kind": "cap",
+       "color": "#d84f35",
+       "trimColor": "#f2e8d0"
+      },
+      "top": {
+       "color": "#e8e0cc",
+       "garment": "shirt"
+      },
+      "bottom": {
+       "color": "#23415c",
+       "garment": "trousers"
+      },
+      "shoes": {
+       "color": "#3a2c20"
+      },
+      "ink": "#23415c"
+     }
+    },
+    "pose": "standing-walking-3"
+   },
+   "page": {
+    "title": "A Map Drawn in Light",
+    "quote": "The dark was his road, not his fear.",
+    "layout": "vignette",
+    "cut": "right"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dusk",
+    "elements": [
+     "star"
+    ]
+   }
+  }
+ ],
+ "cast": {
+  "sailor": {
+   "posture": "standing",
+   "head": "flat-top",
+   "skin": "#8a5a3b",
+   "garment": "shirt"
+  }
+ },
+ "world": {
+  "grain": "grain-fine",
+  "motif": {
+   "concept": "compass",
+   "corner": "top-right"
+  },
+  "book": "paperbook"
+ }
+}

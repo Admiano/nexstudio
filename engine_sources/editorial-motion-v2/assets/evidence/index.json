@@ -306,6 +306,39 @@
     3072
    ]
   },
+  "boat": {
+   "concept": "boat",
+   "query": "boat",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "32768767",
+   "title": "File:Boats in Chacachacare 2.jpg",
+   "creator": "Wilfredor",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Boats_in_Chacachacare_2.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Boats_in_Chacachacare_2.jpg/1920px-Boats_in_Chacachacare_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "boat.d8feff9abaf4.jpg",
+   "sha256": "014d4ebbfddb9f32bce062816fc247a3ffb299c4cb0c6a062b76ce66b38cf61e",
+   "width": 1400,
+   "height": 824,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "May 2014",
+    "Wikiviajes por Venezuela 2014",
+    "Images of Venezuela by User:Wilfredor",
+    "Photographs of Isla Margarita by Wilfredor",
+    "Boats of Margarita Island by Wilfredor",
+    "Chacachacare (Margarita Island)",
+    "Boats by Wilfredor",
+    "Boats in Margarita Island"
+   ],
+   "year": 2014,
+   "source_size": [
+    4224,
+    2487
+   ]
+  },
   "brain": {
    "concept": "brain",
    "query": "brain",
@@ -876,6 +909,34 @@
     2268
    ]
   },
+  "drop": {
+   "concept": "drop",
+   "query": "drop",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "148516209",
+   "title": "File:Drop creates waves.jpg",
+   "creator": "Sindugab",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Drop_creates_waves.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Drop_creates_waves.jpg/1920px-Drop_creates_waves.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "drop.222361a3c8b2.jpg",
+   "sha256": "f70eb3077c35b875cb73477dffee7b0c72906cc8cbaac209e2e9a28c4a1d7bab",
+   "width": 1400,
+   "height": 1000,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Water waves",
+    "Brass",
+    "Drops"
+   ],
+   "year": 2024,
+   "source_size": [
+    4909,
+    3505
+   ]
+  },
   "egg": {
    "concept": "egg",
    "query": "egg",
@@ -1229,6 +1290,32 @@
    "subjects": [],
    "year": null,
    "source_size": []
+  },
+  "hill": {
+   "concept": "hill",
+   "query": "hill",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "193495538",
+   "title": "File:View of hills through a car window.jpg",
+   "creator": "C.M.B.",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:View_of_hills_through_a_car_window.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/View_of_hills_through_a_car_window.jpg/1920px-View_of_hills_through_a_car_window.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "hill.bfbe41303f3d.jpg",
+   "sha256": "91bf197911d0cf03097ffb713512a07575c68e9a48977df4c410e96b501a8484",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Hill"
+   ],
+   "year": 2026,
+   "source_size": [
+    3648,
+    2432
+   ]
   },
   "hospital": {
    "concept": "hospital",
@@ -1975,6 +2062,33 @@
     3456
    ]
   },
+  "soccer ball": {
+   "concept": "soccer_ball",
+   "query": "soccer ball",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "33477368",
+   "title": "File:Soccer ball on ground.jpg",
+   "creator": "Petey21",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Soccer_ball_on_ground.jpg",
+   "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Soccer_ball_on_ground.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file": "soccer-ball.c26dfdad0268.jpg",
+   "sha256": "d3c3dfa9004ae4409b728f72a514fe40cb1f8d249d1cd40476a176bd1acddbd8",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Association football balls",
+    "Truncated icosahedron footballs"
+   ],
+   "year": 2014,
+   "source_size": [
+    1600,
+    1200
+   ]
+  },
   "sofa": {
    "concept": "sofa",
    "query": "sofa",
@@ -2699,6 +2813,35 @@
    "source_size": [
     2848,
     2144
+   ]
+  },
+  "whistle": {
+   "concept": "whistle",
+   "query": "whistle",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "75765212",
+   "title": "File:Pioneer whistle.jpg",
+   "creator": "Takács István",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Pioneer_whistle.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Pioneer_whistle.jpg/1920px-Pioneer_whistle.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "whistle.4dff35d8f77f.jpg",
+   "sha256": "7dd79b6a6bdd7f040591ec7fd45c541b0d96994a06a389dd291e2715fbdbf061",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Whistles",
+    "Úttörők",
+    "Red background",
+    "Photos by Takkk"
+   ],
+   "year": 2007,
+   "source_size": [
+    2339,
+    1559
    ]
   },
   "window": {
