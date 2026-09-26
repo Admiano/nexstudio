@@ -343,7 +343,12 @@ window.NexFilm = (() => {
     return { el, tl };
   };
 
-  /* --- kinetic-headline: words slam with landing kicks --- */
+  /* closed-form damped spring — deterministic overshoot settle under seek.
+     springOut(0)=0, overshoots ~1.1 near p=.55, converges to 1. */
+  const springOut = p => 1 - Math.exp(-5.4 * p) * Math.cos(9.0 * p);
+
+  /* --- kinetic-headline: words slam with landing kicks + chromatic fringe;
+     spec.reveal 'mask' switches to per-word clip-mask rises --- */
   scenes['kinetic-headline'] = (spec) => {
     const el = h('div', '', null);
     center(el);
@@ -355,21 +360,46 @@ window.NexFilm = (() => {
     const accentIdx = typeof accent === 'number' ? accent :
       typeof accent === 'string' ? words.findIndex(w => w.textContent.toLowerCase().trim() === accent.toLowerCase()) : -1;
     const tl = NexMotion.createTimeline();
+    const accA = cssVar('--pf-accent'), accB = cssVar('--pf-accent2', accA);
+    const maskMode = spec.reveal === 'mask';
     words.forEach((wEl, i) => {
-      const s = 0.1 + i * 0.24;
-      wEl.style.display = 'inline-block'; wEl.style.transformOrigin = '50% 80%'; wEl.dataset.cap = 'word-' + i;
+      const s = 0.1 + i * (maskMode ? 0.16 : 0.24);
+      wEl.style.display = 'inline-block'; wEl.dataset.cap = 'word-' + i;
       wEl.style.marginRight = '.09em';
-      tl.fromTo(wEl, { opacity: 0, scale: 1.55, y: 26, rotation: i % 2 ? -2 : 2 },
-        { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.38, ease: 'back.out(2.1)' }, s);
-      tl.addUpdate(s + 0.38, 0.16, p => { head.style.transform = `translateY(${-3 * Math.sin(p * Math.PI)}px)`; }, 'none');
+      if (maskMode) {
+        const wtxt = wEl.textContent; wEl.textContent = '';
+        wEl.style.cssText += ';overflow:hidden;vertical-align:bottom;padding:.1em .04em;margin:-.1em .05em -.1em .05em';
+        const inner = h('span', '', wEl, wtxt);
+        inner.style.cssText = 'display:inline-block;transform-origin:0 100%;will-change:translate,rotate,filter,opacity';
+        tl.addUpdate(s, 0.55, (p, raw) => {
+          if (raw <= 0) { inner.style.opacity = '0'; return; }
+          const e = springOut(raw);
+          inner.style.opacity = '1';
+          inner.style.translate = `0 ${((1 - e) * 110).toFixed(2)}%`;
+          inner.style.rotate = `${((1 - e) * 5).toFixed(2)}deg`;
+          inner.style.filter = raw > 0.96 ? '' : `blur(${(4.5 * (1 - raw)).toFixed(2)}px)`;
+        }, 'none');
+      } else {
+        wEl.style.transformOrigin = '50% 80%';
+        tl.fromTo(wEl, { opacity: 0, scale: 1.55, y: 26, rotation: i % 2 ? -2 : 2 },
+          { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.38, ease: 'back.out(2.1)' }, s);
+        tl.addUpdate(s + 0.38, 0.16, p => { head.style.transform = `translateY(${-3 * Math.sin(p * Math.PI)}px)`; }, 'none');
+        /* chromatic fringe + travel blur that collapses as the word lands */
+        tl.addUpdate(s, 0.42, (p, raw) => {
+          const f = 1 - raw;
+          wEl.style.textShadow = f > 0.05 ? `${(-7 * f).toFixed(1)}px 0 ${accA}66, ${(7 * f).toFixed(1)}px 0 ${accB}66` : 'none';
+          wEl.style.filter = f > 0.04 ? `blur(${(5 * f).toFixed(1)}px)` : '';
+        }, 'none');
+      }
       if (i === accentIdx) {
         wEl.style.color = cssVar('--pf-accent');
       }
     });
     const und = h('div', 'pf-accbar', el);
     und.style.cssText = 'width:160px;transform-origin:0 50%;margin-top:6px';
-    tl.fromTo(und, { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: 'power3.out' }, 0.1 + words.length * 0.24);
-    if (spec.sub) fadeIn(tl, sub(el, spec.sub), 0.35 + words.length * 0.24, 0.4);
+    const tailS = 0.1 + words.length * (maskMode ? 0.16 : 0.24);
+    tl.fromTo(und, { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: 'power3.out' }, tailS);
+    if (spec.sub) fadeIn(tl, sub(el, spec.sub), 0.25 + tailS, 0.4);
     return { el, tl };
   };
 
@@ -399,50 +429,129 @@ window.NexFilm = (() => {
     center(el);
     const head = h('h2', 'pf-display', el); head.dataset.cap = 'title';
     head.style.cssText = `font-size:${fsize(spec.fontSize || '66px')};max-width:94%;line-height:1.05`;
-    const chars = splitChars(head, spec.text || spec.headline || '');
-    const n = Math.max(1, chars.length);
+    const text = spec.text || spec.headline || '';
     const stagger = spec.stagger ?? 0.028;
     const blurMax = spec.blur ?? 11;
-    const accent = spec.accent; // trailing word(s) colored: number = last-N chars, string = word match
+    const accent = spec.accent; // trailing word(s) colored: number = last-N units, string = word match
     const tl = NexMotion.createTimeline();
-    const decode = spec.reveal === 'decode';
-    if (decode) chars.forEach(c => { c.style.opacity = '0'; });
-    chars.forEach((c, i) => {
-      const s = 0.06 + i * stagger;
-      if (decode) {
-        const orig = c.textContent;
-        tl.addUpdate(s, 0.42, (p, raw, t) => {
-          const step = Math.floor(t * 22);
-          c.textContent = p >= 0.92 ? orig : GLYPHS[(((i * 2654435761) ^ (step * 40503)) >>> 0) % GLYPHS.length];
-          c.style.opacity = p > 0 ? '1' : '0';
-        }, 'none');
-        tl.addUpdate(s + 0.45, 0.01, (p) => { if (p > 0) c.textContent = orig; }, 'none');
-        return;
-      }
-      const depth = 1 - i / n;                     // first chars are "fastest"
-      const blur = blurMax * (0.45 + 0.55 * depth);
-      const dy = (26 + 22 * depth).toFixed(1);
-      c.style.willChange = 'transform,filter';
-      tl.fromTo(c, { opacity: 0, y: Number(dy), scaleY: 1.18 },
-        { opacity: 1, y: 0, scaleY: 1, duration: 0.32, ease: 'power3.out' }, s);
-      tl.addUpdate(s, 0.34, p => { c.style.filter = `blur(${(blur * (1 - p)).toFixed(2)}px)`; }, 'power2.out');
-      tl.addUpdate(s + 0.32, 0.16, p => {
-        const k = Math.sin(p * Math.PI);
-        c.style.scale = `${(1 + 0.045 * k).toFixed(3)} ${(1 - 0.07 * k).toFixed(3)}`;
-      }, 'none');
-    });
+    const reveal = spec.reveal || 'rise';
+    const accA = cssVar('--pf-accent'), accB = cssVar('--pf-accent2', accA);
+    let chars;
+    let tailT;
+    if (reveal === 'mask' || reveal === 'sweep') {
+      /* word-granularity reveals — words rise out of their own clip masks
+         (mask) or tracking collapses in from wide (sweep) */
+      const inners = [];
+      String(text).split(/\s+/).filter(Boolean).forEach((w, wi) => {
+        const m = h('span', '', head);
+        m.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;padding:.1em .03em;margin:-.1em -.03em';
+        const inner = h('span', '', m, w);
+        inner.style.cssText = 'display:inline-block;transform-origin:0 100%;will-change:translate,rotate,filter,opacity';
+        inner.dataset.cap = 'word-' + wi;
+        head.appendChild(document.createTextNode(' '));
+        inners.push(inner);
+      });
+      inners.forEach((inner, i) => {
+        const s = 0.07 + i * 0.115;
+        if (reveal === 'mask') {
+          tl.addUpdate(s, 0.55, (p, raw) => {
+            if (raw <= 0) { inner.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            inner.style.opacity = '1';
+            inner.style.translate = `0 ${((1 - e) * 112).toFixed(2)}%`;
+            inner.style.rotate = `${((1 - e) * 5).toFixed(2)}deg`;
+            inner.style.filter = raw > 0.96 ? '' : `blur(${(4.5 * (1 - raw)).toFixed(2)}px)`;
+          }, 'none');
+        } else {
+          tl.addUpdate(s, 0.6, (p, raw) => {
+            if (raw <= 0) { inner.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            inner.style.opacity = String(Math.min(1, raw * 3));
+            inner.style.letterSpacing = `${(0.32 * (1 - e)).toFixed(3)}em`;
+            inner.style.translate = `0 ${((1 - e) * 10).toFixed(2)}px`;
+            inner.style.filter = raw > 0.95 ? '' : `blur(${(6 * (1 - raw)).toFixed(2)}px)`;
+          }, 'none');
+        }
+      });
+      chars = inners;
+      tailT = 0.07 + inners.length * 0.115 + 0.4;
+    } else {
+      chars = splitChars(head, text);
+      const n = Math.max(1, chars.length);
+      const decode = reveal === 'decode';
+      if (decode) chars.forEach(c => { c.style.opacity = '0'; });
+      head.style.perspective = '700px';
+      chars.forEach((c, i) => {
+        const s = 0.06 + i * stagger;
+        if (decode) {
+          const orig = c.textContent;
+          tl.addUpdate(s, 0.42, (p, raw, t) => {
+            const step = Math.floor(t * 22);
+            c.textContent = p >= 0.92 ? orig : GLYPHS[(((i * 2654435761) ^ (step * 40503)) >>> 0) % GLYPHS.length];
+            c.style.opacity = p > 0 ? '1' : '0';
+          }, 'none');
+          tl.addUpdate(s + 0.45, 0.01, (p) => { if (p > 0) c.textContent = orig; }, 'none');
+          return;
+        }
+        c.style.willChange = 'transform,filter';
+        if (reveal === 'flip') {
+          c.style.transformOrigin = '50% 100%';
+          tl.addUpdate(s, 0.52, (p, raw) => {
+            if (raw <= 0) { c.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            c.style.opacity = String(Math.min(1, raw * 4));
+            c.style.transform = `rotateX(${((1 - e) * -96).toFixed(2)}deg)`;
+            c.style.filter = raw > 0.96 ? '' : `blur(${(6 * (1 - raw)).toFixed(2)}px)`;
+          }, 'none');
+        } else if (reveal === 'slam') {
+          /* scale punch + chromatic fringe collapse + spring settle */
+          tl.addUpdate(s, 0.42, (p, raw) => {
+            if (raw <= 0) { c.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            c.style.opacity = String(Math.min(1, raw * 5));
+            const sc = 1 + 0.8 * (1 - e);
+            c.style.scale = `${sc.toFixed(3)} ${sc.toFixed(3)}`;
+            c.style.filter = raw > 0.95 ? '' : `blur(${(8 * (1 - raw)).toFixed(2)}px)`;
+            const f = 1 - raw;
+            c.style.textShadow = f > 0.04 ? `${(-7 * f).toFixed(1)}px 0 ${accA}88, ${(7 * f).toFixed(1)}px 0 ${accB}88` : 'none';
+          }, 'none');
+        } else if (reveal === 'wave') {
+          tl.addUpdate(s, 0.62, (p, raw) => {
+            if (raw <= 0) { c.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            const y = (1 - e) * 32 + Math.sin(raw * 8.5 + i * 0.55) * 8 * (1 - raw);
+            c.style.opacity = String(Math.min(1, raw * 4));
+            c.style.translate = `0 ${y.toFixed(2)}px`;
+            c.style.filter = raw > 0.95 ? '' : `blur(${(5 * (1 - raw)).toFixed(2)}px)`;
+          }, 'none');
+        } else { /* rise — velocity-weighted cascade */
+          const depth = 1 - i / n;
+          const blur = blurMax * (0.45 + 0.55 * depth);
+          const dy = (26 + 22 * depth).toFixed(1);
+          tl.fromTo(c, { opacity: 0, y: Number(dy), scaleY: 1.18 },
+            { opacity: 1, y: 0, scaleY: 1, duration: 0.32, ease: 'power3.out' }, s);
+          tl.addUpdate(s, 0.34, p => { c.style.filter = `blur(${(blur * (1 - p)).toFixed(2)}px)`; }, 'power2.out');
+          tl.addUpdate(s + 0.32, 0.16, p => {
+            const k = Math.sin(p * Math.PI);
+            c.style.scale = `${(1 + 0.045 * k).toFixed(3)} ${(1 - 0.07 * k).toFixed(3)}`;
+          }, 'none');
+        }
+      });
+      tailT = 0.06 + chars.length * stagger + 0.05;
+    }
+    const n = Math.max(1, chars.length);
     if (accent != null) {
       const word = typeof accent === 'number' ? null : String(accent).toLowerCase();
       const all = head.querySelectorAll('span>span');
       let hit = [];
       if (typeof accent === 'number') hit = [...all].slice(-Math.abs(accent));
       else head.querySelectorAll('span').forEach(wr => { if (wr.textContent.toLowerCase() === word) hit.push(...wr.querySelectorAll('span')); });
-      hit.forEach(c => tl.addUpdate(0.06 + n * stagger + 0.05, 0.25, p => { c.style.color = p > 0.5 ? cssVar('--pf-accent') : ''; }, 'none'));
+      hit.forEach(c => tl.addUpdate(tailT, 0.25, p => { c.style.color = p > 0.5 ? cssVar('--pf-accent') : ''; }, 'none'));
     }
     const und = h('div', 'pf-accbar', el);
     und.style.cssText = 'width:160px;transform-origin:0 50%;margin-top:8px';
-    tl.fromTo(und, { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: 'power3.out' }, 0.06 + n * stagger + 0.05);
-    if (spec.sub) fadeIn(tl, sub(el, spec.sub), 0.2 + n * stagger, 0.4);
+    tl.fromTo(und, { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: 'power3.out' }, tailT);
+    if (spec.sub) fadeIn(tl, sub(el, spec.sub), 0.15 + tailT, 0.4);
     return { el, tl };
   };
 

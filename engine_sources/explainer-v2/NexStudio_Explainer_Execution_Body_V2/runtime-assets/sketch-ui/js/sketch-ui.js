@@ -1184,7 +1184,7 @@ window.NexSketch = (() => {
       row.style.cssText = 'display:flex;align-items:baseline;gap:14px;position:relative';
       const idx = h('span', 'sk-mono', row, String(i + 1).padStart(2, '0'));
       idx.style.cssText = 'font-size:13px;color:var(--sk-ink-3);letter-spacing:.1em;flex:none;width:26px';
-      const txt = h('span', 'sk-display', row, typeof it === 'string' ? it : it.text || '');
+      const txt = h('span', 'sk-display', row, typeof it === 'string' ? it : it.text || it.title || it.label || '');
       txt.style.cssText = `font-size:calc(${spec.fontSize || (items.length <= 3 ? '46px' : '40px')} * var(--sk-display-scale,1));position:relative;line-height:1.12`;
       /* mint marker underlines the phrase's last line — never strikes through */
       const mark = h('span', '', txt);
@@ -1245,8 +1245,8 @@ window.NexSketch = (() => {
   scenes['stat'] = (spec) => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center';
-    const figWrap = h('div', '', el); figWrap.style.cssText = 'position:relative;display:flex;align-items:center;justify-content:center';
-    const ring = svgRoot(figWrap, '0 0 360 360'); ring.style.cssText = 'position:absolute;width:118%;aspect-ratio:1;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none';
+    const figWrap = h('div', '', el); figWrap.style.cssText = 'position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:1';
+    const ring = svgRoot(figWrap, '0 0 360 360'); ring.style.cssText = 'position:absolute;width:104%;aspect-ratio:1;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none';
     skCircle(ring, 180, 180, 330, 1250, { strokeWidth: 1.8 });
     skCircle(ring, 180, 180, 316, 1251, { strokeWidth: 1.1 });
     for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; skLine(ring, 180 + Math.cos(a) * 168, 180 + Math.sin(a) * 168, 180 + Math.cos(a) * 160, 180 + Math.sin(a) * 160, 1252 + k, { strokeWidth: 2 }); }
@@ -1425,8 +1425,12 @@ window.NexSketch = (() => {
     return { el, tl };
   };
 
-  /* --- kinetic-headline: words slam in one by one, landing with weight;
-     accent word gets a mint underline swipe. Stronger than a type card. --- */
+  /* closed-form damped spring — deterministic overshoot settle under seek */
+  const springOut = p => 1 - Math.exp(-5.4 * p) * Math.cos(9.0 * p);
+
+  /* --- kinetic-headline: words slam in one by one with chromatic fringe;
+     accent word gets a mint underline swipe. spec.reveal 'mask' = clip-mask rises --- */
+
   scenes['kinetic-headline'] = (spec) => {
     const el = h('div', '', null);
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;position:relative';
@@ -1438,18 +1442,43 @@ window.NexSketch = (() => {
     const accentIdx = typeof accent === 'number' ? accent :
       typeof accent === 'string' ? words.findIndex(w => w.textContent.toLowerCase() === accent.toLowerCase()) : -1;
     const tl = NexMotion.createTimeline();
+    const accA = cssVar('--sk-mint-deep'), accB = cssVar('--sk-ink');
+    const maskMode = spec.reveal === 'mask';
     words.forEach((wEl, i) => {
-      const s = 0.12 + i * 0.3;
+      const s = 0.12 + i * (maskMode ? 0.18 : 0.3);
       wEl.dataset.cap = 'word-' + i;
-      wEl.style.display = 'inline-block'; wEl.style.transformOrigin = '50% 80%';
+      wEl.style.display = 'inline-block';
       wEl.style.marginRight = '.08em';
-      tl.fromTo(wEl, { opacity: 0, scale: 1.7, y: 24, rotation: (i % 2 ? -2.5 : 2.5) },
-        { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.42, ease: 'back.out(2.0)' }, s);
-      /* landing kick — the whole line absorbs the hit */
-      tl.addUpdate(s + 0.42, 0.18, p => { head.style.transform = `translateY(${-3.5 * Math.sin(p * Math.PI)}px)`; }, 'none');
+      if (maskMode) {
+        const wtxt = wEl.textContent; wEl.textContent = '';
+        wEl.style.cssText += ';overflow:hidden;vertical-align:bottom;padding:.1em .04em;margin:-.1em .04em -.1em';
+        const inner = h('span', '', wEl, wtxt);
+        inner.style.cssText = 'display:inline-block;transform-origin:0 100%;will-change:translate,rotate,filter,opacity';
+        tl.addUpdate(s, 0.55, (p, raw) => {
+          if (raw <= 0) { inner.style.opacity = '0'; return; }
+          const e = springOut(raw);
+          inner.style.opacity = '1';
+          inner.style.translate = `0 ${((1 - e) * 110).toFixed(2)}%`;
+          inner.style.rotate = `${((1 - e) * 5).toFixed(2)}deg`;
+          inner.style.filter = raw > 0.96 ? '' : `blur(${(4 * (1 - raw)).toFixed(2)}px)`;
+        }, 'none');
+      } else {
+        wEl.style.transformOrigin = '50% 80%';
+        tl.fromTo(wEl, { opacity: 0, scale: 1.7, y: 24, rotation: (i % 2 ? -2.5 : 2.5) },
+          { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.42, ease: 'back.out(2.0)' }, s);
+        /* landing kick — the whole line absorbs the hit */
+        tl.addUpdate(s + 0.42, 0.18, p => { head.style.transform = `translateY(${-3.5 * Math.sin(p * Math.PI)}px)`; }, 'none');
+        /* chromatic fringe + travel blur collapsing on land */
+        tl.addUpdate(s, 0.42, (p, raw) => {
+          const f = 1 - raw;
+          wEl.style.textShadow = f > 0.05 ? `${(-7 * f).toFixed(1)}px 0 ${accA}66, ${(7 * f).toFixed(1)}px 0 ${accB}44` : 'none';
+          wEl.style.filter = f > 0.04 ? `blur(${(5 * f).toFixed(1)}px)` : '';
+        }, 'none');
+      }
       if (i === accentIdx) {
-        wEl.style.position = 'relative'; wEl.style.fontStyle = 'italic';
-        const und = h('span', '', wEl);
+        const target = maskMode ? wEl.firstChild : wEl;
+        target.style.position = 'relative'; target.style.fontStyle = 'italic';
+        const und = h('span', '', target);
         und.style.cssText = 'position:absolute;left:-2%;right:-2%;bottom:.06em;height:.14em;background:var(--sk-mint);z-index:-1;transform:scaleX(0);transform-origin:0 50%;border-radius:3px';
         tl.addUpdate(s + 0.4, 0.32, p => { und.style.transform = `scaleX(${p})`; }, 'power2.out');
       }
@@ -1457,7 +1486,7 @@ window.NexSketch = (() => {
     if (spec.sub) {
       const s = h('div', 'sk-mono', el, spec.sub);
       s.style.cssText = 'font-size:13.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sk-ink-2)';
-      fadeIn(tl, s, 0.12 + words.length * 0.3 + 0.25, 0.45);
+      fadeIn(tl, s, 0.12 + words.length * (maskMode ? 0.18 : 0.3) + 0.25, 0.45);
     }
     return { el, tl };
   };
@@ -1487,51 +1516,130 @@ window.NexSketch = (() => {
     el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;position:relative';
     const head = h('h2', 'sk-display', el); head.dataset.cap = 'title';
     head.style.cssText = `font-size:calc(${spec.fontSize || '64px'} * var(--sk-display-scale,1));max-width:94%;line-height:1.06`;
-    const chars = splitChars(head, spec.text || spec.headline || '');
-    const n = Math.max(1, chars.length);
+    const text = spec.text || spec.headline || '';
     const stagger = spec.stagger ?? 0.03;
     const blurMax = spec.blur ?? 9;
     const accent = spec.accent;
     const tl = NexMotion.createTimeline();
-    const decode = spec.reveal === 'decode';
-    if (decode) chars.forEach(c => { c.style.opacity = '0'; });
-    chars.forEach((c, i) => {
-      const s = 0.06 + i * stagger;
-      if (decode) {
-        const orig = c.textContent;
-        tl.addUpdate(s, 0.42, (p, raw, t) => {
-          const step = Math.floor(t * 22);
-          c.textContent = p >= 0.92 ? orig : glyphAt(i, step);
-          c.style.opacity = p > 0 ? '1' : '0';
-        }, 'none');
-        tl.addUpdate(s + 0.45, 0.01, (p) => { if (p > 0) c.textContent = orig; }, 'none');
-        return;
-      }
-      const depth = 1 - i / n;
-      const blur = blurMax * (0.45 + 0.55 * depth);
-      const dy = 24 + 20 * depth;
-      const rot = (i % 2 ? -1 : 1) * (1.2 + depth * 2);   // slight hand-set wobble
-      c.style.willChange = 'transform,filter';
-      tl.fromTo(c, { opacity: 0, y: dy, scaleY: 1.15, rotation: rot },
-        { opacity: 1, y: 0, scaleY: 1, rotation: 0, duration: 0.34, ease: 'power3.out' }, s);
-      tl.addUpdate(s, 0.34, p => { c.style.filter = `blur(${(blur * (1 - p)).toFixed(2)}px)`; }, 'power2.out');
-      tl.addUpdate(s + 0.32, 0.18, p => {
-        const k = Math.sin(p * Math.PI);
-        c.style.scale = `${(1 + 0.05 * k).toFixed(3)} ${(1 - 0.08 * k).toFixed(3)}`;
-      }, 'none');
-    });
+    const reveal = spec.reveal || 'rise';
+    const accA = cssVar('--sk-mint-deep'), accB = cssVar('--sk-ink');
+    let chars;
+    let tailT;
+    if (reveal === 'mask' || reveal === 'sweep') {
+      /* word-granularity reveals: words rise out of clip masks (mask) or
+         tracking collapses in from wide (sweep) */
+      const inners = [];
+      String(text).split(/\s+/).filter(Boolean).forEach((w, wi) => {
+        const m = h('span', '', head);
+        m.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;padding:.1em .03em;margin:-.1em -.03em';
+        const inner = h('span', '', m, w);
+        inner.style.cssText = 'display:inline-block;transform-origin:0 100%;will-change:translate,rotate,filter,opacity';
+        inner.dataset.cap = 'word-' + wi;
+        head.appendChild(document.createTextNode(' '));
+        inners.push(inner);
+      });
+      inners.forEach((inner, i) => {
+        const s = 0.07 + i * 0.115;
+        if (reveal === 'mask') {
+          tl.addUpdate(s, 0.55, (p, raw) => {
+            if (raw <= 0) { inner.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            inner.style.opacity = '1';
+            inner.style.translate = `0 ${((1 - e) * 112).toFixed(2)}%`;
+            inner.style.rotate = `${((1 - e) * 5).toFixed(2)}deg`;
+            inner.style.filter = raw > 0.96 ? '' : `blur(${(4 * (1 - raw)).toFixed(2)}px)`;
+          }, 'none');
+        } else {
+          tl.addUpdate(s, 0.6, (p, raw) => {
+            if (raw <= 0) { inner.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            inner.style.opacity = String(Math.min(1, raw * 3));
+            inner.style.letterSpacing = `${(0.32 * (1 - e)).toFixed(3)}em`;
+            inner.style.translate = `0 ${((1 - e) * 10).toFixed(2)}px`;
+            inner.style.filter = raw > 0.95 ? '' : `blur(${(6 * (1 - raw)).toFixed(2)}px)`;
+          }, 'none');
+        }
+      });
+      chars = inners;
+      tailT = 0.07 + inners.length * 0.115 + 0.4;
+    } else {
+      chars = splitChars(head, text);
+      const n = Math.max(1, chars.length);
+      const decode = reveal === 'decode';
+      if (decode) chars.forEach(c => { c.style.opacity = '0'; });
+      head.style.perspective = '700px';
+      chars.forEach((c, i) => {
+        const s = 0.06 + i * stagger;
+        if (decode) {
+          const orig = c.textContent;
+          tl.addUpdate(s, 0.42, (p, raw, t) => {
+            const step = Math.floor(t * 22);
+            c.textContent = p >= 0.92 ? orig : glyphAt(i, step);
+            c.style.opacity = p > 0 ? '1' : '0';
+          }, 'none');
+          tl.addUpdate(s + 0.45, 0.01, (p) => { if (p > 0) c.textContent = orig; }, 'none');
+          return;
+        }
+        c.style.willChange = 'transform,filter';
+        if (reveal === 'flip') {
+          c.style.transformOrigin = '50% 100%';
+          tl.addUpdate(s, 0.52, (p, raw) => {
+            if (raw <= 0) { c.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            c.style.opacity = String(Math.min(1, raw * 4));
+            c.style.transform = `rotateX(${((1 - e) * -96).toFixed(2)}deg)`;
+            c.style.filter = raw > 0.96 ? '' : `blur(${(6 * (1 - raw)).toFixed(2)}px)`;
+          }, 'none');
+        } else if (reveal === 'slam') {
+          /* scale punch + chromatic fringe collapse + spring settle */
+          tl.addUpdate(s, 0.42, (p, raw) => {
+            if (raw <= 0) { c.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            c.style.opacity = String(Math.min(1, raw * 5));
+            const sc = 1 + 0.8 * (1 - e);
+            c.style.scale = `${sc.toFixed(3)} ${sc.toFixed(3)}`;
+            c.style.filter = raw > 0.95 ? '' : `blur(${(7 * (1 - raw)).toFixed(2)}px)`;
+            const f = 1 - raw;
+            c.style.textShadow = f > 0.04 ? `${(-6 * f).toFixed(1)}px 0 ${accA}88, ${(6 * f).toFixed(1)}px 0 ${accB}44` : 'none';
+          }, 'none');
+        } else if (reveal === 'wave') {
+          tl.addUpdate(s, 0.62, (p, raw) => {
+            if (raw <= 0) { c.style.opacity = '0'; return; }
+            const e = springOut(raw);
+            const y = (1 - e) * 30 + Math.sin(raw * 8.5 + i * 0.55) * 8 * (1 - raw);
+            c.style.opacity = String(Math.min(1, raw * 4));
+            c.style.translate = `0 ${y.toFixed(2)}px`;
+            c.style.filter = raw > 0.95 ? '' : `blur(${(5 * (1 - raw)).toFixed(2)}px)`;
+          }, 'none');
+        } else { /* rise — velocity-weighted ink cascade */
+          const depth = 1 - i / n;
+          const blur = blurMax * (0.45 + 0.55 * depth);
+          const dy = 24 + 20 * depth;
+          const rot = (i % 2 ? -1 : 1) * (1.2 + depth * 2);
+          tl.fromTo(c, { opacity: 0, y: dy, scaleY: 1.15, rotation: rot },
+            { opacity: 1, y: 0, scaleY: 1, rotation: 0, duration: 0.34, ease: 'power3.out' }, s);
+          tl.addUpdate(s, 0.34, p => { c.style.filter = `blur(${(blur * (1 - p)).toFixed(2)}px)`; }, 'power2.out');
+          tl.addUpdate(s + 0.32, 0.18, p => {
+            const k = Math.sin(p * Math.PI);
+            c.style.scale = `${(1 + 0.05 * k).toFixed(3)} ${(1 - 0.08 * k).toFixed(3)}`;
+          }, 'none');
+        }
+      });
+      tailT = 0.06 + chars.length * stagger + 0.05;
+    }
     if (accent != null) {
       const word = typeof accent === 'number' ? null : String(accent).toLowerCase();
+      const all = head.querySelectorAll('span>span');
       let hit = [];
-      if (typeof accent === 'number') hit = chars.slice(-Math.abs(accent));
+      if (typeof accent === 'number') hit = [...all].slice(-Math.abs(accent));
       else head.querySelectorAll('span').forEach(wr => { if (wr.textContent.toLowerCase() === word) hit.push(...wr.querySelectorAll('span')); });
       const col = cssVar('--sk-mint-deep');
-      hit.forEach(c => tl.addUpdate(0.06 + n * stagger + 0.05, 0.25, p => { c.style.color = p > 0.5 ? col : ''; }, 'none'));
+      hit.forEach(c => tl.addUpdate(tailT, 0.25, p => { c.style.color = p > 0.5 ? col : ''; }, 'none'));
     }
     if (spec.sub) {
       const s = h('div', 'sk-mono', el, spec.sub);
       s.style.cssText = 'font-size:13.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sk-ink-2)';
-      fadeIn(tl, s, 0.2 + n * stagger, 0.45);
+      fadeIn(tl, s, 0.15 + tailT, 0.45);
     }
     return { el, tl };
   };

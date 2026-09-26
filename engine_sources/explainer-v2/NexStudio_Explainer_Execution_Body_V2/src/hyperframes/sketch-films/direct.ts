@@ -488,6 +488,11 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
       : {}),
   };
   const theme = { ...brandTheme, ...(brief.theme || {}) };
+  /* accentDeep drives the sketch accent var (--sk-mint-deep); derive it from
+     accent so brand accents never fall back to mint */
+  if (!theme.accentDeep && (theme.accent || theme.accent2)) {
+    theme.accentDeep = theme.accent || theme.accent2;
+  }
   const product = brief.product || brief.brand?.name || "NEX STUDIO";
   const media = { ...(brief.media || {}) };
   if (brief.brand?.logo && !media[brief.brand.logo]) media.logo = brief.brand.logo;
@@ -641,6 +646,21 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
     }
     scenes[scenes.length - 1].duration = round1(dur - scenes[scenes.length - 1].start);
   }
+
+  /* 3d) kinetic reveal defaults by tone — the type's entrance vocabulary
+        follows the film's register; an explicit beat.reveal always wins */
+  const typeReveal: Record<string, string> = {
+    polished: "mask", cinematic: "sweep", chaotic: "slam",
+    deadpan: "flip", "app-store": "mask", default: "mask",
+  };
+  const headReveal: Record<string, string> = {
+    polished: "mask", cinematic: "mask", chaotic: "slam",
+    deadpan: "flip", "app-store": "mask", default: "mask",
+  };
+  scenes.forEach(s => {
+    if (s.type === "kinetic-type" && !s.reveal) s.reveal = typeReveal[tone.name] ?? "mask";
+    if (s.type === "kinetic-headline" && !s.reveal) s.reveal = headReveal[tone.name] ?? "mask";
+  });
 
   /* 4) SFX cues — semantic slots over sfx:NAME refs (see sfx-library.ts).
         Transition families get their own sound class; fx/callouts/wheel
