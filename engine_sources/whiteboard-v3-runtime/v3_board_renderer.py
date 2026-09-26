@@ -79,8 +79,8 @@ wbp._map_point = _map_point_zone_fit
 _ASSETS = Path(__file__).resolve().parent / 'assets'
 _ASSET_DIR = _ASSETS / 'open_peeps'
 _PEEPS_DIR = _ASSETS / 'peeps'
-# real photographed hand (CC-BY, Sharpie grip) preferred over the illustration
-_HAND_PATH = _ASSETS / 'hand' / 'drawing-hand-real.png'
+# our own illustrated marker-hand sprite (per user direction — no stock photo)
+_HAND_PATH = _ASSETS / 'hand' / 'drawing-hand.png'
 _HAND_PATH_ALT = _ASSETS / 'hand' / 'drawing-hand.png'
 _FONT_DIR = _ASSETS / 'fonts'
 
@@ -745,7 +745,7 @@ def text_width(text: str, height: float) -> float:
 
 _HAND_IMG = None
 # marker nib position per sprite (px, source image space)
-_HAND_NIBS = {_HAND_PATH.name: (10, 205), _HAND_PATH_ALT.name: (5, 8)}
+_HAND_NIBS = {_HAND_PATH.name: (5, 8), _HAND_PATH_ALT.name: (5, 8)}
 
 
 def _hand():

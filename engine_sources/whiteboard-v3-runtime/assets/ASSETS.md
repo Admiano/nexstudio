@@ -44,17 +44,11 @@ which were AI-generated and vectorized as pipeline demos.
 - License: Open Peeps artwork CC0; react-peeps source MIT (Cem Krier).
 
 ## hand/drawing-hand.png
-- Marker-hand overlay sprite, 1069×1472 RGBA, nib tip at ~ (105, 70) in the
-  original frame.
+- Marker-hand overlay sprite (illustrated), 932×889 RGBA, nib tip at
+  ~ (5, 8) in source space. The only hand overlay — the photographed
+  Sharpie cutout was removed per owner direction (no stock photo).
 - Source: `geeklee/srt-whiteboard-animation` (`assets/drawing-hand.png`),
   MIT license. Barrel branding text removed for commercial neutrality.
-
-## hand/drawing-hand-real.png
-- Photographed marker hand (hand + Sharpie cutout), 333×292 RGBA, nib tip
-  at ~ (10, 205). Preferred overlay sprite; drawing-hand.png is fallback.
-- Source: "prepping for sept 19" by gosheshe — CC-BY 2.0,
-  https://www.flickr.com/photos/69661184@N00/1405824622 — attribution
-  required in shipped videos (credit line in description suffices).
 
 ## fonts/
 - `PermanentMarker.ttf` — © Font Diner, SIL OFL 1.1 (marker-style headline)
