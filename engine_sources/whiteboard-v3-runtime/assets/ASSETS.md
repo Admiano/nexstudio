@@ -177,6 +177,11 @@ which were AI-generated and vectorized as pipeline demos.
   proto still in the named pose; first/second person slots are claimed
   automatically (icon group stays empty, ground shadow + caption persist).
   Figures persist on the board across later beats, holding their pose.
+- `beat.title` — big hand-lettered section header drawn across the top
+  of the board ("Avoid Slippage" style); the latest beat's title inks
+  in over ~1.1s and its predecessor fades pale for 0.4s.
+- items in a beat cluster into one vignette — free cells nearest the
+  beat's already-placed items win, so actor/prop/chip sit adjacent.
 - role dicts — `heroRole`/`supportingRoles` entries accept
   `{label, icon?, tone?, scale?, facing?, bubble?, no_caption?, wgt?, chip?}`:
   `icon` names an icon-vocab word; `tone` a named accent or `#rrggbb`;

@@ -425,8 +425,11 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
     # chip/label elements keep theirs; everything else draws bare
     for it in merged:
         if not _is_person_item(it):
-            it['groups'] = [ge for ge in it['groups']
-                            if ge[0][0] != 'caption']
+            keep = any(g[0] == 'caption' and g[4] and g[4].get('chip')
+                       for g, _s, _e in it['groups'])
+            if not keep:
+                it['groups'] = [ge for ge in it['groups']
+                                if ge[0][0] != 'caption']
     # the reference idiom is still figures + clean items — motion-mark
     # scribbles read as noise here, so this mode drops them
     for it in merged:
@@ -528,6 +531,19 @@ def _build(plan, ratio):
         t1 = t0 + float(sec['beat'].get('duration_seconds', 3.0))
         sec['t_window'] = (t0, t1)
         dur = t1 - t0
+        # per-section title — the reference's big hand-lettered header above
+        # each cluster ("Avoid Slippage"); sits top-center, swaps per beat
+        ttl = str(sec['beat'].get('title') or sec.get('label') or '').strip()
+        if ttl:
+            th2 = min(bh * 0.075, 58.0)
+            if text_width(ttl, th2) > bw * 0.40:
+                th2 *= bw * 0.40 / text_width(ttl, th2)
+            tts = text_strokes(ttl, (bx0 + bw * 0.36, by0 + bh * 0.015),
+                               th2, 'ink', 1.2)
+            tts += [([(px + th2 * 0.045, py + th2 * 0.02)
+                      for px, py in s[0]], s[1], s[2], s[3], s[4])
+                    for s in list(tts)]
+            sec['title_st'] = tts
         items = sec['items']
         k = len(items)
         if not k:
@@ -536,12 +552,23 @@ def _build(plan, ratio):
         # stagger element ink across the beat; each claims its own slot
         slot_dur = dur / k
         placed = []
+        sec_cells = []   # cells this beat's items occupy — cluster target
         for j, it in enumerate(items):
             uid += 1
             person = _is_person_item(it)
             anchor = person or bool(sec['beat'].get('heroRole'))
-            cell = next((ci for ci, o in enumerate(cell_item) if o < 0),
-                        None)
+            # compose each beat as a cluster: later items take the free cell
+            # nearest this beat's existing cells instead of row-major fill
+            free = [ci for ci, o in enumerate(cell_item) if o < 0]
+            cell = None
+            if free:
+                if sec_cells:
+                    cell = min(free, key=lambda ci: min(
+                        abs(divmod(ci, ncol_)[0] - divmod(uc, ncol_)[0])
+                        + abs(divmod(ci, ncol_)[1] - divmod(uc, ncol_)[1])
+                        for uc in sec_cells))
+                else:
+                    cell = free[0]
             if cell is None:
                 # evict the oldest live non-anchor item
                 vict = next((u for u in live_order
@@ -552,6 +579,7 @@ def _build(plan, ratio):
                 it_old['fade'] = (max(0.0, ft0), ft0 + FADE_OUT)
                 live_order.remove(vict)
             cell_item[cell] = uid
+            sec_cells.append(cell)
             live_order.append(uid)
             u_cell[uid] = cell
             u_anchor[uid] = bool(anchor)
@@ -852,6 +880,27 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             ft = scene_.pop('_fm_tip', None) or scene_.pop('_fm2_tip', None)
             if ft is not None:
                 tip = ft
+        # section titles: latest started beat's title draws on; the previous
+        # one fades pale for 0.4s while the new one inks in
+        title_secs = [s for s in flow['sections']
+                      if s.get('title_st') and s.get('t_window')
+                      and s['t_window'][0] <= t]
+        if title_secs:
+            tlayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
+            cur = title_secs[-1]
+            _draw_strokes(tlayer, cur['title_st'], (0.0, 0.0), 1.0, cam,
+                          colors, ratio,
+                          wbp._ease(wbp._clamp(
+                              (t - cur['t_window'][0]) / 1.1)),
+                          seed + 71, zoom)
+            if len(title_secs) > 1:
+                dt = t - cur['t_window'][0]
+                if dt < 0.4:
+                    pst = [(st[0], 'pale', st[2], st[3], st[4])
+                           for st in title_secs[-2]['title_st']]
+                    _draw_strokes(tlayer, pst, (0.0, 0.0), 1.0, cam,
+                                  colors, ratio, 1.0, seed + 72, zoom)
+            frame.paste(tlayer, (0, 0), tlayer)
         return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed),
                          ratio)
 

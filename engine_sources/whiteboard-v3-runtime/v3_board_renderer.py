@@ -2133,8 +2133,9 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
                 sp = wbp._clamp(hp * m - k)
                 if sp <= 0:
                     break
-                seg_b = [(center[0] + px * size, center[1] + py * size)
-                         for px, py in seg]
+                seg_b = (seg if absolute else
+                         [(center[0] + px * size, center[1] + py * size)
+                          for px, py in seg])
                 seg_s = [wbp._map_point(q, cam, ratio, zoom) for q in seg_b]
                 t = _taper_line(layer, seg_s, hcol, hw, seed + j * 131 + k * 7,
                                 .18, sp)
@@ -2187,9 +2188,9 @@ def _move_strokes(strokes, dx, dy):
 def _caption_strokes(center, size, label, zone=None, row=0, pitch=None,
                      chip=None):
     txt = str(label).upper()
-    # reference captions are small footnote text, not headline-sized
-    h = size * 0.075
-    maxw = min(size * 1.6, (zone['w'] * 0.40 if zone else size * 1.6))
+    # captions must read at feed size — ~2x the old footnote scale
+    h = size * 0.15
+    maxw = min(size * 2.4, (zone['w'] * 0.40 if zone else size * 2.4))
     if pitch:
         # captions live in the column under their slot — never wider than the
         # gap to the next slot, or neighbours collide
@@ -2204,7 +2205,7 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None,
         lines = [' '.join(words[:best]), ' '.join(words[best:])]
     tw = max(text_width(l, h) for l in lines)
     if tw > maxw:
-        h = max(size * 0.060, h * maxw / tw)
+        h = max(size * 0.105, h * maxw / tw)
         tw = max(text_width(l, h) for l in lines)
     oy = center[1] + size * (0.56 + 0.34 * row)
     mg = max(10.0, (zone['w'] * 0.022) if zone else 10.0)
@@ -2232,7 +2233,7 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None,
         col = chip if isinstance(chip, str) else 'accent'
         box = _rounded_rect((bx0 + bx1) / 2, (by0 + by1) / 2,
                             bx1 - bx0, by1 - by0, h * 0.34)
-        strokes = ([(box, col, 1.35, (by1 - by0) / 14.0, True),
+        strokes = ([(box, col, 1.35, (by1 - by0) / 22.0, True),
                     (box, 'ink', 0.9, False, True)]
                    + strokes)
         # collision bookkeeping needs the true rendered span (per-line

@@ -45,7 +45,8 @@
           }
         ]
       },
-      "screenCopy": "What is a dark pool in crypto?"
+      "screenCopy": "What is a dark pool in crypto?",
+      "title": "The Hidden Trade"
     },
     {
       "beat_id": "02_problem",
@@ -91,7 +92,8 @@
         "still": true,
         "pose": 0.5
       },
-      "screenCopy": "The problem with selling big"
+      "screenCopy": "The problem with selling big",
+      "title": "The Problem"
     },
     {
       "beat_id": "03_fear",
@@ -141,7 +143,8 @@
         "still": true,
         "pose": 0.6
       },
-      "screenCopy": "Fear of a whale selling"
+      "screenCopy": "Fear of a whale selling",
+      "title": "Why Whales Love Them"
     },
     {
       "beat_id": "04_how",
@@ -188,7 +191,8 @@
           }
         ]
       },
-      "screenCopy": "How does a dark pool work?"
+      "screenCopy": "How does a dark pool work?",
+      "title": "How It Works"
     },
     {
       "beat_id": "05_why",
@@ -233,7 +237,8 @@
         "still": true,
         "pose": 0.55
       },
-      "screenCopy": "Why use a dark pool?"
+      "screenCopy": "Why use a dark pool?",
+      "title": "Why Traders Use Them"
     },
     {
       "beat_id": "06_who",
@@ -276,7 +281,8 @@
         "still": true,
         "pose": 0.3
       },
-      "screenCopy": "Who uses dark pools?"
+      "screenCopy": "Who uses dark pools?",
+      "title": "Who's Inside"
     },
     {
       "beat_id": "07_takeaway",
@@ -321,7 +327,8 @@
         "still": true,
         "pose": 0.35
       },
-      "screenCopy": "Size stays your business"
+      "screenCopy": "Size stays your business",
+      "title": "The Takeaway"
     }
   ]
 }
