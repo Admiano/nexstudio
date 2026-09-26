@@ -1,0 +1,57 @@
+{
+  "phase": "NEXSTICK CAST V1 PHASE E",
+  "name": "Performance Personality System",
+  "version": "1.0.0",
+  "patchType": "additive-only",
+  "authoritativeBase": {
+    "archive": "NEX_PERFORMANCE_FREE_MAX_V4.zip",
+    "version": "4.0.0-free-max",
+    "sha256": "0a2a3e95c01207a4740fea3ce46dc8c955184bc459760e3f484a0764ffb93ddf",
+    "required": true,
+    "modifiedByPhaseE": false
+  },
+  "loadOrder": [
+    "base_v3/build/nex-performance-motion-v3.bundle.js",
+    "base_v3/base_v2/core/nex-stickman-captured-safe-v2.js",
+    "runtime/nex-captured-motion-v4.js",
+    "runtime/nex-grasp-intelligence-v4.js",
+    "runtime/nex-load-carry-v4.js",
+    "runtime/nex-performance-qa-v4.js",
+    "runtime/nex-performance-engine-v4.js",
+    "PHASE_E/runtime/personality-motion-selection-adapter-v1.js",
+    "PHASE_E/runtime/nexstick-personality-adapter-v1.js"
+  ],
+  "phaseEExports": [
+    "globalThis.NexPersonalityMotionSelectionV1",
+    "globalThis.NexStickPersonalityAdapterV1"
+  ],
+  "primaryAPI": {
+    "plan": "NexStickPersonalityAdapterV1.plan(request)",
+    "sample": "NexStickPersonalityAdapterV1.sample(request, timeSeconds)",
+    "samplePlan": "NexStickPersonalityAdapterV1.samplePlan(plan, timeSeconds)",
+    "handoffPair": "NexStickPersonalityAdapterV1.handoffPair(timeSeconds, spec)",
+    "actionDuration": "NexStickPersonalityAdapterV1.actionDuration(request)"
+  },
+  "requestFieldsAdded": {
+    "personality": "one of calm, cheerful, confident, shy, energetic, serious, playful, authoritative, warm, reserved",
+    "character": "stable actor/family identifier used only for deterministic selection tie-breaking",
+    "seed": "stable number/string used only for deterministic selection tie-breaking; never procedural motion randomness",
+    "timingLocked": "optional boolean; true disables personality core tempo/envelope changes"
+  },
+  "actionAliases": {
+    "present": "V4 interact motion path",
+    "reach": "V4 captured_reach path",
+    "handoff": "V4 handoffPair path"
+  },
+  "safetyBoundary": {
+    "directJointWrites": false,
+    "proceduralMotionGeneration": false,
+    "contactSolverOverride": false,
+    "gripSolverOverride": false,
+    "footSupportOverride": false,
+    "seatSupportOverride": false,
+    "ownershipOverrideInsideV4Core": false,
+    "randomOrWallClockMotion": false
+  },
+  "mergeRule": "Copy only Phase-E files into the central integration branch. Do not replace or edit V4 files. Resolve paths according to the central Cast layout while preserving load order and API names."
+}

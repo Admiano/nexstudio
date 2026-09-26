@@ -1,0 +1,148 @@
+{
+  "id": "scene.process.paper-01",
+  "name": "Process",
+  "version": "2.1.0",
+  "category": "scene-family",
+  "subtype": "process-lanes",
+  "slug": "process",
+  "renderer": "process-lanes",
+  "order": 17,
+  "intents": [
+    "explain_process",
+    "compose_story_scene"
+  ],
+  "keywords": [
+    "scene",
+    "paper",
+    "animated",
+    "reusable",
+    "process",
+    "explain_process"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "duration": {
+    "minimum": 3,
+    "recommended": 7.5,
+    "maximum": 12
+  },
+  "layoutVariants": [
+    {
+      "id": "A",
+      "name": "Parallel lanes",
+      "layout": "process-lanes-a"
+    },
+    {
+      "id": "B",
+      "name": "Sequential path",
+      "layout": "process-lanes-b"
+    }
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 70
+    },
+    "subtitle": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 220
+    },
+    "media": {
+      "type": "media",
+      "maximumItems": 4,
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "data": {
+      "type": "object",
+      "maximumItems": 12
+    },
+    "logo": {
+      "type": "media",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "approvedComponents": {
+    "typography": "numbered-list",
+    "icon": "workflow",
+    "media": "document-stack",
+    "data": "four-step-workflow"
+  },
+  "compatibleIconCategories": [
+    "universal",
+    "creator",
+    "agent",
+    "business"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push",
+    "tape-peel",
+    "card-stack-shuffle",
+    "crumple-transition"
+  ],
+  "soundTags": [
+    "scene.process",
+    "paper.scene.reveal",
+    "transition.paper.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Configurable animated process paper scene family",
+  "agentSelection": {
+    "useWhen": [
+      "explain_process"
+    ],
+    "storyRole": "process",
+    "avoidWhen": [
+      "slot_limits_exceeded"
+    ]
+  },
+  "sampleConfig": {
+    "title": "Brief. Select. Compose. Validate.",
+    "subtitle": "PROCESS \u00b7 NEXSTUDIO PAPER MOTION",
+    "body": "Every slot is replaceable, agent-readable and responsive across landscape, square and portrait.",
+    "variant": "A",
+    "style": "clean-editorial",
+    "energy": "medium",
+    "duration": 7.5,
+    "media": "assets/media/website-screenshot.svg"
+  }
+}

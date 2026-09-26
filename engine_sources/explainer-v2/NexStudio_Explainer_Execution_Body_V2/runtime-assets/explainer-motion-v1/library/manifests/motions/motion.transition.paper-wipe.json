@@ -1,0 +1,88 @@
+{
+  "id": "motion.transition.paper-wipe",
+  "name": "Paper wipe",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "transition",
+  "key": "paper-wipe",
+  "intents": [
+    "animate_transition",
+    "paper_wipe"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "transition",
+    "paper",
+    "wipe"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.45,
+      "maximum": 1.5
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power3.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 0.8,
+    "maximum": 1.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "editorial-scene",
+    "collage-scene",
+    "technical-scene"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power3.inOut",
+  "soundTags": [
+    "transition.paper-wipe"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Paper wipe reusable animation behaviour",
+  "description": "Moves a full paper sheet across the composition and switches scenes beneath it.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "preservesOutgoingUntilStart": true,
+  "requiresIncomingAndOutgoing": true
+}

@@ -1,0 +1,91 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles/tokens.css"><link rel="stylesheet" href="../../styles/audio-system.css"></head><body><main style="padding:30px;background:var(--paper-bg);min-height:100vh"><h1>Bass Hit</h1><p>motion.impact.heavy, ui.error, motion.drop.heavy</p><audio controls src="../../assets/audio/production/candidate-v1/bass-hit.wav"></audio><pre>{
+  "id": "audio.bass-hit",
+  "slug": "bass-hit",
+  "name": "Bass Hit",
+  "version": "2.2.0",
+  "category": "audio",
+  "subtype": "motion-transition",
+  "approvalStatus": "candidate",
+  "technicalStatus": "pass",
+  "editorialApproval": "pending",
+  "enabledByDefault": false,
+  "intensity": "heavy",
+  "semanticTags": [
+    "motion.impact.heavy",
+    "ui.error",
+    "motion.drop.heavy"
+  ],
+  "recommendedVisualActions": [
+    "impact",
+    "error",
+    "heavy-drop"
+  ],
+  "recommendedTimingOffsetSeconds": -0.04,
+  "moods": [
+    "cinematic",
+    "heavy"
+  ],
+  "loopable": false,
+  "sourceMaster": "assets/audio/masters/candidate-v1/legacy-candidates/04_bass_hit.mp3",
+  "productionFile": "assets/audio/production/candidate-v1/bass-hit.wav",
+  "provenance": "legacy model-generated candidate",
+  "licenseStatus": "original model-generated candidate; usage approval required",
+  "processing": {
+    "silenceTrim": true,
+    "protectiveFadeInMs": 6,
+    "protectiveFadeOutMs": 10,
+    "targetLufs": -18,
+    "truePeakCeilingDbfs": -1.5,
+    "originalFrames": 44160,
+    "processedFrames": 44160,
+    "trimmedSeconds": 0.0
+  },
+  "measurements": {
+    "durationSeconds": 0.92,
+    "sampleRateHz": 48000,
+    "bitDepth": 24,
+    "channels": 2,
+    "peakDbfs": -3.57,
+    "rmsDbfs": -16.05,
+    "integratedLufs": -18.0,
+    "dcOffsetMax": 9.301e-05,
+    "clippedSamples": 0,
+    "spectralCentroidHz": 163.1,
+    "sha256": "ca394383a06d849cc3b9a0e3c4d5e9be07362733f9bbb07c3eae258498200c3f"
+  },
+  "slots": {
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "volume": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.72
+    },
+    "timingOffset": {
+      "type": "number",
+      "minimum": -0.5,
+      "maximum": 0.5,
+      "default": -0.04
+    },
+    "alternateSound": {
+      "type": "audio-id",
+      "optional": true
+    },
+    "voiceoverDuckingDb": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 18,
+      "default": 6
+    },
+    "musicDuckingDb": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 18,
+      "default": 3
+    }
+  },
+  "accessibilityLabel": "Audition Bass Hit candidate sound effect"
+}</pre></main></body></html>

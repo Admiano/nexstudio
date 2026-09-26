@@ -1,0 +1,157 @@
+{
+  "id": "module.documentary.object-close-up.paper-01",
+  "name": "Object close-up",
+  "version": "2.0.0",
+  "category": "documentary-module",
+  "subtype": "object",
+  "slug": "object-close-up",
+  "renderer": "object-close-up",
+  "order": 23,
+  "intents": [
+    "show_object_closeup",
+    "documentary_object"
+  ],
+  "keywords": [
+    "documentary",
+    "scrapbook",
+    "paper",
+    "animated",
+    "object",
+    "object close-up",
+    "show_object_closeup"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "moods": [
+    "warm",
+    "serious",
+    "investigative",
+    "celebratory"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.1,
+    "maximum": 7
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "unfold",
+    "peel-reveal",
+    "drop-and-settle",
+    "stamp-impact"
+  ],
+  "defaultMotion": "paper-slide",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 50
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 105
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "location": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "source": {
+      "type": "string",
+      "maxCharacters": 120,
+      "editable": true
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "mood": {
+      "type": "enum",
+      "values": [
+        "warm",
+        "serious",
+        "investigative",
+        "celebratory"
+      ]
+    },
+    "redactions": {
+      "type": "boolean"
+    },
+    "highlight": {
+      "type": "string",
+      "maxCharacters": 80
+    },
+    "routeLabels": {
+      "type": "array",
+      "maximumItems": 6
+    },
+    "connections": {
+      "type": "array",
+      "maximumItems": 10
+    }
+  },
+  "soundTags": [
+    "documentary.object.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated object close-up documentary paper module",
+  "replaceableMedia": true,
+  "editableCitationSlots": false,
+  "configurableMood": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_object_closeup",
+      "documentary_object"
+    ],
+    "semanticRole": "object",
+    "avoidWhen": [
+      "sensationalize_without_evidence"
+    ]
+  },
+  "sampleConfig": {
+    "title": "The radio in the corner",
+    "date": "1998",
+    "caption": "It played every Sunday while the family prepared lunch.",
+    "media": "assets/media/documentary/object-radio.svg"
+  }
+}

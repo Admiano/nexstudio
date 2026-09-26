@@ -1,0 +1,163 @@
+{
+  "id": "workflow.three-step-workflow.paper-01",
+  "name": "Three-step workflow",
+  "version": "1.9.0",
+  "category": "workflow-diagram",
+  "subtype": "process",
+  "slug": "three-step-workflow",
+  "renderer": "three-step-workflow",
+  "order": 3,
+  "intents": [
+    "explain_three_step_workflow",
+    "show_workflow",
+    "explain_system"
+  ],
+  "keywords": [
+    "workflow",
+    "diagram",
+    "paper",
+    "animated",
+    "three-step workflow",
+    "process",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "nodes": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "edges": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 6
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "nodes",
+      "edges"
+    ],
+    "nodeFields": [
+      "id",
+      "label",
+      "type",
+      "value"
+    ],
+    "edgeFields": [
+      "from",
+      "to",
+      "label"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 3,
+    "maximum": 3
+  },
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 1,
+    "recommended": 2.6,
+    "maximum": 10
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "connect",
+    "node-sequence"
+  ],
+  "defaultMotion": "connect",
+  "soundTags": [
+    "workflow.connect",
+    "ui.confirm",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven three-step workflow",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromEmpty": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Three Step Workflow",
+    "nodes": [
+      {
+        "id": "n1",
+        "label": "Understand",
+        "type": "step"
+      },
+      {
+        "id": "n2",
+        "label": "Create",
+        "type": "step"
+      },
+      {
+        "id": "n3",
+        "label": "Validate",
+        "type": "step"
+      }
+    ],
+    "edges": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      }
+    ]
+  }
+}

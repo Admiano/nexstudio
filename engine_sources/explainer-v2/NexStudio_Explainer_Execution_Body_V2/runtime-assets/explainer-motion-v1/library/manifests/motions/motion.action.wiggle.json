@@ -1,0 +1,85 @@
+{
+  "id": "motion.action.wiggle",
+  "name": "Wiggle",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "action",
+  "key": "wiggle",
+  "intents": [
+    "animate_action",
+    "wiggle"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "action",
+    "wiggle"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "sine.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "sine.inOut",
+  "soundTags": [
+    "paper.wiggle.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Wiggle reusable animation behaviour",
+  "description": "Applies a short finite paper wiggle for attention or uncertainty.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

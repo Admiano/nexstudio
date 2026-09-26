@@ -1,0 +1,77 @@
+{
+  "id": "object.string-connector.paper-01",
+  "name": "String connector",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "attachment",
+  "cssClass": "obj-string-connector",
+  "renderer": "string-connector",
+  "intents": [
+    "compose_paper_story",
+    "display_attachment"
+  ],
+  "keywords": [
+    "paper",
+    "attachment",
+    "string",
+    "connector"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "color": {
+      "type": "theme-token"
+    },
+    "anchor": {
+      "type": "position"
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "pin-board",
+    "drop-settle",
+    "paper-slide"
+  ],
+  "defaultMotion": "pin-board",
+  "soundTags": [
+    "paper.attach.soft",
+    "motion.pin-board"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "String connector animated paper component",
+  "description": "A configurable curved string connector between two anchors.",
+  "attachable": true,
+  "bespokeMotion": true
+}

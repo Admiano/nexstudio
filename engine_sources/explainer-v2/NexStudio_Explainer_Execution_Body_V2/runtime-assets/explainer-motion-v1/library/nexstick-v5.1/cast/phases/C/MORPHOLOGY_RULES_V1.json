@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "scope": "morphology-only",
+  "forbidden": [
+    "separate family motion engines",
+    "procedural male/female/child/diminutive gait",
+    "clothing",
+    "personality behavior",
+    "occupation presets"
+  ],
+  "canonicalSkeleton": {
+    "id": "NexStick-22",
+    "joints": [
+      "root",
+      "pelvis",
+      "spine",
+      "chest",
+      "neck",
+      "head",
+      "clavicle_l",
+      "shoulder_l",
+      "elbow_l",
+      "wrist_l",
+      "clavicle_r",
+      "shoulder_r",
+      "elbow_r",
+      "wrist_r",
+      "hip_l",
+      "knee_l",
+      "ankle_l",
+      "toe_l",
+      "hip_r",
+      "knee_r",
+      "ankle_r",
+      "toe_r"
+    ]
+  },
+  "segmentScaleMap": {
+    "root->pelvis": "overallScale * mean(thighLength, shinLength)",
+    "pelvis->spine": "overallScale * torsoLength",
+    "spine->chest": "overallScale * torsoLength",
+    "chest->neck": "overallScale * neckLength",
+    "neck->head": "overallScale * headRatio",
+    "chest->clavicle_*": "overallScale * shoulderWidth",
+    "clavicle_*->shoulder_*": "overallScale * shoulderWidth",
+    "shoulder_*->elbow_*": "overallScale * upperArmLength",
+    "elbow_*->wrist_*": "overallScale * forearmLength",
+    "pelvis->hip_*": "overallScale * hipWidth",
+    "hip_*->knee_*": "overallScale * thighLength",
+    "knee_*->ankle_*": "overallScale * shinLength",
+    "ankle_*->toe_*": "overallScale * footScale"
+  },
+  "anchorPolicy": {
+    "floorActions": [
+      "idle",
+      "walk",
+      "run",
+      "stand",
+      "pickup",
+      "carry",
+      "captured_reach",
+      "dance",
+      "crouch"
+    ],
+    "seatActions": [
+      "sit",
+      "sit_idle",
+      "sit_talk"
+    ],
+    "floorMethod": "preserve source lowest ankle/toe Y by rigid vertical translation after morph",
+    "seatMethod": "preserve source pelvis Y unless that would force a foot through the source floor; never stretch a limb"
+  },
+  "silhouetteConstraints": {
+    "adultHeadToVisualHeight": [
+      0.105,
+      0.165
+    ],
+    "childHeadToVisualHeight": [
+      0.145,
+      0.235
+    ],
+    "minWorldLimbRadius": 0.012,
+    "minRenderLimbPx": 3.2,
+    "minHandScale": 0.72,
+    "maxShoulderToHipWidthRatio": 1.55,
+    "minShoulderToHipWidthRatio": 0.72,
+    "noSexualizedAnatomy": true,
+    "noRawSkeletonPresentation": true
+  },
+  "contactBoundary": {
+    "actorBoundProps": "may follow morphed hand endpoints because that is morphology-space attachment preservation",
+    "worldLockedContacts": "must not be secretly re-aimed by Phase C; emit Phase-D retarget delta metadata",
+    "handoff": "morph each actor independently; shared prop may be placed at morphed wrist midpoint only for visualization/attachment preservation"
+  },
+  "diminutiveAdultRule": "Retain adult head/body language, hand/foot maturity, shoulder/hip structure and torso maturity; compactness comes from stature and shorter lower limbs, not enlarged-child proportions.",
+  "childRule": "Use larger head-to-height ratio, smaller hand/foot scale, shorter limbs and shorter torso relative to adult; never obtain child families by uniform scaling alone."
+}

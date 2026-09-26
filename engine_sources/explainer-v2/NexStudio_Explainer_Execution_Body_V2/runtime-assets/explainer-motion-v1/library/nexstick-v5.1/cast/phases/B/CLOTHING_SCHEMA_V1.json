@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexstudio://nexstick/cast/v1/phase-b/clothing-schema-v1",
+  "title": "NexStick Cast V1 Phase B Clothing Schema",
+  "type": "object",
+  "description": "Semantic modular clothing schema. Clothing consumes canonical body regions/pose and does not own a skeleton or motion.",
+  "$defs": {
+    "category": {
+      "enum": [
+        "upper",
+        "lower",
+        "full_body",
+        "outerwear",
+        "footwear",
+        "optional_headwear",
+        "optional_accessory"
+      ]
+    },
+    "clothingItem": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "category",
+        "compatibleBodyFamilies",
+        "anchorBindRegions",
+        "silhouetteRules",
+        "layerPriority",
+        "occlusionRules",
+        "motionSafeExpansion",
+        "minimumClearances",
+        "styleTags",
+        "roleTags",
+        "ageCompatibility",
+        "genderNeutralCompatible"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "$ref": "#/$defs/category"
+        },
+        "compatibleBodyFamilies": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "anchorBindRegions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "silhouetteRules": {
+          "type": "object"
+        },
+        "layerPriority": {
+          "type": "integer"
+        },
+        "occlusionRules": {
+          "type": "object"
+        },
+        "motionSafeExpansion": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "minimumClearances": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "styleTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roleTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ageCompatibility": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "child",
+              "adult",
+              "elder"
+            ]
+          }
+        },
+        "genderNeutralCompatible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "clothingPreset": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "compatibleBodyFamilies",
+        "items",
+        "styleTags"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "compatibleBodyFamilies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "items": {
+          "type": "object",
+          "required": [
+            "upper",
+            "lower",
+            "full_body",
+            "outerwear",
+            "footwear",
+            "optional_headwear",
+            "optional_accessory"
+          ],
+          "properties": {
+            "upper": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "lower": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "full_body": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "outerwear": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "footwear": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "optional_headwear": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "optional_accessory": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "styleTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "bodyMetricsContract": {
+      "type": "object",
+      "description": "Provided by Phase A BodyPreset/body-shell measurement. Phase B must not synthesize a second skeleton.",
+      "required": [
+        "shoulderHalfWidth",
+        "chestHalfWidth",
+        "waistHalfWidth",
+        "hipHalfWidth",
+        "upperArmRadius",
+        "forearmRadius",
+        "thighRadius",
+        "calfRadius",
+        "footRadius"
+      ],
+      "properties": {
+        "shoulderHalfWidth": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "chestHalfWidth": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "waistHalfWidth": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "hipHalfWidth": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "upperArmRadius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "forearmRadius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "thighRadius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "calfRadius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "footRadius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    }
+  },
+  "required": [
+    "items",
+    "presets"
+  ],
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/clothingItem"
+      }
+    },
+    "presets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/clothingPreset"
+      }
+    }
+  }
+}

@@ -1,0 +1,763 @@
+[
+  {
+    "id": "r01",
+    "input": "presenter",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "presenter"
+      ]
+    }
+  },
+  {
+    "id": "r02",
+    "input": "teacher",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "teacher"
+      ]
+    }
+  },
+  {
+    "id": "r03",
+    "input": "student",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "student"
+      ]
+    }
+  },
+  {
+    "id": "r04",
+    "input": "office worker",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "office_worker"
+      ]
+    }
+  },
+  {
+    "id": "r05",
+    "input": "executive",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "executive"
+      ]
+    }
+  },
+  {
+    "id": "r06",
+    "input": "creator",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "creator"
+      ]
+    }
+  },
+  {
+    "id": "r07",
+    "input": "technician",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "technician"
+      ]
+    }
+  },
+  {
+    "id": "r08",
+    "input": "healthcare worker",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "healthcare_worker"
+      ]
+    }
+  },
+  {
+    "id": "r09",
+    "input": "builder",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "builder"
+      ]
+    }
+  },
+  {
+    "id": "r10",
+    "input": "parent",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "parent"
+      ]
+    }
+  },
+  {
+    "id": "r11",
+    "input": "child",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "child"
+      ]
+    }
+  },
+  {
+    "id": "r12",
+    "input": "customer",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "customer"
+      ]
+    }
+  },
+  {
+    "id": "r13",
+    "input": "helper",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "helper"
+      ]
+    }
+  },
+  {
+    "id": "r14",
+    "input": "friend",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "friend"
+      ]
+    }
+  },
+  {
+    "id": "r15",
+    "input": "salesperson",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "salesperson"
+      ]
+    }
+  },
+  {
+    "id": "r16",
+    "input": "one adult woman presenter",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "presenter"
+      ],
+      "must_include": [
+        "adult_woman_average",
+        "adult_woman_tall"
+      ]
+    }
+  },
+  {
+    "id": "r17",
+    "input": "father and daughter",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "parent",
+        "child"
+      ],
+      "relation": "parent_child"
+    }
+  },
+  {
+    "id": "r18",
+    "input": "two students",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "student"
+      ],
+      "counts": [
+        2
+      ]
+    }
+  },
+  {
+    "id": "r19",
+    "input": "teacher + three children",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "teacher",
+        "child"
+      ],
+      "counts": [
+        1,
+        3
+      ]
+    }
+  },
+  {
+    "id": "r20",
+    "input": "male office worker",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "office_worker"
+      ],
+      "must_include": [
+        "adult_man_average",
+        "adult_man_broad"
+      ]
+    }
+  },
+  {
+    "id": "r21",
+    "input": "diminutive adult presenter",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "presenter"
+      ],
+      "exact_families": [
+        "diminutive_man",
+        "diminutive_woman"
+      ]
+    }
+  },
+  {
+    "id": "r22",
+    "input": "mixed business team",
+    "expect": {
+      "status": "NEEDS_SPECIFICATION",
+      "group_template": "business_team"
+    }
+  },
+  {
+    "id": "r23",
+    "input": "parent + child",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "parent",
+        "child"
+      ],
+      "relation": "parent_child"
+    }
+  },
+  {
+    "id": "r24",
+    "input": "customer + salesperson",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "customer",
+        "salesperson"
+      ],
+      "relation": "service"
+    }
+  },
+  {
+    "id": "r25",
+    "input": "teacher and three students",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "teacher",
+        "student"
+      ],
+      "counts": [
+        1,
+        3
+      ],
+      "relation": "teacher_student"
+    }
+  },
+  {
+    "id": "r26",
+    "input": "mother and son",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "parent",
+        "child"
+      ],
+      "relation": "parent_child"
+    }
+  },
+  {
+    "id": "r27",
+    "input": "friend and friend",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "friend",
+        "friend"
+      ],
+      "relation": "friendship"
+    }
+  },
+  {
+    "id": "r28",
+    "input": "female healthcare worker",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "healthcare_worker"
+      ],
+      "must_exclude_age": "child"
+    }
+  },
+  {
+    "id": "r29",
+    "input": "boy student",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "student"
+      ],
+      "must_include": [
+        "boy"
+      ]
+    }
+  },
+  {
+    "id": "r30",
+    "input": "girl creator",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "creator"
+      ],
+      "must_include": [
+        "girl"
+      ]
+    }
+  },
+  {
+    "id": "r31",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "p",
+          "count": 1,
+          "role": "presenter",
+          "family": "adult_woman_average"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "presenter"
+      ],
+      "final_family": "adult_woman_average"
+    }
+  },
+  {
+    "id": "r32",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "e",
+          "count": 1,
+          "role": "executive",
+          "family": "adult_woman_tall"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "executive"
+      ],
+      "final_family": "adult_woman_tall"
+    }
+  },
+  {
+    "id": "r33",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "c",
+          "count": 1,
+          "role": "child",
+          "family": "girl"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "child"
+      ],
+      "final_family": "girl"
+    }
+  },
+  {
+    "id": "r34",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "p",
+          "count": 1,
+          "role": "parent",
+          "family": "diminutive_woman"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "parent"
+      ],
+      "final_family": "diminutive_woman"
+    }
+  },
+  {
+    "id": "r35",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "s",
+          "count": 1,
+          "role": "salesperson",
+          "family": "adult_man_average",
+          "clothing_tag": "lightweight_suit",
+          "personality": "warm"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "salesperson"
+      ],
+      "final_family": "adult_man_average",
+      "clothing": "lightweight_suit",
+      "personality": "warm"
+    }
+  },
+  {
+    "id": "r36",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "o",
+          "count": 1,
+          "role": "office_worker",
+          "family": "neutral_adult",
+          "gender": "neutral"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "office_worker"
+      ],
+      "final_family": "neutral_adult"
+    }
+  },
+  {
+    "id": "r37",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "e",
+          "count": 1,
+          "role": "executive",
+          "family": "girl"
+        }
+      ]
+    },
+    "expect": {
+      "status": "INVALID_REQUEST",
+      "roles": [
+        "executive"
+      ]
+    }
+  },
+  {
+    "id": "r38",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "p",
+          "count": 1,
+          "role": "parent",
+          "family": "boy"
+        }
+      ]
+    },
+    "expect": {
+      "status": "INVALID_REQUEST",
+      "roles": [
+        "parent"
+      ]
+    }
+  },
+  {
+    "id": "r39",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "t",
+          "count": 1,
+          "role": "teacher",
+          "family": "girl"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "teacher"
+      ],
+      "final_family": "girl",
+      "warning_contains": "outside_role_default"
+    }
+  },
+  {
+    "id": "r40",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "b",
+          "count": 1,
+          "role": "builder",
+          "family": "adult_woman_average"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "builder"
+      ],
+      "final_family": "adult_woman_average"
+    }
+  },
+  {
+    "id": "r41",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "x",
+          "count": 1,
+          "role": "astronaut"
+        }
+      ]
+    },
+    "expect": {
+      "status": "INVALID_REQUEST",
+      "roles": [
+        "astronaut"
+      ]
+    }
+  },
+  {
+    "id": "r42",
+    "input": "4 customers",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "customer"
+      ],
+      "counts": [
+        4
+      ]
+    }
+  },
+  {
+    "id": "r43",
+    "input": "female salesperson average",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "salesperson"
+      ],
+      "must_include": [
+        "adult_woman_average",
+        "girl"
+      ]
+    }
+  },
+  {
+    "id": "r44",
+    "input": "male presenter broad",
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "presenter"
+      ],
+      "final_family": "adult_man_broad"
+    }
+  },
+  {
+    "id": "r45",
+    "input": "neutral child friend",
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "friend"
+      ],
+      "final_family": "neutral_child"
+    }
+  },
+  {
+    "id": "r46",
+    "input": "diminutive female adult student",
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "student"
+      ],
+      "final_family": "diminutive_woman"
+    }
+  },
+  {
+    "id": "r47",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "students",
+          "count": 2,
+          "role": "student",
+          "family": "boy"
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "student"
+      ],
+      "counts": [
+        2
+      ],
+      "final_family": "boy"
+    }
+  },
+  {
+    "id": "r48",
+    "input": {
+      "schema_version": "1.0.0",
+      "request_id": "fully-specified",
+      "slots": [
+        {
+          "slot_id": "presenter",
+          "count": 1,
+          "role": "presenter",
+          "family": "adult_woman_average",
+          "gender": "female",
+          "age_group": "adult",
+          "morphology": "average",
+          "clothing_tag": "business_casual",
+          "personality": "confident",
+          "accessory_tags": [
+            "tablet"
+          ]
+        }
+      ]
+    },
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "presenter"
+      ],
+      "final_family": "adult_woman_average",
+      "clothing": "business_casual",
+      "personality": "confident"
+    }
+  },
+  {
+    "id": "r49",
+    "input": "neutral adult creator",
+    "expect": {
+      "status": "RESOLVED",
+      "roles": [
+        "creator"
+      ],
+      "final_family": "neutral_adult"
+    }
+  },
+  {
+    "id": "r50",
+    "input": {
+      "schema_version": "1.0.0",
+      "slots": [
+        {
+          "slot_id": "h",
+          "count": 1,
+          "role": "healthcare_worker",
+          "age_group": "child"
+        }
+      ]
+    },
+    "expect": {
+      "status": "INVALID_REQUEST",
+      "roles": [
+        "healthcare_worker"
+      ]
+    }
+  },
+  {
+    "id": "r51",
+    "input": "girl teacher",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "teacher"
+      ],
+      "must_include": [
+        "girl"
+      ]
+    }
+  },
+  {
+    "id": "r52",
+    "input": "boy builder",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "builder"
+      ],
+      "must_include": [
+        "boy"
+      ]
+    }
+  },
+  {
+    "id": "r53",
+    "input": "female executive",
+    "expect": {
+      "status": "RANKED_CANDIDATES",
+      "roles": [
+        "executive"
+      ],
+      "must_exclude_age": "child",
+      "must_include": [
+        "adult_woman_average"
+      ]
+    }
+  }
+]

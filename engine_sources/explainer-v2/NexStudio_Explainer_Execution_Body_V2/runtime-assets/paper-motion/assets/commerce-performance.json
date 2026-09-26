@@ -1,0 +1,27 @@
+{
+  "title": "Commerce Performance",
+  "format": "currency",
+  "currency": "USD",
+  "items": [
+    {
+      "label": "Q1",
+      "value": 42000,
+      "change": 8
+    },
+    {
+      "label": "Q2",
+      "value": 61000,
+      "change": 14
+    },
+    {
+      "label": "Q3",
+      "value": 79000,
+      "change": 11
+    },
+    {
+      "label": "Q4",
+      "value": 108000,
+      "change": 19
+    }
+  ]
+}

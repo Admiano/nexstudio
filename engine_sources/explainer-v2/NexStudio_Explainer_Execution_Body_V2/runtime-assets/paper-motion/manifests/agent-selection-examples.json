@@ -1,0 +1,60 @@
+[
+  {
+    "name": "Agent workflow",
+    "request": {
+      "intent": "explain_agent_workflow",
+      "duration": 8,
+      "aspectRatio": "16:9",
+      "paperStyle": "technical-notebook",
+      "motionEnergy": "medium",
+      "useCase": "agent",
+      "brand": {
+        "primary": "#6D45D8",
+        "secondary": "#FFB648",
+        "accent": "#FF5A36"
+      },
+      "content": {
+        "title": "From prompt to finished video",
+        "steps": [
+          "Understand",
+          "Plan",
+          "Create",
+          "Validate"
+        ]
+      },
+      "requireApprovedAudio": true
+    }
+  },
+  {
+    "name": "Creator launch",
+    "request": {
+      "intent": "launch_product",
+      "duration": 7,
+      "aspectRatio": "1:1",
+      "paperStyle": "bold-paper-collage",
+      "motionEnergy": "high",
+      "useCase": "creator",
+      "content": {
+        "title": "Launch the next episode",
+        "media": "replaceable"
+      },
+      "requireApprovedAudio": true
+    }
+  },
+  {
+    "name": "Documentary evidence",
+    "request": {
+      "intent": "show_evidence",
+      "duration": 9,
+      "aspectRatio": "9:16",
+      "paperStyle": "handmade-scrapbook",
+      "motionEnergy": "low",
+      "useCase": "documentary",
+      "content": {
+        "title": "The record remains",
+        "media": "archive.jpg"
+      },
+      "requireApprovedAudio": true
+    }
+  }
+]

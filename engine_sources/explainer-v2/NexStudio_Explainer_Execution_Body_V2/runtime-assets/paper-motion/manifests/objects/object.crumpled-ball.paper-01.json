@@ -1,0 +1,79 @@
+{
+  "id": "object.crumpled-ball.paper-01",
+  "name": "Crumpled paper ball",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "scrap",
+  "cssClass": "obj-crumpled-ball",
+  "renderer": "crumpled-ball",
+  "intents": [
+    "compose_paper_story",
+    "display_scrap"
+  ],
+  "keywords": [
+    "paper",
+    "scrap",
+    "crumpled",
+    "ball"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 20
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 90
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "crumple-flatten",
+    "drop-settle",
+    "paper-slide"
+  ],
+  "defaultMotion": "crumple-flatten",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.crumple-flatten"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Crumpled paper ball animated paper component",
+  "description": "A dimensional paper ball that can flatten into a sheet.",
+  "attachable": false,
+  "bespokeMotion": true
+}

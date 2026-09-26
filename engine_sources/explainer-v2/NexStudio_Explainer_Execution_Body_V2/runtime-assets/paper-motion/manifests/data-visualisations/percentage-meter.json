@@ -1,0 +1,156 @@
+{
+  "id": "data.percentage-meter.paper-01",
+  "name": "Percentage meter",
+  "version": "1.9.0",
+  "category": "data-visualisation",
+  "subtype": "progress",
+  "slug": "percentage-meter",
+  "renderer": "percentage-meter",
+  "order": 7,
+  "intents": [
+    "show_percentage_meter",
+    "visualise_data",
+    "explain_metric"
+  ],
+  "keywords": [
+    "data",
+    "chart",
+    "paper",
+    "animated",
+    "percentage meter",
+    "progress",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "items": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "format": {
+      "type": "enum",
+      "values": [
+        "number",
+        "compact",
+        "currency",
+        "percent"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "items"
+    ],
+    "itemFields": [
+      "label",
+      "value",
+      "change",
+      "segments",
+      "x",
+      "y"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 1,
+    "maximum": 1
+  },
+  "numberFormats": [
+    "number",
+    "compact",
+    "currency",
+    "percent"
+  ],
+  "supportsSigns": [
+    "positive",
+    "neutral",
+    "negative"
+  ],
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.2,
+    "maximum": 8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "draw-on",
+    "numeric-count"
+  ],
+  "defaultMotion": "draw-on",
+  "soundTags": [
+    "data.reveal",
+    "ui.tick",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven percentage meter",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromZero": true,
+  "usesTabularNumerals": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Completion",
+    "value": 72,
+    "format": "percent",
+    "items": [
+      {
+        "label": "Complete",
+        "value": 72
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "id": "scene.before-and-after.paper-01",
+  "name": "Before and after",
+  "version": "2.1.0",
+  "category": "scene-family",
+  "subtype": "before-after-stage",
+  "slug": "before-and-after",
+  "renderer": "before-after-stage",
+  "order": 13,
+  "intents": [
+    "show_before_after",
+    "compose_story_scene"
+  ],
+  "keywords": [
+    "scene",
+    "paper",
+    "animated",
+    "reusable",
+    "before and after",
+    "show_before_after"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "duration": {
+    "minimum": 3,
+    "recommended": 7.5,
+    "maximum": 12
+  },
+  "layoutVariants": [
+    {
+      "id": "A",
+      "name": "Split reveal",
+      "layout": "before-after-stage-a"
+    },
+    {
+      "id": "B",
+      "name": "Sliding divider",
+      "layout": "before-after-stage-b"
+    }
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 70
+    },
+    "subtitle": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 220
+    },
+    "media": {
+      "type": "media",
+      "maximumItems": 4,
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "data": {
+      "type": "object",
+      "maximumItems": 12
+    },
+    "logo": {
+      "type": "media",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "approvedComponents": {
+    "typography": "marker-highlight",
+    "icon": "refresh",
+    "media": "before-and-after-frame",
+    "data": "before-and-after-metric"
+  },
+  "compatibleIconCategories": [
+    "universal",
+    "creator",
+    "agent",
+    "business"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push",
+    "tape-peel",
+    "card-stack-shuffle",
+    "crumple-transition"
+  ],
+  "soundTags": [
+    "scene.before-and-after",
+    "paper.scene.reveal",
+    "transition.paper.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Configurable animated before and after paper scene family",
+  "agentSelection": {
+    "useWhen": [
+      "show_before_after"
+    ],
+    "storyRole": "before-and-after",
+    "avoidWhen": [
+      "slot_limits_exceeded"
+    ]
+  },
+  "sampleConfig": {
+    "title": "Before: scattered assets. After: a system that composes.",
+    "subtitle": "BEFORE AND AFTER \u00b7 NEXSTUDIO PAPER MOTION",
+    "body": "Every slot is replaceable, agent-readable and responsive across landscape, square and portrait.",
+    "variant": "A",
+    "style": "clean-editorial",
+    "energy": "medium",
+    "duration": 7.5,
+    "media": "assets/media/website-screenshot.svg"
+  }
+}

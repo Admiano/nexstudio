@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexstick://cast/v1/phase-d/performance-adaptation.schema.json",
+  "title": "NexStick Cast V1 Phase D Performance Adaptation",
+  "type": "object",
+  "required": [
+    "family",
+    "morphology",
+    "request"
+  ],
+  "properties": {
+    "family": {
+      "type": "string"
+    },
+    "morphology": {
+      "type": "object",
+      "description": "Consumed from Phase C. Phase D does not author body geometry.",
+      "required": [
+        "id",
+        "heightScale",
+        "armScale",
+        "legScale",
+        "torsoScale"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "heightScale": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.4
+        },
+        "armScale": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.4
+        },
+        "legScale": {
+          "type": "number",
+          "minimum": 0.45,
+          "maximum": 1.4
+        },
+        "torsoScale": {
+          "type": "number",
+          "minimum": 0.55,
+          "maximum": 1.35
+        },
+        "shoulderScale": {
+          "type": "number",
+          "minimum": 0.65,
+          "maximum": 1.4
+        },
+        "footScale": {
+          "type": "number",
+          "minimum": 0.6,
+          "maximum": 1.35
+        },
+        "segmentScales": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0.45,
+            "maximum": 1.45
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "request": {
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "actorOrigin": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "activeHand": {
+          "enum": [
+            "left",
+            "right"
+          ]
+        },
+        "grip": {
+          "type": "object"
+        },
+        "button": {
+          "type": "object"
+        },
+        "seat": {
+          "type": "object"
+        },
+        "partner": {
+          "type": "object"
+        },
+        "allowReposition": {
+          "type": "boolean"
+        },
+        "target": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "gazeTarget": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

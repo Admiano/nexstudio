@@ -1,0 +1,126 @@
+{
+  "id": "typography.quote-card.paper-01",
+  "name": "Quote card",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "editorial",
+  "slug": "quote-card",
+  "renderer": "quote-card",
+  "order": 4,
+  "intents": [
+    "show_quote",
+    "attribute_statement"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "editorial",
+    "quote card",
+    "show_quote",
+    "attribute_statement"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 220,
+      "guidance": "Maximum 220 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 72,
+      "guidance": "Maximum 72 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 220,
+    "meta": 72
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "paper-slide",
+  "soundTags": [
+    "typography.quote-card.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Quote card animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_quote",
+      "attribute_statement"
+    ],
+    "semanticRole": "editorial",
+    "copyGuidance": {
+      "title": 220,
+      "meta": 72
+    }
+  }
+}

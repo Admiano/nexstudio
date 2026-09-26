@@ -1,0 +1,77 @@
+{
+  "id": "object.staple-attachment.paper-01",
+  "name": "Staple attachment",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "attachment",
+  "cssClass": "obj-staple-attachment",
+  "renderer": "staple-attachment",
+  "intents": [
+    "compose_paper_story",
+    "display_attachment"
+  ],
+  "keywords": [
+    "paper",
+    "attachment",
+    "staple",
+    "attachment"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "color": {
+      "type": "theme-token"
+    },
+    "anchor": {
+      "type": "position"
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "pin-board",
+    "drop-settle",
+    "paper-slide"
+  ],
+  "defaultMotion": "pin-board",
+  "soundTags": [
+    "paper.attach.soft",
+    "motion.pin-board"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Staple attachment animated paper component",
+  "description": "A standalone metal staple attachable to paper objects.",
+  "attachable": true,
+  "bespokeMotion": true
+}

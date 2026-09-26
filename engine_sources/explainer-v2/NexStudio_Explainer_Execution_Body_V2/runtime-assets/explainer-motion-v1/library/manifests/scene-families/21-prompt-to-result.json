@@ -1,0 +1,148 @@
+{
+  "id": "scene.prompt-to-result.paper-01",
+  "name": "Prompt to result",
+  "version": "2.1.0",
+  "category": "scene-family",
+  "subtype": "prompt-pipeline",
+  "slug": "prompt-to-result",
+  "renderer": "prompt-pipeline",
+  "order": 21,
+  "intents": [
+    "show_prompt_result",
+    "compose_story_scene"
+  ],
+  "keywords": [
+    "scene",
+    "paper",
+    "animated",
+    "reusable",
+    "prompt to result",
+    "show_prompt_result"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "duration": {
+    "minimum": 3,
+    "recommended": 7.5,
+    "maximum": 12
+  },
+  "layoutVariants": [
+    {
+      "id": "A",
+      "name": "Prompt pipeline",
+      "layout": "prompt-pipeline-a"
+    },
+    {
+      "id": "B",
+      "name": "Prompt and result",
+      "layout": "prompt-pipeline-b"
+    }
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 70
+    },
+    "subtitle": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 220
+    },
+    "media": {
+      "type": "media",
+      "maximumItems": 4,
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "data": {
+      "type": "object",
+      "maximumItems": 12
+    },
+    "logo": {
+      "type": "media",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "approvedComponents": {
+    "typography": "question-hook",
+    "icon": "prompt",
+    "media": "chat-conversation",
+    "data": "prompt-to-result"
+  },
+  "compatibleIconCategories": [
+    "universal",
+    "creator",
+    "agent",
+    "business"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push",
+    "tape-peel",
+    "card-stack-shuffle",
+    "crumple-transition"
+  ],
+  "soundTags": [
+    "scene.prompt-to-result",
+    "paper.scene.reveal",
+    "transition.paper.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Configurable animated prompt to result paper scene family",
+  "agentSelection": {
+    "useWhen": [
+      "show_prompt_result"
+    ],
+    "storyRole": "prompt-to-result",
+    "avoidWhen": [
+      "slot_limits_exceeded"
+    ]
+  },
+  "sampleConfig": {
+    "title": "Describe the outcome. The system chooses the structure.",
+    "subtitle": "PROMPT TO RESULT \u00b7 NEXSTUDIO PAPER MOTION",
+    "body": "Every slot is replaceable, agent-readable and responsive across landscape, square and portrait.",
+    "variant": "A",
+    "style": "clean-editorial",
+    "energy": "medium",
+    "duration": 7.5,
+    "media": "assets/media/website-screenshot.svg"
+  }
+}

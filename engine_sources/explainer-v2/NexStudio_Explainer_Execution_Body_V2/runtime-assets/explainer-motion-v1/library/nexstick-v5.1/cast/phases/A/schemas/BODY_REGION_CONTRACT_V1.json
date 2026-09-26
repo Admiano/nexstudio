@@ -1,0 +1,16 @@
+{
+  "contract": "NexStickBodyRegionContractV1",
+  "version": "1.0.0",
+  "coordinateSpace": "projected-screen-pixels with world anchor copies",
+  "regions": ["head","neck","torso","upper_arm_l","forearm_l","upper_arm_r","forearm_r","thigh_l","calf_l","thigh_r","calf_r","hand_l","hand_r","foot_l","foot_r"],
+  "stableAnchors": ["head","neck","chest","spine","pelvis","shoulder_l","shoulder_r","elbow_l","elbow_r","wrist_l","wrist_r","hip_l","hip_r","knee_l","knee_r","ankle_l","ankle_r","toe_l","toe_r","torso_top","waist","torso_bottom"],
+  "clothingGuides": ["neckline","waistline","hipline","wrists","ankles"],
+  "layerOrder": ["body-back","body-core","body-front","face"],
+  "integrationRules": [
+    "Phase B reads geometry but does not write pose3d.",
+    "Phase C may provide surface profile overrides or a morphology-resolved pose; Phase A defines no family identity.",
+    "Phase D changes performance adaptation before projection and may not patch the body renderer.",
+    "No visible joint circles are emitted.",
+    "The body shell is deterministic for identical state + render options."
+  ]
+}

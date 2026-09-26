@@ -1,0 +1,79 @@
+{
+  "id": "object.hanging-tag.paper-01",
+  "name": "Hanging tag",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "label",
+  "cssClass": "obj-hanging-tag",
+  "renderer": "hanging-tag",
+  "intents": [
+    "compose_paper_story",
+    "display_label"
+  ],
+  "keywords": [
+    "paper",
+    "label",
+    "hanging",
+    "tag"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 20
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 36
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "pin-board",
+    "drop-settle",
+    "paper-slide"
+  ],
+  "defaultMotion": "pin-board",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.pin-board"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Hanging tag animated paper component",
+  "description": "A pierced paper tag suspended by a configurable string.",
+  "attachable": false,
+  "bespokeMotion": true
+}

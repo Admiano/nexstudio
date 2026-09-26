@@ -1,0 +1,50 @@
+{
+  "id": "final-agent-system-test",
+  "type": "voiceover-timing-placeholder",
+  "durationSeconds": 60,
+  "language": "en",
+  "audioFile": null,
+  "status": "timing-only",
+  "cues": [
+    {
+      "start": 0,
+      "end": 7.1,
+      "text": "How does an agent choose a scene without guessing a template?"
+    },
+    {
+      "start": 7.5,
+      "end": 14.5,
+      "text": "Intent becomes structure through machine-readable slots and limits."
+    },
+    {
+      "start": 15,
+      "end": 22,
+      "text": "The agent selects only approved component families and compatible motion."
+    },
+    {
+      "start": 22.5,
+      "end": 29.5,
+      "text": "Tools, evidence and data remain modular throughout the workflow."
+    },
+    {
+      "start": 30,
+      "end": 37,
+      "text": "Human approval remains a required decision point."
+    },
+    {
+      "start": 37.5,
+      "end": 44.5,
+      "text": "One configuration can produce landscape, square and portrait outputs."
+    },
+    {
+      "start": 45,
+      "end": 52,
+      "text": "Every scene is inspected before it reaches the renderer."
+    },
+    {
+      "start": 52.5,
+      "end": 59.2,
+      "text": "The agent does not guess a template. It selects a storytelling structure."
+    }
+  ]
+}

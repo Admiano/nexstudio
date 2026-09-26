@@ -1,0 +1,77 @@
+{
+  "id": "object.clear-tape.paper-01",
+  "name": "Clear-tape strip",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "attachment",
+  "cssClass": "obj-clear-tape",
+  "renderer": "clear-tape",
+  "intents": [
+    "compose_paper_story",
+    "display_attachment"
+  ],
+  "keywords": [
+    "paper",
+    "attachment",
+    "clear",
+    "tape"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "color": {
+      "type": "theme-token"
+    },
+    "anchor": {
+      "type": "position"
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "tape-down",
+    "paper-slide",
+    "drop-settle"
+  ],
+  "defaultMotion": "tape-down",
+  "soundTags": [
+    "paper.attach.soft",
+    "motion.tape-down"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Clear-tape strip animated paper component",
+  "description": "A translucent tape strip with a moving reflective sheen.",
+  "attachable": true,
+  "bespokeMotion": true
+}

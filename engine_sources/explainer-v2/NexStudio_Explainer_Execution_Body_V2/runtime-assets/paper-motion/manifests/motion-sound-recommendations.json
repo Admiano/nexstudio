@@ -1,0 +1,407 @@
+{
+  "version": "2.2.0",
+  "approvalPolicy": "candidate sounds are excluded when requireApproved=true",
+  "pairingCount": 40,
+  "pairs": [
+    {
+      "id": "pair.motion.01",
+      "visualId": "motion.entrance.cut-paper-pop",
+      "visualType": "motion",
+      "audioId": "audio.paper-swipe-clean",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.04,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.02",
+      "visualId": "motion.entrance.paper-slide",
+      "visualType": "motion",
+      "audioId": "audio.page-turn-soft",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.08,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.03",
+      "visualId": "motion.entrance.drop-and-settle",
+      "visualType": "motion",
+      "audioId": "audio.soft-impact-modern",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.06,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.04",
+      "visualId": "motion.entrance.unfold",
+      "visualType": "motion",
+      "audioId": "audio.map-unfold-wide",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.08,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.05",
+      "visualId": "motion.entrance.peel-reveal",
+      "visualType": "motion",
+      "audioId": "audio.tape-pull-snap",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.1,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.06",
+      "visualId": "motion.entrance.stamp-impact",
+      "visualType": "motion",
+      "audioId": "audio.rubber-stamp-impact",
+      "matchType": "recommended",
+      "timingOffsetSeconds": 0.0,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.07",
+      "visualId": "motion.entrance.draw-on",
+      "visualType": "motion",
+      "audioId": "audio.marker-swipe-bold",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.03,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.08",
+      "visualId": "motion.entrance.ink-reveal",
+      "visualType": "motion",
+      "audioId": "audio.fast-transition-whoosh",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.015,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.09",
+      "visualId": "motion.entrance.scale-bounce",
+      "visualType": "motion",
+      "audioId": "audio.text-pop-in",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.01,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.10",
+      "visualId": "motion.entrance.page-flip",
+      "visualType": "motion",
+      "audioId": "audio.staple-click-precise",
+      "matchType": "recommended",
+      "timingOffsetSeconds": 0.0,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.11",
+      "visualId": "motion.action.pulse",
+      "visualType": "motion",
+      "audioId": "audio.projector-start-modern",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.02,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.12",
+      "visualId": "motion.action.wiggle",
+      "visualType": "motion",
+      "audioId": "audio.archive-drawer-slide",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.03,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.13",
+      "visualId": "motion.action.tick-confirm",
+      "visualType": "motion",
+      "audioId": "audio.bass-hit",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.12,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.14",
+      "visualId": "motion.action.numeric-count",
+      "visualType": "motion",
+      "audioId": "audio.film-advance-ratchet",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.08,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.15",
+      "visualId": "motion.action.colour-fill",
+      "visualType": "motion",
+      "audioId": "audio.radio-tune-transition",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.04,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.16",
+      "visualId": "motion.action.rotate",
+      "visualType": "motion",
+      "audioId": "audio.final-logo-sting",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.08,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.17",
+      "visualId": "motion.action.open-and-close",
+      "visualType": "motion",
+      "audioId": "audio.paper-swipe-clean",
+      "matchType": "recommended",
+      "timingOffsetSeconds": 0.0,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.18",
+      "visualId": "motion.action.connect",
+      "visualType": "motion",
+      "audioId": "audio.page-turn-soft",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.035,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.19",
+      "visualId": "motion.action.marker-highlight",
+      "visualType": "motion",
+      "audioId": "audio.soft-impact-modern",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.04,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.20",
+      "visualId": "motion.action.type-or-write",
+      "visualType": "motion",
+      "audioId": "audio.map-unfold-wide",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.02,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.21",
+      "visualId": "motion.ambient.paper-flutter",
+      "visualType": "motion",
+      "audioId": "audio.tape-pull-snap",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.02,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.22",
+      "visualId": "motion.ambient.subtle-float",
+      "visualType": "motion",
+      "audioId": "audio.rubber-stamp-impact",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.04,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.23",
+      "visualId": "motion.ambient.shadow-breathing",
+      "visualType": "motion",
+      "audioId": "audio.marker-swipe-bold",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.09,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.24",
+      "visualId": "motion.ambient.grain-drift",
+      "visualType": "motion",
+      "audioId": "audio.fast-transition-whoosh",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.12,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.25",
+      "visualId": "motion.ambient.ink-jitter",
+      "visualType": "motion",
+      "audioId": "audio.text-pop-in",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.04,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.26",
+      "visualId": "motion.transition.page-turn",
+      "visualType": "motion",
+      "audioId": "audio.staple-click-precise",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.08,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.27",
+      "visualId": "motion.transition.paper-wipe",
+      "visualType": "motion",
+      "audioId": "audio.projector-start-modern",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.06,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.28",
+      "visualId": "motion.transition.torn-paper-reveal",
+      "visualType": "motion",
+      "audioId": "audio.archive-drawer-slide",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.08,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.29",
+      "visualId": "motion.transition.collage-push",
+      "visualType": "motion",
+      "audioId": "audio.bass-hit",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.1,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.30",
+      "visualId": "motion.transition.tape-peel",
+      "visualType": "motion",
+      "audioId": "audio.film-advance-ratchet",
+      "matchType": "recommended",
+      "timingOffsetSeconds": 0.0,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.31",
+      "visualId": "motion.transition.card-stack-shuffle",
+      "visualType": "motion",
+      "audioId": "audio.radio-tune-transition",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.03,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.motion.32",
+      "visualId": "motion.transition.crumple-transition",
+      "visualType": "motion",
+      "audioId": "audio.final-logo-sting",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.015,
+      "volume": 0.68,
+      "notes": "Reusable motion-to-sound candidate pairing"
+    },
+    {
+      "id": "pair.component.33",
+      "visualId": "object.opening-envelope.paper-01",
+      "visualType": "paper-object",
+      "audioId": "audio.page-turn-soft",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.08,
+      "volume": 0.7,
+      "notes": "Approved lower-level visual paired to candidate sound"
+    },
+    {
+      "id": "pair.component.34",
+      "visualId": "object.masking-tape-strip.paper-01",
+      "visualType": "paper-object",
+      "audioId": "audio.tape-pull-snap",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.06,
+      "volume": 0.7,
+      "notes": "Approved lower-level visual paired to candidate sound"
+    },
+    {
+      "id": "pair.component.35",
+      "visualId": "object.staple-attachment.paper-01",
+      "visualType": "paper-object",
+      "audioId": "audio.staple-click-precise",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.015,
+      "volume": 0.7,
+      "notes": "Approved lower-level visual paired to candidate sound"
+    },
+    {
+      "id": "pair.component.36",
+      "visualId": "typography.marker-highlight.paper-01",
+      "visualType": "typography",
+      "audioId": "audio.marker-swipe-bold",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.03,
+      "volume": 0.7,
+      "notes": "Approved lower-level visual paired to candidate sound"
+    },
+    {
+      "id": "pair.component.37",
+      "visualId": "documentary.date-stamp.paper-01",
+      "visualType": "documentary",
+      "audioId": "audio.rubber-stamp-impact",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.04,
+      "volume": 0.7,
+      "notes": "Approved lower-level visual paired to candidate sound"
+    },
+    {
+      "id": "pair.component.38",
+      "visualId": "documentary.map-journey.paper-01",
+      "visualType": "documentary",
+      "audioId": "audio.map-unfold-wide",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.1,
+      "volume": 0.7,
+      "notes": "Approved lower-level visual paired to candidate sound"
+    },
+    {
+      "id": "pair.component.39",
+      "visualId": "scene.logo-reveal.paper-01",
+      "visualType": "scene-family",
+      "audioId": "audio.final-logo-sting",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.12,
+      "volume": 0.7,
+      "notes": "Approved lower-level visual paired to candidate sound"
+    },
+    {
+      "id": "pair.component.40",
+      "visualId": "scene.documentary-evidence.paper-01",
+      "visualType": "scene-family",
+      "audioId": "audio.archive-drawer-slide",
+      "matchType": "recommended",
+      "timingOffsetSeconds": -0.08,
+      "volume": 0.7,
+      "notes": "Approved lower-level visual paired to candidate sound"
+    }
+  ]
+}

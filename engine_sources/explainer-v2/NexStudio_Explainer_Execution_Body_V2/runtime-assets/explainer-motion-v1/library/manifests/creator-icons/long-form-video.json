@@ -1,0 +1,142 @@
+{
+  "id": "icon.creator.long-form-video.paper-01",
+  "name": "Long-form video",
+  "version": "1.4.0",
+  "category": "icon",
+  "subtype": "creator-media",
+  "group": "publishing",
+  "slug": "long-form-video",
+  "renderer": "long-form-video",
+  "order": 35,
+  "intents": [
+    "create_long_video",
+    "publish_long_video"
+  ],
+  "keywords": [
+    "icon",
+    "creator",
+    "paper",
+    "long",
+    "video",
+    "landscape",
+    "episode",
+    "content"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active",
+        "completed"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "stamp-impact",
+        "paper-slide",
+        "scale-bounce"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.2
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.15,
+    "maximum": 3.2
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "stamp-impact",
+    "paper-slide",
+    "scale-bounce"
+  ],
+  "defaultMotion": "stamp-impact",
+  "states": [
+    "inactive",
+    "active",
+    "completed"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "creator.long-form-video.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Long-form video creator and media paper icon",
+  "description": "A reusable layered paper-style long-form video icon for creator, media-production and publishing workflows.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "create_long_video",
+      "publish_long_video"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "publishing"
+  }
+}

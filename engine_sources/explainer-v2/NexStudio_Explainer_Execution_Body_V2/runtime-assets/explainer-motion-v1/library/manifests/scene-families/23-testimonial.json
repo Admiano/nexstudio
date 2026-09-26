@@ -1,0 +1,148 @@
+{
+  "id": "scene.testimonial.paper-01",
+  "name": "Testimonial",
+  "version": "2.1.0",
+  "category": "scene-family",
+  "subtype": "proof-quote",
+  "slug": "testimonial",
+  "renderer": "proof-quote",
+  "order": 23,
+  "intents": [
+    "show_testimonial",
+    "compose_story_scene"
+  ],
+  "keywords": [
+    "scene",
+    "paper",
+    "animated",
+    "reusable",
+    "testimonial",
+    "show_testimonial"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "duration": {
+    "minimum": 3,
+    "recommended": 7.5,
+    "maximum": 12
+  },
+  "layoutVariants": [
+    {
+      "id": "A",
+      "name": "Editorial proof",
+      "layout": "proof-quote-a"
+    },
+    {
+      "id": "B",
+      "name": "Customer card",
+      "layout": "proof-quote-b"
+    }
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 70
+    },
+    "subtitle": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 220
+    },
+    "media": {
+      "type": "media",
+      "maximumItems": 4,
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "data": {
+      "type": "object",
+      "maximumItems": 12
+    },
+    "logo": {
+      "type": "media",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "approvedComponents": {
+    "typography": "quote-card",
+    "icon": "favourite",
+    "media": "testimonial-card",
+    "data": "data-callout"
+  },
+  "compatibleIconCategories": [
+    "universal",
+    "creator",
+    "agent",
+    "business"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push",
+    "tape-peel",
+    "card-stack-shuffle",
+    "crumple-transition"
+  ],
+  "soundTags": [
+    "scene.testimonial",
+    "paper.scene.reveal",
+    "transition.paper.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Configurable animated testimonial paper scene family",
+  "agentSelection": {
+    "useWhen": [
+      "show_testimonial"
+    ],
+    "storyRole": "testimonial",
+    "avoidWhen": [
+      "slot_limits_exceeded"
+    ]
+  },
+  "sampleConfig": {
+    "title": "\u201cWe shipped the story instead of rebuilding the template.\u201d",
+    "subtitle": "TESTIMONIAL \u00b7 NEXSTUDIO PAPER MOTION",
+    "body": "Every slot is replaceable, agent-readable and responsive across landscape, square and portrait.",
+    "variant": "A",
+    "style": "clean-editorial",
+    "energy": "medium",
+    "duration": 7.5,
+    "media": "assets/media/website-screenshot.svg"
+  }
+}

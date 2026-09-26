@@ -1,0 +1,140 @@
+{
+  "id": "icon.creator.resize.paper-01",
+  "name": "Resize",
+  "version": "1.4.0",
+  "category": "icon",
+  "subtype": "creator-media",
+  "group": "editing",
+  "slug": "resize",
+  "renderer": "resize",
+  "order": 20,
+  "intents": [
+    "resize_media",
+    "change_dimensions"
+  ],
+  "keywords": [
+    "icon",
+    "creator",
+    "paper",
+    "resize",
+    "scale",
+    "dimensions",
+    "edit",
+    "frame"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "unfold",
+        "cut-paper-pop",
+        "scale-bounce"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.2
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.15,
+    "maximum": 3.2
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "unfold",
+    "cut-paper-pop",
+    "scale-bounce"
+  ],
+  "defaultMotion": "unfold",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "creator.resize.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Resize creator and media paper icon",
+  "description": "A reusable layered paper-style resize icon for creator, media-production and publishing workflows.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "resize_media",
+      "change_dimensions"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "editing"
+  }
+}

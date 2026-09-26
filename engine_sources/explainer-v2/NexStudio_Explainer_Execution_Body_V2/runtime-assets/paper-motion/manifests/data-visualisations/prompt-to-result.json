@@ -1,0 +1,181 @@
+{
+  "id": "workflow.prompt-to-result.paper-01",
+  "name": "Prompt-to-result",
+  "version": "1.9.0",
+  "category": "workflow-diagram",
+  "subtype": "transformation",
+  "slug": "prompt-to-result",
+  "renderer": "prompt-to-result",
+  "order": 10,
+  "intents": [
+    "explain_prompt_to_result",
+    "show_workflow",
+    "explain_system"
+  ],
+  "keywords": [
+    "workflow",
+    "diagram",
+    "paper",
+    "animated",
+    "prompt-to-result",
+    "transformation",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "nodes": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 6
+    },
+    "edges": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 12
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "nodes",
+      "edges"
+    ],
+    "nodeFields": [
+      "id",
+      "label",
+      "type",
+      "value"
+    ],
+    "edgeFields": [
+      "from",
+      "to",
+      "label"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 6,
+    "maximum": 6
+  },
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 1,
+    "recommended": 2.6,
+    "maximum": 10
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "connect",
+    "node-sequence"
+  ],
+  "defaultMotion": "connect",
+  "soundTags": [
+    "workflow.connect",
+    "ui.confirm",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven prompt-to-result",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromEmpty": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Prompt To Result",
+    "nodes": [
+      {
+        "id": "n1",
+        "label": "Prompt",
+        "type": "step"
+      },
+      {
+        "id": "n2",
+        "label": "Reason",
+        "type": "step"
+      },
+      {
+        "id": "n3",
+        "label": "Generate",
+        "type": "step"
+      },
+      {
+        "id": "n4",
+        "label": "Review",
+        "type": "step"
+      },
+      {
+        "id": "n5",
+        "label": "Result",
+        "type": "step"
+      }
+    ],
+    "edges": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      }
+    ]
+  }
+}

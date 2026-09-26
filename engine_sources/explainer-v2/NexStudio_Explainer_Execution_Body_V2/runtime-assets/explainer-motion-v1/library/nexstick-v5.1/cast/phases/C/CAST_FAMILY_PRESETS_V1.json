@@ -1,0 +1,502 @@
+{
+  "version": "1.0.0",
+  "canonicalFamily": "neutral_adult",
+  "families": [
+    {
+      "id": "adult_man_average",
+      "lifeStage": "adult",
+      "presentation": "man",
+      "statureClass": "average",
+      "morphology": {
+        "overallScale": 1.0,
+        "headRatio": 1.0,
+        "neckLength": 1.0,
+        "shoulderWidth": 1.04,
+        "ribcageWidth": 1.03,
+        "waistWidth": 0.98,
+        "hipWidth": 0.99,
+        "upperArmLength": 1.01,
+        "forearmLength": 1.0,
+        "handScale": 1.02,
+        "thighLength": 1.0,
+        "shinLength": 1.0,
+        "footScale": 1.02,
+        "torsoLength": 1.0,
+        "limbThickness": 1.02,
+        "bodyVolumeProfile": {
+          "chest": 1.04,
+          "waist": 1.0,
+          "pelvis": 1.0,
+          "limbs": 1.02
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.545,
+          "anteriorOffset": 0.0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "adult",
+        "reachClass": "standard",
+        "notes": []
+      }
+    },
+    {
+      "id": "adult_man_broad",
+      "lifeStage": "adult",
+      "presentation": "man",
+      "statureClass": "average",
+      "morphology": {
+        "overallScale": 1.01,
+        "headRatio": 0.99,
+        "neckLength": 0.98,
+        "shoulderWidth": 1.18,
+        "ribcageWidth": 1.15,
+        "waistWidth": 1.08,
+        "hipWidth": 1.05,
+        "upperArmLength": 1.03,
+        "forearmLength": 1.01,
+        "handScale": 1.05,
+        "thighLength": 1.01,
+        "shinLength": 1.0,
+        "footScale": 1.04,
+        "torsoLength": 0.99,
+        "limbThickness": 1.14,
+        "bodyVolumeProfile": {
+          "chest": 1.18,
+          "waist": 1.1,
+          "pelvis": 1.06,
+          "limbs": 1.14
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.54,
+          "anteriorOffset": 0.005
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "adult",
+        "reachClass": "standard",
+        "notes": []
+      }
+    },
+    {
+      "id": "adult_woman_average",
+      "lifeStage": "adult",
+      "presentation": "woman",
+      "statureClass": "average",
+      "morphology": {
+        "overallScale": 0.99,
+        "headRatio": 1.02,
+        "neckLength": 1.02,
+        "shoulderWidth": 0.94,
+        "ribcageWidth": 0.96,
+        "waistWidth": 0.93,
+        "hipWidth": 1.07,
+        "upperArmLength": 0.99,
+        "forearmLength": 1.0,
+        "handScale": 0.98,
+        "thighLength": 1.01,
+        "shinLength": 1.0,
+        "footScale": 0.98,
+        "torsoLength": 1.0,
+        "limbThickness": 0.96,
+        "bodyVolumeProfile": {
+          "chest": 0.97,
+          "waist": 0.94,
+          "pelvis": 1.08,
+          "limbs": 0.96
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.54,
+          "anteriorOffset": 0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "adult",
+        "reachClass": "standard",
+        "notes": []
+      }
+    },
+    {
+      "id": "adult_woman_tall",
+      "lifeStage": "adult",
+      "presentation": "woman",
+      "statureClass": "tall",
+      "morphology": {
+        "overallScale": 1.08,
+        "headRatio": 0.98,
+        "neckLength": 1.04,
+        "shoulderWidth": 0.96,
+        "ribcageWidth": 0.97,
+        "waistWidth": 0.94,
+        "hipWidth": 1.06,
+        "upperArmLength": 1.06,
+        "forearmLength": 1.07,
+        "handScale": 1.0,
+        "thighLength": 1.09,
+        "shinLength": 1.1,
+        "footScale": 1.01,
+        "torsoLength": 1.07,
+        "limbThickness": 0.95,
+        "bodyVolumeProfile": {
+          "chest": 0.98,
+          "waist": 0.95,
+          "pelvis": 1.07,
+          "limbs": 0.95
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.545,
+          "anteriorOffset": 0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "tall-adult",
+        "reachClass": "extended",
+        "notes": []
+      }
+    },
+    {
+      "id": "boy",
+      "lifeStage": "child",
+      "presentation": "boy",
+      "statureClass": "average",
+      "morphology": {
+        "overallScale": 0.73,
+        "headRatio": 1.22,
+        "neckLength": 0.91,
+        "shoulderWidth": 0.9,
+        "ribcageWidth": 0.89,
+        "waistWidth": 0.92,
+        "hipWidth": 0.9,
+        "upperArmLength": 0.9,
+        "forearmLength": 0.91,
+        "handScale": 0.86,
+        "thighLength": 0.89,
+        "shinLength": 0.91,
+        "footScale": 0.9,
+        "torsoLength": 0.88,
+        "limbThickness": 0.9,
+        "bodyVolumeProfile": {
+          "chest": 0.9,
+          "waist": 0.92,
+          "pelvis": 0.91,
+          "limbs": 0.9
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.515,
+          "anteriorOffset": 0.0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "child",
+        "reachClass": "compact",
+        "notes": []
+      }
+    },
+    {
+      "id": "girl",
+      "lifeStage": "child",
+      "presentation": "girl",
+      "statureClass": "average",
+      "morphology": {
+        "overallScale": 0.72,
+        "headRatio": 1.23,
+        "neckLength": 0.92,
+        "shoulderWidth": 0.88,
+        "ribcageWidth": 0.88,
+        "waistWidth": 0.9,
+        "hipWidth": 0.93,
+        "upperArmLength": 0.89,
+        "forearmLength": 0.9,
+        "handScale": 0.85,
+        "thighLength": 0.89,
+        "shinLength": 0.9,
+        "footScale": 0.89,
+        "torsoLength": 0.88,
+        "limbThickness": 0.88,
+        "bodyVolumeProfile": {
+          "chest": 0.89,
+          "waist": 0.91,
+          "pelvis": 0.94,
+          "limbs": 0.88
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.515,
+          "anteriorOffset": 0.0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "child",
+        "reachClass": "compact",
+        "notes": []
+      }
+    },
+    {
+      "id": "diminutive_man",
+      "lifeStage": "adult",
+      "presentation": "man",
+      "statureClass": "diminutive",
+      "morphology": {
+        "overallScale": 0.8,
+        "headRatio": 1.01,
+        "neckLength": 0.96,
+        "shoulderWidth": 1.07,
+        "ribcageWidth": 1.05,
+        "waistWidth": 1.0,
+        "hipWidth": 1.01,
+        "upperArmLength": 0.96,
+        "forearmLength": 0.95,
+        "handScale": 1.0,
+        "thighLength": 0.91,
+        "shinLength": 0.9,
+        "footScale": 1.0,
+        "torsoLength": 0.98,
+        "limbThickness": 1.04,
+        "bodyVolumeProfile": {
+          "chest": 1.07,
+          "waist": 1.01,
+          "pelvis": 1.02,
+          "limbs": 1.04
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.54,
+          "anteriorOffset": 0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "compact-adult",
+        "reachClass": "compact",
+        "notes": [
+          "Adult head/body relationship retained; compact stature is driven primarily by lower-limb and overall scale."
+        ]
+      }
+    },
+    {
+      "id": "diminutive_woman",
+      "lifeStage": "adult",
+      "presentation": "woman",
+      "statureClass": "diminutive",
+      "morphology": {
+        "overallScale": 0.79,
+        "headRatio": 1.03,
+        "neckLength": 0.98,
+        "shoulderWidth": 0.96,
+        "ribcageWidth": 0.97,
+        "waistWidth": 0.93,
+        "hipWidth": 1.08,
+        "upperArmLength": 0.95,
+        "forearmLength": 0.95,
+        "handScale": 0.98,
+        "thighLength": 0.91,
+        "shinLength": 0.9,
+        "footScale": 0.98,
+        "torsoLength": 0.98,
+        "limbThickness": 0.96,
+        "bodyVolumeProfile": {
+          "chest": 0.98,
+          "waist": 0.94,
+          "pelvis": 1.09,
+          "limbs": 0.96
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.535,
+          "anteriorOffset": 0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "compact-adult",
+        "reachClass": "compact",
+        "notes": [
+          "Adult head/body relationship retained; not a uniformly scaled child."
+        ]
+      }
+    },
+    {
+      "id": "diminutive_boy",
+      "lifeStage": "child",
+      "presentation": "boy",
+      "statureClass": "diminutive",
+      "morphology": {
+        "overallScale": 0.61,
+        "headRatio": 1.31,
+        "neckLength": 0.86,
+        "shoulderWidth": 0.86,
+        "ribcageWidth": 0.86,
+        "waistWidth": 0.9,
+        "hipWidth": 0.88,
+        "upperArmLength": 0.84,
+        "forearmLength": 0.85,
+        "handScale": 0.8,
+        "thighLength": 0.82,
+        "shinLength": 0.84,
+        "footScale": 0.85,
+        "torsoLength": 0.82,
+        "limbThickness": 0.86,
+        "bodyVolumeProfile": {
+          "chest": 0.87,
+          "waist": 0.9,
+          "pelvis": 0.89,
+          "limbs": 0.86
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.505,
+          "anteriorOffset": 0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "compact-child",
+        "reachClass": "compact",
+        "notes": []
+      }
+    },
+    {
+      "id": "diminutive_girl",
+      "lifeStage": "child",
+      "presentation": "girl",
+      "statureClass": "diminutive",
+      "morphology": {
+        "overallScale": 0.6,
+        "headRatio": 1.32,
+        "neckLength": 0.87,
+        "shoulderWidth": 0.84,
+        "ribcageWidth": 0.85,
+        "waistWidth": 0.89,
+        "hipWidth": 0.91,
+        "upperArmLength": 0.83,
+        "forearmLength": 0.84,
+        "handScale": 0.79,
+        "thighLength": 0.82,
+        "shinLength": 0.83,
+        "footScale": 0.84,
+        "torsoLength": 0.82,
+        "limbThickness": 0.84,
+        "bodyVolumeProfile": {
+          "chest": 0.86,
+          "waist": 0.9,
+          "pelvis": 0.92,
+          "limbs": 0.84
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.505,
+          "anteriorOffset": 0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "compact-child",
+        "reachClass": "compact",
+        "notes": []
+      }
+    },
+    {
+      "id": "neutral_adult",
+      "lifeStage": "adult",
+      "presentation": "neutral",
+      "statureClass": "average",
+      "morphology": {
+        "overallScale": 1.0,
+        "headRatio": 1.01,
+        "neckLength": 1.0,
+        "shoulderWidth": 1.0,
+        "ribcageWidth": 1.0,
+        "waistWidth": 0.97,
+        "hipWidth": 1.01,
+        "upperArmLength": 1.0,
+        "forearmLength": 1.0,
+        "handScale": 1.0,
+        "thighLength": 1.0,
+        "shinLength": 1.0,
+        "footScale": 1.0,
+        "torsoLength": 1.0,
+        "limbThickness": 1.0,
+        "bodyVolumeProfile": {
+          "chest": 1.0,
+          "waist": 0.98,
+          "pelvis": 1.01,
+          "limbs": 1.0
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.542,
+          "anteriorOffset": 0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "adult",
+        "reachClass": "standard",
+        "notes": []
+      }
+    },
+    {
+      "id": "neutral_child",
+      "lifeStage": "child",
+      "presentation": "neutral",
+      "statureClass": "average",
+      "morphology": {
+        "overallScale": 0.715,
+        "headRatio": 1.24,
+        "neckLength": 0.91,
+        "shoulderWidth": 0.89,
+        "ribcageWidth": 0.89,
+        "waistWidth": 0.91,
+        "hipWidth": 0.915,
+        "upperArmLength": 0.895,
+        "forearmLength": 0.905,
+        "handScale": 0.855,
+        "thighLength": 0.89,
+        "shinLength": 0.905,
+        "footScale": 0.895,
+        "torsoLength": 0.88,
+        "limbThickness": 0.89,
+        "bodyVolumeProfile": {
+          "chest": 0.895,
+          "waist": 0.915,
+          "pelvis": 0.92,
+          "limbs": 0.89
+        },
+        "centerOfMassApprox": {
+          "heightRatio": 0.515,
+          "anteriorOffset": 0.0
+        }
+      },
+      "compatibility": {
+        "canonicalSkeleton": "NexStick-22",
+        "motionSystem": "NexPerformance V4 canonical",
+        "requiresPhaseDForWorldLockedContacts": true,
+        "seatFitClass": "child",
+        "reachClass": "compact",
+        "notes": []
+      }
+    }
+  ]
+}

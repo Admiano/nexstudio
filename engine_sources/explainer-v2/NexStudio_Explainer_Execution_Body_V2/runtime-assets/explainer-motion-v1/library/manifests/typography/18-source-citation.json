@@ -1,0 +1,133 @@
+{
+  "id": "typography.source-citation.paper-01",
+  "name": "Source citation",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "reference",
+  "slug": "source-citation",
+  "renderer": "source-citation",
+  "order": 18,
+  "intents": [
+    "cite_source",
+    "show_attribution"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "reference",
+    "source citation",
+    "cite_source",
+    "show_attribution"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 100,
+      "guidance": "Maximum 100 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 160,
+      "guidance": "Maximum 160 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 110,
+      "guidance": "Maximum 110 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 100,
+    "body": 160,
+    "meta": 110
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "ink-reveal",
+  "soundTags": [
+    "typography.source-citation.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Source citation animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "cite_source",
+      "show_attribution"
+    ],
+    "semanticRole": "reference",
+    "copyGuidance": {
+      "title": 100,
+      "body": 160,
+      "meta": 110
+    }
+  }
+}

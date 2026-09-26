@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0.0",
+  "system": "NexStick Cast V1 Phase E Performance Personality",
+  "presets": {
+    "calm": {
+      "gestureAmplitude": 0.82, "gestureFrequency": 0.78, "idleActivity": 0.72,
+      "headTiltTendency": 0.28, "gazeHoldDuration": 2.20, "reactionLatency": 0.24,
+      "stanceWidth": 0.96, "movementEnergy": 0.78, "turnSharpness": 0.86,
+      "armSwingScale": 0.85, "bodyOpenness": 0.95, "handRestOpenness": 0.95,
+      "nodFrequency": 2.0, "conversationListenerActivity": 0.82,
+      "movementTempoBias": 0.88, "anticipationAmplitude": 0.85, "settleDuration": 1.25
+    },
+    "cheerful": {
+      "gestureAmplitude": 1.15, "gestureFrequency": 1.18, "idleActivity": 1.10,
+      "headTiltTendency": 0.55, "gazeHoldDuration": 1.30, "reactionLatency": 0.13,
+      "stanceWidth": 1.00, "movementEnergy": 1.10, "turnSharpness": 1.05,
+      "armSwingScale": 1.08, "bodyOpenness": 1.18, "handRestOpenness": 1.18,
+      "nodFrequency": 6.0, "conversationListenerActivity": 1.15,
+      "movementTempoBias": 1.08, "anticipationAmplitude": 1.05, "settleDuration": 0.92
+    },
+    "confident": {
+      "gestureAmplitude": 1.12, "gestureFrequency": 0.95, "idleActivity": 0.84,
+      "headTiltTendency": 0.18, "gazeHoldDuration": 2.40, "reactionLatency": 0.10,
+      "stanceWidth": 1.12, "movementEnergy": 1.08, "turnSharpness": 1.18,
+      "armSwingScale": 1.05, "bodyOpenness": 1.25, "handRestOpenness": 1.12,
+      "nodFrequency": 3.0, "conversationListenerActivity": 0.92,
+      "movementTempoBias": 1.04, "anticipationAmplitude": 0.95, "settleDuration": 1.00
+    },
+    "shy": {
+      "gestureAmplitude": 0.72, "gestureFrequency": 0.68, "idleActivity": 0.62,
+      "headTiltTendency": 0.62, "gazeHoldDuration": 0.85, "reactionLatency": 0.34,
+      "stanceWidth": 0.86, "movementEnergy": 0.72, "turnSharpness": 0.82,
+      "armSwingScale": 0.76, "bodyOpenness": 0.72, "handRestOpenness": 0.78,
+      "nodFrequency": 2.0, "conversationListenerActivity": 0.72,
+      "movementTempoBias": 0.90, "anticipationAmplitude": 0.78, "settleDuration": 1.30
+    },
+    "energetic": {
+      "gestureAmplitude": 1.32, "gestureFrequency": 1.40, "idleActivity": 1.42,
+      "headTiltTendency": 0.42, "gazeHoldDuration": 0.90, "reactionLatency": 0.07,
+      "stanceWidth": 1.06, "movementEnergy": 1.38, "turnSharpness": 1.25,
+      "armSwingScale": 1.28, "bodyOpenness": 1.20, "handRestOpenness": 1.22,
+      "nodFrequency": 8.0, "conversationListenerActivity": 1.32,
+      "movementTempoBias": 1.22, "anticipationAmplitude": 1.22, "settleDuration": 0.72
+    },
+    "serious": {
+      "gestureAmplitude": 0.90, "gestureFrequency": 0.72, "idleActivity": 0.64,
+      "headTiltTendency": 0.08, "gazeHoldDuration": 2.60, "reactionLatency": 0.18,
+      "stanceWidth": 1.04, "movementEnergy": 0.90, "turnSharpness": 1.12,
+      "armSwingScale": 0.88, "bodyOpenness": 0.92, "handRestOpenness": 0.85,
+      "nodFrequency": 1.0, "conversationListenerActivity": 0.76,
+      "movementTempoBias": 0.96, "anticipationAmplitude": 0.92, "settleDuration": 1.20
+    },
+    "playful": {
+      "gestureAmplitude": 1.28, "gestureFrequency": 1.35, "idleActivity": 1.28,
+      "headTiltTendency": 0.78, "gazeHoldDuration": 0.95, "reactionLatency": 0.09,
+      "stanceWidth": 1.02, "movementEnergy": 1.25, "turnSharpness": 1.16,
+      "armSwingScale": 1.20, "bodyOpenness": 1.24, "handRestOpenness": 1.27,
+      "nodFrequency": 9.0, "conversationListenerActivity": 1.30,
+      "movementTempoBias": 1.14, "anticipationAmplitude": 1.25, "settleDuration": 0.82
+    },
+    "authoritative": {
+      "gestureAmplitude": 1.15, "gestureFrequency": 0.78, "idleActivity": 0.70,
+      "headTiltTendency": 0.10, "gazeHoldDuration": 2.80, "reactionLatency": 0.09,
+      "stanceWidth": 1.18, "movementEnergy": 1.05, "turnSharpness": 1.25,
+      "armSwingScale": 1.00, "bodyOpenness": 1.30, "handRestOpenness": 1.08,
+      "nodFrequency": 2.0, "conversationListenerActivity": 0.70,
+      "movementTempoBias": 1.00, "anticipationAmplitude": 1.00, "settleDuration": 1.15
+    },
+    "warm": {
+      "gestureAmplitude": 1.05, "gestureFrequency": 1.05, "idleActivity": 0.90,
+      "headTiltTendency": 0.48, "gazeHoldDuration": 1.80, "reactionLatency": 0.14,
+      "stanceWidth": 0.98, "movementEnergy": 0.98, "turnSharpness": 0.95,
+      "armSwingScale": 0.98, "bodyOpenness": 1.20, "handRestOpenness": 1.22,
+      "nodFrequency": 5.0, "conversationListenerActivity": 1.28,
+      "movementTempoBias": 1.00, "anticipationAmplitude": 1.05, "settleDuration": 1.05
+    },
+    "reserved": {
+      "gestureAmplitude": 0.76, "gestureFrequency": 0.62, "idleActivity": 0.56,
+      "headTiltTendency": 0.16, "gazeHoldDuration": 1.70, "reactionLatency": 0.28,
+      "stanceWidth": 0.90, "movementEnergy": 0.70, "turnSharpness": 0.88,
+      "armSwingScale": 0.78, "bodyOpenness": 0.78, "handRestOpenness": 0.76,
+      "nodFrequency": 1.0, "conversationListenerActivity": 0.64,
+      "movementTempoBias": 0.86, "anticipationAmplitude": 0.80, "settleDuration": 1.35
+    }
+  }
+}

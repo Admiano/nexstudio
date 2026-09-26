@@ -1,0 +1,25 @@
+{
+  "version": "5.0.0",
+  "compiled": 1,
+  "items": [
+    {
+      "key": "presenter_papers",
+      "file": "news-anchor-papers.fbx",
+      "semantic": "presenter_papers",
+      "duration": 27.4,
+      "frames": 823,
+      "rootDelta": [
+        -0.019796,
+        0.0,
+        0.029266
+      ],
+      "yawDeltaDeg": 7.93,
+      "contacts": {
+        "l": 5,
+        "r": 3
+      },
+      "crop": null,
+      "status": "COMPILED_QA_PENDING"
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "id": "workflow.branching-flow.paper-01",
+  "name": "Branching flow",
+  "version": "1.9.0",
+  "category": "workflow-diagram",
+  "subtype": "decision",
+  "slug": "branching-flow",
+  "renderer": "branching-flow",
+  "order": 7,
+  "intents": [
+    "explain_branching_flow",
+    "show_workflow",
+    "explain_system"
+  ],
+  "keywords": [
+    "workflow",
+    "diagram",
+    "paper",
+    "animated",
+    "branching flow",
+    "decision",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "nodes": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "edges": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "nodes",
+      "edges"
+    ],
+    "nodeFields": [
+      "id",
+      "label",
+      "type",
+      "value"
+    ],
+    "edgeFields": [
+      "from",
+      "to",
+      "label"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 6,
+    "maximum": 10
+  },
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 1,
+    "recommended": 2.6,
+    "maximum": 10
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "connect",
+    "node-sequence"
+  ],
+  "defaultMotion": "connect",
+  "soundTags": [
+    "workflow.connect",
+    "ui.confirm",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven branching flow",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromEmpty": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Branching Flow",
+    "nodes": [
+      {
+        "id": "n1",
+        "label": "Evaluate",
+        "type": "decision"
+      },
+      {
+        "id": "n2",
+        "label": "Yes path",
+        "type": "step"
+      },
+      {
+        "id": "n3",
+        "label": "No path",
+        "type": "step"
+      },
+      {
+        "id": "n4",
+        "label": "Deliver",
+        "type": "output"
+      }
+    ],
+    "edges": [
+      {
+        "from": "n1",
+        "to": "n2",
+        "label": "YES"
+      },
+      {
+        "from": "n1",
+        "to": "n3",
+        "label": "NO"
+      },
+      {
+        "from": "n2",
+        "to": "n4"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      }
+    ]
+  }
+}

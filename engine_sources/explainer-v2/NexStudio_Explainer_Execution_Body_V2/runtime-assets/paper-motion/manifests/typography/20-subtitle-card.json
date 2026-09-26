@@ -1,0 +1,133 @@
+{
+  "id": "typography.subtitle-card.paper-01",
+  "name": "Subtitle card",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "caption",
+  "slug": "subtitle-card",
+  "renderer": "subtitle-card",
+  "order": 20,
+  "intents": [
+    "show_subtitle",
+    "caption_speech"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "caption",
+    "subtitle card",
+    "show_subtitle",
+    "caption_speech"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 42,
+      "guidance": "Maximum 42 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 150,
+      "guidance": "Maximum 150 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 44,
+      "guidance": "Maximum 44 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 42,
+    "body": 150,
+    "meta": 44
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "soundTags": [
+    "typography.subtitle-card.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Subtitle card animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_subtitle",
+      "caption_speech"
+    ],
+    "semanticRole": "caption",
+    "copyGuidance": {
+      "title": 42,
+      "body": 150,
+      "meta": 44
+    }
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "id": "data.calendar-activity.paper-01",
+  "name": "Calendar activity",
+  "version": "1.9.0",
+  "category": "data-visualisation",
+  "subtype": "time",
+  "slug": "calendar-activity",
+  "renderer": "calendar-activity",
+  "order": 17,
+  "intents": [
+    "show_calendar_activity",
+    "visualise_data",
+    "explain_metric"
+  ],
+  "keywords": [
+    "data",
+    "chart",
+    "paper",
+    "animated",
+    "calendar activity",
+    "time",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "items": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 35
+    },
+    "format": {
+      "type": "enum",
+      "values": [
+        "number",
+        "compact",
+        "currency",
+        "percent"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "items"
+    ],
+    "itemFields": [
+      "label",
+      "value",
+      "change",
+      "segments",
+      "x",
+      "y"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 6,
+    "maximum": 35
+  },
+  "numberFormats": [
+    "number",
+    "compact",
+    "currency",
+    "percent"
+  ],
+  "supportsSigns": [
+    "positive",
+    "neutral",
+    "negative"
+  ],
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.2,
+    "maximum": 8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "draw-on",
+    "numeric-count"
+  ],
+  "defaultMotion": "draw-on",
+  "soundTags": [
+    "data.reveal",
+    "ui.tick",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven calendar activity",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromZero": true,
+  "usesTabularNumerals": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Growth over time",
+    "format": "compact",
+    "items": [
+      {
+        "label": "Jan",
+        "value": 18
+      },
+      {
+        "label": "Feb",
+        "value": 27
+      },
+      {
+        "label": "Mar",
+        "value": 31
+      },
+      {
+        "label": "Apr",
+        "value": 46
+      },
+      {
+        "label": "May",
+        "value": 58
+      },
+      {
+        "label": "Jun",
+        "value": 74
+      }
+    ]
+  }
+}

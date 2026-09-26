@@ -1,0 +1,133 @@
+{
+  "id": "typography.typewriter-note.paper-01",
+  "name": "Typewriter note",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "editorial",
+  "slug": "typewriter-note",
+  "renderer": "typewriter-note",
+  "order": 13,
+  "intents": [
+    "show_typed_note",
+    "reveal_note"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "editorial",
+    "typewriter note",
+    "show_typed_note",
+    "reveal_note"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 52,
+      "guidance": "Maximum 52 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 260,
+      "guidance": "Maximum 260 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 48,
+      "guidance": "Maximum 48 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 52,
+    "body": 260,
+    "meta": 48
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "paper-slide",
+  "soundTags": [
+    "typography.typewriter-note.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Typewriter note animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_typed_note",
+      "reveal_note"
+    ],
+    "semanticRole": "editorial",
+    "copyGuidance": {
+      "title": 52,
+      "body": 260,
+      "meta": 48
+    }
+  }
+}

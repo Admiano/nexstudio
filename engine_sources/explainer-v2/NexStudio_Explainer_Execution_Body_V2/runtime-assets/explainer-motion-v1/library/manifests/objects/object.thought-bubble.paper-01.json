@@ -1,0 +1,75 @@
+{
+  "id": "object.thought-bubble.paper-01",
+  "name": "Thought bubble",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "communication",
+  "cssClass": "obj-thought-bubble",
+  "renderer": "thought-bubble",
+  "intents": [
+    "compose_paper_story",
+    "display_communication"
+  ],
+  "keywords": [
+    "paper",
+    "communication",
+    "thought",
+    "bubble"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "body": {
+      "type": "string",
+      "maxCharacters": 90
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "drop-settle",
+    "paper-slide",
+    "lift-hover"
+  ],
+  "defaultMotion": "drop-settle",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.drop-settle"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Thought bubble animated paper component",
+  "description": "A layered paper thought bubble for ideas and reflections.",
+  "attachable": false,
+  "bespokeMotion": true
+}

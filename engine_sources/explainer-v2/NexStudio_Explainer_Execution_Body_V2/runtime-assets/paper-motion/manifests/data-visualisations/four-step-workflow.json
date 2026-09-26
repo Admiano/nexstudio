@@ -1,0 +1,172 @@
+{
+  "id": "workflow.four-step-workflow.paper-01",
+  "name": "Four-step workflow",
+  "version": "1.9.0",
+  "category": "workflow-diagram",
+  "subtype": "process",
+  "slug": "four-step-workflow",
+  "renderer": "four-step-workflow",
+  "order": 4,
+  "intents": [
+    "explain_four_step_workflow",
+    "show_workflow",
+    "explain_system"
+  ],
+  "keywords": [
+    "workflow",
+    "diagram",
+    "paper",
+    "animated",
+    "four-step workflow",
+    "process",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "nodes": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 4
+    },
+    "edges": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "nodes",
+      "edges"
+    ],
+    "nodeFields": [
+      "id",
+      "label",
+      "type",
+      "value"
+    ],
+    "edgeFields": [
+      "from",
+      "to",
+      "label"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 4,
+    "maximum": 4
+  },
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 1,
+    "recommended": 2.6,
+    "maximum": 10
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "connect",
+    "node-sequence"
+  ],
+  "defaultMotion": "connect",
+  "soundTags": [
+    "workflow.connect",
+    "ui.confirm",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven four-step workflow",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromEmpty": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Four Step Workflow",
+    "nodes": [
+      {
+        "id": "n1",
+        "label": "Input",
+        "type": "step"
+      },
+      {
+        "id": "n2",
+        "label": "Plan",
+        "type": "step"
+      },
+      {
+        "id": "n3",
+        "label": "Build",
+        "type": "step"
+      },
+      {
+        "id": "n4",
+        "label": "Deliver",
+        "type": "step"
+      }
+    ],
+    "edges": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "id": "scene.profile-introduction.paper-01",
+  "name": "Profile introduction",
+  "version": "2.1.0",
+  "category": "scene-family",
+  "subtype": "profile-editorial",
+  "slug": "profile-introduction",
+  "renderer": "profile-editorial",
+  "order": 26,
+  "intents": [
+    "introduce_profile",
+    "compose_story_scene"
+  ],
+  "keywords": [
+    "scene",
+    "paper",
+    "animated",
+    "reusable",
+    "profile introduction",
+    "introduce_profile"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "duration": {
+    "minimum": 3,
+    "recommended": 7.5,
+    "maximum": 12
+  },
+  "layoutVariants": [
+    {
+      "id": "A",
+      "name": "Profile spread",
+      "layout": "profile-editorial-a"
+    },
+    {
+      "id": "B",
+      "name": "Profile spotlight",
+      "layout": "profile-editorial-b"
+    }
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 70
+    },
+    "subtitle": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 220
+    },
+    "media": {
+      "type": "media",
+      "maximumItems": 4,
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "data": {
+      "type": "object",
+      "maximumItems": 12
+    },
+    "logo": {
+      "type": "media",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "approvedComponents": {
+    "typography": "name-and-role-card",
+    "icon": "identity",
+    "media": "profile-card",
+    "data": "scorecard"
+  },
+  "compatibleIconCategories": [
+    "universal",
+    "creator",
+    "agent",
+    "business"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push",
+    "tape-peel",
+    "card-stack-shuffle",
+    "crumple-transition"
+  ],
+  "soundTags": [
+    "scene.profile-introduction",
+    "paper.scene.reveal",
+    "transition.paper.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Configurable animated profile introduction paper scene family",
+  "agentSelection": {
+    "useWhen": [
+      "introduce_profile"
+    ],
+    "storyRole": "profile-introduction",
+    "avoidWhen": [
+      "slot_limits_exceeded"
+    ]
+  },
+  "sampleConfig": {
+    "title": "Meet the person, project or agent behind the work.",
+    "subtitle": "PROFILE INTRODUCTION \u00b7 NEXSTUDIO PAPER MOTION",
+    "body": "Every slot is replaceable, agent-readable and responsive across landscape, square and portrait.",
+    "variant": "A",
+    "style": "clean-editorial",
+    "energy": "medium",
+    "duration": 7.5,
+    "media": "assets/media/website-screenshot.svg"
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "id": "workflow.multi-agent-workflow.paper-01",
+  "name": "Multi-agent workflow",
+  "version": "1.9.0",
+  "category": "workflow-diagram",
+  "subtype": "agent",
+  "slug": "multi-agent-workflow",
+  "renderer": "multi-agent-workflow",
+  "order": 5,
+  "intents": [
+    "explain_multi_agent_workflow",
+    "show_workflow",
+    "explain_system"
+  ],
+  "keywords": [
+    "workflow",
+    "diagram",
+    "paper",
+    "animated",
+    "multi-agent workflow",
+    "agent",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "nodes": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "edges": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "nodes",
+      "edges"
+    ],
+    "nodeFields": [
+      "id",
+      "label",
+      "type",
+      "value"
+    ],
+    "edgeFields": [
+      "from",
+      "to",
+      "label"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 6,
+    "maximum": 10
+  },
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 1,
+    "recommended": 2.6,
+    "maximum": 10
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "connect",
+    "node-sequence"
+  ],
+  "defaultMotion": "connect",
+  "soundTags": [
+    "workflow.connect",
+    "ui.confirm",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven multi-agent workflow",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromEmpty": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Multi Agent Workflow",
+    "nodes": [
+      {
+        "id": "n1",
+        "label": "Orchestrator",
+        "type": "agent"
+      },
+      {
+        "id": "n2",
+        "label": "Research",
+        "type": "agent"
+      },
+      {
+        "id": "n3",
+        "label": "Strategy",
+        "type": "agent"
+      },
+      {
+        "id": "n4",
+        "label": "Design",
+        "type": "agent"
+      },
+      {
+        "id": "n5",
+        "label": "QA",
+        "type": "agent"
+      },
+      {
+        "id": "n6",
+        "label": "Delivery",
+        "type": "agent"
+      }
+    ],
+    "edges": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  }
+}

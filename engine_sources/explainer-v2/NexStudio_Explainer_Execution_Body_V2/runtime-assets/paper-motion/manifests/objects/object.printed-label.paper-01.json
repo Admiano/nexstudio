@@ -1,0 +1,79 @@
+{
+  "id": "object.printed-label.paper-01",
+  "name": "Printed label",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "label",
+  "cssClass": "obj-printed-label",
+  "renderer": "printed-label",
+  "intents": [
+    "compose_paper_story",
+    "display_label"
+  ],
+  "keywords": [
+    "paper",
+    "label",
+    "printed",
+    "label"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 22
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 40
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "stamp",
+    "drop-settle",
+    "paper-slide"
+  ],
+  "defaultMotion": "stamp",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.stamp"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Printed label animated paper component",
+  "description": "A small printed label for metadata and categorisation.",
+  "attachable": false,
+  "bespokeMotion": false
+}

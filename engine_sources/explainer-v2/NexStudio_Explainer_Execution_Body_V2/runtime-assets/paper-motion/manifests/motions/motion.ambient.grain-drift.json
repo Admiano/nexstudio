@@ -1,0 +1,88 @@
+{
+  "id": "motion.ambient.grain-drift",
+  "name": "Grain drift",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "ambient",
+  "key": "grain-drift",
+  "intents": [
+    "animate_ambient",
+    "grain_drift"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "ambient",
+    "grain",
+    "drift"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 1.4,
+      "maximum": 8
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "sine.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 1.4,
+    "recommended": 3.4,
+    "maximum": 8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "sine.inOut",
+  "soundTags": [
+    "paper.grain.none"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Grain drift reusable animation behaviour",
+  "description": "Moves an existing or generated grain layer in a finite deterministic loop.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "finiteCycles": 3,
+  "recommendedCycleDuration": 1.1
+}
