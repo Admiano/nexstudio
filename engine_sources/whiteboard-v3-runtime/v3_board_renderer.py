@@ -2027,7 +2027,7 @@ def _scene_slots(labels: list, zone: dict, ratio: str, used=None):
         e = extra[i]
         if e.get('scale'):
             s['size'] *= float(e['scale'])
-        for k in ('tone', 'facing', 'bubble', 'no_caption', 'wgt'):
+        for k in ('tone', 'facing', 'bubble', 'no_caption', 'wgt', 'chip'):
             if k in e:
                 s[k] = e[k]
     return [s for s in slots if s is not None]
@@ -2122,7 +2122,9 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             hp = wbp._clamp((p - 0.38) / 0.62)
             if hp <= 0:
                 continue
-            segs = _hatch_for(pts, size)
+            segs = _hatch_for(pts, size,
+                              spacing=fill if isinstance(fill, float)
+                              and not isinstance(fill, bool) else 0.075)
             hcol = colors[_HATCH_COLOR.get(col, col)]
             hcol = (hcol[0], hcol[1], hcol[2], min(215, hcol[3]))
             hw = max(1.4, lw * 0.42)
@@ -2182,7 +2184,8 @@ def _move_strokes(strokes, dx, dy):
             for s in strokes]
 
 
-def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
+def _caption_strokes(center, size, label, zone=None, row=0, pitch=None,
+                     chip=None):
     txt = str(label).upper()
     # reference captions are small footnote text, not headline-sized
     h = size * 0.075
@@ -2215,7 +2218,27 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
         strokes += text_strokes(ln, (ox, oy + li * h * 1.45), h, 'ink', 0.85)
         left_edge = ox if left_edge is None else min(left_edge, ox)
         right_edge = ox + lw if right_edge is None else max(right_edge, ox + lw)
-    y = oy + (len(lines) - 1) * h * 1.45 + _text_bottom(lines[-1], h) + h * 0.16
+    text_bot = oy + (len(lines) - 1) * h * 1.45 + _text_bottom(lines[-1], h)
+    if chip:
+        # boxed label tag — the reference's colored chips: accent box,
+        # ink text inside; chip may be a tone name or #rrggbb
+        pad = h * 0.50
+        bx0 = (left_edge - pad) if left_edge is not None \
+            else center[0] - tw / 2 - pad
+        bx1 = (right_edge + pad) if right_edge is not None \
+            else center[0] + tw / 2 + pad
+        by0 = oy - h * 0.30
+        by1 = text_bot + pad * 0.75
+        col = chip if isinstance(chip, str) else 'accent'
+        box = _rounded_rect((bx0 + bx1) / 2, (by0 + by1) / 2,
+                            bx1 - bx0, by1 - by0, h * 0.34)
+        strokes = ([(box, col, 1.35, (by1 - by0) / 14.0, True),
+                    (box, 'ink', 0.9, False, True)]
+                   + strokes)
+        # collision bookkeeping needs the true rendered span (per-line
+        # edges), not min-left + widest-line width
+        return strokes, bx0, bx1
+    y = text_bot + h * 0.16
     ox0 = min(center[0] - text_width(l, h) / 2 for l in lines)
     if zone:
         ox0 = max(ox0, zone['x'] + mg)
@@ -2352,7 +2375,10 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                                     s['center'], s['size'], s))
         low_lbl = str(s['label']).lower()
         ltoks = set(re.findall(r"[a-z']+", low_lbl))
-        if ltoks & _STRIKE_TOKENS or low_lbl.startswith(('no ', 'not ')):
+        # a chip is an authored emphasis tag — negation words inside it are
+        # claims ("no signal leak"), never strike targets
+        if not s.get('chip') and (ltoks & _STRIKE_TOKENS
+                                  or low_lbl.startswith(('no ', 'not '))):
             groups.append(('strike', _strike_strokes(s['size']),
                            s['center'], s['size'], s))
         if ltoks & _EMPHASIS_TOKENS or '!' in str(s['label']):
@@ -2408,7 +2434,8 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
 
         def cap(r):
             st, a, b = _caption_strokes(s['center'], s['size'],
-                                        s['label'], zone, r, pitch)
+                                        s['label'], zone, r, pitch,
+                                        chip=s.get('chip'))
             if s['icon'] in ('person', 'agent'):
                 st = _move_strokes(st, 0, s['size'] * (dy - 0.56))
             return st, a, b
@@ -3267,9 +3294,89 @@ def _fm_one(frame, scene, fm, key, plan, ratio, cam, zoom, scene_time):
     fx, fy = wbp._map_point(
         (anchor['center'][0], anchor['center'][1] + anchor['size'] * 0.5),
         cam, ratio, zoom)
+    ox, oy = int(fx - img2.width / 2), int(fy - img2.height)
     out = frame.convert('RGBA')
     tile = Image.new('RGBA', out.size, (0, 0, 0, 0))
-    tile.alpha_composite(img2, (int(fx - img2.width / 2),
-                                int(fy - img2.height)))
+    # the reference draws every element stroke-by-stroke — the figure is no
+    # exception: the hand traces the sprite's silhouette first, then the
+    # sprite fades in over the traced outline
+    draw_dur = min(1.1, max(0.5, (dur - win[0]) * 0.30))
+    rp = wbp._clamp(dt / draw_dur)
+    if rp < 1.0:
+        conts = _fm_contours(spec, img)
+        if conts:
+            op = wbp._clamp(rp / 0.62)
+            sp = wbp._clamp((rp - 0.55) / 0.45)
+            fpolys = [[(ox + qx * img2.width, oy + qy * img2.height)
+                       for qx, qy in poly] for poly in conts]
+            total = sum(len(pp) for pp in fpolys)
+            budget = int(total * op) + 1
+            dd = ImageDraw.Draw(tile)
+            wd = max(2, int(round(h_px * 0.011)))
+            tipxy = None
+            for pp in fpolys:
+                if budget <= 0:
+                    break
+                n = min(len(pp), budget)
+                if n >= 2:
+                    dd.line(pp[:n], fill=(34, 34, 40, 255), width=wd,
+                            joint='curve')
+                if n > 0:
+                    tipxy = pp[n - 1]
+                budget -= n
+            if tipxy is not None:
+                scene['_fm' + key + '_tip'] = tipxy
+            if sp > 0:
+                spr = img2.copy()
+                spr.putalpha(spr.getchannel('A').point(
+                    lambda v: int(v * sp)))
+                tile.alpha_composite(spr, (ox, oy))
+        else:
+            spr = img2.copy()
+            spr.putalpha(spr.getchannel('A').point(lambda v: int(v * rp)))
+            tile.alpha_composite(spr, (ox, oy))
+    else:
+        tile.alpha_composite(img2, (ox, oy))
     return Image.alpha_composite(out, tile).convert('RGB')
+
+
+_FM_CONTOURS: dict = {}
+
+
+def _fm_contours(spec, img):
+    """Silhouette polylines of a sprite frame, normalized to 0..1 — the
+    hand 'draws' these before the sprite fades in. Cached per clip/pose."""
+    key = (str(spec.get('clip')), round(float(spec.get('pose') or 0.0), 3),
+           str(spec.get('variant') or ''), img.size)
+    hit = _FM_CONTOURS.get(key)
+    if hit is not None:
+        return hit
+    polys = []
+    try:
+        import cv2
+        import numpy as np
+        a = np.asarray(img.convert('RGBA').split()[3])
+        cnts, _ = cv2.findContours(a, cv2.RETR_EXTERNAL,
+                                   cv2.CHAIN_APPROX_SIMPLE)
+        eps = max(1.2, max(img.size) * 0.006)
+        cps = []
+        for c in cnts:
+            area = cv2.contourArea(c)
+            if area < img.width * img.height * 0.002:
+                continue
+            ap = cv2.approxPolyDP(c, eps, True)
+            if len(ap) >= 3:
+                cps.append((area, [[float(p[0][0]) / img.width,
+                                    float(p[0][1]) / img.height]
+                                   for p in ap]))
+        cps.sort(key=lambda x: -x[0])
+        polys = [p for _a, p in cps[:8]]
+        # start each contour at its topmost point — the order a hand draws
+        for poly in polys:
+            i0 = min(range(len(poly)), key=lambda i: poly[i][1])
+            poly[:] = poly[i0:] + poly[:i0]
+    except Exception:
+        polys = []
+    _FM_CONTOURS[key] = polys
+    return polys
 

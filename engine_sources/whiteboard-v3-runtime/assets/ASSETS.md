@@ -178,11 +178,14 @@ which were AI-generated and vectorized as pipeline demos.
   automatically (icon group stays empty, ground shadow + caption persist).
   Figures persist on the board across later beats, holding their pose.
 - role dicts — `heroRole`/`supportingRoles` entries accept
-  `{label, icon?, tone?, scale?, facing?, bubble?, no_caption?, wgt?}`:
+  `{label, icon?, tone?, scale?, facing?, bubble?, no_caption?, wgt?, chip?}`:
   `icon` names an icon-vocab word; `tone` a named accent or `#rrggbb`;
   `scale` multiplies slot size; `facing` mirrors the person; `bubble`
   draws a caption bubble; `no_caption` suppresses the footnote; `wgt`
-  rescales placement (use <1 for small props like arrows).
+  rescales placement (use <1 for small props like arrows); `chip` draws
+  the caption inside a colored boxed tag (named accent or `#rrggbb`) —
+  the reference's "Add More Supply"-style label chips; chip items never
+  get strike overlays.
 - named accents: `a_orange`, `a_blue`, `a_green`, `a_red`, `a_yellow` —
   `accent`/`accfill`/`accdeep` remap to orange/blue channels; the board
   adds a soft vignette to every frame.

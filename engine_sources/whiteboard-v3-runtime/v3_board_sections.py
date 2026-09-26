@@ -471,6 +471,12 @@ def _build(plan, ratio):
             b = None
             for g, _s, _e in it['groups']:
                 gb = _group_world_bounds(g)
+                if gb[0] >= gb[2] and g[4] and g[4].get('sprite'):
+                    # animated-sprite slots carry no strokes — size the item
+                    # from the slot's box so placement doesn't collapse it
+                    sh = max(30.0, float(g[3] or 60.0)) * 0.5
+                    gb = (g[2][0] - sh, g[2][1] - sh,
+                          g[2][0] + sh, g[2][1] + sh)
                 b = gb if b is None else (min(b[0], gb[0]), min(b[1], gb[1]),
                                           max(b[2], gb[2]), max(b[3], gb[3]))
             it['bounds'] = b
@@ -653,6 +659,21 @@ def _build(plan, ratio):
                                  't0': it0 - t0,
                                  'facing': fslot.get('facing', 1)}
             placed.append(it)
+        # a figure beat with no person slot still stages the figure — park
+        # it in the last free board cell rather than dropping it entirely
+        fsc = scenes[sec['bi']] if sec['bi'] < len(scenes) else {}
+        free_cells = [ci for ci in range(len(cells) - 1, -1, -1)
+                      if cell_item[ci] < 0]
+        for fkey in ('fm', 'fm2'):
+            if fkey in sec or not fsc.get('figureMotion' + fkey[2:]):
+                continue
+            ci = free_cells.pop(0) if free_cells else len(cells) - 1
+            frx, fry, frw, frh = cells[ci]
+            fy0 = max(fry + frh * 0.16,
+                      title_item['bounds2'][3] + frh * 0.10)
+            sec[fkey] = {'bounds2': (frx + frw * 0.14, fy0,
+                                     frx + frw * 0.86, fry + frh * 0.94),
+                         't0': slot_dur * 0.15, 'facing': 1}
         sec['items2'] = placed
 
     out_sections = sections
@@ -827,6 +848,10 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             frame = v3r._figure_motion_overlay(
                 frame, scene_, plan, ratio, cam, zoom,
                 t - sec['beat']['start_seconds'])
+            # while a figure is being drawn the hand rides its outline tip
+            ft = scene_.pop('_fm_tip', None) or scene_.pop('_fm2_tip', None)
+            if ft is not None:
+                tip = ft
         return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed),
                          ratio)
 

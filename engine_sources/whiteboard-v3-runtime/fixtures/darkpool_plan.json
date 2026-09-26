@@ -1,78 +1,135 @@
 {
   "production_id": "darkpool_wbc",
-  "title": "What Is A Dark Pool",
+  "title": "What Is A Dark Pool?",
   "camera_variant": "board_sections",
   "pacing": {
-    "lead_in_seconds": 0.6,
-    "transition_seconds": 0.9
+    "transition_seconds": 0.55,
+    "board_reveal_seconds": 0.8
   },
   "beats": [
     {
-      "beat_id": "01_whale",
-      "duration_seconds": 5.0,
-      "narration": "Imagine a whale \u2014 an investor sitting on six hundred million dollars of bitcoin.",
+      "beat_id": "01_hook",
+      "duration_seconds": 5.2,
+      "narration": "What is a dark pool in crypto? Picture selling six hundred million dollars of bitcoin \u2014 without anyone seeing it.",
       "scene": {
-        "sceneId": "01_whale",
-        "heroRole": "investor",
+        "sceneId": "hook",
+        "heroRole": {
+          "label": "Dark Pool",
+          "icon": "mask",
+          "tone": "a_blue",
+          "scale": 1.25
+        },
         "supportingRoles": [
+          {
+            "label": "Whale",
+            "icon": "whale",
+            "scale": 1.1
+          },
           {
             "label": "$600,000,000",
             "icon": "coins",
-            "tone": "a_orange"
+            "tone": "a_orange",
+            "chip": "a_orange",
+            "scale": 1.15
+          },
+          {
+            "label": "nobody sees it",
+            "icon": "ghost",
+            "chip": "a_red",
+            "scale": 0.8
+          },
+          {
+            "label": "public order book",
+            "icon": "order",
+            "scale": 0.9
           }
-        ],
-        "screenCopy": {
-          "primary": "THE WHALE"
-        }
+        ]
       },
-      "figure": {
-        "clip": "PROTO_IDLE",
-        "still": true,
-        "pose": 0.4
-      }
+      "screenCopy": "What is a dark pool in crypto?"
     },
     {
       "beat_id": "02_problem",
-      "duration_seconds": 4.6,
-      "narration": "Selling that much on a public exchange would crash the price before the trade finishes.",
+      "duration_seconds": 5.0,
+      "narration": "On a public exchange, a sell that big hits the book, the price crashes mid-trade, and slippage eats the order alive.",
       "scene": {
-        "sceneId": "02_problem",
-        "heroRole": "trader",
+        "sceneId": "problem",
+        "heroRole": {
+          "label": "slippage",
+          "icon": "chart",
+          "tone": "a_red",
+          "scale": 1.15
+        },
         "supportingRoles": [
           {
+            "label": "sell hits the book",
+            "icon": "arrows",
+            "tone": "a_red",
+            "wgt": 0.4,
+            "scale": 0.85
+          },
+          {
             "label": "the price crashes mid-trade",
-            "icon": "arrow-down",
-            "tone": "a_red"
+            "icon": "arrows",
+            "tone": "a_red",
+            "wgt": 0.4,
+            "scale": 0.85
+          },
+          {
+            "label": "milliseconds",
+            "icon": "clock",
+            "scale": 0.8
+          },
+          {
+            "label": "public exchange",
+            "icon": "exchange",
+            "scale": 0.95
           }
-        ],
-        "screenCopy": {
-          "primary": "THE PROBLEM"
-        }
+        ]
       },
       "figure": {
-        "clip": "PROTO_HIT",
+        "clip": "PROTO_WALK",
         "still": true,
-        "pose": 0.35
-      }
+        "pose": 0.5
+      },
+      "screenCopy": "The problem with selling big"
     },
     {
-      "beat_id": "03_selling",
-      "duration_seconds": 5.0,
-      "narration": "Selling bitcoins individually to a single buyer is slow \u2014 and every fill moves the market.",
+      "beat_id": "03_fear",
+      "duration_seconds": 5.2,
+      "narration": "Fear of a whale selling: the moment the market sees your size, everyone front-runs you and the fill gets worse.",
       "scene": {
-        "sceneId": "03_selling",
-        "heroRole": "seller",
+        "sceneId": "fear",
+        "heroRole": {
+          "label": "whale selling",
+          "icon": "whale",
+          "tone": "a_blue",
+          "scale": 1.2
+        },
         "supportingRoles": [
-          "buyer",
+          {
+            "label": "seller",
+            "icon": "person",
+            "scale": 1.0
+          },
+          {
+            "label": "buyer",
+            "icon": "person",
+            "facing": -1,
+            "scale": 1.0
+          },
+          {
+            "label": "front-run",
+            "icon": "robot",
+            "chip": "a_red",
+            "scale": 0.9
+          },
           {
             "label": "$39,000",
             "icon": "coins",
-            "tone": "a_orange"
+            "tone": "a_orange",
+            "scale": 0.9
           }
-        ],
-        "screenCopy": {
-          "primary": "SELLING INDIVIDUALLY"
-        }
+        ]
       },
       "figure": {
         "clip": "PROTO_WALK",
@@ -83,107 +140,188 @@
         "clip": "PROTO_IDLE",
         "still": true,
         "pose": 0.6
-      }
+      },
+      "screenCopy": "Fear of a whale selling"
     },
     {
-      "beat_id": "04_slippage",
-      "duration_seconds": 5.2,
-      "narration": "To sell immediately you accept a lower price \u2014 that's slippage. Thirty-nine thousand becomes thirty-four.",
+      "beat_id": "04_how",
+      "duration_seconds": 5.4,
+      "narration": "So how does a dark pool work? Orders go to a private venue, a matching engine pairs buyers and sellers off the tape, and nobody sees the size.",
       "scene": {
-        "sceneId": "04_slippage",
+        "sceneId": "how",
         "heroRole": {
-          "label": "avoid slippage",
-          "icon": "warning"
+          "label": "private venue",
+          "icon": "door",
+          "tone": "a_blue",
+          "scale": 1.15
         },
         "supportingRoles": [
           {
-            "label": "$39,000",
-            "icon": "coins",
-            "tone": "a_orange"
+            "label": "matching engine",
+            "icon": "gear",
+            "scale": 0.95
           },
           {
-            "label": "$34,980",
-            "icon": "coins",
-            "tone": "a_blue"
+            "label": "order book sealed",
+            "icon": "lock",
+            "scale": 0.95
           },
           {
-            "label": "expect a price drop",
-            "icon": "arrow-down",
-            "tone": "a_red",
-            "wgt": 0.35
-          }
-        ],
-        "screenCopy": {
-          "primary": "SLIPPAGE"
-        }
-      }
-    },
-    {
-      "beat_id": "05_volatility",
-      "duration_seconds": 5.4,
-      "narration": "A big sell order adds supply, demand drops, and the price follows it down.",
-      "scene": {
-        "sceneId": "05_volatility",
-        "heroRole": "trader",
-        "supportingRoles": [
-          {
-            "label": "price",
-            "icon": "chart",
-            "tone": "a_orange"
-          },
-          {
-            "label": "more supply",
-            "icon": "note",
-            "tone": "a_blue"
+            "label": "add more supply",
+            "icon": "stack",
+            "chip": "a_blue",
+            "scale": 0.8
           },
           {
             "label": "demand drops",
-            "icon": "note",
-            "tone": "a_red"
+            "icon": "arrows",
+            "chip": "a_red",
+            "wgt": 0.55,
+            "scale": 0.8
           },
           {
             "label": "price drops",
-            "icon": "note",
-            "tone": "a_green"
+            "icon": "chart",
+            "chip": "a_green",
+            "wgt": 0.55,
+            "scale": 0.8
           }
-        ],
-        "screenCopy": {
-          "primary": "VOLATILITY"
-        }
+        ]
       },
-      "figure": {
-        "clip": "PROTO_IDLE",
-        "still": true,
-        "pose": 0.5
-      }
+      "screenCopy": "How does a dark pool work?"
     },
     {
-      "beat_id": "06_darkpool",
+      "beat_id": "05_why",
       "duration_seconds": 5.2,
-      "narration": "So whales fear selling in the open. A dark pool lets them trade the whole block privately.",
+      "narration": "Why use one? No signal leak, no market impact, and often a better fill than posting your size in public.",
       "scene": {
-        "sceneId": "06_darkpool",
-        "heroRole": "investor",
+        "sceneId": "why",
+        "heroRole": {
+          "label": "why use it",
+          "icon": "lightbulb",
+          "tone": "a_yellow",
+          "scale": 1.15
+        },
         "supportingRoles": [
           {
-            "label": "whale selling",
-            "icon": "whale",
-            "tone": "a_blue"
+            "label": "no signal leak",
+            "icon": "mask",
+            "chip": "a_blue",
+            "scale": 0.9
           },
           {
-            "label": "sounds like they are hiding trades!",
-            "icon": "brain"
+            "label": "no market impact",
+            "icon": "shield",
+            "chip": "a_green",
+            "scale": 0.9
+          },
+          {
+            "label": "better fill",
+            "icon": "percent",
+            "chip": "a_blue",
+            "scale": 0.9
+          },
+          {
+            "label": "hidden size",
+            "icon": "ghost",
+            "scale": 0.85
           }
-        ],
-        "screenCopy": {
-          "primary": "FEAR OF A WHALE"
-        }
+        ]
       },
       "figure": {
         "clip": "PROTO_IDLE",
         "still": true,
-        "pose": 0.45
-      }
+        "pose": 0.55
+      },
+      "screenCopy": "Why use a dark pool?"
+    },
+    {
+      "beat_id": "06_who",
+      "duration_seconds": 5.0,
+      "narration": "Who uses them? Funds, whales, trading desks \u2014 anyone moving size who can't afford to be seen.",
+      "scene": {
+        "sceneId": "who",
+        "heroRole": {
+          "label": "institutions",
+          "icon": "bank",
+          "scale": 1.15
+        },
+        "supportingRoles": [
+          {
+            "label": "funds",
+            "icon": "money",
+            "chip": "a_blue",
+            "scale": 0.9
+          },
+          {
+            "label": "whales",
+            "icon": "whale",
+            "tone": "a_blue",
+            "scale": 0.95
+          },
+          {
+            "label": "desks",
+            "icon": "laptop",
+            "scale": 0.9
+          },
+          {
+            "label": "custody",
+            "icon": "vault",
+            "scale": 0.9
+          }
+        ]
+      },
+      "figure": {
+        "clip": "PROTO_IDLE",
+        "still": true,
+        "pose": 0.3
+      },
+      "screenCopy": "Who uses dark pools?"
+    },
+    {
+      "beat_id": "07_takeaway",
+      "duration_seconds": 4.8,
+      "narration": "The takeaway: dark pools trade size off the tape \u2014 private fills, less slippage, your size stays your business.",
+      "scene": {
+        "sceneId": "takeaway",
+        "heroRole": {
+          "label": "the takeaway",
+          "icon": "target",
+          "tone": "a_orange",
+          "scale": 1.15
+        },
+        "supportingRoles": [
+          {
+            "label": "private fills",
+            "icon": "key",
+            "chip": "a_blue",
+            "scale": 0.9
+          },
+          {
+            "label": "less slippage",
+            "icon": "check",
+            "chip": "a_green",
+            "scale": 0.9
+          },
+          {
+            "label": "off the tape",
+            "icon": "ghost",
+            "chip": "a_red",
+            "scale": 0.9
+          },
+          {
+            "label": "your size",
+            "icon": "lock",
+            "scale": 0.85
+          }
+        ]
+      },
+      "figure": {
+        "clip": "PROTO_WALK",
+        "still": true,
+        "pose": 0.35
+      },
+      "screenCopy": "Size stays your business"
     }
   ]
 }
