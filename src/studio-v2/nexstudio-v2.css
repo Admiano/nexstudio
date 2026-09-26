@@ -2252,3 +2252,9 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .acct-sessions .acct-session{animation:riseIn .4s var(--ease) backwards}
 .acct-sessions .acct-session:nth-child(2){animation-delay:.05s}
 .acct-sessions .acct-session:nth-child(n+3){animation-delay:.1s}
+
+/* remaining hover coverage + badge pop */
+.lib-filter:hover{color:var(--ink);border-color:rgba(17,22,18,.25)}
+.pw-nav a:hover{color:var(--ink)}
+@keyframes badgePop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.14)}100%{transform:scale(1);opacity:1}}
+.bell-count{animation:badgePop .34s var(--ease) backwards}
