@@ -561,6 +561,33 @@
     return svg;
   }
 
+  // The silhouette shapes whose first path IS the whole body — those get interior
+  // volume: a light wash on the lit half and an ink shade on the dark half, both
+  // clipped to the silhouette so the shading lives inside the paper, not on the page.
+  const _VOLUME_SHAPES = new Set(['hill', 'mountain', 'cliff', 'rock', 'stone', 'pebble',
+    'tent', 'hut', 'door', 'boat', 'planet', 'moon', 'star', 'blob']);
+
+  function shadeVolume(svg, ldx, seed, plan) {
+    const brand = plan.brand;
+    const silhouette = svg.querySelector('path');
+    if (!silhouette) return;
+    const cid = `vol_${(seed >>> 0).toString(36)}`;
+    const cp = svgEl('clipPath', { id: cid }, svg);
+    cp.appendChild(silhouette.cloneNode(true));
+    const g = svgEl('g', { 'clip-path': `url(#${cid})` }, svg);
+    if (ldx === 0) {
+      // Overhead light: crown light, base shade.
+      svgEl('rect', { x: -10, y: -10, width: 120, height: 34, fill: rgbaOf('#ffffff', 0.13) }, g);
+      svgEl('rect', { x: -10, y: 62, width: 120, height: 50, fill: rgbaOf(brand.ink, 0.15) }, g);
+    } else {
+      const l = ldx < 0;
+      svgEl('rect', { x: l ? -10 : 58, y: -10, width: 52, height: 120, fill: rgbaOf('#ffffff', 0.13) }, g);
+      svgEl('rect', { x: l ? 58 : -10, y: -10, width: 52, height: 120, fill: rgbaOf(brand.ink, 0.15) }, g);
+      // Core shadow band hugging the dark edge — deeper than the wash.
+      svgEl('rect', { x: l ? 82 : -10, y: -10, width: 28, height: 120, fill: rgbaOf(brand.ink, 0.13) }, g);
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Background
   // ---------------------------------------------------------------------------
@@ -810,7 +837,10 @@
           }
         } else {
           const body = scenePiece(spec.shape, spec.seed, spec.tone, plan);
-          if (body) node.appendChild(body);
+          if (body) {
+            if (ldx !== null && _VOLUME_SHAPES.has(spec.shape)) shadeVolume(body, ldx, spec.seed, plan);
+            node.appendChild(body);
+          }
         }
         node.className = 'em2-piece';
         node.dataset.plane = String(spec.plane);
@@ -1401,7 +1431,7 @@
   }
 
 
-  function buildFigure(fig, plan, beatRoot, opts) {
+  function buildFigure(fig, plan, beatRoot, opts, beat) {
     const bb = bboxOf(fig.bbox);
     const host = el('div', {
       position: 'absolute', left: px(bb.x), top: px(bb.y), width: px(bb.w), height: px(bb.h), zIndex: '14',
@@ -1420,6 +1450,17 @@
     host.appendChild(svg);
     // Lifted off the page: the puppet reads as a cut-out sitting on the paper, not flat ink.
     svg.style.filter = `drop-shadow(0 ${px(bb.h * 0.012)} ${px(bb.h * 0.022)} ${rgbaOf(plan.brand.ink, 0.3)})`;
+    // Contact pool: the performer stands IN the scene, not on the page — a soft ink
+    // ellipse at the feet, thrown slightly away from the scene's light side.
+    if (PAPERBOOK(plan)) {
+      const sceneLdx = ((((beat || {}).composition || {}).background || {}).layers || [])
+        .map((l) => l.lit_dx).find((v) => typeof v === 'number' && v !== 0) || 0;
+      el('div', {
+        position: 'absolute', left: '8%', bottom: '-2.5%', width: '84%', height: '7%',
+        background: `radial-gradient(ellipse at center, ${rgbaOf(plan.brand.ink, 0.30)}, ${rgbaOf(plan.brand.ink, 0)} 68%)`,
+        transform: `translateX(${px(-sceneLdx * bb.w * 0.05)})`, pointerEvents: 'none', zIndex: '-1',
+      }, host);
+    }
     const f = { fig, host, bb, ready: null, slotEls: {}, stateSwaps: null, appliedState: -1, prop: null };
     const figSeed = seedHash(`figure:${fig.character || 'anon'}:${fig.pose && fig.pose.id || ''}`);
     const built = paperFigureSlots(fig, figSeed, plan, `fig_${fig.character || 'f'}`);
@@ -2829,7 +2870,7 @@
   // fill, a clipped wash + two seeded blotches over the union for the watercolour
   // settle. Returns the art's <g> in normalized 100x100 space plus its flat els
   // for draw-on staggering.
-  function paperArtGroup(key, seed, plan, uid) {
+  function paperArtGroup(key, seed, plan, uid, hero) {
     const pieces = PAPER_ART[key] || [];
     const parts = [];
     pieces.forEach((pc, i) => parts.push(...paperPieceParts(pc, seed ^ (i * 0x9e3779b1))));
@@ -2902,6 +2943,20 @@
         const a = hd() * Math.PI * 2, dd = Math.pow(hd(), 1.6) * 26;
         svgEl('circle', { cx: f2(hx + Math.cos(a) * dd), cy: f2(hy + Math.sin(a) * dd * 0.72), r: f2(0.55 + hd() * 0.85), fill: plan.brand.ink, 'fill-opacity': f2(0.05 + hd() * 0.1) }, wash);
       }
+      if (hero && plan.book === 'paperbook') {
+        // Engraving hatching on the hero subject: seeded parallel strokes inside the
+        // silhouette — the mark reads etched into the plate, not flat-filled.
+        const hr = rng(seed ^ 0x3a11);
+        const hang = 0.5 + hr() * 0.35;
+        const hg = svgEl('g', { 'clip-path': `url(#pac_${uid})` }, wash);
+        for (let hy = -30; hy < 140; hy += 3.8) {
+          svgEl('path', {
+            d: `M-20 ${f2(hy)} L130 ${f2(hy - 150 * hang)}`,
+            stroke: plan.brand.ink, 'stroke-width': f2(0.5 + hr() * 0.4),
+            'stroke-opacity': f2(0.05 + hr() * 0.07), fill: 'none',
+          }, hg);
+        }
+      }
       els.push(wash);
     }
     return { g, els };
@@ -2936,7 +2991,8 @@
   function paintPaperArt(ent, node, host, box, plan, opts) {
     const key = paperArtKey(ent.concept);
     if (key) {
-      const art = paperArtGroup(key, seedHash(`${ent.id}:${key}`), plan, `${ent.id}_${++iconInstance}`);
+      const isHero = box.h >= (plan.canvas.h || 720) * 0.20;
+      const art = paperArtGroup(key, seedHash(`${ent.id}:${key}`), plan, `${ent.id}_${++iconInstance}`, isHero);
       if (art) {
         const bb = paperBounds(key);
         const s = Math.min((box.w * 0.9) / bb.w, (box.h * 0.9) / bb.h);
@@ -4407,7 +4463,7 @@
     const bg = buildBackground(beat, plan, root, opts.assetUrl);
     const media = beat.media ? buildMedia(beat.media, plan, root, opts.assetUrl) : null;
     if (media) media.blur = motionBlurFilter(fx.defs, `${fx.scope}-mb-media`);
-    const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts) : null;
+    const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts, beat) : null;
     const data = beat.data ? buildData(beat.data, plan, root) : null;
     const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, { ...opts, fx }) : null;
     // All typography lives in one layer so book mode can demote the whole lockup at once.
