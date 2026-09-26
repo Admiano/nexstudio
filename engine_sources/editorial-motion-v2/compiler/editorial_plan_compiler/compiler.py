@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import random
 from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -221,6 +222,59 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
     photos = [e for e in ents if e.get('photo') and e.get('art_bbox')]
     marks = [e for e in ents if e.get('art_bbox') and e not in photos]
 
+    # Authored density: a picture-book plate needs ~3 subjects to read as a scene, not
+    # a spot check. When the script supplies too few, the compiler restocks it from the
+    # scene's own vocabulary — night grows stars, soil grows flowers — seeded per beat so
+    # the same page always grows the same life. Supports are marks, never photos.
+    scene = getattr(btr, 'scene', None) or {}
+    setting = str(scene.get('setting') or 'outdoor')
+    _SUPPORT_POOLS = {
+        'space':      ['star', 'stars', 'moon-crescent', 'star', 'earth'],
+        'underwater': ['fish', 'wave', 'drop', 'fish'],
+        'indoor':     ['window', 'book', 'plant', 'cup', 'candle'],
+        'urban':      ['cloud', 'bird', 'star', 'kite'],
+        'ground':     ['mushroom', 'flower', 'leaf', 'butterfly'],
+        'abstract':   ['star', 'leaf', 'drop', 'heart'],
+        'outdoor':    ['butterfly', 'flower', 'bird', 'cloud', 'leaf', 'mushroom'],
+    }
+    pool = list(_SUPPORT_POOLS.get(setting, _SUPPORT_POOLS['outdoor']))
+    mood = str(scene.get('mood') or '')
+    if mood in ('night', 'dusk', 'dawn') and setting not in ('ground', 'indoor', 'underwater'):
+        pool = [c for c in ('star', 'stars', 'moon-crescent') if c not in {e.get('concept') for e in ents}] + pool
+    present = {e.get('concept') for e in ents}
+    subjects = len(photos) + len(marks) + (1 if figure else 0)
+    if not photos and subjects < 3:
+        rng = random.Random(f"{getattr(btr, 'beat_id', 'beat')}:support")
+        if illustration is None:
+            # Figure walks into an otherwise empty plate: the spread still needs a scene,
+            # so the composer fabricates the minimal illustration the runtime can mount.
+            zx, zy = max(vis['x'], 24.0), max(vis['y'], 24.0)
+            zf = _box(zx, zy, max(1.0, min(vis['x'] + vis['w'], W - 24.0) - zx), max(1.0, min(vis['y'] + vis['h'], H - 24.0) - zy))
+            illustration = {'form': 'SCENE', 'zone': zf, 'entities': [], 'relations': [],
+                            'ops': [], 'marks': [], 'settled_ms': 0, 'accent': None,
+                            'accent_policy': 'STATE_CHANGE_OPS_ONLY', 'state_changes': 0,
+                            'carry_from': None, 'persist_to': None, 'carried': False,
+                            'registry_version': 'supports'}
+            ents = illustration['entities']
+        wanted = min(2, 3 - subjects)
+        added = 0
+        for concept in pool:
+            if added >= wanted:
+                break
+            if concept in present:
+                continue
+            size = 110 + rng.random() * 60
+            e = {'id': f"support_{concept}_{added}", 'concept': concept, 'kind': 'object',
+                 'glyph': 'ICON', 'size': 'support', 'label': None, 'media': None, 'photo': None,
+                 'asset': None, 'carried': False, 'carry_from_bbox': None, 'state_in': {},
+                 'enter_ms': int(60 + rng.random() * 120), 'enter_duration_ms': 420,
+                 'bbox': _box(0, 0, size, size), 'art_bbox': _box(0, 0, size, size),
+                 'params': {'resolution': {'via': 'support', 'concept': concept}}}
+            illustration['entities'].append(e)
+            marks.append(e)
+            present.add(concept)
+            added += 1
+
     def put(e: Dict[str, Any], box: Dict[str, float]) -> None:
         e['art_bbox'] = dict(box)
         if e.get('bbox'):
@@ -314,11 +368,40 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
                     break
             put(e, box)
 
+    # Last resort de-overlap: a mark still touching the performer after the anchors
+    # (narrow aspects crowd the crop) is walked to a free top-edge slot, shrinking as
+    # it goes; a support that cannot clear is simply dropped — it was a garnish.
+    if figure:
+        fb = figure['bbox']
+        for e in list(marks):
+            b2 = e['art_bbox']
+            if _overlap(b2, fb) <= 0:
+                continue
+            placed = False
+            for sc2 in (1.0, 0.7, 0.5):
+                w2, h2 = b2['w'] * sc2, b2['h'] * sc2
+                for px in (0.06, 0.94, 0.25, 0.75, 0.5):
+                    cand = _box(vx + px * vw - w2 / 2, vy + vh * 0.02, w2, h2)
+                    if cand['x'] < vx - 1 or cand['x'] + cand['w'] > vx + vw + 1:
+                        continue
+                    if _overlap(cand, fb) <= 0 and all(_overlap(cand, m['art_bbox']) <= 0 for m in marks if m is not e):
+                        put(e, cand)
+                        placed = True
+                        break
+                if placed:
+                    break
+            if not placed:
+                for lst in (ents, marks):
+                    if e in lst:
+                        lst.remove(e)
+                illustration['entities'] = [x for x in illustration['entities'] if x is not e]
+
     # A plate is a settled illustration: every element has arrived by the page's
     # first half — no subject may pop in during the last third of the read.
     for e in ents:
         if e.get('enter_ms', 0) > dur_ms * 0.62:
             e['enter_ms'] = int(dur_ms * 0.62)
+    return illustration
 
 
 def _fonts() -> Dict[str, Any]:
@@ -840,7 +923,7 @@ class BeatCompiler:
         illustration, ilf = self._illustration(b, comp, clock)
         failures += ilf
         if getattr(self.film.world, 'book', None) == 'paperbook':
-            _compose_paperbook_plate(b, illustration, figure, self.W, self.H, clock.duration_ms)
+            illustration = _compose_paperbook_plate(b, illustration, figure, self.W, self.H, clock.duration_ms)
         if illustration:
             if not _inside(illustration['zone'], self.frame, 2):
                 failures.append('ILLUSTRATION_OUTSIDE_FRAME')
