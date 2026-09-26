@@ -3,15 +3,14 @@
 Evidence model (from frame analysis of the reference):
   * ONE canvas larger than the frame, pre-divided into regions with
     hand-drawn divider lines; each section owns a region.
-  * The camera tight-follows the drawing: ~one region fills the view while
-    it inks, travelling region to region as sections open.
+  * The camera is locked on the whole canvas — no pans, zooms, or drift;
+    the whole accumulating board is visible the entire video.
   * Nothing is ever wiped or evicted — every stroke persists to the end.
   * Each region composes a vignette: hand-lettered title at its top, a hero
     element at its centre, satellites (people, objects, chips, captions)
     arranged around it.
   * Multi-accent ink: black lettering/art + accent colors on fills, marks.
-  * Ending: the camera pulls out to reveal the whole accumulated canvas,
-    then "Thanks" + heart inks into a free region.
+  * Ending: "Thanks" + a heart inks into a free region on the same canvas.
 
 Beats map 1:1 to sections, and sections map 1:1 to regions on the canvas.
 """
@@ -554,21 +553,20 @@ def _build(plan, ratio):
         sections.append({'beat': beat, 'bi': bi, 'items': merged,
                          'label': _section_label(beat)})
 
-    # Region canvas: the world is ~2x the frame; each beat owns a region of
-    # it and the camera visits that region while it inks (the reference's
-    # quadrant vignettes). Nothing is ever evicted — ink persists to the
-    # end. Divider strokes between regions draw live as sections open.
+    # Region canvas: the world is ~1.3x the frame — just enough margin for
+    # divider lines and breathing room under a locked camera. Each beat
+    # owns a region; nothing is ever evicted — ink persists to the end.
+    # Divider strokes between regions draw live as sections open.
     del board_rect
     nsec = len(sections)
-    W2, H2 = W * 2.0, H * 2.0
-    m2 = 0.045 * W
+    W2, H2 = W * 1.3, H * 1.3
+    m2 = 0.03 * W
     bx0, by0 = -W2 / 2 + m2, -H2 / 2 + m2 * 1.15
     bw, bh = W2 - 2 * m2, H2 - 2 * m2 * 1.45
     board_rect = (bx0, by0, bw, bh)
     header = bh * 0.085                     # persistent global-title strip
-    # frame-aspect regions: pick rows/cols so each region lands near the
-    # frame's ~2:1 shape — the camera can zoom until a region nearly fills
-    # the view without cropping its own title strip
+    # near-frame-aspect regions: rows/cols chosen so each region lands
+    # close to the frame's proportions under the locked full view
     rows = max(1, round(math.sqrt(max(1, nsec) * 0.9)))
     cols = max(1, math.ceil(nsec / rows))
     ax0, ay0, aw, ah = bx0, by0 + header, bw, bh - header
@@ -1056,118 +1054,14 @@ def _travel_tip(flow, ratio, cam, zoom, t):
     return (sx, sy)
 
 
-def _cam_path(flow, ratio):
-    """Ordered attention points the camera visits: full canvas → each
-    section's title strip → every element in draw order → the next title.
-    Continuous by construction — each hop is a smoothstep glide with
-    zero-velocity ends, so the view never snaps mid-section."""
-    if flow.get('_cam_path') is not None:
-        return flow['_cam_path']
-    vw, vh = wbp.RATIO_SIZES[ratio]
-    base = _map_scale(ratio)
-    bx, by, bw, bh = flow['board_rect']
-    pts = [{'pos': (bx + bw / 2, by + bh / 2),
-            'z': min(vw * 0.97 / bw, vh * 0.97 / bh) / base,
-            't': 0.0}]
-    for si, s in enumerate(flow['sections']):
-        if not (s.get('t_window') and s.get('region')):
-            continue
-        rx, ry, rw, rh = s['region']
-        zr = min(vw * 0.97 / rw, vh * 0.94 / rh) / base
-        t0, t1 = s['t_window']
-        # title attention — framed slightly high so the lettering strip
-        # sits inside the view while it draws. The very first section gets
-        # a dive-in from the full canvas instead of starting framed.
-        if s.get('title_st'):
-            # step ~0.5s before lettering starts so the smoothing lands the
-            # view as the first stroke draws (first section keeps its
-            # dive-in from the full canvas instead)
-            tt = 0.55 if si == 0 else max(t0 - 0.5, 0.0)
-            pts.append({'pos': (rx + rw / 2, ry + rh * 0.36),
-                        'z': zr * 0.94, 't': tt})
-        items = sorted((it for it in s.get('items2', ())
-                        if it.get('t_window') and it.get('bounds2')),
-                       key=lambda i: i['t_window'][0])
-        for it in items:
-            iw0 = it['t_window'][0]
-            b = it['bounds2']
-            w_, h_ = b[2] - b[0], b[3] - b[1]
-            ic = ((b[0] + b[2]) / 2, (b[1] + b[3]) / 2)
-            # only significant moves earn camera attention — skip an item
-            # that will ink fully inside the current view anyway (the
-            # reference dwells on the vignette, it doesn't twitch between
-            # every label and chip)
-            last = pts[-1]
-            hw = vw / (2 * last['z'] * base)
-            hh = vh / (2 * last['z'] * base)
-            inside = (abs(ic[0] - last['pos'][0]) + w_ / 2 < hw * 0.82 and
-                      abs(ic[1] - last['pos'][1]) + h_ / 2 < hh * 0.82)
-            small = w_ * h_ < rw * rh * 0.09
-            if inside and small:
-                continue
-            # frame the element's bounds at ~60% of view — small elements
-            # pull tighter, big ones hold the region frame
-            zi = min(vw * 0.60 / max(w_, 1), vh * 0.60 / max(h_, 1)) / base
-            zi = wbp._clamp(zi, zr * 0.95, zr * 1.5)
-            pts.append({'pos': ic, 'z': zi, 't': max(iw0 - 0.45, t0 + 0.1)})
-    flow['_cam_path'] = pts
-    return pts
-
-
-def _cam_track(flow, ratio):
-    """Camera trajectory table: exponentially smooth-chases the attention
-    target (which steps to the next element as each starts inking). Like a
-    cameraman tracking the hand — fast reaction after a step, settling as
-    it converges; continuous by construction, no hops can overlap or snap.
-    Built once per flow at 50 Hz, sampled linearly."""
-    tbl = flow.get('_cam_track')
-    if tbl is not None:
-        return tbl
-    vw, vh = wbp.RATIO_SIZES[ratio]
-    base = _map_scale(ratio)
-    bx, by, bw, bh = flow['board_rect']
-    pts = _cam_path(flow, ratio)
-    t_end = flow['total_beats_end']
-    # final target: dwell on the last element ~0.45s, then reveal the
-    # whole accumulated canvas
-    pts = pts + [{'pos': (bx + bw / 2, by + bh / 2),
-                  'z': min(vw * 0.97 / bw, vh * 0.97 / bh) / base,
-                  't': t_end + 0.45}]
-    dt = 1.0 / 50
-    n = int((t_end + WIPE_SECONDS + 3.0) * 50) + 2
-    x, y, z = pts[0]['pos'][0], pts[0]['pos'][1], pts[0]['z']
-    tau = 0.46                       # ~0.5s reaction time — reads as a pan
-    a = 1.0 - math.exp(-dt / tau)
-    tbl = []
-    j = 0
-    for i in range(n):
-        tt = i * dt
-        while j + 1 < len(pts) and pts[j + 1]['t'] <= tt:
-            j += 1
-        tx, ty = pts[j]['pos']
-        x += (tx - x) * a
-        y += (ty - y) * a
-        z += (pts[j]['z'] - z) * a
-        tbl.append((x, y, z))
-    flow['_cam_track'] = tbl
-    return tbl
-
-
 def _camera_at(flow, ratio, t):
-    """Follow-cam over the smoothed trajectory + a few px of dwell drift
-    (the reference's hand-held breathing)."""
+    """Locked camera — the whole board stays framed edge to edge for the
+    entire video. No pans, no zoom, no drift."""
     vw, vh = wbp.RATIO_SIZES[ratio]
     base = _map_scale(ratio)
-    tbl = _cam_track(flow, ratio)
-    ft = wbp._clamp(t * 50.0, 0.0, len(tbl) - 1.001)
-    i0 = int(ft)
-    f = ft - i0
-    x = tbl[i0][0] + (tbl[i0 + 1][0] - tbl[i0][0]) * f
-    y = tbl[i0][1] + (tbl[i0 + 1][1] - tbl[i0][1]) * f
-    z = tbl[i0][2] + (tbl[i0 + 1][2] - tbl[i0][2]) * f
-    dx = 6.0 * math.sin(t * 0.8 + 1.3) / max(1.0, z * base)
-    dy = 4.0 * math.cos(t * 0.62) / max(1.0, z * base)
-    return (x + dx, y + dy), z
+    bx, by, bw, bh = flow['board_rect']
+    full_z = min(vw * 0.97 / bw, vh * 0.97 / bh) / base
+    return (bx + bw / 2, by + bh / 2), full_z
 
 
 def ending_seconds(plan, ratio):
@@ -1175,9 +1069,8 @@ def ending_seconds(plan, ratio):
 
 
 def render_board_frame(plan: dict, ratio: str, t: float):
-    """Follow-cam on a region canvas: the view zooms into the section
-    currently inking, travels between regions, and pulls out to the full
-    canvas for the ending reveal + Thanks."""
+    """Locked camera on the region canvas — the whole board is framed
+    edge to edge for the entire render."""
     flow = _build(plan, ratio)
     colors = _colors(plan)
     vw, vh = wbp.RATIO_SIZES[ratio]
