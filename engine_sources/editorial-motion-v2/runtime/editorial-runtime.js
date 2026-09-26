@@ -2311,6 +2311,15 @@
       // Pigment edge: a same-path stroke a tone deeper than the fill reads as paint
       // gathered at the cut edge — hand-laid, not bucket-filled.
       const edgeInk = p.sw || p.op < 0.35 || p.tone === 'paper' ? 'none' : mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.45);
+      // Sumi bleed: pigment wicks a hair into the fibres — a wider ghost copy of
+      // the same mark in diluted ink laid down first (InkPainting's soak model).
+      if (plan.book === 'paperbook' && p.op >= 0.4) {
+        if (p.sw) {
+          els.push(svgEl('path', { d: p.d, fill: 'none', stroke: mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.5), 'stroke-width': f2(p.sw * 1.9), 'stroke-linecap': 'round', 'stroke-opacity': '0.10', transform: p.tf || undefined }, body));
+        } else if (p.tone !== 'paper') {
+          els.push(svgEl('path', { d: p.d, fill: 'none', stroke: mixColor(paintTone(p.tone, plan), plan.brand.ink, 0.55), 'stroke-width': '2.6', 'stroke-opacity': '0.09', 'stroke-linejoin': 'round', transform: p.tf || undefined }, body));
+        }
+      }
       const elp = p.sw
         ? svgEl('path', { d: p.d, fill: 'none', stroke: paintTone(p.tone, plan), 'stroke-width': f2(p.sw), 'stroke-linecap': 'round', 'stroke-opacity': f2(p.op), transform: p.tf || undefined }, body)
         : svgEl('path', { d: p.d, fill: paintTone(p.tone, plan), 'fill-opacity': f2(p.op), stroke: edgeInk, 'stroke-width': f2(1.1), 'stroke-opacity': edgeInk === 'none' ? '0' : '0.3', 'stroke-linejoin': 'round', transform: p.tf || undefined }, body);
@@ -4287,6 +4296,9 @@
       const prose = el('div', {
         fontFamily: PB_HAND, fontWeight: '430', fontSize: px(pw * 0.0305), lineHeight: '1.5', color: rgbaOf(ink, 0.86),
         marginTop: px(ph * 0.018), maxWidth: px(colRect.w * 0.94),
+        // Jittered hand: contextual alternates make each glyph draw a different
+        // allograph (kako-jun/jitter baked into the typeface, not post-editing).
+        fontFeatureSettings: '"calt" 1', fontVariationSettings: '"wght" 430',
       }, col);
       // Ink soak: the letterform blooms a hair into the absorbent stock.
       prose.style.textShadow = `0 0 ${px(Math.max(0.4, pw * 0.0008))} ${rgbaOf(ink, 0.30)}`;
@@ -4301,6 +4313,25 @@
         }, prose);
         cap.textContent = narration[0].toUpperCase();
         prose.appendChild(document.createTextNode(narration.slice(1)));
+        // Marginalia (scriptorium): a scribe's vine curls off the initial into the
+        // margin — one seeded tendril with alternating leaves, ink and accent.
+        {
+          const vr = rng(seedHash(`pb-vine:${plan.film_id}:${i}`));
+          const vw = pw * 0.052, vh = ph * 0.085;
+          const vine = svgEl('svg', { viewBox: `0 0 ${vw} ${vh}`, width: px(vw), height: px(vh), 'aria-hidden': 'true' }, col);
+          Object.assign(vine.style, { position: 'absolute', left: px(-vw * 0.55), top: px(ph * 0.045), pointerEvents: 'none' });
+          let vd = `M${f2(vw * 0.96)} ${f2(vh * 0.9)}`;
+          for (let s = 1; s <= 5; s++) {
+            const yy = vh * (0.9 - s * 0.17), xx = vw * (0.96 - 0.16 * Math.sin(s * 2.1 + vr()));
+            vd += ` Q${f2(vw * (1.06 - 0.1 * Math.sin(s * 1.7)))} ${f2(yy + vh * 0.08)} ${f2(xx)} ${f2(yy)}`;
+          }
+          svgEl('path', { d: vd, fill: 'none', stroke: rgbaOf(ink, 0.5), 'stroke-width': f2(vw * 0.045), 'stroke-linecap': 'round' }, vine);
+          const acc2 = plan.brand.accent || ink;
+          for (let s = 1; s <= 5; s++) {
+            const yy = vh * (0.9 - s * 0.17), sgn = s % 2 ? 1 : -1;
+            svgEl('path', { d: `M0 0 Q${f2(sgn * vw * 0.16)} ${f2(-vh * 0.09)} ${f2(sgn * vw * 0.26)} 0 Q${f2(sgn * vw * 0.14)} ${f2(vh * 0.08)} 0 0 Z`, fill: rgbaOf(s % 3 ? ink : acc2, 0.42), transform: `translate(${f2(vw * (0.96 - 0.16 * Math.sin(s * 2.1)))},${f2(yy)}) rotate(${f2(sgn * (28 + vr() * 18))})` }, vine);
+          }
+        }
       } else {
         prose.textContent = narration;
       }
@@ -4397,6 +4428,7 @@
     const folio = el('div', {
       position: 'absolute', bottom: px(ph * 0.03), [side === 'left' ? 'left' : 'right']: px(pw * 0.05),
       fontFamily: PB_HAND, fontWeight: '450', fontSize: px(pw * 0.026), color: rgbaOf(ink, 0.55),
+      fontFeatureSettings: '"calt" 1',
     }, face);
     folio.textContent = String(i + 1);
     // Bank-art attribution: picture books credit their illustrators — a hairline
