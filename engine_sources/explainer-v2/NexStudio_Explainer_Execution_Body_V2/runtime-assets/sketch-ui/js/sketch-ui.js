@@ -152,6 +152,68 @@ window.NexSketch = (() => {
      spec.assets {name: rel-path} → bundle 'media/<name><ext>'; a scene
      param referencing a bare name resolves through this index. */
   let assetIndex = {};
+  let svgAssetIndex = {};
+  /* --- pathformer + logo draw-on: vivus-style — primitives → paths, then
+     strokes draw sequentially and original fills fade in. Seek-safe. --- */
+  const shapeToPathD = (el) => {
+    const tag = el.tagName.toLowerCase();
+    const n = (k) => Number(el.getAttribute(k) || 0);
+    if (tag === 'rect') {
+      const x = n('x'), y = n('y'), w = n('width'), hgt = n('height'), r = Math.min(n('rx'), w / 2);
+      return r ? `M${x + r} ${y}H${x + w - r}A${r} ${r} 0 0 1 ${x + w} ${y + r}V${y + hgt - r}A${r} ${r} 0 0 1 ${x + w - r} ${y + hgt}H${x + r}A${r} ${r} 0 0 1 ${x} ${y + hgt - r}V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`
+        : `M${x} ${y}H${x + w}V${y + hgt}H${x}Z`;
+    }
+    if (tag === 'circle') { const cx = n('cx'), cy = n('cy'), r = n('r'); return `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`; }
+    if (tag === 'ellipse') { const cx = n('cx'), cy = n('cy'), rx = n('rx'), ry = n('ry'); return `M${cx - rx} ${cy}a${rx} ${ry} 0 1 0 ${2 * rx} 0a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`; }
+    if (tag === 'line') return `M${n('x1')} ${n('y1')}L${n('x2')} ${n('y2')}`;
+    if (tag === 'polyline' || tag === 'polygon') {
+      const pts = (el.getAttribute('points') || '').trim().split(/\s+/).join(' L ');
+      return `M${pts}${tag === 'polygon' ? 'Z' : ''}`;
+    }
+    return '';
+  };
+  const logoSvgIn = (box, svgText) => {
+    box.innerHTML = svgText;
+    const svg = box.querySelector('svg');
+    if (!svg) { box.innerHTML = ''; return null; }
+    svg.removeAttribute('width'); svg.removeAttribute('height');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg.style.cssText += ';width:100%;height:100%;overflow:visible';
+    svg.querySelectorAll('rect,circle,ellipse,line,polyline,polygon').forEach(el2 => {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', shapeToPathD(el2));
+      for (const a of [...el2.attributes]) {
+        if (!['x', 'y', 'width', 'height', 'rx', 'ry', 'cx', 'cy', 'r', 'points', 'x1', 'y1', 'x2', 'y2'].includes(a.name)) p.setAttribute(a.name, a.value);
+      }
+      el2.replaceWith(p);
+    });
+    return [...svg.querySelectorAll('path')].map(p => {
+      let len = 300; try { len = p.getTotalLength() || 300; } catch (_) { }
+      const fill = p.getAttribute('fill');
+      const stroke = p.getAttribute('stroke');
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', stroke && stroke !== 'none' ? stroke : cssVar('--sk-ink'));
+      p.setAttribute('stroke-width', p.getAttribute('stroke-width') || '2');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-linejoin', 'round');
+      p.style.strokeDasharray = String(len);
+      p.style.strokeDashoffset = String(len);
+      p.style.opacity = '0';
+      return { el: p, len, fill };
+    });
+  };
+  const drawPathSeq = (tl, parts, s, d) => {
+    const n = Math.max(1, parts.length);
+    const slice = d / n;
+    parts.forEach((pt, i) => {
+      const st = s + i * slice * 0.62;
+      const dur = Math.max(0.05, Math.min(slice * 1.5, s + d - st));
+      tl.addUpdate(st, dur, p => { pt.el.style.strokeDashoffset = String(pt.len * (1 - p)); pt.el.style.opacity = p > 0 ? '1' : '0'; }, 'power2.inOut');
+      if (pt.fill && pt.fill !== 'none') {
+        tl.addUpdate(s + d * 0.92, 0.4, p => { pt.el.setAttribute('fill', pt.fill); pt.el.style.fillOpacity = String(p); }, 'power1.in');
+      }
+    });
+  };
   const mediaOf = (v) => {
     if (!v) return null;
     if (v.includes('/') || v.startsWith('data:') || v.startsWith('http')) return v;
@@ -803,6 +865,7 @@ window.NexSketch = (() => {
     const mode = spec.mark;
     if (typeof mode === 'string' && mode.startsWith('icon:')) { mk._icon = icon(mode.slice(5), mk); mk._icon.style.cssText = 'width:72%;height:72%'; return mk; }
     if (typeof mode === 'string' && mode !== 'initial') {
+      if (svgAssetIndex[mode]) { mk._svgParts = logoSvgIn(mk, svgAssetIndex[mode]); return mk; }
       const img = document.createElement('img');
       img.src = mediaOf(mode); img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block';
       mk.appendChild(inkifyImg(img, spec));
@@ -822,7 +885,10 @@ window.NexSketch = (() => {
     const mk = brandMark(spec, spec.px || 190);
     el.appendChild(mk);
     const tl = NexMotion.createTimeline();
-    if (mk._ring) {
+    if (mk._svgParts) {
+      tl.fromTo(mk, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.1);
+      drawPathSeq(tl, mk._svgParts, 0.2, 1.4);
+    } else if (mk._ring) {
       drawOn(tl, mk._ring, 0.15, 1.1);
       tl.fromTo(mk._letter, { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.9)' }, 0.9);
     } else {
@@ -852,7 +918,10 @@ window.NexSketch = (() => {
     const tl = NexMotion.createTimeline();
     tl.fromTo(first, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.1);
     if (second) tl.fromTo(second, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.25);
-    if (wm._mark) { wm._mark.style.opacity = '0'; tl.addUpdate(0.5, 0.2, p => { wm._mark.style.opacity = '1'; }, 'none'); fx(wm._mark, 'stamp-impact', { delay: 0.5, duration: 0.8, intensity: 1 }); }
+    if (wm._mark) {
+      if (wm._mark._svgParts) { drawPathSeq(tl, wm._mark._svgParts, 0.4, 1.1); }
+      else { wm._mark.style.opacity = '0'; tl.addUpdate(0.5, 0.2, p => { wm._mark.style.opacity = '1'; }, 'none'); fx(wm._mark, 'stamp-impact', { delay: 0.5, duration: 0.8, intensity: 1 }); }
+    }
     if (spec.sub) tl.fromTo(el.children[1], { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5 }, 0.8);
     if (spec.pill) tl.fromTo(el.children[el.children.length - 1], { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(1.7)' }, 1.15);
     return { el, tl };
@@ -1790,6 +1859,7 @@ window.NexSketch = (() => {
     /* inkify filter + media asset index */
     stage.insertAdjacentHTML('beforeend', INKIFY_DEFS);
     assetIndex = {};
+    svgAssetIndex = filmSpec.svgAssets || {};
     for (const [name, rel] of Object.entries(filmSpec.assets || {})) {
       const ext = (rel.match(/\.[^./\\]+$/) || ['.png'])[0];
       assetIndex[name] = `media/${name}${ext}`;

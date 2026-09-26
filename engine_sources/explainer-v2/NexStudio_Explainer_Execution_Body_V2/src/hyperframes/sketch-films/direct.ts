@@ -64,6 +64,7 @@ export type FilmBeat = {
   accent?: string | number;
   /** end-card / logo-mark / orbit mark: false | 'initial' | 'icon:<name>' | media asset. */
   mark?: string | boolean;
+  px?: number;
   /** Contrast pair. */
   a?: { title?: string; items?: string[] };
   b?: { title?: string; items?: string[] };
@@ -388,6 +389,7 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     case "kinetic-headline":
     case "kinetic-type": return { ...base, text: beat.head || beat.text || "", sub: beat.sub, accent: beat.accent, index: false };
     case "payoff-lockup": return { ...base, text: beat.head || brief.tagline || "briefs in. films out.", sub: beat.sub || brief.tagline || "", index: false };
+    case "logo-mark": return { ...base, mark: beat.mark ?? "initial", px: beat.px || 190, brandA: beat.head || product, index: false };
     case "end-card": {
       const brand = (beat.head || product).split(" ");
       const [a, ...rest] = brand;

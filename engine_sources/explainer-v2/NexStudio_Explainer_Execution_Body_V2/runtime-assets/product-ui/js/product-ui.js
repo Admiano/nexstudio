@@ -106,10 +106,73 @@ window.NexFilm = (() => {
 
   /* ---------- media assets ---------- */
   let assetIndex = {};
+  let svgAssetIndex = {};
   const mediaOf = (v) => {
     if (!v) return null;
     if (/^(https?:|data:|media\/|\/)/.test(v)) return v;
     return assetIndex[v] || null;
+  };
+  /* --- pathformer + logoDraw: vivus-style draw-on for supplied SVG marks ---
+     Primitives are converted to paths so every logo stroke-draws, then fills
+     fade back in once the linework lands. Deterministic under seek. */
+  const shapeToPathD = (el) => {
+    const tag = el.tagName.toLowerCase();
+    const n = (k) => Number(el.getAttribute(k) || 0);
+    if (tag === 'rect') {
+      const x = n('x'), y = n('y'), w = n('width'), hgt = n('height'), r = Math.min(n('rx'), w / 2);
+      return r ? `M${x + r} ${y}H${x + w - r}A${r} ${r} 0 0 1 ${x + w} ${y + r}V${y + hgt - r}A${r} ${r} 0 0 1 ${x + w - r} ${y + hgt}H${x + r}A${r} ${r} 0 0 1 ${x} ${y + hgt - r}V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`
+        : `M${x} ${y}H${x + w}V${y + hgt}H${x}Z`;
+    }
+    if (tag === 'circle') { const cx = n('cx'), cy = n('cy'), r = n('r'); return `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`; }
+    if (tag === 'ellipse') { const cx = n('cx'), cy = n('cy'), rx = n('rx'), ry = n('ry'); return `M${cx - rx} ${cy}a${rx} ${ry} 0 1 0 ${2 * rx} 0a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`; }
+    if (tag === 'line') return `M${n('x1')} ${n('y1')}L${n('x2')} ${n('y2')}`;
+    if (tag === 'polyline' || tag === 'polygon') {
+      const pts = (el.getAttribute('points') || '').trim().split(/\s+/).join(' L ');
+      return `M${pts}${tag === 'polygon' ? 'Z' : ''}`;
+    }
+    return '';
+  };
+  const logoSvgIn = (box, svgText) => {
+    box.innerHTML = svgText;
+    const svg = box.querySelector('svg');
+    if (!svg) { box.innerHTML = ''; return null; }
+    svg.removeAttribute('width'); svg.removeAttribute('height');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg.style.cssText += ';width:100%;height:100%;overflow:visible';
+    svg.querySelectorAll('rect,circle,ellipse,line,polyline,polygon').forEach(el2 => {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', shapeToPathD(el2));
+      for (const a of [...el2.attributes]) {
+        if (!['x', 'y', 'width', 'height', 'rx', 'ry', 'cx', 'cy', 'r', 'points', 'x1', 'y1', 'x2', 'y2'].includes(a.name)) p.setAttribute(a.name, a.value);
+      }
+      el2.replaceWith(p);
+    });
+    const parts = [...svg.querySelectorAll('path')].map(p => {
+      let len = 300; try { len = p.getTotalLength() || 300; } catch (_) { }
+      const fill = p.getAttribute('fill');
+      const stroke = p.getAttribute('stroke');
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', stroke && stroke !== 'none' ? stroke : cssVar('--pf-fg'));
+      p.setAttribute('stroke-width', p.getAttribute('stroke-width') || '1.7');
+      p.setAttribute('stroke-linecap', 'round');
+      p.style.strokeDasharray = String(len);
+      p.style.strokeDashoffset = String(len);
+      p.style.opacity = '0';
+      return { el: p, len, fill };
+    });
+    return parts;
+  };
+  const drawPathSeq = (tl, parts, s, d) => {
+    const n = Math.max(1, parts.length);
+    const slice = d / n;
+    parts.forEach((pt, i) => {
+      const st = s + i * slice * 0.62;
+      const dur = Math.max(0.05, Math.min(slice * 1.5, s + d - st));
+      tl.addUpdate(st, dur, p => { pt.el.style.strokeDashoffset = String(pt.len * (1 - p)); pt.el.style.opacity = p > 0 ? '1' : '0'; }, 'power2.inOut');
+      if (pt.fill && pt.fill !== 'none') {
+        tl.addUpdate(s + d * 0.92, 0.4, p => { pt.el.setAttribute('fill', pt.fill); pt.el.style.fillOpacity = String(p); }, 'power1.in');
+      }
+    });
   };
   const mediaImg = (src, cls) => {
     const img = document.createElement('img');
@@ -155,6 +218,13 @@ window.NexFilm = (() => {
     const m = spec.mark;
     if (m && typeof m === 'string' && m.startsWith('icon:')) {
       const w = icon(m.slice(5), box); w.style.cssText = `width:${size * 0.5}px;height:${size * 0.5}px;color:var(--pf-accent)`;
+    } else if (m && svgAssetIndex[m]) {
+      const parts = logoSvgIn(box, svgAssetIndex[m]);
+      box._svgParts = parts;
+      box.style.borderRadius = '0';
+      box.style.background = 'transparent';
+      box.style.border = 'none';
+      box.style.boxShadow = 'none';
     } else if (m && mediaOf(m)) {
       box.appendChild(mediaImg(mediaOf(m)));
     } else {
@@ -586,6 +656,7 @@ window.NexFilm = (() => {
     const ringE = sv('ellipse', { cx: cx, cy: cy, rx: 218, ry: 148, fill: 'none', stroke: cssVar('--pf-line'), 'stroke-width': 1.2 }, rings);
     const ringDash = sv('ellipse', { cx: cx, cy: cy, rx: 218, ry: 148, fill: 'none', stroke: cssVar('--pf-accent'), 'stroke-width': 1.4, 'stroke-dasharray': '2 10', opacity: .8 }, rings);
     const centerTile = markTile(field, spec, 96); centerTile.dataset.cap = 'hub';
+    const hubParts = centerTile._svgParts;
     centerTile.style.position = 'absolute';
     centerTile.style.left = (cx - 48) + 'px'; centerTile.style.top = (cy - 48) + 'px';
     const items = (spec.items || []).slice(0, 5);
@@ -596,6 +667,7 @@ window.NexFilm = (() => {
       fadeIn(tl, t, 0.15, 0.4);
     }
     popIn(tl, centerTile, 0.15, 0.6);
+    if (hubParts) drawPathSeq(tl, hubParts, 0.25, 1.1);
     tl.addUpdate(0.2, 1.2, p => { ringE.style.opacity = String(p); }, 'power2.out');
     /* slow dash rotation — motion without moving labels */
     tl.addUpdate(0, Math.max(2, (spec.duration || 5) - 0.5), (p, raw, t) => {
@@ -722,7 +794,12 @@ window.NexFilm = (() => {
       pill.style.cssText = 'margin-top:10px;padding:13px 26px;border-radius:99px;background:var(--pf-accent);color:var(--pf-bg);font:600 14px var(--pf-display);letter-spacing:.01em;box-shadow:0 8px 28px color-mix(in srgb,var(--pf-accent) 40%,transparent)';
     }
     const tl = NexMotion.createTimeline();
-    tl.fromTo(tile, { opacity: 0, scale: .7, rotation: -6 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.6, ease: 'back.out(1.9)' }, 0.15);
+    if (tile._svgParts) {
+      tl.fromTo(tile, { opacity: 0, scale: .85 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out' }, 0.1);
+      drawPathSeq(tl, tile._svgParts, 0.2, 1.3);
+    } else {
+      tl.fromTo(tile, { opacity: 0, scale: .7, rotation: -6 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.6, ease: 'back.out(1.9)' }, 0.15);
+    }
     tl.fromTo(wm, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.5);
     if (spec.sub) fadeIn(tl, tag, 0.75, 0.4);
     if (pill) popIn(tl, pill, 1.0, 0.5);
@@ -1113,9 +1190,15 @@ window.NexFilm = (() => {
   const markScene = (spec) => {
     const el = h('div', '', null);
     center(el);
-    const tile = markTile(el, spec, 120);
+    const tile = markTile(el, spec, 160);
+    tile.dataset.cap = 'brand';
     const tl = NexMotion.createTimeline();
-    tl.fromTo(tile, { opacity: 0, scale: .7, rotation: -5 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.65, ease: 'back.out(1.8)' }, 0.15);
+    if (tile._svgParts) {
+      tl.fromTo(tile, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.1);
+      drawPathSeq(tl, tile._svgParts, 0.2, 1.4);
+    } else {
+      tl.fromTo(tile, { opacity: 0, scale: .7, rotation: -5 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.65, ease: 'back.out(1.8)' }, 0.15);
+    }
     return { el, tl };
   };
   scenes['logo-mark'] = markScene;
@@ -1426,6 +1509,7 @@ window.NexFilm = (() => {
     if (filmSpec.grainTexture) stage.style.setProperty('--pf-grain', `url('${filmSpec.grainTexture}')`);
     h('div', 'pf-glow', stage);
     assetIndex = {};
+    svgAssetIndex = filmSpec.svgAssets || {};
     for (const [name, rel] of Object.entries(filmSpec.assets || {})) {
       const ext = (rel.match(/\.[^./\\]+$/) || ['.png'])[0];
       assetIndex[name] = `media/${name}${ext}`;
