@@ -1397,6 +1397,138 @@ window.NexSketch = (() => {
     shuffle: 'card-stack-shuffle', tape: 'tape-peel', crumple: 'crumple-transition',
     paper: 'paper-wipe',
   };
+  /* shape/mask transitions — the gl-transitions port set, identical writers
+     to the product surface so a spec's transition keys travel across skins */
+  const CSS_TRANSITIONS = new Set([
+    'iris', 'diamond', 'clockwipe', 'blinds', 'crosshatch', 'doors', 'squeeze',
+    'crosswarp', 'dreamy', 'swirl', 'linearblur', 'fadefilter', 'dissolve',
+    'starwipe', 'mask', 'zoom', 'slide', 'blur', 'fade', 'cut', 'rise',
+  ]);
+  const transitionStyle = (key, outEl, inEl, p) => {
+    const e = p * p * (3 - 2 * p);
+    switch (key) {
+      case 'mask':
+        outEl.style.opacity = String(1 - e * 0.85);
+        inEl.style.opacity = '1';
+        inEl.style.clipPath = `circle(${e * 78}% at 50% 44%)`;
+        break;
+      case 'zoom':
+        outEl.style.opacity = String(1 - e); outEl.style.transform = `scale(${1 + 0.08 * e})`; outEl.style.filter = `blur(${8 * e}px)`;
+        inEl.style.opacity = String(e); inEl.style.transform = `scale(${0.94 + 0.06 * e})`; inEl.style.filter = `blur(${8 * (1 - e)}px)`;
+        break;
+      case 'blur':
+        outEl.style.opacity = String(1 - e); outEl.style.filter = `blur(${10 * e}px)`;
+        inEl.style.opacity = String(e); inEl.style.filter = `blur(${10 * (1 - e)}px)`;
+        break;
+      case 'slide':
+        outEl.style.opacity = String(1 - e * 0.9); outEl.style.transform = `translateX(${-9 * e}%)`;
+        inEl.style.opacity = String(0.2 + 0.8 * e); inEl.style.transform = `translateX(${9 * (1 - e)}%)`;
+        break;
+      case 'rise':
+        outEl.style.opacity = String(1 - e * 0.9);
+        inEl.style.opacity = String(e); inEl.style.transform = `translateY(${34 * (1 - e)}px)`;
+        break;
+      case 'iris':
+        outEl.style.opacity = String(1 - e * 0.85);
+        inEl.style.opacity = '1';
+        inEl.style.clipPath = `circle(${e * 78}% at 50% 50%)`;
+        break;
+      case 'diamond':
+        outEl.style.opacity = String(1 - e * 0.85);
+        inEl.style.opacity = '1';
+        inEl.style.clipPath = `polygon(50% ${50 - 52 * e}%, ${50 + 52 * e}% 50%, 50% ${50 + 52 * e}%, ${50 - 52 * e}% 50%)`;
+        break;
+      case 'clockwipe':
+        outEl.style.opacity = String(1 - e * 0.8);
+        inEl.style.opacity = '1';
+        inEl.style.maskImage = `conic-gradient(from -90deg at 50% 50%, #000 ${e * 360}deg, transparent ${e * 360}deg)`;
+        inEl.style.webkitMaskImage = inEl.style.maskImage;
+        break;
+      case 'blinds':
+        outEl.style.opacity = String(1 - e * 0.8);
+        inEl.style.opacity = '1';
+        inEl.style.maskImage = `repeating-linear-gradient(90deg, #000 0 ${e * 64}px, transparent ${e * 64}px 64px)`;
+        inEl.style.webkitMaskImage = inEl.style.maskImage;
+        break;
+      case 'crosshatch': {
+        const w = 64 * e;
+        outEl.style.opacity = String(1 - e * 0.85);
+        inEl.style.opacity = '1';
+        const g = `repeating-linear-gradient(45deg, #000 0 ${w}px, transparent ${w}px 64px), repeating-linear-gradient(-45deg, #000 0 ${w}px, transparent ${w}px 64px)`;
+        inEl.style.maskImage = g; inEl.style.webkitMaskImage = g;
+        inEl.style.maskComposite = 'intersect'; inEl.style.webkitMaskComposite = 'source-in';
+        break;
+      }
+      case 'doors':
+        outEl.style.opacity = String(1 - e * 0.85);
+        inEl.style.opacity = '1';
+        inEl.style.maskImage = 'linear-gradient(90deg,#000,#000),linear-gradient(90deg,#000,#000)';
+        inEl.style.webkitMaskImage = inEl.style.maskImage;
+        inEl.style.maskSize = `${e * 51}% 100%, ${e * 51}% 100%`;
+        inEl.style.webkitMaskSize = inEl.style.maskSize;
+        inEl.style.maskPosition = '0% 0%, 100% 0%';
+        inEl.style.webkitMaskPosition = inEl.style.maskPosition;
+        inEl.style.maskRepeat = 'no-repeat, no-repeat';
+        inEl.style.webkitMaskRepeat = inEl.style.maskRepeat;
+        break;
+      case 'squeeze':
+        outEl.style.opacity = String(1 - e); outEl.style.transform = `scaleX(${1 - 0.38 * e}) translateX(${-14 * e}%)`;
+        inEl.style.opacity = String(0.3 + 0.7 * e); inEl.style.transform = `scaleX(${0.8 + 0.2 * e}) translateX(${14 * (1 - e)}%)`;
+        break;
+      case 'crosswarp':
+        outEl.style.opacity = String(1 - e); outEl.style.transform = `scale(${1 + 0.45 * e})`;
+        inEl.style.opacity = String(Math.min(1, e * 1.7)); inEl.style.transform = `scale(${1.45 - 0.45 * e})`;
+        break;
+      case 'dreamy':
+        outEl.style.opacity = String(1 - e); outEl.style.filter = `blur(${14 * e}px)`; outEl.style.transform = `scale(${1 + 0.12 * e})`;
+        inEl.style.opacity = String(e); inEl.style.filter = `blur(${14 * (1 - e)}px)`; inEl.style.transform = `scale(${1.08 - 0.08 * e})`;
+        break;
+      case 'swirl':
+        outEl.style.opacity = String(1 - e); outEl.style.transform = `rotate(${-9 * e}deg) scale(${1 + 0.28 * e})`;
+        inEl.style.opacity = String(e); inEl.style.transform = `rotate(${9 * (1 - e)}deg) scale(${0.72 + 0.28 * e})`;
+        break;
+      case 'linearblur':
+        outEl.style.opacity = String(1 - e); outEl.style.filter = `blur(${10 * e}px)`; outEl.style.transform = `translateX(${-16 * e}%)`;
+        inEl.style.opacity = String(e); inEl.style.filter = `blur(${10 * (1 - e)}px)`; inEl.style.transform = `translateX(${16 * (1 - e)}%)`;
+        break;
+      case 'fadefilter':
+        outEl.style.opacity = String(1 - e); outEl.style.filter = `grayscale(${e}) brightness(${1 - 0.3 * e})`;
+        inEl.style.opacity = String(e); inEl.style.filter = `grayscale(${1 - e}) brightness(${0.7 + 0.3 * e})`;
+        break;
+      case 'dissolve':
+        outEl.style.opacity = String(1 - e);
+        inEl.style.opacity = String(Math.min(1, e * 1.25));
+        inEl.style.maskImage = `url('sketch-ui/textures/grain-fine-256.png')`;
+        inEl.style.webkitMaskImage = inEl.style.maskImage;
+        inEl.style.maskSize = `${140 + 60 * (1 - e)}%`;
+        inEl.style.webkitMaskSize = inEl.style.maskSize;
+        break;
+      case 'starwipe': {
+        const pts = [];
+        for (let i = 0; i < 10; i++) {
+          const r = (i % 2 === 0 ? 80 : 34) * e;
+          const a = (-90 + i * 36) * Math.PI / 180;
+          pts.push(`${50 + r * Math.cos(a)}% ${50 + r * Math.sin(a)}%`);
+        }
+        outEl.style.opacity = String(1 - e * 0.85);
+        inEl.style.opacity = '1';
+        inEl.style.clipPath = `polygon(${pts.join(',')})`;
+        break;
+      }
+      case 'cut':
+        outEl.style.opacity = p < 0.5 ? '1' : '0';
+        inEl.style.opacity = p < 0.5 ? '0' : '1';
+        break;
+      default: /* fade */
+        outEl.style.opacity = String(1 - e);
+        inEl.style.opacity = String(e);
+    }
+  };
+  const clearMask = (el) => {
+    el.style.maskImage = ''; el.style.webkitMaskImage = ''; el.style.maskSize = '';
+    el.style.maskPosition = ''; el.style.maskRepeat = ''; el.style.maskComposite = '';
+    el.style.webkitMaskSize = ''; el.style.webkitMaskPosition = ''; el.style.webkitMaskRepeat = ''; el.style.webkitMaskComposite = '';
+  };
   const TRANSITION_DUR = 0.62;
 
   function start(filmSpec) {
@@ -1442,7 +1574,13 @@ window.NexSketch = (() => {
     const transitions = [];
     for (let i = 1; i < scenesBuilt.length; i++) {
       const prev = scenesBuilt[i - 1], next = scenesBuilt[i];
-      const key = TRANSITION_KEYS[next.spec.transition];
+      const tname = next.spec.transition || 'fade';
+      const key = TRANSITION_KEYS[tname];
+      if (!key && CSS_TRANSITIONS.has(tname)) {
+        /* shape/mask transitions run as inline writers (same as product) */
+        transitions.push({ style: tname, outEl: prev.el, inEl: next.el, end: next.spec.start, dur: TRANSITION_DUR });
+        continue;
+      }
       if (!key) continue;
       try {
         const tl = NexMotion.transition(prev.el, next.el, key, { duration: TRANSITION_DUR, intensity: 1 });
@@ -1479,7 +1617,8 @@ window.NexSketch = (() => {
           const rise = b.spec.transition === 'rise';
           b.el.style.opacity = String(Math.min(1, pIn < 1 ? 0.2 + 0.8 * pIn : 1, out < 0.22 && !transitions.some(t => t.outEl === b.el) ? Math.max(0, out / 0.22) : 1));
           b.el.style.transform = pIn < 1 ? `translateY(${(1 - pIn) * (rise ? 60 : 26)}px)` : '';
-          if (b.spec.transition === 'wipe' && pIn < 1) b.el.style.clipPath = `inset(0 ${(1 - pIn) * 100}% 0 0)`; else if (!TRANSITION_KEYS[b.spec.transition]) b.el.style.clipPath = '';
+          if (b.spec.transition === 'wipe' && pIn < 1) { b.el.style.clipPath = `inset(0 ${(1 - pIn) * 100}% 0 0)`; b.el.style.filter = ''; clearMask(b.el); }
+          else if (!TRANSITION_KEYS[b.spec.transition]) { b.el.style.clipPath = ''; b.el.style.filter = ''; clearMask(b.el); }
         }
         b.tl.seek(local);
         b.fx.forEach(f => f.seek(local));
@@ -1497,9 +1636,11 @@ window.NexSketch = (() => {
         const lt = clamp((time - (t.end - t.dur)) / t.dur, 0, 1) * t.dur;
         if (time >= t.end - t.dur && time <= t.end) {
           t.outEl.classList.add('on'); t.inEl.classList.add('on');
-          t.tl.seek(lt);
-        } else if (time >= t.end) {
-          t.tl.seek(t.dur);
+          if (t.style) transitionStyle(t.style, t.outEl, t.inEl, clamp((time - (t.end - t.dur)) / t.dur, 0, 1));
+          else t.tl.seek(lt);
+        } else if (time >= t.end && time < t.end + 0.05) {
+          if (t.style) { clearMask(t.inEl); t.inEl.style.clipPath = ''; t.inEl.style.filter = ''; t.inEl.style.transform = ''; t.inEl.style.opacity = '1'; clearMask(t.outEl); t.outEl.style.clipPath = ''; t.outEl.style.filter = ''; t.outEl.style.transform = ''; }
+          else t.tl.seek(t.dur);
           t.outEl.classList.remove('on');
         }
       });

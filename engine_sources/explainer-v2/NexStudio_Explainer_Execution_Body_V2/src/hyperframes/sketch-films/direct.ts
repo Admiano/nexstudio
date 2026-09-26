@@ -76,6 +76,8 @@ export type FilmBeat = {
   text?: string;
   /** Explicit beat length override (seconds). */
   duration?: number;
+  /** Pin an entrance transition (any spec transition key). */
+  transition?: SketchSceneSpec["transition"];
   /** Scene-level extra fields passed through verbatim. */
   params?: Record<string, unknown>;
 };
@@ -344,7 +346,10 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     };
     case "stat": return { ...base, value: beat.stat, format: beat.format, suffix: beat.suffix, label: beat.statLabel || beat.head || "", sub: beat.statSub || beat.sub };
     case "quote": return { ...base, text: beat.quote, by: beat.by };
-    case "media-frame": return { ...base, media: beat.media, caption: beat.caption || beat.head };
+    case "media-frame": {
+      const icon = (beat as Record<string, unknown>).icon as string | undefined;
+      return { ...base, media: beat.media, caption: beat.caption || beat.head, ...(beat.media ? {} : { title: beat.head, sub: beat.sub, ...(icon ? { icon } : {}) }) };
+    }
     case "split": return { ...base, a: beat.a, b: beat.b };
     case "marquee-word": {
       const raw = beat.word || beat.head || "FILM";
@@ -413,12 +418,12 @@ const beatWeight = (beat: FilmBeat, type: string): number => {
    right (paper moves on 'sketch', clean moves on 'product'). */
 type ToneSpec = { minBeat: number; sketch: string[]; product: string[]; layout?: SketchFilmSpec["layout"] };
 const TONES: Record<string, ToneSpec> = {
-  default:    { minBeat: 2.0, sketch: ["fade", "wipe", "torn", "push", "page", "shuffle", "tape", "paper", "crumple", "rise"], product: ["fade", "slide", "zoom", "mask", "wipe", "rise"] },
-  polished:   { minBeat: 2.6, sketch: ["fade", "page", "wipe", "paper"], product: ["fade", "mask", "wipe", "zoom"] },
-  chaotic:    { minBeat: 1.6, sketch: ["crumple", "shuffle", "torn", "push"], product: ["cut", "slide", "zoom"], layout: "deck" },
-  deadpan:    { minBeat: 2.8, sketch: ["cut", "fade", "wipe"], product: ["cut", "fade"], layout: "editorial" },
-  cinematic:  { minBeat: 2.4, sketch: ["paper", "page", "fade"], product: ["zoom", "mask", "fade"], layout: "poster" },
-  "app-store":{ minBeat: 2.2, sketch: ["wipe", "push", "fade"], product: ["slide", "zoom", "fade"] },
+  default:    { minBeat: 2.0, sketch: ["torn", "push", "page", "shuffle", "tape", "paper", "crumple", "iris", "wipe", "diamond", "dissolve"], product: ["iris", "diamond", "clockwipe", "blinds", "crosshatch", "doors", "squeeze", "crosswarp", "dreamy", "swirl", "linearblur", "fadefilter", "dissolve", "starwipe", "slide", "zoom", "mask", "wipe"] },
+  polished:   { minBeat: 2.6, sketch: ["fade", "page", "wipe", "paper", "iris"], product: ["fade", "mask", "wipe", "zoom", "iris", "clockwipe", "doors", "fadefilter"] },
+  chaotic:    { minBeat: 1.6, sketch: ["crumple", "shuffle", "torn", "push", "starwipe"], product: ["cut", "slide", "zoom", "starwipe", "crosswarp", "swirl", "squeeze", "blinds", "crosshatch"], layout: "deck" },
+  deadpan:    { minBeat: 2.8, sketch: ["cut", "fade", "wipe"], product: ["cut", "fade", "fadefilter"], layout: "editorial" },
+  cinematic:  { minBeat: 2.4, sketch: ["paper", "page", "fade", "dissolve"], product: ["zoom", "mask", "fade", "dreamy", "dissolve", "iris", "crosswarp"], layout: "poster" },
+  "app-store":{ minBeat: 2.2, sketch: ["wipe", "push", "fade", "diamond"], product: ["slide", "zoom", "fade", "iris", "blinds", "linearblur"] },
 };
 /* freeform tone → nearest preset by keyword */
 function toneFor(brief: FilmBrief): { name: string; spec: ToneSpec } {
@@ -435,12 +440,15 @@ function toneFor(brief: FilmBrief): { name: string; spec: ToneSpec } {
 
 function transitionFor(beat: FilmBeat, type: string, prev: { beat: FilmBeat; type: string } | undefined, rng: () => number, pool: string[], surface: string): SketchSceneSpec["transition"] {
   if (!prev) return "cut";
+  if (beat.transition) return beat.transition;
   if (prev.type === "step" && type === "step") return "cut";
-  if (type === "end-card") return pick(rng, surface === "product" ? ["mask", "zoom", "cut"] : ["torn", "cut"], () => false) as SketchSceneSpec["transition"];
-  if (type === "payoff-lockup") return surface === "product" ? "zoom" : "page";
-  if (type === "storyboard" || type === "compose-graph" || type === "feature-grid") return surface === "product" ? "slide" : "push";
-  if (type === "chapter") return pick(rng, surface === "product" ? ["mask", "zoom", "fade"] : ["paper", "page", "fade"], () => false) as SketchSceneSpec["transition"];
-  if (type === "marquee-word") return pick(rng, surface === "product" ? ["slide", "rise"] : ["paper", "rise"], () => false) as SketchSceneSpec["transition"];
+  if (type === "end-card") return pick(rng, surface === "product" ? ["mask", "zoom", "cut", "doors", "clockwipe"] : ["torn", "cut"], () => false) as SketchSceneSpec["transition"];
+  if (type === "payoff-lockup") return surface === "product" ? pick(rng, ["zoom", "dreamy", "crosswarp"], () => false) as SketchSceneSpec["transition"] : "page";
+  if (type === "storyboard" || type === "compose-graph" || type === "feature-grid") return surface === "product" ? pick(rng, ["slide", "blinds", "crosshatch", "doors"], () => false) as SketchSceneSpec["transition"] : "push";
+  if (type === "chapter") return pick(rng, surface === "product" ? ["mask", "zoom", "fade", "iris", "dissolve"] : ["paper", "page", "fade"], () => false) as SketchSceneSpec["transition"];
+  if (type === "marquee-word") return pick(rng, surface === "product" ? ["slide", "rise", "linearblur"] : ["paper", "rise"], () => false) as SketchSceneSpec["transition"];
+  if (type === "orbit") return pick(rng, surface === "product" ? ["crosswarp", "iris", "swirl", "zoom"] : ["page", "torn"], () => false) as SketchSceneSpec["transition"];
+  if (type === "kinetic-headline" || type === "stat") return pick(rng, surface === "product" ? ["starwipe", "clockwipe", "diamond", "cut"] : ["torn", "cut"], () => false) as SketchSceneSpec["transition"];
   return pick(rng, pool, () => false) as SketchSceneSpec["transition"];
 }
 

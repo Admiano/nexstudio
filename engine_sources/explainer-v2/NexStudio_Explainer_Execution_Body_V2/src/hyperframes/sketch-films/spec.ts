@@ -50,8 +50,13 @@ export type SketchSceneSpec = {
    * card-stack-shuffle, 'tape' → tape-peel, 'crumple' → crumple-transition,
    * 'paper' → paper-wipe); on the product surface the paper set remaps via
    * T_MAP and 'mask'/'zoom'/'slide' run as native product transitions.
+   * The shape set below runs identically on BOTH surfaces — clip-path/mask/
+   * transform writers (gl-transitions ports): 'iris' circle open, 'diamond',
+   * 'clockwipe' conic sweep, 'blinds', 'crosshatch' lattice, 'doors',
+   * 'squeeze', 'crosswarp', 'dreamy' blur-bloom, 'swirl', 'linearblur',
+   * 'fadefilter' grayscale pass, 'dissolve' grain-noise, 'starwipe'.
    */
-  transition?: "cut" | "fade" | "rise" | "wipe" | "torn" | "push" | "page" | "shuffle" | "tape" | "crumple" | "paper" | "mask" | "zoom" | "slide";
+  transition?: "cut" | "fade" | "rise" | "wipe" | "torn" | "push" | "page" | "shuffle" | "tape" | "crumple" | "paper" | "mask" | "zoom" | "slide" | "iris" | "diamond" | "clockwipe" | "blinds" | "crosshatch" | "doors" | "squeeze" | "crosswarp" | "dreamy" | "swirl" | "linearblur" | "fadefilter" | "dissolve" | "starwipe";
   /** Camera move over the beat — push scales in, pan translates (fractions of stage size). */
   camera?: { push?: number; pan?: [number, number] };
   /** Top-left kicker text, e.g. "/ STEP 01". */
