@@ -767,12 +767,33 @@
         // Scene-engine primitive: one flat paper object of the environment — a window, a hill,
         // a planet, kelp — cut in the film's palette with a hard offset shadow. `art` pieces are
         // resolved concept marks standing in the world instead of a primitive shape.
+        // lit_dx: the page's single light source — a pale offset silhouette peeks past the lit
+        // edge (rim light), the ink shadow falls to the dark side. Shape-following via CSS
+        // drop-shadow, safe inside leaf clones.
         const pb = spec.bbox;
+        const k0 = Math.min(W, H);
+        const ldx = typeof spec.lit_dx === 'number' ? spec.lit_dx : null;
+        const shx = -(ldx || 0) * k0 * 0.006 + k0 * 0.002;
+        const rims = [];
+        if (ldx !== null) {
+          rims.push(ldx !== 0
+            ? `drop-shadow(${px(ldx * k0 * 0.006)} ${px(-k0 * 0.004)} 0 ${rgbaOf('#ffffff', 0.33)})`
+            : `drop-shadow(0 ${px(-k0 * 0.005)} 0 ${rgbaOf('#ffffff', 0.26)})`);
+        }
+        rims.push(`drop-shadow(${px(shx)} ${px(k0 * 0.009)} 0 ${rgbaOf(brand.ink, 0.28)})`);
         node = el('div', {
           position: 'absolute', left: px(pb.x), top: px(pb.y), width: px(pb.w), height: px(pb.h),
           transformOrigin: '50% 100%', pointerEvents: 'none',
-          filter: `drop-shadow(${px(Math.min(W, H) * 0.006)} ${px(Math.min(W, H) * 0.008)} 0 ${rgbaOf(brand.ink, 0.28)})`,
+          filter: rims.join(' '),
         }, parent);
+        if (spec.contact) {
+          // Contact shadow: a soft ink pool the object stands in, offset to the dark side.
+          el('div', {
+            position: 'absolute', left: '6%', bottom: '-3%', width: '88%', height: '14%',
+            background: `radial-gradient(ellipse at center, ${rgbaOf(brand.ink, 0.24)}, ${rgbaOf(brand.ink, 0)} 68%)`,
+            transform: `translateX(${px(-(ldx || 0) * k0 * 0.006)})`, pointerEvents: 'none',
+          }, node);
+        }
         if (spec.shape === 'art') {
           const art = spec.concept && paperArtKey(spec.concept);
           if (art) {
@@ -857,6 +878,10 @@
         }
         node.setAttribute('class', 'em2-windows');
         node.setAttribute('data-plane', String(spec.plane));
+        if (typeof spec.lit_dx === 'number' && spec.lit_dx !== 0) {
+          const wk = Math.min(W, H);
+          node.style.filter = `drop-shadow(${px(spec.lit_dx * wk * 0.004)} ${px(-wk * 0.003)} 0 ${rgbaOf('#ffffff', 0.24)}) drop-shadow(${px(-spec.lit_dx * wk * 0.005)} ${px(wk * 0.007)} 0 ${rgbaOf(brand.ink, 0.30)})`;
+        }
         break;
       }
       case 'rain': {
@@ -4954,6 +4979,12 @@
       position: 'absolute', inset: '0', pointerEvents: 'none', zIndex: '5', mixBlendMode: 'multiply', opacity: '0.55',
       backgroundImage: `radial-gradient(${rgbaOf(ink, 0.10)} ${px(Math.max(0.5, pw * 0.0009))}, transparent ${px(Math.max(0.6, pw * 0.0011))}), ${speckleUrl}`,
       backgroundSize: `${px(Math.max(2.5, pw * 0.007))} ${px(Math.max(2.5, pw * 0.007))}, auto`,
+    }, slot);
+    // Plate vignette: a painter darkens a plate's edges to hold the eye on the subject —
+    // a soft inset shade just inside the plate's frame.
+    el('div', {
+      position: 'absolute', inset: '0', pointerEvents: 'none', zIndex: '5',
+      boxShadow: `inset 0 0 ${px(Math.max(slotRect.w, slotRect.h) * 0.09)} ${rgbaOf(ink, 0.13)}`,
     }, slot);
     // Baren marks: the circular printing pad leaves overlapping rub rings on a
     // hand-printed plate (YMM4-Ukiyoe layer) — faint arcs multiplied over the art.

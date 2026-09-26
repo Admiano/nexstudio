@@ -349,8 +349,10 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
             put(e, _fit_aspect(cell, ar))
     elif marks and not photos:
         order = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
-        anchors = [(0.50, 0.62, 0.52), (0.24, 0.38, 0.34), (0.76, 0.34, 0.32),
-                   (0.20, 0.72, 0.28), (0.80, 0.70, 0.26), (0.50, 0.22, 0.24)]
+        # Focal hierarchy: the largest subject is the hero — dominant, biased to a
+        # lower-left/thirds anchor; satellites recede around it on a spiral of thirds.
+        anchors = [(0.46, 0.58, 0.64), (0.22, 0.36, 0.30), (0.78, 0.33, 0.28),
+                   (0.16, 0.72, 0.22), (0.84, 0.70, 0.20), (0.52, 0.18, 0.18)]
         for i, e in enumerate(order):
             ax, ay, hf = anchors[i % len(anchors)]
             ab = e['art_bbox']
@@ -358,7 +360,7 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
             # so an authored hero never loses the plate to a decoration.
             if (e.get('params') or {}).get('resolution', {}).get('via') == 'support':
                 hf = min(hf, 0.36)
-            s = min(2.6, (vh * hf) / max(1.0, ab['h']))
+            s = min(3.2, (vh * hf) / max(1.0, ab['h']))
             nw2, nh2 = ab['w'] * s, ab['h'] * s
             box = _box(vx + ax * vw - nw2 / 2, vy + ay * vh - nh2 / 2, nw2, nh2)
             for _ in range(4):
@@ -1262,11 +1264,24 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
                 'bbox': {'x': round(-overhang, 1), 'y': round(y, 1), 'w': round(W + 2 * overhang, 1), 'h': round(h, 1)},
                 'tone': tone, 'plane': plane, 'ragged': ragged, 'seed': seed0 ^ (i * 0x7ab1)}
 
+    # One light source per spread: the sky body's side (suns sit right of the plate,
+    # dawn's sun is low-left, storm light is a top-down wash). Every lit piece carries
+    # the direction so the runtime can paint a rim where the world catches it and drop
+    # the contact shadow on the dark side.
+    light_dx = {'day': 1.0, 'golden': 1.0, 'dawn': -1.0, 'dusk': 1.0,
+                'night': 1.0, 'storm': 0.0}.get(mood, float((seed0 & 1) * 2 - 1))
+    _LIT_SKIP = {'sun', 'moon', 'cloud', 'comet', 'beam', 'star'}
+    _CONTACT = {'bush', 'tuft', 'stone', 'mushroom', 'flower', 'streetlamp', 'kelp'}
+
     def piece(shape: str, x: float, y: float, w: float, h: float, tone: str,
               plane: float = 0.5, i: int = 0, **kw) -> Dict[str, Any]:
         spec = {'kind': 'piece', 'shape': shape,
                 'bbox': {'x': round(x, 1), 'y': round(y, 1), 'w': round(w, 1), 'h': round(h, 1)},
                 'tone': tone, 'plane': plane, 'seed': seed0 ^ (i * 0x51ab)}
+        if shape not in _LIT_SKIP:
+            spec['lit_dx'] = light_dx
+        if shape in _CONTACT:
+            spec['contact'] = True
         spec.update(kw)
         return spec
 
@@ -1355,7 +1370,8 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
                 mw = mh * max(0.25, art['w'] / max(1, art['h']))
                 out.append({'kind': 'piece', 'shape': 'art', 'concept': name, 'asset': asset,
                             'bbox': {'x': round(x, 1), 'y': round(ground_top - mh, 1), 'w': round(mw, 1), 'h': round(mh, 1)},
-                            'tone': '', 'plane': plane, 'seed': seed0 ^ (k * 0x99)})
+                            'tone': '', 'plane': plane, 'seed': seed0 ^ (k * 0x99),
+                            'lit_dx': light_dx, 'contact': True})
 
     if setting == 'outdoor':
         out.append(band(-0.02, 0.62, sky, 0.10, False, 1))
@@ -1396,6 +1412,13 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
             fl_t = mix(flora, gnd, 0.3 + 0.1 * (k % 2)) if veg and shape in ('tuft', 'bush') else mix(ink, paper, 0.30 + 0.08 * (k % 3))
             out.append(piece(shape, W * (0.03 + 0.9 * sx), H * (0.74 + 0.20 * sy) - short * 0.05,
                              sw, short * (0.06 + 0.03 * (k % 3)), fl_t, 0.62 + 0.05 * (k % 2), 34 + k))
+        # Foreground fringe: bushes nearer than the subject, cropped by the page's lower
+        # edge — the depth cue a still camera needs. Darker than the ground plane.
+        for k in range(2):
+            sx = ((seed0 >> (k * 13 + 21)) & 0x7F) / 127.0
+            fg_t = mix(flora_deep, ink, 0.42) if veg else mix(ink, paper, 0.20)
+            out.append(piece('bush', W * (-0.04 + 0.72 * sx), H * 0.91,
+                             W * (0.30 + 0.14 * k), short * 0.17, fg_t, 0.92, 60 + k))
     elif setting == 'indoor':
         wall = mix(paper, ink, 0.07 if mood != 'night' else 0.3)
         out.append(band(-0.02, 0.72, wall, 0.12, False, 1))
@@ -1455,9 +1478,11 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
             out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * 0.4}, 8, 70))
         celestial(3)
         out.append({'kind': 'windows', 'bbox': {'x': -overhang, 'y': H * 0.28, 'w': W + 2 * overhang, 'h': H * 0.30},
-                    'tone': mix(ink, paper, 0.45), 'lit': glow, 'seed': seed0 ^ 0x77, 'plane': 0.22, 'rows': 4, 'silhouette': True})
+                    'tone': mix(ink, paper, 0.45), 'lit': glow, 'seed': seed0 ^ 0x77, 'plane': 0.22, 'rows': 4, 'silhouette': True,
+                    'lit_dx': light_dx})
         out.append({'kind': 'windows', 'bbox': {'x': -overhang, 'y': H * 0.44, 'w': W + 2 * overhang, 'h': H * 0.30},
-                    'tone': mix(ink, paper, 0.30), 'lit': glow, 'seed': seed0 ^ 0x78, 'plane': 0.42, 'rows': 5, 'silhouette': True})
+                    'tone': mix(ink, paper, 0.30), 'lit': glow, 'seed': seed0 ^ 0x78, 'plane': 0.42, 'rows': 5, 'silhouette': True,
+                    'lit_dx': light_dx})
         out.append(band(0.72, 0.32, mix(ink, paper, 0.16), 0.55, False, 6))
         # Street furniture in the near plane — the street level the eye lands on.
         for k in range(2):
