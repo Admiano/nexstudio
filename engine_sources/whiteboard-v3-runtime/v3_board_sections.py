@@ -1,19 +1,19 @@
 """Board-sections render mode — the whiteboard-crypto form.
 
 Evidence model (from frame analysis of the reference):
-  * Fixed camera on ONE board — the viewport IS the board, always.
-  * A video is a sequence of boards separated by a fast full erase.
-  * Each board holds 1-4 free-form sections: a hand-lettered heading at the
-    section's top, then a composition of elements (labeled people, objects,
-    captions, speech bubbles) arranged in the region; dividing lines appear
-    where two regions share the board.
+  * ONE canvas larger than the frame, pre-divided into regions with
+    hand-drawn divider lines; each section owns a region.
+  * The camera tight-follows the drawing: ~one region fills the view while
+    it inks, travelling region to region as sections open.
+  * Nothing is ever wiped or evicted — every stroke persists to the end.
+  * Each region composes a vignette: hand-lettered title at its top, a hero
+    element at its centre, satellites (people, objects, chips, captions)
+    arranged around it.
   * Multi-accent ink: black lettering/art + accent colors on fills, marks.
-  * Ending: the board wipes, "Thanks" + heart inks big, then a montage of
-    mini versions of every section fills the grid.
+  * Ending: the camera pulls out to reveal the whole accumulated canvas,
+    then "Thanks" + heart inks into a free region.
 
-Beats map 1:1 to sections; boards chunk sections (<=3 per board by default,
-hard max 4). Sections inside a board share the beat timeline, so narration
-pacing is unchanged — the wipe lives in the last WIPE_SECONDS of a board.
+Beats map 1:1 to sections, and sections map 1:1 to regions on the canvas.
 """
 from __future__ import annotations
 
@@ -83,7 +83,7 @@ def _vignette(frame: Image.Image, ratio: str) -> Image.Image:
     if m is None:
         vw, vh = wbp.RATIO_SIZES[ratio]
         g = Image.radial_gradient('L').resize((vw, vh))
-        m = g.point(lambda v: max(0, 255 - int(0.55 * max(0, v - 110))))
+        m = g.point(lambda v: max(0, 255 - int(0.42 * max(0, v - 110))))
         _VIGNETTES[ratio] = Image.merge('RGB', (m, m, m))
     from PIL import ImageChops
     return ImageChops.multiply(frame.convert('RGB'), _VIGNETTES[ratio])
@@ -499,28 +499,53 @@ def _build(plan, ratio):
         sections.append({'beat': beat, 'bi': bi, 'items': merged,
                          'label': _section_label(beat)})
 
-    # one canvas of item slots. Every element owns a slot in reading order;
-    # when a new element needs a slot and all are live, the element that has
-    # been on the board longest fades off. Big composed scenes (people
-    # clusters) anchor — they are the last thing ever evicted.
-    ncol_, nrow_ = {'16:9': (4, 2), '1:1': (3, 2), '9:16': (2, 3)}[ratio]
-    bx0, by0, bw, bh = board_rect
-    # when beats carry titles, the top strip belongs to them — the grid
-    # starts below it so no element ever lands inside the header band
-    band = bh * 0.115 if any(b.get('title') for b in beats) else 0.0
-    cells = []
-    for r_ in range(nrow_):
-        for c_ in range(ncol_):
-            cells.append((bx0 + bw * c_ / ncol_,
-                          by0 + band + (bh - band) * r_ / nrow_,
-                          bw / ncol_, (bh - band) / nrow_))
-    cell_item = [-1] * len(cells)     # -> item uid
-    live_order = []                   # item uids in birth order
+    # Region canvas: the world is ~2x the frame; each beat owns a region of
+    # it and the camera visits that region while it inks (the reference's
+    # quadrant vignettes). Nothing is ever evicted — ink persists to the
+    # end. Divider strokes between regions draw live as sections open.
+    del board_rect
+    nsec = len(sections)
+    W2, H2 = W * 2.0, H * 2.0
+    m2 = 0.045 * W
+    bx0, by0 = -W2 / 2 + m2, -H2 / 2 + m2 * 1.15
+    bw, bh = W2 - 2 * m2, H2 - 2 * m2 * 1.45
+    board_rect = (bx0, by0, bw, bh)
+    header = bh * 0.085                     # persistent global-title strip
+    # frame-aspect regions: pick rows/cols so each region lands near the
+    # frame's ~2:1 shape — the camera can zoom until a region nearly fills
+    # the view without cropping its own title strip
+    rows = max(1, round(math.sqrt(max(1, nsec) * 0.9)))
+    cols = max(1, math.ceil(nsec / rows))
+    ax0, ay0, aw, ah = bx0, by0 + header, bw, bh - header
+    rw_, rh_ = aw / cols, ah / rows
+    regions = [(ax0 + rw_ * c, ay0 + rh_ * r, rw_, rh_)
+               for r in range(rows) for c in range(cols)]
+
+    # divider strokes: one wobbled line per shared interior edge, inked at
+    # the start of the first section that borders it
+    divs = []
+    for c in range(1, cols):
+        sis = [si for si in range(nsec)
+               if si % cols in (c - 1, c) or si % cols == c]
+        if not sis:
+            continue
+        x = ax0 + rw_ * c
+        pts = _wobble_line((x, ay0 + rh_ * 0.02), (x, ay0 + ah - rh_ * 0.02),
+                           n=40, wob=rh_ * 0.005, seed=c * 31 + 7)
+        divs.append((('divider', [(pts, 'ink', 0.85, False, True)],
+                      (0, 0), 1.0, None),
+                     sections[sis[0]]['beat']['start_seconds'], None))
+    for r in range(1, rows):
+        sis = [si for si in range(nsec) if si // cols in (r - 1, r)]
+        if not sis:
+            continue
+        y = ay0 + rh_ * r
+        pts = _wobble_line((ax0 + aw * 0.01, y), (ax0 + aw * 0.99, y),
+                           n=64, wob=rw_ * 0.005, seed=r * 17 + 3)
+        divs.append((('divider', [(pts, 'ink', 0.85, False, True)],
+                      (0, 0), 1.0, None),
+                     sections[sis[0]]['beat']['start_seconds'], None))
     placed_bounds = []                # bounds2 of every placed element
-    u_cell = {}                       # uid -> cell index
-    u_anchor = {}                     # uid -> is anchor
-    item_by_uid = {}                  # uid -> item dict
-    FADE_IN, FADE_OUT = 0.30, 0.55
     uid = 0
 
     # board title drawn once, top-left — the persistent anchor text
@@ -531,103 +556,120 @@ def _build(plan, ratio):
     raw = re.sub(r'(?i)_?(demo|reel|v\d+)$', '', raw).strip('_ ')
     title = raw.replace('_', ' ').title() or 'WHITEBOARD'
     first_t0 = sections[0]['beat']['start_seconds']
-    th_ = min(bh * 0.10, 72.0)
+    th_ = min(header * 0.62, 96.0)
     tw_ = text_width(title, th_)
     if tw_ > bw * 0.24:
         th_ *= bw * 0.24 / tw_
-    title_st = text_strokes(title, (bx0 + bw * 0.02, by0 + bh * 0.02),
+    title_st = text_strokes(title, (bx0 + bw * 0.012, by0 + header * 0.16),
                             th_, 'ink', 1.15)
     title_item = {'groups': [(('plabel',
         [(p, c, ws, False, True) for p, c, ws, *_ in title_st],
         (0, 0), 1.0, None), first_t0, first_t0 + 1.6)],
         'kind': 'title', 'uid': -1, 'fade': None,
-        'bounds2': (bx0, by0, bx0 + bw * 0.34, by0 + th_ + bh * 0.03)}
+        'bounds2': (bx0, by0, bx0 + bw * 0.30, by0 + header)}
 
     for si, sec in enumerate(sections):
         t0 = sec['beat']['start_seconds']
         t1 = t0 + float(sec['beat'].get('duration_seconds', 3.0))
         sec['t_window'] = (t0, t1)
         dur = t1 - t0
-        # per-section title — the reference's big hand-lettered header above
-        # each cluster ("Avoid Slippage"); sits top-center, swaps per beat
+        rx, ry, rw, rh = regions[si]
+        sec['region'] = (rx, ry, rw, rh)
+        # per-section title — lettered at the top of the region it owns
         ttl = str(sec['beat'].get('title') or sec.get('label') or '').strip()
+        title_h = 0.0
         if ttl:
-            th2 = min(bh * 0.075, 58.0)
-            if text_width(ttl, th2) > bw * 0.40:
-                th2 *= bw * 0.40 / text_width(ttl, th2)
-            tts = text_strokes(ttl, (bx0 + bw * 0.36, by0 + bh * 0.015),
+            th2 = min(rh * 0.115, 120.0)
+            if text_width(ttl, th2) > rw * 0.62:
+                th2 *= rw * 0.62 / text_width(ttl, th2)
+            tts = text_strokes(ttl, (rx + rw * 0.04, ry + rh * 0.035),
                                th2, 'ink', 1.2)
             tts += [([(px + th2 * 0.045, py + th2 * 0.02)
                       for px, py in s[0]], s[1], s[2], s[3], s[4])
                     for s in list(tts)]
             sec['title_st'] = tts
+            title_h = th2 * 1.5 + rh * 0.04
+        # content rect inside the region, clear of its title strip
+        cx0 = rx + rw * 0.05
+        cy0 = ry + rh * 0.04 + title_h
+        cw = rw * 0.90
+        ch = ry + rh * 0.97 - cy0
+        sec['content'] = (cx0, cy0, cw, ch)
         items = sec['items']
         k = len(items)
+        # figure strips claim the region edges before any item lands so
+        # satellites keep clear of where a drawn figure will stand
+        fsc = scenes[sec['bi']] if sec['bi'] < len(scenes) else {}
+        fm_bounds = {}
+        if fsc.get('figureMotion'):
+            fm_bounds['fm'] = (cx0, cy0 + ch * 0.03,
+                               cx0 + cw * 0.32, cy0 + ch * 0.99)
+            placed_bounds.append(fm_bounds['fm'])
+        if fsc.get('figureMotion2'):
+            fm_bounds['fm2'] = (cx0 + cw * 0.68, cy0 + ch * 0.03,
+                                cx0 + cw, cy0 + ch * 0.99)
+            placed_bounds.append(fm_bounds['fm2'])
         if not k:
             sec['items2'] = []
             continue
         # title draws first, then items ink one at a time in beat order
         lead = min(0.9, dur * 0.15) if ttl else 0.0
         slot_dur = max(0.35, (dur - lead) / k)
-        placed = []
-        sec_cells = []   # cells this beat's items occupy — cluster target
+        rcx, rcy = cx0 + cw / 2, cy0 + ch / 2
+        # vignette composition: heaviest element is the hero at the centre;
+        # the rest ring it as satellites. Placement order is by weight but
+        # draw order stays authored.
+        weights = []
         for j, it in enumerate(items):
+            person = _is_person_item(it)
+            aw_ = next((float(g[4]['wgt']) for g, _s, _e in it['groups']
+                        if g[4] and g[4].get('wgt')), 1.0)
+            weights.append((1.9 if person else (1.35 if j == 0 else 0.78))
+                           * aw_)
+        p_order = sorted(range(k), key=lambda j: -weights[j])
+        sat_pts = [
+            (rcx, rcy),
+            (cx0 + cw * 0.27, cy0 + ch * 0.30),
+            (cx0 + cw * 0.73, cy0 + ch * 0.30),
+            (cx0 + cw * 0.25, cy0 + ch * 0.72),
+            (cx0 + cw * 0.75, cy0 + ch * 0.72),
+            (rcx, cy0 + ch * 0.18),
+            (rcx, cy0 + ch * 0.84),
+            (cx0 + cw * 0.12, cy0 + ch * 0.52),
+            (cx0 + cw * 0.88, cy0 + ch * 0.52),
+            (rcx, cy0 + ch * 0.52),
+        ]
+        placed = [None] * k
+        pt_i = 1   # index 0 is the hero's centre — satellites start at 1
+        for j in p_order:
+            it = items[j]
             uid += 1
             person = _is_person_item(it)
-            anchor = person or bool(sec['beat'].get('heroRole'))
-            # compose each beat as a cluster: prefer free cells nearest this
-            # beat's existing cells; when the pick can only fit cramped,
-            # try the next-nearest free cell before shrinking below the floor
-            free = [ci for ci, o in enumerate(cell_item) if o < 0]
-
-            def _d(ci):
-                return min(
-                    (abs(divmod(ci, ncol_)[0] - divmod(uc, ncol_)[0])
-                     + abs(divmod(ci, ncol_)[1] - divmod(uc, ncol_)[1])
-                     for uc in sec_cells), default=0)
-            candidates = sorted(free, key=_d)
-            if not candidates:
-                # evict the oldest live non-anchor item
-                vict = next((u for u in live_order
-                             if not u_anchor.get(u)), live_order[0])
-                it_old = item_by_uid[vict]
-                ft0 = t0 + lead + j * slot_dur - FADE_IN
-                it_old['fade'] = (max(0.0, ft0), ft0 + FADE_OUT)
-                live_order.remove(vict)
-                candidates = [u_cell[vict]]
             b = it['bounds']
             w = max(30.0, b[2] - b[0])
             h = max(30.0, b[3] - b[1])
             bcx, bcy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
-            # authored role dicts may hand-tune the element's board weight
-            aw = next((float(g[4]['wgt']) for g, _s, _e in it['groups']
-                       if g[4] and g[4].get('wgt')), 1.0)
-            cell = candidates[0]
-            scale = 1.0
-            last_try = candidates[min(2, len(candidates) - 1)]
-            for ci_try in candidates[:3]:
-                cell = ci_try
-                rx, ry, rw, rh = cells[cell]
-                sw, sh = rw * 0.9, rh * 0.86
-                # importance spread: figures ~2x leads, props ~0.8x — a tight
-                # size band keeps every element at a readable, uniform weight
-                wgt = 1.9 if person else (1.3 if j == 0 else 0.78)
-                wgt *= 0.96 + 0.08 * ((uid * 2654435761) % 97) / 97.0
-                wgt *= aw
-                bo2 = min(3.2, wgt * (sw * 0.95) / w, wgt * (sh * 0.95) / h)
-                sx = rx + rw * 0.5 + rw * 0.05 * ((j % 2) * 2 - 1)
-                sy = ry + rh * 0.52 + rh * 0.06 * ((si + j) % 3 - 1)
-
-                # padding rule: nothing may ever graze another element that
-                # is still live when this one lands — shrink until clear
-                pad = rw * 0.08
-                def _b2(sc):
-                    return (sx - w * bo2 * sc / 2, sy - h * bo2 * sc / 2,
-                            sx + w * bo2 * sc / 2, sy + h * bo2 * sc / 2)
+            hero = (j == p_order[0])
+            # hero fills ~60% of the region, satellites ~30% — a tight size
+            # band keeps every element at a readable, uniform weight
+            fw = cw * (0.60 if hero else (0.40 if person else 0.32))
+            fh = ch * (0.66 if hero else (0.56 if person else 0.34))
+            bo2 = min(fw / w, fh / h)
+            if hero:
+                cands = [sat_pts[0]]
+            else:
+                cands = sat_pts[pt_i:] + sat_pts[:pt_i]
+                pt_i = (pt_i % (len(sat_pts) - 1)) + 1
+            pad = cw * 0.05
+            best = None
+            for px, py in cands:
                 scale = 1.0
-                for _try in range(7):
-                    bb = _b2(scale)
-                    hit = False
+                for _try in range(8):
+                    bb = (px - w * bo2 * scale / 2, py - h * bo2 * scale / 2,
+                          px + w * bo2 * scale / 2, py + h * bo2 * scale / 2)
+                    hit = (bb[0] < cx0 + cw * 0.02 or bb[2] > cx0 + cw * 0.98
+                           or bb[1] < cy0 + ch * 0.02
+                           or bb[3] > cy0 + ch * 0.98)
                     for ob in placed_bounds:
                         if not (bb[2] + pad <= ob[0] or bb[0] - pad >= ob[2]
                                 or bb[3] + pad <= ob[1]
@@ -636,21 +678,21 @@ def _build(plan, ratio):
                             break
                     if not hit:
                         break
-                    scale *= 0.86
-                if scale >= 0.55 or ci_try == last_try:
-                    break
+                    scale *= 0.87
+                if best is None or scale > best[2]:
+                    best = (px, py, scale)
+                    if scale >= 0.98:
+                        break
+            px, py, scale = best
             bo2 *= scale
-            it['bounds2'] = _b2(scale)
+            sx, sy = px, py
+            it['bounds2'] = (sx - w * bo2 / 2, sy - h * bo2 / 2,
+                             sx + w * bo2 / 2, sy + h * bo2 / 2)
             placed_bounds.append(it['bounds2'])
-            cell_item[cell] = uid
-            sec_cells.append(cell)
-            live_order.append(uid)
-            u_cell[uid] = cell
-            u_anchor[uid] = bool(anchor)
-            item_by_uid[uid] = it
             it['uid'] = uid
+            it['fade'] = None
             moved = []
-            flip = (person and sx > 0.0 and
+            flip = (person and sx > rcx and
                     not any((g[4] or {}).get('facing', 1) < 0
                             for g, _s, _e in it['groups']))
             for g, s, e in it['groups']:
@@ -698,17 +740,18 @@ def _build(plan, ratio):
                                 for g, _s, _e in it['groups'])):
                     fx0, fy0, fx1, fy1 = it['bounds2']
                     # the claimed slot left an empty group — give the figure
-                    # a cell-sized box when the empty bounds stay degenerate
-                    if fx1 - fx0 < rw * 0.45 or fy1 - fy0 < rh * 0.45:
-                        fx0, fy0 = rx + rw * 0.10, ry + rh * 0.10
-                        fx1, fy1 = rx + rw * 0.90, ry + rh * 0.90
-                        # register the real footprint so later elements keep
-                        # clearance instead of landing inside the figure
+                    # its region-edge strip when the bounds stay degenerate
+                    if fx1 - fx0 < cw * 0.16 or fy1 - fy0 < ch * 0.28:
+                        strip = fm_bounds.get(fkey)
+                        if strip is not None:
+                            fx0, fy0, fx1, fy1 = strip
+                        else:
+                            fx0, fy0 = cx0, cy0 + ch * 0.03
+                            fx1, fy1 = cx0 + cw * 0.32, cy0 + ch * 0.99
                         it['bounds2'] = (fx0, fy0, fx1, fy1)
                         if placed_bounds:
                             placed_bounds[-1] = it['bounds2']
-                    # keep the figure's crown below the board title row
-                    fy0 = max(fy0, title_item['bounds2'][3] + rh * 0.10)
+                    fy0 = max(fy0, cy0)
                     # feet land on the drawn ground shadow, not the cell floor
                     gnd = next((g[2] for g, _s, _e in it['groups']
                                 if g[0] == 'ground'), None)
@@ -739,95 +782,43 @@ def _build(plan, ratio):
                                          max(it['bounds2'][3], cb[3] + cdy))
                         if placed_bounds:
                             placed_bounds[-1] = it['bounds2']
-            placed.append(it)
+            placed[j] = it
         # a figure beat with no person slot still stages the figure — park
-        # it in the last free board cell rather than dropping it entirely
-        fsc = scenes[sec['bi']] if sec['bi'] < len(scenes) else {}
-        free_cells = [ci for ci in range(len(cells) - 1, -1, -1)
-                      if cell_item[ci] < 0]
+        # it on the region's edge strip rather than dropping it entirely
         for fkey in ('fm', 'fm2'):
             if fkey in sec or not fsc.get('figureMotion' + fkey[2:]):
                 continue
-            ci = free_cells.pop(0) if free_cells else len(cells) - 1
-            frx, fry, frw, frh = cells[ci]
-            fy0 = max(fry + frh * 0.16,
-                      title_item['bounds2'][3] + frh * 0.10)
-            sec[fkey] = {'bounds2': (frx + frw * 0.14, fy0,
-                                     frx + frw * 0.86, fry + frh * 0.94),
-                         't0': slot_dur * 0.15, 'facing': 1}
-            placed_bounds.append(sec[fkey]['bounds2'])
-        sec['items2'] = placed
+            strip = fm_bounds.get(fkey)
+            if strip is None:
+                strip = (cx0, cy0 + ch * 0.03, cx0 + cw * 0.32,
+                         cy0 + ch * 0.99)
+                placed_bounds.append(strip)
+            sec[fkey] = {'bounds2': strip, 't0': slot_dur * 0.15,
+                         'facing': 1}
+        sec['items2'] = [it for it in placed if it is not None]
 
     out_sections = sections
     all_items = [it for sec in out_sections for it in sec['items2']]
-    # montage mini-cards: every section's art scaled into a grid cell
-    nsec = len(out_sections)
-    ncell = min(nsec, 14)
-    cols = max(1, math.ceil(math.sqrt(ncell * (vw / vh))))
-    rows = max(1, math.ceil(ncell / cols))
-    gx0, gy0 = -W / 2 + m * 0.6, -H / 2 + m
-    gw, gh = W - 2 * m * 0.6, H * 0.72
-    cell_w, cell_h = gw / cols, gh / rows
-    montage = []
-    for si, sec in enumerate(out_sections[:ncell]):
-        col, row = si % cols, si // cols
-        ccx = gx0 + cell_w * (col + 0.5)
-        ccy = gy0 + cell_h * (row + 0.42)
-        # union of element bounds
-        u = None
-        for it in sec['items2']:
-            if it['kind'] != 'elem':
-                continue
-            b = it['bounds2']
-            u = b if u is None else (min(u[0], b[0]), min(u[1], b[1]),
-                                     max(u[2], b[2]), max(u[3], b[3]))
-        if u is None:
-            continue
-        uw, uh = max(30.0, u[2] - u[0]), max(30.0, u[3] - u[1])
-        k = min(cell_w * 0.86 / uw, cell_h * 0.62 / uh)
-        ucx, ucy = (u[0] + u[2]) / 2, (u[1] + u[3]) / 2
-        mini = []
-        for it in sec['items2']:
-            if it['kind'] != 'elem':
-                continue
-            for g, s, e in it['groups']:
-                kind, strokes, center, size, slot = g
-                st2 = []
-                for st in strokes:
-                    if len(st) > 4 and st[4]:
-                        st2.append((
-                            [(ccx + (px_ - ucx) * k, ccy + (py_ - ucy) * k)
-                             for px_, py_ in st[0]],) + tuple(st[1:]))
-                    else:
-                        st2.append(st)
-                mini.append(((kind, st2,
-                             (ccx + (center[0] - ucx) * k,
-                              ccy + (center[1] - ucy) * k),
-                             size * k, slot)))
-        lbl = sec['label']
-        lh = cell_h * 0.16
-        lw_ = text_width(lbl, lh)
-        if lw_ > cell_w * 0.9:
-            lh *= cell_w * 0.9 / lw_
-        lst = text_strokes(lbl, (ccx - text_width(lbl, lh) / 2,
-                                 gy0 + cell_h * row + cell_h * 0.08),
-                           lh, 'ink', 0.9)
-        montage.append({'groups': mini, 'label_st': lst,
-                        'c': (ccx, gy0 + cell_h * row + cell_h * 0.08)})
 
     total_beats_end = beats[-1]['start_seconds'] + beats[-1]['duration_seconds']
-    # thanks block drawn on the wiped board — lower-right area kept free
-    # by the montage grid (grid fills the top rows)
-    th_h = H * 0.14
+    # ending: the camera eases out to the full accumulated canvas (the
+    # reference's reveal), then "Thanks" + heart ink into the first unused
+    # region — or centre-right when every region is occupied
+    if nsec < len(regions):
+        frx, fry, frw, frh = regions[nsec]
+        th_cx, th_cy = frx + frw * 0.5, fry + frh * 0.52
+    else:
+        th_cx, th_cy = bx0 + bw * 0.62, by0 + bh * 0.52
+    th_h = rh_ * 0.34
     th_w = text_width('Thanks', th_h)
-    if th_w > W * 0.30:
-        th_h *= W * 0.30 / th_w
+    if th_w > rw_ * 0.72:
+        th_h *= rw_ * 0.72 / th_w
         th_w = text_width('Thanks', th_h)
-    th_cx = W * 0.16
-    th_cy = H * 0.30
     th = text_strokes('Thanks', (th_cx - th_w / 2, th_cy - th_h / 2),
                       th_h, 'ink', 1.3)
-    hx = min(th_cx + th_w / 2 + th_h * 0.62, W / 2 - th_h * 0.55)
+    hx = th_cx + th_w / 2 + th_h * 0.62
+    if hx + th_h * 0.5 > bx0 + bw:
+        hx = th_cx - th_w / 2 - th_h * 0.62
     heart = _heart_strokes((hx, th_cy + th_h * 0.02), th_h * 0.8)
     ending = {
         'wipe_t0': total_beats_end,
@@ -835,16 +826,74 @@ def _build(plan, ratio):
         'montage_t0': total_beats_end + WIPE_SECONDS + THANKS_SECONDS,
         'thanks': [('thanks', th, (0, 0), 1.0, None),
                    ('heart', heart, (0, 0), 1.0, None)],
-        'montage': montage,
-        'dur': WIPE_SECONDS + THANKS_SECONDS + CELL_SECONDS * len(montage)
-               + END_HOLD,
+        'montage': [],
+        'dur': WIPE_SECONDS + THANKS_SECONDS + END_HOLD,
     }
     flow = {'sections': out_sections, 'items': all_items,
-            'title_item': title_item,
+            'title_item': title_item, 'dividers': divs,
             'ending': ending, 'board_rect': board_rect,
             'total_beats_end': total_beats_end}
     cache[ratio] = flow
     return flow
+
+
+def _camera_at(flow, ratio, t):
+    """Follow-cam, stateless: the view eases toward the section currently
+    inking (biased slightly toward the element drawing right now), then
+    pulls out to the whole canvas for the ending reveal."""
+    vw, vh = wbp.RATIO_SIZES[ratio]
+    base = _map_scale(ratio)
+    bx, by, bw, bh = flow['board_rect']
+    full_c = (bx + bw / 2, by + bh / 2)
+    full_z = min(vw * 0.97 / bw, vh * 0.97 / bh) / base
+    secs = [s for s in flow['sections']
+            if s.get('t_window') and s.get('region')]
+    if not secs:
+        return full_c, 1.0
+
+    def tgt(sec):
+        rx, ry, rw, rh = sec['region']
+        cx_, cy_ = rx + rw / 2, ry + rh / 2
+        for it in sec.get('items2', ()):
+            tw_ = it.get('t_window')
+            if tw_ and tw_[0] <= t <= tw_[1] + 0.5 and it.get('bounds2'):
+                b = it['bounds2']
+                cx_ = cx_ * 0.78 + (b[0] + b[2]) * 0.5 * 0.22
+                cy_ = cy_ * 0.80 + (b[1] + b[3]) * 0.5 * 0.20
+                break
+        # tight-follow: the region nearly fills the view — it is roughly
+        # frame-shaped so a ~0.95 fit crops only thin neighbour bleed
+        z = min(vw * 0.97 / rw, vh * 0.94 / rh) / base
+        # while the section title is still lettering, lift the view so the
+        # title band sits inside the frame
+        if sec.get('title_st') and t < sec['t_window'][0] + 1.6:
+            cy_ = ry + rh * 0.40
+        return (cx_, cy_), z
+
+    cur = None
+    for s in secs:
+        if s['t_window'][0] <= t:
+            cur = s
+        else:
+            break
+    cur = cur or secs[0]
+    i = secs.index(cur)
+    c_t, z_t = tgt(cur)
+    prev_c, prev_z = tgt(secs[i - 1]) if i > 0 else (full_c, full_z)
+    # travel from the previous region into this one across its first ~1s;
+    # the first section eases in from the full canvas
+    f = wbp._ease(wbp._clamp((t - cur['t_window'][0] + 0.25) / 1.0))
+    cam = (prev_c[0] + (c_t[0] - prev_c[0]) * f,
+           prev_c[1] + (c_t[1] - prev_c[1]) * f)
+    zoom = prev_z + (z_t - prev_z) * f
+    # ending: ease all the way out to reveal the whole canvas
+    t_end = flow['total_beats_end']
+    if t >= t_end:
+        f2 = wbp._ease(wbp._clamp((t - t_end) / max(0.2, WIPE_SECONDS)))
+        cam = (cam[0] + (full_c[0] - cam[0]) * f2,
+               cam[1] + (full_c[1] - cam[1]) * f2)
+        zoom += (full_z - zoom) * f2
+    return cam, zoom
 
 
 def ending_seconds(plan, ratio):
@@ -852,14 +901,13 @@ def ending_seconds(plan, ratio):
 
 
 def render_board_frame(plan: dict, ratio: str, t: float):
-    """Fixed-camera frame on one canvas: sections draw in place; an evicted
-    section's ink fades off to free its cell; ending = board wipe ->
-    Thanks+heart -> montage grid -> hold."""
+    """Follow-cam on a region canvas: the view zooms into the section
+    currently inking, travels between regions, and pulls out to the full
+    canvas for the ending reveal + Thanks."""
     flow = _build(plan, ratio)
     colors = _colors(plan)
     vw, vh = wbp.RATIO_SIZES[ratio]
-    cam = (0.0, 0.0)
-    zoom = 1.0
+    cam, zoom = _camera_at(flow, ratio, t)
     seed = 11
     layer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
     tip = None
@@ -888,6 +936,16 @@ def render_board_frame(plan: dict, ratio: str, t: float):
         ti = flow['title_item']
         if t >= ti['groups'][0][1]:
             draw_groups(ti['groups'], seed)
+        for g, s, e in flow['dividers']:
+            if s is None:
+                continue
+            gg = (g, s, s + 0.9)
+            p = wbp._ease(wbp._clamp((t - gg[1]) / max(0.05, gg[2] - gg[1])))
+            if p > 0:
+                t2 = _draw_strokes(layer, g[1], g[2], g[3], cam, colors,
+                                   ratio, p, seed + 31, zoom)
+                if t2:
+                    tip = t2
         for it in flow['items']:
             fade = it.get('fade')
             if fade is not None and t >= fade[1]:
@@ -917,8 +975,11 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                     continue
                 b2 = sec[fkey]['bounds2']
                 # the figure is a protagonist, not a thumbnail — floor its
-                # size at ~3/4 of a board cell so it reads at reference scale
-                fh = max(b2[3] - b2[1], (flow['board_rect'][3] / 2) * 0.72)
+                # size at ~55% of its region height so it reads at reference
+                # scale through the follow-cam
+                fh = max(b2[3] - b2[1],
+                         (sec['region'][3] if sec.get('region') else 300.0)
+                         * 0.55)
                 b2 = (b2[0], b2[3] - fh, b2[2], b2[3])
                 scene_['_fm' + fkey[2:] + '_anchor'] = {
                     'center': ((b2[0] + b2[2]) / 2, (b2[1] + b2[3]) / 2),
@@ -934,72 +995,82 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             ft = scene_.pop('_fm_tip', None) or scene_.pop('_fm2_tip', None)
             if ft is not None:
                 tip = ft
-        # section titles: latest started beat's title draws on; the previous
-        # one fades pale for 0.4s while the new one inks in
-        title_secs = [s for s in flow['sections']
-                      if s.get('title_st') and s.get('t_window')
-                      and s['t_window'][0] <= t]
-        if title_secs:
-            tlayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
-            cur = title_secs[-1]
-            _draw_strokes(tlayer, cur['title_st'], (0.0, 0.0), 1.0, cam,
-                          colors, ratio,
-                          wbp._ease(wbp._clamp(
-                              (t - cur['t_window'][0]) / 1.1)),
-                          seed + 71, zoom)
-            if len(title_secs) > 1:
-                dt = t - cur['t_window'][0]
-                if dt < 0.4:
-                    pst = [(st[0], 'pale', st[2], st[3], st[4])
-                           for st in title_secs[-2]['title_st']]
-                    _draw_strokes(tlayer, pst, (0.0, 0.0), 1.0, cam,
-                                  colors, ratio, 1.0, seed + 72, zoom)
+        # section titles: every started beat's title persists inside its own
+        # region — it inks in as the camera arrives and stays
+        tlayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
+        drew = False
+        for sec_ in flow['sections']:
+            if not (sec_.get('title_st') and sec_.get('t_window')
+                    and sec_['t_window'][0] <= t):
+                continue
+            p = wbp._ease(wbp._clamp(
+                (t - sec_['t_window'][0]) / 1.1))
+            if p <= 0:
+                continue
+            t2 = _draw_strokes(tlayer, sec_['title_st'], (0.0, 0.0), 1.0,
+                               cam, colors, ratio, p,
+                               seed + 71 + sec_['bi'] * 13, zoom)
+            drew = True
+            if t2 and sec_['t_window'][0] <= t <= sec_['t_window'][0] + 1.2:
+                tip = t2
+        if drew:
             frame.paste(tlayer, (0, 0), tlayer)
         return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed),
                          ratio)
 
-    # -------- ending: wipe the whole board, thanks, montage --------
+    # -------- ending: reveal the whole canvas, then Thanks + heart --------
     ending = flow['ending']
     rel = t - t_end
-    if rel < WIPE_SECONDS:
-        p = wbp._clamp(rel / WIPE_SECONDS)
-        draw_full(flow['title_item']['groups'], layer)
-        for it in flow['items']:
-            if it.get('fade') and t >= it['fade'][1]:
+    draw_full(flow['title_item']['groups'], layer)
+    for g, s, e in flow['dividers']:
+        if s is not None:
+            _draw_strokes(layer, g[1], g[2], g[3], cam, colors, ratio, 1.0,
+                          seed + 31, zoom)
+    for it in flow['items']:
+        draw_full(it['groups'], layer)
+    frame = _composite_frame(plan, ratio, cam, [(layer, 255)], seed)
+    # figures stay on the canvas through the reveal
+    spec_list = plan.get('sceneSpecs') or []
+    for sec in flow['sections']:
+        if not (sec.get('t_window') and sec['t_window'][0] <= t):
+            continue
+        scene_ = spec_list[sec['bi']] if sec['bi'] < len(spec_list) else None
+        if scene_ is None:
+            continue
+        for fkey in ('fm', 'fm2'):
+            if not sec.get(fkey):
                 continue
-            draw_full(it['groups'], layer)
-        d = ImageDraw.Draw(layer)
-        d.rectangle([-8, -8, vw * p + 26, vh + 8], fill=pal['bgc'])
-    else:
-        tt = rel - WIPE_SECONDS
+            b2 = sec[fkey]['bounds2']
+            fh = max(b2[3] - b2[1],
+                     (sec['region'][3] if sec.get('region') else 300.0)
+                     * 0.55)
+            b2 = (b2[0], b2[3] - fh, b2[2], b2[3])
+            scene_['_fm' + fkey[2:] + '_anchor'] = {
+                'center': ((b2[0] + b2[2]) / 2, (b2[1] + b2[3]) / 2),
+                'size': fh, 'facing': sec[fkey]['facing']}
+            scene_['_fm' + fkey[2:] + '_window'] = (sec[fkey]['t0'],
+                                                   sec[fkey]['t0'] + 1e9)
+        frame = v3r._figure_motion_overlay(
+            frame, scene_, plan, ratio, cam, zoom,
+            t - sec['beat']['start_seconds'])
+    # section titles persist through the reveal
+    tlayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
+    for sec_ in flow['sections']:
+        if sec_.get('title_st') and sec_.get('t_window'):
+            _draw_strokes(tlayer, sec_['title_st'], (0.0, 0.0), 1.0, cam,
+                          colors, ratio, 1.0, seed + 71 + sec_['bi'] * 13,
+                          zoom)
+    frame.paste(tlayer, (0, 0), tlayer)
+    tt = rel - WIPE_SECONDS
+    if tt > 0:
+        elayer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
         for gi, g in enumerate(ending['thanks']):
             p = wbp._ease(wbp._clamp(
                 (tt - gi * 0.9) / max(0.2, THANKS_SECONDS - 0.9)))
             if p > 0:
-                t2 = _draw_strokes(layer, g[1], g[2], g[3], cam, colors,
+                t2 = _draw_strokes(elayer, g[1], g[2], g[3], cam, colors,
                                    ratio, p, seed + 40 + gi, zoom)
                 if t2:
                     tip = t2
-        mt = tt - THANKS_SECONDS
-        if mt > 0:
-            for ci, cell in enumerate(ending['montage']):
-                cs = ci * CELL_SECONDS
-                p = wbp._ease(wbp._clamp((mt - cs) / CELL_SECONDS))
-                if p <= 0:
-                    continue
-                for g in cell['groups']:
-                    t2 = _draw_strokes(layer, g[1], g[2], g[3], cam,
-                                       colors, ratio, p,
-                                       seed + 80 + ci, zoom)
-                    if t2:
-                        tip = t2
-                lg = ('plabel', [(p_, c_, ws_, False, True)
-                                 for p_, c_, ws_, *_ in cell['label_st']],
-                      (0, 0), 1.0, None)
-                t2 = _draw_strokes(layer, lg[1], lg[2], lg[3], cam,
-                                   colors, ratio, min(1.0, p * 1.6),
-                                   seed + 99 + ci, zoom)
-                if t2:
-                    tip = t2
-    frame = _composite_frame(plan, ratio, cam, [(layer, 255)], seed)
+        frame.paste(elayer, (0, 0), elayer)
     return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed), ratio)
