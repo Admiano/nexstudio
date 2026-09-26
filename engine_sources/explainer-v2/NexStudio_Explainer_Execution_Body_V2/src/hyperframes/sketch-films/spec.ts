@@ -39,7 +39,14 @@ export type SketchSceneSpec = {
     | "marquee-word"
     | "orbit"
     | "kinetic-headline"
-    | "kinetic-type";
+    | "kinetic-type"
+    /* product-in-action — the product doing things, filmed */
+    | "screen-cam"
+    | "cursor-task"
+    | "before-after"
+    | "task-flow"
+    | "speed-ramp"
+    | "proof-wall";
   /** Absolute film seconds where the beat starts. */
   start: number;
   /** Beat length in film seconds. */

@@ -701,6 +701,328 @@ window.NexFilm = (() => {
     return { el, tl };
   };
 
+  /* ============================================================
+     PRODUCT-IN-ACTION — the product doing things, filmed
+     ============================================================ */
+
+  /* screen-cam: media in browser chrome on a 3D-tilting camera + glow.
+     spec: media, url (chrome bar), tilt (settled degrees), caption */
+  scenes['screen-cam'] = (spec) => {
+    const el = h('div', '', null);
+    center(el);
+    const rig = h('div', '', el);
+    rig.style.cssText = 'position:relative;width:min(90%,560px)';
+    const glow = h('div', '', rig);
+    glow.style.cssText = `position:absolute;inset:-20%;background:radial-gradient(50% 50% at 50% 58%, ${cssVar('--pf-accent')}38, transparent 72%);z-index:0;filter:blur(14px);pointer-events:none`;
+    const win = h('div', '', rig);
+    win.dataset.cap = 'frame';
+    win.style.cssText = 'position:relative;z-index:1;border-radius:14px;overflow:hidden;border:1px solid var(--pf-line);background:var(--pf-card);box-shadow:0 40px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06);aspect-ratio:16/10;transform-style:preserve-3d;will-change:transform';
+    const bar = h('div', '', win);
+    bar.style.cssText = 'display:flex;align-items:center;gap:7px;padding:9px 12px;border-bottom:1px solid var(--pf-line);background:var(--pf-card-2)';
+    ['#ff5f57', '#febc2e', '#28c840'].forEach(c => { const d = h('span', '', bar); d.style.cssText = `width:9px;height:9px;border-radius:50%;background:${c}`; });
+    h('span', 'pf-mono', bar, spec.url || 'app').style.cssText = 'margin:0 auto;font-size:10.5px;color:var(--pf-muted);letter-spacing:.06em;padding:2px 14px;background:var(--pf-card);border-radius:6px;border:1px solid var(--pf-line)';
+    const vp = h('div', '', win);
+    vp.style.cssText = 'position:absolute;inset:32px 0 0;overflow:hidden';
+    const src = mediaOf(spec.media);
+    let inner = null;
+    if (src) {
+      inner = mediaImg(src);
+      inner.style.cssText += ';position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform';
+      vp.appendChild(inner);
+    } else {
+      inner = h('div', '', vp);
+      inner.style.cssText = 'position:absolute;inset:0;background:linear-gradient(140deg,var(--pf-card),var(--pf-card-2));display:flex;will-change:transform';
+      const rail = h('div', '', inner);
+      rail.style.cssText = 'width:26%;border-right:1px solid var(--pf-line);padding:12px 10px;display:flex;flex-direction:column;gap:7px';
+      [0.7, 0.9, 0.8, 0.85].forEach((w, i) => {
+        const it = h('div', '', rail);
+        it.style.cssText = `height:9px;width:${w * 100}%;border-radius:5px;background:${i === 1 ? cssVar('--pf-accent') : 'var(--pf-line)'};opacity:${i === 1 ? 0.85 : 0.7}`;
+      });
+      const body = h('div', '', inner);
+      body.style.cssText = 'flex:1;padding:14px 14px 12px;display:flex;flex-direction:column;gap:9px';
+      const hero = h('div', '', body);
+      hero.style.cssText = `height:44%;border-radius:9px;background:linear-gradient(120deg,${cssVar('--pf-accent')}30,var(--pf-line));border:1px solid var(--pf-line)`;
+      [0.8, 0.6, 0.72].forEach((w) => {
+        const r = h('div', '', body);
+        r.style.cssText = `height:8px;width:${w * 100}%;border-radius:4px;background:var(--pf-line);opacity:0.8`;
+      });
+      const chipRow = h('div', '', body);
+      chipRow.style.cssText = 'display:flex;gap:6px;margin-top:auto';
+      for (let i = 0; i < 3; i++) { const c = h('div', '', chipRow); c.style.cssText = `height:16px;width:${54 + i * 8}px;border-radius:8px;border:1px solid var(--pf-line);background:${i === 0 ? cssVar('--pf-accent') + '26' : 'var(--pf-card-2)'}`; }
+    }
+    const tl = NexMotion.createTimeline();
+    const dur = spec.duration || 5;
+    const tilt = spec.tilt ?? 8;
+    /* one update owns the camera: spring entrance → settle tilt → slow drift */
+    tl.addUpdate(0, dur, (p, raw) => {
+      const ent = springOut(Math.min(1, raw / 1.15));
+      const drift = Math.max(0, (raw - 1.1) / Math.max(0.5, dur - 1.2));
+      const rx = (1 - ent) * 15 + tilt - drift * 2.2;
+      const ry = (1 - ent) * -10 - tilt * 0.7 + drift * 1.6;
+      win.style.transform = `perspective(1100px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(${((1 - ent) * 34).toFixed(1)}px)`;
+      win.style.opacity = String(Math.min(1, raw * 3));
+      const s = 1.06 + drift * 0.05;
+      inner.style.transform = `scale(${s.toFixed(3)}) translate(${(-drift * 1.8).toFixed(2)}%,${(-drift * 1.1).toFixed(2)}%)`;
+      glow.style.opacity = String(0.4 + ent * 0.6);
+    }, 'none');
+    if (spec.caption) fadeIn(tl, sub(el, spec.caption), 1.2, 0.4);
+    return { el, tl };
+  };
+
+  /* cursor-task: a cursor glides a bezier path across a mock app, clicking
+     rows and a CTA — the "person driving" tell.
+     spec: title, rows: string[], cta, result */
+  scenes['cursor-task'] = (spec) => {
+    const el = h('div', '', null);
+    center(el);
+    const W = 460, H = 300;
+    const app = h('div', '', el);
+    app.dataset.cap = 'frame';
+    app.style.cssText = `position:relative;width:${W}px;height:${H}px;border-radius:16px;overflow:hidden;border:1px solid var(--pf-line);background:var(--pf-card);box-shadow:0 30px 70px rgba(0,0,0,.5)`;
+    const hd = h('div', '', app);
+    hd.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--pf-line);font:600 11px/1 var(--pf-mono);letter-spacing:.14em;color:var(--pf-muted);text-transform:uppercase';
+    hd.appendChild(document.createTextNode(spec.title || 'workspace'));
+    const rowsWrap = h('div', '', app);
+    rowsWrap.style.cssText = 'position:absolute;left:14px;right:14px;top:44px;display:flex;flex-direction:column;gap:8px';
+    const rows = (spec.rows || spec.items || ['draft brief', 'review cut', 'ship it']).slice(0, 4).map((label, i) => {
+      const r = h('div', '', rowsWrap);
+      r.dataset.cap = 'row-' + i;
+      r.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;border:1px solid var(--pf-line);background:var(--pf-card-2);font:500 13px/1.2 var(--pf-sans);color:var(--pf-fg)';
+      const dot = h('span', '', r);
+      dot.style.cssText = 'width:14px;height:14px;border-radius:50%;border:1.5px solid var(--pf-muted);flex:none';
+      r._dot = dot;
+      r.appendChild(document.createTextNode(typeof label === 'string' ? label : (label.title || label.label || '')));
+      return r;
+    });
+    const btn = h('div', '', app);
+    btn.dataset.cap = 'cta';
+    btn.style.cssText = `position:absolute;right:14px;bottom:14px;padding:8px 18px;border-radius:9px;background:var(--pf-accent);color:#fff;font:600 12.5px/1 var(--pf-sans);letter-spacing:.02em`;
+    btn.appendChild(document.createTextNode(spec.cta || 'Run'));
+    const res = h('div', '', app);
+    res.style.cssText = `position:absolute;left:14px;right:14px;bottom:14px;padding:10px 14px;border-radius:9px;background:var(--pf-accent);color:#fff;font:600 13px/1.2 var(--pf-sans);opacity:0`;
+    res.appendChild(document.createTextNode(spec.result || 'Done'));
+    /* cursor + ripple layer */
+    const cursor = h('div', '', app);
+    cursor.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20" style="display:block"><path d="M4 2 L15 9.5 L9.4 10.6 L12 17 L9.6 18 L6.9 11.4 L3 15 Z" fill="#fff" stroke="#111" stroke-width="1"/></svg>`;
+    cursor.style.cssText = 'position:absolute;left:0;top:0;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));will-change:transform';
+    const ripple = h('div', '', app);
+    ripple.style.cssText = `position:absolute;width:30px;height:30px;border-radius:50%;border:2px solid ${cssVar('--pf-accent')};z-index:4;opacity:0;pointer-events:none`;
+    /* waypoints: row centers, then the button — measured at build (layout static) */
+    const tl = NexMotion.createTimeline();
+    const dur = spec.duration || 5;
+    const targets = [...rows.map(r => r), btn];
+    tl.addUpdate(0.25, dur - 0.6, (p, raw, t) => {
+      if (raw <= 0) { cursor.style.opacity = '0'; return; }
+      /* build waypoints lazily once layout exists */
+      if (!cursor._pts) {
+        const rb = app.getBoundingClientRect();
+        cursor._pts = targets.map(tt => { const b = tt.getBoundingClientRect(); return [b.left - rb.left + b.width / 2, b.top - rb.top + b.height / 2]; });
+        cursor._pts.unshift([W * 0.82, H * 0.9]);
+      }
+      const pts = cursor._pts;
+      const seg = Math.min(pts.length - 2, Math.floor(raw * (pts.length - 1)));
+      const f = raw * (pts.length - 1) - seg;
+      const e = f * f * (3 - 2 * f);                       /* smoothstep per leg */
+      const [x0, y0] = pts[seg], [x1, y1] = pts[seg + 1];
+      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2 - Math.hypot(x1 - x0, y1 - y0) * 0.22; /* arc */
+      const u = e, v = 1 - e;
+      const x = v * v * x0 + 2 * v * u * mx + u * u * x1;
+      const y = v * v * y0 + 2 * v * u * my + u * u * y1;
+      const clickF = f > 0.9 ? (f - 0.9) / 0.1 : 0;         /* press at leg end */
+      const press = clickF > 0 && clickF < 0.5 ? 0.82 : 1;
+      cursor.style.opacity = '1';
+      cursor.style.transform = `translate(${(x - 3).toFixed(1)}px,${(y - 2).toFixed(1)}px) scale(${press})`;
+      /* target reacts: row dot fills, button dims on press */
+      const tgt = targets[seg];
+      if (tgt && f > 0.85) {
+        if (tgt._dot) { tgt._dot.style.background = cssVar('--pf-accent'); tgt._dot.style.borderColor = cssVar('--pf-accent'); }
+        else { tgt.style.transform = `scale(${0.94 + 0.06 * clickF})`; }
+      }
+      /* ripple at each click */
+      const rp = Math.max(0, (f - 0.9) * 10);
+      if (rp > 0) { ripple.style.left = `${x - 15}px`; ripple.style.top = `${y - 15}px`; ripple.style.opacity = String(0.8 * (1 - rp)); ripple.style.transform = `scale(${0.4 + rp * 1.4})`; }
+      else ripple.style.opacity = '0';
+      /* result bar slides in once the button leg is past 90% */
+      if (seg === targets.length - 1 && f > 0.92) { res.style.opacity = '1'; res.style.transform = 'translateY(0)'; }
+      else { res.style.transform = 'translateY(8px)'; }
+    }, 'none');
+    popIn(tl, app, 0.05, 0.5);
+    return { el, tl };
+  };
+
+  /* before-after: divider sweep across two panels/media.
+     spec: before, after (media refs or {label}), labels [a,b] */
+  scenes['before-after'] = (spec) => {
+    const el = h('div', '', null);
+    center(el);
+    const W = 480, H = 300;
+    const frame = h('div', '', el);
+    frame.dataset.cap = 'frame';
+    frame.style.cssText = `position:relative;width:${W}px;height:${H}px;border-radius:16px;overflow:hidden;border:1px solid var(--pf-line);box-shadow:0 30px 70px rgba(0,0,0,.5)`;
+    const pane = (data, side) => {
+      const p = h('div', '', frame);
+      p.style.cssText = `position:absolute;inset:0;${side === 'a' ? '' : 'clip-path:inset(0 0 0 0);'}`;
+      const src = mediaOf(typeof data === 'string' ? data : data?.media);
+      if (src) { const im = mediaImg(src); im.style.cssText += ';position:absolute;inset:0;width:100%;height:100%;object-fit:cover'; p.appendChild(im); }
+      else {
+        const g = h('div', '', p);
+        /* anchor each pane's content to its own edge — the sweep can never
+           make them overlap */
+        const pad = side === 'a' ? 'justify-content:flex-start;padding-left:26px' : 'justify-content:flex-end;padding-right:26px';
+        g.style.cssText = `position:absolute;inset:0;display:flex;align-items:center;${pad};background:linear-gradient(${side === 'a' ? '135deg,var(--pf-card-2),var(--pf-card)' : '135deg,var(--pf-accent)22,var(--pf-card)'});font:600 ${fsize('24px')}/1.1 var(--pf-display);color:var(--pf-fg)`;
+        g.appendChild(document.createTextNode(typeof data === 'object' && data ? (data.label || data.title || '') : side === 'a' ? 'before' : 'after'));
+      }
+      return p;
+    };
+    const paneA = pane(spec.before ?? { label: 'BEFORE' }, 'a');
+    const paneB = pane(spec.after ?? { label: 'AFTER' }, 'b');
+    const handle = h('div', '', frame);
+    handle.style.cssText = `position:absolute;top:0;bottom:0;width:2px;background:${cssVar('--pf-accent')};z-index:3;box-shadow:0 0 14px ${cssVar('--pf-accent')}`;
+    const knob = h('div', '', handle);
+    knob.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--pf-accent);box-shadow:0 2px 8px rgba(0,0,0,.4)';
+    const lbl = (t2, left) => { const l = h('div', 'pf-mono', frame, t2); l.style.cssText = `position:absolute;top:12px;${left ? 'left' : 'right'}:12px;font-size:10.5px;letter-spacing:.14em;color:#fff;background:rgba(0,0,0,.55);padding:4px 9px;border-radius:6px;z-index:2`; return l; };
+    const lbA = lbl((spec.labels && spec.labels[0]) || 'BEFORE', true);
+    const lbB = lbl((spec.labels && spec.labels[1]) || 'AFTER', false);
+    const tl = NexMotion.createTimeline();
+    popIn(tl, frame, 0.1, 0.5);
+    /* the sweep: handle drags left, AFTER owns everything right of it —
+       the after state grows until the whole frame is the payoff */
+    tl.addUpdate(0.7, Math.max(0.8, (spec.duration || 5) - 1.6), (p, raw) => {
+      const e = springOut(raw);
+      const x = W - 40 - e * (W - 88);                     /* px from left, →40 */
+      handle.style.left = `${x.toFixed(1)}px`;
+      paneB.style.clipPath = `inset(0 0 0 ${x.toFixed(1)}px)`;
+      lbB.style.opacity = String(Math.min(1, raw * 3));
+    }, 'none');
+    return { el, tl };
+  };
+
+  /* task-flow: prompt types → steps tick → result reveals.
+     spec: prompt, steps: string[], result */
+  scenes['task-flow'] = (spec) => {
+    const el = h('div', '', null);
+    center(el);
+    const W = 470;
+    const panel = h('div', '', el);
+    panel.dataset.cap = 'frame';
+    panel.style.cssText = `position:relative;width:${W}px;border-radius:16px;overflow:hidden;border:1px solid var(--pf-line);background:var(--pf-card);box-shadow:0 30px 70px rgba(0,0,0,.5);padding:16px`;
+    const pr = h('div', '', panel);
+    pr.style.cssText = 'display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;border:1px solid var(--pf-line);background:var(--pf-card-2);font:500 13.5px/1.4 var(--pf-sans);color:var(--pf-fg);min-height:42px';
+    const caret = h('span', '', pr, '▍');
+    caret.style.cssText = 'color:var(--pf-accent)';
+    const ptxt = h('span', '', pr, '');
+    ptxt.dataset.cap = 'input';
+    const stepsWrap = h('div', '', panel);
+    stepsWrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;margin-top:14px';
+    const steps = (spec.steps || ['reading brief', 'drafting', 'rendering']).slice(0, 4).map((label, i) => {
+      const r = h('div', '', stepsWrap);
+      r.dataset.cap = 'step-' + i;
+      r.style.cssText = 'display:flex;align-items:center;gap:9px;font:500 12.5px/1.3 var(--pf-mono);color:var(--pf-muted);opacity:0';
+      const tick = h('span', '', r, '○');
+      tick.style.cssText = 'width:15px;color:var(--pf-accent)';
+      r._tick = tick;
+      r.appendChild(document.createTextNode(typeof label === 'string' ? label : (label.title || '')));
+      return r;
+    });
+    const res = h('div', '', panel);
+    res.style.cssText = `margin-top:14px;padding:12px 14px;border-radius:10px;background:${cssVar('--pf-accent')}1c;border:1px solid ${cssVar('--pf-accent')}55;font:600 13.5px/1.35 var(--pf-sans);color:var(--pf-fg);opacity:0`;
+    res.appendChild(document.createTextNode(spec.result || 'Ready'));
+    const tl = NexMotion.createTimeline();
+    popIn(tl, panel, 0.05, 0.45);
+    const promptText = spec.prompt || '';
+    /* type the prompt char-by-char */
+    tl.addUpdate(0.5, 1.4, (p, raw) => {
+      const n2 = Math.floor(raw * promptText.length);
+      ptxt.textContent = promptText.slice(0, n2);
+      caret.style.opacity = (Math.floor(raw * 14) % 2) ? '0' : '1';
+    }, 'none');
+    tl.addUpdate(2.0, 0.4, p => { if (p > 0) caret.style.opacity = '0'; }, 'none');
+    /* steps tick in sequence, spinner → check */
+    steps.forEach((r, i) => {
+      const s = 2.0 + i * 0.5;
+      tl.addUpdate(s, 0.4, (p, raw) => {
+        r.style.opacity = raw <= 0 ? '0' : '1';
+        r._tick.textContent = raw < 0.55 ? '◌' : '✓';
+        r.style.color = raw < 0.55 ? 'var(--pf-muted)' : 'var(--pf-fg)';
+      }, 'none');
+    });
+    const rs = 2.0 + steps.length * 0.5 + 0.2;
+    tl.addUpdate(rs, 0.5, (p, raw) => {
+      if (raw <= 0) { res.style.opacity = '0'; return; }
+      const e = springOut(raw);
+      res.style.opacity = '1';
+      res.style.transform = `translateY(${((1 - e) * 10).toFixed(1)}px) scale(${(0.96 + 0.04 * e).toFixed(3)})`;
+    }, 'none');
+    return { el, tl };
+  };
+
+  /* speed-ramp: cards flip fast then brake hard on the payoff.
+     spec: cards: [{title,sub}] or media list, payoffLast */
+  scenes['speed-ramp'] = (spec) => {
+    const el = h('div', '', null);
+    center(el);
+    const frame = h('div', '', el);
+    frame.dataset.cap = 'frame';
+    frame.style.cssText = 'position:relative;width:min(86%,500px);aspect-ratio:16/9;border-radius:16px;overflow:hidden;border:1px solid var(--pf-line);box-shadow:0 30px 70px rgba(0,0,0,.5)';
+    const cards = (spec.cards || spec.items || [{ title: 'pass 1' }, { title: 'pass 2' }, { title: 'pass 3' }, { title: 'shipped' }]).slice(0, 8);
+    const panes = cards.map((c, i) => {
+      const p = h('div', '', frame);
+      p.dataset.cap = 'card-' + i;
+      p.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:var(--pf-card)';
+      const src = mediaOf(typeof c === 'string' ? c : (c.img || c.media));
+      if (src) { const im = mediaImg(src); im.style.cssText += ';position:absolute;inset:0;width:100%;height:100%;object-fit:cover'; p.appendChild(im); }
+      const t = h('div', '', p, typeof c === 'object' ? (c.title || '') : '');
+      t.style.cssText = `position:relative;z-index:1;font:600 ${fsize('30px')}/1.1 var(--pf-display);color:var(--pf-fg);text-shadow:0 2px 12px rgba(0,0,0,.4)`;
+      return p;
+    });
+    const tl = NexMotion.createTimeline();
+    const dur = spec.duration || 4;
+    /* accelerating flip: eased index lands exactly on the last card */
+    tl.addUpdate(0.15, dur - 0.9, (p, raw) => {
+      const e = Math.pow(raw, 2.2);
+      const idx = Math.min(panes.length - 1, Math.floor(e * panes.length));
+      panes.forEach((p2, i) => { p2.style.opacity = i === idx ? '1' : '0'; });
+      panes[idx].style.filter = raw < 0.92 && idx < panes.length - 1 ? `blur(${(3 * (1 - Math.min(1, (e * panes.length) % 1))).toFixed(1)}px)` : '';
+    }, 'none');
+    /* payoff pop on the final card */
+    tl.addUpdate(dur - 0.72, 0.5, (p, raw) => {
+      if (raw <= 0) return;
+      const e = springOut(raw);
+      const last = panes[panes.length - 1];
+      last.style.opacity = '1'; last.style.filter = '';
+      last.style.transform = `scale(${(0.92 + 0.08 * e).toFixed(3)})`;
+    }, 'none');
+    return { el, tl };
+  };
+
+  /* proof-wall: stat/logo tiles cascade in one fast pass.
+     spec: tiles: [{stat,label}] or [{mark}] */
+  scenes['proof-wall'] = (spec) => {
+    const el = h('div', '', null);
+    stack(el, 0, '0 4%');
+    if (spec.title) { const t = h('div', 'pf-mono', el, spec.title); t.style.cssText = `font-size:${fsize('12px')};letter-spacing:.2em;color:var(--pf-muted);text-transform:uppercase;text-align:center;margin-bottom:14px`; }
+    const tiles = (spec.tiles || spec.items || []).slice(0, 8);
+    const cols = tiles.length <= 3 ? tiles.length : tiles.length === 4 ? 2 : 4;
+    const grid = h('div', '', el);
+    grid.style.cssText = `flex:1;display:grid;grid-template-columns:repeat(${cols},1fr);gap:10px;align-content:center`;
+    const tl = NexMotion.createTimeline();
+    tiles.forEach((t, i) => {
+      const tile = h('div', 'pf-card', grid);
+      tile.dataset.cap = 'tile-' + i;
+      tile.style.cssText = 'padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;aspect-ratio:1.6';
+      const mk = mediaOf(t.mark || t.img);
+      if (mk) { const im = mediaImg(mk); im.style.cssText += ';max-width:60%;max-height:60%;object-fit:contain'; tile.appendChild(im); }
+      else {
+        const st = h('div', '', tile, t.stat || t.title || '');
+        st.style.cssText = `font:700 ${fsize('26px')}/1 var(--pf-display);color:var(--pf-accent);letter-spacing:-.01em`;
+        if (t.label || t.sub) { const lb = h('div', 'pf-mono', tile, t.label || t.sub); lb.style.cssText = 'font-size:10.5px;color:var(--pf-muted);letter-spacing:.1em;text-transform:uppercase'; }
+      }
+      const s = 0.25 + (i % cols) * 0.09 + Math.floor(i / cols) * 0.14;
+      tl.fromTo(tile, { opacity: 0, y: 22, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.42, ease: 'back.out(1.8)' }, s);
+    });
+    return { el, tl };
+  };
+
   /* --- split: two panels + vs --- */
   scenes['split'] = (spec) => {
     const el = h('div', '', null);

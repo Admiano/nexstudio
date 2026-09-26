@@ -65,9 +65,12 @@ export type FilmBeat = {
   /** end-card / logo-mark / orbit mark: false | 'initial' | 'icon:<name>' | media asset. */
   mark?: string | boolean;
   px?: number;
-  /** Contrast pair. */
-  a?: { title?: string; items?: string[] };
-  b?: { title?: string; items?: string[] };
+  /** Contrast pair (split) or before/after panels. */
+  a?: { title?: string; items?: string[]; media?: string; label?: string };
+  b?: { title?: string; items?: string[]; media?: string; label?: string };
+  /** cursor-task/task-flow: result line + chrome URL; screen-cam: url. */
+  result?: string;
+  url?: string;
   /** Single huge word. */
   word?: string;
   /** word-object-bridge params. */
@@ -106,6 +109,8 @@ export type FilmBrief = {
   prompt?: string;
   /** Structured narrative — preferred when a real script exists. */
   script?: FilmBeat[];
+  /** Explicit type reveal recipe for kinetic scenes (mask|flip|slam|wave|sweep|decode|rise). */
+  reveal?: string;
   duration?: number;
   product?: string;
   tagline?: string;
@@ -260,9 +265,16 @@ function promptToScript(brief: FilmBrief): FilmBeat[] {
 /* Beat → scene type                                                  */
 /* ------------------------------------------------------------------ */
 
-function inferSceneType(beat: FilmBeat, ctx: { index: number; total: number; used: Set<string>; prompt: string; rng: () => number }): SketchSceneSpec["type"] {
+function inferSceneType(beat: FilmBeat, ctx: { index: number; total: number; used: Set<string>; prompt: string; rng: () => number; surface?: string }): SketchSceneSpec["type"] {
   if (beat.sceneType) return beat.sceneType as SketchSceneSpec["type"];
   const { used, rng } = ctx;
+  /* product-in-action types only exist on the product surface */
+  const prodAction: SketchSceneSpec["type"][] = ctx.surface === "product" ? ["screen-cam", "cursor-task", "task-flow", "speed-ramp"] : [];
+  const prodPool: SketchSceneSpec["type"][] = [...prodAction, "phone-app", "agent-window", "media-frame"];
+  const proofPool: SketchSceneSpec["type"][] = [...prodAction, "storyboard", "compose-graph", "render-bar", "word-list"];
+  const interfacePool: SketchSceneSpec["type"][] = ctx.surface === "product"
+    ? ["chat-prompt", "agent-window", "cursor-task", "task-flow"]
+    : ["chat-prompt", "agent-window"];
   const fresh = <T extends string>(cands: T[]) => pick(rng, cands, t => used.has(t));
 
   /* structured content wins over role hints */
@@ -290,10 +302,10 @@ function inferSceneType(beat: FilmBeat, ctx: { index: number; total: number; use
   }
   /* role-driven picks */
   switch (beat.role) {
-    case "interface": return fresh(["chat-prompt", "agent-window"]);
-    case "product": return fresh(["phone-app", "agent-window", "media-frame"]);
+    case "interface": return fresh(interfacePool);
+    case "product": return fresh(prodPool);
     case "process": return "process-rail";
-    case "proof": return fresh(["storyboard", "compose-graph", "render-bar", "word-list"]);
+    case "proof": return fresh(proofPool);
     case "payoff": return fresh(["payoff-lockup", "type-card", "kinetic-headline", "kinetic-type"]);
     case "close": return "end-card";
   }
@@ -388,6 +400,13 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     case "orbit": return { ...base, title: beat.head || product, sub: beat.sub, items: (beat.items || []).map(i => typeof i === "string" ? { title: i } : i) };
     case "kinetic-headline":
     case "kinetic-type": return { ...base, text: beat.head || beat.text || "", sub: beat.sub, accent: beat.accent, index: false };
+    /* product-in-action: the product doing things */
+    case "screen-cam": return { ...base, media: beat.media, url: beat.url, tilt: beat.px ? beat.px / 10 : undefined, caption: beat.sub };
+    case "cursor-task": return { ...base, title: beat.head, rows: beat.items, cta: beat.cta, result: beat.result || beat.sub };
+    case "before-after": return { ...base, before: beat.a, after: beat.b, labels: [beat.a?.title || "BEFORE", beat.b?.title || "AFTER"] };
+    case "task-flow": return { ...base, prompt: beat.text || beat.head, steps: beat.items, result: beat.result || beat.sub };
+    case "speed-ramp": return { ...base, cards: beat.cards || beat.items };
+    case "proof-wall": return { ...base, title: beat.head, tiles: beat.items };
     case "payoff-lockup": return { ...base, text: beat.head || brief.tagline || "briefs in. films out.", sub: beat.sub || brief.tagline || "", index: false };
     case "logo-mark": return { ...base, mark: beat.mark ?? "initial", px: beat.px || 190, brandA: beat.head || product, index: false };
     case "end-card": {
@@ -514,7 +533,7 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
         carries multiple beats that genuinely need it (e.g. several lists) */
   const used = new Set<string>();
   const typed = beats.map((b, i) => {
-    let type = inferSceneType(b, { index: i, total: beats.length, used, prompt: brief.prompt || "", rng });
+    let type = inferSceneType(b, { index: i, total: beats.length, used, prompt: brief.prompt || "", rng, surface });
     /* soft dedupe: if the same type was already used and this beat has a
        near-equivalent alternative, vary it */
     if (used.has(type) && !b.sceneType) {
@@ -774,6 +793,7 @@ export function validateSpec(spec: SketchFilmSpec): void {
     "hero-build", "phrase-swap", "process-rail", "payoff-lockup", "word-object-bridge",
     "chapter", "word-list", "feature-grid", "stat", "quote", "media-frame", "split", "marquee-word",
     "orbit", "kinetic-headline", "kinetic-type",
+    "screen-cam", "cursor-task", "before-after", "task-flow", "speed-ramp", "proof-wall",
   ]);
   if (!spec.scenes.length) throw new Error("spec.scenes empty");
   let t = 0;
