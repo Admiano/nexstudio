@@ -642,15 +642,40 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
     scenes[scenes.length - 1].duration = round1(dur - scenes[scenes.length - 1].start);
   }
 
-  /* 4) SFX cues: swipe on real transitions, pops on entrances, paper on
-        first + board-like scenes, confirm on close */
-  const swipes: number[] = [], pops: number[] = [], papers: number[] = [0.05];
+  /* 4) SFX cues — semantic slots over sfx:NAME refs (see sfx-library.ts).
+        Transition families get their own sound class; fx/callouts/wheel
+        settle/decode get dedicated accents. */
+  const transSfx: Record<string, string> = {
+    torn: "sfx:transition.torn", collage: "sfx:transition.torn", page: "sfx:transition.torn",
+    crumple: "sfx:transition.torn", tape: "sfx:transition.torn", shuffle: "sfx:transition.torn",
+    wipe: "sfx:transition.swipe", push: "sfx:transition.hard", doors: "sfx:transition.hard",
+    squeeze: "sfx:transition.hard", crosswarp: "sfx:transition.hard",
+    iris: "sfx:transition.soft", diamond: "sfx:transition.soft", zoom: "sfx:transition.soft",
+    clockwipe: "sfx:transition.swipe", blinds: "sfx:transition.hard",
+    starwipe: "sfx:transition.soft", swirl: "sfx:transition.swipe",
+    dissolve: "sfx:transition.soft", dreamy: "sfx:transition.soft",
+    linearblur: "sfx:transition.swipe", crosshatch: "sfx:transition.hard",
+    fadefilter: "sfx:transition.soft", fade: "sfx:transition.soft",
+  };
+  const slots: Record<string, number[]> = {
+    "sfx:transition.swipe": [], "sfx:transition.torn": [], "sfx:transition.hard": [], "sfx:transition.soft": [],
+    "sfx:entrance.pop": [], "sfx:accent.tick": [], "sfx:accent.pluck": [], "sfx:accent.glitch": [],
+    "sfx:fx.burst": [], "sfx:fx.ring": [], "sfx:fx.confetti": [], "sfx:reveal.confirm": [],
+  };
   scenes.forEach((s, i) => {
-    if (s.transition && s.transition !== "cut" && i > 0) swipes.push(round1(s.start));
+    if (s.transition && s.transition !== "cut" && i > 0) {
+      slots[transSfx[s.transition] ?? "sfx:transition.swipe"].push(round1(s.start));
+    }
     const n = ["storyboard", "feature-grid", "word-list"].includes(s.type) ? 5 : 3;
-    for (let k = 0; k < n; k++) pops.push(round1(s.start + 0.55 + k * 0.26));
-    if (s.type === "storyboard" || s.type === "media-frame") papers.push(round1(s.start));
-    if (s.type === "end-card") pops.push(round1(s.start + 1.4));
+    for (let k = 0; k < n; k++) slots["sfx:entrance.pop"].push(round1(s.start + 0.55 + k * 0.26));
+    if (s.type === "storyboard" || s.type === "media-frame") slots["sfx:transition.torn"].push(round1(s.start));
+    if (s.digits === "wheel") slots["sfx:accent.tick"].push(round1(s.start + 1.5), round1(s.start + 1.7), round1(s.start + 1.9));
+    if (s.reveal === "decode") slots["sfx:accent.glitch"].push(round1(s.start + 0.4), round1(s.start + 0.55), round1(s.start + 0.7));
+    (s.callouts || []).forEach(co => slots["sfx:accent.pluck"].push(round1(s.start + (co.at ?? 1.2))));
+    if (s.burst) slots["sfx:fx.burst"].push(round1(s.start + (typeof s.burst === "object" ? (s.burst.at ?? 1) : 1)));
+    if (s.ring) slots["sfx:fx.ring"].push(round1(s.start + (typeof s.ring === "object" ? (s.ring.at ?? 0.8) : 0.8)));
+    if (s.confetti) slots["sfx:fx.confetti"].push(round1(s.start + (typeof s.confetti === "object" ? (s.confetti.at ?? 0) : 0) + 0.3));
+    if (s.type === "end-card") slots["sfx:reveal.confirm"].push(round1(s.start + 1.4));
   });
   const last = scenes[scenes.length - 1];
 
@@ -663,8 +688,17 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
       for (const g of grid) { const d = Math.abs(g - x); if (d < bd) { bd = d; best = g; } }
       return bd <= tol ? best : x;
     });
-  const swipes2 = strong.length ? snapTo(dedupe(swipes), strong, 0.18) : dedupe(swipes);
-  const pops2 = strong.length ? snapTo(dedupe(pops), cueBeats.length ? cueBeats : strong, 0.14) : dedupe(pops);
+  for (const k of Object.keys(slots)) {
+    const grid = k.startsWith("sfx:transition") ? strong : (cueBeats.length ? cueBeats : strong);
+    slots[k] = grid.length ? snapTo(dedupe(slots[k]), grid, 0.16) : dedupe(slots[k]);
+  }
+  const sfxEntries = Object.entries(slots)
+    .filter(([, at]) => at.length)
+    .map(([p, at]) => ({
+      path: p,
+      atSec: at,
+      volume: p.startsWith("sfx:accent") ? 0.24 : p.startsWith("sfx:reveal") || p.startsWith("sfx:fx") ? 0.34 : 0.3,
+    }));
 
   const lastScene = scenes[scenes.length - 1];
   /* poster frame: the settled end-card moment (mark + wordmark + pill in) */
@@ -687,12 +721,7 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
     width: 720, height: 720, fps: 30,
     durationSeconds: Math.round(dur * 10) / 10,
     music: { path: "audio/music.mp3", volume: 0.16 },
-    sfx: [
-      { path: "audio/swipe.mp3", atSec: swipes2, volume: 0.32 },
-      { path: "audio/pop.mp3", atSec: pops2, volume: 0.30 },
-      { path: "audio/paper.mp3", atSec: dedupe(papers), volume: 0.36 },
-      { path: "audio/confirm.mp3", atSec: lastScene ? [round1(lastScene.start + Math.min(1.6, lastScene.duration - 0.8))] : [], volume: 0.42 },
-    ],
+    sfx: sfxEntries,
     ...(Object.keys(media).length ? { assets: media } : {}),
     ...(Object.keys(theme).length ? { theme } : {}),
     ...(brief.paperStock ? { paperStock: brief.paperStock } : {}),

@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import type { CompositionBundle } from "../types.js";
 import type { SketchFilmSpec } from "./spec.js";
 import { SKETCH_UI_VERSION } from "./spec.js";
+import { resolveSfxPath } from "./sfx-library.js";
 
 const execFileAsync = promisify(execFile);
 const sha256 = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
@@ -121,10 +122,14 @@ export async function assembleSketchFilmBundle(
   }
 
   // Spec-referenced media assets (posters, card art, screenshots).
+  const svgAssets: Record<string, string> = {};
   for (const [name, rel] of Object.entries(spec.assets ?? {})) {
     const disk = path.isAbsolute(rel) ? rel : path.join(opts.specDir, rel);
-    files[`media/${name}${path.extname(rel)}`] = await readFile(disk);
+    const bytes = await readFile(disk);
+    files[`media/${name}${path.extname(rel)}`] = bytes;
+    if (path.extname(rel).toLowerCase() === ".svg") svgAssets[name] = bytes.toString("utf8");
   }
+  if (Object.keys(svgAssets).length) spec.svgAssets = svgAssets;
 
   const audioTracks: CompositionBundle["manifest"]["audioTracks"] = [];
   if (spec.music) {
@@ -141,7 +146,8 @@ export async function assembleSketchFilmBundle(
     });
   }
   for (const [i, sfx] of (spec.sfx ?? []).entries()) {
-    const disk = path.isAbsolute(sfx.path) ? sfx.path : path.join(opts.specDir, sfx.path);
+    const resolved = resolveSfxPath(sfx.path);
+    const disk = resolved ?? (path.isAbsolute(sfx.path) ? sfx.path : path.join(opts.specDir, sfx.path));
     const bytes = await readFile(disk);
     const ext = path.extname(disk) || ".mp3";
     const p = `audio/sfx-${i}${ext}`;
