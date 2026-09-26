@@ -89,8 +89,8 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
       const r = await studioApi.updateProfile(v);
       onProfile(r.profile);
       setNameDirty(false);
-      notify("Name saved — it signs your work from here.");
-    } catch (e) { notify(e instanceof Error ? e.message : "Could not save the name."); }
+      notify("Name saved. It signs your work from here.");
+    } catch (e) { notify(e instanceof Error ? e.message : "Couldn't save the name."); }
     finally { setBusy(false); }
   }
 
@@ -108,7 +108,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
       if (r.current) { location.href = "/"; return; }
       setSessions((s) => s.filter((x) => x.id !== id));
       notify("That session is signed out.");
-    } catch (e) { notify(e instanceof Error ? e.message : "Could not sign out that session."); }
+    } catch (e) { notify(e instanceof Error ? e.message : "Couldn't sign out that session."); }
     finally { setBusy(false); }
   }
 
@@ -119,7 +119,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
       notify(`Signed out of ${r.revoked} other session${r.revoked === 1 ? "" : "s"}.`);
       const s = await studioApi.accountSessions();
       setSessions(s.sessions);
-    } catch (e) { notify(e instanceof Error ? e.message : "Could not sign out other sessions."); }
+    } catch (e) { notify(e instanceof Error ? e.message : "Couldn't sign out other sessions."); }
     finally { setBusy(false); }
   }
 
@@ -127,7 +127,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
     setBusy(true);
     try {
       await studioApi.requestAccountExport();
-      notify("Export requested — it will appear here when ready.");
+      notify("Export requested. It'll show up here when it's ready.");
       const r = await studioApi.accountData().catch(() => null);
       if (r) setExports(r.items ?? []);
     } catch (e) { notify(e instanceof Error ? e.message : "Export could not be requested."); }
@@ -140,7 +140,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
       const r = await studioApi.requestDeletion();
       setDeletion("pending");
       if (r.devConfirmUrl) setDevConfirmUrl(r.devConfirmUrl);
-      notify("Confirmation sent — deletion only happens after you confirm from the email.");
+      notify("Confirmation sent. Nothing is deleted until you confirm from the email.");
     } catch (e) { notify(e instanceof Error ? e.message : "Deletion could not be requested."); }
     finally { setBusy(false); }
   }
@@ -151,8 +151,8 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
       await studioApi.cancelDeletion();
       setDeletion("none");
       setDevConfirmUrl(null);
-      notify("Deletion request cancelled — your account is safe.");
-    } catch (e) { notify(e instanceof Error ? e.message : "Could not cancel the request."); }
+      notify("Deletion request cancelled. Your account is safe.");
+    } catch (e) { notify(e instanceof Error ? e.message : "Couldn't cancel the request."); }
     finally { setBusy(false); }
   }
 
@@ -173,7 +173,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
                 <span className="acct-tab-ico">{n.ico}</span><span className="acct-tab-label">{n.label}</span><small>{n.hint}</small>
               </button>
             ))}
-            <button className="account-tab account-signout" onClick={async () => { try { await studioApi.signOut(); location.href = "/"; } catch { notify("Could not sign out."); } }}>
+            <button className="account-tab account-signout" onClick={async () => { try { await studioApi.signOut(); location.href = "/"; } catch { notify("Couldn't sign out. Try again."); } }}>
               <span className="acct-tab-ico">→</span><span className="acct-tab-label">Sign out</span>
             </button>
           </nav>
@@ -184,13 +184,13 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
 
               {section === "profile" && (
                 <>
-                  <p className="account-lead">NexStudio uses email links — no password to leak. Your productions, memory and library are attached to this account.</p>
+                  <p className="account-lead">NexStudio signs you in with an email link, so there's no password to leak. Your productions, memory and library are attached to this account.</p>
                   <div className="acct-hero">
                     <span className="acct-hero-avatar">{initials}</span>
                     <div className="acct-hero-copy">
                       <label>Signed in</label>
                       <b>{profile?.displayName || "Magic-link account"}</b>
-                      <span className="acct-hero-sub">{profile?.email ?? "Signed in via magic link — no password stored anywhere."}</span>
+                      <span className="acct-hero-sub">{profile?.email ?? "Signed in with an email link. No password stored anywhere."}</span>
                     </div>
                     <span className="acct-pill">Email verified</span>
                   </div>
@@ -202,9 +202,9 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
                     <button className="account-secondary acct-field-btn" disabled={busy || !nameDirty || !name.trim()} onClick={() => void saveName()}>Save</button>
                   </div>
                   <div className="acct-facts">
-                    <div className="acct-fact"><span className="acct-fact-ico">◈</span><b>No password</b><span>Sign-in links land in your inbox — nothing to forget or leak.</span></div>
+                    <div className="acct-fact"><span className="acct-fact-ico">◈</span><b>No password</b><span>Sign-in links land in your inbox. Nothing to forget or leak.</span></div>
                     <div className="acct-fact"><span className="acct-fact-ico">▤</span><b>Work attached</b><span>Every production, brand and asset lives on this account.</span></div>
-                    <div className="acct-fact"><span className="acct-fact-ico">◐</span><b>Inspectible memory</b><span>What NexMind remembers is visible to you — and tombstone-able.</span></div>
+                    <div className="acct-fact"><span className="acct-fact-ico">◐</span><b>Inspectable memory</b><span>What NexMind remembers is visible to you, and you can remove any of it.</span></div>
                   </div>
                 </>
               )}
@@ -215,10 +215,10 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
                   <div className="acct-balance">
                     <div className="acct-balance-copy">
                       <label>Available balance</label>
-                      <b>{balance ? formatUSD(balance.availableMinor) : "—"}</b>
+                      <b>{balance ? formatUSD(balance.availableMinor) : "···"}</b>
                       {balance && balance.pendingMinor > 0
-                        ? <span className="acct-balance-pending">{formatUSD(balance.pendingMinor)} pending — resolves as renders finish</span>
-                        : <span className="acct-balance-pending ok">Nothing pending — all credits settled</span>}
+                        ? <span className="acct-balance-pending">{formatUSD(balance.pendingMinor)} pending, released as renders finish</span>
+                        : <span className="acct-balance-pending ok">Nothing pending. All credits settled.</span>}
                     </div>
                     <span className="acct-balance-mark" aria-hidden="true">◉</span>
                   </div>
@@ -227,12 +227,12 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
                   <div className="acct-methods">
                     <button className={`acct-method ${prefs?.paymentMethod !== "usdc" ? "on" : ""}`} onClick={() => void patchPrefs({ paymentMethod: "card" })}>
                       <span className="acct-method-ico">▭</span>
-                      <span className="acct-method-copy"><b>Credit or debit card</b><span>Secure card checkout — Visa, Mastercard, Amex.</span></span>
+                      <span className="acct-method-copy"><b>Credit or debit card</b><span>Secure card checkout. Visa, Mastercard, Amex.</span></span>
                       <span className="acct-method-check">✓</span>
                     </button>
                     <button className={`acct-method ${prefs?.paymentMethod === "usdc" ? "on" : ""}`} onClick={() => void patchPrefs({ paymentMethod: "usdc" })}>
                       <span className="acct-method-ico usd">◈</span>
-                      <span className="acct-method-copy"><b>USDC</b><span>Stablecoin payment — settles in USD credits.</span></span>
+                      <span className="acct-method-copy"><b>USDC</b><span>Stablecoin payment that settles as USD credits.</span></span>
                       <span className="acct-method-check">✓</span>
                     </button>
                   </div>
@@ -258,11 +258,11 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
 
               {section === "preferences" && (
                 <>
-                  <p className="account-lead">Set once — the studio prefills every new production with these.</p>
+                  <p className="account-lead">Set once, and the studio prefills every new production with them.</p>
                   <div className="acct-list-head"><b>Notifications</b><span>email</span></div>
                   <div className="settings-card acct-set-card">
                     <div className="preference-row">
-                      <div><b>When a render finishes</b><span>An email the moment a video is ready to review — the reason to come back.</span></div>
+                      <div><b>When a render finishes</b><span>An email the moment a video is ready to review.</span></div>
                       <Toggle on={prefs?.notifyRendersEmail ?? true} disabled={!prefs} onChange={() => void patchPrefs({ notifyRendersEmail: !prefs?.notifyRendersEmail })} />
                     </div>
                     <div className="preference-row">
@@ -281,7 +281,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
                       </div>
                     </div>
                     <div className="preference-row pref-col">
-                      <div><b>Default length</b><span>Starting duration on every new direction — adjustable per video.</span></div>
+                      <div><b>Default length</b><span>Starting duration on every new direction. Adjustable per video.</span></div>
                       <div className="acct-chip-row">
                         {DURATIONS.map((d) => (
                           <button key={d} className={`opt-chip small ${prefs?.defaultDuration === d ? "on" : ""}`} disabled={!prefs} onClick={() => void patchPrefs({ defaultDuration: prefs?.defaultDuration === d ? null : d })}><b>{d}s</b></button>
@@ -333,7 +333,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
 
               {section === "data" && (
                 <>
-                  <p className="account-lead">Everything NexStudio holds for you — productions, memory, assets, billing — exportable as a full archive.</p>
+                  <p className="account-lead">Everything NexStudio holds for you: productions, memory, assets, billing. Exportable as one archive.</p>
                   <div className="acct-export-hero">
                     <span className="acct-export-ico">⬒</span>
                     <div>
@@ -368,23 +368,23 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
 
               {section === "privacy" && (
                 <>
-                  <p className="account-lead">NexStudio keeps production memory append-only and inspectable — you can see every remembered fact and tombstone it. Publishing hands files to you; it never posts on your behalf.</p>
+                  <p className="account-lead">Production memory is append-only and inspectable. You can see every remembered fact and remove it. Publishing hands files to you; it never posts on your behalf.</p>
                   <div className="acct-facts">
                     <div className="acct-fact"><span className="acct-fact-ico">◐</span><b>Memory you can see</b><span>Everything NexMind remembers is inspectable in Brand and Series.</span></div>
                     <div className="acct-fact"><span className="acct-fact-ico">✕</span><b>Tombstone anything</b><span>Delete a memory and it's gone from every future production.</span></div>
-                    <div className="acct-fact"><span className="acct-fact-ico">↗</span><b>You publish, not us</b><span>Files are prepared for you — NexStudio never posts on your behalf.</span></div>
+                    <div className="acct-fact"><span className="acct-fact-ico">↗</span><b>You publish, not us</b><span>Files are prepared for you. NexStudio never posts on your behalf.</span></div>
                   </div>
                   <div className="acct-danger">
                     <div className="acct-danger-copy">
                       <b>Deleting the account</b>
-                      <span>Removes productions, memory and billing history permanently. We email a confirmation link — nothing is deleted until you confirm. Export your data first.</span>
+                      <span>Removes productions, memory and billing history permanently. We email a confirmation link, and nothing is deleted until you confirm. Export your data first.</span>
                       {devConfirmUrl && <a className="acct-dev-link" href={devConfirmUrl}>Confirm deletion (preview link) →</a>}
                     </div>
                     {deletion === "pending"
                       ? <button className="acct-danger-cancel" disabled={busy} onClick={() => void cancelDeletion()}>Cancel request</button>
                       : <button className="acct-danger-btn" disabled={busy} onClick={() => void requestDeletion()}>Request deletion</button>}
                   </div>
-                  {deletion === "pending" && <p className="acct-danger-note">Confirmation link sent{profile?.email ? ` to ${profile.email}` : ""} — the account stays active until you confirm it.</p>}
+                  {deletion === "pending" && <p className="acct-danger-note">Confirmation link sent{profile?.email ? ` to ${profile.email}` : ""}. The account stays active until you confirm it.</p>}
                 </>
               )}
             </div>

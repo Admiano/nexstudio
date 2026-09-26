@@ -146,7 +146,7 @@ export default function Shell({ view }: { view: ViewId }) {
                 {finishedUnviewed.slice(0, 6).map((p) => (
                   <button key={p.id} className="bell-item" onClick={() => { setBellOpen(false); openJobFlow({ id: p.id, engine: { kind: p.engine!.kind, jobId: p.engine!.jobId, outputs: p.engine!.outputs } }); }}>
                     <span className="bell-dot" />
-                    <span className="bell-item-copy"><b>{p.title}</b><span>Finished rendering — ready to review</span></span>
+                    <span className="bell-item-copy"><b>{p.title}</b><span>Finished rendering. Ready to review.</span></span>
                     <span className="bell-go">→</span>
                   </button>
                 ))}
@@ -156,7 +156,7 @@ export default function Shell({ view }: { view: ViewId }) {
             )}
           </div>
           <button aria-label="Open credits" className="credits" onClick={() => setCreditsOpen(true)}>
-            <span className="credit-dot" /><span>{balance ? formatUSD(balance.availableMinor) : "—"}</span>
+            <span className="credit-dot" /><span>{balance ? formatUSD(balance.availableMinor) : "···"}</span>
           </button>
           <button aria-label="Open account" className="avatar" onClick={() => setAccountOpen(true)}>{initialsOf(profile?.displayName, profile?.email)}</button>
         </div>

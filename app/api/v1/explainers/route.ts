@@ -58,14 +58,14 @@ export async function POST(request: Request) {
 
   const durationRaw = Number(form.get("duration") ?? 0);
   if (durationRaw && (!Number.isFinite(durationRaw) || durationRaw < 5 || durationRaw > 600))
-    return problem(id, 422, "DURATION_RANGE", "Invalid length", "Target length must be 5–600 seconds.");
+    return problem(id, 422, "DURATION_RANGE", "Invalid length", "Target length must be 5 to 600 seconds.");
 
   const speedRaw = Number(form.get("speed") ?? 0);
   if (speedRaw && (!Number.isFinite(speedRaw) || speedRaw < 0.7 || speedRaw > 1.5))
-    return problem(id, 422, "SPEED_RANGE", "Invalid speed", "Narration speed must be 0.7–1.5×.");
+    return problem(id, 422, "SPEED_RANGE", "Invalid speed", "Narration speed must be 0.7 to 1.5×.");
 
   if (runningEngineJobs() >= renderCapacity())
-    return problem(id, 429, "RENDER_AT_CAPACITY", "The render floor is full right now", "A few renders are already running — try again in a minute. Your brief and direction are saved.");
+    return problem(id, 429, "RENDER_AT_CAPACITY", "The render floor is full right now", "A few renders are already running. Try again in a minute. Your brief and direction are saved.");
 
   const jobId = `xr-${randomUUID().slice(0, 8)}`;
   const dir = path.join(JOBS, jobId);

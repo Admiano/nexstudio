@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth";
 import { StudioApp } from "@/studio-v2/App";
 import "@/studio-v2/nexstudio-v2.css";
 
-export const metadata: Metadata = { title: "Studio — NexStudio" };
+export const metadata: Metadata = { title: "Studio · NexStudio" };
 
 export default async function Page() {
   const h = await headers();

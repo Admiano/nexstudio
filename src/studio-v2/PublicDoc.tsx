@@ -94,10 +94,10 @@ function PublicDocSignIn({ onClose }: { onClose: () => void }) {
         headers: { "content-type": "application/json", "Idempotency-Key": `nx-signin:${crypto.randomUUID()}` },
         body: JSON.stringify({ email }),
       });
-      if (!res.ok) throw new Error("Could not send the sign-in link.");
+      if (!res.ok) throw new Error("The sign-in link couldn't be sent. Try again.");
       setSent(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not send the sign-in link.");
+      setError(e instanceof Error ? e.message : "Couldn't send the sign-in link.");
     } finally { setBusy(false); }
   }
   return (

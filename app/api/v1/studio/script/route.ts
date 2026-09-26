@@ -26,9 +26,9 @@ const outputSchema = {
 } as const;
 
 const POLICY = [
-  "NexStudio content policy — the narration script must comply with all of it:",
+  "NexStudio content policy. The narration script must comply with all of it:",
   "- No vulgar or profane language of any kind.",
-  "- No attacks on government officials, politicians, or public figures — no claims that they are corrupt, criminal, evil, or should be harmed, arrested, or removed.",
+  "- No attacks on government officials, politicians, or public figures. No claims that they are corrupt, criminal, evil, or should be harmed, arrested, or removed.",
   "- No promotion, instruction, or glorification of crime, weapons, drugs, hacking, fraud, or evasion.",
   "- No hate or dehumanization of any group (race, religion, nationality, gender, orientation).",
   "- No sexual content, and absolutely none involving minors.",
@@ -36,7 +36,7 @@ const POLICY = [
   "- No extremist praise or recruitment.",
   "- No medical, legal, or financial claims presented as guarantees; keep advice general.",
   "- No copyrighted text (lyrics, poems, book passages); write original narration.",
-  "If the brief asks for content that breaks this policy, do not write a script — the caller treats that as a refusal.",
+  "If the brief asks for content that breaks this policy, do not write a script. The caller treats that as a refusal.",
 ].join("\n");
 
 function apiKey(): string | undefined {
@@ -53,7 +53,7 @@ async function writeScript(brief: string, family: string, videoType: string, dur
     model = nexMindRoleRouting("studio_script").model || model;
   } catch { /* no registry configured — use the env/default model */ }
   const beatHint = beats?.length
-    ? `\nDirection beats to cover (one line per beat, same order):\n${beats.map((b, i) => `${i + 1}. ${b.purposeTitle} — ${b.description}`).join("\n")}`
+    ? `\nDirection beats to cover (one line per beat, same order):\n${beats.map((b, i) => `${i + 1}. ${b.purposeTitle}: ${b.description}`).join("\n")}`
     : "";
   const words = Math.max(12, Math.round(duration * 2.4));
   const result = await callNexMindDetailed([
@@ -63,7 +63,7 @@ async function writeScript(brief: string, family: string, videoType: string, dur
         "You are NexMind, NexStudio's narration scriptwriter. Turn a customer brief into a spoken-narration script for a short video.",
         `This video: family=${family}, type=${videoType}, target ${duration}s (about ${words} words total).`,
         "Return JSON only: {lines: string[], title: string}. One narration line per board beat; each line is a single complete spoken sentence (max ~30 words), in a warm, clear voiceover register.",
-        "Lines are read verbatim by text-to-speech and shown one board at a time — no headings, no scene directions, no markdown, no quotation marks, no speaker labels.",
+        "Lines are read verbatim by text-to-speech and shown one board at a time. No headings, no scene directions, no markdown, no quotation marks, no speaker labels.",
         "Title is a short work title for the dashboard (max 8 words).",
         POLICY,
         extraInstruction ?? "",

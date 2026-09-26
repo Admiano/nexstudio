@@ -107,7 +107,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
           <div className="pw-hero-main pw-reveal in">
             <div className="pw-kicker"><i /> Creative production, directed by NexMind</div>
             <h1>From brief to <em>finished video.</em></h1>
-            <p className="pw-hero-copy">Tell NexMind what you want. Approve the direction. NexStudio makes it, lets you revise it, then download or publish—without turning production into a pile of tools.</p>
+            <p className="pw-hero-copy">Tell NexMind what you want. Approve the direction. NexStudio makes it, lets you revise it, then download or publish. No pile of tools gets in the way.</p>
             <div className="pw-hero-actions"><button className="pw-solid" onClick={() => document.getElementById("pwBrief")?.focus()}>Make a video →</button><button className="pw-ghost" onClick={() => document.getElementById("make")?.scrollIntoView({ behavior: "smooth" })}>See what it makes</button></div>
             <div className="pw-small-proof"><span>Direction before production</span><span>Card + USDC credits</span><span>Download or publish</span></div>
           </div>
@@ -181,7 +181,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
             </div>
           </div>
         </section>
-        <section className="pw-final"><div className="pw-final-inner pw-reveal"><div className="pw-kicker"><i /> NexStudio</div><h2>Make something worth watching.</h2><p>Start with the brief. NexMind will take it from there—and show you the direction before production begins.</p><button className="pw-solid" onClick={enter}>Open NexStudio →</button></div></section>
+        <section className="pw-final"><div className="pw-final-inner pw-reveal"><div className="pw-kicker"><i /> NexStudio</div><h2>Make something worth watching.</h2><p>Start with the brief. NexMind takes it from there, and you see the direction before anything is made.</p><button className="pw-solid" onClick={enter}>Open NexStudio →</button></div></section>
       </main>
       <footer className="pw-footer"><span>© 2026 NexStudio · Powered by NexMind</span><div className="pw-footer-links"><a href="#make">Make</a><a href="#nexmind">NexMind</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
       {signIn && <SignInSheet onClose={() => setSignIn(false)} />}
@@ -203,10 +203,10 @@ function SignInSheet({ onClose }: { onClose: () => void }) {
         headers: { "content-type": "application/json", "Idempotency-Key": `nx-signin:${crypto.randomUUID()}` },
         body: JSON.stringify({ email }),
       });
-      if (!res.ok) throw new Error("Could not send the sign-in link.");
+      if (!res.ok) throw new Error("The sign-in link couldn't be sent. Try again.");
       setSent(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not send the sign-in link.");
+      setError(e instanceof Error ? e.message : "Couldn't send the sign-in link.");
     } finally { setBusy(false); }
   }
   return (

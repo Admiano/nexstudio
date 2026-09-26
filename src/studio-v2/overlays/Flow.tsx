@@ -73,7 +73,7 @@ const MIND_STEPS = [
   { key: "understand", title: "Understanding the brief", copy: "Bringing your intent, context and production direction together." },
   { key: "shape", title: "Shaping the production direction", copy: "Choosing the family, format and structure before anything is made." },
   { key: "write", title: "Writing your narration", copy: "NexMind is turning your intent into a spoken script for the boards." },
-  { key: "ready", title: "Direction is ready", copy: "Review every part of it — nothing has been produced yet." },
+  { key: "ready", title: "Direction is ready", copy: "Review every part of it. Nothing has been made yet." },
 ];
 
 const DEFAULT_VIDEO_TYPE: Record<string, string> = {
@@ -314,8 +314,8 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
       }
       const res = await studioApi.purchase(flow.productionId, q.quoteId!) as { ok?: boolean; code?: string; amountRequiredMinor?: number };
       if (res.ok === false) {
-        if (res.code === "INSUFFICIENT_BALANCE") { api.notify("Balance is short — add credits first."); return; }
-        api.notify("Production could not start — try again.");
+        if (res.code === "INSUFFICIENT_BALANCE") { api.notify("Balance is short. Add credits first."); return; }
+        api.notify("Production couldn't start. Try again.");
         return;
       }
       await refresh(["balance", "work", "ledger"]);
@@ -348,7 +348,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
           {kind && !flow.script && (scriptState === "ready" || scriptState === "pending") && (
             <section className="direction-script reveal" style={{ ["--d" as string]: ".13s" }}>
               <div className="direction-script-head">
-                <label>Narration — written by NexMind</label>
+                <label>Narration, written by NexMind</label>
                 <span>{scriptState === "ready" ? "Read exactly as written" : "Writing…"}</span>
               </div>
               {scriptState === "ready" && flow.generatedScript ? (
@@ -516,10 +516,10 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
           if (Object.keys(outputs).length) {
             api.patchFlow({ stage: "review", jobOutputs: outputs });
           } else {
-            api.patchFlow({ stage: "closed", error: "The render finished but produced no files — try again." });
+            api.patchFlow({ stage: "closed", error: "The render finished but made no files. Try again." });
           }
         } else if (s.status === "failed") {
-          api.patchFlow({ stage: "closed", error: s.error || "The render failed — try again." });
+          api.patchFlow({ stage: "closed", error: s.error || "The render failed. Try again." });
         }
       } catch { /* keep polling */ }
     };
@@ -551,14 +551,14 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     ? (jobProgress ? (JOB_STEP[jobProgress.phase ?? ""] ?? 1) : 0)
     : Math.max(0, PHASE_ORDER.indexOf(proj?.phase ?? "PREPARING"));
   const jobCopy = flow.jobKind === "whiteboard"
-    ? { title: "The hand is moving.", detail: "Voice, plan and board are rendering — one pass per screen, so all three sizes land together." }
+    ? { title: "The hand is moving.", detail: "Voice, plan and board are rendering. One pass per screen, so all three sizes land together." }
     : flow.jobKind === "explainer"
-      ? { title: "The film is being cut.", detail: "Script, voice and style are rendering — one pass per screen, so all three sizes land together." }
+      ? { title: "The film is being cut.", detail: "Script, voice and style are rendering. One pass per screen, so all three sizes land together." }
       : null;
   const JOB_PHASE: Record<string, string> = { voice: "Recording the voiceover.", direction: "Setting the direction.", render: "Rendering the screens.", packaging: "Finishing the files.", finishing: "Finishing the files." };
   const jobDetail = flow.jobKind && jobProgress?.phase
     ? jobProgress.phase === "render" && jobProgress.aspectsTotal
-      ? `Rendering the screens — ${jobProgress.aspectsDone ?? 0} of ${jobProgress.aspectsTotal} done${jobProgress.aspect ? `, now on ${ASPECT_LABEL[jobProgress.aspect] ?? jobProgress.aspect}` : ""}.`
+      ? `Rendering the screens. ${jobProgress.aspectsDone ?? 0} of ${jobProgress.aspectsTotal} done${jobProgress.aspect ? `, now on ${ASPECT_LABEL[jobProgress.aspect] ?? jobProgress.aspect}` : ""}.`
       : JOB_PHASE[jobProgress.phase] ?? jobCopy?.detail
     : jobCopy?.detail;
   const V2_PHASES: Array<{ key: string; label: string }> = [
@@ -648,7 +648,7 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
               <div key={p.key} className={`phase ${i < v2idx ? "done" : i === v2idx ? "active" : ""}`} data-p={p.key}><i />{p.label}</div>
             ))}
           </div>
-          <div className="production-note">You can leave this screen. Your production keeps running — come back to review the screens.</div>
+          <div className="production-note">You can leave this screen. Your production keeps running. Come back when the screens are ready.</div>
         </aside>
       </div>
     </div>
@@ -674,7 +674,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
     try {
       await studioApi.review(flow.productionId, action === "approve" ? { action: "approve" } : { action: "revision", note: note || "Please revise" });
       await refresh();
-      api.notify(action === "approve" ? "Approved — moved to publish." : "Revision queued with NexMind.");
+      api.notify(action === "approve" ? "Approved. Moved to publish." : "Revision queued with NexMind.");
       api.patchFlow({ stage: action === "approve" ? "publish" : "revision" });
     } catch (e) {
       api.notify(e instanceof Error ? e.message : "That action is not available yet.");
@@ -695,7 +695,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
             {videoFailed ? (
               <div className="review-video review-video-empty">
                 <span className="review-unavailable">Video unavailable</span>
-                <span className="review-unavailable-sub">This production's render file is no longer on disk — try a new render.</span>
+                <span className="review-unavailable-sub">This render file is no longer on disk. Try a new render.</span>
               </div>
             ) : outputs ? (
               <video key={activeAspect} className="review-video" controls playsInline src={outputs[activeAspect]} onError={() => setVideoFailed(true)} />
@@ -715,7 +715,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
         <aside className="review-side">
           <div className="micro">{videoFailed ? "Your video isn't here" : "Your video is ready"}</div>
           <h1>{videoFailed ? "This render is no longer available." : "Review the finished video."}</h1>
-          <p>{videoFailed ? "The render file for this production was removed from the server — your brief and direction are safe. Start a new render to get a fresh file." : "Watch the version NexStudio made from your approved direction. Download it, publish it, or ask NexMind for a revision."}</p>
+          <p>{videoFailed ? "The render file for this production was removed from the server. Your brief and direction are safe. Start a new render for a fresh file." : "Watch the version NexStudio made from your approved direction. Download it, publish it, or ask NexMind for a revision."}</p>
           <div className="review-meta">
             <span><b>{ASPECT_LABEL[activeAspect] ?? "16:9"}</b> shown</span>
             <span><b>{outputs ? outputKeys.length : 1}</b> screens</span>
@@ -739,7 +739,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
             </div>
           </div>
           ); })()}
-          <div className="review-privacy">Publishing does not require you to connect a social account — NexStudio prepares the file and hands it to you.</div>
+          <div className="review-privacy">No social accounts to connect. NexStudio prepares the file and hands it to you.</div>
         </aside>
       </div>
     </div>
@@ -754,7 +754,7 @@ function PublishStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   return (
     <div aria-hidden="true" className="publish-overlay open" id="publishOverlay" onClick={(e) => { if (e.target === e.currentTarget) api.closeFlow(); }}>
       <section className="publish-shell" role="dialog" aria-modal="true">
-        <div className="sheet-head"><div><div className="micro">Publish · Privacy first</div><h2>Take it everywhere.</h2><p>NexStudio prepares the file and caption for each destination — you keep your own accounts. Nothing is posted on your behalf.</p></div><button aria-label="Close publish" className="sheet-close" onClick={api.closeFlow}>×</button></div>
+        <div className="sheet-head"><div><div className="micro">Publish · Privacy first</div><h2>Take it everywhere.</h2><p>NexStudio prepares the file and caption for each destination. You keep your own accounts, and nothing is ever posted without you.</p></div><button aria-label="Close publish" className="sheet-close" onClick={api.closeFlow}>×</button></div>
         <div className="platform-grid">
           {DESTINATIONS.map((d) => (
             <a key={d} className="platform" href={outputUrl} download>
@@ -784,7 +784,7 @@ function RevisionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     setBusy(true);
     try {
       await studioApi.review(flow.productionId, { action: "revision", note: note.trim(), timestampSeconds: ts ? Number(ts) : undefined });
-      api.notify("Revision queued — NexMind will take another pass.");
+      api.notify("Revision queued. NexMind will take another pass.");
       api.patchFlow({ stage: "production" });
     } catch (e) {
       api.notify(e instanceof Error ? e.message : "Revision could not be queued.");

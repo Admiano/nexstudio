@@ -26,7 +26,7 @@ function filterOf(a: StudioAsset): LibFilter {
 }
 
 function fmtSize(bytes: number | null): string {
-  if (bytes == null) return "—";
+  if (bytes == null) return "·";
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -68,9 +68,9 @@ export function LibraryView({ openSheet, notify, addContext }: { openSheet: (s: 
     try {
       for (const f of Array.from(files)) await studioApi.uploadAsset(f);
       await refresh(["assets"]);
-      notify(`${files.length} file${files.length > 1 ? "s" : ""} added to Library — processing now.`);
+      notify(`${files.length} file${files.length > 1 ? "s" : ""} added to Library. Processing now.`);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Upload failed.");
+      notify(e instanceof Error ? e.message : "The upload didn't go through. Try again.");
     } finally {
       setBusy(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -88,9 +88,9 @@ export function LibraryView({ openSheet, notify, addContext }: { openSheet: (s: 
       await studioApi.deleteAsset(a.id);
       setDetail(null);
       await refresh(["assets"]);
-      notify("Removed from reusable Library.");
+      notify("Removed from your Library.");
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not remove the asset.");
+      notify(e instanceof Error ? e.message : "Couldn't remove the asset.");
     }
   }
 

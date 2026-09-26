@@ -126,7 +126,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
       notify("Brand created.");
       setEditor(null);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not create brand.");
+      notify(e instanceof Error ? e.message : "Couldn't create brand.");
     }
   }
 
@@ -139,17 +139,17 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
       notify("Identity updated.");
       setEditor(null);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not update the brand.");
+      notify(e instanceof Error ? e.message : "Couldn't update the brand.");
     }
   }
 
   async function saveVoice(input: { voice: string; voiceDetail: string }) {
     try {
       await writeAuthority({ voice: input.voice, voiceDetail: input.voiceDetail });
-      notify("Voice saved — NexMind will use it in narration.");
+      notify("Voice saved. NexMind will use it in narration.");
       setEditor(null);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not save voice.");
+      notify(e instanceof Error ? e.message : "Couldn't save voice.");
     }
   }
 
@@ -228,7 +228,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
       <div className="brand-memory-grid">
         <section className="memory-card">
           <div className="memory-card-head"><h3>NexMind’s memory</h3><button className="text-button" onClick={() => setEditor({ mode: "memory" })}>Teach NexMind</button></div>
-          <p className="memory-summary">{auth.memory || (memory.length > 0 ? `${memory.length} remembered item${memory.length > 1 ? "s" : ""}, kept as append-only versions.` : "Nothing remembered yet — teach NexMind what this brand should know.")}</p>
+          <p className="memory-summary">{auth.memory || (memory.length > 0 ? `${memory.length} remembered item${memory.length > 1 ? "s" : ""}, kept as append-only versions.` : "Nothing remembered yet. Teach NexMind what this brand should know.")}</p>
           <div className="memory-confidence">{[0, 1, 2, 3, 4].map((i) => <i key={i} className={i < Math.min(5, memory.length) ? "on" : ""} />)}</div>
           <div className="memory-meta"><span>{memory.length > 0 ? "Working context" : "Strong working context"}</span><span>{brand?.updatedAt ? `Updated ${new Date(brand.updatedAt).toLocaleDateString()}` : "Updated recently"}</span></div>
         </section>
@@ -342,8 +342,8 @@ function BrandEditor({ mode, brand, authority, onClose, onNew, onIdentity, onVoi
           {mode === "memory" && (
             <>
               <div className="focus-field"><label>What should NexMind remember?</label><textarea value={mem} onChange={(e) => setMem(e.target.value)} placeholder="e.g. Always say 'agent payments', never 'crypto payments'. Avoid jargon." /></div>
-              <div className="focus-field"><label>Keep — one per line</label><textarea value={keepText} onChange={(e) => setKeepText(e.target.value)} /></div>
-              <div className="focus-field"><label>Avoid — one per line</label><textarea value={avoidText} onChange={(e) => setAvoidText(e.target.value)} /></div>
+              <div className="focus-field"><label>Keep, one per line</label><textarea value={keepText} onChange={(e) => setKeepText(e.target.value)} /></div>
+              <div className="focus-field"><label>Avoid, one per line</label><textarea value={avoidText} onChange={(e) => setAvoidText(e.target.value)} /></div>
             </>
           )}
         </div>

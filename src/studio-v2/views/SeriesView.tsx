@@ -39,7 +39,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
       notify("Series created.");
       setEditor(null);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not create series.");
+      notify(e instanceof Error ? e.message : "Couldn't create series.");
     }
   }
 
@@ -64,7 +64,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
       notify("Series identity updated.");
       setEditor(null);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not update the series.");
+      notify(e instanceof Error ? e.message : "Couldn't update the series.");
     }
   }
 
@@ -73,10 +73,10 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
     try {
       await studioApi.updateSeries(current.id, { brandId });
       await refresh(["series"]);
-      notify(brandId ? "Brand linked — it joins Create with this series." : "Brand unlinked.");
+      notify(brandId ? "Brand linked. It joins Create with this series." : "Brand unlinked.");
       setEditor(null);
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not update the linked brand.");
+      notify(e instanceof Error ? e.message : "Couldn't update the linked brand.");
     }
   }
 
@@ -125,7 +125,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
         <div className="series-stage-main">
           <span className="series-stage-label">Series identity</span>
           <h2>{current?.name}</h2>
-          <p className="series-premise">{current?.description || "Define the premise once — every episode inherits it."}</p>
+          <p className="series-premise">{current?.description || "Define the premise once. Every episode inherits it."}</p>
           <div className="series-stage-meta"><span>{episodes.length} episode{episodes.length === 1 ? "" : "s"}</span>{linkedBrand ? <span>Brand · {linkedBrand.name}</span> : null}</div>
         </div>
         <aside className="series-next-card">
@@ -148,7 +148,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
         </section>
         <section className="series-brand-card">
           <div className="series-card-head"><h3>Linked Brand</h3><button onClick={() => setEditor({ mode: "brand" })}>Change</button></div>
-          <div className="series-brand-lock">{linkedBrand ? <><span className="mark">{linkedBrand.name[0]}</span><span><b>{linkedBrand.name}</b><span>{linkedBrand.description || "Production identity"}</span></span></> : <><span className="mark">—</span><span><b>No linked Brand</b><span>Link one from the brand page</span></span></>}</div>
+          <div className="series-brand-lock">{linkedBrand ? <><span className="mark">{linkedBrand.name[0]}</span><span><b>{linkedBrand.name}</b><span>{linkedBrand.description || "Production identity"}</span></span></> : <><span className="mark">·</span><span><b>No linked Brand</b><span>Link one from the brand page</span></span></>}</div>
           <p>When a Brand is linked, it joins Create automatically with the Series. Series memory still owns episode-to-episode continuity.</p>
         </section>
       </div>
@@ -231,11 +231,11 @@ function SeriesEditor({ mode, series, brands, onClose, onCreate, onTeach, onIden
           )}
           {isBrand && (
             <div className="series-brand-choices">
-              <button type="button" className={`series-brand-choice ${picked === null ? "on" : ""}`} onClick={() => setPicked(null)}><span className="mark">—</span><span><b>No linked brand</b><span>Series runs unbranded</span></span></button>
+              <button type="button" className={`series-brand-choice ${picked === null ? "on" : ""}`} onClick={() => setPicked(null)}><span className="mark">·</span><span><b>No linked brand</b><span>Series runs unbranded</span></span></button>
               {(brands ?? []).map((b) => (
                 <button key={b.id} type="button" className={`series-brand-choice ${picked === b.id ? "on" : ""}`} onClick={() => setPicked(b.id)}><span className="mark">{b.name[0]}</span><span><b>{b.name}</b><span>{b.description || "Production identity"}</span></span></button>
               ))}
-              {(brands ?? []).length === 0 && <p className="empty-note">No brands yet — create one on the Brand page first.</p>}
+              {(brands ?? []).length === 0 && <p className="empty-note">No brands yet. Create one on the Brand page first.</p>}
             </div>
           )}
         </div>

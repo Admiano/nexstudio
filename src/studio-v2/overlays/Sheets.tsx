@@ -38,7 +38,7 @@ function FilesSheet({ onClose, addContext, notify }: { onClose: () => void; addC
       await refresh(["assets"]);
       onClose();
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Upload failed.");
+      notify(e instanceof Error ? e.message : "The upload didn't go through. Try again.");
     } finally {
       setBusy(false);
     }
@@ -83,7 +83,7 @@ function BrandSheet({ onClose, addContext, notify }: { onClose: () => void; addC
       if (id) addContext({ kind: "brand", refId: id, label: name.trim() });
       onClose();
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not create brand.");
+      notify(e instanceof Error ? e.message : "Couldn't create brand.");
     } finally {
       setBusy(false);
     }
@@ -129,7 +129,7 @@ function SeriesSheet({ onClose, addContext, openSeries, notify }: { onClose: () 
       setCreating(false);
       setName("");
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not create series.");
+      notify(e instanceof Error ? e.message : "Couldn't create series.");
     }
   }
   return (
