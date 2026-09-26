@@ -152,6 +152,7 @@ def _pb_slot_crop(layout: str, W: int, H: int) -> Tuple[float, float, float, flo
         'diagonal': (pw - pad * 0.8, ph * 0.78),
         'zipped': (pw - pad * 0.8, ph * 0.505),
         'scissor': (pw - pad * 0.8, ph * 0.505),
+        'series': (pw - pad, ph * 0.44),
         'half': (pw - pad * 2.15, ph * 0.46),
     }
     sw, sh = slots.get(layout, slots['half'])

@@ -1069,7 +1069,8 @@
                       "zipped",
                       "scissor",
                       "vignette",
-                      "spot"
+                      "spot",
+                      "series"
                     ]
                   },
                   "cut": {

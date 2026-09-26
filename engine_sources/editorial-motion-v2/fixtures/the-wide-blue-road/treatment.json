@@ -1,7 +1,7 @@
 {
  "schema": "NexStudioEditorialTreatmentV2",
- "film_id": "moon-and-sun",
- "note": "day gives way to night; the astronomer watches, then leaves as the dawn band rises",
+ "film_id": "the-wide-blue-road",
+ "note": "how sailors found their way before engines \u2014 port, noon sun, night stars, storm, landfall",
  "aspects": [
   "16x9",
   "1x1",
@@ -9,9 +9,9 @@
  ],
  "fps": 30,
  "brand": {
-  "ink": "#1b2440",
-  "paper": "#f0e7d4",
-  "accent": "#d9a441",
+  "ink": "#23415c",
+  "paper": "#f2e8d0",
+  "accent": "#c65a3a",
   "finish": "PAPER"
  },
  "typography": {
@@ -32,22 +32,22 @@
    "beat_type": "HOOK",
    "pattern": "CONTROLLED_EMPTY_SPACE",
    "dominant_layer": "TEXT",
-   "narration": "The  sun  burns  at  the  center  of  everything.",
-   "energy": 0.4,
-   "complexity": 0.3,
+   "narration": "Before  engines  and  satellites,  the  ocean  was  the  widest  road  on  earth.",
+   "energy": 0.45,
+   "complexity": 0.35,
    "display_units": [
     {
-     "text": "the sun burns",
+     "text": "the ocean",
      "role": "support",
      "semantic_role": "setup",
      "emphasis": 0.5
     },
     {
-     "text": "at the center of everything",
+     "text": "the widest road on earth",
      "role": "hero",
      "semantic_role": "statement",
      "emphasis": 0.9,
-     "anchor_word": "center"
+     "anchor_word": "road"
     }
    ],
    "backdrop": null,
@@ -55,34 +55,34 @@
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "sun",
+      "id": "map",
       "kind": "object",
       "glyph": "TILE",
       "size": "hero",
-      "concept": "sun"
+      "concept": "map"
      },
      {
-      "id": "everything",
+      "id": "boat",
       "kind": "object",
       "glyph": "TILE",
       "size": "support",
-      "concept": "star"
+      "concept": "boat"
      }
     ],
     "relations": [
      {
-      "type": "emits_to",
-      "source": "sun",
-      "target": "everything",
-      "style": "arc"
+      "type": "connects",
+      "source": "boat",
+      "target": "map",
+      "style": "dash"
      }
     ],
     "program": [
      {
       "op": "DRAW",
-      "target": "sun",
+      "target": "map",
       "at": {
-       "word": "sun"
+       "word": "ocean"
       },
       "duration_ms": 800,
       "from": 0.0,
@@ -90,37 +90,44 @@
      },
      {
       "op": "DRAW",
-      "target": "everything",
+      "target": "boat",
       "at": {
-       "word": "everything"
+       "word": "road"
       },
-      "duration_ms": 600,
+      "duration_ms": 700,
       "from": 0.0,
       "to": 1.0
      },
      {
-      "op": "CONNECT",
-      "target": "sun->everything",
+      "op": "TRAVEL",
+      "target": "boat",
       "at": {
-       "word": "everything"
+       "word": "earth"
       },
-      "duration_ms": 700,
+      "duration_ms": 1200,
+      "params": {
+       "over": [
+        "map"
+       ]
+      },
       "from": 0.0,
       "to": 1.0
      }
     ]
    },
    "page": {
-    "title": "The Burning Sun",
+    "title": "The Widest Road",
     "layout": "half",
     "materials": [
      "foil"
     ]
    },
    "scene": {
-    "setting": "space",
-    "mood": "night",
-    "elements": []
+    "setting": "urban",
+    "mood": "dusk",
+    "elements": [
+     "boat"
+    ]
    }
   },
   {
@@ -128,34 +135,34 @@
    "beat_type": "SETUP",
    "pattern": "PHRASE_REPLACEMENT",
    "dominant_layer": "FIGURE",
-   "narration": "The  moon  makes  no  light  of  its  own.",
+   "narration": "A  sailor  steps  aboard  with  nothing  but  the  sky  for  company.",
    "energy": 0.4,
    "complexity": 0.4,
    "display_units": [
     {
-     "text": "the moon",
+     "text": "a sailor steps aboard",
      "role": "support",
      "semantic_role": "setup",
      "emphasis": 0.5
     },
     {
-     "text": "makes no light of its own",
+     "text": "nothing but the sky",
      "role": "hero",
-     "semantic_role": "contrast",
+     "semantic_role": "statement",
      "emphasis": 0.9,
-     "anchor_word": "own"
+     "anchor_word": "sky"
     }
    ],
    "backdrop": null,
    "figure": {
-    "valence": 0.2,
-    "arousal": 0.4,
+    "valence": 0.3,
+    "arousal": 0.45,
     "posture": "standing",
-    "energy": 0.5,
-    "formality": 0.5,
+    "energy": 0.55,
+    "formality": 0.4,
     "facing": "CAMERA",
-    "justification": "the astronomer takes up the night watch \u2014 the film\u2019s witness",
-    "character": "astronomer",
+    "justification": "the sailor steps aboard \u2014 the film's navigator",
+    "character": "sailor",
     "track": {
      "enter": "left",
      "exit": "none"
@@ -167,20 +174,20 @@
     "states": [
      {
       "at": {
-       "offset_ms": 830
+       "offset_ms": 900
       },
       "face": "eyes-closed"
      },
      {
       "at": {
-       "offset_ms": 1070
+       "offset_ms": 1200
       },
       "pose": "standing-pointing-finger-1",
       "face": "awe"
      },
      {
       "at": {
-       "offset_ms": 1510
+       "offset_ms": 1900
       },
       "face": "loving-grin-2"
      }
@@ -198,170 +205,64 @@
       }
      ],
      "look": {
-      "skin": "#98603c",
+      "skin": "#8a5a3b",
       "hair": {
-       "color": "#1c1712",
-       "style": "bun"
+       "color": "#231a12",
+       "style": "coils"
       },
       "head": {
-       "kind": "kufi",
-       "color": "#3d4a6b",
-       "trimColor": "#d8c48a"
+       "kind": "cap",
+       "color": "#d84f35",
+       "trimColor": "#f2e8d0"
       },
       "top": {
-       "color": "#3d4a6b",
-       "garment": "robe"
+       "color": "#e8e0cc",
+       "garment": "shirt"
       },
       "bottom": {
-       "color": "#2c2f45",
+       "color": "#23415c",
        "garment": "trousers"
       },
       "shoes": {
-       "color": "#241f18"
+       "color": "#3a2c20"
       },
-      "ink": "#2a2f42"
+      "ink": "#23415c"
      }
-    }
+    },
+    "pose": "standing-walking-3"
    },
    "page": {
-    "title": "The Silent Moon",
-    "quote": "Sunlight given, moonlight borrowed.",
+    "title": "Nothing But the Sky",
+    "quote": "The sky keeps the sea's secrets.",
     "layout": "vignette",
-    "cut": "right"
+    "cut": "left"
    },
    "scene": {
-    "setting": "space",
-    "mood": "night",
+    "setting": "outdoor",
+    "mood": "dawn",
     "elements": [
-     "planet"
+     "boat"
     ]
    }
   },
   {
    "beat_id": "b03",
    "beat_type": "EMPHASIS",
-   "pattern": "WORD_OBJECT_BRIDGE",
-   "dominant_layer": "ILLUSTRATION",
-   "narration": "Every  night  it  borrows  the  sun's  fire,  shining  back  what  it  receives.",
-   "energy": 0.55,
-   "complexity": 0.55,
-   "display_units": [
-    {
-     "text": "it borrows the sun's fire",
-     "role": "hero",
-     "semantic_role": "action",
-     "emphasis": 0.9,
-     "anchor_word": "borrows"
-    },
-    {
-     "text": "shining back what it receives",
-     "role": "support",
-     "semantic_role": "qualifier",
-     "emphasis": 0.5
-    }
-   ],
-   "backdrop": null,
-   "illustration": {
-    "form": "RELATIONSHIP",
-    "entities": [
-     {
-      "id": "sun",
-      "kind": "object",
-      "glyph": "TILE",
-      "size": "hero",
-      "concept": "sun"
-     },
-     {
-      "id": "moon",
-      "kind": "object",
-      "glyph": "TILE",
-      "size": "hero",
-      "concept": "moon"
-     }
-    ],
-    "relations": [
-     {
-      "type": "emits_to",
-      "source": "sun",
-      "target": "moon",
-      "style": "arc"
-     }
-    ],
-    "program": [
-     {
-      "op": "DRAW",
-      "target": "moon",
-      "at": {
-       "word": "it"
-      },
-      "duration_ms": 600,
-      "from": 0.0,
-      "to": 1.0
-     },
-     {
-      "op": "DRAW",
-      "target": "sun",
-      "at": {
-       "unit": 0
-      },
-      "duration_ms": 700,
-      "from": 0.0,
-      "to": 1.0
-     },
-     {
-      "op": "CONNECT",
-      "target": "sun->moon",
-      "at": {
-       "word": "borrows"
-      },
-      "duration_ms": 900,
-      "from": 0.0,
-      "to": 1.0
-     },
-     {
-      "op": "EMIT",
-      "target": "moon",
-      "at": {
-       "word": "shining"
-      },
-      "duration_ms": 800,
-      "from": 0.0,
-      "to": 1.0
-     }
-    ]
-   },
-   "page": {
-    "title": "Borrowed Fire",
-    "quote": "The moon keeps the sun\u2019s lamp lit.",
-    "layout": "zipped"
-   },
-   "scene": {
-    "setting": "space",
-    "mood": "night",
-    "elements": [
-     "planet",
-     "moon"
-    ]
-   }
-  },
-  {
-   "beat_id": "b04",
-   "beat_type": "EXPLANATION",
    "pattern": "PROCESS_RAIL",
    "dominant_layer": "ILLUSTRATION",
-   "narration": "As  it  circles  the  Earth,  we  watch  its  face  change.",
+   "narration": "At  noon  the  sun  told  him  how  far  north  he  stood.",
    "energy": 0.55,
    "complexity": 0.5,
    "display_units": [
     {
-     "text": "as it circles the earth",
+     "text": "at noon the sun told him",
      "role": "hero",
      "semantic_role": "action",
      "emphasis": 0.85,
-     "anchor_word": "circles"
+     "anchor_word": "sun"
     },
     {
-     "text": "we watch its face change",
+     "text": "how far north he stood",
      "role": "support",
      "semantic_role": "qualifier",
      "emphasis": 0.5
@@ -372,27 +273,41 @@
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "earth",
+      "id": "sun",
       "kind": "object",
       "glyph": "TILE",
       "size": "hero",
-      "concept": "earth"
+      "concept": "sun"
      },
      {
-      "id": "moon",
+      "id": "wave",
       "kind": "object",
       "glyph": "TILE",
       "size": "support",
-      "concept": "moon"
+      "concept": "wave"
+     },
+     {
+      "id": "boat2",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "boat"
      }
     ],
-    "relations": [],
+    "relations": [
+     {
+      "type": "emits_to",
+      "source": "sun",
+      "target": "boat2",
+      "style": "arc"
+     }
+    ],
     "program": [
      {
       "op": "DRAW",
-      "target": "earth",
+      "target": "sun",
       "at": {
-       "word": "earth"
+       "word": "sun"
       },
       "duration_ms": 700,
       "from": 0.0,
@@ -400,24 +315,24 @@
      },
      {
       "op": "DRAW",
-      "target": "moon",
+      "target": "wave",
       "at": {
-       "word": "it"
+       "word": "north"
       },
-      "duration_ms": 500,
+      "duration_ms": 600,
       "from": 0.0,
       "to": 1.0
      },
      {
       "op": "TRAVEL",
-      "target": "moon",
+      "target": "boat2",
       "at": {
-       "word": "circles"
+       "word": "stood"
       },
-      "duration_ms": 1400,
+      "duration_ms": 1100,
       "params": {
        "over": [
-        "earth"
+        "wave"
        ]
       },
       "from": 0.0,
@@ -426,7 +341,104 @@
     ]
    },
    "page": {
-    "title": "A Changing Face",
+    "title": "The Noon Sun",
+    "layout": "zipped"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day",
+    "elements": [
+     "wave",
+     "boat"
+    ]
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "EXPLANATION",
+   "pattern": "PROCESS_RAIL",
+   "dominant_layer": "ILLUSTRATION",
+   "narration": "At  night  the  stars  turned  into  a  compass.",
+   "energy": 0.5,
+   "complexity": 0.45,
+   "display_units": [
+    {
+     "text": "at night the stars",
+     "role": "hero",
+     "semantic_role": "action",
+     "emphasis": 0.85,
+     "anchor_word": "stars"
+    },
+    {
+     "text": "turned into a compass",
+     "role": "support",
+     "semantic_role": "qualifier",
+     "emphasis": 0.5
+    }
+   ],
+   "backdrop": null,
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "stars",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "stars"
+     },
+     {
+      "id": "compass",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "compass"
+     }
+    ],
+    "relations": [
+     {
+      "type": "transforms_into",
+      "source": "stars",
+      "target": "compass",
+      "style": "arc"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "stars",
+      "at": {
+       "word": "stars"
+      },
+      "duration_ms": 800,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "compass",
+      "at": {
+       "word": "compass"
+      },
+      "duration_ms": 700,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "EMIT",
+      "target": "stars",
+      "at": {
+       "word": "turned"
+      },
+      "duration_ms": 900,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   },
+   "page": {
+    "title": "The Star Compass",
+    "quote": "A map no hand had drawn.",
     "layout": "full"
    },
    "scene": {
@@ -440,24 +452,24 @@
   {
    "beat_id": "b05",
    "beat_type": "EMPHASIS",
-   "pattern": "SEQUENTIAL_SUPPORT_LIST",
+   "pattern": "CONTRAST_RECONFIGURATION",
    "dominant_layer": "ILLUSTRATION",
-   "narration": "Full  moon,  half  moon,  a  sliver  of  light,  still  the  same  moon,",
-   "energy": 0.6,
-   "complexity": 0.55,
+   "narration": "Storms  tried  to  send  him  home:  rain  on  a  slate  dark  sea.",
+   "energy": 0.7,
+   "complexity": 0.6,
    "display_units": [
     {
-     "text": "full moon, half moon, a sliver of light",
+     "text": "storms tried to send him home",
      "role": "hero",
-     "semantic_role": "proof",
-     "emphasis": 0.8,
-     "anchor_word": "sliver"
+     "semantic_role": "contrast",
+     "emphasis": 0.9,
+     "anchor_word": "storms"
     },
     {
-     "text": "still the same moon",
+     "text": "rain on a slate dark sea",
      "role": "support",
-     "semantic_role": "contrast",
-     "emphasis": 0.6
+     "semantic_role": "qualifier",
+     "emphasis": 0.55
     }
    ],
    "backdrop": null,
@@ -465,195 +477,155 @@
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "moon",
+      "id": "storm",
       "kind": "object",
       "glyph": "TILE",
       "size": "hero",
-      "concept": "moon"
+      "concept": "storm"
      },
      {
-      "id": "full",
+      "id": "sea",
       "kind": "object",
       "glyph": "TILE",
       "size": "support",
-      "concept": "full moon"
+      "concept": "wave"
      },
      {
-      "id": "half",
+      "id": "boat3",
       "kind": "object",
       "glyph": "TILE",
       "size": "support",
-      "concept": "half moon"
-     },
-     {
-      "id": "sliver",
-      "kind": "object",
-      "glyph": "TILE",
-      "size": "support",
-      "concept": "crescent moon"
-     },
-     {
-      "id": "same",
-      "kind": "object",
-      "glyph": "TILE",
-      "size": "hero",
-      "concept": "same moon"
+      "concept": "boat"
      }
     ],
     "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "full",
+      "target": "storm",
       "at": {
-       "word": "full"
+       "word": "storms"
       },
       "duration_ms": 700,
       "from": 0.0,
       "to": 1.0
      },
      {
-      "op": "DRAW",
-      "target": "half",
+      "op": "GROW",
+      "target": "sea",
       "at": {
-       "word": "half"
-      },
-      "duration_ms": 950,
-      "from": 0.0,
-      "to": 1.0
-     },
-     {
-      "op": "DRAW",
-      "target": "sliver",
-      "at": {
-       "word": "sliver"
-      },
-      "duration_ms": 900,
-      "from": 0.0,
-      "to": 1.0
-     },
-     {
-      "op": "DRAW",
-      "target": "moon",
-      "at": {
-       "word": "light"
-      },
-      "duration_ms": 900,
-      "from": 0.0,
-      "to": 1.0
-     },
-     {
-      "op": "DRAW",
-      "target": "same",
-      "at": {
-       "word": "same"
+       "word": "rain"
       },
       "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "TRAVEL",
+      "target": "boat3",
+      "at": {
+       "word": "sea"
+      },
+      "duration_ms": 1200,
+      "params": {
+       "over": [
+        "sea"
+       ]
+      },
       "from": 0.0,
       "to": 1.0
      }
     ]
    },
    "page": {
-    "title": "The Phases",
-    "quote": "One moon, many faces.",
-    "layout": "series"
+    "title": "The Slate-Dark Sea",
+    "layout": "scissor"
    },
    "scene": {
     "setting": "outdoor",
-    "mood": "dawn",
+    "mood": "storm",
     "elements": [
-     "hill",
-     "bird"
+     "rain",
+     "wave",
+     "boat"
     ]
    }
   },
   {
    "beat_id": "b06",
    "beat_type": "EMPHASIS",
-   "pattern": "WORD_OBJECT_BRIDGE",
+   "pattern": "HERO_SCALE_PROMOTION",
    "dominant_layer": "ILLUSTRATION",
-   "narration": "two  partners  in  the  sky,  one  makes  the  light,",
+   "narration": "Then  green  rose  on  the  horizon  \u2014  land.",
    "energy": 0.6,
-   "complexity": 0.45,
+   "complexity": 0.4,
    "display_units": [
     {
-     "text": "two partners in the sky",
+     "text": "then green rose",
      "role": "support",
      "semantic_role": "setup",
      "emphasis": 0.5
     },
     {
-     "text": "one makes the light",
+     "text": "land",
      "role": "hero",
      "semantic_role": "statement",
-     "emphasis": 0.85,
-     "anchor_word": "light"
+     "emphasis": 0.95,
+     "anchor_word": "land"
     }
    ],
    "backdrop": null,
    "illustration": {
-    "form": "RELATIONSHIP",
+    "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "sun",
+      "id": "hill",
       "kind": "object",
       "glyph": "TILE",
       "size": "hero",
-      "concept": "sun"
+      "concept": "hill"
      },
      {
-      "id": "moon",
+      "id": "bird",
       "kind": "object",
       "glyph": "TILE",
-      "size": "hero",
-      "concept": "moon"
+      "size": "support",
+      "concept": "bird"
      }
     ],
-    "relations": [
-     {
-      "type": "emits_to",
-      "source": "sun",
-      "target": "moon",
-      "style": "arc"
-     }
-    ],
+    "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "sun",
+      "target": "hill",
       "at": {
-       "word": "partners"
+       "word": "green"
       },
-      "duration_ms": 700,
+      "duration_ms": 800,
       "from": 0.0,
       "to": 1.0
      },
      {
-      "op": "DRAW",
-      "target": "moon",
+      "op": "TRAVEL",
+      "target": "bird",
       "at": {
-       "word": "sky"
-      },
-      "duration_ms": 700,
-      "from": 0.0,
-      "to": 1.0
-     },
-     {
-      "op": "CONNECT",
-      "target": "sun->moon",
-      "at": {
-       "word": "light"
+       "word": "horizon"
       },
       "duration_ms": 900,
+      "params": {
+       "over": [
+        "hill"
+       ]
+      },
       "from": 0.0,
       "to": 1.0
      }
     ]
    },
    "page": {
-    "title": "Two Partners",
-    "layout": "scissor",
+    "title": "Green on the Horizon",
+    "quote": "Land is a colour before it is a place.",
+    "layout": "spot",
     "materials": [
      "ribbon",
      "deckle"
@@ -661,10 +633,10 @@
    },
    "scene": {
     "setting": "outdoor",
-    "mood": "day",
+    "mood": "golden",
     "elements": [
-     "fence",
-     "cloud"
+     "hill",
+     "bird"
     ]
    }
   },
@@ -673,145 +645,123 @@
    "beat_type": "PAYOFF",
    "pattern": "PAYOFF_LOCKUP",
    "dominant_layer": "FIGURE",
-   "narration": "one  carries  it  through  the  dark.",
-   "energy": 0.7,
-   "complexity": 0.4,
+   "narration": "He  crossed  the  whole  world  by  a  map  drawn  in  light.",
+   "energy": 0.35,
+   "complexity": 0.35,
    "display_units": [
     {
-     "text": "one carries it",
+     "text": "he crossed the whole world",
      "role": "support",
      "semantic_role": "setup",
      "emphasis": 0.55
     },
     {
-     "text": "through the dark",
+     "text": "by a map drawn in light",
      "role": "hero",
-     "semantic_role": "punch",
-     "emphasis": 0.95,
-     "anchor_word": "dark"
+     "semantic_role": "statement",
+     "emphasis": 0.9,
+     "anchor_word": "light"
     }
    ],
-   "backdrop": [
-    {
-     "tone": "#161d33",
-     "band": {
-      "top": 0.05,
-      "height": 0.5
-     },
-     "depth": 0.15,
-     "ragged": false,
-     "concept": "cloudy-night"
-    },
-    {
-     "tone": "#e8b98a",
-     "band": {
-      "top": 0.58,
-      "height": 0.18
-     },
-     "depth": 0.5,
-     "ragged": true,
-     "concept": "sun"
-    },
-    {
-     "tone": "ink",
-     "band": {
-      "top": 0.74,
-      "height": 0.26
-     },
-     "depth": 0.8,
-     "ragged": true,
-     "concept": "moon"
-    }
-   ],
+   "backdrop": null,
    "figure": {
-    "valence": 0.6,
-    "arousal": 0.55,
+    "valence": 0.5,
+    "arousal": 0.3,
     "posture": "standing",
-    "energy": 0.5,
-    "formality": 0.5,
+    "energy": 0.45,
+    "formality": 0.4,
     "facing": "CAMERA",
-    "justification": "the astronomer carries the light through the dark \u2014 the payoff he watched all film",
-    "character": "astronomer",
+    "justification": "the sailor walks off carrying the map \u2014 the voyage won",
+    "character": "sailor",
     "track": {
      "enter": "none",
      "exit": "right"
     },
     "prop": {
-     "concept": "star",
+     "concept": "map",
      "hand": "auto"
     },
     "states": [
      {
       "at": {
-       "offset_ms": 258
+       "offset_ms": 800
       },
       "face": "loving-grin-2"
      },
      {
       "at": {
-       "offset_ms": 1238
+       "offset_ms": 1400
       },
-      "face": "cheeky"
+      "pose": "standing-easing-1",
+      "face": "awe"
      }
     ],
     "face": "calm",
     "motion": {
      "chain": [
       {
-       "clip": "NEX_GESTURE_PRESENT",
-       "seconds": 2.0
+       "clip": "CMU_WAIT_IDLE",
+       "seconds": 1.6
       },
       {
        "clip": "CMU_WALK",
-       "seconds": 1.4
+       "seconds": 1.6
       }
      ],
-     "loop": false,
      "look": {
-      "skin": "#98603c",
+      "skin": "#8a5a3b",
       "hair": {
-       "color": "#1c1712",
-       "style": "bun"
+       "color": "#231a12",
+       "style": "coils"
       },
       "head": {
-       "kind": "kufi",
-       "color": "#3d4a6b",
-       "trimColor": "#d8c48a"
+       "kind": "cap",
+       "color": "#d84f35",
+       "trimColor": "#f2e8d0"
       },
       "top": {
-       "color": "#3d4a6b",
-       "garment": "robe"
+       "color": "#e8e0cc",
+       "garment": "shirt"
       },
       "bottom": {
-       "color": "#2c2f45",
+       "color": "#23415c",
        "garment": "trousers"
       },
       "shoes": {
-       "color": "#241f18"
+       "color": "#3a2c20"
       },
-      "ink": "#2a2f42"
+      "ink": "#23415c"
      }
-    }
+    },
+    "pose": "standing-walking-3"
    },
    "page": {
-    "title": "Carried Through the Dark",
-    "quote": "The dark is carried, not feared.",
-    "layout": "vignette"
+    "title": "A Map Drawn in Light",
+    "quote": "The dark was his road, not his fear.",
+    "layout": "vignette",
+    "cut": "right"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dusk",
+    "elements": [
+     "star"
+    ]
    }
   }
  ],
  "cast": {
-  "astronomer": {
+  "sailor": {
    "posture": "standing",
    "head": "flat-top",
-   "skin": "#7a4f2e",
-   "garment": "hoodie"
+   "skin": "#8a5a3b",
+   "garment": "shirt"
   }
  },
  "world": {
   "grain": "grain-fine",
   "motif": {
-   "concept": "star",
+   "concept": "compass",
    "corner": "top-right"
   },
   "book": "paperbook"

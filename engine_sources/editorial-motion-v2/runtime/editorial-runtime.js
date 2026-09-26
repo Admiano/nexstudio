@@ -1810,9 +1810,15 @@
       { s: 'blob', cx: 50, cy: 50, r: 3, tone: 'blush', edge: 0 },
     ],
     compass: [
-      { s: 'blob', cx: 50, cy: 50, r: 30, tone: 'paper' },
-      { s: 'path', pts: [[50, 30], [56, 50], [50, 70], [44, 50]], tone: 'blush', edge: 0 },
-      { s: 'blob', cx: 50, cy: 50, r: 4, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 32, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 28, tone: 'paper', edge: 0 },
+      { s: 'rect', x: 48.4, y: 23, w: 3.2, h: 9, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 48.4, y: 68, w: 3.2, h: 9, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 23, y: 48.4, w: 9, h: 3.2, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 68, y: 48.4, w: 9, h: 3.2, tone: 'ink', edge: 0 },
+      { s: 'path', pts: [[50, 30], [55.5, 50], [50, 52], [44.5, 50]], tone: 'blush', edge: 0 },
+      { s: 'path', pts: [[50, 70], [55.5, 50], [50, 48], [44.5, 50]], tone: 'slate', edge: 0 },
+      { s: 'blob', cx: 50, cy: 50, r: 3.4, tone: 'ink', edge: 0 },
     ],
     letter: [
       { s: 'rect', x: 20, y: 32, w: 60, h: 40, tone: 'paper' },
@@ -4177,6 +4183,13 @@
       slotClip = `polygon(${a.map(([px2, py2]) => `${f2(px2 * 100)}% ${f2(py2 * 100)}%`).join(',')})`;
       divider = { kind: 'diag', pts: a, rect: slotRect };
       colRect = { x: pad, y: ph * 0.72, w: pw - pad * 2 };
+    } else if (layout === 'series') {
+      // The sequence page: a strip of framed panels, one subject per cell with
+      // torn paper gutters between them — phases, steps, before/afters.
+      slotRect = { x: pad * 0.5, y: ph * 0.13, w: pw - pad, h: ph * 0.44 };
+      const nCells = Math.max(2, Math.min(5, ((((bn.beat || {}).illustration || {}).entities || []).length) || 3));
+      divider = { kind: 'series', n: nCells, seed: seedHash(`pbser:${plan.film_id}:${i}`), rect: slotRect };
+      colRect = { x: pad, y: ph * 0.62, w: pw - pad * 2 };
     } else if (layout === 'zipped' || layout === 'scissor') {
       const cutY = ph * 0.56;
       slotRect = { x: pad * 0.4, y: ph * 0.055, w: pw - pad * 0.8, h: cutY - ph * 0.055 };
@@ -4266,6 +4279,19 @@
         const x1 = p1[0] * slotRect.w, y1 = p1[1] * slotRect.h, x2 = p2[0] * slotRect.w, y2 = p2[1] * slotRect.h;
         svgEl('path', { d: `M${f2(x1)} ${f2(y1)} L${f2(x2)} ${f2(y2)}`, stroke: mixColor(paper, '#ffffff', 0.7), 'stroke-width': f2(ph * 0.012), 'stroke-linecap': 'round' }, dEl);
         svgEl('path', { d: `M${f2(x1)} ${f2(y1)} L${f2(x2)} ${f2(y2)}`, stroke: rgbaOf(ink, 0.25), 'stroke-width': f2(ph * 0.003), 'stroke-linecap': 'round' }, dEl);
+      } else if (divider.kind === 'series') {
+        // Torn gutters between the sequence panels — raw stock showing where the
+        // strip was cut, with the faint ink line a printed panel border leaves.
+        Object.assign(dEl.style, { position: 'absolute', left: px(slotRect.x), top: px(slotRect.y), width: px(slotRect.w), height: px(slotRect.h), pointerEvents: 'none', overflow: 'visible' });
+        dEl.setAttribute('viewBox', `0 0 ${slotRect.w} ${slotRect.h}`);
+        const dr = rng(divider.seed ^ 0x55);
+        for (let g = 1; g < divider.n; g++) {
+          const gx = (g / divider.n) * slotRect.w;
+          let gp = `M${f2(gx)} 0 `;
+          for (let s2 = 1; s2 <= 7; s2++) gp += `L${f2(gx + (dr() - 0.5) * slotRect.w * 0.014)} ${f2((s2 / 7) * slotRect.h)} `;
+          svgEl('path', { d: gp, fill: 'none', stroke: mixColor(paper, '#ffffff', 0.82), 'stroke-width': f2(ph * 0.016), 'stroke-linejoin': 'round' }, dEl);
+          svgEl('path', { d: gp, fill: 'none', stroke: rgbaOf(ink, 0.22), 'stroke-width': f2(ph * 0.0032), 'stroke-linejoin': 'round' }, dEl);
+        }
       } else {
         Object.assign(dEl.style, { position: 'absolute', left: px(slotRect.x), top: px(divider.y - dh * 0.5), width: px(slotRect.w), height: px(dh), pointerEvents: 'none', overflow: 'visible' });
         const dr = rng(divider.seed ^ 0x33);
@@ -4368,8 +4394,27 @@
     el('div', { position: 'absolute', inset: '0', backgroundImage: speckleUrl, opacity: '0.9' }, face);
     pbOrnamentArc(face, rect, plan);
     if (side === 'right') {
-      // The book always closes on words: the last right page is the colophon.
+      // The book always closes on words: the last right page is the colophon,
+      // printed on a marbled endpaper — suminagashi ink rings dragged into swirls.
       const ink2 = plan.brand.ink;
+      const acc = plan.brand.accent || ink2;
+      const mSvg = svgEl('svg', { viewBox: `0 0 ${rect.w} ${rect.h}` }, face);
+      Object.assign(mSvg.style, { position: 'absolute', left: '0', top: '0', width: px(rect.w), height: px(rect.h), pointerEvents: 'none' });
+      const mr = rng(seedHash(`marble:${plan.film_id}`));
+      for (let ring = 0; ring < 7; ring++) {
+        const cx = rect.w * (0.22 + mr() * 0.56), cy = rect.h * (0.20 + mr() * 0.56);
+        const base = rect.w * (0.05 + ring * 0.016);
+        const col = ring % 3 === 2 ? acc : ink2;
+        const op = ring % 3 === 2 ? 0.10 : 0.07;
+        let d = '';
+        for (let a = 0; a <= 32; a++) {
+          const t = (a / 32) * Math.PI * 2;
+          const wob = base * (1 + 0.22 * Math.sin(t * 3 + ring) + (mr() - 0.5) * 0.10);
+          const x = cx + Math.cos(t) * wob, y = cy + Math.sin(t) * wob * 0.62;
+          d += (a === 0 ? 'M' : 'L') + `${f2(x)} ${f2(y)} `;
+        }
+        svgEl('path', { d: d + 'Z', fill: 'none', stroke: rgbaOf(col, op), 'stroke-width': f2(rect.w * 0.006) }, mSvg);
+      }
       const fin = el('div', {
         position: 'absolute', left: '0', right: '0', top: px(rect.h * 0.42), textAlign: 'center',
         fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(rect.w * 0.075), letterSpacing: '0.04em',

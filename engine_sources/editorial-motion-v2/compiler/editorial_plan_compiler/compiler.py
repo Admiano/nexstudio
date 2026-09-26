@@ -13,6 +13,8 @@ import json
 import random
 from dataclasses import asdict, replace
 from pathlib import Path
+
+from PIL import Image
 from typing import Any, Dict, List, Optional, Tuple
 
 from .authorities import editorial_motion_ensemble_director_v1 as ens
@@ -25,6 +27,7 @@ from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX
 from .groove import fit_phase, groove_stagger
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
 from .bankart import BankArt
+from .papercut import papercut_image, tonal_ramp
 from .evidence import PhotoEvidence
 from .lexicon import AssetFinder, NounLexicon, Resolution
 from .media import NormalisedMedia, normalise_media
@@ -201,6 +204,7 @@ def _pb_slot_crop(layout: str, W: int, H: int) -> Dict[str, float]:
         'diagonal': (pw - pad * 0.8, ph * 0.78),
         'zipped': (pw - pad * 0.8, ph * 0.505),
         'scissor': (pw - pad * 0.8, ph * 0.505),
+        'series': (pw - pad, ph * 0.44),
         'half': (pw - pad * 2.15, ph * 0.46),
     }
     sw, sh = slots.get(layout, slots['half'])
@@ -327,13 +331,33 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
     # Marks compose the scene itself when there is no bank art: the biggest subject
     # anchors center-low, satellites spread across thirds like a staged diorama. With
     # artwork mounted they stay as small accents clamped inside the crop.
-    if marks and not photos:
+    if marks and not photos and pg.get('layout') == 'series':
+        # The picture-book sequence page: one framed panel per subject across the
+        # plate — phases of a moon, steps of a process — gutters between, prose below.
+        order = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
+        n_cells = max(2, min(5, len(order)))
+        cw = vw / n_cells
+        for i, e in enumerate(order):
+            cell_no = min(i, n_cells - 1)
+            share = 1.0 if i < n_cells else 0.6
+            offx = 0.0 if i < n_cells else cw * 0.34
+            offy = 0.0 if i < n_cells else vh * 0.30
+            ab = e['art_bbox']
+            ar = ab['w'] / ab['h'] if ab['h'] else 1.0
+            cell = _box(vx + cell_no * cw + cw * 0.07 + offx, vy + vh * 0.10 + offy,
+                        cw * 0.86 * share, vh * 0.72 * share)
+            put(e, _fit_aspect(cell, ar))
+    elif marks and not photos:
         order = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
         anchors = [(0.50, 0.62, 0.52), (0.24, 0.38, 0.34), (0.76, 0.34, 0.32),
                    (0.20, 0.72, 0.28), (0.80, 0.70, 0.26), (0.50, 0.22, 0.24)]
         for i, e in enumerate(order):
             ax, ay, hf = anchors[i % len(anchors)]
             ab = e['art_bbox']
+            # Synthesised supports are garnish, not the subject — they stay small
+            # so an authored hero never loses the plate to a decoration.
+            if (e.get('params') or {}).get('resolution', {}).get('via') == 'support':
+                hf = min(hf, 0.36)
             s = min(2.6, (vh * hf) / max(1.0, ab['h']))
             nw2, nh2 = ab['w'] * s, ab['h'] * s
             box = _box(vx + ax * vw - nw2 / 2, vy + ay * vh - nh2 / 2, nw2, nh2)
@@ -1462,7 +1486,7 @@ def _backdrop_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], 
     return out
 
 
-def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> List[str]:
+def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_dir: Optional[Path] = None) -> List[str]:
     """Turn every entity `concept` into an asset_ref and/or a typeset word before any aspect is
     solved, so all aspects draw the same answer. The ladder is pinned to the film's colour pack:
     authored marks set it, otherwise the first pass's most common pack does. Returns film-level
@@ -1505,7 +1529,21 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry) -> Li
                 if brec is not None:
                     word = None if (named or e.glyph == 'BADGE') else e.concept
                     r = Resolution(e.concept, 'bank', asset_ref=None, word=word, path=[e.concept, brec['desc']])
-                    e.params['photo'] = bankart.as_plan(brec)
+                    plan = bankart.as_plan(brec)
+                    if work_dir is not None:
+                        # Papercut-ify (onionsvg/cutter principle): the imported plate is
+                        # re-printed in the film's own inks — quantized then remapped to the
+                        # brand ramp — so it reads as page illustration, not pasted photo.
+                        ramp = tonal_ramp(film.brand.paper, film.brand.ink, film.brand.accent or '#b8263b')
+                        dest = work_dir / 'papercut' / f"{brec['id'].replace('/', '_').replace(':', '_')}.png"
+                        if not dest.exists():
+                            papercut_image(plan['path'], str(dest), ramp)
+                        drec = {'path': str(dest), 'sha256': _sha_file(dest), 'source_size': None}
+                        with Image.open(dest) as dim:
+                            drec['source_size'] = {'w': dim.width, 'h': dim.height}
+                        plan.update(drec)
+                        plan['papercut_of'] = brec['id']
+                    e.params['photo'] = plan
                     rec = None
             if rec is not None:
                 word = None if (named or e.glyph == 'BADGE') else e.concept
@@ -1746,7 +1784,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     lib = SoundLibrary(root) if root else None
     plans: Dict[str, Any] = {}
     registry = IllustrationRegistry()
-    film_warnings: List[str] = _resolve_concepts(film, registry)
+    film_warnings: List[str] = _resolve_concepts(film, registry, work_dir)
     film_failures: List[str] = _asset_pack_mix(film, registry)
     atmosphere = film_atmosphere(asdict(film.brand))
     film_failures += brand_failures(atmosphere)

@@ -306,6 +306,39 @@
     3072
    ]
   },
+  "boat": {
+   "concept": "boat",
+   "query": "boat",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "32768767",
+   "title": "File:Boats in Chacachacare 2.jpg",
+   "creator": "Wilfredor",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Boats_in_Chacachacare_2.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Boats_in_Chacachacare_2.jpg/1920px-Boats_in_Chacachacare_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "boat.d8feff9abaf4.jpg",
+   "sha256": "014d4ebbfddb9f32bce062816fc247a3ffb299c4cb0c6a062b76ce66b38cf61e",
+   "width": 1400,
+   "height": 824,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "May 2014",
+    "Wikiviajes por Venezuela 2014",
+    "Images of Venezuela by User:Wilfredor",
+    "Photographs of Isla Margarita by Wilfredor",
+    "Boats of Margarita Island by Wilfredor",
+    "Chacachacare (Margarita Island)",
+    "Boats by Wilfredor",
+    "Boats in Margarita Island"
+   ],
+   "year": 2014,
+   "source_size": [
+    4224,
+    2487
+   ]
+  },
   "brain": {
    "concept": "brain",
    "query": "brain",
@@ -1229,6 +1262,32 @@
    "subjects": [],
    "year": null,
    "source_size": []
+  },
+  "hill": {
+   "concept": "hill",
+   "query": "hill",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "193495538",
+   "title": "File:View of hills through a car window.jpg",
+   "creator": "C.M.B.",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:View_of_hills_through_a_car_window.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/View_of_hills_through_a_car_window.jpg/1920px-View_of_hills_through_a_car_window.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "hill.bfbe41303f3d.jpg",
+   "sha256": "91bf197911d0cf03097ffb713512a07575c68e9a48977df4c410e96b501a8484",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Hill"
+   ],
+   "year": 2026,
+   "source_size": [
+    3648,
+    2432
+   ]
   },
   "hospital": {
    "concept": "hospital",

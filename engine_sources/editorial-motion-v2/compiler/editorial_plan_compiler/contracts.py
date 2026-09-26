@@ -74,7 +74,7 @@ SCENE_MOODS = ('day', 'dawn', 'dusk', 'night', 'storm', 'golden')
 SCENE_ELEMENT_CAP = 8
 # Page layout grammar: how the paperbook page carries its print and its plate —
 # the four classic illustration types plus the cut family.
-PAGE_LAYOUTS = ('half', 'full', 'diagonal', 'zipped', 'scissor', 'vignette', 'spot')
+PAGE_LAYOUTS = ('half', 'full', 'diagonal', 'zipped', 'scissor', 'vignette', 'spot', 'series')
 PAGE_CUTS = ('left', 'right', 'top', 'bottom')
 # Material drops: modern paper-book materials layered onto the page.
 PAGE_MATERIALS = ('vellum', 'foil', 'ribbon', 'deckle', 'sticker')

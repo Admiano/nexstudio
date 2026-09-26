@@ -1,0 +1,364 @@
+{
+ "words": [
+  {
+   "text": " Before",
+   "start_ms": 0,
+   "end_ms": 480
+  },
+  {
+   "text": " engines",
+   "start_ms": 480,
+   "end_ms": 1000
+  },
+  {
+   "text": " and",
+   "start_ms": 1000,
+   "end_ms": 1280
+  },
+  {
+   "text": " satellites,",
+   "start_ms": 1280,
+   "end_ms": 1720
+  },
+  {
+   "text": " the",
+   "start_ms": 2360,
+   "end_ms": 2400
+  },
+  {
+   "text": " ocean",
+   "start_ms": 2400,
+   "end_ms": 2760
+  },
+  {
+   "text": " was",
+   "start_ms": 2760,
+   "end_ms": 3160
+  },
+  {
+   "text": " the",
+   "start_ms": 3160,
+   "end_ms": 3320
+  },
+  {
+   "text": " widest",
+   "start_ms": 3320,
+   "end_ms": 3760
+  },
+  {
+   "text": " road",
+   "start_ms": 3760,
+   "end_ms": 4120
+  },
+  {
+   "text": " on",
+   "start_ms": 4120,
+   "end_ms": 4360
+  },
+  {
+   "text": " Earth.",
+   "start_ms": 4360,
+   "end_ms": 4720
+  },
+  {
+   "text": " A",
+   "start_ms": 5560,
+   "end_ms": 5760
+  },
+  {
+   "text": " sailor",
+   "start_ms": 5760,
+   "end_ms": 6160
+  },
+  {
+   "text": " steps",
+   "start_ms": 6160,
+   "end_ms": 6380
+  },
+  {
+   "text": " aboard",
+   "start_ms": 6380,
+   "end_ms": 6860
+  },
+  {
+   "text": " with",
+   "start_ms": 6860,
+   "end_ms": 7100
+  },
+  {
+   "text": " nothing",
+   "start_ms": 7100,
+   "end_ms": 7400
+  },
+  {
+   "text": " but",
+   "start_ms": 7400,
+   "end_ms": 7980
+  },
+  {
+   "text": " the",
+   "start_ms": 7980,
+   "end_ms": 8100
+  },
+  {
+   "text": " sky",
+   "start_ms": 8100,
+   "end_ms": 8420
+  },
+  {
+   "text": " for",
+   "start_ms": 8420,
+   "end_ms": 8680
+  },
+  {
+   "text": " company.",
+   "start_ms": 8680,
+   "end_ms": 9080
+  },
+  {
+   "text": " At",
+   "start_ms": 9960,
+   "end_ms": 10180
+  },
+  {
+   "text": " noon,",
+   "start_ms": 10180,
+   "end_ms": 10460
+  },
+  {
+   "text": " the",
+   "start_ms": 10820,
+   "end_ms": 10900
+  },
+  {
+   "text": " sun",
+   "start_ms": 10900,
+   "end_ms": 11120
+  },
+  {
+   "text": " told",
+   "start_ms": 11120,
+   "end_ms": 11400
+  },
+  {
+   "text": " him",
+   "start_ms": 11400,
+   "end_ms": 11600
+  },
+  {
+   "text": " how",
+   "start_ms": 11600,
+   "end_ms": 11940
+  },
+  {
+   "text": " far",
+   "start_ms": 11940,
+   "end_ms": 12240
+  },
+  {
+   "text": " north",
+   "start_ms": 12240,
+   "end_ms": 12480
+  },
+  {
+   "text": " he",
+   "start_ms": 12480,
+   "end_ms": 12700
+  },
+  {
+   "text": " stood.",
+   "start_ms": 12700,
+   "end_ms": 12980
+  },
+  {
+   "text": " At",
+   "start_ms": 13940,
+   "end_ms": 14080
+  },
+  {
+   "text": " night,",
+   "start_ms": 14080,
+   "end_ms": 14340
+  },
+  {
+   "text": " the",
+   "start_ms": 14560,
+   "end_ms": 14660
+  },
+  {
+   "text": " stars",
+   "start_ms": 14660,
+   "end_ms": 15000
+  },
+  {
+   "text": " turned",
+   "start_ms": 15000,
+   "end_ms": 15380
+  },
+  {
+   "text": " into",
+   "start_ms": 15380,
+   "end_ms": 15680
+  },
+  {
+   "text": " a",
+   "start_ms": 15680,
+   "end_ms": 15840
+  },
+  {
+   "text": " compass.",
+   "start_ms": 15840,
+   "end_ms": 16100
+  },
+  {
+   "text": " Storms",
+   "start_ms": 17240,
+   "end_ms": 17700
+  },
+  {
+   "text": " tried",
+   "start_ms": 17700,
+   "end_ms": 17900
+  },
+  {
+   "text": " to",
+   "start_ms": 17900,
+   "end_ms": 18080
+  },
+  {
+   "text": " send",
+   "start_ms": 18080,
+   "end_ms": 18300
+  },
+  {
+   "text": " him",
+   "start_ms": 18300,
+   "end_ms": 18460
+  },
+  {
+   "text": " home,",
+   "start_ms": 18460,
+   "end_ms": 18800
+  },
+  {
+   "text": " rain",
+   "start_ms": 19260,
+   "end_ms": 19440
+  },
+  {
+   "text": " on",
+   "start_ms": 19440,
+   "end_ms": 19640
+  },
+  {
+   "text": " a",
+   "start_ms": 19640,
+   "end_ms": 19780
+  },
+  {
+   "text": " slate",
+   "start_ms": 19780,
+   "end_ms": 19960
+  },
+  {
+   "text": " dark",
+   "start_ms": 19960,
+   "end_ms": 20320
+  },
+  {
+   "text": " sea.",
+   "start_ms": 20320,
+   "end_ms": 20620
+  },
+  {
+   "text": " Then",
+   "start_ms": 21580,
+   "end_ms": 21780
+  },
+  {
+   "text": " green",
+   "start_ms": 21780,
+   "end_ms": 22080
+  },
+  {
+   "text": " rose",
+   "start_ms": 22080,
+   "end_ms": 22580
+  },
+  {
+   "text": " on",
+   "start_ms": 22580,
+   "end_ms": 22940
+  },
+  {
+   "text": " the",
+   "start_ms": 22940,
+   "end_ms": 23040
+  },
+  {
+   "text": " horizon",
+   "start_ms": 23040,
+   "end_ms": 23500
+  },
+  {
+   "text": " land.",
+   "start_ms": 23500,
+   "end_ms": 24080
+  },
+  {
+   "text": " He",
+   "start_ms": 25080,
+   "end_ms": 25220
+  },
+  {
+   "text": " crossed",
+   "start_ms": 25220,
+   "end_ms": 25460
+  },
+  {
+   "text": " the",
+   "start_ms": 25460,
+   "end_ms": 25660
+  },
+  {
+   "text": " whole",
+   "start_ms": 25660,
+   "end_ms": 25840
+  },
+  {
+   "text": " world",
+   "start_ms": 25840,
+   "end_ms": 26280
+  },
+  {
+   "text": " by",
+   "start_ms": 26280,
+   "end_ms": 26680
+  },
+  {
+   "text": " a",
+   "start_ms": 26680,
+   "end_ms": 26820
+  },
+  {
+   "text": " map",
+   "start_ms": 26820,
+   "end_ms": 27100
+  },
+  {
+   "text": " drawn",
+   "start_ms": 27100,
+   "end_ms": 27500
+  },
+  {
+   "text": " in",
+   "start_ms": 27500,
+   "end_ms": 27720
+  },
+  {
+   "text": " light.",
+   "start_ms": 27720,
+   "end_ms": 28000
+  }
+ ]
+}
