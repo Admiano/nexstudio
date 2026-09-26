@@ -594,13 +594,14 @@ def _sparkle_strokes():
 # ---------------------------------------------------------------------------
 
 def _taper_profile(i: int, n: int) -> float:
-    """Marker-tip width profile: ramps in fast, rides full, eases to a taper."""
+    """Marker-tip width profile: ramps in fast, swells mid, tapers out."""
     if n < 4:
         return 1.0
     t = i / (n - 1)
-    ramp_in = min(1.0, t / 0.10)
-    ramp_out = min(1.0, (1 - t) / 0.22)
-    return max(0.28, min(ramp_in, ramp_out))
+    ramp_in = min(1.0, t / 0.08)
+    ramp_out = min(1.0, (1 - t) / 0.26)
+    swell = 1.0 + 0.10 * math.sin(t * math.pi)
+    return max(0.20, min(ramp_in, ramp_out) * swell)
 
 
 def _taper_line(layer, pts, color, width, seed, rough=.3, p=1.0):
@@ -2109,6 +2110,10 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
         p = wbp._clamp(progress * n - j)
         if p <= 0:
             break
+        # marker pressure varies stroke to stroke — same ink, never a
+        # mechanical uniform width
+        wj = 1.0 + (((seed + j * 7919) % 977) / 977.0 - 0.5) * 0.22
+        lwj = lw * wj
         if absolute:
             pts_b = pts
         else:
@@ -2126,7 +2131,7 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             op = wbp._clamp(p / 0.38)
             if op > 0:
                 closed = pts_s if pts_s[0] == pts_s[-1] else pts_s + [pts_s[0]]
-                t = _taper_line(layer, closed, colors[col], lw * wscale,
+                t = _taper_line(layer, closed, colors[col], lwj * wscale,
                                 seed + j * 13, .26, op)
                 if 0 < op < 1:
                     tip = t
@@ -2159,7 +2164,7 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
                               and not isinstance(fill, bool) else 0.075)
             hcol = colors[_HATCH_COLOR.get(col, col)]
             hcol = (hcol[0], hcol[1], hcol[2], min(215, hcol[3]))
-            hw = max(1.4, lw * 0.42)
+            hw = max(1.4, lwj * 0.42)
             m = len(segs)
             for k, seg in enumerate(segs):
                 sp = wbp._clamp(hp * m - k)
@@ -2176,7 +2181,7 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             if hp < 1 and not tip:
                 tip = None
             continue
-        t = _taper_line(layer, pts_s, colors[col], lw * wscale, seed + j * 13,
+        t = _taper_line(layer, pts_s, colors[col], lwj * wscale, seed + j * 13,
                         .26, p)
         if 0 < p < 1:
             tip = t

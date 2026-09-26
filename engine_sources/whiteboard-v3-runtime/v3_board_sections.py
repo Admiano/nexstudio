@@ -759,38 +759,56 @@ def _build(plan, ratio):
             flip = (person and sx > rcx and
                     not any((g[4] or {}).get('facing', 1) < 0
                             for g, _s, _e in it['groups']))
+            # organic tilt: art sits at a slight random angle (the
+            # reference's hand-placed look); text stays level for legibility
+            tang = (((uid * 2654435761) % 1000) / 1000 - 0.5) * 0.06
+            tca, tsa = math.cos(tang), math.sin(tang)
+
+            def _tilt(x, y):
+                return (sx + (x - sx) * tca - (y - sy) * tsa,
+                        sy + (x - sx) * tsa + (y - sy) * tca)
             for g, s, e in it['groups']:
                 kind, strokes, center, size, slot = g
                 # captions/labels stay unmirrored — text must read left->right
                 gflip = flip and kind not in ('caption', 'plabel')
+                tilt = kind not in ('caption', 'plabel')
                 st2 = []
                 for st in strokes:
                     if len(st) > 4 and st[4]:
                         st2.append((
-                            [(sx + ((bcx - px_) if gflip
-                                    else (px_ - bcx)) * bo2,
-                              sy + (py_ - bcy) * bo2)
+                            [(_tilt(sx + ((bcx - px_) if gflip
+                                          else (px_ - bcx)) * bo2,
+                                    sy + (py_ - bcy) * bo2)
+                              if tilt else
+                              (sx + ((bcx - px_) if gflip
+                                     else (px_ - bcx)) * bo2,
+                               sy + (py_ - bcy) * bo2))
                              for px_, py_ in st[0]],) + tuple(st[1:]))
                     elif gflip:
-                        st2.append((([( -q[0], q[1])
+                        st2.append((([(-q[0], q[1])
                                       if len(q) > 1 else q
                                       for q in st[0]]),) + tuple(st[1:]))
                     else:
                         st2.append(st)
-                moved.append(((kind, _remap_strokes(st2),
-                               (sx + ((bcx - center[0]) if gflip
-                                      else (center[0] - bcx)) * bo2,
-                                sy + (center[1] - bcy) * bo2),
+                mc = (sx + ((bcx - center[0]) if gflip
+                            else (center[0] - bcx)) * bo2,
+                      sy + (center[1] - bcy) * bo2)
+                if tilt:
+                    mc = _tilt(*mc)
+                moved.append(((kind, _remap_strokes(st2), mc,
                                size * bo2, slot), s, e))
             it['groups'] = moved
-            # the element inks across its slice of the beat, after the title
+            # the element inks across its slice of the beat, after the
+            # title — paused tail: drawing uses ~85% of the slot so the hand
+            # breathes between elements like the reference's pacing
             it0 = t0 + lead + j * slot_dur
             it1 = it0 + slot_dur
+            itd = it0 + slot_dur * 0.85
             it['groups'] = [
                 (g, it0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[0]
-                    * (it1 - it0),
+                    * (itd - it0),
                  it0 + _SLICE_SPAN.get(g[0], (0.0, 1.0))[1]
-                    * (it1 - it0))
+                    * (itd - it0))
                 for g, _s, _e in it['groups']]
             it['t_window'] = (it0, it1)
             it['kind'] = 'elem'
@@ -876,6 +894,41 @@ def _build(plan, ratio):
                     i0_ + (i1_ - i0_) * 0.86,
                     i0_ + (i1_ - i0_) * 1.06))
                 arrows += 1
+        # gap-fill: sparse regions get a sparkle doodle in their emptiest
+        # corner — the reference never leaves dead zones
+        doodles = []
+        if k:
+            occ = 0.0
+            for it in placed:
+                if it is not None and it.get('bounds2'):
+                    b = it['bounds2']
+                    occ += max(0.0, b[2] - b[0]) * max(0.0, b[3] - b[1])
+            for strip in fm_bounds.values():
+                occ += (strip[2] - strip[0]) * (strip[3] - strip[1]) * 0.4
+            if occ < cw * ch * 0.38:
+                corners = [(cx0 + cw * 0.13, cy0 + ch * 0.14),
+                           (cx0 + cw * 0.87, cy0 + ch * 0.14),
+                           (cx0 + cw * 0.13, cy0 + ch * 0.86),
+                           (cx0 + cw * 0.87, cy0 + ch * 0.86)]
+
+                def _far(pt):
+                    d = 1e9
+                    for ob in placed_bounds:
+                        ocx, ocy = (ob[0] + ob[2]) / 2, (ob[1] + ob[3]) / 2
+                        d = min(d, math.hypot(pt[0] - ocx, pt[1] - ocy))
+                    return d
+                spot = max(corners, key=_far)
+                s_ = rh * 0.05
+                uid += 1
+                ds, de = t0 + dur * 0.80, t0 + dur * 0.97
+                doodles.append({
+                    'groups': [(('marks', _sparkle(spot, s_), (0, 0), 1.0,
+                                 None), ds, de)],
+                    'bounds2': (spot[0] - s_, spot[1] - s_,
+                                spot[0] + s_, spot[1] + s_),
+                    'uid': uid, 'fade': None, 'kind': 'elem',
+                    't_window': (ds, de)})
+                placed_bounds.append(doodles[-1]['bounds2'])
         # a figure beat with no person slot still stages the figure — park
         # it on the region's edge strip rather than dropping it entirely
         for fkey in ('fm', 'fm2'):
@@ -888,7 +941,7 @@ def _build(plan, ratio):
                 placed_bounds.append(strip)
             sec[fkey] = {'bounds2': strip, 't0': slot_dur * 0.15,
                          'facing': 1}
-        sec['items2'] = [it for it in placed if it is not None]
+        sec['items2'] = [it for it in placed if it is not None] + doodles
 
     out_sections = sections
     all_items = [it for sec in out_sections for it in sec['items2']]
@@ -928,6 +981,63 @@ def _build(plan, ratio):
             'total_beats_end': total_beats_end}
     cache[ratio] = flow
     return flow
+
+
+def _sparkle(c, s):
+    """4-point star doodle in world space."""
+    pts = [(c[0], c[1] - s), (c[0] + s * 0.3, c[1] - s * 0.3),
+           (c[0] + s, c[1]), (c[0] + s * 0.3, c[1] + s * 0.3),
+           (c[0], c[1] + s), (c[0] - s * 0.3, c[1] + s * 0.3),
+           (c[0] - s, c[1]), (c[0] - s * 0.3, c[1] - s * 0.3),
+           (c[0], c[1] - s)]
+    return [(pts, 'a_yellow', 1.0, False, True)]
+
+
+def _travel_tip(flow, ratio, cam, zoom, t):
+    """Between draw actions the hand glides to the next element's start —
+    the reference's visible hand travel instead of a teleport."""
+    segs = []
+
+    def _wpt(g, st, idx):
+        q = st[0][idx]
+        if len(st) > 4 and st[4]:
+            return q
+        return (g[2][0] + q[0] * g[3], g[2][1] + q[1] * g[3])
+
+    def _add(groups):
+        for g, s, e in groups:
+            if s is None or e is None:
+                continue
+            sts = [st for st in g[1] if st and st[0]]
+            if not sts:
+                continue
+            segs.append((s, e, _wpt(g, sts[0], 0), _wpt(g, sts[-1], -1)))
+    _add(flow['title_item']['groups'])
+    for it in flow['items']:
+        _add(it['groups'])
+    for g, s, e in flow['dividers']:
+        if s is not None and g[1]:
+            segs.append((s, s + 0.9, g[1][0][0][0], g[1][0][0][-1]))
+    for sec in flow['sections']:
+        if sec.get('title_st') and sec.get('t_window'):
+            st_ = sec['title_st']
+            segs.append((sec['t_window'][0], sec['t_window'][0] + 1.1,
+                         st_[0][0][0], st_[-1][0][-1]))
+    prev, nxt = None, None
+    for s, e, p0, p1 in segs:
+        if e <= t and (prev is None or e > prev[0]):
+            prev = (e, p1)
+        if s > t and (nxt is None or s < nxt[0]):
+            nxt = (s, p0)
+    if nxt is None:
+        return None
+    if prev is None or prev[0] >= nxt[0]:
+        tip_w = nxt[1]
+    else:
+        f = wbp._ease(wbp._clamp((t - prev[0]) / max(0.05, nxt[0] - prev[0])))
+        tip_w = (prev[1][0] + (nxt[1][0] - prev[1][0]) * f,
+                 prev[1][1] + (nxt[1][1] - prev[1][1]) * f)
+    return wbp._map_point(tip_w, cam, ratio, zoom)
 
 
 def _camera_at(flow, ratio, t):
@@ -1108,6 +1218,8 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                 tip = t2
         if drew:
             frame.paste(tlayer, (0, 0), tlayer)
+        if tip is None:
+            tip = _travel_tip(flow, ratio, cam, zoom, t)
         return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed),
                          ratio)
 
@@ -1166,4 +1278,6 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                 if t2:
                     tip = t2
         frame.paste(elayer, (0, 0), elayer)
+    if tip is None:
+        tip = _travel_tip(flow, ratio, cam, zoom, t)
     return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed), ratio)
