@@ -2119,6 +2119,35 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             if 0 < p < 1:
                 tip = _stroke_tip(pts_s, p)
             continue
+        if fill == 'solid':
+            # flat color mass: outline inks first, then the fill sweeps in
+            # left-to-right like a marker flood — the reference's saturated
+            # fills rather than hatch shading
+            op = wbp._clamp(p / 0.38)
+            if op > 0:
+                closed = pts_s if pts_s[0] == pts_s[-1] else pts_s + [pts_s[0]]
+                t = _taper_line(layer, closed, colors[col], lw * wscale,
+                                seed + j * 13, .26, op)
+                if 0 < op < 1:
+                    tip = t
+            fp = wbp._clamp((p - 0.30) / 0.62)
+            if fp > 0:
+                xs = [q[0] for q in pts_s]
+                ys = [q[1] for q in pts_s]
+                bx0, bx1 = min(xs) - 3, max(xs) + 3
+                by0, by1 = min(ys) - 3, max(ys) + 3
+                bw_ = max(2, int(bx1 - bx0))
+                bh_ = max(2, int(by1 - by0))
+                edge = max(1, int(bw_ * fp))
+                mask = Image.new('L', (edge, bh_), 0)
+                ImageDraw.Draw(mask).polygon(
+                    [(x - bx0, y - by0) for x, y in pts_s], fill=235)
+                fc = colors[col]
+                tile = Image.new('RGBA', (edge, bh_),
+                                 (fc[0], fc[1], fc[2], 225))
+                layer.paste(tile, (int(bx0), int(by0)), mask)
+                tip = (bx0 + edge, (by0 + by1) / 2)
+            continue
         if fill:
             # marker shading pass: hatches sweep in over the last 60% of the
             # element window, following the outline
@@ -2236,7 +2265,7 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None,
         col = chip if isinstance(chip, str) else 'accent'
         box = _rounded_rect((bx0 + bx1) / 2, (by0 + by1) / 2,
                             bx1 - bx0, by1 - by0, h * 0.34)
-        strokes = ([(box, col, 1.35, (by1 - by0) / 22.0, True),
+        strokes = ([(box, col, 1.35, 'solid', True),
                     (box, 'ink', 0.9, False, True)]
                    + strokes)
         # collision bookkeeping needs the true rendered span (per-line

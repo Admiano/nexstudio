@@ -93,8 +93,20 @@ def _remap_col(col):
     return _REMAP.get(col, col)
 
 
+_INKY = {'ink', 'inkfill', 'pale', 'paper', 'bg'}
+
+
 def _remap_strokes(strokes):
-    return [tuple([s[0], _remap_col(s[1])] + list(s[2:])) for s in strokes]
+    out = []
+    for s in strokes:
+        c = _remap_col(s[1])
+        fl = s[3] if len(s) > 3 else False
+        # colored fills become flat color masses — the reference's saturated
+        # fills — while ink/paper fills keep the scribble-hatch look
+        if fl and fl != 'solid' and c not in _INKY:
+            fl = 'solid'
+        out.append(tuple([s[0], c, s[2], fl] + list(s[4:])))
+    return out
 
 
 def _wobble_line(p0, p1, n=30, wob=8.0, seed=3):
@@ -133,6 +145,39 @@ def _bubble_box(center, w, h, tail_to):
             (center[0] + w * 0.02, y1)]
     return [(seg, 'ink', 1.0, False, True),
             (tail, 'ink', 0.9, False, True)]
+
+
+def _edge_pt(bb, toward):
+    """Point where a rect's edge faces a target — arrow anchor points."""
+    cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
+    dx, dy = toward[0] - cx, toward[1] - cy
+    if dx == 0 and dy == 0:
+        return (cx, cy)
+    hw, hh = (bb[2] - bb[0]) / 2, (bb[3] - bb[1]) / 2
+    k = min(hw / abs(dx) if dx else 1e9, hh / abs(dy) if dy else 1e9)
+    return (cx + dx * k * 0.94, cy + dy * k * 0.94)
+
+
+def _curved_arrow(p0, p1):
+    """A gently bent arrow p0->p1 in world space — the reference's
+    connective tissue between actors and objects."""
+    dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+    L = math.hypot(dx, dy) or 1.0
+    mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
+    bend = L * 0.18
+    cx_, cy_ = mx - dy / L * bend, my + dx / L * bend
+    pts = [((1 - q) ** 2 * p0[0] + 2 * (1 - q) * q * cx_ + q * q * p1[0],
+            (1 - q) ** 2 * p0[1] + 2 * (1 - q) * q * cy_ + q * q * p1[1])
+           for q in (i / 26.0 for i in range(27))]
+    ang = math.atan2(p1[1] - cy_, p1[0] - cx_)
+    hl = min(30.0, L * 0.18)
+    h1 = [p1, (p1[0] + hl * math.cos(ang + 2.55),
+               p1[1] + hl * math.sin(ang + 2.55))]
+    h2 = [p1, (p1[0] + hl * math.cos(ang - 2.55),
+               p1[1] + hl * math.sin(ang - 2.55))]
+    return [(pts, 'a_orange', 1.5, False, True),
+            (h1, 'a_orange', 1.5, False, True),
+            (h2, 'a_orange', 1.5, False, True)]
 
 
 def _heart_strokes(center, size):
@@ -641,6 +686,7 @@ def _build(plan, ratio):
         ]
         placed = [None] * k
         pt_i = 1   # index 0 is the hero's centre — satellites start at 1
+        hero_bb = None
         for j in p_order:
             it = items[j]
             uid += 1
@@ -658,7 +704,23 @@ def _build(plan, ratio):
             if hero:
                 cands = [sat_pts[0]]
             else:
-                cands = sat_pts[pt_i:] + sat_pts[:pt_i]
+                # satellites anchor adjacent to the hero's edges first —
+                # the reference's composed scene — then fall back to the
+                # wider ring when the close spots are blocked
+                anchors = []
+                if hero_bb is not None:
+                    hx0, hy0, hx1, hy1 = hero_bb
+                    hcx, hcy = (hx0 + hx1) / 2, (hy0 + hy1) / 2
+                    gap = cw * 0.055
+                    anchors = [
+                        (hx0 - gap - w * bo2 / 2, hcy - rh * 0.10),
+                        (hx1 + gap + w * bo2 / 2, hcy - rh * 0.10),
+                        (hx0 - gap - w * bo2 / 2, hcy + rh * 0.16),
+                        (hx1 + gap + w * bo2 / 2, hcy + rh * 0.16),
+                        (hcx, hy1 + gap + h * bo2 / 2),
+                        (hcx, hy0 - gap - h * bo2 / 2),
+                    ]
+                cands = anchors + sat_pts[pt_i:] + sat_pts[:pt_i]
                 pt_i = (pt_i % (len(sat_pts) - 1)) + 1
             pad = cw * 0.05
             best = None
@@ -689,6 +751,8 @@ def _build(plan, ratio):
             it['bounds2'] = (sx - w * bo2 / 2, sy - h * bo2 / 2,
                              sx + w * bo2 / 2, sy + h * bo2 / 2)
             placed_bounds.append(it['bounds2'])
+            if hero:
+                hero_bb = it['bounds2']
             it['uid'] = uid
             it['fade'] = None
             moved = []
@@ -783,6 +847,35 @@ def _build(plan, ratio):
                         if placed_bounds:
                             placed_bounds[-1] = it['bounds2']
             placed[j] = it
+        # connective tissue: people and tagged props get a curved arrow to
+        # the hero — the reference's actor->object / tag->object links
+        hero_it = placed[p_order[0]] if p_order and placed else None
+        if hero_it is not None and hero_it.get('bounds2'):
+            hc = ((hero_it['bounds2'][0] + hero_it['bounds2'][2]) / 2,
+                  (hero_it['bounds2'][1] + hero_it['bounds2'][3]) / 2)
+            arrows = 0
+            for it in placed:
+                if (it is None or it is hero_it or it.get('bounds2') is None
+                        or arrows >= 2):
+                    continue
+                wants = (_is_person_item(it)
+                         or any(g[4] and g[4].get('chip')
+                                for g, _s, _e in it['groups']))
+                if not wants:
+                    continue
+                sb = it['bounds2']
+                sc_ = ((sb[0] + sb[2]) / 2, (sb[1] + sb[3]) / 2)
+                p0 = _edge_pt(sb, hc)
+                p1 = _edge_pt(hero_it['bounds2'], sc_)
+                if math.hypot(p1[0] - p0[0], p1[1] - p0[1]) < cw * 0.10:
+                    continue
+                arr = _curved_arrow(p0, p1)
+                i0_, i1_ = it['t_window']
+                it['groups'].append((
+                    ('arrow', arr, (0, 0), 1.0, None),
+                    i0_ + (i1_ - i0_) * 0.86,
+                    i0_ + (i1_ - i0_) * 1.06))
+                arrows += 1
         # a figure beat with no person slot still stages the figure — park
         # it on the region's edge strip rather than dropping it entirely
         for fkey in ('fm', 'fm2'):
