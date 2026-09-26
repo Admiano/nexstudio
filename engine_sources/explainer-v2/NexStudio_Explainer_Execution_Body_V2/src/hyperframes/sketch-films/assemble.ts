@@ -28,32 +28,56 @@ async function probeDurationSec(file: string): Promise<number> {
   }
 }
 
-/** Files the sketch-film page needs, as bundle path → disk path (engine root relative). */
-const RUNTIME_FILES: Record<string, string> = {
-  "sketch-ui/styles/sketch-ui.css": "runtime-assets/sketch-ui/styles/sketch-ui.css",
-  "sketch-ui/js/sketch-ui.js": "runtime-assets/sketch-ui/js/sketch-ui.js",
-  "sketch-ui/vendor/rough.js": "runtime-assets/sketch-ui/vendor/rough.js",
-  "sketch-ui/textures/paper006-color-1k.jpg": "runtime-assets/sketch-ui/textures/paper006-color-1k.jpg",
-  "sketch-ui/textures/paper-warm-1k.png": "runtime-assets/sketch-ui/textures/paper-warm-1k.png",
-  "sketch-ui/textures/grain-fine-256.png": "runtime-assets/sketch-ui/textures/grain-fine-256.png",
+/* Surface runtimes — the skin a spec renders in. Every surface shares the
+   NexMotion engine + film master contract (scene windows, furniture, camera,
+   transition drivers); what differs is the visual grammar + scene registry. */
+type SurfaceId = "sketch" | "product";
+
+const MOTION_FILES: Record<string, string> = {
   "paper-motion/vendor/gsap-compat.js": "runtime-assets/paper-motion/vendor/gsap-compat.js",
   "paper-motion/runtime/motion-registry.js": "runtime-assets/paper-motion/runtime/motion-registry.js",
   "paper-motion/runtime/motion-engine.js": "runtime-assets/paper-motion/runtime/motion-engine.js",
 };
 
-const FONT_FILES: Record<string, string> = {
-  "sketch-ui/fonts/DMSerifDisplay-Regular.ttf": "runtime-assets/sketch-ui/fonts/DMSerifDisplay-Regular.ttf",
-  "sketch-ui/fonts/DMSerifDisplay-Italic.ttf": "runtime-assets/sketch-ui/fonts/DMSerifDisplay-Italic.ttf",
-  "sketch-ui/fonts/InterVariable.woff2": "runtime-assets/sketch-ui/fonts/InterVariable.woff2",
-  "sketch-ui/fonts/JetBrainsMono-SemiBold.ttf": "runtime-assets/sketch-ui/fonts/JetBrainsMono-SemiBold.ttf",
+const SURFACE_FILES: Record<SurfaceId, Record<string, string>> = {
+  sketch: {
+    "sketch-ui/styles/sketch-ui.css": "runtime-assets/sketch-ui/styles/sketch-ui.css",
+    "sketch-ui/js/sketch-ui.js": "runtime-assets/sketch-ui/js/sketch-ui.js",
+    "sketch-ui/vendor/rough.js": "runtime-assets/sketch-ui/vendor/rough.js",
+    "sketch-ui/textures/paper006-color-1k.jpg": "runtime-assets/sketch-ui/textures/paper006-color-1k.jpg",
+    "sketch-ui/textures/paper-warm-1k.png": "runtime-assets/sketch-ui/textures/paper-warm-1k.png",
+    "sketch-ui/textures/grain-fine-256.png": "runtime-assets/sketch-ui/textures/grain-fine-256.png",
+    "sketch-ui/fonts/DMSerifDisplay-Regular.ttf": "runtime-assets/sketch-ui/fonts/DMSerifDisplay-Regular.ttf",
+    "sketch-ui/fonts/DMSerifDisplay-Italic.ttf": "runtime-assets/sketch-ui/fonts/DMSerifDisplay-Italic.ttf",
+    "sketch-ui/fonts/InterVariable.woff2": "runtime-assets/sketch-ui/fonts/InterVariable.woff2",
+    "sketch-ui/fonts/JetBrainsMono-SemiBold.ttf": "runtime-assets/sketch-ui/fonts/JetBrainsMono-SemiBold.ttf",
+    ...MOTION_FILES,
+  },
+  product: {
+    "product-ui/styles/product-ui.css": "runtime-assets/product-ui/styles/product-ui.css",
+    "product-ui/js/product-ui.js": "runtime-assets/product-ui/js/product-ui.js",
+    /* product skin shares the vendored OFL font files at its own bundle prefix */
+    "product-ui/fonts/SpaceGrotesk-Variable.woff2": "runtime-assets/sketch-ui/fonts/SpaceGrotesk-Variable.woff2",
+    "product-ui/fonts/InterVariable.woff2": "runtime-assets/sketch-ui/fonts/InterVariable.woff2",
+    "product-ui/fonts/JetBrainsMono-SemiBold.ttf": "runtime-assets/sketch-ui/fonts/JetBrainsMono-SemiBold.ttf",
+    "product-ui/textures/grain-fine-256.png": "runtime-assets/sketch-ui/textures/grain-fine-256.png",
+    ...MOTION_FILES,
+  },
 };
 
+const SURFACE_RUNTIME = (surface: SurfaceId) =>
+  surface === "product"
+    ? { css: "product-ui/styles/product-ui.css", js: "product-ui/js/product-ui.js", global: "NexFilm", cls: "pf" }
+    : { css: "sketch-ui/styles/sketch-ui.css", js: "sketch-ui/js/sketch-ui.js", global: "NexSketch", cls: "sk" };
+
 export function filmPageHtml(spec: SketchFilmSpec): string {
+  const surface: SurfaceId = spec.surface === "product" ? "product" : "sketch";
+  const rt = SURFACE_RUNTIME(surface);
   const boot = `window.__FILM_SPEC__=${JSON.stringify(spec)};
     (function boot(){
       var ready=function(){
         try{
-          var t=window.NexSketch.start(window.__FILM_SPEC__);
+          var t=window.${rt.global}.start(window.__FILM_SPEC__);
           t.pause();
           Promise.all([
             document.fonts ? document.fonts.ready : Promise.resolve(),
@@ -63,15 +87,16 @@ export function filmPageHtml(spec: SketchFilmSpec): string {
       };
       if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
     })();`;
-  return `<!doctype html><html class="sk"><head><meta charset="utf-8"><title>${spec.productionId}</title>
-<link rel="stylesheet" href="sketch-ui/styles/sketch-ui.css">
+  const rough = surface === "sketch" ? `<script src="sketch-ui/vendor/rough.js"></script>` : "";
+  return `<!doctype html><html class="${rt.cls}"><head><meta charset="utf-8"><title>${spec.productionId}</title>
+<link rel="stylesheet" href="${rt.css}">
 <style>html,body{width:${spec.width}px;height:${spec.height}px;overflow:hidden}[data-nex-production-canvas]{position:relative;width:${spec.width}px;height:${spec.height}px;overflow:hidden}</style>
-</head><body class="sk"><main data-nex-production-canvas data-composition-src="index.html" data-width="${spec.width}" data-height="${spec.height}"></main>
-<script src="sketch-ui/vendor/rough.js"></script>
+</head><body class="${rt.cls}"><main data-nex-production-canvas data-composition-src="index.html" data-width="${spec.width}" data-height="${spec.height}"></main>
+${rough}
 <script src="paper-motion/vendor/gsap-compat.js"></script>
 <script src="paper-motion/runtime/motion-registry.js"></script>
 <script src="paper-motion/runtime/motion-engine.js"></script>
-<script src="sketch-ui/js/sketch-ui.js"></script>
+<script src="${rt.js}"></script>
 <script>${boot}</script></body></html>`;
 }
 
@@ -89,8 +114,9 @@ export async function assembleSketchFilmBundle(
   if (!spec.productionId) throw new Error("spec.productionId required");
   if (!spec.scenes?.length) throw new Error("spec.scenes must be non-empty");
   const files: Record<string, string | Uint8Array> = {};
+  const surface: SurfaceId = spec.surface === "product" ? "product" : "sketch";
 
-  for (const [bundlePath, rel] of Object.entries({ ...RUNTIME_FILES, ...FONT_FILES })) {
+  for (const [bundlePath, rel] of Object.entries(SURFACE_FILES[surface])) {
     files[bundlePath] = await readFile(path.join(opts.engineRoot, rel));
   }
 
@@ -154,7 +180,7 @@ export async function assembleSketchFilmBundle(
       beatTimings: spec.scenes.map((s) => ({ beatId: s.id, startSec: s.start, endSec: s.start + s.duration })),
       audioTracks,
       sceneLibrary: spec.scenes.map((s) => ({
-        family: "sketch-ui",
+        family: spec.surface === "product" ? "product-ui" : "sketch-ui",
         sceneId: s.type,
         version: SKETCH_UI_VERSION,
         beatId: s.id,

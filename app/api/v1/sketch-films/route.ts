@@ -31,9 +31,13 @@ export async function GET(request: Request) {
       cta: "end-card button text",
       seed: "deterministic variation seed",
       media: "{name: url|data-uri|repo-relative path} — art staged into the film; scenes reference the name and render it inkified",
-      theme: "{paper?, ink?, accent?, accentDeep?} — brand color tokens (hex/rgb/hsl)",
-      paperStock: "warm|ivory|kraft|newsprint — named paper preset",
+      theme: "{paper?, ink?, accent?, accentDeep?, bg?, fg?, card?, line?…} — brand color tokens (hex/rgb/hsl)",
+      paperStock: "warm|ivory|kraft|newsprint — named paper preset (sketch surface)",
       layout: "editorial|poster|deck — film-level presentation weight (per-beat params.layout overrides)",
+      surface: "sketch|product — sketch = ink-on-paper skin; product = clean brand-surface skin (default sketch, or product when brand is supplied)",
+      tone: "default|polished|chaotic|deadpan|cinematic|app-store — or a freeform feel, mapped to the nearest preset",
+      brand: "{name?, colors?{bg,fg,muted,card,card2,line,accent,accent2}, fonts?{display,sans,mono}, logo?} — the subject's identity kit",
+      cues: "{beats?: number[], strong?: number[], bpm?} — measured music grid (tools/music-cues.py); scene boundaries + accents snap to it",
     },
     sceneTypes: [
       "chapter", "type-card", "hero-build", "phrase-swap", "word-list", "feature-grid",
@@ -86,8 +90,19 @@ export async function POST(request: Request) {
       compileArgs.push(String(body.prompt));
     }
     compileArgs.push(specDir);
-    for (const k of ["duration", "product", "tagline", "cta", "seed", "layout", "paperStock"] as const) {
+    for (const k of ["duration", "product", "tagline", "cta", "seed", "layout", "paperStock", "surface", "tone"] as const) {
       if (body[k] != null) compileArgs.push(`--${k}`, String(body[k]));
+    }
+    /* brand kit + measured cues: JSON bodies staged to files for the CLI */
+    if (body.brand && typeof body.brand === "object" && !Array.isArray(body.brand)) {
+      const bp = path.join(specDir, "brand.json");
+      writeFileSync(bp, JSON.stringify(body.brand));
+      compileArgs.push("--brand", bp);
+    }
+    if (body.cues && typeof body.cues === "object" && !Array.isArray(body.cues)) {
+      const cp = path.join(specDir, "cues.json");
+      writeFileSync(cp, JSON.stringify(body.cues));
+      compileArgs.push("--cues", cp);
     }
     /* media: {name: url | data-uri | repo-relative path} — stage files next to
        the spec so spec-relative asset paths resolve at bundle time */
@@ -169,6 +184,14 @@ export async function POST(request: Request) {
       if (existsSync(film)) {
         copyFileSync(film, path.join(filesDir, "film.mp4"));
         outputs.film = `/api/v1/sketch-films/${jobId}/files/film.mp4`;
+      }
+      /* delivery artifacts: poster frame, share copy, probe report */
+      for (const [key, rel] of Object.entries({ poster: "film-poster.png", share: "film-share.txt", report: "film.report.json" })) {
+        const src = path.join(outDir, rel);
+        if (existsSync(src)) {
+          copyFileSync(src, path.join(filesDir, rel));
+          outputs[key] = `/api/v1/sketch-films/${jobId}/files/${rel}`;
+        }
       }
       writeFileSync(path.join(dir, "status.json"), JSON.stringify({
         status: code === 0 ? "done" : "failed",

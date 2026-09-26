@@ -1,8 +1,10 @@
 /**
  * Sketch-film spec: a plain JSON document that a storyboard agent (or a
- * template fixture) emits to describe one paper-sketch film. The assembler
- * turns it into a HyperFrames CompositionBundle built entirely from the
- * vendored sketch-ui + paper-motion runtime assets.
+ * template fixture) emits to describe one film. The assembler turns it into
+ * a HyperFrames CompositionBundle built from a vendored surface runtime —
+ * `surface: 'sketch'` renders the ink-on-paper skin (sketch-ui + paper-motion),
+ * `surface: 'product'` renders the clean brand-surface skin (product-ui).
+ * Same beats/timing/audio contract; the surface is swappable.
  */
 
 export type SketchSceneSpec = {
@@ -42,12 +44,14 @@ export type SketchSceneSpec = {
   /** Beat length in film seconds. */
   duration: number;
   /**
-   * Entrance transition. 'cut'/'fade'/'rise'/'wipe' are inline; the rest map to
-   * paper-motion transitions: 'torn' → torn-paper-reveal, 'push' → collage-push,
-   * 'page' → page-turn, 'shuffle' → card-stack-shuffle, 'tape' → tape-peel,
-   * 'crumple' → crumple-transition, 'paper' → paper-wipe.
+   * Entrance transition. 'cut'/'fade'/'rise'/'wipe' are inline; on the sketch
+   * surface the paper set maps to paper-motion transitions ('torn' →
+   * torn-paper-reveal, 'push' → collage-push, 'page' → page-turn, 'shuffle' →
+   * card-stack-shuffle, 'tape' → tape-peel, 'crumple' → crumple-transition,
+   * 'paper' → paper-wipe); on the product surface the paper set remaps via
+   * T_MAP and 'mask'/'zoom'/'slide' run as native product transitions.
    */
-  transition?: "cut" | "fade" | "rise" | "wipe" | "torn" | "push" | "page" | "shuffle" | "tape" | "crumple" | "paper";
+  transition?: "cut" | "fade" | "rise" | "wipe" | "torn" | "push" | "page" | "shuffle" | "tape" | "crumple" | "paper" | "mask" | "zoom" | "slide";
   /** Camera move over the beat — push scales in, pan translates (fractions of stage size). */
   camera?: { push?: number; pan?: [number, number] };
   /** Top-left kicker text, e.g. "/ STEP 01". */
@@ -66,6 +70,14 @@ export type SketchSceneSpec = {
 
 export type SketchFilmSpec = {
   productionId: string;
+  /** Which surface runtime renders this spec. Default 'sketch'.
+      'product' = clean brand surface (product-ui runtime). */
+  surface?: "sketch" | "product";
+  /** Frame (film seconds) baked as the mp4's frame 0 — the share thumbnail.
+      Director defaults it to a settled end-card moment. */
+  posterSec?: number;
+  /** Share caption written next to the mp4 (<out>-share.txt). */
+  shareCopy?: string;
   width: number;
   height: number;
   fps: number;
@@ -106,6 +118,10 @@ export type SketchFilmSpec = {
     texture?: string;
     /** Named paper stock — same values as top-level paperStock. */
     stock?: string;
+    /* product-surface tokens (ignored by the sketch skin) */
+    bg?: string; fg?: string; muted?: string;
+    card?: string; card2?: string; line?: string; accent2?: string;
+    display?: string; sans?: string; mono?: string;
   };
   scenes: SketchSceneSpec[];
 };

@@ -21,7 +21,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 const args = process.argv.slice(2);
 const opt = (name: string) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : undefined; };
-const OPT_NAMES = ["--script", "--media", "--theme", "--duration", "--product", "--cta", "--tagline", "--seed", "--accent", "--accent-deep", "--paper", "--ink", "--layout", "--paper-stock", "--paperStock"];
+const OPT_NAMES = ["--script", "--media", "--theme", "--duration", "--product", "--cta", "--tagline", "--seed", "--accent", "--accent-deep", "--paper", "--ink", "--layout", "--paper-stock", "--paperStock", "--surface", "--tone", "--brand", "--cues"];
 const positional = args.filter((a, i) => !a.startsWith("--") && (i === 0 || !OPT_NAMES.includes(args[i - 1] || "")));
 const scriptPath = opt("script");
 const mediaPath = opt("media");
@@ -50,6 +50,17 @@ if (!theme && Object.values(colorTheme).some(Boolean)) {
   theme = Object.fromEntries(Object.entries(colorTheme).filter(([, v]) => v)) as Record<string, string>;
 }
 
+/* --brand brand.json: {name, colors:{bg,fg,muted,card,line,accent,accent2},
+   fonts:{display,sans,mono}, logo} — the subject's identity, discovered or
+   authored. Implies surface=product unless --surface overrides. */
+let brand: Record<string, unknown> | undefined;
+const brandPath = opt("brand");
+if (brandPath) brand = JSON.parse(fs.readFileSync(path.resolve(brandPath), "utf8"));
+/* --cues cues.json: measured beat grid from tools/music-cues.py */
+let cues: { beats?: number[]; strong?: number[]; bpm?: number } | undefined;
+const cuesPath = opt("cues");
+if (cuesPath) cues = JSON.parse(fs.readFileSync(path.resolve(cuesPath), "utf8"));
+
 const spec = directToSpec({
   prompt: scriptPath ? undefined : positional[0],
   script,
@@ -62,7 +73,13 @@ const spec = directToSpec({
   theme,
   paperStock: opt("paper-stock") || opt("paperStock"),
   layout: opt("layout") as "editorial" | "poster" | "deck" | undefined,
+  surface: opt("surface") as "sketch" | "product" | undefined,
+  tone: opt("tone"),
+  brand,
+  cues,
 });
+
+console.log(`surface=${spec.surface || "sketch"} poster@${spec.posterSec ?? "-"}s`);
 
 fs.mkdirSync(path.join(outDir, "audio"), { recursive: true });
 /* shared vendored clips — copy so the spec dir is self-contained */

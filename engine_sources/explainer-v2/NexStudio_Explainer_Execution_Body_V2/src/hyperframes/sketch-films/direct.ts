@@ -80,6 +80,23 @@ export type FilmBeat = {
   params?: Record<string, unknown>;
 };
 
+/** Brand kit — a subject's identity, discovered or supplied. Colors/fonts
+    become theme tokens; name becomes the product; logo joins media assets. */
+export type BrandKit = {
+  name?: string;
+  colors?: { bg?: string; fg?: string; muted?: string; card?: string; card2?: string; line?: string; accent?: string; accent2?: string; paper?: string; ink?: string };
+  fonts?: { display?: string; sans?: string; mono?: string };
+  /** Logo media — asset name (already in `media`) or path staged as `logo`. */
+  logo?: string;
+};
+
+/** Named tone presets — pacing floor, transition pool, layout default. */
+export type FilmTone = "default" | "polished" | "chaotic" | "deadpan" | "cinematic" | "app-store";
+
+/** Music cue data (tools/music-cues.py output) — beat grid + strong onsets.
+    When present, scene boundaries + SFX snap to the measured grid. */
+export type MusicCues = { beats?: number[]; strong?: number[]; bpm?: number };
+
 export type FilmBrief = {
   prompt?: string;
   /** Structured narrative — preferred when a real script exists. */
@@ -89,6 +106,15 @@ export type FilmBrief = {
   tagline?: string;
   cta?: string;
   seed?: number;
+  /** Which surface renders the film: 'sketch' (ink-on-paper) | 'product'
+      (clean brand surface). Default 'sketch'; a brand kit nudges product. */
+  surface?: "sketch" | "product";
+  /** Tone preset (or freeform label — mapped to the nearest preset). */
+  tone?: FilmTone | string;
+  /** The subject's identity — fills product + theme + logo automatically. */
+  brand?: BrandKit;
+  /** Measured music cue grid — snaps boundaries + accents to the beat. */
+  cues?: MusicCues;
   /** Named media assets scenes can reference ({name: spec-relative path}). */
   media?: Record<string, string>;
   /** Per-film theme tokens — brand accent, ink, paper. */
@@ -381,18 +407,41 @@ const beatWeight = (beat: FilmBeat, type: string): number => {
   return w;
 };
 
-const TRANSITION_POOL: NonNullable<SketchSceneSpec["transition"]>[] =
-  ["fade", "wipe", "torn", "push", "page", "shuffle", "tape", "paper", "crumple", "rise"];
+/* Tone presets — a named feel resolves to a transition pool, a pacing floor
+   (minimum beat seconds) and a layout default. Freeform tone strings map to
+   the nearest preset; the surface further narrows which transitions read
+   right (paper moves on 'sketch', clean moves on 'product'). */
+type ToneSpec = { minBeat: number; sketch: string[]; product: string[]; layout?: SketchFilmSpec["layout"] };
+const TONES: Record<string, ToneSpec> = {
+  default:    { minBeat: 2.0, sketch: ["fade", "wipe", "torn", "push", "page", "shuffle", "tape", "paper", "crumple", "rise"], product: ["fade", "slide", "zoom", "mask", "wipe", "rise"] },
+  polished:   { minBeat: 2.6, sketch: ["fade", "page", "wipe", "paper"], product: ["fade", "mask", "wipe", "zoom"] },
+  chaotic:    { minBeat: 1.6, sketch: ["crumple", "shuffle", "torn", "push"], product: ["cut", "slide", "zoom"], layout: "deck" },
+  deadpan:    { minBeat: 2.8, sketch: ["cut", "fade", "wipe"], product: ["cut", "fade"], layout: "editorial" },
+  cinematic:  { minBeat: 2.4, sketch: ["paper", "page", "fade"], product: ["zoom", "mask", "fade"], layout: "poster" },
+  "app-store":{ minBeat: 2.2, sketch: ["wipe", "push", "fade"], product: ["slide", "zoom", "fade"] },
+};
+/* freeform tone → nearest preset by keyword */
+function toneFor(brief: FilmBrief): { name: string; spec: ToneSpec } {
+  const raw = (brief.tone || "default").toLowerCase();
+  if (TONES[raw]) return { name: raw, spec: TONES[raw] };
+  const guess =
+    /chaos|wild|loud|fast|unhinged|hype/.test(raw) ? "chaotic" :
+    /cinema|trailer|epic|dramatic/.test(raw) ? "cinematic" :
+    /deadpan|dry|calm|quiet|minimal/.test(raw) ? "deadpan" :
+    /polish|premium|elegant|serious|formal|launch/.test(raw) ? "polished" :
+    /app.?store|clean|corporate/.test(raw) ? "app-store" : "default";
+  return { name: guess, spec: TONES[guess] };
+}
 
-function transitionFor(beat: FilmBeat, type: string, prev: { beat: FilmBeat; type: string } | undefined, rng: () => number): SketchSceneSpec["transition"] {
+function transitionFor(beat: FilmBeat, type: string, prev: { beat: FilmBeat; type: string } | undefined, rng: () => number, pool: string[], surface: string): SketchSceneSpec["transition"] {
   if (!prev) return "cut";
   if (prev.type === "step" && type === "step") return "cut";
-  if (type === "end-card") return pick(rng, ["torn", "cut"], () => false);
-  if (type === "payoff-lockup" || type === "end-card") return "page";
-  if (type === "storyboard" || type === "compose-graph" || type === "feature-grid") return "push";
-  if (type === "chapter") return pick(rng, ["paper", "page", "fade"], () => false);
-  if (type === "marquee-word") return pick(rng, ["paper", "rise"], () => false);
-  return pick(rng, TRANSITION_POOL, () => false);
+  if (type === "end-card") return pick(rng, surface === "product" ? ["mask", "zoom", "cut"] : ["torn", "cut"], () => false) as SketchSceneSpec["transition"];
+  if (type === "payoff-lockup") return surface === "product" ? "zoom" : "page";
+  if (type === "storyboard" || type === "compose-graph" || type === "feature-grid") return surface === "product" ? "slide" : "push";
+  if (type === "chapter") return pick(rng, surface === "product" ? ["mask", "zoom", "fade"] : ["paper", "page", "fade"], () => false) as SketchSceneSpec["transition"];
+  if (type === "marquee-word") return pick(rng, surface === "product" ? ["slide", "rise"] : ["paper", "rise"], () => false) as SketchSceneSpec["transition"];
+  return pick(rng, pool, () => false) as SketchSceneSpec["transition"];
 }
 
 function cameraFor(type: string, i: number, isLast: boolean): SketchSceneSpec["camera"] | undefined {
@@ -410,6 +459,26 @@ function cameraFor(type: string, i: number, isLast: boolean): SketchSceneSpec["c
 export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter } = {}): SketchFilmSpec {
   const rng = mulberry32(brief.seed ?? 97);
   const dur = brief.duration ?? 38;
+
+  /* surface + tone + brand resolve once, up front */
+  const surface: "sketch" | "product" = brief.surface || (brief.brand ? "product" : "sketch");
+  const tone = toneFor(brief);
+  const pool = surface === "product" ? tone.spec.product : tone.spec.sketch;
+  const layout = brief.layout || tone.spec.layout;
+  /* brand kit merges under the explicit brief: name→product, colors/fonts→theme,
+     logo→media asset + end-card mark */
+  const brandTheme: Record<string, string> = {
+    ...(brief.brand?.colors || {}),
+    ...(brief.brand?.fonts
+      ? Object.fromEntries(Object.entries({ display: brief.brand.fonts.display, sans: brief.brand.fonts.sans, mono: brief.brand.fonts.mono })
+          .map(([k, v]) => [k, v ? `'${v}'` : v]))
+      : {}),
+  };
+  const theme = { ...brandTheme, ...(brief.theme || {}) };
+  const product = brief.product || brief.brand?.name || "NEX STUDIO";
+  const media = { ...(brief.media || {}) };
+  if (brief.brand?.logo && !media[brief.brand.logo]) media.logo = brief.brand.logo;
+  const briefMerged: FilmBrief = { ...brief, product, theme, media };
 
   /* 1) script: explicit beats or derived from the prompt */
   let beats = brief.script?.length ? [...brief.script] : promptToScript(brief);
@@ -472,22 +541,23 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
 
   /* 3) timing: weights → seconds, snap to 0.1s, last beat absorbs remainder */
   const wsum = typed.reduce((s, t) => s + beatWeight(t.beat, t.type), 0);
+  const minBeat = tone.spec.minBeat;
   let t = 0;
   const scenes: SketchSceneSpec[] = [];
   typed.forEach((tb, i) => {
     const raw = (beatWeight(tb.beat, tb.type) / wsum) * dur;
-    const d = i === typed.length - 1 ? dur - t : Math.max(2.0, Math.round(raw * 10) / 10);
+    const d = i === typed.length - 1 ? dur - t : Math.max(minBeat, Math.round(raw * 10) / 10);
     const prev = typed[i - 1];
     const scene: SketchSceneSpec = {
       id: `beat-${String(i + 1).padStart(2, "0")}-${tb.type}`,
       type: tb.type,
       start: Math.round(t * 10) / 10,
       duration: Math.round(d * 10) / 10,
-      transition: transitionFor(tb.beat, tb.type, prev, rng),
+      transition: transitionFor(tb.beat, tb.type, prev, rng, pool, surface),
     };
     const cam = cameraFor(tb.type, i, i === typed.length - 1);
     if (cam) scene.camera = cam;
-    Object.assign(scene, beatParams(tb.beat, tb.type, brief, rng));
+    Object.assign(scene, beatParams(tb.beat, tb.type, briefMerged, rng));
     if (tb.type === "chapter" && !scene.marker) scene.marker = `0${i + 1}`;
     const over = opts.copywriter?.(tb.beat, { brief, sceneType: tb.type, index: i });
     if (over) Object.assign(scene, over);
@@ -523,7 +593,41 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
       const tags = keywordsOf(brief.prompt || "").filter(k => k.length > 3).slice(0, 3);
       if (tags.length) scene.tags = tags;
     }
+    /* brand logo defaults the end-card / orbit / logo-mark mark; without a
+       logo, orbit/logo-mark hubs still carry the brand letter, not the title */
+    if (brief.brand?.logo && (scene.type === "end-card" || scene.type === "logo-mark" || scene.type === "orbit") && scene.mark === undefined) {
+      scene.mark = "logo";
+    }
+    if ((scene.type === "orbit" || scene.type === "logo-mark") && scene.mark === undefined && scene.brand === undefined) {
+      scene.brand = product;
+    }
   });
+
+  /* 3c) beat-sync: when measured music cues are supplied, snap each scene
+        boundary to the nearest beat within ±0.28s (previous beat absorbs the
+        shift so scenes still tile) — cuts land ON the music, not near it */
+  const cueBeats = (brief.cues?.beats || []).filter(b => b > 0.3 && b < dur - 0.3);
+  if (cueBeats.length) {
+    for (let i = 1; i < scenes.length; i++) {
+      const s = scenes[i], prev = scenes[i - 1];
+      let best = s.start, bestD = Infinity;
+      for (const b of cueBeats) {
+        const dd = Math.abs(b - s.start);
+        if (dd < bestD) { bestD = dd; best = b; }
+      }
+      if (bestD <= 0.28 && prev.duration + (best - s.start) >= minBeat) {
+        const delta = best - s.start;
+        prev.duration = round1(prev.duration + delta);
+        s.start = round1(s.start + delta);
+      }
+    }
+    /* re-tile: shifting starts leaves a gap/overlap unless every scene's
+       duration follows the next start; enforce contiguous tiling */
+    for (let i = 0; i < scenes.length - 1; i++) {
+      scenes[i].duration = round1(scenes[i + 1].start - scenes[i].start);
+    }
+    scenes[scenes.length - 1].duration = round1(dur - scenes[scenes.length - 1].start);
+  }
 
   /* 4) SFX cues: swipe on real transitions, pops on entrances, paper on
         first + board-like scenes, confirm on close */
@@ -537,21 +641,49 @@ export function directToSpec(brief: FilmBrief, opts: { copywriter?: Copywriter }
   });
   const last = scenes[scenes.length - 1];
 
+  /* beat-sync also moves accents onto strong onsets when cues exist —
+     an accent that lands exactly on a hit reads as intentional */
+  const strong = (brief.cues?.strong || []).filter(x => x > 0 && x < dur);
+  const snapTo = (xs: number[], grid: number[], tol: number) =>
+    xs.map(x => {
+      let best = x, bd = Infinity;
+      for (const g of grid) { const d = Math.abs(g - x); if (d < bd) { bd = d; best = g; } }
+      return bd <= tol ? best : x;
+    });
+  const swipes2 = strong.length ? snapTo(dedupe(swipes), strong, 0.18) : dedupe(swipes);
+  const pops2 = strong.length ? snapTo(dedupe(pops), cueBeats.length ? cueBeats : strong, 0.14) : dedupe(pops);
+
+  const lastScene = scenes[scenes.length - 1];
+  /* poster frame: the settled end-card moment (mark + wordmark + pill in) */
+  const posterSec = lastScene?.type === "end-card"
+    ? round1(lastScene.start + Math.min(1.5, lastScene.duration * 0.45))
+    : round1(Math.max(0, dur - 0.5));
+  /* share copy: brand + tagline + cta — postable as-is; falls back to the
+     end-card's sub/pill when the brief didn't set them */
+  const endSub = lastScene?.type === "end-card" ? lastScene.sub : undefined;
+  const endCta = lastScene?.type === "end-card" ? (lastScene.pill as string | undefined) : undefined;
+  const tagline = brief.tagline || endSub;
+  const cta = brief.cta || endCta;
+  const shareCopy = `${product}${tagline ? ` — ${tagline}` : ""}${cta ? `. ${cta}` : ""}`.trim();
+
   const spec: SketchFilmSpec = {
-    productionId: `sketch-film-${slugify(brief.prompt || "scripted").slice(0, 40) || "film"}`,
+    productionId: `sketch-film-${slugify(brief.prompt || product || "scripted").slice(0, 40) || "film"}`,
+    surface,
+    posterSec,
+    shareCopy,
     width: 720, height: 720, fps: 30,
     durationSeconds: Math.round(dur * 10) / 10,
     music: { path: "audio/music.mp3", volume: 0.16 },
     sfx: [
-      { path: "audio/swipe.mp3", atSec: dedupe(swipes), volume: 0.32 },
-      { path: "audio/pop.mp3", atSec: dedupe(pops), volume: 0.30 },
+      { path: "audio/swipe.mp3", atSec: swipes2, volume: 0.32 },
+      { path: "audio/pop.mp3", atSec: pops2, volume: 0.30 },
       { path: "audio/paper.mp3", atSec: dedupe(papers), volume: 0.36 },
-      { path: "audio/confirm.mp3", atSec: last ? [round1(last.start + Math.min(1.6, last.duration - 0.8))] : [], volume: 0.42 },
+      { path: "audio/confirm.mp3", atSec: lastScene ? [round1(lastScene.start + Math.min(1.6, lastScene.duration - 0.8))] : [], volume: 0.42 },
     ],
-    ...(brief.media ? { assets: brief.media } : {}),
-    ...(brief.theme ? { theme: brief.theme } : {}),
+    ...(Object.keys(media).length ? { assets: media } : {}),
+    ...(Object.keys(theme).length ? { theme } : {}),
     ...(brief.paperStock ? { paperStock: brief.paperStock } : {}),
-    ...(brief.layout ? { layout: brief.layout } : {}),
+    ...(layout ? { layout } : {}),
     scenes,
   };
   validateSpec(spec);

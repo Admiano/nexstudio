@@ -1,9 +1,19 @@
-# sketch-films — spec-driven paper-sketch films
+# sketch-films — spec-driven films on switchable surfaces
 
 Authors whole films as a declarative spec (`SketchFilmSpec`) and renders them
-through the self-hosted HyperFrames Chromium renderer. The visual language is
-the `sketch-ui` scene library: thin ink line-art (seeded rough.js) on warm
-paper, one mint accent, DM Serif Display kinetic type.
+through the self-hosted HyperFrames Chromium renderer. `spec.surface` picks
+the visual language — the runtime skin the spec renders through:
+
+- `sketch` (default): thin ink line-art (seeded rough.js) on warm paper, one
+  mint accent, DM Serif Display kinetic type — `runtime-assets/sketch-ui`.
+- `product`: a clean brand-surface skin — real brand colors, sharp chrome,
+  Space Grotesk display type, hairline rules, accent glow —
+  `runtime-assets/product-ui`. Selected explicitly with `--surface product`
+  or implicitly whenever a `brand` kit is supplied.
+
+Both surfaces implement the same scene registry (every `type` renders on
+either skin) and share the timing/transition/camera contract — a spec is
+portable between surfaces; only the grammar changes.
 
 ## Render a spec
 
@@ -28,6 +38,7 @@ tsx src/hyperframes/sketch-films/direct-cli.ts \
   "make a launch film for an agent that turns a text brief into a finished sketch-style video" \
   src/hyperframes/sketch-films/specs/directed-demo \
   [--duration 38] [--product "NEX STUDIO"] [--cta "..."] [--tagline "..."] [--seed 97]
+  [--surface product] [--tone cinematic] [--brand brand.json] [--cues cues.json]
 
 tsx src/hyperframes/sketch-films/render.ts \
   src/hyperframes/sketch-films/specs/directed-demo/spec.json \
@@ -58,22 +69,43 @@ weights, assigns transitions + camera moves, derives SFX cues, and runs
 `validateSpec` (scenes tile the timeline, required params present, no adjacent
 duplicate types).
 
+### Brief extras
+
+- **`--brand brand.json`** — the subject's identity kit:
+  `{name, colors:{bg,fg,muted,card,card2,line,accent,accent2},
+  fonts:{display,sans,mono}, logo}`. Colors/fonts merge under `--theme` into
+  `spec.theme`; `logo` becomes a media asset and fills the end-card/orbit
+  mark; `name` becomes the product. Supplying a brand implies
+  `surface:product` unless overridden.
+- **`--tone <name|freeform>`** — `default|polished|chaotic|deadpan|cinematic|
+  app-store`; freeform words map to the nearest preset. A tone sets the
+  transition pool, beat-length floor, and default layout.
+- **`--cues cues.json`** — a measured beat grid from
+  `tools/music-cues.py <track> cues.json` (numpy spectral-flux onsets →
+  tempo autocorrelation → beat grid + strong cues). Scene boundaries snap to
+  the grid (±0.28s, previous beat absorbs the shift) and SFX accents snap to
+  strong onsets — cuts land ON the music.
+
 Copy is deterministic by default; inject an LLM (or any source) per beat via
 `directToSpec(brief, { copywriter })`.
 
 ## API
 
 `POST /api/v1/sketch-films` accepts JSON `{prompt}` or `{script}` or `{spec}`
-(plus `duration`/`product`/`tagline`/`cta`/`seed`), compiles via the director,
-and renders async. Poll `GET /api/v1/sketch-films/{jobId}`; the film lands at
-`outputs.film`. `GET /api/v1/sketch-films` returns the accepted body shape
-and scene types.
+(plus `duration`/`product`/`tagline`/`cta`/`seed`/`surface`/`tone`/`layout`/
+`paperStock`/`theme`/`media`/`brand`/`cues`), compiles via the director, and
+renders async. Poll `GET /api/v1/sketch-films/{jobId}`; outputs are
+`outputs.film`, plus `outputs.poster`, `outputs.share`, `outputs.report`.
+`GET /api/v1/sketch-films` returns the accepted body shape and scene types.
 
 ## Spec shape
 
 ```jsonc
 {
   "productionId": "launch-promo",
+  "surface": "sketch",                 // 'sketch' | 'product'
+  "posterSec": 36.8,                   // frame baked as mp4 frame 0
+  "shareCopy": "NEX STUDIO — ...",     // written to <out>-share.txt
   "width": 720, "height": 720, "fps": 30,
   "durationSeconds": 38.6,
   "music": "audio/music.mp3",          // loops; loudnorm'd with SFX
@@ -92,16 +124,26 @@ and scene types.
 }
 ```
 
-Transitions: `cut`/`fade`/`rise`/`wipe` are inline; `torn`, `push`, `page`,
-`shuffle`, `tape`, `crumple`, `paper` map to the paper-motion transition
-library (torn-paper reveal, collage push, page turn, card-stack shuffle,
-tape peel, crumple, paper wipe).
+Transitions: `cut`/`fade`/`rise`/`wipe` are inline on both surfaces. On
+sketch, `torn`, `push`, `page`, `shuffle`, `tape`, `crumple`, `paper` map to
+the paper-motion library (torn-paper reveal, collage push, page turn,
+card-stack shuffle, tape peel, crumple, paper wipe); on product they remap
+to native transitions via T_MAP, and `mask`/`zoom`/`slide` are additionally
+available directly.
+
+After render, `render.ts` runs the delivery pass: `ffprobe` verify
+(duration/fps/codec/pix_fmt/audio, warnings into `<out>.report.json`), the
+poster frame extracted at `posterSec` and baked as frame 0, and `<out>-share.txt`
+from `shareCopy`.
 
 Asset paths are relative to the spec file. Music gets `id:"music"` (loop);
 SFX get `id:"sound-effect"` with `cueTimesSec` auto-derived from each scene's
 `start` unless `cueTimesSec` is given explicitly on the scene.
 
-## Scene types (runtime-assets/sketch-ui)
+## Scene types (runtime-assets/sketch-ui + product-ui)
+
+Every type below renders on both surfaces — `sketch-ui` draws it in ink on
+paper, `product-ui` renders it as sharp brand chrome.
 
 `type-card` (kinetic serif word risers), `chat-prompt` (sketched prompt box,
 typewriter, cursor), `agent-window` (browser chrome + sidebar + checklist),
