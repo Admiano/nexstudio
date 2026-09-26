@@ -698,6 +698,9 @@ def render_production(
     if ratio not in wbp.RATIO_SIZES:
         raise _err('WHITEBOARD_V3_RATIO_UNSUPPORTED', ratio)
 
+    # domain art kit: plan['art_kit'] makes the kit's bespoke glyphs win
+    # icon resolution for the whole render
+    v3r.set_art_kit(plan.get('art_kit'))
     compiled = wbc.compile_whiteboard_plan(plan, {'ratio': ratio})
     compiled['_pal'] = wbp._pal(compiled)
     plan.update(compiled)

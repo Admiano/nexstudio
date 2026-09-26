@@ -201,3 +201,30 @@ which were AI-generated and vectorized as pipeline demos.
 - named accents: `a_orange`, `a_blue`, `a_green`, `a_red`, `a_yellow` —
   `accent`/`accfill`/`accdeep` remap to orange/blue channels; the board
   adds a soft vignette to every frame.
+
+## kits/ — domain art kits (bespoke per-vertical glyphs)
+
+`assets/kits/<domain>/` holds a `index.json` manifest plus one SVG per
+glyph (tabler-style 24x24 stroke art). Manifest entry:
+
+```json
+{"glyphs": {"<slug>": {"keywords": [...], "motif": "<id>",
+                       "tone": "a_blue", "fill": true}}}
+```
+
+- `tone` re-colors the glyph's promoted accent element; `fill: true`
+  promotes its filled elements from hatch to the flat solid-fill sweep.
+- Set `plan['art_kit'] = '<domain>'` — kit glyphs outrank the generic
+  icon vocabulary and doodle/illust literals for anything their manifest
+  covers ('bitcoin' draws the kit coin, not the generic doodle).
+- Plans may also pin a glyph verbatim in a role's `icon` field:
+  `'kit:crypto:bitcoin-coin'` (explicit) or `'kit:crypto:@coin'`
+  (recurring-motif handle — resolves to whichever glyph carries that
+  motif, so the same symbol is reused across regions for continuity).
+- Kits draw at bespoke weight (0.95) like `custom/` art — denser glyph
+  art is expected and correct.
+
+Current kits: `crypto` (15 glyphs: bitcoin-coin, candlestick-chart,
+pool-cylinder, vault-safe, shield-check, chain-link, ledger-book, whale,
+key, block-cube, eye-off, network-nodes, exchange-swap, wallet,
+lock-closed).

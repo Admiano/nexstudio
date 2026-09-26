@@ -970,6 +970,79 @@ def _tabler_lookup(concept: str):
 
 _ICON_INDEX = None
 _SYN = None
+_KITS = None
+_ART_KIT: str | None = None
+
+
+def set_art_kit(name):
+    """Active domain art kit for this render — kit glyphs win resolution
+    ties and can be addressed verbatim as 'kit:<domain>:<slug>' or a motif
+    via 'kit:<domain>:@<motif>' from role icon fields."""
+    global _ART_KIT
+    _ART_KIT = str(name).strip().lower() if name else None
+
+
+def _kits():
+    """Domain art kits under assets/kits/<domain>/ — manifest index.json
+    {'glyphs': {slug: {'keywords': [...], 'motif': id, 'tone': accent}}}."""
+    global _KITS
+    if _KITS is None:
+        _KITS = {}
+        kroot = _ASSETS / 'kits'
+        if kroot.is_dir():
+            for kd in kroot.iterdir():
+                idx = kd / 'index.json'
+                if not idx.is_file():
+                    continue
+                try:
+                    man = json.loads(idx.read_text())
+                except Exception:
+                    continue
+                _KITS[kd.name] = man.get('glyphs', {})
+    return _KITS
+
+
+def _kit_glyph(domain: str, slug: str):
+    """Deterministic kit resolution — 'kit:crypto:bitcoin-coin' or a motif
+    handle 'kit:crypto:@coin' resolves to ('icon', 'kit:crypto', slug)."""
+    if slug.startswith('@'):
+        want = slug[1:]
+        for g, meta in _kits().get(domain, {}).items():
+            if meta.get('motif') == want:
+                return ('icon', f'kit:{domain}', g)
+        return None
+    if slug in _kits().get(domain, {}):
+        return ('icon', f'kit:{domain}', slug)
+    return None
+
+
+def _kit_probe(phrase: str, exclude=None):
+    """Score a concept against the ACTIVE kit's glyph index only — same
+    weighting as _icon_lookup, restricted to kit:<ART_KIT> entries so a
+    domain glyph always beats a generic doodle/illust for its domain."""
+    if not _ART_KIT:
+        return None
+    words = [w for w in re.findall(r'[a-z0-9]+', str(phrase).lower())
+             if len(w) > 2]
+    if not words:
+        return None
+    direct, expanded = _expanded(words)
+    best, best_score = None, 0.0
+    for (d, name), toks in _icon_index().items():
+        if d != f'kit:{_ART_KIT}':
+            continue
+        if exclude and ('icon', d, name) in exclude:
+            continue
+        name_parts = set(name.split('-'))
+        score = sum((5 if w in name_parts else 3) + 0.15 * len(w)
+                    for w in direct & toks)
+        score += 1.8 * len((expanded & toks) - direct)
+        score += len(direct & name_parts)
+        score += 1.5 * len(direct & toks) / len(direct)
+        score -= len(name) * 0.04
+        if score > best_score:
+            best, best_score = ('icon', d, name), score
+    return best if best_score >= 4.0 else None
 
 
 def _synonyms():
@@ -1008,6 +1081,14 @@ def _icon_index():
                 toks = set(slug.split('-')) | set(m.get('keywords', ()))
                 toks |= set(str(m.get('group', '')).lower().replace('&', ' ').split())
                 idx[('fluent', slug)] = {t for t in toks if len(t) > 1}
+        # domain art kits — keyword sets from each kit's manifest
+        for dom, glyphs in _kits().items():
+            for slug, meta in glyphs.items():
+                toks = set(slug.split('-'))
+                toks |= {str(t).lower() for t in meta.get('keywords', ())}
+                if meta.get('motif'):
+                    toks.add(str(meta['motif']).lower())
+                idx[(f'kit:{dom}', slug)] = {t for t in toks if len(t) > 1}
         om = _ASSETS / 'openmoji' / 'index.json'
         if om.is_file():
             for slug, m in json.loads(om.read_text()).items():
@@ -1064,6 +1145,10 @@ def _icon_lookup(concept: str, exclude=None):
             score += 0.30                     # animated art wins ties outright
         if d == 'notomoji':
             score += 0.05                     # emoji accent — must win on tokens
+        if d.startswith('kit:'):
+            # active-kit glyphs are bespoke domain art — they should beat
+            # generic vocabulary whenever the concept touches the domain
+            score += 3.5 if d == f'kit:{_ART_KIT}' else -1.0
         score -= len(name) * 0.04
         if score > best_score:
             best, best_score = ('icon', d, name), score
@@ -1168,8 +1253,15 @@ def _slug(text: str) -> str:
 def _dir_strokes(dir_name: str, slug: str):
     """Unit-space strokes for an SVG in assets/<dir_name>/<slug>.svg.
     Ink-filled elements hatch; paper/secondary fills draw as outlines only
-    so the art reads on the board's paper."""
-    path = _ASSETS / dir_name / f'{slug}.svg'
+    so the art reads on the board's paper. 'kit:<dom>' reads
+    assets/kits/<dom>/ and applies the glyph's manifest tone/fill rules."""
+    kit_meta = None
+    if dir_name.startswith('kit:'):
+        dom = dir_name[4:]
+        kit_meta = (_kits().get(dom) or {}).get(slug)
+        path = _ASSETS / 'kits' / dom / f'{slug}.svg'
+    else:
+        path = _ASSETS / dir_name / f'{slug}.svg'
     if not path.is_file():
         return None
     try:
@@ -1195,22 +1287,37 @@ def _dir_strokes(dir_name: str, slug: str):
     # pop inside a vignette (giant background fills are skipped)
     accent_el = -1
     if dir_name != 'custom':
-        filled = [(i, (max(p[0] for p in pls[0])
-                       - min(p[0] for p in pls[0]))
-                  * (max(p[1] for p in pls[0]) - min(p[1] for p in pls[0])))
+        filled = [(i, (max(p[0] for pl in pls for p in pl)
+                       - min(p[0] for pl in pls for p in pl))
+                  * (max(p[1] for pl in pls for p in pl)
+                     - min(p[1] for pl in pls for p in pl)))
                   for i, (pls, f, c) in enumerate(elements)
                   if c and str(f).startswith('#')
                   and f not in ('#F5F0E4', '#FFFFFF', '#fff', 'white')]
         if filled:
-            biggest = max(filled, key=lambda t: t[1])
-            total_area = vbw * vbh or 1
-            if biggest[1] <= total_area * 0.40:
-                accent_el = biggest[0]
+            # a hero silhouette (coin, whale body) can be most of the viewBox
+            # and is still the right accent — reject only full-bleed backdrop
+            # rects that span ~all of both axes
+            try:
+                vw, vh = float(vb[2]), float(vb[3])
+            except Exception:
+                vw = vh = 0
+            def _backdrop(i):
+                pls = elements[i][0]
+                span_x = max(p[0] for pl in pls for p in pl) \
+                    - min(p[0] for pl in pls for p in pl)
+                span_y = max(p[1] for pl in pls for p in pl) \
+                    - min(p[1] for pl in pls for p in pl)
+                return vw > 0 and span_x >= vw * 0.8 and span_y >= vh * 0.8
+            accent_candidates = [t for t in filled if not _backdrop(t[0])]
+            if accent_candidates:
+                accent_el = max(accent_candidates, key=lambda t: t[1])[0]
     strokes = []
     # library vignettes draw at a lighter pen weight than bespoke art —
     # dense multi-path art at full width reads as a blob beside the icon set
-    weight = 0.95 if dir_name == 'custom' else 0.5
-    hatch_ok = dir_name == 'custom'
+    bespoke = dir_name == 'custom' or dir_name.startswith('kit:')
+    weight = 0.95 if bespoke else 0.5
+    hatch_ok = bespoke
     for ei, (polys_el, fill, closed) in enumerate(elements):
         if fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
             color, hatch = 'ink', False
@@ -1227,6 +1334,23 @@ def _dir_strokes(dir_name: str, slug: str):
             strokes.append(([( (x - x0 + ox) / side - 0.5,
                               (y - y0 + oy) / side - 0.5) for x, y in poly],
                             color, weight, hatch))
+    if kit_meta and strokes:
+        # kit manifest may re-tone a glyph's fills and promote them to flat
+        # solid masses — the per-domain color language
+        tone = kit_meta.get('tone')
+        solid = bool(kit_meta.get('fill'))
+        if tone or solid:
+            out = []
+            for st in strokes:
+                pts, col, w, f = st[0], st[1], st[2], (st[3] if len(st) > 3
+                                                      else False)
+                rest = st[4:]
+                if col == 'accent' and tone:
+                    col = tone
+                if f and solid:
+                    f = 'solid'
+                out.append((pts, col, w, f) + tuple(rest))
+            strokes = out
     return strokes or None
 
 
@@ -1356,9 +1480,28 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
     wset = set(words)
     if any(f'{k} agent' in phrase or f'{k} rep' in phrase for k in _PERSON_AGENT_PREFIXES):
         return 'person'
+    # explicit kit addressing: 'kit:<dom>:<slug>' / 'kit:<dom>:@motif'
+    # (phrase normalization above already turned '-' into ' ')
+    if phrase.startswith('kit:'):
+        parts = phrase.split(':', 2)
+        if len(parts) == 3:
+            hit = _kit_glyph(parts[1], parts[2].replace(' ', '-'))
+            if hit:
+                return hit
+        if len(parts) == 2 and _ART_KIT:
+            hit = _kit_glyph(_ART_KIT, parts[1].replace(' ', '-'))
+            if hit:
+                return hit
     # bespoke commissioned/generated art for this exact label wins outright
     if (_CUSTOM_DIR / f'{_slug(phrase)}.svg').is_file():
         return ('custom', _slug(phrase))
+    # an active domain art kit outranks the flat icon vocabulary, literal
+    # doodles and generic vignettes for anything its manifest covers —
+    # 'bitcoin' draws the kit coin, not the generic money doodle
+    if _ART_KIT:
+        hit = _kit_probe(phrase, exclude)
+        if hit:
+            return hit
     # action-word figure art (running, sitting, reading...) beats a static pose
     for w in words:
         if (_ASSETS / 'doodles' / f'{w}.svg').is_file() and w in (
@@ -2401,8 +2544,17 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                     s.get('cast'))
                 # authored tone recolors the whole element (accent-colored
                 # art — orange coin, teal tag, red arrow — the reference's
-                # signature against black ink)
-                if s.get('tone'):
+                # signature against black ink). Kit glyphs are excluded:
+                # their manifest pins the palette (a bitcoin is orange even
+                # when the role asked for a different accent).
+                _kit_meta = (isinstance(s.get('icon'), tuple)
+                             and len(s['icon']) == 3
+                             and str(s['icon'][1]).startswith('kit:')
+                             and _kits().get(s['icon'][1][4:], {})
+                             .get(s['icon'][2]) or {})
+                kit_owned = bool(_kit_meta.get('tone') or
+                                 _kit_meta.get('fill'))
+                if s.get('tone') and not kit_owned:
                     tone = str(s['tone'])
                     ist = [tuple([x_[0], tone] + list(x_[2:]))
                            for x_ in ist]

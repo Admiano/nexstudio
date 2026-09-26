@@ -70,6 +70,16 @@ def _colors(plan):
                 if re.match(r'^#[0-9a-fA-F]{6}$', t):
                     cols[t] = (int(t[1:3], 16), int(t[3:5], 16),
                                int(t[5:7], 16), 255)
+    # kit glyph tones that are literal hex register the same way — the
+    # manifest pins a hue ('#F7931A' = bitcoin orange) that the plan's
+    # brand accent must not override, unlike the a_* channels
+    import v3_board_renderer as _v3r
+    for _glyphs in _v3r._kits().values():
+        for _meta in _glyphs.values():
+            _t = str(_meta.get('tone') or '')
+            if re.match(r'^#[0-9a-fA-F]{6}$', _t):
+                cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16),
+                            int(_t[5:7], 16), 255)
     return cols
 
 
