@@ -268,7 +268,8 @@
                       "underwater",
                       "urban",
                       "ground",
-                      "abstract"
+                      "abstract",
+                      "paper"
                     ]
                   },
                   "mood": {
@@ -1070,7 +1071,8 @@
                       "scissor",
                       "vignette",
                       "spot",
-                      "series"
+                      "series",
+                      "portrait"
                     ]
                   },
                   "cut": {

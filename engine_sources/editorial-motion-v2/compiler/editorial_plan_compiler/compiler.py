@@ -199,7 +199,8 @@ def _pb_slot_crop(layout: str, W: int, H: int) -> Dict[str, float]:
     pad = pw * 0.082
     slots = {
         'full': (pw - pad, ph * 0.86),
-        'vignette': (pw - pad * 0.6, ph * 0.80),
+        'vignette': (pw, ph * 0.92),
+        'portrait': (pw - pad * 0.8, ph * 0.58),
         'spot': (pw * 0.60, ph * 0.44),
         'diagonal': (pw - pad * 0.8, ph * 0.78),
         'zipped': (pw - pad * 0.8, ph * 0.505),
@@ -219,7 +220,28 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
     mounting, marks spread into a scene, the figure stands at picture-book size —
     all inside the slot's visible canvas crop, not the word-tile zone."""
     pg = getattr(btr, 'page', None) or {}
+    # A character alone on a spread stands on the paper itself (the picture-book
+    # portrait page): when the script gives a figure and nothing else to draw,
+    # the page becomes a paper field — wavy ink rows, a pale halo, the performer
+    # at standing height — not a framed plate.
+    _empty_il = not ((illustration or {}).get('entities'))
+    if figure and _empty_il and (pg.get('layout') or 'half') in ('half', 'spot'):
+        pg['layout'] = 'portrait'
+        if getattr(btr, 'page', None) is None:
+            btr.page = pg
+        scene0 = getattr(btr, 'scene', None) or {}
+        if str(scene0.get('setting') or '') in ('', 'abstract'):
+            scene0['setting'] = 'paper'
+        scene0.setdefault('mood', 'day')
+        scene0.setdefault('elements', [])
+        btr.scene = scene0
     vis = _pb_slot_crop(pg.get('layout') or 'half', W, H)
+    # Content never prints closer than the safe frame: the slot may bleed to the
+    # page edge, but figures and marks must stay inside the 24px frame.
+    _fr = _box(24.0, 24.0, W - 48.0, H - 48.0)
+    _ix = max(vis['x'], _fr['x']); _iy = max(vis['y'], _fr['y'])
+    vis = _box(_ix, _iy, max(1.0, min(vis['x'] + vis['w'], _fr['x'] + _fr['w']) - _ix),
+               max(1.0, min(vis['y'] + vis['h'], _fr['y'] + _fr['h']) - _iy))
     vx, vy = vis['x'] + vis['w'] * 0.045, vis['y'] + vis['h'] * 0.06
     vw, vh = vis['w'] * 0.91, vis['h'] * 0.88
     ents = (illustration or {}).get('entities') or []
@@ -312,9 +334,15 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
 
     # The performer is a storybook character: stands at least ~40% of plate height,
     # feet near the plate floor, shifted to whichever flank the artwork leaves open.
+    # On portrait pages the figure is the page — nearer three-quarters of its field.
     if figure and figure.get('bbox'):
         fb = dict(figure['bbox'])
-        f = max(1.0, (vis['h'] * 0.40) / max(1.0, fb['h']))
+        fig_frac = 0.78 if (pg.get('layout') == 'portrait') else 0.40
+        # Scale toward the target share of the visible field — down as well as up —
+        # and never wider than the field itself.
+        f = (vh * fig_frac) / max(1.0, fb['h'])
+        f = min(f, (vw * 0.92) / max(1.0, fb['w']))
+        f = max(0.05, f)
         nw, nh = fb['w'] * f, fb['h'] * f
         bottom = min(fb['y'] + fb['h'], vy + vh)
         cx = fb['x'] + fb['w'] / 2
@@ -1373,7 +1401,17 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
                             'tone': '', 'plane': plane, 'seed': seed0 ^ (k * 0x99),
                             'lit_dx': light_dx, 'contact': True})
 
-    if setting == 'outdoor':
+    if setting == 'paper':
+        # Standing-on-the-page: no painted ground, no sky — the page itself is the
+        # world (its own wavy ink field shows through the slot's transparent
+        # viewport). All a paper page carries is a pale halo behind the subject
+        # and the odd faint wash drifting by; elements float on the stock.
+        out.append(piece('disc', W * (0.56 + 0.10 * ((seed0 >> 3) & 1)), H * 0.07,
+                         short * 0.30, short * 0.30, mix(paper, glow, 0.40), 0.08, 1))
+        out.append(piece('disc', W * 0.10, H * 0.52, short * 0.22, short * 0.22,
+                         mix(paper, accent, 0.10), 0.06, 2))
+        elements_on(H * 0.86, 0.6)
+    elif setting == 'outdoor':
         out.append(band(-0.02, 0.62, sky, 0.10, False, 1))
         celestial(2)
         if mood != 'night':
