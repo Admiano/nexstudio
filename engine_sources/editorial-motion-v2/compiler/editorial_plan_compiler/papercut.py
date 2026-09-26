@@ -80,6 +80,23 @@ def papercut_image(src: str, dest: str, ramp: List[Tuple[int, int, int]],
                 m = remap[idx]
                 lut[c] = m
             op[x, y] = m
+    # Riso misregistration (sefatlmn/halftone): the accent plate never lands exactly
+    # on the ink pass — accent pixels get re-stamped a couple px down-right in a
+    # paler tint, visible only where they spill onto paper.
+    acc_mask = Image.new('L', out.size, 0)
+    paper_mask = Image.new('L', out.size, 0)
+    am, pm = acc_mask.load(), paper_mask.load()
+    acc_cols = (ramp[6], ramp[7])
+    for y in range(out.size[1]):
+        for x in range(out.size[0]):
+            c = op[x, y]
+            if c in acc_cols:
+                am[x, y] = 255
+            elif c == ramp[0]:
+                pm[x, y] = 255
+    ghost = Image.new('RGB', out.size, ramp[0])
+    ghost.paste(_mix(ramp[6], ramp[0], 0.4), (2, 2), acc_mask)
+    out = Image.composite(ghost, out, paper_mask)
     # Close the pinholes: a 3px median keeps the poster flats clean without melting detail.
     out = out.filter(ImageFilter.MedianFilter(3))
     Path(dest).parent.mkdir(parents=True, exist_ok=True)
