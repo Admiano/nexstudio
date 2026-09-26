@@ -705,6 +705,79 @@ window.NexFilm = (() => {
      PRODUCT-IN-ACTION — the product doing things, filmed
      ============================================================ */
 
+  /* appScreen: a dense fake-real app UI — nav rail + topbar + KPI tiles +
+     chart + list rows. The placeholder that doesn't read as a wireframe.
+     Returns the root; caller sets size/position. */
+  const appScreen = (o = {}) => {
+    const acc = cssVar('--pf-accent');
+    const root = h('div', '', null);
+    root.style.cssText = 'position:absolute;inset:0;display:flex;background:var(--pf-card);overflow:hidden;text-align:left';
+    const rail = h('div', '', root);
+    rail.style.cssText = 'width:15%;min-width:52px;border-right:1px solid var(--pf-line);padding:10px 8px;display:flex;flex-direction:column;gap:5px;background:var(--pf-card-2)';
+    const logoDot = h('div', '', rail);
+    logoDot.style.cssText = `width:20px;height:20px;border-radius:6px;background:${acc};margin-bottom:8px`;
+    (o.nav || ['chart', 'layers', 'chat', 'clock', 'globe']).forEach((n, i) => {
+      const it = h('div', '', rail);
+      it.style.cssText = `display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:7px;${i === (o.navActive ?? 1) ? `background:${acc}22` : ''}`;
+      const ic = icon(n, it); ic.style.cssText = `width:13px;height:13px;color:${i === (o.navActive ?? 1) ? acc : 'var(--pf-muted)'};flex:none`;
+      const lb = h('span', '', it);
+      lb.style.cssText = `height:6px;width:${54 + (i * 13) % 30}%;border-radius:3px;background:${i === (o.navActive ?? 1) ? acc : 'var(--pf-line)'};opacity:${i === (o.navActive ?? 1) ? 0.6 : 0.75}`;
+    });
+    const main = h('div', '', root);
+    main.style.cssText = 'flex:1;display:flex;flex-direction:column;padding:10px 12px;gap:9px;min-width:0';
+    const top = h('div', '', main);
+    top.style.cssText = 'display:flex;align-items:center;gap:8px';
+    const search = h('div', '', top);
+    search.style.cssText = 'flex:1;max-width:46%;height:20px;border-radius:7px;border:1px solid var(--pf-line);background:var(--pf-card-2);display:flex;align-items:center;padding:0 8px';
+    const sq = h('span', 'pf-mono', search, o.searchHint || 'search');
+    sq.style.cssText = 'font-size:8.5px;color:var(--pf-muted);letter-spacing:.06em';
+    const av = h('span', '', top);
+    av.style.cssText = `margin-left:auto;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,${acc},var(--pf-card-2))`;
+    if (o.kpis !== false) {
+      const krow = h('div', '', main);
+      krow.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:8px';
+      (o.stats || [['2.4k', 'active'], ['98%', 'uptime'], ['+14%', 'week']]).slice(0, 3).forEach((s, i) => {
+        const t = h('div', '', krow);
+        t.style.cssText = 'border:1px solid var(--pf-line);border-radius:9px;background:var(--pf-card-2);padding:8px 10px';
+        const v = h('div', '', t, s[0]);
+        v.style.cssText = `font:700 15px/1 var(--pf-display);color:${i === 0 ? acc : 'var(--pf-fg)'}`;
+        const l = h('div', 'pf-mono', t, s[1]);
+        l.style.cssText = 'font-size:7.5px;color:var(--pf-muted);letter-spacing:.1em;text-transform:uppercase;margin-top:3px';
+      });
+    }
+    if (o.chart !== false) {
+      const ch = h('div', '', main);
+      ch.style.cssText = 'flex:1;min-height:56px;border:1px solid var(--pf-line);border-radius:10px;background:var(--pf-card-2);padding:9px 10px;display:flex;flex-direction:column';
+      const ct = h('div', 'pf-mono', ch, o.chartTitle || 'activity');
+      ct.style.cssText = 'font-size:8px;color:var(--pf-muted);letter-spacing:.12em;text-transform:uppercase';
+      const bars = h('div', '', ch);
+      bars.style.cssText = 'flex:1;display:flex;align-items:flex-end;gap:5px;padding-top:6px';
+      const heights = o.bars || [0.4, 0.62, 0.5, 0.78, 0.55, 0.92, 0.7, 1.0, 0.64];
+      heights.forEach((hh, i) => {
+        const b = h('span', '', bars);
+        b.style.cssText = `flex:1;height:${Math.round(hh * 100)}%;border-radius:3px 3px 0 0;background:${i === heights.length - 2 ? acc : 'var(--pf-line)'};opacity:${i === heights.length - 2 ? 0.95 : 0.85}`;
+      });
+    }
+    const list = o.rows || ['deploy #4821', 'merge PR #119', 'run nightly'];
+    if (list.length && o.rows !== false) {
+      const lc = h('div', '', main);
+      lc.style.cssText = 'display:flex;flex-direction:column;gap:5px';
+      list.slice(0, 3).forEach((r, i) => {
+        const row = h('div', '', lc);
+        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid var(--pf-line);border-radius:8px;background:var(--pf-card-2)';
+        const d = h('span', '', row);
+        d.style.cssText = `width:7px;height:7px;border-radius:50%;background:${i === 0 ? acc : 'var(--pf-muted)'};flex:none`;
+        const tx = h('span', '', row, typeof r === 'string' ? r : (r.title || r.label || ''));
+        tx.style.cssText = 'font:500 10.5px/1.1 var(--pf-sans);color:var(--pf-fg);overflow:hidden;white-space:nowrap;text-overflow:ellipsis';
+        const meta = h('span', 'pf-mono', row, i === 0 ? 'now' : `${(i * 7 + 3)}m`);
+        meta.style.cssText = 'margin-left:auto;font-size:8px;color:var(--pf-muted)';
+      });
+    }
+    return root;
+  };
+
+
+
   /* screen-cam: media in browser chrome on a 3D-tilting camera + glow.
      spec: media, url (chrome bar), tilt (settled degrees), caption */
   scenes['screen-cam'] = (spec) => {
@@ -730,25 +803,14 @@ window.NexFilm = (() => {
       inner.style.cssText += ';position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform';
       vp.appendChild(inner);
     } else {
-      inner = h('div', '', vp);
-      inner.style.cssText = 'position:absolute;inset:0;background:linear-gradient(140deg,var(--pf-card),var(--pf-card-2));display:flex;will-change:transform';
-      const rail = h('div', '', inner);
-      rail.style.cssText = 'width:26%;border-right:1px solid var(--pf-line);padding:12px 10px;display:flex;flex-direction:column;gap:7px';
-      [0.7, 0.9, 0.8, 0.85].forEach((w, i) => {
-        const it = h('div', '', rail);
-        it.style.cssText = `height:9px;width:${w * 100}%;border-radius:5px;background:${i === 1 ? cssVar('--pf-accent') : 'var(--pf-line)'};opacity:${i === 1 ? 0.85 : 0.7}`;
+      inner = appScreen({
+        searchHint: spec.url || 'search',
+        stats: spec.stats, rows: spec.items || spec.rows,
+        chartTitle: spec.chartTitle,
+        bars: spec.bars,
       });
-      const body = h('div', '', inner);
-      body.style.cssText = 'flex:1;padding:14px 14px 12px;display:flex;flex-direction:column;gap:9px';
-      const hero = h('div', '', body);
-      hero.style.cssText = `height:44%;border-radius:9px;background:linear-gradient(120deg,${cssVar('--pf-accent')}30,var(--pf-line));border:1px solid var(--pf-line)`;
-      [0.8, 0.6, 0.72].forEach((w) => {
-        const r = h('div', '', body);
-        r.style.cssText = `height:8px;width:${w * 100}%;border-radius:4px;background:var(--pf-line);opacity:0.8`;
-      });
-      const chipRow = h('div', '', body);
-      chipRow.style.cssText = 'display:flex;gap:6px;margin-top:auto';
-      for (let i = 0; i < 3; i++) { const c = h('div', '', chipRow); c.style.cssText = `height:16px;width:${54 + i * 8}px;border-radius:8px;border:1px solid var(--pf-line);background:${i === 0 ? cssVar('--pf-accent') + '26' : 'var(--pf-card-2)'}`; }
+      inner.style.cssText += ';will-change:transform';
+      vp.appendChild(inner);
     }
     const tl = NexMotion.createTimeline();
     const dur = spec.duration || 5;
@@ -782,16 +844,29 @@ window.NexFilm = (() => {
     const hd = h('div', '', app);
     hd.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--pf-line);font:600 11px/1 var(--pf-mono);letter-spacing:.14em;color:var(--pf-muted);text-transform:uppercase';
     hd.appendChild(document.createTextNode(spec.title || 'workspace'));
+    const tb = h('div', '', app);
+    tb.style.cssText = 'position:absolute;left:14px;right:14px;top:40px;display:flex;gap:6px';
+    (spec.chips || ['all', 'today', 'queued']).forEach((c, i) => {
+      const ch = h('span', 'pf-mono', tb, c);
+      ch.style.cssText = `font-size:9px;letter-spacing:.08em;padding:4px 10px;border-radius:11px;border:1px solid var(--pf-line);${i === 0 ? `background:${cssVar('--pf-accent')}1e;color:var(--pf-accent);border-color:${cssVar('--pf-accent')}55` : 'color:var(--pf-muted)'}`;
+    });
     const rowsWrap = h('div', '', app);
-    rowsWrap.style.cssText = 'position:absolute;left:14px;right:14px;top:44px;display:flex;flex-direction:column;gap:8px';
-    const rows = (spec.rows || spec.items || ['draft brief', 'review cut', 'ship it']).slice(0, 4).map((label, i) => {
+    rowsWrap.style.cssText = 'position:absolute;left:14px;right:14px;top:70px;display:flex;flex-direction:column;gap:8px';
+    const rows = (spec.rows || spec.items || ['draft brief', 'review cut', 'ship it']).slice(0, 3).map((label, i) => {
       const r = h('div', '', rowsWrap);
       r.dataset.cap = 'row-' + i;
-      r.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;border:1px solid var(--pf-line);background:var(--pf-card-2);font:500 13px/1.2 var(--pf-sans);color:var(--pf-fg)';
+      r.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;border:1px solid var(--pf-line);background:var(--pf-card-2);color:var(--pf-fg)';
       const dot = h('span', '', r);
-      dot.style.cssText = 'width:14px;height:14px;border-radius:50%;border:1.5px solid var(--pf-muted);flex:none';
+      dot.style.cssText = 'width:15px;height:15px;border-radius:50%;border:1.5px solid var(--pf-muted);flex:none;display:flex;align-items:center;justify-content:center';
       r._dot = dot;
-      r.appendChild(document.createTextNode(typeof label === 'string' ? label : (label.title || label.label || '')));
+      const col = h('span', '', r);
+      col.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0;flex:1';
+      const tt = h('span', '', col, typeof label === 'string' ? label : (label.title || label.label || ''));
+      tt.style.cssText = 'font:500 12.5px/1.1 var(--pf-sans);overflow:hidden;white-space:nowrap;text-overflow:ellipsis';
+      const mt = h('span', 'pf-mono', col, (typeof label === 'object' && label?.sub) || ['queued', 'waiting', 'ready'][i % 3]);
+      mt.style.cssText = 'font-size:8.5px;color:var(--pf-muted);letter-spacing:.08em';
+      const badge = h('span', 'pf-mono', r, `#${41 + i * 7}`);
+      badge.style.cssText = 'font-size:8.5px;color:var(--pf-muted)';
       return r;
     });
     const btn = h('div', '', app);
@@ -867,10 +942,21 @@ window.NexFilm = (() => {
       else {
         const g = h('div', '', p);
         /* anchor each pane's content to its own edge — the sweep can never
-           make them overlap */
-        const pad = side === 'a' ? 'justify-content:flex-start;padding-left:26px' : 'justify-content:flex-end;padding-right:26px';
-        g.style.cssText = `position:absolute;inset:0;display:flex;align-items:center;${pad};background:linear-gradient(${side === 'a' ? '135deg,var(--pf-card-2),var(--pf-card)' : '135deg,var(--pf-accent)22,var(--pf-card)'});font:600 ${fsize('24px')}/1.1 var(--pf-display);color:var(--pf-fg)`;
-        g.appendChild(document.createTextNode(typeof data === 'object' && data ? (data.label || data.title || '') : side === 'a' ? 'before' : 'after'));
+           make them overlap. Label + a mini content stack so each side
+           reads as a state, not a word. */
+        const anchor = side === 'a' ? 'align-items:flex-start;left:0;right:46%' : 'align-items:flex-end;left:46%;right:0';
+        g.style.cssText = `position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;${anchor};padding:0 22px;gap:8px;background:linear-gradient(${side === 'a' ? '135deg,var(--pf-card-2),var(--pf-card)' : '135deg,var(--pf-accent)22,var(--pf-card)'})`;
+        const big = h('div', '', g, typeof data === 'object' && data ? (data.label || data.title || '') : side === 'a' ? 'before' : 'after');
+        big.style.cssText = `font:600 ${fsize('23px')}/1.1 var(--pf-display);color:var(--pf-fg)`;
+        const rows = (typeof data === 'object' && data?.items ? data.items : side === 'a' ? ['manual steps', 'no signal'] : ['one pass', 'clean signal']).slice(0, 3);
+        rows.forEach(rr => {
+          const l = h('div', '', g);
+          l.style.cssText = 'display:flex;align-items:center;gap:6px';
+          const d = h('span', '', l);
+          d.style.cssText = `width:5px;height:5px;border-radius:50%;background:${side === 'b' ? 'var(--pf-accent)' : 'var(--pf-muted)'}`;
+          const tx = h('span', 'pf-mono', l, rr);
+          tx.style.cssText = 'font-size:9.5px;color:var(--pf-muted);letter-spacing:.06em;white-space:nowrap';
+        });
       }
       return p;
     };
@@ -925,7 +1011,9 @@ window.NexFilm = (() => {
       return r;
     });
     const res = h('div', '', panel);
-    res.style.cssText = `margin-top:14px;padding:12px 14px;border-radius:10px;background:${cssVar('--pf-accent')}1c;border:1px solid ${cssVar('--pf-accent')}55;font:600 13.5px/1.35 var(--pf-sans);color:var(--pf-fg);opacity:0`;
+    res.style.cssText = `margin-top:14px;padding:12px 14px;border-radius:10px;background:${cssVar('--pf-accent')}1c;border:1px solid ${cssVar('--pf-accent')}55;font:600 13.5px/1.35 var(--pf-sans);color:var(--pf-fg);opacity:0;display:flex;align-items:center;gap:9px`;
+    const rb = h('span', '', res, '✓');
+    rb.style.cssText = `flex:none;width:19px;height:19px;border-radius:50%;background:var(--pf-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700`;
     res.appendChild(document.createTextNode(spec.result || 'Ready'));
     const tl = NexMotion.createTimeline();
     popIn(tl, panel, 0.05, 0.45);
@@ -971,8 +1059,15 @@ window.NexFilm = (() => {
       p.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:var(--pf-card)';
       const src = mediaOf(typeof c === 'string' ? c : (c.img || c.media));
       if (src) { const im = mediaImg(src); im.style.cssText += ';position:absolute;inset:0;width:100%;height:100%;object-fit:cover'; p.appendChild(im); }
-      const t = h('div', '', p, typeof c === 'object' ? (c.title || '') : '');
-      t.style.cssText = `position:relative;z-index:1;font:600 ${fsize('30px')}/1.1 var(--pf-display);color:var(--pf-fg);text-shadow:0 2px 12px rgba(0,0,0,.4)`;
+      const card = h('div', '', p);
+      card.style.cssText = 'position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center';
+      const ic = icon((typeof c === 'object' && c.icon) || 'spark', card);
+      ic.style.cssText = `width:26px;height:26px;color:${cssVar('--pf-accent')}`;
+      const t = h('div', '', card, typeof c === 'object' ? (c.title || '') : '');
+      t.style.cssText = `font:600 ${fsize('30px')}/1.1 var(--pf-display);color:var(--pf-fg);text-shadow:0 2px 12px rgba(0,0,0,.4)`;
+      const bars = h('div', '', card);
+      bars.style.cssText = 'display:flex;flex-direction:column;gap:5px;align-items:center';
+      [120, 74].forEach(w => { const b = h('span', '', bars); b.style.cssText = `height:6px;width:${w}px;border-radius:3px;background:var(--pf-line);opacity:.8`; });
       return p;
     });
     const tl = NexMotion.createTimeline();
