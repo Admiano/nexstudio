@@ -22,6 +22,7 @@ __pycache__/
 
 # Generated/runtime assets
 /engines/
+engine_sources/*/out/
 /local-renders/
 /uploads/
 /tmp/
@@ -64,3 +65,4 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+engine_sources/*/fixtures/

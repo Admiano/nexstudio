@@ -15,7 +15,7 @@ export async function GET(request:Request){
       if(!challenge)throw new Error("EMAIL_LINK_EXPIRED");
       const claimed=await tx.authChallenge.updateMany({where:{id:challenge.id,usedAt:null,expiresAt:{gt:new Date()}},data:{usedAt:new Date()}});
       if(claimed.count!==1)throw new Error("EMAIL_LINK_ALREADY_USED");
-      const email=challenge.identifier.toLowerCase();const payload=challenge.payload as {next?:string|null};const next=payload.next?.startsWith("/")&&!payload.next.startsWith("//")?payload.next:"/dashboard";
+      const email=challenge.identifier.toLowerCase();const payload=challenge.payload as {next?:string|null};const next=payload.next?.startsWith("/")&&!payload.next.startsWith("//")?payload.next:"/studio";
       const existing=await tx.user.findUnique({where:{email}});
       if(existing && (existing as {privacyStatus?:string}).privacyStatus==="DELETED")throw new Error("ACCOUNT_DELETED");
       const target=existing

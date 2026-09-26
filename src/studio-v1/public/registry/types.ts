@@ -1,4 +1,4 @@
-export const FAMILY_IDS = ["explainer", "whiteboard", "stickman", "editorial-motion"] as const;
+export const FAMILY_IDS = ["explainer", "whiteboard"] as const;
 export type FamilyId = (typeof FAMILY_IDS)[number];
 
 export const ASPECT_RATIOS = ["16:9", "9:16", "1:1"] as const;

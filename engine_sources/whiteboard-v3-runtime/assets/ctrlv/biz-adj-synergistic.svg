@@ -1,0 +1,25 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Large Top Gear -->
+                <g >
+                    <circle cx="200" cy="100" r="45" fill="#1A1A17"/>
+                    <path d="M190 40 H210 V160 H190 Z M140 90 H260 V110 H140 Z" fill="#1A1A17"/>
+                    <circle cx="200" cy="100" r="15" fill="#F5F0E4"/>
+                </g>
+                <!-- Small Left Gear -->
+                <g >
+                    <circle cx="150" cy="180" r="30" fill="#F5F0E4"/>
+                    <path d="M140 140 H160 V220 H140 Z M110 170 H190 V190 H110 Z" fill="#F5F0E4"/>
+                    <circle cx="150" cy="180" r="10" fill="#F5F0E4"/>
+                </g>
+                <!-- Small Right Gear -->
+                <g >
+                    <circle cx="250" cy="180" r="30" fill="#F5F0E4"/>
+                    <path d="M240 140 H260 V220 H240 Z M210 170 H290 V190 H210 Z" fill="#F5F0E4"/>
+                    <circle cx="250" cy="180" r="10" fill="#F5F0E4"/>
+                </g>
+                <!-- Connection Sparks -->
+                <circle cx="170" cy="140" r="6" fill="#F5F0E4"/>
+                <circle style="animation-delay: 0.5s;" cx="230" cy="140" r="6" fill="#F5F0E4"/>
+            </g>
+          </svg>

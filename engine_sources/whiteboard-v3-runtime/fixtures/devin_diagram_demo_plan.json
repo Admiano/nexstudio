@@ -1,0 +1,94 @@
+{
+ "production_id": "NEXMIND_DEVIN_DIAGRAM_DEMO",
+ "aspect_ratios": [
+  "16:9"
+ ],
+ "diagram": {
+  "title": "How does Devin work?",
+  "hero": "robot",
+  "summary": "TASK \u2192 CODE \u2192 PULL REQUEST"
+ },
+ "brandExecution": {
+  "brandAuthority": {
+   "accent": "#0052FF"
+  }
+ },
+ "beats": [
+  {
+   "narration": "Devin is an AI software engineer. You give it a task \u2014 a ticket, a bug, a feature request.",
+   "diagram": {
+    "region": "left",
+    "stage": "YOU ASK",
+    "elements": [
+     {
+      "icon": "ticket",
+      "id": "tkt",
+      "at": "left"
+     },
+     {
+      "icon": "task list",
+      "at": "left"
+     },
+     {
+      "arrow": {
+       "from": "tkt",
+       "to": "hero"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "narration": "Then it gets to work on its own machine. It plans the change, writes the code, and tests it.",
+   "diagram": {
+    "region": "hero",
+    "stage": "DEVIN WORKS",
+    "elements": [
+     {
+      "part": "planning",
+      "label": "PLAN",
+      "sub": "breaks it into steps",
+      "at": "hero-tl"
+     },
+     {
+      "part": "code",
+      "label": "BUILD",
+      "sub": "writes the code",
+      "at": "hero-tr"
+     },
+     {
+      "part": "flask",
+      "label": "TEST",
+      "sub": "runs & fixes",
+      "at": "hero-c"
+     }
+    ]
+   }
+  },
+  {
+   "narration": "When it is done, it hands you a pull request. You review it, leave comments, and it keeps going.",
+   "diagram": {
+    "region": "right",
+    "stage": "YOU REVIEW",
+    "elements": [
+     {
+      "callout": "3. REVIEW",
+      "sub": "PR \u00b7 comments \u00b7 iterate",
+      "at": "right"
+     },
+     {
+      "icon": "code review",
+      "id": "rev",
+      "at": "right"
+     },
+     {
+      "arrow": {
+       "from": "hero",
+       "to": "rev"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

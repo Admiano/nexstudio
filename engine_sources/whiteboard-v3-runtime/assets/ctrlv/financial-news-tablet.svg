@@ -1,0 +1,12 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="100" y="60" width="200" height="180" rx="8" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="2"/>
+        <g>
+            <rect x="120" y="80" width="160" height="10" fill="#F5F0E4" opacity="0.2"/>
+            <rect x="120" y="100" width="120" height="10" fill="#F5F0E4" opacity="0.1"/>
+        </g>
+        <g>
+            <path d="M200 150 L250 120 L300 130" stroke="#22c55e" stroke-width="4" fill="none"/>
+            <rect x="120" y="140" width="60" height="60" fill="#1A1A17" opacity="0.3"/>
+        </g>
+        <text x="200" y="225" text-anchor="middle" font-family="Inter" font-weight="900" font-size="14" fill="#F5F0E4">LIVE MARKET</text>
+    </svg>

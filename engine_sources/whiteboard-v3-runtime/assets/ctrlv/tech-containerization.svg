@@ -1,0 +1,40 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Stacked Containers -->
+                <!-- Bottom Center -->
+                <g transform="translate(200, 220)">
+                    <g >
+                    <rect x="-60" y="-40" width="120" height="40" rx="4" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M-40 -40 V0 M0 -40 V0 M40 -40 V0" stroke="#F5F0E4" stroke-width="2" opacity="0.3"/>
+                </g>
+                </g>
+                <!-- Middle Left -->
+                <g transform="translate(140, 180)">
+                    <g  style="animation-delay: 0.2s;">
+                    <rect x="-60" y="-40" width="120" height="40" rx="4" fill="#1A1A17" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M-40 -40 V0 M0 -40 V0 M40 -40 V0" stroke="#F5F0E4" stroke-width="2" opacity="0.3"/>
+                </g>
+                </g>
+                <!-- Middle Right -->
+                <g transform="translate(260, 180)">
+                    <g  style="animation-delay: 0.4s;">
+                    <rect x="-60" y="-40" width="120" height="40" rx="4" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M-40 -40 V0 M0 -40 V0 M40 -40 V0" stroke="#F5F0E4" stroke-width="2" opacity="0.3"/>
+                </g>
+                </g>
+                <!-- Top Center -->
+                <g transform="translate(200, 140)">
+                    <g  style="animation-delay: 0.6s;">
+                    <rect x="-60" y="-40" width="120" height="40" rx="4" fill="#1A1A17" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M-40 -40 V0 M0 -40 V0 M40 -40 V0" stroke="#F5F0E4" stroke-width="2" opacity="0.3"/>
+                </g>
+                </g>
+                
+                <!-- Ship/Platform Base -->
+                <path d="M40 260 H360 L340 280 H60 Z" fill="#F5F0E4"/>
+                
+                <!-- Status Beacons -->
+                <circle cx="100" cy="120" r="10" fill="#F5F0E4" opacity="0.4"/>
+                <circle cx="100" cy="120" r="5" fill="#F5F0E4"/>
+            </g>
+          </svg>

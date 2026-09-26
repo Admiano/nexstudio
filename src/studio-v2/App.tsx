@@ -20,7 +20,7 @@ export interface ContextChip {
 export type Scope = "work" | "brands" | "series" | "assets" | "balance" | "ledger";
 
 export interface StudioData {
-  projects: Array<DashboardProject & { prompt?: string | null }>;
+  projects: Array<DashboardProject & { prompt?: string | null; engine?: { kind: "whiteboard" | "explainer"; jobId: string; phase: string | null; failureCode: string | null; outputs?: Record<string, string> | null } | null }>;
   brands: StudioBrandRoot[];
   series: StudioSeriesRoot[];
   assets: StudioAsset[];
@@ -82,7 +82,7 @@ const Shell = dynamic(() => import("./Shell"), { ssr: false });
 
 export function StudioApp({ initialAuthed }: { initialAuthed: boolean }) {
   const [view, setView] = useState<ViewId>("create");
-  const [projects, setProjects] = useState<Array<DashboardProject & { prompt?: string | null }>>([]);
+  const [projects, setProjects] = useState<StudioData["projects"]>([]);
   const [brands, setBrands] = useState<StudioBrandRoot[]>([]);
   const [seriesList, setSeriesList] = useState<StudioSeriesRoot[]>([]);
   const [assets, setAssets] = useState<StudioAsset[]>([]);

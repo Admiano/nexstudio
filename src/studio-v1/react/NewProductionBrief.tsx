@@ -5,7 +5,7 @@ import { createStudioProductionDraftClient } from "@/lib/studio-production-draft
 import type { StudioProductionFamily } from "@/domain/studio-production-draft";
 import { getVideoType, isPublicVideoType, PRODUCTION_REGISTRY } from "@/studio-v1/public/registry";
 
-const FAMILY_MAP: Record<string, StudioProductionFamily> = { explainer: "EXPLAINER", whiteboard: "WHITEBOARD", stickman: "STICKMAN", "editorial-motion": "EDITORIAL_MOTION" };
+const FAMILY_MAP: Record<string, StudioProductionFamily> = { explainer: "EXPLAINER", whiteboard: "WHITEBOARD" };
 const INTENT_KEY = "studio.initialIntent.v1";
 
 export function NewProductionBrief() {

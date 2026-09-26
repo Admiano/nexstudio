@@ -7,27 +7,54 @@ import { BrandView } from "./views/BrandView";
 import { LibraryView } from "./views/LibraryView";
 import { SeriesView } from "./views/SeriesView";
 import { CreditsSheet } from "./overlays/Credits";
-import { AccountSheet } from "./overlays/Account";
+import { AccountSheet, initialsOf } from "./overlays/Account";
 import { FlowOverlay, type FlowState } from "./overlays/Flow";
 import { PickerSheets, type SheetId } from "./overlays/Sheets";
 import { HistoryOverlay } from "./overlays/History";
 import { route, useStudio, formatUSD, type ContextChip, type ViewId } from "./App";
+import { studioApi } from "./api";
+import { loadViewed, markViewed } from "./viewed";
 
 export interface ComposerState {
   prompt: string;
   contexts: ContextChip[];
   family: string | null;
+  mode?: "brief" | "script";
 }
 
 export default function Shell({ view }: { view: ViewId }) {
-  const { balance } = useStudio();
+  const { balance, projects } = useStudio();
   const [sheet, setSheet] = useState<SheetId | null>(null);
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [profile, setProfile] = useState<{ displayName: string | null; email: string | null } | null>(null);
+  useEffect(() => {
+    const ctl = new AbortController();
+    studioApi.accountProfile(ctl.signal).then((r) => setProfile(r.profile)).catch(() => {});
+    return () => ctl.abort();
+  }, []);
   const [historyId, setHistoryId] = useState<string | null>(null);
+  // flow survives refresh: stored per-tab so a reload returns to the same stage
   const [flow, setFlow] = useState<FlowState | null>(null);
+  const [flowReady, setFlowReady] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("nx.flow");
+      if (raw) setFlow(JSON.parse(raw) as FlowState);
+    } catch { /* corrupt storage — start clean */ }
+    setFlowReady(true);
+  }, []);
+  useEffect(() => {
+    if (!flowReady) return;
+    try {
+      if (flow) sessionStorage.setItem("nx.flow", JSON.stringify(flow));
+      else sessionStorage.removeItem("nx.flow");
+    } catch { /* storage full/blocked — non-fatal */ }
+  }, [flow, flowReady]);
   const [seriesFocus, setSeriesFocus] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [viewed, setViewed] = useState<Set<string>>(() => (typeof window === "undefined" ? new Set() : loadViewed()));
   const [composer, setComposer] = useState<ComposerState>({ prompt: "", contexts: [], family: null });
 
   const notify = useCallback((msg: string) => {
@@ -39,6 +66,20 @@ export default function Shell({ view }: { view: ViewId }) {
     const t = setTimeout(() => setToast(null), 3200);
     return () => clearTimeout(t);
   }, [toast]);
+
+  // Esc peels the topmost overlay off, in stacking order.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (bellOpen) { setBellOpen(false); return; }
+      if (creditsOpen) { setCreditsOpen(false); return; }
+      if (accountOpen) { setAccountOpen(false); return; }
+      if (sheet) { setSheet(null); return; }
+      if (historyId) setHistoryId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [bellOpen, creditsOpen, accountOpen, sheet, historyId]);
 
   const openSeries = useCallback((id: string | null) => {
     setSeriesFocus(id);
@@ -55,6 +96,22 @@ export default function Shell({ view }: { view: ViewId }) {
 
   const setPrompt = useCallback((prompt: string) => setComposer((c) => ({ ...c, prompt })), []);
   const setFamily = useCallback((family: string | null) => setComposer((c) => ({ ...c, family })), []);
+  const setMode = useCallback((mode: "brief" | "script") => setComposer((c) => ({ ...c, mode })), []);
+
+  const openJobFlow = useCallback((p: { id: string; engine: { kind: "whiteboard" | "explainer"; jobId: string; outputs?: Record<string, string> | null } }) => {
+    markViewed(p.id);
+    setViewed(loadViewed());
+    const done = p.engine.outputs && Object.keys(p.engine.outputs).length > 0;
+    setFlow(done
+      ? { stage: "review", jobKind: p.engine.kind, jobId: p.engine.jobId, jobOutputs: p.engine.outputs ?? {} }
+      : { stage: "production", jobKind: p.engine.kind, jobId: p.engine.jobId });
+  }, []);
+
+  // Finished-but-unviewed engine renders — the in-app completion feed.
+  const finishedUnviewed = useMemo(() => projects.filter((p) => {
+    const done = p.engine?.outputs && Object.keys(p.engine.outputs).length > 0;
+    return done && !viewed.has(p.id);
+  }), [projects, viewed]);
 
   const flowApi = useMemo(() => ({
     openFlow: (initial: FlowState) => setFlow(initial),
@@ -78,24 +135,52 @@ export default function Shell({ view }: { view: ViewId }) {
           ))}
         </nav>
         <div className="account">
+          <div className="bell-wrap">
+            <button aria-label="Notifications" className={`bell ${finishedUnviewed.length > 0 ? "has-new" : ""}`} onClick={() => setBellOpen((v) => !v)}>
+              <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8" /><path d="M13.7 21a2 2 0 0 1-3.4 0" /></svg>
+              {finishedUnviewed.length > 0 && <span className="bell-count">{finishedUnviewed.length}</span>}
+            </button>
+            {bellOpen && (
+              <div className="bell-drop">
+                <div className="bell-head"><b>Activity</b>{finishedUnviewed.length > 0 ? <span>{finishedUnviewed.length} new</span> : <span>You're caught up</span>}</div>
+                {finishedUnviewed.slice(0, 6).map((p) => (
+                  <button key={p.id} className="bell-item" onClick={() => { setBellOpen(false); openJobFlow({ id: p.id, engine: { kind: p.engine!.kind, jobId: p.engine!.jobId, outputs: p.engine!.outputs } }); }}>
+                    <span className="bell-dot" />
+                    <span className="bell-item-copy"><b>{p.title}</b><span>Finished rendering. Ready to review.</span></span>
+                    <span className="bell-go">→</span>
+                  </button>
+                ))}
+                {finishedUnviewed.length === 0 && <div className="bell-empty"><b>Nothing waiting.</b><p>When a video finishes rendering, it shows up here.</p></div>}
+                <button className="bell-all" onClick={() => { setBellOpen(false); route("work"); }}>View all work →</button>
+              </div>
+            )}
+          </div>
           <button aria-label="Open credits" className="credits" onClick={() => setCreditsOpen(true)}>
-            <span className="credit-dot" /><span>{balance ? formatUSD(balance.availableMinor) : "—"}</span>
+            <span className="credit-dot" /><span>{balance ? formatUSD(balance.availableMinor) : "···"}</span>
           </button>
-          <button aria-label="Open account" className="avatar" onClick={() => setAccountOpen(true)}>CM</button>
+          <button aria-label="Open account" className="avatar" onClick={() => setAccountOpen(true)}>{initialsOf(profile?.displayName, profile?.email)}</button>
         </div>
       </header>
       <main>
         <section className={`view ${view === "create" ? "active" : ""}`} id="view-create">
-          <CreateView composer={composer} setPrompt={setPrompt} setFamily={setFamily} removeContext={removeContext} openSheet={setSheet} openFlow={flowApi.openFlow} onOpenWork={(id) => setHistoryId(id)} openSeries={openSeries} notify={notify} />
+          <CreateView composer={composer} setPrompt={setPrompt} setFamily={setFamily} setMode={setMode} removeContext={removeContext} openSheet={setSheet} openFlow={flowApi.openFlow} onOpenWork={(id) => {
+            const p = projects.find((x) => x.id === id);
+            if (p?.engine?.jobId) {
+              openJobFlow({ id: p.id, engine: { kind: p.engine.kind, jobId: p.engine.jobId, outputs: p.engine.outputs } });
+              return;
+            }
+            markViewed(id);
+            setHistoryId(id);
+          }} openSeries={openSeries} notify={notify} />
         </section>
         <section className={`view ${view === "work" ? "active" : ""}`} id="view-work">
-          <WorkView onOpenHistory={(id) => setHistoryId(id)} onContinue={(id) => setHistoryId(id)} />
+          <WorkView onOpenHistory={(id) => { markViewed(id); setHistoryId(id); }} onOpenJob={(p) => openJobFlow({ id: p.id, engine: { kind: p.engine.kind, jobId: p.engine.jobId, outputs: p.engine.outputs } })} />
         </section>
         <section className={`view ${view === "brand" ? "active" : ""}`} id="view-brand">
-          <BrandView openSheet={setSheet} notify={notify} openSeries={openSeries} />
+          <BrandView openSheet={setSheet} notify={notify} openSeries={openSeries} onOpenWork={(id) => setHistoryId(id)} />
         </section>
         <section className={`view ${view === "library" ? "active" : ""}`} id="view-library">
-          <LibraryView openSheet={setSheet} notify={notify} />
+          <LibraryView openSheet={setSheet} notify={notify} addContext={addContext} />
         </section>
         <section className={`view ${view === "series" ? "active" : ""}`} id="view-series">
           <SeriesView focusId={seriesFocus} openSheet={setSheet} notify={notify} onOpenHistory={(id) => setHistoryId(id)} />
@@ -110,10 +195,10 @@ export default function Shell({ view }: { view: ViewId }) {
       </nav>
       <PickerSheets open={sheet} onClose={() => setSheet(null)} composer={composer} addContext={addContext} openSeries={openSeries} notify={notify} />
       {creditsOpen && <CreditsSheet onClose={() => setCreditsOpen(false)} notify={notify} />}
-      {accountOpen && <AccountSheet onClose={() => setAccountOpen(false)} notify={notify} />}
+      {accountOpen && <AccountSheet onClose={() => setAccountOpen(false)} notify={notify} profile={profile} onProfile={setProfile} openCredits={() => { setAccountOpen(false); setCreditsOpen(true); }} />}
       {historyId && <HistoryOverlay productionId={historyId} onClose={() => setHistoryId(null)} openSeries={openSeries} onReview={(id) => { setHistoryId(null); flowApi.openFlow({ stage: "review", productionId: id }); }} notify={notify} />}
       {flow && <FlowOverlay flow={flow} api={flowApi} />}
-      {toast ? <div className="toast show">{toast}</div> : null}
+      {toast ? <div className="toast show" role="status" aria-live="polite">{toast}</div> : null}
     </div>
   );
 }

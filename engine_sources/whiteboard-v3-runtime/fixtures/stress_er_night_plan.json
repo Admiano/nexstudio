@@ -1,0 +1,104 @@
+{
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "production_id": "NEXMIND_WHITEBOARD_V3_ER_NIGHT_DEMO",
+ "camera_variant": "cluster_travel",
+ "output_ratios": [
+  "16:9"
+ ],
+ "pacing": {
+  "transition_seconds": 0.62,
+  "board_reveal_seconds": 0.72
+ },
+ "beats": [
+  {
+   "beat_id": "01_arrival",
+   "start_seconds": 0,
+   "duration_seconds": 4.7,
+   "narration": "An ambulance rolls in and the triage nurse is already moving.",
+   "scene": {
+    "sceneId": "01_arrival",
+    "heroRole": "triage nurse",
+    "supportingRoles": [
+     "ambulance arrival",
+     "gurney"
+    ],
+    "screenCopy": {
+     "primary": "MIDNIGHT INTAKE"
+    },
+    "semanticRelationships": [
+     {
+      "source": "triage nurse",
+      "target": "gurney",
+      "kind": "meets"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_triage",
+   "start_seconds": 4.7,
+   "duration_seconds": 5.1,
+   "narration": "A critical patient jumps the line \u2014 vitals stream to the monitor.",
+   "scene": {
+    "sceneId": "02_triage",
+    "heroRole": "critical patient",
+    "supportingRoles": [
+     "vital signs monitor",
+     "urgent flag"
+    ],
+    "screenCopy": {
+     "primary": "TRIAGE NOW"
+    },
+    "semanticRelationships": [
+     {
+      "source": "critical patient",
+      "target": "vital signs monitor",
+      "kind": "streams"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_alerts",
+   "start_seconds": 9.8,
+   "duration_seconds": 4.8,
+   "narration": "The old pager system is gone; instant alerts hit every phone.",
+   "scene": {
+    "sceneId": "03_alerts",
+    "heroRole": "old pager system",
+    "supportingRoles": [
+     "instant alerts",
+     "no delay"
+    ],
+    "screenCopy": {
+     "primary": "KILL THE PAGER"
+    },
+    "semanticRelationships": [
+     {
+      "source": "instant alerts",
+      "target": "old pager system",
+      "kind": "replaces"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_numbers",
+   "start_seconds": 14.6,
+   "duration_seconds": 5.0,
+   "narration": "Twelve beds, forty seven minutes of wait \u2014 down to eleven.",
+   "scene": {
+    "sceneId": "04_numbers",
+    "heroRole": "12 beds",
+    "supportingRoles": [
+     "wait time 47 min",
+     "11 min"
+    ],
+    "screenCopy": {
+     "primary": "THE NUMBERS"
+    },
+    "semanticRelationships": []
+   }
+  }
+ ]
+}

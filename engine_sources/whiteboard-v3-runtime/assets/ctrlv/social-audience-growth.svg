@@ -1,0 +1,29 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Mobile Phone Base -->
+                <rect x="130" y="60" width="140" height="200" rx="16" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                <rect x="140" y="80" width="120" height="140" rx="4" fill="#1A1A17" opacity="0.1"/>
+                <circle cx="200" cy="240" r="10" fill="#F5F0E4" opacity="0.3"/>
+    
+                <!-- Growing Plant from Screen -->
+                <g transform="translate(200, 180)">
+                    <g >
+                    <path d="M0 0 V-80" stroke="#1A1A17" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Leaves -->
+                    <path style="animation-delay: 0.2s;" d="M0 -40 Q-30 -40 -30 -70 Q0 -70 0 -40" fill="#F5F0E4"/>
+                    <path style="animation-delay: 0.4s;" d="M0 -60 Q30 -60 30 -90 Q0 -90 0 -60" fill="#F5F0E4"/>
+                    <!-- Flower / Star at top -->
+                    <g transform="translate(0, -90)">
+                        <g >
+                        <circle cx="0" cy="0" r="15" fill="#F5F0E4" opacity="0.3"/>
+                        <circle cx="0" cy="0" r="8" fill="#F5F0E4"/>
+                    </g>
+                    </g>
+                </g>
+                </g>
+                
+                <!-- Floating Icons -->
+                <circle cx="100" cy="100" r="6" fill="#F5F0E4"/>
+                <circle style="animation-delay: 0.3s;" cx="300" cy="150" r="8" fill="#1A1A17"/>
+            </g>
+          </svg>

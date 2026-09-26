@@ -1,0 +1,18 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Left Cuff -->
+                <circle cx="130" cy="150" r="50" stroke="#1A1A17" stroke-width="15" fill="none"/>
+                <circle cx="130" cy="150" r="40" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
+                <rect x="180" y="140" width="20" height="20" fill="#1A1A17"/>
+                <circle cx="190" cy="150" r="4" fill="#F5F0E4"/>
+                
+                <!-- Right Cuff -->
+                <circle cx="270" cy="150" r="50" stroke="#F5F0E4" stroke-width="15" fill="none"/>
+                <circle cx="270" cy="150" r="40" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
+                <rect x="200" y="140" width="20" height="20" fill="#F5F0E4"/>
+                <circle cx="210" cy="150" r="4" fill="#F5F0E4"/>
+                
+                <!-- Chain -->
+                <path d="M190 150 Q200 130 210 150" stroke="#F5F0E4" stroke-width="6" fill="none" stroke-linecap="round"/>
+            </g>
+          </svg>

@@ -84,7 +84,7 @@ function sha256(value: string) {
 }
 
 function normalizedFamily(family: StudioProductionFamily) {
-  return family === "EDITORIAL_MOTION" ? "editorial_motion" : family.toLowerCase();
+  return family.toLowerCase();
 }
 
 function safeBrandTone(draft: ProductionDraft) {

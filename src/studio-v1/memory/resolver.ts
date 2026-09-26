@@ -1,6 +1,5 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import type { EffectiveStudioMemory, SeriesPlanSignature, StudioProductionMemoryPacket } from "./contracts";
-import { NEXSTICK_V5_1_PERFORMANCE_AUTHORITY } from "./contracts";
 
 function record(value: unknown): Record<string, unknown> { return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {}; }
 
@@ -68,7 +67,7 @@ export async function resolveProductionMemoryPacket(prisma: PrismaClient, input:
     brandAuthority: { brandId: production.brandId, memories: byScope("BRAND", production.brandId), enforcement: "BINDING_UNLESS_EXPLICIT_PRODUCTION_EXCEPTION" },
     castAuthority: production.studioCastLinks.map((link) => ({
       castMemberId: link.castMemberId, identityKey: link.castMember.identityKey, name: link.castMember.name,
-      memories: byScope("CAST", link.castMemberId), performance: NEXSTICK_V5_1_PERFORMANCE_AUTHORITY,
+      memories: byScope("CAST", link.castMemberId),
     })),
     seriesMemory: { seriesId: production.seriesId, memories: byScope("SERIES", production.seriesId), previousEpisodeSignatures, antiRepetitionWindow: 2 },
     productionMemory: byScope("PRODUCTION", production.id),

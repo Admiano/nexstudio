@@ -5,13 +5,14 @@ import { randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
+import { createEngineDraft, renderCapacity, runningEngineJobs } from "@/lib/engine-jobs";
 
 export const runtime = "nodejs";
 
 const ENGINE = process.env.EXPLAINER_ENGINE_DIR
   ?? path.join(process.cwd(), "engine_sources", "editorial-motion-v2");
 const JOBS = path.join(ENGINE, "out", "explainer-jobs");
-const VOICES = ["af_bella","af_sarah","am_onyx","am_adam","bf_emma","bf_isabella","bm_george","bm_lewis"];
+const VOICES = ["emma","ava","andrew","brian","sonia","natasha"];
 const ASPECTS = new Set(["16x9", "1x1", "9x16"]);
 
 function stylesList() {
@@ -44,9 +45,9 @@ export async function POST(request: Request) {
   const script = String(form.get("script") ?? "").trim();
   const voiceFile = form.get("voiceFile");
   if (!script && !(voiceFile instanceof File))
-    return problem(id, 422, "VOICE_REQUIRED", "Voice required", "Send 'script' (for a Kokoro voice) or a 'voiceFile' upload.");
+    return problem(id, 422, "VOICE_REQUIRED", "Voice required", "Send 'script' (for a Microsoft voice) or a 'voiceFile' upload.");
 
-  const voice = String(form.get("voice") ?? "bm_george");
+  const voice = String(form.get("voice") ?? "emma");
   if (script && !VOICES.includes(voice))
     return problem(id, 422, "VOICE_UNKNOWN", "Unknown voice", `Pick one of: ${VOICES.join(", ")}.`);
 
@@ -55,6 +56,17 @@ export async function POST(request: Request) {
   if (!aspects.length)
     return problem(id, 422, "ASPECT_UNKNOWN", "No valid aspect", `Pick from: ${[...ASPECTS].join(", ")}.`);
 
+  const durationRaw = Number(form.get("duration") ?? 0);
+  if (durationRaw && (!Number.isFinite(durationRaw) || durationRaw < 5 || durationRaw > 600))
+    return problem(id, 422, "DURATION_RANGE", "Invalid length", "Target length must be 5 to 600 seconds.");
+
+  const speedRaw = Number(form.get("speed") ?? 0);
+  if (speedRaw && (!Number.isFinite(speedRaw) || speedRaw < 0.7 || speedRaw > 1.5))
+    return problem(id, 422, "SPEED_RANGE", "Invalid speed", "Narration speed must be 0.7 to 1.5×.");
+
+  if (runningEngineJobs() >= renderCapacity())
+    return problem(id, 429, "RENDER_AT_CAPACITY", "The render floor is full right now", "A few renders are already running. Try again in a minute. Your brief and direction are saved.");
+
   const jobId = `xr-${randomUUID().slice(0, 8)}`;
   const dir = path.join(JOBS, jobId);
   const mediaDir = path.join(dir, "media");
@@ -62,6 +74,8 @@ export async function POST(request: Request) {
 
   const args: string[] = [path.join(ENGINE, "tools", "make_reel.py"), "--style", style,
     "--aspects", aspects.join(","), "--out", path.join(dir, "out"), "--film-id", jobId];
+  if (durationRaw) args.push("--duration", String(durationRaw));
+    if (speedRaw) args.push("--speed", String(speedRaw));
 
   if (voiceFile instanceof File) {
     const vf = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);
@@ -119,6 +133,19 @@ export async function POST(request: Request) {
     }
   });
   child.unref();
+
+  // Jobs are work items — surface them in Work alongside real productions.
+  try {
+    await createEngineDraft({
+      ownerUserId: auth.session!.userId,
+      kind: "explainer",
+      jobId,
+      videoType: style,
+      script: script || "",
+      duration: durationRaw || null,
+      voice: script ? voice : null,
+    });
+  } catch { /* a missing draft never blocks the render */ }
 
   return json({ jobId, status: "running", statusUrl: `/api/v1/explainers/${jobId}` }, id, { status: 202 });
 }

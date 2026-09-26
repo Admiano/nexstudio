@@ -1,0 +1,43 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Winding Path -->
+                <path d="M60 220 C60 220 120 250 160 180 S240 120 280 180 S340 180 340 100" stroke="#F5F0E4" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.2"/>
+                <path d="M60 220 C60 220 120 250 160 180 S240 120 280 180 S340 180 340 100" stroke="#1A1A17" stroke-width="4" stroke-linecap="round" stroke-dasharray="12 8" fill="none"/>
+                
+                <!-- Touchpoint Nodes -->
+                <!-- Start -->
+                <g transform="translate(60, 220)">
+                    <g >
+                    <circle cx="0" cy="0" r="15" fill="#F5F0E4"/>
+                    <path d="M-5 -5 L5 5 M-5 5 L5 -5" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                </g>
+                </g>
+                
+                <!-- Node 1 -->
+                <g transform="translate(160, 180)">
+                    <g >
+                    <circle cx="0" cy="0" r="12" fill="#F5F0E4"/>
+                    <circle cx="0" cy="0" r="6" fill="#F5F0E4"/>
+                </g>
+                </g>
+                
+                <!-- Node 2 -->
+                <g transform="translate(280, 180)">
+                    <g  style="animation-delay: 0.3s;">
+                    <circle cx="0" cy="0" r="12" fill="#1A1A17"/>
+                    <circle cx="0" cy="0" r="6" fill="#F5F0E4"/>
+                </g>
+                </g>
+                
+                <!-- Goal -->
+                <g transform="translate(340, 100)">
+                    <g  style="animation-delay: 0.6s;">
+                    <path d="M-15 15 L0 -15 L15 15 Z" fill="#F5F0E4"/>
+                    <circle cx="0" cy="-20" r="8" fill="#F5F0E4"/>
+                </g>
+                </g>
+                
+                <!-- User Icon moving? (Simplified) -->
+                <circle cx="220" cy="150" r="10" fill="#F5F0E4"/>
+            </g>
+          </svg>
