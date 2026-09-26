@@ -5104,7 +5104,7 @@
       const col = el('div', { position: 'absolute', left: px(colRect.x), top: px(colRect.y), width: px(colRect.w) }, face);
       // Display vs text: titles set in the serif face, body in the hand — the
       // hierarchy a printed page carries.
-      const titleEl = el('div', { fontFamily: PB_SERIF, fontWeight: '700', fontSize: px(pw * (layout === 'half' || layout === 'portrait' ? 0.054 : layout === 'full' || layout === 'vignette' ? 0.048 : 0.042)), lineHeight: '1.14', color: ink, letterSpacing: '0.006em' }, col);
+      const titleEl = el('div', { fontFamily: PB_SERIF, fontWeight: '700', fontSize: px(pw * (layout === 'half' || layout === 'portrait' ? 0.054 : layout === 'full' || layout === 'vignette' ? 0.048 : 0.042)), lineHeight: '1.14', color: ink, letterSpacing: '0.006em', fontFeatureSettings: '"calt" 0, "hlig" 0, "dlig" 0' }, col);
       // Letterpress bite: light caught on the pressed edge below, ink shade above.
       titleEl.style.textShadow = `0 ${px(Math.max(0.5, pw * 0.0011))} 0 rgba(255,252,240,0.38), 0 ${px(-Math.max(0.5, pw * 0.0011))} 0 ${rgbaOf(ink, 0.20)}`;
       titleEl.textContent = titleText;
@@ -5313,7 +5313,7 @@
       }
       const fin = el('div', {
         position: 'absolute', left: '0', right: '0', top: px(rect.h * 0.42), textAlign: 'center',
-        fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(rect.w * 0.075), letterSpacing: '0.04em',
+        fontFamily: PB_SERIF, fontWeight: '600', fontSize: px(rect.w * 0.075), letterSpacing: '0.04em', fontFeatureSettings: '"calt" 0, "hlig" 0, "dlig" 0',
         color: rgbaOf(ink2, 0.62),
       }, face);
       fin.textContent = 'The End';
@@ -5696,12 +5696,17 @@
     if (paperbook) {
       spread = buildPaperbook(bookGroup._tilt, plan, beats, opts);
       beats.forEach((b) => { b.root.style.display = 'none'; });
-      // Each page's plate mounts its own beat's cam permanently — an inactive cam stays
-      // frozen at its end state (it is the pressed still); only the live beat is driven.
+      // Each page's plate mounts its own beat's cam permanently — an inactive cam sits at
+      // its pressed state: the settled page just before the turn (end state = post-exit
+      // would print a blank plate). Parked cams are re-pressed whenever they re-enter a
+      // parked slot, so a page never shows whatever half-played state it last left.
       for (const bn of beats) {
-        const ltEnd = bn.beat.duration_ms;
-        applyBeat(bn, ltEnd, 1, 0, plan);
-        applyCamera(bn, ltEnd, 0, null, plan, 0);
+        const trp = bn.beat.transition;
+        const pm = Math.max(0, (trp ? trp.start_ms : bn.beat.duration_ms) - 16);
+        bn._pressMs = pm;
+        applyBeat(bn, pm, 1, 0, plan);
+        applyCamera(bn, pm, 0, null, plan, 0);
+        bn._pressed = true;
         spread.faces[bn.index].liveVp.appendChild(bn.cam);
       }
     } else if (bookPage) bookLamp = buildBookChrome(bookGroup, plan, bookPage);
@@ -5838,10 +5843,18 @@
             fj.liveVp.style.display = 'none';
             fj.stillVp.style.display = '';
           } else {
-            // Every face permanently mounts its own cam; inactive ones freeze at end state.
+            // Every face permanently mounts its own cam; parked pages are re-pressed once
+            // into their settled state (the live beat's last frame is wherever playback
+            // left it — often mid-exit — so a parked plate must be re-applied, not just kept).
             if (bj.cam.parentNode !== fj.liveVp) fj.liveVp.appendChild(bj.cam);
             fj.liveVp.style.display = '';
             fj.stillVp.style.display = 'none';
+            if (j === idx) bj._pressed = false;
+            else if (!bj._pressed) {
+              applyBeat(bj, bj._pressMs, 1, 0, plan);
+              applyCamera(bj, bj._pressMs, 0, null, plan, 0);
+              bj._pressed = true;
+            }
           }
         }
         if (flipping) {

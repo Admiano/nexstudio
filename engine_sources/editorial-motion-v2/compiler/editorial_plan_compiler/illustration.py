@@ -1026,7 +1026,7 @@ class IllustrationSolver:
         settled = max([e['enter_ms'] + e['enter_duration_ms'] for e in ents] + [r['enter_ms'] + r['enter_duration_ms'] for r in rels] + [o['end_ms'] for o in ops] + [CARRY_REFRAME_MS if carry_in else 0])
         ops += self._decorate(ops, ents, rels, clock.duration_ms - EXIT_MS - 60, il, int(settled))
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
-        assign_actions(ents, zone)
+        assign_actions(ents, zone, clock.duration_ms - EXIT_MS - 60)
         state_changes = sum(o['state_change'] for o in ops)
         plan = {
             'form': il.form, 'zone': zone, 'entities': ents, 'relations': rels, 'ops': ops, 'settled_ms': int(settled),
@@ -1090,11 +1090,13 @@ def _action_for(concept: str, ready_ms: int, zone: Dict[str, float], bbox: Dict[
     return None
 
 
-def assign_actions(ents: List[Dict[str, Any]], zone: Dict[str, float]) -> None:
+def assign_actions(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Optional[int] = None) -> None:
     """Attach a story action to each subject entity — authored or concept-derived.
 
     Guards: garnish (`support_*`) marks never loop, and a plate with several moons is a
-    phases chart — its cells stay fixed so the sequence reads."""
+    phases chart — its cells stay fixed so the sequence reads. `window_ms` is the latest
+    beat-local time a one-shot action may still be running (the hold ends on schedule;
+    nothing may be mid-flight as the page turns)."""
     from collections import Counter
     subjects = [e for e in ents if not str(e.get('id') or '').startswith('support_')]
     counts = Counter(str(e.get('concept') or '') for e in subjects)
@@ -1107,19 +1109,39 @@ def assign_actions(ents: List[Dict[str, Any]], zone: Dict[str, float]) -> None:
         if not concept:
             continue
         ready = int(e.get('enter_ms') or 0) + int(e.get('enter_duration_ms') or 0)
-        act = _action_for(concept, ready, zone, e.get('bbox') or {})
-        if act and act['kind'] == 'phase' and moons > 1:
-            act = None  # a phases row teaches the sequence — it must not blur it
-        if act is None and counts.get(concept, 0) >= 3:
+        is_subject = not str(e.get('id') or '').startswith('support_')
+        if is_subject and counts.get(concept, 0) >= 3:
             # A counting plate: several of a kind land as a counted sequence, each
             # popping in with a spring — the "one… two… three" of a picture book.
+            # Counted sets outrank the concept's ambient action — "five stars" pop
+            # in one by one; they don't just twinkle. The cadence compresses when the
+            # hold cannot fit the full count at a readable pace.
+            n_pop = counts[concept]
+            space = 240
+            if window_ms is not None:
+                space = max(110, min(240, int((window_ms - 380 - ready) / max(1, n_pop - 1))))
             idx = pop_idx.get(concept, 0)
             pop_idx[concept] = idx + 1
-            act = {'kind': 'pop', 'at': ready + idx * 240, 'dur': 380}
+            act = {'kind': 'pop', 'at': ready + idx * space, 'dur': 380}
+        else:
+            act = _action_for(concept, ready, zone, e.get('bbox') or {})
+            if act and act['kind'] == 'phase' and moons > 1:
+                act = None  # a phases row teaches the sequence — it must not blur it
         if act is None:
             # Living-still fallback: even a resting mark settles imperceptibly — nothing
             # on a living page is ever dead-frozen.
             act = {'kind': 'breathe'}
+        if window_ms is not None and act['kind'] not in LOOP_ACTIONS and 'at' in act:
+            # The action must land before the hold closes: run it earlier rather than
+            # let it bleed into the page turn. A subject that only arrives inside the
+            # exit window has no room for its beat — it settles instead.
+            latest_at = int(window_ms) - 200
+            if ready > latest_at:
+                act = {'kind': 'breathe'}
+            else:
+                if act['at'] > latest_at:
+                    act['at'] = max(ready, latest_at)
+                act['dur'] = min(int(act.get('dur') or 600), max(200, int(window_ms) - act['at']))
         e['action'] = act
 
 

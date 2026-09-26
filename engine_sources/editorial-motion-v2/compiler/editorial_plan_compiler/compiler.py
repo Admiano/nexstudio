@@ -457,7 +457,7 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
             e['enter_ms'] = int(dur_ms * 0.62)
     # Support marks join the entities after the solver ran — assign their story
     # actions here (and re-resolve authored subjects now that bboxes are final).
-    assign_actions(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh})
+    assign_actions(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh}, dur_ms - EXIT_MS - 60)
     return illustration
 
 
