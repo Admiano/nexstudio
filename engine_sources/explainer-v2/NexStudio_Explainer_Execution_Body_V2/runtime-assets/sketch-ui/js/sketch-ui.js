@@ -1343,6 +1343,68 @@ window.NexSketch = (() => {
     return { el, tl };
   };
 
+  /* --- kinetic-type: per-char velocity stagger + blur-resolve + squash ---
+     motionforge recipe in ink grammar — first chars arrive fastest, blurriest,
+     and deepest; each lands with a squash. Word wrappers keep breaks intact;
+     squash rides the CSS `scale` property so gsap transforms never stomp. */
+  const splitChars = (el, text) => {
+    const words = String(text).split(/\s+/).filter(Boolean);
+    el.textContent = '';
+    const chars = [];
+    words.forEach((w, wi) => {
+      const wrap = h('span', '', el);
+      wrap.style.cssText = 'display:inline-block;white-space:nowrap';
+      for (const ch of w) {
+        const c = h('span', '', wrap, ch);
+        c.style.display = 'inline-block';
+        chars.push(c);
+      }
+      el.appendChild(document.createTextNode(' '));
+    });
+    return chars;
+  };
+  scenes['kinetic-type'] = (spec) => {
+    const el = h('div', '', null);
+    el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;position:relative';
+    const head = h('h2', 'sk-display', el); head.dataset.cap = 'title';
+    head.style.cssText = `font-size:calc(${spec.fontSize || '64px'} * var(--sk-display-scale,1));max-width:94%;line-height:1.06`;
+    const chars = splitChars(head, spec.text || spec.headline || '');
+    const n = Math.max(1, chars.length);
+    const stagger = spec.stagger ?? 0.03;
+    const blurMax = spec.blur ?? 9;
+    const accent = spec.accent;
+    const tl = NexMotion.createTimeline();
+    chars.forEach((c, i) => {
+      const s = 0.06 + i * stagger;
+      const depth = 1 - i / n;
+      const blur = blurMax * (0.45 + 0.55 * depth);
+      const dy = 24 + 20 * depth;
+      const rot = (i % 2 ? -1 : 1) * (1.2 + depth * 2);   // slight hand-set wobble
+      c.style.willChange = 'transform,filter';
+      tl.fromTo(c, { opacity: 0, y: dy, scaleY: 1.15, rotation: rot },
+        { opacity: 1, y: 0, scaleY: 1, rotation: 0, duration: 0.34, ease: 'power3.out' }, s);
+      tl.addUpdate(s, 0.34, p => { c.style.filter = `blur(${(blur * (1 - p)).toFixed(2)}px)`; }, 'power2.out');
+      tl.addUpdate(s + 0.32, 0.18, p => {
+        const k = Math.sin(p * Math.PI);
+        c.style.scale = `${(1 + 0.05 * k).toFixed(3)} ${(1 - 0.08 * k).toFixed(3)}`;
+      }, 'none');
+    });
+    if (accent != null) {
+      const word = typeof accent === 'number' ? null : String(accent).toLowerCase();
+      let hit = [];
+      if (typeof accent === 'number') hit = chars.slice(-Math.abs(accent));
+      else head.querySelectorAll('span').forEach(wr => { if (wr.textContent.toLowerCase() === word) hit.push(...wr.querySelectorAll('span')); });
+      const col = cssVar('--sk-mint-deep');
+      hit.forEach(c => tl.addUpdate(0.06 + n * stagger + 0.05, 0.25, p => { c.style.color = p > 0.5 ? col : ''; }, 'none'));
+    }
+    if (spec.sub) {
+      const s = h('div', 'sk-mono', el, spec.sub);
+      s.style.cssText = 'font-size:13.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sk-ink-2)';
+      fadeIn(tl, s, 0.2 + n * stagger, 0.45);
+    }
+    return { el, tl };
+  };
+
   /* ============================================================
      FILM MASTER — spec → stage + per-scene windows + __timelines
 

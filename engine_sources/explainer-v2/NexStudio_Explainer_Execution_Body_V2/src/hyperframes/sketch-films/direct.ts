@@ -293,7 +293,7 @@ function inferSceneType(beat: FilmBeat, ctx: { index: number; total: number; use
     case "product": return fresh(["phone-app", "agent-window", "media-frame"]);
     case "process": return "process-rail";
     case "proof": return fresh(["storyboard", "compose-graph", "render-bar", "word-list"]);
-    case "payoff": return fresh(["payoff-lockup", "type-card", "kinetic-headline"]);
+    case "payoff": return fresh(["payoff-lockup", "type-card", "kinetic-headline", "kinetic-type"]);
     case "close": return "end-card";
   }
   /* head/text fallback by position — the beat just before the close is the
@@ -385,7 +385,8 @@ function beatParams(beat: FilmBeat, type: SketchSceneSpec["type"], brief: FilmBr
     case "compose-graph": return { ...base, kicker: (base.kicker as string) || "/ PIPELINE", kickerR: "COMPOSE", title: "COMPOSE" };
     case "render-bar": return { ...base, kicker: (base.kicker as string) || "RENDER", file: `${product.toLowerCase().replace(/\s+/g, "-")}.mp4` };
     case "orbit": return { ...base, title: beat.head || product, sub: beat.sub, items: (beat.items || []).map(i => typeof i === "string" ? { title: i } : i) };
-    case "kinetic-headline": return { ...base, text: beat.head || beat.text || "", sub: beat.sub, accent: beat.accent, index: false };
+    case "kinetic-headline":
+    case "kinetic-type": return { ...base, text: beat.head || beat.text || "", sub: beat.sub, accent: beat.accent, index: false };
     case "payoff-lockup": return { ...base, text: beat.head || brief.tagline || "briefs in. films out.", sub: beat.sub || brief.tagline || "", index: false };
     case "end-card": {
       const brand = (beat.head || product).split(" ");
@@ -450,7 +451,7 @@ function transitionFor(beat: FilmBeat, type: string, prev: { beat: FilmBeat; typ
   if (type === "chapter") return pick(rng, surface === "product" ? ["mask", "zoom", "fade", "iris", "dissolve"] : ["paper", "page", "fade"], () => false) as SketchSceneSpec["transition"];
   if (type === "marquee-word") return pick(rng, surface === "product" ? ["slide", "rise", "linearblur"] : ["paper", "rise"], () => false) as SketchSceneSpec["transition"];
   if (type === "orbit") return pick(rng, surface === "product" ? ["crosswarp", "iris", "swirl", "zoom"] : ["page", "torn"], () => false) as SketchSceneSpec["transition"];
-  if (type === "kinetic-headline" || type === "stat") return pick(rng, surface === "product" ? ["starwipe", "clockwipe", "diamond", "cut"] : ["torn", "cut"], () => false) as SketchSceneSpec["transition"];
+  if (type === "kinetic-headline" || type === "kinetic-type" || type === "stat") return pick(rng, surface === "product" ? ["starwipe", "clockwipe", "diamond", "cut"] : ["torn", "cut"], () => false) as SketchSceneSpec["transition"];
   return pick(rng, pool, () => false) as SketchSceneSpec["transition"];
 }
 
@@ -721,7 +722,7 @@ export function validateSpec(spec: SketchFilmSpec): void {
     "compose-graph", "render-bar", "player", "logo-mark", "end-card",
     "hero-build", "phrase-swap", "process-rail", "payoff-lockup", "word-object-bridge",
     "chapter", "word-list", "feature-grid", "stat", "quote", "media-frame", "split", "marquee-word",
-    "orbit", "kinetic-headline",
+    "orbit", "kinetic-headline", "kinetic-type",
   ]);
   if (!spec.scenes.length) throw new Error("spec.scenes empty");
   let t = 0;

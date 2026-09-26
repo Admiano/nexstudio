@@ -256,6 +256,67 @@ window.NexFilm = (() => {
     return { el, tl };
   };
 
+  /* --- kinetic-type: per-char velocity stagger + blur-resolve + squash ---
+     motionforge's KineticTypography recipe: early chars travel further and
+     arrive blurrier (velocity weighting), landing with a brief squash.
+     Word wrappers keep line-breaks intact; transform via gsap, squash via
+     the CSS `scale` property so the two never stomp. */
+  const splitChars = (el, text) => {
+    const words = String(text).split(/\s+/).filter(Boolean);
+    el.textContent = '';
+    const chars = [];
+    words.forEach((w, wi) => {
+      const wrap = h('span', '', el);
+      wrap.style.cssText = 'display:inline-block;white-space:nowrap';
+      for (const ch of w) {
+        const c = h('span', '', wrap, ch);
+        c.style.display = 'inline-block';
+        chars.push(c);
+      }
+      el.appendChild(document.createTextNode(' '));
+    });
+    return chars;
+  };
+  scenes['kinetic-type'] = (spec) => {
+    const el = h('div', '', null);
+    center(el);
+    const head = h('h2', 'pf-display', el); head.dataset.cap = 'title';
+    head.style.cssText = `font-size:${fsize(spec.fontSize || '66px')};max-width:94%;line-height:1.05`;
+    const chars = splitChars(head, spec.text || spec.headline || '');
+    const n = Math.max(1, chars.length);
+    const stagger = spec.stagger ?? 0.028;
+    const blurMax = spec.blur ?? 11;
+    const accent = spec.accent; // trailing word(s) colored: number = last-N chars, string = word match
+    const tl = NexMotion.createTimeline();
+    chars.forEach((c, i) => {
+      const s = 0.06 + i * stagger;
+      const depth = 1 - i / n;                     // first chars are "fastest"
+      const blur = blurMax * (0.45 + 0.55 * depth);
+      const dy = (26 + 22 * depth).toFixed(1);
+      c.style.willChange = 'transform,filter';
+      tl.fromTo(c, { opacity: 0, y: Number(dy), scaleY: 1.18 },
+        { opacity: 1, y: 0, scaleY: 1, duration: 0.32, ease: 'power3.out' }, s);
+      tl.addUpdate(s, 0.34, p => { c.style.filter = `blur(${(blur * (1 - p)).toFixed(2)}px)`; }, 'power2.out');
+      tl.addUpdate(s + 0.32, 0.16, p => {
+        const k = Math.sin(p * Math.PI);
+        c.style.scale = `${(1 + 0.045 * k).toFixed(3)} ${(1 - 0.07 * k).toFixed(3)}`;
+      }, 'none');
+    });
+    if (accent != null) {
+      const word = typeof accent === 'number' ? null : String(accent).toLowerCase();
+      const all = head.querySelectorAll('span>span');
+      let hit = [];
+      if (typeof accent === 'number') hit = [...all].slice(-Math.abs(accent));
+      else head.querySelectorAll('span').forEach(wr => { if (wr.textContent.toLowerCase() === word) hit.push(...wr.querySelectorAll('span')); });
+      hit.forEach(c => tl.addUpdate(0.06 + n * stagger + 0.05, 0.25, p => { c.style.color = p > 0.5 ? cssVar('--pf-accent') : ''; }, 'none'));
+    }
+    const und = h('div', 'pf-accbar', el);
+    und.style.cssText = 'width:160px;transform-origin:0 50%;margin-top:8px';
+    tl.fromTo(und, { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: 'power3.out' }, 0.06 + n * stagger + 0.05);
+    if (spec.sub) fadeIn(tl, sub(el, spec.sub), 0.2 + n * stagger, 0.4);
+    return { el, tl };
+  };
+
   /* --- word-list: ruled rows sliding in --- */
   scenes['word-list'] = (spec) => {
     const el = h('div', '', null);
