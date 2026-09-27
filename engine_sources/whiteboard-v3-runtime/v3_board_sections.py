@@ -42,7 +42,11 @@ _ACCENTS = {
     'a_green': (79, 157, 105, 255),
     'a_red': (208, 69, 62, 255),
     'a_yellow': (229, 184, 58, 255),
+    'a_purple': (149, 117, 205, 255),
 }
+# per-section title swash colors in storyboard mode (pastel highlight
+# bands behind each numbered heading, like the reference storyboard)
+_SWASH = ('a_blue', 'a_green', 'a_yellow', 'a_purple')
 # stroke-color channel remap for this mode: icon detail/fill strokes take
 # real accent hues instead of the neutral plan accent
 _REMAP = {'accent': 'a_orange', 'accfill': 'a_blue', 'accdeep': 'a_blue'}
@@ -379,9 +383,12 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
             merged.append(placed)
         placed['groups'].append((g, s, e))
     # merge each prop cluster into its nearest person cluster
-    # (interaction composition) — multi-person scenes pair by proximity
+    # (interaction composition) — multi-person scenes pair by proximity.
+    # Storyboard quadrants keep items separate so each element draws and
+    # places as its own vignette satellite.
     persons = [it for it in merged if _is_person_item(it)]
-    if persons and len(merged) > len(persons):
+    sb_merge_off = (plan.get('board_layout') == 'storyboard')
+    if persons and len(merged) > len(persons) and not sb_merge_off:
         def _cx(it):
             xs = [q[0] for g, _s, _e in it['groups']
                   for st in g[1] for q in st[0] if len(q) > 1]
@@ -529,18 +536,59 @@ def _build(plan, ratio):
         sections.append({'beat': beat, 'bi': bi, 'items': merged,
                          'label': _section_label(beat)})
 
-    # Per-scene layout: every beat composes its own full-frame scene in the
-    # same content rect — no shared canvas, no moving camera. When the next
-    # beat opens, the previous scene's ink fades off the paper.
+    # Two layouts under a locked camera (no pans, zooms, or drift):
+    #   default    — every beat composes its own full-frame scene; the
+    #                previous scene's ink fades off as the next opens.
+    #   storyboard — one canvas split into quadrants; each beat owns a
+    #                quadrant and everything drawn persists to the end
+    #                (the @frankdegods-style storyboard board).
+    storyboard = str(plan.get('board_layout') or '') == 'storyboard'
     del board_rect
     nsec = len(sections)
     m2 = 0.04 * W
     bx0, by0 = -W / 2 + m2, -H / 2 + m2 * 1.15
     bw, bh = W - 2 * m2, H - 2 * m2 * 1.45
     board_rect = (bx0, by0, bw, bh)
-    header = bh * 0.10                      # persistent global-title strip
-    rw_, rh_ = bw, bh - header
-    region = (bx0, by0 + header, rw_, rh_)  # every section owns the frame
+    header = bh * (0.15 if storyboard else 0.10)
+    ax0, ay0, aw, ah = bx0, by0 + header, bw, bh - header
+    if storyboard:
+        cols = 1 if nsec <= 1 else (2 if nsec <= 4 else 3)
+        rows = max(1, math.ceil(nsec / cols))
+        rw_, rh_ = aw / cols, ah / rows
+        regions = [(ax0 + rw_ * c, ay0 + rh_ * r, rw_, rh_)
+                   for r in range(rows) for c in range(cols)]
+        # thin pale dividers — light pencil lines, not black rules — inked
+        # once, early, before the first quadrant's vignette starts
+        divs = []
+        for c in range(1, cols):
+            x = ax0 + rw_ * c
+            pts = _wobble_line((x, ay0), (x, ay0 + ah),
+                               n=48, wob=rh_ * 0.004, seed=c * 31 + 7)
+            divs.append((('divider', [(pts, 'pale', 0.55, False, True)],
+                          (0, 0), 1.0, None), 0.45, 0.9))
+        for r in range(1, rows):
+            y = ay0 + rh_ * r
+            pts = _wobble_line((ax0, y), (ax0 + aw, y),
+                               n=64, wob=rw_ * 0.004, seed=r * 17 + 3)
+            divs.append((('divider', [(pts, 'pale', 0.55, False, True)],
+                          (0, 0), 1.0, None), 0.55, 1.0))
+        # yellow corner rays like the reference's accent doodles
+        for k, (rcx_, dirx) in enumerate(((ax0 + aw * 0.012, 1),
+                                          (ax0 + aw * 0.988, -1))):
+            for j in range(3):
+                a_ = math.radians(-25 - j * 30)
+                x0_, y0_ = rcx_, by0 + header * 0.72
+                seg = [(x0_ + math.cos(a_) * dirx * 16,
+                        y0_ + math.sin(a_) * 16),
+                       (x0_ + math.cos(a_) * dirx * 38,
+                        y0_ + math.sin(a_) * 38)]
+                divs.append((('divider', [(seg, 'a_yellow', 1.4, False,
+                                           True)], (0, 0), 1.0, None),
+                             0.25 + j * 0.08, 0.45 + j * 0.08))
+    else:
+        rw_, rh_ = aw, ah
+        regions = [(ax0, ay0, rw_, rh_)] * nsec
+        divs = []
     uid = 0
 
     # board title drawn once, top-left — the persistent anchor text
@@ -551,47 +599,90 @@ def _build(plan, ratio):
     raw = re.sub(r'(?i)_?(demo|reel|v\d+)$', '', raw).strip('_ ')
     title = raw.replace('_', ' ').title() or 'WHITEBOARD'
     first_t0 = sections[0]['beat']['start_seconds']
-    th_ = min(header * 0.62, 96.0)
-    tw_ = text_width(title, th_)
-    if tw_ > bw * 0.24:
-        th_ *= bw * 0.24 / tw_
-    title_st = text_strokes(title, (bx0 + bw * 0.012, by0 + header * 0.16),
-                            th_, 'ink', 1.15)
+    if storyboard:
+        # storyboard headline: big centered title across the top strip with
+        # a yellow underline swash (the reference's masthead)
+        th_ = min(header * 0.58, 110.0)
+        tw_ = text_width(title, th_)
+        if tw_ > bw * 0.92:
+            th_ *= bw * 0.92 / tw_
+            tw_ = text_width(title, th_)
+        tx_ = bx0 + bw / 2 - tw_ / 2
+        ty_ = by0 + header * 0.10
+        title_st = text_strokes(title, (tx_, ty_), th_, 'ink', 1.15)
+        und = _wobble_line((tx_ + tw_ * 0.02, ty_ + th_ * 1.15),
+                           (tx_ + tw_ * 0.98, ty_ + th_ * 1.15),
+                           n=32, wob=1.8, seed=9)
+        title_st = title_st + [(und, 'a_yellow', 2.2, False, True)]
+    else:
+        th_ = min(header * 0.62, 96.0)
+        tw_ = text_width(title, th_)
+        if tw_ > bw * 0.24:
+            th_ *= bw * 0.24 / tw_
+        title_st = text_strokes(title, (bx0 + bw * 0.012,
+                                        by0 + header * 0.16),
+                                th_, 'ink', 1.15)
     title_item = {'groups': [(('plabel',
         [(p, c, ws, False, True) for p, c, ws, *_ in title_st],
         (0, 0), 1.0, None), first_t0, first_t0 + 1.6)],
         'kind': 'title', 'uid': -1, 'fade': None,
-        'bounds2': (bx0, by0, bx0 + bw * 0.30, by0 + header)}
+        'bounds2': (bx0, by0, bx0 + bw, by0 + header)}
 
     for si, sec in enumerate(sections):
         t0 = sec['beat']['start_seconds']
         t1 = t0 + float(sec['beat'].get('duration_seconds', 3.0))
         sec['t_window'] = (t0, t1)
         dur = t1 - t0
-        rx, ry, rw, rh = region
+        rx, ry, rw, rh = regions[si]
         sec['region'] = (rx, ry, rw, rh)
         placed_bounds = []            # each scene lays out from a clean
                                       # frame — no carryover from prior
                                       # scenes' placements
-        # per-section title — lettered at the top of the region it owns
+        # per-section title — lettered at the top of the region it owns;
+        # storyboard mode puts a pastel swash band behind the numbered
+        # heading and an optional one-line subtitle under it
         ttl = str(sec['beat'].get('title') or sec.get('label') or '').strip()
+        sw_col = _SWASH[si % len(_SWASH)]
         title_h = 0.0
         if ttl:
-            th2 = min(rh * 0.115, 120.0)
-            if text_width(ttl, th2) > rw * 0.62:
-                th2 *= rw * 0.62 / text_width(ttl, th2)
-            tts = text_strokes(ttl, (rx + rw * 0.04, ry + rh * 0.035),
+            th2 = min(rh * (0.15 if storyboard else 0.115), 120.0)
+            if text_width(ttl, th2) > rw * 0.8:
+                th2 *= rw * 0.8 / text_width(ttl, th2)
+            tts = text_strokes(ttl, (rx + rw * 0.05, ry + rh * 0.05),
                                th2, 'ink', 1.2)
             tts += [([(px + th2 * 0.045, py + th2 * 0.02)
                       for px, py in s[0]], s[1], s[2], s[3], s[4])
                     for s in list(tts)]
+            if storyboard:
+                tw2 = text_width(ttl, th2)
+                bx_0 = rx + rw * 0.05 - th2 * 0.22
+                band = [(bx_0, ry + rh * 0.05 - th2 * 0.15),
+                        (bx_0 + tw2 + th2 * 0.5,
+                         ry + rh * 0.05 - th2 * 0.15),
+                        (bx_0 + tw2 + th2 * 0.5,
+                         ry + rh * 0.05 + th2 * 1.25),
+                        (bx_0, ry + rh * 0.05 + th2 * 1.25),
+                        (bx_0, ry + rh * 0.05 - th2 * 0.15)]
+                # swash band inks first, then the heading letters on it
+                tts = [(band, sw_col, 1.0, 'solid', True)] + tts
+                sub = str(sec['beat'].get('subtitle') or '').strip()
+                if sub:
+                    sh2 = th2 * 0.40
+                    tts += text_strokes(sub, (rx + rw * 0.05,
+                                              ry + rh * 0.05 + th2 * 1.5),
+                                        sh2, 'ink', 0.9)
             sec['title_st'] = tts
-            title_h = th2 * 1.5 + rh * 0.04
+            title_h = (th2 * 1.32 + rh * 0.02 if storyboard
+                       else th2 * 1.5 + rh * 0.04)
+        # bottom caption strip (storyboard quote line) is reserved so items
+        # never land on it
+        cap = str(sec['beat'].get('caption') or '').strip()
+        cap_h = rh * 0.13 if (storyboard and cap) else 0.0
         # content rect inside the region, clear of its title strip
         cx0 = rx + rw * 0.05
-        cy0 = ry + rh * 0.04 + title_h
+        cy0 = ry + (rh * 0.03 if storyboard else rh * 0.04) + title_h
         cw = rw * 0.90
-        ch = ry + rh * 0.97 - cy0
+        ch = (ry + rh * 0.985 if storyboard else ry + rh * 0.97) - cy0 - cap_h
         sec['content'] = (cx0, cy0, cw, ch)
         items = sec['items']
         k = len(items)
@@ -611,13 +702,14 @@ def _build(plan, ratio):
                                 cx0 + cw, cy0 + ch * 0.99)
             placed_bounds.append(fm_bounds['fm2'])
         # scene separation: everything this scene places fades off the
-        # paper as the next scene opens — the incoming title letters while
-        # the outgoing ink dissolves
+        # paper as the next scene opens — except in storyboard mode, where
+        # a quadrant's ink persists for the whole video
         nxt_t0 = (beats[sec['bi'] + 1]['start_seconds']
                   if sec['bi'] + 1 < len(beats) else None)
-        sec['fade'] = ((nxt_t0 - 0.15, nxt_t0 + 0.45)
-                       if nxt_t0 is not None
-                       else (t1, t1 + WIPE_SECONDS * 0.8))
+        sec['fade'] = (None if storyboard
+                       else ((nxt_t0 - 0.15, nxt_t0 + 0.45)
+                             if nxt_t0 is not None
+                             else (t1, t1 + WIPE_SECONDS * 0.8)))
         if not k:
             sec['items2'] = []
             continue
@@ -662,8 +754,12 @@ def _build(plan, ratio):
             hero = (j == p_order[0])
             # hero fills ~60% of the region, satellites ~30% — a tight size
             # band keeps every element at a readable, uniform weight
-            fw = cw * (0.60 if hero else (0.40 if person else 0.32))
-            fh = ch * (0.66 if hero else (0.56 if person else 0.34))
+            fw = cw * ((0.55 if storyboard else 0.60) if hero
+                       else (0.40 if person else
+                             (0.36 if storyboard else 0.32)))
+            fh = ch * ((0.85 if storyboard else 0.66) if hero
+                       else (0.62 if person else
+                             (0.52 if storyboard else 0.34)))
             bo2 = min(fw / w, fh / h)
             if hero:
                 cands = [sat_pts[0]]
@@ -900,13 +996,37 @@ def _build(plan, ratio):
         for d in doodles:
             d['fade'] = fade
         sec['items2'] = [it for it in placed if it is not None] + doodles
+        # storyboard quote caption: centered at the bottom of the quadrant
+        # with a swash-colored wobble underline, inking late in the beat
+        if storyboard and cap:
+            ch_ = rh * 0.078
+            cw_ = text_width(cap, ch_)
+            if cw_ > rw * 0.92:
+                ch_ *= rw * 0.92 / cw_
+                cw_ = text_width(cap, ch_)
+            cxs = rx + rw / 2 - cw_ / 2
+            cys = ry + rh * 0.97 - ch_ * 1.5
+            cst = text_strokes(cap, (cxs, cys), ch_, 'ink', 1.0)
+            und2 = _wobble_line((cxs + cw_ * 0.04, cys + ch_ * 1.35),
+                                (cxs + cw_ * 0.96, cys + ch_ * 1.35),
+                                n=24, wob=1.6, seed=si * 13 + 5)
+            cst.append((und2, sw_col, 1.9, False, True))
+            uid += 1
+            ct0 = t1 - dur * 0.24
+            sec['items2'].append({
+                'groups': [(('plabel', cst, (0, 0), 1.0, None),
+                            ct0, t1 - dur * 0.02)],
+                'bounds2': (cxs, cys, cxs + cw_, cys + ch_ * 1.4),
+                'uid': uid, 'fade': fade, 'kind': 'elem',
+                't_window': (ct0, t1 - dur * 0.02)})
 
     out_sections = sections
     all_items = [it for sec in out_sections for it in sec['items2']]
 
     total_beats_end = beats[-1]['start_seconds'] + beats[-1]['duration_seconds']
-    # ending: the last scene's ink has faded off — "Thanks" + a heart draw
-    # centred on the empty board
+    # ending: scenes mode fades the last scene off then inks "Thanks" +
+    # heart on the empty board; storyboard mode just holds the completed
+    # board (the finished quadrants ARE the ending image)
     th_cx, th_cy = bx0 + bw * 0.42, by0 + bh * 0.52
     th_h = rh_ * 0.30
     th_w = text_width('Thanks', th_h)
@@ -923,13 +1043,16 @@ def _build(plan, ratio):
         'wipe_t0': total_beats_end,
         'thanks_t0': total_beats_end + WIPE_SECONDS,
         'montage_t0': total_beats_end + WIPE_SECONDS + THANKS_SECONDS,
-        'thanks': [('thanks', th, (0, 0), 1.0, None),
-                   ('heart', heart, (0, 0), 1.0, None)],
+        'thanks': ([] if storyboard else
+                   [('thanks', th, (0, 0), 1.0, None),
+                    ('heart', heart, (0, 0), 1.0, None)]),
         'montage': [],
-        'dur': WIPE_SECONDS + THANKS_SECONDS + END_HOLD,
+        'dur': (END_HOLD if storyboard
+                else WIPE_SECONDS + THANKS_SECONDS + END_HOLD),
     }
     flow = {'sections': out_sections, 'items': all_items,
             'title_item': title_item, 'ending': ending,
+            'dividers': divs, 'persist': storyboard,
             'board_rect': board_rect,
             'total_beats_end': total_beats_end}
     cache[ratio] = flow
@@ -968,6 +1091,10 @@ def _travel_tip(flow, ratio, cam, zoom, t):
     _add(flow['title_item']['groups'])
     for it in flow['items']:
         _add(it['groups'])
+    for dg, s, e in flow.get('dividers') or []:
+        sts = [st for st in dg[1] if st and st[0]]
+        if sts:
+            segs.append((s, e, sts[0][0][0], sts[-1][0][-1]))
     for sec in flow['sections']:
         if sec.get('title_st') and sec.get('t_window'):
             st_ = sec['title_st']
@@ -1041,11 +1168,20 @@ def render_board_frame(plan: dict, ratio: str, t: float):
             _draw_strokes(tgt, g[1], g[2], g[3], cam, colors,
                           ratio, 1.0, 0, zoom)
 
+    persist = bool(flow.get('persist'))
     if t < t_end:
         fade_layers = []
         ti = flow['title_item']
         if t >= ti['groups'][0][1]:
             draw_groups(ti['groups'], seed)
+        for dg, ds, de in flow.get('dividers') or []:
+            dp = wbp._ease(wbp._clamp((t - ds) / max(0.05, de - ds)))
+            if dp > 0:
+                t2 = _draw_strokes(layer, dg[1], dg[2], dg[3], cam,
+                                   colors, ratio, dp, seed + 3, zoom)
+                if t2 and -40 <= t2[0] <= vw + 40 \
+                        and -40 <= t2[1] <= vh + 40:
+                    tip = t2
         for it in flow['items']:
             fade = it.get('fade')
             if fade is not None and t >= fade[1]:
@@ -1063,7 +1199,7 @@ def render_board_frame(plan: dict, ratio: str, t: float):
         spec_list = plan.get('sceneSpecs') or []
         for sec in flow['sections']:
             if not (sec.get('t_window') and sec['t_window'][0] <= t
-                    and t < sec['t_window'][1] + 0.2):
+                    and (persist or t < sec['t_window'][1] + 0.2)):
                 continue
             if not (sec.get('fm') or sec.get('fm2')):
                 continue
@@ -1088,6 +1224,7 @@ def render_board_frame(plan: dict, ratio: str, t: float):
                 # when the scene closes, never persisting into the next
                 scene_['_fm' + fkey[2:] + '_window'] = (
                     sec[fkey]['t0'],
+                    1e9 if persist else
                     sec['t_window'][1] - sec['t_window'][0] + 0.15)
             # the figure lives only inside its scene — the fm window ends
             # with the scene so it steps off as the scene fades
@@ -1134,11 +1271,54 @@ def render_board_frame(plan: dict, ratio: str, t: float):
         return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed),
                          ratio)
 
-    # -------- ending: the last scene has faded off; Thanks + heart draw
-    # centred on the empty board --------
+    # -------- ending --------
     ending = flow['ending']
     rel = t - t_end
     draw_full(flow['title_item']['groups'], layer)
+    if persist:
+        # storyboard: the finished quadrants ARE the ending — every stroke
+        # and figure holds in place, the hand leaves the board
+        for dg, _s, _e in flow.get('dividers') or []:
+            _draw_strokes(layer, dg[1], dg[2], dg[3], cam, colors,
+                          ratio, 1.0, seed + 3, zoom)
+        for it in flow['items']:
+            draw_full(it['groups'], layer)
+        frame = _composite_frame(plan, ratio, cam, [(layer, 255)], seed)
+        spec_list = plan.get('sceneSpecs') or []
+        for sec in flow['sections']:
+            if not (sec.get('t_window') and sec['t_window'][0] <= t):
+                continue
+            if not (sec.get('fm') or sec.get('fm2')):
+                continue
+            scene_ = spec_list[sec['bi']] \
+                if sec['bi'] < len(spec_list) else None
+            if scene_ is None:
+                continue
+            for fkey in ('fm', 'fm2'):
+                if not sec.get(fkey):
+                    continue
+                b2 = sec[fkey]['bounds2']
+                fh = max(b2[3] - b2[1],
+                         (sec['region'][3] if sec.get('region') else 300.0)
+                         * 0.55)
+                b2 = (b2[0], b2[3] - fh, b2[2], b2[3])
+                scene_['_fm' + fkey[2:] + '_anchor'] = {
+                    'center': ((b2[0] + b2[2]) / 2, (b2[1] + b2[3]) / 2),
+                    'size': fh, 'facing': sec[fkey]['facing']}
+                scene_['_fm' + fkey[2:] + '_window'] = (sec[fkey]['t0'],
+                                                       1e9)
+            frame = v3r._figure_motion_overlay(
+                frame, scene_, plan, ratio, cam, zoom,
+                t - sec['beat']['start_seconds'])
+        for sec_ in flow['sections']:
+            if sec_.get('title_st'):
+                _draw_strokes(frame, sec_['title_st'], (0.0, 0.0), 1.0,
+                              cam, colors, ratio, 1.0,
+                              seed + 71 + sec_['bi'] * 13, zoom)
+        return _vignette(_overlay_hand(frame, None, ratio,
+                                       t * 8 + seed), ratio)
+    # scenes mode: the last scene has faded off; Thanks + heart draw
+    # centred on the empty board
     # during the wipe window the outgoing scene's ink finishes its fade
     fade_layers = []
     for it in flow['items']:
