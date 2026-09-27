@@ -536,12 +536,12 @@ def _build(plan, ratio):
         sections.append({'beat': beat, 'bi': bi, 'items': merged,
                          'label': _section_label(beat)})
 
-    # Two layouts under a locked camera (no pans, zooms, or drift):
-    #   default    — every beat composes its own full-frame scene; the
-    #                previous scene's ink fades off as the next opens.
-    #   storyboard — one canvas split into quadrants; each beat owns a
-    #                quadrant and everything drawn persists to the end
-    #                (the @frankdegods-style storyboard board).
+    # One layout under a locked camera (no pans, zooms, or drift): every
+    # beat composes its own full-frame scene; the previous scene's ink
+    # fades off as the next opens. `board_layout: 'storyboard'` is a
+    # TREATMENT, not a different layout — the beat still owns the whole
+    # frame, but its title gets the numbered pastel swash, a subtitle line,
+    # and a bottom quote caption, storyboard-panel style.
     storyboard = str(plan.get('board_layout') or '') == 'storyboard'
     del board_rect
     nsec = len(sections)
@@ -551,28 +551,12 @@ def _build(plan, ratio):
     board_rect = (bx0, by0, bw, bh)
     header = bh * (0.15 if storyboard else 0.10)
     ax0, ay0, aw, ah = bx0, by0 + header, bw, bh - header
+    rw_, rh_ = aw, ah
+    regions = [(ax0, ay0, rw_, rh_)] * nsec
+    divs = []
     if storyboard:
-        cols = 1 if nsec <= 1 else (2 if nsec <= 4 else 3)
-        rows = max(1, math.ceil(nsec / cols))
-        rw_, rh_ = aw / cols, ah / rows
-        regions = [(ax0 + rw_ * c, ay0 + rh_ * r, rw_, rh_)
-                   for r in range(rows) for c in range(cols)]
-        # thin pale dividers — light pencil lines, not black rules — inked
-        # once, early, before the first quadrant's vignette starts
-        divs = []
-        for c in range(1, cols):
-            x = ax0 + rw_ * c
-            pts = _wobble_line((x, ay0), (x, ay0 + ah),
-                               n=48, wob=rh_ * 0.004, seed=c * 31 + 7)
-            divs.append((('divider', [(pts, 'pale', 0.55, False, True)],
-                          (0, 0), 1.0, None), 0.45, 0.9))
-        for r in range(1, rows):
-            y = ay0 + rh_ * r
-            pts = _wobble_line((ax0, y), (ax0 + aw, y),
-                               n=64, wob=rw_ * 0.004, seed=r * 17 + 3)
-            divs.append((('divider', [(pts, 'pale', 0.55, False, True)],
-                          (0, 0), 1.0, None), 0.55, 1.0))
-        # yellow corner rays like the reference's accent doodles
+        # yellow corner rays flanking the masthead (the reference's accent
+        # doodles) — the only persistent board chrome; no panel dividers
         for k, (rcx_, dirx) in enumerate(((ax0 + aw * 0.012, 1),
                                           (ax0 + aw * 0.988, -1))):
             for j in range(3):
@@ -585,10 +569,6 @@ def _build(plan, ratio):
                 divs.append((('divider', [(seg, 'a_yellow', 1.4, False,
                                            True)], (0, 0), 1.0, None),
                              0.25 + j * 0.08, 0.45 + j * 0.08))
-    else:
-        rw_, rh_ = aw, ah
-        regions = [(ax0, ay0, rw_, rh_)] * nsec
-        divs = []
     uid = 0
 
     # board title drawn once, top-left — the persistent anchor text
@@ -702,14 +682,12 @@ def _build(plan, ratio):
                                 cx0 + cw, cy0 + ch * 0.99)
             placed_bounds.append(fm_bounds['fm2'])
         # scene separation: everything this scene places fades off the
-        # paper as the next scene opens — except in storyboard mode, where
-        # a quadrant's ink persists for the whole video
+        # paper as the next scene opens
         nxt_t0 = (beats[sec['bi'] + 1]['start_seconds']
                   if sec['bi'] + 1 < len(beats) else None)
-        sec['fade'] = (None if storyboard
-                       else ((nxt_t0 - 0.15, nxt_t0 + 0.45)
-                             if nxt_t0 is not None
-                             else (t1, t1 + WIPE_SECONDS * 0.8)))
+        sec['fade'] = ((nxt_t0 - 0.15, nxt_t0 + 0.45)
+                       if nxt_t0 is not None
+                       else (t1, t1 + WIPE_SECONDS * 0.8))
         if not k:
             sec['items2'] = []
             continue
@@ -1043,16 +1021,14 @@ def _build(plan, ratio):
         'wipe_t0': total_beats_end,
         'thanks_t0': total_beats_end + WIPE_SECONDS,
         'montage_t0': total_beats_end + WIPE_SECONDS + THANKS_SECONDS,
-        'thanks': ([] if storyboard else
-                   [('thanks', th, (0, 0), 1.0, None),
-                    ('heart', heart, (0, 0), 1.0, None)]),
+        'thanks': [('thanks', th, (0, 0), 1.0, None),
+                   ('heart', heart, (0, 0), 1.0, None)],
         'montage': [],
-        'dur': (END_HOLD if storyboard
-                else WIPE_SECONDS + THANKS_SECONDS + END_HOLD),
+        'dur': WIPE_SECONDS + THANKS_SECONDS + END_HOLD,
     }
     flow = {'sections': out_sections, 'items': all_items,
             'title_item': title_item, 'ending': ending,
-            'dividers': divs, 'persist': storyboard,
+            'dividers': divs, 'persist': False,
             'board_rect': board_rect,
             'total_beats_end': total_beats_end}
     cache[ratio] = flow
