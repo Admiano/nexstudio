@@ -732,12 +732,12 @@ def _build(plan, ratio):
             hero = (j == p_order[0])
             # hero fills ~60% of the region, satellites ~30% — a tight size
             # band keeps every element at a readable, uniform weight
-            fw = cw * ((0.55 if storyboard else 0.60) if hero
+            fw = cw * ((0.72 if storyboard else 0.60) if hero
                        else (0.40 if person else
-                             (0.36 if storyboard else 0.32)))
-            fh = ch * ((0.85 if storyboard else 0.66) if hero
+                             (0.42 if storyboard else 0.32)))
+            fh = ch * ((1.05 if storyboard else 0.66) if hero
                        else (0.62 if person else
-                             (0.52 if storyboard else 0.34)))
+                             (0.62 if storyboard else 0.34)))
             bo2 = min(fw / w, fh / h)
             if hero:
                 cands = [sat_pts[0]]
