@@ -25,3 +25,16 @@ def test_multi_sentence_scene_keeps_every_moment():
     assert {r.get('moment') for r in roles} == {0, 1}
     assert len(roles) >= 4
     assert any(r.get('annotate') for r in roles)
+
+
+def test_what_happens_is_drawn():
+    sb = pa.build_storyboard(
+        '## Up\nA trader watches the chart. The chart jumps.\n\n'
+        '## Down\nThe analyst panics as the chart crashes.\n')
+    up, down = (b['scene'] for b in sb['beats'])
+    icons = lambda sc: [r['icon'] for r in [sc['heroRole']]
+                        + sc['supportingRoles']]
+    assert 'trend up' in icons(up)
+    assert 'trend down' in icons(down)
+    assert any(r.get('bubble') == 'exclaim'
+               for r in [down['heroRole']] + down['supportingRoles'])

@@ -406,12 +406,15 @@ _MARK_CUES = [
     ('puffs', r'\b(smoke|smok\w+|burn\w*|fire|steam|fumes|exhaust|'
               r'pollut\w+|emission\w*)\b'),
     ('cross', r'\b(die|dies|dying|dead|collapse\w*|kill\w*|destroy\w*|'
-              r'empty|lost|fail\w*|extinct|ban\w*)\b'),
+              r'empty|lost|fail\w*|extinct|ban\w*|ruin\w*|broke\w*|'
+              r'wip\w+ out)\b'),
     ('drips', r'\b(drip\w*|leak\w*|honey|oil|bleed\w*|pour\w*)\b'),
     ('up', r'\b(ris(e|es|ing)|grow\w*|increas\w*|boost\w*|climb\w*|'
-           r'improv\w*|recover\w*)\b'),
+           r'improv\w*|recover\w*|jump\w*|soar\w*|surg\w*|spik\w*|'
+           r'skyrocket\w*|gain\w*|pump\w*)\b'),
     ('down', r'\b(fall\w*|drop\w*|declin\w*|shrink\w*|lower\w*|'
-             r'reduc\w*|worse)\b'),
+             r'reduc\w*|worse|crash\w*|plung\w*|plummet\w*|tank\w*|'
+             r'sink\w*|dump\w*|wipe\w*)\b'),
     ('rain', r'\b(rain\w*|storm\w*|flood\w*|monsoon)\b'),
     ('heat', r'\b(heat\w*|hot|drought|warming|scorch\w*|fever)\b'),
     ('motion', r'\b(rush\w*|speed\w*|fast|race\w*|hurr\w*|run(s|ning)?)\b'),
@@ -436,7 +439,8 @@ _PLACES = {'river': 'river', 'riverbank': 'river', 'stream': 'river',
            'road': 'road', 'street': 'road', 'highway': 'road',
            'city': 'city', 'forest': 'forest', 'woods': 'forest',
            'field': 'field', 'hillside': 'field', 'farm': 'field',
-           'meadow': 'field'}
+           'meadow': 'field', 'sea': 'sea', 'ocean': 'sea',
+           'coast': 'sea', 'seaside': 'sea'}
 _NOT_HOST = {'sunlight', 'light', 'air', 'rain', 'time', 'season', 'sun',
              'wind', 'shade', 'dark', 'water'}
 _ATTACH_PREP = {'on': 'on', 'onto': 'on', 'atop': 'on', 'in': 'in',
@@ -719,11 +723,64 @@ def _step_note(sent: str, roles: list) -> None:
         obj['annotate'] = note
 
 
+_SHOCK = re.compile(r'^(panic|gasp|scream|shriek|freak|shock|horrif|'
+                    r'terrif|realiz)')
+
+
+def _mind_bubble(after) -> str:
+    """Overlay for a person from the verb that follows them: thinking
+    verbs get a thought bubble, shock verbs get exclamation marks."""
+    for w in after:
+        if _SHOCK.match(w):
+            return 'exclaim'
+        if _wn is None or w in _SB_DET:
+            continue
+        vs = _wn.synsets(w, 'v')
+        if vs and not _wn.synsets(w, 'n')[:1] or (
+                vs and w.endswith('s') and _wn.morphy(w, 'v')):
+            return 'thinking' if vs[0].lexname() == 'verb.cognition' else ''
+    return ''
+
+
+_TREND_ART = re.compile(r'chart|graph|trend')
+_TREND_COLOR = {'green': 'up', 'red': 'down'}
+
+
+def _trend_roles(v3, roles, marks, sent):
+    """A chart-like role whose sentence says which way it went is drawn as
+    that trend: 'the price jumps' -> trend-up, 'the chart crashes' ->
+    trend-down, 'a green chart' -> trend-up."""
+    cue = {k: bool(re.search(p, sent, re.I)) for k, p in _MARK_CUES
+           if k in ('up', 'down')}
+    for r in roles:
+        if r['icon'] == 'person':
+            continue
+        art = v3.icon_for(r['icon'])
+        if not (isinstance(art, tuple) and _TREND_ART.search(str(art[-1]))):
+            continue
+        way = next((_TREND_COLOR[w] for w in r['label'].lower().split()
+                    if w in _TREND_COLOR), None)
+        way = way or next((m['type'] for m in marks
+                           if m.get('on') == r['label']
+                           and m['type'] in ('up', 'down')), None)
+        if way is None and cue.get('up') != cue.get('down'):
+            way = 'up' if cue.get('up') else 'down'
+        if way:
+            r['icon'] = f'trend {way}'
+            marks[:] = [m for m in marks if not (
+                m.get('on') == r['label'] and m['type'] in ('up', 'down'))]
+
+
 def _thing_icon(v3, lab: str) -> str:
     """Icon key for a role the script uses as a thing: when the word's art
     resolves to a person ('sap' = fool), draw its nearest non-person
     hypernym instead ('sap' -> liquid)."""
-    if _wn is None or v3.icon_for(lab) != 'person':
+    if _wn is None:
+        return lab
+    ic0 = v3.icon_for(lab)
+    rk0 = v3.sem_rank(lab, ic0) if isinstance(ic0, tuple) else None
+    if ic0 != 'person' and (rk0 is None or rk0 <= v3.SEM_BAD_RANK
+                            or str(ic0[1]).startswith('kit:')):
         return lab
     head = _lemma(lab.split()[-1])
     for s_ in [x for x in _wn.synsets(head, 'n')
@@ -766,8 +823,16 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             nxt = low[i + 1] if i + 1 < len(low) else ''
             if _wn is not None and i and _wn.synsets(w, 'v') and any(
                     c[0] + len(c[1].split()) == i
-                    and (c[2] or w.endswith('s'))
+                    and (c[2] or w.endswith('s') or low[i - 1].endswith('s'))
                     for c in cands):
+                continue
+            if nxt in _SB_DET and i and w.endswith('s') and _wn is not None \
+                    and _wn.morphy(w, 'v') not in (None, w):
+                continue
+            if nxt and _wn is not None and _is_person(w) and len(
+                    _wn.synsets(w, 'a') + _wn.synsets(w, 's')) > len(
+                    _wn.synsets(w, 'n')) and (_is_person(nxt)
+                                              or _is_thing(nxt)):
                 continue
             if nxt and i and low[i - 1] in _SB_DET and _wn is not None and (
                     _wn.synsets(w, 'a') or _wn.synsets(w, 's')) and not any(
@@ -860,6 +925,9 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 r['annotate'] = ann
             if person:
                 r['narration'] = sent
+                bub = _mind_bubble(low[i + len(lab.split()):i + 5])
+                if bub:
+                    r['bubble'] = bub
             roles.append(r)
         # relation
         rel = next((k for k, pat in _REL_CUES if re.search(pat, sent, re.I)),
@@ -931,7 +999,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
         setting = ''
         for a_ in range(len(roles) - 1, -1, -1):
             place = _PLACES.get(roles[a_]['label'].split()[-1])
-            if place and len(roles) >= 3:
+            if place and len(roles) >= 2:
                 setting = setting or place
                 del roles[a_], pick[a_]
                 for r_ in roles:
@@ -976,6 +1044,18 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             at = len(_WORD_RE.findall(sent[:m.start()]))
             tgt = min(range(len(roles)),
                       key=lambda n: abs(pick[n][0] - at))
+            nx_ = low[at + 1] if at + 1 < len(low) else ''
+            if kind == 'cross' and _wn is not None and _wn.synsets(nx_, 'n') \
+                    and not any(pick[n][0] == at + 1 for n in range(len(roles))):
+                continue
+            if kind == 'cross':
+                near = [n for n in range(len(roles))
+                        if roles[n]['icon'] != 'person'
+                        and -3 <= pick[n][0] - at <= 4]
+                if not near:
+                    continue
+                tgt = min(near, key=lambda n: (pick[n][0] < at,
+                                               abs(pick[n][0] - at)))
             if kind == 'cross' and rel == 'before_after':
                 tgt = max(range(len(roles)),
                           key=lambda n: (roles[n].get('side') == 'after'
@@ -984,6 +1064,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             if roles[tgt]['icon'] == 'person' and kind not in ('motion',):
                 continue
             marks.append({'type': kind, 'on': roles[tgt]['label']})
+        _trend_roles(v3, roles, marks, sent)
         last_person = next((r['label'] for r in roles
                             if r['icon'] == 'person'
                             and r['label'] not in ('you', 'we', 'i')),

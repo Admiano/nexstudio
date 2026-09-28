@@ -1708,6 +1708,8 @@ def _compound_kin(words) -> set:
 
 
 SEM_BAD_RANK = 300
+# a kit keyword hit the model ranks this far down is a different sense
+SEM_VETO_KEYWORD = 1500
 SEM_LOG: dict = {}
 
 
@@ -1885,6 +1887,9 @@ def kit_exact(phrase, exclude=None):
             hit = ('icon', f'kit:{dom}', name)
             if phrase in g.get('keywords', ()) and not (
                     exclude and hit in exclude):
+                rk = sem_rank(phrase, hit)
+                if rk is not None and rk > SEM_VETO_KEYWORD:
+                    continue
                 hits.append((fit, -len(hits), hit))
     return max(hits)[2] if hits else None
 

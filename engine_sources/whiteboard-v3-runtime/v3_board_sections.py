@@ -1295,10 +1295,12 @@ _SB_SETTINGS = (
               r'bush(es)?|meadows?|grass|pastures?|cherr\w*)\b'),
     ('ward', r'\b(hospitals?|clinics?|wards?|patients?|nurses?|doctors?|'
              r'beds?|staff)\b'),
+    ('sea', r'\b(seas?|oceans?|waves?|coasts?|ships?|boats?|sailors?|'
+            r'reefs?|lighthouses?|harbou?rs?|beach\w*|lifeboats?)\b'),
     ('cafe', r'\b(kitchens?|cafes?|baristas?|coffee|cups?|mugs?|roast\w*|'
              r'filters?|grind\w*)\b'),
 )
-_SB_OUTDOOR = ('river', 'city', 'road', 'forest', 'field')
+_SB_OUTDOOR = ('river', 'city', 'road', 'forest', 'field', 'sea')
 
 
 def _sb_setting_kind(scn, beat):
@@ -1359,7 +1361,8 @@ def _sb_setting(kind, txt, L, R, band_t, base, floor, boxes, seed):
 
     st = []
     under = [b for b in labels]
-    if kind in ('river', 'field', 'forest', 'road', 'city', 'ward', 'cafe'):
+    if kind in ('river', 'field', 'forest', 'road', 'city', 'ward', 'cafe',
+                'sea'):
         st += line(base + 2, under, 'ink', 1.0)
     lane = max(8.0, floor - base)
     if kind == 'river':
@@ -1367,6 +1370,10 @@ def _sb_setting(kind, txt, L, R, band_t, base, floor, boxes, seed):
             y = base + lane * (0.30 + 0.28 * k)
             ln = line(y, labels, 'a_blue', 0.9, wob=2.2, seg=18)
             st += [s_ for i, s_ in enumerate(ln) if (i + k) % 3 != 2]
+    if kind == 'sea':
+        for k in range(4):
+            y = base + lane * (0.22 + 0.24 * k)
+            st += line(y, labels, 'a_blue', 0.9, wob=4.0, seg=12)
     if kind in ('road', 'city'):
         y2 = base + lane * 0.95
         st += line(y2, labels, 'ink', 1.0)
@@ -1589,7 +1596,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             n_body = len(body)
         if kind in ('person', 'art') and not art:
             continue
-        expr = '' if kind == 'person' else (m.get('expression') or '')
+        expr = (m.get('bubble') or '') if kind == 'person' else (
+            m.get('expression') or '')
         head = 1.0
         aspect = {'stack-list': 1.30, 'crowd': 1.55, 'chart-journey': 1.7,
                   'divider': 0.0}.get(kind)
