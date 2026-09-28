@@ -33,7 +33,8 @@ Authority boundaries (see `EXECUTION_AUTHORITY.json`):
 | `assets/illustration/` | AEV1 icon bank + `registry.json` (path, sha256, licence per `asset_ref`); rebuilt by `tools/build_illustration_registry.py` |
 | `compiler/editorial_plan_compiler/authorities/` | Bundle planning authorities vendored from `EDITORIAL_TEXT_LED_BUNDLE_SOURCE.zip` with `AUTHORITY_PROVENANCE.json` (source/vendored hashes and the exact modification per file) |
 | `runtime/editorial-runtime.js` + `compositions/player.html` | Plan executor and seekable player |
-| `voice/elevenlabs_route.py` | `NEXSTUDIO_TTS_ROUTES_JSON` route: ElevenLabs `/with-timestamps` -> audio + character alignment; `ELEVENLABS_TRANSPORT=fixture:<dir>` replays recorded responses |
+| `voice/chatterbox_route.py` | `NEXSTUDIO_TTS_ROUTES_JSON` default voice route: Chatterbox (Resemble AI, MIT, local weights) -> audio + scheduled alignment; `CHATTERBOX_TRANSPORT=fixture:<file>` replays a recording |
+| `voice/elevenlabs_route.py` | `NEXSTUDIO_TTS_ROUTES_JSON` premium route: ElevenLabs `/with-timestamps` -> audio + measured character alignment; `ELEVENLABS_TRANSPORT=fixture:<dir>` replays recorded responses |
 | `assets/fonts/` | Inter (OFL) and JetBrains Mono (Apache-2.0) with measured metrics |
 | `assets/peeps/` | Open Peeps part library (full-body, still) extracted by `tools/import-open-peeps.py` |
 | `schema/` | Explicit JSON Schemas for treatment, semantic beat, plan, alignment, sound events, media provenance, native-aspect composition |
@@ -60,9 +61,11 @@ Regenerate schemas after a contract change: `cd compiler && python3 -m editorial
 
 ## Voice, music, sound
 
-- Voice is the clock: word landings come from ElevenLabs character alignment. Fixture
-  mode uses authored word timings; live mode needs only `ELEVENLABS_API_KEY` and the route
-  declaration in `NEXSTUDIO_TTS_ROUTES_JSON` (see the route docstring).
+- Voice is the clock: word landings come from the route's character alignment. The
+  default Chatterbox route schedules alignment evenly over the generated audio
+  (`EVEN_SCHEDULE_FROM_GENERATED_AUDIO` provenance); the declared ElevenLabs option —
+  live whenever `ELEVENLABS_API_KEY` is set — returns measured alignment. Fixture mode
+  uses authored word timings and never ships commercial output.
 - Music is an authored plan slot and is **silent by default**; unresolved or unlicensed
   music is never selected.
 - Sound accents bind to visible events only (Sound Library V2 law): max 3 per beat,
