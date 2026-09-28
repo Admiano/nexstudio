@@ -21,7 +21,7 @@ from .authorities import editorial_motion_ensemble_director_v1 as ens
 from .authorities import kinetic_typography_performance_authority_v3 as ktp
 from .authorities import native_three_aspect_composition_authority_v2 as native
 from .chassis import chassis_aspect, housing
-from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirective, FilmTreatment, TreatmentError
+from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, Brand, FigureDirective, FilmTreatment, TreatmentError
 from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, hrot, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
@@ -86,6 +86,7 @@ DESCENDER_EM = 0.24       # how far a line's descenders hang below its line box 
 # Ladder rungs a photograph of the concept outranks: anything that stops naming the thing itself.
 PHOTO_BELOW = ('hypernym', 'composite', 'typographic')
 PAPERBOOK_PACK = 'emoji.fluent-flat'
+PAPERBOOK_ALT_PACK = 'emoji.noto'
 
 
 def _sha_file(p: Path) -> str:
@@ -1421,13 +1422,11 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
     # Harmony expansion (jacoblockett pattern): a scene is not two inks — hills run
     # green, water runs blue, evening burns warm. Each family is a hue rotation of
     # the film's anchors so the film keeps its identity but the world gains colour.
-    seed_h = (seed0 % 97) / 97.0  # per-beat drift keeps sibling spreads related, not identical
     flora = hrot(accent, 112, 1.55, -0.10)                 # hills/ground → green family
     flora = mix(flora, ink, 0.30)
     flora_deep = hrot(accent, 105, 1.5, -0.18)             # near ground → deeper green
     flora_deep = mix(flora_deep, ink, 0.45)
     water = hrot(ink, 12, 1.4)                             # sea/river → deeper blue
-    warmth = hrot(accent, -30, 1.35)                       # sunlight/fire → warm family
 
     def stars(bbox: Dict[str, float], i: int, density: int = 90, plane: float = 0.08) -> Dict[str, Any]:
         return {'kind': 'stars', 'bbox': bbox, 'count': density, 'seed': seed0 ^ (i * 0x33), 'plane': plane}
@@ -1723,6 +1722,11 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
     for b, e in todo:
         named = e.glyph == 'CHIP' and e.label is not None
         r = finder.resolve(e.concept, pack, e.glyph in WORD_GLYPHS, native_only, named)
+        if pack == PAPERBOOK_PACK and r.via not in ('exact', 'synonym') and paper_key(e.concept) is None:
+            # The book's second flat library fills what the first lacks, reprinted in the same hand.
+            alt = finder.resolve(e.concept, PAPERBOOK_ALT_PACK, e.glyph in WORD_GLYPHS, native_only, named)
+            if alt.via in ('exact', 'synonym'):
+                r = alt
         if r.via in PHOTO_BELOW and e.glyph in WORD_GLYPHS:
             # No mark names the concept itself: a rights-clean photograph of it, set in the housing's
             # well, beats an ancestor's mark or the bare word. The name still rides with it unless

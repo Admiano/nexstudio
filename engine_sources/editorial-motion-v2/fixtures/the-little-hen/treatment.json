@@ -3,7 +3,9 @@
  "film_id": "the-little-hen",
  "note": "a cottage bedtime story — every page one state change: hatch, light, fill, open, melt, wilt, blow out, go dark",
  "aspects": [
-  "16x9"
+  "16x9",
+  "1x1",
+  "9x16"
  ],
  "fps": 30,
  "brand": {
@@ -95,7 +97,7 @@
    "beat_id": "b02",
    "beat_type": "SETUP",
    "pattern": "HERO_SCALE_PROMOTION",
-   "narration": "Grandma lit the candle by the window.",
+   "narration": "Grandma lit the candle on the table.",
    "energy": 0.5,
    "complexity": 0.4,
    "page": {
@@ -106,7 +108,8 @@
     "setting": "indoor",
     "mood": "night",
     "elements": [
-     "window"
+     "window",
+     "table"
     ]
    },
    "illustration": {

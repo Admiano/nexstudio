@@ -299,7 +299,7 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
                 return False
             if start > latest:
                 start, clamped = latest, True
-            act['dur'] = min(int(act.get('dur') or 600), max(200, int(window_ms) - start))
+            act['dur'] = min(int(act.get('dur') or 600), max(200, (window_ms if window_ms is not None else latest) - start))
         act['at'] = int(start)
         if act['kind'] in ('fill', 'empty', 'melt') and 'liquid' not in act:
             named = [LIQUIDS[t['t']] for t in toks if t['t'] in LIQUIDS]
@@ -330,7 +330,7 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
     counted = {c for c, n in counts.items() if n >= 3 and c}
     for c in sorted(counted):
         group = _reading_order([e for e in subjects if _norm_concept(e) == c])
-        nums = [(i, _number(tk['t'])) for i, tk in enumerate(toks) if _number(tk['t']) is not None]
+        nums = [(i, n) for i, tk in enumerate(toks) if (n := _number(tk['t'])) is not None]
         seq = [toks[i] for i, _ in nums]
         ascending = len(nums) >= 2 and all(nums[k + 1][1] == nums[k][1] + 1 for k in range(len(nums) - 1))
         ready = max(ready_of(e) for e in group)
@@ -379,34 +379,34 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
     # 2) Verbs act on the element they govern.
     acted = {e['id'] for e in ents if e.get('action')}
     i = 0
-    first_free_verb: Optional[Tuple[str, str, Dict[str, Any]]] = None
+    first_free_verb: Optional[Tuple[str, Optional[str], Dict[str, Any]]] = None
     while i < len(toks):
         kind, lemma, span = verb_kind(toks, i)
         if kind is None:
             i += span
             continue
-        target = None
+        hits = None
         for j in range(i - 1, max(-1, i - 1 - SUBJECT_REACH), -1):
             cand = [e for e in mentions.get(j, []) if e['id'] not in acted and _norm_concept(e) not in counted]
             if cand:
-                target = cand
+                hits = cand
                 break
-        if target is None:
+        if hits is None:
             for j in range(i + span, min(len(toks), i + span + SUBJECT_REACH)):
                 cand = [e for e in mentions.get(j, []) if e['id'] not in acted and _norm_concept(e) not in counted]
                 if cand:
-                    target = cand
+                    hits = cand
                     break
         if kind in ('hatch', 'crack'):
             # "The chick hatched" breaks the egg, not the chick: the shell is what changes state.
             shells = [e for e in subjects if e['id'] not in acted and _is(_norm_concept(e), SHELLED)]
-            if shells and (target is None or not any(_is(_norm_concept(x), SHELLED) for x in target)):
-                target = shells
-        if target is None:
+            if shells and (hits is None or not any(_is(_norm_concept(x), SHELLED) for x in hits)):
+                hits = shells
+        if hits is None:
             if first_free_verb is None:
                 first_free_verb = (kind, lemma, toks[i])
         else:
-            e = max(target, key=lambda x: float((x.get('bbox') or {}).get('w') or 0) * float((x.get('bbox') or {}).get('h') or 0))
+            e = max(hits, key=lambda x: float((x.get('bbox') or {}).get('w') or 0) * float((x.get('bbox') or {}).get('h') or 0))
             if place(e, _refine(kind, _norm_concept(e), e, zone, lemma), toks[i]['at'], toks[i], 'verb', lemma):
                 acted.add(e['id'])
                 if e['action']['kind'] == 'hatch':

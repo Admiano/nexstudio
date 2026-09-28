@@ -2321,6 +2321,14 @@
       { s: 'rect', x: 12, y: 72, w: 8, h: 10, tone: 'wood' },
       { s: 'rect', x: 82, y: 72, w: 8, h: 10, tone: 'wood' },
     ],
+    table: [
+      { s: 'rect', x: 12, y: 40, w: 76, h: 9, tone: 'wood' },
+      { s: 'rect', x: 16, y: 49, w: 68, h: 5, tone: 'soil', edge: 0 },
+      { s: 'rect', x: 18, y: 54, w: 7, h: 34, tone: 'wood' },
+      { s: 'rect', x: 75, y: 54, w: 7, h: 34, tone: 'wood' },
+      { s: 'rect', x: 30, y: 54, w: 5, h: 26, tone: 'soil', op: 0.7 },
+      { s: 'rect', x: 65, y: 54, w: 5, h: 26, tone: 'soil', op: 0.7 },
+    ],
     door: [
       { s: 'rect', x: 26, y: 16, w: 48, h: 72, tone: 'wood' },
       { s: 'rect', x: 33, y: 24, w: 15, h: 24, tone: 'soil', edge: 0 },

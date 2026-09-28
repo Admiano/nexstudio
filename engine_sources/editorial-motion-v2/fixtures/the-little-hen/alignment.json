@@ -36,229 +36,229 @@
    "end_ms": 1600
   },
   {
-   "text": " hatched,",
+   "text": " hatched.",
    "start_ms": 1600,
    "end_ms": 2180
   },
   {
    "text": " Grandma",
-   "start_ms": 2560,
-   "end_ms": 2960
+   "start_ms": 2640,
+   "end_ms": 2820
   },
   {
    "text": " lit",
-   "start_ms": 2960,
-   "end_ms": 3140
+   "start_ms": 2820,
+   "end_ms": 3120
   },
   {
    "text": " the",
-   "start_ms": 3140,
-   "end_ms": 3280
+   "start_ms": 3120,
+   "end_ms": 3260
   },
   {
    "text": " candle",
-   "start_ms": 3280,
-   "end_ms": 3560
+   "start_ms": 3260,
+   "end_ms": 3540
   },
   {
-   "text": " by",
-   "start_ms": 3560,
-   "end_ms": 3800
+   "text": " on",
+   "start_ms": 3540,
+   "end_ms": 3720
   },
   {
    "text": " the",
-   "start_ms": 3800,
-   "end_ms": 3900
+   "start_ms": 3720,
+   "end_ms": 3820
   },
   {
-   "text": " window,",
-   "start_ms": 3900,
-   "end_ms": 4180
+   "text": " table.",
+   "start_ms": 3820,
+   "end_ms": 4140
   },
   {
-   "text": " she",
-   "start_ms": 4600,
-   "end_ms": 4720
+   "text": " She",
+   "start_ms": 4580,
+   "end_ms": 4660
   },
   {
    "text": " poured",
-   "start_ms": 4720,
-   "end_ms": 4940
+   "start_ms": 4660,
+   "end_ms": 4900
   },
   {
    "text": " warm",
-   "start_ms": 4940,
-   "end_ms": 5240
+   "start_ms": 4900,
+   "end_ms": 5180
   },
   {
    "text": " milk",
-   "start_ms": 5240,
-   "end_ms": 5520
+   "start_ms": 5180,
+   "end_ms": 5440
   },
   {
    "text": " into",
-   "start_ms": 5520,
-   "end_ms": 5740
+   "start_ms": 5440,
+   "end_ms": 5680
   },
   {
    "text": " the",
-   "start_ms": 5740,
-   "end_ms": 5880
+   "start_ms": 5680,
+   "end_ms": 5800
   },
   {
    "text": " cup,",
-   "start_ms": 5880,
-   "end_ms": 6160
+   "start_ms": 5800,
+   "end_ms": 6080
   },
   {
    "text": " then",
-   "start_ms": 6440,
+   "start_ms": 6300,
+   "end_ms": 6460
+  },
+  {
+   "text": " the",
+   "start_ms": 6460,
    "end_ms": 6580
   },
   {
-   "text": " the",
-   "start_ms": 6580,
-   "end_ms": 6700
-  },
-  {
    "text": " door",
-   "start_ms": 6700,
-   "end_ms": 6880
+   "start_ms": 6580,
+   "end_ms": 6760
   },
   {
    "text": " opened",
-   "start_ms": 6880,
-   "end_ms": 7200
+   "start_ms": 6760,
+   "end_ms": 7080
   },
   {
    "text": " wide.",
-   "start_ms": 7200,
-   "end_ms": 7580
+   "start_ms": 7080,
+   "end_ms": 7460
   },
   {
    "text": " Outside",
-   "start_ms": 8200,
-   "end_ms": 8480
+   "start_ms": 8080,
+   "end_ms": 8360
   },
   {
    "text": " the",
-   "start_ms": 8480,
-   "end_ms": 8880
+   "start_ms": 8360,
+   "end_ms": 8760
   },
   {
    "text": " snowman",
-   "start_ms": 8880,
-   "end_ms": 9260
+   "start_ms": 8760,
+   "end_ms": 9120
   },
   {
    "text": " melted",
-   "start_ms": 9260,
-   "end_ms": 9540
+   "start_ms": 9120,
+   "end_ms": 9400
   },
   {
    "text": " in",
-   "start_ms": 9540,
-   "end_ms": 9740
+   "start_ms": 9400,
+   "end_ms": 9620
   },
   {
    "text": " the",
-   "start_ms": 9740,
-   "end_ms": 9840
+   "start_ms": 9620,
+   "end_ms": 9700
   },
   {
    "text": " sun,",
-   "start_ms": 9840,
-   "end_ms": 10100
+   "start_ms": 9700,
+   "end_ms": 9960
   },
   {
    "text": " the",
-   "start_ms": 10400,
-   "end_ms": 10460
+   "start_ms": 10280,
+   "end_ms": 10340
   },
   {
    "text": " flower",
-   "start_ms": 10460,
-   "end_ms": 10760
+   "start_ms": 10340,
+   "end_ms": 10640
   },
   {
    "text": " wilted",
-   "start_ms": 10760,
-   "end_ms": 11200
+   "start_ms": 10640,
+   "end_ms": 11080
   },
   {
    "text": " by",
-   "start_ms": 11200,
+   "start_ms": 11080,
+   "end_ms": 11240
+  },
+  {
+   "text": " the",
+   "start_ms": 11240,
    "end_ms": 11360
   },
   {
-   "text": " the",
-   "start_ms": 11360,
-   "end_ms": 11480
-  },
-  {
    "text": " fence.",
-   "start_ms": 11480,
-   "end_ms": 11780
+   "start_ms": 11360,
+   "end_ms": 11640
   },
   {
    "text": " At",
-   "start_ms": 12540,
-   "end_ms": 12680
+   "start_ms": 12420,
+   "end_ms": 12520
   },
   {
    "text": " last",
-   "start_ms": 12680,
-   "end_ms": 12920
+   "start_ms": 12520,
+   "end_ms": 12800
   },
   {
    "text": " Grandma",
-   "start_ms": 12920,
-   "end_ms": 13360
+   "start_ms": 12800,
+   "end_ms": 13140
   },
   {
    "text": " blew",
-   "start_ms": 13360,
-   "end_ms": 13580
+   "start_ms": 13140,
+   "end_ms": 13420
   },
   {
    "text": " the",
-   "start_ms": 13580,
-   "end_ms": 13700
+   "start_ms": 13420,
+   "end_ms": 13540
   },
   {
    "text": " candle",
-   "start_ms": 13700,
-   "end_ms": 13960
+   "start_ms": 13540,
+   "end_ms": 13840
   },
   {
    "text": " out,",
-   "start_ms": 13960,
-   "end_ms": 14260
+   "start_ms": 13840,
+   "end_ms": 14160
   },
   {
    "text": " and",
-   "start_ms": 14640,
-   "end_ms": 14740
+   "start_ms": 14540,
+   "end_ms": 14640
   },
   {
    "text": " the",
-   "start_ms": 14740,
-   "end_ms": 14820
+   "start_ms": 14640,
+   "end_ms": 14720
   },
   {
    "text": " moon",
-   "start_ms": 14820,
-   "end_ms": 15020
+   "start_ms": 14720,
+   "end_ms": 14940
   },
   {
    "text": " went",
-   "start_ms": 15020,
-   "end_ms": 15200
+   "start_ms": 14940,
+   "end_ms": 15140
   },
   {
    "text": " dark.",
-   "start_ms": 15200,
-   "end_ms": 15520
+   "start_ms": 15140,
+   "end_ms": 15480
   }
  ]
 }

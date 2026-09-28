@@ -54,3 +54,14 @@ def test_verb_kind_phrasal_and_irregular(text, kind):
     toks = tokens(None, text)
     kinds = [verb_kind(toks, i)[0] for i in range(len(toks))]
     assert kind in kinds
+
+
+def test_with_clause_names_the_head_not_the_accessory():
+    from editorial_plan_compiler.illustration import IllustrationRegistry
+    from editorial_plan_compiler.lexicon import AssetFinder, NounLexicon
+    reg = IllustrationRegistry()
+    finder = AssetFinder(reg.items, NounLexicon(), reg.quarantined)
+    cup = finder.resolve('cup', 'emoji.fluent-flat', True, True)
+    assert cup.via == 'exact' and cup.asset_ref == 'emoji.fluent-flat.cup-with-straw'
+    assert finder.resolve('straw', 'emoji.fluent-flat', True, True).asset_ref != 'emoji.fluent-flat.cup-with-straw'
+    assert finder.resolve('harp', 'emoji.noto', True, True).asset_ref == 'emoji.noto.harp'
