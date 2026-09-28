@@ -23,7 +23,7 @@ NUMBER_WORDS = {
 }
 
 IRREGULAR = {
-    'crept': 'creep', 'scuttled': 'scuttle',
+    'crept': 'creep', 'scuttled': 'scuttle', 'dug': 'dig',
     'grew': 'grow', 'grown': 'grow', 'fell': 'fall', 'fallen': 'fall', 'rose': 'rise', 'risen': 'rise',
     'flew': 'fly', 'flown': 'fly', 'spun': 'spin', 'shone': 'shine', 'blew': 'blow', 'broke': 'break',
     'ran': 'run', 'swam': 'swim', 'sank': 'sink', 'threw': 'throw', 'thrown': 'throw', 'came': 'come',
@@ -122,9 +122,11 @@ STAND_INS = {
     'roof': 'house', 'chimney': 'house', 'porch': 'house', 'doorstep': 'house', 'branch': 'tree',
     'trunk': 'tree', 'twig': 'tree', 'petal': 'flower', 'stem': 'flower', 'wheel': 'car', 'hull': 'boat',
     'sail': 'boat', 'mast': 'boat', 'mug': 'hot-beverage', 'deck': 'boat',
+    'striker': 'person', 'goalkeeper': 'person', 'keeper': 'person', 'footballer': 'person',
 }
 # People act through what they handle: "her brother poured cocoa" moves the cocoa, never the brother.
-PEOPLE = ('person', 'boy', 'girl', 'man', 'woman', 'child', 'baby', 'old-man', 'old-woman', 'people', 'family')
+PEOPLE = ('person', 'boy', 'girl', 'man', 'woman', 'child', 'baby', 'old-man', 'old-woman', 'people', 'family',
+          'player', 'teacher', 'farmer', 'pilot', 'chef', 'student', 'worker')
 TRANSITIVE = frozenset(('pour', 'fill', 'light', 'ignite', 'kindle', 'open', 'close', 'shut', 'kick', 'throw', 'toss',
                         'drop', 'lift', 'blow', 'carry', 'push', 'pull', 'empty', 'spill', 'crack', 'break', 'plant',
                         'wave', 'strike', 'shoot', 'roll', 'raise'))
@@ -522,6 +524,14 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
         c = _norm_concept(e)
         place(e, _refine(kind, c, e, zone, lemma), tok['at'], tok, 'verb-primary', lemma)
     unresolved = not acted and not fixed and bool(subjects) and first_free_verb is None
+    # One element is in focus per page: the first to act keeps its action, the rest hold still.
+    if len(events) > 1:
+        events.sort(key=lambda x: (x['at'], x['id']))
+        keep = {events[0]['id']} | {ev['id'] for ev in events if ev['reason'] == 'state-follow'}
+        for e in ents:
+            if e['id'] not in keep and e not in fixed and 'action' in e:
+                del e['action']
+        events = [ev for ev in events if ev['id'] in keep]
     for e in fixed:
         a = e['action']
         events.append({'id': e['id'], 'concept': _norm_concept(e), 'kind': a['kind'], 'at': a['at'], 'dur': a.get('dur'),

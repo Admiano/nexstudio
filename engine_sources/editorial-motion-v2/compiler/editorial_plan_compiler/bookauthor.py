@@ -10,6 +10,7 @@ import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .coverage import STAND_INS, NounGate, paper_key, young_of
+from .places import BY_NAME as PLACES, FIXTURES, covered, story_places
 from .illustration import IllustrationRegistry
 from .lexicon import AssetFinder, NounLexicon, singular
 
@@ -146,15 +147,28 @@ class BookAuthor:
 
     def author(self, groups: List[List[Dict[str, Any]]], film_id: str) -> Dict[str, Any]:
         beats: List[Dict[str, Any]] = []
-        setting, mood = 'outdoor', 'day'
+        mood = 'day'
         motif: Optional[str] = None
         prev_things: List[str] = []
-        for i, g in enumerate(groups):
-            text = re.sub(r'\s+([,.;:!?])', r'\1', ' '.join(' '.join(w['text'] for w in g).split()))
+        texts = [re.sub(r'\s+([,.;:!?])', r'\1', ' '.join(' '.join(w['text'] for w in g).split())) for g in groups]
+        where = story_places(texts)
+        for i, text in enumerate(texts):
             ws = _words(text)
-            setting = _pick(ws, SETTING_WORDS) or setting
             mood = _pick(ws, MOOD_WORDS) or mood
-            things = self.things(text)
+            place = PLACES[where[i].place]
+            painted = covered(place.name, where[i].far)
+            named_place = bool(set(ws) & painted)
+            named = self.things(text)
+            things = [c for c in named if c not in painted]
+            dressed = [c for c, *_ in place.dressing]
+            omit: List[str] = []
+            if not things and named_place:
+                # A page that names only its place still needs a subject: the named set piece
+                # steps forward as the page's hero, and the painter leaves its slot empty.
+                hero = next((c for c in named if c in dressed and c not in FIXTURES), None) or next(
+                    (c for c in dressed if c not in FIXTURES and self.printable(c)), None)
+                if hero:
+                    things, omit = [hero], [hero]
             if not things and prev_things:
                 # A sentence that names nothing drawable continues the page before it:
                 # "Six take away two" still counts the icicles just named.
@@ -167,9 +181,10 @@ class BookAuthor:
                 'beat_type': 'HOOK' if i == 0 else ('PAYOFF' if i == len(groups) - 1 else 'SETUP'),
                 'pattern': 'HERO_SCALE_PROMOTION', 'narration': text,
                 'energy': 0.5, 'complexity': 0.4, 'page': page,
-                'scene': {'setting': setting, 'mood': mood},
+                'scene': {'setting': place.name, 'mood': mood, 'winter': where[i].winter, 'far': list(where[i].far),
+                          'elements': sorted(set(dressed) - set(omit)), 'covers': sorted(painted), 'omit': omit},
             }
-            if not edu and not things:
+            if not edu and not things and not named_place:
                 named = [w for w, _, person in self.gate.things(text) if not person]
                 raise ValueError(f'UNPRINTABLE_BEAT: beat {i + 1} names nothing the book can draw '
                                  f'({", ".join(named) or "no concrete noun"}): "{text}"')
@@ -203,4 +218,4 @@ class BookAuthor:
                     'multiply': 'Rows of {}s', 'share': 'Sharing {}s'}[edu['kind']]
             obj = str(edu['object'])
             return form.replace('{}s', obj if obj in SAME_PLURAL else obj + 's').title()
-        return f'The {things[0].title()}' if things else 'And Then'
+        return f"The {things[0].replace('-', ' ').title()}" if things else 'And Then'

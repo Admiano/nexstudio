@@ -562,6 +562,28 @@
       case 'flower': { for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 - Math.PI / 2; svgEl('ellipse', { cx: f2(50 + Math.cos(a) * 17), cy: f2(38 + Math.sin(a) * 15), rx: 10, ry: 8, fill: i % 2 ? tone : lt(0.18) }, svg); } C(50, 38, 9, paperTone(0.85)); P('M50 46 Q46 70 48 100 L54 100 Q52 70 50 46Z', dk(0.3)); P('M50 78 Q34 74 30 62 Q44 66 50 78Z', dk(0.25)); P('M50 84 Q66 80 70 68 Q56 72 50 84Z', dk(0.25)); break; }
       case 'bubble': { C(50, 50, 40, 'none'); svgEl('circle', { cx: 50, cy: 50, r: 40, fill: lt(0.5), 'fill-opacity': 0.22, stroke: lt(0.6), 'stroke-width': 4 }, svg); C(36, 34, 9, paperTone(0.9)); break; }
       case 'reed': { for (const [ox, hh, head] of [[-18, 78, 1], [2, 96, 1], [22, 62, 0]]) { P(`M${f2(50 + ox)} 100 Q${f2(48 + ox)} ${f2(100 - hh * 0.5)} ${f2(50 + ox)} ${f2(100 - hh)} L${f2(53 + ox)} ${f2(100 - hh)} Q${f2(51 + ox)} ${f2(100 - hh * 0.5)} ${f2(53 + ox)} 100Z`); if (head) E(50 + ox + 1.5, 100 - hh - 7, 7, 12, dk(0.35)); } break; }
+      // Place kit: the set pieces that make a location read as itself — a barn and silo
+      // for a farm, a tower and terminal for an airport, stands for a stadium.
+      case 'strip': { R(0, 0, 100, 100); break; }
+      case 'ringline': { svgEl('ellipse', { cx: 50, cy: 50, rx: 47, ry: 44, fill: 'none', stroke: tone, 'stroke-width': 5 }, svg); break; }
+      case 'barn': { P('M8 100 L8 44 L22 22 L50 8 L78 22 L92 44 L92 100Z'); P('M4 46 L20 20 L50 4 L80 20 L96 46 L92 48 L78 25 L50 12 L22 25 L8 48Z', dk(0.35)); R(34, 60, 32, 40, paperTone(0.82)); R(37, 63, 26, 37, dk(0.1)); svgEl('path', { d: 'M37 63 L63 100 M63 63 L37 100', stroke: paperTone(0.85), 'stroke-width': 3, fill: 'none' }, svg); R(42, 28, 16, 14, paperTone(0.82)); R(44, 30, 12, 10, dk(0.45)); for (let x = 14; x < 90; x += 8) svgEl('line', { x1: x, y1: 46, x2: x, y2: 100, stroke: dk(0.12), 'stroke-width': 0.8 }, svg); break; }
+      case 'silo': { R(20, 22, 60, 78); P('M20 24 Q50 -6 80 24Z', dk(0.3)); for (const yy of [40, 58, 76]) R(20, yy, 60, 3, dk(0.18)); R(46, 30, 8, 70, lt(0.18), 0.6); break; }
+      case 'haystack': { P('M4 100 Q6 40 50 22 Q94 40 96 100Z'); for (let i = 0; i < 16; i++) { const x = 10 + r() * 80; svgEl('line', { x1: f2(x), y1: f2(40 + r() * 20), x2: f2(x + (r() - 0.5) * 8), y2: f2(70 + r() * 28), stroke: dk(0.22), 'stroke-width': 1.2 }, svg); } break; }
+      case 'stands': { R(0, 20, 100, 80, dk(0.25)); for (let row = 0; row < 5; row++) { const yy = 26 + row * 14; R(0, yy + 9, 100, 3, dk(0.4)); for (let i = 0; i < 38; i++) C(1.5 + i * 2.65 + r() * 0.8, yy + 4 + r() * 2, 1.25, [lt(0.5), brand.accent || lt(0.3), paperTone(0.9), dk(0.5)][Math.floor(r() * 4)]); } R(0, 12, 100, 9, dk(0.4)); break; }
+      case 'floodlight': { R(47, 22, 6, 78, dk(0.2)); R(26, 2, 48, 22, dk(0.3)); for (let yy = 0; yy < 2; yy++) for (let xx = 0; xx < 4; xx++) R(30 + xx * 10.5, 5 + yy * 9.5, 8, 7, paperTone(0.95)); break; }
+      case 'controltower': { P('M40 100 L44 40 L56 40 L60 100Z'); P('M22 22 L78 22 L70 40 L30 40Z', dk(0.3)); R(26, 25, 48, 10, lt(0.55)); for (const x of [36, 50, 64]) R(x - 1, 25, 2, 10, dk(0.3)); R(46, 8, 8, 14, dk(0.2)); R(49, 0, 2, 10, dk(0.4)); break; }
+      case 'terminal': { R(0, 40, 100, 60); R(-2, 34, 104, 8, dk(0.3)); R(4, 50, 92, 22, lt(0.5)); for (let x = 4; x < 96; x += 6) R(x, 50, 1, 22, dk(0.25)); R(40, 78, 20, 22, dk(0.25)); break; }
+      case 'schoolhouse': { R(6, 40, 88, 60); P('M2 42 L50 20 L98 42Z', dk(0.3)); R(40, 6, 20, 26, lt(0.12)); P('M36 8 L50 -2 L64 8Z', dk(0.3)); C(50, 19, 6, paperTone(0.9)); svgEl('path', { d: 'M50 15 L50 19 L53 21', stroke: dk(0.5), 'stroke-width': 1.2, fill: 'none' }, svg); for (const yy of [50, 72]) for (const x of [12, 26, 64, 78]) { R(x, yy, 10, 12, lt(0.55)); R(x + 4.5, yy, 1, 12, tone); } R(42, 70, 16, 30, dk(0.35)); R(38, 62, 24, 6, dk(0.2)); break; }
+      case 'flagpole': { R(12, 4, 4, 96, dk(0.3)); P('M16 6 L70 10 Q60 18 70 26 L16 28Z', brand.accent || lt(0.3)); break; }
+      case 'chalkboard': { R(0, 0, 100, 100, mixColor(brand.ink, '#8a5a2b', 0.5)); R(4, 6, 92, 80, '#2f4a3a'); for (let i = 0; i < 5; i++) { const y0 = 16 + i * 12, x0 = 10 + r() * 8; svgEl('path', { d: `M${f2(x0)} ${f2(y0)} q6 -4 12 0 t12 0 t12 0${r() < 0.5 ? ' t12 0' : ''}`, stroke: '#eef0e6', 'stroke-opacity': 0.75, 'stroke-width': 1.4, fill: 'none' }, svg); } svgEl('path', { d: 'M64 26 L70 20 L70 44 M64 44 L76 44', stroke: '#eef0e6', 'stroke-opacity': 0.8, 'stroke-width': 1.6, fill: 'none' }, svg); R(0, 86, 100, 8, mixColor(brand.ink, '#8a5a2b', 0.35)); R(20, 83, 8, 3, '#f4f4ec'); break; }
+      case 'desk': { R(2, 30, 70, 10); R(8, 40, 6, 58, dk(0.2)); R(60, 40, 6, 58, dk(0.2)); R(12, 42, 50, 18, dk(0.1)); R(78, 10, 8, 88, dk(0.25)); R(72, 56, 26, 8, dk(0.2)); R(92, 56, 6, 42, dk(0.3)); break; }
+      case 'fireplace': { R(0, 10, 100, 90, mixColor(tone, '#9c4a32', 0.45)); for (let yy = 16; yy < 100; yy += 9) for (let x = (yy / 9) % 2 ? 0 : 7; x < 100; x += 14) R(x, yy, 12, 7, dk(0.08 + r() * 0.1)); R(-4, 4, 108, 9, dk(0.35)); P('M22 100 L22 58 Q50 32 78 58 L78 100Z', dk(0.7)); P('M36 100 Q34 80 44 70 Q44 82 50 80 Q48 66 58 60 Q60 78 66 84 Q66 94 64 100Z', '#e8913a'); P('M44 100 Q44 88 50 84 Q54 92 58 100Z', '#f6d06a'); R(28, 96, 44, 4, dk(0.5)); break; }
+      case 'counter': { R(0, 0, 100, 10, lt(0.35)); R(0, 10, 100, 90); for (let x = 2; x < 98; x += 24.5) { R(x, 16, 22, 80, dk(0.1)); R(x + 17, 48, 2, 12, dk(0.45)); } break; }
+      case 'cupboard': { R(0, 0, 100, 100); for (let x = 2; x < 98; x += 32.5) { R(x, 6, 30, 88, dk(0.1)); R(x + 24, 60, 2, 16, dk(0.45)); } break; }
+      case 'pier': { R(0, 30, 100, 18); for (let x = 0; x < 100; x += 7) svgEl('line', { x1: x, y1: 30, x2: x, y2: 48, stroke: dk(0.25), 'stroke-width': 0.8 }, svg); for (const x of [6, 30, 54, 78, 96]) R(x - 2.5, 20, 5, 80, dk(0.3)); break; }
+      case 'goal': { R(0, 10, 100, 90, dk(0.08), 0.35); for (let x = 8; x < 100; x += 10) R(x, 12, 1.2, 88, dk(0.25), 0.5); for (let y = 20; y < 100; y += 10) R(2, y, 96, 1.2, dk(0.25), 0.5); R(0, 4, 100, 7); R(0, 4, 6, 96); R(94, 4, 6, 96); break; }
+      case 'stove': { R(0, 12, 100, 88); R(-2, 6, 104, 8, dk(0.3)); for (const x of [26, 74]) { E(x, 10, 14, 3, dk(0.55)); } R(12, 34, 76, 46, dk(0.35)); R(18, 40, 64, 30, lt(0.25), 0.5); R(30, 26, 40, 3, lt(0.4)); for (const x of [20, 40, 60, 80]) C(x, 20, 3, lt(0.3)); break; }
+      case 'dune': { P('M0 100 L0 60 Q30 20 60 50 Q80 66 100 40 L100 100Z'); P('M0 70 Q30 34 60 58', 'none'); speck(); break; }
       default: { P(cutBlobPath(50, 50, 42, 40, seed)); break; }
     }
     return svg;
@@ -571,7 +593,7 @@
   // volume: a light wash on the lit half and an ink shade on the dark half, both
   // clipped to the silhouette so the shading lives inside the paper, not on the page.
   const _VOLUME_SHAPES = new Set(['hill', 'mountain', 'cliff', 'rock', 'stone', 'pebble',
-    'tent', 'hut', 'door', 'boat', 'planet', 'moon', 'star', 'blob']);
+    'tent', 'hut', 'door', 'boat', 'planet', 'moon', 'star', 'blob', 'haystack', 'dune', 'silo']);
 
   function shadeVolume(svg, ldx, seed, plan) {
     const brand = plan.brand;

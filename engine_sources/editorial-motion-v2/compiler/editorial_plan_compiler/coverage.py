@@ -175,6 +175,8 @@ class NounGate:
             for k in range(len(run) - 1, -1, -1):
                 if run[k] in MODIFIERS:
                     continue
+                if k > 0 and run[k] in IRREGULAR and self._concrete(run[k - 1]) is not None:
+                    continue
                 if k > 0 and run[k - 1] not in MODIFIERS:
                     two = self._concrete(f'{run[k - 1]} {run[k]}')
                     if two is not None and '_' in two[0]:
@@ -229,7 +231,7 @@ class NounGate:
             if person and fig is not None:
                 continue
             head = singular(word.split()[-1])
-            if head in ROLES or head in SETTING_NOUNS.get(str(scene.get('setting') or ''), ()):
+            if head in ROLES or head in SETTING_NOUNS.get(str(scene.get('setting') or ''), ()) or head in (scene.get('covers') or ()):
                 continue
             if any(a in printed for a in ALIASES.get(head, ())) or self._answers(lemma, word, printed):
                 continue

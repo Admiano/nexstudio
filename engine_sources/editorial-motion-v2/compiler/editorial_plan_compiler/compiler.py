@@ -25,6 +25,7 @@ from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, hrot, 
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
 from .coverage import NounGate, paper_key
+from .places import BY_NAME as PLACE_BY_NAME
 from .directing import DURATION as ACTION_DURATION, direct
 from .edu import build as build_edu
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
@@ -228,7 +229,11 @@ NEXT_BEST_ACTIONS = {
     'crack': ('shake', 'a shell breaking apart'), 'hatch': ('shake', 'a shell breaking apart'),
     'light': ('shine', 'a flame catching'), 'out': ('dim', 'a flame dying'),
 }
-GROUNDED_SETTINGS = frozenset(('outdoor', 'indoor', 'urban', 'garden', 'field', 'farm', 'forest', 'stadium'))
+# The book's pictures carry the story by what they show; story objects hold still
+# (maths representations keep their counted sequence).
+PAPERBOOK_STORY_MOTION = False
+GROUNDED_SETTINGS = frozenset(('outdoor', 'indoor', 'urban', 'garden', 'field', 'farm', 'forest', 'stadium')) | frozenset(
+    n for n, p in PLACE_BY_NAME.items() if p.painter not in ('space', 'underwater'))
 AIRBORNE = frozenset(('sun', 'moon', 'planet', 'star', 'stars', 'comet', 'cloud', 'rain', 'snow', 'bird', 'butterfly',
                       'bee', 'kite', 'balloon', 'plane', 'airplane', 'rocket', 'window', 'picture', 'clock', 'lamp', 'bat',
                       'firefly', 'rainbow', 'lightning', 'flag', 'owl', 'eagle', 'dragonfly'))
@@ -498,8 +503,11 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
         r['enter_ms'], r['enter_duration_ms'] = 0, 0
     # A maths page is directed by its representation (edu.py): the director would
     # re-read the count words and pop objects the layout prints still.
-    if illustration.get('edu'):
+    if illustration.get('edu') or not PAPERBOOK_STORY_MOTION:
         record = {'events': [], 'failures': [], 'unresolved': []}
+        if not illustration.get('edu'):
+            for e in illustration['entities']:
+                e.pop('action', None)
     else:
         record = direct(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh}, int(dur_ms - EXIT_MS - 60),
                         words, getattr(btr, 'narration', None), getattr(btr, 'beat_id', 'beat'))
@@ -1331,6 +1339,8 @@ SCENE_PROP_SHAPES = {
     'kelp', 'lamp', 'log', 'moon', 'mountain', 'pebble', 'pillar', 'planet', 'poster', 'pot',
     'ring', 'rock', 'rug', 'sandcastle', 'shaft', 'shelf', 'sign', 'skyline', 'sofa', 'star',
     'stone', 'stool', 'streetlamp', 'sun', 'table', 'tent', 'tower', 'vase', 'wave', 'window',
+    'strip', 'ringline', 'barn', 'silo', 'haystack', 'stands', 'floodlight', 'controltower', 'terminal',
+    'schoolhouse', 'flagpole', 'chalkboard', 'desk', 'fireplace', 'counter', 'cupboard', 'pier', 'dune', 'stove', 'goal',
 }
 # Where an element sits by default, as (width, height) fractions of the canvas short edge.
 _SCENE_ELEMENT_SIZE = {
@@ -1468,6 +1478,8 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
     def elements_on(ground_top: float, plane: float = 0.6) -> None:
         """Scene elements land on the ground line, seeded across the width; prop shapes draw
         as paper primitives, everything else as a resolved art mark standing in the world."""
+        if place is not None:
+            return
         for k, name in enumerate(sc['elements'][:8]):
             key = name.lower().strip()
             sx = ((seed0 >> (k * 7)) & 0x7F) / 127.0
@@ -1486,7 +1498,163 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
                             'tone': '', 'plane': plane, 'seed': seed0 ^ (k * 0x99),
                             'lit_dx': light_dx, 'contact': True})
 
-    if setting == 'paper':
+    place = PLACE_BY_NAME.get(setting)
+    if place is not None:
+        winter = bool(sc.get('winter'))
+        dark = {'night': 0.55, 'storm': 0.35, 'dusk': 0.22}.get(mood, 0.0)
+
+        def shade(c: str, k: float = 1.0) -> str:
+            return mix(c, ink, dark * k) if dark else c
+
+        grass = shade(mix(flora, paper, 0.08)) if not winter else shade(mix(paper, '#ffffff', 0.55))
+        grass_deep = shade(mix(flora_deep, gnd, 0.35)) if not winter else shade(mix(paper, '#c9d6e6', 0.55))
+        grass_far = shade(mix(flora, mid, 0.45)) if not winter else shade(mix(paper, '#dfe7f0', 0.5))
+        sea = shade(mix(mix(water, '#4f86b0', 0.6), paper, 0.12))
+        sand = shade(mix(paper, '#e2c58c', 0.6))
+        white = shade(mix(paper, '#ffffff', 0.7), 0.6)
+        wood = mix(ink, '#9a6a3a', 0.55)
+        skytone = sky if not winter or mood != 'day' else mix(sky, '#dfe8f2', 0.5)
+
+        def sky_band(to: float = 0.62) -> None:
+            out.append(band(-0.02, to, skytone, 0.10, False, 1))
+            celestial(2)
+            if mood == 'night':
+                out.append(stars({'x': 0, 'y': 0, 'w': W, 'h': H * to * 0.8}, 8, 70))
+            else:
+                clouds(4, 2)
+
+        def far_hills(top: float, tone: str) -> None:
+            for k in range(2):
+                sx = ((seed0 >> (k * 11 + 5)) & 0x7F) / 127.0
+                out.append(piece('hill', W * (-0.10 + 0.6 * sx), H * (top - 0.08 + 0.04 * k), W * (0.55 + 0.1 * k), H * 0.16,
+                                 mix(tone, gnd, 0.15 + 0.15 * k), 0.30 + 0.04 * k, 32 + k))
+
+        def far_peaks(top: float) -> None:
+            cap = shade(mix(paper, '#ffffff', 0.5))
+            for k, (x, w, h) in enumerate(((-0.08, 0.50, 0.30), (0.30, 0.46, 0.36), (0.62, 0.52, 0.28))):
+                out.append(piece('mountain', W * x, H * (top - h), W * w, H * h + short * 0.02,
+                                 shade(mix(mid, ink, 0.18 + 0.08 * (k % 2))) if not winter else cap, 0.2 + 0.02 * k, 70 + k))
+
+        def lawn(top: float, i: int = 7) -> None:
+            out.append(band(top, 1.04 - top, grass_deep, 0.55, True, i))
+
+        def tufts(top: float, n: int = 5) -> None:
+            if winter:
+                return
+            for k in range(n):
+                sx = ((seed0 >> (k * 6 + 9)) & 0x7F) / 127.0
+                sy = ((seed0 >> (k * 4 + 2)) & 0xF) / 15.0
+                out.append(piece(('tuft', 'stone', 'tuft', 'bush', 'tuft')[k % 5], W * (0.04 + 0.9 * sx), H * (top + (0.96 - top) * sy) - short * 0.05,
+                                 W * 0.05, short * 0.06, mix(grass, gnd, 0.3), 0.62, 34 + k))
+
+        def room(wall: str, floor: str, skirting: float = 0.72, tiles: bool = False) -> None:
+            wall = mix(wall, ink, 0.28) if mood == 'night' else wall
+            out.append(band(-0.02, skirting + 0.02, wall, 0.12, False, 1))
+            for k in range(9):
+                out.append(piece('strip', W * (0.02 + 0.11 * k), 0, W * 0.012, H * skirting, mix(wall, ink, 0.05), 0.13, 90 + k))
+            out.append(band(skirting, 1.04 - skirting, floor, 0.5, False, 2))
+            out.append(piece('strip', -overhang, H * (skirting - 0.02), W + 2 * overhang, H * 0.025, mix(ink, wall, 0.45), 0.4, 3))
+            if tiles:
+                rows, cols = 3, 10
+                for r_ in range(rows):
+                    for c_ in range(cols):
+                        if (r_ + c_) % 2:
+                            y0 = skirting + (1 - skirting) * r_ / rows
+                            out.append(piece('strip', W * c_ / cols, H * y0, W / cols, H * (1 - skirting) / rows,
+                                             mix(floor, paper, 0.45), 0.5, 100 + r_ * cols + c_))
+            else:
+                for k in range(4):
+                    y0 = skirting + (1 - skirting) * (k + 1) / 5
+                    out.append(piece('strip', -overhang, H * y0, W + 2 * overhang, H * 0.006, mix(floor, ink, 0.25), 0.5, 100 + k))
+
+        pt = place.painter
+        if pt in ('land', 'garden', 'fields', 'yard', 'pond', 'woods', 'peaks'):
+            sky_band(0.60 if pt != 'woods' else 0.56)
+            if pt == 'peaks' or 'mountains' in (sc.get('far') or []):
+                far_peaks(0.60)
+            far_hills(0.58, grass_far)
+            if pt == 'woods':
+                for k in range(9):
+                    out.append(piece('bush', W * (-0.06 + 0.13 * k), H * 0.46, W * 0.16, H * 0.14,
+                                     shade(mix(flora_deep, ink, 0.35)) if not winter else shade(mix(paper, '#9fb0c2', 0.6)), 0.22, 110 + k))
+            out.append(band(0.56, 0.12, grass_far, 0.30, True, 6))
+            if pt == 'fields':
+                crop = (shade(mix(paper, '#d9b45a', 0.62)), shade(mix(flora, paper, 0.12)), shade(mix(paper, '#c8a24a', 0.7)), shade(mix(flora_deep, paper, 0.2)))
+                if winter:
+                    crop = (grass, grass_deep, grass, grass_deep)
+                for k in range(4):
+                    out.append(band(0.60 + 0.045 * k, 0.05, crop[k], 0.32 + 0.02 * k, True, 20 + k))
+                lawn(0.78)
+            elif pt == 'yard':
+                lawn(0.64)
+                out.append(band(0.76, 0.14, shade(mix(ink, paper, 0.62)), 0.56, False, 21))
+                for k in range(3):
+                    out.append(piece('strip', W * (0.40 + 0.08 * k), H * 0.80, W * 0.05, H * 0.05, white, 0.57, 22 + k))
+            elif pt == 'pond':
+                lawn(0.64)
+                out.append(piece('disc', W * 0.18, H * 0.70, W * 0.64, H * 0.20, sea if not winter else shade(mix(paper, '#cfe0ee', 0.6)), 0.52, 21))
+            elif pt == 'peaks':
+                lawn(0.70)
+            else:
+                lawn(0.64)
+                if pt == 'land' and setting == 'cottage':
+                    out.append(piece('strip', W * 0.52, H * 0.72, W * 0.06, H * 0.30, shade(mix(paper, ink, 0.28 if not winter else 0.12)), 0.56, 21))
+            tufts(0.72)
+        elif pt == 'runway':
+            sky_band(0.60)
+            far_hills(0.58, grass_far)
+            out.append(band(0.58, 0.06, grass_far, 0.30, False, 6))
+            out.append(band(0.62, 0.42, shade(mix(ink, paper, 0.55)), 0.4, False, 7))
+            out.append(piece('strip', -overhang, H * 0.70, W + 2 * overhang, H * 0.006, white, 0.42, 8))
+            out.append(piece('strip', -overhang, H * 0.92, W + 2 * overhang, H * 0.006, white, 0.42, 9))
+            for k in range(7):
+                out.append(piece('strip', W * (0.02 + 0.145 * k), H * 0.805, W * 0.08, H * 0.014, white, 0.43, 10 + k))
+            out.append(band(0.95, 0.10, grass, 0.6, True, 18))
+        elif pt == 'pitch':
+            out.append(band(-0.02, 0.40, skytone, 0.08, False, 1))
+            celestial(2)
+            g1, g2 = shade(mix(flora, paper, 0.05)), shade(mix(flora, ink, 0.12))
+            out.append(band(0.54, 0.50, g1, 0.4, False, 6))
+            for k in range(4):
+                out.append(piece('strip', -overhang, H * (0.58 + 0.11 * k), W + 2 * overhang, H * 0.055, g2, 0.41, 10 + k))
+            out.append(piece('strip', -overhang, H * 0.585, W + 2 * overhang, H * 0.007, white, 0.45, 20))
+            out.append(piece('strip', W * 0.497, H * 0.585, W * 0.006, H * 0.42, white, 0.45, 21))
+            out.append(piece('ringline', W * 0.40, H * 0.70, W * 0.20, H * 0.18, white, 0.45, 22))
+            out.append(piece('strip', W * 0.70, H * 0.66, W * 0.30, H * 0.006, white, 0.45, 23))
+            out.append(piece('strip', W * 0.70, H * 0.66, W * 0.004, H * 0.34, white, 0.45, 24))
+        elif pt == 'sea':
+            sky_band(0.56)
+            far_hills(0.54, grass_far)
+            out.append(band(0.52, 0.06, grass_far, 0.26, True, 5))
+            out.append(band(0.56, 0.48, sea, 0.32, False, 6))
+            for k in range(6):
+                sx = ((seed0 >> (k * 5 + 1)) & 0x3F) / 63.0
+                out.append(piece('wave', W * (0.02 + 0.8 * sx), H * (0.62 + 0.06 * k), W * 0.18, H * 0.04,
+                                 mix(sea, paper, 0.25), 0.34 + 0.03 * k, 40 + k))
+        elif pt == 'sand':
+            sky_band(0.54)
+            out.append(band(0.50, 0.18, sea, 0.26, False, 5))
+            for k in range(3):
+                out.append(piece('wave', W * (0.05 + 0.3 * k), H * 0.60, W * 0.22, H * 0.04, mix(sea, paper, 0.3), 0.3, 40 + k))
+            out.append(band(0.66, 0.38, sand, 0.4, True, 6))
+            out.append(band(0.66, 0.03, mix(paper, '#ffffff', 0.5), 0.41, True, 7))
+        elif pt == 'desert':
+            out.append(band(-0.02, 0.62, mix(skytone, '#f2c98a', 0.25), 0.10, False, 1))
+            celestial(2)
+            for k in range(3):
+                out.append(piece('dune', W * (-0.1 + 0.4 * k), H * (0.46 + 0.04 * k), W * 0.55, H * 0.22, shade(mix(sand, accent, 0.12 * k)), 0.3 + 0.05 * k, 50 + k))
+            out.append(band(0.64, 0.40, sand, 0.5, True, 6))
+        elif pt in ('room', 'kitchen', 'bedroom', 'classroom'):
+            walls = {'room': mix(paper, accent, 0.16), 'kitchen': mix(paper, '#a9c7a0', 0.35),
+                     'bedroom': mix(paper, '#9fb6d8', 0.35), 'classroom': mix(paper, '#e8d9a6', 0.4)}
+            floors = {'room': mix(wood, paper, 0.25), 'kitchen': mix(ink, paper, 0.55),
+                      'bedroom': mix(wood, paper, 0.35), 'classroom': mix(wood, paper, 0.2)}
+            room(walls[pt], floors[pt], 0.72, tiles=pt == 'kitchen')
+        else:
+            setting = {'street': 'urban'}.get(pt, pt)
+    if place is not None and setting not in ('space', 'underwater', 'urban'):
+        pass
+    elif setting == 'paper':
         # Standing-on-the-page: no painted ground, no sky — the page itself is the
         # world (its own wavy ink field shows through the slot's transparent
         # viewport). All a paper page carries is a pale halo behind the subject
@@ -1635,6 +1803,39 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
             out.append(piece(sh, W * (0.15 + 0.3 * k), H * (0.2 + 0.22 * k), short * 0.2, short * 0.12,
                              mix(accent, ink, 0.15 * k), 0.3, 5 + k))
         elements_on(H * 0.85)
+    if place is not None:
+        if setting == 'urban':
+            out.append(band(0.86, 0.18, mix(ink, paper, 0.42), 0.6, False, 80))
+            for k in range(6):
+                out.append(piece('strip', W * (0.03 + 0.17 * k), H * 0.93, W * 0.08, H * 0.012, mix(paper, '#ffffff', 0.6), 0.61, 81 + k))
+        tones = {'barn': mix('#a8412e', ink, 0.15), 'silo': mix(paper, ink, 0.32), 'haystack': mix(paper, '#d6aa4c', 0.7),
+                 'fence': mix(paper, '#8a6038', 0.55 if not sc.get('winter') else 0.35), 'terminal': mix(paper, ink, 0.18),
+                 'controltower': mix(paper, ink, 0.28), 'schoolhouse': mix('#b0553a', paper, 0.2), 'flagpole': mix(paper, ink, 0.3),
+                 'desk': mix(ink, '#b07a44', 0.6), 'fireplace': mix(paper, ink, 0.2), 'counter': mix(paper, '#6c8f6a', 0.45),
+                 'cupboard': mix(paper, '#6c8f6a', 0.35), 'stove': mix(paper, ink, 0.55), 'goal': mix(paper, '#ffffff', 0.8), 'pier': mix(ink, '#9a6a3a', 0.5), 'house': mix(paper, '#c98a5a', 0.5),
+                 'curtain': mix(accent, paper, 0.25), 'bookshelf': mix(ink, '#9a6a3a', 0.45), 'window': mix(ink, paper, 0.45),
+                 'frame': mix(ink, '#9a6a3a', 0.4), 'bed': mix(paper, '#8fa6cf', 0.45), 'lamp': mix(paper, accent, 0.4),
+                 'rug': mix(accent, ink, 0.3), 'stands': mix(ink, paper, 0.35), 'floodlight': mix(paper, ink, 0.4),
+                 'log': mix(ink, '#9a6a3a', 0.5), 'reed': mix(flora_deep, ink, 0.2), 'sandcastle': mix(paper, '#d9b870', 0.6)}
+        night = mood == 'night' and not place.interior
+        omit = set(sc.get('omit') or ())
+        for k, (name, fx, base, fw, fh, plane) in enumerate(place.dressing):
+            if name in omit:
+                continue
+            h = H * fh
+            if name in SCENE_PROP_SHAPES:
+                tone = tones.get(name, mix(ink, paper, 0.35))
+                out.append(piece(name, W * fx, H * base - h, W * fw, h, mix(tone, ink, 0.45) if night else tone, plane, 200 + k))
+                continue
+            asset = resolved.get(name)
+            if not asset and not paper_key(name):
+                continue
+            art = (asset or {}).get('art_box') or {'w': 1, 'h': 1}
+            w = W * fw if fw else h * max(0.25, art['w'] / max(1, art['h']))
+            out.append({'kind': 'piece', 'shape': 'art', 'concept': name, 'asset': asset,
+                        'bbox': {'x': round(W * fx, 1), 'y': round(H * base - h, 1), 'w': round(w, 1), 'h': round(h, 1)},
+                        'tone': '', 'plane': plane, 'seed': seed0 ^ ((200 + k) * 0x99), 'lit_dx': light_dx,
+                        'contact': base < 1.0 and plane > 0.3})
     return out
 
 

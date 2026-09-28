@@ -269,7 +269,25 @@
                       "urban",
                       "ground",
                       "abstract",
-                      "paper"
+                      "paper",
+                      "classroom",
+                      "kitchen",
+                      "bedroom",
+                      "home",
+                      "farm",
+                      "airport",
+                      "stadium",
+                      "school",
+                      "cottage",
+                      "harbour",
+                      "beach",
+                      "forest",
+                      "pond",
+                      "mountains",
+                      "desert",
+                      "city",
+                      "garden",
+                      "meadow"
                     ]
                   },
                   "mood": {
@@ -290,6 +308,30 @@
                       "maxLength": 40
                     },
                     "maxItems": 8
+                  },
+                  "winter": {
+                    "type": "boolean"
+                  },
+                  "far": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 40
+                    }
+                  },
+                  "covers": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 40
+                    }
+                  },
+                  "omit": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 40
+                    }
                   }
                 },
                 "required": [

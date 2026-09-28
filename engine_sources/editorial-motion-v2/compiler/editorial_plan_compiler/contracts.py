@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .chassis import CHASSIS
+from .places import PLACES
 
 AUTHORITIES = Path(__file__).resolve().parent / 'authorities'
 GRAMMAR = json.loads((AUTHORITIES / 'REFERENCE_EDITORIAL_MOTION_GRAMMAR_V1.json').read_text())
@@ -69,7 +70,13 @@ BACKDROP_TONES = ('ink', 'paper', 'accent', 'auto')
 BACKDROP_PLANE_CAP = 4
 # Scene engine: a beat declares its setting and mood and the compiler composes that
 # environment from paper pieces — any place, not one fixed horizon stack.
-SCENE_SETTINGS = ('outdoor', 'indoor', 'space', 'underwater', 'urban', 'ground', 'abstract', 'paper')
+SCENE_SETTINGS = ('outdoor', 'indoor', 'space', 'underwater', 'urban', 'ground', 'abstract', 'paper') + tuple(
+    p.name for p in PLACES if p.name not in ('space', 'underwater'))
+PLACE_NAMES = frozenset(p.name for p in PLACES)
+
+
+def _names(v: Any) -> List[str]:
+    return [' '.join(str(e).split())[:40] for e in (v or []) if str(e).strip()]
 SCENE_MOODS = ('day', 'dawn', 'dusk', 'night', 'storm', 'golden')
 SCENE_ELEMENT_CAP = 8
 # Page layout grammar: how the paperbook page carries its print and its plate —
@@ -679,6 +686,9 @@ class BeatTreatment:
             _need(len(elements) <= SCENE_ELEMENT_CAP, 'BEAT_SCENE_ELEMENT_CAP', f'at most {SCENE_ELEMENT_CAP} elements', bid)
             _need(all(len(e) <= 40 for e in elements), 'BEAT_SCENE_ELEMENT_LONG', bid)
             scene = {'setting': setting, 'mood': mood, 'elements': elements}
+            if setting in PLACE_NAMES:
+                scene.update({'winter': bool(sc.get('winter')), 'far': _names(sc.get('far')),
+                              'covers': _names(sc.get('covers')), 'omit': _names(sc.get('omit'))})
         page = None
         pg = d.get('page')
         if pg is not None:
