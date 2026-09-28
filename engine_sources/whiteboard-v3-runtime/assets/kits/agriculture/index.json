@@ -95,12 +95,12 @@
     },
     "cracked-earth": {
       "keywords": [
+        "arid",
         "drought",
         "dry",
-        "arid",
+        "dryness",
         "heatwave",
-        "parched",
-        "dryness"
+        "parched"
       ],
       "motif": "drought",
       "tone": "a_orange",
@@ -166,6 +166,43 @@
       "motif": "tree",
       "tone": "a_green",
       "fill": true
+    },
+    "coffee-bush": {
+      "keywords": [
+        "coffee bush",
+        "coffee plant",
+        "coffee cherries",
+        "bush",
+        "bushes",
+        "shrub",
+        "cherry",
+        "cherries",
+        "coffee cherry"
+      ],
+      "tone": "a_green",
+      "fill": true
+    },
+    "pour-over": {
+      "keywords": [
+        "filter",
+        "pour",
+        "pours",
+        "pour over",
+        "hot water",
+        "brew",
+        "brewing",
+        "kettle"
+      ]
+    },
+    "coffee-beans": {
+      "keywords": [
+        "bean",
+        "beans",
+        "green bean",
+        "green beans",
+        "coffee bean",
+        "coffee beans"
+      ]
     }
   }
 }

@@ -75,8 +75,6 @@
     },
     "hospital-cross": {
       "keywords": [
-        "hospital",
-        "clinic",
         "medical center",
         "cross",
         "health center",
@@ -254,6 +252,54 @@
       "motif": "bed",
       "tone": "a_blue",
       "fill": true
+    },
+    "hospital": {
+      "keywords": [
+        "hospital",
+        "hospitals",
+        "clinic",
+        "infirmary",
+        "medical center"
+      ],
+      "tone": "a_red",
+      "fill": true
+    },
+    "door-handle": {
+      "keywords": [
+        "handle",
+        "door handle",
+        "doorknob",
+        "knob",
+        "door"
+      ],
+      "fill": true
+    },
+    "water-tap": {
+      "keywords": [
+        "water",
+        "tap",
+        "sink",
+        "faucet",
+        "wash",
+        "washing",
+        "handwashing"
+      ]
+    },
+    "phone": {
+      "keywords": [
+        "phone",
+        "phones",
+        "smartphone",
+        "mobile"
+      ]
+    },
+    "soap": {
+      "keywords": [
+        "soap",
+        "soap bar",
+        "lather",
+        "suds"
+      ]
     }
   }
 }

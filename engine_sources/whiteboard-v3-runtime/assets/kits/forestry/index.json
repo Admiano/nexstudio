@@ -60,7 +60,10 @@
         "wood",
         "harvest",
         "stacked",
-        "cut wood"
+        "cut wood",
+        "log",
+        "fallen log",
+        "fallen logs"
       ],
       "motif": "logs"
     },
@@ -192,11 +195,9 @@
     "sun-cloud": {
       "keywords": [
         "weather",
-        "sun",
         "cloud",
         "climate",
-        "day",
-        "sunny"
+        "day"
       ],
       "tone": "a_yellow"
     },
@@ -243,6 +244,83 @@
         "guidepost"
       ],
       "tone": "a_green"
+    },
+    "dam": {
+      "keywords": [
+        "dam",
+        "dams",
+        "beaver dam",
+        "logjam",
+        "weir"
+      ],
+      "fill": true
+    },
+    "smoke": {
+      "keywords": [
+        "smoke",
+        "smog",
+        "fumes",
+        "haze",
+        "smoky"
+      ],
+      "fill": true
+    },
+    "grass": {
+      "keywords": [
+        "grass",
+        "grassland",
+        "meadow",
+        "lawn",
+        "turf",
+        "pasture"
+      ],
+      "tone": "a_green",
+      "fill": true
+    },
+    "fire-hose": {
+      "keywords": [
+        "hose",
+        "fire hose",
+        "hosepipe",
+        "nozzle"
+      ],
+      "tone": "a_red",
+      "fill": true
+    },
+    "tree-willow": {
+      "keywords": [
+        "willow",
+        "willow tree",
+        "weeping willow",
+        "willows",
+        "willow trees"
+      ],
+      "tone": "a_green",
+      "fill": true
+    },
+    "sunlight": {
+      "keywords": [
+        "sunlight",
+        "sunshine",
+        "sunny",
+        "sun",
+        "daylight",
+        "sunbeam"
+      ],
+      "tone": "a_yellow",
+      "fill": true
+    },
+    "flames": {
+      "keywords": [
+        "flames",
+        "flame",
+        "wildfire",
+        "fire",
+        "blaze",
+        "burning"
+      ],
+      "tone": "a_orange",
+      "fill": true
     }
   }
 }

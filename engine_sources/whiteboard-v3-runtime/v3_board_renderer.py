@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw
 
 import whiteboard_pil_adapter as wbp
 import svg_paths
+import art_clip
 
 try:
     from nltk.corpus import wordnet as _WN
@@ -1660,11 +1661,61 @@ def _modifier_hit(phrase: str, ic) -> bool:
     return bool(shared)
 
 
+SEM_BAD_RANK = 300
+SEM_LOG: dict = {}
+
+
+def _art_key(ic):
+    if isinstance(ic, tuple) and len(ic) == 3 and ic[0] in ('icon', 'custom'):
+        return (ic[1], ic[2])
+    return None
+
+
+def sem_rank(phrase: str, ic):
+    """Library rank of `ic` for `phrase` under the local CLIP model, or
+    None when the model/bank is unavailable or `ic` is not banked art."""
+    key = _art_key(ic)
+    if key is None or not art_clip.available():
+        return None
+    return art_clip.rank(str(phrase).lower().replace('-', ' ').strip(), key)
+
+
 def _icon_for(concept: str, exclude=None, _depth: int = 0):
+    """Lexical/contextual resolution, then a visual-semantic veto: a pick
+    that the CLIP model ranks far down the library for the phrase is
+    swapped for the next lexical candidate that actually depicts it."""
+    ic = _icon_for_lex(concept, exclude, _depth)
+    if _depth:
+        return ic
+    phrase = str(concept).lower().replace('-', ' ').strip()
+    rk = sem_rank(phrase, ic)
+    curated = isinstance(ic, tuple) and (
+        ic[0] == 'custom' or str(ic[1]).startswith('kit:'))
+    if rk is None or rk <= SEM_BAD_RANK or curated:
+        SEM_LOG[phrase] = (_art_key(ic), rk)
+        return ic
+    best, best_rk, ex = (ic, rk), rk, set(exclude or ()) | {ic}
+    for _ in range(6):
+        alt = _icon_for_lex(concept, ex, 0)
+        if alt in ex or alt in (None, 'card', 'tile') or _is_emblem(alt):
+            break
+        ex.add(alt)
+        ark = sem_rank(phrase, alt)
+        if ark is not None and ark < best_rk:
+            best, best_rk = (alt, ark), ark
+        if ark is not None and ark <= SEM_BAD_RANK:
+            break
+    SEM_LOG[phrase] = (_art_key(best[0]), best_rk)
+    return best[0]
+
+
+def _icon_for_lex(concept: str, exclude=None, _depth: int = 0):
     ic = _icon_for_raw(concept, exclude, _depth)
     if _depth:
         return ic
     phrase = str(concept).lower().strip()
+    if ic is not None and ic == kit_exact(phrase, exclude):
+        return ic
     tries = 0
     while _INK_ONLY and _is_sprite(ic) and tries < 4:
         exclude = (exclude or set()) | {ic}
@@ -1692,6 +1743,31 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
         if near:
             return near
     return ic
+
+
+def kit_exact(phrase, exclude=None):
+    """Curated kit art named exactly by the phrase — a glyph slug or a
+    full-phrase manifest keyword ('willow trees', 'hot water')."""
+    phrase = ' '.join(str(phrase).lower().replace('-', ' ').split())
+    kits = _kits()
+    order = sorted(kits, key=lambda d: (d != _ART_KIT, d))
+    slug = phrase.replace(' ', '-')
+    for dom in order:
+        hit = ('icon', f'kit:{dom}', slug)
+        if slug in kits[dom] and not (exclude and hit in exclude):
+            return hit
+    hits = []
+    for dom in order:
+        pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
+        fit = (dom == _ART_KIT, len((_CONTEXT or set()) & pool))
+        if not fit[0] and fit[1] < 2:
+            continue
+        for name, g in kits[dom].items():
+            hit = ('icon', f'kit:{dom}', name)
+            if phrase in g.get('keywords', ()) and not (
+                    exclude and hit in exclude):
+                hits.append((fit, -len(hits), hit))
+    return max(hits)[2] if hits else None
 
 
 def _kit_cross(words, exclude=None):
@@ -1750,6 +1826,9 @@ def _icon_for_raw(concept: str, exclude=None, _depth: int = 0):
     # an active domain art kit outranks the flat icon vocabulary, literal
     # doodles and generic vignettes for anything its manifest covers —
     # 'bitcoin' draws the kit coin, not the generic money doodle
+    hit = kit_exact(phrase, exclude)
+    if hit:
+        return hit
     if _ART_KIT:
         hit = _kit_probe(phrase, exclude)
         if hit:
@@ -1873,8 +1952,7 @@ def _is_emblem(icon) -> bool:
 # when a word class surfaces, never per-plan.
 _SYNONYMS: dict[str, tuple[str, ...]] = {
     'drought': ('sun', 'desert'), 'orchard': ('tree',), 'orchards': ('tree',),
-    'riverbank': ('river',), 'riverbanks': ('river',), 'dam': ('bricks',
-    'wall'), 'dams': ('bricks', 'wall'), 'smoke': ('cloud',),
+    'riverbank': ('river',), 'riverbanks': ('river',), 'dams': ('dam',),
     'handle': ('door',), 'handles': ('door',), 'jam': ('car',),
     'commute': ('bus',),
     'say': ('speech',), 'says': ('speech',), 'said': ('speech',),

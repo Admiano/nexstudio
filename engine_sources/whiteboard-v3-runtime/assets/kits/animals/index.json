@@ -246,6 +246,22 @@
         "ribbit"
       ],
       "tone": "a_green"
+    },
+    "wolf": {
+      "keywords": [
+        "wolf",
+        "wolves",
+        "wolfpack",
+        "predator",
+        "coyote"
+      ],
+      "fill": true
+    },
+    "beaver": {
+      "keywords": [
+        "beaver",
+        "beavers"
+      ]
     }
   }
 }

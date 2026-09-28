@@ -1138,8 +1138,8 @@ def _sb_kid_box(att, hb, aspect, hand=None):
         kh = h * 0.55
         cx, bot = x1 + kh * aspect * 0.55, y1
     else:
-        kh = min(h * 0.40, w * 0.5 / max(0.3, aspect))
-        cx, bot = x0 + w * 0.70, y0 + kh * 0.30
+        kh = min(h * 0.50, w * 0.65 / max(0.3, aspect))
+        cx, bot = x0 + w * 0.62, y0 + kh * 0.30
     kw = kh * aspect
     return (cx - kw / 2, bot - kh, cx + kw / 2, bot)
 
@@ -1253,6 +1253,187 @@ def _sb_words(text):
             continue
         out.add(w[:-1] if w.endswith('s') and len(w) > 3 else w)
     return out
+
+
+_SB_SETTINGS = (
+    ('river', r'\b(rivers?|riverbanks?|streams?|lakes?|ponds?|fish\w*|dams?|'
+              r'creeks?|shores?|beavers?)\b'),
+    ('city', r'\b(city|cities|downtown|traffic|commut\w*|streets?|lanes?|'
+             r'bus(es)?|skyline)\b'),
+    ('road', r'\b(roads?|highways?|cars?|drivers?|bicycles?|bridges?|'
+             r'trucks?|trains?)\b'),
+    ('forest', r'\b(forests?|woods|woodlands?|pines?|trees?|wol(f|ves)|'
+               r'deer|campfires?|logs?|seedlings?|willows?|rangers?)\b'),
+    ('field', r'\b(farm\w*|fields?|crops?|orchards?|hillsides?|harvest\w*|'
+              r'bush(es)?|meadows?|grass|pastures?|cherr\w*)\b'),
+    ('ward', r'\b(hospitals?|clinics?|wards?|patients?|nurses?|doctors?|'
+             r'beds?|staff)\b'),
+    ('cafe', r'\b(kitchens?|cafes?|baristas?|coffee|cups?|mugs?|roast\w*|'
+             r'filters?|grind\w*)\b'),
+)
+_SB_OUTDOOR = ('river', 'city', 'road', 'forest', 'field')
+
+
+def _sb_setting_kind(scn, beat):
+    """Where the beat happens — declared `scene.setting`, else the place
+    its narration names most ('none' disables the backdrop)."""
+    s = str(scn.get('setting') or '').lower().strip()
+    if s:
+        return '' if s == 'none' else s
+    txt = ' '.join(str(beat.get(k) or '') for k in ('narration', 'caption'))
+    best, n_best = '', 0
+    for kind, pat in _SB_SETTINGS:
+        n = len(re.findall(pat, txt, re.I))
+        if n > n_best:
+            best, n_best = kind, n
+    return best
+
+
+def _sb_setting(kind, txt, L, R, band_t, base, floor, boxes, seed):
+    """Backdrop strokes for a setting, drawn only into free paper: every
+    piece is dropped where it would touch an element, label, arrow, mark,
+    title or caption, so the context never interferes with the story."""
+    rnd = random.Random(seed)
+    Wc = R - L
+    solid = [bx[1] for bx in boxes]
+    labels = [bx[1] for bx in boxes if bx[2] != 'el' and bx[2] != 'rider'
+              and bx[2] != 'chart']
+
+    def clear(bb, pad, against):
+        return not any(bb[0] - pad < B[2] and B[0] < bb[2] + pad
+                       and bb[1] - pad < B[3] and B[1] < bb[3] + pad
+                       for B in against)
+
+    def line(y, against, col='ink', w=1.0, wob=1.2, seg=26, dash=False):
+        out = []
+        n = seg
+        xs = [L + Wc * i / n for i in range(n + 1)]
+        for i in range(n):
+            if dash and i % 2:
+                continue
+            p0, p1 = (xs[i], y), (xs[i + 1] + (0 if dash else 1.5), y)
+            if not clear((p0[0], y - 3, p1[0], y + 3), 4.0, against):
+                continue
+            out.append((_wobble_line(p0, p1, n=4, wob=wob, seed=seed + i),
+                        col, w, False, True))
+        return out
+
+    def piece(strokes, pad=6.0):
+        bb = _sb_bounds(s_[0] for s_ in strokes)
+        if bb and bb[1] >= band_t - 2 and clear(bb, pad, solid):
+            solid.append(bb)
+            return strokes
+        return []
+
+    def slots(n, y_hint):
+        xs = [L + Wc * (i + 0.5) / n for i in range(n)]
+        rnd.shuffle(xs)
+        return xs
+
+    st = []
+    under = [b for b in labels]
+    if kind in ('river', 'field', 'forest', 'road', 'city', 'ward', 'cafe'):
+        st += line(base + 2, under, 'ink', 1.0)
+    lane = max(8.0, floor - base)
+    if kind == 'river':
+        for k in range(3):
+            y = base + lane * (0.30 + 0.28 * k)
+            ln = line(y, labels, 'a_blue', 0.9, wob=2.2, seg=18)
+            st += [s_ for i, s_ in enumerate(ln) if (i + k) % 3 != 2]
+    if kind in ('road', 'city'):
+        y2 = base + lane * 0.95
+        st += line(y2, labels, 'ink', 1.0)
+        st += line((base + y2) / 2, labels, 'pale', 0.9, dash=True, seg=30)
+    h_band = base - band_t
+    if kind == 'city':
+        for x in slots(9, base):
+            bw = Wc * rnd.uniform(0.045, 0.07)
+            bh = h_band * rnd.uniform(0.28, 0.5)
+            x0, y0 = x - bw / 2, base - bh
+            bl = [(_wobble_line((x0, base), (x0, y0), n=5, wob=0.8,
+                                seed=seed + int(x)), 'pale', 0.9, False, True),
+                  (_wobble_line((x0, y0), (x0 + bw, y0), n=5, wob=0.8,
+                                seed=seed + int(x) + 1), 'pale', 0.9, False,
+                   True),
+                  (_wobble_line((x0 + bw, y0), (x0 + bw, base), n=5, wob=0.8,
+                                seed=seed + int(x) + 2), 'pale', 0.9, False,
+                   True)]
+            for r_ in range(2):
+                for c_ in range(2):
+                    wx = x0 + bw * (0.22 + 0.36 * c_)
+                    wy = y0 + bh * (0.16 + 0.22 * r_)
+                    bl.append(([(wx, wy), (wx + bw * 0.2, wy),
+                                (wx + bw * 0.2, wy + bh * 0.1),
+                                (wx, wy + bh * 0.1), (wx, wy)],
+                               'pale', 0.7, False, True))
+            st += piece(bl)
+    if kind in ('forest', 'river'):
+        for x in slots(10, base)[:6 if kind == 'forest' else 3]:
+            th = h_band * rnd.uniform(0.22, 0.36)
+            tw = th * 0.5
+            tree = [([(x, base), (x, base - th * 0.25)], 'ink', 0.9, False,
+                     True)]
+            for t_ in range(3):
+                yb_ = base - th * (0.22 + 0.24 * t_)
+                ww = tw * (1.0 - 0.25 * t_) / 2
+                tree.append(([(x - ww, yb_), (x, yb_ - th * 0.36),
+                              (x + ww, yb_), (x - ww, yb_)], 'a_green',
+                             0.9, False, True))
+            st += piece(tree)
+    if kind in ('field', 'forest', 'river'):
+        for x in slots(14, base)[:7]:
+            g = []
+            for d in (-1, 0, 1):
+                hh = h_band * rnd.uniform(0.04, 0.07)
+                g.append(([(x + d * 5, base), (x + d * 9, base - hh)],
+                          'a_green', 0.9, False, True))
+            st += piece(g, 3.0)
+    if kind == 'field':
+        pts = [(L + Wc * i / 40, base - h_band * (0.30 + 0.12 * math.sin(
+            math.pi * i / 40 * 1.6 + 0.4))) for i in range(41)]
+        run = []
+        for a, b in zip(pts, pts[1:]):
+            if clear((min(a[0], b[0]), min(a[1], b[1]) - 2, max(a[0], b[0]),
+                      max(a[1], b[1]) + 2), 6.0, solid):
+                run.append(a)
+            else:
+                if len(run) > 2:
+                    st.append((run + [a], 'a_green', 0.9, False, True))
+                run = []
+        if len(run) > 2:
+            st.append((run, 'a_green', 0.9, False, True))
+    if kind in ('ward', 'cafe'):
+        if kind == 'cafe':
+            st += line(base + lane * 0.45, labels, 'pale', 0.9)
+    if kind in _SB_OUTDOOR:
+        sunny = re.search(r'\b(sun\w*|drought|hot|summer|dry|heat)\b', txt,
+                          re.I)
+        for x in (R - Wc * 0.08, L + Wc * 0.08, R - Wc * 0.25,
+                  L + Wc * 0.25, (L + R) / 2):
+            y = band_t + h_band * 0.10
+            if sunny:
+                r = h_band * 0.07
+                sp = [(_sb_blob(x, y, r, r, seed + 3, 16, 0.04), 'a_yellow',
+                       1.0, False, True)]
+                for a in range(8):
+                    an = a * math.pi / 4
+                    sp.append(([(x + math.cos(an) * r * 1.4,
+                                 y + math.sin(an) * r * 1.4),
+                                (x + math.cos(an) * r * 1.9,
+                                 y + math.sin(an) * r * 1.9)],
+                               'a_yellow', 1.0, False, True))
+            else:
+                r = h_band * 0.05
+                sp = [(_sb_blob(x + dx * r, y + dy * r, rr * r * 1.2, rr * r,
+                                seed + k, 14, 0.06), 'pale', 0.9, False,
+                       True) for k, (dx, dy, rr) in enumerate(
+                           ((-1.0, 0.2, 0.8), (0.0, -0.2, 1.1),
+                            (1.1, 0.2, 0.8)))]
+            got = piece(sp, 10.0)
+            if got:
+                st += got
+                break
+    return st
 
 
 def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
@@ -1591,6 +1772,12 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     cap_d = 1.2 if cap else 0.0
     hold = 0.9
     win0, win1 = t0 + lead, max(t0 + lead + 0.5, t1 - 0.62 - hold - cap_d)
+    setting = ('' if journey or lay in ('cycle', 'stair')
+               else _sb_setting_kind(scn, beat))
+    set_w = None
+    if setting:
+        set_w = (win0, win0 + min(1.0, 0.12 * (win1 - win0)))
+        win0 = set_w[1]
     draw_els = [e for e in els]
     slot = (win1 - win0) / max(1, len(draw_els))
     pos = {id(e): i for i, e in enumerate(draw_els)}
@@ -1631,6 +1818,12 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         i1 = i0 + slot
         groups = []
         b = e['box']
+        if e['kind'] == 'person' and b[3] - b[1] > H * 0.34:
+            k_ = H * 0.34 / (b[3] - b[1])
+            cx_ = (b[0] + b[2]) / 2
+            hw_ = (b[2] - b[0]) * k_ / 2
+            b = e['box'] = (cx_ - hw_, b[3] - (b[3] - b[1]) * k_,
+                            cx_ + hw_, b[3])
         lwsize = min(150.0, max(80.0, (b[3] - b[1]) * 0.55))
         fig_b = b
         mark_st = []
@@ -1817,6 +2010,25 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                           'uid': uid, 'fade': fade, 'kind': 'elem',
                           't_window': (i0, i1),
                           'label': e['it'].get('label', '')})
+    sec['setting'] = setting
+    if setting:
+        grounded = [e['box'] for e in draw_els
+                    if e['kind'] not in ('divider',) and e.get('box')]
+        base = (sorted(b_[3] for b_ in grounded)[len(grounded) // 2]
+                if grounded else band_b)
+        floor_ = max([bx[1][3] for bx in boxes if bx[2] == 'label']
+                     + [base + H * 0.05])
+        floor_ = min(floor_ + H * 0.02, cap_top - H * 0.03)
+        sst = _sb_setting(setting, str(beat.get('narration') or ''), L, R,
+                          band_t, base, floor_, list(boxes), seed=si * 97 + 11)
+        if sst:
+            uid += 1
+            out_items.insert(0, {'groups': [(('marks', sst, (0, 0), 100.0,
+                                              None), set_w[0], set_w[1])],
+                                 'bounds2': _sb_bounds(q[0] for q in sst),
+                                 'uid': uid, 'fade': fade, 'kind': 'elem',
+                                 't_window': set_w, 'label': 'setting'})
+        sec['qa_setting'] = (setting, len(sst))
     if cap_st:
         uid += 1
         ct0 = win1 + 0.05

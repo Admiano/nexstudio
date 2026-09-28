@@ -245,6 +245,17 @@
         "lime"
       ],
       "tone": "a_blue"
+    },
+    "bus-lane": {
+      "keywords": [
+        "bus lane",
+        "lane",
+        "cycle lane",
+        "road lane",
+        "carpool lane"
+      ],
+      "tone": "a_red",
+      "fill": true
     }
   }
 }

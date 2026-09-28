@@ -908,7 +908,7 @@ def _draw_group(layer, strokes, center, size, cam, colors, ratio, progress,
             if hp <= 0:
                 continue
             segs = v3._hatch_for(pts, size)
-            hcol = colors[v3._HATCH_COLOR.get(col, col)]
+            hcol = colors.get(v3._HATCH_COLOR.get(col, col), colors["accfill"])
             hcol = (hcol[0], hcol[1], hcol[2], min(215, hcol[3]))
             hw = max(1.4, lw * 0.42)
             m = len(segs)
@@ -924,7 +924,7 @@ def _draw_group(layer, strokes, center, size, cam, colors, ratio, progress,
                 if 0 < sp < 1:
                     tip = t2
             continue
-        t2 = v3._taper_line(layer, pts_s, colors[col], lw * wscale,
+        t2 = v3._taper_line(layer, pts_s, colors.get(col, colors["ink"]), lw * wscale,
                             seed + j * 13, .26, p)
         if 0 < p < 1:
             tip = t2

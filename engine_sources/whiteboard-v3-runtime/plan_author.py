@@ -420,6 +420,21 @@ _MARK_CUES = [
 ]
 _HOLD = re.compile(r'\b(us(e|es|ing)|hold\w*|carr(y|ies)|grab\w*|'
                    r'lift\w*|wield\w*|with (a|an|the|his|her|their))\b')
+_ACT_CUES = (
+    ('reach', r'\b(pick\w*|reach\w*|grab\w*|touch\w*|lift\w*)\b'),
+    ('offer', r'\b(pour\w*|offer\w*|giv(e|es|ing)|serv\w*|hand(s|ed)?)\b'),
+    ('point', r'\b(point\w*|show\w*|explain\w*|teach\w*|train\w*|'
+              r'warn\w*)\b'),
+    ('wave', r'\b(wav\w*|greet\w*|call\w*)\b'),
+)
+# place nouns the backdrop draws better than an icon can
+_PLACES = {'river': 'river', 'riverbank': 'river', 'stream': 'river',
+           'road': 'road', 'street': 'road', 'highway': 'road',
+           'city': 'city', 'forest': 'forest', 'woods': 'forest',
+           'field': 'field', 'hillside': 'field', 'farm': 'field',
+           'meadow': 'field'}
+_NOT_HOST = {'sunlight', 'light', 'air', 'rain', 'time', 'season', 'sun',
+             'wind', 'shade', 'dark', 'water'}
 _ATTACH_PREP = {'on': 'on', 'onto': 'on', 'atop': 'on', 'in': 'in',
                 'inside': 'in', 'into': 'in', 'within': 'in',
                 'beside': 'beside', 'near': 'beside', 'next': 'beside'}
@@ -437,6 +452,10 @@ _SB_DET = {'a', 'an', 'the', 'this', 'that', 'these', 'those', 'his', 'her',
            'in', 'into', 'onto', 'from', 'with', 'over', 'through', 'by',
            'at', 'under', 'single', 'long', 'green', 'hot', 'warm', 'ripe',
            'dry', 'fallen', 'young', 'old'}
+_SB_NOT_ROLE = {'morning', 'mornings', 'hour', 'hours', 'day', 'days', 'time',
+                'week', 'weeks', 'year', 'years', 'minute', 'minutes',
+                'night', 'evening', 'change', 'hands', 'hand', 'seconds',
+                'population', 'work'}
 _SB_SUBJ = {'i', 'you', 'we', 'they', 'he', 'she', 'it', 'who', 'to'}
 _SB_ADV = {'back', 'away', 'past', 'again', 'around', 'over', 'through',
            'down', 'off', 'out', 'ahead', 'apart', 'together', 'time'}
@@ -471,7 +490,21 @@ def _noun_in_context(low: list, i: int, picked: set) -> bool:
 _AGENT = re.compile(r'(er|or|ist|ian|ista|ant|ent)s?$')
 
 
+def _is_animal(w: str) -> bool:
+    if _wn is None:
+        return False
+    syn = _wn.synsets(_lemma(w), 'n')[:2]
+    return any(h.name() == 'animal.n.01' for s_ in syn
+               for p in s_.hypernym_paths() for h in p)
+
+
+_CREW = {'staff', 'crew', 'team', 'workers', 'people', 'residents',
+         'commuters', 'commuter', 'staffers', 'volunteers'}
+
+
 def _is_person(w: str) -> bool:
+    if w in _CREW:
+        return True
     if _wn is None:
         return False
     syn = _wn.synsets(_lemma(w), 'n')
@@ -572,7 +605,7 @@ def _sb_annot(tokens: list[str], idx: int, nouns: set) -> str:
         return ' '.join(out)
     adj = bool(_wn.synsets(out[-1], 'a') or _wn.synsets(out[-1], 's'))
     verb = bool(_wn.synsets(out[0], 'v'))
-    if len(out) == 1 and not adj:
+    if len(out) == 1:
         return ''
     if not (verb or adj):
         return ''
@@ -598,8 +631,10 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             if len(w) < 3 or w in _STOP or w in seen:
                 continue
             nxt = low[i + 1] if i + 1 < len(low) else ''
-            big = f'{w} {nxt}' if nxt and nxt not in _STOP else ''
-            if big and _wn is not None and _wn.synsets(big.replace(' ', '_')):
+            big = (f'{w} {_lemma(nxt)}' if nxt and nxt not in _STOP
+                   else '')
+            if big and ((_wn is not None and _wn.synsets(big.replace(' ', '_')))
+                        or v3.kit_exact(big)):
                 cands.append((i, big, _is_person(nxt)))
                 seen |= {w, nxt}
                 continue
@@ -611,7 +646,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 cands.append((i, _lemma(w), True))
                 seen.add(w)
                 continue
-            if not _noun_in_context(low, i, picked_w):
+            if not _noun_in_context(low, i, picked_w) or w in _SB_NOT_ROLE:
                 continue
             ic = v3.icon_for(_lemma(w), used)
             kit = isinstance(ic, tuple) and str(ic[1]).startswith('kit:')
@@ -637,6 +672,9 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
         for i, lab, person in pick:
             r: dict = {'label': lab, 'icon': 'person' if person else lab}
             ann = _sb_annot(tokens, i, nouns)
+            if ann and not re.search(r'\b' + r'\s+'.join(map(re.escape,
+                                     ann.split())) + r'\b', sent, re.I):
+                ann = ''
             if ann:
                 r['annotate'] = ann
             if person:
@@ -677,17 +715,54 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                     roles[th].update(attach='held', to=a_)
                     roles[a_]['action'] = 'hold'
         for b_, (i, _l, _p) in enumerate(pick):
-            for k_ in range(i + 1, min(i + 4, len(low))):
+            for k_ in range(i + 1, min(i + 3, len(low))):
                 prep = _ATTACH_PREP.get(low[k_])
                 if not prep:
                     continue
+                if prep == 'in' and (_p or _is_animal(low[i])):
+                    prep = 'beside'
                 host = next((h for h, (j, _l2, _p2) in enumerate(pick)
                              if j > k_ and j <= k_ + 3), None)
+                if host is not None and roles[host]['label'].split()[-1] \
+                        in _NOT_HOST:
+                    host = None
                 if host is not None and host != b_ \
                         and 'attach' not in roles[b_] \
                         and 'attach' not in roles[host]:
                     roles[b_].update(attach=prep, to=host)
                 break
+        for a_, (i, _l, person) in enumerate(pick):
+            if person and 'action' not in roles[a_]:
+                tail = ' '.join(low[i:i + 4])
+                act = next((a for a, pat in _ACT_CUES
+                            if re.search(pat, tail)), '')
+                if act:
+                    roles[a_]['action'] = act
+        setting = ''
+        for a_ in range(len(roles) - 1, -1, -1):
+            place = _PLACES.get(roles[a_]['label'].split()[-1])
+            if place and len(roles) >= 3:
+                setting = setting or place
+                del roles[a_], pick[a_]
+                for r_ in roles:
+                    if r_.get('to') == a_:
+                        r_.pop('attach', None)
+                        r_.pop('to', None)
+                    if isinstance(r_.get('to'), int) and r_['to'] > a_:
+                        r_['to'] -= 1
+        for a_ in range(len(roles) - 1, -1, -1):
+            if roles[a_]['icon'] == 'person' or len(roles) < 3:
+                continue
+            art = v3.icon_for(roles[a_]['icon'])
+            dup = next((b for b, r_ in enumerate(roles) if b != a_
+                        and r_['icon'] != 'person'
+                        and v3.icon_for(r_['icon']) == art), None)
+            if dup is not None and dup < a_ and not any(
+                    r_.get('to') == a_ for r_ in roles):
+                del roles[a_], pick[a_]
+                for r_ in roles:
+                    if isinstance(r_.get('to'), int) and r_['to'] > a_:
+                        r_['to'] -= 1
         if all('attach' in r for r in roles):
             roles[0].pop('attach', None)
             roles[0].pop('to', None)
@@ -699,6 +774,9 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             if not m or len(marks) >= 2:
                 continue
             if kind == 'flow':
+                if not re.search(pat + r'(\s+\w+){0,3}?\s+(to|into|onto|'
+                                 r'between|across|through)\b', sent, re.I):
+                    continue
                 objs = [n for n in free if roles[n]['icon'] != 'person']
                 if len(objs) >= 2:
                     marks.append({'type': 'flow', 'from': roles[objs[0]]['label'],
@@ -726,7 +804,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             'duration_seconds': round(dur, 2),
             'scene': {'sceneId': f'b{bi + 1:02d}', 'relation': rel,
                       'heroRole': hero, 'supportingRoles': rest,
-                      'marks': marks},
+                      'marks': marks,
+                      **({'setting': setting} if setting else {})},
         })
     title = title or _subject(script).title()
     pid = re.sub(r'\W+', '_', title.lower()).strip('_') or 'storyboard'
