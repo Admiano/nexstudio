@@ -1,84 +1,90 @@
-"""Felt-tip marker foley, synthesized per pen-down stroke.
+"""Felt-tip marker foley from real recordings, one event per pen-down stroke.
 
 Every stroke the pen inks becomes one sound event timed to its exact
-pen-down window. The timbre models a felt nib dragging over paper: broadband
-pink-tilted friction noise with smooth shelves and no spectral peak (so no
-pitch or whistle), irregular Poisson micro-catches for the paper tooth, slow
-hand-pressure drift, a soft touch-down and a quick release on lift. Stroke
-speed drives loudness, brightness and grit density.
-Deterministic (seeded) and license-clean: no sampled audio.
+pen-down window. The sound is played from a grain bank cut from real
+marker-on-paper recordings (assets/sfx/marker-grains-48k.wav, built by
+tools/marker_grains_pack.py from CC0 / public-domain sources): long strokes
+play marker-line takes, short strokes (lettering, ticks) play felt-pen
+handwriting takes starting at their nib contact. Grains are chained with
+equal-power crossfades, never pitch-shifted; stroke speed only scales level
+and brightness. Deterministic for a given seed.
 """
 from __future__ import annotations
 
+import json
 import wave
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
 
 RATE = 48000
+_SFX = Path(__file__).resolve().parent / 'assets' / 'sfx'
+_XF = int(0.015 * RATE)
+_ATTACK = int(0.005 * RATE)
+_RELEASE = int(0.02 * RATE)
 
 
-def _shaped_noise(n: int, lp_hz: float, rnd: np.random.Generator,
-                  hp_hz: float = 220.0) -> np.ndarray:
-    """Broadband friction noise with no spectral peak: a gentle pink tilt
-    (-3 dB/oct) between smooth shelves, so nothing in it reads as a pitch."""
-    m = 1 << max(8, int(np.ceil(np.log2(n + 1))))
-    spec = np.fft.rfft(rnd.standard_normal(m))
-    f = np.maximum(np.fft.rfftfreq(m, 1 / RATE), 1.0)
-    tilt = (1000.0 / f) ** 0.5
-    hp = 1 / np.sqrt(1 + (hp_hz / f) ** 4)
-    lp = 1 / np.sqrt(1 + (f / lp_hz) ** 4)
-    x = np.fft.irfft(spec * tilt * hp * lp, m)[:n]
-    return x / max(1e-9, np.sqrt((x ** 2).mean()))
+@lru_cache(maxsize=1)
+def _bank():
+    with wave.open(str(_SFX / 'marker-grains-48k.wav')) as w:
+        pcm = np.frombuffer(w.readframes(w.getnframes()),
+                            np.int16).astype(np.float64) / 32768
+    idx = json.loads((_SFX / 'marker-grains.json').read_text())['grains']
+    pools: dict[str, list[np.ndarray]] = {}
+    for g in idx:
+        pools.setdefault(g['pool'], []).append(pcm[g['start']:g['end']])
+    return pools
 
 
-def _drift(n: int, rnd: np.random.Generator, hz: float) -> np.ndarray:
-    """Smooth random level drift below ~hz — hand pressure, not a buzz."""
-    k = max(2, int(n / RATE * hz) + 2)
-    pts = np.cumsum(rnd.standard_normal(k)) * 0.35
-    pts -= pts.mean()
-    x = np.interp(np.linspace(0, k - 1, n), np.arange(k), pts)
-    return np.clip(x, -0.9, 0.9)
+def _pool(dur: float) -> list[np.ndarray]:
+    pools = _bank()
+    want = 'long' if dur >= 0.6 else 'short'
+    return pools.get(want) or next(iter(pools.values()))
 
 
-def _tooth(n: int, rate_hz: float, rnd: np.random.Generator) -> np.ndarray:
-    """Paper tooth: irregular (Poisson) micro-catches of the felt fibres,
-    each a ~1 ms decaying noise tick. Aperiodic, so no pitch forms."""
-    out = np.zeros(n)
-    k = rnd.poisson(max(0.0, rate_hz) * n / RATE)
-    if k == 0:
-        return out
-    w = int(RATE * 0.0012)
-    env = np.exp(-np.arange(w) / (w / 4))
-    for p in rnd.integers(0, max(1, n - w), k):
-        out[p:p + w] += env * rnd.standard_normal(w) * rnd.uniform(0.3, 1.0)
-    return out
+def _lowpass(x: np.ndarray, hz: float) -> np.ndarray:
+    k = np.exp(-2 * np.pi * hz / RATE)
+    y = np.empty_like(x)
+    acc = 0.0
+    for i, v in enumerate(x):
+        acc = (1 - k) * v + k * acc
+        y[i] = acc
+    return y
 
 
 def stroke(dur: float, speed: float, rnd: np.random.Generator) -> np.ndarray:
-    """One pen-down interval. speed in board px/s (≈ 0-3000)."""
-    n = max(int(RATE * 0.03), int(RATE * dur))
-    s = float(np.clip(speed / 900.0, 0.15, 2.2))
-    # faster drag = brighter and denser fibre catches, never a moving tone
-    lp_hz = 2600 + 1800 * min(s, 1.6) + rnd.uniform(-200, 200)
-    body = _shaped_noise(n, lp_hz, rnd)
-    grit = _tooth(n, 260 + 520 * min(s, 1.6), rnd)
-    g_rms = np.sqrt((grit ** 2).mean())
-    if g_rms > 0:
-        grit = np.convolve(grit, [0.5, 0.35, 0.15], 'same') / g_rms
-    x = body + 0.35 * grit
-    t = np.arange(n) / RATE
-    att = np.minimum(1, t / 0.008) ** 1.5
-    rel = np.minimum(1, (n / RATE - t) / 0.025)
-    # pressure: nib bites on contact, eases mid-stroke, wanders with the hand
-    press = (0.85 + 0.15 * np.exp(-t / 0.06)) * (1 + 0.25 * _drift(n, rnd, 6))
-    level = 0.5 * s ** 0.5
-    y = x * press * att * rel * level
-    tap = int(RATE * 0.005)
-    if n > tap:
-        y[:tap] += 0.35 * level * np.hanning(tap * 2)[:tap] * _shaped_noise(
-            tap, 1500, rnd, hp_hz=120)
-    return y
+    """dur seconds of recorded marker drag; speed in px/s."""
+    n = max(1, int(dur * RATE))
+    pool = _pool(dur)
+    out = np.zeros(0)
+    first = True
+    while len(out) < n + _RELEASE:
+        g = pool[int(rnd.integers(len(pool)))]
+        need = n + _RELEASE - len(out) + _XF
+        if first and dur < 0.6:
+            off = 0
+        else:
+            off = int(rnd.integers(max(1, len(g) - min(len(g), need))))
+        seg = g[off:off + need]
+        if len(out) and len(seg) > _XF and len(out) > _XF:
+            t = np.linspace(0, np.pi / 2, _XF)
+            seg = seg.copy()
+            seg[:_XF] = out[-_XF:] * np.cos(t) + seg[:_XF] * np.sin(t)
+            out = np.concatenate([out[:-_XF], seg])
+        else:
+            out = np.concatenate([out, seg])
+        first = False
+    y = out[:n + _RELEASE].copy()
+    sp = float(np.clip(speed / 1200.0, 0.0, 1.0))
+    if sp < 0.6:
+        w = 0.5 * (0.6 - sp) / 0.6
+        y = (1 - w) * y + w * _lowpass(y, 3200.0)
+    env = np.ones(len(y))
+    a = min(_ATTACK, n // 2)
+    env[:a] = np.linspace(0, 1, a) if a else env[:a]
+    env[n:] = np.cos(np.linspace(0, np.pi / 2, len(y) - n)) ** 2
+    return y * env * (0.75 + 0.25 * sp)
 
 
 def _cap(path: Path) -> np.ndarray | None:

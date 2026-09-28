@@ -49,7 +49,16 @@ POSES = {
     'wave':      {'r': ((0.22, -0.74), (0.26, -0.93)), 'l': _IDLE_ARM},
     'hands-hips': {'r': ((0.20, -0.56), (0.10, -0.44)),
                    'l': ((0.20, -0.56), (0.10, -0.44))},
+    'hold':      {'r': ((0.20, -0.53), (0.31, -0.60)), 'l': _IDLE_ARM},
+    'offer':     {'r': ((0.21, -0.56), (0.34, -0.66)),
+                  'l': ((0.21, -0.56), (0.34, -0.66))},
+    'reach':     {'r': ((0.22, -0.74), (0.33, -0.90)), 'l': _IDLE_ARM},
 }
+
+# interaction verbs -> still pose (the emotion keeps its face and marks)
+ACTIONS = {'hold': 'hold', 'carry': 'hold', 'point': 'point',
+           'show': 'point', 'offer': 'offer', 'give': 'offer',
+           'reach': 'reach', 'lift': 'reach', 'wave': 'wave'}
 
 # emotion -> (pose, face, marks)
 EMOTIONS = {
@@ -75,7 +84,8 @@ EMOTIONS = {
 _LEXICON = [
     ('panic', r'panic|crash|dump|scared|terrif|capitulat|sell[- ]?off|'
               r'liquidat|meltdown|freak'),
-    ('afraid', r'fear|worr|anxi|nervous|risk|danger|threat'),
+    ('afraid', r'fear|worr|anxi|nervous|risk|danger|threat|stress|'
+               r'frustrat|stuck|overwhelm'),
     ('excited', r'fomo|hype|moon|pump|euphor|excit|rush|chase|\bape'),
     ('greedy', r'greed|get rich|all in|lambo'),
     ('calm', r'calm|rational|patien|disciplin|steady|zen|relax|stay'),
@@ -272,9 +282,26 @@ def _marks(kinds, hx, hy, r, top_y):
     return st
 
 
-def figure(emotion='neutral', flip=False):
-    """-> (body_strokes, mark_strokes, head_box) in unit px (feet at 0)."""
+def hand_uv(emotion='neutral', flip=False, action=''):
+    """Right (leading) hand position as a fraction (u, v) of the figure's
+    ink bounds — where a held prop is anchored."""
+    body, _m, _hb = figure(emotion, flip, action)
+    pose_n = ACTIONS.get(action) or EMOTIONS.get(
+        emotion, EMOTIONS['neutral'])[0]
+    pz = POSES[pose_n]
+    sgn = -1 if flip else 1
+    hx, hy = _p(sgn * pz['r'][1][0], pz['r'][1][1] + pz.get('sh', 0.0))
+    xs = [q[0] for st in body for q in st[0]]
+    ys = [q[1] for st in body for q in st[0]]
+    return ((hx - min(xs)) / max(1e-6, max(xs) - min(xs)),
+            (hy - min(ys)) / max(1e-6, max(ys) - min(ys)))
+
+
+def figure(emotion='neutral', flip=False, action=''):
+    """-> (body_strokes, mark_strokes, head_box) in unit px (feet at 0).
+    `action` (hold/point/offer/reach...) swaps the arm pose only."""
     pose_n, face_n, mark_n = EMOTIONS.get(emotion, EMOTIONS['neutral'])
+    pose_n = ACTIONS.get(str(action or '').lower(), pose_n)
     pz = POSES[pose_n]
     hdx, hdy = pz.get('head', (0.0, 0.0))
     shd = pz.get('sh', 0.0)

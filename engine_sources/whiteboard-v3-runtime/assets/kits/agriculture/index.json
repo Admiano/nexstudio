@@ -1,0 +1,171 @@
+{
+  "name": "agriculture",
+  "domain": "farming / beekeeping / gardening / food explainers",
+  "glyphs": {
+    "beehive": {
+      "keywords": [
+        "beehive",
+        "hive",
+        "skep",
+        "colony",
+        "apiary",
+        "bees"
+      ],
+      "motif": "hive",
+      "tone": "a_yellow",
+      "fill": true
+    },
+    "honeycomb": {
+      "keywords": [
+        "honeycomb",
+        "comb",
+        "wax",
+        "cells",
+        "honey",
+        "hexagon"
+      ],
+      "motif": "honeycomb",
+      "tone": "a_yellow",
+      "fill": true
+    },
+    "bee-smoker": {
+      "keywords": [
+        "smoker",
+        "beekeeping"
+      ],
+      "motif": "smoker",
+      "tone": "a_orange"
+    },
+    "bee": {
+      "keywords": [
+        "bee",
+        "bees",
+        "honeybee",
+        "bumblebee",
+        "pollinator",
+        "queen",
+        "worker",
+        "drone",
+        "sting"
+      ],
+      "motif": "bee",
+      "tone": "a_yellow",
+      "fill": true
+    },
+    "flower-pollen": {
+      "keywords": [
+        "pollen",
+        "pollination",
+        "pollinate",
+        "nectar",
+        "blossom",
+        "bloom",
+        "flower"
+      ],
+      "motif": "flower",
+      "tone": "a_red",
+      "fill": true
+    },
+    "crop-field": {
+      "keywords": [
+        "crop",
+        "crops",
+        "field",
+        "farmland",
+        "harvest",
+        "planting",
+        "seed"
+      ],
+      "motif": "field",
+      "tone": "a_green"
+    },
+    "sprayer": {
+      "keywords": [
+        "pesticide",
+        "pesticides",
+        "spray",
+        "sprayer",
+        "herbicide",
+        "insecticide",
+        "chemical",
+        "chemicals"
+      ],
+      "motif": "spray",
+      "tone": "a_blue"
+    },
+    "cracked-earth": {
+      "keywords": [
+        "drought",
+        "dry",
+        "arid",
+        "heatwave",
+        "parched",
+        "dryness"
+      ],
+      "motif": "drought",
+      "tone": "a_orange",
+      "fill": true
+    },
+    "tractor": {
+      "keywords": [
+        "tractor",
+        "farm",
+        "machinery",
+        "plough",
+        "plow"
+      ],
+      "motif": "tractor",
+      "tone": "a_red",
+      "fill": true
+    },
+    "barn": {
+      "keywords": [
+        "barn",
+        "farmhouse",
+        "ranch",
+        "farmstead"
+      ],
+      "motif": "barn",
+      "tone": "a_red",
+      "fill": true
+    },
+    "watering-can": {
+      "keywords": [
+        "watering",
+        "irrigate",
+        "irrigation",
+        "garden",
+        "gardening"
+      ],
+      "motif": "water",
+      "tone": "a_blue"
+    },
+    "apple-basket": {
+      "keywords": [
+        "apples",
+        "apple",
+        "fruit",
+        "produce",
+        "yield",
+        "basket"
+      ],
+      "motif": "fruit",
+      "tone": "a_red",
+      "fill": true
+    },
+    "fruit-tree": {
+      "keywords": [
+        "orchard",
+        "orchards",
+        "fruit tree",
+        "apple tree",
+        "tree",
+        "trees",
+        "grove"
+      ],
+      "motif": "tree",
+      "tone": "a_green",
+      "fill": true
+    }
+  }
+}

@@ -2,8 +2,6 @@
 
 | Artifact | Identity |
 |---|---|
-- `sb_cast.py` — sha256 `442ee6c37ba2ed598dc46859b0f1d124d8198d86da4427098b31a55c02d2646a`
-- `v3_board_sections.py` — sha256 `4490c61f9f3dcb7cb112b4d1984b9da3cda8806af2e44b115baa8e9bd827c8cb`
 | Original renderer | `…/WHITEBOARD_ELITE_RUNTIME/vendor/pipeline_v3_narration_timed.py` |
 | Recorded sha256 | `c91f2bc50cb634c993ff307ef01bb4177d9478a290bf0b4da042adee260f9c34` |
 | Standalone source preserved | **no** (`06_provenance/EXACT_ARTIFACT_GAP.json`) |
@@ -27,15 +25,22 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 
 | Artifact | sha256 |
 |---|---|
-| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `6afaaffcf32283539de5d4f136f262682845c6211381b928b58d45dd370e40ea` |
-| `v3_board_renderer.py` (whiteboard draw layer) | `a6c2883819bec06ed4a5d9751534b7d6babcb72a593e91a4c74eb5763910e1de` |
+| `pipeline_v3_narration_timed.py` (whiteboard pipeline) | `4513ba0eabacaae90b7bf85be6b5fe10828d3cece7b277b551c76cf15794d598` |
+| `v3_board_renderer.py` (whiteboard draw layer) | `a0e6d366357059e5a4cfa1148996d9fdbb1444b1fab5deb9ff8661285951cf87` |
 | `pipeline_kinetic_timed.py` (kinetic pipeline) | `29a54f01900001b42fc89275df131847b74067f379ad7cc96cba9a74191d0e89` |
 | `kinetic_type_renderer.py` (kinetic draw layer) | `602a0fddd86b2f3347ac203b0f2c46e9173c5902d7f90361b699e41978f881be` |
 | `pipeline_diagram_timed.py` (diagram pipeline) | `c00cf324b135932cf071206c52f993cf8a4c1e788ede8ae6fe0caaad658c5f48` |
 | `diagram_renderer.py` (diagram draw layer) | `8d8858c35fb3050e82de7513e57e535d62f3c599f2ac84a6eae5d32fe57f097e` |
-| `plan_author.py` (script→plan decision layer) | `9913a725b7b8ea3fc76e79e33f6f2d34bbe87c9f758bc6ba58627bc0ca3d0372` |
+| `plan_author.py` (script→plan decision layer) | `f6b88b039a5563f60f51366787ab45fc3a2c515bde8c869c7efa4c2f2ff5d06a` |
 | `vo_synth.py` (edge/kokoro VO + timings) | `3e51653659e0cc56fd4bf4439906bacd4e788b6506ab1e1b3b6b9e500b106466` |
 | `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `8af55ead7a0026fd3dd11f7e2abb2f825dae93fba52e90876eed8955461b89fb` |
+| `sb_cast.py` (storyboard cast: faces, emotions, interaction poses) | `e4e325802d2734fa07c657e12f51703a0b5f72f897d679f02e7658c6524ce0cb` |
+| `v3_board_sections.py` (storyboard compositor: layouts, vignettes, marks) | `55793aaa45203c083da840a6865872b1866a24e6a2fd58f5a660d12cc8913833` |
+| `sb_qa.py` (storyboard ship gate: visual + semantic + audio) | `138fbde0ed4d02f6919b75b9bafcae3914d9608582c07667052b9b11d60af139` |
+| `marker_sfx.py` (per-stroke marker foley from recorded grains) | `81c6ed8e35718d9103d4a6b551909fbe6c69d6d54e5cf99c4cb7322f90838a53` |
+| `tools/marker_grains_pack.py` (grain-bank builder (CC0/PD recordings)) | `73810860a72f8bf8f79c4eafce38a1a7b7c71734ffde92e4a4f3b30bfdbabae8` |
+| `assets/sfx/marker-grains-48k.wav` (marker grain bank audio) | `66b445931ba20b4e76835ddac9b86c0e39671bf98d1ea99f881f01570877bf39` |
+| `assets/sfx/marker-grains.json` (marker grain bank index) | `4dac9d0fb589f5dd32bac6f52dd8f027de0f835ab064aaa1afd5651fd5907891` |
 | `tools/nexstick/mocap.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `db0c394d4c1c98016f686248808e4101c72623b2a0a53b008a9c2d3e4e94a543` |
 | `tools/nexstick/mocap_rig.cjs` | nexstick motion bridge (mocap->paperbook rig proof) | `c516720538ec072d8323a0dd9969df1f9c9869cd6526504f2efd0b04d944f06c` |
 | `tools/nexstick/walk_proof3.py` | nexstick motion bridge (mocap->paperbook rig proof) | `513b574787af34dc50a82d91626f12d73b7291f5b88e2ac19763eecb88c157f6` |
@@ -43,7 +48,7 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `tools/paper_cast/paperbook-figure.js` | paperbook figure renderer (vendored; + bend-crease/finger detail for line-art figures) | `6df839b773241c40d6f1791110e29ed2e7e8f73ac2842e8e13a236ddf45b523e` |
 | `tools/nexstick/bvh_to_vault.py` | CMU BVH -> V5 vault converter (FK, joint map, foot contacts) | `af117dfbc64dc8d260b5e52731b60fbbdeb126282aa477aef0daf129d4458b86` |
 | `tools/nexstick/cmu_sampler.cjs` | CMU vault sampler (V5 sample contract; +NEX performance vault merge) | `67dab3c3fab3980b39b455114e4b386e8bb4e8619e746f72aab6e128e1757744` |
-| `tools/nexstick/compiled/cmu_motion_vault_v5.json` | 64-clip CMU corpus (free-for-all-uses license) | `806de412cf227a1866990b46e09a708581e493c5fbce614a9c092b79f3e98e3d` |
+| `tools/nexstick/compiled/cmu_motion_vault_v5.json` | 64-clip CMU corpus (free-for-all-uses license) | `eb8bee7b6d3df467cb5da117f683f2a9b270969dc47fdfd35f3d5fba538eefa4` |
 | `tools/paper_cast/paper-cast-rig.js` | Paper-cast rig: articulated figure builder (+ world pitch/root transform for floor & air poses) | `819b50feb27ab3c5661719046b1ee485ccd57a7f4a5dfc24b86fd6a28aab653a` |
 | `tools/nexstick/ek_pose_clips.py` | Everkinetic canonical keypose -> vault FK generator (CC BY-SA 4.0) | `1900285b742c10a667e6e0def196cea56b584bc1eea1bb564754a7091508ac72` |
 | `tools/nexstick/compiled/exercise_vault_v5.json` | 18 exercise rep-cycle clips (Everkinetic pose reference, CC BY-SA 4.0) | `f21f64bf5e5cc2ee81b4636099b1bc9630ebb9da290b14fb193416f8b3048542` |

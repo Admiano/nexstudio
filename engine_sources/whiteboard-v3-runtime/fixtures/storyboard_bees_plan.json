@@ -18,7 +18,7 @@
    "narration": "Inside every beehive, one queen lays the eggs while thousands of workers build the honeycomb.",
    "scene": {
     "sceneId": "hv",
-    "relation": "focus",
+    "relation": "sequence",
     "heroRole": {
      "label": "beehive",
      "icon": "beehive",
@@ -28,12 +28,19 @@
      {
       "label": "queen",
       "icon": "bee",
-      "annotate": "lays eggs"
+      "attach": "on",
+      "to": 0
      },
      {
       "label": "honeycomb",
       "icon": "honeycomb",
       "annotate": "wax cells"
+     }
+    ],
+    "marks": [
+     {
+      "type": "drips",
+      "on": "honeycomb"
      }
     ]
    },
@@ -48,20 +55,32 @@
     "sceneId": "po",
     "relation": "journey",
     "heroRole": {
-     "label": "nectar",
-     "icon": "nectar",
-     "annotate": "collect"
+     "label": "flower",
+     "icon": "flower pollen",
+     "annotate": "nectar"
     },
     "supportingRoles": [
      {
-      "label": "pollination",
-      "icon": "pollination",
-      "annotate": "carry pollen"
+      "label": "bee",
+      "icon": "bee",
+      "attach": "on",
+      "to": 0
      },
      {
       "label": "orchard",
       "icon": "orchard",
       "annotate": "fruit sets"
+     }
+    ],
+    "marks": [
+     {
+      "type": "flow",
+      "from": "flower",
+      "to": "orchard"
+     },
+     {
+      "type": "sparkle",
+      "on": "orchard"
      }
     ]
    },
@@ -74,23 +93,31 @@
    "narration": "The beekeeper stays calm, uses a smoker to settle the bees, and lifts the frames out slowly.",
    "scene": {
     "sceneId": "kp",
-    "relation": "reaction",
+    "relation": "focus",
     "heroRole": {
      "label": "beekeeper",
      "icon": "person",
      "annotate": "stays calm",
-     "emotion": "calm"
+     "emotion": "calm",
+     "action": "hold"
     },
     "supportingRoles": [
      {
       "label": "smoker",
-      "icon": "cloud",
-      "annotate": "settles bees"
+      "icon": "smoker",
+      "attach": "held",
+      "to": 0
      },
      {
       "label": "frame",
-      "icon": "honeycomb frame",
+      "icon": "honeycomb",
       "annotate": "lift slowly"
+     }
+    ],
+    "marks": [
+     {
+      "type": "puffs",
+      "on": "smoker"
      }
     ]
    },
@@ -105,20 +132,30 @@
     "sceneId": "th",
     "relation": "before_after",
     "heroRole": {
-     "label": "pesticide",
-     "icon": "pesticide",
-     "annotate": "before: thriving hive"
+     "label": "beehive",
+     "icon": "beehive",
+     "annotate": "before: thriving",
+     "side": "before"
     },
     "supportingRoles": [
      {
-      "label": "drought",
-      "icon": "drought"
+      "label": "pesticide",
+      "icon": "pesticide",
+      "annotate": "after: sprayed",
+      "side": "after"
      },
      {
       "label": "farmer",
       "icon": "person",
-      "annotate": "after: empty orchard",
-      "emotion": "afraid"
+      "annotate": "empty orchard",
+      "emotion": "afraid",
+      "side": "after"
+     }
+    ],
+    "marks": [
+     {
+      "type": "sparkle",
+      "on": "beehive"
      }
     ]
    },

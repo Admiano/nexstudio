@@ -381,12 +381,370 @@ def build_plan(script: str, *, vtype: str = 'diagram',
     return {'production_id': pid, 'beats': beats, 'diagram': dg}
 
 
+# ---------------------------------------------------------------------------
+# storyboard authoring: script -> relation/role/emotion/vignette plan.
+# Deterministic rules over WordNet (free, local); the output is ordinary
+# plan JSON the author can edit before rendering.
+try:
+    from nltk.corpus import wordnet as _wn
+    _wn.synsets('dog')
+except Exception:  # pragma: no cover - WordNet optional
+    _wn = None
+
+_REL_CUES = [
+    ('before_after', r'\b(before|used to|no longer|anymore|collapse\w*|'
+                     r'turns? into)\b'),
+    ('contrast', r'\b(but|however|instead|versus|vs\.?|unlike|while others|'
+                 r'whereas)\b'),
+    ('cycle', r'\b(cycle|again and again|repeats?|loop|every year|'
+              r'each season)\b'),
+    ('sequence', r'\b(then|next|first|finally|steps?|from .+ to)\b'),
+]
+_MARK_CUES = [
+    ('flow', r'\b(carr(y|ies|ying)|mov(e|es|ing)|fl(y|ies|ying)|spread|'
+             r'travel|send|deliver|transport|flows?|pass(es)?|shipp?)\w*'),
+    ('puffs', r'\b(smoke|smok\w+|burn\w*|fire|steam|fumes|exhaust|'
+              r'pollut\w+|emission\w*)\b'),
+    ('cross', r'\b(die|dies|dying|dead|collapse\w*|kill\w*|destroy\w*|'
+              r'empty|lost|fail\w*|extinct|ban\w*)\b'),
+    ('drips', r'\b(drip\w*|leak\w*|honey|oil|bleed\w*|pour\w*)\b'),
+    ('up', r'\b(ris(e|es|ing)|grow\w*|increas\w*|boost\w*|climb\w*|'
+           r'improv\w*|recover\w*)\b'),
+    ('down', r'\b(fall\w*|drop\w*|declin\w*|shrink\w*|lower\w*|'
+             r'reduc\w*|worse)\b'),
+    ('rain', r'\b(rain\w*|storm\w*|flood\w*|monsoon)\b'),
+    ('heat', r'\b(heat\w*|hot|drought|warming|scorch\w*|fever)\b'),
+    ('motion', r'\b(rush\w*|speed\w*|fast|race\w*|hurr\w*|run(s|ning)?)\b'),
+    ('sparkle', r'\b(thriv\w*|healthy|clean|shin\w*|success\w*|bright|'
+                r'fresh|heal\w*)\b'),
+]
+_HOLD = re.compile(r'\b(us(e|es|ing)|hold\w*|carr(y|ies)|grab\w*|'
+                   r'lift\w*|wield\w*|with (a|an|the|his|her|their))\b')
+_ATTACH_PREP = {'on': 'on', 'onto': 'on', 'atop': 'on', 'in': 'in',
+                'inside': 'in', 'into': 'in', 'within': 'in',
+                'beside': 'beside', 'near': 'beside', 'next': 'beside'}
+
+
+def _lemma(w: str) -> str:
+    if _wn is None:
+        return w
+    return _wn.morphy(w, 'n') or w
+
+
+_SB_DET = {'a', 'an', 'the', 'this', 'that', 'these', 'those', 'his', 'her',
+           'their', 'its', 'our', 'your', 'my', 'every', 'each', 'one',
+           'some', 'many', 'few', 'fewer', 'more', 'new', 'no', 'of', 'on',
+           'in', 'into', 'onto', 'from', 'with', 'over', 'through', 'by',
+           'at', 'under', 'single', 'long', 'green', 'hot', 'warm', 'ripe',
+           'dry', 'fallen', 'young', 'old'}
+_SB_SUBJ = {'i', 'you', 'we', 'they', 'he', 'she', 'it', 'who', 'to'}
+_SB_ADV = {'back', 'away', 'past', 'again', 'around', 'over', 'through',
+           'down', 'off', 'out', 'ahead', 'apart', 'together', 'time'}
+_SB_FEEL = re.compile(r'\b(happy|sad|afraid|scared|worr\w*|stress\w*|calm|'
+                      r'angry|proud|excited|tired|confused|relieved|love)\b',
+                      re.I)
+
+
+def _is_physical(w: str) -> bool:
+    if _wn is None:
+        return True
+    syn = _wn.synsets(_lemma(w), 'n')[:1]
+    return any(any(h.name() == 'physical_entity.n.01' for p in s_.hypernym_paths()
+                   for h in p) for s_ in syn)
+
+
+def _noun_in_context(low: list, i: int, picked: set) -> bool:
+    w = low[i]
+    prev = low[i - 1] if i else ''
+    if w in _SB_ADV:
+        return False
+    if prev in _SB_DET:
+        return True
+    if prev in _SB_SUBJ:
+        return False
+    if prev in picked and _wn is not None and _wn.synsets(w, 'v') \
+            and (w.endswith(('s', 'ed')) or not _wn.synsets(w, 'n')):
+        return False
+    return _is_thing(w)
+
+
+_AGENT = re.compile(r'(er|or|ist|ian|ista|ant|ent)s?$')
+
+
+def _is_person(w: str) -> bool:
+    if _wn is None:
+        return False
+    syn = _wn.synsets(_lemma(w), 'n')
+    if not syn:
+        return bool(_AGENT.search(w)) and len(w) > 5
+    hit = {'person.n.01', 'causal_agent.n.01'}
+    animal = any(h.name() == 'animal.n.01' for s_ in syn
+                 for p in s_.hypernym_paths() for h in p)
+    first = not animal and any(h.name() == 'person.n.01'
+                               for p in syn[0].hypernym_paths() for h in p)
+    adj = bool(_wn.synsets(w, 'a') or _wn.synsets(w, 's'))
+    agent = _AGENT.search(w) and not animal and not adj and any(
+        any(h.name() in hit for p in s_.hypernym_paths() for h in p)
+        for s_ in syn[:2])
+    return bool(first or agent)
+
+
+def _is_thing(w: str) -> bool:
+    """Concrete, drawable noun reading (not a verb/adjective use)."""
+    if _wn is None:
+        return True
+    n = _wn.synsets(_lemma(w), 'n')
+    if not n:
+        return False
+    v = _wn.synsets(w, 'v')
+    a = _wn.synsets(w, 'a') + _wn.synsets(w, 's')
+    if w.endswith(('ing', 'ly')) and (v or a):
+        return False
+    if len(v) > len(n) * 1.5 or len(a) > len(n) * 1.5:
+        return False
+    return True
+
+
+def _sb_beats(script: str) -> list[tuple[str, str]]:
+    """-> [(heading, narration)]; paragraphs are beats, '## Heading' sets
+    a heading, otherwise every sentence is its own beat."""
+    out, head, paras = [], '', []
+    for line in script.splitlines() + ['']:
+        t = line.strip()
+        if t.startswith('## '):
+            head = t[3:].strip()
+            continue
+        if t.startswith('#'):
+            continue
+        if t:
+            paras.append(t)
+            continue
+        if paras:
+            out.append((head, ' '.join(paras)))
+            head, paras = '', []
+    if len(out) == 1 and not out[0][0]:
+        return [('', s) for s, _h in _sentences(out[0][1])]
+    return out
+
+
+def _sb_title(i: int, heading: str, roles: list, sentence: str) -> str:
+    if heading:
+        return f'{i}. {heading}'
+    for r in roles:
+        if r.get('icon') != 'person':
+            return f'{i}. {r["label"].title()}'
+    words = _content_words(sentence)
+    return f'{i}. {" ".join(words[:2]).title()}'
+
+
+def _sb_caption(sentence: str) -> str:
+    clauses = [c.strip(' ,.;:!?') for c in re.split(
+        r'[,;:]|\band\b|\bbut\b|\bwhile\b|\bso\b', sentence)]
+    clauses = [c for c in clauses if 2 <= len(c.split()) <= 7]
+    pick = clauses[-1] if clauses else ' '.join(sentence.split()[:6])
+    pick = ' '.join(pick.split()[:7]).strip(' ,.;:!?')
+    return f'"{pick[:1].upper()}{pick[1:]}."'
+
+
+def _sb_annot(tokens: list[str], idx: int, nouns: set) -> str:
+    """Verb phrase right after a role noun ('queen lays eggs' -> 'lays
+    eggs'), capped at 3 words and stopping at the next role noun."""
+    out = []
+    toks = [w.lower() for w in tokens[idx + 1: idx + 6]]
+    for k, lw in enumerate(toks):
+        if lw in nouns or lw in ('and', 'but', 'while', 'because', 'which',
+                                 'so', 'until'):
+            break
+        nxt = toks[k + 1] if k + 1 < len(toks) else ''
+        if lw in ('a', 'an', 'the', 'his', 'her', 'their', 'its'):
+            continue
+        if lw in _STOP and not out and lw not in ('is', 'are', 'stays'):
+            continue
+        if (nxt in nouns and _wn is not None and out
+                and (_wn.synsets(lw, 'a') or _wn.synsets(lw, 's'))):
+            break
+        out.append(lw)
+        if sum(1 for o in out if o not in _STOP) >= 2 or len(out) >= 3:
+            break
+    while out and out[-1] in _STOP:
+        out.pop()
+    if not out or _wn is None:
+        return ' '.join(out)
+    adj = bool(_wn.synsets(out[-1], 'a') or _wn.synsets(out[-1], 's'))
+    verb = bool(_wn.synsets(out[0], 'v'))
+    if len(out) == 1 and not adj:
+        return ''
+    if not (verb or adj):
+        return ''
+    return ' '.join(out)
+
+
+def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
+                     wpm: float = 150.0) -> dict:
+    import pipeline_v3_narration_timed as p3
+    p3.load_execution_body(None)
+    import v3_board_renderer as v3
+    v3.set_ink_only(True)
+    v3.set_context(script)
+    beats = []
+    used: dict = {}
+    prev_rel = ''
+    for bi, (heading, sent) in enumerate(_sb_beats(script)):
+        tokens = _WORD_RE.findall(sent)
+        low = [t.lower().split("'")[0] for t in tokens]
+        cands = []
+        seen = set()
+        for i, w in enumerate(low):
+            if len(w) < 3 or w in _STOP or w in seen:
+                continue
+            nxt = low[i + 1] if i + 1 < len(low) else ''
+            big = f'{w} {nxt}' if nxt and nxt not in _STOP else ''
+            if big and _wn is not None and _wn.synsets(big.replace(' ', '_')):
+                cands.append((i, big, _is_person(nxt)))
+                seen |= {w, nxt}
+                continue
+            picked_w = {low[c[0]] for c in cands}
+            prev_ = low[i - 1] if i else ''
+            if _is_person(w) and prev_ not in _SB_SUBJ and (
+                    prev_ in _SB_DET or not i or _is_thing(w)
+                    or not (_wn and _wn.synsets(w, 'v'))):
+                cands.append((i, _lemma(w), True))
+                seen.add(w)
+                continue
+            if not _noun_in_context(low, i, picked_w):
+                continue
+            ic = v3.icon_for(_lemma(w), used)
+            kit = isinstance(ic, tuple) and str(ic[1]).startswith('kit:')
+            if v3._is_emblem(ic) or not (kit or _is_physical(w)):
+                continue
+            cands.append((i, _lemma(w), False))
+            seen.add(w)
+        if not any(c[2] for c in cands):
+            m_ = re.search(r'\b(you|we|i)\b', sent, re.I)
+            if m_ and (_SB_FEEL.search(sent) or _HOLD.search(sent)):
+                at = len(_WORD_RE.findall(sent[:m_.start()]))
+                cands.append((at, m_.group(1).lower(), True))
+        cands.sort()
+        people = [c for c in cands if c[2]][:2]
+        things = [c for c in cands if not c[2]]
+        pick = sorted(people + things[:max(1, max_roles - len(people))])
+        pick = pick[:max_roles]
+        if not pick:
+            pick = [(0, _subject(sent) or 'idea', False)]
+        nouns = {c[1].split()[-1] for c in pick} | {
+            tokens[c[0]].lower() for c in pick}
+        roles = []
+        for i, lab, person in pick:
+            r: dict = {'label': lab, 'icon': 'person' if person else lab}
+            ann = _sb_annot(tokens, i, nouns)
+            if ann:
+                r['annotate'] = ann
+            if person:
+                r['narration'] = sent
+            roles.append(r)
+        # relation
+        rel = next((k for k, pat in _REL_CUES if re.search(pat, sent, re.I)),
+                   '')
+        n_p = sum(1 for r in roles if r['icon'] == 'person')
+        if not rel:
+            rel = ('reaction' if n_p >= 2 else
+                   'focus' if len(roles) <= 2 else 'sequence')
+        if rel == 'contrast' and len(roles) < 2:
+            rel = 'focus'
+        if rel == 'before_after':
+            cut = re.search(r'\b(but|now|after|no longer|until)\b', sent, re.I)
+            ci = len(_WORD_RE.findall(sent[:cut.start()])) if cut else None
+            for (i, _l, _p), r in zip(pick, roles):
+                r['side'] = ('before' if ci is not None and i < ci
+                             else 'after')
+            if len({r['side'] for r in roles}) < 2:
+                roles[0]['side'] = 'before'
+                for r in roles[1:]:
+                    r['side'] = 'after'
+        if rel == prev_rel and rel in ('focus', 'sequence') and len(roles) >= 3:
+            rel = 'sequence' if rel == 'focus' else 'focus'
+        prev_rel = rel
+        # composition: a person using/holding a thing holds it; an object
+        # named with on/in another role sits on/in it
+        for a_, (i, _l, person) in enumerate(pick):
+            if not person:
+                continue
+            tail = ' '.join(low[i:i + 6])
+            if _HOLD.search(tail):
+                th = next((b for b, (j, _l2, p2) in enumerate(pick)
+                           if not p2 and j > i), None)
+                if th is not None and 'attach' not in roles[th]:
+                    roles[th].update(attach='held', to=a_)
+                    roles[a_]['action'] = 'hold'
+        for b_, (i, _l, _p) in enumerate(pick):
+            for k_ in range(i + 1, min(i + 4, len(low))):
+                prep = _ATTACH_PREP.get(low[k_])
+                if not prep:
+                    continue
+                host = next((h for h, (j, _l2, _p2) in enumerate(pick)
+                             if j > k_ and j <= k_ + 3), None)
+                if host is not None and host != b_ \
+                        and 'attach' not in roles[b_] \
+                        and 'attach' not in roles[host]:
+                    roles[b_].update(attach=prep, to=host)
+                break
+        if all('attach' in r for r in roles):
+            roles[0].pop('attach', None)
+            roles[0].pop('to', None)
+        # story marks from the verbs
+        marks = []
+        free = [n for n, r in enumerate(roles) if 'attach' not in r]
+        for kind, pat in _MARK_CUES:
+            m = re.search(pat, sent, re.I)
+            if not m or len(marks) >= 2:
+                continue
+            if kind == 'flow':
+                objs = [n for n in free if roles[n]['icon'] != 'person']
+                if len(objs) >= 2:
+                    marks.append({'type': 'flow', 'from': roles[objs[0]]['label'],
+                                  'to': roles[objs[-1]]['label']})
+                continue
+            # nearest role noun to the cue word
+            at = len(_WORD_RE.findall(sent[:m.start()]))
+            tgt = min(range(len(roles)),
+                      key=lambda n: abs(pick[n][0] - at))
+            if kind == 'cross' and rel == 'before_after':
+                tgt = max(range(len(roles)),
+                          key=lambda n: (roles[n].get('side') == 'after'
+                                         and roles[n]['icon'] != 'person',
+                                         n))
+            if roles[tgt]['icon'] == 'person' and kind not in ('motion',):
+                continue
+            marks.append({'type': kind, 'on': roles[tgt]['label']})
+        hero, *rest = roles
+        dur = max(4.0, len(sent.split()) / wpm * 60 + 1.6)
+        beats.append({
+            'beat_id': f'b{bi + 1:02d}',
+            'title': _sb_title(bi + 1, heading, roles, sent),
+            'caption': _sb_caption(sent),
+            'narration': sent,
+            'duration_seconds': round(dur, 2),
+            'scene': {'sceneId': f'b{bi + 1:02d}', 'relation': rel,
+                      'heroRole': hero, 'supportingRoles': rest,
+                      'marks': marks},
+        })
+    title = title or _subject(script).title()
+    pid = re.sub(r'\W+', '_', title.lower()).strip('_') or 'storyboard'
+    return {'production_id': pid, 'title': title,
+            'board_layout': 'storyboard',
+            'brandExecution': {'brandAuthority': {
+                'background': '#F7F2E7', 'ink': '#1A1A17',
+                'accent': '#1A1A17', 'secondary': '#8B8577'}},
+            'beats': beats}
+
+
 def main(argv=None) -> int:
     import argparse
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('script', help='script text file (one beat per line)')
     ap.add_argument('--type', default='diagram',
-                    choices=('diagram', 'kinetic', 'whiteboard'))
+                    choices=('diagram', 'kinetic', 'whiteboard',
+                             'storyboard'))
     ap.add_argument('--title', default='')
     ap.add_argument('--domain', default='')
     ap.add_argument('--summary', default='')
@@ -405,10 +763,13 @@ def main(argv=None) -> int:
         print('\n'.join(s for s, _ in _sentences(script)))
         return 0
 
-    plan = build_plan(script, vtype=args.type, title=args.title,
-                      domain=args.domain, summary=args.summary,
-                      transition=args.transition,
-                      page_size=args.page_size)
+    if args.type == 'storyboard':
+        plan = build_storyboard(script, title=args.title)
+    else:
+        plan = build_plan(script, vtype=args.type, title=args.title,
+                          domain=args.domain, summary=args.summary,
+                          transition=args.transition,
+                          page_size=args.page_size)
     out = args.out or (Path(args.script).stem + '_plan.json')
     Path(out).write_text(json.dumps(plan, indent=1))
     print(out)

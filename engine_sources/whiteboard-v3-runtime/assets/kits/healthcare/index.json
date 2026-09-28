@@ -239,6 +239,21 @@
         "see"
       ],
       "tone": "a_blue"
+    },
+    "hospital-bed": {
+      "keywords": [
+        "bed",
+        "hospital",
+        "ward",
+        "patient",
+        "admitted",
+        "inpatient",
+        "icu",
+        "hospitalized"
+      ],
+      "motif": "bed",
+      "tone": "a_blue",
+      "fill": true
     }
   }
 }

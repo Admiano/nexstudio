@@ -121,15 +121,17 @@ which were AI-generated and vectorized as pipeline demos.
   Princeton WordNet license (free for commercial use).
 
 ### sfx/
-- `marker-real-bed-48k.wav` — real board-drawing strokes extracted from
-  user-supplied Freesound recording 'blackboard4' (freesound id 19968).
-  Freesound community uploads are CC0/CC-BY — verify attribution need
-  before commercial release; drop-in replaceable via ROLE_FILE patch.
-- `marker-scratch-bed-48k.wav` — synthesized fallback bed.
-- Live marker foley is no longer sampled: `marker_sfx.py` synthesizes a
-  felt-tip-on-paper stroke per pen-down interval (1-4 kHz friction body,
-  roll-off above 6 kHz, fibre grain, touch-down, release), speed-scaled.
-  The chalkboard-derived beds above stay on disk but are unused.
+- `marker-grains-48k.wav` + `marker-grains.json` — live marker foley grain
+  bank, built by `tools/marker_grains_pack.py` from two real recordings on
+  Wikimedia Commons: "377124 tubbsmedia marker-lines.wav" (TubbsMedia, CC0,
+  permanent marker lines on paper) and "Writing with feltpen.ogg" (stephan,
+  public domain, felt-pen handwriting). High-passed, de-resonated (static EQ
+  flattening narrow bumps), high-shelf softened, gated into pen-down runs
+  and loudness-normalized: 4 long line takes + ~78 short lettering takes.
+  `marker_sfx.py` plays one grain chain per pen-down span (no pitch shift).
+- `marker-real-bed-48k.wav` — chalkboard strokes (Freesound 'blackboard4');
+  unused — the source of the earlier screech.
+- `marker-scratch-bed-48k.wav` — synthesized fallback bed, unused.
 - `pencil-bed-48k.wav`, `pen-cap-48k.wav` — preserved-runtime audio assets.
 
 

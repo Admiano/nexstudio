@@ -461,6 +461,8 @@ def build_sfx(snd, plan: dict, duration: float, out_path: Path,
         out.append({'role': 'cap', 'start': max(.05, base - .28),
                     'duration': .24, 'offset': 1.28, 'gain': cap_gain * .8})
     out.sort(key=lambda e: e['start'])
+    Path(out_path).with_suffix('.events.json').write_text(json.dumps(
+        [e for e in out if e.get('role') != 'cap']))
     seed = snd._seed(plan.get('seed', 0), 'marker')
     return Path(marker_sfx.render(out, duration, out_path,
                                   cap_wav=sfx_dir / 'pen-cap-48k.wav',

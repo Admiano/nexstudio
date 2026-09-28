@@ -1638,6 +1638,28 @@ def _is_sprite(ic) -> bool:
             and ic[1] in ('animicon', 'notomoji'))
 
 
+_SLUG_NEG = ('without', 'no', 'not', 'anti', 'non')
+
+
+def _modifier_hit(phrase: str, ic) -> bool:
+    """True when a glyph name only shares a modifier with the phrase —
+    'green beans' -> 'diverse-green-tech', 'handle' -> 'teacup-without-
+    handle': the art names a different thing than the phrase's head."""
+    if not (isinstance(ic, tuple) and len(ic) >= 3 and isinstance(ic[2], str)):
+        return False
+    words = phrase.replace('-', ' ').split()
+    if not words:
+        return False
+    toks = ic[2].lower().replace('_', '-').split('-')
+    toks_s = [_singular(t) for t in toks]
+    head = _singular(words[-1])
+    if head in toks_s:
+        k = toks_s.index(head)
+        return k > 0 and toks[k - 1] in _SLUG_NEG
+    shared = {_singular(w) for w in words} & set(toks_s)
+    return bool(shared)
+
+
 def _icon_for(concept: str, exclude=None, _depth: int = 0):
     ic = _icon_for_raw(concept, exclude, _depth)
     if _depth:
@@ -1648,12 +1670,60 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
         exclude = (exclude or set()) | {ic}
         ic = _icon_for_raw(concept, exclude, _depth)
         tries += 1
+    if phrase in _SYNONYMS and not (isinstance(ic, tuple)
+                                    and str(ic[1]).startswith('kit:')):
+        for alt in _SYNONYMS[phrase]:
+            a_ic = _icon_for_raw(alt, exclude, 1)
+            if a_ic and a_ic not in ('card', 'tile') and not _is_emblem(a_ic) \
+                    and not (_INK_ONLY and _is_sprite(a_ic)):
+                return a_ic
+    tries = 0
+    while _modifier_hit(phrase, ic) and tries < 4:
+        exclude = (exclude or set()) | {ic}
+        head = phrase.replace('-', ' ').split()[-1]
+        alt = _icon_for_raw(head, exclude, _depth) if ' ' in phrase else None
+        ic = alt if alt and not _modifier_hit(head, alt) else \
+            _icon_for_raw(concept, exclude, _depth)
+        tries += 1
     if (_CONTEXT and _WN is not None and ' ' not in phrase
+            and not (isinstance(ic, tuple) and str(ic[1]).startswith('kit:'))
             and _sense_conflict(phrase, ic)):
         near = _nearest_icon([phrase], (exclude or set()) | {ic})
         if near:
             return near
     return ic
+
+
+def _kit_cross(words, exclude=None):
+    """Bespoke kit art outside the active kit: an exact glyph name always
+    counts; a keyword hit on the head noun counts when the script itself
+    carries that kit's domain vocabulary (>= 2 other kit keywords)."""
+    if not words:
+        return None
+    kits = _kits()
+    order = sorted(kits, key=lambda d: (d != _ART_KIT, d))
+    slug = '-'.join(words)
+    for dom in order:
+        hit = ('icon', f'kit:{dom}', slug)
+        if slug in kits[dom] and not (exclude and hit in exclude):
+            return hit
+    if not _CONTEXT or len(words) > 2:
+        return None
+    heads = {words[-1], _singular(words[-1])}
+    for dom in order:
+        pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
+        if dom != _ART_KIT and len((_CONTEXT & pool) - heads) < 2:
+            continue
+        cands = [n for n, g in kits[dom].items()
+                 if heads & set(g.get('keywords', []))
+                 and not (exclude and ('icon', f'kit:{dom}', n) in exclude)]
+        if cands:
+            cands.sort(key=lambda n: (not (heads & set(n.split('-'))),
+                                      kits[dom][n]['keywords'].index(
+                                          next(h for h in kits[dom][n]['keywords']
+                                               if h in heads))))
+            return ('icon', f'kit:{dom}', cands[0])
+    return None
 
 
 def _icon_for_raw(concept: str, exclude=None, _depth: int = 0):
@@ -1684,6 +1754,9 @@ def _icon_for_raw(concept: str, exclude=None, _depth: int = 0):
         hit = _kit_probe(phrase, exclude)
         if hit:
             return hit
+    hit = _kit_cross(words, exclude)
+    if hit:
+        return hit
     # action-word figure art (running, sitting, reading...) beats a static pose
     for w in words:
         if (_ASSETS / 'doodles' / f'{w}.svg').is_file() and w in (
@@ -1800,6 +1873,10 @@ def _is_emblem(icon) -> bool:
 # when a word class surfaces, never per-plan.
 _SYNONYMS: dict[str, tuple[str, ...]] = {
     'drought': ('sun', 'desert'), 'orchard': ('tree',), 'orchards': ('tree',),
+    'riverbank': ('river',), 'riverbanks': ('river',), 'dam': ('bricks',
+    'wall'), 'dams': ('bricks', 'wall'), 'smoke': ('cloud',),
+    'handle': ('door',), 'handles': ('door',), 'jam': ('car',),
+    'commute': ('bus',),
     'say': ('speech',), 'says': ('speech',), 'said': ('speech',),
     'speak': ('speech',), 'speaks': ('speech',), 'tell': ('speech',),
     'tells': ('speech',), 'claim': ('speech',), 'claims': ('speech',),

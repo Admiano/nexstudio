@@ -1044,7 +1044,12 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap):
                  [e for e in sol if e['m'].get('side') == 'after'])
         if not (sides[0] and sides[1]):
             sides = (sol[:half], sol[half:])
-        hw = Wc * 0.40
+        else:
+            a0 = sol.index(sides[1][0])
+            for i, e in enumerate(sol):
+                if e['m'].get('side') not in ('before', 'after'):
+                    sides[0 if i < a0 else 1].append(e)
+            sides = tuple(sorted(g, key=sol.index) for g in sides)
         hw = Wc * 0.43
         for si_, grp in enumerate(sides):
             x0 = L + (0 if si_ == 0 else Wc - hw)
@@ -1112,6 +1117,142 @@ def _sb_link(pb, cb, Wc):
         mid = (t0 + t1) / 2
         t0, t1 = mid - cap / 2, mid + cap / 2
     return _sb_arrow((ax + ux * t0, ay + uy * t0), (ax + ux * t1, ay + uy * t1))
+
+
+_SB_ATTACH = ('on', 'in', 'beside', 'held')
+_SB_MARKS = ('flow', 'motion', 'puffs', 'cross', 'drips', 'sparkle', 'rain',
+             'heat', 'up', 'down')
+
+
+def _sb_kid_box(att, hb, aspect, hand=None):
+    """Box for an element composed onto its host's ink box hb."""
+    x0, y0, x1, y1 = hb
+    w, h = x1 - x0, y1 - y0
+    if att == 'held' and hand:
+        kh = h * 0.36
+        cx, bot = hand[0], hand[1] + kh * 0.45
+    elif att == 'in':
+        kh = min(h * 0.42, w * 0.42 / max(0.3, aspect))
+        cx, bot = (x0 + x1) / 2, y0 + h * 0.55 + kh / 2
+    elif att == 'beside':
+        kh = h * 0.55
+        cx, bot = x1 + kh * aspect * 0.55, y1
+    else:
+        kh = min(h * 0.40, w * 0.5 / max(0.3, aspect))
+        cx, bot = x0 + w * 0.70, y0 + kh * 0.30
+    kw = kh * aspect
+    return (cx - kw / 2, bot - kh, cx + kw / 2, bot)
+
+
+def _sb_vmark(kind, a, b=None, col=None, seed=1):
+    """Story detail strokes around ink box a (flow runs a -> b)."""
+    x0, y0, x1, y1 = a
+    w, h = x1 - x0, y1 - y0
+    st = []
+    if kind == 'flow' and b is not None:
+        p0 = (x1 + w * 0.04, y0 + h * 0.30)
+        p1 = (b[0] - (b[2] - b[0]) * 0.04, b[1] + (b[3] - b[1]) * 0.30)
+        d = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
+        cxm = ((p0[0] + p1[0]) / 2, min(p0[1], p1[1]) - d * 0.22)
+        r = max(3.4, d * 0.016)
+        n = max(6, min(12, int(d / (r * 5))))
+        for i in range(1, n):
+            t = i / n
+            qx = (1 - t) ** 2 * p0[0] + 2 * t * (1 - t) * cxm[0] + t * t * p1[0]
+            qy = (1 - t) ** 2 * p0[1] + 2 * t * (1 - t) * cxm[1] + t * t * p1[1]
+            st.append((_sb_blob(qx, qy, r, r, seed + i, 8, 0.12),
+                       col or 'a_yellow', 1.0, 'solid', True))
+        return st
+    if kind == 'motion':
+        for i, v in enumerate((0.32, 0.50, 0.68)):
+            ln = w * (0.22 if i == 1 else 0.15)
+            xa = x0 - w * 0.06
+            st.append((_wobble_line((xa - ln, y0 + h * v), (xa, y0 + h * v),
+                                    n=6, wob=0.8, seed=seed + i),
+                       'ink', 0.9, False, True))
+        return st
+    if kind == 'puffs':
+        for i in range(3):
+            r = h * (0.06 + 0.035 * i)
+            cx = x0 + w * (0.55 + 0.16 * i)
+            cy = y0 - h * (0.02 + 0.15 * i) - r
+            for k_, (dx, dy, rr) in enumerate(((-0.55, 0.15, 0.62),
+                                               (0.0, -0.1, 0.8),
+                                               (0.55, 0.15, 0.62))):
+                blob = _sb_blob(cx + dx * r, cy + dy * r, rr * r * 1.1,
+                                rr * r, seed + i * 3 + k_, 14, 0.10)
+                st.append((blob, col or 'pale', 1.0, 'solid', True))
+                st.append((blob, 'ink', 0.55, False, True))
+        return st
+    if kind == 'cross':
+        ix, iy = w * 0.10, h * 0.10
+        st.append((_wobble_line((x0 + ix, y0 + iy), (x1 - ix, y1 - iy),
+                                n=10, wob=1.4, seed=seed), col or 'a_red',
+                   2.4, False, True))
+        st.append((_wobble_line((x1 - ix, y0 + iy), (x0 + ix, y1 - iy),
+                                n=10, wob=1.4, seed=seed + 1), col or 'a_red',
+                   2.4, False, True))
+        return st
+    if kind == 'drips':
+        for i, u in enumerate((0.35, 0.52, 0.68)):
+            cx, cy = x0 + w * u, y1 + h * (0.06 + 0.04 * (i % 2))
+            r = h * 0.035
+            drop = [(cx, cy - r * 2.2)] + [
+                (cx + math.cos(t) * r, cy + math.sin(t) * r)
+                for t in [-0.35 + (math.pi + 0.7) * k / 10 for k in range(11)]
+            ] + [(cx, cy - r * 2.2)]
+            st.append((drop, col or 'a_yellow', 1.0, 'solid', True))
+            st.append((drop, 'ink', 0.7, False, True))
+        return st
+    if kind == 'sparkle':
+        for i, (u, v) in enumerate(((-0.06, 0.05), (1.06, 0.12),
+                                    (0.98, -0.08))):
+            cx, cy, r = x0 + w * u, y0 + h * v, h * (0.05 + 0.015 * i)
+            st.append(([(cx - r, cy), (cx + r, cy)], col or 'a_yellow', 1.6,
+                       False, True))
+            st.append(([(cx, cy - r), (cx, cy + r)], col or 'a_yellow', 1.6,
+                       False, True))
+        return st
+    if kind == 'rain':
+        for i in range(5):
+            xa = x0 + w * (0.12 + 0.19 * i)
+            ya = y0 - h * (0.10 + 0.07 * (i % 2))
+            st.append(([(xa, ya), (xa - w * 0.04, ya + h * 0.09)],
+                       col or 'a_blue', 1.5, False, True))
+        return st
+    if kind == 'heat':
+        for i in range(3):
+            xa = x0 + w * (0.28 + 0.22 * i)
+            pts = [(xa + math.sin(k * 1.3) * w * 0.025,
+                    y0 - h * 0.04 - k * h * 0.035) for k in range(7)]
+            st.append((pts, col or 'a_orange', 1.4, False, True))
+        return st
+    if kind in ('up', 'down'):
+        up = kind == 'up'
+        xa, xb = x1 + w * 0.04, x1 + w * 0.22
+        ya, yb = (y0 + h * 0.45, y0 + h * 0.05) if up else (
+            y0 + h * 0.05, y0 + h * 0.45)
+        return _sb_colorize(_sb_arrow((xa, ya), (xb, yb)),
+                            col or ('a_green' if up else 'a_red'))
+    return st
+
+
+def _sb_colorize(strokes, col):
+    return [(st[0], col) + tuple(st[2:]) for st in strokes]
+
+
+_SB_PREFIX = re.compile(r'^\s*(before|after|then|now)\s*[:\-]\s*', re.I)
+_SB_LSTOP = {'the', 'a', 'an', 'of', 'and', 'to', 'in', 'on', 'is', 'are',
+             'its', 'it', 'for', 'with'}
+
+
+def _sb_words(text):
+    out = set()
+    for w in re.findall(r'[a-z]+', str(text or '').lower()):
+        if w in _SB_LSTOP or len(w) < 3:
+            continue
+        out.add(w[:-1] if w.endswith('s') and len(w) > 3 else w)
+    return out
 
 
 def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
@@ -1184,6 +1325,40 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     raw_roles = ([scn.get('heroRole') or {}]
                  + list(scn.get('supportingRoles') or []))
     meta = [(raw_roles[j] if j < len(raw_roles) else {}) for j in range(k)]
+    meta = [dict(m) if isinstance(m, dict) else {'label': str(m)}
+            for m in meta]
+    qa = plan.setdefault('_sb_qa', [])
+    cap_words = _sb_words(beat.get('caption'))
+    nar_sents = re.split(r'(?<=[.!?])\s+', str(beat.get('narration') or ''))
+    role_words = [_sb_words(' '.join([str(m.get('label') or ''),
+                                      str(m.get('icon') or '')]))
+                  for m in meta]
+    for j, m in enumerate(meta):
+        ant = str(m.get('annotate') or '').strip()
+        pm = _SB_PREFIX.match(ant)
+        if pm:
+            side = pm.group(1).lower()
+            m.setdefault('side', 'before' if side in ('before', 'then')
+                         else 'after')
+            ant = ant[pm.end():].strip()
+        aw = _sb_words(ant)
+        if ant and aw and (aw <= role_words[j] or aw <= cap_words):
+            qa.append({'beat': si, 'check': 'label-redundant',
+                       'severity': 'info', 'detail': ant})
+            ant = ''
+        if ant and aw and not (aw & role_words[j]):
+            owners = [i for i, rw in enumerate(role_words)
+                      if i != j and aw & rw]
+            if owners:
+                qa.append({'beat': si, 'check': 'label-misbound',
+                           'severity': 'fail', 'detail':
+                           f'"{ant}" on {m.get("label")!r} names '
+                           f'{meta[owners[0]].get("label")!r}'})
+        m['annotate'] = ant
+        if not m.get('narration'):
+            lw = _sb_words(m.get('label'))
+            m['narration'] = next((x for x in nar_sents
+                                   if lw & _sb_words(x)), '')
     els = []
     for j, it in enumerate(items):
         m = meta[j]
@@ -1196,7 +1371,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         emo, n_body = '', 0
         if kind == 'person':
             emo = sb_cast.emotion_for(dict(m, label=it.get('label', '')))
-            body, marks, _hb = sb_cast.figure(emo)
+            body, marks, _hb = sb_cast.figure(emo, False,
+                                              m.get('action', ''))
             art = body + marks
             n_body = len(body)
         if kind in ('person', 'art') and not art:
@@ -1219,6 +1395,35 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                     'rider': m.get('on_chart') or '',
                     'label': _sb_wrap(ant) if ant else [],
                     'rows': [str(r) for r in (m.get('rows') or [])]})
+    by_j = {e['j']: e for e in els}
+
+    def _ref(r):
+        if isinstance(r, int):
+            return by_j.get(r)
+        r = str(r or '').lower().strip()
+        return next((e for e in els
+                     if r in (str(e['it'].get('label', '')).lower(),
+                              str(e['m'].get('label', '')).lower())), None)
+
+    for e in list(els):
+        att = str(e['m'].get('attach') or '').lower()
+        if att not in _SB_ATTACH or e['kind'] not in ('art', 'person'):
+            continue
+        host = _ref(e['m'].get('to', 0))
+        if (host is None or host is e or host.get('kid_of')
+                or e.get('kids') or host['kind'] == 'divider'):
+            qa.append({'beat': si, 'check': 'attach-unresolved',
+                       'severity': 'warn', 'detail': e['it'].get('label')})
+            continue
+        host.setdefault('kids', []).append(e)
+        e['kid_of'], e['att'] = host, att
+        if att == 'beside':
+            host['aspect'] *= 1.55
+        elif att == 'held':
+            host['aspect'] *= 1.25
+        if e['label'] and not host['label']:
+            host['label'] = e['label']
+        els.remove(e)
     rel_ = str(scn.get('relation') or '').lower().strip().replace(
         '-', '_').replace(' ', '_')
     words_ = ' '.join([str(beat.get('title') or ''),
@@ -1257,12 +1462,18 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
            'cycle': 'cycle', 'reaction': 'reaction',
            'group_reaction': 'reaction', 'comparison': 'row',
            'contrast': 'row', 'journey': 'journey'}.get(rel_, 'row')
+    if lay == 'journey' and not any(e['kind'] == 'chart-journey'
+                                    for e in els):
+        lay = 'row'
     lay = str(scn.get('layout') or lay)
     prev_lay = plan.setdefault('_sb_layouts', {}).get(si - 1)
     if lay == 'row' and rel_ not in ('contrast', 'comparison') \
             and prev_lay == 'row' and not scn.get('layout') \
-            and len(els) >= 3:
-        lay = 'stair'
+            and len(els) >= 2:
+        lay = 'stair' if len(els) >= 3 else 'focus'
+    elif lay == 'focus' and prev_lay == 'focus' and not scn.get('layout') \
+            and len(els) >= 2:
+        lay = 'row'
     sec['relation'] = rel_
     ls = H * 0.050
 
@@ -1353,6 +1564,23 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 e['box'] = (cx_ - ew / 2, yb_e - eh, cx_ + ew / 2, yb_e)
             x += cxw + (gaps[i] if i < len(gaps) else 0.0)
 
+    for e in els:
+        kids_, stack_ = [], list(e.get('kids', ()))
+        while stack_:
+            kd_ = stack_.pop()
+            kids_.append(kd_['att'])
+            stack_.extend(kd_.get('kids', ()))
+        b_ = e.get('box')
+        if not b_ or not kids_:
+            continue
+        over = 0.34 * kids_.count('on') + (0.10 if 'held' in kids_ else 0.0)
+        h_ = b_[3] - b_[1]
+        room = b_[1] - band_t
+        if over and room < h_ * over:
+            k_ = (b_[3] - band_t) / (h_ * (1 + over))
+            cxm = (b_[0] + b_[2]) / 2
+            w_ = (b_[2] - b_[0]) * k_
+            e['box'] = (cxm - w_ / 2, b_[3] - h_ * k_, cxm + w_ / 2, b_[3])
     if journey:
         lay = 'journey'
     plan['_sb_layouts'][si] = lay
@@ -1365,6 +1593,36 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     win0, win1 = t0 + lead, max(t0 + lead + 0.5, t1 - 0.62 - hold - cap_d)
     draw_els = [e for e in els]
     slot = (win1 - win0) / max(1, len(draw_els))
+    pos = {id(e): i for i, e in enumerate(draw_els)}
+    for e in draw_els:
+        for kd in e.get('kids', ()):
+            pos[id(kd)] = pos[id(e)]
+    all_els = draw_els + [kd for e in draw_els for kd in e.get('kids', ())]
+
+    def _mref(r):
+        if isinstance(r, int):
+            return next((e for e in all_els if e['j'] == r), None)
+        r = str(r or '').lower().strip()
+        return next((e for e in all_els
+                     if r in (str(e['it'].get('label', '')).lower(),
+                              str(e['m'].get('label', '')).lower())), None)
+
+    mark_at = {}
+    flow_pairs = set()
+    for mk in scn.get('marks') or []:
+        kind_ = str(mk.get('type') or '').lower()
+        a_ = _mref(mk.get('from', mk.get('on', 0)))
+        b_ = _mref(mk.get('to')) if kind_ == 'flow' else None
+        if kind_ not in _SB_MARKS or a_ is None or (
+                kind_ == 'flow' and b_ is None):
+            qa.append({'beat': si, 'check': 'mark-unresolved',
+                       'severity': 'warn', 'detail': str(mk)})
+            continue
+        last = max(pos[id(a_)], pos[id(b_)] if b_ is not None else -1)
+        mark_at.setdefault(last, []).append((kind_, a_, b_, mk.get('color')))
+        if b_ is not None:
+            flow_pairs.add(frozenset((id(a_.get('kid_of') or a_),
+                                      id(b_.get('kid_of') or b_))))
     out_items = []
     prev = None
     for n_, e in enumerate(draw_els):
@@ -1391,7 +1649,15 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             fb = (b[0], b[3] - (b[3] - b[1]) / e['head'], b[2], b[3])
             if e['kind'] == 'person':
                 flip = (b[0] + b[2]) / 2 > W * 0.12
-                body, marks, _hb = sb_cast.figure(e['emo'], flip)
+                act = str(e['m'].get('action') or '')
+                tgt = _ref(e['m'].get('target')) if e['m'].get(
+                    'target') is not None else None
+                if tgt is not None and tgt is not e and tgt.get('box'):
+                    flip = (tgt['box'][0] + tgt['box'][2]) < (b[0] + b[2])
+                if any(kd['att'] == 'held' for kd in e.get('kids', ())):
+                    act = act or 'hold'
+                e['flip'], e['act'] = flip, act
+                body, marks, _hb = sb_cast.figure(e['emo'], flip, act)
                 fit_st, _fb = _sb_fit(body + marks, fb)
                 art_st, mark_st = fit_st[:len(body)], fit_st[len(body):]
                 fig_b = _sb_bounds(s_[0] for s_ in art_st)
@@ -1424,12 +1690,37 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             if eb:
                 fig_b = (min(fig_b[0], eb[0]), min(fig_b[1], eb[1]),
                          max(fig_b[2], eb[2]), max(fig_b[3], eb[3]))
+        for kn, kd in enumerate(e.get('kids', ())):
+            hand = None
+            if kd['att'] == 'held' and e['kind'] == 'person':
+                u, v = sb_cast.hand_uv(e['emo'], e.get('flip', False),
+                                       e.get('act', ''))
+                hand = (fig_b[0] + u * (fig_b[2] - fig_b[0]),
+                        fig_b[1] + v * (fig_b[3] - fig_b[1]))
+            kb0 = _sb_kid_box(kd['att'], fig_b, kd['aspect'], hand)
+            if kd['kind'] == 'person':
+                kbody, kmarks, _kh = sb_cast.figure(
+                    kd['emo'], (kb0[0] + kb0[2]) / 2 > 0,
+                    kd['m'].get('action', ''))
+                kst, kb = _sb_fit(kbody + kmarks, kb0)
+            else:
+                kst, kb = _sb_fit(kd['art'], kb0)
+            if not kst:
+                continue
+            ka = i0 + slot * (0.60 + 0.05 * kn)
+            groups.append((('icon', kst, (0, 0), max(70.0, lwsize * 0.6),
+                            None), ka, ka + slot * 0.10))
+            kd['ink'] = kb
+            fig_b = (min(fig_b[0], kb[0]), min(fig_b[1], kb[1]),
+                     max(fig_b[2], kb[2]), max(fig_b[3], kb[3]))
         e['ink'] = (fig_b if e['kind'] not in ('divider',) else b)
         tag = ('rider' if e['rider'] else
                ('chart' if e['kind'] == 'chart-journey' else 'el'))
         boxes.append((e['it'].get('label', '?'), e['ink'], tag))
         # arrow from the previous element (chains only, no dividers/riders)
-        if (not journey and lay not in ('row', 'reaction')
+        if prev is not None and frozenset((id(prev), id(e))) in flow_pairs:
+            pass
+        elif (not journey and lay not in ('row', 'reaction')
                 and prev is not None
                 and (lay != 'before_after'
                      or prev.get('ba_side') != e.get('ba_side'))):
@@ -1480,10 +1771,48 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 al = 'left'
             else:
                 lx, ly, al = (ib[0] + ib[2]) / 2, b[3] + lab_gap, 'center'
+                if any(mk_[0] == 'drips' and mk_[1] is e
+                       for v_ in mark_at.values() for mk_ in v_):
+                    ly += (ib[3] - ib[1]) * 0.12
             lst, lbb = _sb_text(e['label'], lx, ly - ltop, ls, _SB_FL, al)
+            l1 = 0.86 if n_ in mark_at else 0.98
             groups.append((('plabel', lst, (0, 0), 1.0, None),
-                           i0 + slot * 0.72, i0 + slot * 0.98))
+                           i0 + slot * 0.72, i0 + slot * l1))
             boxes.append(('label:' + ' '.join(e['label']), lbb, 'label'))
+            e['lab_box'] = lbb
+        for mi, (kind_, a_, b_, mcol) in enumerate(mark_at.get(n_, ())):
+            ab_ = a_.get('ink') or a_.get('box')
+            bb_ = (b_.get('ink') or b_.get('box')) if b_ is not None else None
+            if ab_ is None or (b_ is not None and bb_ is None):
+                continue
+            if bb_ is not None and (bb_[0] + bb_[2]) < (ab_[0] + ab_[2]):
+                mst = _sb_vmark(kind_, bb_, ab_, mcol, seed=uid + mi)
+            else:
+                mst = _sb_vmark(kind_, ab_, bb_, mcol, seed=uid + mi)
+            mst = [(tuple((px, max(py, band_t + 4.0)) for px, py in q[0]),)
+                   + tuple(q[1:]) for q in mst]
+            if not mst:
+                continue
+            refs = set()
+            for r_ in (a_, b_):
+                while r_ is not None:
+                    refs.add(r_['it'].get('label', '?'))
+                    r_ = r_.get('kid_of')
+            mb_ = _sb_bounds(q[0] for q in mst)
+            hit_ = next((bx[0] for bx in boxes if bx[2] not in
+                         ('mark', 'title', 'caption') and bx[0] not in refs
+                         and not str(bx[0]).startswith('label:')
+                         and bx[1][0] < mb_[2] and mb_[0] < bx[1][2]
+                         and bx[1][1] < mb_[3] and mb_[1] < bx[1][3]), None)
+            if hit_ is not None:
+                qa.append({'beat': si, 'check': 'mark-dropped',
+                           'severity': 'info',
+                           'detail': f'{kind_} would cross {hit_}'})
+                continue
+            groups.append((('marks', mst, (0, 0), 100.0, None),
+                           i0 + slot * 0.87, i0 + slot * 0.98))
+            boxes.append(('mark:' + kind_, _sb_bounds(q[0] for q in mst),
+                          'mark', refs))
         out_items.append({'groups': groups, 'bounds2': e['ink'],
                           'uid': uid, 'fade': fade, 'kind': 'elem',
                           't_window': (i0, i1),
@@ -1500,13 +1829,20 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     # ---- audit: pairwise overlap + frame containment ------------------
     fx0, fy0, fx1, fy1 = (-W / 2 + W * 0.025, -H / 2 + H * 0.03,
                           W / 2 - W * 0.025, H / 2 - H * 0.03)
+    boxes = [bx if len(bx) == 4 else bx + (set(),) for bx in boxes]
     for i in range(len(boxes)):
-        na, A, ta = boxes[i]
+        na, A, ta, ra = boxes[i]
         if A[0] < fx0 or A[1] < fy0 or A[2] > fx1 or A[3] > fy1:
             audit.append(('off-frame', na))
         for jj in range(i + 1, len(boxes)):
-            nb, B, tb = boxes[jj]
+            nb, B, tb, rb = boxes[jj]
             if {ta, tb} in ({'rider', 'chart'}, {'rider'}):
+                continue
+            if (ta == 'mark' and nb in ra) or (tb == 'mark' and na in rb):
+                continue
+            if ta == tb == 'mark' and ra & rb:
+                continue
+            if 'mark' in (ta, tb) and 'arrow' in (ta, tb):
                 continue
             if tb == 'label' and ta == 'chart' or ta == 'label' and tb == 'chart':
                 lb = A if ta == 'label' else B
@@ -1515,9 +1851,21 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 continue
             if _sb_ovl(A, B, 2.0):
                 audit.append((na, nb))
+    sec['qa_content'] = (L, band_t, L + Wc, band_b)
+    sec['qa_marks'] = [bx[0] for bx in boxes if bx[2] == 'mark']
     if audit:
         plan.setdefault('_sb_audit', []).append({'beat': si,
                                                  'issues': audit})
+    sec['qa_boxes'] = [(bx[0], bx[1], bx[2]) for bx in boxes]
+    sec['qa_els'] = [{'label': e['it'].get('label', ''), 'kind': e['kind'],
+                      'emo': e['emo'], 'ink': e.get('ink'),
+                      'icon': next((g[4].get('icon') for g, _s, _e in
+                                    e['it']['groups'] if g[4]
+                                    and g[4].get('icon') is not None), None),
+                      'role': e['m'], 'kid': bool(e.get('kid_of')),
+                      'lab_box': e.get('lab_box'),
+                      'label_text': ' '.join(e['label'] or [])}
+                     for e in all_els]
     return uid
 
 
