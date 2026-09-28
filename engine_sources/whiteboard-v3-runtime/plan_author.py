@@ -421,7 +421,9 @@ _MARK_CUES = [
 _HOLD = re.compile(r'\b(us(e|es|ing)|hold\w*|carr(y|ies)|grab\w*|'
                    r'lift\w*|wield\w*|with (a|an|the|his|her|their))\b')
 _ACT_CUES = (
-    ('reach', r'\b(pick\w*|reach\w*|grab\w*|touch\w*|lift\w*)\b'),
+    ('reach', r'\b(pick\w*|reach\w*|grab\w*|touch\w*|press\w*|grind\w*|'
+              r'heat(s|ed|ing)?|wash\w*|fix\w*|build\w*|plant(s|ed|ing)?|'
+              r'open(s|ed|ing)?|feed\w*|cook\w*)\b'),
     ('offer', r'\b(pour\w*|offer\w*|giv(e|es|ing)|serv\w*|hand(s|ed)?)\b'),
     ('point', r'\b(point\w*|show\w*|explain\w*|teach\w*|train\w*|'
               r'warn\w*)\b'),
@@ -738,11 +740,17 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 break
         for a_, (i, _l, person) in enumerate(pick):
             if person and 'action' not in roles[a_]:
-                tail = ' '.join(low[i:i + 4])
-                act = next((a for a, pat in _ACT_CUES
-                            if re.search(pat, tail)), '')
-                if act:
-                    roles[a_]['action'] = act
+                tail = ' '.join(low[i:i + 7])
+                hit = min(((m_.start(), a) for a, pat in _ACT_CUES
+                           for m_ in [re.search(pat, tail)] if m_),
+                          default=None)
+                if hit:
+                    roles[a_]['action'] = hit[1]
+                    vi = i + tail[:hit[0]].count(' ')
+                    tg = next((b for b, (j, _l2, p2) in enumerate(pick)
+                               if not p2 and j > vi), None)
+                    if tg is not None:
+                        roles[a_]['target'] = roles[tg]['label']
         setting = ''
         for a_ in range(len(roles) - 1, -1, -1):
             place = _PLACES.get(roles[a_]['label'].split()[-1])

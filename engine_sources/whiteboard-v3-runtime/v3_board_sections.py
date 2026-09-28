@@ -1094,6 +1094,9 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap):
     return False
 
 
+_SB_TOUCH = {'reach', 'offer', 'point'}
+
+
 def _sb_link(pb, cb, Wc):
     """Short arrow from box pb toward box cb along their centre line."""
     ax, ay = (pb[0] + pb[2]) / 2, (pb[1] + pb[3]) / 2
@@ -1767,6 +1770,39 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             cxm = (b_[0] + b_[2]) / 2
             w_ = (b_[2] - b_[0]) * k_
             e['box'] = (cxm - w_ / 2, b_[3] - h_ * k_, cxm + w_ / 2, b_[3])
+    touch_pairs = set()
+    if not journey and lay in ('row', 'focus', 'stair'):
+        for e in els:
+            act_ = str(e['m'].get('action') or '')
+            if e['kind'] != 'person' or act_ not in _SB_TOUCH or not e.get(
+                    'box'):
+                continue
+            tgt = (_ref(e['m'].get('target'))
+                   if e['m'].get('target') is not None else None)
+            if tgt is None:
+                i_ = els.index(e)
+                tgt = next((o for o in els[i_ + 1:] + els[:i_][::-1]
+                            if o['kind'] == 'art' and o.get('box')), None)
+            if tgt is None or tgt is e or not tgt.get('box'):
+                continue
+            e['m'].setdefault('target', tgt['j'])
+            pb_, tb_ = e['box'], tgt['box']
+            gap_ = Wc * 0.012
+            if (pb_[0] + pb_[2]) < (tb_[0] + tb_[2]):
+                dx_ = (tb_[0] - gap_) - pb_[2]
+                lo_ = max((o['box'][2] + gap_ for o in els
+                           if o is not e and o.get('box')
+                           and o['box'][2] <= pb_[0] + 1), default=L)
+                dx_ = max(dx_, lo_ - pb_[0])
+            else:
+                dx_ = (tb_[2] + gap_) - pb_[0]
+                hi_ = min((o['box'][0] - gap_ for o in els
+                           if o is not e and o.get('box')
+                           and o['box'][0] >= pb_[2] - 1), default=R)
+                dx_ = min(dx_, hi_ - pb_[2])
+            if dx_ * ((tb_[0] + tb_[2]) - (pb_[0] + pb_[2])) > 0:
+                e['box'] = (pb_[0] + dx_, pb_[1], pb_[2] + dx_, pb_[3])
+            touch_pairs.add(frozenset((id(e), id(tgt))))
     if journey:
         lay = 'journey'
     plan['_sb_layouts'][si] = lay
@@ -1921,7 +1957,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                ('chart' if e['kind'] == 'chart-journey' else 'el'))
         boxes.append((e['it'].get('label', '?'), e['ink'], tag))
         # arrow from the previous element (chains only, no dividers/riders)
-        if prev is not None and frozenset((id(prev), id(e))) in flow_pairs:
+        if prev is not None and frozenset((id(prev), id(e))) in (
+                flow_pairs | touch_pairs):
             pass
         elif (not journey and lay not in ('row', 'reaction')
                 and prev is not None

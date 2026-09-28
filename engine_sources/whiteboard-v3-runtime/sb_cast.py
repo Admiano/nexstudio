@@ -60,13 +60,14 @@ POSES = {
     'hold':      {'r': ((0.20, -0.53), (0.31, -0.60)), 'l': _IDLE_ARM},
     'offer':     {'r': ((0.21, -0.56), (0.34, -0.66)),
                   'l': ((0.21, -0.56), (0.34, -0.66))},
-    'reach':     {'r': ((0.22, -0.74), (0.33, -0.90)), 'l': _IDLE_ARM},
+    'reach':     {'r': ((0.25, -0.64), (0.44, -0.63)), 'l': _IDLE_ARM},
+    'lift':      {'r': ((0.22, -0.74), (0.33, -0.90)), 'l': _IDLE_ARM},
 }
 
 # interaction verbs -> still pose (the emotion keeps its face and marks)
 ACTIONS = {'hold': 'hold', 'carry': 'hold', 'point': 'point',
            'show': 'point', 'offer': 'offer', 'give': 'offer',
-           'reach': 'reach', 'lift': 'reach', 'wave': 'wave'}
+           'reach': 'reach', 'lift': 'lift', 'wave': 'wave'}
 
 # emotion -> (pose, face, marks)
 EMOTIONS = {
@@ -95,11 +96,11 @@ _LEXICON = [
               r'liquidat|meltdown|freak'),
     ('afraid', r'fear|worr|anxi|nervous|risk|danger|threat|stress|'
                r'frustrat|stuck|overwhelm'),
-    ('excited', r'fomo|hype|moon|pump|euphor|excit|rush|chase|\bape'),
+    ('excited', r'fomo|hype|\bmoon|pump|euphor|excit|\brush|chase|\bape'),
     ('greedy', r'greed|get rich|all in|lambo'),
     ('calm', r'calm|rational|patien|disciplin|steady|zen|relax|stay'),
-    ('think', r'think|read|analy|research|stud|consider|interpret|wonder|'
-              r'plan|learn|figure'),
+    ('think', r'think|\bread\b|\breads\b|analy|research|\bstud|consider|interpret|'
+              r'wonder|\bplan|learn|figure out'),
     ('confident', r'confiden|\bsure\b|\bwin|expert|\bpro\b|smart|better'),
     ('alert', r'\bsee|spot|notice|early|earlier|first|discover|\bfind|'
               r'aware|signal'),
