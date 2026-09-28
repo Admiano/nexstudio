@@ -18,6 +18,7 @@ import math
 import re
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageDraw
 
 import whiteboard_pil_adapter as wbp
@@ -831,28 +832,23 @@ def _hand():
     if _HAND_IMG is None:
         for p in (_HAND_PATH, _HAND_PATH_ALT):
             if p.exists():
-                _HAND_IMG = _extend_arm(Image.open(p).convert('RGBA'))
+                _HAND_IMG = _fade_arm(Image.open(p).convert('RGBA'))
                 break
     return _HAND_IMG
 
 
-def _extend_arm(img: Image.Image, reach: float = 1.6) -> Image.Image:
-    """Continue the forearm past the sprite's cut edge (down-right) so the
-    arm always runs off-frame instead of ending in a hard square edge."""
-    w, h = img.size
-    dx, dy = 1.0, 0.9
-    n = math.hypot(dx, dy)
-    dx, dy = dx / n, dy / n
-    ext = int(max(w, h) * reach)
-    out = Image.new('RGBA', (w + int(ext * dx) + 4, h + int(ext * dy) + 4),
-                    (0, 0, 0, 0))
-    cut = img.crop((int(w * 0.72), int(h * 0.72), w, h))
-    ox, oy = int(w * 0.72), int(h * 0.72)
-    step = 3
-    for i in range(ext, 0, -step):
-        out.paste(cut, (ox + int(i * dx), oy + int(i * dy)), cut)
-    out.paste(img, (0, 0), img)
-    return out
+def _fade_arm(img: Image.Image) -> Image.Image:
+    """Feather the forearm where the sprite is cut (down-right) so the arm
+    trails off softly instead of ending in a hard square edge."""
+    a = np.asarray(img).copy()
+    h, w = a.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w]
+    proj = (xx / w) * 0.74 + (yy / h) * 0.67
+    lo, hi = 1.08, 1.34
+    k = np.clip((hi - proj) / (hi - lo), 0, 1)
+    k = k * k * (3 - 2 * k)
+    a[..., 3] = (a[..., 3] * k).astype(np.uint8)
+    return Image.fromarray(a, 'RGBA')
 
 
 def _overlay_hand(frame: Image.Image, tip, ratio: str, wobble: float = 0.0):
@@ -2865,8 +2861,11 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                 a, b = jj / n, (jj + 1) / n
                 if len(stt) > 3 and stt[3]:  # hatch fills skip p<0.38
                     a += 0.38 / n
+                pts_ = stt[0]
+                plen = sum(math.hypot(q[0] - p_[0], q[1] - p_[1])
+                           for p_, q in zip(pts_, pts_[1:]))
                 pen.append([s_ + (e_ - s_) * _ease_inv(a),
-                            s_ + (e_ - s_) * _ease_inv(b)])
+                            s_ + (e_ - s_) * _ease_inv(b), round(plen, 1)])
             pens.setdefault(j, []).extend(pen)
         for j, st in enumerate(dp):
             if j in spans:

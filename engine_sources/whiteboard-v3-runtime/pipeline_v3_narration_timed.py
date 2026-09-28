@@ -37,6 +37,8 @@ import tempfile
 from pathlib import Path
 from typing import Any, Iterator
 
+import marker_sfx
+
 SCHEMA = 'NexMindWhiteboardV3NarrationTimedPlanV1'
 RECEIPT_SCHEMA = 'NexMindWhiteboardV3ReconstructedExecutionReceiptV1'
 VERSION = '3.0.0-reconstruction.1'
@@ -417,102 +419,52 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
-    # sound_choreographer reads plan['sceneSpecs'][*]['whiteboardRuntime']['drawPlan']
-    # Runtime wrap (preserved module untouched): point its audio dir at our
-    # denser synthesized marker bed — the packaged bed was ~16x too quiet.
+def build_sfx(snd, plan: dict, duration: float, out_path: Path,
+              ratio: str = '16:9', board: bool = False) -> Path:
+    """Marker foley: one synthesized felt-tip stroke per pen-down interval
+    the renderer wrote into each drawPlan step (``pen`` = [start, end,
+    length_px]), so the sound starts, stops and scales with the ink.
+    Nothing plays during lifts, travel, holds or scene handoffs."""
     sfx_dir = Path(__file__).parent / 'assets' / 'sfx'
-    marker_bed = sfx_dir / 'marker-real-bed-48k.wav'
-    if not marker_bed.is_file():
-        marker_bed = sfx_dir / 'marker-scratch-bed-48k.wav'
-    if marker_bed.is_file():
-        snd.AUDIO = sfx_dir
-        snd.ROLE_FILE['marker.short'] = marker_bed.name
-        snd.ROLE_FILE['marker.swipe'] = marker_bed.name
-        snd.ROLE_GAIN['marker.short'] = 0.30 * 0.7
-        snd.ROLE_GAIN['marker.swipe'] = 0.38 * 0.7
-
-    # Bed loudness map: the source recording has quiet valleys between its
-    # strokes (crossfaded when looped) — a random offset can land a slice on
-    # silence while the pen is visibly inking. Index the bed's windows whose
-    # envelope stays above a floor so every emitted scratch actually sounds.
-    def _loud_windows(wav_path: Path, span_s: float) -> list[float]:
-        import wave
-        import numpy as np
-        w = wave.open(str(wav_path))
-        n, sr = w.getnframes(), w.getframerate()
-        e = np.abs(np.frombuffer(w.readframes(n), dtype=np.int16)
-                   ).astype(np.float32)
-        b = int(sr * 0.05)  # 50ms bins
-        env = e[:n // b * b].reshape(-1, b).mean(1)
-        floor = np.percentile(env, 35)
-        span_bins = max(1, int(span_s / 0.05))
-        starts = []
-        for i in range(0, max(1, len(env) - span_bins)):
-            if env[i:i + span_bins].min() >= floor:
-                starts.append(i * 0.05)
-        return starts or [0.0]
-
-    _loud_cache: dict[tuple, list[float]] = {}
-
-    def bed_offset(bed_name: str, span_s: float, rnd) -> float:
-        key = (bed_name, round(span_s, 2))
-        if key not in _loud_cache:
-            _loud_cache[key] = _loud_windows(
-                sfx_dir / bed_name, min(span_s, 5.9))
-        wins = _loud_cache[key]
-        return wins[int(rnd.random() * len(wins)) % len(wins)]
-
-    # Emit one scratch event per polyline pen-down interval (written into the
-    # drawPlan by the renderer) — the sound plays only while the pen inks,
-    # never during lifts or travel between strokes.
-    def pen_events(pl):
-        import random as _rnd
-        out = []
-        base = 0.0
-        beats = pl.get('beats') or []
-        scenes = pl.get('sceneSpecs') or []
-        for si, s in enumerate(scenes):
-            wb = s.get('whiteboardRuntime') or {}
-            dur = float(wb.get('sceneDuration') or 1)
-            # The video places each scene at its word-aligned beat start —
-            # narration pauses create gaps, so a cumulative-duration clock
-            # would schedule scratches early (before the ink appears).
-            bstart = (float(beats[si]['start_seconds'])
-                      if si < len(beats) else base)
-            for i, st in enumerate(wb.get('drawPlan') or []):
-                role = st.get('soundRole')
-                if not role:
-                    continue
-                rnd = _rnd.Random(snd._seed(wb.get('seed'), st.get('id'), role))
-                spans = st.get('pen') or [[st.get('start', 0), st.get('end', 0)]]
-                for ps, pe in spans:
-                    out.append({
-                        'role': role,
-                        'file': snd.ROLE_FILE.get(role, snd.ROLE_FILE['marker.short']),
-                        'start': bstart + float(ps),
-                        'duration': max(.05, float(pe) - float(ps)),
-                        'offset': (bed_offset(marker_bed.name,
-                                            float(pe) - float(ps), rnd)
-                                   if (marker_bed.is_file() and
-                                       snd.ROLE_FILE.get(role)
-                                       == marker_bed.name)
-                                   else rnd.random() * 4.8),
-                        'gain': snd.ROLE_GAIN.get(role, .12),
-                        'seed': snd._seed(si, i, role)})
-            base = bstart + dur
-        if scenes:
-            out.append({'role': 'cap', 'file': snd.ROLE_FILE['cap'],
-                        'start': .04, 'duration': .23, 'offset': .15,
-                        'gain': snd.ROLE_GAIN['cap'],
-                        'seed': snd._seed('cap', 'open')})
-            out.append({'role': 'cap', 'file': snd.ROLE_FILE['cap'],
-                        'start': max(.05, base - .28), 'duration': .24,
-                        'offset': 1.28, 'gain': snd.ROLE_GAIN['cap'] * .8,
-                        'seed': snd._seed('cap', 'close')})
-        return sorted(out, key=lambda x: (x['start'], x['role']))
-    snd.events = pen_events
-    return Path(snd.render(plan, duration, out_path)['path'])
+    out = []
+    base = 0.0
+    beats = plan.get('beats') or []
+    scenes = plan.get('sceneSpecs') or []
+    if board:
+        import v3_board_sections as v3bs
+        for ps, pe, ln in v3bs.pen_spans(plan, ratio):
+            out.append({'start': ps, 'duration': max(.03, pe - ps),
+                        'length': ln, 'gain': 1.0})
+        base = duration
+    for si, s in enumerate([] if board else scenes):
+        wb = s.get('whiteboardRuntime') or {}
+        dur = float(wb.get('sceneDuration') or 1)
+        # scenes sit at their word-aligned beat start (narration pauses make
+        # gaps), not at a cumulative-duration clock
+        bstart = (float(beats[si]['start_seconds'])
+                  if si < len(beats) else base)
+        for st in wb.get('drawPlan') or []:
+            if not st.get('soundRole'):
+                continue
+            spans = st.get('pen') or [[st.get('start', 0), st.get('end', 0)]]
+            for sp in spans:
+                ps, pe = float(sp[0]), float(sp[1])
+                out.append({'start': bstart + ps,
+                            'duration': max(.03, pe - ps),
+                            'length': sp[2] if len(sp) > 2 else None,
+                            'gain': 1.0})
+        base = bstart + dur
+    if scenes:
+        cap_gain = snd.ROLE_GAIN.get('cap', .34)
+        out.append({'role': 'cap', 'start': .04, 'duration': .23,
+                    'offset': .15, 'gain': cap_gain})
+        out.append({'role': 'cap', 'start': max(.05, base - .28),
+                    'duration': .24, 'offset': 1.28, 'gain': cap_gain * .8})
+    out.sort(key=lambda e: e['start'])
+    seed = snd._seed(plan.get('seed', 0), 'marker')
+    return Path(marker_sfx.render(out, duration, out_path,
+                                  cap_wav=sfx_dir / 'pen-cap-48k.wav',
+                                  seed=seed)['path'])
 
 
 def build_music(duration: float, out_path: Path, rate: int = 48000) -> Path:
@@ -745,7 +697,10 @@ def render_production(
         ffmpeg = shutil.which('ffmpeg')
         mp4 = out_dir / f'{name}.mp4'
         if ffmpeg:
-            sfx_wav = build_sfx(snd, plan, duration, out_dir / f'{name}.sfx.wav')
+            sfx_wav = build_sfx(snd, plan, duration,
+                                    out_dir / f'{name}.sfx.wav', ratio,
+                                    plan.get('camera_variant')
+                                    == 'board_sections')
             vo = None
             vo_spec = plan.get('voiceover') or {}
             vo_path = Path(vo_spec.get('path')) if vo_spec.get('path') else voiceover

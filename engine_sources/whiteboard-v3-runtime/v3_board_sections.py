@@ -26,7 +26,7 @@ import v3_board_renderer as v3r
 import sb_cast
 from v3_board_renderer import (
     _draw_strokes, _map_scale, _palette, _group_world_bounds,
-    _composite_frame, _overlay_hand, _SLICE_SPAN, _arc,
+    _composite_frame, _overlay_hand, _SLICE_SPAN, _arc, _ease_inv,
 )
 from v3_board_renderer import text_strokes, text_width
 from v3_board_renderer import (font_text_strokes, font_text_width,
@@ -2475,3 +2475,47 @@ def render_board_frame(plan: dict, ratio: str, t: float):
     if tip is None:
         tip = _travel_tip(flow, ratio, cam, zoom, t)
     return _vignette(_overlay_hand(frame, tip, ratio, t * 8 + seed), ratio)
+
+
+def pen_spans(plan: dict, ratio: str) -> list:
+    """Every pen-down interval on the board timeline as absolute
+    [start, end, length_px] — mirrors render_board_frame's draw schedule
+    (strokes take equal shares of each eased group window) so marker foley
+    sounds exactly while ink goes down."""
+    flow = _build(plan, ratio)
+    out = []
+
+    def add(g, s, e):
+        strokes = g[1]
+        n = len(strokes)
+        k = float(g[3] or 1.0) if len(g) > 3 else 1.0
+        for j, st in enumerate(strokes):
+            a, b = j / n, (j + 1) / n
+            if len(st) > 3 and st[3] and not (len(st) > 4 and st[4]):
+                a += 0.38 / n
+            pts = st[0]
+            ln = sum(math.hypot(q[0] - p[0], q[1] - p[1])
+                     for p, q in zip(pts, pts[1:]))
+            if not (len(st) > 4 and st[4]):
+                ln *= k
+            out.append([s + (e - s) * _ease_inv(a),
+                        s + (e - s) * _ease_inv(b), round(ln, 1)])
+
+    for g, s, e in flow['title_item']['groups']:
+        add(g, s, e)
+    for g, s, e in flow.get('dividers') or []:
+        add(g, s, e)
+    for it in flow['items']:
+        fade = it.get('fade')
+        for g, s, e in it['groups']:
+            if fade is not None and s >= fade[0]:
+                continue
+            add(g, s, e)
+    for sec in flow['sections']:
+        if sec.get('title_st') and sec.get('t_window'):
+            t0 = sec['t_window'][0]
+            add(('title', sec['title_st'], (0, 0), 1.0), t0, t0 + 1.1)
+    t0 = flow['total_beats_end'] + WIPE_SECONDS
+    for gi, g in enumerate(flow['ending']['thanks']):
+        add(g, t0 + gi * 0.9, t0 + gi * 0.9 + max(0.2, THANKS_SECONDS - 0.9))
+    return sorted(sp for sp in out if sp[1] > sp[0])

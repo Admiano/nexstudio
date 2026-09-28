@@ -126,6 +126,10 @@ which were AI-generated and vectorized as pipeline demos.
   Freesound community uploads are CC0/CC-BY — verify attribution need
   before commercial release; drop-in replaceable via ROLE_FILE patch.
 - `marker-scratch-bed-48k.wav` — synthesized fallback bed.
+- Live marker foley is no longer sampled: `marker_sfx.py` synthesizes a
+  felt-tip-on-paper stroke per pen-down interval (1-4 kHz friction body,
+  roll-off above 6 kHz, fibre grain, touch-down, release), speed-scaled.
+  The chalkboard-derived beds above stay on disk but are unused.
 - `pencil-bed-48k.wav`, `pen-cap-48k.wav` — preserved-runtime audio assets.
 
 
