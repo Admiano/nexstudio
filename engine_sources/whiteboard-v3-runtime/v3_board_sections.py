@@ -979,6 +979,141 @@ def _sb_ovl(a, b, pad=0.0):
                 or a[3] + pad <= b[1] or b[3] + pad <= a[1])
 
 
+def _sb_wrap(text, cap=14):
+    """Split a label into lines: explicit newlines win; otherwise long
+    single lines break at word boundaries near `cap` characters."""
+    out = []
+    for ln in text.split('\n'):
+        ws, cur = ln.split(), ''
+        for w in ws:
+            if cur and len(cur) + 1 + len(w) > cap:
+                out.append(cur)
+                cur = w
+            else:
+                cur = (cur + ' ' + w).strip()
+        if cur:
+            out.append(cur)
+    return out[:3]
+
+
+def _sb_boxfit(e, cx, yb, wmax, hmax):
+    """Largest box of e's aspect inside wmax x hmax, centred on cx, feet on
+    yb."""
+    eh = min(hmax, wmax / max(0.2, e['aspect']))
+    ew = eh * e['aspect']
+    e['box'] = (cx - ew / 2, yb - eh, cx + ew / 2, yb)
+
+
+def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap):
+    """Non-row compositions. Sets e['box'] on every element and returns
+    True, or False to fall back to the shared-baseline row."""
+    Wc, band_h = R - L, band_b - band_t
+    sol = [e for e in els if e['kind'] != 'divider']
+    n = len(sol)
+    lane = lambda e: (labh(e) + gap) if e['label'] else 0.0  # noqa: E731
+    if lay == 'focus' and n >= 2:
+        hero = next((e for e in sol if e['focus']),
+                    next((e for e in sol if e['kind'] == 'person'), sol[0]))
+        sup = [e for e in sol if e is not hero]
+        hi_ = sol.index(hero)
+        pre, post = sol[:hi_], sol[hi_ + 1:]
+        hw = Wc * (0.46 if pre and post else 0.54)
+        side = (Wc - hw) / (2 if pre and post else 1)
+        hx0 = L + (side if pre else 0.0)
+        _sb_boxfit(hero, hx0 + hw / 2, band_b - lane(hero), hw * 0.9,
+                   band_h - lane(hero))
+        for grp, x0 in ((pre, L), (post, hx0 + hw)):
+            if not grp:
+                continue
+            cw = side / len(grp)
+            for k_, e in enumerate(grp):
+                _sb_boxfit(e, x0 + cw * (k_ + 0.5), band_b - lane(e),
+                           cw * 0.78, band_h * 0.55 - lane(e))
+        return True
+    if lay == 'stair' and n >= 3:
+        cw = Wc / n
+        rise = band_h * 0.20
+        for i, e in enumerate(sol):
+            yb = band_b - lane(e) - rise * i / (n - 1)
+            _sb_boxfit(e, L + cw * (i + 0.5), yb, cw * 0.78,
+                       band_h - rise - lane(e))
+        return True
+    if lay == 'before_after' and n >= 2:
+        half = n // 2
+        sides = ([e for e in sol if e['m'].get('side') == 'before'],
+                 [e for e in sol if e['m'].get('side') == 'after'])
+        if not (sides[0] and sides[1]):
+            sides = (sol[:half], sol[half:])
+        hw = Wc * 0.40
+        hw = Wc * 0.43
+        for si_, grp in enumerate(sides):
+            x0 = L + (0 if si_ == 0 else Wc - hw)
+            for e in grp:
+                e['ba_side'] = si_
+            cw = hw / len(grp)
+            for i, e in enumerate(grp):
+                _sb_boxfit(e, x0 + cw * (i + 0.5), band_b - lane(e),
+                           cw * 0.86, band_h * 0.94 - lane(e))
+        return True
+    if lay == 'cycle' and n >= 3:
+        cx, cy = (L + R) / 2, band_t + band_h * 0.44
+        rx, ry = Wc * 0.30, band_h * 0.30
+        sz = min(band_h * 0.32, Wc * 0.18)
+        for i, e in enumerate(sol):
+            a = -math.pi / 2 + 2 * math.pi * i / n
+            px, py = cx + rx * math.cos(a), cy + ry * math.sin(a)
+            h_ = sz - (lane(e) if e['label'] else 0) * 0.5
+            _sb_boxfit(e, px, py + h_ / 2, sz * 1.2, h_)
+        return True
+    if lay == 'reaction' and n >= 2:
+        hero = next((e for e in sol if e['kind'] != 'person'), None)
+        ppl = [e for e in sol if e is not hero]
+        if hero is None or not ppl:
+            return False
+        hw = Wc * 0.30
+        _sb_boxfit(hero, (L + R) / 2, band_b - lane(hero), hw,
+                   band_h * 0.72 - lane(hero))
+        left, right = ppl[::2], ppl[1::2]
+        sw_ = (Wc - hw) / 2
+        for grp, x0 in ((left, L), (right, R - sw_)):
+            if not grp:
+                continue
+            cw = sw_ / len(grp)
+            for i, e in enumerate(grp):
+                _sb_boxfit(e, x0 + cw * (i + 0.5), band_b - lane(e),
+                           cw * 0.8, band_h * 0.78 - lane(e))
+        return True
+    return False
+
+
+def _sb_link(pb, cb, Wc):
+    """Short arrow from box pb toward box cb along their centre line."""
+    ax, ay = (pb[0] + pb[2]) / 2, (pb[1] + pb[3]) / 2
+    bx, by = (cb[0] + cb[2]) / 2, (cb[1] + cb[3]) / 2
+    dx, dy = bx - ax, by - ay
+    d = math.hypot(dx, dy)
+    if d < 1e-6:
+        return None
+    ux, uy = dx / d, dy / d
+
+    def exit_t(b, cx, cy, sgn):
+        ts = []
+        for c0, c1, u, cc in ((b[0], b[2], ux, cx), (b[1], b[3], uy, cy)):
+            if abs(u) > 1e-9:
+                ts.append(max((c0 - cc) / (sgn * u), (c1 - cc) / (sgn * u)))
+        return min(ts) if ts else 0.0
+    m = Wc * 0.014
+    t0 = exit_t(pb, ax, ay, 1) + m
+    t1 = d - exit_t(cb, bx, by, -1) - m
+    if t1 - t0 < Wc * 0.02:
+        return None
+    cap = Wc * 0.075
+    if t1 - t0 > cap:
+        mid = (t0 + t1) / 2
+        t0, t1 = mid - cap / 2, mid + cap / 2
+    return _sb_arrow((ax + ux * t0, ay + uy * t0), (ax + ux * t1, ay + uy * t1))
+
+
 def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     """Compose one storyboard scene; fills sec['title_st'/'items2'] and
     returns the next uid."""
@@ -1082,12 +1217,24 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                     'aspect': aspect, 'rel': rel, 'head': head,
                     'expr': expr, 'halo': m.get('halo') or '',
                     'rider': m.get('on_chart') or '',
-                    'label': ant.split('\n') if ant else [],
+                    'label': _sb_wrap(ant) if ant else [],
                     'rows': [str(r) for r in (m.get('rows') or [])]})
-    rel_ = str(scn.get('relation') or '').lower().strip()
+    rel_ = str(scn.get('relation') or '').lower().strip().replace(
+        '-', '_').replace(' ', '_')
+    words_ = ' '.join([str(beat.get('title') or ''),
+                       str(beat.get('caption') or '')]
+                      + [' '.join(e['label']) for e in els]).lower()
+    n_ppl = sum(1 for e in els if e['kind'] == 'person')
     if not rel_:
         if any(e['kind'] == 'chart-journey' for e in els):
             rel_ = 'journey'
+        elif re.search(r'\b(before|after|then vs now|used to)\b', words_):
+            rel_ = 'before_after'
+        elif re.search(r'\b(cycle|loop|repeat|flywheel|circular)\b',
+                       words_) and len(els) >= 3:
+            rel_ = 'cycle'
+        elif n_ppl >= 2 and len(els) - n_ppl >= 1:
+            rel_ = 'reaction'
         elif (any(e['kind'] == 'divider' for e in els)
               and any(e['kind'] == 'crowd' for e in els)):
             rel_ = 'contrast'
@@ -1097,6 +1244,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             rel_ = 'sequence'
     if rel_ != 'contrast':
         els = [e for e in els if e['kind'] != 'divider']
+    sec['divider'] = any(e['kind'] == 'divider' for e in els)
     if rel_ == 'focus':
         solid = [e for e in els if e['kind'] != 'divider']
         hero = next((e for e in solid if e['focus']),
@@ -1105,6 +1253,16 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         for e in solid:
             e['rel'] = 1.0 if e is hero else 0.55
             e['mid'] = e is not hero
+    lay = {'focus': 'focus', 'before_after': 'before_after',
+           'cycle': 'cycle', 'reaction': 'reaction',
+           'group_reaction': 'reaction', 'comparison': 'row',
+           'contrast': 'row', 'journey': 'journey'}.get(rel_, 'row')
+    lay = str(scn.get('layout') or lay)
+    prev_lay = plan.setdefault('_sb_layouts', {}).get(si - 1)
+    if lay == 'row' and rel_ not in ('contrast', 'comparison') \
+            and prev_lay == 'row' and not scn.get('layout') \
+            and len(els) >= 3:
+        lay = 'stair'
     sec['relation'] = rel_
     ls = H * 0.050
 
@@ -1157,7 +1315,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 blk = eh + (lh_ + lab_gap if lh_ else 0)
                 yb = band_t + (band_h - blk) / 2 + eh
                 e['box'] = (cx_ - ew / 2, yb - eh, cx_ + ew / 2, yb)
-    else:
+    elif not _sb_layout(lay, els, L, R, band_t, band_b,
+                        lambda e: _labh(e, ls), lab_gap):
+        lay = 'row'
         row = [e for e in els]
         n_l = max([len(e['label']) for e in row] + [0])
         for _it in range(8):
@@ -1192,6 +1352,11 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 yb_e = yb - (hr - eh) / 2 if e.get('mid') else yb
                 e['box'] = (cx_ - ew / 2, yb_e - eh, cx_ + ew / 2, yb_e)
             x += cxw + (gaps[i] if i < len(gaps) else 0.0)
+
+    if journey:
+        lay = 'journey'
+    plan['_sb_layouts'][si] = lay
+    sec['layout'] = lay
 
     # ---- strokes, labels, arrows --------------------------------------
     lead = min(1.2, (t1 - t0) * 0.14)
@@ -1264,7 +1429,25 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                ('chart' if e['kind'] == 'chart-journey' else 'el'))
         boxes.append((e['it'].get('label', '?'), e['ink'], tag))
         # arrow from the previous element (chains only, no dividers/riders)
-        if (not journey and prev is not None and e['kind'] != 'divider'
+        if (not journey and lay not in ('row', 'reaction')
+                and prev is not None
+                and (lay != 'before_after'
+                     or prev.get('ba_side') != e.get('ba_side'))):
+            ast = _sb_link(prev['ink'], e['ink'], Wc)
+            if ast:
+                groups.insert(0, (('arrow', ast, (0, 0), 90.0, None),
+                                  i0, i0 + slot * 0.10))
+                boxes.append(('arrow', _sb_bounds(s_[0] for s_ in ast),
+                              'arrow'))
+            if lay == 'cycle' and n_ == len(draw_els) - 1:
+                ast = _sb_link(e['ink'], draw_els[0]['ink'], Wc)
+                if ast:
+                    groups.append((('arrow', ast, (0, 0), 90.0, None),
+                                   i0 + slot * 0.98, i1))
+                    boxes.append(('arrow', _sb_bounds(s_[0] for s_ in ast),
+                                  'arrow'))
+        elif (not journey and lay == 'row' and prev is not None
+                and e['kind'] != 'divider'
                 and prev['kind'] != 'divider'):
             pb, cb_ = prev['ink'], e['ink']
             ya = min(pb[3], cb_[3]) - min(pb[3] - pb[1], cb_[3] - cb_[1]) * 0.42
