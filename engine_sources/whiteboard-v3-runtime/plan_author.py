@@ -459,7 +459,7 @@ _SB_DET = {'a', 'an', 'the', 'this', 'that', 'these', 'those', 'his', 'her',
 _SB_NOT_ROLE = {'morning', 'mornings', 'hour', 'hours', 'day', 'days', 'time',
                 'week', 'weeks', 'year', 'years', 'minute', 'minutes',
                 'night', 'evening', 'change', 'hands', 'hand', 'seconds',
-                'population', 'work'}
+                'population', 'work', 'today', 'tonight', 'another'}
 _SB_SUBJ = {'i', 'you', 'we', 'they', 'he', 'she', 'it', 'who', 'to'}
 _SB_ADV = {'back', 'away', 'past', 'again', 'around', 'over', 'through',
            'down', 'off', 'out', 'ahead', 'apart', 'together', 'time'}
@@ -484,6 +484,13 @@ def _noun_in_context(low: list, i: int, picked: set) -> bool:
     if w in _SB_ADV:
         return False
     if prev in _SB_DET:
+        return True
+    j = i - 1
+    while j > 0 and i - j <= 2 and _wn is not None and low[j] not in (
+            _SB_DET | _SB_SUBJ) and (_wn.synsets(low[j], 'a')
+                                     or _wn.synsets(low[j], 's')):
+        j -= 1
+    if j < i - 1:
         return True
     if prev in _SB_SUBJ:
         return False
@@ -596,6 +603,9 @@ def _sb_beats(script: str) -> list[tuple[str, str]]:
     for line in script.splitlines() + ['']:
         t = line.strip()
         if t.startswith('## '):
+            if paras:
+                out.append((head, ' '.join(paras)))
+                paras = []
             head = t[3:].strip()
             continue
         if t.startswith('#'):
@@ -702,7 +712,8 @@ def _step_note(sent: str, roles: list) -> None:
     obj = next((r for r in roles if r['label'] == tg), None) or next(
         (r for r in roles[1:] if not r.get('attach')), roles[1])
     ohead = obj['label'].split()[-1]
-    note = _caption_cut(words[at + 1:], 4)
+    note = re.sub(r'\s+(and|or|but|so)$', '',
+                  _caption_cut(words[at + 1:], 4))
     if note and ohead in {_lemma(w.lower()) for w in note.split()} | set(
             note.lower().split()) and not obj.get('annotate'):
         obj['annotate'] = note
@@ -753,6 +764,23 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             if len(w) < 3 or w in _STOP or w in seen:
                 continue
             nxt = low[i + 1] if i + 1 < len(low) else ''
+            if _wn is not None and i and _wn.synsets(w, 'v') and any(
+                    c[0] + len(c[1].split()) == i
+                    and (c[2] or w.endswith('s'))
+                    for c in cands):
+                continue
+            if nxt and i and low[i - 1] in _SB_DET and _wn is not None and (
+                    _wn.synsets(w, 'a') or _wn.synsets(w, 's')) and not any(
+                    h.name() == 'artifact.n.01' for x in _wn.synsets(w, 'n')[:2]
+                    for pth in x.hypernym_paths() for h in pth) and not (
+                    _wn.synsets(f'{w}_{nxt}') or v3.kit_exact(f'{w} {nxt}')) \
+                    and (_is_person(nxt) or _is_thing(nxt)):
+                continue
+            if nxt and _wn is not None and (_wn.synsets(w, 'a')
+                                            or _wn.synsets(w, 's')) \
+                    and not _is_physical(w) and (_is_person(nxt)
+                                                 or _is_thing(nxt)):
+                continue
             big = (f'{w} {_lemma(nxt)}' if nxt and nxt not in _STOP
                    else '')
             if big and ((_wn is not None and _wn.synsets(big.replace(' ', '_')))
@@ -780,7 +808,9 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             mod_det = bool(i >= 1 and prev_det(low, i - 1) and _wn is not None
                            and (_wn.synsets(prev_, 'a')
                                 or _wn.synsets(prev_, 's')))
-            if not verb_use and not adj_use and _is_person(w) \
+            adj_mod = bool(nxt and _wn is not None and _is_person(nxt)
+                           and (_wn.synsets(w, 'a') or _wn.synsets(w, 's')))
+            if not verb_use and not adj_use and not adj_mod and _is_person(w) \
                     and prev_ not in _SB_SUBJ and (
                     prev_ in _SB_DET or mod_det or not i or _is_thing(w)
                     or not (_wn and _wn.synsets(w, 'v'))):
@@ -791,13 +821,15 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 continue
             ic = v3.icon_for(_lemma(w), used)
             kit = isinstance(ic, tuple) and str(ic[1]).startswith('kit:')
-            if v3._is_emblem(ic) or not (kit or _is_physical(w)):
+            drawn = isinstance(ic, tuple) and v3.art_related(_lemma(w), ic)
+            if v3._is_emblem(ic) or not (kit or drawn or _is_physical(w)):
                 continue
             cands.append((i, _lemma(w), False))
             seen.add(w)
-        pro = re.match(r'\s*(she|he|they)\b', sent, re.I)
+        pro = re.search(r'\b(she|he|they)\b', sent, re.I)
         if pro and last_person and not any(c[2] for c in cands):
-            cands.append((0, last_person, True))
+            cands.append((len(_WORD_RE.findall(sent[:pro.start()])),
+                          last_person, True))
         if not any(c[2] for c in cands):
             m_ = re.search(r'\b(you|we|i)\b', sent, re.I)
             if m_ and (_SB_FEEL.search(sent) or _HOLD.search(sent)):
@@ -959,6 +991,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
         return roles, rel, marks, setting, last_person
 
     for bi, (heading, para) in enumerate(_sb_beats(script)):
+        compounds.clear()
         sents = [x for x in re.split(r'(?<=[.!?])\s+', para.strip())
                  if len(_WORD_RE.findall(x)) >= 3] or [para]
         if len(sents) == 1:

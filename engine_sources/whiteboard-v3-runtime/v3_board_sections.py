@@ -1811,6 +1811,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 continue
             e['m'].setdefault('target', tgt['j'])
             pb_, tb_ = e['box'], tgt['box']
+            hw_ = max(tb_[2] - tb_[0], _labw(tgt, ls)) / 2
+            tc_ = (tb_[0] + tb_[2]) / 2
+            tb_ = (tc_ - hw_, tb_[1], tc_ + hw_, tb_[3])
             gap_ = Wc * 0.012
             if (pb_[0] + pb_[2]) < (tb_[0] + tb_[2]):
                 dx_ = (tb_[0] - gap_) - pb_[2]
