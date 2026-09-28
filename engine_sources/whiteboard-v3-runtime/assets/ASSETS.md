@@ -64,6 +64,10 @@ which were AI-generated and vectorized as pipeline demos.
   default `--face condensed` display face; Regular carries plain text and
   ExtraBold carries active/emphasized words — the heavy condensed display
   look that fills lines at 9:16.
+- `Kalam-Regular.ttf` / `Kalam-Bold.ttf` — © Indian Type Foundry, SIL OFL
+  1.1 (`Kalam-OFL.txt`, from github.com/google/fonts). The storyboard
+  treatment's lettering: Bold for titles/card rows, Regular for labels and
+  quote captions, revealed letter by letter.
 - `OFL.txt` — the SIL Open Font License text covering the fonts above.
 - `hershey_occidental.json` — Hershey single-stroke vector font data
   (public domain; JSON encoding by scruss, dual CC0/WTFPL). 1570 glyphs —

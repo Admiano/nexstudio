@@ -28,6 +28,8 @@ from v3_board_renderer import (
     _composite_frame, _overlay_hand, _SLICE_SPAN, _arc,
 )
 from v3_board_renderer import text_strokes, text_width
+from v3_board_renderer import (font_text_strokes, font_text_width,
+                               font_metrics, font_ink_box)
 
 WIPE_SECONDS = 0.7
 THANKS_SECONDS = 1.8
@@ -94,7 +96,7 @@ def _vignette(frame: Image.Image, ratio: str) -> Image.Image:
     if m is None:
         vw, vh = wbp.RATIO_SIZES[ratio]
         g = Image.radial_gradient('L').resize((vw, vh))
-        m = g.point(lambda v: max(0, 255 - int(0.42 * max(0, v - 110))))
+        m = g.point(lambda v: max(0, 255 - int(0.16 * max(0, v - 150))))
         _VIGNETTES[ratio] = Image.merge('RGB', (m, m, m))
     from PIL import ImageChops
     return ImageChops.multiply(frame.convert('RGB'), _VIGNETTES[ratio])
@@ -688,6 +690,606 @@ def _sb_arrow(p0, p1):
             (a2, 'ink', 0.8, False, True)]
 
 
+# ---------------------------------------------------------------------------
+# storyboard scene composer: a fixed typographic grid per scene —
+#   title row   : "N." + heading on a translucent highlighter swash
+#   art row     : elements share one baseline, sized by role
+#   label lane  : each label centred under its own element, one shared top
+#   caption     : one quote line, centred, pastel underline
+# Archetypes: 'journey' (chart-led: riders stand on the line, remaining
+# elements in a column right of a dashed divider) or 'chain' (L->R row with
+# short arrows between neighbours; 1-2 elements simply stage larger).
+# Every box is audited for overlap and frame containment.
+# ---------------------------------------------------------------------------
+_SB_FT = 'hand-bold'
+_SB_FL = 'hand'
+
+
+def _sb_text(lines, x, y_top, size, font, align='center', color='ink'):
+    """Multi-line font lettering. align='center' centres each line on x,
+    'left' starts each line at x. Returns (strokes, ink bounds)."""
+    asc, desc = font_metrics(size, font)
+    lh = (asc + desc) * 0.80
+    st, bb = [], None
+    for i, ln in enumerate(lines):
+        w = font_text_width(ln, size, font)
+        x0 = x - w / 2 if align == 'center' else x
+        y = y_top + i * lh
+        st += font_text_strokes(ln, (x0, y), size, color, font)
+        b = font_ink_box(ln, (x0, y), size, font)
+        bb = b if bb is None else (min(bb[0], b[0]), min(bb[1], b[1]),
+                                   max(bb[2], b[2]), max(bb[3], b[3]))
+    return st, bb
+
+
+def _sb_text_dims(lines, size, font):
+    """(width, ink height, ink top offset) of a text block."""
+    _st, bb = _sb_text(lines, 0.0, 0.0, size, font, 'left')
+    return bb[2] - bb[0], bb[3] - bb[1], bb[1]
+
+
+def _sb_item_art(it):
+    """An item's drawable art in world coords (labels/captions/marks and
+    ground shadows dropped — the composer draws its own)."""
+    out = []
+    for g, _s, _e in it['groups']:
+        kind, strokes, center, size, _slot = g
+        if kind not in ('icon', 'glyph'):
+            continue
+        for st in strokes:
+            pts = st[0]
+            if not pts or len(pts) < 2 or len(pts[0]) < 2:
+                continue
+            ab = len(st) > 4 and st[4]
+            wp = (list(pts) if ab else
+                  [(center[0] + q[0] * size, center[1] + q[1] * size)
+                   for q in pts])
+            fl = st[3] if len(st) > 3 else False
+            if fl is True or (isinstance(fl, float)
+                              and not isinstance(fl, bool)):
+                sp = fl if isinstance(fl, float) else 0.075
+                fl = ('hatch', sp * (1.0 if ab else size))
+            out.append((wp, st[1], st[2], fl))
+    return out
+
+
+def _sb_bounds(pts_iter):
+    xs, ys = [], []
+    for pts in pts_iter:
+        for q in pts:
+            xs.append(q[0])
+            ys.append(q[1])
+    return (min(xs), min(ys), max(xs), max(ys)) if xs else None
+
+
+def _sb_fit(art, box):
+    """Scale art uniformly into box: centred horizontally, feet on the box
+    bottom. Returns (absolute strokes, placed ink bounds)."""
+    ab = _sb_bounds(a[0] for a in art)
+    if ab is None:
+        return [], box
+    aw, ah = max(1e-6, ab[2] - ab[0]), max(1e-6, ab[3] - ab[1])
+    k = min((box[2] - box[0]) / aw, (box[3] - box[1]) / ah)
+    ox = (box[0] + box[2]) / 2 - (ab[0] + ab[2]) / 2 * k
+    oy = box[3] - ab[3] * k
+    out = []
+    for pts, col, ws, fl in art:
+        c = _remap_col(col)
+        if isinstance(fl, tuple):
+            fl = 'solid' if c not in _INKY else float(fl[1] * k)
+        elif fl and fl not in ('solid', 'wash') and c not in _INKY:
+            fl = 'solid'
+        out.append(([(ox + q[0] * k, oy + q[1] * k) for q in pts],
+                    c, ws, fl, True))
+    return out, (ox + ab[0] * k, oy + ab[1] * k,
+                 ox + ab[2] * k, oy + ab[3] * k)
+
+
+def _sb_art_aspect(art):
+    ab = _sb_bounds(a[0] for a in art)
+    if ab is None:
+        return 1.0
+    return max(0.2, (ab[2] - ab[0]) / max(1e-6, ab[3] - ab[1]))
+
+
+def _sb_swash_poly(x0, y0, x1, y1, seed):
+    """Irregular highlighter swash: wobbling long edges, rounded ends."""
+    rnd = random.Random(seed)
+    h = y1 - y0
+    pts = []
+    n = 16
+    for i in range(n + 1):
+        x = x0 + (x1 - x0) * i / n
+        pts.append((x, y0 + rnd.uniform(-0.06, 0.06) * h))
+    for a in range(1, 8):
+        ang = -math.pi / 2 + math.pi * a / 8
+        pts.append((x1 + math.cos(ang) * h * 0.30,
+                    (y0 + y1) / 2 + math.sin(ang) * h / 2))
+    for i in range(n, -1, -1):
+        x = x0 + (x1 - x0) * i / n
+        pts.append((x, y1 + rnd.uniform(-0.06, 0.06) * h))
+    for a in range(1, 8):
+        ang = math.pi / 2 + math.pi * a / 8
+        pts.append((x0 + math.cos(ang) * h * 0.30,
+                    (y0 + y1) / 2 + math.sin(ang) * h / 2))
+    pts.append(pts[0])
+    return pts
+
+
+def _sb_blob(cx, cy, rx, ry, seed, n=22, jit=0.05):
+    rnd = random.Random(seed)
+    pts = []
+    for i in range(n):
+        a = 2 * math.pi * i / n
+        r = 1.0 + rnd.uniform(-jit, jit)
+        pts.append((cx + math.cos(a) * rx * r, cy + math.sin(a) * ry * r))
+    pts.append(pts[0])
+    return pts
+
+
+def _sb_crowd(box, seed=5):
+    """A composed group of small grey silhouettes of varied heights."""
+    x0, y0, x1, y1 = box
+    w, h = x1 - x0, y1 - y0
+    n = 5
+    st = []
+    hs = (0.92, 1.0, 0.80, 0.96, 0.86)
+    fw = w / n
+    for i in range(n):
+        cx = x0 + fw * (i + 0.5)
+        fh = h * hs[i]
+        top = y1 - fh
+        r = min(fw * 0.26, fh * 0.17)
+        hy = top + r
+        head = _sb_blob(cx, hy, r, r, seed + i * 3, 16, 0.04)
+        bt = hy + r * 1.25
+        bw = fw * 0.40
+        body = [(cx - bw, y1)]
+        for a in range(0, 11):
+            ang = math.pi + math.pi * a / 10
+            body.append((cx + math.cos(ang) * bw,
+                         bt + bw * 0.9 + math.sin(ang) * bw * 0.9))
+        body.append((cx + bw, y1))
+        body.append(body[0])
+        for shp in (head, body):
+            st.append((shp, 'pale', 1.0, 'solid', True))
+            st.append((shp, 'ink', 0.8, False, True))
+    return st
+
+
+def _sb_stack(box, rows, sw_col, seed=3):
+    """A hand-drawn stack of labelled cards with a pastel paper behind."""
+    x0, y0, x1, y1 = box
+    w, h = x1 - x0, y1 - y0
+    n = max(1, len(rows))
+    st = []
+    off = w * 0.05
+    back = [(x0 + off, y0 + off), (x1, y0 + off), (x1, y1),
+            (x0 + off, y1), (x0 + off, y0 + off)]
+    st.append((back, sw_col, 0.40, 'swash', True))
+    rh_ = (h - off) / n
+    fs = rh_ * 0.52
+    for rtxt in rows:
+        tw_ = font_text_width(rtxt, fs, _SB_FT)
+        if tw_ > (w - off) * 0.80:
+            fs *= (w - off) * 0.80 / tw_
+    for i, rtxt in enumerate(rows):
+        ry0, ry1 = y0 + rh_ * i, y0 + rh_ * (i + 1)
+        rx0, rx1 = x0, x1 - off
+        st.append(([(rx0, ry0), (rx1, ry0), (rx1, ry1), (rx0, ry1),
+                    (rx0, ry0)], 'paper', 1.0, 'solid', True))
+        for ei, (q0, q1) in enumerate((((rx0, ry0), (rx1, ry0)),
+                                       ((rx1, ry0), (rx1, ry1)),
+                                       ((rx1, ry1), (rx0, ry1)),
+                                       ((rx0, ry1), (rx0, ry0)))):
+            st.append((_wobble_line(q0, q1, n=9, wob=rh_ * 0.03,
+                                    seed=seed + i * 17 + ei * 5),
+                       'ink', 1.0, False, True))
+        _dw, dh, dtop = _sb_text_dims([rtxt], fs, _SB_FT)
+        ty = (ry0 + ry1) / 2 - dh / 2 - dtop
+        tst, _bb = _sb_text([rtxt], rx0 + (rx1 - rx0) * 0.09, ty, fs,
+                            _SB_FT, 'left')
+        st += tst
+    return st
+
+
+def _sb_divider(x, y0, y1):
+    st = []
+    seg = (y1 - y0) / 13
+    y = y0
+    i = 0
+    while y + seg * 0.55 <= y1:
+        st.append((_wobble_line((x, y), (x, y + seg * 0.55), n=4, wob=1.2,
+                                seed=i * 7 + 3), 'ink', 0.7, False, True))
+        y += seg
+        i += 1
+    return st
+
+
+_SB_JOURNEY = [(0.0, 0.62), (0.24, 0.0), (0.33, 0.30), (0.37, 0.24),
+               (0.46, 0.64), (0.50, 0.57), (0.57, 1.0), (0.64, 0.62),
+               (0.68, 0.70), (0.79, 0.30), (0.83, 0.38), (1.0, 0.0)]
+_SB_ANCH = {'peak': (0.24, 0.0), 'valley': (0.57, 1.0), 'rise': (0.79, 0.30)}
+
+
+def _sb_chart(box):
+    x0, y0, x1, y1 = box
+    w, h = x1 - x0, y1 - y0
+    pts = [(x0 + u * w, y0 + v * h) for u, v in _SB_JOURNEY]
+    st = []
+    for i in range(len(pts) - 1):
+        st.append((_wobble_line(pts[i], pts[i + 1], n=10, wob=w * 0.004,
+                                seed=i * 11 + 7), 'ink', 1.15, False, True))
+    en, md = pts[-1], pts[-2]
+    ang = math.atan2(en[1] - md[1], en[0] - md[0])
+    ah = w * 0.045
+    for sgn in (-1, 1):
+        st.append(([en, (en[0] - ah * math.cos(ang + sgn * 0.5),
+                         en[1] - ah * math.sin(ang + sgn * 0.5))],
+                   'ink', 1.15, False, True))
+    segs = []
+    for a_, b_ in zip(pts, pts[1:]):
+        for ti in range(6):
+            q0 = (a_[0] + (b_[0] - a_[0]) * ti / 6,
+                  a_[1] + (b_[1] - a_[1]) * ti / 6)
+            q1 = (a_[0] + (b_[0] - a_[0]) * (ti + 1) / 6,
+                  a_[1] + (b_[1] - a_[1]) * (ti + 1) / 6)
+            segs.append((min(q0[0], q1[0]) - 3, min(q0[1], q1[1]) - 3,
+                         max(q0[0], q1[0]) + 3, max(q0[1], q1[1]) + 3))
+    return st, segs
+
+
+def _sb_expr(name, fb, col):
+    """Expression overlay for a figure's box (head at the top)."""
+    x0, y0, x1, y1 = fb
+    w, h = x1 - x0, y1 - y0
+    cx = (x0 + x1) / 2
+    if name == 'halo':
+        return [(_sb_blob(cx, y0 + h * 0.42, max(w * 0.85, h * 0.36),
+                          h * 0.52, 9, 24, 0.03), col, 0.26, 'swash', True)]
+    if name == 'thinking':
+        r = h * 0.075
+        bx, by = x1 + r * 0.9, y0 - r * 0.4
+        st = [(_sb_blob(bx, by, r * 1.35, r, 4, 18, 0.10),
+               'ink', 0.8, False, True)]
+        st.append((_sb_blob(cx + w * 0.28, y0 + h * 0.02, r * 0.24,
+                            r * 0.24, 6, 10, 0.0), 'ink', 0.8, False, True))
+        st.append((_sb_blob(cx + w * 0.40, y0 - h * 0.03, r * 0.36,
+                            r * 0.36, 7, 10, 0.0), 'ink', 0.8, False, True))
+        return st
+    if name == 'exclaim':
+        st = []
+        for i, dx in enumerate((-0.10, 0.02, 0.14)):
+            xa = x1 + w * dx
+            ya = y0 - h * 0.02 + abs(dx) * h * 0.2
+            st.append(([(xa - w * 0.02, ya), (xa, ya + h * 0.09)],
+                       'a_red', 1.3, False, True))
+            st.append((_sb_blob(xa + w * 0.005, ya + h * 0.12, h * 0.008,
+                                h * 0.008, i, 8, 0.0),
+                       'a_red', 1.3, False, True))
+        return st
+    return []
+
+
+def _sb_ovl(a, b, pad=0.0):
+    return not (a[2] + pad <= b[0] or b[2] + pad <= a[0]
+                or a[3] + pad <= b[1] or b[3] + pad <= a[1])
+
+
+def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
+    """Compose one storyboard scene; fills sec['title_st'/'items2'] and
+    returns the next uid."""
+    beat = sec['beat']
+    items = sec['items']
+    k = len(items)
+    sw_col = _SWASH[si % len(_SWASH)]
+    mx = W * 0.065
+    Wc = W - 2 * mx
+    L, R = -W / 2 + mx, W / 2 - mx
+    top = -H / 2 + H * 0.075
+    audit = []
+    boxes = []                      # (name, box, tag)
+
+    # ---- title row ----------------------------------------------------
+    ttl = str(beat.get('title') or sec.get('label') or '').strip()
+    ts = H * 0.088
+    tst, title_bb = [], (L, top, L, top)
+    if ttl:
+        mnum = re.match(r'^\s*(\d+\.)\s*(.*)$', ttl)
+        num, words = (mnum.group(1), mnum.group(2)) if mnum else ('', ttl)
+        while (font_text_width(num + '  ' + words, ts, _SB_FT) > Wc * 0.9
+               and ts > H * 0.05):
+            ts *= 0.94
+        xw = L
+        nst = []
+        if num:
+            nst, nbb = _sb_text([num], L, top, ts, _SB_FT, 'left')
+            xw = nbb[2] + ts * 0.42
+        wst, wbb = _sb_text([words], xw + ts * 0.18, top, ts, _SB_FT,
+                            'left')
+        ih = wbb[3] - wbb[1]
+        sw = _sb_swash_poly(wbb[0] - ts * 0.10, wbb[1] + ih * 0.12,
+                            wbb[2] + ts * 0.10, wbb[3] + ih * 0.10,
+                            seed=si * 31 + 7)
+        tst = [(sw, sw_col, 0.36, 'swash', True)] + nst + wst
+        title_bb = _sb_bounds([s_[0] for s_ in tst])
+        boxes.append(('title', title_bb, 'title'))
+    sec['title_st'] = tst
+
+    # ---- caption ------------------------------------------------------
+    cap = str(beat.get('caption') or '').strip()
+    cs = H * 0.058
+    cap_st, cap_bb = [], None
+    cap_top = H / 2 - H * 0.07
+    if cap:
+        while font_text_width(cap, cs, _SB_FL) > Wc * 0.84 and cs > H * 0.03:
+            cs *= 0.95
+        cw_, chh, ctop = _sb_text_dims([cap], cs, _SB_FL)
+        cy = H / 2 - H * 0.105 - chh - ctop
+        cap_st, cap_bb = _sb_text([cap], 0.0, cy, cs, _SB_FL, 'center')
+        uy = cap_bb[3] + H * 0.018
+        und = _wobble_line((cap_bb[0] + cw_ * 0.02, uy),
+                           (cap_bb[2] - cw_ * 0.02, uy),
+                           n=22, wob=1.4, seed=si * 13 + 5)
+        cap_st.append((und, sw_col, 2.3, False, True))
+        cap_bb = (cap_bb[0], cap_bb[1], cap_bb[2], uy + 3)
+        cap_top = cap_bb[1]
+        boxes.append(('caption', cap_bb, 'caption'))
+
+    band_t = title_bb[3] + H * 0.075
+    band_b = cap_top - H * 0.065
+    band_h = band_b - band_t
+    sec['content'] = (L, band_t, Wc, band_h)
+
+    # ---- element model -------------------------------------------------
+    scn = beat.get('scene') or {}
+    raw_roles = ([scn.get('heroRole') or {}]
+                 + list(scn.get('supportingRoles') or []))
+    meta = [(raw_roles[j] if j < len(raw_roles) else {}) for j in range(k)]
+    els = []
+    for j, it in enumerate(items):
+        m = meta[j]
+        gl = m.get('glyph') or ''
+        person = any((g[4] or {}).get('icon') == 'person'
+                     for g, _s, _e in it['groups'] if g[4])
+        kind = (gl if gl in _SB_GLYPHS else
+                ('person' if person else 'art'))
+        art = [] if gl in _SB_GLYPHS else _sb_item_art(it)
+        if kind in ('person', 'art') and not art:
+            continue
+        expr = m.get('expression') or ''
+        head = 1.30 if (kind == 'person' and expr) else 1.0
+        aspect = {'stack-list': 1.30, 'crowd': 1.55, 'chart-journey': 1.7,
+                  'divider': 0.0}.get(kind)
+        if aspect is None:
+            aspect = _sb_art_aspect(art) / head
+        rel = {'stack-list': 0.92, 'crowd': 0.60, 'person': 1.0,
+               'chart-journey': 1.0, 'divider': 1.0}.get(
+                   kind, 0.88 if j == 0 else 0.74)
+        ant = str(m.get('annotate') or '').strip()
+        els.append({'j': j, 'it': it, 'm': m, 'kind': kind, 'art': art,
+                    'aspect': aspect, 'rel': rel, 'head': head,
+                    'expr': expr, 'halo': m.get('halo') or '',
+                    'rider': m.get('on_chart') or '',
+                    'label': ant.split('\n') if ant else [],
+                    'rows': [str(r) for r in (m.get('rows') or [])]})
+    ls = H * 0.050
+
+    def _labw(e, size):
+        return (_sb_text_dims(e['label'], size, _SB_FL)[0]
+                if e['label'] else 0.0)
+
+    def _labh(e, size):
+        return (_sb_text_dims(e['label'], size, _SB_FL)[1]
+                if e['label'] else 0.0)
+
+    chart_segs = []
+    journey = any(e['kind'] == 'chart-journey' for e in els)
+    lab_gap = H * 0.028
+    if journey:
+        ch_e = next(e for e in els if e['kind'] == 'chart-journey')
+        riders = [e for e in els if e['rider']]
+        others = [e for e in els if e is not ch_e and not e['rider']
+                  and e['kind'] != 'divider']
+        divs = [e for e in els if e['kind'] == 'divider']
+        cwj = Wc * (0.60 if others else 0.92)
+        rider_h = band_h * 0.42
+        lane_b = max([_labh(e, ls) for e in riders if e['rider'] == 'valley']
+                     + [0.0]) + lab_gap
+        cb = (L + (Wc * 0.08 if riders and riders[0]['label'] else 0.0),
+              band_t + rider_h, L + cwj, band_b - lane_b)
+        ch_e['box'] = cb
+        ch_e['st'], chart_segs = _sb_chart(cb)
+        for e in riders:
+            u, v = _SB_ANCH.get(e['rider'], _SB_ANCH['peak'])
+            px_, py_ = cb[0] + u * (cb[2] - cb[0]), cb[1] + v * (cb[3] - cb[1])
+            fh = rider_h * 0.86
+            fw = fh * e['aspect']
+            e['box'] = (px_ - fw / 2, py_ - fh * e['head'],
+                        px_ + fw / 2, py_ + fh * 0.04)
+            e['pt'] = (px_, py_)
+        xcol0 = cb[2] + Wc * 0.09
+        for e in divs:
+            e['box'] = (cb[2] + Wc * 0.045 - 1, band_t,
+                        cb[2] + Wc * 0.045 + 1, band_b)
+        if others:
+            colw = (R - xcol0) / len(others)
+            for i, e in enumerate(others):
+                lh_ = _labh(e, ls)
+                hmax = band_h - (lh_ + lab_gap if lh_ else 0) - band_h * 0.04
+                eh = min(hmax * e['rel'], colw * 0.9 / max(0.2, e['aspect'])
+                         * 1.0)
+                ew = eh * e['aspect']
+                cx_ = xcol0 + colw * (i + 0.5)
+                blk = eh + (lh_ + lab_gap if lh_ else 0)
+                yb = band_t + (band_h - blk) / 2 + eh
+                e['box'] = (cx_ - ew / 2, yb - eh, cx_ + ew / 2, yb)
+    else:
+        row = [e for e in els]
+        n_l = max([len(e['label']) for e in row] + [0])
+        for _it in range(8):
+            lane = (max([_labh(e, ls) for e in row] + [0.0]) + lab_gap
+                    if n_l else 0.0)
+            gaps = []
+            for a_, b_ in zip(row, row[1:]):
+                dv = 'divider' in (a_['kind'], b_['kind'])
+                gaps.append(Wc * (0.04 if dv else 0.085))
+            hr = (band_h - lane) * 0.96
+            for _s in range(40):
+                cols = [(0.0 if e['kind'] == 'divider' else
+                         max(e['aspect'] * e['rel'] * hr,
+                             _labw(e, ls) + Wc * 0.01)) for e in row]
+                if sum(cols) + sum(gaps) <= Wc or hr < band_h * 0.25:
+                    break
+                hr *= 0.96
+            if sum(cols) + sum(gaps) <= Wc:
+                break
+            ls *= 0.92
+        tot = sum(cols) + sum(gaps)
+        x = -tot / 2
+        yb = band_t + (band_h - (hr + lane)) / 2 + hr
+        for i, e in enumerate(row):
+            cxw = cols[i]
+            if e['kind'] == 'divider':
+                e['box'] = (x - 1, yb - hr, x + 1, yb + lane)
+            else:
+                eh = e['rel'] * hr
+                ew = e['aspect'] * eh
+                cx_ = x + cxw / 2
+                e['box'] = (cx_ - ew / 2, yb - eh, cx_ + ew / 2, yb)
+            x += cxw + (gaps[i] if i < len(gaps) else 0.0)
+
+    # ---- strokes, labels, arrows --------------------------------------
+    lead = min(1.2, (t1 - t0) * 0.14)
+    cap_d = 1.2 if cap else 0.0
+    hold = 0.9
+    win0, win1 = t0 + lead, max(t0 + lead + 0.5, t1 - 0.62 - hold - cap_d)
+    draw_els = [e for e in els]
+    slot = (win1 - win0) / max(1, len(draw_els))
+    out_items = []
+    prev = None
+    for n_, e in enumerate(draw_els):
+        uid += 1
+        i0 = win0 + n_ * slot
+        i1 = i0 + slot
+        groups = []
+        b = e['box']
+        lwsize = min(150.0, max(80.0, (b[3] - b[1]) * 0.55))
+        fig_b = b
+        if e['kind'] == 'divider':
+            art_st = _sb_divider((b[0] + b[2]) / 2, b[1], b[3])
+            lwsize = 1.0
+        elif e['kind'] == 'chart-journey':
+            art_st = e['st']
+            fig_b = b
+        elif e['kind'] == 'crowd':
+            art_st = _sb_crowd(b, seed=si * 5 + 1)
+        elif e['kind'] == 'stack-list':
+            art_st = _sb_stack(b, e['rows'], sw_col, seed=si * 7 + 3)
+            lwsize = 90.0
+        else:
+            fb = (b[0], b[3] - (b[3] - b[1]) / e['head'], b[2], b[3])
+            art_st, fig_b = _sb_fit(e['art'], fb)
+            if e['kind'] == 'person':
+                gy = fig_b[3]
+                gw = (fig_b[2] - fig_b[0]) * 0.55
+                gx = (fig_b[0] + fig_b[2]) / 2
+                art_st.append((_wobble_line((gx - gw, gy + 2),
+                                            (gx + gw, gy + 2), n=8, wob=1.0,
+                                            seed=uid), 'pale', 1.0, False,
+                               True))
+        if e['halo'] and e['kind'] == 'person':
+            groups.append((('marks', _sb_expr('halo', fig_b, e['halo']),
+                            (0, 0), 1.0, None), i0, i0 + slot * 0.20))
+        groups.append((('icon', art_st, (0, 0), lwsize, None),
+                       i0 + slot * 0.08, i0 + slot * 0.62))
+        if e['expr'] and e['kind'] == 'person':
+            ex = _sb_expr(e['expr'], fig_b, e['halo'] or 'a_red')
+            groups.append((('marks', ex, (0, 0), 100.0, None),
+                           i0 + slot * 0.62, i0 + slot * 0.72))
+            eb = _sb_bounds(s_[0] for s_ in ex)
+            if eb:
+                fig_b = (min(fig_b[0], eb[0]), min(fig_b[1], eb[1]),
+                         max(fig_b[2], eb[2]), max(fig_b[3], eb[3]))
+        e['ink'] = (fig_b if e['kind'] not in ('divider',) else b)
+        tag = ('rider' if e['rider'] else
+               ('chart' if e['kind'] == 'chart-journey' else 'el'))
+        boxes.append((e['it'].get('label', '?'), e['ink'], tag))
+        # arrow from the previous element (chains only, no dividers/riders)
+        if (not journey and prev is not None and e['kind'] != 'divider'
+                and prev['kind'] != 'divider'):
+            pb, cb_ = prev['ink'], e['ink']
+            ya = min(pb[3], cb_[3]) - min(pb[3] - pb[1], cb_[3] - cb_[1]) * 0.42
+            xa0, xa1 = pb[2] + Wc * 0.014, cb_[0] - Wc * 0.014
+            ln_ = xa1 - xa0
+            if ln_ > Wc * 0.02:
+                if ln_ > Wc * 0.075:
+                    mid = (xa0 + xa1) / 2
+                    xa0, xa1 = mid - Wc * 0.0375, mid + Wc * 0.0375
+                ast = _sb_arrow((xa0, ya), (xa1, ya))
+                groups.insert(0, (('arrow', ast, (0, 0), 90.0, None),
+                                  i0, i0 + slot * 0.10))
+                boxes.append(('arrow', _sb_bounds(s_[0] for s_ in ast),
+                              'arrow'))
+        prev = e
+        # label: fixed slot for its element
+        if e['label']:
+            lw_, lh_, ltop = _sb_text_dims(e['label'], ls, _SB_FL)
+            ib = e['ink']
+            if e['rider'] == 'valley':
+                px_, py_ = e['pt']
+                lx, ly, al = px_, py_ + lab_gap * 0.8, 'center'
+            elif e['rider'] == 'peak':
+                lx = ib[0] - Wc * 0.012 - lw_
+                ly = (ib[1] + ib[3]) / 2 - lh_ / 2
+                al = 'left'
+            elif e['rider']:
+                lx = ib[2] + Wc * 0.012
+                ly = (ib[1] + ib[3]) / 2 - lh_ / 2
+                al = 'left'
+            else:
+                lx, ly, al = (ib[0] + ib[2]) / 2, b[3] + lab_gap, 'center'
+            lst, lbb = _sb_text(e['label'], lx, ly - ltop, ls, _SB_FL, al)
+            groups.append((('plabel', lst, (0, 0), 1.0, None),
+                           i0 + slot * 0.72, i0 + slot * 0.98))
+            boxes.append(('label:' + ' '.join(e['label']), lbb, 'label'))
+        out_items.append({'groups': groups, 'bounds2': e['ink'],
+                          'uid': uid, 'fade': fade, 'kind': 'elem',
+                          't_window': (i0, i1),
+                          'label': e['it'].get('label', '')})
+    if cap_st:
+        uid += 1
+        ct0 = win1 + 0.05
+        out_items.append({'groups': [(('plabel', cap_st, (0, 0), 90.0, None),
+                                      ct0, ct0 + cap_d)],
+                          'bounds2': cap_bb, 'uid': uid, 'fade': fade,
+                          'kind': 'elem', 't_window': (ct0, ct0 + cap_d)})
+    sec['items2'] = out_items
+
+    # ---- audit: pairwise overlap + frame containment ------------------
+    fx0, fy0, fx1, fy1 = (-W / 2 + W * 0.025, -H / 2 + H * 0.03,
+                          W / 2 - W * 0.025, H / 2 - H * 0.03)
+    for i in range(len(boxes)):
+        na, A, ta = boxes[i]
+        if A[0] < fx0 or A[1] < fy0 or A[2] > fx1 or A[3] > fy1:
+            audit.append(('off-frame', na))
+        for jj in range(i + 1, len(boxes)):
+            nb, B, tb = boxes[jj]
+            if {ta, tb} in ({'rider', 'chart'}, {'rider'}):
+                continue
+            if tb == 'label' and ta == 'chart' or ta == 'label' and tb == 'chart':
+                lb = A if ta == 'label' else B
+                if any(_sb_ovl(lb, sg) for sg in chart_segs):
+                    audit.append((na, nb))
+                continue
+            if _sb_ovl(A, B, 2.0):
+                audit.append((na, nb))
+    if audit:
+        plan.setdefault('_sb_audit', []).append({'beat': si,
+                                                 'issues': audit})
+    return uid
+
+
 def _build(plan, ratio):
     """Precompute boards/sections/items/timing; cached per plan+ratio."""
     cache = plan.setdefault('_bs_flow', {})
@@ -857,6 +1459,9 @@ def _build(plan, ratio):
                        else (t1, t1 + WIPE_SECONDS * 0.8))
         if not k:
             sec['items2'] = []
+            continue
+        if storyboard:
+            uid = _sb_scene(sec, si, plan, W, H, t0, t1, sec['fade'], uid)
             continue
         # title draws first, then items ink one at a time in beat order
         lead = min(0.9, dur * 0.15) if ttl else 0.0
@@ -1505,6 +2110,12 @@ def _build(plan, ratio):
         th_w = text_width('Thanks', th_h)
     th = text_strokes('Thanks', (th_cx - th_w / 2, th_cy - th_h / 2),
                       th_h, 'ink', 1.3)
+    if storyboard:
+        fs_ = th_h * 0.95
+        th_w = font_text_width('Thanks', fs_, _SB_FT)
+        _dw, dh_, dt_ = _sb_text_dims(['Thanks'], fs_, _SB_FT)
+        th, _bb = _sb_text(['Thanks'], th_cx, th_cy - dh_ / 2 - dt_, fs_,
+                           _SB_FT, 'center')
     hx = th_cx + th_w / 2 + th_h * 0.62
     if hx + th_h * 0.5 > bx0 + bw:
         hx = th_cx - th_w / 2 - th_h * 0.62
@@ -1576,6 +2187,9 @@ def _travel_tip(flow, ratio, cam, zoom, t):
             nxt = (s, p0)
     if nxt is None:
         return None
+    if prev is not None and nxt[0] - prev[0] > 1.2 \
+            and t - prev[0] > 0.35 and nxt[0] - t > 0.55:
+        return None                  # long hold: the hand steps off
     if prev is None or prev[0] >= nxt[0]:
         tip_w = nxt[1]
     else:

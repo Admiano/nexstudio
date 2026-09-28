@@ -741,6 +741,84 @@ def text_width(text: str, height: float) -> float:
     return x
 
 
+
+# -- font lettering (Kalam, SIL OFL 1.1) ------------------------------------
+# Bold casual handwriting revealed letter by letter. Each character is one
+# 'ftext' stroke whose points are its world box diagonal; the draw layer
+# rasterizes the glyph at screen size and wipes it in left to right.
+
+_FONT_FILES = {'hand': 'Kalam-Regular.ttf', 'hand-bold': 'Kalam-Bold.ttf'}
+_FONT_CACHE: dict = {}
+_GLYPH_CACHE: dict = {}
+
+
+def _font(key: str, px: int):
+    from PIL import ImageFont
+    k = (key, px)
+    f = _FONT_CACHE.get(k)
+    if f is None:
+        f = ImageFont.truetype(str(_FONT_DIR / _FONT_FILES[key]), px)
+        _FONT_CACHE[k] = f
+    return f
+
+
+_FONT_REF_PX = 200
+
+
+def font_metrics(size: float, font: str = 'hand'):
+    """(ascent, descent) in world units for a font size."""
+    a, d = _font(font, _FONT_REF_PX).getmetrics()
+    return a * size / _FONT_REF_PX, d * size / _FONT_REF_PX
+
+
+def font_text_width(text: str, size: float, font: str = 'hand') -> float:
+    return _font(font, _FONT_REF_PX).getlength(text) * size / _FONT_REF_PX
+
+
+def font_ink_box(text: str, origin, size: float, font: str = 'hand'):
+    """Tight world bounds of the actual ink (origin = top-left of line)."""
+    f = _font(font, _FONT_REF_PX)
+    bb = f.getbbox(text, anchor='la')
+    k = size / _FONT_REF_PX
+    return (origin[0] + bb[0] * k, origin[1] + bb[1] * k,
+            origin[0] + bb[2] * k, origin[1] + bb[3] * k)
+
+
+def font_text_strokes(text: str, origin, size: float, color='ink',
+                      font: str = 'hand'):
+    """Letter strokes for `text`; origin is the line's top-left (ascender
+    line) in world space."""
+    f = _font(font, _FONT_REF_PX)
+    k = size / _FONT_REF_PX
+    out = []
+    for i, ch in enumerate(text):
+        if ch.isspace():
+            continue
+        x = origin[0] + f.getlength(text[:i]) * k
+        bb = f.getbbox(ch, anchor='la')
+        pts = [(x + bb[0] * k, origin[1] + bb[1] * k),
+               (x + bb[2] * k, origin[1] + bb[3] * k)]
+        out.append((pts, color, 1.0, 'ftext', True, ch, size, font,
+                    (x, origin[1])))
+    return out
+
+
+def _glyph_img(ch, font, px, col):
+    k = (ch, font, px, col)
+    im = _GLYPH_CACHE.get(k)
+    if im is None:
+        f = _font(font, px)
+        bb = f.getbbox(ch, anchor='la')
+        w, h = max(1, bb[2] - bb[0] + 2), max(1, bb[3] - bb[1] + 2)
+        im = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+        ImageDraw.Draw(im).text((1 - bb[0], 1 - bb[1]), ch, font=f,
+                                fill=col, anchor='la')
+        if len(_GLYPH_CACHE) > 6000:
+            _GLYPH_CACHE.clear()
+        _GLYPH_CACHE[k] = im
+    return im
+
+
 # -- drawing hand ------------------------------------------------------------
 
 _HAND_IMG = None
@@ -753,9 +831,28 @@ def _hand():
     if _HAND_IMG is None:
         for p in (_HAND_PATH, _HAND_PATH_ALT):
             if p.exists():
-                _HAND_IMG = Image.open(p).convert('RGBA')
+                _HAND_IMG = _extend_arm(Image.open(p).convert('RGBA'))
                 break
     return _HAND_IMG
+
+
+def _extend_arm(img: Image.Image, reach: float = 1.6) -> Image.Image:
+    """Continue the forearm past the sprite's cut edge (down-right) so the
+    arm always runs off-frame instead of ending in a hard square edge."""
+    w, h = img.size
+    dx, dy = 1.0, 0.9
+    n = math.hypot(dx, dy)
+    dx, dy = dx / n, dy / n
+    ext = int(max(w, h) * reach)
+    out = Image.new('RGBA', (w + int(ext * dx) + 4, h + int(ext * dy) + 4),
+                    (0, 0, 0, 0))
+    cut = img.crop((int(w * 0.72), int(h * 0.72), w, h))
+    ox, oy = int(w * 0.72), int(h * 0.72)
+    step = 3
+    for i in range(ext, 0, -step):
+        out.paste(cut, (ox + int(i * dx), oy + int(i * dy)), cut)
+    out.paste(img, (0, 0), img)
+    return out
 
 
 def _overlay_hand(frame: Image.Image, tip, ratio: str, wobble: float = 0.0):
@@ -2275,6 +2372,43 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             if 0 < p < 1:
                 tip = _stroke_tip(pts_s, p)
             continue
+        if fill == 'ftext':
+            ch, fsize, fkey = st[5], st[6], st[7]
+            px_ = max(6, int(round(fsize * scale * zoom)))
+            im = _glyph_img(ch, fkey, px_, tuple(colors[col]))
+            x0s, y0s = pts_s[0]
+            edge = max(1, int(im.width * wbp._clamp(p)))
+            part = im.crop((0, 0, edge, im.height)) if edge < im.width else im
+            layer.paste(part, (int(round(x0s)) - 1, int(round(y0s)) - 1),
+                        part)
+            if 0 < p < 1:
+                tip = (x0s + edge, y0s + im.height * 0.55)
+            continue
+        if fill == 'swash':
+            # highlighter pass: translucent pastel mass, no outline, swept
+            # left to right under the lettering
+            fp = wbp._clamp(p)
+            xs = [q[0] for q in pts_s]
+            ys = [q[1] for q in pts_s]
+            bx0, bx1 = min(xs) - 2, max(xs) + 2
+            by0, by1 = min(ys) - 2, max(ys) + 2
+            bw_ = max(2, int(bx1 - bx0))
+            bh_ = max(2, int(by1 - by0))
+            edge = max(1, int(bw_ * fp))
+            mask = Image.new('L', (edge, bh_), 0)
+            ImageDraw.Draw(mask).polygon(
+                [(x - bx0, y - by0) for x, y in pts_s], fill=int(255 * wscale))
+            fc = colors[col]
+            tile = Image.new('RGBA', (edge, bh_), (fc[0], fc[1], fc[2], 0))
+            tile.putalpha(mask)
+            ox_, oy_ = int(bx0), int(by0)
+            cx0_, cy0_ = max(0, -ox_), max(0, -oy_)
+            if cx0_ < edge and cy0_ < bh_:
+                layer.alpha_composite(tile.crop((cx0_, cy0_, edge, bh_)),
+                                      (ox_ + cx0_, oy_ + cy0_))
+            if 0 < p < 1:
+                tip = (bx0 + edge, (by0 + by1) / 2)
+            continue
         if fill == 'solid':
             # flat color mass: outline inks first, then the fill sweeps in
             # left-to-right like a marker flood — the reference's saturated
@@ -2302,7 +2436,8 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
                 tile = Image.new('RGBA', (edge, bh_),
                                  (fc[0], fc[1], fc[2], 225))
                 layer.paste(tile, (int(bx0), int(by0)), mask)
-                tip = (bx0 + edge, (by0 + by1) / 2)
+                if fp < 1:
+                    tip = (bx0 + edge, (by0 + by1) / 2)
             continue
         if fill == 'wash':
             # soft pastel wash: low-alpha color mass blooming in behind the
