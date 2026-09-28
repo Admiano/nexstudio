@@ -423,10 +423,12 @@ _HOLD = re.compile(r'\b(us(e|es|ing)|hold\w*|carr(y|ies)|grab\w*|'
 _ACT_CUES = (
     ('reach', r'\b(pick\w*|reach\w*|grab\w*|touch\w*|press\w*|grind\w*|'
               r'heat(s|ed|ing)?|wash\w*|fix\w*|build\w*|plant(s|ed|ing)?|'
-              r'open(s|ed|ing)?|feed\w*|cook\w*)\b'),
+              r'open(s|ed|ing)?|feed\w*|cook\w*|rid(e|es|ing)|rode|'
+              r'catch\w*|fly(ing)?|steer\w*|repair\w*)\b'),
     ('offer', r'\b(pour\w*|offer\w*|giv(e|es|ing)|serv\w*|hand(s|ed)?)\b'),
     ('point', r'\b(point\w*|show\w*|explain\w*|teach\w*|train\w*|'
-              r'warn\w*)\b'),
+              r'warn\w*|brought|bring\w*|lead\w*|guid\w*|releas\w*|argu\w*|'
+              r'defend\w*)\b'),
     ('wave', r'\b(wav\w*|greet\w*|call\w*)\b'),
 )
 # place nouns the backdrop draws better than an icon can
@@ -492,7 +494,14 @@ def _noun_in_context(low: list, i: int, picked: set) -> bool:
 _AGENT = re.compile(r'(er|or|ist|ian|ista|ant|ent)s?$')
 
 
+_KIT_ANIMALS = frozenset(json.loads(
+    (Path(__file__).resolve().parent / 'assets' / 'kits' / 'animals'
+     / 'index.json').read_text(encoding='utf-8'))['glyphs'])
+
+
 def _is_animal(w: str) -> bool:
+    if _lemma(w) in _KIT_ANIMALS:
+        return True
     if _wn is None:
         return False
     syn = _wn.synsets(_lemma(w), 'n')[:2]
@@ -739,7 +748,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                     roles[b_].update(attach=prep, to=host)
                 break
         for a_, (i, _l, person) in enumerate(pick):
-            if person and 'action' not in roles[a_]:
+            if (person or _is_animal(_l)) and 'action' not in roles[a_]:
                 tail = ' '.join(low[i:i + 7])
                 hit = min(((m_.start(), a) for a, pat in _ACT_CUES
                            for m_ in [re.search(pat, tail)] if m_),

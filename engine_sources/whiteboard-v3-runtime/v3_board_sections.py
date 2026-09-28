@@ -87,7 +87,7 @@ def _colors(plan):
             if re.match(r'^#[0-9a-fA-F]{6}$', _t):
                 cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16),
                             int(_t[5:7], 16), 255)
-    for _t in (sb_cast.FILL, sb_cast.SHADE) + sb_cast.SHIRTS:
+    for _t in (sb_cast.FILL, sb_cast.SHADE) + sb_cast.SHIRTS + sb_cast.TONES:
         cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16), int(_t[5:7], 16), 255)
     return cols
 
@@ -1561,7 +1561,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             body, marks, _hb = sb_cast.figure(
                 emo, False, m.get('action', ''),
                 sb_cast.shirt_for(m.get('shirt') or m.get('label') or it.get('label')
-                                  or m.get('concept')))
+                                  or m.get('concept')),
+                outfit=sb_cast.outfit_for(m.get('outfit'), m.get('label'),
+                                          it.get('label'), m.get('concept')))
             art = body + marks
             n_body = len(body)
         if kind in ('person', 'art') and not art:
@@ -1774,8 +1776,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     if not journey and lay in ('row', 'focus', 'stair'):
         for e in els:
             act_ = str(e['m'].get('action') or '')
-            if e['kind'] != 'person' or act_ not in _SB_TOUCH or not e.get(
-                    'box'):
+            if act_ not in _SB_TOUCH or not e.get('box') or (
+                    e['kind'] != 'person' and not e['m'].get('target')):
                 continue
             tgt = (_ref(e['m'].get('target'))
                    if e['m'].get('target') is not None else None)
@@ -1891,10 +1893,16 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 if any(kd['att'] == 'held' for kd in e.get('kids', ())):
                     act = act or 'hold'
                 e['flip'], e['act'] = flip, act
+                e['fit'] = sb_cast.outfit_for(
+                    e['m'].get('outfit'), e['m'].get('label'),
+                    e['label'], e['m'].get('concept'))
+                e['engaged'] = act in sb_cast.ENGAGED or (
+                    tgt is not None and tgt is not e)
                 body, marks, _hb = sb_cast.figure(
                     e['emo'], flip, act,
                     sb_cast.shirt_for(e['m'].get('shirt') or e['m'].get('label')
-                                      or e['m'].get('concept')))
+                                      or e['m'].get('concept')),
+                    outfit=e['fit'], engaged=e['engaged'])
                 fit_st, _fb = _sb_fit(body + marks, fb)
                 art_st, mark_st = fit_st[:len(body)], fit_st[len(body):]
                 fig_b = _sb_bounds(s_[0] for s_ in art_st)
@@ -1931,7 +1939,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             hand = None
             if kd['att'] == 'held' and e['kind'] == 'person':
                 u, v = sb_cast.hand_uv(e['emo'], e.get('flip', False),
-                                       e.get('act', ''))
+                                       e.get('act', ''), e.get('fit'),
+                                       e.get('engaged'))
                 hand = (fig_b[0] + u * (fig_b[2] - fig_b[0]),
                         fig_b[1] + v * (fig_b[3] - fig_b[1]))
             kb0 = _sb_kid_box(kd['att'], fig_b, kd['aspect'], hand)
@@ -1940,7 +1949,10 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                     kd['emo'], (kb0[0] + kb0[2]) / 2 > 0,
                     kd['m'].get('action', ''),
                     sb_cast.shirt_for(kd['m'].get('shirt') or kd['m'].get('label')
-                                      or kd['m'].get('concept')))
+                                      or kd['m'].get('concept')),
+                    outfit=sb_cast.outfit_for(kd['m'].get('outfit'),
+                                              kd['m'].get('label'),
+                                              kd['m'].get('concept')))
                 kst, kb = _sb_fit(kbody + kmarks, kb0)
             else:
                 kst, kb = _sb_fit(kd['art'], kb0)

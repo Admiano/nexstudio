@@ -31,6 +31,69 @@ def shirt_for(key) -> str:
     k = str(key or '').lower().strip()
     return SHIRTS[sum(ord(c) * (i + 1) for i, c in enumerate(k)) % len(SHIRTS)]
 
+# occupation -> costume: shirt tone, hat, torso detail, glasses
+_OUTFITS = (
+    (r'farmer|rancher|grower|picker|gardener|harvester',
+     {'shirt': '#D98C6A', 'hat': 'straw', 'torso': 'overalls'}),
+    (r'beekeeper|apiarist',
+     {'shirt': '#F4F1EA', 'hat': 'veil'}),
+    (r'fisher|angler|sailor|deckhand|trawler',
+     {'shirt': '#E9CB7A', 'hat': 'bucket', 'torso': 'slicker'}),
+    (r'pilot|aviator|captain|flight attendant',
+     {'shirt': '#F4F1EA', 'hat': 'pilot', 'torso': 'tie'}),
+    (r'judge',
+     {'shirt': '#3A3D44', 'torso': 'robe', 'glasses': True}),
+    (r'lawyer|attorney|solicitor|banker|businessm|businessw|executive|'
+     r'\bceo\b|manager|investor|trader|accountant|broker|politician|'
+     r'mayor|senator|salesm',
+     {'shirt': '#5B6472', 'torso': 'tie'}),
+    (r'doctor|surgeon|physician|dentist|vet\b|veterinar|pharmac',
+     {'shirt': '#F4F1EA', 'torso': 'coat'}),
+    (r'scientist|researcher|chemist|biologist|physicist|lab tech',
+     {'shirt': '#F4F1EA', 'torso': 'coat', 'glasses': True}),
+    (r'nurse|paramedic|medic|caregiver|carer',
+     {'shirt': '#9CCFC8', 'hat': 'nursecap', 'torso': 'scrubs'}),
+    (r'chef|cook\b|baker|butcher',
+     {'shirt': '#F4F1EA', 'hat': 'toque', 'torso': 'apron'}),
+    (r'barista|waiter|waitress|server|bartender|cashier|shopkeeper|grocer',
+     {'shirt': '#95C9A2', 'torso': 'apron_brown'}),
+    (r'firefighter|fireman|firemen|firefighters',
+     {'shirt': '#E0A24A', 'hat': 'firehelmet', 'torso': 'stripes'}),
+    (r'builder|construction|carpenter|plumber|electrician|mechanic|'
+     r'engineer|miner|welder|roofer|labou?rer',
+     {'shirt': '#F2B27A', 'hat': 'hardhat', 'torso': 'vest'}),
+    (r'police|officer|\bcops?\b|sheriff|detective|security|guard',
+     {'shirt': '#6F8FBF', 'hat': 'policecap', 'torso': 'badge'}),
+    (r'ranger|forester|park warden|wildlife officer|hiker|explorer',
+     {'shirt': '#8E9B6A', 'hat': 'ranger', 'torso': 'badge'}),
+    (r'soldier|marine|troop',
+     {'shirt': '#8E9B6A', 'hat': 'army'}),
+    (r'teacher|professor|lecturer|tutor|librarian|programmer|developer|'
+     r'coder|analyst|student|reader',
+     {'glasses': True}),
+    (r'driver|trucker|courier|delivery|postman|mail carrier',
+     {'shirt': '#8FB3E3', 'hat': 'cap'}),
+    (r'roaster',
+     {'shirt': '#E9CB7A', 'torso': 'apron_brown'}),
+)
+
+
+def outfit_for(*words) -> dict:
+    """Costume for a cast member from its label/concept words — a farmer
+    gets a straw hat and overalls, a lawyer a suit and tie."""
+    text = ' '.join(str(w or '') for w in words).lower()
+    for pat, fit in _OUTFITS:
+        if text and re.search(pat, text):
+            return dict(fit)
+    return {}
+
+
+# poses where the far hand joins the near one on the object
+_TWO_HANDED = {'reach', 'offer', 'hold', 'lift'}
+# verbs that turn a figure side-on toward what it is doing
+ENGAGED = {'reach', 'offer', 'hold', 'lift', 'point', 'carry', 'give',
+           'show'}
+
 # arm = (elbow, hand) per side, leg = (knee, foot); x > 0 is screen right.
 # All in figure heights. Only still poses — no motion is authored here.
 _IDLE_ARM = ((0.15, -0.56), (0.19, -0.41))
@@ -140,10 +203,13 @@ def _p(x, y):
     return (x * H, y * H)
 
 
-def _face(kind, hx, hy, r):
-    """Face strokes on the head circle (unit px)."""
+def _face(kind, hx, hy, r, turn=0, glasses=False):
+    """Face strokes on the head circle (unit px). `turn` (-1/+1) slides
+    the features toward that side for a three-quarter view."""
     st = []
-    ex, ey = r * 0.36, hy - r * 0.02
+    hx0 = hx
+    hx = hx + turn * r * 0.34
+    ex, ey = r * (0.25 if turn else 0.36), hy - r * 0.02
     my = hy + r * 0.46
 
     def dot(x, y, rr=r * 0.10):
@@ -218,6 +284,166 @@ def _face(kind, hx, hy, r):
         line([(hx - r * 0.02, my), (hx + r * 0.20, my - r * 0.02)])
     else:
         line([(hx - r * 0.15, my), (hx + r * 0.15, my)])
+    if turn:
+        nx = hx0 + turn * r * 0.93
+        line([(nx - turn * r * 0.02, ey + r * 0.04),
+              (nx + turn * r * 0.16, ey + r * 0.24),
+              (nx - turn * r * 0.04, ey + r * 0.30)], 0.6)
+    if glasses:
+        gr = r * 0.21
+        for sx in (-1, 1):
+            line(_circle(hx + sx * ex, ey, gr, gr * 0.9, 14), 0.55)
+        line([(hx - ex + gr, ey), (hx + ex - gr, ey)], 0.55)
+    return st
+
+
+def _hat(kind, hx, hy, r, d):
+    """Headwear strokes over the head (unit px); `d` = facing (+1/-1)."""
+    st = []
+
+    def poly(pts, col):
+        st.append((pts + [pts[0]], col, 0.8, 'solid'))
+
+    def dome(cy, rx, ry, col):
+        pts = _circle(hx, cy, rx, ry, 18, math.pi, 2 * math.pi)
+        poly(pts, col)
+
+    top = hy - r
+    if kind in ('straw', 'veil'):
+        col = '#E3C27A' if kind == 'straw' else '#F4F1EA'
+        dome(top + r * 0.38, r * 0.74, r * 0.62, col)
+        poly(_circle(hx, top + r * 0.40, r * 1.55, r * 0.24, 22), col)
+        st.append(([(hx - r * 0.72, top + r * 0.22),
+                    (hx + r * 0.72, top + r * 0.22)], '#B5403A'
+                   if kind == 'straw' else '#8B8577', 1.1, False))
+        if kind == 'veil':
+            for k in range(5):
+                x = hx - r * 1.2 + k * r * 0.6
+                st.append(([(x, top + r * 0.5), (x * 0 + hx + (x - hx) * 0.9,
+                                                  hy + r * 0.9)],
+                           'pale', 0.5, False))
+    elif kind == 'ranger':
+        poly([(hx - r * 0.55, top + r * 0.40), (hx - r * 0.18, top - r * 0.45),
+              (hx, top - r * 0.30), (hx + r * 0.18, top - r * 0.45),
+              (hx + r * 0.55, top + r * 0.40)], '#B98A5E')
+        poly(_circle(hx, top + r * 0.42, r * 1.35, r * 0.20, 22), '#B98A5E')
+        st.append(([(hx - r * 0.55, top + r * 0.28),
+                    (hx + r * 0.55, top + r * 0.28)], '#6B4A32', 1.0, False))
+    elif kind == 'bucket':
+        poly([(hx - r * 0.70, top + r * 0.42), (hx - r * 0.55, top - r * 0.22),
+              (hx + r * 0.55, top - r * 0.22), (hx + r * 0.70, top + r * 0.42)],
+             '#A8B77A')
+        poly([(hx - r * 1.18, top + r * 0.68), (hx - r * 0.70, top + r * 0.34),
+              (hx + r * 0.70, top + r * 0.34), (hx + r * 1.18, top + r * 0.68)],
+             '#A8B77A')
+    elif kind in ('pilot', 'policecap', 'cap', 'army'):
+        col = {'pilot': '#3A3D44', 'policecap': '#3B5C8C',
+               'cap': '#8FB3E3', 'army': '#8E9B6A'}[kind]
+        if kind in ('pilot', 'policecap'):
+            poly([(hx - r * 0.92, top + r * 0.42), (hx - r * 1.05, top - r * 0.12),
+                  (hx + r * 1.05, top - r * 0.12), (hx + r * 0.92, top + r * 0.42)],
+                 col)
+            st.append((_circle(hx + d * r * 0.1, top + r * 0.1, r * 0.13, n=10),
+                       '#E5B83A', 0.6, 'solid'))
+        else:
+            dome(top + r * 0.45, r * 0.95, r * 0.72, col)
+        if kind != 'army':
+            poly([(hx + d * r * 0.30, top + r * 0.40),
+                  (hx + d * r * 1.35, top + r * 0.58),
+                  (hx + d * r * 0.30, top + r * 0.56)], '#3A3D44'
+                 if kind != 'cap' else col)
+    elif kind in ('firehelmet', 'hardhat'):
+        col = '#D0453E' if kind == 'firehelmet' else '#E5B83A'
+        dome(top + r * 0.45, r * 1.0, r * 0.82, col)
+        if kind == 'firehelmet':
+            poly(_circle(hx - d * r * 0.25, top + r * 0.47, r * 1.40, r * 0.18,
+                         20), col)
+            st.append((_circle(hx + d * r * 0.25, top + r * 0.02, r * 0.18,
+                               r * 0.22, 10), '#E5B83A', 0.6, 'solid'))
+        else:
+            poly(_circle(hx, top + r * 0.47, r * 1.20, r * 0.14, 20), col)
+            st.append(([(hx, top - r * 0.36), (hx, top + r * 0.40)], 'ink',
+                       0.6, False))
+    elif kind == 'toque':
+        poly([(hx - r * 0.62, top + r * 0.30), (hx - r * 0.62, top - r * 0.25),
+              (hx + r * 0.62, top - r * 0.25), (hx + r * 0.62, top + r * 0.30)],
+             '#F4F1EA')
+        for cx, cy, rr in ((-0.45, -0.55, 0.45), (0.45, -0.55, 0.45),
+                           (0.0, -0.80, 0.52)):
+            poly(_circle(hx + r * cx, top + r * cy, r * rr, n=16), '#F4F1EA')
+    elif kind == 'nursecap':
+        poly([(hx - r * 0.55, top + r * 0.30), (hx - r * 0.45, top - r * 0.22),
+              (hx + r * 0.45, top - r * 0.22), (hx + r * 0.55, top + r * 0.30)],
+             '#F4F1EA')
+        st.append(([(hx, top - r * 0.12), (hx, top + r * 0.20)], '#D0453E',
+                   1.0, False))
+        st.append(([(hx - r * 0.16, top + r * 0.04),
+                    (hx + r * 0.16, top + r * 0.04)], '#D0453E', 1.0, False))
+    return st
+
+
+def _torso_extra(kind, ty, byy, tw, bw, d):
+    """Costume detail drawn over the shirt (unit px)."""
+    st = []
+    h = H
+
+    def poly(pts, col):
+        st.append((pts + [pts[0]], col, 0.7, 'solid'))
+
+    def line(pts, col='ink', w=0.6):
+        st.append((pts, col, w, False))
+
+    cx = d * 0.018 * h if d else 0.0
+    if kind == 'tie':
+        poly([(cx - 0.050 * h, ty * h), (cx, (ty + 0.085) * h),
+              (cx + 0.050 * h, ty * h)], '#F4F1EA')
+        poly([(cx - 0.013 * h, (ty + 0.012) * h), (cx + 0.013 * h, (ty + 0.012) * h),
+              (cx + 0.022 * h, (ty + 0.16) * h), (cx, (ty + 0.195) * h),
+              (cx - 0.022 * h, (ty + 0.16) * h)], '#B5403A')
+    elif kind == 'robe':
+        poly([(cx - 0.045 * h, ty * h), (cx, (ty + 0.06) * h),
+              (cx + 0.045 * h, ty * h)], '#F4F1EA')
+        line([(cx, (ty + 0.06) * h), (cx, (byy + 0.03) * h)], 'pale', 0.7)
+    elif kind in ('coat', 'scrubs'):
+        line([(cx - 0.075 * h, ty * h), (cx, (ty + 0.12) * h)])
+        line([(cx + 0.075 * h, ty * h), (cx, (ty + 0.12) * h)])
+        if kind == 'coat':
+            line([(cx, (ty + 0.12) * h), (cx, (byy + 0.035) * h)])
+            poly([(cx + d * 0.035 * h + 0.012 * h, (ty + 0.15) * h),
+                  (cx + d * 0.035 * h + 0.052 * h, (ty + 0.15) * h),
+                  (cx + d * 0.035 * h + 0.052 * h, (ty + 0.19) * h),
+                  (cx + d * 0.035 * h + 0.012 * h, (ty + 0.19) * h)],
+                 '#8FB3E3')
+    elif kind in ('apron', 'apron_brown'):
+        col = '#F4F1EA' if kind == 'apron' else '#A57A55'
+        poly([(cx - 0.055 * h, (ty + 0.08) * h), (cx + 0.055 * h, (ty + 0.08) * h),
+              (cx + 0.080 * h, (byy + 0.07) * h), (cx - 0.080 * h, (byy + 0.07) * h)],
+             col)
+        line([(cx - 0.055 * h, (ty + 0.08) * h), (cx - 0.03 * h, ty * h)])
+        line([(cx + 0.055 * h, (ty + 0.08) * h), (cx + 0.03 * h, ty * h)])
+    elif kind == 'overalls':
+        poly([(cx - 0.060 * h, (ty + 0.10) * h), (cx + 0.060 * h, (ty + 0.10) * h),
+              (cx + 0.070 * h, (byy + 0.05) * h), (cx - 0.070 * h, (byy + 0.05) * h)],
+             '#6F8FBF')
+        for sx in (-1, 1):
+            line([(cx + sx * 0.055 * h, (ty + 0.10) * h),
+                  (cx + sx * 0.085 * h, (ty + 0.01) * h)], '#3B5C8C', 1.2)
+            st.append((_circle(cx + sx * 0.045 * h, (ty + 0.12) * h,
+                               0.008 * h, n=8), '#E5B83A', 0.5, 'solid'))
+    elif kind in ('stripes', 'vest', 'slicker'):
+        col = '#E9E4D6' if kind == 'stripes' else '#E5B83A'
+        if kind == 'slicker':
+            line([(cx, ty * h), (cx, (byy + 0.035) * h)])
+        else:
+            for k, fy in enumerate((0.12, 0.20)):
+                w_ = tw - (tw - bw) * (fy / (byy - ty)) ** 1.25 - 0.01
+                line([(-w_ * h, (ty + fy) * h), (w_ * h, (ty + fy) * h)],
+                     col, 2.2)
+    elif kind == 'badge':
+        pts = [(cx + d * 0.04 * h + math.cos(a) * 0.018 * h,
+                (ty + 0.07) * h + math.sin(a) * 0.018 * h)
+               for a in [k * math.pi * 2 / 5 - math.pi / 2 for k in range(5)]]
+        poly(pts, '#E5B83A')
     return st
 
 
@@ -293,10 +519,12 @@ def _marks(kinds, hx, hy, r, top_y):
     return st
 
 
-def hand_uv(emotion='neutral', flip=False, action=''):
+def hand_uv(emotion='neutral', flip=False, action='', outfit=None,
+            engaged=None):
     """Right (leading) hand position as a fraction (u, v) of the figure's
     ink bounds — where a held prop is anchored."""
-    body, _m, _hb = figure(emotion, flip, action)
+    body, _m, _hb = figure(emotion, flip, action, outfit=outfit,
+                           engaged=engaged)
     pose_n = ACTIONS.get(action) or EMOTIONS.get(
         emotion, EMOTIONS['neutral'])[0]
     pz = POSES[pose_n]
@@ -308,11 +536,21 @@ def hand_uv(emotion='neutral', flip=False, action=''):
             (hy - min(ys)) / max(1e-6, max(ys) - min(ys)))
 
 
-def figure(emotion='neutral', flip=False, action='', shirt=None):
+def figure(emotion='neutral', flip=False, action='', shirt=None,
+           outfit=None, engaged=None):
     """-> (body_strokes, mark_strokes, head_box) in unit px (feet at 0).
-    `action` (hold/point/offer/reach...) swaps the arm pose only."""
+    `action` (hold/point/offer/reach...) swaps the arm pose; an engaged
+    figure turns three-quarter toward its task (facing -x when flipped);
+    `outfit` (see outfit_for) dresses it for its role."""
     pose_n, face_n, mark_n = EMOTIONS.get(emotion, EMOTIONS['neutral'])
-    pose_n = ACTIONS.get(str(action or '').lower(), pose_n)
+    act_n = str(action or '').lower()
+    pose_n = ACTIONS.get(act_n, pose_n)
+    fit = dict(outfit or {})
+    shirt = fit.get('shirt') or shirt
+    if engaged is None:
+        engaged = act_n in ENGAGED
+    sgn = -1 if flip else 1
+    turn = sgn if engaged else 0
     pz = POSES[pose_n]
     hdx, hdy = pz.get('head', (0.0, 0.0))
     shd = pz.get('sh', 0.0)
@@ -324,9 +562,25 @@ def figure(emotion='neutral', flip=False, action='', shirt=None):
     # head first — the artist inks the face before the body
     head = _circle(hx, hy, r, n=30)
     body.append((head, fill, 0.95, 'solid'))
-    body += _face(face_n, hx, hy, r)
-    # pear torso
-    tw, bw = 0.125, 0.062
+    body += _face(face_n, hx, hy, r, turn, bool(fit.get('glasses')))
+    body += _hat(fit.get('hat'), hx, hy, r, sgn)
+    # pear torso (narrower side-on)
+    tw, bw = (0.108, 0.058) if turn else (0.125, 0.062)
+    far = []
+    if turn:
+        # far arm sits behind the torso: joins the near hand on the task
+        # for two-handed poses, otherwise hangs at the back
+        el, hd = pz['r'] if pose_n in _TWO_HANDED else (
+            (-0.04, -0.55), (-0.02, -0.42))
+        if pose_n in _TWO_HANDED:
+            el, hd = (el[0] - 0.09, el[1] + 0.03), (hd[0] - 0.05,
+                                                     hd[1] + 0.035)
+        shp = _p(-sgn * tw * 0.35, sh_y + 0.01)
+        elp = _p(sgn * el[0], el[1] + shd)
+        hdp = _p(sgn * hd[0], hd[1] + shd)
+        far = [([shp, elp, hdp], ink, 0.85, False),
+               (_circle(hdp[0], hdp[1], 0.028 * H, 0.034 * H, 12),
+                SHADE, 0.8, 'solid')]
     ty, byy = sh_y + 0.005, HIP_Y + 0.012
     # simpler robust outline: left edge down, bottom curve, right edge up,
     # shoulder arc across
@@ -339,22 +593,33 @@ def figure(emotion='neutral', flip=False, action='', shirt=None):
                 for a in [math.pi * k / 10 for k in range(11)]]
     torso_poly = left + bottom[1:] + rgt[1:] + shoulder[1:]
     torso_poly.append(torso_poly[0])
+    body += far
     body.append((torso_poly, shirt or fill, 1.0, 'solid'))
-    # legs
+    body += _torso_extra(fit.get('torso'), ty, byy, tw, bw, turn)
+    # legs (side-on: a short stance, both shoes toward the task)
     legs = pz.get('leg', _IDLE_LEG)
     for s in (-1, 1):
-        hip = _p(s * 0.045, HIP_Y + 0.03)
-        kn = _p(s * legs[0][0], legs[0][1])
-        ft = _p(s * legs[1][0], legs[1][1])
+        if turn:
+            k = s * sgn
+            hip = _p(k * 0.025, HIP_Y + 0.03)
+            kn = _p(k * 0.045 + sgn * 0.015, -0.20)
+            ft = _p(k * 0.065 + sgn * 0.02, 0.0)
+            ds = sgn
+        else:
+            hip = _p(s * 0.045, HIP_Y + 0.03)
+            kn = _p(s * legs[0][0], legs[0][1])
+            ft = _p(s * legs[1][0], legs[1][1])
+            ds = s
         body.append(([hip, kn, ft], ink, 0.85, False))
-        shoe = [(ft[0] - s * 0.012 * H, ft[1] - 0.048 * H),
-                (ft[0] + s * 0.05 * H, ft[1]),
-                (ft[0] - s * 0.03 * H, ft[1]),
-                (ft[0] - s * 0.012 * H, ft[1] - 0.048 * H)]
+        shoe = [(ft[0] - ds * 0.012 * H, ft[1] - 0.048 * H),
+                (ft[0] + ds * 0.05 * H, ft[1]),
+                (ft[0] - ds * 0.03 * H, ft[1]),
+                (ft[0] - ds * 0.012 * H, ft[1] - 0.048 * H)]
         body.append((shoe, SHADE if s < 0 else fill, 0.8, 'solid'))
     # arms
-    sgn = -1 if flip else 1
     for side, s in (('l', -1), ('r', 1)):
+        if turn and side == 'l':
+            continue
         el, hd = pz[side]
         s2 = s * sgn
         shp = _p(s2 * (tw - 0.012), sh_y + 0.006)
@@ -375,3 +640,8 @@ def figure(emotion='neutral', flip=False, action='', shirt=None):
         marks = [([(2 * hx - x, y) for x, y in pts], c, w, f)
                  for pts, c, w, f in marks]
     return body, marks, (hx - r, hy - r, hx + r, hy + r)
+
+
+# every literal tone the cast draws with (the renderer registers these)
+with open(__file__, encoding='utf-8') as _f:
+    TONES = tuple(sorted(set(re.findall(r"'(#[0-9A-Fa-f]{6})'", _f.read()))))
