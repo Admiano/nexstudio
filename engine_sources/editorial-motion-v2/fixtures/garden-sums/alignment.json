@@ -1,0 +1,439 @@
+{
+ "words": [
+  {
+   "text": " Mia",
+   "start_ms": 0,
+   "end_ms": 600
+  },
+  {
+   "text": " planted",
+   "start_ms": 600,
+   "end_ms": 940
+  },
+  {
+   "text": " a",
+   "start_ms": 940,
+   "end_ms": 1120
+  },
+  {
+   "text": " tiny",
+   "start_ms": 1120,
+   "end_ms": 1300
+  },
+  {
+   "text": " seed,",
+   "start_ms": 1300,
+   "end_ms": 1720
+  },
+  {
+   "text": " and",
+   "start_ms": 2060,
+   "end_ms": 2240
+  },
+  {
+   "text": " the",
+   "start_ms": 2240,
+   "end_ms": 2340
+  },
+  {
+   "text": " seed",
+   "start_ms": 2340,
+   "end_ms": 2580
+  },
+  {
+   "text": " grew",
+   "start_ms": 2580,
+   "end_ms": 2800
+  },
+  {
+   "text": " tall.",
+   "start_ms": 2800,
+   "end_ms": 3160
+  },
+  {
+   "text": " Count",
+   "start_ms": 4060,
+   "end_ms": 4440
+  },
+  {
+   "text": " the",
+   "start_ms": 4440,
+   "end_ms": 4580
+  },
+  {
+   "text": " apples",
+   "start_ms": 4580,
+   "end_ms": 4880
+  },
+  {
+   "text": " with",
+   "start_ms": 4880,
+   "end_ms": 5100
+  },
+  {
+   "text": " me,",
+   "start_ms": 5100,
+   "end_ms": 5280
+  },
+  {
+   "text": " one,",
+   "start_ms": 5700,
+   "end_ms": 5920
+  },
+  {
+   "text": " two,",
+   "start_ms": 6020,
+   "end_ms": 6160
+  },
+  {
+   "text": " three,",
+   "start_ms": 6300,
+   "end_ms": 6540
+  },
+  {
+   "text": " four,",
+   "start_ms": 6660,
+   "end_ms": 6800
+  },
+  {
+   "text": " five.",
+   "start_ms": 6860,
+   "end_ms": 7160
+  },
+  {
+   "text": " Three",
+   "start_ms": 8160,
+   "end_ms": 8440
+  },
+  {
+   "text": " birds",
+   "start_ms": 8440,
+   "end_ms": 8740
+  },
+  {
+   "text": " sat",
+   "start_ms": 8740,
+   "end_ms": 9000
+  },
+  {
+   "text": " on",
+   "start_ms": 9000,
+   "end_ms": 9140
+  },
+  {
+   "text": " the",
+   "start_ms": 9140,
+   "end_ms": 9240
+  },
+  {
+   "text": " fence,",
+   "start_ms": 9240,
+   "end_ms": 9500
+  },
+  {
+   "text": " two",
+   "start_ms": 10040,
+   "end_ms": 10140
+  },
+  {
+   "text": " more",
+   "start_ms": 10140,
+   "end_ms": 10340
+  },
+  {
+   "text": " birds",
+   "start_ms": 10340,
+   "end_ms": 10640
+  },
+  {
+   "text": " flew",
+   "start_ms": 10640,
+   "end_ms": 10900
+  },
+  {
+   "text": " in,",
+   "start_ms": 10900,
+   "end_ms": 11180
+  },
+  {
+   "text": " three",
+   "start_ms": 11600,
+   "end_ms": 11780
+  },
+  {
+   "text": " plus",
+   "start_ms": 11780,
+   "end_ms": 12000
+  },
+  {
+   "text": " two",
+   "start_ms": 12000,
+   "end_ms": 12300
+  },
+  {
+   "text": " makes",
+   "start_ms": 12300,
+   "end_ms": 12560
+  },
+  {
+   "text": " five.",
+   "start_ms": 12560,
+   "end_ms": 12920
+  },
+  {
+   "text": " Six",
+   "start_ms": 14060,
+   "end_ms": 14240
+  },
+  {
+   "text": " balloons",
+   "start_ms": 14240,
+   "end_ms": 14620
+  },
+  {
+   "text": " floated",
+   "start_ms": 14620,
+   "end_ms": 15120
+  },
+  {
+   "text": " in",
+   "start_ms": 15120,
+   "end_ms": 15280
+  },
+  {
+   "text": " the",
+   "start_ms": 15280,
+   "end_ms": 15380
+  },
+  {
+   "text": " sky,",
+   "start_ms": 15380,
+   "end_ms": 15620
+  },
+  {
+   "text": " two",
+   "start_ms": 16240,
+   "end_ms": 16420
+  },
+  {
+   "text": " balloons",
+   "start_ms": 16420,
+   "end_ms": 16840
+  },
+  {
+   "text": " flew",
+   "start_ms": 16840,
+   "end_ms": 17120
+  },
+  {
+   "text": " away,",
+   "start_ms": 17120,
+   "end_ms": 17460
+  },
+  {
+   "text": " now",
+   "start_ms": 17860,
+   "end_ms": 18020
+  },
+  {
+   "text": " four",
+   "start_ms": 18020,
+   "end_ms": 18240
+  },
+  {
+   "text": " are",
+   "start_ms": 18240,
+   "end_ms": 18400
+  },
+  {
+   "text": " left.",
+   "start_ms": 18400,
+   "end_ms": 18680
+  },
+  {
+   "text": " Three",
+   "start_ms": 19740,
+   "end_ms": 19960
+  },
+  {
+   "text": " rows",
+   "start_ms": 19960,
+   "end_ms": 20180
+  },
+  {
+   "text": " of",
+   "start_ms": 20180,
+   "end_ms": 20380
+  },
+  {
+   "text": " flowers,",
+   "start_ms": 20380,
+   "end_ms": 20720
+  },
+  {
+   "text": " four",
+   "start_ms": 21100,
+   "end_ms": 21280
+  },
+  {
+   "text": " in",
+   "start_ms": 21280,
+   "end_ms": 21440
+  },
+  {
+   "text": " each",
+   "start_ms": 21440,
+   "end_ms": 21620
+  },
+  {
+   "text": " row,",
+   "start_ms": 21620,
+   "end_ms": 21880
+  },
+  {
+   "text": " three",
+   "start_ms": 22340,
+   "end_ms": 22540
+  },
+  {
+   "text": " times",
+   "start_ms": 22540,
+   "end_ms": 22800
+  },
+  {
+   "text": " four",
+   "start_ms": 22800,
+   "end_ms": 23100
+  },
+  {
+   "text": " is",
+   "start_ms": 23100,
+   "end_ms": 23300
+  },
+  {
+   "text": " twelve.",
+   "start_ms": 23300,
+   "end_ms": 23600
+  },
+  {
+   "text": " Share",
+   "start_ms": 24680,
+   "end_ms": 24960
+  },
+  {
+   "text": " six",
+   "start_ms": 24960,
+   "end_ms": 25200
+  },
+  {
+   "text": " fish",
+   "start_ms": 25200,
+   "end_ms": 25460
+  },
+  {
+   "text": " between",
+   "start_ms": 25460,
+   "end_ms": 25760
+  },
+  {
+   "text": " two",
+   "start_ms": 25760,
+   "end_ms": 26000
+  },
+  {
+   "text": " ponds,",
+   "start_ms": 26000,
+   "end_ms": 26300
+  },
+  {
+   "text": " each",
+   "start_ms": 26300,
+   "end_ms": 26960
+  },
+  {
+   "text": " pond",
+   "start_ms": 26960,
+   "end_ms": 27260
+  },
+  {
+   "text": " gets",
+   "start_ms": 27260,
+   "end_ms": 27500
+  },
+  {
+   "text": " three.",
+   "start_ms": 27500,
+   "end_ms": 27880
+  },
+  {
+   "text": " Then",
+   "start_ms": 28820,
+   "end_ms": 29080
+  },
+  {
+   "text": " Leo",
+   "start_ms": 29080,
+   "end_ms": 29360
+  },
+  {
+   "text": " kicked",
+   "start_ms": 29360,
+   "end_ms": 29840
+  },
+  {
+   "text": " the",
+   "start_ms": 29840,
+   "end_ms": 30040
+  },
+  {
+   "text": " ball",
+   "start_ms": 30040,
+   "end_ms": 30240
+  },
+  {
+   "text": " across",
+   "start_ms": 30240,
+   "end_ms": 30460
+  },
+  {
+   "text": " the",
+   "start_ms": 30460,
+   "end_ms": 30660
+  },
+  {
+   "text": " grass.",
+   "start_ms": 30660,
+   "end_ms": 30940
+  },
+  {
+   "text": " At",
+   "start_ms": 31860,
+   "end_ms": 32180
+  },
+  {
+   "text": " bedtime,",
+   "start_ms": 32180,
+   "end_ms": 32540
+  },
+  {
+   "text": " the",
+   "start_ms": 33000,
+   "end_ms": 33080
+  },
+  {
+   "text": " moon",
+   "start_ms": 33080,
+   "end_ms": 33240
+  },
+  {
+   "text": " went",
+   "start_ms": 33240,
+   "end_ms": 33460
+  },
+  {
+   "text": " dark.",
+   "start_ms": 33460,
+   "end_ms": 33760
+  }
+ ]
+}

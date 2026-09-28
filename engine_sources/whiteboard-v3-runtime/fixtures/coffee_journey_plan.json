@@ -1,0 +1,128 @@
+{
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "production_id": "NEXMIND_WHITEBOARD_V3_COFFEE_JOURNEY_DEMO",
+ "camera_variant": "cluster_travel",
+ "output_ratios": [
+  "16:9"
+ ],
+ "pacing": {
+  "transition_seconds": 0.62,
+  "board_reveal_seconds": 0.72
+ },
+ "beats": [
+  {
+   "beat_id": "01_farm",
+   "start_seconds": 0,
+   "duration_seconds": 4.8,
+   "narration": "It starts on a farm, where a grower picks ripe coffee cherries by hand.",
+   "scene": {
+    "sceneId": "01_farm",
+    "heroRole": "coffee farmer",
+    "supportingRoles": [
+     "coffee plants",
+     "harvest basket"
+    ],
+    "screenCopy": {
+     "primary": "IT STARTS ON THE FARM"
+    },
+    "semanticRelationships": [
+     {
+      "source": "coffee farmer",
+      "target": "coffee plants",
+      "kind": "picks"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_ship",
+   "start_seconds": 4.8,
+   "duration_seconds": 5.0,
+   "narration": "The beans travel by truck to port, then by ship across the ocean.",
+   "scene": {
+    "sceneId": "02_ship",
+    "heroRole": "delivery truck",
+    "supportingRoles": [
+     "container ship",
+     "coffee beans"
+    ],
+    "screenCopy": {
+     "primary": "BEANS CROSS THE OCEAN"
+    },
+    "semanticRelationships": [
+     {
+      "source": "delivery truck",
+      "target": "container ship",
+      "kind": "carries"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_roast",
+   "start_seconds": 9.8,
+   "duration_seconds": 4.8,
+   "narration": "Old drum roasting gives way to precise, sensor-guided heat.",
+   "scene": {
+    "sceneId": "03_roast",
+    "heroRole": "roastery",
+    "supportingRoles": [
+     "old roast drum",
+     "critical temperature"
+    ],
+    "screenCopy": {
+     "primary": "ROASTING GETS PRECISE"
+    },
+    "semanticRelationships": [
+     {
+      "source": "roastery",
+      "target": "critical temperature",
+      "kind": "controls"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_cup",
+   "start_seconds": 14.6,
+   "duration_seconds": 5.0,
+   "narration": "A barista grinds, doses and pulls the shot into a fresh cup.",
+   "scene": {
+    "sceneId": "04_cup",
+    "heroRole": "barista",
+    "supportingRoles": [
+     "coffee beans",
+     "fresh cup"
+    ],
+    "screenCopy": {
+     "primary": "THE FINAL POUR"
+    },
+    "semanticRelationships": [
+     {
+      "source": "barista",
+      "target": "fresh cup",
+      "kind": "pours"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "05_scale",
+   "start_seconds": 19.6,
+   "duration_seconds": 5.4,
+   "narration": "Every day the world drinks more than two billion cups.",
+   "scene": {
+    "sceneId": "05_scale",
+    "heroRole": "2 billion cups",
+    "supportingRoles": [
+     "$4.80",
+     "fresh cup"
+    ],
+    "screenCopy": {
+     "primary": "THE DAILY NUMBER"
+    },
+    "semanticRelationships": []
+   }
+  }
+ ]
+}

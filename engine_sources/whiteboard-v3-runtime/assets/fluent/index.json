@@ -1,0 +1,12620 @@
+{
+ "horse": {
+  "cldr": "horse",
+  "group": "Animals & Nature",
+  "keywords": [
+   "equestrian",
+   "horse",
+   "racehorse",
+   "racing"
+  ]
+ },
+ "wrench": {
+  "cldr": "wrench",
+  "group": "Objects",
+  "keywords": [
+   "spanner",
+   "tool",
+   "wrench"
+  ]
+ },
+ "cyclone": {
+  "cldr": "cyclone",
+  "group": "Travel & Places",
+  "keywords": [
+   "cyclone",
+   "dizzy",
+   "hurricane",
+   "twister",
+   "typhoon"
+  ]
+ },
+ "six-oclock": {
+  "cldr": "six o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "6",
+   "clock",
+   "o",
+   "six"
+  ]
+ },
+ "page-facing-up": {
+  "cldr": "page facing up",
+  "group": "Objects",
+  "keywords": [
+   "document",
+   "facing",
+   "page",
+   "up"
+  ]
+ },
+ "slightly-smiling-face": {
+  "cldr": "slightly smiling face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "slightly",
+   "smile",
+   "smiling"
+  ]
+ },
+ "building-construction": {
+  "cldr": "building construction",
+  "group": "Travel & Places",
+  "keywords": [
+   "building",
+   "construction"
+  ]
+ },
+ "blue-square": {
+  "cldr": "blue square",
+  "group": "Symbols",
+  "keywords": [
+   "blue",
+   "square"
+  ]
+ },
+ "up-button": {
+  "cldr": "UP! button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "mark",
+   "up"
+  ]
+ },
+ "screwdriver": {
+  "cldr": "screwdriver",
+  "group": "Objects",
+  "keywords": [
+   "screw",
+   "screwdriver",
+   "tool"
+  ]
+ },
+ "sake": {
+  "cldr": "sake",
+  "group": "Food & Drink",
+  "keywords": [
+   "bar",
+   "beverage",
+   "bottle",
+   "cup",
+   "drink",
+   "sake"
+  ]
+ },
+ "broccoli": {
+  "cldr": "broccoli",
+  "group": "Food & Drink",
+  "keywords": [
+   "broccoli",
+   "cabbage",
+   "wild"
+  ]
+ },
+ "musical-notes": {
+  "cldr": "musical notes",
+  "group": "Objects",
+  "keywords": [
+   "music",
+   "musical",
+   "note",
+   "notes"
+  ]
+ },
+ "badminton": {
+  "cldr": "badminton",
+  "group": "Activities",
+  "keywords": [
+   "badminton",
+   "birdie",
+   "game",
+   "racquet",
+   "shuttlecock"
+  ]
+ },
+ "woman-genie": {
+  "cldr": "woman genie",
+  "group": "People & Body",
+  "keywords": [
+   "djinn",
+   "genie",
+   "woman"
+  ]
+ },
+ "sun-behind-small-cloud": {
+  "cldr": "sun behind small cloud",
+  "group": "Travel & Places",
+  "keywords": [
+   "behind",
+   "cloud",
+   "small",
+   "sun"
+  ]
+ },
+ "file-folder": {
+  "cldr": "file folder",
+  "group": "Objects",
+  "keywords": [
+   "file",
+   "folder"
+  ]
+ },
+ "tanabata-tree": {
+  "cldr": "tanabata tree",
+  "group": "Activities",
+  "keywords": [
+   "banner",
+   "celebration",
+   "japanese",
+   "tanabata",
+   "tree"
+  ]
+ },
+ "heavy-dollar-sign": {
+  "cldr": "heavy dollar sign",
+  "group": "Symbols",
+  "keywords": [
+   "currency",
+   "dollar",
+   "heavy",
+   "money",
+   "sign"
+  ]
+ },
+ "waxing-crescent-moon": {
+  "cldr": "waxing crescent moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "crescent",
+   "moon",
+   "waxing"
+  ]
+ },
+ "smiling-face-with-halo": {
+  "cldr": "smiling face with halo",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "angel",
+   "face",
+   "fantasy",
+   "halo",
+   "innocent",
+   "smiling",
+   "with"
+  ]
+ },
+ "copyright": {
+  "cldr": "copyright",
+  "group": "Symbols",
+  "keywords": [
+   "c",
+   "copyright"
+  ]
+ },
+ "cup-with-straw": {
+  "cldr": "cup with straw",
+  "group": "Food & Drink",
+  "keywords": [
+   "cup",
+   "juice",
+   "soda",
+   "straw",
+   "with"
+  ]
+ },
+ "grinning-face-with-sweat": {
+  "cldr": "grinning face with sweat",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cold",
+   "face",
+   "grinning",
+   "open",
+   "smile",
+   "sweat",
+   "with"
+  ]
+ },
+ "smiling-face-with-hearts": {
+  "cldr": "smiling face with hearts",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "adore",
+   "crush",
+   "face",
+   "hearts",
+   "in",
+   "love",
+   "smiling",
+   "with"
+  ]
+ },
+ "empty-nest": {
+  "cldr": "empty nest",
+  "group": "Animals & Nature",
+  "keywords": [
+   "empty",
+   "nest",
+   "nesting"
+  ]
+ },
+ "factory": {
+  "cldr": "factory",
+  "group": "Travel & Places",
+  "keywords": [
+   "building",
+   "factory"
+  ]
+ },
+ "speak-no-evil-monkey": {
+  "cldr": "speak-no-evil monkey",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "evil",
+   "face",
+   "forbidden",
+   "monkey",
+   "no",
+   "speak"
+  ]
+ },
+ "coin": {
+  "cldr": "coin",
+  "group": "Objects",
+  "keywords": [
+   "coin",
+   "gold",
+   "metal",
+   "money",
+   "silver",
+   "treasure"
+  ]
+ },
+ "flying-disc": {
+  "cldr": "flying disc",
+  "group": "Activities",
+  "keywords": [
+   "disc",
+   "flying",
+   "ultimate"
+  ]
+ },
+ "ambulance": {
+  "cldr": "ambulance",
+  "group": "Travel & Places",
+  "keywords": [
+   "ambulance",
+   "vehicle"
+  ]
+ },
+ "thong-sandal": {
+  "cldr": "thong sandal",
+  "group": "Objects",
+  "keywords": [
+   "beach",
+   "ri",
+   "sandal",
+   "sandals",
+   "thong",
+   "thongs",
+   "z"
+  ]
+ },
+ "drop-of-blood": {
+  "cldr": "drop of blood",
+  "group": "Objects",
+  "keywords": [
+   "bleed",
+   "blood",
+   "donation",
+   "drop",
+   "injury",
+   "medicine",
+   "menstruation"
+  ]
+ },
+ "ab-button-blood-type": {
+  "cldr": "AB button (blood type)",
+  "group": "Symbols",
+  "keywords": [
+   "ab",
+   "blood",
+   "button",
+   "type"
+  ]
+ },
+ "alien": {
+  "cldr": "alien",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "alien",
+   "creature",
+   "extraterrestrial",
+   "face",
+   "fantasy",
+   "ufo"
+  ]
+ },
+ "hammer-and-wrench": {
+  "cldr": "hammer and wrench",
+  "group": "Objects",
+  "keywords": [
+   "hammer",
+   "spanner",
+   "tool",
+   "wrench"
+  ]
+ },
+ "pencil": {
+  "cldr": "pencil",
+  "group": "Objects",
+  "keywords": [
+   "pencil"
+  ]
+ },
+ "dog": {
+  "cldr": "dog",
+  "group": "Animals & Nature",
+  "keywords": [
+   "dog",
+   "pet"
+  ]
+ },
+ "expressionless-face": {
+  "cldr": "expressionless face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "expressionless",
+   "face",
+   "inexpressive",
+   "meh",
+   "unexpressive"
+  ]
+ },
+ "hollow-red-circle": {
+  "cldr": "hollow red circle",
+  "group": "Symbols",
+  "keywords": [
+   "circle",
+   "hollow",
+   "large",
+   "o",
+   "red"
+  ]
+ },
+ "pea-pod": {
+  "cldr": "pea pod",
+  "group": "Food & Drink",
+  "keywords": [
+   "beans",
+   "edamame",
+   "legume",
+   "pea",
+   "pod",
+   "vegetable"
+  ]
+ },
+ "worried-face": {
+  "cldr": "worried face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "worried"
+  ]
+ },
+ "socks": {
+  "cldr": "socks",
+  "group": "Objects",
+  "keywords": [
+   "socks",
+   "stocking"
+  ]
+ },
+ "cockroach": {
+  "cldr": "cockroach",
+  "group": "Animals & Nature",
+  "keywords": [
+   "cockroach",
+   "insect",
+   "pest",
+   "roach"
+  ]
+ },
+ "star": {
+  "cldr": "star",
+  "group": "Travel & Places",
+  "keywords": [
+   "star"
+  ]
+ },
+ "wireless": {
+  "cldr": "wireless",
+  "group": "Symbols",
+  "keywords": [
+   "computer",
+   "internet",
+   "network",
+   "wireless"
+  ]
+ },
+ "mountain-railway": {
+  "cldr": "mountain railway",
+  "group": "Travel & Places",
+  "keywords": [
+   "car",
+   "mountain",
+   "railway"
+  ]
+ },
+ "film-frames": {
+  "cldr": "film frames",
+  "group": "Objects",
+  "keywords": [
+   "cinema",
+   "film",
+   "frames",
+   "movie"
+  ]
+ },
+ "japanese-no-vacancy-button": {
+  "cldr": "Japanese \u201cno vacancy\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "ideograph",
+   "japanese",
+   "no",
+   "vacancy"
+  ]
+ },
+ "glass-of-milk": {
+  "cldr": "glass of milk",
+  "group": "Food & Drink",
+  "keywords": [
+   "drink",
+   "glass",
+   "milk"
+  ]
+ },
+ "star-and-crescent": {
+  "cldr": "star and crescent",
+  "group": "Symbols",
+  "keywords": [
+   "crescent",
+   "islam",
+   "muslim",
+   "religion",
+   "star"
+  ]
+ },
+ "cookie": {
+  "cldr": "cookie",
+  "group": "Food & Drink",
+  "keywords": [
+   "cookie",
+   "dessert",
+   "sweet"
+  ]
+ },
+ "kiss-mark": {
+  "cldr": "kiss mark",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "kiss",
+   "lips",
+   "mark"
+  ]
+ },
+ "mate": {
+  "cldr": "mate",
+  "group": "Food & Drink",
+  "keywords": [
+   "drink",
+   "mate"
+  ]
+ },
+ "white-flower": {
+  "cldr": "white flower",
+  "group": "Animals & Nature",
+  "keywords": [
+   "flower",
+   "white"
+  ]
+ },
+ "billed-cap": {
+  "cldr": "billed cap",
+  "group": "Objects",
+  "keywords": [
+   "baseball",
+   "billed",
+   "cap"
+  ]
+ },
+ "no-smoking": {
+  "cldr": "no smoking",
+  "group": "Symbols",
+  "keywords": [
+   "forbidden",
+   "no",
+   "not",
+   "prohibited",
+   "smoking"
+  ]
+ },
+ "orange-book": {
+  "cldr": "orange book",
+  "group": "Objects",
+  "keywords": [
+   "book",
+   "orange"
+  ]
+ },
+ "camera": {
+  "cldr": "camera",
+  "group": "Objects",
+  "keywords": [
+   "camera",
+   "video"
+  ]
+ },
+ "red-circle": {
+  "cldr": "red circle",
+  "group": "Symbols",
+  "keywords": [
+   "circle",
+   "geometric",
+   "red"
+  ]
+ },
+ "bridge-at-night": {
+  "cldr": "bridge at night",
+  "group": "Travel & Places",
+  "keywords": [
+   "at",
+   "bridge",
+   "night"
+  ]
+ },
+ "anxious-face-with-sweat": {
+  "cldr": "anxious face with sweat",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "anxious",
+   "blue",
+   "cold",
+   "face",
+   "rushed",
+   "sweat",
+   "with"
+  ]
+ },
+ "bubble-tea": {
+  "cldr": "bubble tea",
+  "group": "Food & Drink",
+  "keywords": [
+   "bubble",
+   "milk",
+   "pearl",
+   "tea"
+  ]
+ },
+ "fog": {
+  "cldr": "fog",
+  "group": "Travel & Places",
+  "keywords": [
+   "cloud",
+   "fog"
+  ]
+ },
+ "fortune-cookie": {
+  "cldr": "fortune cookie",
+  "group": "Food & Drink",
+  "keywords": [
+   "cookie",
+   "fortune",
+   "prophecy"
+  ]
+ },
+ "couch-and-lamp": {
+  "cldr": "couch and lamp",
+  "group": "Objects",
+  "keywords": [
+   "couch",
+   "hotel",
+   "lamp"
+  ]
+ },
+ "crescent-moon": {
+  "cldr": "crescent moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "crescent",
+   "moon"
+  ]
+ },
+ "potted-plant": {
+  "cldr": "potted plant",
+  "group": "Animals & Nature",
+  "keywords": [
+   "boring",
+   "grow",
+   "house",
+   "nurturing",
+   "plant",
+   "potted",
+   "useless"
+  ]
+ },
+ "mango": {
+  "cldr": "mango",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "mango",
+   "tropical"
+  ]
+ },
+ "flamingo": {
+  "cldr": "flamingo",
+  "group": "Animals & Nature",
+  "keywords": [
+   "flamboyant",
+   "flamingo",
+   "tropical"
+  ]
+ },
+ "wine-glass": {
+  "cldr": "wine glass",
+  "group": "Food & Drink",
+  "keywords": [
+   "bar",
+   "beverage",
+   "drink",
+   "glass",
+   "wine"
+  ]
+ },
+ "right-arrow": {
+  "cldr": "right arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "cardinal",
+   "direction",
+   "east",
+   "right"
+  ]
+ },
+ "face-with-rolling-eyes": {
+  "cldr": "face with rolling eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "eyeroll",
+   "eyes",
+   "face",
+   "rolling",
+   "with"
+  ]
+ },
+ "red-triangle-pointed-down": {
+  "cldr": "red triangle pointed down",
+  "group": "Symbols",
+  "keywords": [
+   "down",
+   "geometric",
+   "pointed",
+   "red",
+   "triangle"
+  ]
+ },
+ "rainbow": {
+  "cldr": "rainbow",
+  "group": "Travel & Places",
+  "keywords": [
+   "rain",
+   "rainbow"
+  ]
+ },
+ "petri-dish": {
+  "cldr": "petri dish",
+  "group": "Objects",
+  "keywords": [
+   "bacteria",
+   "biologist",
+   "biology",
+   "culture",
+   "dish",
+   "lab",
+   "petri"
+  ]
+ },
+ "anguished-face": {
+  "cldr": "anguished face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "anguished",
+   "face"
+  ]
+ },
+ "owl": {
+  "cldr": "owl",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "owl",
+   "wise"
+  ]
+ },
+ "chart-decreasing": {
+  "cldr": "chart decreasing",
+  "group": "Objects",
+  "keywords": [
+   "chart",
+   "decreasing",
+   "down",
+   "graph",
+   "trend"
+  ]
+ },
+ "keycap-5": {
+  "cldr": "keycap: 5",
+  "group": "Symbols",
+  "keywords": [
+   "5",
+   "five",
+   "keycap"
+  ]
+ },
+ "pisces": {
+  "cldr": "Pisces",
+  "group": "Symbols",
+  "keywords": [
+   "fish",
+   "pisces",
+   "zodiac"
+  ]
+ },
+ "sparkle": {
+  "cldr": "sparkle",
+  "group": "Symbols",
+  "keywords": [
+   "sparkle"
+  ]
+ },
+ "japanese-prohibited-button": {
+  "cldr": "Japanese \u201cprohibited\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "ideograph",
+   "japanese",
+   "prohibited"
+  ]
+ },
+ "panda": {
+  "cldr": "panda",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "panda"
+  ]
+ },
+ "beverage-box": {
+  "cldr": "beverage box",
+  "group": "Food & Drink",
+  "keywords": [
+   "beverage",
+   "box",
+   "juice",
+   "straw",
+   "sweet"
+  ]
+ },
+ "bowl-with-spoon": {
+  "cldr": "bowl with spoon",
+  "group": "Food & Drink",
+  "keywords": [
+   "bowl",
+   "breakfast",
+   "cereal",
+   "congee",
+   "spoon",
+   "with"
+  ]
+ },
+ "footprints": {
+  "cldr": "footprints",
+  "group": "People & Body",
+  "keywords": [
+   "clothing",
+   "footprint",
+   "footprints",
+   "print"
+  ]
+ },
+ "man-zombie": {
+  "cldr": "man zombie",
+  "group": "People & Body",
+  "keywords": [
+   "dead",
+   "man",
+   "undead",
+   "walking",
+   "zombie"
+  ]
+ },
+ "llama": {
+  "cldr": "llama",
+  "group": "Animals & Nature",
+  "keywords": [
+   "alpaca",
+   "guanaco",
+   "llama",
+   "vicu",
+   "wool"
+  ]
+ },
+ "ice-skate": {
+  "cldr": "ice skate",
+  "group": "Activities",
+  "keywords": [
+   "ice",
+   "skate"
+  ]
+ },
+ "ship": {
+  "cldr": "ship",
+  "group": "Travel & Places",
+  "keywords": [
+   "boat",
+   "passenger",
+   "ship"
+  ]
+ },
+ "admission-tickets": {
+  "cldr": "admission tickets",
+  "group": "Activities",
+  "keywords": [
+   "admission",
+   "ticket",
+   "tickets"
+  ]
+ },
+ "olive": {
+  "cldr": "olive",
+  "group": "Food & Drink",
+  "keywords": [
+   "food",
+   "olive"
+  ]
+ },
+ "evergreen-tree": {
+  "cldr": "evergreen tree",
+  "group": "Animals & Nature",
+  "keywords": [
+   "evergreen",
+   "tree"
+  ]
+ },
+ "yarn": {
+  "cldr": "yarn",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "crochet",
+   "knit",
+   "yarn"
+  ]
+ },
+ "wedding": {
+  "cldr": "wedding",
+  "group": "Travel & Places",
+  "keywords": [
+   "chapel",
+   "romance",
+   "wedding"
+  ]
+ },
+ "ox": {
+  "cldr": "ox",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bull",
+   "ox",
+   "taurus",
+   "zodiac"
+  ]
+ },
+ "blackbird": {
+  "cldr": "black bird",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "black",
+   "crow",
+   "raven",
+   "rook"
+  ]
+ },
+ "gemini": {
+  "cldr": "Gemini",
+  "group": "Symbols",
+  "keywords": [
+   "gemini",
+   "twins",
+   "zodiac"
+  ]
+ },
+ "white-square-button": {
+  "cldr": "white square button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "geometric",
+   "outlined",
+   "square",
+   "white"
+  ]
+ },
+ "see-no-evil-monkey": {
+  "cldr": "see-no-evil monkey",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "evil",
+   "face",
+   "forbidden",
+   "monkey",
+   "no",
+   "see"
+  ]
+ },
+ "syringe": {
+  "cldr": "syringe",
+  "group": "Objects",
+  "keywords": [
+   "medicine",
+   "needle",
+   "shot",
+   "sick",
+   "syringe"
+  ]
+ },
+ "pig": {
+  "cldr": "pig",
+  "group": "Animals & Nature",
+  "keywords": [
+   "pig",
+   "sow"
+  ]
+ },
+ "running-shirt": {
+  "cldr": "running shirt",
+  "group": "Activities",
+  "keywords": [
+   "athletics",
+   "running",
+   "sash",
+   "shirt"
+  ]
+ },
+ "transgender-flag": {
+  "cldr": "transgender flag",
+  "group": "Flags",
+  "keywords": [
+   "blue",
+   "flag",
+   "light",
+   "pink",
+   "transgender",
+   "white"
+  ]
+ },
+ "metro": {
+  "cldr": "metro",
+  "group": "Travel & Places",
+  "keywords": [
+   "metro",
+   "subway"
+  ]
+ },
+ "badger": {
+  "cldr": "badger",
+  "group": "Animals & Nature",
+  "keywords": [
+   "badger",
+   "honey",
+   "pester"
+  ]
+ },
+ "bison": {
+  "cldr": "bison",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bison",
+   "buffalo",
+   "herd",
+   "wisent"
+  ]
+ },
+ "bow-and-arrow": {
+  "cldr": "bow and arrow",
+  "group": "Objects",
+  "keywords": [
+   "archer",
+   "arrow",
+   "bow",
+   "sagittarius",
+   "zodiac"
+  ]
+ },
+ "bright-button": {
+  "cldr": "bright button",
+  "group": "Symbols",
+  "keywords": [
+   "bright",
+   "brightness",
+   "button"
+  ]
+ },
+ "tamale": {
+  "cldr": "tamale",
+  "group": "Food & Drink",
+  "keywords": [
+   "mexican",
+   "tamale",
+   "wrapped"
+  ]
+ },
+ "flashlight": {
+  "cldr": "flashlight",
+  "group": "Objects",
+  "keywords": [
+   "electric",
+   "flashlight",
+   "light",
+   "tool",
+   "torch"
+  ]
+ },
+ "rose": {
+  "cldr": "rose",
+  "group": "Animals & Nature",
+  "keywords": [
+   "flower",
+   "rose"
+  ]
+ },
+ "black-square-button": {
+  "cldr": "black square button",
+  "group": "Symbols",
+  "keywords": [
+   "black",
+   "button",
+   "geometric",
+   "square"
+  ]
+ },
+ "axe": {
+  "cldr": "axe",
+  "group": "Objects",
+  "keywords": [
+   "axe",
+   "chop",
+   "hatchet",
+   "split",
+   "wood"
+  ]
+ },
+ "amphora": {
+  "cldr": "amphora",
+  "group": "Food & Drink",
+  "keywords": [
+   "amphora",
+   "aquarius",
+   "cooking",
+   "drink",
+   "jug",
+   "zodiac"
+  ]
+ },
+ "top-hat": {
+  "cldr": "top hat",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "hat",
+   "top",
+   "tophat"
+  ]
+ },
+ "diamond-suit": {
+  "cldr": "diamond suit",
+  "group": "Activities",
+  "keywords": [
+   "card",
+   "diamond",
+   "game",
+   "suit"
+  ]
+ },
+ "ringed-planet": {
+  "cldr": "ringed planet",
+  "group": "Travel & Places",
+  "keywords": [
+   "planet",
+   "ringed",
+   "saturn",
+   "saturnine"
+  ]
+ },
+ "tumbler-glass": {
+  "cldr": "tumbler glass",
+  "group": "Food & Drink",
+  "keywords": [
+   "glass",
+   "liquor",
+   "shot",
+   "tumbler",
+   "whisky"
+  ]
+ },
+ "pie": {
+  "cldr": "pie",
+  "group": "Food & Drink",
+  "keywords": [
+   "filling",
+   "pastry",
+   "pie"
+  ]
+ },
+ "triangular-ruler": {
+  "cldr": "triangular ruler",
+  "group": "Objects",
+  "keywords": [
+   "ruler",
+   "set",
+   "triangle",
+   "triangular"
+  ]
+ },
+ "camel": {
+  "cldr": "camel",
+  "group": "Animals & Nature",
+  "keywords": [
+   "camel",
+   "dromedary",
+   "hump"
+  ]
+ },
+ "sun-behind-rain-cloud": {
+  "cldr": "sun behind rain cloud",
+  "group": "Travel & Places",
+  "keywords": [
+   "behind",
+   "cloud",
+   "rain",
+   "sun"
+  ]
+ },
+ "grinning-cat-with-smiling-eyes": {
+  "cldr": "grinning cat with smiling eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "eye",
+   "eyes",
+   "face",
+   "grin",
+   "grinning",
+   "smile",
+   "smiling",
+   "with"
+  ]
+ },
+ "disappointed-face": {
+  "cldr": "disappointed face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "disappointed",
+   "face"
+  ]
+ },
+ "razor": {
+  "cldr": "razor",
+  "group": "Objects",
+  "keywords": [
+   "razor",
+   "sharp",
+   "shave"
+  ]
+ },
+ "t-shirt": {
+  "cldr": "t-shirt",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "shirt",
+   "t",
+   "tshirt"
+  ]
+ },
+ "person-with-bunny-ears": {
+  "cldr": "people with bunny ears",
+  "group": "People & Body",
+  "keywords": [
+   "bunny",
+   "dancer",
+   "ear",
+   "ears",
+   "partying",
+   "people",
+   "with"
+  ]
+ },
+ "control-knobs": {
+  "cldr": "control knobs",
+  "group": "Objects",
+  "keywords": [
+   "control",
+   "knobs",
+   "music"
+  ]
+ },
+ "winking-face-with-tongue": {
+  "cldr": "winking face with tongue",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "eye",
+   "face",
+   "joke",
+   "tongue",
+   "wink",
+   "winking",
+   "with"
+  ]
+ },
+ "japanese-discount-button": {
+  "cldr": "Japanese \u201cdiscount\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "discount",
+   "ideograph",
+   "japanese"
+  ]
+ },
+ "zebra": {
+  "cldr": "zebra",
+  "group": "Animals & Nature",
+  "keywords": [
+   "stripe",
+   "zebra"
+  ]
+ },
+ "headstone": {
+  "cldr": "headstone",
+  "group": "Objects",
+  "keywords": [
+   "cemetery",
+   "grave",
+   "graveyard",
+   "headstone",
+   "tombstone"
+  ]
+ },
+ "grinning-cat": {
+  "cldr": "grinning cat",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "face",
+   "grinning",
+   "mouth",
+   "open",
+   "smile"
+  ]
+ },
+ "wheelchair-symbol": {
+  "cldr": "wheelchair symbol",
+  "group": "Symbols",
+  "keywords": [
+   "access",
+   "symbol",
+   "wheelchair"
+  ]
+ },
+ "guitar": {
+  "cldr": "guitar",
+  "group": "Objects",
+  "keywords": [
+   "guitar",
+   "instrument",
+   "music"
+  ]
+ },
+ "twelve-thirty": {
+  "cldr": "twelve-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "12",
+   "30",
+   "clock",
+   "thirty",
+   "twelve"
+  ]
+ },
+ "taurus": {
+  "cldr": "Taurus",
+  "group": "Symbols",
+  "keywords": [
+   "bull",
+   "ox",
+   "taurus",
+   "zodiac"
+  ]
+ },
+ "ogre": {
+  "cldr": "ogre",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "creature",
+   "face",
+   "fairy",
+   "fantasy",
+   "monster",
+   "ogre",
+   "tale"
+  ]
+ },
+ "compass": {
+  "cldr": "compass",
+  "group": "Travel & Places",
+  "keywords": [
+   "compass",
+   "magnetic",
+   "navigation",
+   "orienteering"
+  ]
+ },
+ "open-book": {
+  "cldr": "open book",
+  "group": "Objects",
+  "keywords": [
+   "book",
+   "open"
+  ]
+ },
+ "bus-stop": {
+  "cldr": "bus stop",
+  "group": "Travel & Places",
+  "keywords": [
+   "bus",
+   "stop"
+  ]
+ },
+ "downwards-button": {
+  "cldr": "downwards button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "down",
+   "downwards",
+   "red"
+  ]
+ },
+ "pouting-face": {
+  "cldr": "pouting face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "angry",
+   "face",
+   "mad",
+   "pouting",
+   "rage",
+   "red"
+  ]
+ },
+ "blue-circle": {
+  "cldr": "blue circle",
+  "group": "Symbols",
+  "keywords": [
+   "blue",
+   "circle",
+   "geometric"
+  ]
+ },
+ "candle": {
+  "cldr": "candle",
+  "group": "Objects",
+  "keywords": [
+   "candle",
+   "light"
+  ]
+ },
+ "wolf": {
+  "cldr": "wolf",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "wolf"
+  ]
+ },
+ "mouse-trap": {
+  "cldr": "mouse trap",
+  "group": "Objects",
+  "keywords": [
+   "bait",
+   "mouse",
+   "mousetrap",
+   "snare",
+   "trap"
+  ]
+ },
+ "neutral-face": {
+  "cldr": "neutral face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "deadpan",
+   "face",
+   "meh",
+   "neutral"
+  ]
+ },
+ "shorts": {
+  "cldr": "shorts",
+  "group": "Objects",
+  "keywords": [
+   "bathing",
+   "pants",
+   "shorts",
+   "suit",
+   "underwear"
+  ]
+ },
+ "check-mark": {
+  "cldr": "check mark",
+  "group": "Symbols",
+  "keywords": [
+   "check",
+   "mark"
+  ]
+ },
+ "taxi": {
+  "cldr": "taxi",
+  "group": "Travel & Places",
+  "keywords": [
+   "taxi",
+   "vehicle"
+  ]
+ },
+ "military-helmet": {
+  "cldr": "military helmet",
+  "group": "Objects",
+  "keywords": [
+   "army",
+   "helmet",
+   "military",
+   "soldier",
+   "warrior"
+  ]
+ },
+ "litter-in-bin-sign": {
+  "cldr": "litter in bin sign",
+  "group": "Symbols",
+  "keywords": [
+   "bin",
+   "in",
+   "litter",
+   "sign"
+  ]
+ },
+ "mobile-phone-with-arrow": {
+  "cldr": "mobile phone with arrow",
+  "group": "Objects",
+  "keywords": [
+   "arrow",
+   "cell",
+   "mobile",
+   "phone",
+   "receive",
+   "with"
+  ]
+ },
+ "people-hugging": {
+  "cldr": "people hugging",
+  "group": "People & Body",
+  "keywords": [
+   "goodbye",
+   "hello",
+   "hug",
+   "hugging",
+   "people",
+   "thanks"
+  ]
+ },
+ "notebook": {
+  "cldr": "notebook",
+  "group": "Objects",
+  "keywords": [
+   "notebook"
+  ]
+ },
+ "squid": {
+  "cldr": "squid",
+  "group": "Food & Drink",
+  "keywords": [
+   "food",
+   "molusc",
+   "squid"
+  ]
+ },
+ "soon-arrow": {
+  "cldr": "SOON arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "soon"
+  ]
+ },
+ "leaf-fluttering-in-wind": {
+  "cldr": "leaf fluttering in wind",
+  "group": "Animals & Nature",
+  "keywords": [
+   "blow",
+   "flutter",
+   "fluttering",
+   "in",
+   "leaf",
+   "wind"
+  ]
+ },
+ "world-map": {
+  "cldr": "world map",
+  "group": "Travel & Places",
+  "keywords": [
+   "map",
+   "world"
+  ]
+ },
+ "full-moon-face": {
+  "cldr": "full moon face",
+  "group": "Travel & Places",
+  "keywords": [
+   "bright",
+   "face",
+   "full",
+   "moon"
+  ]
+ },
+ "pouting-cat": {
+  "cldr": "pouting cat",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "face",
+   "pouting"
+  ]
+ },
+ "bone": {
+  "cldr": "bone",
+  "group": "People & Body",
+  "keywords": [
+   "bone",
+   "skeleton"
+  ]
+ },
+ "cityscape-at-dusk": {
+  "cldr": "cityscape at dusk",
+  "group": "Travel & Places",
+  "keywords": [
+   "at",
+   "city",
+   "cityscape",
+   "dusk",
+   "evening",
+   "landscape",
+   "sunset"
+  ]
+ },
+ "croissant": {
+  "cldr": "croissant",
+  "group": "Food & Drink",
+  "keywords": [
+   "bread",
+   "breakfast",
+   "croissant",
+   "food",
+   "french",
+   "roll"
+  ]
+ },
+ "dotted-line-face": {
+  "cldr": "dotted line face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "depressed",
+   "disappear",
+   "dotted",
+   "face",
+   "hide",
+   "introvert",
+   "invisible",
+   "line"
+  ]
+ },
+ "face-with-open-mouth": {
+  "cldr": "face with open mouth",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "mouth",
+   "open",
+   "sympathy",
+   "with"
+  ]
+ },
+ "four-oclock": {
+  "cldr": "four o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "4",
+   "clock",
+   "four",
+   "o"
+  ]
+ },
+ "pig-face": {
+  "cldr": "pig face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "pig"
+  ]
+ },
+ "slot-machine": {
+  "cldr": "slot machine",
+  "group": "Activities",
+  "keywords": [
+   "game",
+   "machine",
+   "slot"
+  ]
+ },
+ "knot": {
+  "cldr": "knot",
+  "group": "Activities",
+  "keywords": [
+   "knot",
+   "rope",
+   "tangled",
+   "tie",
+   "twine",
+   "twist"
+  ]
+ },
+ "womans-hat": {
+  "cldr": "woman\u2019s hat",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "hat",
+   "s",
+   "woman"
+  ]
+ },
+ "puzzle-piece": {
+  "cldr": "puzzle piece",
+  "group": "Activities",
+  "keywords": [
+   "clue",
+   "interlocking",
+   "jigsaw",
+   "piece",
+   "puzzle"
+  ]
+ },
+ "orange-square": {
+  "cldr": "orange square",
+  "group": "Symbols",
+  "keywords": [
+   "orange",
+   "square"
+  ]
+ },
+ "collision": {
+  "cldr": "collision",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "boom",
+   "collision",
+   "comic"
+  ]
+ },
+ "zany-face": {
+  "cldr": "zany face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "eye",
+   "face",
+   "goofy",
+   "large",
+   "small",
+   "zany"
+  ]
+ },
+ "speech-balloon": {
+  "cldr": "speech balloon",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "balloon",
+   "bubble",
+   "comic",
+   "dialog",
+   "speech"
+  ]
+ },
+ "e-mail": {
+  "cldr": "e-mail",
+  "group": "Objects",
+  "keywords": [
+   "e",
+   "email",
+   "letter",
+   "mail"
+  ]
+ },
+ "koala": {
+  "cldr": "koala",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "koala",
+   "marsupial"
+  ]
+ },
+ "passport-control": {
+  "cldr": "passport control",
+  "group": "Symbols",
+  "keywords": [
+   "control",
+   "passport"
+  ]
+ },
+ "anatomical-heart": {
+  "cldr": "anatomical heart",
+  "group": "People & Body",
+  "keywords": [
+   "anatomical",
+   "cardiology",
+   "heart",
+   "organ",
+   "pulse"
+  ]
+ },
+ "bento-box": {
+  "cldr": "bento box",
+  "group": "Food & Drink",
+  "keywords": [
+   "bento",
+   "box"
+  ]
+ },
+ "sparkler": {
+  "cldr": "sparkler",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "fireworks",
+   "sparkle",
+   "sparkler"
+  ]
+ },
+ "bathtub": {
+  "cldr": "bathtub",
+  "group": "Objects",
+  "keywords": [
+   "bath",
+   "bathtub"
+  ]
+ },
+ "peace-symbol": {
+  "cldr": "peace symbol",
+  "group": "Symbols",
+  "keywords": [
+   "peace",
+   "symbol"
+  ]
+ },
+ "nut-and-bolt": {
+  "cldr": "nut and bolt",
+  "group": "Objects",
+  "keywords": [
+   "bolt",
+   "nut",
+   "tool"
+  ]
+ },
+ "dragon": {
+  "cldr": "dragon",
+  "group": "Animals & Nature",
+  "keywords": [
+   "dragon",
+   "fairy",
+   "tale"
+  ]
+ },
+ "dashing-away": {
+  "cldr": "dashing away",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "away",
+   "comic",
+   "dash",
+   "dashing",
+   "running"
+  ]
+ },
+ "biting-lip": {
+  "cldr": "biting lip",
+  "group": "People & Body",
+  "keywords": [
+   "anxious",
+   "biting",
+   "fear",
+   "flirting",
+   "lip",
+   "nervous",
+   "uncomfortable",
+   "worried"
+  ]
+ },
+ "white-medium-small-square": {
+  "cldr": "white medium-small square",
+  "group": "Symbols",
+  "keywords": [
+   "geometric",
+   "medium",
+   "small",
+   "square",
+   "white"
+  ]
+ },
+ "candy": {
+  "cldr": "candy",
+  "group": "Food & Drink",
+  "keywords": [
+   "candy",
+   "dessert",
+   "sweet"
+  ]
+ },
+ "frog": {
+  "cldr": "frog",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "frog"
+  ]
+ },
+ "swan": {
+  "cldr": "swan",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "cygnet",
+   "duckling",
+   "swan",
+   "ugly"
+  ]
+ },
+ "martial-arts-uniform": {
+  "cldr": "martial arts uniform",
+  "group": "Activities",
+  "keywords": [
+   "arts",
+   "judo",
+   "karate",
+   "martial",
+   "taekwondo",
+   "uniform"
+  ]
+ },
+ "stadium": {
+  "cldr": "stadium",
+  "group": "Travel & Places",
+  "keywords": [
+   "stadium"
+  ]
+ },
+ "card-index": {
+  "cldr": "card index",
+  "group": "Objects",
+  "keywords": [
+   "card",
+   "index",
+   "rolodex"
+  ]
+ },
+ "closed-umbrella": {
+  "cldr": "closed umbrella",
+  "group": "Travel & Places",
+  "keywords": [
+   "closed",
+   "clothing",
+   "rain",
+   "umbrella"
+  ]
+ },
+ "high-heeled-shoe": {
+  "cldr": "high-heeled shoe",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "heel",
+   "heeled",
+   "high",
+   "shoe",
+   "woman"
+  ]
+ },
+ "kiwi-fruit": {
+  "cldr": "kiwi fruit",
+  "group": "Food & Drink",
+  "keywords": [
+   "food",
+   "fruit",
+   "kiwi"
+  ]
+ },
+ "carousel-horse": {
+  "cldr": "carousel horse",
+  "group": "Travel & Places",
+  "keywords": [
+   "carousel",
+   "horse"
+  ]
+ },
+ "frowning-face-with-open-mouth": {
+  "cldr": "frowning face with open mouth",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "frown",
+   "frowning",
+   "mouth",
+   "open",
+   "with"
+  ]
+ },
+ "popcorn": {
+  "cldr": "popcorn",
+  "group": "Food & Drink",
+  "keywords": [
+   "popcorn"
+  ]
+ },
+ "a-button-blood-type": {
+  "cldr": "A button (blood type)",
+  "group": "Symbols",
+  "keywords": [
+   "blood",
+   "button",
+   "type"
+  ]
+ },
+ "input-latin-uppercase": {
+  "cldr": "input latin uppercase",
+  "group": "Symbols",
+  "keywords": [
+   "abcd",
+   "input",
+   "latin",
+   "letters",
+   "uppercase"
+  ]
+ },
+ "convenience-store": {
+  "cldr": "convenience store",
+  "group": "Travel & Places",
+  "keywords": [
+   "convenience",
+   "store"
+  ]
+ },
+ "rice-cracker": {
+  "cldr": "rice cracker",
+  "group": "Food & Drink",
+  "keywords": [
+   "cracker",
+   "rice"
+  ]
+ },
+ "red-square": {
+  "cldr": "red square",
+  "group": "Symbols",
+  "keywords": [
+   "red",
+   "square"
+  ]
+ },
+ "registered": {
+  "cldr": "registered",
+  "group": "Symbols",
+  "keywords": [
+   "r",
+   "registered"
+  ]
+ },
+ "face-with-open-eyes-and-hand-over-mouth": {
+  "cldr": "face with open eyes and hand over mouth",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "amazement",
+   "awe",
+   "disbelief",
+   "embarrass",
+   "eyes",
+   "face",
+   "hand",
+   "mouth",
+   "open",
+   "over",
+   "scared",
+   "surprise",
+   "with"
+  ]
+ },
+ "gem-stone": {
+  "cldr": "gem stone",
+  "group": "Objects",
+  "keywords": [
+   "diamond",
+   "gem",
+   "jewel",
+   "stone"
+  ]
+ },
+ "jar": {
+  "cldr": "jar",
+  "group": "Food & Drink",
+  "keywords": [
+   "condiment",
+   "container",
+   "empty",
+   "jar",
+   "sauce",
+   "store"
+  ]
+ },
+ "sneezing-face": {
+  "cldr": "sneezing face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "gesundheit",
+   "sneeze",
+   "sneezing"
+  ]
+ },
+ "police-car-light": {
+  "cldr": "police car light",
+  "group": "Travel & Places",
+  "keywords": [
+   "beacon",
+   "car",
+   "light",
+   "police",
+   "revolving"
+  ]
+ },
+ "capricorn": {
+  "cldr": "Capricorn",
+  "group": "Symbols",
+  "keywords": [
+   "capricorn",
+   "goat",
+   "zodiac"
+  ]
+ },
+ "four-leaf-clover": {
+  "cldr": "four leaf clover",
+  "group": "Animals & Nature",
+  "keywords": [
+   "4",
+   "clover",
+   "four",
+   "leaf"
+  ]
+ },
+ "hiking-boot": {
+  "cldr": "hiking boot",
+  "group": "Objects",
+  "keywords": [
+   "backpacking",
+   "boot",
+   "camping",
+   "hiking"
+  ]
+ },
+ "brown-square": {
+  "cldr": "brown square",
+  "group": "Symbols",
+  "keywords": [
+   "brown",
+   "square"
+  ]
+ },
+ "check-box-with-check": {
+  "cldr": "check box with check",
+  "group": "Symbols",
+  "keywords": [
+   "box",
+   "check",
+   "with"
+  ]
+ },
+ "crayon": {
+  "cldr": "crayon",
+  "group": "Objects",
+  "keywords": [
+   "crayon"
+  ]
+ },
+ "stop-sign": {
+  "cldr": "stop sign",
+  "group": "Travel & Places",
+  "keywords": [
+   "octagonal",
+   "sign",
+   "stop"
+  ]
+ },
+ "growing-heart": {
+  "cldr": "growing heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "excited",
+   "growing",
+   "heart",
+   "nervous",
+   "pulse"
+  ]
+ },
+ "smiling-face-with-tear": {
+  "cldr": "smiling face with tear",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "grateful",
+   "proud",
+   "relieved",
+   "smiling",
+   "tear",
+   "touched",
+   "with"
+  ]
+ },
+ "green-heart": {
+  "cldr": "green heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "green",
+   "heart"
+  ]
+ },
+ "church": {
+  "cldr": "church",
+  "group": "Travel & Places",
+  "keywords": [
+   "christian",
+   "church",
+   "cross",
+   "religion"
+  ]
+ },
+ "dove": {
+  "cldr": "dove",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "dove",
+   "fly",
+   "peace"
+  ]
+ },
+ "handshake": {
+  "cldr": "handshake",
+  "group": "People & Body",
+  "keywords": [
+   "agreement",
+   "hand",
+   "handshake",
+   "meeting",
+   "shake"
+  ]
+ },
+ "train": {
+  "cldr": "train",
+  "group": "Travel & Places",
+  "keywords": [
+   "railway",
+   "train"
+  ]
+ },
+ "eight-pointed-star": {
+  "cldr": "eight-pointed star",
+  "group": "Symbols",
+  "keywords": [
+   "eight",
+   "pointed",
+   "star"
+  ]
+ },
+ "game-die": {
+  "cldr": "game die",
+  "group": "Activities",
+  "keywords": [
+   "dice",
+   "die",
+   "game"
+  ]
+ },
+ "bullet-train": {
+  "cldr": "bullet train",
+  "group": "Travel & Places",
+  "keywords": [
+   "bullet",
+   "railway",
+   "shinkansen",
+   "speed",
+   "train"
+  ]
+ },
+ "carp-streamer": {
+  "cldr": "carp streamer",
+  "group": "Activities",
+  "keywords": [
+   "carp",
+   "celebration",
+   "streamer"
+  ]
+ },
+ "yawning-face": {
+  "cldr": "yawning face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "bored",
+   "face",
+   "tired",
+   "yawn",
+   "yawning"
+  ]
+ },
+ "cross-mark": {
+  "cldr": "cross mark",
+  "group": "Symbols",
+  "keywords": [
+   "cancel",
+   "cross",
+   "mark",
+   "multiplication",
+   "multiply",
+   "x"
+  ]
+ },
+ "face-with-symbols-on-mouth": {
+  "cldr": "face with symbols on mouth",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "mouth",
+   "on",
+   "swearing",
+   "symbols",
+   "with"
+  ]
+ },
+ "backpack": {
+  "cldr": "backpack",
+  "group": "Objects",
+  "keywords": [
+   "backpack",
+   "bag",
+   "rucksack",
+   "satchel",
+   "school"
+  ]
+ },
+ "snowman": {
+  "cldr": "snowman",
+  "group": "Travel & Places",
+  "keywords": [
+   "cold",
+   "snow",
+   "snowman"
+  ]
+ },
+ "cricket-game": {
+  "cldr": "cricket game",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "bat",
+   "cricket",
+   "game"
+  ]
+ },
+ "wilted-flower": {
+  "cldr": "wilted flower",
+  "group": "Animals & Nature",
+  "keywords": [
+   "flower",
+   "wilted"
+  ]
+ },
+ "water-wave": {
+  "cldr": "water wave",
+  "group": "Travel & Places",
+  "keywords": [
+   "ocean",
+   "water",
+   "wave"
+  ]
+ },
+ "tiger-face": {
+  "cldr": "tiger face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "tiger"
+  ]
+ },
+ "diamond-with-a-dot": {
+  "cldr": "diamond with a dot",
+  "group": "Symbols",
+  "keywords": [
+   "comic",
+   "diamond",
+   "dot",
+   "geometric",
+   "inside",
+   "with"
+  ]
+ },
+ "mobile-phone": {
+  "cldr": "mobile phone",
+  "group": "Objects",
+  "keywords": [
+   "cell",
+   "mobile",
+   "phone",
+   "telephone"
+  ]
+ },
+ "bellhop-bell": {
+  "cldr": "bellhop bell",
+  "group": "Travel & Places",
+  "keywords": [
+   "bell",
+   "bellhop",
+   "hotel"
+  ]
+ },
+ "fork-and-knife-with-plate": {
+  "cldr": "fork and knife with plate",
+  "group": "Food & Drink",
+  "keywords": [
+   "cooking",
+   "fork",
+   "knife",
+   "plate",
+   "with"
+  ]
+ },
+ "synagogue": {
+  "cldr": "synagogue",
+  "group": "Travel & Places",
+  "keywords": [
+   "jew",
+   "jewish",
+   "religion",
+   "synagogue",
+   "temple"
+  ]
+ },
+ "hole": {
+  "cldr": "hole",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "hole"
+  ]
+ },
+ "classical-building": {
+  "cldr": "classical building",
+  "group": "Travel & Places",
+  "keywords": [
+   "building",
+   "classical"
+  ]
+ },
+ "kitchen-knife": {
+  "cldr": "kitchen knife",
+  "group": "Food & Drink",
+  "keywords": [
+   "cooking",
+   "hocho",
+   "kitchen",
+   "knife",
+   "tool",
+   "weapon"
+  ]
+ },
+ "railway-car": {
+  "cldr": "railway car",
+  "group": "Travel & Places",
+  "keywords": [
+   "car",
+   "electric",
+   "railway",
+   "train",
+   "tram",
+   "trolleybus"
+  ]
+ },
+ "1st-place-medal": {
+  "cldr": "1st place medal",
+  "group": "Activities",
+  "keywords": [
+   "1st",
+   "first",
+   "gold",
+   "medal",
+   "place"
+  ]
+ },
+ "video-camera": {
+  "cldr": "video camera",
+  "group": "Objects",
+  "keywords": [
+   "camera",
+   "video"
+  ]
+ },
+ "no-littering": {
+  "cldr": "no littering",
+  "group": "Symbols",
+  "keywords": [
+   "forbidden",
+   "litter",
+   "littering",
+   "no",
+   "not",
+   "prohibited"
+  ]
+ },
+ "cow": {
+  "cldr": "cow",
+  "group": "Animals & Nature",
+  "keywords": [
+   "cow"
+  ]
+ },
+ "melting-face": {
+  "cldr": "melting face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "disappear",
+   "dissolve",
+   "face",
+   "liquid",
+   "melt",
+   "melting"
+  ]
+ },
+ "on-arrow": {
+  "cldr": "ON! arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "mark",
+   "on"
+  ]
+ },
+ "white-large-square": {
+  "cldr": "white large square",
+  "group": "Symbols",
+  "keywords": [
+   "geometric",
+   "large",
+   "square",
+   "white"
+  ]
+ },
+ "information": {
+  "cldr": "information",
+  "group": "Symbols",
+  "keywords": [
+   "i",
+   "information"
+  ]
+ },
+ "straight-ruler": {
+  "cldr": "straight ruler",
+  "group": "Objects",
+  "keywords": [
+   "edge",
+   "ruler",
+   "straight"
+  ]
+ },
+ "lying-face": {
+  "cldr": "lying face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "lie",
+   "lying",
+   "pinocchio"
+  ]
+ },
+ "desert-island": {
+  "cldr": "desert island",
+  "group": "Travel & Places",
+  "keywords": [
+   "desert",
+   "island"
+  ]
+ },
+ "sari": {
+  "cldr": "sari",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "dress",
+   "sari"
+  ]
+ },
+ "double-curly-loop": {
+  "cldr": "double curly loop",
+  "group": "Symbols",
+  "keywords": [
+   "curl",
+   "curly",
+   "double",
+   "loop"
+  ]
+ },
+ "snowflake": {
+  "cldr": "snowflake",
+  "group": "Travel & Places",
+  "keywords": [
+   "cold",
+   "snow",
+   "snowflake"
+  ]
+ },
+ "banana": {
+  "cldr": "banana",
+  "group": "Food & Drink",
+  "keywords": [
+   "banana",
+   "fruit"
+  ]
+ },
+ "basketball": {
+  "cldr": "basketball",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "basketball",
+   "hoop"
+  ]
+ },
+ "ophiuchus": {
+  "cldr": "Ophiuchus",
+  "group": "Symbols",
+  "keywords": [
+   "bearer",
+   "ophiuchus",
+   "serpent",
+   "snake",
+   "zodiac"
+  ]
+ },
+ "sagittarius": {
+  "cldr": "Sagittarius",
+  "group": "Symbols",
+  "keywords": [
+   "archer",
+   "sagittarius",
+   "zodiac"
+  ]
+ },
+ "pizza": {
+  "cldr": "pizza",
+  "group": "Food & Drink",
+  "keywords": [
+   "cheese",
+   "pizza",
+   "slice"
+  ]
+ },
+ "watermelon": {
+  "cldr": "watermelon",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "watermelon"
+  ]
+ },
+ "shrimp": {
+  "cldr": "shrimp",
+  "group": "Food & Drink",
+  "keywords": [
+   "food",
+   "shellfish",
+   "shrimp",
+   "small"
+  ]
+ },
+ "roasted-sweet-potato": {
+  "cldr": "roasted sweet potato",
+  "group": "Food & Drink",
+  "keywords": [
+   "potato",
+   "roasted",
+   "sweet"
+  ]
+ },
+ "pear": {
+  "cldr": "pear",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "pear"
+  ]
+ },
+ "teacup-without-handle": {
+  "cldr": "teacup without handle",
+  "group": "Food & Drink",
+  "keywords": [
+   "beverage",
+   "cup",
+   "drink",
+   "handle",
+   "tea",
+   "teacup",
+   "without"
+  ]
+ },
+ "diving-mask": {
+  "cldr": "diving mask",
+  "group": "Activities",
+  "keywords": [
+   "diving",
+   "mask",
+   "scuba",
+   "snorkeling"
+  ]
+ },
+ "kissing-face": {
+  "cldr": "kissing face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "kiss",
+   "kissing"
+  ]
+ },
+ "yen-banknote": {
+  "cldr": "yen banknote",
+  "group": "Objects",
+  "keywords": [
+   "banknote",
+   "bill",
+   "currency",
+   "money",
+   "note",
+   "yen"
+  ]
+ },
+ "p-button": {
+  "cldr": "P button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "p",
+   "parking"
+  ]
+ },
+ "check-mark-button": {
+  "cldr": "check mark button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "check",
+   "mark"
+  ]
+ },
+ "bed": {
+  "cldr": "bed",
+  "group": "Objects",
+  "keywords": [
+   "bed",
+   "hotel",
+   "sleep"
+  ]
+ },
+ "mirror-ball": {
+  "cldr": "mirror ball",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "dance",
+   "disco",
+   "glitter",
+   "mirror",
+   "party"
+  ]
+ },
+ "chopsticks": {
+  "cldr": "chopsticks",
+  "group": "Food & Drink",
+  "keywords": [
+   "chopsticks",
+   "hashi"
+  ]
+ },
+ "bookmark-tabs": {
+  "cldr": "bookmark tabs",
+  "group": "Objects",
+  "keywords": [
+   "bookmark",
+   "mark",
+   "marker",
+   "tabs"
+  ]
+ },
+ "helicopter": {
+  "cldr": "helicopter",
+  "group": "Travel & Places",
+  "keywords": [
+   "helicopter",
+   "vehicle"
+  ]
+ },
+ "warning": {
+  "cldr": "warning",
+  "group": "Symbols",
+  "keywords": [
+   "warning"
+  ]
+ },
+ "no-pedestrians": {
+  "cldr": "no pedestrians",
+  "group": "Symbols",
+  "keywords": [
+   "forbidden",
+   "no",
+   "not",
+   "pedestrian",
+   "pedestrians",
+   "prohibited"
+  ]
+ },
+ "money-bag": {
+  "cldr": "money bag",
+  "group": "Objects",
+  "keywords": [
+   "bag",
+   "dollar",
+   "money",
+   "moneybag"
+  ]
+ },
+ "poodle": {
+  "cldr": "poodle",
+  "group": "Animals & Nature",
+  "keywords": [
+   "dog",
+   "poodle"
+  ]
+ },
+ "up-left-arrow": {
+  "cldr": "up-left arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "direction",
+   "intercardinal",
+   "left",
+   "northwest",
+   "up"
+  ]
+ },
+ "bank": {
+  "cldr": "bank",
+  "group": "Travel & Places",
+  "keywords": [
+   "bank",
+   "building"
+  ]
+ },
+ "latin-cross": {
+  "cldr": "latin cross",
+  "group": "Symbols",
+  "keywords": [
+   "christian",
+   "cross",
+   "latin",
+   "religion"
+  ]
+ },
+ "waning-crescent-moon": {
+  "cldr": "waning crescent moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "crescent",
+   "moon",
+   "waning"
+  ]
+ },
+ "hamsa": {
+  "cldr": "hamsa",
+  "group": "Activities",
+  "keywords": [
+   "amulet",
+   "fatima",
+   "hamsa",
+   "hand",
+   "mary",
+   "miriam",
+   "protection"
+  ]
+ },
+ "fried-shrimp": {
+  "cldr": "fried shrimp",
+  "group": "Food & Drink",
+  "keywords": [
+   "fried",
+   "prawn",
+   "shrimp",
+   "tempura"
+  ]
+ },
+ "potato": {
+  "cldr": "potato",
+  "group": "Food & Drink",
+  "keywords": [
+   "food",
+   "potato",
+   "vegetable"
+  ]
+ },
+ "orange-heart": {
+  "cldr": "orange heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "heart",
+   "orange"
+  ]
+ },
+ "fallen-leaf": {
+  "cldr": "fallen leaf",
+  "group": "Animals & Nature",
+  "keywords": [
+   "fallen",
+   "falling",
+   "leaf"
+  ]
+ },
+ "troll": {
+  "cldr": "troll",
+  "group": "People & Body",
+  "keywords": [
+   "fairy",
+   "fantasy",
+   "monster",
+   "tale",
+   "troll"
+  ]
+ },
+ "derelict-house": {
+  "cldr": "derelict house",
+  "group": "Travel & Places",
+  "keywords": [
+   "derelict",
+   "house"
+  ]
+ },
+ "chair": {
+  "cldr": "chair",
+  "group": "Objects",
+  "keywords": [
+   "chair",
+   "seat",
+   "sit"
+  ]
+ },
+ "computer-mouse": {
+  "cldr": "computer mouse",
+  "group": "Objects",
+  "keywords": [
+   "computer",
+   "mouse"
+  ]
+ },
+ "antenna-bars": {
+  "cldr": "antenna bars",
+  "group": "Symbols",
+  "keywords": [
+   "antenna",
+   "bar",
+   "bars",
+   "cell",
+   "mobile",
+   "phone"
+  ]
+ },
+ "dollar-banknote": {
+  "cldr": "dollar banknote",
+  "group": "Objects",
+  "keywords": [
+   "banknote",
+   "bill",
+   "currency",
+   "dollar",
+   "money",
+   "note"
+  ]
+ },
+ "roll-of-paper": {
+  "cldr": "roll of paper",
+  "group": "Objects",
+  "keywords": [
+   "paper",
+   "roll",
+   "toilet",
+   "towels"
+  ]
+ },
+ "green-circle": {
+  "cldr": "green circle",
+  "group": "Symbols",
+  "keywords": [
+   "circle",
+   "green"
+  ]
+ },
+ "bell": {
+  "cldr": "bell",
+  "group": "Objects",
+  "keywords": [
+   "bell"
+  ]
+ },
+ "microphone": {
+  "cldr": "microphone",
+  "group": "Objects",
+  "keywords": [
+   "karaoke",
+   "mic",
+   "microphone"
+  ]
+ },
+ "motor-scooter": {
+  "cldr": "motor scooter",
+  "group": "Travel & Places",
+  "keywords": [
+   "motor",
+   "scooter"
+  ]
+ },
+ "spiral-notepad": {
+  "cldr": "spiral notepad",
+  "group": "Objects",
+  "keywords": [
+   "note",
+   "notepad",
+   "pad",
+   "spiral"
+  ]
+ },
+ "sunglasses": {
+  "cldr": "sunglasses",
+  "group": "Objects",
+  "keywords": [
+   "dark",
+   "eye",
+   "eyewear",
+   "glasses",
+   "sunglasses"
+  ]
+ },
+ "vs-button": {
+  "cldr": "VS button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "versus",
+   "vs"
+  ]
+ },
+ "computer-disk": {
+  "cldr": "computer disk",
+  "group": "Objects",
+  "keywords": [
+   "computer",
+   "disk",
+   "minidisk",
+   "optical"
+  ]
+ },
+ "fast-down-button": {
+  "cldr": "fast down button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "double",
+   "down",
+   "fast"
+  ]
+ },
+ "deciduous-tree": {
+  "cldr": "deciduous tree",
+  "group": "Animals & Nature",
+  "keywords": [
+   "deciduous",
+   "shedding",
+   "tree"
+  ]
+ },
+ "japanese-secret-button": {
+  "cldr": "Japanese \u201csecret\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "ideograph",
+   "japanese",
+   "secret"
+  ]
+ },
+ "railway-track": {
+  "cldr": "railway track",
+  "group": "Travel & Places",
+  "keywords": [
+   "railway",
+   "track",
+   "train"
+  ]
+ },
+ "thinking-face": {
+  "cldr": "thinking face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "thinking"
+  ]
+ },
+ "shower": {
+  "cldr": "shower",
+  "group": "Objects",
+  "keywords": [
+   "shower",
+   "water"
+  ]
+ },
+ "chestnut": {
+  "cldr": "chestnut",
+  "group": "Food & Drink",
+  "keywords": [
+   "chestnut",
+   "plant"
+  ]
+ },
+ "red-question-mark": {
+  "cldr": "red question mark",
+  "group": "Symbols",
+  "keywords": [
+   "mark",
+   "punctuation",
+   "question",
+   "red"
+  ]
+ },
+ "place-of-worship": {
+  "cldr": "place of worship",
+  "group": "Symbols",
+  "keywords": [
+   "place",
+   "religion",
+   "worship"
+  ]
+ },
+ "globe-showing-europe-africa": {
+  "cldr": "globe showing Europe-Africa",
+  "group": "Travel & Places",
+  "keywords": [
+   "africa",
+   "earth",
+   "europe",
+   "globe",
+   "showing",
+   "world"
+  ]
+ },
+ "tangerine": {
+  "cldr": "tangerine",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "orange",
+   "tangerine"
+  ]
+ },
+ "alembic": {
+  "cldr": "alembic",
+  "group": "Objects",
+  "keywords": [
+   "alembic",
+   "chemistry",
+   "tool"
+  ]
+ },
+ "tropical-fish": {
+  "cldr": "tropical fish",
+  "group": "Animals & Nature",
+  "keywords": [
+   "fish",
+   "tropical"
+  ]
+ },
+ "new-moon-face": {
+  "cldr": "new moon face",
+  "group": "Travel & Places",
+  "keywords": [
+   "face",
+   "moon",
+   "new"
+  ]
+ },
+ "wavy-dash": {
+  "cldr": "wavy dash",
+  "group": "Symbols",
+  "keywords": [
+   "dash",
+   "punctuation",
+   "wavy"
+  ]
+ },
+ "hippopotamus": {
+  "cldr": "hippopotamus",
+  "group": "Animals & Nature",
+  "keywords": [
+   "hippo",
+   "hippopotamus"
+  ]
+ },
+ "pig-nose": {
+  "cldr": "pig nose",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "nose",
+   "pig"
+  ]
+ },
+ "fearful-face": {
+  "cldr": "fearful face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "fear",
+   "fearful",
+   "scared"
+  ]
+ },
+ "atom-symbol": {
+  "cldr": "atom symbol",
+  "group": "Symbols",
+  "keywords": [
+   "atheist",
+   "atom",
+   "symbol"
+  ]
+ },
+ "robot": {
+  "cldr": "robot",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "monster",
+   "robot"
+  ]
+ },
+ "ballot-box-with-ballot": {
+  "cldr": "ballot box with ballot",
+  "group": "Objects",
+  "keywords": [
+   "ballot",
+   "box",
+   "with"
+  ]
+ },
+ "pineapple": {
+  "cldr": "pineapple",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "pineapple"
+  ]
+ },
+ "ballet-shoes": {
+  "cldr": "ballet shoes",
+  "group": "Objects",
+  "keywords": [
+   "ballet",
+   "dance",
+   "shoes"
+  ]
+ },
+ "broom": {
+  "cldr": "broom",
+  "group": "Objects",
+  "keywords": [
+   "broom",
+   "cleaning",
+   "sweeping",
+   "witch"
+  ]
+ },
+ "one-oclock": {
+  "cldr": "one o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "1",
+   "clock",
+   "o",
+   "one"
+  ]
+ },
+ "police-car": {
+  "cldr": "police car",
+  "group": "Travel & Places",
+  "keywords": [
+   "car",
+   "patrol",
+   "police"
+  ]
+ },
+ "cat-face": {
+  "cldr": "cat face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "cat",
+   "face",
+   "pet"
+  ]
+ },
+ "slightly-frowning-face": {
+  "cldr": "slightly frowning face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "frown",
+   "frowning",
+   "slightly"
+  ]
+ },
+ "pleading-face": {
+  "cldr": "pleading face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "begging",
+   "eyes",
+   "face",
+   "mercy",
+   "pleading",
+   "puppy"
+  ]
+ },
+ "shuffle-tracks-button": {
+  "cldr": "shuffle tracks button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "crossed",
+   "shuffle",
+   "tracks"
+  ]
+ },
+ "bookmark": {
+  "cldr": "bookmark",
+  "group": "Objects",
+  "keywords": [
+   "bookmark",
+   "mark"
+  ]
+ },
+ "penguin": {
+  "cldr": "penguin",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "penguin"
+  ]
+ },
+ "upside-down-face": {
+  "cldr": "upside-down face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "down",
+   "face",
+   "upside"
+  ]
+ },
+ "circus-tent": {
+  "cldr": "circus tent",
+  "group": "Travel & Places",
+  "keywords": [
+   "circus",
+   "tent"
+  ]
+ },
+ "eight-spoked-asterisk": {
+  "cldr": "eight-spoked asterisk",
+  "group": "Symbols",
+  "keywords": [
+   "asterisk",
+   "eight",
+   "spoked"
+  ]
+ },
+ "sponge": {
+  "cldr": "sponge",
+  "group": "Objects",
+  "keywords": [
+   "absorbing",
+   "cleaning",
+   "porous",
+   "sponge"
+  ]
+ },
+ "stuffed-flatbread": {
+  "cldr": "stuffed flatbread",
+  "group": "Food & Drink",
+  "keywords": [
+   "falafel",
+   "flatbread",
+   "food",
+   "gyro",
+   "kebab",
+   "stuffed"
+  ]
+ },
+ "fast-reverse-button": {
+  "cldr": "fast reverse button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "double",
+   "fast",
+   "reverse",
+   "rewind"
+  ]
+ },
+ "brick": {
+  "cldr": "brick",
+  "group": "Travel & Places",
+  "keywords": [
+   "brick",
+   "bricks",
+   "clay",
+   "mortar",
+   "wall"
+  ]
+ },
+ "fox": {
+  "cldr": "fox",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "fox"
+  ]
+ },
+ "oden": {
+  "cldr": "oden",
+  "group": "Food & Drink",
+  "keywords": [
+   "kebab",
+   "oden",
+   "seafood",
+   "skewer",
+   "stick"
+  ]
+ },
+ "stethoscope": {
+  "cldr": "stethoscope",
+  "group": "Objects",
+  "keywords": [
+   "doctor",
+   "heart",
+   "medicine",
+   "stethoscope"
+  ]
+ },
+ "airplane-arrival": {
+  "cldr": "airplane arrival",
+  "group": "Travel & Places",
+  "keywords": [
+   "aeroplane",
+   "airplane",
+   "arrival",
+   "arrivals",
+   "arriving",
+   "landing"
+  ]
+ },
+ "smiling-face-with-sunglasses": {
+  "cldr": "smiling face with sunglasses",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "bright",
+   "cool",
+   "face",
+   "smiling",
+   "sun",
+   "sunglasses",
+   "with"
+  ]
+ },
+ "speedboat": {
+  "cldr": "speedboat",
+  "group": "Travel & Places",
+  "keywords": [
+   "boat",
+   "speedboat"
+  ]
+ },
+ "wind-chime": {
+  "cldr": "wind chime",
+  "group": "Activities",
+  "keywords": [
+   "bell",
+   "celebration",
+   "chime",
+   "wind"
+  ]
+ },
+ "heart-with-arrow": {
+  "cldr": "heart with arrow",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "arrow",
+   "cupid",
+   "heart",
+   "with"
+  ]
+ },
+ "boar": {
+  "cldr": "boar",
+  "group": "Animals & Nature",
+  "keywords": [
+   "boar",
+   "pig"
+  ]
+ },
+ "wind-face": {
+  "cldr": "wind face",
+  "group": "Travel & Places",
+  "keywords": [
+   "blow",
+   "cloud",
+   "face",
+   "wind"
+  ]
+ },
+ "grapes": {
+  "cldr": "grapes",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "grape",
+   "grapes"
+  ]
+ },
+ "green-square": {
+  "cldr": "green square",
+  "group": "Symbols",
+  "keywords": [
+   "green",
+   "square"
+  ]
+ },
+ "hourglass-not-done": {
+  "cldr": "hourglass not done",
+  "group": "Travel & Places",
+  "keywords": [
+   "done",
+   "hourglass",
+   "not",
+   "sand",
+   "timer"
+  ]
+ },
+ "duck": {
+  "cldr": "duck",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "duck"
+  ]
+ },
+ "curly-loop": {
+  "cldr": "curly loop",
+  "group": "Symbols",
+  "keywords": [
+   "curl",
+   "curly",
+   "loop"
+  ]
+ },
+ "virgo": {
+  "cldr": "Virgo",
+  "group": "Symbols",
+  "keywords": [
+   "virgo",
+   "zodiac"
+  ]
+ },
+ "bucket": {
+  "cldr": "bucket",
+  "group": "Objects",
+  "keywords": [
+   "bucket",
+   "cask",
+   "pail",
+   "vat"
+  ]
+ },
+ "cowboy-hat-face": {
+  "cldr": "cowboy hat face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cowboy",
+   "cowgirl",
+   "face",
+   "hat"
+  ]
+ },
+ "ten-thirty": {
+  "cldr": "ten-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "10",
+   "30",
+   "clock",
+   "ten",
+   "thirty"
+  ]
+ },
+ "japanese-here-button": {
+  "cldr": "Japanese \u201chere\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "here",
+   "japanese",
+   "katakana"
+  ]
+ },
+ "coconut": {
+  "cldr": "coconut",
+  "group": "Food & Drink",
+  "keywords": [
+   "coconut",
+   "colada",
+   "palm",
+   "pi"
+  ]
+ },
+ "dress": {
+  "cldr": "dress",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "dress"
+  ]
+ },
+ "bell-pepper": {
+  "cldr": "bell pepper",
+  "group": "Food & Drink",
+  "keywords": [
+   "bell",
+   "capsicum",
+   "pepper",
+   "vegetable"
+  ]
+ },
+ "suspension-railway": {
+  "cldr": "suspension railway",
+  "group": "Travel & Places",
+  "keywords": [
+   "railway",
+   "suspension"
+  ]
+ },
+ "dagger": {
+  "cldr": "dagger",
+  "group": "Objects",
+  "keywords": [
+   "dagger",
+   "knife",
+   "weapon"
+  ]
+ },
+ "tractor": {
+  "cldr": "tractor",
+  "group": "Travel & Places",
+  "keywords": [
+   "tractor",
+   "vehicle"
+  ]
+ },
+ "heavy-equals-sign": {
+  "cldr": "heavy equals sign",
+  "group": "Symbols",
+  "keywords": [
+   "equality",
+   "equals",
+   "heavy",
+   "math",
+   "sign"
+  ]
+ },
+ "spiral-calendar": {
+  "cldr": "spiral calendar",
+  "group": "Objects",
+  "keywords": [
+   "calendar",
+   "pad",
+   "spiral"
+  ]
+ },
+ "tulip": {
+  "cldr": "tulip",
+  "group": "Animals & Nature",
+  "keywords": [
+   "flower",
+   "tulip"
+  ]
+ },
+ "input-symbols": {
+  "cldr": "input symbols",
+  "group": "Symbols",
+  "keywords": [
+   "input",
+   "symbols"
+  ]
+ },
+ "aerial-tramway": {
+  "cldr": "aerial tramway",
+  "group": "Travel & Places",
+  "keywords": [
+   "aerial",
+   "cable",
+   "car",
+   "gondola",
+   "tramway"
+  ]
+ },
+ "crying-cat": {
+  "cldr": "crying cat",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "cry",
+   "crying",
+   "face",
+   "sad",
+   "tear"
+  ]
+ },
+ "broken-chain": {
+  "cldr": "broken chain",
+  "group": "Objects",
+  "keywords": [
+   "break",
+   "breaking",
+   "broken",
+   "chain",
+   "cuffs",
+   "freedom"
+  ]
+ },
+ "spiral-shell": {
+  "cldr": "spiral shell",
+  "group": "Animals & Nature",
+  "keywords": [
+   "shell",
+   "spiral"
+  ]
+ },
+ "disguised-face": {
+  "cldr": "disguised face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "disguise",
+   "disguised",
+   "face",
+   "glasses",
+   "incognito",
+   "nose"
+  ]
+ },
+ "play-or-pause-button": {
+  "cldr": "play or pause button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "or",
+   "pause",
+   "play",
+   "right",
+   "triangle"
+  ]
+ },
+ "shaved-ice": {
+  "cldr": "shaved ice",
+  "group": "Food & Drink",
+  "keywords": [
+   "dessert",
+   "ice",
+   "shaved",
+   "sweet"
+  ]
+ },
+ "left-luggage": {
+  "cldr": "left luggage",
+  "group": "Symbols",
+  "keywords": [
+   "baggage",
+   "left",
+   "locker",
+   "luggage"
+  ]
+ },
+ "satellite": {
+  "cldr": "satellite",
+  "group": "Travel & Places",
+  "keywords": [
+   "satellite",
+   "space"
+  ]
+ },
+ "paw-prints": {
+  "cldr": "paw prints",
+  "group": "Animals & Nature",
+  "keywords": [
+   "feet",
+   "paw",
+   "print",
+   "prints"
+  ]
+ },
+ "mechanical-leg": {
+  "cldr": "mechanical leg",
+  "group": "People & Body",
+  "keywords": [
+   "accessibility",
+   "leg",
+   "mechanical",
+   "prosthetic"
+  ]
+ },
+ "love-letter": {
+  "cldr": "love letter",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "heart",
+   "letter",
+   "love",
+   "mail"
+  ]
+ },
+ "label": {
+  "cldr": "label",
+  "group": "Objects",
+  "keywords": [
+   "label"
+  ]
+ },
+ "french-fries": {
+  "cldr": "french fries",
+  "group": "Food & Drink",
+  "keywords": [
+   "french",
+   "fries"
+  ]
+ },
+ "last-quarter-moon": {
+  "cldr": "last quarter moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "last",
+   "moon",
+   "quarter"
+  ]
+ },
+ "person-wrestling": {
+  "cldr": "people wrestling",
+  "group": "People & Body",
+  "keywords": [
+   "people",
+   "wrestle",
+   "wrestler",
+   "wrestling"
+  ]
+ },
+ "bat": {
+  "cldr": "bat",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bat",
+   "vampire"
+  ]
+ },
+ "drum": {
+  "cldr": "drum",
+  "group": "Objects",
+  "keywords": [
+   "drum",
+   "drumsticks",
+   "music"
+  ]
+ },
+ "club-suit": {
+  "cldr": "club suit",
+  "group": "Activities",
+  "keywords": [
+   "card",
+   "club",
+   "game",
+   "suit"
+  ]
+ },
+ "manual-wheelchair": {
+  "cldr": "manual wheelchair",
+  "group": "Travel & Places",
+  "keywords": [
+   "accessibility",
+   "manual",
+   "wheelchair"
+  ]
+ },
+ "outbox-tray": {
+  "cldr": "outbox tray",
+  "group": "Objects",
+  "keywords": [
+   "box",
+   "letter",
+   "mail",
+   "outbox",
+   "sent",
+   "tray"
+  ]
+ },
+ "bouquet": {
+  "cldr": "bouquet",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bouquet",
+   "flower"
+  ]
+ },
+ "spider": {
+  "cldr": "spider",
+  "group": "Animals & Nature",
+  "keywords": [
+   "insect",
+   "spider"
+  ]
+ },
+ "lungs": {
+  "cldr": "lungs",
+  "group": "People & Body",
+  "keywords": [
+   "breath",
+   "exhalation",
+   "inhalation",
+   "lungs",
+   "organ",
+   "respiration"
+  ]
+ },
+ "white-circle": {
+  "cldr": "white circle",
+  "group": "Symbols",
+  "keywords": [
+   "circle",
+   "geometric",
+   "white"
+  ]
+ },
+ "scorpio": {
+  "cldr": "Scorpio",
+  "group": "Symbols",
+  "keywords": [
+   "scorpio",
+   "scorpion",
+   "scorpius",
+   "zodiac"
+  ]
+ },
+ "clockwise-vertical-arrows": {
+  "cldr": "clockwise vertical arrows",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "arrows",
+   "clockwise",
+   "reload",
+   "vertical"
+  ]
+ },
+ "five-thirty": {
+  "cldr": "five-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "30",
+   "5",
+   "clock",
+   "five",
+   "thirty"
+  ]
+ },
+ "face-without-mouth": {
+  "cldr": "face without mouth",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "mouth",
+   "quiet",
+   "silent",
+   "without"
+  ]
+ },
+ "persevering-face": {
+  "cldr": "persevering face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "persevere",
+   "persevering"
+  ]
+ },
+ "steaming-bowl": {
+  "cldr": "steaming bowl",
+  "group": "Food & Drink",
+  "keywords": [
+   "bowl",
+   "noodle",
+   "ramen",
+   "steaming"
+  ]
+ },
+ "japanese-congratulations-button": {
+  "cldr": "Japanese \u201ccongratulations\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "congratulations",
+   "ideograph",
+   "japanese"
+  ]
+ },
+ "black-medium-small-square": {
+  "cldr": "black medium-small square",
+  "group": "Symbols",
+  "keywords": [
+   "black",
+   "geometric",
+   "medium",
+   "small",
+   "square"
+  ]
+ },
+ "keycap-2": {
+  "cldr": "keycap: 2",
+  "group": "Symbols",
+  "keywords": [
+   "2",
+   "keycap",
+   "two"
+  ]
+ },
+ "map-of-japan": {
+  "cldr": "map of Japan",
+  "group": "Travel & Places",
+  "keywords": [
+   "japan",
+   "map"
+  ]
+ },
+ "test-tube": {
+  "cldr": "test tube",
+  "group": "Objects",
+  "keywords": [
+   "chemist",
+   "chemistry",
+   "experiment",
+   "lab",
+   "science",
+   "test",
+   "tube"
+  ]
+ },
+ "pouring-liquid": {
+  "cldr": "pouring liquid",
+  "group": "Food & Drink",
+  "keywords": [
+   "drink",
+   "empty",
+   "glass",
+   "liquid",
+   "pouring",
+   "spill"
+  ]
+ },
+ "lab-coat": {
+  "cldr": "lab coat",
+  "group": "Objects",
+  "keywords": [
+   "coat",
+   "doctor",
+   "experiment",
+   "lab",
+   "scientist"
+  ]
+ },
+ "smiling-face-with-horns": {
+  "cldr": "smiling face with horns",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "fairy",
+   "fantasy",
+   "horns",
+   "smile",
+   "smiling",
+   "tale",
+   "with"
+  ]
+ },
+ "desert": {
+  "cldr": "desert",
+  "group": "Travel & Places",
+  "keywords": [
+   "desert"
+  ]
+ },
+ "telescope": {
+  "cldr": "telescope",
+  "group": "Objects",
+  "keywords": [
+   "science",
+   "telescope",
+   "tool"
+  ]
+ },
+ "sweat-droplets": {
+  "cldr": "sweat droplets",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "comic",
+   "droplets",
+   "splashing",
+   "sweat"
+  ]
+ },
+ "yellow-square": {
+  "cldr": "yellow square",
+  "group": "Symbols",
+  "keywords": [
+   "square",
+   "yellow"
+  ]
+ },
+ "fire-engine": {
+  "cldr": "fire engine",
+  "group": "Travel & Places",
+  "keywords": [
+   "engine",
+   "fire",
+   "truck"
+  ]
+ },
+ "bicycle": {
+  "cldr": "bicycle",
+  "group": "Travel & Places",
+  "keywords": [
+   "bicycle",
+   "bike"
+  ]
+ },
+ "musical-note": {
+  "cldr": "musical note",
+  "group": "Objects",
+  "keywords": [
+   "music",
+   "musical",
+   "note"
+  ]
+ },
+ "t-rex": {
+  "cldr": "T-Rex",
+  "group": "Animals & Nature",
+  "keywords": [
+   "rex",
+   "t",
+   "tyrannosaurus"
+  ]
+ },
+ "wood": {
+  "cldr": "wood",
+  "group": "Travel & Places",
+  "keywords": [
+   "log",
+   "lumber",
+   "timber",
+   "wood"
+  ]
+ },
+ "avocado": {
+  "cldr": "avocado",
+  "group": "Food & Drink",
+  "keywords": [
+   "avocado",
+   "food",
+   "fruit"
+  ]
+ },
+ "japanese-application-button": {
+  "cldr": "Japanese \u201capplication\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "application",
+   "button",
+   "ideograph",
+   "japanese"
+  ]
+ },
+ "left-right-arrow": {
+  "cldr": "left-right arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "left",
+   "right"
+  ]
+ },
+ "construction": {
+  "cldr": "construction",
+  "group": "Travel & Places",
+  "keywords": [
+   "barrier",
+   "construction"
+  ]
+ },
+ "multiply": {
+  "cldr": "multiply",
+  "group": "Symbols",
+  "keywords": [
+   "cancel",
+   "multiplication",
+   "multiply",
+   "sign",
+   "x"
+  ]
+ },
+ "top-arrow": {
+  "cldr": "TOP arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "top",
+   "up"
+  ]
+ },
+ "watch": {
+  "cldr": "watch",
+  "group": "Travel & Places",
+  "keywords": [
+   "clock",
+   "watch"
+  ]
+ },
+ "input-latin-letters": {
+  "cldr": "input latin letters",
+  "group": "Symbols",
+  "keywords": [
+   "abc",
+   "alphabet",
+   "input",
+   "latin",
+   "letters"
+  ]
+ },
+ "right-anger-bubble": {
+  "cldr": "right anger bubble",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "anger",
+   "angry",
+   "balloon",
+   "bubble",
+   "mad",
+   "right"
+  ]
+ },
+ "key": {
+  "cldr": "key",
+  "group": "Objects",
+  "keywords": [
+   "key",
+   "lock",
+   "password"
+  ]
+ },
+ "lemon": {
+  "cldr": "lemon",
+  "group": "Food & Drink",
+  "keywords": [
+   "citrus",
+   "fruit",
+   "lemon"
+  ]
+ },
+ "anchor": {
+  "cldr": "anchor",
+  "group": "Travel & Places",
+  "keywords": [
+   "anchor",
+   "ship",
+   "tool"
+  ]
+ },
+ "beaming-face-with-smiling-eyes": {
+  "cldr": "beaming face with smiling eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "beaming",
+   "eye",
+   "eyes",
+   "face",
+   "grin",
+   "smile",
+   "smiling",
+   "with"
+  ]
+ },
+ "wastebasket": {
+  "cldr": "wastebasket",
+  "group": "Objects",
+  "keywords": [
+   "wastebasket"
+  ]
+ },
+ "om": {
+  "cldr": "om",
+  "group": "Symbols",
+  "keywords": [
+   "hindu",
+   "om",
+   "religion"
+  ]
+ },
+ "face-with-spiral-eyes": {
+  "cldr": "face with spiral eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "dizzy",
+   "eyes",
+   "face",
+   "hypnotized",
+   "spiral",
+   "trouble",
+   "whoa",
+   "with"
+  ]
+ },
+ "sos-button": {
+  "cldr": "SOS button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "help",
+   "sos"
+  ]
+ },
+ "flute": {
+  "cldr": "flute",
+  "group": "Objects",
+  "keywords": [
+   "fife",
+   "flute",
+   "music",
+   "pipe",
+   "recorder",
+   "woodwind"
+  ]
+ },
+ "lion": {
+  "cldr": "lion",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "leo",
+   "lion",
+   "zodiac"
+  ]
+ },
+ "nest-with-eggs": {
+  "cldr": "nest with eggs",
+  "group": "Animals & Nature",
+  "keywords": [
+   "eggs",
+   "nest",
+   "nesting",
+   "with"
+  ]
+ },
+ "open-mailbox-with-lowered-flag": {
+  "cldr": "open mailbox with lowered flag",
+  "group": "Objects",
+  "keywords": [
+   "flag",
+   "lowered",
+   "mail",
+   "mailbox",
+   "open",
+   "postbox",
+   "with"
+  ]
+ },
+ "white-exclamation-mark": {
+  "cldr": "white exclamation mark",
+  "group": "Symbols",
+  "keywords": [
+   "exclamation",
+   "mark",
+   "outlined",
+   "punctuation",
+   "white"
+  ]
+ },
+ "locomotive": {
+  "cldr": "locomotive",
+  "group": "Travel & Places",
+  "keywords": [
+   "engine",
+   "locomotive",
+   "railway",
+   "steam",
+   "train"
+  ]
+ },
+ "gorilla": {
+  "cldr": "gorilla",
+  "group": "Animals & Nature",
+  "keywords": [
+   "gorilla"
+  ]
+ },
+ "telephone-receiver": {
+  "cldr": "telephone receiver",
+  "group": "Objects",
+  "keywords": [
+   "phone",
+   "receiver",
+   "telephone"
+  ]
+ },
+ "yo-yo": {
+  "cldr": "yo-yo",
+  "group": "Activities",
+  "keywords": [
+   "fluctuate",
+   "toy",
+   "yo"
+  ]
+ },
+ "clamp": {
+  "cldr": "clamp",
+  "group": "Objects",
+  "keywords": [
+   "clamp",
+   "compress",
+   "tool",
+   "vice"
+  ]
+ },
+ "rugby-football": {
+  "cldr": "rugby football",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "football",
+   "rugby"
+  ]
+ },
+ "ladder": {
+  "cldr": "ladder",
+  "group": "Objects",
+  "keywords": [
+   "climb",
+   "ladder",
+   "rung",
+   "step"
+  ]
+ },
+ "laptop": {
+  "cldr": "laptop",
+  "group": "Objects",
+  "keywords": [
+   "computer",
+   "laptop",
+   "pc",
+   "personal"
+  ]
+ },
+ "tear-off-calendar": {
+  "cldr": "tear-off calendar",
+  "group": "Objects",
+  "keywords": [
+   "calendar",
+   "off",
+   "tear"
+  ]
+ },
+ "goblin": {
+  "cldr": "goblin",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "creature",
+   "face",
+   "fairy",
+   "fantasy",
+   "goblin",
+   "monster",
+   "tale"
+  ]
+ },
+ "sun-with-face": {
+  "cldr": "sun with face",
+  "group": "Travel & Places",
+  "keywords": [
+   "bright",
+   "face",
+   "sun",
+   "with"
+  ]
+ },
+ "birthday-cake": {
+  "cldr": "birthday cake",
+  "group": "Food & Drink",
+  "keywords": [
+   "birthday",
+   "cake",
+   "celebration",
+   "dessert",
+   "pastry",
+   "sweet"
+  ]
+ },
+ "head-shaking-horizontally": {
+  "cldr": "head shaking horizontally",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "head",
+   "horizontally",
+   "no",
+   "shake",
+   "shaking"
+  ]
+ },
+ "light-blue-heart": {
+  "cldr": "light blue heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "blue",
+   "cyan",
+   "heart",
+   "light",
+   "teal"
+  ]
+ },
+ "shield": {
+  "cldr": "shield",
+  "group": "Objects",
+  "keywords": [
+   "shield",
+   "weapon"
+  ]
+ },
+ "cityscape": {
+  "cldr": "cityscape",
+  "group": "Travel & Places",
+  "keywords": [
+   "city",
+   "cityscape"
+  ]
+ },
+ "face-blowing-a-kiss": {
+  "cldr": "face blowing a kiss",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "blowing",
+   "face",
+   "kiss"
+  ]
+ },
+ "eleven-oclock": {
+  "cldr": "eleven o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "11",
+   "clock",
+   "eleven",
+   "o"
+  ]
+ },
+ "battery": {
+  "cldr": "battery",
+  "group": "Objects",
+  "keywords": [
+   "battery"
+  ]
+ },
+ "school": {
+  "cldr": "school",
+  "group": "Travel & Places",
+  "keywords": [
+   "building",
+   "school"
+  ]
+ },
+ "videocassette": {
+  "cldr": "videocassette",
+  "group": "Objects",
+  "keywords": [
+   "tape",
+   "vhs",
+   "video",
+   "videocassette"
+  ]
+ },
+ "fire-extinguisher": {
+  "cldr": "fire extinguisher",
+  "group": "Objects",
+  "keywords": [
+   "extinguish",
+   "extinguisher",
+   "fire",
+   "quench"
+  ]
+ },
+ "purse": {
+  "cldr": "purse",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "coin",
+   "purse"
+  ]
+ },
+ "snow-capped-mountain": {
+  "cldr": "snow-capped mountain",
+  "group": "Travel & Places",
+  "keywords": [
+   "capped",
+   "cold",
+   "mountain",
+   "snow"
+  ]
+ },
+ "kangaroo": {
+  "cldr": "kangaroo",
+  "group": "Animals & Nature",
+  "keywords": [
+   "australia",
+   "joey",
+   "jump",
+   "kangaroo",
+   "marsupial"
+  ]
+ },
+ "moon-viewing-ceremony": {
+  "cldr": "moon viewing ceremony",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "ceremony",
+   "moon",
+   "viewing"
+  ]
+ },
+ "sport-utility-vehicle": {
+  "cldr": "sport utility vehicle",
+  "group": "Travel & Places",
+  "keywords": [
+   "recreational",
+   "sport",
+   "utility",
+   "vehicle"
+  ]
+ },
+ "motorized-wheelchair": {
+  "cldr": "motorized wheelchair",
+  "group": "Travel & Places",
+  "keywords": [
+   "accessibility",
+   "motorized",
+   "wheelchair"
+  ]
+ },
+ "ledger": {
+  "cldr": "ledger",
+  "group": "Objects",
+  "keywords": [
+   "ledger",
+   "notebook"
+  ]
+ },
+ "scorpion": {
+  "cldr": "scorpion",
+  "group": "Animals & Nature",
+  "keywords": [
+   "scorpio",
+   "scorpion",
+   "zodiac"
+  ]
+ },
+ "parrot": {
+  "cldr": "parrot",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "parrot",
+   "pirate",
+   "talk"
+  ]
+ },
+ "radio-button": {
+  "cldr": "radio button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "geometric",
+   "radio"
+  ]
+ },
+ "crocodile": {
+  "cldr": "crocodile",
+  "group": "Animals & Nature",
+  "keywords": [
+   "crocodile"
+  ]
+ },
+ "small-airplane": {
+  "cldr": "small airplane",
+  "group": "Travel & Places",
+  "keywords": [
+   "aeroplane",
+   "airplane",
+   "small"
+  ]
+ },
+ "baseball": {
+  "cldr": "baseball",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "baseball"
+  ]
+ },
+ "womens-room": {
+  "cldr": "women\u2019s room",
+  "group": "Symbols",
+  "keywords": [
+   "lavatory",
+   "restroom",
+   "room",
+   "s",
+   "wc",
+   "woman",
+   "women"
+  ]
+ },
+ "lime": {
+  "cldr": "lime",
+  "group": "Food & Drink",
+  "keywords": [
+   "citrus",
+   "fruit",
+   "lime",
+   "tropical"
+  ]
+ },
+ "coffin": {
+  "cldr": "coffin",
+  "group": "Objects",
+  "keywords": [
+   "coffin",
+   "death"
+  ]
+ },
+ "white-heart": {
+  "cldr": "white heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "heart",
+   "white"
+  ]
+ },
+ "double-exclamation-mark": {
+  "cldr": "double exclamation mark",
+  "group": "Symbols",
+  "keywords": [
+   "bangbang",
+   "double",
+   "exclamation",
+   "mark"
+  ]
+ },
+ "down-arrow": {
+  "cldr": "down arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "cardinal",
+   "direction",
+   "down",
+   "south"
+  ]
+ },
+ "spider-web": {
+  "cldr": "spider web",
+  "group": "Animals & Nature",
+  "keywords": [
+   "spider",
+   "web"
+  ]
+ },
+ "tokyo-tower": {
+  "cldr": "Tokyo tower",
+  "group": "Travel & Places",
+  "keywords": [
+   "tokyo",
+   "tower"
+  ]
+ },
+ "reminder-ribbon": {
+  "cldr": "reminder ribbon",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "reminder",
+   "ribbon"
+  ]
+ },
+ "fondue": {
+  "cldr": "fondue",
+  "group": "Food & Drink",
+  "keywords": [
+   "cheese",
+   "chocolate",
+   "fondue",
+   "melted",
+   "pot",
+   "swiss"
+  ]
+ },
+ "foggy": {
+  "cldr": "foggy",
+  "group": "Travel & Places",
+  "keywords": [
+   "fog",
+   "foggy"
+  ]
+ },
+ "cupcake": {
+  "cldr": "cupcake",
+  "group": "Food & Drink",
+  "keywords": [
+   "bakery",
+   "cupcake",
+   "sweet"
+  ]
+ },
+ "low-battery": {
+  "cldr": "low battery",
+  "group": "Objects",
+  "keywords": [
+   "battery",
+   "electronic",
+   "energy",
+   "low"
+  ]
+ },
+ "weary-face": {
+  "cldr": "weary face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "tired",
+   "weary"
+  ]
+ },
+ "bikini": {
+  "cldr": "bikini",
+  "group": "Objects",
+  "keywords": [
+   "bikini",
+   "clothing",
+   "swim"
+  ]
+ },
+ "turtle": {
+  "cldr": "turtle",
+  "group": "Animals & Nature",
+  "keywords": [
+   "terrapin",
+   "tortoise",
+   "turtle"
+  ]
+ },
+ "id-button": {
+  "cldr": "ID button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "id",
+   "identity"
+  ]
+ },
+ "video-game": {
+  "cldr": "video game",
+  "group": "Activities",
+  "keywords": [
+   "controller",
+   "game",
+   "video"
+  ]
+ },
+ "bust-in-silhouette": {
+  "cldr": "bust in silhouette",
+  "group": "People & Body",
+  "keywords": [
+   "bust",
+   "in",
+   "silhouette"
+  ]
+ },
+ "confetti-ball": {
+  "cldr": "confetti ball",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "celebration",
+   "confetti"
+  ]
+ },
+ "revolving-hearts": {
+  "cldr": "revolving hearts",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "hearts",
+   "revolving"
+  ]
+ },
+ "calendar": {
+  "cldr": "calendar",
+  "group": "Objects",
+  "keywords": [
+   "calendar",
+   "date"
+  ]
+ },
+ "pi-ata": {
+  "cldr": "pi\u00f1ata",
+  "group": "Activities",
+  "keywords": [
+   "ata",
+   "celebration",
+   "party",
+   "pi"
+  ]
+ },
+ "fish": {
+  "cldr": "fish",
+  "group": "Animals & Nature",
+  "keywords": [
+   "fish",
+   "pisces",
+   "zodiac"
+  ]
+ },
+ "eye-in-speech-bubble": {
+  "cldr": "eye in speech bubble",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "bubble",
+   "eye",
+   "in",
+   "speech",
+   "witness"
+  ]
+ },
+ "alien-monster": {
+  "cldr": "alien monster",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "alien",
+   "creature",
+   "extraterrestrial",
+   "face",
+   "monster",
+   "ufo"
+  ]
+ },
+ "bottle-with-popping-cork": {
+  "cldr": "bottle with popping cork",
+  "group": "Food & Drink",
+  "keywords": [
+   "bar",
+   "bottle",
+   "cork",
+   "drink",
+   "popping",
+   "with"
+  ]
+ },
+ "bread": {
+  "cldr": "bread",
+  "group": "Food & Drink",
+  "keywords": [
+   "bread",
+   "loaf"
+  ]
+ },
+ "jack-o-lantern": {
+  "cldr": "jack-o-lantern",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "halloween",
+   "jack",
+   "lantern",
+   "o"
+  ]
+ },
+ "exclamation-question-mark": {
+  "cldr": "exclamation question mark",
+  "group": "Symbols",
+  "keywords": [
+   "exclamation",
+   "interrobang",
+   "mark",
+   "punctuation",
+   "question"
+  ]
+ },
+ "peach": {
+  "cldr": "peach",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "peach"
+  ]
+ },
+ "shark": {
+  "cldr": "shark",
+  "group": "Animals & Nature",
+  "keywords": [
+   "fish",
+   "shark"
+  ]
+ },
+ "auto-rickshaw": {
+  "cldr": "auto rickshaw",
+  "group": "Travel & Places",
+  "keywords": [
+   "auto",
+   "rickshaw",
+   "tuk"
+  ]
+ },
+ "dna": {
+  "cldr": "dna",
+  "group": "Objects",
+  "keywords": [
+   "biologist",
+   "dna",
+   "evolution",
+   "gene",
+   "genetics",
+   "life"
+  ]
+ },
+ "head-shaking-vertically": {
+  "cldr": "head shaking vertically",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "head",
+   "nod",
+   "shaking",
+   "vertically",
+   "yes"
+  ]
+ },
+ "shortcake": {
+  "cldr": "shortcake",
+  "group": "Food & Drink",
+  "keywords": [
+   "cake",
+   "dessert",
+   "pastry",
+   "shortcake",
+   "slice",
+   "sweet"
+  ]
+ },
+ "five-oclock": {
+  "cldr": "five o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "5",
+   "clock",
+   "five",
+   "o"
+  ]
+ },
+ "snowman-without-snow": {
+  "cldr": "snowman without snow",
+  "group": "Travel & Places",
+  "keywords": [
+   "cold",
+   "snow",
+   "snowman",
+   "without"
+  ]
+ },
+ "raccoon": {
+  "cldr": "raccoon",
+  "group": "Animals & Nature",
+  "keywords": [
+   "curious",
+   "raccoon",
+   "sly"
+  ]
+ },
+ "phoenix-bird": {
+  "cldr": "phoenix",
+  "group": "Animals & Nature",
+  "keywords": [
+   "fantasy",
+   "firebird",
+   "phoenix",
+   "rebirth",
+   "reincarnation"
+  ]
+ },
+ "cl-button": {
+  "cldr": "CL button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "cl"
+  ]
+ },
+ "volleyball": {
+  "cldr": "volleyball",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "game",
+   "volleyball"
+  ]
+ },
+ "shaking-face": {
+  "cldr": "shaking face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "earthquake",
+   "face",
+   "shaking",
+   "shock",
+   "vibrate"
+  ]
+ },
+ "cactus": {
+  "cldr": "cactus",
+  "group": "Animals & Nature",
+  "keywords": [
+   "cactus",
+   "plant"
+  ]
+ },
+ "customs": {
+  "cldr": "customs",
+  "group": "Symbols",
+  "keywords": [
+   "customs"
+  ]
+ },
+ "sun-behind-cloud": {
+  "cldr": "sun behind cloud",
+  "group": "Travel & Places",
+  "keywords": [
+   "behind",
+   "cloud",
+   "sun"
+  ]
+ },
+ "mirror": {
+  "cldr": "mirror",
+  "group": "Objects",
+  "keywords": [
+   "mirror",
+   "reflection",
+   "reflector",
+   "speculum"
+  ]
+ },
+ "ng-button": {
+  "cldr": "NG button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "ng"
+  ]
+ },
+ "mount-fuji": {
+  "cldr": "mount fuji",
+  "group": "Travel & Places",
+  "keywords": [
+   "fuji",
+   "mount",
+   "mountain"
+  ]
+ },
+ "funeral-urn": {
+  "cldr": "funeral urn",
+  "group": "Objects",
+  "keywords": [
+   "ashes",
+   "death",
+   "funeral",
+   "urn"
+  ]
+ },
+ "womans-boot": {
+  "cldr": "woman\u2019s boot",
+  "group": "Objects",
+  "keywords": [
+   "boot",
+   "clothing",
+   "s",
+   "shoe",
+   "woman"
+  ]
+ },
+ "biohazard": {
+  "cldr": "biohazard",
+  "group": "Symbols",
+  "keywords": [
+   "biohazard",
+   "sign"
+  ]
+ },
+ "nazar-amulet": {
+  "cldr": "nazar amulet",
+  "group": "Activities",
+  "keywords": [
+   "amulet",
+   "bead",
+   "charm",
+   "evil",
+   "eye",
+   "nazar",
+   "talisman"
+  ]
+ },
+ "motorcycle": {
+  "cldr": "motorcycle",
+  "group": "Travel & Places",
+  "keywords": [
+   "motorcycle",
+   "racing"
+  ]
+ },
+ "kick-scooter": {
+  "cldr": "kick scooter",
+  "group": "Travel & Places",
+  "keywords": [
+   "kick",
+   "scooter"
+  ]
+ },
+ "baggage-claim": {
+  "cldr": "baggage claim",
+  "group": "Symbols",
+  "keywords": [
+   "baggage",
+   "claim"
+  ]
+ },
+ "open-file-folder": {
+  "cldr": "open file folder",
+  "group": "Objects",
+  "keywords": [
+   "file",
+   "folder",
+   "open"
+  ]
+ },
+ "no-bicycles": {
+  "cldr": "no bicycles",
+  "group": "Symbols",
+  "keywords": [
+   "bicycle",
+   "bicycles",
+   "bike",
+   "forbidden",
+   "no",
+   "prohibited"
+  ]
+ },
+ "safety-vest": {
+  "cldr": "safety vest",
+  "group": "Objects",
+  "keywords": [
+   "emergency",
+   "safety",
+   "vest"
+  ]
+ },
+ "medical-symbol": {
+  "cldr": "medical symbol",
+  "group": "Symbols",
+  "keywords": [
+   "aesculapius",
+   "medical",
+   "medicine",
+   "staff",
+   "symbol"
+  ]
+ },
+ "muted-speaker": {
+  "cldr": "muted speaker",
+  "group": "Objects",
+  "keywords": [
+   "mute",
+   "muted",
+   "quiet",
+   "silent",
+   "speaker"
+  ]
+ },
+ "keycap-8": {
+  "cldr": "keycap: 8",
+  "group": "Symbols",
+  "keywords": [
+   "8",
+   "eight",
+   "keycap"
+  ]
+ },
+ "closed-mailbox-with-lowered-flag": {
+  "cldr": "closed mailbox with lowered flag",
+  "group": "Objects",
+  "keywords": [
+   "closed",
+   "flag",
+   "lowered",
+   "mail",
+   "mailbox",
+   "postbox",
+   "with"
+  ]
+ },
+ "left-arrow-curving-right": {
+  "cldr": "left arrow curving right",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "curving",
+   "left",
+   "right"
+  ]
+ },
+ "american-football": {
+  "cldr": "american football",
+  "group": "Activities",
+  "keywords": [
+   "american",
+   "ball",
+   "football"
+  ]
+ },
+ "globe-with-meridians": {
+  "cldr": "globe with meridians",
+  "group": "Travel & Places",
+  "keywords": [
+   "earth",
+   "globe",
+   "meridians",
+   "with",
+   "world"
+  ]
+ },
+ "japanese-passing-grade-button": {
+  "cldr": "Japanese \u201cpassing grade\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "grade",
+   "ideograph",
+   "japanese",
+   "passing"
+  ]
+ },
+ "timer-clock": {
+  "cldr": "timer clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "clock",
+   "timer"
+  ]
+ },
+ "twelve-oclock": {
+  "cldr": "twelve o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "12",
+   "clock",
+   "o",
+   "twelve"
+  ]
+ },
+ "desktop-computer": {
+  "cldr": "desktop computer",
+  "group": "Objects",
+  "keywords": [
+   "computer",
+   "desktop"
+  ]
+ },
+ "palm-tree": {
+  "cldr": "palm tree",
+  "group": "Animals & Nature",
+  "keywords": [
+   "palm",
+   "tree"
+  ]
+ },
+ "package": {
+  "cldr": "package",
+  "group": "Objects",
+  "keywords": [
+   "box",
+   "package",
+   "parcel"
+  ]
+ },
+ "toilet": {
+  "cldr": "toilet",
+  "group": "Objects",
+  "keywords": [
+   "toilet"
+  ]
+ },
+ "right-arrow-curving-down": {
+  "cldr": "right arrow curving down",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "curving",
+   "down",
+   "right"
+  ]
+ },
+ "inbox-tray": {
+  "cldr": "inbox tray",
+  "group": "Objects",
+  "keywords": [
+   "box",
+   "inbox",
+   "letter",
+   "mail",
+   "receive",
+   "tray"
+  ]
+ },
+ "cloud-with-lightning": {
+  "cldr": "cloud with lightning",
+  "group": "Travel & Places",
+  "keywords": [
+   "cloud",
+   "lightning",
+   "with"
+  ]
+ },
+ "keycap-6": {
+  "cldr": "keycap: 6",
+  "group": "Symbols",
+  "keywords": [
+   "6",
+   "keycap",
+   "six"
+  ]
+ },
+ "moose": {
+  "cldr": "moose",
+  "group": "Animals & Nature",
+  "keywords": [
+   "animal",
+   "antlers",
+   "elk",
+   "mammal",
+   "moose"
+  ]
+ },
+ "musical-score": {
+  "cldr": "musical score",
+  "group": "Objects",
+  "keywords": [
+   "music",
+   "musical",
+   "score"
+  ]
+ },
+ "dizzy": {
+  "cldr": "dizzy",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "comic",
+   "dizzy",
+   "star"
+  ]
+ },
+ "herb": {
+  "cldr": "herb",
+  "group": "Animals & Nature",
+  "keywords": [
+   "herb",
+   "leaf"
+  ]
+ },
+ "japanese-vacancy-button": {
+  "cldr": "Japanese \u201cvacancy\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "ideograph",
+   "japanese",
+   "vacancy"
+  ]
+ },
+ "dumpling": {
+  "cldr": "dumpling",
+  "group": "Food & Drink",
+  "keywords": [
+   "dumpling",
+   "empanada",
+   "gy",
+   "jiaozi",
+   "pierogi",
+   "potsticker",
+   "za"
+  ]
+ },
+ "sleeping-face": {
+  "cldr": "sleeping face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "sleep",
+   "sleeping",
+   "zzz"
+  ]
+ },
+ "aquarius": {
+  "cldr": "Aquarius",
+  "group": "Symbols",
+  "keywords": [
+   "aquarius",
+   "bearer",
+   "water",
+   "zodiac"
+  ]
+ },
+ "studio-microphone": {
+  "cldr": "studio microphone",
+  "group": "Objects",
+  "keywords": [
+   "mic",
+   "microphone",
+   "music",
+   "studio"
+  ]
+ },
+ "exploding-head": {
+  "cldr": "exploding head",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "blown",
+   "exploding",
+   "head",
+   "mind",
+   "shocked"
+  ]
+ },
+ "ear-of-corn": {
+  "cldr": "ear of corn",
+  "group": "Food & Drink",
+  "keywords": [
+   "corn",
+   "ear",
+   "maize",
+   "maze"
+  ]
+ },
+ "burrito": {
+  "cldr": "burrito",
+  "group": "Food & Drink",
+  "keywords": [
+   "burrito",
+   "mexican",
+   "wrap"
+  ]
+ },
+ "tent": {
+  "cldr": "tent",
+  "group": "Travel & Places",
+  "keywords": [
+   "camping",
+   "tent"
+  ]
+ },
+ "first-quarter-moon-face": {
+  "cldr": "first quarter moon face",
+  "group": "Travel & Places",
+  "keywords": [
+   "face",
+   "first",
+   "moon",
+   "quarter"
+  ]
+ },
+ "downcast-face-with-sweat": {
+  "cldr": "downcast face with sweat",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cold",
+   "downcast",
+   "face",
+   "sweat",
+   "with"
+  ]
+ },
+ "currency-exchange": {
+  "cldr": "currency exchange",
+  "group": "Symbols",
+  "keywords": [
+   "bank",
+   "currency",
+   "exchange",
+   "money"
+  ]
+ },
+ "ten-oclock": {
+  "cldr": "ten o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "10",
+   "clock",
+   "o",
+   "ten"
+  ]
+ },
+ "cat-with-tears-of-joy": {
+  "cldr": "cat with tears of joy",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "face",
+   "joy",
+   "tear",
+   "tears",
+   "with"
+  ]
+ },
+ "dim-button": {
+  "cldr": "dim button",
+  "group": "Symbols",
+  "keywords": [
+   "brightness",
+   "button",
+   "dim",
+   "low"
+  ]
+ },
+ "ticket": {
+  "cldr": "ticket",
+  "group": "Activities",
+  "keywords": [
+   "admission",
+   "ticket"
+  ]
+ },
+ "menorah": {
+  "cldr": "menorah",
+  "group": "Symbols",
+  "keywords": [
+   "candelabrum",
+   "candlestick",
+   "menorah",
+   "religion"
+  ]
+ },
+ "doughnut": {
+  "cldr": "doughnut",
+  "group": "Food & Drink",
+  "keywords": [
+   "breakfast",
+   "dessert",
+   "donut",
+   "doughnut",
+   "sweet"
+  ]
+ },
+ "green-apple": {
+  "cldr": "green apple",
+  "group": "Food & Drink",
+  "keywords": [
+   "apple",
+   "fruit",
+   "green"
+  ]
+ },
+ "black-nib": {
+  "cldr": "black nib",
+  "group": "Objects",
+  "keywords": [
+   "black",
+   "nib",
+   "pen"
+  ]
+ },
+ "hammer": {
+  "cldr": "hammer",
+  "group": "Objects",
+  "keywords": [
+   "hammer",
+   "tool"
+  ]
+ },
+ "paintbrush": {
+  "cldr": "paintbrush",
+  "group": "Objects",
+  "keywords": [
+   "paintbrush",
+   "painting"
+  ]
+ },
+ "orange-circle": {
+  "cldr": "orange circle",
+  "group": "Symbols",
+  "keywords": [
+   "circle",
+   "orange"
+  ]
+ },
+ "umbrella": {
+  "cldr": "umbrella",
+  "group": "Travel & Places",
+  "keywords": [
+   "clothing",
+   "rain",
+   "umbrella"
+  ]
+ },
+ "angry-face-with-horns": {
+  "cldr": "angry face with horns",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "angry",
+   "demon",
+   "devil",
+   "face",
+   "fantasy",
+   "horns",
+   "imp",
+   "with"
+  ]
+ },
+ "mouse-face": {
+  "cldr": "mouse face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "mouse"
+  ]
+ },
+ "ginger-root": {
+  "cldr": "ginger root",
+  "group": "Food & Drink",
+  "keywords": [
+   "beer",
+   "ginger",
+   "root",
+   "spice"
+  ]
+ },
+ "rooster": {
+  "cldr": "rooster",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "rooster"
+  ]
+ },
+ "basket": {
+  "cldr": "basket",
+  "group": "Objects",
+  "keywords": [
+   "basket",
+   "farming",
+   "laundry",
+   "picnic"
+  ]
+ },
+ "front-facing-baby-chick": {
+  "cldr": "front-facing baby chick",
+  "group": "Animals & Nature",
+  "keywords": [
+   "baby",
+   "bird",
+   "chick",
+   "facing",
+   "front"
+  ]
+ },
+ "stop-button": {
+  "cldr": "stop button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "square",
+   "stop"
+  ]
+ },
+ "headphone": {
+  "cldr": "headphone",
+  "group": "Objects",
+  "keywords": [
+   "earbud",
+   "headphone"
+  ]
+ },
+ "yellow-heart": {
+  "cldr": "yellow heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "heart",
+   "yellow"
+  ]
+ },
+ "cinema": {
+  "cldr": "cinema",
+  "group": "Symbols",
+  "keywords": [
+   "camera",
+   "cinema",
+   "film",
+   "movie"
+  ]
+ },
+ "orangutan": {
+  "cldr": "orangutan",
+  "group": "Animals & Nature",
+  "keywords": [
+   "ape",
+   "orangutan"
+  ]
+ },
+ "black-large-square": {
+  "cldr": "black large square",
+  "group": "Symbols",
+  "keywords": [
+   "black",
+   "geometric",
+   "large",
+   "square"
+  ]
+ },
+ "smiling-cat-with-heart-eyes": {
+  "cldr": "smiling cat with heart-eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "eye",
+   "eyes",
+   "face",
+   "heart",
+   "love",
+   "smile",
+   "smiling",
+   "with"
+  ]
+ },
+ "o-button-blood-type": {
+  "cldr": "O button (blood type)",
+  "group": "Symbols",
+  "keywords": [
+   "blood",
+   "button",
+   "o",
+   "type"
+  ]
+ },
+ "cold-face": {
+  "cldr": "cold face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "blue",
+   "cold",
+   "face",
+   "faced",
+   "freezing",
+   "frostbite",
+   "icicles"
+  ]
+ },
+ "person-genie": {
+  "cldr": "genie",
+  "group": "People & Body",
+  "keywords": [
+   "djinn",
+   "genie"
+  ]
+ },
+ "level-slider": {
+  "cldr": "level slider",
+  "group": "Objects",
+  "keywords": [
+   "level",
+   "music",
+   "slider"
+  ]
+ },
+ "shinto-shrine": {
+  "cldr": "shinto shrine",
+  "group": "Travel & Places",
+  "keywords": [
+   "religion",
+   "shinto",
+   "shrine"
+  ]
+ },
+ "diya-lamp": {
+  "cldr": "diya lamp",
+  "group": "Objects",
+  "keywords": [
+   "diya",
+   "lamp",
+   "oil"
+  ]
+ },
+ "woman-wrestling": {
+  "cldr": "women wrestling",
+  "group": "People & Body",
+  "keywords": [
+   "women",
+   "wrestle",
+   "wrestling"
+  ]
+ },
+ "receipt": {
+  "cldr": "receipt",
+  "group": "Objects",
+  "keywords": [
+   "accounting",
+   "bookkeeping",
+   "evidence",
+   "proof",
+   "receipt"
+  ]
+ },
+ "wrapped-gift": {
+  "cldr": "wrapped gift",
+  "group": "Activities",
+  "keywords": [
+   "box",
+   "celebration",
+   "gift",
+   "present",
+   "wrapped"
+  ]
+ },
+ "office-building": {
+  "cldr": "office building",
+  "group": "Travel & Places",
+  "keywords": [
+   "building",
+   "office"
+  ]
+ },
+ "mechanical-arm": {
+  "cldr": "mechanical arm",
+  "group": "People & Body",
+  "keywords": [
+   "accessibility",
+   "arm",
+   "mechanical",
+   "prosthetic"
+  ]
+ },
+ "ram": {
+  "cldr": "ram",
+  "group": "Animals & Nature",
+  "keywords": [
+   "aries",
+   "male",
+   "ram",
+   "sheep",
+   "zodiac"
+  ]
+ },
+ "white-small-square": {
+  "cldr": "white small square",
+  "group": "Symbols",
+  "keywords": [
+   "geometric",
+   "small",
+   "square",
+   "white"
+  ]
+ },
+ "beans": {
+  "cldr": "beans",
+  "group": "Food & Drink",
+  "keywords": [
+   "beans",
+   "food",
+   "kidney",
+   "legume"
+  ]
+ },
+ "folding-hand-fan": {
+  "cldr": "folding hand fan",
+  "group": "Objects",
+  "keywords": [
+   "cooling",
+   "dance",
+   "fan",
+   "flutter",
+   "folding",
+   "hand",
+   "hot",
+   "shy"
+  ]
+ },
+ "japanese-symbol-for-beginner": {
+  "cldr": "Japanese symbol for beginner",
+  "group": "Symbols",
+  "keywords": [
+   "beginner",
+   "chevron",
+   "for",
+   "japanese",
+   "leaf",
+   "symbol"
+  ]
+ },
+ "relieved-face": {
+  "cldr": "relieved face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "relieved"
+  ]
+ },
+ "elephant": {
+  "cldr": "elephant",
+  "group": "Animals & Nature",
+  "keywords": [
+   "elephant"
+  ]
+ },
+ "children-crossing": {
+  "cldr": "children crossing",
+  "group": "Symbols",
+  "keywords": [
+   "child",
+   "children",
+   "crossing",
+   "pedestrian",
+   "traffic"
+  ]
+ },
+ "hourglass-done": {
+  "cldr": "hourglass done",
+  "group": "Travel & Places",
+  "keywords": [
+   "done",
+   "hourglass",
+   "sand",
+   "timer"
+  ]
+ },
+ "horizontal-traffic-light": {
+  "cldr": "horizontal traffic light",
+  "group": "Travel & Places",
+  "keywords": [
+   "horizontal",
+   "light",
+   "signal",
+   "traffic"
+  ]
+ },
+ "shushing-face": {
+  "cldr": "shushing face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "quiet",
+   "shush",
+   "shushing"
+  ]
+ },
+ "smiling-face-with-heart-eyes": {
+  "cldr": "smiling face with heart-eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "eye",
+   "eyes",
+   "face",
+   "heart",
+   "love",
+   "smile",
+   "smiling",
+   "with"
+  ]
+ },
+ "cross-mark-button": {
+  "cldr": "cross mark button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "cross",
+   "mark",
+   "square",
+   "x"
+  ]
+ },
+ "japanese-not-free-of-charge-button": {
+  "cldr": "Japanese \u201cnot free of charge\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "charge",
+   "free",
+   "ideograph",
+   "japanese",
+   "not"
+  ]
+ },
+ "glowing-star": {
+  "cldr": "glowing star",
+  "group": "Travel & Places",
+  "keywords": [
+   "glittery",
+   "glow",
+   "glowing",
+   "shining",
+   "sparkle",
+   "star"
+  ]
+ },
+ "one-thirty": {
+  "cldr": "one-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "1",
+   "30",
+   "clock",
+   "one",
+   "thirty"
+  ]
+ },
+ "globe-showing-americas": {
+  "cldr": "globe showing Americas",
+  "group": "Travel & Places",
+  "keywords": [
+   "americas",
+   "earth",
+   "globe",
+   "showing",
+   "world"
+  ]
+ },
+ "beating-heart": {
+  "cldr": "beating heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "beating",
+   "heart",
+   "heartbeat",
+   "pulsating"
+  ]
+ },
+ "hushed-face": {
+  "cldr": "hushed face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "hushed",
+   "stunned",
+   "surprised"
+  ]
+ },
+ "cow-face": {
+  "cldr": "cow face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "cow",
+   "face"
+  ]
+ },
+ "necktie": {
+  "cldr": "necktie",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "necktie",
+   "tie"
+  ]
+ },
+ "glasses": {
+  "cldr": "glasses",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "eye",
+   "eyeglasses",
+   "eyewear",
+   "glasses"
+  ]
+ },
+ "play-button": {
+  "cldr": "play button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "play",
+   "right",
+   "triangle"
+  ]
+ },
+ "tired-face": {
+  "cldr": "tired face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "tired"
+  ]
+ },
+ "monorail": {
+  "cldr": "monorail",
+  "group": "Travel & Places",
+  "keywords": [
+   "monorail",
+   "vehicle"
+  ]
+ },
+ "woozy-face": {
+  "cldr": "woozy face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "dizzy",
+   "eyes",
+   "face",
+   "intoxicated",
+   "mouth",
+   "tipsy",
+   "uneven",
+   "wavy",
+   "woozy"
+  ]
+ },
+ "jeans": {
+  "cldr": "jeans",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "jeans",
+   "pants",
+   "trousers"
+  ]
+ },
+ "input-numbers": {
+  "cldr": "input numbers",
+  "group": "Symbols",
+  "keywords": [
+   "1234",
+   "input",
+   "numbers"
+  ]
+ },
+ "nine-thirty": {
+  "cldr": "nine-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "30",
+   "9",
+   "clock",
+   "nine",
+   "thirty"
+  ]
+ },
+ "barber-pole": {
+  "cldr": "barber pole",
+  "group": "Travel & Places",
+  "keywords": [
+   "barber",
+   "haircut",
+   "pole"
+  ]
+ },
+ "rice-ball": {
+  "cldr": "rice ball",
+  "group": "Food & Drink",
+  "keywords": [
+   "ball",
+   "japanese",
+   "rice"
+  ]
+ },
+ "tennis": {
+  "cldr": "tennis",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "racquet",
+   "tennis"
+  ]
+ },
+ "milky-way": {
+  "cldr": "milky way",
+  "group": "Travel & Places",
+  "keywords": [
+   "milky",
+   "space",
+   "way"
+  ]
+ },
+ "fountain": {
+  "cldr": "fountain",
+  "group": "Travel & Places",
+  "keywords": [
+   "fountain"
+  ]
+ },
+ "3rd-place-medal": {
+  "cldr": "3rd place medal",
+  "group": "Activities",
+  "keywords": [
+   "3rd",
+   "bronze",
+   "medal",
+   "place",
+   "third"
+  ]
+ },
+ "postbox": {
+  "cldr": "postbox",
+  "group": "Objects",
+  "keywords": [
+   "mail",
+   "mailbox",
+   "postbox"
+  ]
+ },
+ "dog-face": {
+  "cldr": "dog face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "dog",
+   "face",
+   "pet"
+  ]
+ },
+ "eight-thirty": {
+  "cldr": "eight-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "30",
+   "8",
+   "clock",
+   "eight",
+   "thirty"
+  ]
+ },
+ "spoon": {
+  "cldr": "spoon",
+  "group": "Food & Drink",
+  "keywords": [
+   "spoon",
+   "tableware"
+  ]
+ },
+ "national-park": {
+  "cldr": "national park",
+  "group": "Travel & Places",
+  "keywords": [
+   "national",
+   "park"
+  ]
+ },
+ "leafy-green": {
+  "cldr": "leafy green",
+  "group": "Food & Drink",
+  "keywords": [
+   "bok",
+   "cabbage",
+   "choy",
+   "green",
+   "kale",
+   "leafy",
+   "lettuce"
+  ]
+ },
+ "keycap-4": {
+  "cldr": "keycap: 4",
+  "group": "Symbols",
+  "keywords": [
+   "4",
+   "four",
+   "keycap"
+  ]
+ },
+ "face-with-tongue": {
+  "cldr": "face with tongue",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "tongue",
+   "with"
+  ]
+ },
+ "hot-dog": {
+  "cldr": "hot dog",
+  "group": "Food & Drink",
+  "keywords": [
+   "dog",
+   "frankfurter",
+   "hot",
+   "hotdog",
+   "sausage"
+  ]
+ },
+ "cloud": {
+  "cldr": "cloud",
+  "group": "Travel & Places",
+  "keywords": [
+   "cloud",
+   "weather"
+  ]
+ },
+ "non-potable-water": {
+  "cldr": "non-potable water",
+  "group": "Symbols",
+  "keywords": [
+   "drinking",
+   "non",
+   "potable",
+   "water"
+  ]
+ },
+ "movie-camera": {
+  "cldr": "movie camera",
+  "group": "Objects",
+  "keywords": [
+   "camera",
+   "cinema",
+   "movie"
+  ]
+ },
+ "trumpet": {
+  "cldr": "trumpet",
+  "group": "Objects",
+  "keywords": [
+   "instrument",
+   "music",
+   "trumpet"
+  ]
+ },
+ "hibiscus": {
+  "cldr": "hibiscus",
+  "group": "Animals & Nature",
+  "keywords": [
+   "flower",
+   "hibiscus"
+  ]
+ },
+ "butterfly": {
+  "cldr": "butterfly",
+  "group": "Animals & Nature",
+  "keywords": [
+   "butterfly",
+   "insect",
+   "pretty"
+  ]
+ },
+ "blossom": {
+  "cldr": "blossom",
+  "group": "Animals & Nature",
+  "keywords": [
+   "blossom",
+   "flower"
+  ]
+ },
+ "knocked-out-face": {
+  "cldr": "knocked-out face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "crossed",
+   "dead",
+   "eyes",
+   "face",
+   "knocked",
+   "out",
+   "with"
+  ]
+ },
+ "busts-in-silhouette": {
+  "cldr": "busts in silhouette",
+  "group": "People & Body",
+  "keywords": [
+   "bust",
+   "busts",
+   "in",
+   "silhouette"
+  ]
+ },
+ "tooth": {
+  "cldr": "tooth",
+  "group": "People & Body",
+  "keywords": [
+   "dentist",
+   "tooth"
+  ]
+ },
+ "fast-up-button": {
+  "cldr": "fast up button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "double",
+   "fast",
+   "up"
+  ]
+ },
+ "recycling-symbol": {
+  "cldr": "recycling symbol",
+  "group": "Symbols",
+  "keywords": [
+   "recycle",
+   "recycling",
+   "symbol"
+  ]
+ },
+ "face-with-tears-of-joy": {
+  "cldr": "face with tears of joy",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "joy",
+   "laugh",
+   "tear",
+   "tears",
+   "with"
+  ]
+ },
+ "baguette-bread": {
+  "cldr": "baguette bread",
+  "group": "Food & Drink",
+  "keywords": [
+   "baguette",
+   "bread",
+   "food",
+   "french"
+  ]
+ },
+ "face-in-clouds": {
+  "cldr": "face in clouds",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "absentminded",
+   "clouds",
+   "face",
+   "fog",
+   "head",
+   "in"
+  ]
+ },
+ "christmas-tree": {
+  "cldr": "Christmas tree",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "christmas",
+   "tree"
+  ]
+ },
+ "trackball": {
+  "cldr": "trackball",
+  "group": "Objects",
+  "keywords": [
+   "computer",
+   "trackball"
+  ]
+ },
+ "ring-buoy": {
+  "cldr": "ring buoy",
+  "group": "Travel & Places",
+  "keywords": [
+   "buoy",
+   "float",
+   "life",
+   "preserver",
+   "rescue",
+   "ring",
+   "safety",
+   "saver"
+  ]
+ },
+ "face-with-medical-mask": {
+  "cldr": "face with medical mask",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cold",
+   "doctor",
+   "face",
+   "mask",
+   "medical",
+   "sick",
+   "with"
+  ]
+ },
+ "worm": {
+  "cldr": "worm",
+  "group": "Animals & Nature",
+  "keywords": [
+   "annelid",
+   "earthworm",
+   "parasite",
+   "worm"
+  ]
+ },
+ "womans-sandal": {
+  "cldr": "woman\u2019s sandal",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "s",
+   "sandal",
+   "shoe",
+   "woman"
+  ]
+ },
+ "two-oclock": {
+  "cldr": "two o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "2",
+   "clock",
+   "o",
+   "two"
+  ]
+ },
+ "cherries": {
+  "cldr": "cherries",
+  "group": "Food & Drink",
+  "keywords": [
+   "berries",
+   "cherries",
+   "cherry",
+   "fruit",
+   "red"
+  ]
+ },
+ "safety-pin": {
+  "cldr": "safety pin",
+  "group": "Objects",
+  "keywords": [
+   "diaper",
+   "pin",
+   "punk",
+   "rock",
+   "safety"
+  ]
+ },
+ "speaker-medium-volume": {
+  "cldr": "speaker medium volume",
+  "group": "Objects",
+  "keywords": [
+   "medium",
+   "speaker",
+   "volume"
+  ]
+ },
+ "houses": {
+  "cldr": "houses",
+  "group": "Travel & Places",
+  "keywords": [
+   "houses"
+  ]
+ },
+ "face-with-monocle": {
+  "cldr": "face with monocle",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "monocle",
+   "stuffy",
+   "with"
+  ]
+ },
+ "skull": {
+  "cldr": "skull",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "death",
+   "face",
+   "fairy",
+   "monster",
+   "skull",
+   "tale"
+  ]
+ },
+ "scarf": {
+  "cldr": "scarf",
+  "group": "Objects",
+  "keywords": [
+   "neck",
+   "scarf"
+  ]
+ },
+ "pancakes": {
+  "cldr": "pancakes",
+  "group": "Food & Drink",
+  "keywords": [
+   "breakfast",
+   "cr",
+   "food",
+   "hotcake",
+   "pancake",
+   "pancakes",
+   "pe"
+  ]
+ },
+ "closed-book": {
+  "cldr": "closed book",
+  "group": "Objects",
+  "keywords": [
+   "book",
+   "closed"
+  ]
+ },
+ "shopping-bags": {
+  "cldr": "shopping bags",
+  "group": "Objects",
+  "keywords": [
+   "bag",
+   "bags",
+   "hotel",
+   "shopping"
+  ]
+ },
+ "whale": {
+  "cldr": "whale",
+  "group": "Animals & Nature",
+  "keywords": [
+   "whale"
+  ]
+ },
+ "winking-face": {
+  "cldr": "winking face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "wink",
+   "winking"
+  ]
+ },
+ "oncoming-taxi": {
+  "cldr": "oncoming taxi",
+  "group": "Travel & Places",
+  "keywords": [
+   "oncoming",
+   "taxi"
+  ]
+ },
+ "placard": {
+  "cldr": "placard",
+  "group": "Objects",
+  "keywords": [
+   "demonstration",
+   "picket",
+   "placard",
+   "protest",
+   "sign"
+  ]
+ },
+ "link": {
+  "cldr": "link",
+  "group": "Objects",
+  "keywords": [
+   "link"
+  ]
+ },
+ "rainbow-flag": {
+  "cldr": "rainbow flag",
+  "group": "Flags",
+  "keywords": [
+   "flag",
+   "pride",
+   "rainbow"
+  ]
+ },
+ "bell-with-slash": {
+  "cldr": "bell with slash",
+  "group": "Objects",
+  "keywords": [
+   "bell",
+   "forbidden",
+   "mute",
+   "quiet",
+   "silent",
+   "slash",
+   "with"
+  ]
+ },
+ "graduation-cap": {
+  "cldr": "graduation cap",
+  "group": "Objects",
+  "keywords": [
+   "cap",
+   "celebration",
+   "clothing",
+   "graduation",
+   "hat"
+  ]
+ },
+ "station": {
+  "cldr": "station",
+  "group": "Travel & Places",
+  "keywords": [
+   "railway",
+   "station",
+   "train"
+  ]
+ },
+ "star-struck": {
+  "cldr": "star-struck",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "eyes",
+   "face",
+   "grinning",
+   "star",
+   "struck"
+  ]
+ },
+ "lotion-bottle": {
+  "cldr": "lotion bottle",
+  "group": "Objects",
+  "keywords": [
+   "bottle",
+   "lotion",
+   "moisturizer",
+   "shampoo",
+   "sunscreen"
+  ]
+ },
+ "boxing-glove": {
+  "cldr": "boxing glove",
+  "group": "Activities",
+  "keywords": [
+   "boxing",
+   "glove"
+  ]
+ },
+ "droplet": {
+  "cldr": "droplet",
+  "group": "Travel & Places",
+  "keywords": [
+   "cold",
+   "comic",
+   "drop",
+   "droplet",
+   "sweat"
+  ]
+ },
+ "japanese-acceptable-button": {
+  "cldr": "Japanese \u201cacceptable\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "acceptable",
+   "button",
+   "ideograph",
+   "japanese"
+  ]
+ },
+ "scissors": {
+  "cldr": "scissors",
+  "group": "Objects",
+  "keywords": [
+   "cutting",
+   "scissors",
+   "tool"
+  ]
+ },
+ "teapot": {
+  "cldr": "teapot",
+  "group": "Food & Drink",
+  "keywords": [
+   "drink",
+   "pot",
+   "tea",
+   "teapot"
+  ]
+ },
+ "long-drum": {
+  "cldr": "long drum",
+  "group": "Objects",
+  "keywords": [
+   "beat",
+   "conga",
+   "drum",
+   "long",
+   "rhythm"
+  ]
+ },
+ "chipmunk": {
+  "cldr": "chipmunk",
+  "group": "Animals & Nature",
+  "keywords": [
+   "chipmunk",
+   "squirrel"
+  ]
+ },
+ "down-right-arrow": {
+  "cldr": "down-right arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "direction",
+   "down",
+   "intercardinal",
+   "right",
+   "southeast"
+  ]
+ },
+ "keycap-7": {
+  "cldr": "keycap: 7",
+  "group": "Symbols",
+  "keywords": [
+   "7",
+   "keycap",
+   "seven"
+  ]
+ },
+ "moon-cake": {
+  "cldr": "moon cake",
+  "group": "Food & Drink",
+  "keywords": [
+   "autumn",
+   "b",
+   "cake",
+   "festival",
+   "moon",
+   "ng",
+   "yu"
+  ]
+ },
+ "bowling": {
+  "cldr": "bowling",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "bowling",
+   "game"
+  ]
+ },
+ "keycap-9": {
+  "cldr": "keycap: 9",
+  "group": "Symbols",
+  "keywords": [
+   "9",
+   "keycap",
+   "nine"
+  ]
+ },
+ "prohibited": {
+  "cldr": "prohibited",
+  "group": "Symbols",
+  "keywords": [
+   "entry",
+   "forbidden",
+   "no",
+   "not",
+   "prohibited"
+  ]
+ },
+ "last-track-button": {
+  "cldr": "last track button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "last",
+   "previous",
+   "scene",
+   "track",
+   "triangle"
+  ]
+ },
+ "stopwatch": {
+  "cldr": "stopwatch",
+  "group": "Travel & Places",
+  "keywords": [
+   "clock",
+   "stopwatch"
+  ]
+ },
+ "right-arrow-curving-up": {
+  "cldr": "right arrow curving up",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "curving",
+   "right",
+   "up"
+  ]
+ },
+ "pause-button": {
+  "cldr": "pause button",
+  "group": "Symbols",
+  "keywords": [
+   "bar",
+   "button",
+   "double",
+   "pause",
+   "vertical"
+  ]
+ },
+ "money-mouth-face": {
+  "cldr": "money-mouth face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "money",
+   "mouth"
+  ]
+ },
+ "black-small-square": {
+  "cldr": "black small square",
+  "group": "Symbols",
+  "keywords": [
+   "black",
+   "geometric",
+   "small",
+   "square"
+  ]
+ },
+ "red-triangle": {
+  "cldr": "red triangle pointed up",
+  "group": "Symbols",
+  "keywords": [
+   "geometric",
+   "pointed",
+   "red",
+   "triangle",
+   "up"
+  ]
+ },
+ "moai": {
+  "cldr": "moai",
+  "group": "Objects",
+  "keywords": [
+   "face",
+   "moai",
+   "moyai",
+   "statue"
+  ]
+ },
+ "2nd-place-medal": {
+  "cldr": "2nd place medal",
+  "group": "Activities",
+  "keywords": [
+   "2nd",
+   "medal",
+   "place",
+   "second",
+   "silver"
+  ]
+ },
+ "hamster": {
+  "cldr": "hamster",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "hamster",
+   "pet"
+  ]
+ },
+ "pool-8-ball": {
+  "cldr": "pool 8 ball",
+  "group": "Activities",
+  "keywords": [
+   "8",
+   "ball",
+   "billiard",
+   "eight",
+   "game",
+   "pool"
+  ]
+ },
+ "thread": {
+  "cldr": "thread",
+  "group": "Activities",
+  "keywords": [
+   "needle",
+   "sewing",
+   "spool",
+   "string",
+   "thread"
+  ]
+ },
+ "crab": {
+  "cldr": "crab",
+  "group": "Food & Drink",
+  "keywords": [
+   "cancer",
+   "crab",
+   "zodiac"
+  ]
+ },
+ "crying-face": {
+  "cldr": "crying face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cry",
+   "crying",
+   "face",
+   "sad",
+   "tear"
+  ]
+ },
+ "fleur-de-lis": {
+  "cldr": "fleur-de-lis",
+  "group": "Symbols",
+  "keywords": [
+   "de",
+   "fleur",
+   "lis"
+  ]
+ },
+ "pickup-truck": {
+  "cldr": "pickup truck",
+  "group": "Travel & Places",
+  "keywords": [
+   "pick",
+   "pickup",
+   "truck",
+   "up"
+  ]
+ },
+ "face-exhaling": {
+  "cldr": "face exhaling",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "exhale",
+   "exhaling",
+   "face",
+   "gasp",
+   "groan",
+   "relief",
+   "whisper",
+   "whistle"
+  ]
+ },
+ "rat": {
+  "cldr": "rat",
+  "group": "Animals & Nature",
+  "keywords": [
+   "rat"
+  ]
+ },
+ "atm-sign": {
+  "cldr": "ATM sign",
+  "group": "Symbols",
+  "keywords": [
+   "atm",
+   "automated",
+   "bank",
+   "sign",
+   "teller"
+  ]
+ },
+ "window": {
+  "cldr": "window",
+  "group": "Objects",
+  "keywords": [
+   "air",
+   "frame",
+   "fresh",
+   "opening",
+   "transparent",
+   "view",
+   "window"
+  ]
+ },
+ "money-with-wings": {
+  "cldr": "money with wings",
+  "group": "Objects",
+  "keywords": [
+   "banknote",
+   "bill",
+   "fly",
+   "money",
+   "wings",
+   "with"
+  ]
+ },
+ "volcano": {
+  "cldr": "volcano",
+  "group": "Travel & Places",
+  "keywords": [
+   "eruption",
+   "mountain",
+   "volcano"
+  ]
+ },
+ "identification-card": {
+  "cldr": "identification card",
+  "group": "Objects",
+  "keywords": [
+   "card",
+   "credentials",
+   "id",
+   "identification",
+   "license",
+   "security"
+  ]
+ },
+ "repeat-button": {
+  "cldr": "repeat button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "clockwise",
+   "repeat"
+  ]
+ },
+ "accordion": {
+  "cldr": "accordion",
+  "group": "Objects",
+  "keywords": [
+   "accordion",
+   "box",
+   "concertina",
+   "squeeze"
+  ]
+ },
+ "coat": {
+  "cldr": "coat",
+  "group": "Objects",
+  "keywords": [
+   "coat",
+   "jacket"
+  ]
+ },
+ "ok-button": {
+  "cldr": "OK button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "ok"
+  ]
+ },
+ "eyes": {
+  "cldr": "eyes",
+  "group": "People & Body",
+  "keywords": [
+   "eye",
+   "eyes",
+   "face"
+  ]
+ },
+ "house-with-garden": {
+  "cldr": "house with garden",
+  "group": "Travel & Places",
+  "keywords": [
+   "garden",
+   "home",
+   "house",
+   "with"
+  ]
+ },
+ "fire": {
+  "cldr": "fire",
+  "group": "Travel & Places",
+  "keywords": [
+   "fire",
+   "flame",
+   "tool"
+  ]
+ },
+ "brown-mushroom": {
+  "cldr": "brown mushroom",
+  "group": "Food & Drink",
+  "keywords": [
+   "brown",
+   "food",
+   "fungus",
+   "mushroom",
+   "nature",
+   "vegetable"
+  ]
+ },
+ "ribbon": {
+  "cldr": "ribbon",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "ribbon"
+  ]
+ },
+ "baby-bottle": {
+  "cldr": "baby bottle",
+  "group": "Food & Drink",
+  "keywords": [
+   "baby",
+   "bottle",
+   "drink",
+   "milk"
+  ]
+ },
+ "poultry-leg": {
+  "cldr": "poultry leg",
+  "group": "Food & Drink",
+  "keywords": [
+   "bone",
+   "chicken",
+   "drumstick",
+   "leg",
+   "poultry"
+  ]
+ },
+ "framed-picture": {
+  "cldr": "framed picture",
+  "group": "Activities",
+  "keywords": [
+   "art",
+   "frame",
+   "framed",
+   "museum",
+   "painting",
+   "picture"
+  ]
+ },
+ "oncoming-automobile": {
+  "cldr": "oncoming automobile",
+  "group": "Travel & Places",
+  "keywords": [
+   "automobile",
+   "car",
+   "oncoming"
+  ]
+ },
+ "carrot": {
+  "cldr": "carrot",
+  "group": "Food & Drink",
+  "keywords": [
+   "carrot",
+   "food",
+   "vegetable"
+  ]
+ },
+ "skier": {
+  "cldr": "skier",
+  "group": "People & Body",
+  "keywords": [
+   "ski",
+   "skier",
+   "snow"
+  ]
+ },
+ "umbrella-on-ground": {
+  "cldr": "umbrella on ground",
+  "group": "Travel & Places",
+  "keywords": [
+   "ground",
+   "on",
+   "rain",
+   "sun",
+   "umbrella"
+  ]
+ },
+ "giraffe": {
+  "cldr": "giraffe",
+  "group": "Animals & Nature",
+  "keywords": [
+   "giraffe",
+   "spots"
+  ]
+ },
+ "dvd": {
+  "cldr": "dvd",
+  "group": "Objects",
+  "keywords": [
+   "blu",
+   "computer",
+   "disk",
+   "dvd",
+   "optical",
+   "ray"
+  ]
+ },
+ "tomato": {
+  "cldr": "tomato",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "tomato",
+   "vegetable"
+  ]
+ },
+ "chart-increasing": {
+  "cldr": "chart increasing",
+  "group": "Objects",
+  "keywords": [
+   "chart",
+   "graph",
+   "growth",
+   "increasing",
+   "trend",
+   "upward"
+  ]
+ },
+ "mosquito": {
+  "cldr": "mosquito",
+  "group": "Animals & Nature",
+  "keywords": [
+   "disease",
+   "fever",
+   "malaria",
+   "mosquito",
+   "pest",
+   "virus"
+  ]
+ },
+ "thermometer": {
+  "cldr": "thermometer",
+  "group": "Travel & Places",
+  "keywords": [
+   "thermometer",
+   "weather"
+  ]
+ },
+ "joystick": {
+  "cldr": "joystick",
+  "group": "Activities",
+  "keywords": [
+   "game",
+   "joystick",
+   "video"
+  ]
+ },
+ "repeat-single-button": {
+  "cldr": "repeat single button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "clockwise",
+   "once",
+   "repeat",
+   "single"
+  ]
+ },
+ "post-office": {
+  "cldr": "post office",
+  "group": "Travel & Places",
+  "keywords": [
+   "european",
+   "office",
+   "post"
+  ]
+ },
+ "grinning-face": {
+  "cldr": "grinning face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "grin",
+   "grinning"
+  ]
+ },
+ "chequered-flag": {
+  "cldr": "chequered flag",
+  "group": "Flags",
+  "keywords": [
+   "checkered",
+   "chequered",
+   "flag",
+   "racing"
+  ]
+ },
+ "zipper-mouth-face": {
+  "cldr": "zipper-mouth face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "mouth",
+   "zipper"
+  ]
+ },
+ "musical-keyboard": {
+  "cldr": "musical keyboard",
+  "group": "Objects",
+  "keywords": [
+   "instrument",
+   "keyboard",
+   "music",
+   "musical",
+   "piano"
+  ]
+ },
+ "unicorn": {
+  "cldr": "unicorn",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "unicorn"
+  ]
+ },
+ "blueberries": {
+  "cldr": "blueberries",
+  "group": "Food & Drink",
+  "keywords": [
+   "berry",
+   "bilberry",
+   "blue",
+   "blueberries",
+   "blueberry"
+  ]
+ },
+ "white-cane": {
+  "cldr": "white cane",
+  "group": "Objects",
+  "keywords": [
+   "accessibility",
+   "blind",
+   "cane",
+   "white"
+  ]
+ },
+ "face-with-raised-eyebrow": {
+  "cldr": "face with raised eyebrow",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "distrust",
+   "eyebrow",
+   "face",
+   "raised",
+   "skeptic",
+   "with"
+  ]
+ },
+ "input-latin-lowercase": {
+  "cldr": "input latin lowercase",
+  "group": "Symbols",
+  "keywords": [
+   "abcd",
+   "input",
+   "latin",
+   "letters",
+   "lowercase"
+  ]
+ },
+ "face-screaming-in-fear": {
+  "cldr": "face screaming in fear",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "fear",
+   "in",
+   "munch",
+   "scared",
+   "scream",
+   "screaming"
+  ]
+ },
+ "name-badge": {
+  "cldr": "name badge",
+  "group": "Symbols",
+  "keywords": [
+   "badge",
+   "name"
+  ]
+ },
+ "reverse-button": {
+  "cldr": "reverse button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "left",
+   "reverse",
+   "triangle"
+  ]
+ },
+ "fuel-pump": {
+  "cldr": "fuel pump",
+  "group": "Travel & Places",
+  "keywords": [
+   "diesel",
+   "fuel",
+   "fuelpump",
+   "gas",
+   "pump",
+   "station"
+  ]
+ },
+ "hear-no-evil-monkey": {
+  "cldr": "hear-no-evil monkey",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "evil",
+   "face",
+   "forbidden",
+   "hear",
+   "monkey",
+   "no"
+  ]
+ },
+ "nauseated-face": {
+  "cldr": "nauseated face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "nauseated",
+   "vomit"
+  ]
+ },
+ "hot-pepper": {
+  "cldr": "hot pepper",
+  "group": "Food & Drink",
+  "keywords": [
+   "hot",
+   "pepper"
+  ]
+ },
+ "womans-clothes": {
+  "cldr": "woman\u2019s clothes",
+  "group": "Objects",
+  "keywords": [
+   "clothes",
+   "clothing",
+   "s",
+   "woman"
+  ]
+ },
+ "grey-heart": {
+  "cldr": "grey heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "gray",
+   "grey",
+   "heart",
+   "silver",
+   "slate"
+  ]
+ },
+ "infinity": {
+  "cldr": "infinity",
+  "group": "Symbols",
+  "keywords": [
+   "forever",
+   "infinity",
+   "unbounded",
+   "universal"
+  ]
+ },
+ "joker": {
+  "cldr": "joker",
+  "group": "Activities",
+  "keywords": [
+   "card",
+   "game",
+   "joker",
+   "wildcard"
+  ]
+ },
+ "waffle": {
+  "cldr": "waffle",
+  "group": "Food & Drink",
+  "keywords": [
+   "breakfast",
+   "indecisive",
+   "iron",
+   "waffle"
+  ]
+ },
+ "cancer": {
+  "cldr": "Cancer",
+  "group": "Symbols",
+  "keywords": [
+   "cancer",
+   "crab",
+   "zodiac"
+  ]
+ },
+ "playground-slide": {
+  "cldr": "playground slide",
+  "group": "Travel & Places",
+  "keywords": [
+   "amusement",
+   "park",
+   "play",
+   "playground",
+   "slide"
+  ]
+ },
+ "handbag": {
+  "cldr": "handbag",
+  "group": "Objects",
+  "keywords": [
+   "bag",
+   "clothing",
+   "handbag",
+   "purse"
+  ]
+ },
+ "face-savoring-food": {
+  "cldr": "face savoring food",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "delicious",
+   "face",
+   "food",
+   "savoring",
+   "savouring",
+   "smile",
+   "yum"
+  ]
+ },
+ "frowning-face": {
+  "cldr": "frowning face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "frown",
+   "frowning"
+  ]
+ },
+ "purple-square": {
+  "cldr": "purple square",
+  "group": "Symbols",
+  "keywords": [
+   "purple",
+   "square"
+  ]
+ },
+ "ghost": {
+  "cldr": "ghost",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "creature",
+   "face",
+   "fairy",
+   "fantasy",
+   "ghost",
+   "monster",
+   "tale"
+  ]
+ },
+ "cheese-wedge": {
+  "cldr": "cheese wedge",
+  "group": "Food & Drink",
+  "keywords": [
+   "cheese",
+   "wedge"
+  ]
+ },
+ "ping-pong": {
+  "cldr": "ping pong",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "bat",
+   "game",
+   "paddle",
+   "ping",
+   "pong",
+   "table",
+   "tennis"
+  ]
+ },
+ "strawberry": {
+  "cldr": "strawberry",
+  "group": "Food & Drink",
+  "keywords": [
+   "berry",
+   "fruit",
+   "strawberry"
+  ]
+ },
+ "grimacing-face": {
+  "cldr": "grimacing face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "grimace",
+   "grimacing"
+  ]
+ },
+ "shooting-star": {
+  "cldr": "shooting star",
+  "group": "Travel & Places",
+  "keywords": [
+   "falling",
+   "shooting",
+   "star"
+  ]
+ },
+ "tornado": {
+  "cldr": "tornado",
+  "group": "Travel & Places",
+  "keywords": [
+   "cloud",
+   "tornado",
+   "whirlwind"
+  ]
+ },
+ "keycap-1": {
+  "cldr": "keycap: 1",
+  "group": "Symbols",
+  "keywords": [
+   "1",
+   "keycap",
+   "one"
+  ]
+ },
+ "mobile-phone-off": {
+  "cldr": "mobile phone off",
+  "group": "Symbols",
+  "keywords": [
+   "cell",
+   "mobile",
+   "off",
+   "phone",
+   "telephone"
+  ]
+ },
+ "plunger": {
+  "cldr": "plunger",
+  "group": "Objects",
+  "keywords": [
+   "cup",
+   "force",
+   "plumber",
+   "plunger",
+   "suction",
+   "toilet"
+  ]
+ },
+ "cut-of-meat": {
+  "cldr": "cut of meat",
+  "group": "Food & Drink",
+  "keywords": [
+   "chop",
+   "cut",
+   "lambchop",
+   "meat",
+   "porkchop",
+   "steak"
+  ]
+ },
+ "part-alternation-mark": {
+  "cldr": "part alternation mark",
+  "group": "Symbols",
+  "keywords": [
+   "alternation",
+   "mark",
+   "part"
+  ]
+ },
+ "speaker-low-volume": {
+  "cldr": "speaker low volume",
+  "group": "Objects",
+  "keywords": [
+   "low",
+   "soft",
+   "speaker",
+   "volume"
+  ]
+ },
+ "cat-with-wry-smile": {
+  "cldr": "cat with wry smile",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "face",
+   "ironic",
+   "smile",
+   "with",
+   "wry"
+  ]
+ },
+ "eye": {
+  "cldr": "eye",
+  "group": "People & Body",
+  "keywords": [
+   "body",
+   "eye"
+  ]
+ },
+ "luggage": {
+  "cldr": "luggage",
+  "group": "Travel & Places",
+  "keywords": [
+   "luggage",
+   "packing",
+   "travel"
+  ]
+ },
+ "japanese-reserved-button": {
+  "cldr": "Japanese \u201creserved\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "ideograph",
+   "japanese",
+   "reserved"
+  ]
+ },
+ "keycap-0": {
+  "cldr": "keycap: 0",
+  "group": "Symbols",
+  "keywords": [
+   "0",
+   "keycap",
+   "zero"
+  ]
+ },
+ "cricket": {
+  "cldr": "cricket",
+  "group": "Animals & Nature",
+  "keywords": [
+   "cricket",
+   "grasshopper"
+  ]
+ },
+ "mens-room": {
+  "cldr": "men\u2019s room",
+  "group": "Symbols",
+  "keywords": [
+   "lavatory",
+   "man",
+   "men",
+   "restroom",
+   "room",
+   "s",
+   "wc"
+  ]
+ },
+ "curry-rice": {
+  "cldr": "curry rice",
+  "group": "Food & Drink",
+  "keywords": [
+   "curry",
+   "rice"
+  ]
+ },
+ "pill": {
+  "cldr": "pill",
+  "group": "Objects",
+  "keywords": [
+   "doctor",
+   "medicine",
+   "pill",
+   "sick"
+  ]
+ },
+ "nesting-dolls": {
+  "cldr": "nesting dolls",
+  "group": "Activities",
+  "keywords": [
+   "doll",
+   "dolls",
+   "nesting",
+   "russia"
+  ]
+ },
+ "canoe": {
+  "cldr": "canoe",
+  "group": "Travel & Places",
+  "keywords": [
+   "boat",
+   "canoe"
+  ]
+ },
+ "peacock": {
+  "cldr": "peacock",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "ostentatious",
+   "peacock",
+   "peahen",
+   "proud"
+  ]
+ },
+ "man-with-bunny-ears": {
+  "cldr": "men with bunny ears",
+  "group": "People & Body",
+  "keywords": [
+   "bunny",
+   "dancer",
+   "ear",
+   "ears",
+   "men",
+   "partying",
+   "with"
+  ]
+ },
+ "smiling-face": {
+  "cldr": "smiling face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "outlined",
+   "relaxed",
+   "smile",
+   "smiling"
+  ]
+ },
+ "red-exclamation-mark": {
+  "cldr": "red exclamation mark",
+  "group": "Symbols",
+  "keywords": [
+   "exclamation",
+   "mark",
+   "punctuation",
+   "red"
+  ]
+ },
+ "rolled-up-newspaper": {
+  "cldr": "rolled-up newspaper",
+  "group": "Objects",
+  "keywords": [
+   "news",
+   "newspaper",
+   "paper",
+   "rolled",
+   "up"
+  ]
+ },
+ "film-projector": {
+  "cldr": "film projector",
+  "group": "Objects",
+  "keywords": [
+   "cinema",
+   "film",
+   "movie",
+   "projector",
+   "video"
+  ]
+ },
+ "ring": {
+  "cldr": "ring",
+  "group": "Objects",
+  "keywords": [
+   "diamond",
+   "ring"
+  ]
+ },
+ "balloon": {
+  "cldr": "balloon",
+  "group": "Activities",
+  "keywords": [
+   "balloon",
+   "celebration"
+  ]
+ },
+ "minus": {
+  "cldr": "minus",
+  "group": "Symbols",
+  "keywords": [
+   "math",
+   "minus",
+   "sign"
+  ]
+ },
+ "hugging-face": {
+  "cldr": "hugging face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "hands",
+   "hug",
+   "hugging",
+   "open",
+   "smiling",
+   "with"
+  ]
+ },
+ "tiger": {
+  "cldr": "tiger",
+  "group": "Animals & Nature",
+  "keywords": [
+   "tiger"
+  ]
+ },
+ "face-with-steam-from-nose": {
+  "cldr": "face with steam from nose",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "from",
+   "nose",
+   "steam",
+   "triumph",
+   "with",
+   "won"
+  ]
+ },
+ "service-dog": {
+  "cldr": "service dog",
+  "group": "Animals & Nature",
+  "keywords": [
+   "accessibility",
+   "assistance",
+   "dog",
+   "service"
+  ]
+ },
+ "cloud-with-snow": {
+  "cldr": "cloud with snow",
+  "group": "Travel & Places",
+  "keywords": [
+   "cloud",
+   "cold",
+   "snow",
+   "with"
+  ]
+ },
+ "oncoming-bus": {
+  "cldr": "oncoming bus",
+  "group": "Travel & Places",
+  "keywords": [
+   "bus",
+   "oncoming"
+  ]
+ },
+ "incoming-envelope": {
+  "cldr": "incoming envelope",
+  "group": "Objects",
+  "keywords": [
+   "e",
+   "email",
+   "envelope",
+   "incoming",
+   "letter",
+   "mail",
+   "receive"
+  ]
+ },
+ "grinning-face-with-smiling-eyes": {
+  "cldr": "grinning face with smiling eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "eye",
+   "eyes",
+   "face",
+   "grinning",
+   "mouth",
+   "open",
+   "smile",
+   "smiling",
+   "with"
+  ]
+ },
+ "divide": {
+  "cldr": "divide",
+  "group": "Symbols",
+  "keywords": [
+   "divide",
+   "division",
+   "math",
+   "sign"
+  ]
+ },
+ "gear": {
+  "cldr": "gear",
+  "group": "Objects",
+  "keywords": [
+   "cog",
+   "cogwheel",
+   "gear",
+   "tool"
+  ]
+ },
+ "prayer-beads": {
+  "cldr": "prayer beads",
+  "group": "Objects",
+  "keywords": [
+   "beads",
+   "clothing",
+   "necklace",
+   "prayer",
+   "religion"
+  ]
+ },
+ "flushed-face": {
+  "cldr": "flushed face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "dazed",
+   "face",
+   "flushed"
+  ]
+ },
+ "counterclockwise-arrows-button": {
+  "cldr": "counterclockwise arrows button",
+  "group": "Symbols",
+  "keywords": [
+   "anticlockwise",
+   "arrow",
+   "arrows",
+   "button",
+   "counterclockwise",
+   "withershins"
+  ]
+ },
+ "donkey": {
+  "cldr": "donkey",
+  "group": "Animals & Nature",
+  "keywords": [
+   "animal",
+   "ass",
+   "burro",
+   "donkey",
+   "mammal",
+   "mule",
+   "stubborn"
+  ]
+ },
+ "rabbit": {
+  "cldr": "rabbit",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bunny",
+   "pet",
+   "rabbit"
+  ]
+ },
+ "kissing-cat": {
+  "cldr": "kissing cat",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "eye",
+   "face",
+   "kiss",
+   "kissing"
+  ]
+ },
+ "paperclip": {
+  "cldr": "paperclip",
+  "group": "Objects",
+  "keywords": [
+   "paperclip"
+  ]
+ },
+ "canned-food": {
+  "cldr": "canned food",
+  "group": "Food & Drink",
+  "keywords": [
+   "can",
+   "canned",
+   "food"
+  ]
+ },
+ "keycap-3": {
+  "cldr": "keycap: 3",
+  "group": "Symbols",
+  "keywords": [
+   "3",
+   "keycap",
+   "three"
+  ]
+ },
+ "next-track-button": {
+  "cldr": "next track button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "next",
+   "scene",
+   "track",
+   "triangle"
+  ]
+ },
+ "otter": {
+  "cldr": "otter",
+  "group": "Animals & Nature",
+  "keywords": [
+   "fishing",
+   "otter",
+   "playful"
+  ]
+ },
+ "carpentry-saw": {
+  "cldr": "carpentry saw",
+  "group": "Objects",
+  "keywords": [
+   "carpenter",
+   "carpentry",
+   "lumber",
+   "saw",
+   "tool"
+  ]
+ },
+ "bear": {
+  "cldr": "bear",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bear",
+   "face"
+  ]
+ },
+ "bacon": {
+  "cldr": "bacon",
+  "group": "Food & Drink",
+  "keywords": [
+   "bacon",
+   "breakfast",
+   "food",
+   "meat"
+  ]
+ },
+ "running-shoe": {
+  "cldr": "running shoe",
+  "group": "Objects",
+  "keywords": [
+   "athletic",
+   "clothing",
+   "running",
+   "shoe",
+   "sneaker"
+  ]
+ },
+ "lacrosse": {
+  "cldr": "lacrosse",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "goal",
+   "lacrosse",
+   "stick"
+  ]
+ },
+ "left-arrow": {
+  "cldr": "left arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "cardinal",
+   "direction",
+   "left",
+   "west"
+  ]
+ },
+ "trolleybus": {
+  "cldr": "trolleybus",
+  "group": "Travel & Places",
+  "keywords": [
+   "bus",
+   "tram",
+   "trolley",
+   "trolleybus"
+  ]
+ },
+ "ice-hockey": {
+  "cldr": "ice hockey",
+  "group": "Activities",
+  "keywords": [
+   "game",
+   "hockey",
+   "ice",
+   "puck",
+   "stick"
+  ]
+ },
+ "saxophone": {
+  "cldr": "saxophone",
+  "group": "Objects",
+  "keywords": [
+   "instrument",
+   "music",
+   "sax",
+   "saxophone"
+  ]
+ },
+ "orthodox-cross": {
+  "cldr": "orthodox cross",
+  "group": "Symbols",
+  "keywords": [
+   "christian",
+   "cross",
+   "orthodox",
+   "religion"
+  ]
+ },
+ "clutch-bag": {
+  "cldr": "clutch bag",
+  "group": "Objects",
+  "keywords": [
+   "bag",
+   "clothing",
+   "clutch",
+   "pouch"
+  ]
+ },
+ "confused-face": {
+  "cldr": "confused face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "confused",
+   "face",
+   "meh"
+  ]
+ },
+ "fly": {
+  "cldr": "fly",
+  "group": "Animals & Nature",
+  "keywords": [
+   "disease",
+   "fly",
+   "maggot",
+   "pest",
+   "rotting"
+  ]
+ },
+ "cocktail-glass": {
+  "cldr": "cocktail glass",
+  "group": "Food & Drink",
+  "keywords": [
+   "bar",
+   "cocktail",
+   "drink",
+   "glass"
+  ]
+ },
+ "soft-ice-cream": {
+  "cldr": "soft ice cream",
+  "group": "Food & Drink",
+  "keywords": [
+   "cream",
+   "dessert",
+   "ice",
+   "icecream",
+   "soft",
+   "sweet"
+  ]
+ },
+ "anger-symbol": {
+  "cldr": "anger symbol",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "anger",
+   "angry",
+   "comic",
+   "mad",
+   "symbol"
+  ]
+ },
+ "small-orange-diamond": {
+  "cldr": "small orange diamond",
+  "group": "Symbols",
+  "keywords": [
+   "diamond",
+   "geometric",
+   "orange",
+   "small"
+  ]
+ },
+ "turkey": {
+  "cldr": "turkey",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "turkey"
+  ]
+ },
+ "sleepy-face": {
+  "cldr": "sleepy face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "sleep",
+   "sleepy"
+  ]
+ },
+ "cooking": {
+  "cldr": "cooking",
+  "group": "Food & Drink",
+  "keywords": [
+   "breakfast",
+   "cooking",
+   "egg",
+   "frying",
+   "pan"
+  ]
+ },
+ "globe-showing-asia-australia": {
+  "cldr": "globe showing Asia-Australia",
+  "group": "Travel & Places",
+  "keywords": [
+   "asia",
+   "australia",
+   "earth",
+   "globe",
+   "showing",
+   "world"
+  ]
+ },
+ "polar-bear": {
+  "cldr": "polar bear",
+  "group": "Animals & Nature",
+  "keywords": [
+   "arctic",
+   "bear",
+   "polar",
+   "white"
+  ]
+ },
+ "horse-face": {
+  "cldr": "horse face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "horse"
+  ]
+ },
+ "ant": {
+  "cldr": "ant",
+  "group": "Animals & Nature",
+  "keywords": [
+   "ant",
+   "insect"
+  ]
+ },
+ "up-down-arrow": {
+  "cldr": "up-down arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "down",
+   "up"
+  ]
+ },
+ "closed-mailbox-with-raised-flag": {
+  "cldr": "closed mailbox with raised flag",
+  "group": "Objects",
+  "keywords": [
+   "closed",
+   "flag",
+   "mail",
+   "mailbox",
+   "postbox",
+   "raised",
+   "with"
+  ]
+ },
+ "japanese-castle": {
+  "cldr": "Japanese castle",
+  "group": "Travel & Places",
+  "keywords": [
+   "castle",
+   "japanese"
+  ]
+ },
+ "curling-stone": {
+  "cldr": "curling stone",
+  "group": "Activities",
+  "keywords": [
+   "curling",
+   "game",
+   "rock",
+   "stone"
+  ]
+ },
+ "spouting-whale": {
+  "cldr": "spouting whale",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "spouting",
+   "whale"
+  ]
+ },
+ "water-pistol": {
+  "cldr": "water pistol",
+  "group": "Objects",
+  "keywords": [
+   "gun",
+   "handgun",
+   "pistol",
+   "revolver",
+   "tool",
+   "water",
+   "weapon"
+  ]
+ },
+ "nerd-face": {
+  "cldr": "nerd face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "geek",
+   "nerd"
+  ]
+ },
+ "crutch": {
+  "cldr": "crutch",
+  "group": "Objects",
+  "keywords": [
+   "aid",
+   "cane",
+   "crutch",
+   "disability",
+   "hurt",
+   "mobility",
+   "stick"
+  ]
+ },
+ "leopard": {
+  "cldr": "leopard",
+  "group": "Animals & Nature",
+  "keywords": [
+   "leopard"
+  ]
+ },
+ "hook": {
+  "cldr": "hook",
+  "group": "Objects",
+  "keywords": [
+   "catch",
+   "crook",
+   "curve",
+   "ensnare",
+   "hook",
+   "point",
+   "selling"
+  ]
+ },
+ "ice-cream": {
+  "cldr": "ice cream",
+  "group": "Food & Drink",
+  "keywords": [
+   "cream",
+   "dessert",
+   "ice",
+   "sweet"
+  ]
+ },
+ "locked-with-key": {
+  "cldr": "locked with key",
+  "group": "Objects",
+  "keywords": [
+   "closed",
+   "key",
+   "lock",
+   "locked",
+   "secure",
+   "with"
+  ]
+ },
+ "two-thirty": {
+  "cldr": "two-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "2",
+   "30",
+   "clock",
+   "thirty",
+   "two"
+  ]
+ },
+ "yin-yang": {
+  "cldr": "yin yang",
+  "group": "Symbols",
+  "keywords": [
+   "religion",
+   "tao",
+   "taoist",
+   "yang",
+   "yin"
+  ]
+ },
+ "motorway": {
+  "cldr": "motorway",
+  "group": "Travel & Places",
+  "keywords": [
+   "highway",
+   "motorway",
+   "road"
+  ]
+ },
+ "brain": {
+  "cldr": "brain",
+  "group": "People & Body",
+  "keywords": [
+   "brain",
+   "intelligent"
+  ]
+ },
+ "skunk": {
+  "cldr": "skunk",
+  "group": "Animals & Nature",
+  "keywords": [
+   "skunk",
+   "stink"
+  ]
+ },
+ "coral": {
+  "cldr": "coral",
+  "group": "Animals & Nature",
+  "keywords": [
+   "coral",
+   "ocean",
+   "reef"
+  ]
+ },
+ "newspaper": {
+  "cldr": "newspaper",
+  "group": "Objects",
+  "keywords": [
+   "news",
+   "newspaper",
+   "paper"
+  ]
+ },
+ "pot-of-food": {
+  "cldr": "pot of food",
+  "group": "Food & Drink",
+  "keywords": [
+   "food",
+   "pot",
+   "stew"
+  ]
+ },
+ "sushi": {
+  "cldr": "sushi",
+  "group": "Food & Drink",
+  "keywords": [
+   "sushi"
+  ]
+ },
+ "record-button": {
+  "cldr": "record button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "circle",
+   "record"
+  ]
+ },
+ "microbe": {
+  "cldr": "microbe",
+  "group": "Animals & Nature",
+  "keywords": [
+   "amoeba",
+   "bacteria",
+   "microbe",
+   "virus"
+  ]
+ },
+ "pile-of-poo": {
+  "cldr": "pile of poo",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "dung",
+   "face",
+   "monster",
+   "pile",
+   "poo",
+   "poop"
+  ]
+ },
+ "camera-with-flash": {
+  "cldr": "camera with flash",
+  "group": "Objects",
+  "keywords": [
+   "camera",
+   "flash",
+   "video",
+   "with"
+  ]
+ },
+ "dolphin": {
+  "cldr": "dolphin",
+  "group": "Animals & Nature",
+  "keywords": [
+   "dolphin",
+   "flipper"
+  ]
+ },
+ "television": {
+  "cldr": "television",
+  "group": "Objects",
+  "keywords": [
+   "television",
+   "tv",
+   "video"
+  ]
+ },
+ "pensive-face": {
+  "cldr": "pensive face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "dejected",
+   "face",
+   "pensive"
+  ]
+ },
+ "sunrise": {
+  "cldr": "sunrise",
+  "group": "Travel & Places",
+  "keywords": [
+   "morning",
+   "sun",
+   "sunrise"
+  ]
+ },
+ "eight-oclock": {
+  "cldr": "eight o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "8",
+   "clock",
+   "eight",
+   "o"
+  ]
+ },
+ "pound-banknote": {
+  "cldr": "pound banknote",
+  "group": "Objects",
+  "keywords": [
+   "banknote",
+   "bill",
+   "currency",
+   "money",
+   "note",
+   "pound"
+  ]
+ },
+ "performing-arts": {
+  "cldr": "performing arts",
+  "group": "Activities",
+  "keywords": [
+   "art",
+   "arts",
+   "mask",
+   "performing",
+   "theater",
+   "theatre"
+  ]
+ },
+ "shallow-pan-of-food": {
+  "cldr": "shallow pan of food",
+  "group": "Food & Drink",
+  "keywords": [
+   "casserole",
+   "food",
+   "paella",
+   "pan",
+   "shallow"
+  ]
+ },
+ "abacus": {
+  "cldr": "abacus",
+  "group": "Objects",
+  "keywords": [
+   "abacus",
+   "calculation"
+  ]
+ },
+ "grinning-squinting-face": {
+  "cldr": "grinning squinting face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "grinning",
+   "laugh",
+   "mouth",
+   "satisfied",
+   "smile",
+   "squinting"
+  ]
+ },
+ "trophy": {
+  "cldr": "trophy",
+  "group": "Activities",
+  "keywords": [
+   "prize",
+   "trophy"
+  ]
+ },
+ "umbrella-with-rain-drops": {
+  "cldr": "umbrella with rain drops",
+  "group": "Travel & Places",
+  "keywords": [
+   "clothing",
+   "drop",
+   "drops",
+   "rain",
+   "umbrella",
+   "with"
+  ]
+ },
+ "seven-thirty": {
+  "cldr": "seven-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "30",
+   "7",
+   "clock",
+   "seven",
+   "thirty"
+  ]
+ },
+ "hammer-and-pick": {
+  "cldr": "hammer and pick",
+  "group": "Objects",
+  "keywords": [
+   "hammer",
+   "pick",
+   "tool"
+  ]
+ },
+ "purple-circle": {
+  "cldr": "purple circle",
+  "group": "Symbols",
+  "keywords": [
+   "circle",
+   "purple"
+  ]
+ },
+ "guide-dog": {
+  "cldr": "guide dog",
+  "group": "Animals & Nature",
+  "keywords": [
+   "accessibility",
+   "blind",
+   "dog",
+   "guide"
+  ]
+ },
+ "chess-pawn": {
+  "cldr": "chess pawn",
+  "group": "Activities",
+  "keywords": [
+   "chess",
+   "dupe",
+   "expendable",
+   "pawn"
+  ]
+ },
+ "bubbles": {
+  "cldr": "bubbles",
+  "group": "Objects",
+  "keywords": [
+   "bubbles",
+   "burp",
+   "clean",
+   "soap",
+   "underwater"
+  ]
+ },
+ "six-thirty": {
+  "cldr": "six-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "30",
+   "6",
+   "clock",
+   "six",
+   "thirty"
+  ]
+ },
+ "dragon-face": {
+  "cldr": "dragon face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "dragon",
+   "face",
+   "fairy",
+   "tale"
+  ]
+ },
+ "plus": {
+  "cldr": "plus",
+  "group": "Symbols",
+  "keywords": [
+   "math",
+   "plus",
+   "sign"
+  ]
+ },
+ "monkey": {
+  "cldr": "monkey",
+  "group": "Animals & Nature",
+  "keywords": [
+   "monkey"
+  ]
+ },
+ "sunrise-over-mountains": {
+  "cldr": "sunrise over mountains",
+  "group": "Travel & Places",
+  "keywords": [
+   "morning",
+   "mountain",
+   "mountains",
+   "over",
+   "sun",
+   "sunrise"
+  ]
+ },
+ "confounded-face": {
+  "cldr": "confounded face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "confounded",
+   "face"
+  ]
+ },
+ "right-arrow-curving-left": {
+  "cldr": "right arrow curving left",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "curving",
+   "left",
+   "right"
+  ]
+ },
+ "black-medium-square": {
+  "cldr": "black medium square",
+  "group": "Symbols",
+  "keywords": [
+   "black",
+   "geometric",
+   "medium",
+   "square"
+  ]
+ },
+ "boomerang": {
+  "cldr": "boomerang",
+  "group": "Objects",
+  "keywords": [
+   "australia",
+   "boomerang",
+   "rebound",
+   "repercussion"
+  ]
+ },
+ "taco": {
+  "cldr": "taco",
+  "group": "Food & Drink",
+  "keywords": [
+   "mexican",
+   "taco"
+  ]
+ },
+ "teddy-bear": {
+  "cldr": "teddy bear",
+  "group": "Activities",
+  "keywords": [
+   "bear",
+   "plaything",
+   "plush",
+   "stuffed",
+   "teddy",
+   "toy"
+  ]
+ },
+ "military-medal": {
+  "cldr": "military medal",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "medal",
+   "military"
+  ]
+ },
+ "white-flag": {
+  "cldr": "white flag",
+  "group": "Flags",
+  "keywords": [
+   "flag",
+   "waving",
+   "white"
+  ]
+ },
+ "drooling-face": {
+  "cldr": "drooling face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "drooling",
+   "face"
+  ]
+ },
+ "microscope": {
+  "cldr": "microscope",
+  "group": "Objects",
+  "keywords": [
+   "microscope",
+   "science",
+   "tool"
+  ]
+ },
+ "b-button-blood-type": {
+  "cldr": "B button (blood type)",
+  "group": "Symbols",
+  "keywords": [
+   "b",
+   "blood",
+   "button",
+   "type"
+  ]
+ },
+ "face-with-thermometer": {
+  "cldr": "face with thermometer",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "ill",
+   "sick",
+   "thermometer",
+   "with"
+  ]
+ },
+ "locked": {
+  "cldr": "locked",
+  "group": "Objects",
+  "keywords": [
+   "closed",
+   "locked"
+  ]
+ },
+ "mouse": {
+  "cldr": "mouse",
+  "group": "Animals & Nature",
+  "keywords": [
+   "mouse"
+  ]
+ },
+ "fishing-pole": {
+  "cldr": "fishing pole",
+  "group": "Activities",
+  "keywords": [
+   "fish",
+   "fishing",
+   "pole"
+  ]
+ },
+ "loudspeaker": {
+  "cldr": "loudspeaker",
+  "group": "Objects",
+  "keywords": [
+   "address",
+   "loud",
+   "loudspeaker",
+   "public"
+  ]
+ },
+ "fish-cake-with-swirl": {
+  "cldr": "fish cake with swirl",
+  "group": "Food & Drink",
+  "keywords": [
+   "cake",
+   "fish",
+   "pastry",
+   "swirl",
+   "with"
+  ]
+ },
+ "comet": {
+  "cldr": "comet",
+  "group": "Travel & Places",
+  "keywords": [
+   "comet",
+   "space"
+  ]
+ },
+ "light-bulb": {
+  "cldr": "light bulb",
+  "group": "Objects",
+  "keywords": [
+   "bulb",
+   "comic",
+   "electric",
+   "idea",
+   "light"
+  ]
+ },
+ "upwards-button": {
+  "cldr": "upwards button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "red",
+   "upwards"
+  ]
+ },
+ "tram": {
+  "cldr": "tram",
+  "group": "Travel & Places",
+  "keywords": [
+   "tram",
+   "trolleybus"
+  ]
+ },
+ "flatbread": {
+  "cldr": "flatbread",
+  "group": "Food & Drink",
+  "keywords": [
+   "arepa",
+   "flatbread",
+   "lavash",
+   "naan",
+   "pita"
+  ]
+ },
+ "mahjong-red-dragon": {
+  "cldr": "mahjong red dragon",
+  "group": "Activities",
+  "keywords": [
+   "dragon",
+   "game",
+   "mahjong",
+   "red"
+  ]
+ },
+ "minibus": {
+  "cldr": "minibus",
+  "group": "Travel & Places",
+  "keywords": [
+   "bus",
+   "minibus"
+  ]
+ },
+ "tongue": {
+  "cldr": "tongue",
+  "group": "People & Body",
+  "keywords": [
+   "body",
+   "tongue"
+  ]
+ },
+ "heart-suit": {
+  "cldr": "heart suit",
+  "group": "Activities",
+  "keywords": [
+   "card",
+   "game",
+   "heart",
+   "suit"
+  ]
+ },
+ "sparkles": {
+  "cldr": "sparkles",
+  "group": "Activities",
+  "keywords": [
+   "sparkle",
+   "sparkles",
+   "star"
+  ]
+ },
+ "skis": {
+  "cldr": "skis",
+  "group": "Activities",
+  "keywords": [
+   "ski",
+   "skis",
+   "snow"
+  ]
+ },
+ "party-popper": {
+  "cldr": "party popper",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "party",
+   "popper",
+   "tada"
+  ]
+ },
+ "clinking-beer-mugs": {
+  "cldr": "clinking beer mugs",
+  "group": "Food & Drink",
+  "keywords": [
+   "bar",
+   "beer",
+   "clink",
+   "clinking",
+   "drink",
+   "mug",
+   "mugs"
+  ]
+ },
+ "ewe": {
+  "cldr": "ewe",
+  "group": "Animals & Nature",
+  "keywords": [
+   "ewe",
+   "female",
+   "sheep"
+  ]
+ },
+ "sports-medal": {
+  "cldr": "sports medal",
+  "group": "Activities",
+  "keywords": [
+   "medal",
+   "sports"
+  ]
+ },
+ "locked-with-pen": {
+  "cldr": "locked with pen",
+  "group": "Objects",
+  "keywords": [
+   "ink",
+   "lock",
+   "locked",
+   "nib",
+   "pen",
+   "privacy",
+   "with"
+  ]
+ },
+ "nine-oclock": {
+  "cldr": "nine o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "9",
+   "clock",
+   "nine",
+   "o"
+  ]
+ },
+ "end-arrow": {
+  "cldr": "END arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "end"
+  ]
+ },
+ "japanese-open-for-business-button": {
+  "cldr": "Japanese \u201copen for business\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "business",
+   "button",
+   "for",
+   "ideograph",
+   "japanese",
+   "open"
+  ]
+ },
+ "keycap-hashtag": {
+  "cldr": "keycap: hash",
+  "group": "Symbols",
+  "keywords": [
+   "hash",
+   "keycap"
+  ]
+ },
+ "takeout-box": {
+  "cldr": "takeout box",
+  "group": "Food & Drink",
+  "keywords": [
+   "box",
+   "oyster",
+   "pail",
+   "takeout"
+  ]
+ },
+ "telephone": {
+  "cldr": "telephone",
+  "group": "Objects",
+  "keywords": [
+   "phone",
+   "telephone"
+  ]
+ },
+ "male-sign": {
+  "cldr": "male sign",
+  "group": "Symbols",
+  "keywords": [
+   "male",
+   "man",
+   "sign"
+  ]
+ },
+ "libra": {
+  "cldr": "Libra",
+  "group": "Symbols",
+  "keywords": [
+   "balance",
+   "justice",
+   "libra",
+   "scales",
+   "zodiac"
+  ]
+ },
+ "envelope-with-arrow": {
+  "cldr": "envelope with arrow",
+  "group": "Objects",
+  "keywords": [
+   "arrow",
+   "e",
+   "email",
+   "envelope",
+   "mail",
+   "outgoing",
+   "with"
+  ]
+ },
+ "mantelpiece-clock": {
+  "cldr": "mantelpiece clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "clock",
+   "mantelpiece"
+  ]
+ },
+ "house": {
+  "cldr": "house",
+  "group": "Travel & Places",
+  "keywords": [
+   "home",
+   "house"
+  ]
+ },
+ "waning-gibbous-moon": {
+  "cldr": "waning gibbous moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "gibbous",
+   "moon",
+   "waning"
+  ]
+ },
+ "black-circle": {
+  "cldr": "black circle",
+  "group": "Symbols",
+  "keywords": [
+   "black",
+   "circle",
+   "geometric"
+  ]
+ },
+ "artist-palette": {
+  "cldr": "artist palette",
+  "group": "Activities",
+  "keywords": [
+   "art",
+   "artist",
+   "museum",
+   "painting",
+   "palette"
+  ]
+ },
+ "cigarette": {
+  "cldr": "cigarette",
+  "group": "Objects",
+  "keywords": [
+   "cigarette",
+   "smoking"
+  ]
+ },
+ "electric-plug": {
+  "cldr": "electric plug",
+  "group": "Objects",
+  "keywords": [
+   "electric",
+   "electricity",
+   "plug"
+  ]
+ },
+ "chart-increasing-with-yen": {
+  "cldr": "chart increasing with yen",
+  "group": "Objects",
+  "keywords": [
+   "chart",
+   "graph",
+   "growth",
+   "increasing",
+   "money",
+   "with",
+   "yen"
+  ]
+ },
+ "department-store": {
+  "cldr": "department store",
+  "group": "Travel & Places",
+  "keywords": [
+   "department",
+   "store"
+  ]
+ },
+ "motor-boat": {
+  "cldr": "motor boat",
+  "group": "Travel & Places",
+  "keywords": [
+   "boat",
+   "motor",
+   "motorboat"
+  ]
+ },
+ "fax-machine": {
+  "cldr": "fax machine",
+  "group": "Objects",
+  "keywords": [
+   "fax",
+   "machine"
+  ]
+ },
+ "black-heart": {
+  "cldr": "black heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "black",
+   "evil",
+   "heart",
+   "wicked"
+  ]
+ },
+ "high-voltage": {
+  "cldr": "high voltage",
+  "group": "Travel & Places",
+  "keywords": [
+   "danger",
+   "electric",
+   "high",
+   "lightning",
+   "voltage",
+   "zap"
+  ]
+ },
+ "trade-mark": {
+  "cldr": "trade mark",
+  "group": "Symbols",
+  "keywords": [
+   "mark",
+   "tm",
+   "trade",
+   "trademark"
+  ]
+ },
+ "custard": {
+  "cldr": "custard",
+  "group": "Food & Drink",
+  "keywords": [
+   "custard",
+   "dessert",
+   "pudding",
+   "sweet"
+  ]
+ },
+ "scroll": {
+  "cldr": "scroll",
+  "group": "Objects",
+  "keywords": [
+   "paper",
+   "scroll"
+  ]
+ },
+ "unlocked": {
+  "cldr": "unlocked",
+  "group": "Objects",
+  "keywords": [
+   "lock",
+   "open",
+   "unlock",
+   "unlocked"
+  ]
+ },
+ "spaghetti": {
+  "cldr": "spaghetti",
+  "group": "Food & Drink",
+  "keywords": [
+   "pasta",
+   "spaghetti"
+  ]
+ },
+ "flat-shoe": {
+  "cldr": "flat shoe",
+  "group": "Objects",
+  "keywords": [
+   "ballet",
+   "flat",
+   "on",
+   "shoe",
+   "slip",
+   "slipper"
+  ]
+ },
+ "kissing-face-with-closed-eyes": {
+  "cldr": "kissing face with closed eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "closed",
+   "eye",
+   "eyes",
+   "face",
+   "kiss",
+   "kissing",
+   "with"
+  ]
+ },
+ "oyster": {
+  "cldr": "oyster",
+  "group": "Food & Drink",
+  "keywords": [
+   "diving",
+   "oyster",
+   "pearl"
+  ]
+ },
+ "blue-heart": {
+  "cldr": "blue heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "blue",
+   "heart"
+  ]
+ },
+ "lipstick": {
+  "cldr": "lipstick",
+  "group": "Objects",
+  "keywords": [
+   "cosmetics",
+   "lipstick",
+   "makeup"
+  ]
+ },
+ "lotus": {
+  "cldr": "lotus",
+  "group": "Animals & Nature",
+  "keywords": [
+   "buddhism",
+   "flower",
+   "hinduism",
+   "india",
+   "lotus",
+   "purity",
+   "vietnam"
+  ]
+ },
+ "goggles": {
+  "cldr": "goggles",
+  "group": "Objects",
+  "keywords": [
+   "eye",
+   "goggles",
+   "protection",
+   "swimming",
+   "welding"
+  ]
+ },
+ "garlic": {
+  "cldr": "garlic",
+  "group": "Food & Drink",
+  "keywords": [
+   "flavoring",
+   "garlic"
+  ]
+ },
+ "beetle": {
+  "cldr": "beetle",
+  "group": "Animals & Nature",
+  "keywords": [
+   "beetle",
+   "bug",
+   "insect"
+  ]
+ },
+ "first-quarter-moon": {
+  "cldr": "first quarter moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "first",
+   "moon",
+   "quarter"
+  ]
+ },
+ "seven-oclock": {
+  "cldr": "seven o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "7",
+   "clock",
+   "o",
+   "seven"
+  ]
+ },
+ "pirate-flag": {
+  "cldr": "pirate flag",
+  "group": "Flags",
+  "keywords": [
+   "flag",
+   "jolly",
+   "pirate",
+   "plunder",
+   "roger",
+   "treasure"
+  ]
+ },
+ "deer": {
+  "cldr": "deer",
+  "group": "Animals & Nature",
+  "keywords": [
+   "deer"
+  ]
+ },
+ "sauropod": {
+  "cldr": "sauropod",
+  "group": "Animals & Nature",
+  "keywords": [
+   "brachiosaurus",
+   "brontosaurus",
+   "diplodocus",
+   "sauropod"
+  ]
+ },
+ "seal": {
+  "cldr": "seal",
+  "group": "Animals & Nature",
+  "keywords": [
+   "lion",
+   "sea",
+   "seal"
+  ]
+ },
+ "passenger-ship": {
+  "cldr": "passenger ship",
+  "group": "Travel & Places",
+  "keywords": [
+   "passenger",
+   "ship"
+  ]
+ },
+ "lobster": {
+  "cldr": "lobster",
+  "group": "Food & Drink",
+  "keywords": [
+   "bisque",
+   "claws",
+   "lobster",
+   "seafood"
+  ]
+ },
+ "ferry": {
+  "cldr": "ferry",
+  "group": "Travel & Places",
+  "keywords": [
+   "boat",
+   "ferry",
+   "passenger"
+  ]
+ },
+ "rosette": {
+  "cldr": "rosette",
+  "group": "Animals & Nature",
+  "keywords": [
+   "plant",
+   "rosette"
+  ]
+ },
+ "goal-net": {
+  "cldr": "goal net",
+  "group": "Activities",
+  "keywords": [
+   "goal",
+   "net"
+  ]
+ },
+ "ferris-wheel": {
+  "cldr": "ferris wheel",
+  "group": "Travel & Places",
+  "keywords": [
+   "amusement",
+   "ferris",
+   "park",
+   "wheel"
+  ]
+ },
+ "honeybee": {
+  "cldr": "honeybee",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bee",
+   "honeybee",
+   "insect"
+  ]
+ },
+ "sailboat": {
+  "cldr": "sailboat",
+  "group": "Travel & Places",
+  "keywords": [
+   "boat",
+   "resort",
+   "sailboat",
+   "sea",
+   "yacht"
+  ]
+ },
+ "butter": {
+  "cldr": "butter",
+  "group": "Food & Drink",
+  "keywords": [
+   "butter",
+   "dairy"
+  ]
+ },
+ "snake": {
+  "cldr": "snake",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bearer",
+   "ophiuchus",
+   "serpent",
+   "snake",
+   "zodiac"
+  ]
+ },
+ "one-piece-swimsuit": {
+  "cldr": "one-piece swimsuit",
+  "group": "Objects",
+  "keywords": [
+   "bathing",
+   "one",
+   "piece",
+   "suit",
+   "swimsuit"
+  ]
+ },
+ "eggplant": {
+  "cldr": "eggplant",
+  "group": "Food & Drink",
+  "keywords": [
+   "aubergine",
+   "eggplant",
+   "vegetable"
+  ]
+ },
+ "dotted-six-pointed-star": {
+  "cldr": "dotted six-pointed star",
+  "group": "Symbols",
+  "keywords": [
+   "dotted",
+   "fortune",
+   "pointed",
+   "six",
+   "star"
+  ]
+ },
+ "linked-paperclips": {
+  "cldr": "linked paperclips",
+  "group": "Objects",
+  "keywords": [
+   "link",
+   "linked",
+   "paperclip",
+   "paperclips"
+  ]
+ },
+ "rescue-workers-helmet": {
+  "cldr": "rescue worker\u2019s helmet",
+  "group": "Objects",
+  "keywords": [
+   "aid",
+   "cross",
+   "face",
+   "hat",
+   "helmet",
+   "rescue",
+   "s",
+   "worker"
+  ]
+ },
+ "kissing-face-with-smiling-eyes": {
+  "cldr": "kissing face with smiling eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "eye",
+   "eyes",
+   "face",
+   "kiss",
+   "kissing",
+   "smile",
+   "smiling",
+   "with"
+  ]
+ },
+ "restroom": {
+  "cldr": "restroom",
+  "group": "Symbols",
+  "keywords": [
+   "lavatory",
+   "restroom",
+   "wc"
+  ]
+ },
+ "shopping-cart": {
+  "cldr": "shopping cart",
+  "group": "Objects",
+  "keywords": [
+   "cart",
+   "shopping",
+   "trolley"
+  ]
+ },
+ "japanese-service-charge-button": {
+  "cldr": "Japanese \u201cservice charge\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "charge",
+   "japanese",
+   "katakana",
+   "service"
+  ]
+ },
+ "new-moon": {
+  "cldr": "new moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "dark",
+   "moon",
+   "new"
+  ]
+ },
+ "monkey-face": {
+  "cldr": "monkey face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "face",
+   "monkey"
+  ]
+ },
+ "face-with-peeking-eye": {
+  "cldr": "face with peeking eye",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "captivated",
+   "eye",
+   "face",
+   "peeking",
+   "peep",
+   "stare",
+   "with"
+  ]
+ },
+ "door": {
+  "cldr": "door",
+  "group": "Objects",
+  "keywords": [
+   "door"
+  ]
+ },
+ "wheel-of-dharma": {
+  "cldr": "wheel of dharma",
+  "group": "Symbols",
+  "keywords": [
+   "buddhist",
+   "dharma",
+   "religion",
+   "wheel"
+  ]
+ },
+ "heart-exclamation": {
+  "cldr": "heart exclamation",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "exclamation",
+   "heart",
+   "mark",
+   "punctuation"
+  ]
+ },
+ "eject-button": {
+  "cldr": "eject button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "eject"
+  ]
+ },
+ "beaver": {
+  "cldr": "beaver",
+  "group": "Animals & Nature",
+  "keywords": [
+   "beaver",
+   "dam"
+  ]
+ },
+ "dango": {
+  "cldr": "dango",
+  "group": "Food & Drink",
+  "keywords": [
+   "dango",
+   "dessert",
+   "japanese",
+   "skewer",
+   "stick",
+   "sweet"
+  ]
+ },
+ "banjo": {
+  "cldr": "banjo",
+  "group": "Objects",
+  "keywords": [
+   "banjo",
+   "music",
+   "stringed"
+  ]
+ },
+ "feather": {
+  "cldr": "feather",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "feather",
+   "flight",
+   "light",
+   "plumage"
+  ]
+ },
+ "clapper-board": {
+  "cldr": "clapper board",
+  "group": "Objects",
+  "keywords": [
+   "board",
+   "clapper",
+   "movie"
+  ]
+ },
+ "baby-symbol": {
+  "cldr": "baby symbol",
+  "group": "Symbols",
+  "keywords": [
+   "baby",
+   "changing",
+   "symbol"
+  ]
+ },
+ "oncoming-police-car": {
+  "cldr": "oncoming police car",
+  "group": "Travel & Places",
+  "keywords": [
+   "car",
+   "oncoming",
+   "police"
+  ]
+ },
+ "tropical-drink": {
+  "cldr": "tropical drink",
+  "group": "Food & Drink",
+  "keywords": [
+   "bar",
+   "drink",
+   "tropical"
+  ]
+ },
+ "hut": {
+  "cldr": "hut",
+  "group": "Travel & Places",
+  "keywords": [
+   "house",
+   "hut",
+   "roundhouse",
+   "yurt"
+  ]
+ },
+ "two-hearts": {
+  "cldr": "two hearts",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "hearts",
+   "love",
+   "two"
+  ]
+ },
+ "peanuts": {
+  "cldr": "peanuts",
+  "group": "Food & Drink",
+  "keywords": [
+   "food",
+   "nut",
+   "peanut",
+   "peanuts",
+   "vegetable"
+  ]
+ },
+ "soccer-ball": {
+  "cldr": "soccer ball",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "football",
+   "soccer"
+  ]
+ },
+ "honey-pot": {
+  "cldr": "honey pot",
+  "group": "Food & Drink",
+  "keywords": [
+   "honey",
+   "honeypot",
+   "pot",
+   "sweet"
+  ]
+ },
+ "hamburger": {
+  "cldr": "hamburger",
+  "group": "Food & Drink",
+  "keywords": [
+   "burger",
+   "hamburger"
+  ]
+ },
+ "up-right-arrow": {
+  "cldr": "up-right arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "direction",
+   "intercardinal",
+   "northeast",
+   "right",
+   "up"
+  ]
+ },
+ "optical-disk": {
+  "cldr": "optical disk",
+  "group": "Objects",
+  "keywords": [
+   "cd",
+   "computer",
+   "disk",
+   "optical"
+  ]
+ },
+ "keycap-10": {
+  "cldr": "keycap: 10",
+  "group": "Symbols",
+  "keywords": [
+   "10",
+   "keycap",
+   "ten"
+  ]
+ },
+ "softball": {
+  "cldr": "softball",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "glove",
+   "softball",
+   "underarm"
+  ]
+ },
+ "face-with-diagonal-mouth": {
+  "cldr": "face with diagonal mouth",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "diagonal",
+   "disappointed",
+   "face",
+   "meh",
+   "mouth",
+   "skeptical",
+   "unsure",
+   "with"
+  ]
+ },
+ "vibration-mode": {
+  "cldr": "vibration mode",
+  "group": "Symbols",
+  "keywords": [
+   "cell",
+   "mobile",
+   "mode",
+   "phone",
+   "telephone",
+   "vibration"
+  ]
+ },
+ "keyboard": {
+  "cldr": "keyboard",
+  "group": "Objects",
+  "keywords": [
+   "computer",
+   "keyboard"
+  ]
+ },
+ "black-cat": {
+  "cldr": "black cat",
+  "group": "Animals & Nature",
+  "keywords": [
+   "black",
+   "cat",
+   "unlucky"
+  ]
+ },
+ "rabbit-face": {
+  "cldr": "rabbit face",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bunny",
+   "face",
+   "pet",
+   "rabbit"
+  ]
+ },
+ "salt": {
+  "cldr": "salt",
+  "group": "Food & Drink",
+  "keywords": [
+   "condiment",
+   "salt",
+   "shaker"
+  ]
+ },
+ "water-closet": {
+  "cldr": "water closet",
+  "group": "Symbols",
+  "keywords": [
+   "closet",
+   "lavatory",
+   "restroom",
+   "water",
+   "wc"
+  ]
+ },
+ "bagel": {
+  "cldr": "bagel",
+  "group": "Food & Drink",
+  "keywords": [
+   "bagel",
+   "bakery",
+   "breakfast",
+   "schmear"
+  ]
+ },
+ "smirking-face": {
+  "cldr": "smirking face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "smirk",
+   "smirking"
+  ]
+ },
+ "triangular-flag": {
+  "cldr": "triangular flag",
+  "group": "Flags",
+  "keywords": [
+   "flag",
+   "post",
+   "triangular"
+  ]
+ },
+ "flag-in-hole": {
+  "cldr": "flag in hole",
+  "group": "Activities",
+  "keywords": [
+   "flag",
+   "golf",
+   "hole",
+   "in"
+  ]
+ },
+ "roller-skate": {
+  "cldr": "roller skate",
+  "group": "Travel & Places",
+  "keywords": [
+   "roller",
+   "skate"
+  ]
+ },
+ "mammoth": {
+  "cldr": "mammoth",
+  "group": "Animals & Nature",
+  "keywords": [
+   "extinction",
+   "large",
+   "mammoth",
+   "tusk",
+   "woolly"
+  ]
+ },
+ "kite": {
+  "cldr": "kite",
+  "group": "Activities",
+  "keywords": [
+   "fly",
+   "kite",
+   "soar"
+  ]
+ },
+ "camping": {
+  "cldr": "camping",
+  "group": "Travel & Places",
+  "keywords": [
+   "camping"
+  ]
+ },
+ "japanese-post-office": {
+  "cldr": "Japanese post office",
+  "group": "Travel & Places",
+  "keywords": [
+   "japanese",
+   "office",
+   "post"
+  ]
+ },
+ "loudly-crying-face": {
+  "cldr": "loudly crying face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cry",
+   "crying",
+   "face",
+   "loudly",
+   "sad",
+   "sob",
+   "tear"
+  ]
+ },
+ "angry-face": {
+  "cldr": "angry face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "anger",
+   "angry",
+   "face",
+   "mad"
+  ]
+ },
+ "credit-card": {
+  "cldr": "credit card",
+  "group": "Objects",
+  "keywords": [
+   "card",
+   "credit",
+   "money"
+  ]
+ },
+ "sad-but-relieved-face": {
+  "cldr": "sad but relieved face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "but",
+   "disappointed",
+   "face",
+   "relieved",
+   "sad",
+   "whew"
+  ]
+ },
+ "fountain-pen": {
+  "cldr": "fountain pen",
+  "group": "Objects",
+  "keywords": [
+   "fountain",
+   "pen"
+  ]
+ },
+ "toolbox": {
+  "cldr": "toolbox",
+  "group": "Objects",
+  "keywords": [
+   "chest",
+   "mechanic",
+   "tool",
+   "toolbox"
+  ]
+ },
+ "sunset": {
+  "cldr": "sunset",
+  "group": "Travel & Places",
+  "keywords": [
+   "dusk",
+   "sun",
+   "sunset"
+  ]
+ },
+ "hot-beverage": {
+  "cldr": "hot beverage",
+  "group": "Food & Drink",
+  "keywords": [
+   "beverage",
+   "coffee",
+   "drink",
+   "hot",
+   "steaming",
+   "tea"
+  ]
+ },
+ "lizard": {
+  "cldr": "lizard",
+  "group": "Animals & Nature",
+  "keywords": [
+   "lizard",
+   "reptile"
+  ]
+ },
+ "jellyfish": {
+  "cldr": "jellyfish",
+  "group": "Animals & Nature",
+  "keywords": [
+   "burn",
+   "invertebrate",
+   "jelly",
+   "jellyfish",
+   "marine",
+   "ouch",
+   "stinger"
+  ]
+ },
+ "mouth": {
+  "cldr": "mouth",
+  "group": "People & Body",
+  "keywords": [
+   "lips",
+   "mouth"
+  ]
+ },
+ "bird": {
+  "cldr": "bird",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird"
+  ]
+ },
+ "open-mailbox-with-raised-flag": {
+  "cldr": "open mailbox with raised flag",
+  "group": "Objects",
+  "keywords": [
+   "flag",
+   "mail",
+   "mailbox",
+   "open",
+   "postbox",
+   "raised",
+   "with"
+  ]
+ },
+ "circled-m": {
+  "cldr": "circled M",
+  "group": "Symbols",
+  "keywords": [
+   "circle",
+   "circled",
+   "m"
+  ]
+ },
+ "japanese-free-of-charge-button": {
+  "cldr": "Japanese \u201cfree of charge\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "charge",
+   "free",
+   "ideograph",
+   "japanese"
+  ]
+ },
+ "fork-and-knife": {
+  "cldr": "fork and knife",
+  "group": "Food & Drink",
+  "keywords": [
+   "cooking",
+   "cutlery",
+   "fork",
+   "knife"
+  ]
+ },
+ "water-buffalo": {
+  "cldr": "water buffalo",
+  "group": "Animals & Nature",
+  "keywords": [
+   "buffalo",
+   "water"
+  ]
+ },
+ "wheel": {
+  "cldr": "wheel",
+  "group": "Travel & Places",
+  "keywords": [
+   "circle",
+   "tire",
+   "turn",
+   "wheel"
+  ]
+ },
+ "x-ray": {
+  "cldr": "x-ray",
+  "group": "Objects",
+  "keywords": [
+   "bones",
+   "doctor",
+   "medical",
+   "ray",
+   "skeleton",
+   "x"
+  ]
+ },
+ "star-of-david": {
+  "cldr": "star of David",
+  "group": "Symbols",
+  "keywords": [
+   "david",
+   "jew",
+   "jewish",
+   "religion",
+   "star"
+  ]
+ },
+ "pine-decoration": {
+  "cldr": "pine decoration",
+  "group": "Activities",
+  "keywords": [
+   "bamboo",
+   "celebration",
+   "decoration",
+   "japanese",
+   "pine"
+  ]
+ },
+ "onion": {
+  "cldr": "onion",
+  "group": "Food & Drink",
+  "keywords": [
+   "flavoring",
+   "onion"
+  ]
+ },
+ "person-fencing": {
+  "cldr": "person fencing",
+  "group": "People & Body",
+  "keywords": [
+   "fencer",
+   "fencing",
+   "person",
+   "sword"
+  ]
+ },
+ "skull-and-crossbones": {
+  "cldr": "skull and crossbones",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "crossbones",
+   "death",
+   "face",
+   "monster",
+   "skull"
+  ]
+ },
+ "maple-leaf": {
+  "cldr": "maple leaf",
+  "group": "Animals & Nature",
+  "keywords": [
+   "falling",
+   "leaf",
+   "maple"
+  ]
+ },
+ "envelope": {
+  "cldr": "envelope",
+  "group": "Objects",
+  "keywords": [
+   "email",
+   "envelope",
+   "letter"
+  ]
+ },
+ "man-genie": {
+  "cldr": "man genie",
+  "group": "People & Body",
+  "keywords": [
+   "djinn",
+   "genie",
+   "man"
+  ]
+ },
+ "pretzel": {
+  "cldr": "pretzel",
+  "group": "Food & Drink",
+  "keywords": [
+   "pretzel",
+   "twisted"
+  ]
+ },
+ "bullseye": {
+  "cldr": "bullseye",
+  "group": "Activities",
+  "keywords": [
+   "bullseye",
+   "dart",
+   "direct",
+   "game",
+   "hit",
+   "target"
+  ]
+ },
+ "card-index-dividers": {
+  "cldr": "card index dividers",
+  "group": "Objects",
+  "keywords": [
+   "card",
+   "dividers",
+   "index"
+  ]
+ },
+ "radio": {
+  "cldr": "radio",
+  "group": "Objects",
+  "keywords": [
+   "radio",
+   "video"
+  ]
+ },
+ "fast-forward-button": {
+  "cldr": "fast-forward button",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "button",
+   "double",
+   "fast",
+   "forward"
+  ]
+ },
+ "female-sign": {
+  "cldr": "female sign",
+  "group": "Symbols",
+  "keywords": [
+   "female",
+   "sign",
+   "woman"
+  ]
+ },
+ "sewing-needle": {
+  "cldr": "sewing needle",
+  "group": "Activities",
+  "keywords": [
+   "embroidery",
+   "needle",
+   "sewing",
+   "stitches",
+   "sutures",
+   "tailoring"
+  ]
+ },
+ "briefcase": {
+  "cldr": "briefcase",
+  "group": "Objects",
+  "keywords": [
+   "briefcase"
+  ]
+ },
+ "eleven-thirty": {
+  "cldr": "eleven-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "11",
+   "30",
+   "clock",
+   "eleven",
+   "thirty"
+  ]
+ },
+ "pager": {
+  "cldr": "pager",
+  "group": "Objects",
+  "keywords": [
+   "pager"
+  ]
+ },
+ "hyacinth": {
+  "cldr": "hyacinth",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bluebonnet",
+   "flower",
+   "hyacinth",
+   "lavender",
+   "lupine",
+   "snapdragon"
+  ]
+ },
+ "japanese-bargain-button": {
+  "cldr": "Japanese \u201cbargain\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "bargain",
+   "button",
+   "ideograph",
+   "japanese"
+  ]
+ },
+ "flower-playing-cards": {
+  "cldr": "flower playing cards",
+  "group": "Activities",
+  "keywords": [
+   "card",
+   "cards",
+   "flower",
+   "game",
+   "japanese",
+   "playing"
+  ]
+ },
+ "heart-on-fire": {
+  "cldr": "heart on fire",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "burn",
+   "fire",
+   "heart",
+   "love",
+   "lust",
+   "on",
+   "sacred"
+  ]
+ },
+ "balance-scale": {
+  "cldr": "balance scale",
+  "group": "Objects",
+  "keywords": [
+   "balance",
+   "justice",
+   "libra",
+   "scale",
+   "zodiac"
+  ]
+ },
+ "hospital": {
+  "cldr": "hospital",
+  "group": "Travel & Places",
+  "keywords": [
+   "doctor",
+   "hospital",
+   "medicine"
+  ]
+ },
+ "clown-face": {
+  "cldr": "clown face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "clown",
+   "face"
+  ]
+ },
+ "large-blue-diamond": {
+  "cldr": "large blue diamond",
+  "group": "Symbols",
+  "keywords": [
+   "blue",
+   "diamond",
+   "geometric",
+   "large"
+  ]
+ },
+ "hot-face": {
+  "cldr": "hot face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "faced",
+   "feverish",
+   "heat",
+   "hot",
+   "red",
+   "stroke",
+   "sweating"
+  ]
+ },
+ "black-flag": {
+  "cldr": "black flag",
+  "group": "Flags",
+  "keywords": [
+   "black",
+   "flag",
+   "waving"
+  ]
+ },
+ "shamrock": {
+  "cldr": "shamrock",
+  "group": "Animals & Nature",
+  "keywords": [
+   "plant",
+   "shamrock"
+  ]
+ },
+ "rock": {
+  "cldr": "rock",
+  "group": "Travel & Places",
+  "keywords": [
+   "boulder",
+   "heavy",
+   "rock",
+   "solid",
+   "stone"
+  ]
+ },
+ "sparkling-heart": {
+  "cldr": "sparkling heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "excited",
+   "heart",
+   "sparkle",
+   "sparkling"
+  ]
+ },
+ "magic-wand": {
+  "cldr": "magic wand",
+  "group": "Activities",
+  "keywords": [
+   "magic",
+   "wand",
+   "witch",
+   "wizard"
+  ]
+ },
+ "face-with-head-bandage": {
+  "cldr": "face with head-bandage",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "bandage",
+   "face",
+   "head",
+   "hurt",
+   "injury",
+   "with"
+  ]
+ },
+ "rhinoceros": {
+  "cldr": "rhinoceros",
+  "group": "Animals & Nature",
+  "keywords": [
+   "rhinoceros"
+  ]
+ },
+ "new-button": {
+  "cldr": "NEW button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "new"
+  ]
+ },
+ "unamused-face": {
+  "cldr": "unamused face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "unamused",
+   "unhappy"
+  ]
+ },
+ "hatching-chick": {
+  "cldr": "hatching chick",
+  "group": "Animals & Nature",
+  "keywords": [
+   "baby",
+   "bird",
+   "chick",
+   "hatching"
+  ]
+ },
+ "red-heart": {
+  "cldr": "red heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "heart",
+   "red"
+  ]
+ },
+ "cherry-blossom": {
+  "cldr": "cherry blossom",
+  "group": "Animals & Nature",
+  "keywords": [
+   "blossom",
+   "cherry",
+   "flower"
+  ]
+ },
+ "up-arrow": {
+  "cldr": "up arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "cardinal",
+   "direction",
+   "north",
+   "up"
+  ]
+ },
+ "oil-drum": {
+  "cldr": "oil drum",
+  "group": "Travel & Places",
+  "keywords": [
+   "drum",
+   "oil"
+  ]
+ },
+ "kaaba": {
+  "cldr": "kaaba",
+  "group": "Travel & Places",
+  "keywords": [
+   "islam",
+   "kaaba",
+   "muslim",
+   "religion"
+  ]
+ },
+ "hedgehog": {
+  "cldr": "hedgehog",
+  "group": "Animals & Nature",
+  "keywords": [
+   "hedgehog",
+   "spiny"
+  ]
+ },
+ "mountain-cableway": {
+  "cldr": "mountain cableway",
+  "group": "Travel & Places",
+  "keywords": [
+   "cable",
+   "cableway",
+   "gondola",
+   "mountain"
+  ]
+ },
+ "magnifying-glass-tilted-left": {
+  "cldr": "magnifying glass tilted left",
+  "group": "Objects",
+  "keywords": [
+   "glass",
+   "left",
+   "magnifying",
+   "search",
+   "tilted",
+   "tool"
+  ]
+ },
+ "blue-book": {
+  "cldr": "blue book",
+  "group": "Objects",
+  "keywords": [
+   "blue",
+   "book"
+  ]
+ },
+ "sun-behind-large-cloud": {
+  "cldr": "sun behind large cloud",
+  "group": "Travel & Places",
+  "keywords": [
+   "behind",
+   "cloud",
+   "large",
+   "sun"
+  ]
+ },
+ "pen": {
+  "cldr": "pen",
+  "group": "Objects",
+  "keywords": [
+   "ballpoint",
+   "pen"
+  ]
+ },
+ "rolling-on-the-floor-laughing": {
+  "cldr": "rolling on the floor laughing",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "floor",
+   "laugh",
+   "laughing",
+   "on",
+   "rofl",
+   "rolling",
+   "rotfl"
+  ]
+ },
+ "fireworks": {
+  "cldr": "fireworks",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "fireworks"
+  ]
+ },
+ "khanda": {
+  "cldr": "khanda",
+  "group": "Symbols",
+  "keywords": [
+   "khanda",
+   "religion",
+   "sikh"
+  ]
+ },
+ "eagle": {
+  "cldr": "eagle",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "eagle"
+  ]
+ },
+ "bus": {
+  "cldr": "bus",
+  "group": "Travel & Places",
+  "keywords": [
+   "bus",
+   "vehicle"
+  ]
+ },
+ "love-hotel": {
+  "cldr": "love hotel",
+  "group": "Travel & Places",
+  "keywords": [
+   "hotel",
+   "love"
+  ]
+ },
+ "cucumber": {
+  "cldr": "cucumber",
+  "group": "Food & Drink",
+  "keywords": [
+   "cucumber",
+   "food",
+   "pickle",
+   "vegetable"
+  ]
+ },
+ "grinning-face-with-big-eyes": {
+  "cldr": "grinning face with big eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "big",
+   "eyes",
+   "face",
+   "grinning",
+   "mouth",
+   "open",
+   "smile",
+   "with"
+  ]
+ },
+ "automobile": {
+  "cldr": "automobile",
+  "group": "Travel & Places",
+  "keywords": [
+   "automobile",
+   "car"
+  ]
+ },
+ "soap": {
+  "cldr": "soap",
+  "group": "Objects",
+  "keywords": [
+   "bar",
+   "bathing",
+   "cleaning",
+   "lather",
+   "soap",
+   "soapdish"
+  ]
+ },
+ "down-left-arrow": {
+  "cldr": "down-left arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "direction",
+   "down",
+   "intercardinal",
+   "left",
+   "southwest"
+  ]
+ },
+ "speaking-head": {
+  "cldr": "speaking head",
+  "group": "People & Body",
+  "keywords": [
+   "face",
+   "head",
+   "silhouette",
+   "speak",
+   "speaking"
+  ]
+ },
+ "transgender-symbol": {
+  "cldr": "transgender symbol",
+  "group": "Symbols",
+  "keywords": [
+   "symbol",
+   "transgender"
+  ]
+ },
+ "alarm-clock": {
+  "cldr": "alarm clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "alarm",
+   "clock"
+  ]
+ },
+ "leo": {
+  "cldr": "Leo",
+  "group": "Symbols",
+  "keywords": [
+   "leo",
+   "lion",
+   "zodiac"
+  ]
+ },
+ "saluting-face": {
+  "cldr": "saluting face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "ok",
+   "salute",
+   "saluting",
+   "sunny",
+   "troops",
+   "yes"
+  ]
+ },
+ "clinking-glasses": {
+  "cldr": "clinking glasses",
+  "group": "Food & Drink",
+  "keywords": [
+   "celebrate",
+   "clink",
+   "clinking",
+   "drink",
+   "glass",
+   "glasses"
+  ]
+ },
+ "crown": {
+  "cldr": "crown",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "crown",
+   "king",
+   "queen"
+  ]
+ },
+ "woman-with-bunny-ears": {
+  "cldr": "women with bunny ears",
+  "group": "People & Body",
+  "keywords": [
+   "bunny",
+   "dancer",
+   "ear",
+   "ears",
+   "partying",
+   "with",
+   "women"
+  ]
+ },
+ "person-zombie": {
+  "cldr": "zombie",
+  "group": "People & Body",
+  "keywords": [
+   "dead",
+   "undead",
+   "walking",
+   "zombie"
+  ]
+ },
+ "seedling": {
+  "cldr": "seedling",
+  "group": "Animals & Nature",
+  "keywords": [
+   "seedling",
+   "young"
+  ]
+ },
+ "red-apple": {
+  "cldr": "red apple",
+  "group": "Food & Drink",
+  "keywords": [
+   "apple",
+   "fruit",
+   "red"
+  ]
+ },
+ "parachute": {
+  "cldr": "parachute",
+  "group": "Travel & Places",
+  "keywords": [
+   "glide",
+   "hang",
+   "parachute",
+   "parasail",
+   "skydive"
+  ]
+ },
+ "sloth": {
+  "cldr": "sloth",
+  "group": "Animals & Nature",
+  "keywords": [
+   "lazy",
+   "sloth",
+   "slow"
+  ]
+ },
+ "crossed-flags": {
+  "cldr": "crossed flags",
+  "group": "Flags",
+  "keywords": [
+   "celebration",
+   "cross",
+   "crossed",
+   "flags",
+   "japanese"
+  ]
+ },
+ "vertical-traffic-light": {
+  "cldr": "vertical traffic light",
+  "group": "Travel & Places",
+  "keywords": [
+   "light",
+   "signal",
+   "traffic",
+   "vertical"
+  ]
+ },
+ "octopus": {
+  "cldr": "octopus",
+  "group": "Animals & Nature",
+  "keywords": [
+   "octopus"
+  ]
+ },
+ "hindu-temple": {
+  "cldr": "hindu temple",
+  "group": "Travel & Places",
+  "keywords": [
+   "hindu",
+   "temple"
+  ]
+ },
+ "file-cabinet": {
+  "cldr": "file cabinet",
+  "group": "Objects",
+  "keywords": [
+   "cabinet",
+   "file",
+   "filing"
+  ]
+ },
+ "euro-banknote": {
+  "cldr": "euro banknote",
+  "group": "Objects",
+  "keywords": [
+   "banknote",
+   "bill",
+   "currency",
+   "euro",
+   "money",
+   "note"
+  ]
+ },
+ "round-pushpin": {
+  "cldr": "round pushpin",
+  "group": "Objects",
+  "keywords": [
+   "pin",
+   "pushpin",
+   "round"
+  ]
+ },
+ "falafel": {
+  "cldr": "falafel",
+  "group": "Food & Drink",
+  "keywords": [
+   "chickpea",
+   "falafel",
+   "meatball"
+  ]
+ },
+ "satellite-antenna": {
+  "cldr": "satellite antenna",
+  "group": "Objects",
+  "keywords": [
+   "antenna",
+   "dish",
+   "satellite"
+  ]
+ },
+ "briefs": {
+  "cldr": "briefs",
+  "group": "Objects",
+  "keywords": [
+   "bathing",
+   "briefs",
+   "one",
+   "piece",
+   "suit",
+   "swimsuit",
+   "underwear"
+  ]
+ },
+ "mountain": {
+  "cldr": "mountain",
+  "group": "Travel & Places",
+  "keywords": [
+   "mountain"
+  ]
+ },
+ "roller-coaster": {
+  "cldr": "roller coaster",
+  "group": "Travel & Places",
+  "keywords": [
+   "amusement",
+   "coaster",
+   "park",
+   "roller"
+  ]
+ },
+ "melon": {
+  "cldr": "melon",
+  "group": "Food & Drink",
+  "keywords": [
+   "fruit",
+   "melon"
+  ]
+ },
+ "waxing-gibbous-moon": {
+  "cldr": "waxing gibbous moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "gibbous",
+   "moon",
+   "waxing"
+  ]
+ },
+ "broken-heart": {
+  "cldr": "broken heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "break",
+   "broken",
+   "heart"
+  ]
+ },
+ "back-arrow": {
+  "cldr": "BACK arrow",
+  "group": "Symbols",
+  "keywords": [
+   "arrow",
+   "back"
+  ]
+ },
+ "mending-heart": {
+  "cldr": "mending heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "healthier",
+   "heart",
+   "improving",
+   "mending",
+   "recovering",
+   "recuperating",
+   "well"
+  ]
+ },
+ "chains": {
+  "cldr": "chains",
+  "group": "Objects",
+  "keywords": [
+   "chain",
+   "chains"
+  ]
+ },
+ "four-thirty": {
+  "cldr": "four-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "30",
+   "4",
+   "clock",
+   "four",
+   "thirty"
+  ]
+ },
+ "cloud-with-rain": {
+  "cldr": "cloud with rain",
+  "group": "Travel & Places",
+  "keywords": [
+   "cloud",
+   "rain",
+   "with"
+  ]
+ },
+ "speaker-high-volume": {
+  "cldr": "speaker high volume",
+  "group": "Objects",
+  "keywords": [
+   "high",
+   "loud",
+   "speaker",
+   "volume"
+  ]
+ },
+ "sun": {
+  "cldr": "sun",
+  "group": "Travel & Places",
+  "keywords": [
+   "bright",
+   "rays",
+   "sun",
+   "sunny"
+  ]
+ },
+ "mosque": {
+  "cldr": "mosque",
+  "group": "Travel & Places",
+  "keywords": [
+   "islam",
+   "mosque",
+   "muslim",
+   "religion"
+  ]
+ },
+ "hair-pick": {
+  "cldr": "hair pick",
+  "group": "Objects",
+  "keywords": [
+   "afro",
+   "comb",
+   "hair",
+   "pick"
+  ]
+ },
+ "sheaf-of-rice": {
+  "cldr": "sheaf of rice",
+  "group": "Animals & Nature",
+  "keywords": [
+   "ear",
+   "grain",
+   "rice",
+   "sheaf"
+  ]
+ },
+ "yellow-circle": {
+  "cldr": "yellow circle",
+  "group": "Symbols",
+  "keywords": [
+   "circle",
+   "yellow"
+  ]
+ },
+ "meat-on-bone": {
+  "cldr": "meat on bone",
+  "group": "Food & Drink",
+  "keywords": [
+   "bone",
+   "meat",
+   "on"
+  ]
+ },
+ "goat": {
+  "cldr": "goat",
+  "group": "Animals & Nature",
+  "keywords": [
+   "capricorn",
+   "goat",
+   "zodiac"
+  ]
+ },
+ "large-orange-diamond": {
+  "cldr": "large orange diamond",
+  "group": "Symbols",
+  "keywords": [
+   "diamond",
+   "geometric",
+   "large",
+   "orange"
+  ]
+ },
+ "spade-suit": {
+  "cldr": "spade suit",
+  "group": "Activities",
+  "keywords": [
+   "card",
+   "game",
+   "spade",
+   "suit"
+  ]
+ },
+ "purple-heart": {
+  "cldr": "purple heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "heart",
+   "purple"
+  ]
+ },
+ "postal-horn": {
+  "cldr": "postal horn",
+  "group": "Objects",
+  "keywords": [
+   "horn",
+   "post",
+   "postal"
+  ]
+ },
+ "full-moon": {
+  "cldr": "full moon",
+  "group": "Travel & Places",
+  "keywords": [
+   "full",
+   "moon"
+  ]
+ },
+ "high-speed-train": {
+  "cldr": "high-speed train",
+  "group": "Travel & Places",
+  "keywords": [
+   "high",
+   "railway",
+   "shinkansen",
+   "speed",
+   "train"
+  ]
+ },
+ "no-entry": {
+  "cldr": "no entry",
+  "group": "Symbols",
+  "keywords": [
+   "entry",
+   "forbidden",
+   "no",
+   "not",
+   "prohibited",
+   "traffic"
+  ]
+ },
+ "woman-zombie": {
+  "cldr": "woman zombie",
+  "group": "People & Body",
+  "keywords": [
+   "dead",
+   "undead",
+   "walking",
+   "woman",
+   "zombie"
+  ]
+ },
+ "field-hockey": {
+  "cldr": "field hockey",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "field",
+   "game",
+   "hockey",
+   "stick"
+  ]
+ },
+ "brown-circle": {
+  "cldr": "brown circle",
+  "group": "Symbols",
+  "keywords": [
+   "brown",
+   "circle"
+  ]
+ },
+ "articulated-lorry": {
+  "cldr": "articulated lorry",
+  "group": "Travel & Places",
+  "keywords": [
+   "articulated",
+   "lorry",
+   "semi",
+   "truck"
+  ]
+ },
+ "blowfish": {
+  "cldr": "blowfish",
+  "group": "Animals & Nature",
+  "keywords": [
+   "blowfish",
+   "fish"
+  ]
+ },
+ "bug": {
+  "cldr": "bug",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bug",
+   "insect"
+  ]
+ },
+ "goose": {
+  "cldr": "goose",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "fowl",
+   "goose",
+   "honk",
+   "silly"
+  ]
+ },
+ "last-quarter-moon-face": {
+  "cldr": "last quarter moon face",
+  "group": "Travel & Places",
+  "keywords": [
+   "face",
+   "last",
+   "moon",
+   "quarter"
+  ]
+ },
+ "crystal-ball": {
+  "cldr": "crystal ball",
+  "group": "Activities",
+  "keywords": [
+   "ball",
+   "crystal",
+   "fairy",
+   "fantasy",
+   "fortune",
+   "tale",
+   "tool"
+  ]
+ },
+ "pick": {
+  "cldr": "pick",
+  "group": "Objects",
+  "keywords": [
+   "mining",
+   "pick",
+   "tool"
+  ]
+ },
+ "castle": {
+  "cldr": "castle",
+  "group": "Travel & Places",
+  "keywords": [
+   "castle",
+   "european"
+  ]
+ },
+ "pushpin": {
+  "cldr": "pushpin",
+  "group": "Objects",
+  "keywords": [
+   "pin",
+   "pushpin"
+  ]
+ },
+ "chocolate-bar": {
+  "cldr": "chocolate bar",
+  "group": "Food & Drink",
+  "keywords": [
+   "bar",
+   "chocolate",
+   "dessert",
+   "sweet"
+  ]
+ },
+ "maracas": {
+  "cldr": "maracas",
+  "group": "Objects",
+  "keywords": [
+   "instrument",
+   "maracas",
+   "music",
+   "percussion",
+   "rattle",
+   "shake"
+  ]
+ },
+ "white-medium-square": {
+  "cldr": "white medium square",
+  "group": "Symbols",
+  "keywords": [
+   "geometric",
+   "medium",
+   "square",
+   "white"
+  ]
+ },
+ "gloves": {
+  "cldr": "gloves",
+  "group": "Objects",
+  "keywords": [
+   "gloves",
+   "hand"
+  ]
+ },
+ "ice": {
+  "cldr": "ice",
+  "group": "Food & Drink",
+  "keywords": [
+   "cold",
+   "cube",
+   "ice",
+   "iceberg"
+  ]
+ },
+ "sandwich": {
+  "cldr": "sandwich",
+  "group": "Food & Drink",
+  "keywords": [
+   "bread",
+   "sandwich"
+  ]
+ },
+ "lady-beetle": {
+  "cldr": "lady beetle",
+  "group": "Animals & Nature",
+  "keywords": [
+   "beetle",
+   "insect",
+   "lady",
+   "ladybird",
+   "ladybug"
+  ]
+ },
+ "card-file-box": {
+  "cldr": "card file box",
+  "group": "Objects",
+  "keywords": [
+   "box",
+   "card",
+   "file"
+  ]
+ },
+ "hot-springs": {
+  "cldr": "hot springs",
+  "group": "Travel & Places",
+  "keywords": [
+   "hot",
+   "hotsprings",
+   "springs",
+   "steaming"
+  ]
+ },
+ "two-hump-camel": {
+  "cldr": "two-hump camel",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bactrian",
+   "camel",
+   "hump",
+   "two"
+  ]
+ },
+ "bomb": {
+  "cldr": "bomb",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "bomb",
+   "comic"
+  ]
+ },
+ "left-speech-bubble": {
+  "cldr": "left speech bubble",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "bubble",
+   "dialog",
+   "left",
+   "speech"
+  ]
+ },
+ "sled": {
+  "cldr": "sled",
+  "group": "Activities",
+  "keywords": [
+   "sled",
+   "sledge",
+   "sleigh"
+  ]
+ },
+ "small-blue-diamond": {
+  "cldr": "small blue diamond",
+  "group": "Symbols",
+  "keywords": [
+   "blue",
+   "diamond",
+   "geometric",
+   "small"
+  ]
+ },
+ "face-with-hand-over-mouth": {
+  "cldr": "face with hand over mouth",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "hand",
+   "mouth",
+   "over",
+   "whoops",
+   "with"
+  ]
+ },
+ "mans-shoe": {
+  "cldr": "man\u2019s shoe",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "man",
+   "s",
+   "shoe"
+  ]
+ },
+ "night-with-stars": {
+  "cldr": "night with stars",
+  "group": "Travel & Places",
+  "keywords": [
+   "night",
+   "star",
+   "stars",
+   "with"
+  ]
+ },
+ "aries": {
+  "cldr": "Aries",
+  "group": "Symbols",
+  "keywords": [
+   "aries",
+   "ram",
+   "zodiac"
+  ]
+ },
+ "clipboard": {
+  "cldr": "clipboard",
+  "group": "Objects",
+  "keywords": [
+   "clipboard"
+  ]
+ },
+ "dodo": {
+  "cldr": "dodo",
+  "group": "Animals & Nature",
+  "keywords": [
+   "dodo",
+   "extinction",
+   "large",
+   "mauritius"
+  ]
+ },
+ "no-one-under-eighteen": {
+  "cldr": "no one under eighteen",
+  "group": "Symbols",
+  "keywords": [
+   "18",
+   "age",
+   "eighteen",
+   "no",
+   "one",
+   "prohibited",
+   "restriction",
+   "under",
+   "underage"
+  ]
+ },
+ "chicken": {
+  "cldr": "chicken",
+  "group": "Animals & Nature",
+  "keywords": [
+   "bird",
+   "chicken"
+  ]
+ },
+ "potable-water": {
+  "cldr": "potable water",
+  "group": "Symbols",
+  "keywords": [
+   "drinking",
+   "potable",
+   "water"
+  ]
+ },
+ "sunflower": {
+  "cldr": "sunflower",
+  "group": "Animals & Nature",
+  "keywords": [
+   "flower",
+   "sun",
+   "sunflower"
+  ]
+ },
+ "pink-heart": {
+  "cldr": "pink heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cute",
+   "heart",
+   "like",
+   "love",
+   "pink"
+  ]
+ },
+ "green-book": {
+  "cldr": "green book",
+  "group": "Objects",
+  "keywords": [
+   "book",
+   "green"
+  ]
+ },
+ "cat": {
+  "cldr": "cat",
+  "group": "Animals & Nature",
+  "keywords": [
+   "cat",
+   "pet"
+  ]
+ },
+ "cloud-with-lightning-and-rain": {
+  "cldr": "cloud with lightning and rain",
+  "group": "Travel & Places",
+  "keywords": [
+   "cloud",
+   "lightning",
+   "rain",
+   "thunder",
+   "with"
+  ]
+ },
+ "weary-cat": {
+  "cldr": "weary cat",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "cat",
+   "face",
+   "oh",
+   "surprised",
+   "weary"
+  ]
+ },
+ "trident-emblem": {
+  "cldr": "trident emblem",
+  "group": "Symbols",
+  "keywords": [
+   "anchor",
+   "emblem",
+   "ship",
+   "tool",
+   "trident"
+  ]
+ },
+ "megaphone": {
+  "cldr": "megaphone",
+  "group": "Objects",
+  "keywords": [
+   "cheering",
+   "megaphone"
+  ]
+ },
+ "hotel": {
+  "cldr": "hotel",
+  "group": "Travel & Places",
+  "keywords": [
+   "building",
+   "hotel"
+  ]
+ },
+ "no-mobile-phones": {
+  "cldr": "no mobile phones",
+  "group": "Symbols",
+  "keywords": [
+   "cell",
+   "forbidden",
+   "mobile",
+   "no",
+   "phone",
+   "phones"
+  ]
+ },
+ "elevator": {
+  "cldr": "elevator",
+  "group": "Objects",
+  "keywords": [
+   "accessibility",
+   "elevator",
+   "hoist",
+   "lift"
+  ]
+ },
+ "page-with-curl": {
+  "cldr": "page with curl",
+  "group": "Objects",
+  "keywords": [
+   "curl",
+   "document",
+   "page",
+   "with"
+  ]
+ },
+ "airplane-departure": {
+  "cldr": "airplane departure",
+  "group": "Travel & Places",
+  "keywords": [
+   "aeroplane",
+   "airplane",
+   "check",
+   "departure",
+   "departures",
+   "in"
+  ]
+ },
+ "brown-heart": {
+  "cldr": "brown heart",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "brown",
+   "heart"
+  ]
+ },
+ "kimono": {
+  "cldr": "kimono",
+  "group": "Objects",
+  "keywords": [
+   "clothing",
+   "kimono"
+  ]
+ },
+ "zzz": {
+  "cldr": "zzz",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "comic",
+   "sleep",
+   "zzz"
+  ]
+ },
+ "racing-car": {
+  "cldr": "racing car",
+  "group": "Travel & Places",
+  "keywords": [
+   "car",
+   "racing"
+  ]
+ },
+ "beach-with-umbrella": {
+  "cldr": "beach with umbrella",
+  "group": "Travel & Places",
+  "keywords": [
+   "beach",
+   "umbrella",
+   "with"
+  ]
+ },
+ "astonished-face": {
+  "cldr": "astonished face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "astonished",
+   "face",
+   "shocked",
+   "totally"
+  ]
+ },
+ "magnet": {
+  "cldr": "magnet",
+  "group": "Objects",
+  "keywords": [
+   "attraction",
+   "horseshoe",
+   "magnet",
+   "magnetic"
+  ]
+ },
+ "white-question-mark": {
+  "cldr": "white question mark",
+  "group": "Symbols",
+  "keywords": [
+   "mark",
+   "outlined",
+   "punctuation",
+   "question",
+   "white"
+  ]
+ },
+ "toothbrush": {
+  "cldr": "toothbrush",
+  "group": "Objects",
+  "keywords": [
+   "bathroom",
+   "brush",
+   "clean",
+   "dental",
+   "hygiene",
+   "teeth",
+   "toothbrush"
+  ]
+ },
+ "mushroom": {
+  "cldr": "mushroom",
+  "group": "Food & Drink",
+  "keywords": [
+   "mushroom",
+   "toadstool"
+  ]
+ },
+ "cool-button": {
+  "cldr": "COOL button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "cool"
+  ]
+ },
+ "magnifying-glass-tilted-right": {
+  "cldr": "magnifying glass tilted right",
+  "group": "Objects",
+  "keywords": [
+   "glass",
+   "magnifying",
+   "right",
+   "search",
+   "tilted",
+   "tool"
+  ]
+ },
+ "red-paper-lantern": {
+  "cldr": "red paper lantern",
+  "group": "Objects",
+  "keywords": [
+   "bar",
+   "lantern",
+   "light",
+   "paper",
+   "red"
+  ]
+ },
+ "airplane": {
+  "cldr": "airplane",
+  "group": "Travel & Places",
+  "keywords": [
+   "aeroplane",
+   "airplane"
+  ]
+ },
+ "printer": {
+  "cldr": "printer",
+  "group": "Objects",
+  "keywords": [
+   "computer",
+   "printer"
+  ]
+ },
+ "lollipop": {
+  "cldr": "lollipop",
+  "group": "Food & Drink",
+  "keywords": [
+   "candy",
+   "dessert",
+   "lollipop",
+   "sweet"
+  ]
+ },
+ "hundred-points": {
+  "cldr": "hundred points",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "100",
+   "full",
+   "hundred",
+   "points",
+   "score"
+  ]
+ },
+ "skateboard": {
+  "cldr": "skateboard",
+  "group": "Travel & Places",
+  "keywords": [
+   "board",
+   "skateboard"
+  ]
+ },
+ "japanese-dolls": {
+  "cldr": "Japanese dolls",
+  "group": "Activities",
+  "keywords": [
+   "celebration",
+   "doll",
+   "dolls",
+   "festival",
+   "japanese"
+  ]
+ },
+ "seat": {
+  "cldr": "seat",
+  "group": "Travel & Places",
+  "keywords": [
+   "chair",
+   "seat"
+  ]
+ },
+ "partying-face": {
+  "cldr": "partying face",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "celebration",
+   "face",
+   "hat",
+   "horn",
+   "party",
+   "partying"
+  ]
+ },
+ "light-rail": {
+  "cldr": "light rail",
+  "group": "Travel & Places",
+  "keywords": [
+   "light",
+   "rail",
+   "railway"
+  ]
+ },
+ "keycap-asterisk": {
+  "cldr": "keycap: asterisk",
+  "group": "Symbols",
+  "keywords": [
+   "asterisk",
+   "keycap"
+  ]
+ },
+ "face-holding-back-tears": {
+  "cldr": "face holding back tears",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "angry",
+   "back",
+   "cry",
+   "face",
+   "holding",
+   "proud",
+   "resist",
+   "sad",
+   "tears"
+  ]
+ },
+ "flying-saucer": {
+  "cldr": "flying saucer",
+  "group": "Travel & Places",
+  "keywords": [
+   "flying",
+   "saucer",
+   "ufo"
+  ]
+ },
+ "floppy-disk": {
+  "cldr": "floppy disk",
+  "group": "Objects",
+  "keywords": [
+   "computer",
+   "disk",
+   "floppy"
+  ]
+ },
+ "three-thirty": {
+  "cldr": "three-thirty",
+  "group": "Travel & Places",
+  "keywords": [
+   "3",
+   "30",
+   "clock",
+   "thirty",
+   "three"
+  ]
+ },
+ "memo": {
+  "cldr": "memo",
+  "group": "Objects",
+  "keywords": [
+   "memo",
+   "pencil"
+  ]
+ },
+ "crossed-swords": {
+  "cldr": "crossed swords",
+  "group": "Objects",
+  "keywords": [
+   "crossed",
+   "swords",
+   "weapon"
+  ]
+ },
+ "heart-decoration": {
+  "cldr": "heart decoration",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "decoration",
+   "heart"
+  ]
+ },
+ "squinting-face-with-tongue": {
+  "cldr": "squinting face with tongue",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "eye",
+   "face",
+   "horrible",
+   "squinting",
+   "taste",
+   "tongue",
+   "with"
+  ]
+ },
+ "cooked-rice": {
+  "cldr": "cooked rice",
+  "group": "Food & Drink",
+  "keywords": [
+   "cooked",
+   "rice"
+  ]
+ },
+ "violin": {
+  "cldr": "violin",
+  "group": "Objects",
+  "keywords": [
+   "instrument",
+   "music",
+   "violin"
+  ]
+ },
+ "old-key": {
+  "cldr": "old key",
+  "group": "Objects",
+  "keywords": [
+   "clue",
+   "key",
+   "lock",
+   "old"
+  ]
+ },
+ "bar-chart": {
+  "cldr": "bar chart",
+  "group": "Objects",
+  "keywords": [
+   "bar",
+   "chart",
+   "graph"
+  ]
+ },
+ "snail": {
+  "cldr": "snail",
+  "group": "Animals & Nature",
+  "keywords": [
+   "snail"
+  ]
+ },
+ "egg": {
+  "cldr": "egg",
+  "group": "Food & Drink",
+  "keywords": [
+   "breakfast",
+   "egg",
+   "food"
+  ]
+ },
+ "books": {
+  "cldr": "books",
+  "group": "Objects",
+  "keywords": [
+   "book",
+   "books"
+  ]
+ },
+ "thought-balloon": {
+  "cldr": "thought balloon",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "balloon",
+   "bubble",
+   "comic",
+   "thought"
+  ]
+ },
+ "smiling-face-with-smiling-eyes": {
+  "cldr": "smiling face with smiling eyes",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "blush",
+   "eye",
+   "eyes",
+   "face",
+   "smile",
+   "smiling",
+   "with"
+  ]
+ },
+ "face-vomiting": {
+  "cldr": "face vomiting",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "face",
+   "puke",
+   "sick",
+   "vomit",
+   "vomiting"
+  ]
+ },
+ "green-salad": {
+  "cldr": "green salad",
+  "group": "Food & Drink",
+  "keywords": [
+   "food",
+   "green",
+   "salad"
+  ]
+ },
+ "notebook-with-decorative-cover": {
+  "cldr": "notebook with decorative cover",
+  "group": "Objects",
+  "keywords": [
+   "book",
+   "cover",
+   "decorated",
+   "decorative",
+   "notebook",
+   "with"
+  ]
+ },
+ "red-envelope": {
+  "cldr": "red envelope",
+  "group": "Activities",
+  "keywords": [
+   "envelope",
+   "gift",
+   "good",
+   "h",
+   "lai",
+   "luck",
+   "money",
+   "ngb",
+   "o",
+   "red",
+   "see"
+  ]
+ },
+ "rocket": {
+  "cldr": "rocket",
+  "group": "Travel & Places",
+  "keywords": [
+   "rocket",
+   "space"
+  ]
+ },
+ "three-oclock": {
+  "cldr": "three o\u2019clock",
+  "group": "Travel & Places",
+  "keywords": [
+   "00",
+   "3",
+   "clock",
+   "o",
+   "three"
+  ]
+ },
+ "firecracker": {
+  "cldr": "firecracker",
+  "group": "Activities",
+  "keywords": [
+   "dynamite",
+   "explosive",
+   "firecracker",
+   "fireworks"
+  ]
+ },
+ "free-button": {
+  "cldr": "FREE button",
+  "group": "Symbols",
+  "keywords": [
+   "button",
+   "free"
+  ]
+ },
+ "tram-car": {
+  "cldr": "tram car",
+  "group": "Travel & Places",
+  "keywords": [
+   "car",
+   "tram",
+   "trolleybus"
+  ]
+ },
+ "japanese-monthly-amount-button": {
+  "cldr": "Japanese \u201cmonthly amount\u201d button",
+  "group": "Symbols",
+  "keywords": [
+   "amount",
+   "button",
+   "ideograph",
+   "japanese",
+   "monthly"
+  ]
+ },
+ "statue-of-liberty": {
+  "cldr": "Statue of Liberty",
+  "group": "Travel & Places",
+  "keywords": [
+   "liberty",
+   "statue"
+  ]
+ },
+ "wing": {
+  "cldr": "wing",
+  "group": "Animals & Nature",
+  "keywords": [
+   "angelic",
+   "aviation",
+   "bird",
+   "flying",
+   "mythology",
+   "wing"
+  ]
+ },
+ "man-wrestling": {
+  "cldr": "men wrestling",
+  "group": "People & Body",
+  "keywords": [
+   "men",
+   "wrestle",
+   "wrestling"
+  ]
+ },
+ "baby-chick": {
+  "cldr": "baby chick",
+  "group": "Animals & Nature",
+  "keywords": [
+   "baby",
+   "bird",
+   "chick"
+  ]
+ },
+ "radioactive": {
+  "cldr": "radioactive",
+  "group": "Symbols",
+  "keywords": [
+   "radioactive",
+   "sign"
+  ]
+ },
+ "adhesive-bandage": {
+  "cldr": "adhesive bandage",
+  "group": "Objects",
+  "keywords": [
+   "adhesive",
+   "bandage"
+  ]
+ },
+ "beer-mug": {
+  "cldr": "beer mug",
+  "group": "Food & Drink",
+  "keywords": [
+   "bar",
+   "beer",
+   "drink",
+   "mug"
+  ]
+ },
+ "heart-with-ribbon": {
+  "cldr": "heart with ribbon",
+  "group": "Smileys & Emotion",
+  "keywords": [
+   "heart",
+   "ribbon",
+   "valentine",
+   "with"
+  ]
+ },
+ "delivery-truck": {
+  "cldr": "delivery truck",
+  "group": "Travel & Places",
+  "keywords": [
+   "delivery",
+   "truck"
+  ]
+ }
+}

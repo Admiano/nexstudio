@@ -1,0 +1,156 @@
+{
+  "id": "cast.support-helper.paper-01",
+  "name": "Support helper",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "helper",
+  "slug": "support-helper",
+  "renderer": "paper-cast-figure",
+  "role": "helper",
+  "ageBand": "adult",
+  "proportion": "adult-slight",
+  "formality": "business-casual",
+  "intents": [
+    "resolve_issue",
+    "guide_user",
+    "reassure",
+    "handoff"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "helper",
+    "support",
+    "service",
+    "assist",
+    "agent",
+    "guide"
+  ],
+  "useCases": [
+    "agent",
+    "business",
+    "explainer"
+  ],
+  "personalities": [
+    "warm",
+    "calm",
+    "cheerful"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "medium",
+    "low"
+  ],
+  "poses": [
+    "explain-open-hands",
+    "hand-over",
+    "work-at-surface",
+    "listen-attentive",
+    "idle-stance"
+  ],
+  "defaultPose": "explain-open-hands",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#9a6440",
+    "hair": {
+      "color": "#2f2a26",
+      "length": 0.3
+    },
+    "top": {
+      "color": "#4b6fae",
+      "sleeve": 0.68
+    },
+    "bottom": {
+      "color": "#333b47"
+    },
+    "shoes": {
+      "color": "#2b2b2b"
+    },
+    "accent": "#6fb3c9"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.helper",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Support helper paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "resolve_issue",
+      "guide_user",
+      "reassure",
+      "handoff"
+    ],
+    "storyRole": "helper",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

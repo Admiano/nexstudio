@@ -1,0 +1,156 @@
+{
+  "id": "cast.executive.paper-01",
+  "name": "Executive",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "executive",
+  "slug": "executive",
+  "renderer": "paper-cast-figure",
+  "role": "executive",
+  "ageBand": "adult",
+  "proportion": "adult-tall",
+  "formality": "formal",
+  "intents": [
+    "state_decision",
+    "set_direction",
+    "approve_outcome",
+    "address_stakeholders"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "executive",
+    "leader",
+    "director",
+    "boardroom",
+    "decision",
+    "strategy"
+  ],
+  "useCases": [
+    "business",
+    "agent",
+    "commerce"
+  ],
+  "personalities": [
+    "authoritative",
+    "serious",
+    "confident"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium"
+  ],
+  "poses": [
+    "address-audience",
+    "present-to-content",
+    "idle-stance",
+    "listen-attentive",
+    "hand-over"
+  ],
+  "defaultPose": "address-audience",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#6f4630",
+    "hair": {
+      "color": "#2f2a26",
+      "length": 0.18
+    },
+    "top": {
+      "color": "#2b3550",
+      "sleeve": 0.92
+    },
+    "bottom": {
+      "color": "#222a3c"
+    },
+    "shoes": {
+      "color": "#1b1b1b"
+    },
+    "accent": "#b8903f"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.executive",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Executive paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "state_decision",
+      "set_direction",
+      "approve_outcome",
+      "address_stakeholders"
+    ],
+    "storyRole": "executive",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

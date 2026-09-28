@@ -1,0 +1,19 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ticket / Document base -->
+            <path d="M130 60 H230 L270 100 V230 H130 Z" fill="#F5F0E4"/>
+            <path d="M230 60 V100 H270 Z" fill="#1A1A17" opacity="0.5"/>
+            <path d="M150 100 H210 M150 120 H250 M150 140 H230 M150 160 H250" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+            
+            <!-- Perforated top -->
+            <path d="M130 60 H270 M130 50 H270" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="4 4"/>
+            
+            <!-- Wrench / Tool -->
+            <g >
+                <path d="M170 230 L220 180" stroke="#F5F0E4" stroke-width="15" stroke-linecap="round"/>
+                <circle cx="230" cy="170" r="20" fill="#F5F0E4"/>
+                <circle cx="230" cy="170" r="10" fill="#F5F0E4"/>
+                <path d="M245 155 L225 175 L215 165 L235 145 Z" fill="#F5F0E4"/>
+                <!-- Glow spot -->
+                <circle cx="170" cy="230" r="6" fill="#F5F0E4"/>
+            </g>
+          </svg>

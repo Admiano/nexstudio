@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Containment Field -->
+            <circle cx="200" cy="140" r="90" fill="#F5F0E4" opacity="0.05"/>
+            <path d="M120 140 A80 80 0 1 0 280 140 A80 80 0 1 0 120 140 Z" stroke="#F5F0E4" stroke-width="2" stroke-dasharray="10 10" fill="none" opacity="0.4"/>
+            
+            <!-- Quantum Rings -->
+            <g >
+                <ellipse cx="200" cy="140" rx="70" ry="20" fill="none" stroke="#1A1A17" stroke-width="8" transform="rotate(30 200 140)"/>
+                <ellipse cx="200" cy="140" rx="70" ry="20" fill="none" stroke="#1A1A17" stroke-width="8" transform="rotate(-30 200 140)" opacity="0.8"/>
+                <ellipse cx="200" cy="140" rx="70" ry="20" fill="none" stroke="#1A1A17" stroke-width="8" transform="rotate(90 200 140)" opacity="0.6"/>
+            </g>
+            
+            <!-- Core / Qubit -->
+            <circle cx="200" cy="140" r="20" fill="#1A1A17"/>
+            <circle cx="200" cy="140" r="10" fill="#F5F0E4"/>
+            
+            <!-- Tech Base/Pedestal -->
+            <path d="M160 260 L180 220 H220 L240 260 Z" fill="#1A1A17"/>
+            <rect x="150" y="260" width="100" height="10" rx="2" fill="#F5F0E4"/>
+            <path d="M200 220 V180" stroke="#F5F0E4" stroke-width="4" fill="none" stroke-dasharray="4 4"/>
+          </svg>

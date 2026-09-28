@@ -1,0 +1,20 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Monitor Setup -->
+            <path d="M100 80 H300 V200 H100 Z" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="6"/>
+            <path d="M200 206 V240 M160 240 H240" stroke="#F5F0E4" stroke-width="12" stroke-linecap="round"/>
+            <path d="M120 100 H280 V180 H120 Z" fill="#1A1A17" opacity="0.2"/>
+            
+            <!-- Agent / User inside screen -->
+            <g>
+                <circle cx="200" cy="140" r="25" fill="#1A1A17"/>
+                <path d="M150 180 C150 150 250 150 250 180" stroke="#1A1A17" stroke-width="10" stroke-linecap="round" fill="none"/>
+                <path d="M185 140 H215 M180 180 H220" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+            </g>
+            
+            <!-- UI Overlays -->
+            <rect x="250" y="150" width="30" height="20" fill="#F5F0E4"/>
+            <circle cx="265" cy="160" r="5" fill="#F5F0E4"/>
+            
+            <!-- Webcam/Mic -->
+            <circle cx="200" cy="70" r="8" fill="#F5F0E4"/>
+          </svg>

@@ -1,0 +1,36 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            
+            <!-- Sterile Tray Background -->
+            <rect x="80" y="100" width="240" height="150" rx="15" fill="#F5F0E4" opacity="0.15"/>
+            <rect x="90" y="110" width="220" height="130" rx="10" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+            
+            <g>
+                <!-- Tweezers / Forceps -->
+                <g transform="translate(120, 80) rotate(15)">
+                    <!-- Left arm -->
+                    <path d="M50 0 C60 50 60 100 60 150" fill="none" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Right arm -->
+                    <path d="M70 0 C60 50 60 100 60 150" fill="none" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Join at top -->
+                    <path d="M50 5 C50 -5 70 -5 70 5" fill="none" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Serrated tips abstract -->
+                    <path d="M55 140 V150 M65 140 V150" stroke="#F5F0E4" stroke-width="2"/>
+                </g>
+                
+                <!-- Scalpel -->
+                <g transform="translate(200, 100) rotate(-20)">
+                    <!-- Handle -->
+                    <path d="M20 150 C10 120 10 50 20 50 C30 50 30 120 20 150 Z" fill="#1A1A17"/>
+                    <path d="M20 150 C10 120 10 50 20 50 C30 50 30 120 20 150 Z" stroke="#F5F0E4" stroke-width="2" fill="none" opacity="0.5"/>
+                    <!-- Blade attachment point -->
+                    <rect x="15" y="45" width="10" height="15" fill="#F5F0E4"/>
+                    <!-- Blade -->
+                    <path d="M20 45 L15 10 C15 0 25 10 25 45 Z" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M15 10 L20 45" stroke="white" stroke-width="2"/>
+                </g>
+            </g>
+            
+            <!-- Sparkles/Sterile indication -->
+            <path d="M280 60 L290 50 M290 60 L280 50 M285 45 V65 M275 55 H295" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+            <path style="animation-delay: -0.5s;" d="M100 210 L110 200 M110 210 L100 200" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+          </svg>

@@ -1,0 +1,157 @@
+{
+  "id": "cast.office-worker.paper-01",
+  "name": "Office worker",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "office_worker",
+  "slug": "office-worker",
+  "renderer": "paper-cast-figure",
+  "role": "office_worker",
+  "ageBand": "adult",
+  "proportion": "adult-average",
+  "formality": "business-casual",
+  "intents": [
+    "show_work",
+    "process_task",
+    "collaborate",
+    "report_status"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "office_worker",
+    "office",
+    "worker",
+    "desk",
+    "admin",
+    "workflow",
+    "colleague"
+  ],
+  "useCases": [
+    "business",
+    "agent",
+    "explainer"
+  ],
+  "personalities": [
+    "calm",
+    "reserved",
+    "cheerful"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium"
+  ],
+  "poses": [
+    "work-at-surface",
+    "sit-and-talk",
+    "listen-attentive",
+    "hand-over",
+    "idle-stance"
+  ],
+  "defaultPose": "work-at-surface",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#dda87c",
+    "hair": {
+      "color": "#5a3a22",
+      "length": 0.24
+    },
+    "top": {
+      "color": "#5f7f8c",
+      "sleeve": 0.85
+    },
+    "bottom": {
+      "color": "#39414d"
+    },
+    "shoes": {
+      "color": "#2a2622"
+    },
+    "accent": "#8fa8b5"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.office_worker",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Office worker paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "show_work",
+      "process_task",
+      "collaborate",
+      "report_status"
+    ],
+    "storyRole": "office_worker",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

@@ -140,6 +140,58 @@ def _check_motif(plan: Dict[str, Any], scope: str, checks: List[Dict[str, Any]])
         _check(checks, 'motif_stamp', scope, 'FAIL', f"motif {motif.get('concept')} unresolved")
 
 
+def _pb_slot_crop(layout: str, W: int, H: int) -> Tuple[float, float, float, float]:
+    # Mirror of editorial_plan_compiler._pb_slot_crop — keep in sync: the plate's
+    # slot cover-fits the canvas, so only the centered crop is printed.
+    pw, ph = W * 0.38, H * 0.80
+    pad = pw * 0.082
+    slots = {
+        'full': (pw - pad, ph * 0.86),
+        'vignette': (pw - pad * 0.6, ph * 0.80),
+        'spot': (pw * 0.60, ph * 0.44),
+        'diagonal': (pw - pad * 0.8, ph * 0.78),
+        'zipped': (pw - pad * 0.8, ph * 0.505),
+        'scissor': (pw - pad * 0.8, ph * 0.505),
+        'series': (pw - pad, ph * 0.44),
+        'half': (pw - pad * 2.15, ph * 0.46),
+    }
+    sw, sh = slots.get(layout, slots['half'])
+    k = max(sw / W, sh / H)
+    vw, vh = sw / k, sh / k
+    return (W - vw) / 2, (H - vh) / 2, vw, vh
+
+
+def _check_plates(plan: Dict[str, Any], aspect: str, checks: List[Dict[str, Any]]) -> None:
+    # A storybook plate is a composed picture, not an empty field with a chip on it:
+    # the visible subject area (entities + performer, clipped to the printed crop)
+    # must cover a real share of the plate.
+    if plan.get('book') != 'paperbook':
+        return
+    W, H = plan['canvas']['w'], plan['canvas']['h']
+    worst, lowest = None, 1.0
+    for b in plan['beats']:
+        vis = _pb_slot_crop(((b.get('page') or {}).get('layout') or 'half'), W, H)
+        area = 0.0
+        boxes = [e.get('art_bbox') for e in ((b.get('illustration') or {}).get('entities') or []) if e.get('art_bbox')]
+        if b.get('figure') and b['figure'].get('bbox'):
+            boxes.append(b['figure']['bbox'])
+        for ab in boxes:
+            x = max(0.0, min(ab['x'] + ab['w'], vis[0] + vis[2]) - max(ab['x'], vis[0]))
+            y = max(0.0, min(ab['y'] + ab['h'], vis[1] + vis[3]) - max(ab['y'], vis[1]))
+            area += x * y
+        frac = area / max(1.0, vis[2] * vis[3])
+        if frac < lowest:
+            lowest, worst = frac, b['beat_id']
+    if worst is None:
+        _check(checks, 'plate_coverage', aspect, 'WARN', 'no page subjects at all')
+    elif lowest < 0.05:
+        _check(checks, 'plate_coverage', aspect, 'FAIL', f'{worst} plate is {lowest * 100:.0f}% subject — reads empty')
+    elif lowest < 0.15:
+        _check(checks, 'plate_coverage', aspect, 'WARN', f'{worst} plate is {lowest * 100:.0f}% subject')
+    else:
+        _check(checks, 'plate_coverage', aspect, 'PASS', f'every plate ≥15% subject (min {lowest * 100:.0f}% at {worst})')
+
+
 def _check_parity(plans: Dict[str, Dict[str, Any]], checks: List[Dict[str, Any]]) -> None:
     """Determinism across aspects: same beats, same cast identities, same dioramas, same motif."""
     if len(plans) < 2:
@@ -215,16 +267,23 @@ def _check_render(checks: List[Dict[str, Any]], reel_dir: Path, aspect: str) -> 
                f"{f['beat_id']}:{f['id']}@{f['first_ms']}ms")
 
 
-def _check_frames(checks: List[Dict[str, Any]], reel_dir: Path, aspect: str, fps: int) -> None:
+def _check_frames(checks: List[Dict[str, Any]], reel_dir: Path, aspect: str, fps: int,
+                  plan: Optional[Dict[str, Any]] = None) -> None:
     frames_dir = reel_dir / f'frames_{aspect}'
     if not frames_dir.is_dir():
         return
     met = measure_frames(frames_dir, fps)
     _check(checks, 'blank_frames', aspect,
            'PASS' if met['blank_ms'] <= BLANK_MAX_MS else 'FAIL', f"{met['blank_ms']}ms blank")
-    _check(checks, 'frozen_frames', aspect,
-           'PASS' if met['frozen_longest_ms'] <= FROZEN_RUN_MAX_MS else 'FAIL',
-           f"{met['frozen_longest_ms']}ms frozen run")
+    if plan and plan.get('book') == 'paperbook':
+        # A printed page is still by design: pixel-identical runs are correct outside an
+        # element's action window — the authorship gate's STATIC_HOLD owns that check.
+        _check(checks, 'frozen_frames', aspect, 'SKIP',
+               f"paperbook: printed pages may hold still ({met['frozen_longest_ms']}ms longest run)")
+    else:
+        _check(checks, 'frozen_frames', aspect,
+               'PASS' if met['frozen_longest_ms'] <= FROZEN_RUN_MAX_MS else 'FAIL',
+               f"{met['frozen_longest_ms']}ms frozen run")
 
 
 def certify(reel_dir: Path, plan_paths: Sequence[Path], gate_path: Optional[Path], fps: int = 15) -> Dict[str, Any]:
@@ -251,9 +310,10 @@ def certify(reel_dir: Path, plan_paths: Sequence[Path], gate_path: Optional[Path
     for aspect, plan in sorted(plans.items()):
         _check_cast(plan['beats'], aspect, checks)
         _check_motif(plan, aspect, checks)
+        _check_plates(plan, aspect, checks)
         if reel_dir:
             _check_render(checks, reel_dir, aspect)
-            _check_frames(checks, reel_dir, aspect, fps)
+            _check_frames(checks, reel_dir, aspect, fps, plan)
     _check_parity(plans, checks)
     verdict = ('FAIL' if any(c['status'] == 'FAIL' for c in checks)
                else 'WARN' if any(c['status'] == 'WARN' for c in checks) else 'PASS')

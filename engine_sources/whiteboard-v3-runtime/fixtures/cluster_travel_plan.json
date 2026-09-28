@@ -1,0 +1,84 @@
+{
+  "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+  "production_id": "NEXMIND_WHITEBOARD_V3_CLUSTER_TRAVEL_RECONSTRUCTION_DEMO",
+  "camera_variant": "cluster_travel",
+  "output_ratios": ["16:9"],
+  "pacing": {
+    "transition_seconds": 0.62,
+    "board_reveal_seconds": 0.72
+  },
+  "beats": [
+    {
+      "beat_id": "01_request",
+      "start_seconds": 0,
+      "duration_seconds": 4.8,
+      "narration": "A customer sends a support request from her phone.",
+      "scene": {
+        "sceneId": "01_request",
+        "heroRole": "customer",
+        "supportingRoles": ["request"],
+        "screenCopy": {"primary": "A REQUEST ARRIVES"},
+        "semanticRelationships": [{"source": "customer", "target": "request", "kind": "sends"}]
+      }
+    },
+    {
+      "beat_id": "02_agent",
+      "start_seconds": 4.8,
+      "duration_seconds": 5.2,
+      "narration": "The AI agent reads it, checks memory, uses the right tool, and validates the answer.",
+      "scene": {
+        "sceneId": "02_agent",
+        "heroRole": "agent",
+        "supportingRoles": ["memory", "tool", "check"],
+        "screenCopy": {"primary": "THE AGENT WORKS"},
+        "semanticRelationships": [
+          {"source": "agent", "target": "memory", "kind": "reads"},
+          {"source": "agent", "target": "tool", "kind": "uses"},
+          {"source": "tool", "target": "check", "kind": "validates"}
+        ]
+      }
+    },
+    {
+      "beat_id": "03_queue",
+      "start_seconds": 10.0,
+      "duration_seconds": 4.9,
+      "narration": "Routine questions disappear from the queue, leaving only the uncertain cases.",
+      "scene": {
+        "sceneId": "03_queue",
+        "heroRole": "queue",
+        "supportingRoles": ["routine", "hard cases"],
+        "screenCopy": {"primary": "THE QUEUE CLEARS"},
+        "semanticRelationships": [{"source": "queue", "target": "hard cases", "kind": "filters"}]
+      }
+    },
+    {
+      "beat_id": "04_handoff",
+      "start_seconds": 14.9,
+      "duration_seconds": 5.0,
+      "narration": "Those cases are handed to a human with the context already attached.",
+      "scene": {
+        "sceneId": "04_handoff",
+        "heroRole": "human agent",
+        "supportingRoles": ["ai", "context"],
+        "screenCopy": {"primary": "HAND OFF THE HARD PART"},
+        "semanticRelationships": [
+          {"source": "ai", "target": "context", "kind": "attaches"},
+          {"source": "context", "target": "human agent", "kind": "hands-off"}
+        ]
+      }
+    },
+    {
+      "beat_id": "05_result",
+      "start_seconds": 19.9,
+      "duration_seconds": 5.3,
+      "narration": "The result is fewer tickets and a response time that falls from twelve minutes to three.",
+      "scene": {
+        "sceneId": "05_result",
+        "heroRole": "response time",
+        "supportingRoles": ["12 min", "3 min"],
+        "screenCopy": {"primary": "MEASURE THE RESULT"},
+        "semanticRelationships": [{"source": "12 min", "target": "3 min", "kind": "falls-to"}]
+      }
+    }
+  ]
+}

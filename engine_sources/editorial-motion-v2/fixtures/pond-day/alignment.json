@@ -1,0 +1,274 @@
+{
+ "words": [
+  {
+   "text": " Early",
+   "start_ms": 0,
+   "end_ms": 480
+  },
+  {
+   "text": " one",
+   "start_ms": 480,
+   "end_ms": 740
+  },
+  {
+   "text": " sunny",
+   "start_ms": 740,
+   "end_ms": 1120
+  },
+  {
+   "text": " day,",
+   "start_ms": 1120,
+   "end_ms": 1440
+  },
+  {
+   "text": " a",
+   "start_ms": 1860,
+   "end_ms": 1940
+  },
+  {
+   "text": " frog",
+   "start_ms": 1940,
+   "end_ms": 2160
+  },
+  {
+   "text": " sat",
+   "start_ms": 2160,
+   "end_ms": 2500
+  },
+  {
+   "text": " by",
+   "start_ms": 2500,
+   "end_ms": 2720
+  },
+  {
+   "text": " the",
+   "start_ms": 2720,
+   "end_ms": 2860
+  },
+  {
+   "text": " quiet",
+   "start_ms": 2860,
+   "end_ms": 3140
+  },
+  {
+   "text": " pond.",
+   "start_ms": 3140,
+   "end_ms": 3540
+  },
+  {
+   "text": " A",
+   "start_ms": 4540,
+   "end_ms": 4640
+  },
+  {
+   "text": " duck",
+   "start_ms": 4640,
+   "end_ms": 4820
+  },
+  {
+   "text": " swam",
+   "start_ms": 4820,
+   "end_ms": 5220
+  },
+  {
+   "text": " slowly",
+   "start_ms": 5220,
+   "end_ms": 5680
+  },
+  {
+   "text": " past",
+   "start_ms": 5680,
+   "end_ms": 6060
+  },
+  {
+   "text": " the",
+   "start_ms": 6060,
+   "end_ms": 6280
+  },
+  {
+   "text": " reeds.",
+   "start_ms": 6280,
+   "end_ms": 6720
+  },
+  {
+   "text": " Four",
+   "start_ms": 7600,
+   "end_ms": 7820
+  },
+  {
+   "text": " ducklings",
+   "start_ms": 7820,
+   "end_ms": 8360
+  },
+  {
+   "text": " followed",
+   "start_ms": 8360,
+   "end_ms": 8780
+  },
+  {
+   "text": " her,",
+   "start_ms": 8780,
+   "end_ms": 9100
+  },
+  {
+   "text": " one,",
+   "start_ms": 9440,
+   "end_ms": 9620
+  },
+  {
+   "text": " two,",
+   "start_ms": 9740,
+   "end_ms": 9900
+  },
+  {
+   "text": " three,",
+   "start_ms": 10020,
+   "end_ms": 10200
+  },
+  {
+   "text": " four.",
+   "start_ms": 10340,
+   "end_ms": 10600
+  },
+  {
+   "text": " Three",
+   "start_ms": 11480,
+   "end_ms": 11700
+  },
+  {
+   "text": " fish",
+   "start_ms": 11700,
+   "end_ms": 12100
+  },
+  {
+   "text": " jumped",
+   "start_ms": 12100,
+   "end_ms": 12480
+  },
+  {
+   "text": " out",
+   "start_ms": 12480,
+   "end_ms": 12780
+  },
+  {
+   "text": " of",
+   "start_ms": 12780,
+   "end_ms": 12920
+  },
+  {
+   "text": " the",
+   "start_ms": 12920,
+   "end_ms": 13000
+  },
+  {
+   "text": " water,",
+   "start_ms": 13000,
+   "end_ms": 13340
+  },
+  {
+   "text": " three",
+   "start_ms": 13860,
+   "end_ms": 14020
+  },
+  {
+   "text": " minus",
+   "start_ms": 14020,
+   "end_ms": 14300
+  },
+  {
+   "text": " one",
+   "start_ms": 14300,
+   "end_ms": 14700
+  },
+  {
+   "text": " leaves",
+   "start_ms": 14700,
+   "end_ms": 15100
+  },
+  {
+   "text": " two.",
+   "start_ms": 15100,
+   "end_ms": 15440
+  },
+  {
+   "text": " A",
+   "start_ms": 16360,
+   "end_ms": 16520
+  },
+  {
+   "text": " dragonfly",
+   "start_ms": 16520,
+   "end_ms": 17180
+  },
+  {
+   "text": " flew",
+   "start_ms": 17180,
+   "end_ms": 17620
+  },
+  {
+   "text": " over",
+   "start_ms": 17620,
+   "end_ms": 18080
+  },
+  {
+   "text": " the",
+   "start_ms": 18080,
+   "end_ms": 18240
+  },
+  {
+   "text": " lily",
+   "start_ms": 18240,
+   "end_ms": 18500
+  },
+  {
+   "text": " pad.",
+   "start_ms": 18500,
+   "end_ms": 18840
+  },
+  {
+   "text": " In",
+   "start_ms": 19720,
+   "end_ms": 19940
+  },
+  {
+   "text": " the",
+   "start_ms": 19940,
+   "end_ms": 20040
+  },
+  {
+   "text": " evening,",
+   "start_ms": 20040,
+   "end_ms": 20440
+  },
+  {
+   "text": " the",
+   "start_ms": 20940,
+   "end_ms": 20980
+  },
+  {
+   "text": " moon",
+   "start_ms": 20980,
+   "end_ms": 21300
+  },
+  {
+   "text": " rose",
+   "start_ms": 21300,
+   "end_ms": 21700
+  },
+  {
+   "text": " above",
+   "start_ms": 21700,
+   "end_ms": 22040
+  },
+  {
+   "text": " the",
+   "start_ms": 22040,
+   "end_ms": 22260
+  },
+  {
+   "text": " pond.",
+   "start_ms": 22260,
+   "end_ms": 22600
+  }
+ ]
+}

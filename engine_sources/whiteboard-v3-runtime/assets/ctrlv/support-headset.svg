@@ -1,0 +1,24 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Headband -->
+                <path d="M120 160 C120 80 280 80 280 160" stroke="#1A1A17" stroke-width="15" stroke-linecap="round" fill="none"/>
+                
+                <!-- Earcups -->
+                <rect x="100" y="140" width="30" height="70" rx="15" fill="#F5F0E4"/>
+                <rect style="animation-delay: 0.3s;" x="270" y="140" width="30" height="70" rx="15" fill="#F5F0E4"/>
+                <rect x="110" y="150" width="30" height="50" rx="10" fill="#F5F0E4"/>
+                <rect x="260" y="150" width="30" height="50" rx="10" fill="#F5F0E4"/>
+                
+                <!-- Microphone Boom -->
+                <path  d="M115 175 Q115 220 160 210" stroke="#1A1A17" stroke-width="8" stroke-linecap="round" fill="none"/>
+                
+                <!-- Mic element -->
+                <circle cx="165" cy="208" r="8" fill="#F5F0E4"/>
+                
+                <!-- Sound waves -->
+                <g>
+                    <path d="M185 208 A 15 15 0 0 1 185 188" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    <path d="M195 215 A 25 25 0 0 1 195 181" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" fill="none"/>
+                </g>
+            </g>
+          </svg>

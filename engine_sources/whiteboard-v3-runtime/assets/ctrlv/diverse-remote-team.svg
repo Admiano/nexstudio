@@ -1,0 +1,46 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Connections -->
+                <path d="M200 150 L100 80 M200 150 L300 80 M200 150 L100 220 M200 150 L300 220" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="8 8"/>
+                
+                <!-- Center Hub -->
+                <circle cx="200" cy="150" r="30" fill="#F5F0E4"/>
+                <circle cx="200" cy="150" r="15" fill="#F5F0E4"/>
+                
+                <!-- Team Member 1 (Top Left) -->
+                <g transform="translate(100, 80)">
+                    <g>
+                    <circle cx="0" cy="0" r="25" fill="#1A1A17"/>
+                    <circle cx="0" cy="-5" r="10" fill="#F5F0E4"/>
+                    <path d="M-15 15 A 15 10 0 0 1 15 15" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                </g>
+                </g>
+                
+                <!-- Team Member 2 (Top Right) -->
+                <g transform="translate(300, 80)">
+                    <g style="animation-delay: 0.2s;">
+                    <circle cx="0" cy="0" r="25" fill="#F5F0E4"/>
+                    <circle cx="0" cy="-5" r="10" fill="#F5F0E4"/>
+                    <path d="M-15 15 A 15 10 0 0 1 15 15" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                </g>
+                </g>
+                
+                <!-- Team Member 3 (Bottom Left) -->
+                <g transform="translate(100, 220)">
+                    <g style="animation-delay: 0.4s;">
+                    <circle cx="0" cy="0" r="25" fill="#F5F0E4"/>
+                    <circle cx="0" cy="-5" r="10" fill="#F5F0E4"/>
+                    <path d="M-15 15 A 15 10 0 0 1 15 15" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                </g>
+                </g>
+                
+                <!-- Team Member 4 (Bottom Right) -->
+                <g transform="translate(300, 220)">
+                    <g style="animation-delay: 0.6s;">
+                    <circle cx="0" cy="0" r="25" fill="#1A1A17"/>
+                    <circle cx="0" cy="-5" r="10" fill="#F5F0E4"/>
+                    <path d="M-15 15 A 15 10 0 0 1 15 15" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                </g>
+                </g>
+            </g>
+          </svg>

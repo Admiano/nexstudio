@@ -11,8 +11,11 @@
 const STATIC_HOLD_MAX_MS = 3000;
 
 class AuthorshipLedger {
-  constructor(fps) {
+  constructor(fps, animatedOnly = null) {
     this.frameMs = 1000 / fps;
+    // On a printed page stillness is correct: `animatedOnly` (beat:id keys of entities
+    // carrying a story action) restricts STATIC_HOLD to elements meant to move.
+    this.animatedOnly = animatedOnly;
     this.findings = new Map(); // code|beat|id -> finding with first/last ms and frame count
     this.runs = new Map(); // beat:entity -> { sig, since_ms, best_ms }
     this.frames = 0;
@@ -27,6 +30,7 @@ class AuthorshipLedger {
     }
     const seen = new Set();
     for (const [key, sig] of Object.entries(snap.entities || {})) {
+      if (this.animatedOnly && !this.animatedOnly.has(key)) continue;
       seen.add(key);
       const run = this.runs.get(key);
       if (sig == null) { if (run) run.sig = null; continue; }
@@ -48,6 +52,10 @@ class AuthorshipLedger {
     const holds = [];
     for (const [key, run] of this.runs) {
       if (run.best_ms > STATIC_HOLD_MAX_MS) {
+        // A completed one-shot (kicked ball landed, grown plant) holds its end pose on
+        // purpose — only a hold overlapping the action's own window means it never ran.
+        const win = this.animatedOnly && this.animatedOnly.get(key);
+        if (win && !(run.best_from < win[1] && run.best_from + run.best_ms > win[0] + 2 * this.frameMs)) continue;
         const [beat_id, id] = key.split(':');
         holds.push({ code: 'STATIC_HOLD', beat_id, id, detail: `pose unchanged for ${Math.round(run.best_ms)}ms`, first_ms: run.best_from, last_ms: run.best_from + run.best_ms, frames: Math.round(run.best_ms / this.frameMs) });
       }

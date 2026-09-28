@@ -1,0 +1,104 @@
+{
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "production_id": "NEXMIND_WHITEBOARD_V3_RAIL_RUSH_DEMO",
+ "camera_variant": "cluster_travel",
+ "output_ratios": [
+  "16:9"
+ ],
+ "pacing": {
+  "transition_seconds": 0.62,
+  "board_reveal_seconds": 0.72
+ },
+ "beats": [
+  {
+   "beat_id": "01_platform",
+   "start_seconds": 0,
+   "duration_seconds": 4.7,
+   "narration": "A commuter weaves through the crowd to the platform.",
+   "scene": {
+    "sceneId": "01_platform",
+    "heroRole": "tired commuter",
+    "supportingRoles": [
+     "crowded platform",
+     "express train"
+    ],
+    "screenCopy": {
+     "primary": "7:42 AM"
+    },
+    "semanticRelationships": [
+     {
+      "source": "tired commuter",
+      "target": "express train",
+      "kind": "boards"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_signals",
+   "start_seconds": 4.7,
+   "duration_seconds": 5.1,
+   "narration": "The signal tower juggles forty trains an hour.",
+   "scene": {
+    "sceneId": "02_signals",
+    "heroRole": "signal tower",
+    "supportingRoles": [
+     "switch junction",
+     "critical delay"
+    ],
+    "screenCopy": {
+     "primary": "THE DANCE"
+    },
+    "semanticRelationships": [
+     {
+      "source": "signal tower",
+      "target": "switch junction",
+      "kind": "directs"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_tickets",
+   "start_seconds": 9.8,
+   "duration_seconds": 4.8,
+   "narration": "The old paper ticket is gone \u2014 tap your phone and walk through.",
+   "scene": {
+    "sceneId": "03_tickets",
+    "heroRole": "old paper ticket",
+    "supportingRoles": [
+     "phone tap",
+     "gate open"
+    ],
+    "screenCopy": {
+     "primary": "TAP AND GO"
+    },
+    "semanticRelationships": [
+     {
+      "source": "phone tap",
+      "target": "gate open",
+      "kind": "opens"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_rush",
+   "start_seconds": 14.600000000000001,
+   "duration_seconds": 5.0,
+   "narration": "Forty thousand riders before nine \u2014 on time.",
+   "scene": {
+    "sceneId": "04_rush",
+    "heroRole": "40k riders",
+    "supportingRoles": [
+     "on time 98%",
+     "coffee"
+    ],
+    "screenCopy": {
+     "primary": "THE NUMBERS"
+    },
+    "semanticRelationships": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Pipeline Path -->
+                <path d="M60 150 H340" stroke="#F5F0E4" stroke-width="12" stroke-linecap="round" opacity="0.1"/>
+                <path d="M60 150 H340" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="12 12" fill="none"/>
+                
+                <!-- Stages -->
+                <g transform="translate(100, 150)">
+                    <g >
+                    <circle r="25" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M-10 0 L-2 8 L10 -8" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" fill="none"/>
+                </g>
+                </g>
+                <g transform="translate(200, 150)">
+                    <g  style="animation-delay: 0.3s;">
+                    <circle r="25" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                    <rect x="-10" y="-10" width="20" height="20" fill="#1A1A17" opacity="0.4"/>
+                </g>
+                </g>
+                <g transform="translate(300, 150)">
+                    <g  style="animation-delay: 0.6s;">
+                    <circle r="25" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                </g>
+                </g>
+                
+                <!-- Rocket Moving Through -->
+                <g transform="translate(200, 100)">
+                    <g  style="animation-duration: 3s;">
+                    <path d="M0 -30 Q15 0 15 20 H-15 Q-15 0 0 -30 Z" fill="#F5F0E4"/>
+                    <path d="M-15 20 L-25 30 V10 Z M15 20 L25 30 V10 Z" fill="#F5F0E4"/>
+                    <circle cx="0" cy="0" r="6" fill="#F5F0E4"/>
+                    <!-- Exhaust -->
+                    <path d="M-10 25 Q0 50 10 25" fill="#1A1A17" opacity="0.6"/>
+                </g>
+                </g>
+            </g>
+          </svg>

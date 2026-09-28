@@ -64,6 +64,10 @@ NOISE_TAGS = frozenset(('emoji', 'emoji3d', 'brand', 'colour-icon', 'icon', 'lin
                         'finance', 'health', 'comms', 'nature', 'people', 'food', 'time', 'transport', 'emotion', 'one', 'two', 'three', 'four'))
 # Skin-tone / gender / style variants read as the base mark; they answer only when asked for.
 VARIANT_TOKENS = frozenset(('light', 'medium', 'dark', 'skin', 'tone', 'medium-light', 'medium-dark', 'flat', 'high', 'contrast'))
+# A label that already shows the thing after a change of state ('wilted flower', 'new moon') is
+# the wrong starting print for a page whose sentence performs that change.
+WITH_TOKENS = ('with', 'without')
+STATE_TOKENS = frozenset(('wilted', 'new', 'broken', 'cracked', 'melting', 'melted', 'empty', 'dead', 'burnt', 'spilled', 'hatching', 'waning', 'crescent', 'last', 'first'))
 NUMERIC_RE = re.compile(r'^[+\-~≈]?\s*[$€£¥]?\d[\d,.\s]*[%xX×+kKmMbB]?(\s*[a-zA-Z%]{,4})?$')
 # WordNet lexicographer files whose synsets name things a mark can draw: animal, artifact, body,
 # food, location, object, person, plant, shape, substance.
@@ -90,6 +94,10 @@ def singular(tok: str) -> str:
 
 def _key(tokens: Iterable[str]) -> Tuple[str, ...]:
     return tuple(singular(t) for t in tokens)
+
+
+def _tag_list(tags: object) -> List[object]:
+    return list(tags) if isinstance(tags, (list, tuple)) else []
 
 
 class NounLexicon:
@@ -269,7 +277,7 @@ class AssetFinder:
             if not toks:
                 continue
             self._by_label.setdefault(_key(toks), []).append(aid)
-            terms = set(_key(toks)) | {singular(t) for t in (item.get('tags') or []) if isinstance(t, str) and t.lower() not in NOISE_TAGS and not t.isdigit()}
+            terms = set(_key(toks)) | {singular(t) for t in _tag_list(item.get('tags')) if isinstance(t, str) and t.lower() not in NOISE_TAGS and not t.isdigit()}
             for t in terms:
                 self._by_term.setdefault(t, set()).add(aid)
 
@@ -296,18 +304,31 @@ class AssetFinder:
             return False
         return not self.lexicon.related(head, ' '.join(want))
 
+    def _core(self, aid: str) -> Tuple[str, ...]:
+        """The label's head before a with/without clause: 'cup with straw' -> ('cup',)."""
+        words = self._label_text(aid).lower().split()
+        cut = next((i for i, w in enumerate(words) if w in WITH_TOKENS), len(words))
+        return _key(_tokens(' '.join(words[:cut]))) if cut else ()
+
     def _weak(self, aid: str, want: Tuple[str, ...]) -> bool:
         """The subject is only the qualifier of the label's head: a 'coffee machine' is a machine, a
         'honey pot' a pot. Such a mark never answers on its own; typeset beside its word it may."""
         lk = self._label_key(aid)
+        if self._core(aid) == want:
+            return False
         extra = [t for t in lk if t not in want]
         return set(want) <= set(lk) and len(extra) == 1 and lk[-1] == extra[0] and self._names_other_thing(extra[0], want)
 
     def _rank(self, aid: str, want: Tuple[str, ...], pack: Optional[str]) -> Tuple[float, str]:
         lk = self._label_key(aid)
         extra = [t for t in lk if t not in want]
+        core = self._core(aid)
         if lk == want:
             score = 3.0
+        elif core == want:
+            score = 2.5           # 'cup with straw' is a cup: the with-clause only describes it
+        elif core != lk and not set(want) <= set(core):
+            score = -1.0          # the with-clause names an accessory: 'cup with straw' is no straw
         elif set(want) <= set(lk) and len(extra) <= 1:
             score = 2.0           # one qualifier ('red apple', 'file spreadsheet') still names the subject
         elif set(want) <= set(lk):
@@ -315,6 +336,8 @@ class AssetFinder:
         else:
             score = 1.0
         if any(t in VARIANT_TOKENS for t in extra):
+            score -= 1.2
+        if any(t in STATE_TOKENS for t in extra):
             score -= 1.2
         if score < 0:
             return (score, aid)   # a label that names another thing is not rescued by being in the right pack
