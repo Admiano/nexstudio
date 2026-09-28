@@ -454,6 +454,13 @@
                             "null"
                           ]
                         },
+                        "concept": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "maxLength": 40
+                        },
                         "params": {
                           "type": "object"
                         }

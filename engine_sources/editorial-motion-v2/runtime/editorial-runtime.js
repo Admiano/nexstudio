@@ -2562,10 +2562,10 @@
       if (!inner) return null;
       // Painted extent in host space: the union of every graphic part that is not clipped or
       // masked (masked art may legitimately reach past the viewBox and be cut back to shape).
-      let hostM;
+      let hostM, inv;
       try { hostM = host.getScreenCTM(); } catch (e) { hostM = null; }
       if (!hostM) return null;
-      const inv = hostM.inverse();
+      try { inv = hostM.inverse(); } catch (e) { return null; }
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       for (const el of inner.querySelectorAll(GRAPHIC)) {
         let a = el, cut = false;
