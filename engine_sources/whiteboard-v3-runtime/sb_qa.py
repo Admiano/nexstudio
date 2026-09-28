@@ -46,6 +46,10 @@ def _semantic(v3r, out, si, name, ic) -> dict:
         rec['severity'] = 'fail'
         _issue(out, 'fail', 'semantic-art', si,
                f'{phrase} -> {ic} (clip rank {rk} > {v3r.SEM_BAD_RANK})')
+    elif how == 'library' and not v3r.art_related(phrase, ic):
+        rec['severity'] = 'warn'
+        _issue(out, 'warn', 'semantic-loose', si,
+               f'{phrase} -> {ic}: art name unrelated to the word')
     elif how != 'exact':
         rec['severity'] = 'info'
         _issue(out, 'info', 'semantic-fallback', si,

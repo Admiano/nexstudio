@@ -471,9 +471,11 @@ _SB_FEEL = re.compile(r'\b(happy|sad|afraid|scared|worr\w*|stress\w*|calm|'
 def _is_physical(w: str) -> bool:
     if _wn is None:
         return True
-    syn = _wn.synsets(_lemma(w), 'n')[:1]
-    return any(any(h.name() == 'physical_entity.n.01' for p in s_.hypernym_paths()
-                   for h in p) for s_ in syn)
+    forms = {_lemma(w), w[:-1] if w.endswith('s') else w}
+    syn = [x for f in forms for x in _wn.synsets(f, 'n')[:2]]
+    return any(any(h.name() in ('artifact.n.01', 'physical_entity.n.01')
+                   for p in s_.hypernym_paths() for h in p)
+               and s_.lexname() != 'noun.body' for s_ in syn)
 
 
 def _noun_in_context(low: list, i: int, picked: set) -> bool:
@@ -524,8 +526,8 @@ def _is_person(w: str) -> bool:
     hit = {'person.n.01', 'causal_agent.n.01'}
     animal = any(h.name() == 'animal.n.01' for s_ in syn
                  for p in s_.hypernym_paths() for h in p)
-    first = not animal and any(h.name() == 'person.n.01'
-                               for p in syn[0].hypernym_paths() for h in p)
+    first = _lemma(w) not in _KIT_ANIMALS and any(
+        h.name() == 'person.n.01' for p in syn[0].hypernym_paths() for h in p)
     adj = bool(_wn.synsets(w, 'a') or _wn.synsets(w, 's'))
     agent = _AGENT.search(w) and not animal and not adj and any(
         any(h.name() in hit for p in s_.hypernym_paths() for h in p)
@@ -547,6 +549,44 @@ def _is_thing(w: str) -> bool:
     if len(v) > len(n) * 1.5 or len(a) > len(n) * 1.5:
         return False
     return True
+
+
+_VERB_POSE = {'verb.contact': 'reach', 'verb.creation': 'reach',
+              'verb.consumption': 'reach', 'verb.competition': 'reach',
+              'verb.change': 'reach', 'verb.possession': 'offer',
+              'verb.communication': 'point', 'verb.perception': 'point',
+              'verb.cognition': 'point', 'verb.motion': 'reach'}
+_NOT_ACT = {'is', 'are', 'was', 'were', 'be', 'has', 'have', 'had', 'feels',
+            'feel', 'seems', 'looks', 'gets', 'becomes', 'stays', 'stayed',
+            'smiles', 'cheers', 'claps', 'and', 'who', 'that', 'also',
+            'then', 'still', 'never', 'always'}
+
+
+def prev_det(low: list, i: int) -> bool:
+    return not i or low[i - 1] in _SB_DET
+
+
+def _verb_pose(low: list, i: int):
+    """(pose, verb index) for the verb a subject at `low[i]` performs,
+    from the word's WordNet verb class (contact/creation -> reach,
+    possession -> offer, communication/perception -> point)."""
+    if _wn is None:
+        return None
+    for k in range(i + 1, min(i + 3, len(low))):
+        w = low[k]
+        if w in _NOT_ACT or w in _SB_ADV:
+            return None
+        base = _wn.morphy(w, 'v')
+        obj_next = k + 1 < len(low) and low[k + 1] in _SB_DET
+        if not base or (w == base and _wn.synsets(w, 'n')
+                        and not w.endswith('s') and not obj_next):
+            continue
+        for syn in _wn.synsets(base, 'v')[:3]:
+            pose = _VERB_POSE.get(syn.lexname())
+            if pose:
+                return pose, k
+        return None
+    return None
 
 
 def _sb_beats(script: str) -> list[tuple[str, str]]:
@@ -585,9 +625,30 @@ def _sb_caption(sentence: str) -> str:
     clauses = [c.strip(' ,.;:!?') for c in re.split(
         r'[,;:]|\band\b|\bbut\b|\bwhile\b|\bso\b', sentence)]
     clauses = [c for c in clauses if 2 <= len(c.split()) <= 7]
-    pick = clauses[-1] if clauses else ' '.join(sentence.split()[:6])
-    pick = ' '.join(pick.split()[:7]).strip(' ,.;:!?')
+    pick = clauses[-1] if clauses else sentence
+    pick = _caption_cut(pick.strip(' ,.;:!?').split())
     return f'"{pick[:1].upper()}{pick[1:]}."'
+
+
+_CAP_PREP = {'in', 'on', 'to', 'into', 'onto', 'from', 'with', 'at', 'for',
+             'by', 'through', 'across', 'under', 'over', 'near', 'inside'}
+
+
+def _caption_cut(words: list, limit: int = 7) -> str:
+    """Shorten at a phrase boundary: drop trailing prepositional phrases
+    ('spread the beans | in the sun to dry'), never end on a determiner,
+    preposition or dangling modifier ('cuts the ripe')."""
+    if len(words) > limit:
+        cut = [k for k in range(2, len(words)) if words[k].lower() in _CAP_PREP]
+        fit = [k for k in cut if k <= limit]
+        words = words[:fit[-1]] if fit else words[:limit + 2]
+    while len(words) > 2 and (words[-1].lower() in _SB_DET | _CAP_PREP
+                              or (_wn is not None and words[-2].lower()
+                                  in _SB_DET and not _wn.synsets(
+                                  _lemma(words[-1].lower()), 'n')
+                                  and _wn.synsets(words[-1].lower(), 'a'))):
+        words = words[:-1]
+    return ' '.join(words)
 
 
 def _sb_annot(tokens: list[str], idx: int, nouns: set) -> str:
@@ -634,6 +695,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
     used: dict = {}
     prev_rel = ''
     compounds: dict = {}
+    last_person = ''
     for bi, (heading, sent) in enumerate(_sb_beats(script)):
         tokens = _WORD_RE.findall(sent)
         low = [t.lower().split("'")[0] for t in tokens]
@@ -646,14 +708,25 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             big = (f'{w} {_lemma(nxt)}' if nxt and nxt not in _STOP
                    else '')
             if big and ((_wn is not None and _wn.synsets(big.replace(' ', '_')))
-                        or v3.kit_exact(big)):
+                        or v3.kit_exact(big)
+                        or (_is_person(nxt) and not _is_person(w)
+                            and _is_thing(w) and prev_det(low, i))):
                 cands.append((i, big, _is_person(nxt)))
                 seen |= {w, nxt}
                 continue
             picked_w = {low[c[0]] for c in cands}
             prev_ = low[i - 1] if i else ''
-            if _is_person(w) and prev_ not in _SB_SUBJ and (
-                    prev_ in _SB_DET or not i or _is_thing(w)
+            verb_use = bool(i and low[i - 1] in picked_w and _wn is not None
+                            and w.endswith('s') and _wn.synsets(w, 'v'))
+            adj_use = bool(nxt and _wn is not None and prev_ in _SB_DET
+                           and (_wn.synsets(w, 'a') or _wn.synsets(w, 's'))
+                           and _is_thing(nxt) and not _is_person(nxt))
+            mod_det = bool(i >= 1 and prev_det(low, i - 1) and _wn is not None
+                           and (_wn.synsets(prev_, 'a')
+                                or _wn.synsets(prev_, 's')))
+            if not verb_use and not adj_use and _is_person(w) \
+                    and prev_ not in _SB_SUBJ and (
+                    prev_ in _SB_DET or mod_det or not i or _is_thing(w)
                     or not (_wn and _wn.synsets(w, 'v'))):
                 cands.append((i, _lemma(w), True))
                 seen.add(w)
@@ -666,6 +739,9 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 continue
             cands.append((i, _lemma(w), False))
             seen.add(w)
+        pro = re.match(r'\s*(she|he|they)\b', sent, re.I)
+        if pro and last_person and not any(c[2] for c in cands):
+            cands.append((0, last_person, True))
         if not any(c[2] for c in cands):
             m_ = re.search(r'\b(you|we|i)\b', sent, re.I)
             if m_ and (_SB_FEEL.search(sent) or _HOLD.search(sent)):
@@ -753,11 +829,15 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 hit = min(((m_.start(), a) for a, pat in _ACT_CUES
                            for m_ in [re.search(pat, tail)] if m_),
                           default=None)
-                if hit:
-                    roles[a_]['action'] = hit[1]
-                    vi = i + tail[:hit[0]].count(' ')
+                vp = None if hit else _verb_pose(low, i + _l.count(' '))
+                if hit or vp:
+                    roles[a_]['action'] = hit[1] if hit else vp[0]
+                    vi = (i + tail[:hit[0]].count(' ')) if hit else vp[1]
                     tg = next((b for b, (j, _l2, p2) in enumerate(pick)
                                if not p2 and j > vi), None)
+                    if tg is None:
+                        tg = next((b for b, (j, _l2, p2) in enumerate(pick)
+                                   if b != a_ and j > vi), None)
                     if tg is not None:
                         roles[a_]['target'] = roles[tg]['label']
         setting = ''
@@ -816,6 +896,10 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             if roles[tgt]['icon'] == 'person' and kind not in ('motion',):
                 continue
             marks.append({'type': kind, 'on': roles[tgt]['label']})
+        last_person = next((r['label'] for r in roles
+                            if r['icon'] == 'person'
+                            and r['label'] not in ('you', 'we', 'i')),
+                           last_person)
         hero, *rest = roles
         dur = max(4.0, len(sent.split()) / wpm * 60 + 1.6)
         beats.append({

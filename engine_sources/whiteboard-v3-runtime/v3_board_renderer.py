@@ -1693,7 +1693,18 @@ def _modifier_hit(phrase: str, ic) -> bool:
         k = toks_s.index(head)
         return k > 0 and toks[k - 1] in _SLUG_NEG
     shared = {_singular(w) for w in words} & set(toks_s)
+    if shared and len(words) > 1 and _compound_kin(words) & set(toks_s):
+        return False
     return bool(shared)
+
+
+def _compound_kin(words) -> set:
+    """Singular words of a WordNet compound's family ('candy bar' ->
+    candy, sweet, confection...), empty when the phrase isn't a lemma."""
+    key = '_'.join(w.lower() for w in words)
+    if _WN is None or not _WN.synsets(key, pos=_WN.NOUN):
+        return set()
+    return {_singular(y) for x in _wn_family(key) for y in x.split()}
 
 
 SEM_BAD_RANK = 300
@@ -1726,15 +1737,20 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
     rk = sem_rank(phrase, ic)
     curated = isinstance(ic, tuple) and (
         ic[0] == 'custom' or str(ic[1]).startswith('kit:'))
-    if rk is None or rk <= SEM_BAD_RANK or curated:
+    if (rk is None or rk <= SEM_BAD_RANK or curated) and (
+            curated or art_related(phrase, ic)):
         SEM_LOG[phrase] = (_art_key(ic), rk)
         return ic
+    if rk is None:
+        rk = SEM_BAD_RANK * 10
     best, best_rk, ex = (ic, rk), rk, set(exclude or ()) | {ic}
     for _ in range(6):
         alt = _icon_for_lex(concept, ex, 0)
         if alt in ex or alt in (None, 'card', 'tile') or _is_emblem(alt):
             break
         ex.add(alt)
+        if not art_related(phrase, alt):
+            continue
         ark = sem_rank(phrase, alt)
         if ark is not None and ark < best_rk:
             best, best_rk = (alt, ark), ark
@@ -1763,6 +1779,15 @@ def _icon_for_lex(concept: str, exclude=None, _depth: int = 0):
             if a_ic and a_ic not in ('card', 'tile') and not _is_emblem(a_ic) \
                     and not (_INK_ONLY and _is_sprite(a_ic)):
                 return a_ic
+    words = phrase.replace('-', ' ').split()
+    if (ic == 'person' and len(words) > 1 and _WN is not None
+            and _WN.synsets('_'.join(words), pos=_WN.NOUN)
+            and not any(x.lexname() == 'noun.person' for x in
+                        _WN.synsets('_'.join(words), pos=_WN.NOUN))):
+        near = _nearest_icon(['_'.join(words)], (exclude or set()) | {ic}) \
+            or _icon_for_raw(words[-1], exclude, 1)
+        if near:
+            ic = near
     tries = 0
     while _modifier_hit(phrase, ic) and tries < 4:
         exclude = (exclude or set()) | {ic}
@@ -1771,6 +1796,11 @@ def _icon_for_lex(concept: str, exclude=None, _depth: int = 0):
         ic = alt if alt and not _modifier_hit(head, alt) else \
             _icon_for_raw(concept, exclude, _depth)
         tries += 1
+    if _WN is not None and not art_related(phrase, ic):
+        near = _nearest_icon(phrase.replace('-', ' ').split(),
+                             (exclude or set()) | {ic})
+        if near:
+            return near
     if (_CONTEXT and _WN is not None and ' ' not in phrase
             and not (isinstance(ic, tuple) and str(ic[1]).startswith('kit:'))
             and _sense_conflict(phrase, ic)):
@@ -1778,6 +1808,60 @@ def _icon_for_lex(concept: str, exclude=None, _depth: int = 0):
         if near:
             return near
     return ic
+
+
+def _wn_family(w: str) -> set:
+    """Words WordNet ties to `w`: its synonyms, near ancestors, kinds,
+    parts and wholes (noun senses only)."""
+    if _WN is None:
+        return set()
+    out = set()
+    try:
+        senses = _WN.synsets(w, pos=_WN.NOUN)[:3]
+    except LookupError:
+        return out
+    frontier = list(senses)
+    for depth in range(3):
+        nxt = []
+        for ss in frontier:
+            out.update(x.lower() for x in ss.lemma_names())
+            rel = ss.hypernyms()
+            if depth == 0:
+                rel += (ss.hyponyms() + ss.part_meronyms() + ss.part_holonyms()
+                        + ss.member_holonyms() + ss.substance_meronyms())
+            nxt.extend(rel)
+        frontier = nxt
+    for ss in frontier:
+        out.update(x.lower() for x in ss.lemma_names())
+    return {x.replace('_', ' ') for x in out}
+
+
+def art_related(phrase: str, ic) -> bool:
+    """Does a library glyph's own name belong to the phrase's meaning?
+    'dog' for puppy (ancestor) or 'plate' for dinner plate (stem) do;
+    'flag-minus' for reef or 'leg' for arm don't."""
+    if not (isinstance(ic, tuple) and len(ic) == 3 and ic[0] in (
+            'icon', 'illust') and isinstance(ic[2], str)):
+        return True
+    toks = {_singular(t) for t in re.split(r'[-_ ]', ic[2].lower()) if t}
+    words = [_singular(w) for w in phrase.lower().replace('-', ' ').split()]
+    if len(words) > 1 and _WN is not None and _WN.synsets(
+            '_'.join(words), pos=_WN.NOUN):
+        extra = {t for t in toks if len(t) > 2} - set(words)
+        fam = {_singular(y) for x in _wn_family('_'.join(words))
+               for y in x.split()}
+        if extra and not extra & fam:
+            return False
+    for w in words:
+        for t in toks:
+            if len(t) >= 3 and len(w) >= 3 and (
+                    t == w or (len(t) >= 4 and len(w) >= 4
+                               and t[:4] == w[:4])):
+                return True
+    fam = set()
+    for w in words[-1:] + words[:-1]:
+        fam |= {_singular(x) for x in _wn_family(w)}
+    return bool(toks & fam)
 
 
 def kit_exact(phrase, exclude=None):
@@ -2376,7 +2460,9 @@ def icon_for(concept: str, used=None):
     reg = used.setdefault('_reg', {})
     assets = reg.setdefault('assets', {})
     nouns = reg.setdefault('nouns', {})
-    excl = {k for k, v in assets.items() if v != label}
+    mine = set(label.split())
+    excl = {k for k, v in assets.items()
+            if v != label and not set(str(v).split()) < mine}
     words = [w for w in label.split() if len(w) > 2]
     head = _singular(words[-1]) if words else None
     icon = None

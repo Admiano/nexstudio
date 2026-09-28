@@ -13,6 +13,12 @@ from __future__ import annotations
 import math
 import re
 
+try:
+    from nltk.corpus import wordnet as _wn
+    _wn.synsets('dog')
+except Exception:  # pragma: no cover - WordNet optional
+    _wn = None
+
 H = 260.0
 HEAD_R = 0.155
 HEAD_CY = -0.862
@@ -33,7 +39,8 @@ def shirt_for(key) -> str:
 
 # occupation -> costume: shirt tone, hat, torso detail, glasses
 _OUTFITS = (
-    (r'farmer|rancher|grower|picker|gardener|harvester',
+    (r'farmer|\bfarm\b|farmhand|rancher|grower|picker|gardener|harvester|'
+     r'vintner|vinedresser|shepherd|herder|cowboy',
      {'shirt': '#D98C6A', 'hat': 'straw', 'torso': 'overalls'}),
     (r'beekeeper|apiarist',
      {'shirt': '#F4F1EA', 'hat': 'veil'}),
@@ -51,21 +58,52 @@ _OUTFITS = (
      {'shirt': '#F4F1EA', 'torso': 'coat'}),
     (r'scientist|researcher|chemist|biologist|physicist|lab tech',
      {'shirt': '#F4F1EA', 'torso': 'coat', 'glasses': True}),
-    (r'nurse|paramedic|medic|caregiver|carer',
+    (r'nurse|paramedic|\bmedic\b|caregiver|carer',
      {'shirt': '#9CCFC8', 'hat': 'nursecap', 'torso': 'scrubs'}),
     (r'chef|cook\b|baker|butcher',
      {'shirt': '#F4F1EA', 'hat': 'toque', 'torso': 'apron'}),
-    (r'barista|waiter|waitress|server|bartender|cashier|shopkeeper|grocer',
+    (r'barista|waiter|waitress|server|bartender|cashier|shopkeeper|grocer|'
+     r'sommelier|steward',
      {'shirt': '#95C9A2', 'torso': 'apron_brown'}),
     (r'firefighter|fireman|firemen|firefighters',
      {'shirt': '#E0A24A', 'hat': 'firehelmet', 'torso': 'stripes'}),
+    (r'craftsman|artisan|artificer|potter|weaver|glassblower|jeweler|'
+     r'woodworker|cobbler|shoemaker|tailor|seamstress',
+     {'shirt': '#C9B79C', 'torso': 'apron_brown'}),
     (r'builder|construction|carpenter|plumber|electrician|mechanic|'
-     r'engineer|miner|welder|roofer|labou?rer',
+     r'engineer|miner|welder|roofer|labou?rer|mason|bricklayer|plasterer',
      {'shirt': '#F2B27A', 'hat': 'hardhat', 'torso': 'vest'}),
     (r'police|officer|\bcops?\b|sheriff|detective|security|guard',
      {'shirt': '#6F8FBF', 'hat': 'policecap', 'torso': 'badge'}),
-    (r'ranger|forester|park warden|wildlife officer|hiker|explorer',
+    (r'ranger|forester|park warden|wildlife officer|hiker|explorer|'
+     r'zookeeper|gamekeeper|\bkeeper\b',
      {'shirt': '#8E9B6A', 'hat': 'ranger', 'torso': 'badge'}),
+    (r'astronaut|cosmonaut|spaceman',
+     {'shirt': '#F4F1EA', 'hat': 'spacehelmet', 'torso': 'badge'}),
+    (r'diver|scuba|frogman',
+     {'shirt': '#46505A', 'glasses': True, 'torso': 'slicker'}),
+    (r'coach|trainer|referee|umpire',
+     {'shirt': '#D0453E', 'hat': 'cap', 'torso': 'jersey'}),
+    (r'athlete|player|contestant|striker|goalkeeper|goalie|footballer|'
+     r'runner|swimmer|cyclist|boxer',
+     {'shirt': '#3B7BD4', 'torso': 'jersey'}),
+    (r'musician|singer|performer|entertainer|drummer|guitarist|'
+     r'percussionist|pianist|dancer|actor|actress',
+     {'shirt': '#9575CD', 'torso': 'jacket'}),
+    (r'thief|burglar|robber|criminal|crook|bandit',
+     {'shirt': '#46505A', 'hat': 'beanie', 'torso': 'stripes_dark'}),
+    (r'jockey|equestrian|horseman|horsewoman',
+     {'shirt': '#D0453E', 'hat': 'cap', 'torso': 'jersey'}),
+    (r'journalist|reporter|writer|author|editor|columnist|photographer',
+     {'shirt': '#E9CB7A', 'glasses': True, 'torso': 'jacket'}),
+    (r'official|inspector|collector|civil servant|bureaucrat|diplomat',
+     {'shirt': '#5B6472', 'torso': 'tie'}),
+    (r'dispatcher|operator|controller|receptionist|clerk|teller|secretary',
+     {'shirt': '#8FB3E3', 'hat': 'headset', 'torso': 'tie'}),
+    (r'merchant|seller|vendor|dealer|retailer|shop assistant',
+     {'shirt': '#E9CB7A', 'torso': 'apron_brown'}),
+    (r'architect|designer|draftsman|draughtsman',
+     {'shirt': '#8FB3E3', 'glasses': True, 'torso': 'jacket'}),
     (r'soldier|marine|troop',
      {'shirt': '#8E9B6A', 'hat': 'army'}),
     (r'teacher|professor|lecturer|tutor|librarian|programmer|developer|'
@@ -78,13 +116,84 @@ _OUTFITS = (
 )
 
 
-def outfit_for(*words) -> dict:
-    """Costume for a cast member from its label/concept words — a farmer
-    gets a straw hat and overalls, a lawyer a suit and tie."""
-    text = ' '.join(str(w or '') for w in words).lower()
+def _match(text):
     for pat, fit in _OUTFITS:
         if text and re.search(pat, text):
             return dict(fit)
+    return None
+
+
+def _senses(word):
+    """Person senses of a role word: its hypernym names (nearest first)
+    and its definitions, from WordNet."""
+    if _wn is None or not word:
+        return [], []
+    base = _wn.morphy(word, 'n') or word
+    syn = [x for x in _wn.synsets(base.replace(' ', '_'), 'n')[:3]
+           if x.lexname() == 'noun.person' and not x.instance_hypernyms()]
+    names, seen, frontier = [], set(), syn
+    for _depth in range(5):
+        nxt = []
+        for x in frontier:
+            for h in x.hypernyms():
+                if h.name() not in seen and h.name() != 'person.n.01':
+                    seen.add(h.name())
+                    names.append(' '.join(h.lemma_names()).replace('_', ' '))
+                    nxt.append(h)
+        frontier = nxt
+    return names, [x.definition() for x in syn]
+
+
+_ROOT_ROLE = (('food', 'cook'), ('beverage', 'barista'),
+              ('plant', 'farmer'), ('animal', 'farmer'),
+              ('vehicle', 'driver'), ('device', 'mechanic'),
+              ('structure', 'builder'), ('building material', 'builder'),
+              ('substance', 'scientist'), ('book', 'librarian'),
+              ('document', 'clerk'), ('money', 'banker'))
+
+
+def _root_role(word):
+    """A job WordNet doesn't list ('chocolatier', 'cheesemaker') dresses
+    for what its root word is: chocolate is food, so a cook."""
+    if _wn is None:
+        return None
+    m = re.match(r'([a-z]+?)(?:maker|smith|monger|iers?|ers?|ists?|ors?)$',
+                 word)
+    if not m or len(m.group(1)) < 3 or _wn.synsets(word, 'n'):
+        return None
+    root = m.group(1)
+    syn = (_wn.synsets(root, 'n') or _wn.synsets(root + 'e', 'n'))[:2]
+    anc = {' '.join(h.lemma_names()).replace('_', ' ')
+           for x in syn for path in x.hypernym_paths() for h in path}
+    for cat, role in _ROOT_ROLE:
+        if any(re.search(r'\b' + cat + r'\b', a) for a in anc):
+            return _match(role)
+    return None
+
+
+def outfit_for(*words) -> dict:
+    """Costume for a cast member from its label/concept words — a farmer
+    gets a straw hat and overalls, a lawyer a suit and tie. A role the
+    table doesn't name dresses as its nearest WordNet ancestor (a vintner
+    is a merchant, a sommelier a waiter), then by its definition (a
+    farmhand is 'a hired hand on a farm')."""
+    text = ' '.join(str(w or '') for w in words).lower().strip()
+    fit = _match(text)
+    if fit is not None:
+        return fit
+    for w in words:
+        w = str(w or '').lower().strip()
+        heads = [w, w.split()[-1]] if ' ' in w else [w]
+        for head in heads:
+            names, glosses = _senses(head)
+            for tier in (names, glosses):
+                for t in tier:
+                    fit = _match(t.lower())
+                    if fit is not None:
+                        return fit
+            fit = _root_role(head)
+            if fit is not None:
+                return fit
     return {}
 
 
@@ -364,6 +473,21 @@ def _hat(kind, hx, hy, r, d):
             poly(_circle(hx, top + r * 0.47, r * 1.20, r * 0.14, 20), col)
             st.append(([(hx, top - r * 0.36), (hx, top + r * 0.40)], 'ink',
                        0.6, False))
+    elif kind == 'spacehelmet':
+        st.append((_circle(hx, hy, r * 1.32, n=26), '#A0CAE8', 0.9, False))
+        st.append(([(hx + d * r * 0.55, hy - r * 0.95),
+                    (hx + d * r * 0.85, hy - r * 0.62)], '#F4F1EA', 1.2,
+                   False))
+    elif kind == 'beanie':
+        dome(top + r * 0.48, r * 0.98, r * 0.78, '#46505A')
+        poly(_circle(hx, top + r * 0.48, r * 1.0, r * 0.14, 18), '#3A3D44')
+    elif kind == 'headset':
+        st.append((_circle(hx, hy, r * 1.08, r * 1.08, 20, math.pi * 1.05,
+                           math.pi * 1.95), 'ink', 0.9, False))
+        ex = hx - d * r * 1.02
+        st.append((_circle(ex, hy, r * 0.20, n=10), '#46505A', 0.6, 'solid'))
+        st.append(([(ex, hy + r * 0.15), (hx + d * r * 0.35, hy + r * 0.70)],
+                   'ink', 0.7, False))
     elif kind == 'toque':
         poly([(hx - r * 0.62, top + r * 0.30), (hx - r * 0.62, top - r * 0.25),
               (hx + r * 0.62, top - r * 0.25), (hx + r * 0.62, top + r * 0.30)],
@@ -439,6 +563,24 @@ def _torso_extra(kind, ty, byy, tw, bw, d):
                 w_ = tw - (tw - bw) * (fy / (byy - ty)) ** 1.25 - 0.01
                 line([(-w_ * h, (ty + fy) * h), (w_ * h, (ty + fy) * h)],
                      col, 2.2)
+    elif kind == 'jersey':
+        w_ = tw - 0.012
+        line([(-w_ * h, (ty + 0.05) * h), (w_ * h, (ty + 0.05) * h)],
+             '#F4F1EA', 2.0)
+        num = [(cx - 0.015 * h, (ty + 0.10) * h), (cx + 0.02 * h, (ty + 0.10) * h),
+               (cx - 0.005 * h, (ty + 0.19) * h)]
+        line(num, '#F4F1EA', 1.4)
+    elif kind == 'jacket':
+        for sx in (-1, 1):
+            poly([(cx + sx * 0.012 * h, (ty + 0.01) * h),
+                  (cx + sx * 0.070 * h, ty * h),
+                  (cx + sx * 0.060 * h, (byy + 0.03) * h),
+                  (cx + sx * 0.020 * h, (byy + 0.03) * h)], '#46505A')
+    elif kind == 'stripes_dark':
+        for fy in (0.07, 0.14, 0.21):
+            w_ = tw - (tw - bw) * (fy / (byy - ty)) ** 1.25 - 0.01
+            line([(-w_ * h, (ty + fy) * h), (w_ * h, (ty + fy) * h)],
+                 '#E9E4D6', 1.8)
     elif kind == 'badge':
         pts = [(cx + d * 0.04 * h + math.cos(a) * 0.018 * h,
                 (ty + 0.07) * h + math.sin(a) * 0.018 * h)

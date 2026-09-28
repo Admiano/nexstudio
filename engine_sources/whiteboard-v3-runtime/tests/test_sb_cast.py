@@ -36,3 +36,18 @@ def test_engaged_figures_build_for_every_outfit():
         for act in ('reach', 'hold', 'point', ''):
             body, _m, _h = sb_cast.figure('content', True, act, outfit=fit)
             assert body
+
+
+def test_unlisted_roles_dress_by_meaning():
+    # not in the outfit table: resolved through WordNet ancestors/glosses
+    assert sb_cast.outfit_for('vintner')['hat'] == 'straw'
+    assert sb_cast.outfit_for('sommelier')
+    assert sb_cast.outfit_for('geologist')['torso'] == 'coat'
+    assert sb_cast.outfit_for('bricklayer')['hat'] == 'hardhat'
+    assert sb_cast.outfit_for('cardiologist')['torso'] == 'coat'
+
+
+def test_artisans_wear_workshop_aprons_not_hardhats():
+    assert sb_cast.outfit_for('potter').get('hat') != 'hardhat'
+    assert sb_cast.outfit_for('potter')['torso'] == 'apron_brown'
+    assert sb_cast.outfit_for('bricklayer')['hat'] == 'hardhat'

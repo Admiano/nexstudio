@@ -1,0 +1,9 @@
+# How Flights Stay Safe
+## Preflight
+The pilot checks the engine before the flight.
+
+## In the Tower
+An air traffic controller guides the plane onto the runway.
+
+## Landing
+The flight attendant serves water while the plane lands.

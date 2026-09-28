@@ -1,0 +1,9 @@
+# Life on the Station
+## Launch
+The rocket carries three astronauts into orbit.
+
+## Repairs
+An astronaut fixes a solar panel outside the station.
+
+## Research
+A scientist grows plants in a small greenhouse.
