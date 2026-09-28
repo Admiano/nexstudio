@@ -14,7 +14,8 @@
       ],
       "motif": "tree",
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "tree-leafy": {
       "keywords": [
@@ -26,7 +27,8 @@
         "shade"
       ],
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "leaf": {
       "keywords": [
@@ -38,7 +40,8 @@
       ],
       "motif": "leaf",
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "seedling": {
       "keywords": [
@@ -50,7 +53,8 @@
         "reforest",
         "new growth"
       ],
-      "tone": "a_green"
+      "tone": "a_green",
+      "colors": true
     },
     "log-stack": {
       "keywords": [
@@ -65,7 +69,8 @@
         "fallen log",
         "fallen logs"
       ],
-      "motif": "logs"
+      "motif": "logs",
+      "colors": true
     },
     "tree-stump": {
       "keywords": [
@@ -75,7 +80,8 @@
         "logged",
         "clearcut"
       ],
-      "motif": "stump"
+      "motif": "stump",
+      "colors": true
     },
     "axe": {
       "keywords": [
@@ -85,7 +91,8 @@
         "hatchet",
         "cut"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "saw": {
       "keywords": [
@@ -94,7 +101,8 @@
         "handsaw",
         "carpentry",
         "mill"
-      ]
+      ],
+      "colors": true
     },
     "chainsaw": {
       "keywords": [
@@ -103,7 +111,8 @@
         "power saw",
         "logging"
       ],
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "mountain": {
       "keywords": [
@@ -113,7 +122,8 @@
         "terrain",
         "alpine",
         "elevation"
-      ]
+      ],
+      "colors": true
     },
     "river": {
       "keywords": [
@@ -125,7 +135,8 @@
         "watershed",
         "tributary"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "campfire": {
       "keywords": [
@@ -138,7 +149,8 @@
       ],
       "motif": "fire",
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "mushroom": {
       "keywords": [
@@ -148,7 +160,8 @@
         "forage",
         "toadstool"
       ],
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "compass": {
       "keywords": [
@@ -158,7 +171,8 @@
         "orient",
         "bearing"
       ],
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "binoculars": {
       "keywords": [
@@ -169,7 +183,8 @@
         "observe",
         "scout"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "log-truck": {
       "keywords": [
@@ -179,7 +194,8 @@
         "transport",
         "harvest truck"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "recycle-leaf": {
       "keywords": [
@@ -190,7 +206,8 @@
         "eco",
         "renewable"
       ],
-      "tone": "a_green"
+      "tone": "a_green",
+      "colors": true
     },
     "sun-cloud": {
       "keywords": [
@@ -199,7 +216,8 @@
         "climate",
         "day"
       ],
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "rain-cloud": {
       "keywords": [
@@ -210,7 +228,8 @@
         "drizzle",
         "monsoon"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "forest-stand": {
       "keywords": [
@@ -223,7 +242,8 @@
         "wilderness"
       ],
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "acorn": {
       "keywords": [
@@ -232,7 +252,8 @@
         "oak seed",
         "nut",
         "germination"
-      ]
+      ],
+      "colors": true
     },
     "trail-sign": {
       "keywords": [
@@ -243,7 +264,8 @@
         "path",
         "guidepost"
       ],
-      "tone": "a_green"
+      "tone": "a_green",
+      "colors": true
     },
     "dam": {
       "keywords": [
@@ -253,7 +275,8 @@
         "logjam",
         "weir"
       ],
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "smoke": {
       "keywords": [
@@ -263,7 +286,8 @@
         "haze",
         "smoky"
       ],
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "grass": {
       "keywords": [
@@ -285,7 +309,8 @@
         "nozzle"
       ],
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "tree-willow": {
       "keywords": [
@@ -296,7 +321,8 @@
         "willow trees"
       ],
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "sunlight": {
       "keywords": [
@@ -308,7 +334,8 @@
         "sunbeam"
       ],
       "tone": "a_yellow",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "flames": {
       "keywords": [
@@ -320,7 +347,8 @@
         "burning"
       ],
       "tone": "a_orange",
-      "fill": true
+      "fill": true,
+      "colors": true
     }
   }
 }

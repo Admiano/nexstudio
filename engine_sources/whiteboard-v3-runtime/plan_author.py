@@ -622,6 +622,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
     beats = []
     used: dict = {}
     prev_rel = ''
+    compounds: dict = {}
     for bi, (heading, sent) in enumerate(_sb_beats(script)):
         tokens = _WORD_RE.findall(sent)
         low = [t.lower().split("'")[0] for t in tokens]
@@ -670,6 +671,10 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             tokens[c[0]].lower() for c in pick}
         roles = []
         for i, lab, person in pick:
+            if ' ' in lab and not person:
+                compounds[lab.split()[-1]] = lab
+            elif not person:
+                lab = compounds.get(lab, lab)
             r: dict = {'label': lab, 'icon': 'person' if person else lab}
             ann = _sb_annot(tokens, i, nouns)
             if ann and not re.search(r'\b' + r'\s+'.join(map(re.escape,

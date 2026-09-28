@@ -12,7 +12,8 @@
         "career",
         "office"
       ],
-      "motif": "work"
+      "motif": "work",
+      "colors": true
     },
     "handshake": {
       "keywords": [
@@ -25,7 +26,8 @@
         "trust"
       ],
       "motif": "deal",
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "chart-bars": {
       "keywords": [
@@ -39,7 +41,8 @@
         "bar chart"
       ],
       "motif": "chart",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "pie-chart": {
       "keywords": [
@@ -50,7 +53,8 @@
         "allocation",
         "breakdown"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "presentation": {
       "keywords": [
@@ -61,7 +65,8 @@
         "boardroom",
         "demo"
       ],
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "calculator": {
       "keywords": [
@@ -72,7 +77,8 @@
         "numbers",
         "finance"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "dollar-sign": {
       "keywords": [
@@ -87,7 +93,8 @@
       ],
       "motif": "money",
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "money-bag": {
       "keywords": [
@@ -100,7 +107,8 @@
         "savings"
       ],
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "office-building": {
       "keywords": [
@@ -112,7 +120,8 @@
         "building",
         "enterprise"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "necktie": {
       "keywords": [
@@ -123,7 +132,8 @@
         "boss",
         "formal"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "contract-pen": {
       "keywords": [
@@ -135,7 +145,8 @@
         "document",
         "terms"
       ],
-      "motif": "contract"
+      "motif": "contract",
+      "colors": true
     },
     "stamp": {
       "keywords": [
@@ -146,7 +157,8 @@
         "seal",
         "authorize"
       ],
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "meeting-table": {
       "keywords": [
@@ -156,7 +168,8 @@
         "team",
         "discussion",
         "negotiation"
-      ]
+      ],
+      "colors": true
     },
     "megaphone": {
       "keywords": [
@@ -168,7 +181,8 @@
         "shout"
       ],
       "motif": "marketing",
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "badge-id": {
       "keywords": [
@@ -179,7 +193,8 @@
         "access card",
         "staff"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "card-pay": {
       "keywords": [
@@ -191,7 +206,8 @@
         "debit"
       ],
       "motif": "payment",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "scales-justice": {
       "keywords": [
@@ -203,7 +219,8 @@
         "court",
         "regulation"
       ],
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "inbox": {
       "keywords": [
@@ -214,7 +231,8 @@
         "outreach",
         "contact"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "lightbulb": {
       "keywords": [
@@ -226,7 +244,8 @@
         "eureka"
       ],
       "motif": "idea",
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "calendar": {
       "keywords": [
@@ -237,7 +256,8 @@
         "appointment",
         "quarter"
       ],
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "coffee-cup": {
       "keywords": [
@@ -247,7 +267,8 @@
         "cafe",
         "morning",
         "espresso"
-      ]
+      ],
+      "colors": true
     },
     "phone-call": {
       "keywords": [
@@ -258,7 +279,8 @@
         "sales call",
         "outreach"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "growth-arrow": {
       "keywords": [

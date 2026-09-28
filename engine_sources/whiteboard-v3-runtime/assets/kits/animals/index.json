@@ -12,7 +12,8 @@
         "labrador"
       ],
       "motif": "pet",
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "cat": {
       "keywords": [
@@ -34,7 +35,8 @@
         "eagle"
       ],
       "motif": "bird",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "fish": {
       "keywords": [
@@ -46,7 +48,8 @@
         "salmon",
         "pond"
       ],
-      "motif": "fish"
+      "motif": "fish",
+      "colors": true
     },
     "elephant": {
       "keywords": [
@@ -57,7 +60,8 @@
         "jumbo",
         "trunk"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "lion": {
       "keywords": [
@@ -69,7 +73,8 @@
         "cat big"
       ],
       "motif": "lion",
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "rabbit": {
       "keywords": [
@@ -88,7 +93,8 @@
         "shell",
         "reptile"
       ],
-      "tone": "a_green"
+      "tone": "a_green",
+      "colors": true
     },
     "owl": {
       "keywords": [
@@ -98,7 +104,8 @@
         "nocturnal",
         "hoot"
       ],
-      "motif": "owl"
+      "motif": "owl",
+      "colors": true
     },
     "bear": {
       "keywords": [
@@ -109,7 +116,8 @@
         "hibernate",
         "teddy"
       ],
-      "motif": "bear"
+      "motif": "bear",
+      "colors": true
     },
     "butterfly": {
       "keywords": [
@@ -119,7 +127,8 @@
         "metamorphosis",
         "moth"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "bee": {
       "keywords": [
@@ -131,7 +140,8 @@
         "bumble"
       ],
       "motif": "bee",
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "snake": {
       "keywords": [
@@ -151,7 +161,8 @@
         "equestrian",
         "mare",
         "race"
-      ]
+      ],
+      "colors": true
     },
     "penguin": {
       "keywords": [
@@ -161,7 +172,8 @@
         "ice",
         "cold",
         "waddle"
-      ]
+      ],
+      "colors": true
     },
     "deer": {
       "keywords": [
@@ -171,7 +183,8 @@
         "doe",
         "stag",
         "fawn"
-      ]
+      ],
+      "colors": true
     },
     "monkey": {
       "keywords": [
@@ -181,7 +194,8 @@
         "chimp",
         "banana"
       ],
-      "motif": "monkey"
+      "motif": "monkey",
+      "colors": true
     },
     "fox": {
       "keywords": [
@@ -191,7 +205,8 @@
         "red",
         "vulpine"
       ],
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "cow": {
       "keywords": [
@@ -202,7 +217,8 @@
         "farm",
         "beef",
         "bull"
-      ]
+      ],
+      "colors": true
     },
     "chicken": {
       "keywords": [
@@ -213,7 +229,8 @@
         "egg",
         "cluck",
         "farm"
-      ]
+      ],
+      "colors": true
     },
     "pig": {
       "keywords": [
@@ -224,7 +241,8 @@
         "hog",
         "swine"
       ],
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "duck": {
       "keywords": [
@@ -234,7 +252,8 @@
         "duckling",
         "waterfowl"
       ],
-      "tone": "a_green"
+      "tone": "a_green",
+      "colors": true
     },
     "frog": {
       "keywords": [
@@ -245,7 +264,8 @@
         "hop",
         "ribbit"
       ],
-      "tone": "a_green"
+      "tone": "a_green",
+      "colors": true
     },
     "wolf": {
       "keywords": [
@@ -255,13 +275,15 @@
         "predator",
         "coyote"
       ],
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "beaver": {
       "keywords": [
         "beaver",
         "beavers"
-      ]
+      ],
+      "colors": true
     }
   }
 }

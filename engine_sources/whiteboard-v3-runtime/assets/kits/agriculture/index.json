@@ -13,7 +13,8 @@
       ],
       "motif": "hive",
       "tone": "a_yellow",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "honeycomb": {
       "keywords": [
@@ -26,7 +27,8 @@
       ],
       "motif": "honeycomb",
       "tone": "a_yellow",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "bee-smoker": {
       "keywords": [
@@ -34,7 +36,8 @@
         "beekeeping"
       ],
       "motif": "smoker",
-      "tone": "a_orange"
+      "tone": "a_orange",
+      "colors": true
     },
     "bee": {
       "keywords": [
@@ -50,7 +53,8 @@
       ],
       "motif": "bee",
       "tone": "a_yellow",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "flower-pollen": {
       "keywords": [
@@ -64,7 +68,8 @@
       ],
       "motif": "flower",
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "crop-field": {
       "keywords": [
@@ -77,7 +82,8 @@
         "seed"
       ],
       "motif": "field",
-      "tone": "a_green"
+      "tone": "a_green",
+      "colors": true
     },
     "sprayer": {
       "keywords": [
@@ -91,7 +97,8 @@
         "chemicals"
       ],
       "motif": "spray",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "cracked-earth": {
       "keywords": [
@@ -104,7 +111,8 @@
       ],
       "motif": "drought",
       "tone": "a_orange",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "tractor": {
       "keywords": [
@@ -116,7 +124,8 @@
       ],
       "motif": "tractor",
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "barn": {
       "keywords": [
@@ -127,7 +136,8 @@
       ],
       "motif": "barn",
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "watering-can": {
       "keywords": [
@@ -138,7 +148,8 @@
         "gardening"
       ],
       "motif": "water",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "apple-basket": {
       "keywords": [
@@ -151,7 +162,8 @@
       ],
       "motif": "fruit",
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "fruit-tree": {
       "keywords": [
@@ -165,7 +177,8 @@
       ],
       "motif": "tree",
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "coffee-bush": {
       "keywords": [
@@ -180,7 +193,8 @@
         "coffee cherry"
       ],
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "pour-over": {
       "keywords": [
@@ -192,7 +206,8 @@
         "brew",
         "brewing",
         "kettle"
-      ]
+      ],
+      "colors": true
     },
     "coffee-beans": {
       "keywords": [
@@ -202,7 +217,8 @@
         "green beans",
         "coffee bean",
         "coffee beans"
-      ]
+      ],
+      "colors": true
     }
   }
 }

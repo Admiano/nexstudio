@@ -13,7 +13,8 @@
         "medical"
       ],
       "motif": "doctor",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "heart-pulse": {
       "keywords": [
@@ -27,7 +28,8 @@
       ],
       "motif": "heart",
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "pill-capsule": {
       "keywords": [
@@ -51,7 +53,8 @@
         "dose"
       ],
       "motif": "vaccine",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "thermometer": {
       "keywords": [
@@ -61,7 +64,8 @@
         "sick",
         "hot"
       ],
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "ambulance": {
       "keywords": [
@@ -71,7 +75,8 @@
         "hospital transport",
         "911",
         "urgent"
-      ]
+      ],
+      "colors": true
     },
     "hospital-cross": {
       "keywords": [
@@ -82,7 +87,8 @@
       ],
       "motif": "hospital",
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "brain": {
       "keywords": [
@@ -125,7 +131,8 @@
         "heal",
         "cut"
       ],
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "microscope": {
       "keywords": [
@@ -136,7 +143,8 @@
         "experiment",
         "pathology"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "virus": {
       "keywords": [
@@ -150,7 +158,8 @@
       ],
       "motif": "virus",
       "tone": "a_green",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "tooth": {
       "keywords": [
@@ -192,7 +201,8 @@
         "report",
         "insurance"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "face-mask": {
       "keywords": [
@@ -203,7 +213,8 @@
         "surgical mask",
         "ppe"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "blood-drop": {
       "keywords": [
@@ -215,7 +226,8 @@
         "drop"
       ],
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "lungs": {
       "keywords": [
@@ -236,7 +248,8 @@
         "ophthalmology",
         "see"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "hospital-bed": {
       "keywords": [
@@ -251,7 +264,8 @@
       ],
       "motif": "bed",
       "tone": "a_blue",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "hospital": {
       "keywords": [
@@ -262,7 +276,8 @@
         "medical center"
       ],
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "door-handle": {
       "keywords": [
@@ -272,7 +287,8 @@
         "knob",
         "door"
       ],
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "water-tap": {
       "keywords": [
@@ -283,7 +299,8 @@
         "wash",
         "washing",
         "handwashing"
-      ]
+      ],
+      "colors": true
     },
     "phone": {
       "keywords": [
@@ -291,7 +308,8 @@
         "phones",
         "smartphone",
         "mobile"
-      ]
+      ],
+      "colors": true
     },
     "soap": {
       "keywords": [
@@ -299,7 +317,8 @@
         "soap bar",
         "lather",
         "suds"
-      ]
+      ],
+      "colors": true
     }
   }
 }

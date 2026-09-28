@@ -1349,6 +1349,38 @@ def _slug(text: str) -> str:
     return re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
 
 
+# named paper-illustration tones a kit SVG's own fills snap to
+SVG_TONES = {
+    'paper': (245, 240, 228), 'a_cream': (236, 226, 204),
+    'a_grey': (190, 192, 196), 'a_slate': (142, 148, 156),
+    'a_dark': (70, 74, 80),
+    'a_brown': (150, 102, 68), 'a_tan': (205, 160, 112),
+    'a_skin': (240, 196, 160), 'a_pink': (238, 170, 190),
+    'a_sky': (160, 202, 232), 'a_blue': (59, 123, 212),
+    'a_leaf': (120, 160, 72), 'a_mint': (132, 186, 128),
+    'a_green': (79, 157, 105),
+    'a_red': (208, 69, 62), 'a_orange': (232, 131, 58),
+    'a_yellow': (229, 184, 58), 'a_purple': (149, 117, 205),
+    'ink': (34, 34, 34),
+}
+
+
+def svg_tone(hexcol: str) -> str:
+    h = str(hexcol).lstrip('#')
+    if len(h) == 3:
+        h = ''.join(c * 2 for c in h)
+    try:
+        rgb = tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+    except ValueError:
+        return 'ink'
+    def sat(c):
+        return (max(c) - min(c)) / max(1, max(c))
+    pool = [k for k in SVG_TONES
+            if (sat(SVG_TONES[k]) > 0.18) == (sat(rgb) > 0.18)] or SVG_TONES
+    return min(pool, key=lambda k: sum(
+        (a - b) ** 2 * w for a, b, w in zip(SVG_TONES[k], rgb, (3, 4, 2))))
+
+
 def _dir_strokes(dir_name: str, slug: str):
     """Unit-space strokes for an SVG in assets/<dir_name>/<slug>.svg.
     Ink-filled elements hatch; paper/secondary fills draw as outlines only
@@ -1417,8 +1449,11 @@ def _dir_strokes(dir_name: str, slug: str):
     bespoke = dir_name == 'custom' or dir_name.startswith('kit:')
     weight = 0.95 if bespoke else 0.5
     hatch_ok = bespoke
+    svgcol = bool(kit_meta and kit_meta.get('colors'))
     for ei, (polys_el, fill, closed) in enumerate(elements):
-        if fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
+        if svgcol and closed and str(fill).startswith('#'):
+            color, hatch = svg_tone(fill), 'solid'
+        elif fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
             color, hatch = 'ink', False
         elif ei == accent_el:
             color, hatch = 'accent', True
@@ -1438,7 +1473,7 @@ def _dir_strokes(dir_name: str, slug: str):
         # solid masses — the per-domain color language
         tone = kit_meta.get('tone')
         solid = bool(kit_meta.get('fill'))
-        if tone or solid:
+        if (tone or solid) and not svgcol:
             out = []
             for st in strokes:
                 pts, col, w, f = st[0], st[1], st[2], (st[3] if len(st) > 3

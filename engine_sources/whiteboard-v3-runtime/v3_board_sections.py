@@ -58,6 +58,9 @@ _REMAP = {'accent': 'a_orange', 'accfill': 'a_blue', 'accdeep': 'a_blue'}
 def _colors(plan):
     cols = dict(_palette(plan))
     acc = cols.get('accent')
+    for k, v in v3r.SVG_TONES.items():
+        if k not in cols:
+            cols[k] = v + (255,)
     for k, v in _ACCENTS.items():
         cols[k] = v
     # plan accent (brand-authored or --accent) still wins for 'accent'
@@ -84,7 +87,7 @@ def _colors(plan):
             if re.match(r'^#[0-9a-fA-F]{6}$', _t):
                 cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16),
                             int(_t[5:7], 16), 255)
-    for _t in (sb_cast.FILL, sb_cast.SHADE):
+    for _t in (sb_cast.FILL, sb_cast.SHADE) + sb_cast.SHIRTS:
         cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16), int(_t[5:7], 16), 255)
     return cols
 
@@ -1552,8 +1555,10 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         emo, n_body = '', 0
         if kind == 'person':
             emo = sb_cast.emotion_for(dict(m, label=it.get('label', '')))
-            body, marks, _hb = sb_cast.figure(emo, False,
-                                              m.get('action', ''))
+            body, marks, _hb = sb_cast.figure(
+                emo, False, m.get('action', ''),
+                sb_cast.shirt_for(m.get('shirt') or m.get('label') or it.get('label')
+                                  or m.get('concept')))
             art = body + marks
             n_body = len(body)
         if kind in ('person', 'art') and not art:
@@ -1818,8 +1823,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         i1 = i0 + slot
         groups = []
         b = e['box']
-        if e['kind'] == 'person' and b[3] - b[1] > H * 0.34:
-            k_ = H * 0.34 / (b[3] - b[1])
+        if e['kind'] == 'person' and b[3] - b[1] > H * 0.42:
+            k_ = H * 0.42 / (b[3] - b[1])
             cx_ = (b[0] + b[2]) / 2
             hw_ = (b[2] - b[0]) * k_ / 2
             b = e['box'] = (cx_ - hw_, b[3] - (b[3] - b[1]) * k_,
@@ -1850,7 +1855,10 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 if any(kd['att'] == 'held' for kd in e.get('kids', ())):
                     act = act or 'hold'
                 e['flip'], e['act'] = flip, act
-                body, marks, _hb = sb_cast.figure(e['emo'], flip, act)
+                body, marks, _hb = sb_cast.figure(
+                    e['emo'], flip, act,
+                    sb_cast.shirt_for(e['m'].get('shirt') or e['m'].get('label')
+                                      or e['m'].get('concept')))
                 fit_st, _fb = _sb_fit(body + marks, fb)
                 art_st, mark_st = fit_st[:len(body)], fit_st[len(body):]
                 fig_b = _sb_bounds(s_[0] for s_ in art_st)
@@ -1894,7 +1902,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             if kd['kind'] == 'person':
                 kbody, kmarks, _kh = sb_cast.figure(
                     kd['emo'], (kb0[0] + kb0[2]) / 2 > 0,
-                    kd['m'].get('action', ''))
+                    kd['m'].get('action', ''),
+                    sb_cast.shirt_for(kd['m'].get('shirt') or kd['m'].get('label')
+                                      or kd['m'].get('concept')))
                 kst, kb = _sb_fit(kbody + kmarks, kb0)
             else:
                 kst, kb = _sb_fit(kd['art'], kb0)

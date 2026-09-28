@@ -13,7 +13,8 @@
         "ride"
       ],
       "motif": "car",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "truck": {
       "keywords": [
@@ -26,7 +27,8 @@
         "haul"
       ],
       "motif": "truck",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "bus": {
       "keywords": [
@@ -36,7 +38,8 @@
         "coach",
         "school bus"
       ],
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "train": {
       "keywords": [
@@ -48,7 +51,8 @@
         "commuter"
       ],
       "motif": "train",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "plane": {
       "keywords": [
@@ -61,7 +65,8 @@
         "jet"
       ],
       "motif": "plane",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "ship": {
       "keywords": [
@@ -74,7 +79,8 @@
         "container"
       ],
       "motif": "ship",
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "bicycle": {
       "keywords": [
@@ -93,7 +99,8 @@
         "moped",
         "scooter bike",
         "harley"
-      ]
+      ],
+      "colors": true
     },
     "helicopter": {
       "keywords": [
@@ -103,7 +110,8 @@
         "airlift",
         "heli"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "traffic-light": {
       "keywords": [
@@ -114,7 +122,8 @@
         "red light",
         "green light"
       ],
-      "motif": "signal"
+      "motif": "signal",
+      "colors": true
     },
     "gas-pump": {
       "keywords": [
@@ -126,7 +135,8 @@
         "diesel",
         "pump"
       ],
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "road-sign": {
       "keywords": [
@@ -137,7 +147,8 @@
         "stop sign",
         "traffic sign"
       ],
-      "tone": "a_yellow"
+      "tone": "a_yellow",
+      "colors": true
     },
     "map-pin": {
       "keywords": [
@@ -151,7 +162,8 @@
       ],
       "motif": "pin",
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     },
     "anchor": {
       "keywords": [
@@ -170,7 +182,8 @@
         "infrastructure",
         "overpass"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "steering-wheel": {
       "keywords": [
@@ -191,7 +204,8 @@
         "rubber",
         "traction"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "pedestrian": {
       "keywords": [
@@ -214,7 +228,8 @@
         "battery"
       ],
       "motif": "ev",
-      "tone": "a_green"
+      "tone": "a_green",
+      "colors": true
     },
     "parking": {
       "keywords": [
@@ -224,7 +239,8 @@
         "garage",
         "space"
       ],
-      "tone": "a_blue"
+      "tone": "a_blue",
+      "colors": true
     },
     "subway": {
       "keywords": [
@@ -234,7 +250,8 @@
         "tube",
         "transit"
       ],
-      "tone": "a_red"
+      "tone": "a_red",
+      "colors": true
     },
     "scooter": {
       "keywords": [
@@ -255,7 +272,8 @@
         "carpool lane"
       ],
       "tone": "a_red",
-      "fill": true
+      "fill": true,
+      "colors": true
     }
   }
 }

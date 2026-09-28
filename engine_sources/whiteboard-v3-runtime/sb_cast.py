@@ -14,14 +14,22 @@ import math
 import re
 
 H = 260.0
-HEAD_R = 0.135
-HEAD_CY = -0.845
+HEAD_R = 0.155
+HEAD_CY = -0.862
 SH_Y = -0.700
 HIP_Y = -0.420
 
 # proto pack tones: light body, darker far-side hand/shoe
 FILL = '#D9D4C7'
 SHADE = '#8B8577'
+# shirt tones — paper-pastel washes that give each cast member a color
+SHIRTS = ('#8FB3E3', '#95C9A2', '#F2B27A', '#BCA8E0', '#E79A92', '#E9CB7A')
+
+
+def shirt_for(key) -> str:
+    """Stable shirt tone for a cast member (same name, same shirt)."""
+    k = str(key or '').lower().strip()
+    return SHIRTS[sum(ord(c) * (i + 1) for i, c in enumerate(k)) % len(SHIRTS)]
 
 # arm = (elbow, hand) per side, leg = (knee, foot); x > 0 is screen right.
 # All in figure heights. Only still poses — no motion is authored here.
@@ -78,6 +86,7 @@ EMOTIONS = {
     'angry':     ('fist', 'angry', ('steam',)),
     'proud':     ('fist', 'smile', ('burst',)),
     'explain':   ('point', 'smile', ()),
+    'content':   ('idle', 'smile', ()),
 }
 
 # context words -> emotion, first match wins (annotation, cue, label order)
@@ -116,7 +125,8 @@ def emotion_for(role) -> str:
             if text and re.search(pat, text):
                 return emo
     ex = str(role.get('expression') or '').lower()
-    return {'thinking': 'think', 'exclaim': 'alert'}.get(ex, 'neutral')
+    dflt = 'content' if role.get('narration') else 'neutral'
+    return {'thinking': 'think', 'exclaim': 'alert'}.get(ex, dflt)
 
 
 def _circle(cx, cy, rx, ry=None, n=26, a0=0.0, a1=2 * math.pi):
@@ -135,11 +145,11 @@ def _face(kind, hx, hy, r):
     ex, ey = r * 0.36, hy - r * 0.02
     my = hy + r * 0.46
 
-    def dot(x, y, rr=r * 0.085):
-        st.append((_circle(x, y, rr, n=10), 'ink', 0.6, 'solid'))
+    def dot(x, y, rr=r * 0.10):
+        st.append((_circle(x, y, rr, n=10), 'ink', 0.8, 'solid'))
 
     def line(pts, w=0.75):
-        st.append((pts, 'ink', w, False))
+        st.append((pts, 'ink', w * 1.35, False))
 
     def arc(cx, cy, rx, ry, a0, a1, w=0.75):
         line(_circle(cx, cy, rx, ry, 12, a0, a1), w)
@@ -297,7 +307,7 @@ def hand_uv(emotion='neutral', flip=False, action=''):
             (hy - min(ys)) / max(1e-6, max(ys) - min(ys)))
 
 
-def figure(emotion='neutral', flip=False, action=''):
+def figure(emotion='neutral', flip=False, action='', shirt=None):
     """-> (body_strokes, mark_strokes, head_box) in unit px (feet at 0).
     `action` (hold/point/offer/reach...) swaps the arm pose only."""
     pose_n, face_n, mark_n = EMOTIONS.get(emotion, EMOTIONS['neutral'])
@@ -328,7 +338,7 @@ def figure(emotion='neutral', flip=False, action=''):
                 for a in [math.pi * k / 10 for k in range(11)]]
     torso_poly = left + bottom[1:] + rgt[1:] + shoulder[1:]
     torso_poly.append(torso_poly[0])
-    body.append((torso_poly, fill, 1.0, 'solid'))
+    body.append((torso_poly, shirt or fill, 1.0, 'solid'))
     # legs
     legs = pz.get('leg', _IDLE_LEG)
     for s in (-1, 1):
