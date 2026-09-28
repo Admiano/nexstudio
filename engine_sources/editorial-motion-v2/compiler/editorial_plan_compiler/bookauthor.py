@@ -9,15 +9,15 @@ invented to fill a page — the director and the gates decide what moves.
 import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from .coverage import NounGate, paper_key, young_of
+from .coverage import STAND_INS, NounGate, paper_key, young_of
 from .illustration import IllustrationRegistry
 from .lexicon import AssetFinder, NounLexicon, singular
 
 PACKS = ('emoji.fluent-flat', 'emoji.noto')
 MAX_THINGS = 3
 # The scene engine paints the land and sky itself; a separate mark of them is a sticker.
-LANDFORMS = frozenset(('hill', 'hills', 'field', 'grass', 'sky', 'ground', 'land', 'meadow', 'farm', 'sea', 'ocean'))
-SAME_PLURAL = frozenset(('sheep', 'fish', 'deer', 'moose', 'bison', 'salmon'))
+LANDFORMS = frozenset(('hill', 'hills', 'mountain', 'mountains', 'field', 'grass', 'sky', 'ground', 'land', 'meadow', 'farm', 'sea', 'ocean'))
+SAME_PLURAL = frozenset(('sheep', 'fish', 'ice', 'snow', 'deer', 'moose', 'bison', 'salmon'))
 NUMBERS = {w: i for i, w in enumerate(
     'zero one two three four five six seven eight nine ten eleven twelve'.split())}
 SETTING_WORDS: Sequence[Tuple[str, Tuple[str, ...]]] = (
@@ -25,7 +25,7 @@ SETTING_WORDS: Sequence[Tuple[str, Tuple[str, ...]]] = (
     ('underwater', ('underwater', 'ocean', 'sea', 'reef', 'seabed', 'coral')),
     ('indoor', ('kitchen', 'room', 'bedroom', 'house', 'home', 'inside', 'indoors', 'table', 'bed', 'classroom')),
     ('urban', ('city', 'street', 'town', 'road', 'traffic')),
-    ('outdoor', ('outside', 'garden', 'field', 'park', 'forest', 'meadow', 'farm', 'yard', 'hill', 'grass')),
+    ('outdoor', ('outside', 'garden', 'field', 'park', 'forest', 'meadow', 'farm', 'yard', 'hill', 'grass', 'mountain', 'woods')),
 )
 MOOD_WORDS: Sequence[Tuple[str, Tuple[str, ...]]] = (
     ('night', ('night', 'bedtime', 'moon', 'stars', 'midnight', 'dark', 'asleep')),
@@ -59,7 +59,8 @@ def edu_of(text: str, things: List[str]) -> Optional[Dict[str, Any]]:
         return None
     obj, t = things[0], ' '.join(ws)
     two = len(nums) >= 2
-    for op, kind in (('plus', 'add'), ('minus', 'subtract'), ('times', 'multiply'), ('divided by', 'share')):
+    for op, kind in (('plus', 'add'), ('minus', 'subtract'), ('take away', 'subtract'),
+                     ('times', 'multiply'), ('divided by', 'share')):
         m = re.search(r'(\w+) ' + op + r' (\w+)', t)
         if m and _num(m.group(1)) is not None and _num(m.group(2)) is not None:
             return {'kind': kind, 'object': obj, 'a': _num(m.group(1)), 'b': _num(m.group(2))}
@@ -73,6 +74,11 @@ def edu_of(text: str, things: List[str]) -> Optional[Dict[str, Any]]:
         return {'kind': 'subtract', 'object': obj, 'a': nums[0], 'b': nums[1]}
     if 'count' in ws or len(nums) >= 3:
         return {'kind': 'count', 'object': obj, 'a': max(nums)}
+    for k, w in enumerate(ws[:-1]):
+        n = _num(w)
+        if n is not None and n >= 2 and singular(ws[k + 1]) in things:
+            # "Seven fish swam": a number naming a printed set is a count the page must show.
+            return {'kind': 'count', 'object': singular(ws[k + 1]), 'a': n}
     return None
 
 
@@ -90,6 +96,18 @@ class BookAuthor:
             return True
         return any(self.finder.resolve(concept, p, True, True).via in ('exact', 'synonym') for p in PACKS)
 
+    def stand_in(self, head: str, lemma: str, word: str) -> Optional[str]:
+        """The next-best printable thing for a noun the book cannot draw: its nearest
+        drawable ancestor (icicle -> ice, lantern -> lamp), accepted only when the
+        coverage gate reads it as answering the noun."""
+        for p in PACKS:
+            r = self.finder.resolve(head, p, True, True)
+            if r.via == 'composite' and r.path:
+                cand = singular(str(r.path[-1]))
+                if cand != head and self.printable(cand) and self.gate.answered_by(lemma, word, [cand]):
+                    return cand
+        return None
+
     def things(self, text: str) -> List[str]:
         out: List[str] = []
         ws = _words(text)
@@ -106,26 +124,43 @@ class BookAuthor:
             if c not in out and self.printable(c):
                 out.append(c)
         for word, lemma, person in self.gate.things(text):
-            if person:
-                continue
             head = singular(word.split()[-1])
+            sub = STAND_INS.get(head)
+            if sub and self.printable(sub):
+                if sub not in out:
+                    out.append(sub)
+                continue
+            if person:
+                if self.printable(head) and head not in out:
+                    out.append(head)
+                continue
             for c in (lemma.replace('_', ' '), head, young_of(head)):
                 if self.printable(c) and c not in out:
                     out.append(c)
                     break
+            else:
+                stand = None if head in LANDFORMS else self.stand_in(head, lemma, word)
+                if stand and stand not in out:
+                    out.append(stand)
         return out[:MAX_THINGS]
 
     def author(self, groups: List[List[Dict[str, Any]]], film_id: str) -> Dict[str, Any]:
         beats: List[Dict[str, Any]] = []
         setting, mood = 'outdoor', 'day'
         motif: Optional[str] = None
+        prev_things: List[str] = []
         for i, g in enumerate(groups):
             text = re.sub(r'\s+([,.;:!?])', r'\1', ' '.join(' '.join(w['text'] for w in g).split()))
             ws = _words(text)
             setting = _pick(ws, SETTING_WORDS) or setting
             mood = _pick(ws, MOOD_WORDS) or mood
             things = self.things(text)
+            if not things and prev_things:
+                # A sentence that names nothing drawable continues the page before it:
+                # "Six take away two" still counts the icicles just named.
+                things = list(prev_things)
             edu = edu_of(text, things)
+            prev_things = things or prev_things
             page: Dict[str, Any] = {'title': self.title(things, edu), 'layout': 'half'}
             beat: Dict[str, Any] = {
                 'beat_id': f'b{i + 1:02d}',

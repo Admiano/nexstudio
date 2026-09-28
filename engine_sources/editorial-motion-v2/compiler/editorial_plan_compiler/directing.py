@@ -14,6 +14,7 @@ from collections import Counter
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .illustration import _action_for, _is_focus
+from .lexicon import singular
 
 NUMBER_WORDS = {
     'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8,
@@ -22,6 +23,7 @@ NUMBER_WORDS = {
 }
 
 IRREGULAR = {
+    'crept': 'creep', 'scuttled': 'scuttle',
     'grew': 'grow', 'grown': 'grow', 'fell': 'fall', 'fallen': 'fall', 'rose': 'rise', 'risen': 'rise',
     'flew': 'fly', 'flown': 'fly', 'spun': 'spin', 'shone': 'shine', 'blew': 'blow', 'broke': 'break',
     'ran': 'run', 'swam': 'swim', 'sank': 'sink', 'threw': 'throw', 'thrown': 'throw', 'came': 'come',
@@ -42,7 +44,7 @@ VERB_KIND: Dict[str, Optional[str]] = {
     'bounce': 'bounce', 'hop': 'hop', 'jump': 'hop', 'leap': 'hop', 'skip': 'hop',
     'roll': 'roll', 'drive': 'travel', 'travel': 'travel', 'sail': 'travel', 'move': 'travel',
     'race': 'travel', 'run': 'travel', 'cross': 'travel', 'drift': 'travel', 'ride': 'travel',
-    'zoom': 'travel', 'slide': 'travel', 'walk': 'travel', 'march': 'travel', 'crawl': 'travel', 'chug': 'travel',
+    'zoom': 'travel', 'slide': 'travel', 'walk': 'travel', 'march': 'travel', 'crawl': 'travel', 'creep': 'travel', 'scuttle': 'travel', 'chug': 'travel',
     'fall': 'fall', 'drop': 'fall', 'tumble': 'fall', 'sink': 'fall', 'dive': 'fall', 'pour': 'fall',
     'drip': 'fall', 'rain': 'fall', 'plop': 'fall', 'splash': 'fall',
     'rise': 'rise', 'lift': 'rise', 'climb': 'rise', 'float': 'rise', 'soar': 'rise', 'ascend': 'rise',
@@ -98,7 +100,7 @@ DURATION = {
 # undergoes — a candle that "went out" loses its flame, it does not fade; a door "opened"
 # swings on its hinge; ice that "melted" slumps into a puddle.
 FLAME = ('candle', 'lantern', 'lamp', 'torch', 'campfire', 'fire', 'match', 'fireplace', 'bonfire', 'oil-lamp', 'diya')
-CONTAINER = ('cup', 'glass', 'mug', 'jug', 'bucket', 'bowl', 'jar', 'pot', 'bottle', 'vase', 'teapot', 'pitcher',
+CONTAINER = ('cup', 'glass', 'mug', 'beverage', 'jug', 'bucket', 'bowl', 'jar', 'pot', 'bottle', 'vase', 'teapot', 'pitcher',
              'bathtub', 'tub', 'kettle', 'beaker', 'watering-can', 'pail', 'tank', 'pool', 'pond', 'well')
 HINGED = ('door', 'gate', 'window', 'cupboard', 'fridge', 'wardrobe', 'closet', 'shutter', 'locker', 'cabinet')
 MELTS = ('ice', 'snowman', 'snow', 'ice-cream', 'icecream', 'ice-cube', 'icicle', 'popsicle', 'butter', 'chocolate', 'glacier', 'candle')
@@ -108,6 +110,27 @@ LIQUIDS = {'milk': '#f3efe4', 'juice': '#f0a53a', 'orange': '#f0a53a', 'lemonade
            'paint': '#c9453a', 'wine': '#7e2433', 'lava': '#e0582a', 'oil': '#d8b94a', 'water': '#6fa8c9', 'rain': '#6fa8c9'}
 SHELLED = ('egg', 'nut', 'coconut', 'shell', 'pinata', 'seed-pod')
 HATCHLING = ('chick', 'duckling', 'baby-bird', 'hatchling', 'dragon', 'dinosaur', 'turtle', 'baby-chick', 'hatching-chick', 'bird', 'snake', 'crocodile')
+
+
+# The next-best drawable thing for a noun the book has no picture of: a family role
+# prints as the person it is, a part prints as the whole it belongs to.
+STAND_INS = {
+    'brother': 'boy', 'son': 'boy', 'nephew': 'boy', 'sister': 'girl', 'daughter': 'girl', 'niece': 'girl',
+    'mother': 'woman', 'mom': 'woman', 'mum': 'woman', 'aunt': 'woman', 'father': 'man', 'dad': 'man',
+    'uncle': 'man', 'grandma': 'old-woman', 'grandmother': 'old-woman', 'granny': 'old-woman',
+    'grandpa': 'old-man', 'grandfather': 'old-man', 'infant': 'baby', 'kid': 'child', 'toddler': 'child',
+    'roof': 'house', 'chimney': 'house', 'porch': 'house', 'doorstep': 'house', 'branch': 'tree',
+    'trunk': 'tree', 'twig': 'tree', 'petal': 'flower', 'stem': 'flower', 'wheel': 'car', 'hull': 'boat',
+    'sail': 'boat', 'mast': 'boat', 'mug': 'hot-beverage', 'deck': 'boat',
+}
+# People act through what they handle: "her brother poured cocoa" moves the cocoa, never the brother.
+PEOPLE = ('person', 'boy', 'girl', 'man', 'woman', 'child', 'baby', 'old-man', 'old-woman', 'people', 'family')
+TRANSITIVE = frozenset(('pour', 'fill', 'light', 'ignite', 'kindle', 'open', 'close', 'shut', 'kick', 'throw', 'toss',
+                        'drop', 'lift', 'blow', 'carry', 'push', 'pull', 'empty', 'spill', 'crack', 'break', 'plant',
+                        'wave', 'strike', 'shoot', 'roll', 'raise'))
+# Things that can unfold on the page; anything else opening is a part of it the book does not draw.
+UNFOLDS = ('flag', 'map', 'umbrella', 'flower', 'book', 'sail', 'letter', 'scroll', 'fan', 'tent', 'parachute',
+           'blossom', 'bud', 'leaf', 'banner', 'card', 'box', 'present', 'gift')
 
 
 SUBJECT_DETERMINERS = frozenset(('the', 'a', 'an', 'his', 'her', 'their', 'my', 'our', 'its'))
@@ -221,6 +244,18 @@ def verb_kind(toks: List[Dict[str, Any]], i: int) -> Tuple[Optional[str], Option
     return None, None, 1
 
 
+PREPOSITIONS = frozenset(('on', 'onto', 'in', 'into', 'under', 'over', 'behind', 'beside', 'from', 'to', 'at',
+                          'by', 'near', 'across', 'through', 'past', 'off', 'with', 'toward', 'towards', 'up', 'down'))
+
+
+def _governed(toks: Sequence[Dict[str, Any]], j: int) -> bool:
+    """Whether the noun at `j` is the object of a preposition ("onto the rock")."""
+    k = j - 1
+    while k >= 0 and toks[k]['t'] in SUBJECT_DETERMINERS:
+        k -= 1
+    return k >= 0 and toks[k]['t'] in PREPOSITIONS
+
+
 def _clause_end(tok: Dict[str, Any]) -> bool:
     return bool(re.search(r'[.,;:!?]$', str(tok.get('raw') or '')))
 
@@ -325,7 +360,8 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
     for i, tk in enumerate(toks):
         if len(tk['t']) < 3 or _number(tk['t']) is not None:
             continue
-        hit = [e for e in subjects if _is_focus(_norm_concept(e), {tk['t']})]
+        stood = STAND_INS.get(singular(tk['t']), '').replace('-', '_')
+        hit = [e for e in subjects if _is_focus(_norm_concept(e), {tk['t']}) or (stood and _norm_concept(e).replace('-', '_') == stood)]
         if hit:
             mentions[i] = hit
 
@@ -383,6 +419,8 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
     acted = {e['id'] for e in ents if e.get('action')}
     i = 0
     first_free_verb: Optional[Tuple[str, Optional[str], Dict[str, Any]]] = None
+    weak: List[Dict[str, Any]] = []
+    shared: List[Dict[str, Any]] = []
     while i < len(toks):
         kind, lemma, span = verb_kind(toks, i)
         if kind is not None and i > 0 and toks[i - 1]['t'] in SUBJECT_DETERMINERS:
@@ -392,10 +430,22 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
             continue
         hits = None
         offpage = False
-        for j in range(i - 1, max(-1, i - 1 - SUBJECT_REACH), -1):
+        forward = None
+        for j in range(i + span, min(len(toks), i + span + SUBJECT_REACH)):
+            if j > i + span and _clause_end(toks[j - 1]):
+                break
+            cand = [e for e in mentions.get(j, []) if e['id'] not in acted and _norm_concept(e) not in counted]
+            if cand:
+                forward = cand
+                break
+        if lemma in TRANSITIVE and forward:
+            hits = forward
+        for j in ([] if hits else range(i - 1, max(-1, i - 1 - SUBJECT_REACH), -1)):
             if _clause_end(toks[j]):
                 break
             cand = [e for e in mentions.get(j, []) if e['id'] not in acted and _norm_concept(e) not in counted]
+            if cand and _governed(toks, j):
+                continue  # "crept onto the rock and hid": the rock is where, not who
             if cand:
                 hits = cand
                 break
@@ -403,14 +453,23 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
                 # "the rain fell": the verb's own subject is named and is not on the plate.
                 offpage = True
                 break
+        if hits is None and i > 0 and toks[i - 1]['t'] == 'and' and shared:
+            # "opened its wings and flew": a coordinated verb shares the subject before it.
+            hits = [e for e in shared if e['id'] not in acted] or None
+            offpage = False
         if hits is None and not offpage:
-            for j in range(i + span, min(len(toks), i + span + SUBJECT_REACH)):
-                if j > i + span and _clause_end(toks[j - 1]):
-                    break
-                cand = [e for e in mentions.get(j, []) if e['id'] not in acted and _norm_concept(e) not in counted]
-                if cand:
-                    hits = cand
-                    break
+            hits = forward
+        if hits and lemma in TRANSITIVE:
+            hits = [e for e in hits if not _is(_norm_concept(e), PEOPLE)] or None
+        if hits and kind == 'unfold':
+            opens = [e for e in hits if _is(_norm_concept(e), UNFOLDS + HINGED)]
+            if not opens:
+                # "the owl opened its wings": the owl is kept for the clause's next verb.
+                weak.extend(e for e in hits if e not in weak)
+                shared = hits
+                i += span
+                continue
+            hits = opens
         if kind in ('hatch', 'crack'):
             # "The chick hatched" breaks the egg, not the chick: the shell is what changes state.
             shells = [e for e in subjects if e['id'] not in acted and _is(_norm_concept(e), SHELLED)]
@@ -420,6 +479,7 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
             if first_free_verb is None:
                 first_free_verb = (kind, lemma, toks[i])
         else:
+            shared = hits
             e = max(hits, key=lambda x: float((x.get('bbox') or {}).get('w') or 0) * float((x.get('bbox') or {}).get('h') or 0))
             if place(e, _refine(kind, _norm_concept(e), e, zone, lemma), toks[i]['at'], toks[i], 'verb', lemma):
                 acted.add(e['id'])
@@ -431,6 +491,10 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
                             if place(h, {'kind': 'pop', 'dur': POP_MS * 2}, out_at, None, 'state-follow', lemma):
                                 acted.add(h['id'])
         i += span
+
+    for e in weak:
+        if e['id'] not in acted and place(e, _refine('pulse', _norm_concept(e), e, zone), ready_of(e), None, 'verb-next-best', None):
+            acted.add(e['id'])
 
     # 3) Named without a verb: the concept's own behaviour, from the naming word — only
     # when no verb already gave the line its focus (a tree the bird flies from stays still).
@@ -450,11 +514,12 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
 
     # 4) The line names nothing on the plate but has an action verb: the primary subject
     # performs it. A line with neither leaves the page a still print, reported unresolved.
-    if not acted and subjects and first_free_verb is not None:
-        heroes = [e for e in subjects if e.get('size') == 'hero'] or subjects
+    kind, lemma, tok = first_free_verb or (None, None, {})
+    actors = [e for e in subjects if not (lemma in TRANSITIVE and _is(_norm_concept(e), PEOPLE))]
+    heroes = [e for e in actors if e.get('size') == 'hero'] or actors
+    if not acted and kind is not None and heroes:
         e = max(heroes, key=lambda x: float((x.get('bbox') or {}).get('w') or 0) * float((x.get('bbox') or {}).get('h') or 0))
         c = _norm_concept(e)
-        kind, lemma, tok = first_free_verb
         place(e, _refine(kind, c, e, zone, lemma), tok['at'], tok, 'verb-primary', lemma)
     unresolved = not acted and not fixed and bool(subjects) and first_free_verb is None
     for e in fixed:

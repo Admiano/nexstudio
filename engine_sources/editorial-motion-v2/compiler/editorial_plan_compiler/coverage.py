@@ -14,7 +14,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, FrozenSet, Iterable, List, Optional, Set, Tuple
 
-from .directing import IRREGULAR, VERB_KIND
+from .directing import IRREGULAR, STAND_INS, VERB_KIND
 from .lexicon import NounLexicon, singular
 
 DETERMINERS = frozenset((
@@ -49,7 +49,7 @@ STATE_FAMILIES = (
 # The scene setting prints its own place: an urban page is the town, an underwater page the sea.
 SETTING_NOUNS = {
     'urban': frozenset(('town', 'city', 'street', 'road', 'village')),
-    'outdoor': frozenset(('field', 'garden', 'meadow', 'park', 'grass', 'countryside', 'yard', 'farm', 'hillside', 'valley', 'forest', 'woods', 'hill', 'sky', 'ground', 'land')),
+    'outdoor': frozenset(('mountain', 'mountains', 'harbor', 'harbour', 'port', 'dock', 'shore', 'beach', 'coast', 'field', 'garden', 'meadow', 'park', 'grass', 'countryside', 'yard', 'farm', 'hillside', 'valley', 'forest', 'woods', 'hill', 'sky', 'ground', 'land')),
     'ground': frozenset(('soil', 'earth', 'underground', 'mud')),
     'underwater': frozenset(('sea', 'ocean', 'water', 'seabed')),
     'space': frozenset(('space', 'universe', 'cosmos')),
@@ -61,6 +61,8 @@ ROLES = frozenset(('partner', 'friend', 'team', 'family', 'neighbour', 'neighbor
 ALIASES = {'cup': ('trophy',), 'ocean': ('wave',), 'sea': ('wave',), 'pond': ('wave',), 'lake': ('wave',),
            'floodlight': ('streetlamp', 'lamp'), 'town': ('skyline', 'building', 'house'), 'city': ('skyline', 'building')}
 SIMILE = frozenset(('like', 'as'))
+for _k, _v in STAND_INS.items():
+    ALIASES[_k] = ALIASES.get(_k, ()) + (_v,)
 RUNTIME = Path(__file__).resolve().parents[2] / 'runtime' / 'editorial-runtime.js'
 # Resolutions that put a picture of the concept itself on the page (not its ancestor, not its word).
 DRAWN_VIA = frozenset(('paper', 'exact', 'synonym', 'bank', 'photo'))
@@ -187,6 +189,10 @@ class NounGate:
             seen.add(hit[0])
             out.append((word, hit[0], hit[1]))
         return out
+
+    def answered_by(self, lemma: str, word: str, printed: Iterable[str]) -> bool:
+        """Whether any of the printed concepts answers the narrated noun."""
+        return self._answers(lemma, word, list(printed))
 
     def _answers(self, lemma: str, word: str, printed: Iterable[str]) -> bool:
         w = {singular(x) for x in re.split(r'[\s_-]+', word)} | {lemma.replace('_', '-'), lemma.replace('_', ' ')}

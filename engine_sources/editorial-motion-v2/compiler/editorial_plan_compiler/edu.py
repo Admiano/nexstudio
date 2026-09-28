@@ -15,6 +15,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .directing import POP_MS, _number, tokens
 
+# Transcribers hear a spoken answer as its homophone: "leaves for", "makes to".
+ANSWER_HOMOPHONES = {'for': 4, 'fore': 4, 'to': 2, 'too': 2, 'won': 1, 'ate': 8}
 ANSWER_WORDS = {'make', 'makes', 'equals', 'equal', 'is', 'are', 'altogether', 'total', 'left', 'each', 'gives', 'get', 'leaves'}
 TAKE_WORDS = {'away', 'minus', 'flew', 'fly', 'ate', 'eat', 'eaten', 'left', 'leave', 'gone', 'popped', 'ran', 'swam', 'hopped', 'rolled', 'took', 'take'}
 MINUS = '\u2212'
@@ -58,7 +60,14 @@ class _Clock:
         self.toks = tokens(words, narration)
         self.window = int(window_ms)
         self.start = int(start_ms)
-        self.nums = [(i, _number(t['t'])) for i, t in enumerate(self.toks) if _number(t['t']) is not None]
+        self.nums = [(i, v) for i, v in ((i, self._value(i)) for i in range(len(self.toks))) if v is not None]
+
+    def _value(self, i: int) -> Optional[int]:
+        t = self.toks[i]['t']
+        n = _number(t)
+        if n is None and i > 0 and self.toks[i - 1]['t'] in ANSWER_WORDS and i == len(self.toks) - 1:
+            return ANSWER_HOMOPHONES.get(t)
+        return n
 
     def at_word(self, pred, after: int = 0) -> Tuple[Optional[int], Optional[Dict[str, Any]]]:
         for t in self.toks:

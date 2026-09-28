@@ -6339,7 +6339,7 @@
           const shown = g.style.visibility !== 'hidden' && op > 0.05 && !(node.drawV < 0.02);
           const key = `${beatId}:${node.ent.id}`;
           out.entities[key] = shown
-            ? `${g.getAttribute('transform')}|${g.style.opacity}|${node.label ? node.label.wrap.style.transform : ''}`
+            ? `${g.getAttribute('transform')}|${g.style.opacity}|${node.label ? node.label.wrap.style.transform : ''}|${gl && gl.extra.phaseCover ? gl.extra.phaseCover.getAttribute('transform') : ''}`
             : null;
           if (!shown || !gl.extra.chassis) continue;
           const body = g.querySelector('[data-draw="body"]');

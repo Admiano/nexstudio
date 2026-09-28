@@ -25,7 +25,7 @@ from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, hrot, 
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
 from .coverage import NounGate, paper_key
-from .directing import direct
+from .directing import DURATION as ACTION_DURATION, direct
 from .edu import build as build_edu
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
 from .bankart import BankArt
@@ -218,14 +218,15 @@ def _pb_slot_crop(layout: str, W: int, H: int) -> Dict[str, float]:
     return _box((W - vw) / 2, (H - vh) / 2, vw, vh)
 
 
-# State changes a single printed object cannot perform convincingly on a still page:
-# each needs a second actor, a material transformation or a mechanism the paper hand lacks.
-UNPRINTABLE_ACTIONS = {
-    'fill': 'a pouring vessel and a stream', 'empty': 'a drinker or a spill',
-    'melt': 'a material turning to liquid', 'freeze': 'a material turning to ice',
-    'swing': 'a hinge in depth', 'close': 'a hinge in depth',
-    'crack': 'a shell breaking apart', 'hatch': 'a shell breaking apart',
-    'light': 'a flame catching', 'out': 'a flame dying',
+# State changes a single printed object cannot perform convincingly on a still page
+# (each needs a second actor, a material transformation or a mechanism the paper hand
+# lacks), mapped to the nearest motion it can: the page still answers the verb.
+NEXT_BEST_ACTIONS = {
+    'fill': ('hop', 'a pouring vessel and a stream'), 'empty': ('hop', 'a drinker or a spill'),
+    'melt': ('dim', 'a material turning to liquid'), 'freeze': ('shine', 'a material turning to ice'),
+    'swing': ('pulse', 'a hinge in depth'), 'close': ('pulse', 'a hinge in depth'),
+    'crack': ('shake', 'a shell breaking apart'), 'hatch': ('shake', 'a shell breaking apart'),
+    'light': ('shine', 'a flame catching'), 'out': ('dim', 'a flame dying'),
 }
 GROUNDED_SETTINGS = frozenset(('outdoor', 'indoor', 'urban', 'garden', 'field', 'farm', 'forest', 'stadium'))
 AIRBORNE = frozenset(('sun', 'moon', 'planet', 'star', 'stars', 'comet', 'cloud', 'rain', 'snow', 'bird', 'butterfly',
@@ -503,17 +504,25 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
         record = direct(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh}, int(dur_ms - EXIT_MS - 60),
                         words, getattr(btr, 'narration', None), getattr(btr, 'beat_id', 'beat'))
     # The book only performs what it can draw convincingly: an action outside that
-    # envelope is declined and the object prints still, never faked.
-    declined = set()
+    # envelope becomes its next-best motion on the same object, at the same word.
+    swapped: Dict[str, str] = {}
+    substitutions: List[str] = []
     for e in illustration['entities']:
-        kind = (e.get('action') or {}).get('kind')
-        if kind in UNPRINTABLE_ACTIONS:
-            declined.add(e.get('id'))
-            e.pop('action', None)
-            record['unresolved'].append(f"ACTION_DECLINED:{e.get('id')}:'{kind}' needs {UNPRINTABLE_ACTIONS[kind]}")
-    record['events'] = [ev for ev in record['events'] if ev.get('id') not in declined]
+        act = e.get('action') or {}
+        if act.get('kind') in NEXT_BEST_ACTIONS:
+            sub, lacks = NEXT_BEST_ACTIONS[act['kind']]
+            substitutions.append(f"ACTION_SUBSTITUTED:{e.get('id')}:'{act['kind']}'->'{sub}' ({act['kind']} needs {lacks})")
+            act['kind'], act['dur'] = sub, ACTION_DURATION.get(sub, act.get('dur') or 900)
+            act.pop('rig', None)
+            swapped[str(e.get('id'))] = sub
+    for ev in record['events']:
+        if ev.get('id') in swapped:
+            ev['kind'] = swapped[ev['id']]
+            ent = next(x for x in illustration['entities'] if x.get('id') == ev['id'])
+            ev['dur'] = ent['action']['dur']
     prior = (illustration.get('direction') or {}).get('failures') or []
-    illustration['direction'] = {'events': record['events'], 'failures': prior + record['failures'], 'unresolved': record['unresolved']}
+    illustration['direction'] = {'events': record['events'], 'failures': prior + record['failures'], 'unresolved': record['unresolved'],
+                                 'substitutions': substitutions}
     return illustration
 
 

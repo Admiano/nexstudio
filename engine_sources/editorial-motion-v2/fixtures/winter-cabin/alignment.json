@@ -1,0 +1,269 @@
+{
+ "words": [
+  {
+   "text": " Snow",
+   "start_ms": 0,
+   "end_ms": 480
+  },
+  {
+   "text": " covered",
+   "start_ms": 480,
+   "end_ms": 920
+  },
+  {
+   "text": " the",
+   "start_ms": 920,
+   "end_ms": 1140
+  },
+  {
+   "text": " little",
+   "start_ms": 1140,
+   "end_ms": 1340
+  },
+  {
+   "text": " cabin",
+   "start_ms": 1340,
+   "end_ms": 1760
+  },
+  {
+   "text": " on",
+   "start_ms": 1760,
+   "end_ms": 2300
+  },
+  {
+   "text": " the",
+   "start_ms": 2300,
+   "end_ms": 2440
+  },
+  {
+   "text": " mountain.",
+   "start_ms": 2440,
+   "end_ms": 2800
+  },
+  {
+   "text": " Mere",
+   "start_ms": 3440,
+   "end_ms": 4080
+  },
+  {
+   "text": " lit",
+   "start_ms": 4080,
+   "end_ms": 4280
+  },
+  {
+   "text": " the",
+   "start_ms": 4280,
+   "end_ms": 4500
+  },
+  {
+   "text": " lantern",
+   "start_ms": 4500,
+   "end_ms": 4840
+  },
+  {
+   "text": " by",
+   "start_ms": 4840,
+   "end_ms": 5440
+  },
+  {
+   "text": " the",
+   "start_ms": 5440,
+   "end_ms": 5580
+  },
+  {
+   "text": " window.",
+   "start_ms": 5580,
+   "end_ms": 5900
+  },
+  {
+   "text": " Her",
+   "start_ms": 6900,
+   "end_ms": 7040
+  },
+  {
+   "text": " brother",
+   "start_ms": 7040,
+   "end_ms": 7300
+  },
+  {
+   "text": " poured",
+   "start_ms": 7300,
+   "end_ms": 7660
+  },
+  {
+   "text": " cocoa",
+   "start_ms": 7660,
+   "end_ms": 8200
+  },
+  {
+   "text": " into",
+   "start_ms": 8200,
+   "end_ms": 8720
+  },
+  {
+   "text": " a",
+   "start_ms": 8720,
+   "end_ms": 8880
+  },
+  {
+   "text": " mug.",
+   "start_ms": 8880,
+   "end_ms": 9120
+  },
+  {
+   "text": " Outside,",
+   "start_ms": 10100,
+   "end_ms": 10420
+  },
+  {
+   "text": " a",
+   "start_ms": 10900,
+   "end_ms": 10960
+  },
+  {
+   "text": " snowman",
+   "start_ms": 10960,
+   "end_ms": 11460
+  },
+  {
+   "text": " melted",
+   "start_ms": 11460,
+   "end_ms": 11940
+  },
+  {
+   "text": " in",
+   "start_ms": 11940,
+   "end_ms": 12260
+  },
+  {
+   "text": " the",
+   "start_ms": 12260,
+   "end_ms": 12360
+  },
+  {
+   "text": " morning",
+   "start_ms": 12360,
+   "end_ms": 12580
+  },
+  {
+   "text": " sun.",
+   "start_ms": 12580,
+   "end_ms": 12940
+  },
+  {
+   "text": " Six",
+   "start_ms": 13960,
+   "end_ms": 14120
+  },
+  {
+   "text": " icicles",
+   "start_ms": 14120,
+   "end_ms": 14700
+  },
+  {
+   "text": " hung",
+   "start_ms": 14700,
+   "end_ms": 15100
+  },
+  {
+   "text": " from",
+   "start_ms": 15100,
+   "end_ms": 15320
+  },
+  {
+   "text": " the",
+   "start_ms": 15320,
+   "end_ms": 15480
+  },
+  {
+   "text": " roof,",
+   "start_ms": 15480,
+   "end_ms": 15700
+  },
+  {
+   "text": " six",
+   "start_ms": 16280,
+   "end_ms": 16520
+  },
+  {
+   "text": " take",
+   "start_ms": 16520,
+   "end_ms": 16880
+  },
+  {
+   "text": "-away",
+   "start_ms": 16880,
+   "end_ms": 17120
+  },
+  {
+   "text": " two",
+   "start_ms": 17120,
+   "end_ms": 17420
+  },
+  {
+   "text": " leaves",
+   "start_ms": 17420,
+   "end_ms": 17720
+  },
+  {
+   "text": " four.",
+   "start_ms": 17720,
+   "end_ms": 18040
+  },
+  {
+   "text": " Then",
+   "start_ms": 18940,
+   "end_ms": 19180
+  },
+  {
+   "text": " the",
+   "start_ms": 19180,
+   "end_ms": 19360
+  },
+  {
+   "text": " owl",
+   "start_ms": 19360,
+   "end_ms": 19660
+  },
+  {
+   "text": " opened",
+   "start_ms": 19660,
+   "end_ms": 20100
+  },
+  {
+   "text": " its",
+   "start_ms": 20100,
+   "end_ms": 20320
+  },
+  {
+   "text": " wings",
+   "start_ms": 20320,
+   "end_ms": 20720
+  },
+  {
+   "text": " and",
+   "start_ms": 20720,
+   "end_ms": 21280
+  },
+  {
+   "text": " flew",
+   "start_ms": 21280,
+   "end_ms": 21560
+  },
+  {
+   "text": " into",
+   "start_ms": 21560,
+   "end_ms": 21780
+  },
+  {
+   "text": " the",
+   "start_ms": 21780,
+   "end_ms": 21920
+  },
+  {
+   "text": " woods.",
+   "start_ms": 21920,
+   "end_ms": 22180
+  }
+ ]
+}
