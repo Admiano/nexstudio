@@ -4,6 +4,7 @@ ROOT=Path(__file__).resolve().parents[1]
 SOURCES=ROOT/'engine_sources'; ENGINES=ROOT/'engines'
 items={
  'whiteboard':'WHITEBOARD_ENGINE_SOURCE.zip',
+ 'whiteboard-v3-system':'NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE.zip',
  'explainer':'EXPLAINER_ENGINE_SOURCE.zip',
  'editorial':'EDITORIAL_MOTION_ENGINE_SOURCE.zip',
  'stickman':'STICKMAN_V5_1_ENGINE_SOURCE.zip',
@@ -28,6 +29,10 @@ for name,archive in items.items():
 stick_root=ENGINES/'stickman'/'NEXSTICK_MASTER_V2_UNIFIED_PERFORMANCE_V5_1_CLEAN_2026-08-13'
 if stick_root.exists():
     (stick_root/'package.json').write_text('{\n  \"type\": \"commonjs\"\n}\n')
+
+# NexMind Whiteboard V3 curated package (Cluster Travel TEXTFIX_V2 lineage): provenance and
+# reference-output archive extracted for audit. The runtime adapter still roots at
+# engines/whiteboard/Whiteboard_Execution_Body_V2 via STUDIO_WHITEBOARD_ENGINE_ROOT.
 
 # Editorial Motion v2 lives unpacked at engine_sources/editorial-motion-v2 (compiler + runtime + fixtures).
 # The text-led bundle archive above is its planning-authority source of record; the compiler ships

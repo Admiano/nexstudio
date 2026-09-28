@@ -39,6 +39,13 @@
       "sha256": "25f87cb57d4a8ca99d004b443c0bd8df85a13d667596ddb0780d2c8f3884002c"
     },
     {
+      "file": "engine_sources/NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE.zip",
+      "description": "NexMind Whiteboard V3 curated system package (Cluster Travel TEXTFIX_V2 lineage): preserved execution body, production authorities, semantic/decision layers, composition grammars, provenance receipts and verified reference output. Provenance archive; the pinned WHITEBOARD_ENGINE_SOURCE.zip remains the runtime engine root.",
+      "authorityId": "NEXMIND_WHITEBOARD_V3_CURATED_PACKAGE_V1",
+      "bytes": 7404425,
+      "sha256": "a786a297078db2ed093b20b7a3ce9d59e9a031980fe5df6fc6893a42dc84bc71"
+    },
+    {
       "file": "engine_sources/EXPLAINER_ENGINE_SOURCE.zip",
       "description": "Explainer P8-unified execution-only authored-art source with StudioFamilyExecutionFidelityV1",
       "authorityId": "EXPLAINER_EXECUTION_BODY_V2_P8_UNIFIED",
