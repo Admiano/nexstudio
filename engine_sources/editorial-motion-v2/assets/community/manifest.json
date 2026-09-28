@@ -2,7 +2,7 @@
  "schema": "NexStudioCommunityAssetsV1",
  "policy": "Every vendored asset carries source-pack provenance, upstream license and sha256. Icons are normalised to currentColor; ink and accent remain runtime-owned.",
  "provenance": "See packs/<name>/info.json + LICENSE per icon pack; LICENSE.txt per audio/texture dir.",
- "count": 686,
+ "count": 694,
  "assets": [
   {
    "id": "sfx.click1",
@@ -9627,6 +9627,118 @@
     "url": "tools/synth_sfx.py"
    },
    "sha256": "a9ecb2b41dc778caaf36fc42b092b28e0835300fad894a25f8fd448b27b55845"
+  },
+  {
+   "id": "synth.crack.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.crack",
+   "family": "foley",
+   "path": "assets/community/synth/foley-crack-01.wav",
+   "duration_s": 0.4,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "0b6f04b07c358343bf504e6f8db590885de32d67e5c828bb55aa2e0ee8bb95ff"
+  },
+  {
+   "id": "synth.pour.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.pour",
+   "family": "foley",
+   "path": "assets/community/synth/foley-pour-01.wav",
+   "duration_s": 1.4,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "55fd2432191143e7e9700825f7ba03545b1d53140030345f4be953f2e071fa92"
+  },
+  {
+   "id": "synth.ignite.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.ignite",
+   "family": "foley",
+   "path": "assets/community/synth/foley-ignite-01.wav",
+   "duration_s": 0.7,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "8d4f7d7281c416de0a8b3dc3117ee3ac2ae5ddc8ba95c2bb93fa9bdd1107eab4"
+  },
+  {
+   "id": "synth.puff.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.puff",
+   "family": "foley",
+   "path": "assets/community/synth/foley-puff-01.wav",
+   "duration_s": 0.45,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "25cac20beb6d96dfec2b79e37a08d1991d1c4ceb5d75d38ea595e47a552aaaea"
+  },
+  {
+   "id": "synth.drip.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.drip",
+   "family": "foley",
+   "path": "assets/community/synth/foley-drip-01.wav",
+   "duration_s": 1.2,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "f7d97214d8dca7b61376c087596bb1bc3f967873ee338239442cd371ce72668b"
+  },
+  {
+   "id": "synth.frost.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.frost",
+   "family": "foley",
+   "path": "assets/community/synth/foley-frost-01.wav",
+   "duration_s": 1.1,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "ef3329726439263015f6e717c1ee2aa66cac4ea5bca993a62a594ae1d4ffc6bc"
+  },
+  {
+   "id": "synth.creak.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.creak",
+   "family": "foley",
+   "path": "assets/community/synth/foley-creak-01.wav",
+   "duration_s": 0.9,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "589386e21bb19bef9b4298713dd4681b8e147ffe8787efd4aae3535a37f7bfe9"
+  },
+  {
+   "id": "synth.thud.01",
+   "kind": "sfx",
+   "semantic_tag": "foley.thud",
+   "family": "foley",
+   "path": "assets/community/synth/foley-thud-01.wav",
+   "duration_s": 0.35,
+   "license": "NexStudio-Authored-1.0",
+   "source": {
+    "pack": "NexStudio procedural SFX",
+    "url": "tools/synth_sfx.py"
+   },
+   "sha256": "72b7619a41118f20eb9c27d0a52a03c16ff639e7470886e1a5d4d9e23bf18722"
   },
   {
    "id": "synth.count.01",

@@ -1,15 +1,15 @@
 {
  "schema": "NexStudioEditorialTreatmentV2",
- "film_id": "garden-sums",
- "note": "a child's garden maths book — counting, adding, taking away, times, sharing; still pages, only the focus acts",
+ "film_id": "the-little-hen",
+ "note": "a cottage bedtime story — every page one state change: hatch, light, fill, open, melt, wilt, blow out, go dark",
  "aspects": [
   "16x9"
  ],
  "fps": 30,
  "brand": {
-  "ink": "#2c3a2a",
-  "paper": "#f4ecd6",
-  "accent": "#d0673f",
+  "ink": "#3a2a1e",
+  "paper": "#f4ead6",
+  "accent": "#c8553d",
   "finish": "PAPER"
  },
  "typography": {
@@ -24,18 +24,10 @@
   "head_pad_ms": 350
  },
  "media_library": [],
- "cast": {
-  "mia": {
-   "posture": "standing",
-   "head": "buns",
-   "skin": "#a87952",
-   "garment": "button-shirt-1"
-  }
- },
  "world": {
   "grain": "grain-fine",
   "motif": {
-   "concept": "apple",
+   "concept": "egg",
    "corner": "bottom-right"
   },
   "book": "paperbook"
@@ -44,133 +36,95 @@
   {
    "beat_id": "b01",
    "beat_type": "HOOK",
-   "pattern": "CONTROLLED_EMPTY_SPACE",
-   "narration": "Mia planted a tiny seed, and the seed grew tall.",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "The egg cracked, and a little chick hatched.",
    "energy": 0.5,
    "complexity": 0.4,
-   "display_units": [],
    "page": {
-    "title": "A Tiny Seed",
-    "layout": "half"
+    "title": "A Crack in the Straw",
+    "layout": "full"
    },
    "scene": {
     "setting": "outdoor",
-    "mood": "day"
+    "mood": "dawn"
    },
    "illustration": {
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "seed",
+      "id": "egg",
       "kind": "object",
       "glyph": "TILE",
       "size": "hero",
-      "concept": "sprout"
+      "concept": "egg"
+     },
+     {
+      "id": "chick",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "baby chick"
      }
     ],
     "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "seed",
+      "target": "egg",
       "at": {
        "offset_ms": 250
       },
       "duration_ms": 600,
       "from": 0.0,
       "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "chick",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
      }
     ]
-   },
-   "dominant_layer": "FIGURE",
-   "figure": {
-    "valence": 0.3,
-    "arousal": 0.4,
-    "posture": "standing",
-    "energy": 0.45,
-    "formality": 0.5,
-    "facing": "CAMERA",
-    "justification": "Mia plants the seed — our guide through the garden",
-    "character": "mia",
-    "track": {
-     "enter": "left",
-     "exit": "none"
-    },
-    "prop": {
-     "concept": "sprout",
-     "hand": "auto"
-    },
-    "face": "smile",
-    "motion": {
-     "chain": [
-      {
-       "clip": "CMU_WALK",
-       "seconds": 1.2
-      },
-      {
-       "clip": "CMU_WAIT_IDLE",
-       "seconds": 1.6
-      }
-     ],
-     "look": {
-      "skin": "#a87952",
-      "hair": {
-       "color": "#241a12",
-       "style": "puffs"
-      },
-      "top": {
-       "color": "#c96f4a",
-       "garment": "shirt"
-      },
-      "bottom": {
-       "color": "#3c4a66",
-       "garment": "trousers"
-      },
-      "shoes": {
-       "color": "#2f2a22"
-      },
-      "ink": "#2c2620"
-     }
-    }
    }
   },
   {
    "beat_id": "b02",
-   "beat_type": "EMPHASIS",
+   "beat_type": "SETUP",
    "pattern": "HERO_SCALE_PROMOTION",
-   "narration": "Count the apples with me. One, two, three, four, five.",
+   "narration": "Grandma lit the candle by the window.",
    "energy": 0.5,
    "complexity": 0.4,
-   "display_units": [],
    "page": {
-    "title": "Count the Apples",
-    "layout": "full",
-    "edu": {
-     "kind": "count",
-     "object": "apple",
-     "a": 5
-    }
+    "title": "A Light for Supper",
+    "layout": "half"
    },
    "scene": {
-    "setting": "outdoor",
-    "mood": "day"
+    "setting": "indoor",
+    "mood": "night",
+    "elements": [
+     "window"
+    ]
    },
    "illustration": {
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "frame_2",
+      "id": "candle",
       "kind": "object",
       "glyph": "TILE",
-      "size": "support",
-      "concept": "cloud"
+      "size": "hero",
+      "concept": "candle"
      }
     ],
     "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "frame_2",
+      "target": "candle",
       "at": {
        "offset_ms": 250
       },
@@ -183,45 +137,35 @@
   },
   {
    "beat_id": "b03",
-   "beat_type": "EMPHASIS",
+   "beat_type": "SETUP",
    "pattern": "HERO_SCALE_PROMOTION",
-   "narration": "Three birds sat on the fence. Two more birds flew in. Three plus two makes five.",
+   "narration": "She poured warm milk into the cup.",
    "energy": 0.5,
    "complexity": 0.4,
-   "display_units": [],
    "page": {
-    "title": "Birds on the Fence",
-    "layout": "full",
-    "edu": {
-     "kind": "add",
-     "object": "bird",
-     "a": 3,
-     "b": 2
-    }
+    "title": "Warm Milk",
+    "layout": "half"
    },
    "scene": {
-    "setting": "outdoor",
-    "mood": "day",
-    "elements": [
-     "fence"
-    ]
+    "setting": "indoor",
+    "mood": "night"
    },
    "illustration": {
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "frame_3",
+      "id": "cup",
       "kind": "object",
       "glyph": "TILE",
-      "size": "support",
-      "concept": "cloud"
+      "size": "hero",
+      "concept": "cup"
      }
     ],
     "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "frame_3",
+      "target": "cup",
       "at": {
        "offset_ms": 250
       },
@@ -234,42 +178,35 @@
   },
   {
    "beat_id": "b04",
-   "beat_type": "EMPHASIS",
+   "beat_type": "CONTRAST",
    "pattern": "HERO_SCALE_PROMOTION",
-   "narration": "Six balloons floated in the sky. Two balloons flew away. Now four are left.",
+   "narration": "Then the door opened wide.",
    "energy": 0.5,
    "complexity": 0.4,
-   "display_units": [],
    "page": {
-    "title": "Balloons",
-    "layout": "full",
-    "edu": {
-     "kind": "subtract",
-     "object": "balloon",
-     "a": 6,
-     "b": 2
-    }
+    "title": "A Knock",
+    "layout": "full"
    },
    "scene": {
-    "setting": "outdoor",
-    "mood": "day"
+    "setting": "indoor",
+    "mood": "night"
    },
    "illustration": {
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "frame_4",
+      "id": "door",
       "kind": "object",
       "glyph": "TILE",
-      "size": "support",
-      "concept": "cloud"
+      "size": "hero",
+      "concept": "door"
      }
     ],
     "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "frame_4",
+      "target": "door",
       "at": {
        "offset_ms": 250
       },
@@ -282,21 +219,14 @@
   },
   {
    "beat_id": "b05",
-   "beat_type": "EMPHASIS",
+   "beat_type": "CONTRAST",
    "pattern": "HERO_SCALE_PROMOTION",
-   "narration": "Three rows of flowers, four in each row. Three times four is twelve.",
+   "narration": "Outside, the snowman melted in the sun.",
    "energy": 0.5,
    "complexity": 0.4,
-   "display_units": [],
    "page": {
-    "title": "Rows of Flowers",
-    "layout": "full",
-    "edu": {
-     "kind": "multiply",
-     "object": "flower",
-     "a": 3,
-     "b": 4
-    }
+    "title": "Spring Came Early",
+    "layout": "half"
    },
    "scene": {
     "setting": "outdoor",
@@ -306,20 +236,37 @@
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "frame_5",
+      "id": "snowman",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "snowman"
+     },
+     {
+      "id": "sun",
       "kind": "object",
       "glyph": "TILE",
       "size": "support",
-      "concept": "cloud"
+      "concept": "sun"
      }
     ],
     "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "frame_5",
+      "target": "snowman",
       "at": {
        "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "sun",
+      "at": {
+       "offset_ms": 400
       },
       "duration_ms": 600,
       "from": 0.0,
@@ -330,45 +277,38 @@
   },
   {
    "beat_id": "b06",
-   "beat_type": "EMPHASIS",
+   "beat_type": "CONTRAST",
    "pattern": "HERO_SCALE_PROMOTION",
-   "narration": "Share six fish between two ponds. Each pond gets three.",
+   "narration": "The flower wilted by the fence.",
    "energy": 0.5,
    "complexity": 0.4,
-   "display_units": [],
    "page": {
-    "title": "Fair Shares",
-    "layout": "full",
-    "edu": {
-     "kind": "share",
-     "object": "fish",
-     "a": 6,
-     "b": 2
-    }
+    "title": "Too Hot",
+    "layout": "half"
    },
    "scene": {
     "setting": "outdoor",
-    "mood": "day",
+    "mood": "golden",
     "elements": [
-     "wave"
+     "fence"
     ]
    },
    "illustration": {
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "frame_6",
+      "id": "flower",
       "kind": "object",
       "glyph": "TILE",
-      "size": "support",
-      "concept": "cloud"
+      "size": "hero",
+      "concept": "flower"
      }
     ],
     "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "frame_6",
+      "target": "flower",
       "at": {
        "offset_ms": 250
       },
@@ -381,43 +321,35 @@
   },
   {
    "beat_id": "b07",
-   "beat_type": "EMPHASIS",
+   "beat_type": "PAYOFF",
    "pattern": "HERO_SCALE_PROMOTION",
-   "narration": "Then Leo kicked the ball across the grass.",
+   "narration": "At last Grandma blew the candle out.",
    "energy": 0.5,
    "complexity": 0.4,
-   "display_units": [],
    "page": {
-    "title": "The Big Kick",
+    "title": "Goodnight, Candle",
     "layout": "half"
    },
    "scene": {
-    "setting": "outdoor",
-    "mood": "day"
+    "setting": "indoor",
+    "mood": "night"
    },
    "illustration": {
     "form": "OBJECT_STAGE",
     "entities": [
      {
-      "id": "ball",
+      "id": "candle2",
       "kind": "object",
       "glyph": "TILE",
       "size": "hero",
-      "concept": "ball"
-     },
-     {
-      "id": "tree",
-      "kind": "object",
-      "glyph": "TILE",
-      "size": "support",
-      "concept": "tree"
+      "concept": "candle"
      }
     ],
     "relations": [],
     "program": [
      {
       "op": "DRAW",
-      "target": "ball",
+      "target": "candle2",
       "at": {
        "offset_ms": 250
       },
@@ -432,13 +364,12 @@
    "beat_id": "b08",
    "beat_type": "PAYOFF",
    "pattern": "HERO_SCALE_PROMOTION",
-   "narration": "At bedtime, the moon went dark.",
+   "narration": "And the moon went dark.",
    "energy": 0.5,
    "complexity": 0.4,
-   "display_units": [],
    "page": {
-    "title": "Bedtime",
-    "layout": "half"
+    "title": "Sleep Now",
+    "layout": "full"
    },
    "scene": {
     "setting": "outdoor",

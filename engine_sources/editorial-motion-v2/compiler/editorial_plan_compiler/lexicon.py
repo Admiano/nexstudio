@@ -64,6 +64,9 @@ NOISE_TAGS = frozenset(('emoji', 'emoji3d', 'brand', 'colour-icon', 'icon', 'lin
                         'finance', 'health', 'comms', 'nature', 'people', 'food', 'time', 'transport', 'emotion', 'one', 'two', 'three', 'four'))
 # Skin-tone / gender / style variants read as the base mark; they answer only when asked for.
 VARIANT_TOKENS = frozenset(('light', 'medium', 'dark', 'skin', 'tone', 'medium-light', 'medium-dark', 'flat', 'high', 'contrast'))
+# A label that already shows the thing after a change of state ('wilted flower', 'new moon') is
+# the wrong starting print for a page whose sentence performs that change.
+STATE_TOKENS = frozenset(('wilted', 'new', 'broken', 'cracked', 'melting', 'melted', 'empty', 'dead', 'burnt', 'spilled', 'hatching', 'waning', 'crescent', 'last', 'first'))
 NUMERIC_RE = re.compile(r'^[+\-~≈]?\s*[$€£¥]?\d[\d,.\s]*[%xX×+kKmMbB]?(\s*[a-zA-Z%]{,4})?$')
 # WordNet lexicographer files whose synsets name things a mark can draw: animal, artifact, body,
 # food, location, object, person, plant, shape, substance.
@@ -315,6 +318,8 @@ class AssetFinder:
         else:
             score = 1.0
         if any(t in VARIANT_TOKENS for t in extra):
+            score -= 1.2
+        if any(t in STATE_TOKENS for t in extra):
             score -= 1.2
         if score < 0:
             return (score, aid)   # a label that names another thing is not rescued by being in the right pack

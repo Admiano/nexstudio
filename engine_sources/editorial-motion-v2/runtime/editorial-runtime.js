@@ -3062,6 +3062,7 @@
         wrap.appendChild(art.g);
         node.extra.iconBox = box;
         node.extra.shadow = { el: wrap, oy: box.h * 0.045, blur: box.h * 0.09, alpha: 0.2 };
+        node.extra.iconHost = host;
         host.setAttribute('data-icon-host', ent.id);
         if (ent.action && ent.action.kind === 'phase') {
           // The eclipse shadow: a dark paper disc slides across the face, clipped to the
@@ -3078,7 +3079,7 @@
         return true;
       }
     }
-    if (ent.asset) { loadIconInto(ent, node, host, box, opts); return true; }
+    if (ent.asset) { loadIconInto(ent, node, host, box, opts, plan); return true; }
     return false;
   }
   // Static mount (backdrop marks, the motif stamp): same art, no draw-on program.
@@ -3439,8 +3440,33 @@
 
   // Registry icon loaded into a box inside a glyph group; each part joins the entity's
   // draw-on program (stroke packs dash-draw, fill packs stagger in).
-  function loadIconInto(ent, node, host, box, opts) {
+
+  // Library art printed in the book's hand: one ink contour traced around the silhouette
+  // (dilated alpha, the same weight on every object), a slight hand wobble, and the colour
+  // pulled toward the page's inks so a Fluent/Noto object prints like the authored art.
+  function bookRestyle(host, box, plan, uid) {
+    const fid = `bk_${uid}`;
+    const k = Math.max(box.w, box.h);
+    const defs = svgEl('defs', {}, host);
+    const f = svgEl('filter', { id: fid, x: '-8%', y: '-8%', width: '116%', height: '116%', 'color-interpolation-filters': 'sRGB' }, defs);
+    svgEl('feTurbulence', { type: 'fractalNoise', baseFrequency: f2(3.2 / k), numOctaves: 2, seed: (seedHash(uid) % 97) + 1, result: 'n' }, f);
+    svgEl('feDisplacementMap', { in: 'SourceGraphic', in2: 'n', scale: f2(k * 0.012), xChannelSelector: 'R', yChannelSelector: 'G', result: 'w' }, f);
+    svgEl('feColorMatrix', { in: 'w', type: 'saturate', values: '0.8', result: 'c' }, f);
+    svgEl('feFlood', { 'flood-color': plan.brand.paper, 'flood-opacity': 0.14, result: 'pp' }, f);
+    svgEl('feComposite', { in: 'pp', in2: 'c', operator: 'atop', result: 'tint' }, f);
+    svgEl('feMorphology', { in: 'w', operator: 'dilate', radius: f2(Math.max(0.8, k * 0.011)), result: 'd' }, f);
+    svgEl('feFlood', { 'flood-color': plan.brand.ink, 'flood-opacity': 0.88, result: 'ink' }, f);
+    svgEl('feComposite', { in: 'ink', in2: 'd', operator: 'in', result: 'line' }, f);
+    const m = svgEl('feMerge', {}, f);
+    svgEl('feMergeNode', { in: 'line' }, m);
+    svgEl('feMergeNode', { in: 'tint' }, m);
+    host.setAttribute('filter', `url(#${fid})`);
+    host.setAttribute('data-book-restyle', '1');
+  }
+
+  function loadIconInto(ent, node, host, box, opts, book) {
     node.extra.iconBox = box;
+    if (!node.extra.iconHost) node.extra.iconHost = host;
     host.setAttribute('data-icon-host', ent.id);
     node.ready = fetchText(opts.assetUrl(ent.asset.path)).then((txt) => {
       const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
@@ -3455,6 +3481,7 @@
       const rootStroke = src.getAttribute('stroke');
       const parts = Array.from(inner.querySelectorAll('path,circle,ellipse,line,polyline,polygon,rect'));
       const n = Math.max(1, parts.length);
+      if (colour === 'native' && book) bookRestyle(host, box, book, `${ent.id}_${iconInstance}`);
       if (colour === 'native') {
         // Colour art keeps its own paint; it draws on as one body (opacity), never dash-by-dash.
         node.outline.push({ path: inner, len: 0, set(v) { inner.style.opacity = clamp(v, 0, 1).toFixed(4); } });
@@ -4298,6 +4325,171 @@
   // Story actions: the plate's environment stays printed and still, but the subject the
   // narration is about moves — plants grow from the soil, moons go dark, balls kick,
   // counted objects pop in one by one. Deterministic on lt; one-shots hold their end state.
+
+  // Object state rigs: the focus object changes state inside its own box — an egg splits on
+  // its crack line, a candle's flame goes out, a cup fills, a door swings on its hinge. Built
+  // once from the object's own printed art (clones clipped by the cut), so the state change
+  // is drawn in the page's hand and every other mark on the page stays untouched.
+  const RIG_SPLIT = { hatch: 0.46, crack: 0.5, wilt: 0.46, light: 0.3, out: 0.3 };
+  const LIQUID = '#6fa8c9';
+  function zigzag(x0, x1, y, amp, n, seed) {
+    const r = rng(seed);
+    let d = `M${f2(x0)} ${f2(y)}`;
+    for (let i = 1; i <= n; i += 1) d += `L${f2(x0 + ((x1 - x0) * i) / n)} ${f2(y + (i % 2 ? -amp : amp) * (0.6 + r() * 0.5))}`;
+    return d;
+  }
+  function stateRig(ent, node, gl, g, ink) {
+    if (gl.extra.rig !== undefined) return gl.extra.rig;
+    const kind = ent.action.kind;
+    const host = gl.extra.iconHost;
+    const box = gl.extra.iconBox || node.bb;
+    const needsArt = kind in RIG_SPLIT || kind === 'freeze' || kind === 'swing' || kind === 'close';
+    if (needsArt && (!host || !host.querySelector('path,circle,ellipse,polygon,rect,image'))) return null;
+    const seed = seedHash(`${ent.id}:rig`);
+    const uid = `rig_${ent.id}_${++iconInstance}`;
+    const rig = { kind, box, host };
+    const par = host ? host.parentNode : g;
+    const cloneArt = (tag) => {
+      const c = host.cloneNode(true);
+      c.removeAttribute('data-icon-host');
+      c.style.visibility = 'visible';
+      rescopeCloneIds(c, `${uid}${tag}`);
+      c.querySelectorAll('*').forEach((n) => { if (n.style) { n.style.opacity = ''; n.style.strokeDashoffset = ''; n.style.strokeDasharray = ''; } });
+      c.style.opacity = '';
+      return c;
+    };
+    if (kind in RIG_SPLIT) {
+      const cutY = box.y + box.h * RIG_SPLIT[kind];
+      const jag = kind === 'hatch' || kind === 'crack';
+      const amp = jag ? box.h * 0.045 : 0;
+      const line = jag ? zigzag(box.x - box.w * 0.1, box.x + box.w * 1.1, cutY, amp, 9, seed) : `M${f2(box.x - box.w * 0.1)} ${f2(cutY)}L${f2(box.x + box.w * 1.1)} ${f2(cutY)}`;
+      const top = `M${f2(box.x - box.w)} ${f2(box.y - box.h * 2)}L${f2(box.x + box.w * 2)} ${f2(box.y - box.h * 2)}L${f2(box.x + box.w * 2)} ${f2(cutY)}` + line.replace(/^M/, 'L').split('L').reverse().filter(Boolean).map((pt) => `L${pt}`).join('') + 'Z';
+      const bot = `${line}L${f2(box.x + box.w * 2)} ${f2(box.y + box.h * 3)}L${f2(box.x - box.w)} ${f2(box.y + box.h * 3)}Z`;
+      const defs = svgEl('defs', {}, par);
+      const cpT = svgEl('clipPath', { id: `${uid}t` }, defs); svgEl('path', { d: top }, cpT);
+      const cpB = svgEl('clipPath', { id: `${uid}b` }, defs); svgEl('path', { d: bot }, cpB);
+      const botG = svgEl('g', { 'clip-path': `url(#${uid}b)` }, par);
+      botG.appendChild(cloneArt('b'));
+      const topWrap = svgEl('g', {}, par);
+      const topG = svgEl('g', { 'clip-path': `url(#${uid}t)` }, topWrap);
+      topG.appendChild(cloneArt('t'));
+      host.style.visibility = 'hidden';
+      rig.top = topWrap; rig.bot = botG; rig.cutY = cutY;
+      if (jag) {
+        rig.crackLine = svgEl('path', { d: line, fill: 'none', stroke: ink, 'stroke-width': f2(Math.max(1.4, box.w * 0.018)), 'stroke-linejoin': 'round', 'stroke-opacity': 0 }, par);
+        let len = 0; try { len = rig.crackLine.getTotalLength(); } catch (e) { len = box.w * 1.4; }
+        rig.crackLen = len || box.w * 1.4;
+        rig.crackLine.style.strokeDasharray = `${f2(rig.crackLen)} ${f2(rig.crackLen + 4)}`;
+      }
+      if (kind === 'light') {
+        rig.glow = svgEl('circle', { cx: f2(box.x + box.w / 2), cy: f2(box.y + box.h * 0.16), r: f2(box.w * 0.34), fill: '#f6c65b', 'fill-opacity': 0 }, par);
+        par.insertBefore(rig.glow, par.firstChild);
+      }
+      if (kind === 'out') {
+        const sx = box.x + box.w / 2, sy = box.y + box.h * 0.24;
+        rig.smoke = svgEl('path', { d: `M${f2(sx)} ${f2(sy)}c${f2(-box.w * 0.08)} ${f2(-box.h * 0.08)} ${f2(box.w * 0.08)} ${f2(-box.h * 0.14)} 0 ${f2(-box.h * 0.22)}s${f2(box.w * 0.08)} ${f2(-box.h * 0.14)} 0 ${f2(-box.h * 0.2)}`, fill: 'none', stroke: '#8a8580', 'stroke-width': f2(Math.max(1.2, box.w * 0.02)), 'stroke-linecap': 'round', 'stroke-opacity': 0 }, par);
+      }
+    } else if (kind === 'fill' || kind === 'empty') {
+      const lx = box.x + box.w * 0.22, lw = box.w * 0.56, ly0 = box.y + box.h * 0.3, ly1 = box.y + box.h * 0.86;
+      const defs = svgEl('defs', {}, g);
+      const cp = svgEl('clipPath', { id: `${uid}l` }, defs);
+      svgEl('rect', { x: f2(lx), y: f2(ly0), width: f2(lw), height: f2(ly1 - ly0), rx: f2(lw * 0.12) }, cp);
+      const lg = svgEl('g', { 'clip-path': `url(#${uid}l)` }, g);
+      rig.liquid = svgEl('rect', { x: f2(lx), y: f2(ly1), width: f2(lw), height: 0, fill: ent.action.liquid || LIQUID, 'fill-opacity': 0.72 }, lg);
+      rig.surface = svgEl('path', { d: '', fill: 'none', stroke: ink, 'stroke-width': f2(Math.max(1, box.w * 0.012)), 'stroke-opacity': 0.45 }, lg);
+      Object.assign(rig, { lx, lw, ly0, ly1 });
+    } else if (kind === 'melt') {
+      rig.puddle = svgEl('ellipse', { cx: f2(box.x + box.w / 2), cy: f2(box.y + box.h * 0.97), rx: f2(box.w * 0.5), ry: f2(box.h * 0.06), fill: ent.action.liquid || '#a9cde0', 'fill-opacity': 0 }, g);
+      g.insertBefore(rig.puddle, g.firstChild);
+    } else if (kind === 'freeze') {
+      const fid = `${uid}f`;
+      const defs = svgEl('defs', {}, par);
+      const f = svgEl('filter', { id: fid }, defs);
+      svgEl('feColorMatrix', { type: 'matrix', values: '0.18 0.18 0.18 0 0.6  0.18 0.18 0.18 0 0.72  0.18 0.18 0.18 0 0.84  0 0 0 1 0' }, f);
+      const frost = cloneArt('f');
+      frost.setAttribute('filter', `url(#${fid})`);
+      frost.style.opacity = '0';
+      par.appendChild(frost);
+      rig.frost = frost;
+      const r = rng(seed);
+      rig.sparks = [0, 1, 2].map(() => {
+        const cx = box.x + box.w * (0.2 + r() * 0.6), cy = box.y + box.h * (0.15 + r() * 0.55), k = box.w * 0.06;
+        return svgEl('path', { d: `M${f2(cx - k)} ${f2(cy)}L${f2(cx + k)} ${f2(cy)}M${f2(cx)} ${f2(cy - k)}L${f2(cx)} ${f2(cy + k)}`, stroke: '#ffffff', 'stroke-width': f2(Math.max(1.2, box.w * 0.016)), 'stroke-linecap': 'round', 'stroke-opacity': 0 }, par);
+      });
+    } else if (kind === 'swing' || kind === 'close') {
+      rig.gap = svgEl('rect', { x: f2(box.x + box.w * 0.05), y: f2(box.y + box.h * 0.03), width: f2(box.w * 0.9), height: f2(box.h * 0.94), fill: '#2a211b', 'fill-opacity': 0 }, par);
+      par.insertBefore(rig.gap, host);
+    }
+    gl.extra.rig = rig;
+    return rig;
+  }
+  function applyStateRig(rig, st) {
+    const b = rig.box, p = st.p;
+    const set = (el, a, v) => { if (el) el.setAttribute(a, typeof v === 'number' ? v.toFixed(4) : v); };
+    switch (rig.kind) {
+      case 'hatch': case 'crack': {
+        const c = clamp((p - (rig.kind === 'hatch' ? 0.3 : 0)) / 0.22, 0, 1);
+        set(rig.crackLine, 'stroke-opacity', c > 0 ? 0.85 : 0);
+        if (rig.crackLine) rig.crackLine.style.strokeDashoffset = f2((1 - c) * rig.crackLen);
+        const q = EASE.outCubic(clamp((p - (rig.kind === 'hatch' ? 0.55 : 0.3)) / 0.45, 0, 1));
+        const lift = rig.kind === 'hatch' ? { dx: -b.w * 0.1, dy: -b.h * 0.36, r: -30 } : { dx: b.w * 0.05, dy: -b.h * 0.05, r: 9 };
+        const px0 = b.x + (rig.kind === 'hatch' ? b.w * 0.1 : b.w * 0.9);
+        set(rig.top, 'transform', `translate(${f2(lift.dx * q)} ${f2(lift.dy * q)}) rotate(${f2(lift.r * q)} ${f2(px0)} ${f2(rig.cutY)})`);
+        if (rig.kind === 'crack') set(rig.bot, 'transform', `rotate(${f2(-4 * q)} ${f2(b.x + b.w * 0.2)} ${f2(b.y + b.h)})`);
+        if (rig.crackLine && rig.kind === 'hatch') set(rig.crackLine, 'transform', rig.top.getAttribute('transform'));
+        break;
+      }
+      case 'wilt': {
+        const q = EASE.inOutCubic(p);
+        set(rig.top, 'transform', `rotate(${f2(38 * q)} ${f2(b.x + b.w / 2)} ${f2(rig.cutY)})`);
+        rig.top.style.opacity = (1 - 0.18 * q).toFixed(4);
+        break;
+      }
+      case 'light': {
+        const q = EASE.settle(p);
+        const ax = b.x + b.w / 2, ay = rig.cutY;
+        set(rig.top, 'transform', `translate(${f2(ax)} ${f2(ay)}) scale(${f2(Math.max(0.02, q))}) translate(${f2(-ax)} ${f2(-ay)})`);
+        rig.top.style.opacity = Math.min(1, p * 3).toFixed(4);
+        set(rig.glow, 'fill-opacity', 0.32 * Math.min(1, p * 1.6));
+        break;
+      }
+      case 'out': {
+        const q = EASE.inCubic(clamp(p / 0.55, 0, 1));
+        const ax = b.x + b.w / 2, ay = rig.cutY;
+        set(rig.top, 'transform', `translate(${f2(ax)} ${f2(ay)}) scale(${f2(Math.max(0.02, 1 - q))}) translate(${f2(-ax)} ${f2(-ay)})`);
+        rig.top.style.opacity = (1 - q).toFixed(4);
+        const sm = clamp((p - 0.4) / 0.6, 0, 1);
+        set(rig.smoke, 'stroke-opacity', 0.55 * sm);
+        set(rig.smoke, 'transform', `translate(0 ${f2(-b.h * 0.06 * sm)})`);
+        break;
+      }
+      case 'fill': case 'empty': {
+        const lvl = 0.84 * (rig.kind === 'fill' ? EASE.inOutCubic(p) : 1 - EASE.inOutCubic(p));
+        const h = (rig.ly1 - rig.ly0) * lvl, y = rig.ly1 - h;
+        set(rig.liquid, 'y', y); set(rig.liquid, 'height', h);
+        set(rig.surface, 'd', h > 0.5 ? `M${f2(rig.lx)} ${f2(y)}L${f2(rig.lx + rig.lw)} ${f2(y)}` : '');
+        break;
+      }
+      case 'melt':
+        set(rig.puddle, 'fill-opacity', 0.6 * EASE.inOutCubic(p));
+        break;
+      case 'freeze': {
+        const q = EASE.inOutCubic(p);
+        rig.frost.style.opacity = (0.72 * q).toFixed(4);
+        rig.sparks.forEach((sp, i) => set(sp, 'stroke-opacity', clamp((p - 0.5 - i * 0.12) / 0.2, 0, 1) * 0.9));
+        break;
+      }
+      case 'swing': case 'close': {
+        const open = rig.kind === 'swing' ? EASE.inOutCubic(p) : 1 - EASE.outCubic(p);
+        const sx = 1 - 0.72 * open, hx = b.x;
+        set(rig.host, 'transform', `translate(${f2(hx)} 0) scale(${f2(sx)} 1) translate(${f2(-hx)} 0)`);
+        set(rig.gap, 'fill-opacity', 0.86 * clamp(open / 0.2, 0, 1));
+        break;
+      }
+      default:
+    }
+  }
+
   function storyAction(act, node, lt) {
     const bb = node.bb;
     const oneShot = act.dur ? clamp(prog(lt, act.at, act.at + act.dur), 0, 1) : null;
@@ -4376,6 +4568,20 @@
         return { dy: -Math.abs(Math.sin(lt0 * 0.008)) * bb.h * 0.12 * env, rot: Math.sin(lt0 * 0.006) * 7 * env };
       case 'wave':
         return { rot: Math.sin(lt0 * 0.006) * 5 * env, anchor: 'bottom' };
+      case 'hatch': {
+        const sh = clamp(oneShot / 0.3, 0, 1);
+        return { rot: sh > 0 && sh < 1 ? Math.sin(lt0 * 0.07) * 6 * Math.sin(sh * Math.PI) : 0, anchor: 'bottom', rig: { p: oneShot } };
+      }
+      case 'crack':
+        return { rot: oneShot > 0 && oneShot < 0.25 ? Math.sin(lt0 * 0.09) * 3 : 0, anchor: 'bottom', rig: { p: oneShot } };
+      case 'melt': {
+        const q = EASE.inOutCubic(oneShot);
+        return { sy: 1 - 0.58 * q, sx: 1 + 0.28 * q, anchor: 'bottom', rig: { p: oneShot } };
+      }
+      case 'freeze':
+        return { dx: oneShot > 0 && oneShot < 0.2 ? Math.sin(lt0 * 0.1) * bb.w * 0.012 : 0, rig: { p: oneShot } };
+      case 'wilt': case 'light': case 'out': case 'fill': case 'empty': case 'swing': case 'close':
+        return { rig: { p: oneShot } };
       default:
         return null;
     }
@@ -4452,7 +4658,8 @@
       const swap = propAt(node, 'swap', lt);
       if (swap.v > 0 && swap.v < 1) scale *= 1 + 0.08 * EASE.pulse(swap.v);
 
-      const draw = propAt(node, 'draw', lt).v;
+      // A printed page carries its plate already inked: only an element with its own action draws on.
+      const draw = ctx.book === 'paperbook' && !ent.action ? propAt(node, 'draw', Number.MAX_SAFE_INTEGER).v : propAt(node, 'draw', lt).v;
       node.drawV = draw;
       const drawOp = propDriver(node, 'draw', lt);
       if (drawOp && drawOp.params && drawOp.params.wipe) {
@@ -4549,6 +4756,7 @@
       if (act) {
         tx += act.dx || 0; ty += act.dy || 0;
         if (act.op != null) opacity *= act.op;
+        if (act.rig) { const rig = stateRig(ent, node, gl, g, ink); if (rig) applyStateRig(rig, act.rig); }
         if (act.phase != null && gl.extra.phaseCover) {
           gl.extra.phaseCover.setAttribute('transform', `translate(${f2(-118 * (1 - act.phase))} 0)`);
           gl.extra.phaseCover.setAttribute('fill-opacity', (0.62 * Math.min(1, act.phase * 4)).toFixed(3));

@@ -25,6 +25,7 @@ from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirect
 from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, hrot, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
+from .coverage import NounGate, paper_key
 from .directing import direct
 from .edu import build as build_edu
 from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
@@ -84,6 +85,7 @@ HERO_SUPPORT_MIN_RATIO = 1.65
 DESCENDER_EM = 0.24       # how far a line's descenders hang below its line box (Black sans)
 # Ladder rungs a photograph of the concept outranks: anything that stops naming the thing itself.
 PHOTO_BELOW = ('hypernym', 'composite', 'typographic')
+PAPERBOOK_PACK = 'emoji.fluent-flat'
 
 
 def _sha_file(p: Path) -> str:
@@ -214,6 +216,17 @@ def _pb_slot_crop(layout: str, W: int, H: int) -> Dict[str, float]:
     k = max(sw / W, sh / H)
     vw, vh = sw / k, sh / k
     return _box((W - vw) / 2, (H - vh) / 2, vw, vh)
+
+
+GROUNDED_SETTINGS = frozenset(('outdoor', 'indoor', 'urban', 'garden', 'field', 'farm', 'forest', 'stadium'))
+AIRBORNE = frozenset(('sun', 'moon', 'planet', 'star', 'stars', 'comet', 'cloud', 'rain', 'snow', 'bird', 'butterfly',
+                      'bee', 'kite', 'balloon', 'plane', 'airplane', 'rocket', 'window', 'picture', 'clock', 'lamp', 'bat',
+                      'firefly', 'rainbow', 'lightning', 'flag', 'owl', 'eagle', 'dragonfly'))
+
+
+def _is_airborne(concept: str) -> bool:
+    words = concept.lower().replace('_', ' ').replace('-', ' ').split()
+    return any(w in AIRBORNE or w.rstrip('s') in AIRBORNE for w in words)
 
 
 def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[str, Any]],
@@ -414,7 +427,8 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
                         cw * 0.86 * share, vh * 0.72 * share)
             put(e, _fit_aspect(cell, ar))
     elif marks and not photos:
-        order = sorted(marks, key=lambda e: -e['art_bbox']['w'] * e['art_bbox']['h'])
+        order = sorted(marks, key=lambda e: (e.get('size') != 'hero', -e['art_bbox']['w'] * e['art_bbox']['h']))
+        grounded = str((btr.scene or {}).get('setting') or '') in GROUNDED_SETTINGS
         # Focal hierarchy: the largest subject is the hero — dominant, biased to a
         # lower-left/thirds anchor; satellites recede around it on a spiral of thirds.
         anchors = [(0.46, 0.58, 0.64), (0.22, 0.36, 0.30), (0.78, 0.33, 0.28),
@@ -436,6 +450,9 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
                         box['x'] = vx
                 else:
                     break
+            if grounded and not _is_airborne(str(e.get('concept') or '')):
+                # Things that stand stand on the ground: the base rests on the plate's floor band.
+                box['y'] = max(box['y'], vy + vh * 0.86 - box['h'])
             box['x'] = min(max(box['x'], vx), vx + vw - box['w'])
             box['y'] = min(max(box['y'], vy), vy + vh - box['h'])
             put(e, box)
@@ -1684,6 +1701,9 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
         return []
     finder = AssetFinder(registry.items, NounLexicon(), registry.quarantined)
     pack = _film_pack(film, registry)
+    if pack is None and film.world and film.world.book == 'paperbook':
+        # The picture book's object library: one flat colour family, reprinted in the book's hand.
+        pack = PAPERBOOK_PACK
     if pack is None:
         tally: Dict[str, int] = {}
         for _b, e in todo:
@@ -1708,7 +1728,7 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
             # well, beats an ancestor's mark or the bare word. The name still rides with it unless
             # the housing already carries it.
             rec = evidence.find(e.concept)
-            if bankart is not None:
+            if bankart is not None and paper_key(e.concept) is None:
                 brec = bankart.find(e.concept)
                 if brec is not None:
                     word = None if (named or e.glyph == 'BADGE') else e.concept
@@ -1983,6 +2003,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     registry = IllustrationRegistry()
     film_warnings: List[str] = _resolve_concepts(film, registry, work_dir)
     film_failures: List[str] = _asset_pack_mix(film, registry)
+    if film.world and film.world.book == 'paperbook':
+        film_failures += NounGate(NounLexicon(), SCENE_PROP_SHAPES).film_failures(film)
     atmosphere = film_atmosphere(asdict(film.brand))
     film_failures += brand_failures(atmosphere)
     # The bed is chosen before any beat is laid out: its tempo sets the landing-wave stagger, and once

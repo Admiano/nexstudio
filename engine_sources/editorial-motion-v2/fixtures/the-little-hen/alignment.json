@@ -1,0 +1,264 @@
+{
+ "words": [
+  {
+   "text": " The",
+   "start_ms": 0,
+   "end_ms": 380
+  },
+  {
+   "text": " egg",
+   "start_ms": 380,
+   "end_ms": 560
+  },
+  {
+   "text": " cracked",
+   "start_ms": 560,
+   "end_ms": 840
+  },
+  {
+   "text": " and",
+   "start_ms": 840,
+   "end_ms": 1060
+  },
+  {
+   "text": " a",
+   "start_ms": 1060,
+   "end_ms": 1180
+  },
+  {
+   "text": " little",
+   "start_ms": 1180,
+   "end_ms": 1340
+  },
+  {
+   "text": " chick",
+   "start_ms": 1340,
+   "end_ms": 1600
+  },
+  {
+   "text": " hatched,",
+   "start_ms": 1600,
+   "end_ms": 2180
+  },
+  {
+   "text": " Grandma",
+   "start_ms": 2560,
+   "end_ms": 2960
+  },
+  {
+   "text": " lit",
+   "start_ms": 2960,
+   "end_ms": 3140
+  },
+  {
+   "text": " the",
+   "start_ms": 3140,
+   "end_ms": 3280
+  },
+  {
+   "text": " candle",
+   "start_ms": 3280,
+   "end_ms": 3560
+  },
+  {
+   "text": " by",
+   "start_ms": 3560,
+   "end_ms": 3800
+  },
+  {
+   "text": " the",
+   "start_ms": 3800,
+   "end_ms": 3900
+  },
+  {
+   "text": " window,",
+   "start_ms": 3900,
+   "end_ms": 4180
+  },
+  {
+   "text": " she",
+   "start_ms": 4600,
+   "end_ms": 4720
+  },
+  {
+   "text": " poured",
+   "start_ms": 4720,
+   "end_ms": 4940
+  },
+  {
+   "text": " warm",
+   "start_ms": 4940,
+   "end_ms": 5240
+  },
+  {
+   "text": " milk",
+   "start_ms": 5240,
+   "end_ms": 5520
+  },
+  {
+   "text": " into",
+   "start_ms": 5520,
+   "end_ms": 5740
+  },
+  {
+   "text": " the",
+   "start_ms": 5740,
+   "end_ms": 5880
+  },
+  {
+   "text": " cup,",
+   "start_ms": 5880,
+   "end_ms": 6160
+  },
+  {
+   "text": " then",
+   "start_ms": 6440,
+   "end_ms": 6580
+  },
+  {
+   "text": " the",
+   "start_ms": 6580,
+   "end_ms": 6700
+  },
+  {
+   "text": " door",
+   "start_ms": 6700,
+   "end_ms": 6880
+  },
+  {
+   "text": " opened",
+   "start_ms": 6880,
+   "end_ms": 7200
+  },
+  {
+   "text": " wide.",
+   "start_ms": 7200,
+   "end_ms": 7580
+  },
+  {
+   "text": " Outside",
+   "start_ms": 8200,
+   "end_ms": 8480
+  },
+  {
+   "text": " the",
+   "start_ms": 8480,
+   "end_ms": 8880
+  },
+  {
+   "text": " snowman",
+   "start_ms": 8880,
+   "end_ms": 9260
+  },
+  {
+   "text": " melted",
+   "start_ms": 9260,
+   "end_ms": 9540
+  },
+  {
+   "text": " in",
+   "start_ms": 9540,
+   "end_ms": 9740
+  },
+  {
+   "text": " the",
+   "start_ms": 9740,
+   "end_ms": 9840
+  },
+  {
+   "text": " sun,",
+   "start_ms": 9840,
+   "end_ms": 10100
+  },
+  {
+   "text": " the",
+   "start_ms": 10400,
+   "end_ms": 10460
+  },
+  {
+   "text": " flower",
+   "start_ms": 10460,
+   "end_ms": 10760
+  },
+  {
+   "text": " wilted",
+   "start_ms": 10760,
+   "end_ms": 11200
+  },
+  {
+   "text": " by",
+   "start_ms": 11200,
+   "end_ms": 11360
+  },
+  {
+   "text": " the",
+   "start_ms": 11360,
+   "end_ms": 11480
+  },
+  {
+   "text": " fence.",
+   "start_ms": 11480,
+   "end_ms": 11780
+  },
+  {
+   "text": " At",
+   "start_ms": 12540,
+   "end_ms": 12680
+  },
+  {
+   "text": " last",
+   "start_ms": 12680,
+   "end_ms": 12920
+  },
+  {
+   "text": " Grandma",
+   "start_ms": 12920,
+   "end_ms": 13360
+  },
+  {
+   "text": " blew",
+   "start_ms": 13360,
+   "end_ms": 13580
+  },
+  {
+   "text": " the",
+   "start_ms": 13580,
+   "end_ms": 13700
+  },
+  {
+   "text": " candle",
+   "start_ms": 13700,
+   "end_ms": 13960
+  },
+  {
+   "text": " out,",
+   "start_ms": 13960,
+   "end_ms": 14260
+  },
+  {
+   "text": " and",
+   "start_ms": 14640,
+   "end_ms": 14740
+  },
+  {
+   "text": " the",
+   "start_ms": 14740,
+   "end_ms": 14820
+  },
+  {
+   "text": " moon",
+   "start_ms": 14820,
+   "end_ms": 15020
+  },
+  {
+   "text": " went",
+   "start_ms": 15020,
+   "end_ms": 15200
+  },
+  {
+   "text": " dark.",
+   "start_ms": 15200,
+   "end_ms": 15520
+  }
+ ]
+}

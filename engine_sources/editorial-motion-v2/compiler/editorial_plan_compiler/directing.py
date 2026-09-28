@@ -30,6 +30,8 @@ IRREGULAR = {
     'caught': 'catch', 'struck': 'strike', 'slid': 'slide', 'swung': 'swing', 'flung': 'fling',
     'burst': 'burst', 'bloomed': 'bloom', 'took': 'take', 'taken': 'take', 'blown': 'blow', 'sprung': 'spring',
     'hidden': 'hide', 'ate': 'eat', 'eaten': 'eat', 'left': 'leave', 'sat': 'sit', 'stood': 'stand', 'bit': 'bite', 'began': 'begin', 'split': 'split', 'shot': 'shoot',
+    'froze': 'freeze', 'frozen': 'freeze', 'drank': 'drink', 'drunk': 'drink', 'broken': 'break', 'shattered': 'shatter',
+    'lighted': 'light', 'filled': 'fill', 'cracked': 'crack', 'spilt': 'spill', 'burnt': 'burn', 'withered': 'wither',
 }
 
 # verb lemma -> motion primitive. None marks a verb the director knows but never animates.
@@ -52,13 +54,18 @@ VERB_KIND: Dict[str, Optional[str]] = {
     'shine': 'shine', 'glow': 'shine', 'blink': 'shine', 'twinkle': 'shine', 'sparkle': 'shine',
     'flash': 'shine', 'light': 'shine', 'flicker': 'shine', 'beam': 'shine', 'gleam': 'shine', 'glitter': 'shine',
     'darken': 'dim', 'dim': 'dim', 'fade': 'dim', 'wane': 'dim',
-    'appear': 'pop', 'arrive': 'pop', 'pop': 'pop', 'hatch': 'pop', 'emerge': 'pop', 'land': 'pop', 'burst': 'pop',
-    'vanish': 'vanish', 'disappear': 'vanish', 'melt': 'vanish', 'leave': 'vanish', 'hide': 'vanish', 'escape': 'vanish',
+    'appear': 'pop', 'arrive': 'pop', 'pop': 'pop', 'hatch': 'hatch', 'emerge': 'pop', 'land': 'pop', 'burst': 'pop',
+    'vanish': 'vanish', 'disappear': 'vanish', 'melt': 'melt', 'leave': 'vanish', 'hide': 'vanish', 'escape': 'vanish',
     'open': 'unfold', 'unfold': 'unfold', 'unfurl': 'unfold', 'spread': 'unfold', 'stretch': 'unfold',
     'wave': 'wave', 'billow': 'wave', 'sway': 'wave', 'ripple': 'wave', 'flutters': 'wave',
     'swim': 'swim', 'bob': 'swim', 'paddle': 'swim',
     'orbit': 'orbit', 'circle': 'orbit', 'loop': 'orbit',
     'beat': 'pulse', 'pulse': 'pulse', 'thump': 'pulse', 'throb': 'pulse',
+    'crack': 'crack', 'break': 'crack', 'smash': 'crack', 'shatter': 'crack', 'split': 'crack',
+    'fill': 'fill', 'empty': 'empty', 'drink': 'empty', 'spill': 'empty', 'drain': 'empty',
+    'ignite': 'light', 'kindle': 'light', 'extinguish': 'out', 'snuff': 'out',
+    'wilt': 'wilt', 'droop': 'wilt', 'wither': 'wilt', 'freeze': 'freeze', 'frost': 'freeze',
+    'close': 'close', 'shut': 'close', 'slam': 'close',
     'count': None, 'is': None, 'be': None, 'have': None, 'see': None, 'look': None, 'say': None,
 }
 
@@ -71,15 +78,77 @@ PHRASAL = {
     ('fly', 'away'): 'fly', ('fall', 'down'): 'fall', ('grow', 'up'): 'grow', ('come', 'out'): 'pop',
     ('pop', 'up'): 'pop', ('come', 'in'): 'pop', ('take', 'off'): 'rise', ('lift', 'off'): 'rise',
     ('blast', 'off'): 'rise', ('go', 'up'): 'rise', ('go', 'down'): 'fall', ('run', 'away'): 'vanish',
+    ('blow', 'on'): 'shake', ('break', 'open'): 'crack', ('crack', 'open'): 'crack', ('fill', 'up'): 'fill',
+    ('swing', 'open'): 'unfold', ('fly', 'open'): 'unfold', ('slam', 'shut'): 'close', ('swing', 'shut'): 'close',
     ('go', 'away'): 'vanish', ('swim', 'away'): 'vanish', ('fly', 'off'): 'fly', ('roll', 'away'): 'roll',
 }
+
+# "blew the candle out": a particle closing the clause completes the verb it follows.
+SPLIT_PARTICLES = frozenset(('out', 'off', 'up', 'open', 'shut', 'away', 'down'))
+SPLIT_REACH = 5
 
 DURATION = {
     'grow': 1500, 'kick': 950, 'bounce': 1100, 'hop': 700, 'roll': 1400, 'travel': 1800, 'fall': 1300,
     'rise': 2000, 'fly': 1900, 'spin': 1200, 'shake': 700, 'shine': 900, 'dim': 1100, 'phase': 1700,
     'pop': 380, 'vanish': 800, 'unfold': 900, 'wave': 1800, 'swim': 2000, 'flutter': 1600, 'orbit': 2400,
-    'pulse': 1400,
+    'pulse': 1400, 'hatch': 1700, 'crack': 900, 'fill': 1600, 'empty': 1400, 'light': 900, 'out': 1000,
+    'melt': 1900, 'wilt': 1500, 'freeze': 1300, 'swing': 1000, 'close': 900,
 }
+# Object state vocabulary: the verb's primitive becomes the state change the object itself
+# undergoes — a candle that "went out" loses its flame, it does not fade; a door "opened"
+# swings on its hinge; ice that "melted" slumps into a puddle.
+FLAME = ('candle', 'lantern', 'lamp', 'torch', 'campfire', 'fire', 'match', 'fireplace', 'bonfire', 'oil-lamp', 'diya')
+CONTAINER = ('cup', 'glass', 'mug', 'jug', 'bucket', 'bowl', 'jar', 'pot', 'bottle', 'vase', 'teapot', 'pitcher',
+             'bathtub', 'tub', 'kettle', 'beaker', 'watering-can', 'pail', 'tank', 'pool', 'pond', 'well')
+HINGED = ('door', 'gate', 'window', 'cupboard', 'fridge', 'wardrobe', 'closet', 'shutter', 'locker', 'cabinet')
+MELTS = ('ice', 'snowman', 'snow', 'ice-cream', 'icecream', 'ice-cube', 'icicle', 'popsicle', 'butter', 'chocolate', 'glacier', 'candle')
+WILTS = ('flower', 'rose', 'tulip', 'sunflower', 'daisy', 'plant', 'bloom', 'blossom', 'lily', 'bouquet', 'leaf')
+LIQUIDS = {'milk': '#f3efe4', 'juice': '#f0a53a', 'orange': '#f0a53a', 'lemonade': '#f1df78', 'tea': '#9a6232',
+           'coffee': '#6b4226', 'cocoa': '#6b4226', 'chocolate': '#6b4226', 'soup': '#d98a3d', 'honey': '#e3a92c',
+           'paint': '#c9453a', 'wine': '#7e2433', 'lava': '#e0582a', 'oil': '#d8b94a', 'water': '#6fa8c9', 'rain': '#6fa8c9'}
+SHELLED = ('egg', 'nut', 'coconut', 'shell', 'pinata', 'seed-pod')
+HATCHLING = ('chick', 'duckling', 'baby-bird', 'hatchling', 'dragon', 'dinosaur', 'turtle', 'baby-chick', 'hatching-chick', 'bird', 'snake', 'crocodile')
+
+
+def _is(concept: str, family: Sequence[str]) -> bool:
+    parts = set(concept.replace('_', '-').split('-')) | {concept}
+    return any(f in parts or concept == f or concept.endswith('-' + f) for f in family)
+
+
+def state_kind(kind: str, lemma: Optional[str], concept: str) -> str:
+    """Primitive (from the verb) + the element's concept -> the state change it performs."""
+    if _is(concept, FLAME):
+        if kind in ('dim', 'vanish', 'out'):
+            return 'out'
+        if kind in ('shine', 'light') or lemma in ('light', 'ignite', 'kindle'):
+            return 'light'
+        if kind == 'melt':
+            return 'melt'
+    if _is(concept, CONTAINER):
+        if kind in ('fill',) or lemma in ('pour', 'fill'):
+            return 'fill'
+        if kind in ('empty',) or lemma in ('drink', 'spill', 'empty', 'drain'):
+            return 'empty'
+    if _is(concept, HINGED):
+        if kind == 'unfold':
+            return 'swing'
+        if kind == 'close':
+            return 'close'
+    if kind == 'melt':
+        return 'melt' if _is(concept, MELTS) else 'vanish'
+    if kind == 'wilt' and not _is(concept, WILTS):
+        return 'fall'
+    if kind == 'hatch' and not _is(concept, SHELLED):
+        return 'pop'
+    if kind in ('fill', 'empty') and not _is(concept, CONTAINER):
+        return 'pop' if kind == 'fill' else 'vanish'
+    if kind in ('light',):
+        return 'shine'
+    if kind in ('out',):
+        return 'dim'
+    if kind in ('close',):
+        return 'shake'
+    return kind
 # Primitives that carry the element sideways across the plate.
 TRAVELLING = {'kick', 'roll', 'travel', 'fly', 'bounce'}
 POP_MS = 380
@@ -136,10 +205,21 @@ def verb_kind(toks: List[Dict[str, Any]], i: int) -> Tuple[Optional[str], Option
         for l in ls:
             if (l, nxt) in PHRASAL:
                 return PHRASAL[(l, nxt)], f'{l} {nxt}', 2
+    for j in range(i + 2, min(len(toks), i + 1 + SPLIT_REACH)):
+        if _clause_end(toks[j - 1]):
+            break
+        if toks[j]['t'] in SPLIT_PARTICLES and (j + 1 == len(toks) or _clause_end(toks[j])):
+            for l in ls:
+                if (l, toks[j]['t']) in PHRASAL:
+                    return PHRASAL[(l, toks[j]['t'])], f"{l} {toks[j]['t']}", 1
     for l in ls:
         if l in VERB_KIND:
             return VERB_KIND[l], l, 1
     return None, None, 1
+
+
+def _clause_end(tok: Dict[str, Any]) -> bool:
+    return bool(re.search(r'[.,;:!?]$', str(tok.get('raw') or '')))
 
 
 def _number(t: str) -> Optional[int]:
@@ -152,10 +232,10 @@ def _norm_concept(e: Dict[str, Any]) -> str:
     return str(e.get('concept') or '').lower().replace('_', '-')
 
 
-def _refine(kind: str, concept: str, e: Dict[str, Any], zone: Dict[str, float]) -> Dict[str, Any]:
+def _refine(kind: str, concept: str, e: Dict[str, Any], zone: Dict[str, float], lemma: Optional[str] = None) -> Dict[str, Any]:
     """Primitive -> parameterised action for this element on this plate."""
-    act: Dict[str, Any] = {'kind': kind}
-    if kind == 'dim' and 'moon' in concept:
+    act: Dict[str, Any] = {'kind': state_kind(kind, lemma, concept)}
+    if act['kind'] == 'dim' and 'moon' in concept:
         act['kind'] = 'phase'
     if act['kind'] == 'grow' and 'root' in concept:
         act['anchor'] = 'top'
@@ -221,6 +301,12 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
                 start, clamped = latest, True
             act['dur'] = min(int(act.get('dur') or 600), max(200, int(window_ms) - start))
         act['at'] = int(start)
+        if act['kind'] in ('fill', 'empty', 'melt') and 'liquid' not in act:
+            named = [LIQUIDS[t['t']] for t in toks if t['t'] in LIQUIDS]
+            if named:
+                act['liquid'] = named[0]
+            elif act['kind'] == 'melt' and 'chocolate' in _norm_concept(e):
+                act['liquid'] = LIQUIDS['chocolate']
         if tok is not None:
             act['word'] = tok['raw']
             if tok['at'] is not None:
@@ -311,13 +397,25 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
                 if cand:
                     target = cand
                     break
+        if kind in ('hatch', 'crack'):
+            # "The chick hatched" breaks the egg, not the chick: the shell is what changes state.
+            shells = [e for e in subjects if e['id'] not in acted and _is(_norm_concept(e), SHELLED)]
+            if shells and (target is None or not any(_is(_norm_concept(x), SHELLED) for x in target)):
+                target = shells
         if target is None:
             if first_free_verb is None:
                 first_free_verb = (kind, lemma, toks[i])
         else:
             e = max(target, key=lambda x: float((x.get('bbox') or {}).get('w') or 0) * float((x.get('bbox') or {}).get('h') or 0))
-            if place(e, _refine(kind, _norm_concept(e), e, zone), toks[i]['at'], toks[i], 'verb', lemma):
+            if place(e, _refine(kind, _norm_concept(e), e, zone, lemma), toks[i]['at'], toks[i], 'verb', lemma):
                 acted.add(e['id'])
+                if e['action']['kind'] == 'hatch':
+                    # What was inside comes out as the shell parts.
+                    out_at = int(e['action']['at'] + e['action']['dur'] * 0.55)
+                    for h in subjects:
+                        if h['id'] not in acted and _is(_norm_concept(h), HATCHLING):
+                            if place(h, {'kind': 'pop', 'dur': POP_MS * 2}, out_at, None, 'state-follow', lemma):
+                                acted.add(h['id'])
         i += span
 
     # 3) Named without a verb: the concept's own behaviour, from the naming word — only
@@ -343,7 +441,7 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
         e = max(heroes, key=lambda x: float((x.get('bbox') or {}).get('w') or 0) * float((x.get('bbox') or {}).get('h') or 0))
         c = _norm_concept(e)
         kind, lemma, tok = first_free_verb
-        place(e, _refine(kind, c, e, zone), tok['at'], tok, 'verb-primary', lemma)
+        place(e, _refine(kind, c, e, zone, lemma), tok['at'], tok, 'verb-primary', lemma)
     unresolved = not acted and not fixed and bool(subjects) and first_free_verb is None
     for e in fixed:
         a = e['action']

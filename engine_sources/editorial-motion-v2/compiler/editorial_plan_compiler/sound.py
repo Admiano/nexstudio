@@ -67,6 +67,17 @@ EVENT_TAGS = {
     'ACTION_SWIM': ('foley.water.drop', 'synth.swish'),
     'ACTION_ORBIT': ('synth.shimmer', 'synth.swish'),
     'ACTION_PULSE': ('foley.heart', 'synth.thock'),
+    'ACTION_HATCH': ('foley.crack', 'synth.pop'),
+    'ACTION_CRACK': ('foley.crack', 'synth.thock'),
+    'ACTION_FILL': ('foley.pour', 'foley.water.drop'),
+    'ACTION_EMPTY': ('foley.pour', 'foley.water.drop'),
+    'ACTION_LIGHT': ('foley.ignite', 'foley.sparkle'),
+    'ACTION_OUT': ('foley.puff', 'foley.dim'),
+    'ACTION_MELT': ('foley.drip', 'foley.water.drop'),
+    'ACTION_WILT': ('foley.dim', 'craft.paper.rustle'),
+    'ACTION_FREEZE': ('foley.frost', 'synth.shimmer'),
+    'ACTION_SWING': ('foley.creak', 'craft.paper.rustle'),
+    'ACTION_CLOSE': ('foley.thud', 'synth.thock'),
     'EDU_ANSWER': ('foley.chime', 'synth.shimmer'),
 }
 # A water thing falling or swimming plays water, not a slide whistle.

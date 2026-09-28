@@ -592,7 +592,9 @@
         "setting": "outdoor",
         "mood": "golden",
         "elements": [
-          "fire"
+          "fire",
+          "streetlamp",
+          "skyline"
         ]
       }
     },

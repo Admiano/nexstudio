@@ -102,6 +102,34 @@
     2656
    ]
   },
+  "baby chick": {
+   "concept": "baby chick",
+   "query": "baby chick",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "187263566",
+   "title": "File:New Born Baby Chicks.jpg",
+   "creator": "Yvessurbano0",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:New_Born_Baby_Chicks.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/New_Born_Baby_Chicks.jpg/1920px-New_Born_Baby_Chicks.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "baby-chick.45af0ccf9979.jpg",
+   "sha256": "8115c37a6a32e54b568ea25e3b8a5dc655fa483c604fb57aec0ca4db8fdb820c",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-28",
+   "subjects": [
+    "Chicken breeds",
+    "Chicks hatching",
+    "Chick coops"
+   ],
+   "year": 2026,
+   "source_size": [
+    4032,
+    3024
+   ]
+  },
   "backpack": {
    "concept": "backpack",
    "query": "backpack",
@@ -781,6 +809,35 @@
    "source_size": [
     1330,
     1330
+   ]
+  },
+  "cup": {
+   "concept": "cup",
+   "query": "cup",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "111654466",
+   "title": "File:Cup of coffee surrounded by beans.jpg",
+   "creator": "Zacharias Korsalka from Vienna, Austria",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Cup_of_coffee_surrounded_by_beans.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Cup_of_coffee_surrounded_by_beans.jpg/1920px-Cup_of_coffee_surrounded_by_beans.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "cup.10392a6e1adc.jpg",
+   "sha256": "c9b0a04b4fa3e7c9bc9625aaacea9791d59e7dd03c2d7f89324f6a9bb140e4fd",
+   "width": 1400,
+   "height": 990,
+   "fetched": "2026-09-28",
+   "subjects": [
+    "Coffee beans",
+    "Coffee cups and saucers",
+    "White coffee cups",
+    "Cups of black coffee"
+   ],
+   "year": 2017,
+   "source_size": [
+    3857,
+    2728
    ]
   },
   "document": {
@@ -2166,6 +2223,34 @@
    "source_size": [
     2448,
     3264
+   ]
+  },
+  "sprout": {
+   "concept": "sprout",
+   "query": "sprout",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "151552656",
+   "title": "File:Pea sprouts.jpg",
+   "creator": "Fumikas Sagisavas",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Pea_sprouts.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Pea_sprouts.jpg/1920px-Pea_sprouts.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "sprout.16f80a0ec4c5.jpg",
+   "sha256": "76d0f28a81a7023caa97667390d46a19a40a24ba51e5af7b47aa8d2dcd1d7c72",
+   "width": 1400,
+   "height": 1400,
+   "fetched": "2026-09-28",
+   "subjects": [
+    "Pisum sativum",
+    "Sprouts as food",
+    "Vegetable textures"
+   ],
+   "year": 2024,
+   "source_size": [
+    3000,
+    3000
    ]
   },
   "stethoscope": {

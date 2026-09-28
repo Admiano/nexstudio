@@ -488,6 +488,91 @@ def foley_dim(dur_s: float, seed: int) -> np.ndarray:
     return _norm(bell * np.exp(-t * 3.5) * _env_ad(len(t), 20.0, dur_s * 600.0))
 
 
+def foley_crack(dur_s: float, seed: int) -> np.ndarray:
+    """A shell giving way: three brittle ticks tightening into one crisp snap."""
+    t = _t(dur_s)
+    out = np.zeros(len(t))
+    n = _hipass(_noise(len(t), seed))
+    for k, (at, amp) in enumerate(((0.0, 0.45), (0.07, 0.6), (0.13, 1.0))):
+        m = t >= at
+        out[m] += n[m] * np.exp(-(t[m] - at) * (380.0 - k * 60.0)) * amp
+    return _norm(out)
+
+
+def foley_pour(dur_s: float, seed: int) -> np.ndarray:
+    """Liquid filling a vessel: a burbling stream whose pitch climbs as it fills."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    out = _hipass(_noise(len(t), seed)) * 0.18
+    for _ in range(int(dur_s * 28)):
+        at = rng.uniform(0.0, dur_s * 0.95)
+        f0 = 380.0 + 900.0 * (at / dur_s) + rng.uniform(-60.0, 60.0)
+        m = t >= at
+        tt = t[m] - at
+        out[m] += np.sin(2 * np.pi * (f0 * tt + 1800.0 * tt * tt)) * np.exp(-tt * 70.0) * 0.5
+    return _norm(out * _env_ad(len(t), 40.0, dur_s * 1400.0))
+
+
+def foley_ignite(dur_s: float, seed: int) -> np.ndarray:
+    """A match catching: a scratch, then the soft breath of a flame taking hold."""
+    t = _t(dur_s)
+    n = _noise(len(t), seed)
+    scratch = _hipass(n) * np.exp(-t * 30.0) * (t < 0.12)
+    whoomp = n * np.exp(-np.maximum(0.0, t - 0.08) * 7.0) * (t >= 0.08) * 0.35
+    return _norm(scratch + np.convolve(whoomp, np.ones(24) / 24, mode='same'))
+
+
+def foley_puff(dur_s: float, seed: int) -> np.ndarray:
+    """Blowing a flame out: a short breathy puff that dies to nothing."""
+    t = _t(dur_s)
+    n = np.convolve(_noise(len(t), seed), np.ones(18) / 18, mode='same')
+    return _norm(n * _env_ad(len(t), 25.0, 110.0))
+
+
+def foley_drip(dur_s: float, seed: int) -> np.ndarray:
+    """Melting: slow, spaced drips, each a small falling plink."""
+    t = _t(dur_s)
+    out = np.zeros(len(t))
+    for k, at in enumerate((0.0, dur_s * 0.33, dur_s * 0.62)):
+        m = t >= at
+        tt = t[m] - at
+        f = 1500.0 - 500.0 * np.minimum(1.0, tt * 30.0) - k * 120.0
+        out[m] += np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 40.0) * (1.0 - k * 0.2)
+    return _norm(out)
+
+
+def foley_frost(dur_s: float, seed: int) -> np.ndarray:
+    """Freezing: a glassy crystalline shimmer that creeps in and holds."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    out = np.zeros(len(t))
+    for _ in range(14):
+        f = rng.uniform(3200.0, 6400.0)
+        at = rng.uniform(0.0, dur_s * 0.7)
+        m = t >= at
+        out[m] += np.sin(2 * np.pi * f * (t[m] - at)) * np.exp(-(t[m] - at) * 12.0) * 0.3
+    return _norm(out * np.minimum(1.0, t / (dur_s * 0.4)))
+
+
+def foley_creak(dur_s: float, seed: int) -> np.ndarray:
+    """A door on its hinge: a slow rasping creak that bends in pitch."""
+    t = _t(dur_s)
+    f = 170.0 + 90.0 * np.sin(np.pi * t / dur_s)
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    rasp = np.sign(np.sin(ph)) * 0.4 + np.sin(ph * 3.0) * 0.3
+    grain = 1.0 + 0.5 * np.sin(2 * np.pi * 34.0 * t)
+    return _norm(rasp * grain * _env_ad(len(t), 60.0, dur_s * 900.0) * 0.8)
+
+
+def foley_thud(dur_s: float, seed: int) -> np.ndarray:
+    """A door shutting: a dull wooden thud with a latch click."""
+    t = _t(dur_s)
+    f = 85.0 + 60.0 * np.exp(-t * 40.0)
+    body = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 22.0)
+    latch = _hipass(_noise(len(t), seed)) * np.exp(-np.maximum(0.0, t - 0.05) * 300.0) * (t >= 0.05) * 0.5
+    return _norm(body + latch)
+
+
 def foley_vanish(dur_s: float, seed: int) -> np.ndarray:
     """Leaving: a quick up-swish that thins out into air."""
     t = _t(dur_s)
@@ -606,6 +691,15 @@ SPEC: List[Tuple[str, str, Callable[[], np.ndarray]]] = [
     ('foley-dim-01', 'foley.dim', lambda: foley_dim(1.0, 491)),
     ('foley-vanish-01', 'foley.vanish', lambda: foley_vanish(0.6, 501)),
     ('foley-flag-01', 'foley.flag', lambda: foley_flag(1.0, 511)),
+    # --- object state changes
+    ('foley-crack-01', 'foley.crack', lambda: foley_crack(0.4, 521)),
+    ('foley-pour-01', 'foley.pour', lambda: foley_pour(1.4, 531)),
+    ('foley-ignite-01', 'foley.ignite', lambda: foley_ignite(0.7, 541)),
+    ('foley-puff-01', 'foley.puff', lambda: foley_puff(0.45, 551)),
+    ('foley-drip-01', 'foley.drip', lambda: foley_drip(1.2, 561)),
+    ('foley-frost-01', 'foley.frost', lambda: foley_frost(1.1, 571)),
+    ('foley-creak-01', 'foley.creak', lambda: foley_creak(0.9, 581)),
+    ('foley-thud-01', 'foley.thud', lambda: foley_thud(0.35, 591)),
 ] + [(f'count-{k:02d}', f'synth.count.{k:02d}', (lambda k=k: count_note(k))) for k in range(1, 11)]
 
 

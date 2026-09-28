@@ -1,7 +1,7 @@
 {
  "schema": "NexStudioEditorialTreatmentV2",
  "film_id": "the-wide-blue-road",
- "note": "how sailors found their way before engines \u2014 port, noon sun, night stars, storm, landfall",
+ "note": "how sailors found their way before engines — port, noon sun, night stars, storm, landfall",
  "aspects": [
   "16x9",
   "1x1",
@@ -126,7 +126,8 @@
     "setting": "urban",
     "mood": "dusk",
     "elements": [
-     "boat"
+     "boat",
+     "wave"
     ]
    }
   },
@@ -161,7 +162,7 @@
     "energy": 0.55,
     "formality": 0.4,
     "facing": "CAMERA",
-    "justification": "the sailor steps aboard \u2014 the film's navigator",
+    "justification": "the sailor steps aboard — the film's navigator",
     "character": "sailor",
     "track": {
      "enter": "left",
@@ -556,7 +557,7 @@
    "beat_type": "EMPHASIS",
    "pattern": "HERO_SCALE_PROMOTION",
    "dominant_layer": "ILLUSTRATION",
-   "narration": "Then  green  rose  on  the  horizon  \u2014  land.",
+   "narration": "Then  green  rose  on  the  horizon  —  land.",
    "energy": 0.6,
    "complexity": 0.4,
    "display_units": [
@@ -671,7 +672,7 @@
     "energy": 0.45,
     "formality": 0.4,
     "facing": "CAMERA",
-    "justification": "the sailor walks off carrying the map \u2014 the voyage won",
+    "justification": "the sailor walks off carrying the map — the voyage won",
     "character": "sailor",
     "track": {
      "enter": "none",
