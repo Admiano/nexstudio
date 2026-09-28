@@ -36,7 +36,7 @@ def _subtle_paper_texture(im, pal, seed):
     # subtle on white boards, a faint chalk grain on dark ones
     speck = tuple(int(pal['bgc'][i] * 0.92 + pal['inkc'][i] * 0.08)
                   for i in range(3)) + (255,)
-    for _ in range(max(14, int(w * h / 46000))):
+    for _ in range(max(20, int(w * h / 26000))):
         x, y = rnd.randrange(w), rnd.randrange(h)
         d.point((x, y), fill=speck)
 

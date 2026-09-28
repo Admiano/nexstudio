@@ -558,9 +558,16 @@ def _sb_glyph(name, box, meta):
         rh_ = h / n
         for i, rtxt in enumerate(rows):
             cy_ = y0 + rh_ * (i + 0.5)
-            st.append((v3r._rounded_rect(x0 + w / 2, cy_, w * 0.97,
-                                         rh_ * 0.88, rh_ * 0.12),
-                       'ink', 0.85, False, False))
+            # hand-drawn card — four wobble lines, not a UI rounded-rect
+            rx0, ry0_, rx1, ry1_ = (x0 + w * 0.02, cy_ - rh_ * 0.42,
+                                   x0 + w * 0.98, cy_ + rh_ * 0.42)
+            for ei, (q0, q1) in enumerate((((rx0, ry0_), (rx1, ry0_)),
+                                           ((rx1, ry0_), (rx1, ry1_)),
+                                           ((rx1, ry1_), (rx0, ry1_)),
+                                           ((rx0, ry1_), (rx0, ry0_)))):
+                st.append((_wobble_line(q0, q1, n=9, wob=rh_ * 0.05,
+                                        seed=i * 17 + ei * 5 + 2),
+                           'ink', 0.85, False, False))
             lh = rh_ * 0.46
             tw_ = text_width(rtxt, lh)
             if tw_ > w * 0.86:
@@ -580,7 +587,7 @@ def _sb_glyph(name, box, meta):
         pts = [(x0, y0 + h * 0.78), pk, vl, md, en]
         for i in range(len(pts) - 1):
             st.append((_wobble_line(pts[i], pts[i + 1], n=18,
-                                    wob=w * 0.008, seed=i * 11 + 7),
+                                    wob=w * 0.014, seed=i * 11 + 7),
                        'ink', 1.1, False, False))
         ang = math.atan2(en[1] - md[1], en[0] - md[0])
         ah = w * 0.05
@@ -633,26 +640,32 @@ def _sb_expr_strokes(name, b2, col='a_red'):
 
 
 def _sb_annotate(text, b2, side, lh):
-    """World-space micro-annotation text pinned to an element's edge.
-    Returns (strokes, bounds)."""
+    """World-space micro-annotation text pinned to an element's edge or
+    corner (ur/dr/ul/dl tuck the label off that corner). Returns
+    (strokes, bounds)."""
     lines = str(text).split('\n')
     st = []
     lw_max = max(text_width(ln, lh) for ln in lines)
+    n = len(lines)
+    cxm = (b2[0] + b2[2]) / 2 - lw_max / 2
     if side == 'right':
-        x = b2[2] + lh * 0.4
+        x, ys = b2[2] + lh * 0.4, b2[1] + lh * 0.1
     elif side == 'left':
-        x = b2[0] - lh * 0.4 - lw_max
+        x, ys = b2[0] - lh * 0.4 - lw_max, b2[1] + lh * 0.1
+    elif side == 'ur':
+        x, ys = b2[2] + lh * 0.4, b2[1] - lh * 0.45
+    elif side == 'dr':
+        x, ys = b2[2] + lh * 0.4, b2[3] - lh * 1.2 * n + lh * 0.35
+    elif side == 'ul':
+        x, ys = b2[0] - lh * 0.4 - lw_max, b2[1] - lh * 0.45
+    elif side == 'dl':
+        x, ys = b2[0] - lh * 0.4 - lw_max, b2[3] - lh * 1.2 * n + lh * 0.35
     elif side == 'above':
-        x = b2[0] + (b2[2] - b2[0]) / 2 - lw_max / 2
+        x, ys = cxm, b2[1] - lh * 1.2 * n - lh * 0.25
     else:  # below
-        x = b2[0] + (b2[2] - b2[0]) / 2 - lw_max / 2
+        x, ys = cxm, b2[3] + lh * 0.35
     for i, ln in enumerate(lines):
-        if side == 'above':
-            y = b2[1] - lh * 1.2 * (len(lines) - i) - lh * 0.25
-        elif side == 'below':
-            y = b2[3] + lh * 0.35 + i * lh * 1.2
-        else:
-            y = b2[1] + lh * 0.1 + i * lh * 1.2
+        y = ys + i * lh * 1.2
         for s_ in text_strokes(ln, (x, y), lh, 'ink', 0.85):
             st.append((s_[0], s_[1], s_[2], False, True))
     bb = ((min(q[0] for s_ in st for q in s_[0]),
@@ -720,26 +733,11 @@ def _build(plan, ratio):
     bx0, by0 = -W / 2 + m2, -H / 2 + m2 * 1.15
     bw, bh = W - 2 * m2, H - 2 * m2 * 1.45
     board_rect = (bx0, by0, bw, bh)
-    header = bh * (0.15 if storyboard else 0.10)
+    header = bh * 0.10
     ax0, ay0, aw, ah = bx0, by0 + header, bw, bh - header
     rw_, rh_ = aw, ah
     regions = [(ax0, ay0, rw_, rh_)] * nsec
     divs = []
-    if storyboard:
-        # yellow corner rays flanking the masthead (the reference's accent
-        # doodles) — the only persistent board chrome; no panel dividers
-        for k, (rcx_, dirx) in enumerate(((ax0 + aw * 0.012, 1),
-                                          (ax0 + aw * 0.988, -1))):
-            for j in range(3):
-                a_ = math.radians(-25 - j * 30)
-                x0_, y0_ = rcx_, by0 + header * 0.72
-                seg = [(x0_ + math.cos(a_) * dirx * 16,
-                        y0_ + math.sin(a_) * 16),
-                       (x0_ + math.cos(a_) * dirx * 38,
-                        y0_ + math.sin(a_) * 38)]
-                divs.append((('divider', [(seg, 'a_yellow', 1.4, False,
-                                           True)], (0, 0), 1.0, None),
-                             0.25 + j * 0.08, 0.45 + j * 0.08))
     uid = 0
 
     # board title drawn once, top-left — the persistent anchor text
@@ -751,20 +749,9 @@ def _build(plan, ratio):
     title = raw.replace('_', ' ').title() or 'WHITEBOARD'
     first_t0 = sections[0]['beat']['start_seconds']
     if storyboard:
-        # storyboard headline: big centered title across the top strip with
-        # a yellow underline swash (the reference's masthead)
-        th_ = min(header * 0.58, 110.0)
-        tw_ = text_width(title, th_)
-        if tw_ > bw * 0.92:
-            th_ *= bw * 0.92 / tw_
-            tw_ = text_width(title, th_)
-        tx_ = bx0 + bw / 2 - tw_ / 2
-        ty_ = by0 + header * 0.10
-        title_st = text_strokes(title, (tx_, ty_), th_, 'ink', 1.15)
-        und = _wobble_line((tx_ + tw_ * 0.02, ty_ + th_ * 1.15),
-                           (tx_ + tw_ * 0.98, ty_ + th_ * 1.15),
-                           n=32, wob=1.8, seed=9)
-        title_st = title_st + [(und, 'a_yellow', 2.2, False, True)]
+        # no board-level masthead — each scene's numbered swash heading IS
+        # the title; a second headline only competes with it
+        title_st = []
     else:
         th_ = min(header * 0.62, 96.0)
         tw_ = text_width(title, th_)
@@ -816,21 +803,25 @@ def _build(plan, ratio):
                         (bx_0, ry + rh * 0.05 - th2 * 0.15)]
                 # swash band inks first, then the heading letters on it
                 tts = [(band, sw_col, 1.0, 'solid', True)] + tts
-                sub = str(sec['beat'].get('subtitle') or '').strip()
-                if sub:
-                    sh2 = th2 * 0.40
-                    tts += text_strokes(sub, (rx + rw * 0.05,
-                                              ry + rh * 0.05 + th2 * 1.5),
-                                        sh2, 'ink', 0.9)
             sec['title_st'] = tts
-            # subtitle ends at ~th2*1.9 under the swash — the content band
-            # must start below it or annotations collide with it
-            title_h = ((th2 * (2.06 if sub else 1.32) + rh * 0.02)
-                       if storyboard else th2 * 1.5 + rh * 0.04)
+            title_h = (th2 * 1.32 + rh * 0.02 if storyboard
+                       else th2 * 1.5 + rh * 0.04)
         # bottom caption strip (storyboard quote line) is reserved so items
         # never land on it
         cap = str(sec['beat'].get('caption') or '').strip()
         cap_h = rh * 0.13 if (storyboard and cap) else 0.0
+        cap_bb = None
+        if storyboard and cap:
+            # resolve the caption's real text bounds now so annotations may
+            # use the strip's free corners while never touching the quote
+            ch_ = rh * 0.078
+            cw_ = text_width(cap, ch_)
+            if cw_ > rw * 0.92:
+                ch_ *= rw * 0.92 / cw_
+                cw_ = text_width(cap, ch_)
+            cap_bb = (rx + rw / 2 - cw_ / 2, ry + rh * 0.97 - ch_ * 1.5,
+                      rx + rw / 2 + cw_ / 2, ry + rh * 0.97 - ch_ * 0.1)
+            sec['_cap'] = cap_bb
         # content rect inside the region, clear of its title strip
         cx0 = rx + rw * 0.05
         cy0 = ry + (rh * 0.03 if storyboard else rh * 0.04) + title_h
@@ -858,7 +849,10 @@ def _build(plan, ratio):
         # paper as the next scene opens
         nxt_t0 = (beats[sec['bi'] + 1]['start_seconds']
                   if sec['bi'] + 1 < len(beats) else None)
-        sec['fade'] = ((nxt_t0 - 0.15, nxt_t0 + 0.45)
+        # storyboard scenes hand off cleanly — the outgoing scene is fully
+        # off the paper BEFORE the next title starts inking (no ghosting)
+        sec['fade'] = ((nxt_t0 - (0.62 if storyboard else 0.15),
+                        nxt_t0 + (-0.08 if storyboard else 0.45))
                        if nxt_t0 is not None
                        else (t1, t1 + WIPE_SECONDS * 0.8))
         if not k:
@@ -899,19 +893,79 @@ def _build(plan, ratio):
             sb_meta = [next((g[4] for g, _s, _e in it['groups'] if g[4]),
                             {}) or {}
                        for it in items]
+        # scene archetype: the layout follows what the scene IS, not one
+        # fixed template — 'journey' scenes center on their chart, 'focus'
+        # scenes stage 1-2 elements large, 'chain' scenes read L->R
         sb_slots = []
         if storyboard:
-            wts = []
-            for j, it in enumerate(items):
-                gl = sb_meta[j].get('glyph') or ''
-                wts.append(_SB_W.get(gl, 1.0))
-            gapu = 0.32            # arrow breathing room between elements
-            tot = sum(wts) + gapu * max(0, k - 1)
-            xcur = cx0
-            for j, it in enumerate(items):
-                wd = cw * wts[j] / tot
-                sb_slots.append((xcur, wd))
-                xcur += wd + cw * gapu / tot
+            sb_gls = [m.get('glyph') or '' for m in sb_meta]
+            rider = [bool(m.get('on_chart')) for m in sb_meta]
+            arch = ('journey' if 'chart-journey' in sb_gls
+                    else ('focus' if k <= 2 else 'chain'))
+
+            def _hfrac(j):
+                gl = sb_gls[j]
+                if rider[j]:
+                    return 0.34 if arch == 'journey' else 0.52
+                if gl in _SB_W:
+                    return {'divider': 0.80, 'crowd': 0.42,
+                            'stack-list': 0.82,
+                            'chart-journey': 0.80}[gl]
+                return 0.78 if _is_person_item(items[j]) else 0.62
+
+            if arch == 'journey':
+                # the chart IS the panel: big canvas left-of-centre, riders
+                # stand on it, remaining elements stack in a right column
+                cj = sb_gls.index('chart-journey')
+                col = [j for j in range(k) if not rider[j]
+                       and sb_gls[j] != 'divider' and j != cj]
+                ncol = max(1, len(col))
+                for j in range(k):
+                    if rider[j]:
+                        sb_slots.append((cx0 + cw * 0.40, cw * 0.18,
+                                         0.56, _hfrac(j)))
+                    elif j == cj:
+                        sb_slots.append((cx0, cw * 0.60, 0.60,
+                                         _hfrac(j)))
+                    elif sb_gls[j] == 'divider':
+                        sb_slots.append((cx0 + cw * 0.615, cw * 0.05,
+                                         0.58, _hfrac(j)))
+                    else:
+                        ci = col.index(j)
+                        sb_slots.append((cx0 + cw * 0.69, cw * 0.30,
+                                         0.14 + 0.76 * (ci + 0.5) / ncol,
+                                         min(0.62, 0.80 / ncol)))
+            elif arch == 'focus':
+                for j in range(k):
+                    x0f = (cx0 + cw * (0.06 + 0.50 * j) if k == 2
+                           else cx0 + cw * 0.20)
+                    sb_slots.append((x0f, cw * (0.42 if k == 2 else 0.60),
+                                     0.50, min(0.72, _hfrac(j) + 0.10)))
+            else:
+                # annotation-aware chain: an element's label lives in the
+                # gap trailing it, so the gap must reserve the label's real
+                # width (a label that can't fit anywhere gets dropped —
+                # better a reserved lane than a dropped annotation)
+                lh0 = rh * 0.052
+                wts = [_SB_W.get(sb_gls[j], 1.0) for j in range(k)]
+                gap_px = []
+                for j in range(k):
+                    ant_ = str(sb_meta[j].get('annotate') or '').strip()
+                    lw_ = (max(text_width(ln, lh0)
+                               for ln in ant_.split('\n'))
+                           if ant_ else 0.0)
+                    gap_px.append(max(cw * 0.07, lw_ + lh0 * 1.0))
+                rem = cw - sum(gap_px)
+                if rem < cw * 0.45:    # over-labelled: shrink gaps, keep
+                    rem = cw * 0.45    # elements legible; labels shrink
+                    sc = (cw - rem) / sum(gap_px)
+                    gap_px = [g * sc for g in gap_px]
+                sf = rem / sum(wts)
+                xcur = cx0
+                for j in range(k):
+                    wd = wts[j] * sf
+                    sb_slots.append((xcur, wd, 0.56, _hfrac(j)))
+                    xcur += wd + gap_px[j]
         sat_pts = [
             (rcx, rcy),
             (cx0 + cw * 0.27, cy0 + ch * 0.30),
@@ -954,12 +1008,8 @@ def _build(plan, ratio):
             # band keeps every element at a readable, uniform weight.
             # Storyboard chains size each element to its own slot.
             if storyboard:
-                sx0, swd = sb_slots[j]
-                fh = ch * {'divider': 0.80, 'crowd': 0.40,
-                           'stack-list': 0.82, 'chart-journey': 0.78,
-                           }.get(glyph, 0.78 if person else 0.62)
-                if meta_.get('on_chart'):
-                    fh = ch * 0.52
+                sx0, swd, cfr, hfr = sb_slots[j]
+                fh = ch * hfr
                 fw = swd * 0.94
             else:
                 fw = cw * (0.60 if hero
@@ -970,8 +1020,8 @@ def _build(plan, ratio):
             if hero:
                 cands = [sat_pts[0]]
             elif storyboard:
-                sx0, swd = sb_slots[j]
-                px_, py_ = sx0 + swd / 2, cy0 + ch * 0.56
+                sx0, swd, cfr, _hfr = sb_slots[j]
+                px_, py_ = sx0 + swd / 2, cy0 + ch * cfr
                 anch = meta_.get('on_chart')
                 if anch:
                     # anchor to a point on an already-placed chart-journey
@@ -994,6 +1044,7 @@ def _build(plan, ratio):
                             if anch in anch_map:
                                 ax_, ay_ = anch_map[anch]
                                 px_, py_ = ax_, ay_ - h * bo2 / 2 - 4
+                                it['_anch_pt'] = (ax_, ay_)
                             break
                 cands = [(px_, py_)]
             else:
@@ -1174,8 +1225,11 @@ def _build(plan, ratio):
             vis = [it for it in placed
                    if it is not None and it.get('bounds2')]
             meta_of = {id(items[j]): sb_meta[j] for j in range(k)}
-            # the title+subtitle band is off-limits to annotations
+            # the title band is off-limits to annotations; so is the
+            # quote caption's actual text box (its strip corners are free)
             placed_bounds.append((cx0, cy0 - rh * 0.20, cx0 + cw, cy0))
+            if sec.get('_cap'):
+                placed_bounds.append(sec['_cap'])
             # procedural glyphs draw in world coords over their placed box
             for it in vis:
                 gl = (meta_of.get(id(it)) or {}).get('glyph') or ''
@@ -1187,11 +1241,47 @@ def _build(plan, ratio):
                         it['groups'].append(
                             (('glyph', gen, (0, 0), 1.0, None),
                              i0_, i0_ + (i1_ - i0_) * 0.82))
+            # annotation obstacles: a chart-journey item blocks by its real
+            # polyline SEGMENTS (padded), not its whole bounding box — the
+            # panel whitespace inside the chart frame stays usable
+            chart_boxes = {}
+            for it in vis:
+                if (meta_of.get(id(it)) or {}).get('glyph') == 'chart-journey':
+                    bx = it['bounds2']
+                    w_, h_ = bx[2] - bx[0], bx[3] - bx[1]
+                    pts = [(bx[0], bx[1] + h_ * 0.78),
+                           (bx[0] + w_ * 0.30, bx[1] + h_ * 0.10),
+                           (bx[0] + w_ * 0.55, bx[1] + h_ * 0.74),
+                           (bx[0] + w_ * 0.78, bx[1] + h_ * 0.34),
+                           (bx[2], bx[1] + h_ * 0.10)]
+                    # subdivide each leg into thin sub-boxes — a diagonal
+                    # segment's whole bbox would wall off half the panel
+                    segpad = 4.0
+                    segs = []
+                    for a_, b_ in zip(pts, pts[1:]):
+                        for ti in range(6):
+                            t0_, t1_ = ti / 6.0, (ti + 1) / 6.0
+                            q0 = (a_[0] + (b_[0] - a_[0]) * t0_,
+                                  a_[1] + (b_[1] - a_[1]) * t0_)
+                            q1 = (a_[0] + (b_[0] - a_[0]) * t1_,
+                                  a_[1] + (b_[1] - a_[1]) * t1_)
+                            segs.append(
+                                (min(q0[0], q1[0]) - segpad,
+                                 min(q0[1], q1[1]) - segpad,
+                                 max(q0[0], q1[0]) + segpad,
+                                 max(q0[1], q1[1]) + segpad))
+                    chart_boxes[it['bounds2']] = segs
+            audit_boxes = [[it.get('label', '?'), it['bounds2'],
+                            meta_of.get(id(it)) or {}] for it in vis]
             # chain arrows: consecutive elements link left to right
             gl_of = {id(it): (meta_of.get(id(it)) or {}).get('glyph', '')
                      for it in vis}
             for a_, b_ in zip(vis, vis[1:]):
                 if 'divider' in (gl_of.get(id(a_)), gl_of.get(id(b_))):
+                    continue
+                # riders sit ON the chart — arrows to/from them are noise
+                if ((meta_of.get(id(a_)) or {}).get('on_chart')
+                        or (meta_of.get(id(b_)) or {}).get('on_chart')):
                     continue
                 ba, bb_ = a_['bounds2'], b_['bounds2']
                 pa = (ba[2] + cw * 0.012, (ba[1] + ba[3]) / 2)
@@ -1225,68 +1315,74 @@ def _build(plan, ratio):
                         i0_, i0_ + (i1_ - i0_) * 0.40))
                 ant = str(meta_.get('annotate') or '').strip()
                 if ant:
-                    lh = rh * 0.055
                     chosen = None
-                    for side in ('right', 'above', 'left', 'below'):
-                        st_, abb = _sb_annotate(ant, b2, side, lh)
-                        pad2 = 6.0
-                        hit = False
-                        for ob in placed_bounds:
-                            if not (abb[2] + pad2 <= ob[0]
-                                    or abb[0] - pad2 >= ob[2]
-                                    or abb[3] + pad2 <= ob[1]
-                                    or abb[1] - pad2 >= ob[3]):
+                    # riders get an extra anchor: just under their own
+                    # point on the line (the trough/peak whitespace)
+                    sides = ['right', 'above', 'ur', 'dr',
+                             'left', 'below', 'ul', 'dl']
+                    if meta_.get('on_chart') and it.get('_anch_pt'):
+                        sides = sides[:6] + ['ptbelow'] + sides[6:]
+                    # hard no-collision rule: 9 anchors x 3 sizes; a label
+                    # that can't land clean is dropped + flagged — never
+                    # drawn overlapping
+                    for lsc in (1.0, 0.84, 0.68):
+                        lh = rh * 0.052 * lsc
+                        for side in sides:
+                            if side == 'ptbelow':
+                                px_, py_ = it['_anch_pt']
+                                st_, abb = _sb_annotate(
+                                    ant, (px_ - 1, py_ + lh * 0.3,
+                                          px_ + 1, py_ + lh * 0.3),
+                                    'below', lh)
+                            else:
+                                st_, abb = _sb_annotate(ant, b2, side, lh)
+                            if not st_:
+                                continue
+                            pad2 = 5.0
+                            hit = False
+                            for ob in placed_bounds:
+                                subs = chart_boxes.get(ob) or (ob,)
+                                for sb2 in subs:
+                                    if not (abb[2] + pad2 <= sb2[0]
+                                            or abb[0] - pad2 >= sb2[2]
+                                            or abb[3] + pad2 <= sb2[1]
+                                            or abb[1] - pad2 >= sb2[3]):
+                                        hit = True
+                                        break
+                                if hit:
+                                    break
+                            if (abb[0] < cx0 or abb[2] > cx0 + cw
+                                    or abb[1] < cy0 + lh * 0.15
+                                    or abb[3] > cy0 + ch + cap_h):
                                 hit = True
+                            if not hit:
+                                chosen = (st_, abb)
                                 break
-                        # stay inside the frame's content band (below the
-                        # subtitle zone, above the caption strip)
-                        if abb[0] < cx0 or abb[2] > cx0 + cw \
-                                or abb[1] < cy0 + lh * 0.75 \
-                                or abb[3] > cy0 + ch:
-                            hit = True
-                        if not hit:
-                            chosen = (st_, abb)
+                        if chosen is not None:
                             break
                     if chosen is None:
-                        # every side is blocked — take 'above' but clamp it
-                        # into the content band so it can't hit the title
-                        st_, abb = _sb_annotate(ant, b2, 'above', lh)
-                        if st_:
-                            dy = 0.0
-                            if abb[1] < cy0 + lh * 0.75:
-                                dy = cy0 + lh * 0.75 - abb[1]
-                            if abb[3] + dy > cy0 + ch:
-                                dy = max(0.0, cy0 + ch - abb[3])
-                            dx = 0.0
-                            if abb[0] < cx0:
-                                dx = cx0 - abb[0]
-                            if abb[2] + dx > cx0 + cw:
-                                dx = min(dx, cx0 + cw - abb[2])
-                            if dy or dx:
-                                st_ = [([(x_ + dx, y_ + dy)
-                                         for x_, y_ in s_[0]],)
-                                       + tuple(s_[1:]) for s_ in st_]
-                                abb = (abb[0] + dx, abb[1] + dy,
-                                       abb[2] + dx, abb[3] + dy)
+                        st_, abb = [], b2
+                        plan.setdefault('_sb_audit', []).append(
+                            {'beat': sec['bi'], 'dropped_label': ant})
+                    else:
+                        st_, abb = chosen
                     if st_:
                         it['groups'].append((
                             ('plabel', st_, (0, 0), 1.0, None),
                             i0_ + (i1_ - i0_) * 0.68,
                             i0_ + (i1_ - i0_) * 1.02))
-                        it['bounds2'] = (min(b2[0], abb[0]),
-                                         min(b2[1], abb[1]),
-                                         max(b2[2], abb[2]),
-                                         max(b2[3], abb[3]))
                         placed_bounds.append(abb)
-            # collision audit: every placed box must be pairwise-clean;
-            # figures anchored on_chart intentionally overlap the chart and
-            # each other (they stand ON the line — composed scene, not
-            # interference)
+                        audit_boxes.append(['label:' + ant, abb, meta_])
+            # collision audit: every drawn box — elements AND labels —
+            # must be pairwise-clean. Riders intentionally overlap their
+            # chart and each other (they stand ON the line).
             audit = []
-            for ia in range(len(vis)):
-                for ib in range(ia + 1, len(vis)):
-                    ma = meta_of.get(id(vis[ia])) or {}
-                    mb = meta_of.get(id(vis[ib])) or {}
+            for ia in range(len(audit_boxes)):
+                for ib in range(ia + 1, len(audit_boxes)):
+                    na, A, ma = audit_boxes[ia]
+                    nb, B, mb = audit_boxes[ib]
+                    if ma is mb and not na.startswith('label:'):
+                        continue
                     chart_pair = (
                         (ma.get('on_chart') and mb.get('on_chart'))
                         or (ma.get('on_chart')
@@ -1295,12 +1391,10 @@ def _build(plan, ratio):
                             and ma.get('glyph') == 'chart-journey'))
                     if chart_pair:
                         continue
-                    A, B = vis[ia]['bounds2'], vis[ib]['bounds2']
                     ov = not (A[2] <= B[0] or B[2] <= A[0]
                               or A[3] <= B[1] or B[3] <= A[1])
                     if ov:
-                        audit.append((vis[ia].get('label', '?'),
-                                      vis[ib].get('label', '?')))
+                        audit.append((na, nb))
             if audit:
                 flow_audit = plan.setdefault('_sb_audit', [])
                 flow_audit.append({'beat': sec['bi'], 'overlaps': audit})
