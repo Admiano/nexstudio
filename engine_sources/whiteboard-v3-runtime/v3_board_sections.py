@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw
 
 import whiteboard_pil_adapter as wbp
 import v3_board_renderer as v3r
+import sb_cast
 from v3_board_renderer import (
     _draw_strokes, _map_scale, _palette, _group_world_bounds,
     _composite_frame, _overlay_hand, _SLICE_SPAN, _arc,
@@ -83,6 +84,8 @@ def _colors(plan):
             if re.match(r'^#[0-9a-fA-F]{6}$', _t):
                 cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16),
                             int(_t[5:7], 16), 255)
+    for _t in (sb_cast.FILL, sb_cast.SHADE):
+        cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16), int(_t[5:7], 16), 255)
     return cols
 
 
@@ -1055,10 +1058,16 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         kind = (gl if gl in _SB_GLYPHS else
                 ('person' if person else 'art'))
         art = [] if gl in _SB_GLYPHS else _sb_item_art(it)
+        emo, n_body = '', 0
+        if kind == 'person':
+            emo = sb_cast.emotion_for(dict(m, label=it.get('label', '')))
+            body, marks, _hb = sb_cast.figure(emo)
+            art = body + marks
+            n_body = len(body)
         if kind in ('person', 'art') and not art:
             continue
-        expr = m.get('expression') or ''
-        head = 1.30 if (kind == 'person' and expr) else 1.0
+        expr = '' if kind == 'person' else (m.get('expression') or '')
+        head = 1.0
         aspect = {'stack-list': 1.30, 'crowd': 1.55, 'chart-journey': 1.7,
                   'divider': 0.0}.get(kind)
         if aspect is None:
@@ -1068,11 +1077,35 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                    kind, 0.88 if j == 0 else 0.74)
         ant = str(m.get('annotate') or '').strip()
         els.append({'j': j, 'it': it, 'm': m, 'kind': kind, 'art': art,
+                    'emo': emo, 'n_body': n_body,
+                    'focus': bool(m.get('focus')),
                     'aspect': aspect, 'rel': rel, 'head': head,
                     'expr': expr, 'halo': m.get('halo') or '',
                     'rider': m.get('on_chart') or '',
                     'label': ant.split('\n') if ant else [],
                     'rows': [str(r) for r in (m.get('rows') or [])]})
+    rel_ = str(scn.get('relation') or '').lower().strip()
+    if not rel_:
+        if any(e['kind'] == 'chart-journey' for e in els):
+            rel_ = 'journey'
+        elif (any(e['kind'] == 'divider' for e in els)
+              and any(e['kind'] == 'crowd' for e in els)):
+            rel_ = 'contrast'
+        elif sum(1 for e in els if e['kind'] != 'divider') <= 2:
+            rel_ = 'focus'
+        else:
+            rel_ = 'sequence'
+    if rel_ != 'contrast':
+        els = [e for e in els if e['kind'] != 'divider']
+    if rel_ == 'focus':
+        solid = [e for e in els if e['kind'] != 'divider']
+        hero = next((e for e in solid if e['focus']),
+                    next((e for e in solid if e['kind'] == 'person'),
+                         solid[0] if solid else None))
+        for e in solid:
+            e['rel'] = 1.0 if e is hero else 0.55
+            e['mid'] = e is not hero
+    sec['relation'] = rel_
     ls = H * 0.050
 
     def _labw(e, size):
@@ -1156,7 +1189,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 eh = e['rel'] * hr
                 ew = e['aspect'] * eh
                 cx_ = x + cxw / 2
-                e['box'] = (cx_ - ew / 2, yb - eh, cx_ + ew / 2, yb)
+                yb_e = yb - (hr - eh) / 2 if e.get('mid') else yb
+                e['box'] = (cx_ - ew / 2, yb_e - eh, cx_ + ew / 2, yb_e)
             x += cxw + (gaps[i] if i < len(gaps) else 0.0)
 
     # ---- strokes, labels, arrows --------------------------------------
@@ -1176,6 +1210,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         b = e['box']
         lwsize = min(150.0, max(80.0, (b[3] - b[1]) * 0.55))
         fig_b = b
+        mark_st = []
         if e['kind'] == 'divider':
             art_st = _sb_divider((b[0] + b[2]) / 2, b[1], b[3])
             lwsize = 1.0
@@ -1189,7 +1224,14 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             lwsize = 90.0
         else:
             fb = (b[0], b[3] - (b[3] - b[1]) / e['head'], b[2], b[3])
-            art_st, fig_b = _sb_fit(e['art'], fb)
+            if e['kind'] == 'person':
+                flip = (b[0] + b[2]) / 2 > W * 0.12
+                body, marks, _hb = sb_cast.figure(e['emo'], flip)
+                fit_st, _fb = _sb_fit(body + marks, fb)
+                art_st, mark_st = fit_st[:len(body)], fit_st[len(body):]
+                fig_b = _sb_bounds(s_[0] for s_ in art_st)
+            else:
+                art_st, fig_b = _sb_fit(e['art'], fb)
             if e['kind'] == 'person':
                 gy = fig_b[3]
                 gw = (fig_b[2] - fig_b[0]) * 0.55
@@ -1203,6 +1245,12 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                             (0, 0), 1.0, None), i0, i0 + slot * 0.20))
         groups.append((('icon', art_st, (0, 0), lwsize, None),
                        i0 + slot * 0.08, i0 + slot * 0.62))
+        if mark_st:
+            groups.append((('marks', mark_st, (0, 0), lwsize, None),
+                           i0 + slot * 0.62, i0 + slot * 0.72))
+            eb = _sb_bounds(s_[0] for s_ in mark_st)
+            fig_b = (min(fig_b[0], eb[0]), min(fig_b[1], eb[1]),
+                     max(fig_b[2], eb[2]), max(fig_b[3], eb[3]))
         if e['expr'] and e['kind'] == 'person':
             ex = _sb_expr(e['expr'], fig_b, e['halo'] or 'a_red')
             groups.append((('marks', ex, (0, 0), 100.0, None),

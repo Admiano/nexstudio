@@ -25,7 +25,11 @@
      "label": "sources",
      "icon": "stack of documents",
      "glyph": "stack-list",
-     "rows": ["INFO", "FILINGS", "ON-CHAIN"],
+     "rows": [
+      "INFO",
+      "FILINGS",
+      "ON-CHAIN"
+     ],
      "annotate": "the signal"
     },
     "supportingRoles": [
@@ -33,7 +37,8 @@
       "label": "early reader",
       "icon": "person",
       "annotate": "you see it\nearlier",
-      "expression": "thinking"
+      "expression": "thinking",
+      "emotion": "alert"
      },
      {
       "label": "gap",
@@ -46,7 +51,8 @@
       "glyph": "crowd",
       "annotate": "market finds\nout later"
      }
-    ]
+    ],
+    "relation": "contrast"
    }
   },
   {
@@ -70,20 +76,16 @@
       "icon": "person",
       "annotate": "you read\nit better",
       "expression": "thinking",
-      "halo": "a_green"
+      "halo": "a_green",
+      "emotion": "think"
      },
      {
-      "label": "gap",
-      "icon": "divider",
-      "glyph": "divider"
-     },
-     {
-      "label": "the crowd",
-      "icon": "crowd of people",
-      "glyph": "crowd",
-      "annotate": "same picture"
+      "label": "clearer picture",
+      "icon": "magnifying glass",
+      "annotate": "clearer\npicture"
      }
-    ]
+    ],
+    "relation": "sequence"
    }
   },
   {
@@ -107,7 +109,8 @@
       "on_chart": "peak",
       "annotate": "FOMO",
       "expression": "exclaim",
-      "halo": "a_yellow"
+      "halo": "a_yellow",
+      "emotion": "excited"
      },
      {
       "label": "bottom seller",
@@ -115,21 +118,19 @@
       "on_chart": "valley",
       "annotate": "PANIC",
       "expression": "exclaim",
-      "halo": "a_red"
-     },
-     {
-      "label": "gap",
-      "icon": "divider",
-      "glyph": "divider"
+      "halo": "a_red",
+      "emotion": "panic"
      },
      {
       "label": "calm trader",
       "icon": "person",
       "annotate": "you stay\nrational",
       "expression": "thinking",
-      "halo": "a_blue"
+      "halo": "a_blue",
+      "emotion": "calm"
      }
-    ]
+    ],
+    "relation": "journey"
    }
   },
   {
@@ -145,20 +146,19 @@
      "label": "the backtest",
      "icon": "backtest results",
      "glyph": "stack-list",
-     "rows": ["BACKTEST", "WIN 62%", "LOSS 38%"],
+     "rows": [
+      "BACKTEST",
+      "WIN 62%",
+      "LOSS 38%"
+     ],
      "annotate": "proven on\nhistory"
     },
     "supportingRoles": [
      {
       "label": "the bot",
       "icon": "kit:crypto:robot",
-      "tone": "a_blue",
-      "annotate": "runs it\nexactly"
-     },
-     {
-      "label": "gap",
-      "icon": "divider",
-      "glyph": "divider"
+      "annotate": "runs it\nexactly",
+      "focus": true
      },
      {
       "label": "compounding",
@@ -166,7 +166,8 @@
       "tone": "a_green",
       "annotate": "edge\ncompounds"
      }
-    ]
+    ],
+    "relation": "focus"
    }
   }
  ]

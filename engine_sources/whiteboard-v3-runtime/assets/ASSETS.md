@@ -245,3 +245,12 @@ pie-chart, presentation, calculator, dollar-sign, money-bag,
 office-building, necktie, contract-pen, stamp, meeting-table, megaphone,
 badge-id, card-pay, scales-justice, inbox, lightbulb, calendar,
 coffee-cup, phone-call, growth-arrow — 23).
+
+## Storyboard cast stills (`sb_cast.py`)
+
+The proto figure drawn front-on as vector stills so a face reads: pose +
+face (eyes, brows, mouth) + expression marks. Approved extension: faces and
+emotion still poses only — no motion clips. Emotions: neutral, happy, think,
+alert, excited, greedy, panic, afraid, calm, confident, sad, defeated,
+confused, angry, proud, explain. A role's `emotion` wins; otherwise it is
+inferred from its annotation / cue / label words.
