@@ -1014,6 +1014,27 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap):
     sol = [e for e in els if e['kind'] != 'divider']
     n = len(sol)
     lane = lambda e: (labh(e) + gap) if e['label'] else 0.0  # noqa: E731
+    if lay == 'story' and n >= 2:
+        cells: dict = {}
+        for e in sol:
+            cells.setdefault(int(e['m'].get('moment') or 0), []).append(e)
+        cols = [cells[k] for k in sorted(cells)]
+        gapx = Wc * 0.06
+        span = lambda e: max(1.0 if e['label'] else 0.6,  # noqa: E731
+                             e['aspect'])
+        wts = [sum(span(e) for e in c) for c in cols]
+        x = L
+        for c, wt in zip(cols, wts):
+            cw = (Wc - gapx * (len(cols) - 1)) * wt / sum(wts)
+            xx = x
+            for e in c:
+                w_ = cw * span(e) / wt
+                top = 0.92 if e['kind'] == 'person' else 0.62
+                _sb_boxfit(e, xx + w_ / 2, band_b - lane(e), w_ * 0.86,
+                           band_h * top - lane(e))
+                xx += w_
+            x += cw + gapx
+        return True
     if lay == 'focus' and n >= 2:
         hero = next((e for e in sol if e['focus']),
                     next((e for e in sol if e['kind'] == 'person'), sol[0]))
@@ -1652,7 +1673,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     lay = {'focus': 'focus', 'before_after': 'before_after',
            'cycle': 'cycle', 'reaction': 'reaction',
            'group_reaction': 'reaction', 'comparison': 'row',
-           'contrast': 'row', 'journey': 'journey'}.get(rel_, 'row')
+           'contrast': 'row', 'journey': 'journey',
+           'story': 'story'}.get(rel_, 'row')
     if lay == 'journey' and not any(e['kind'] == 'chart-journey'
                                     for e in els):
         lay = 'row'
@@ -1773,7 +1795,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             w_ = (b_[2] - b_[0]) * k_
             e['box'] = (cxm - w_ / 2, b_[3] - h_ * k_, cxm + w_ / 2, b_[3])
     touch_pairs = set()
-    if not journey and lay in ('row', 'focus', 'stair'):
+    if not journey and lay in ('row', 'focus', 'stair', 'story'):
         for e in els:
             act_ = str(e['m'].get('action') or '')
             if act_ not in _SB_TOUCH or not e.get('box') or (
@@ -1975,7 +1997,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         elif (not journey and lay not in ('row', 'reaction')
                 and prev is not None
                 and (lay != 'before_after'
-                     or prev.get('ba_side') != e.get('ba_side'))):
+                     or prev.get('ba_side') != e.get('ba_side'))
+                and (lay != 'story' or prev['m'].get('moment')
+                     != e['m'].get('moment'))):
             ast = _sb_link(prev['ink'], e['ink'], Wc)
             if ast:
                 groups.insert(0, (('arrow', ast, (0, 0), 90.0, None),

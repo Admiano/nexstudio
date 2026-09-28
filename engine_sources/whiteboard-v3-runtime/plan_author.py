@@ -684,6 +684,54 @@ def _sb_annot(tokens: list[str], idx: int, nouns: set) -> str:
     return ' '.join(out)
 
 
+def _step_note(sent: str, roles: list) -> None:
+    """Pin a moment's verb phrase ('drills a small hole') to the object it
+    acts on, so each step of a multi-moment scene reads on the board."""
+    if len(roles) < 2:
+        return
+    words = [w.strip(' ,.;:!?"') for w in sent.split()]
+    low = [w.lower() for w in words]
+    head = roles[0]['label'].split()[-1]
+    at = next((k for k, w in enumerate(low) if _lemma(w) == head
+               or w == head), None)
+    if at is None and low and low[0] in ('he', 'she', 'they'):
+        at = 0
+    if at is None:
+        return
+    tg = roles[0].get('target')
+    obj = next((r for r in roles if r['label'] == tg), None) or next(
+        (r for r in roles[1:] if not r.get('attach')), roles[1])
+    ohead = obj['label'].split()[-1]
+    note = _caption_cut(words[at + 1:], 4)
+    if note and ohead in {_lemma(w.lower()) for w in note.split()} | set(
+            note.lower().split()) and not obj.get('annotate'):
+        obj['annotate'] = note
+
+
+def _thing_icon(v3, lab: str) -> str:
+    """Icon key for a role the script uses as a thing: when the word's art
+    resolves to a person ('sap' = fool), draw its nearest non-person
+    hypernym instead ('sap' -> liquid)."""
+    if _wn is None or v3.icon_for(lab) != 'person':
+        return lab
+    head = _lemma(lab.split()[-1])
+    for s_ in [x for x in _wn.synsets(head, 'n')
+               if x.lexname() != 'noun.person'][:1]:
+        for path in s_.hypernym_paths():
+            for h in reversed(path[:-1]):
+                if h.min_depth() < 4:
+                    break
+                for name in h.lemma_names():
+                    cand = name.replace('_', ' ')
+                    ic = v3.icon_for(cand)
+                    rk = v3.sem_rank(cand, ic) if isinstance(
+                        ic, tuple) else None
+                    if (isinstance(ic, tuple) and not v3._is_emblem(ic)
+                            and (rk is None or rk <= 300)):
+                        return cand
+    return lab
+
+
 def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                      wpm: float = 150.0) -> dict:
     import pipeline_v3_narration_timed as p3
@@ -696,7 +744,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
     prev_rel = ''
     compounds: dict = {}
     last_person = ''
-    for bi, (heading, sent) in enumerate(_sb_beats(script)):
+    def _moment(sent, prev_rel, last_person, cap):
         tokens = _WORD_RE.findall(sent)
         low = [t.lower().split("'")[0] for t in tokens]
         cands = []
@@ -710,7 +758,14 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             if big and ((_wn is not None and _wn.synsets(big.replace(' ', '_')))
                         or v3.kit_exact(big)
                         or (_is_person(nxt) and not _is_person(w)
-                            and _is_thing(w) and prev_det(low, i))):
+                            and _is_thing(w) and prev_det(low, i))
+                        or (i and _is_thing(w) and not _is_person(w)
+                            and not _is_person(nxt) and _is_thing(nxt)
+                            and _is_physical(nxt)
+                            and not (_wn is not None and _wn.synsets(w, 'v')
+                                     and not _wn.synsets(w, 'n'))
+                            and not (nxt.endswith('s') and _wn is not None
+                                     and _wn.synsets(nxt, 'v')))):
                 cands.append((i, big, _is_person(nxt)))
                 seen |= {w, nxt}
                 continue
@@ -718,7 +773,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             prev_ = low[i - 1] if i else ''
             verb_use = bool(i and low[i - 1] in picked_w and _wn is not None
                             and w.endswith('s') and _wn.synsets(w, 'v'))
-            adj_use = bool(nxt and _wn is not None and prev_ in _SB_DET
+            adj_use = bool(nxt and _wn is not None
+                           and prev_ in _SB_DET | _CAP_PREP
                            and (_wn.synsets(w, 'a') or _wn.synsets(w, 's'))
                            and _is_thing(nxt) and not _is_person(nxt))
             mod_det = bool(i >= 1 and prev_det(low, i - 1) and _wn is not None
@@ -750,8 +806,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
         cands.sort()
         people = [c for c in cands if c[2]][:2]
         things = [c for c in cands if not c[2]]
-        pick = sorted(people + things[:max(1, max_roles - len(people))])
-        pick = pick[:max_roles]
+        pick = sorted(people + things[:max(1, cap - len(people))])
+        pick = pick[:cap]
         if not pick:
             pick = [(0, _subject(sent) or 'idea', False)]
         nouns = {c[1].split()[-1] for c in pick} | {
@@ -762,7 +818,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 compounds[lab.split()[-1]] = lab
             elif not person:
                 lab = compounds.get(lab, lab)
-            r: dict = {'label': lab, 'icon': 'person' if person else lab}
+            r: dict = {'label': lab, 'icon': 'person' if person
+                       else _thing_icon(v3, lab)}
             ann = _sb_annot(tokens, i, nouns)
             if ann and not re.search(r'\b' + r'\s+'.join(map(re.escape,
                                      ann.split())) + r'\b', sent, re.I):
@@ -793,7 +850,6 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                     r['side'] = 'after'
         if rel == prev_rel and rel in ('focus', 'sequence') and len(roles) >= 3:
             rel = 'sequence' if rel == 'focus' else 'focus'
-        prev_rel = rel
         # composition: a person using/holding a thing holds it; an object
         # named with on/in another role sits on/in it
         for a_, (i, _l, person) in enumerate(pick):
@@ -900,13 +956,42 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                             if r['icon'] == 'person'
                             and r['label'] not in ('you', 'we', 'i')),
                            last_person)
+        return roles, rel, marks, setting, last_person
+
+    for bi, (heading, para) in enumerate(_sb_beats(script)):
+        sents = [x for x in re.split(r'(?<=[.!?])\s+', para.strip())
+                 if len(_WORD_RE.findall(x)) >= 3] or [para]
+        if len(sents) == 1:
+            roles, rel, marks, setting, last_person = _moment(
+                sents[0], prev_rel, last_person, max_roles)
+        else:
+            roles, marks, setting = [], [], ''
+            per = 3 if len(sents) == 2 else 2
+            for k, s_ in enumerate(sents[:3]):
+                r_, _rl, mk_, st_, last_person = _moment(
+                    s_, '', last_person, per)
+                off = len(roles)
+                labs = [r['label'] for r in r_]
+                _step_note(s_, r_)
+                for r in r_:
+                    r['moment'] = k
+                    if isinstance(r.get('to'), int):
+                        r['to'] += off
+                    if r.get('target') in labs:
+                        r['target'] = off + labs.index(r['target'])
+                roles += r_
+                marks += [m for m in mk_ if m.get('type') != 'flow']
+                setting = setting or st_
+            rel = 'story'
+        prev_rel = rel
+        sent = sents[-1]
         hero, *rest = roles
-        dur = max(4.0, len(sent.split()) / wpm * 60 + 1.6)
+        dur = max(4.0, len(para.split()) / wpm * 60 + 1.6)
         beats.append({
             'beat_id': f'b{bi + 1:02d}',
             'title': _sb_title(bi + 1, heading, roles, sent),
             'caption': _sb_caption(sent),
-            'narration': sent,
+            'narration': para,
             'duration_seconds': round(dur, 2),
             'scene': {'sceneId': f'b{bi + 1:02d}', 'relation': rel,
                       'heroRole': hero, 'supportingRoles': rest,
