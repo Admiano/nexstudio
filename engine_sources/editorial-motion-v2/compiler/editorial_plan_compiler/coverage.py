@@ -49,7 +49,7 @@ STATE_FAMILIES = (
 # The scene setting prints its own place: an urban page is the town, an underwater page the sea.
 SETTING_NOUNS = {
     'urban': frozenset(('town', 'city', 'street', 'road', 'village')),
-    'outdoor': frozenset(('field', 'garden', 'meadow', 'park', 'grass', 'countryside', 'yard')),
+    'outdoor': frozenset(('field', 'garden', 'meadow', 'park', 'grass', 'countryside', 'yard', 'farm', 'hillside', 'valley', 'forest', 'woods', 'hill', 'sky', 'ground', 'land')),
     'ground': frozenset(('soil', 'earth', 'underground', 'mud')),
     'underwater': frozenset(('sea', 'ocean', 'water', 'seabed')),
     'space': frozenset(('space', 'universe', 'cosmos')),
@@ -63,7 +63,7 @@ ALIASES = {'cup': ('trophy',), 'ocean': ('wave',), 'sea': ('wave',), 'pond': ('w
 SIMILE = frozenset(('like', 'as'))
 RUNTIME = Path(__file__).resolve().parents[2] / 'runtime' / 'editorial-runtime.js'
 # Resolutions that put a picture of the concept itself on the page (not its ancestor, not its word).
-DRAWN_VIA = frozenset(('exact', 'synonym', 'bank', 'photo'))
+DRAWN_VIA = frozenset(('paper', 'exact', 'synonym', 'bank', 'photo'))
 
 
 @lru_cache(maxsize=1)
@@ -76,6 +76,11 @@ def paper_art() -> Tuple[FrozenSet[str], Dict[str, str]]:
     body = src[b0:src.index('\n  };', b0)]
     alias = {(m.group(1) or m.group(2)): m.group(3) for m in re.finditer(r"(?:'([a-z0-9_-]+)'|\b([a-z0-9_]+)): '([a-z0-9_-]+)'", body)}
     return art, alias
+
+
+def young_of(word: str) -> str:
+    """The grown form a diminutive names ("duckling" -> "duck"); the word itself otherwise."""
+    return word[:-4] if word.endswith('ling') and len(word) > 7 else word
 
 
 def paper_key(concept: str) -> Optional[str]:
@@ -185,6 +190,7 @@ class NounGate:
 
     def _answers(self, lemma: str, word: str, printed: Iterable[str]) -> bool:
         w = {singular(x) for x in re.split(r'[\s_-]+', word)} | {lemma.replace('_', '-'), lemma.replace('_', ' ')}
+        w |= {young_of(x) for x in w}
         for c in printed:
             cn = c.lower().strip()
             parts = {singular(x) for x in re.split(r'[\s_-]+', cn) if x}
@@ -203,7 +209,8 @@ class NounGate:
             printed += [e.concept for e in il.entities if e.concept and self.entity_drawn(e)]
         edu = (beat.page or {}).get('edu') or {}
         if edu.get('object'):
-            printed.append(str(edu['object']))
+            # A maths page is a representation: it owes the reader the counted thing, not the setting.
+            return []
         scene = beat.scene or {}
         resolved = scene.get('resolved') or {}
         printed += [str(x) for x in scene.get('elements') or [] if str(x).lower() in self.shapes or x in resolved]

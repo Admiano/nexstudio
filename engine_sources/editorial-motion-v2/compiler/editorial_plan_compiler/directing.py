@@ -110,6 +110,9 @@ SHELLED = ('egg', 'nut', 'coconut', 'shell', 'pinata', 'seed-pod')
 HATCHLING = ('chick', 'duckling', 'baby-bird', 'hatchling', 'dragon', 'dinosaur', 'turtle', 'baby-chick', 'hatching-chick', 'bird', 'snake', 'crocodile')
 
 
+SUBJECT_DETERMINERS = frozenset(('the', 'a', 'an', 'his', 'her', 'their', 'my', 'our', 'its'))
+
+
 def _is(concept: str, family: Sequence[str]) -> bool:
     parts = set(concept.replace('_', '-').split('-')) | {concept}
     return any(f in parts or concept == f or concept.endswith('-' + f) for f in family)
@@ -382,17 +385,28 @@ def direct(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Option
     first_free_verb: Optional[Tuple[str, Optional[str], Dict[str, Any]]] = None
     while i < len(toks):
         kind, lemma, span = verb_kind(toks, i)
+        if kind is not None and i > 0 and toks[i - 1]['t'] in SUBJECT_DETERMINERS:
+            kind = None  # "the rain", "a light": a determiner makes the word a noun
         if kind is None:
             i += span
             continue
         hits = None
+        offpage = False
         for j in range(i - 1, max(-1, i - 1 - SUBJECT_REACH), -1):
+            if _clause_end(toks[j]):
+                break
             cand = [e for e in mentions.get(j, []) if e['id'] not in acted and _norm_concept(e) not in counted]
             if cand:
                 hits = cand
                 break
-        if hits is None:
+            if not mentions.get(j) and j > 0 and toks[j - 1]['t'] in SUBJECT_DETERMINERS:
+                # "the rain fell": the verb's own subject is named and is not on the plate.
+                offpage = True
+                break
+        if hits is None and not offpage:
             for j in range(i + span, min(len(toks), i + span + SUBJECT_REACH)):
+                if j > i + span and _clause_end(toks[j - 1]):
+                    break
                 cand = [e for e in mentions.get(j, []) if e['id'] not in acted and _norm_concept(e) not in counted]
                 if cand:
                     hits = cand

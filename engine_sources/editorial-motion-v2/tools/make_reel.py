@@ -23,6 +23,8 @@ TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 from generate_voice import synth, align, VOICES  # noqa: E402
 import story_analyst  # noqa: E402
+sys.path.insert(0, str(TOOLS.parent / "compiler"))
+from editorial_plan_compiler.bookauthor import BookAuthor  # noqa: E402
 
 STYLES = json.loads((ROOT / "styles.json").read_text())
 STYLE_MAP = {s["id"]: s for s in STYLES["styles"]}
@@ -198,6 +200,8 @@ def build_treatment(args, style, words, media_files, film_id):
     mode, legacy keyword bank otherwise."""
     groups = chunk_beats(words)
     aspects = [a.strip() for a in args.aspects.split(",")]
+    if args.book == "paperbook":
+        return BookAuthor().author(groups, film_id), None, "bookauthor"
     media_library = _media_library(media_files)
     mode = story_analyst.analyst_mode(args)
     if mode != "keywords":
@@ -348,6 +352,8 @@ def main():
                     help="treatment source: auto uses the LLM story analyst when configured "
                          "(STUDIO_ANALYST or --analyst; NEXMIND_STORY_ANALYST_* for provider), "
                          "keywords forces the legacy entity-bank path")
+    ap.add_argument("--book", choices=["paperbook"], default=None,
+                    help="author the script offline as a still-page picture book (landscape)")
     ap.add_argument("--no-poster", action="store_true")
     ap.add_argument("--no-review", action="store_true",
                     help="skip the film-level certification pass (certification.json)")
@@ -355,6 +361,8 @@ def main():
                     help="exit non-zero when the film certification verdict is FAIL")
     args = ap.parse_args()
 
+    if args.book and args.aspects == ap.get_default("aspects"):
+        args.aspects = "16x9"
     style = style_of(args.style)
     film_id = args.film_id or f"reel-{uuid.uuid4().hex[:8]}"
     out_dir = Path(args.out); out_dir.mkdir(parents=True, exist_ok=True)

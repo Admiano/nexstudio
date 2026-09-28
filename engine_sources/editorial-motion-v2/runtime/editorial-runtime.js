@@ -2585,6 +2585,18 @@
       { s: 'blob', cx: 40, cy: 54, r: 6, tone: 'ink', edge: 0 },
     ],
     // ---- Domain pack: animals ----
+    sheep: [
+      { s: 'rect', x: 32, y: 62, w: 5, h: 22, tone: 'ink', edge: 0 },
+      { s: 'rect', x: 62, y: 62, w: 5, h: 22, tone: 'ink', edge: 0 },
+      { s: 'blob', cx: 40, cy: 52, r: 14, tone: 'snow' },
+      { s: 'blob', cx: 56, cy: 50, r: 15, tone: 'snow' },
+      { s: 'blob', cx: 48, cy: 42, r: 13, tone: 'snow' },
+      { s: 'blob', cx: 62, cy: 60, r: 11, tone: 'snow' },
+      { s: 'blob', cx: 32, cy: 60, r: 11, tone: 'snow' },
+      { s: 'blob', cx: 76, cy: 44, rx: 9, ry: 11, tone: 'ink' },
+      { s: 'petal', cx: 70, cy: 36, rx: 3, ry: 6, rot: -60, tone: 'ink' },
+      { s: 'blob', cx: 78, cy: 42, r: 1.6, tone: 'paper', edge: 0 },
+    ],
     rabbit: [
       { s: 'blob', cx: 50, cy: 62, rx: 18, ry: 16, tone: 'paper' },
       { s: 'blob', cx: 50, cy: 34, r: 13, tone: 'paper' },
@@ -2626,6 +2638,30 @@
       { s: 'petal', cx: 42, cy: 34, rx: 10, ry: 6, rot: -30, tone: 'snow', op: 0.8 },
       { s: 'petal', cx: 58, cy: 34, rx: 10, ry: 6, rot: 30, tone: 'snow', op: 0.8 },
       { s: 'path', pts: [[70, 56], [80, 58], [70, 62]], tone: 'ink', edge: 0 },
+    ],
+    pond: [
+      { s: 'blob', cx: 50, cy: 64, rx: 44, ry: 18, tone: 'water' },
+      { s: 'blob', cx: 50, cy: 62, rx: 36, ry: 12, tone: 'sky', op: 0.55, edge: 0 },
+      { s: 'path', pts: [[30, 62], [38, 60], [46, 62]], tone: 'paper', stroke: 1.6, edge: 0, op: 0.8 },
+      { s: 'path', pts: [[56, 68], [64, 66], [72, 68]], tone: 'paper', stroke: 1.6, edge: 0, op: 0.8 },
+    ],
+    reed: [
+      { s: 'rect', x: 34, y: 30, w: 3, h: 62, tone: 'leaf', edge: 0 },
+      { s: 'rect', x: 50, y: 20, w: 3, h: 72, tone: 'leaf', edge: 0 },
+      { s: 'rect', x: 64, y: 34, w: 3, h: 58, tone: 'leaf', edge: 0 },
+      { s: 'blob', cx: 35.5, cy: 34, rx: 3.5, ry: 9, tone: 'soil' },
+      { s: 'blob', cx: 51.5, cy: 24, rx: 3.5, ry: 9, tone: 'soil' },
+      { s: 'blob', cx: 65.5, cy: 38, rx: 3.5, ry: 9, tone: 'soil' },
+      { s: 'petal', cx: 44, cy: 70, rx: 3, ry: 16, rot: -25, tone: 'leaf' },
+      { s: 'petal', cx: 58, cy: 72, rx: 3, ry: 14, rot: 22, tone: 'leaf' },
+    ],
+    'lily-pad': [
+      { s: 'path', pts: [[50, 60], [86, 52], [88, 66], [70, 80], [40, 82], [16, 70], [14, 56], [30, 46], [48, 44]], tone: 'leaf' },
+      { s: 'path', pts: [[50, 60], [30, 72]], tone: 'ink', stroke: 1.4, edge: 0, op: 0.5 },
+      { s: 'path', pts: [[50, 60], [66, 74]], tone: 'ink', stroke: 1.4, edge: 0, op: 0.5 },
+      { s: 'petal', cx: 62, cy: 50, rx: 5, ry: 10, rot: -20, tone: 'petal' },
+      { s: 'petal', cx: 70, cy: 50, rx: 5, ry: 10, rot: 20, tone: 'petal' },
+      { s: 'petal', cx: 66, cy: 46, rx: 5, ry: 11, tone: 'petal' },
     ],
     frog: [
       { s: 'blob', cx: 50, cy: 62, rx: 26, ry: 18, tone: 'leaf' },
@@ -2773,6 +2809,7 @@
     'cloudy-night': 'cloud', 'heavy-rain': 'rain', drizzle: 'rain', shower: 'rain',
     'rain-cloud': 'rain', lightning: 'storm', thunder: 'storm',
     globe: 'earth', world: 'earth', planet: 'earth',
+    lily: 'lily-pad', lilypad: 'lily-pad', cattail: 'reed', bulrush: 'reed', puddle: 'pond',
     seedling: 'sprout', sapling: 'sprout', shoot: 'sprout', sprig: 'sprout',
     'hand-down': 'hand', 'magnifying-glass': 'magnifier', magnifying: 'magnifier',
     envelope: 'letter', mail: 'letter', sailboat: 'boat', ship: 'boat',
@@ -4088,7 +4125,8 @@
         throw new Error(`EditorialRuntime: unsupported glyph ${ent.glyph} (${ent.id})`);
     }
     // Any entity can earn an EMIT pulse: build its ring lazily so the op works on every glyph.
-    if (!node.extra.rings && il.ops.some((o) => o.op === 'EMIT' && o.target === ent.id)) {
+    // A printed page never rings its subject: the action itself is the attention.
+    if (!node.extra.rings && !PAPERBOOK(plan) && il.ops.some((o) => o.op === 'EMIT' && o.target === ent.id)) {
       const c = centre(b), R = Math.hypot(b.w, b.h) / 2;
       node.extra.R = R;
       if (!PAPERBOOK(plan) && (plan.motion || DEFAULT_MOTION).entrance === 'pop') {
@@ -6278,6 +6316,7 @@
       }
       if (!(x1 > x0 && y1 > y0)) return null;
       const box = node.glyph.extra.iconBox;
+      if (!box) return null;
       const x = x0, y = y0, w = x1 - x0, h = y1 - y0;
       const ix = Math.max(0, Math.min(x + w, box.x + box.w) - Math.max(x, box.x));
       const iy = Math.max(0, Math.min(y + h, box.y + box.h) - Math.max(y, box.y));

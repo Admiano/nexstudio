@@ -626,7 +626,8 @@ class BeatTreatment:
         if layer == 'QUIET':
             _need(len(units) <= 1 and not figure and not media and not illus, 'QUIET_BEAT_OVERLOADED', 'QUIET carries at most one unit and no figure/media/illustration', bid)
         else:
-            _need(bool(units) or media or data or illus, 'BEAT_HAS_NOTHING_TO_SHOW', 'beat has no display units, media, data or illustration', bid)
+            page_art = bool((d.get('page') or {}).get('edu'))
+            _need(bool(units) or media or data or illus or page_art, 'BEAT_HAS_NOTHING_TO_SHOW', 'beat has no display units, media, data or illustration', bid)
         if layer == 'ILLUSTRATION':
             _need(illus is not None, 'ILLUSTRATION_LAYER_WITHOUT_ILLUSTRATION', 'ILLUSTRATION dominant layer requires an illustration directive', bid)
         if layer == 'HYBRID':

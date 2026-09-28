@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import random
 from dataclasses import asdict, replace
 from pathlib import Path
 
@@ -219,6 +218,15 @@ def _pb_slot_crop(layout: str, W: int, H: int) -> Dict[str, float]:
     return _box((W - vw) / 2, (H - vh) / 2, vw, vh)
 
 
+# State changes a single printed object cannot perform convincingly on a still page:
+# each needs a second actor, a material transformation or a mechanism the paper hand lacks.
+UNPRINTABLE_ACTIONS = {
+    'fill': 'a pouring vessel and a stream', 'empty': 'a drinker or a spill',
+    'melt': 'a material turning to liquid', 'freeze': 'a material turning to ice',
+    'swing': 'a hinge in depth', 'close': 'a hinge in depth',
+    'crack': 'a shell breaking apart', 'hatch': 'a shell breaking apart',
+    'light': 'a flame catching', 'out': 'a flame dying',
+}
 GROUNDED_SETTINGS = frozenset(('outdoor', 'indoor', 'urban', 'garden', 'field', 'farm', 'forest', 'stadium'))
 AIRBORNE = frozenset(('sun', 'moon', 'planet', 'star', 'stars', 'comet', 'cloud', 'rain', 'snow', 'bird', 'butterfly',
                       'bee', 'kite', 'balloon', 'plane', 'airplane', 'rocket', 'window', 'picture', 'clock', 'lamp', 'bat',
@@ -272,30 +280,9 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
     photos = [e for e in ents if e.get('photo') and e.get('art_bbox')]
     marks = [e for e in ents if e.get('art_bbox') and e not in photos]
 
-    # Authored density: a picture-book plate needs ~3 subjects to read as a scene, not
-    # a spot check. When the script supplies too few, the compiler restocks it from the
-    # scene's own vocabulary — night grows stars, soil grows flowers — seeded per beat so
-    # the same page always grows the same life. Supports are marks, never photos.
-    scene = getattr(btr, 'scene', None) or {}
-    setting = str(scene.get('setting') or 'outdoor')
-    _SUPPORT_POOLS = {
-        'space':      ['star', 'stars', 'moon-crescent', 'star', 'earth'],
-        'underwater': ['fish', 'wave', 'drop', 'fish'],
-        'indoor':     ['window', 'book', 'plant', 'cup', 'candle'],
-        'urban':      ['cloud', 'bird', 'star', 'kite'],
-        'ground':     ['mushroom', 'flower', 'leaf', 'butterfly'],
-        'abstract':   ['star', 'leaf', 'drop', 'heart'],
-        'outdoor':    ['butterfly', 'flower', 'bird', 'cloud', 'leaf', 'mushroom'],
-    }
-    pool = list(_SUPPORT_POOLS.get(setting, _SUPPORT_POOLS['outdoor']))
-    mood = str(scene.get('mood') or '')
-    if mood in ('night', 'dusk', 'dawn') and setting not in ('ground', 'indoor', 'underwater'):
-        pool = [c for c in ('star', 'stars', 'moon-crescent') if c not in {e.get('concept') for e in ents}] + pool
-    present = {e.get('concept') for e in ents}
-    subjects = len(photos) + len(marks) + (1 if figure else 0)
+    # A printed page carries what the story names, nothing invented to fill it.
     edu = pg.get('edu')
-    if not photos and subjects < 3 and not edu:
-        rng = random.Random(f"{getattr(btr, 'beat_id', 'beat')}:support")
+    if not photos and not edu and figure:
         if illustration is None:
             # Figure walks into an otherwise empty plate: the spread still needs a scene,
             # so the composer fabricates the minimal illustration the runtime can mount.
@@ -307,25 +294,6 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
                             'carry_from': None, 'persist_to': None, 'carried': False,
                             'registry_version': 'supports'}
             ents = illustration['entities']
-        wanted = min(2, 3 - subjects)
-        added = 0
-        for concept in pool:
-            if added >= wanted:
-                break
-            if concept in present:
-                continue
-            size = 110 + rng.random() * 60
-            e = {'id': f"support_{concept}_{added}", 'concept': concept, 'kind': 'object',
-                 'glyph': 'ICON', 'size': 'support', 'label': None, 'media': None, 'photo': None,
-                 'asset': None, 'carried': False, 'carry_from_bbox': None, 'state_in': {},
-                 'enter_ms': int(60 + rng.random() * 120), 'enter_duration_ms': 420,
-                 'bbox': _box(0, 0, size, size), 'art_bbox': _box(0, 0, size, size),
-                 'params': {'resolution': {'via': 'support', 'concept': concept}}}
-            illustration['entities'].append(e)
-            marks.append(e)
-            present.add(concept)
-            added += 1
-
     def put(e: Dict[str, Any], box: Dict[str, float]) -> None:
         e['art_bbox'] = dict(box)
         if e.get('bbox'):
@@ -399,6 +367,11 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
             area = _box(vx, vy, max(1.0, left - vw * 0.02), vh) if left > right else _box(fb['x'] + fb['w'] + vw * 0.02, vy, max(1.0, right - vw * 0.02), vh)
         built = build_edu(edu, area, words, getattr(btr, 'narration', None), int(dur_ms - EXIT_MS - 60),
                           getattr(btr, 'beat_id', 'beat'))
+        if edu.get('asset'):
+            for e in built['entities']:
+                if e.get('concept') == edu.get('object'):
+                    e['asset'], e['asset_ref'] = edu['asset'], edu['asset_ref']
+                    e['params']['resolution'] = {'via': 'exact', 'concept': e['concept'], 'asset_ref': edu['asset_ref']}
         keep = [e for e in illustration['entities'] if e.get('photo')]
         illustration['entities'] = keep + built['entities']
         illustration['relations'] = []
@@ -439,8 +412,9 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
             ab = e['art_bbox']
             # Synthesised supports are garnish, not the subject — they stay small
             # so an authored hero never loses the plate to a decoration.
-            if (e.get('params') or {}).get('resolution', {}).get('via') == 'support':
-                hf = min(hf, 0.36)
+            if _is_airborne(str(e.get('concept') or '')):
+                # Sky things live in the sky: the upper band, sized as a body, not a boulder.
+                ay, hf = min(ay, 0.30), min(hf, 0.40)
             s = min(3.2, (vh * hf) / max(1.0, ab['h']))
             nw2, nh2 = ab['w'] * s, ab['h'] * s
             box = _box(vx + ax * vw - nw2 / 2, vy + ay * vh - nh2 / 2, nw2, nh2)
@@ -528,6 +502,16 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
     else:
         record = direct(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh}, int(dur_ms - EXIT_MS - 60),
                         words, getattr(btr, 'narration', None), getattr(btr, 'beat_id', 'beat'))
+    # The book only performs what it can draw convincingly: an action outside that
+    # envelope is declined and the object prints still, never faked.
+    declined = set()
+    for e in illustration['entities']:
+        kind = (e.get('action') or {}).get('kind')
+        if kind in UNPRINTABLE_ACTIONS:
+            declined.add(e.get('id'))
+            e.pop('action', None)
+            record['unresolved'].append(f"ACTION_DECLINED:{e.get('id')}:'{kind}' needs {UNPRINTABLE_ACTIONS[kind]}")
+    record['events'] = [ev for ev in record['events'] if ev.get('id') not in declined]
     prior = (illustration.get('direction') or {}).get('failures') or []
     illustration['direction'] = {'events': record['events'], 'failures': prior + record['failures'], 'unresolved': record['unresolved']}
     return illustration
@@ -1455,6 +1439,8 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
 
     def celestial(i: int) -> None:
         """Sun or moon placed by mood — a flat paper disc, never a glow."""
+        if sky_concepts & {'sun', 'moon', 'moon-full', 'moon-crescent'}:
+            return
         if mood in ('day', 'golden'):
             out.append(piece('sun', W * 0.72, H * 0.06, short * 0.17, short * 0.17, glow, 0.1, i))
         elif mood == 'dawn':
@@ -1721,6 +1707,12 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
     bankart = BankArt() if film.world and film.world.book == 'paperbook' else None
     for b, e in todo:
         named = e.glyph == 'CHIP' and e.label is not None
+        if bankart is not None and paper_key(e.concept):
+            # The book's own hand draws what it knows: one consistent medium across the page.
+            e.asset_ref = None
+            e.params.pop('photo', None)
+            e.params['resolution'] = Resolution(e.concept, 'paper', path=[e.concept]).as_dict()
+            continue
         r = finder.resolve(e.concept, pack, e.glyph in WORD_GLYPHS, native_only, named)
         if pack == PAPERBOOK_PACK and r.via not in ('exact', 'synonym') and paper_key(e.concept) is None:
             # The book's second flat library fills what the first lacks, reprinted in the same hand.
@@ -1731,8 +1723,8 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
             # No mark names the concept itself: a rights-clean photograph of it, set in the housing's
             # well, beats an ancestor's mark or the bare word. The name still rides with it unless
             # the housing already carries it.
-            rec = evidence.find(e.concept)
-            if bankart is not None and paper_key(e.concept) is None:
+            rec = None if bankart is not None else evidence.find(e.concept)
+            if bankart is not None:
                 brec = bankart.find(e.concept)
                 if brec is not None:
                     word = None if (named or e.glyph == 'BADGE') else e.concept
@@ -1786,6 +1778,18 @@ def _resolve_concepts(film: FilmTreatment, registry: IllustrationRegistry, work_
             e.params['word'] = r.word.replace('_', ' ')
             e.params['word_kind'] = 'numeric' if r.via == 'numeric' else 'name'
         e.params['resolution'] = r.as_dict()
+    for b in film.beats:
+        edu = (b.page or {}).get('edu') if isinstance(b.page, dict) else None
+        obj = str((edu or {}).get('object') or '')
+        if not obj or paper_key(obj):
+            continue
+        # A maths page prints its counted thing from the same flat library as the story pages.
+        r = finder.resolve(obj, PAPERBOOK_PACK, False, True)
+        if r.via not in ('exact', 'synonym'):
+            r = finder.resolve(obj, PAPERBOOK_ALT_PACK, False, True)
+        if r.via in ('exact', 'synonym') and r.asset_ref:
+            edu['asset_ref'] = r.asset_ref
+            edu['asset'] = registry.resolve(r.asset_ref, b.beat_id)
     for b in prop_todo:
         # A performer's prop rides the same ladder: named mark, otherwise a photo, else a typeset tag.
         p = b.figure.prop
