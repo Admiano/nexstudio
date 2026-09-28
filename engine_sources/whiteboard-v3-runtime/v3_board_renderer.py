@@ -24,6 +24,11 @@ from PIL import Image, ImageDraw
 import whiteboard_pil_adapter as wbp
 import svg_paths
 
+try:
+    from nltk.corpus import wordnet as _WN
+except ImportError:
+    _WN = None
+
 
 # The preserved adapter's paper grain draws near-black specks: ImageDraw on
 # RGBA ignores the fill alpha, so its 'subtle' dots always render full ink.
@@ -1567,7 +1572,91 @@ def _asset_key(icon):
     return (icon,)
 
 
+_CONTEXT: frozenset = frozenset()
+
+
+def set_context(text):
+    """Words of the whole script (title + narration + labels): the sense
+    of an ambiguous concept is the one its gloss shares words with
+    ('queen' in a bee script is the colony queen, not the chess piece)."""
+    global _CONTEXT
+    _CONTEXT = frozenset(w for w in re.findall(r'[a-z]+', str(text or '').lower())
+                         if len(w) >= 4)
+    _NEAR_CACHE.clear()
+
+
+def _sense_text(ss) -> set:
+    toks = set(re.findall(r'[a-z]+', ss.definition().lower()))
+    toks.update(t for lm in ss.lemma_names() for t in lm.lower().split('_'))
+    for h in ss.hypernyms():
+        toks.update(t for lm in h.lemma_names() for t in lm.lower().split('_'))
+    return toks
+
+
+def _context_sense(word):
+    """(best-in-context noun sense, all noun senses) or (None, senses)."""
+    if _WN is None or not _CONTEXT:
+        return None, []
+    try:
+        senses = _WN.synsets(word, pos=_WN.NOUN)[:8]
+    except LookupError:
+        return None, []
+    best, best_n = None, 0
+    for ss in senses:
+        n = len((_sense_text(ss) - {word}) & _CONTEXT)
+        if n > best_n:
+            best, best_n = ss, n
+    return best, senses
+
+
+def _sense_conflict(phrase: str, icon) -> bool:
+    """True when the icon's extra name words belong to a different sense
+    of a single-word concept than the one the script means."""
+    if not (isinstance(icon, tuple) and icon[0] == 'icon') or ' ' in phrase:
+        return False
+    ctx, senses = _context_sense(phrase)
+    if ctx is None:
+        return False
+    extra = set(icon[2].split('-')) - {phrase}
+    mine = _sense_text(ctx)
+    other = set().union(*[_sense_text(s) for s in senses if s != ctx])
+    return any(e in other and e not in mine for e in extra)
+
+
+_INK_ONLY = False
+
+
+def set_ink_only(flag):
+    """Modes that only draw ink (storyboard) can't paste sprite slots —
+    resolution then skips emoji/animicon art for the nearest inkable pick."""
+    global _INK_ONLY
+    _INK_ONLY = bool(flag)
+
+
+def _is_sprite(ic) -> bool:
+    return (isinstance(ic, tuple) and len(ic) == 3 and ic[0] == 'icon'
+            and ic[1] in ('animicon', 'notomoji'))
+
+
 def _icon_for(concept: str, exclude=None, _depth: int = 0):
+    ic = _icon_for_raw(concept, exclude, _depth)
+    if _depth:
+        return ic
+    phrase = str(concept).lower().strip()
+    tries = 0
+    while _INK_ONLY and _is_sprite(ic) and tries < 4:
+        exclude = (exclude or set()) | {ic}
+        ic = _icon_for_raw(concept, exclude, _depth)
+        tries += 1
+    if (_CONTEXT and _WN is not None and ' ' not in phrase
+            and _sense_conflict(phrase, ic)):
+        near = _nearest_icon([phrase], (exclude or set()) | {ic})
+        if near:
+            return near
+    return ic
+
+
+def _icon_for_raw(concept: str, exclude=None, _depth: int = 0):
     phrase = str(concept).lower().replace('-', ' ').replace('_', ' ').strip()
     words = phrase.split()
     wset = set(words)
@@ -1676,6 +1765,12 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
     hit = _icon_lookup(phrase, exclude)
     if hit:
         return hit
+    # nothing literal — draw the closest thing WordNet knows it to be
+    # ('oncologist' -> doctor, 'tuba' -> brass -> trumpet, 'kiln' -> oven)
+    if _depth == 0:
+        near = _nearest_icon(words, exclude)
+        if near:
+            return near
     # no single asset covers the phrase — the artist layer composes it
     # from its parts ('solar panel' draws sun + panel, not a lettered box)
     if _depth == 0 and len(words) >= 2:
@@ -1704,6 +1799,7 @@ def _is_emblem(icon) -> bool:
 # newspaper, 'say' a speech balloon. Curated and domain-agnostic; extend
 # when a word class surfaces, never per-plan.
 _SYNONYMS: dict[str, tuple[str, ...]] = {
+    'drought': ('sun', 'desert'), 'orchard': ('tree',), 'orchards': ('tree',),
     'say': ('speech',), 'says': ('speech',), 'said': ('speech',),
     'speak': ('speech',), 'speaks': ('speech',), 'tell': ('speech',),
     'tells': ('speech',), 'claim': ('speech',), 'claims': ('speech',),
@@ -1829,6 +1925,186 @@ def _word_form_icon(word: str, exclude):
         if ic not in _COMPOSE_REJECT and not _is_emblem(ic):
             return ic
     return None
+
+
+# synsets too generic to stand for anything on a board
+_WN_STOP = {'entity', 'physical_entity', 'abstraction', 'object', 'whole',
+            'thing', 'matter', 'artifact', 'unit', 'group', 'relation',
+            'measure', 'attribute', 'psychological_feature', 'event',
+            'act', 'state', 'causal_agent', 'living_thing', 'organism',
+            'instrumentality', 'part', 'communication', 'location',
+            'region', 'substance', 'content', 'cognition', 'activity',
+            'process', 'phenomenon', 'condition', 'quality', 'property',
+            'device', 'structure', 'container', 'natural_object',
+            'geological_formation', 'body', 'material', 'covering',
+            'commodity', 'social_group', 'people', 'change', 'action',
+            'happening', 'person', 'adult', 'worker', 'being'}
+
+
+def _nearest_lemma_icon(lemma: str, exclude):
+    hit = _nearest_lemma_icon_any(lemma, exclude)
+    return None if (_INK_ONLY and _is_sprite(hit)) else hit
+
+
+def _nearest_lemma_icon_any(lemma: str, exclude):
+    ph = lemma.replace('_', ' ').lower()
+    slug = '-'.join(ph.split())
+    for dom in sorted(_kits()):
+        if (f'kit:{dom}', slug) in _icon_index():
+            hit = ('icon', f'kit:{dom}', slug)
+            if not (exclude and hit in exclude):
+                return hit
+    for icon, keys in _ICON_KEYWORDS.items():
+        if ph in keys:
+            return icon
+    if _ART_KIT:
+        hit = _kit_probe(ph, exclude)
+        if hit:
+            return hit
+    hit = _icon_lookup(ph, exclude)
+    if isinstance(hit, tuple) and hit[0] == 'icon':
+        slug = '-'.join(ph.split())
+        parts = hit[2].split('-')
+        if hit[2] == slug:
+            return hit
+        # keyword-indexed sets (emoji art) name concepts in their tags
+        if (hit[1] in ('notomoji', 'fluent', 'openmoji')
+                and slug in _icon_index().get((hit[1], hit[2]), ())):
+            return hit
+    return None
+
+
+_DRAW_VOCAB = None
+_NEAR_CACHE: dict = {}
+
+
+def _draw_vocab():
+    """{primary noun synset: icon} for every single word the art library
+    draws verbatim — the targets 'closest drawable meaning' ranks over."""
+    global _DRAW_VOCAB
+    if _DRAW_VOCAB is None:
+        words = {}
+        for (d, name) in _icon_index():
+            if '-' not in name and name.isalpha() and len(name) > 2:
+                words.setdefault(name, ('icon', d, name))
+        for icon, keys in _ICON_KEYWORDS.items():
+            for k in keys:
+                if k.isalpha() and len(k) > 2:
+                    words.setdefault(k, icon)
+        vocab = {}
+        for wd, icon in sorted(words.items()):
+            ss = _WN.synsets(wd, pos=_WN.NOUN)[:1]
+            if ss and ss[0] not in vocab:
+                vocab[ss[0]] = icon
+        _DRAW_VOCAB = vocab
+    return _DRAW_VOCAB
+
+
+def _noun_senses(w):
+    ctx, _ = _context_sense(w)
+    seeds = [ctx] if ctx else list(_WN.synsets(w, pos=_WN.NOUN))[:1]
+    for ss in _WN.synsets(w)[:4]:
+        if ss.pos() == 'n':
+            continue
+        for lm in ss.lemmas():
+            for d in lm.derivationally_related_forms():
+                if d.synset().pos() == 'n' and d.synset() not in seeds:
+                    seeds.append(d.synset())
+    return seeds[:4]
+
+
+def _nearest_icon(words, exclude, max_depth: int = 7):
+    """Closest drawable concept by WordNet meaning. Per word (tail first):
+    1) climb the hypernym tree — the first ancestor whose primary lemma
+       names an icon draws ('oncologist' -> doctor, 'poodle' -> dog);
+    2) otherwise the drawable word with the highest Wu-Palmer similarity
+       ('tuba' -> trumpet, 'glacier' -> iceberg).
+    Returns None only for words WordNet doesn't know."""
+    if _WN is None:
+        return None
+    try:
+        for w in reversed([w for w in words if len(w) > 2]):
+            key = (w, _ART_KIT, _INK_ONLY)
+            if key in _NEAR_CACHE:
+                hit = _NEAR_CACHE[key]
+            else:
+                hit = _nearest_for_word(w, exclude, max_depth)
+                _NEAR_CACHE[key] = hit
+            if hit and not (exclude and hit in exclude):
+                return hit
+    except LookupError:
+        return None
+    return None
+
+
+def _hypernym_hit(w, senses, exclude, lo, hi):
+    frontier, seen = list(senses), set()
+    for depth in range(hi + 1):
+        nxt = []
+        for ss in frontier:
+            if ss in seen:
+                continue
+            seen.add(ss)
+            if ss.name().split('.')[0] in _WN_STOP:
+                continue
+            if depth >= lo:
+                for lm in ss.lemma_names():
+                    if lm.lower() == w or _WN.synsets(lm)[:1] != [ss]:
+                        continue
+                    hit = _nearest_lemma_icon(lm, exclude)
+                    if hit:
+                        return hit
+            nxt.extend(ss.hypernyms() + ss.instance_hypernyms())
+        frontier = nxt
+    return None
+
+
+def _nearest_for_word(w, exclude, max_depth):
+    senses = _noun_senses(w)
+    if not senses:
+        return None
+    # near ancestors first ('oncologist' -> doctor) ...
+    hit = _hypernym_hit(w, senses, exclude, 0, 2)
+    if hit:
+        return hit
+    # the definition names what the thing is made of or does
+    # ('glacier: a slowly moving mass of ice' -> ice)
+    for ss in senses[:2]:
+        toks = re.findall(r'[a-z]+', ss.definition())
+        for k, c in enumerate(toks):
+            if len(c) < 3 or c == w or not _wn_concrete(c):
+                continue
+            # 'wind' in 'brass wind instrument' is a modifier, not a thing
+            if k + 1 < len(toks) and _WN.synsets(f'{c}_{toks[k + 1]}'):
+                continue
+            hit = _nearest_lemma_icon(c, exclude)
+            if isinstance(hit, tuple) and hit[2] == c:
+                return hit
+    # a close cousin in the tree ('tuba' -> cornet, 'sonar' -> radar)
+    best, best_sim = None, 0.0
+    for ss in senses[:2]:
+        for tv, icon in _draw_vocab().items():
+            if (_INK_ONLY and _is_sprite(icon)) or (exclude and icon in exclude):
+                continue
+            sim = ss.wup_similarity(tv) or 0.0
+            # a drawable the script itself mentions is the closer pick
+            if _CONTEXT and tv.lemma_names()[0].lower() in _CONTEXT:
+                sim += 0.08
+            if sim > best_sim and (ss.shortest_path_distance(tv) or 99) <= 2:
+                best, best_sim = icon, sim
+    if best_sim >= 0.88:
+        return best
+    # ... and only then a distant ancestor ('sedan' ... -> vehicle)
+    return _hypernym_hit(w, senses, exclude, 3, max_depth)
+
+
+def _wn_concrete(word: str) -> bool:
+    """True when the word's primary noun sense is a physical thing."""
+    ss = _WN.synsets(word, pos=_WN.NOUN)[:1]
+    if not ss:
+        return False
+    phys = _WN.synset('physical_entity.n.01')
+    return any(phys in path for path in ss[0].hypernym_paths())
 
 
 # the last-resort artist layer: a hand-drawn emblem — blob, burst or

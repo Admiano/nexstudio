@@ -91,3 +91,63 @@ def test_hand_sprite_keeps_original_size_with_feathered_forearm():
     assert hand.size == src.size
     alpha = np.asarray(hand)[..., 3]
     assert alpha[-4:, -4:].max() == 0
+
+
+def _wordnet():
+    try:
+        from nltk.corpus import wordnet
+        wordnet.synsets('dog')
+        return True
+    except (ImportError, LookupError):
+        return False
+
+
+@pytest.mark.skipif(not _wordnet(), reason='nltk wordnet corpus missing')
+@pytest.mark.parametrize('concept, want', [
+    ('oncologist', 'person'),
+    ('sourdough', 'bread'),
+    ('glacier', 'ice'),
+    ('tuba', 'trumpet'),
+    ('sedan', 'car'),
+])
+def test_unknown_concepts_fall_back_to_closest_drawing(concept, want):
+    _wbc, _wbp, _, v3r = pipe.load_execution_body()
+    v3r.set_art_kit(None)
+    v3r.set_context('')
+    v3r.set_ink_only(False)
+    ic = v3r._icon_for(concept)
+    name = ic if isinstance(ic, str) else ic[-1]
+    assert name == want
+
+
+@pytest.mark.skipif(not _wordnet(), reason='nltk wordnet corpus missing')
+def test_script_context_and_ink_only_pick_drawable_sense():
+    _wbc, _wbp, _, v3r = pipe.load_execution_body()
+    v3r.set_art_kit(None)
+    v3r.set_ink_only(True)
+    v3r.set_context('')
+    assert v3r._icon_for('queen')[-1] == 'chess-queen'
+    v3r.set_context('the bees in a colony serve their queen inside the hive')
+    ic = v3r._icon_for('queen')
+    assert 'chess' not in ic[-1]
+    for c in ('bee', 'drought', 'queen'):
+        assert not v3r._is_sprite(v3r._icon_for(c))
+    v3r.set_context('')
+    v3r.set_ink_only(False)
+
+
+def test_marker_foley_has_no_tonal_peak(tmp_path):
+    ev = [{'start': 0.1 + 0.5 * i, 'duration': 0.35, 'length': 300 + 200 * i}
+          for i in range(8)]
+    out = tmp_path / 'm.wav'
+    marker_sfx.render(ev, 4.5, out)
+    with wave.open(str(out)) as w:
+        a = np.frombuffer(w.readframes(w.getnframes()), np.int16) / 32767
+    spec = np.abs(np.fft.rfft(a)) ** 2
+    f = np.fft.rfftfreq(len(a), 1 / marker_sfx.RATE)
+    edges = 1000 * 2 ** (np.arange(-12, 13) / 6)
+    band = [10 * np.log10(spec[(f >= lo) & (f < hi)].mean())
+            for lo, hi in zip(edges[:-1], edges[1:])]
+    prominence = [band[i] - (band[i - 1] + band[i + 1]) / 2
+                  for i in range(1, len(band) - 1)]
+    assert max(prominence) < 2.0
