@@ -31,18 +31,20 @@ def _issue(out, sev, check, beat, detail):
                 'detail': detail})
 
 
-def _semantic(v3r, out, si, name, ic) -> dict:
+def _semantic(v3r, out, si, name, ic, word: str = '') -> dict:
     """How a word resolved to art: exact authored drawing, curated kit
     fallback, or library fallback with its CLIP rank. A library pick the
     model ranks far down for its word fails the gate."""
-    phrase = str(name).lower().strip()
+    # judged against the word the viewer reads, not the icon key the
+    # author substituted for it ('anvil' drawn via 'block')
+    phrase = str(word or name).lower().strip()
     exact = ic is not None and ic == v3r.kit_exact(phrase)
     curated = isinstance(ic, tuple) and (
         ic[0] == 'custom' or str(ic[1]).startswith('kit:'))
     rk = None if exact else v3r.sem_rank(phrase, ic)
     how = 'exact' if exact else ('kit-fallback' if curated else 'library')
     rec = {'word': phrase, 'art': str(ic), 'via': how, 'rank': rk}
-    if how == 'library' and rk is not None and rk > v3r.SEM_BAD_RANK:
+    if how != 'exact' and rk is not None and rk > v3r.SEM_BAD_RANK:
         rec['severity'] = 'fail'
         _issue(out, 'fail', 'semantic-art', si,
                f'{phrase} -> {ic} (clip rank {rk} > {v3r.SEM_BAD_RANK})')
@@ -117,7 +119,7 @@ def visual(plan: dict, ratio: str = '16:9') -> tuple[list, list]:
                            f'{e["label"]} and {owner[0]} both draw {ic}')
                 row['elements'].append((e['label'], str(ic), ''))
                 row.setdefault('semantic', []).append(_semantic(v3r,
-                    out, si, name, ic))
+                    out, si, name, ic, str(e['label'] or '')))
             lb = e.get('lab_box')
             if lb and ink:
                 lcx = (lb[0] + lb[2]) / 2

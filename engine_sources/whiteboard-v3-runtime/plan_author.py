@@ -22,6 +22,8 @@ import re
 import sys
 from pathlib import Path
 
+import scene_map
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 _STOP = {
@@ -482,10 +484,71 @@ def _is_physical(w: str) -> bool:
                and s_.lexname() != 'noun.body' for s_ in syn)
 
 
+_CLAUSE = {'and', 'but', 'while', 'so', 'as', 'when', 'until', 'then'}
+_TOOL_KIND = {'device', 'conveyance', 'implement', 'container'}
+
+
+def _relational(low: list, i: int) -> bool:
+    """'front' in 'in front of', 'top' in 'on top of': a location word
+    framed by a preposition and 'of' names a place, not a thing."""
+    if _wn is None or i + 1 >= len(low) or low[i + 1] != 'of':
+        return False
+    k = i - 1 if i and low[i - 1] not in _SB_DET else i - 2
+    syn = _wn.synsets(low[i], 'n')[:1]
+    return k >= 0 and low[k] in _CAP_PREP and bool(syn) \
+        and syn[0].lexname() in ('noun.location', 'noun.relation')
+
+
+def _clause_end(low: list, k: int) -> int:
+    """Index where the clause holding word `k` ends: 'the judge reads the
+    verdict | and the family feels relieved'."""
+    for j in range(k + 1, len(low) - 1):
+        if low[j] in _CLAUSE and (low[j + 1] in _SB_DET
+                                  or low[j + 1] in _SB_SUBJ):
+            return j
+    return len(low)
+
+
+def _agent_tool(label: str) -> str:
+    """The tool an agent noun is named for, when WordNet says it's a
+    device or vehicle: trucker -> truck, guitarist -> guitar,
+    drummer -> drum. Empty for roles not named for a tool."""
+    if _wn is None or not label:
+        return ''
+    w = label.split()[-1].lower()
+    m = re.match(r'([a-z]{3,}?)(?:ists?|ers?|ors?)$', w)
+    if not m:
+        return ''
+    r = m.group(1)
+    for root in (r, r + 'e', r[:-1] if len(r) > 3 and r[-1] == r[-2] else ''):
+        syn = _wn.synsets(root, 'n')[:1] if root else []
+        if syn and syn[0].lexname() == 'noun.artifact' and any(
+                h.name().split('.')[0] in _TOOL_KIND
+                for p in syn[0].hypernym_paths() for h in p):
+            return root
+    return ''
+
+
+def _verb_tool(lemma: str) -> str:
+    """The tool a verb is named for: hammers -> hammer, saws -> saw,
+    shovels -> shovel. Empty when the verb isn't a tool's name."""
+    if _wn is None or not lemma:
+        return ''
+    for syn in _wn.synsets(lemma, 'v')[:1]:
+        for lm in syn.lemmas():
+            for d in lm.derivationally_related_forms():
+                n = d.synset()
+                if d.name() == lemma and n.lexname() == 'noun.artifact' \
+                        and any(h.name().split('.')[0] in _TOOL_KIND
+                                for p in n.hypernym_paths() for h in p):
+                    return lemma
+    return ''
+
+
 def _noun_in_context(low: list, i: int, picked: set) -> bool:
     w = low[i]
     prev = low[i - 1] if i else ''
-    if w in _SB_ADV:
+    if w in _SB_ADV or _relational(low, i):
         return False
     if prev in _SB_DET:
         return True
@@ -783,6 +846,11 @@ def _thing_icon(v3, lab: str) -> str:
                             or str(ic0[1]).startswith('kit:')):
         return lab
     head = _lemma(lab.split()[-1])
+    if ' ' in lab and ic0 == 'person':
+        ich = v3.icon_for(head)
+        rkh = v3.sem_rank(head, ich) if isinstance(ich, tuple) else None
+        if ich != 'person' and rkh is not None and rkh <= v3.SEM_BAD_RANK:
+            return head
     for s_ in [x for x in _wn.synsets(head, 'n')
                if x.lexname() != 'noun.person'][:1]:
         for path in s_.hypernym_paths():
@@ -792,12 +860,366 @@ def _thing_icon(v3, lab: str) -> str:
                 for name in h.lemma_names():
                     cand = name.replace('_', ' ')
                     ic = v3.icon_for(cand)
-                    rk = v3.sem_rank(cand, ic) if isinstance(
-                        ic, tuple) else None
-                    if (isinstance(ic, tuple) and not v3._is_emblem(ic)
-                            and (rk is None or rk <= 300)):
+                    if not isinstance(ic, tuple) or v3._is_emblem(ic):
+                        continue
+                    rk = v3.sem_rank(cand, ic)
+                    better = v3.sem_rank(lab, ic)
+                    if (rk is None or rk <= 300) and (
+                            ic0 == 'person' or (
+                                better is not None and rk0 is not None
+                                and better < rk0)):
                         return cand
     return lab
+
+
+_DEST_PREP = {'to', 'toward', 'towards', 'into', 'onto', 'across', 'through',
+              'at', 'over'}
+_NOUN_MARKS = ('puffs', 'rain', 'heat', 'drips', 'sparkle')
+
+
+def _drawable(v3, head: str, used: dict) -> bool:
+    ic = v3.icon_for(_lemma(head), used)
+    if not isinstance(ic, tuple) or v3._is_emblem(ic):
+        return False
+    return (str(ic[1]).startswith('kit:') or v3.art_related(_lemma(head), ic)
+            or _is_physical(head))
+
+
+def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
+                compounds: dict, last_person: str):
+    """Roles, relation, marks and setting for one sentence from its scene
+    map: who acts on what, which way things change, what is ruined, where
+    things go, and what each person thinks or fears."""
+    ents, events, states = sm['entities'], sm['events'], sm['states']
+    # 'a nugget of gold', 'a lump of clay': when the piece has no drawing
+    # of its own, the material stands in for it
+    alias = {e['id']: e['partitive'] for e in ents if 'partitive' in e}
+    for e in ents:
+        inner = ents[e['of_part']]['head'] if 'of_part' in e else ''
+        if inner and (not _drawable(v3, e['head'], used)
+                      or _drawable(v3, inner, used)):
+            alias[e['id']] = e['of_part']
+            e['partitive'] = e['of_part']
+    if alias:
+        events = [dict(ev, agent=alias.get(ev['agent'], ev['agent']),
+                       patient=alias.get(ev['patient'], ev['patient']),
+                       preps=[(p_, alias.get(x, x)) for p_, x in ev['preps']])
+                  for ev in events]
+    role_of = {}  # entity id -> event role weight
+    for ev in events:
+        for k, w in (('agent', 3), ('patient', 3)):
+            if ev[k] is not None:
+                role_of[ev[k]] = max(role_of.get(ev[k], 0), w)
+        for _p, eid in ev['preps']:
+            role_of[eid] = max(role_of.get(eid, 0), 2)
+    moving = {ev['agent'] for ev in events if ev['dir']} | {
+        ev['patient'] for ev in events if ev['dir']}
+    wordy = {e['id'] for e in ents if _wn is not None and any(
+        x.lexname() == 'noun.communication'
+        and e['head'] in x.lemma_names()
+        for x in _wn.synsets(e['head'], 'n')[:2])}
+    wordy |= {ev['patient'] for ev in events if _wn is not None
+              and ev['patient'] is not None
+              and ents[ev['patient']]['lex'] in ('noun.act', 'noun.cognition')
+              and any(x.lexname() in ('verb.communication', 'verb.cognition')
+                      for x in _wn.synsets(ev['lemma'], 'v')[:1])}
+    keep, seen, paper = [], set(), set()
+    toks = [t.lower() for t in re.findall(r"\w+|[^\w\s]", sent)]
+    for e in ents:
+        head = e['head']
+        if e['at'] < len(toks) and toks[e['at']] == head \
+                and _relational(toks, e['at']):
+            continue
+        person = bool(e.get('person')) or (not e['pron'] and _is_person(head))
+        if e['label'] in seen or e.get('time') or head in _SB_NOT_ROLE \
+                or 'partitive' in e:
+            continue
+        ic_e = v3.icon_for(_lemma(head), used)
+        acted_on = role_of.get(e['id'], 0) >= 3 and ic_e != 'person' and (
+            not isinstance(ic_e, tuple) or not v3._is_emblem(ic_e))
+        # a verdict, a report, a letter: words someone acts on are drawn
+        # as the paper they're written on
+        if not person and e['id'] in wordy \
+                and role_of.get(e['id'], 0) >= 3 \
+                and not _drawable(v3, head, used):
+            paper.add(e['id'])
+        if not person and not (_drawable(v3, head, used) or acted_on or (
+                e['id'] in moving and e['id'] in role_of)
+                or e['id'] in paper):
+            continue
+        agent = any(ev['agent'] == e['id'] for ev in events)
+        if not person and not agent and e['lex'] in (
+                'noun.feeling', 'noun.cognition', 'noun.time',
+                'noun.motive') and not v3.kit_exact(e['label']) \
+                and e['id'] not in paper:
+            continue
+        seen.add(e['label'])
+        keep.append((e, person))
+    people = [k for k in keep if k[1]][:2]
+    things = sorted([k for k in keep if not k[1]],
+                    key=lambda k: -role_of.get(k[0]['id'], 0))
+    pick = sorted(people + things[:max(1, cap - len(people))],
+                  key=lambda k: k[0]['at'])[:cap]
+    if not pick:
+        return None
+    idx = {e['id']: n for n, (e, _p) in enumerate(pick)}
+    roles = []
+    for e, person in pick:
+        lab = e['label']
+        if not person:
+            if ' ' in lab:
+                compounds[lab.split()[-1]] = lab
+            else:
+                lab = compounds.get(lab, lab)
+        r: dict = {'label': lab,
+                   'icon': 'person' if person else 'document'
+                   if e['id'] in paper else _thing_icon(v3, lab)}
+        if person:
+            r['narration'] = sent
+        roles.append(r)
+
+    by_id = {eid: roles[n] for eid, n in idx.items()}
+
+    def role(eid):
+        r_ = by_id.get(eid)
+        return r_ if r_ is not None and any(r_ is x for x in roles) else None
+
+    # what each person does, thinks or fears
+    for ev in events:
+        ag = role(ev['agent']) if ev['agent'] is not None else None
+        if ag is None:
+            continue
+        agent_is_actor = ag['icon'] == 'person' or _is_animal(ag['label'])
+        if ag['icon'] == 'person':
+            if ev['kind'] == 'fear' and ag.get('bubble') != 'exclaim':
+                ag['bubble'] = 'exclaim'
+            elif ev['kind'] == 'think' and not ag.get('bubble'):
+                ag['bubble'] = 'thinking'
+        if not agent_is_actor or 'action' in ag:
+            continue
+        tgt = role(ev['patient']) if ev['patient'] is not None else None
+        tgt = tgt or next((role(e) for _p, e in ev['preps'] if role(e)),
+                          None)
+        tool = next((role(e) for p_, e in ev['preps'] if p_ == 'with'
+                     and role(e) and role(e)['icon'] != 'person'), None)
+        held = tool if tool is not None else tgt
+        pose = None
+        if _HOLD.search(ev['phrase']) and held is not None \
+                and held['icon'] != 'person' and 'attach' not in held:
+            held.update(attach='held', to=roles.index(ag))
+            pose = 'hold'
+            if tool is not None and tgt is not None and tgt is not tool:
+                ag['target'] = tgt['label']
+        elif ev['kind'] == 'transfer':
+            pose = 'offer'
+        elif ev['kind'] in ('feel', 'fear', 'think'):
+            pose = None
+        elif any(re.search(pat, ev['verb'], re.I) for _a, pat in _ACT_CUES):
+            pose = next(a for a, pat in _ACT_CUES
+                        if re.search(pat, ev['verb'], re.I))
+        elif _wn is not None:
+            syn = _wn.synsets(ev['lemma'], 'v')[:3]
+            pose = next((_VERB_POSE[x.lexname()] for x in syn
+                         if x.lexname() in _VERB_POSE), None)
+        tool_w = _agent_tool(ag['label']) if ag['icon'] == 'person' else ''
+        if pose and tool_w and tgt is not None \
+                and not _is_physical(tgt['label']) \
+                and tool_w not in {r_['label'] for r_ in roles} \
+                and len(roles) <= cap:
+            roles.append({'label': tool_w, 'icon': _thing_icon(v3, tool_w),
+                          'attach': 'held', 'to': roles.index(ag)})
+        vt = _verb_tool(ev['lemma']) if ag['icon'] == 'person' else ''
+        if pose and vt and len(roles) <= cap \
+                and vt not in {r_['label'] for r_ in roles} \
+                and not any(r_.get('attach') == 'held'
+                            and r_.get('to') == roles.index(ag)
+                            for r_ in roles) \
+                and _drawable(v3, vt, used):
+            roles.append({'label': vt, 'icon': _thing_icon(v3, vt),
+                          'attach': 'held', 'to': roles.index(ag)})
+        if pose:
+            ag['action'] = pose
+            if tgt is None or tgt is ag:
+                # the object the verb names isn't drawable: face the
+                # nearest thing (else person) in the same sentence
+                me = roles.index(ag)
+                others = {id(role(e['agent'])) for e in events
+                          if e is not ev and e['agent'] is not None
+                          and e['agent'] != ev['agent']}
+                near = sorted((abs(k - me), r_['icon'] == 'person', k)
+                              for k, r_ in enumerate(roles) if r_ is not ag
+                              and 'attach' not in r_
+                              and id(r_) not in others)
+                tgt = roles[near[0][2]] if near else None
+                tool = _agent_tool(ag['label']) \
+                    if tgt is None and ag['icon'] == 'person' else ''
+                if tool and tool not in {r_['label'] for r_ in roles}:
+                    roles.append({'label': tool,
+                                  'icon': _thing_icon(v3, tool)})
+                    tgt = roles[-1]
+            if tgt is not None and pose != 'hold':
+                ag['target'] = tgt['label']
+            elif tgt is not None and 'target' not in ag \
+                    and tgt is not held:
+                ag['target'] = tgt['label']
+    # on / in / beside
+    for ev in events:
+        mover = ev['patient'] if ev['patient'] is not None else ev['agent']
+        mv = role(mover) if mover is not None else None
+        for prep, eid in ev['preps']:
+            how = _ATTACH_PREP.get(prep)
+            host = role(eid)
+            if not how or mv is None or host is None or host is mv:
+                continue
+            if host['label'].split()[-1] in _NOT_HOST:
+                continue
+            if how == 'in' and (mv['icon'] == 'person'
+                                or _is_animal(mv['label'])):
+                how = 'beside'
+            if 'attach' not in mv and 'attach' not in host:
+                mv.update(attach=how, to=roles.index(host))
+            break
+    setting = ''
+    for n in range(len(roles) - 1, -1, -1):
+        place = _PLACES.get(roles[n]['label'].split()[-1])
+        if place and len(roles) >= 2:
+            setting = setting or place
+            _drop_role(roles, n)
+    for n in range(len(roles) - 1, -1, -1):
+        if roles[n]['icon'] == 'person' or len(roles) < 3:
+            continue
+        art = v3.icon_for(roles[n]['icon'])
+        dup = next((b for b, r_ in enumerate(roles) if b < n
+                    and r_['icon'] != 'person'
+                    and v3.icon_for(r_['icon']) == art), None)
+        if dup is not None and not any(r_.get('to') == n for r_ in roles):
+            _drop_role(roles, n)
+    if roles and all('attach' in r for r in roles):
+        roles[0].pop('attach', None)
+        roles[0].pop('to', None)
+    labels = {r['label'] for r in roles}
+    lab_of = {e['id']: e['label'] for e in ents}
+    for e in ents:
+        if e['label'] in compounds.values() or e['head'] in compounds:
+            lab_of[e['id']] = compounds.get(e['head'], e['label'])
+    marks: list = []
+
+    def add(m):
+        if m not in marks and len(marks) < 3:
+            marks.append(m)
+
+    def thing(eid):
+        lab = lab_of.get(eid)
+        r = next((x for x in roles if x['label'] == lab), None)
+        return r if r is not None and r['icon'] != 'person' else None
+
+    for ev in events:
+        if ev.get('neg'):
+            continue
+        impact = ev['kind'] == 'destroy' and ev['patient'] is None and any(
+            p_ in ('on', 'onto', 'into', 'against', 'at')
+            for p_, _e in ev['preps'])
+        if impact:
+            src = thing(ev['agent']) if ev['agent'] is not None else None
+            dst = next((thing(e) for p_, e in ev['preps'] if thing(e)), None)
+            if src is not None and dst is not None and src is not dst:
+                add({'type': 'flow', 'from': src['label'], 'to': dst['label']})
+            elif src is not None:
+                add({'type': 'motion', 'on': src['label']})
+            continue
+        subj = [ev['agent'], ev['patient']] if ev['kind'] in (
+            'rise', 'fall') else [ev['patient']] + [
+            e for p_, e in ev['preps'] if p_ in ('out', 'off', 'away')] + [
+            ev['agent']]
+        tr = next((thing(e) for e in subj if e is not None and thing(e)),
+                  None)
+        if ev['kind'] in ('rise', 'fall') and tr is not None:
+            add({'type': 'up' if ev['dir'] == 'up' else 'down',
+                 'on': tr['label']})
+        elif ev['kind'] == 'destroy' and tr is not None:
+            art = v3.icon_for(tr['icon'])
+            chart = isinstance(art, tuple) and _TREND_ART.search(str(art[-1]))
+            add({'type': 'down' if chart else 'cross', 'on': tr['label']})
+        elif ev['kind'] in ('move', 'transfer'):
+            src = thing(ev['patient']) if ev['patient'] is not None else None
+            src = src or (thing(ev['agent']) if ev['agent'] is not None
+                          else None)
+            dst = next((thing(e) for p_, e in ev['preps']
+                        if p_ in _DEST_PREP and thing(e)), None)
+            if src is not None and dst is not None and src is not dst \
+                    and 'attach' not in src:
+                add({'type': 'flow', 'from': src['label'],
+                     'to': dst['label']})
+            elif src is not None and ev['kind'] == 'move':
+                add({'type': 'motion', 'on': src['label']})
+    for st in states:
+        r = thing(st['of'])
+        if r is not None and st['kind'] == 'ruin':
+            add({'type': 'cross', 'on': r['label']})
+    for r in roles:
+        if r['icon'] == 'person':
+            continue
+        words = ' '.join([r['label']] + [st['word'] for st in states
+                                         if lab_of.get(st['of']) == r['label']])
+        for kind, pat in _MARK_CUES:
+            if kind in _NOUN_MARKS and re.search(pat, words, re.I):
+                add({'type': kind, 'on': r['label']})
+                break
+    # the action phrase, pinned to what it happens to
+    for ev in events:
+        if ev['kind'] in ('feel', 'fear', 'think') or \
+                len(ev['phrase'].split()) < 2:
+            continue
+        on = [ev['patient']] + [e for _p, e in ev['preps']] + [ev['agent']]
+        r = next((thing(e) for e in on if e is not None and thing(e)), None)
+        if r is None:
+            r = next((role(e) for e in on[:-1] if e is not None and role(e)),
+                     None)
+        if r is None:
+            r = role(ev['agent']) if ev['agent'] is not None else None
+        if r is not None and not r.get('annotate'):
+            words = ev['phrase'].split()
+            while words and words[-1].lower() in _SB_DET | _CAP_PREP:
+                words = words[:-1]
+            note = _caption_cut(words, 4)
+            if len(note.split()) >= 2:
+                r['annotate'] = note
+    rel = next((k for k, pat in _REL_CUES if re.search(pat, sent, re.I)), '')
+    n_p = sum(1 for r in roles if r['icon'] == 'person')
+    if not rel:
+        rel = ('reaction' if n_p >= 2 else
+               'focus' if len(roles) <= 2 else 'sequence')
+    if rel == 'contrast' and len(roles) < 2:
+        rel = 'focus'
+    if rel == 'before_after':
+        cut = re.search(r'\b(but|now|after|no longer|until)\b', sent, re.I)
+        at = {e['label']: e['char'] for e in ents}
+        for r in roles:
+            r['side'] = ('before' if cut and at.get(r['label'], 0)
+                         < cut.start() else 'after')
+        if len({r['side'] for r in roles}) < 2:
+            roles[0]['side'] = 'before'
+            for r in roles[1:]:
+                r['side'] = 'after'
+    _trend_roles(v3, roles, marks, sent)
+    marks[:] = [m for m in marks if all(
+        m.get(k) in {r['label'] for r in roles}
+        for k in ('on', 'from', 'to') if k in m)]
+    last_person = next((r['label'] for r in roles if r['icon'] == 'person'
+                        and r['label'] not in ('you', 'we', 'i')),
+                       last_person)
+    del labels
+    return roles, rel, marks, setting, last_person
+
+
+def _drop_role(roles: list, n: int) -> None:
+    del roles[n]
+    for r_ in roles:
+        if r_.get('to') == n:
+            r_.pop('attach', None)
+            r_.pop('to', None)
+        elif isinstance(r_.get('to'), int) and r_['to'] > n:
+            r_['to'] -= 1
 
 
 def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
@@ -812,7 +1234,18 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
     prev_rel = ''
     compounds: dict = {}
     last_person = ''
+    carry: dict = {}
+
     def _moment(sent, prev_rel, last_person, cap):
+        if last_person and not carry.get('person'):
+            carry['person'] = last_person
+        sm = scene_map.parse(sent, carry)
+        if sm is not None:
+            got = _moment_map(v3, sm, sent, cap, used, compounds,
+                              last_person)
+            if got is not None:
+                maps.append(sm)
+                return got
         tokens = _WORD_RE.findall(sent)
         low = [t.lower().split("'")[0] for t in tokens]
         cands = []
@@ -956,9 +1389,11 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             if not person:
                 continue
             tail = ' '.join(low[i:i + 6])
-            if _HOLD.search(tail):
+            hm = _HOLD.search(tail)
+            if hm:
+                at = i + tail[:hm.start()].count(' ')
                 th = next((b for b, (j, _l2, p2) in enumerate(pick)
-                           if not p2 and j > i), None)
+                           if not p2 and j > at), None)
                 if th is not None and 'attach' not in roles[th]:
                     roles[th].update(attach='held', to=a_)
                     roles[a_]['action'] = 'hold'
@@ -989,11 +1424,18 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 if hit or vp:
                     roles[a_]['action'] = hit[1] if hit else vp[0]
                     vi = (i + tail[:hit[0]].count(' ')) if hit else vp[1]
+                    end = _clause_end(low, vi)
                     tg = next((b for b, (j, _l2, p2) in enumerate(pick)
-                               if not p2 and j > vi), None)
+                               if not p2 and vi < j < end), None)
                     if tg is None:
                         tg = next((b for b, (j, _l2, p2) in enumerate(pick)
-                                   if b != a_ and j > vi), None)
+                                   if b != a_ and vi < j < end), None)
+                    tool = _agent_tool(_l) if person and tg is None else ''
+                    if tool and len(roles) < cap + 1:
+                        roles.append({'label': tool,
+                                      'icon': _thing_icon(v3, tool)})
+                        pick.append((len(low), tool, False))
+                        tg = len(roles) - 1
                     if tg is not None:
                         roles[a_]['target'] = roles[tg]['label']
         setting = ''
@@ -1073,6 +1515,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
 
     for bi, (heading, para) in enumerate(_sb_beats(script)):
         compounds.clear()
+        maps: list = []
         sents = [x for x in re.split(r'(?<=[.!?])\s+', para.strip())
                  if len(_WORD_RE.findall(x)) >= 3] or [para]
         if len(sents) == 1:
@@ -1082,11 +1525,14 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             roles, marks, setting = [], [], ''
             per = 3 if len(sents) == 2 else 2
             for k, s_ in enumerate(sents[:3]):
+                n_maps = len(maps)
                 r_, _rl, mk_, st_, last_person = _moment(
                     s_, '', last_person, per)
                 off = len(roles)
                 labs = [r['label'] for r in r_]
-                _step_note(s_, r_)
+                if len(maps) == n_maps and not any(
+                        r.get('annotate') for r in r_):
+                    _step_note(s_, r_)
                 for r in r_:
                     r['moment'] = k
                     if isinstance(r.get('to'), int):
@@ -1110,6 +1556,13 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             'scene': {'sceneId': f'b{bi + 1:02d}', 'relation': rel,
                       'heroRole': hero, 'supportingRoles': rest,
                       'marks': marks,
+                      **({'events': [
+                          {k: ev[k] for k in ('verb', 'kind', 'dir',
+                                              'phrase')} | {
+                              'agent': _ent_label(m_, ev['agent']),
+                              'patient': _ent_label(m_, ev['patient'])}
+                          for m_ in maps for ev in m_['events']]}
+                         if maps else {}),
                       **({'setting': setting} if setting else {})},
         })
     title = title or _subject(script).title()
@@ -1120,6 +1573,10 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 'background': '#F7F2E7', 'ink': '#1A1A17',
                 'accent': '#1A1A17', 'secondary': '#8B8577'}},
             'beats': beats}
+
+
+def _ent_label(sm: dict, eid):
+    return sm['entities'][eid]['label'] if eid is not None else None
 
 
 def main(argv=None) -> int:

@@ -51,3 +51,7 @@ def test_artisans_wear_workshop_aprons_not_hardhats():
     assert sb_cast.outfit_for('potter').get('hat') != 'hardhat'
     assert sb_cast.outfit_for('potter')['torso'] == 'apron_brown'
     assert sb_cast.outfit_for('bricklayer')['hat'] == 'hardhat'
+
+
+def test_smiths_wear_workshop_apron():
+    assert sb_cast.outfit_for('blacksmith')['torso'] == 'apron_brown'

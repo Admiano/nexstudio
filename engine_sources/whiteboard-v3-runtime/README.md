@@ -97,6 +97,11 @@ bake_blend_vault.py -- out.json ARMATURE_OBJECT NEX_`).
 ## Requirements
 
 - Python 3.10+, `Pillow`, `ffmpeg`/`ffprobe` on PATH.
+- Script authoring (`plan_author.py`): `nltk` with the WordNet corpus, and
+  `spacy==3.8.7` with `en_core_web_lg`/`en_core_web_md` 3.8.0 (the scene map
+  in `scene_map.py` parses who does what to whom; when every parse disagrees
+  on a word the best-formed clause wins). Without spaCy the author falls back
+  to its word-level rules.
 - The preserved V3 system package extracted: `python scripts/install-engines.py`
   (produces `engines/whiteboard-v3-system/NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE`).
   Override with `--package-root` or `WHITEBOARD_V3_SYSTEM_PACKAGE`.

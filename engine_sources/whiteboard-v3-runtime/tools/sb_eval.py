@@ -47,12 +47,23 @@ def _does(role: dict) -> bool:
         'feels', 'feel', 'is', 'are', 'was', 'were', 'has', 'have', 'smiles'}
 
 
+def _norm(s: str) -> str:
+    return re.sub(r'[^a-z]', '', s.lower()).rstrip('s')
+
+
+def _literal(art_name: str, label: str) -> bool:
+    """A library drawing named for the word itself ('contract' for
+    contract): a literal depiction, though not authored kit art."""
+    return _norm(art_name) in {_norm(label), _norm(label.split()[-1])}
+
+
 def evaluate(scripts: list[Path]) -> dict:
     import pipeline_v3_narration_timed as p3
     p3.load_execution_body(None)
     import v3_board_renderer as v3r
     rows, tot = [], {'cast': 0, 'jobs': 0, 'dressed': 0, 'doers': 0,
-                     'engaged': 0, 'art': 0, 'exact': 0, 'curated': 0,
+                     'engaged': 0, 'art': 0, 'exact': 0, 'literal': 0,
+                     'curated': 0,
                      'library': 0, 'loose': 0, 'generic': 0}
     for sp in scripts:
         plan = pa.build_storyboard(sp.read_text(encoding='utf-8'))
@@ -89,6 +100,9 @@ def evaluate(scripts: list[Path]) -> dict:
                             ic[0] == 'custom'
                             or str(ic[1]).startswith('kit:')):
                         how = 'curated'
+                    elif isinstance(ic, tuple) and _literal(
+                            str(ic[-1]), r['label']):
+                        how = 'literal'
                     elif v3r.art_related(str(r['icon']), ic):
                         how = 'library'
                     else:
@@ -102,6 +116,8 @@ def evaluate(scripts: list[Path]) -> dict:
     score = {'dressed_jobs_%': pct('dressed', 'jobs'),
              'engaged_doers_%': pct('engaged', 'doers'),
              'exact_art_%': pct('exact', 'art'),
+             'exact_or_literal_art_%': round(
+                 pct('exact', 'art') + pct('literal', 'art'), 1),
              'non_generic_art_%': round(100 - pct('generic', 'art'), 1),
              'meaning_related_art_%': round(
                  100 - pct('generic', 'art') - pct('loose', 'art'), 1)}

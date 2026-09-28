@@ -67,7 +67,7 @@ _OUTFITS = (
      {'shirt': '#95C9A2', 'torso': 'apron_brown'}),
     (r'firefighter|fireman|firemen|firefighters',
      {'shirt': '#E0A24A', 'hat': 'firehelmet', 'torso': 'stripes'}),
-    (r'craftsman|artisan|artificer|potter|weaver|glassblower|jeweler|'
+    (r'craftsman|artisan|artificer|potter|weaver|glassblower|jeweler|smith|'
      r'woodworker|cobbler|shoemaker|tailor|seamstress',
      {'shirt': '#C9B79C', 'torso': 'apron_brown'}),
     (r'builder|construction|carpenter|plumber|electrician|mechanic|'

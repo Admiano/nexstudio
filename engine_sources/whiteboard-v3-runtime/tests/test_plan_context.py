@@ -38,3 +38,27 @@ def test_what_happens_is_drawn():
     assert 'trend down' in icons(down)
     assert any(r.get('bubble') == 'exclaim'
                for r in [down['heroRole']] + down['supportingRoles'])
+
+
+def _roles(sent):
+    sc = pa.build_storyboard('## A\n' + sent + '\n')['beats'][0]['scene']
+    return {r['label']: r for r in [sc['heroRole']] + sc['supportingRoles']}
+
+
+def test_target_stays_in_the_actors_clause():
+    r = _roles('The judge reads the verdict and the family feels relieved.')
+    assert r['judge']['target'] == 'verdict'
+
+
+def test_piece_of_material_draws_the_material():
+    r = _roles('The geologist holds a small nugget of gold.')
+    assert 'nugget' not in r and r['gold'].get('attach') == 'held'
+
+
+def test_tools_named_by_agent_or_verb_are_held():
+    assert _roles('The guitarist plays for a cheering crowd.')[
+        'guitar'].get('attach') == 'held'
+    assert _roles('The carpenter saws the plank.')['saw'].get(
+        'attach') == 'held'
+    assert pa._verb_tool('hammer') == 'hammer'
+    assert pa._verb_tool('feel') == ''
