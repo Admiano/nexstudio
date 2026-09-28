@@ -1052,7 +1052,9 @@
     if (plan.book) {
       const pr = bookPageRect(plan);
       const bands = (Array.isArray(bg.layers) ? bg.layers : []).filter((s) => s.kind === 'band');
-      if (pr) {
+      const W = plan.canvas.w, H = plan.canvas.h;
+      // A page with no painted bands at all is the bare stock (a maths page): no sky.
+      if (pr && bands.length) {
         const horizon = bands.length ? Math.min(...bands.map((s) => s.bbox.y)) : pr.y + pr.h;
         if (horizon > pr.y + pr.h * 0.4) {
           const field = atmo.field || brand.paper;
@@ -1099,10 +1101,10 @@
       // Each layer lands within ~170ms of its stagger slot — the stage is dressed before
       // the first content frame regardless of how long the ensemble's settle window runs.
       const ls = ss + L.i * 40, le = Math.min(se + L.i * 40, ls + 170);
-      const p = EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
+      const p = PAPERBOOK(plan) ? 1 : EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
       let scale = 1, tx = 0, ty = 0, opacity = (spec.opacity == null ? 1 : spec.opacity) * p;
       if (spec.kind === 'panel' || spec.kind === 'plane' || spec.kind === 'spotlight') scale = lerp(0.985, 1, EASE.settle(p));
-      if (spec.kind === 'dotgrid' || spec.kind === 'plane' || spec.kind === 'band') {
+      if (!PAPERBOOK(plan) && (spec.kind === 'dotgrid' || spec.kind === 'plane' || spec.kind === 'band')) {
         const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : 1.6);
         tx += amb.dx; ty += amb.dy;
       }
@@ -1112,7 +1114,7 @@
         // Keyed to the beat's own clock, not the pre-rolled one: under the outgoing transition the
         // light still sits where the previous beat left it, so the hand-over is seamless.
         const k = EASE.settle(prog(lt, 0, spec.travel_ms || 640));
-        const amb = ambientDrift(lt, `bloom-${beat.beat_id}`, 0, 9, 0.03);
+        const amb = PAPERBOOK(plan) ? { dx: 0, dy: 0, s: 1 } : ambientDrift(lt, `bloom-${beat.beat_id}`, 0, 9, 0.03);
         tx = lerp(spec.from.x, spec.at.x, k) + amb.dx;
         ty = lerp(spec.from.y, spec.at.y, k) + amb.dy;
         scale = amb.s;
@@ -1121,7 +1123,7 @@
       if (spec.kind === 'depth') {
         // Far plane: fades up with the stage, then drifts more slowly and more widely than anything in
         // focus. The camera adds its counter-move (parallax) after this pass.
-        const amb = ambientDrift(lt, `depth-${beat.beat_id}-${L.i}`, 0, 4.5 * (1 - spec.plane) + 1.5, 0.012);
+        const amb = PAPERBOOK(plan) ? { dx: 0, dy: 0, s: 1 } : ambientDrift(lt, `depth-${beat.beat_id}-${L.i}`, 0, 4.5 * (1 - spec.plane) + 1.5, 0.012);
         tx += amb.dx; ty += amb.dy;
         scale = amb.s * lerp(1.04, 1, EASE.settle(p));
       }
@@ -1129,7 +1131,8 @@
       // plate doesn't pop in — it paints itself. Far planes wash in first as a
       // bottom-up wipe (paint floods a page upward), mid pieces stamp down with a
       // paper-press settle, details (stars, windows, weather) speckle in last.
-      const paintT = EASE.outCubic(prog(lt, spec.plane * 260, spec.plane * 260 + 620));
+      // A book page is printed: the plate is already on the paper when the page lands.
+      const paintT = PAPERBOOK(plan) ? 1 : EASE.outCubic(prog(lt, spec.plane * 260, spec.plane * 260 + 620));
       if (spec.kind === 'band') {
         if (paintT < 1) L.node.style.clipPath = `inset(${(100 - paintT * 100).toFixed(2)}% -2% -4% -2%)`;
         else if (L.node.style.clipPath) L.node.style.clipPath = '';
@@ -1139,7 +1142,7 @@
       } else if (spec.kind === 'stars' || spec.kind === 'fireflies' || spec.kind === 'rain' || spec.kind === 'birds') {
         // Speckle-in: each child waits its own moment inside the first 1.1s.
         for (const c of L.node.children) {
-          const cT = EASE.outCubic(prog(lt, Number(c.dataset.ph) * 900, Number(c.dataset.ph) * 900 + 320));
+          const cT = paintT >= 1 && PAPERBOOK(plan) ? 1 : EASE.outCubic(prog(lt, Number(c.dataset.ph) * 900, Number(c.dataset.ph) * 900 + 320));
           c.style.opacity = cT < 1 ? cT.toFixed(3) : '';
         }
       }
@@ -1506,6 +1509,7 @@
       position: 'absolute', left: px(bb.x), top: px(bb.y), width: px(bb.w), height: px(bb.h), zIndex: '14',
       willChange: 'transform, opacity', transformOrigin: '50% 100%',
     }, beatRoot);
+    host.dataset.figure = beat ? beat.beat_id : '';
     // The performer is cut paper, same material as every mark on stage: a 100×140
     // sheet of layered pieces — no borrowed clip-art.
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -4174,7 +4178,9 @@
       }
       rels.set(rel.id, r);
     }
-    return { il, svg, ents, rels, sw, accent, ready: Promise.all(ready) };
+    const edu = il.edu ? buildEduOverlay(il.edu, plan, svg, accent) : null;
+    if (edu) svg.insertBefore(svg.lastChild, relLayer);
+    return { il, svg, ents, rels, sw, accent, edu, ready: Promise.all(ready) };
   }
 
   // Value of a driven property at beat-local time lt.
@@ -4295,6 +4301,12 @@
   function storyAction(act, node, lt) {
     const bb = node.bb;
     const oneShot = act.dur ? clamp(prog(lt, act.at, act.at + act.dur), 0, 1) : null;
+    // Bounded loops (swim, flutter, wave, spin, orbit, pulse, shine, shake) rise in from rest,
+    // play for their window and settle back to rest — the printed still is always the rest pose.
+    const env = oneShot == null ? 1 : oneShot <= 0 || oneShot >= 1 ? 0 : Math.min(1, oneShot * 6, (1 - oneShot) * 5);
+    const lt0 = Math.max(0, lt - (act.at || 0));
+    const dir = act.dir || 1;
+    const dist = act.dx != null ? act.dx : dir * bb.w * 1.9;
     switch (act.kind) {
       case 'grow': {
         const e = EASE.settle(oneShot);
@@ -4306,10 +4318,31 @@
       }
       case 'phase':
         return { phase: EASE.inOutCubic(oneShot) };
+      case 'dim':
+        return { op: 1 - 0.62 * EASE.inOutCubic(oneShot) };
       case 'kick': {
         // Flies a short arc and lands — the pressed still shows where it came to rest.
-        const q = EASE.outCubic(oneShot), dir = act.dir || 1;
-        return { dx: dir * bb.w * 1.9 * q, dy: -Math.sin(oneShot * Math.PI) * bb.h * 1.4, rot: dir * oneShot * 480 };
+        const q = EASE.outCubic(oneShot);
+        return { dx: dist * q, dy: -Math.sin(oneShot * Math.PI) * bb.h * 1.4, rot: Math.sign(dist) * oneShot * 480 };
+      }
+      case 'bounce': {
+        const q = EASE.outCubic(oneShot);
+        const hop = Math.abs(Math.sin(oneShot * Math.PI * 3)) * (1 - oneShot) * bb.h * 0.9;
+        return { dx: dist * q, dy: -hop, rot: Math.sign(dist) * oneShot * 300 };
+      }
+      case 'hop':
+        return { dy: -Math.sin(oneShot * Math.PI) * bb.h * 0.55, sy: 1 - 0.12 * Math.max(0, Math.sin(oneShot * Math.PI * 2 + Math.PI)), anchor: 'bottom' };
+      case 'roll': {
+        const q = EASE.inOutCubic(oneShot);
+        return { dx: dist * q, rot: (dist * q) / Math.max(1, bb.w / 2) * 57.3 };
+      }
+      case 'travel': {
+        const q = EASE.inOutCubic(oneShot);
+        return { dx: dist * q, dy: -Math.abs(Math.sin(oneShot * Math.PI * 6)) * bb.h * 0.03 };
+      }
+      case 'fly': {
+        const q = EASE.inOutCubic(oneShot);
+        return { dx: dist * q, dy: -Math.sin(oneShot * Math.PI) * bb.h * 0.8, rot: Math.sin(lt0 * 0.012) * 6 * env };
       }
       case 'rise': {
         const q = EASE.outCubic(oneShot);
@@ -4319,33 +4352,74 @@
         const q = EASE.inCubic(oneShot);
         return { dy: bb.h * 1.4 * q, op: oneShot > 0.82 ? (1 - oneShot) / 0.18 : 1 };
       }
+      case 'vanish': {
+        const q = EASE.inCubic(oneShot);
+        return { dx: dir * bb.w * 0.6 * q, dy: -bb.h * 0.5 * q, s: 1 - 0.3 * q, op: 1 - q };
+      }
+      case 'unfold':
+        return { sx: Math.max(0.04, EASE.settle(oneShot)) };
+      case 'shine':
+        return { s: 1 + 0.12 * Math.sin(lt0 * 0.012) ** 2 * env, glow: env };
+      case 'shake':
+        return { rot: Math.sin(lt0 * 0.06) * 7 * env, dx: Math.sin(lt0 * 0.09) * bb.w * 0.03 * env };
       case 'orbit': {
-        const w = 0.0009, r = Math.min(bb.w, bb.h) * 0.11;
-        return { dx: Math.cos(lt * w) * r, dy: Math.sin(lt * w) * r * 0.55, rot: Math.sin(lt * w) * 5 };
+        const w = 0.0028, r = Math.min(bb.w, bb.h) * 0.14 * env;
+        return { dx: Math.sin(lt0 * w) * r, dy: (1 - Math.cos(lt0 * w)) * r * 0.55, rot: Math.sin(lt0 * w) * 5 * env };
       }
       case 'pulse':
-        return { s: 1 + 0.05 * Math.sin(lt * 0.0028 + (bb.x % 37)) };
+        return { s: 1 + 0.07 * Math.sin(lt0 * 0.009) ** 2 * env };
       case 'spin':
-        return { rot: (lt * 0.045) % 360 };
+        return { rot: 360 * EASE.inOutCubic(oneShot == null ? 0 : oneShot) };
       case 'swim':
-        return { dx: Math.sin(lt * 0.0016 + bb.y * 0.01) * bb.w * 0.15, rot: Math.sin(lt * 0.0016 + 0.7) * 5 };
+        return { dx: Math.sin(lt0 * 0.004) * bb.w * 0.15 * env, rot: Math.sin(lt0 * 0.004 + 0.7) * 5 * env };
       case 'flutter':
-        return { dy: Math.sin(lt * 0.006) * bb.h * 0.07, rot: Math.sin(lt * 0.004) * 7 };
+        return { dy: -Math.abs(Math.sin(lt0 * 0.008)) * bb.h * 0.12 * env, rot: Math.sin(lt0 * 0.006) * 7 * env };
       case 'wave':
-        return { rot: Math.sin(lt * 0.003) * 4.5, anchor: 'bottom' };
-      case 'breathe': {
-        // Living still: sub-pixel settle so a printed mark never reads dead-frozen.
-        const b = Math.sin(lt * 0.0009 + (bb.x * 0.7 + bb.y) * 0.011);
-        return { dx: b * 0.5, rot: b * 0.4 };
-      }
+        return { rot: Math.sin(lt0 * 0.006) * 5 * env, anchor: 'bottom' };
       default:
         return null;
+    }
+  }
+
+  // Teaching-page print: frames, plates, bars and number-line ticks are part of the page
+  // (they print with it and never move); the written sentence prints on its spoken word.
+  function buildEduOverlay(edu, plan, svg, accent) {
+    const ink = plan.brand.ink;
+    const g = svgEl('g', { 'data-edu': edu.kind }, svg);
+    const items = [];
+    for (const f of edu.frames || []) {
+      const solid = f.fill;
+      const el = svgEl('rect', {
+        x: f.x, y: f.y, width: f.w, height: f.h, rx: f.rx || 0,
+        fill: solid ? (f.ink ? ink : accent) : 'none', 'fill-opacity': solid ? (f.ink ? 0.9 : 0.55) : 0,
+        stroke: solid && f.ink ? 'none' : ink, 'stroke-width': solid ? 0 : Math.max(2, plan.canvas.h * 0.0032), 'stroke-opacity': 0.72,
+      }, g);
+      if (f.at != null) el.setAttribute('data-edu-live', '1');
+      items.push({ el, at: f.at });
+    }
+    for (const t of edu.texts || []) {
+      const el = svgEl('text', {
+        x: t.x, y: t.y, 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: ink,
+        'font-size': t.size, 'font-family': 'Playpen Sans, EB Garamond, serif', 'font-weight': 700,
+      }, g);
+      el.textContent = t.text;
+      if (t.at != null) el.setAttribute('data-edu-live', '1');
+      items.push({ el, at: t.at });
+    }
+    return items;
+  }
+
+  function applyEduOverlay(items, lt) {
+    for (const it of items) {
+      const v = it.at == null ? 1 : clamp((lt - it.at) / 180, 0, 1);
+      it.el.style.opacity = v.toFixed(3);
     }
   }
 
   function applyIllustrationState(ill, lt, beat, ctx) {
     const paper = ctx.brand.paper, ink = ctx.brand.ink, accent = ill.accent;
     const ex = ctx.exitState({ block: { role: 'illustration' } }, lt);
+    if (ill.edu) applyEduOverlay(ill.edu, lt);
     for (const node of ill.ents.values()) {
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
@@ -4364,13 +4438,13 @@
       // with the gap to the text zone so it can never close on the copy, and a breath whose
       // amplitude is capped the same way. A printed page never does this — under the
       // paperbook only the focus element's own story action may move.
-      let tx = 0;
+      let tx = 0, ambS = 1;
       if (ctx.book !== 'paperbook') {
         const tzA = beat.composition.text_zone;
         const gap = Math.max(tzA.x - (node.bb.x + node.bb.w), node.bb.x - (tzA.x + tzA.w), tzA.y - (node.bb.y + node.bb.h), node.bb.y - (tzA.y + tzA.h));
         const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
         const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4), breathe);
-        tx = amb.dx; ty += amb.dy; scale *= amb.s;
+        tx = amb.dx; ty += amb.dy; scale *= amb.s; ambS = amb.s;
       }
 
       // SETTLE: a small confirming pulse; SWAP: the entity pops through a scale-and-clip beat into its new state.
@@ -4483,8 +4557,9 @@
       const c = centre(node.bb);
       const anchorY = act && act.anchor === 'bottom' ? node.bb.y + node.bb.h : act && act.anchor === 'top' ? node.bb.y : c.y;
       const rot = (gl.extra.rotateDeg || 0) + (act && act.rot ? act.rot : 0);
-      const sx = scale * (act && act.s != null ? act.s : 1);
-      const sy = act && act.sy != null ? scale * act.sy : sx;
+      const sBase = scale * (act && act.s != null ? act.s : 1);
+      const sx = act && act.sx != null ? sBase * act.sx : sBase;
+      const sy = act && act.sy != null ? scale * act.sy : sBase;
       if (sx !== 1 || sy !== 1 || ty || tx || rot) transform += ` translate(${f2(c.x + tx)} ${f2(anchorY + ty)}) scale(${f2(sx)}${sy !== sx ? ` ${f2(sy)}` : ''})${rot ? ` rotate(${f2(rot)})` : ''} translate(${f2(-c.x)} ${f2(-anchorY)})`;
       g.setAttribute('transform', transform.trim() || 'translate(0 0)');
       g.style.opacity = opacity.toFixed(4);
@@ -4503,7 +4578,7 @@
         // A chassis label belongs to its housing: it fades in with the DRAW, not ahead of it.
         ls.opacity = clamp(gl.extra.chassis ? labelOpacity * clamp(draw, 0, 1) : labelOpacity, 0, 1).toFixed(4);
         const shift = carryLabelShift(node, pose.carry);
-        const lScale = lagged.scale * amb.s;
+        const lScale = lagged.scale * ambS;
         ls.transform = `translate(${f2(shift.x + tx)}px, ${f2(ty - pose.ty + lagged.ty + shift.y)}px) scale(${lScale.toFixed(4)})`;
         node.label.text.style.color = node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
       }
@@ -4594,6 +4669,7 @@
     outer.dataset.beat = beat.beat_id;
     // Camera: every beat's picture lives inside a wrapper the film pushes/pans/dissolves as a whole.
     const root = el('div', { position: 'absolute', inset: '0', transformOrigin: '50% 50%', willChange: 'transform, opacity, filter' }, outer);
+    root.dataset.cam = beat.beat_id;
     // Motion-blur filters for this beat's moving bodies live in one hidden <defs>, scoped by
     // beat so ids never collide across beats.
     const fxSvg = svgEl('svg', { width: 0, height: 0, 'aria-hidden': 'true' }, outer);
@@ -5545,8 +5621,9 @@
     // the move itself. Pure in lt so the frame before can be sampled for blur.
     const poseAt = (t) => {
       const p = clamp((t + (preRoll || 0)) / dur, 0, 1);
-      let scale = 1 + m.camera_push * p;
-      let tx = cam.dir * m.camera_pan_frac * W * (p - 0.5);
+      const book = PAPERBOOK(plan);
+      let scale = book ? 1 : 1 + m.camera_push * p;
+      let tx = book ? 0 : cam.dir * m.camera_pan_frac * W * (p - 0.5);
       let opacity = 1, defocus = 0;
       const kk = !PAPERBOOK(plan) && k > 0 && tr ? prog(t, tr.start_ms, tr.end_ms) : 0;
       let rot = 0, ty = 0;
@@ -5709,9 +5786,14 @@
         const trp = bn.beat.transition;
         const pm = Math.max(0, (trp ? trp.start_ms : bn.beat.duration_ms) - 16);
         bn._pressMs = pm;
+        // A page not yet read prints its story before it happens: every focus action
+        // still ahead (the apples not counted, the moon still bright).
+        const acts = ((bn.beat.illustration || {}).entities || [])
+          .map((e) => (e.action && e.action.at != null ? Number(e.action.at) : null)).filter((v) => v != null);
+        bn._preMs = acts.length ? Math.max(0, Math.min(pm, Math.min(...acts) - 16)) : pm;
         applyBeat(bn, pm, 1, 0, plan);
         applyCamera(bn, pm, 0, null, plan, 0);
-        bn._pressed = true;
+        bn._pressed = pm;
         spread.faces[bn.index].liveVp.appendChild(bn.cam);
       }
     } else if (bookPage) bookLamp = buildBookChrome(bookGroup, plan, bookPage);
@@ -5855,10 +5937,13 @@
             fj.liveVp.style.display = '';
             fj.stillVp.style.display = 'none';
             if (j === idx) bj._pressed = false;
-            else if (!bj._pressed) {
-              applyBeat(bj, bj._pressMs, 1, 0, plan);
-              applyCamera(bj, bj._pressMs, 0, null, plan, 0);
-              bj._pressed = true;
+            else {
+              const at = j < idx ? bj._pressMs : bj._preMs;
+              if (bj._pressed !== at) {
+                applyBeat(bj, at, 1, 0, plan);
+                applyCamera(bj, at, 0, null, plan, 0);
+                bj._pressed = at;
+              }
             }
           }
         }

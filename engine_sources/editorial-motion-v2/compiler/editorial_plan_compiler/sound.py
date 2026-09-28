@@ -44,7 +44,45 @@ EVENT_TAGS = {
     'WIPE_SWEEP': ('craft.paper.page', 'synth.shimmer'),
     'COUNT_RISE': ('synth.riser', 'synth.shimmer'),
     'FIGURE_STEP': ('craft.paper.step', 'craft.paper.tap'),
+    # Story actions: the verb's own sound, on the verb's own frame.
+    'ACTION_KICK': ('foley.kick', 'synth.thock'),
+    'ACTION_BOUNCE': ('foley.bounce', 'synth.thock'),
+    'ACTION_HOP': ('foley.hop', 'synth.pop'),
+    'ACTION_ROLL': ('foley.roll', 'craft.paper.rustle'),
+    'ACTION_TRAVEL': ('synth.swish', 'craft.paper.rustle'),
+    'ACTION_FALL': ('foley.fall', 'synth.whoosh'),
+    'ACTION_RISE': ('foley.rise', 'synth.riser'),
+    'ACTION_FLY': ('foley.flap', 'synth.whoosh'),
+    'ACTION_FLUTTER': ('foley.flap', 'synth.swish'),
+    'ACTION_SPIN': ('foley.spin', 'synth.swish'),
+    'ACTION_SHAKE': ('foley.shake', 'craft.paper.rustle'),
+    'ACTION_SHINE': ('foley.sparkle', 'synth.shimmer'),
+    'ACTION_DIM': ('foley.dim', 'synth.swish'),
+    'ACTION_PHASE': ('foley.dim', 'foley.sparkle'),
+    'ACTION_POP': ('synth.pop', 'craft.paper.tap'),
+    'ACTION_VANISH': ('foley.vanish', 'synth.swish'),
+    'ACTION_UNFOLD': ('craft.paper.rustle', 'synth.swish'),
+    'ACTION_GROW': ('foley.grow', 'synth.riser'),
+    'ACTION_WAVE': ('foley.flag', 'craft.paper.rustle'),
+    'ACTION_SWIM': ('foley.water.drop', 'synth.swish'),
+    'ACTION_ORBIT': ('synth.shimmer', 'synth.swish'),
+    'ACTION_PULSE': ('foley.heart', 'synth.thock'),
+    'EDU_ANSWER': ('foley.chime', 'synth.shimmer'),
 }
+# A water thing falling or swimming plays water, not a slide whistle.
+ACTION_CONCEPT_EVENTS = ('ACTION_FALL', 'ACTION_SWIM', 'ACTION_PULSE', 'ACTION_SHINE')
+# Story-action accents outrank the structural fabric and ride their own budget: a counted
+# set rings every count (up to ten), each a step up the counting scale.
+MAX_STORY_ACCENTS = 12
+MIN_COUNT_GAP_MS = 90
+
+
+def story_event(kind: str) -> str:
+    return f'ACTION_{kind.upper()}'
+
+
+def is_story_event(ev: str) -> bool:
+    return ev.startswith('ACTION_') or ev in ('COUNT_POP', 'EDU_ANSWER')
 GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0, 'ui': -19.0, 'legacy': -18.0, 'whiteboard': -20.0, 'foley': -18.0, 'synth': -16.0, 'craft': -19.0, 'amb': -27.0}
 
 # What a shown thing sounds like: a landed entity whose concept is in the map takes its foley
@@ -175,12 +213,43 @@ def bind_beat_sound(lib: Optional[SoundLibrary], film_id: str, beat_id: str, bea
         return {'accents': [], 'silenced': [c['event'] for c in candidates], 'reason': 'QUIET_BEAT_STAYS_SILENT'}
     if lib is None:
         return {'accents': [], 'silenced': [c['event'] for c in candidates], 'reason': 'SOUND_LIBRARY_MISSING'}
-    ordered = sorted(candidates, key=lambda c: (-c.get('strength', 0.5), c['at_ms']))
+    story = sorted((c for c in candidates if is_story_event(c['event'])), key=lambda c: c['at_ms'])
+    rest = sorted((c for c in candidates if not is_story_event(c['event'])), key=lambda c: (-c.get('strength', 0.5), c['at_ms']))
+    ordered = story + rest
     chosen: List[Dict[str, Any]] = []
     silenced: List[str] = []
+    n_story = 0
     for i, c in enumerate(ordered):
-        tags = EVENT_TAGS.get(c['event'])
-        if not tags or len(chosen) >= MAX_ACCENTS_PER_BEAT:
+        storied = is_story_event(c['event'])
+        if c['event'] == 'COUNT_POP':
+            tags = (f"synth.count.{max(1, min(10, int(c.get('index') or 1))):02d}", 'synth.pop')
+        else:
+            tags = EVENT_TAGS.get(c['event'])
+        if storied:
+            if not tags or n_story >= MAX_STORY_ACCENTS:
+                silenced.append(c['event']); continue
+            gap = MIN_COUNT_GAP_MS if c['event'] == 'COUNT_POP' else MIN_ACCENT_GAP_MS
+            if any(abs(c['at_ms'] - x['beat_at_ms']) < gap for x in chosen):
+                silenced.append(c['event']); continue
+            concept_foley = CONCEPT_FOLEY.get(str(c.get('concept') or '').lower())
+            if concept_foley and c['event'] in ACTION_CONCEPT_EVENTS:
+                tags = (concept_foley,) + tags
+            seed = f'{film_id}:{beat_id}:{c["event"]}:{i}'
+            asset = lib.pick(tags, seed)
+            if not asset:
+                silenced.append(c['event']); continue
+            gain = GAIN_DB.get(asset['family'], -16.0) + 2.0
+            trim = int(min(asset['durationSeconds'] * 1000, ACCENT_TRIM_MS)) if asset['durationSeconds'] else None
+            chosen.append({
+                'event': c['event'], 'beat_at_ms': int(c['at_ms']), 'film_at_ms': int(beat_offset_ms + c['at_ms']),
+                'asset_id': asset['assetId'], 'semantic_tag': asset['semanticTag'], 'path': str(lib.root / asset['path']),
+                'sha256': asset['productionSha256'], 'license': asset['license'], 'duration_s': asset['durationSeconds'],
+                'gain_db': gain, 'trim_ms': trim, 'texture': None, 'layers': [_layer(lib, 'body', asset, gain, trim)],
+                'target': c.get('target'),
+            })
+            n_story += 1
+            continue
+        if not tags or len(chosen) - n_story >= MAX_ACCENTS_PER_BEAT:
             silenced.append(c['event']); continue
         # A landing entity with a known sound plays its own foley — water plips, a sprout
         # sproings — in front of the fabric tap it would otherwise take.

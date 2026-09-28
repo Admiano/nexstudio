@@ -391,6 +391,134 @@ def foley_step(dur_s: float, seed: int) -> np.ndarray:
     return _norm(thud + rustle)
 
 
+def foley_kick(dur_s: float, seed: int) -> np.ndarray:
+    """Boot on ball: a punchy low thump with a leather slap on top."""
+    t = _t(dur_s)
+    f = 110.0 + 90.0 * np.exp(-t * 60.0)
+    thump = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 28.0)
+    slap = _hipass(_noise(len(t), seed)) * np.exp(-t * 260.0) * 0.9
+    return _norm(thump + slap)
+
+
+def foley_bounce(dur_s: float, seed: int) -> np.ndarray:
+    """A ball bouncing to rest: three rubbery thumps, each closer and softer."""
+    t = _t(dur_s)
+    out = np.zeros(len(t))
+    lag, gap, amp = 0.0, dur_s * 0.42, 1.0
+    for _ in range(4):
+        tt = np.maximum(0.0, t - lag)
+        f = 150.0 + 120.0 * np.exp(-tt * 70.0)
+        out += np.sin(2 * np.pi * np.cumsum(f * (t >= lag)) / SR) * np.exp(-tt * 38.0) * (t >= lag) * amp
+        lag += gap
+        gap *= 0.55
+        amp *= 0.6
+    return _norm(out)
+
+
+def foley_hop(dur_s: float, seed: int) -> np.ndarray:
+    """Cartoon hop: a quick upward boing with a soft landing pat."""
+    t = _t(dur_s)
+    f = 260.0 + 520.0 * (t / dur_s)
+    boing = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.sin(np.pi * np.minimum(1.0, t / (dur_s * 0.7))) ** 1.5
+    pat = np.sin(2 * np.pi * 120.0 * t) * np.exp(-np.maximum(0.0, t - dur_s * 0.75) * 60.0) * (t >= dur_s * 0.75)
+    return _norm(boing * 0.8 + pat * 0.6)
+
+
+def foley_roll(dur_s: float, seed: int) -> np.ndarray:
+    """Rolling: a low grainy rumble that swells and fades."""
+    t = _t(dur_s)
+    grit = _smooth(_noise(len(t), seed), 40) * (1.0 + 0.4 * np.sin(2 * np.pi * 9.0 * t))
+    hum = np.sin(2 * np.pi * 70.0 * t) * 0.4
+    return _norm((grit + hum) * np.sin(np.linspace(0, np.pi, len(t))) ** 0.8)
+
+
+def foley_fall(dur_s: float, seed: int) -> np.ndarray:
+    """Falling: a descending slide whistle that ends in a soft thud."""
+    t = _t(dur_s)
+    f = 1300.0 * np.exp(-t / dur_s * 1.6)
+    slide = np.sin(2 * np.pi * np.cumsum(f) / SR) * (t < dur_s * 0.8) * 0.55
+    tt = np.maximum(0.0, t - dur_s * 0.8)
+    thud = np.sin(2 * np.pi * 90.0 * tt) * np.exp(-tt * 40.0) * (t >= dur_s * 0.8)
+    return _norm(slide + thud)
+
+
+def foley_rise(dur_s: float, seed: int) -> np.ndarray:
+    """Lifting off: a rising tone under an opening air sweep."""
+    t = _t(dur_s)
+    f = 220.0 * np.exp(t / dur_s * 1.8)
+    tone = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.5
+    air = whoosh(dur_s, True, seed)[: len(t)]
+    return _norm((tone + air) * np.sin(np.linspace(0, np.pi, len(t))))
+
+
+def foley_flap(dur_s: float, seed: int) -> np.ndarray:
+    """Wings: soft feathery noise bursts at a flapping rate."""
+    t = _t(dur_s)
+    rate = 7.5
+    gate = np.maximum(0.0, np.sin(2 * np.pi * rate * t)) ** 3
+    air = _smooth(_noise(len(t), seed), 12)
+    return _norm(air * gate * np.sin(np.linspace(0, np.pi, len(t))) ** 0.5)
+
+
+def foley_spin(dur_s: float, seed: int) -> np.ndarray:
+    """Spinning: a whirr whose pitch wobbles with the turn."""
+    t = _t(dur_s)
+    f = 420.0 + 160.0 * np.sin(2 * np.pi * 5.0 * t)
+    whirr = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.5 + _smooth(_noise(len(t), seed), 6) * 0.4
+    return _norm(whirr * np.sin(np.linspace(0, np.pi, len(t))) ** 1.2)
+
+
+def foley_shake(dur_s: float, seed: int) -> np.ndarray:
+    """Shaking: a quick run of dry rattles."""
+    t = _t(dur_s)
+    rng = np.random.default_rng(seed)
+    out = np.zeros(len(t))
+    for i in range(7):
+        lag = i * dur_s / 7 + rng.uniform(0, 0.01)
+        tt = np.maximum(0.0, t - lag)
+        out += _hipass(_noise(len(t), seed + i)) * np.exp(-tt * 110.0) * (t >= lag) * (0.6 + 0.4 * rng.random())
+    return _norm(out)
+
+
+def foley_dim(dur_s: float, seed: int) -> np.ndarray:
+    """Going dark: a soft falling bell that closes to silence."""
+    t = _t(dur_s)
+    f = 880.0 * np.exp(-t / dur_s * 0.9)
+    bell = np.sin(2 * np.pi * np.cumsum(f) / SR) + 0.3 * np.sin(2 * np.pi * np.cumsum(f * 1.5) / SR)
+    return _norm(bell * np.exp(-t * 3.5) * _env_ad(len(t), 20.0, dur_s * 600.0))
+
+
+def foley_vanish(dur_s: float, seed: int) -> np.ndarray:
+    """Leaving: a quick up-swish that thins out into air."""
+    t = _t(dur_s)
+    air = whoosh(dur_s, True, seed)[: len(t)]
+    glint = np.sin(2 * np.pi * 2400.0 * t) * np.exp(-np.maximum(0.0, t - dur_s * 0.5) * 20.0) * (t >= dur_s * 0.5) * 0.25
+    return _norm(air * np.exp(-t * 2.0) + glint)
+
+
+def foley_flag(dur_s: float, seed: int) -> np.ndarray:
+    """Cloth in wind: low flutter noise with irregular snaps."""
+    t = _t(dur_s)
+    cloth = _smooth(_noise(len(t), seed), 30) * (0.6 + 0.4 * np.sin(2 * np.pi * 3.3 * t) ** 2)
+    snap = _hipass(_noise(len(t), seed + 1)) * (np.sin(2 * np.pi * 2.1 * t) > 0.97) * 0.8
+    return _norm((cloth + snap) * np.sin(np.linspace(0, np.pi, len(t))) ** 0.6)
+
+
+# The counting scale: C major from C5 upward — each count rings one step higher.
+COUNT_SCALE = [523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.5, 1174.66, 1318.51]
+
+
+def count_note(k: int, dur_s: float = 0.32) -> np.ndarray:
+    """Marimba-like count note k (1..10): wooden strike + two partials."""
+    f0 = COUNT_SCALE[max(0, min(len(COUNT_SCALE) - 1, k - 1))]
+    t = _t(dur_s)
+    body = np.sin(2 * np.pi * f0 * t) * np.exp(-t * 11.0)
+    body += 0.35 * np.sin(2 * np.pi * f0 * 3.9 * t) * np.exp(-t * 40.0)
+    body += 0.12 * np.sin(2 * np.pi * f0 * 9.2 * t) * np.exp(-t * 90.0)
+    return _norm(body * _env_ad(len(t), 1.5, dur_s * 800.0))
+
+
+
 # (file slug, semantic tag, synth recipe) — params are the contract: same table, same bytes.
 SPEC: List[Tuple[str, str, Callable[[], np.ndarray]]] = [
     ('pop-01', 'synth.pop', lambda: pop(520.0, 0.11, 101)),
@@ -461,7 +589,24 @@ SPEC: List[Tuple[str, str, Callable[[], np.ndarray]]] = [
     ('foley-heart-02', 'foley.heart', lambda: foley_heart(0.74, 352)),
     ('foley-alarm-01', 'foley.alarm', lambda: foley_alarm(0.9, 361)),
     ('foley-alarm-02', 'foley.alarm', lambda: foley_alarm(0.72, 362)),
-]
+    # --- story-action foley: the sound of the verb
+    ('foley-kick-01', 'foley.kick', lambda: foley_kick(0.3, 401)),
+    ('foley-kick-02', 'foley.kick', lambda: foley_kick(0.26, 402)),
+    ('foley-bounce-01', 'foley.bounce', lambda: foley_bounce(0.9, 411)),
+    ('foley-hop-01', 'foley.hop', lambda: foley_hop(0.36, 421)),
+    ('foley-hop-02', 'foley.hop', lambda: foley_hop(0.3, 422)),
+    ('foley-roll-01', 'foley.roll', lambda: foley_roll(1.1, 431)),
+    ('foley-fall-01', 'foley.fall', lambda: foley_fall(0.9, 441)),
+    ('foley-fall-02', 'foley.fall', lambda: foley_fall(0.75, 442)),
+    ('foley-rise-01', 'foley.rise', lambda: foley_rise(1.1, 451)),
+    ('foley-flap-01', 'foley.flap', lambda: foley_flap(0.8, 461)),
+    ('foley-flap-02', 'foley.flap', lambda: foley_flap(0.65, 462)),
+    ('foley-spin-01', 'foley.spin', lambda: foley_spin(0.8, 471)),
+    ('foley-shake-01', 'foley.shake', lambda: foley_shake(0.5, 481)),
+    ('foley-dim-01', 'foley.dim', lambda: foley_dim(1.0, 491)),
+    ('foley-vanish-01', 'foley.vanish', lambda: foley_vanish(0.6, 501)),
+    ('foley-flag-01', 'foley.flag', lambda: foley_flag(1.0, 511)),
+] + [(f'count-{k:02d}', f'synth.count.{k:02d}', (lambda k=k: count_note(k))) for k in range(1, 11)]
 
 
 def main() -> None:

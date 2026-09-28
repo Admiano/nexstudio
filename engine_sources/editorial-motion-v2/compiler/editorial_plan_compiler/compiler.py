@@ -25,14 +25,16 @@ from .contracts import MOTION_PROFILES, WORD_GLYPHS, BeatTreatment, FigureDirect
 from .atmosphere import beat_atmosphere, brand_failures, film_atmosphere, hrot, mix
 from .figures import resolve_figure, resolve_state_parts, FigurePartError, INDEX as PEEPS_INDEX
 from .groove import fit_phase, groove_stagger
-from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect, assign_actions
+from .directing import direct
+from .edu import build as build_edu
+from .illustration import IllustrationRegistry, IllustrationSolver, carried_copy, _fit_aspect
 from .bankart import BankArt
 from .papercut import papercut_image, papercut_coverage, tonal_ramp
 from .evidence import PhotoEvidence
 from .lexicon import AssetFinder, NounLexicon, Resolution
 from .media import NormalisedMedia, normalise_media
 from .motion import camera_move, transition_window_ms
-from .sound import MIX, SoundLibrary, bind_beat_ambience, bind_beat_sound, bind_film_music, community_surface, library_root
+from .sound import MIX, SoundLibrary, bind_beat_ambience, bind_beat_sound, bind_film_music, community_surface, library_root, story_event
 from .master_timeline import MasterTimeline, extend_tail, resolve_master
 from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
 from .typefit import fit_text
@@ -215,7 +217,8 @@ def _pb_slot_crop(layout: str, W: int, H: int) -> Dict[str, float]:
 
 
 def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[str, Any]],
-                             figure: Optional[Dict[str, Any]], W: int, H: int, dur_ms: float) -> None:
+                             figure: Optional[Dict[str, Any]], W: int, H: int, dur_ms: float,
+                             words: Optional[List[Dict[str, Any]]] = None) -> None:
     """Recompose the beat's entities as a page illustration: bank art gets plate-scale
     mounting, marks spread into a scene, the figure stands at picture-book size —
     all inside the slot's visible canvas crop, not the word-tile zone."""
@@ -234,6 +237,13 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
             scene0['setting'] = 'paper'
         scene0.setdefault('mood', 'day')
         scene0.setdefault('elements', [])
+        btr.scene = scene0
+    if pg.get('edu'):
+        # A maths page prints on the bare stock: frames and counters read clean only
+        # with no landscape behind them.
+        scene0 = dict(getattr(btr, 'scene', None) or {})
+        scene0.update({'setting': 'paper', 'elements': [], 'bare': True})
+        scene0.setdefault('mood', 'day')
         btr.scene = scene0
     vis = _pb_slot_crop(pg.get('layout') or 'half', W, H)
     # Content never prints closer than the safe frame: the slot may bleed to the
@@ -269,7 +279,8 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
         pool = [c for c in ('star', 'stars', 'moon-crescent') if c not in {e.get('concept') for e in ents}] + pool
     present = {e.get('concept') for e in ents}
     subjects = len(photos) + len(marks) + (1 if figure else 0)
-    if not photos and subjects < 3:
+    edu = pg.get('edu')
+    if not photos and subjects < 3 and not edu:
         rng = random.Random(f"{getattr(btr, 'beat_id', 'beat')}:support")
         if illustration is None:
             # Figure walks into an otherwise empty plate: the spread still needs a scene,
@@ -355,6 +366,33 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
                 break
         figure['bbox'] = trial
         fb = trial
+
+    # A teaching page replaces the scene's marks with a layout built from its numbers:
+    # the structure prints still, the objects act on the spoken counts.
+    if edu:
+        if illustration is None:
+            zx, zy = max(vis['x'], 24.0), max(vis['y'], 24.0)
+            zf = _box(zx, zy, max(1.0, min(vis['x'] + vis['w'], W - 24.0) - zx), max(1.0, min(vis['y'] + vis['h'], H - 24.0) - zy))
+            illustration = {'form': 'SCENE', 'zone': zf, 'entities': [], 'relations': [],
+                            'ops': [], 'marks': [], 'settled_ms': 0, 'accent': None,
+                            'accent_policy': 'STATE_CHANGE_OPS_ONLY', 'state_changes': 0,
+                            'carry_from': None, 'persist_to': None, 'carried': False,
+                            'registry_version': 'edu'}
+        area = _box(vx, vy, vw, vh)
+        if figure and figure.get('bbox'):
+            fb = figure['bbox']
+            left, right = fb['x'] - vx, vx + vw - (fb['x'] + fb['w'])
+            area = _box(vx, vy, max(1.0, left - vw * 0.02), vh) if left > right else _box(fb['x'] + fb['w'] + vw * 0.02, vy, max(1.0, right - vw * 0.02), vh)
+        built = build_edu(edu, area, words, getattr(btr, 'narration', None), int(dur_ms - EXIT_MS - 60),
+                          getattr(btr, 'beat_id', 'beat'))
+        keep = [e for e in illustration['entities'] if e.get('photo')]
+        illustration['entities'] = keep + built['entities']
+        illustration['relations'] = []
+        illustration['ops'] = [o for o in illustration.get('ops', []) if o.get('target') in {e['id'] for e in keep}]
+        illustration['edu'] = built['overlay']
+        illustration['direction'] = {'events': [], 'failures': built['failures']}
+        ents = illustration['entities']
+        marks = []
 
     # Marks compose the scene itself when there is no bank art: the biggest subject
     # anchors center-low, satellites spread across thirds like a staged diorama. With
@@ -459,10 +497,21 @@ def _compose_paperbook_plate(btr: 'BeatTreatment', illustration: Optional[Dict[s
     # re-assigned under the book rule: the page sits still except the subject the
     # narration names. Pre-clear so entities placed before the recompose are judged
     # with their final bboxes.
+    # A page is printed: every mark is on the paper when the leaf lands. Only a story
+    # action (a pop on its counted word, a sprout on "grew") may change what is shown.
     for e in illustration['entities']:
-        e.pop('action', None)
-    assign_actions(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh}, dur_ms - EXIT_MS - 60,
-                   narration=getattr(btr, 'narration', None))
+        e['enter_ms'], e['enter_duration_ms'] = 0, 0
+    for r in illustration.get('relations') or []:
+        r['enter_ms'], r['enter_duration_ms'] = 0, 0
+    # A maths page is directed by its representation (edu.py): the director would
+    # re-read the count words and pop objects the layout prints still.
+    if illustration.get('edu'):
+        record = {'events': [], 'failures': [], 'unresolved': []}
+    else:
+        record = direct(illustration['entities'], {'x': vx, 'y': vy, 'w': vw, 'h': vh}, int(dur_ms - EXIT_MS - 60),
+                        words, getattr(btr, 'narration', None), getattr(btr, 'beat_id', 'beat'))
+    prior = (illustration.get('direction') or {}).get('failures') or []
+    illustration['direction'] = {'events': record['events'], 'failures': prior + record['failures'], 'unresolved': record['unresolved']}
     return illustration
 
 
@@ -985,7 +1034,10 @@ class BeatCompiler:
         illustration, ilf = self._illustration(b, comp, clock)
         failures += ilf
         if getattr(self.film.world, 'book', None) == 'paperbook':
-            illustration = _compose_paperbook_plate(b, illustration, figure, self.W, self.H, clock.duration_ms)
+            illustration = _compose_paperbook_plate(b, illustration, figure, self.W, self.H, clock.duration_ms,
+                                                    [{'text': w.text, 'start_ms': w.start_ms, 'end_ms': w.end_ms} for w in clock.words])
+            if illustration:
+                failures += (illustration.get('direction') or {}).get('failures') or []
         if illustration:
             if not _inside(illustration['zone'], self.frame, 2):
                 failures.append('ILLUSTRATION_OUTSIDE_FRAME')
@@ -1118,6 +1170,20 @@ class BeatCompiler:
             for e in illustration['entities']:
                 if not e.get('carried') and e.get('enter_duration_ms'):
                     candidates.append({'event': 'ELEMENT_LAND', 'at_ms': e['enter_ms'] + e['enter_duration_ms'], 'strength': 0.99 if pop_entrance else 0.34, 'glyph': e['glyph'], 'concept': e.get('concept')})
+            # Story actions sound on their own onset — the verb's frame, the spoken count.
+            for e in illustration['entities']:
+                a = e.get('action')
+                if not a or a.get('at') is None:
+                    continue
+                if a['kind'] == 'pop' and a.get('index'):
+                    candidates.append({'event': 'COUNT_POP', 'at_ms': int(a['at']), 'strength': 1.0, 'index': a['index'],
+                                       'concept': e.get('concept'), 'target': e['id']})
+                else:
+                    candidates.append({'event': story_event(a['kind']), 'at_ms': int(a['at']), 'strength': 1.0,
+                                       'concept': e.get('concept'), 'target': e['id']})
+            for t in ((illustration.get('edu') or {}).get('texts') or []):
+                if t.get('at') is not None and '=' in t['text']:
+                    candidates.append({'event': 'EDU_ANSWER', 'at_ms': int(t['at']), 'strength': 1.0})
             for r in illustration['relations']:
                 if not r.get('drawn_by_op') and r.get('enter_duration_ms'):
                     candidates.append({'event': 'ELEMENT_LAND', 'at_ms': r['enter_ms'] + r['enter_duration_ms'], 'strength': 0.3, 'glyph': 'CONNECTOR'})
@@ -1414,10 +1480,11 @@ def _scene_layers(film_id: str, btr: BeatTreatment, canvas: Tuple[int, int], bra
         # world (its own wavy ink field shows through the slot's transparent
         # viewport). All a paper page carries is a pale halo behind the subject
         # and the odd faint wash drifting by; elements float on the stock.
-        out.append(piece('disc', W * (0.56 + 0.10 * ((seed0 >> 3) & 1)), H * 0.07,
-                         short * 0.30, short * 0.30, mix(paper, glow, 0.40), 0.08, 1))
-        out.append(piece('disc', W * 0.10, H * 0.52, short * 0.22, short * 0.22,
-                         mix(paper, accent, 0.10), 0.06, 2))
+        if not sc.get('bare'):
+            out.append(piece('disc', W * (0.56 + 0.10 * ((seed0 >> 3) & 1)), H * 0.07,
+                             short * 0.30, short * 0.30, mix(paper, glow, 0.40), 0.08, 1))
+            out.append(piece('disc', W * 0.10, H * 0.52, short * 0.22, short * 0.22,
+                             mix(paper, accent, 0.10), 0.06, 2))
         elements_on(H * 0.86, 0.6)
     elif setting == 'outdoor':
         out.append(band(-0.02, 0.62, sky, 0.10, False, 1))

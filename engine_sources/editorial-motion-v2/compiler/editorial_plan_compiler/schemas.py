@@ -141,7 +141,11 @@ def treatment_schema() -> Dict[str, Any]:
                                  'quote': {'type': 'string', 'maxLength': 120},
                                  'layout': _enum(c.PAGE_LAYOUTS),
                                  'cut': _enum(c.PAGE_CUTS),
-                                 'materials': {'type': 'array', 'items': _enum(c.PAGE_MATERIALS), 'maxItems': 3}}, [], additionalProperties=False), {'type': 'null'}]},
+                                 'materials': {'type': 'array', 'items': _enum(c.PAGE_MATERIALS), 'maxItems': 3},
+                                 'edu': _obj({'kind': _enum(c.EDU_KINDS), 'object': {'type': 'string', 'maxLength': 40},
+                                              'a': {'type': 'integer', 'minimum': 0, 'maximum': 20},
+                                              'b': {'type': 'integer', 'minimum': 0, 'maximum': 20}},
+                                             ['kind', 'a'], additionalProperties=False)}, [], additionalProperties=False), {'type': 'null'}]},
     }, ['beat_id', 'beat_type', 'pattern'], additionalProperties=False)
     asset = _obj({
         'asset_id': _str(),

@@ -1097,6 +1097,43 @@
                       ]
                     },
                     "maxItems": 3
+                  },
+                  "edu": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "count",
+                          "add",
+                          "subtract",
+                          "multiply",
+                          "share",
+                          "compare",
+                          "fraction",
+                          "numberline"
+                        ]
+                      },
+                      "object": {
+                        "type": "string",
+                        "maxLength": 40
+                      },
+                      "a": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 20
+                      },
+                      "b": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 20
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "a"
+                    ],
+                    "additionalProperties": false
                   }
                 },
                 "required": [],

@@ -75,6 +75,8 @@ SCENE_ELEMENT_CAP = 8
 # Page layout grammar: how the paperbook page carries its print and its plate —
 # the four classic illustration types plus the cut family.
 PAGE_LAYOUTS = ('half', 'full', 'diagonal', 'zipped', 'scissor', 'vignette', 'spot', 'series', 'portrait')
+EDU_KINDS = ('count', 'add', 'subtract', 'multiply', 'share', 'compare', 'fraction', 'numberline')
+EDU_MAX = 20
 PAGE_CUTS = ('left', 'right', 'top', 'bottom')
 # Material drops: modern paper-book materials layered onto the page.
 PAGE_MATERIALS = ('vellum', 'foil', 'ribbon', 'deckle', 'sticker')
@@ -690,10 +692,19 @@ class BeatTreatment:
             materials = [str(m) for m in (pg.get('materials') or [])]
             _need(all(m in PAGE_MATERIALS for m in materials), 'BEAT_PAGE_MATERIAL_UNKNOWN', ','.join(materials), bid)
             _need(len(materials) <= 3, 'BEAT_PAGE_MATERIAL_CAP', bid)
+            edu = None
+            if pg.get('edu') is not None:
+                raw = pg['edu']
+                _need(isinstance(raw, dict), 'BEAT_EDU_INVALID', 'edu must be an object', bid)
+                edu = {'kind': str(raw.get('kind') or ''), 'object': ' '.join(str(raw.get('object') or 'apple').split())[:40],
+                       'a': raw.get('a'), 'b': raw.get('b')}
+                errs = edu_validate(edu)
+                _need(not errs, errs[0] if errs else 'BEAT_EDU_INVALID', ','.join(errs), bid)
             page = {k: v for k, v in {'title': title or None, 'quote': quote or None,
                                       'layout': layout if layout != 'half' else None,
                                       'cut': pcut or None,
-                                      'materials': materials or None}.items() if v}
+                                      'materials': materials or None,
+                                      'edu': edu}.items() if v}
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
                    _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop, scene, page)
 
@@ -843,3 +854,36 @@ class FilmTreatment:
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
         return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, cast, world)
+
+
+def edu_validate(edu: Dict[str, Any]) -> List[str]:
+    """Contract-level truth: the numbers must describe a drawable, correct page."""
+    errs: List[str] = []
+    k = edu.get('kind')
+    a, b = edu.get('a'), edu.get('b')
+    if k not in EDU_KINDS:
+        return [f'EDU_KIND_UNKNOWN:{k}']
+    if not isinstance(a, int) or a < 0:
+        errs.append('EDU_A_INVALID')
+    if k != 'count' and (not isinstance(b, int) or b < 0):
+        errs.append('EDU_B_INVALID')
+    if errs:
+        return errs
+    b = b or 0
+    if k == 'count' and not 1 <= a <= EDU_MAX:
+        errs.append('EDU_COUNT_RANGE')
+    if k == 'add' and a + b > EDU_MAX:
+        errs.append('EDU_SUM_RANGE')
+    if k == 'subtract' and (b > a or a > EDU_MAX):
+        errs.append('EDU_SUBTRACT_RANGE')
+    if k == 'multiply' and (a < 1 or b < 1 or a > 5 or b > 6):
+        errs.append('EDU_ARRAY_RANGE')
+    if k == 'share' and (b < 1 or b > 5 or a > EDU_MAX or a % b):
+        errs.append('EDU_SHARE_UNEQUAL')
+    if k == 'compare' and (a > 10 or b > 10):
+        errs.append('EDU_COMPARE_RANGE')
+    if k == 'fraction' and (b < 2 or b > 8 or a > b):
+        errs.append('EDU_FRACTION_RANGE')
+    if k == 'numberline' and a + b > 10:
+        errs.append('EDU_NUMBERLINE_RANGE')
+    return errs

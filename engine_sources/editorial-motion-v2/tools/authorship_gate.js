@@ -55,7 +55,7 @@ class AuthorshipLedger {
         // A completed one-shot (kicked ball landed, grown plant) holds its end pose on
         // purpose — only a hold overlapping the action's own window means it never ran.
         const win = this.animatedOnly && this.animatedOnly.get(key);
-        if (win && !(run.best_from < win[1] && run.best_from + run.best_ms > win[0])) continue;
+        if (win && !(run.best_from < win[1] && run.best_from + run.best_ms > win[0] + 2 * this.frameMs)) continue;
         const [beat_id, id] = key.split(':');
         holds.push({ code: 'STATIC_HOLD', beat_id, id, detail: `pose unchanged for ${Math.round(run.best_ms)}ms`, first_ms: run.best_from, last_ms: run.best_from + run.best_ms, frames: Math.round(run.best_ms / this.frameMs) });
       }
