@@ -60,9 +60,10 @@ plan_<aspect>.json  --render-->  MP4 + sheets + manifest
      `{"word": ...}`, `{"unit": n}`, `{"offset_ms": n}`, plus `carry_from` / `persist_to`;
    - optional `figure` (still full-body Open Peeps: emotion, posture, facing, justification),
      `media` (an upload anchored to the claim naming it), `data`.
-   - `voice.source`: `RECORDED` (alignment + audio you already have), `ROUTE` (ElevenLabs via
-     Studio's `NEXSTUDIO_TTS_ROUTES_JSON`, see `voice/elevenlabs_route.py`), or `FIXTURE`
-     (synthetic cadence, never commercial output).
+   - `voice.source`: `RECORDED` (alignment + audio you already have), `ROUTE` (a declared
+     route in Studio's `NEXSTUDIO_TTS_ROUTES_JSON` — `voice/chatterbox_route.py` is the
+     default free engine, `voice/elevenlabs_route.py` the premium option gated by
+     `ELEVENLABS_API_KEY`), or `FIXTURE` (synthetic cadence, never commercial output).
    Icons: only `asset_ref` values present in `assets/illustration/registry.json` resolve.
    Run `python3 tools/build_illustration_registry.py` after adding SVGs to `assets/illustration/aev1/`.
 
@@ -84,7 +85,9 @@ plan_<aspect>.json  --render-->  MP4 + sheets + manifest
 | `CHROME_PATH` | tests, renderer | launch this Chrome binary headless |
 | `CDP_URL` | tests, renderer | attach to a running Chrome instead (default `http://localhost:29229`) |
 | `NEXSTUDIO_SOUND_LIBRARY_ROOT` | compiler | override the Sound Library V2 root for accent one-shots; default is the bundled `sound-library/` (absent = silent accents, `SOUND_LIBRARY_MISSING` warning, still PASS) |
-| `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, `ELEVENLABS_MODEL_ID` | `voice/elevenlabs_route.py` | live voice with character timestamps |
+| `CHATTERBOX_MODEL`, `CHATTERBOX_DEVICE`, `CHATTERBOX_VOICE_PROMPT` | `voice/chatterbox_route.py` | default voice engine (`pip install chatterbox-tts`); turbo/standard/multilingual, device, clone reference clip |
+| `CHATTERBOX_TRANSPORT=fixture:<file>` | route | replay a recorded audio file (tests) |
+| `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, `ELEVENLABS_MODEL_ID` | `voice/elevenlabs_route.py` | premium voice option with measured character timestamps |
 | `ELEVENLABS_TRANSPORT=fixture:<dir>` | route | replay recorded responses (tests) |
 
 ## 5. Laws the code enforces (do not work around them)
@@ -112,7 +115,8 @@ schema/                             7 JSON Schemas (regenerate: cd compiler && p
 fixtures/water-to-thirsty           benchmark treatment + recorded voice alignment/audio
 fixtures/reply-speed.treatment.json + fixtures/assets   upload-media fixture
 tools/                              test_runtime.js, render_reel.js, registry/fixture builders, vendor_authorities.py, import-open-peeps.py
-voice/elevenlabs_route.py           TTS route
+voice/chatterbox_route.py           TTS route (default free engine)
+voice/elevenlabs_route.py           TTS route (premium option, key-gated)
 sound-library/                      Sound Library V2 (269 CC0 one-shots + registry, licences, SHA256SUMS); music slot stays silent until a rights-clean source is chosen
 reports/                            proof renders (gate reports, contact sheets, transition strips, manifests)
 EXECUTION_AUTHORITY.json            authority boundary declaration

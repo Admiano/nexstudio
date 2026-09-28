@@ -381,6 +381,40 @@ def test_elevenlabs_route_refuses_without_key(tmp_path):
     assert cp.returncode != 0 and 'ELEVENLABS_API_KEY_MISSING' in (cp.stderr + cp.stdout)
 
 
+def _write_wav(path: Path, seconds: float = 0.5, rate: int = 24000) -> None:
+    import wave
+    with wave.open(str(path), 'wb') as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes(b'\x01\x00' * int(seconds * rate))
+
+
+def test_chatterbox_route_replays_fixture_audio(tmp_path):
+    fixture = tmp_path / 'voice-ref.wav'
+    _write_wav(fixture)
+    text = 'Speed is not a feature.'
+    out = tmp_path / 'generated-audio'
+    req = {'schema': 'NexStudioAudioProviderRequestV1', 'kind': 'TTS', 'payload': {'text': text}, 'outputPath': str(out)}
+    env = {**os.environ, 'CHATTERBOX_TRANSPORT': f'fixture:{fixture}'}
+    cp = subprocess.run([sys.executable, str(ROOT / 'voice' / 'chatterbox_route.py')], input=json.dumps(req), text=True, capture_output=True, env=env)
+    assert cp.returncode == 0, cp.stderr
+    meta = json.loads(cp.stdout.strip().splitlines()[-1])
+    assert Path(meta['audioPath']).exists()
+    assert meta['rightsEvidence']['commercialUseAllowed'] is True
+    assert meta['providerEvidence']['alignmentSource'] == 'EVEN_SCHEDULE_FROM_GENERATED_AUDIO'
+    rec = json.loads(Path(meta['providerEvidence']['alignmentPath']).read_text())
+    assert [w.text for w in words_from_alignment(rec['alignment'])] == text.split()
+    assert 0.4 < meta['providerEvidence']['durationSeconds'] < 0.6
+
+
+def test_chatterbox_route_refuses_missing_fixture(tmp_path):
+    req = {'schema': 'NexStudioAudioProviderRequestV1', 'kind': 'TTS', 'payload': {'text': 'x'}, 'outputPath': str(tmp_path / 'o.wav')}
+    env = {**os.environ, 'CHATTERBOX_TRANSPORT': f'fixture:{tmp_path}/absent.wav'}
+    cp = subprocess.run([sys.executable, str(ROOT / 'voice' / 'chatterbox_route.py')], input=json.dumps(req), text=True, capture_output=True, env=env)
+    assert cp.returncode != 0 and 'CHATTERBOX_FIXTURE_MISSING' in (cp.stderr + cp.stdout)
+
+
 # ---------------------------------------------------------------- schemas
 
 jsonschema = pytest.importorskip('jsonschema')
