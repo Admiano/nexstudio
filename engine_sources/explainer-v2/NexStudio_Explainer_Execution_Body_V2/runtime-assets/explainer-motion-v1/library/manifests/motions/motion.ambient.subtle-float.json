@@ -1,0 +1,88 @@
+{
+  "id": "motion.ambient.subtle-float",
+  "name": "Subtle float",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "ambient",
+  "key": "subtle-float",
+  "intents": [
+    "animate_ambient",
+    "subtle_float"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "ambient",
+    "subtle",
+    "float"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 1.4,
+      "maximum": 8
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "sine.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 1.4,
+    "recommended": 3.4,
+    "maximum": 8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "sine.inOut",
+  "soundTags": [
+    "motion.air.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Subtle float reusable animation behaviour",
+  "description": "A finite, low-amplitude vertical drift suitable for hero objects.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "finiteCycles": 3,
+  "recommendedCycleDuration": 1.1
+}

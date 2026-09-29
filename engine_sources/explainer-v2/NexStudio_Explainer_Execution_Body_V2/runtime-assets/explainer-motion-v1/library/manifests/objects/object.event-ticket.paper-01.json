@@ -1,0 +1,79 @@
+{
+  "id": "object.event-ticket.paper-01",
+  "name": "Event ticket",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "document",
+  "cssClass": "obj-event-ticket",
+  "renderer": "event-ticket",
+  "intents": [
+    "compose_paper_story",
+    "display_document"
+  ],
+  "keywords": [
+    "paper",
+    "document",
+    "event",
+    "ticket"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 28
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 55
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "tear-reveal",
+    "paper-slide",
+    "drop-settle"
+  ],
+  "defaultMotion": "tear-reveal",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.tear-reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Event ticket animated paper component",
+  "description": "A perforated admission or event ticket with detachable stub.",
+  "attachable": false,
+  "bespokeMotion": true
+}

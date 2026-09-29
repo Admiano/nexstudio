@@ -1,0 +1,128 @@
+{
+  "id": "typography.marker-highlight.paper-01",
+  "name": "Marker highlight",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "emphasis",
+  "slug": "marker-highlight",
+  "renderer": "marker-highlight",
+  "order": 9,
+  "intents": [
+    "highlight_phrase",
+    "mark_key_text"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "emphasis",
+    "marker highlight",
+    "highlight_phrase",
+    "mark_key_text"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 4
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 120,
+      "guidance": "Maximum 120 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 130,
+      "guidance": "Maximum 130 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 120,
+    "body": 130,
+    "emphasisWords": 4
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "ink-reveal",
+  "soundTags": [
+    "typography.marker-highlight.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Marker highlight animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "highlight_phrase",
+      "mark_key_text"
+    ],
+    "semanticRole": "emphasis",
+    "copyGuidance": {
+      "title": 120,
+      "body": 130,
+      "emphasisWords": 4
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "name": "NexStick Master V2 / Unified Performance V5.1 Final QA",
+  "date": "2026-08-13",
+  "status": "PASS_SKIN_SAFE_INTERNAL_PERFORMANCE_MASTER",
+  "performanceEngine": "NexPerformanceUnifiedV5@5.1.0-skin-safe-angular-continuity",
+  "castMaster": "NexStickMasterV2@2.1.0-unified-performance-v5.1",
+  "release": {
+    "familiesPassed": 12,
+    "familiesTotal": 12,
+    "pickupPassed": 120,
+    "pickupTotal": 120,
+    "fixturesPassed": 48,
+    "fixturesTotal": 48,
+    "carryPassed": 48,
+    "carryTotal": 48,
+    "turnsPassed": 36,
+    "turnsTotal": 36,
+    "handoffsPassed": 5,
+    "handoffsTotal": 5,
+    "overallPass": true
+  },
+  "adversarialDeterminism": {
+    "adversarialPassed": 6,
+    "adversarialTotal": 6,
+    "determinismPassed": 12,
+    "determinismTotal": 12,
+    "overallPass": true
+  },
+  "angularContinuity60fps": {
+    "familiesPassed": 12,
+    "familiesTotal": 12,
+    "globalMaxSegmentDirectionDeltaDegPerFrame": 26.146020738760697,
+    "worst": {
+      "family": "adult_man_broad",
+      "time": 3.9166666666666665,
+      "segment": "knee_l>ankle_l",
+      "deltaDeg": 26.146020738760697,
+      "action": "talk",
+      "index": 4,
+      "transition": {
+        "from": 3,
+        "to": 4,
+        "weight": 0.147288539186444
+      }
+    },
+    "overallPass": true
+  },
+  "humanoidBinding30fps": {
+    "familiesPassed": 12,
+    "familiesTotal": 12,
+    "globalMaxLocalQuaternionFrameJumpDeg": 42.74244143754041,
+    "globalWorst": {
+      "family": "diminutive_woman",
+      "time": 3.533333333333333,
+      "bone": "calf_l",
+      "angleDeg": 42.74244143754041,
+      "action": "run",
+      "motion": "run",
+      "sequenceIndex": 3,
+      "transition": {
+        "from": 2,
+        "to": 3,
+        "weight": 0.9393750421632269,
+        "duration": 0.28,
+        "persistentWorldOffset": [
+          -0.21159706472587692,
+          0,
+          1.1720126450015025
+        ],
+        "persistentWorldYawDeg": 90.3,
+        "endWorldYawDeg": 90.3,
+        "velocityMatched": true,
+        "stanceFootAnchored": false
+      }
+    },
+    "overallPass": true
+  },
+  "humanoidBindingThresholdDegPerFrame": 45,
+  "mechanicalPeaks": {
+    "maxBoundaryJumpM": {
+      "value": 4.7879999984823855e-05,
+      "family": "adult_woman_tall"
+    },
+    "maxFootSlideM": {
+      "value": 0.004180037910339677,
+      "family": "diminutive_girl"
+    },
+    "floorPenetrationM": {
+      "value": 0,
+      "family": "neutral_child"
+    },
+    "maxSegmentResidualM": {
+      "value": 2.0539125955565396e-15,
+      "family": "neutral_child"
+    },
+    "maxHorizontalAccelMps2": {
+      "value": 8.989528688787741,
+      "family": "adult_woman_tall"
+    },
+    "maxHorizontalJerkMps3": {
+      "value": 108.57965395575873,
+      "family": "adult_woman_tall"
+    }
+  },
+  "frameSanity": {
+    "count": 496,
+    "bad_decode": 0,
+    "wrong_dimensions": 0,
+    "blank": 0,
+    "black": 0,
+    "min_stddev": 16.657053526119043,
+    "max_stddev": 31.696622113439858,
+    "video": "reports/NEXSTICK_MASTER_V2_V5_1_TEMPORAL_REVIEW_NORMAL.mp4"
+  },
+  "temporalVisual": "PASS_FOR_PERFORMANCE_DISCONTINUITY_REVIEW_NOT_FINAL_SKIN_ART",
+  "sourceFrozenBeforePackaging": true,
+  "truthBoundaries": [
+    "Final realistic 3D production skin is separate and not certified by this performance release.",
+    "Current UAL humanoid rig is a structural retarget proxy, not the production adult-male visual body.",
+    "Heavy carry remains fail-closed without an admitted convincing heavy-load donor.",
+    "Unsupported turn angles fail closed outside the captured approximately-90-degree envelope.",
+    "Raw third-party motion donor redistribution is not claimed."
+  ],
+  "pass": true,
+  "cleanPackageReproduction": {
+    "releaseSuite": "PASS \u2014 12/12 families, 120/120 pickups, 48/48 fixtures, 48/48 carry, 36/36 turns, 5/5 handoffs",
+    "adversarialDeterminism": "PASS \u2014 6/6 adversarial fail-closed, 12/12 deterministic seek",
+    "angularContinuity": "PASS \u2014 12/12 families, worst 26.146020738760697 deg/frame at 60 fps",
+    "humanoidBinding": "PASS \u2014 12/12 families against UAL-compatible structural proxy, worst 42.74244143754041 deg/frame at 30 fps",
+    "jsSyntax": "28/28 checked, 0 failures",
+    "jsonParse": "47/47 checked before this record update, 0 failures",
+    "reproducedFromCleanReleaseTree": true
+  }
+}

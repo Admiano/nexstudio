@@ -1,0 +1,33 @@
+WEBVTT
+
+1
+00:00:00,000 --> 00:00:07,100
+How does an agent choose a scene without guessing a template?
+
+2
+00:00:07,500 --> 00:00:14,500
+Intent becomes structure through machine-readable slots and limits.
+
+3
+00:00:15,000 --> 00:00:22,000
+The agent selects only approved component families and compatible motion.
+
+4
+00:00:22,500 --> 00:00:29,500
+Tools, evidence and data remain modular throughout the workflow.
+
+5
+00:00:30,000 --> 00:00:37,000
+Human approval remains a required decision point.
+
+6
+00:00:37,500 --> 00:00:44,500
+One configuration can produce landscape, square and portrait outputs.
+
+7
+00:00:45,000 --> 00:00:52,000
+Every scene is inspected before it reaches the renderer.
+
+8
+00:00:52,500 --> 00:00:59,200
+The agent does not guess a template. It selects a storytelling structure.

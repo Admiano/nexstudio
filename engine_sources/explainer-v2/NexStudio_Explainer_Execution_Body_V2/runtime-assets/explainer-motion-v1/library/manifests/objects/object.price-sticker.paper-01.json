@@ -1,0 +1,79 @@
+{
+  "id": "object.price-sticker.paper-01",
+  "name": "Price sticker",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "sticker",
+  "cssClass": "obj-price-sticker",
+  "renderer": "price-sticker",
+  "intents": [
+    "compose_paper_story",
+    "display_sticker"
+  ],
+  "keywords": [
+    "paper",
+    "sticker",
+    "price",
+    "sticker"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 14
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 20
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "stamp",
+    "drop-settle",
+    "paper-slide"
+  ],
+  "defaultMotion": "stamp",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.stamp"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Price sticker animated paper component",
+  "description": "A bold paper price marker with editable value and label.",
+  "attachable": false,
+  "bespokeMotion": false
+}

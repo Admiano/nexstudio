@@ -1,0 +1,29 @@
+{
+  "version": "5.0.0",
+  "compiled": 1,
+  "items": [
+    {
+      "key": "walkspline_turn",
+      "file": "rokoko_walkrun/03-walkspline.fbx",
+      "semantic": "turn",
+      "duration": 1.2,
+      "frames": 37,
+      "rootDelta": [
+        -0.221618,
+        0.0,
+        0.126707
+      ],
+      "yawDeltaDeg": 90.3,
+      "contacts": {
+        "l": 1,
+        "r": 2
+      },
+      "crop": {
+        "sourceStartFrame": 466,
+        "sourceEndFrame": 502,
+        "yawDeltaDeg": 90.3
+      },
+      "status": "COMPILED_QA_PENDING"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "motion.action.rotate",
+  "name": "Rotate",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "action",
+  "key": "rotate",
+  "intents": [
+    "animate_action",
+    "rotate"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "action",
+    "rotate"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power2.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power2.inOut",
+  "soundTags": [
+    "motion.rotate.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Rotate reusable animation behaviour",
+  "description": "Completes a finite configurable rotation and returns or holds as configured.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

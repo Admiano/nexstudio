@@ -1,0 +1,88 @@
+{
+  "id": "motion.transition.page-turn",
+  "name": "Page turn",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "transition",
+  "key": "page-turn",
+  "intents": [
+    "animate_transition",
+    "page_turn"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "transition",
+    "page",
+    "turn"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.55,
+      "maximum": 1.8
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power2.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 0.95,
+    "maximum": 1.8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "editorial-scene",
+    "collage-scene",
+    "technical-scene"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power2.inOut",
+  "soundTags": [
+    "transition.page-turn"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Page turn reusable animation behaviour",
+  "description": "Turns the outgoing scene like a physical page while revealing the incoming scene underneath.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "preservesOutgoingUntilStart": true,
+  "requiresIncomingAndOutgoing": true
+}

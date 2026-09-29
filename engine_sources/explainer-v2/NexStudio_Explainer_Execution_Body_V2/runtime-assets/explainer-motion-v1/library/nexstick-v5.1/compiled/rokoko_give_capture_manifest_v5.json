@@ -1,0 +1,36 @@
+{
+  "version": "5.0.0",
+  "compiled": 1,
+  "items": [
+    {
+      "key": "give_capture",
+      "file": "give-candy.fbx",
+      "semantic": "give_capture",
+      "duration": 24.5,
+      "frames": 736,
+      "rootDelta": [
+        0.012394,
+        0.0,
+        0.144885
+      ],
+      "yawDeltaDeg": -354.61,
+      "contacts": {
+        "l": 8,
+        "r": 18
+      },
+      "crop": null,
+      "status": "COMPILED_QA_PENDING"
+    }
+  ],
+  "semanticTrim": {
+    "semanticTrim": true,
+    "sourceStartSeconds": 5.1,
+    "sourceEndSeconds": 8.45,
+    "sourceStartFrame": 153,
+    "sourceEndFrame": 253,
+    "reason": "trim long raw capture to the mechanically relevant action window"
+  },
+  "duration": 3.333333,
+  "frames": 101,
+  "yawDeltaDeg": -3.47
+}

@@ -1,0 +1,169 @@
+{
+  "id": "media.film-strip.paper-01",
+  "name": "Film strip",
+  "version": "1.8.0",
+  "category": "media-container",
+  "subtype": "photo-grid",
+  "slug": "film-strip",
+  "renderer": "film-strip",
+  "order": 4,
+  "intents": [
+    "show_sequence",
+    "replace_media",
+    "brand_content"
+  ],
+  "keywords": [
+    "media",
+    "container",
+    "replaceable",
+    "paper",
+    "animated",
+    "film strip",
+    "photo-grid",
+    "show_sequence"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "acceptedMedia": [
+    "image",
+    "video",
+    "transparent-png",
+    "website-screenshot"
+  ],
+  "mediaSlots": 4,
+  "slots": {
+    "media": {
+      "type": "array",
+      "accepted": [
+        "image",
+        "video",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "minimum": 2,
+      "maximum": 4
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 64,
+      "guidance": "Maximum 64 characters; keep product and profile names concise."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 180,
+      "guidance": "Maximum 180 characters; use concise supporting copy."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 60,
+      "guidance": "Maximum 60 characters."
+    },
+    "cropMode": {
+      "type": "enum",
+      "values": [
+        "cover",
+        "contain",
+        "fill"
+      ]
+    },
+    "focalPoint": {
+      "type": "object",
+      "x": [
+        0,
+        100
+      ],
+      "y": [
+        0,
+        100
+      ]
+    },
+    "border": {
+      "type": "enum",
+      "values": [
+        "clean",
+        "torn",
+        "taped",
+        "pinned"
+      ]
+    },
+    "paperStyle": {
+      "type": "enum",
+      "values": [
+        "clean-editorial",
+        "handmade-scrapbook",
+        "technical-notebook",
+        "bold-paper-collage"
+      ]
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.7,
+      "recommended": 1.6,
+      "maximum": 6
+    }
+  },
+  "duration": {
+    "minimum": 0.7,
+    "recommended": 1.6,
+    "maximum": 6
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "drop-and-settle",
+    "unfold"
+  ],
+  "defaultMotion": "paper-slide",
+  "soundTags": [
+    "paper.slide.soft",
+    "media.reveal",
+    "ui.select"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated replaceable film strip container",
+  "replaceable": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "contentAnimationIndependent": true,
+  "supportsLocalMedia": true,
+  "supportsConfigurableCrop": true,
+  "supportsFocalPoint": true,
+  "supportsBorderStyle": true
+}

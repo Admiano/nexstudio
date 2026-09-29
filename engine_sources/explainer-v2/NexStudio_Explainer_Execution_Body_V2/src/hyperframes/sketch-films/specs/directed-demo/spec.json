@@ -1,0 +1,173 @@
+{
+  "productionId": "sketch-film-make-a-launch-film-for-an-agent-that-tur",
+  "width": 720,
+  "height": 720,
+  "fps": 30,
+  "durationSeconds": 38,
+  "music": {
+    "path": "audio/music.mp3",
+    "volume": 0.16
+  },
+  "sfx": [
+    {
+      "path": "audio/swipe.mp3",
+      "atSec": [
+        5,
+        10.9,
+        18.1,
+        24,
+        29.9,
+        34.4
+      ],
+      "volume": 0.32
+    },
+    {
+      "path": "audio/pop.mp3",
+      "atSec": [
+        0.6,
+        0.8,
+        1.1,
+        5.6,
+        5.8,
+        6.1,
+        11.5,
+        11.7,
+        12,
+        18.7,
+        18.9,
+        19.2,
+        19.4,
+        19.7,
+        24.6,
+        24.7,
+        24.9,
+        25,
+        25.2,
+        25.4,
+        30.5,
+        30.7,
+        31,
+        34.9,
+        35.2,
+        35.5,
+        35.8
+      ],
+      "volume": 0.3
+    },
+    {
+      "path": "audio/paper.mp3",
+      "atSec": [
+        0.1,
+        24
+      ],
+      "volume": 0.36
+    },
+    {
+      "path": "audio/confirm.mp3",
+      "atSec": [
+        36
+      ],
+      "volume": 0.42
+    }
+  ],
+  "scenes": [
+    {
+      "id": "beat-01-hero-build",
+      "type": "hero-build",
+      "start": 0,
+      "duration": 5,
+      "transition": "cut",
+      "lines": [
+        "agent in —",
+        "every beat drawn —",
+        "a film out."
+      ],
+      "kicker": "THE PITCH"
+    },
+    {
+      "id": "beat-02-chat-prompt",
+      "type": "chat-prompt",
+      "start": 5,
+      "duration": 5.9,
+      "transition": "crumple",
+      "kicker": "BRIEF → FILM",
+      "mention": "Studio",
+      "text": "make a launch film for an agent that turns a text…",
+      "mode": "Auto",
+      "cursor": true,
+      "index": false
+    },
+    {
+      "id": "beat-03-process-rail",
+      "type": "process-rail",
+      "start": 10.9,
+      "duration": 7.2,
+      "transition": "shuffle",
+      "camera": {
+        "push": 0.06
+      },
+      "title": "how it moves",
+      "steps": [
+        "SCRIPT",
+        "PLAN",
+        "DRAW",
+        "SCORE"
+      ],
+      "payoff": "every beat drawn before it moves."
+    },
+    {
+      "id": "beat-04-agent-window",
+      "type": "agent-window",
+      "start": 18.1,
+      "duration": 5.9,
+      "transition": "push",
+      "kicker": "THE DESK",
+      "prompt": "make a launch film for an agent that turns a text brief into a…",
+      "checks": [
+        "scaffold the storyboard",
+        "bind the sketch style kit",
+        "compose 1:1 frames",
+        "master music + accents"
+      ]
+    },
+    {
+      "id": "beat-05-storyboard",
+      "type": "storyboard",
+      "start": 24,
+      "duration": 5.9,
+      "transition": "push",
+      "kicker": "THE BOARD",
+      "kickerR": "INK ONLY",
+      "foot": "EVERY BEAT, DRAWN BEFORE IT MOVES",
+      "cells": 6
+    },
+    {
+      "id": "beat-06-payoff-lockup",
+      "type": "payoff-lockup",
+      "start": 29.9,
+      "duration": 4.5,
+      "transition": "page",
+      "camera": {
+        "push": 0.05
+      },
+      "text": "briefs in. films out.",
+      "sub": "MUSIC + ACCENTS · 38S",
+      "index": false
+    },
+    {
+      "id": "beat-07-end-card",
+      "type": "end-card",
+      "start": 34.4,
+      "duration": 3.6,
+      "transition": "torn",
+      "camera": {
+        "push": 0.05
+      },
+      "brandA": "NEX",
+      "brandB": "STUDIO",
+      "sub": "briefs in. films out.",
+      "pill": "Start a film",
+      "index": false
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+/* NexStudio Product-UI runtime — clean brand-surface scenes.
+   Same spec contract as sketch-ui; different surface: real brand colors,
+   sharp chrome, grotesk display type. All tokens resolve from --pf-* vars
+   the runtime sets from spec.theme, so one spec can render in any skin. */
+
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:300 700;font-display:swap;src:url('../fonts/SpaceGrotesk-Variable.woff2') format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/InterVariable.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:600;font-display:swap;src:url('../fonts/JetBrainsMono-SemiBold.ttf') format('truetype')}
+
+:root{
+  --pf-bg:#101013;
+  --pf-fg:#f4f3ef;
+  --pf-muted:#9b9a94;
+  --pf-card:#1a1a1f;
+  --pf-card-2:#222228;
+  --pf-line:rgba(244,243,239,.14);
+  --pf-accent:#37d5a0;
+  --pf-accent-2:#1fae80;
+  --pf-display:'Space Grotesk','Inter',system-ui,sans-serif;
+  --pf-sans:'Inter',system-ui,-apple-system,sans-serif;
+  --pf-mono:'JetBrains Mono','Courier New',monospace;
+  --pf-display-scale:1;
+  --pf-r:16px;
+}
+
+html.pf,body.pf{margin:0;height:100%;background:var(--pf-bg);color:var(--pf-fg);font-family:var(--pf-sans);-webkit-font-smoothing:antialiased}
+.pf-stage{position:relative;width:100%;height:100%;overflow:hidden;background:var(--pf-bg)}
+/* ambient accent glow — sits behind content, breathes per scene via JS */
+.pf-stage .pf-glow{position:absolute;left:50%;top:34%;width:120%;height:80%;transform:translate(-50%,-50%);pointer-events:none;z-index:0;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--pf-accent) 16%,transparent),transparent 72%);opacity:.55}
+/* hairline inset frame — editorial polish */
+.pf-stage .pf-frame{position:absolute;inset:20px;border:1px solid var(--pf-line);border-radius:20px;pointer-events:none;z-index:4}
+/* fine film grain — subtle luminance noise, surface-agnostic */
+.pf-stage::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;opacity:.05;mix-blend-mode:overlay;
+  background-image:var(--pf-grain,none);background-size:256px 256px}
+
+.pf-scene{position:absolute;inset:0;display:flex;flex-direction:column;z-index:1;visibility:hidden}
+.pf-scene.on{visibility:visible}
+.pf-cam{position:absolute;inset:0;display:flex;flex-direction:column;will-change:transform,opacity}
+.pf-safe{position:absolute;top:9%;bottom:8%;left:6.5%;right:6.5%;display:flex;flex-direction:column}
+.pf-stage.layout-poster,.pf-scene.layout-poster{--pf-display-scale:1.22}
+.pf-stage.layout-poster .pf-safe,.pf-scene.layout-poster .pf-safe{text-align:center;align-items:center}
+.pf-stage.layout-poster .pf-safe>*,.pf-scene.layout-poster .pf-safe>*{align-self:stretch}
+.pf-stage.layout-deck,.pf-scene.layout-deck{--pf-display-scale:.92}
+.pf-stage.layout-deck .pf-safe,.pf-scene.layout-deck .pf-safe{top:12%;bottom:12%}
+
+/* scene furniture */
+.pf-kicker{position:absolute;top:5.4%;left:6.2%;font:600 13px/1 var(--pf-mono);letter-spacing:.12em;color:var(--pf-muted);text-transform:uppercase}
+.pf-kicker.tr{left:auto;right:6.2%;text-align:right}
+.pf-index{position:absolute;bottom:4.8%;right:6.4%;font:600 11px/1 var(--pf-mono);letter-spacing:.14em;color:var(--pf-muted)}
+.pf-foot{position:absolute;bottom:4.8%;left:6.4%;font:600 11px/1.5 var(--pf-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--pf-muted)}
+.pf-note{position:absolute;left:6.5%;bottom:9.4%;font-size:12px;color:var(--pf-muted);letter-spacing:.04em;font-family:var(--pf-sans)}
+.pf-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--pf-line);border-radius:99px;
+  font:600 11px/1 var(--pf-mono);letter-spacing:.08em;color:var(--pf-muted);background:color-mix(in srgb,var(--pf-card) 72%,transparent)}
+.pf-chip.acc{border-color:color-mix(in srgb,var(--pf-accent) 60%,transparent);color:var(--pf-accent)}
+
+/* display type */
+.pf-display{font-family:var(--pf-display);font-weight:700;color:var(--pf-fg);line-height:1.02;letter-spacing:-.03em;margin:0}
+.pf-display em{font-style:italic;color:var(--pf-accent)}
+.pf-display .w{display:inline-block;white-space:pre}
+.pf-outline{font-family:var(--pf-display);font-weight:700;color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--pf-fg) 55%,transparent);line-height:1;letter-spacing:-.02em;margin:0}
+.pf-mono{font-family:var(--pf-mono);letter-spacing:.05em}
+.pf-sans{font-family:var(--pf-sans)}
+
+/* generic parts */
+.pf-card{background:var(--pf-card);border:1px solid var(--pf-line);border-radius:var(--pf-r)}
+.pf-rule{height:1px;background:var(--pf-line);border:0}
+.pf-accbar{height:4px;border-radius:99px;background:var(--pf-accent)}
+.pf-cursor{position:absolute;width:22px;height:22px;z-index:8;pointer-events:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
+.pf-icon{display:inline-flex;width:1em;height:1em;color:currentColor}
+.pf-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pf-img{display:block;width:100%;height:100%;object-fit:cover}

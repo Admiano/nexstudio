@@ -1,0 +1,75 @@
+{
+  "id": "object.torn-strip.paper-01",
+  "name": "Torn paper strip",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "strip",
+  "cssClass": "obj-torn-strip",
+  "renderer": "torn-strip",
+  "intents": [
+    "compose_paper_story",
+    "display_strip"
+  ],
+  "keywords": [
+    "paper",
+    "strip",
+    "torn",
+    "strip"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 40
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "tear-reveal",
+    "paper-slide",
+    "drop-settle"
+  ],
+  "defaultMotion": "tear-reveal",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.tear-reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Torn paper strip animated paper component",
+  "description": "A horizontal torn strip for labels, transitions and emphasis.",
+  "attachable": false,
+  "bespokeMotion": false
+}

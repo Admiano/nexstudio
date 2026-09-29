@@ -1,0 +1,142 @@
+{
+  "id": "icon.business.globe.paper-01",
+  "name": "Globe",
+  "version": "1.6.0",
+  "category": "icon",
+  "subtype": "business-commerce",
+  "group": "organization",
+  "slug": "globe",
+  "renderer": "globe",
+  "order": 33,
+  "intents": [
+    "show_global_market",
+    "represent_world"
+  ],
+  "keywords": [
+    "icon",
+    "business",
+    "commerce",
+    "paper",
+    "globe",
+    "world",
+    "global",
+    "international",
+    "market"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "drop-and-settle",
+        "paper-slide",
+        "scale-bounce"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.4
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.2,
+    "maximum": 3.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "drop-and-settle",
+    "paper-slide",
+    "scale-bounce"
+  ],
+  "defaultMotion": "drop-and-settle",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "business.globe.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Globe business and commerce paper icon",
+  "description": "A reusable layered paper-style globe icon for business, commerce, growth, marketing and organizational storytelling.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "show_global_market",
+      "represent_world"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "organization",
+    "polarity": "neutral-or-positive"
+  }
+}

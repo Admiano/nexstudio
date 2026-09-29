@@ -1,0 +1,142 @@
+{
+  "id": "icon.business.customer.paper-01",
+  "name": "Customer",
+  "version": "1.6.0",
+  "category": "icon",
+  "subtype": "business-commerce",
+  "group": "organization",
+  "slug": "customer",
+  "renderer": "customer",
+  "order": 5,
+  "intents": [
+    "represent_customer",
+    "show_user"
+  ],
+  "keywords": [
+    "icon",
+    "business",
+    "commerce",
+    "paper",
+    "customer",
+    "user",
+    "person",
+    "client",
+    "audience"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "stamp-impact",
+        "cut-paper-pop",
+        "paper-slide"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.4
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.2,
+    "maximum": 3.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "stamp-impact",
+    "cut-paper-pop",
+    "paper-slide"
+  ],
+  "defaultMotion": "stamp-impact",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "business.customer.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Customer business and commerce paper icon",
+  "description": "A reusable layered paper-style customer icon for business, commerce, growth, marketing and organizational storytelling.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "represent_customer",
+      "show_user"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "organization",
+    "polarity": "neutral-or-positive"
+  }
+}

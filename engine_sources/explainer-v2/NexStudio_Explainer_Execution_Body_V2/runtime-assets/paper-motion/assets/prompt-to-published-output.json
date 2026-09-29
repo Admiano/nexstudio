@@ -1,0 +1,48 @@
+{
+  "title": "Prompt to Published Output",
+  "nodes": [
+    {
+      "id": "n1",
+      "label": "Prompt",
+      "type": "step"
+    },
+    {
+      "id": "n2",
+      "label": "Reason",
+      "type": "step"
+    },
+    {
+      "id": "n3",
+      "label": "Generate",
+      "type": "step"
+    },
+    {
+      "id": "n4",
+      "label": "Review",
+      "type": "step"
+    },
+    {
+      "id": "n5",
+      "label": "Result",
+      "type": "step"
+    }
+  ],
+  "edges": [
+    {
+      "from": "n1",
+      "to": "n2"
+    },
+    {
+      "from": "n2",
+      "to": "n3"
+    },
+    {
+      "from": "n3",
+      "to": "n4"
+    },
+    {
+      "from": "n4",
+      "to": "n5"
+    }
+  ]
+}

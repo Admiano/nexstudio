@@ -1,0 +1,90 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles/tokens.css"><link rel="stylesheet" href="../../styles/audio-system.css"></head><body><main style="padding:30px;background:var(--paper-bg);min-height:100vh"><h1>Film Advance — Ratchet</h1><p>archive.film.advance, media.film, transition.archive</p><audio controls src="../../assets/audio/production/candidate-v1/film-advance-ratchet.wav"></audio><pre>{
+  "id": "audio.film-advance-ratchet",
+  "slug": "film-advance-ratchet",
+  "name": "Film Advance \u2014 Ratchet",
+  "version": "2.2.0",
+  "category": "audio",
+  "subtype": "motion-transition",
+  "approvalStatus": "candidate",
+  "technicalStatus": "pass",
+  "editorialApproval": "pending",
+  "enabledByDefault": false,
+  "intensity": "medium",
+  "semanticTags": [
+    "archive.film.advance",
+    "media.film",
+    "transition.archive"
+  ],
+  "recommendedVisualActions": [
+    "film-advance",
+    "contact-sheet-shuffle"
+  ],
+  "recommendedTimingOffsetSeconds": -0.03,
+  "moods": [
+    "archive",
+    "cinematic"
+  ],
+  "loopable": false,
+  "sourceMaster": "assets/audio/masters/candidate-v1/documentary-pack-v1/10_film_advance_ratchet.wav",
+  "productionFile": "assets/audio/production/candidate-v1/film-advance-ratchet.wav",
+  "provenance": "NexStudio Documentary Sound Pack V1; model-generated original procedural design; explicit editorial approval pending",
+  "licenseStatus": "original model-generated candidate; usage approval required",
+  "processing": {
+    "silenceTrim": true,
+    "protectiveFadeInMs": 6,
+    "protectiveFadeOutMs": 10,
+    "targetLufs": -18,
+    "truePeakCeilingDbfs": -1.5,
+    "originalFrames": 44160,
+    "processedFrames": 40800,
+    "trimmedSeconds": 0.07
+  },
+  "measurements": {
+    "durationSeconds": 0.85,
+    "sampleRateHz": 48000,
+    "bitDepth": 24,
+    "channels": 2,
+    "peakDbfs": -3.1,
+    "rmsDbfs": -20.67,
+    "integratedLufs": -18.0,
+    "dcOffsetMax": 1.05e-06,
+    "clippedSamples": 0,
+    "spectralCentroidHz": 3387.8,
+    "sha256": "1f3066e37d96fa20d4fb3eab2b8c984eeec795fe66fd2aa62138db6ebd5adbb3"
+  },
+  "slots": {
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "volume": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.72
+    },
+    "timingOffset": {
+      "type": "number",
+      "minimum": -0.5,
+      "maximum": 0.5,
+      "default": -0.03
+    },
+    "alternateSound": {
+      "type": "audio-id",
+      "optional": true
+    },
+    "voiceoverDuckingDb": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 18,
+      "default": 6
+    },
+    "musicDuckingDb": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 18,
+      "default": 3
+    }
+  },
+  "accessibilityLabel": "Audition Film Advance \u2014 Ratchet candidate sound effect"
+}</pre></main></body></html>

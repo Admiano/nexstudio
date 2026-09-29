@@ -1,0 +1,88 @@
+{
+  "id": "motion.transition.crumple-transition",
+  "name": "Crumple transition",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "transition",
+  "key": "crumple-transition",
+  "intents": [
+    "animate_transition",
+    "crumple_transition"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "transition",
+    "crumple",
+    "transition"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.7,
+      "maximum": 2.2
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power2.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.7,
+    "recommended": 1.15,
+    "maximum": 2.2
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "editorial-scene",
+    "collage-scene",
+    "technical-scene"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power2.inOut",
+  "soundTags": [
+    "transition.crumple"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Crumple transition reusable animation behaviour",
+  "description": "Compresses the outgoing scene into a paper wad before the incoming scene unfolds.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "preservesOutgoingUntilStart": true,
+  "requiresIncomingAndOutgoing": true
+}

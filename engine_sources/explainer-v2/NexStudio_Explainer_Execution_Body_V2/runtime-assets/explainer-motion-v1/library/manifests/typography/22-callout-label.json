@@ -1,0 +1,133 @@
+{
+  "id": "typography.callout-label.paper-01",
+  "name": "Callout label",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "annotation",
+  "slug": "callout-label",
+  "renderer": "callout-label",
+  "order": 22,
+  "intents": [
+    "label_feature",
+    "point_to_detail"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "annotation",
+    "callout label",
+    "label_feature",
+    "point_to_detail"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 50,
+      "guidance": "Maximum 50 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 120,
+      "guidance": "Maximum 120 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 50,
+      "guidance": "Maximum 50 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 50,
+    "body": 120,
+    "meta": 50
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "paper-slide",
+  "soundTags": [
+    "typography.callout-label.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Callout label animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "label_feature",
+      "point_to_detail"
+    ],
+    "semanticRole": "annotation",
+    "copyGuidance": {
+      "title": 50,
+      "body": 120,
+      "meta": 50
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": "motion.transition.tape-peel",
+  "name": "Tape peel",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "transition",
+  "key": "tape-peel",
+  "intents": [
+    "animate_transition",
+    "tape_peel"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "transition",
+    "tape",
+    "peel"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.65,
+      "maximum": 2
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power3.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.65,
+    "recommended": 1.05,
+    "maximum": 2
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "editorial-scene",
+    "collage-scene",
+    "technical-scene"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power3.inOut",
+  "soundTags": [
+    "transition.tape-peel"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Tape peel reusable animation behaviour",
+  "description": "Peels a tape strip free before lifting the outgoing scene away.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "preservesOutgoingUntilStart": true,
+  "requiresIncomingAndOutgoing": true
+}

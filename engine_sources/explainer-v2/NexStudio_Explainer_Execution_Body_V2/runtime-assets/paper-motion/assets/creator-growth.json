@@ -1,0 +1,36 @@
+{
+  "title": "Creator Growth \u2014 H1",
+  "format": "compact",
+  "items": [
+    {
+      "label": "Jan",
+      "value": 18000,
+      "change": 4
+    },
+    {
+      "label": "Feb",
+      "value": 27400,
+      "change": 9
+    },
+    {
+      "label": "Mar",
+      "value": 39800,
+      "change": 14
+    },
+    {
+      "label": "Apr",
+      "value": 53600,
+      "change": 11
+    },
+    {
+      "label": "May",
+      "value": 74200,
+      "change": 18
+    },
+    {
+      "label": "Jun",
+      "value": 98000,
+      "change": 22
+    }
+  ]
+}

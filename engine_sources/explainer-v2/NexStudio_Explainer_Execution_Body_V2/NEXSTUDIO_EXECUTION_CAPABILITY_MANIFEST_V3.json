@@ -1,0 +1,34 @@
+{
+  "authorityId": "EXPLAINER_EXECUTION_BODY_V2_P8_UNIFIED",
+  "brandAuthority": "IMMUTABLE_MEMORY_INPUT_EXECUTION_PACKET",
+  "capabilities": [
+    "production_scoped_authored_plate_every_beat",
+    "all_committed_supports",
+    "explicit_motion_execution_bindings",
+    "exact_p8_camera_atom",
+    "exact_brand_execution",
+    "measured_narration",
+    "directed_audio"
+  ],
+  "commercialCreativeCertification": false,
+  "creativeAuthority": "NEXMIND_P8",
+  "executionMode": "PRODUCTION_SCOPED_AUTHORED_ART",
+  "family": "EXPLAINER",
+  "forbidden": [
+    "prose_to_world_archetype",
+    "prose_to_object_kind",
+    "default_brand_tokens",
+    "private_commercial_taste_score",
+    "renderer_camera_invention"
+  ],
+  "maxCameraShotsPerCanonicalBeat": 1,
+  "maxEditorialEventsPerCanonicalBeat": 1,
+  "requirements": [
+    "authored_scene_illustration",
+    "authored_scene_pixel_fidelity_review"
+  ],
+  "role": "EXECUTION_ONLY",
+  "schema": "NexStudioExecutionCapabilityManifestV3",
+  "truthBoundary": "Execution capability only. Public/commercial release requires encoded live evidence, independent perceptual judging and build-bound human calibration.",
+  "unsupportedCreativeBehavior": "FAIL_OR_REPLAN__NO_HOUSE_FALLBACK"
+}

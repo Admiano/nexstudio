@@ -1,0 +1,138 @@
+{
+  "id": "icon.universal.information.paper-01",
+  "name": "Information",
+  "version": "1.3.0",
+  "category": "icon",
+  "subtype": "universal",
+  "slug": "information",
+  "renderer": "information",
+  "order": 21,
+  "intents": [
+    "show_information",
+    "explain_detail"
+  ],
+  "keywords": [
+    "icon",
+    "universal",
+    "paper",
+    "information",
+    "info",
+    "details",
+    "about"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "stamp-impact",
+        "scale-bounce",
+        "cut-paper-pop"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.2,
+      "maximum": 3
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.05,
+    "maximum": 3
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "stamp-impact",
+    "scale-bounce",
+    "cut-paper-pop"
+  ],
+  "defaultMotion": "stamp-impact",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "ui.information.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Information universal paper icon",
+  "description": "A reusable layered paper-style information icon for creator and agent interfaces.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "show_information",
+      "explain_detail"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "status"
+  }
+}

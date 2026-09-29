@@ -1,0 +1,88 @@
+{
+  "id": "motion.entrance.cut-paper-pop",
+  "name": "Cut-paper pop",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "entrance",
+  "key": "cut-paper-pop",
+  "intents": [
+    "animate_entrance",
+    "cut_paper_pop"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "entrance",
+    "cut",
+    "paper",
+    "pop"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "back.out(1.7)"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "back.out(1.7)",
+  "soundTags": [
+    "paper.pop.soft",
+    "motion.impact.light"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Cut-paper pop reusable animation behaviour",
+  "description": "A crisp cut-paper element pops from a compressed offset and settles with tactile weight.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

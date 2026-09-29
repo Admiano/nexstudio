@@ -1,0 +1,88 @@
+{
+  "id": "motion.ambient.ink-jitter",
+  "name": "Ink jitter",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "ambient",
+  "key": "ink-jitter",
+  "intents": [
+    "animate_ambient",
+    "ink_jitter"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "ambient",
+    "ink",
+    "jitter"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 1.2,
+      "maximum": 7
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "sine.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 1.2,
+    "recommended": 2.8,
+    "maximum": 7
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "sine.inOut",
+  "soundTags": [
+    "ink.jitter.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Ink jitter reusable animation behaviour",
+  "description": "Adds a very restrained finite registration jitter to ink or text.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true,
+  "finiteCycles": 3,
+  "recommendedCycleDuration": 1.1
+}

@@ -1,0 +1,86 @@
+{
+  "id": "motion.action.numeric-count",
+  "name": "Numeric count",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "action",
+  "key": "numeric-count",
+  "intents": [
+    "animate_action",
+    "numeric_count"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "action",
+    "numeric",
+    "count"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power2.out"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "text",
+    "paper-object",
+    "data-label"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power2.out",
+  "soundTags": [
+    "ui.counter.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Numeric count reusable animation behaviour",
+  "description": "Counts deterministically from a configured start value to an end value.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.local/schemas/nexstick/role-schema-v1.json",
+  "title": "NexStick Cast Role Preset V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "role_id",
+    "display_name",
+    "description",
+    "demographic_policy",
+    "compatible_families",
+    "clothing_tags",
+    "accessory_tags",
+    "personality_defaults",
+    "behavior_tags",
+    "gesture_tendencies",
+    "presentation_stance",
+    "context_metadata"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "role_id": {
+      "type": "string",
+      "enum": [
+        "presenter", "teacher", "student", "office_worker", "executive",
+        "creator", "technician", "healthcare_worker", "builder", "parent",
+        "child", "customer", "helper", "friend", "salesperson"
+      ]
+    },
+    "display_name": {"type": "string", "minLength": 1},
+    "description": {"type": "string", "minLength": 1},
+    "demographic_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gender", "age"],
+      "properties": {
+        "gender": {"const": "independent"},
+        "age": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "groups"],
+          "properties": {
+            "mode": {"enum": ["any", "preferred", "required"]},
+            "groups": {
+              "type": "array",
+              "items": {"enum": ["adult", "child"]},
+              "uniqueItems": true,
+              "minItems": 1
+            },
+            "reason": {"type": "string"}
+          }
+        }
+      }
+    },
+    "compatible_families": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "adult_man_average", "adult_man_broad", "adult_woman_average", "adult_woman_tall",
+          "boy", "girl", "diminutive_man", "diminutive_woman", "diminutive_boy",
+          "diminutive_girl", "neutral_adult", "neutral_child"
+        ]
+      }
+    },
+    "clothing_tags": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+    },
+    "accessory_tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+    },
+    "personality_defaults": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["calm", "cheerful", "confident", "shy", "energetic", "serious", "playful", "authoritative", "warm", "reserved"]
+      }
+    },
+    "behavior_tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+    },
+    "gesture_tendencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+    },
+    "presentation_stance": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+    },
+    "context_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domains", "interaction_modes"],
+      "properties": {
+        "domains": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "interaction_modes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "notes": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

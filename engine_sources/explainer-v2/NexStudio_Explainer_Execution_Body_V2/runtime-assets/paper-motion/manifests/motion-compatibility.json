@@ -1,0 +1,485 @@
+{
+  "schemaVersion": "1.0.0",
+  "targetTypes": {
+    "paper-object": {
+      "selector": ".paper-object, .paper-component, [data-motion-type=\"paper-object\"]",
+      "notes": "Any independently reusable paper component."
+    },
+    "text": {
+      "selector": "[data-motion-type=\"text\"], .motion-text",
+      "notes": "Editable text or caption container."
+    },
+    "svg": {
+      "selector": "svg, [data-motion-type=\"svg\"]",
+      "notes": "SVG path or abstract vector test glyph."
+    },
+    "data-label": {
+      "selector": "[data-motion-number]",
+      "notes": "Numeric text with data-motion-number."
+    },
+    "workflow": {
+      "selector": "[data-connect-from] and [data-connect-to]",
+      "notes": "Container holding two addressable workflow nodes."
+    },
+    "caption": {
+      "selector": "[data-motion-type=\"caption\"]",
+      "notes": "Text intended for marker or write effects."
+    },
+    "editorial-scene": {
+      "selector": "[data-scene-style=\"editorial\"]",
+      "notes": "Structured scene pair for transitions."
+    },
+    "collage-scene": {
+      "selector": "[data-scene-style=\"collage\"]",
+      "notes": "Layered scene pair for transitions."
+    },
+    "technical-scene": {
+      "selector": "[data-scene-style=\"technical\"]",
+      "notes": "Notebook or diagram scene pair for transitions."
+    }
+  },
+  "motions": {
+    "motion.entrance.cut-paper-pop": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.paper-slide": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.drop-and-settle": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.unfold": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.peel-reveal": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.stamp-impact": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.draw-on": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.ink-reveal": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.scale-bounce": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.entrance.page-flip": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.action.pulse": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.action.wiggle": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.action.tick-confirm": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.action.numeric-count": {
+      "compatibleTargets": [
+        "text",
+        "paper-object",
+        "data-label"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": []
+    },
+    "motion.action.colour-fill": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.action.rotate": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.action.open-and-close": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.action.connect": {
+      "compatibleTargets": [
+        "workflow",
+        "paper-object",
+        "svg"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.action.marker-highlight": {
+      "compatibleTargets": [
+        "text",
+        "paper-object",
+        "caption"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": []
+    },
+    "motion.action.type-or-write": {
+      "compatibleTargets": [
+        "text",
+        "paper-object",
+        "caption"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": []
+    },
+    "motion.ambient.paper-flutter": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.ambient.subtle-float": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.ambient.shadow-breathing": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.ambient.grain-drift": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.ambient.ink-jitter": {
+      "compatibleTargets": [
+        "paper-object",
+        "text",
+        "svg"
+      ],
+      "createsOverlay": false,
+      "restoresRestingState": true,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.transition.page-turn": {
+      "compatibleTargets": [
+        "editorial-scene",
+        "collage-scene",
+        "technical-scene"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": false,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.transition.paper-wipe": {
+      "compatibleTargets": [
+        "editorial-scene",
+        "collage-scene",
+        "technical-scene"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": false,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.transition.torn-paper-reveal": {
+      "compatibleTargets": [
+        "editorial-scene",
+        "collage-scene",
+        "technical-scene"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": false,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.transition.collage-push": {
+      "compatibleTargets": [
+        "editorial-scene",
+        "collage-scene",
+        "technical-scene"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": false,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.transition.tape-peel": {
+      "compatibleTargets": [
+        "editorial-scene",
+        "collage-scene",
+        "technical-scene"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": false,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.transition.card-stack-shuffle": {
+      "compatibleTargets": [
+        "editorial-scene",
+        "collage-scene",
+        "technical-scene"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": false,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    },
+    "motion.transition.crumple-transition": {
+      "compatibleTargets": [
+        "editorial-scene",
+        "collage-scene",
+        "technical-scene"
+      ],
+      "createsOverlay": true,
+      "restoresRestingState": false,
+      "finite": true,
+      "seekable": true,
+      "conflicts": [
+        "simultaneous-transform-motion"
+      ]
+    }
+  }
+}

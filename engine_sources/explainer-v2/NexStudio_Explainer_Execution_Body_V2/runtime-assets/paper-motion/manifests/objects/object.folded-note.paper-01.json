@@ -1,0 +1,79 @@
+{
+  "id": "object.folded-note.paper-01",
+  "name": "Folded note",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "note",
+  "cssClass": "obj-folded-note",
+  "renderer": "folded-note",
+  "intents": [
+    "compose_paper_story",
+    "display_note"
+  ],
+  "keywords": [
+    "paper",
+    "note",
+    "folded",
+    "note"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 26
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 80
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "unfold",
+    "paper-slide",
+    "page-flip"
+  ],
+  "defaultMotion": "unfold",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.unfold"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Folded note animated paper component",
+  "description": "A folded message that opens into a readable note.",
+  "attachable": false,
+  "bespokeMotion": true
+}

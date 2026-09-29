@@ -1,0 +1,133 @@
+{
+  "id": "typography.call-to-action-card.paper-01",
+  "name": "Call to action card",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "action",
+  "slug": "call-to-action-card",
+  "renderer": "call-to-action-card",
+  "order": 24,
+  "intents": [
+    "show_call_to_action",
+    "prompt_next_step"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "action",
+    "call to action card",
+    "show_call_to_action",
+    "prompt_next_step"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 68,
+      "guidance": "Maximum 68 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 150,
+      "guidance": "Maximum 150 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 42,
+      "guidance": "Maximum 42 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 68,
+    "body": 150,
+    "meta": 42
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "ink-reveal",
+  "soundTags": [
+    "typography.call-to-action-card.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Call to action card animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_call_to_action",
+      "prompt_next_step"
+    ],
+    "semanticRole": "action",
+    "copyGuidance": {
+      "title": 68,
+      "body": 150,
+      "meta": 42
+    }
+  }
+}

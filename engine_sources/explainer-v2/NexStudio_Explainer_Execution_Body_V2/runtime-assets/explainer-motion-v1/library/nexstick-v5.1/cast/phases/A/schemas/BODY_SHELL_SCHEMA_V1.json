@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexstick://cast/v1/body-shell",
+  "title": "NexStick Cast V1 Body Shell",
+  "type": "object",
+  "required": ["id", "profile", "style"],
+  "properties": {
+    "id": {"type": "string"},
+    "profile": {
+      "type": "object",
+      "description": "Neutral surface measurements only. Phase C may provide bounded overrides; Phase A defines no demographic family presets.",
+      "properties": {
+        "torso": {"type": "object"},
+        "limbRadiusM": {"type": "object"},
+        "hand": {"type": "object"},
+        "foot": {"type": "object"},
+        "head": {"type": "object"},
+        "outlineM": {"type": "number", "minimum": 0}
+      }
+    },
+    "style": {"type": "object"}
+  }
+}

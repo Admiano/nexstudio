@@ -1,0 +1,17 @@
+(()=>{
+ const root=document.querySelector('#motion-transition-demo'),scenes=[...root.querySelectorAll('.transition-scene')],transitionKeys=['page-turn','paper-wipe','torn-paper-reveal','collage-push','tape-peel','card-stack-shuffle','crumple-transition'];
+ root.querySelectorAll('[data-object]').forEach((mount,i)=>{const object=NexPaperObjects.create(mount.dataset.object,{title:['MODULAR MOTION','REUSABLE SYSTEM','SEEK ANY FRAME','ONE RUNTIME','SOUND TAGS','AGENT READY','NO EMPTY CUTS'][i]||'PAPER MOTION',body:'Editable components keep their visual identity while motion remains replaceable.',meta:`MOTION / ${String(i+1).padStart(2,'0')}`});mount.appendChild(object)});
+ root.querySelectorAll('.transition-progress').forEach((p,idx)=>{p.innerHTML=scenes.map((_,i)=>`<i class="${i===idx?'active':''}"></i>`).join('')});
+ const transitionStarts=transitionKeys.map((_,i)=>2.15+i*3.05),transitionDuration=.9,total=23.6;
+ const entrance=gsap.timeline({paused:true});
+ scenes.forEach((scene,i)=>{const start=i===0?.12:transitionStarts[i-1]+.33;entrance.fromTo(scene.querySelector('.transition-index'),{opacity:0,x:-45},{opacity:1,x:0,duration:.5,ease:'power3.out'},start);entrance.fromTo(scene.querySelector('h1'),{opacity:0,y:70,scale:.96},{opacity:1,y:0,scale:1,duration:.72,ease:'expo.out'},start+.09);entrance.fromTo(scene.querySelector('p'),{opacity:0,y:35},{opacity:1,y:0,duration:.56,ease:'power2.out'},start+.22);entrance.fromTo(scene.querySelector('.transition-board'),{opacity:0,x:70,rotation:2},{opacity:1,x:0,rotation:0,duration:.72,ease:'back.out(1.7)'},start+.14);entrance.fromTo(scene.querySelector('.transition-footer'),{opacity:0,y:20},{opacity:1,y:0,duration:.45,ease:'power2.out'},start+.31)});
+ const transitions=transitionKeys.map((key,i)=>NexMotion.transition(scenes[i],scenes[i+1],key,{duration:transitionDuration,intensity:1,energy:'medium'}));
+ let now=0,paused=true,timer=null;
+ function resetScenes(){scenes.forEach(s=>{s.style.opacity='0';s.style.transform='';s.style.clipPath='';s.style.zIndex='';s.style.transformOrigin='50% 50%'});root.querySelectorAll('.transition-motion-layer').forEach(x=>{x.style.opacity='0';x.style.transform=''})}
+ function seek(t){now=Math.max(0,Math.min(total,Number(t)||0));entrance.seek(now);resetScenes();let active=0;for(let i=0;i<transitionStarts.length;i++){if(now>=transitionStarts[i]+transitionDuration)active=i+1}
+   const running=transitionStarts.findIndex(s=>now>=s&&now<s+transitionDuration);if(running>=0){scenes[running].style.opacity='1';scenes[running+1].style.opacity='0';transitions[running].seek(now-transitionStarts[running])}else scenes[active].style.opacity='1';return controller}
+ function pause(){if(timer)cancelAnimationFrame(timer);timer=null;paused=true;return controller}
+ function play(from){if(from!=null)seek(from);pause();paused=false;const base=now,start=performance.now();const tick=t=>{if(paused)return;const value=base+(t-start)/1000;if(value>=total){seek(total);pause();return}seek(value);timer=requestAnimationFrame(tick)};timer=requestAnimationFrame(tick);return controller}
+ const controller={duration:()=>total,seek,time:v=>v==null?now:seek(v),progress:v=>v==null?now/total:seek(v*total),pause,play,restart:()=>{seek(0);return play()}};
+ window.__timelines=window.__timelines||{};window.__timelines['motion-transition-demo']=controller;const params=new URLSearchParams(location.search);if(params.has('t'))seek(Number(params.get('t')));else if(params.get('autoplay')==='1')controller.restart();else seek(0);window.seekComposition=seek;
+})();
