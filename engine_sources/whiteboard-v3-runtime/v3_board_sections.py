@@ -1444,6 +1444,10 @@ _SB_SETTINGS = (
     ('cafe', r'\b(kitchens?|cafes?|baristas?|coffee|cups?|mugs?|roast\w*|'
              r'filters?|grind\w*)\b'),
 )
+_SB_ON_WATER = re.compile(
+    r'\b(boats?|ships?|lifeboats?|canoes?|kayaks?|rafts?|yachts?|ferr(y|ies)|'
+    r'piers?|docks?|jett(y|ies)|wharf|swim\w*|rows?|rowing|fish\w*|'
+    r'ducks?|swans?|whales?|dolphins?)\b', re.I)
 _SB_OUTDOOR = ('river', 'city', 'road', 'forest', 'field', 'sea')
 
 
@@ -1509,15 +1513,21 @@ def _sb_setting(kind, txt, L, R, band_t, base, floor, boxes, seed):
                 'sea'):
         st += line(base + 2, under, 'ink', 1.0)
     lane = max(8.0, floor - base)
-    if kind == 'river':
-        for k in range(3):
-            y = base + lane * (0.30 + 0.28 * k)
-            ln = line(y, labels, 'a_blue', 0.9, wob=2.2, seg=18)
-            st += [s_ for i, s_ in enumerate(ln) if (i + k) % 3 != 2]
-    if kind == 'sea':
-        for k in range(4):
-            y = base + lane * (0.22 + 0.24 * k)
-            st += line(y, labels, 'a_blue', 0.9, wob=4.0, seg=12)
+    if kind in ('river', 'sea'):
+        for bx in boxes:
+            if bx[2] != 'el' or bx[3] == 'person' \
+                    or not _SB_ON_WATER.search(str(bx[0])):
+                continue
+            x0, _, x1, y1 = bx[1]
+            pw = (x1 - x0) * 0.35
+            for k in range(2):
+                y = y1 + 3 + k * 6
+                a, b = x0 - pw * (1 - 0.4 * k), x1 + pw * (1 - 0.4 * k)
+                n = max(3, int((b - a) / 14))
+                pts = [(a + (b - a) * i / n,
+                        y + (2.2 if i % 2 else -2.2)) for i in range(n + 1)]
+                if clear((a, y - 3, b, y + 3), 2.0, labels):
+                    st.append((pts, 'a_blue', 0.9, False, True))
     if kind in ('road', 'city'):
         y2 = base + lane * 0.95
         st += line(y2, labels, 'ink', 1.0)
@@ -2222,7 +2232,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         e['ink'] = (fig_b if e['kind'] not in ('divider',) else b)
         tag = ('rider' if e['rider'] else
                ('chart' if e['kind'] == 'chart-journey' else 'el'))
-        boxes.append((e['it'].get('label', '?'), e['ink'], tag))
+        boxes.append((e['it'].get('label', '?'), e['ink'], tag,
+                      e['kind']))
         # arrow from the previous element (chains only, no dividers/riders)
         if prev is not None and frozenset((id(prev), id(e))) in (
                 flow_pairs | touch_pairs):
