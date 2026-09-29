@@ -600,8 +600,19 @@ def _is_person(w: str) -> bool:
     if not syn:
         return bool(_AGENT.search(w)) and len(w) > 5
     hit = {'person.n.01', 'causal_agent.n.01'}
-    animal = any(h.name() == 'animal.n.01' for s_ in syn
-                 for p in s_.hypernym_paths() for h in p)
+    def is_animal(s_):
+        return any(h.name() == 'animal.n.01' for p in s_.hypernym_paths()
+                   for h in p)
+
+    def uses(s_):
+        return sum(lm.count() for lm in s_.lemmas()
+                   if lm.name().lower() == _lemma(w))
+    # the commonest sense decides ('painter' is an artist before a
+    # cougar); a barely-used first sense yields to an animal next to it
+    # ('whale' the giant person vs the sea mammal)
+    top = max(syn, key=uses)
+    animal = is_animal(top) or (uses(syn[0]) <= 1 and any(
+        is_animal(s_) for s_ in syn[:2]))
     first = _lemma(w) not in _KIT_ANIMALS and not animal and any(
         h.name() == 'person.n.01' for p in syn[0].hypernym_paths() for h in p)
     adj = bool(_wn.synsets(w, 'a') or _wn.synsets(w, 's'))
@@ -636,6 +647,69 @@ _NOT_ACT = {'is', 'are', 'was', 'were', 'be', 'has', 'have', 'had', 'feels',
             'feel', 'seems', 'looks', 'gets', 'becomes', 'stays', 'stayed',
             'smiles', 'cheers', 'claps', 'and', 'who', 'that', 'also',
             'then', 'still', 'never', 'always'}
+
+
+# verb meaning -> (stance, arm pose): the body the action needs. WordNet
+# ancestors carry unseen verbs ('strolled' is a walk, 'gulped' a drink).
+_BODY_SYN = (('walk.v.01', ('walk', '')), ('run.v.01', ('walk', '')),
+             ('climb.v.01', ('climb', 'climb')),
+             ('kneel.v.01', ('kneel', '')), ('crouch.v.01', ('kneel', '')),
+             ('squat.v.01', ('kneel', '')), ('sit.v.01', ('sit', '')),
+             ('sit_down.v.01', ('sit', '')),
+             ('drink.v.01', ('', 'drink')), ('eat.v.01', ('', 'drink')),
+             ('read.v.01', ('', 'read')), ('write.v.01', ('', 'write')),
+             ('dig.v.01', ('', 'dig')),
+             ('bring.v.01', ('', 'offer')),
+             ('give.v.03', ('', 'offer')))
+_BODY_LEMMA = {'type': ('sit', 'type'), 'sign': ('', 'write'),
+               'scribble': ('', 'write'), 'sketch': ('', 'write'),
+               'draw': ('', 'write'), 'note': ('', 'write'),
+               'study': ('', 'read'), 'browse': ('', 'read'),
+               'munch': ('', 'drink'), 'chew': ('', 'drink'),
+               'bite': ('', 'drink'), 'sip': ('', 'drink'),
+               'taste': ('', 'drink'), 'ascend': ('climb', 'climb'),
+               'mop': ('', 'dig'), 'sweep': ('', 'dig'), 'rake': ('', 'dig'),
+               'scrub': ('', 'dig'), 'shovel': ('', 'dig'),
+               'hoe': ('', 'dig'), 'jog': ('walk', ''),
+               'wander': ('walk', ''), 'hurry': ('walk', ''),
+               'rush': ('walk', ''), 'stroll': ('walk', ''),
+               'serve': ('', 'offer'), 'hand': ('', 'offer'),
+               'deliver': ('', 'offer')}
+# nouns a seated figure sits on, climbed things it clings to
+_SEATS = re.compile(r'\b(chair|stool|bench|sofa|couch|seat|armchair|'
+                    r'steps?|stairs?|stoop|throne|saddle|log|pew)\b')
+_WORN = re.compile(r'\b(wear\w*|wore|worn|put(s|ting)? on|don(s|ned)?)\b')
+
+
+# what an arm pose holds when the sentence doesn't name it
+_ARM_PROP = {'drink': 'cup', 'read': 'book', 'write': 'pen',
+             'dig': 'shovel'}
+
+
+def _is_vessel(label: str) -> bool:
+    """True when `label` names something that holds a drink."""
+    if _wn is None:
+        return False
+    for syn in _wn.synsets(str(label).split()[-1], 'n')[:4]:
+        anc = {h.name() for pth in syn.hypernym_paths() for h in pth}
+        if anc & {'container.n.01', 'vessel.n.03'}:
+            return True
+    return False
+
+
+def _body_for(lemma: str) -> tuple:
+    """(stance, arm) the verb `lemma` needs, ('', '') if neither."""
+    lemma = str(lemma or '').lower()
+    if lemma in _BODY_LEMMA:
+        return _BODY_LEMMA[lemma]
+    if _wn is None:
+        return ('', '')
+    for syn in _wn.synsets(lemma, 'v')[:2]:
+        anc = {h.name() for pth in syn.hypernym_paths() for h in pth}
+        for key, body in _BODY_SYN:
+            if key in anc:
+                return body
+    return ('', '')
 
 
 def prev_det(low: list, i: int) -> bool:
@@ -1031,7 +1105,53 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
                      and role(e) and role(e)['icon'] != 'person'), None)
         held = tool if tool is not None else tgt
         pose = None
-        if _HOLD.search(ev['phrase']) and held is not None \
+        stance, arm = _body_for(ev['lemma']) if ag['icon'] == 'person' \
+            else ('', '')
+        if stance and 'stance' not in ag:
+            ag['stance'] = stance
+        seat = next((role(e) for p_, e in ev['preps']
+                     if p_ in ('on', 'in', 'at', 'onto') and role(e)
+                     and _SEATS.search(role(e)['label'])), None)
+        if stance and not arm:
+            dest = tgt if tgt is not None and tgt['icon'] != 'person' \
+                and not (stance == 'sit' and tgt is seat) else None
+            if dest is not None and 'target' not in ag:
+                ag['target'] = dest['label']
+        if stance == 'sit' and seat is not None and 'attach' not in seat:
+            seat.update(attach='under', to=roles.index(ag))
+        if ag['icon'] == 'person' and _WORN.search(ev['phrase']) \
+                and tgt is not None and tgt['icon'] != 'person' \
+                and 'attach' not in tgt:
+            tgt.update(attach='worn', to=roles.index(ag))
+            continue
+        if stance and not arm:
+            # walking with a bucket: what goes along is carried
+            if tool is not None and 'attach' not in tool \
+                    and 'action' not in ag:
+                tool.update(attach='held', to=roles.index(ag))
+                ag['action'] = 'hold'
+            continue
+        # a long tool (shovel, mop) is held; the ground dug is its target
+        held = tool if arm in ('dig', 'climb') else held
+        if arm and held is not None and held['icon'] != 'person' \
+                and 'attach' not in held and held is not seat:
+            held.update(attach='held', to=roles.index(ag))
+            if arm == 'drink' and not _is_vessel(held['label']):
+                held['icon'] = _thing_icon(v3, 'cup')
+            pose = arm
+        elif arm and arm != 'climb' and len(roles) <= cap \
+                and not any(r_.get('to') == roles.index(ag)
+                            and r_.get('attach') == 'held' for r_ in roles):
+            prop = _ARM_PROP.get(arm, '')
+            if prop and prop not in {r_['label'] for r_ in roles}:
+                roles.append({'label': prop, 'icon': _thing_icon(v3, prop),
+                              'attach': 'held', 'to': roles.index(ag)})
+            pose = arm
+        elif arm:
+            pose = arm
+        if pose:
+            pass
+        elif _HOLD.search(ev['phrase']) and held is not None \
                 and held['icon'] != 'person' and 'attach' not in held:
             held.update(attach='held', to=roles.index(ag))
             pose = 'hold'
@@ -1192,7 +1312,7 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
             if kind in _NOUN_MARKS and re.search(pat, words, re.I):
                 add({'type': kind, 'on': r['label']})
                 break
-    # the action phrase, pinned to what it happens to
+    # the action, as a short verb label pinned to what it happens to
     for ev in events:
         if ev['kind'] in ('feel', 'fear', 'think') or \
                 len(ev['phrase'].split()) < 2:
@@ -1205,12 +1325,14 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
         if r is None:
             r = role(ev['agent']) if ev['agent'] is not None else None
         if r is not None and not r.get('annotate'):
-            words = ev['phrase'].split()
-            while words and words[-1].lower() in _SB_DET | _CAP_PREP:
-                words = words[:-1]
-            note = _caption_cut(words, 4)
-            if len(note.split()) >= 2:
-                r['annotate'] = note
+            words = [w_ for w_ in ev['phrase'].split()
+                     if re.fullmatch(r"[\w'-]+", w_)
+                     and w_.lower() not in _SB_DET]
+            cut_ = next((k for k, w_ in enumerate(words)
+                         if k and w_.lower() in _CAP_PREP), len(words))
+            words = words[:min(cut_, 3)]
+            if len(words) >= 2:
+                r['annotate'] = ' '.join(words)
     rel = next((k for k, pat in _REL_CUES if re.search(pat, sent, re.I)), '')
     n_p = sum(1 for r in roles if r['icon'] == 'person')
     if not rel:

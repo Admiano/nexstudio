@@ -1158,7 +1158,7 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
     return False
 
 
-_SB_TOUCH = {'reach', 'offer', 'point'}
+_SB_TOUCH = {'reach', 'offer', 'point', 'climb', 'dig'}
 
 
 def _sb_link(pb, cb, Wc):
@@ -1189,18 +1189,37 @@ def _sb_link(pb, cb, Wc):
     return _sb_arrow((ax + ux * t0, ay + uy * t0), (ax + ux * t1, ay + uy * t1))
 
 
-_SB_ATTACH = ('on', 'in', 'beside', 'held')
+_SB_ATTACH = ('on', 'in', 'beside', 'held', 'under', 'worn')
+# worn things the face itself draws, and worn things that sit on the head
+_SB_EYEWEAR = re.compile(r'\b(glasses|spectacles|goggles|sunglasses|'
+                         r'eyeglasses|monocle)\b', re.I)
+_SB_HEADWEAR = re.compile(r'\b(hat|cap|helmet|crown|hood|bonnet|beret|'
+                          r'headband|headphones|headset|wig)\b', re.I)
 _SB_MARKS = ('flow', 'motion', 'puffs', 'cross', 'drips', 'sparkle', 'rain',
              'heat', 'up', 'down')
 
 
-def _sb_kid_box(att, hb, aspect, hand=None):
-    """Box for an element composed onto its host's ink box hb."""
+def _sb_kid_box(att, hb, aspect, hand=None, act='', flip=False, label=''):
+    """Box for an element composed onto its host's ink box hb: a held
+    prop sized for the arm pose (a cup at the lips, a shovel to the
+    ground), a seat under the hips, a worn thing on the head or body."""
     x0, y0, x1, y1 = hb
     w, h = x1 - x0, y1 - y0
-    if att == 'held' and hand:
-        kh = h * 0.36
+    if att == 'held' and hand and act == 'dig':
+        kh = h * sb_cast.PROP_SCALE['dig']
+        cx, bot = hand[0], y1
+    elif att == 'held' and hand:
+        kh = h * sb_cast.PROP_SCALE.get(act, 0.36)
         cx, bot = hand[0], hand[1] + kh * 0.45
+    elif att == 'under':
+        kh = min(h * 0.40, w * 0.9 / max(0.3, aspect))
+        cx, bot = x0 + w * (0.62 if flip else 0.38), y1
+    elif att == 'worn' and _SB_HEADWEAR.search(label):
+        kh = min(h * 0.16, w * 0.55 / max(0.3, aspect))
+        cx, bot = x0 + w * 0.5, y0 + kh * 0.55
+    elif att == 'worn':
+        kh = min(h * 0.24, w * 0.45 / max(0.3, aspect))
+        cx, bot = x0 + w * 0.5, y0 + h * 0.62
     elif att == 'in':
         kh = min(h * 0.42, w * 0.42 / max(0.3, aspect))
         cx, bot = (x0 + x1) / 2, y0 + h * 0.55 + kh / 2
@@ -1882,6 +1901,14 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 dx_ = min(dx_, hi_ - pb_[2])
             if dx_ * ((tb_[0] + tb_[2]) - (pb_[0] + pb_[2])) > 0:
                 e['box'] = (pb_[0] + dx_, pb_[1], pb_[2] + dx_, pb_[3])
+            if act_ == 'climb' and e['kind'] == 'person':
+                # a climber stands on the rungs, part way up the thing
+                pb_, tb0 = e['box'], tgt['box']
+                side = 1 if (pb_[0] + pb_[2]) < (tb0[0] + tb0[2]) else -1
+                ox = (pb_[2] - pb_[0]) * 0.45 * side
+                up = (tb0[3] - tb0[1]) * 0.35
+                e['box'] = (pb_[0] + ox, pb_[1] - up, pb_[2] + ox,
+                            pb_[3] - up)
             touch_pairs.add(frozenset((id(e), id(tgt))))
     if journey:
         lay = 'journey'
@@ -1990,13 +2017,20 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 e['fit'] = sb_cast.outfit_for(
                     e['m'].get('outfit'), e['m'].get('label'),
                     e['label'], e['m'].get('concept'))
+                kids = e.get('kids', ())
+                if any(kd['att'] == 'worn' and _SB_EYEWEAR.search(
+                        str(kd['m'].get('label') or '')) for kd in kids):
+                    e['fit'] = dict(e['fit'], glasses=True)
+                e['stance'] = str(e['m'].get('stance') or 'stand')
+                e['seat'] = not any(kd['att'] == 'under' for kd in kids)
                 e['engaged'] = act in sb_cast.ENGAGED or (
                     tgt is not None and tgt is not e)
                 body, marks, _hb = sb_cast.figure(
                     e['emo'], flip, act,
                     sb_cast.shirt_for(e['m'].get('shirt') or e['m'].get('label')
                                       or e['m'].get('concept')),
-                    outfit=e['fit'], engaged=e['engaged'])
+                    outfit=e['fit'], engaged=e['engaged'],
+                    stance=e['stance'], seat=e['seat'])
                 fit_st, _fb = _sb_fit(body + marks, fb)
                 art_st, mark_st = fit_st[:len(body)], fit_st[len(body):]
                 fig_b = _sb_bounds(s_[0] for s_ in art_st)
@@ -2031,13 +2065,23 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                          max(fig_b[2], eb[2]), max(fig_b[3], eb[3]))
         for kn, kd in enumerate(e.get('kids', ())):
             hand = None
+            klab = str(kd['m'].get('label') or '')
+            if kd['att'] == 'worn' and e['kind'] == 'person' \
+                    and _SB_EYEWEAR.search(klab):
+                # the face draws the glasses; the kid is the eye band
+                hh_ = (fig_b[3] - fig_b[1]) * 0.30
+                kd['ink'] = (fig_b[0], fig_b[1], fig_b[2], fig_b[1] + hh_)
+                continue
             if kd['att'] == 'held' and e['kind'] == 'person':
                 u, v = sb_cast.hand_uv(e['emo'], e.get('flip', False),
                                        e.get('act', ''), e.get('fit'),
-                                       e.get('engaged'))
+                                       e.get('engaged'),
+                                       e.get('stance', 'stand'),
+                                       e.get('seat', True))
                 hand = (fig_b[0] + u * (fig_b[2] - fig_b[0]),
                         fig_b[1] + v * (fig_b[3] - fig_b[1]))
-            kb0 = _sb_kid_box(kd['att'], fig_b, kd['aspect'], hand)
+            kb0 = _sb_kid_box(kd['att'], fig_b, kd['aspect'], hand,
+                              e.get('act', ''), e.get('flip', False), klab)
             if kd['kind'] == 'person':
                 kbody, kmarks, _kh = sb_cast.figure(
                     kd['emo'], (kb0[0] + kb0[2]) / 2 > 0,

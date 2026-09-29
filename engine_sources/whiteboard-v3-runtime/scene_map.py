@@ -97,8 +97,10 @@ def _clause_score(doc) -> int:
         c.dep_ in ('nsubj', 'nsubjpass') for c in v.children))
     plural_mod = sum(1 for t in doc if t.dep_ == 'compound'
                      and t.tag_ == 'NNS')
+    # 'her reading glasses': a possessive is never a clause subject
+    poss_subj = sum(1 for t in doc if t.dep_ == 'nsubj' and t.tag_ == 'PRP$')
     return (3 if root is not None and root.pos_ in ('VERB', 'AUX') else 0) \
-        + 2 * subj + len(verbs) - 3 * plural_mod
+        + 2 * subj + len(verbs) - 3 * plural_mod - 4 * poss_subj
 
 
 @functools.lru_cache(maxsize=2048)
@@ -365,7 +367,8 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
                            'kind': state_kind(t.lower_)})
     events = []
     for t in doc:
-        if not verbal(t):
+        if not verbal(t) or (t.dep_ in ('amod', 'compound')
+                             and t.tag_ in ('VBG', 'VBN')):
             continue
         lem = t.lemma_.lower()
         kids = list(t.children)

@@ -198,10 +198,11 @@ def outfit_for(*words) -> dict:
 
 
 # poses where the far hand joins the near one on the object
-_TWO_HANDED = {'reach', 'offer', 'hold', 'lift'}
+_TWO_HANDED = {'reach', 'offer', 'hold', 'lift', 'read', 'dig', 'type',
+               'climb'}
 # verbs that turn a figure side-on toward what it is doing
 ENGAGED = {'reach', 'offer', 'hold', 'lift', 'point', 'carry', 'give',
-           'show'}
+           'show', 'drink', 'read', 'write', 'type', 'dig', 'climb'}
 
 # arm = (elbow, hand) per side, leg = (knee, foot); x > 0 is screen right.
 # All in figure heights. Only still poses — no motion is authored here.
@@ -234,12 +235,76 @@ POSES = {
                   'l': ((0.21, -0.56), (0.34, -0.66))},
     'reach':     {'r': ((0.25, -0.64), (0.44, -0.63)), 'l': _IDLE_ARM},
     'lift':      {'r': ((0.22, -0.74), (0.33, -0.90)), 'l': _IDLE_ARM},
+    # hand at the mouth: a cup or a bite is lifted to the lips
+    'drink':     {'r': ((0.19, -0.62), (0.115, -0.785)), 'l': _IDLE_ARM,
+                  'head': (-0.012, 0.0)},
+    # both hands hold the page up in front, head bowed to it
+    'read':      {'r': ((0.17, -0.56), (0.25, -0.70)), 'l': _IDLE_ARM,
+                  'head': (0.012, 0.012)},
+    'write':     {'r': ((0.20, -0.53), (0.31, -0.49)), 'l': _IDLE_ARM,
+                  'head': (0.015, 0.015)},
+    'type':      {'r': ((0.21, -0.54), (0.33, -0.52)), 'l': _IDLE_ARM,
+                  'head': (0.01, 0.01)},
+    # a long tool gripped low with both hands, body leaning in
+    'dig':       {'r': ((0.19, -0.50), (0.27, -0.40)), 'l': _IDLE_ARM,
+                  'head': (0.03, 0.02)},
+    'climb':     {'r': ((0.15, -0.82), (0.22, -0.98)), 'l': _IDLE_ARM},
 }
 
 # interaction verbs -> still pose (the emotion keeps its face and marks)
 ACTIONS = {'hold': 'hold', 'carry': 'hold', 'point': 'point',
            'show': 'point', 'offer': 'offer', 'give': 'offer',
-           'reach': 'reach', 'lift': 'lift', 'wave': 'wave'}
+           'reach': 'reach', 'lift': 'lift', 'wave': 'wave',
+           'drink': 'drink', 'eat': 'drink', 'read': 'read',
+           'write': 'write', 'type': 'type', 'dig': 'dig', 'climb': 'climb'}
+
+# body stance: how far the upper body drops (figure heights) and whether
+# the figure must turn side-on for the stance to read
+STANCES = {'stand': 0.0, 'walk': 0.0, 'climb': 0.0, 'sit': 0.17,
+           'kneel': 0.12}
+# held-prop height as a fraction of the figure, by arm pose: a cup at the
+# lips is small, a shovel reaches the ground
+PROP_SCALE = {'drink': 0.13, 'read': 0.22, 'write': 0.13, 'type': 0.20,
+              'dig': 0.62}
+
+
+def _stance_legs(stance, sgn):
+    """[(hip, knee, foot)] in figure heights for a side-on stance, near
+    leg last; None for the standing stance."""
+    hip_y = HIP_Y + 0.03 + STANCES.get(stance, 0.0)
+    if stance == 'sit':
+        return [((-sgn * 0.01, hip_y), (sgn * 0.15, hip_y - 0.005),
+                 (sgn * 0.165, 0.0)),
+                ((sgn * 0.01, hip_y), (sgn * 0.175, hip_y - 0.01),
+                 (sgn * 0.20, 0.0))]
+    if stance == 'walk':
+        return [((-sgn * 0.01, hip_y), (-sgn * 0.035, -0.20),
+                 (-sgn * 0.11, -0.012)),
+                ((sgn * 0.01, hip_y), (sgn * 0.075, -0.215),
+                 (sgn * 0.13, 0.0))]
+    if stance == 'climb':
+        return [((-sgn * 0.01, hip_y), (sgn * 0.005, -0.20),
+                 (-sgn * 0.005, 0.0)),
+                ((sgn * 0.01, hip_y), (sgn * 0.13, -0.33),
+                 (sgn * 0.14, -0.17))]
+    if stance == 'kneel':
+        return [((-sgn * 0.01, hip_y), (-sgn * 0.01, -0.025),
+                 (-sgn * 0.17, -0.012)),
+                ((sgn * 0.01, hip_y), (sgn * 0.13, hip_y + 0.005),
+                 (sgn * 0.14, 0.0))]
+    return None
+
+
+def _seat(sgn, hip_y):
+    """A plain stool under a seated figure (unit px)."""
+    top = hip_y + 0.035
+    x0, x1 = -sgn * 0.09, sgn * 0.11
+    seat = [_p(x0, top), _p(x1, top), _p(x1, top + 0.03),
+            _p(x0, top + 0.03)]
+    st = [(seat + [seat[0]], '#A57A55', 0.8, 'solid')]
+    for x in (x0 + sgn * 0.02, x1 - sgn * 0.02):
+        st.append(([_p(x, top + 0.03), _p(x, 0.0)], 'ink', 0.8, False))
+    return st
 
 # emotion -> (pose, face, marks)
 EMOTIONS = {
@@ -661,17 +726,23 @@ def _marks(kinds, hx, hy, r, top_y):
     return st
 
 
+def _arm_pose(emotion, action, stance):
+    pose_n = ACTIONS.get(str(action or '').lower()) or (
+        'climb' if stance == 'climb' else
+        EMOTIONS.get(emotion, EMOTIONS['neutral'])[0])
+    return pose_n
+
+
 def hand_uv(emotion='neutral', flip=False, action='', outfit=None,
-            engaged=None):
+            engaged=None, stance='stand', seat=True):
     """Right (leading) hand position as a fraction (u, v) of the figure's
     ink bounds — where a held prop is anchored."""
     body, _m, _hb = figure(emotion, flip, action, outfit=outfit,
-                           engaged=engaged)
-    pose_n = ACTIONS.get(action) or EMOTIONS.get(
-        emotion, EMOTIONS['neutral'])[0]
-    pz = POSES[pose_n]
+                           engaged=engaged, stance=stance, seat=seat)
+    pz = POSES[_arm_pose(emotion, action, stance)]
     sgn = -1 if flip else 1
-    hx, hy = _p(sgn * pz['r'][1][0], pz['r'][1][1] + pz.get('sh', 0.0))
+    hx, hy = _p(sgn * pz['r'][1][0], pz['r'][1][1] + pz.get('sh', 0.0)
+                + STANCES.get(stance, 0.0))
     xs = [q[0] for st in body for q in st[0]]
     ys = [q[1] for st in body for q in st[0]]
     return ((hx - min(xs)) / max(1e-6, max(xs) - min(xs)),
@@ -679,23 +750,31 @@ def hand_uv(emotion='neutral', flip=False, action='', outfit=None,
 
 
 def figure(emotion='neutral', flip=False, action='', shirt=None,
-           outfit=None, engaged=None):
+           outfit=None, engaged=None, stance='stand', seat=True):
     """-> (body_strokes, mark_strokes, head_box) in unit px (feet at 0).
-    `action` (hold/point/offer/reach...) swaps the arm pose; an engaged
-    figure turns three-quarter toward its task (facing -x when flipped);
-    `outfit` (see outfit_for) dresses it for its role."""
-    pose_n, face_n, mark_n = EMOTIONS.get(emotion, EMOTIONS['neutral'])
+    `action` (hold/point/offer/reach/drink/read...) swaps the arm pose; an
+    engaged figure turns three-quarter toward its task (facing -x when
+    flipped); `stance` (stand/walk/sit/kneel/climb) sets the legs and how
+    low the body sits — a seated figure brings its own stool unless
+    `seat` is False (it sits on a drawn seat); `outfit` (see outfit_for)
+    dresses it for its role."""
+    _p0, face_n, mark_n = EMOTIONS.get(emotion, EMOTIONS['neutral'])
     act_n = str(action or '').lower()
-    pose_n = ACTIONS.get(act_n, pose_n)
+    stance = stance if stance in STANCES else 'stand'
+    pose_n = _arm_pose(emotion, act_n, stance)
     fit = dict(outfit or {})
     shirt = fit.get('shirt') or shirt
     if engaged is None:
         engaged = act_n in ENGAGED
     sgn = -1 if flip else 1
-    turn = sgn if engaged else 0
+    turn = sgn if (engaged or stance != 'stand') else 0
     pz = POSES[pose_n]
+    drop = STANCES[stance]
     hdx, hdy = pz.get('head', (0.0, 0.0))
-    shd = pz.get('sh', 0.0)
+    hdx, hdy = sgn * hdx if turn else hdx, hdy + drop
+    if stance == 'walk':
+        hdx += sgn * 0.015
+    shd = pz.get('sh', 0.0) + drop
     sh_y = SH_Y + shd
     hx, hy = _p(hdx, HEAD_CY + hdy)
     r = HEAD_R * H
@@ -723,7 +802,9 @@ def figure(emotion='neutral', flip=False, action='', shirt=None,
         far = [([shp, elp, hdp], ink, 0.85, False),
                (_circle(hdp[0], hdp[1], 0.028 * H, 0.034 * H, 12),
                 SHADE, 0.8, 'solid')]
-    ty, byy = sh_y + 0.005, HIP_Y + 0.012
+    ty, byy = sh_y + 0.005, HIP_Y + 0.012 + drop
+    if stance == 'sit' and seat:
+        body += _seat(sgn, HIP_Y + 0.03 + drop)
     # simpler robust outline: left edge down, bottom curve, right edge up,
     # shoulder arc across
     left = [_p(-tw + (tw - bw) * (i / 8) ** 1.25, ty + (byy - ty) * i / 8)
@@ -740,8 +821,13 @@ def figure(emotion='neutral', flip=False, action='', shirt=None,
     body += _torso_extra(fit.get('torso'), ty, byy, tw, bw, turn)
     # legs (side-on: a short stance, both shoes toward the task)
     legs = pz.get('leg', _IDLE_LEG)
+    posed = _stance_legs(stance, sgn)
     for s in (-1, 1):
-        if turn:
+        if posed:
+            hp_, kn_, ft_ = posed[0 if s < 0 else 1]
+            hip, kn, ft = _p(*hp_), _p(*kn_), _p(*ft_)
+            ds = sgn
+        elif turn:
             k = s * sgn
             hip = _p(k * 0.025, HIP_Y + 0.03)
             kn = _p(k * 0.045 + sgn * 0.015, -0.20)
