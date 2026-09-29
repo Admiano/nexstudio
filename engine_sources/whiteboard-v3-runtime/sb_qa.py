@@ -60,11 +60,14 @@ def _semantic(v3r, out, si, name, ic, word: str = '') -> dict:
     return rec
 
 
-def visual(plan: dict, ratio: str = '16:9') -> tuple[list, list]:
+def visual(plan: dict, ratio: str = '16:9',
+           words: list | None = None) -> tuple[list, list]:
     import pipeline_v3_narration_timed as pipe
     wbc, _a, _b, v3r = pipe.load_execution_body()
     import v3_board_sections as bs
     plan = pipe.normalize_plan(plan)
+    if words:
+        plan = pipe.align_beats_to_words(plan, words)
     plan['board_layout'] = 'storyboard'
     v3r.configure_art(plan)
     plan.update(wbc.compile_whiteboard_plan(plan, {'ratio': ratio}))
@@ -149,6 +152,11 @@ def visual(plan: dict, ratio: str = '16:9') -> tuple[list, list]:
         if len(cap.split()) > 9:
             _issue(out, 'warn', 'caption-long', si, cap)
         row['marks'] = sec.get('qa_marks', [])
+        for lab, at, said in sec.get('qa_cues') or []:
+            if said is not None and abs(at - said) > 1.0:
+                _issue(out, 'fail', 'draw-sync', si,
+                       f'{lab} drawn at {at:.1f}s, said at {said:.1f}s')
+        row['cues'] = sec.get('qa_cues') or []
         scenes.append(row)
     if fig_h:
         hs = [h for _s, h in fig_h]
@@ -263,11 +271,16 @@ def main(argv=None) -> int:
     ap.add_argument('out_dir')
     ap.add_argument('--voiceover', default=None)
     ap.add_argument('--ratio', default='16:9')
+    ap.add_argument('--word-timings', default=None)
     a = ap.parse_args(argv)
     plan = json.loads(Path(a.plan).read_text())
     name = str(plan.get('production_id') or 'whiteboard-v3')
     out_dir = Path(a.out_dir)
-    vis, scenes = visual(plan, a.ratio)
+    words = None
+    if a.word_timings:
+        import pipeline_v3_narration_timed as pipe
+        words = pipe.load_word_timings(a.word_timings)
+    vis, scenes = visual(plan, a.ratio, words)
     aud, metrics = audio(out_dir, name, Path(a.voiceover)
                          if a.voiceover else None)
     issues = vis + aud

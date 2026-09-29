@@ -11,6 +11,7 @@ whisper model must exist locally; see VO.md for the one-time downloads.
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import re
 import wave
@@ -62,8 +63,37 @@ def synth_edge(text: str, out_wav: Path,
     return out_wav
 
 
+def align_to_script(heard: list[dict], text: str) -> list[dict]:
+    """Script words carrying the recogniser's times: the recogniser may
+    mishear ("oilkin" for "oil can"), but the board keys drawings to the
+    words actually written, so every script word gets a time."""
+    said = text.split()
+    norm = [re.sub(r'[^a-z0-9]', '', w.lower()) for w in said]
+    got = [re.sub(r'[^a-z0-9]', '', w['word'].lower()) for w in heard]
+    sm = difflib.SequenceMatcher(None, norm, got, autojunk=False)
+    out: list[dict] = []
+    for tag, i0, i1, j0, j1 in sm.get_opcodes():
+        if i1 == i0:
+            continue
+        if j1 > j0:
+            t0, t1 = heard[j0]['start'], heard[j1 - 1]['end']
+        else:
+            t0 = out[-1]['end'] if out else 0.0
+            t1 = heard[j0]['start'] if j0 < len(heard) else t0
+        step = (t1 - t0) / (i1 - i0)
+        for k in range(i1 - i0):
+            if tag == 'equal':
+                h = heard[j0 + k]
+                a, b = h['start'], h['end']
+            else:
+                a, b = t0 + step * k, t0 + step * (k + 1)
+            out.append({'word': said[i0 + k], 'start': round(a, 3),
+                        'end': round(b, 3)})
+    return out
+
+
 def word_timings(wav: Path, out_json: Path,
-                 model_size: str = 'base') -> Path:
+                 model_size: str = 'base', text: str = '') -> Path:
     from faster_whisper import WhisperModel
 
     model = WhisperModel(model_size)
@@ -71,6 +101,8 @@ def word_timings(wav: Path, out_json: Path,
     words = [{'word': w.word.strip(), 'start': round(w.start, 3),
               'end': round(w.end, 3)}
              for seg in segments for w in (seg.words or [])]
+    if text and words:
+        words = align_to_script(words, text)
     out_json.write_text(json.dumps(words, indent=1))
     return out_json
 
@@ -95,7 +127,9 @@ def main() -> None:
     text = Path(args.script).read_text()
     # authoring hints like [stage: hatch] are markers for plan_author,
     # not narration — never speak them
-    text = re.sub(r'\[[^\]]*\]', ' ', text).strip()
+    text = re.sub(r'\[[^\]]*\]', ' ', text)
+    # '# Title' / '## Scene' headings are drawn on the board, not spoken
+    text = re.sub(r'(?m)^\s*#.*$', ' ', text).strip()
     if args.engine == 'edge':
         synth_edge(text, out_wav,
                    voice=args.voice or 'en-US-EmmaMultilingualNeural',
@@ -105,7 +139,8 @@ def main() -> None:
                      speed=args.speed, model=Path(args.model),
                      voices=Path(args.voices))
     out_json = out_wav.with_name(out_wav.stem + '_words.json')
-    word_timings(out_wav, out_json, model_size=args.whisper_model)
+    word_timings(out_wav, out_json, model_size=args.whisper_model,
+                 text=text)
     print(f'vo: {out_wav}\nwords: {out_json}')
 
 

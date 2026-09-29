@@ -1451,6 +1451,48 @@ _SB_ON_WATER = re.compile(
 _SB_OUTDOOR = ('river', 'city', 'road', 'forest', 'field', 'sea')
 
 
+def _sb_word_cues(grp, wt, a_, b_, win1, mo_win, log):
+    """Each drawing of a sentence starts when its own word is spoken and
+    draws until the next one starts; drawings whose word is not heard
+    keep their even share of the sentence."""
+    heard = [(w[0], float(w[1])) for w in wt
+             if a_ - 1.5 <= float(w[1]) < b_ + 1.0]
+    cue = {}
+    for e in grp:
+        words = re.findall(r"[a-z0-9']+", ' '.join(
+            str(e['it'].get(k) or '') for k in ('label', 'annotate',
+                                                 'cast_key')).lower())
+        for tok, at in heard:
+            if tok in words or tok.rstrip('s') in words:
+                cue[id(e)] = max(a_, min(at, b_ - 0.3))
+                break
+    if not cue:
+        return
+    order = sorted(grp, key=lambda e: cue.get(id(e), mo_win[id(e)][0]))
+    starts = [cue.get(id(e), mo_win[id(e)][0]) for e in order]
+    for k, e in enumerate(order):
+        s0 = max(starts[k], starts[k - 1] + 0.25) if k else starts[k]
+        starts[k] = s0
+        nxt = starts[k + 1] if k + 1 < len(order) else b_
+        mo_win[id(e)] = (s0, min(win1, max(s0 + 0.35, nxt)))
+        log.append((str(e['it'].get('label') or ''), round(s0, 2),
+                    cue.get(id(e))))
+
+
+def _sb_water_patch(bb):
+    """Two short wave strokes under a thing that sits on water."""
+    x0, _, x1, y1 = bb
+    pw = (x1 - x0) * 0.35
+    out = []
+    for k in range(2):
+        y = y1 + 3 + k * 6
+        a, b = x0 - pw * (1 - 0.4 * k), x1 + pw * (1 - 0.4 * k)
+        n = max(3, int((b - a) / 14))
+        out.append(([(a + (b - a) * i / n, y + (2.2 if i % 2 else -2.2))
+                     for i in range(n + 1)], 'a_blue', 0.9, False, True))
+    return out
+
+
 def _sb_setting_kind(scn, beat):
     """Where the beat happens — declared `scene.setting`, else the place
     its narration names most ('none' disables the backdrop)."""
@@ -1513,21 +1555,6 @@ def _sb_setting(kind, txt, L, R, band_t, base, floor, boxes, seed):
                 'sea'):
         st += line(base + 2, under, 'ink', 1.0)
     lane = max(8.0, floor - base)
-    if kind in ('river', 'sea'):
-        for bx in boxes:
-            if bx[2] != 'el' or bx[3] == 'person' \
-                    or not _SB_ON_WATER.search(str(bx[0])):
-                continue
-            x0, _, x1, y1 = bx[1]
-            pw = (x1 - x0) * 0.35
-            for k in range(2):
-                y = y1 + 3 + k * 6
-                a, b = x0 - pw * (1 - 0.4 * k), x1 + pw * (1 - 0.4 * k)
-                n = max(3, int((b - a) / 14))
-                pts = [(a + (b - a) * i / n,
-                        y + (2.2 if i % 2 else -2.2)) for i in range(n + 1)]
-                if clear((a, y - 3, b, y + 3), 2.0, labels):
-                    st.append((pts, 'a_blue', 0.9, False, True))
     if kind in ('road', 'city'):
         y2 = base + lane * 0.95
         st += line(y2, labels, 'ink', 1.0)
@@ -2078,18 +2105,33 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     mo_at = [float(m_.get('at') or 0.0) for m_ in scn.get('moments') or []
              if isinstance(m_, dict)]
     mo_win = {}
+    cues_ = sec['qa_cues'] = []
     if lay == 'story' and len(mo_at) >= 2:
         # each moment draws while its sentence is being said
         span_ = win1 - win0
+        edges = [win0 + span_ * f_ for f_ in mo_at] + [win1]
+        wt_ = beat.get('word_times') or []
+        narr_ = str(beat.get('narration') or '')
+        if wt_ and len(wt_) == len(narr_.split()):
+            offs, c_ = [], 0
+            for w_ in narr_.split():
+                offs.append(c_ / max(1, len(narr_)))
+                c_ += len(w_) + 1
+            for k_, f_ in enumerate(mo_at):
+                i_ = next((i for i, o in enumerate(offs) if o >= f_ - 1e-3),
+                          len(offs) - 1)
+                edges[k_] = min(win1 - 0.5, max(win0, float(wt_[i_][1])))
+            edges[0] = win0
         for k_ in range(len(mo_at)):
             grp = [e for e in draw_els
                    if int(e['m'].get('moment') or 0) == k_]
-            a_ = win0 + span_ * mo_at[k_]
-            b_ = win0 + span_ * (mo_at[k_ + 1] if k_ + 1 < len(mo_at)
-                                 else 1.0)
+            a_ = edges[k_]
+            b_ = max(a_ + 0.5, edges[k_ + 1])
             for g_, e in enumerate(grp):
                 w_ = (b_ - a_) / len(grp)
                 mo_win[id(e)] = (a_ + g_ * w_, a_ + (g_ + 1) * w_)
+            _sb_word_cues(grp, beat.get('word_times') or [], a_, b_,
+                          win1, mo_win, cues_)
     for n_, e in enumerate(draw_els):
         uid += 1
         i0, i1 = mo_win.get(id(e), (win0 + n_ * slot0,
@@ -2234,6 +2276,11 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                ('chart' if e['kind'] == 'chart-journey' else 'el'))
         boxes.append((e['it'].get('label', '?'), e['ink'], tag,
                       e['kind']))
+        if setting in ('river', 'sea') and tag == 'el' \
+                and e['kind'] != 'person' \
+                and _SB_ON_WATER.search(str(e['it'].get('label') or '')):
+            groups.append((('marks', _sb_water_patch(e['ink']), (0, 0),
+                            100.0, None), i0 + slot * 0.80, i0 + slot * 0.95))
         # arrow from the previous element (chains only, no dividers/riders)
         if prev is not None and frozenset((id(prev), id(e))) in (
                 flow_pairs | touch_pairs):

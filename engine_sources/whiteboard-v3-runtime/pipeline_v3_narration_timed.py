@@ -174,6 +174,8 @@ def align_beats_to_words(plan: dict, words: list[dict]) -> dict:
         b['start_seconds'] = max(0.0, pairs[found][0]['start'] - 0.15)
         b['duration_seconds'] = max(
             0.5, pairs[end_i][0]['end'] - b['start_seconds'] + 0.35)
+        b['word_times'] = [[t, w['start'], w['end']]
+                           for w, t in pairs[found:end_i + 1]]
         ti = end_i + 1
     cursor = 0.0
     for b in p['beats']:
