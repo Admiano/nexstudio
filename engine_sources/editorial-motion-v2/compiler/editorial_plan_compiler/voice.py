@@ -21,6 +21,7 @@ import importlib.util
 import json
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -65,6 +66,9 @@ def _studio_audio_provider():
     candidates = [p / 'services' / 'studio-family-engines' / 'audio_provider.py' for p in here.parents]
     for c in candidates:
         if c.exists():
+            # audio_provider.py does `from contracts import ...`; its own dir is not on
+            # sys.path when this module is imported outside the services process.
+            sys.path.insert(0, str(c.parent))
             spec = importlib.util.spec_from_file_location('studio_audio_provider', c)
             mod = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(mod)
@@ -102,8 +106,14 @@ def resolve_voice(beats: List[BeatTreatment], voice_cfg: Dict[str, Any], work_di
         elif source == 'ROUTE':
             out = work_dir / 'voice' / f'{b.beat_id}.wav'
             out.parent.mkdir(parents=True, exist_ok=True)
-            payload = {'text': b.narration, 'voiceId': voice_cfg.get('voice_id'), 'modelId': voice_cfg.get('model_id'), 'beatId': b.beat_id, 'filmId': film_id}
-            res = provider.generate_audio('TTS', payload, out)
+            payload = {'text': b.narration, 'voiceId': voice_cfg.get('voice_id'), 'modelId': voice_cfg.get('model_id'), 'beatId': b.beat_id, 'filmId': film_id,
+                       # without this the route writes the sidecar inside generate_audio's
+                       # TemporaryDirectory and providerEvidence.alignmentPath dangles
+                       'alignmentOutputPath': f'{out}.alignment.json'}
+            try:
+                res = provider.generate_audio('TTS', payload, out)
+            except provider.AudioRouteUnavailable as exc:
+                raise TreatmentError('NARRATION_ROUTE_UNAVAILABLE', str(exc), b.beat_id) from exc
             al_path = res.get('providerEvidence', {}).get('alignmentPath')
             if not al_path or not Path(al_path).exists():
                 raise TreatmentError('ROUTE_ALIGNMENT_MISSING', f"route {res.get('routeId')} returned no character alignment", b.beat_id)
