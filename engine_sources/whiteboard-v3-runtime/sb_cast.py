@@ -171,6 +171,15 @@ def _root_role(word):
     return None
 
 
+# words that name a person by sex, age or family — not a job to dress for
+_KINSHIP = re.compile(
+    r"(wo)?m[ae]n|girls?|boys?|lady|ladies|gentleman|mother|mom|mum|"
+    r"father|dad|son|daughter|wife|husband|sister|brother|aunt|uncle|"
+    r"niece|nephew|grand(mother|father|ma|pa|son|daughter|child)|granny|"
+    r"child(ren)?|kids?|baby|toddler|infant|teen(ager)?|youngster|"
+    r"person|people|adult|elder|senior|friend|neighbou?r|family|parents?")
+
+
 def outfit_for(*words) -> dict:
     """Costume for a cast member from its label/concept words — a farmer
     gets a straw hat and overalls, a lawyer a suit and tie. A role the
@@ -183,6 +192,8 @@ def outfit_for(*words) -> dict:
         return fit
     for w in words:
         w = str(w or '').lower().strip()
+        if _KINSHIP.fullmatch(w.split()[-1] if w else ''):
+            continue
         heads = [w, w.split()[-1]] if ' ' in w else [w]
         for head in heads:
             names, glosses = _senses(head)
@@ -195,6 +206,102 @@ def outfit_for(*words) -> dict:
             if fit is not None:
                 return fit
     return {}
+
+
+_FEMALE = re.compile(
+    r"\b(she|her|hers|herself|woman|women|girl|girls|lady|ladies|mother|"
+    r"mom|mum|mommy|daughter|wife|sister|aunt|niece|grandmother|grandma|"
+    r"granny|queen|princess|bride|actress|waitress|hostess|nun|"
+    r"policewoman|businesswoman|chairwoman|horsewoman|fisherwoman|"
+    r"spokeswoman|stewardess|heroine|widow|girlfriend|madam|ms|mrs|miss)\b")
+_MALE = re.compile(
+    r"\b(he|him|his|himself|man|men|boy|boys|gentleman|father|dad|daddy|"
+    r"son|husband|brother|uncle|nephew|grandfather|grandpa|king|prince|"
+    r"groom|actor|waiter|monk|policeman|businessman|chairman|horseman|"
+    r"fisherman|spokesman|steward|hero|widower|boyfriend|sir|mr)\b")
+_CHILD = re.compile(
+    r"\b(child|children|kid|kids|boy|boys|girl|girls|baby|toddler|son|"
+    r"daughter|schoolboy|schoolgirl|pupil|infant|youngster|little|young|"
+    r"teenager|teen|niece|nephew|grandchild|grandson|granddaughter)\b")
+# rugged outdoor/craft trades wear beards more often than formal ones
+_BEARDY = re.compile(
+    r"farm|fisher|sailor|captain|lumber|logger|smith|ranger|miner|hunter|"
+    r"carpenter|builder|beekeep|trucker|mechanic|shepherd|rancher|"
+    r"woodcut|brew|potter|sculpt|artist|musician|guitar|professor|"
+    r"explorer|climber|hiker|mountain|chef|baker|butcher|monk|wizard")
+_FORMAL = re.compile(
+    r"lawyer|attorney|banker|pilot|doctor|nurse|police|officer|soldier|"
+    r"judge|manager|ceo|executive|accountant|clerk|agent|guard|"
+    r"astronaut|athlete|swimmer|dentist|surgeon|waiter|driver")
+HAIR_TONES = ('#2E2420', '#5A3D2B', '#8A5A35', '#C48A4A', '#E0C07A',
+              '#1C1C1C', '#9A9A9A')
+HAIR_F = ('long', 'ponytail', 'bob', 'bun', 'wavy')
+HAIR_M = ('short', 'side', 'curly', 'buzz', 'spiky', 'short', 'bald')
+HAIR_CHILD_F = ('pigtails', 'ponytail', 'bob', 'long')
+HAIR_CHILD_M = ('short', 'spiky', 'curly', 'side')
+
+
+def _seed(key, salt):
+    h = 2166136261
+    for ch in f'{salt}:{key}'.lower():
+        h = ((h ^ ord(ch)) * 16777619) & 0xFFFFFFFF
+    return h
+
+
+def _wn_is(word, roots):
+    if _wn is None or not word:
+        return False
+    for s in _wn.synsets(_wn.morphy(word, 'n') or word, 'n')[:2]:
+        if s.lexname() != 'noun.person':
+            continue
+        if any(h.name() in roots for p in s.hypernym_paths() for h in p):
+            return True
+    return False
+
+
+def look_for(role) -> dict:
+    """Body and grooming for a cast member: sex (from the role word, its
+    WordNet ancestry, or the pronouns the plan bound to it), child scale,
+    and a hairstyle / hair tone / beard picked deterministically from the
+    label — beards more likely on rugged trades than formal ones."""
+    role = role or {}
+    label = str(role.get('label') or '').lower()
+    head = label.split()[-1] if label else ''
+    sex = ('f' if _FEMALE.search(label) or _wn_is(
+               head, {'female.n.02', 'woman.n.01'}) else
+           'm' if _MALE.search(label) or _wn_is(
+               head, {'male.n.02', 'man.n.01'}) else '')
+    if not sex:
+        sex = 'f' if role.get('gender') == 'f' else 'm'
+    if role.get('cast_key'):
+        label = f"{label} {role['cast_key']}".lower()
+    child = role.get('age') == 'child' or bool(_CHILD.search(label)) \
+        or _wn_is(head, {'juvenile.n.01'})
+    key = str(role.get('cast_key') or label)
+    styles = ((HAIR_CHILD_F if child else HAIR_F) if sex == 'f' else
+              (HAIR_CHILD_M if child else HAIR_M))
+    hair = styles[_seed(key, 'hair') % len(styles)]
+    tones = HAIR_TONES[:5] if child else HAIR_TONES
+    tone = tones[_seed(key, 'tone') % len(tones)]
+    if re.search(r'\b(grand(father|mother|pa|ma)|granny|old|elderly|'
+                 r'elder|senior|retiree|pensioner)\b', label):
+        tone = '#9A9A9A'
+    if tone == '#9A9A9A' and hair == 'bald':
+        hair = 'short'
+    beard = role.get('beard') if sex == 'm' and not child else None
+    if sex == 'm' and not child and not beard:
+        pool = (('full', 'full', 'goatee', 'stubble', 'mustache', None)
+                if _BEARDY.search(label) else
+                (None, None, None, 'mustache', 'stubble')
+                if _FORMAL.search(label) else
+                (None, None, 'stubble', 'goatee', 'mustache', 'full'))
+        beard = pool[_seed(key, 'beard') % len(pool)]
+    skirt = sex == 'f' and _seed(key, 'skirt') % 5 < 3
+    return {'sex': sex, 'child': child, 'hair': hair, 'hair_tone': tone,
+            'beard': beard, 'skirt': skirt}
+
+
+CHILD_SCALE = 0.66
 
 
 # poses where the far hand joins the near one on the object
@@ -571,6 +678,157 @@ def _hat(kind, hx, hy, r, d):
     return st
 
 
+def _arcp(hx, hy, R, a0, a1, n=16, bump=0.0, k=0):
+    """Points on a circle arc (angles in y-down radians); `bump` scallops
+    the radius (curly/spiky edges) with `k` lobes."""
+    out = []
+    for i in range(n + 1):
+        a = a0 + (a1 - a0) * i / n
+        rr = R * (1 + (bump * abs(math.sin(k * math.pi * i / n))
+                       if bump else 0.0))
+        out.append((hx + math.cos(a) * rr, hy + math.sin(a) * rr))
+    return out
+
+
+def _hair(style, tone, hx, hy, r, turn, hatted):
+    """Hair strokes (unit px) -> (behind_head, over_head)."""
+    back, front = [], []
+    if not style:
+        return back, front
+
+    def poly(dst, pts):
+        dst.append((pts + [pts[0]], tone, 0.8, 'solid'))
+
+    t = turn
+    bx = hx - t * r * 0.22
+    if style in ('long', 'wavy'):
+        n = 12
+        bump = 0.06 if style == 'wavy' else 0.0
+        side = [(bx - r * 1.08, hy - r * 0.1), (bx - r * 1.12, hy + r * 1.0),
+                (bx - r * 0.9, hy + r * 1.5)]
+        bot = _arcp(bx, hy + r * 1.35, r * 0.95, math.pi * 0.95,
+                    math.pi * 0.05, n, bump, 5)
+        poly(back, side + bot + [(bx + r * 1.12, hy + r * 1.0),
+                                 (bx + r * 1.08, hy - r * 0.1)]
+             + _arcp(bx, hy, r * 1.1, 0.0, -math.pi, 14))
+    elif style == 'bob':
+        poly(back, [(bx - r * 1.1, hy - r * 0.1), (bx - r * 1.12, hy + r * 0.8),
+                    (bx + r * 1.12, hy + r * 0.8), (bx + r * 1.1, hy - r * 0.1)]
+             + _arcp(bx, hy, r * 1.1, 0.0, -math.pi, 14))
+    elif style == 'ponytail':
+        px = hx - (t or 1) * r * 1.05
+        poly(back, _arcp(px - (t or 1) * r * 0.12, hy + r * 0.45, r * 0.34,
+                         0, 2 * math.pi, 14)
+             if t else _arcp(hx, hy - r * 1.05, r * 0.3, 0, 2 * math.pi, 12))
+        if t:
+            poly(back, _arcp(hx - t * r * 0.9, hy - r * 0.2, r * 0.26, 0,
+                             2 * math.pi, 10))
+    elif style == 'bun':
+        poly(back, _arcp(hx - t * r * 0.55, hy - r * 0.98, r * 0.36, 0,
+                         2 * math.pi, 14))
+    elif style == 'pigtails':
+        for s in ((-1, 1) if not t else (-t,)):
+            poly(back, _arcp(hx + s * r * 1.12, hy + r * 0.15, r * 0.3, 0,
+                             2 * math.pi, 12))
+    if hatted or style == 'bald':
+        if style == 'bald' and not hatted:
+            for s in ((-1, 1) if not t else (-t,)):
+                poly(front, _arcp(hx + s * r * 0.86, hy - r * 0.05, r * 0.2,
+                                  0, 2 * math.pi, 10))
+        return back, front
+    bump, k = {'curly': (0.09, 9), 'spiky': (0.16, 7), 'wavy': (0.04, 6)
+               }.get(style, (0.0, 0))
+    R = r * (1.04 if style == 'buzz' else 1.08)
+    line_y = hy - r * (0.62 if style == 'buzz' else 0.42)
+    if t:
+        a0, a1 = (math.pi * 0.72, math.pi * 1.9) if t > 0 else (
+            math.pi * 0.28, -math.pi * 0.9)
+        outer = _arcp(hx, hy, R, a0, a1, 18, bump, k)
+        inner = [(hx + t * r * 0.62, hy - r * 0.62),
+                 (hx + t * r * 0.15, line_y + r * 0.05),
+                 (hx - t * r * 0.30, hy + r * 0.02)]
+    else:
+        outer = _arcp(hx, hy, R, math.pi * 0.96, math.pi * 2.04, 20, bump, k)
+        part = r * (0.25 if style == 'side' else 0.0)
+        inner = [(hx + r * 0.92, hy - r * 0.02), (hx + r * 0.55, line_y),
+                 (hx + part, line_y - r * (0.12 if part else 0.0)),
+                 (hx - r * 0.55, line_y), (hx - r * 0.92, hy - r * 0.02)]
+    poly(front, outer + inner)
+    return back, front
+
+
+def _beard(kind, tone, hx, hy, r, turn):
+    """Facial hair strokes (unit px) over the lower face."""
+    st = []
+    if not kind:
+        return st
+    t = turn
+    fx = hx + t * r * 0.34
+    my = hy + r * 0.46
+
+    def poly(pts):
+        st.append((pts + [pts[0]], tone, 0.75, 'solid'))
+
+    def moustache():
+        poly([(fx - r * 0.28, my - r * 0.02), (fx - r * 0.14, my - r * 0.14),
+              (fx, my - r * 0.10), (fx + r * 0.14, my - r * 0.14),
+              (fx + r * 0.28, my - r * 0.02), (fx, my - r * 0.04)])
+    if kind == 'full':
+        a0, a1 = ((-math.pi * 0.02, math.pi * 0.72) if t > 0 else
+                  (math.pi * 0.28, math.pi * 1.02) if t < 0 else
+                  (math.pi * 0.02, math.pi * 0.98))
+        outer = _arcp(hx, hy + r * 0.06, r * 1.06, a0, a1, 16, 0.04, 6)
+        inner = [(fx + math.cos(a) * r * 0.62, hy + r * 0.22
+                  + math.sin(a) * r * 0.42)
+                 for a in [a1 + (a0 - a1) * k / 12 for k in range(13)]]
+        poly(outer + inner)
+        moustache()
+    elif kind == 'goatee':
+        poly(_arcp(fx, my + r * 0.22, r * 0.12, 0, 2 * math.pi, 12))
+        moustache()
+    elif kind == 'mustache':
+        moustache()
+    elif kind == 'stubble':
+        for i in range(9):
+            a = math.pi * (0.18 + 0.64 * i / 8)
+            x, y = hx + math.cos(a) * r * 0.78, hy + math.sin(a) * r * 0.78
+            if t and (x - hx) * t < -r * 0.25:
+                continue
+            st.append((_circle(x, y, r * 0.035, n=6), tone, 0.5, 'solid'))
+    return st
+
+
+def _lashes(hx, hy, r, turn):
+    """Eyelash ticks at the outer corner of each eye."""
+    hx = hx + turn * r * 0.34
+    ex, ey = r * (0.25 if turn else 0.36), hy - r * 0.02
+    out = []
+    for s in (-1, 1):
+        x = hx + s * ex
+        out.append(([(x + s * r * 0.08, ey - r * 0.08),
+                     (x + s * r * 0.20, ey - r * 0.19)], 'ink', 0.8, False))
+    return out
+
+
+def _skirt(tone, byy, bw, hem):
+    """A-line skirt from the waist to `hem` (unit y)."""
+    top = byy - 0.02
+    pts = [_p(-bw * 1.15, top), _p(-bw * 1.9, hem), _p(bw * 1.9, hem),
+           _p(bw * 1.15, top)]
+    return [(pts + [pts[0]], tone, 0.8, 'solid')]
+
+
+def _groom(fit, hx, hy, r, turn):
+    """Look strokes for a head -> (behind_head, over_face)."""
+    back, front = _hair(fit.get('hair'), fit.get('hair_tone') or '#2E2420',
+                        hx, hy, r, turn, bool(fit.get('hat')))
+    over = _beard(fit.get('beard'), fit.get('hair_tone') or '#2E2420',
+                  hx, hy, r, turn)
+    if fit.get('sex') == 'f':
+        over += _lashes(hx, hy, r, turn)
+    return back, over + front
+
+
 def _torso_extra(kind, ty, byy, tw, bw, d):
     """Costume detail drawn over the shirt (unit px)."""
     st = []
@@ -782,8 +1040,11 @@ def figure(emotion='neutral', flip=False, action='', shirt=None,
     fill, ink = FILL, 'ink'
     # head first — the artist inks the face before the body
     head = _circle(hx, hy, r, n=30)
+    g_back, g_over = _groom(fit, hx, hy, r, turn)
+    body += g_back
     body.append((head, fill, 0.95, 'solid'))
     body += _face(face_n, hx, hy, r, turn, bool(fit.get('glasses')))
+    body += g_over
     body += _hat(fit.get('hat'), hx, hy, r, sgn)
     # pear torso (narrower side-on)
     tw, bw = (0.108, 0.058) if turn else (0.125, 0.062)
@@ -819,6 +1080,9 @@ def figure(emotion='neutral', flip=False, action='', shirt=None,
     body += far
     body.append((torso_poly, shirt or fill, 1.0, 'solid'))
     body += _torso_extra(fit.get('torso'), ty, byy, tw, bw, turn)
+    if fit.get('skirt') and not fit.get('torso') and stance in (
+            'stand', 'walk'):
+        body += _skirt(shirt or fill, byy, bw, -0.19)
     # legs (side-on: a short stance, both shoes toward the task)
     legs = pz.get('leg', _IDLE_LEG)
     posed = _stance_legs(stance, sgn)
@@ -940,8 +1204,10 @@ def posed(pose, emotion='neutral', outfit=None, shirt=None):
     torso.append(torso[0])
     core = [(torso, shirt or FILL, 1.0, 'solid')]
     core += _torso_extra(fit.get('torso'), ty, byy, tw, bw, 1)
-    head = [(_circle(hx0, hy0, r, n=30), FILL, 0.95, 'solid')]
+    g_back, g_over = _groom(fit, hx0, hy0, r, 1)
+    head = g_back + [(_circle(hx0, hy0, r, n=30), FILL, 0.95, 'solid')]
     head += _face(face_n, hx0, hy0, r, 1, bool(fit.get('glasses')))
+    head += g_over
     head += _hat(fit.get('hat'), hx0, hy0, r, 1)
     core = [([xf(q) for q in pts], c, w, f) for pts, c, w, f in core]
     head = [([xf(q) for q in pts], c, w, f) for pts, c, w, f in head]

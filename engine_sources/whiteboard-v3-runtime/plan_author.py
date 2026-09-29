@@ -1014,9 +1014,14 @@ def _activity(ag, ev, ents, role, roles):
         act['partner'] = part['label']
     for e in eids:
         r_ = role(e)
-        if r_ is not None and r_ is not part and lab(e) in spec['absorb'] \
-                and r_['icon'] != 'person' and 'attach' not in r_:
+        if r_ is None or r_ is part or r_['icon'] == 'person' \
+                or 'attach' in r_:
+            continue
+        if lab(e) in spec['absorb']:
             r_.update(attach='activity', to=me)
+        elif lab(e) in spec.get('setting', ()):
+            r_.update(attach='behind', to=me)
+            act.setdefault('setting', []).append(r_['label'])
     if 'activity' in ag and ag['activity'].get('partner') \
             and act.get('partner') is None:
         act['partner'] = ag['activity']['partner']
@@ -1742,6 +1747,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             rel = 'story'
         if len(sents) == 1:
             moments = []
+        else:
+            _one_drawing(roles)
         prev_rel = rel
         sent = sents[-1]
         hero, *rest = roles
@@ -1767,6 +1774,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                          if maps else {}),
                       **({'setting': setting} if setting else {})},
         })
+    _cast_looks(beats)
+    _noun_labels(beats)
     heading = next((ln.strip()[2:].strip() for ln in script.splitlines()
                     if ln.strip().startswith('# ')), '')
     title = title or heading or _subject(script).title()
@@ -1777,6 +1786,153 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 'background': '#F7F2E7', 'ink': '#1A1A17',
                 'accent': '#1A1A17', 'secondary': '#8B8577'}},
             'beats': beats}
+
+
+def _one_drawing(roles: list) -> None:
+    """A thing an activity picture draws (the truck someone drives) is not
+    drawn a second time as a loose icon in another moment of the scene."""
+    partners = {}
+    for k, r in enumerate(roles):
+        p_ = (r.get('activity') or {}).get('partner')
+        if p_:
+            partners.setdefault(p_, next(
+                (j for j, q in enumerate(roles) if q['label'] == p_
+                 and q.get('attach') in ('activity', 'held')
+                 and q.get('to') == k), None))
+    for k in range(len(roles) - 1, -1, -1):
+        r = roles[k]
+        keep = partners.get(r['label'])
+        if r['icon'] == 'person' or 'attach' in r or keep is None \
+                or keep == k or r['icon'] != roles[keep]['icon'] \
+                or any(q.get('to') == k for q in roles):
+            continue
+        _merge_role(roles, k, keep)
+
+
+def _merge_role(roles: list, k: int, keep: int) -> None:
+    """Delete roles[k]; references to it move to roles[keep]."""
+    del roles[k]
+    for q in roles:
+        if isinstance(q.get('to'), int) and q['to'] > k:
+            q['to'] -= 1
+        t_ = q.get('target')
+        if isinstance(t_, int) and not isinstance(t_, bool):
+            q['target'] = (keep - (keep > k) if t_ == k
+                           else t_ - (t_ > k))
+
+
+def _is_adj(w: str) -> bool:
+    return bool(_wn is not None and (_wn.synsets(w, 'a') or _wn.synsets(w, 's'))
+                and (_wn.morphy(w, 'v') in (None, w)))
+
+
+def _noun_labels(beats: list) -> None:
+    """Board labels name the thing, not the sentence: 'climbed tall
+    ladder' on the ladder reads 'tall ladder'; a label that only repeats
+    the drawn noun ('read newspaper' on the newspaper) is dropped."""
+    for b in beats:
+        sc = b['scene']
+        for r in [sc['heroRole']] + sc['supportingRoles']:
+            ann = str(r.get('annotate') or '').strip()
+            if not ann or r.get('icon') == 'person':
+                continue
+            words = ann.split()
+            head = r['label'].split()[-1].lower()
+            at = next((k for k, w in enumerate(words)
+                       if _lemma(w.lower()) == head or w.lower() == head),
+                      None)
+            if at is None:
+                r.pop('annotate', None)
+                continue
+            k = at
+            while k and _is_adj(words[k - 1].lower()):
+                k -= 1
+            np_ = words[k:at + 1]
+            verb = at > 0 and k == at and _wn is not None and bool(
+                _wn.morphy(words[0].lower(), 'v'))
+            if len(np_) >= 2 and len(np_) < len(words) + (
+                    len(np_) > len(r['label'].split())):
+                r['annotate'] = ' '.join(np_)
+            elif verb:
+                # the step's action on the thing: 'kneads dough'
+                r['annotate'] = f'{words[0]} {words[at]}'
+            else:
+                r.pop('annotate', None)
+
+
+_PRO_F = re.compile(r'\b(she|her|hers|herself)\b', re.I)
+_PRO_M = re.compile(r'\b(he|him|his|himself)\b', re.I)
+_YOUNG = re.compile(r'\b(little|young|small|tiny|baby|infant)\s+$', re.I)
+
+
+def _cast_looks(beats: list) -> None:
+    """Bind each cast member's sex (from the pronouns that follow it
+    through the narration) and child age ('the little baker') onto every
+    role with that label, so the renderer can tell people apart."""
+    roles = [r for b in beats for r in
+             [b['scene']['heroRole']] + b['scene']['supportingRoles']
+             if r.get('icon') == 'person']
+    labels = sorted({r['label'] for r in roles
+                     if r['label'] not in ('you', 'we', 'i')},
+                    key=len, reverse=True)
+    # one person under several names: 'the keeper' after 'the lighthouse
+    # keeper', or 'her husband, a bearded fisherman'
+    root = {lab: next((o for o in labels if o.endswith(' ' + lab)), lab)
+            for lab in labels}
+    text = ' '.join(b.get('narration') or '' for b in beats)
+    for a_ in labels:
+        for b_ in labels:
+            if a_ != b_ and re.search(
+                    r'\b' + re.escape(a_) + r',\s+(an?|the)\s+(\w+\s+){0,2}?'
+                    + re.escape(b_) + r'\b', text, re.I):
+                root[b_] = root[a_]
+    votes: dict = {lab: [0, 0] for lab in labels}
+    young: set = set()
+    bearded: set = set()
+    cur = ''
+    for b in beats:
+        for sent in re.split(r'(?<=[.!?])\s+', b.get('narration') or ''):
+            hits = []
+            for lab in labels:
+                m = re.search(r'\b' + re.escape(lab) + r's?\b', sent, re.I)
+                if m and not any(h <= m.start() < h + len(o)
+                                 for h, o in hits):
+                    hits.append((m.start(), lab))
+                    pre = sent[:m.start()]
+                    if _YOUNG.search(pre):
+                        young.add(root[lab])
+                    if re.search(r'\b(bearded|beard(ed)?)\s+$', pre, re.I):
+                        bearded.add(root[lab])
+            if hits:
+                cur = root[min(hits)[1]]
+            if cur:
+                votes[cur][0] += len(_PRO_F.findall(sent))
+                votes[cur][1] += len(_PRO_M.findall(sent))
+    for r in roles:
+        k = root.get(r['label'], r['label'])
+        f, m = votes.get(k, (0, 0))
+        if k != r['label']:
+            r.setdefault('cast_key', k)
+        if f != m and 'gender' not in r:
+            r['gender'] = 'f' if f > m else 'm'
+        if k in young:
+            r.setdefault('age', 'child')
+        if k in bearded:
+            r.setdefault('beard', 'full')
+    for b in beats:
+        # the same person twice in one moment is drawn once
+        sc = b['scene']
+        rs = [sc['heroRole']] + sc['supportingRoles']
+        for k in range(len(rs) - 1, 0, -1):
+            r = rs[k]
+            ident = r.get('cast_key') or r['label']
+            j = next((j for j, q in enumerate(rs[:k])
+                      if q.get('icon') == 'person' == r.get('icon')
+                      and q.get('moment') == r.get('moment')
+                      and (q.get('cast_key') or q['label']) == ident), None)
+            if j is not None and not any(q.get('to') == k for q in rs):
+                _merge_role(rs, k, j)
+        sc['heroRole'], sc['supportingRoles'] = rs[0], rs[1:]
 
 
 def _ent_label(sm: dict, eid):

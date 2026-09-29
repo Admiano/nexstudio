@@ -363,10 +363,20 @@ def resolve(lemma, objects=(), posture=''):
     if sc == 'sit_drink' and first('table')[0] is not None:
         kind = 'table'
     own = _BUILTIN.get(sc, ())
-    absorb = [lab for _r, lab, c in cats if c in own and lab != partner]
+    one = sc in _ONE_SURFACE and kind in own
+    absorb = [lab for _r, lab, c in cats if c in own and lab != partner
+              and (not one or c == kind)]
+    # a second surface the apparatus doesn't draw (the tree a ladder
+    # leans into) is drawn as the backdrop of the picture
+    setting = [lab for _r, lab, c in cats if one and c in own
+               and c != kind and lab != partner]
     return {'schema': sc, 'via': via, 'partner': partner, 'kind': kind,
-            'lemma': str(lemma or '').lower(), 'absorb': absorb}
+            'lemma': str(lemma or '').lower(), 'absorb': absorb,
+            'setting': setting}
 
+
+# schemas whose apparatus draws exactly one surface of the kinds they own
+_ONE_SURFACE = ('climb', 'hike')
 
 # apparatus a schema draws itself: narrated props of that kind are absorbed
 _BUILTIN = {'drive': VEHICLES + ('road',), 'ride': ('road', 'hill'),
@@ -1160,8 +1170,33 @@ def _tint(art):
     return max(cnt, key=cnt.get) if cnt else None
 
 
+def _backdrop(arts, strokes):
+    """Setting art behind the picture: as tall as the apparatus + actor,
+    standing on the ground past the far (facing) edge, overlapping it."""
+    xs = [q[0] for s_ in strokes for q in s_[0]]
+    ys = [q[1] for s_ in strokes for q in s_[0]]
+    if not xs:
+        return []
+    out = []
+    x_at = max(xs)
+    for art in arts:
+        pts = [q for a in art for q in a[0]]
+        if not pts:
+            continue
+        ax = [q[0] for q in pts]
+        ay = [q[1] for q in pts]
+        asp = (max(ax) - min(ax)) / max(1e-6, max(ay) - min(ay))
+        h = (max(0.0, max(ys)) - min(ys)) * 1.08
+        w = h * asp
+        box = (x_at - w * 0.45, max(0.0, max(ys)) - h, x_at + w * 0.55,
+               max(0.0, max(ys)))
+        out += _xf_art(art, box)
+        x_at = box[2]
+    return out
+
+
 def compose(spec, partner_art=None, emotion='neutral', outfit=None,
-            shirt=None, flip=False):
+            shirt=None, flip=False, backdrop=()):
     """Draw an activity: apparatus + posed figure + narrated object.
 
     -> (strokes, marks, anchors, meta) in unit px, or None when the spec
@@ -1201,6 +1236,8 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
         strokes = back + body + front + obj + extra
     else:
         strokes = back + obj + body + front + extra
+    if backdrop:
+        strokes = _backdrop(backdrop, strokes) + strokes
     contacts = [('hand_n', anch['hand_n'], _u([pose['hands']['n']])[0]),
                 ('hand_f', anch['hand_f'], _u([pose['hands']['f']])[0]),
                 ('foot_n', anch['foot_n'], _u([pose['feet']['n']])[0]),
@@ -1217,6 +1254,7 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
         marks = marks + fmarks
     meta = {'schema': sc, 'kind': kind, 'contacts': contacts,
             'placed': placed, 'slot': slot[0] if slot else None,
+            'backdrop': len(backdrop),
             'partner': spec.get('partner'), 'via': spec.get('via')}
     return strokes, marks, anch, meta
 

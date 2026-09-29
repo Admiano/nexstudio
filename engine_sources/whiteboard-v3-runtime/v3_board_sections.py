@@ -16,10 +16,9 @@ from __future__ import annotations
 
 import math
 import re
-import svg_paths
 import random
 
-from PIL import Image, ImageDraw
+from PIL import Image
 
 import whiteboard_pil_adapter as wbp
 import v3_board_renderer as v3r
@@ -389,7 +388,6 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
     (icon+caption, person+prop cluster) — same model the journey uses."""
     groups = v3r._scene_groups(scene, plan, ratio)
     merged = []          # list of items {groups:[(g,s,e)], label}
-    person_key = None
     for g, s, e in groups:
         if g[0] in ('headline',):
             continue
@@ -1024,6 +1022,29 @@ def _sb_boxfit(e, cx, yb, wmax, hmax):
     e['box'] = (cx - ew / 2, yb - eh, cx + ew / 2, yb)
 
 
+def _sb_cast_unit(cast):
+    """Shrink cast boxes to the scene's smallest figure unit (box height
+    over its activity scale) so every person is drawn at one size."""
+    units = [(e['box'][3] - e['box'][1]) / max(0.2, e['rel'])
+             for e in cast if e.get('box')]
+    if len(units) < 2:
+        return
+    u = min(units)
+    for e in cast:
+        x0, y0, x1, y1 = e['box']
+        eh = u * e['rel']
+        if y1 - y0 > eh * 1.02:
+            ew = eh * e['aspect']
+            cx = (x0 + x1) / 2
+            e['box'] = (cx - ew / 2, y1 - eh, cx + ew / 2, y1)
+
+
+def _sb_outfit(m, *words):
+    """Costume for the role words plus the cast member's look (sex,
+    child, hair, beard) from the plan role."""
+    return dict(sb_cast.outfit_for(*words), **sb_cast.look_for(m))
+
+
 def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
     """Non-row compositions. Sets e['box'] on every element and returns
     True, or False to fall back to the shared-baseline row."""
@@ -1038,10 +1059,18 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
             cells.setdefault(int(e['m'].get('moment') or 0), []).append(e)
         cols = [cells[k] for k in sorted(cells)]
         pad = Wc * 0.012
+        cast = [e for e in sol if e['kind'] == 'person']
+        # the tallest activity picture sets one figure scale for the scene
+        r_top = min(1.0, 1.0 / (0.92 * max([e['rel'] for e in cast]
+                                            or [1.0])))
+
+        def top_of(e):
+            return (0.92 * e['rel'] * r_top if e['kind'] == 'person'
+                    else 0.66)
 
         def need(e, rh):
             # a cell is as wide as its drawing or its label, whichever wins
-            art = e['aspect'] * rh * (0.80 * min(1.0, e['rel'])
+            art = e['aspect'] * rh * (top_of(e) / 0.9
                                       if e['kind'] == 'person' else 0.50)
             return max(art, (labw(e) + pad) if e['label'] else 0.0)
 
@@ -1074,17 +1103,15 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
                 for e, w0 in zip(c, wc):
                     e['row'] = ri
                     w_ = w0 * k
-                    top = (min(1.0, 0.92 * e['rel'])
-                           if e['kind'] == 'person' else 0.66)
                     _sb_boxfit(e, x + w_ / 2, yb - lane(e), w_ * 0.9,
-                               row_h * top - lane(e))
+                               row_h * top_of(e) - lane(e))
                     x += w_
                 x += gapx
+        _sb_cast_unit(cast)
         return True
     if lay == 'focus' and n >= 2:
         hero = next((e for e in sol if e['focus']),
                     next((e for e in sol if e['kind'] == 'person'), sol[0]))
-        sup = [e for e in sol if e is not hero]
         hi_ = sol.index(hero)
         pre, post = sol[:hi_], sol[hi_ + 1:]
         hw = Wc * (0.46 if pre and post else 0.54)
@@ -1192,7 +1219,8 @@ def _sb_link(pb, cb, Wc):
     return _sb_arrow((ax + ux * t0, ay + uy * t0), (ax + ux * t1, ay + uy * t1))
 
 
-_SB_ATTACH = ('on', 'in', 'beside', 'held', 'under', 'worn', 'activity')
+_SB_ATTACH = ('on', 'in', 'beside', 'held', 'under', 'worn', 'activity',
+              'behind')
 # worn things the face itself draws, and worn things that sit on the head
 _SB_EYEWEAR = re.compile(r'\b(glasses|spectacles|goggles|sunglasses|'
                          r'eyeglasses|monocle)\b', re.I)
@@ -1215,8 +1243,12 @@ def _sb_activity(e, fb, flip, shirt, si, qa):
                  == str(spec.get('partner') or '')), None)
     if part is not None:
         part['drawn'] = True
+    back = [kd for kd in e.get('kids', ()) if kd['att'] == 'behind']
+    for kd in back:
+        kd['drawn'] = True
     got = sb_activity.compose(spec, part['art'] if part else None,
-                              e['emo'], e['fit'], shirt, flip)
+                              e['emo'], e['fit'], shirt, flip,
+                              [kd['art'] for kd in back if kd['art']])
     if got is None:
         qa.append({'beat': si, 'check': 'activity-undrawn',
                    'severity': 'fail', 'detail':
@@ -1702,12 +1734,16 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 emo, False, m.get('action', ''),
                 sb_cast.shirt_for(m.get('shirt') or m.get('label') or it.get('label')
                                   or m.get('concept')),
-                outfit=sb_cast.outfit_for(m.get('outfit'), m.get('label'),
-                                          it.get('label'), m.get('concept')))
+                outfit=_sb_outfit(m, m.get('outfit'), m.get('label'),
+                                  it.get('label'), m.get('concept')))
             art = body + marks
             n_body = len(body)
             spec = m.get('activity')
-            pv = sb_activity.compose(spec, None, emo) \
+            pv = sb_activity.compose(
+                spec, None, emo, backdrop=[
+                    _sb_item_art(items[k]) for k, mk in enumerate(meta)
+                    if mk.get('attach') == 'behind'
+                    and mk.get('label') in (spec.get('setting') or ())]) \
                 if isinstance(spec, dict) else None
             if pv is not None:
                 # the layout box holds the whole activity picture
@@ -1733,8 +1769,10 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                'chart-journey': 1.0, 'divider': 1.0}.get(
                    kind, 0.88 if j == 0 else 0.74)
         if kind == 'person':
-            # one cast scale: the box grows/shrinks with the apparatus
-            rel = act_rel
+            # one cast scale: the box grows/shrinks with the apparatus;
+            # a child is a smaller version of the same figure
+            rel = act_rel * (sb_cast.CHILD_SCALE
+                             if sb_cast.look_for(m)['child'] else 1.0)
         ant = str(m.get('annotate') or '').strip()
         els.append({'j': j, 'ri': ris[j], 'it': it, 'm': m, 'kind': kind,
                     'art': art,
@@ -2082,8 +2120,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 if any(kd['att'] == 'held' for kd in e.get('kids', ())):
                     act = act or 'hold'
                 e['flip'], e['act'] = flip, act
-                e['fit'] = sb_cast.outfit_for(
-                    e['m'].get('outfit'), e['m'].get('label'),
+                e['fit'] = _sb_outfit(
+                    e['m'], e['m'].get('outfit'), e['m'].get('label'),
                     e['label'], e['m'].get('concept'))
                 kids = e.get('kids', ())
                 if any(kd['att'] == 'worn' and _SB_EYEWEAR.search(
@@ -2145,7 +2183,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 hh_ = (fig_b[3] - fig_b[1]) * 0.30
                 kd['ink'] = (fig_b[0], fig_b[1], fig_b[2], fig_b[1] + hh_)
                 continue
-            if kd['att'] == 'activity' or kd.get('drawn'):
+            if kd['att'] in ('activity', 'behind') or kd.get('drawn'):
                 # drawn inside the activity picture (or absorbed by it)
                 kd['ink'] = kd.get('ink') or fig_b
                 continue
@@ -2167,9 +2205,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                     kd['m'].get('action', ''),
                     sb_cast.shirt_for(kd['m'].get('shirt') or kd['m'].get('label')
                                       or kd['m'].get('concept')),
-                    outfit=sb_cast.outfit_for(kd['m'].get('outfit'),
-                                              kd['m'].get('label'),
-                                              kd['m'].get('concept')))
+                    outfit=_sb_outfit(kd['m'], kd['m'].get('outfit'),
+                                      kd['m'].get('label'),
+                                      kd['m'].get('concept')))
                 kst, kb = _sb_fit(kbody + kmarks, kb0)
             else:
                 kst, kb = _sb_fit(kd['art'], kb0)
@@ -2354,7 +2392,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                                     e['it']['groups'] if g[4]
                                     and g[4].get('icon') is not None), None),
                       'role': e['m'], 'kid': bool(e.get('kid_of')),
-                      'in_activity': e.get('att') == 'activity'
+                      'in_activity': e.get('att') in ('activity', 'behind')
                       or bool(e.get('drawn')),
                       'act_meta': e.get('act_meta'),
                       'lab_box': e.get('lab_box'),
@@ -3304,7 +3342,7 @@ def render_board_frame(plan: dict, ratio: str, t: float):
     layer = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
     tip = None
     t_end = flow['total_beats_end']
-    pal = wbp._pal(plan)
+    wbp._pal(plan)
 
     def draw_groups(groups, base_seed, onto=None):
         nonlocal tip

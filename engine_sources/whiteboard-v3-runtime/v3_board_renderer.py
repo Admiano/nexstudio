@@ -657,7 +657,6 @@ def _hatch_segments(poly, spacing=0.07, angle_deg=45.0):
     dx, dy = math.cos(a), math.sin(a)
     nx, ny = -dy, dx  # hatch normal sweeps the bbox diagonal
     c0, c1 = x0 * nx + y0 * ny, x1 * nx + y1 * ny
-    d0, d1 = x0 * dx + y0 * dy, x1 * dx + y1 * dy
     lo, hi = min(c0, c1, x1 * nx + y0 * ny, x0 * nx + y1 * ny), \
         max(c0, c1, x1 * nx + y0 * ny, x0 * nx + y1 * ny)
     # signed crossings along each hatch line
@@ -2310,7 +2309,6 @@ def _nearest_lemma_icon_any(lemma: str, exclude):
     hit = _icon_lookup(ph, exclude)
     if isinstance(hit, tuple) and hit[0] == 'icon':
         slug = '-'.join(ph.split())
-        parts = hit[2].split('-')
         if hit[2] == slug:
             return hit
         # keyword-indexed sets (emoji art) name concepts in their tags
@@ -3806,7 +3804,6 @@ def _journey_items(plan: dict, ratio: str):
 
     n = max(1, len(beats))
     cols = max(1, math.ceil(math.sqrt(n * (pw / ph))))
-    rows = max(1, math.ceil(n / cols))
     gy0 = margin + head_h
 
     def _wobble_line(p0, p1, n=26, wob=9.0):
@@ -4204,7 +4201,6 @@ def render_transition_frame(prev_scene, next_scene, plan, ratio, p: float):
                 if s.get('sceneId') == next_scene.get('sceneId')), len(scenes) - 1)
     wb = next_scene.get('whiteboardRuntime') or {}
     seed = int(wb.get('seed', 9))
-    dur = float(wb.get('sceneDuration') or 4.0)
     next_time = 0.0
     tip = None
     layers = []
