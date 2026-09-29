@@ -65,11 +65,8 @@ def visual(plan: dict, ratio: str = '16:9') -> tuple[list, list]:
     wbc, _a, _b, v3r = pipe.load_execution_body()
     import v3_board_sections as bs
     plan = pipe.normalize_plan(plan)
-    v3r.set_art_kit(plan.get('art_kit'))
-    v3r.set_ink_only(True)
-    v3r.set_context(json.dumps([plan.get('title'), [
-        (b.get('title'), b.get('narration'), b.get('scene'))
-        for b in plan['beats']]]))
+    plan['board_layout'] = 'storyboard'
+    v3r.configure_art(plan)
     plan.update(wbc.compile_whiteboard_plan(plan, {'ratio': ratio}))
     plan.pop('_sb_audit', None)
     plan.pop('_sb_qa', None)

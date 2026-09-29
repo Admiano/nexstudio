@@ -1451,8 +1451,12 @@ def _dir_strokes(dir_name: str, slug: str):
     hatch_ok = bespoke
     svgcol = bool(kit_meta and kit_meta.get('colors'))
     for ei, (polys_el, fill, closed) in enumerate(elements):
-        if svgcol and closed and str(fill).startswith('#'):
+        if svgcol and closed and str(fill).startswith('#') \
+                and svg_tone(fill) not in ('paper', 'a_cream', 'a_grey',
+                                           'a_slate'):
             color, hatch = svg_tone(fill), 'solid'
+        elif svgcol:
+            color, hatch = 'ink', False
         elif fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
             color, hatch = 'ink', False
         elif ei == accent_el:
@@ -1609,6 +1613,16 @@ def _asset_key(icon):
 
 
 _CONTEXT: frozenset = frozenset()
+# function words carry no sense: they would tie a gloss to any script
+_CTX_STOP = frozenset((
+    'with', 'through', 'that', 'this', 'from', 'into', 'onto', 'over',
+    'under', 'upon', 'have', 'which', 'what', 'when', 'where', 'while',
+    'their', 'there', 'they', 'them', 'then', 'than', 'were', 'been',
+    'being', 'some', 'such', 'used', 'uses', 'using', 'very', 'more',
+    'most', 'other', 'about', 'after', 'before', 'also', 'only', 'each',
+    'every', 'like', 'will', 'would', 'could', 'should', 'your', 'those',
+    'these', 'down', 'back', 'around', 'between', 'without', 'within',
+    'something', 'someone', 'especially', 'usually', 'often', 'made'))
 
 
 def set_context(text):
@@ -1617,7 +1631,7 @@ def set_context(text):
     ('queen' in a bee script is the colony queen, not the chess piece)."""
     global _CONTEXT
     _CONTEXT = frozenset(w for w in re.findall(r'[a-z]+', str(text or '').lower())
-                         if len(w) >= 4)
+                         if len(w) >= 4 and w not in _CTX_STOP)
     _NEAR_CACHE.clear()
 
 
@@ -1667,6 +1681,17 @@ def set_ink_only(flag):
     resolution then skips emoji/animicon art for the nearest inkable pick."""
     global _INK_ONLY
     _INK_ONLY = bool(flag)
+
+
+def configure_art(plan: dict) -> None:
+    """Art-resolution state for one plan: its kit, ink-only storyboard
+    mode and whole-script sense context — resolution never depends on
+    whatever plan was resolved before it."""
+    set_art_kit(plan.get('art_kit'))
+    set_ink_only(plan.get('board_layout') == 'storyboard')
+    set_context(json.dumps([plan.get('title'), [
+        (b.get('title'), b.get('narration'), b.get('scene'))
+        for b in plan.get('beats') or []]]))
 
 
 def _is_sprite(ic) -> bool:
@@ -1866,6 +1891,20 @@ def art_related(phrase: str, ic) -> bool:
     return bool(toks & fam)
 
 
+def _is_person_noun(w: str) -> bool:
+    """Primary noun sense names a person — drawn by the character system,
+    never by a head-noun glyph ('scientist' is not 'drunk-person')."""
+    if w in _ICON_KEYWORDS['person']:
+        return True
+    if _WN is None:
+        return False
+    try:
+        ss = _WN.synsets(w.replace('-', '_'), pos=_WN.NOUN)[:1]
+    except LookupError:
+        return False
+    return bool(ss) and ss[0].lexname() == 'noun.person'
+
+
 def kit_exact(phrase, exclude=None):
     """Curated kit art named exactly by the phrase — a glyph slug or a
     full-phrase manifest keyword ('willow trees', 'hot water')."""
@@ -1877,6 +1916,23 @@ def kit_exact(phrase, exclude=None):
         hit = ('icon', f'kit:{dom}', slug)
         if slug in kits[dom] and not (exclude and hit in exclude):
             return hit
+    # general-world art names its things by kind: 'full moon', 'fishing
+    # pole' — a bare head noun takes the plainest glyph ending in it
+    world = kits.get('world', {})
+    for s_ in dict.fromkeys((slug, _singular(slug))):
+        if s_ in world and not (exclude and ('icon', 'kit:world', s_)
+                                in exclude):
+            return ('icon', 'kit:world', s_)
+        if ' ' in phrase or _is_person_noun(s_):
+            continue
+        heads = [('icon', 'kit:world', n) for n in sorted(world)
+                 if (n.endswith('-' + s_) or n.startswith(s_ + '-'))
+                 and n.count('-') == 1
+                 and not (exclude and ('icon', 'kit:world', n) in exclude)]
+        ranked = sorted((rk, h[2].count('-'), h) for h in heads
+                        for rk in [sem_rank(phrase, h)] if rk is not None)
+        if ranked and ranked[0][0] <= SEM_BAD_RANK:
+            return ranked[0][2]
     hits = []
     for dom in order:
         pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
@@ -1910,6 +1966,8 @@ def _kit_cross(words, exclude=None):
     if not _CONTEXT or len(words) > 2:
         return None
     heads = {words[-1], _singular(words[-1])}
+    if any(_is_person_noun(h) for h in heads):
+        return None
     for dom in order:
         pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
         if dom != _ART_KIT and len((_CONTEXT & pool) - heads) < 2:
@@ -2002,6 +2060,15 @@ def _icon_for_raw(concept: str, exclude=None, _depth: int = 0):
             # 'head' should draw a face, not the HTTP-HEAD icon
             hit = ((_word_form_icon(phrase, exclude) if _depth < 2 else None)
                    or lit)
+            # a keyword-only compound hit ('glacier' -> ice-shelf) yields
+            # to its plain head when WordNet independently lands on it
+            if (_depth == 0 and isinstance(hit, tuple) and hit[0] == 'icon'
+                    and '-' in hit[2] and phrase not in hit[2].split('-')):
+                near = _nearest_for_word(phrase, exclude, 3)
+                if (isinstance(near, tuple) and near[0] == 'icon'
+                        and '-' not in near[2]
+                        and near[2] in hit[2].split('-')):
+                    return near
             if hit:
                 return hit
         # a strong scene-vignette match beats the flat icon vocabulary
@@ -2360,7 +2427,7 @@ def _nearest_for_word(w, exclude, max_depth):
             if isinstance(hit, tuple) and hit[2] == c:
                 return hit
     # a close cousin in the tree ('tuba' -> cornet, 'sonar' -> radar)
-    best, best_sim = None, 0.0
+    best, best_key = None, (0.0, 0)
     for ss in senses[:2]:
         for tv, icon in _draw_vocab().items():
             if (_INK_ONLY and _is_sprite(icon)) or (exclude and icon in exclude):
@@ -2369,8 +2436,11 @@ def _nearest_for_word(w, exclude, max_depth):
             # a drawable the script itself mentions is the closer pick
             if _CONTEXT and tv.lemma_names()[0].lower() in _CONTEXT:
                 sim += 0.08
-            if sim > best_sim and (ss.shortest_path_distance(tv) or 99) <= 2:
-                best, best_sim = icon, sim
+            # equally close cousins: the more familiar concept reads better
+            key = (round(sim, 6), sum(lm.count() for lm in tv.lemmas()))
+            if key > best_key and (ss.shortest_path_distance(tv) or 99) <= 2:
+                best, best_key = icon, key
+    best_sim = best_key[0]
     if best_sim >= 0.88:
         return best
     # ... and only then a distant ancestor ('sedan' ... -> vehicle)
@@ -2829,7 +2899,8 @@ def _scene_slots(labels: list, zone: dict, ratio: str, used=None):
         e = extra[i]
         if e.get('scale'):
             s['size'] *= float(e['scale'])
-        for k in ('tone', 'facing', 'bubble', 'no_caption', 'wgt', 'chip'):
+        for k in ('tone', 'facing', 'bubble', 'no_caption', 'wgt', 'chip',
+                  '_ri'):
             if k in e:
                 s[k] = e[k]
     return [s for s in slots if s is not None]
@@ -2855,10 +2926,13 @@ def _palette(plan):
     accf = wbp._mix(pal['bgc'], pal['accentc'], 0.20)
     accdeep = wbp._mix(pal['bgc'], pal['accentc'], 0.72)
     inkfill = wbp._mix(pal['bgc'], pal['inkc'], 0.88)
-    return {'ink': pal['inkc'], 'accent': pal['accentc'],
-            'pale': (pal['secondaryc'][0], pal['secondaryc'][1], pal['secondaryc'][2], 190),
-            'accfill': accf, 'accdeep': accdeep, 'inkfill': inkfill,
-            'paper': pal['bgc'], 'bg': pal['bg']}
+    tones = {k: v + (255,) for k, v in SVG_TONES.items()}
+    tones.update({'ink': pal['inkc'], 'accent': pal['accentc'],
+                  'pale': (pal['secondaryc'][0], pal['secondaryc'][1],
+                           pal['secondaryc'][2], 190),
+                  'accfill': accf, 'accdeep': accdeep, 'inkfill': inkfill,
+                  'paper': pal['bgc'], 'bg': pal['bg']})
+    return tones
 
 
 _HATCH_CACHE: dict = {}
@@ -3160,11 +3234,12 @@ def _scene_labels(scene: dict) -> list:
     labs: list = []
     hero = scene.get('heroRole')
     if hero:
-        labs.append(hero if isinstance(hero, dict) else str(hero))
-    for r in (scene.get('supportingRoles') or []):
+        labs.append(dict(hero, _ri=0) if isinstance(hero, dict)
+                    else str(hero))
+    for ri, r in enumerate(scene.get('supportingRoles') or [], 1):
         if isinstance(r, dict):
             if str(r.get('label') or '').strip():
-                labs.append(r)
+                labs.append(dict(r, _ri=ri))
         elif str(r).strip():
             labs.append(str(r))
     if not labs:

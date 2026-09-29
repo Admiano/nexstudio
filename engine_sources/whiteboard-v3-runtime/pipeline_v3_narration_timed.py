@@ -654,11 +654,7 @@ def render_production(
 
     # domain art kit: plan['art_kit'] makes the kit's bespoke glyphs win
     # icon resolution for the whole render
-    v3r.set_art_kit(plan.get('art_kit'))
-    v3r.set_ink_only(plan.get('board_layout') == 'storyboard')
-    v3r.set_context(json.dumps([plan.get('title'), [
-        (b.get('title'), b.get('narration'), b.get('scene'))
-        for b in plan.get('beats') or []]]))
+    v3r.configure_art(plan)
     compiled = wbc.compile_whiteboard_plan(plan, {'ratio': ratio})
     compiled['_pal'] = wbp._pal(compiled)
     plan.update(compiled)

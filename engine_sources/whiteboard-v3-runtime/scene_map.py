@@ -254,6 +254,8 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
         if t.pos_ != 'NOUN':
             return False
         nxt = t.nbor(1) if t.i + 1 < len(t.doc) else None
+        if _bare_verb(t, nxt):
+            return True
         clause = t.dep_ in ('conj', 'ROOT') or (
             t.dep_ == 'nsubj' and nxt is not None and nxt.dep_ == 'cc'
             and any(c.dep_ == 'nsubj' and c.i > t.i for c in t.head.children))
@@ -261,10 +263,33 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
             return False
         if any(c.dep_ == 'nsubj' for c in t.children):
             return True
+        # a list item ('buckets, mops, and cardboard boxes') stays a noun
+        if t.dep_ == 'conj' and t.head.pos_ in ('NOUN', 'PROPN') \
+                and not verbal(t.head):
+            return False
         # 'the alarm rings and ...': a 3rd-person verb read as a noun
         return (t.tag_ == 'NNS' and _wn is not None
                 and (_wn.morphy(t.lower_, 'v') or t.lower_) != t.lower_
                 and any(c.dep_ == 'compound' for c in t.children))
+
+    def _bare_verb(t, nxt) -> bool:
+        # 'rocks fly ... and land in', 'lava flows ... and stops before',
+        # 'her seismograph jump.': a verb the tagger read as a noun
+        if _wn is None or any(c.dep_ in ('det', 'amod', 'nummod')
+                              for c in t.children):
+            return False
+        base = _wn.morphy(t.lower_, 'v')
+        if not base:
+            return False
+        root = t.sent.root
+        if t.dep_ == 'conj' and t.i and t.nbor(-1).lower_ == 'and' \
+                and nxt is not None and nxt.pos_ in ('ADP', 'DET', 'ADV'):
+            return (root.tag_ == 'VBZ' and t.lower_.endswith('s')
+                    and base != t.lower_) or (
+                root.tag_ in ('VBP', 'VB') and base == t.lower_)
+        return (nxt is None or nxt.pos_ == 'PUNCT') and base == t.lower_ \
+            and any(c.dep_ == 'poss' for c in t.children) \
+            and any(c.dep_ == 'compound' for c in t.children)
 
     def mod_of_verbal(t) -> bool:
         return t.dep_ == 'compound' and verbal(t.head)

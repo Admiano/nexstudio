@@ -442,7 +442,9 @@ _PLACES = {'river': 'river', 'riverbank': 'river', 'stream': 'river',
            'city': 'city', 'forest': 'forest', 'woods': 'forest',
            'field': 'field', 'hillside': 'field', 'farm': 'field',
            'meadow': 'field', 'sea': 'sea', 'ocean': 'sea',
-           'coast': 'sea', 'seaside': 'sea'}
+           'coast': 'sea', 'seaside': 'sea', 'harbor': 'sea',
+           'harbour': 'sea', 'port': 'sea', 'shore': 'sea', 'beach': 'sea',
+           'bay': 'sea'}
 _NOT_HOST = {'sunlight', 'light', 'air', 'rain', 'time', 'season', 'sun',
              'wind', 'shade', 'dark', 'water'}
 _ATTACH_PREP = {'on': 'on', 'onto': 'on', 'atop': 'on', 'in': 'in',
@@ -600,7 +602,7 @@ def _is_person(w: str) -> bool:
     hit = {'person.n.01', 'causal_agent.n.01'}
     animal = any(h.name() == 'animal.n.01' for s_ in syn
                  for p in s_.hypernym_paths() for h in p)
-    first = _lemma(w) not in _KIT_ANIMALS and any(
+    first = _lemma(w) not in _KIT_ANIMALS and not animal and any(
         h.name() == 'person.n.01' for p in syn[0].hypernym_paths() for h in p)
     adj = bool(_wn.synsets(w, 'a') or _wn.synsets(w, 's'))
     agent = _AGENT.search(w) and not animal and not adj and any(
@@ -761,6 +763,20 @@ def _sb_annot(tokens: list[str], idx: int, nouns: set) -> str:
     return ' '.join(out)
 
 
+_SB_MOMENTS = 6
+
+
+def _merge_moments(sents: list, cap: int) -> list:
+    """At most `cap` drawn moments per scene: the shortest neighbouring
+    sentences are drawn together rather than any being dropped."""
+    sents = list(sents)
+    while len(sents) > cap:
+        k = min(range(len(sents) - 1),
+                key=lambda i: len(sents[i].split()) + len(sents[i + 1].split()))
+        sents[k:k + 2] = [sents[k] + ' ' + sents[k + 1]]
+    return sents
+
+
 def _step_note(sent: str, roles: list) -> None:
     """Pin a moment's verb phrase ('drills a small hole') to the object it
     acts on, so each step of a multi-moment scene reads on the board."""
@@ -851,8 +867,14 @@ def _thing_icon(v3, lab: str) -> str:
         rkh = v3.sem_rank(head, ich) if isinstance(ich, tuple) else None
         if ich != 'person' and rkh is not None and rkh <= v3.SEM_BAD_RANK:
             return head
-    for s_ in [x for x in _wn.synsets(head, 'n')
-               if x.lexname() != 'noun.person'][:1]:
+    things = [x for x in _wn.synsets(head, 'n')
+              if x.lexname() != 'noun.person']
+    ctx, _all = v3._context_sense(head)
+    # the script's sense, else the first made-thing sense: a plumber's
+    # 'valve' is a device, not the heart's
+    pick = ([ctx] if ctx in things else []) or [
+        x for x in things if x.lexname() == 'noun.artifact'][:1] or things[:1]
+    for s_ in pick:
         for path in s_.hypernym_paths():
             for h in reversed(path[:-1]):
                 if h.min_depth() < 4:
@@ -933,6 +955,11 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
         person = bool(e.get('person')) or (not e['pron'] and _is_person(head))
         if e['label'] in seen or e.get('time') or head in _SB_NOT_ROLE \
                 or 'partitive' in e:
+            continue
+        # 'at the top', 'on the side': a spot, not something to draw
+        if not person and e['lex'] == 'noun.location' \
+                and head not in _PLACES and not v3.kit_exact(head) \
+                and role_of.get(e['id'], 0) < 3:
             continue
         ic_e = v3.icon_for(_lemma(head), used)
         acted_on = role_of.get(e['id'], 0) >= 3 and ic_e != 'person' and (
@@ -1523,8 +1550,12 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 sents[0], prev_rel, last_person, max_roles)
         else:
             roles, marks, setting = [], [], ''
-            per = 3 if len(sents) == 2 else 2
-            for k, s_ in enumerate(sents[:3]):
+            per = 4
+            sents = _merge_moments(sents, _SB_MOMENTS)
+            words_n = [len(_WORD_RE.findall(x)) for x in sents]
+            moments = [{'at': round(sum(words_n[:k]) / sum(words_n), 3)}
+                       for k in range(len(sents))]
+            for k, s_ in enumerate(sents):
                 n_maps = len(maps)
                 r_, _rl, mk_, st_, last_person = _moment(
                     s_, '', last_person, per)
@@ -1543,6 +1574,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 marks += [m for m in mk_ if m.get('type') != 'flow']
                 setting = setting or st_
             rel = 'story'
+        if len(sents) == 1:
+            moments = []
         prev_rel = rel
         sent = sents[-1]
         hero, *rest = roles
@@ -1550,12 +1583,15 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
         beats.append({
             'beat_id': f'b{bi + 1:02d}',
             'title': _sb_title(bi + 1, heading, roles, sent),
-            'caption': _sb_caption(sent),
+            # a scene drawn moment by moment labels each step on the board;
+            # a single caption line would repeat one sentence of many
+            'caption': '' if len(moments) >= 3 else _sb_caption(sent),
             'narration': para,
             'duration_seconds': round(dur, 2),
             'scene': {'sceneId': f'b{bi + 1:02d}', 'relation': rel,
                       'heroRole': hero, 'supportingRoles': rest,
                       'marks': marks,
+                      **({'moments': moments} if moments else {}),
                       **({'events': [
                           {k: ev[k] for k in ('verb', 'kind', 'dir',
                                               'phrase')} | {
@@ -1565,7 +1601,9 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                          if maps else {}),
                       **({'setting': setting} if setting else {})},
         })
-    title = title or _subject(script).title()
+    heading = next((ln.strip()[2:].strip() for ln in script.splitlines()
+                    if ln.strip().startswith('# ')), '')
+    title = title or heading or _subject(script).title()
     pid = re.sub(r'\W+', '_', title.lower()).strip('_') or 'storyboard'
     return {'production_id': pid, 'title': title,
             'board_layout': 'storyboard',

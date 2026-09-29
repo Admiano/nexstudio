@@ -367,6 +367,21 @@ def _is_person_item(it):
                for g, _s, _e in it['groups'])
 
 
+def _sb_role_indices(items, raw_roles):
+    """Scene-role index each item was built from (items skip label-less
+    roles, so list position is not the role index). Falls back to list
+    position unless every item maps to a distinct role of its label."""
+    def lab(r):
+        return str(r.get('label') or '') if isinstance(r, dict) else str(r)
+    ris = [next((g[4]['_ri'] for g, _s, _e in it['groups']
+                 if g[4] and '_ri' in g[4]), None) for it in items]
+    ok = (None not in ris and len(set(ris)) == len(ris)
+          and all(ri < len(raw_roles)
+                  and lab(raw_roles[ri]) == str(it.get('label') or '')
+                  for ri, it in zip(ris, items)))
+    return ris if ok else list(range(len(items)))
+
+
 def _bundle_scene_groups(scene, plan, ratio, beat=None):
     """_scene_groups minus the zone headline, merged into element bundles
     (icon+caption, person+prop cluster) — same model the journey uses."""
@@ -1007,33 +1022,61 @@ def _sb_boxfit(e, cx, yb, wmax, hmax):
     e['box'] = (cx - ew / 2, yb - eh, cx + ew / 2, yb)
 
 
-def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap):
+def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
     """Non-row compositions. Sets e['box'] on every element and returns
     True, or False to fall back to the shared-baseline row."""
     Wc, band_h = R - L, band_b - band_t
     sol = [e for e in els if e['kind'] != 'divider']
     n = len(sol)
     lane = lambda e: (labh(e) + gap) if e['label'] else 0.0  # noqa: E731
+    labw = labw or (lambda e: 0.0)
     if lay == 'story' and n >= 2:
         cells: dict = {}
         for e in sol:
             cells.setdefault(int(e['m'].get('moment') or 0), []).append(e)
         cols = [cells[k] for k in sorted(cells)]
-        gapx = Wc * 0.06
-        span = lambda e: max(1.0 if e['label'] else 0.6,  # noqa: E731
-                             e['aspect'])
-        wts = [sum(span(e) for e in c) for c in cols]
-        x = L
-        for c, wt in zip(cols, wts):
-            cw = (Wc - gapx * (len(cols) - 1)) * wt / sum(wts)
-            xx = x
-            for e in c:
-                w_ = cw * span(e) / wt
-                top = 0.92 if e['kind'] == 'person' else 0.62
-                _sb_boxfit(e, xx + w_ / 2, band_b - lane(e), w_ * 0.86,
-                           band_h * top - lane(e))
-                xx += w_
-            x += cw + gapx
+        pad = Wc * 0.012
+
+        def need(e, rh):
+            # a cell is as wide as its drawing or its label, whichever wins
+            art = e['aspect'] * rh * (0.80 if e['kind'] == 'person'
+                                      else 0.50)
+            return max(art, (labw(e) + pad) if e['label'] else 0.0)
+
+        def plan_rows(nr):
+            per = -(-len(cols) // nr)
+            rs = [cols[i:i + per] for i in range(0, len(cols), per)]
+            gy = band_h * 0.07 if len(rs) > 1 else 0.0
+            rh = (band_h - gy * (len(rs) - 1)) / len(rs)
+            gx = Wc * 0.04
+            fits = all(sum(need(e, rh) for c in rc for e in c)
+                       + gx * (len(rc) - 1) <= Wc for rc in rs)
+            return rs, gy, rh, gx, fits
+
+        choice = None
+        for nr in range(1, min(3, len(cols)) + 1):
+            if nr == 1 and len(cols) > 3:
+                continue
+            choice = plan_rows(nr)
+            if choice[4]:
+                break
+        rows, gapy, row_h, gapx, _fit = choice
+        for ri, rc in enumerate(rows):
+            yb = band_t + row_h * (ri + 1) + gapy * ri
+            wts = [[need(e, row_h) for e in c] for c in rc]
+            tot = Wc - gapx * (len(rc) - 1)
+            k = min(1.6, tot / max(1e-6, sum(map(sum, wts))))
+            used_w = k * sum(map(sum, wts)) + gapx * (len(rc) - 1)
+            x = L + (Wc - used_w) / 2
+            for c, wc in zip(rc, wts):
+                for e, w0 in zip(c, wc):
+                    e['row'] = ri
+                    w_ = w0 * k
+                    top = 0.92 if e['kind'] == 'person' else 0.66
+                    _sb_boxfit(e, x + w_ / 2, yb - lane(e), w_ * 0.9,
+                               row_h * top - lane(e))
+                    x += w_
+                x += gapx
         return True
     if lay == 'focus' and n >= 2:
         hero = next((e for e in sol if e['focus']),
@@ -1475,7 +1518,6 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     returns the next uid."""
     beat = sec['beat']
     items = sec['items']
-    k = len(items)
     sw_col = _SWASH[si % len(_SWASH)]
     mx = W * 0.065
     Wc = W - 2 * mx
@@ -1539,7 +1581,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     scn = beat.get('scene') or {}
     raw_roles = ([scn.get('heroRole') or {}]
                  + list(scn.get('supportingRoles') or []))
-    meta = [(raw_roles[j] if j < len(raw_roles) else {}) for j in range(k)]
+    ris = _sb_role_indices(items, raw_roles)
+    meta = [(raw_roles[ri] if ri < len(raw_roles) else {}) for ri in ris]
     meta = [dict(m) if isinstance(m, dict) else {'label': str(m)}
             for m in meta]
     qa = plan.setdefault('_sb_qa', [])
@@ -1607,7 +1650,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                'chart-journey': 1.0, 'divider': 1.0}.get(
                    kind, 0.88 if j == 0 else 0.74)
         ant = str(m.get('annotate') or '').strip()
-        els.append({'j': j, 'it': it, 'm': m, 'kind': kind, 'art': art,
+        els.append({'j': j, 'ri': ris[j], 'it': it, 'm': m, 'kind': kind,
+                    'art': art,
                     'emo': emo, 'n_body': n_body,
                     'focus': bool(m.get('focus')),
                     'aspect': aspect, 'rel': rel, 'head': head,
@@ -1615,7 +1659,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                     'rider': m.get('on_chart') or '',
                     'label': _sb_wrap(ant) if ant else [],
                     'rows': [str(r) for r in (m.get('rows') or [])]})
-    by_j = {e['j']: e for e in els}
+    by_j = {e['ri']: e for e in els}
 
     def _ref(r):
         if isinstance(r, int):
@@ -1748,7 +1792,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 yb = band_t + (band_h - blk) / 2 + eh
                 e['box'] = (cx_ - ew / 2, yb - eh, cx_ + ew / 2, yb)
     elif not _sb_layout(lay, els, L, R, band_t, band_b,
-                        lambda e: _labh(e, ls), lab_gap):
+                        lambda e: _labh(e, ls), lab_gap,
+                        lambda e: _labw(e, ls)):
         lay = 'row'
         row = [e for e in els]
         n_l = max([len(e['label']) for e in row] + [0])
@@ -1817,7 +1862,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                             if o['kind'] == 'art' and o.get('box')), None)
             if tgt is None or tgt is e or not tgt.get('box'):
                 continue
-            e['m'].setdefault('target', tgt['j'])
+            e['m'].setdefault('target', tgt['ri'])
             pb_, tb_ = e['box'], tgt['box']
             hw_ = max(tb_[2] - tb_[0], _labw(tgt, ls)) / 2
             tc_ = (tb_[0] + tb_[2]) / 2
@@ -1855,7 +1900,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         set_w = (win0, win0 + min(1.0, 0.12 * (win1 - win0)))
         win0 = set_w[1]
     draw_els = [e for e in els]
-    slot = (win1 - win0) / max(1, len(draw_els))
+    slot = slot0 = (win1 - win0) / max(1, len(draw_els))
     pos = {id(e): i for i, e in enumerate(draw_els)}
     for e in draw_els:
         for kd in e.get('kids', ()):
@@ -1864,7 +1909,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
 
     def _mref(r):
         if isinstance(r, int):
-            return next((e for e in all_els if e['j'] == r), None)
+            return next((e for e in all_els if e['ri'] == r), None)
         r = str(r or '').lower().strip()
         return next((e for e in all_els
                      if r in (str(e['it'].get('label', '')).lower(),
@@ -1888,10 +1933,26 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                                       id(b_.get('kid_of') or b_))))
     out_items = []
     prev = None
+    mo_at = [float(m_.get('at') or 0.0) for m_ in scn.get('moments') or []
+             if isinstance(m_, dict)]
+    mo_win = {}
+    if lay == 'story' and len(mo_at) >= 2:
+        # each moment draws while its sentence is being said
+        span_ = win1 - win0
+        for k_ in range(len(mo_at)):
+            grp = [e for e in draw_els
+                   if int(e['m'].get('moment') or 0) == k_]
+            a_ = win0 + span_ * mo_at[k_]
+            b_ = win0 + span_ * (mo_at[k_ + 1] if k_ + 1 < len(mo_at)
+                                 else 1.0)
+            for g_, e in enumerate(grp):
+                w_ = (b_ - a_) / len(grp)
+                mo_win[id(e)] = (a_ + g_ * w_, a_ + (g_ + 1) * w_)
     for n_, e in enumerate(draw_els):
         uid += 1
-        i0 = win0 + n_ * slot
-        i1 = i0 + slot
+        i0, i1 = mo_win.get(id(e), (win0 + n_ * slot0,
+                                    win0 + (n_ + 1) * slot0))
+        slot = i1 - i0
         groups = []
         b = e['box']
         if e['kind'] == 'person' and b[3] - b[1] > H * 0.42:
@@ -2009,8 +2070,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 and prev is not None
                 and (lay != 'before_after'
                      or prev.get('ba_side') != e.get('ba_side'))
-                and (lay != 'story' or prev['m'].get('moment')
-                     != e['m'].get('moment'))):
+                and (lay != 'story' or (prev['m'].get('moment')
+                     != e['m'].get('moment')
+                     and prev.get('row') == e.get('row')))):
             ast = _sb_link(prev['ink'], e['ink'], Wc)
             if ast:
                 groups.insert(0, (('arrow', ast, (0, 0), 90.0, None),
@@ -2180,6 +2242,7 @@ def _build(plan, ratio):
     cache = plan.setdefault('_bs_flow', {})
     if ratio in cache:
         return cache[ratio]
+    v3r.configure_art(plan)
     beats = plan['beats']
     scenes = plan['sceneSpecs']
     vw, vh = wbp.RATIO_SIZES[ratio]
@@ -2377,8 +2440,8 @@ def _build(plan, ratio):
             scn = sec['beat'].get('scene') or {}
             raw_roles = ([scn.get('heroRole') or {}]
                          + list(scn.get('supportingRoles') or []))
-            sb_meta = [(raw_roles[j] if j < len(raw_roles) else {})
-                       for j in range(k)]
+            sb_meta = [(raw_roles[ri] if ri < len(raw_roles) else {})
+                       for ri in _sb_role_indices(items, raw_roles)]
         else:
             sb_meta = [next((g[4] for g, _s, _e in it['groups'] if g[4]),
                             {}) or {}

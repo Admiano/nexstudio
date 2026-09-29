@@ -62,3 +62,28 @@ def test_tools_named_by_agent_or_verb_are_held():
         'attach') == 'held'
     assert pa._verb_tool('hammer') == 'hammer'
     assert pa._verb_tool('feel') == ''
+
+
+def test_script_heading_is_the_title():
+    sb = pa.build_storyboard('# How Bread Is Made\n## Dough\n'
+                             'A baker kneads the dough.\n')
+    assert sb['title'] == 'How Bread Is Made'
+
+
+def test_long_scene_draws_every_sentence():
+    para = ('A farmer walks to the barn. He feeds the cows. '
+            'The dog chases a cat. A truck arrives at the gate. '
+            'The driver loads the milk. The sun sets over the hills. '
+            'The farmer rests on the porch.')
+    sc = pa.build_storyboard('## Day\n' + para + '\n')['beats'][0]['scene']
+    roles = [sc['heroRole']] + sc['supportingRoles']
+    assert len(sc['moments']) == 6
+    assert {r.get('moment') for r in roles} == set(range(6))
+    ats = [m['at'] for m in sc['moments']]
+    assert ats[0] == 0.0 and ats == sorted(ats) and ats[-1] < 1.0
+
+
+def test_merge_moments_keeps_all_words():
+    s = ['a b', 'c', 'd e f', 'g', 'h i', 'j', 'k l m']
+    out = pa._merge_moments(s, 6)
+    assert len(out) == 6 and ' '.join(out).split() == ' '.join(s).split()
