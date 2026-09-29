@@ -1045,7 +1045,8 @@ def _sb_outfit(m, *words):
     return dict(sb_cast.outfit_for(*words), **sb_cast.look_for(m))
 
 
-def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
+def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None,
+               edges=()):
     """Non-row compositions. Sets e['box'] on every element and returns
     True, or False to fall back to the shared-baseline row."""
     Wc, band_h = R - L, band_b - band_t
@@ -1053,6 +1054,9 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
     n = len(sol)
     lane = lambda e: (labh(e) + gap) if e['label'] else 0.0  # noqa: E731
     labw = labw or (lambda e: 0.0)
+    if lay == 'graph' and n >= 2:
+        _sb_graph_layout(sol, edges, L, R, band_t, band_b, lane)
+        return True
     if lay == 'story' and n >= 2:
         cells: dict = {}
         for e in sol:
@@ -1189,6 +1193,178 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
 
 
 _SB_TOUCH = {'reach', 'offer', 'point', 'climb', 'dig'}
+_SB_PREPS = {'to', 'into', 'onto', 'in', 'inside', 'through', 'toward',
+             'towards', 'until', 'across', 'via', 'over', 'from', 'for',
+             'by', 'with', 'at', 'on', 'of'}
+
+
+def _sb_graph_layout(sol, edges, L, R, band_t, band_b, lane):
+    """Diagram composition: things placed in columns by how far along the
+    scene's chain of relations they sit (a -> b puts b right of a),
+    contrasted things stacked in one column, loose things filling the
+    emptiest column, the most-linked thing drawn largest. At most four
+    things share a column; long chains fold onto a second tier. Every
+    person is drawn at one height."""
+    Wc, band_h = R - L, band_b - band_t
+    n = len(sol)
+    ix = {id(e): i for i, e in enumerate(sol)}
+    ed = [(ix[id(a)], ix[id(b)], k) for a, b, k in edges
+          if id(a) in ix and id(b) in ix and a is not b]
+    depth = [0] * n
+    for _ in range(n):
+        moved = False
+        for a, b, k in ed:
+            if k != 'vs' and depth[a] + 1 > depth[b] and depth[a] + 1 < n:
+                depth[b] = depth[a] + 1
+                moved = True
+        if not moved:
+            break
+    for a, b, k in ed:
+        if k == 'vs':
+            depth[b] = depth[a]
+    linked = {i for a, b, _k in ed for i in (a, b)}
+    levels = sorted({depth[i] for i in linked}) or [0]
+    cols = [[i for i in sorted(linked) if depth[i] == d] for d in levels]
+    for i in range(n):
+        if i in linked:
+            continue
+        room = [c for c in range(len(cols)) if len(cols[c]) < 4]
+        if not room:
+            cols.append([i])
+            continue
+        near = min(room, key=lambda c: (len(cols[c]), min(
+            abs(j - i) for j in cols[c]) if cols[c] else 0))
+        cols[near].append(i)
+    split = []
+    for c in cols:
+        while len(c) > 4:
+            split.append(c[:4])
+            c = c[4:]
+        split.append(c)
+    cols = [c for c in split if c]
+    ncol = len(cols)
+    deg = [sum(1 for a, b, _k in ed if i in (a, b)) for i in range(n)]
+    hero = max(range(n), key=lambda i: (deg[i], sol[i]['kind'] != 'person',
+                                         -i))
+    tiers = 1 if ncol <= 5 else 2
+    per = -(-ncol // tiers)
+    th = band_h / tiers
+    lab_cap = th * 0.22
+    lane_ = lambda e: min(lane(e), lab_cap)  # noqa: E731
+    cells = {}
+    ypos = {}
+    for c, mem in enumerate(cols):
+        mem.sort(key=lambda i: (sum(ypos.get(a, 0.5) for a, b, _k in ed
+                                    if b == i)
+                                / max(1, sum(1 for a, b, _k in ed
+                                             if b == i)), i))
+        t_, c_ = divmod(c, per)
+        ncols_t = min(per, ncol - t_ * per)
+        colw = Wc / ncols_t
+        cx = (L + colw * (c_ + 0.5)) if t_ % 2 == 0 else (
+            R - colw * (c_ + 0.5))
+        wt = [1.6 if sol[i]['kind'] == 'person' else 1.0 for i in mem]
+        y_ = band_t + t_ * th
+        for r, i in enumerate(mem):
+            ypos[i] = (r + 0.5) / len(mem)
+            ch = th * wt[r] / sum(wt)
+            cells[i] = (cx, y_, colw, ch)
+            y_ += ch
+    ppl = [i for i in range(n) if sol[i]['kind'] == 'person']
+    ph = min([cells[i][3] * 0.86 - lane_(sol[i]) for i in ppl]
+             + [band_h * 0.46]) if ppl else 0.0
+    for i in range(n):
+        e = sol[i]
+        cx, top, colw, ch = cells[i]
+        lb = lane_(e)
+        if e['kind'] == 'person':
+            hmax = ph * e['rel']
+            wmax = colw * 0.8
+        else:
+            wf, hf = (0.70, 0.92) if i == hero else (0.52, 0.78)
+            hmax = max(ch * hf - lb, ch * 0.4)
+            if i != hero:
+                hmax = min(hmax, th * 0.34)
+            wmax = colw * wf
+        _sb_boxfit(e, cx, top + ch * 0.96 - lb, wmax, hmax)
+        b = e['box']
+        blk = (b[3] - b[1]) + lb
+        dy = (top + (ch - blk) / 2) - b[1]
+        e['box'] = (b[0], b[1] + dy, b[2], b[3] + dy)
+
+
+def _sb_graph_edge(pb, cb, Wc, kind, obst=()):
+    """A relation link between two drawn things: arrow a -> b, a
+    two-headed arrow for 'stands for', a crossed arrow for a denial."""
+    ax, ay = (pb[0] + pb[2]) / 2, (pb[1] + pb[3]) / 2
+    bx, by = (cb[0] + cb[2]) / 2, (cb[1] + cb[3]) / 2
+    dx, dy = bx - ax, by - ay
+    d = math.hypot(dx, dy)
+    if d < 1e-6:
+        return None, None
+    ux, uy = dx / d, dy / d
+
+    def exit_t(b, cx, cy, sgn):
+        ts = []
+        for c0, c1, u, cc in ((b[0], b[2], ux, cx), (b[1], b[3], uy, cy)):
+            if abs(u) > 1e-9:
+                ts.append(max((c0 - cc) / (sgn * u), (c1 - cc) / (sgn * u)))
+        return min(ts) if ts else 0.0
+    m = Wc * 0.016
+    t0 = exit_t(pb, ax, ay, 1) + m
+    t1 = d - exit_t(cb, bx, by, -1) - m
+    if t1 - t0 < Wc * 0.025:
+        return None, None
+    p0 = (ax + ux * t0, ay + uy * t0)
+    p1 = (ax + ux * t1, ay + uy * t1)
+    ah = min(Wc * 0.018, (t1 - t0) * 0.3)
+    span = t1 - t0
+
+    def bez(off):
+        cx_ = (p0[0] + p1[0]) / 2 - uy * off
+        cy_ = (p0[1] + p1[1]) / 2 + ux * off
+        return [((1 - q) ** 2 * p0[0] + 2 * (1 - q) * q * cx_
+                 + q * q * p1[0],
+                 (1 - q) ** 2 * p0[1] + 2 * (1 - q) * q * cy_
+                 + q * q * p1[1]) for q in (i / 24 for i in range(25))]
+
+    def clear(pts_):
+        return not any(o[0] < x < o[2] and o[1] < y < o[3]
+                       for x, y in pts_[2:-2] for o in obst)
+    path = bez(0.0)
+    if not clear(path):
+        for f in (0.22, -0.22, 0.4, -0.4, 0.6, -0.6):
+            cand = bez(span * f)
+            if clear(cand):
+                path = cand
+                break
+    rnd = random.Random(int(p0[0]) % 89 + 5)
+    pts = [(x + rnd.uniform(-1.1, 1.1), y + rnd.uniform(-1.1, 1.1))
+           for x, y in path]
+    pts[0], pts[-1] = path[0], path[-1]
+    end_ang = math.atan2(path[-1][1] - path[-3][1],
+                         path[-1][0] - path[-3][0])
+    start_ang = math.atan2(path[0][1] - path[2][1], path[0][0] - path[2][0])
+
+    def head(tip, ang):
+        return [[(tip[0], tip[1]),
+                 (tip[0] - ah * math.cos(ang + s_ * 0.5),
+                  tip[1] - ah * math.sin(ang + s_ * 0.5))]
+                for s_ in (-1, 1)]
+    col = 'a_red' if kind in ('not', 'vs') else 'ink'
+    st = [(pts, col, 0.85, False, True)]
+    if kind != 'vs':
+        st += [(h, col, 0.85, False, True) for h in head(p1, end_ang)]
+    if kind in ('backs', 'is'):
+        st += [(h, col, 0.85, False, True) for h in head(p0, start_ang)]
+    mid = path[len(path) // 2]
+    if kind in ('not', 'vs'):
+        r_ = Wc * 0.012
+        st += [([(mid[0] - r_, mid[1] - r_), (mid[0] + r_, mid[1] + r_)],
+                'a_red', 1.0, False, True),
+               ([(mid[0] - r_, mid[1] + r_), (mid[0] + r_, mid[1] - r_)],
+                'a_red', 1.0, False, True)]
+    return st, (mid, abs(ux) >= abs(uy))
 
 
 def _sb_link(pb, cb, Wc):
@@ -1757,7 +1933,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                          else 'after')
             ant = ant[pm.end():].strip()
         aw = _sb_words(ant)
-        if ant and aw and (aw <= role_words[j] or aw <= cap_words):
+        if ant and aw and scn.get('layout') != 'graph' and (
+                aw <= role_words[j] or aw <= cap_words):
             qa.append({'beat': si, 'check': 'label-redundant',
                        'severity': 'info', 'detail': ant})
             ant = ''
@@ -1926,6 +2103,28 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         lay = 'row'
     sec['relation'] = rel_
     ls = H * 0.050
+    g_edges, g_meta = [], []
+    if lay == 'graph':
+        top_of_ = {}
+        for e in els:
+            stack_ = [(e, e)]
+            while stack_:
+                x_, top_ = stack_.pop()
+                top_of_[x_['ri']] = top_
+                stack_.extend((kd, top_) for kd in x_.get('kids', ()))
+        for ge in (scn.get('graph') or {}).get('edges') or []:
+            a_, b_ = top_of_.get(ge.get('from')), top_of_.get(ge.get('to'))
+            if a_ is None or b_ is None or a_ is b_:
+                qa.append({'beat': si, 'check': 'relation-dropped',
+                           'severity': 'fail',
+                           'detail': f"{ge.get('text')}: an end is not drawn"})
+                continue
+            kind_ = str(ge.get('kind') or 'flow')
+            g_edges.append((a_, b_, kind_))
+            g_meta.append((a_, b_, kind_, str(ge.get('text') or ''),
+                           int(ge.get('moment') or 0)))
+        if len(g_edges) < 2:
+            lay = 'story'
 
     def _labw(e, size):
         return (_sb_text_dims(e['label'], size, _SB_FL)[0]
@@ -1978,7 +2177,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 e['box'] = (cx_ - ew / 2, yb - eh, cx_ + ew / 2, yb)
     elif not _sb_layout(lay, els, L, R, band_t, band_b,
                         lambda e: _labh(e, ls), lab_gap,
-                        lambda e: _labw(e, ls)):
+                        lambda e: _labw(e, ls), g_edges):
         lay = 'row'
         row = [e for e in els]
         n_l = max([len(e['label']) for e in row] + [0])
@@ -2086,7 +2285,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     cap_d = 1.2 if cap else 0.0
     hold = 0.9
     win0, win1 = t0 + lead, max(t0 + lead + 0.5, t1 - 0.62 - hold - cap_d)
-    setting = ('' if journey or lay in ('cycle', 'stair')
+    setting = ('' if journey or lay in ('cycle', 'stair', 'graph')
                else _sb_setting_kind(scn, beat))
     set_w = None
     if setting:
@@ -2130,7 +2329,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
              if isinstance(m_, dict)]
     mo_win = {}
     cues_ = sec['qa_cues'] = []
-    if lay == 'story' and len(mo_at) >= 2:
+    mom_span = {}
+    if lay in ('story', 'graph') and len(mo_at) >= 2:
         # each moment draws while its sentence is being said
         span_ = win1 - win0
         edges = [win0 + span_ * f_ for f_ in mo_at] + [win1]
@@ -2151,6 +2351,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                    if int(e['m'].get('moment') or 0) == k_]
             a_ = edges[k_]
             b_ = max(a_ + 0.5, edges[k_ + 1])
+            mom_span[k_] = (a_, b_)
             for g_, e in enumerate(grp):
                 w_ = (b_ - a_) / len(grp)
                 mo_win[id(e)] = (a_ + g_ * w_, a_ + (g_ + 1) * w_)
@@ -2309,7 +2510,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         if prev is not None and frozenset((id(prev), id(e))) in (
                 flow_pairs | touch_pairs):
             pass
-        elif (not journey and lay not in ('row', 'reaction')
+        elif (not journey and lay not in ('row', 'reaction', 'graph')
                 and prev is not None
                 and (lay != 'before_after'
                      or prev.get('ba_side') != e.get('ba_side'))
@@ -2409,6 +2610,66 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                           'uid': uid, 'fade': fade, 'kind': 'elem',
                           't_window': (i0, i1),
                           'label': e['it'].get('label', '')})
+    wt_all = beat.get('word_times') or []
+    link_pts = {}
+    for a_, b_, kind_, text_, k_ in g_meta:
+        obst_ = [bx[1] for bx in boxes if bx[2] in ('el', 'label')
+                 and bx[1] not in (a_['ink'], b_['ink'])
+                 and not _sb_ovl(bx[1], a_['ink'], 4.0)
+                 and not _sb_ovl(bx[1], b_['ink'], 4.0)]
+        ast, geo = _sb_graph_edge(a_['ink'], b_['ink'], Wc, kind_, obst_)
+        if not ast:
+            qa.append({'beat': si, 'check': 'relation-dropped',
+                       'severity': 'warn',
+                       'detail': f'{text_}: ends too close to link'})
+            continue
+        drawn = max(mo_win.get(id(a_), (win0, win0))[1],
+                    mo_win.get(id(b_), (win0, win0))[1])
+        ms_ = mom_span.get(k_, (win0, win1))
+        v_ = (re.findall(r'[a-z]+', text_.lower()) or [''])[0]
+        said = next((float(w[1]) for w in wt_all
+                     if ms_[0] - 0.3 <= float(w[1]) <= ms_[1] + 0.3
+                     and str(w[0]).lower().strip('.,!?') .startswith(v_[:4])
+                     and v_), None)
+        te0 = min(win1 - 0.4, max(drawn - 0.15, said if said else ms_[0]))
+        te1 = min(win1, te0 + 0.7)
+        groups = [(('arrow', ast, (0, 0), 90.0, None), te0, te0 + 0.4)]
+        ab_ = _sb_bounds(q[0] for q in ast)
+        lk_ = f'link{len(link_pts)}'
+        link_pts[lk_] = [p_ for q in ast for p_ in q[0]]
+        boxes.append((lk_, ab_, 'link',
+                      {a_['it'].get('label', '?'), b_['it'].get('label', '?')}))
+        if text_.lower() in _SB_PREPS:
+            text_ = ''
+        if kind_ == 'not' and text_:
+            text_ = 'no ' + text_
+        if text_ and kind_ != 'is':
+            (mx, my), horiz = geo
+            es = ls * 0.72
+            lines_ = _sb_wrap(text_, 12)
+            lw_, lh_, ltop = _sb_text_dims(lines_, es, _SB_FL)
+            spots = ([(mx, my - lh_ - H * 0.012, 'center'),
+                      (mx, my + H * 0.012, 'center')] if horiz else
+                     [(mx + Wc * 0.012, my - lh_ / 2, 'left'),
+                      (mx - Wc * 0.012 - lw_, my - lh_ / 2, 'left')])
+            for lx, ly, al in spots:
+                x0_ = lx - lw_ / 2 if al == 'center' else lx
+                tb_ = (x0_, ly, x0_ + lw_, ly + lh_)
+                if any(_sb_ovl(tb_, bx[1], 2.0) for bx in boxes
+                       if bx[2] in ('el', 'label', 'rider', 'chart')):
+                    continue
+                col_ = 'a_red' if kind_ in ('not', 'vs') else 'ink'
+                lst, lbb = _sb_text(lines_, lx, ly - ltop, es, _SB_FL, al,
+                                    col_)
+                groups.append((('plabel', lst, (0, 0), 1.0, None),
+                               te0 + 0.3, te1))
+                boxes.append(('label:' + text_, lbb, 'label', {lk_}))
+                break
+        uid += 1
+        out_items.append({'groups': groups, 'bounds2': ab_, 'uid': uid,
+                          'fade': fade, 'kind': 'elem',
+                          't_window': (te0, te1), 'label': ''})
+    sec['relations_drawn'] = len(g_meta)
     sec['setting'] = setting
     if setting:
         grounded = [e['box'] for e in draw_els
@@ -2454,6 +2715,15 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             if ta == tb == 'mark' and ra & rb:
                 continue
             if 'mark' in (ta, tb) and 'arrow' in (ta, tb):
+                continue
+            if 'link' in (ta, tb):
+                if ta == tb or na in rb or nb in ra or 'mark' in (ta, tb):
+                    continue
+                pts_, O_ = (link_pts[na], B) if ta == 'link' else (
+                    link_pts[nb], A)
+                if any(O_[0] + 2 < x < O_[2] - 2 and O_[1] + 2 < y < O_[3] - 2
+                       for x, y in pts_):
+                    audit.append((na, nb))
                 continue
             if tb == 'label' and ta == 'chart' or ta == 'label' and tb == 'chart':
                 lb = A if ta == 'label' else B
@@ -3665,3 +3935,4 @@ def pen_spans(plan: dict, ratio: str) -> list:
     for gi, g in enumerate(flow['ending']['thanks']):
         add(g, t0 + gi * 0.9, t0 + gi * 0.9 + max(0.2, THANKS_SECONDS - 0.9))
     return sorted(sp for sp in out if sp[1] > sp[0])
+

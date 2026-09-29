@@ -79,3 +79,22 @@ def test_partitive_draws_members_and_plural_words_keep_meaning():
     m = sm.parse('The keeper climbs the stairs and sorts letters.', {})
     heads = {e['head'] for e in m['entities']}
     assert {'stairs', 'letter'} <= heads
+
+
+def test_determined_argument_is_a_noun_and_prepositions_link():
+    m = sm.parse('A student in another country can buy the same token '
+                 'from his laptop.', {})
+    buy = _ev(m, 'buy')
+    assert (_lab(m, buy['agent']), _lab(m, buy['patient'])) == (
+        'student', 'token')
+    links = {(_lab(m, a), p, _lab(m, b)) for a, p, b in m['links']}
+    assert ('student', 'in', 'country') in links
+    assert ('token', 'from', 'laptop') in links
+
+
+def test_of_links_owner_but_not_partitives():
+    m = sm.parse('The token follows the price of the real stock.', {})
+    links = {(_lab(m, a), p, _lab(m, b)) for a, p, b in m['links']}
+    assert ('price', 'of', 'stock') in links
+    m = sm.parse('He eats a piece of bread.', {})
+    assert not any(p == 'of' for _, p, _ in m['links'])

@@ -1757,6 +1757,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                            last_person)
         return roles, rel, marks, setting, last_person
 
+    beat_maps: dict = {}
     for bi, (heading, para) in enumerate(_sb_beats(script)):
         compounds.clear()
         maps: list = []
@@ -1776,6 +1777,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 n_maps = len(maps)
                 r_, _rl, mk_, st_, last_person = _moment(
                     s_, '', last_person, per)
+                if len(maps) > n_maps:
+                    maps[-1]['_k'] = k
                 off = len(roles)
                 labs = [r['label'] for r in r_]
                 if len(maps) == n_maps and not any(
@@ -1822,8 +1825,12 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                          if maps else {}),
                       **({'setting': setting} if setting else {})},
         })
+        if moments and maps:
+            beat_maps[len(beats) - 1] = maps
     _cast_looks(beats)
     _noun_labels(beats)
+    for bi, maps in beat_maps.items():
+        _graph_scene(beats[bi]['scene'], maps)
     heading = next((ln.strip()[2:].strip() for ln in script.splitlines()
                     if ln.strip().startswith('# ')), '')
     title = title or heading or _subject(script).title()
@@ -1834,6 +1841,203 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 'background': '#F7F2E7', 'ink': '#1A1A17',
                 'accent': '#1A1A17', 'secondary': '#8B8577'}},
             'beats': beats}
+
+
+# verbs that say one thing stands for / is tied to another
+_EQUIV = {'back', 'represent', 'stand', 'mirror', 'track', 'follow', 'match',
+          'equal', 'peg', 'mean', 'reflect', 'copy', 'link', 'tie', 'mimic',
+          'correspond', 'symbolize', 'embody'}
+_HOP_PREP = ('to', 'into', 'onto', 'in', 'inside', 'through', 'toward',
+             'towards', 'until', 'across', 'via', 'over', 'on', 'at')
+_VS_RE = re.compile(r"\b([a-z][\w-]*),?\s+not\s+(?:the\s+|a\s+|an\s+)?"
+                    r"([a-z][\w-]*)|\binstead of\s+(?:the\s+|a\s+)?"
+                    r"([a-z][\w-]*)", re.I)
+
+
+# acts a diagram shows as a labelled link rather than a posed picture
+_GRAPH_SCHEMAS = frozenset({'look', 'read', 'give', 'point', 'talk', 'hold',
+                            'type', 'write'})
+
+
+def _scene_graph(roles: list, maps: list):
+    """The ideas a multi-sentence scene links, as a diagram: who/what acts
+    on what (edge = the verb), where it goes next (edge = the preposition),
+    what stands for what (backing), and what is contrasted (vs). Returns
+    {'edges': [...]} when the scene explains relations between things
+    rather than showing bodies doing physical acts; else None. Each thing
+    is drawn once and every mention links to it."""
+    phys = sum(1 for r in roles if r.get('activity') and (
+        r['activity'].get('schema') not in _GRAPH_SCHEMAS))
+    if len(roles) < 3:
+        return None
+
+    def host(i):
+        seen = set()
+        while isinstance(roles[i].get('to'), int) and roles[i].get(
+                'attach') in ('held', 'on', 'in', 'worn', 'activity',
+                              'behind', 'under') and i not in seen:
+            seen.add(i)
+            i = roles[i]['to']
+        return i
+
+    def node(label, k):
+        if not label:
+            return None
+        lab = label.lower()
+        head = lab.split()[-1]
+        hits = [i for i, r in enumerate(roles)
+                if r['label'].lower() == lab
+                or str(r.get('cast_key') or '').lower() == lab
+                or lab in r.get('aliases', ())
+                or r['label'].lower().split()[-1] == head
+                or lab.endswith(' ' + r['label'].lower())]
+        if not hits:
+            return None
+        hits.sort(key=lambda i: (bool(roles[i].get('attach')),
+                                 roles[i].get('moment') != k,
+                                 abs((roles[i].get('moment') or 0) - k)))
+        return host(hits[0])
+
+    edges, seen = [], set()
+
+    def add(a, b, text, kind, k):
+        if a is None or b is None or a == b:
+            return
+        key = frozenset((a, b))
+        if key in seen:
+            return
+        seen.add(key)
+        edges.append({'from': a, 'to': b, 'text': text, 'kind': kind,
+                      'moment': k})
+
+    for sm in maps:
+        k = sm.get('_k', 0)
+        ents = sm['entities']
+        def lab(eid):
+            if eid is None:
+                return None
+            e = ents[eid]
+            if e.get('of_part') is not None:
+                e = ents[e['of_part']]
+            return e['label']
+        for ev in sm['events']:
+            lem = ev['lemma']
+            a = node(lab(ev['agent']), k)
+            pt = node(lab(ev['patient']), k)
+            preps = [(p_, node(lab(x), k)) for p_, x in ev['preps']]
+            by = next((n for p_, n in preps if p_ == 'by'), None)
+            if a is None and by is not None:
+                a = by
+            if a is None and pt is not None and lem != 'be':
+                # 'Maria wants to buy a share': the unstated doer is the
+                # person the scene is already about
+                a = next((host(i) for i in range(len(roles) - 1, -1, -1)
+                          if roles[i].get('icon') == 'person'
+                          and (roles[i].get('moment') or 0) <= k), None)
+            verb = ev['verb'].lower() + (' ' + ev['particle']
+                                          if ev['particle'] else '')
+            if lem == 'be':
+                add(a, pt, 'is a', 'is', k)
+                continue
+            if lem in _EQUIV:
+                tgt = pt if pt is not None and pt != a else next(
+                    (n for p_, n in preps if p_ in ('for', 'to', 'with')
+                     and n is not None), None)
+                if by is not None and pt is not None:
+                    add(by, pt, verb, 'backs', k)
+                else:
+                    add(a, tgt, verb, 'backs', k)
+                continue
+            kind = 'not' if ev.get('neg') else 'flow'
+            hop = next(((p_, n) for p_, n in preps if (
+                p_ in _HOP_PREP or p_ == 'for' and pt is not None)
+                and n is not None), None)
+            if pt is not None:
+                add(a, pt, verb, kind, k)
+                if hop is not None:
+                    add(pt, hop[1], hop[0], kind, k)
+            elif hop is not None:
+                add(a, hop[1], f'{verb} {hop[0]}', kind, k)
+            for p_, n in preps:
+                if p_ in ('with', 'from', 'using') and n is not None:
+                    add(n, pt if pt is not None else a, p_, 'flow', k)
+        for x, p_, y in sm.get('links') or ():
+            if p_ == 'of':
+                # 'the price of the stock': the stock carries its price
+                add(node(lab(y), k), node(lab(x), k), '', 'flow', k)
+            else:
+                add(node(lab(x), k), node(lab(y), k), p_, 'flow', k)
+        for m in _VS_RE.finditer(sm.get('text') or ''):
+            if m.group(3):
+                continue
+            add(node(m.group(1), k), node(m.group(2), k), 'not', 'vs', k)
+    linked = {i for e in edges for i in (e['from'], e['to'])}
+    if len(edges) < 2 or len(linked) < 3 or phys > 1:
+        return None
+    return {'edges': edges[:10]}
+
+
+def _graph_scene(sc: dict, maps: list) -> None:
+    """An explaining scene becomes one diagram: each thing is drawn once
+    (later mentions link back to it) and the scene carries its edges."""
+    rs = [sc['heroRole']] + sc['supportingRoles']
+    loose = ('activity', 'in', 'behind')
+    trial = [dict(r) for r in rs]
+    for r in trial:
+        if r.get('attach') in loose:
+            r.pop('attach')
+            r.pop('to', None)
+    if _scene_graph(trial, maps) is None:
+        return
+    # a diagram draws each thing as its own node: things an actor works
+    # on or sits in become linked nodes, not parts of the actor's picture
+    for r in rs:
+        r.pop('activity', None)
+        if r.get('attach') in loose:
+            r.pop('attach')
+            r.pop('to', None)
+    for k in range(len(rs) - 1, 0, -1):
+        r = rs[k]
+        if r.get('attach'):
+            continue
+        ident = (r.get('cast_key') or r['label']).lower()
+        j = next((j for j, q in enumerate(rs[:k]) if not q.get('attach')
+                  and q.get('icon') == r.get('icon')
+                  and (q.get('cast_key') or q['label']).lower() == ident),
+                 None)
+        if j is None:
+            continue
+        for q in rs:
+            if q.get('to') == k:
+                q['to'] = j
+        rs[j]['aliases'] = sorted(set(rs[j].get('aliases', []))
+                                  | {r['label'].lower()}
+                                  | set(r.get('aliases', [])))
+        _merge_role(rs, k, j)
+    graph = _scene_graph(rs, maps)
+    if graph is None:
+        return
+    for ge in graph['edges']:
+        verb = (str(ge.get('text') or '').split() or [''])[0].lower()
+        for k in (ge['from'], ge['to']):
+            ann = str(rs[k].get('annotate') or '').split()
+            if len(ann) > 1 and verb and ann[0].lower()[:4] == verb[:4]:
+                rs[k]['annotate'] = ' '.join(ann[1:])
+    for r in rs:
+        if r.get('attach'):
+            continue
+        name = str(r.get('cast_key') or r['label'])
+        ann = str(r.get('annotate') or '').split()
+        head = name.split()
+        if r.get('icon') == 'person' or len(ann) < len(head) or [
+                _lemma(w) for w in ann[-len(head):]] != [
+                _lemma(w) for w in head]:
+            r['annotate'] = name
+        else:
+            r['annotate'] = ' '.join(
+                [w for w in ann[:-len(head)] if _is_adj(w)] + head)
+    sc['heroRole'], sc['supportingRoles'] = rs[0], rs[1:]
+    sc.update(relation='explain', layout='graph', graph=graph)
 
 
 def _one_drawing(roles: list) -> None:

@@ -14,10 +14,15 @@ import v3_board_renderer as vr  # noqa: E402
 SKIP = ('animicon', 'notomoji')
 
 
-def main():
+def main(update=False):
     keys, ims = [], []
+    have = set()
+    if update and art_clip.BANK.is_file():
+        z = np.load(art_clip.BANK, allow_pickle=False)
+        old_keys, old_emb = list(z['keys']), z['emb']
+        have = set(old_keys)
     for (d, slug) in sorted(vr._icon_index()):
-        if d in SKIP:
+        if d in SKIP or f'{d}|{slug}' in have:
             continue
         try:
             st = vr._strokes_for(('icon', d, slug))
@@ -29,7 +34,8 @@ def main():
         if im is not None:
             keys.append(f'{d}|{slug}')
             ims.append(im)
-    embs = []
+    embs = [old_emb] if have else []
+    keys = (old_keys if have else []) + keys
     for i in range(0, len(ims), 64):
         embs.append(art_clip.image_embs(ims[i:i + 64]))
         print(i, len(ims), flush=True)
@@ -51,4 +57,4 @@ if __name__ == '__main__':
                 sheet.paste(t, (224 * i, 0))
         sheet.save('/tmp/sheet.png')
     else:
-        main()
+        main(update='--update' in sys.argv[1:])

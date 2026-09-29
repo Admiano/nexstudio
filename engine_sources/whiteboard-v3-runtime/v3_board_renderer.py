@@ -1097,7 +1097,44 @@ def _kits():
                 except Exception:
                     continue
                 _KITS[kd.name] = man.get('glyphs', {})
+                if man.get('general'):
+                    _KIT_GENERAL.add(kd.name)
     return _KITS
+
+
+_KIT_GENERAL: set = set()
+
+
+def _kit_live(dom: str) -> tuple | None:
+    """How strongly a domain kit applies to this script: the plan's own
+    kit, a general-ideas kit, or a kit whose distinctive vocabulary the
+    script uses (>= 3 of its keywords). None when it doesn't apply."""
+    kits = _kits()
+    pool = {k for g in kits.get(dom, {}).values()
+            for k in g.get('keywords', [])}
+    if dom not in _KIT_GENERAL:
+        # everyday words shared with the general-world kit prove nothing
+        pool -= {k for g in kits.get('world', {}).values()
+                 for k in g.get('keywords', [])} | set(kits.get('world', {}))
+    hits = (_CONTEXT or set()) & pool
+    n = len(hits)
+    if dom == _ART_KIT:
+        return (2, n)
+    if dom in _KIT_GENERAL:
+        return (0, n)
+    if dom != 'world' and n >= 3 and sum(
+            1 for k in hits if _distinctive(k)) >= 2:
+        return (1, n)
+    return None
+
+
+def _distinctive(word: str) -> bool:
+    """A word that names little besides its own thing (custodian,
+    blockchain), as opposed to an everyday polysemous word (price, order,
+    share) that cannot by itself say what a script is about."""
+    if _WN is None:
+        return False
+    return len(_WN.synsets(word.replace(' ', '_'))) <= 3
 
 
 def _kit_glyph(domain: str, slug: str):
@@ -1761,8 +1798,12 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
         return ic
     phrase = str(concept).lower().replace('-', ' ').strip()
     rk = sem_rank(phrase, ic)
+    # bespoke domain art is trusted; general-world art is trusted when it
+    # is named by the phrase itself or the model doesn't rank it far off
     curated = isinstance(ic, tuple) and (
-        ic[0] == 'custom' or str(ic[1]).startswith('kit:'))
+        ic[0] == 'custom' or (str(ic[1]).startswith('kit:') and (
+            ic[1] != 'kit:world' or ic == kit_exact(phrase, exclude)
+            or (rk is not None and rk <= SEM_VETO_KEYWORD))))
     if (rk is None or rk <= SEM_BAD_RANK or curated) and (
             curated or art_related(phrase, ic)):
         SEM_LOG[phrase] = (_art_key(ic), rk)
@@ -1913,8 +1954,24 @@ def kit_exact(phrase, exclude=None):
     slug = phrase.replace(' ', '-')
     for dom in order:
         hit = ('icon', f'kit:{dom}', slug)
-        if slug in kits[dom] and not (exclude and hit in exclude):
+        if dom != 'world' and slug in kits[dom] and not (
+                exclude and hit in exclude):
             return hit
+    # the script's own domain names its terms first: 'share' in a
+    # markets script is a stock certificate, not the share-link glyph
+    dom_hits = []
+    for dom in order:
+        live = None if dom == 'world' else _kit_live(dom)
+        if live is None:
+            continue
+        for name, g in kits[dom].items():
+            hit = ('icon', f'kit:{dom}', name)
+            if phrase in g.get('keywords', ()) and not (
+                    exclude and hit in exclude):
+                k_ = g['keywords'].index(phrase)
+                dom_hits.append((k_ < 2, live, -k_, -len(dom_hits), hit))
+    if dom_hits:
+        return max(dom_hits)[-1]
     # general-world art names its things by kind: 'full moon', 'fishing
     # pole' — a bare head noun takes the plainest glyph ending in it
     world = kits.get('world', {})
@@ -1936,7 +1993,8 @@ def kit_exact(phrase, exclude=None):
     for dom in order:
         pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
         fit = (dom == _ART_KIT, len((_CONTEXT or set()) & pool))
-        if not fit[0] and fit[1] < 2:
+        if not fit[0] and fit[1] < 2 or (
+                dom != 'world' and _kit_live(dom) is None):
             continue
         for name, g in kits[dom].items():
             hit = ('icon', f'kit:{dom}', name)
@@ -1969,7 +2027,8 @@ def _kit_cross(words, exclude=None):
         return None
     for dom in order:
         pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
-        if dom != _ART_KIT and len((_CONTEXT & pool) - heads) < 2:
+        if dom != _ART_KIT and (len((_CONTEXT & pool) - heads) < 2 or (
+                dom != 'world' and _kit_live(dom) is None)):
             continue
         cands = [n for n, g in kits[dom].items()
                  if heads & set(g.get('keywords', []))
@@ -2536,6 +2595,9 @@ def icon_for(concept: str, used=None):
     mine = set(label.split())
     excl = {k for k, v in assets.items()
             if v != label and not set(str(v).split()) < mine}
+    named = kit_exact(concept)
+    if isinstance(named, tuple):
+        excl.discard(_asset_key(named))
     words = [w for w in label.split() if len(w) > 2]
     head = _singular(words[-1]) if words else None
     icon = None

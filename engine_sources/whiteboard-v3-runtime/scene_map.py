@@ -250,9 +250,14 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
     ents: list[dict] = []
     by_tok: dict[int, int] = {}
 
+    def misread(t) -> bool:
+        # 'buy the same token': a determined verb argument is a noun
+        return t.pos_ == 'VERB' and t.dep_ in ('dobj', 'pobj', 'attr') \
+            and any(c.dep_ in ('det', 'amod', 'poss') for c in t.children)
+
     def verbal(t) -> bool:
         if t.pos_ in ('VERB', 'AUX'):
-            return True
+            return not misread(t)
         if t.pos_ != 'NOUN':
             return False
         nxt = t.nbor(1) if t.i + 1 < len(t.doc) else None
@@ -328,7 +333,7 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
                          'person': person,
                          'lex': 'noun.person' if person else ''})
             continue
-        if t.pos_ not in ('NOUN', 'PROPN'):
+        if t.pos_ not in ('NOUN', 'PROPN') and not misread(t):
             continue
         comp = [c for c in t.children if c.dep_ in ('compound', 'nmod',
                                                      'amod')
@@ -338,6 +343,11 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
                 and c not in comp] + comp if comp else [
             c for c in t.children if c.dep_ == 'compound'
             and not verbal(t)]
+        named = t.pos_ == 'PROPN' and t.ent_type_ == 'PERSON'
+        if named:
+            # 'Meet Maria': an imperative verb is not part of the name
+            comp = [c for c in comp if not (c.i == 0 and _wn is not None
+                                             and _wn.synsets(c.lower_, 'v'))]
         colour = [c for c in t.children if c.dep_ == 'amod'
                   and c.lower_ in _COLOUR]
         head = _noun_head(t)
@@ -347,7 +357,8 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
         ents.append({'id': len(ents), 'label': label, 'head': head,
                      'at': min([t.i] + [c.i for c in comp + colour]),
                      'char': min([t.idx] + [c.idx for c in comp + colour]),
-                     'pron': False, 'lex': _noun_lex(head),
+                     'pron': False, 'person': named or None,
+                     'lex': 'noun.person' if named else _noun_lex(head),
                      'time': t.ent_type_ in ('DATE', 'TIME')
                      or _noun_lex(head) == 'noun.time'})
     for t in doc:
@@ -360,6 +371,18 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
                 outer['partitive'] = by_tok[t.i]
             elif _is_piece(outer['head']) and not outer['pron']:
                 outer['of_part'] = by_tok[t.i]
+    links = []
+    for t in doc:
+        # 'a student in another country', 'a token on a blockchain'
+        if t.dep_ == 'prep' and t.head.i in by_tok:
+            links += [(by_tok[t.head.i], t.lower_, by_tok[g.i])
+                      for g in t.children
+                      if g.dep_ == 'pobj' and g.i in by_tok
+                      and not (t.lower_ == 'of' and (
+                          ents[by_tok[t.head.i]].get('partitive')
+                          is not None
+                          or ents[by_tok[t.head.i]].get('of_part')
+                          is not None))]
     states = []
     for t in doc:
         if t.dep_ == 'amod' and t.head.i in by_tok:
@@ -383,6 +406,11 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
                          if c.dep_ in ('nsubj', 'nsubjpass')), None)
         if subj is None and t.pos_ == 'NOUN':
             subj = next((c for c in kids if c.dep_ == 'compound'), None)
+        # 'a token that stands for a share': the relative pronoun is the
+        # noun the clause hangs on
+        if t.dep_ == 'relcl' and t.head.i in by_tok and (
+                subj is None or subj.tag_ in ('WDT', 'WP')):
+            subj = t.head
         obj = next((c for c in kids if c.dep_ in ('dobj', 'attr')), None)
         if subj is not None and subj.dep_ == 'nsubjpass':
             subj, obj = None, subj
@@ -441,4 +469,4 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
         elif not e['pron'] and not e.get('time'):
             carry['thing'] = e['label']
     return {'text': sentence, 'entities': ents, 'events': events,
-            'states': states}
+            'states': states, 'links': links}

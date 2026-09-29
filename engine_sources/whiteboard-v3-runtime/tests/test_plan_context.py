@@ -1,3 +1,5 @@
+import pytest
+
 import plan_author as pa
 
 
@@ -87,3 +89,44 @@ def test_merge_moments_keeps_all_words():
     s = ['a b', 'c', 'd e f', 'g', 'h i', 'j', 'k l m']
     out = pa._merge_moments(s, 6)
     assert len(out) == 6 and ' '.join(out).split() == ' '.join(s).split()
+
+
+def _graph(text):
+    sc = pa.build_storyboard(text)['beats'][0]['scene']
+    roles = [sc['heroRole']] + sc['supportingRoles']
+    return sc, roles
+
+
+def test_explainer_scene_becomes_a_linked_diagram():
+    sc, roles = _graph(
+        '## Seeds\nA farmer sells grain to a mill. The mill turns the grain '
+        'into flour. A bakery buys the flour from the mill. The bread '
+        'reaches the shop in the town.\n')
+    assert sc['layout'] == 'graph'
+    edges = sc['graph']['edges']
+    labs = [r['label'] for r in roles]
+    names = {(labs[e['from']], labs[e['to']]) for e in edges}
+    assert len(edges) >= 3
+    assert all(e['from'] != e['to'] for e in edges)
+    assert any('mill' in pair for pair in names)
+    for r in roles:
+        ann = str(r.get('annotate') or '')
+        assert not ann or ann.split()[0] not in ('sells', 'buys', 'turns')
+
+
+def test_diagram_merges_one_person_under_two_names():
+    sc, roles = _graph(
+        '## Care\nMaria trusts the nurse. The nurse checks the chart. '
+        'If she loses the chart, the doctor reads a copy.\n')
+    if sc.get('layout') != 'graph':
+        pytest.skip('scene drawn as a story')
+    labs = [r['label'] for r in roles]
+    assert all(labs[e['from']] != 'doctor' or e['text'] != 'loses'
+               for e in sc['graph']['edges'])
+
+
+def test_physical_story_stays_a_story():
+    sc, _ = _graph(
+        '## Tea\nGrandma pours tea from the pot into a cup. Her grandson '
+        'sits by the window and watches the ship. He drinks the tea.\n')
+    assert sc.get('layout') != 'graph'
