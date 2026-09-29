@@ -20,6 +20,9 @@ import plan_author as pa  # noqa: E402
 import sb_activity  # noqa: E402
 import sb_cast  # noqa: E402
 
+_BOX = [([(0.0, 0.0), (40.0, 0.0), (40.0, 40.0), (0.0, 40.0), (0.0, 0.0)],
+         'ink', 1.0, False)]
+
 _WORKER = {'worker.n.01', 'professional.n.01', 'skilled_worker.n.01',
            'employee.n.01', 'expert.n.01', 'official.n.01', 'serviceman.n.01',
            'leader.n.01', 'scientist.n.01', 'performer.n.01',
@@ -65,6 +68,7 @@ def evaluate(scripts: list[Path]) -> dict:
     rows, tot = [], {'cast': 0, 'jobs': 0, 'dressed': 0, 'doers': 0,
                      'engaged': 0, 'art': 0, 'exact': 0, 'literal': 0,
                      'curated': 0, 'physical': 0, 'shown': 0,
+                     'roles': 0, 'roles_drawn': 0,
                      'library': 0, 'loose': 0, 'generic': 0}
     for sp in scripts:
         plan = pa.build_storyboard(sp.read_text(encoding='utf-8'))
@@ -85,9 +89,23 @@ def evaluate(scripts: list[Path]) -> dict:
                     if r.get('activity') or r.get('activity_miss'):
                         tot['physical'] += 1
                         act = r.get('activity')
-                        got = sb_activity.compose(act) if act else None
+                        kept = {x['label'] for x in [sc['heroRole']] + list(
+                            sc.get('supportingRoles', []))
+                            if x.get('attach') == 'activity'}
+                        rl = (act or {}).get('roles') or {}
+                        got = sb_activity.compose(act, role_arts={
+                            rn: _BOX for rn, lb in rl.items()
+                            if lb in kept}) if act else None
+                        lost = (act or {}).get('roles_lost') or {}
+                        tot['roles'] += len(rl) + len(lost)
+                        if lost:
+                            rec['roles_lost'] = lost
+                        tot['roles_drawn'] += sum(bool(v) for v in (
+                            got[3].get('roles') or {}).values()) if got else 0
                         ok = bool(got and sb_activity.contact_error(
-                            got[3]) <= 0.08)
+                            got[3]) <= 0.08 and all(
+                                (got[3].get('roles') or {}).values())
+                            and not (act or {}).get('roles_lost'))
                         tot['shown'] += ok
                         rec['activity'] = (act or {}).get('schema') or (
                             'MISS:' + str(r.get('activity_miss')))
@@ -127,6 +145,7 @@ def evaluate(scripts: list[Path]) -> dict:
     score = {'dressed_jobs_%': pct('dressed', 'jobs'),
              'engaged_doers_%': pct('engaged', 'doers'),
              'activity_shown_%': pct('shown', 'physical'),
+             'activity_roles_drawn_%': pct('roles_drawn', 'roles'),
              'exact_art_%': pct('exact', 'art'),
              'exact_or_literal_art_%': round(
                  pct('exact', 'art') + pct('literal', 'art'), 1),

@@ -1246,9 +1246,19 @@ def _sb_activity(e, fb, flip, shirt, si, qa):
     back = [kd for kd in e.get('kids', ()) if kd['att'] == 'behind']
     for kd in back:
         kd['drawn'] = True
+    role_arts, role_kids = {}, {}
+    for rname, rlab in (spec.get('roles') or {}).items():
+        kd = next((kd for kd in e.get('kids', ()) if kd['att'] == 'activity'
+                   and kd is not part and not kd.get('drawn')
+                   and str(kd['m'].get('label') or '') == str(rlab)), None)
+        if kd is not None and kd['art']:
+            role_arts[rname] = kd['art']
+            role_kids[rname] = kd
+            kd['drawn'] = True
     got = sb_activity.compose(spec, part['art'] if part else None,
                               e['emo'], e['fit'], shirt, flip,
-                              [kd['art'] for kd in back if kd['art']])
+                              [kd['art'] for kd in back if kd['art']],
+                              role_arts)
     if got is None:
         qa.append({'beat': si, 'check': 'activity-undrawn',
                    'severity': 'fail', 'detail':
@@ -1272,6 +1282,15 @@ def _sb_activity(e, fb, flip, shirt, si, qa):
         qa.append({'beat': si, 'check': 'activity-partner',
                    'severity': 'info' if meta['kind'] else 'warn', 'detail':
                    f'{spec.get("partner")!r} drawn by the apparatus only'})
+    for rname, ok in sorted((meta.get('roles') or {}).items()):
+        if not ok:
+            qa.append({'beat': si, 'check': 'activity-role',
+                       'severity': 'fail', 'detail':
+                       f'{e["m"].get("label")!r} {meta["schema"]}: '
+                       f'{spec["roles"][rname]!r} ({rname}) not drawn '
+                       'in the picture'})
+        elif rname in role_kids:
+            role_kids[rname]['ink'] = _sb_bounds(s_[0] for s_ in fit_st)
     if part is not None and meta['placed']:
         part['ink'] = _sb_bounds(s_[0] for s_ in fit_st)
     qa.append({'beat': si, 'check': 'activity', 'severity': 'info',
@@ -1780,7 +1799,12 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 spec, None, emo, backdrop=[
                     _sb_item_art(items[k]) for k, mk in enumerate(meta)
                     if mk.get('attach') == 'behind'
-                    and mk.get('label') in (spec.get('setting') or ())]) \
+                    and mk.get('label') in (spec.get('setting') or ())],
+                role_arts={rn: _sb_item_art(items[k]) for rn, rl in
+                           (spec.get('roles') or {}).items()
+                           for k, mk in enumerate(meta)
+                           if mk.get('attach') == 'activity'
+                           and mk.get('label') == rl}) \
                 if isinstance(spec, dict) else None
             if pv is not None:
                 # the layout box holds the whole activity picture

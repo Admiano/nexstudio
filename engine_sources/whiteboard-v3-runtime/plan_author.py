@@ -982,6 +982,26 @@ def _drawable(v3, head: str, used: dict) -> bool:
             or _is_physical(head))
 
 
+# things a sentence role can be drawn as; people are cast members and
+# times, ideas and events have no place in the activity picture
+_DRAWN_ROLE_LEX = scene_map._PHYS_NOUN - {'noun.person', 'noun.body'}
+
+
+def _roles_in_setting(roles, setting):
+    """A role filled by the scene's own setting is drawn by the backdrop,
+    not as an object inside the activity picture."""
+    for r in roles:
+        act = r.get('activity') or {}
+        rl = act.get('roles') or {}
+        for name in [n for n, lab_ in rl.items() if lab_ == setting]:
+            act.setdefault('roles_setting', {})[name] = rl.pop(name)
+            (act.get('roles_lost') or {}).pop(name, None)
+        if 'roles' in act and not rl:
+            del act['roles']
+        if 'roles_lost' in act and not act['roles_lost']:
+            del act['roles_lost']
+
+
 def _activity(ag, ev, ents, role, roles):
     """Resolve what the actor's body is doing in `ev` (sb_activity) and
     bind the thing it is done with/on/in as the activity partner."""
@@ -1022,6 +1042,27 @@ def _activity(ag, ev, ents, role, roles):
         elif lab(e) in spec.get('setting', ()):
             r_.update(attach='behind', to=me)
             act.setdefault('setting', []).append(r_['label'])
+    # every other narrated thing keeps the role the sentence gives it
+    # (source, goal, vantage, instrument ...) and is drawn in that role
+    rl = dict((ag.get('activity') or {}).get('roles') or {})
+    for rname, rlab in (spec.get('roles') or {}).items():
+        if rname in rl:
+            continue
+        e = next((e for e in eids if lab(e) == rlab), None)
+        r_ = role(e) if e is not None else None
+        if r_ is None and e is not None \
+                and ents[e].get('lex') in _DRAWN_ROLE_LEX:
+            act.setdefault('roles_lost', {})[rname] = rlab
+        if r_ is None or r_ is part or r_['icon'] == 'person' \
+                or lab(e) in spec['absorb'] \
+                or lab(e) in spec.get('setting', ()) \
+                or r_.get('attach') not in (None, 'activity') \
+                or r_.get('to', me) != me:
+            continue
+        r_.update(attach='activity', to=me)
+        rl[rname] = r_['label']
+    if rl:
+        act['roles'] = rl
     if 'activity' in ag and ag['activity'].get('partner') \
             and act.get('partner') is None:
         act['partner'] = ag['activity']['partner']
@@ -1053,8 +1094,11 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
         for k, w in (('agent', 3), ('patient', 3)):
             if ev[k] is not None:
                 role_of[ev[k]] = max(role_of.get(ev[k], 0), w)
+        # the things a physical act is done from/into/with are part of
+        # the picture of that act, not scenery
+        pw = 3 if sb_activity.is_physical(ev['lemma']) else 2
         for _p, eid in ev['preps']:
-            role_of[eid] = max(role_of.get(eid, 0), 2)
+            role_of[eid] = max(role_of.get(eid, 0), pw)
     moving = {ev['agent'] for ev in events if ev['dir']} | {
         ev['patient'] for ev in events if ev['dir']}
     wordy = {e['id'] for e in ents if _wn is not None and any(
@@ -1106,8 +1150,10 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
     people = [k for k in keep if k[1]][:2]
     things = sorted([k for k in keep if not k[1]],
                     key=lambda k: -role_of.get(k[0]['id'], 0))
-    pick = sorted(people + things[:max(1, cap - len(people))],
-                  key=lambda k: k[0]['at'])[:cap]
+    n_th = max(1, cap - len(people))
+    extra = [k for k in things[n_th:] if role_of.get(k[0]['id'], 0) >= 3][:2]
+    pick = sorted(people + things[:n_th] + extra,
+                  key=lambda k: k[0]['at'])[:cap + len(extra)]
     if not pick:
         return None
     idx = {e['id']: n for n, (e, _p) in enumerate(pick)}
@@ -1751,6 +1797,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             _one_drawing(roles)
         prev_rel = rel
         sent = sents[-1]
+        if setting:
+            _roles_in_setting(roles, setting)
         hero, *rest = roles
         dur = max(4.0, len(para.split()) / wpm * 60 + 1.6)
         beats.append({

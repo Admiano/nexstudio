@@ -280,7 +280,10 @@ def resolve(lemma, objects=(), posture=''):
                      and (rels is None or rel in rels)), (None, ''))
 
     partner, kind = (cats[0][1], cats[0][2]) if cats else (None, '')
-    veh, vk = first(*VEHICLES, 'bike', 'animal')
+    # a vehicle one moves toward or loads into is a destination, not a ride
+    veh, vk = first(*VEHICLES, 'bike', 'animal',
+                    rels=('dobj', 'in', 'on', 'aboard', 'by', 'across',
+                          'along', 'inside', 'up', 'down'))
     if sc in ('drive', 'ride', 'walk', 'run', 'carry') and veh is not None \
             and (sc != 'carry' or vk in VEHICLES):
         if vk in ('bike', 'animal'):
@@ -370,9 +373,88 @@ def resolve(lemma, objects=(), posture=''):
     # leans into) is drawn as the backdrop of the picture
     setting = [lab for _r, lab, c in cats if one and c in own
                and c != kind and lab != partner]
+    roles = _roles(sc, cats)
+    if sc in _FLOW:
+        # the vessel poured from is held; the liquid is the stream; a
+        # thing watered or filled that is no liquid is where it lands
+        ins = roles.get('instrument')
+        if ins and noun_cat(ins) in ('drink', 'water'):
+            if 'theme' in roles and 'goal' not in roles:
+                roles['goal'] = roles.pop('theme')
+            roles['theme'] = roles.pop('instrument')
+        th = roles.get('theme')
+        if th and noun_cat(th) not in ('drink', 'water', 'vessel', 'stove') \
+                and 'goal' not in roles:
+            roles['goal'] = roles.pop('theme')
+        vs = [roles.get(r) for r in ('source', 'theme', 'instrument')]
+        partner = next((lab for lab in vs if lab and noun_cat(lab) in
+                        ('vessel', 'stove')), roles.get('instrument'))
+        kind = noun_cat(partner) if partner else ''
+    if sc in _PERCEIVE and roles.get('vantage') == partner:
+        partner = roles.get('theme')
+        kind = noun_cat(partner) if partner else ''
     return {'schema': sc, 'via': via, 'partner': partner, 'kind': kind,
             'lemma': str(lemma or '').lower(), 'absorb': absorb,
-            'setting': setting}
+            'setting': setting, 'roles': roles}
+
+
+# what the body does with each narrated thing, read from its relation to
+# the verb: the thing acted on (dobj), where it comes from and goes to,
+# what it is done with, and where a watcher watches from
+_PERCEIVE = {'look', 'photo', 'point', 'read', 'talk', 'phone'}
+_FLOW = {'pour'}
+_SRC_PREP = {'from', 'off', 'out', 'out_of'}
+_GOAL_PREP = {'into', 'onto', 'to', 'toward', 'towards', 'in', 'on', 'over',
+              'at', 'across', 'through', 'under', 'inside'}
+_VANTAGE_PREP = {'from', 'through', 'out', 'out_of', 'behind', 'inside'}
+_SEEN_PREP = {'at', 'toward', 'towards', 'over', 'on', 'across'}
+
+
+_OPENING = {'window.n.01', 'door.n.01', 'doorway.n.01', 'opening.n.01',
+            'entrance.n.01', 'hatchway.n.01', 'aperture.n.01'}
+_OPTIC = {'magnifier.n.01', 'optical_instrument.n.01', 'camera.n.01',
+          'optical_device.n.01'}
+
+
+def vantage_kind(label):
+    """How a place one watches from is drawn: 'opening' (a frame the
+    watcher looks out of), 'optic' (held to the eye) or 'place' (the
+    ground the watcher stands in)."""
+    words = re.findall(r'[a-z]+', str(label or '').lower())
+    if not words:
+        return 'place'
+    if noun_cat(label) == 'door':
+        return 'opening'
+    if _wn is None:
+        return 'place'
+    for syn in _wn.synsets(words[-1], 'n')[:2]:
+        up = {h.name() for pth in syn.hypernym_paths() for h in pth}
+        if up & _OPTIC:
+            return 'optic'
+        if up & _OPENING:
+            return 'opening'
+    return 'place'
+
+
+def _roles(sc, cats):
+    roles = {}
+    for rel, lab, _c in cats:
+        if rel == 'dobj':
+            r = 'theme'
+        elif rel == 'with':
+            r = 'instrument'
+        elif sc in _PERCEIVE:
+            r = ('vantage' if rel in _VANTAGE_PREP else
+                 'theme' if rel in _SEEN_PREP else '')
+        elif rel in _SRC_PREP:
+            r = 'source'
+        elif rel in _GOAL_PREP:
+            r = 'goal'
+        else:
+            r = ''
+        if r and r not in roles:
+            roles[r] = lab
+    return roles
 
 
 # schemas whose apparatus draws exactly one surface of the kinds they own
@@ -1064,14 +1146,9 @@ def _schema(sc, kind, col, tool):
         slot = ('ahead', 0.14, 1.20)
         return pose, back, front, marks, slot, extra
     if sc == 'pour':
-        pose = _std(lean=0.10, hn=(0.30, -0.70), hf=(0.10, -0.52),
+        pose = _std(lean=0.10, hn=(0.36, -0.64), hf=(0.14, -0.56),
                     elbow=(0.0, 1.0))
-        extra += _poly([(0.26, -0.76), (0.40, -0.76), (0.42, -0.62),
-                        (0.28, -0.60)], C['metal'])
-        extra += _line([(0.40, -0.72), (0.52, -0.78)], C['metal'], 1.2)
-        marks += _line([(0.53, -0.76), (0.58, -0.55), (0.60, -0.30)],
-                       C['water'], 1.2)
-        slot = ('ahead', 0.62, 0.30)
+        slot = ('hand', 0.0, 0.24)
         return pose, back, front, marks, slot, extra
     if sc == 'fish':
         pose = dict(SEATED, hands={'n': (0.22, -0.56), 'f': (0.18, -0.54)},
@@ -1195,8 +1272,184 @@ def _backdrop(arts, strokes):
     return out
 
 
+def _pts(strokes):
+    return [q for st in strokes for q in st[0]]
+
+
+def _bbox(strokes):
+    q = _pts(strokes)
+    if not q:
+        return None
+    return (min(p[0] for p in q), min(p[1] for p in q),
+            max(p[0] for p in q), max(p[1] for p in q))
+
+
+def _rot(strokes, c, a):
+    ca, sa = math.cos(a), math.sin(a)
+    return [([(c[0] + (x - c[0]) * ca - (y - c[1]) * sa,
+               c[1] + (x - c[0]) * sa + (y - c[1]) * ca) for x, y in st[0]],)
+            + tuple(st[1:]) for st in strokes]
+
+
+def _shift(strokes, dx, dy=0.0):
+    return [([(x + dx, y + dy) for x, y in st[0]],) + tuple(st[1:])
+            for st in strokes]
+
+
+def _at(art, cx, bot, h):
+    """Art fitted to height h (unit px), bottom-centre at (cx, bot)."""
+    bb = _bbox(art)
+    if bb is None:
+        return []
+    asp = (bb[2] - bb[0]) / max(1e-6, bb[3] - bb[1])
+    w = h * max(0.3, min(2.4, asp))
+    return _xf_art(art, ((cx - w / 2) / H, (bot - h) / H,
+                         (cx + w / 2) / H, bot / H))
+
+
+def _outline(art):
+    return [(st[0], st[1], st[2], False) for st in art
+            if not (len(st) > 3 and st[3])]
+
+
+def _frame_stroke(st, fb):
+    bb = _bbox([st])
+    return (bb[2] - bb[0] >= 0.9 * (fb[2] - fb[0])
+            and bb[3] - bb[1] >= 0.9 * (fb[3] - fb[1]))
+
+
+def _seg_dist(pts, c):
+    best = float('inf')
+    for a, b in zip(pts, pts[1:] or pts):
+        vx, vy = b[0] - a[0], b[1] - a[1]
+        t = 0.0 if not (vx or vy) else max(0.0, min(1.0, (
+            (c[0] - a[0]) * vx + (c[1] - a[1]) * vy) / (vx * vx + vy * vy)))
+        best = min(best, math.hypot(a[0] + t * vx - c[0],
+                                    a[1] + t * vy - c[1]))
+    return best
+
+
+def _kettle():
+    return (_poly([(0.0, 0.0), (0.30, 0.0), (0.34, -0.22), (0.26, -0.30),
+                   (0.04, -0.30), (-0.04, -0.22)], C['metal'])
+            + _line([(0.30, -0.14), (0.50, -0.30)], C['metal'], 1.4)
+            + _line([(0.02, -0.26), (-0.10, -0.40), (0.14, -0.44)], INK, 0.9))
+
+
+def _liquid(label):
+    c = noun_cat(label) if label else ''
+    return C['wood'] if c == 'drink' else C['water']
+
+
+def _place_roles(sc, spec, pose, anch, body, obj, arts):
+    """Draw the narrated things in the roles the sentence gives them.
+
+    -> (behind, over, obj, contacts, placed) — strokes behind / over
+    the figure, the (possibly re-posed) held object, role contacts
+    (name, point, target) and {role: placed}."""
+    behind, over, contacts, placed = [], [], [], {}
+    roles = {r: lab for r, lab in (spec.get('roles') or {}).items()
+             if lab and lab != spec.get('partner')
+             and lab not in (spec.get('absorb') or ())
+             and lab not in (spec.get('setting') or ())}
+    if sc in _FLOW:
+        if not obj:
+            hx, hy = anch['hand_n']
+            obj = _xf_art(_kettle(), ((hx - 0.2 * H) / H, (hy - 0.1 * H) / H,
+                                      (hx + 0.2 * H) / H, (hy + 0.1 * H) / H))
+        obj = _rot(obj, anch['hand_n'], 0.62)
+        sp = max(_pts(obj), key=lambda q: q[0] - 0.2 * q[1])
+        rim = (sp[0] + 0.03 * H, sp[1] + 0.16 * H)
+        goal = arts.get('goal') if 'goal' in roles else None
+        if goal:
+            small = noun_cat(roles['goal']) in ('vessel', 'drink', 'food', '')
+            gh = 0.17 * H if small else 0.42 * H
+            bot = rim[1] + gh if small else 0.0
+            if not small:
+                rim = (rim[0], -gh)
+            g = _at(goal, rim[0], bot, gh)
+            gb = _bbox(g)
+            if gb is not None:
+                if small and bot < -0.2 * H:
+                    behind += _table((gb[0] / H) - 0.12, (gb[2] / H) + 0.12,
+                                     bot / H)
+                behind += g
+                rim = ((gb[0] + gb[2]) / 2, gb[1] + 0.02 * H)
+                contacts.append(('stream', rim, (
+                    min(max(rim[0], gb[0]), gb[2]), gb[1] + 0.02 * H)))
+            placed['goal'] = bool(g)
+        mid = ((sp[0] + rim[0]) / 2 + 0.02 * H, (sp[1] + rim[1]) / 2)
+        over += [([sp, mid, rim], _liquid(roles.get('theme')), 1.3, False)]
+        if 'theme' in roles:
+            placed['theme'] = True
+    vant = arts.get('vantage') if 'vantage' in roles else None
+    vk = vantage_kind(roles.get('vantage')) if vant else ''
+    if vant and vk == 'optic':
+        ey = anch['eye']
+        it = _at(vant, ey[0] + 0.10 * H, ey[1] + 0.07 * H, 0.16 * H)
+        over += it
+        placed['vantage'] = bool(it)
+        vant = None
+    elif vant and vk == 'place':
+        bb = _bbox(body)
+        it = _at(vant, (bb[0] + bb[2]) / 2 - 0.10 * H, 0.0, 1.05 * H)
+        behind += it
+        placed['vantage'] = bool(it)
+        vant = None
+    if vant:
+        bb = _bbox(body)
+        cx = (bb[0] + bb[2]) / 2
+        top = bb[1] - 0.08 * H
+        sill = anch['hip'][1] - 0.02 * H
+        w = max(0.62 * H, (bb[2] - bb[0]) + 0.24 * H)
+        fr = _outline(_xf_art(vant, ((cx - w / 2) / H, top / H,
+                                     (cx + w / 2) / H, sill / H)))
+        fb = _bbox(fr) or (cx - w / 2, top, cx + w / 2, sill)
+        fr = [st for st in fr if _frame_stroke(st, fb) or
+              _seg_dist(st[0], anch['head']) > anch['head_r'] * 1.15]
+        x0, x1 = fb[0] - 0.10 * H, fb[2] + 0.10 * H
+        wall = [([(x0, fb[3]), (x1, fb[3]), (x1, 0.0), (x0, 0.0),
+                  (x0, fb[3])], '#E8E2D6', 0.8, 'solid'),
+                ([(x0, fb[3]), (x1, fb[3]), (x1, 0.0), (x0, 0.0),
+                  (x0, fb[3])], INK, 0.62, False)]
+        over += wall + fr
+        hd = anch['head']
+        contacts.append(('view', hd, (min(max(hd[0], fb[0]), fb[2]),
+                                      min(max(hd[1], fb[1]), fb[3]))))
+        ob = _bbox(obj)
+        if ob is not None and ob[0] < x1 + 0.10 * H:
+            obj = _shift(obj, x1 + 0.10 * H - ob[0])
+        placed['vantage'] = bool(fr)
+    ins = arts.get('instrument') if 'instrument' in roles else None
+    if ins:
+        hx, hy = anch['hand_f']
+        it = _at(ins, hx, hy + 0.10 * H, 0.22 * H)
+        over += it
+        placed['instrument'] = bool(it)
+    allb = _bbox(behind + obj + body + over)
+    for r in ('theme', 'goal', 'source'):
+        if r not in roles or r in placed or not arts.get(r):
+            continue
+        h = 0.70 * H if sc in ('walk', 'run', 'hike', 'drive', 'ride',
+                                'swim', 'crawl') else 0.45 * H
+        g = _at(arts[r], 0.0, 0.0, h)
+        gb = _bbox(g)
+        if gb is None:
+            placed[r] = False
+            continue
+        dx = (allb[0] - 0.06 * H - gb[2]) if r == 'source' else (
+            allb[2] + 0.06 * H - gb[0])
+        g = _shift(g, dx)
+        behind += g
+        allb = _bbox(behind + obj + body + over)
+        placed[r] = True
+    for r in roles:
+        placed.setdefault(r, False)
+    return behind, over, obj, contacts, placed
+
+
 def compose(spec, partner_art=None, emotion='neutral', outfit=None,
-            shirt=None, flip=False, backdrop=()):
+            shirt=None, flip=False, backdrop=(), role_arts=None):
     """Draw an activity: apparatus + posed figure + narrated object.
 
     -> (strokes, marks, anchors, meta) in unit px, or None when the spec
@@ -1230,6 +1483,12 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
         if box is not None:
             obj = _xf_art(partner_art, box)
             placed = bool(obj)
+    r_back, r_over, obj, r_con, r_placed = _place_roles(
+        sc, spec, pose, anch, body, obj, role_arts or {})
+    if sc in _FLOW:
+        placed = True
+    back = back + r_back
+    extra = extra + r_over
     if slot is not None and slot[0] in ('mount', 'seat'):
         strokes = back + obj + body + front + extra
     elif slot is not None and slot[0] in ('hand', 'hands'):
@@ -1242,6 +1501,7 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
                 ('hand_f', anch['hand_f'], _u([pose['hands']['f']])[0]),
                 ('foot_n', anch['foot_n'], _u([pose['feet']['n']])[0]),
                 ('foot_f', anch['foot_f'], _u([pose['feet']['f']])[0])]
+    contacts += r_con
     if flip:
         def mx(pts):
             return [(-x, y) for x, y in pts]
@@ -1254,7 +1514,7 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
         marks = marks + fmarks
     meta = {'schema': sc, 'kind': kind, 'contacts': contacts,
             'placed': placed, 'slot': slot[0] if slot else None,
-            'backdrop': len(backdrop),
+            'backdrop': len(backdrop), 'roles': r_placed,
             'partner': spec.get('partner'), 'via': spec.get('via')}
     return strokes, marks, anch, meta
 
