@@ -259,6 +259,28 @@ def _wn_is(word, roots):
     return False
 
 
+def lexical_sex(label: str) -> str:
+    """'f' / 'm' when the word itself says so (its spelling, WordNet
+    ancestry, or the head of its WordNet gloss: 'a female grandchild'),
+    else ''."""
+    label = str(label or '').lower()
+    head = label.split()[-1] if label else ''
+    if _FEMALE.search(label) or _wn_is(head, {'female.n.02', 'woman.n.01'}):
+        return 'f'
+    if _MALE.search(label) or _wn_is(head, {'male.n.02', 'man.n.01'}):
+        return 'm'
+    if _wn is not None and head:
+        for s in _wn.synsets(_wn.morphy(head, 'n') or head, 'n')[:1]:
+            if s.lexname() != 'noun.person':
+                continue
+            lead = ' '.join(s.definition().split()[:3])
+            if re.search(r'\b(female|woman|girl|daughter|mother)\b', lead):
+                return 'f'
+            if re.search(r'\b(male|man|boy|son|father)\b', lead):
+                return 'm'
+    return ''
+
+
 def look_for(role) -> dict:
     """Body and grooming for a cast member: sex (from the role word, its
     WordNet ancestry, or the pronouns the plan bound to it), child scale,
@@ -267,10 +289,7 @@ def look_for(role) -> dict:
     role = role or {}
     label = str(role.get('label') or '').lower()
     head = label.split()[-1] if label else ''
-    sex = ('f' if _FEMALE.search(label) or _wn_is(
-               head, {'female.n.02', 'woman.n.01'}) else
-           'm' if _MALE.search(label) or _wn_is(
-               head, {'male.n.02', 'man.n.01'}) else '')
+    sex = lexical_sex(label)
     if not sex:
         sex = 'f' if role.get('gender') == 'f' else 'm'
     if role.get('cast_key'):
@@ -356,6 +375,16 @@ POSES = {
     'dig':       {'r': ((0.19, -0.50), (0.27, -0.40)), 'l': _IDLE_ARM,
                   'head': (0.03, 0.02)},
     'climb':     {'r': ((0.15, -0.82), (0.22, -0.98)), 'l': _IDLE_ARM},
+    # both hands pressed to the sides of the head
+    'holdhead':  {'r': ((0.25, -0.76), (0.13, -0.86)),
+                  'l': ((0.25, -0.76), (0.13, -0.86)),
+                  'head': (0.0, 0.02), 'sh': 0.015},
+    # arms open around someone in front
+    'hug':       {'r': ((0.20, -0.62), (0.34, -0.64)),
+                  'l': ((0.20, -0.62), (0.30, -0.60))},
+    # hands clasped at the chest
+    'clasp':     {'r': ((0.14, -0.55), (0.04, -0.64)),
+                  'l': ((0.14, -0.55), (0.04, -0.64))},
 }
 
 # interaction verbs -> still pose (the emotion keeps its face and marks)
@@ -432,7 +461,17 @@ EMOTIONS = {
     'proud':     ('fist', 'smile', ('burst',)),
     'explain':   ('point', 'smile', ()),
     'content':   ('idle', 'smile', ()),
+    'laugh':     ('clasp', 'laugh', ('laughlines',)),
+    'cry':       ('slump', 'cry', ('tears',)),
+    'love':      ('hug', 'serene', ('heart',)),
+    'stressed':  ('holdhead', 'sad', ('sweat', 'gloom')),
+    'tired':     ('slump', 'tired', ('gloom',)),
+    'sleep':     ('idle', 'serene', ('zzz',)),
 }
+# faces a narrated feeling must show, used by the story QA
+FEELING_FACES = {'laugh', 'cry', 'love', 'stressed', 'tired', 'sleep',
+                 'happy', 'sad', 'angry', 'afraid', 'panic', 'excited',
+                 'proud', 'calm'}
 
 # context words -> emotion, first match wins (annotation, cue, label order)
 _LEXICON = [
@@ -514,14 +553,16 @@ def _face(kind, hx, hy, r, turn=0, glasses=False):
             line(_circle(hx + s * ex, ey, r * 0.19, r * 0.22, 14), 0.6)
             dot(hx + s * ex + r * (0.04 if kind == 'alert' else 0.0),
                 ey + r * 0.03, r * 0.075)
-    elif kind == 'serene':
+    elif kind in ('serene', 'laugh', 'cry', 'tired'):
+        # closed eyes: up-arcs (laugh), down-arcs (serene, cry, tired)
+        a0, a1 = ((0.0, math.pi) if kind == 'laugh'
+                  else (math.pi, 2 * math.pi))
         for s in (-1, 1):
-            arc(hx + s * ex, ey + r * 0.05, r * 0.14, r * 0.10,
-                math.pi, 2 * math.pi)
+            arc(hx + s * ex, ey + r * 0.05, r * 0.14, r * 0.10, a0, a1)
     # brows
     by = hy - r * 0.34
     bw = r * 0.18
-    if kind in ('scared', 'sad'):
+    if kind in ('scared', 'sad', 'cry', 'tired'):
         for s in (-1, 1):
             line([(hx + s * (ex + bw), by + r * 0.05),
                   (hx + s * (ex - bw), by - r * 0.10)])
@@ -544,7 +585,7 @@ def _face(kind, hx, hy, r, turn=0, glasses=False):
     if kind in ('smile', 'serene'):
         arc(hx, my - r * 0.10, r * 0.26, r * 0.16, 0.15 * math.pi,
             0.85 * math.pi)
-    elif kind == 'grin':
+    elif kind in ('grin', 'laugh'):
         pts = _circle(hx, my - r * 0.10, r * 0.30, r * 0.24, 14, 0.0, math.pi)
         st.append((pts + [pts[0]], 'ink', 0.7, 'solid'))
     elif kind == 'smirk':
@@ -555,7 +596,9 @@ def _face(kind, hx, hy, r, turn=0, glasses=False):
                    'solid'))
     elif kind == 'alert':
         line(_circle(hx, my, r * 0.09, r * 0.11, 10), 0.7)
-    elif kind in ('sad', 'angry'):
+    elif kind == 'tired':
+        line([(hx - r * 0.16, my), (hx + r * 0.16, my)])
+    elif kind in ('sad', 'angry', 'cry'):
         arc(hx, my + r * 0.10, r * 0.22, r * 0.13, 1.15 * math.pi,
             1.85 * math.pi)
     elif kind == 'confused':
@@ -975,6 +1018,35 @@ def _marks(kinds, hx, hy, r, top_y):
                 x = hx + r * dx
                 st.append(([(x, hy - r * 1.30), (x + r * 0.05, hy - r * 1.62)],
                            'pale', 0.7, False))
+        elif m == 'tears':
+            for s in (-1, 1):
+                x = hx + s * r * 0.30
+                st.append(([(x, hy + r * 0.08), (x - s * r * 0.04,
+                            hy + r * 0.40), (x, hy + r * 0.62)],
+                           'a_blue', 1.1, False))
+        elif m == 'laughlines':
+            for s in (-1, 1):
+                for k in (0, 1):
+                    a = -0.6 + k * 0.5
+                    c, sn = s * math.cos(a), math.sin(a)
+                    st.append(([(hx + c * r * 1.30, hy + sn * r * 1.30),
+                                (hx + c * r * 1.62, hy + sn * r * 1.62)],
+                               ink, 0.8, False))
+        elif m == 'heart':
+            cx, cy, k = hx + r * 1.45, hy - r * 1.35, r * 0.30
+            pts = [(cx + k * 16 * math.sin(t) ** 3 / 16,
+                    cy - k * (13 * math.cos(t) - 5 * math.cos(2 * t)
+                              - 2 * math.cos(3 * t) - math.cos(4 * t)) / 16)
+                   for t in [2 * math.pi * i / 24 for i in range(25)]]
+            st.append((pts, 'a_red', 0.7, 'solid'))
+            st.append((pts, ink, 0.6, False))
+        elif m == 'zzz':
+            for i in range(3):
+                zx, zy = hx + r * (1.1 + 0.45 * i), hy - r * (0.9 + 0.5 * i)
+                zk = r * (0.16 + 0.05 * i)
+                st.append(([(zx - zk, zy - zk), (zx + zk, zy - zk),
+                            (zx - zk, zy + zk), (zx + zk, zy + zk)],
+                           ink, 0.8, False))
         elif m == 'steam':
             for s in (-1, 1):
                 x = hx + s * r * 1.05

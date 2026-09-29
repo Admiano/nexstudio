@@ -1042,7 +1042,9 @@ def _sb_cast_unit(cast):
 def _sb_outfit(m, *words):
     """Costume for the role words plus the cast member's look (sex,
     child, hair, beard) from the plan role."""
-    return dict(sb_cast.outfit_for(*words), **sb_cast.look_for(m))
+    ck = str(m.get('cast_key') or '').split('#')[0]
+    return dict(sb_cast.outfit_for(*words, ck or None),
+                **sb_cast.look_for(m))
 
 
 def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None,
@@ -1458,8 +1460,14 @@ def _sb_activity(e, fb, flip, shirt, si, qa):
         qa.append({'beat': si, 'check': 'activity-partner',
                    'severity': 'info' if meta['kind'] else 'warn', 'detail':
                    f'{spec.get("partner")!r} drawn by the apparatus only'})
+    hidden = {str(m_.get('label') or '') for m_ in e.get('hidden', ())}
     for rname, ok in sorted((meta.get('roles') or {}).items()):
-        if not ok:
+        if not ok and str(spec['roles'][rname]) in hidden:
+            qa.append({'beat': si, 'check': 'activity-role',
+                       'severity': 'info', 'detail':
+                       f'{spec["roles"][rname]!r} ({rname}) drawn as the '
+                       'panel setting'})
+        elif not ok:
             qa.append({'beat': si, 'check': 'activity-role',
                        'severity': 'fail', 'detail':
                        f'{e["m"].get("label")!r} {meta["schema"]}: '
@@ -1686,6 +1694,255 @@ def _sb_water_patch(bb):
         out.append(([(a + (b - a) * i / n, y + (2.2 if i % 2 else -2.2))
                      for i in range(n + 1)], 'a_blue', 0.9, False, True))
     return out
+
+
+def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw):
+    """Story panels: one framed picture per narrated moment. Everyone in a
+    panel stands on its floor at one figure unit; people in contact close
+    the gap, a lap sitter sits on the host's lap. -> {moment: rect}."""
+    cells: dict = {}
+    for e in sol:
+        cells.setdefault(int(e['m'].get('moment') or 0), []).append(e)
+    ks = sorted(cells)
+    Wc, bh = R - L, band_b - band_t
+
+    def lap_host(e, es):
+        lab = str(e['m'].get('lap_of') or '')
+        return next((o for o in es if o is not e and o['kind'] == 'person'
+                     and str(o['m'].get('label') or '') == lab), None) \
+            if lab else None
+
+    def touching(a, b):
+        for x, y in ((a, b), (b, a)):
+            t = x['m'].get('touch') or ()
+            if str(y['m'].get('label') or '') in t:
+                return True
+        return False
+
+    def fill(rect, es, apply):
+        x0, y0, x1, y1 = rect
+        pad = 0.05 * min(x1 - x0, y1 - y0)
+        flow = [e for e in es if lap_host(e, es) is None]
+        lanes = max([lane(e) for e in flow] + [0.0])
+        floor = y1 - pad - lanes
+        avail = floor - (y0 + pad * 1.6)
+
+        def rel(e):
+            return e['rel'] if e['kind'] == 'person' else max(
+                0.16, float(e['m'].get('size') or 0.34)) * 1.25
+        u = avail / max([rel(e) for e in flow] + [1.0])
+        hs = [u * rel(e) for e in flow]
+        ws = [max(h * e['aspect'], labw(e) * 1.04) for h, e in zip(hs, flow)]
+        gaps = []
+        for a, b, wa, wb in zip(flow, flow[1:], ws, ws[1:]):
+            gaps.append(-0.14 * min(wa, wb) if touching(a, b)
+                        else (x1 - x0) * 0.04)
+        tot = sum(ws) + sum(gaps)
+        k = min(1.0, (x1 - x0 - 2 * pad) / max(1e-6, tot))
+        if not apply:
+            return u * k
+        x = x0 + (x1 - x0 - tot * k) / 2
+        cxs = []
+        for i, (e, h, w) in enumerate(zip(flow, hs, ws)):
+            h, w = h * k, w * k
+            aw = h * e['aspect']
+            cx = x + w / 2
+            e['box'] = (cx - aw / 2, floor - h, cx + aw / 2, floor)
+            cxs.append(cx)
+            x += w + (gaps[i] * k if i < len(gaps) else 0.0)
+        mid = sum(cxs) / max(1, len(cxs))
+        for e, cx in zip(flow, cxs):
+            if e['kind'] != 'person':
+                continue
+            peer = next((o for o in flow if o is not e and touching(e, o)),
+                        None)
+            tx = ((peer['box'][0] + peer['box'][2]) / 2 if peer is not None
+                  else mid if len(flow) > 1 else (x0 + x1) / 2)
+            e['face'] = 1 if tx >= cx else -1
+            if abs(tx - cx) < 1.0:
+                e['face'] = 1 if cx < (x0 + x1) / 2 else -1
+        for e in es:
+            host = lap_host(e, es)
+            if host is None or not host.get('box'):
+                continue
+            hb = host['box']
+            hh = hb[3] - hb[1]
+            h = hh * min(0.62, e['rel'] / max(0.2, host['rel']) * 0.85)
+            w = h * e['aspect']
+            f = host.get('face', 1)
+            cx = (hb[0] + hb[2]) / 2 + f * (hb[2] - hb[0]) * 0.22
+            yb = hb[3] - hh * (0.42 if e['m'].get('held') else 0.30)
+            e['box'] = (cx - w / 2, yb - h, cx + w / 2, yb)
+            e['face'] = f
+            e['on_lap'] = host
+        return u * k
+
+    best = None
+    for nr in (1, 2):
+        if nr > len(ks):
+            break
+        nc = -(-len(ks) // nr)
+        g = Wc * 0.022
+        pw = (Wc - g * (nc - 1)) / nc
+        ph = (bh - g * (nr - 1)) / nr
+        rects = {}
+        for i, k_ in enumerate(ks):
+            r_, c_ = divmod(i, nc)
+            in_row = min(nc, len(ks) - r_ * nc)
+            xo = L + (Wc - (pw * in_row + g * (in_row - 1))) / 2
+            rects[k_] = (xo + c_ * (pw + g), band_t + r_ * (ph + g),
+                         xo + c_ * (pw + g) + pw, band_t + r_ * (ph + g) + ph)
+        score = min(fill(rects[k_], cells[k_], False) for k_ in ks)
+        if best is None or score > best[0] * 1.08:
+            best = (score, rects)
+    rects = best[1]
+    for k_ in ks:
+        fill(rects[k_], cells[k_], True)
+        for e in cells[k_]:
+            e['panel'] = k_
+    return rects
+
+
+# room furniture drawn on a panel's back wall, by place kind
+_SB_ROOM_PIECES = {
+    'kitchen': ('cabinet', 'window', 'shelf'),
+    'bedroom': ('window_night', 'frame', 'lamp'),
+    'living': ('window', 'frame', 'lamp'),
+    'home': ('window', 'frame'),
+    'store': ('shelves', 'shelves', 'sign'),
+    'office': ('window', 'clock'),
+    'classroom': ('board', 'clock'),
+    'outdoor': ('tree', 'sun', 'tree'),
+    'street': ('house', 'tree'),
+}
+
+
+def _sb_room(kind, rect, floor, solid, seed):
+    """Back-wall and floor strokes for one story panel, placed only in
+    free paper inside the panel."""
+    x0, y0, x1, y1 = rect
+    pw, ph = x1 - x0, y1 - y0
+    pad = 0.05 * min(pw, ph)
+    rnd = random.Random(seed)
+
+    def seg(a, b, col='pale', w=0.9, sd=0):
+        return (_wobble_line(a, b, n=5, wob=0.7, seed=seed + sd), col, w,
+                False, True)
+
+    def box(bx0, by0, bx1, by1, col='pale', w=0.9, sd=0):
+        return [seg((bx0, by0), (bx1, by0), col, w, sd),
+                seg((bx1, by0), (bx1, by1), col, w, sd + 1),
+                seg((bx1, by1), (bx0, by1), col, w, sd + 2),
+                seg((bx0, by1), (bx0, by0), col, w, sd + 3)]
+
+    def clear(bb):
+        return all(not (bb[0] - 6 < B[2] and B[0] < bb[2] + 6
+                        and bb[1] - 6 < B[3] and B[1] < bb[3] + 6)
+                   for B in solid)
+
+    st = [seg((x0 + pad * 0.5, floor + 2), (x1 - pad * 0.5, floor + 2),
+              'ink', 0.9, 99)]
+    wall = floor - (y0 + pad)
+    u = min(pw * 0.22, wall * 0.42)
+    xs = [x0 + pad + u * 0.1, x1 - pad - u * 1.1, (x0 + x1) / 2 - u / 2]
+    for n_, pk in enumerate(_SB_ROOM_PIECES.get(kind, ())):
+        for tx in xs[n_:] + xs[:n_]:
+            ty = y0 + pad * 1.2
+            if pk in ('tree', 'lamp', 'house', 'shelves'):
+                ty = floor - u * (1.5 if pk == 'shelves' else 1.2)
+            h_ = u * (1.5 if pk == 'shelves' else 1.2
+                      if pk in ('tree', 'lamp', 'house') else 0.8)
+            bb = (tx, ty, tx + u, ty + h_)
+            if not clear(bb) or bb[1] < y0 + 2:
+                continue
+            p_ = []
+            if pk in ('window', 'window_night'):
+                p_ += box(tx, ty, tx + u, ty + h_, sd=n_ * 10)
+                p_.append(seg((tx + u / 2, ty), (tx + u / 2, ty + h_),
+                              sd=n_ * 10 + 5))
+                p_.append(seg((tx, ty + h_ / 2), (tx + u, ty + h_ / 2),
+                              sd=n_ * 10 + 6))
+                if pk == 'window_night':
+                    mx, my, mr = tx + u * 0.72, ty + h_ * 0.24, u * 0.09
+                    p_.append(([(mx + mr * math.cos(a), my + mr * math.sin(a))
+                                for a in [i * 0.3 for i in range(22)]],
+                               'a_yellow', 0.9, False, True))
+            elif pk == 'cabinet':
+                p_ += box(tx, ty, tx + u * 0.48, ty + h_ * 0.8, sd=n_ * 10)
+                p_ += box(tx + u * 0.52, ty, tx + u, ty + h_ * 0.8,
+                          sd=n_ * 10 + 4)
+            elif pk == 'shelf':
+                p_.append(seg((tx, ty + h_ * 0.7), (tx + u, ty + h_ * 0.7),
+                              sd=n_ * 10))
+                for j in range(3):
+                    jx = tx + u * (0.12 + 0.3 * j)
+                    p_ += box(jx, ty + h_ * 0.38, jx + u * 0.16,
+                              ty + h_ * 0.7, sd=n_ * 10 + 3 + j)
+            elif pk == 'frame':
+                p_ += box(tx + u * 0.15, ty, tx + u * 0.85, ty + h_ * 0.8,
+                          sd=n_ * 10)
+                p_.append(seg((tx + u * 0.25, ty + h_ * 0.65),
+                              (tx + u * 0.5, ty + h_ * 0.3), sd=n_ * 10 + 5))
+                p_.append(seg((tx + u * 0.5, ty + h_ * 0.3),
+                              (tx + u * 0.75, ty + h_ * 0.65),
+                              sd=n_ * 10 + 6))
+            elif pk == 'lamp':
+                p_.append(seg((tx + u / 2, ty + h_ * 0.3),
+                              (tx + u / 2, ty + h_), sd=n_ * 10))
+                p_.append(([(tx + u * 0.25, ty + h_ * 0.3),
+                            (tx + u * 0.38, ty), (tx + u * 0.62, ty),
+                            (tx + u * 0.75, ty + h_ * 0.3),
+                            (tx + u * 0.25, ty + h_ * 0.3)], 'a_yellow', 0.9,
+                           False, True))
+            elif pk == 'shelves':
+                for j in range(4):
+                    yy = ty + h_ * (0.25 * j + 0.2)
+                    p_.append(seg((tx, yy), (tx + u, yy), sd=n_ * 10 + j))
+                    for q in range(3):
+                        qx = tx + u * (0.08 + 0.3 * q)
+                        p_ += box(qx, yy - h_ * 0.12, qx + u * 0.2, yy,
+                                  sd=n_ * 10 + 20 + j * 3 + q)
+                p_.append(seg((tx, ty + h_ * 0.08), (tx, ty + h_ + 1),
+                              sd=n_ * 10 + 40))
+                p_.append(seg((tx + u, ty + h_ * 0.08), (tx + u, ty + h_ + 1),
+                              sd=n_ * 10 + 41))
+            elif pk == 'sign':
+                p_ += box(tx, ty, tx + u, ty + h_ * 0.35, 'a_red', 0.9,
+                          n_ * 10)
+            elif pk == 'clock':
+                cx_, cy_, cr = tx + u / 2, ty + h_ * 0.4, u * 0.2
+                p_.append(([(cx_ + cr * math.cos(a), cy_ + cr * math.sin(a))
+                            for a in [i * 0.3 for i in range(22)]], 'pale',
+                           0.9, False, True))
+                p_.append(seg((cx_, cy_), (cx_, cy_ - cr * 0.7), sd=n_))
+                p_.append(seg((cx_, cy_), (cx_ + cr * 0.5, cy_), sd=n_ + 1))
+            elif pk == 'board':
+                p_ += box(tx - u * 0.3, ty, tx + u * 1.3, ty + h_ * 0.8,
+                          'a_green', 0.9, n_ * 10)
+            elif pk == 'tree':
+                p_.append(seg((tx + u / 2, ty + h_), (tx + u / 2,
+                              ty + h_ * 0.45), 'ink', 0.9, n_))
+                p_.append(([(tx + u / 2 + u * 0.4 * math.cos(a),
+                             ty + h_ * 0.3 + u * 0.35 * math.sin(a))
+                            for a in [i * 0.3 for i in range(22)]],
+                           'a_green', 0.9, False, True))
+            elif pk == 'sun':
+                cx_, cy_, cr = tx + u / 2, ty + h_ * 0.3, u * 0.16
+                p_.append(([(cx_ + cr * math.cos(a), cy_ + cr * math.sin(a))
+                            for a in [i * 0.3 for i in range(22)]],
+                           'a_yellow', 0.9, False, True))
+            elif pk == 'house':
+                p_ += box(tx, ty + h_ * 0.4, tx + u, ty + h_, sd=n_ * 10)
+                p_.append(seg((tx, ty + h_ * 0.4), (tx + u / 2, ty),
+                              sd=n_ * 10 + 5))
+                p_.append(seg((tx + u / 2, ty), (tx + u, ty + h_ * 0.4),
+                              sd=n_ * 10 + 6))
+            if p_:
+                solid.append(bb)
+                st += p_
+                break
+    rnd.random()
+    return st
 
 
 def _sb_setting_kind(scn, beat):
@@ -1952,8 +2209,16 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             m['narration'] = next((x for x in nar_sents
                                    if lw & _sb_words(x)), '')
     els = []
+    story = str(scn.get('mode') or '') == 'story'
+    sec['story_hidden'] = []
     for j, it in enumerate(items):
         m = meta[j]
+        if story and (m.get('place') or m.get('surface')
+                      or m.get('body_part') or m.get('absorbed')
+                      or m.get('worn')):
+            # drawn as the panel's room, a floor, a body or a posture
+            sec['story_hidden'].append(m)
+            continue
         gl = m.get('glyph') or ''
         person = any((g[4] or {}).get('icon') == 'person'
                      for g, _s, _e in it['groups'] if g[4])
@@ -2101,6 +2366,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     elif lay == 'focus' and prev_lay == 'focus' and not scn.get('layout') \
             and len(els) >= 2:
         lay = 'row'
+    if story:
+        lay = 'panels'
     sec['relation'] = rel_
     ls = H * 0.050
     g_edges, g_meta = [], []
@@ -2175,6 +2442,15 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 blk = eh + (lh_ + lab_gap if lh_ else 0)
                 yb = band_t + (band_h - blk) / 2 + eh
                 e['box'] = (cx_ - ew / 2, yb - eh, cx_ + ew / 2, yb)
+    elif lay == 'panels' and els:
+        sec['panels'] = _sb_panel_layout(
+            els, L, R, band_t, band_b,
+            lambda e: (_labh(e, ls) + lab_gap) if e['label'] else 0.0,
+            lambda e: _labw(e, ls))
+        # a lap sitter is drawn over its host
+        for e in [e for e in els if e.get('on_lap')]:
+            els.remove(e)
+            els.insert(els.index(e['on_lap']) + 1, e)
     elif not _sb_layout(lay, els, L, R, band_t, band_b,
                         lambda e: _labh(e, ls), lab_gap,
                         lambda e: _labw(e, ls), g_edges):
@@ -2285,7 +2561,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     cap_d = 1.2 if cap else 0.0
     hold = 0.9
     win0, win1 = t0 + lead, max(t0 + lead + 0.5, t1 - 0.62 - hold - cap_d)
-    setting = ('' if journey or lay in ('cycle', 'stair', 'graph')
+    setting = ('' if journey or lay in ('cycle', 'stair', 'graph', 'panels')
                else _sb_setting_kind(scn, beat))
     set_w = None
     if setting:
@@ -2324,13 +2600,14 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             flow_pairs.add(frozenset((id(a_.get('kid_of') or a_),
                                       id(b_.get('kid_of') or b_))))
     out_items = []
+    arrows_ = sec['qa_arrows'] = []
     prev = None
     mo_at = [float(m_.get('at') or 0.0) for m_ in scn.get('moments') or []
              if isinstance(m_, dict)]
     mo_win = {}
     cues_ = sec['qa_cues'] = []
     mom_span = {}
-    if lay in ('story', 'graph') and len(mo_at) >= 2:
+    if lay in ('story', 'graph', 'panels') and len(mo_at) >= 2:
         # each moment draws while its sentence is being said
         span_ = win1 - win0
         edges = [win0 + span_ * f_ for f_ in mo_at] + [win1]
@@ -2394,6 +2671,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                     'target') is not None else None
                 if tgt is not None and tgt is not e and tgt.get('box'):
                     flip = (tgt['box'][0] + tgt['box'][2]) < (b[0] + b[2])
+                if e.get('face'):
+                    flip = e['face'] < 0
                 if any(kd['att'] == 'held' for kd in e.get('kids', ())):
                     act = act or 'hold'
                 e['flip'], e['act'] = flip, act
@@ -2411,6 +2690,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 shirt = sb_cast.shirt_for(
                     e['m'].get('shirt') or e['m'].get('label')
                     or e['m'].get('concept'))
+                e['hidden'] = sec.get('story_hidden') or ()
                 got = _sb_activity(e, fb, flip, shirt, si, qa)
                 if got is not None:
                     art_st, mark_st = got
@@ -2506,23 +2786,23 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 and _SB_ON_WATER.search(str(e['it'].get('label') or '')):
             groups.append((('marks', _sb_water_patch(e['ink']), (0, 0),
                             100.0, None), i0 + slot * 0.80, i0 + slot * 0.95))
-        # arrow from the previous element (chains only, no dividers/riders)
+        # arrows only where the scene states a relation: a stated cycle
+        # closes its loop, a before/after crosses its sides; flow marks and
+        # graph edges draw their own. Adjacency alone never draws an arrow.
         if prev is not None and frozenset((id(prev), id(e))) in (
                 flow_pairs | touch_pairs):
             pass
-        elif (not journey and lay not in ('row', 'reaction', 'graph')
-                and prev is not None
+        elif (not journey and prev is not None
+                and lay in ('cycle', 'before_after')
                 and (lay != 'before_after'
-                     or prev.get('ba_side') != e.get('ba_side'))
-                and (lay != 'story' or (prev['m'].get('moment')
-                     != e['m'].get('moment')
-                     and prev.get('row') == e.get('row')))):
+                     or prev.get('ba_side') != e.get('ba_side'))):
             ast = _sb_link(prev['ink'], e['ink'], Wc)
             if ast:
                 groups.insert(0, (('arrow', ast, (0, 0), 90.0, None),
                                   i0, i0 + slot * 0.10))
                 boxes.append(('arrow', _sb_bounds(s_[0] for s_ in ast),
                               'arrow'))
+                arrows_.append(lay)
             if lay == 'cycle' and n_ == len(draw_els) - 1:
                 ast = _sb_link(e['ink'], draw_els[0]['ink'], Wc)
                 if ast:
@@ -2530,22 +2810,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                                    i0 + slot * 0.98, i1))
                     boxes.append(('arrow', _sb_bounds(s_[0] for s_ in ast),
                                   'arrow'))
-        elif (not journey and lay == 'row' and prev is not None
-                and e['kind'] != 'divider'
-                and prev['kind'] != 'divider'):
-            pb, cb_ = prev['ink'], e['ink']
-            ya = min(pb[3], cb_[3]) - min(pb[3] - pb[1], cb_[3] - cb_[1]) * 0.42
-            xa0, xa1 = pb[2] + Wc * 0.014, cb_[0] - Wc * 0.014
-            ln_ = xa1 - xa0
-            if ln_ > Wc * 0.02:
-                if ln_ > Wc * 0.075:
-                    mid = (xa0 + xa1) / 2
-                    xa0, xa1 = mid - Wc * 0.0375, mid + Wc * 0.0375
-                ast = _sb_arrow((xa0, ya), (xa1, ya))
-                groups.insert(0, (('arrow', ast, (0, 0), 90.0, None),
-                                  i0, i0 + slot * 0.10))
-                boxes.append(('arrow', _sb_bounds(s_[0] for s_ in ast),
-                              'arrow'))
+                    arrows_.append(lay)
         prev = e
         # label: fixed slot for its element
         if e['label']:
@@ -2604,6 +2869,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 continue
             groups.append((('marks', mst, (0, 0), 100.0, None),
                            i0 + slot * 0.87, i0 + slot * 0.98))
+            if kind_ == 'flow':
+                arrows_.append('flow')
             boxes.append(('mark:' + kind_, _sb_bounds(q[0] for q in mst),
                           'mark', refs))
         out_items.append({'groups': groups, 'bounds2': e['ink'],
@@ -2634,6 +2901,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         te0 = min(win1 - 0.4, max(drawn - 0.15, said if said else ms_[0]))
         te1 = min(win1, te0 + 0.7)
         groups = [(('arrow', ast, (0, 0), 90.0, None), te0, te0 + 0.4)]
+        arrows_.append('edge:' + kind_)
         ab_ = _sb_bounds(q[0] for q in ast)
         lk_ = f'link{len(link_pts)}'
         link_pts[lk_] = [p_ for q in ast for p_ in q[0]]
@@ -2669,6 +2937,34 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         out_items.append({'groups': groups, 'bounds2': ab_, 'uid': uid,
                           'fade': fade, 'kind': 'elem',
                           't_window': (te0, te1), 'label': ''})
+    sec['qa_panels'] = []
+    for k_, rect in sorted((sec.get('panels') or {}).items()):
+        mine = [e for e in all_els if e.get('panel', e.get(
+            'kid_of', {}).get('panel')) == k_ and e.get('ink')]
+        places_ = scn.get('places') or []
+        kind_ = str(places_[k_] if k_ < len(places_) else '')
+        fl_ = max([e['box'][3] for e in mine if e.get('box')
+                   and not e.get('on_lap')] + [rect[3] - H * 0.05])
+        solid_ = [e['ink'] for e in mine] + [e['lab_box'] for e in mine
+                                             if e.get('lab_box')]
+        fr_ = [(_wobble_line(p0, p1, n=8, wob=1.0, seed=si * 50 + k_ * 4 + q),
+                'ink', 1.4, False, True) for q, (p0, p1) in enumerate(
+                    zip([(rect[0], rect[1]), (rect[2], rect[1]),
+                         (rect[2], rect[3]), (rect[0], rect[3])],
+                        [(rect[2], rect[1]), (rect[2], rect[3]),
+                         (rect[0], rect[3]), (rect[0], rect[1])]))]
+        room_ = _sb_room(kind_, rect, fl_, solid_, si * 131 + k_ * 17)
+        a_ = mom_span.get(k_, (win0, win1))[0]
+        uid += 1
+        out_items.insert(0, {'groups': [
+            (('marks', fr_, (0, 0), 100.0, None), a_, a_ + 0.25),
+            (('marks', room_, (0, 0), 100.0, None), a_ + 0.1, a_ + 0.45)],
+            'bounds2': rect, 'uid': uid, 'fade': fade, 'kind': 'elem',
+            't_window': (a_, a_ + 0.45), 'label': 'panel'})
+        boxes.append((f'panel{k_}', rect, 'panel'))
+        sec['qa_panels'].append({'moment': k_, 'place': kind_,
+                                 'pieces': len(room_) - 1,
+                                 'rect': rect})
     sec['relations_drawn'] = len(g_meta)
     sec['setting'] = setting
     if setting:
@@ -2699,6 +2995,18 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     sec['items2'] = out_items
 
     # ---- audit: pairwise overlap + frame containment ------------------
+    # people drawn in contact (a hug, a lap) overlap by design
+    contact_ = set()
+    for e in els:
+        lab_ = e['it'].get('label', '?')
+        if e.get('on_lap'):
+            contact_.add(frozenset((lab_, e['on_lap']['it'].get('label'))))
+        for t_ in e['m'].get('touch') or ():
+            o_ = next((o for o in els if o is not e and o.get('panel')
+                       == e.get('panel') and str(o['m'].get('label') or '')
+                       == t_), None)
+            if o_ is not None:
+                contact_.add(frozenset((lab_, o_['it'].get('label', '?'))))
     fx0, fy0, fx1, fy1 = (-W / 2 + W * 0.025, -H / 2 + H * 0.03,
                           W / 2 - W * 0.025, H / 2 - H * 0.03)
     boxes = [bx if len(bx) == 4 else bx + (set(),) for bx in boxes]
@@ -2708,7 +3016,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             audit.append(('off-frame', na))
         for jj in range(i + 1, len(boxes)):
             nb, B, tb, rb = boxes[jj]
-            if {ta, tb} in ({'rider', 'chart'}, {'rider'}):
+            if {ta, tb} in ({'rider', 'chart'}, {'rider'}) \
+                    or 'panel' in (ta, tb):
                 continue
             if (ta == 'mark' and nb in ra) or (tb == 'mark' and na in rb):
                 continue
@@ -2730,7 +3039,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 if any(_sb_ovl(lb, sg) for sg in chart_segs):
                     audit.append((na, nb))
                 continue
-            if _sb_ovl(A, B, 2.0):
+            if _sb_ovl(A, B, 2.0) and frozenset((na, nb)) not in contact_:
                 audit.append((na, nb))
     sec['qa_content'] = (L, band_t, L + Wc, band_b)
     sec['qa_marks'] = [bx[0] for bx in boxes if bx[2] == 'mark']
@@ -2748,6 +3057,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                       or bool(e.get('drawn')),
                       'act_meta': e.get('act_meta'),
                       'lab_box': e.get('lab_box'),
+                      'panel': e.get('panel', (e.get('kid_of') or {}).get(
+                          'panel')),
+                      'on_lap': bool(e.get('on_lap')),
                       'label_text': ' '.join(e['label'] or [])}
                      for e in all_els]
     return uid

@@ -60,6 +60,62 @@ def _semantic(v3r, out, si, name, ic, word: str = '') -> dict:
     return rec
 
 
+def _story(out, si, sec, beat) -> None:
+    """A story scene reads as pictures of people doing things: no
+    explanatory arrows, one panel per moment, every narrated person drawn
+    with the feeling and contact the narration gives them."""
+    import sb_cast
+    scn = beat.get('scene') or {}
+    if str(scn.get('mode') or '') != 'story':
+        return
+    if sec.get('layout') != 'panels':
+        _issue(out, 'fail', 'story-layout', si,
+               f'story scene drawn as {sec.get("layout")}')
+    for why in sec.get('qa_arrows') or ():
+        _issue(out, 'fail', 'story-arrow', si, f'arrow ({why}) in a story')
+    els = sec.get('qa_els') or []
+    roles = [scn.get('heroRole') or {}] + list(scn.get('supportingRoles')
+                                               or [])
+    drawn: dict = {}
+    here: dict = {}
+    for e in els:
+        here.setdefault(e.get('panel'), []).append(e)
+        if e['kind'] == 'person':
+            r = e['role'] or {}
+            drawn.setdefault(int(r.get('moment') or 0), []).append(e)
+    for r in roles:
+        if r.get('icon') != 'person':
+            continue
+        k = int(r.get('moment') or 0)
+        who = (r.get('label'), r.get('cast_key'))
+        mine = [e for e in drawn.get(k, ()) if ((e['role'] or {}).get(
+            'label'), (e['role'] or {}).get('cast_key')) == who]
+        if not mine:
+            _issue(out, 'fail', 'cast-missing', si,
+                   f'{r.get("label")} {r.get("cast_key") or ""} '
+                   f'not drawn in moment {k}')
+            continue
+        e = mine[0]
+        emo = str(r.get('emotion') or '')
+        if emo in sb_cast.FEELING_FACES and e['emo'] != emo:
+            _issue(out, 'fail', 'story-emotion', si,
+                   f'{r.get("label")}: {emo} narrated, drawn {e["emo"]}')
+        if r.get('lap_of') and not e.get('on_lap'):
+            _issue(out, 'fail', 'contact-missing', si,
+                   f'{r.get("label")} not on {r["lap_of"]}\'s lap')
+        for t in r.get('touch') or ():
+            if not any(t in ((o['role'] or {}).get('label'),
+                             (o['role'] or {}).get('group'),
+                             (o['role'] or {}).get('cast_key'))
+                       for o in here.get(e.get('panel'), ())):
+                _issue(out, 'fail', 'contact-missing', si,
+                       f'{r.get("label")} touches {t}: not in its panel')
+    for pn in sec.get('qa_panels') or ():
+        if pn['place'] and pn['pieces'] <= 0:
+            _issue(out, 'warn', 'backdrop-missing', si,
+                   f'moment {pn["moment"]}: {pn["place"]} not drawn')
+
+
 def visual(plan: dict, ratio: str = '16:9',
            words: list | None = None) -> tuple[list, list]:
     import pipeline_v3_narration_timed as pipe
@@ -122,7 +178,8 @@ def visual(plan: dict, ratio: str = '16:9',
                            f'{e["label"]} and {owner[0]} both draw {ic}')
                 row['elements'].append((e['label'], str(ic), ''))
                 row.setdefault('semantic', []).append(_semantic(v3r,
-                    out, si, name, ic, str(e['label'] or '')))
+                    out, si, name, ic, name if role.get('container_for')
+                    else str(e['label'] or '')))
             lb = e.get('lab_box')
             if lb and ink:
                 lcx = (lb[0] + lb[2]) / 2
@@ -157,6 +214,8 @@ def visual(plan: dict, ratio: str = '16:9',
                 _issue(out, 'fail', 'draw-sync', si,
                        f'{lab} drawn at {at:.1f}s, said at {said:.1f}s')
         row['cues'] = sec.get('qa_cues') or []
+        row['arrows'] = sec.get('qa_arrows') or []
+        _story(out, si, sec, beat)
         scenes.append(row)
     if fig_h:
         hs = [h for _s, h in fig_h]
@@ -164,7 +223,8 @@ def visual(plan: dict, ratio: str = '16:9',
             _issue(out, 'warn', 'cast-scale', None,
                    f'figure heights {min(hs):.0f}..{max(hs):.0f}px')
     for a, b in zip(scenes, scenes[1:]):
-        if a['layout'] == b['layout'] and a['layout'] not in (None,):
+        if a['layout'] == b['layout'] and a['layout'] not in (None,
+                                                               'panels'):
             _issue(out, 'warn', 'layout-repeat', b['beat'], a['layout'])
     return out, scenes
 

@@ -315,7 +315,8 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
             elif low in _PEOPLE_PRON and low not in ('her',) or (
                     low == 'her' and t.dep_ != 'poss'):
                 g = {'him': 'he', 'her': 'she', 'them': 'they'}.get(low, low)
-                ref = (carry.get(g) or carry.get('person')) if g in (
+                ref = (carry.get(g) or (carry.get('person') if g != 'they'
+                                        else '')) if g in (
                     'he', 'she', 'they') else low
                 if not ref:
                     continue
@@ -466,6 +467,10 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
             carry['person'] = e['label']
         elif e['lex'] == 'noun.person' and not e['pron']:
             carry['person'] = e['label']
+            if doc[e['at']].tag_ in ('NNS', 'NNPS'):
+                carry['they'] = e['label']
+        elif e['lex'] == 'noun.group' and not e['pron']:
+            carry['they'] = e['label']
         elif not e['pron'] and not e.get('time'):
             carry['thing'] = e['label']
     return {'text': sentence, 'entities': ents, 'events': events,

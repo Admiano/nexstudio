@@ -23,6 +23,8 @@ import sys
 from pathlib import Path
 
 import sb_activity
+import sb_cast
+import sb_story
 import scene_map
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -1826,17 +1828,33 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                       **({'setting': setting} if setting else {})},
         })
         if moments and maps:
-            beat_maps[len(beats) - 1] = maps
+            beat_maps[len(beats) - 1] = (maps, sents)
     _cast_looks(beats)
     _noun_labels(beats)
-    for bi, maps in beat_maps.items():
-        _graph_scene(beats[bi]['scene'], maps)
+    people = {r['label'] for b in beats for r in
+              [b['scene']['heroRole']] + b['scene']['supportingRoles']
+              if r.get('icon') == 'person'}
+    story = {bi for bi, (maps, _s) in beat_maps.items()
+             if sb_story.is_story_scene(maps, people)}
+    # a script that is mostly story is told as one throughout
+    if beat_maps and len(story) >= 0.6 * len(beat_maps):
+        story = set(beat_maps)
+    cast = sb_story.Cast()
+    for bi, (maps, sents_) in sorted(beat_maps.items()):
+        if bi in story:
+            sb_story.stage(beats[bi]['scene'], maps, sents_, cast,
+                           lambda w: v3._icon_for(w))
+        else:
+            _graph_scene(beats[bi]['scene'], maps)
+    mode = 'story' if beat_maps and len(story) >= 0.6 * len(beat_maps) \
+        else 'explain'
     heading = next((ln.strip()[2:].strip() for ln in script.splitlines()
                     if ln.strip().startswith('# ')), '')
     title = title or heading or _subject(script).title()
     pid = re.sub(r'\W+', '_', title.lower()).strip('_') or 'storyboard'
     return {'production_id': pid, 'title': title,
             'board_layout': 'storyboard',
+            'mode': mode,
             'brandExecution': {'brandAuthority': {
                 'background': '#F7F2E7', 'ink': '#1A1A17',
                 'accent': '#1A1A17', 'secondary': '#8B8577'}},
@@ -2114,7 +2132,7 @@ def _noun_labels(beats: list) -> None:
 
 _PRO_F = re.compile(r'\b(she|her|hers|herself)\b', re.I)
 _PRO_M = re.compile(r'\b(he|him|his|himself)\b', re.I)
-_YOUNG = re.compile(r'\b(little|young|small|tiny|baby|infant)\s+$', re.I)
+_YOUNG = re.compile(r'\b(little|small|tiny|baby|infant)\s+$', re.I)
 
 
 def _cast_looks(beats: list) -> None:
@@ -2138,10 +2156,16 @@ def _cast_looks(beats: list) -> None:
                     r'\b' + re.escape(a_) + r',\s+(an?|the)\s+(\w+\s+){0,2}?'
                     + re.escape(b_) + r'\b', text, re.I):
                 root[b_] = root[a_]
+            # 'a young firefighter named Leo': one person, two names
+            if a_ != b_ and re.search(
+                    r'\b' + re.escape(a_) + r'\s+(named|called)\s+'
+                    + re.escape(b_) + r'\b', text, re.I):
+                root[b_] = root[a_]
     votes: dict = {lab: [0, 0] for lab in labels}
     young: set = set()
     bearded: set = set()
     cur = ''
+    recent: list = []
     for b in beats:
         for sent in re.split(r'(?<=[.!?])\s+', b.get('narration') or ''):
             hits = []
@@ -2157,15 +2181,28 @@ def _cast_looks(beats: list) -> None:
                         bearded.add(root[lab])
             if hits:
                 cur = root[min(hits)[1]]
-            if cur:
-                votes[cur][0] += len(_PRO_F.findall(sent))
-                votes[cur][1] += len(_PRO_M.findall(sent))
+                for _h, lab in sorted(hits):
+                    if root[lab] in recent:
+                        recent.remove(root[lab])
+                    recent.append(root[lab])
+            # a pronoun names the latest referent its gender can fit:
+            # 'his granddaughters follow him' -> him is not a granddaughter
+            for pro, idx in ((_PRO_F, 0), (_PRO_M, 1)):
+                n_ = len(pro.findall(sent))
+                want = 'fm'[idx]
+                fit = next((c for c in ([cur] if cur else []) + recent[::-1]
+                            if sb_cast.lexical_sex(c) in ('', want)), '')
+                if n_ and fit:
+                    votes[fit][idx] += n_
     for r in roles:
         k = root.get(r['label'], r['label'])
         f, m = votes.get(k, (0, 0))
         if k != r['label']:
             r.setdefault('cast_key', k)
-        if f != m and 'gender' not in r:
+        lex = sb_cast.lexical_sex(r['label'])
+        if lex:
+            r['gender'] = lex
+        elif f != m and 'gender' not in r:
             r['gender'] = 'f' if f > m else 'm'
         if k in young:
             r.setdefault('age', 'child')

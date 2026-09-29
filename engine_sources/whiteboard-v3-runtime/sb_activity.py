@@ -1467,6 +1467,14 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
     pose = dict(pose, hands=dict(pose['hands']), feet=dict(pose['feet']))
     pose = _settle(pose, sc in _SEATED_SCHEMAS)
     body, fmarks, anch = sb_cast.posed(pose, emotion, outfit, shirt)
+    if sb_cast.EMOTIONS.get(emotion, ('',))[0] == 'holdhead' \
+            and sc not in HAND_SCHEMAS:
+        # a feeling that takes both hands to the head overrides free hands
+        hx, hy = anch['head'][0] / sb_cast.H, anch['head'][1] / sb_cast.H
+        hr = anch['head_r'] / sb_cast.H
+        pose['hands'] = {'n': (hx + hr * 0.85, hy + hr * 0.15),
+                         'f': (hx - hr * 0.75, hy + hr * 0.20)}
+        body, fmarks, anch = sb_cast.posed(pose, emotion, outfit, shirt)
     if pose.get('knee_f'):
         # a far knee that rests on the ground (kneeling)
         body2, _m2, _a2 = sb_cast.posed(dict(pose, knee=pose['knee_f']),
