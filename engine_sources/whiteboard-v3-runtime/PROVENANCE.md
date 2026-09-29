@@ -34,7 +34,8 @@ the hashes whenever a file changes (or run `sha256sum <files>`).
 | `plan_author.py` (script→plan decision layer) | `f6b88b039a5563f60f51366787ab45fc3a2c515bde8c869c7efa4c2f2ff5d06a` |
 | `vo_synth.py` (edge/kokoro VO + timings) | `3e51653659e0cc56fd4bf4439906bacd4e788b6506ab1e1b3b6b9e500b106466` |
 | `review_page.py` / `render_queue.py` | `17272c67991b19d10b22e327b3ff8410c5fb100522ddfb9e9301e6262c87dd8d` / `8af55ead7a0026fd3dd11f7e2abb2f825dae93fba52e90876eed8955461b89fb` |
-| `sb_cast.py` (storyboard cast: faces, emotions, interaction poses) | `e4e325802d2734fa07c657e12f51703a0b5f72f897d679f02e7658c6524ce0cb` |
+| `sb_activity.py` (activity depiction: verb -> motor schema, apparatus, contact-posed figure) | `01fb00376701747a5122f7d5d46e2b6218d565ced50c2945615f94e8a6fc520f` |
+| `sb_cast.py` (storyboard cast: faces, emotions, interaction poses) | `b016ef1838a04b3c5ded7b8cda6e1943cec1c706c0cb3acc886a3e36d37106ef` |
 | `v3_board_sections.py` (storyboard compositor: layouts, vignettes, marks) | `55793aaa45203c083da840a6865872b1866a24e6a2fd58f5a660d12cc8913833` |
 | `sb_qa.py` (storyboard ship gate: visual + semantic + audio) | `138fbde0ed4d02f6919b75b9bafcae3914d9608582c07667052b9b11d60af139` |
 | `marker_sfx.py` (per-stroke marker foley from recorded grains) | `81c6ed8e35718d9103d4a6b551909fbe6c69d6d54e5cf99c4cb7322f90838a53` |

@@ -26,7 +26,7 @@ GROUPS = ('objects', 'travel-places', 'animals-nature', 'food-drink',
 SKIP_SUB = ('flag', 'time', 'clock', 'keycap', 'hand', 'face', 'person',
             'family', 'emotion', 'zodiac', 'arrow', 'av-symbol',
             'alphanum', 'geometric', 'math', 'punctuation', 'currency',
-            'other-symbol', 'gender', 'religion', 'warning')
+            'other-symbol', 'gender', 'religion', 'warning', 'brand')
 # people draw through the character system, never as an emoji glyph
 PEOPLE = {'person', 'people', 'man', 'woman', 'men', 'women', 'human',
           'boy', 'girl', 'child', 'baby', 'adult', 'worker', 'explorer',

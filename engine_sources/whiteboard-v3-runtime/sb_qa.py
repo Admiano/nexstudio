@@ -87,13 +87,16 @@ def visual(plan: dict, ratio: str = '16:9') -> tuple[list, list]:
         ink_area = 0.0
         row = {'beat': si, 'layout': sec.get('layout'), 'elements': []}
         for e in els:
+            if e.get('in_activity'):
+                # drawn by its actor's activity apparatus, not as art
+                continue
             role = e['role'] or {}
             name = str(role.get('icon') or e['label'] or '')
             ink = e.get('ink')
             if ink:
                 ink_area += _area(ink)
             if e['kind'] == 'person':
-                if ink:
+                if ink and not e.get('act_meta'):
                     fig_h.append((si, ink[3] - ink[1]))
                 if str(role.get('icon', 'person')) != 'person' \
                         and not role.get('emotion'):

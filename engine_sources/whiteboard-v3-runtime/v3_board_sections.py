@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw
 
 import whiteboard_pil_adapter as wbp
 import v3_board_renderer as v3r
+import sb_activity
 import sb_cast
 from v3_board_renderer import (
     _draw_strokes, _map_scale, _palette, _group_world_bounds,
@@ -87,7 +88,8 @@ def _colors(plan):
             if re.match(r'^#[0-9a-fA-F]{6}$', _t):
                 cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16),
                             int(_t[5:7], 16), 255)
-    for _t in (sb_cast.FILL, sb_cast.SHADE) + sb_cast.SHIRTS + sb_cast.TONES:
+    for _t in ((sb_cast.FILL, sb_cast.SHADE) + sb_cast.SHIRTS + sb_cast.TONES
+               + sb_activity.TONES):
         cols[_t] = (int(_t[1:3], 16), int(_t[3:5], 16), int(_t[5:7], 16), 255)
     return cols
 
@@ -1039,8 +1041,8 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
 
         def need(e, rh):
             # a cell is as wide as its drawing or its label, whichever wins
-            art = e['aspect'] * rh * (0.80 if e['kind'] == 'person'
-                                      else 0.50)
+            art = e['aspect'] * rh * (0.80 * min(1.0, e['rel'])
+                                      if e['kind'] == 'person' else 0.50)
             return max(art, (labw(e) + pad) if e['label'] else 0.0)
 
         def plan_rows(nr):
@@ -1072,7 +1074,8 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None):
                 for e, w0 in zip(c, wc):
                     e['row'] = ri
                     w_ = w0 * k
-                    top = 0.92 if e['kind'] == 'person' else 0.66
+                    top = (min(1.0, 0.92 * e['rel'])
+                           if e['kind'] == 'person' else 0.66)
                     _sb_boxfit(e, x + w_ / 2, yb - lane(e), w_ * 0.9,
                                row_h * top - lane(e))
                     x += w_
@@ -1189,7 +1192,7 @@ def _sb_link(pb, cb, Wc):
     return _sb_arrow((ax + ux * t0, ay + uy * t0), (ax + ux * t1, ay + uy * t1))
 
 
-_SB_ATTACH = ('on', 'in', 'beside', 'held', 'under', 'worn')
+_SB_ATTACH = ('on', 'in', 'beside', 'held', 'under', 'worn', 'activity')
 # worn things the face itself draws, and worn things that sit on the head
 _SB_EYEWEAR = re.compile(r'\b(glasses|spectacles|goggles|sunglasses|'
                          r'eyeglasses|monocle)\b', re.I)
@@ -1197,6 +1200,53 @@ _SB_HEADWEAR = re.compile(r'\b(hat|cap|helmet|crown|hood|bonnet|beret|'
                           r'headband|headphones|headset|wig)\b', re.I)
 _SB_MARKS = ('flow', 'motion', 'puffs', 'cross', 'drips', 'sparkle', 'rain',
              'heat', 'up', 'down')
+
+
+def _sb_activity(e, fb, flip, shirt, si, qa):
+    """Compose a person element's narrated activity (apparatus + posed
+    figure + partner art) into box fb -> (body strokes, mark strokes) or
+    None when the element has no activity."""
+    spec = e['m'].get('activity')
+    if not isinstance(spec, dict):
+        return None
+    part = next((kd for kd in e.get('kids', ())
+                 if kd['att'] in ('activity', 'held')
+                 and str(kd['m'].get('label') or '')
+                 == str(spec.get('partner') or '')), None)
+    if part is not None:
+        part['drawn'] = True
+    got = sb_activity.compose(spec, part['art'] if part else None,
+                              e['emo'], e['fit'], shirt, flip)
+    if got is None:
+        qa.append({'beat': si, 'check': 'activity-undrawn',
+                   'severity': 'fail', 'detail':
+                   f'{e["m"].get("label")!r}: {spec.get("schema")}'})
+        return None
+    strokes, marks, anch, meta = got
+    pins = [([anch[k], anch[k]], 'ink', 0.0, False)
+            for k in ('hand_n', 'hand_f')]
+    fit_st, _fb = _sb_fit(strokes + marks + pins, fb)
+    hw = fit_st[len(strokes) + len(marks)][0][0]
+    fit_st = fit_st[:len(strokes) + len(marks)]
+    e['hand_w'] = hw
+    e['act_meta'] = meta
+    err = sb_activity.contact_error(meta)
+    if err > 0.08:
+        qa.append({'beat': si, 'check': 'activity-contact',
+                   'severity': 'fail', 'detail':
+                   f'{e["m"].get("label")!r} {meta["schema"]}: limb misses '
+                   f'its contact by {err:.2f} figure heights'})
+    if part is not None and not meta['placed']:
+        qa.append({'beat': si, 'check': 'activity-partner',
+                   'severity': 'info' if meta['kind'] else 'warn', 'detail':
+                   f'{spec.get("partner")!r} drawn by the apparatus only'})
+    if part is not None and meta['placed']:
+        part['ink'] = _sb_bounds(s_[0] for s_ in fit_st)
+    qa.append({'beat': si, 'check': 'activity', 'severity': 'info',
+               'detail': f'{e["m"].get("label")!r} {meta["schema"]}'
+               f'/{meta["kind"] or "-"} via {meta["via"]} '
+               f'contact {err:.3f}'})
+    return fit_st[:len(strokes)], fit_st[len(strokes):]
 
 
 def _sb_kid_box(att, hb, aspect, hand=None, act='', flip=False, label=''):
@@ -1645,7 +1695,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         kind = (gl if gl in _SB_GLYPHS else
                 ('person' if person else 'art'))
         art = [] if gl in _SB_GLYPHS else _sb_item_art(it)
-        emo, n_body = '', 0
+        emo, n_body, act_rel = '', 0, 1.0
         if kind == 'person':
             emo = sb_cast.emotion_for(dict(m, label=it.get('label', '')))
             body, marks, _hb = sb_cast.figure(
@@ -1656,6 +1706,20 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                                           it.get('label'), m.get('concept')))
             art = body + marks
             n_body = len(body)
+            spec = m.get('activity')
+            pv = sb_activity.compose(spec, None, emo) \
+                if isinstance(spec, dict) else None
+            if pv is not None:
+                # the layout box holds the whole activity picture
+                art, n_body = pv[0] + pv[1], len(pv[0])
+                ab_ = _sb_bounds(a_[0] for a_ in art)
+                act_rel = min(1.6, max(0.35, (ab_[3] - ab_[1])
+                                       / sb_activity.H))
+            elif m.get('activity_miss'):
+                qa.append({'beat': si, 'check': 'activity-missing',
+                           'severity': 'fail', 'detail':
+                           f'{m.get("label")!r} {m["activity_miss"]}s: '
+                           'no body schema'})
         if kind in ('person', 'art') and not art:
             continue
         expr = (m.get('bubble') or '') if kind == 'person' else (
@@ -1668,6 +1732,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         rel = {'stack-list': 0.92, 'crowd': 0.60, 'person': 1.0,
                'chart-journey': 1.0, 'divider': 1.0}.get(
                    kind, 0.88 if j == 0 else 0.74)
+        if kind == 'person':
+            # one cast scale: the box grows/shrinks with the apparatus
+            rel = act_rel
         ant = str(m.get('annotate') or '').strip()
         els.append({'j': j, 'ri': ris[j], 'it': it, 'm': m, 'kind': kind,
                     'art': art,
@@ -1982,8 +2049,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         slot = i1 - i0
         groups = []
         b = e['box']
-        if e['kind'] == 'person' and b[3] - b[1] > H * 0.42:
-            k_ = H * 0.42 / (b[3] - b[1])
+        cap_h = H * (0.56 if e['m'].get('activity') else 0.42)
+        if e['kind'] == 'person' and b[3] - b[1] > cap_h:
+            k_ = cap_h / (b[3] - b[1])
             cx_ = (b[0] + b[2]) / 2
             hw_ = (b[2] - b[0]) * k_ / 2
             b = e['box'] = (cx_ - hw_, b[3] - (b[3] - b[1]) * k_,
@@ -2025,14 +2093,19 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 e['seat'] = not any(kd['att'] == 'under' for kd in kids)
                 e['engaged'] = act in sb_cast.ENGAGED or (
                     tgt is not None and tgt is not e)
-                body, marks, _hb = sb_cast.figure(
-                    e['emo'], flip, act,
-                    sb_cast.shirt_for(e['m'].get('shirt') or e['m'].get('label')
-                                      or e['m'].get('concept')),
-                    outfit=e['fit'], engaged=e['engaged'],
-                    stance=e['stance'], seat=e['seat'])
-                fit_st, _fb = _sb_fit(body + marks, fb)
-                art_st, mark_st = fit_st[:len(body)], fit_st[len(body):]
+                shirt = sb_cast.shirt_for(
+                    e['m'].get('shirt') or e['m'].get('label')
+                    or e['m'].get('concept'))
+                got = _sb_activity(e, fb, flip, shirt, si, qa)
+                if got is not None:
+                    art_st, mark_st = got
+                else:
+                    body, marks, _hb = sb_cast.figure(
+                        e['emo'], flip, act, shirt,
+                        outfit=e['fit'], engaged=e['engaged'],
+                        stance=e['stance'], seat=e['seat'])
+                    fit_st, _fb = _sb_fit(body + marks, fb)
+                    art_st, mark_st = fit_st[:len(body)], fit_st[len(body):]
                 fig_b = _sb_bounds(s_[0] for s_ in art_st)
             else:
                 art_st, fig_b = _sb_fit(e['art'], fb)
@@ -2072,7 +2145,13 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 hh_ = (fig_b[3] - fig_b[1]) * 0.30
                 kd['ink'] = (fig_b[0], fig_b[1], fig_b[2], fig_b[1] + hh_)
                 continue
-            if kd['att'] == 'held' and e['kind'] == 'person':
+            if kd['att'] == 'activity' or kd.get('drawn'):
+                # drawn inside the activity picture (or absorbed by it)
+                kd['ink'] = kd.get('ink') or fig_b
+                continue
+            if kd['att'] == 'held' and e.get('hand_w'):
+                hand = e['hand_w']
+            elif kd['att'] == 'held' and e['kind'] == 'person':
                 u, v = sb_cast.hand_uv(e['emo'], e.get('flip', False),
                                        e.get('act', ''), e.get('fit'),
                                        e.get('engaged'),
@@ -2275,6 +2354,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                                     e['it']['groups'] if g[4]
                                     and g[4].get('icon') is not None), None),
                       'role': e['m'], 'kid': bool(e.get('kid_of')),
+                      'in_activity': e.get('att') == 'activity'
+                      or bool(e.get('drawn')),
+                      'act_meta': e.get('act_meta'),
                       'lab_box': e.get('lab_box'),
                       'label_text': ' '.join(e['label'] or [])}
                      for e in all_els]

@@ -870,6 +870,128 @@ def figure(emotion='neutral', flip=False, action='', shirt=None,
     return body, marks, (hx - r, hy - r, hx + r, hy + r)
 
 
+ARM = (0.145, 0.150)
+LEG = (0.215, 0.215)
+
+
+def _ik(base, tgt, lens, pref):
+    """Two-bone IK in unit coords: -> (joint, end). The joint takes the
+    side of the base->end line closest to `pref` (a unit direction);
+    out-of-reach targets are met at full stretch."""
+    a, b = lens
+    dx, dy = tgt[0] - base[0], tgt[1] - base[1]
+    d = math.hypot(dx, dy)
+    d_ = min(max(d, abs(a - b) + 1e-4), a + b - 1e-4)
+    ux, uy = (dx / d, dy / d) if d > 1e-9 else (0.0, 1.0)
+    end = (base[0] + ux * d_, base[1] + uy * d_)
+    along = (a * a - b * b + d_ * d_) / (2 * d_)
+    off = math.sqrt(max(0.0, a * a - along * along))
+    mx, my = base[0] + ux * along, base[1] + uy * along
+    c1 = (mx - uy * off, my + ux * off)
+    c2 = (mx + uy * off, my - ux * off)
+
+    def score(c):
+        return (c[0] - mx) * pref[0] + (c[1] - my) * pref[1]
+    return (c1 if score(c1) >= score(c2) else c2), end
+
+
+def posed(pose, emotion='neutral', outfit=None, shirt=None):
+    """A jointed figure placed by contact targets, facing +x.
+
+    `pose` (unit coords, y down, ground 0): hip (x, y); lean (radians,
+    + tips the torso forward); hands {'n','f'} and feet {'n','f'}
+    targets for the near/far limbs; optional knee/elbow bend preferences
+    (unit directions), 'toe' (shoe direction), 'head' (dx, dy) nod.
+    -> (body_strokes, mark_strokes, anchors) in unit px; anchors carry
+    hand_n/hand_f/foot_n/foot_f/mouth/eye/head/hip points."""
+    _p0, face_n, mark_n = EMOTIONS.get(emotion, EMOTIONS['neutral'])
+    fit = dict(outfit or {})
+    shirt = fit.get('shirt') or shirt
+    hip = pose['hip']
+    lean = float(pose.get('lean', 0.0))
+    ca, sa = math.cos(lean), math.sin(lean)
+    hip0 = HIP_Y + 0.03
+
+    def xf(q):
+        # q in unit px of the upright figure -> unit px of the pose
+        x, y = q[0] / H, q[1] / H - hip0
+        return ((hip[0] + x * ca - y * sa) * H,
+                (hip[1] + x * sa + y * ca) * H)
+
+    def up(x, y):
+        return xf((x * H, y * H))
+
+    def unit(q):
+        return (q[0] / H, q[1] / H)
+
+    hdx, hdy = pose.get('head', (0.0, 0.0))
+    hx0, hy0 = _p(0.012 + hdx, HEAD_CY + hdy)
+    r = HEAD_R * H
+    tw, bw = 0.108, 0.058
+    ty, byy = SH_Y + 0.005, HIP_Y + 0.012
+    left = [_p(-tw + (tw - bw) * (i / 8) ** 1.25, ty + (byy - ty) * i / 8)
+            for i in range(9)]
+    bottom = [(math.cos(a) * bw * H, byy * H + math.sin(a) * bw * H * 0.7)
+              for a in [math.pi - math.pi * k / 10 for k in range(11)]]
+    rgt = [(-x, y) for x, y in reversed(left)]
+    shoulder = [(math.cos(a) * tw * H, ty * H - math.sin(a) * tw * H * 0.28)
+                for a in [math.pi * k / 10 for k in range(11)]]
+    torso = left + bottom[1:] + rgt[1:] + shoulder[1:]
+    torso.append(torso[0])
+    core = [(torso, shirt or FILL, 1.0, 'solid')]
+    core += _torso_extra(fit.get('torso'), ty, byy, tw, bw, 1)
+    head = [(_circle(hx0, hy0, r, n=30), FILL, 0.95, 'solid')]
+    head += _face(face_n, hx0, hy0, r, 1, bool(fit.get('glasses')))
+    head += _hat(fit.get('hat'), hx0, hy0, r, 1)
+    core = [([xf(q) for q in pts], c, w, f) for pts, c, w, f in core]
+    head = [([xf(q) for q in pts], c, w, f) for pts, c, w, f in head]
+    sh = {'n': unit(up(0.03, SH_Y + 0.02)), 'f': unit(up(-0.02, SH_Y + 0.02))}
+    hp = {'n': unit(up(0.012, hip0)), 'f': unit(up(-0.012, hip0))}
+    toe = pose.get('toe', (1.0, 0.0))
+    limbs = {}
+    for side in ('n', 'f'):
+        el, hd = _ik(sh[side], pose['hands'][side], ARM,
+                     pose.get('elbow', (-0.35, 0.94)))
+        kn, ft = _ik(hp[side], pose['feet'][side], LEG,
+                     pose.get('knee', (0.94, -0.2)))
+        limbs[side] = (el, hd, kn, ft)
+
+    def limb(side, col):
+        el, hd, kn, ft = limbs[side]
+        st = [([_p(*hp[side]), _p(*kn), _p(*ft)], 'ink', 0.85, False)]
+        fx, fy = _p(*ft)
+        tx, ty_ = toe
+        nx, ny = -ty_, tx
+        shoe = [(fx - tx * 0.012 * H - nx * 0.048 * H,
+                 fy - ty_ * 0.012 * H - ny * 0.048 * H),
+                (fx + tx * 0.05 * H, fy + ty_ * 0.05 * H),
+                (fx - tx * 0.03 * H, fy - ty_ * 0.03 * H)]
+        shoe.append(shoe[0])
+        st.append((shoe, col, 0.8, 'solid'))
+        st.append(([_p(*sh[side]), _p(*el), _p(*hd)], 'ink', 0.85, False))
+        hx, hy = _p(*hd)
+        st.append((_circle(hx, hy, 0.028 * H, 0.034 * H, 12), col, 0.8,
+                   'solid'))
+        return st
+
+    body = limb('f', SHADE) + core + head + limb('n', FILL)
+    inked = []
+    for st in body:
+        inked.append(st)
+        if st[3] == 'solid' and st[1] != 'ink':
+            inked.append((st[0], 'ink', 0.62, False))
+    hx, hy = xf((hx0, hy0))
+    top_y = min(q[1] for st in inked for q in st[0])
+    marks = _marks(mark_n, hx, hy, r, top_y)
+    anchors = {'hand_n': _p(*limbs['n'][1]), 'hand_f': _p(*limbs['f'][1]),
+               'foot_n': _p(*limbs['n'][3]), 'foot_f': _p(*limbs['f'][3]),
+               'mouth': xf((hx0 + r * 0.55, hy0 + r * 0.45)),
+               'eye': xf((hx0 + r * 0.6, hy0 - r * 0.05)),
+               'head': (hx, hy), 'head_r': r, 'hip': _p(*hip),
+               'chest': xf((0.05 * H, (SH_Y + 0.10) * H))}
+    return inked, marks, anchors
+
+
 # every literal tone the cast draws with (the renderer registers these)
 with open(__file__, encoding='utf-8') as _f:
     TONES = tuple(sorted(set(re.findall(r"'(#[0-9A-Fa-f]{6})'", _f.read()))))

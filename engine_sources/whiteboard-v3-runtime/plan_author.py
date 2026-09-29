@@ -22,6 +22,7 @@ import re
 import sys
 from pathlib import Path
 
+import sb_activity
 import scene_map
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -981,6 +982,47 @@ def _drawable(v3, head: str, used: dict) -> bool:
             or _is_physical(head))
 
 
+def _activity(ag, ev, ents, role, roles):
+    """Resolve what the actor's body is doing in `ev` (sb_activity) and
+    bind the thing it is done with/on/in as the activity partner."""
+    def lab(eid):
+        return str(ents[eid].get('label') or ents[eid].get('head') or '')
+    objs = ([('dobj', lab(ev['patient']))] if ev['patient'] is not None
+            else []) + [(p_, lab(e)) for p_, e in ev['preps']]
+    spec = sb_activity.resolve(ev['lemma'], objs, '' if 'activity' in ag
+                               else ag.get('stance', ''))
+    if 'activity' in ag:
+        spec = sb_activity.merge(ag['activity'], spec)
+        if spec is None:
+            return
+    if spec is None:
+        if sb_activity.is_physical(ev['lemma']):
+            ag.setdefault('activity_miss', ev['lemma'])
+        return
+    act = {k: spec[k] for k in ('schema', 'kind', 'via', 'lemma')}
+    eids = ([ev['patient']] if ev['patient'] is not None else []) + [
+        e for _p, e in ev['preps']]
+    part = next((role(e) for e in eids if role(e) is not None
+                 and lab(e) == spec['partner']), None)
+    me = roles.index(ag)
+    if part is not None and part['icon'] != 'person' \
+            and part.get('attach') in (None, 'held', 'under') \
+            and part.get('to', me) == me:
+        # things in the hands stay 'held'; the rest join the picture
+        part.update(attach='held' if spec['schema'] in sb_activity.HAND_SCHEMAS
+                    or part.get('attach') == 'held' else 'activity', to=me)
+        act['partner'] = part['label']
+    for e in eids:
+        r_ = role(e)
+        if r_ is not None and r_ is not part and lab(e) in spec['absorb'] \
+                and r_['icon'] != 'person' and 'attach' not in r_:
+            r_.update(attach='activity', to=me)
+    if 'activity' in ag and ag['activity'].get('partner') \
+            and act.get('partner') is None:
+        act['partner'] = ag['activity']['partner']
+    ag['activity'] = act
+
+
 def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
                 compounds: dict, last_person: str):
     """Roles, relation, marks and setting for one sentence from its scene
@@ -1105,6 +1147,8 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
                      and role(e) and role(e)['icon'] != 'person'), None)
         held = tool if tool is not None else tgt
         pose = None
+        if ag['icon'] == 'person':
+            _activity(ag, ev, ents, role, roles)
         stance, arm = _body_for(ev['lemma']) if ag['icon'] == 'person' \
             else ('', '')
         if stance and 'stance' not in ag:

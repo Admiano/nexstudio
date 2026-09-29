@@ -17,6 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import plan_author as pa  # noqa: E402
+import sb_activity  # noqa: E402
 import sb_cast  # noqa: E402
 
 _WORKER = {'worker.n.01', 'professional.n.01', 'skilled_worker.n.01',
@@ -63,7 +64,7 @@ def evaluate(scripts: list[Path]) -> dict:
     import v3_board_renderer as v3r
     rows, tot = [], {'cast': 0, 'jobs': 0, 'dressed': 0, 'doers': 0,
                      'engaged': 0, 'art': 0, 'exact': 0, 'literal': 0,
-                     'curated': 0,
+                     'curated': 0, 'physical': 0, 'shown': 0,
                      'library': 0, 'loose': 0, 'generic': 0}
     for sp in scripts:
         plan = pa.build_storyboard(sp.read_text(encoding='utf-8'))
@@ -81,6 +82,16 @@ def evaluate(scripts: list[Path]) -> dict:
                         tot['jobs'] += 1
                         tot['dressed'] += bool(fit)
                         rec['job'] = True
+                    if r.get('activity') or r.get('activity_miss'):
+                        tot['physical'] += 1
+                        act = r.get('activity')
+                        got = sb_activity.compose(act) if act else None
+                        ok = bool(got and sb_activity.contact_error(
+                            got[3]) <= 0.08)
+                        tot['shown'] += ok
+                        rec['activity'] = (act or {}).get('schema') or (
+                            'MISS:' + str(r.get('activity_miss')))
+                        rec['shown'] = ok
                     if _does(dict(r, narration=b['narration'])):
                         tot['doers'] += 1
                         ok = r.get('action') in sb_cast.ENGAGED and bool(
@@ -115,6 +126,7 @@ def evaluate(scripts: list[Path]) -> dict:
         return round(100.0 * tot[a] / tot[b], 1) if tot[b] else 100.0
     score = {'dressed_jobs_%': pct('dressed', 'jobs'),
              'engaged_doers_%': pct('engaged', 'doers'),
+             'activity_shown_%': pct('shown', 'physical'),
              'exact_art_%': pct('exact', 'art'),
              'exact_or_literal_art_%': round(
                  pct('exact', 'art') + pct('literal', 'art'), 1),
@@ -138,10 +150,11 @@ def main(argv=None) -> int:
     for r in res['rows']:
         miss = (r.get('job') and not r.get('outfit')) or (
             r.get('doer') and not r.get('target') and r.get('action') != 'hold'
-        ) or r.get('via') in ('generic', 'loose')
+        ) or r.get('via') in ('generic', 'loose') or r.get('shown') is False
         if miss:
             print('  MISS', r['script'], r['beat'], r['label'],
-                  {k: r[k] for k in ('action', 'target', 'art', 'via')
+                  {k: r[k] for k in ('action', 'target', 'art', 'via',
+                                     'activity')
                    if k in r})
     return 0
 
