@@ -72,7 +72,8 @@ def _rdp(pts, eps):
     a, b = np.asarray(pts[0]), np.asarray(pts[-1])
     ab = b - a
     n = np.hypot(*ab) or 1e-9
-    d = [abs(np.cross(ab / n, np.asarray(p) - a)) for p in pts]
+    u = ab / n
+    d = [abs(u[0] * (p[1] - a[1]) - u[1] * (p[0] - a[0])) for p in pts]
     i = int(np.argmax(d))
     if d[i] <= eps:
         return [pts[0], pts[-1]]

@@ -1,159 +1,158 @@
 {
-  "name": "concepts",
-  "domain": "general abstract ideas: time, place, part, rules, risk, trust",
-  "glyphs": {
-    "stopwatch-fast": {
-      "keywords": [
-        "second",
-        "seconds",
-        "instant",
-        "instantly",
-        "minute",
-        "minutes",
-        "fast",
-        "speed",
-        "quick",
-        "quickly",
-        "real time"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "calendar-days": {
-      "keywords": [
-        "day",
-        "days",
-        "week",
-        "weeks",
-        "month",
-        "months",
-        "year",
-        "years",
-        "wait",
-        "delay",
-        "deadline",
-        "schedule",
-        "sunday",
-        "monday",
-        "weekend"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "globe-world": {
-      "keywords": [
-        "country",
-        "countries",
-        "nation",
-        "nations",
-        "world",
-        "global",
-        "globe",
-        "international",
-        "abroad",
-        "overseas"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "fraction-pie": {
-      "keywords": [
-        "piece",
-        "pieces",
-        "fraction",
-        "fractions",
-        "fractional",
-        "portion",
-        "slice",
-        "small piece",
-        "share of"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "rule-book": {
-      "keywords": [
-        "rule",
-        "rules",
-        "law",
-        "laws",
-        "terms",
-        "fine print",
-        "policy",
-        "regulations",
-        "prospectus",
-        "conditions",
-        "agreement"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "watchdog-eye": {
-      "keywords": [
-        "regulator",
-        "regulators",
-        "regulation",
-        "oversight",
-        "watchdog",
-        "supervisor",
-        "authority",
-        "inspector",
-        "audit",
-        "auditor"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "risk-warning": {
-      "keywords": [
-        "risk",
-        "risks",
-        "danger",
-        "threat",
-        "hazard",
-        "warning",
-        "caution"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "trust-handshake": {
-      "keywords": [
-        "trust",
-        "confidence",
-        "faith",
-        "reliance"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "clock-night": {
-      "keywords": [
-        "night",
-        "nights",
-        "midnight",
-        "evening",
-        "overnight",
-        "sunday night",
-        "late night",
-        "after hours",
-        "after work"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "sunrise-morning": {
-      "keywords": [
-        "morning",
-        "dawn",
-        "sunrise",
-        "daybreak",
-        "tomorrow",
-        "next morning"
-      ],
-      "fill": true,
-      "colors": true
-    }
+ "name": "concepts",
+ "domain": "general abstract ideas: time, place, part, rules, risk, trust",
+ "glyphs": {
+  "stopwatch-fast": {
+   "keywords": [
+    "second",
+    "seconds",
+    "instant",
+    "instantly",
+    "minute",
+    "minutes",
+    "fast",
+    "speed",
+    "quick",
+    "quickly",
+    "real time"
+   ],
+   "fill": true,
+   "colors": true
   },
-  "general": true
+  "calendar-days": {
+   "keywords": [
+    "day",
+    "days",
+    "week",
+    "weeks",
+    "month",
+    "months",
+    "year",
+    "years",
+    "wait",
+    "delay",
+    "deadline",
+    "schedule",
+    "sunday",
+    "monday",
+    "weekend"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "globe-world": {
+   "keywords": [
+    "country",
+    "countries",
+    "nation",
+    "nations",
+    "world",
+    "global",
+    "globe",
+    "international",
+    "abroad",
+    "overseas"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "fraction-pie": {
+   "keywords": [
+    "piece",
+    "pieces",
+    "fraction",
+    "fractions",
+    "fractional",
+    "portion",
+    "slice",
+    "small piece",
+    "share of"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "rule-book": {
+   "keywords": [
+    "rule",
+    "rules",
+    "law",
+    "laws",
+    "terms",
+    "fine print",
+    "policy",
+    "regulations",
+    "prospectus",
+    "conditions",
+    "agreement"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "watchdog-eye": {
+   "keywords": [
+    "regulator",
+    "regulators",
+    "regulation",
+    "oversight",
+    "watchdog",
+    "supervisor",
+    "authority",
+    "inspector",
+    "audit"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "risk-warning": {
+   "keywords": [
+    "risk",
+    "risks",
+    "danger",
+    "threat",
+    "hazard",
+    "warning",
+    "caution"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "trust-handshake": {
+   "keywords": [
+    "trust",
+    "confidence",
+    "faith",
+    "reliance"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "clock-night": {
+   "keywords": [
+    "night",
+    "nights",
+    "midnight",
+    "evening",
+    "overnight",
+    "sunday night",
+    "late night",
+    "after hours",
+    "after work"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "sunrise-morning": {
+   "keywords": [
+    "morning",
+    "dawn",
+    "sunrise",
+    "daybreak",
+    "tomorrow",
+    "next morning"
+   ],
+   "fill": true,
+   "colors": true
+  }
+ },
+ "general": true
 }

@@ -1,379 +1,689 @@
 {
-  "name": "crypto",
-  "domain": "crypto / defi / web3 explainers",
-  "glyphs": {
-    "bitcoin-coin": {
-      "keywords": [
-        "bitcoin",
-        "btc",
-        "coin",
-        "crypto",
-        "currency",
-        "sats"
-      ],
-      "motif": "coin",
-      "tone": "#F7931A",
-      "fill": true,
-      "colors": true
-    },
-    "candlestick-chart": {
-      "keywords": [
-        "chart",
-        "candle",
-        "candlestick",
-        "price",
-        "market",
-        "trading",
-        "graph"
-      ],
-      "motif": "chart",
-      "tone": "a_red",
-      "colors": true
-    },
-    "pool-cylinder": {
-      "keywords": [
-        "pool",
-        "liquidity",
-        "reservoir",
-        "depth",
-        "barrel",
-        "fund"
-      ],
-      "motif": "pool",
-      "tone": "a_blue",
-      "fill": true,
-      "colors": true
-    },
-    "vault-safe": {
-      "keywords": [
-        "vault",
-        "safe",
-        "custody",
-        "secure",
-        "cold",
-        "storage",
-        "deposit"
-      ],
-      "motif": "vault",
-      "tone": "a_blue",
-      "colors": true
-    },
-    "shield-check": {
-      "keywords": [
-        "shield",
-        "protect",
-        "security",
-        "audit",
-        "verified",
-        "safe",
-        "guard"
-      ],
-      "motif": "shield",
-      "tone": "a_green",
-      "fill": true,
-      "colors": true
-    },
-    "chain-link": {
-      "keywords": [
-        "chain",
-        "blockchain",
-        "link",
-        "network",
-        "ledger",
-        "connected",
-        "blocks"
-      ]
-    },
-    "ledger-book": {
-      "keywords": [
-        "ledger",
-        "book",
-        "record",
-        "accounting",
-        "journal",
-        "register",
-        "transactions"
-      ]
-    },
-    "whale": {
-      "keywords": [
-        "whale",
-        "big",
-        "holder",
-        "institution",
-        "giant",
-        "large"
-      ],
-      "tone": "a_blue",
-      "fill": true,
-      "colors": true
-    },
-    "key": {
-      "keywords": [
-        "key",
-        "private",
-        "access",
-        "seed",
-        "phrase",
-        "password",
-        "unlock"
-      ],
-      "tone": "a_yellow",
-      "colors": true
-    },
-    "block-cube": {
-      "keywords": [
-        "block",
-        "cube",
-        "blockchain",
-        "mine",
-        "mined",
-        "data"
-      ]
-    },
-    "eye-off": {
-      "keywords": [
-        "hidden",
-        "dark",
-        "invisible",
-        "anonymous",
-        "private",
-        "secret",
-        "off"
-      ]
-    },
-    "network-nodes": {
-      "keywords": [
-        "network",
-        "nodes",
-        "peer",
-        "distributed",
-        "decentralized",
-        "mesh",
-        "p2p"
-      ]
-    },
-    "exchange-swap": {
-      "keywords": [
-        "swap",
-        "exchange",
-        "trade",
-        "convert",
-        "transfer",
-        "arrows"
-      ]
-    },
-    "wallet": {
-      "keywords": [
-        "wallet",
-        "address",
-        "balance",
-        "hold",
-        "store",
-        "account"
-      ],
-      "tone": "#F7931A",
-      "colors": true
-    },
-    "lock-closed": {
-      "keywords": [
-        "lock",
-        "locked",
-        "encrypt",
-        "escrow",
-        "frozen",
-        "vested"
-      ]
-    },
-    "trend-up": {
-      "keywords": [
-        "up",
-        "gain",
-        "rise",
-        "pump",
-        "growth",
-        "bull",
-        "bullish",
-        "green"
-      ],
-      "motif": "uptrend",
-      "tone": "a_green"
-    },
-    "trend-down": {
-      "keywords": [
-        "down",
-        "loss",
-        "drop",
-        "dump",
-        "crash",
-        "bear",
-        "bearish",
-        "red",
-        "decline"
-      ],
-      "motif": "downtrend",
-      "tone": "a_red"
-    },
-    "gas-fee": {
-      "keywords": [
-        "gas",
-        "fee",
-        "fees",
-        "cost",
-        "transaction cost"
-      ],
-      "tone": "#F7931A",
-      "colors": true
-    },
-    "rocket": {
-      "keywords": [
-        "rocket",
-        "moon",
-        "launch",
-        "moonshot",
-        "surge",
-        "lambo"
-      ]
-    },
-    "bank-building": {
-      "keywords": [
-        "bank",
-        "banking",
-        "institution",
-        "government",
-        "regulator",
-        "fed",
-        "treasury"
-      ],
-      "tone": "a_blue",
-      "colors": true
-    },
-    "alert-triangle": {
-      "keywords": [
-        "warning",
-        "alert",
-        "risk",
-        "danger",
-        "caution",
-        "risky"
-      ],
-      "tone": "a_yellow",
-      "fill": true,
-      "colors": true
-    },
-    "magnify": {
-      "keywords": [
-        "search",
-        "inspect",
-        "audit",
-        "look",
-        "find",
-        "analyze",
-        "research",
-        "magnifier"
-      ],
-      "colors": true
-    },
-    "robot-bot": {
-      "keywords": [
-        "bot",
-        "robot",
-        "algorithm",
-        "algo",
-        "automated",
-        "ai",
-        "automation"
-      ],
-      "tone": "a_blue",
-      "colors": true
-    },
-    "percent-fee": {
-      "keywords": [
-        "percent",
-        "percentage",
-        "fee",
-        "commission",
-        "rate",
-        "apr",
-        "apy",
-        "yield"
-      ]
-    },
-    "hourglass": {
-      "keywords": [
-        "time",
-        "wait",
-        "delay",
-        "pending",
-        "hourglass",
-        "duration",
-        "epoch"
-      ]
-    },
-    "laptop-trade": {
-      "keywords": [
-        "trade",
-        "trader",
-        "laptop",
-        "desk",
-        "screen",
-        "trading"
-      ],
-      "tone": "a_blue",
-      "colors": true
-    },
-    "target-aim": {
-      "keywords": [
-        "target",
-        "aim",
-        "goal",
-        "precision",
-        "sniper",
-        "objective"
-      ],
-      "tone": "a_red",
-      "colors": true
-    },
-    "fire-hot": {
-      "keywords": [
-        "fire",
-        "hot",
-        "burn",
-        "burned",
-        "trending",
-        "viral"
-      ],
-      "tone": "#D34541",
-      "fill": true,
-      "colors": true
-    },
-    "trophy": {
-      "keywords": [
-        "trophy",
-        "win",
-        "winner",
-        "reward",
-        "prize",
-        "victory",
-        "champion"
-      ],
-      "tone": "a_yellow",
-      "fill": true,
-      "colors": true
-    },
-    "hand-coin": {
-      "keywords": [
-        "tip",
-        "donate",
-        "pay",
-        "paying",
-        "hand",
-        "receive",
-        "spend",
-        "offer"
-      ],
-      "motif": "payment",
-      "colors": true
-    }
+ "name": "crypto",
+ "domain": "crypto explainers \u2014 harvested + curated",
+ "glyphs": {
+  "bitcoin-coin": {
+   "keywords": [
+    "bitcoin",
+    "btc",
+    "coin",
+    "crypto",
+    "currency",
+    "sats"
+   ],
+   "motif": "coin",
+   "tone": "#F7931A",
+   "fill": true,
+   "colors": true
+  },
+  "candlestick-chart": {
+   "keywords": [
+    "chart",
+    "candle",
+    "candlestick",
+    "price",
+    "market",
+    "trading",
+    "graph"
+   ],
+   "motif": "chart",
+   "tone": "a_red",
+   "colors": true
+  },
+  "pool-cylinder": {
+   "keywords": [
+    "pool",
+    "liquidity",
+    "reservoir",
+    "depth",
+    "barrel",
+    "fund"
+   ],
+   "motif": "pool",
+   "tone": "a_blue",
+   "fill": true,
+   "colors": true
+  },
+  "vault-safe": {
+   "keywords": [
+    "vault",
+    "safe",
+    "custody",
+    "secure",
+    "cold",
+    "storage",
+    "deposit"
+   ],
+   "motif": "vault",
+   "tone": "a_blue",
+   "colors": true
+  },
+  "shield-check": {
+   "keywords": [
+    "shield",
+    "protect",
+    "security",
+    "audit",
+    "verified",
+    "safe",
+    "guard"
+   ],
+   "motif": "shield",
+   "tone": "a_green",
+   "fill": true,
+   "colors": true
+  },
+  "chain-link": {
+   "keywords": [
+    "chain",
+    "blockchain",
+    "link",
+    "network",
+    "ledger",
+    "connected",
+    "blocks"
+   ]
+  },
+  "ledger-book": {
+   "keywords": [
+    "ledger",
+    "book",
+    "record",
+    "accounting",
+    "journal",
+    "register",
+    "transactions"
+   ]
+  },
+  "whale": {
+   "keywords": [
+    "whale",
+    "big",
+    "institution",
+    "giant",
+    "large"
+   ],
+   "tone": "a_blue",
+   "fill": true,
+   "colors": true
+  },
+  "key": {
+   "keywords": [
+    "key",
+    "private",
+    "access",
+    "seed",
+    "phrase",
+    "password",
+    "unlock"
+   ],
+   "tone": "a_yellow",
+   "colors": true
+  },
+  "block-cube": {
+   "keywords": [
+    "block",
+    "cube",
+    "blockchain",
+    "mine",
+    "mined",
+    "data"
+   ]
+  },
+  "eye-off": {
+   "keywords": [
+    "hidden",
+    "dark",
+    "invisible",
+    "anonymous",
+    "private",
+    "secret",
+    "off"
+   ]
+  },
+  "network-nodes": {
+   "keywords": [
+    "network",
+    "nodes",
+    "peer",
+    "distributed",
+    "decentralized",
+    "mesh",
+    "p2p"
+   ]
+  },
+  "exchange-swap": {
+   "keywords": [
+    "swap",
+    "exchange",
+    "trade",
+    "convert",
+    "transfer",
+    "arrows"
+   ]
+  },
+  "wallet": {
+   "keywords": [
+    "wallet",
+    "address",
+    "balance",
+    "hold",
+    "store",
+    "account"
+   ],
+   "tone": "#F7931A",
+   "colors": true
+  },
+  "lock-closed": {
+   "keywords": [
+    "lock",
+    "locked",
+    "encrypt",
+    "escrow",
+    "frozen",
+    "vested"
+   ]
+  },
+  "trend-up": {
+   "keywords": [
+    "up",
+    "gain",
+    "rise",
+    "pump",
+    "growth",
+    "bull",
+    "bullish",
+    "green"
+   ],
+   "motif": "uptrend",
+   "tone": "a_green"
+  },
+  "trend-down": {
+   "keywords": [
+    "down",
+    "loss",
+    "drop",
+    "dump",
+    "crash",
+    "bear",
+    "bearish",
+    "red",
+    "decline"
+   ],
+   "motif": "downtrend",
+   "tone": "a_red"
+  },
+  "gas-fee": {
+   "keywords": [
+    "gas",
+    "fee",
+    "fees",
+    "cost",
+    "transaction cost"
+   ],
+   "tone": "#F7931A",
+   "colors": true
+  },
+  "rocket": {
+   "keywords": [
+    "rocket",
+    "moon",
+    "launch",
+    "moonshot",
+    "surge",
+    "lambo"
+   ]
+  },
+  "bank-building": {
+   "keywords": [
+    "bank",
+    "banking",
+    "institution",
+    "government",
+    "regulator",
+    "fed",
+    "treasury"
+   ],
+   "tone": "a_blue",
+   "colors": true
+  },
+  "alert-triangle": {
+   "keywords": [
+    "warning",
+    "alert",
+    "risk",
+    "danger",
+    "caution",
+    "risky"
+   ],
+   "tone": "a_yellow",
+   "fill": true,
+   "colors": true
+  },
+  "magnify": {
+   "keywords": [
+    "search",
+    "inspect",
+    "audit",
+    "look",
+    "find",
+    "analyze",
+    "research",
+    "magnifier"
+   ],
+   "colors": true
+  },
+  "robot-bot": {
+   "keywords": [
+    "bot",
+    "robot",
+    "algorithm",
+    "algo",
+    "automated",
+    "ai",
+    "automation"
+   ],
+   "tone": "a_blue",
+   "colors": true
+  },
+  "percent-fee": {
+   "keywords": [
+    "percent",
+    "percentage",
+    "fee",
+    "commission",
+    "rate",
+    "apr",
+    "apy",
+    "yield"
+   ]
+  },
+  "hourglass": {
+   "keywords": [
+    "time",
+    "wait",
+    "delay",
+    "pending",
+    "hourglass",
+    "duration",
+    "epoch"
+   ]
+  },
+  "laptop-trade": {
+   "keywords": [
+    "trade",
+    "trader",
+    "laptop",
+    "desk",
+    "screen",
+    "trading"
+   ],
+   "tone": "a_blue",
+   "colors": true
+  },
+  "target-aim": {
+   "keywords": [
+    "target",
+    "aim",
+    "goal",
+    "precision",
+    "sniper",
+    "objective"
+   ],
+   "tone": "a_red",
+   "colors": true
+  },
+  "fire-hot": {
+   "keywords": [
+    "fire",
+    "hot",
+    "burn",
+    "burned",
+    "trending",
+    "viral"
+   ],
+   "tone": "#D34541",
+   "fill": true,
+   "colors": true
+  },
+  "trophy": {
+   "keywords": [
+    "trophy",
+    "win",
+    "winner",
+    "reward",
+    "prize",
+    "victory",
+    "champion"
+   ],
+   "tone": "a_yellow",
+   "fill": true,
+   "colors": true
+  },
+  "hand-coin": {
+   "keywords": [
+    "tip",
+    "donate",
+    "pay",
+    "paying",
+    "hand",
+    "receive",
+    "spend",
+    "offer"
+   ],
+   "motif": "payment",
+   "colors": true
+  },
+  "token-coin": {
+   "keywords": [
+    "asset token",
+    "digital token",
+    "token",
+    "token coin",
+    "tokenized asset",
+    "tokenized stock",
+    "your token"
+   ],
+   "donor": "game-icons:token"
+  },
+  "blockchain": {
+   "keywords": [
+    "bitcoin blockchain",
+    "block",
+    "blockchain",
+    "blocks",
+    "chain",
+    "new block",
+    "previous block",
+    "single block"
+   ],
+   "donor": "kit:crypto:blockchain"
+  },
+  "ledger": {
+   "keywords": [
+    "digital ledger",
+    "digital record",
+    "distributed ledger",
+    "entry",
+    "ledger",
+    "record",
+    "transaction record"
+   ],
+   "donor": "world:ledger"
+  },
+  "exchange": {
+   "keywords": [
+    "exchange",
+    "market",
+    "marketplace",
+    "secondary market",
+    "swap",
+    "trade",
+    "trading"
+   ],
+   "donor": "kit:crypto:exchange"
+  },
+  "smart-contract": {
+   "keywords": [
+    "agreement",
+    "code agreement",
+    "contract",
+    "programmable",
+    "self executing",
+    "smart contract"
+   ],
+   "donor": "game-icons:contract"
+  },
+  "hash": {
+   "keywords": [
+    "cryptographic hash",
+    "encryption",
+    "fingerprint",
+    "hash"
+   ],
+   "donor": "phosphor:hash"
+  },
+  "mining": {
+   "keywords": [
+    "complex puzzle",
+    "miners",
+    "mining",
+    "proof of work",
+    "validate"
+   ],
+   "donor": "game-icons:mining"
+  },
+  "staking": {
+   "keywords": [
+    "interest",
+    "returns",
+    "rewards",
+    "stake",
+    "staked",
+    "staking",
+    "yield"
+   ],
+   "donor": "fluent:money-bag"
+  },
+  "liquidity": {
+   "keywords": [
+    "depth",
+    "liquidity",
+    "liquidity pool",
+    "pool"
+   ],
+   "donor": "fluent:droplet"
+  },
+  "defi": {
+   "keywords": [
+    "borrowing",
+    "decentralized finance",
+    "defi",
+    "lending"
+   ],
+   "donor": "kit:crypto:network-nodes"
+  },
+  "nft": {
+   "keywords": [
+    "collectible",
+    "digital art",
+    "nft",
+    "unique asset"
+   ],
+   "donor": "fluent:framed-picture"
+  },
+  "bank": {
+   "keywords": [
+    "bank",
+    "central bank",
+    "custody",
+    "institution",
+    "large financial institution"
+   ],
+   "donor": "world:bank"
+  },
+  "building-columns": {
+   "keywords": [
+    "building columns",
+    "government",
+    "policy maker",
+    "regulation",
+    "regulator",
+    "sec"
+   ],
+   "donor": "kit:crypto:building-columns"
+  },
+  "stock-chart": {
+   "keywords": [
+    "chart",
+    "equity",
+    "market",
+    "price",
+    "share",
+    "stock",
+    "stock chart",
+    "tokenized share"
+   ],
+   "donor": "game-icons:chart"
+  },
+  "fractional": {
+   "keywords": [
+    "fraction",
+    "fractional",
+    "fractional ownership",
+    "ownership stake",
+    "partial",
+    "slice"
+   ],
+   "donor": "phosphor:chart-pie"
+  },
+  "ethereum": {
+   "keywords": [
+    "blockchain network",
+    "eth",
+    "ethereum",
+    "solana"
+   ],
+   "donor": "kit:crypto:ethereum"
+  },
+  "gas": {
+   "keywords": [
+    "cost",
+    "fee",
+    "gas",
+    "gas fee",
+    "transaction fee"
+   ],
+   "donor": "kit:crypto:gas-fee"
+  },
+  "kyc": {
+   "keywords": [
+    "id",
+    "identity",
+    "kyc",
+    "verification",
+    "verified"
+   ],
+   "donor": "fluent:identification-card"
+  },
+  "vault": {
+   "keywords": [
+    "custodian vault",
+    "custody",
+    "holds",
+    "reserve",
+    "safe",
+    "vault"
+   ],
+   "donor": "phosphor:vault"
+  },
+  "global": {
+   "keywords": [
+    "anywhere",
+    "borderless",
+    "global",
+    "international",
+    "world"
+   ],
+   "donor": "kit:crypto:global"
+  },
+  "timer": {
+   "keywords": [
+    "instant",
+    "real time",
+    "seconds",
+    "settlement",
+    "settles",
+    "timer"
+   ],
+   "donor": "world:timer"
+  },
+  "intermediary": {
+   "keywords": [
+    "broker",
+    "intermediary",
+    "many intermediaries",
+    "middleman",
+    "middlemen"
+   ],
+   "donor": "fluent:handshake"
+  },
+  "handshake": {
+   "keywords": [
+    "between people",
+    "direct",
+    "handshake",
+    "p2p",
+    "peer",
+    "peer to peer"
+   ],
+   "donor": "phosphor:handshake"
+  },
+  "alert": {
+   "keywords": [
+    "alert",
+    "fraud",
+    "hacking",
+    "risk",
+    "scam",
+    "volatility",
+    "warning"
+   ],
+   "donor": "kit:crypto:alert"
+  },
+  "shield": {
+   "keywords": [
+    "audit",
+    "audited",
+    "protected",
+    "secure",
+    "security",
+    "shield"
+   ],
+   "donor": "world:shield"
+  },
+  "money": {
+   "keywords": [
+    "cash",
+    "dollar",
+    "fiat",
+    "money",
+    "real money",
+    "usd"
+   ],
+   "donor": "phosphor:money"
+  },
+  "network": {
+   "keywords": [
+    "computers",
+    "decentralized",
+    "independent computers",
+    "network",
+    "nodes"
+   ],
+   "donor": "phosphor:network"
+  },
+  "document": {
+   "keywords": [
+    "disclosure",
+    "document",
+    "paper",
+    "prospectus",
+    "terms",
+    "whitepaper"
+   ],
+   "donor": "kit:business:document"
+  },
+  "real-estate": {
+   "keywords": [
+    "building",
+    "house",
+    "property",
+    "real estate",
+    "real world asset",
+    "rwa"
+   ],
+   "donor": "kit:crypto:real-estate"
   }
+ }
 }

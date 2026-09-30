@@ -907,7 +907,11 @@ _ICON_KEYWORDS = {
                'runner', 'cyclist', 'dancer', 'singer', 'actor',
                'shopper', 'vendor', 'merchant', 'consumer', 'guest',
                'resident', 'visitor', 'pedestrian', 'jogger', 'clerk',
-               'agent owner', 'customer agent'),
+               'validator', 'regulator', 'custodian', 'banker', 'auditor',
+               'lender', 'borrower', 'issuer', 'underwriter', 'trustee',
+               'guardian', 'warden', 'executor', 'teller', 'dealer',
+               'comptroller', 'principal', 'dean', 'pupil', 'agent owner',
+               'customer agent'),
     'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'android',
               'chatbot', 'automation bot'),
     'envelope': ('request', 'mail', 'email', 'message', 'letter', 'send', 'ticket',
@@ -2063,6 +2067,21 @@ def _icon_for_raw(concept: str, exclude=None, _depth: int = 0):
     # bespoke commissioned/generated art for this exact label wins outright
     if (_CUSTOM_DIR / f'{_slug(phrase)}.svg').is_file():
         return ('custom', _slug(phrase))
+    # people are drawn by the cast system, never a static pictogram — a kit
+    # glyph keyworded with a person noun must not hijack the 'person'
+    # sentinel, or roles like 'investor'/'patient' would draw a blob that
+    # cannot act in activities
+    head = words[-1] if words else phrase
+    # a word that is a person only by an obscure first sense still draws
+    # its literal object art ('monitor' = screen, not 'proctor')
+    literal = (_icon_lookup(phrase, exclude)
+               if len(words) > 1 else None) or _icon_lookup(head, exclude)
+    if 'person' not in (exclude or ()) and (
+            phrase in _ICON_KEYWORDS['person']
+            or head in _ICON_KEYWORDS['person']
+            or (literal is None
+                and (_is_person_noun(phrase) or _is_person_noun(head)))):
+        return 'person'
     # an active domain art kit outranks the flat icon vocabulary, literal
     # doodles and generic vignettes for anything its manifest covers —
     # 'bitcoin' draws the kit coin, not the generic money doodle
