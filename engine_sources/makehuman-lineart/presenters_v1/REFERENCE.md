@@ -46,6 +46,7 @@ All colour arguments are 6-digit hex without `#`; any hex works, the presets are
 | Neckwear (`NECK`) | none · `fine` gold chain · `pendant` gold pendant chain · `pearls` pearl strand · `choker` velvet choker + charm · `scarf` silk neckerchief |
 | Dress (`DRESS` / `DCOL`) | `mindfront_f_dress_11` tailored 3/4-sleeve sheath, navy `2B3A5C` · `mindfront_f_dress_09` long-sleeve maxi, burgundy `6B2233` · `mindfront_f_dress_07` sleeveless column midi, sage `7C8C6A` · `punkduck_black_cocktail_dress` knee-length sheath, emerald `1F5C4A` · `punkduck_middle_length_qipao` mandarin-collar midi, dusty rose `B87A7F` |
 | Render mode | colour (default) · black-and-white line art (earrings keep their colour) |
+| Face (`FACE`, arg 8) | `0` default · `1` defined: slimmer jaw, longer chin, wider eyes, lower flatter brows · `2` soft: rounder face, fuller cheeks, closer eyes, thicker higher brows |
 
 Earring colours are fixed per hairstyle. Dresses carry derived light/shadow and sheen plus inked seams, darts, hems and fold lines.
 
@@ -68,6 +69,7 @@ Earring colours are fixed per hairstyle. Dresses carry derived light/shadow and 
 - No suits, no neckwear.
 - Relaxed arms: the male arm chain (clavicle → wrist) copies the female arm angles every frame
   (`malerelax_pre.py` + `malerelax.py`), because the Guest skeleton's rest angles differ. The shared action is untouched. Set `RLX=0` to disable.
+- Faces (`FACE`, arg 3): `0` default · `1` defined: slimmer jaw, longer chin, wider eyes, lower flatter brows · `2` soft: rounder face, fuller cheeks, closer eyes, thicker higher brows. Same set as the female.
 - Voice: `audio/male56_am_michael.mp3` (Kokoro `am_michael`), phrase-fitted to the female timing in `audio/words56.json` by `scripts/male_voice_tts.py`.
   "one, plan it" (~1.8×), "Right here." (~1.6×) and "Not at all." (~1.5×) are sped up.
 

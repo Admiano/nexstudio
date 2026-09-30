@@ -10,11 +10,12 @@ source "$PV1/env.sh"; source "$PV1/styles.sh"
 #   LIP:       "" (soft rose) B3202A 8A2A4E E0664F B8826F or any hex
 #   NECK:      none fine pendant pearls choker scarf
 #   DRESS:     mindfront_f_dress_11 mindfront_f_dress_09 mindfront_f_dress_07 punkduck_black_cocktail_dress punkduck_middle_length_qipao
-female_look(){ style "$1"; export HCOL=$2 STONE=$3 LIPC=$4 NECK=${5/none/} DRESS=$6 DCOL=$7 MODF=female.py
+#   FACE (opt, arg 8): 0 default · 1 defined · 2 soft
+female_look(){ style "$1"; export HCOL=$2 STONE=$3 LIPC=$4 NECK=${5/none/} DRESS=$6 DCOL=$7 MODF=female.py FACE=${8:-0}
   case $6 in punkduck_middle_length_qipao) export DMINISL=200;; *) export DMINISL=0;; esac; }
 
-# male_look O1..O5 [WATCH]   WATCH: analog digital smart chrono dress
-male_look(){ export DBTN=0 EST=none TUCK=0 SIDES=1 HDYE= MODF=modM.py
+# male_look O1..O5 [WATCH] [FACE]   WATCH: analog digital smart chrono dress · FACE: 0 default · 1 defined · 2 soft
+male_look(){ export DBTN=0 EST=none TUCK=0 SIDES=1 HDYE= MODF=modM.py FACE=${3:-0}
   case $1 in
    O1) export HAIR=afro01 HCOL=1C1714 STONE=5C3A28 LIPC=5A3328 WATCH=analog MG="namuhekam_male_polo_shirt=2E3A55,mindfront_male_trousers_1=3A3A40,mindfront_shoes_oxford_male=3A2A20";;
    O2) export HAIR=short01 HCOL=C9A366 STONE=E3B994 LIPC=A87868 WATCH=digital MG="toigo_basic_tucked_t-shirt=EDEBE6,elvs_jeans_straight_leg=2E3A55,punkduck_comfortable_sneakers=ECEAE4";;
@@ -23,4 +24,5 @@ male_look(){ export DBTN=0 EST=none TUCK=0 SIDES=1 HDYE= MODF=modM.py
    O5) export HAIR=elvs_grump_hair HCOL=8F9096 STONE=B07F57 LIPC=8A5A48 WATCH=chrono MG="toigo_fisherman_sweater=D8CFBE,toigo_wool_pants=3A3A40,mindfront_shoes_oxford_male=3A2A20";;
   esac
   [ -n "$2" ] && export WATCH=$2
+  export FACE=${3:-0}
   export MH_COMMUNITY_ASSETS=$(ls -d "$MH_ROOT"/*/hair/$HAIR | head -1 | sed 's#/hair/.*##'); }
