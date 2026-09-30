@@ -7,15 +7,37 @@ if _W:
     _pb=_r.pose.bones; _pbn='lowerarm02.'+_sd if 'lowerarm02.'+_sd in _pb else 'lowerarm01.'+_sd
     _r.data.pose_position='REST'; bpy.context.view_layer.update()
     _M=_r.matrix_world; _wr=_M@_r.data.bones['wrist.'+_sd].head_local; _el=_M@_r.data.bones['lowerarm01.'+_sd].head_local
-    _a=(_wr-_el).normalized(); _C0=_wr-_a*_E('WBACK','0.028')
+    _a=(_wr-_el).normalized()
     _lat=Vector((1 if (_wr.x-(_M@_r.data.bones['spine05'].head_local).x)>0 else -1,0,0))
     _d=Vector((0,-1,0))*_E('WFWD','1.0')+_lat*_E('WLAT','0.35'); _d=(_d-_a*_d.dot(_a)).normalized(); _e=_a.cross(_d).normalized()
     from mathutils.bvhtree import BVHTree
     _dg=bpy.context.evaluated_depsgraph_get(); _vs=[]; _fs=[]
-    for o in [o for o in bpy.data.objects if o.name.startswith('Host.') and o.type=='MESH' and not o.hide_render and (o==_b or any(k in o.name for k in ('shirt','polo','sweat','sweater','tshirt','t-shirt','jacket')))]:
+    _GK=('shirt','polo','sweat','sweater','tshirt','t-shirt','jacket')
+    _vs_s=[]; _fs_s=[]; _vs_g=[]; _fs_g=[]
+    for o in [o for o in bpy.data.objects if o.name.startswith('Host.') and o.type=='MESH' and not o.hide_render and (o==_b or any(k in o.name for k in _GK))]:
         ev=o.evaluated_get(_dg); m=ev.to_mesh(); mw=o.matrix_world; n0=len(_vs)
-        _vs+= [mw@v.co for v in m.vertices]; _fs+=[tuple(i+n0 for i in pl.vertices) for pl in m.polygons]; ev.to_mesh_clear()
-    _bt=BVHTree.FromPolygons(_vs,_fs); C=Vector(_C0); NB=72; R=np.full(NB,np.nan)
+        _vs+= [mw@v.co for v in m.vertices]; _fs+=[tuple(i+n0 for i in pl.vertices) for pl in m.polygons]
+        _v2,_f2=(_vs_s,_fs_s) if o==_b else (_vs_g,_fs_g); n2=len(_v2)
+        _v2+=[mw@v.co for v in m.vertices]; _f2+=[tuple(i+n2 for i in pl.vertices) for pl in m.polygons]; ev.to_mesh_clear()
+    _bt=BVHTree.FromPolygons(_vs,_fs); _bs=BVHTree.FromPolygons(_vs_s,_fs_s); _bg=BVHTree.FromPolygons(_vs_g,_fs_g) if _fs_g else None
+    def _covered(t):
+        if _bg is None: return 0
+        Cc=_wr-_a*t; n=0
+        for k in range(24):
+            q=-1.05+2.1*k/23; dr=_d*np.cos(q)+_e*np.sin(q)
+            hs=_bs.ray_cast(Cc+dr*0.15,-dr,0.15); hg=_bg.ray_cast(Cc+dr*0.15,-dr,0.15)
+            rs=0.15-hs[3] if hs[0] is not None else 0.0; rg=0.15-hg[3] if hg[0] is not None else 0.0
+            if rg>rs+0.0004: n+=1
+        return n
+    _seat=_E('WBACK','0.028'); _sleeve=_covered(_seat)>12
+    if _sleeve:
+        _cuff=None
+        for _t in np.arange(_seat-0.006,-0.05,-0.006):
+            if _covered(_t)<=4: _cuff=_t; break
+        _seat=(_cuff-_E('WSEATM','0.014')) if _cuff is not None else -0.04
+    _C0=_wr-_a*_seat
+    print('WATCH seat t=%.3f sleeve=%s cuff=%s'%(_seat,_sleeve,_cuff if _sleeve else '-'))
+    C=Vector(_C0); NB=72; R=np.full(NB,np.nan)
     for k in range(NB):
         q=-np.pi+2*np.pi*k/NB; dr=_d*np.cos(q)+_e*np.sin(q); hit=_bt.ray_cast(C+dr*0.09,-dr,0.09)
         if hit[0] is not None: R[k]=0.09-hit[3]
@@ -23,7 +45,6 @@ if _W:
     R=np.convolve(np.r_[R[-3:],R,R[:3]],np.ones(5)/5,'same')[3:-3]+_E('WCLR','0.0012')
     print('WATCH section hits',int(ok.sum()),'r min/max %.4f %.4f'%(R.min(),R.max()),'bone',_pbn)
     rf=lambda t: float(np.interp(((t+np.pi)/(2*np.pi)*NB)%NB,np.r_[idx,NB],np.r_[R,R[0]]))
-    print('WATCH section pts',len(P),'r min/max %.4f %.4f'%(R.min(),R.max()),'bone',_pbn)
     def mat(n,hexc,em=1.0):
         m=bpy.data.materials.get('W_'+n)
         if m: return m
@@ -41,7 +62,10 @@ if _W:
         if ff and os.environ.get('WLINES','1')=='1' and name.split('_')[0] in ('strap','case','bezel','glass','dial','band','lcd','sub0','sub1','sub2'): ff.objects.link(ob)
         parts.append(ob); return ob
     FR=Matrix((_d,_e,_a)).transposed()
+    _Rt=Matrix.Rotation(np.radians(_E('WTILT','10.0')),3,_e)
+    _N={'d':_Rt@_d,'e':_Rt@_e,'a':_Rt@_a}; FRt=(_Rt@FR)
     def L(x,y,z): return C+_d*x+_e*y+_a*z
+    def Lt(x,y,z): return C+(_Rt@(_d*x+_e*y+_a*z))
     def band(name,w,t,m,z0=0.0,seg=None):
         bm=bmesh.new(); n=64; rows=[]
         for i in range(n):
@@ -55,19 +79,19 @@ if _W:
     base=r0+T
     def disk(name,rad,h,m,x0,y=0.0,z=0.0,seg=40,ax='d'):
         bm=bmesh.new(); bmesh.ops.create_cone(bm,cap_ends=True,segments=seg,radius1=rad,radius2=rad,depth=h)
-        nrm={'d':_d,'e':_e,'a':_a}[ax]; q=Vector((0,0,1)).rotation_difference(nrm).to_matrix().to_4x4()
-        bmesh.ops.transform(bm,matrix=Matrix.Translation(L(x0,y,z))@q,verts=bm.verts); return obj(name,bm,m)
+        nrm=_N[ax]; q=Vector((0,0,1)).rotation_difference(nrm).to_matrix().to_4x4()
+        bmesh.ops.transform(bm,matrix=Matrix.Translation(Lt(x0,y,z))@q,verts=bm.verts); return obj(name,bm,m)
     def box(name,sx,sy,sz,m,x0,y=0.0,z=0.0,rot=0.0,bev=0.0):
         bm=bmesh.new(); bmesh.ops.create_cube(bm,size=1.0)
         bmesh.ops.scale(bm,vec=(sx,sy,sz),verts=bm.verts)
         if bev>0: bmesh.ops.bevel(bm,geom=[e for e in bm.edges if abs(e.verts[0].co.z-e.verts[1].co.z)>1e-6],offset=bev,segments=4,affect='EDGES')
-        Rz=Matrix.Rotation(rot,4,'X'); F4=FR.to_4x4()
-        bmesh.ops.transform(bm,matrix=Matrix.Translation(L(x0,y,z))@F4@Rz,verts=bm.verts); return obj(name,bm,m)
+        Rz=Matrix.Rotation(rot,4,'X'); F4=FRt.to_4x4()
+        bmesh.ops.transform(bm,matrix=Matrix.Translation(Lt(x0,y,z))@F4@Rz,verts=bm.verts); return obj(name,bm,m)
     def hand(name,ln,wd,ang,m,x0,h=0.0004):
         c,s=np.cos(ang),np.sin(ang)
         bm=bmesh.new(); bmesh.ops.create_cube(bm,size=1.0); bmesh.ops.scale(bm,vec=(h,wd,ln),verts=bm.verts)
         bmesh.ops.translate(bm,vec=(0,0,ln/2),verts=bm.verts)
-        Rot=Matrix.Rotation(ang,4,'X'); bmesh.ops.transform(bm,matrix=Matrix.Translation(L(x0,0,0))@FR.to_4x4()@Rot,verts=bm.verts); return obj(name,bm,m)
+        Rot=Matrix.Rotation(ang,4,'X'); bmesh.ops.transform(bm,matrix=Matrix.Translation(Lt(x0,0,0))@FRt.to_4x4()@Rot,verts=bm.verts); return obj(name,bm,m)
     ink=mat('ink','141414')
     H12=np.pi
     if _W=='analog':

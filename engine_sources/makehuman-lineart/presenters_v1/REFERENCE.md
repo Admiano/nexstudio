@@ -61,6 +61,10 @@ Earring colours are fixed per hairstyle. Dresses carry derived light/shadow and 
 
 - Hair colour set: black, blonde, brown, black with coloured dye (`HDYE`, any hex), grey/silver; any hairstyle takes any colour.
 - Watches (`WATCH`): `analog`, `digital`, `smart`, `chrono`, `dress`, on the left wrist, bound to the forearm.
+  When a long sleeve covers the default seat, the band slides onto the bare wrist past the
+  cuff automatically (sleeve coverage is ray-cast along the arm; `WSEATM` sets how far past
+  the cuff edge it rests). `WTILT` tilts the face toward the dial side, `WBACK`, `WFWD`,
+  `WLAT`, `WCLR`, `WST`, `WSIDE` tune the fit as before.
 - No suits, no neckwear.
 - Relaxed arms: the male arm chain (clavicle → wrist) copies the female arm angles every frame
   (`malerelax_pre.py` + `malerelax.py`), because the Guest skeleton's rest angles differ. The shared action is untouched. Set `RLX=0` to disable.
