@@ -684,6 +684,15 @@
     "rwa"
    ],
    "donor": "kit:crypto:real-estate"
+  },
+  "phone": {
+   "keywords": [
+    "phone",
+    "smartphone",
+    "mobile device"
+   ],
+   "motif": "phone",
+   "tone": "a_blue"
   }
  }
 }

@@ -36,6 +36,58 @@ def _built(name):
     return plan, bs, bs._build(plan, '16:9')
 
 
+def test_word_alignment_recovers_after_spoken_number_replaces_written_words():
+    plan = {'beats': [
+        {'narration': 'I pay ten dollars. The wallet splits it.',
+         'duration_seconds': 9},
+        {'narration': 'Anyone trades from a phone.',
+         'duration_seconds': 9},
+    ]}
+    transcript = [
+        {'word': word, 'start': i * 0.4, 'end': i * 0.4 + 0.3}
+        for i, word in enumerate(
+            'I pay $10 The wallet splits it Anyone trades from a phone'.split())
+    ]
+    aligned = pipe.align_beats_to_words(plan, transcript)
+    first, second = aligned['beats']
+    assert first['word_times'][-1][0] == 'it'
+    assert second['word_times'][0][0] == 'anyone'
+    assert second['start_seconds'] < 3.0
+    assert second['start_seconds'] >= first['start_seconds'] + first['duration_seconds']
+
+
+def test_attached_prop_draws_when_it_is_spoken():
+    _plan, bs, _flow = _built('storyboard_edge_plan.json')
+    host = {'it': {'label': 'piece'}, 'kids': [
+        {'it': {'label': 'wallet'}}]}
+    windows = {id(host): (1.0, 4.0)}
+    cues = []
+    bs._sb_word_cues([host], [('wallet', 1.2, 1.4),
+                              ('piece', 3.0, 3.2)],
+                     1.0, 4.0, 4.0, windows, cues)
+    assert windows[id(host)][0] == 1.2
+
+
+def test_storyboard_keeps_opening_title_and_overlapping_scene_handoffs():
+    plan, _bs, flow = _built('storyboard_edge_plan.json')
+    title = flow['title_item']
+    assert title['kind'] == 'title'
+    assert title['groups'][0][2] <= plan['beats'][0]['duration_seconds']
+    assert all(not sec['title_st'] for sec in flow['sections'])
+    assert title['fade'][1] <= flow['sections'][1]['t_window'][0]
+    for scene, next_scene in zip(flow['sections'], flow['sections'][1:]):
+        next_start = next_scene['t_window'][0]
+        assert scene['fade'][0] < next_start < scene['fade'][1]
+
+
+def test_crypto_phone_depicts_mobile_trading():
+    _wbc, _wbp, _, v3r = pipe.load_execution_body()
+    v3r.set_art_kit('crypto')
+    icon = v3r._icon_for('phone')
+    assert icon == ('icon', 'kit:crypto', 'phone')
+    assert v3r._dir_strokes(icon[1], icon[2])
+
+
 @pytest.mark.parametrize('name, layouts', [
     ('storyboard_edge_plan.json', ['row', 'stair', 'journey', 'focus']),
     ('storyboard_stress_plan.json',
