@@ -2947,12 +2947,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                    and not e.get('on_lap')] + [rect[3] - H * 0.05])
         solid_ = [e['ink'] for e in mine] + [e['lab_box'] for e in mine
                                              if e.get('lab_box')]
-        fr_ = [(_wobble_line(p0, p1, n=8, wob=1.0, seed=si * 50 + k_ * 4 + q),
-                'ink', 1.4, False, True) for q, (p0, p1) in enumerate(
-                    zip([(rect[0], rect[1]), (rect[2], rect[1]),
-                         (rect[2], rect[3]), (rect[0], rect[3])],
-                        [(rect[2], rect[1]), (rect[2], rect[3]),
-                         (rect[0], rect[3]), (rect[0], rect[1])]))]
+        # no panel border: moments read as scenes on open paper, not boxes
+        fr_ = []
         room_ = _sb_room(kind_, rect, fl_, solid_, si * 131 + k_ * 17)
         a_ = mom_span.get(k_, (win0, win1))[0]
         uid += 1
