@@ -44,4 +44,11 @@ Beyond the entity bank, explainers also fail the `gate_report.json` LEGIBILITY g
 - Backdrop-close classes differ per overlay: `.overlay.open`, `.credit-utility.open`, `.series-edit-overlay.open`, `.sheet-backdrop.open`. To close from automation, dispatch `click` on the backdrop element itself (the panel is a child — target the element with the `.open` class).
 - The direction stage scrolls internally on `.direction-stage` (scrollHeight >> clientHeight) — `window.scrollTo` does NOT reach the decision/voice/length/speed sections; set `element.scrollTop` instead.
 - Sign-out invalidates the session server-side and redirects to `/` — re-mint a session via psql afterwards if more authed testing is needed.
-- Mobile (≤760px): composer tool buttons collapse to icon-only (`span{display:none}`) with 40px targets — they still open the sheets; `.mobile-nav` bottom bar has Create/Work/Brand/Library (no Series).
+- Mobile (≤760px): composer tool buttons collapse to icon-only (`span{display:none}`) with 40px targets — they still open the sheets; `.mobile-nav` bottom bar now has 5 items: Create/Work/Cast/Brand/Library (no Series).
+
+## Cast feature notes
+- Auth: the live Chrome tab may hold a **guest session** (avatar initials "SG", balance $30) created by the guest-pass flow — it is a different user than the psql-minted sessions; data (cast, series, brands) is per-user, so verify state per session before assuming.
+- Playwright trap: `:has-text("Man")` also matches "Woman" (substring). Use exact match `{hasText:/^Man$/}` or text regex.
+- API envelope: `GET /api/v1/studio/cast` returns `{data:{cast:[...]}}` — remember `.data` when hand-checking; `studioApi.cast()` unwraps it.
+- Avatar preview plates live at `public/cast/*.png` (~112); the preview is a `<canvas>` composite with `pointer-events:none` and multiply tinting for custom hex colors.
+- SeriesView + Flow fetch `studioApi.cast()` once at mount — mid-session cast changes do not appear until a page reload (known stale-data issue).
