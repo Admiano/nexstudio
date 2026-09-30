@@ -2112,34 +2112,14 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     mx = W * 0.065
     Wc = W - 2 * mx
     L, R = -W / 2 + mx, W / 2 - mx
-    top = -H / 2 + H * 0.075
+    # content starts below the masthead title strip (one board title only —
+    # per-scene headings are dropped; a scene's accent lives on its
+    # quote-line underline)
+    top = -H / 2 + H * 0.075 + H * 0.10
     audit = []
     boxes = []                      # (name, box, tag)
 
-    # ---- title row ----------------------------------------------------
-    ttl = str(beat.get('title') or sec.get('label') or '').strip()
-    ts = H * 0.088
     tst, title_bb = [], (L, top, L, top)
-    if ttl:
-        mnum = re.match(r'^\s*(\d+\.)\s*(.*)$', ttl)
-        num, words = (mnum.group(1), mnum.group(2)) if mnum else ('', ttl)
-        while (font_text_width(num + '  ' + words, ts, _SB_FT) > Wc * 0.9
-               and ts > H * 0.05):
-            ts *= 0.94
-        xw = L
-        nst = []
-        if num:
-            nst, nbb = _sb_text([num], L, top, ts, _SB_FT, 'left')
-            xw = nbb[2] + ts * 0.42
-        wst, wbb = _sb_text([words], xw + ts * 0.18, top, ts, _SB_FT,
-                            'left')
-        ih = wbb[3] - wbb[1]
-        sw = _sb_swash_poly(wbb[0] - ts * 0.10, wbb[1] + ih * 0.12,
-                            wbb[2] + ts * 0.10, wbb[3] + ih * 0.10,
-                            seed=si * 31 + 7)
-        tst = [(sw, sw_col, 0.36, 'swash', True)] + nst + wst
-        title_bb = _sb_bounds([s_[0] for s_ in tst])
-        boxes.append(('title', title_bb, 'title'))
     sec['title_st'] = tst
 
     # ---- caption ------------------------------------------------------
@@ -3123,9 +3103,21 @@ def _build(plan, ratio):
     title = raw.replace('_', ' ').title() or 'WHITEBOARD'
     first_t0 = sections[0]['beat']['start_seconds']
     if storyboard:
-        # no board-level masthead — each scene's numbered swash heading IS
-        # the title; a second headline only competes with it
-        title_st = []
+        # one masthead title for the whole board, centred, with the
+        # reference's squiggle underline — per-scene headings are dropped
+        th_ = min(header * 0.58, 88.0)
+        tw_ = text_width(title, th_)
+        if tw_ > bw * 0.80:
+            th_ *= bw * 0.80 / tw_
+            tw_ = text_width(title, th_)
+        tx_ = bx0 + bw / 2 - tw_ / 2
+        title_st = text_strokes(title, (tx_, by0 + header * 0.10),
+                                th_, 'ink', 1.15)
+        und0 = _wobble_line((tx_ + tw_ * 0.02, by0 + header * 0.10
+                             + th_ * 1.28),
+                            (tx_ + tw_ * 0.98, by0 + header * 0.10
+                             + th_ * 1.28), n=30, wob=2.0, seed=7)
+        title_st.append((und0, 'a_yellow', 2.6, False, True))
     else:
         th_ = min(header * 0.62, 96.0)
         tw_ = text_width(title, th_)
@@ -3156,6 +3148,10 @@ def _build(plan, ratio):
         ttl = str(sec['beat'].get('title') or sec.get('label') or '').strip()
         sw_col = _SWASH[si % len(_SWASH)]
         title_h = 0.0
+        if storyboard:
+            # no per-scene headings — the masthead title carries the board;
+            # the scene's accent lives on its quote-line underline instead
+            ttl = ''
         if ttl:
             th2 = min(rh * (0.15 if storyboard else 0.115), 120.0)
             if text_width(ttl, th2) > rw * 0.8:
