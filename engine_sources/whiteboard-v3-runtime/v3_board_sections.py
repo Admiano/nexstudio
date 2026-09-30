@@ -1071,13 +1071,13 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None,
                                             or [1.0])))
 
         def top_of(e):
-            return (0.92 * e['rel'] * r_top if e['kind'] == 'person'
-                    else 0.66)
+            return (min(1.05, 1.04 * e['rel'] * r_top)
+                    if e['kind'] == 'person' else 0.78)
 
         def need(e, rh):
             # a cell is as wide as its drawing or its label, whichever wins
             art = e['aspect'] * rh * (top_of(e) / 0.9
-                                      if e['kind'] == 'person' else 0.50)
+                                      if e['kind'] == 'person' else 0.60)
             return max(art, (labw(e) + pad) if e['label'] else 0.0)
 
         def plan_rows(nr):
@@ -1102,7 +1102,7 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None,
             yb = band_t + row_h * (ri + 1) + gapy * ri
             wts = [[need(e, row_h) for e in c] for c in rc]
             tot = Wc - gapx * (len(rc) - 1)
-            k = min(1.6, tot / max(1e-6, sum(map(sum, wts))))
+            k = min(2.1, tot / max(1e-6, sum(map(sum, wts))))
             used_w = k * sum(map(sum, wts)) + gapx * (len(rc) - 1)
             x = L + (Wc - used_w) / 2
             for c, wc in zip(rc, wts):
@@ -1274,7 +1274,7 @@ def _sb_graph_layout(sol, edges, L, R, band_t, band_b, lane):
             y_ += ch
     ppl = [i for i in range(n) if sol[i]['kind'] == 'person']
     ph = min([cells[i][3] * 0.86 - lane_(sol[i]) for i in ppl]
-             + [band_h * 0.46]) if ppl else 0.0
+             + [band_h * 0.72]) if ppl else 0.0
     for i in range(n):
         e = sol[i]
         cx, top, colw, ch = cells[i]
@@ -1283,10 +1283,10 @@ def _sb_graph_layout(sol, edges, L, R, band_t, band_b, lane):
             hmax = ph * e['rel']
             wmax = colw * 0.8
         else:
-            wf, hf = (0.70, 0.92) if i == hero else (0.52, 0.78)
+            wf, hf = (0.70, 0.92) if i == hero else (0.56, 0.84)
             hmax = max(ch * hf - lb, ch * 0.4)
             if i != hero:
-                hmax = min(hmax, th * 0.34)
+                hmax = min(hmax, th * 0.52)
             wmax = colw * wf
         _sb_boxfit(e, cx, top + ch * 0.96 - lb, wmax, hmax)
         b = e['box']
@@ -2652,7 +2652,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         slot = i1 - i0
         groups = []
         b = e['box']
-        cap_h = H * (0.56 if e['m'].get('activity') else 0.42)
+        cap_h = H * (0.68 if e['m'].get('activity') else 0.52)
         if e['kind'] == 'person' and b[3] - b[1] > cap_h:
             k_ = cap_h / (b[3] - b[1])
             cx_ = (b[0] + b[2]) / 2
