@@ -36,16 +36,37 @@ except ImportError:
 # Wrap it (runtime-only, file untouched) with a pre-blended paper tint.
 def _subtle_paper_texture(im, pal, seed):
     import random
+    import math as _m
     rnd = random.Random(seed)
     d = ImageDraw.Draw(im)
     w, h = im.size
-    # speckle picks up a whisper of the ink colour over the paper —
-    # subtle on white boards, a faint chalk grain on dark ones
-    speck = tuple(int(pal['bgc'][i] * 0.92 + pal['inkc'][i] * 0.08)
+    # a real sheet reads unevenly: a soft warm drift toward the bottom,
+    # a scattering of ink specks and pale flecks, a few fine fibres —
+    # still quiet, but no longer a dead flat fill
+    warm = tuple(int(pal['bgc'][i] * 0.94 + pal['inkc'][i] * 0.06)
+                 for i in range(3)) + (255,)
+    grad = Image.linear_gradient('L').resize((w, h))
+    ov = Image.new('RGBA', (w, h), warm)
+    ov.putalpha(grad.point(lambda v: int(v * 0.10)))
+    im.alpha_composite(ov)
+    speck = tuple(int(pal['bgc'][i] * 0.82 + pal['inkc'][i] * 0.18)
                   for i in range(3)) + (255,)
-    for _ in range(max(20, int(w * h / 26000))):
+    fleck = tuple(min(255, int(pal['bgc'][i] * 1.03 + 2))
+                  for i in range(3)) + (255,)
+    for _ in range(max(80, int(w * h / 9000))):
         x, y = rnd.randrange(w), rnd.randrange(h)
-        d.point((x, y), fill=speck)
+        c = speck if rnd.random() < 0.6 else fleck
+        d.point((x, y), fill=c)
+        if rnd.random() < 0.35:
+            d.point((x + 1, y), fill=c)
+    fibre = tuple(int(pal['bgc'][i] * 0.93 + pal['inkc'][i] * 0.07)
+                  for i in range(3)) + (255,)
+    for _ in range(max(10, w // 180)):
+        x, y = rnd.randrange(w), rnd.randrange(h)
+        ln = rnd.randint(12, 38)
+        a = rnd.uniform(0, _m.pi)
+        d.line((x, y, x + _m.cos(a) * ln, y + _m.sin(a) * ln),
+               fill=fibre, width=1)
 
 
 wbp._paper_texture = _subtle_paper_texture

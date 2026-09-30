@@ -2119,7 +2119,38 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     audit = []
     boxes = []                      # (name, box, tag)
 
+    # ---- lede row -----------------------------------------------------
+    # no numbered heading — but the scene body still carries its
+    # explanatory sentence (the reference's per-scene text): the beat's
+    # first narration sentence, plain ink, small, left-aligned, wrapped
+    # to two lines. It inks with the scene and fades with it.
     tst, title_bb = [], (L, top, L, top)
+    lede = re.split(r'(?<=[.!?])\s+',
+                    str(beat.get('narration') or '').strip())
+    lede = (lede[0] if lede else '').strip()
+    if lede:
+        lsz = H * 0.042
+        llines, cur = [], ''
+        for wd in lede.split():
+            cand = (cur + ' ' + wd).strip()
+            if cur and font_text_width(cand, lsz, _SB_FL) > Wc * 0.82:
+                llines.append(cur)
+                cur = wd
+                if len(llines) >= 2:
+                    break
+            else:
+                cur = cand
+        if cur and len(llines) < 2:
+            llines.append(cur)
+        elif cur:
+            llines[-1] = llines[-1] + ' ' + cur
+        while llines and max(font_text_width(x, lsz, _SB_FL)
+                             for x in llines) > Wc * 0.92 and lsz > H * 0.03:
+            lsz *= 0.95
+        lst, lbb = _sb_text(llines, L, top, lsz, _SB_FL, 'left')
+        tst = lst
+        title_bb = _sb_bounds([s_[0] for s_ in tst]) if tst else title_bb
+        boxes.append(('title', title_bb, 'title'))
     sec['title_st'] = tst
 
     # ---- caption ------------------------------------------------------
@@ -2961,6 +2992,18 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                                  'uid': uid, 'fade': fade, 'kind': 'elem',
                                  't_window': set_w, 'label': 'setting'})
         sec['qa_setting'] = (setting, len(sst))
+    # scene wash: the sheet itself picks up a whisper of the scene's accent
+    # — the board is no longer one flat colour; each scene shifts subtly
+    # toward its own pastel tint
+    wpoly = [(-W / 2, -H / 2), (W / 2, -H / 2), (W / 2, H / 2),
+             (-W / 2, H / 2), (-W / 2, -H / 2)]
+    uid += 1
+    out_items.insert(0, {'groups': [(('marks',
+                                     [(wpoly, sw_col, 0.13, 'swash', True)],
+                                     (0, 0), 100.0, None), t0, t0 + 0.9)],
+                         'bounds2': (-W / 2, -H / 2, W / 2, H / 2),
+                         'uid': uid, 'fade': fade, 'kind': 'elem',
+                         't_window': (t0, t0 + 0.9), 'label': 'wash'})
     if cap_st:
         uid += 1
         ct0 = win1 + 0.05
@@ -3863,6 +3906,10 @@ def _build(plan, ratio):
                 'uid': uid, 'fade': fade, 'kind': 'elem',
                 't_window': (ct0, t1 - dur * 0.02)})
 
+    if storyboard:
+        # masthead lives only inside the opening scene — it inks with the
+        # first beat and fades off the paper with it
+        title_item['fade'] = sections[0].get('fade')
     out_sections = sections
     all_items = [it for sec in out_sections for it in sec['items2']]
 
@@ -3899,7 +3946,7 @@ def _build(plan, ratio):
     }
     flow = {'sections': out_sections, 'items': all_items,
             'title_item': title_item, 'ending': ending,
-            'dividers': divs, 'persist': False,
+            'dividers': divs, 'persist': False, 'storyboard': storyboard,
             'board_rect': board_rect,
             'total_beats_end': total_beats_end}
     cache[ratio] = flow
@@ -4022,8 +4069,16 @@ def render_board_frame(plan: dict, ratio: str, t: float):
     if t < t_end:
         fade_layers = []
         ti = flow['title_item']
-        if t >= ti['groups'][0][1]:
-            draw_groups(ti['groups'], seed)
+        tf_ = ti.get('fade')
+        if t >= ti['groups'][0][1] and (tf_ is None or t < tf_[1]):
+            if tf_ is not None and t >= tf_[0]:
+                # masthead easing off the paper with the opening scene
+                tfl = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
+                draw_full(ti['groups'], tfl)
+                fade_layers.append((tfl, int(255 * (1.0 - wbp._clamp(
+                    (t - tf_[0]) / max(0.05, tf_[1] - tf_[0]))))))
+            else:
+                draw_groups(ti['groups'], seed)
         for dg, ds, de in flow.get('dividers') or []:
             dp = wbp._ease(wbp._clamp((t - ds) / max(0.05, de - ds)))
             if dp > 0:
@@ -4124,7 +4179,10 @@ def render_board_frame(plan: dict, ratio: str, t: float):
     # -------- ending --------
     ending = flow['ending']
     rel = t - t_end
-    draw_full(flow['title_item']['groups'], layer)
+    if not flow.get('storyboard'):
+        # storyboard's masthead already left with the opening scene — the
+        # ending card is just Thanks + heart on cleared paper
+        draw_full(flow['title_item']['groups'], layer)
     if persist:
         # storyboard: the finished quadrants ARE the ending — every stroke
         # and figure holds in place, the hand leaves the board
