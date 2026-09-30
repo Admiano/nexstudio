@@ -26,3 +26,16 @@ male_look(){ export DBTN=0 EST=none TUCK=0 SIDES=1 HDYE= MODF=modM.py FACE=${3:-
   [ -n "$2" ] && export WATCH=$2
   export FACE=${3:-0}
   export MH_COMMUNITY_ASSETS=$(ls -d "$MH_ROOT"/*/hair/$HAIR | head -1 | sed 's#/hair/.*##'); }
+
+# male_mix TOP[=hex] BOTTOM[=hex] SHOES[=hex] [HAIR] [HCOL] [SKIN] [WATCH] [FACE]
+#   free-mixes any top + bottom + shoe with per-piece recolor.
+#   TOPS:    namuhekam_male_polo_shirt toigo_basic_tucked_t-shirt elvs_male_shirt_untucked_bd1
+#            mindfront_knitted_sweater_01 toigo_fisherman_sweater
+#   BOTTOMS: mindfront_male_trousers_1 elvs_jeans_straight_leg mindfront_male_trousers_2
+#            punkduck_male_classic_jeans toigo_wool_pants
+#   SHOES:   mindfront_shoes_oxford_male punkduck_comfortable_sneakers
+#            mindfront_shoes_monk_strap_male culturalibre_sneakers
+male_mix(){ export DBTN=0 EST=none TUCK=0 SIDES=1 HDYE= MODF=modM.py
+  export HAIR=${4:-elvs_maxwell_hair} HCOL=${5:-5A3A24} STONE=${6:-C99A6E} LIPC=${6:-9A6656} WATCH=${7:-none} FACE=${8:-0}
+  export MG="$1,$2,$3"
+  export MH_COMMUNITY_ASSETS=$(ls -d "$MH_ROOT"/*/hair/$HAIR | head -1 | sed 's#/hair/.*##'); }

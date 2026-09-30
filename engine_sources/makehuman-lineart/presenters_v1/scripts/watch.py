@@ -87,11 +87,11 @@ if _W:
         if bev>0: bmesh.ops.bevel(bm,geom=[e for e in bm.edges if abs(e.verts[0].co.z-e.verts[1].co.z)>1e-6],offset=bev,segments=4,affect='EDGES')
         Rz=Matrix.Rotation(rot,4,'X'); F4=FRt.to_4x4()
         bmesh.ops.transform(bm,matrix=Matrix.Translation(Lt(x0,y,z))@F4@Rz,verts=bm.verts); return obj(name,bm,m)
-    def hand(name,ln,wd,ang,m,x0,h=0.0004):
+    def hand(name,ln,wd,ang,m,x0,h=0.0004,y=0.0,z=0.0):
         c,s=np.cos(ang),np.sin(ang)
         bm=bmesh.new(); bmesh.ops.create_cube(bm,size=1.0); bmesh.ops.scale(bm,vec=(h,wd,ln),verts=bm.verts)
         bmesh.ops.translate(bm,vec=(0,0,ln/2),verts=bm.verts)
-        Rot=Matrix.Rotation(ang,4,'X'); bmesh.ops.transform(bm,matrix=Matrix.Translation(Lt(x0,0,0))@FRt.to_4x4()@Rot,verts=bm.verts); return obj(name,bm,m)
+        Rot=Matrix.Rotation(ang,4,'X'); bmesh.ops.transform(bm,matrix=Matrix.Translation(Lt(x0,y,z))@FRt.to_4x4()@Rot,verts=bm.verts); return obj(name,bm,m)
     ink=mat('ink','141414')
     H12=np.pi
     if _W=='analog':
@@ -99,7 +99,7 @@ if _W:
         disk('case',0.0175,0.007,mat('steel','B8BCC2'),base+0.0035); disk('dial',0.0152,0.0006,mat('dial','F4F1EA'),base+0.0071)
         for k in range(12): hand('idx%d'%k,0.002,0.0007,H12+k*np.pi/6,ink,base+0.0074) if False else None
         for k in range(12):
-            q=H12+k*np.pi/6; box('idx%d'%k,0.0004,0.0006,0.0022 if k%3==0 else 0.0012,ink,base+0.0075,-np.sin(q)*0.0128,np.cos(q)*0.0128,rot=q)
+            q=H12+k*np.pi/6; box('idx%d'%k,0.0004,0.0007,0.0028 if k%3==0 else 0.0016,ink,base+0.0075,-np.sin(q)*0.0128,np.cos(q)*0.0128,rot=q)
         hand('hr',0.0075,0.0011,H12-np.pi/3*1.0,ink,base+0.0078); hand('mn',0.0115,0.0008,H12+np.pi/3*1.2,ink,base+0.0081); disk('pin',0.0009,0.0012,ink,base+0.0082)
         disk('crown',0.0016,0.0028,mat('steel','B8BCC2'),base+0.0035,0,0.0185,ax='a')
     elif _W=='digital':
@@ -122,7 +122,10 @@ if _W:
         for k in range(9): band('link%d'%k,0.0004,T+0.0003,ink,-0.008+k*0.002) if False else None
         disk('case',0.0205,0.009,mat('steel2','A7ABB0'),base+0.0045); disk('bezel',0.0198,0.0012,mat('bezel','1B1C20'),base+0.0094)
         disk('dial',0.0158,0.0006,mat('dialb','22252B'),base+0.0098)
-        for k,(y,z) in enumerate(((0.0,-0.0068),(-0.0068,0.0),(0.0068,0.0))): disk('sub%d'%k,0.0030,0.0004,mat('sub','5A5E66'),base+0.0102,y,z)
+        for k,(y,z) in enumerate(((0.0,-0.0068),(-0.0068,0.0),(0.0068,0.0))):
+            disk('sub%d'%k,0.0030,0.0004,mat('sub','5A5E66'),base+0.0102,y,z)
+            box('subt%d'%k,0.0003,0.0004,0.0009,mat('lume','F2F0E6'),base+0.0107,y,z+0.0024,bev=0.0002)
+            hand('subh%d'%k,0.0022,0.00035,H12+k*2.1,mat('lume','F2F0E6'),base+0.0107,0.00035,y,z)
         hand('hr',0.008,0.0012,H12-np.pi/3,mat('lume','F2F0E6'),base+0.0106); hand('mn',0.012,0.0009,H12+np.pi/2.5,mat('lume','F2F0E6'),base+0.0109)
         hand('sec',0.013,0.0004,H12+np.pi*0.9,mat('sech',os.environ.get('WAC','D8452B')),base+0.0112); disk('pin',0.001,0.0014,ink,base+0.0112)
         for z in (-0.009,0.009): disk('push%d'%(z>0),0.0014,0.003,mat('steel2','A7ABB0'),base+0.0045,0,0.0205*np.sign(z)*0.0+z*0.0+0.0 if False else z,ax='a') if False else None

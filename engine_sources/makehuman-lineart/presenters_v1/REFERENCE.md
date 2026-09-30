@@ -48,6 +48,8 @@ All colour arguments are 6-digit hex without `#`; any hex works, the presets are
 | Render mode | colour (default) · black-and-white line art (earrings keep their colour) |
 | Face (`FACE`, arg 8) | `0` default · `1` defined: slimmer jaw, longer chin, wider eyes, lower flatter brows · `2` soft: rounder face, fuller cheeks, closer eyes, thicker higher brows |
 
+Bun and braid pick up front-readable accents automatically (`hairpeek.py`, `HPK=0` disables): a top-knot peek above the crown for the bun, a tapered strand draped over the front shoulder for the braid. Both are procedurally tinted to `HCOL`.
+
 Earring colours are fixed per hairstyle. Dresses carry derived light/shadow and sheen plus inked seams, darts, hems and fold lines.
 
 ## Male options
@@ -70,6 +72,8 @@ Earring colours are fixed per hairstyle. Dresses carry derived light/shadow and 
 - Relaxed arms: the male arm chain (clavicle → wrist) copies the female arm angles every frame
   (`malerelax_pre.py` + `malerelax.py`), because the Guest skeleton's rest angles differ. The shared action is untouched. Set `RLX=0` to disable.
 - Faces (`FACE`, arg 3): `0` default · `1` defined: slimmer jaw, longer chin, wider eyes, lower flatter brows · `2` soft: rounder face, fuller cheeks, closer eyes, thicker higher brows. Same set as the female.
+- `male_mix TOP[=hex] BOTTOM[=hex] SHOES[=hex] [HAIR] [HCOL] [SKIN] [WATCH] [FACE]` free-mixes any garments with per-piece recolor (see presets.sh for the piece list).
+- Side-swept (`elvs_grump_hair`, O5) gets a traced hairline + part stroke so it stops reading as a cap.
 - Voice: `audio/male56_am_michael.mp3` (Kokoro `am_michael`), phrase-fitted to the female timing in `audio/words56.json` by `scripts/male_voice_tts.py`.
   "one, plan it" (~1.8×), "Right here." (~1.6×) and "Not at all." (~1.5×) are sped up.
 
