@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { formatUSD, MindSpark, route, useStudio, type ContextChip } from "../App";
 import { studioApi, type EngineKind } from "../api";
 import { ensureNxPresence } from "../nx-presence";
+import AvatarStage from "../cast/AvatarStage";
+import type { CastMember } from "../cast/spec";
 
 export type FlowStage = "mind" | "direction" | "closed" | "production" | "review" | "publish" | "revision";
 
@@ -23,7 +25,7 @@ export interface FlowState {
   jobKind?: EngineKind;
   jobId?: string;
   jobOutputs?: Record<string, string>;
-  engine?: { wbType?: string; wbTheme?: string; wbAccent?: string; style?: string; voice?: string; speed?: string };
+  engine?: { wbType?: string; wbTheme?: string; wbAccent?: string; style?: string; voice?: string; speed?: string; castId?: string; castName?: string };
   script?: string;
   generatedScript?: string;
   error?: string;
@@ -245,6 +247,12 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     a.onended = () => setPlayingVoice(null);
     void a.play().then(() => setPlayingVoice(id)).catch(() => setPlayingVoice(null));
   };
+  const [cast, setCast] = useState<CastMember[]>([]);
+  useEffect(() => {
+    let alive = true;
+    studioApi.cast().then((r) => { if (alive) setCast(r.cast); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
   const [styles, setStyles] = useState<Array<{ id: string; name: string; tagline?: string }>>([]);
   useEffect(() => {
     if (kind !== "explainer") return;
@@ -295,6 +303,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         } else {
           fd.set("style", engine.style);
         }
+        if (engine.castId) fd.set("castMemberId", engine.castId);
         const job = await studioApi.createEngineJob(kind, fd);
         api.patchFlow({ stage: "production", jobKind: kind, jobId: job.jobId, engine });
         return;
@@ -404,6 +413,32 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                       {(styles.length ? styles : [{ id: "tiles", name: "Tiles" }]).map((s) => (
                         <PreviewChip key={s.id} video={`/previews/xr-${s.id}.mp4`} label={s.name} desc={s.tagline} selected={engine.style === s.id} onSelect={() => setOpt("style", s.id)} />
                       ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+              {cast.length > 0 && (
+                <section className="options-band open">
+                  <div className="band-head">
+                    <span className="band-head-copy"><label>Cast</label><b>{engine.castName ?? "No one cast yet"}</b></span>
+                  </div>
+                  <div className="band-body">
+                    <div className="opt-group">
+                      <label>Presenter <span className="opt-hint">casting brings their voice with them</span></label>
+                      <div className="opt-row cast-pick-row">
+                        {cast.map((m) => (
+                          <button key={m.id} type="button" className={`cast-pick ${engine.castId === m.id ? "on" : ""}`}
+                            onClick={() => setEngine((e) => ({
+                              ...e,
+                              castId: e.castId === m.id ? undefined : m.id,
+                              castName: e.castId === m.id ? undefined : m.name,
+                              voice: e.castId === m.id ? e.voice : (m.spec?.voiceId ?? e.voice),
+                            }))}>
+                            <span className="cast-pick-stage">{m.spec ? <AvatarStage spec={m.spec} /> : null}</span>
+                            <b>{m.name}</b>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </section>

@@ -8,7 +8,7 @@ import type { StudioBrandRoot, StudioSeriesRoot } from "@/studio-v1/dashboard/do
 import type { DashboardProject } from "@/studio-v1/dashboard/domain/dashboard";
 import { studioApi } from "./api";
 
-export type ViewId = "create" | "work" | "brand" | "library" | "series";
+export type ViewId = "create" | "work" | "cast" | "brand" | "library" | "series";
 
 export interface ContextChip {
   kind: "brand" | "series" | "file" | "reference";
@@ -38,7 +38,7 @@ export function useStudio(): StudioData {
   return ctx;
 }
 
-const VIEWS: ViewId[] = ["create", "work", "brand", "library", "series"];
+const VIEWS: ViewId[] = ["create", "work", "cast", "brand", "library", "series"];
 
 function hashToView(hash: string): ViewId | null {
   const v = hash.replace(/^#\/?/, "");

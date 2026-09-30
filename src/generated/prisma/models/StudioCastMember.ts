@@ -53,6 +53,7 @@ export type StudioCastMemberCountAggregateOutputType = {
   name: number
   assetNamespace: number
   identityKey: number
+  spec: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -88,6 +89,7 @@ export type StudioCastMemberCountAggregateInputType = {
   name?: true
   assetNamespace?: true
   identityKey?: true
+  spec?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -172,6 +174,7 @@ export type StudioCastMemberGroupByOutputType = {
   name: string
   assetNamespace: string
   identityKey: string
+  spec: runtime.JsonValue | null
   createdAt: Date
   updatedAt: Date
   _count: StudioCastMemberCountAggregateOutputType | null
@@ -204,6 +207,7 @@ export type StudioCastMemberWhereInput = {
   name?: Prisma.StringFilter<"StudioCastMember"> | string
   assetNamespace?: Prisma.StringFilter<"StudioCastMember"> | string
   identityKey?: Prisma.StringFilter<"StudioCastMember"> | string
+  spec?: Prisma.JsonNullableFilter<"StudioCastMember">
   createdAt?: Prisma.DateTimeFilter<"StudioCastMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StudioCastMember"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -218,6 +222,7 @@ export type StudioCastMemberOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   assetNamespace?: Prisma.SortOrder
   identityKey?: Prisma.SortOrder
+  spec?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   owner?: Prisma.UserOrderByWithRelationInput
@@ -236,6 +241,7 @@ export type StudioCastMemberWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"StudioCastMember"> | string
   assetNamespace?: Prisma.StringFilter<"StudioCastMember"> | string
   identityKey?: Prisma.StringFilter<"StudioCastMember"> | string
+  spec?: Prisma.JsonNullableFilter<"StudioCastMember">
   createdAt?: Prisma.DateTimeFilter<"StudioCastMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StudioCastMember"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -250,6 +256,7 @@ export type StudioCastMemberOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   assetNamespace?: Prisma.SortOrder
   identityKey?: Prisma.SortOrder
+  spec?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.StudioCastMemberCountOrderByAggregateInput
@@ -267,6 +274,7 @@ export type StudioCastMemberScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"StudioCastMember"> | string
   assetNamespace?: Prisma.StringWithAggregatesFilter<"StudioCastMember"> | string
   identityKey?: Prisma.StringWithAggregatesFilter<"StudioCastMember"> | string
+  spec?: Prisma.JsonNullableWithAggregatesFilter<"StudioCastMember">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"StudioCastMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"StudioCastMember"> | Date | string
 }
@@ -276,6 +284,7 @@ export type StudioCastMemberCreateInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutStudioCastMembersInput
@@ -290,6 +299,7 @@ export type StudioCastMemberUncheckedCreateInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   productions?: Prisma.StudioProductionCastMemberUncheckedCreateNestedManyWithoutCastMemberInput
@@ -300,6 +310,7 @@ export type StudioCastMemberUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutStudioCastMembersNestedInput
@@ -314,6 +325,7 @@ export type StudioCastMemberUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productions?: Prisma.StudioProductionCastMemberUncheckedUpdateManyWithoutCastMemberNestedInput
@@ -326,6 +338,7 @@ export type StudioCastMemberCreateManyInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -335,6 +348,7 @@ export type StudioCastMemberUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -346,6 +360,7 @@ export type StudioCastMemberUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -372,6 +387,7 @@ export type StudioCastMemberCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   assetNamespace?: Prisma.SortOrder
   identityKey?: Prisma.SortOrder
+  spec?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -506,6 +522,7 @@ export type StudioCastMemberCreateWithoutOwnerInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   brand?: Prisma.StudioBrandCreateNestedOneWithoutCastMembersInput
@@ -518,6 +535,7 @@ export type StudioCastMemberUncheckedCreateWithoutOwnerInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   productions?: Prisma.StudioProductionCastMemberUncheckedCreateNestedManyWithoutCastMemberInput
@@ -559,6 +577,7 @@ export type StudioCastMemberScalarWhereInput = {
   name?: Prisma.StringFilter<"StudioCastMember"> | string
   assetNamespace?: Prisma.StringFilter<"StudioCastMember"> | string
   identityKey?: Prisma.StringFilter<"StudioCastMember"> | string
+  spec?: Prisma.JsonNullableFilter<"StudioCastMember">
   createdAt?: Prisma.DateTimeFilter<"StudioCastMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StudioCastMember"> | Date | string
 }
@@ -568,6 +587,7 @@ export type StudioCastMemberCreateWithoutBrandInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutStudioCastMembersInput
@@ -580,6 +600,7 @@ export type StudioCastMemberUncheckedCreateWithoutBrandInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   productions?: Prisma.StudioProductionCastMemberUncheckedCreateNestedManyWithoutCastMemberInput
@@ -616,6 +637,7 @@ export type StudioCastMemberCreateWithoutProductionsInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutStudioCastMembersInput
@@ -629,6 +651,7 @@ export type StudioCastMemberUncheckedCreateWithoutProductionsInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -654,6 +677,7 @@ export type StudioCastMemberUpdateWithoutProductionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutStudioCastMembersNestedInput
@@ -667,6 +691,7 @@ export type StudioCastMemberUncheckedUpdateWithoutProductionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -677,6 +702,7 @@ export type StudioCastMemberCreateManyOwnerInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -686,6 +712,7 @@ export type StudioCastMemberUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   brand?: Prisma.StudioBrandUpdateOneWithoutCastMembersNestedInput
@@ -698,6 +725,7 @@ export type StudioCastMemberUncheckedUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productions?: Prisma.StudioProductionCastMemberUncheckedUpdateManyWithoutCastMemberNestedInput
@@ -709,6 +737,7 @@ export type StudioCastMemberUncheckedUpdateManyWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -719,6 +748,7 @@ export type StudioCastMemberCreateManyBrandInput = {
   name: string
   assetNamespace?: string
   identityKey: string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -728,6 +758,7 @@ export type StudioCastMemberUpdateWithoutBrandInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutStudioCastMembersNestedInput
@@ -740,6 +771,7 @@ export type StudioCastMemberUncheckedUpdateWithoutBrandInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productions?: Prisma.StudioProductionCastMemberUncheckedUpdateManyWithoutCastMemberNestedInput
@@ -751,6 +783,7 @@ export type StudioCastMemberUncheckedUpdateManyWithoutBrandInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   assetNamespace?: Prisma.StringFieldUpdateOperationsInput | string
   identityKey?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -793,6 +826,7 @@ export type StudioCastMemberSelect<ExtArgs extends runtime.Types.Extensions.Inte
   name?: boolean
   assetNamespace?: boolean
   identityKey?: boolean
+  spec?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -808,6 +842,7 @@ export type StudioCastMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   name?: boolean
   assetNamespace?: boolean
   identityKey?: boolean
+  spec?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -821,6 +856,7 @@ export type StudioCastMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   name?: boolean
   assetNamespace?: boolean
   identityKey?: boolean
+  spec?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -834,11 +870,12 @@ export type StudioCastMemberSelectScalar = {
   name?: boolean
   assetNamespace?: boolean
   identityKey?: boolean
+  spec?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type StudioCastMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerUserId" | "brandId" | "name" | "assetNamespace" | "identityKey" | "createdAt" | "updatedAt", ExtArgs["result"]["studioCastMember"]>
+export type StudioCastMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerUserId" | "brandId" | "name" | "assetNamespace" | "identityKey" | "spec" | "createdAt" | "updatedAt", ExtArgs["result"]["studioCastMember"]>
 export type StudioCastMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   brand?: boolean | Prisma.StudioCastMember$brandArgs<ExtArgs>
@@ -868,6 +905,7 @@ export type $StudioCastMemberPayload<ExtArgs extends runtime.Types.Extensions.In
     name: string
     assetNamespace: string
     identityKey: string
+    spec: runtime.JsonValue | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["studioCastMember"]>
@@ -1302,6 +1340,7 @@ export interface StudioCastMemberFieldRefs {
   readonly name: Prisma.FieldRef<"StudioCastMember", 'String'>
   readonly assetNamespace: Prisma.FieldRef<"StudioCastMember", 'String'>
   readonly identityKey: Prisma.FieldRef<"StudioCastMember", 'String'>
+  readonly spec: Prisma.FieldRef<"StudioCastMember", 'Json'>
   readonly createdAt: Prisma.FieldRef<"StudioCastMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"StudioCastMember", 'DateTime'>
 }

@@ -404,7 +404,7 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
         <div className="nxs-section-shell">
           <div className="nxs-film-gallery-head">
             <div><p className="sv1-kicker">Made with NexStudio</p><h2 id="nxs-work-title">Watch what Studio can make.</h2></div>
-            <p>Finished films, shown as films — not feature descriptions.</p>
+            <p>Finished films, shown as films. Not feature descriptions.</p>
           </div>
           <div className="nxs-film-filters" role="tablist" aria-label="Filter NexStudio films">
             {WORK_FILTERS.map((filter) => <button key={filter.id} role="tab" aria-selected={workFilter === filter.id} className={workFilter === filter.id ? "active" : ""} onClick={() => setWorkFilter(filter.id)}>{filter.label}</button>)}

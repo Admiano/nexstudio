@@ -162,9 +162,17 @@ export const studioApi = {
     postJson<{ brandId: string }>("/api/v1/studio/brands", input, signal),
   createSeries: (input: { name: string; description?: string; brandId?: string; bible?: Record<string, unknown> }, signal?: AbortSignal) =>
     postJson<{ seriesId: string }>("/api/v1/studio/series", input, signal),
+  cast: (signal?: AbortSignal) =>
+    readJson<{ cast: import("./cast/spec").CastMember[] }>("/api/v1/studio/cast", signal),
+  createCast: (input: { name: string; brandId?: string; spec: import("./cast/spec").CastSpec }, signal?: AbortSignal) =>
+    postJson<{ member: import("./cast/spec").CastMember }>("/api/v1/studio/cast", input, signal),
+  updateCast: (id: string, input: { name?: string; brandId?: string | null; spec?: import("./cast/spec").CastSpec }, signal?: AbortSignal) =>
+    readJson<{ member: import("./cast/spec").CastMember }>(`/api/v1/studio/cast/${id}`, signal, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) }),
+  deleteCast: (id: string, signal?: AbortSignal) =>
+    readJson<{ deleted: boolean }>(`/api/v1/studio/cast/${id}`, signal, { method: "DELETE" }),
   updateSeries: (id: string, input: { name?: string; description?: string | null; brandId?: string | null }, signal?: AbortSignal) =>
     readJson<{ series: unknown }>(`/api/v1/studio/series/${id}`, signal, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) }),
-  nextEpisode: (seriesId: string, input: { family: string; videoType: string; prompt: string; duration?: number | null; aspectRatio?: string | null }, signal?: AbortSignal) =>
+  nextEpisode: (seriesId: string, input: { family: string; videoType: string; prompt: string; duration?: number | null; aspectRatio?: string | null; castMemberId?: string | null }, signal?: AbortSignal) =>
     postJson<unknown>(`/api/v1/studio/series/${seriesId}/next-episode`, input, signal),
   fundingIntent: (requestedTopupMinor: number, signal?: AbortSignal) =>
     postJson<unknown>("/api/v1/studio/funding-intents", { purpose: "BALANCE_TOPUP", requestedTopupMinor }, signal),

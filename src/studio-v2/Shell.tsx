@@ -6,6 +6,7 @@ import { WorkView } from "./views/WorkView";
 import { BrandView } from "./views/BrandView";
 import { LibraryView } from "./views/LibraryView";
 import { SeriesView } from "./views/SeriesView";
+import { CastView } from "./views/CastView";
 import { CreditsSheet } from "./overlays/Credits";
 import { AccountSheet, initialsOf } from "./overlays/Account";
 import { FlowOverlay, type FlowState } from "./overlays/Flow";
@@ -128,7 +129,7 @@ export default function Shell({ view }: { view: ViewId }) {
           <span className="brand-mark"><i /></span><span>NexStudio</span>
         </button>
         <nav aria-label="Primary" className="nav">
-          {(["create", "work", "brand", "library"] as const).map((v) => (
+          {(["create", "work", "cast", "brand", "library"] as const).map((v) => (
             <button key={v} data-route={v} className={view === v || (v === "work" && view === "series") ? "active" : ""} aria-current={view === v ? "page" : undefined} onClick={() => route(v)}>
               {v[0].toUpperCase() + v.slice(1)}
             </button>
@@ -179,6 +180,9 @@ export default function Shell({ view }: { view: ViewId }) {
         <section className={`view ${view === "brand" ? "active" : ""}`} id="view-brand">
           <BrandView openSheet={setSheet} notify={notify} openSeries={openSeries} onOpenWork={(id) => setHistoryId(id)} />
         </section>
+        <section className={`view ${view === "cast" ? "active" : ""}`} id="view-cast">
+          <CastView notify={notify} loading={false} />
+        </section>
         <section className={`view ${view === "library" ? "active" : ""}`} id="view-library">
           <LibraryView openSheet={setSheet} notify={notify} addContext={addContext} />
         </section>
@@ -187,7 +191,7 @@ export default function Shell({ view }: { view: ViewId }) {
         </section>
       </main>
       <nav aria-label="Mobile primary" className="mobile-nav">
-        {(["create", "work", "brand", "library"] as const).map((v) => (
+        {(["create", "work", "cast", "brand", "library"] as const).map((v) => (
           <button key={v} data-route={v} className={view === v ? "active" : ""} onClick={() => route(v)}>
             <span>{v[0].toUpperCase() + v.slice(1)}</span>
           </button>

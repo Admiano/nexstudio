@@ -51,6 +51,8 @@ export async function POST(request: Request) {
   if (script && !VOICES.includes(voice))
     return problem(id, 422, "VOICE_UNKNOWN", "Unknown voice", `Pick one of: ${VOICES.join(", ")}.`);
 
+  const castMemberId = String(form.get("castMemberId") ?? "").trim() || null;
+
   const aspects = String(form.get("aspects") ?? "16x9,1x1,9x16")
     .split(",").map((a) => a.trim()).filter((a) => ASPECTS.has(a));
   if (!aspects.length)
@@ -144,6 +146,7 @@ export async function POST(request: Request) {
       script: script || "",
       duration: durationRaw || null,
       voice: script ? voice : null,
+      castMemberId,
     });
   } catch { /* a missing draft never blocks the render */ }
 

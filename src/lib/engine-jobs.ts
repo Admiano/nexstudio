@@ -113,9 +113,14 @@ export async function createEngineDraft(input: {
   title?: string | null;
   duration?: number | null;
   voice?: string | null;
+  castMemberId?: string | null;
 }): Promise<void> {
   const prisma = getPrisma();
   if (!prisma) return;
+  // the cast member must belong to the caller - foreign keys make an owned lookup airtight
+  if (input.castMemberId && !(await prisma.studioCastMember.findFirst({ where: { id: input.castMemberId, ownerUserId: input.ownerUserId }, select: { id: true } }))) {
+    input.castMemberId = null;
+  }
   const firstLine = input.script.split("\n").map((l) => l.trim()).filter(Boolean)[0] ?? "";
   const title = (input.title ?? "").trim() || (firstLine ? firstLine.split(/\s+/).slice(0, 8).join(" ") : "Untitled production");
   await prisma.draft.create({
@@ -128,7 +133,7 @@ export async function createEngineDraft(input: {
       prompt: input.script || "[uploaded voiceover]",
       duration: input.duration ?? null,
       voicePreference: input.voice ?? null,
-      payload: { engine: { kind: input.kind, jobId: input.jobId } },
+      payload: { engine: { kind: input.kind, jobId: input.jobId }, castMemberId: input.castMemberId ?? null },
       studioState: "PRODUCTION",
     },
   });

@@ -1,0 +1,95 @@
+{
+ "plateSize": [
+  720,
+  1080
+ ],
+ "drawOrder": [
+  "body",
+  "lip",
+  "shoes",
+  "bottom",
+  "outfit|top",
+  "neck",
+  "watch",
+  "hair",
+  "earring"
+ ],
+ "female": {
+  "faces": 3,
+  "skins": [
+   "fair",
+   "light",
+   "medium",
+   "tan",
+   "brown",
+   "deep"
+  ],
+  "hair": [
+   "long",
+   "afro",
+   "bun",
+   "braid",
+   "swept"
+  ],
+  "hairColors": [
+   "auburn",
+   "raven",
+   "brownd",
+   "blonde",
+   "silver"
+  ],
+  "lips": [
+   "rose",
+   "crimson",
+   "plum",
+   "coral"
+  ],
+  "necks": [
+   "fine",
+   "pendant",
+   "pearls",
+   "choker",
+   "scarf"
+  ],
+  "outfits": [
+   "sheath",
+   "dress01",
+   "suit"
+  ]
+ },
+ "male": {
+  "faces": 3,
+  "skins": [
+   "fair",
+   "light",
+   "medium",
+   "tan",
+   "brown",
+   "deep"
+  ],
+  "hair": [
+   "quiff",
+   "afro"
+  ],
+  "hairColors": [
+   "auburn",
+   "raven",
+   "brownd",
+   "blonde",
+   "silver"
+  ],
+  "pieces": [
+   "top",
+   "bottom",
+   "shoes"
+  ],
+  "watches": [
+   "dress",
+   "analog",
+   "chrono",
+   "smart",
+   "digital"
+  ]
+ },
+ "tinting": "multiply *_tint.png by hex; derived as luminance/median*235 of the reference plate"
+}

@@ -1259,6 +1259,35 @@
    "year": null,
    "source_size": []
   },
+  "mean": {
+   "concept": "means",
+   "query": "means",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "77788993",
+   "title": "File:John Means (46762721914) (cropped).jpg",
+   "creator": "United States Naval Academy",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:John_Means_(46762721914)_(cropped).jpg",
+   "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/74/John_Means_%2846762721914%29_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file": "means.fa7114c35e29.jpg",
+   "sha256": "a54b08104c663b2cb0ff1fbd68cd1be6cda71142940bb93d977e4df25e8eded9",
+   "width": 695,
+   "height": 876,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "John Means (baseball)",
+    "2019 Baltimore Orioles season",
+    "Extracted images",
+    "March 2019 in Maryland"
+   ],
+   "year": 2019,
+   "source_size": [
+    695,
+    876
+   ]
+  },
   "microphone": {
    "concept": "microphone",
    "query": "microphone",

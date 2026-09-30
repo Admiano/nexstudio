@@ -56,6 +56,7 @@ export async function POST(request: Request) {
     return problem(id, 422, "THEME_UNKNOWN", "Unknown theme", `Pick one of: ${[...THEMES].join(", ")}.`);
 
   const accent = String(form.get("accent") ?? "").trim();
+  const castMemberId = String(form.get("castMemberId") ?? "").trim() || null;
   if (accent && !/^#[0-9a-fA-F]{3,8}$/.test(accent))
     return problem(id, 422, "ACCENT_INVALID", "Invalid accent color", "Send a hex color like #2f6fb3.");
 
@@ -154,6 +155,7 @@ export async function POST(request: Request) {
       script: script || "",
       duration: durationRaw || null,
       voice: script ? voice : null,
+      castMemberId,
     });
   } catch { /* a missing draft never blocks the render */ }
 
