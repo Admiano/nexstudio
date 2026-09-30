@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useStudioBrands, useStudioSeries } from "../hooks.js";
-import { studioMutation } from "../api.js";
-import { ErrorState, LoadState } from "./shared.js";
-import { MemoryPanel } from "./MemoryPanel.js";
+import { useStudioBrands, useStudioSeries } from "../hooks";
+import { studioMutation } from "../api";
+import { ErrorState, LoadState } from "./shared";
+import { MemoryPanel } from "./MemoryPanel";
 import { PRODUCTION_REGISTRY, type FamilyId } from "@/studio-v1/public/registry";
 
 const FAMILY_TO_DOMAIN: Record<FamilyId,"EXPLAINER"|"WHITEBOARD"|"STICKMAN"|"EDITORIAL_MOTION">={explainer:"EXPLAINER",whiteboard:"WHITEBOARD",stickman:"STICKMAN","editorial-motion":"EDITORIAL_MOTION"};

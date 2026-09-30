@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import type { StudioMemoryScope } from "../domain/creative-memory.js";
-import { useStudioDashboardGateway } from "./context.js";
+import type { StudioMemoryScope } from "../domain/creative-memory";
+import { useStudioDashboardGateway } from "./context";
 
 export interface AsyncState<T> { data: T | null; loading: boolean; error: string | null; refresh: () => void; }
 

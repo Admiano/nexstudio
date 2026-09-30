@@ -1,6 +1,6 @@
-import { formatMinor } from "../../domain/billing.js";
-import { useStudioBalance, useStudioBillingHistory } from "../hooks.js";
-import { ErrorState, LoadState } from "./shared.js";
+import { formatMinor } from "../../domain/billing";
+import { useStudioBalance, useStudioBillingHistory } from "../hooks";
+import { ErrorState, LoadState } from "./shared";
 
 export function BillingRoute() {
   const balance = useStudioBalance();

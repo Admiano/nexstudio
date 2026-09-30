@@ -1,7 +1,7 @@
-import { useStudioWork } from "../hooks.js";
-import { ErrorState, LoadState } from "./shared.js";
-import { ProjectCard } from "./ProjectCard.js";
-import type { DashboardProject } from "../../domain/dashboard.js";
+import { useStudioWork } from "../hooks";
+import { ErrorState, LoadState } from "./shared";
+import { ProjectCard } from "./ProjectCard";
+import type { DashboardProject } from "../../domain/dashboard";
 const PRODUCTION_STATES = new Set(["PLANNING","PAYMENT_PENDING","PRODUCTION","PRODUCTION_FAILED","TECHNICAL_RETRY"]);
 function DeskSection({ title, description, projects, onOpenProject }: { title: string; description: string; projects: DashboardProject[]; onOpenProject: (id: string) => void }) {
   if (!projects.length) return null;
