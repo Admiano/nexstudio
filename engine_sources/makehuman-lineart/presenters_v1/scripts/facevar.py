@@ -80,4 +80,5 @@ if _F not in ('0','base',''):
             for k in o.data.shape_keys.key_blocks: _tx(k.data)
         o.data.update(); _edit.append(o.name)
     bpy.context.view_layer.update()
+    _r.data.pose_position='POSE'; bpy.context.view_layer.update()
     print('FACEVAR',_F,'edited',len(_edit),'meshes')
