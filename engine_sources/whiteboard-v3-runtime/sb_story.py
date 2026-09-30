@@ -243,7 +243,7 @@ def is_story_scene(maps: list, people: set = frozenset()) -> bool:
             if str(st.get('word') or '').lower() in _EMO_ADJ:
                 story += 1
                 total += 1
-    return story >= 1 and story > explain and story >= 0.45 * max(1, total)
+    return story >= 1 and story >= explain and story >= 0.45 * max(1, total)
 
 
 # ---- role list helpers -----------------------------------------------

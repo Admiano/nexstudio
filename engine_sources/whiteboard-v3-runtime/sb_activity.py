@@ -141,6 +141,7 @@ _LEMMA = {'jog': 'run', 'sprint': 'run', 'dash': 'run', 'race': 'run',
           'store': 'hold', 'stake': 'hold', 'secure': 'hold',
           'vault': 'hold', 'hodl': 'hold', 'custody': 'hold',
           'backup': 'hold', 'retain': 'hold', 'protect': 'hold',
+          'guard': 'hold', 'safeguard': 'hold',
           'mine': 'dig', 'excavate': 'dig', 'drill': 'dig',
           'unlock': 'open', 'lock': 'hold',
           'release': 'give', 'launch': 'throw', 'publish': 'give',
@@ -153,7 +154,11 @@ _LEMMA = {'jog': 'run', 'sprint': 'run', 'dash': 'run', 'race': 'run',
           'collaborate': 'talk', 'interview': 'talk', 'question': 'talk',
           'prescribe': 'write', 'operate': 'fix', 'suture': 'fix',
           'repair': 'fix', 'patch': 'fix', 'heal': 'fix', 'treat': 'fix',
-          'feed': 'give', 'serve': 'give', 'issue': 'give'}
+          'feed': 'give', 'serve': 'give', 'issue': 'give',
+          'target': 'point', 'aim': 'point', 'attack': 'strike',
+          'breach': 'strike', 'exploit': 'strike', 'hack': 'strike',
+          'phish': 'strike', 'steal': 'strike', 'rob': 'strike',
+          'split': 'cut', 'divide': 'cut', 'fractionalize': 'cut'}
 
 # lemmas that never depict a body activity by themselves
 _ABSTRACT = {'be', 'have', 'seem', 'feel', 'become', 'know', 'think',
@@ -387,7 +392,7 @@ def resolve(lemma, objects=(), posture=''):
         if t_ is not None:
             sc, partner, kind = 'desk', None, ''
         else:
-            partner, kind = s_, 'seat'
+            partner, kind = s_, ('seat' if s_ is not None else '')
     if sc == 'lie':
         partner, kind = first('bed')
     if sc == 'cook' and not first('stove')[0]:
@@ -806,9 +811,9 @@ def _chair(seat_=True):
     return st if seat_ else []
 
 
-SEATED = _std(hip=(0.0, -0.40), lean=0.06, hn=(0.17, -0.42),
-              hf=(0.14, -0.43), fn=(0.24, 0.0), ff=(0.20, 0.0),
-              knee=(0.2, -0.98))
+SEATED = _std(hip=(-0.02, -0.365), lean=0.06, hn=(0.16, -0.42),
+              hf=(0.13, -0.43), fn=(0.17, -0.06), ff=(0.14, -0.04),
+              knee=(0.32, -0.95), toe=(0.75, 0.66))
 
 
 _SEATED_SCHEMAS = {'drive', 'ride', 'row', 'desk', 'sit', 'sit_drink',
@@ -1534,6 +1539,8 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
         if box is not None:
             obj = _xf_art(partner_art, box)
             placed = bool(obj)
+    if slot is not None and slot[0] == 'seat' and not placed:
+        back = back + _chair()
     r_back, r_over, obj, r_con, r_placed = _place_roles(
         sc, spec, pose, anch, body, obj, role_arts or {})
     if sc in _FLOW:
