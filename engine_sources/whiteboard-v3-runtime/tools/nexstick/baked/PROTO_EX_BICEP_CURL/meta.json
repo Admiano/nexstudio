@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_EX_BICEP_CURL",
+ "frames": 67,
+ "fps": 30.0,
+ "res": [
+  155,
+  466
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "proto_rig",
+ "license": "CC BY-SA 4.0 \u2014 Bryl Lim / Everkinetic (pose reference)"
+}

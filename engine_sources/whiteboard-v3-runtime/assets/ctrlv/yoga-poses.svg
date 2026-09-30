@@ -1,0 +1,28 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Yoga Mat -->
+        <rect x="60" y="240" width="280" height="8" rx="4" fill="#1A1A17" opacity="0.2"/>
+        
+        <!-- Detailed Yoga Silhouette (Tree Pose) -->
+        <g>
+            <!-- Aura -->
+            <circle cx="200" cy="150" r="60" fill="#F5F0E4" opacity="0.1"/>
+            
+            <!-- Head -->
+            <circle cx="200" cy="80" r="20" fill="#1A1A17"/>
+            
+            <!-- Body & Leg -->
+            <path d="M200 100 V200 L200 240" stroke="#1A1A17" stroke-width="10" stroke-linecap="round"/>
+            
+            <!-- Bent Leg -->
+            <path d="M200 200 L180 170 L200 170" stroke="#1A1A17" stroke-width="8" stroke-linecap="round" fill="none"/>
+            
+            <!-- Arms Raised -->
+            <path d="M200 130 L170 70 M200 130 L230 70" stroke="#1A1A17" stroke-width="8" stroke-linecap="round" fill="none"/>
+        </g>
+        
+        <!-- Floating Leaves/Nature elements -->
+        <g style="animation-delay: -2s">
+            <path d="M300 80 Q320 60 300 40" stroke="#166534" stroke-width="3" opacity="0.4"/>
+            <path d="M100 100 Q80 80 100 60" stroke="#166534" stroke-width="3" opacity="0.4"/>
+        </g>
+    </svg>

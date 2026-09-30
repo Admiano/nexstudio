@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="130" ry="10" fill="#E2E8F0"/>
+            <g>
+              <circle cx="200" cy="145" r="88" fill="#1A1A17"/>
+              <!-- Raised high brows -->
+              <path d="M155 98 Q172 84 190 98 M210 98 Q228 84 245 98" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <!-- Wide circle eyes -->
+              <circle cx="172" cy="128" r="18" fill="#F5F0E4"/>
+              <circle cx="228" cy="128" r="18" fill="#F5F0E4"/>
+              <circle cx="172" cy="128" r="9" fill="#F5F0E4"/>
+              <circle cx="228" cy="128" r="9" fill="#F5F0E4"/>
+              <!-- Big O mouth -->
+              <ellipse cx="200" cy="178" rx="25" ry="22" fill="#F5F0E4"/>
+              <ellipse cx="200" cy="175" rx="18" ry="12" fill="#F5F0E4" opacity="0.5"/>
+            </g>
+            <!-- Burst lines -->
+            <g stroke="#F5F0E4" stroke-width="5" stroke-linecap="round">
+              <path d="M108 68 L95 52 M120 55 L112 38 M135 48 L132 30"/>
+              <path d="M292 68 L305 52 M280 55 L288 38 M265 48 L268 30"/>
+            </g>
+          </svg>

@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Data Pool -->
+            <ellipse cx="200" cy="250" rx="100" ry="20" fill="#F5F0E4" opacity="0.4"/>
+            <ellipse style="animation-delay:-0.5s" cx="200" cy="250" rx="80" ry="15" fill="#F5F0E4" opacity="0.6"/>
+            
+            <!-- Server Faucet -->
+            <rect x="240" y="40" width="80" height="100" rx="8" fill="#F5F0E4"/>
+            <rect x="250" y="50" width="60" height="15" rx="4" fill="#1A1A17"/>
+            <rect x="250" y="75" width="60" height="15" rx="4" fill="#1A1A17"/>
+            <path d="M240 100 H180 A10 10 0 0 0 170 110 V130" stroke="#1A1A17" stroke-width="12" fill="none"/>
+            
+            <!-- Liquid Data Drops -->
+            <path d="M170 130 V250" stroke="#F5F0E4" stroke-width="6" stroke-dasharray="10 10" stroke-linecap="round"/>
+            <circle cx="170" cy="200" r="6" fill="#F5F0E4"/>
+            
+            <!-- Ripples base in the pool -->
+            <path d="M150 250 A20 5 0 0 0 190 250" stroke="white" stroke-width="2" fill="none"/>
+            <!-- Binary splashes -->
+            <path d="M170 240 Q140 200 150 180" stroke="#1A1A17" stroke-width="3" stroke-dasharray="4 4" fill="none"/>
+            <path style="animation-delay:-1s" d="M170 240 Q200 200 190 180" stroke="#1A1A17" stroke-width="3" stroke-dasharray="4 4" fill="none"/>
+          </svg>

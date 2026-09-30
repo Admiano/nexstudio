@@ -1,0 +1,31 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Meeting Screen -->
+                <rect x="40" y="40" width="320" height="200" rx="8" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                
+                <!-- Video Grid -->
+                <g opacity="0.6">
+                    <!-- Participant 1 -->
+                    <rect x="60" y="60" width="130" height="75" rx="4" fill="#1A1A17" opacity="0.2"/>
+                    <circle cx="125" cy="90" r="15" fill="#1A1A17"/>
+                    <path d="M105 120 Q125 100 145 120 Z" fill="#1A1A17"/>
+                    
+                    <!-- Participant 2 -->
+                    <rect x="210" y="60" width="130" height="75" rx="4" fill="#F5F0E4" opacity="0.2"/>
+                    <circle cx="275" cy="90" r="15" fill="#F5F0E4"/>
+                    
+                    <!-- Participant 3 -->
+                    <rect x="60" y="145" width="130" height="75" rx="4" fill="#F5F0E4" opacity="0.2"/>
+                    
+                    <!-- Main Speaker (Active Highlight) -->
+                    <rect x="210" y="145" width="130" height="75" rx="4" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                    <circle cx="275" cy="175" r="20" fill="#F5F0E4"/>
+                </g>
+                
+                <!-- Controls Bar -->
+                <rect x="120" y="210" width="160" height="30" rx="15" fill="#F5F0E4" opacity="0.8"/>
+                <circle cx="150" cy="225" r="8" fill="#F5F0E4"/>
+                <circle cx="200" cy="225" r="8" fill="#F5F0E4"/>
+                <circle cx="250" cy="225" r="8" fill="#F5F0E4"/>
+            </g>
+          </svg>

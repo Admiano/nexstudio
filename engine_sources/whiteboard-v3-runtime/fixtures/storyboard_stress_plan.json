@@ -1,0 +1,132 @@
+{
+ "production_id": "storyboard_stress",
+ "title": "How Clinics Beat Flu Season",
+ "board_layout": "storyboard",
+ "art_kit": "healthcare",
+ "brandExecution": {
+  "brandAuthority": {
+   "background": "#F7F2E7",
+   "ink": "#1A1A17",
+   "accent": "#1A1A17",
+   "secondary": "#8B8577"
+  }
+ },
+ "beats": [
+  {
+   "beat_id": "ba",
+   "duration_seconds": 9.0,
+   "title": "1. Before and After",
+   "caption": "\"Prevention is cheaper than cure.\"",
+   "narration": "Before the vaccine drive, the ward was full. After it, beds were empty.",
+   "scene": {
+    "sceneId": "ba",
+    "heroRole": {
+     "label": "sick patient",
+     "icon": "person",
+     "annotate": "before: ward full",
+     "emotion": "sad"
+    },
+    "supportingRoles": [
+     {
+      "label": "hospital bed",
+      "icon": "hospital bed"
+     },
+     {
+      "label": "vaccine",
+      "icon": "syringe"
+     },
+     {
+      "label": "healthy patient",
+      "icon": "person",
+      "annotate": "after: back to work",
+      "emotion": "happy"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "cy",
+   "duration_seconds": 9.0,
+   "title": "2. The Flu Cycle",
+   "caption": "\"Break one link, stop the loop.\"",
+   "narration": "The virus spreads in a cycle: contact, infection, symptoms, spread again.",
+   "scene": {
+    "sceneId": "cy",
+    "heroRole": {
+     "label": "virus",
+     "icon": "virus",
+     "annotate": "infection"
+    },
+    "supportingRoles": [
+     {
+      "label": "cough",
+      "icon": "masked face",
+      "annotate": "symptoms"
+     },
+     {
+      "label": "crowd",
+      "icon": "crowd of people",
+      "glyph": "crowd",
+      "annotate": "spread"
+     },
+     {
+      "label": "handshake",
+      "icon": "handshake",
+      "annotate": "contact"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "re",
+   "duration_seconds": 9.0,
+   "title": "3. The Test Result",
+   "caption": "\"Everyone waits on the lab.\"",
+   "narration": "The whole family waits anxiously for the test result.",
+   "scene": {
+    "sceneId": "re",
+    "heroRole": {
+     "label": "test tube",
+     "icon": "test tube",
+     "annotate": "the result"
+    },
+    "supportingRoles": [
+     {
+      "label": "mother",
+      "icon": "person",
+      "annotate": "worried",
+      "emotion": "afraid"
+     },
+     {
+      "label": "doctor",
+      "icon": "person",
+      "annotate": "explains",
+      "emotion": "explain"
+     },
+     {
+      "label": "child",
+      "icon": "person",
+      "annotate": "confused",
+      "emotion": "confused"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "fo",
+   "duration_seconds": 9.0,
+   "title": "4. One Shot",
+   "caption": "\"Small jab, big shield.\"",
+   "narration": "One shot protects the whole year.",
+   "scene": {
+    "sceneId": "fo",
+    "heroRole": {
+     "label": "vaccine",
+     "icon": "syringe",
+     "annotate": "one shot"
+    },
+    "supportingRoles": []
+   }
+  }
+ ]
+}

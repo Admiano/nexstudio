@@ -1,0 +1,352 @@
+{
+ "name": "ai",
+ "domain": "ai explainers \u2014 harvested + curated",
+ "glyphs": {
+  "robot": {
+   "keywords": [
+    "ai robot",
+    "bot",
+    "robot"
+   ],
+   "donor": "phosphor:robot"
+  },
+  "brain": {
+   "keywords": [
+    "ai brain",
+    "brain",
+    "thinking"
+   ],
+   "donor": "phosphor:brain"
+  },
+  "neural-network": {
+   "keywords": [
+    "deep learning",
+    "deep neural",
+    "network of neurons",
+    "neural network",
+    "neuron"
+   ],
+   "donor": "phosphor:network"
+  },
+  "chat-bubble": {
+   "keywords": [
+    "ai chat",
+    "assistant",
+    "chat",
+    "chat bubble",
+    "chat gpt",
+    "chatbot",
+    "conversation"
+   ],
+   "donor": "phosphor:chat"
+  },
+  "prompt": {
+   "keywords": [
+    "instruction",
+    "prompt",
+    "prompting",
+    "query",
+    "system prompt",
+    "you ask"
+   ],
+   "donor": "phosphor:terminal-window"
+  },
+  "document": {
+   "keywords": [
+    "article",
+    "blog post",
+    "document",
+    "file",
+    "news article",
+    "pdf",
+    "report",
+    "text",
+    "your file"
+   ],
+   "donor": "kit:business:document"
+  },
+  "api-call": {
+   "keywords": [
+    "api",
+    "api call",
+    "endpoint",
+    "integration",
+    "web hook",
+    "webhook"
+   ],
+   "donor": "world:hook"
+  },
+  "workflow": {
+   "keywords": [
+    "ai workflow",
+    "automation",
+    "pipeline",
+    "process",
+    "workflow",
+    "workflow automation"
+   ],
+   "donor": "phosphor:git-branch"
+  },
+  "tool-wrench": {
+   "keywords": [
+    "function call",
+    "mcp",
+    "mcp server",
+    "mcp service",
+    "tool",
+    "tool call",
+    "tool wrench",
+    "tools"
+   ],
+   "donor": "world:wrench"
+  },
+  "database": {
+   "keywords": [
+    "data",
+    "database",
+    "dataset",
+    "datum",
+    "storage",
+    "training data",
+    "vector database"
+   ],
+   "donor": "phosphor:database"
+  },
+  "memory-chip": {
+   "keywords": [
+    "chip",
+    "context",
+    "context window",
+    "gpu",
+    "memory",
+    "memory chip"
+   ],
+   "donor": "phosphor:memory"
+  },
+  "magnify-data": {
+   "keywords": [
+    "finds",
+    "lookup",
+    "magnify data",
+    "rag",
+    "retrieval",
+    "retrieval augmented generation",
+    "search"
+   ],
+   "donor": "kit:crypto:magnify"
+  },
+  "calendar": {
+   "keywords": [
+    "calendar",
+    "date",
+    "my calendar",
+    "reminder",
+    "schedule"
+   ],
+   "donor": "phosphor:calendar"
+  },
+  "graph-up": {
+   "keywords": [
+    "accuracy",
+    "forecast",
+    "graph up",
+    "output",
+    "prediction",
+    "predicts",
+    "result",
+    "score"
+   ],
+   "donor": "phosphor:graph"
+  },
+  "code": {
+   "keywords": [
+    "code",
+    "programming",
+    "script",
+    "software",
+    "writes code"
+   ],
+   "donor": "phosphor:code"
+  },
+  "orchestration": {
+   "keywords": [
+    "coordinates",
+    "multi agent",
+    "multiple agents",
+    "orchestration",
+    "orchestration layer",
+    "swarm"
+   ],
+   "donor": "phosphor:share-network"
+  },
+  "training": {
+   "keywords": [
+    "learns from",
+    "model training",
+    "parameters",
+    "training",
+    "trains",
+    "weights"
+   ],
+   "donor": "healthicons:i-training-class"
+  },
+  "decision-tree": {
+   "keywords": [
+    "chooses",
+    "decides",
+    "decision",
+    "decision tree",
+    "next step",
+    "planning",
+    "reasoning"
+   ],
+   "donor": "phosphor:tree"
+  },
+  "eye": {
+   "keywords": [
+    "eye",
+    "image recognition",
+    "monitors",
+    "observes",
+    "vision",
+    "watches"
+   ],
+   "donor": "healthicons:eye"
+  },
+  "lock": {
+   "keywords": [
+    "guardrails",
+    "lock",
+    "permission",
+    "privacy",
+    "safety",
+    "secure"
+   ],
+   "donor": "phosphor:lock"
+  },
+  "money": {
+   "keywords": [
+    "billing",
+    "cost",
+    "money",
+    "payment",
+    "price",
+    "subscription"
+   ],
+   "donor": "phosphor:money"
+  },
+  "server": {
+   "keywords": [
+    "cloud",
+    "computer",
+    "computer system",
+    "machine",
+    "server",
+    "system"
+   ],
+   "donor": "world:cloud"
+  },
+  "email": {
+   "keywords": [
+    "email",
+    "email inbox",
+    "inbox",
+    "message",
+    "reply"
+   ],
+   "donor": "kit:business:email"
+  },
+  "globe": {
+   "keywords": [
+    "browser",
+    "globe",
+    "internet",
+    "online",
+    "web",
+    "website"
+   ],
+   "donor": "healthicons:globe"
+  },
+  "lightbulb": {
+   "keywords": [
+    "idea",
+    "insight",
+    "learns",
+    "lightbulb",
+    "recommendation",
+    "suggestion"
+   ],
+   "donor": "phosphor:lightbulb"
+  },
+  "target": {
+   "keywords": [
+    "aim",
+    "goal",
+    "objective",
+    "target"
+   ],
+   "donor": "phosphor:target"
+  },
+  "alert": {
+   "keywords": [
+    "alert",
+    "error",
+    "hallucination",
+    "mistake",
+    "risk",
+    "warning"
+   ],
+   "donor": "kit:crypto:alert"
+  },
+  "check-badge": {
+   "keywords": [
+    "accurate",
+    "approved",
+    "check badge",
+    "correct",
+    "success",
+    "verify"
+   ],
+   "donor": "phosphor:check"
+  },
+  "word": {
+   "keywords": [
+    "language",
+    "letter",
+    "llm token",
+    "next word",
+    "spelling",
+    "text",
+    "text token",
+    "token",
+    "tokens",
+    "vocabulary",
+    "word"
+   ],
+   "motif": "object",
+   "tone": "neutral",
+   "fill": "solid",
+   "colors": [
+    "#222"
+   ],
+   "donor": "fluent:input-latin-letters"
+  },
+  "model": {
+   "keywords": [
+    "model",
+    "llm",
+    "language model",
+    "the model",
+    "ai model",
+    "foundation model"
+   ],
+   "motif": "object",
+   "tone": "neutral",
+   "fill": "solid",
+   "colors": [
+    "#222"
+   ],
+   "donor": "phosphor:cpu"
+  }
+ }
+}

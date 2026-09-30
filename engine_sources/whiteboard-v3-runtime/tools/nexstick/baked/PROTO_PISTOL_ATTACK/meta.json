@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_PISTOL_ATTACK",
+ "frames": 3,
+ "fps": 8.0,
+ "res": [
+  174,
+  177
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "rgs-proto",
+ "license": "CC0"
+}

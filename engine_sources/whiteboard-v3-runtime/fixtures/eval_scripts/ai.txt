@@ -1,0 +1,12 @@
+# How AI Agents Work
+## The Request
+A user sends a prompt to the agent. The agent reads the message.
+
+## Reasoning
+The model predicts the next word. The agent chooses the right tool.
+
+## The Tools
+The agent searches the database. The workflow calls an API and returns data.
+
+## Delivery
+The software engineer reviews the code. The agent deploys the fix and writes a summary.

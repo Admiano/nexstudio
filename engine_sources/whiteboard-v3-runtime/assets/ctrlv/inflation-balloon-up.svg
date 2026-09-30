@@ -1,0 +1,7 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g>
+            <circle cx="200" cy="120" r="100" fill="#1A1A17" opacity="0.1" stroke="#1A1A17" stroke-width="2"/>
+            <text x="200" y="140" text-anchor="middle" font-family="Inter" font-weight="900" font-size="40" fill="#1A1A17">CPI</text>
+        </g>
+        <path d="M200 220 V280" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="10 10"/>
+    </svg>

@@ -1,0 +1,9 @@
+# Inside the Emergency Room
+## Arrival
+The paramedic rushes a patient through the doors.
+
+## Treatment
+A surgeon repairs the broken arm.
+
+## Recovery
+The nurse brings medicine and the patient smiles.

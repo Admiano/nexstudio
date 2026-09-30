@@ -1,0 +1,27 @@
+{
+  "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+  "production_id": "NEXMIND_KINETIC_DEMO",
+  "type": "kinetic",
+  "beats": [
+    {
+      "beat_id": "k01",
+      "narration": "The Gerber pouch that says Apple blueberry spinach on the front",
+      "duration_seconds": 3.7
+    },
+    {
+      "beat_id": "k02",
+      "narration": "has half a spinach leaf in it.",
+      "duration_seconds": 2.4
+    },
+    {
+      "beat_id": "k03",
+      "narration": "Gerber says the product contains one half an apple, 16 blueberries, one half a banana.",
+      "duration_seconds": 5.6
+    },
+    {
+      "beat_id": "k04",
+      "narration": "That is the entire vegetable and fruit content of this baby food pouch.",
+      "duration_seconds": 4.2
+    }
+  ]
+}

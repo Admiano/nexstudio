@@ -1,0 +1,48 @@
+{
+  "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+  "production_id": "COMIC_DEMO",
+  "camera_variant": "comic",
+  "output_ratios": ["16:9"],
+  "beats": [
+    {
+      "beat_id": "01_meet",
+      "start_seconds": 0,
+      "duration_seconds": 4.0,
+      "narration": "Meet our host.",
+      "caption": "that morning",
+      "figure": {"clip": "NEX_MOTION_WAVE", "pose": 0.8, "facing": 1},
+      "bubble": {"text": "big day ahead"},
+      "scene": {"sceneId": "01_meet", "heroRole": "host", "supportingRoles": [], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    },
+    {
+      "beat_id": "02_plan",
+      "start_seconds": 4.0,
+      "duration_seconds": 4.0,
+      "narration": "She explains the plan.",
+      "caption": "the plan",
+      "figure": {"clip": "NEX_HOST_EXPLAIN_MEDIUM", "pose": 1.0, "facing": 1},
+      "bubble": {"text": "first we draw the board"},
+      "scene": {"sceneId": "02_plan", "heroRole": "host", "supportingRoles": [], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    },
+    {
+      "beat_id": "03_work",
+      "start_seconds": 8.0,
+      "duration_seconds": 4.0,
+      "narration": "Work happens. She sweeps the floor.",
+      "caption": "then, the work",
+      "figure": {"clip": "CMU_SWEEP", "pose": 0.6, "facing": -1},
+      "bubble": {"text": "one panel at a time"},
+      "scene": {"sceneId": "03_work", "heroRole": "worker", "supportingRoles": [], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    },
+    {
+      "beat_id": "04_done",
+      "start_seconds": 12.0,
+      "duration_seconds": 4.0,
+      "narration": "And she celebrates.",
+      "caption": "done",
+      "figure": {"clip": "NEX_MOTION_CHEER", "pose": 0.7, "facing": 1},
+      "bubble": {"text": "shipped it"},
+      "scene": {"sceneId": "04_done", "heroRole": "host", "supportingRoles": [], "screenCopy": {"primary": ""}, "semanticRelationships": []}
+    }
+  ]
+}

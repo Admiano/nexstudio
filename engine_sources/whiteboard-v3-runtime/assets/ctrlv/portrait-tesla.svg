@@ -1,0 +1,44 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="120" ry="10" fill="#e2e8f0" opacity="0.6"/>
+            
+            <!-- Background electric aura -->
+            <circle cx="200" cy="150" r="100" fill="#F5F0E4" opacity="0.1"/>
+            <path d="M80 100 L110 120 M320 180 L290 160 M90 200 L120 180" stroke="#F5F0E4" stroke-width="2" stroke-linecap="round"/>
+            
+            <g>
+                <!-- Sharp Shoulders / Suit -->
+                <path d="M140 280 L170 220 H230 L260 280 Z" fill="#1A1A17"/>
+                <path d="M140 280 L170 220 H230 L260 280 Z" stroke="#F5F0E4" stroke-width="4" fill="none"/>
+                
+                <!-- Collar and Tie -->
+                <polygon points="170,220 230,220 200,250" fill="white"/>
+                <path d="M195 240 L205 240 L200 280 Z" fill="#F5F0E4"/>
+            </g>
+
+            <g>
+                <!-- Sharp Geometric Face -->
+                <polygon points="160,110 240,110 230,220 200,240 170,220" fill="#F5F0E4" stroke="#1A1A17" stroke-width="8" stroke-linejoin="round"/>
+                
+                <!-- Slicked back hair -->
+                <path d="M150 110 C150 60 250 60 250 110 L240 110 C240 80 160 80 160 110 Z" fill="#F5F0E4"/>
+                <!-- Hair shine -->
+                <path d="M170 85 C190 75 210 75 230 85" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round" fill="none"/>
+                
+                <!-- Sleek mustache -->
+                <path d="M185 190 H215 L210 195 H190 Z" fill="#F5F0E4"/>
+                
+                <!-- Eyes (Piercing abstraction) -->
+                <path d="M175 145 L190 140" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round"/>
+                <path d="M225 145 L210 140" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="180" cy="150" r="3" fill="#F5F0E4"/>
+                <circle cx="220" cy="150" r="3" fill="#F5F0E4"/>
+                
+                <!-- Sharp nose -->
+                <path d="M200 145 V175 L195 180" stroke="#1A1A17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </g>
+
+            <!-- Electrical Arcs from head / thought -->
+            <path d="M150 90 L120 60 L130 40 M250 90 L280 60 L270 40" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <circle cx="130" cy="40" r="4" fill="#F5F0E4"/>
+            <circle cx="270" cy="40" r="4" fill="#F5F0E4" style="animation-delay: -1s"/>
+          </svg>

@@ -1,0 +1,289 @@
+{
+  "name": "animals",
+  "domain": "animals / nature / pets / wildlife explainers",
+  "glyphs": {
+    "dog": {
+      "keywords": [
+        "dog",
+        "puppy",
+        "pet",
+        "canine",
+        "bark",
+        "labrador"
+      ],
+      "motif": "pet",
+      "tone": "a_yellow",
+      "colors": true
+    },
+    "cat": {
+      "keywords": [
+        "cat",
+        "kitten",
+        "pet",
+        "feline",
+        "meow",
+        "kitty"
+      ]
+    },
+    "bird": {
+      "keywords": [
+        "bird",
+        "fly",
+        "wings",
+        "sparrow",
+        "crow",
+        "eagle"
+      ],
+      "motif": "bird",
+      "tone": "a_blue",
+      "colors": true
+    },
+    "fish": {
+      "keywords": [
+        "fish",
+        "aquatic",
+        "ocean",
+        "swim",
+        "trout",
+        "salmon",
+        "pond"
+      ],
+      "motif": "fish",
+      "colors": true
+    },
+    "elephant": {
+      "keywords": [
+        "elephant",
+        "tusk",
+        "big",
+        "safari",
+        "jumbo",
+        "trunk"
+      ],
+      "tone": "a_blue",
+      "colors": true
+    },
+    "lion": {
+      "keywords": [
+        "lion",
+        "king",
+        "mane",
+        "safari",
+        "predator",
+        "cat big"
+      ],
+      "motif": "lion",
+      "tone": "a_yellow",
+      "colors": true
+    },
+    "rabbit": {
+      "keywords": [
+        "rabbit",
+        "bunny",
+        "hare",
+        "hop",
+        "easter"
+      ]
+    },
+    "turtle": {
+      "keywords": [
+        "turtle",
+        "tortoise",
+        "slow",
+        "shell",
+        "reptile"
+      ],
+      "tone": "a_green",
+      "colors": true
+    },
+    "owl": {
+      "keywords": [
+        "owl",
+        "wise",
+        "night",
+        "nocturnal",
+        "hoot"
+      ],
+      "motif": "owl",
+      "colors": true
+    },
+    "bear": {
+      "keywords": [
+        "bear",
+        "grizzly",
+        "cub",
+        "forest",
+        "hibernate",
+        "teddy"
+      ],
+      "motif": "bear",
+      "colors": true
+    },
+    "butterfly": {
+      "keywords": [
+        "butterfly",
+        "insect",
+        "wings",
+        "metamorphosis",
+        "moth"
+      ],
+      "tone": "a_blue",
+      "colors": true
+    },
+    "bee": {
+      "keywords": [
+        "bee",
+        "honey",
+        "hive",
+        "pollinator",
+        "sting",
+        "bumble"
+      ],
+      "motif": "bee",
+      "tone": "a_yellow",
+      "colors": true
+    },
+    "snake": {
+      "keywords": [
+        "snake",
+        "serpent",
+        "reptile",
+        "viper",
+        "python",
+        "slither"
+      ]
+    },
+    "horse": {
+      "keywords": [
+        "horse",
+        "pony",
+        "stallion",
+        "equestrian",
+        "mare",
+        "race"
+      ],
+      "colors": true
+    },
+    "penguin": {
+      "keywords": [
+        "penguin",
+        "arctic",
+        "antarctic",
+        "ice",
+        "cold",
+        "waddle"
+      ],
+      "colors": true
+    },
+    "deer": {
+      "keywords": [
+        "deer",
+        "buck",
+        "antlers",
+        "doe",
+        "stag",
+        "fawn"
+      ],
+      "colors": true
+    },
+    "monkey": {
+      "keywords": [
+        "monkey",
+        "ape",
+        "primate",
+        "chimp",
+        "banana"
+      ],
+      "motif": "monkey",
+      "colors": true
+    },
+    "fox": {
+      "keywords": [
+        "fox",
+        "clever",
+        "cunning",
+        "red",
+        "vulpine"
+      ],
+      "tone": "a_red",
+      "colors": true
+    },
+    "cow": {
+      "keywords": [
+        "cow",
+        "cattle",
+        "milk",
+        "dairy",
+        "farm",
+        "beef",
+        "bull"
+      ],
+      "colors": true
+    },
+    "chicken": {
+      "keywords": [
+        "chicken",
+        "hen",
+        "rooster",
+        "poultry",
+        "egg",
+        "cluck",
+        "farm"
+      ],
+      "colors": true
+    },
+    "pig": {
+      "keywords": [
+        "pig",
+        "pork",
+        "piglet",
+        "farm",
+        "hog",
+        "swine"
+      ],
+      "tone": "a_yellow",
+      "colors": true
+    },
+    "duck": {
+      "keywords": [
+        "duck",
+        "quack",
+        "pond",
+        "duckling",
+        "waterfowl"
+      ],
+      "tone": "a_green",
+      "colors": true
+    },
+    "frog": {
+      "keywords": [
+        "frog",
+        "toad",
+        "amphibian",
+        "pond",
+        "hop",
+        "ribbit"
+      ],
+      "tone": "a_green",
+      "colors": true
+    },
+    "wolf": {
+      "keywords": [
+        "wolf",
+        "wolves",
+        "wolfpack",
+        "predator",
+        "coyote"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "beaver": {
+      "keywords": [
+        "beaver",
+        "beavers"
+      ],
+      "colors": true
+    }
+  }
+}

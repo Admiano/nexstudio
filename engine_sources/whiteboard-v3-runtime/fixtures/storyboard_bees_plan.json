@@ -1,0 +1,165 @@
+{
+ "production_id": "storyboard_bees",
+ "title": "Why Bees Matter",
+ "board_layout": "storyboard",
+ "brandExecution": {
+  "brandAuthority": {
+   "background": "#F7F2E7",
+   "ink": "#1A1A17",
+   "accent": "#1A1A17",
+   "secondary": "#8B8577"
+  }
+ },
+ "beats": [
+  {
+   "beat_id": "hv",
+   "title": "1. Inside the Hive",
+   "caption": "\"One queen, fifty thousand workers.\"",
+   "narration": "Inside every beehive, one queen lays the eggs while thousands of workers build the honeycomb.",
+   "scene": {
+    "sceneId": "hv",
+    "relation": "sequence",
+    "heroRole": {
+     "label": "beehive",
+     "icon": "beehive",
+     "annotate": "the colony"
+    },
+    "supportingRoles": [
+     {
+      "label": "queen",
+      "icon": "bee",
+      "attach": "on",
+      "to": 0
+     },
+     {
+      "label": "honeycomb",
+      "icon": "honeycomb",
+      "annotate": "wax cells"
+     }
+    ],
+    "marks": [
+     {
+      "type": "drips",
+      "on": "honeycomb"
+     }
+    ]
+   },
+   "duration_seconds": 8.0
+  },
+  {
+   "beat_id": "po",
+   "title": "2. Pollination",
+   "caption": "\"Every flower visit moves pollen.\"",
+   "narration": "Workers fly from blossom to blossom, collecting nectar and carrying pollen to the orchard trees.",
+   "scene": {
+    "sceneId": "po",
+    "relation": "journey",
+    "heroRole": {
+     "label": "flower",
+     "icon": "flower pollen",
+     "annotate": "nectar"
+    },
+    "supportingRoles": [
+     {
+      "label": "bee",
+      "icon": "bee",
+      "attach": "on",
+      "to": 0
+     },
+     {
+      "label": "orchard",
+      "icon": "orchard",
+      "annotate": "fruit sets"
+     }
+    ],
+    "marks": [
+     {
+      "type": "flow",
+      "from": "flower",
+      "to": "orchard"
+     },
+     {
+      "type": "sparkle",
+      "on": "orchard"
+     }
+    ]
+   },
+   "duration_seconds": 8.0
+  },
+  {
+   "beat_id": "kp",
+   "title": "3. The Beekeeper",
+   "caption": "\"Calm hands, calm bees.\"",
+   "narration": "The beekeeper stays calm, uses a smoker to settle the bees, and lifts the frames out slowly.",
+   "scene": {
+    "sceneId": "kp",
+    "relation": "focus",
+    "heroRole": {
+     "label": "beekeeper",
+     "icon": "person",
+     "annotate": "stays calm",
+     "emotion": "calm",
+     "action": "hold"
+    },
+    "supportingRoles": [
+     {
+      "label": "smoker",
+      "icon": "smoker",
+      "attach": "held",
+      "to": 0
+     },
+     {
+      "label": "frame",
+      "icon": "honeycomb",
+      "annotate": "lift slowly"
+     }
+    ],
+    "marks": [
+     {
+      "type": "puffs",
+      "on": "smoker"
+     }
+    ]
+   },
+   "duration_seconds": 8.0
+  },
+  {
+   "beat_id": "th",
+   "title": "4. Colony Collapse",
+   "caption": "\"No bees, no apples.\"",
+   "narration": "But pesticides and drought can collapse a colony, and the farmer worries about next year's harvest.",
+   "scene": {
+    "sceneId": "th",
+    "relation": "before_after",
+    "heroRole": {
+     "label": "beehive",
+     "icon": "beehive",
+     "annotate": "before: thriving",
+     "side": "before"
+    },
+    "supportingRoles": [
+     {
+      "label": "pesticide",
+      "icon": "pesticide",
+      "annotate": "after: sprayed",
+      "side": "after"
+     },
+     {
+      "label": "farmer",
+      "icon": "person",
+      "annotate": "empty orchard",
+      "emotion": "afraid",
+      "side": "after"
+     }
+    ],
+    "marks": [
+     {
+      "type": "sparkle",
+      "on": "beehive"
+     }
+    ]
+   },
+   "duration_seconds": 8.0
+  }
+ ]
+}
