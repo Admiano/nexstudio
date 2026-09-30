@@ -42,6 +42,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
   const [spec, setSpec] = useState<CastSpec>(DEFAULT_SPEC.female);
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [armedId, setArmedId] = useState<string | null>(null);
+
+  const castChanged = () => window.dispatchEvent(new Event("nx-cast-changed"));
 
   const reload = () => {
     setBusy(true);
@@ -82,6 +85,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
       }
       setBuilder(null);
       reload();
+      castChanged();
     } catch {
       notify("Could not save. Try again.");
     } finally {
@@ -90,10 +94,17 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
   };
 
   const remove = async (m: CastMember) => {
+    if (armedId !== m.id) {
+      setArmedId(m.id);
+      setTimeout(() => setArmedId((a) => (a === m.id ? null : a)), 3000);
+      return;
+    }
+    setArmedId(null);
     try {
       await studioApi.deleteCast(m.id);
       notify(`${m.name} left the cast.`);
       reload();
+      castChanged();
     } catch {
       notify("Could not remove them. Try again.");
     }
@@ -148,7 +159,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
               </div>
               <div className="cast-card-actions">
                 <button className="v2-secondary" onClick={() => open({ mode: "edit", member: m })}>Edit</button>
-                <button className="cast-remove" aria-label={`Remove ${m.name}`} onClick={() => remove(m)}>×</button>
+                <button className={`cast-remove ${armedId === m.id ? "armed" : ""}`} aria-label={`Remove ${m.name}`} onClick={() => remove(m)}>{armedId === m.id ? "Remove?" : "×"}</button>
               </div>
             </div>
           ))}

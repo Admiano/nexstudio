@@ -18,8 +18,12 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
 
   useEffect(() => {
     let alive = true;
-    studioApi.cast().then((r) => { if (alive) setCast(r.cast); }).catch(() => {});
-    return () => { alive = false; };
+    const fetchCast = () => { studioApi.cast().then((r) => { if (alive) setCast(r.cast); }).catch(() => {}); };
+    fetchCast();
+    const onHash = () => { if (location.hash === "#series") fetchCast(); };
+    window.addEventListener("hashchange", onHash);
+    window.addEventListener("nx-cast-changed", fetchCast);
+    return () => { alive = false; window.removeEventListener("hashchange", onHash); window.removeEventListener("nx-cast-changed", fetchCast); };
   }, []);
 
   useEffect(() => { if (focusId) setActiveId(focusId); }, [focusId]);

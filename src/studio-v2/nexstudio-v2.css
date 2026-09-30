@@ -2277,6 +2277,7 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .cast-card-actions .v2-secondary{flex:1;height:34px;font-size:10px}
 .cast-remove{width:34px;height:34px;flex:none;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.5);font-size:15px;color:var(--muted)}
 .cast-remove:hover{color:#b4232a;border-color:#e8c8c8;background:#fdf2f2}
+.cast-remove.armed{width:auto;padding:0 10px;font-size:10px;font-weight:780;color:#8e483c;border-color:#e8c8c8;background:#fdf2f2}
 .cast-new{border:1px dashed #d0d0c8;border-radius:20px;background:transparent;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);transition:.24s var(--ease)}
 .cast-new:hover{border-color:var(--accent-border);background:var(--accent-soft);color:var(--accent-ink)}
 .cast-new span{font-size:26px;line-height:1}

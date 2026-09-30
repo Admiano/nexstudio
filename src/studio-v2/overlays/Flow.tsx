@@ -25,7 +25,7 @@ export interface FlowState {
   jobKind?: EngineKind;
   jobId?: string;
   jobOutputs?: Record<string, string>;
-  engine?: { wbType?: string; wbTheme?: string; wbAccent?: string; style?: string; voice?: string; speed?: string; castId?: string; castName?: string };
+  engine?: { wbType?: string; wbTheme?: string; wbAccent?: string; style?: string; voice?: string; prevVoice?: string; speed?: string; castId?: string; castName?: string };
   script?: string;
   generatedScript?: string;
   error?: string;
@@ -432,7 +432,8 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                               ...e,
                               castId: e.castId === m.id ? undefined : m.id,
                               castName: e.castId === m.id ? undefined : m.name,
-                              voice: e.castId === m.id ? e.voice : (m.spec?.voiceId ?? e.voice),
+                              prevVoice: e.castId === m.id ? undefined : (e.castId ? e.prevVoice : e.voice),
+                              voice: e.castId === m.id ? (e.prevVoice ?? e.voice) : (m.spec?.voiceId ?? e.voice),
                             }))}>
                             <span className="cast-pick-stage">{m.spec ? <AvatarStage spec={m.spec} /> : null}</span>
                             <b>{m.name}</b>
