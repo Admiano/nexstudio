@@ -1,8 +1,8 @@
-import { WorkRoute } from "./WorkRoute.js";
-import { SeriesRoute } from "./SeriesRoute.js";
-import { BrandRoute } from "./BrandRoute.js";
-import { AssetsRoute } from "./AssetsRoute.js";
-import { BillingRoute } from "./BillingRoute.js";
+import { WorkRoute } from "./WorkRoute";
+import { SeriesRoute } from "./SeriesRoute";
+import { BrandRoute } from "./BrandRoute";
+import { AssetsRoute } from "./AssetsRoute";
+import { BillingRoute } from "./BillingRoute";
 export type DashboardSection = "work" | "series" | "brand" | "assets" | "billing";
 const SECONDARY: Array<[DashboardSection,string]>=[["work","Your work"],["series","Series"],["brand","Brand"],["assets","Assets"],["billing","Billing"]];
 export interface AuthenticatedStudioShellProps { section: DashboardSection; onSectionChange:(section:DashboardSection)=>void; onCreate:()=>void; onOpenProject:(id:string)=>void; onSignOut?:()=>void; }

@@ -1,4 +1,4 @@
-import { humanStatusFor, type ProductionState } from "./production-state.js";
+import { humanStatusFor, type ProductionState } from "./production-state";
 
 export type ProductionFamily = "EXPLAINER" | "WHITEBOARD" | "STICKMAN" | "EDITORIAL_MOTION";
 

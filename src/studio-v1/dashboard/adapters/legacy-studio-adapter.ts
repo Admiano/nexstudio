@@ -1,5 +1,5 @@
-import type { StudioAsset, StudioAssetKind, StudioAssetStatus } from "../domain/assets.js";
-import type { StudioBalance, StudioBillingEntry } from "../domain/billing.js";
+import type { StudioAsset, StudioAssetKind, StudioAssetStatus } from "../domain/assets";
+import type { StudioBalance, StudioBillingEntry } from "../domain/billing";
 
 /**
  * Compatibility only. These adapters let the standalone dashboard consume the
