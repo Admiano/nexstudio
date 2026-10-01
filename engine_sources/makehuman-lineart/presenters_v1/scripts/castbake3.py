@@ -242,10 +242,14 @@ def run_body(prefix, char):
         lip_inputs = [i for i in bpy.data.materials['PEEPS_V2_WARM_SKIN'].node_tree.nodes['Mix.002'].inputs
                       if i.enabled and i.type == 'RGBA']
         lip_defaults = [tuple(i.default_value) for i in lip_inputs]
+    requested_skins = [x.strip() for x in os.environ.get('BODY_SKINS', '').split(',') if x.strip()]
+    body_skins = SKINS_LIST if not requested_skins else [x for x in SKINS_LIST if x[0] in requested_skins]
+    if requested_skins and len(body_skins) != len(set(requested_skins)):
+        raise ValueError('unknown BODY_SKINS value: %s' % ','.join(requested_skins))
     for fkey, fnum in FACES:
         os.environ['FACE'] = fnum
         step('facevar.py')
-        for sname, shex in SKINS_LIST:
+        for sname, shex in body_skins:
             os.environ['STONE'] = shex
             step('skintone.py')
             if _ZFO is not None:
