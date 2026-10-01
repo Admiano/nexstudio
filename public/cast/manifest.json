@@ -1,22 +1,30 @@
 {
- "plateSize": [720, 1080],
- "drawOrder": ["body", "lip", "watch", "outfit", "neck", "earring", "hair", "hands"],
- "female": {
-  "faces": 3,
-  "skins": ["fair", "light", "medium", "tan", "brown", "deep"],
-  "hair": ["long", "bob", "bangs", "bun", "braid"],
-  "hairColors": ["auburn", "black", "brown", "blonde", "silver"],
-  "earrings": "authored per hairstyle",
-  "lips": ["rose", "crimson", "plum", "coral", "nude"],
-  "necks": ["fine", "pendant", "pearls", "choker", "scarf"],
-  "dresses": ["sheath", "maxi", "column", "cocktail", "qipao"]
- },
- "male": {
-  "faces": 3,
-  "skins": ["fair", "light", "medium", "tan", "brown", "deep"],
-  "hair": ["afro", "crop", "quiff", "braids", "swept"],
-  "hairColors": ["black", "blonde", "brown", "dye", "grey"],
-  "outfits": ["o1", "o2", "o3", "o4", "o5"],
-  "watches": ["analog", "digital", "smart", "chrono", "dress"]
- }
+  "schema": "NexStudioCastPlateManifestV2",
+  "plateVersion": 9,
+  "plateSize": [720, 1080],
+  "drawOrder": ["body", "lip", "watch", "outfit", "neck", "earring", "hair", "hands"],
+  "female": {
+    "faces": 3,
+    "skins": ["fair", "light", "medium", "tan", "brown", "deep"],
+    "hair": ["long", "bob", "bangs", "bun", "braid"],
+    "hairColors": ["auburn", "black", "brown", "blonde", "silver"],
+    "earrings": "authored per hairstyle",
+    "lips": ["rose", "red", "berry", "coral", "nude"],
+    "lipPlateRule": "rose lives in body plate; red/berry/coral/nude are face-specific delta plates",
+    "necks": ["fine", "pendant", "pearls", "choker", "scarf"],
+    "dressStyles": ["sheath", "maxi", "column", "cocktail", "qipao"],
+    "dressColors": ["navy", "burgundy", "sage", "emerald", "rose"],
+    "dressColorIndependentOfStyle": true
+  },
+  "male": {
+    "faces": 3,
+    "skins": ["fair", "light", "medium", "tan", "brown", "deep"],
+    "hair": ["afro", "crop", "quiff", "braids", "swept"],
+    "hairColors": ["black", "blonde", "brown", "dye", "grey"],
+    "outfitStyles": ["o1", "o2", "o3", "o4", "o5"],
+    "topColors": ["navy", "ivory", "blue", "burgundy", "cream"],
+    "topColorIndependentOfStyle": true,
+    "bottomsAndShoesRemainAuthoredPerOutfit": true,
+    "watches": ["analog", "digital", "smart", "chrono", "dress"]
+  }
 }
