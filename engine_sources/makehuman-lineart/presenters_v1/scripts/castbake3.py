@@ -19,6 +19,7 @@ W    = int(os.environ.get('W', '1440'))
 H    = int(os.environ.get('H', '2160'))
 FRAME= int(os.environ.get('FR', '27'))
 LOOK = os.environ['LOOK']
+VARIANT = os.environ.get('VARIANT', '').strip().lower()
 os.makedirs(OUT, exist_ok=True)
 
 RND = ('MESH', 'CURVE', 'SURFACE', 'FONT', 'META')
@@ -175,6 +176,7 @@ def run_hands(prefix, char):
     print('hands hull L=%d R=%d' % (len(hulls['L']), len(hulls['R'])))
 
 FACES = [('f0', '0'), ('f1', '1'), ('f2', '2')]
+LIP_VARIANTS = [('red', 'B3202A'), ('berry', '8A2A4E'), ('coral', 'E0664F'), ('nude', 'B8826F')]
 
 def run_body(prefix, char):
     # Body plates = the chassis render verbatim: full chain, then every object
@@ -234,6 +236,12 @@ def run_body(prefix, char):
                  if m.type == 'MASK' and m.vertex_group.startswith('Delete.')]
     for m in off_masks:
         m.show_render = False
+    lip_inputs = None
+    lip_defaults = None
+    if char == 'female':
+        lip_inputs = [i for i in bpy.data.materials['PEEPS_V2_WARM_SKIN'].node_tree.nodes['Mix.002'].inputs
+                      if i.enabled and i.type == 'RGBA']
+        lip_defaults = [tuple(i.default_value) for i in lip_inputs]
     for fkey, fnum in FACES:
         os.environ['FACE'] = fnum
         step('facevar.py')
@@ -245,6 +253,20 @@ def run_body(prefix, char):
             S.render.filepath = os.path.join(
                 OUT, '%s_body_%s_%s.png' % (prefix, fkey, sname))
             bpy.ops.render.render(write_still=True)
+        # Lip patches are rendered against one canonical skin; castpack4 turns
+        # the deterministic pixel delta into a transparent patch. This removes
+        # the old rename hack and gives Coral a real authored preview.
+        if char == 'female':
+            os.environ['STONE'] = 'E0B48F'
+            step('skintone.py')
+            for lname, lhex in LIP_VARIANTS:
+                os.environ['LIPC'] = lhex
+                step('lip.py')
+                S.render.filepath = os.path.join(OUT, 'fem_liprender_%s_%s.png' % (fkey, lname))
+                bpy.ops.render.render(write_still=True)
+            for sock, value in zip(lip_inputs, lip_defaults):
+                sock.default_value = value
+            os.environ['LIPC'] = ''
     for n in hidden:
         bpy.data.objects[n].hide_render = bpy.data.objects[n].hide_viewport = False
 
@@ -252,6 +274,8 @@ FEM_COLORS = [('auburn', '', ''), ('black', '1C1714', ''), ('brown', '3B2418', '
               ('blonde', 'D8B77A', ''), ('silver', 'B9B8B5', '')]
 MALE_COLORS = [('black', '1C1714', ''), ('blonde', 'C9A366', ''), ('brown', '5A3A24', ''),
                ('dye', '141212', '8A1F3C'), ('grey', '8F9096', '')]
+FEM_DRESS_COLORS = {'navy': '2B3A5C', 'burgundy': '6B2233', 'sage': '7C8C6A', 'emerald': '1F5C4A', 'rose': 'B87A7F'}
+MALE_TOP_COLORS = {'navy': '2E3A55', 'ivory': 'EDEBE6', 'blue': 'A9C4DE', 'burgundy': '6B2E2E', 'cream': 'D8CFBE'}
 
 FEM_STYLE_ENV = {
     'long':  {},
@@ -290,6 +314,9 @@ MALE_WATCHES = ['analog', 'digital', 'smart', 'chrono', 'dress']
 FEM_NECKS = ['fine', 'pendant', 'pearls', 'choker', 'scarf']
 
 def run_fem(style, dress, dcol, dminisl, plate, necks=False):
+    if VARIANT:
+        if VARIANT not in FEM_DRESS_COLORS: raise ValueError('unknown female dress colour '+VARIANT)
+        dcol = FEM_DRESS_COLORS[VARIANT]
     env = {'SIDES': '1', 'TUCK': '1', 'EST': 'hoop', 'HR': '0.011', 'SNX': '24', 'SNZ': '4',
            'DRESS': dress, 'DCOL': dcol, 'DMINISL': dminisl, 'FACE': '0',
            'NECK': '', 'HCOL': '', 'HDYE': '', 'LIPC': '', 'STONE': ''}
@@ -312,10 +339,14 @@ def run_fem(style, dress, dcol, dminisl, plate, necks=False):
     body_names = _names(r'Host\.(body|high-poly|lineart|eyelash|eyebrow|V59|teeth|inner|cornea|iris|pupil|tongue).*')
     # the authored full render is itself the ground truth: a composite of the
     # extracted plates must reproduce this frame pixel-for-pixel
-    shot('fem_look_%s' % style)
-    emit('fem_look_%s' % style, 'fem_outfit_%s' % plate,
+    suffix = ('_' + VARIANT) if VARIANT else ''
+    look_src = 'fem_look_%s%s' % (style, suffix)
+    shot(look_src)
+    emit(look_src, 'fem_outfit_%s%s' % (plate, suffix),
           set(dnew + anw) | set(_names(r'Host\.V64_.*')))
-    emit('fem_look_%s' % style, 'fem_earring_%s' % style,
+    if VARIANT:
+        return
+    emit(look_src, 'fem_earring_%s' % style,
           _names(r'Host\.(V60_earring|V61_)'))
     emit('fem_look_%s' % style, 'fem_hair_%s_%s' % (style, FEM_COLORS[0][0]), hair_names)
     PLATES['fem_bodyset'] = {'src': 'fem_look_%s' % style, 'keep': sorted(body_names)}
@@ -337,6 +368,12 @@ def run_fem(style, dress, dcol, dminisl, plate, necks=False):
             prev = list(keep)
 
 def run_male(hair, hstyle, mg, watchrun=False):
+    if VARIANT:
+        if VARIANT not in MALE_TOP_COLORS: raise ValueError('unknown male top colour '+VARIANT)
+        parts = mg.split(',')
+        top_name = parts[0].split('=', 1)[0]
+        parts[0] = top_name + '=' + MALE_TOP_COLORS[VARIANT]
+        mg = ','.join(parts)
     env = {'DBTN': '0', 'EST': 'none', 'TUCK': '0', 'SIDES': '1', 'FACE': '0',
            'MG': mg, 'HAIR': hair, 'HCOL': '', 'HDYE': '', 'WATCH': '',
            'STONE': 'E0B48F', 'LIPC': '', 'DOBJ': 'Host.body'}
@@ -372,11 +409,14 @@ def run_male(hair, hstyle, mg, watchrun=False):
         return
     hair_names = _names(r'Host\.(hair_|hp_|ink_hair)')
     body_names = _names(r'Host\.(body|high-poly|lineart|eyelash|eyebrow|V59|teeth|inner|cornea|iris|pupil|tongue|V60|V61).*')
-    shot('male_look_%s' % LOOK.rsplit('_', 1)[1].lower())
-    emit('male_look_%s' % LOOK.rsplit('_', 1)[1].lower(),
-          'male_outfit_%s' % LOOK.rsplit('_', 1)[1].lower(), set(gnew + ganw))
-    emit('male_look_%s' % LOOK.rsplit('_', 1)[1].lower(),
-          'male_hair_%s_%s' % (hstyle, MALE_COLORS[0][0]), hair_names)
+    kind = LOOK.rsplit('_', 1)[1].lower()
+    suffix = ('_' + VARIANT) if VARIANT else ''
+    look_src = 'male_look_%s%s' % (kind, suffix)
+    shot(look_src)
+    emit(look_src, 'male_outfit_%s%s' % (kind, suffix), set(gnew + ganw))
+    if VARIANT:
+        return
+    emit(look_src, 'male_hair_%s_%s' % (hstyle, MALE_COLORS[0][0]), hair_names)
     PLATES['male_bodyset'] = {'src': 'male_look_%s' % LOOK.rsplit('_', 1)[1].lower(),
                               'keep': sorted(body_names)}
     for nm, hx, dye in MALE_COLORS[1:]:
