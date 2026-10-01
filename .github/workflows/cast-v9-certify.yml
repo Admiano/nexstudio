@@ -11,7 +11,7 @@ permissions:
 
 concurrency:
   group: cast-v9-certification
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   bake-and-test:
@@ -26,6 +26,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/makehuman-lineart/presenters_v1
 
       - name: Checkout MakeHuman assets
         uses: actions/checkout@v4
@@ -75,6 +78,7 @@ jobs:
 
       - name: Switch working tree to Cast app branch
         run: |
+          git sparse-checkout disable
           git fetch origin "$APP_BRANCH"
           git checkout -B "$APP_BRANCH" "origin/$APP_BRANCH"
           mkdir -p public/cast
