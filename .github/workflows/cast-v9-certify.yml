@@ -13,14 +13,30 @@ concurrency:
   group: cast-v9-certification
   cancel-in-progress: true
 
+env:
+  APP_BRANCH: devin/1790231957-offerings-trim-two-families
+  BLENDER_URL: https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+  BLENDER_SUMS: https://download.blender.org/release/Blender5.2/blender-5.2.0.sha256
+
 jobs:
-  bake-and-test:
+  bake-group:
     runs-on: ubuntu-24.04
-    timeout-minutes: 330
-    env:
-      APP_BRANCH: devin/1790231957-offerings-trim-two-families
-      BLENDER_URL: https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
-      BLENDER_SUMS: https://download.blender.org/release/Blender5.2/blender-5.2.0.sha256
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        group:
+          - lip
+          - fem_long
+          - fem_bob
+          - fem_bangs
+          - fem_bun
+          - fem_braid
+          - male_O1
+          - male_O2
+          - male_O3
+          - male_O4
+          - male_O5
     steps:
       - name: Checkout presenter source
         uses: actions/checkout@v4
@@ -29,9 +45,8 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             engine_sources/makehuman-lineart/presenters_v1
-            engine_sources/makehuman-lineart/scripts
 
-      - name: Checkout MakeHuman assets
+      - name: Checkout required MakeHuman assets
         uses: actions/checkout@v4
         with:
           ref: mh-assets
@@ -92,7 +107,9 @@ jobs:
           "$RUNNER_TEMP/cast-venv/bin/pip" install --upgrade pip
           "$RUNNER_TEMP/cast-venv/bin/pip" install numpy pillow scipy OpenEXR
 
-      - name: Bake the 62 missing Cast V9 plates
+      - name: Bake group
+        env:
+          CAST_V9_GROUP: ${{ matrix.group }}
         run: |
           source "$RUNNER_TEMP/cast-venv/bin/activate"
           export MH_ROOT="$GITHUB_WORKSPACE/mh_assets"
@@ -100,15 +117,37 @@ jobs:
           export OUT="$RUNNER_TEMP/cast-v9-out"
           export PLATE_DST="$RUNNER_TEMP/cast-v9-plates"
           cd engine_sources/makehuman-lineart/presenters_v1
-          bash bake_cast_v9_delta.sh
-          test "$(find "$PLATE_DST" -maxdepth 1 -name '*.png' | wc -l)" -eq 62
-          du -sh "$PLATE_DST"
+          bash bake_cast_v9_group.sh
+          ls -lh "$PLATE_DST"
 
-      - name: Switch working tree to Cast app branch
+      - name: Upload group plates
+        uses: actions/upload-artifact@v4
+        with:
+          name: cast-v9-${{ matrix.group }}
+          path: ${{ runner.temp }}/cast-v9-plates/*.png
+          if-no-files-found: error
+          retention-days: 7
+
+  merge-test-publish:
+    needs: bake-group
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout current Cast app branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.APP_BRANCH }}
+          fetch-depth: 1
+
+      - name: Download and merge all V9 groups
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cast-v9-*
+          path: ${{ runner.temp }}/cast-v9-plates
+          merge-multiple: true
+
+      - name: Verify complete 62-plate contract
         run: |
-          git sparse-checkout disable
-          git fetch origin "$APP_BRANCH"
-          git checkout -B "$APP_BRANCH" "origin/$APP_BRANCH"
           mkdir -p public/cast
           cp "$RUNNER_TEMP/cast-v9-plates/"*.png public/cast/
           python3 - <<'PY'
@@ -124,9 +163,12 @@ jobs:
           for kind in ("o1","o2","o3","o4","o5"):
               for c in ("navy","ivory","blue","burgundy","cream"):
                   need.add(f"male_outfit_{kind}_{c}.png")
-          missing=sorted(x for x in need if not (root/x).is_file())
-          if missing: raise SystemExit("missing plates: "+", ".join(missing))
-          print("PASS 62/62 Cast V9 files copied into app branch")
+          found={p.name for p in Path("$RUNNER_TEMP/cast-v9-plates").glob("*.png")}
+          missing=sorted(need-found)
+          extra=sorted(found-need)
+          if missing or extra:
+              raise SystemExit(f"V9 contract failure: missing={missing} extra={extra}")
+          print("PASS 62/62 Cast V9 plates merged")
           PY
 
       - name: Set up Node 24
@@ -144,19 +186,6 @@ jobs:
       - name: Typecheck NexStudio
         run: npm run typecheck
 
-      - name: Commit generated V9 plates to Cast branch
-        run: |
-          git config user.name "ChatGPT Cast V9"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/cast/*.png
-          if git diff --cached --quiet; then
-            echo "No new plate changes to commit."
-          else
-            git commit -m "feat(cast): add V9 MakeHuman clothing colour and lipstick plates"
-            git push origin "HEAD:$APP_BRANCH"
-          fi
-          echo "APP_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-
       - name: Production build
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/nexstudio
@@ -164,33 +193,7 @@ jobs:
           AUTH_SECRET: cast-v9-certification-only-not-a-production-secret
         run: npm run build
 
-      - name: Upload V9 plate proof
-        uses: actions/upload-artifact@v4
-        with:
-          name: cast-v9-plates
-          path: |
-            public/cast/fem_outfit_*_*.png
-            public/cast/male_outfit_*_*.png
-            public/cast/fem_lip_f*_*.png
-          if-no-files-found: error
-          retention-days: 7
-
-  visual-proof:
-    needs: bake-and-test
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    env:
-      APP_BRANCH: devin/1790231957-offerings-trim-two-families
-    steps:
-      - name: Checkout updated Cast plates
-        uses: actions/checkout@v4
-        with:
-          ref: devin/1790231957-offerings-trim-two-families
-          sparse-checkout: |
-            public/cast
-          fetch-depth: 1
-
-      - name: Build compact contact proof
+      - name: Build visual contact proof
         run: |
           python3 -m pip install --user pillow
           python3 - <<'PY'
@@ -198,47 +201,62 @@ jobs:
           from PIL import Image,ImageDraw,ImageFont
           import math
           root=Path("public/cast")
-          files=[]
-          for pat in ("fem_outfit_*_*.png","male_outfit_*_*.png","fem_lip_f*_*.png"):
-              files += sorted(root.glob(pat))
-          # Keep exactly the new V9 combinations, excluding old one-suffix plates.
-          dress={"navy","burgundy","sage","emerald","rose"}
-          tops={"navy","ivory","blue","burgundy","cream"}
-          keep=[]
-          for p in files:
-              stem=p.stem
-              if stem.startswith("fem_lip_f"):
-                  if stem.rsplit("_",1)[-1] in {"red","berry","coral","nude"}: keep.append(p)
-              elif stem.startswith("fem_outfit_"):
-                  if stem.rsplit("_",1)[-1] in dress: keep.append(p)
-              elif stem.startswith("male_outfit_"):
-                  if stem.rsplit("_",1)[-1] in tops: keep.append(p)
-          files=keep
-          if len(files)!=62: raise SystemExit(f"contact proof expected 62 files, got {len(files)}")
-          tw,th,label=84,126,22
-          cols=10; rows=math.ceil(len(files)/cols)
+          names=[]
+          for face in range(3):
+              for shade in ("red","berry","coral","nude"):
+                  names.append(f"fem_lip_f{face}_{shade}.png")
+          for kind in ("sheath","maxi","column","cocktail","qipao"):
+              for c in ("navy","burgundy","sage","emerald","rose"):
+                  names.append(f"fem_outfit_{kind}_{c}.png")
+          for kind in ("o1","o2","o3","o4","o5"):
+              for c in ("navy","ivory","blue","burgundy","cream"):
+                  names.append(f"male_outfit_{kind}_{c}.png")
+          tw,th,label=150,180,28
+          cols=8; rows=math.ceil(len(names)/cols)
           sheet=Image.new("RGB",(cols*tw,rows*(th+label)),(245,245,242))
-          d=ImageDraw.Draw(sheet); font=ImageFont.load_default()
-          for i,p in enumerate(files):
-              im=Image.open(p).convert("RGBA")
-              bg=Image.new("RGBA",im.size,(255,255,255,255)); bg.alpha_composite(im)
-              bg.thumbnail((tw,th),Image.Resampling.LANCZOS)
-              x=(i%cols)*tw+(tw-bg.width)//2; y=(i//cols)*(th+label)
-              sheet.paste(bg.convert("RGB"),(x,y))
-              txt=p.stem.replace("fem_outfit_","F ").replace("male_outfit_","M ").replace("fem_lip_","L ")
-              txt=txt[:18]
-              d.text(((i%cols)*tw+2,y+th+3),txt,fill=(25,25,25),font=font)
-          sheet.save("cast-v9-contact.jpg",quality=72,optimize=True)
-          print("CONTACT_PROOF_FILES=62")
+          draw=ImageDraw.Draw(sheet); font=ImageFont.load_default()
+          for i,name in enumerate(names):
+              im=Image.open(root/name).convert("RGBA")
+              a=im.getchannel("A")
+              bbox=a.getbbox()
+              if bbox:
+                  x0,y0,x1,y1=bbox
+                  pad=max(6,int(max(x1-x0,y1-y0)*0.08))
+                  crop=im.crop((max(0,x0-pad),max(0,y0-pad),min(im.width,x1+pad),min(im.height,y1+pad)))
+              else:
+                  crop=im
+              bg=Image.new("RGBA",crop.size,(255,255,255,255))
+              bg.alpha_composite(crop)
+              bg.thumbnail((tw-8,th-8),Image.Resampling.LANCZOS)
+              cx=(i%cols)*tw+(tw-bg.width)//2
+              cy=(i//cols)*(th+label)+(th-bg.height)//2
+              sheet.paste(bg.convert("RGB"),(cx,cy))
+              short=name[:-4].replace("fem_outfit_","F ").replace("male_outfit_","M ").replace("fem_lip_","L ")
+              draw.text(((i%cols)*tw+4,(i//cols)*(th+label)+th+5),short[:24],fill=(20,20,20),font=font)
+          sheet.save("cast-v9-contact.jpg",quality=84,optimize=True)
+          print("PASS contact proof built from 62 plates")
           PY
-          echo "CAST_V9_CONTACT_B64_BEGIN"
-          base64 -w0 cast-v9-contact.jpg
-          echo
-          echo "CAST_V9_CONTACT_B64_END"
 
-      - name: Upload contact proof
+      - name: Commit generated V9 plates to Cast branch
+        run: |
+          git config user.name "ChatGPT Cast V9"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/cast/*.png
+          if git diff --cached --quiet; then
+            echo "No plate changes to commit."
+          else
+            git commit -m "feat(cast): add V9 MakeHuman clothing colour and lipstick plates"
+            git push origin "HEAD:$APP_BRANCH"
+          fi
+
+      - name: Upload certification proof
         uses: actions/upload-artifact@v4
         with:
-          name: cast-v9-contact-proof
-          path: cast-v9-contact.jpg
+          name: cast-v9-certification-proof
+          path: |
+            cast-v9-contact.jpg
+            public/cast/fem_outfit_*_*.png
+            public/cast/male_outfit_*_*.png
+            public/cast/fem_lip_f*_*.png
+          if-no-files-found: error
           retention-days: 7
