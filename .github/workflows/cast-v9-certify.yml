@@ -29,6 +29,7 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             engine_sources/makehuman-lineart/presenters_v1
+            engine_sources/makehuman-lineart/scripts
 
       - name: Checkout MakeHuman assets
         uses: actions/checkout@v4
