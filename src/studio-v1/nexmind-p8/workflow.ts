@@ -135,6 +135,8 @@ async function persistCreativeStateArtifact(input: {
   workflowRunId: string;
   productionId: string;
   projectVersion: number;
+  memoryInputSnapshotId: string;
+  memoryInputSnapshotHash: string;
   result: NexMindP8Result;
   lineageInputs?: { artifactId: string; sha256: string }[];
   revisionOf?: null | { revisionArtifactId: string; priorCreativeLockArtifactId: string; priorCreativeLockArtifactHash: string };
@@ -610,4 +612,3 @@ export async function runFinalizeStandaloneNexMindP8Activity(activity: { id: str
   await completeStudioActivity(activity.id, activity.workerId, { status: result.status, code: result.code, stateHash: result.stateHash ?? null, creativeLockArtifactId: lockArtifact?.id ?? null, repairRound: repairContext?.repairRound ?? null } as unknown as Record<string, unknown>);
   return result;
 }
-
