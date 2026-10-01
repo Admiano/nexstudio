@@ -1,0 +1,212 @@
+name: Cast V9 certification
+
+on:
+  pull_request:
+    branches:
+      - devin/1790707046-presenters-v1
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cast-v9-certification
+  cancel-in-progress: false
+
+jobs:
+  bake-and-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    env:
+      APP_BRANCH: devin/1790231957-offerings-trim-two-families
+      BLENDER_URL: https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+      BLENDER_SUMS: https://download.blender.org/release/Blender5.2/blender-5.2.0.sha256
+    steps:
+      - name: Checkout presenter source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout MakeHuman assets
+        uses: actions/checkout@v4
+        with:
+          ref: mh-assets
+          path: mh_assets
+          fetch-depth: 1
+
+      - name: Free runner disk
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet || true
+          df -h /
+
+      - name: Install Blender runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-venv libgl1 libegl1 libx11-6 libxi6 libxrender1 libxxf86vm1 libxfixes3 libxkbcommon0 libwayland-client0 libsm6 libice6 libopenexr-dev
+
+      - name: Install exact Blender 5.2.0
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -fL "$BLENDER_URL" -o blender.tar.xz
+          curl -fL "$BLENDER_SUMS" -o blender.sha256
+          grep ' blender-5.2.0-linux-x64.tar.xz$' blender.sha256 | sed 's#blender-5.2.0-linux-x64.tar.xz#blender.tar.xz#' > blender-linux.sha256
+          sha256sum -c blender-linux.sha256
+          mkdir blender
+          tar -xJf blender.tar.xz -C blender --strip-components=1
+          "$RUNNER_TEMP/blender/blender" --version | head -2
+
+      - name: Prepare plate packer Python
+        run: |
+          python3 -m venv "$RUNNER_TEMP/cast-venv"
+          "$RUNNER_TEMP/cast-venv/bin/pip" install --upgrade pip
+          "$RUNNER_TEMP/cast-venv/bin/pip" install numpy pillow scipy OpenEXR
+
+      - name: Bake the 62 missing Cast V9 plates
+        run: |
+          source "$RUNNER_TEMP/cast-venv/bin/activate"
+          export MH_ROOT="$GITHUB_WORKSPACE/mh_assets"
+          export BLENDER="$RUNNER_TEMP/blender/blender"
+          export OUT="$RUNNER_TEMP/cast-v9-out"
+          export PLATE_DST="$RUNNER_TEMP/cast-v9-plates"
+          cd engine_sources/makehuman-lineart/presenters_v1
+          bash bake_cast_v9_delta.sh
+          test "$(find "$PLATE_DST" -maxdepth 1 -name '*.png' | wc -l)" -eq 62
+          du -sh "$PLATE_DST"
+
+      - name: Switch working tree to Cast app branch
+        run: |
+          git fetch origin "$APP_BRANCH"
+          git checkout -B "$APP_BRANCH" "origin/$APP_BRANCH"
+          mkdir -p public/cast
+          cp "$RUNNER_TEMP/cast-v9-plates/"*.png public/cast/
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path("public/cast")
+          need=set()
+          for face in range(3):
+              for shade in ("red","berry","coral","nude"):
+                  need.add(f"fem_lip_f{face}_{shade}.png")
+          for kind in ("sheath","maxi","column","cocktail","qipao"):
+              for c in ("navy","burgundy","sage","emerald","rose"):
+                  need.add(f"fem_outfit_{kind}_{c}.png")
+          for kind in ("o1","o2","o3","o4","o5"):
+              for c in ("navy","ivory","blue","burgundy","cream"):
+                  need.add(f"male_outfit_{kind}_{c}.png")
+          missing=sorted(x for x in need if not (root/x).is_file())
+          if missing: raise SystemExit("missing plates: "+", ".join(missing))
+          print("PASS 62/62 Cast V9 files copied into app branch")
+          PY
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Run Cast persistence regression
+        run: npx tsx tests/cast-spec-persistence.test.ts
+
+      - name: Typecheck NexStudio
+        run: npm run typecheck
+
+      - name: Commit generated V9 plates to Cast branch
+        run: |
+          git config user.name "ChatGPT Cast V9"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/cast/*.png
+          if git diff --cached --quiet; then
+            echo "No new plate changes to commit."
+          else
+            git commit -m "feat(cast): add V9 MakeHuman clothing colour and lipstick plates"
+            git push origin "HEAD:$APP_BRANCH"
+          fi
+          echo "APP_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Production build
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/nexstudio
+          APP_BASE_URL: http://127.0.0.1:3000
+          AUTH_SECRET: cast-v9-certification-only-not-a-production-secret
+        run: npm run build
+
+      - name: Upload V9 plate proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cast-v9-plates
+          path: |
+            public/cast/fem_outfit_*_*.png
+            public/cast/male_outfit_*_*.png
+            public/cast/fem_lip_f*_*.png
+          if-no-files-found: error
+          retention-days: 7
+
+  visual-proof:
+    needs: bake-and-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      APP_BRANCH: devin/1790231957-offerings-trim-two-families
+    steps:
+      - name: Checkout updated Cast plates
+        uses: actions/checkout@v4
+        with:
+          ref: devin/1790231957-offerings-trim-two-families
+          sparse-checkout: |
+            public/cast
+          fetch-depth: 1
+
+      - name: Build compact contact proof
+        run: |
+          python3 -m pip install --user pillow
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageFont
+          import math
+          root=Path("public/cast")
+          files=[]
+          for pat in ("fem_outfit_*_*.png","male_outfit_*_*.png","fem_lip_f*_*.png"):
+              files += sorted(root.glob(pat))
+          # Keep exactly the new V9 combinations, excluding old one-suffix plates.
+          dress={"navy","burgundy","sage","emerald","rose"}
+          tops={"navy","ivory","blue","burgundy","cream"}
+          keep=[]
+          for p in files:
+              stem=p.stem
+              if stem.startswith("fem_lip_f"):
+                  if stem.rsplit("_",1)[-1] in {"red","berry","coral","nude"}: keep.append(p)
+              elif stem.startswith("fem_outfit_"):
+                  if stem.rsplit("_",1)[-1] in dress: keep.append(p)
+              elif stem.startswith("male_outfit_"):
+                  if stem.rsplit("_",1)[-1] in tops: keep.append(p)
+          files=keep
+          if len(files)!=62: raise SystemExit(f"contact proof expected 62 files, got {len(files)}")
+          tw,th,label=84,126,22
+          cols=10; rows=math.ceil(len(files)/cols)
+          sheet=Image.new("RGB",(cols*tw,rows*(th+label)),(245,245,242))
+          d=ImageDraw.Draw(sheet); font=ImageFont.load_default()
+          for i,p in enumerate(files):
+              im=Image.open(p).convert("RGBA")
+              bg=Image.new("RGBA",im.size,(255,255,255,255)); bg.alpha_composite(im)
+              bg.thumbnail((tw,th),Image.Resampling.LANCZOS)
+              x=(i%cols)*tw+(tw-bg.width)//2; y=(i//cols)*(th+label)
+              sheet.paste(bg.convert("RGB"),(x,y))
+              txt=p.stem.replace("fem_outfit_","F ").replace("male_outfit_","M ").replace("fem_lip_","L ")
+              txt=txt[:18]
+              d.text(((i%cols)*tw+2,y+th+3),txt,fill=(25,25,25),font=font)
+          sheet.save("cast-v9-contact.jpg",quality=72,optimize=True)
+          print("CONTACT_PROOF_FILES=62")
+          PY
+          echo "CAST_V9_CONTACT_B64_BEGIN"
+          base64 -w0 cast-v9-contact.jpg
+          echo
+          echo "CAST_V9_CONTACT_B64_END"
+
+      - name: Upload contact proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cast-v9-contact-proof
+          path: cast-v9-contact.jpg
+          retention-days: 7
