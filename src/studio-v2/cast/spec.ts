@@ -115,7 +115,7 @@ export const DEFAULT_SPEC: Record<CastCharacter, CastSpec> = {
 };
 
 // Bump when the plate set is re-baked so cached copies refresh.
-const PLATE_V = "v3";
+const PLATE_V = "v4";
 const P = "/cast";
 const plate = (name: string) => `${P}/${name}.png?v=${PLATE_V}`;
 const prefix = (c: CastCharacter) => (c === "female" ? "fem" : "male");
