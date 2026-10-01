@@ -235,16 +235,26 @@ def hairs(prefix, table, earring):
             _shot(f'{prefix}_earring_{style}.rest')
 
 def outfits_fem():
+    # dress_01 and the suit are hidden alternates: full = the scene wearing the
+    # target garment (other dresses + the sheath's line strokes hidden), rest =
+    # the scene without it, so the plate only carries what is actually worn.
+    all_dress = {d for keep in FEM_OUTFITS.values() for d in keep}
     for name, keep in FEM_OUTFITS.items():
         _load()
-        _iso(keep)
-        _shot(f'fem_outfit_{name}')
+        for d in all_dress:
+            o = bpy.data.objects.get(d)
+            if o:
+                o.hide_render = o.hide_viewport = d not in keep
+        _shot(f'fem_outfit_{name}.full')
+        _delete(keep)
+        _shot(f'fem_outfit_{name}.rest')
 
 def parts_male():
     for name, keep in MALE_PARTS.items():
         _load()
-        _iso(keep)
-        _shot(f'male_{name}')
+        _shot(f'male_{name}.full')
+        _delete(keep)
+        _shot(f'male_{name}.rest')
 
 def necks():
     for n in NECKS:
