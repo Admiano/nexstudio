@@ -154,6 +154,70 @@ def run_hands(prefix, char):
     json.dump(hulls, open(os.path.join(OUT, '%s_hands.hull.json' % prefix), 'w'))
     print('hands hull L=%d R=%d' % (len(hulls['L']), len(hulls['R'])))
 
+FACES = [('f0', '0'), ('f1', '1'), ('f2', '2')]
+
+def run_body(prefix, char):
+    # Body plates = the chassis render verbatim: full chain, then every object
+    # that is not the body is hidden outright (not holdout - a holdout garment
+    # would matte out the wrist flesh and forearm edges the plate needs).
+    # Covers all skin tones and face variants. The authored male earring stays
+    # (it is part of his base look); hers are per-style plates.
+    if char == 'male':
+        os.environ.update({'DBTN': '0', 'EST': 'none', 'TUCK': '0', 'SIDES': '1',
+                           'FACE': '0', 'MG': '', 'HAIR': '', 'HCOL': '', 'HDYE': '',
+                           'WATCH': '', 'STONE': '', 'LIPC': '', 'DOBJ': 'Host.body'})
+        step('malerelax_pre.py'); step('male2.py'); step('malebrow.py'); step('facealign.py')
+        step('garm.py'); step('hairswap.py'); step('modLS.py'); step('ear2.py')
+        step('strands.py'); step('lip.py'); step('skintone.py'); step('haircol.py')
+        step('garmall.py'); step('facerestore.py'); step('facevar.py')
+        step('hairpeek.py'); step('malerelax.py')
+    else:
+        os.environ.update({'SIDES': '1', 'TUCK': '1', 'EST': 'hoop', 'HR': '0.011',
+                           'SNX': '24', 'SNZ': '4', 'DRESS': 'mindfront_f_dress_11',
+                           'DCOL': '2B3A5C', 'DMINISL': '0', 'FACE': '0', 'NECK': '',
+                           'HAIR': '', 'HCOL': '', 'HDYE': '', 'LIPC': '', 'STONE': ''})
+        step('dressswap.py'); step('hairswap.py'); step('modLS.py'); step('ear2.py')
+        step('strands.py'); step('lip.py'); step('facevar.py'); step('neck.py')
+        step('skintone.py'); step('dressart.py'); step('haircol.py'); step('hairpeek.py')
+    S = bpy.context.scene
+    chain = {n for lst in _TRACK.values() for n in lst}
+    extra = set(_vis(r'Host\.watch_.*')) | set(_vis(r'Host\.hair_'))
+    if char == 'male':
+        # his hoop is part of the authored base - keep V60/V61; the rest of the
+        # V6x jewelry set is hers and stays out
+        extra |= set(_vis(r'Host\.V(6[2-9]|[7-9]\d).*'))
+    else:
+        extra |= set(_vis(r'Host\.V6\d.*'))
+    # leftover base-scene garments are not body either (lineart_* stays: those
+    # strokes are part of the chassis render)
+    extra |= set(_vis(r'Host\.(?!lineart_).*(dress|shirt|trouser|jeans|pant|skirt|sweater|polo|sneaker|shoe|top|blazer|tee).*'))
+    extra |= set(_vis(r'Host\.V26_.*'))          # garment detail strokes (darts, folds, creases) - they sit on clothes, not skin
+    # his hoop is built by ear2.py (tracked as chain) but authored into every
+    # male look - let it ride with the body
+    ear_ok = set(_vis(r'Host\.V60_earring.*') + _vis(r'Host\.V61_.*')) \
+             if char == 'male' else set()
+    keep = [o.name for o in bpy.data.objects
+            if o.type in RND and not o.hide_render
+            and (o.name not in chain or o.name in ear_ok)
+            and o.name not in extra]
+    print('body keep:', keep)
+    hidden = []
+    for o in bpy.data.objects:
+        if o.type in RND and not o.hide_render and o.name not in keep:
+            o.hide_render = o.hide_viewport = True
+            hidden.append(o.name)
+    for fkey, fnum in FACES:
+        os.environ['FACE'] = fnum
+        step('facevar.py')
+        for sname, shex in SKINS_LIST:
+            os.environ['STONE'] = shex
+            step('skintone.py')
+            S.render.filepath = os.path.join(
+                OUT, '%s_body_%s_%s.png' % (prefix, fkey, sname))
+            bpy.ops.render.render(write_still=True)
+    for n in hidden:
+        bpy.data.objects[n].hide_render = bpy.data.objects[n].hide_viewport = False
+
 FEM_COLORS = [('auburn', '', ''), ('black', '1C1714', ''), ('brown', '3B2418', ''),
               ('blonde', 'D8B77A', ''), ('silver', 'B9B8B5', '')]
 MALE_COLORS = [('black', '1C1714', ''), ('blonde', 'C9A366', ''), ('brown', '5A3A24', ''),
@@ -211,6 +275,7 @@ def run_fem(style, dress, dcol, dminisl, plate, necks=False):
     step('lip.py'); step('facevar.py'); step('neck.py'); step('skintone.py')
     anw = step('dressart.py')
     pk  = step('hairpeek.py')
+    _hide(_vis(r'Host\.V26_.*'))      # authored to zero pixels on every look
     hair_keep  = set(hnew + lnew + snew + pk) | set(_vis(r'Host\.hair_'))
     ear_keep   = set(_vis(r'Host\.V60_earring.*') + _vis(r'Host\.V61_.*'))
     dress_keep = set(dnew + anw)
@@ -250,6 +315,7 @@ def run_male(hair, hstyle, mg, watchrun=False):
     step('facerestore.py'); step('facevar.py')
     pk = step('hairpeek.py')
     step('malerelax.py')
+    _hide(_vis(r'Host\.V26_.*'))      # same - stray dress-detail strokes
     if watchrun:
         suffix = LOOK.rsplit('_', 1)[1]          # o1..o5
         prev = []
@@ -279,4 +345,8 @@ elif LOOK == 'fem_hands':
     run_hands('fem', 'female')
 elif LOOK == 'male_hands':
     run_hands('male', 'male')
+elif LOOK == 'fem_body':
+    run_body('fem', 'female')
+elif LOOK == 'male_body':
+    run_body('male', 'male')
 print('CASTBAKE3 DONE', LOOK)
