@@ -12,9 +12,9 @@ from PIL import Image, ImageDraw
 from scipy.ndimage import binary_dilation, binary_closing, distance_transform_edt
 import OpenEXR, Imath
 
-NEW = '/home/ubuntu/work/castbake3'
-DST = '/home/ubuntu/repos/nexstudio/public/cast'
-WORK = '/home/ubuntu/work/castplates_v4'
+NEW = os.environ.get('BAKE_OUT', '/home/ubuntu/work/castbake3')
+DST = os.environ.get('PLATE_DST', '/home/ubuntu/repos/nexstudio/public/cast')
+WORK = os.environ.get('PLATE_WORK', '/home/ubuntu/work/castplates_v4')
 CW, CH = 720, 1080
 
 os.makedirs(WORK, exist_ok=True)
