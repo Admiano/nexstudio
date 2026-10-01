@@ -1,0 +1,80 @@
+{
+  "schema": "NITA_TEST_AUDIO_AUTHORITY_V2",
+  "status": "LOCKED_BY_USER_UNTIL_NITA_CERTIFIED",
+  "source_file": "ElevenLabs_2026-09-15T16_55_27_Bella - Professional, Bright, Warm_pre_sp100_s50_sb75_v3.mp3",
+  "sha256": "fe1f0d42554d61a86bc93c368affc42ca19293c7ce10a57f83be35c327870f1b",
+  "duration_seconds": 17.78938775510204,
+  "sample_rate_hz": 44100,
+  "channels": 1,
+  "peak_abs": 0.8442660570144653,
+  "rms_global": 0.13113972544670105,
+  "analysis": {
+    "energy_threshold_db_relative_peak": -35,
+    "voiced_regions_approx": [
+      [
+        0.0,
+        0.665
+      ],
+      [
+        1.401,
+        4.311
+      ],
+      [
+        4.71,
+        6.168
+      ],
+      [
+        6.37,
+        9.884
+      ],
+      [
+        10.167,
+        11.3
+      ],
+      [
+        11.873,
+        12.31
+      ],
+      [
+        12.605,
+        13.285
+      ],
+      [
+        13.499,
+        15.909
+      ],
+      [
+        16.274,
+        17.789
+      ]
+    ],
+    "strong_energy_peak_times_sec": [
+      1.683,
+      2.078,
+      2.519,
+      3.135,
+      4.888,
+      5.236,
+      5.561,
+      6.687,
+      8.916,
+      9.183,
+      10.286,
+      10.82,
+      12.713,
+      13.619,
+      13.862,
+      14.129,
+      14.663,
+      16.37,
+      16.695,
+      17.427
+    ]
+  },
+  "supersedes": {
+    "previous_audio": "ElevenLabs_2026-09-07T19_15_37_Bella -  Chatty Social Media Influencer_pvc_sp100_s31_sb75_v3.mp3",
+    "previous_duration_seconds": 33.1494375,
+    "rule": "Do not use previous Bella master for certification tests after this lock."
+  },
+  "usage_rule": "Use this exact audio for all Nita certification tests until user explicitly changes authority or Nita is certified."
+}
