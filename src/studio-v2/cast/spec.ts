@@ -1,8 +1,10 @@
 // Cast spec model + plate-path helpers.
 // Plates are 720x1080 alpha renders baked from the presenters_v1 scenes
 // (scripts/castbake.py), composited in the browser in this draw order:
-//   body -> lips -> shoes -> bottom -> outfit/top -> neck -> watch -> hair
-// The hair plate carries its matched earring (female) baked in.
+//   body -> lips -> shoes -> bottom -> outfit/top -> neck -> watch -> hands -> hair
+// Hands draw over the garments: at the talking frame they rest in front of the
+// outfit, so their plate is keyed from the full render minus a hands-deleted
+// body. The hair plate carries its matched earring (female) baked in.
 
 export type CastCharacter = "female" | "male";
 export type FaceId = 0 | 1 | 2;
@@ -45,15 +47,12 @@ export const FACES = [
 
 export const FEM_HAIRSTYLES = [
   { key: "long", label: "Long waves", note: "gold hoop" },
-  { key: "afro", label: "Afro", note: "gold stud" },
   { key: "bun", label: "Bun", note: "statement hoops" },
   { key: "braid", label: "Braid", note: "teardrop" },
-  { key: "swept", label: "Side-swept", note: "pearl stud" },
 ] as const;
 
 export const MALE_HAIRSTYLES = [
   { key: "quiff", label: "Quiff" },
-  { key: "afro", label: "Afro" },
 ] as const;
 
 export const HAIR_COLORS = [
@@ -123,6 +122,10 @@ const presetKeys = (set: readonly { key: string }[]) => new Set(set.map((s) => s
 const HC_KEYS = presetKeys(HAIR_COLORS);
 const SKIN_KEYS = presetKeys(SKINS);
 const LIP_KEYS = presetKeys(LIPS);
+const STYLE_KEYS = {
+  female: presetKeys(FEM_HAIRSTYLES),
+  male: presetKeys(MALE_HAIRSTYLES),
+} as const;
 
 export interface CastLayer {
   src: string;          // plate png
@@ -163,14 +166,20 @@ export function specLayers(spec: CastSpec): CastLayer[] {
     layers.push({ src: `${P}/male_watch_${spec.watch}.png` });
   }
 
+  // hands always land in front of the torso at the talking frame
+  layers.push({ src: `${P}/${p}_hands_${skin}.png` });
+
   if (spec.hair) {
+    const style = STYLE_KEYS[spec.character].has(spec.hair.style)
+      ? spec.hair.style
+      : DEFAULT_SPEC[spec.character].hair!.style;
     layers.push(HC_KEYS.has(spec.hair.color)
-      ? { src: `${P}/${p}_hair_${spec.hair.style}_${spec.hair.color}.png` }
-      : { src: `${P}/${p}_hair_${spec.hair.style}_tint.png`, tint: spec.hair.color });
+      ? { src: `${P}/${p}_hair_${style}_${spec.hair.color}.png` }
+      : { src: `${P}/${p}_hair_${style}_tint.png`, tint: spec.hair.color });
     // her earring pairs with the hairstyle - separate plate so custom tinting
     // never recolours the gold
     if (spec.character === "female") {
-      layers.push({ src: `${P}/fem_earring_${spec.hair.style}.png` });
+      layers.push({ src: `${P}/fem_earring_${style}.png` });
     }
   }
   return layers;

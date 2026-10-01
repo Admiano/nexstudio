@@ -8,9 +8,11 @@
   "lip",
   "shoes",
   "bottom",
-  "outfit|top",
+  "outfit",
+  "top",
   "neck",
   "watch",
+  "hands",
   "hair",
   "earring"
  ],
@@ -26,10 +28,8 @@
   ],
   "hair": [
    "long",
-   "afro",
    "bun",
-   "braid",
-   "swept"
+   "braid"
   ],
   "hairColors": [
    "auburn",
@@ -68,8 +68,7 @@
    "deep"
   ],
   "hair": [
-   "quiff",
-   "afro"
+   "quiff"
   ],
   "hairColors": [
    "auburn",
