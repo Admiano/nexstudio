@@ -1,0 +1,1752 @@
+{
+ "source": "Open Peeps by Pablo Stanley (CC0)",
+ "parts": {
+  "accessories": [
+   {
+    "id": "eyepatch",
+    "name": "Eyepatch",
+    "group": "accessories",
+    "variant": null,
+    "file": "accessories/eyepatch.svg",
+    "width": 392,
+    "height": 138
+   },
+   {
+    "id": "glasses",
+    "name": "Glasses",
+    "group": "accessories",
+    "variant": null,
+    "file": "accessories/glasses.svg",
+    "width": 392,
+    "height": 138
+   },
+   {
+    "id": "glasses-2",
+    "name": "Glasses 2",
+    "group": "accessories",
+    "variant": null,
+    "file": "accessories/glasses-2.svg",
+    "width": 392,
+    "height": 138
+   },
+   {
+    "id": "glasses-3",
+    "name": "Glasses 3",
+    "group": "accessories",
+    "variant": null,
+    "file": "accessories/glasses-3.svg",
+    "width": 392,
+    "height": 138
+   },
+   {
+    "id": "glasses-4",
+    "name": "Glasses 4",
+    "group": "accessories",
+    "variant": null,
+    "file": "accessories/glasses-4.svg",
+    "width": 392,
+    "height": 138
+   },
+   {
+    "id": "glasses-5",
+    "name": "Glasses 5",
+    "group": "accessories",
+    "variant": null,
+    "file": "accessories/glasses-5.svg",
+    "width": 392,
+    "height": 138
+   },
+   {
+    "id": "sunglasses",
+    "name": "Sunglasses",
+    "group": "accessories",
+    "variant": null,
+    "file": "accessories/sunglasses.svg",
+    "width": 392,
+    "height": 138
+   },
+   {
+    "id": "sunglasses-2",
+    "name": "Sunglasses 2",
+    "group": "accessories",
+    "variant": null,
+    "file": "accessories/sunglasses-2.svg",
+    "width": 392,
+    "height": 138
+   }
+  ],
+  "body": [
+   {
+    "id": "blazer-black-tee",
+    "name": "Blazer Black Tee",
+    "group": "body",
+    "variant": null,
+    "file": "body/blazer-black-tee.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "button-shirt-1",
+    "name": "Button Shirt 1",
+    "group": "body",
+    "variant": null,
+    "file": "body/button-shirt-1.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "button-shirt-2",
+    "name": "Button Shirt 2",
+    "group": "body",
+    "variant": null,
+    "file": "body/button-shirt-2.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "coffee",
+    "name": "Coffee",
+    "group": "body",
+    "variant": null,
+    "file": "body/coffee.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "device",
+    "name": "Device",
+    "group": "body",
+    "variant": null,
+    "file": "body/device.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "dress",
+    "name": "Dress",
+    "group": "body",
+    "variant": null,
+    "file": "body/dress.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "explaining",
+    "name": "Explaining",
+    "group": "body",
+    "variant": null,
+    "file": "body/explaining.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "gaming",
+    "name": "Gaming",
+    "group": "body",
+    "variant": null,
+    "file": "body/gaming.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "gym-shirt",
+    "name": "Gym Shirt",
+    "group": "body",
+    "variant": null,
+    "file": "body/gym-shirt.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "hoodie",
+    "name": "Hoodie",
+    "group": "body",
+    "variant": null,
+    "file": "body/hoodie.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "jacket",
+    "name": "jacket",
+    "group": "body",
+    "variant": null,
+    "file": "body/jacket.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "jacket-polka-dots",
+    "name": "jacket-polka-dots",
+    "group": "body",
+    "variant": null,
+    "file": "body/jacket-polka-dots.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "killer",
+    "name": "Killer",
+    "group": "body",
+    "variant": null,
+    "file": "body/killer.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "macbook",
+    "name": "Macbook",
+    "group": "body",
+    "variant": null,
+    "file": "body/macbook.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "paper",
+    "name": "Paper",
+    "group": "body",
+    "variant": null,
+    "file": "body/paper.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "pointing-up",
+    "name": "Pointing Up",
+    "group": "body",
+    "variant": null,
+    "file": "body/pointing-up.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "polo-and-sweater",
+    "name": "Polo and Sweater",
+    "group": "body",
+    "variant": null,
+    "file": "body/polo-and-sweater.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "shirt-and-coat",
+    "name": "Shirt and Coat",
+    "group": "body",
+    "variant": null,
+    "file": "body/shirt-and-coat.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "sporty-tee",
+    "name": "Sporty Tee",
+    "group": "body",
+    "variant": null,
+    "file": "body/sporty-tee.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "striped-pocket-tee",
+    "name": "Striped Pocket Tee",
+    "group": "body",
+    "variant": null,
+    "file": "body/striped-pocket-tee.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "striped-tee",
+    "name": "Striped Tee",
+    "group": "body",
+    "variant": null,
+    "file": "body/striped-tee.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "sweater",
+    "name": "Sweater",
+    "group": "body",
+    "variant": null,
+    "file": "body/sweater.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "sweater-dots",
+    "name": "Sweater Dots",
+    "group": "body",
+    "variant": null,
+    "file": "body/sweater-dots.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "tee-1",
+    "name": "Tee 1",
+    "group": "body",
+    "variant": null,
+    "file": "body/tee-1.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "tee-2",
+    "name": "Tee 2",
+    "group": "body",
+    "variant": null,
+    "file": "body/tee-2.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "tee-arms-crossed",
+    "name": "Tee Arms Crossed",
+    "group": "body",
+    "variant": null,
+    "file": "body/tee-arms-crossed.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "tee-selena",
+    "name": "Tee Selena",
+    "group": "body",
+    "variant": null,
+    "file": "body/tee-selena.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "thunder-t-shirt",
+    "name": "Thunder T-Shirt",
+    "group": "body",
+    "variant": null,
+    "file": "body/thunder-t-shirt.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "turtleneck",
+    "name": "Turtleneck",
+    "group": "body",
+    "variant": null,
+    "file": "body/turtleneck.svg",
+    "width": 818,
+    "height": 733
+   },
+   {
+    "id": "whatever",
+    "name": "Whatever",
+    "group": "body",
+    "variant": null,
+    "file": "body/whatever.svg",
+    "width": 818,
+    "height": 733
+   }
+  ],
+  "face": [
+   {
+    "id": "angry-with-fang",
+    "name": "Angry with Fang",
+    "group": "face",
+    "variant": null,
+    "file": "face/angry-with-fang.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "awe",
+    "name": "Awe",
+    "group": "face",
+    "variant": null,
+    "file": "face/awe.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "blank",
+    "name": "Blank",
+    "group": "face",
+    "variant": null,
+    "file": "face/blank.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "calm",
+    "name": "Calm",
+    "group": "face",
+    "variant": null,
+    "file": "face/calm.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "cheeky",
+    "name": "Cheeky",
+    "group": "face",
+    "variant": null,
+    "file": "face/cheeky.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "concerned",
+    "name": "Concerned",
+    "group": "face",
+    "variant": null,
+    "file": "face/concerned.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "concerned-fear",
+    "name": "Concerned Fear",
+    "group": "face",
+    "variant": null,
+    "file": "face/concerned-fear.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "contempt",
+    "name": "Contempt",
+    "group": "face",
+    "variant": null,
+    "file": "face/contempt.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "cute",
+    "name": "Cute",
+    "group": "face",
+    "variant": null,
+    "file": "face/cute.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "cyclops",
+    "name": "Cyclops",
+    "group": "face",
+    "variant": null,
+    "file": "face/cyclops.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "driven",
+    "name": "Driven",
+    "group": "face",
+    "variant": null,
+    "file": "face/driven.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "eating-happy",
+    "name": "Eating Happy",
+    "group": "face",
+    "variant": null,
+    "file": "face/eating-happy.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "explaining",
+    "name": "Explaining",
+    "group": "face",
+    "variant": null,
+    "file": "face/explaining.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "eyes-closed",
+    "name": "Eyes Closed",
+    "group": "face",
+    "variant": null,
+    "file": "face/eyes-closed.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "fear",
+    "name": "Fear",
+    "group": "face",
+    "variant": null,
+    "file": "face/fear.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "hectic",
+    "name": "Hectic",
+    "group": "face",
+    "variant": null,
+    "file": "face/hectic.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "loving-grin-1",
+    "name": "Loving Grin 1",
+    "group": "face",
+    "variant": null,
+    "file": "face/loving-grin-1.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "loving-grin-2",
+    "name": "Loving Grin 2",
+    "group": "face",
+    "variant": null,
+    "file": "face/loving-grin-2.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "monster",
+    "name": "Monster",
+    "group": "face",
+    "variant": null,
+    "file": "face/monster.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "old",
+    "name": "Old",
+    "group": "face",
+    "variant": null,
+    "file": "face/old.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "rage",
+    "name": "Rage",
+    "group": "face",
+    "variant": null,
+    "file": "face/rage.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "serious",
+    "name": "Serious",
+    "group": "face",
+    "variant": null,
+    "file": "face/serious.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "smile",
+    "name": "Smile",
+    "group": "face",
+    "variant": null,
+    "file": "face/smile.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "smile-big",
+    "name": "Smile Big",
+    "group": "face",
+    "variant": null,
+    "file": "face/smile-big.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "smile-lol",
+    "name": "Smile LOL",
+    "group": "face",
+    "variant": null,
+    "file": "face/smile-lol.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "smile-teeth-gap",
+    "name": "Smile Teeth Gap",
+    "group": "face",
+    "variant": null,
+    "file": "face/smile-teeth-gap.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "solemn",
+    "name": "Solemn",
+    "group": "face",
+    "variant": null,
+    "file": "face/solemn.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "suspicious",
+    "name": "Suspicious",
+    "group": "face",
+    "variant": null,
+    "file": "face/suspicious.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "tired",
+    "name": "Tired",
+    "group": "face",
+    "variant": null,
+    "file": "face/tired.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "very-angry",
+    "name": "Very Angry",
+    "group": "face",
+    "variant": null,
+    "file": "face/very-angry.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "with-mask-calm",
+    "name": "Calm",
+    "group": "face",
+    "variant": null,
+    "file": "face/with-mask-calm.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "with-mask-cheers",
+    "name": "Cheers",
+    "group": "face",
+    "variant": null,
+    "file": "face/with-mask-cheers.svg",
+    "width": 289,
+    "height": 293
+   },
+   {
+    "id": "with-mask-smile",
+    "name": "Smile",
+    "group": "face",
+    "variant": null,
+    "file": "face/with-mask-smile.svg",
+    "width": 289,
+    "height": 293
+   }
+  ],
+  "facial-hair": [
+   {
+    "id": "chin",
+    "name": "Chin",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/chin.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "full",
+    "name": "Full",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/full.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "full-2",
+    "name": "Full 2",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/full-2.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "full-3",
+    "name": "Full 3",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/full-3.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "full-4",
+    "name": "Full 4",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/full-4.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "goatee-1",
+    "name": "Goatee 1",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/goatee-1.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "goatee-2",
+    "name": "Goatee 2",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/goatee-2.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-1",
+    "name": "Moustache 1",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-1.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-2",
+    "name": "Moustache 2",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-2.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-3",
+    "name": "Moustache 3",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-3.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-4",
+    "name": "Moustache 4",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-4.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-5",
+    "name": "Moustache 5",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-5.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-6",
+    "name": "Moustache 6",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-6.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-7",
+    "name": "Moustache 7",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-7.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-8",
+    "name": "Moustache 8",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-8.svg",
+    "width": 280,
+    "height": 230
+   },
+   {
+    "id": "moustache-9",
+    "name": "Moustache 9",
+    "group": "facial-hair",
+    "variant": null,
+    "file": "facial-hair/moustache-9.svg",
+    "width": 280,
+    "height": 230
+   }
+  ],
+  "head": [
+   {
+    "id": "afro",
+    "name": "Afro",
+    "group": "head",
+    "variant": null,
+    "file": "head/afro.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "bangs",
+    "name": "Bangs",
+    "group": "head",
+    "variant": null,
+    "file": "head/bangs.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "bangs-2",
+    "name": "Bangs 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/bangs-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "bantu-knots",
+    "name": "Bantu Knots",
+    "group": "head",
+    "variant": null,
+    "file": "head/bantu-knots.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "bear",
+    "name": "Bear",
+    "group": "head",
+    "variant": null,
+    "file": "head/bear.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "bun",
+    "name": "Bun",
+    "group": "head",
+    "variant": null,
+    "file": "head/bun.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "bun-2",
+    "name": "Bun 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/bun-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "buns",
+    "name": "Buns",
+    "group": "head",
+    "variant": null,
+    "file": "head/buns.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "cornrows",
+    "name": "Cornrows",
+    "group": "head",
+    "variant": null,
+    "file": "head/cornrows.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "cornrows-2",
+    "name": "Cornrows 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/cornrows-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "doctor-nurse-2",
+    "name": "doctor-nurse-2",
+    "group": "head",
+    "variant": null,
+    "file": "head/doctor-nurse-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "doctor-nurse-3",
+    "name": "doctor-nurse-3",
+    "group": "head",
+    "variant": null,
+    "file": "head/doctor-nurse-3.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "dreads-1",
+    "name": "Dreads 1",
+    "group": "head",
+    "variant": null,
+    "file": "head/dreads-1.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "dreads-2",
+    "name": "Dreads 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/dreads-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "flat-top",
+    "name": "Flat Top",
+    "group": "head",
+    "variant": null,
+    "file": "head/flat-top.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "flat-top-long",
+    "name": "Flat Top Long",
+    "group": "head",
+    "variant": null,
+    "file": "head/flat-top-long.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "gray-bun",
+    "name": "Gray Bun",
+    "group": "head",
+    "variant": null,
+    "file": "head/gray-bun.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "gray-medium",
+    "name": "Gray Medium",
+    "group": "head",
+    "variant": null,
+    "file": "head/gray-medium.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "gray-short",
+    "name": "Gray Short",
+    "group": "head",
+    "variant": null,
+    "file": "head/gray-short.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "hat-beanie",
+    "name": "hat-beanie",
+    "group": "head",
+    "variant": null,
+    "file": "head/hat-beanie.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "hat-hip",
+    "name": "hat-hip",
+    "group": "head",
+    "variant": null,
+    "file": "head/hat-hip.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "hijab",
+    "name": "Hijab",
+    "group": "head",
+    "variant": null,
+    "file": "head/hijab.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "long",
+    "name": "Long",
+    "group": "head",
+    "variant": null,
+    "file": "head/long.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "long-afro",
+    "name": "Long Afro",
+    "group": "head",
+    "variant": null,
+    "file": "head/long-afro.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "long-bangs",
+    "name": "Long Bangs",
+    "group": "head",
+    "variant": null,
+    "file": "head/long-bangs.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "long-curly",
+    "name": "Long Curly",
+    "group": "head",
+    "variant": null,
+    "file": "head/long-curly.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "medium-1",
+    "name": "Medium 1",
+    "group": "head",
+    "variant": null,
+    "file": "head/medium-1.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "medium-2",
+    "name": "Medium 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/medium-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "medium-3",
+    "name": "Medium 3",
+    "group": "head",
+    "variant": null,
+    "file": "head/medium-3.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "medium-bangs",
+    "name": "Medium Bangs",
+    "group": "head",
+    "variant": null,
+    "file": "head/medium-bangs.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "medium-bangs-2",
+    "name": "Medium Bangs 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/medium-bangs-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "medium-bangs-3",
+    "name": "Medium Bangs 3",
+    "group": "head",
+    "variant": null,
+    "file": "head/medium-bangs-3.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "medium-straight",
+    "name": "Medium Straight",
+    "group": "head",
+    "variant": null,
+    "file": "head/medium-straight.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "mohawk",
+    "name": "Mohawk",
+    "group": "head",
+    "variant": null,
+    "file": "head/mohawk.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "mohawk-2",
+    "name": "Mohawk 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/mohawk-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "no-hair-1",
+    "name": "No Hair 1",
+    "group": "head",
+    "variant": null,
+    "file": "head/no-hair-1.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "no-hair-2",
+    "name": "No Hair 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/no-hair-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "no-hair-3",
+    "name": "No Hair 3",
+    "group": "head",
+    "variant": null,
+    "file": "head/no-hair-3.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "pomp",
+    "name": "Pomp",
+    "group": "head",
+    "variant": null,
+    "file": "head/pomp.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "shaved-1",
+    "name": "Shaved 1",
+    "group": "head",
+    "variant": null,
+    "file": "head/shaved-1.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "shaved-2",
+    "name": "Shaved 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/shaved-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "shaved-3",
+    "name": "Shaved 3",
+    "group": "head",
+    "variant": null,
+    "file": "head/shaved-3.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "short-1",
+    "name": "Short 1",
+    "group": "head",
+    "variant": null,
+    "file": "head/short-1.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "short-2",
+    "name": "Short 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/short-2.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "short-3",
+    "name": "Short 3",
+    "group": "head",
+    "variant": null,
+    "file": "head/short-3.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "short-4",
+    "name": "Short 4",
+    "group": "head",
+    "variant": null,
+    "file": "head/short-4.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "short-5",
+    "name": "Short 5",
+    "group": "head",
+    "variant": null,
+    "file": "head/short-5.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "turban",
+    "name": "Turban",
+    "group": "head",
+    "variant": null,
+    "file": "head/turban.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "twists",
+    "name": "Twists",
+    "group": "head",
+    "variant": null,
+    "file": "head/twists.svg",
+    "width": 474,
+    "height": 567
+   },
+   {
+    "id": "twists-2",
+    "name": "Twists 2",
+    "group": "head",
+    "variant": null,
+    "file": "head/twists-2.svg",
+    "width": 474,
+    "height": 567
+   }
+  ],
+  "mask": [
+   {
+    "id": "medical-mask",
+    "name": "medical mask",
+    "group": "mask",
+    "variant": null,
+    "file": "mask/medical-mask.svg",
+    "width": 397,
+    "height": 228
+   },
+   {
+    "id": "respirator",
+    "name": "respirator",
+    "group": "mask",
+    "variant": null,
+    "file": "mask/respirator.svg",
+    "width": 397,
+    "height": 228
+   }
+  ],
+  "pose": [
+   {
+    "id": "sitting-bike",
+    "name": "bike",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-bike.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-closed-legs-1",
+    "name": "closed_legs-1",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-closed-legs-1.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-closed-legs-2",
+    "name": "closed_legs-2",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-closed-legs-2.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-crossed-legs",
+    "name": "crossed_legs",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-crossed-legs.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-hands-back-1",
+    "name": "hands_back-1",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-hands-back-1.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-hands-back-2",
+    "name": "hands_back-2",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-hands-back-2.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-mid-1",
+    "name": "mid-1",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-mid-1.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-mid-2",
+    "name": "mid-2",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-mid-2.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-one-leg-up-1",
+    "name": "one_leg_up-1",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-one-leg-up-1.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-one-leg-up-2",
+    "name": "one_leg_up-2",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-one-leg-up-2.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "sitting-wheelchair",
+    "name": "wheelchair",
+    "group": "pose",
+    "variant": "sitting",
+    "file": "pose/sitting-wheelchair.svg",
+    "width": 1534,
+    "height": 1856
+   },
+   {
+    "id": "standing-blazer-1",
+    "name": "blazer-1",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-blazer-1.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-blazer-2",
+    "name": "blazer-2",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-blazer-2.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-blazer-3",
+    "name": "blazer-3",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-blazer-3.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-blazer-4",
+    "name": "blazer-4",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-blazer-4.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-crossed-arms-1",
+    "name": "crossed_arms-1",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-crossed-arms-1.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-crossed-arms-2",
+    "name": "crossed_arms-2",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-crossed-arms-2.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-doctor-nurse-01",
+    "name": "doctor-nurse-01",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-doctor-nurse-01.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-doctor-nurse-02",
+    "name": "doctor-nurse-02",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-doctor-nurse-02.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-doctor-nurse-03",
+    "name": "doctor-nurse-03",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-doctor-nurse-03.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-easing-1",
+    "name": "easing-1",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-easing-1.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-easing-2",
+    "name": "easing-2",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-easing-2.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-pointing-finger-1",
+    "name": "pointing_finger-1",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-pointing-finger-1.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-pointing-finger-2",
+    "name": "pointing_finger-2",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-pointing-finger-2.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-polka-dots",
+    "name": "polka_dots",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-polka-dots.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-resting-1",
+    "name": "resting-1",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-resting-1.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-resting-2",
+    "name": "resting-2",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-resting-2.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-robot-dance-1",
+    "name": "robot_dance-1",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-robot-dance-1.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-robot-dance-2",
+    "name": "robot_dance-2",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-robot-dance-2.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-robot-dance-3",
+    "name": "robot_dance-3",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-robot-dance-3.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-shirt-1",
+    "name": "shirt-1",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-shirt-1.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-shirt-2",
+    "name": "shirt-2",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-shirt-2.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-shirt-3",
+    "name": "shirt-3",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-shirt-3.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-shirt-4",
+    "name": "shirt-4",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-shirt-4.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-walking-1",
+    "name": "walking-1",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-walking-1.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-walking-2",
+    "name": "walking-2",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-walking-2.svg",
+    "width": 1645,
+    "height": 2500
+   },
+   {
+    "id": "standing-walking-3",
+    "name": "walking-3",
+    "group": "pose",
+    "variant": "standing",
+    "file": "pose/standing-walking-3.svg",
+    "width": 1645,
+    "height": 2500
+   }
+  ]
+ },
+ "compositions": {
+  "bust": {
+   "id": "bust",
+   "width": 1136,
+   "height": 1533,
+   "slots": {
+    "body": {
+     "x": 147,
+     "y": 639,
+     "width": 818,
+     "height": 733,
+     "default": "body/Tee 1"
+    },
+    "head": {
+     "x": 372,
+     "y": 180,
+     "width": 473,
+     "height": 567,
+     "default": "head/Bun 2"
+    },
+    "face": {
+     "x": 531,
+     "y": 366,
+     "width": 289,
+     "height": 293,
+     "default": "face/Smile"
+    },
+    "facial-hair": {
+     "x": 495.0,
+     "y": 518.0,
+     "width": 280,
+     "height": 230,
+     "default": "facial-hair/* None"
+    },
+    "mask": {
+     "x": 395,
+     "y": 461,
+     "width": 397,
+     "height": 228,
+     "default": "mask/*no-mask"
+    },
+    "accessories": {
+     "x": 419.0,
+     "y": 421,
+     "width": 392,
+     "height": 138,
+     "default": "accessories/* None"
+    }
+   }
+  },
+  "sitting": {
+   "id": "sitting",
+   "width": 1647,
+   "height": 2500,
+   "slots": {
+    "body": {
+     "x": -81,
+     "y": 637,
+     "width": 1534,
+     "height": 1856,
+     "default": "pose/sitting/crossed_legs"
+    },
+    "head": {
+     "x": 345,
+     "y": 180,
+     "width": 473,
+     "height": 567,
+     "default": "head/Bun 2"
+    },
+    "face": {
+     "x": 504,
+     "y": 366,
+     "width": 289,
+     "height": 293,
+     "default": "face/Smile"
+    },
+    "facial-hair": {
+     "x": 468,
+     "y": 518,
+     "width": 280,
+     "height": 230,
+     "default": "facial-hair/* None"
+    },
+    "mask": {
+     "x": 367,
+     "y": 461,
+     "width": 397,
+     "height": 228,
+     "default": "mask/*no-mask"
+    },
+    "accessories": {
+     "x": 392,
+     "y": 421,
+     "width": 392,
+     "height": 138,
+     "default": "accessories/* None"
+    }
+   }
+  },
+  "standing": {
+   "id": "standing",
+   "width": 1179,
+   "height": 3291,
+   "slots": {
+    "body": {
+     "x": -121,
+     "y": 634,
+     "width": 1645,
+     "height": 2500,
+     "default": "pose/standing/crossed_arms-1"
+    },
+    "head": {
+     "x": 404,
+     "y": 180,
+     "width": 473,
+     "height": 567,
+     "default": "head/Bun 2"
+    },
+    "facial-hair": {
+     "x": 527,
+     "y": 518,
+     "width": 280,
+     "height": 230,
+     "default": "facial-hair/* None"
+    },
+    "face": {
+     "x": 563,
+     "y": 366,
+     "width": 289,
+     "height": 293,
+     "default": "face/Smile"
+    },
+    "mask": {
+     "x": 427,
+     "y": 461,
+     "width": 397,
+     "height": 228,
+     "default": "mask/*no-mask"
+    },
+    "accessories": {
+     "x": 451,
+     "y": 421,
+     "width": 392,
+     "height": 138,
+     "default": "accessories/* None"
+    }
+   }
+  }
+ }
+}

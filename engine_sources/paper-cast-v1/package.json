@@ -1,0 +1,13 @@
+{
+  "name": "nex-paper-cast",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Paper-native contextual cast system for the NexStudio paper-motion (paperbook) dialect.",
+  "main": "runtime/paper-cast.js",
+  "scripts": {
+    "build": "node tools/build-cast-manifests.js",
+    "test": "node tools/test-paper-cast.js",
+    "contact-sheet": "node tools/render-contact-sheet.js"
+  }
+}

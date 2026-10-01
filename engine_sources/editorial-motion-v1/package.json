@@ -1,0 +1,12 @@
+{
+  "name": "nex-editorial-motion",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Editorial motion system: animated type and icons lead, Open Peeps stills carry emphasis, authored for 16:9, 1:1 and 9:16.",
+  "main": "runtime/editorial.js",
+  "scripts": {
+    "build": "node tools/build-manifests.js",
+    "test": "node tools/test-editorial.js"
+  }
+}

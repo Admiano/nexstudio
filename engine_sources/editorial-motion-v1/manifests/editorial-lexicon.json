@@ -1,0 +1,592 @@
+{
+  "note": "Cue vocabulary for reading a script. Beat roles, emotion words and emphasis markers live here as data so the reader stays script-agnostic.",
+  "beatRoles": {
+    "hook": {
+      "weight": 0.9,
+      "disposition": {
+        "valence": 0.2,
+        "arousal": 0.65,
+        "formality": 0.4
+      },
+      "cues": [
+        "imagine",
+        "what if",
+        "here is",
+        "here's",
+        "meet ",
+        "this is",
+        "picture this",
+        "ever ",
+        "why "
+      ],
+      "position": "opening"
+    },
+    "problem": {
+      "weight": 0.8,
+      "disposition": {
+        "valence": -0.55,
+        "arousal": 0.45,
+        "formality": 0.45
+      },
+      "cues": [
+        "problem",
+        "struggle",
+        "waste",
+        "slow",
+        "manual",
+        "bottleneck",
+        "risk",
+        "churn",
+        "confus",
+        "frustrat",
+        "can't",
+        "cannot",
+        "hard to",
+        "too many",
+        "lost",
+        "break",
+        "fail",
+        "error",
+        "delay",
+        "stuck",
+        "miss"
+      ]
+    },
+    "contrast": {
+      "weight": 0.75,
+      "disposition": {
+        "valence": -0.1,
+        "arousal": 0.55,
+        "formality": 0.5
+      },
+      "cues": [
+        "but ",
+        "instead",
+        "however",
+        "unlike",
+        "yet ",
+        "versus",
+        " vs ",
+        "on the other hand",
+        "until now",
+        "no longer"
+      ]
+    },
+    "insight": {
+      "weight": 0.7,
+      "disposition": {
+        "valence": 0.25,
+        "arousal": 0.55,
+        "formality": 0.55
+      },
+      "cues": [
+        "because",
+        "the truth",
+        "in fact",
+        "actually",
+        "the reason",
+        "means",
+        "turns out",
+        "so that",
+        "which is why"
+      ]
+    },
+    "proof": {
+      "weight": 0.6,
+      "disposition": {
+        "valence": 0.35,
+        "arousal": 0.5,
+        "formality": 0.7
+      },
+      "cues": [
+        "percent",
+        "%",
+        "x faster",
+        "study",
+        "data",
+        "research",
+        "measured",
+        "benchmark",
+        "customers",
+        "users",
+        "revenue",
+        "hours",
+        "cut ",
+        "grew",
+        "reduced",
+        "increase"
+      ]
+    },
+    "step": {
+      "weight": 0.45,
+      "disposition": {
+        "valence": 0.15,
+        "arousal": 0.4,
+        "formality": 0.55
+      },
+      "cues": [
+        "first",
+        "second",
+        "third",
+        "next",
+        "then ",
+        "finally",
+        "step ",
+        "start by",
+        "after that",
+        "once you"
+      ]
+    },
+    "result": {
+      "weight": 0.8,
+      "disposition": {
+        "valence": 0.7,
+        "arousal": 0.65,
+        "formality": 0.45
+      },
+      "cues": [
+        "result",
+        "now ",
+        "today ",
+        "outcome",
+        "shipped",
+        "launched",
+        "delivered",
+        "win",
+        "achieved",
+        "we can",
+        "you get",
+        "unlock"
+      ]
+    },
+    "cta": {
+      "weight": 0.95,
+      "disposition": {
+        "valence": 0.6,
+        "arousal": 0.75,
+        "formality": 0.4
+      },
+      "cues": [
+        "try ",
+        "start ",
+        "join ",
+        "get started",
+        "sign up",
+        "book ",
+        "download",
+        "subscribe",
+        "learn more",
+        "visit",
+        "follow",
+        "talk to",
+        "let's"
+      ],
+      "position": "closing"
+    },
+    "statement": {
+      "weight": 0.5,
+      "disposition": {
+        "valence": 0.1,
+        "arousal": 0.35,
+        "formality": 0.5
+      },
+      "cues": []
+    }
+  },
+  "emotion": {
+    "joy": {
+      "valence": 0.85,
+      "arousal": 0.6,
+      "cues": [
+        "love",
+        "delight",
+        "great",
+        "brilliant",
+        "celebrat",
+        "win",
+        "success",
+        "proud",
+        "happy",
+        "excit"
+      ]
+    },
+    "relief": {
+      "valence": 0.5,
+      "arousal": 0.2,
+      "cues": [
+        "finally",
+        "at last",
+        "no more",
+        "relief",
+        "simple",
+        "easy",
+        "calm",
+        "effortless",
+        "peace"
+      ]
+    },
+    "confidence": {
+      "valence": 0.45,
+      "arousal": 0.6,
+      "cues": [
+        "proven",
+        "trusted",
+        "reliable",
+        "secure",
+        "certain",
+        "guarantee",
+        "expert",
+        "leader"
+      ]
+    },
+    "determination": {
+      "valence": 0.35,
+      "arousal": 0.8,
+      "cues": [
+        "build",
+        "ship",
+        "push",
+        "drive",
+        "scale",
+        "grow",
+        "focus",
+        "commit",
+        "double down"
+      ]
+    },
+    "curiosity": {
+      "valence": 0.3,
+      "arousal": 0.6,
+      "cues": [
+        "what if",
+        "imagine",
+        "wonder",
+        "question",
+        "explore",
+        "discover",
+        "why",
+        "how"
+      ]
+    },
+    "awe": {
+      "valence": 0.6,
+      "arousal": 0.9,
+      "cues": [
+        "incredible",
+        "massive",
+        "huge",
+        "10x",
+        "unbelievable",
+        "record",
+        "never before",
+        "breakthrough"
+      ]
+    },
+    "doubt": {
+      "valence": -0.35,
+      "arousal": 0.5,
+      "cues": [
+        "myth",
+        "really",
+        "sceptic",
+        "skeptic",
+        "doubt",
+        "supposedly",
+        "claim",
+        "sure?",
+        "think again"
+      ]
+    },
+    "concern": {
+      "valence": -0.55,
+      "arousal": 0.5,
+      "cues": [
+        "risk",
+        "danger",
+        "threat",
+        "warning",
+        "mistake",
+        "fail",
+        "lose",
+        "problem",
+        "expensive",
+        "leak"
+      ]
+    },
+    "fatigue": {
+      "valence": -0.5,
+      "arousal": 0.15,
+      "cues": [
+        "tired",
+        "burnout",
+        "exhaust",
+        "again and again",
+        "endless",
+        "tedious",
+        "repetitive",
+        "manual",
+        "busywork",
+        "overhead"
+      ]
+    },
+    "frustration": {
+      "valence": -0.75,
+      "arousal": 0.85,
+      "cues": [
+        "frustrat",
+        "angry",
+        "hate",
+        "broken",
+        "stuck",
+        "blocked",
+        "chaos",
+        "mess",
+        "nightmare"
+      ]
+    },
+    "gravity": {
+      "valence": -0.2,
+      "arousal": 0.3,
+      "cues": [
+        "serious",
+        "critical",
+        "matters",
+        "responsibility",
+        "compliance",
+        "safety",
+        "at stake"
+      ]
+    },
+    "neutral": {
+      "valence": 0,
+      "arousal": 0.25,
+      "cues": []
+    }
+  },
+  "emphasisMarkers": {
+    "imperative": 0.2,
+    "exclamation": 0.25,
+    "question": 0.15,
+    "number": 0.2,
+    "quote": 0.25,
+    "superlative": 0.2,
+    "shortSentence": 0.15,
+    "openingBeat": 0.15,
+    "closingBeat": 0.2
+  },
+  "superlatives": [
+    "best",
+    "worst",
+    "fastest",
+    "slowest",
+    "biggest",
+    "smallest",
+    "only",
+    "never",
+    "always",
+    "every",
+    "most",
+    "least",
+    "first",
+    "last",
+    "ever"
+  ],
+  "personCues": {
+    "explicit": [
+      "you",
+      "your",
+      "we",
+      "our",
+      "i ",
+      "me ",
+      "they",
+      "team",
+      "customer",
+      "user",
+      "people",
+      "person",
+      "someone",
+      "everyone",
+      "founder",
+      "manager",
+      "student",
+      "patient",
+      "doctor",
+      "nurse",
+      "designer",
+      "developer",
+      "creator",
+      "operator",
+      "analyst",
+      "seller",
+      "buyer",
+      "client",
+      "colleague",
+      "staff",
+      "worker",
+      "audience",
+      "friend",
+      "parent",
+      "child"
+    ],
+    "human": [
+      "feel",
+      "felt",
+      "think",
+      "believe",
+      "decide",
+      "choose",
+      "worry",
+      "hope",
+      "trust",
+      "struggle",
+      "learn",
+      "say",
+      "said",
+      "ask",
+      "answer",
+      "wait",
+      "celebrate",
+      "work",
+      "meet",
+      "talk",
+      "listen"
+    ]
+  },
+  "mediaCues": {
+    "show": [
+      "look",
+      "see",
+      "watch",
+      "here is",
+      "here's",
+      "shown",
+      "screenshot",
+      "demo",
+      "footage",
+      "clip",
+      "photo",
+      "image",
+      "picture",
+      "video",
+      "recording",
+      "capture",
+      "interface",
+      "dashboard",
+      "app",
+      "product",
+      "screen"
+    ]
+  },
+  "listCues": [
+    "first",
+    "second",
+    "third",
+    "1.",
+    "2.",
+    "3.",
+    "•",
+    "- "
+  ],
+  "stopWords": [
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "but",
+    "of",
+    "to",
+    "in",
+    "on",
+    "for",
+    "with",
+    "at",
+    "by",
+    "from",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "it",
+    "its",
+    "this",
+    "that",
+    "these",
+    "those",
+    "as",
+    "so",
+    "if",
+    "then",
+    "than",
+    "into",
+    "over",
+    "about",
+    "just",
+    "can",
+    "will",
+    "not",
+    "no",
+    "yes",
+    "do",
+    "does",
+    "did",
+    "have",
+    "has",
+    "had",
+    "you",
+    "your",
+    "we",
+    "our",
+    "they",
+    "their",
+    "i",
+    "me",
+    "my",
+    "he",
+    "she",
+    "his",
+    "her",
+    "them",
+    "us",
+    "there",
+    "here",
+    "what",
+    "when",
+    "where",
+    "who",
+    "how",
+    "why",
+    "all",
+    "any",
+    "every",
+    "more",
+    "most",
+    "up",
+    "out",
+    "down",
+    "off",
+    "again",
+    "too",
+    "very",
+    "one",
+    "two",
+    "also",
+    "now",
+    "new",
+    "get",
+    "got",
+    "make",
+    "made",
+    "like",
+    "want",
+    "need"
+  ],
+  "pacing": {
+    "wordsPerSecond": 2.6,
+    "minShot": 2.4,
+    "maxShot": 6.5
+  }
+}

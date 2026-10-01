@@ -1,0 +1,71 @@
+/* Editorial motion frame: ratio-native stages, absolutely placed regions. */
+
+.ed-frame {
+  position: relative;
+  width: 100%;
+  background: var(--paper-bg);
+  overflow: hidden;
+  isolation: isolate;
+  font-family: var(--ui-font);
+}
+.ed-frame[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
+.ed-frame[data-ratio="1:1"] { aspect-ratio: 1 / 1; }
+.ed-frame[data-ratio="9:16"] { aspect-ratio: 9 / 16; }
+
+.ed-shot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.ed-layer {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ed-type { align-items: center; }
+.ed-type > .nex-type { width: 100%; height: 100%; }
+
+.ed-icons { gap: clamp(8px, 2.4%, 34px); }
+.ed-icons[data-flow="column"] { flex-direction: column; }
+.ed-icons[data-flow="row"] { flex-direction: row; }
+.ed-icons .ed-icon { flex: 0 1 auto; max-width: 46%; max-height: 100%; }
+.ed-icons[data-flow="column"] .ed-icon { max-width: 100%; max-height: 42%; }
+.ed-icons .ed-icon svg { width: 100%; height: 100%; }
+
+.ed-media { align-items: center; }
+.ed-media .ed-media-node { width: 100%; height: 100%; }
+
+.ed-character { align-items: flex-end; justify-content: center; pointer-events: none; }
+.ed-character[data-anchor="bottom"] { align-items: flex-end; }
+.ed-character[data-anchor="center"] { align-items: center; }
+.ed-character svg { width: 100%; height: 100%; object-fit: contain; }
+
+/* Portrait leans on a taller measure; landscape reads left aligned. */
+.ed-frame[data-ratio="9:16"] .ed-type .type-main { line-height: 1; }
+.ed-frame[data-ratio="1:1"] .ed-type .nex-type { text-align: center; }
+
+/* Slots the script did not fill keep their place in the animator but show
+   nothing — a component's sample copy never reaches the frame. */
+.ed-frame .ed-empty { display: none !important; }
+
+/* The card owns its region: the paper fills the band the layout gave it and
+   the vendored fitter then sizes the type to that box, in every ratio. */
+.ed-type > .nex-type { display: flex; }
+.ed-type > .nex-type > .type-paper {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Words are never broken across lines; the vendored fitter reduces the type
+   size instead ("DOWNLOA / D" is not typography). */
+.ed-type [data-fit] {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none;
+}

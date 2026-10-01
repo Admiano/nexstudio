@@ -1,0 +1,158 @@
+{
+  "id": "cast.salesperson.paper-01",
+  "name": "Salesperson",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "salesperson",
+  "slug": "salesperson",
+  "renderer": "paper-cast-figure",
+  "role": "salesperson",
+  "ageBand": "adult",
+  "proportion": "adult-tall",
+  "formality": "business-casual",
+  "intents": [
+    "pitch_offer",
+    "demonstrate",
+    "compare_options",
+    "close_deal"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "salesperson",
+    "sales",
+    "pitch",
+    "offer",
+    "demo",
+    "deal",
+    "retail"
+  ],
+  "useCases": [
+    "commerce",
+    "business",
+    "agent"
+  ],
+  "personalities": [
+    "confident",
+    "cheerful",
+    "energetic"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "medium",
+    "low",
+    "high"
+  ],
+  "poses": [
+    "present-to-content",
+    "address-audience",
+    "hand-over",
+    "point-at-detail",
+    "celebrate-lift"
+  ],
+  "defaultPose": "present-to-content",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#f0c9a4",
+    "hair": {
+      "color": "#5a3a22",
+      "length": 0.22
+    },
+    "top": {
+      "color": "#7e4b6d",
+      "sleeve": 0.88
+    },
+    "bottom": {
+      "color": "#2e3340"
+    },
+    "shoes": {
+      "color": "#1f1c1a"
+    },
+    "accent": "#e6b352"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.salesperson",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Salesperson paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "pitch_offer",
+      "demonstrate",
+      "compare_options",
+      "close_deal"
+    ],
+    "storyRole": "salesperson",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

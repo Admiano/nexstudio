@@ -1,0 +1,156 @@
+{
+  "id": "cast.builder.paper-01",
+  "name": "Builder",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "builder",
+  "slug": "builder",
+  "renderer": "paper-cast-figure",
+  "role": "builder",
+  "ageBand": "adult",
+  "proportion": "adult-broad",
+  "formality": "workwear",
+  "intents": [
+    "construct",
+    "move_material",
+    "show_effort",
+    "deliver"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "builder",
+    "construction",
+    "site",
+    "lifting",
+    "trade",
+    "assembly"
+  ],
+  "useCases": [
+    "industrial",
+    "explainer"
+  ],
+  "personalities": [
+    "energetic",
+    "confident",
+    "serious"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "medium",
+    "low",
+    "high"
+  ],
+  "poses": [
+    "carry-load",
+    "inspect-crouch",
+    "walk-stride",
+    "point-at-detail",
+    "idle-stance"
+  ],
+  "defaultPose": "carry-load",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#6f4630",
+    "hair": {
+      "color": "#2f2a26",
+      "length": 0.14
+    },
+    "top": {
+      "color": "#d8862c",
+      "sleeve": 0.5
+    },
+    "bottom": {
+      "color": "#4a4f57"
+    },
+    "shoes": {
+      "color": "#2d2419"
+    },
+    "accent": "#f2c744"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.builder",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Builder paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "construct",
+      "move_material",
+      "show_effort",
+      "deliver"
+    ],
+    "storyRole": "builder",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

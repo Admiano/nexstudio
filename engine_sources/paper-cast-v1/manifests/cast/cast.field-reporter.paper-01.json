@@ -1,0 +1,157 @@
+{
+  "id": "cast.field-reporter.paper-01",
+  "name": "Field reporter",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "reporter",
+  "slug": "field-reporter",
+  "renderer": "paper-cast-figure",
+  "role": "reporter",
+  "ageBand": "adult",
+  "proportion": "adult-average",
+  "formality": "smart-casual",
+  "intents": [
+    "narrate",
+    "investigate",
+    "interview",
+    "move_through_story"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "reporter",
+    "journalist",
+    "documentary",
+    "interview",
+    "field",
+    "story"
+  ],
+  "useCases": [
+    "documentary",
+    "explainer",
+    "creator"
+  ],
+  "personalities": [
+    "curious",
+    "confident",
+    "serious"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "medium",
+    "high",
+    "low"
+  ],
+  "poses": [
+    "walk-stride",
+    "address-audience",
+    "sit-and-talk",
+    "turn-away",
+    "listen-attentive"
+  ],
+  "defaultPose": "walk-stride",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#dda87c",
+    "hair": {
+      "color": "#5a3a22",
+      "length": 0.32
+    },
+    "top": {
+      "color": "#8a6a45",
+      "sleeve": 0.72
+    },
+    "bottom": {
+      "color": "#3c4148"
+    },
+    "shoes": {
+      "color": "#42352a"
+    },
+    "accent": "#c9542f"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.reporter",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Field reporter paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "narrate",
+      "investigate",
+      "interview",
+      "move_through_story"
+    ],
+    "storyRole": "reporter",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexStudio Paper Cast — explorer</title>
+<style>
+  :root { --paper-bg:#efe8da; --paper-surface:#fbf7ee; --ink:#241f1c; --ink-muted:#6c6259; --line:#d5cbb6; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:28px; background:var(--paper-bg); color:var(--ink); font:14px/1.5 ui-sans-serif, system-ui, sans-serif; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  p.lede { margin:0 0 24px; color:var(--ink-muted); max-width:70ch; }
+  h2 { font-size:13px; letter-spacing:.09em; text-transform:uppercase; margin:32px 0 12px; }
+  .panel { background:var(--paper-surface); border:1px solid var(--line); padding:16px; }
+  textarea { width:100%; min-height:76px; font:inherit; padding:10px; border:1px solid var(--line); background:#fff; resize:vertical; }
+  .controls { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-top:12px; }
+  label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--ink-muted); }
+  select, input[type=number] { font:inherit; padding:6px 8px; border:1px solid var(--line); background:#fff; }
+  button { font:inherit; padding:8px 16px; border:1px solid var(--ink); background:var(--ink); color:var(--paper-surface); cursor:pointer; }
+  .presets { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .presets button { background:transparent; color:var(--ink); border:1px dashed var(--line); font-size:12px; padding:5px 10px; }
+  .stage { margin-top:16px; border:1px solid var(--line); background:#fff; }
+  .stage svg { display:block; width:100%; height:auto; }
+  .readout { margin-top:12px; font-size:12px; color:var(--ink-muted); white-space:pre-wrap; font-family:ui-monospace, monospace; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:12px; }
+  figure { margin:0; background:var(--paper-surface); border:1px solid var(--line); padding:8px; text-align:center; cursor:pointer; }
+  figure.active { border-color:var(--ink); }
+  figure svg { width:100%; height:170px; }
+  figcaption { font-size:11px; color:var(--ink-muted); margin-top:6px; }
+  .warn { color:#a2402b; }
+</style>
+</head>
+<body>
+<h1>NexStudio Paper Cast — explorer</h1>
+<p class="lede">Type a beat of a script. The cast, the pose, the stage position and the direction each character faces are resolved from that text — orientation included, so characters only look at the camera when the beat says they do.</p>
+
+<section class="panel">
+  <textarea id="script">The analyst turns to the chart on the screen and points at the spike.</textarea>
+  <div class="controls">
+    <label>Paper style<select id="paperStyle"></select></label>
+    <label>Aspect ratio<select id="aspectRatio"><option>16:9</option><option>1:1</option><option>9:16</option></select></label>
+    <label>Cast size<input id="castSize" type="number" min="1" max="4" value="0" title="0 = infer from the script"></label>
+    <label>Seed<input id="seed" type="number" min="0" max="999" value="7"></label>
+    <button id="run">Stage it</button>
+  </div>
+  <div class="presets" id="presets"></div>
+  <div class="stage" id="stage"></div>
+  <div class="readout" id="readout"></div>
+</section>
+
+<h2>Orientation sweep</h2>
+<div class="grid" id="axes"></div>
+
+<h2>Pose library</h2>
+<div class="grid" id="poses"></div>
+
+<h2>Cast roster</h2>
+<div class="grid" id="roster"></div>
+
+<script src="runtime/paper-cast-rig.js"></script>
+<script src="runtime/paper-cast-renderer.js"></script>
+<script src="runtime/cast-context.js"></script>
+<script src="runtime/cast-selector.js"></script>
+<script src="runtime/cast-performance.js"></script>
+<script src="runtime/cast-registry.js"></script>
+<script src="runtime/paper-cast.js"></script>
+<script>
+(function () {
+  const cast = NexPaperCast.init();
+  const $ = (id) => document.getElementById(id);
+  const state = { id: cast.registry.entries[0].id, pose: cast.registry.entries[0].defaultPose };
+
+  const PRESETS = [
+    'The presenter welcomes the audience and speaks to camera.',
+    'The analyst turns to the chart on the screen and points at the spike.',
+    'The technician crouches and inspects the machine, then points at the fault.',
+    'The customer asks the support agent a question and they talk to each other.',
+    'The reporter walks across the field toward the crowd.',
+    'The teacher explains the diagram while the student listens.',
+    'The builder carries boxes across the site and heads out of frame.'
+  ];
+
+  for (const style of Object.keys(NexPaperCastRenderer.PAPER_STYLES)) {
+    $('paperStyle').append(new Option(style, style));
+  }
+
+  function request() {
+    const size = Number($('castSize').value) || 0;
+    return {
+      script: $('script').value,
+      paperStyle: $('paperStyle').value,
+      aspectRatio: $('aspectRatio').value,
+      seed: $('seed').value,
+      ...(size ? { castSize: size } : {})
+    };
+  }
+
+  function run() {
+    const scene = NexPaperCast.renderScene(request());
+    $('stage').innerHTML = scene.svg;
+    const lines = scene.cast.map((c) =>
+      `${c.slug.padEnd(18)} pose=${c.pose.padEnd(20)} body=${c.view.viewAxis.padEnd(20)} head=${String(Math.round(c.view.headYaw)).padStart(4)}°  addressing=${c.view.addressing}  score=${c.score}`);
+    const ctx = scene.context;
+    $('readout').innerHTML = [
+      `role=${ctx.role}  intents=[${(ctx.intents || []).join(', ')}]  action=${ctx.action}  addressing=${ctx.addressing}  energy=${ctx.motionEnergy}`,
+      ...lines,
+      ...(scene.warnings.length ? [`<span class="warn">${scene.warnings.join('\n')}</span>`] : [])
+    ].join('\n');
+  }
+
+  function card(label, svg, onClick, active) {
+    const fig = document.createElement('figure');
+    fig.innerHTML = `${svg}<figcaption>${label}</figcaption>`;
+    if (active) fig.classList.add('active');
+    if (onClick) fig.addEventListener('click', onClick);
+    return fig;
+  }
+
+  function renderGrids() {
+    const style = $('paperStyle').value;
+    const entry = cast.registry.entries.find((e) => e.id === state.id);
+    if (!entry.poses.includes(state.pose)) state.pose = entry.defaultPose;
+
+    $('axes').replaceChildren(...Object.keys(NexPaperCastRig.VIEW_AXES).map((axis) =>
+      card(axis, NexPaperCast.renderFigure({ id: state.id, pose: state.pose, viewAxis: axis, paperStyle: style }).svg)));
+
+    $('poses').replaceChildren(...cast.poses.poses.map((pose) => {
+      const owner = entry.poses.includes(pose.id) ? entry : cast.registry.entries.find((e) => e.poses.includes(pose.id)) || entry;
+      return card(pose.id, NexPaperCast.renderFigure({ id: owner.id, pose: pose.id, viewAxis: pose.viewAxes[0], paperStyle: style }).svg,
+        () => { state.id = owner.id; state.pose = pose.id; renderGrids(); }, pose.id === state.pose);
+    }));
+
+    $('roster').replaceChildren(...cast.registry.entries.map((e) =>
+      card(`${e.slug} · ${e.role}`, NexPaperCast.renderFigure({ id: e.id, viewAxis: 'three-quarter-right', paperStyle: style }).svg,
+        () => { state.id = e.id; renderGrids(); }, e.id === state.id)));
+  }
+
+  $('presets').replaceChildren(...PRESETS.map((text) => {
+    const b = document.createElement('button');
+    b.textContent = text.length > 46 ? `${text.slice(0, 46)}…` : text;
+    b.title = text;
+    b.addEventListener('click', () => { $('script').value = text; run(); });
+    return b;
+  }));
+
+  $('run').addEventListener('click', run);
+  $('paperStyle').addEventListener('change', () => { run(); renderGrids(); });
+  $('aspectRatio').addEventListener('change', run);
+  run();
+  renderGrids();
+})();
+</script>
+</body>
+</html>

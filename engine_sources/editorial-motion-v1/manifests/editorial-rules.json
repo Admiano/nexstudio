@@ -1,0 +1,295 @@
+{
+  "note": "Editorial direction rules. Everything the director weighs lives here as data: which typographic intents a beat role asks for, when an icon has earned its place, when a still figure is allowed on screen, and how much a frame of each ratio can hold.",
+  "typography": {
+    "roleIntents": {
+      "hook": [
+        "ask_hook_question",
+        "open_with_question",
+        "make_bold_statement",
+        "open_chapter"
+      ],
+      "problem": [
+        "make_bold_statement",
+        "emphasize_message",
+        "show_warning",
+        "cross_out_phrase"
+      ],
+      "contrast": [
+        "cross_out_phrase",
+        "show_revision",
+        "highlight_phrase",
+        "make_bold_statement"
+      ],
+      "insight": [
+        "define_term",
+        "explain_concept",
+        "highlight_phrase",
+        "emphasize_message"
+      ],
+      "proof": [
+        "show_statistic",
+        "emphasize_metric",
+        "cite_source",
+        "show_attribution"
+      ],
+      "step": [
+        "show_numbered_steps",
+        "present_sequence",
+        "show_bullet_points"
+      ],
+      "result": [
+        "make_bold_statement",
+        "emphasize_message",
+        "highlight_phrase"
+      ],
+      "cta": [
+        "show_call_to_action",
+        "prompt_next_step"
+      ],
+      "statement": [
+        "make_bold_statement",
+        "emphasize_message",
+        "animate_phrase"
+      ]
+    },
+    "conditionIntents": {
+      "question": [
+        "ask_hook_question",
+        "open_with_question"
+      ],
+      "quote": [
+        "show_quote",
+        "attribute_statement"
+      ],
+      "statistic": [
+        "show_statistic",
+        "emphasize_metric"
+      ],
+      "list": [
+        "show_numbered_steps",
+        "show_bullet_points",
+        "present_sequence"
+      ],
+      "singleWord": [
+        "animate_keyword",
+        "emphasize_single_word"
+      ],
+      "shortPhrase": [
+        "make_bold_statement",
+        "emphasize_words_sequentially",
+        "animate_phrase"
+      ],
+      "longBody": [
+        "explain_concept",
+        "define_term",
+        "show_typed_note"
+      ],
+      "attribution": [
+        "cite_source",
+        "show_attribution",
+        "identify_person",
+        "show_name_and_role"
+      ],
+      "caution": [
+        "show_warning",
+        "communicate_caution"
+      ],
+      "dateLocation": [
+        "show_date_and_location",
+        "set_context"
+      ]
+    },
+    "conditionWeights": {
+      "role": 1,
+      "condition": 1.5,
+      "keyword": 0.5,
+      "ratio": 0.4
+    },
+    "repeatPenalty": 0.9,
+    "longBodyWords": 24,
+    "shortPhraseWords": 9,
+    "cautionCues": [
+      "warning",
+      "careful",
+      "danger",
+      "risk",
+      "never",
+      "avoid",
+      "mistake",
+      "stop"
+    ],
+    "contentRequirements": {
+      "numbered-list": {
+        "sentences": 2
+      },
+      "bullet-list": {
+        "sentences": 2
+      },
+      "quote-card": {
+        "quotes": 1
+      },
+      "statistic-headline": {
+        "numbers": 1
+      },
+      "name-role-card": {
+        "names": 1
+      },
+      "speaker-identification": {
+        "names": 1
+      },
+      "source-citation": {
+        "names": 1
+      },
+      "date-location-label": {
+        "names": 1
+      }
+    }
+  },
+  "icons": {
+    "minScore": 0.34,
+    "maxPerShot": {
+      "16:9": 3,
+      "1:1": 2,
+      "9:16": 2
+    },
+    "cooldownShots": 3,
+    "keywordWeight": 1,
+    "intentWeight": 0.8,
+    "emphasisBias": 0.15,
+    "suppressWithMedia": 1,
+    "suppressWithCharacter": 1
+  },
+  "media": {
+    "minScore": 0.3,
+    "showCueWeight": 0.55,
+    "keywordWeight": 1.1,
+    "maxReuse": 1,
+    "typeIntents": {
+      "image": [
+        "frame_photo",
+        "frame_memory",
+        "show_product",
+        "show_photo_collection",
+        "layer_photos"
+      ],
+      "video": [
+        "play_video",
+        "show_sequence"
+      ],
+      "audio": [
+        "play_audio",
+        "play_podcast"
+      ],
+      "screenshot": [
+        "show_website_capture",
+        "show_website",
+        "show_document"
+      ],
+      "screen": [
+        "show_mobile_product",
+        "show_desktop_product",
+        "show_tablet_product"
+      ]
+    },
+    "hintContainers": {
+      "phone": "mobile-phone",
+      "mobile": "mobile-phone",
+      "app": "mobile-phone",
+      "laptop": "laptop",
+      "desktop": "desktop-monitor",
+      "tablet": "tablet",
+      "site": "browser-window",
+      "website": "browser-window",
+      "web": "browser-window",
+      "dashboard": "browser-window",
+      "doc": "document-viewer",
+      "report": "document-viewer",
+      "pdf": "document-viewer",
+      "chat": "chat-conversation",
+      "email": "email-card",
+      "review": "testimonial-card",
+      "testimonial": "testimonial-card",
+      "profile": "profile-card",
+      "product": "product-card",
+      "post": "social-post-frame",
+      "photo": "paper-framed-photograph",
+      "portrait": "polaroid",
+      "before": "before-and-after-frame",
+      "after": "before-and-after-frame"
+    },
+    "defaultContainer": {
+      "image": "paper-framed-photograph",
+      "video": "video-player",
+      "audio": "audio-player"
+    }
+  },
+  "character": {
+    "emphasisGate": 0.62,
+    "personWeight": 0.45,
+    "emotionWeight": 0.25,
+    "maxShare": 0.4,
+    "minGapShots": 1,
+    "allowWithMedia": false,
+    "framingByRatio": {
+      "16:9": {
+        "standing": 0.7,
+        "sitting": 0.2,
+        "bust": 0.1
+      },
+      "1:1": {
+        "standing": 0.45,
+        "sitting": 0.2,
+        "bust": 0.35
+      },
+      "9:16": {
+        "standing": 0.8,
+        "sitting": 0.1,
+        "bust": 0.1
+      }
+    },
+    "sittingCues": [
+      "desk",
+      "office",
+      "laptop",
+      "meeting",
+      "call",
+      "home",
+      "study",
+      "commute"
+    ],
+    "bustCues": [
+      "said",
+      "says",
+      "asks",
+      "tells",
+      "explains",
+      "voice",
+      "interview",
+      "quote"
+    ],
+    "personFloor": 0.2
+  },
+  "frames": {
+    "16:9": {
+      "width": 1920,
+      "height": 1080,
+      "safe": 0.055,
+      "maxElements": 4,
+      "textShare": 0.58
+    },
+    "1:1": {
+      "width": 1080,
+      "height": 1080,
+      "safe": 0.06,
+      "maxElements": 3,
+      "textShare": 0.62
+    },
+    "9:16": {
+      "width": 1080,
+      "height": 1920,
+      "safe": 0.055,
+      "maxElements": 3,
+      "textShare": 0.55
+    }
+  }
+}
