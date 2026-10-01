@@ -1,8 +1,11 @@
-# Cast plate baker v3: bakes the CANONICAL preset catalog as holdout-isolated
-# component plates. One Blender process per look; every shot renders the fully
-# built look with all non-component objects marked holdout - so each plate
-# carries exactly the pixels that component covers in the real render
-# (occluders matte instead of shade, but still cast shadows).
+# Cast plate baker v4: bakes the CANONICAL preset catalog as full-scene
+# renders with a cryptomatte object pass. The packer splits each render into
+# component plates by object id, so every shipped pixel is one the authored
+# render itself produced - no solo-render artifacts, no occlusion math of
+# our own. The base render of each look doubles as ground truth.
+#
+# Emits OUT/plates.json: plate stem -> {src: render stem, keep: [obj names]}
+# (keep=[] means the render ships whole, e.g. body plates).
 #
 # Usage: LOOK=<look_id> [OUT=dir W=1440 H=2160 FR=27]
 #        blender -b scenes/BASE_V58.blend --python scripts/castbake3.py
@@ -41,44 +44,39 @@ def _hide(names):
         if o:
             o.hide_render = o.hide_viewport = True
 
-_FRE = {
-    'hair':   ('HAIR_LOCKS', 'HAIR_OUTER'),
-    'dress':  ('RAIN_STYLE_CONTOURS', 'GARMENT_SILHOUETTE'),
-    'outfit': ('RAIN_STYLE_CONTOURS', 'GARMENT_SILHOUETTE'),
-}
-
-def shot(name, keep, fre=()):
-    keep = set(keep)
+def shot(name, hide=()):
+    # full-scene render; hide= only drops objects of OTHER variants (e.g. the
+    # four other neck pieces while one is rendered). Crypto + depth go to
+    # z_<name>.exr for the packer's object-level split.
     S = bpy.context.scene
-    ls = S.view_layers[0].freestyle_settings.linesets
-    had = {}
-    if fre is None:
-        pass                                  # authored lineset state
-    elif fre:
-        for l in ls:
-            had[l.name] = l.show_render
-            l.show_render = l.name in fre
-    else:
-        for l in ls:
-            had[l.name] = l.show_render
-            l.show_render = l.show_render and l.name in fre
-    touched = []
-    for o in bpy.data.objects:
-        if o.type not in RND or o.hide_render:
-            continue
-        if o.name not in keep and not o.is_holdout:
-            o.is_holdout = True
-            touched.append(o.name)
+    hidden = []
+    for n in hide:
+        o = bpy.data.objects.get(n)
+        if o is not None and o.type in RND and not o.hide_render:
+            o.hide_render = o.hide_viewport = True
+            hidden.append(n)
+    if _ZFO is not None:
+        _ZFO.file_name = 'z_%s' % name
     S.render.filepath = os.path.join(OUT, name + '.png')
     bpy.ops.render.render(write_still=True)
-    for n in touched:
-        bpy.data.objects[n].is_holdout = False
-    for l in ls:
-        if l.name in had:
-            l.show_render = had[l.name]
-    print('SHOT', name, 'keep', len(keep))
+    for n in hidden:
+        bpy.data.objects[n].hide_render = bpy.data.objects[n].hide_viewport = False
+    print('SHOT', name)
+
+PLATES = {}
+
+def emit(src, stem, keep):
+    PLATES[stem] = {'src': src, 'keep': sorted(keep)}
+
+def _names(pat):
+    rx = re.compile(pat)
+    return [o.name for o in bpy.data.objects
+            if rx.match(o.name) and o.type in RND and not o.hide_render]
+
+_ZFO = None   # compositor File Output node carrying depth + cryptomatte
 
 def _setup():
+    global _ZFO
     S = bpy.context.scene
     S.render.film_transparent = True
     S.render.resolution_x, S.render.resolution_y = W, H
@@ -92,13 +90,35 @@ def _setup():
     S.cycles.use_denoising = True
     S.frame_set(FRAME)
     bpy.context.view_layer.update()
-    for l in S.view_layers[0].freestyle_settings.linesets:
+    vl = S.view_layers[0]
+    for l in vl.freestyle_settings.linesets:
         l.linestyle.thickness = max(0.5, l.linestyle.thickness * H / 4320.0)
     ng = S.compositing_node_group
     if ng is not None:
         for node in ng.nodes:
             if node.type == 'DILATEERODE':
                 node.inputs['Size'].default_value = max(1, round(node.inputs['Size'].default_value * H / 2160))
+    # depth pass -> multilayer EXR via File Output. The packer resolves
+    # occlusion per pixel against earlier-layer depth, so every shot emits one.
+    vl.use_pass_z = True
+    vl.use_pass_cryptomatte_object = True
+    if ng is not None:
+        rl = ng.nodes.new('CompositorNodeRLayers')
+        rl.name = '_z_rlayers'
+        fo = ng.nodes.new('CompositorNodeOutputFile')
+        fo.name = '_z_out'
+        fo.directory = OUT
+        fo.save_as_render = False
+        fo.file_name = 'z_unused'
+        fo.file_output_items.new('FLOAT', 'z')
+        ng.links.new(rl.outputs['Depth'], fo.inputs['z'])
+        for ci, pas in (('crypto', 'CryptoObject00'), ('crypto2', 'CryptoObject01'),
+                        ('crypto3', 'CryptoObject02')):
+            if pas in rl.outputs:
+                fo.file_output_items.new('RGBA', ci)
+                ng.links.new(rl.outputs[pas], fo.inputs[ci])
+        print('RLOUT', sorted(s.name for s in rl.outputs))
+        _ZFO = fo
 
 HAND_VG = ('hand', 'finger', 'wrist', 'nail', 'metac')
 SKINS_LIST = [('fair', 'F7E1D3'), ('light', 'F1D7C8'), ('medium', 'E0B48F'),
@@ -206,12 +226,22 @@ def run_body(prefix, char):
         if o.type in RND and not o.hide_render and o.name not in keep:
             o.hide_render = o.hide_viewport = True
             hidden.append(o.name)
+    # the body plate is the whole chassis: garment Delete.* masks (which hide
+    # skin under clothes in dressed renders) come off for the nude render.
+    # 'Hide helpers' stays - those verts are helper markers, not skin.
+    body = bpy.data.objects['Host.body']
+    off_masks = [m for m in body.modifiers
+                 if m.type == 'MASK' and m.vertex_group.startswith('Delete.')]
+    for m in off_masks:
+        m.show_render = False
     for fkey, fnum in FACES:
         os.environ['FACE'] = fnum
         step('facevar.py')
         for sname, shex in SKINS_LIST:
             os.environ['STONE'] = shex
             step('skintone.py')
+            if _ZFO is not None:
+                _ZFO.file_name = 'z_%s_body_%s_%s' % (prefix, fkey, sname)
             S.render.filepath = os.path.join(
                 OUT, '%s_body_%s_%s.png' % (prefix, fkey, sname))
             bpy.ops.render.render(write_still=True)
@@ -265,6 +295,7 @@ def run_fem(style, dress, dcol, dminisl, plate, necks=False):
            'NECK': '', 'HCOL': '', 'HDYE': '', 'LIPC': '', 'STONE': ''}
     env.update(FEM_STYLE_ENV[style])
     os.environ.update(env)
+    os.environ['STONE'] = 'E0B48F'      # medium - matches fem_body_f0_medium
     # female.py chain, instrumented: dressswap -> hairswap -> modLS -> ear2 ->
     # strands -> lip -> facevar -> neck -> skintone -> dressart -> haircol -> hairpeek
     dnew = step('dressswap.py')
@@ -276,17 +307,24 @@ def run_fem(style, dress, dcol, dminisl, plate, necks=False):
     anw = step('dressart.py')
     pk  = step('hairpeek.py')
     _hide(_vis(r'Host\.V26_.*'))      # authored to zero pixels on every look
-    hair_keep  = set(hnew + lnew + snew + pk) | set(_vis(r'Host\.hair_'))
-    ear_keep   = set(_vis(r'Host\.V60_earring.*') + _vis(r'Host\.V61_.*'))
-    dress_keep = set(dnew + anw)
-    _hide(_vis(r'Host\.V62_.*'))          # default neckwear is not part of a look
-    for nm, hx, dye in FEM_COLORS:
+    _hide(_vis(r'Host\.V62_.*'))      # default neckwear is not part of a look
+    hair_names = _names(r'Host\.(hair_|hp_|ink_hair)')
+    body_names = _names(r'Host\.(body|high-poly|lineart|eyelash|eyebrow|V59|teeth|inner|cornea|iris|pupil|tongue).*')
+    # the authored full render is itself the ground truth: a composite of the
+    # extracted plates must reproduce this frame pixel-for-pixel
+    shot('fem_look_%s' % style)
+    emit('fem_look_%s' % style, 'fem_outfit_%s' % plate,
+          set(dnew + anw) | set(_names(r'Host\.V64_.*')))
+    emit('fem_look_%s' % style, 'fem_earring_%s' % style,
+          _names(r'Host\.(V60_earring|V61_)'))
+    emit('fem_look_%s' % style, 'fem_hair_%s_%s' % (style, FEM_COLORS[0][0]), hair_names)
+    PLATES['fem_bodyset'] = {'src': 'fem_look_%s' % style, 'keep': sorted(body_names)}
+    for nm, hx, dye in FEM_COLORS[1:]:
         os.environ['HCOL'] = hx
         os.environ['HDYE'] = dye
         step('haircol.py')
-        shot('fem_hair_%s_%s' % (style, nm), hair_keep, _FRE['hair'])
-    shot('fem_earring_%s' % style, ear_keep)
-    shot('fem_outfit_%s' % plate, dress_keep, _FRE['dress'])
+        shot('fem_hair_%s_%s' % (style, nm))
+        emit('fem_hair_%s_%s' % (style, nm), 'fem_hair_%s_%s' % (style, nm), hair_names)
     if necks:
         prev = []
         for n in FEM_NECKS:
@@ -294,13 +332,14 @@ def run_fem(style, dress, dcol, dminisl, plate, necks=False):
             os.environ['NECK'] = n
             nw = step('neck.py')
             keep = set(nw) | set(_vis(r'Host\.V62_.*'))
-            shot('fem_neck_%s' % n, keep)
+            shot('fem_neck_%s' % n, hide=prev)
+            emit('fem_neck_%s' % n, 'fem_neck_%s' % n, keep)
             prev = list(keep)
 
 def run_male(hair, hstyle, mg, watchrun=False):
     env = {'DBTN': '0', 'EST': 'none', 'TUCK': '0', 'SIDES': '1', 'FACE': '0',
            'MG': mg, 'HAIR': hair, 'HCOL': '', 'HDYE': '', 'WATCH': '',
-           'STONE': '', 'LIPC': '', 'DOBJ': 'Host.body'}
+           'STONE': 'E0B48F', 'LIPC': '', 'DOBJ': 'Host.body'}
     os.environ.update(env)
     # modM.py chain, instrumented
     step('malerelax_pre.py'); step('male2.py'); step('malebrow.py'); step('facealign.py')
@@ -316,6 +355,8 @@ def run_male(hair, hstyle, mg, watchrun=False):
     pk = step('hairpeek.py')
     step('malerelax.py')
     _hide(_vis(r'Host\.V26_.*'))      # same - stray dress-detail strokes
+    hair_objs = _vis(r'Host\.hair_') + _vis(r'Host\.hp_')
+    garm_objs = _vis(r'Host\.(?!lineart_).*(dress|shirt|trouser|jeans|pant|skirt|sweater|polo|sneaker|shoe|top|blazer|tee).*')
     if watchrun:
         suffix = LOOK.rsplit('_', 1)[1]          # o1..o5
         prev = []
@@ -324,17 +365,26 @@ def run_male(hair, hstyle, mg, watchrun=False):
             os.environ['WATCH'] = wt
             wnew = step('watch.py')
             keep = set(wnew) | set(_vis(r'Host\.watch_.*'))
-            shot('male_watch_%s_%s' % (suffix, wt), keep)
+            shot('male_watch_%s_%s' % (suffix, wt), hide=prev)
+            emit('male_watch_%s_%s' % (suffix, wt),
+                  'male_watch_%s_%s' % (suffix, wt), keep)
             prev = list(keep)
         return
-    outfit_keep = set(gnew + ganw)
-    hair_keep = set(hnew + lnew + snew + pk) | set(_vis(r'Host\.hair_'))
-    for nm, hx, dye in MALE_COLORS:
+    hair_names = _names(r'Host\.(hair_|hp_|ink_hair)')
+    body_names = _names(r'Host\.(body|high-poly|lineart|eyelash|eyebrow|V59|teeth|inner|cornea|iris|pupil|tongue|V60|V61).*')
+    shot('male_look_%s' % LOOK.rsplit('_', 1)[1].lower())
+    emit('male_look_%s' % LOOK.rsplit('_', 1)[1].lower(),
+          'male_outfit_%s' % LOOK.rsplit('_', 1)[1].lower(), set(gnew + ganw))
+    emit('male_look_%s' % LOOK.rsplit('_', 1)[1].lower(),
+          'male_hair_%s_%s' % (hstyle, MALE_COLORS[0][0]), hair_names)
+    PLATES['male_bodyset'] = {'src': 'male_look_%s' % LOOK.rsplit('_', 1)[1].lower(),
+                              'keep': sorted(body_names)}
+    for nm, hx, dye in MALE_COLORS[1:]:
         os.environ['HCOL'] = hx
         os.environ['HDYE'] = dye
         step('haircol.py')
-        shot('male_hair_%s_%s' % (hstyle, nm), hair_keep, _FRE['hair'])
-    shot('male_outfit_%s' % hstyle if False else 'male_outfit_%s' % LOOK.rsplit('_', 1)[1].lower(), outfit_keep, _FRE['outfit'])
+        shot('male_hair_%s_%s' % (hstyle, nm))
+        emit('male_hair_%s_%s' % (hstyle, nm), 'male_hair_%s_%s' % (hstyle, nm), hair_names)
 
 _setup()
 if LOOK in FEM_LOOKS:
@@ -349,4 +399,9 @@ elif LOOK == 'fem_body':
     run_body('fem', 'female')
 elif LOOK == 'male_body':
     run_body('male', 'male')
+import json
+_p = os.path.join(OUT, 'plates.json')
+_existing = json.load(open(_p)) if os.path.exists(_p) else {}
+_existing.update(PLATES)
+json.dump(_existing, open(_p, 'w'), indent=0)
 print('CASTBAKE3 DONE', LOOK)
