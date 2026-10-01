@@ -1,4 +1,4 @@
-name: Cast V9 certification
+name: Cast V9 certification recovery
 
 on:
   pull_request:
@@ -7,130 +7,19 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: write
 
 concurrency:
-  group: cast-v9-certification
+  group: cast-v9-certification-recovery
   cancel-in-progress: true
 
 env:
   APP_BRANCH: devin/1790231957-offerings-trim-two-families
-  BLENDER_URL: https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
-  BLENDER_SUMS: https://download.blender.org/release/Blender5.2/blender-5.2.0.sha256
+  SOURCE_RUN_ID: "36930866470"
 
 jobs:
-  bake-group:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        group:
-          - lip
-          - fem_long
-          - fem_bob
-          - fem_bangs
-          - fem_bun
-          - fem_braid
-          - male_O1
-          - male_O2
-          - male_O3
-          - male_O4
-          - male_O5
-    steps:
-      - name: Checkout presenter source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          filter: blob:none
-          sparse-checkout: |
-            engine_sources/makehuman-lineart/presenters_v1
-            engine_sources/makehuman-lineart/scripts
-
-      - name: Checkout required MakeHuman assets
-        uses: actions/checkout@v4
-        with:
-          ref: mh-assets
-          path: mh_assets
-          fetch-depth: 1
-          filter: blob:none
-          sparse-checkout: |
-            dress03_cc-by/clothes/mindfront_f_dress_11
-            dress03_cc-by/clothes/mindfront_f_dress_09
-            dress03_cc-by/clothes/mindfront_f_dress_07
-            dress03_cc-by/clothes/punkduck_black_cocktail_dress
-            dress03_cc-by/clothes/punkduck_middle_length_qipao
-            hair01_cc0/hair/toigo_blunt_bob
-            hair01_cc0/hair/toigo_blunt_bob_with_bangs
-            hair01_cc0/hair/rehmanpolanski_hair_bun_brown
-            hair01_cc0/hair/elvs_french_braid_variation
-            makehuman_system_assets_cc0/hair/afro01
-            makehuman_system_assets_cc0/hair/short01
-            hair02_ccby/hair/elvs_maxwell_hair
-            hair02_ccby/hair/elvs_braided_rows
-            hair02_ccby/hair/elvs_grump_hair
-            makehuman_system_assets_cc0/eyebrows/eyebrow001
-            makehuman_system_assets_cc0/eyelashes/eyelashes01
-            shirts01_cc0/clothes/namuhekam_male_polo_shirt
-            pants02_ccby/clothes/mindfront_male_trousers_1
-            shoes02_ccby/clothes/mindfront_shoes_oxford_male
-            shirts01_cc0/clothes/toigo_basic_tucked_t-shirt
-            pants02_ccby/clothes/elvs_jeans_straight_leg
-            shoes02_ccby/clothes/punkduck_comfortable_sneakers
-            shirts02_ccby/clothes/elvs_male_shirt_untucked_bd1
-            pants02_ccby/clothes/mindfront_male_trousers_2
-            shoes02_ccby/clothes/mindfront_shoes_monk_strap_male
-            shirts02_ccby/clothes/mindfront_knitted_sweater_01
-            pants02_ccby/clothes/punkduck_male_classic_jeans
-            shoes02_ccby/clothes/culturalibre_sneakers
-            shirts01_cc0/clothes/toigo_fisherman_sweater
-            pants01_cc0/clothes/toigo_wool_pants
-
-      - name: Install Blender runtime dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-venv libgl1 libegl1 libx11-6 libxi6 libxrender1 libxxf86vm1 libxfixes3 libxkbcommon0 libwayland-client0 libsm6 libice6 libopenexr-dev
-
-      - name: Install exact Blender 5.2.0
-        run: |
-          cd "$RUNNER_TEMP"
-          curl -fL "$BLENDER_URL" -o blender.tar.xz
-          curl -fL "$BLENDER_SUMS" -o blender.sha256
-          grep ' blender-5.2.0-linux-x64.tar.xz$' blender.sha256 | sed 's#blender-5.2.0-linux-x64.tar.xz#blender.tar.xz#' > blender-linux.sha256
-          sha256sum -c blender-linux.sha256
-          mkdir blender
-          tar -xJf blender.tar.xz -C blender --strip-components=1
-          "$RUNNER_TEMP/blender/blender" --version | head -2
-
-      - name: Prepare plate packer Python
-        run: |
-          python3 -m venv "$RUNNER_TEMP/cast-venv"
-          "$RUNNER_TEMP/cast-venv/bin/pip" install --upgrade pip
-          "$RUNNER_TEMP/cast-venv/bin/pip" install numpy pillow scipy OpenEXR
-
-      - name: Bake group
-        env:
-          CAST_V9_GROUP: ${{ matrix.group }}
-        run: |
-          source "$RUNNER_TEMP/cast-venv/bin/activate"
-          export MH_ROOT="$GITHUB_WORKSPACE/mh_assets"
-          export BLENDER="$RUNNER_TEMP/blender/blender"
-          export OUT="$RUNNER_TEMP/cast-v9-out"
-          export PLATE_DST="$RUNNER_TEMP/cast-v9-plates"
-          cd engine_sources/makehuman-lineart/presenters_v1
-          bash bake_cast_v9_group.sh
-          ls -lh "$PLATE_DST"
-
-      - name: Upload group plates
-        uses: actions/upload-artifact@v4
-        with:
-          name: cast-v9-${{ matrix.group }}
-          path: ${{ runner.temp }}/cast-v9-plates/*.png
-          if-no-files-found: error
-          retention-days: 7
-
-  merge-test-publish:
-    needs: bake-group
+  recover-test-publish:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
@@ -140,20 +29,24 @@ jobs:
           ref: ${{ env.APP_BRANCH }}
           fetch-depth: 1
 
-      - name: Download and merge all V9 groups
+      - name: Download all successful V9 bake artifacts
         uses: actions/download-artifact@v4
         with:
+          run-id: ${{ env.SOURCE_RUN_ID }}
+          github-token: ${{ github.token }}
           pattern: cast-v9-*
           path: ${{ runner.temp }}/cast-v9-plates
           merge-multiple: true
 
-      - name: Verify complete 62-plate contract
+      - name: Verify and install complete 62-plate contract
         run: |
           mkdir -p public/cast
           cp "$RUNNER_TEMP/cast-v9-plates/"*.png public/cast/
           python3 - <<'PY'
+          import os
           from pathlib import Path
           root=Path("public/cast")
+          artifact_root=Path(os.environ["RUNNER_TEMP"]) / "cast-v9-plates"
           need=set()
           for face in range(3):
               for shade in ("red","berry","coral","nude"):
@@ -164,12 +57,15 @@ jobs:
           for kind in ("o1","o2","o3","o4","o5"):
               for c in ("navy","ivory","blue","burgundy","cream"):
                   need.add(f"male_outfit_{kind}_{c}.png")
-          found={p.name for p in Path("$RUNNER_TEMP/cast-v9-plates").glob("*.png")}
+          found={p.name for p in artifact_root.glob("*.png")}
           missing=sorted(need-found)
           extra=sorted(found-need)
           if missing or extra:
               raise SystemExit(f"V9 contract failure: missing={missing} extra={extra}")
-          print("PASS 62/62 Cast V9 plates merged")
+          installed={p.name for p in root.glob("*.png")}
+          if not need.issubset(installed):
+              raise SystemExit("V9 install failure after copy")
+          print("PASS 62/62 Cast V9 plates merged and installed")
           PY
 
       - name: Set up Node 24
@@ -212,6 +108,8 @@ jobs:
           for kind in ("o1","o2","o3","o4","o5"):
               for c in ("navy","ivory","blue","burgundy","cream"):
                   names.append(f"male_outfit_{kind}_{c}.png")
+          if len(names) != 62:
+              raise SystemExit("contact proof catalog must contain 62 plates")
           tw,th,label=150,180,28
           cols=8; rows=math.ceil(len(names)/cols)
           sheet=Image.new("RGB",(cols*tw,rows*(th+label)),(245,245,242))
