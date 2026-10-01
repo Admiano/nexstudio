@@ -88,6 +88,9 @@ for semantic,variants in bank["entries"].items():
         for fc in all_fcurves(new_action):
             for kp in fc.keyframe_points:
                 kp.interpolation="LINEAR"
+        # These bank actions are intentionally dormant until the semantic
+        # director places them on NLA tracks. Keep them across save/reopen.
+        new_action.use_fake_user=True
         new_action["NEX_SEMANTIC"]=semantic
         new_action["NEX_VARIANT_ID"]=spec["id"]
         new_action["NEX_SOURCE_ACTION"]=source.name
