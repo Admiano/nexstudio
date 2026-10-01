@@ -142,7 +142,7 @@ export const DEFAULT_SPEC: Record<CastCharacter, CastSpec> = {
 };
 
 // Bump when the plate set is re-baked so cached copies refresh.
-const PLATE_V = "v6";
+const PLATE_V = "v7";
 const P = "/cast";
 const plate = (name: string) => `${P}/${name}.png?v=${PLATE_V}`;
 const prefix = (c: CastCharacter) => (c === "female" ? "fem" : "male");
@@ -212,7 +212,11 @@ export function specLayers(spec: CastSpec): CastLayer[] {
     layers.push({ src: plate(`${p}_hair_${style}_${color}`) });
   }
 
-  // hands rest in front of the torso at the talking frame - always last
-  layers.push({ src: plate(`${p}_hands_${skin}`) });
+  // hands rest in front of the torso at the talking frame - always last.
+  // per outfit: each garment hides a different wrist/hand band
+  const okind = spec.character === "female"
+    ? (FEM_DRESS_KEYS.has(spec.outfit?.kind ?? "") ? spec.outfit!.kind : "sheath")
+    : maleLook;
+  layers.push({ src: plate(`${p}_hands_${okind}_${skin}`) });
   return layers;
 }
