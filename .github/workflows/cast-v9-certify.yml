@@ -69,11 +69,6 @@ jobs:
             shirts01_cc0/clothes/toigo_fisherman_sweater
             pants01_cc0/clothes/toigo_wool_pants
 
-      - name: Free runner disk
-        run: |
-          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet || true
-          df -h /
-
       - name: Install Blender runtime dependencies
         run: |
           sudo apt-get update
