@@ -6,8 +6,10 @@ from PIL import Image
 from scipy.ndimage import binary_dilation
 import OpenEXR
 
-NEW=os.environ.get("BAKE_OUT","/home/runner/work/cast-v9-out")
-DST=os.environ.get("PLATE_DST","/home/runner/work/cast-v9-plates")
+# OUT is the renderer authority used by castbake3.py. Read that first so
+# the packer can never drift onto a separate BAKE_OUT fallback directory.
+NEW=os.environ.get("OUT") or os.environ.get("BAKE_OUT") or "/home/runner/work/cast-v9-out"
+DST=os.environ.get("PLATE_DST") or "/home/runner/work/cast-v9-plates"
 CW,CH=720,1080
 os.makedirs(DST,exist_ok=True)
 PLATES=json.load(open(os.path.join(NEW,"plates.json")))
