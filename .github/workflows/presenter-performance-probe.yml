@@ -22,6 +22,8 @@ jobs:
           sparse-checkout: |
             engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend
             engine_sources/makehuman-lineart/presenters_v1/performance/probe_presenter_runtime.py
+            engine_sources/makehuman-lineart/presenters_v1/performance/scan_native_gestures.py
+            engine_sources/makehuman-lineart/presenters_v1/audio/words56.json
 
       - name: Install Blender runtime dependencies
         run: |
@@ -52,6 +54,48 @@ jobs:
           if not d["armatures"] or not d["actions"]:
               raise SystemExit("probe found no armature/actions")
           PY
+
+
+      - name: Scan and render native gesture candidates
+        env:
+          SCAN_OUT: ${{ runner.temp }}/native-gesture-scan
+          WORDS_JSON: ${{ github.workspace }}/engine_sources/makehuman-lineart/presenters_v1/audio/words56.json
+        run: |
+          "$RUNNER_TEMP/blender/blender" -b             engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend             --python engine_sources/makehuman-lineart/presenters_v1/performance/scan_native_gestures.py
+          python3 -m pip install --user pillow
+          python3 - <<'PY'
+          import json, os, math
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFont
+          root=Path(os.environ["RUNNER_TEMP"])/"native-gesture-scan"
+          d=json.load(open(root/"native_gesture_candidates.json"))
+          peaks=d["peaks"]
+          W,H=360,540
+          label=74
+          cols=4
+          rows=math.ceil(len(peaks)/cols)
+          sheet=Image.new("RGB",(cols*W,rows*(H+label)),(242,242,239))
+          draw=ImageDraw.Draw(sheet); font=ImageFont.load_default()
+          for i,c in enumerate(peaks):
+              im=Image.open(root/f'frame_{c["frame"]:04d}.png').convert("RGB")
+              x=(i%cols)*W; y=(i//cols)*(H+label)
+              sheet.paste(im,(x,y))
+              txt=f'F{c["frame"]} {c["time"]:.2f}s E={c["smooth_energy"]:.2f}'
+              draw.text((x+5,y+H+5),txt,fill=(10,10,10),font=font)
+              phrase=(c.get("phrase") or "")[:50]
+              draw.text((x+5,y+H+25),phrase,fill=(10,10,10),font=font)
+          sheet.save(root/"native-gesture-contact.jpg",quality=84,optimize=True)
+          print("CONTACT",root/"native-gesture-contact.jpg")
+          PY
+
+      - name: Upload native gesture scan
+        uses: actions/upload-artifact@v4
+        with:
+          name: presenter-native-gesture-scan
+          path: |
+            ${{ runner.temp }}/native-gesture-scan/native_gesture_candidates.json
+            ${{ runner.temp }}/native-gesture-scan/native-gesture-contact.jpg
+          retention-days: 7
 
       - name: Upload probe
         uses: actions/upload-artifact@v4
