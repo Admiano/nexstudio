@@ -83,7 +83,7 @@ for png in sorted(glob.glob(os.path.join(NEW,"fem_liprender_f*_*.png"))):
     dst=f"fem_lip_{face}_{shade}"
     ship(dst,out); made.append(dst)
 
-expected=62
+expected=int(os.environ.get("CAST_V9_EXPECTED","62"))
 if len(set(made))!=expected:
     raise SystemExit(f"FAIL packed {len(set(made))}/{expected} delta plates")
 print(f"PASS packed {expected}/{expected} Cast V9 delta plates")
