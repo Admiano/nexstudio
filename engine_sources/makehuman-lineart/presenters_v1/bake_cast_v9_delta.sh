@@ -12,7 +12,7 @@ SCENE="$ROOT/scenes/BASE_V58.blend"
 BAKER="$PV1/castbake3.py"
 mkdir -p "$OUT" "$PLATE_DST"
 
-run(){ echo "==> LOOK=$1 VARIANT=${2:-}"; LOOK="$1" VARIANT="${2:-}" "$B" -b "$SCENE" --python "$BAKER"; }
+run(){ echo "==> LOOK=$1 VARIANT=${2:-}"; LOOK="$1" VARIANT="${2:-}" "$B" -b "$SCENE" --python-exit-code 1 --python "$BAKER"; }
 
 # Female body generates the three canonical face/medium-skin bases plus
 # face-specific red/berry/coral/nude renders used for true lipstick deltas.
