@@ -11,7 +11,7 @@ B="${BLENDER:-blender}"
 SCENE="$ROOT/scenes/BASE_V58.blend"
 BAKER="$PV1/castbake3.py"
 
-run(){ echo "==> LOOK=$1 VARIANT=${2:-}"; LOOK="$1" VARIANT="${2:-}" "$B" -b "$SCENE" --python "$BAKER"; }
+run(){ echo "==> LOOK=$1 VARIANT=${2:-}"; LOOK="$1" VARIANT="${2:-}" "$B" -b "$SCENE" --python-exit-code 1 --python "$BAKER"; }
 
 run fem_body
 run male_body
