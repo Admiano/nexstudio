@@ -92,15 +92,22 @@ def ship(stem, rgba):
     im.save(os.path.join(DST, stem + '.png'))
     shipped.add(stem)
 
-# ---------------------------------------------------------------- lips (v2 reuse)
-LIP_RENAMES = {'rose': 'red', 'crimson': 'berry', 'plum': 'coral', 'coral': 'nude'}
-for f in sorted(os.listdir(DST)):
-    if f.endswith('.png') and f[:-4].startswith('fem_lip_f'):
-        parts = f[:-4].split('_')
-        new = 'fem_lip_%s_%s.png' % (parts[2], LIP_RENAMES.get(parts[3], parts[3]))
-        im = Image.open(os.path.join(DST, f)).convert('RGBA')
-        im.save(os.path.join(WORK, new))
-        shipped.add(new[:-4])
+# ---------------------------------------------------------------- lips
+# Build real lipstick patches from deterministic render deltas against the
+# canonical medium-skin body. The old v2 rename block produced misleading
+# shade names and never produced a real Coral preview.
+for png in sorted(glob.glob(os.path.join(NEW, 'fem_liprender_f*_*.png'))):
+    stem = os.path.basename(png)[:-4]
+    parts = stem.split('_')
+    face, shade = parts[2], parts[3]
+    variant = np.array(Image.open(png).convert('RGBA'))
+    base = np.array(Image.open(os.path.join(NEW, 'fem_body_%s_medium.png' % face)).convert('RGBA'))
+    diff = np.max(np.abs(variant[..., :3].astype(np.int16) - base[..., :3].astype(np.int16)), axis=2)
+    mask = binary_dilation(diff > 2, iterations=2)
+    out = variant.copy()
+    out[..., 3] = np.where(mask, variant[..., 3], 0)
+    ship('fem_lip_%s_%s' % (face, shade), out)
+print('lip patches shipped')
 
 # ---------------------------------------------------------------- bodies (whole nude renders)
 for png in sorted(glob.glob(os.path.join(NEW, '*_body_f*_*.png'))):
