@@ -114,7 +114,10 @@ export const DEFAULT_SPEC: Record<CastCharacter, CastSpec> = {
   male: { character: "male", face: 0, skin: "tan", hair: { style: "quiff", color: "brownd" }, lip: null, neck: null, outfit: { kind: "casual", pieces: { top: "#A9C4DE", bottom: "#B59A6E", shoes: "#4A2E1E" } }, watch: "dress", voiceId: null },
 };
 
+// Bump when the plate set is re-baked so cached copies refresh.
+const PLATE_V = "v3";
 const P = "/cast";
+const plate = (name: string) => `${P}/${name}.png?v=${PLATE_V}`;
 const prefix = (c: CastCharacter) => (c === "female" ? "fem" : "male");
 const isHex = (v: string | null | undefined) => !!v && v.startsWith("#");
 const presetKeys = (set: readonly { key: string }[]) => new Set(set.map((s) => s.key));
@@ -138,12 +141,12 @@ export function specLayers(spec: CastSpec): CastLayer[] {
 
   // body (baked per face x skin preset)
   const skin = SKIN_KEYS.has(spec.skin) ? spec.skin : "light";
-  layers.push({ src: `${P}/${p}_body_f${spec.face}_${skin}.png` });
+  layers.push({ src: plate(`${p}_body_f${spec.face}_${skin}`) });
 
   // lipstick: PIL-extracted alpha patch, female only; drawn for every colour
   // (the scene's default lip is none of these)
   if (spec.character === "female" && spec.lip && LIP_KEYS.has(spec.lip)) {
-    layers.push({ src: `${P}/fem_lip_f${spec.face}_${spec.lip}.png` });
+    layers.push({ src: plate(`fem_lip_f${spec.face}_${spec.lip}`) });
   }
 
   if (spec.character === "male") {
@@ -151,35 +154,35 @@ export function specLayers(spec: CastSpec): CastLayer[] {
     const pieces = spec.outfit?.pieces ?? {};
     for (const part of ["shoes", "bottom", "top"] as const) {
       const hex = pieces[part];
-      layers.push(isHex(hex) ? { src: `${P}/male_${part}_tint.png`, tint: hex! } : { src: `${P}/male_${part}.png` });
+      layers.push(isHex(hex) ? { src: plate(`male_${part}_tint`), tint: hex! } : { src: plate(`male_${part}`) });
     }
   } else if (spec.outfit?.kind) {
     layers.push(isHex(spec.outfit.color)
-      ? { src: `${P}/fem_outfit_${spec.outfit.kind}_tint.png`, tint: spec.outfit.color! }
-      : { src: `${P}/fem_outfit_${spec.outfit.kind}.png` });
+      ? { src: plate(`fem_outfit_${spec.outfit.kind}_tint`), tint: spec.outfit.color! }
+      : { src: plate(`fem_outfit_${spec.outfit.kind}`) });
   }
 
   if (spec.character === "female" && spec.neck && spec.neck !== "none") {
-    layers.push({ src: `${P}/fem_neck_${spec.neck}.png` });
+    layers.push({ src: plate(`fem_neck_${spec.neck}`) });
   }
   if (spec.character === "male" && spec.watch && spec.watch !== "none") {
-    layers.push({ src: `${P}/male_watch_${spec.watch}.png` });
+    layers.push({ src: plate(`male_watch_${spec.watch}`) });
   }
 
   // hands always land in front of the torso at the talking frame
-  layers.push({ src: `${P}/${p}_hands_${skin}.png` });
+  layers.push({ src: plate(`${p}_hands_${skin}`) });
 
   if (spec.hair) {
     const style = STYLE_KEYS[spec.character].has(spec.hair.style)
       ? spec.hair.style
       : DEFAULT_SPEC[spec.character].hair!.style;
     layers.push(HC_KEYS.has(spec.hair.color)
-      ? { src: `${P}/${p}_hair_${style}_${spec.hair.color}.png` }
-      : { src: `${P}/${p}_hair_${style}_tint.png`, tint: spec.hair.color });
+      ? { src: plate(`${p}_hair_${style}_${spec.hair.color}`) }
+      : { src: plate(`${p}_hair_${style}_tint`), tint: spec.hair.color });
     // her earring pairs with the hairstyle - separate plate so custom tinting
     // never recolours the gold
     if (spec.character === "female") {
-      layers.push({ src: `${P}/fem_earring_${style}.png` });
+      layers.push({ src: plate(`fem_earring_${style}`) });
     }
   }
   return layers;
