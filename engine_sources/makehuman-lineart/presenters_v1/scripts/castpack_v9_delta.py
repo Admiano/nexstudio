@@ -42,7 +42,17 @@ def extract(src,keep):
     man,pairs,top=exr_meta_and_channels(os.path.join(NEW,"z_"+src+".exr"))
     keepids={man[n] for n in keep if n in man}
     missing=[n for n in keep if n not in man]
-    if missing: raise RuntimeError(f"{src}: missing cryptomatte ids: {missing[:8]}")
+    # V64 objects are auxiliary line/proxy helpers. Some are intentionally
+    # hidden from the beauty/Cryptomatte pass, so their absence is not an
+    # extraction failure. Real garment/accessory objects remain strict.
+    helper_missing=[n for n in missing if n.startswith("Host.V64_")]
+    required_missing=[n for n in missing if not n.startswith("Host.V64_")]
+    if helper_missing:
+        print(f"WARN {src}: non-rendered helper ids omitted: {helper_missing[:8]}")
+    if required_missing:
+        raise RuntimeError(f"{src}: missing required cryptomatte ids: {required_missing[:8]}")
+    if not keepids:
+        raise RuntimeError(f"{src}: no requested objects are present in cryptomatte manifest")
     m=np.zeros(top.shape if top is not None else pairs[0][0].shape,bool)
     ids=list(keepids) or [np.float32(-1)]
     for idc,cov in pairs: m|=(cov>0)&np.isin(idc,ids)
