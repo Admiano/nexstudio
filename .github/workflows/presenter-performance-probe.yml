@@ -1,0 +1,61 @@
+name: Presenter performance probe
+
+on:
+  pull_request:
+    branches:
+      - devin/1790707046-presenters-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout presenter scene and probe
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend
+            engine_sources/makehuman-lineart/presenters_v1/performance/probe_presenter_runtime.py
+
+      - name: Install Blender runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1 libegl1 libx11-6 libxi6 libxrender1 libxxf86vm1 libxfixes3 libxkbcommon0 libwayland-client0 libsm6 libice6
+
+      - name: Install exact Blender 5.2.0
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -fL https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz -o blender.tar.xz
+          echo "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  blender.tar.xz" | sha256sum -c -
+          mkdir blender
+          tar -xJf blender.tar.xz -C blender --strip-components=1
+
+      - name: Probe presenter controls
+        env:
+          PROBE_OUT: ${{ runner.temp }}/presenter-performance-probe.json
+        run: |
+          "$RUNNER_TEMP/blender/blender" -b             engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend             --python engine_sources/makehuman-lineart/presenters_v1/performance/probe_presenter_runtime.py
+          python3 - <<'PY'
+          import json,os
+          p=os.path.join(os.environ["RUNNER_TEMP"],"presenter-performance-probe.json")
+          d=json.load(open(p))
+          print("armatures",[(a["object"],a["bone_count"],a["active_action"]) for a in d["armatures"]])
+          print("actions",len(d["actions"]))
+          print("shape_keys",len(d["shape_keys"]))
+          print("relevant_bones",len(d["relevant_bones"]))
+          if not d["armatures"] or not d["actions"]:
+              raise SystemExit("probe found no armature/actions")
+          PY
+
+      - name: Upload probe
+        uses: actions/upload-artifact@v4
+        with:
+          name: presenter-performance-probe
+          path: ${{ runner.temp }}/presenter-performance-probe.json
+          retention-days: 7
