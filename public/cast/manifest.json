@@ -1,94 +1,22 @@
 {
- "plateSize": [
-  720,
-  1080
- ],
- "drawOrder": [
-  "body",
-  "lip",
-  "shoes",
-  "bottom",
-  "outfit",
-  "top",
-  "neck",
-  "watch",
-  "hands",
-  "hair",
-  "earring"
- ],
+ "plateSize": [720, 1080],
+ "drawOrder": ["body", "lip", "watch", "outfit", "neck", "earring", "hair", "hands"],
  "female": {
   "faces": 3,
-  "skins": [
-   "fair",
-   "light",
-   "medium",
-   "tan",
-   "brown",
-   "deep"
-  ],
-  "hair": [
-   "long",
-   "bun",
-   "braid"
-  ],
-  "hairColors": [
-   "auburn",
-   "raven",
-   "brownd",
-   "blonde",
-   "silver"
-  ],
-  "lips": [
-   "rose",
-   "crimson",
-   "plum",
-   "coral"
-  ],
-  "necks": [
-   "fine",
-   "pendant",
-   "pearls",
-   "choker",
-   "scarf"
-  ],
-  "outfits": [
-   "sheath",
-   "dress01",
-   "suit"
-  ]
+  "skins": ["fair", "light", "medium", "tan", "brown", "deep"],
+  "hair": ["long", "bob", "bangs", "bun", "braid"],
+  "hairColors": ["auburn", "black", "brown", "blonde", "silver"],
+  "earrings": "authored per hairstyle",
+  "lips": ["rose", "crimson", "plum", "coral", "nude"],
+  "necks": ["fine", "pendant", "pearls", "choker", "scarf"],
+  "dresses": ["sheath", "maxi", "column", "cocktail", "qipao"]
  },
  "male": {
   "faces": 3,
-  "skins": [
-   "fair",
-   "light",
-   "medium",
-   "tan",
-   "brown",
-   "deep"
-  ],
-  "hair": [
-   "quiff"
-  ],
-  "hairColors": [
-   "auburn",
-   "raven",
-   "brownd",
-   "blonde",
-   "silver"
-  ],
-  "pieces": [
-   "top",
-   "bottom",
-   "shoes"
-  ],
-  "watches": [
-   "dress",
-   "analog",
-   "chrono",
-   "smart",
-   "digital"
-  ]
- },
- "tinting": "multiply *_tint.png by hex; derived as luminance/median*235 of the reference plate"
+  "skins": ["fair", "light", "medium", "tan", "brown", "deep"],
+  "hair": ["afro", "crop", "quiff", "braids", "swept"],
+  "hairColors": ["black", "blonde", "brown", "dye", "grey"],
+  "outfits": ["o1", "o2", "o3", "o4", "o5"],
+  "watches": ["analog", "digital", "smart", "chrono", "dress"]
+ }
 }

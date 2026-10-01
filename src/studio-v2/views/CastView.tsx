@@ -5,26 +5,56 @@ import { Eyebrow } from "../App";
 import { studioApi } from "../api";
 import AvatarStage from "../cast/AvatarStage";
 import {
-  DEFAULT_SPEC, FACES, FEM_HAIRSTYLES, FEM_OUTFITS, HAIR_COLORS, LIPS,
-  MALE_HAIRSTYLES, MALE_PIECES, NECKS, SKINS, VOICES, WATCHES,
+  DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
+  MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, NECKS, SKINS, VOICES, WATCHES,
   type CastMember, type CastSpec,
 } from "../cast/spec";
 
 type BuilderState = { mode: "new" } | { mode: "edit"; member: CastMember };
 
 const hairStyles = (c: CastSpec["character"]) => (c === "female" ? FEM_HAIRSTYLES : MALE_HAIRSTYLES);
+const hairColors = (c: CastSpec["character"]) => (c === "female" ? FEM_HAIR_COLORS : MALE_HAIR_COLORS);
 const voiceOf = (id: string | null) => VOICES.find((v) => v.id === id)?.label ?? "No voice yet";
+
+// Saved specs from older catalog versions get mapped onto the shipped looks.
+function normalizeSpec(s: CastSpec, ch: CastSpec["character"]): CastSpec {
+  const n: CastSpec = { ...DEFAULT_SPEC[ch], ...s, character: ch };
+  const styles = hairStyles(ch).map((h) => h.key as string);
+  const colors = hairColors(ch).map((c) => c.key as string);
+  if (!n.hair || !styles.includes(n.hair.style)) {
+    n.hair = DEFAULT_SPEC[ch].hair ? { ...DEFAULT_SPEC[ch].hair! } : null;
+  } else if (!colors.includes(n.hair.color)) {
+    n.hair = { style: n.hair.style, color: DEFAULT_SPEC[ch].hair!.color };
+  }
+  if (ch === "female") {
+    if (!FEM_DRESSES.some((d) => d.key === n.outfit?.kind)) n.outfit = { kind: "sheath" };
+    if (!LIPS.some((l) => l.key === n.lip)) n.lip = "rose";
+    if (!NECKS.some((k) => k.key === (n.neck ?? "none"))) n.neck = null;
+    n.watch = null;
+  } else {
+    if (!MALE_OUTFITS.some((o) => o.key === n.outfit?.kind)) n.outfit = { kind: "o3" };
+    if (!WATCHES.some((w) => w.key === (n.watch ?? "none"))) n.watch = null;
+    n.lip = null;
+    n.neck = null;
+  }
+  return n;
+}
 
 function specSummary(s: CastSpec): string {
   const bits: string[] = [];
-  const hair = s.hair ? `${s.hair.color} ${s.hair.style}` : "bald";
-  bits.push(hair);
+  const hs = hairStyles(s.character).find((h) => h.key === s.hair?.style);
+  const hc = hairColors(s.character).find((c) => c.key === s.hair?.color);
+  bits.push(s.hair ? `${(hc?.label ?? s.hair.color).toLowerCase()} ${(hs?.label ?? s.hair.style).toLowerCase()}` : "bald");
   const skin = SKINS.find((k) => k.key === s.skin)?.label ?? s.skin;
   bits.push(`${skin.toLowerCase()} skin`);
-  if (s.character === "female" && s.lip) bits.push(`${s.lip} lip`);
+  if (s.character === "female" && s.lip) {
+    bits.push(`${(LIPS.find((l) => l.key === s.lip)?.label ?? s.lip).toLowerCase()} lip`);
+  }
   if (s.outfit?.kind) {
-    const o = FEM_OUTFITS.find((x) => x.key === s.outfit!.kind);
-    bits.push(s.character === "female" ? (o?.label ?? s.outfit.kind) : "shirt and trousers");
+    const label = s.character === "female"
+      ? FEM_DRESSES.find((x) => x.key === s.outfit!.kind)?.label
+      : MALE_OUTFITS.find((x) => x.key === s.outfit!.kind)?.label;
+    bits.push((label ?? s.outfit.kind).toLowerCase());
   }
   if (s.watch && s.watch !== "none") bits.push(`${s.watch} watch`);
   return bits.join(" · ");
@@ -57,7 +87,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
     if (state.mode === "edit") {
       const s = state.member.spec;
       const ch: "female" | "male" = s?.character === "male" ? "male" : "female";
-      setSpec(s ?? DEFAULT_SPEC[ch]);
+      setSpec(s ? normalizeSpec(s, ch) : DEFAULT_SPEC[ch]);
       setName(state.member.name);
     } else {
       setSpec(DEFAULT_SPEC.female);
@@ -233,20 +263,16 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 <div className="identity-group-head"><label>Hair</label><span>{spec.character === "female" ? "each style carries its own earring" : "hairstyle"}</span></div>
                 <div className="identity-tile-options">
                   {hairStyles(spec.character).map((h) => (
-                    <button key={h.key} className="identity-tile" aria-pressed={spec.hair?.style === h.key} onClick={() => patch({ hair: { style: h.key, color: spec.hair?.color ?? "auburn" } })}>
+                    <button key={h.key} className="identity-tile" aria-pressed={spec.hair?.style === h.key} onClick={() => patch({ hair: { style: h.key, color: spec.hair?.color ?? DEFAULT_SPEC[spec.character].hair!.color } })}>
                       {h.label}{"note" in h && h.note ? <small>{h.note as string}</small> : null}
                     </button>
                   ))}
                 </div>
                 {spec.hair && (
                   <div className="identity-color-row" style={{ marginTop: 10 }}>
-                    {HAIR_COLORS.map((c) => (
+                    {hairColors(spec.character).map((c) => (
                       <button key={c.key} aria-label={`Hair ${c.label}`} className="identity-color" style={{ ["--c" as string]: c.hex }} aria-pressed={spec.hair?.color === c.key} onClick={() => patch({ hair: { style: spec.hair!.style, color: c.key } })} />
                     ))}
-                    <label className="identity-custom-hex" title="Custom colour">
-                      <input type="color" value={spec.hair.color.startsWith("#") ? spec.hair.color : "#9A4A2E"} onChange={(e) => patch({ hair: { style: spec.hair!.style, color: e.target.value } })} />
-                      <span>custom</span>
-                    </label>
                   </div>
                 )}
               </div>
@@ -275,29 +301,24 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
 
               {spec.character === "female" ? (
                 <div className="identity-group">
-                  <div className="identity-group-head"><label>Outfit</label><span>what they wear</span></div>
+                  <div className="identity-group-head"><label>Dress</label><span>each ships in its own colour</span></div>
                   <div className="identity-tile-options">
-                    {FEM_OUTFITS.map((o) => (
-                      <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patch({ outfit: { kind: o.key, color: spec.outfit?.color ?? null } })}>{o.label}</button>
+                    {FEM_DRESSES.map((o) => (
+                      <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patch({ outfit: { kind: o.key } })}>
+                        <i className="identity-tile-dot" style={{ ["--c" as string]: o.hex }} />
+                        {o.label}<small>{o.note}</small>
+                      </button>
                     ))}
-                  </div>
-                  <div className="identity-color-row" style={{ marginTop: 10 }}>
-                    <label className="identity-custom-hex" title="Recolour the outfit">
-                      <input type="color" value={spec.outfit?.color?.startsWith("#") ? spec.outfit.color : "#2E3A55"} onChange={(e) => patch({ outfit: { kind: spec.outfit?.kind ?? "sheath", color: e.target.value } })} />
-                      <span>{spec.outfit?.color ? `wearing ${spec.outfit.color}` : "recolour"}</span>
-                    </label>
-                    {spec.outfit?.color ? <button className="identity-color-reset" onClick={() => patch({ outfit: { kind: spec.outfit!.kind, color: null } })}>reset</button> : null}
                   </div>
                 </div>
               ) : (
                 <div className="identity-group">
-                  <div className="identity-group-head"><label>Outfit</label><span>recolour each piece</span></div>
-                  <div className="identity-colour-fields">
-                    {MALE_PIECES.map((p) => (
-                      <label key={p.key} className="identity-colour-field">
-                        <span>{p.label}</span>
-                        <input type="color" value={spec.outfit?.pieces?.[p.key] ?? "#888888"} onChange={(e) => patch({ outfit: { kind: "casual", pieces: { ...(spec.outfit?.pieces ?? {}), [p.key]: e.target.value } } })} />
-                      </label>
+                  <div className="identity-group-head"><label>Outfit</label><span>top, trousers and shoes as one set</span></div>
+                  <div className="identity-tile-options">
+                    {MALE_OUTFITS.map((o) => (
+                      <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patch({ outfit: { kind: o.key } })}>
+                        {o.label}<small>{o.note}</small>
+                      </button>
                     ))}
                   </div>
                 </div>

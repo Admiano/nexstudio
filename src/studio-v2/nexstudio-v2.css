@@ -2327,3 +2327,4 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 /* series presenter row */
 .series-cast-row{margin-top:16px;padding-top:14px;border-top:1px solid var(--line2)}
 .series-cast-label{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted2);font-weight:850;margin-bottom:9px}
+.identity-tile-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c,#888);margin-right:5px;vertical-align:-1px}

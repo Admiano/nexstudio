@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react";
 import { specLayers, type CastSpec } from "./spec";
 
-// Draw order is baked into specLayers; tinted plates are greyscale bases
-// multiplied by the user's hex via offscreen canvas.
+// Draw order is baked into specLayers; every plate is a finished render of
+// the authored look, so the stage only stacks them.
 
 const IMG_CACHE = new Map<string, Promise<HTMLImageElement | null>>();
 
@@ -40,21 +40,7 @@ export default function AvatarStage({ spec, className }: { spec: CastSpec; class
       for (let i = 0; i < layers.length; i++) {
         const img = imgs[i];
         if (!img) continue;
-        const layer = layers[i];
-        if (layer.tint) {
-          const off = document.createElement("canvas");
-          off.width = W; off.height = H;
-          const octx = off.getContext("2d")!;
-          octx.drawImage(img, 0, 0, W, H);
-          octx.globalCompositeOperation = "multiply";
-          octx.fillStyle = layer.tint;
-          octx.fillRect(0, 0, W, H);
-          octx.globalCompositeOperation = "destination-in";
-          octx.drawImage(img, 0, 0, W, H);
-          ctx.drawImage(off, 0, 0, W, H);
-        } else {
-          ctx.drawImage(img, 0, 0, W, H);
-        }
+        ctx.drawImage(img, 0, 0, W, H);
       }
     });
     return () => { cancelled = true; };
