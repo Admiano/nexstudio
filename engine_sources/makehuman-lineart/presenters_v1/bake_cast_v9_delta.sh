@@ -16,7 +16,9 @@ run(){ echo "==> LOOK=$1 VARIANT=${2:-}"; LOOK="$1" VARIANT="${2:-}" "$B" -b "$S
 
 # Female body generates the three canonical face/medium-skin bases plus
 # face-specific red/berry/coral/nude renders used for true lipstick deltas.
+export BODY_SKINS=medium
 run fem_body
+unset BODY_SKINS
 
 for c in navy burgundy sage emerald rose; do
   for look in fem_long fem_bob fem_bangs fem_bun fem_braid; do run "$look" "$c"; done
