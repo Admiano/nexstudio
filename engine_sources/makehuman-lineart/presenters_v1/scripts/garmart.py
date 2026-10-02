@@ -193,7 +193,10 @@ if ROLE=='pants':
         fstroke(curve([(cx+0.018,ztop-0.03),(cx+0.020,ztop-0.12),(cx+0.004,ztop-0.16)]),1,FW*0.8,1,fixed=True)
         hline(ztop-0.035,FW*0.7,1,0.92)
 elif ROLE=='top':
-    for s in (1,-1): fstroke(curve([(0.62,zb-0.06),(0.58,(zb+zw)/2),(0.52,zw-0.04)]),s,FW*0.6)
+    # Only tailored shirts have authored torso darts. Cotton and knit tops
+    # must not inherit the same long decorative strokes.
+    if os.environ.get('CAST_QUALITY_PILOT')!='1' or 'shirt_untucked' in _nm or 'bd' in _nm:
+        for s in (1,-1): fstroke(curve([(0.62,zb-0.06),(0.58,(zb+zw)/2),(0.52,zw-0.04)]),s,FW*0.6)
     if 'shirt_untucked' in _nm or 'bd' in _nm:
         fstroke([(cx-0.010,z) for z in np.linspace(ztop-0.10,zbot+0.02,36)],1,FW*0.55,0,fixed=True)
         fstroke([(cx+0.012,z) for z in np.linspace(ztop-0.10,zbot+0.02,36)],1,FW*0.45,1,fixed=True)

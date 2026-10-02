@@ -96,7 +96,12 @@ _ink=bpy.data.materials['V59_INK'] if 'V59_INK' in bpy.data.materials else bpy.d
 # hoop ink rim: dark ring slightly behind and thicker
 _rim=_eo.copy(); _rim.data=_eo.data.copy(); _rim.data.materials.clear(); _rim.data.materials.append(_ink); _rim.name='Host.V60_earring_rim'
 for c in _eo.users_collection: c.objects.link(_rim)
-_rim.parent=_eo; _rim.matrix_parent_inverse=Matrix.Identity(4); _rim.location=(0,_E('RY','0.003'),0); _rim.rotation_euler=(0,0,0); _rim.scale=(1,1,1)
+_rim.parent=_eo
+if os.environ.get('CAST_QUALITY_PILOT')=='1':
+    # A rim copied from a bone-parented earring is now an object child.
+    # Retaining BONE parenting asks a mesh for a nonexistent head bone.
+    _rim.parent_type='OBJECT'; _rim.parent_bone=''
+_rim.matrix_parent_inverse=Matrix.Identity(4); _rim.location=(0,_E('RY','0.003'),0); _rim.rotation_euler=(0,0,0); _rim.scale=(1,1,1)
 _rs=_E('RS','1.0')
 for v in _rim.data.vertices:
     pass
