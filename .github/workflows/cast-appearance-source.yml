@@ -18,6 +18,9 @@ jobs:
             /engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend
             /engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/
             /engine_sources/makehuman-lineart/assets/
+            /scripts/install-cast-assets.py
+      - name: Restore public MakeHuman inputs with recorded hashes
+        run: python3 scripts/install-cast-assets.py
       - name: Package approved rendering inputs
         run: |
           python3 - <<'PY'
