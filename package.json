@@ -15,6 +15,7 @@
     "db:validate": "prisma validate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
+    "preview:prepare": "node --import tsx scripts/cast-preview-db.ts && npm run db:deploy && node --import tsx scripts/cast-preview-guest.ts",
     "engines:install": "python scripts/install-engines.py",
     "worker": "tsx scripts/studio-worker.ts --watch",
     "worker:once": "tsx scripts/studio-worker.ts",
