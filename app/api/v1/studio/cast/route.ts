@@ -1,25 +1,14 @@
 import { z } from "zod";
+import { castSpecSchema } from "@/lib/cast-spec-schema";
+import { normalizeCastSpec,type CastSpec } from "@/studio-v2/cast/spec";
+import type { Prisma } from "@/generated/prisma/client";
 import { requireSession, requireTrustedOrigin } from "@/lib/route-auth";
 import { getPrisma } from "@/lib/db";
 import { json, problem, zodProblem } from "@/lib/http";
 
 export const runtime = "nodejs";
 
-const specSchema = z.object({
-  character: z.enum(["female", "male"]),
-  face: z.number().int().min(0).max(2).default(0),
-  skin: z.string().trim().max(24).default("light"),
-  hair: z.object({ style: z.string().trim().max(40), color: z.string().trim().max(24) }).nullable().default(null),
-  lip: z.string().trim().max(24).nullable().default(null),
-  neck: z.string().trim().max(24).nullable().default(null),
-  outfit: z.object({
-    kind: z.string().trim().max(40),
-    color: z.string().trim().max(24).nullable().optional(),
-    pieces: z.record(z.string(), z.string().trim().max(24)).optional(),
-  }).nullable().default(null),
-  watch: z.string().trim().max(24).nullable().default(null),
-  voiceId: z.string().trim().max(120).nullable().default(null),
-}).nullable().default(null);
+const specSchema = castSpecSchema.nullable().default(null);
 
 const schema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -59,7 +48,7 @@ export async function POST(request: Request) {
         brandId: body.data.brandId ?? null,
         name: body.data.name,
         identityKey,
-        spec: body.data.spec ?? undefined,
+        spec: body.data.spec ? normalizeCastSpec(body.data.spec as CastSpec) as unknown as Prisma.InputJsonValue : undefined,
       },
     });
     return json({ member: castOut(member) }, auth.id, { status: 201 });

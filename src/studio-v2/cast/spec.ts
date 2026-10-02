@@ -1,17 +1,13 @@
-// Cast spec model + plate-path helpers.
-//
-// Colour is independent from clothing style. The MakeHuman presenter source
-// supports arbitrary hex garment colours; the web runtime uses a curated set
-// of baked colour plates so previews remain pixel-faithful to the Blender
-// authoring pipeline rather than browser-tinted approximations.
+// Saved selections for the authoritative modular presenter assembler.
+export const CAST_SOURCE_VERSION = "bf88447b8f898bea078c44b9202cfe2b7ff13be5";
 
 export type CastCharacter = "female" | "male";
 export type FaceId = 0 | 1 | 2;
 
 export interface CastOutfitSpec {
   kind: string;
-  // Female: dress colour. Male: top colour; trousers + shoes remain authored
-  // for the selected outfit. Optional for compatibility with V1 saved specs.
+  // Female dress or male top colour. Older specs use the authored trouser/shoe
+  // defaults; newer specs can choose and colour each piece independently.
   color?: string | null;
   pieces?: Record<string, string>;
 }
@@ -26,6 +22,7 @@ export interface CastSpec {
   outfit: CastOutfitSpec | null;
   watch: string | null;
   voiceId: string | null;
+  sourceVersion?: string;
 }
 
 export interface CastMember {
@@ -53,14 +50,15 @@ export const FACES = [
 ] as const;
 
 export const FEM_HAIRSTYLES = [
-  { key: "long", label: "Long waves", note: "slim gold hoop" },
+  { key: "long", label: "Long straight", note: "slim gold hoop" },
   { key: "bob", label: "Blunt bob", note: "gold bar drop" },
   { key: "bangs", label: "Bangs", note: "pearl stud" },
-  { key: "bun", label: "High bun", note: "statement hoops" },
-  { key: "braid", label: "French braid", note: "teardrop" },
+  { key: "bun", label: "Sleek bun", note: "statement hoops" },
+  { key: "braid", label: "Side braid", note: "teardrop" },
 ] as const;
 
 export const MALE_HAIRSTYLES = [
+  { key: "bald", label: "Bald" },
   { key: "afro", label: "Short afro" },
   { key: "crop", label: "Short crop" },
   { key: "quiff", label: "Textured quiff" },
@@ -85,11 +83,11 @@ export const MALE_HAIR_COLORS = [
 ] as const;
 
 export const LIPS = [
-  { key: "rose", label: "Soft rose" },
-  { key: "red", label: "Classic red" },
-  { key: "berry", label: "Berry" },
-  { key: "coral", label: "Coral" },
-  { key: "nude", label: "Nude" },
+  { key: "rose", label: "Soft rose", hex: "#A86F66" },
+  { key: "red", label: "Classic red", hex: "#B3202A" },
+  { key: "berry", label: "Berry", hex: "#8A2A4E" },
+  { key: "coral", label: "Coral", hex: "#E0664F" },
+  { key: "nude", label: "Nude", hex: "#B8826F" },
 ] as const;
 
 export const NECKS = [
@@ -176,8 +174,25 @@ export const DEFAULT_SPEC: Record<CastCharacter, CastSpec> = {
   male: {
     character: "male", face: 0, skin: "tan",
     hair: { style: "quiff", color: "brown" }, lip: null, neck: null,
-    outfit: { kind: "o3", color: "blue" }, watch: "dress", voiceId: null,
+    outfit: { kind: "o3", color: "blue" }, watch: null, voiceId: null,
   },
+};
+
+export const MALE_BOTTOMS = [
+ {key:"trousers",label:"Tailored trousers",asset:"mindfront_male_trousers_1",hex:"#3A3A40"},
+ {key:"straight-jeans",label:"Straight jeans",asset:"elvs_jeans_straight_leg",hex:"#2E3A55"},
+ {key:"chinos",label:"Chinos",asset:"mindfront_male_trousers_2",hex:"#B59A6E"},
+ {key:"classic-jeans",label:"Classic jeans",asset:"punkduck_male_classic_jeans",hex:"#3A4660"},
+ {key:"wool-trousers",label:"Wool trousers",asset:"toigo_wool_pants",hex:"#3A3A40"},
+] as const;
+export const MALE_SHOES = [
+ {key:"oxfords",label:"Oxfords",asset:"mindfront_shoes_oxford_male",hex:"#3A2A20"},
+ {key:"sneakers",label:"Comfort sneakers",asset:"punkduck_comfortable_sneakers",hex:"#ECEAE4"},
+ {key:"monk-straps",label:"Monk straps",asset:"mindfront_shoes_monk_strap_male",hex:"#4A2E1E"},
+ {key:"classic-sneakers",label:"Classic sneakers",asset:"culturalibre_sneakers",hex:"#E8E6E0"},
+] as const;
+export const MALE_OUTFIT_PIECES:Record<string,{bottom:string;shoes:string}> = {
+ o1:{bottom:"trousers",shoes:"oxfords"},o2:{bottom:"straight-jeans",shoes:"sneakers"},o3:{bottom:"chinos",shoes:"monk-straps"},o4:{bottom:"classic-jeans",shoes:"classic-sneakers"},o5:{bottom:"wool-trousers",shoes:"oxfords"},
 };
 
 const presetKeys = (set: readonly { key: string }[]) => new Set(set.map((s) => s.key));
@@ -194,92 +209,29 @@ const MALE_TOP_COLOR_KEYS = presetKeys(MALE_TOP_COLORS);
 const NECK_KEYS = presetKeys(NECKS);
 const WATCH_KEYS = presetKeys(WATCHES);
 
-export function normalizeCastSpec(input: CastSpec | null | undefined, hint?: CastCharacter): CastSpec {
-  const character: CastCharacter = input?.character === "male" ? "male" : input?.character === "female" ? "female" : (hint ?? "female");
-  const d = DEFAULT_SPEC[character];
-  const face: FaceId = input?.face === 1 || input?.face === 2 ? input.face : 0;
-  const skin = input?.skin && SKIN_KEYS.has(input.skin) ? input.skin : d.skin;
-
-  const styles = character === "female" ? FEM_STYLE_KEYS : MALE_STYLE_KEYS;
-  const colors = character === "female" ? FEM_HC_KEYS : MALE_HC_KEYS;
-  const hairStyle = input?.hair?.style && styles.has(input.hair.style) ? input.hair.style : d.hair!.style;
-  const hairColor = input?.hair?.color && colors.has(input.hair.color) ? input.hair.color : d.hair!.color;
-
-  const kindSet = character === "female" ? FEM_DRESS_KEYS : MALE_OUTFIT_KEYS;
-  const kind = input?.outfit?.kind && kindSet.has(input.outfit.kind) ? input.outfit.kind : d.outfit!.kind;
-  const defaultColour = character === "female" ? FEM_DRESS_DEFAULT_COLOR[kind] : MALE_TOP_DEFAULT_COLOR[kind];
-  const colourSet = character === "female" ? FEM_DRESS_COLOR_KEYS : MALE_TOP_COLOR_KEYS;
-  const outfitColor = input?.outfit?.color && colourSet.has(input.outfit.color)
-    ? input.outfit.color
-    : defaultColour;
-
-  return {
-    character,
-    face,
-    skin,
-    hair: { style: hairStyle, color: hairColor },
-    lip: character === "female" && input?.lip && LIP_KEYS.has(input.lip) ? input.lip : (character === "female" ? d.lip : null),
-    neck: character === "female"
-      ? (input?.neck === null ? null : input?.neck && NECK_KEYS.has(input.neck) && input.neck !== "none" ? input.neck : d.neck)
-      : null,
-    outfit: { kind, color: outfitColor, pieces: input?.outfit?.pieces },
-    watch: character === "male"
-      ? (input?.watch === null ? null : input?.watch && WATCH_KEYS.has(input.watch) && input.watch !== "none" ? input.watch : d.watch)
-      : null,
-    voiceId: input?.voiceId ?? d.voiceId,
-  };
+export const isHexColour = (v:unknown):v is string => typeof v==="string" && /^#?[0-9a-f]{6}$/i.test(v);
+export function normalizeColour(v:string|null|undefined,keys:Set<string>,fallback:string):string {
+ if(v&&keys.has(v))return v;
+ return isHexColour(v)?"#"+v.replace(/^#/,"").toUpperCase():fallback;
 }
-
-const PLATE_V = "v9";
-const P = "/cast";
-const plate = (name: string) => `${P}/${name}.png?v=${PLATE_V}`;
-const prefix = (c: CastCharacter) => (c === "female" ? "fem" : "male");
-
-export interface CastLayer {
-  src: string;
-  fallbackSrc?: string;
+export function malePieces(s:CastSpec){
+ const d=MALE_OUTFIT_PIECES[s.outfit?.kind??"o3"]??MALE_OUTFIT_PIECES.o3,p=s.outfit?.pieces;
+ const b=MALE_BOTTOMS.find(x=>x.key===p?.bottom)??MALE_BOTTOMS.find(x=>x.key===d.bottom)!;
+ const h=MALE_SHOES.find(x=>x.key===p?.shoes)??MALE_SHOES.find(x=>x.key===d.shoes)!;
+ return {bottom:b.key,shoes:h.key,bottomColor:isHexColour(p?.bottomColor)?"#"+p.bottomColor.replace(/^#/,"").toUpperCase():b.hex,shoesColor:isHexColour(p?.shoesColor)?"#"+p.shoesColor.replace(/^#/,"").toUpperCase():h.hex};
 }
-
-export function specLayers(raw: CastSpec): CastLayer[] {
-  const spec = normalizeCastSpec(raw, raw.character);
-  const p = prefix(spec.character);
-  const layers: CastLayer[] = [];
-  const skin = spec.skin;
-  layers.push({ src: plate(`${p}_body_f${spec.face}_${skin}`) });
-
-  if (spec.character === "female" && spec.lip && spec.lip !== "rose") {
-    layers.push({ src: plate(`fem_lip_f${spec.face}_${spec.lip}`) });
-  }
-
-  const maleLook = spec.character === "male" ? spec.outfit!.kind : null;
-  if (maleLook && spec.watch && spec.watch !== "none") {
-    layers.push({ src: plate(`male_watch_${maleLook}_${spec.watch}`) });
-  }
-
-  if (spec.character === "female") {
-    const kind = spec.outfit!.kind;
-    const color = spec.outfit!.color!;
-    layers.push({
-      src: plate(`fem_outfit_${kind}_${color}`),
-      fallbackSrc: plate(`fem_outfit_${kind}`),
-    });
-  } else {
-    const color = spec.outfit!.color!;
-    layers.push({
-      src: plate(`male_outfit_${maleLook}_${color}`),
-      fallbackSrc: plate(`male_outfit_${maleLook}`),
-    });
-  }
-
-  if (spec.character === "female" && spec.neck) {
-    layers.push({ src: plate(`fem_neck_${spec.neck}`) });
-  }
-
-  const style = spec.hair!.style;
-  if (spec.character === "female") {
-    layers.push({ src: plate(`fem_earring_${style}`) });
-  }
-  layers.push({ src: plate(`${p}_hair_${style}_${spec.hair!.color}`) });
-  layers.push({ src: plate(`${p}_hands_${spec.outfit!.kind}_${skin}`) });
-  return layers;
+export function normalizeCastSpec(input:CastSpec|null|undefined,hint?:CastCharacter):CastSpec{
+ const character:CastCharacter=input?.character==="male"?"male":input?.character==="female"?"female":hint??"female",d=DEFAULT_SPEC[character];
+ const face:FaceId=input?.face===1||input?.face===2?input.face:0;
+ const styles=character==="female"?FEM_STYLE_KEYS:MALE_STYLE_KEYS,colors=character==="female"?FEM_HC_KEYS:MALE_HC_KEYS;
+ const hairStyle=input?.hair?.style&&styles.has(input.hair.style)?input.hair.style:d.hair!.style;
+ const kinds=character==="female"?FEM_DRESS_KEYS:MALE_OUTFIT_KEYS;
+ const kind=input?.outfit?.kind&&kinds.has(input.outfit.kind)?input.outfit.kind:d.outfit!.kind;
+ const defaults=character==="female"?FEM_DRESS_DEFAULT_COLOR:MALE_TOP_DEFAULT_COLOR;
+ return {character,face,skin:normalizeColour(input?.skin,SKIN_KEYS,d.skin),hair:{style:hairStyle,color:normalizeColour(input?.hair?.color,colors,d.hair!.color)},
+ lip:character==="female"?normalizeColour(input?.lip,LIP_KEYS,d.lip!):null,
+ neck:character==="female"?(input?.neck===null||input?.neck==="none"?null:input?.neck&&NECK_KEYS.has(input.neck)?input.neck:d.neck):null,
+ outfit:{kind,color:normalizeColour(input?.outfit?.color,character==="female"?FEM_DRESS_COLOR_KEYS:MALE_TOP_COLOR_KEYS,defaults[kind]),...(character==="male"&&input?.outfit?.pieces?{pieces:malePieces({...d,outfit:{kind,pieces:input.outfit.pieces}})}:{})},
+ watch:character==="male"?(input?.watch===null||input?.watch==="none"?null:input?.watch&&WATCH_KEYS.has(input.watch)?input.watch:d.watch):null,
+ voiceId:input?.voiceId??d.voiceId,sourceVersion:CAST_SOURCE_VERSION};
 }

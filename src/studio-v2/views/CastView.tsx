@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { Eyebrow } from "../App";
 import { studioApi } from "../api";
-import AvatarStage from "../cast/AvatarStage";
+import AvatarStage, {type AvatarPreviewState} from "../cast/AvatarStage";
+import {castRenderConfig} from "../cast/render-config";
 import {
   DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
-  MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, MALE_TOP_COLORS, NECKS, SKINS, VOICES, WATCHES,
-  normalizeCastSpec,
+  MALE_BOTTOMS, MALE_SHOES, MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, MALE_TOP_COLORS, NECKS, SKINS, VOICES, WATCHES,
+  malePieces, normalizeCastSpec,
   type CastMember, type CastSpec,
 } from "../cast/spec";
 
@@ -16,6 +17,11 @@ type BuilderState = { mode: "new" } | { mode: "edit"; member: CastMember };
 const hairStyles = (c: CastSpec["character"]) => (c === "female" ? FEM_HAIRSTYLES : MALE_HAIRSTYLES);
 const hairColors = (c: CastSpec["character"]) => (c === "female" ? FEM_HAIR_COLORS : MALE_HAIR_COLORS);
 const voiceOf = (id: string | null) => VOICES.find((v) => v.id === id)?.label ?? "No voice yet";
+
+function CustomColour({label,value,onChange}:{label:string;value:string;onChange:(hex:string)=>void}){
+ return <label className="identity-custom-hex"><input type="color" aria-label={label} value={value} onChange={e=>onChange(e.target.value)}/><span>Custom colour</span></label>;
+}
+const colourValue=(v:string|null|undefined,choices:readonly {key:string;hex:string}[])=>v&&/^#?[0-9a-f]{6}$/i.test(v)?"#"+v.replace(/^#/,""):choices.find(x=>x.key===v)?.hex??"#808080";
 
 function specSummary(s0: CastSpec): string {
   const s = normalizeCastSpec(s0, s0.character);
@@ -38,6 +44,7 @@ function specSummary(s0: CastSpec): string {
     bits.push(`${(colour ?? "").toLowerCase()} ${(label ?? s.outfit.kind).toLowerCase()}`.trim());
   }
   if (s.watch && s.watch !== "none") bits.push(`${s.watch} watch`);
+  if(s.character==="male"){const p=malePieces(s);bits.push(MALE_BOTTOMS.find(b=>b.key===p.bottom)!.label.toLowerCase(),MALE_SHOES.find(b=>b.key===p.shoes)!.label.toLowerCase());}
   return bits.join(" · ");
 }
 
@@ -55,6 +62,10 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
   const [saving, setSaving] = useState(false);
   const [armedId, setArmedId] = useState<string | null>(null);
 
+  const [preview,setPreview]=useState<{key:string;state:AvatarPreviewState}|null>(null);
+  const visualKey=JSON.stringify(castRenderConfig(spec));
+  const previewReady=preview?.state==="ready"&&preview.key===visualKey;
+
   const castChanged = () => window.dispatchEvent(new Event("nx-cast-changed"));
 
   const reload = () => {
@@ -67,6 +78,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
   useEffect(reload, []);
 
   const open = (state: BuilderState) => {
+    setPreview(null);
     setBuilder(state);
     if (state.mode === "edit") {
       const raw = state.member.spec;
@@ -88,18 +100,21 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
   const patchOutfitKind = (kind: string) => {
     setSpec((s) => normalizeCastSpec({
       ...s,
-      outfit: { kind, color: s.outfit?.color ?? undefined },
+      outfit: { kind, color: s.outfit?.color ?? undefined, ...(s.character==="male"?{pieces:malePieces(s)}:{}) },
     }, s.character));
   };
 
   const patchOutfitColor = (color: string) => {
     setSpec((s) => normalizeCastSpec({
       ...s,
-      outfit: { kind: s.outfit?.kind ?? DEFAULT_SPEC[s.character].outfit!.kind, color },
+      outfit: { ...s.outfit, kind: s.outfit?.kind ?? DEFAULT_SPEC[s.character].outfit!.kind, color },
     }, s.character));
   };
 
+  const patchPieces=(values:Record<string,string>)=>setSpec(s=>normalizeCastSpec({...s,outfit:{...s.outfit!,pieces:{...malePieces(s),...values}}}));
+
   const save = async () => {
+    if(!previewReady){notify("Wait for your selected look to finish previewing.");return;}
     const trimmed = name.trim();
     if (!trimmed) { notify("Give your avatar a name first."); return; }
     const cleanSpec = normalizeCastSpec(spec, spec.character);
@@ -203,7 +218,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
       )}
 
       {builder && (
-        <div className="series-identity-overlay open" role="dialog" aria-modal="true">
+        <div className="series-identity-overlay open cast-builder" role="dialog" aria-modal="true" aria-label="Presenter customizer">
           <div className="series-identity-panel">
             <div className="series-identity-body">
               <div className="panel-head">
@@ -214,9 +229,10 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 <button aria-label="Close builder" className="panel-close" onClick={() => setBuilder(null)}>×</button>
               </div>
 
+              <div className="cast-builder-workspace">
               <div className="series-identity-live">
                 <div className="series-identity-live-preview cast-live-preview">
-                  <AvatarStage spec={spec} />
+                  <AvatarStage spec={spec} onStatus={state=>setPreview({key:visualKey,state})}/>
                 </div>
                 <div className="series-identity-live-copy">
                   <span>On stage</span>
@@ -225,6 +241,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 </div>
               </div>
 
+              <div className="cast-builder-controls">
               <div className="cast-name-field">
                 <label>Name</label>
                 <input value={name} onChange={(e) => setName(e.target.value)} placeholder="What should we call them?" maxLength={60} />
@@ -253,6 +270,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                   {SKINS.map((s) => (
                     <button key={s.key} aria-label={`Skin ${s.label}`} className="identity-color" style={{ ["--c" as string]: s.hex }} aria-pressed={spec.skin === s.key} onClick={() => patch({ skin: s.key })} />
                   ))}
+                    <CustomColour label="Custom skin colour" value={colourValue(spec.skin,SKINS)} onChange={skin=>patch({skin})}/>
                 </div>
               </div>
 
@@ -270,6 +288,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                     {hairColors(spec.character).map((c) => (
                       <button key={c.key} aria-label={`Hair ${c.label}`} className="identity-color" style={{ ["--c" as string]: c.hex }} aria-pressed={spec.hair?.color === c.key} onClick={() => patch({ hair: { style: spec.hair!.style, color: c.key } })} />
                     ))}
+                    <CustomColour label="Custom hair colour" value={colourValue(spec.hair!.color,hairColors(spec.character))} onChange={color=>patch({hair:{...spec.hair!,color}})}/>
                   </div>
                 )}
               </div>
@@ -281,6 +300,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                     {LIPS.map((l) => (
                       <button key={l.key} className="identity-option" aria-pressed={spec.lip === l.key} onClick={() => patch({ lip: l.key })}>{l.label}</button>
                     ))}
+                    <CustomColour label="Custom lipstick colour" value={colourValue(spec.lip,LIPS)} onChange={lip=>patch({lip})}/>
                   </div>
                 </div>
               )}
@@ -303,7 +323,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                     <div className="identity-tile-options">
                       {FEM_DRESSES.map((o) => (
                         <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patchOutfitKind(o.key)}>
-                          {o.label}<small>{o.note}</small>
+                          {o.label}
                         </button>
                       ))}
                     </div>
@@ -314,28 +334,34 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                       {FEM_DRESS_COLORS.map((c) => (
                         <button key={c.key} aria-label={`Dress ${c.label}`} className="identity-color" style={{ ["--c" as string]: c.hex }} aria-pressed={spec.outfit?.color === c.key} onClick={() => patchOutfitColor(c.key)} />
                       ))}
+                    <CustomColour label="Custom dress colour" value={colourValue(spec.outfit?.color,FEM_DRESS_COLORS)} onChange={patchOutfitColor}/>
                     </div>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="identity-group">
-                    <div className="identity-group-head"><label>Outfit style</label><span>top cut, trousers and shoes</span></div>
+                    <div className="identity-group-head"><label>Top style</label><span>shape and cut</span></div>
                     <div className="identity-tile-options">
                       {MALE_OUTFITS.map((o) => (
                         <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patchOutfitKind(o.key)}>
-                          {o.label}<small>{o.note}</small>
+                          {o.label}
                         </button>
                       ))}
                     </div>
                   </div>
                   <div className="identity-group">
-                    <div className="identity-group-head"><label>Top colour</label><span>trousers and shoes stay with the outfit</span></div>
+                    <div className="identity-group-head"><label>Top colour</label><span>independent of style</span></div>
                     <div className="identity-color-row">
                       {MALE_TOP_COLORS.map((c) => (
                         <button key={c.key} aria-label={`Top ${c.label}`} className="identity-color" style={{ ["--c" as string]: c.hex }} aria-pressed={spec.outfit?.color === c.key} onClick={() => patchOutfitColor(c.key)} />
                       ))}
+                    <CustomColour label="Custom top colour" value={colourValue(spec.outfit?.color,MALE_TOP_COLORS)} onChange={patchOutfitColor}/>
                     </div>
+<div className="identity-group"><div className="identity-group-head"><label>Trousers</label><span>choose separately</span></div><div className="identity-tile-options">{MALE_BOTTOMS.map(b=><button key={b.key} className="identity-tile" aria-pressed={malePieces(spec).bottom===b.key} onClick={()=>patchPieces({bottom:b.key})}>{b.label}</button>)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_BOTTOMS.map(b=><button key={b.key} aria-label={"Trousers "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).bottomColor===b.hex} onClick={()=>patchPieces({bottomColor:b.hex})}/>)}<CustomColour label="Custom trouser colour" value={malePieces(spec).bottomColor} onChange={bottomColor=>patchPieces({bottomColor})}/></div></div>
+
+<div className="identity-group"><div className="identity-group-head"><label>Shoes</label><span>choose separately</span></div><div className="identity-tile-options">{MALE_SHOES.map(b=><button key={b.key} className="identity-tile" aria-pressed={malePieces(spec).shoes===b.key} onClick={()=>patchPieces({shoes:b.key})}>{b.label}</button>)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_SHOES.map(b=><button key={b.key} aria-label={"Shoes "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).shoesColor===b.hex} onClick={()=>patchPieces({shoesColor:b.hex})}/>)}<CustomColour label="Custom shoe colour" value={malePieces(spec).shoesColor} onChange={shoesColor=>patchPieces({shoesColor})}/></div></div>
+
                   </div>
                 </>
               )}
@@ -365,9 +391,11 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 </div>
               </div>
 
-              <button className="series-identity-save" disabled={saving} onClick={save}>
-                {saving ? "Saving…" : builder.mode === "new" ? "Add to cast" : "Save changes"}
+              <button className="series-identity-save" disabled={saving||!previewReady} onClick={save}>
+                {saving ? "Saving…" : !previewReady ? "Waiting for preview…" : builder.mode === "new" ? "Add to cast" : "Save changes"}
               </button>
+              </div>
+              </div>
             </div>
           </div>
         </div>

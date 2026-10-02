@@ -23,7 +23,18 @@ def asset(kind, name):
 
 def shaped_coords(body):
     mw = body.matrix_world.copy()
-    return [mw @ v.co for v in body.data.vertices]
+    keys = body.data.shape_keys
+    if not keys:
+        return [mw @ v.co for v in body.data.vertices]
+    basis = keys.key_blocks[0].data
+    targets = [k for k in keys.key_blocks[1:] if k.name.startswith('$') and k.value]
+    result = []
+    for i, vertex in enumerate(basis):
+        co = vertex.co.copy()
+        for key in targets:
+            co += (key.data[i].co - vertex.co) * key.value
+        result.append(mw @ co)
+    return result
 
 
 def _parse(path):

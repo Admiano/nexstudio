@@ -1,25 +1,14 @@
 import { z } from "zod";
+import { castSpecSchema } from "@/lib/cast-spec-schema";
+import { normalizeCastSpec,type CastSpec } from "@/studio-v2/cast/spec";
+import type { Prisma } from "@/generated/prisma/client";
 import { requireSession, requireTrustedOrigin } from "@/lib/route-auth";
 import { json, problem, zodProblem } from "@/lib/http";
 import { getPrisma } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-const specSchema = z.object({
-  character: z.enum(["female", "male"]),
-  face: z.number().int().min(0).max(2).default(0),
-  skin: z.string().trim().max(24).default("light"),
-  hair: z.object({ style: z.string().trim().max(40), color: z.string().trim().max(24) }).nullable().default(null),
-  lip: z.string().trim().max(24).nullable().default(null),
-  neck: z.string().trim().max(24).nullable().default(null),
-  outfit: z.object({
-    kind: z.string().trim().max(40),
-    color: z.string().trim().max(24).nullable().optional(),
-    pieces: z.record(z.string(), z.string().trim().max(24)).optional(),
-  }).nullable().default(null),
-  watch: z.string().trim().max(24).nullable().default(null),
-  voiceId: z.string().trim().max(120).nullable().default(null),
-}).nullable();
+const specSchema = castSpecSchema.nullable();
 
 const schema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
@@ -44,7 +33,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     data: {
       name: body.data.name ?? member.name,
       brandId: body.data.brandId === undefined ? member.brandId : body.data.brandId,
-      spec: body.data.spec === undefined ? member.spec ?? undefined : body.data.spec ?? undefined,
+      spec: body.data.spec === undefined ? member.spec ?? undefined : body.data.spec ? normalizeCastSpec(body.data.spec as CastSpec) as unknown as Prisma.InputJsonValue : undefined,
     },
   });
   return json({ member: { id: updated.id, name: updated.name, brandId: updated.brandId, spec: updated.spec ?? null, createdAt: updated.createdAt.toISOString(), updatedAt: updated.updatedAt.toISOString() } }, auth.id);

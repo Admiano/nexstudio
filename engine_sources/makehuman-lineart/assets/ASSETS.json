@@ -1,0 +1,291 @@
+{
+  "source": "MakeHuman Community asset packs",
+  "downloadedAt": "2026-10-02",
+  "assets": [
+    {
+      "path": "pants01_cc0/clothes/toigo_wool_pants/toigo_wool_pants.mhclo",
+      "sha256": "ac1a57a817976d80ece8a88698873d54de7f252d01ba3dca5e361693621fcf22",
+      "credits": [
+        "# author MRT",
+        "# license CC0"
+      ]
+    },
+    {
+      "path": "shirts01_cc0/clothes/toigo_fisherman_sweater/toigo_fisherman_sweater.mhclo",
+      "sha256": "b454960bdd61985f246e88e547a127a75d590dc87d6c1a4062fb7c7c281d8999",
+      "credits": [
+        "# author MRT",
+        "# license CC0"
+      ]
+    },
+    {
+      "path": "shirts01_cc0/clothes/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+      "sha256": "c34bd03895c5ad9ec46965ef7d5f3e5e8c567630797ab312f8762c1d9fde8f71",
+      "credits": [
+        "# author MRT",
+        "# license CC0"
+      ]
+    },
+    {
+      "path": "shirts01_cc0/clothes/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+      "sha256": "1639239b0d6d16ef2ca98f1f5af1af447d1e9e6950cd0fad9ecf774fa597434b",
+      "credits": [
+        "# author: Namuhekam",
+        "# license: CC0"
+      ]
+    },
+    {
+      "path": "shoes02_ccby/clothes/mindfront_shoes_oxford_male/mindfront_shoes_oxford_male.mhclo",
+      "sha256": "a3f8a3e541a8c9bf059842b6b63d64936988079c06db98554b0b75be51a101c3",
+      "credits": [
+        "# author Mindfront (Sweden)",
+        "# license CC BY 4.0"
+      ]
+    },
+    {
+      "path": "shoes02_ccby/clothes/culturalibre_sneakers/culturalibre_sneakers.mhclo",
+      "sha256": "fdb2a1d62dce8f759d544e5022f87e7530d43b1d03b7db80f0bbcd69ba7ddfab",
+      "credits": [
+        "# author culturalibre",
+        "# license CC-BY"
+      ]
+    },
+    {
+      "path": "shoes02_ccby/clothes/mindfront_shoes_monk_strap_male/mindfront_shoes_monk_strap_male.mhclo",
+      "sha256": "cd0d962441eaed2a77cebe37672ce25eef24101fbf38452847405f7668378971",
+      "credits": [
+        "# author Mindfront (Sweden)",
+        "# license CC BY 4.0"
+      ]
+    },
+    {
+      "path": "shoes02_ccby/clothes/punkduck_comfortable_sneakers/punkduck_comfortable_sneakers.mhclo",
+      "sha256": "3a1af3a3c9c44f6857fc10fc0151c846111f9a5fe46d8a9a4695be2cd6d5fe15",
+      "credits": [
+        "# author punkduck",
+        "# license CC BY 3.0"
+      ]
+    },
+    {
+      "path": "pants02_ccby/clothes/mindfront_male_trousers_1/mindfront_male_trousers_1.mhclo",
+      "sha256": "8b0e1764cfe03d03eeec9d3a89326df99d446c0842f52c3def5c0f23dfe3d30f",
+      "credits": [
+        "# author Mindfront (Sweden)",
+        "# license CC BY 4.0"
+      ]
+    },
+    {
+      "path": "pants02_ccby/clothes/elvs_jeans_straight_leg/elvs_jeans_straight_leg.mhclo",
+      "sha256": "a236750938e771e7f887e853a2e7dc1604b3fe247cbfe901147eff768b7f0087",
+      "credits": [
+        "# author Elvaerwyn",
+        "# license CC_by"
+      ]
+    },
+    {
+      "path": "pants02_ccby/clothes/punkduck_male_classic_jeans/punkduck_male_classic_jeans.mhclo",
+      "sha256": "8e375d1fc5eae9a52f2677eb02474b116d2ce6918c8e45142d254391c6b46944",
+      "credits": [
+        "# author punkduck",
+        "# license CC-BY 4.0"
+      ]
+    },
+    {
+      "path": "pants02_ccby/clothes/mindfront_male_trousers_2/mindfront_male_trousers_2.mhclo",
+      "sha256": "fa4a1b702b33b4052bceb8a07172dc7b2d8bec5f5b27e60333cab58e0b238b33",
+      "credits": [
+        "# author Mindfront (Sweden)",
+        "# license CC BY 4.0"
+      ]
+    },
+    {
+      "path": "dress03_cc-by/clothes/mindfront_f_dress_11/mindfront_f_dress_11.mhclo",
+      "sha256": "22d5ab72917f93d1cc4f0392d558f9234b61a020398fc8fd3a8472436e0cbae1",
+      "credits": [
+        "# author Mindfront (Sweden)",
+        "# license CC BY 4.0"
+      ]
+    },
+    {
+      "path": "dress03_cc-by/clothes/mindfront_f_dress_07/mindfront_f_dress_07.mhclo",
+      "sha256": "e9c993c9282bdc770e207b69bffd5c30b814cc21027f526440668deb84d61fe4",
+      "credits": [
+        "# author Mindfront (Sweden)",
+        "# license CC BY 4.0"
+      ]
+    },
+    {
+      "path": "dress03_cc-by/clothes/punkduck_middle_length_qipao/punkduck_middle_length_qipao.mhclo",
+      "sha256": "d7f1f6757ae69762487b6c3baff76dd5c5516ebb88e3acf5b42bbe5d80ed94fd",
+      "credits": [
+        "# author punkduck",
+        "# license CC BY 3.0"
+      ]
+    },
+    {
+      "path": "dress03_cc-by/clothes/mindfront_f_dress_09/mindfront_f_dress_09.mhclo",
+      "sha256": "3da2428ac7f6858871526331ee540b812eaf9ab7b4c843d77dd526a4559c32eb",
+      "credits": [
+        "# author Mindfront (Sweden)",
+        "# license CC BY 4.0"
+      ]
+    },
+    {
+      "path": "dress03_cc-by/clothes/punkduck_black_cocktail_dress/punkduck_black_cocktail_dress.mhclo",
+      "sha256": "64bc159926dcbf213430efc0fefc5d7701363a03d37a666f0aabef93aa5321c5",
+      "credits": [
+        "# author punkduck",
+        "# license CC-BY 3.0"
+      ]
+    },
+    {
+      "path": "shirts02_ccby/clothes/elvs_male_shirt_untucked_bd1/elvs_male_shirt_untucked_bd1.mhclo",
+      "sha256": "51cfb1288868958b34fbce824a06fab83d6c8191467c1c483bba36fb3e54e470",
+      "credits": [
+        "# author Elvaerwyn",
+        "# license CC_by"
+      ]
+    },
+    {
+      "path": "shirts02_ccby/clothes/mindfront_knitted_sweater_01/mindfront_knitted_sweater_01.mhclo",
+      "sha256": "3583506f0d368843a903db0f317dd93dd70022b0081e06086d3ee7bcd5e4e212",
+      "credits": [
+        "# author Mindfront (Sweden)",
+        "# license CC BY 4.0"
+      ]
+    },
+    {
+      "path": "hair01_cc0/hair/toigo_blunt_bob/toigo_blunt_bob.mhclo",
+      "sha256": "252f6b2edbc9f1568b85ff7f367709f5c328110023573df35720a4c84879f4e1",
+      "credits": [
+        "# author MRT",
+        "# license CC0"
+      ]
+    },
+    {
+      "path": "hair01_cc0/hair/toigo_blunt_bob_with_bangs/toigo_blunt_bob_with_bangs.mhclo",
+      "sha256": "a10c85fea05740d19fbdb378169052ed0a857281753b5d286080c7a8720fee50",
+      "credits": [
+        "# author MRT",
+        "# license CC0"
+      ]
+    },
+    {
+      "path": "hair01_cc0/hair/rehmanpolanski_hair_bun_brown/rehmanpolanski_hair_bun_brown.mhclo",
+      "sha256": "54f136555d516f940268881e75453305789ff430be85032f25864d773ebe9676",
+      "credits": [
+        "# author Rehman Polanski",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)"
+      ]
+    },
+    {
+      "path": "hair01_cc0/hair/elvs_french_braid_variation/elvs_french_braid_variation.mhclo",
+      "sha256": "61ea506301f39cff5079485597aac6bf876689c1922c0ae2386d45226578d340",
+      "credits": [
+        "# author Unknown",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)"
+      ]
+    },
+    {
+      "path": "hair02_ccby/hair/elvs_maxwell_hair/elvs_maxwell_hair.mhclo",
+      "sha256": "fff6f231faf78d8b7fe83452063433325bd62dd3b0456d3eb53b1192446cedd9",
+      "credits": [
+        "# author Elvaerwyn",
+        "# license CC_by"
+      ]
+    },
+    {
+      "path": "hair02_ccby/hair/elvs_grump_hair/elvs_grump_hair.mhclo",
+      "sha256": "269c03cf637e00bf5602964c71661c00ab0cc2cbd036718abb47c68609bda869",
+      "credits": [
+        "# author: Elvaerwyn",
+        "# license: CC-BY"
+      ]
+    },
+    {
+      "path": "hair02_ccby/hair/elvs_braided_rows/elvs_braided_rows.mhclo",
+      "sha256": "67d7125acf45a370709527efce6a61a128e6a0e66416971a33fdbfb8980d41bc",
+      "credits": [
+        "# author Elvaerwyn",
+        "# license CC_by"
+      ]
+    },
+    {
+      "path": "makehuman_system_assets_cc0/teeth/teeth_base/teeth_base.mhclo",
+      "sha256": "9edc3deff3bb97a95c791878064dd069a74a38f95ea6d9707a9ba68d888b3b5c",
+      "credits": [
+        "# This asset was explicitly released as CC0 in september 2020. The license",
+        "# The copyright holders at the point of the release to CC0 were:",
+        "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+        "# Copyright (C) 2020 Joel Palmius",
+        "# Copyright (C) 2020 Jonas Hauquier"
+      ]
+    },
+    {
+      "path": "makehuman_system_assets_cc0/hair/afro01/afro01.mhclo",
+      "sha256": "9977bd4507e2dd1408504b7a39a6f585ffa2d3ba3aa40ad4bdc2844884bbebb5",
+      "credits": [
+        "# This asset was explicitly released as CC0 in september 2020. The license",
+        "# The copyright holders at the point of the release to CC0 were:",
+        "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+        "# Copyright (C) 2020 Joel Palmius",
+        "# Copyright (C) 2020 Jonas Hauquier"
+      ]
+    },
+    {
+      "path": "makehuman_system_assets_cc0/hair/short01/short01.mhclo",
+      "sha256": "ae1ffaa98da5753b803b3a173bede4895d2215e6bb94763f3765a71f0e984f35",
+      "credits": [
+        "# This asset was explicitly released as CC0 in september 2020. The license",
+        "# The copyright holders at the point of the release to CC0 were:",
+        "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+        "# Copyright (C) 2020 Joel Palmius",
+        "# Copyright (C) 2020 Jonas Hauquier"
+      ]
+    },
+    {
+      "path": "makehuman_system_assets_cc0/eyelashes/eyelashes01/eyelashes01.mhclo",
+      "sha256": "5a86b29c15649273d723084954b7fa7bf199112571d4f58539b46734d397ee6b",
+      "credits": [
+        "# This asset was explicitly released as CC0 in september 2020. The license",
+        "# The copyright holders at the point of the release to CC0 were:",
+        "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+        "# Copyright (C) 2020 Joel Palmius",
+        "# Copyright (C) 2020 Jonas Hauquier"
+      ]
+    },
+    {
+      "path": "makehuman_system_assets_cc0/eyebrows/eyebrow001/eyebrow001.mhclo",
+      "sha256": "54c8892c2ba577f4152d779ce1f20f7cd323beb8cbd9cb701796165c221b4f5b",
+      "credits": [
+        "# This asset was explicitly released as CC0 in september 2020. The license",
+        "# The copyright holders at the point of the release to CC0 were:",
+        "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+        "# Copyright (C) 2020 Joel Palmius",
+        "# Copyright (C) 2020 Jonas Hauquier"
+      ]
+    },
+    {
+      "path": "makehuman_system_assets_cc0/eyes/high-poly/high-poly.mhclo",
+      "sha256": "b183cfe37120ab726f9b3f2ea6cd3a64c44ce7b4bd91a77c841cf70c04f83a0d",
+      "credits": [
+        "# This asset was explicitly released as CC0 in september 2020. The license",
+        "# The copyright holders at the point of the release to CC0 were:",
+        "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+        "# Copyright (C) 2020 Joel Palmius",
+        "# Copyright (C) 2020 Jonas Hauquier"
+      ]
+    },
+    {
+      "path": "makehuman_system_assets_cc0/tongue/tongue01/tongue01.mhclo",
+      "sha256": "61d825899cd78ff3146fa1324118060cb44b095fae1427d408c199ade74e3c9e",
+      "credits": [
+        "# This asset was explicitly released as CC0 in september 2020. The license",
+        "# The copyright holders at the point of the release to CC0 were:",
+        "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+        "# Copyright (C) 2020 Joel Palmius",
+        "# Copyright (C) 2020 Jonas Hauquier"
+      ]
+    }
+  ]
+}

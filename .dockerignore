@@ -31,3 +31,9 @@
 **/.env
 **/.env.*
 **/*.tsbuildinfo
+
+!engine_sources/
+!engine_sources/makehuman-lineart/
+!engine_sources/makehuman-lineart/**
+engine_sources/makehuman-lineart/out/
+engine_sources/makehuman-lineart/assets/*/
