@@ -1,0 +1,12 @@
+{
+  "character": "Guest",
+  "frames": 360,
+  "fps": 24,
+  "mask_outline": true,
+  "freestyle_only_fixed_garment_borders": true,
+  "head_bound_face_marks": 7,
+  "face_marks_camera_only": true,
+  "max_head_anchor_drift_m": 4e-07,
+  "least_jaw_front_clearance_m": 0.00385,
+  "jaw_surface_ray_samples": 6197
+}
