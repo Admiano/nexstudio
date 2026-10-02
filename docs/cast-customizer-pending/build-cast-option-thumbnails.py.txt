@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Crop exact Blender renders into option images; never invent assets.
+
+Usage: python3 scripts/build-cast-option-thumbnails.py --sources sources.json
+Sources maps named full-body looks and six square face renders to PNG paths.
+"""
+import argparse,base64,hashlib,io,json
+from pathlib import Path
+from PIL import Image
+
+ROOT=Path(__file__).resolve().parents[1]
+p=argparse.ArgumentParser();p.add_argument('--sources',type=Path,required=True);args=p.parse_args()
+sources=json.loads(args.sources.read_text());target=ROOT/'public/cast/options';records=[]
+
+def image(source):
+    path=Path(sources[source]);return path,Image.open(path).convert('RGBA')
+
+def write(character,category,key,source,crop=None):
+    path,im=image(source)
+    if crop:
+        sx,sy=im.width/1440,im.height/2160
+        im=im.crop(tuple(round(v*(sx if i%2==0 else sy)) for i,v in enumerate(crop)))
+    im.thumbnail((212,212),Image.Resampling.LANCZOS)
+    canvas=Image.new('RGB',(224,224),'white');canvas.paste(im,((224-im.width)//2,(224-im.height)//2),im)
+    buffer=io.BytesIO();canvas.save(buffer,format='WEBP',quality=92,method=6)
+    data=base64.b64encode(buffer.getvalue()).decode();file=target/character/category/(str(key)+'.svg');file.parent.mkdir(parents=True,exist_ok=True)
+    file.write_text('<svg xmlns="http://www.w3.org/2000/svg" width="224" height="224" viewBox="0 0 224 224"><image width="224" height="224" href="data:image/webp;base64,'+data+'"/></svg>\n')
+    records.append({'path':str(file.relative_to(ROOT)),'source':source,'sourceSha256':hashlib.sha256(path.read_bytes()).hexdigest(),'cropAt1440x2160':crop,'imageSize':[224,224]})
+
+for character in ('female','male'):
+    write(character,'character',character,character+'-approved',(400,100,1035,1310))
+    for face in (0,1,2):write(character,'face',face,f'{character}-face-{face}')
+for key,name in {'long':'female-approved','bob':'female-bob-maxi','bangs':'female-bangs-column','bun':'female-bun-cocktail','braid':'female-braid-qipao'}.items():
+    write('female','hair',key,name,(440,120,990,780))
+for key,name in {'quiff':'male-approved','bald':'male-bald','crop':'male-crop-polo','afro':'male-afro-tee','braids':'male-braids-knit','swept':'male-swept-fisherman'}.items():
+    write('male','hair',key,name,(425,60,1000,650))
+for key,name in {'sheath':'female-approved','maxi':'female-bob-maxi','column':'female-bangs-column','cocktail':'female-bun-cocktail','qipao':'female-braid-qipao'}.items():
+    write('female','dress',key,name,(430,515,1010,1940))
+for key,name in {'o1':'male-o1-trousers','o2':'male-o2-straight-jeans','o3':'male-o3-chinos','o4':'male-o4-classic-jeans','o5':'male-o5-wool-trousers'}.items():
+    write('male','top',key,name,(395,405,1040,1200))
+for key,name in {'trousers':'male-o1-trousers','straight-jeans':'male-o2-straight-jeans','chinos':'male-o3-chinos','classic-jeans':'male-o4-classic-jeans','wool-trousers':'male-o5-wool-trousers'}.items():
+    write('male','bottom',key,name,(390,1090,1050,1990))
+for key,name in {'oxfords':'male-o1-trousers','sneakers':'male-o2-straight-jeans','monk-straps':'male-o3-chinos','classic-sneakers':'male-o4-classic-jeans'}.items():
+    write('male','shoes',key,name,(390,1780,1050,2030))
+write('female','neck','none','female-bun-cocktail',(558,430,900,735))
+write('male','watch','none','male-approved',(820,900,1010,1110))
+for category,filename,keys,boxes in (
+ ('neck','FEMALE_neckwear.jpg',('fine','pendant','pearls','choker','scarf'),lambda i:(i*399.6+25,245,(i+1)*399.6-25,475)),
+ ('watch','MALE_watches.jpg',('analog','digital','smart','chrono','dress'),lambda i:(i*400+120,70,i*400+305,235)),
+):
+    sheet=ROOT/'engine_sources/makehuman-lineart/presenters_v1/previews'/filename
+    for i,key in enumerate(keys):
+        box=tuple(round(v) for v in boxes(i));crop=Image.open(sheet).crop(box)
+        tmp=args.sources.parent/f'option-{category}-{key}.png';crop.save(tmp)
+        sources[f'sheet-{category}-{key}']=str(tmp)
+        write('female' if category=='neck' else 'male',category,key,f'sheet-{category}-{key}')
+        records[-1]['sourceSheet']='engine_sources/makehuman-lineart/presenters_v1/previews/'+filename
+        records[-1]['sourceSheetSha256']=hashlib.sha256(sheet.read_bytes()).hexdigest();records[-1]['sourceSheetCrop']=box
+(target/'SOURCES.json').write_text(json.dumps(records,indent=2)+'\n')
+print('CAST_OPTION_IMAGES',len(records),sum((ROOT/r['path']).stat().st_size for r in records))
