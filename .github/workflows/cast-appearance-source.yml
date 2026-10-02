@@ -1,0 +1,43 @@
+name: Cast appearance source recovery
+on:
+  pull_request:
+    branches: [codex/cast-source-rendering]
+    paths: [.github/workflows/cast-appearance-source.yml]
+permissions:
+  contents: read
+jobs:
+  sources:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend
+            /engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/
+            /engine_sources/makehuman-lineart/assets/
+      - name: Package approved rendering inputs
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,zipfile
+          from pathlib import Path
+          paths=[Path('engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend')]
+          paths+=list(Path('engine_sources/makehuman-lineart/NexStudio_Presenter_Reference').rglob('*'))
+          paths+=list(Path('engine_sources/makehuman-lineart/assets').rglob('*'))
+          files=[p for p in paths if p.is_file()]
+          assert all(p.exists() for p in [
+            Path('engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend'),
+            Path('engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_FEMALE_v3.blend'),
+            Path('engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_MALE_v6.blend')])
+          with zipfile.ZipFile('cast-appearance-sources.zip','w',zipfile.ZIP_DEFLATED) as z:
+            for p in files: z.write(p,p.as_posix())
+            z.writestr('source-sha256.json',json.dumps({p.as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in files},indent=2))
+          print('Packaged',len(files),'exact committed rendering inputs')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cast-appearance-approved-sources
+          path: cast-appearance-sources.zip
+          retention-days: 7
