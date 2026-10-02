@@ -10,7 +10,7 @@ p.add_argument('--blender',default=os.environ.get('BLENDER_BIN') or shutil.which
 p.add_argument('--upgrade',action=argparse.BooleanOptionalAction,default=True,help='Apply stable hair/fabric and cuff refinements')
 p.add_argument('--baseline',action='store_true',help='Use the preceding production appearance')
 p.add_argument('--structure',action=argparse.BooleanOptionalAction,default=True,help='Apply bounded inward garment edge thickness')
-p.add_argument('--skin',action=argparse.BooleanOptionalAction,default=True,help='Use the tone-derived skin and native male ear profile')
+p.add_argument('--skin',action=argparse.BooleanOptionalAction,default=True,help='Use anatomical skin texture, tailored makeup, and native male ears')
 p.add_argument('--frame',type=int,default=27)
 p.add_argument('--threads',type=int,default=4)
 p.add_argument('--assemble-only',action='store_true')
