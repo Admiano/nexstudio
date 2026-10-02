@@ -7,7 +7,8 @@ source=Path(os.environ['PV1']);entry=source/os.environ['MODF'];started=time.mono
 if os.environ.get('CAST_QUALITY_PILOT') == '1':
     # Rest-pose AO is already followed by live material AO in the approved
     # grade; avoid multiplying two different occlusion treatments.
-    os.environ.update(DAF='0', DEF='0.18', DHF='0.20',
+    os.environ.update(DAF='0', DEF='0.18', DHF='0.12',
+                      DSR='0.68', DSG='0.70', DSB='0.76', DHI='1.20',
                       DSTW='0.0006', DOFF='0.0006', DTS='0.60', DFW='0.0016')
 exec(compile(entry.read_text(),str(entry),'exec'),globals())
 polish_entry=Path(__file__).with_name('cast-apply-approved.py');exec(compile(polish_entry.read_text(),str(polish_entry),'exec'),globals())

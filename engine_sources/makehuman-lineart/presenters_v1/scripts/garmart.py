@@ -259,5 +259,9 @@ bpy.context.view_layer.update()
 sd=ro.modifiers.new('SD','SURFACE_DEFORM'); sd.target=px; sd.falloff=4
 with bpy.context.temp_override(object=ro,active_object=ro,selected_objects=[ro]):
     bpy.ops.object.surfacedeform_bind(modifier='SD')
-print('DART ribbons',g.name,len(V),'bound',sd.is_bound)
+if not sd.is_bound and os.environ.get('CAST_QUALITY_PILOT')=='1':
+    from pathlib import Path
+    binder=Path(os.environ['PV1']).parents[3]/'scripts/cast-bind-garment-lines.py'
+    exec(compile(binder.read_text(),str(binder),'exec'),globals())
+print('DART ribbons',g.name,len(V),'bound',ro.get('castRibbonBinding') or sd.is_bound)
 S.frame_set(F0)

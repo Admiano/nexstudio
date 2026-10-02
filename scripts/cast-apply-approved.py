@@ -66,7 +66,7 @@ if character=='male':
     approved_top=incoming.materials[0]
 for material in bpy.data.materials:
     if material==approved_top:continue
-    if approved_top and material.name=='V70_G_elvs_male_shirt_untucked_bd1':
+    if approved_top and material.name=='V70_G_elvs_male_shirt_untucked_bd1' and os.environ.get('CAST_QUALITY_PILOT')!='1':
         # v6 softened this shirt's authored armpit shading before the grade.
         for name in ('Map Range','Map Range.002','Map Range.003'):
             original=approved_top.node_tree.nodes[name];current=material.node_tree.nodes[name]
