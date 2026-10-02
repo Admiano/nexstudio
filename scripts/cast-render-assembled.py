@@ -6,7 +6,7 @@ args=sys.argv[sys.argv.index('--')+1:];request_file,output_file=map(Path,args[:2
 source=Path(os.environ['PV1']);entry=source/os.environ['MODF'];started=time.monotonic()
 # Versioned server-side finish profile. Reference tooling can explicitly turn
 # these off for a baseline; clients cannot inject these environment keys.
-for flag in ('CAST_QUALITY_PILOT','CAST_FINISH_UPGRADE','CAST_GARMENT_STRUCTURE_PILOT','CAST_SKIN_APPEARANCE'):
+for flag in ('CAST_QUALITY_PILOT','CAST_FINISH_UPGRADE','CAST_GARMENT_STRUCTURE_PILOT','CAST_SKIN_APPEARANCE','CAST_HAIR_GROOM'):
     os.environ.setdefault(flag,'1')
 if os.environ.get('CAST_QUALITY_PILOT') == '1':
     # Rest-pose AO is already followed by live material AO in the approved
@@ -47,6 +47,12 @@ if os.environ.get('CAST_SKIN_APPEARANCE')=='1':
     skin_module=runpy.run_path(str(Path(__file__).with_name('cast-skin-appearance.py')))
     skin_report=skin_module['apply_skin_appearance'](scene,os.environ['CAST_CHARACTER'],os.environ.get('CAST_SKIN_HEX',''))
 
+hair_report={'enabled':False}
+if os.environ.get('CAST_HAIR_GROOM')=='1':
+    import runpy
+    hair_module=runpy.run_path(str(Path(__file__).with_name('cast-hair-groom.py')))
+    hair_report=hair_module['apply_hair_groom'](scene,os.environ['CAST_CHARACTER'],style=os.environ['CAST_HAIR_STYLE'])
+
 for layer in scene.view_layers:
     for lines in layer.freestyle_settings.linesets:
         if lines.collection:lines.collection.use_fake_user=True
@@ -61,7 +67,7 @@ if scene.compositing_node_group is not None:
 if '--scene-output' in args:bpy.ops.wm.save_as_mainfile(filepath=args[args.index('--scene-output')+1],compress=True)
 output_file.parent.mkdir(parents=True,exist_ok=True);scene.render.filepath=str(output_file)
 if '--assemble-only' not in args:bpy.ops.render.render(write_still=True)
-metadata={'skinAppearance':skin_report,'finishUpgrade':finish_report,'garmentStructure':structure_report,'clothingFit':fit_report,'sourceVersion':config['sourceVersion'],'renderVersion':config['renderVersion'],'frame':scene.frame_current,'seconds':round(time.monotonic()-started,2),'resolution':[scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage],'engine':scene.render.engine,'samples':scene.cycles.samples,'camera':scene.camera.name,'viewTransform':scene.view_settings.view_transform,'look':scene.view_settings.look,'exposure':scene.view_settings.exposure,'gamma':scene.view_settings.gamma}
+metadata={'hairGroom':hair_report,'skinAppearance':skin_report,'finishUpgrade':finish_report,'garmentStructure':structure_report,'clothingFit':fit_report,'sourceVersion':config['sourceVersion'],'renderVersion':config['renderVersion'],'frame':scene.frame_current,'seconds':round(time.monotonic()-started,2),'resolution':[scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage],'engine':scene.render.engine,'samples':scene.cycles.samples,'camera':scene.camera.name,'viewTransform':scene.view_settings.view_transform,'look':scene.view_settings.look,'exposure':scene.view_settings.exposure,'gamma':scene.view_settings.gamma}
 output_file.with_suffix('.json').write_text(json.dumps(metadata,indent=2)+'\n');print('CAST_ASSEMBLED_RENDER',json.dumps(metadata),flush=True)
 
 if '--motion-proof' in args:

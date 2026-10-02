@@ -7,7 +7,7 @@ for (const character of ['female','male'] as const) {
  for (const skin of SKINS) {
   const config = castRenderConfig({...DEFAULT_SPEC[character],skin:skin.key});
   assert.equal(config.env.CAST_SKIN_HEX, skin.hex.slice(1));
-  assert.equal(config.renderVersion, 'approved-v3-v6-beauty-v10-upper-thigh');
+  assert.equal(config.renderVersion, 'approved-v3-v6-hair-v11-upper-thigh');
   configs.add(JSON.stringify(config));
   if (character === 'female') {
    assert.equal(config.env.CAST_LIP_HEX, '');
@@ -18,5 +18,5 @@ for (const character of ['female','male'] as const) {
 }
 assert.equal(configs.size, 12);
 assert.equal(castRenderConfig({...DEFAULT_SPEC.female,skin:'#987765'}).env.CAST_SKIN_HEX,'987765');
-assert.equal(CAST_RENDER_VERSION,'approved-v3-v6-beauty-v10-upper-thigh');
+assert.equal(CAST_RENDER_VERSION,'approved-v3-v6-hair-v11-upper-thigh');
 console.log('PASS 12 complexion configurations, distinct cache keys, 30 preset skin/lip combinations and custom colours');
