@@ -15,6 +15,8 @@ if view=='face':
     center=Vector((-.42,0,1.55 if character=='female' else 1.64));scale=.50
 elif view=='skin-close':
     center=Vector((-.42,0,1.535 if character=='female' else 1.635));scale=.205
+elif view=='lips':
+    center=Vector((-.42,0,1.499 if character=='female' else 1.60));scale=.080
 elif view=='neck':
     center=rig.matrix_world@Vector(rig.data.bones['neck01'].head_local);center.z+=.01;scale=.255
 elif view in ('hand','palm'):

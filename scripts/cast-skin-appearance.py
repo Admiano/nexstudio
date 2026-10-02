@@ -5,19 +5,21 @@ and subdivision evaluation. Nothing uses world position or changes the cage,
 shape keys, rig, or semantic lip boundary. Distances are measured in metres.
 """
 import math
+import hashlib
+from pathlib import Path
 import os
 import bpy
 from mathutils import Vector
 
-PROFILE = 'anatomical-skin-texture-v2'
+PROFILE = 'anatomical-skin-texture-v3'
 # Sheer blush, satin eye wash, natural upper/lower lips. Authored in sRGB.
 MAKEUP = {
-    'F7E1D3': ('fair', 'D09A91', 'A5867D', 'AA756D', 'BE8A80', .13, .10),
-    'F1D7C8': ('light', 'C18C7B', '9C7C6D', 'A66F64', 'B98072', .14, .11),
-    'E0B48F': ('medium', 'B97862', '8A6755', '985E50', 'AF7462', .15, .12),
-    'C99A6E': ('tan', 'A8654E', '79543F', '874F40', 'A36851', .17, .13),
-    '9E6B4A': ('brown', 'A65E50', '674436', '75443D', '935C50', .20, .14),
-    '6A4431': ('deep', '985451', '59372F', '573531', '754B43', .23, .16),
+    'F7E1D3': ('fair', 'D78E91', 'A9827A', 'B6757F', 'CF9196', .33, .34),
+    'F1D7C8': ('light', 'C9797E', '987261', 'B76C76', 'C78086', .35, .36),
+    'E0B48F': ('medium', 'B76D61', '966B55', 'AC6461', 'C47F72', .37, .38),
+    'C99A6E': ('tan', 'A65F49', '8D5E44', '9A5450', 'B97065', .40, .40),
+    '9E6B4A': ('brown', 'A65F5B', '865A4D', '82434C', 'AD6972', .45, .42),
+    '6A4431': ('deep', 'AE626A', '8B5A59', '70404F', '9E6574', .48, .44),
 }
 
 
@@ -108,7 +110,7 @@ def prepare_surface(body, character):
         oil=max(gauss(p,Vector((0,eyes[0].y-.015,eyes[0].z-.022)),(.016,.040,.040)),
                 gauss(p,Vector((0,eyes[0].y+.010,eyes[0].z+.044)),(.039,.040,.025)))*front
         cheeks=max(gauss(p,e+Vector((.011 if e.x>0 else -.011,.006,-.025)),(.022,.040,.014)) for e in eyes)*front
-        lids=max(gauss(p,e+Vector((.002 if e.x>0 else -.002,0,.008)),(.018,.025,.0055)) for e in eyes)*front
+        lids=max(gauss(p,e+Vector((.002 if e.x>0 else -.002,0,.008)),(.020,.035,.0090)) for e in eyes)*front
         highlight=max(gauss(p,e+Vector((.014 if e.x>0 else -.014,.003,-.013)),(.020,.040,.009)) for e in eyes)*front
         h=max(0,min(1,(p.z-neck.z)/.085));dx=abs(p.x)-(.018+.040*h)
         ng=math.exp(-((p.z-(neck.z+.017))/.071)**4)*front
@@ -192,7 +194,7 @@ def rebuild_skin(material,tone,key,fill,character,palette,surface,lip_hex):
         xyz=s.split(rest,'Rest metres')
         lip=s.attr('lipmask')
         boundary=s.node('ShaderNodeMapRange','Original lip boundary');boundary.interpolation_type='SMOOTHSTEP'
-        boundary.inputs['From Min'].default_value=-.025;boundary.inputs['From Max'].default_value=.025
+        boundary.inputs['From Min'].default_value=-.040;boundary.inputs['From Max'].default_value=.040
         s.wire(lip.outputs['Fac'],boundary.inputs['Value']);lipmask=boundary.outputs['Result']
         not_lip=s.math('SUBTRACT','Skin outside lip',1,lipmask)
         noise=s.node('ShaderNodeTexNoise','Fine irregular skin relief');noise.inputs['Scale'].default_value=1750
@@ -202,14 +204,14 @@ def rebuild_skin(material,tone,key,fill,character,palette,surface,lip_hex):
         porepit=s.gaussian('Recessed pores',pores.outputs['Distance'],.22)
         poreweight=s.math('ADD','Regional pore relief',.65,s.math('MULTIPLY','Face pore density',regions['X'],.50))
         poreweight=s.math('MULTIPLY','No pores on nails',poreweight,s.math('SUBTRACT','Nail exclusion',1,regions['Z']))
-        micro=s.math('SUBTRACT','Skin grain and pits',s.math('MULTIPLY','Fine relief metres',noise.outputs['Fac'],.000040),s.math('MULTIPLY','Pore depth metres',porepit,.000095))
+        micro=s.math('SUBTRACT','Skin grain and pits',s.math('MULTIPLY','Fine relief metres',noise.outputs['Fac'],.000065),s.math('MULTIPLY','Pore depth metres',porepit,.000120))
         micro=s.math('MULTIPLY','Regional microrelief',micro,poreweight)
         micro=s.math('MULTIPLY','Pores outside lips',micro,not_lip)
         lip_coords=s.node('ShaderNodeVectorMath','Lip striation scale');lip_coords.operation='MULTIPLY'
-        s.wire(rest,lip_coords.inputs[0]);lip_coords.inputs[1].default_value=(5400,280,600)
+        s.wire(rest,lip_coords.inputs[0]);lip_coords.inputs[1].default_value=(1800,350,500)
         lip_grain=s.node('ShaderNodeTexNoise','Fine vertical lip striations');lip_grain.inputs['Scale'].default_value=1
-        lip_grain.inputs['Detail'].default_value=1;s.wire(lip_coords.outputs['Vector'],lip_grain.inputs['Vector'])
-        micro=s.math('ADD','Skin and lip microrelief',micro,s.math('MULTIPLY','Lip relief metres',s.math('MULTIPLY','Lip relief mask',lip_grain.outputs['Fac'],lipmask),.000018))
+        lip_grain.inputs['Detail'].default_value=3;lip_grain.inputs['Roughness'].default_value=.7;s.wire(lip_coords.outputs['Vector'],lip_grain.inputs['Vector'])
+        micro=s.math('ADD','Skin and lip microrelief',micro,s.math('MULTIPLY','Lip relief metres',s.math('MULTIPLY','Lip relief mask',lip_grain.outputs['Fac'],lipmask),.000022))
         crease=s.math('MULTIPLY','Joint fold mask',s.gaussian('Fine knuckle folds',joints['X'],.00085),joints['Y'])
         knuckle=s.math('MULTIPLY','Knuckle warmth mask',s.gaussian('Knuckle transition',joints['X'],.0045),joints['Y'])
         # Two curved palmar flexion folds, measured in the local hand chart.
@@ -239,9 +241,13 @@ def rebuild_skin(material,tone,key,fill,character,palette,surface,lip_hex):
         s.wire(height,bump.inputs['Height']);s.wire(normal,bump.inputs['Normal']);normal=bump.outputs['Normal']
         pigment=s.node('ShaderNodeTexNoise','Subsurface pigment variation');pigment.inputs['Scale'].default_value=210
         pigment.inputs['Detail'].default_value=2;pigment.inputs['Roughness'].default_value=.65;s.wire(rest,pigment.inputs['Vector'])
-        variation=s.math('ADD','Bounded pigment modulation',.974,s.math('MULTIPLY','Pigment variation range',pigment.outputs['Fac'],.052))
+        variation=s.math('ADD','Bounded pigment modulation',.94,s.math('MULTIPLY','Pigment variation range',pigment.outputs['Fac'],.12))
         color=s.mix('Living skin colour variation',1,color,variation,'MULTIPLY')
-        pore_color=s.math('SUBTRACT','Pore melanin modulation',1,s.math('MULTIPLY','Pore pigment depth',s.math('MULTIPLY','Pore pigment mask',porepit,not_lip),.11))
+        mottling=s.node('ShaderNodeTexNoise','Natural broad pigment variation');mottling.inputs['Scale'].default_value=68
+        mottling.inputs['Detail'].default_value=2;s.wire(rest,mottling.inputs['Vector'])
+        broad=s.math('ADD','Broad pigment bounds',.96,s.math('MULTIPLY','Broad pigment range',mottling.outputs['Fac'],.08))
+        color=s.mix('Multiscale skin pigment',1,color,broad,'MULTIPLY')
+        pore_color=s.math('SUBTRACT','Pore melanin modulation',1,s.math('MULTIPLY','Pore pigment depth',s.math('MULTIPLY','Pore pigment mask',porepit,not_lip),.22))
         color=s.mix('Subtle pore pigment',1,color,pore_color,'MULTIPLY')
         warmth=tuple(c*k for c,k in zip(tone,(1.07,.94,.93)))
         color=s.mix('Natural joint warmth',s.math('MULTIPLY','Joint warmth weight',knuckle,.28),color,(*warmth,1))
@@ -258,6 +264,8 @@ def rebuild_skin(material,tone,key,fill,character,palette,surface,lip_hex):
             color=s.mix('Complexion matched sheer blush',s.math('MULTIPLY','Sheer blush coverage',makeup['X'],palette['blushWeight']),color,(*palette['blush'],1))
             color=s.mix('Complexion matched satin eye wash',s.math('MULTIPLY','Satin eye coverage',makeup['Y'],palette['eyeWeight']),color,(*palette['eye'],1))
         lips=s.mix('Complexion matched lip palette',s.attr('liplo').outputs['Fac'],(*lip_colors[0],1),(*lip_colors[1],1))
+        lip_variation=s.math('ADD','Satin lip pigment bounds',.90,s.math('MULTIPLY','Lip fine pigment range',lip_grain.outputs['Fac'],.17))
+        lips=s.mix('Lip pigment follows natural striations',1,lips,lip_variation,'MULTIPLY')
         color=s.mix('Original anatomical lip boundary',lipmask,color,lips)
     else:
         rest=s.attr('cast_skin_rest').outputs['Vector']
@@ -287,7 +295,10 @@ def rebuild_skin(material,tone,key,fill,character,palette,surface,lip_hex):
         lobe=s.math('POWER','Broad rough skin lobe',s.math('MAXIMUM','Visible skin lobe',dot.outputs['Value'],0),22)
         oil=s.math('ADD','Regional oil response',.010,s.math('MULTIPLY','T zone sheen',regions['Y'],.018))
         oil=s.math('ADD','Nail satin response',oil,s.math('MULTIPLY','Nail sheen',regions['Z'],.018))
-        oil=s.math('ADD','Lip satin response',oil,s.math('MULTIPLY','Lip sheen',lipmask,.013))
+        lip_oil=s.math('ADD','Upper and lower lip finish',.035,s.math('MULTIPLY','Lower lip satin',s.attr('liplo').outputs['Fac'],.095))
+        oil=s.math('ADD','Lip satin response',oil,s.math('MULTIPLY','Lip sheen',lipmask,lip_oil))
+        if character=='female':
+            oil=s.math('ADD','Satin cheek illumination',oil,s.math('MULTIPLY','Sheer cheek highlight',makeup['Z'],.055))
         sheen=s.math('MULTIPLY','Bounded skin sheen',lobe,oil)
         tint=tuple(.65+.35*c for c in tone)
         color=s.mix('Subtle dielectric skin sheen',sheen,color,(*tint,1))
@@ -325,7 +336,7 @@ def apply_skin_appearance(scene,character,skin_hex='',native_ear=True,lip_hex=No
         attr.data.foreach_set('vector',[c*scale for v in ob.data.vertices for c in v.co])
     rotation=scene.camera.matrix_world.to_quaternion()
     key=rotation@Vector((-.48,.45,.75)).normalized();fill=rotation@Vector((.65,.30,.70)).normalized()
-    report=dict(profile=PROFILE,character=character,selectedHex=skin_hex or None,
+    report=dict(profile=PROFILE,shaderCodeSHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),character=character,selectedHex=skin_hex or None,
                 surface=surface,materials=[],hiddenEarOverlays=[],samples=scene.cycles.samples,denoising=False,
                 makeup=palette['name'] if character=='female' else None)
     for name in ('PEEPS_V2_WARM_SKIN','V60_EAR_SKIN','LINEART_SKIN_WHITE'):
@@ -335,4 +346,7 @@ def apply_skin_appearance(scene,character,skin_hex='',native_ear=True,lip_hex=No
         for ob in bpy.data.objects:
             if ob.name.startswith(('Host.V60_ear_fill','Host.V60_ear_line','Host.V60_ear_inner')):
                 ob.hide_render=True;report['hiddenEarOverlays'].append(ob.name)
+    if character=='female':
+        import runpy
+        report['beauty']=runpy.run_path(str(Path(__file__).with_name('cast-female-beauty.py')))['apply_female_beauty'](scene)
     return report

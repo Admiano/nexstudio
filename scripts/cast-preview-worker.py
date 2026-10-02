@@ -3,7 +3,7 @@
 import argparse,fcntl,json,os,re,shutil,subprocess,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-skin-v9-upper-thigh'
+SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-beauty-v10-upper-thigh'
 CACHE=Path(os.environ.get('CAST_PREVIEW_CACHE_DIR',ROOT/'engine_sources/makehuman-lineart/out/cast-previews'))
 SOURCE=Path(os.environ.get('CAST_SOURCE_DIR',ROOT/'engine_sources/makehuman-lineart/presenters_v1'))
 ENV_KEYS={'CAST_CHARACTER','CAST_FACE','CAST_HAIR_STYLE','CAST_HAIR_HEX','CAST_SKIN_HEX','CAST_LIP_HEX','CAST_NECK','CAST_WATCH','CAST_DRESS','CAST_DRESS_HEX','CAST_MALE_LOOK','CAST_MALE_HAIR','CAST_HAIR_DYE','CAST_GARMENTS'}
