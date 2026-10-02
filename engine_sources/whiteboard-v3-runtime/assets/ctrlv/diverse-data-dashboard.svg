@@ -1,0 +1,31 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Monitor Frame -->
+                <rect x="60" y="40" width="280" height="200" rx="10" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                <line x1="60" y1="70" x2="340" y2="70" stroke="#F5F0E4" stroke-width="4"/>
+                <circle cx="80" cy="55" r="4" fill="#F5F0E4"/>
+                <circle cx="100" cy="55" r="4" fill="#F5F0E4"/>
+                <circle cx="120" cy="55" r="4" fill="#1A1A17"/>
+                
+                <!-- Metric Cards -->
+                <rect x="80" y="90" width="60" height="40" rx="4" fill="#1A1A17"/>
+                <rect style="animation-delay: 0.2s;" x="150" y="90" width="60" height="40" rx="4" fill="#F5F0E4"/>
+                <rect style="animation-delay: 0.4s;" x="220" y="90" width="100" height="40" rx="4" fill="#F5F0E4"/>
+                
+                <!-- Main Chart Area -->
+                <rect x="80" y="150" width="160" height="70" rx="4" fill="#F5F0E4" opacity="0.1"/>
+                <path d="M80 220 L120 180 L160 200 L200 160 L240 170" stroke="#1A1A17" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                
+                <!-- Pie Chart Area -->
+                <g transform="translate(280, 185)">
+                    <g>
+                    <circle cx="0" cy="0" r="30" fill="#F5F0E4"/>
+                    <path d="M0 0 L30 0 A 30 30 0 0 1 0 30 Z" fill="#1A1A17"/>
+                    <path d="M0 0 L0 -30 A 30 30 0 0 1 30 0 Z" fill="#F5F0E4"/>
+                </g>
+                </g>
+                
+                <!-- Stand -->
+                <path d="M160 240 L150 280 H250 L240 240 Z" fill="#F5F0E4"/>
+            </g>
+          </svg>

@@ -45,6 +45,7 @@ export function canonicalDraftInput(draft: Pick<ProductionDraft, "id" | "family"
 
 export async function syncClaimedDraftToCanonicalProduction(draft: ProductionDraft) {
   if (!draft.ownerId) throw new Error("STUDIO_DRAFT_MUST_BE_CLAIMED_BEFORE_PROMOTION");
+  const ownerUserId = draft.ownerId;
   const prisma = getPrisma();
   if (!prisma) throw new Error("Persistent database required.");
   const canonical = canonicalDraftInput(draft);
@@ -69,7 +70,7 @@ export async function syncClaimedDraftToCanonicalProduction(draft: ProductionDra
           : await tx.production.create({
               data: {
                 id: draft.id,
-                ownerUserId: draft.ownerId,
+                ownerUserId,
                 kind: "VIDEO",
                 mode: `STANDALONE_${draft.family}`,
                 title: draft.prompt.trim().slice(0, 120),
@@ -87,7 +88,7 @@ export async function syncClaimedDraftToCanonicalProduction(draft: ProductionDra
           .map((source) => source.id)
           .filter((id): id is string => Boolean(id && /^[0-9a-f-]{36}$/i.test(id)));
         const ownedSources = sourceIds.length
-          ? await tx.source.findMany({ where: { id: { in: sourceIds }, ownerUserId: draft.ownerId }, select: { id: true } })
+          ? await tx.source.findMany({ where: { id: { in: sourceIds }, ownerUserId }, select: { id: true } })
           : [];
         const ownedSourceIds = new Set(ownedSources.map((source) => source.id));
 

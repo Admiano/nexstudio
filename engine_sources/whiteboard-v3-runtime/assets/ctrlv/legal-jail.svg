@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Background Wall/Shadow -->
+                <rect x="100" y="60" width="200" height="180" fill="#F5F0E4" opacity="0.1"/>
+                <path d="M140 100 Q170 80 200 120 T260 100" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.2"/>
+                
+                <!-- Bars Floor/Ceiling -->
+                <path d="M80 60 H320 M80 240 H320" stroke="#1A1A17" stroke-width="16" stroke-linecap="round"/>
+                
+                <!-- Jail Bars -->
+                <rect x="120" y="60" width="12" height="180" fill="#F5F0E4"/>
+                <rect x="160" y="60" width="12" height="180" fill="#F5F0E4"/>
+                <rect x="200" y="60" width="12" height="180" fill="#F5F0E4"/>
+                <rect x="240" y="60" width="12" height="180" fill="#F5F0E4"/>
+                <rect x="280" y="60" width="12" height="180" fill="#F5F0E4"/>
+                
+                <!-- Padlock -->
+                <rect x="190" y="140" width="30" height="30" rx="4" fill="#F5F0E4"/>
+                <path d="M195 140 V125 C195 115 215 115 215 125 V140" stroke="#F5F0E4" stroke-width="6" fill="none"/>
+            </g>
+          </svg>

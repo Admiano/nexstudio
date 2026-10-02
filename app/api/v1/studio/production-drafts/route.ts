@@ -35,7 +35,7 @@ const createSchema = z.object({
 
 
 const canonicalToPublicFamily: Record<(typeof studioProductionFamilies)[number], FamilyId> = {
-  EXPLAINER: "explainer", WHITEBOARD: "whiteboard", STICKMAN: "stickman", EDITORIAL_MOTION: "editorial-motion",
+  EXPLAINER: "explainer", WHITEBOARD: "whiteboard",
 };
 
 const service = new ProductionDraftService(new PrismaProductionDraftRepository());

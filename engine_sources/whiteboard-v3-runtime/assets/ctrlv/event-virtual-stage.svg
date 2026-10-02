@@ -1,0 +1,35 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Screen Frame -->
+                <rect x="40" y="40" width="320" height="200" rx="8" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                
+                <!-- Stage Curtains / Background -->
+                <path d="M40 40 H360 V180 Q200 140 40 180 Z" fill="#1A1A17" opacity="0.2"/>
+                
+                <!-- Podium -->
+                <g transform="translate(260, 160)">
+                    <rect x="0" y="0" width="40" height="60" fill="#F5F0E4"/>
+                    <rect x="-10" y="0" width="60" height="10" fill="#F5F0E4"/>
+                </g>
+                
+                <!-- Presenter Silhouette -->
+                <g transform="translate(280, 130)">
+                    <g >
+                    <circle cx="0" cy="-20" r="15" fill="#1A1A17"/>
+                    <path d="M-20 20 Q0 -10 20 20 Z" fill="#1A1A17"/>
+                </g>
+                </g>
+                
+                <!-- Audience Grid (Small icons) -->
+                <g  opacity="0.6">
+                    <circle cx="80" cy="180" r="15" fill="#F5F0E4"/>
+                    <circle cx="130" cy="180" r="15" fill="#F5F0E4"/>
+                    <circle cx="180" cy="180" r="15" fill="#1A1A17"/>
+                </g>
+                
+                <!-- Webinar Badge -->
+                <rect x="60" y="60" width="80" height="20" rx="4" fill="#F5F0E4"/>
+                <circle cx="75" cy="70" r="4" fill="#F5F0E4"/>
+                <text x="110" y="75" font-family="monospace" font-weight="bold" font-size="10" fill="#F5F0E4" text-anchor="middle">LIVE</text>
+            </g>
+          </svg>

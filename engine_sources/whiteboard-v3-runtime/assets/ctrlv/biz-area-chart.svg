@@ -1,0 +1,16 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="140" ry="10" fill="#E2E8F0" opacity="0.6"/>
+            <path d="M70 60 V240 H330" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            
+            <!-- Layer 1 Background (Primary) -->
+            <path d="M70 240 L100 120 C140 80 180 160 220 130 C260 100 290 110 330 60 V240 Z" fill="#1A1A17" opacity="0.6"/>
+            <path d="M70 240 L100 120 C140 80 180 160 220 130 C260 100 290 110 330 60" stroke="#1A1A17" stroke-width="6" fill="none" stroke-linecap="round"/>
+            
+            <!-- Layer 2 Foreground (Secondary/Accent) -->
+            <path style="animation-delay: 0.5s;" d="M70 240 L120 180 C160 200 200 100 240 160 C280 220 300 160 330 140 V240 Z" fill="#F5F0E4" opacity="0.8"/>
+            <path style="animation-delay: 0.5s;" d="M70 240 L120 180 C160 200 200 100 240 160 C280 220 300 160 330 140" stroke="#F5F0E4" stroke-width="6" fill="none" stroke-linecap="round"/>
+            
+            <!-- Peak Highlights -->
+            <circle cx="215" cy="115" r="6" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="3"/>
+            <circle style="animation-delay: 0.5s;" cx="330" cy="60" r="6" fill="#F5F0E4" stroke="#1A1A17" stroke-width="3"/>
+          </svg>

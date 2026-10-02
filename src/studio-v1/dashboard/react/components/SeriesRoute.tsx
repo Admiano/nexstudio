@@ -5,7 +5,7 @@ import { ErrorState, LoadState } from "./shared";
 import { MemoryPanel } from "./MemoryPanel";
 import { PRODUCTION_REGISTRY, type FamilyId } from "@/studio-v1/public/registry";
 
-const FAMILY_TO_DOMAIN: Record<FamilyId,"EXPLAINER"|"WHITEBOARD"|"STICKMAN"|"EDITORIAL_MOTION">={explainer:"EXPLAINER",whiteboard:"WHITEBOARD",stickman:"STICKMAN","editorial-motion":"EDITORIAL_MOTION"};
+const FAMILY_TO_DOMAIN: Record<FamilyId,"EXPLAINER"|"WHITEBOARD">={explainer:"EXPLAINER",whiteboard:"WHITEBOARD"};
 export function SeriesRoute({onOpenProject}:{onOpenProject:(id:string)=>void}){
  const series=useStudioSeries();const brands=useStudioBrands();const[selectedId,setSelectedId]=useState<string|null>(null);const[creating,setCreating]=useState(false);const[nextOpen,setNextOpen]=useState(false);const[busy,setBusy]=useState(false);const[error,setError]=useState("");
  const[form,setForm]=useState({name:"",description:"",brandId:"",premise:"",pillars:"",continuity:"",opener:"",closer:"",sound:""});

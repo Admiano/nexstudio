@@ -21,9 +21,9 @@ export function CreditsSheet({ onClose, notify }: { onClose: () => void; notify:
     try {
       const res = await studioApi.fundingIntent(pack) as { checkoutUrl?: string };
       if (res?.checkoutUrl) { window.location.href = res.checkoutUrl; return; }
-      notify("Checkout could not start — try again.");
+      notify("Checkout couldn't start. Try again.");
     } catch (e) {
-      notify(e instanceof Error ? e.message : "Could not start checkout.");
+      notify(e instanceof Error ? e.message : "Couldn't start checkout.");
       setBusy(false);
     }
   }
@@ -37,7 +37,7 @@ export function CreditsSheet({ onClose, notify }: { onClose: () => void; notify:
         </div>
         <div className="balance-hero">
           <label>Available</label>
-          <strong>{balance ? formatUSD(balance.availableMinor) : "—"}</strong>
+          <strong>{balance ? formatUSD(balance.availableMinor) : "···"}</strong>
           <span>{balance && balance.pendingMinor > 0 ? `${formatUSD(balance.pendingMinor)} pending` : "Nothing reserved"}</span>
         </div>
         <div className="pack-label">Add credits</div>

@@ -15,6 +15,7 @@
     "db:validate": "prisma validate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
+    "preview:prepare": "node --import tsx scripts/cast-preview-db.ts && npm run db:deploy && node --import tsx scripts/cast-preview-guest.ts",
     "engines:install": "python scripts/install-engines.py",
     "worker": "tsx scripts/studio-worker.ts --watch",
     "worker:once": "tsx scripts/studio-worker.ts",
@@ -24,7 +25,10 @@
     "qa:trust": "python scripts/trust-commerce-security-qa.py",
     "test:billing-adversarial": "python tests/trust-commerce/adversarial_billing_model_test.py",
     "test:trust-runtime": "node tests/trust-commerce/runtime_security_unit_test.cjs",
-    "test:trust-real-db": "tsx tests/trust-commerce/real_db_adversarial_test.ts"
+    "test:trust-real-db": "tsx tests/trust-commerce/real_db_adversarial_test.ts",
+    "worker:cast": "python3 scripts/cast-preview-worker.py --watch",
+    "cast:assets": "python3 scripts/install-cast-assets.py",
+    "test:cast": "node --import tsx tests/cast-render-config.test.ts && node --import tsx tests/cast-preview-queue.test.ts && python3 tests/cast-preview-worker.test.py"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.8.0",

@@ -1,0 +1,17 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Document Corner -->
+                <path d="M220 80 L80 80 L80 240 L320 240 L320 180 Z" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                
+                <!-- Ribbons -->
+                <path d="M200 160 L180 250 L210 230 L230 250 Z" fill="#F5F0E4"/>
+                <path style="animation-delay: 0.2s;" d="M220 150 L250 240 L270 220 L290 230 Z" fill="#F5F0E4"/>
+                
+                <!-- Wax Seal -->
+                <circle cx="220" cy="150" r="50" fill="#1A1A17"/>
+                <circle cx="220" cy="150" r="40" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="10 6" fill="none"/>
+                
+                <!-- Star inside seal -->
+                <path d="M220 125 L226 140 L242 140 L229 150 L234 165 L220 156 L206 165 L211 150 L198 140 L214 140 Z" fill="#F5F0E4"/>
+            </g>
+          </svg>

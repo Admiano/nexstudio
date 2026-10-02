@@ -1,0 +1,7 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g>
+            <path d="M150 200 C150 150 250 150 250 200 H150 Z" fill="#F5F0E4" stroke="#1A1A17" stroke-width="4"/>
+            <path d="M180 100 Q200 80 220 100 T200 120 T180 100" fill="#1A1A17" opacity="0.2"/>
+        </g>
+        <text x="200" y="240" text-anchor="middle" font-family="Inter" font-weight="900" font-size="20" fill="#F5F0E4">FREE RENT</text>
+    </svg>

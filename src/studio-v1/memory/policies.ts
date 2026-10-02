@@ -1,5 +1,4 @@
-import type { EffectiveStudioMemory, SeriesPlanSignature } from "./contracts";
-import { NEXSTICK_V5_1_PERFORMANCE_AUTHORITY } from "./contracts";
+import type { SeriesPlanSignature } from "./contracts";
 
 const dimensions = [
   "environments", "silhouettes", "transitions", "cameras", "actorPositions",
@@ -49,40 +48,4 @@ export function evaluateSeriesAntiRepetition(input: {
   } as const;
 }
 
-const forbiddenPerformanceKeys = new Set([
-  "jointAngles", "trajectory", "pose", "poses", "keyframes", "motionClip", "motionPath",
-  "handTargets", "footTargets", "rootMotion", "animationFrames",
-]);
 
-function stripPerformanceState(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(stripPerformanceState);
-  if (!value || typeof value !== "object") return value;
-  const out: Record<string, unknown> = {};
-  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-    if (forbiddenPerformanceKeys.has(key)) continue;
-    out[key] = stripPerformanceState(child);
-  }
-  return out;
-}
-
-export function compileStableCastIdentity(input: {
-  castMemberId: string;
-  identityKey: string;
-  name: string;
-  memories: EffectiveStudioMemory[];
-}) {
-  const identity: Record<string, unknown> = {};
-  for (const memory of input.memories) identity[memory.key] = stripPerformanceState(memory.content);
-  return {
-    castMemberId: input.castMemberId,
-    identityKey: input.identityKey,
-    name: input.name,
-    identity,
-    performanceAuthority: NEXSTICK_V5_1_PERFORMANCE_AUTHORITY,
-    performanceDirection: "RESOLVE_FRESH_FROM_CURRENT_SCENE_INTENT",
-  } as const;
-}
-
-export function castIdentityFingerprint(identity: ReturnType<typeof compileStableCastIdentity>) {
-  return JSON.stringify({ castMemberId: identity.castMemberId, identityKey: identity.identityKey, identity: identity.identity });
-}

@@ -1,0 +1,19 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Rangoli base -->
+            <circle  cx="200" cy="250" r="100" fill="none" stroke="#F5F0E4" stroke-width="6" stroke-dasharray="10 20" opacity="0.3"/>
+            <circle  cx="200" cy="250" r="70" fill="none" stroke="#1A1A17" stroke-width="4" stroke-dasharray="15 15" opacity="0.3"/>
+            
+            <!-- Dandiya Sticks crossing -->
+            <g>
+                <!-- Stick 1 -->
+                <rect x="110" y="100" width="20" height="150" rx="10" fill="#1A1A17" transform="rotate(-45 120 175)"/>
+                <path d="M120 130 L150 160 M140 110 L170 140" stroke="white" stroke-width="6" stroke-linecap="round"/>
+                <!-- Stick 2 -->
+                <rect x="270" y="100" width="20" height="150" rx="10" fill="#F5F0E4" transform="rotate(45 280 175)"/>
+                <path d="M280 130 L250 160 M260 110 L230 140" stroke="white" stroke-width="6" stroke-linecap="round"/>
+            </g>
+            
+            <!-- Clashing impact lines -->
+            <path d="M200 130 L200 90 M170 150 L140 120 M230 150 L260 120" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" fill="none"/>
+            <circle cx="200" cy="150" r="30" fill="#F5F0E4" opacity="0.4"/>
+          </svg>

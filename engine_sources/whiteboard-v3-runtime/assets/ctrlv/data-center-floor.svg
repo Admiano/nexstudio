@@ -1,0 +1,20 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Servers -->
+                <rect x="120" y="60" width="60" height="120" fill="#1A1A17"/>
+                <rect x="220" y="60" width="60" height="120" fill="#1A1A17"/>
+                <rect x="130" y="80" width="40" height="10" fill="#F5F0E4"/>
+                <rect x="230" y="80" width="40" height="10" fill="#F5F0E4"/>
+                <rect x="130" y="120" width="40" height="10" fill="#F5F0E4"/>
+                <rect x="230" y="120" width="40" height="10" fill="#F5F0E4"/>
+                
+                <!-- Floor -->
+                <path d="M60 180 H340 L300 220 H100 Z" fill="#F5F0E4"/>
+                <path d="M140 180 L130 220 M200 180 V220 M260 180 L270 220" stroke="white" stroke-width="2"/>
+                <path d="M80 200 H320" stroke="white" stroke-width="2"/>
+                
+                <!-- Underfloor Cables -->
+                <path d="M150 220 Q180 260 250 220" stroke="#F5F0E4" stroke-width="6" fill="none" stroke-linecap="round"/>
+                <path style="animation-delay: 0.5s;" d="M120 220 Q160 250 200 220" stroke="#F5F0E4" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </g>
+          </svg>

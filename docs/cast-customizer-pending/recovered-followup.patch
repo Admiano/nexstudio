@@ -1,0 +1,386 @@
+diff --git a/engine_sources/makehuman-lineart/presenters_v1/scripts/garm.py b/engine_sources/makehuman-lineart/presenters_v1/scripts/garm.py
+index fc66d1e..e87d83e 100644
+--- a/engine_sources/makehuman-lineart/presenters_v1/scripts/garm.py
++++ b/engine_sources/makehuman-lineart/presenters_v1/scripts/garm.py
+@@ -97,20 +97,54 @@ if _MG:
+     mc=bpy.data.collections.get('V26_GARMENT_MARKS')
+     if mc:
+         for o in mc.objects: o.hide_render=o.hide_viewport=True
++    # Never delete the trouser waistband at a bind-pose shirt hem.
++    # Complete topology and deformation weights are needed through animation.
+     _tops=[bpy.data.objects[n] for n,_ in made if not any(k in n.lower() for k in ('trouser','jeans','pants','shoe','sneaker')) and 'tucked-' not in n.lower() and not ('tucked' in n.lower() and 'untucked' not in n.lower())]
+-    _bc=np.array([(body.matrix_world@v.co)[:] for v in body.data.vertices]); _bx=_bc[:,0].mean()
++    from mathutils import Vector
+     for _pn,_ in made:
+         if not any(k in _pn.lower() for k in ('trouser','jeans','pants')) or not _tops: continue
+-        _t=_tops[0]; _tc=np.array([(_t.matrix_world@v.co)[:] for v in _t.data.vertices]); _tz=_tc[np.abs(_tc[:,0]-_bx)<0.12,2].min()
+-        _po=bpy.data.objects[_pn]; _pc=np.array([(_po.matrix_world@v.co)[:] for v in _po.data.vertices])
+-        _by=_bc[:,1].mean(); _tq=_tc[np.abs(_tc[:,0]-_bx)<0.25]; _bw=0.03
+-        _kz=set()
+-        for _i in np.where((_pc[:,2]>_tz+float(os.environ.get('PCM','0.03')))&(np.abs(_pc[:,0]-_bx)<0.25))[0]:
+-            _nb=_tq[(np.abs(_tq[:,0]-_pc[_i,0])<_bw)&((_tq[:,1]<_by)==(_pc[_i,1]<_by))]
+-            if 'untucked' not in _t.name.lower() or (len(_nb) and _pc[_i,2]>_nb[:,2].min()+float(os.environ.get('PCM','0.03'))): _kz.add(int(_i))
+-        if _kz:
+-            _bd=_bmd.new(); _bd.from_mesh(_po.data); _bd.verts.ensure_lookup_table(); _bmd.ops.delete(_bd,geom=[_bd.verts[i] for i in _kz],context='VERTS'); _bd.to_mesh(_po.data); _bd.free(); _po.data.update()
+-            os.environ['PCOV_'+_pn]='1'
+-        print('LAYER',_pn,'under',_t.name,'hem z %.3f removed %d'%(_tz,len(_kz)))
++        _po=bpy.data.objects[_pn]; _top=_tops[0]
++        _tc=[_top.matrix_world@v.co for v in _top.data.vertices]
++        _center=sum(v.x for v in _tc)/len(_tc)
++        _hem=min(v.z for v in _tc if abs(v.x-_center)<0.12)
++        _vg=_po.vertex_groups.new(name='CoveredWaist')
++        for v in _po.data.vertices:
++            w=_po.matrix_world@v.co
++            if w.z>_hem+0.015 and abs(w.x-_center)<0.28: _vg.add([v.index],1.0,'REPLACE')
++        _fitmod=_po.modifiers.new('Intact waistband beneath top','SHRINKWRAP')
++        _fitmod.target=_top; _fitmod.vertex_group=_vg.name
++        _fitmod.wrap_method='PROJECT'; _fitmod.wrap_mode='ON_SURFACE'
++        _axis=max(range(3),key=lambda i:abs((_po.matrix_world.to_3x3()@Vector(tuple(1 if j==i else 0 for j in range(3)))).normalized().y))
++        _fitmod.use_project_x=_axis==0; _fitmod.use_project_y=_axis==1; _fitmod.use_project_z=_axis==2
++        _fitmod.use_positive_direction=True; _fitmod.use_negative_direction=True
++        _fitmod.project_limit=0.08; _fitmod.offset=-0.012
++    # Bounded surface coverage supplements garments with missing body masks.
++    from mathutils.bvhtree import BVHTree
++    _covered=set()
++    _protected={g.index for g in body.vertex_groups if any(k in g.name.lower() for k in ('hand','finger','thumb','head','neck'))}
++    _bodypts=[body.matrix_world@v.co for v in body.data.vertices]
++    for _name,_ in made:
++        if any(k in _name.lower() for k in ('shoe','sneaker')):continue
++        _ob=bpy.data.objects[_name];_pts=[_ob.matrix_world@v.co for v in _ob.data.vertices]
++        _tree=BVHTree.FromPolygons(_pts,[list(p.vertices) for p in _ob.data.polygons],all_triangles=False)
++        for _v,_point in zip(body.data.vertices,_bodypts):
++            if any(g.group in _protected and g.weight>0.1 for g in _v.groups):continue
++            for _direction in (Vector((0,1,0)),Vector((0,-1,0))):
++                _hit,_normal,_index,_distance=_tree.ray_cast(_point-_direction*0.05,_direction,0.10)
++                if _hit is not None:_covered.add(_v.index);break
++    _boundary=set()
++    for _edge in body.data.edges:
++        _a,_b=_edge.vertices
++        if (_a in _covered)!=(_b in _covered):_boundary.update((_a,_b))
++    _covered-=_boundary
++    if _covered:
++        for _ob in (body,legs):
++            if _ob is None or len(_ob.data.vertices)!=len(body.data.vertices):continue
++            _group=_ob.vertex_groups.new(name='Delete.FittedGarmentCoverage');_group.add(sorted(_covered),1.0,'REPLACE')
++            _mask=_ob.modifiers.new('Delete.FittedGarmentCoverage','MASK');_mask.vertex_group=_group.name;_mask.invert_vertex_group=tm.invert_vertex_group;_mask.threshold=tm.threshold
++            _ss=[m for m in _ob.modifiers if m.type=='SUBSURF']
++            if _ss:
++                while _ob.modifiers.find(_mask.name)>_ob.modifiers.find(_ss[0].name):_ob.modifiers.move(_ob.modifiers.find(_mask.name),_ob.modifiers.find(_mask.name)-1)
++        print('GARMENT_BODY_COVERAGE',len(_covered),flush=True)
+     os.environ['DOBJ']=made[0][0]
+     os.environ['GARMS']=';'.join('%s=%s'%x for x in made)
+diff --git a/scripts/cast-preview-worker.py b/scripts/cast-preview-worker.py
+index 91d96a2..e8432d7 100644
+--- a/scripts/cast-preview-worker.py
++++ b/scripts/cast-preview-worker.py
+@@ -3,7 +3,7 @@
+ import argparse,fcntl,json,os,re,shutil,subprocess,time
+ from pathlib import Path
+ ROOT=Path(__file__).resolve().parents[1]
+-SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-assembled-v1'
++SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-fit-v5-upper-thigh'
+ CACHE=Path(os.environ.get('CAST_PREVIEW_CACHE_DIR',ROOT/'engine_sources/makehuman-lineart/out/cast-previews'))
+ SOURCE=Path(os.environ.get('CAST_SOURCE_DIR',ROOT/'engine_sources/makehuman-lineart/presenters_v1'))
+ ENV_KEYS={'CAST_CHARACTER','CAST_FACE','CAST_HAIR_STYLE','CAST_HAIR_HEX','CAST_SKIN_HEX','CAST_LIP_HEX','CAST_NECK','CAST_WATCH','CAST_DRESS','CAST_DRESS_HEX','CAST_MALE_LOOK','CAST_MALE_HAIR','CAST_HAIR_DYE','CAST_GARMENTS'}
+@@ -13,7 +13,7 @@ def atomic_json(path,value):
+ def status(job,value,**extra):atomic_json(job/'status.json',{'status':value,'updatedAt':time.time(),**extra})
+ def validate(config):
+     if config['sourceVersion']!=SOURCE_VERSION or config['renderVersion']!=RENDER_VERSION:raise ValueError('CAST_SOURCE_VERSION_MISMATCH')
+-    if type(config['frame']) is not int or not 1<=config['frame']<=998 or config['resolutionPercentage']!=50:raise ValueError('CAST_RENDER_PROFILE_INVALID')
++    if type(config['frame']) is not int or not 1<=config['frame']<=998 or config['resolutionPercentage']!=50 or config.get('framing')!='upper-thigh':raise ValueError('CAST_RENDER_PROFILE_INVALID')
+     env=config['env']
+     if set(env)!=ENV_KEYS or any(not isinstance(v,str) or len(v)>400 or not re.fullmatch(r'[A-Za-z0-9_=,.-]*',v) for v in env.values()):raise ValueError('CAST_RENDER_ENV_INVALID')
+     if env['CAST_CHARACTER'] not in ('female','male') or env['CAST_FACE'] not in ('0','1','2'):raise ValueError('CAST_CHARACTER_INVALID')
+diff --git a/scripts/cast-render-assembled.py b/scripts/cast-render-assembled.py
+index a409ef2..abfaafe 100644
+--- a/scripts/cast-render-assembled.py
++++ b/scripts/cast-render-assembled.py
+@@ -7,6 +7,23 @@ source=Path(os.environ['PV1']);entry=source/os.environ['MODF'];started=time.mono
+ exec(compile(entry.read_text(),str(entry),'exec'),globals())
+ polish_entry=Path(__file__).with_name('cast-apply-approved.py');exec(compile(polish_entry.read_text(),str(polish_entry),'exec'),globals())
+ scene=bpy.context.scene
++if config.get('framing') == 'upper-thigh' and '--full-body' not in args:
++    female = os.environ['CAST_CHARACTER'] == 'female'
++    scene.camera.location = (-0.42, -5.0, 1.21 if female else 1.29)
++    scene.camera.rotation_euler = (1.5707963, 0, 0)
++    scene.camera.data.ortho_scale = 1.10 if female else 1.18
++    scene.render.resolution_x = 2160
++    scene.render.resolution_y = 2880
++    scene.render.film_transparent = True
++    scene.render.image_settings.color_mode = 'RGBA'
++if '--headshot' in args:
++    scene.camera.location = (-0.42, -5.0, 1.55 if os.environ['CAST_CHARACTER'] == 'female' else 1.64)
++    scene.camera.rotation_euler = (1.5707963, 0, 0)
++    scene.camera.data.ortho_scale = 0.50
++    scene.render.resolution_x = scene.render.resolution_y = 1024
++    scene.render.film_transparent = True
++    scene.render.image_settings.color_mode = 'RGBA'
++
+ for layer in scene.view_layers:
+     for lines in layer.freestyle_settings.linesets:
+         if lines.collection:lines.collection.use_fake_user=True
+diff --git a/src/lib/cast-spec-schema.ts b/src/lib/cast-spec-schema.ts
+index 6fec0f3..cf7c50e 100644
+--- a/src/lib/cast-spec-schema.ts
++++ b/src/lib/cast-spec-schema.ts
+@@ -1,9 +1,11 @@
++import {ENVIRONMENTS} from "@/studio-v2/cast/environments";
+ import {z} from 'zod';
+ import {FEM_DRESSES,FEM_DRESS_COLORS,FEM_HAIR_COLORS,FEM_HAIRSTYLES,LIPS,MALE_BOTTOMS,MALE_HAIR_COLORS,MALE_HAIRSTYLES,MALE_OUTFITS,MALE_SHOES,MALE_TOP_COLORS,NECKS,SKINS,WATCHES,isHexColour} from '@/studio-v2/cast/spec';
+ export const castSpecSchema=z.object({
+  character:z.enum(['female','male']),face:z.number().int().min(0).max(2).default(0),skin:z.string().trim().max(24).default('light'),
+  hair:z.object({style:z.string().trim().max(40),color:z.string().trim().max(24)}).nullable().default(null),lip:z.string().trim().max(24).nullable().default(null),neck:z.string().trim().max(24).nullable().default(null),
+  outfit:z.object({kind:z.string().trim().max(40),color:z.string().trim().max(24).nullable().optional(),pieces:z.object({bottom:z.string().max(40).optional(),shoes:z.string().max(40).optional(),bottomColor:z.string().max(24).optional(),shoesColor:z.string().max(24).optional()}).strict().optional()}).nullable().default(null),
++ environment:z.enum(ENVIRONMENTS.map(e=>e.key)).nullable().optional(),environmentFormat:z.enum(['landscape','square','portrait']).optional(),
+  watch:z.string().trim().max(24).nullable().default(null),voiceId:z.string().trim().max(120).nullable().default(null),sourceVersion:z.string().max(64).optional(),
+ }).superRefine((s,ctx)=>{
+  const f=s.character==='female';
+diff --git a/src/studio-v2/cast/AvatarStage.tsx b/src/studio-v2/cast/AvatarStage.tsx
+index afcd93c..33f1353 100644
+--- a/src/studio-v2/cast/AvatarStage.tsx
++++ b/src/studio-v2/cast/AvatarStage.tsx
+@@ -1,5 +1,6 @@
+ "use client";
+ import {useEffect,useRef,useState} from 'react';
++import {environmentImage,environmentAspect} from './environments';
+ import {castRenderConfig} from './render-config';
+ import {normalizeCastSpec,type CastSpec} from './spec';
+ export type AvatarPreviewState='loading'|'ready'|'failed';
+@@ -35,8 +36,9 @@ export default function AvatarStage({spec,className,onStatus}:{spec:CastSpec;cla
+   const timer=setTimeout(()=>{requestPreview(normalizeCastSpec(currentSpec.current)).then(src=>{if(cancelled)return;setImage({key:visualKey,src});statusRef.current?.('ready');}).catch((e:Error)=>{if(cancelled)return;setError(e.message);statusRef.current?.('failed');});},COMPLETE.has(visualKey)?0:300);
+   return()=>{cancelled=true;clearTimeout(timer);};
+  },[visualKey,retry]);
+- return <div className={`cast-render-stage ${className??''}`} aria-busy={!ready&&!error} data-preview-state={error?'failed':ready?'ready':'loading'}>
+-  {image&&<img src={image.src} alt={`${spec.character==='female'?'Female':'Male'} presenter preview`}/>}
++ return <div className={`cast-render-stage ${className??''}`} aria-busy={!ready&&!error} style={spec.environment?{aspectRatio:environmentAspect[spec.environmentFormat??'square'],height:'auto',maxHeight:'100%'}:undefined} data-preview-state={error?'failed':ready?'ready':'loading'}>
++  {spec.environment&&<img className="cast-environment-plate" src={environmentImage(spec.environment,spec.environmentFormat??'square')} alt=""/>}
++  {image&&<img className="cast-presenter-overlay" src={image.src} alt={`${spec.character==='female'?'Female':'Male'} presenter preview`}/>}
+   {!ready&&<div className="cast-preview-status" role="status">{error?<><span>{error}</span><button type="button" onClick={()=>setRetry(n=>n+1)}>Retry preview</button></>:<><span className="cast-preview-spinner"/><span>{image?'Updating your look…':'Preparing your presenter…'}</span></>}</div>}
+  </div>;
+ }
+diff --git a/src/studio-v2/cast/render-config.ts b/src/studio-v2/cast/render-config.ts
+index a381b6c..8315ac0 100644
+--- a/src/studio-v2/cast/render-config.ts
++++ b/src/studio-v2/cast/render-config.ts
+@@ -1,5 +1,5 @@
+ import { CAST_SOURCE_VERSION, FEM_DRESS_COLORS, FEM_HAIR_COLORS, LIPS, MALE_BOTTOMS, MALE_HAIR_COLORS, MALE_SHOES, MALE_TOP_COLORS, SKINS, malePieces, normalizeCastSpec, type CastSpec } from './spec';
+-export const CAST_RENDER_VERSION = 'approved-v3-v6-assembled-v1';
++export const CAST_RENDER_VERSION = 'approved-v3-v6-fit-v5-upper-thigh';
+ export const CAST_PREVIEW_FRAME = 27;
+ const DRESSES: Record<string,string> = {sheath:'mindfront_f_dress_11',maxi:'mindfront_f_dress_09',column:'mindfront_f_dress_07',cocktail:'punkduck_black_cocktail_dress',qipao:'punkduck_middle_length_qipao'};
+ const TOPS: Record<string,string> = {o1:'namuhekam_male_polo_shirt',o2:'toigo_basic_tucked_t-shirt',o3:'elvs_male_shirt_untucked_bd1',o4:'mindfront_knitted_sweater_01',o5:'toigo_fisherman_sweater'};
+@@ -15,6 +15,6 @@ export function castRenderConfig(raw:CastSpec,frame=CAST_PREVIEW_FRAME){
+   CAST_MALE_LOOK:f?'':s.outfit!.kind.toUpperCase(),CAST_MALE_HAIR:f?'':HAIR[s.hair!.style],CAST_HAIR_DYE:!f&&s.hair!.color==='dye'?'8A1F3C':'',
+   CAST_GARMENTS:f?'':[`${TOPS[s.outfit!.kind]}=${hex(s.outfit!.color!,MALE_TOP_COLORS)}`,`${MALE_BOTTOMS.find(b=>b.key===p.bottom)!.asset}=${hex(p.bottomColor,[])}`,`${MALE_SHOES.find(b=>b.key===p.shoes)!.asset}=${hex(p.shoesColor,[])}`].join(','),
+  };
+- return {sourceVersion:CAST_SOURCE_VERSION,renderVersion:CAST_RENDER_VERSION,frame,resolutionPercentage:50,env};
++ return {sourceVersion:CAST_SOURCE_VERSION,renderVersion:CAST_RENDER_VERSION,frame,framing:'upper-thigh',resolutionPercentage:50,env};
+ }
+ export type CastRenderConfig=ReturnType<typeof castRenderConfig>;
+diff --git a/src/studio-v2/cast/spec.ts b/src/studio-v2/cast/spec.ts
+index 4eac9aa..28674b2 100644
+--- a/src/studio-v2/cast/spec.ts
++++ b/src/studio-v2/cast/spec.ts
+@@ -1,3 +1,4 @@
++import {ENVIRONMENTS,type EnvironmentId,type EnvironmentFormat} from "./environments";
+ // Saved selections for the authoritative modular presenter assembler.
+ export const CAST_SOURCE_VERSION = "bf88447b8f898bea078c44b9202cfe2b7ff13be5";
+ 
+@@ -22,6 +23,8 @@ export interface CastSpec {
+   outfit: CastOutfitSpec | null;
+   watch: string | null;
+   voiceId: string | null;
++  environment?: EnvironmentId | null;
++  environmentFormat?: EnvironmentFormat;
+   sourceVersion?: string;
+ }
+ 
+@@ -228,7 +231,7 @@ export function normalizeCastSpec(input:CastSpec|null|undefined,hint?:CastCharac
+  const kinds=character==="female"?FEM_DRESS_KEYS:MALE_OUTFIT_KEYS;
+  const kind=input?.outfit?.kind&&kinds.has(input.outfit.kind)?input.outfit.kind:d.outfit!.kind;
+  const defaults=character==="female"?FEM_DRESS_DEFAULT_COLOR:MALE_TOP_DEFAULT_COLOR;
+- return {character,face,skin:normalizeColour(input?.skin,SKIN_KEYS,d.skin),hair:{style:hairStyle,color:normalizeColour(input?.hair?.color,colors,d.hair!.color)},
++ return {environment:ENVIRONMENTS.some(e=>e.key===input?.environment)?input!.environment:null,environmentFormat:input?.environmentFormat==='landscape'||input?.environmentFormat==='portrait'?input.environmentFormat:'square',character,face,skin:normalizeColour(input?.skin,SKIN_KEYS,d.skin),hair:{style:hairStyle,color:normalizeColour(input?.hair?.color,colors,d.hair!.color)},
+  lip:character==="female"?normalizeColour(input?.lip,LIP_KEYS,d.lip!):null,
+  neck:character==="female"?(input?.neck===null||input?.neck==="none"?null:input?.neck&&NECK_KEYS.has(input.neck)?input.neck:d.neck):null,
+  outfit:{kind,color:normalizeColour(input?.outfit?.color,character==="female"?FEM_DRESS_COLOR_KEYS:MALE_TOP_COLOR_KEYS,defaults[kind]),...(character==="male"&&input?.outfit?.pieces?{pieces:malePieces({...d,outfit:{kind,pieces:input.outfit.pieces}})}:{})},
+diff --git a/src/studio-v2/nexstudio-v2.css b/src/studio-v2/nexstudio-v2.css
+index c9bd586..41558f0 100644
+--- a/src/studio-v2/nexstudio-v2.css
++++ b/src/studio-v2/nexstudio-v2.css
+@@ -2353,3 +2353,22 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
+ .cast-builder-controls .series-identity-save{position:sticky;bottom:0;min-height:48px;z-index:2;box-shadow:0 0 0 8px #f7f6f2}
+ @media(max-width:750px){.cast-builder .series-identity-body{overflow:auto;display:block;padding:0 14px 22px}.cast-builder-workspace{display:block}.cast-builder .series-identity-live{position:sticky;top:0;z-index:10;height:248px;min-height:248px;margin-bottom:14px;background:#fff}.cast-builder .cast-live-preview{height:200px!important}.cast-builder .series-identity-live-copy{padding:8px 12px}.cast-builder .series-identity-live-copy strong{font-size:14px}.cast-builder .series-identity-live-copy small{display:none}.cast-builder-controls{overflow:visible;padding-right:0}}
+ @media(prefers-reduced-motion:reduce){.cast-preview-spinner{animation:none}}
++
++/* Actual rendered options; rounded swatches are reserved for colours. */
++.cast-image-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
++.cast-image-option{min-width:0;min-height:44px;border:1px solid var(--line);border-radius:13px;background:#fff;padding:5px 5px 8px;text-align:left;cursor:pointer;color:var(--ink);transition:border-color .15s,box-shadow .15s}
++.cast-image-option:hover{border-color:var(--accent-border)}
++.cast-image-option:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
++.cast-image-option[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:var(--accent-soft)}
++.cast-image-option-art{position:relative;display:block;overflow:hidden;border-radius:9px;background:#f4f1eb;aspect-ratio:1.25}
++.cast-image-option-art img{display:block;width:100%;height:100%;object-fit:contain}
++.cast-image-option-check{position:absolute;right:5px;top:5px;display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:var(--accent);color:#221800;font-size:12px;font-weight:850}
++.cast-image-option-label{display:block;padding:7px 4px 0;font-size:10px;font-weight:750;line-height:1.3}
++.cast-image-option small{display:block;padding:3px 4px 0;font-size:8px;line-height:1.35;color:var(--muted)}
++.cast-character-options{grid-template-columns:repeat(2,minmax(0,1fr));max-width:290px}
++.cast-character-options .cast-image-option-art{aspect-ratio:1.5}
++.cast-builder-controls .identity-color{border-radius:9px}
++.cast-builder-controls .identity-custom-hex input{border-radius:8px;overflow:hidden}
++@media(max-width:750px){.cast-builder .series-identity-live{height:310px;min-height:310px}.cast-builder .cast-live-preview{height:262px!important}.cast-image-options{gap:7px}.cast-image-option-label{font-size:9px}.cast-image-option small{font-size:7.5px}}
++
++.cast-render-stage>.cast-environment-plate{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}.cast-render-stage>.cast-presenter-overlay{position:relative;z-index:1}.cast-preview-status{z-index:2}.cast-environment-options .cast-image-option-art{aspect-ratio:1}.cast-environment-options{margin-top:8px}
+diff --git a/src/studio-v2/views/CastView.tsx b/src/studio-v2/views/CastView.tsx
+index bc34124..0146a8f 100644
+--- a/src/studio-v2/views/CastView.tsx
++++ b/src/studio-v2/views/CastView.tsx
+@@ -3,6 +3,8 @@
+ import { useEffect, useState } from "react";
+ import { Eyebrow } from "../App";
+ import { studioApi } from "../api";
++import {ENVIRONMENTS,environmentImage,type EnvironmentFormat} from '../cast/environments';
++import OptionImage from "../cast/OptionImage";
+ import AvatarStage, {type AvatarPreviewState} from "../cast/AvatarStage";
+ import {castRenderConfig} from "../cast/render-config";
+ import {
+@@ -249,17 +251,17 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
+ 
+               <div className="identity-group">
+                 <div className="identity-group-head"><label>Character</label><span>the base performer</span></div>
+-                <div className="identity-frame">
+-                  <button aria-pressed={spec.character === "female"} onClick={() => switchCharacter("female")}>Woman</button>
+-                  <button aria-pressed={spec.character === "male"} onClick={() => switchCharacter("male")}>Man</button>
++                <div className="cast-image-options cast-character-options">
++                  <OptionImage character="female" category="character" option="female" label="Woman" selected={spec.character === "female"} onSelect={() => switchCharacter("female")} />
++                  <OptionImage character="male" category="character" option="male" label="Man" selected={spec.character === "male"} onSelect={() => switchCharacter("male")} />
+                 </div>
+               </div>
+ 
+               <div className="identity-group">
+                 <div className="identity-group-head"><label>Face</label><span>how their features read</span></div>
+-                <div className="identity-tile-options">
++                <div className="cast-image-options">
+                   {FACES.map((f) => (
+-                    <button key={f.id} className="identity-tile" aria-pressed={spec.face === f.id} onClick={() => patch({ face: f.id as CastSpec["face"] })}>{f.label}</button>
++                    <OptionImage key={f.id} character={spec.character} category="face" option={f.id} label={f.label} selected={spec.face === f.id} onSelect={() => patch({ face: f.id as CastSpec["face"] })} />
+                   ))}
+                 </div>
+               </div>
+@@ -276,11 +278,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
+ 
+               <div className="identity-group">
+                 <div className="identity-group-head"><label>Hair</label><span>{spec.character === "female" ? "each style carries its own earring" : "hairstyle"}</span></div>
+-                <div className="identity-tile-options">
++                <div className="cast-image-options">
+                   {hairStyles(spec.character).map((h) => (
+-                    <button key={h.key} className="identity-tile" aria-pressed={spec.hair?.style === h.key} onClick={() => patch({ hair: { style: h.key, color: spec.hair?.color ?? DEFAULT_SPEC[spec.character].hair!.color } })}>
+-                      {h.label}{"note" in h && h.note ? <small>{h.note as string}</small> : null}
+-                    </button>
++                    <OptionImage key={h.key} character={spec.character} category="hair" option={h.key} label={h.label} selected={spec.hair?.style === h.key} onSelect={() => patch({ hair: { style: h.key, color: spec.hair?.color ?? DEFAULT_SPEC[spec.character].hair!.color } })} note={"note" in h ? h.note as string : undefined} />
+                   ))}
+                 </div>
+                 {spec.hair && (
+@@ -296,9 +296,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
+               {spec.character === "female" && (
+                 <div className="identity-group">
+                   <div className="identity-group-head"><label>Lipstick</label><span>lip colour</span></div>
+-                  <div className="identity-options">
++                  <div className="identity-color-row">
+                     {LIPS.map((l) => (
+-                      <button key={l.key} className="identity-option" aria-pressed={spec.lip === l.key} onClick={() => patch({ lip: l.key })}>{l.label}</button>
++                      <button key={l.key} className="identity-color" aria-label={l.label} title={l.label} style={{["--c" as string]:l.hex}} aria-pressed={spec.lip === l.key} onClick={() => patch({ lip: l.key })} />
+                     ))}
+                     <CustomColour label="Custom lipstick colour" value={colourValue(spec.lip,LIPS)} onChange={lip=>patch({lip})}/>
+                   </div>
+@@ -308,9 +308,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
+               {spec.character === "female" && (
+                 <div className="identity-group">
+                   <div className="identity-group-head"><label>Neckwear</label><span>around the neckline</span></div>
+-                  <div className="identity-options">
++                  <div className="cast-image-options">
+                     {NECKS.map((n) => (
+-                      <button key={n.key} className="identity-option" aria-pressed={(spec.neck ?? "none") === n.key} onClick={() => patch({ neck: n.key === "none" ? null : n.key })}>{n.label}</button>
++                      <OptionImage key={n.key} character={"female"} category="neck" option={n.key} label={n.label} selected={(spec.neck ?? "none") === n.key} onSelect={() => patch({ neck: n.key === "none" ? null : n.key })} />
+                     ))}
+                   </div>
+                 </div>
+@@ -320,11 +320,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
+                 <>
+                   <div className="identity-group">
+                     <div className="identity-group-head"><label>Dress style</label><span>shape and cut</span></div>
+-                    <div className="identity-tile-options">
++                    <div className="cast-image-options">
+                       {FEM_DRESSES.map((o) => (
+-                        <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patchOutfitKind(o.key)}>
+-                          {o.label}
+-                        </button>
++                        <OptionImage key={o.key} character={"female"} category="dress" option={o.key} label={o.label} selected={spec.outfit?.kind === o.key} onSelect={() => patchOutfitKind(o.key)} />
+                       ))}
+                     </div>
+                   </div>
+@@ -342,11 +340,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
+                 <>
+                   <div className="identity-group">
+                     <div className="identity-group-head"><label>Top style</label><span>shape and cut</span></div>
+-                    <div className="identity-tile-options">
++                    <div className="cast-image-options">
+                       {MALE_OUTFITS.map((o) => (
+-                        <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patchOutfitKind(o.key)}>
+-                          {o.label}
+-                        </button>
++                        <OptionImage key={o.key} character={"male"} category="top" option={o.key} label={o.label} selected={spec.outfit?.kind === o.key} onSelect={() => patchOutfitKind(o.key)} />
+                       ))}
+                     </div>
+                   </div>
+@@ -358,25 +354,32 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
+                       ))}
+                     <CustomColour label="Custom top colour" value={colourValue(spec.outfit?.color,MALE_TOP_COLORS)} onChange={patchOutfitColor}/>
+                     </div>
+-<div className="identity-group"><div className="identity-group-head"><label>Trousers</label><span>choose separately</span></div><div className="identity-tile-options">{MALE_BOTTOMS.map(b=><button key={b.key} className="identity-tile" aria-pressed={malePieces(spec).bottom===b.key} onClick={()=>patchPieces({bottom:b.key})}>{b.label}</button>)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_BOTTOMS.map(b=><button key={b.key} aria-label={"Trousers "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).bottomColor===b.hex} onClick={()=>patchPieces({bottomColor:b.hex})}/>)}<CustomColour label="Custom trouser colour" value={malePieces(spec).bottomColor} onChange={bottomColor=>patchPieces({bottomColor})}/></div></div>
++</div>
++<div className="identity-group"><div className="identity-group-head"><label>Trousers</label><span>choose separately</span></div><div className="cast-image-options">{MALE_BOTTOMS.map(b=><OptionImage key={b.key} character="male" category="bottom" option={b.key} label={b.label} selected={malePieces(spec).bottom===b.key} onSelect={()=>patchPieces({bottom:b.key})} />)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_BOTTOMS.map(b=><button key={b.key} aria-label={"Trousers "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).bottomColor===b.hex} onClick={()=>patchPieces({bottomColor:b.hex})}/>)}<CustomColour label="Custom trouser colour" value={malePieces(spec).bottomColor} onChange={bottomColor=>patchPieces({bottomColor})}/></div></div>
+ 
+-<div className="identity-group"><div className="identity-group-head"><label>Shoes</label><span>choose separately</span></div><div className="identity-tile-options">{MALE_SHOES.map(b=><button key={b.key} className="identity-tile" aria-pressed={malePieces(spec).shoes===b.key} onClick={()=>patchPieces({shoes:b.key})}>{b.label}</button>)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_SHOES.map(b=><button key={b.key} aria-label={"Shoes "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).shoesColor===b.hex} onClick={()=>patchPieces({shoesColor:b.hex})}/>)}<CustomColour label="Custom shoe colour" value={malePieces(spec).shoesColor} onChange={shoesColor=>patchPieces({shoesColor})}/></div></div>
++<div className="identity-group"><div className="identity-group-head"><label>Shoes</label><span>choose separately</span></div><div className="cast-image-options">{MALE_SHOES.map(b=><OptionImage key={b.key} character="male" category="shoes" option={b.key} label={b.label} selected={malePieces(spec).shoes===b.key} onSelect={()=>patchPieces({shoes:b.key})} />)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_SHOES.map(b=><button key={b.key} aria-label={"Shoes "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).shoesColor===b.hex} onClick={()=>patchPieces({shoesColor:b.hex})}/>)}<CustomColour label="Custom shoe colour" value={malePieces(spec).shoesColor} onChange={shoesColor=>patchPieces({shoesColor})}/></div></div>
+ 
+-                  </div>
+                 </>
+               )}
+ 
+               {spec.character === "male" && (
+                 <div className="identity-group">
+                   <div className="identity-group-head"><label>Watch</label><span>on the wrist</span></div>
+-                  <div className="identity-options">
++                  <div className="cast-image-options">
+                     {WATCHES.map((w) => (
+-                      <button key={w.key} className="identity-option" aria-pressed={(spec.watch ?? "none") === w.key} onClick={() => patch({ watch: w.key === "none" ? null : w.key })}>{w.label}</button>
++                      <OptionImage key={w.key} character={"male"} category="watch" option={w.key} label={w.label} selected={(spec.watch ?? "none") === w.key} onSelect={() => patch({ watch: w.key === "none" ? null : w.key })} />
+                     ))}
+                   </div>
+                 </div>
+               )}
+ 
++              <div className="identity-group">
++                <div className="identity-group-head"><label>Environment</label><span>where they present</span></div>
++                <div className="identity-options"><button className="identity-option" aria-pressed={!spec.environment} onClick={()=>patch({environment:null})}>No background</button></div>
++                <div className="cast-image-options cast-environment-options">{ENVIRONMENTS.map(e=><button type="button" key={e.key} className="cast-image-option" aria-label={e.label} aria-pressed={spec.environment===e.key} onClick={()=>patch({environment:e.key})}><span className="cast-image-option-art"><img src={environmentImage(e.key,'square')} alt="" width={224} height={224} loading="lazy" />{spec.environment===e.key&&<span className="cast-image-option-check" aria-hidden="true">✓</span>}</span><span className="cast-image-option-label">{e.label}</span></button>)}</div>
++                {spec.environment&&<div className="identity-options" style={{marginTop:10}}>{(['landscape','square','portrait'] as EnvironmentFormat[]).map(format=><button type="button" key={format} className="identity-option" aria-pressed={(spec.environmentFormat??'square')===format} onClick={()=>patch({environmentFormat:format})}>{format==='landscape'?'16:9':format==='portrait'?'9:16':'1:1'}</button>)}</div>}
++              </div>
++
+               <div className="identity-group">
+                 <div className="identity-group-head"><label>Voice</label><span>how they sound</span></div>
+                 <div className="identity-voice-list">
+diff --git a/tests/cast-preview-worker.test.py b/tests/cast-preview-worker.test.py
+index be6c9c6..bb80f7d 100644
+--- a/tests/cast-preview-worker.test.py
++++ b/tests/cast-preview-worker.test.py
+@@ -6,7 +6,7 @@ class WorkerTests(unittest.TestCase):
+         with tempfile.TemporaryDirectory() as cache:
+             os.environ['CAST_PREVIEW_CACHE_DIR']=cache;os.environ['BLENDER_BIN']=str(Path(cache)/'missing-blender')
+             spec=importlib.util.spec_from_file_location('cast_worker',ROOT/'scripts/cast-preview-worker.py');worker=importlib.util.module_from_spec(spec);spec.loader.exec_module(worker)
+-            job=Path(cache)/('a'*64);job.mkdir();config={'sourceVersion':worker.SOURCE_VERSION,'renderVersion':worker.RENDER_VERSION,'frame':27,'resolutionPercentage':50,'env':{k:'' for k in worker.ENV_KEYS}};config['env'].update(CAST_CHARACTER='female',CAST_FACE='0');(job/'request.json').write_text(json.dumps({'config':config}))
++            job=Path(cache)/('a'*64);job.mkdir();config={'sourceVersion':worker.SOURCE_VERSION,'renderVersion':worker.RENDER_VERSION,'frame':27,'resolutionPercentage':50,'framing':'upper-thigh','env':{k:'' for k in worker.ENV_KEYS}};config['env'].update(CAST_CHARACTER='female',CAST_FACE='0');(job/'request.json').write_text(json.dumps({'config':config}))
+             first=worker.take_lock();self.assertIsNone(worker.take_lock());first.close();worker.drain();self.assertEqual(json.loads((job/'status.json').read_text())['error'],'BLENDER_RUNTIME_MISSING');self.assertFalse((job/'preview.png').exists());reopened=worker.take_lock();self.assertIsNotNone(reopened);reopened.close()
+             config['env']['CAST_CHARACTER']='female; touch stolen'
+             with self.assertRaises(ValueError):worker.validate(config)

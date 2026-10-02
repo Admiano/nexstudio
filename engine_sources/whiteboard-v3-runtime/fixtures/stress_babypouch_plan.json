@@ -1,0 +1,96 @@
+{
+  "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+  "production_id": "NEXMIND_WHITEBOARD_V3_BABYPOUCH_DEMO",
+  "camera_variant": "cluster_travel",
+  "output_ratios": ["16:9"],
+  "pacing": {"transition_seconds": 1.2, "board_reveal_seconds": 3.4},
+  "beats": [
+    {
+      "beat_id": "01_hook",
+      "start_seconds": 0,
+      "duration_seconds": 7.7,
+      "narration": "The Gerber pouch that says apple blueberry spinach on the front has half a spinach leaf in it.",
+      "scene": {
+        "sceneId": "01_hook",
+        "heroRole": "baby food pouch",
+        "supportingRoles": ["spinach leaf", "apple blueberry label"],
+        "screenCopy": {"primary": "HALF A SPINACH LEAF"},
+        "semanticRelationships": [
+          {"source": "baby food pouch", "target": "spinach leaf", "kind": "claims"}
+        ]
+      }
+    },
+    {
+      "beat_id": "02_inside",
+      "start_seconds": 7.7,
+      "duration_seconds": 4.5,
+      "narration": "Gerber says the product contains one half an apple, 16 blueberries, one half a spinach leaf.",
+      "scene": {
+        "sceneId": "02_inside",
+        "heroRole": "apple",
+        "supportingRoles": ["16 blueberries", "spinach leaf"],
+        "screenCopy": {"primary": "WHAT'S INSIDE"},
+        "semanticRelationships": [
+          {"source": "apple", "target": "16 blueberries", "kind": "contains"}
+        ]
+      }
+    },
+    {
+      "beat_id": "03_sugar",
+      "start_seconds": 12.5,
+      "duration_seconds": 7.5,
+      "narration": "The ingredient list starts with organic apple puree. It's 10 grams of sugar per pouch, all from the fruit.",
+      "scene": {
+        "sceneId": "03_sugar",
+        "heroRole": "ingredient list",
+        "supportingRoles": ["10 grams sugar", "organic apple puree"],
+        "screenCopy": {"primary": "READ THE LIST"},
+        "semanticRelationships": [
+          {"source": "ingredient list", "target": "10 grams sugar", "kind": "reveals"}
+        ]
+      }
+    },
+    {
+      "beat_id": "04_aisle",
+      "start_seconds": 20.0,
+      "duration_seconds": 2.6,
+      "narration": "That's how most of the pouches in the baby are work.",
+      "scene": {
+        "sceneId": "04_aisle",
+        "heroRole": "baby food aisle",
+        "supportingRoles": ["parent shopper"],
+        "screenCopy": {"primary": "EVERY POUCH"}
+      }
+    },
+    {
+      "beat_id": "05_why",
+      "start_seconds": 22.9,
+      "duration_seconds": 9.3,
+      "narration": "The vegetable gets the front of the package and the apple or pear is most of what's because that's what a baby will actually eat. Nothing on the label is false.",
+      "scene": {
+        "sceneId": "05_why",
+        "heroRole": "baby eating",
+        "supportingRoles": ["vegetable front", "apple pear"],
+        "screenCopy": {"primary": "WHAT BABIES EAT"},
+        "semanticRelationships": [
+          {"source": "vegetable front", "target": "apple pear", "kind": "leads"}
+        ]
+      }
+    },
+    {
+      "beat_id": "06_takeaway",
+      "start_seconds": 32.6,
+      "duration_seconds": 6.2,
+      "narration": "Read the ingredient order and look at the sugar line. The vegetable on the front is a very small part of what's in the pouch.",
+      "scene": {
+        "sceneId": "06_takeaway",
+        "heroRole": "sugar line",
+        "supportingRoles": ["ingredient order", "tiny vegetable"],
+        "screenCopy": {"primary": "CHECK THE ORDER"},
+        "semanticRelationships": [
+          {"source": "sugar line", "target": "ingredient order", "kind": "reveals"}
+        ]
+      }
+    }
+  ]
+}

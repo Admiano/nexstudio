@@ -1,0 +1,26 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Color Bucket -->
+                <path d="M130 180 L150 260 H250 L270 180 Z" fill="#F5F0E4"/>
+                <path d="M150 260 H250 C250 270 150 270 150 260 Z" fill="#1A1A17"/>
+                <ellipse cx="200" cy="180" rx="70" ry="15" fill="#F5F0E4"/>
+                <ellipse cx="200" cy="180" rx="60" ry="10" fill="#F5F0E4"/>
+                <!-- Splash Cloud -->
+                <path d="M140 160 C100 120 140 80 180 120 C200 60 260 80 240 130 C280 130 280 180 240 170 Z" fill="#F5F0E4" opacity="0.8"/>
+                <circle cx="150" cy="100" r="10" fill="#1A1A17"/>
+                <circle cx="260" cy="110" r="15" fill="#1A1A17" style="animation-delay: -0.5s"/>
+                <circle cx="210" cy="70" r="12" fill="#F5F0E4" style="animation-delay: -1s"/>
+            </g>
+            <!-- Pichkari (Water Gun) -->
+            <g transform="rotate(25 280 200)">
+                <g style="animation-delay: -1.5s;">
+                <rect x="250" y="150" width="80" height="20" rx="5" fill="#1A1A17"/>
+                <rect x="240" y="155" width="10" height="10" fill="#F5F0E4"/>
+                <!-- Handle -->
+                <rect x="330" y="155" width="30" height="10" fill="#F5F0E4"/>
+                <circle cx="360" cy="160" r="10" fill="#1A1A17"/>
+                <!-- Water stream -->
+                <path d="M230 160 L180 160" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round" stroke-dasharray="10 10"/>
+            </g>
+            </g>
+          </svg>

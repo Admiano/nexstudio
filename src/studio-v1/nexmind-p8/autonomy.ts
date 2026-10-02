@@ -34,7 +34,7 @@ export const STUDIO_AUTONOMY_POLICY = Object.freeze({
 
 export type StudioTasteCalibrationRecord = {
   productionId: string;
-  family: StudioProductionFamily;
+  family: "EXPLAINER" | "WHITEBOARD";
   evidenceHash: string;
   p8BuildHash: string;
   judgeEnsembleHash: string;
@@ -54,8 +54,8 @@ export async function loadStudioTasteCalibration(): Promise<{ schema: "StudioTas
   for (const artifact of artifacts) {
     const content = record(artifact.content);
     if (content.schema !== "StudioNexMindTasteCalibrationSampleV1" || content.synthetic === true) continue;
-    const family = String(content.family || "") as StudioProductionFamily;
-    if (!["EXPLAINER", "WHITEBOARD", "STICKMAN", "EDITORIAL_MOTION"].includes(family)) continue;
+    const family = String(content.family || "") as "EXPLAINER" | "WHITEBOARD";
+    if (!["EXPLAINER", "WHITEBOARD"].includes(family)) continue;
     const evidenceHash = String(content.evidenceHash || "");
     const p8BuildHash = String(content.p8BuildHash || "");
     const judgeEnsembleHash = String(content.judgeEnsembleHash || "");

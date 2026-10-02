@@ -1,5 +1,5 @@
 import { Prisma, type Draft as PrismaDraft } from "@/generated/prisma/client";
-import { type StudioProductionState, kindForStudioProductionDraft } from "@/domain/studio-production-draft";
+import { type StudioProductionState, asStudioProductionFamily, kindForStudioProductionDraft } from "@/domain/studio-production-draft";
 import { getPrisma } from "./db";
 import type {
   CreateProductionDraftInput,
@@ -22,7 +22,7 @@ function mapRow(row: PrismaDraft): StoredProductionDraft {
   return {
     id: row.id,
     ownerUserId: row.ownerUserId,
-    family: row.family,
+    family: asStudioProductionFamily(row.family),
     videoType: row.videoType,
     prompt: row.prompt,
     sources: jsonArray(row.sources),

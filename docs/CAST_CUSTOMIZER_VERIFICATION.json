@@ -1,0 +1,449 @@
+{
+  "checkedAt": "2026-10-02T11:07:19.516Z",
+  "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+  "approvedReference": {
+    "female": "v3",
+    "male": "v6"
+  },
+  "build": "Next.js production build passed",
+  "typecheck": "Passed",
+  "unitChecks": "npm run test:cast passed",
+  "assetChecks": {
+    "files": 99,
+    "allPinnedHashesMatch": true,
+    "missingFileRestoredByteForByte": true
+  },
+  "appRuntime": "Next.js production standalone + disposable PostgreSQL-compatible database",
+  "browserChecks": [
+    "Preview endpoint requires authentication",
+    "Approved female source renders in the production customizer",
+    "Female face, skin, bun, lipstick, no necklace and dress save/reopen exactly",
+    "Changing a top preserves independently selected trousers and shoes",
+    "Voice changes reuse the same rendered look",
+    "Database selections survive reload, including custom colours, garment IDs and voice",
+    "Unavailable mesh IDs and path traversal are rejected",
+    "Mobile preview and controls remain usable",
+    "No browser errors or failed server responses during the flow",
+    "Production standalone starts the Blender worker automatically from CAST_PROJECT_ROOT",
+    "An uncached selection queues and renders to completion",
+    "Previous image stays visible and save is disabled while updating",
+    "Save enables after the exact selected image loads"
+  ],
+  "browserErrors": [],
+  "mobileViewport": {
+    "viewport": [
+      390,
+      844
+    ],
+    "visual": [
+      390,
+      844
+    ],
+    "overlay": [
+      0,
+      844
+    ],
+    "panel": [
+      33.765625,
+      810.234375
+    ]
+  },
+  "renderProfile": {
+    "frame": 27,
+    "resolution": [
+      1440,
+      2160
+    ],
+    "engine": "CYCLES",
+    "samples": 12
+  },
+  "visualCases": [
+    {
+      "name": "female-approved",
+      "key": "c0865213664573b27aa0f83ee94b9a0292065d5140d7afcd6a3e2b5ac4a683d3",
+      "spec": {
+        "character": "female",
+        "face": 0,
+        "skin": "light",
+        "hair": {
+          "style": "long",
+          "color": "auburn"
+        },
+        "lip": "rose",
+        "neck": "fine",
+        "outfit": {
+          "kind": "sheath",
+          "color": "navy"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "male-approved",
+      "key": "894d158b1777b5e430677fac3cdcfc727fae66e65b301c11bac789ff2518e4c2",
+      "spec": {
+        "character": "male",
+        "face": 0,
+        "skin": "tan",
+        "hair": {
+          "style": "quiff",
+          "color": "brown"
+        },
+        "lip": null,
+        "neck": null,
+        "outfit": {
+          "kind": "o3",
+          "color": "blue"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "female-bob-maxi",
+      "key": "11795e9e609f5d95b72c032bb9e0210effc47284f35374daeead9be8daf5933b",
+      "spec": {
+        "character": "female",
+        "face": 1,
+        "skin": "brown",
+        "hair": {
+          "style": "bob",
+          "color": "black"
+        },
+        "lip": "red",
+        "neck": "pearls",
+        "outfit": {
+          "kind": "maxi",
+          "color": "burgundy"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "female-bangs-column",
+      "key": "3e277ca1e933a755ce4162fdbcbd72f1de8dec31ed17ffe77d9573da31e5c241",
+      "spec": {
+        "character": "female",
+        "face": 2,
+        "skin": "deep",
+        "hair": {
+          "style": "bangs",
+          "color": "silver"
+        },
+        "lip": "berry",
+        "neck": "pendant",
+        "outfit": {
+          "kind": "column",
+          "color": "sage"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "female-bun-cocktail",
+      "key": "4e37e8f1f0798fa3c4e5a3febfb8121a005a68ea2105bb0ff7c9306390fd0179",
+      "spec": {
+        "character": "female",
+        "face": 1,
+        "skin": "brown",
+        "hair": {
+          "style": "bun",
+          "color": "black"
+        },
+        "lip": "coral",
+        "neck": null,
+        "outfit": {
+          "kind": "cocktail",
+          "color": "emerald"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "female-braid-qipao",
+      "key": "6884400cfa020e2ff91996c4d8bee42335dc506108ec9e6ca53b50bcd5efa2d3",
+      "spec": {
+        "character": "female",
+        "face": 0,
+        "skin": "tan",
+        "hair": {
+          "style": "braid",
+          "color": "blonde"
+        },
+        "lip": "nude",
+        "neck": "choker",
+        "outfit": {
+          "kind": "qipao",
+          "color": "rose"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "female-custom",
+      "key": "84b0dbc7a1016253004c3605511ea4971efebdd433ab788c46eca29e5bf81a0b",
+      "spec": {
+        "character": "female",
+        "face": 2,
+        "skin": "#BA8768",
+        "hair": {
+          "style": "bun",
+          "color": "#503B60"
+        },
+        "lip": "#934A55",
+        "neck": "scarf",
+        "outfit": {
+          "kind": "maxi",
+          "color": "#41677B"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "male-crop-polo",
+      "key": "16b9d98bb15230bccc49447f0f577b4900fa4dde56c8ee6b20f58e28fec4738f",
+      "spec": {
+        "character": "male",
+        "face": 1,
+        "skin": "light",
+        "hair": {
+          "style": "crop",
+          "color": "black"
+        },
+        "lip": null,
+        "neck": null,
+        "outfit": {
+          "kind": "o1",
+          "color": "navy"
+        },
+        "watch": "analog",
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "male-afro-tee",
+      "key": "279adfccb561b1bd76510d496789da179912fc46645c2b637f8d61ecf12c3a6f",
+      "spec": {
+        "character": "male",
+        "face": 2,
+        "skin": "deep",
+        "hair": {
+          "style": "afro",
+          "color": "grey"
+        },
+        "lip": null,
+        "neck": null,
+        "outfit": {
+          "kind": "o2",
+          "color": "ivory"
+        },
+        "watch": "digital",
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "male-braids-knit",
+      "key": "2ab5a487ff3ea4285031f75c90a0f0b697b13d86a8edd1df72da4f8652ef98ed",
+      "spec": {
+        "character": "male",
+        "face": 0,
+        "skin": "brown",
+        "hair": {
+          "style": "braids",
+          "color": "dye"
+        },
+        "lip": null,
+        "neck": null,
+        "outfit": {
+          "kind": "o4",
+          "color": "burgundy"
+        },
+        "watch": "chrono",
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "male-swept-fisherman",
+      "key": "20b0cc758f0c94b18ff1715530d488046681beb320ea15da311412b7559c212f",
+      "spec": {
+        "character": "male",
+        "face": 0,
+        "skin": "fair",
+        "hair": {
+          "style": "swept",
+          "color": "blonde"
+        },
+        "lip": null,
+        "neck": null,
+        "outfit": {
+          "kind": "o5",
+          "color": "cream"
+        },
+        "watch": "smart",
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "male-custom",
+      "key": "d06c2d374dfc0c0047de07951e009eb87d995f238f3fd56904ed08cd55500f91",
+      "spec": {
+        "character": "male",
+        "face": 2,
+        "skin": "#B77756",
+        "hair": {
+          "style": "quiff",
+          "color": "#465860"
+        },
+        "lip": null,
+        "neck": null,
+        "outfit": {
+          "kind": "o3",
+          "color": "#28665C",
+          "pieces": {
+            "bottom": "classic-jeans",
+            "shoes": "classic-sneakers",
+            "bottomColor": "#3A304A",
+            "shoesColor": "#473624"
+          }
+        },
+        "watch": "dress",
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "male-bald",
+      "key": "6f69f5fdbe230770e08b2b6d6e744519fe52b8e036034f16c2e9a3bc80c0ac82",
+      "spec": {
+        "character": "male",
+        "face": 0,
+        "skin": "tan",
+        "hair": {
+          "style": "bald",
+          "color": "brown"
+        },
+        "lip": null,
+        "neck": null,
+        "outfit": {
+          "kind": "o3",
+          "color": "blue"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 27
+    },
+    {
+      "name": "male-closed-mouth",
+      "key": "9a69204708559cd3bce7216cf5834b10dc6f152fd0054edba8fe8ddec93bcd57",
+      "spec": {
+        "character": "male",
+        "face": 0,
+        "skin": "tan",
+        "hair": {
+          "style": "quiff",
+          "color": "brown"
+        },
+        "lip": null,
+        "neck": null,
+        "outfit": {
+          "kind": "o3",
+          "color": "blue"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 1
+    },
+    {
+      "name": "female-gesture",
+      "key": "12376370b475976dc7d62f6807a8297f465727d8c2177356511b0322629b64d2",
+      "spec": {
+        "character": "female",
+        "face": 0,
+        "skin": "light",
+        "hair": {
+          "style": "long",
+          "color": "auburn"
+        },
+        "lip": "rose",
+        "neck": "fine",
+        "outfit": {
+          "kind": "sheath",
+          "color": "navy"
+        },
+        "watch": null,
+        "voiceId": null,
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5"
+      },
+      "frame": 338
+    }
+  ],
+  "limitations": [
+    "Docker image itself not built because Docker is unavailable; its installer, renderer and warm-up components were run.",
+    "New CPU previews took 44\u2013134 seconds; queued work adds waiting time. Cached selections reuse their PNG.",
+    "Video delivery compositions were not changed or redeployed."
+  ],
+  "referenceComparison": {
+    "female": {
+      "resolution": [
+        1440,
+        2160
+      ],
+      "channelScale": "0\u2013255",
+      "meanAbsoluteRgbError": 0.0005689514746227709,
+      "meanAbsoluteRgbErrorInCharacter": 0.002599294290411089,
+      "differentPixels": 1965,
+      "pixelsWithDifferenceAbove20": 9
+    },
+    "male": {
+      "resolution": [
+        1440,
+        2160
+      ],
+      "channelScale": "0\u2013255",
+      "meanAbsoluteRgbError": 0.011607403120713306,
+      "meanAbsoluteRgbErrorInCharacter": 0.05503259883317527,
+      "differentPixels": 8866,
+      "pixelsWithDifferenceAbove20": 505
+    }
+  },
+  "referenceComparisonNotes": "Same-frame renders of approved v3/v6 and the assembled defaults. Remaining differences are isolated garment/contour edge pixels. Approved v6 shirt map-range settings are retained.",
+  "unchangedBlendFiles": {
+    "presenters_v1/scenes/NEXSTUDIO_V1_FEMALE.blend": "49c78cb3e69a85b44a9d9e9e3463bc5ede9c3a85",
+    "presenters_v1/scenes/NEXSTUDIO_V1_MALE.blend": "170929b4a118dfdd05dba9da3bd1c2142da21ac2",
+    "NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_FEMALE_v3.blend": "3fcb090345811185f086041d830c91ce0ac2ce4c",
+    "NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_MALE_v6.blend": "f4214fadf565284b11a652f79b34c6280df24e80"
+  }
+}

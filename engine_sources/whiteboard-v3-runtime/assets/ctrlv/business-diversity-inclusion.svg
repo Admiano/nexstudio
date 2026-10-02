@@ -1,0 +1,45 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Center Intersection/Connection -->
+                <circle cx="200" cy="150" r="50" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                <circle style="animation-delay: 0.2s;" cx="200" cy="150" r="30" fill="#F5F0E4"/>
+                
+                <!-- Hand 1 (Top Left) -->
+                <g transform="translate(130, 80) rotate(45)">
+                    <g>
+                    <path d="M-20 -60 v40 a20 20 0 0 0 40 0 v-40 Z" fill="#1A1A17"/>
+                    <path d="M-20 -20 h40" stroke="#F5F0E4" stroke-width="4"/>
+                </g>
+                </g>
+                
+                <!-- Hand 2 (Top Right) -->
+                <g transform="translate(270, 80) rotate(-45)">
+                    <g style="animation-delay: 0.2s;">
+                    <path d="M-20 -60 v40 a20 20 0 0 0 40 0 v-40 Z" fill="#F5F0E4"/>
+                    <path d="M-20 -20 h40" stroke="#F5F0E4" stroke-width="4"/>
+                </g>
+                </g>
+                
+                <!-- Hand 3 (Bottom Left) -->
+                <g transform="translate(130, 220) rotate(135)">
+                    <g style="animation-delay: 0.4s;">
+                    <path d="M-20 -60 v40 a20 20 0 0 0 40 0 v-40 Z" fill="#F5F0E4"/>
+                    <path d="M-20 -20 h40" stroke="#F5F0E4" stroke-width="4"/>
+                </g>
+                </g>
+                
+                <!-- Hand 4 (Bottom Right) -->
+                <g transform="translate(270, 220) rotate(-135)">
+                    <g style="animation-delay: 0.6s;">
+                    <path d="M-20 -60 v40 a20 20 0 0 0 40 0 v-40 Z" fill="#1A1A17"/>
+                    <path d="M-20 -20 h40" stroke="#F5F0E4" stroke-width="4"/>
+                </g>
+                </g>
+                
+                <!-- Sparks of synergy -->
+                <circle cx="200" cy="70" r="6" fill="#F5F0E4"/>
+                <circle cx="200" cy="230" r="6" fill="#F5F0E4"/>
+                <circle cx="120" cy="150" r="6" fill="#F5F0E4"/>
+                <circle cx="280" cy="150" r="6" fill="#F5F0E4"/>
+            </g>
+          </svg>

@@ -1,0 +1,81 @@
+{
+ "production_id": "NEXMIND_DEVIN_DIAGRAM_DEMO",
+ "aspect_ratios": [
+  "16:9"
+ ],
+ "diagram": {
+  "title": "How does Devin work?",
+  "hero": "robot",
+  "summary": "ASK \u2192 WORK \u2192 REVIEW",
+  "layout": "flow"
+ },
+ "brandExecution": {
+  "brandAuthority": {
+   "accent": "#0052FF"
+  }
+ },
+ "beats": [
+  {
+   "narration": "Devin is an AI software engineer. You give it a task \u2014 a ticket, a bug, a feature request.",
+   "diagram": {
+    "stage": "YOU ASK",
+    "elements": [
+     {
+      "icon": "ticket",
+      "at": "cell"
+     },
+     {
+      "icon": "robot",
+      "label": "DEVIN",
+      "sub": "AI engineer",
+      "at": "cell"
+     }
+    ]
+   }
+  },
+  {
+   "narration": "Then it gets to work on its own machine. It plans the change, writes the code, and tests it.",
+   "diagram": {
+    "stage": "DEVIN WORKS",
+    "elements": [
+     {
+      "part": "planning",
+      "label": "PLAN",
+      "sub": "steps",
+      "at": "cell"
+     },
+     {
+      "part": "code",
+      "label": "BUILD",
+      "sub": "writes code",
+      "at": "cell"
+     },
+     {
+      "part": "flask",
+      "label": "TEST",
+      "sub": "verifies",
+      "at": "cell"
+     }
+    ]
+   }
+  },
+  {
+   "narration": "When it is done, it hands you a pull request. You review it, leave comments, and it keeps going.",
+   "diagram": {
+    "stage": "YOU REVIEW",
+    "elements": [
+     {
+      "icon": "code review",
+      "label": "PULL REQUEST",
+      "at": "cell"
+     },
+     {
+      "chip": "ITERATE",
+      "sub": "comments \u2192 fixes",
+      "at": "cell"
+     }
+    ]
+   }
+  }
+ ]
+}

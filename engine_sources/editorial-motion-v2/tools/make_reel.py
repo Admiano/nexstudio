@@ -13,7 +13,7 @@ media_library) -> regression_pack render -> web file -> poster-framed file.
 Env: node must be on PATH for the renderer (nvm v24.x):
   export PATH=$HOME/.nvm/versions/node/v24.19.0/bin:$PATH
 """
-import argparse, json, os, re, subprocess, sys, uuid
+import argparse, json, os, re, subprocess, sys, time, uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,7 +59,9 @@ def make_voice(args, fixture_dir):
         text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
         if not text.strip():
             sys.exit("need --script/--script-file or --voice-file")
-        dur = synth(text.strip(), args.voice, out_wav)
+        # Narration speed is the user's choice only; duration never retimes the voice.
+        speed = min(max(getattr(args, 'speed', None) or 1.0, 0.6), 2.0)
+        dur = synth(text.strip(), args.voice, out_wav, speed=speed)
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
                         "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", str(norm)], check=True)
@@ -185,6 +187,10 @@ def build_treatment(args, style, words, media_files, film_id):
         bid = f"b{bi+1:02d}"
         narration = clean(" ".join(w["text"] for w in g))
         picked = pick_entities(g, fam_key, used_kw)
+        if not picked:
+            anchor = next((w["text"] for w in g if word_key(w["text"]) not in STOPWORDS), g[0]["text"])
+            picked = [({"id": f"e1_{word_key(anchor) or 'idea'}", "kind": "object", "glyph": "TILE",
+                        "concept": anchor.strip(".,!?;:'\"“”()[]")[:40] or "idea"}, anchor)]
         ents = []
         for ent, anchor in picked:
             ents.append([ent, anchor])
@@ -297,10 +303,12 @@ def remux_nocaption(frames_dir, audio_wav, out_mp4):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--script"); ap.add_argument("--script-file"); ap.add_argument("--voice-file")
-    ap.add_argument("--voice", default="bm_george", choices=sorted(VOICES))
+    ap.add_argument("--voice", default="emma", choices=sorted(VOICES))
     ap.add_argument("--style", default="tiles")
     ap.add_argument("--media", nargs="*", default=[])
     ap.add_argument("--aspects", default="16x9,1x1,9x16")
+    ap.add_argument("--duration", type=float, default=None, help="target seconds; narration pacing adjusts toward it")
+    ap.add_argument("--speed", type=float, default=1.0, help="user narration speed multiplier")
     ap.add_argument("--out", required=True)
     ap.add_argument("--film-id")
     ap.add_argument("--treatment", help="use an existing treatment.json instead of auto-authoring")
@@ -311,6 +319,14 @@ def main():
     style = style_of(args.style)
     film_id = args.film_id or f"reel-{uuid.uuid4().hex[:8]}"
     out_dir = Path(args.out); out_dir.mkdir(parents=True, exist_ok=True)
+    progress_file = out_dir.parent / "progress.json"
+    aspect_list = [a.strip() for a in args.aspects.split(",") if a.strip()]
+
+    def progress(**payload):
+        try:
+            progress_file.write_text(json.dumps(payload))
+        except OSError:
+            pass
 
     if args.treatment:
         treatment_src = Path(args.treatment)
@@ -327,26 +343,43 @@ def main():
         fixture_dir = ROOT / "fixtures" / film_id
         fixture_dir.mkdir(parents=True, exist_ok=True)
         log(f"fixture → {fixture_dir}")
+        progress(phase="voice")
         words = make_voice(args, fixture_dir)
         for mf in args.media:
             dst = fixture_dir / "media" / Path(mf).name
             dst.parent.mkdir(exist_ok=True)
             subprocess.run(["cp", str(mf), str(dst)], check=True)
         media = [fixture_dir / "media" / Path(mf).name for mf in args.media]
+        progress(phase="direction")
         treatment = build_treatment(args, style, words, media, film_id)
         (fixture_dir / "treatment.json").write_text(json.dumps(treatment, indent=1))
         treatment_src = fixture_dir / "treatment.json"
 
     log(f"rendering {args.aspects} @ {style['id']} ...")
+    progress(phase="render", aspectsDone=0, aspectsTotal=len(aspect_list))
     env = dict(os.environ)
     env["PATH"] = os.path.expanduser("~/.nvm/versions/node/v24.19.0/bin") + ":" + env["PATH"]
-    r = subprocess.run([sys.executable, str(TOOLS / "regression_pack.py"),
-                        "--fixture", fixture_dir.name, "--aspects", args.aspects,
-                        "--out", str(out_dir.resolve())],
-                       env=env, capture_output=True, text=True)
-    print(r.stdout[-2500:] or r.stderr[-2500:])
+    r = subprocess.Popen([sys.executable, str(TOOLS / "regression_pack.py"),
+                          "--fixture", fixture_dir.name, "--aspects", args.aspects,
+                          "--out", str(out_dir.resolve())],
+                         env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    captured: list[str] = []
+    film_out = out_dir / fixture_dir.name
+    while True:
+        line = r.stdout.readline() if r.stdout else ""
+        if line:
+            captured.append(line)
+        else:
+            if r.poll() is not None:
+                break
+            time.sleep(1)
+        done = sum(1 for a in aspect_list if (film_out / f"render_{a}.json").exists())
+        progress(phase="render", aspectsDone=done, aspectsTotal=len(aspect_list))
+    tail = "".join(captured)[-2500:]
+    print(tail)
     if r.returncode != 0:
         sys.exit(f"render failed ({r.returncode})")
+    progress(phase="finishing", aspectsDone=len(aspect_list), aspectsTotal=len(aspect_list))
 
     stem = fixture_dir.name
     dims = {"16x9": (1920, 1080), "1x1": (1080, 1080), "9x16": (1080, 1920)}

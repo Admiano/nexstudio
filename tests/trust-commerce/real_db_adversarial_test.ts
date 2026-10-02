@@ -24,8 +24,9 @@ const [{ getPrisma }, billing] = await Promise.all([
   import("../../src/lib/db"),
   import("../../src/studio-v1/billing"),
 ]);
-const prisma = getPrisma();
-if (!prisma) throw new Error("TEST_DATABASE_NOT_AVAILABLE");
+const configuredPrisma = getPrisma();
+if (!configuredPrisma) throw new Error("TEST_DATABASE_NOT_AVAILABLE");
+const prisma = configuredPrisma;
 
 const createdUsers: string[] = [];
 const results: Array<{ name: string; ok: boolean; detail?: string }> = [];

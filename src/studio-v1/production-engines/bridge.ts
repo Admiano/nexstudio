@@ -5,7 +5,7 @@ export type StudioFamilyEngineOperation = "BUILD_INTERNAL_REVIEW_EVIDENCE";
 export type StudioFamilyEngineRequest = {
   schema: "StudioFamilyEngineRequestV1";
   operation: StudioFamilyEngineOperation;
-  family: "EXPLAINER" | "WHITEBOARD" | "STICKMAN" | "EDITORIAL_MOTION";
+  family: "EXPLAINER" | "WHITEBOARD";
   authorityId: string;
   productionId: string;
   creativeStateArtifactId: string;

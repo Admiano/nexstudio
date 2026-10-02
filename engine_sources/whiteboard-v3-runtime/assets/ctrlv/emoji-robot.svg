@@ -1,0 +1,25 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Antenna -->
+                <path d="M200 80 V40" stroke="#F5F0E4" stroke-width="8"/>
+                <circle cx="200" cy="40" r="10" fill="#F5F0E4"/>
+                
+                <!-- Ears -->
+                <rect x="70" y="130" width="30" height="40" rx="5" fill="#F5F0E4"/>
+                <rect x="300" y="130" width="30" height="40" rx="5" fill="#F5F0E4"/>
+                
+                <!-- Head -->
+                <rect x="100" y="80" width="200" height="160" rx="20" fill="#1A1A17"/>
+                
+                <!-- Screen/Eyes area -->
+                <rect x="120" y="110" width="160" height="60" rx="10" fill="#F5F0E4"/>
+                <circle cx="160" cy="140" r="15" fill="#F5F0E4"/>
+                <circle cx="240" cy="140" r="15" fill="#F5F0E4"/>
+                <circle cx="160" cy="140" r="6" fill="#F5F0E4"/>
+                <circle cx="240" cy="140" r="6" fill="#F5F0E4"/>
+                
+                <!-- Grill Mouth -->
+                <path d="M150 190 H250 M150 200 H250 M150 210 H250" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                <rect x="140" y="180" width="120" height="40" rx="5" stroke="#F5F0E4" stroke-width="4" fill="none"/>
+            </g>
+          </svg>

@@ -1,0 +1,19 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Palette Plate -->
+                <path d="M100 220 C60 220 60 80 200 80 C340 80 340 220 300 220 Q200 240 100 220 Z" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                <circle cx="140" cy="180" r="15" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                
+                <!-- Color Swatches -->
+                <circle cx="150" cy="120" r="25" fill="#1A1A17"/>
+                <circle style="animation-delay: 0.2s;" cx="200" cy="110" r="25" fill="#F5F0E4"/>
+                <circle style="animation-delay: 0.4s;" cx="250" cy="120" r="25" fill="#F5F0E4"/>
+                <circle style="animation-delay: 0.6s;" cx="270" cy="170" r="25" fill="#F5F0E4"/>
+                
+                <!-- Brush -->
+                <g >
+                    <rect x="180" y="160" width="10" height="100" fill="#F5F0E4"/>
+                    <rect x="175" y="150" width="20" height="20" rx="4" fill="#F5F0E4"/>
+                </g>
+            </g>
+          </svg>

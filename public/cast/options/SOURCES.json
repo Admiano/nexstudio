@@ -1,0 +1,742 @@
+[
+  {
+    "path": "public/cast/options/female/character/female.svg",
+    "source": "female-approved",
+    "sourceSha256": "ccdef46a4b6fb4b5d5395e91ec537300049d7624f004eedf41bb81466ab6c059",
+    "cropAt1440x2160": [
+      400,
+      100,
+      1035,
+      1310
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/face/0.svg",
+    "source": "female-face-0",
+    "sourceSha256": "62442c8becd222902ca4ed6846352b32e5a83d3489aa5680016eb663c317632b",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/face/1.svg",
+    "source": "female-face-1",
+    "sourceSha256": "53d0dbf32d56f60496f46e58dc5c794d71fd200a623f399b5a39bc6ddb78d135",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/face/2.svg",
+    "source": "female-face-2",
+    "sourceSha256": "b6c6d490311f3326c8110a3d30bcb5152963a2f1b0978460e1936d7d765d76af",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/character/male.svg",
+    "source": "male-approved",
+    "sourceSha256": "9d8b6e8b7309a94f2520d8f89919c8ad3317417b74c2557767eeaffe49eff7f0",
+    "cropAt1440x2160": [
+      400,
+      100,
+      1035,
+      1310
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/face/0.svg",
+    "source": "male-face-0",
+    "sourceSha256": "8595da57557b2a6dd1ac43e6bb6e8707e6b3bf302e10caae779850f6eb774a0e",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/face/1.svg",
+    "source": "male-face-1",
+    "sourceSha256": "01c55ba722a1449d908d60c0a9c6f9719671871aa9ba5c7fdc7e2544fb785f8f",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/face/2.svg",
+    "source": "male-face-2",
+    "sourceSha256": "79ebb0b30de665c402342c794b5cc51de685c1382072d2c278fe36dd0dfba001",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/hair/long.svg",
+    "source": "female-approved",
+    "sourceSha256": "ccdef46a4b6fb4b5d5395e91ec537300049d7624f004eedf41bb81466ab6c059",
+    "cropAt1440x2160": [
+      440,
+      120,
+      990,
+      780
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/hair/bob.svg",
+    "source": "female-bob-maxi",
+    "sourceSha256": "43c1c12678b3aebd6510c72646438fe1e1ebe6866a936a450f5e76cb2d72e9d2",
+    "cropAt1440x2160": [
+      440,
+      120,
+      990,
+      780
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/hair/bangs.svg",
+    "source": "female-bangs-column",
+    "sourceSha256": "ccff0debde3e27517a7d45f2fa2bf0547c3d4a85453e615d60b18351f928b43b",
+    "cropAt1440x2160": [
+      440,
+      120,
+      990,
+      780
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/hair/bun.svg",
+    "source": "female-bun-cocktail",
+    "sourceSha256": "e54713ada8e131eeb19cf4689d0c513def3bfa6c4c91ab59afe4ca3cf94fb305",
+    "cropAt1440x2160": [
+      440,
+      120,
+      990,
+      780
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/hair/braid.svg",
+    "source": "female-braid-qipao",
+    "sourceSha256": "f29c4e7fb079feb1ff7404363f005a26034591e953c4229a21df5825a4f34d96",
+    "cropAt1440x2160": [
+      440,
+      120,
+      990,
+      780
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/hair/quiff.svg",
+    "source": "male-approved",
+    "sourceSha256": "9d8b6e8b7309a94f2520d8f89919c8ad3317417b74c2557767eeaffe49eff7f0",
+    "cropAt1440x2160": [
+      425,
+      60,
+      1000,
+      650
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/hair/bald.svg",
+    "source": "male-bald",
+    "sourceSha256": "76093236abe442d688b42017886f50c8180a25363855645ba5ff5e6f8356d11d",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/hair/crop.svg",
+    "source": "male-crop-polo",
+    "sourceSha256": "4fea79844620a2b7e1387c6bf403140bf9edf8750608d0c8fede9a45a3e69275",
+    "cropAt1440x2160": [
+      425,
+      60,
+      1000,
+      650
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/hair/afro.svg",
+    "source": "male-afro-tee",
+    "sourceSha256": "f2f2802183b36e1247cb2ae0141324311ab09aca91294ae7cba2e7bcc67e12be",
+    "cropAt1440x2160": [
+      425,
+      60,
+      1000,
+      650
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/hair/braids.svg",
+    "source": "male-braids-knit",
+    "sourceSha256": "7e257ae9dbf73cdacaef2e9f260967e7bf1da53a391fa38aad1cf26ad023a037",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/hair/swept.svg",
+    "source": "male-swept-fisherman",
+    "sourceSha256": "af663f2614735cc2e8104b407aa253a8b150ce10a4ab121fa411e7dfcb273437",
+    "cropAt1440x2160": [
+      425,
+      60,
+      1000,
+      650
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/dress/sheath.svg",
+    "source": "female-approved",
+    "sourceSha256": "ccdef46a4b6fb4b5d5395e91ec537300049d7624f004eedf41bb81466ab6c059",
+    "cropAt1440x2160": [
+      430,
+      515,
+      1010,
+      1940
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/dress/maxi.svg",
+    "source": "female-bob-maxi",
+    "sourceSha256": "43c1c12678b3aebd6510c72646438fe1e1ebe6866a936a450f5e76cb2d72e9d2",
+    "cropAt1440x2160": [
+      430,
+      515,
+      1010,
+      1940
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/dress/column.svg",
+    "source": "female-bangs-column",
+    "sourceSha256": "ccff0debde3e27517a7d45f2fa2bf0547c3d4a85453e615d60b18351f928b43b",
+    "cropAt1440x2160": [
+      430,
+      515,
+      1010,
+      1940
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/dress/cocktail.svg",
+    "source": "female-bun-cocktail",
+    "sourceSha256": "e54713ada8e131eeb19cf4689d0c513def3bfa6c4c91ab59afe4ca3cf94fb305",
+    "cropAt1440x2160": [
+      430,
+      515,
+      1010,
+      1940
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/dress/qipao.svg",
+    "source": "female-braid-qipao",
+    "sourceSha256": "f29c4e7fb079feb1ff7404363f005a26034591e953c4229a21df5825a4f34d96",
+    "cropAt1440x2160": [
+      430,
+      515,
+      1010,
+      1940
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/top/o1.svg",
+    "source": "male-o1-trousers",
+    "sourceSha256": "82902979bb4c01d3a0dac5e628ea9d8911a2f05d441f1334988e4297d299bf6e",
+    "cropAt1440x2160": [
+      395,
+      405,
+      1040,
+      1200
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/top/o2.svg",
+    "source": "male-o2-straight-jeans",
+    "sourceSha256": "84b50ddf563db326906cf47e31f9ac07eccab1f31643cf6d176e1580ec164f1a",
+    "cropAt1440x2160": [
+      395,
+      405,
+      1040,
+      1200
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/top/o3.svg",
+    "source": "male-o3-chinos",
+    "sourceSha256": "a8d5cfd61197f44273341aa1d44b7cf85c40606abb5f51b36dec2bab93385781",
+    "cropAt1440x2160": [
+      395,
+      405,
+      1040,
+      1200
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/top/o4.svg",
+    "source": "male-o4-classic-jeans",
+    "sourceSha256": "121495b1f2d8c507a5de58c5d54a020521d9121dce5b00fd5936146c494357c9",
+    "cropAt1440x2160": [
+      395,
+      405,
+      1040,
+      1200
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/top/o5.svg",
+    "source": "male-o5-wool-trousers",
+    "sourceSha256": "c525afa084ce97d83537ec5f2a252bca41fc6a4444c8f5c29cc5262589adeaa4",
+    "cropAt1440x2160": [
+      395,
+      405,
+      1040,
+      1200
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/bottom/trousers.svg",
+    "source": "male-o1-trousers",
+    "sourceSha256": "82902979bb4c01d3a0dac5e628ea9d8911a2f05d441f1334988e4297d299bf6e",
+    "cropAt1440x2160": [
+      390,
+      1090,
+      1050,
+      1990
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/bottom/straight-jeans.svg",
+    "source": "male-o2-straight-jeans",
+    "sourceSha256": "84b50ddf563db326906cf47e31f9ac07eccab1f31643cf6d176e1580ec164f1a",
+    "cropAt1440x2160": [
+      390,
+      1090,
+      1050,
+      1990
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/bottom/chinos.svg",
+    "source": "male-o3-chinos",
+    "sourceSha256": "a8d5cfd61197f44273341aa1d44b7cf85c40606abb5f51b36dec2bab93385781",
+    "cropAt1440x2160": [
+      390,
+      1090,
+      1050,
+      1990
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/bottom/classic-jeans.svg",
+    "source": "male-o4-classic-jeans",
+    "sourceSha256": "121495b1f2d8c507a5de58c5d54a020521d9121dce5b00fd5936146c494357c9",
+    "cropAt1440x2160": [
+      390,
+      1090,
+      1050,
+      1990
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/bottom/wool-trousers.svg",
+    "source": "male-o5-wool-trousers",
+    "sourceSha256": "c525afa084ce97d83537ec5f2a252bca41fc6a4444c8f5c29cc5262589adeaa4",
+    "cropAt1440x2160": [
+      390,
+      1090,
+      1050,
+      1990
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/shoes/oxfords.svg",
+    "source": "male-o1-trousers",
+    "sourceSha256": "82902979bb4c01d3a0dac5e628ea9d8911a2f05d441f1334988e4297d299bf6e",
+    "cropAt1440x2160": [
+      390,
+      1780,
+      1050,
+      2030
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/shoes/sneakers.svg",
+    "source": "male-o2-straight-jeans",
+    "sourceSha256": "84b50ddf563db326906cf47e31f9ac07eccab1f31643cf6d176e1580ec164f1a",
+    "cropAt1440x2160": [
+      390,
+      1780,
+      1050,
+      2030
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/shoes/monk-straps.svg",
+    "source": "male-o3-chinos",
+    "sourceSha256": "a8d5cfd61197f44273341aa1d44b7cf85c40606abb5f51b36dec2bab93385781",
+    "cropAt1440x2160": [
+      390,
+      1780,
+      1050,
+      2030
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/shoes/classic-sneakers.svg",
+    "source": "male-o4-classic-jeans",
+    "sourceSha256": "121495b1f2d8c507a5de58c5d54a020521d9121dce5b00fd5936146c494357c9",
+    "cropAt1440x2160": [
+      390,
+      1780,
+      1050,
+      2030
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/neck/none.svg",
+    "source": "female-bun-cocktail",
+    "sourceSha256": "e54713ada8e131eeb19cf4689d0c513def3bfa6c4c91ab59afe4ca3cf94fb305",
+    "cropAt1440x2160": [
+      558,
+      430,
+      900,
+      735
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/male/watch/none.svg",
+    "source": "male-approved",
+    "sourceSha256": "9d8b6e8b7309a94f2520d8f89919c8ad3317417b74c2557767eeaffe49eff7f0",
+    "cropAt1440x2160": [
+      820,
+      900,
+      1010,
+      1110
+    ],
+    "imageSize": [
+      224,
+      224
+    ]
+  },
+  {
+    "path": "public/cast/options/female/neck/fine.svg",
+    "source": "sheet-neck-fine",
+    "sourceSha256": "ede1fd2a01bfab1805711957e77891c2bc71a94da0cd73f22eaaeb6e88934b8a",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/FEMALE_neckwear.jpg",
+    "sourceSheetSha256": "64d4c3e270620984b826170b576f5bf15d314647f337ccf1cdf5be8fd684196a",
+    "sourceSheetCrop": [
+      25,
+      245,
+      375,
+      475
+    ]
+  },
+  {
+    "path": "public/cast/options/female/neck/pendant.svg",
+    "source": "sheet-neck-pendant",
+    "sourceSha256": "2b0dec6114cf9d14c9578027ff11ae07ed24f55317ca175c9d02b6ec227db5c3",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/FEMALE_neckwear.jpg",
+    "sourceSheetSha256": "64d4c3e270620984b826170b576f5bf15d314647f337ccf1cdf5be8fd684196a",
+    "sourceSheetCrop": [
+      425,
+      245,
+      774,
+      475
+    ]
+  },
+  {
+    "path": "public/cast/options/female/neck/pearls.svg",
+    "source": "sheet-neck-pearls",
+    "sourceSha256": "dde5f6ecf73e13f82d3078966781dbde3aba03d6459f92384099ea7efc4c9c6f",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/FEMALE_neckwear.jpg",
+    "sourceSheetSha256": "64d4c3e270620984b826170b576f5bf15d314647f337ccf1cdf5be8fd684196a",
+    "sourceSheetCrop": [
+      824,
+      245,
+      1174,
+      475
+    ]
+  },
+  {
+    "path": "public/cast/options/female/neck/choker.svg",
+    "source": "sheet-neck-choker",
+    "sourceSha256": "632943320e9464758c50416b03c6d4eac51fcda58d4dc2b79d04edc4715d802a",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/FEMALE_neckwear.jpg",
+    "sourceSheetSha256": "64d4c3e270620984b826170b576f5bf15d314647f337ccf1cdf5be8fd684196a",
+    "sourceSheetCrop": [
+      1224,
+      245,
+      1573,
+      475
+    ]
+  },
+  {
+    "path": "public/cast/options/female/neck/scarf.svg",
+    "source": "sheet-neck-scarf",
+    "sourceSha256": "e2e6e7963c7a58aedddbe6dbb6641854063a574afe249bed27e4b5d6eb7d7314",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/FEMALE_neckwear.jpg",
+    "sourceSheetSha256": "64d4c3e270620984b826170b576f5bf15d314647f337ccf1cdf5be8fd684196a",
+    "sourceSheetCrop": [
+      1623,
+      245,
+      1973,
+      475
+    ]
+  },
+  {
+    "path": "public/cast/options/male/watch/analog.svg",
+    "source": "sheet-watch-analog",
+    "sourceSha256": "3aec4dcd21089da631e33c0cfce0659f6d849eb274bd848a8cfc8b1ec268d233",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/MALE_watches.jpg",
+    "sourceSheetSha256": "b187249be453e26e007e2d0b401c17bc7221e65693951bf2bf5755daaf40028c",
+    "sourceSheetCrop": [
+      120,
+      70,
+      305,
+      235
+    ]
+  },
+  {
+    "path": "public/cast/options/male/watch/digital.svg",
+    "source": "sheet-watch-digital",
+    "sourceSha256": "10a323bc9e36ddff71598ba20d4fc7f200e92eb494758c14b0d00b7dd99a41e2",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/MALE_watches.jpg",
+    "sourceSheetSha256": "b187249be453e26e007e2d0b401c17bc7221e65693951bf2bf5755daaf40028c",
+    "sourceSheetCrop": [
+      520,
+      70,
+      705,
+      235
+    ]
+  },
+  {
+    "path": "public/cast/options/male/watch/smart.svg",
+    "source": "sheet-watch-smart",
+    "sourceSha256": "22558f7a103931833c7c8f42ab0912ab048c134be82b12a41261d87f1b0dfebb",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/MALE_watches.jpg",
+    "sourceSheetSha256": "b187249be453e26e007e2d0b401c17bc7221e65693951bf2bf5755daaf40028c",
+    "sourceSheetCrop": [
+      920,
+      70,
+      1105,
+      235
+    ]
+  },
+  {
+    "path": "public/cast/options/male/watch/chrono.svg",
+    "source": "sheet-watch-chrono",
+    "sourceSha256": "4179896d62246ed1938c256270aea7e0260b6642da8464feb2ccf075003837c7",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/MALE_watches.jpg",
+    "sourceSheetSha256": "b187249be453e26e007e2d0b401c17bc7221e65693951bf2bf5755daaf40028c",
+    "sourceSheetCrop": [
+      1320,
+      70,
+      1505,
+      235
+    ]
+  },
+  {
+    "path": "public/cast/options/male/watch/dress.svg",
+    "source": "sheet-watch-dress",
+    "sourceSha256": "7c470e89b3bb434f55dfc7c8723f51b349c13f626ee90301d18711e015313b4a",
+    "cropAt1440x2160": null,
+    "imageSize": [
+      224,
+      224
+    ],
+    "sourceSheet": "engine_sources/makehuman-lineart/presenters_v1/previews/MALE_watches.jpg",
+    "sourceSheetSha256": "b187249be453e26e007e2d0b401c17bc7221e65693951bf2bf5755daaf40028c",
+    "sourceSheetCrop": [
+      1720,
+      70,
+      1905,
+      235
+    ]
+  }
+]
