@@ -1,9 +1,11 @@
+import {ENVIRONMENTS} from "@/studio-v2/cast/environments";
 import {z} from 'zod';
 import {FEM_DRESSES,FEM_DRESS_COLORS,FEM_HAIR_COLORS,FEM_HAIRSTYLES,LIPS,MALE_BOTTOMS,MALE_HAIR_COLORS,MALE_HAIRSTYLES,MALE_OUTFITS,MALE_SHOES,MALE_TOP_COLORS,NECKS,SKINS,WATCHES,isHexColour} from '@/studio-v2/cast/spec';
 export const castSpecSchema=z.object({
  character:z.enum(['female','male']),face:z.number().int().min(0).max(2).default(0),skin:z.string().trim().max(24).default('light'),
  hair:z.object({style:z.string().trim().max(40),color:z.string().trim().max(24)}).nullable().default(null),lip:z.string().trim().max(24).nullable().default(null),neck:z.string().trim().max(24).nullable().default(null),
  outfit:z.object({kind:z.string().trim().max(40),color:z.string().trim().max(24).nullable().optional(),pieces:z.object({bottom:z.string().max(40).optional(),shoes:z.string().max(40).optional(),bottomColor:z.string().max(24).optional(),shoesColor:z.string().max(24).optional()}).strict().optional()}).nullable().default(null),
+ environment:z.enum(ENVIRONMENTS.map(e=>e.key)).nullable().optional(),environmentFormat:z.enum(['landscape','square','portrait']).optional(),
  watch:z.string().trim().max(24).nullable().default(null),voiceId:z.string().trim().max(120).nullable().default(null),sourceVersion:z.string().max(64).optional(),
 }).superRefine((s,ctx)=>{
  const f=s.character==='female';

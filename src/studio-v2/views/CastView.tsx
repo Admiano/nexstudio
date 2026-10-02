@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Eyebrow } from "../App";
 import { studioApi } from "../api";
+import {ENVIRONMENTS,environmentImage,type EnvironmentFormat} from '../cast/environments';
+import OptionImage from "../cast/OptionImage";
 import AvatarStage, {type AvatarPreviewState} from "../cast/AvatarStage";
 import {castRenderConfig} from "../cast/render-config";
 import {
@@ -63,7 +65,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
   const [armedId, setArmedId] = useState<string | null>(null);
 
   const [preview,setPreview]=useState<{key:string;state:AvatarPreviewState}|null>(null);
-  const visualKey=JSON.stringify(castRenderConfig(spec));
+  const visualKey=JSON.stringify({config:castRenderConfig(spec),environment:spec.environment,format:spec.environmentFormat});
   const previewReady=preview?.state==="ready"&&preview.key===visualKey;
 
   const castChanged = () => window.dispatchEvent(new Event("nx-cast-changed"));
@@ -249,17 +251,17 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
 
               <div className="identity-group">
                 <div className="identity-group-head"><label>Character</label><span>the base performer</span></div>
-                <div className="identity-frame">
-                  <button aria-pressed={spec.character === "female"} onClick={() => switchCharacter("female")}>Woman</button>
-                  <button aria-pressed={spec.character === "male"} onClick={() => switchCharacter("male")}>Man</button>
+                <div className="cast-image-options cast-character-options">
+                  <OptionImage character="female" category="character" option="female" label="Woman" selected={spec.character === "female"} onSelect={() => switchCharacter("female")} />
+                  <OptionImage character="male" category="character" option="male" label="Man" selected={spec.character === "male"} onSelect={() => switchCharacter("male")} />
                 </div>
               </div>
 
               <div className="identity-group">
                 <div className="identity-group-head"><label>Face</label><span>how their features read</span></div>
-                <div className="identity-tile-options">
+                <div className="cast-image-options">
                   {FACES.map((f) => (
-                    <button key={f.id} className="identity-tile" aria-pressed={spec.face === f.id} onClick={() => patch({ face: f.id as CastSpec["face"] })}>{f.label}</button>
+                    <OptionImage key={f.id} character={spec.character} category="face" option={f.id} label={f.label} selected={spec.face === f.id} onSelect={() => patch({ face: f.id as CastSpec["face"] })} />
                   ))}
                 </div>
               </div>
@@ -276,11 +278,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
 
               <div className="identity-group">
                 <div className="identity-group-head"><label>Hair</label><span>{spec.character === "female" ? "each style carries its own earring" : "hairstyle"}</span></div>
-                <div className="identity-tile-options">
+                <div className="cast-image-options">
                   {hairStyles(spec.character).map((h) => (
-                    <button key={h.key} className="identity-tile" aria-pressed={spec.hair?.style === h.key} onClick={() => patch({ hair: { style: h.key, color: spec.hair?.color ?? DEFAULT_SPEC[spec.character].hair!.color } })}>
-                      {h.label}{"note" in h && h.note ? <small>{h.note as string}</small> : null}
-                    </button>
+                    <OptionImage key={h.key} character={spec.character} category="hair" option={h.key} label={h.label} selected={spec.hair?.style === h.key} onSelect={() => patch({ hair: { style: h.key, color: spec.hair?.color ?? DEFAULT_SPEC[spec.character].hair!.color } })} note={"note" in h ? h.note as string : undefined} />
                   ))}
                 </div>
                 {spec.hair && (
@@ -296,9 +296,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
               {spec.character === "female" && (
                 <div className="identity-group">
                   <div className="identity-group-head"><label>Lipstick</label><span>lip colour</span></div>
-                  <div className="identity-options">
+                  <div className="identity-color-row">
                     {LIPS.map((l) => (
-                      <button key={l.key} className="identity-option" aria-pressed={spec.lip === l.key} onClick={() => patch({ lip: l.key })}>{l.label}</button>
+                      <button key={l.key} className="identity-color" aria-label={l.label} title={l.label} style={{["--c" as string]:l.hex}} aria-pressed={spec.lip === l.key} onClick={() => patch({ lip: l.key })} />
                     ))}
                     <CustomColour label="Custom lipstick colour" value={colourValue(spec.lip,LIPS)} onChange={lip=>patch({lip})}/>
                   </div>
@@ -308,9 +308,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
               {spec.character === "female" && (
                 <div className="identity-group">
                   <div className="identity-group-head"><label>Neckwear</label><span>around the neckline</span></div>
-                  <div className="identity-options">
+                  <div className="cast-image-options">
                     {NECKS.map((n) => (
-                      <button key={n.key} className="identity-option" aria-pressed={(spec.neck ?? "none") === n.key} onClick={() => patch({ neck: n.key === "none" ? null : n.key })}>{n.label}</button>
+                      <OptionImage key={n.key} character={"female"} category="neck" option={n.key} label={n.label} selected={(spec.neck ?? "none") === n.key} onSelect={() => patch({ neck: n.key === "none" ? null : n.key })} />
                     ))}
                   </div>
                 </div>
@@ -320,11 +320,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 <>
                   <div className="identity-group">
                     <div className="identity-group-head"><label>Dress style</label><span>shape and cut</span></div>
-                    <div className="identity-tile-options">
+                    <div className="cast-image-options">
                       {FEM_DRESSES.map((o) => (
-                        <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patchOutfitKind(o.key)}>
-                          {o.label}
-                        </button>
+                        <OptionImage key={o.key} character={"female"} category="dress" option={o.key} label={o.label} selected={spec.outfit?.kind === o.key} onSelect={() => patchOutfitKind(o.key)} />
                       ))}
                     </div>
                   </div>
@@ -342,11 +340,9 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 <>
                   <div className="identity-group">
                     <div className="identity-group-head"><label>Top style</label><span>shape and cut</span></div>
-                    <div className="identity-tile-options">
+                    <div className="cast-image-options">
                       {MALE_OUTFITS.map((o) => (
-                        <button key={o.key} className="identity-tile" aria-pressed={spec.outfit?.kind === o.key} onClick={() => patchOutfitKind(o.key)}>
-                          {o.label}
-                        </button>
+                        <OptionImage key={o.key} character={"male"} category="top" option={o.key} label={o.label} selected={spec.outfit?.kind === o.key} onSelect={() => patchOutfitKind(o.key)} />
                       ))}
                     </div>
                   </div>
@@ -358,24 +354,31 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                       ))}
                     <CustomColour label="Custom top colour" value={colourValue(spec.outfit?.color,MALE_TOP_COLORS)} onChange={patchOutfitColor}/>
                     </div>
-<div className="identity-group"><div className="identity-group-head"><label>Trousers</label><span>choose separately</span></div><div className="identity-tile-options">{MALE_BOTTOMS.map(b=><button key={b.key} className="identity-tile" aria-pressed={malePieces(spec).bottom===b.key} onClick={()=>patchPieces({bottom:b.key})}>{b.label}</button>)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_BOTTOMS.map(b=><button key={b.key} aria-label={"Trousers "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).bottomColor===b.hex} onClick={()=>patchPieces({bottomColor:b.hex})}/>)}<CustomColour label="Custom trouser colour" value={malePieces(spec).bottomColor} onChange={bottomColor=>patchPieces({bottomColor})}/></div></div>
+</div>
+<div className="identity-group"><div className="identity-group-head"><label>Trousers</label><span>choose separately</span></div><div className="cast-image-options">{MALE_BOTTOMS.map(b=><OptionImage key={b.key} character="male" category="bottom" option={b.key} label={b.label} selected={malePieces(spec).bottom===b.key} onSelect={()=>patchPieces({bottom:b.key})} />)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_BOTTOMS.map(b=><button key={b.key} aria-label={"Trousers "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).bottomColor===b.hex} onClick={()=>patchPieces({bottomColor:b.hex})}/>)}<CustomColour label="Custom trouser colour" value={malePieces(spec).bottomColor} onChange={bottomColor=>patchPieces({bottomColor})}/></div></div>
 
-<div className="identity-group"><div className="identity-group-head"><label>Shoes</label><span>choose separately</span></div><div className="identity-tile-options">{MALE_SHOES.map(b=><button key={b.key} className="identity-tile" aria-pressed={malePieces(spec).shoes===b.key} onClick={()=>patchPieces({shoes:b.key})}>{b.label}</button>)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_SHOES.map(b=><button key={b.key} aria-label={"Shoes "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).shoesColor===b.hex} onClick={()=>patchPieces({shoesColor:b.hex})}/>)}<CustomColour label="Custom shoe colour" value={malePieces(spec).shoesColor} onChange={shoesColor=>patchPieces({shoesColor})}/></div></div>
+<div className="identity-group"><div className="identity-group-head"><label>Shoes</label><span>choose separately</span></div><div className="cast-image-options">{MALE_SHOES.map(b=><OptionImage key={b.key} character="male" category="shoes" option={b.key} label={b.label} selected={malePieces(spec).shoes===b.key} onSelect={()=>patchPieces({shoes:b.key})} />)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_SHOES.map(b=><button key={b.key} aria-label={"Shoes "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).shoesColor===b.hex} onClick={()=>patchPieces({shoesColor:b.hex})}/>)}<CustomColour label="Custom shoe colour" value={malePieces(spec).shoesColor} onChange={shoesColor=>patchPieces({shoesColor})}/></div></div>
 
-                  </div>
                 </>
               )}
 
               {spec.character === "male" && (
                 <div className="identity-group">
                   <div className="identity-group-head"><label>Watch</label><span>on the wrist</span></div>
-                  <div className="identity-options">
+                  <div className="cast-image-options">
                     {WATCHES.map((w) => (
-                      <button key={w.key} className="identity-option" aria-pressed={(spec.watch ?? "none") === w.key} onClick={() => patch({ watch: w.key === "none" ? null : w.key })}>{w.label}</button>
+                      <OptionImage key={w.key} character={"male"} category="watch" option={w.key} label={w.label} selected={(spec.watch ?? "none") === w.key} onSelect={() => patch({ watch: w.key === "none" ? null : w.key })} />
                     ))}
                   </div>
                 </div>
               )}
+
+              <div className="identity-group">
+                <div className="identity-group-head"><label>Environment</label><span>where they present</span></div>
+                <div className="identity-options"><button className="identity-option" aria-pressed={!spec.environment} onClick={()=>patch({environment:null})}>No background</button></div>
+                <div className="cast-image-options cast-environment-options">{ENVIRONMENTS.map(e=><button type="button" key={e.key} className="cast-image-option" aria-label={e.label} aria-pressed={spec.environment===e.key} onClick={()=>patch({environment:e.key})}><span className="cast-image-option-art"><img src={environmentImage(e.key,'square')} alt="" width={224} height={224} loading="lazy" />{spec.environment===e.key&&<span className="cast-image-option-check" aria-hidden="true">✓</span>}</span><span className="cast-image-option-label">{e.label}</span></button>)}</div>
+                {spec.environment&&<div className="identity-options" style={{marginTop:10}}>{(['landscape','square','portrait'] as EnvironmentFormat[]).map(format=><button type="button" key={format} className="identity-option" aria-pressed={(spec.environmentFormat??'square')===format} onClick={()=>patch({environmentFormat:format})}>{format==='landscape'?'16:9':format==='portrait'?'9:16':'1:1'}</button>)}</div>}
+              </div>
 
               <div className="identity-group">
                 <div className="identity-group-head"><label>Voice</label><span>how they sound</span></div>

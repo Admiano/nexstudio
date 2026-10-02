@@ -1,3 +1,4 @@
+import {ENVIRONMENTS,type EnvironmentId,type EnvironmentFormat} from "./environments";
 // Saved selections for the authoritative modular presenter assembler.
 export const CAST_SOURCE_VERSION = "bf88447b8f898bea078c44b9202cfe2b7ff13be5";
 
@@ -22,6 +23,8 @@ export interface CastSpec {
   outfit: CastOutfitSpec | null;
   watch: string | null;
   voiceId: string | null;
+  environment?: EnvironmentId | null;
+  environmentFormat?: EnvironmentFormat;
   sourceVersion?: string;
 }
 
@@ -228,7 +231,7 @@ export function normalizeCastSpec(input:CastSpec|null|undefined,hint?:CastCharac
  const kinds=character==="female"?FEM_DRESS_KEYS:MALE_OUTFIT_KEYS;
  const kind=input?.outfit?.kind&&kinds.has(input.outfit.kind)?input.outfit.kind:d.outfit!.kind;
  const defaults=character==="female"?FEM_DRESS_DEFAULT_COLOR:MALE_TOP_DEFAULT_COLOR;
- return {character,face,skin:normalizeColour(input?.skin,SKIN_KEYS,d.skin),hair:{style:hairStyle,color:normalizeColour(input?.hair?.color,colors,d.hair!.color)},
+ return {environment:ENVIRONMENTS.some(e=>e.key===input?.environment)?input!.environment:null,environmentFormat:input?.environmentFormat==='landscape'||input?.environmentFormat==='portrait'?input.environmentFormat:'square',character,face,skin:normalizeColour(input?.skin,SKIN_KEYS,d.skin),hair:{style:hairStyle,color:normalizeColour(input?.hair?.color,colors,d.hair!.color)},
  lip:character==="female"?normalizeColour(input?.lip,LIP_KEYS,d.lip!):null,
  neck:character==="female"?(input?.neck===null||input?.neck==="none"?null:input?.neck&&NECK_KEYS.has(input.neck)?input.neck:d.neck):null,
  outfit:{kind,color:normalizeColour(input?.outfit?.color,character==="female"?FEM_DRESS_COLOR_KEYS:MALE_TOP_COLOR_KEYS,defaults[kind]),...(character==="male"&&input?.outfit?.pieces?{pieces:malePieces({...d,outfit:{kind,pieces:input.outfit.pieces}})}:{})},

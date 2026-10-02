@@ -97,20 +97,37 @@ if _MG:
     mc=bpy.data.collections.get('V26_GARMENT_MARKS')
     if mc:
         for o in mc.objects: o.hide_render=o.hide_viewport=True
+    # Never delete the trouser waistband at a bind-pose shirt hem.
+    # Complete topology and deformation weights are needed through animation.
     _tops=[bpy.data.objects[n] for n,_ in made if not any(k in n.lower() for k in ('trouser','jeans','pants','shoe','sneaker')) and 'tucked-' not in n.lower() and not ('tucked' in n.lower() and 'untucked' not in n.lower())]
-    _bc=np.array([(body.matrix_world@v.co)[:] for v in body.data.vertices]); _bx=_bc[:,0].mean()
-    for _pn,_ in made:
-        if not any(k in _pn.lower() for k in ('trouser','jeans','pants')) or not _tops: continue
-        _t=_tops[0]; _tc=np.array([(_t.matrix_world@v.co)[:] for v in _t.data.vertices]); _tz=_tc[np.abs(_tc[:,0]-_bx)<0.12,2].min()
-        _po=bpy.data.objects[_pn]; _pc=np.array([(_po.matrix_world@v.co)[:] for v in _po.data.vertices])
-        _by=_bc[:,1].mean(); _tq=_tc[np.abs(_tc[:,0]-_bx)<0.25]; _bw=0.03
-        _kz=set()
-        for _i in np.where((_pc[:,2]>_tz+float(os.environ.get('PCM','0.03')))&(np.abs(_pc[:,0]-_bx)<0.25))[0]:
-            _nb=_tq[(np.abs(_tq[:,0]-_pc[_i,0])<_bw)&((_tq[:,1]<_by)==(_pc[_i,1]<_by))]
-            if 'untucked' not in _t.name.lower() or (len(_nb) and _pc[_i,2]>_nb[:,2].min()+float(os.environ.get('PCM','0.03'))): _kz.add(int(_i))
-        if _kz:
-            _bd=_bmd.new(); _bd.from_mesh(_po.data); _bd.verts.ensure_lookup_table(); _bmd.ops.delete(_bd,geom=[_bd.verts[i] for i in _kz],context='VERTS'); _bd.to_mesh(_po.data); _bd.free(); _po.data.update()
-            os.environ['PCOV_'+_pn]='1'
-        print('LAYER',_pn,'under',_t.name,'hem z %.3f removed %d'%(_tz,len(_kz)))
+    from mathutils import Vector
+    # Bounded surface coverage supplements garments with missing body masks.
+    from mathutils.bvhtree import BVHTree
+    _covered=set()
+    _protected={g.index for g in body.vertex_groups if any(k in g.name.lower() for k in ('hand','finger','thumb','head','neck'))}
+    _bodypts=[body.matrix_world@v.co for v in body.data.vertices]
+    for _name,_ in made:
+        if any(k in _name.lower() for k in ('shoe','sneaker')):continue
+        _ob=bpy.data.objects[_name];_pts=[_ob.matrix_world@v.co for v in _ob.data.vertices]
+        _tree=BVHTree.FromPolygons(_pts,[list(p.vertices) for p in _ob.data.polygons],all_triangles=False)
+        for _v,_point in zip(body.data.vertices,_bodypts):
+            if any(g.group in _protected and g.weight>0.1 for g in _v.groups):continue
+            for _direction in (Vector((0,1,0)),Vector((0,-1,0))):
+                _hit,_normal,_index,_distance=_tree.ray_cast(_point-_direction*0.05,_direction,0.10)
+                if _hit is not None:_covered.add(_v.index);break
+    _boundary=set()
+    for _edge in body.data.edges:
+        _a,_b=_edge.vertices
+        if (_a in _covered)!=(_b in _covered):_boundary.update((_a,_b))
+    _covered-=_boundary
+    if _covered:
+        for _ob in (body,legs):
+            if _ob is None or len(_ob.data.vertices)!=len(body.data.vertices):continue
+            _group=_ob.vertex_groups.new(name='Delete.FittedGarmentCoverage');_group.add(sorted(_covered),1.0,'REPLACE')
+            _mask=_ob.modifiers.new('Delete.FittedGarmentCoverage','MASK');_mask.vertex_group=_group.name;_mask.invert_vertex_group=tm.invert_vertex_group;_mask.threshold=tm.threshold
+            _ss=[m for m in _ob.modifiers if m.type=='SUBSURF']
+            if _ss:
+                while _ob.modifiers.find(_mask.name)>_ob.modifiers.find(_ss[0].name):_ob.modifiers.move(_ob.modifiers.find(_mask.name),_ob.modifiers.find(_mask.name)-1)
+        print('GARMENT_BODY_COVERAGE',len(_covered),flush=True)
     os.environ['DOBJ']=made[0][0]
     os.environ['GARMS']=';'.join('%s=%s'%x for x in made)

@@ -3,7 +3,7 @@
 import argparse,fcntl,json,os,re,shutil,subprocess,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-assembled-v1'
+SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-fit-v6-upper-thigh'
 CACHE=Path(os.environ.get('CAST_PREVIEW_CACHE_DIR',ROOT/'engine_sources/makehuman-lineart/out/cast-previews'))
 SOURCE=Path(os.environ.get('CAST_SOURCE_DIR',ROOT/'engine_sources/makehuman-lineart/presenters_v1'))
 ENV_KEYS={'CAST_CHARACTER','CAST_FACE','CAST_HAIR_STYLE','CAST_HAIR_HEX','CAST_SKIN_HEX','CAST_LIP_HEX','CAST_NECK','CAST_WATCH','CAST_DRESS','CAST_DRESS_HEX','CAST_MALE_LOOK','CAST_MALE_HAIR','CAST_HAIR_DYE','CAST_GARMENTS'}
@@ -13,7 +13,7 @@ def atomic_json(path,value):
 def status(job,value,**extra):atomic_json(job/'status.json',{'status':value,'updatedAt':time.time(),**extra})
 def validate(config):
     if config['sourceVersion']!=SOURCE_VERSION or config['renderVersion']!=RENDER_VERSION:raise ValueError('CAST_SOURCE_VERSION_MISMATCH')
-    if type(config['frame']) is not int or not 1<=config['frame']<=998 or config['resolutionPercentage']!=50:raise ValueError('CAST_RENDER_PROFILE_INVALID')
+    if type(config['frame']) is not int or not 1<=config['frame']<=998 or config['resolutionPercentage']!=50 or config.get('framing')!='upper-thigh':raise ValueError('CAST_RENDER_PROFILE_INVALID')
     env=config['env']
     if set(env)!=ENV_KEYS or any(not isinstance(v,str) or len(v)>400 or not re.fullmatch(r'[A-Za-z0-9_=,.-]*',v) for v in env.values()):raise ValueError('CAST_RENDER_ENV_INVALID')
     if env['CAST_CHARACTER'] not in ('female','male') or env['CAST_FACE'] not in ('0','1','2'):raise ValueError('CAST_CHARACTER_INVALID')

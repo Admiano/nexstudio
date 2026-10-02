@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useRef,useState} from 'react';
+import {environmentImage,environmentAspect} from './environments';
 import {castRenderConfig} from './render-config';
 import {normalizeCastSpec,type CastSpec} from './spec';
 export type AvatarPreviewState='loading'|'ready'|'failed';
@@ -29,14 +30,18 @@ async function requestPreview(spec:CastSpec):Promise<string>{
 export default function AvatarStage({spec,className,onStatus}:{spec:CastSpec;className?:string;onStatus?:(state:AvatarPreviewState)=>void}){
  const visualKey=JSON.stringify(castRenderConfig(spec));
  const [image,setImage]=useState<{key:string;src:string}|null>(null),[error,setError]=useState<string|null>(null),[retry,setRetry]=useState(0);
- const statusRef=useRef(onStatus);statusRef.current=onStatus;const currentSpec=useRef(spec);currentSpec.current=spec;const ready=image?.key===visualKey;
+ const backgroundKey=JSON.stringify([spec.environment,spec.environmentFormat??'square']);
+ const [loadedBackground,setLoadedBackground]=useState<string|null>(null);
+ const statusRef=useRef(onStatus);statusRef.current=onStatus;const currentSpec=useRef(spec);currentSpec.current=spec;const ready=image?.key===visualKey&&(!spec.environment||loadedBackground===backgroundKey);
+ useEffect(()=>{statusRef.current?.(error?'failed':ready?'ready':'loading');},[ready,error,backgroundKey]);
  useEffect(()=>{
   let cancelled=false;setError(null);statusRef.current?.('loading');
-  const timer=setTimeout(()=>{requestPreview(normalizeCastSpec(currentSpec.current)).then(src=>{if(cancelled)return;setImage({key:visualKey,src});statusRef.current?.('ready');}).catch((e:Error)=>{if(cancelled)return;setError(e.message);statusRef.current?.('failed');});},COMPLETE.has(visualKey)?0:300);
+  const timer=setTimeout(()=>{requestPreview(normalizeCastSpec(currentSpec.current)).then(src=>{if(cancelled)return;setImage({key:visualKey,src});}).catch((e:Error)=>{if(cancelled)return;setError(e.message);statusRef.current?.('failed');});},COMPLETE.has(visualKey)?0:300);
   return()=>{cancelled=true;clearTimeout(timer);};
  },[visualKey,retry]);
- return <div className={`cast-render-stage ${className??''}`} aria-busy={!ready&&!error} data-preview-state={error?'failed':ready?'ready':'loading'}>
-  {image&&<img src={image.src} alt={`${spec.character==='female'?'Female':'Male'} presenter preview`}/>}
+ return <div className={`cast-render-stage ${className??''}`} aria-busy={!ready&&!error} style={spec.environment?{aspectRatio:environmentAspect[spec.environmentFormat??'square'],height:'auto',maxHeight:'100%'}:undefined} data-preview-state={error?'failed':ready?'ready':'loading'}>
+  {spec.environment&&<img key={backgroundKey+retry} className="cast-environment-plate" onLoad={()=>setLoadedBackground(backgroundKey)} onError={()=>setError('Environment image unavailable. Retry preview.')} src={environmentImage(spec.environment,spec.environmentFormat??'square')} alt=""/>}
+  {image&&<img className="cast-presenter-overlay" style={spec.environment&&spec.environmentFormat==='portrait'?{objectFit:'cover'}:undefined} src={image.src} alt={`${spec.character==='female'?'Female':'Male'} presenter preview`}/>}
   {!ready&&<div className="cast-preview-status" role="status">{error?<><span>{error}</span><button type="button" onClick={()=>setRetry(n=>n+1)}>Retry preview</button></>:<><span className="cast-preview-spinner"/><span>{image?'Updating your look…':'Preparing your presenter…'}</span></>}</div>}
  </div>;
 }

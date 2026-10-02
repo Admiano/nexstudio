@@ -1,3 +1,5 @@
+> Superseded: the final implementation and current validation are documented in [../cast-customizer-review/README.md](../cast-customizer-review/README.md). The text and patches below preserve unfinished experiments only; do not apply them over the final implementation.
+
 # Unfinished customizer follow-up — recovery checkpoint
 
 The follow-up requested on 2026-10-02 is **not accepted or implemented on this branch yet**. These files preserve prepared code and decisions after the execution workspace disconnected with environment_offline during final clothing work. This checkpoint does not change the running app. The previous implementation at 76e6e21081c96f1236502289bdfdefe9aeddfe5f remains the application code.

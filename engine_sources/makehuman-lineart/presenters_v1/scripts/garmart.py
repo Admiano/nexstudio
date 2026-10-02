@@ -243,6 +243,7 @@ tm.node_tree.nodes['Emission'].inputs['Color'].default_value=(*(C*_E('DTS','0.45
 rm.materials.append(ink); rm.materials.append(tm)
 for p,mi in zip(rm.polygons,mids): p.material_index=mi
 ro=bpy.data.objects.new('Host.V64_dress_lines',rm)
+ro['castGarmentSource']=g.name
 for cl in g.users_collection: cl.objects.link(ro)
 px=g.copy(); px.data=g.data.copy(); px.name='Host.V64_sd_proxy'
 for cl in g.users_collection: cl.objects.link(px)

@@ -13,3 +13,12 @@ assert.equal(castRenderConfig(DEFAULT_SPEC.female).env.CAST_SKIN_HEX,'');
 assert.equal(castRenderConfig({...DEFAULT_SPEC.male,skin:'light'}).env.CAST_SKIN_HEX,'F1D7C8');
 assert.equal(castRenderConfig({...f,lip:'coral'}).env.CAST_LIP_HEX,'E0664F');
 console.log('PASS source mapping, custom colours, independent pieces, None, voice and legacy defaults');
+
+const environmentSpec=normalizeCastSpec({...DEFAULT_SPEC.male,environment:'cafe',environmentFormat:'portrait'});
+assert.equal(environmentSpec.environment,'cafe');assert.equal(environmentSpec.environmentFormat,'portrait');
+assert.deepEqual(castRenderConfig(environmentSpec),castRenderConfig(DEFAULT_SPEC.male));
+assert.equal(normalizeCastSpec({...DEFAULT_SPEC.female,environment:'missing' as never}).environment,null);
+const {castSpecSchema}=await import('../src/lib/cast-spec-schema');
+assert.equal(castSpecSchema.parse(environmentSpec).environment,'cafe');
+assert.equal(castSpecSchema.safeParse({...environmentSpec,environment:'../../private'}).success,false);
+console.log('PASS environment persistence, validation and character-cache reuse');
