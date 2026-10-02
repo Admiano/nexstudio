@@ -30,8 +30,8 @@ mouth or facial geometry is introduced.
 | Light | F1D7C8 | C9797E | 987261 | B76C76 | C78086 | 35% / 36% |
 | Medium | E0B48F | B76D61 | 966B55 | AC6461 | C47F72 | 37% / 38% |
 | Tan | C99A6E | A65F49 | 8D5E44 | 9A5450 | B97065 | 40% / 40% |
-| Brown | 9E6B4A | A65F5B | 865A4D | 82434C | AD6972 | 45% / 42% |
-| Deep | 6A4431 | AE626A | 8B5A59 | 70404F | 9E6574 | 48% / 44% |
+| Brown | 9E6B4A | A65F5B | 865A4D | 82434C | AD6972 | 36% / 42% |
+| Deep | 6A4431 | 984C50 | 8B5A59 | 70404F | 9E6574 | 30% / 44% |
 
 These are feathered anatomical masks, not uniform foundation coverage. A
 subtle cheek illumination layer supplements the warm lid and cheek pigments.
@@ -43,9 +43,16 @@ The hoop remains parented to the original head bone. Its attachment is derived
 from the visible lobe in hoop-local coordinates, placing it on the ear's front
 surface instead of approximately 16 mm behind it. The previous enlarged black
 rim is hidden. The gold wire is 0.85 mm thick; its outside dimensions are
-15.7 × 19.7 mm. Curved analytical studio reflections replace the flat yellow
+15.7 × 19.7 mm. Bun statement hoops retain a larger 22.9 × 28.9 mm size. Curved analytical studio reflections replace the flat yellow
 emission colour while preserving the approved portrait lighting. Reapplying
 the upgrade does not shrink or move the ring again.
+
+The bob's gold bar, the bangs' pearl stud and the braid's teardrop retain their
+original assemblies. Their full accessory assemblies move to the visible lobe,
+the painted black rims are hidden, and metal/pearl reflection bands replace
+flat colour and a separate painted pearl highlight. The bar and pearl are
+scaled more delicately. Both bun hoops use their own lobe attachment, keeping
+the hairstyle-specific earring designs distinct.
 
 Face and body skin retain deterministic rest-space pores at approximately
 0.43 mm spacing. Pore relief increases to 0.12 mm, with 0.065 mm irregular
@@ -81,10 +88,15 @@ The new `cast-female-beauty.py` module is invoked by the existing skin pass.
 - Render-config checks cover twelve distinct complexion configurations,
   all thirty female skin/lip preset combinations and custom colours. Two
   worker tests cover rendering flags, version agreement and failure handling.
+- Full source assemblies and renders verify all five hairstyle/accessory
+  pairings: slim hoop, gold bar, pearl stud, statement hoops and teardrop.
 - Final visual checks cover six female complexions, four explicit lipstick
   choices, relaxed/open/puckered mouth poses and a male texture closeup. Each
   render records the skin source SHA-256 so mixed intermediate iterations are
-  excluded from final review boards.
+  excluded from final review boards. Final Brown/Deep blush calibration
+  re-renders those two rows; AST comparison verifies every non-palette shader
+  instruction and the other four rows are unchanged, so their earlier renders
+  remain equivalent. The calibration audit retains both source hashes.
 
 The full application build is not run in this restored source-render workspace.
 This is a draft source-rendering upgrade, not a deployed application change.

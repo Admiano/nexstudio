@@ -6,7 +6,7 @@ module=runpy.run_path(str(Path(__file__).with_name('cast-skin-appearance.py')))
 scene=bpy.context.scene
 def identity():
     h=hashlib.sha256()
-    for ob in sorted((o for o in bpy.data.objects if o.type=='MESH' and not o.name.startswith('Host.V60_earring')),key=lambda o:o.name):
+    for ob in sorted((o for o in bpy.data.objects if o.type=='MESH' and not o.name.startswith(('Host.V60_earring','Host.V61_ear_'))),key=lambda o:o.name):
         h.update(ob.name.encode())
         for v in ob.data.vertices:
             h.update(struct.pack('ddd',*v.co))
@@ -44,7 +44,10 @@ if character=='female':
         for p in ob.data.polygons:
             islip=all(abs(ob.data.vertices[i].co.x)<.030 and ob.data.vertices[i].co.y<-.09 and 1.465<ob.data.vertices[i].co.z<1.505 for i in p.vertices)
             assert (ob.data.materials[p.material_index].name=='CAST_LIP_ART_TRANSPARENT')==islip
-    assert len(beauty['earrings'])==1
+    assert beauty['earrings']
+    for item in beauty['earrings']:
+        accessory=bpy.data.objects[item['object']]
+        assert accessory.parent_type=='BONE' and accessory.parent_bone=='head'
     ring=bpy.data.objects[beauty['earrings'][0]['object']]
     assert ring.parent_type=='BONE' and ring.parent_bone=='head'
     assert all(c.hide_render for c in ring.children if 'rim' in c.name)

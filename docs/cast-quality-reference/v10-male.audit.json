@@ -73,7 +73,7 @@
   "palettes": [
     {
       "profile": "anatomical-skin-texture-v3",
-      "shaderCodeSHA256": "9170d20955c638c6e7593652e468c496d1638f477c75e229f4f7de1b41273e94",
+      "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
       "character": "male",
       "selectedHex": "F7E1D3",
       "surface": {
@@ -153,7 +153,7 @@
     },
     {
       "profile": "anatomical-skin-texture-v3",
-      "shaderCodeSHA256": "9170d20955c638c6e7593652e468c496d1638f477c75e229f4f7de1b41273e94",
+      "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
       "character": "male",
       "selectedHex": "F1D7C8",
       "surface": {
@@ -233,7 +233,7 @@
     },
     {
       "profile": "anatomical-skin-texture-v3",
-      "shaderCodeSHA256": "9170d20955c638c6e7593652e468c496d1638f477c75e229f4f7de1b41273e94",
+      "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
       "character": "male",
       "selectedHex": "E0B48F",
       "surface": {
@@ -313,7 +313,7 @@
     },
     {
       "profile": "anatomical-skin-texture-v3",
-      "shaderCodeSHA256": "9170d20955c638c6e7593652e468c496d1638f477c75e229f4f7de1b41273e94",
+      "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
       "character": "male",
       "selectedHex": "C99A6E",
       "surface": {
@@ -393,7 +393,7 @@
     },
     {
       "profile": "anatomical-skin-texture-v3",
-      "shaderCodeSHA256": "9170d20955c638c6e7593652e468c496d1638f477c75e229f4f7de1b41273e94",
+      "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
       "character": "male",
       "selectedHex": "9E6B4A",
       "surface": {
@@ -473,7 +473,7 @@
     },
     {
       "profile": "anatomical-skin-texture-v3",
-      "shaderCodeSHA256": "9170d20955c638c6e7593652e468c496d1638f477c75e229f4f7de1b41273e94",
+      "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
       "character": "male",
       "selectedHex": "6A4431",
       "surface": {

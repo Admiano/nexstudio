@@ -1,0 +1,172 @@
+[
+  {
+    "style": "long",
+    "sourceIdentityUnchanged": true,
+    "reapplicationStable": true,
+    "finitePoseFrames": 59,
+    "palettes": 6,
+    "earrings": [
+      {
+        "object": "Host.V60_earring_R",
+        "style": "hoop",
+        "bone": "head",
+        "anchorLocal": [
+          -0.004306016955524683,
+          -0.017051680013537407,
+          0.013685496523976326
+        ],
+        "wireMetres": 0.00085,
+        "outerSizeMetres": [
+          0.0157,
+          0.0197
+        ],
+        "blackRim": false
+      }
+    ]
+  },
+  {
+    "style": "bob",
+    "sourceIdentityUnchanged": true,
+    "reapplicationStable": true,
+    "finitePoseFrames": 59,
+    "palettes": 6,
+    "earrings": [
+      {
+        "object": "Host.V61_ear_ball_R",
+        "style": "attachment",
+        "bone": "head",
+        "blackRim": false,
+        "displacementWorldAtAssembly": [
+          -0.004306137561798096,
+          -0.016051970422267914,
+          0.003085130825638771
+        ]
+      },
+      {
+        "object": "Host.V61_ear_bar_R",
+        "style": "bar",
+        "bone": "head",
+        "blackRim": false,
+        "displacementWorldAtAssembly": [
+          -0.004306137561798096,
+          -0.016051970422267914,
+          0.003085130825638771
+        ]
+      },
+      {
+        "object": "Host.V61_ear_post_R",
+        "style": "attachment",
+        "bone": "head",
+        "blackRim": false,
+        "displacementWorldAtAssembly": [
+          -0.004306137561798096,
+          -0.016051970422267914,
+          0.003085130825638771
+        ]
+      }
+    ]
+  },
+  {
+    "style": "bangs",
+    "sourceIdentityUnchanged": true,
+    "reapplicationStable": true,
+    "finitePoseFrames": 59,
+    "palettes": 6,
+    "earrings": [
+      {
+        "object": "Host.V61_ear_pearl_R",
+        "style": "pearl",
+        "bone": "head",
+        "blackRim": false,
+        "displacementWorldAtAssembly": [
+          -0.00430607795715332,
+          -0.012052013538777828,
+          0.003085370408371091
+        ]
+      }
+    ]
+  },
+  {
+    "style": "bun",
+    "sourceIdentityUnchanged": true,
+    "reapplicationStable": true,
+    "finitePoseFrames": 59,
+    "palettes": 6,
+    "earrings": [
+      {
+        "object": "Host.V60_earring_L",
+        "style": "hoop",
+        "bone": "head",
+        "anchorLocal": [
+          0.001945494906976819,
+          -0.01731184870004654,
+          0.01838894560933113
+        ],
+        "wireMetres": 0.00095,
+        "outerSizeMetres": [
+          0.0229,
+          0.0289
+        ],
+        "blackRim": false
+      },
+      {
+        "object": "Host.V60_earring_R",
+        "style": "hoop",
+        "bone": "head",
+        "anchorLocal": [
+          -0.004305993672460318,
+          -0.01705167442560196,
+          0.01868557743728161
+        ],
+        "wireMetres": 0.00095,
+        "outerSizeMetres": [
+          0.0229,
+          0.0289
+        ],
+        "blackRim": false
+      }
+    ]
+  },
+  {
+    "style": "braid",
+    "sourceIdentityUnchanged": true,
+    "reapplicationStable": true,
+    "finitePoseFrames": 59,
+    "palettes": 6,
+    "earrings": [
+      {
+        "object": "Host.V61_ear_chain_R",
+        "style": "attachment",
+        "bone": "head",
+        "blackRim": false,
+        "displacementWorldAtAssembly": [
+          -0.004306137561798096,
+          -0.016051970422267914,
+          0.003085130825638771
+        ]
+      },
+      {
+        "object": "Host.V61_ear_drop_R",
+        "style": "teardrop",
+        "bone": "head",
+        "blackRim": false,
+        "displacementWorldAtAssembly": [
+          -0.004306137561798096,
+          -0.016051970422267914,
+          0.003085130825638771
+        ]
+      },
+      {
+        "object": "Host.V61_ear_post_R",
+        "style": "attachment",
+        "bone": "head",
+        "blackRim": false,
+        "displacementWorldAtAssembly": [
+          -0.004306137561798096,
+          -0.016051970422267914,
+          0.003085130825638771
+        ]
+      }
+    ]
+  }
+]

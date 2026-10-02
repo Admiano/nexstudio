@@ -62,6 +62,52 @@ def gold_material(scene):
     return material
 
 
+def pearl_material(scene,gold):
+    material=bpy.data.materials.get('CAST_PEARL_V10')
+    if not material:material=gold.copy();material.name='CAST_PEARL_V10'
+    ramp=material.node_tree.nodes.get('Warm gold studio reflections')
+    colors=[(.35,.33,.30,1),(.58,.55,.50,1),(.79,.76,.69,1),(.91,.88,.81,1),(1,.98,.92,1),(.87,.84,.78,1),(.98,.96,.90,1)]
+    for element,color in zip(ramp.color_ramp.elements,colors):element.color=color
+    for node in material.node_tree.nodes:
+        if node.type=='VECT_MATH' and node.operation=='DOT_PRODUCT':node.inputs[1].default_value=scene.camera.matrix_world.to_quaternion()@Vector((-.38,.62,.70)).normalized()
+    return material
+
+
+def refine_other_earrings(scene,gold):
+    rows=[]
+    for side in ('R','L'):
+        all_parts=[o for o in bpy.data.objects if o.type=='MESH' and o.name.startswith('Host.V61_ear_') and o.name.endswith('_'+side)]
+        for ob in all_parts:
+            if '_rim_' in ob.name or '_hi_' in ob.name:ob.hide_render=True
+        parts=[o for o in all_parts if '_rim_' not in o.name and '_hi_' not in o.name]
+        if not parts:continue
+        pivot=bpy.data.objects.get('Host.V61_ear_post_'+side) or bpy.data.objects.get('Host.V61_ear_pearl_'+side)
+        fill=bpy.data.objects.get('Host.V60_ear_fill_'+side)
+        if not pivot or not fill:raise RuntimeError('CAST_EARRING_LOBE_NOT_FOUND')
+        if not pivot.get('castBeautyProfile'):
+            reference=pivot.matrix_world.copy();inverse=reference.inverted()
+            pts=[inverse@(fill.matrix_world@v.co) for v in fill.data.vertices]
+            low=min(v.z for v in pts);lobe=[v for v in pts if v.z<low+.003]
+            anchor=sum(lobe,Vector())/len(lobe);anchor.y-=.0012;anchor.z+=.0020
+            center=sum((v.co for v in pivot.data.vertices),Vector())/len(pivot.data.vertices)
+            if 'pearl' in pivot.name:center.z+=.001 # original post lies just above pearl centre
+            delta=reference.to_3x3()@(anchor-center)
+            for ob in parts:
+                # Preserve each style's assembly and bone attachment, translating
+                # the complete accessory by one shared lobe-derived displacement.
+                world=ob.matrix_world.copy();world.translation+=delta;ob.matrix_world=world
+                center_part=sum((v.co for v in ob.data.vertices),Vector())/len(ob.data.vertices)
+                factors=(.65,.65,1) if '_bar_' in ob.name else (.72,.72,.72) if '_pearl_' in ob.name else (.82,.82,.92) if '_drop_' in ob.name else (1,1,1)
+                for v in ob.data.vertices:
+                    q=v.co-center_part;v.co=center_part+Vector(tuple(a*b for a,b in zip(q,factors)))
+                for p in ob.data.polygons:p.use_smooth=True
+                ob.data.update();ob['castBeautyProfile']=PROFILE;ob['castLobeDisplacement']=list(delta)
+        for ob in parts:
+            ob.data.materials.clear();ob.data.materials.append(pearl_material(scene,gold) if '_pearl_' in ob.name else gold)
+            rows.append(dict(object=ob.name,style='pearl' if '_pearl_' in ob.name else 'bar' if '_bar_' in ob.name else 'teardrop' if '_drop_' in ob.name else 'attachment',bone=ob.parent_bone,blackRim=False,displacementWorldAtAssembly=list(ob.get('castLobeDisplacement',[]))))
+    return rows
+
+
 def refine_earrings(scene):
     material=gold_material(scene);rows=[]
     rings=[o for o in bpy.data.objects if o.name.startswith('Host.V60_earring') and 'rim' not in o.name and o.type=='MESH']
@@ -71,7 +117,8 @@ def refine_earrings(scene):
         # Cache the authored rest hoop and location so reapplying does not shrink
         # or slide the accessory. Preserve its original head-bone transform.
         if not ob.get('castBeautyProfile'):
-            fill=bpy.data.objects.get('Host.V60_ear_fill_R') if ob.name.endswith('_R') else bpy.data.objects.get('Host.V60_ear_fill')
+            side=ob.name[-1] if ob.name.endswith(('_R','_L')) else None
+            fill=bpy.data.objects.get('Host.V60_ear_fill_'+side if side else 'Host.V60_ear_fill')
             if fill:
                 inv=ob.matrix_world.inverted()
                 points=[inv@(fill.matrix_world@v.co) for v in fill.data.vertices]
@@ -84,7 +131,9 @@ def refine_earrings(scene):
             else:
                 anchor=Vector((0,-.015,.012))
             ob['castEarringAnchor']=list(anchor)
-            rx,rz,wire=.0070,.0090,.00085
+            statement=max(v.co.z for v in ob.data.vertices)>.014
+            rx,rz,wire=(.0105,.0135,.00095) if statement else (.0070,.0090,.00085)
+            ob['castEarringSize']=[rx,rz,wire]
             center=anchor-Vector((0,0,rz))
             if len(ob.data.vertices)!=480:raise RuntimeError('CAST_UNEXPECTED_HOOP_TOPOLOGY')
             for i in range(48):
@@ -95,7 +144,9 @@ def refine_earrings(scene):
             for p in ob.data.polygons:p.use_smooth=True
             ob.data.update();ob['castBeautyProfile']=PROFILE
         ob.data.materials.clear();ob.data.materials.append(material)
-        rows.append(dict(object=ob.name,bone=ob.parent_bone,anchorLocal=list(ob['castEarringAnchor']),wireMetres=.00085,outerSizeMetres=[.0157,.0197],blackRim=False))
+        rx,rz,wire=ob.get('castEarringSize',[.007,.009,.00085])
+        rows.append(dict(object=ob.name,style='hoop',bone=ob.parent_bone,anchorLocal=list(ob['castEarringAnchor']),wireMetres=wire,outerSizeMetres=[2*(rx+wire),2*(rz+wire)],blackRim=False))
+    rows.extend(refine_other_earrings(scene,material))
     return rows
 
 
