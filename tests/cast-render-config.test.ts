@@ -22,3 +22,11 @@ const {castSpecSchema}=await import('../src/lib/cast-spec-schema');
 assert.equal(castSpecSchema.parse(environmentSpec).environment,'cafe');
 assert.equal(castSpecSchema.safeParse({...environmentSpec,environment:'../../private'}).success,false);
 console.log('PASS environment persistence, validation and character-cache reuse');
+
+
+// Every selected complexion is explicit, including the default light skin.
+const {SKINS}=await import('../src/studio-v2/cast/spec');
+for(const character of ['female','male'] as const) for(const skin of SKINS){
+ const c=castRenderConfig({...DEFAULT_SPEC[character],skin:skin.key});
+ assert.equal(c.env.CAST_SKIN_HEX,skin.hex.slice(1).toUpperCase());
+}
