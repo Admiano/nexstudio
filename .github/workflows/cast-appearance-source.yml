@@ -34,10 +34,32 @@ jobs:
           with zipfile.ZipFile('cast-appearance-sources.zip','w',zipfile.ZIP_DEFLATED) as z:
             for p in files: z.write(p,p.as_posix())
             z.writestr('source-sha256.json',json.dumps({p.as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in files},indent=2))
+          data=Path('cast-appearance-sources.zip').read_bytes()
+          for i,offset in enumerate(range(0,len(data),24*1024*1024)):
+            Path(f'sources-{i:02d}.part').write_bytes(data[offset:offset+24*1024*1024])
           print('Packaged',len(files),'exact committed rendering inputs')
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: cast-appearance-approved-sources
-          path: cast-appearance-sources.zip
+          name: cast-appearance-sources-00
+          path: sources-00.part
           retention-days: 7
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cast-appearance-sources-01
+          path: sources-01.part
+          retention-days: 7
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cast-appearance-sources-02
+          path: sources-02.part
+          retention-days: 7
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cast-appearance-sources-03
+          path: sources-03.part
+          retention-days: 7
+          if-no-files-found: ignore
