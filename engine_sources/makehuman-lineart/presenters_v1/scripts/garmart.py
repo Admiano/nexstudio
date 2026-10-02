@@ -201,7 +201,7 @@ elif ROLE=='top':
         fstroke([(cx-0.010,z) for z in np.linspace(ztop-0.10,zbot+0.02,36)],1,FW*0.55,0,fixed=True)
         fstroke([(cx+0.012,z) for z in np.linspace(ztop-0.10,zbot+0.02,36)],1,FW*0.45,1,fixed=True)
         for z in np.linspace(ztop-0.13,zbot+0.07,6):
-            dot(cx+0.001,z,0.0021,1)
+            dot(cx+0.001,z,0.0032 if os.environ.get('CAST_FINISH_UPGRADE')=='1' else 0.0021,1)
         px=cx+_E('PKX','0.085'); pz=zb+0.02
         fstroke([(px-0.035,pz),(px-0.035,pz-0.06),(px-0.02,pz-0.072),(px+0.02,pz-0.072),(px+0.035,pz-0.06),(px+0.035,pz)],1,FW*0.7,1,fixed=True)
     elif 'polo' in _nm:
@@ -249,6 +249,7 @@ ro=bpy.data.objects.new('Host.V64_dress_lines',rm)
 ro['castGarmentSource']=g.name
 for cl in g.users_collection: cl.objects.link(ro)
 px=g.copy(); px.data=g.data.copy(); px.name='Host.V64_sd_proxy'
+px['castGarmentProxySource']=g.name
 for cl in g.users_collection: cl.objects.link(px)
 for x in px.modifiers:
     if x.type=='ARMATURE': x.object=rig

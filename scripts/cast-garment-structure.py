@@ -14,7 +14,10 @@ if os.environ.get('CAST_GARMENT_STRUCTURE_PILOT')=='1':
         shell=ob.modifiers.get('Cast garment edge thickness') or ob.modifiers.new('Cast garment edge thickness','SOLIDIFY')
         shell.thickness=0.0008
         shell.offset=-1.0
-        shell.use_even_offset=True
+        # Miter compensation is unbounded at nearly folded source edges.
+        # A unit-normal offset keeps every shell vertex sub-millimetre.
+        shell.use_even_offset=False
+        shell.thickness_clamp=1.0
         shell.use_quality_normals=True
         shell.use_rim=True
-        structure_report.append({'object':name,'thicknessMetres':shell.thickness,'afterRigAndSubdivision':True})
+        structure_report.append({'object':name,'thicknessMetres':shell.thickness,'afterRigAndSubdivision':True,'boundedNormalOffset':True})

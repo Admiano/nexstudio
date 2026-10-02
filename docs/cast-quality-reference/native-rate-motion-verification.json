@@ -1,0 +1,23 @@
+{
+  "limitation": "Predates final sleeve-seam proxy correction; diagnostic resolution, not final commercial video.",
+  "characters": {
+    "female": {
+      "start": 300,
+      "end": 347,
+      "step": 1,
+      "fps": 24.0,
+      "frameCount": 48,
+      "sourceMeshesUnchanged": true,
+      "objectCountsStable": true
+    },
+    "male": {
+      "start": 300,
+      "end": 347,
+      "step": 1,
+      "fps": 24.0,
+      "frameCount": 48,
+      "sourceMeshesUnchanged": true,
+      "objectCountsStable": true
+    }
+  }
+}

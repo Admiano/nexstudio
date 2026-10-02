@@ -3,7 +3,7 @@
 import argparse,fcntl,json,os,re,shutil,subprocess,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-fit-v6-upper-thigh'
+SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-finish-v7-upper-thigh'
 CACHE=Path(os.environ.get('CAST_PREVIEW_CACHE_DIR',ROOT/'engine_sources/makehuman-lineart/out/cast-previews'))
 SOURCE=Path(os.environ.get('CAST_SOURCE_DIR',ROOT/'engine_sources/makehuman-lineart/presenters_v1'))
 ENV_KEYS={'CAST_CHARACTER','CAST_FACE','CAST_HAIR_STYLE','CAST_HAIR_HEX','CAST_SKIN_HEX','CAST_LIP_HEX','CAST_NECK','CAST_WATCH','CAST_DRESS','CAST_DRESS_HEX','CAST_MALE_LOOK','CAST_MALE_HAIR','CAST_HAIR_DYE','CAST_GARMENTS'}
@@ -22,6 +22,9 @@ def render(job):
     if not BLENDER or not Path(BLENDER).is_file():raise RuntimeError('BLENDER_RUNTIME_MISSING')
     if not (SOURCE/'scenes/BASE_V58.blend').is_file():raise RuntimeError('CAST_SOURCE_SCENE_MISSING')
     env=dict(os.environ);env.update(config['env']);env.update({'CAST_SOURCE_DIR':str(SOURCE),'BLENDER_BIN':BLENDER,'CAST_RENDER_ENTRY':str(ROOT/'scripts/cast-render-assembled.py'),'MH_ROOT':os.environ.get('MH_ROOT',str(SOURCE.parent/'assets')),'PYTHONUNBUFFERED':'1','OPENBLAS_NUM_THREADS':'1'})
+    # The cache version names a fixed profile, independent of worker startup
+    # environment or experimental settings used by reference tooling.
+    env.update(CAST_QUALITY_PILOT='1',CAST_FINISH_UPGRADE='1',CAST_GARMENT_STRUCTURE_PILOT='1')
     started=time.monotonic();status(job,'rendering')
     with (job/'render.log').open('w') as log:result=subprocess.run(['bash',str(ROOT/'scripts/cast-preview-render.sh'),str(job/'request.json'),str(job/'render.png')],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=900)
     if result.returncode!=0 or not (job/'render.png').is_file():raise RuntimeError(f'CAST_RENDER_FAILED:{result.returncode}')
