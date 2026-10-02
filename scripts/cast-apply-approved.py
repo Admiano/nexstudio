@@ -66,10 +66,26 @@ if character=='male':
     approved_top=incoming.materials[0]
 for material in bpy.data.materials:
     if material==approved_top:continue
-    if approved_top and material.name=='V70_G_elvs_male_shirt_untucked_bd1':
+    if approved_top and material.name=='V70_G_elvs_male_shirt_untucked_bd1' and os.environ.get('CAST_QUALITY_PILOT')!='1':
         # v6 softened this shirt's authored armpit shading before the grade.
         for name in ('Map Range','Map Range.002','Map Range.003'):
             original=approved_top.node_tree.nodes[name];current=material.node_tree.nodes[name]
             for field in ('To Min','To Max'):current.inputs[field].default_value=original.inputs[field].default_value
-    if material.name.startswith(('V63_DRESS_','V70_G_')) and material.use_nodes:shading.grade(material,shading.CLOTH,1.0)
+    if material.name.startswith(('V63_DRESS_','V70_G_')) and material.use_nodes:
+        preset = shading.CLOTH
+        if os.environ.get('CAST_QUALITY_PILOT') == '1':
+            # Short-range contact shade follows the current pose. Preserve
+            # the approved palette and leave skin/hair/ink grading untouched.
+            preset = dict(shading.CLOTH, occlusion=0.20, distance=0.035, highlight=0.04)
+        shading.grade(material,preset,1.0)
 os.environ['FACE']=os.environ['CAST_FACE'];run('facevar.py')
+
+if os.environ.get('CAST_QUALITY_PILOT') == '1':
+    detail=bpy.data.materials.get('PEEPS_V2_HAIR_DETAIL')
+    if detail and detail.use_nodes and os.environ.get('HCOL'):
+        # Strand ink follows the selected hair palette, rather than retaining
+        # the purple accent of the unrelated source material.
+        hx=os.environ['HCOL'].lstrip('#')
+        srgb=[int(hx[i:i+2],16)/255 for i in (0,2,4)]
+        linear=[c/12.92 if c<=0.04045 else ((c+0.055)/1.055)**2.4 for c in srgb]
+        detail.node_tree.nodes['Emission'].inputs['Color'].default_value=(*[c*0.40 for c in linear],1)

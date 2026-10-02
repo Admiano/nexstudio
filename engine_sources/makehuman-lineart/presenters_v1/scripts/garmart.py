@@ -193,12 +193,15 @@ if ROLE=='pants':
         fstroke(curve([(cx+0.018,ztop-0.03),(cx+0.020,ztop-0.12),(cx+0.004,ztop-0.16)]),1,FW*0.8,1,fixed=True)
         hline(ztop-0.035,FW*0.7,1,0.92)
 elif ROLE=='top':
-    for s in (1,-1): fstroke(curve([(0.62,zb-0.06),(0.58,(zb+zw)/2),(0.52,zw-0.04)]),s,FW*0.6)
+    # Only tailored shirts have authored torso darts. Cotton and knit tops
+    # must not inherit the same long decorative strokes.
+    if os.environ.get('CAST_QUALITY_PILOT')!='1' or 'shirt_untucked' in _nm or 'bd' in _nm:
+        for s in (1,-1): fstroke(curve([(0.62,zb-0.06),(0.58,(zb+zw)/2),(0.52,zw-0.04)]),s,FW*0.6)
     if 'shirt_untucked' in _nm or 'bd' in _nm:
         fstroke([(cx-0.010,z) for z in np.linspace(ztop-0.10,zbot+0.02,36)],1,FW*0.55,0,fixed=True)
         fstroke([(cx+0.012,z) for z in np.linspace(ztop-0.10,zbot+0.02,36)],1,FW*0.45,1,fixed=True)
         for z in np.linspace(ztop-0.13,zbot+0.07,6):
-            dot(cx+0.001,z,0.0021,1)
+            dot(cx+0.001,z,0.0032 if os.environ.get('CAST_FINISH_UPGRADE')=='1' else 0.0021,1)
         px=cx+_E('PKX','0.085'); pz=zb+0.02
         fstroke([(px-0.035,pz),(px-0.035,pz-0.06),(px-0.02,pz-0.072),(px+0.02,pz-0.072),(px+0.035,pz-0.06),(px+0.035,pz)],1,FW*0.7,1,fixed=True)
     elif 'polo' in _nm:
@@ -246,6 +249,7 @@ ro=bpy.data.objects.new('Host.V64_dress_lines',rm)
 ro['castGarmentSource']=g.name
 for cl in g.users_collection: cl.objects.link(ro)
 px=g.copy(); px.data=g.data.copy(); px.name='Host.V64_sd_proxy'
+px['castGarmentProxySource']=g.name
 for cl in g.users_collection: cl.objects.link(px)
 for x in px.modifiers:
     if x.type=='ARMATURE': x.object=rig
@@ -256,5 +260,9 @@ bpy.context.view_layer.update()
 sd=ro.modifiers.new('SD','SURFACE_DEFORM'); sd.target=px; sd.falloff=4
 with bpy.context.temp_override(object=ro,active_object=ro,selected_objects=[ro]):
     bpy.ops.object.surfacedeform_bind(modifier='SD')
-print('DART ribbons',g.name,len(V),'bound',sd.is_bound)
+if not sd.is_bound and os.environ.get('CAST_QUALITY_PILOT')=='1':
+    from pathlib import Path
+    binder=Path(os.environ['PV1']).parents[3]/'scripts/cast-bind-garment-lines.py'
+    exec(compile(binder.read_text(),str(binder),'exec'),globals())
+print('DART ribbons',g.name,len(V),'bound',ro.get('castRibbonBinding') or sd.is_bound)
 S.frame_set(F0)

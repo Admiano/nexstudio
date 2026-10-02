@@ -1,0 +1,994 @@
+{
+  "character": "male",
+  "boundRibbonsChecked": 1,
+  "maximumRibbonSurfaceDistance": 0.0006525909993797541,
+  "frames": [
+    {
+      "frame": 240,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006525909993797541
+      }
+    },
+    {
+      "frame": 243,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006519272574223578
+      }
+    },
+    {
+      "frame": 246,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 249,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006515093264169991
+      }
+    },
+    {
+      "frame": 252,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006515186396427453
+      }
+    },
+    {
+      "frame": 255,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006515218410640955
+      }
+    },
+    {
+      "frame": 258,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 261,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 264,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 267,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 270,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 273,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 276,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 279,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 282,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 285,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 288,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 291,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 294,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 297,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 300,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 303,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 306,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 309,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 312,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 315,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 318,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 321,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 324,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 327,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 330,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 333,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 336,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 339,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006516491412185133
+      }
+    },
+    {
+      "frame": 342,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006520839524455369
+      }
+    },
+    {
+      "frame": 345,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006522900657728314
+      }
+    },
+    {
+      "frame": 348,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006522443145513535
+      }
+    },
+    {
+      "frame": 351,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006521712057292461
+      }
+    },
+    {
+      "frame": 354,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.000651937851216644
+      }
+    },
+    {
+      "frame": 357,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006516017601825297
+      }
+    },
+    {
+      "frame": 360,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 363,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 366,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 369,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 372,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 375,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 378,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 381,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 384,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 387,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 390,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 393,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 396,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 399,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 402,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 405,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 408,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 411,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 414,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 417,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 420,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 423,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 426,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 429,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 432,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 435,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 438,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 441,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 444,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 447,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 450,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 453,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 456,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 459,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 462,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 465,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 468,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 471,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 474,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 477,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 480,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 483,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 486,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 489,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 492,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 495,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 498,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 501,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 504,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 507,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 510,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 513,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 516,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 519,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 522,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 525,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 528,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 531,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 534,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 537,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 540,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 543,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 546,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 549,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 552,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 555,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 558,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 561,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 564,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 567,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 570,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 573,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 576,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 579,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 582,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 585,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 588,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 591,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 594,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    },
+    {
+      "frame": 597,
+      "finiteVertices": 88712,
+      "fittedObjects": 2,
+      "ribbonSurfaceDistances": {
+        "Host.V64_dress_lines.001": 0.0006514980341307819
+      }
+    }
+  ],
+  "sourceMeshHashes": {
+    "Host.body": "0f9922e4c15e0aee4f7db9df64bd4bc9793e2eb2f7196e7527e145c1c0b91a4f",
+    "Host.elvs_male_shirt_untucked_bd1": "718b9d1910537b3c6030e1c5410b33520c996af84ab027b37421bcc1416b3142",
+    "Host.eyebrow001": "fb9bc7270fcbbdbce918cff92f20074f5a767ce7f1885bfae6d9831e120893a0",
+    "Host.hair_elvs_maxwell_hair": "3ed7c99b70fb8caaacb1f0489734e2b35a91c6235e87e25b476737a74bd2b5de",
+    "Host.high-poly": "7cc50ae575d685a13ef4259973af963b9be42c809a32c6928163a4b20dbfa070",
+    "Host.ink_hair_lock_0": "e4f452a06535786ab45b4afed7a93f30b6e3a24548c850ae26e9fe56f3e0be56",
+    "Host.ink_hair_lock_1": "007b39ec06fcacb8c18fd3fb9f29e1462ac1e217b262ba85a3be8adf4f2b7b50",
+    "Host.ink_hair_lock_2": "9e4a7d2cc3d34e822ac3122ae677051d3e596bd10c32c00db43eb02bfb49e730",
+    "Host.ink_hair_lock_3": "4ed0aa3ea1a177a42d171e854f2b1568fa529c9c86ce30de57bcc3d8fa9b6ab5",
+    "Host.lineart_lower_legs": "0f9922e4c15e0aee4f7db9df64bd4bc9793e2eb2f7196e7527e145c1c0b91a4f",
+    "Host.mindfront_male_trousers_2": "9d0482fa564c81519fcb8905666736620465863e5fa5b275f52e97bfec95143d",
+    "Host.mindfront_shoes_monk_strap_male": "90c454df833ee574dcc0a414e893479f6fc80163f0b76149791bd25926654b0f",
+    "Host.teeth_base": "3e3a6360973752fd583b8f7f92ff1ff9d725fec898aa831998f170ba90a4c73c",
+    "Host.V10_ear_L": "8465f1ccd740fcbef826e97d8b4730fcc2fb605330ea858f4e0d129ba5ef28db",
+    "Host.V10_ear_R": "34876d984bd90239e976eee3c4f37fab4b7c9de8ac433fddd5a384fbe4d90ff3",
+    "Host.V11_mouth_interior": "65a83d77d608635c4e0c8e8269c90aa70336ade728042ba7a1baa7c3c5a0c9d1",
+    "Host.V59_face_art": "fbabe362be72a3f86f2a7c6eb91e2bd4fc56ab9057f00f4b6a464bf9615ab79c",
+    "Host.V60_ear_fill_R": "2bff859791a424cf040b7b708acf9cbe243f2505f6deecbbe47b69c2579b71b4",
+    "Host.V60_ear_inner_R": "51dd01c0bedc809179bed389d65c20f956e7fc3229332063f5e42ea027732a8b",
+    "Host.V60_ear_line_R": "0d836c93bdc43f117e847fd792b42fd2ade03a13f9d77804d698b6a8239dbcb5",
+    "Host.V64_dress_lines": "e69f89dc0b2532203fd849da232f78d39d1d11beff0b78d35ad79ff7e6a0f33b",
+    "Host.V64_dress_lines.001": "3eb1907b33580719f4a04b58fcfec8815cfa8dd62303ef1fd58a97d60344acb1",
+    "Host.V64_dress_lines.002": "9e646f0f4cdf283b00f0fd06c64d1f3282bff50681b022617321c4f54857e10d"
+  },
+  "sourceMeshesUnchanged": true,
+  "objectCountsStable": true
+}
