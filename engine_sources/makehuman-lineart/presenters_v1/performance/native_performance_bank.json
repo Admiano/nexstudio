@@ -1,0 +1,67 @@
+{
+  "schema": "NEX_MAKEHUMAN_NATIVE_PERFORMANCE_BANK_V1",
+  "sourceAction": "Host.rigAction.001",
+  "sourceFps": 24,
+  "sourceFrames": 998,
+  "referenceFrame": 500,
+  "policy": {
+    "expressiveMode": "native_same_rig_clips",
+    "fkOnly": true,
+    "externalPoseTransfer": false,
+    "pointScreenProductionGated": false,
+    "shrugSubtleProductionGated": false
+  },
+  "entries": {
+    "REST": [
+      {"id":"rest_native","start":430,"peak":449,"end":470,"scope":"rest","dominantHand":"none"}
+    ],
+    "EXPLAIN_SMALL": [
+      {"id":"explain_small_r1","start":112,"peak":136,"end":158,"scope":"gesture","dominantHand":"right"},
+      {"id":"explain_small_r2","start":320,"peak":340,"end":365,"scope":"gesture","dominantHand":"right"},
+      {"id":"explain_small_l1","start":380,"peak":400,"end":425,"scope":"gesture","dominantHand":"left"}
+    ],
+    "PRESENT_OPEN": [
+      {"id":"present_open_r1","start":870,"peak":895,"end":920,"scope":"gesture","dominantHand":"right"},
+      {"id":"present_open_r2","start":955,"peak":982,"end":998,"scope":"gesture","dominantHand":"right"}
+    ],
+    "QUESTION_OPEN": [
+      {"id":"question_open_b1","start":210,"peak":234,"end":258,"scope":"gesture","dominantHand":"both"},
+      {"id":"question_open_b2","start":690,"peak":717,"end":742,"scope":"gesture","dominantHand":"both"}
+    ],
+    "EMPHASIS_SMALL": [
+      {"id":"emphasis_l1","start":380,"peak":400,"end":425,"scope":"gesture","dominantHand":"left"},
+      {"id":"emphasis_r1","start":528,"peak":555,"end":580,"scope":"gesture","dominantHand":"right"},
+      {"id":"emphasis_l2","start":608,"peak":635,"end":660,"scope":"gesture","dominantHand":"left"}
+    ],
+    "AGREE_NOD": [
+      {"id":"agree_native","start":784,"peak":802,"end":830,"scope":"attention","dominantHand":"none"}
+    ],
+    "LISTEN_ATTENTIVE": [
+      {"id":"listen_native","start":430,"peak":449,"end":470,"scope":"attention","dominantHand":"none"}
+    ],
+    "LOOK_SIDE": [
+      {"id":"look_side_native","start":45,"peak":56,"end":72,"scope":"attention","dominantHand":"none"}
+    ],
+    "RECOVER_TO_REST": [
+      {"id":"recover_native","start":718,"peak":734,"end":750,"scope":"gesture","dominantHand":"both"}
+    ],
+    "EXPLAIN_MEDIUM": [
+      {"id":"explain_medium_b1","start":10,"peak":37,"end":70,"scope":"gesture","dominantHand":"both"}
+    ]
+  },
+  "fallbacks": {
+    "explain": "EXPLAIN_SMALL",
+    "explain_small": "EXPLAIN_SMALL",
+    "explain_medium": "EXPLAIN_MEDIUM",
+    "present": "PRESENT_OPEN",
+    "offer": "PRESENT_OPEN",
+    "question": "QUESTION_OPEN",
+    "emphasis": "EMPHASIS_SMALL",
+    "agree": "AGREE_NOD",
+    "listen": "LISTEN_ATTENTIVE",
+    "look_aside": "LOOK_SIDE",
+    "think": "LOOK_SIDE",
+    "recover": "RECOVER_TO_REST",
+    "rest": "REST"
+  }
+}

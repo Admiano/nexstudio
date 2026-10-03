@@ -1,0 +1,129 @@
+name: Presenter performance adapter certification
+
+on:
+  pull_request:
+    branches:
+      - devin/1790707046-presenters-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: presenter-performance-adapter-cert
+  cancel-in-progress: true
+
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout presenter performance source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend
+            engine_sources/makehuman-lineart/presenters_v1/performance
+
+      - name: Install Blender runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1 libegl1 libx11-6 libxi6 libxrender1 libxxf86vm1 libxfixes3 libxkbcommon0 libwayland-client0 libsm6 libice6
+
+      - name: Install exact Blender 5.2.0
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -fL https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz -o blender.tar.xz
+          echo "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  blender.tar.xz" | sha256sum -c -
+          mkdir blender
+          tar -xJf blender.tar.xz -C blender --strip-components=1
+
+      - name: Build same-rig native semantic bank
+        env:
+          NEX_BANK_BLEND_OUT: ${{ runner.temp }}/BASE_V58_NATIVE_BANK.blend
+        run: |
+          "$RUNNER_TEMP/blender/blender" -b             engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend             --python engine_sources/makehuman-lineart/presenters_v1/performance/build_native_performance_bank.py
+          python3 - <<'PY'
+          import json,os
+          p=os.path.join(os.environ["RUNNER_TEMP"],"BASE_V58_NATIVE_BANK.json")
+          d=json.load(open(p))
+          created=d["created"]
+          if len(created)!=16:
+              raise SystemExit(f"expected 16 native semantic actions, got {len(created)}")
+          if any(x["frames"]<18 for x in created):
+              raise SystemExit("semantic action unexpectedly short")
+          print("PASS native semantic bank",len(created),"actions")
+          PY
+
+      - name: Apply 20-second semantic performance plan
+        env:
+          NEX_PERFORMANCE_PLAN: ${{ github.workspace }}/engine_sources/makehuman-lineart/presenters_v1/performance/demo_performance_plan.json
+          NEX_PERFORMANCE_OUT: ${{ runner.temp }}/NEX_PRESENTER_PERFORMANCE_DEMO.blend
+        run: |
+          "$RUNNER_TEMP/blender/blender" -b "$RUNNER_TEMP/BASE_V58_NATIVE_BANK.blend"             --python engine_sources/makehuman-lineart/presenters_v1/performance/apply_performance_plan.py
+          python3 - <<'PY'
+          import json,os
+          p=os.path.join(os.environ["RUNNER_TEMP"],"NEX_PRESENTER_PERFORMANCE_DEMO.json")
+          d=json.load(open(p))
+          if d.get("status")!="PASS" or len(d.get("placed",[]))<8:
+              raise SystemExit(f"adapter report failed: {d}")
+          tracks={x["track"] for x in d["placed"]}
+          if "NEX_PERF_GESTURES" not in tracks or "NEX_PERF_ATTENTION" not in tracks:
+              raise SystemExit("gesture/attention separation missing")
+          print("PASS semantic plan",len(d["placed"]),"placed strips",sorted(tracks))
+          PY
+
+      - name: Validate saved adapter scene
+        run: |
+          "$RUNNER_TEMP/blender/blender" -b "$RUNNER_TEMP/NEX_PRESENTER_PERFORMANCE_DEMO.blend" --python-expr '
+          import bpy,json
+          r=bpy.data.objects["Host.rig"]
+          ad=r.animation_data
+          tracks={t.name:[(s.name,s.action.name if s.action else None,round(s.frame_start,2),round(s.frame_end,2)) for s in t.strips] for t in ad.nla_tracks if t.name.startswith("NEX_PERF_")}
+          assert "NEX_PERF_REST" in tracks and tracks["NEX_PERF_REST"]
+          assert "NEX_PERF_GESTURES" in tracks and tracks["NEX_PERF_GESTURES"]
+          assert "NEX_PERF_ATTENTION" in tracks and tracks["NEX_PERF_ATTENTION"]
+          assert ad.action is None
+          native=[a.name for a in bpy.data.actions if a.name.startswith("NEX_NATIVE_")]
+          assert len(native)==16,len(native)
+          assert bpy.context.scene.frame_end==481,bpy.context.scene.frame_end
+          print("ADAPTER_SCENE_PASS",json.dumps({"nativeActions":len(native),"tracks":tracks}))
+          '
+
+      - name: Render recomposed performance contact
+        env:
+          PERF_CONTACT_OUT: ${{ runner.temp }}/performance-contact
+        run: |
+          "$RUNNER_TEMP/blender/blender" -b "$RUNNER_TEMP/NEX_PRESENTER_PERFORMANCE_DEMO.blend"             --python engine_sources/makehuman-lineart/presenters_v1/performance/render_performance_contact.py
+          python3 -m pip install --user pillow
+          python3 - <<'PY'
+          import json,os,math
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageFont
+          root=Path(os.environ["RUNNER_TEMP"])/"performance-contact"
+          items=json.load(open(root/"frames.json"))
+          W,H,L=360,540,58
+          cols=3; rows=math.ceil(len(items)/cols)
+          sheet=Image.new("RGB",(cols*W,rows*(H+L)),(244,244,241))
+          draw=ImageDraw.Draw(sheet); font=ImageFont.load_default()
+          for i,it in enumerate(items):
+              im=Image.open(root/it["file"]).convert("RGB")
+              x=(i%cols)*W; y=(i//cols)*(H+L)
+              sheet.paste(im,(x,y))
+              draw.text((x+6,y+H+8),f'{it["time"]:.2f}s · F{it["frame"]}',fill=(15,15,15),font=font)
+          sheet.save(root/"performance-contact.jpg",quality=86,optimize=True)
+          print("PASS recomposed contact",len(items),"frames")
+          PY
+
+      - name: Upload adapter certification
+        uses: actions/upload-artifact@v4
+        with:
+          name: presenter-performance-adapter-cert
+          path: |
+            ${{ runner.temp }}/BASE_V58_NATIVE_BANK.json
+            ${{ runner.temp }}/NEX_PRESENTER_PERFORMANCE_DEMO.json
+            ${{ runner.temp }}/NEX_PRESENTER_PERFORMANCE_DEMO.blend
+            ${{ runner.temp }}/performance-contact/performance-contact.jpg
+          retention-days: 7
