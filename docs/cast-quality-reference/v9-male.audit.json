@@ -1,0 +1,547 @@
+{
+  "character": "male",
+  "sourceIdentityHash": "8f098aebbd08da99329fae23f4857808b40a9ecc0f45d714f4576aabeafbf3d9",
+  "sourceIdentityUnchanged": true,
+  "objectsMeshesActionsUnchanged": true,
+  "reapplicationStable": true,
+  "textureCoordinatesStable": true,
+  "weightsAndUVsUnchanged": true,
+  "explicitLipOverrideVerified": false,
+  "finitePoseFrames": [
+    1,
+    18,
+    35,
+    52,
+    69,
+    86,
+    103,
+    120,
+    137,
+    154,
+    171,
+    188,
+    205,
+    222,
+    239,
+    256,
+    273,
+    290,
+    307,
+    324,
+    341,
+    358,
+    375,
+    392,
+    409,
+    426,
+    443,
+    460,
+    477,
+    494,
+    511,
+    528,
+    545,
+    562,
+    579,
+    596,
+    613,
+    630,
+    647,
+    664,
+    681,
+    698,
+    715,
+    732,
+    749,
+    766,
+    783,
+    800,
+    817,
+    834,
+    851,
+    868,
+    885,
+    902,
+    919,
+    936,
+    953,
+    970,
+    987
+  ],
+  "palettes": [
+    {
+      "profile": "anatomical-skin-texture-v2",
+      "character": "male",
+      "selectedHex": "F7E1D3",
+      "surface": {
+        "coordinateSpace": "rest-surface metres",
+        "vertices": 19158,
+        "attributes": [
+          "cast_skin_rest",
+          "cast_skin_regions",
+          "cast_skin_makeup",
+          "cast_skin_joint",
+          "cast_skin_palm",
+          "cast_skin_anatomy",
+          "cast_skin_nail",
+          "cast_skin_anterior"
+        ],
+        "neckRestZ": 1.7024493770372118,
+        "neckScale": 1.174958348274231
+      },
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 148,
+          "baseLinear": [
+            0.9301108583754237,
+            0.7529422167760779,
+            0.6514056374198242
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 28,
+          "baseLinear": [
+            0.9301108583754237,
+            0.7529422167760779,
+            0.6514056374198242
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 28,
+          "baseLinear": [
+            0.9301108583754237,
+            0.7529422167760779,
+            0.6514056374198242
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ],
+      "samples": 64,
+      "denoising": false,
+      "makeup": null
+    },
+    {
+      "profile": "anatomical-skin-texture-v2",
+      "character": "male",
+      "selectedHex": "F1D7C8",
+      "surface": {
+        "coordinateSpace": "rest-surface metres",
+        "vertices": 19158,
+        "attributes": [
+          "cast_skin_rest",
+          "cast_skin_regions",
+          "cast_skin_makeup",
+          "cast_skin_joint",
+          "cast_skin_palm",
+          "cast_skin_anatomy",
+          "cast_skin_nail",
+          "cast_skin_anterior"
+        ],
+        "neckRestZ": 1.7024493770372118,
+        "neckScale": 1.174958348274231
+      },
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 148,
+          "baseLinear": [
+            0.8796223968878317,
+            0.6795424696330938,
+            0.5775804404296506
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 28,
+          "baseLinear": [
+            0.8796223968878317,
+            0.6795424696330938,
+            0.5775804404296506
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 28,
+          "baseLinear": [
+            0.8796223968878317,
+            0.6795424696330938,
+            0.5775804404296506
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ],
+      "samples": 64,
+      "denoising": false,
+      "makeup": null
+    },
+    {
+      "profile": "anatomical-skin-texture-v2",
+      "character": "male",
+      "selectedHex": "E0B48F",
+      "surface": {
+        "coordinateSpace": "rest-surface metres",
+        "vertices": 19158,
+        "attributes": [
+          "cast_skin_rest",
+          "cast_skin_regions",
+          "cast_skin_makeup",
+          "cast_skin_joint",
+          "cast_skin_palm",
+          "cast_skin_anatomy",
+          "cast_skin_nail",
+          "cast_skin_anterior"
+        ],
+        "neckRestZ": 1.7024493770372118,
+        "neckScale": 1.174958348274231
+      },
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 148,
+          "baseLinear": [
+            0.7454042095403874,
+            0.45641102318040466,
+            0.27467731206038465
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 28,
+          "baseLinear": [
+            0.7454042095403874,
+            0.45641102318040466,
+            0.27467731206038465
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 28,
+          "baseLinear": [
+            0.7454042095403874,
+            0.45641102318040466,
+            0.27467731206038465
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ],
+      "samples": 64,
+      "denoising": false,
+      "makeup": null
+    },
+    {
+      "profile": "anatomical-skin-texture-v2",
+      "character": "male",
+      "selectedHex": "C99A6E",
+      "surface": {
+        "coordinateSpace": "rest-surface metres",
+        "vertices": 19158,
+        "attributes": [
+          "cast_skin_rest",
+          "cast_skin_regions",
+          "cast_skin_makeup",
+          "cast_skin_joint",
+          "cast_skin_palm",
+          "cast_skin_anatomy",
+          "cast_skin_nail",
+          "cast_skin_anterior"
+        ],
+        "neckRestZ": 1.7024493770372118,
+        "neckScale": 1.174958348274231
+      },
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 148,
+          "baseLinear": [
+            0.5840784178911641,
+            0.32314320911295075,
+            0.1559264637078274
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 28,
+          "baseLinear": [
+            0.5840784178911641,
+            0.32314320911295075,
+            0.1559264637078274
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 28,
+          "baseLinear": [
+            0.5840784178911641,
+            0.32314320911295075,
+            0.1559264637078274
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ],
+      "samples": 64,
+      "denoising": false,
+      "makeup": null
+    },
+    {
+      "profile": "anatomical-skin-texture-v2",
+      "character": "male",
+      "selectedHex": "9E6B4A",
+      "surface": {
+        "coordinateSpace": "rest-surface metres",
+        "vertices": 19158,
+        "attributes": [
+          "cast_skin_rest",
+          "cast_skin_regions",
+          "cast_skin_makeup",
+          "cast_skin_joint",
+          "cast_skin_palm",
+          "cast_skin_anatomy",
+          "cast_skin_nail",
+          "cast_skin_anterior"
+        ],
+        "neckRestZ": 1.7024493770372118,
+        "neckScale": 1.174958348274231
+      },
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 148,
+          "baseLinear": [
+            0.3419144249086609,
+            0.14702726649759498,
+            0.06847816984440017
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 28,
+          "baseLinear": [
+            0.3419144249086609,
+            0.14702726649759498,
+            0.06847816984440017
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 28,
+          "baseLinear": [
+            0.3419144249086609,
+            0.14702726649759498,
+            0.06847816984440017
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ],
+      "samples": 64,
+      "denoising": false,
+      "makeup": null
+    },
+    {
+      "profile": "anatomical-skin-texture-v2",
+      "character": "male",
+      "selectedHex": "6A4431",
+      "surface": {
+        "coordinateSpace": "rest-surface metres",
+        "vertices": 19158,
+        "attributes": [
+          "cast_skin_rest",
+          "cast_skin_regions",
+          "cast_skin_makeup",
+          "cast_skin_joint",
+          "cast_skin_palm",
+          "cast_skin_anatomy",
+          "cast_skin_nail",
+          "cast_skin_anterior"
+        ],
+        "neckRestZ": 1.7024493770372118,
+        "neckScale": 1.174958348274231
+      },
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 148,
+          "baseLinear": [
+            0.14412847085805777,
+            0.05780543019106723,
+            0.030713443732993635
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 28,
+          "baseLinear": [
+            0.14412847085805777,
+            0.05780543019106723,
+            0.030713443732993635
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 28,
+          "baseLinear": [
+            0.14412847085805777,
+            0.05780543019106723,
+            0.030713443732993635
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.2,
+          "fixedSkinColourMasks": false,
+          "pores": true,
+          "poreSpacingMetres": 0.000425531914893617,
+          "makeupPalette": null,
+          "explicitLipOverride": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ],
+      "samples": 64,
+      "denoising": false,
+      "makeup": null
+    }
+  ]
+}

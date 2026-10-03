@@ -1,0 +1,15 @@
+{
+  "previousShaderSHA256": "9170d20955c638c6e7593652e468c496d1638f477c75e229f4f7de1b41273e94",
+  "finalShaderSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
+  "nonPaletteCodeIdentical": true,
+  "changedPaletteRows": [
+    "9E6B4A",
+    "6A4431"
+  ],
+  "unchangedPaletteRows": [
+    "F7E1D3",
+    "F1D7C8",
+    "E0B48F",
+    "C99A6E"
+  ]
+}

@@ -1,0 +1,1090 @@
+{
+  "groomModuleSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22",
+  "allTenStyleRendersUseCurrentModule": true,
+  "totalFibresAcrossTenStyleSelections": 241978,
+  "styleRenders": [
+    {
+      "name": "female-bangs",
+      "view": "front",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "9b1a1ae20f53b52524ef7c8a4ac4de56308324d0f19b08590180ae0ca3e8dacd",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "bangs",
+        "sourceHair": "Host.hair_toigo_blunt_bob_with_bangs",
+        "object": "Cast V11 Host.hair_toigo_blunt_bob_with_bangs fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 25962,
+        "points": 1706603,
+        "radiusMetres": [
+          2.56002623175415e-06,
+          0.0002399897310996568
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 2488,
+        "surfaceArea": 0.16145213232575714,
+        "colour": "9A4A2E",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 19.87,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "female-bob",
+      "view": "front",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "e37947f6312cba49d0c875e3dcc659029ca56ba82df568708660093b7fdd90a4",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "bob",
+        "sourceHair": "Host.hair_toigo_blunt_bob",
+        "object": "Cast V11 Host.hair_toigo_blunt_bob fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 25969,
+        "points": 1893384,
+        "radiusMetres": [
+          2.5600334571338932e-06,
+          0.00023997915844754455
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 1429,
+        "surfaceArea": 0.12764762889809325,
+        "colour": "9A4A2E",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 21.76,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "female-braid",
+      "view": "three-quarter",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "79ff8b5ada9ec95369d8f0f29417a002aed36c9ae4dfa3ffff88a87f370bbd0e",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "braid",
+        "sourceHair": "Host.hair_elvs_french_braid_variation",
+        "object": "Cast V11 Host.hair_elvs_french_braid_variation fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 25068,
+        "points": 1406317,
+        "radiusMetres": [
+          2.5600461454751923e-06,
+          0.0002399947339309495
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 4076,
+        "surfaceArea": 0.2856254621762308,
+        "colour": "9A4A2E",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 27.83,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "female-bun",
+      "view": "three-quarter",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "33f251a74a4a1accaee07049df3f02c169dbbc2182ff279a825828841891a10a",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "bun",
+        "sourceHair": "Host.hair_rehmanpolanski_hair_bun_brown",
+        "object": "Cast V11 Host.hair_rehmanpolanski_hair_bun_brown fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 25807,
+        "points": 1458572,
+        "radiusMetres": [
+          2.5600042666248224e-06,
+          0.00023997512515786304
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 2216,
+        "surfaceArea": 0.11029559771761967,
+        "colour": "9A4A2E",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 18.46,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "female-long",
+      "view": "front",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "23faebecd5e7e9f82c7b2641a0ee887843f329a20dafab36b0e85d9195bae706",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "long",
+        "sourceHair": "Host.hair_culturalibre_hair_01",
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 25905,
+        "points": 1788653,
+        "radiusMetres": [
+          2.5600169302617843e-06,
+          0.00023999825607906366
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": {
+          "lowerHairReleasedVertices": 771,
+          "earZoneRestZ": 1.5316426137004036,
+          "fadeBelowEarMetres": 0.055
+        },
+        "collisionTargetsRepaired": [
+          [
+            "Host.mindfront_f_dress_01",
+            "Host.mindfront_f_dress_11"
+          ]
+        ],
+        "sourceUVFacesRestored": 0,
+        "surfaceArea": 0.3522499092275788,
+        "colour": "9A4A2E",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 23.84,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "male-afro",
+      "view": "three-quarter",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "5d00b924cb3b0b62c4d5fab1e018da059b94770d27c15f054b360b10be20ae9a",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "afro",
+        "sourceHair": "Host.hair_afro01",
+        "object": "Cast V11 Host.hair_afro01 fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 42000,
+        "points": 1512000,
+        "radiusMetres": [
+          2.5600269472652785e-06,
+          0.00023993138253292957
+        ],
+        "napeRestZ": 1.6022340154647827,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 1096,
+        "surfaceArea": 0.17099426388117586,
+        "colour": "1C1714",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 10.55,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "male-braids",
+      "view": "three-quarter",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "0110dd8a7b9f7440022d0998f5f5d0391433ab2d05f5aea9bf534b6e3ed64161",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "braids",
+        "sourceHair": "Host.hair_elvs_braided_rows",
+        "object": "Cast V11 Host.hair_elvs_braided_rows fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 17395,
+        "points": 504318,
+        "radiusMetres": [
+          2.5600036421007494e-06,
+          0.0002399636853412817
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 20464,
+        "surfaceArea": 0.11942960695868562,
+        "colour": "141212",
+        "tipDye": "8A1F3C",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 38.78,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "male-crop",
+      "view": "front",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "a14365ee55a07e8b294a6b671b3cf42b7203510f6edde39f045e930628baed58",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "crop",
+        "sourceHair": "Host.hair_short01",
+        "object": "Cast V11 Host.hair_short01 fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 17969,
+        "points": 570139,
+        "radiusMetres": [
+          2.560042116847654e-06,
+          0.00023995573710326008
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 1839,
+        "surfaceArea": 0.10023241036885362,
+        "colour": "C9A366",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 7.7,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "male-quiff",
+      "view": "front",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "d22bcda0f0c1fee5aefa6740c7a4072c6cb6f3cf2bbd53a88d261e96dcc7077b",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "quiff",
+        "sourceHair": "Host.hair_elvs_maxwell_hair",
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 17925,
+        "points": 574215,
+        "radiusMetres": [
+          2.560018902098073e-06,
+          0.00023998975050310305
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 1468,
+        "surfaceArea": 0.11005565300189624,
+        "colour": "5A3A24",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 7.29,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    },
+    {
+      "name": "male-swept",
+      "view": "three-quarter",
+      "frame": 1,
+      "resolution": [
+        800,
+        800
+      ],
+      "imageSHA256": "cd0600527d15cd4df399915a884922819ed665433e667410c34162dcc4b93f0c",
+      "groom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "swept",
+        "sourceHair": "Host.hair_elvs_grump_hair",
+        "object": "Cast V11 Host.hair_elvs_grump_hair fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 17978,
+        "points": 560270,
+        "radiusMetres": [
+          2.5600204221663346e-06,
+          0.00023995401094085593
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 6166,
+        "surfaceArea": 0.31265373021828563,
+        "colour": "8F9096",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 12.19,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      }
+    }
+  ],
+  "productionAssembly": {
+    "female": {
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "long",
+        "sourceHair": "Host.hair_culturalibre_hair_01",
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 25905,
+        "points": 1788653,
+        "radiusMetres": [
+          2.5600169302617843e-06,
+          0.00023999825607906366
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": {
+          "lowerHairReleasedVertices": 771,
+          "earZoneRestZ": 1.5316426137004036,
+          "fadeBelowEarMetres": 0.055
+        },
+        "collisionTargetsRepaired": [
+          [
+            "Host.mindfront_f_dress_01",
+            "Host.mindfront_f_dress_11"
+          ]
+        ],
+        "sourceUVFacesRestored": 0,
+        "surfaceArea": 0.3522499092275788,
+        "colour": "9A4A2E",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 30.27,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      },
+      "skinAppearance": {
+        "profile": "anatomical-skin-texture-v3",
+        "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
+        "character": "female",
+        "selectedHex": "F1D7C8",
+        "surface": {
+          "coordinateSpace": "rest-surface metres",
+          "vertices": 19158,
+          "attributes": [
+            "cast_skin_rest",
+            "cast_skin_regions",
+            "cast_skin_makeup",
+            "cast_skin_joint",
+            "cast_skin_palm",
+            "cast_skin_anatomy",
+            "cast_skin_nail",
+            "cast_skin_anterior"
+          ],
+          "neckRestZ": 1.4085595607757568,
+          "neckScale": 1.0
+        },
+        "materials": [
+          {
+            "material": "PEEPS_V2_WARM_SKIN",
+            "nodes": 164,
+            "baseLinear": [
+              0.8796223968878317,
+              0.6795424696330938,
+              0.5775804404296506
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": "light",
+            "explicitLipOverride": false
+          },
+          {
+            "material": "V60_EAR_SKIN",
+            "nodes": 28,
+            "baseLinear": [
+              0.8796223968878317,
+              0.6795424696330938,
+              0.5775804404296506
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          },
+          {
+            "material": "LINEART_SKIN_WHITE",
+            "nodes": 28,
+            "baseLinear": [
+              0.8796223968878317,
+              0.6795424696330938,
+              0.5775804404296506
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          }
+        ],
+        "hiddenEarOverlays": [],
+        "samples": 64,
+        "denoising": false,
+        "makeup": "light",
+        "beauty": {
+          "profile": "female-beauty-v10",
+          "lipArt": [
+            {
+              "object": "Host.V59_face_frame",
+              "transparentLipPolygons": 171
+            }
+          ],
+          "earrings": [
+            {
+              "object": "Host.V60_earring_R",
+              "style": "hoop",
+              "bone": "head",
+              "anchorLocal": [
+                -0.004305993672460318,
+                -0.01705167442560196,
+                0.013685466721653938
+              ],
+              "wireMetres": 0.00085,
+              "outerSizeMetres": [
+                0.0157,
+                0.0197
+              ],
+              "blackRim": false
+            }
+          ],
+          "mouth": {
+            "hiddenPaintedInterior": true,
+            "nativeTeeth": true,
+            "liveOralContact": true
+          }
+        }
+      },
+      "finishUpgrade": {
+        "enabled": true,
+        "hair": [
+          {
+            "object": "Host.hair_culturalibre_hair_01",
+            "endVerticesRefined": 328,
+            "maximumWorldDisplacement": 0.004000000364155136,
+            "restGradient": true
+          }
+        ],
+        "fabrics": [
+          {
+            "object": "Host.mindfront_f_dress_11",
+            "fabric": "woven",
+            "amplitude": 0.012,
+            "coordinates": "rest-mesh"
+          }
+        ],
+        "cuffs": [],
+        "hairGradientLinksReplaced": 1
+      },
+      "garmentStructure": [
+        {
+          "object": "Host.mindfront_f_dress_11",
+          "thicknessMetres": 0.0007999999797903001,
+          "afterRigAndSubdivision": true,
+          "boundedNormalOffset": true
+        }
+      ],
+      "clothingFit": [],
+      "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+      "renderVersion": "approved-v3-v6-hair-v11-upper-thigh",
+      "frame": 27,
+      "seconds": 35.71,
+      "resolution": [
+        2160,
+        2880,
+        50
+      ],
+      "engine": "CYCLES",
+      "samples": 128,
+      "camera": "LINEART_CAMERA",
+      "viewTransform": "Standard",
+      "look": "None",
+      "exposure": 0.0,
+      "gamma": 1.0
+    },
+    "male": {
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "quiff",
+        "sourceHair": "Host.hair_elvs_maxwell_hair",
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 17913,
+        "points": 574047,
+        "radiusMetres": [
+          2.560018902098073e-06,
+          0.00023984077370742265
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 1468,
+        "surfaceArea": 0.11051623497196728,
+        "colour": "5A3A24",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 7.59,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      },
+      "skinAppearance": {
+        "profile": "anatomical-skin-texture-v3",
+        "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
+        "character": "male",
+        "selectedHex": "C99A6E",
+        "surface": {
+          "coordinateSpace": "rest-surface metres",
+          "vertices": 19158,
+          "attributes": [
+            "cast_skin_rest",
+            "cast_skin_regions",
+            "cast_skin_makeup",
+            "cast_skin_joint",
+            "cast_skin_palm",
+            "cast_skin_anatomy",
+            "cast_skin_nail",
+            "cast_skin_anterior"
+          ],
+          "neckRestZ": 1.7024493770372118,
+          "neckScale": 1.174958348274231
+        },
+        "materials": [
+          {
+            "material": "PEEPS_V2_WARM_SKIN",
+            "nodes": 158,
+            "baseLinear": [
+              0.5840784178911641,
+              0.32314320911295075,
+              0.1559264637078274
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          },
+          {
+            "material": "V60_EAR_SKIN",
+            "nodes": 28,
+            "baseLinear": [
+              0.5840784178911641,
+              0.32314320911295075,
+              0.1559264637078274
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          },
+          {
+            "material": "LINEART_SKIN_WHITE",
+            "nodes": 28,
+            "baseLinear": [
+              0.5840784178911641,
+              0.32314320911295075,
+              0.1559264637078274
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          }
+        ],
+        "hiddenEarOverlays": [
+          "Host.V60_ear_fill_R",
+          "Host.V60_ear_inner_R",
+          "Host.V60_ear_line_R"
+        ],
+        "samples": 64,
+        "denoising": false,
+        "makeup": null
+      },
+      "finishUpgrade": {
+        "enabled": true,
+        "hair": [
+          {
+            "object": "Host.hair_elvs_maxwell_hair",
+            "endVerticesRefined": 0,
+            "maximumWorldDisplacement": 0,
+            "restGradient": true
+          }
+        ],
+        "fabrics": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "fabric": "woven",
+            "amplitude": 0.012,
+            "coordinates": "rest-mesh"
+          },
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "fabric": "woven",
+            "amplitude": 0.012,
+            "coordinates": "rest-mesh"
+          }
+        ],
+        "cuffs": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "vertices": 106,
+            "clearance": 0.0018,
+            "preservesRig": true,
+            "seamProxiesCorrected": 1
+          }
+        ],
+        "hairGradientLinksReplaced": 1
+      },
+      "garmentStructure": [
+        {
+          "object": "Host.elvs_male_shirt_untucked_bd1",
+          "thicknessMetres": 0.0007999999797903001,
+          "afterRigAndSubdivision": true,
+          "boundedNormalOffset": true
+        },
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "thicknessMetres": 0.0007999999797903001,
+          "afterRigAndSubdivision": true,
+          "boundedNormalOffset": true
+        }
+      ],
+      "clothingFit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 58744,
+          "adjustedVertices": 60,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ],
+      "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+      "renderVersion": "approved-v3-v6-hair-v11-upper-thigh",
+      "frame": 27,
+      "seconds": 15.87,
+      "resolution": [
+        2160,
+        2880,
+        50
+      ],
+      "engine": "CYCLES",
+      "samples": 128,
+      "camera": "LINEART_CAMERA",
+      "viewTransform": "Standard",
+      "look": "None",
+      "exposure": 0.0,
+      "gamma": 1.0
+    }
+  },
+  "additionalReviewRenders": [
+    {
+      "name": "before-female",
+      "imageSHA256": "b99ad598efcbc3ce45220ef129ce657ffbfb47bf0827612085d2bda29f4ea267",
+      "hairGroom": {},
+      "frame": 1,
+      "size": 800,
+      "view": "front"
+    },
+    {
+      "name": "before-male",
+      "imageSHA256": "78622394d4745b4db87e2da24e69300e5df7725f5655a176b2995d5d3901fd26",
+      "hairGroom": {},
+      "frame": 1,
+      "size": 800,
+      "view": "front"
+    },
+    {
+      "name": "male-bald",
+      "imageSHA256": "d1e82a678c04db3cf8fef31f5ba441a60c91828f2305bbc9fb29c93509e3e78c",
+      "hairGroom": {},
+      "frame": 1,
+      "size": 640,
+      "view": "front"
+    },
+    {
+      "name": "palette-female-black",
+      "imageSHA256": "2f28835913496c5b5213e7aa2f6f2d749834a57172663a0b9d8bef8792fb3d8c",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "palette": {
+          "baseHex": "1C1714",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.011612245179743885,
+            0.008568125618069307,
+            0.006995410187265387
+          ]
+        }
+      },
+      "frame": 1,
+      "size": 512,
+      "view": "front"
+    },
+    {
+      "name": "palette-female-blonde",
+      "imageSHA256": "a4268a7ecd50a763d0600fad59738ab3454cb54c3da610a87ced81a68594be0a",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "palette": {
+          "baseHex": "D8B77A",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.6866853124353135,
+            0.47353149614800955,
+            0.1946178304415758
+          ]
+        }
+      },
+      "frame": 1,
+      "size": 512,
+      "view": "front"
+    },
+    {
+      "name": "palette-female-brown",
+      "imageSHA256": "14326a0f90cd109ffae268034ab9f26f2250a8ecaae93fd7d94d303d9e459c5f",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "palette": {
+          "baseHex": "3B2418",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.043735029256973465,
+            0.017641954488384078,
+            0.009134058702220787
+          ]
+        }
+      },
+      "frame": 1,
+      "size": 512,
+      "view": "front"
+    },
+    {
+      "name": "palette-female-silver",
+      "imageSHA256": "349c131f6a90dcc75900f31ba4ff4bd7ca0dcce90fff097bb1fff7372fe0fe34",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "palette": {
+          "baseHex": "B9B8B5",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.4851499400560704,
+            0.4793201831008268,
+            0.4620769996544071
+          ]
+        }
+      },
+      "frame": 1,
+      "size": 512,
+      "view": "front"
+    },
+    {
+      "name": "palette-male-black",
+      "imageSHA256": "df09e8298b81115f3a034b9d77a0868b1a7f1490253cd142a6b5a9a1d7d287fe",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "palette": {
+          "baseHex": "1C1714",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.011612245179743885,
+            0.008568125618069307,
+            0.006995410187265387
+          ]
+        }
+      },
+      "frame": 1,
+      "size": 512,
+      "view": "front"
+    },
+    {
+      "name": "palette-male-blonde",
+      "imageSHA256": "117fb74fdb142150e2eb69a81d13119264e3e2dea90630a77533db146ebae306",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "palette": {
+          "baseHex": "C9A366",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.5840784178911641,
+            0.3662525955988395,
+            0.13286832155381798
+          ]
+        }
+      },
+      "frame": 1,
+      "size": 512,
+      "view": "front"
+    },
+    {
+      "name": "palette-male-dye",
+      "imageSHA256": "ebc6255750d8163db323056c6e1ed56afe325f9bba6b34be24f94229056ef73f",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "palette": {
+          "baseHex": "141212",
+          "tipDyeHex": "8A1F3C",
+          "baseLinear": [
+            0.006995410187265387,
+            0.006048833022857054,
+            0.006048833022857054
+          ]
+        }
+      },
+      "frame": 1,
+      "size": 512,
+      "view": "front"
+    },
+    {
+      "name": "palette-male-grey",
+      "imageSHA256": "b61b096ae3ce6dea7a54548d0fc1da4e6aa5751412b261aa963dea8e968d09df",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "palette": {
+          "baseHex": "8F9096",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.27467731206038465,
+            0.2788942634768104,
+            0.3049873140698863
+          ]
+        }
+      },
+      "frame": 1,
+      "size": 512,
+      "view": "front"
+    },
+    {
+      "name": "pose-female-106",
+      "imageSHA256": "afcf4bb09c7442d1be6326c424d9381588911e327086f2f2574f32b93dbb5838",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "palette": {
+          "baseHex": "9A4A2E",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.32314320911295075,
+            0.06847816984440017,
+            0.027320891639074894
+          ]
+        }
+      },
+      "frame": 106,
+      "size": 640,
+      "view": "front"
+    },
+    {
+      "name": "pose-female-71",
+      "imageSHA256": "75bec1b4d027cd5c23f385ba08df68da0ee2a8414676da335e704dfa404687d7",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "palette": {
+          "baseHex": "9A4A2E",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.32314320911295075,
+            0.06847816984440017,
+            0.027320891639074894
+          ]
+        }
+      },
+      "frame": 71,
+      "size": 640,
+      "view": "front"
+    },
+    {
+      "name": "pose-male-106",
+      "imageSHA256": "86a514d6c5d5f32d9c576acc12782edb23447be9b48b3c155fa1a8403e0830cc",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "palette": {
+          "baseHex": "5A3A24",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.10224173308810132,
+            0.042311410620809675,
+            0.017641954488384078
+          ]
+        }
+      },
+      "frame": 106,
+      "size": 640,
+      "view": "front"
+    },
+    {
+      "name": "pose-male-71",
+      "imageSHA256": "86c2e6dfbdbd46d71bb4a44302edc4b1a7399ab10d18ac6597b6cbade6f3f187",
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "reused": true,
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "palette": {
+          "baseHex": "5A3A24",
+          "tipDyeHex": "",
+          "baseLinear": [
+            0.10224173308810132,
+            0.042311410620809675,
+            0.017641954488384078
+          ]
+        }
+      },
+      "frame": 71,
+      "size": 640,
+      "view": "front"
+    }
+  ]
+}

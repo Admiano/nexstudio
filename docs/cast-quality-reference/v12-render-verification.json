@@ -1,0 +1,1731 @@
+{
+  "profile": "anatomical-mouth-v12",
+  "moduleSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+  "renderVersion": "approved-v3-v6-face-v12-upper-thigh",
+  "renderEngine": "Blender 5.2.0 LTS / Cycles CPU",
+  "samples": 128,
+  "actualSourceRenders": [
+    {
+      "name": "after-ear.png",
+      "sha256": "2a26086252223f2feff1820d5324dde384fbfe55775ae732facd45587443055a",
+      "metadata": {
+        "character": "male",
+        "variant": "refined",
+        "frame": 1,
+        "view": "ear",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 2.4446321956891766e-08
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 2.812584804715695e-08
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 91,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [
+              "Host.V10_ear_L",
+              "Host.V10_ear_R"
+            ],
+            "quiffCarrierVerticesMasked": 48,
+            "quiffStrayCurvesRemoved": 1491,
+            "templeCutRestZ": 1.5448224544860305,
+            "earCorrection": {
+              "name": "Cast V12 balanced ears",
+              "maximumFlareReduction": 0.12,
+              "maximumHeightReduction": 0.07,
+              "symmetric": true
+            },
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.3441803455352783,
+          -5.045126438140869,
+          1.6240006685256958
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.09000000357627869,
+        "size": 512
+      }
+    },
+    {
+      "name": "male-mouth-1.png",
+      "sha256": "0de20efb50ae909922b5dd3ef0e471a2f23b61b0fb01e6af09335cdcf4dcfbc4",
+      "metadata": {
+        "character": "male",
+        "variant": "refined",
+        "frame": 1,
+        "view": "mouth",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 2.4446321956891766e-08
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 2.812584804715695e-08
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 91,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [
+              "Host.V10_ear_L",
+              "Host.V10_ear_R"
+            ],
+            "quiffCarrierVerticesMasked": 48,
+            "quiffStrayCurvesRemoved": 1491,
+            "templeCutRestZ": 1.5448224544860305,
+            "earCorrection": {
+              "name": "Cast V12 balanced ears",
+              "maximumFlareReduction": 0.12,
+              "maximumHeightReduction": 0.07,
+              "symmetric": true
+            },
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.4131665527820587,
+          -5.1450114250183105,
+          1.569760799407959
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.0949999988079071,
+        "size": 512
+      }
+    },
+    {
+      "name": "male-mouth-71.png",
+      "sha256": "dee5e1e8ce00adb4ecd299b2d065e5dfe6ea61d3117e24b4a467dcd2ec900a31",
+      "metadata": {
+        "character": "male",
+        "variant": "refined",
+        "frame": 71,
+        "view": "mouth",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 2.4446321956891766e-08
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 2.812584804715695e-08
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 91,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [
+              "Host.V10_ear_L",
+              "Host.V10_ear_R"
+            ],
+            "quiffCarrierVerticesMasked": 48,
+            "quiffStrayCurvesRemoved": 1491,
+            "templeCutRestZ": 1.5448224544860305,
+            "earCorrection": {
+              "name": "Cast V12 balanced ears",
+              "maximumFlareReduction": 0.12,
+              "maximumHeightReduction": 0.07,
+              "symmetric": true
+            },
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.41473060846328735,
+          -5.16197395324707,
+          1.558624505996704
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.0949999988079071,
+        "size": 512
+      }
+    },
+    {
+      "name": "male-mouth-106.png",
+      "sha256": "c762fe2dc3a431110c9d0b68bfa26074a9d3b8e310027ff80ba3018750e242e3",
+      "metadata": {
+        "character": "male",
+        "variant": "refined",
+        "frame": 106,
+        "view": "mouth",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 2.4446321956891766e-08
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 2.812584804715695e-08
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 91,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [
+              "Host.V10_ear_L",
+              "Host.V10_ear_R"
+            ],
+            "quiffCarrierVerticesMasked": 48,
+            "quiffStrayCurvesRemoved": 1491,
+            "templeCutRestZ": 1.5448224544860305,
+            "earCorrection": {
+              "name": "Cast V12 balanced ears",
+              "maximumFlareReduction": 0.12,
+              "maximumHeightReduction": 0.07,
+              "symmetric": true
+            },
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.4213258922100067,
+          -5.1537299156188965,
+          1.570980191230774
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.0949999988079071,
+        "size": 512
+      }
+    },
+    {
+      "name": "female-mouth-1.png",
+      "sha256": "c52dffca92e06818b0a31b666c8b2b66580c0df84bae28cc15b3313622bc46e1",
+      "metadata": {
+        "character": "female",
+        "variant": "refined",
+        "frame": 1,
+        "view": "mouth",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 0.0005492999692909229
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 0.0005355871424753157
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 109,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [],
+            "quiffCarrierVerticesMasked": 0,
+            "quiffStrayCurvesRemoved": 0,
+            "templeCutRestZ": 1.5341823523290792,
+            "earCorrection": null,
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.4158429503440857,
+          -5.137302398681641,
+          1.5052777528762817
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.0949999988079071,
+        "size": 512
+      }
+    },
+    {
+      "name": "female-mouth-71.png",
+      "sha256": "73a6430c4386a896a03d80bf9f23dda3f33b541b6b89f72ecf9954c684cf46f2",
+      "metadata": {
+        "character": "female",
+        "variant": "refined",
+        "frame": 71,
+        "view": "mouth",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 0.0005492999692909229
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 0.0005355871424753157
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 109,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [],
+            "quiffCarrierVerticesMasked": 0,
+            "quiffStrayCurvesRemoved": 0,
+            "templeCutRestZ": 1.5341823523290792,
+            "earCorrection": null,
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.4169332981109619,
+          -5.154386520385742,
+          1.4962339401245117
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.0949999988079071,
+        "size": 512
+      }
+    },
+    {
+      "name": "female-mouth-106.png",
+      "sha256": "629633b65184f61df05bd7ebe8639f3e894fe0f3b66cb3dbfb3a33a1e3f83513",
+      "metadata": {
+        "character": "female",
+        "variant": "refined",
+        "frame": 106,
+        "view": "mouth",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 0.0005492999692909229
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 0.0005355871424753157
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 109,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [],
+            "quiffCarrierVerticesMasked": 0,
+            "quiffStrayCurvesRemoved": 0,
+            "templeCutRestZ": 1.5341823523290792,
+            "earCorrection": null,
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.4194242060184479,
+          -5.144999027252197,
+          1.5074527263641357
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.0949999988079071,
+        "size": 512
+      }
+    },
+    {
+      "name": "male-portrait-1.png",
+      "sha256": "6802ea5db692cbbd5ba2a36bb506cb27c858ccc709671c040f6e5d463f87b32d",
+      "metadata": {
+        "character": "male",
+        "variant": "refined",
+        "frame": 1,
+        "view": "portrait",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 2.4446321956891766e-08
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 2.812584804715695e-08
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 91,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [
+              "Host.V10_ear_L",
+              "Host.V10_ear_R"
+            ],
+            "quiffCarrierVerticesMasked": 48,
+            "quiffStrayCurvesRemoved": 1491,
+            "templeCutRestZ": 1.5448224544860305,
+            "earCorrection": {
+              "name": "Cast V12 balanced ears",
+              "maximumFlareReduction": 0.12,
+              "maximumHeightReduction": 0.07,
+              "symmetric": true
+            },
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.41999998688697815,
+          -5.0,
+          1.6399999856948853
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.4000000059604645,
+        "size": 640
+      }
+    },
+    {
+      "name": "male-portrait-71.png",
+      "sha256": "b45edddedc150a9baeca142433e31ee477bdae8c4bb2fcc2ecc506d0019be7af",
+      "metadata": {
+        "character": "male",
+        "variant": "refined",
+        "frame": 71,
+        "view": "portrait",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 2.4446321956891766e-08
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 2.812584804715695e-08
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 91,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [
+              "Host.V10_ear_L",
+              "Host.V10_ear_R"
+            ],
+            "quiffCarrierVerticesMasked": 48,
+            "quiffStrayCurvesRemoved": 1491,
+            "templeCutRestZ": 1.5448224544860305,
+            "earCorrection": {
+              "name": "Cast V12 balanced ears",
+              "maximumFlareReduction": 0.12,
+              "maximumHeightReduction": 0.07,
+              "symmetric": true
+            },
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.41999998688697815,
+          -5.0,
+          1.6399999856948853
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.4000000059604645,
+        "size": 640
+      }
+    },
+    {
+      "name": "female-portrait-1.png",
+      "sha256": "608f77849d5f15e70e3ed39ed8c108f98d91f098012e366eedc6894677d30194",
+      "metadata": {
+        "character": "female",
+        "variant": "refined",
+        "frame": 1,
+        "view": "portrait",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 0.0005492999692909229
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 0.0005355871424753157
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 109,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [],
+            "quiffCarrierVerticesMasked": 0,
+            "quiffStrayCurvesRemoved": 0,
+            "templeCutRestZ": 1.5341823523290792,
+            "earCorrection": null,
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.41999998688697815,
+          -5.0,
+          1.5099999904632568
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.5400000214576721,
+        "size": 640
+      }
+    },
+    {
+      "name": "female-portrait-71.png",
+      "sha256": "f616992721aad5d0ccf29873f88292ca8ae181d96404b2ff4f089a8d3692e5cd",
+      "metadata": {
+        "character": "female",
+        "variant": "refined",
+        "frame": 71,
+        "view": "portrait",
+        "refinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 0.0005492999692909229
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 0.0005355871424753157
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 109,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [],
+            "quiffCarrierVerticesMasked": 0,
+            "quiffStrayCurvesRemoved": 0,
+            "templeCutRestZ": 1.5341823523290792,
+            "earCorrection": null,
+            "originalEarCagePreserved": true
+          }
+        },
+        "cameraLocation": [
+          -0.41999998688697815,
+          -5.0,
+          1.5099999904632568
+        ],
+        "cameraRotation": [
+          1.5707963705062866,
+          0.0,
+          0.0
+        ],
+        "orthoScale": 0.5400000214576721,
+        "size": 640
+      }
+    },
+    {
+      "name": "before-ear.png",
+      "sha256": "ff40055d6f91e8da3b6e86856db6a3f5c0f7078c94fcc2b7826f82faf38c915f",
+      "metadata": {
+        "character": "male",
+        "variant": "baseline",
+        "frame": 1,
+        "view": "ear",
+        "refinement": {}
+      }
+    },
+    {
+      "name": "before-male-71.png",
+      "sha256": "4857a85f364b6f46411b16e26cd793a5d31f7ce33f466f856a740607247e51fe",
+      "metadata": {
+        "character": "male",
+        "variant": "baseline",
+        "frame": 71,
+        "view": "mouth",
+        "refinement": {}
+      }
+    },
+    {
+      "name": "before-female-71.png",
+      "sha256": "5779409f1743af7c90d28301e24bc4ce5a7c88808606a1e003b359fab90e1200",
+      "metadata": {
+        "character": "female",
+        "variant": "baseline",
+        "frame": 71,
+        "view": "mouth",
+        "refinement": {}
+      }
+    }
+  ],
+  "productionAssemblies": {
+    "male": {
+      "facialRefinement": {
+        "profile": "anatomical-mouth-v12",
+        "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+        "mouth": {
+          "objects": [
+            {
+              "object": "Cast V12 oral upper",
+              "vertices": 1984,
+              "crowns": 16,
+              "bone": "head",
+              "fitRMSMetres": 2.4446321956891766e-08
+            },
+            {
+              "object": "Cast V12 oral lower",
+              "vertices": 1884,
+              "crowns": 16,
+              "bone": "jaw",
+              "fitRMSMetres": 2.812584804715695e-08
+            },
+            {
+              "object": "Cast V12 oral tongue",
+              "vertices": 226,
+              "bones": [
+                "tongue04",
+                "tongue07.L",
+                "tongue07.R",
+                "tongue06.L",
+                "tongue06.R",
+                "tongue05.L",
+                "tongue05.R",
+                "tongue03",
+                "tongue01",
+                "oris01",
+                "tongue02",
+                "head",
+                "levator05.R",
+                "oris03.R",
+                "jaw",
+                "levator05.L",
+                "oris03.L"
+              ],
+              "anatomicalSource": "Host.body helper-tongue"
+            }
+          ],
+          "teeth": 32,
+          "tongue": true,
+          "interiorPolygons": 91,
+          "lipInkRemoved": [
+            {
+              "object": "Host.V59_face_art",
+              "lipPolygons": 0
+            },
+            {
+              "object": "Host.V59_face_frame",
+              "lipPolygons": 171
+            }
+          ],
+          "legacyMouthStrokeDisabled": true,
+          "lowerGingivalClearanceMaximumMetres": 0.01,
+          "closedLipVisibilityGuard": {
+            "jawBelow": 0.03,
+            "upperBelow": 0.065,
+            "lowerBelow": 0.065,
+            "fvBelow": 0.05
+          },
+          "originalBodyCoordinatesUnchanged": true
+        },
+        "ear": {
+          "hiddenLegacyEarInk": [
+            "Host.V10_ear_L",
+            "Host.V10_ear_R"
+          ],
+          "quiffCarrierVerticesMasked": 48,
+          "quiffStrayCurvesRemoved": 1491,
+          "templeCutRestZ": 1.5448224544860305,
+          "earCorrection": {
+            "name": "Cast V12 balanced ears",
+            "maximumFlareReduction": 0.12,
+            "maximumHeightReduction": 0.07,
+            "symmetric": true
+          },
+          "originalEarCagePreserved": true
+        }
+      },
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "quiff",
+        "sourceHair": "Host.hair_elvs_maxwell_hair",
+        "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 17913,
+        "points": 574047,
+        "radiusMetres": [
+          2.560018902098073e-06,
+          0.00023984077370742265
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": null,
+        "collisionTargetsRepaired": [],
+        "sourceUVFacesRestored": 1468,
+        "surfaceArea": 0.11051623497196728,
+        "colour": "5A3A24",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 13.36,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      },
+      "skinAppearance": {
+        "profile": "anatomical-skin-texture-v3",
+        "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
+        "character": "male",
+        "selectedHex": "C99A6E",
+        "surface": {
+          "coordinateSpace": "rest-surface metres",
+          "vertices": 19158,
+          "attributes": [
+            "cast_skin_rest",
+            "cast_skin_regions",
+            "cast_skin_makeup",
+            "cast_skin_joint",
+            "cast_skin_palm",
+            "cast_skin_anatomy",
+            "cast_skin_nail",
+            "cast_skin_anterior"
+          ],
+          "neckRestZ": 1.7024493770372118,
+          "neckScale": 1.174958348274231
+        },
+        "materials": [
+          {
+            "material": "PEEPS_V2_WARM_SKIN",
+            "nodes": 158,
+            "baseLinear": [
+              0.5840784178911641,
+              0.32314320911295075,
+              0.1559264637078274
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          },
+          {
+            "material": "V60_EAR_SKIN",
+            "nodes": 28,
+            "baseLinear": [
+              0.5840784178911641,
+              0.32314320911295075,
+              0.1559264637078274
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          },
+          {
+            "material": "LINEART_SKIN_WHITE",
+            "nodes": 28,
+            "baseLinear": [
+              0.5840784178911641,
+              0.32314320911295075,
+              0.1559264637078274
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          }
+        ],
+        "hiddenEarOverlays": [
+          "Host.V60_ear_fill_R",
+          "Host.V60_ear_inner_R",
+          "Host.V60_ear_line_R"
+        ],
+        "samples": 64,
+        "denoising": false,
+        "makeup": null
+      },
+      "finishUpgrade": {
+        "enabled": true,
+        "hair": [
+          {
+            "object": "Host.hair_elvs_maxwell_hair",
+            "endVerticesRefined": 0,
+            "maximumWorldDisplacement": 0,
+            "restGradient": true
+          }
+        ],
+        "fabrics": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "fabric": "woven",
+            "amplitude": 0.012,
+            "coordinates": "rest-mesh"
+          },
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "fabric": "woven",
+            "amplitude": 0.012,
+            "coordinates": "rest-mesh"
+          }
+        ],
+        "cuffs": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "vertices": 106,
+            "clearance": 0.0018,
+            "preservesRig": true,
+            "seamProxiesCorrected": 1
+          }
+        ],
+        "hairGradientLinksReplaced": 1
+      },
+      "garmentStructure": [
+        {
+          "object": "Host.elvs_male_shirt_untucked_bd1",
+          "thicknessMetres": 0.0007999999797903001,
+          "afterRigAndSubdivision": true,
+          "boundedNormalOffset": true
+        },
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "thicknessMetres": 0.0007999999797903001,
+          "afterRigAndSubdivision": true,
+          "boundedNormalOffset": true
+        }
+      ],
+      "clothingFit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 58744,
+          "adjustedVertices": 60,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ],
+      "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+      "renderVersion": "approved-v3-v6-face-v12-upper-thigh",
+      "frame": 27,
+      "seconds": 33.31,
+      "resolution": [
+        2160,
+        2880,
+        50
+      ],
+      "engine": "CYCLES",
+      "samples": 128,
+      "camera": "LINEART_CAMERA",
+      "viewTransform": "Standard",
+      "look": "None",
+      "exposure": 0.0,
+      "gamma": 1.0
+    },
+    "female": {
+      "facialRefinement": {
+        "profile": "anatomical-mouth-v12",
+        "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+        "mouth": {
+          "objects": [
+            {
+              "object": "Cast V12 oral upper",
+              "vertices": 1984,
+              "crowns": 16,
+              "bone": "head",
+              "fitRMSMetres": 0.0005492999692909229
+            },
+            {
+              "object": "Cast V12 oral lower",
+              "vertices": 1884,
+              "crowns": 16,
+              "bone": "jaw",
+              "fitRMSMetres": 0.0005355871424753157
+            },
+            {
+              "object": "Cast V12 oral tongue",
+              "vertices": 226,
+              "bones": [
+                "tongue04",
+                "tongue07.L",
+                "tongue07.R",
+                "tongue06.L",
+                "tongue06.R",
+                "tongue05.L",
+                "tongue05.R",
+                "tongue03",
+                "tongue01",
+                "oris01",
+                "tongue02",
+                "head",
+                "levator05.R",
+                "oris03.R",
+                "jaw",
+                "levator05.L",
+                "oris03.L"
+              ],
+              "anatomicalSource": "Host.body helper-tongue"
+            }
+          ],
+          "teeth": 32,
+          "tongue": true,
+          "interiorPolygons": 109,
+          "lipInkRemoved": [
+            {
+              "object": "Host.V59_face_art",
+              "lipPolygons": 0
+            },
+            {
+              "object": "Host.V59_face_frame",
+              "lipPolygons": 171
+            }
+          ],
+          "legacyMouthStrokeDisabled": true,
+          "lowerGingivalClearanceMaximumMetres": 0.01,
+          "closedLipVisibilityGuard": {
+            "jawBelow": 0.03,
+            "upperBelow": 0.065,
+            "lowerBelow": 0.065,
+            "fvBelow": 0.05
+          },
+          "originalBodyCoordinatesUnchanged": true
+        },
+        "ear": {
+          "hiddenLegacyEarInk": [],
+          "quiffCarrierVerticesMasked": 0,
+          "quiffStrayCurvesRemoved": 0,
+          "templeCutRestZ": 1.5341823523290792,
+          "earCorrection": null,
+          "originalEarCagePreserved": true
+        }
+      },
+      "hairGroom": {
+        "enabled": true,
+        "profile": "fibre-groom-v11",
+        "style": "long",
+        "sourceHair": "Host.hair_culturalibre_hair_01",
+        "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+        "binding": "Cast groom rig binding",
+        "fibres": 25905,
+        "points": 1788653,
+        "radiusMetres": [
+          2.5600169302617843e-06,
+          0.00023999825607906366
+        ],
+        "napeRestZ": null,
+        "earTuckRefinement": {
+          "lowerHairReleasedVertices": 771,
+          "earZoneRestZ": 1.5316426137004036,
+          "fadeBelowEarMetres": 0.055
+        },
+        "collisionTargetsRepaired": [
+          [
+            "Host.mindfront_f_dress_01",
+            "Host.mindfront_f_dress_11"
+          ]
+        ],
+        "sourceUVFacesRestored": 0,
+        "surfaceArea": 0.3522499092275788,
+        "colour": "9A4A2E",
+        "tipDye": "",
+        "physicalShader": "Huang",
+        "boneGroups": [
+          "head",
+          "neck01",
+          "spine05"
+        ],
+        "seconds": 58.1,
+        "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+      },
+      "skinAppearance": {
+        "profile": "anatomical-skin-texture-v3",
+        "shaderCodeSHA256": "ab6fa15596267d50b4ee37d823984a8f07ffa77cdb0872be4d64b3a7e0f491d1",
+        "character": "female",
+        "selectedHex": "F1D7C8",
+        "surface": {
+          "coordinateSpace": "rest-surface metres",
+          "vertices": 19158,
+          "attributes": [
+            "cast_skin_rest",
+            "cast_skin_regions",
+            "cast_skin_makeup",
+            "cast_skin_joint",
+            "cast_skin_palm",
+            "cast_skin_anatomy",
+            "cast_skin_nail",
+            "cast_skin_anterior"
+          ],
+          "neckRestZ": 1.4085595607757568,
+          "neckScale": 1.0
+        },
+        "materials": [
+          {
+            "material": "PEEPS_V2_WARM_SKIN",
+            "nodes": 164,
+            "baseLinear": [
+              0.8796223968878317,
+              0.6795424696330938,
+              0.5775804404296506
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": "light",
+            "explicitLipOverride": false
+          },
+          {
+            "material": "V60_EAR_SKIN",
+            "nodes": 28,
+            "baseLinear": [
+              0.8796223968878317,
+              0.6795424696330938,
+              0.5775804404296506
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          },
+          {
+            "material": "LINEART_SKIN_WHITE",
+            "nodes": 28,
+            "baseLinear": [
+              0.8796223968878317,
+              0.6795424696330938,
+              0.5775804404296506
+            ],
+            "contactDistance": 0.018,
+            "contactWeight": 0.2,
+            "fixedSkinColourMasks": false,
+            "pores": true,
+            "poreSpacingMetres": 0.000425531914893617,
+            "makeupPalette": null,
+            "explicitLipOverride": false
+          }
+        ],
+        "hiddenEarOverlays": [],
+        "samples": 64,
+        "denoising": false,
+        "makeup": "light",
+        "beauty": {
+          "profile": "female-beauty-v10",
+          "lipArt": [
+            {
+              "object": "Host.V59_face_frame",
+              "transparentLipPolygons": 171
+            }
+          ],
+          "earrings": [
+            {
+              "object": "Host.V60_earring_R",
+              "style": "hoop",
+              "bone": "head",
+              "anchorLocal": [
+                -0.004305993672460318,
+                -0.01705167442560196,
+                0.013685466721653938
+              ],
+              "wireMetres": 0.00085,
+              "outerSizeMetres": [
+                0.0157,
+                0.0197
+              ],
+              "blackRim": false
+            }
+          ],
+          "mouth": {
+            "hiddenPaintedInterior": true,
+            "nativeTeeth": true,
+            "liveOralContact": true
+          }
+        }
+      },
+      "finishUpgrade": {
+        "enabled": true,
+        "hair": [
+          {
+            "object": "Host.hair_culturalibre_hair_01",
+            "endVerticesRefined": 328,
+            "maximumWorldDisplacement": 0.004000000364155136,
+            "restGradient": true
+          }
+        ],
+        "fabrics": [
+          {
+            "object": "Host.mindfront_f_dress_11",
+            "fabric": "woven",
+            "amplitude": 0.012,
+            "coordinates": "rest-mesh"
+          }
+        ],
+        "cuffs": [],
+        "hairGradientLinksReplaced": 1
+      },
+      "garmentStructure": [
+        {
+          "object": "Host.mindfront_f_dress_11",
+          "thicknessMetres": 0.0007999999797903001,
+          "afterRigAndSubdivision": true,
+          "boundedNormalOffset": true
+        }
+      ],
+      "clothingFit": [],
+      "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+      "renderVersion": "approved-v3-v6-face-v12-upper-thigh",
+      "frame": 27,
+      "seconds": 68.89,
+      "resolution": [
+        2160,
+        2880,
+        50
+      ],
+      "engine": "CYCLES",
+      "samples": 128,
+      "camera": "LINEART_CAMERA",
+      "viewTransform": "Standard",
+      "look": "None",
+      "exposure": 0.0,
+      "gamma": 1.0
+    }
+  },
+  "checks": {
+    "originalSourceAssetsByteIdentical": 129,
+    "workerUnitTestsPassed": 2,
+    "configurationChecks": "12 complexion configs, distinct cache keys, 30 preset skin/lip combinations and custom colours",
+    "originalAnimationFramesPerCharacter": 11,
+    "fullApplicationBuildRun": false,
+    "mergedOrDeployed": false
+  },
+  "comparisonMethod": "Semantic camera targets sampled before refinement; identical source frames and zoom. Pillow contact sheets only composite actual render alpha onto the review background."
+}

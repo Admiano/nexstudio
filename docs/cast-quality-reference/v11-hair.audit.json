@@ -1,0 +1,1137 @@
+[
+  {
+    "character": "female",
+    "style": "long",
+    "sourceIdentityHash": "e773cd11be070b19b0face4f935aad77491cb4d41ea15f7dec52fd82488d6855",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "long",
+      "sourceHair": "Host.hair_culturalibre_hair_01",
+      "object": "Cast V11 Host.hair_culturalibre_hair_01 fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 2069,
+      "points": 143397,
+      "radiusMetres": [
+        2.564420406440415e-06,
+        0.00023953877806178657
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": {
+        "lowerHairReleasedVertices": 771,
+        "earZoneRestZ": 1.5316426137004036,
+        "fadeBelowEarMetres": 0.055
+      },
+      "collisionTargetsRepaired": [
+        [
+          "Host.mindfront_f_dress_01",
+          "Host.mindfront_f_dress_11"
+        ]
+      ],
+      "sourceUVFacesRestored": 0,
+      "surfaceArea": 0.3522499092275788,
+      "colour": "9A4A2E",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 3.6,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "9A4A2E",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.32314320911295075,
+          0.06847816984440017,
+          0.027320891639074894
+        ]
+      },
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "3B2418",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.043735029256973465,
+          0.017641954488384078,
+          0.009134058702220787
+        ]
+      },
+      {
+        "baseHex": "D8B77A",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.6866853124353135,
+          0.47353149614800955,
+          0.1946178304415758
+        ]
+      },
+      {
+        "baseHex": "B9B8B5",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.4851499400560704,
+          0.4793201831008268,
+          0.4620769996544071
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.0401695609142435,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "female",
+    "style": "bob",
+    "sourceIdentityHash": "c6ecfdfae2857b8578e251e7e71afd99e96077d97fa1c33a44b2309feb282303",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "bob",
+      "sourceHair": "Host.hair_toigo_blunt_bob",
+      "object": "Cast V11 Host.hair_toigo_blunt_bob fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 2077,
+      "points": 150641,
+      "radiusMetres": [
+        2.5621747791173876e-06,
+        0.00023986662796001175
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 1429,
+      "surfaceArea": 0.12764762889809325,
+      "colour": "9A4A2E",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 2.73,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "9A4A2E",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.32314320911295075,
+          0.06847816984440017,
+          0.027320891639074894
+        ]
+      },
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "3B2418",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.043735029256973465,
+          0.017641954488384078,
+          0.009134058702220787
+        ]
+      },
+      {
+        "baseHex": "D8B77A",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.6866853124353135,
+          0.47353149614800955,
+          0.1946178304415758
+        ]
+      },
+      {
+        "baseHex": "B9B8B5",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.4851499400560704,
+          0.4793201831008268,
+          0.4620769996544071
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.039569539877116394,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "female",
+    "style": "bangs",
+    "sourceIdentityHash": "8f409e9213057d7bee05d9e612ead2f7567216d8ff8a65c3604c60a679427284",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "bangs",
+      "sourceHair": "Host.hair_toigo_blunt_bob_with_bangs",
+      "object": "Cast V11 Host.hair_toigo_blunt_bob_with_bangs fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 2078,
+      "points": 136889,
+      "radiusMetres": [
+        2.563601269489393e-06,
+        0.0002397927023913928
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 2488,
+      "surfaceArea": 0.16145213232575714,
+      "colour": "9A4A2E",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 3.04,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "9A4A2E",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.32314320911295075,
+          0.06847816984440017,
+          0.027320891639074894
+        ]
+      },
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "3B2418",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.043735029256973465,
+          0.017641954488384078,
+          0.009134058702220787
+        ]
+      },
+      {
+        "baseHex": "D8B77A",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.6866853124353135,
+          0.47353149614800955,
+          0.1946178304415758
+        ]
+      },
+      {
+        "baseHex": "B9B8B5",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.4851499400560704,
+          0.4793201831008268,
+          0.4620769996544071
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.04154423777123186,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "female",
+    "style": "bun",
+    "sourceIdentityHash": "eb5cf20bcd83b8e6b43b8a9869115c0cc1011e5e8b75ba80f0cc51c2f0d443ae",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "bun",
+      "sourceHair": "Host.hair_rehmanpolanski_hair_bun_brown",
+      "object": "Cast V11 Host.hair_rehmanpolanski_hair_bun_brown fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 2064,
+      "points": 116117,
+      "radiusMetres": [
+        2.5608465309018992e-06,
+        0.00023855490677163085
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 2216,
+      "surfaceArea": 0.11029559771761967,
+      "colour": "9A4A2E",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 3.32,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "9A4A2E",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.32314320911295075,
+          0.06847816984440017,
+          0.027320891639074894
+        ]
+      },
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "3B2418",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.043735029256973465,
+          0.017641954488384078,
+          0.009134058702220787
+        ]
+      },
+      {
+        "baseHex": "D8B77A",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.6866853124353135,
+          0.47353149614800955,
+          0.1946178304415758
+        ]
+      },
+      {
+        "baseHex": "B9B8B5",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.4851499400560704,
+          0.4793201831008268,
+          0.4620769996544071
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.04059323454571573,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "female",
+    "style": "braid",
+    "sourceIdentityHash": "88e33b150eb28b33e8f1afb10dfc6305d66ec3850bc974b58b298e56625652e7",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "braid",
+      "sourceHair": "Host.hair_elvs_french_braid_variation",
+      "object": "Cast V11 Host.hair_elvs_french_braid_variation fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 1995,
+      "points": 110641,
+      "radiusMetres": [
+        2.5636561189946813e-06,
+        0.00023986062546391785
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 4076,
+      "surfaceArea": 0.2856254621762308,
+      "colour": "9A4A2E",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 8.91,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "9A4A2E",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.32314320911295075,
+          0.06847816984440017,
+          0.027320891639074894
+        ]
+      },
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "3B2418",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.043735029256973465,
+          0.017641954488384078,
+          0.009134058702220787
+        ]
+      },
+      {
+        "baseHex": "D8B77A",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.6866853124353135,
+          0.47353149614800955,
+          0.1946178304415758
+        ]
+      },
+      {
+        "baseHex": "B9B8B5",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.4851499400560704,
+          0.4793201831008268,
+          0.4620769996544071
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.040917565285735175,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "male",
+    "style": "afro",
+    "sourceIdentityHash": "fc85bc3a74da56992215b077fa63e8e38b68fd526b46f37890511e81959ca315",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "afro",
+      "sourceHair": "Host.hair_afro01",
+      "object": "Cast V11 Host.hair_afro01 fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 3360,
+      "points": 120960,
+      "radiusMetres": [
+        2.56049705609406e-06,
+        0.00023988741868031393
+      ],
+      "napeRestZ": 1.6022340154647827,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 1096,
+      "surfaceArea": 0.17099426388117586,
+      "colour": "5A3A24",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 2.47,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "C9A366",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.5840784178911641,
+          0.3662525955988395,
+          0.13286832155381798
+        ]
+      },
+      {
+        "baseHex": "5A3A24",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.10224173308810132,
+          0.042311410620809675,
+          0.017641954488384078
+        ]
+      },
+      {
+        "baseHex": "141212",
+        "tipDyeHex": "8A1F3C",
+        "baseLinear": [
+          0.006995410187265387,
+          0.006048833022857054,
+          0.006048833022857054
+        ]
+      },
+      {
+        "baseHex": "8F9096",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.27467731206038465,
+          0.2788942634768104,
+          0.3049873140698863
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.03462145794282406,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "male",
+    "style": "crop",
+    "sourceIdentityHash": "eaec788ad92154d03fcdc4d46068735b5136f77cf54831ee6fd308b69d3cd004",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "crop",
+      "sourceHair": "Host.hair_short01",
+      "object": "Cast V11 Host.hair_short01 fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 1439,
+      "points": 45453,
+      "radiusMetres": [
+        2.5622946132438725e-06,
+        0.00023867494017378585
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 1839,
+      "surfaceArea": 0.10023241036885362,
+      "colour": "5A3A24",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 2.65,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "C9A366",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.5840784178911641,
+          0.3662525955988395,
+          0.13286832155381798
+        ]
+      },
+      {
+        "baseHex": "5A3A24",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.10224173308810132,
+          0.042311410620809675,
+          0.017641954488384078
+        ]
+      },
+      {
+        "baseHex": "141212",
+        "tipDyeHex": "8A1F3C",
+        "baseLinear": [
+          0.006995410187265387,
+          0.006048833022857054,
+          0.006048833022857054
+        ]
+      },
+      {
+        "baseHex": "8F9096",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.27467731206038465,
+          0.2788942634768104,
+          0.3049873140698863
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 259,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.033846050115943146,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "male",
+    "style": "quiff",
+    "sourceIdentityHash": "8f098aebbd08da99329fae23f4857808b40a9ecc0f45d714f4576aabeafbf3d9",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "quiff",
+      "sourceHair": "Host.hair_elvs_maxwell_hair",
+      "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 1437,
+      "points": 46009,
+      "radiusMetres": [
+        2.5607345805953134e-06,
+        0.00023967254037477527
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 1468,
+      "surfaceArea": 0.11005565300189624,
+      "colour": "5A3A24",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 1.74,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "C9A366",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.5840784178911641,
+          0.3662525955988395,
+          0.13286832155381798
+        ]
+      },
+      {
+        "baseHex": "5A3A24",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.10224173308810132,
+          0.042311410620809675,
+          0.017641954488384078
+        ]
+      },
+      {
+        "baseHex": "141212",
+        "tipDyeHex": "8A1F3C",
+        "baseLinear": [
+          0.006995410187265387,
+          0.006048833022857054,
+          0.006048833022857054
+        ]
+      },
+      {
+        "baseHex": "8F9096",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.27467731206038465,
+          0.2788942634768104,
+          0.3049873140698863
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.03504641363736816,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "male",
+    "style": "braids",
+    "sourceIdentityHash": "f43e8a3c3843573f353e47026dbb55c04d67da6ccf31b5db29ae9bb327b8f8bc",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "braids",
+      "sourceHair": "Host.hair_elvs_braided_rows",
+      "object": "Cast V11 Host.hair_elvs_braided_rows fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 1393,
+      "points": 40492,
+      "radiusMetres": [
+        2.564360450312879e-06,
+        0.00023967529718529754
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 20464,
+      "surfaceArea": 0.11942960695868562,
+      "colour": "5A3A24",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 36.98,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "C9A366",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.5840784178911641,
+          0.3662525955988395,
+          0.13286832155381798
+        ]
+      },
+      {
+        "baseHex": "5A3A24",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.10224173308810132,
+          0.042311410620809675,
+          0.017641954488384078
+        ]
+      },
+      {
+        "baseHex": "141212",
+        "tipDyeHex": "8A1F3C",
+        "baseLinear": [
+          0.006995410187265387,
+          0.006048833022857054,
+          0.006048833022857054
+        ]
+      },
+      {
+        "baseHex": "8F9096",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.27467731206038465,
+          0.2788942634768104,
+          0.3049873140698863
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.0338732900565678,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "character": "male",
+    "style": "swept",
+    "sourceIdentityHash": "7c400049dfb29d84bc2ab818ec47f6f904d9cfff88a03d947f0680152773268a",
+    "sourceIdentityUnchanged": true,
+    "identityScope": "All original mesh cages and weights, original non-hair UVs and shape keys, original rig bones; static long-hair V60_tuck refinement and recovered hair UVs are authorized changes",
+    "auditDensity": 0.08,
+    "groom": {
+      "enabled": true,
+      "profile": "fibre-groom-v11",
+      "style": "swept",
+      "sourceHair": "Host.hair_elvs_grump_hair",
+      "object": "Cast V11 Host.hair_elvs_grump_hair fibres",
+      "binding": "Cast groom rig binding",
+      "fibres": 1439,
+      "points": 45068,
+      "radiusMetres": [
+        2.561254689649937e-06,
+        0.00023967797591149765
+      ],
+      "napeRestZ": null,
+      "earTuckRefinement": null,
+      "collisionTargetsRepaired": [],
+      "sourceUVFacesRestored": 6166,
+      "surfaceArea": 0.31265373021828563,
+      "colour": "5A3A24",
+      "tipDye": "",
+      "physicalShader": "Huang",
+      "boneGroups": [
+        "head",
+        "neck01",
+        "spine05"
+      ],
+      "seconds": 10.21,
+      "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+    },
+    "paletteMaps": [
+      {
+        "baseHex": "1C1714",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.011612245179743885,
+          0.008568125618069307,
+          0.006995410187265387
+        ]
+      },
+      {
+        "baseHex": "C9A366",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.5840784178911641,
+          0.3662525955988395,
+          0.13286832155381798
+        ]
+      },
+      {
+        "baseHex": "5A3A24",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.10224173308810132,
+          0.042311410620809675,
+          0.017641954488384078
+        ]
+      },
+      {
+        "baseHex": "141212",
+        "tipDyeHex": "8A1F3C",
+        "baseLinear": [
+          0.006995410187265387,
+          0.006048833022857054,
+          0.006048833022857054
+        ]
+      },
+      {
+        "baseHex": "8F9096",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.27467731206038465,
+          0.2788942634768104,
+          0.3049873140698863
+        ]
+      },
+      {
+        "baseHex": "3D6581",
+        "tipDyeHex": "",
+        "baseLinear": [
+          0.046665086336880095,
+          0.1301364766903643,
+          0.2195261997292692
+        ]
+      }
+    ],
+    "reapplicationStable": true,
+    "restCoordinatesAndDyeStable": true,
+    "frames": [
+      1,
+      27,
+      71,
+      106,
+      160,
+      260,
+      360,
+      500,
+      650,
+      820,
+      998
+    ],
+    "sampledPointsPerFrame": 258,
+    "maximumBindingErrorMetres": 0,
+    "maximumObservedMovementMetres": 0.03547299223574246,
+    "deformation": "Existing head, neck and spine weights; no simulated hair physics"
+  },
+  {
+    "style": "bald",
+    "character": "male",
+    "sourceIdentityUnchanged": true,
+    "baldHasNoFibres": true
+  }
+]
