@@ -11,6 +11,7 @@ The native director reuses the audited conversation floor, reflective response, 
 - Seated conversation: separate demonstration scene. Original rigged trousers replace a frozen standing preview-fit mesh, rigid footwear follows native feet, native anatomical segments retain their lengths, and the sole keeps its original orientation. Lap contacts use a two-link contact solve baked as FK, with no anatomy scaling. Full-body footwear and seated garment certification remain pending until their rendered review.
 - Listener/non-speaker speech closes across every frame, with semantic blinks, small nods/reactions and eyes-leading attention. No sinusoidal arm waving or root attention.
 - Prop/screen contact, locomotion, all wardrobe/hair variants and interruption audio performances require separate native proof. Planner tests are not a substitute for those proofs.
+- The native compiler rejects overlapping speaker turns and explicit floor cues until they receive audiovisual admission. Audited source floor planning remains available as logic; it cannot silently enable an unproved target performance.
 
 ## Use
 
@@ -29,3 +30,9 @@ The existing assembled renderer has an opt-in server-owned `CAST_PERFORMANCE_DIR
 ## Evidence
 
 See the repaired core, native scene verification JSON, full frame renders, previews and integration status report. The report distinguishes code tests, scene numerical checks and visual admission.
+
+The integration has 38 passing director/renderer-boundary tests, 44 passing original directing-logic comparison/behavior checks, and 6 fresh saved-core invalid-input checks. All four host scenes pass 245 native-frame checks each. The front clips and 282-frame forward-seated conversation fully render/decode at 24 fps with zero audio sample shift; fixed left 3/4 clip review is in progress. Preview resolution is not delivery-resolution certification.
+
+The forward seated support pose has posterior-skin/seat clearances of -2.529 mm (female) and -7.623 mm (male), within the 12 mm support tolerance. Backrest clearances are 161.903 mm and 136.608 mm; backrest-supported poses are not admitted. Full-body footwear and seated dress quality remain below the elite bar.
+
+After workspace maintenance removed the original test WAVs, the user selected the saved narration recovered at its original pace and a new recording of only the missing question. The recovered answer has its own PCM hash; no byte-identical original recovery is claimed. Whole question and answer are combined before visual planning, without inserted pauses, retiming or audio extension. The scenes pack the resulting whole master.

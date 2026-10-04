@@ -57,4 +57,13 @@ class Boundaries(unittest.TestCase):
  def test_master_hash_required(self):
   r=json.loads((F/'male-host-request.json').read_text());r['masterAudio'].pop('sha256')
   with self.assertRaises(ValueError):D['compile_scene'](r)
+ def test_native_overlap_requires_admission(self):
+  r=json.loads((F/'podcast-request.json').read_text());r['turns'][1]['start']=r['turns'][0]['end']-.1
+  with self.assertRaisesRegex(ValueError,'NATIVE_OVERLAP_REQUIRES'):D['compile_scene'](r)
+ def test_native_turn_floor_cue_requires_admission(self):
+  r=json.loads((F/'podcast-request.json').read_text());r['turns'][1]['floor_cue']='soft_interrupt'
+  with self.assertRaisesRegex(ValueError,'NATIVE_FLOOR_CUE_REQUIRES'):D['compile_scene'](r)
+ def test_native_explicit_floor_cue_requires_admission(self):
+  r=json.loads((F/'podcast-request.json').read_text());r['floor_cues']=[{'actor_id':'B','time':1,'duration':.3,'type':'soft_interrupt'}]
+  with self.assertRaisesRegex(ValueError,'NATIVE_FLOOR_CUE_REQUIRES'):D['compile_scene'](r)
 if __name__=='__main__':unittest.main()

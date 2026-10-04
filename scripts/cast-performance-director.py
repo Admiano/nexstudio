@@ -28,6 +28,13 @@ def compile_scene(request):
     for cue in r.get('floor_cues',[]):
         pg_window(cue['time'],cue['time']+cue.get('duration',.32),duration,'floor_cue')
         if cue.get('actor_id') not in ids:raise ValueError('UNKNOWN_FLOOR_CUE_ACTOR')
+    # Source floor logic is audited, but overlapping audio and interrupting
+    # performances have no native audiovisual admission yet.
+    if r.get('floor_cues') or any(t.get('floor_cue') for t in turns):
+        raise ValueError('NATIVE_FLOOR_CUE_REQUIRES_AUDIOVISUAL_ADMISSION')
+    for i,turn in enumerate(turns):
+        if any(prior['actor_id']!=turn['actor_id'] and prior['end']>turn['start'] for prior in turns[:i]):
+            raise ValueError('NATIVE_OVERLAP_REQUIRES_AUDIOVISUAL_ADMISSION')
     floor=logic.floor_from_turns(turns,actors,r.get('seed','cast-v19'),r.get('floor_cues'))
     reflective=logic.reflective_response_events(turns,r.get('seed','cast-v19'));social=logic.social_nuance_events(turns,r.get('seed','cast-v19'))
     compiled=[]
