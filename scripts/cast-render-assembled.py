@@ -27,6 +27,12 @@ if '--headshot' in args:
 for layer in scene.view_layers:
     for lines in layer.freestyle_settings.linesets:
         if lines.collection:lines.collection.use_fake_user=True
+performance_report=None
+performance_path=os.environ.get('CAST_PERFORMANCE_DIRECTOR_PATH')
+if performance_path:
+    import runpy
+    hook=runpy.run_path(str(Path(__file__).with_name('cast-performance-render-hook.py')))
+    performance_report=hook['apply_performance'](scene,performance_path,os.environ['CAST_CHARACTER'],config['frame'])
 scene.frame_set(config['frame']);scene.render.resolution_percentage=config['resolutionPercentage'];scene.render.image_settings.file_format='PNG'
 fit_entry=Path(__file__).with_name('cast-fit-posed-clothing.py');exec(compile(fit_entry.read_text(),str(fit_entry),'exec'),globals())
 height=scene.render.resolution_y*scene.render.resolution_percentage/100
@@ -38,5 +44,5 @@ if scene.compositing_node_group is not None:
 if '--scene-output' in args:bpy.ops.wm.save_as_mainfile(filepath=args[args.index('--scene-output')+1],compress=True)
 output_file.parent.mkdir(parents=True,exist_ok=True);scene.render.filepath=str(output_file)
 if '--assemble-only' not in args:bpy.ops.render.render(write_still=True)
-metadata={'clothingFit':fit_report,'sourceVersion':config['sourceVersion'],'renderVersion':config['renderVersion'],'frame':scene.frame_current,'seconds':round(time.monotonic()-started,2),'resolution':[scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage],'engine':scene.render.engine,'samples':scene.cycles.samples,'camera':scene.camera.name,'viewTransform':scene.view_settings.view_transform,'look':scene.view_settings.look,'exposure':scene.view_settings.exposure,'gamma':scene.view_settings.gamma}
+metadata={'performance':performance_report,'clothingFit':fit_report,'sourceVersion':config['sourceVersion'],'renderVersion':config['renderVersion'],'frame':scene.frame_current,'seconds':round(time.monotonic()-started,2),'resolution':[scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage],'engine':scene.render.engine,'samples':scene.cycles.samples,'camera':scene.camera.name,'viewTransform':scene.view_settings.view_transform,'look':scene.view_settings.look,'exposure':scene.view_settings.exposure,'gamma':scene.view_settings.gamma}
 output_file.with_suffix('.json').write_text(json.dumps(metadata,indent=2)+'\n');print('CAST_ASSEMBLED_RENDER',json.dumps(metadata),flush=True)

@@ -1,0 +1,1282 @@
+{
+  "masterAudio": {
+    "path": "tests/fixtures/podcast-master.wav",
+    "duration": 11.88,
+    "sha256": "d4ac7e94af53cf3321cd39b64bc7fa1bdaa92c34a9112597042957019f959daf"
+  },
+  "actors": [
+    {
+      "actor_id": "A",
+      "character": "female",
+      "personality": "warm",
+      "camera_relationship": "conversational",
+      "script": "What makes a good presenter?",
+      "script_beats": [
+        {
+          "start": 0.0,
+          "end": 1.47,
+          "text": "What makes a good presenter?",
+          "semantic_intent": "question",
+          "recipient_id": "B"
+        }
+      ],
+      "speech": {
+        "text": "What makes a good presenter?",
+        "duration": 1.68,
+        "word_segments": [
+          {
+            "word": "what",
+            "pronunciationVariant": "what",
+            "start": 0.0,
+            "end": 0.23,
+            "acousticScore": -135
+          },
+          {
+            "word": "makes",
+            "pronunciationVariant": "makes",
+            "start": 0.23,
+            "end": 0.52,
+            "acousticScore": -191
+          },
+          {
+            "word": "a",
+            "pronunciationVariant": "a",
+            "start": 0.52,
+            "end": 0.56,
+            "acousticScore": -19
+          },
+          {
+            "word": "good",
+            "pronunciationVariant": "good(2)",
+            "start": 0.56,
+            "end": 0.78,
+            "acousticScore": -182
+          },
+          {
+            "word": "presenter",
+            "pronunciationVariant": "presenter(2)",
+            "start": 0.78,
+            "end": 1.47,
+            "acousticScore": -672
+          }
+        ],
+        "viseme_segments": [
+          {
+            "phone": "W",
+            "viseme": "OH",
+            "start": 0.0,
+            "end": 0.15,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 0.15,
+            "end": 0.2,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 0.2,
+            "end": 0.23,
+            "intensity": 0.85
+          },
+          {
+            "phone": "M",
+            "viseme": "MBP",
+            "start": 0.23,
+            "end": 0.3,
+            "intensity": 0.85
+          },
+          {
+            "phone": "EY",
+            "viseme": "EE",
+            "start": 0.3,
+            "end": 0.38,
+            "intensity": 0.85
+          },
+          {
+            "phone": "K",
+            "viseme": "RELAX",
+            "start": 0.38,
+            "end": 0.44,
+            "intensity": 0.85
+          },
+          {
+            "phone": "S",
+            "viseme": "RELAX",
+            "start": 0.44,
+            "end": 0.52,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 0.52,
+            "end": 0.56,
+            "intensity": 0.85
+          },
+          {
+            "phone": "G",
+            "viseme": "RELAX",
+            "start": 0.56,
+            "end": 0.68,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IH",
+            "viseme": "EE",
+            "start": 0.68,
+            "end": 0.73,
+            "intensity": 0.85
+          },
+          {
+            "phone": "D",
+            "viseme": "RELAX",
+            "start": 0.73,
+            "end": 0.78,
+            "intensity": 0.85
+          },
+          {
+            "phone": "P",
+            "viseme": "MBP",
+            "start": 0.78,
+            "end": 0.85,
+            "intensity": 0.85
+          },
+          {
+            "phone": "R",
+            "viseme": "RELAX",
+            "start": 0.85,
+            "end": 0.9,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IY",
+            "viseme": "EE",
+            "start": 0.9,
+            "end": 0.93,
+            "intensity": 0.85
+          },
+          {
+            "phone": "Z",
+            "viseme": "RELAX",
+            "start": 0.93,
+            "end": 1.02,
+            "intensity": 0.85
+          },
+          {
+            "phone": "EH",
+            "viseme": "AH",
+            "start": 1.02,
+            "end": 1.09,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 1.09,
+            "end": 1.17,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 1.17,
+            "end": 1.26,
+            "intensity": 0.85
+          },
+          {
+            "phone": "ER",
+            "viseme": "AH",
+            "start": 1.26,
+            "end": 1.47,
+            "intensity": 0.85
+          }
+        ],
+        "silence_windows": [
+          [
+            1.47,
+            1.67
+          ]
+        ],
+        "alignment": "PocketSphinx 5.0.4 two-pass forced word/phone alignment, acoustic 10 ms grid",
+        "completeWordCoverage": true,
+        "audioSha256": "4e122d0148543ba50140491fe79b30e0cb5568f9cc2d0d647d1bf10750519a30",
+        "language": "en-US",
+        "alignmentIsNotAnEliteQualityScore": true
+      },
+      "posture": "seated",
+      "recipient_id": "B",
+      "staging": {
+        "side": "left"
+      }
+    },
+    {
+      "actor_id": "B",
+      "character": "male",
+      "personality": "calm",
+      "camera_relationship": "conversational",
+      "script": "Clear ideas, deliberate movement, and time to listen. I would be careful with constant motion. A useful gesture supports the meaning, then returns naturally to rest.",
+      "script_beats": [
+        {
+          "start": 1.68,
+          "end": 4.72,
+          "text": "Clear ideas, deliberate movement, and time to listen.",
+          "semantic_intent": "inform",
+          "recipient_id": "A"
+        },
+        {
+          "start": 5.4,
+          "end": 7.16,
+          "text": "I would be careful with constant motion.",
+          "semantic_intent": "disagree",
+          "recipient_id": "A"
+        },
+        {
+          "start": 7.67,
+          "end": 11.84,
+          "text": "A useful gesture supports the meaning, then returns naturally to rest.",
+          "semantic_intent": "emphasize",
+          "recipient_id": "A"
+        }
+      ],
+      "speech": {
+        "text": "Clear ideas, deliberate movement, and time to listen. I would be careful with constant motion. A useful gesture supports the meaning, then returns naturally to rest.",
+        "duration": 10.2,
+        "word_segments": [
+          {
+            "word": "clear",
+            "pronunciationVariant": "clear",
+            "start": 1.68,
+            "end": 1.98,
+            "acousticScore": -226
+          },
+          {
+            "word": "ideas",
+            "pronunciationVariant": "ideas",
+            "start": 1.98,
+            "end": 2.75,
+            "acousticScore": -1614
+          },
+          {
+            "word": "deliberate",
+            "pronunciationVariant": "deliberate",
+            "start": 2.75,
+            "end": 3.21,
+            "acousticScore": -713
+          },
+          {
+            "word": "movement",
+            "pronunciationVariant": "movement",
+            "start": 3.21,
+            "end": 3.7299999999999995,
+            "acousticScore": -691
+          },
+          {
+            "word": "and",
+            "pronunciationVariant": "and",
+            "start": 3.7299999999999995,
+            "end": 3.91,
+            "acousticScore": -276
+          },
+          {
+            "word": "time",
+            "pronunciationVariant": "time",
+            "start": 3.91,
+            "end": 4.16,
+            "acousticScore": -319
+          },
+          {
+            "word": "to",
+            "pronunciationVariant": "to(3)",
+            "start": 4.16,
+            "end": 4.26,
+            "acousticScore": -118
+          },
+          {
+            "word": "listen",
+            "pronunciationVariant": "listen",
+            "start": 4.26,
+            "end": 4.72,
+            "acousticScore": -680
+          },
+          {
+            "word": "i",
+            "pronunciationVariant": "i",
+            "start": 5.4,
+            "end": 5.46,
+            "acousticScore": -91
+          },
+          {
+            "word": "would",
+            "pronunciationVariant": "would",
+            "start": 5.46,
+            "end": 5.57,
+            "acousticScore": -201
+          },
+          {
+            "word": "be",
+            "pronunciationVariant": "be",
+            "start": 5.57,
+            "end": 5.68,
+            "acousticScore": -129
+          },
+          {
+            "word": "careful",
+            "pronunciationVariant": "careful",
+            "start": 5.68,
+            "end": 6.06,
+            "acousticScore": -541
+          },
+          {
+            "word": "with",
+            "pronunciationVariant": "with(2)",
+            "start": 6.06,
+            "end": 6.22,
+            "acousticScore": -191
+          },
+          {
+            "word": "constant",
+            "pronunciationVariant": "constant",
+            "start": 6.22,
+            "end": 6.71,
+            "acousticScore": -633
+          },
+          {
+            "word": "motion",
+            "pronunciationVariant": "motion",
+            "start": 6.71,
+            "end": 7.16,
+            "acousticScore": -355
+          },
+          {
+            "word": "a",
+            "pronunciationVariant": "a",
+            "start": 7.67,
+            "end": 7.739999999999999,
+            "acousticScore": -200
+          },
+          {
+            "word": "useful",
+            "pronunciationVariant": "useful",
+            "start": 7.739999999999999,
+            "end": 8.14,
+            "acousticScore": -276
+          },
+          {
+            "word": "gesture",
+            "pronunciationVariant": "gesture",
+            "start": 8.14,
+            "end": 8.620000000000001,
+            "acousticScore": -399
+          },
+          {
+            "word": "supports",
+            "pronunciationVariant": "supports",
+            "start": 8.620000000000001,
+            "end": 9.14,
+            "acousticScore": -666
+          },
+          {
+            "word": "the",
+            "pronunciationVariant": "the",
+            "start": 9.14,
+            "end": 9.21,
+            "acousticScore": -69
+          },
+          {
+            "word": "meaning",
+            "pronunciationVariant": "meaning",
+            "start": 9.21,
+            "end": 9.87,
+            "acousticScore": -2124
+          },
+          {
+            "word": "then",
+            "pronunciationVariant": "then",
+            "start": 9.87,
+            "end": 10.04,
+            "acousticScore": -359
+          },
+          {
+            "word": "returns",
+            "pronunciationVariant": "returns",
+            "start": 10.04,
+            "end": 10.53,
+            "acousticScore": -661
+          },
+          {
+            "word": "naturally",
+            "pronunciationVariant": "naturally(2)",
+            "start": 10.53,
+            "end": 11.1,
+            "acousticScore": -627
+          },
+          {
+            "word": "to",
+            "pronunciationVariant": "to(3)",
+            "start": 11.1,
+            "end": 11.219999999999999,
+            "acousticScore": -226
+          },
+          {
+            "word": "rest",
+            "pronunciationVariant": "rest",
+            "start": 11.219999999999999,
+            "end": 11.84,
+            "acousticScore": -847
+          }
+        ],
+        "viseme_segments": [
+          {
+            "phone": "K",
+            "viseme": "RELAX",
+            "start": 1.68,
+            "end": 1.7999999999999998,
+            "intensity": 0.85
+          },
+          {
+            "phone": "L",
+            "viseme": "RELAX",
+            "start": 1.7999999999999998,
+            "end": 1.8299999999999998,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IH",
+            "viseme": "EE",
+            "start": 1.8299999999999998,
+            "end": 1.9,
+            "intensity": 0.85
+          },
+          {
+            "phone": "R",
+            "viseme": "RELAX",
+            "start": 1.9,
+            "end": 1.98,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AY",
+            "viseme": "AH",
+            "start": 1.98,
+            "end": 2.08,
+            "intensity": 0.85
+          },
+          {
+            "phone": "D",
+            "viseme": "RELAX",
+            "start": 2.08,
+            "end": 2.17,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IY",
+            "viseme": "EE",
+            "start": 2.17,
+            "end": 2.31,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 2.31,
+            "end": 2.42,
+            "intensity": 0.85
+          },
+          {
+            "phone": "Z",
+            "viseme": "RELAX",
+            "start": 2.42,
+            "end": 2.75,
+            "intensity": 0.85
+          },
+          {
+            "phone": "D",
+            "viseme": "RELAX",
+            "start": 2.75,
+            "end": 2.79,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IH",
+            "viseme": "EE",
+            "start": 2.79,
+            "end": 2.82,
+            "intensity": 0.85
+          },
+          {
+            "phone": "L",
+            "viseme": "RELAX",
+            "start": 2.82,
+            "end": 2.95,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IH",
+            "viseme": "EE",
+            "start": 2.95,
+            "end": 2.98,
+            "intensity": 0.85
+          },
+          {
+            "phone": "B",
+            "viseme": "MBP",
+            "start": 2.98,
+            "end": 3.0599999999999996,
+            "intensity": 0.85
+          },
+          {
+            "phone": "ER",
+            "viseme": "AH",
+            "start": 3.0599999999999996,
+            "end": 3.12,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 3.12,
+            "end": 3.16,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 3.16,
+            "end": 3.21,
+            "intensity": 0.85
+          },
+          {
+            "phone": "M",
+            "viseme": "MBP",
+            "start": 3.21,
+            "end": 3.27,
+            "intensity": 0.85
+          },
+          {
+            "phone": "UW",
+            "viseme": "OH",
+            "start": 3.27,
+            "end": 3.37,
+            "intensity": 0.85
+          },
+          {
+            "phone": "V",
+            "viseme": "FV",
+            "start": 3.37,
+            "end": 3.4299999999999997,
+            "intensity": 0.85
+          },
+          {
+            "phone": "M",
+            "viseme": "MBP",
+            "start": 3.4299999999999997,
+            "end": 3.52,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 3.52,
+            "end": 3.5599999999999996,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 3.5599999999999996,
+            "end": 3.63,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 3.63,
+            "end": 3.7299999999999995,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 3.7299999999999995,
+            "end": 3.8200000000000003,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 3.8200000000000003,
+            "end": 3.87,
+            "intensity": 0.85
+          },
+          {
+            "phone": "D",
+            "viseme": "RELAX",
+            "start": 3.87,
+            "end": 3.91,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 3.91,
+            "end": 3.9799999999999995,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AY",
+            "viseme": "AH",
+            "start": 3.9799999999999995,
+            "end": 4.08,
+            "intensity": 0.85
+          },
+          {
+            "phone": "M",
+            "viseme": "MBP",
+            "start": 4.08,
+            "end": 4.16,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 4.16,
+            "end": 4.22,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 4.22,
+            "end": 4.26,
+            "intensity": 0.85
+          },
+          {
+            "phone": "L",
+            "viseme": "RELAX",
+            "start": 4.26,
+            "end": 4.38,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IH",
+            "viseme": "EE",
+            "start": 4.38,
+            "end": 4.43,
+            "intensity": 0.85
+          },
+          {
+            "phone": "S",
+            "viseme": "RELAX",
+            "start": 4.43,
+            "end": 4.54,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 4.54,
+            "end": 4.58,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 4.58,
+            "end": 4.72,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AY",
+            "viseme": "AH",
+            "start": 5.4,
+            "end": 5.46,
+            "intensity": 0.85
+          },
+          {
+            "phone": "W",
+            "viseme": "OH",
+            "start": 5.46,
+            "end": 5.51,
+            "intensity": 0.85
+          },
+          {
+            "phone": "UH",
+            "viseme": "OH",
+            "start": 5.51,
+            "end": 5.54,
+            "intensity": 0.85
+          },
+          {
+            "phone": "D",
+            "viseme": "RELAX",
+            "start": 5.54,
+            "end": 5.57,
+            "intensity": 0.85
+          },
+          {
+            "phone": "B",
+            "viseme": "MBP",
+            "start": 5.57,
+            "end": 5.63,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IY",
+            "viseme": "EE",
+            "start": 5.63,
+            "end": 5.68,
+            "intensity": 0.85
+          },
+          {
+            "phone": "K",
+            "viseme": "RELAX",
+            "start": 5.68,
+            "end": 5.79,
+            "intensity": 0.85
+          },
+          {
+            "phone": "EH",
+            "viseme": "AH",
+            "start": 5.79,
+            "end": 5.87,
+            "intensity": 0.85
+          },
+          {
+            "phone": "R",
+            "viseme": "RELAX",
+            "start": 5.87,
+            "end": 5.92,
+            "intensity": 0.85
+          },
+          {
+            "phone": "F",
+            "viseme": "FV",
+            "start": 5.92,
+            "end": 6.0,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 6.0,
+            "end": 6.029999999999999,
+            "intensity": 0.85
+          },
+          {
+            "phone": "L",
+            "viseme": "RELAX",
+            "start": 6.029999999999999,
+            "end": 6.06,
+            "intensity": 0.85
+          },
+          {
+            "phone": "W",
+            "viseme": "OH",
+            "start": 6.06,
+            "end": 6.14,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IH",
+            "viseme": "EE",
+            "start": 6.14,
+            "end": 6.17,
+            "intensity": 0.85
+          },
+          {
+            "phone": "TH",
+            "viseme": "RELAX",
+            "start": 6.17,
+            "end": 6.22,
+            "intensity": 0.85
+          },
+          {
+            "phone": "K",
+            "viseme": "RELAX",
+            "start": 6.22,
+            "end": 6.33,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AA",
+            "viseme": "AH",
+            "start": 6.33,
+            "end": 6.43,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 6.43,
+            "end": 6.47,
+            "intensity": 0.85
+          },
+          {
+            "phone": "S",
+            "viseme": "RELAX",
+            "start": 6.47,
+            "end": 6.55,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 6.55,
+            "end": 6.6,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 6.6,
+            "end": 6.63,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 6.63,
+            "end": 6.68,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 6.68,
+            "end": 6.71,
+            "intensity": 0.85
+          },
+          {
+            "phone": "M",
+            "viseme": "MBP",
+            "start": 6.71,
+            "end": 6.779999999999999,
+            "intensity": 0.85
+          },
+          {
+            "phone": "OW",
+            "viseme": "OH",
+            "start": 6.779999999999999,
+            "end": 6.89,
+            "intensity": 0.85
+          },
+          {
+            "phone": "SH",
+            "viseme": "RELAX",
+            "start": 6.89,
+            "end": 7.0,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 7.0,
+            "end": 7.04,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 7.04,
+            "end": 7.16,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 7.67,
+            "end": 7.739999999999999,
+            "intensity": 0.85
+          },
+          {
+            "phone": "Y",
+            "viseme": "EE",
+            "start": 7.739999999999999,
+            "end": 7.859999999999999,
+            "intensity": 0.85
+          },
+          {
+            "phone": "UW",
+            "viseme": "OH",
+            "start": 7.859999999999999,
+            "end": 7.8999999999999995,
+            "intensity": 0.85
+          },
+          {
+            "phone": "S",
+            "viseme": "RELAX",
+            "start": 7.8999999999999995,
+            "end": 7.989999999999999,
+            "intensity": 0.85
+          },
+          {
+            "phone": "F",
+            "viseme": "FV",
+            "start": 7.989999999999999,
+            "end": 8.040000000000001,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 8.040000000000001,
+            "end": 8.08,
+            "intensity": 0.85
+          },
+          {
+            "phone": "L",
+            "viseme": "RELAX",
+            "start": 8.08,
+            "end": 8.14,
+            "intensity": 0.85
+          },
+          {
+            "phone": "JH",
+            "viseme": "RELAX",
+            "start": 8.14,
+            "end": 8.25,
+            "intensity": 0.85
+          },
+          {
+            "phone": "EH",
+            "viseme": "AH",
+            "start": 8.25,
+            "end": 8.35,
+            "intensity": 0.85
+          },
+          {
+            "phone": "S",
+            "viseme": "RELAX",
+            "start": 8.35,
+            "end": 8.44,
+            "intensity": 0.85
+          },
+          {
+            "phone": "CH",
+            "viseme": "RELAX",
+            "start": 8.44,
+            "end": 8.52,
+            "intensity": 0.85
+          },
+          {
+            "phone": "ER",
+            "viseme": "AH",
+            "start": 8.52,
+            "end": 8.620000000000001,
+            "intensity": 0.85
+          },
+          {
+            "phone": "S",
+            "viseme": "RELAX",
+            "start": 8.620000000000001,
+            "end": 8.72,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 8.72,
+            "end": 8.76,
+            "intensity": 0.85
+          },
+          {
+            "phone": "P",
+            "viseme": "MBP",
+            "start": 8.76,
+            "end": 8.88,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AO",
+            "viseme": "OH",
+            "start": 8.88,
+            "end": 8.97,
+            "intensity": 0.85
+          },
+          {
+            "phone": "R",
+            "viseme": "RELAX",
+            "start": 8.97,
+            "end": 9.01,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 9.01,
+            "end": 9.05,
+            "intensity": 0.85
+          },
+          {
+            "phone": "S",
+            "viseme": "RELAX",
+            "start": 9.05,
+            "end": 9.14,
+            "intensity": 0.85
+          },
+          {
+            "phone": "DH",
+            "viseme": "RELAX",
+            "start": 9.14,
+            "end": 9.18,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 9.18,
+            "end": 9.21,
+            "intensity": 0.85
+          },
+          {
+            "phone": "M",
+            "viseme": "MBP",
+            "start": 9.21,
+            "end": 9.31,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IY",
+            "viseme": "EE",
+            "start": 9.31,
+            "end": 9.42,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 9.42,
+            "end": 9.46,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IH",
+            "viseme": "EE",
+            "start": 9.46,
+            "end": 9.51,
+            "intensity": 0.85
+          },
+          {
+            "phone": "NG",
+            "viseme": "RELAX",
+            "start": 9.51,
+            "end": 9.87,
+            "intensity": 0.85
+          },
+          {
+            "phone": "DH",
+            "viseme": "RELAX",
+            "start": 9.87,
+            "end": 9.93,
+            "intensity": 0.85
+          },
+          {
+            "phone": "EH",
+            "viseme": "AH",
+            "start": 9.93,
+            "end": 9.99,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 9.99,
+            "end": 10.04,
+            "intensity": 0.85
+          },
+          {
+            "phone": "R",
+            "viseme": "RELAX",
+            "start": 10.04,
+            "end": 10.11,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IH",
+            "viseme": "EE",
+            "start": 10.11,
+            "end": 10.15,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 10.15,
+            "end": 10.26,
+            "intensity": 0.85
+          },
+          {
+            "phone": "ER",
+            "viseme": "AH",
+            "start": 10.26,
+            "end": 10.39,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 10.39,
+            "end": 10.45,
+            "intensity": 0.85
+          },
+          {
+            "phone": "Z",
+            "viseme": "RELAX",
+            "start": 10.45,
+            "end": 10.53,
+            "intensity": 0.85
+          },
+          {
+            "phone": "N",
+            "viseme": "RELAX",
+            "start": 10.53,
+            "end": 10.6,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AE",
+            "viseme": "AH",
+            "start": 10.6,
+            "end": 10.74,
+            "intensity": 0.85
+          },
+          {
+            "phone": "CH",
+            "viseme": "RELAX",
+            "start": 10.74,
+            "end": 10.84,
+            "intensity": 0.85
+          },
+          {
+            "phone": "R",
+            "viseme": "RELAX",
+            "start": 10.84,
+            "end": 10.9,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 10.9,
+            "end": 10.93,
+            "intensity": 0.85
+          },
+          {
+            "phone": "L",
+            "viseme": "RELAX",
+            "start": 10.93,
+            "end": 11.02,
+            "intensity": 0.85
+          },
+          {
+            "phone": "IY",
+            "viseme": "EE",
+            "start": 11.02,
+            "end": 11.1,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 11.1,
+            "end": 11.19,
+            "intensity": 0.85
+          },
+          {
+            "phone": "AH",
+            "viseme": "AH",
+            "start": 11.19,
+            "end": 11.219999999999999,
+            "intensity": 0.85
+          },
+          {
+            "phone": "R",
+            "viseme": "RELAX",
+            "start": 11.219999999999999,
+            "end": 11.37,
+            "intensity": 0.85
+          },
+          {
+            "phone": "EH",
+            "viseme": "AH",
+            "start": 11.37,
+            "end": 11.48,
+            "intensity": 0.85
+          },
+          {
+            "phone": "S",
+            "viseme": "RELAX",
+            "start": 11.48,
+            "end": 11.66,
+            "intensity": 0.85
+          },
+          {
+            "phone": "T",
+            "viseme": "RELAX",
+            "start": 11.66,
+            "end": 11.84,
+            "intensity": 0.85
+          }
+        ],
+        "silence_windows": [
+          [
+            4.72,
+            5.4
+          ],
+          [
+            7.16,
+            7.67
+          ],
+          [
+            11.84,
+            11.87
+          ]
+        ],
+        "alignment": "PocketSphinx 5.0.4 two-pass forced word/phone alignment, acoustic 10 ms grid",
+        "completeWordCoverage": true,
+        "audioSha256": "719beec585c620e8173005e954ba6134de41c76640082786373fdb50915b07e6",
+        "language": "en-US",
+        "alignmentIsNotAnEliteQualityScore": true
+      },
+      "posture": "seated",
+      "recipient_id": "A",
+      "staging": {
+        "side": "right"
+      }
+    }
+  ],
+  "turns": [
+    {
+      "actor_id": "A",
+      "recipient_id": "B",
+      "start": 0.0,
+      "end": 1.47,
+      "semantic_intent": "question"
+    },
+    {
+      "actor_id": "B",
+      "recipient_id": "A",
+      "start": 1.68,
+      "end": 11.84,
+      "semantic_intent": "disagree",
+      "response_mode": "reflective"
+    }
+  ],
+  "seed": "verified-cast-v19",
+  "targets": {
+    "A": [
+      -0.72,
+      0,
+      1.15
+    ],
+    "B": [
+      0.72,
+      0,
+      1.2
+    ]
+  }
+}
