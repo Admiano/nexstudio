@@ -58,40 +58,60 @@ def fit_posed_clothing(scene):
                 fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'hemExtension':extension,'preservedWorldAxes':['X']})
                 print('POSED_TUCKED_HEM',ob.name,extension,adjusted,flush=True)
         if tops and not tucked:
-            # Untucked tops overlap the trouser waist all the way round, so the
-            # clearance is solved radially from the torso axis. Sleeve and hand
-            # faces are excluded so a hanging arm is never mistaken for the hem.
-            top=tops[0];deps=bpy.context.evaluated_depsgraph_get();ev=top.evaluated_get(deps);mesh=ev.to_mesh()
+            # An untucked top hangs over the trousers. Where the posed trouser
+            # waist (or the trouser just below the hem) reaches past the top,
+            # the top is let out radially to cover it; trousers are untouched.
+            top=tops[0];deps=bpy.context.evaluated_depsgraph_get()
+            pants=[o for o in garments if o and any(k in o.name.lower() for k in ('trouser','jeans','pants'))]
+            pants_points=[];pants_faces=[]
+            for o in pants:
+                pe=o.evaluated_get(deps);pm=pe.to_mesh();base=len(pants_points)
+                pants_points+=[pe.matrix_world@v.co for v in pm.vertices];pants_faces+=[[base+i for i in p.vertices] for p in pm.polygons];pe.to_mesh_clear()
+            pants_tree=BVHTree.FromPolygons(pants_points,pants_faces)
+            ev=top.evaluated_get(deps);mesh=ev.to_mesh()
             limb=[any(k in g.name.lower() for k in ('arm','wrist','metacarpal','finger','hand','shoulder','clavicle')) for g in top.vertex_groups]
             def limb_weight(v):
                 total=sum(g.weight for g in v.groups if g.group<len(limb))
                 return sum(g.weight for g in v.groups if g.group<len(limb) and limb[g.group])/total if total else 0
             points=[ev.matrix_world@v.co for v in mesh.vertices];limb_weights=[limb_weight(v) for v in mesh.vertices]
             torso=[list(p.vertices) for p in mesh.polygons if sum(limb_weights[i] for i in p.vertices)/len(p.vertices)<0.5]
-            tree=BVHTree.FromPolygons(points,torso)
+            top_tree=BVHTree.FromPolygons(points,torso)
             torso_points=[points[i] for i in {i for f in torso for i in f}]
             ev.to_mesh_clear()
             hem=min(p.z for p in torso_points)
             band=[p for p in torso_points if p.z<hem+0.20]
             center=sum(p.x for p in band)/len(band);middle=sum(p.y for p in band)/len(band)
-            pants=[o for o in garments if o and any(k in o.name.lower() for k in ('trouser','jeans','pants'))]
-            fitted_objects=pants+[o for o in bpy.data.objects if o.get('castGarmentSource') in {p.name for p in pants}]
+            def outer_reach(tree,z,radial):
+                # Distance from the torso axis to the outermost surface along radial.
+                hit,normal,face,distance=tree.ray_cast(Vector((center,middle,z))+radial*0.6,-radial,0.6)
+                return None if hit is None else 0.6-distance
+            fitted_objects=[top]+[o for o in bpy.data.objects if o.get('castGarmentSource')==top.name]
             for ob in fitted_objects:
                 evaluated=ob.evaluated_get(deps);fitted=bpy.data.meshes.new_from_object(evaluated,depsgraph=deps)
-                inverse=ob.matrix_world.inverted();adjusted=0
+                inverse=ob.matrix_world.inverted();adjusted=0;largest=0
                 for v in fitted.vertices:
                     point=ob.matrix_world@v.co
-                    if point.z<=hem+0.006:continue
+                    if not hem-0.02<=point.z<=hem+0.30:continue
                     radial=Vector((point.x-center,point.y-middle,0))
                     if radial.length<1e-6:continue
-                    radial.normalize();axis=Vector((center,middle,point.z))
-                    hit,normal,face,distance=tree.ray_cast(axis,radial,1.0)
-                    if hit is None:continue
-                    reach=(point-axis).dot(radial);limit=distance-0.012
-                    if reach>limit and reach-distance<0.10:
-                        point+=radial*(limit-reach);v.co=inverse@point;adjusted+=1
+                    reach=radial.length;radial.normalize()
+                    surface=outer_reach(top_tree,point.z,radial)
+                    # Only the torso shell moves; sleeves and hands near the hip stay put.
+                    if surface is None or abs(reach-surface)>0.03:continue
+                    # Cloth hangs from its widest contact and eases in above it,
+                    # so the let-out is taken from a vertical neighbourhood.
+                    delta=0
+                    for step in range(-8,7):
+                        z=point.z+step*0.01
+                        need=outer_reach(pants_tree,z-0.015,radial) or outer_reach(pants_tree,z,radial)
+                        here=outer_reach(top_tree,z,radial) or surface
+                        if need is None:continue
+                        weight=1 if step>=0 else 1+step/9
+                        delta=max(delta,(need+0.010-here)*weight)
+                    if 0<delta<0.06:
+                        point+=radial*delta;v.co=inverse@point;adjusted+=1;largest=max(largest,delta)
                 if any(not all(math.isfinite(c) for c in v.co) for v in fitted.vertices):raise RuntimeError('CAST_GARMENT_NONFINITE:'+ob.name)
-                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'preservedWorldAxes':['Z']})
+                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'maximumLetOutMetres':round(largest,4),'preservedWorldAxes':['Z']})
                 fitted.update()
                 display=bpy.data.objects.new(ob.name+'.preview-fit',fitted);display.matrix_world=ob.matrix_world.copy()
                 for collection in ob.users_collection:collection.objects.link(display)
@@ -99,7 +119,7 @@ def fit_posed_clothing(scene):
                 display['castFitSource']=ob.name
                 if 'castFitOriginalHideRender' not in ob:ob['castFitOriginalHideRender']=ob.hide_render
                 ob.hide_render=True
-                print('POSED_DEPTH_FIT',ob.name,adjusted,'vertices; radial torso clearance, z preserved',flush=True)
+                print('POSED_TOP_LET_OUT',ob.name,adjusted,'vertices; max',round(largest,4),flush=True)
     return fit_report
 
 fit_report=fit_posed_clothing(bpy.context.scene)
