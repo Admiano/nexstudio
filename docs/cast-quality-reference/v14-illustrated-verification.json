@@ -1,0 +1,381 @@
+{
+  "rendererVersion": "approved-v3-v6-skin-v14-illustrated-upper-thigh",
+  "shaderCodeSHA256": "1b67dfa4d71eebd2c2a2a1033c862b080881cd833eee7595b3e2af7addfa3402",
+  "blenderVersion": "5.2.0 LTS",
+  "materialAudits": [
+    {
+      "character": "female",
+      "profile": "illustrated-colour-planes-v14",
+      "codeSHA256": "1b67dfa4d71eebd2c2a2a1033c862b080881cd833eee7595b3e2af7addfa3402",
+      "sourceMeshKeysWeightsUVsAndBonesUnchanged": true,
+      "physicalSkinRemoved": true,
+      "poreReliefRemoved": true,
+      "viewDependentSheenRemoved": true,
+      "sourceGeometrySHA256": "f4d1d10ed725adba66958af73814cc7df0ff7dc59913633273b4f091f22b3e2a",
+      "complexions": [
+        {
+          "hex": "F7E1D3",
+          "palette": "fair",
+          "baseLinear": [
+            0.9301108583754237,
+            0.7529422167760779,
+            0.6514056374198242
+          ]
+        },
+        {
+          "hex": "F1D7C8",
+          "palette": "light",
+          "baseLinear": [
+            0.8796223968878317,
+            0.6795424696330938,
+            0.5775804404296506
+          ]
+        },
+        {
+          "hex": "E0B48F",
+          "palette": "medium",
+          "baseLinear": [
+            0.7454042095403874,
+            0.45641102318040466,
+            0.27467731206038465
+          ]
+        },
+        {
+          "hex": "C99A6E",
+          "palette": "tan",
+          "baseLinear": [
+            0.5840784178911641,
+            0.32314320911295075,
+            0.1559264637078274
+          ]
+        },
+        {
+          "hex": "9E6B4A",
+          "palette": "brown",
+          "baseLinear": [
+            0.3419144249086609,
+            0.14702726649759498,
+            0.06847816984440017
+          ]
+        },
+        {
+          "hex": "6A4431",
+          "palette": "deep",
+          "baseLinear": [
+            0.14412847085805777,
+            0.05780543019106723,
+            0.030713443732993635
+          ]
+        }
+      ],
+      "customColoursPreserved": true,
+      "reapplicationStable": true,
+      "textureCoordinatesStableDuringAnimation": true,
+      "lightingStableAcrossFrames": true,
+      "frames": [
+        1,
+        27,
+        71,
+        106,
+        260,
+        500,
+        998
+      ]
+    },
+    {
+      "character": "male",
+      "profile": "illustrated-colour-planes-v14",
+      "codeSHA256": "1b67dfa4d71eebd2c2a2a1033c862b080881cd833eee7595b3e2af7addfa3402",
+      "sourceMeshKeysWeightsUVsAndBonesUnchanged": true,
+      "physicalSkinRemoved": true,
+      "poreReliefRemoved": true,
+      "viewDependentSheenRemoved": true,
+      "sourceGeometrySHA256": "a0990064b6079286e273771803e385f831d0833972e43d251e922f3283f25cae",
+      "complexions": [
+        {
+          "hex": "F7E1D3",
+          "palette": null,
+          "baseLinear": [
+            0.9301108583754237,
+            0.7529422167760779,
+            0.6514056374198242
+          ]
+        },
+        {
+          "hex": "F1D7C8",
+          "palette": null,
+          "baseLinear": [
+            0.8796223968878317,
+            0.6795424696330938,
+            0.5775804404296506
+          ]
+        },
+        {
+          "hex": "E0B48F",
+          "palette": null,
+          "baseLinear": [
+            0.7454042095403874,
+            0.45641102318040466,
+            0.27467731206038465
+          ]
+        },
+        {
+          "hex": "C99A6E",
+          "palette": null,
+          "baseLinear": [
+            0.5840784178911641,
+            0.32314320911295075,
+            0.1559264637078274
+          ]
+        },
+        {
+          "hex": "9E6B4A",
+          "palette": null,
+          "baseLinear": [
+            0.3419144249086609,
+            0.14702726649759498,
+            0.06847816984440017
+          ]
+        },
+        {
+          "hex": "6A4431",
+          "palette": null,
+          "baseLinear": [
+            0.14412847085805777,
+            0.05780543019106723,
+            0.030713443732993635
+          ]
+        }
+      ],
+      "customColoursPreserved": true,
+      "reapplicationStable": true,
+      "textureCoordinatesStableDuringAnimation": true,
+      "lightingStableAcrossFrames": true,
+      "frames": [
+        1,
+        27,
+        71,
+        106,
+        260,
+        500,
+        998
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "character": "female",
+      "selfContained": true,
+      "activeImageTextures": [],
+      "activeLights": {
+        "Cast skin V13 Key": 8.0,
+        "Cast skin V13 Fill": 5.5,
+        "Cast skin V13 Edge": 5.0
+      },
+      "bytes": 64458644,
+      "sha256": "bb90be024845cca08a3a6bc951d31fe5015b60f6a3f2cf4b6a227268cf20541d"
+    },
+    {
+      "character": "male",
+      "selfContained": true,
+      "activeImageTextures": [],
+      "activeLights": {
+        "Cast skin V13 Key": 14.0,
+        "Cast skin V13 Fill": 4.5,
+        "Cast skin V13 Edge": 5.0
+      },
+      "bytes": 36239519,
+      "sha256": "d7ba3aaa3e68035c11813ceb6eb7f80bb44374f4b4fa4d08fca2c0f2d61eaa54"
+    }
+  ],
+  "renders": [
+    {
+      "file": "female-front-1.png",
+      "sha256": "ed2db10b829acf7975fb7aa04b8fffa8e768edfb9a15ce3235edd8e0ee60f282",
+      "character": "female",
+      "frame": 1,
+      "view": "front",
+      "size": 768,
+      "complexion": null
+    },
+    {
+      "file": "female-front-27-6A4431.png",
+      "sha256": "93a9565bf523d1676da565f6e5d9f9ea6202663d5ecc3bba488837b08ad13580",
+      "character": "female",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "6A4431"
+    },
+    {
+      "file": "female-front-27-9E6B4A.png",
+      "sha256": "423342065a0ecfeb0c3274e62925726e6b0463bc6a9495c06a5c54b12ff33a90",
+      "character": "female",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "9E6B4A"
+    },
+    {
+      "file": "female-front-27-C99A6E.png",
+      "sha256": "c839efe4d411c336412273ca193b323df383f033a15b73d4728fa5c0408eedf0",
+      "character": "female",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "C99A6E"
+    },
+    {
+      "file": "female-front-27-E0B48F.png",
+      "sha256": "318351d55073b677dd9caa50ea3df71724cb54306bbf87814c049005a9709846",
+      "character": "female",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "E0B48F"
+    },
+    {
+      "file": "female-front-27-F1D7C8.png",
+      "sha256": "d6acca0ad7d189a55e51a26a8076c1aa66d2267f5ce8b270a5f8896b6b01aed1",
+      "character": "female",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "F1D7C8"
+    },
+    {
+      "file": "female-front-27-F7E1D3.png",
+      "sha256": "47328c2b15047061081f9358a6ea9cf4aa9238c6e3259a85501bea958f790ef2",
+      "character": "female",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "F7E1D3"
+    },
+    {
+      "file": "female-front-71.png",
+      "sha256": "2585a5ac952c135fae3bf8a801dcbe462822196a6df6e7571b65816d01abb0b1",
+      "character": "female",
+      "frame": 71,
+      "view": "front",
+      "size": 512,
+      "complexion": null
+    },
+    {
+      "file": "female-profile-1.png",
+      "sha256": "db78f0d5af8cca651751528899df9f89c32e3e0a0f992a55ec77ebea946b4b43",
+      "character": "female",
+      "frame": 1,
+      "view": "profile",
+      "size": 384,
+      "complexion": null
+    },
+    {
+      "file": "female-quarter-1.png",
+      "sha256": "6f64d78c4416af24111140cb9ceff2281bcfec47e071686f9f9e65b028702ee2",
+      "character": "female",
+      "frame": 1,
+      "view": "quarter",
+      "size": 512,
+      "complexion": null
+    },
+    {
+      "file": "male-front-1.png",
+      "sha256": "00016da64dc6933e3d90d4964433a5f653a55f00f8e67ddd5bc5311cb825b15b",
+      "character": "male",
+      "frame": 1,
+      "view": "front",
+      "size": 768,
+      "complexion": null
+    },
+    {
+      "file": "male-front-27-6A4431.png",
+      "sha256": "3b7aaaf8e632f818642a487c43711e310c1f5b20c5e5283c3f1f3a25587cd481",
+      "character": "male",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "6A4431"
+    },
+    {
+      "file": "male-front-27-9E6B4A.png",
+      "sha256": "dcb508538f89ad3ac83e7fccad210ef43e368ee5550963dab5a488376826a96d",
+      "character": "male",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "9E6B4A"
+    },
+    {
+      "file": "male-front-27-C99A6E.png",
+      "sha256": "18ed78e9bf7bf054ddd36c2976d9710d5fe91b1178d36c83356ddd293cdc3ba7",
+      "character": "male",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "C99A6E"
+    },
+    {
+      "file": "male-front-27-E0B48F.png",
+      "sha256": "351030d3922871aa032efabd1dfb726ad0f573be1cb10375d47989f4150ea8e3",
+      "character": "male",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "E0B48F"
+    },
+    {
+      "file": "male-front-27-F1D7C8.png",
+      "sha256": "bd2058333cba84af2b2389cf0eef46fba0a81683cdce96093150ece07ec0a091",
+      "character": "male",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "F1D7C8"
+    },
+    {
+      "file": "male-front-27-F7E1D3.png",
+      "sha256": "5e379c87fb3a7462664ea3b2861ecea971a79a0a0a4bc06462b3df989e6cdf27",
+      "character": "male",
+      "frame": 27,
+      "view": "front",
+      "size": 384,
+      "complexion": "F7E1D3"
+    },
+    {
+      "file": "male-front-71.png",
+      "sha256": "d6d5305951b10274824c81aab71387866e037b4da9d428fd3bb24c51d0f69318",
+      "character": "male",
+      "frame": 71,
+      "view": "front",
+      "size": 512,
+      "complexion": null
+    },
+    {
+      "file": "male-profile-1.png",
+      "sha256": "aa94bd3e8fbf7581c96c153e17aeabef0a318eb0cf2fab6e60b71685e51d99e7",
+      "character": "male",
+      "frame": 1,
+      "view": "profile",
+      "size": 384,
+      "complexion": null
+    },
+    {
+      "file": "male-quarter-1.png",
+      "sha256": "730634f592c171b07967cf8b1078e8be6eef1b169db85c5139e695b2c747fc48",
+      "character": "male",
+      "frame": 1,
+      "view": "quarter",
+      "size": 512,
+      "complexion": null
+    }
+  ],
+  "sourceScenesVerifiedUnchanged": 5,
+  "testsPassed": [
+    "cast-render-config",
+    "cast-skin-render-config",
+    "cast-preview-queue",
+    "cast-preview-worker"
+  ],
+  "notPublished": true
+}

@@ -91,3 +91,4 @@ def fit_posed_clothing(scene):
     return fit_report
 
 fit_report=fit_posed_clothing(bpy.context.scene)
+

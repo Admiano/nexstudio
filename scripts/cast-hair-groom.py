@@ -10,7 +10,7 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 from mathutils.kdtree import KDTree
 
-PROFILE='fibre-groom-v11'
+PROFILE='fibre-groom-v16-ear-contour'
 MODULE_SHA256=hashlib.sha256(open(__file__,'rb').read()).hexdigest()
 STYLE_NAMES={'culturalibre':'long','with_bangs':'bangs','blunt_bob':'bob','bun_brown':'bun','french_braid':'braid','afro01':'afro','short01':'crop','maxwell':'quiff','braided_rows':'braids','grump':'swept'}
 
@@ -25,7 +25,7 @@ def restore_source_uv(source):
     caps get zero UVs and retain the analytic guide field.
     """
     root=__import__('pathlib').Path(__file__).resolve().parents[1]/'engine_sources/makehuman-lineart/assets'
-    key=source.name.removeprefix('Host.hair_')
+    key=source.name.removeprefix('Host.hair_').split('.')[0]
     folder=next(iter(root.glob('*/hair/'+key)),None)
     if folder is None:return 0
     obj=next(iter(folder.glob('*.obj')),None)
@@ -167,6 +167,8 @@ def bind_curves(scene,source,paths,radii,material,center):
     for name,values in bins.items():
         for w,indices in values.items():groups[name].add(indices,w,'REPLACE')
     arm=helper.modifiers.new('Original presenter skeleton','ARMATURE');arm.object=source.parent
+    if any(k in source.name for k in ('culturalibre','blunt_bob')):
+        clear=helper.modifiers.new('Follow posed hair sheet clearance','SHRINKWRAP');clear.target=source;clear.wrap_method='NEAREST_SURFACEPOINT';clear.wrap_mode='OUTSIDE';clear.offset=.0004
     cu=bpy.data.hair_curves.new('Cast groom fibres');cu.add_curves([len(p) for p in paths])
     cu.position_data.foreach_set('vector',array('f',(x for p in local for x in p)))
     rad=cu.attributes.new('radius','FLOAT','POINT');rad.data.foreach_set('value',array('f',radii))
@@ -257,6 +259,46 @@ def soften_ink(scene,style):
             if len(component)>60 and max(p.z for p in pts)>1.54 and min(p.y for p in pts)<-.075:
                 for j in range(min(component),min(len(me.polygons),max(component)+13)):me.polygons[j].material_index=slot
 
+def refine_ear_clearance(source,body,style):
+    """Keep ear clearance local; preserve tied and short source silhouettes."""
+    if style not in ('long','bob','bangs'):return {'applied':False,'style':style}
+    ears=body.vertex_groups.get('ears')
+    ep=[v.co.copy() for v in body.data.vertices if ears and any(g.group==ears.index and g.weight>.5 for g in v.groups)]
+    if not ep:return {'applied':False}
+    changes=0;maximum=0.0
+    if source.data.shape_keys:
+        basis=source.data.shape_keys.key_blocks[0];tuck=source.data.shape_keys.key_blocks.get('V60_tuck')
+        if tuck:
+            for a,b in zip(basis.data,tuck.data):
+                # The old tuck pushes X outward in direct proportion to Y.
+                # Retain the sweep behind the ear while removing this wing.
+                delta=b.co-a.co
+                if abs(delta.x)>1e-7:
+                    maximum=max(maximum,abs(delta.x));weight=min(1,abs(delta.y)/.055)
+                    ear_z=sum(e.z for e in ep)/len(ep)
+                    taper=max(0,min(1,(ear_z+.035-a.co.z)/.035));taper=taper*taper*(3-2*taper)
+                    weight*=taper
+                    b.co.x=a.co.x-math.copysign(.025*weight,a.co.x)
+                    b.co.y=a.co.y+min(.045,max(0,delta.y))*taper;changes+=1
+    for mod in source.modifiers:
+        if mod.type!='SHRINKWRAP' or not mod.target or mod.target.name!=body.name:continue
+        # The scalp wrap used to project the whole sheet onto the ear ridge.
+        # Fade that wrap around each ear, with its original weight elsewhere.
+        old=source.vertex_groups.get(mod.vertex_group) if mod.vertex_group else None
+        oldweights={v.index:next((g.weight for g in v.groups if old and g.group==old.index),0) for v in source.data.vertices} if old else None
+        group=source.vertex_groups.get('Cast V16 '+mod.name) or source.vertex_groups.new(name='Cast V16 '+mod.name)
+        for v in source.data.vertices:
+            closest=min(ep,key=lambda e:(e-v.co).length_squared)
+            dx=abs(v.co.x-closest.x);dy=abs(v.co.y-closest.y);dz=abs(v.co.z-closest.z)
+            def fade(t):
+                t=max(0,min(1,t));return t*t*(3-2*t)
+            release=(1-fade(dx/.045))*(1-fade(dy/.070))*(1-fade(dz/.050))
+            weight=(oldweights[v.index] if oldweights is not None else 1)*(1-release)
+            group.add([v.index],weight,'REPLACE')
+        mod.vertex_group=group.name
+    source.data.update()
+    return {'applied':True,'style':style,'outwardTuckVertices':changes,'maxOutwardCorrectionMetres':maximum,'scope':'loose hair only'}
+
 def apply_hair_groom(scene,character,style=None,colour=None,density=1.0):
     started=time.monotonic();previous=scene.frame_current
     existing=next((o for o in scene.objects if o.get('castGroomProfile')==PROFILE),None)
@@ -270,6 +312,17 @@ def apply_hair_groom(scene,character,style=None,colour=None,density=1.0):
     for modifier in source.modifiers:
         if modifier.type=='SUBSURF' and len(source.data.vertices)<7000:
             modifier.levels=max(modifier.levels,2);modifier.render_levels=max(modifier.render_levels,2)
+    if style=='bun':
+        body=bpy.data.objects['Host.body'];ears=body.vertex_groups.get('ears')
+        ear_points=[body.matrix_world@v.co for v in body.data.vertices if ears and any(g.group==ears.index and g.weight>.5 for g in v.groups)]
+        if ear_points:
+            floor=min(p.z for p in ear_points)-.012
+            group=source.vertex_groups.get('Cast clean bun nape') or source.vertex_groups.new(name='Cast clean bun nape')
+            keep=[v.index for v in source.data.vertices if (source.matrix_world@v.co).z>=floor]
+            group.remove(list(range(len(source.data.vertices))));group.add(keep,1,'REPLACE')
+            mask=source.modifiers.get('Cast clean bun nape') or source.modifiers.new('Cast clean bun nape','MASK');mask.vertex_group=group.name
+            with bpy.context.temp_override(object=source,active_object=source):bpy.ops.object.modifier_move_to_index(modifier=mask.name,index=0)
+            print('BUN_NAPE_MASK',floor,len(source.data.vertices)-len(keep),flush=True)
     tuck_report=None
     if style=='long' and source.data.shape_keys and source.data.shape_keys.key_blocks.get('V60_tuck'):
         body=bpy.data.objects['Host.body'];ear_group=body.vertex_groups['ears'].index
@@ -281,7 +334,12 @@ def apply_hair_groom(scene,character,style=None,colour=None,density=1.0):
             if weight<1 and (target.co-base.co).length>1e-7:
                 target.co=base.co+(target.co-base.co)*weight;changed+=1
         source.data.update();tuck_report={'lowerHairReleasedVertices':changed,'earZoneRestZ':ear_z,'fadeBelowEarMetres':.055}
+    contour_report=refine_ear_clearance(source,bpy.data.objects['Host.body'],style)
     collision_targets=[]
+    if style in ('bob','bangs','quiff','swept','crop','braids','afro','bun'):
+        for m in list(source.modifiers):
+            if m.type=='SHRINKWRAP' and m.target and (m.target.name!='Host.body' or (character=='male' and m.name.startswith('V26_clear_body'))):
+                collision_targets.append([m.target.name,'not needed above shoulders']);source.modifiers.remove(m)
     if style=='long':
         garment=bpy.data.objects.get(os.environ.get('DOBJ','')) or next((o for o in scene.objects if not o.hide_render and any(m.name=='Cast garment edge thickness' for m in o.modifiers)),None)
         if garment:
@@ -302,20 +360,20 @@ def apply_hair_groom(scene,character,style=None,colour=None,density=1.0):
     normals=[(matrix@n).normalized() for n in normals]
     uv_fields=[uv_guide(t,pts,me,style,n,center) for t,n in zip(me.loop_triangles,normals)]
     nape=None
-    if style=='afro':
+    if style in ('afro','bun'):
         body=bpy.data.objects['Host.body'];ears=body.vertex_groups['ears'].index;be=body.evaluated_get(bpy.context.evaluated_depsgraph_get());bm=be.to_mesh()
         ep=[be.matrix_world@v.co for v in bm.vertices if any(g.group==ears and g.weight>.5 for g in v.groups)]
-        nape=min(p.z for p in ep)+.01 if ep else center.z-.075;be.to_mesh_clear()
+        nape=min(p.z for p in ep)+(.01 if style=='afro' else -.012) if ep else center.z-.075;be.to_mesh_clear()
     areas=[];valid=[];area=0
     for i,(a,b,c) in enumerate(tri):
         p=(pts[a]+pts[b]+pts[c])/3;normal=normals[i]
         outward=p-center
-        if normal.dot(outward)<-.015 or (style=='afro' and p.z<nape):continue
+        if normal.dot(outward)<-.015 or (style in ('afro','bun') and p.z<nape):continue
         size=(pts[b]-pts[a]).cross(pts[c]-pts[a]).length*.5
         if size<1e-12:continue
         area+=size;areas.append(area);valid.append(i)
     rng=random.Random(113+sum(ord(c) for c in style));count=int((42000 if style=='afro' else 26000 if character=='female' else 18000)*density)
-    paths=[];radii=[]
+    paths=[];radii=[];hem_z=min(p.z for p in pts)
     def trace(p,n,sign,steps,step):
         path=[];last=None;index=tree.find_nearest(p)[2]
         for j in range(steps):
@@ -342,7 +400,7 @@ def apply_hair_groom(scene,character,style=None,colour=None,density=1.0):
             steps=int(length/step/2);before=trace(p,n,-1,steps,step);after=trace(p,n,1,steps,step)
             samples=list(reversed(before))+[(p,n)]+after
             if len(samples)<5:continue
-            if after and len(after)<steps and samples[-1][0].z<center.z-.08:
+            if style not in ('bob','bangs') and after and len(after)<steps and samples[-1][0].z<center.z-.08:
                 q,nn=samples[-1];d=flow(q,nn,style,center);length=rng.uniform(.001,.005)
                 samples.extend([(q+d*length*f,nn) for f in (.35,.70,1)])
             # Low-frequency grouping and small fibre irregularity break sheet highlights.
@@ -350,10 +408,12 @@ def apply_hair_groom(scene,character,style=None,colour=None,density=1.0):
             for j,(q,nn) in enumerate(samples):
                 t=j/max(1,len(samples)-1);tangent=flow(q,nn,style,center);side=nn.cross(tangent)
                 wav=.00012*math.sin(t*math.tau*1.2+phase)
-                extra=(.0014*math.sin(t*math.pi)**2 if k%47==0 else 0)
+                extra=(.00065*math.sin(t*math.pi)**2 if k%67==0 else 0)
                 path.append(q+nn*(lift+extra)+side*wav)
+        if style in ('bob','bangs','long') and any(q.z<hem_z-.002 for q in path):continue
+        if style=='bun' and any(q.z<nape-.002 for q in path):continue
         paths.append(path)
-        radius=rng.uniform(.00016,.00024) if k%7==0 else rng.uniform(.000032,.000058)
+        radius=rng.uniform(.000090,.000135) if k%7==0 else rng.uniform(.000030,.000052)
         for j in range(len(path)):
             t=j/max(1,len(path)-1);radii.append(radius*min(1,.20+6*t,.08+6*(1-t)))
     ev.to_mesh_clear()
@@ -373,5 +433,5 @@ def apply_hair_groom(scene,character,style=None,colour=None,density=1.0):
     source.data.materials.clear();source.data.materials.append(core_material(rgb,style,dye));source['castGroomCore']=True;source.pass_index=11;obj.pass_index=11
     soften_ink(scene,style);studio_lights(scene,center);hair_denoising(scene)
     rig.data.pose_position=old_pose;scene.frame_set(previous);bpy.context.view_layer.update()
-    report={'enabled':True,'profile':PROFILE,'style':style,'sourceHair':source.name,'object':obj.name,'binding':helper.name,'fibres':len(paths),'points':len(radii),'radiusMetres':[min(radii),max(radii)],'napeRestZ':nape,'earTuckRefinement':tuck_report,'collisionTargetsRepaired':collision_targets,'sourceUVFacesRestored':uv_faces,'surfaceArea':area,'colour':colour,'tipDye':os.environ.get('HDYE',''),'physicalShader':'Huang','boneGroups':list(helper.vertex_groups.keys()),'seconds':round(time.monotonic()-started,2),'codeSHA256':MODULE_SHA256}
+    report={'enabled':True,'profile':PROFILE,'style':style,'sourceHair':source.name,'object':obj.name,'binding':helper.name,'fibres':len(paths),'points':len(radii),'radiusMetres':[min(radii),max(radii)],'napeRestZ':nape,'earTuckRefinement':tuck_report,'earContour':contour_report,'collisionTargetsRepaired':collision_targets,'sourceUVFacesRestored':uv_faces,'surfaceArea':area,'colour':colour,'tipDye':os.environ.get('HDYE',''),'physicalShader':'Huang','boneGroups':list(helper.vertex_groups.keys()),'seconds':round(time.monotonic()-started,2),'codeSHA256':MODULE_SHA256}
     obj['castGroomReport']=str(report);print('CAST_HAIR_GROOM',report,flush=True);return report

@@ -22,13 +22,14 @@ def identity():
             h.update(bone.name.encode());h.update(struct.pack('dddddd',*bone.head_local,*bone.tail_local))
     return h.hexdigest()
 print('AUDIT_START',flush=True);before=identity();print('IDENTITY_DONE',flush=True);counts=(len(bpy.data.objects),len(bpy.data.meshes),len(bpy.data.actions))
+added_lights=3-sum(o.name.startswith('Cast skin V13 ') for o in scene.objects if o.type=='LIGHT')
 records=[]
 for hx in ('F7E1D3','F1D7C8','E0B48F','C99A6E','9E6B4A','6A4431'):
     print('AUDIT_TONE',hx,flush=True);report=module['apply_skin_appearance'](scene,character,hx)
     expected=module['linear_rgb'](hx)
     assert module['palette_for'](expected)['skinHex']==hx
     assert report['makeup']==module['MAKEUP'][hx][0] if character=='female' else report['makeup'] is None
-    assert all(row['pores'] for row in report['materials'])
+    assert all(not row['pores'] and not row['physicalSkin'] for row in report['materials'])
     for row in report['materials']:
         assert all(abs(a-b)<1e-7 for a,b in zip(row['baseLinear'],expected))
     nodes=[len(bpy.data.materials[r['material']].node_tree.nodes) for r in report['materials']]
@@ -69,7 +70,8 @@ for frame in range(1,999,17):
     frames.append(frame)
 assert rest_before==[tuple(a.vector) for a in body.data.attributes['cast_skin_rest'].data],'TEXTURE_COORDINATES_CHANGED'
 assert before==identity(),'SOURCE_IDENTITY_CHANGED'
-assert counts==(len(bpy.data.objects),len(bpy.data.meshes),len(bpy.data.actions))
-result={'character':character,'sourceIdentityHash':before,'identityScope':'All original mesh cages, keys, weights and UVs except authorized earring geometry; original rig bones','sourceIdentityUnchanged':True,'objectsMeshesActionsUnchanged':True,'reapplicationStable':True,'textureCoordinatesStable':True,'weightsAndUVsUnchanged':True,'explicitLipOverrideVerified':character=='female','beautyVerified':character=='female','finitePoseFrames':frames,'palettes':records}
+assert counts==(len(bpy.data.objects)-added_lights,len(bpy.data.meshes),len(bpy.data.actions))
+result={'character':character,'sourceIdentityHash':before,'identityScope':'All original mesh cages, keys, weights and UVs except authorized earring geometry; original rig bones','sourceIdentityUnchanged':True,'threeStudioLightsPresent':True,'lightsAdded':added_lights,'meshesActionsUnchanged':True,'reapplicationStable':True,'textureCoordinatesStable':True,'weightsAndUVsUnchanged':True,'explicitLipOverrideVerified':character=='female','beautyVerified':character=='female','finitePoseFrames':frames,'palettes':records}
 Path(output).write_text(json.dumps(result,indent=2)+'\n')
 print('SKIN_APPEARANCE_AUDIT_PASS',character,len(frames),'poses',len(records),'tones')
+

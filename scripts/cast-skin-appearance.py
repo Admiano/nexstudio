@@ -1,4 +1,4 @@
-"""Rig-bound skin microrelief, anatomical surface detail, and six makeup palettes.
+"""Rig-bound illustrated colour planes and six restrained makeup palettes.
 
 Coordinates and region masks are attached to the original cage before armature
 and subdivision evaluation. Nothing uses world position or changes the cage,
@@ -11,7 +11,7 @@ import os
 import bpy
 from mathutils import Vector
 
-PROFILE = 'anatomical-skin-texture-v3'
+PROFILE = 'illustrated-colour-planes-v14'
 # Sheer blush, satin eye wash, natural upper/lower lips. Authored in sRGB.
 MAKEUP = {
     'F7E1D3': ('fair', 'D78E91', 'A9827A', 'B6757F', 'CF9196', .33, .34),
@@ -168,157 +168,135 @@ class SurfaceNodes:
 
 
 def rebuild_skin(material,tone,key,fill,character,palette,surface,lip_hex):
+    """Illustrated colour planes: surface normals guide paint, never skin gloss.
+
+    The original cage and semantic feature boundaries drive this finish.
+    No bump, scattering, view-dependent sheen or physical skin shader is used.
+    """
     main=material.name=='PEEPS_V2_WARM_SKIN'
     lip_colors=None
     if main:
         if character=='female':
-            if lip_hex:
-                selected=linear_rgb(lip_hex)
-                lip_colors=(tuple(c*.78 for c in selected),selected)
-            else:lip_colors=palette['lips']
+            selected=linear_rgb(lip_hex) if lip_hex else None
+            lip_colors=(tuple(c*.78 for c in selected),selected) if selected else palette['lips']
         else:
             lum=sum(c*w for c,w in zip(tone,(.2126,.7152,.0722)))
             warmth=max(0,min(1,(lum-.45)/.35))
             lip_colors=[tuple(c*(a+(b-a)*warmth) for c,a,b in zip(tone,lo,hi))
                         for lo,hi in (((.45,.34,.50),(.58,.32,.34)),((.55,.42,.60),(.70,.43,.44)))]
     tree=material.node_tree;tree.nodes.clear();s=SurfaceNodes(tree)
-    geo=s.node('ShaderNodeNewGeometry','Live skin surface')
+    geo=s.node('ShaderNodeNewGeometry','Original facial planes')
     base=s.node('ShaderNodeRGB','Selected complexion');base.outputs[0].default_value=(*tone,1)
-    color=base.outputs[0];normal=geo.outputs['Normal'];lipmask=0
+    color=base.outputs[0];rest=s.attr('cast_skin_rest').outputs['Vector']
     if main:
-        rest=s.attr('cast_skin_rest').outputs['Vector']
-        regions=s.split(s.attr('cast_skin_regions').outputs['Vector'],'Face oil and nail regions')
-        makeup=s.split(s.attr('cast_skin_makeup').outputs['Vector'],'Sheer makeup regions')
-        joints=s.split(s.attr('cast_skin_joint').outputs['Vector'],'Joint distance and hand side')
+        regions=s.split(s.attr('cast_skin_regions').outputs['Vector'],'Face and nail regions')
+        makeup=s.split(s.attr('cast_skin_makeup').outputs['Vector'],'Drawn colour accents')
         palm=s.split(s.attr('cast_skin_palm').outputs['Vector'],'Palm chart')
-        xyz=s.split(rest,'Rest metres')
-        lip=s.attr('lipmask')
         boundary=s.node('ShaderNodeMapRange','Original lip boundary');boundary.interpolation_type='SMOOTHSTEP'
         boundary.inputs['From Min'].default_value=-.040;boundary.inputs['From Max'].default_value=.040
-        s.wire(lip.outputs['Fac'],boundary.inputs['Value']);lipmask=boundary.outputs['Result']
-        not_lip=s.math('SUBTRACT','Skin outside lip',1,lipmask)
-        noise=s.node('ShaderNodeTexNoise','Fine irregular skin relief');noise.inputs['Scale'].default_value=1750
-        noise.inputs['Detail'].default_value=2;noise.inputs['Roughness'].default_value=.62;s.wire(rest,noise.inputs['Vector'])
-        pores=s.node('ShaderNodeTexVoronoi','Irregular pore spacing');pores.feature='F1';pores.distance='EUCLIDEAN'
-        pores.inputs['Scale'].default_value=2350;s.wire(rest,pores.inputs['Vector'])
-        porepit=s.gaussian('Recessed pores',pores.outputs['Distance'],.22)
-        poreweight=s.math('ADD','Regional pore relief',.65,s.math('MULTIPLY','Face pore density',regions['X'],.50))
-        poreweight=s.math('MULTIPLY','No pores on nails',poreweight,s.math('SUBTRACT','Nail exclusion',1,regions['Z']))
-        micro=s.math('SUBTRACT','Skin grain and pits',s.math('MULTIPLY','Fine relief metres',noise.outputs['Fac'],.000065),s.math('MULTIPLY','Pore depth metres',porepit,.000120))
-        micro=s.math('MULTIPLY','Regional microrelief',micro,poreweight)
-        micro=s.math('MULTIPLY','Pores outside lips',micro,not_lip)
-        lip_coords=s.node('ShaderNodeVectorMath','Lip striation scale');lip_coords.operation='MULTIPLY'
-        s.wire(rest,lip_coords.inputs[0]);lip_coords.inputs[1].default_value=(1800,350,500)
-        lip_grain=s.node('ShaderNodeTexNoise','Fine vertical lip striations');lip_grain.inputs['Scale'].default_value=1
-        lip_grain.inputs['Detail'].default_value=3;lip_grain.inputs['Roughness'].default_value=.7;s.wire(lip_coords.outputs['Vector'],lip_grain.inputs['Vector'])
-        micro=s.math('ADD','Skin and lip microrelief',micro,s.math('MULTIPLY','Lip relief metres',s.math('MULTIPLY','Lip relief mask',lip_grain.outputs['Fac'],lipmask),.000022))
-        crease=s.math('MULTIPLY','Joint fold mask',s.gaussian('Fine knuckle folds',joints['X'],.00085),joints['Y'])
-        knuckle=s.math('MULTIPLY','Knuckle warmth mask',s.gaussian('Knuckle transition',joints['X'],.0045),joints['Y'])
-        # Two curved palmar flexion folds, measured in the local hand chart.
-        curve=s.math('MULTIPLY','Palm fold curve',s.math('MULTIPLY','Palm transverse squared',palm['X'],palm['X']),.15)
-        fold1=s.gaussian('Distal palm crease',s.math('SUBTRACT','Distal palm coordinate',palm['Y'],s.math('ADD','Distal palm arc',curve,.70)),.021)
-        fold2=s.gaussian('Proximal palm crease',s.math('SUBTRACT','Proximal palm coordinate',palm['Y'],s.math('ADD','Proximal palm arc',curve,.43)),.020)
-        palm_bounds=s.math('MULTIPLY','Palm domain',s.gaussian('Palm width',s.math('SUBTRACT','Palm centre',palm['X'],.5),.58),palm['Z'])
-        palm_fold=s.math('MULTIPLY','Palm crease mask',s.math('MAXIMUM','Palm folds',fold1,fold2),palm_bounds)
-        folds=s.math('MAXIMUM','Hand crease mask',crease,palm_fold)
-        height=s.math('ADD','Skin micro and anatomy relief',micro,s.attr('cast_skin_anatomy').outputs['Fac'])
-        height=s.math('SUBTRACT','Hand crease depth',height,s.math('MULTIPLY','Hand fold metres',folds,.00011))
-        nz=surface['neckRestZ']
-        neck_domain=s.gaussian('Neck front domain',s.math('SUBTRACT','Neck vertical domain',xyz['Z'],nz+.012),.060)
-        neck_domain=s.math('MULTIPLY','Neck lateral domain',neck_domain,s.gaussian('Neck width',xyz['X'],.065))
-        nx2=s.math('MULTIPLY','Neck horizontal squared',xyz['X'],xyz['X'])
-        arc=s.math('MULTIPLY','Neck fold curvature',nx2,1.4)
-        nf=[]
-        for offset in (-.001,.019):
-            value=s.math('SUBTRACT','Neck fold coordinate',xyz['Z'],s.math('ADD','Natural neck arc',arc,nz+offset))
-            nf.append(s.gaussian('Fine neck flexion fold',value,.00070))
-        neck_fold=s.math('MULTIPLY','Neck fold mask',s.math('MAXIMUM','Neck folds',*nf),neck_domain)
-        # Restrict anterior folds to the front side of the neck.
-        front=s.attr('cast_skin_anterior').outputs['Fac']
-        neck_fold=s.math('MULTIPLY','Anterior neck folds',neck_fold,front)
-        height=s.math('SUBTRACT','Neck fold depth',height,s.math('MULTIPLY','Neck fold metres',neck_fold,.000065))
-        bump=s.node('ShaderNodeBump','Micrometre skin and anatomical relief');bump.inputs['Strength'].default_value=.85;bump.inputs['Distance'].default_value=1
-        s.wire(height,bump.inputs['Height']);s.wire(normal,bump.inputs['Normal']);normal=bump.outputs['Normal']
-        pigment=s.node('ShaderNodeTexNoise','Subsurface pigment variation');pigment.inputs['Scale'].default_value=210
-        pigment.inputs['Detail'].default_value=2;pigment.inputs['Roughness'].default_value=.65;s.wire(rest,pigment.inputs['Vector'])
-        variation=s.math('ADD','Bounded pigment modulation',.94,s.math('MULTIPLY','Pigment variation range',pigment.outputs['Fac'],.12))
-        color=s.mix('Living skin colour variation',1,color,variation,'MULTIPLY')
-        mottling=s.node('ShaderNodeTexNoise','Natural broad pigment variation');mottling.inputs['Scale'].default_value=68
-        mottling.inputs['Detail'].default_value=2;s.wire(rest,mottling.inputs['Vector'])
-        broad=s.math('ADD','Broad pigment bounds',.96,s.math('MULTIPLY','Broad pigment range',mottling.outputs['Fac'],.08))
-        color=s.mix('Multiscale skin pigment',1,color,broad,'MULTIPLY')
-        pore_color=s.math('SUBTRACT','Pore melanin modulation',1,s.math('MULTIPLY','Pore pigment depth',s.math('MULTIPLY','Pore pigment mask',porepit,not_lip),.22))
-        color=s.mix('Subtle pore pigment',1,color,pore_color,'MULTIPLY')
-        warmth=tuple(c*k for c,k in zip(tone,(1.07,.94,.93)))
-        color=s.mix('Natural joint warmth',s.math('MULTIPLY','Joint warmth weight',knuckle,.28),color,(*warmth,1))
+        s.wire(s.attr('lipmask').outputs['Fac'],boundary.inputs['Value']);lipmask=boundary.outputs['Result']
+        warmth=tuple(min(1,c*k) for c,k in zip(tone,(1.05,.98,.97)))
+        color=s.mix('Restrained cheek colour',s.math('MULTIPLY','Cheek warmth coverage',makeup['X'],.25),color,(*warmth,1))
+        if character=='female':
+            color=s.mix('Sheer drawn blush',s.math('MULTIPLY','Blush coverage',makeup['X'],palette['blushWeight']*.55),color,(*palette['blush'],1))
+            color=s.mix('Soft eyelid wash',s.math('MULTIPLY','Eye wash coverage',makeup['Y'],palette['eyeWeight']*.45),color,(*palette['eye'],1))
         lum=sum(c*w for c,w in zip(tone,(.2126,.7152,.0722)))
         palm_tone=tuple(c*.85+d*.15 for c,d in zip(tone,linear_rgb('D6AA92')))
-        color=s.mix('Natural palmar pigmentation',s.math('MULTIPLY','Palm pigmentation weight',palm['Z'],.18+(1-lum)*.40),color,(*palm_tone,1))
+        color=s.mix('Palmar colour',s.math('MULTIPLY','Palm wash',palm['Z'],.18+(1-lum)*.40),color,(*palm_tone,1))
         nails=tuple(c*.35+d*.65 for c,d in zip(tone,linear_rgb('D4ABA2' if lum>.25 else 'B58376')))
-        color=s.mix('Natural translucent nail beds',regions['Z'],color,(*nails,1))
-        free_edge=s.math('MULTIPLY','Nail distal boundary',s.gaussian('Fine natural nail edge',s.attr('cast_skin_nail').outputs['Fac'],.00085),regions['Z'])
-        color=s.mix('Translucent nail free edge',s.math('MULTIPLY','Nail edge opacity',free_edge,.38),color,(*linear_rgb('E4D4CB'),1))
-        cavity=s.math('MAXIMUM','Fine fold pigmentation',folds,neck_fold)
-        color=s.mix('Soft crease colour',s.math('MULTIPLY','Fold pigment strength',cavity,.065),color,(*[c*.68 for c in tone],1))
-        if character=='female':
-            color=s.mix('Complexion matched sheer blush',s.math('MULTIPLY','Sheer blush coverage',makeup['X'],palette['blushWeight']),color,(*palette['blush'],1))
-            color=s.mix('Complexion matched satin eye wash',s.math('MULTIPLY','Satin eye coverage',makeup['Y'],palette['eyeWeight']),color,(*palette['eye'],1))
-        lips=s.mix('Complexion matched lip palette',s.attr('liplo').outputs['Fac'],(*lip_colors[0],1),(*lip_colors[1],1))
-        lip_variation=s.math('ADD','Satin lip pigment bounds',.90,s.math('MULTIPLY','Lip fine pigment range',lip_grain.outputs['Fac'],.17))
-        lips=s.mix('Lip pigment follows natural striations',1,lips,lip_variation,'MULTIPLY')
+        color=s.mix('Drawn nail beds',regions['Z'],color,(*nails,1))
+        lips=s.mix('Upper and lower lip paint',s.attr('liplo').outputs['Fac'],(*lip_colors[0],1),(*lip_colors[1],1))
         color=s.mix('Original anatomical lip boundary',lipmask,color,lips)
-    else:
-        rest=s.attr('cast_skin_rest').outputs['Vector']
-        grain=s.node('ShaderNodeTexNoise','Exposed skin microrelief');grain.inputs['Scale'].default_value=1750
-        grain.inputs['Detail'].default_value=2;s.wire(rest,grain.inputs['Vector'])
-        pores=s.node('ShaderNodeTexVoronoi','Exposed skin pores');pores.inputs['Scale'].default_value=2350;s.wire(rest,pores.inputs['Vector'])
-        micro=s.math('SUBTRACT','Exposed skin grain and pits',s.math('MULTIPLY','Exposed grain metres',grain.outputs['Fac'],.000035),s.math('MULTIPLY','Exposed pore metres',s.gaussian('Exposed pore pits',pores.outputs['Distance'],.22),.000055))
-        bump=s.node('ShaderNodeBump','Exposed skin relief');bump.inputs['Strength'].default_value=.65;bump.inputs['Distance'].default_value=1
-        s.wire(micro,bump.inputs['Height']);s.wire(normal,bump.inputs['Normal']);normal=bump.outputs['Normal']
-    def diffuse(direction,name):
-        dot=s.node('ShaderNodeVectorMath',name+' direction');dot.operation='DOT_PRODUCT'
-        s.wire(normal,dot.inputs[0]);dot.inputs[1].default_value=direction
-        ramp=s.node('ShaderNodeMapRange',name+' soft falloff');ramp.interpolation_type='SMOOTHSTEP'
-        ramp.inputs['From Min'].default_value=-.30;ramp.inputs['From Max'].default_value=.95
-        s.wire(dot.outputs['Value'],ramp.inputs['Value']);return ramp.outputs['Result']
-    k=diffuse(key,'Broad key');f=diffuse(fill,'Soft fill')
-    light=s.math('ADD','Ambient floor',.60,s.math('ADD','Key and fill',s.math('MULTIPLY','Key weight',k,.37),s.math('MULTIPLY','Fill weight',f,.11)))
-    ao=s.node('ShaderNodeAmbientOcclusion','Short live contact');ao.only_local=True;ao.samples=32;ao.inputs['Distance'].default_value=.018
-    contact=s.math('SUBTRACT','Bounded live contact',1,s.math('MULTIPLY','Contact weight',s.math('SUBTRACT','Contact cavity',1,ao.outputs['AO']),.20))
-    color=s.mix('Complexion times surface light',1,color,s.math('MULTIPLY','Single shading factor',light,contact),'MULTIPLY')
-    if main:
-        # Soft oil response uses the perturbed normal and actual incoming view.
-        half=s.node('ShaderNodeVectorMath','Skin sheen half vector');half.operation='ADD'
-        half.inputs[0].default_value=key;s.wire(geo.outputs['Incoming'],half.inputs[1])
-        norm=s.node('ShaderNodeVectorMath','Normalized sheen direction');norm.operation='NORMALIZE';s.wire(half.outputs['Vector'],norm.inputs[0])
-        dot=s.node('ShaderNodeVectorMath','Skin satin response');dot.operation='DOT_PRODUCT';s.wire(normal,dot.inputs[0]);s.wire(norm.outputs[0],dot.inputs[1])
-        lobe=s.math('POWER','Broad rough skin lobe',s.math('MAXIMUM','Visible skin lobe',dot.outputs['Value'],0),22)
-        oil=s.math('ADD','Regional oil response',.010,s.math('MULTIPLY','T zone sheen',regions['Y'],.018))
-        oil=s.math('ADD','Nail satin response',oil,s.math('MULTIPLY','Nail sheen',regions['Z'],.018))
-        lip_oil=s.math('ADD','Upper and lower lip finish',.035,s.math('MULTIPLY','Lower lip satin',s.attr('liplo').outputs['Fac'],.095))
-        oil=s.math('ADD','Lip satin response',oil,s.math('MULTIPLY','Lip sheen',lipmask,lip_oil))
-        if character=='female':
-            oil=s.math('ADD','Satin cheek illumination',oil,s.math('MULTIPLY','Sheer cheek highlight',makeup['Z'],.055))
-        sheen=s.math('MULTIPLY','Bounded skin sheen',lobe,oil)
-        tint=tuple(.65+.35*c for c in tone)
-        color=s.mix('Subtle dielectric skin sheen',sheen,color,(*tint,1))
-    emission=s.node('ShaderNodeEmission','Skin output');s.wire(color,emission.inputs['Color'])
+    # Very faint pigment texture gives colour a drawn finish without relief.
+    grain=s.node('ShaderNodeTexNoise','Fine pigment texture');grain.inputs['Scale'].default_value=950
+    grain.inputs['Detail'].default_value=1;s.wire(rest,grain.inputs['Vector'])
+    modulation=s.math('ADD','Restrained pigment bounds',.994,s.math('MULTIPLY','Pigment variation',grain.outputs['Fac'],.012))
+    color=s.mix('Quiet pigment finish',1,color,modulation,'MULTIPLY')
+    def plane(direction,name):
+        dot=s.node('ShaderNodeVectorMath',name);dot.operation='DOT_PRODUCT'
+        s.wire(geo.outputs['Normal'],dot.inputs[0]);dot.inputs[1].default_value=direction
+        return dot.outputs['Value']
+    illumination=s.math('ADD','Broad plane balance',s.math('MULTIPLY','Key plane influence',plane(key,'Key plane direction'),.8),s.math('MULTIPLY','Fill plane influence',plane(fill,'Fill plane direction'),.2))
+    domain=s.node('ShaderNodeMapRange','Illustrated shade domain');domain.clamp=True
+    domain.inputs['From Min'].default_value=-.30;domain.inputs['From Max'].default_value=1
+    s.wire(illumination,domain.inputs['Value'])
+    ramp=s.node('ShaderNodeValToRGB','Painted shadow midtone and light');ramp.color_ramp.interpolation='EASE'
+    stops=[(0,(.72,.65,.66,1)),(.42,(.83,.77,.78,1)),(.73,(.95,.92,.92,1)),(1,(1.02,1.01,1,1))]
+    for i,(position,col) in enumerate(stops):
+        element=ramp.color_ramp.elements[i] if i<2 else ramp.color_ramp.elements.new(position)
+        element.position=position;element.color=col
+    s.wire(domain.outputs['Result'],ramp.inputs['Fac'])
+    color=s.mix('Complexion with coloured plane shading',1,color,ramp.outputs['Color'],'MULTIPLY')
+    ao=s.node('ShaderNodeAmbientOcclusion','Small feature contact');ao.only_local=True;ao.samples=16;ao.inputs['Distance'].default_value=.006
+    contact=s.math('SUBTRACT','Restrained contact shading',1,s.math('MULTIPLY','Small contact weight',s.math('SUBTRACT','Feature contact',1,ao.outputs['AO']),.08))
+    color=s.mix('Drawn feature separation',1,color,contact,'MULTIPLY')
+    emission=s.node('ShaderNodeEmission','Illustrated skin output');s.wire(color,emission.inputs['Color'])
     output=s.node('ShaderNodeOutputMaterial','Material Output');s.wire(emission.outputs[0],output.inputs['Surface'])
     material['castSkinProfile']=PROFILE;material['castSkinBase']=tone
     if lip_colors:material['castLipColors']=[c for col in lip_colors for c in col]
     return dict(material=material.name,nodes=len(tree.nodes),baseLinear=list(tone),
-                contactDistance=.018,contactWeight=.20,fixedSkinColourMasks=False,
-                pores=True,poreSpacingMetres=1/2350,
-                makeupPalette=palette['name'] if main and character=='female' else None,
+                shader='Illustrated colour planes',physicalSkin=False,subsurfaceWeight=0,
+                pores=False,bump=False,viewDependentSheen=False,contactDistance=.006,contactWeight=.08,
+                fixedSkinColourMasks=False,makeupPalette=palette['name'] if main and character=='female' else None,
                 explicitLipOverride=bool(lip_hex) if main and character=='female' else False)
+
+
+def apply_portrait_lighting(scene):
+    """A single camera-relative studio rig, shared by all complexion choices.
+
+    The target comes from the evaluated head, independent of portrait/thigh
+    crop, and update-in-place makes repeated assembly deterministic.
+    """
+    body=bpy.data.objects['Host.body']
+    female=body.get('castSkinCharacter')=='female'
+    rig=next((m.object for m in body.modifiers if m.type=='ARMATURE'),None)
+    if rig is None:raise RuntimeError('CAST_SKIN_ORIGINAL_RIG_MISSING')
+    target=rig.matrix_world@rig.data.bones['head'].head_local
+    target.z+=.065
+    rotation=scene.camera.matrix_world.to_quaternion()
+    specs=[('Key',(-.35,.32,1.1) if female else (-.50,.55,1.0),8 if female else 14,.95 if female else .85,(1,.97,.94)),
+           ('Fill',(.18,.04,1.05) if female else (.65,.12,.75),5.5 if female else 4.5,1.15 if female else 1.0,(1,.98,.96)),
+           ('Edge',(.48,.46,-.55),5,.65,(1,.95,.88))]
+    names={'Cast skin V13 '+x[0] for x in specs}
+    for ob in scene.objects:
+        if ob.type=='LIGHT' and ob.name not in names:
+            if 'castV13OriginalHideRender' not in ob:ob['castV13OriginalHideRender']=ob.hide_render
+            ob.hide_render=True
+    rows=[]
+    for label,offset,power,size,color in specs:
+        name='Cast skin V13 '+label;ob=bpy.data.objects.get(name)
+        if ob is None:
+            data=bpy.data.lights.new(name,'AREA');ob=bpy.data.objects.new(name,data);scene.collection.objects.link(ob)
+        ob.hide_render=False;ob.data.energy=power;ob.data.shape='DISK';ob.data.size=size;ob.data.color=color
+        ob.location=target+rotation@Vector(offset);ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()
+        rows.append(dict(name=name,energyWatts=power,sizeMetres=size,location=list(ob.location)))
+    # Preserve the approved colour transform for the illustrated wardrobe.
+    scene.view_settings.view_transform='Standard';scene.view_settings.look='None';scene.view_settings.exposure=0;scene.view_settings.gamma=1
+    if scene.world and scene.world.use_nodes:
+        for n in scene.world.node_tree.nodes:
+            if n.type=='BACKGROUND':n.inputs['Color'].default_value=(1,.98,.96,1);n.inputs['Strength'].default_value=.10
+    return rows
+
+
+def refine_face_contours(scene):
+    rows=[]
+    for layer in scene.view_layers:
+        for lines in layer.freestyle_settings.linesets:
+            if lines.name not in ('HEAD_FEATURES','HEAD_NOSE','HEAD_OUTLINE'):continue
+            style=lines.linestyle
+            if 'castV13OriginalAlpha' not in style:style['castV13OriginalAlpha']=style.alpha
+            if 'castV13OriginalColor' not in style:style['castV13OriginalColor']=list(style.color)
+            style.alpha=.72 if lines.name=='HEAD_NOSE' else .78 if lines.name=='HEAD_FEATURES' else .95
+            style.color=(.08,.050,.035)
+            rows.append(dict(name=lines.name,alpha=style.alpha))
+    return rows
 
 
 def apply_skin_appearance(scene,character,skin_hex='',native_ear=True,lip_hex=None):
     if character not in ('female','male'):raise ValueError('CAST_INVALID_CHARACTER')
     scene.cycles.samples=max(scene.cycles.samples,64)
-    # Emission-based portrait materials do not provide a useful denoising
-    # albedo guide: filtering them erases genuine pores and fine creases.
-    scene.cycles.use_denoising=False
+    # Keep noise in supporting hair/wardrobe quiet; skin has no microrelief.
+    scene.cycles.use_denoising=True
     material=bpy.data.materials['PEEPS_V2_WARM_SKIN']
     tone=linear_rgb(skin_hex) if skin_hex else tone_from_material(material)
     if not all(math.isfinite(c) and 0<=c<=1 for c in tone):raise RuntimeError('CAST_INVALID_SKIN_BASE')
@@ -334,10 +312,12 @@ def apply_skin_appearance(scene,character,skin_hex='',native_ear=True,lip_hex=No
         attr=ob.data.attributes.new('cast_skin_rest','FLOAT_VECTOR','POINT')
         scale=sum(ob.matrix_world.to_scale())/3
         attr.data.foreach_set('vector',[c*scale for v in ob.data.vertices for c in v.co])
+    bpy.data.objects['Host.body']['castSkinCharacter']=character
+    lights=apply_portrait_lighting(scene);contours=refine_face_contours(scene)
     rotation=scene.camera.matrix_world.to_quaternion()
-    key=rotation@Vector((-.48,.45,.75)).normalized();fill=rotation@Vector((.65,.30,.70)).normalized()
+    key=rotation@Vector((-.40,.35,1)).normalized();fill=rotation@Vector((.35,.15,1)).normalized()
     report=dict(profile=PROFILE,shaderCodeSHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),character=character,selectedHex=skin_hex or None,
-                surface=surface,materials=[],hiddenEarOverlays=[],samples=scene.cycles.samples,denoising=False,
+                surface=surface,lights=lights,contours=contours,materials=[],hiddenEarOverlays=[],samples=scene.cycles.samples,denoising=True,
                 makeup=palette['name'] if character=='female' else None)
     for name in ('PEEPS_V2_WARM_SKIN','V60_EAR_SKIN','LINEART_SKIN_WHITE'):
         material=bpy.data.materials.get(name)
@@ -347,6 +327,33 @@ def apply_skin_appearance(scene,character,skin_hex='',native_ear=True,lip_hex=No
             if ob.name.startswith(('Host.V60_ear_fill','Host.V60_ear_line','Host.V60_ear_inner')):
                 ob.hide_render=True;report['hiddenEarOverlays'].append(ob.name)
     if character=='female':
+        # Keep the authored ear fill, but use restrained complexion-related
+        # fold colour instead of black ink around the entire pale ear.
+        crease=bpy.data.materials.get('Cast V13 soft ear folds') or bpy.data.materials.new('Cast V13 soft ear folds')
+        crease.use_nodes=True;t=crease.node_tree;t.nodes.clear()
+        em=t.nodes.new('ShaderNodeEmission');em.inputs['Color'].default_value=(*[c*.22 for c in tone],1)
+        out=t.nodes.new('ShaderNodeOutputMaterial');t.links.new(em.outputs[0],out.inputs['Surface'])
+        for ob in bpy.data.objects:
+            if ob.name.startswith(('Host.V60_ear_line','Host.V60_ear_inner')) and ob.type=='MESH':
+                for slot in ob.material_slots:slot.material=crease
+            if ob.name in ('Host.V10_ear_L','Host.V10_ear_R'):ob.hide_render=True
+        # Obsolete lateral face ribbons sit across the separately authored ear.
+        # Restrict removal to their rest-space lateral band, beyond the eyes;
+        # retain every vertex, weight and facial-control shape key.
+        transparent=bpy.data.materials.get('Cast V13 lateral ink transparent') or bpy.data.materials.new('Cast V13 lateral ink transparent')
+        transparent.use_nodes=True;t=transparent.node_tree;t.nodes.clear()
+        tr=t.nodes.new('ShaderNodeBsdfTransparent');output=t.nodes.new('ShaderNodeOutputMaterial');t.links.new(tr.outputs[0],output.inputs['Surface'])
+        rows=[]
+        for name in ('Host.V59_face_art','Host.V59_face_frame'):
+            art=bpy.data.objects.get(name)
+            if art is None:continue
+            slot=next((i for i,m in enumerate(art.data.materials) if m==transparent),None)
+            if slot is None:slot=len(art.data.materials);art.data.materials.append(transparent)
+            faces=[p for p in art.data.polygons if all(abs(art.data.vertices[i].co.x)>.062 and art.data.vertices[i].co.y>-.135 and art.data.vertices[i].co.z<1.590 for i in p.vertices)]
+            for p in faces:p.material_index=slot
+            rows.append({'object':name,'hiddenLateralInkPolygons':len(faces)})
+        report['lateralInk']=rows
+        report['earFolds']={'material':crease.name,'colourLinear':[c*.22 for c in tone]}
         import runpy
         report['beauty']=runpy.run_path(str(Path(__file__).with_name('cast-female-beauty.py')))['apply_female_beauty'](scene)
     return report

@@ -112,7 +112,7 @@ export const FEM_DRESS_COLORS = [
 
 export const FEM_DRESSES = [
   { key: "sheath", label: "Tailored sheath", note: "3/4 sleeve" },
-  { key: "maxi", label: "Long-sleeve maxi", note: "full length" },
+  { key: "maxi", label: "Long-sleeve maxi", note: "full length, covered neckline" },
   { key: "column", label: "Column midi", note: "sleeveless" },
   { key: "cocktail", label: "Cocktail sheath", note: "knee length" },
   { key: "qipao", label: "Qipao midi", note: "mandarin collar" },
@@ -238,3 +238,4 @@ export function normalizeCastSpec(input:CastSpec|null|undefined,hint?:CastCharac
  watch:character==="male"?(input?.watch===null||input?.watch==="none"?null:input?.watch&&WATCH_KEYS.has(input.watch)?input.watch:d.watch):null,
  voiceId:input?.voiceId??d.voiceId,sourceVersion:CAST_SOURCE_VERSION};
 }
+
