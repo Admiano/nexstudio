@@ -39,6 +39,12 @@ class Boundaries(unittest.TestCase):
  def test_unaligned_native_actor_rejected(self):
   r=json.loads((F/'male-host-request.json').read_text());r['actors'][0]['speech']['viseme_segments']=[]
   with self.assertRaises(ValueError):D['compile_scene'](r)
+ def test_partial_phoneme_coverage_rejected(self):
+  r=json.loads((F/'male-host-request.json').read_text());r['actors'][0]['speech']['viseme_segments']=r['actors'][0]['speech']['viseme_segments'][:1]
+  with self.assertRaisesRegex(ValueError,'INCOMPLETE_NATIVE_PHONEME'):D['compile_scene'](r)
+ def test_native_estimated_word_fallback_rejected(self):
+  r=json.loads((F/'male-host-request.json').read_text());r['actors'][0]['speech']['word_segments']=[]
+  with self.assertRaisesRegex(ValueError,'NATIVE_WORD_ALIGNMENT_REQUIRED'):D['compile_scene'](r)
  def test_unknown_turn_actor(self):
   r=json.loads((F/'podcast-request.json').read_text());r['turns'][0]['actor_id']='unknown'
   with self.assertRaises(ValueError):D['compile_scene'](r)

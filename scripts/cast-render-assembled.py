@@ -28,7 +28,7 @@ for layer in scene.view_layers:
     for lines in layer.freestyle_settings.linesets:
         if lines.collection:lines.collection.use_fake_user=True
 performance_report=None
-performance_path=os.environ.get('CAST_PERFORMANCE_DIRECTOR_PATH')
+performance_path=os.environ.get('CAST_PERFORMANCE_DIRECTOR_PATH') if '--native-performance' in args else None
 if performance_path:
     import runpy
     hook=runpy.run_path(str(Path(__file__).with_name('cast-performance-render-hook.py')))

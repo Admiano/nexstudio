@@ -71,6 +71,13 @@ def compile_scene(request):
         speech=copy.deepcopy(a['speech'].get('viseme_segments') or [])
         # Speaking actors require real aligned phonemes; no word-based mouth estimates.
         if own and not speech:raise ValueError('ALIGNED_PHONEMES_REQUIRED:'+aid)
+        if own:
+            words=a['speech'].get('word_segments') or []
+            if not words:raise ValueError('NATIVE_WORD_ALIGNMENT_REQUIRED:'+aid)
+            coverage=logic._merge_windows([[e['start'],e['end']] for e in speech]+a['speech'].get('silence_windows',[]))
+            for word in words:
+                gaps=logic._subtract_windows([[word['start'],word['end']]],coverage)
+                if sum(b-x for x,b in gaps)>.001:raise ValueError('INCOMPLETE_NATIVE_PHONEME_COVERAGE:'+aid)
         for e in speech:pg_sample_viseme([e],e['start'],True)
         for x,b in rest:speech.append({'start':x,'end':b,'viseme':'REST','hard_override':True,'reason':'NON_SPEAKER'})
         for x,b in a['speech'].get('silence_windows',[]):speech.append({'start':x,'end':b,'viseme':'REST','hard_override':True,'reason':'WAVEFORM_SILENCE'})

@@ -2,7 +2,7 @@
 
 The repaired core rejects invalid master timing, incomplete word alignment, nonfinite geometry/attention, and illegal root attention. Speech sampling prioritises hard silence and non-speaker ownership. The executor fits an action into the supplied directive window, rather than letting its original length extend the performance.
 
-The native director reuses the audited conversation floor, reflective response, social/listener events, attention, semantic selection and minimum-jerk transitions. It binds only the existing MakeHuman bones and facial keys. The original appearance meshes and materials are retained. Every request references one unchanged PCM master with exact SHA-256 and duration; WAV identity is verified before baking. Test narration has actual offline English forced word/phoneme alignment, not estimated word durations.
+The native director reuses the audited conversation floor, reflective response, social/listener events, attention, semantic selection and minimum-jerk transitions. It binds only the existing MakeHuman bones and facial keys. The original appearance meshes and materials are retained. Every request references one unchanged PCM master with exact SHA-256 and duration and complete word/phoneme coverage; WAV identity is verified before baking. Test narration has actual offline English forced word/phoneme alignment, not estimated word durations.
 
 ## Admission
 
@@ -24,7 +24,7 @@ blender -b --python scripts/cast-performance-native.py -- approved-native.blend 
 
 `front`, `left3q`, and `right3q` are fixed cameras. The exporter preserves one complete sound strip and packs the master audio.
 
-The existing assembled renderer has an opt-in server-owned `CAST_PERFORMANCE_DIRECTOR_PATH` hook. No client filesystem path is accepted, no preview worker request schema changes, and ordinary previews keep the previous path. Missing native keys, a mismatched character, an altered master, a frame beyond its duration or an uncertified seated preview fails explicitly. This hook does not deploy a production speech/video UI.
+The existing assembled renderer has an opt-in server-owned `CAST_PERFORMANCE_DIRECTOR_PATH` hook, activated only with `--native-performance`. Inheriting an environment variable cannot change an ordinary cached preview. No client filesystem path is accepted, no preview worker request schema changes, and ordinary previews keep the previous path. Missing native keys, a mismatched character, an altered master, a frame beyond its duration or an uncertified seated preview fails explicitly. This hook does not deploy a production speech/video UI.
 
 ## Evidence
 
