@@ -3,6 +3,64 @@ import bpy,os,math
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
+def _watch_cuff_stop():
+    """Posed forearm axis and the watch's elbow-side edge, if a watch is worn."""
+    parts=[o for o in bpy.data.objects if o.name.startswith('Host.watch_') and o.type=='MESH' and not o.hide_render and o.parent_type=='BONE']
+    if not parts:return None
+    rig=parts[0].parent;side=parts[0].parent_bone.rsplit('.',1)[-1];M=rig.matrix_world;pb=rig.pose.bones
+    wrist=(M@pb['wrist.'+side].matrix).translation;axis=(wrist-(M@pb['lowerarm01.'+side].matrix).translation).normalized()
+    pts=[o.matrix_world@v.co-wrist for o in parts for v in o.data.vertices]
+    top=max(-d.dot(axis) for d in pts);u=axis.orthogonal().normalized();w=axis.cross(u);n=32;rim=[0.0]*n;tops=[None]*n
+    for d in pts:
+        i=int((math.atan2(d.dot(w),d.dot(u))%(2*math.pi))/(2*math.pi)*n)%n;t=-d.dot(axis)
+        tops[i]=t if tops[i] is None else max(tops[i],t)
+        if t>top-0.008:rim[i]=max(rim[i],(d+axis*d.dot(axis)).length)
+    tops=[top if t is None else t for t in tops];tops=[max(tops[i-1],tops[i],tops[(i+1)%n])+0.002 for i in range(n)]
+    edge=top+0.002;body=bpy.data.objects.get('Host.body');skin=[0.0]*n
+    if body:
+        ev=body.evaluated_get(bpy.context.evaluated_depsgraph_get());me=ev.to_mesh()
+        bvh=BVHTree.FromPolygons([body.matrix_world@v.co for v in me.vertices],[tuple(f.vertices) for f in me.polygons]);ev.to_mesh_clear()
+        centre=wrist-axis*(edge+0.004)
+        for i in range(n):
+            q=2*math.pi*(i+0.5)/n;dr=u*math.cos(q)+w*math.sin(q);hit=bvh.ray_cast(centre+dr*0.09,-dr,0.09)
+            if hit[0] is not None:skin[i]=0.09-hit[3]
+    return {'wrist':wrist,'axis':axis,'u':u,'w':w,'n':n,'rim':rim,'skin':skin,'edge':edge,'edges':tops,'ease':0.015,'low':None}
+
+def _stop_cuff_at_watch(ob,mesh,stop):
+    # A sleeve can't hang through a watch, and a slanted hem shouldn't leave a
+    # gap into the sleeve above it: around the wrist, the cuff's lowest edge is
+    # brought to the watch's elbow-side edge and gathered onto the wrist.
+    if stop is None:return 0
+    wrist,axis,edge,ease=stop['wrist'],stop['axis'],stop['edge'],stop['ease']
+    u,w,n,rim=stop['u'],stop['w'],stop['n'],stop['rim']
+    hits=[]
+    for v in mesh.vertices:
+        p=ob.matrix_world@v.co;d=p-wrist;t=-d.dot(axis)
+        if not -0.08<t<edge+2*ease:continue
+        k=(math.atan2(d.dot(w),d.dot(u))%(2*math.pi))/(2*math.pi)*n;reach=stop['skin'][int(k)%n]+0.035 if stop['skin'][int(k)%n] else 0.06
+        if (d+axis*d.dot(axis)).length<reach:hits.append((v,p,t,k))
+    if stop['low'] is None:
+        low=[None]*n
+        for _,_,t,k in hits:
+            i=int(k)%n;low[i]=t if low[i] is None else min(low[i],t)
+        known=[i for i in range(n) if low[i] is not None]
+        if not known:return 0
+        for i in range(n):
+            if low[i] is None:
+                a_=max([j for j in known if j<i] or [known[-1]-n]);b_=min([j for j in known if j>i] or [known[0]+n])
+                low[i]=low[a_%n]+(low[b_%n]-low[a_%n])*(i-a_)/(b_-a_)
+        stop['low']=[(low[i-1]+2*low[i]+low[(i+1)%n])/4 for i in range(n)]
+    low=stop['low'];inverse=ob.matrix_world.inverted();moved=0
+    for v,p,t,k in hits:
+        i=int(k)%n;f=k-int(k);lo=low[i]*(1-f)+low[(i+1)%n]*f
+        edge=stop['edges'][i]*(1-f)+stop['edges'][(i+1)%n]*f;top=edge+ease
+        if lo>=top:continue
+        tt=edge+(max(t,lo)-lo)/(top-lo)*ease if t<top else t
+        q=p-axis*(tt-t);d=q-wrist;r=d+axis*d.dot(axis);rr=r.length;fit=stop['skin'][i]+0.004
+        if stop['skin'][i]>0 and rr>fit and tt<top:q-=r*((rr-fit)/rr*(1-(tt-edge)/ease))
+        if (q-p).length>1e-6:v.co=inverse@q;moved+=1
+    return moved
+
 def fit_posed_clothing(scene):
     # Evaluated meshes are disposable results. Restore source visibility and
     # remove previous results before evaluating another pose. Source rigs,
@@ -85,6 +143,7 @@ def fit_posed_clothing(scene):
                 # Distance from the torso axis to the outermost surface along radial.
                 hit,normal,face,distance=tree.ray_cast(Vector((center,middle,z))+radial*0.6,-radial,0.6)
                 return None if hit is None else 0.6-distance
+            stop=_watch_cuff_stop()
             fitted_objects=[top]+[o for o in bpy.data.objects if o.get('castGarmentSource')==top.name]
             for ob in fitted_objects:
                 evaluated=ob.evaluated_get(deps);fitted=bpy.data.meshes.new_from_object(evaluated,depsgraph=deps)
@@ -110,8 +169,9 @@ def fit_posed_clothing(scene):
                         delta=max(delta,(need+0.010-here)*weight)
                     if 0<delta<0.06:
                         point+=radial*delta;v.co=inverse@point;adjusted+=1;largest=max(largest,delta)
+                cuff=_stop_cuff_at_watch(ob,fitted,stop)
                 if any(not all(math.isfinite(c) for c in v.co) for v in fitted.vertices):raise RuntimeError('CAST_GARMENT_NONFINITE:'+ob.name)
-                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'maximumLetOutMetres':round(largest,4),'preservedWorldAxes':['Z']})
+                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'cuffVerticesStoppedAtWatch':cuff,'maximumLetOutMetres':round(largest,4),'preservedWorldAxes':['Z']})
                 fitted.update()
                 display=bpy.data.objects.new(ob.name+'.preview-fit',fitted);display.matrix_world=ob.matrix_world.copy()
                 for collection in ob.users_collection:collection.objects.link(display)
@@ -119,7 +179,7 @@ def fit_posed_clothing(scene):
                 display['castFitSource']=ob.name
                 if 'castFitOriginalHideRender' not in ob:ob['castFitOriginalHideRender']=ob.hide_render
                 ob.hide_render=True
-                print('POSED_TOP_LET_OUT',ob.name,adjusted,'vertices; max',round(largest,4),flush=True)
+                print('POSED_TOP_LET_OUT',ob.name,adjusted,'vertices; max',round(largest,4),'cuff stopped',cuff,flush=True)
     return fit_report
 
 fit_report=fit_posed_clothing(bpy.context.scene)

@@ -1,7 +1,7 @@
 """Align the native watch case to the dorsal forearm.
 
 Blender: --python cast-align-watch.py -- input.blend output.blend
-The whole case/dial assembly moves rigidly; strap mesh and action curves remain.
+The whole case/dial assembly moves rigidly; strap mesh, its stitching and action curves remain.
 """
 import bpy,sys,json
 from mathutils import Vector,Matrix
@@ -23,7 +23,7 @@ def fix():
  assert hit[0] is not None,'WATCH_BAND_SURFACE_REQUIRED'
  half=max(abs((case.matrix_world@v.co-cc).dot(oldn)) for v in case.data.vertices)
  newcc=hit[0]+d*(half+.0001);delta=Matrix.Translation(newcc)@rot.to_4x4()@Matrix.Translation(-cc)
- parts=[o for o in bpy.context.scene.objects if o.name.startswith('Host.watch_') and o!=band and not o.name.startswith('Host.watch_bracelet_joint')]
+ parts=[o for o in bpy.context.scene.objects if o.name.startswith('Host.watch_') and o!=band and not o.name.startswith(('Host.watch_bracelet_joint','Host.watch_stitch'))]
  for o in parts:o.matrix_world=delta@o.matrix_world
  bpy.context.view_layer.update();dn=(center(dial)-center(case)).normalized();offset=center(dial)-center(case);projected=(offset-dn*offset.dot(dn)).length
  r.data.pose_position='POSE';bpy.context.view_layer.update()

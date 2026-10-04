@@ -290,8 +290,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 30047357,
-    "sha256": "8e949505f46e0319a5ec04946e5b18d883a5390e036b6881326a90337c25154e"
+    "sizeBytes": 30047011,
+    "sha256": "c8bfd625136fa9fc8e9b3ca7de3ec9c90f86a5b6a5af48bb9073fbc625460c45"
   },
   {
     "character": "male",
@@ -323,8 +323,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 25799271,
-    "sha256": "795d70aefb58a0d22b5666a80d5fcab494ccb40cc40f6515f09e058a4a41524e"
+    "sizeBytes": 25801055,
+    "sha256": "e234c561fb884a6190fe7d919d0e028606cd23205e8d4f7f909f7a90b88f4796"
   },
   {
     "character": "male",
