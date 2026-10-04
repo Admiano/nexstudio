@@ -59,10 +59,10 @@ if _W and _W != 'none':
         if ff and os.environ.get('WLINES','1')=='1' and name.split('_')[0] in ('strap','case','bezel','glass','dial','band','lcd','sub0','sub1','sub2'): ff.objects.link(ob)
         parts.append(ob); return ob
     FR=Matrix((_d,_e,_a)).transposed()
-    _Rt=Matrix.Rotation(np.radians(_E('WTILT','10.0')),3,_e)
+    _Rt=Matrix.Rotation(np.radians(_E('WTILT','0.0')),3,_e)
     _N={'d':_Rt@_d,'e':_Rt@_e,'a':_Rt@_a}; FRt=(_Rt@FR)
     def L(x,y,z): return C+_d*x+_e*y+_a*z
-    def Lt(x,y,z): return C+(_Rt@(_d*x+_e*y+_a*z))
+    def Lt(x,y,z): return _case_center+(_Rt@(_d*(x-_mount_x)+_e*y+_a*z))
     def band(name,w,t,m,z0=0.0,seg=None):
         bm=bmesh.new(); n=128; rows=[]
         for i in range(n):
@@ -74,6 +74,10 @@ if _W and _W != 'none':
         return obj(name,bm,m)
     r0=rf(0.0); T=_E('WST','0.0028')
     base=r0+T
+    # Tilt about the case centre, never the wrist axis. The latter shifts
+    # every dial towards twelve o'clock relative to the unrotated strap.
+    _mount_x=base+{'analog':.0035,'digital':.0045,'smart':.0042,'chrono':.0045,'dress':.0022}[_W]
+    _case_center=C+_d*_mount_x
     def disk(name,rad,h,m,x0,y=0.0,z=0.0,seg=96,ax='d'):
         bm=bmesh.new(); bmesh.ops.create_cone(bm,cap_ends=True,segments=seg,radius1=rad,radius2=rad,depth=h)
         nrm=_N[ax]; q=Vector((0,0,1)).rotation_difference(nrm).to_matrix().to_4x4()

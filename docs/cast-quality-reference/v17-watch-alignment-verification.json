@@ -1,0 +1,52 @@
+[
+  {
+    "style": "analog",
+    "caseBandAxialOffsetMetres": 1.2665987014770508e-07,
+    "dialCaseLateralOffsetMetres": 9.875183567959431e-08,
+    "sampledFrames": [
+      482,
+      727,
+      998
+    ]
+  },
+  {
+    "style": "digital",
+    "caseBandAxialOffsetMetres": 1.2689270079135895e-07,
+    "dialCaseLateralOffsetMetres": 2.777158202056051e-08,
+    "sampledFrames": [
+      482,
+      727,
+      998
+    ]
+  },
+  {
+    "style": "smart",
+    "caseBandAxialOffsetMetres": 3.159511834383011e-07,
+    "dialCaseLateralOffsetMetres": 2.2057324418603065e-08,
+    "sampledFrames": [
+      482,
+      727,
+      998
+    ]
+  },
+  {
+    "style": "chrono",
+    "caseBandAxialOffsetMetres": 2.1513551473617554e-07,
+    "dialCaseLateralOffsetMetres": 1.5395028413003734e-07,
+    "sampledFrames": [
+      482,
+      727,
+      998
+    ]
+  },
+  {
+    "style": "dress",
+    "caseBandAxialOffsetMetres": 1.3317912817001343e-07,
+    "dialCaseLateralOffsetMetres": 4.041045175090766e-07,
+    "sampledFrames": [
+      482,
+      727,
+      998
+    ]
+  }
+]
