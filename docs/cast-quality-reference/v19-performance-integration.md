@@ -31,8 +31,10 @@ The existing assembled renderer has an opt-in server-owned `CAST_PERFORMANCE_DIR
 
 See the repaired core, native scene verification JSON, full frame renders, previews and integration status report. The report distinguishes code tests, scene numerical checks and visual admission.
 
-The integration has 38 passing director/renderer-boundary tests, 44 passing original directing-logic comparison/behavior checks, and 6 fresh saved-core invalid-input checks. All four host scenes pass 245 native-frame checks each. The front clips and 282-frame forward-seated conversation fully render/decode at 24 fps with zero audio sample shift; fixed left 3/4 clip review is in progress. Preview resolution is not delivery-resolution certification.
+The integration has 38 passing director/renderer-boundary tests, 44 passing original directing-logic comparison/behavior checks, and 6 fresh saved-core invalid-input checks. All four host scenes pass 245 native-frame checks each. The front clips and 282-frame forward-seated conversation fully render/decode at 24 fps with zero audio sample shift; both fixed left 3/4 clips also fully render/decode with zero audio sample shift and sampled encoded-frame visual review. Preview resolution is not delivery-resolution certification.
 
 The forward seated support pose has posterior-skin/seat clearances of -2.529 mm (female) and -7.623 mm (male), within the 12 mm support tolerance. Backrest clearances are 161.903 mm and 136.608 mm; backrest-supported poses are not admitted. Full-body footwear and seated dress quality remain below the elite bar.
+
+Native accessory macro renders retain the source geometry and show the chain/pendant directly. Projected dial offsets are 0.000396 mm from the watch case center and 0.000304 mm from the bezel center; the earlier centering correction is preserved.
 
 After workspace maintenance removed the original test WAVs, the user selected the saved narration recovered at its original pace and a new recording of only the missing question. The recovered answer has its own PCM hash; no byte-identical original recovery is claimed. Whole question and answer are combined before visual planning, without inserted pauses, retiming or audio extension. The scenes pack the resulting whole master.
