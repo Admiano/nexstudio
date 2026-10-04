@@ -1,2 +1,0 @@
-# Offline English forced alignment; bundled acoustic model and phoneme dictionary.
-pocketsphinx==5.0.4
