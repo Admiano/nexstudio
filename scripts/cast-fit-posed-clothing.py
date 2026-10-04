@@ -58,12 +58,22 @@ def fit_posed_clothing(scene):
                 fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'hemExtension':extension,'preservedWorldAxes':['X']})
                 print('POSED_TUCKED_HEM',ob.name,extension,adjusted,flush=True)
         if tops and not tucked:
+            # Untucked tops overlap the trouser waist all the way round, so the
+            # clearance is solved radially from the torso axis. Sleeve and hand
+            # faces are excluded so a hanging arm is never mistaken for the hem.
             top=tops[0];deps=bpy.context.evaluated_depsgraph_get();ev=top.evaluated_get(deps);mesh=ev.to_mesh()
-            points=[ev.matrix_world@v.co for v in mesh.vertices]
-            tree=BVHTree.FromPolygons(points,[list(p.vertices) for p in mesh.polygons])
-            center=sum(p.x for p in points)/len(points);middle=sum(p.y for p in points)/len(points)
-            hem=min(p.z for p in points if abs(p.x-center)<0.12)
+            limb=[any(k in g.name.lower() for k in ('arm','wrist','metacarpal','finger','hand','shoulder','clavicle')) for g in top.vertex_groups]
+            def limb_weight(v):
+                total=sum(g.weight for g in v.groups if g.group<len(limb))
+                return sum(g.weight for g in v.groups if g.group<len(limb) and limb[g.group])/total if total else 0
+            points=[ev.matrix_world@v.co for v in mesh.vertices];limb_weights=[limb_weight(v) for v in mesh.vertices]
+            torso=[list(p.vertices) for p in mesh.polygons if sum(limb_weights[i] for i in p.vertices)/len(p.vertices)<0.5]
+            tree=BVHTree.FromPolygons(points,torso)
+            torso_points=[points[i] for i in {i for f in torso for i in f}]
             ev.to_mesh_clear()
+            hem=min(p.z for p in torso_points)
+            band=[p for p in torso_points if p.z<hem+0.20]
+            center=sum(p.x for p in band)/len(band);middle=sum(p.y for p in band)/len(band)
             pants=[o for o in garments if o and any(k in o.name.lower() for k in ('trouser','jeans','pants'))]
             fitted_objects=pants+[o for o in bpy.data.objects if o.get('castGarmentSource') in {p.name for p in pants}]
             for ob in fitted_objects:
@@ -72,14 +82,16 @@ def fit_posed_clothing(scene):
                 for v in fitted.vertices:
                     point=ob.matrix_world@v.co
                     if point.z<=hem+0.006:continue
-                    front=point.y<middle;direction=Vector((0,1 if front else -1,0))
-                    hit,normal,face,distance=tree.ray_cast(Vector((point.x,-3 if front else 3,point.z)),direction,6)
-                    if hit is None or abs(hit.y-point.y)>0.10:continue
-                    inside=hit.y+(0.012 if front else -0.012)
-                    if (front and point.y<inside) or (not front and point.y>inside):
-                        point.y=inside;v.co=inverse@point;adjusted+=1
+                    radial=Vector((point.x-center,point.y-middle,0))
+                    if radial.length<1e-6:continue
+                    radial.normalize();axis=Vector((center,middle,point.z))
+                    hit,normal,face,distance=tree.ray_cast(axis,radial,1.0)
+                    if hit is None:continue
+                    reach=(point-axis).dot(radial);limit=distance-0.012
+                    if reach>limit and reach-distance<0.10:
+                        point+=radial*(limit-reach);v.co=inverse@point;adjusted+=1
                 if any(not all(math.isfinite(c) for c in v.co) for v in fitted.vertices):raise RuntimeError('CAST_GARMENT_NONFINITE:'+ob.name)
-                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'preservedWorldAxes':['X','Z']})
+                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'preservedWorldAxes':['Z']})
                 fitted.update()
                 display=bpy.data.objects.new(ob.name+'.preview-fit',fitted);display.matrix_world=ob.matrix_world.copy()
                 for collection in ob.users_collection:collection.objects.link(display)
@@ -87,7 +99,7 @@ def fit_posed_clothing(scene):
                 display['castFitSource']=ob.name
                 if 'castFitOriginalHideRender' not in ob:ob['castFitOriginalHideRender']=ob.hide_render
                 ob.hide_render=True
-                print('POSED_DEPTH_FIT',ob.name,adjusted,'vertices; x/z preserved',flush=True)
+                print('POSED_DEPTH_FIT',ob.name,adjusted,'vertices; radial torso clearance, z preserved',flush=True)
     return fit_report
 
 fit_report=fit_posed_clothing(bpy.context.scene)
