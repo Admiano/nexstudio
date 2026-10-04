@@ -40,7 +40,10 @@ if _W and _W != 'none':
         _cuff=None
         for _t in np.arange(_seat-0.006,-0.05,-0.006):
             if _covered(_t)<=4: _cuff=_t; break
-        _seat=max(0.006, _cuff-_E('WSEATM','0.010')) if _cuff is not None else 0.008
+        # Long sleeves: the watch sits on the hand side of the cuff edge, down
+        # to the wrist crease; a cuff that reaches past it rides over the strap.
+        _half={'analog':.0205,'digital':.017,'smart':.020,'chrono':.0245,'dress':.0195}[_W]
+        _seat=max(-_E('WWRISTMAX','0.020'), _cuff-_half-_E('WSEATM','0.002')) if _cuff is not None else 0.008
     _C0=_wr-_a*_seat
     print('WATCH seat t=%.3f sleeve=%s cuff=%s'%(_seat,_sleeve,_cuff if _sleeve else '-'))
     C=Vector(_C0); NB=128; R=np.full(NB,np.nan)
