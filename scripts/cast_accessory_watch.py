@@ -9,7 +9,13 @@ if _W and _W != 'none':
     _M=_r.matrix_world; _wr=_M@_r.data.bones['wrist.'+_sd].head_local; _el=_M@_r.data.bones['lowerarm01.'+_sd].head_local
     _a=(_wr-_el).normalized()
     _lat=Vector((1 if (_wr.x-(_M@_r.data.bones['spine05'].head_local).x)>0 else -1,0,0))
-    _d=Vector((0,-1,0))*_E('WFWD','1.0')+_lat*_E('WLAT','0.35'); _d=(_d-_a*_d.dot(_a)).normalized(); _e=_a.cross(_d).normalized()
+    # Mount on the anatomical back of the hand, independently of camera.
+    _index=_M@_r.data.bones['finger2-1.'+_sd].head_local
+    _little=_M@_r.data.bones['finger5-1.'+_sd].head_local
+    _middle=_M@_r.data.bones['finger3-1.'+_sd].head_local
+    _d=(_middle-_wr).cross(_index-_little).normalized()
+    if _d.dot(_lat)<0: _d=-_d
+    _d=(_d-_a*_d.dot(_a)).normalized(); _e=_a.cross(_d).normalized()
     from mathutils.bvhtree import BVHTree
     _dg=bpy.context.evaluated_depsgraph_get(); _vs=[]; _fs=[]
     _GK=('shirt','polo','sweat','sweater','tshirt','t-shirt','jacket')

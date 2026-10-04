@@ -1,0 +1,62 @@
+[
+  {
+    "style": "analog",
+    "dorsalNormalAgreement": 0.999999969266355,
+    "dialLateralOffsetMm": 0.0,
+    "bindingBone": "lowerarm02.L",
+    "finitePoseFrames": [
+      27,
+      600,
+      680
+    ],
+    "originalRigActionPreserved": true
+  },
+  {
+    "style": "digital",
+    "dorsalNormalAgreement": 0.9999999520368874,
+    "dialLateralOffsetMm": 2.3283064365386963e-07,
+    "bindingBone": "lowerarm02.L",
+    "finitePoseFrames": [
+      27,
+      600,
+      680
+    ],
+    "originalRigActionPreserved": true
+  },
+  {
+    "style": "smart",
+    "dorsalNormalAgreement": 0.9999998810235411,
+    "dialLateralOffsetMm": 6.591873041415893e-07,
+    "bindingBone": "lowerarm02.L",
+    "finitePoseFrames": [
+      27,
+      600,
+      680
+    ],
+    "originalRigActionPreserved": true
+  },
+  {
+    "style": "chrono",
+    "dorsalNormalAgreement": 1.0,
+    "dialLateralOffsetMm": 2.3283064365386963e-07,
+    "bindingBone": "lowerarm02.L",
+    "finitePoseFrames": [
+      27,
+      600,
+      680
+    ],
+    "originalRigActionPreserved": true
+  },
+  {
+    "style": "dress",
+    "dorsalNormalAgreement": 0.9999999483115971,
+    "dialLateralOffsetMm": 0.0,
+    "bindingBone": "lowerarm02.L",
+    "finitePoseFrames": [
+      27,
+      600,
+      680
+    ],
+    "originalRigActionPreserved": true
+  }
+]
