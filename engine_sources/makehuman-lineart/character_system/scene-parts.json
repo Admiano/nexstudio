@@ -1,0 +1,76 @@
+{
+  "format": "character-system-scene-parts-v1",
+  "chunkBytes": 26214400,
+  "parts": [
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/fixed-left-3q/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/fixed-left-3q/character.blend.part00",
+      "index": 0,
+      "count": 2,
+      "sha256": "5a7f861cdf550b385598507460728c8151c8b7a6a73f45e8e525063f4c757bd8"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/fixed-left-3q/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/fixed-left-3q/character.blend.part01",
+      "index": 1,
+      "count": 2,
+      "sha256": "b39703e53318198f65e2efc8ba65ea062d871635126d1ad193121efe96ef437f"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/maxi/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/maxi/character.blend.part00",
+      "index": 0,
+      "count": 2,
+      "sha256": "8bfd391c8f70b2bc09520f7fda550641200b558240e329c810f4b36f4ea8b43e"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/maxi/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/maxi/character.blend.part01",
+      "index": 1,
+      "count": 2,
+      "sha256": "fec569cc3d2126226ce3a546b68428a149145464fd6604ac6a0007db82dd52b0"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/native/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/native/character.blend.part00",
+      "index": 0,
+      "count": 2,
+      "sha256": "c3869221db1c6ceaaecb1418ece746c55ac201ff6bd68b2a5b2870fd4d7f9ac4"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/native/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/native/character.blend.part01",
+      "index": 1,
+      "count": 2,
+      "sha256": "468cf3f6c8c1487b83d2f43ad9483e58e8b1754663858c3fbf772fb4962beaa7"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/qipao/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/qipao/character.blend.part00",
+      "index": 0,
+      "count": 2,
+      "sha256": "cbf40d60d71927c01f8738802dd40a7d7fff5d67abac2a43afc83af899a40f0f"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/qipao/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/qipao/character.blend.part01",
+      "index": 1,
+      "count": 2,
+      "sha256": "fbca831e81331430e9f71a40c3c6798094435a6a0a78e53d5780f5ea06325787"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/sheath/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/sheath/character.blend.part00",
+      "index": 0,
+      "count": 2,
+      "sha256": "3189e77b0708660bf6115b44f855135ada693be6f7ef4d93c30a8b8c77b5cb1d"
+    },
+    {
+      "scene": "engine_sources/makehuman-lineart/character_system/scenes/female/sheath/character.blend",
+      "part": "engine_sources/makehuman-lineart/character_system/scenes/female/sheath/character.blend.part01",
+      "index": 1,
+      "count": 2,
+      "sha256": "74a0b5d4efcb0adc845018168d70aab320cc2c867b11a1d69329174d9e80d3b9"
+    }
+  ]
+}

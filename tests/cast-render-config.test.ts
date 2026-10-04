@@ -36,4 +36,4 @@ for(const skin of SKINS){
  assert.equal(castRenderConfig({...DEFAULT_SPEC.female,skin:skin.key,lip:'rose'}).env.CAST_LIP_HEX,'');
  assert.equal(castRenderConfig({...DEFAULT_SPEC.female,skin:skin.key,lip:'red'}).env.CAST_LIP_HEX,'B3202A');
 }
-assert.equal(CAST_RENDER_VERSION,'approved-v3-v6-accessories-v17a-upper-thigh');
+assert.equal(CAST_RENDER_VERSION,'approved-v3-v6-corrected-original-performance-v20-upper-thigh');
