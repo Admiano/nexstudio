@@ -16,7 +16,9 @@ def run(arguments):
  plan=hook['verified_request'](request,character)
  bpy.ops.wm.open_mainfile(filepath=str(source));scene=bpy.context.scene
  if view!='front':
-  center=Vector((-.42,0,scene.camera.location.z));angle=math.radians(-35 if view=='left3q' else 35)
+  # Character-side naming: +35 exposes the character's left side and reads
+  # as a presenter facing into the left of the viewer's frame.
+  center=Vector((-.42,0,scene.camera.location.z));angle=math.radians(35 if view=='left3q' else -35)
   scene.camera.location=center+Vector((5*math.sin(angle),-5*math.cos(angle),0))
   scene.camera.rotation_euler=(center-scene.camera.location).to_track_quat('-Z','Y').to_euler()
  rig=bpy.data.objects.get('Host.rig');body=bpy.data.objects.get('Host.body')
