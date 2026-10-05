@@ -9,6 +9,8 @@ def rp(p):
     return p if os.path.isabs(p) else os.path.join(ROOT, p)
 GLB, CONCEPT, OUT = rp(argv[0]), rp(argv[1]), rp(argv[2])
 DEC = float(argv[3]) if len(argv) > 3 else 0.05
+# optional figure box inside the concept image (u0 v0 u1 v1)
+UBOX = [float(x) for x in argv[4:8]] if len(argv) >= 8 else None
 KRAFT = os.path.join(ROOT, "assets", "kraft") + "/"
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -43,13 +45,31 @@ def paperize(mat):
     tc = nt.nodes.new('ShaderNodeTexCoord')
     ptex = nt.nodes.new('ShaderNodeTexImage'); ptex.image = img_con
     uvn = nt.nodes.new('ShaderNodeUVMap'); uvn.uv_map = "projUV"
-    nt.links.new(uvn.outputs['UV'], ptex.inputs['Vector'])
+    if UBOX:
+        um = nt.nodes.new('ShaderNodeMapping')
+        um.vector_type = 'POINT'
+        um.inputs['Location'].default_value = (UBOX[0], UBOX[1], 0)
+        um.inputs['Scale'].default_value = (UBOX[2]-UBOX[0], UBOX[3]-UBOX[1], 1)
+        nt.links.new(uvn.outputs['UV'], um.inputs['Vector'])
+        nt.links.new(um.outputs['Vector'], ptex.inputs['Vector'])
+    else:
+        nt.links.new(uvn.outputs['UV'], ptex.inputs['Vector'])
     ktex = nt.nodes.new('ShaderNodeTexImage'); ktex.image = img_col
-    mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (3,3,3)
+    mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (2,2,2)
     nt.links.new(tc.outputs['Generated'], mp.inputs['Vector'])
     nt.links.new(mp.outputs['Vector'], ktex.inputs['Vector'])
+    # contrast S-curve + saturation on the projected concept (kills baked softness)
+    hs = nt.nodes.new('ShaderNodeHueSaturation')
+    hs.inputs['Saturation'].default_value = 1.14
+    hs.inputs['Value'].default_value = 1.02
+    nt.links.new(ptex.outputs['Color'], hs.inputs['Color'])
+    scurve = nt.nodes.new('ShaderNodeRGBCurve')
+    cc = scurve.mapping.curves[3]
+    cc.points.new(0.28, 0.18); cc.points.new(0.72, 0.82)
+    scurve.mapping.update()
+    nt.links.new(hs.outputs['Color'], scurve.inputs['Color'])
     m1 = nt.nodes.new('ShaderNodeMixRGB'); m1.blend_type='MULTIPLY'; m1.inputs[0].default_value=0.7
-    nt.links.new(ptex.outputs['Color'], m1.inputs[1])
+    nt.links.new(scurve.outputs['Color'], m1.inputs[1])
     nt.links.new(ktex.outputs['Color'], m1.inputs[2])
     geo = nt.nodes.new('ShaderNodeNewGeometry')
     ramp = nt.nodes.new('ShaderNodeValToRGB')
@@ -60,8 +80,8 @@ def paperize(mat):
     nt.links.new(geo.outputs['Pointiness'], ramp.inputs['Fac'])
     nt.links.new(ramp.outputs['Color'], m2.inputs[2])
     aon = nt.nodes.new('ShaderNodeAmbientOcclusion')
-    aon.inputs['Distance'].default_value = 0.015
-    aon.inputs['Color'].default_value = (0.60,0.53,0.46,1)
+    aon.inputs['Distance'].default_value = 0.028
+    aon.inputs['Color'].default_value = (0.52,0.45,0.38,1)
     m3 = nt.nodes.new('ShaderNodeMixRGB'); m3.blend_type='MULTIPLY'; m3.inputs[0].default_value=1.0
     nt.links.new(m2.outputs['Color'], m3.inputs[1])
     nt.links.new(aon.outputs['Color'], m3.inputs[2])
@@ -82,7 +102,7 @@ def paperize(mat):
     nt.links.new(bk.outputs['Color'], bsdf.inputs['Base Color'])
     ntex = nt.nodes.new('ShaderNodeTexImage'); ntex.image = img_nrm
     nt.links.new(mp.outputs['Vector'], ntex.inputs['Vector'])
-    nmap = nt.nodes.new('ShaderNodeNormalMap'); nmap.inputs['Strength'].default_value = 0.4
+    nmap = nt.nodes.new('ShaderNodeNormalMap'); nmap.inputs['Strength'].default_value = 0.65
     nt.links.new(ntex.outputs['Color'], nmap.inputs['Color'])
     nt.links.new(nmap.outputs['Normal'], bsdf.inputs['Normal'])
 
@@ -176,8 +196,9 @@ cam.rotation_euler = (target-cam.location).to_track_quat('-Z','Y').to_euler()
 bpy.context.scene.camera = cam
 
 sc = bpy.context.scene
-sc.render.engine = 'CYCLES'; sc.cycles.samples=48; sc.cycles.use_denoising=True; sc.cycles.max_bounces=4
+sc.render.engine = 'CYCLES'; sc.cycles.samples=96; sc.cycles.use_denoising=True; sc.cycles.max_bounces=4
 sc.render.resolution_x=720; sc.render.resolution_y=1100
+sc.view_settings.look = 'AgX - Medium High Contrast'
 sc.render.filepath = OUT
 bpy.ops.render.render(write_still=True)
 print("WROTE", OUT)

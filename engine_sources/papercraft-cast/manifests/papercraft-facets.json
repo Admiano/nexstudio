@@ -16,9 +16,9 @@
       "framing": [
         "full-body"
       ],
-      "license": "Generated via tencent/Hunyuan3D-2.1 (Tencent Community License) — verify attribution terms before shipping",
-      "decimate": 0.08,
-      "notes": "Hunyuan3D image-to-shape from an authored concept (man ~30s, tee+trousers, folded-paper style). Real folded-sheet geometry — the fidelity chassis. Palette swaps = recolor the concept image and re-project; no mesh regen needed."
+      "license": "Generated via tencent/Hunyuan3D-2.1 (Tencent Community License) \u2014 verify attribution terms before shipping",
+      "decimate": 0.03,
+      "notes": "Hunyuan3D image-to-shape from an authored concept (man ~30s, tee+trousers, folded-paper style). Real folded-sheet geometry \u2014 the fidelity chassis. Palette swaps = recolor the concept image and re-project; no mesh regen needed. Flattened skin tones + contrast S-curve on projection (v18+)."
     },
     "rain": {
       "source": "assets/rain/rain_v3.2.blend",
