@@ -1,7 +1,7 @@
 import bpy, sys, os
 from mathutils import Vector
 
-A = "/home/ubuntu/paper-lab/assets"
+A = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "mh")
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT   = argv[0] if len(argv) > 0 else "/tmp/assembled.png"
 HAIR  = argv[1] if len(argv) > 1 else "elvscurly_bob1.obj"

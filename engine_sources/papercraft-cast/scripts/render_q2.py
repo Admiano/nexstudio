@@ -7,8 +7,10 @@ from mathutils import Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 GLB, OUT = argv[0], argv[1]
-KRAFT = "/home/ubuntu/paper-lab/assets/paper001/"
-A = "/home/ubuntu/paper-lab/assets/"
+import os
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+KRAFT = os.path.join(ROOT, "assets", "kraft") + "/"
+A = os.path.join(ROOT, "assets") + "/"
 
 # palette: material-name fragment -> (tint rgb, kraft-strength)
 PAL = {
@@ -26,6 +28,13 @@ PAL = {
     'Socks':      ((0.85, 0.82, 0.76), 0.5),
 }
 DEFAULT = ((0.80, 0.72, 0.60), 0.5)
+
+# cast-driver palette overrides: material-name fragment -> tint
+import os as _os, json as _json
+_pal_file = _os.environ.get('PAPER_PALETTE')
+if _pal_file and _os.path.exists(_pal_file):
+    for _k, _v in _json.load(open(_pal_file)).items():
+        PAL[_k] = (tuple(_v), 0.5)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=GLB)

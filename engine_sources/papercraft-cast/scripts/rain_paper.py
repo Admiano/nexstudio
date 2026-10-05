@@ -7,9 +7,11 @@ from mathutils import Vector
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT = argv[0]
 DECIMATE = float(argv[1]) if len(argv) > 1 else 0.5
-KRAFT = "/home/ubuntu/paper-lab/assets/paper001/"
+import os
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+KRAFT = os.path.join(ROOT, "assets", "kraft") + "/"
 
-bpy.ops.wm.open_mainfile(filepath="/home/ubuntu/paper-lab/assets/rain/rain_v3.2.blend")
+bpy.ops.wm.open_mainfile(filepath=os.path.join(ROOT, "assets", "rain", "rain_v3.2.blend"))
 
 img_col = bpy.data.images.load(KRAFT + "Paper001_1K-JPG_Color.jpg")
 img_nrm = bpy.data.images.load(KRAFT + "Paper001_1K-JPG_NormalGL.jpg")

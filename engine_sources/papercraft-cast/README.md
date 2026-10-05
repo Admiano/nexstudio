@@ -65,3 +65,28 @@ spec → blender render queue, `style: papercraft`, chassis option
 name. `scripts/*.py` are already option-driven; a `cast.facet` manifest
 entry can mirror paper-cast-v1's facet taxonomy (roles, ageBands,
 formality) onto chassis+palette choices.
+
+## Wiring into cast (third look family)
+
+- `manifests/papercraft-facets.json` — the manifest: chassis table (id → source
+  asset, renderer script, presentation, license, decimate default), named
+  skinTones / wardrobePalettes / hairPalette, rolesToChassis map, framing
+  (currently `bust` only) and renderProfile. Mirrors paper-cast-v1's
+  `cast-facets.json` style.
+- `manifests/cast.papercraft.schema.json` — the queue spec schema. A plate
+  request = `{style: "papercraft", chassis: {id}, look: {skinTone,
+  wardrobePalette, hairColor, paletteOverrides}, framing, output}`.
+- `manifests/cast.papercraft.example.json` — a working example spec.
+- `scripts/papercraft_cast.py` — the driver: resolves the spec's chassis via
+  the manifest, then shells out to the matching renderer:
+
+      python3 scripts/papercraft_cast.py <spec.json> [--dry-run]
+
+  `look.paletteOverrides` (material-fragment → [r,g,b] tint) is passed to
+  render_q2.py through $PAPER_PALETTE; rain_paper.py keeps its texture-driven
+  skin/hair tones (the palette knobs are currently no-ops on the rain chassis —
+  listed as a known gap).
+
+The MH fallback (`assemble_paper.py`) reads option args directly:
+`out.png HAIR SKIN BODY GARMENT GTEX HCOL HTEX HTINT` — the spec format does
+not yet cover per-asset selection for that chassis.
