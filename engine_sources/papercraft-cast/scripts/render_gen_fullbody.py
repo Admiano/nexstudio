@@ -218,12 +218,19 @@ for ob in meshes:
             a,b = us[i], us[(i+1)%n]
             pts.append(((a.x+b.x)/2,(a.y+b.y)/2))
             pts.append(((a.x+cu)/2,(a.y+cv)/2))
+        darkn = 0
         for (su,sv) in pts:
             t = texel(su,sv)
             acc[0]+=t[0]; acc[1]+=t[1]; acc[2]+=t[2]; cnt+=1
-        # attr values are read raw as linear in the shader
-        cols[f.index] = ((acc[0]/cnt)**2.2, (acc[1]/cnt)**2.2,
-                         (acc[2]/cnt)**2.2, 1.0)
+            if 0.35*t[0]+0.5*t[1]+0.15*t[2] < 0.30: darkn += 1
+        if cnt and darkn / cnt > 0.5:
+            # appliqué feature piece: flat dark paper
+            fc = (0.10,0.075,0.055)
+            cols[f.index] = (fc[0]**2.2, fc[1]**2.2, fc[2]**2.2, 1.0)
+        else:
+            # attr values are read raw as linear in the shader
+            cols[f.index] = ((acc[0]/cnt)**2.2, (acc[1]/cnt)**2.2,
+                             (acc[2]/cnt)**2.2, 1.0)
     bm.to_mesh(ob.data); bm.free()
     ca = ob.data.color_attributes.new(name="paperCol", type='BYTE_COLOR',
                                       domain='CORNER')
