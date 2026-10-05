@@ -6,17 +6,27 @@
     "rain": {
       "source": "assets/rain/rain_v3.2.blend",
       "renderer": "scripts/rain_paper.py",
-      "presentation": ["woman", "girl"],
-      "lifeStage": ["teen", "adult"],
+      "presentation": [
+        "woman",
+        "girl"
+      ],
+      "lifeStage": [
+        "teen",
+        "adult"
+      ],
       "license": "CC-BY 4.0 (Rain - Blender Studio)",
-      "decimate": 0.22,
+      "decimate": 0.15,
       "notes": "Authored ribbon hair, scarf, painted face texture (eye texture repainted to dark almond). T-pose; frame head+chest."
     },
     "q_casual": {
       "source": "assets/quaternius/q_casual.glb",
       "renderer": "scripts/render_q2.py",
-      "presentation": ["man"],
-      "lifeStage": ["adult"],
+      "presentation": [
+        "man"
+      ],
+      "lifeStage": [
+        "adult"
+      ],
       "license": "CC0",
       "decimate": 1.0,
       "notes": "Material-split paper pieces; navy hair, khaki top, block-eyes squashed to almonds by script."
@@ -24,8 +34,12 @@
     "q_man": {
       "source": "assets/quaternius/q_man.glb",
       "renderer": "scripts/render_q2.py",
-      "presentation": ["man"],
-      "lifeStage": ["adult"],
+      "presentation": [
+        "man"
+      ],
+      "lifeStage": [
+        "adult"
+      ],
       "license": "CC0",
       "decimate": 1.0,
       "notes": "Blockier early Quaternius; backup chassis."
@@ -33,50 +47,148 @@
     "mh_female1605": {
       "source": "origin/mh-assets proxymeshes/female1605.obj",
       "renderer": "scripts/assemble_paper.py",
-      "presentation": ["woman"],
-      "lifeStage": ["adult"],
+      "presentation": [
+        "woman"
+      ],
+      "lifeStage": [
+        "adult"
+      ],
       "license": "CC0",
       "decimate": 1.0,
-      "notes": "MakeHuman fallback — realistic proportions; coverage chassis, not hero shots."
+      "notes": "MakeHuman fallback \u2014 realistic proportions; coverage chassis, not hero shots."
     },
     "mh_male1591": {
       "source": "origin/mh-assets proxymeshes/male1591.obj",
       "renderer": "scripts/assemble_paper.py",
-      "presentation": ["man"],
-      "lifeStage": ["adult"],
+      "presentation": [
+        "man"
+      ],
+      "lifeStage": [
+        "adult"
+      ],
       "license": "CC0",
       "decimate": 1.0,
-      "notes": "MakeHuman fallback — realistic proportions."
+      "notes": "MakeHuman fallback \u2014 realistic proportions."
     }
   },
   "skinTones": {
-    "kraft-light": {"tint": [0.95, 0.80, 0.66], "applies": "material name contains 'Skin'/'body'"},
-    "kraft-mid": {"tint": [0.80, 0.60, 0.44], "applies": "material name contains 'Skin'/'body'"},
-    "kraft-dark": {"tint": [0.62, 0.45, 0.34], "applies": "material name contains 'Skin'/'body'"}
+    "kraft-light": {
+      "tint": [
+        0.95,
+        0.8,
+        0.66
+      ],
+      "applies": "material name contains 'Skin'/'body'"
+    },
+    "kraft-mid": {
+      "tint": [
+        0.8,
+        0.6,
+        0.44
+      ],
+      "applies": "material name contains 'Skin'/'body'"
+    },
+    "kraft-dark": {
+      "tint": [
+        0.62,
+        0.45,
+        0.34
+      ],
+      "applies": "material name contains 'Skin'/'body'"
+    }
   },
   "wardrobePalettes": {
-    "cream-casual": {"garment": [0.93, 0.91, 0.86], "accent": [0.55, 0.75, 0.78]},
-    "khaki-uniform": {"garment": [0.72, 0.60, 0.42], "accent": [0.60, 0.50, 0.35]},
-    "navy-street": {"garment": [0.42, 0.50, 0.58], "accent": [0.16, 0.19, 0.28]}
+    "cream-casual": {
+      "garment": [
+        0.93,
+        0.91,
+        0.86
+      ],
+      "accent": [
+        0.55,
+        0.75,
+        0.78
+      ]
+    },
+    "khaki-uniform": {
+      "garment": [
+        0.72,
+        0.6,
+        0.42
+      ],
+      "accent": [
+        0.6,
+        0.5,
+        0.35
+      ]
+    },
+    "navy-street": {
+      "garment": [
+        0.42,
+        0.5,
+        0.58
+      ],
+      "accent": [
+        0.16,
+        0.19,
+        0.28
+      ]
+    }
   },
   "hairPalette": {
-    "navy": [0.16, 0.19, 0.28],
-    "dark-brown": [0.20, 0.14, 0.09],
-    "blonde": [0.85, 0.68, 0.42],
-    "black": [0.08, 0.07, 0.06]
+    "navy": [
+      0.16,
+      0.19,
+      0.28
+    ],
+    "dark-brown": [
+      0.2,
+      0.14,
+      0.09
+    ],
+    "blonde": [
+      0.85,
+      0.68,
+      0.42
+    ],
+    "black": [
+      0.08,
+      0.07,
+      0.06
+    ]
   },
   "rolesToChassis": {
-    "presenter": ["rain", "q_casual"],
-    "office_worker": ["q_casual", "rain"],
-    "teacher": ["rain", "q_casual"],
-    "student": ["rain", "q_casual"],
-    "default": ["rain", "q_casual"]
+    "presenter": [
+      "rain",
+      "q_casual"
+    ],
+    "office_worker": [
+      "q_casual",
+      "rain"
+    ],
+    "teacher": [
+      "rain",
+      "q_casual"
+    ],
+    "student": [
+      "rain",
+      "q_casual"
+    ],
+    "default": [
+      "rain",
+      "q_casual"
+    ]
   },
-  "framing": ["bust"],
+  "framing": [
+    "bust"
+  ],
   "renderProfile": {
     "engine": "CYCLES",
     "samples": 64,
-    "resolution": [720, 900],
+    "resolution": [
+      720,
+      900
+    ],
     "lighting": "3x area (warm key / cool fill / rim) + seamless gradient wall"
   }
 }

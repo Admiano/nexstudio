@@ -90,3 +90,19 @@ formality) onto chassis+palette choices.
 The MH fallback (`assemble_paper.py`) reads option args directly:
 `out.png HAIR SKIN BODY GARMENT GTEX HCOL HTEX HTINT` — the spec format does
 not yet cover per-asset selection for that chassis.
+
+## Sheet pass (v2 render recipe)
+
+`rain_paper.py` now builds the folded-sheet look procedurally:
+
+- per-part decimate — head/body 0.45 (smoother skin like the refs), eyes 0.7,
+  garment/hair/scarf pieces at the spec's ratio (default 0.15)
+- per-piece `SOLIDIFY` (0.0025, offset -0.6) — real paper edge thickness on
+  every garment/hair/scarf object; works on Rain's .blend meshes (the earlier
+  shrapnel failure was glTF-specific)
+- `ShaderNodeAmbientOcclusion` (distance 0.012) multiplied into base color —
+  deep crease shadows in fold valleys and layer contact; eye/cornea/gums
+  materials are exempt
+- eyes: `GEO-rain-eyes` slots replaced by a pure Emission material
+  (0.035, 0.028, 0.024 @ 0.55) — flat dark-almond with no specular, matching
+  the references' painted eyes

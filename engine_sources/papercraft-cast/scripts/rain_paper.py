@@ -6,7 +6,7 @@ from mathutils import Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT = argv[0]
-DECIMATE = float(argv[1]) if len(argv) > 1 else 0.5
+DECIMATE = float(argv[1]) if len(argv) > 1 else 0.15
 import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KRAFT = os.path.join(ROOT, "assets", "kraft") + "/"
@@ -24,7 +24,7 @@ for ob in bpy.data.objects:
         ob.hide_set(True)
 
 
-def paperize(mat):
+def paperize(mat, ao=True):
     if not mat or not mat.use_nodes:
         return
     nt = mat.node_tree
@@ -62,14 +62,25 @@ def paperize(mat):
     geo = nt.nodes.new('ShaderNodeNewGeometry')
     ramp = nt.nodes.new('ShaderNodeValToRGB')
     ramp.color_ramp.elements[0].position = 0.0
-    ramp.color_ramp.elements[0].color = (0.45, 0.42, 0.38, 1)
+    ramp.color_ramp.elements[0].color = (0.34, 0.30, 0.26, 1)
     ramp.color_ramp.elements[1].position = 0.4
     ramp.color_ramp.elements[1].color = (1, 1, 1, 1)
     mix = nt.nodes.new('ShaderNodeMixRGB'); mix.blend_type = 'MULTIPLY'; mix.inputs[0].default_value = 1.0
     nt.links.new(feed.outputs['Color'], mix.inputs[1])
     nt.links.new(geo.outputs['Pointiness'], ramp.inputs['Fac'])
     nt.links.new(ramp.outputs['Color'], mix.inputs[2])
-    nt.links.new(mix.outputs['Color'], bsdf.inputs['Base Color'])
+    if ao:
+        aon = nt.nodes.new('ShaderNodeAmbientOcclusion')
+        aon.inputs['Distance'].default_value = 0.012
+        aon.inputs['Color'].default_value = (0.62, 0.55, 0.48, 1)
+        aomix = nt.nodes.new('ShaderNodeMixRGB'); aomix.blend_type = 'MULTIPLY'
+        aomix.inputs[0].default_value = 1.0
+        aomix.inputs[2].default_value = (1, 1, 1, 1)
+        nt.links.new(mix.outputs['Color'], aomix.inputs[1])
+        nt.links.new(aon.outputs['Color'], aomix.inputs[2])
+        nt.links.new(aomix.outputs['Color'], bsdf.inputs['Base Color'])
+    else:
+        nt.links.new(mix.outputs['Color'], bsdf.inputs['Base Color'])
     ntex = nt.nodes.new('ShaderNodeTexImage'); ntex.image = img_nrm
     nt.links.new(mp.outputs['Vector'], ntex.inputs['Vector'])
     nmap = nt.nodes.new('ShaderNodeNormalMap'); nmap.inputs['Strength'].default_value = 0.5
@@ -90,20 +101,37 @@ for ob in bpy.data.objects:
             ob.modifiers.remove(m)
     dec = ob.modifiers.new("facet", 'DECIMATE')
     dec.decimate_type = 'COLLAPSE'
-    dec.ratio = DECIMATE
+    if 'head' in ob.name or ob.name == 'GEO-rain-body':
+        dec.ratio = max(DECIMATE, 0.45)
+    elif 'eyes' in ob.name or 'gums' in ob.name:
+        dec.ratio = 0.7
+    else:
+        dec.ratio = DECIMATE
     tri = ob.modifiers.new("tri", 'TRIANGULATE')
-    for m in ob.data.materials:
-        paperize(m)
-    if 'eyes' in ob.name or 'cornea' in ob.name:
+    if ob.name != 'GEO-rain-body':
+        sol = ob.modifiers.new("paper_edge", 'SOLIDIFY')
+        sol.thickness = 0.0025
+        sol.offset = -0.6
+        sol.use_rim = True
+        sol.thickness_clamp = 0.35
+    is_eye = ('eyes' in ob.name or 'cornea' in ob.name)
+    if 'eyes' in ob.name:
+        dark = bpy.data.materials.new("paper_eye")
+        dark.use_nodes = True
+        dn = dark.node_tree
+        dn.nodes.clear()
+        em = dn.nodes.new('ShaderNodeEmission')
+        em.inputs['Color'].default_value = (0.035, 0.028, 0.024, 1)
+        em.inputs['Strength'].default_value = 0.55
+        outn = dn.nodes.new('ShaderNodeOutputMaterial')
+        dn.links.new(em.outputs[0], outn.inputs[0])
+        for i in range(len(ob.data.materials)):
+            ob.data.materials[i] = dark
+        if not len(ob.data.materials):
+            ob.data.materials.append(dark)
+    else:
         for m in ob.data.materials:
-            if m and m.use_nodes:
-                nt = m.node_tree
-                b2 = next((n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'), None)
-                if b2:
-                    for l in list(b2.inputs['Base Color'].links):
-                        nt.links.remove(l)
-                    b2.inputs['Base Color'].default_value = (0.06, 0.04, 0.03, 1)
-                    b2.inputs['Roughness'].default_value = 0.85
+            paperize(m, ao=('cornea' not in ob.name and 'gums' not in ob.name))
 
 # drop arms from T-pose: rotate arm-region verts around shoulder pivots
 import math
@@ -170,9 +198,9 @@ bg.inputs[1].default_value = 0.3
 
 bpy.ops.object.camera_add()
 cam = bpy.context.object
-cam.data.lens = 80
-target = Vector((cx, cy, top - 0.33))
-cam.location = (cx, cy - 1.35, top - 0.27)
+cam.data.lens = 74
+target = Vector((cx, cy, top - 0.285))
+cam.location = (cx, cy - 1.10, top - 0.22)
 cam.rotation_euler = (target - cam.location).to_track_quat('-Z', 'Y').to_euler()
 bpy.context.scene.camera = cam
 
