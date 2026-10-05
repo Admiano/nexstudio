@@ -25,21 +25,23 @@ for fn,meta in sorted(manifest.items()):
     arm=next(o for o in bpy.data.objects if o.type=='ARMATURE');act=arm.animation_data.action
     a,b=(int(round(x)) for x in act.frame_range);sc=bpy.context.scene
     mw=arm.matrix_world;bones=[k for k in CHAIN if P+k in arm.data.bones]
+    H=P+('Hips' if P+'Hips' in arm.data.bones else 'Spine')  # some exports root the spine and legs without a Hips bone
     rest={k:(mw@arm.data.bones[P+k].matrix_local).to_quaternion() for k in bones}
     if lib['rest'] is None:
         head=lambda k:mw@arm.data.bones[P+k].head_local
-        r={k:{'dir':[round(x,5) for x in (head(CHAIN[k])-head(k)).normalized()]} for k in bones}
+        end=lambda k:head(CHAIN[k]) if P+CHAIN[k] in arm.data.bones else mw@arm.data.bones[P+k].tail_local
+        r={k:{'dir':[round(x,5) for x in (end(k)-head(k)).normalized()]} for k in bones}
         for s in('Left','Right'):
             r[f'{s}Hand']['side']=[round(x,5) for x in (head(f'{s}HandPinky1')-head(f'{s}HandIndex1')).normalized()]
-        r['Hips']['pos']=[round(x,5) for x in head('Hips')]
+        r.setdefault('Hips',{'dir':r['Spine']['dir']})['pos']=[round(x,5) for x in mw@arm.data.bones[H].head_local]
         lib['rest']=r
-    q={k:[] for k in bones};hp=[];h0=mw@arm.data.bones[P+'Hips'].head_local
+    q={k:[] for k in bones};hp=[];h0=mw@arm.data.bones[H].head_local
     for f in range(a,b+1):
         sc.frame_set(f)
         for k in bones:
             d=(mw@arm.pose.bones[P+k].matrix).to_quaternion()@rest[k].inverted()
             q[k].extend(round(x,4) for x in d)
-        hp.extend(round(x,4) for x in (mw@arm.pose.bones[P+'Hips'].head-h0))
+        hp.extend(round(x,4) for x in (mw@arm.pose.bones[H].head-h0))
     key=re.sub(r'\.fbx$','',fn)
     lib['clips'][key]={'name':meta['name'],'description':meta['description'],'mixamoId':meta['id'],'frames':b-a+1,'q':q,'hips':hp}
     print('EXTRACT',key,b-a+1,flush=True)

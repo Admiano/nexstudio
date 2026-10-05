@@ -43,7 +43,7 @@ def mixamo_sampler(clip,sp):
         sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_mixamo_retarget as mod
         MX=(mod,mod.load(Path(__file__).resolve().parents[1]/LIB['mixamo']['library']))
     mod,lib=MX
-    if clip['mixamo'] not in mx_cache:mx_cache[clip['mixamo']]=mod.retarget(rig,lib,clip['mixamo'],rest_frame,bpy.context.scene,LIB['mixamo'].get('gain'),LIB['mixamo'].get('hold'),{'left':'Right','right':'Left'}.get(clip.get('hands')),LIB['mixamo'].get('smooth',0),bool(clip.get('legs')))
+    if clip['mixamo'] not in mx_cache:mx_cache[clip['mixamo']]=mod.retarget(rig,lib,clip['mixamo'],rest_frame,bpy.context.scene,LIB['mixamo'].get('gain'),LIB['mixamo'].get('hold'),{'left':'Right','right':'Left'}.get(clip.get('hands')),LIB['mixamo'].get('smooth',0),bool(clip.get('legs')),anchor=clip.get('posture')=='seated')
     vals=mx_cache[clip['mixamo']];a,b=clip.get('frames',[1,lib['clips'][clip['mixamo']]['frames']])
     pad=int(LIB['mixamo'].get('padFrames',0));last=(b-a)/sp
     def sample(key,k):
@@ -122,6 +122,11 @@ for (path,idx),vals in list(values.items()):
             for f in range(len(vals)):
                 n=math.sqrt(sum(g[f]**2 for g in group)) or 1
                 for g in group:g[f]/=n
+seat=timeline.get('seat') or {}
+seated_frames=0
+if seat.get('kneeGap'):
+    sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_seat_pose
+    seated_frames=cast_seat_pose.narrow(rig,values,frames,float(seat['kneeGap']),seat.get('footGap'))
 def idle_layer(cfg):
     import random
     rng=random.Random(int(cfg.get('seed',1)));fps=LIB['source']['fps']
@@ -225,7 +230,7 @@ expressions=expression_layer(timeline['expressions'],face) if face and 'expressi
 rig.animation_data.action=act;rig.animation_data.action_slot=slot
 s=bpy.context.scene;s.frame_start=1;s.frame_end=total
 if digest(source)!=before:raise RuntimeError('SOURCE_ACTION_MUTATED')
-report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,'expressions':expressions,
+report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,'expressions':expressions,'seatNarrowedFrames':seated_frames,
         'sequence':[{'name':n,'start':st,'frames':l,'blendIn':bi} for st,l,_,n,bi,_ in placed]}
 bpy.ops.wm.save_as_mainfile(filepath=out,copy=True)
 print('GESTURE_TIMELINE',json.dumps(report),flush=True)

@@ -1,6 +1,8 @@
 """Measure retargeted Mixamo clips on a presenter rig and write their library entries.
 
-Usage: blender -b scene.blend --python cast-mixamo-landmarks.py -- [out.json]
+Usage: blender -b scene.blend --python cast-mixamo-landmarks.py -- [out.json] [--only=PREFIX]
+--only re-measures just the library clips whose key matches the regex PREFIX (from
+the start) and keeps the rest.
 Every clip in the Mixamo library is retargeted, played on the rig and measured
 from the wrists: the active window (frames), which hands move, and
 onset/stroke/apex/release like the original clips. Categories come from
@@ -15,6 +17,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(Path(__file__).resolve().parent))
 import cast_mixamo_retarget as MX
 args=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
+only=next((a.split('=',1)[1] for a in args if a.startswith('--only=')),None);args=[a for a in args if not a.startswith('--only=')]
 LP=ROOT/'engine_sources/makehuman-lineart/character_system/gesture-clips.json';LIB=json.loads(LP.read_text())
 cfg=LIB['mixamo'];lib=MX.load(ROOT/cfg['library']);rest_frame=LIB['idle']['ranges'][0][0]
 rig=next(o for o in bpy.data.objects if o.type=='ARMATURE' and o.animation_data and o.animation_data.action and o.animation_data.action.name==LIB['source']['action'])
@@ -31,6 +34,7 @@ def posture(c,cat):
     return 'seated' if re.search(cfg.get('seatedPattern',r'\b(sit|sitting|seated|chair)\b'),text) else 'standing'
 out={}
 for key,c in sorted(lib['clips'].items()):
+    if only and not re.match(only,key):continue
     old=LIB['clips'].get('mx_'+key,{});cat=category(c);pst=posture(c,cat)
     legs=pst!='standing' or (cat=='idle' and cfg.get('legsForStandingIdle',False))
     vals=MX.retarget(rig,lib,key,rest_frame,scene,cfg.get('gain'),cfg.get('hold'),{'left':'Right','right':'Left'}.get(old.get('hands')),cfg.get('smooth',0),legs)
@@ -64,12 +68,12 @@ for key,c in sorted(lib['clips'].items()):
            'onset':m2[0]-(a-1),'stroke':max(range(a-1,b),key=lambda f:spd[f])-(a-1),
            'apex':max(range(a-1,b),key=lambda f:tot[f])-(a-1),'release':m2[-1]-(a-1),
            'reachCm':round(100*max(peak.values()),1),'peakSpeed':round(top*scene.render.fps,2),
-           'tempo':round(min(1,cfg.get('maxHandSpeed',99)/(top*scene.render.fps)),3),'posture':pst,'legs':legs,'source':f"Mixamo: {c['name']} ({c['description']})"}
+           'tempo':round(min(1,cfg.get('maxHandSpeed',99)/(top*scene.render.fps)),3),'posture':pst,'legs':legs,'source':f"{'Rokoko' if c['mixamoId'].startswith('rokoko') else 'Mixamo'}: {c['name']} ({c['description']})"}
     old=LIB['clips'].get('mx_'+key,{})
     for k in('category','frames'):
         if old.get('locked') and k in old:entry[k]=old[k]
     out['mx_'+key]=entry;print('LANDMARK',key,json.dumps(entry),flush=True)
-for k in [k for k in LIB['clips'] if k.startswith('mx_') and k not in out]:del LIB['clips'][k]
+for k in [k for k in LIB['clips'] if k.startswith('mx_') and (not only or re.match(only,k[3:])) and k not in out]:del LIB['clips'][k]
 LIB['clips'].update(out)
 (Path(args[0]) if args else LP).write_text(json.dumps(LIB,indent=2)+'\n')
 print('MIXAMO_LANDMARKS',len(out),flush=True)

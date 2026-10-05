@@ -2991,6 +2991,14 @@
         "idle"
       ],
       [
+        "listening",
+        "listen"
+      ],
+      [
+        "head tilt",
+        "listen"
+      ],
+      [
         "wav\\w*",
         "greeting"
       ],
@@ -3113,6 +3121,26 @@
       [
         "hand raising",
         "greeting"
+      ],
+      [
+        "step",
+        "walk"
+      ],
+      [
+        "surprised",
+        "react"
+      ],
+      [
+        "presenting",
+        "open"
+      ],
+      [
+        "explaining",
+        "open"
+      ],
+      [
+        "emphasis",
+        "emphasis"
       ]
     ],
     "maxHandSpeed": 1.8,
