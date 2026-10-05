@@ -34,6 +34,7 @@ img_nrm = bpy.data.images.load(KRAFT + "Paper001_1K-JPG_NormalGL.jpg")
 img_nrm.colorspace_settings.name = 'Non-Color'
 img_con = bpy.data.images.load(CONCEPT)
 
+BAKED = False
 def paperize(mat):
     if not mat or not mat.use_nodes: return
     nt = mat.node_tree
@@ -44,6 +45,7 @@ def paperize(mat):
         bsdf.inputs['Specular IOR Level'].default_value = 0.15
     tc = nt.nodes.new('ShaderNodeTexCoord')
     ptex = nt.nodes.new('ShaderNodeTexImage'); ptex.image = img_con
+    cav = nt.nodes.new('ShaderNodeVertexColor'); cav.layer_name = "paperCol"
     uvn = nt.nodes.new('ShaderNodeUVMap'); uvn.uv_map = "projUV"
     if UBOX:
         um = nt.nodes.new('ShaderNodeMapping')
@@ -60,21 +62,24 @@ def paperize(mat):
     nt.links.new(mp.outputs['Vector'], ktex.inputs['Vector'])
     # contrast S-curve + saturation on the projected concept (kills baked softness)
     hs = nt.nodes.new('ShaderNodeHueSaturation')
-    hs.inputs['Saturation'].default_value = 1.14
-    hs.inputs['Value'].default_value = 1.02
-    nt.links.new(ptex.outputs['Color'], hs.inputs['Color'])
+    hs.inputs['Saturation'].default_value = 1.28
+    hs.inputs['Value'].default_value = 1.05
+    if BAKED:
+        nt.links.new(cav.outputs['Color'], hs.inputs['Color'])
+    else:
+        nt.links.new(ptex.outputs['Color'], hs.inputs['Color'])
     scurve = nt.nodes.new('ShaderNodeRGBCurve')
     cc = scurve.mapping.curves[3]
     cc.points.new(0.28, 0.18); cc.points.new(0.72, 0.82)
     scurve.mapping.update()
     nt.links.new(hs.outputs['Color'], scurve.inputs['Color'])
-    m1 = nt.nodes.new('ShaderNodeMixRGB'); m1.blend_type='MULTIPLY'; m1.inputs[0].default_value=0.7
+    m1 = nt.nodes.new('ShaderNodeMixRGB'); m1.blend_type='MULTIPLY'; m1.inputs[0].default_value=0.45
     nt.links.new(scurve.outputs['Color'], m1.inputs[1])
     nt.links.new(ktex.outputs['Color'], m1.inputs[2])
     geo = nt.nodes.new('ShaderNodeNewGeometry')
     ramp = nt.nodes.new('ShaderNodeValToRGB')
-    ramp.color_ramp.elements[0].color = (0.38,0.34,0.30,1); ramp.color_ramp.elements[0].position = 0.0
-    ramp.color_ramp.elements[1].color = (1,1,1,1);          ramp.color_ramp.elements[1].position = 0.45
+    ramp.color_ramp.elements[0].color = (0.40,0.36,0.31,1); ramp.color_ramp.elements[0].position = 0.0
+    ramp.color_ramp.elements[1].color = (1,1,1,1);          ramp.color_ramp.elements[1].position = 0.35
     m2 = nt.nodes.new('ShaderNodeMixRGB'); m2.blend_type='MULTIPLY'; m2.inputs[0].default_value=1.0
     nt.links.new(m1.outputs['Color'], m2.inputs[1])
     nt.links.new(geo.outputs['Pointiness'], ramp.inputs['Fac'])
@@ -121,15 +126,34 @@ for ob in meshes:
     for f in kill: bm.faces.remove(f)
     bm.to_mesh(ob.data); bm.free()
     print("stripped", len(kill), "slab faces")
+# separate head faces (world z > 1.44) into their own objects
+new_objs = []
+for ob in list(meshes):
+    bm3 = bmesh.new(); bm3.from_mesh(ob.data)
+    for f in bm3.faces:
+        f.select = (ob.matrix_world @ f.calc_center_median()).z > 1.44
+    bm3.to_mesh(ob.data); bm3.free()
+    bpy.context.view_layer.objects.active = ob; ob.select_set(True)
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_mode(type='FACE')
+    bpy.ops.mesh.separate(type='SELECTED')
+    bpy.ops.object.mode_set(mode='OBJECT')
+    ob.select_set(False)
+new_objs = [o for o in bpy.context.scene.objects
+            if o.type == 'MESH' and o not in meshes]
+meshes += new_objs
+for ob in new_objs:
+    for p in ob.data.polygons: p.use_smooth = False
+
 for ob in meshes:
-    dec = ob.modifiers.new("facet", 'DECIMATE'); dec.decimate_type='COLLAPSE'; dec.ratio = DEC
+    is_head = ob in new_objs
+    dec = ob.modifiers.new("facet", 'DECIMATE'); dec.decimate_type='COLLAPSE'
+    dec.ratio = 0.04 if is_head else DEC
     uvp = ob.modifiers.new("proj", 'UV_PROJECT')
     if not ob.data.materials:
         m = bpy.data.materials.new("paper"); m.use_nodes=True
         ob.data.materials.append(m)
-    for m in ob.data.materials: paperize(m)
 
-bpy.context.view_layer.update()
 bvs = []
 dg = bpy.context.evaluated_depsgraph_get()
 for ob in meshes:
@@ -139,6 +163,80 @@ hi = Vector((max(v.x for v in bvs), max(v.y for v in bvs), max(v.z for v in bvs)
 cx, cy = (lo.x+hi.x)/2, (lo.y+hi.y)/2
 top, bot = hi.z, lo.z
 mid = (top+bot)/2
+
+# square-ish ortho projector covering figure from front
+bpy.ops.object.camera_add()
+projcam = bpy.context.object
+projcam.data.type = 'ORTHO'
+projcam.data.ortho_scale = (hi.z-lo.z) * 1.02
+projcam.location = (cx, lo.y - 3.0, mid)
+projcam.rotation_euler = (Vector((cx,cy,mid)) - projcam.location).to_track_quat('-Z','Y').to_euler()
+for ob in meshes:
+    if not ob.data.uv_layers:
+        ob.data.uv_layers.new(name="projUV")
+    uvp = ob.modifiers.get("proj")
+    uvp.uv_layer = "projUV"
+    uvp.projector_count = 1
+    uvp.projectors[0].object = projcam
+    uvp.aspect_x = (hi.z-lo.z)/(hi.x-lo.x)
+    uvp.aspect_y = 1.0
+bpy.context.view_layer.update()
+
+# apply facet + projection so we can bake flat per-face colors
+for ob in meshes:
+    bpy.context.view_layer.objects.active = ob
+    ob.select_set(True)
+    for mn in ("facet", "proj"):
+        if ob.modifiers.get(mn):
+            bpy.ops.object.modifier_apply(modifier=mn)
+    ob.select_set(False)
+bpy.context.view_layer.update()
+
+# bake per-face flat colors: face-center UV -> concept texel -> corner color attr
+img = img_con
+W, H = img.size
+px = list(img.pixels)
+def texel(u, v):
+    x = min(max(int(u * W), 0), W-1); y = min(max(int(v * H), 0), H-1)
+    i = (y * W + x) * 4
+    return px[i], px[i+1], px[i+2], 1.0
+for ob in meshes:
+    uv = ob.data.uv_layers.get("projUV")
+    if uv is None: continue
+    bm = bmesh.new(); bm.from_mesh(ob.data)
+    uvl = bm.loops.layers.uv["projUV"]
+    cols = {}
+    for f in bm.faces:
+        us = [l[uvl].uv for l in f.loops]
+        n = len(us)
+        cu = sum(u.x for u in us)/n; cv = sum(u.y for u in us)/n
+        # area sample: centroid + each loop uv + edge midpoints
+        acc = [0.0,0.0,0.0]
+        cnt = 0
+        pts = [(cu,cv)] + [(u.x,u.y) for u in us]
+        for i in range(n):
+            a,b = us[i], us[(i+1)%n]
+            pts.append(((a.x+b.x)/2,(a.y+b.y)/2))
+            pts.append(((a.x+cu)/2,(a.y+cv)/2))
+        for (su,sv) in pts:
+            t = texel(su,sv)
+            acc[0]+=t[0]; acc[1]+=t[1]; acc[2]+=t[2]; cnt+=1
+        # attr values are read raw as linear in the shader
+        cols[f.index] = ((acc[0]/cnt)**2.2, (acc[1]/cnt)**2.2,
+                         (acc[2]/cnt)**2.2, 1.0)
+    bm.to_mesh(ob.data); bm.free()
+    ca = ob.data.color_attributes.new(name="paperCol", type='BYTE_COLOR',
+                                      domain='CORNER')
+    for p in ob.data.polygons:
+        c = cols[p.index]
+        for li in p.loop_indices:
+            ca.data[li].color = c
+    print("baked", len(cols), "face colors for", ob.name)
+
+BAKED = True
+for ob in meshes:
+    for m in ob.data.materials: paperize(m)
+
 
 def plane(name, loc, size, rot=(0,0,0)):
     bpy.ops.mesh.primitive_plane_add(size=size, location=loc, rotation=rot)
@@ -171,23 +269,6 @@ bpy.context.scene.world = bpy.data.worlds.new("w"); bpy.context.scene.world.use_
 bgn = bpy.context.scene.world.node_tree.nodes['Background']
 bgn.inputs[0].default_value = (0.90,0.89,0.86,1); bgn.inputs[1].default_value = 0.3
 
-# square-ish ortho projector covering figure from front
-bpy.ops.object.camera_add()
-projcam = bpy.context.object
-projcam.data.type = 'ORTHO'
-projcam.data.ortho_scale = (hi.z-lo.z) * 1.02
-projcam.location = (cx, lo.y - 3.0, mid)
-projcam.rotation_euler = (Vector((cx,cy,mid)) - projcam.location).to_track_quat('-Z','Y').to_euler()
-for ob in meshes:
-    if not ob.data.uv_layers:
-        ob.data.uv_layers.new(name="projUV")
-    uvp = ob.modifiers.get("proj")
-    uvp.uv_layer = "projUV"
-    uvp.projector_count = 1
-    uvp.projectors[0].object = projcam
-    uvp.aspect_x = (hi.z-lo.z)/(hi.x-lo.x)
-    uvp.aspect_y = 1.0
-
 bpy.ops.object.camera_add()
 cam = bpy.context.object; cam.data.lens = 62
 target = Vector((cx, cy, mid+0.02))
@@ -199,6 +280,7 @@ sc = bpy.context.scene
 sc.render.engine = 'CYCLES'; sc.cycles.samples=96; sc.cycles.use_denoising=True; sc.cycles.max_bounces=4
 sc.render.resolution_x=720; sc.render.resolution_y=1100
 sc.view_settings.look = 'AgX - Medium High Contrast'
+sc.view_settings.exposure = -0.45
 sc.render.filepath = OUT
 bpy.ops.render.render(write_still=True)
 print("WROTE", OUT)
