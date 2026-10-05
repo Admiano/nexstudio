@@ -5,6 +5,7 @@ timeline.json: {"sequence": [{"clip": "welcome"}, {"idle": 36}, ...], "idleBase"
 The original action is left untouched; the new action is assigned to the rig.
 """
 import bpy,sys,json,math,hashlib,struct
+from mathutils import Vector
 from pathlib import Path
 args=sys.argv[sys.argv.index('--')+1:];timeline_path,out=args[:2]
 LIB=json.loads((Path(__file__).resolve().parents[1]/'engine_sources/makehuman-lineart/character_system/gesture-clips.json').read_text())
@@ -74,6 +75,17 @@ for i,step in enumerate(timeline['sequence']):
         items.append(('idle',f'idle{n}',source_sampler(lambda k,a=a,span=span:a+(k%span if (k//span)%2==0 else span-k%span)),n))
     else:raise ValueError('BAD_STEP:'+json.dumps(step))
 keys=list(chan)+sorted(mixamo_keys-set(chan))
+# Root continuity: each clip's horizontal root path starts where the previous one
+# ended, so a seated clip after a sit-down stays on the seat instead of sliding.
+ROOT=[('pose.bones["root"].location',i) for i in range(3)]
+if all(k in keys for k in ROOT) and 'root' in rig.data.bones:
+    up=rig.data.bones['root'].matrix_local.to_3x3().inverted()@Vector((0,0,1));up.normalize()
+    off=Vector((0,0,0))
+    for i in range(1,len(items)):
+        pk,pn,pf,pl=items[i-1];k,nm,fn,n=items[i]
+        end=Vector([pf(key,pl-1) for key in ROOT])+off;start=Vector([fn(key,0) for key in ROOT])
+        d=end-start;off=d-up*d.dot(up)
+        items[i]=(k,nm,(lambda key,kk,fn=fn,o=off.copy():fn(key,kk)+(o[key[1]] if key in ROOT else 0)),n)
 # Blend length per join grows with how far apart the two poses are, so a clip
 # that ends mid-gesture eases back instead of snapping.
 def join(a,b):
