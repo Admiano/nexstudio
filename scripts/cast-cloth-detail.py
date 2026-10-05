@@ -1,5 +1,5 @@
 """Bounded fold easing and tapered drawn fold strokes on original garments."""
-import bpy,math,hashlib
+import bpy,bmesh,math,hashlib
 from pathlib import Path
 from mathutils import Vector
 PROFILE='illustrated-cloth-detail-v16'
@@ -98,16 +98,31 @@ def collar_clearance(ob,body):
     if not selected:return None
     group=ob.vertex_groups.get('Cast V16 collar clearance') or ob.vertex_groups.new(name='Cast V16 collar clearance');group.add(selected,1,'REPLACE')
     mod=ob.modifiers.get('Cast V16 collar clearance') or ob.modifiers.new('Cast V16 collar clearance','SHRINKWRAP')
-    mod.target=target;mod.vertex_group=group.name;mod.wrap_method='NEAREST_SURFACEPOINT';mod.wrap_mode='OUTSIDE';mod.offset=.002
+    # 3.5 mm: at 2 mm the dress faces between projected vertices still cut the convex shoulder.
+    mod.target=target;mod.vertex_group=group.name;mod.wrap_method='NEAREST_SURFACEPOINT';mod.wrap_mode='OUTSIDE';mod.offset=.0035
     solid=next((i for i,m in enumerate(ob.modifiers) if m.type=='SOLIDIFY'),None)
     if solid is not None:
         with bpy.context.temp_override(object=ob,active_object=ob):bpy.ops.object.modifier_move_to_index(modifier=mod.name,index=solid)
-    return {'vertices':len(selected),'minimumClearanceMetres':.002,'originalTopologyWeightsPreserved':True}
+    return {'vertices':len(selected),'minimumClearanceMetres':.0035,'originalTopologyWeightsPreserved':True}
+
+def close_pinholes(ob):
+    """Fill stray one-quad holes in garment sources; the edge-thickness rim turns them into shaded patches."""
+    bm=bmesh.new();bm.from_mesh(ob.data)
+    new=bmesh.ops.holes_fill(bm,edges=[e for e in bm.edges if e.is_boundary],sides=4)['faces']
+    for f in new:
+        ring=[l.link_loop_radial_next.face for l in f.loops if l.link_loop_radial_next.face is not f]
+        if not ring:continue
+        f.normal_update()
+        if f.normal.dot(sum((g.normal for g in ring),Vector()))<0:f.normal_flip()
+        f.material_index=ring[0].material_index;f.smooth=ring[0].smooth
+    if new:bm.to_mesh(ob.data);ob.data.update()
+    bm.free();return len(new)
 
 def apply_cloth_detail(scene):
     garments=[o for o in scene.objects if o.type=='MESH' and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and not any(k in o.name.lower() for k in ('shoe','sneaker','trouser','pants','jeans')) and not o.get('castGarmentSource')]
+    pinholes={o.name:n for o in scene.objects if o.type=='MESH' and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and (n:=close_pinholes(o))}
     rows=[]
     for ob in garments:
         rows.append({'object':ob.name,'collarClearance':collar_clearance(ob,bpy.data.objects['Host.body']),'foldEase':ease_folds(ob) if 'dress' in ob.name else None,'strokes':[taper_strokes(x) for x in scene.objects if x.get('castGarmentSource')==ob.name]})
     masks=cover_sleeve_roots(bpy.data.objects['Host.body'],garments)
-    return {'profile':PROFILE,'garments':rows,'sleeveMasks':masks,'codeSHA256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+    return {'profile':PROFILE,'garments':rows,'pinholesClosed':pinholes,'sleeveMasks':masks,'codeSHA256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}

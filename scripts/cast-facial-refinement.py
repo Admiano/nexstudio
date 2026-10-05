@@ -51,6 +51,8 @@ def new_bound_object(name,coordinates,faces,body,weights):
     arm=ob.modifiers.new('Original oral rig','ARMATURE');arm.object=body.parent
     smooth=ob.modifiers.new('Dental surface refinement','SUBSURF');smooth.levels=smooth.render_levels=2
     for face in mesh.polygons:face.use_smooth=True
+    # Same ID as the skin so the compositor's exterior outline doesn't trace the lip line.
+    ob.pass_index=body.pass_index
     ob['castFacialProfile']=PROFILE;return ob
 
 def gingival_clearance(ob):
@@ -94,6 +96,7 @@ def restore_oral_anatomy(scene,character):
     existing=[o for o in scene.objects if o.get('castFacialProfile')==PROFILE and o.name.startswith('Cast V12 oral')]
     if existing:
         for ob in existing:
+            ob.pass_index=body.pass_index
             if ob.name=='Cast V12 oral lower':gingival_clearance(ob)
         return {'reused':True,'objects':[o.name for o in existing]}
     target_co=shaped_coordinates(body);source_co=shaped_coordinates(guest);enamel=oral_material('enamel');gums=oral_material('gingiva');tongue_mat=oral_material('tongue');rows=[]

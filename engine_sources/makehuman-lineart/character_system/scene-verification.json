@@ -11,8 +11,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 36732011,
-    "sha256": "1464ba5c71a2e637120b7e43618814ea40eef05bdc2c2803e39a576c7b34c912"
+    "sizeBytes": 36732639,
+    "sha256": "d04b0ae0e8ede4cf16bb8e9ecf8bc4ce631467c779d43b3191512df4c1e24e05"
   },
   {
     "character": "female",
@@ -26,8 +26,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 40344051,
-    "sha256": "61ad1e5a50513614f705bb19e682ab18d0bf80f5f9a92005e782f93d6d766b86"
+    "sizeBytes": 40342530,
+    "sha256": "7a34dbdc7fcf073ce2ed1a9e2a414cf16776f88b9edc63531cb8ccdf7eff377f"
   },
   {
     "character": "female",
@@ -41,8 +41,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 51263584,
-    "sha256": "577726fdff7dd818ab85e85a63c64d0b74a6ebf43407e5ab387068aa21e9cd86"
+    "sizeBytes": 51264772,
+    "sha256": "bae063ee224142d6d8c6d017c41aa8ccf7d2e4a4018bf65d9ab003722b680046"
   },
   {
     "character": "female",
@@ -53,8 +53,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 43671283,
-    "sha256": "c5cfe23fab5a6c0b5a071c74ee3daf604748ac66169a2efea57e00ccdbc35e11"
+    "sizeBytes": 43671701,
+    "sha256": "a7418c13117abb33ec46e83facf0419c8f216298dbf75c96606998207c3a70aa"
   },
   {
     "character": "female",
@@ -68,8 +68,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 42992585,
-    "sha256": "d77f3991d153a752c295ef3e1865ec382ee37272d4e738a1d9fc18d21c40eccf"
+    "sizeBytes": 42994121,
+    "sha256": "368920369ef156548e78fb299aaf909a52a58a97976a37966488c9bdc63fdeb8"
   },
   {
     "character": "female",
@@ -83,8 +83,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 51772353,
-    "sha256": "d7bf48898bc1b4472cd7e697f3420dc97c6f83df1369899df92d13183bc1e9f2"
+    "sizeBytes": 51773249,
+    "sha256": "f5385b5b9cb3ba6dc38c4fbb2be50514341feb17323a0ab641bb8e78797667af"
   },
   {
     "character": "female",
@@ -95,8 +95,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 43670684,
-    "sha256": "679bf2239c72dd571cbd7ab461d80e6d72efb134a8711b8e6d32dc91ffb0c77c"
+    "sizeBytes": 43672262,
+    "sha256": "d5b5dde07c8cee2a098b41cb34c4a71577db00e85aac465e8cb326bc78b5d09d"
   },
   {
     "character": "male",
@@ -128,8 +128,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 21540354,
-    "sha256": "b0f5eca76a00d5fdc0b453dea347ac9d6955aa9c437bf5aaf5e65a5e4de05990"
+    "sizeBytes": 21539983,
+    "sha256": "500cfa0f1be7e0686ba4c7bb41f9ef7e4c66b11b347cfe7c7d8426e1dff84452"
   },
   {
     "character": "male",
@@ -161,8 +161,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 25551058,
-    "sha256": "584779f0980bd251d54af4c5528eecd9ea494cbdfbdc6d3b76d5d85f2db1bcae"
+    "sizeBytes": 25551143,
+    "sha256": "aca275c648fdd27959723266f37b58e36d966d2cc64fc07547b1cbc2109359b4"
   },
   {
     "character": "male",
@@ -194,8 +194,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 29049050,
-    "sha256": "05d64cfc35426305bcd0e1a269a7418d147eb9f93953280ac81eb21a569611d6"
+    "sizeBytes": 29044936,
+    "sha256": "13f95fa33c9d5124be64bf94aa824e5c375ae4772dbbd9541409e378463bd643"
   },
   {
     "character": "male",
@@ -224,8 +224,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 38920921,
-    "sha256": "4bca1c8b3991e513ae7f605f0a6a296b8cbed3c06f667a42c2ba9dc2996f97cb"
+    "sizeBytes": 38922119,
+    "sha256": "caf9e2aa4b71982d8b85a965e7adcd411642902d683701fc8c2355756c021b94"
   },
   {
     "character": "male",
@@ -257,8 +257,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 38920907,
-    "sha256": "405fa5d8aa2a5a31cde9cfd45caf6d7d17f83e7d3d96cb28f335cd3feb15b22a"
+    "sizeBytes": 38921366,
+    "sha256": "1c5b96c3ca6cb382328e19cf52f2b26ae1bad420a8444fae5066940033e9b362"
   },
   {
     "character": "male",
@@ -290,8 +290,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 30047011,
-    "sha256": "c8bfd625136fa9fc8e9b3ca7de3ec9c90f86a5b6a5af48bb9073fbc625460c45"
+    "sizeBytes": 30047178,
+    "sha256": "06f9cfb626001c77af6392aa8cf9cefe324ec943bb35a2a90e3d3d3f62a6cebc"
   },
   {
     "character": "male",
@@ -323,8 +323,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 25801055,
-    "sha256": "e234c561fb884a6190fe7d919d0e028606cd23205e8d4f7f909f7a90b88f4796"
+    "sizeBytes": 25800854,
+    "sha256": "6771b113b6e7f2a968fe923be9df520f1fb5cfb85c3c78f16153c5d6c9378c72"
   },
   {
     "character": "male",
@@ -353,7 +353,7 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 38921781,
-    "sha256": "d69f9c400b13bdaf64d62c4c6e506a1edf9bf2a6352a6703c8a26f16277c2554"
+    "sizeBytes": 38922190,
+    "sha256": "480c58d6b76599de337cb477afa5354672540c403314bd8a31a1a35362c84210"
   }
 ]

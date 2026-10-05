@@ -168,7 +168,8 @@ def bind_curves(scene,source,paths,radii,material,center):
         for w,indices in values.items():groups[name].add(indices,w,'REPLACE')
     arm=helper.modifiers.new('Original presenter skeleton','ARMATURE');arm.object=source.parent
     if any(k in source.name for k in ('culturalibre','blunt_bob')):
-        clear=helper.modifiers.new('Follow posed hair sheet clearance','SHRINKWRAP');clear.target=source;clear.wrap_method='NEAREST_SURFACEPOINT';clear.wrap_mode='OUTSIDE';clear.offset=.0004
+        # Keep fibres on the posed sheet; OUTSIDE alone lets shoulder-weighted strands lift off as flyaways.
+        clear=helper.modifiers.new('Follow posed hair sheet clearance','SHRINKWRAP');clear.target=source;clear.wrap_method='NEAREST_SURFACEPOINT';clear.wrap_mode='OUTSIDE_SURFACE';clear.offset=.0004
     cu=bpy.data.hair_curves.new('Cast groom fibres');cu.add_curves([len(p) for p in paths])
     cu.position_data.foreach_set('vector',array('f',(x for p in local for x in p)))
     rad=cu.attributes.new('radius','FLOAT','POINT');rad.data.foreach_set('value',array('f',radii))
