@@ -136,9 +136,19 @@ for (path,idx),vals in list(values.items()):
                 for g in group:g[f]/=n
 seat=timeline.get('seat') or {}
 seated_frames=0
-if seat.get('kneeGap'):
+if seat.get('kneeGap') or seat.get('height') is not None:
     sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_seat_pose
-    seated_frames=cast_seat_pose.narrow(rig,values,frames,float(seat['kneeGap']),seat.get('footGap'))
+    seated_frames=cast_seat_pose.narrow(rig,values,frames,seat.get('kneeGap'),seat.get('footGap'),seat.get('height'))
+# shoes were placed as rig-level props; ride them on the foot bones so they stay on moving feet
+rig.data.pose_position='REST';bpy.context.view_layer.update()
+for side in 'LR':
+    for o in [o for o in bpy.data.objects if o.parent==rig and o.parent_type=='OBJECT' and o.name.endswith(f'.lineart_shoe.{side}')]:
+        mw=o.matrix_world.copy();o.parent_type='BONE';o.parent_bone=f'foot.{side}';bpy.context.view_layer.update();o.matrix_world=mw
+rig.data.pose_position='POSE';bpy.context.view_layer.update()
+contact_frames=0
+if timeline.get('handContact',bool(seat)) and bpy.data.objects.get('Host.body'):
+    sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_hand_contact
+    contact_frames=cast_hand_contact.clear_hands(rig,bpy.data.objects['Host.body'],values,frames,float(timeline.get('handClearance',0.025)))
 def idle_layer(cfg):
     import random
     rng=random.Random(int(cfg.get('seed',1)));fps=LIB['source']['fps']
@@ -242,7 +252,7 @@ expressions=expression_layer(timeline['expressions'],face) if face and 'expressi
 rig.animation_data.action=act;rig.animation_data.action_slot=slot
 s=bpy.context.scene;s.frame_start=1;s.frame_end=total
 if digest(source)!=before:raise RuntimeError('SOURCE_ACTION_MUTATED')
-report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,'expressions':expressions,'seatNarrowedFrames':seated_frames,
+report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,'expressions':expressions,'seatNarrowedFrames':seated_frames,'handContactFrames':contact_frames,
         'sequence':[{'name':n,'start':st,'frames':l,'blendIn':bi} for st,l,_,n,bi,_ in placed]}
 bpy.ops.wm.save_as_mainfile(filepath=out,copy=True)
 print('GESTURE_TIMELINE',json.dumps(report),flush=True)

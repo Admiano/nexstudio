@@ -13,9 +13,13 @@ ROOT=Path(__file__).resolve().parents[1]/'engine_sources/makehuman-lineart/chara
 ap=argparse.ArgumentParser();ap.add_argument('words');ap.add_argument('out')
 ap.add_argument('--audio');ap.add_argument('--cues',default=str(ROOT/'gesture-cues.json'));ap.add_argument('--rhubarb')
 ap.add_argument('--seed',type=int,default=1);ap.add_argument('--posture',default='standing',help='standing or seated: which clips the planner may pick');ap.add_argument('--name',default='autoGestures')
+ap.add_argument('--mood',default='any',choices=('any','calm','expressive'),help='motion group from cast-motion-groups.py')
+ap.add_argument('--presenter',choices=('female','male'),help="excludes the other presenter's signature clips and favours this one's")
 for k in ('size','speed','frequency','expressiveness'):ap.add_argument('--'+k,type=float,default=1.0)
 a=ap.parse_args()
 LIB=json.loads((ROOT/'gesture-clips.json').read_text());CUES=json.loads(Path(a.cues).read_text());R=CUES['rules']
+# a mood also scales how often, how large and how fast the presenter gestures
+for k,v in LIB.get('groupRules',{}).get('moodStyle',{}).get(a.mood,{}).items():setattr(a,k,getattr(a,k)*v)
 fps=LIB['source']['fps'];rng=random.Random(a.seed)
 words=[(float(s),float(e),w) for s,e,w in json.loads(Path(a.words).read_text())]
 norm=lambda w:re.sub(r"[^\w']+",'',w.lower())
@@ -73,7 +77,14 @@ MXC=LIB.get('mixamo',{});reach_cap=MXC.get('maxAutoReachCm',1e9);min_frames=MXC.
 for name,c in LIB['clips'].items():
     if c.get('reachCm',0)>reach_cap or c['frames'][1]-c['frames'][0]+1<min_frames:continue
     if c.get('posture','standing')!=a.posture:continue
+    if a.presenter and c.get('presenter','any') not in ('any',a.presenter):continue
     clips.setdefault(c['category'],[]).append(name)
+# keep a category's mood matches only; a category with no match keeps every clip
+for cat,names in clips.items():
+    keep=[n for n in names if a.mood=='any' or LIB['clips'][n].get('mood')==a.mood]
+    if keep:clips[cat]=keep
+# presenter signature clips count as half-used so they are picked first
+bias=lambda n:-.5 if a.presenter and LIB['clips'][n].get('presenter')==a.presenter else 0
 fallback={'question':'open','emphasis':'open','scale':'open','greeting':'open','point':'beat','count':'open','open':'beat','negation':'beat','think':'question'}
 # per-clip tempo (Mixamo clips slowed to the presenter hand-speed cap) times the style speed
 spd=lambda n:a.speed*LIB['clips'][n].get('tempo',1)
@@ -87,7 +98,7 @@ for i,cat,prio in sorted(events,key=lambda e:-e[2]):
     if not cat:continue
     # spread usage: least-used clip first, spill into the fallback category once a category is worn
     if min(used.get(n,0) for n in clips[cat])>=R.get('maxRepeats',2) and fallback.get(cat) in clips:cat=fallback[cat]
-    low=min(used.get(n,0) for n in clips[cat]);name=rng.choice([n for n in clips[cat] if used.get(n,0)==low])
+    low=min(used.get(n,0)+bias(n) for n in clips[cat]);name=rng.choice([n for n in clips[cat] if used.get(n,0)+bias(n)==low])
     clip=LIB['clips'][name]
     if cat=='count':
         hits=[words[i][0]]
@@ -112,7 +123,7 @@ def add(cat,t):
 for start,end,name,word,cat in chosen:add(cat,(start-1+LIB['clips'][name].get('apex',LIB['clips'][name]['stroke'])/spd(name)+pad(name))/fps)
 for ph in phrases:
     if re.search(r'[.!]$',words[ph[-1]][2]):add('sentenceEnd',words[ph[-1]][1])
-out={'name':a.name,'expressions':expr,'sequence':seq,'style':{'size':a.size,'speed':a.speed},'idleLayer':{'seed':a.seed}}
+out={'name':a.name,'expressions':expr,'sequence':seq,'style':{'size':a.size,'speed':a.speed,'mood':a.mood,'presenter':a.presenter},'idleLayer':{'seed':a.seed}}
 if MXC.get('idleBase',{}).get(a.posture):out['idleBase']=MXC['idleBase'][a.posture]
 if a.rhubarb:out['lipSync']={'rhubarb':a.rhubarb,'mouthOpen':1.2}
 Path(a.out).write_text(json.dumps(out,indent=1)+'\n')

@@ -9,7 +9,7 @@ import AvatarStage, {type AvatarPreviewState} from "../cast/AvatarStage";
 import {castRenderConfig} from "../cast/render-config";
 import {
   DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
-  MALE_BOTTOMS, MALE_SHOES, MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, MALE_TOP_COLORS, NECKS, SKINS, VOICES, WATCHES,
+  MALE_BOTTOMS, MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, MALE_TOP_COLORS, NECKS, SKINS, VOICES, WATCHES,
   malePieces, normalizeCastSpec,
   type CastMember, type CastSpec,
 } from "../cast/spec";
@@ -46,7 +46,7 @@ function specSummary(s0: CastSpec): string {
     bits.push(`${(colour ?? "").toLowerCase()} ${(label ?? s.outfit.kind).toLowerCase()}`.trim());
   }
   if (s.watch && s.watch !== "none") bits.push(`${s.watch} watch`);
-  if(s.character==="male"){const p=malePieces(s);bits.push(MALE_BOTTOMS.find(b=>b.key===p.bottom)!.label.toLowerCase(),MALE_SHOES.find(b=>b.key===p.shoes)!.label.toLowerCase());}
+  if(s.character==="male"){const p=malePieces(s);bits.push(MALE_BOTTOMS.find(b=>b.key===p.bottom)!.label.toLowerCase());}
   return bits.join(" · ");
 }
 
@@ -357,7 +357,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
 </div>
 <div className="identity-group"><div className="identity-group-head"><label>Trousers</label><span>choose separately</span></div><div className="cast-image-options">{MALE_BOTTOMS.map(b=><OptionImage key={b.key} character="male" category="bottom" option={b.key} label={b.label} selected={malePieces(spec).bottom===b.key} onSelect={()=>patchPieces({bottom:b.key})} />)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_BOTTOMS.map(b=><button key={b.key} aria-label={"Trousers "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).bottomColor===b.hex} onClick={()=>patchPieces({bottomColor:b.hex})}/>)}<CustomColour label="Custom trouser colour" value={malePieces(spec).bottomColor} onChange={bottomColor=>patchPieces({bottomColor})}/></div></div>
 
-<div className="identity-group"><div className="identity-group-head"><label>Shoes</label><span>choose separately</span></div><div className="cast-image-options">{MALE_SHOES.map(b=><OptionImage key={b.key} character="male" category="shoes" option={b.key} label={b.label} selected={malePieces(spec).shoes===b.key} onSelect={()=>patchPieces({shoes:b.key})} />)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_SHOES.map(b=><button key={b.key} aria-label={"Shoes "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).shoesColor===b.hex} onClick={()=>patchPieces({shoesColor:b.hex})}/>)}<CustomColour label="Custom shoe colour" value={malePieces(spec).shoesColor} onChange={shoesColor=>patchPieces({shoesColor})}/></div></div>
+
 
                 </>
               )}

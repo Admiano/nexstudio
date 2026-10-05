@@ -33,7 +33,9 @@
       "stroke": 40,
       "onset": 5,
       "release": 57,
-      "apex": 25
+      "apex": 25,
+      "mood": "calm",
+      "presenter": "any"
     },
     "raise_right": {
       "frames": [
@@ -45,7 +47,9 @@
       "stroke": 11,
       "onset": 6,
       "release": 22,
-      "apex": 20
+      "apex": 20,
+      "mood": "calm",
+      "presenter": "any"
     },
     "offer_right": {
       "frames": [
@@ -57,7 +61,9 @@
       "stroke": 17,
       "onset": 6,
       "release": 28,
-      "apex": 21
+      "apex": 21,
+      "mood": "calm",
+      "presenter": "any"
     },
     "unsure_open": {
       "frames": [
@@ -69,7 +75,9 @@
       "stroke": 15,
       "onset": 6,
       "release": 54,
-      "apex": 22
+      "apex": 22,
+      "mood": "calm",
+      "presenter": "any"
     },
     "emphasis": {
       "frames": [
@@ -81,7 +89,9 @@
       "stroke": 68,
       "onset": 7,
       "release": 73,
-      "apex": 63
+      "apex": 63,
+      "mood": "expressive",
+      "presenter": "any"
     },
     "listen_left": {
       "frames": [
@@ -93,7 +103,9 @@
       "stroke": 17,
       "onset": 6,
       "release": 29,
-      "apex": 21
+      "apex": 21,
+      "mood": "calm",
+      "presenter": "any"
     },
     "count_three": {
       "frames": [
@@ -105,7 +117,9 @@
       "stroke": 96,
       "onset": 7,
       "release": 122,
-      "apex": 68
+      "apex": 68,
+      "mood": "calm",
+      "presenter": "any"
     },
     "small_to_big": {
       "frames": [
@@ -117,7 +131,9 @@
       "stroke": 9,
       "onset": 4,
       "release": 54,
-      "apex": 38
+      "apex": 38,
+      "mood": "calm",
+      "presenter": "any"
     },
     "right_here": {
       "frames": [
@@ -129,7 +145,9 @@
       "stroke": 35,
       "onset": 6,
       "release": 42,
-      "apex": 20
+      "apex": 20,
+      "mood": "calm",
+      "presenter": "any"
     },
     "beat_right": {
       "frames": [
@@ -141,7 +159,9 @@
       "stroke": 11,
       "onset": 7,
       "release": 27,
-      "apex": 17
+      "apex": 17,
+      "mood": "calm",
+      "presenter": "any"
     },
     "open_both": {
       "frames": [
@@ -153,7 +173,9 @@
       "stroke": 32,
       "onset": 7,
       "release": 41,
-      "apex": 18
+      "apex": 18,
+      "mood": "calm",
+      "presenter": "any"
     },
     "open_both_short": {
       "frames": [
@@ -165,7 +187,9 @@
       "stroke": 17,
       "onset": 5,
       "release": 29,
-      "apex": 16
+      "apex": 16,
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_acknowledging_acknowledging_gesture": {
       "mixamo": "acknowledging_acknowledging_gesture",
@@ -184,7 +208,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Acknowledging (Acknowledging Gesture)"
+      "source": "Mixamo: Acknowledging (Acknowledging Gesture)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_agreeing_agreeing_yes": {
       "mixamo": "agreeing_agreeing_yes",
@@ -203,7 +229,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Agreeing (Agreeing Yes)"
+      "source": "Mixamo: Agreeing (Agreeing Yes)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_annoyed_head_shake_shaking_head_no_annoyed": {
       "mixamo": "annoyed_head_shake_shaking_head_no_annoyed",
@@ -222,7 +250,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Annoyed Head Shake (Shaking Head No Annoyed)"
+      "source": "Mixamo: Annoyed Head Shake (Shaking Head No Annoyed)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_arm_gesture_gesturing_with_arm_to_the_side": {
       "mixamo": "arm_gesture_gesturing_with_arm_to_the_side",
@@ -241,7 +271,9 @@
       "tempo": 0.925,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Arm Gesture (Gesturing With Arm To The Side)"
+      "source": "Mixamo: Arm Gesture (Gesturing With Arm To The Side)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_bashful_being_bashful_while_standing": {
       "mixamo": "bashful_being_bashful_while_standing",
@@ -260,7 +292,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Bashful (Being Bashful While Standing)"
+      "source": "Mixamo: Bashful (Being Bashful While Standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_being_cocky_cocky_lean_back": {
       "mixamo": "being_cocky_cocky_lean_back",
@@ -279,7 +313,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Being Cocky (Cocky Lean Back)"
+      "source": "Mixamo: Being Cocky (Cocky Lean Back)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_bored_standing_around_bored_idle": {
       "mixamo": "bored_standing_around_bored_idle",
@@ -298,7 +334,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Bored (Standing Around Bored Idle)"
+      "source": "Mixamo: Bored (Standing Around Bored Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_breathing_idle_breathing_idle": {
       "mixamo": "breathing_idle_breathing_idle",
@@ -317,7 +355,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Breathing Idle (Breathing Idle)"
+      "source": "Mixamo: Breathing Idle (Breathing Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_clapping_clap_while_standing": {
       "mixamo": "clapping_clap_while_standing",
@@ -336,7 +376,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Clapping (Clap While Standing)"
+      "source": "Mixamo: Clapping (Clap While Standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_counting_counting_to_five_on_one_hand": {
       "mixamo": "counting_counting_to_five_on_one_hand",
@@ -355,7 +397,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Counting (Counting To Five On One Hand)"
+      "source": "Mixamo: Counting (Counting To Five On One Hand)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_disappointed_disappointed_awe_shucks": {
       "mixamo": "disappointed_disappointed_awe_shucks",
@@ -374,7 +418,9 @@
       "tempo": 0.522,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Disappointed (Disappointed \"Awe-Shucks\")"
+      "source": "Mixamo: Disappointed (Disappointed \"Awe-Shucks\")",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_dismissing_gesture_dismissing_with_back_hand": {
       "mixamo": "dismissing_gesture_dismissing_with_back_hand",
@@ -393,7 +439,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Dismissing Gesture (Dismissing With Back Hand)"
+      "source": "Mixamo: Dismissing Gesture (Dismissing With Back Hand)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_dismissing_gesture_dismissing_with_hand_forward": {
       "mixamo": "dismissing_gesture_dismissing_with_hand_forward",
@@ -412,7 +460,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Dismissing Gesture (Dismissing With Hand Forward)"
+      "source": "Mixamo: Dismissing Gesture (Dismissing With Hand Forward)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_fist_pump_pumping_a_fist": {
       "mixamo": "fist_pump_pumping_a_fist",
@@ -431,7 +481,9 @@
       "tempo": 0.893,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Fist Pump (Pumping A Fist)"
+      "source": "Mixamo: Fist Pump (Pumping A Fist)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_hand_raising_raising_a_hand": {
       "mixamo": "hand_raising_raising_a_hand",
@@ -450,7 +502,9 @@
       "tempo": 0.565,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Hand Raising (Raising A Hand)"
+      "source": "Mixamo: Hand Raising (Raising A Hand)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_hands_forward_gesture_two_handed_forward_gesture": {
       "mixamo": "hands_forward_gesture_two_handed_forward_gesture",
@@ -469,7 +523,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Hands Forward Gesture (Two Handed Forward Gesture)"
+      "source": "Mixamo: Hands Forward Gesture (Two Handed Forward Gesture)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_happy_hand_gesture_happy_forward_hand_gesture": {
       "mixamo": "happy_hand_gesture_happy_forward_hand_gesture",
@@ -488,7 +544,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Happy Hand Gesture (Happy Forward Hand Gesture)"
+      "source": "Mixamo: Happy Hand Gesture (Happy Forward Hand Gesture)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_happy_idle_happy_idle_variation_1": {
       "mixamo": "happy_idle_happy_idle_variation_1",
@@ -507,7 +565,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Happy Idle (Happy Idle Variation 1)"
+      "source": "Mixamo: Happy Idle (Happy Idle Variation 1)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_happy_idle_happy_idle_variation_2": {
       "mixamo": "happy_idle_happy_idle_variation_2",
@@ -526,7 +586,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Happy Idle (Happy Idle Variation 2)"
+      "source": "Mixamo: Happy Idle (Happy Idle Variation 2)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_head_gesture_gesturing_head_side_to_side": {
       "mixamo": "head_gesture_gesturing_head_side_to_side",
@@ -545,7 +607,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Head Gesture (Gesturing Head Side To Side)"
+      "source": "Mixamo: Head Gesture (Gesturing Head Side To Side)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_head_nod_yes_nodding_head_yes": {
       "mixamo": "head_nod_yes_nodding_head_yes",
@@ -564,7 +628,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Head Nod Yes (Nodding Head Yes)"
+      "source": "Mixamo: Head Nod Yes (Nodding Head Yes)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_idle_standing_idle": {
       "mixamo": "idle_standing_idle",
@@ -583,7 +649,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Idle (Standing Idle)"
+      "source": "Mixamo: Idle (Standing Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_idle_standing_short_idle": {
       "mixamo": "idle_standing_short_idle",
@@ -602,7 +670,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Idle (Standing Short Idle)"
+      "source": "Mixamo: Idle (Standing Short Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_idle_weight_shift_idle": {
       "mixamo": "idle_weight_shift_idle",
@@ -621,7 +691,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Idle (Weight Shift Idle)"
+      "source": "Mixamo: Idle (Weight Shift Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_lengthy_head_nod_nodding_head_yes": {
       "mixamo": "lengthy_head_nod_nodding_head_yes",
@@ -640,7 +712,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Lengthy Head Nod (Nodding Head Yes)"
+      "source": "Mixamo: Lengthy Head Nod (Nodding Head Yes)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_look_away_gesture_sarcastically_looking_away": {
       "mixamo": "look_away_gesture_sarcastically_looking_away",
@@ -659,7 +733,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Look Away Gesture (Sarcastically Looking Away)"
+      "source": "Mixamo: Look Away Gesture (Sarcastically Looking Away)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_looking_around_idle_stand_looking_around": {
       "mixamo": "looking_around_idle_stand_looking_around",
@@ -678,7 +754,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Looking Around (Idle Stand Looking Around)"
+      "source": "Mixamo: Looking Around (Idle Stand Looking Around)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_no_indicating_no": {
       "mixamo": "no_indicating_no",
@@ -697,7 +775,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: No (Indicating No)"
+      "source": "Mixamo: No (Indicating No)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_pointing_forward_looking_down_then_pointing_forward": {
       "mixamo": "pointing_forward_looking_down_then_pointing_forward",
@@ -716,7 +796,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Pointing Forward (Looking Down Then Pointing Forward)"
+      "source": "Mixamo: Pointing Forward (Looking Down Then Pointing Forward)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_pointing_gesture_aj_pointing_gesture": {
       "mixamo": "pointing_gesture_aj_pointing_gesture",
@@ -735,7 +817,9 @@
       "tempo": 0.929,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Pointing Gesture (Aj Pointing Gesture)"
+      "source": "Mixamo: Pointing Gesture (Aj Pointing Gesture)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_pointing_gesture_big_vegas_pointing_gesture": {
       "mixamo": "pointing_gesture_big_vegas_pointing_gesture",
@@ -754,7 +838,9 @@
       "tempo": 0.677,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Pointing Gesture (Big Vegas Pointing Gesture)"
+      "source": "Mixamo: Pointing Gesture (Big Vegas Pointing Gesture)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_pointing_pointing_behind_with_thumb": {
       "mixamo": "pointing_pointing_behind_with_thumb",
@@ -773,7 +859,9 @@
       "tempo": 0.667,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Pointing (Pointing Behind With Thumb)"
+      "source": "Mixamo: Pointing (Pointing Behind With Thumb)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_pointing_pointing_with_arm_bent": {
       "mixamo": "pointing_pointing_with_arm_bent",
@@ -792,7 +880,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Pointing (Pointing With Arm Bent)"
+      "source": "Mixamo: Pointing (Pointing With Arm Bent)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_reaching_out_reaching_out_gesture": {
       "mixamo": "reaching_out_reaching_out_gesture",
@@ -811,7 +901,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Reaching Out (Reaching Out Gesture)"
+      "source": "Mixamo: Reaching Out (Reaching Out Gesture)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sarcastic_head_nod_sarcastically_nodding_head_yes": {
       "mixamo": "sarcastic_head_nod_sarcastically_nodding_head_yes",
@@ -830,7 +922,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Sarcastic Head Nod (Sarcastically Nodding Head Yes)"
+      "source": "Mixamo: Sarcastic Head Nod (Sarcastically Nodding Head Yes)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_shake_gesture_big_vegas_shaking_gesturing": {
       "mixamo": "shake_gesture_big_vegas_shaking_gesturing",
@@ -849,7 +943,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Shake Gesture (Big Vegas Shaking Gesturing)"
+      "source": "Mixamo: Shake Gesture (Big Vegas Shaking Gesturing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_shaking_head_no_shaking_head_no_dismissively": {
       "mixamo": "shaking_head_no_shaking_head_no_dismissively",
@@ -868,7 +964,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Shaking Head No (Shaking Head No Dismissively)"
+      "source": "Mixamo: Shaking Head No (Shaking Head No Dismissively)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_shrugging_shoulder_shrug": {
       "mixamo": "shrugging_shoulder_shrug",
@@ -887,7 +985,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Shrugging (Shoulder Shrug)"
+      "source": "Mixamo: Shrugging (Shoulder Shrug)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_standing_arguing_standing_and_arguing_with_another_person": {
       "mixamo": "standing_arguing_standing_and_arguing_with_another_person",
@@ -906,7 +1006,9 @@
       "tempo": 0.541,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Standing Arguing (Standing And Arguing With Another Person)"
+      "source": "Mixamo: Standing Arguing (Standing And Arguing With Another Person)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_standing_arguing_standing_arguing_with_another_person": {
       "mixamo": "standing_arguing_standing_arguing_with_another_person",
@@ -925,7 +1027,9 @@
       "tempo": 0.471,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Standing Arguing (Standing Arguing With Another Person)"
+      "source": "Mixamo: Standing Arguing (Standing Arguing With Another Person)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_standing_fist_pump_restrained_enthusiasm_standing_fist_pump": {
       "mixamo": "standing_fist_pump_restrained_enthusiasm_standing_fist_pump",
@@ -944,7 +1048,9 @@
       "tempo": 0.76,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Standing Fist Pump (Restrained Enthusiasm Standing Fist Pump)"
+      "source": "Mixamo: Standing Fist Pump (Restrained Enthusiasm Standing Fist Pump)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_standing_greeting_greeting_while_standing": {
       "mixamo": "standing_greeting_greeting_while_standing",
@@ -963,7 +1069,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Standing Greeting (Greeting While Standing)"
+      "source": "Mixamo: Standing Greeting (Greeting While Standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_standing_thumbs_up_giving_thumbs_up_while_standing": {
       "mixamo": "standing_thumbs_up_giving_thumbs_up_while_standing",
@@ -982,7 +1090,9 @@
       "tempo": 0.819,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Standing Thumbs Up (Giving Thumbs Up While Standing)"
+      "source": "Mixamo: Standing Thumbs Up (Giving Thumbs Up While Standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_strong_gesture_sporty_granny_strong_gesture": {
       "mixamo": "strong_gesture_sporty_granny_strong_gesture",
@@ -1001,7 +1111,9 @@
       "tempo": 0.489,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Strong Gesture (Sporty Granny Strong Gesture)"
+      "source": "Mixamo: Strong Gesture (Sporty Granny Strong Gesture)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_talking_asking_a_question": {
       "mixamo": "talking_asking_a_question",
@@ -1020,7 +1132,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Talking (Asking A Question)"
+      "source": "Mixamo: Talking (Asking A Question)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_talking_asking_a_question_with_one_hand": {
       "mixamo": "talking_asking_a_question_with_one_hand",
@@ -1039,7 +1153,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Talking (Asking A Question With One Hand)"
+      "source": "Mixamo: Talking (Asking A Question With One Hand)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_talking_asking_a_question_with_two_hands": {
       "mixamo": "talking_asking_a_question_with_two_hands",
@@ -1058,7 +1174,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Talking (Asking A Question With Two Hands)"
+      "source": "Mixamo: Talking (Asking A Question With Two Hands)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_talking_general_conversation": {
       "mixamo": "talking_general_conversation",
@@ -1077,7 +1195,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Talking (General Conversation)"
+      "source": "Mixamo: Talking (General Conversation)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_talking_talking_finding_something_funny": {
       "mixamo": "talking_talking_finding_something_funny",
@@ -1096,7 +1216,9 @@
       "tempo": 0.986,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Talking (Talking Finding Something Funny)"
+      "source": "Mixamo: Talking (Talking Finding Something Funny)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_telling_a_secret_telling_a_secret": {
       "mixamo": "telling_a_secret_telling_a_secret",
@@ -1115,7 +1237,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Telling A Secret (Telling A Secret)"
+      "source": "Mixamo: Telling A Secret (Telling A Secret)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_thankful_being_thankful_while_standing": {
       "mixamo": "thankful_being_thankful_while_standing",
@@ -1134,7 +1258,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Thankful (Being Thankful While Standing)"
+      "source": "Mixamo: Thankful (Being Thankful While Standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_thinking_thinking_while_standing": {
       "mixamo": "thinking_thinking_while_standing",
@@ -1153,7 +1279,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Thinking (Thinking While Standing)"
+      "source": "Mixamo: Thinking (Thinking While Standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_thoughtful_head_nod_thoughtfully_nodding_head_yes": {
       "mixamo": "thoughtful_head_nod_thoughtfully_nodding_head_yes",
@@ -1172,7 +1300,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Thoughtful Head Nod (Thoughtfully Nodding Head Yes)"
+      "source": "Mixamo: Thoughtful Head Nod (Thoughtfully Nodding Head Yes)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_thoughtful_head_shake_shaking_head_no_thoughtfully": {
       "mixamo": "thoughtful_head_shake_shaking_head_no_thoughtfully",
@@ -1191,7 +1321,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Thoughtful Head Shake (Shaking Head No Thoughtfully)"
+      "source": "Mixamo: Thoughtful Head Shake (Shaking Head No Thoughtfully)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_unarmed_idle_standing_idle_loop": {
       "mixamo": "unarmed_idle_standing_idle_loop",
@@ -1210,7 +1342,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Unarmed Idle (Standing Idle- Loop)"
+      "source": "Mixamo: Unarmed Idle (Standing Idle- Loop)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_waving_emotional_waving_forward": {
       "mixamo": "waving_emotional_waving_forward",
@@ -1229,7 +1363,9 @@
       "tempo": 0.918,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Waving (Emotional Waving Forward)"
+      "source": "Mixamo: Waving (Emotional Waving Forward)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_waving_gesture_aj_waving_gesture": {
       "mixamo": "waving_gesture_aj_waving_gesture",
@@ -1248,7 +1384,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Waving Gesture (Aj Waving Gesture)"
+      "source": "Mixamo: Waving Gesture (Aj Waving Gesture)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_waving_waving": {
       "mixamo": "waving_waving",
@@ -1267,7 +1405,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Waving (Waving)"
+      "source": "Mixamo: Waving (Waving)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_waving_waving_with_both_hands": {
       "mixamo": "waving_waving_with_both_hands",
@@ -1286,7 +1426,9 @@
       "tempo": 0.591,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Waving (Waving With Both Hands)"
+      "source": "Mixamo: Waving (Waving With Both Hands)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_weight_shift_gesture_big_vegas_weight_shift_gesturing": {
       "mixamo": "weight_shift_gesture_big_vegas_weight_shift_gesturing",
@@ -1305,7 +1447,9 @@
       "tempo": 0.506,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Weight Shift Gesture (Big Vegas Weight Shift Gesturing)"
+      "source": "Mixamo: Weight Shift Gesture (Big Vegas Weight Shift Gesturing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_weight_shift_shifting_weight_from_side_to_side": {
       "mixamo": "weight_shift_shifting_weight_from_side_to_side",
@@ -1324,7 +1468,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Weight Shift (Shifting Weight From Side To Side)"
+      "source": "Mixamo: Weight Shift (Shifting Weight From Side To Side)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_whatever_gesture_aj_whatever_gesture": {
       "mixamo": "whatever_gesture_aj_whatever_gesture",
@@ -1343,7 +1489,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Whatever Gesture (Aj Whatever Gesture)"
+      "source": "Mixamo: Whatever Gesture (Aj Whatever Gesture)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_beckoning_waving_someone_over_while_seated": {
       "mixamo": "beckoning_waving_someone_over_while_seated",
@@ -1362,7 +1510,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Beckoning (Waving Someone Over While Seated)"
+      "source": "Mixamo: Beckoning (Waving Someone Over While Seated)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_catwalk_idle_01_male_standing_idle_01": {
       "mixamo": "catwalk_idle_01_male_standing_idle_01",
@@ -1381,7 +1531,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle 01 (Male Standing Idle 01)"
+      "source": "Mixamo: Catwalk Idle 01 (Male Standing Idle 01)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_idle_02_male_standing_idle_02": {
       "mixamo": "catwalk_idle_02_male_standing_idle_02",
@@ -1400,7 +1552,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle 02 (Male Standing Idle 02)"
+      "source": "Mixamo: Catwalk Idle 02 (Male Standing Idle 02)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_idle_female_standing_idle": {
       "mixamo": "catwalk_idle_female_standing_idle",
@@ -1419,7 +1573,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle (Female Standing Idle)"
+      "source": "Mixamo: Catwalk Idle (Female Standing Idle)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_idle_to_walk_forward_female_idle_to_walk_forward": {
       "mixamo": "catwalk_idle_to_walk_forward_female_idle_to_walk_forward",
@@ -1438,7 +1594,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle To Walk Forward (Female Idle To Walk Forward)"
+      "source": "Mixamo: Catwalk Idle To Walk Forward (Female Idle To Walk Forward)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_idle_to_walk_forward_male_idle_to_walk_forward": {
       "mixamo": "catwalk_idle_to_walk_forward_male_idle_to_walk_forward",
@@ -1457,7 +1615,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle To Walk Forward (Male Idle To Walk Forward)"
+      "source": "Mixamo: Catwalk Idle To Walk Forward (Male Idle To Walk Forward)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_idle_twist_l_female_twist_left_idle": {
       "mixamo": "catwalk_idle_twist_l_female_twist_left_idle",
@@ -1476,7 +1636,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle Twist L (Female Twist Left Idle)"
+      "source": "Mixamo: Catwalk Idle Twist L (Female Twist Left Idle)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_idle_twist_l_male_twist_left_idle": {
       "mixamo": "catwalk_idle_twist_l_male_twist_left_idle",
@@ -1495,7 +1657,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle Twist L (Male Twist Left Idle)"
+      "source": "Mixamo: Catwalk Idle Twist L (Male Twist Left Idle)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_idle_twist_r_female_twist_right_idle": {
       "mixamo": "catwalk_idle_twist_r_female_twist_right_idle",
@@ -1514,7 +1678,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle Twist R (Female Twist Right Idle)"
+      "source": "Mixamo: Catwalk Idle Twist R (Female Twist Right Idle)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_idle_twist_r_male_twist_right_idle": {
       "mixamo": "catwalk_idle_twist_r_male_twist_right_idle",
@@ -1533,7 +1699,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Catwalk Idle Twist R (Male Twist Right Idle)"
+      "source": "Mixamo: Catwalk Idle Twist R (Male Twist Right Idle)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_walk_stop_female_walk_forward_to_idle": {
       "mixamo": "catwalk_walk_stop_female_walk_forward_to_idle",
@@ -1552,7 +1720,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Catwalk Walk Stop (Female Walk Forward To Idle)"
+      "source": "Mixamo: Catwalk Walk Stop (Female Walk Forward To Idle)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_catwalk_walk_stop_male_walk_forward_to_idle": {
       "mixamo": "catwalk_walk_stop_male_walk_forward_to_idle",
@@ -1571,7 +1741,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Catwalk Walk Stop (Male Walk Forward To Idle)"
+      "source": "Mixamo: Catwalk Walk Stop (Male Walk Forward To Idle)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_cheering_while_sitting_cheering_while_sitting_and_talking_to": {
       "mixamo": "cheering_while_sitting_cheering_while_sitting_and_talking_to",
@@ -1590,7 +1762,9 @@
       "tempo": 0.718,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Cheering While Sitting (Cheering While Sitting And Talking To Neighbor)"
+      "source": "Mixamo: Cheering While Sitting (Cheering While Sitting And Talking To Neighbor)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_cheering_while_sitting_cheering_while_sitting_with_low_enthu": {
       "mixamo": "cheering_while_sitting_cheering_while_sitting_with_low_enthu",
@@ -1609,7 +1783,9 @@
       "tempo": 0.742,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Cheering While Sitting (Cheering While Sitting With Low Enthusiasm)"
+      "source": "Mixamo: Cheering While Sitting (Cheering While Sitting With Low Enthusiasm)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_clapping_clap_while_seated": {
       "mixamo": "clapping_clap_while_seated",
@@ -1628,7 +1804,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Clapping (Clap While Seated)"
+      "source": "Mixamo: Clapping (Clap While Seated)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_dice_idle_tapping_fingers_from_a_sitting_position": {
       "mixamo": "dice_idle_tapping_fingers_from_a_sitting_position",
@@ -1647,7 +1825,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Dice Idle (Tapping Fingers From A Sitting Position)"
+      "source": "Mixamo: Dice Idle (Tapping Fingers From A Sitting Position)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_female_start_walking_female_start_walking": {
       "mixamo": "female_start_walking_female_start_walking",
@@ -1666,7 +1846,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Female Start Walking (Female Start Walking)"
+      "source": "Mixamo: Female Start Walking (Female Start Walking)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_female_stop_and_start_walking_female_stop_start_walking": {
       "mixamo": "female_stop_and_start_walking_female_stop_start_walking",
@@ -1685,7 +1867,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Female Stop And Start Walking (Female Stop Start Walking)"
+      "source": "Mixamo: Female Stop And Start Walking (Female Stop Start Walking)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_female_stop_walking_female_stop_walking": {
       "mixamo": "female_stop_walking_female_stop_walking",
@@ -1704,7 +1888,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Female Stop Walking (Female Stop Walking)"
+      "source": "Mixamo: Female Stop Walking (Female Stop Walking)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_female_walk_female_normal_walk": {
       "mixamo": "female_walk_female_normal_walk",
@@ -1723,7 +1909,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Female Walk (Female Normal Walk)"
+      "source": "Mixamo: Female Walk (Female Normal Walk)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_happy_right_turn_turning_right": {
       "mixamo": "happy_right_turn_turning_right",
@@ -1742,7 +1930,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Happy Right Turn (Turning Right)"
+      "source": "Mixamo: Happy Right Turn (Turning Right)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_hard_head_nod_hard_head_nod_yes": {
       "mixamo": "hard_head_nod_hard_head_nod_yes",
@@ -1761,7 +1951,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Hard Head Nod (Hard Head Nod Yes)"
+      "source": "Mixamo: Hard Head Nod (Hard Head Nod Yes)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_idle_female_idle": {
       "mixamo": "idle_female_idle",
@@ -1780,7 +1972,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Idle (Female Idle)"
+      "source": "Mixamo: Idle (Female Idle)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_idle_male_fitness_idle_with_breathing": {
       "mixamo": "idle_male_fitness_idle_with_breathing",
@@ -1799,7 +1993,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Idle (Male Fitness Idle With Breathing)"
+      "source": "Mixamo: Idle (Male Fitness Idle With Breathing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_laughing_laughing_standing": {
       "mixamo": "laughing_laughing_standing",
@@ -1818,7 +2014,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Laughing (Laughing Standing)"
+      "source": "Mixamo: Laughing (Laughing Standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_left_turn_45_45_degree_left_turn_from_idle": {
       "mixamo": "left_turn_45_45_degree_left_turn_from_idle",
@@ -1837,7 +2035,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Left Turn 45 (45 Degree Left Turn From Idle)"
+      "source": "Mixamo: Left Turn 45 (45 Degree Left Turn From Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_left_turn_90_standing_left_turn": {
       "mixamo": "left_turn_90_standing_left_turn",
@@ -1856,7 +2056,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Left Turn 90 (Standing Left Turn)"
+      "source": "Mixamo: Left Turn 90 (Standing Left Turn)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_looking_behind_standing_idle_looking_behind_over_right_side": {
       "mixamo": "looking_behind_standing_idle_looking_behind_over_right_side",
@@ -1875,7 +2077,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Looking Behind (Standing Idle Looking Behind Over Right Side)"
+      "source": "Mixamo: Looking Behind (Standing Idle Looking Behind Over Right Side)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_neutral_idle_neutral_idle": {
       "mixamo": "neutral_idle_neutral_idle",
@@ -1894,7 +2098,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Neutral Idle (Neutral Idle)"
+      "source": "Mixamo: Neutral Idle (Neutral Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_pointing_pointing_while_seated": {
       "mixamo": "pointing_pointing_while_seated",
@@ -1913,7 +2119,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Pointing (Pointing While Seated)"
+      "source": "Mixamo: Pointing (Pointing While Seated)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_right_turn_90_standing_right_turn": {
       "mixamo": "right_turn_90_standing_right_turn",
@@ -1932,7 +2140,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Right Turn 90 (Standing Right Turn)"
+      "source": "Mixamo: Right Turn 90 (Standing Right Turn)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_right_turn_female_turning_right_in_place": {
       "mixamo": "right_turn_female_turning_right_in_place",
@@ -1951,7 +2161,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Right Turn (Female Turning Right In Place)"
+      "source": "Mixamo: Right Turn (Female Turning Right In Place)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_sad_idle_sad_idle_variation_1": {
       "mixamo": "sad_idle_sad_idle_variation_1",
@@ -1970,7 +2182,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Sad Idle (Sad Idle Variation 1)"
+      "source": "Mixamo: Sad Idle (Sad Idle Variation 1)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_sitting_and_pointing_sitting_and_pointing_forward": {
       "mixamo": "sitting_and_pointing_sitting_and_pointing_forward",
@@ -1989,7 +2203,9 @@
       "tempo": 0.849,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting And Pointing (Sitting And Pointing Forward)"
+      "source": "Mixamo: Sitting And Pointing (Sitting And Pointing Forward)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_angry_sitting_slightly_aggravated": {
       "mixamo": "sitting_angry_sitting_slightly_aggravated",
@@ -2008,7 +2224,9 @@
       "tempo": 0.865,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Angry (Sitting Slightly Aggravated)"
+      "source": "Mixamo: Sitting Angry (Sitting Slightly Aggravated)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_clap_sitting_ethusiastic_clap": {
       "mixamo": "sitting_clap_sitting_ethusiastic_clap",
@@ -2027,7 +2245,9 @@
       "tempo": 0.83,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Clap (Sitting Ethusiastic Clap)"
+      "source": "Mixamo: Sitting Clap (Sitting Ethusiastic Clap)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_clap_sitting_unethusiastic_clap": {
       "mixamo": "sitting_clap_sitting_unethusiastic_clap",
@@ -2046,7 +2266,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Clap (Sitting Unethusiastic Clap)"
+      "source": "Mixamo: Sitting Clap (Sitting Unethusiastic Clap)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_disapproval_sitting_and_shaking_finger_in_disapprova": {
       "mixamo": "sitting_disapproval_sitting_and_shaking_finger_in_disapprova",
@@ -2065,7 +2287,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Disapproval (Sitting And Shaking Finger In Disapproval)"
+      "source": "Mixamo: Sitting Disapproval (Sitting And Shaking Finger In Disapproval)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_disbelief_sitting_disbelief_with_hands_on_head": {
       "mixamo": "sitting_disbelief_sitting_disbelief_with_hands_on_head",
@@ -2084,7 +2308,9 @@
       "tempo": 0.828,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Disbelief (Sitting Disbelief With Hands On Head)"
+      "source": "Mixamo: Sitting Disbelief (Sitting Disbelief With Hands On Head)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_disbelief_sitting_in_disbelief_with_head_forward": {
       "mixamo": "sitting_disbelief_sitting_in_disbelief_with_head_forward",
@@ -2103,7 +2329,9 @@
       "tempo": 0.628,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Disbelief (Sitting In Disbelief With Head Forward)"
+      "source": "Mixamo: Sitting Disbelief (Sitting In Disbelief With Head Forward)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_fist_pump_low_enthusiasm_fist_pump_while_sitting": {
       "mixamo": "sitting_fist_pump_low_enthusiasm_fist_pump_while_sitting",
@@ -2122,7 +2350,9 @@
       "tempo": 0.683,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Fist Pump (Low Enthusiasm Fist Pump While Sitting)"
+      "source": "Mixamo: Sitting Fist Pump (Low Enthusiasm Fist Pump While Sitting)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_sitting_idle_sitting_in_chair_hands_resting_on_thighs": {
       "mixamo": "sitting_idle_sitting_in_chair_hands_resting_on_thighs",
@@ -2141,7 +2371,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Idle (Sitting In Chair Hands Resting On Thighs)"
+      "source": "Mixamo: Sitting Idle (Sitting In Chair Hands Resting On Thighs)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_sitting_idle_sitting_still_in_a_chair": {
       "mixamo": "sitting_idle_sitting_still_in_a_chair",
@@ -2160,7 +2392,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Idle (Sitting Still In A Chair)"
+      "source": "Mixamo: Sitting Idle (Sitting Still In A Chair)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_sitting_idle_sitting_with_breathing_idle": {
       "mixamo": "sitting_idle_sitting_with_breathing_idle",
@@ -2179,7 +2413,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Idle (Sitting With Breathing Idle)"
+      "source": "Mixamo: Sitting Idle (Sitting With Breathing Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_sitting_laughing_sitting_while_laughing": {
       "mixamo": "sitting_laughing_sitting_while_laughing",
@@ -2198,7 +2434,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Laughing (Sitting While Laughing)"
+      "source": "Mixamo: Sitting Laughing (Sitting While Laughing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_rubbing_arm_sitting_and_rubbing_arm": {
       "mixamo": "sitting_rubbing_arm_sitting_and_rubbing_arm",
@@ -2217,7 +2455,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Rubbing Arm (Sitting And Rubbing Arm)"
+      "source": "Mixamo: Sitting Rubbing Arm (Sitting And Rubbing Arm)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_sit_with_fidgeting_feet": {
       "mixamo": "sitting_sit_with_fidgeting_feet",
@@ -2236,7 +2476,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting (Sit With Fidgeting Feet)"
+      "source": "Mixamo: Sitting (Sit With Fidgeting Feet)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_sitting_and_impatiently_waiting": {
       "mixamo": "sitting_sitting_and_impatiently_waiting",
@@ -2255,7 +2497,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting (Sitting And Impatiently Waiting)"
+      "source": "Mixamo: Sitting (Sitting And Impatiently Waiting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_sitting_looking_side_to_side": {
       "mixamo": "sitting_sitting_looking_side_to_side",
@@ -2274,7 +2518,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting (Sitting Looking Side To Side)"
+      "source": "Mixamo: Sitting (Sitting Looking Side To Side)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_talking_sitting_and_talking_to_another_person": {
       "mixamo": "sitting_talking_sitting_and_talking_to_another_person",
@@ -2293,7 +2539,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Talking (Sitting And Talking To Another Person)"
+      "source": "Mixamo: Sitting Talking (Sitting And Talking To Another Person)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_sitting_thumbs_up_giving_thumbs_up_while_sitting": {
       "mixamo": "sitting_thumbs_up_giving_thumbs_up_while_sitting",
@@ -2312,7 +2560,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Thumbs Up (Giving Thumbs Up While Sitting)"
+      "source": "Mixamo: Sitting Thumbs Up (Giving Thumbs Up While Sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_sitting_victory_celebrating_victory_while_sitting": {
       "mixamo": "sitting_victory_celebrating_victory_while_sitting",
@@ -2331,7 +2581,9 @@
       "tempo": 0.56,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Sitting Victory (Celebrating Victory While Sitting)"
+      "source": "Mixamo: Sitting Victory (Celebrating Victory While Sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_stand_to_sit_standing_to_sitting_transition": {
       "mixamo": "stand_to_sit_standing_to_sitting_transition",
@@ -2350,7 +2602,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Stand To Sit (Standing To Sitting Transition)"
+      "source": "Mixamo: Stand To Sit (Standing To Sitting Transition)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_stand_up_standing_up_from_seated_position": {
       "mixamo": "stand_up_standing_up_from_seated_position",
@@ -2369,7 +2623,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Stand Up (Standing Up From Seated Position)"
+      "source": "Mixamo: Stand Up (Standing Up From Seated Position)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_standard_walk_standard_walk": {
       "mixamo": "standard_walk_standard_walk",
@@ -2388,7 +2644,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Standard Walk (Standard Walk)"
+      "source": "Mixamo: Standard Walk (Standard Walk)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_standing_idle_02_standing_idle_looking_around": {
       "mixamo": "standing_idle_02_standing_idle_looking_around",
@@ -2407,7 +2665,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Standing Idle 02 (Standing Idle Looking Around)"
+      "source": "Mixamo: Standing Idle 02 (Standing Idle Looking Around)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_standing_idle_standing_idle": {
       "mixamo": "standing_idle_standing_idle",
@@ -2426,7 +2686,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Standing Idle (Standing Idle)"
+      "source": "Mixamo: Standing Idle (Standing Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_standing_turn_left_90_turning_90_degrees_left": {
       "mixamo": "standing_turn_left_90_turning_90_degrees_left",
@@ -2445,7 +2707,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Standing Turn Left 90 (Turning 90 Degrees Left)"
+      "source": "Mixamo: Standing Turn Left 90 (Turning 90 Degrees Left)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_standing_turn_right_90_turning_90_degrees_right": {
       "mixamo": "standing_turn_right_90_turning_90_degrees_right",
@@ -2464,7 +2728,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Standing Turn Right 90 (Turning 90 Degrees Right)"
+      "source": "Mixamo: Standing Turn Right 90 (Turning 90 Degrees Right)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_standing_walk_forward_walking_forwards": {
       "mixamo": "standing_walk_forward_walking_forwards",
@@ -2483,7 +2749,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Standing Walk Forward (Walking Forwards)"
+      "source": "Mixamo: Standing Walk Forward (Walking Forwards)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_standing_walk_left_walking_left": {
       "mixamo": "standing_walk_left_walking_left",
@@ -2502,7 +2770,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Standing Walk Left (Walking Left)"
+      "source": "Mixamo: Standing Walk Left (Walking Left)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_standing_walk_right_walking_right": {
       "mixamo": "standing_walk_right_walking_right",
@@ -2521,7 +2791,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Standing Walk Right (Walking Right)"
+      "source": "Mixamo: Standing Walk Right (Walking Right)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_start_walking_walking_from_standing": {
       "mixamo": "start_walking_walking_from_standing",
@@ -2540,7 +2812,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Start Walking (Walking From Standing)"
+      "source": "Mixamo: Start Walking (Walking From Standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_stop_walking_walking_to_standing_idle": {
       "mixamo": "stop_walking_walking_to_standing_idle",
@@ -2559,7 +2833,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Stop Walking (Walking To Standing Idle)"
+      "source": "Mixamo: Stop Walking (Walking To Standing Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_talking_at_watercooler_having_a_chat_at_the_watercooler": {
       "mixamo": "talking_at_watercooler_having_a_chat_at_the_watercooler",
@@ -2578,7 +2854,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Mixamo: Talking At Watercooler (Having A Chat At The Watercooler)"
+      "source": "Mixamo: Talking At Watercooler (Having A Chat At The Watercooler)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_talking_male_talking_while_seated": {
       "mixamo": "talking_male_talking_while_seated",
@@ -2597,7 +2875,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Mixamo: Talking (Male Talking While Seated)"
+      "source": "Mixamo: Talking (Male Talking While Seated)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_turning_turning_in_place": {
       "mixamo": "turning_turning_in_place",
@@ -2616,7 +2896,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Turning (Turning In Place)"
+      "source": "Mixamo: Turning (Turning In Place)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_unarmed_idle_01_standing_idle_unarmed": {
       "mixamo": "unarmed_idle_01_standing_idle_unarmed",
@@ -2635,7 +2917,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Unarmed Idle 01 (Standing Idle Unarmed)"
+      "source": "Mixamo: Unarmed Idle 01 (Standing Idle Unarmed)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_unarmed_idle_01_unarmed_idle": {
       "mixamo": "unarmed_idle_01_unarmed_idle",
@@ -2654,7 +2938,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Unarmed Idle 01 (Unarmed Idle)"
+      "source": "Mixamo: Unarmed Idle 01 (Unarmed Idle)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_unarmed_idle_looking_ver_1_looking_around": {
       "mixamo": "unarmed_idle_looking_ver_1_looking_around",
@@ -2673,7 +2959,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Unarmed Idle Looking Ver. 1 (Looking Around)"
+      "source": "Mixamo: Unarmed Idle Looking Ver. 1 (Looking Around)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_unarmed_idle_looking_ver_2_looking_around": {
       "mixamo": "unarmed_idle_looking_ver_2_looking_around",
@@ -2692,7 +2980,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Mixamo: Unarmed Idle Looking Ver. 2 (Looking Around)"
+      "source": "Mixamo: Unarmed Idle Looking Ver. 2 (Looking Around)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_unarmed_walk_forward_walking_forward": {
       "mixamo": "unarmed_walk_forward_walking_forward",
@@ -2711,7 +3001,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Unarmed Walk Forward (Walking Forward)"
+      "source": "Mixamo: Unarmed Walk Forward (Walking Forward)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_walk_female_walk": {
       "mixamo": "walk_female_walk",
@@ -2730,7 +3022,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Walk (Female Walk)"
+      "source": "Mixamo: Walk (Female Walk)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_walking_arc_left_female_walk_arc_left": {
       "mixamo": "walking_arc_left_female_walk_arc_left",
@@ -2749,7 +3043,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Walking Arc Left (Female Walk Arc Left)"
+      "source": "Mixamo: Walking Arc Left (Female Walk Arc Left)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_walking_feminine_walk_forward": {
       "mixamo": "walking_feminine_walk_forward",
@@ -2768,7 +3064,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Walking (Feminine Walk Forward)"
+      "source": "Mixamo: Walking (Feminine Walk Forward)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_walking_left_turn_turning_left_while_walking": {
       "mixamo": "walking_left_turn_turning_left_while_walking",
@@ -2787,7 +3085,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Walking Left Turn (Turning Left While Walking)"
+      "source": "Mixamo: Walking Left Turn (Turning Left While Walking)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_walking_male_happy_walk": {
       "mixamo": "walking_male_happy_walk",
@@ -2806,7 +3106,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Walking (Male Happy Walk)"
+      "source": "Mixamo: Walking (Male Happy Walk)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_walking_male_standard_walk": {
       "mixamo": "walking_male_standard_walk",
@@ -2825,7 +3127,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Walking (Male Standard Walk)"
+      "source": "Mixamo: Walking (Male Standard Walk)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_walking_turn_180_turning_180_degrees_while_walking": {
       "mixamo": "walking_turn_180_turning_180_degrees_while_walking",
@@ -2844,7 +3148,9 @@
       "tempo": 0.826,
       "posture": "moving",
       "legs": true,
-      "source": "Mixamo: Walking Turn 180 (Turning 180 Degrees While Walking)"
+      "source": "Mixamo: Walking Turn 180 (Turning 180 Degrees While Walking)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_arguing_idle_01": {
       "mixamo": "ro_arguing_idle_01",
@@ -2863,7 +3169,9 @@
       "tempo": 0.372,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Arguing Idle part 1 (arguing, standing)"
+      "source": "Rokoko: Arguing Idle part 1 (arguing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_arguing_idle_04": {
       "mixamo": "ro_arguing_idle_04",
@@ -2882,7 +3190,9 @@
       "tempo": 0.951,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Arguing Idle part 4 (arguing, standing)"
+      "source": "Rokoko: Arguing Idle part 4 (arguing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_arguing_idle_05": {
       "mixamo": "ro_arguing_idle_05",
@@ -2901,7 +3211,9 @@
       "tempo": 0.991,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Arguing Idle part 5 (arguing, standing)"
+      "source": "Rokoko: Arguing Idle part 5 (arguing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_arguing_idle_06": {
       "mixamo": "ro_arguing_idle_06",
@@ -2920,7 +3232,9 @@
       "tempo": 0.891,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Arguing Idle part 6 (arguing, standing)"
+      "source": "Rokoko: Arguing Idle part 6 (arguing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_arguing_idle_07": {
       "mixamo": "ro_arguing_idle_07",
@@ -2939,7 +3253,9 @@
       "tempo": 0.999,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Arguing Idle part 7 (arguing, standing)"
+      "source": "Rokoko: Arguing Idle part 7 (arguing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_arguing_idle_09": {
       "mixamo": "ro_arguing_idle_09",
@@ -2958,7 +3274,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Arguing Idle part 9 (arguing, standing)"
+      "source": "Rokoko: Arguing Idle part 9 (arguing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_aside_to_camera_01": {
       "mixamo": "ro_aside_to_camera_01",
@@ -2977,7 +3295,9 @@
       "tempo": 0.383,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera part 1 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera part 1 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_02": {
       "mixamo": "ro_aside_to_camera_02",
@@ -2996,7 +3316,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera part 2 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera part 2 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_03": {
       "mixamo": "ro_aside_to_camera_03",
@@ -3015,7 +3337,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera part 3 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera part 3 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_04": {
       "mixamo": "ro_aside_to_camera_04",
@@ -3034,7 +3358,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera part 4 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera part 4 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_05": {
       "mixamo": "ro_aside_to_camera_05",
@@ -3053,7 +3379,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera part 5 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera part 5 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_two_01": {
       "mixamo": "ro_aside_to_camera_two_01",
@@ -3072,7 +3400,9 @@
       "tempo": 0.351,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera Two part 1 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera Two part 1 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_two_02": {
       "mixamo": "ro_aside_to_camera_two_02",
@@ -3091,7 +3421,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera Two part 2 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera Two part 2 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_two_03": {
       "mixamo": "ro_aside_to_camera_two_03",
@@ -3110,7 +3442,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera Two part 3 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera Two part 3 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_two_04": {
       "mixamo": "ro_aside_to_camera_two_04",
@@ -3129,7 +3463,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera Two part 4 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera Two part 4 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_aside_to_camera_two_05": {
       "mixamo": "ro_aside_to_camera_two_05",
@@ -3148,7 +3484,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Aside To Camera Two part 5 (telling a secret, talking, standing)"
+      "source": "Rokoko: Aside To Camera Two part 5 (telling a secret, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_camera_looks_03": {
       "mixamo": "ro_camera_looks_03",
@@ -3167,7 +3505,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Camera Looks part 3 (reacting, looking, standing)"
+      "source": "Rokoko: Camera Looks part 3 (reacting, looking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_camera_looks_04": {
       "mixamo": "ro_camera_looks_04",
@@ -3186,7 +3526,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Camera Looks part 4 (reacting, looking, standing)"
+      "source": "Rokoko: Camera Looks part 4 (reacting, looking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_camera_looks_06": {
       "mixamo": "ro_camera_looks_06",
@@ -3205,7 +3547,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Camera Looks part 6 (reacting, looking, standing)"
+      "source": "Rokoko: Camera Looks part 6 (reacting, looking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_camera_looks_08": {
       "mixamo": "ro_camera_looks_08",
@@ -3224,7 +3568,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Camera Looks part 8 (reacting, looking, standing)"
+      "source": "Rokoko: Camera Looks part 8 (reacting, looking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_camera_looks_10": {
       "mixamo": "ro_camera_looks_10",
@@ -3243,7 +3589,9 @@
       "tempo": 0.865,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Camera Looks part 10 (reacting, looking, standing)"
+      "source": "Rokoko: Camera Looks part 10 (reacting, looking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_camera_looks_11": {
       "mixamo": "ro_camera_looks_11",
@@ -3262,7 +3610,9 @@
       "tempo": 0.973,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Camera Looks part 11 (reacting, looking, standing)"
+      "source": "Rokoko: Camera Looks part 11 (reacting, looking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_chatting_idle_01": {
       "mixamo": "ro_chatting_idle_01",
@@ -3281,7 +3631,9 @@
       "tempo": 0.34,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle part 1 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle part 1 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_02": {
       "mixamo": "ro_chatting_idle_02",
@@ -3300,7 +3652,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle part 2 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle part 2 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_03": {
       "mixamo": "ro_chatting_idle_03",
@@ -3319,7 +3673,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle part 3 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle part 3 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_04": {
       "mixamo": "ro_chatting_idle_04",
@@ -3338,7 +3694,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle part 4 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle part 4 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_05": {
       "mixamo": "ro_chatting_idle_05",
@@ -3357,7 +3715,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle part 5 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle part 5 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_two_01": {
       "mixamo": "ro_chatting_idle_two_01",
@@ -3376,7 +3736,9 @@
       "tempo": 0.332,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle Two part 1 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle Two part 1 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_two_04": {
       "mixamo": "ro_chatting_idle_two_04",
@@ -3395,7 +3757,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle Two part 4 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle Two part 4 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_two_05": {
       "mixamo": "ro_chatting_idle_two_05",
@@ -3414,7 +3778,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle Two part 5 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle Two part 5 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_two_06": {
       "mixamo": "ro_chatting_idle_two_06",
@@ -3433,7 +3799,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle Two part 6 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle Two part 6 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_two_08": {
       "mixamo": "ro_chatting_idle_two_08",
@@ -3452,7 +3820,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle Two part 8 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle Two part 8 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_chatting_idle_two_09": {
       "mixamo": "ro_chatting_idle_two_09",
@@ -3471,7 +3841,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Chatting Idle Two part 9 (idle, talking, standing)"
+      "source": "Rokoko: Chatting Idle Two part 9 (idle, talking, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_conversation_idle_01": {
       "mixamo": "ro_conversation_idle_01",
@@ -3490,7 +3862,9 @@
       "tempo": 0.423,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Conversation Idle part 1 (idle, listening, standing)"
+      "source": "Rokoko: Conversation Idle part 1 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_conversation_idle_02": {
       "mixamo": "ro_conversation_idle_02",
@@ -3509,7 +3883,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Conversation Idle part 2 (idle, listening, standing)"
+      "source": "Rokoko: Conversation Idle part 2 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_conversation_idle_03": {
       "mixamo": "ro_conversation_idle_03",
@@ -3528,7 +3904,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Conversation Idle part 3 (idle, listening, standing)"
+      "source": "Rokoko: Conversation Idle part 3 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_conversation_idle_04": {
       "mixamo": "ro_conversation_idle_04",
@@ -3547,7 +3925,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Conversation Idle part 4 (idle, listening, standing)"
+      "source": "Rokoko: Conversation Idle part 4 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_conversation_idle_05": {
       "mixamo": "ro_conversation_idle_05",
@@ -3566,7 +3946,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Conversation Idle part 5 (idle, listening, standing)"
+      "source": "Rokoko: Conversation Idle part 5 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_conversation_idle_06": {
       "mixamo": "ro_conversation_idle_06",
@@ -3585,7 +3967,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Conversation Idle part 6 (idle, listening, standing)"
+      "source": "Rokoko: Conversation Idle part 6 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_desk_typing_and_mouse_01": {
       "mixamo": "ro_desk_typing_and_mouse_01",
@@ -3604,7 +3988,9 @@
       "tempo": 0.309,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Desk Typing And Mouse part 1 (typing at desk, sitting)"
+      "source": "Rokoko: Desk Typing And Mouse part 1 (typing at desk, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_desk_typing_and_mouse_04": {
       "mixamo": "ro_desk_typing_and_mouse_04",
@@ -3623,7 +4009,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Desk Typing And Mouse part 4 (typing at desk, sitting)"
+      "source": "Rokoko: Desk Typing And Mouse part 4 (typing at desk, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_desk_typing_and_mouse_05": {
       "mixamo": "ro_desk_typing_and_mouse_05",
@@ -3642,7 +4030,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Desk Typing And Mouse part 5 (typing at desk, sitting)"
+      "source": "Rokoko: Desk Typing And Mouse part 5 (typing at desk, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_desk_typing_and_mouse_06": {
       "mixamo": "ro_desk_typing_and_mouse_06",
@@ -3661,7 +4051,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Desk Typing And Mouse part 6 (typing at desk, sitting)"
+      "source": "Rokoko: Desk Typing And Mouse part 6 (typing at desk, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_desk_typing_and_mouse_07": {
       "mixamo": "ro_desk_typing_and_mouse_07",
@@ -3680,7 +4072,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Desk Typing And Mouse part 7 (typing at desk, sitting)"
+      "source": "Rokoko: Desk Typing And Mouse part 7 (typing at desk, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_desk_typing_and_mouse_11": {
       "mixamo": "ro_desk_typing_and_mouse_11",
@@ -3699,7 +4093,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Desk Typing And Mouse part 11 (typing at desk, sitting)"
+      "source": "Rokoko: Desk Typing And Mouse part 11 (typing at desk, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_double_takes_01": {
       "mixamo": "ro_double_takes_01",
@@ -3718,7 +4114,9 @@
       "tempo": 0.299,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Double Takes part 1 (disbelief, surprised, reacting, standing)"
+      "source": "Rokoko: Double Takes part 1 (disbelief, surprised, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_double_takes_07": {
       "mixamo": "ro_double_takes_07",
@@ -3737,7 +4135,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Double Takes part 7 (disbelief, surprised, reacting, standing)"
+      "source": "Rokoko: Double Takes part 7 (disbelief, surprised, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_double_takes_08": {
       "mixamo": "ro_double_takes_08",
@@ -3756,7 +4156,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Double Takes part 8 (disbelief, surprised, reacting, standing)"
+      "source": "Rokoko: Double Takes part 8 (disbelief, surprised, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_double_takes_09": {
       "mixamo": "ro_double_takes_09",
@@ -3775,7 +4177,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Double Takes part 9 (disbelief, surprised, reacting, standing)"
+      "source": "Rokoko: Double Takes part 9 (disbelief, surprised, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_double_takes_10": {
       "mixamo": "ro_double_takes_10",
@@ -3794,7 +4198,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Double Takes part 10 (disbelief, surprised, reacting, standing)"
+      "source": "Rokoko: Double Takes part 10 (disbelief, surprised, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_double_takes_11": {
       "mixamo": "ro_double_takes_11",
@@ -3813,7 +4219,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Double Takes part 11 (disbelief, surprised, reacting, standing)"
+      "source": "Rokoko: Double Takes part 11 (disbelief, surprised, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_face_palms_01": {
       "mixamo": "ro_face_palms_01",
@@ -3832,7 +4240,9 @@
       "tempo": 0.383,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Face Palms part 1 (disbelief, reacting, standing)"
+      "source": "Rokoko: Face Palms part 1 (disbelief, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_face_palms_02": {
       "mixamo": "ro_face_palms_02",
@@ -3851,7 +4261,9 @@
       "tempo": 0.993,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Face Palms part 2 (disbelief, reacting, standing)"
+      "source": "Rokoko: Face Palms part 2 (disbelief, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_face_palms_03": {
       "mixamo": "ro_face_palms_03",
@@ -3870,7 +4282,9 @@
       "tempo": 0.991,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Face Palms part 3 (disbelief, reacting, standing)"
+      "source": "Rokoko: Face Palms part 3 (disbelief, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_face_palms_05": {
       "mixamo": "ro_face_palms_05",
@@ -3889,7 +4303,9 @@
       "tempo": 0.698,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Face Palms part 5 (disbelief, reacting, standing)"
+      "source": "Rokoko: Face Palms part 5 (disbelief, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_face_palms_06": {
       "mixamo": "ro_face_palms_06",
@@ -3908,7 +4324,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Face Palms part 6 (disbelief, reacting, standing)"
+      "source": "Rokoko: Face Palms part 6 (disbelief, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_face_palms_09": {
       "mixamo": "ro_face_palms_09",
@@ -3927,7 +4345,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Face Palms part 9 (disbelief, reacting, standing)"
+      "source": "Rokoko: Face Palms part 9 (disbelief, reacting, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_fist_pumps_01": {
       "mixamo": "ro_fist_pumps_01",
@@ -3946,7 +4366,9 @@
       "tempo": 0.388,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Fist Pumps part 1 (fist pump, cheering, standing)"
+      "source": "Rokoko: Fist Pumps part 1 (fist pump, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_fist_pumps_02": {
       "mixamo": "ro_fist_pumps_02",
@@ -3965,7 +4387,9 @@
       "tempo": 0.714,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Fist Pumps part 2 (fist pump, cheering, standing)"
+      "source": "Rokoko: Fist Pumps part 2 (fist pump, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_fist_pumps_05": {
       "mixamo": "ro_fist_pumps_05",
@@ -3984,7 +4408,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Fist Pumps part 5 (fist pump, cheering, standing)"
+      "source": "Rokoko: Fist Pumps part 5 (fist pump, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_fist_pumps_06": {
       "mixamo": "ro_fist_pumps_06",
@@ -4003,7 +4429,9 @@
       "tempo": 0.854,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Fist Pumps part 6 (fist pump, cheering, standing)"
+      "source": "Rokoko: Fist Pumps part 6 (fist pump, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_fist_pumps_07": {
       "mixamo": "ro_fist_pumps_07",
@@ -4022,7 +4450,9 @@
       "tempo": 0.775,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Fist Pumps part 7 (fist pump, cheering, standing)"
+      "source": "Rokoko: Fist Pumps part 7 (fist pump, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_fist_pumps_08": {
       "mixamo": "ro_fist_pumps_08",
@@ -4041,7 +4471,9 @@
       "tempo": 0.699,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Fist Pumps part 8 (fist pump, cheering, standing)"
+      "source": "Rokoko: Fist Pumps part 8 (fist pump, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_game_show_contestant_01": {
       "mixamo": "ro_game_show_contestant_01",
@@ -4060,7 +4492,9 @@
       "tempo": 0.361,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Game Show Contestant part 1 (reacting, cheering, standing)"
+      "source": "Rokoko: Game Show Contestant part 1 (reacting, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_game_show_contestant_05": {
       "mixamo": "ro_game_show_contestant_05",
@@ -4079,7 +4513,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Game Show Contestant part 5 (reacting, cheering, standing)"
+      "source": "Rokoko: Game Show Contestant part 5 (reacting, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_game_show_contestant_06": {
       "mixamo": "ro_game_show_contestant_06",
@@ -4098,7 +4534,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Game Show Contestant part 6 (reacting, cheering, standing)"
+      "source": "Rokoko: Game Show Contestant part 6 (reacting, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_game_show_contestant_08": {
       "mixamo": "ro_game_show_contestant_08",
@@ -4117,7 +4555,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Game Show Contestant part 8 (reacting, cheering, standing)"
+      "source": "Rokoko: Game Show Contestant part 8 (reacting, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_game_show_contestant_09": {
       "mixamo": "ro_game_show_contestant_09",
@@ -4136,7 +4576,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Game Show Contestant part 9 (reacting, cheering, standing)"
+      "source": "Rokoko: Game Show Contestant part 9 (reacting, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_game_show_contestant_10": {
       "mixamo": "ro_game_show_contestant_10",
@@ -4155,7 +4597,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Game Show Contestant part 10 (reacting, cheering, standing)"
+      "source": "Rokoko: Game Show Contestant part 10 (reacting, cheering, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_head_tilts_01": {
       "mixamo": "ro_head_tilts_01",
@@ -4174,7 +4618,9 @@
       "tempo": 0.392,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Head Tilts part 1 (listening, thinking, head tilt, standing)"
+      "source": "Rokoko: Head Tilts part 1 (listening, thinking, head tilt, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_head_tilts_05": {
       "mixamo": "ro_head_tilts_05",
@@ -4193,7 +4639,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Head Tilts part 5 (listening, thinking, head tilt, standing)"
+      "source": "Rokoko: Head Tilts part 5 (listening, thinking, head tilt, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_head_tilts_07": {
       "mixamo": "ro_head_tilts_07",
@@ -4212,7 +4660,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Head Tilts part 7 (listening, thinking, head tilt, standing)"
+      "source": "Rokoko: Head Tilts part 7 (listening, thinking, head tilt, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_head_tilts_08": {
       "mixamo": "ro_head_tilts_08",
@@ -4231,7 +4681,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Head Tilts part 8 (listening, thinking, head tilt, standing)"
+      "source": "Rokoko: Head Tilts part 8 (listening, thinking, head tilt, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_head_tilts_09": {
       "mixamo": "ro_head_tilts_09",
@@ -4250,7 +4702,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Head Tilts part 9 (listening, thinking, head tilt, standing)"
+      "source": "Rokoko: Head Tilts part 9 (listening, thinking, head tilt, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_head_tilts_11": {
       "mixamo": "ro_head_tilts_11",
@@ -4269,7 +4723,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Head Tilts part 11 (listening, thinking, head tilt, standing)"
+      "source": "Rokoko: Head Tilts part 11 (listening, thinking, head tilt, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_interview_suspect_01": {
       "mixamo": "ro_interview_suspect_01",
@@ -4288,7 +4744,9 @@
       "tempo": 0.375,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Suspect part 1 (talking, explaining, denying, sitting)"
+      "source": "Rokoko: Interview Suspect part 1 (talking, explaining, denying, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_interview_suspect_02": {
       "mixamo": "ro_interview_suspect_02",
@@ -4307,7 +4765,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Suspect part 2 (talking, explaining, denying, sitting)"
+      "source": "Rokoko: Interview Suspect part 2 (talking, explaining, denying, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_interview_suspect_03": {
       "mixamo": "ro_interview_suspect_03",
@@ -4326,7 +4786,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Suspect part 3 (talking, explaining, denying, sitting)"
+      "source": "Rokoko: Interview Suspect part 3 (talking, explaining, denying, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interview_suspect_05": {
       "mixamo": "ro_interview_suspect_05",
@@ -4345,7 +4807,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Suspect part 5 (talking, explaining, denying, sitting)"
+      "source": "Rokoko: Interview Suspect part 5 (talking, explaining, denying, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interview_suspect_06": {
       "mixamo": "ro_interview_suspect_06",
@@ -4364,7 +4828,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Suspect part 6 (talking, explaining, denying, sitting)"
+      "source": "Rokoko: Interview Suspect part 6 (talking, explaining, denying, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interview_suspect_08": {
       "mixamo": "ro_interview_suspect_08",
@@ -4383,7 +4849,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Suspect part 8 (talking, explaining, denying, sitting)"
+      "source": "Rokoko: Interview Suspect part 8 (talking, explaining, denying, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_interview_talking_head_01": {
       "mixamo": "ro_interview_talking_head_01",
@@ -4402,7 +4870,9 @@
       "tempo": 0.425,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Talking Head part 1 (talking to interviewer, explaining, sitting)"
+      "source": "Rokoko: Interview Talking Head part 1 (talking to interviewer, explaining, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_interview_talking_head_02": {
       "mixamo": "ro_interview_talking_head_02",
@@ -4421,7 +4891,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Talking Head part 2 (talking to interviewer, explaining, sitting)"
+      "source": "Rokoko: Interview Talking Head part 2 (talking to interviewer, explaining, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interview_talking_head_03": {
       "mixamo": "ro_interview_talking_head_03",
@@ -4440,7 +4912,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Talking Head part 3 (talking to interviewer, explaining, sitting)"
+      "source": "Rokoko: Interview Talking Head part 3 (talking to interviewer, explaining, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interview_talking_head_04": {
       "mixamo": "ro_interview_talking_head_04",
@@ -4459,7 +4933,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Interview Talking Head part 4 (talking to interviewer, explaining, sitting)"
+      "source": "Rokoko: Interview Talking Head part 4 (talking to interviewer, explaining, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interview_talking_head_05": {
       "mixamo": "ro_interview_talking_head_05",
@@ -4478,7 +4954,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Interview Talking Head part 5 (talking to interviewer, explaining, transition: sitting to standing)"
+      "source": "Rokoko: Interview Talking Head part 5 (talking to interviewer, explaining, transition: sitting to standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interviewer_calm_01": {
       "mixamo": "ro_interviewer_calm_01",
@@ -4497,7 +4975,9 @@
       "tempo": 0.393,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Calm part 1 (talking, explaining, standing)"
+      "source": "Rokoko: Interviewer Calm part 1 (talking, explaining, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interviewer_calm_02": {
       "mixamo": "ro_interviewer_calm_02",
@@ -4516,7 +4996,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Calm part 2 (talking, explaining, standing)"
+      "source": "Rokoko: Interviewer Calm part 2 (talking, explaining, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interviewer_calm_03": {
       "mixamo": "ro_interviewer_calm_03",
@@ -4535,7 +5017,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Calm part 3 (talking, explaining, standing)"
+      "source": "Rokoko: Interviewer Calm part 3 (talking, explaining, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interviewer_calm_04": {
       "mixamo": "ro_interviewer_calm_04",
@@ -4554,7 +5038,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Calm part 4 (talking, explaining, standing)"
+      "source": "Rokoko: Interviewer Calm part 4 (talking, explaining, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interviewer_calm_07": {
       "mixamo": "ro_interviewer_calm_07",
@@ -4573,7 +5059,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Calm part 7 (talking, explaining, standing)"
+      "source": "Rokoko: Interviewer Calm part 7 (talking, explaining, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interviewer_calm_08": {
       "mixamo": "ro_interviewer_calm_08",
@@ -4592,7 +5080,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Calm part 8 (talking, explaining, standing)"
+      "source": "Rokoko: Interviewer Calm part 8 (talking, explaining, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_interviewer_pressing_01": {
       "mixamo": "ro_interviewer_pressing_01",
@@ -4611,7 +5101,9 @@
       "tempo": 0.301,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Pressing part 1 (arguing, pointing, emphasis, standing)"
+      "source": "Rokoko: Interviewer Pressing part 1 (arguing, pointing, emphasis, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_interviewer_pressing_02": {
       "mixamo": "ro_interviewer_pressing_02",
@@ -4630,7 +5122,9 @@
       "tempo": 0.816,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Pressing part 2 (arguing, pointing, emphasis, standing)"
+      "source": "Rokoko: Interviewer Pressing part 2 (arguing, pointing, emphasis, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_interviewer_pressing_03": {
       "mixamo": "ro_interviewer_pressing_03",
@@ -4649,7 +5143,9 @@
       "tempo": 0.656,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Pressing part 3 (arguing, pointing, emphasis, standing)"
+      "source": "Rokoko: Interviewer Pressing part 3 (arguing, pointing, emphasis, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_interviewer_pressing_04": {
       "mixamo": "ro_interviewer_pressing_04",
@@ -4668,7 +5164,9 @@
       "tempo": 0.63,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Pressing part 4 (arguing, pointing, emphasis, standing)"
+      "source": "Rokoko: Interviewer Pressing part 4 (arguing, pointing, emphasis, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_interviewer_pressing_05": {
       "mixamo": "ro_interviewer_pressing_05",
@@ -4687,7 +5185,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Interviewer Pressing part 5 (arguing, pointing, emphasis, standing)"
+      "source": "Rokoko: Interviewer Pressing part 5 (arguing, pointing, emphasis, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_judge_01": {
       "mixamo": "ro_judge_01",
@@ -4706,7 +5206,9 @@
       "tempo": 0.219,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Judge part 1 (listening, thinking, talking, sitting)"
+      "source": "Rokoko: Judge part 1 (listening, thinking, talking, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_judge_03": {
       "mixamo": "ro_judge_03",
@@ -4725,7 +5227,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Judge part 3 (listening, thinking, talking, sitting)"
+      "source": "Rokoko: Judge part 3 (listening, thinking, talking, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_judge_05": {
       "mixamo": "ro_judge_05",
@@ -4744,7 +5248,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Judge part 5 (listening, thinking, talking, sitting)"
+      "source": "Rokoko: Judge part 5 (listening, thinking, talking, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_judge_06": {
       "mixamo": "ro_judge_06",
@@ -4763,7 +5269,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Judge part 6 (listening, thinking, talking, sitting)"
+      "source": "Rokoko: Judge part 6 (listening, thinking, talking, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_judge_07": {
       "mixamo": "ro_judge_07",
@@ -4782,7 +5290,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Judge part 7 (listening, thinking, talking, sitting)"
+      "source": "Rokoko: Judge part 7 (listening, thinking, talking, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_judge_08": {
       "mixamo": "ro_judge_08",
@@ -4801,7 +5311,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Judge part 8 (listening, thinking, talking, sitting)"
+      "source": "Rokoko: Judge part 8 (listening, thinking, talking, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_laughs_03": {
       "mixamo": "ro_laughs_03",
@@ -4820,7 +5332,9 @@
       "tempo": 0.765,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Laughs part 3 (laughing, standing)"
+      "source": "Rokoko: Laughs part 3 (laughing, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_laughs_04": {
       "mixamo": "ro_laughs_04",
@@ -4839,7 +5353,9 @@
       "tempo": 0.881,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Laughs part 4 (laughing, standing)"
+      "source": "Rokoko: Laughs part 4 (laughing, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_laughs_08": {
       "mixamo": "ro_laughs_08",
@@ -4858,7 +5374,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Laughs part 8 (laughing, standing)"
+      "source": "Rokoko: Laughs part 8 (laughing, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_laughs_10": {
       "mixamo": "ro_laughs_10",
@@ -4877,7 +5395,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Laughs part 10 (laughing, standing)"
+      "source": "Rokoko: Laughs part 10 (laughing, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_laughs_12": {
       "mixamo": "ro_laughs_12",
@@ -4896,7 +5416,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Laughs part 12 (laughing, standing)"
+      "source": "Rokoko: Laughs part 12 (laughing, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_laughs_13": {
       "mixamo": "ro_laughs_13",
@@ -4915,7 +5437,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Laughs part 13 (laughing, standing)"
+      "source": "Rokoko: Laughs part 13 (laughing, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_lawyer_address_01": {
       "mixamo": "ro_lawyer_address_01",
@@ -4934,7 +5458,9 @@
       "tempo": 0.355,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Address part 1 (talking, explaining, presenting, standing)"
+      "source": "Rokoko: Lawyer Address part 1 (talking, explaining, presenting, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_address_02": {
       "mixamo": "ro_lawyer_address_02",
@@ -4953,7 +5479,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Address part 2 (talking, explaining, presenting, standing)"
+      "source": "Rokoko: Lawyer Address part 2 (talking, explaining, presenting, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_address_03": {
       "mixamo": "ro_lawyer_address_03",
@@ -4972,7 +5500,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Address part 3 (talking, explaining, presenting, standing)"
+      "source": "Rokoko: Lawyer Address part 3 (talking, explaining, presenting, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_address_04": {
       "mixamo": "ro_lawyer_address_04",
@@ -4991,7 +5521,9 @@
       "tempo": 0.836,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Address part 4 (talking, explaining, presenting, standing)"
+      "source": "Rokoko: Lawyer Address part 4 (talking, explaining, presenting, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_address_06": {
       "mixamo": "ro_lawyer_address_06",
@@ -5010,7 +5542,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Address part 6 (talking, explaining, presenting, standing)"
+      "source": "Rokoko: Lawyer Address part 6 (talking, explaining, presenting, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_address_07": {
       "mixamo": "ro_lawyer_address_07",
@@ -5029,7 +5563,9 @@
       "tempo": 0.224,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Address part 7 (talking, explaining, presenting, standing)"
+      "source": "Rokoko: Lawyer Address part 7 (talking, explaining, presenting, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_argument_01": {
       "mixamo": "ro_lawyer_argument_01",
@@ -5048,7 +5584,9 @@
       "tempo": 0.395,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Lawyer Argument part 1 (talking, emphasis, pointing, transition: standing to sitting)"
+      "source": "Rokoko: Lawyer Argument part 1 (talking, emphasis, pointing, transition: standing to sitting)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_argument_06": {
       "mixamo": "ro_lawyer_argument_06",
@@ -5067,7 +5605,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Argument part 6 (talking, emphasis, pointing, standing)"
+      "source": "Rokoko: Lawyer Argument part 6 (talking, emphasis, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_argument_07": {
       "mixamo": "ro_lawyer_argument_07",
@@ -5086,7 +5626,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Argument part 7 (talking, emphasis, pointing, standing)"
+      "source": "Rokoko: Lawyer Argument part 7 (talking, emphasis, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_argument_08": {
       "mixamo": "ro_lawyer_argument_08",
@@ -5105,7 +5647,9 @@
       "tempo": 0.433,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Lawyer Argument part 8 (talking, emphasis, pointing, standing)"
+      "source": "Rokoko: Lawyer Argument part 8 (talking, emphasis, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_argument_09": {
       "mixamo": "ro_lawyer_argument_09",
@@ -5124,7 +5668,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Lawyer Argument part 9 (talking, emphasis, pointing, transition: standing to sitting)"
+      "source": "Rokoko: Lawyer Argument part 9 (talking, emphasis, pointing, transition: standing to sitting)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_lawyer_argument_10": {
       "mixamo": "ro_lawyer_argument_10",
@@ -5143,7 +5689,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Lawyer Argument part 10 (talking, emphasis, pointing, transition: sitting to standing)"
+      "source": "Rokoko: Lawyer Argument part 10 (talking, emphasis, pointing, transition: sitting to standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_listening_idle_01": {
       "mixamo": "ro_listening_idle_01",
@@ -5162,7 +5710,9 @@
       "tempo": 0.289,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Listening Idle part 1 (idle, listening, standing)"
+      "source": "Rokoko: Listening Idle part 1 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_listening_idle_02": {
       "mixamo": "ro_listening_idle_02",
@@ -5181,7 +5731,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Listening Idle part 2 (idle, listening, standing)"
+      "source": "Rokoko: Listening Idle part 2 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_listening_idle_03": {
       "mixamo": "ro_listening_idle_03",
@@ -5200,7 +5752,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Listening Idle part 3 (idle, listening, standing)"
+      "source": "Rokoko: Listening Idle part 3 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_listening_idle_04": {
       "mixamo": "ro_listening_idle_04",
@@ -5219,7 +5773,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Listening Idle part 4 (idle, listening, standing)"
+      "source": "Rokoko: Listening Idle part 4 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_listening_idle_07": {
       "mixamo": "ro_listening_idle_07",
@@ -5238,7 +5794,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Listening Idle part 7 (idle, listening, standing)"
+      "source": "Rokoko: Listening Idle part 7 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_listening_idle_08": {
       "mixamo": "ro_listening_idle_08",
@@ -5257,7 +5815,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Listening Idle part 8 (idle, listening, standing)"
+      "source": "Rokoko: Listening Idle part 8 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_01": {
       "mixamo": "ro_looking_around_idle_01",
@@ -5276,7 +5836,9 @@
       "tempo": 0.353,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle part 1 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle part 1 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_02": {
       "mixamo": "ro_looking_around_idle_02",
@@ -5295,7 +5857,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle part 2 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle part 2 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_03": {
       "mixamo": "ro_looking_around_idle_03",
@@ -5314,7 +5878,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle part 3 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle part 3 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_04": {
       "mixamo": "ro_looking_around_idle_04",
@@ -5333,7 +5899,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle part 4 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle part 4 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_06": {
       "mixamo": "ro_looking_around_idle_06",
@@ -5352,7 +5920,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle part 6 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle part 6 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_07": {
       "mixamo": "ro_looking_around_idle_07",
@@ -5371,7 +5941,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle part 7 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle part 7 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_two_01": {
       "mixamo": "ro_looking_around_idle_two_01",
@@ -5390,7 +5962,9 @@
       "tempo": 0.374,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle Two part 1 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle Two part 1 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_two_02": {
       "mixamo": "ro_looking_around_idle_two_02",
@@ -5409,7 +5983,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle Two part 2 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle Two part 2 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_two_03": {
       "mixamo": "ro_looking_around_idle_two_03",
@@ -5428,7 +6004,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle Two part 3 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle Two part 3 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_two_05": {
       "mixamo": "ro_looking_around_idle_two_05",
@@ -5447,7 +6025,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle Two part 5 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle Two part 5 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_two_06": {
       "mixamo": "ro_looking_around_idle_two_06",
@@ -5466,7 +6046,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle Two part 6 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle Two part 6 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_looking_around_idle_two_07": {
       "mixamo": "ro_looking_around_idle_two_07",
@@ -5485,7 +6067,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Looking Around Idle Two part 7 (idle, looking around, standing)"
+      "source": "Rokoko: Looking Around Idle Two part 7 (idle, looking around, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_medium_idle_01": {
       "mixamo": "ro_medium_idle_01",
@@ -5504,7 +6088,9 @@
       "tempo": 0.364,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Medium Idle part 1 (idle, standing)"
+      "source": "Rokoko: Medium Idle part 1 (idle, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_medium_idle_06": {
       "mixamo": "ro_medium_idle_06",
@@ -5523,7 +6109,9 @@
       "tempo": 0.86,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Medium Idle part 6 (idle, standing)"
+      "source": "Rokoko: Medium Idle part 6 (idle, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_medium_idle_08": {
       "mixamo": "ro_medium_idle_08",
@@ -5542,7 +6130,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Medium Idle part 8 (idle, standing)"
+      "source": "Rokoko: Medium Idle part 8 (idle, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_medium_idle_09": {
       "mixamo": "ro_medium_idle_09",
@@ -5561,7 +6151,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Medium Idle part 9 (idle, standing)"
+      "source": "Rokoko: Medium Idle part 9 (idle, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_medium_idle_11": {
       "mixamo": "ro_medium_idle_11",
@@ -5580,7 +6172,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Medium Idle part 11 (idle, standing)"
+      "source": "Rokoko: Medium Idle part 11 (idle, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_medium_idle_12": {
       "mixamo": "ro_medium_idle_12",
@@ -5599,7 +6193,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Medium Idle part 12 (idle, standing)"
+      "source": "Rokoko: Medium Idle part 12 (idle, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_on_phone_01": {
       "mixamo": "ro_on_phone_01",
@@ -5618,7 +6214,9 @@
       "tempo": 0.357,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: On Phone part 1 (talking on phone, standing)"
+      "source": "Rokoko: On Phone part 1 (talking on phone, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_on_phone_02": {
       "mixamo": "ro_on_phone_02",
@@ -5637,7 +6235,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: On Phone part 2 (talking on phone, standing)"
+      "source": "Rokoko: On Phone part 2 (talking on phone, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_on_phone_04": {
       "mixamo": "ro_on_phone_04",
@@ -5656,7 +6256,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: On Phone part 4 (talking on phone, standing)"
+      "source": "Rokoko: On Phone part 4 (talking on phone, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_on_phone_05": {
       "mixamo": "ro_on_phone_05",
@@ -5675,7 +6277,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: On Phone part 5 (talking on phone, standing)"
+      "source": "Rokoko: On Phone part 5 (talking on phone, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_on_phone_06": {
       "mixamo": "ro_on_phone_06",
@@ -5694,7 +6298,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: On Phone part 6 (talking on phone, standing)"
+      "source": "Rokoko: On Phone part 6 (talking on phone, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_on_phone_07": {
       "mixamo": "ro_on_phone_07",
@@ -5713,7 +6319,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: On Phone part 7 (talking on phone, standing)"
+      "source": "Rokoko: On Phone part 7 (talking on phone, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_pacing_walk_01": {
       "mixamo": "ro_pacing_walk_01",
@@ -5732,7 +6340,9 @@
       "tempo": 0.382,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Pacing Walk part 1 (walking, standing)"
+      "source": "Rokoko: Pacing Walk part 1 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_pacing_walk_02": {
       "mixamo": "ro_pacing_walk_02",
@@ -5751,7 +6361,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Pacing Walk part 2 (walking, standing)"
+      "source": "Rokoko: Pacing Walk part 2 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_pacing_walk_03": {
       "mixamo": "ro_pacing_walk_03",
@@ -5770,7 +6382,9 @@
       "tempo": 0.188,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Pacing Walk part 3 (walking, standing)"
+      "source": "Rokoko: Pacing Walk part 3 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_pacing_walk_04": {
       "mixamo": "ro_pacing_walk_04",
@@ -5789,7 +6403,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Pacing Walk part 4 (walking, standing)"
+      "source": "Rokoko: Pacing Walk part 4 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_panel_judges_01": {
       "mixamo": "ro_panel_judges_01",
@@ -5808,7 +6424,9 @@
       "tempo": 0.406,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Panel Judges part 1 (reacting, talking, standing)"
+      "source": "Rokoko: Panel Judges part 1 (reacting, talking, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_panel_judges_02": {
       "mixamo": "ro_panel_judges_02",
@@ -5827,7 +6445,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Panel Judges part 2 (reacting, talking, standing)"
+      "source": "Rokoko: Panel Judges part 2 (reacting, talking, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_panel_judges_03": {
       "mixamo": "ro_panel_judges_03",
@@ -5846,7 +6466,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Panel Judges part 3 (reacting, talking, standing)"
+      "source": "Rokoko: Panel Judges part 3 (reacting, talking, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_panel_judges_08": {
       "mixamo": "ro_panel_judges_08",
@@ -5865,7 +6487,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Panel Judges part 8 (reacting, talking, standing)"
+      "source": "Rokoko: Panel Judges part 8 (reacting, talking, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_panel_judges_11": {
       "mixamo": "ro_panel_judges_11",
@@ -5884,7 +6508,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Panel Judges part 11 (reacting, talking, standing)"
+      "source": "Rokoko: Panel Judges part 11 (reacting, talking, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_panel_judges_12": {
       "mixamo": "ro_panel_judges_12",
@@ -5903,7 +6529,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Panel Judges part 12 (reacting, talking, standing)"
+      "source": "Rokoko: Panel Judges part 12 (reacting, talking, standing)",
+      "mood": "expressive",
+      "presenter": "male"
     },
     "mx_ro_pointing_idle_01": {
       "mixamo": "ro_pointing_idle_01",
@@ -5922,7 +6550,9 @@
       "tempo": 0.37,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Pointing Idle part 1 (pointing, standing)"
+      "source": "Rokoko: Pointing Idle part 1 (pointing, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_pointing_idle_02": {
       "mixamo": "ro_pointing_idle_02",
@@ -5941,7 +6571,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Pointing Idle part 2 (pointing, standing)"
+      "source": "Rokoko: Pointing Idle part 2 (pointing, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_pointing_idle_03": {
       "mixamo": "ro_pointing_idle_03",
@@ -5960,7 +6592,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Pointing Idle part 3 (pointing, standing)"
+      "source": "Rokoko: Pointing Idle part 3 (pointing, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_pointing_idle_04": {
       "mixamo": "ro_pointing_idle_04",
@@ -5979,7 +6613,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Pointing Idle part 4 (pointing, standing)"
+      "source": "Rokoko: Pointing Idle part 4 (pointing, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_product_pitch_01": {
       "mixamo": "ro_product_pitch_01",
@@ -5998,7 +6634,9 @@
       "tempo": 0.366,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Product Pitch part 1 (presenting, emphasis, talking, standing)"
+      "source": "Rokoko: Product Pitch part 1 (presenting, emphasis, talking, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_product_pitch_02": {
       "mixamo": "ro_product_pitch_02",
@@ -6017,7 +6655,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Product Pitch part 2 (presenting, emphasis, talking, standing)"
+      "source": "Rokoko: Product Pitch part 2 (presenting, emphasis, talking, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_product_pitch_04": {
       "mixamo": "ro_product_pitch_04",
@@ -6036,7 +6676,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Product Pitch part 4 (presenting, emphasis, talking, standing)"
+      "source": "Rokoko: Product Pitch part 4 (presenting, emphasis, talking, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_product_pitch_05": {
       "mixamo": "ro_product_pitch_05",
@@ -6055,7 +6697,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Product Pitch part 5 (presenting, emphasis, talking, standing)"
+      "source": "Rokoko: Product Pitch part 5 (presenting, emphasis, talking, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_product_pitch_08": {
       "mixamo": "ro_product_pitch_08",
@@ -6074,7 +6718,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Product Pitch part 8 (presenting, emphasis, talking, standing)"
+      "source": "Rokoko: Product Pitch part 8 (presenting, emphasis, talking, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_product_pitch_11": {
       "mixamo": "ro_product_pitch_11",
@@ -6093,7 +6739,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Product Pitch part 11 (presenting, emphasis, talking, standing)"
+      "source": "Rokoko: Product Pitch part 11 (presenting, emphasis, talking, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_sarcastic_clap_01": {
       "mixamo": "ro_sarcastic_clap_01",
@@ -6112,7 +6760,9 @@
       "tempo": 0.436,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Sarcastic Clap part 1 (clap, standing)"
+      "source": "Rokoko: Sarcastic Clap part 1 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sarcastic_clap_02": {
       "mixamo": "ro_sarcastic_clap_02",
@@ -6131,7 +6781,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Sarcastic Clap part 2 (clap, standing)"
+      "source": "Rokoko: Sarcastic Clap part 2 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sarcastic_clap_03": {
       "mixamo": "ro_sarcastic_clap_03",
@@ -6150,7 +6802,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Sarcastic Clap part 3 (clap, standing)"
+      "source": "Rokoko: Sarcastic Clap part 3 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sarcastic_clap_04": {
       "mixamo": "ro_sarcastic_clap_04",
@@ -6169,7 +6823,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Sarcastic Clap part 4 (clap, standing)"
+      "source": "Rokoko: Sarcastic Clap part 4 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sarcastic_clap_05": {
       "mixamo": "ro_sarcastic_clap_05",
@@ -6188,7 +6844,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Sarcastic Clap part 5 (clap, standing)"
+      "source": "Rokoko: Sarcastic Clap part 5 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sarcastic_clap_06": {
       "mixamo": "ro_sarcastic_clap_06",
@@ -6207,7 +6865,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Sarcastic Clap part 6 (clap, standing)"
+      "source": "Rokoko: Sarcastic Clap part 6 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_show_host_01": {
       "mixamo": "ro_show_host_01",
@@ -6226,7 +6886,9 @@
       "tempo": 0.32,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Show Host part 1 (presenting, welcome, talking, standing)"
+      "source": "Rokoko: Show Host part 1 (presenting, welcome, talking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_show_host_02": {
       "mixamo": "ro_show_host_02",
@@ -6245,7 +6907,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Show Host part 2 (presenting, welcome, talking, standing)"
+      "source": "Rokoko: Show Host part 2 (presenting, welcome, talking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_show_host_03": {
       "mixamo": "ro_show_host_03",
@@ -6264,7 +6928,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Show Host part 3 (presenting, welcome, talking, standing)"
+      "source": "Rokoko: Show Host part 3 (presenting, welcome, talking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_show_host_05": {
       "mixamo": "ro_show_host_05",
@@ -6283,7 +6949,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Show Host part 5 (presenting, welcome, talking, standing)"
+      "source": "Rokoko: Show Host part 5 (presenting, welcome, talking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_show_host_06": {
       "mixamo": "ro_show_host_06",
@@ -6302,7 +6970,9 @@
       "tempo": 0.997,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Show Host part 6 (presenting, welcome, talking, standing)"
+      "source": "Rokoko: Show Host part 6 (presenting, welcome, talking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_show_host_07": {
       "mixamo": "ro_show_host_07",
@@ -6321,7 +6991,9 @@
       "tempo": 0.679,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Show Host part 7 (presenting, welcome, talking, standing)"
+      "source": "Rokoko: Show Host part 7 (presenting, welcome, talking, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_shrugging_01": {
       "mixamo": "ro_shrugging_01",
@@ -6340,7 +7012,9 @@
       "tempo": 0.375,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Shrugging part 1 (shrug, unsure, standing)"
+      "source": "Rokoko: Shrugging part 1 (shrug, unsure, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_shrugging_02": {
       "mixamo": "ro_shrugging_02",
@@ -6359,7 +7033,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Shrugging part 2 (shrug, unsure, standing)"
+      "source": "Rokoko: Shrugging part 2 (shrug, unsure, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_shrugging_03": {
       "mixamo": "ro_shrugging_03",
@@ -6378,7 +7054,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Shrugging part 3 (shrug, unsure, standing)"
+      "source": "Rokoko: Shrugging part 3 (shrug, unsure, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_shrugging_05": {
       "mixamo": "ro_shrugging_05",
@@ -6397,7 +7075,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Shrugging part 5 (shrug, unsure, standing)"
+      "source": "Rokoko: Shrugging part 5 (shrug, unsure, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_shrugging_06": {
       "mixamo": "ro_shrugging_06",
@@ -6416,7 +7096,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Shrugging part 6 (shrug, unsure, standing)"
+      "source": "Rokoko: Shrugging part 6 (shrug, unsure, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_shrugging_07": {
       "mixamo": "ro_shrugging_07",
@@ -6435,7 +7117,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Shrugging part 7 (shrug, unsure, standing)"
+      "source": "Rokoko: Shrugging part 7 (shrug, unsure, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sit_down_and_use_laptop_01": {
       "mixamo": "ro_sit_down_and_use_laptop_01",
@@ -6454,7 +7138,9 @@
       "tempo": 0.376,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sit Down And Use Laptop part 1 (typing on laptop, standing)"
+      "source": "Rokoko: Sit Down And Use Laptop part 1 (typing on laptop, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sit_down_and_use_laptop_02": {
       "mixamo": "ro_sit_down_and_use_laptop_02",
@@ -6473,7 +7159,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sit Down And Use Laptop part 2 (typing on laptop, sitting)"
+      "source": "Rokoko: Sit Down And Use Laptop part 2 (typing on laptop, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sit_down_and_use_laptop_04": {
       "mixamo": "ro_sit_down_and_use_laptop_04",
@@ -6492,7 +7180,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sit Down And Use Laptop part 4 (typing on laptop, sitting)"
+      "source": "Rokoko: Sit Down And Use Laptop part 4 (typing on laptop, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sit_down_and_use_laptop_07": {
       "mixamo": "ro_sit_down_and_use_laptop_07",
@@ -6511,7 +7201,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sit Down And Use Laptop part 7 (typing on laptop, sitting)"
+      "source": "Rokoko: Sit Down And Use Laptop part 7 (typing on laptop, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sit_down_and_use_laptop_08": {
       "mixamo": "ro_sit_down_and_use_laptop_08",
@@ -6530,7 +7222,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Sit Down And Use Laptop part 8 (typing on laptop, transition: sitting to standing)"
+      "source": "Rokoko: Sit Down And Use Laptop part 8 (typing on laptop, transition: sitting to standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_sit_down_and_use_laptop_09": {
       "mixamo": "ro_sit_down_and_use_laptop_09",
@@ -6549,7 +7243,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sit Down And Use Laptop part 9 (typing on laptop, standing)"
+      "source": "Rokoko: Sit Down And Use Laptop part 9 (typing on laptop, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_sitting_talking_gossip_01": {
       "mixamo": "ro_sitting_talking_gossip_01",
@@ -6568,7 +7264,9 @@
       "tempo": 0.252,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sitting Talking Gossip part 1 (talking to neighbor, gossip, telling a secret, sitting)"
+      "source": "Rokoko: Sitting Talking Gossip part 1 (talking to neighbor, gossip, telling a secret, sitting)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_sitting_talking_gossip_03": {
       "mixamo": "ro_sitting_talking_gossip_03",
@@ -6587,7 +7285,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sitting Talking Gossip part 3 (talking to neighbor, gossip, telling a secret, sitting)"
+      "source": "Rokoko: Sitting Talking Gossip part 3 (talking to neighbor, gossip, telling a secret, sitting)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_sitting_talking_gossip_06": {
       "mixamo": "ro_sitting_talking_gossip_06",
@@ -6606,7 +7306,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Sitting Talking Gossip part 6 (talking to neighbor, gossip, telling a secret, transition: sitting to standing)"
+      "source": "Rokoko: Sitting Talking Gossip part 6 (talking to neighbor, gossip, telling a secret, transition: sitting to standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_sitting_talking_gossip_07": {
       "mixamo": "ro_sitting_talking_gossip_07",
@@ -6625,7 +7327,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sitting Talking Gossip part 7 (talking to neighbor, gossip, telling a secret, standing)"
+      "source": "Rokoko: Sitting Talking Gossip part 7 (talking to neighbor, gossip, telling a secret, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_sitting_talking_gossip_08": {
       "mixamo": "ro_sitting_talking_gossip_08",
@@ -6644,7 +7348,9 @@
       "tempo": 0.689,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sitting Talking Gossip part 8 (talking to neighbor, gossip, telling a secret, standing)"
+      "source": "Rokoko: Sitting Talking Gossip part 8 (talking to neighbor, gossip, telling a secret, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_sitting_talking_gossip_09": {
       "mixamo": "ro_sitting_talking_gossip_09",
@@ -6663,7 +7369,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Sitting Talking Gossip part 9 (talking to neighbor, gossip, telling a secret, standing)"
+      "source": "Rokoko: Sitting Talking Gossip part 9 (talking to neighbor, gossip, telling a secret, standing)",
+      "mood": "calm",
+      "presenter": "female"
     },
     "mx_ro_slow_clap_04": {
       "mixamo": "ro_slow_clap_04",
@@ -6682,7 +7390,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Slow Clap part 4 (clap, standing)"
+      "source": "Rokoko: Slow Clap part 4 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_slow_clap_05": {
       "mixamo": "ro_slow_clap_05",
@@ -6701,7 +7411,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Slow Clap part 5 (clap, standing)"
+      "source": "Rokoko: Slow Clap part 5 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_slow_clap_06": {
       "mixamo": "ro_slow_clap_06",
@@ -6720,7 +7432,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Slow Clap part 6 (clap, transition: standing to sitting)"
+      "source": "Rokoko: Slow Clap part 6 (clap, transition: standing to sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_slow_clap_09": {
       "mixamo": "ro_slow_clap_09",
@@ -6739,7 +7453,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Slow Clap part 9 (clap, sitting)"
+      "source": "Rokoko: Slow Clap part 9 (clap, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_slow_clap_10": {
       "mixamo": "ro_slow_clap_10",
@@ -6758,7 +7474,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Slow Clap part 10 (clap, transition: sitting to standing)"
+      "source": "Rokoko: Slow Clap part 10 (clap, transition: sitting to standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_slow_clap_11": {
       "mixamo": "ro_slow_clap_11",
@@ -6777,7 +7495,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Slow Clap part 11 (clap, standing)"
+      "source": "Rokoko: Slow Clap part 11 (clap, standing)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_slow_walk_forward_01": {
       "mixamo": "ro_slow_walk_forward_01",
@@ -6796,7 +7516,9 @@
       "tempo": 0.388,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Slow Walk Forward part 1 (walking, standing)"
+      "source": "Rokoko: Slow Walk Forward part 1 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_slow_walk_forward_02": {
       "mixamo": "ro_slow_walk_forward_02",
@@ -6815,7 +7537,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Slow Walk Forward part 2 (walking, standing)"
+      "source": "Rokoko: Slow Walk Forward part 2 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_slow_walk_forward_03": {
       "mixamo": "ro_slow_walk_forward_03",
@@ -6834,7 +7558,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Slow Walk Forward part 3 (walking, standing)"
+      "source": "Rokoko: Slow Walk Forward part 3 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_slow_walk_forward_04": {
       "mixamo": "ro_slow_walk_forward_04",
@@ -6853,7 +7579,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Slow Walk Forward part 4 (walking, standing)"
+      "source": "Rokoko: Slow Walk Forward part 4 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_slow_walk_forward_05": {
       "mixamo": "ro_slow_walk_forward_05",
@@ -6872,7 +7600,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Slow Walk Forward part 5 (walking, standing)"
+      "source": "Rokoko: Slow Walk Forward part 5 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_stand_up_comedian_04": {
       "mixamo": "ro_stand_up_comedian_04",
@@ -6891,7 +7621,9 @@
       "tempo": 0.997,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Stand Up Comedian part 4 (talking, emphasis, presenting, standing)"
+      "source": "Rokoko: Stand Up Comedian part 4 (talking, emphasis, presenting, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_stand_up_comedian_06": {
       "mixamo": "ro_stand_up_comedian_06",
@@ -6910,7 +7642,9 @@
       "tempo": 0.95,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Stand Up Comedian part 6 (talking, emphasis, presenting, standing)"
+      "source": "Rokoko: Stand Up Comedian part 6 (talking, emphasis, presenting, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_stand_up_comedian_07": {
       "mixamo": "ro_stand_up_comedian_07",
@@ -6929,7 +7663,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Stand Up Comedian part 7 (talking, emphasis, presenting, standing)"
+      "source": "Rokoko: Stand Up Comedian part 7 (talking, emphasis, presenting, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_stand_up_comedian_08": {
       "mixamo": "ro_stand_up_comedian_08",
@@ -6948,7 +7684,9 @@
       "tempo": 0.768,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Stand Up Comedian part 8 (talking, emphasis, presenting, standing)"
+      "source": "Rokoko: Stand Up Comedian part 8 (talking, emphasis, presenting, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_stand_up_comedian_09": {
       "mixamo": "ro_stand_up_comedian_09",
@@ -6967,7 +7705,9 @@
       "tempo": 0.929,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Stand Up Comedian part 9 (talking, emphasis, presenting, standing)"
+      "source": "Rokoko: Stand Up Comedian part 9 (talking, emphasis, presenting, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_stand_up_comedian_10": {
       "mixamo": "ro_stand_up_comedian_10",
@@ -6986,7 +7726,9 @@
       "tempo": 0.916,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Stand Up Comedian part 10 (talking, emphasis, presenting, standing)"
+      "source": "Rokoko: Stand Up Comedian part 10 (talking, emphasis, presenting, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_step_forward_01": {
       "mixamo": "ro_step_forward_01",
@@ -7005,7 +7747,9 @@
       "tempo": 0.337,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Step Forward part 1 (step, walking, standing)"
+      "source": "Rokoko: Step Forward part 1 (step, walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_step_forward_02": {
       "mixamo": "ro_step_forward_02",
@@ -7024,7 +7768,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Step Forward part 2 (step, walking, standing)"
+      "source": "Rokoko: Step Forward part 2 (step, walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_step_forward_03": {
       "mixamo": "ro_step_forward_03",
@@ -7043,7 +7789,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Step Forward part 3 (step, walking, standing)"
+      "source": "Rokoko: Step Forward part 3 (step, walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_step_forward_04": {
       "mixamo": "ro_step_forward_04",
@@ -7062,7 +7810,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Step Forward part 4 (step, walking, standing)"
+      "source": "Rokoko: Step Forward part 4 (step, walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_turns_01": {
       "mixamo": "ro_turns_01",
@@ -7081,7 +7831,9 @@
       "tempo": 0.375,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Turns part 1 (turning, standing)"
+      "source": "Rokoko: Turns part 1 (turning, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_turns_02": {
       "mixamo": "ro_turns_02",
@@ -7100,7 +7852,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Turns part 2 (turning, standing)"
+      "source": "Rokoko: Turns part 2 (turning, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_turns_03": {
       "mixamo": "ro_turns_03",
@@ -7119,7 +7873,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Turns part 3 (turning, standing)"
+      "source": "Rokoko: Turns part 3 (turning, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_turns_04": {
       "mixamo": "ro_turns_04",
@@ -7138,7 +7894,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Turns part 4 (turning, standing)"
+      "source": "Rokoko: Turns part 4 (turning, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_turns_05": {
       "mixamo": "ro_turns_05",
@@ -7157,7 +7915,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Turns part 5 (turning, standing)"
+      "source": "Rokoko: Turns part 5 (turning, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_turns_06": {
       "mixamo": "ro_turns_06",
@@ -7176,7 +7936,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Turns part 6 (turning, standing)"
+      "source": "Rokoko: Turns part 6 (turning, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_two_hosts_presenting_01": {
       "mixamo": "ro_two_hosts_presenting_01",
@@ -7195,7 +7957,9 @@
       "tempo": 0.34,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Two Hosts Presenting part 1 (presenting, talking, pointing, standing)"
+      "source": "Rokoko: Two Hosts Presenting part 1 (presenting, talking, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_two_hosts_presenting_02": {
       "mixamo": "ro_two_hosts_presenting_02",
@@ -7214,7 +7978,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Two Hosts Presenting part 2 (presenting, talking, pointing, standing)"
+      "source": "Rokoko: Two Hosts Presenting part 2 (presenting, talking, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_two_hosts_presenting_04": {
       "mixamo": "ro_two_hosts_presenting_04",
@@ -7233,7 +7999,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Two Hosts Presenting part 4 (presenting, talking, pointing, standing)"
+      "source": "Rokoko: Two Hosts Presenting part 4 (presenting, talking, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_two_hosts_presenting_05": {
       "mixamo": "ro_two_hosts_presenting_05",
@@ -7252,7 +8020,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Two Hosts Presenting part 5 (presenting, talking, pointing, standing)"
+      "source": "Rokoko: Two Hosts Presenting part 5 (presenting, talking, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_two_hosts_presenting_08": {
       "mixamo": "ro_two_hosts_presenting_08",
@@ -7271,7 +8041,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Two Hosts Presenting part 8 (presenting, talking, pointing, standing)"
+      "source": "Rokoko: Two Hosts Presenting part 8 (presenting, talking, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_two_hosts_presenting_10": {
       "mixamo": "ro_two_hosts_presenting_10",
@@ -7290,7 +8062,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": false,
-      "source": "Rokoko: Two Hosts Presenting part 10 (presenting, talking, pointing, standing)"
+      "source": "Rokoko: Two Hosts Presenting part 10 (presenting, talking, pointing, standing)",
+      "mood": "expressive",
+      "presenter": "female"
     },
     "mx_ro_walk_cycle_01": {
       "mixamo": "ro_walk_cycle_01",
@@ -7309,7 +8083,9 @@
       "tempo": 0.364,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Walk Cycle part 1 (walking, standing)"
+      "source": "Rokoko: Walk Cycle part 1 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_walk_cycle_02": {
       "mixamo": "ro_walk_cycle_02",
@@ -7328,7 +8104,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Walk Cycle part 2 (walking, standing)"
+      "source": "Rokoko: Walk Cycle part 2 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_walk_cycle_03": {
       "mixamo": "ro_walk_cycle_03",
@@ -7347,7 +8125,9 @@
       "tempo": 1,
       "posture": "moving",
       "legs": true,
-      "source": "Rokoko: Walk Cycle part 3 (walking, standing)"
+      "source": "Rokoko: Walk Cycle part 3 (walking, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_watching_idle_01": {
       "mixamo": "ro_watching_idle_01",
@@ -7366,7 +8146,9 @@
       "tempo": 0.401,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Watching Idle part 1 (idle, listening, standing)"
+      "source": "Rokoko: Watching Idle part 1 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_watching_idle_02": {
       "mixamo": "ro_watching_idle_02",
@@ -7385,7 +8167,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Watching Idle part 2 (idle, listening, standing)"
+      "source": "Rokoko: Watching Idle part 2 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_watching_idle_03": {
       "mixamo": "ro_watching_idle_03",
@@ -7404,7 +8188,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Watching Idle part 3 (idle, listening, standing)"
+      "source": "Rokoko: Watching Idle part 3 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_watching_idle_04": {
       "mixamo": "ro_watching_idle_04",
@@ -7423,7 +8209,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Watching Idle part 4 (idle, listening, standing)"
+      "source": "Rokoko: Watching Idle part 4 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_watching_idle_05": {
       "mixamo": "ro_watching_idle_05",
@@ -7442,7 +8230,9 @@
       "tempo": 1,
       "posture": "standing",
       "legs": true,
-      "source": "Rokoko: Watching Idle part 5 (idle, listening, standing)"
+      "source": "Rokoko: Watching Idle part 5 (idle, listening, standing)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_witness_testimony_01": {
       "mixamo": "ro_witness_testimony_01",
@@ -7461,7 +8251,9 @@
       "tempo": 0.379,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Witness Testimony part 1 (talking, explaining, sitting)"
+      "source": "Rokoko: Witness Testimony part 1 (talking, explaining, sitting)",
+      "mood": "expressive",
+      "presenter": "any"
     },
     "mx_ro_witness_testimony_04": {
       "mixamo": "ro_witness_testimony_04",
@@ -7480,7 +8272,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Witness Testimony part 4 (talking, explaining, sitting)"
+      "source": "Rokoko: Witness Testimony part 4 (talking, explaining, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_witness_testimony_05": {
       "mixamo": "ro_witness_testimony_05",
@@ -7499,7 +8293,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Witness Testimony part 5 (talking, explaining, sitting)"
+      "source": "Rokoko: Witness Testimony part 5 (talking, explaining, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_witness_testimony_06": {
       "mixamo": "ro_witness_testimony_06",
@@ -7518,7 +8314,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Witness Testimony part 6 (talking, explaining, sitting)"
+      "source": "Rokoko: Witness Testimony part 6 (talking, explaining, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_witness_testimony_07": {
       "mixamo": "ro_witness_testimony_07",
@@ -7537,7 +8335,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Witness Testimony part 7 (talking, explaining, sitting)"
+      "source": "Rokoko: Witness Testimony part 7 (talking, explaining, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     },
     "mx_ro_witness_testimony_09": {
       "mixamo": "ro_witness_testimony_09",
@@ -7556,7 +8356,9 @@
       "tempo": 1,
       "posture": "seated",
       "legs": true,
-      "source": "Rokoko: Witness Testimony part 9 (talking, explaining, sitting)"
+      "source": "Rokoko: Witness Testimony part 9 (talking, explaining, sitting)",
+      "mood": "calm",
+      "presenter": "any"
     }
   },
   "visemes": {
@@ -7874,6 +8676,760 @@
     "legsForStandingIdle": true,
     "idleBase": {
       "seated": "mx_sitting_idle_sitting_in_chair_hands_resting_on_thighs"
+    }
+  },
+  "groupRules": {
+    "note": "Used by scripts/cast-motion-groups.py. Words match the clip name or source performance.",
+    "calmMaxPeakSpeed": 1.11,
+    "calmMaxReachCm": 40,
+    "calmCategories": [
+      "idle",
+      "listen",
+      "think",
+      "turn",
+      "walk",
+      "transition"
+    ],
+    "expressiveCategories": [
+      "expressive",
+      "emphasis",
+      "negation"
+    ],
+    "calmWords": [
+      "thoughtful",
+      "calm",
+      "acknowledg",
+      "agreeing",
+      "head nod yes",
+      "lengthy head nod",
+      "head tilt",
+      "thankful",
+      "bashful",
+      "telling a secret",
+      "listening",
+      "watching",
+      "breathing"
+    ],
+    "expressiveWords": [
+      "laugh",
+      "fist pump",
+      "clap",
+      "double take",
+      "face palm",
+      "arguing",
+      "argument",
+      "contestant",
+      "pressing",
+      "strong gesture",
+      "cocky",
+      "happy hand",
+      "cheer",
+      "excited",
+      "dismiss",
+      "whatever",
+      "sarcastic",
+      "shrug",
+      "hard head nod",
+      "annoyed",
+      "disbelief"
+    ],
+    "femaleWords": [
+      "female",
+      "catwalk",
+      "bashful",
+      "telling a secret",
+      "thankful",
+      "head tilt",
+      "product pitch",
+      "two hosts",
+      "gossip",
+      "aside to camera",
+      "happy hand",
+      "chatting idle"
+    ],
+    "maleWords": [
+      "cocky",
+      "arguing",
+      "argument",
+      "strong gesture",
+      "fist pump",
+      "lawyer",
+      "panel judge",
+      "contestant",
+      "interviewer pressing",
+      "whatever",
+      "dismissing",
+      "hard head nod",
+      "standing arguing"
+    ],
+    "moodStyle": {
+      "calm": {
+        "frequency": 0.75,
+        "size": 0.9,
+        "speed": 0.92
+      },
+      "expressive": {
+        "frequency": 1.3,
+        "size": 1.1,
+        "speed": 1.05
+      }
+    }
+  },
+  "groups": {
+    "moving.calm": {
+      "transition": [
+        "mx_stand_to_sit_standing_to_sitting_transition",
+        "mx_stand_up_standing_up_from_seated_position",
+        "mx_ro_interview_talking_head_05",
+        "mx_ro_sit_down_and_use_laptop_08",
+        "mx_ro_sitting_talking_gossip_06",
+        "mx_ro_stand_up_comedian_04",
+        "mx_ro_stand_up_comedian_06",
+        "mx_ro_stand_up_comedian_07",
+        "mx_ro_stand_up_comedian_08",
+        "mx_ro_stand_up_comedian_09",
+        "mx_ro_stand_up_comedian_10"
+      ],
+      "turn": [
+        "mx_happy_right_turn_turning_right",
+        "mx_left_turn_45_45_degree_left_turn_from_idle",
+        "mx_left_turn_90_standing_left_turn",
+        "mx_right_turn_90_standing_right_turn",
+        "mx_right_turn_female_turning_right_in_place",
+        "mx_standing_turn_left_90_turning_90_degrees_left",
+        "mx_standing_turn_right_90_turning_90_degrees_right",
+        "mx_turning_turning_in_place",
+        "mx_ro_turns_01",
+        "mx_ro_turns_02",
+        "mx_ro_turns_03",
+        "mx_ro_turns_04",
+        "mx_ro_turns_05",
+        "mx_ro_turns_06"
+      ],
+      "walk": [
+        "mx_catwalk_idle_to_walk_forward_female_idle_to_walk_forward",
+        "mx_catwalk_idle_to_walk_forward_male_idle_to_walk_forward",
+        "mx_catwalk_walk_stop_female_walk_forward_to_idle",
+        "mx_catwalk_walk_stop_male_walk_forward_to_idle",
+        "mx_female_start_walking_female_start_walking",
+        "mx_female_stop_and_start_walking_female_stop_start_walking",
+        "mx_female_stop_walking_female_stop_walking",
+        "mx_female_walk_female_normal_walk",
+        "mx_standard_walk_standard_walk",
+        "mx_standing_walk_forward_walking_forwards",
+        "mx_standing_walk_left_walking_left",
+        "mx_standing_walk_right_walking_right",
+        "mx_start_walking_walking_from_standing",
+        "mx_stop_walking_walking_to_standing_idle",
+        "mx_unarmed_walk_forward_walking_forward",
+        "mx_walk_female_walk",
+        "mx_walking_arc_left_female_walk_arc_left",
+        "mx_walking_feminine_walk_forward",
+        "mx_walking_left_turn_turning_left_while_walking",
+        "mx_walking_male_happy_walk",
+        "mx_walking_male_standard_walk",
+        "mx_walking_turn_180_turning_180_degrees_while_walking",
+        "mx_ro_pacing_walk_01",
+        "mx_ro_pacing_walk_02",
+        "mx_ro_pacing_walk_03",
+        "mx_ro_pacing_walk_04",
+        "mx_ro_slow_walk_forward_01",
+        "mx_ro_slow_walk_forward_02",
+        "mx_ro_slow_walk_forward_03",
+        "mx_ro_slow_walk_forward_04",
+        "mx_ro_slow_walk_forward_05",
+        "mx_ro_step_forward_01",
+        "mx_ro_step_forward_02",
+        "mx_ro_step_forward_03",
+        "mx_ro_step_forward_04",
+        "mx_ro_walk_cycle_01",
+        "mx_ro_walk_cycle_02",
+        "mx_ro_walk_cycle_03"
+      ]
+    },
+    "moving.expressive": {
+      "transition": [
+        "mx_ro_lawyer_argument_01",
+        "mx_ro_lawyer_argument_09",
+        "mx_ro_lawyer_argument_10",
+        "mx_ro_slow_clap_06",
+        "mx_ro_slow_clap_10"
+      ]
+    },
+    "moving.female": {
+      "transition": [
+        "mx_ro_sitting_talking_gossip_06"
+      ],
+      "turn": [
+        "mx_right_turn_female_turning_right_in_place"
+      ],
+      "walk": [
+        "mx_catwalk_idle_to_walk_forward_female_idle_to_walk_forward",
+        "mx_catwalk_idle_to_walk_forward_male_idle_to_walk_forward",
+        "mx_catwalk_walk_stop_female_walk_forward_to_idle",
+        "mx_catwalk_walk_stop_male_walk_forward_to_idle",
+        "mx_female_start_walking_female_start_walking",
+        "mx_female_stop_and_start_walking_female_stop_start_walking",
+        "mx_female_stop_walking_female_stop_walking",
+        "mx_female_walk_female_normal_walk",
+        "mx_walk_female_walk",
+        "mx_walking_arc_left_female_walk_arc_left"
+      ]
+    },
+    "moving.male": {
+      "transition": [
+        "mx_ro_lawyer_argument_01",
+        "mx_ro_lawyer_argument_09",
+        "mx_ro_lawyer_argument_10"
+      ]
+    },
+    "seated.calm": {
+      "greeting": [
+        "mx_beckoning_waving_someone_over_while_seated"
+      ],
+      "idle": [
+        "mx_dice_idle_tapping_fingers_from_a_sitting_position",
+        "mx_sitting_idle_sitting_in_chair_hands_resting_on_thighs",
+        "mx_sitting_idle_sitting_still_in_a_chair",
+        "mx_sitting_idle_sitting_with_breathing_idle"
+      ],
+      "listen": [
+        "mx_ro_judge_01",
+        "mx_ro_judge_03",
+        "mx_ro_judge_05",
+        "mx_ro_judge_06",
+        "mx_ro_judge_07",
+        "mx_ro_judge_08"
+      ],
+      "open": [
+        "mx_sitting_talking_sitting_and_talking_to_another_person",
+        "mx_talking_male_talking_while_seated",
+        "mx_ro_interview_suspect_03",
+        "mx_ro_interview_suspect_05",
+        "mx_ro_interview_suspect_06",
+        "mx_ro_interview_talking_head_02",
+        "mx_ro_interview_talking_head_03",
+        "mx_ro_interview_talking_head_04",
+        "mx_ro_sitting_talking_gossip_01",
+        "mx_ro_sitting_talking_gossip_03",
+        "mx_ro_sitting_talking_gossip_07",
+        "mx_ro_sitting_talking_gossip_08",
+        "mx_ro_sitting_talking_gossip_09",
+        "mx_ro_witness_testimony_04",
+        "mx_ro_witness_testimony_05",
+        "mx_ro_witness_testimony_06",
+        "mx_ro_witness_testimony_07",
+        "mx_ro_witness_testimony_09"
+      ]
+    },
+    "seated.expressive": {
+      "expressive": [
+        "mx_sitting_angry_sitting_slightly_aggravated",
+        "mx_sitting_disapproval_sitting_and_shaking_finger_in_disapprova",
+        "mx_sitting_rubbing_arm_sitting_and_rubbing_arm",
+        "mx_sitting_sit_with_fidgeting_feet",
+        "mx_sitting_sitting_and_impatiently_waiting",
+        "mx_sitting_sitting_looking_side_to_side",
+        "mx_ro_desk_typing_and_mouse_01",
+        "mx_ro_desk_typing_and_mouse_04",
+        "mx_ro_desk_typing_and_mouse_05",
+        "mx_ro_desk_typing_and_mouse_06",
+        "mx_ro_desk_typing_and_mouse_07",
+        "mx_ro_desk_typing_and_mouse_11",
+        "mx_ro_sit_down_and_use_laptop_01",
+        "mx_ro_sit_down_and_use_laptop_02",
+        "mx_ro_sit_down_and_use_laptop_04",
+        "mx_ro_sit_down_and_use_laptop_07",
+        "mx_ro_sit_down_and_use_laptop_09"
+      ],
+      "open": [
+        "mx_ro_interview_suspect_01",
+        "mx_ro_interview_suspect_02",
+        "mx_ro_interview_suspect_08",
+        "mx_ro_interview_talking_head_01",
+        "mx_ro_witness_testimony_01"
+      ],
+      "point": [
+        "mx_pointing_pointing_while_seated",
+        "mx_sitting_and_pointing_sitting_and_pointing_forward"
+      ],
+      "react": [
+        "mx_cheering_while_sitting_cheering_while_sitting_and_talking_to",
+        "mx_cheering_while_sitting_cheering_while_sitting_with_low_enthu",
+        "mx_clapping_clap_while_seated",
+        "mx_sitting_clap_sitting_ethusiastic_clap",
+        "mx_sitting_clap_sitting_unethusiastic_clap",
+        "mx_sitting_disbelief_sitting_disbelief_with_hands_on_head",
+        "mx_sitting_disbelief_sitting_in_disbelief_with_head_forward",
+        "mx_sitting_fist_pump_low_enthusiasm_fist_pump_while_sitting",
+        "mx_sitting_laughing_sitting_while_laughing",
+        "mx_sitting_thumbs_up_giving_thumbs_up_while_sitting",
+        "mx_sitting_victory_celebrating_victory_while_sitting",
+        "mx_ro_slow_clap_09"
+      ]
+    },
+    "seated.female": {
+      "open": [
+        "mx_ro_sitting_talking_gossip_01",
+        "mx_ro_sitting_talking_gossip_03",
+        "mx_ro_sitting_talking_gossip_07",
+        "mx_ro_sitting_talking_gossip_08",
+        "mx_ro_sitting_talking_gossip_09"
+      ]
+    },
+    "seated.male": {
+      "react": [
+        "mx_sitting_fist_pump_low_enthusiasm_fist_pump_while_sitting"
+      ]
+    },
+    "standing.calm": {
+      "beat": [
+        "raise_right",
+        "listen_left",
+        "beat_right",
+        "mx_acknowledging_acknowledging_gesture",
+        "mx_agreeing_agreeing_yes",
+        "mx_head_gesture_gesturing_head_side_to_side",
+        "mx_head_nod_yes_nodding_head_yes",
+        "mx_lengthy_head_nod_nodding_head_yes",
+        "mx_thoughtful_head_nod_thoughtfully_nodding_head_yes"
+      ],
+      "count": [
+        "count_three"
+      ],
+      "expressive": [
+        "mx_bashful_being_bashful_while_standing",
+        "mx_telling_a_secret_telling_a_secret"
+      ],
+      "greeting": [
+        "welcome"
+      ],
+      "idle": [
+        "mx_bored_standing_around_bored_idle",
+        "mx_breathing_idle_breathing_idle",
+        "mx_happy_idle_happy_idle_variation_1",
+        "mx_happy_idle_happy_idle_variation_2",
+        "mx_idle_standing_idle",
+        "mx_idle_standing_short_idle",
+        "mx_idle_weight_shift_idle",
+        "mx_looking_around_idle_stand_looking_around",
+        "mx_unarmed_idle_standing_idle_loop",
+        "mx_weight_shift_gesture_big_vegas_weight_shift_gesturing",
+        "mx_weight_shift_shifting_weight_from_side_to_side",
+        "mx_catwalk_idle_01_male_standing_idle_01",
+        "mx_catwalk_idle_02_male_standing_idle_02",
+        "mx_catwalk_idle_female_standing_idle",
+        "mx_catwalk_idle_twist_l_female_twist_left_idle",
+        "mx_catwalk_idle_twist_l_male_twist_left_idle",
+        "mx_catwalk_idle_twist_r_female_twist_right_idle",
+        "mx_catwalk_idle_twist_r_male_twist_right_idle",
+        "mx_idle_female_idle",
+        "mx_idle_male_fitness_idle_with_breathing",
+        "mx_looking_behind_standing_idle_looking_behind_over_right_side",
+        "mx_neutral_idle_neutral_idle",
+        "mx_sad_idle_sad_idle_variation_1",
+        "mx_standing_idle_02_standing_idle_looking_around",
+        "mx_standing_idle_standing_idle",
+        "mx_unarmed_idle_01_standing_idle_unarmed",
+        "mx_unarmed_idle_01_unarmed_idle",
+        "mx_unarmed_idle_looking_ver_1_looking_around",
+        "mx_unarmed_idle_looking_ver_2_looking_around",
+        "mx_ro_chatting_idle_01",
+        "mx_ro_chatting_idle_02",
+        "mx_ro_chatting_idle_03",
+        "mx_ro_chatting_idle_04",
+        "mx_ro_chatting_idle_05",
+        "mx_ro_chatting_idle_two_01",
+        "mx_ro_chatting_idle_two_04",
+        "mx_ro_chatting_idle_two_05",
+        "mx_ro_chatting_idle_two_06",
+        "mx_ro_chatting_idle_two_08",
+        "mx_ro_chatting_idle_two_09",
+        "mx_ro_conversation_idle_01",
+        "mx_ro_conversation_idle_02",
+        "mx_ro_conversation_idle_03",
+        "mx_ro_conversation_idle_04",
+        "mx_ro_conversation_idle_05",
+        "mx_ro_conversation_idle_06",
+        "mx_ro_listening_idle_01",
+        "mx_ro_listening_idle_02",
+        "mx_ro_listening_idle_03",
+        "mx_ro_listening_idle_04",
+        "mx_ro_listening_idle_07",
+        "mx_ro_listening_idle_08",
+        "mx_ro_looking_around_idle_01",
+        "mx_ro_looking_around_idle_02",
+        "mx_ro_looking_around_idle_03",
+        "mx_ro_looking_around_idle_04",
+        "mx_ro_looking_around_idle_06",
+        "mx_ro_looking_around_idle_07",
+        "mx_ro_looking_around_idle_two_01",
+        "mx_ro_looking_around_idle_two_02",
+        "mx_ro_looking_around_idle_two_03",
+        "mx_ro_looking_around_idle_two_05",
+        "mx_ro_looking_around_idle_two_06",
+        "mx_ro_looking_around_idle_two_07",
+        "mx_ro_medium_idle_01",
+        "mx_ro_medium_idle_06",
+        "mx_ro_medium_idle_08",
+        "mx_ro_medium_idle_09",
+        "mx_ro_medium_idle_11",
+        "mx_ro_medium_idle_12",
+        "mx_ro_pointing_idle_01",
+        "mx_ro_pointing_idle_02",
+        "mx_ro_pointing_idle_03",
+        "mx_ro_pointing_idle_04",
+        "mx_ro_watching_idle_01",
+        "mx_ro_watching_idle_02",
+        "mx_ro_watching_idle_03",
+        "mx_ro_watching_idle_04",
+        "mx_ro_watching_idle_05"
+      ],
+      "listen": [
+        "mx_ro_head_tilts_01",
+        "mx_ro_head_tilts_05",
+        "mx_ro_head_tilts_07",
+        "mx_ro_head_tilts_08",
+        "mx_ro_head_tilts_09",
+        "mx_ro_head_tilts_11"
+      ],
+      "negation": [
+        "mx_thoughtful_head_shake_shaking_head_no_thoughtfully"
+      ],
+      "open": [
+        "offer_right",
+        "open_both",
+        "open_both_short",
+        "mx_thankful_being_thankful_while_standing",
+        "mx_ro_aside_to_camera_01",
+        "mx_ro_aside_to_camera_02",
+        "mx_ro_aside_to_camera_03",
+        "mx_ro_aside_to_camera_04",
+        "mx_ro_aside_to_camera_05",
+        "mx_ro_aside_to_camera_two_01",
+        "mx_ro_aside_to_camera_two_02",
+        "mx_ro_aside_to_camera_two_03",
+        "mx_ro_aside_to_camera_two_04",
+        "mx_ro_aside_to_camera_two_05",
+        "mx_ro_interviewer_calm_01",
+        "mx_ro_interviewer_calm_02",
+        "mx_ro_interviewer_calm_03",
+        "mx_ro_interviewer_calm_04",
+        "mx_ro_interviewer_calm_07",
+        "mx_ro_interviewer_calm_08"
+      ],
+      "point": [
+        "right_here"
+      ],
+      "question": [
+        "unsure_open"
+      ],
+      "scale": [
+        "small_to_big"
+      ],
+      "think": [
+        "mx_thinking_thinking_while_standing"
+      ]
+    },
+    "standing.expressive": {
+      "beat": [
+        "mx_sarcastic_head_nod_sarcastically_nodding_head_yes",
+        "mx_hard_head_nod_hard_head_nod_yes"
+      ],
+      "count": [
+        "mx_counting_counting_to_five_on_one_hand"
+      ],
+      "emphasis": [
+        "emphasis",
+        "mx_hands_forward_gesture_two_handed_forward_gesture",
+        "mx_shake_gesture_big_vegas_shaking_gesturing",
+        "mx_standing_arguing_standing_and_arguing_with_another_person",
+        "mx_standing_arguing_standing_arguing_with_another_person",
+        "mx_strong_gesture_sporty_granny_strong_gesture"
+      ],
+      "expressive": [
+        "mx_being_cocky_cocky_lean_back",
+        "mx_disappointed_disappointed_awe_shucks",
+        "mx_look_away_gesture_sarcastically_looking_away",
+        "mx_ro_camera_looks_03",
+        "mx_ro_camera_looks_04",
+        "mx_ro_camera_looks_06",
+        "mx_ro_camera_looks_08",
+        "mx_ro_camera_looks_10",
+        "mx_ro_camera_looks_11"
+      ],
+      "greeting": [
+        "mx_hand_raising_raising_a_hand",
+        "mx_standing_greeting_greeting_while_standing",
+        "mx_waving_emotional_waving_forward",
+        "mx_waving_gesture_aj_waving_gesture",
+        "mx_waving_waving",
+        "mx_waving_waving_with_both_hands"
+      ],
+      "idle": [
+        "mx_ro_arguing_idle_01",
+        "mx_ro_arguing_idle_04",
+        "mx_ro_arguing_idle_05",
+        "mx_ro_arguing_idle_06",
+        "mx_ro_arguing_idle_07",
+        "mx_ro_arguing_idle_09"
+      ],
+      "negation": [
+        "mx_annoyed_head_shake_shaking_head_no_annoyed",
+        "mx_dismissing_gesture_dismissing_with_back_hand",
+        "mx_dismissing_gesture_dismissing_with_hand_forward",
+        "mx_no_indicating_no",
+        "mx_shaking_head_no_shaking_head_no_dismissively"
+      ],
+      "open": [
+        "mx_arm_gesture_gesturing_with_arm_to_the_side",
+        "mx_happy_hand_gesture_happy_forward_hand_gesture",
+        "mx_reaching_out_reaching_out_gesture",
+        "mx_talking_general_conversation",
+        "mx_talking_talking_finding_something_funny",
+        "mx_talking_at_watercooler_having_a_chat_at_the_watercooler",
+        "mx_ro_lawyer_address_01",
+        "mx_ro_lawyer_address_02",
+        "mx_ro_lawyer_address_03",
+        "mx_ro_lawyer_address_04",
+        "mx_ro_lawyer_address_06",
+        "mx_ro_lawyer_address_07",
+        "mx_ro_on_phone_01",
+        "mx_ro_on_phone_02",
+        "mx_ro_on_phone_04",
+        "mx_ro_on_phone_05",
+        "mx_ro_on_phone_06",
+        "mx_ro_on_phone_07",
+        "mx_ro_panel_judges_01",
+        "mx_ro_panel_judges_02",
+        "mx_ro_panel_judges_03",
+        "mx_ro_panel_judges_08",
+        "mx_ro_panel_judges_11",
+        "mx_ro_panel_judges_12",
+        "mx_ro_product_pitch_01",
+        "mx_ro_product_pitch_02",
+        "mx_ro_product_pitch_04",
+        "mx_ro_product_pitch_05",
+        "mx_ro_product_pitch_08",
+        "mx_ro_product_pitch_11",
+        "mx_ro_show_host_01",
+        "mx_ro_show_host_02",
+        "mx_ro_show_host_03",
+        "mx_ro_show_host_05",
+        "mx_ro_show_host_06",
+        "mx_ro_show_host_07"
+      ],
+      "point": [
+        "mx_pointing_forward_looking_down_then_pointing_forward",
+        "mx_pointing_gesture_aj_pointing_gesture",
+        "mx_pointing_gesture_big_vegas_pointing_gesture",
+        "mx_pointing_pointing_behind_with_thumb",
+        "mx_pointing_pointing_with_arm_bent",
+        "mx_ro_interviewer_pressing_01",
+        "mx_ro_interviewer_pressing_02",
+        "mx_ro_interviewer_pressing_03",
+        "mx_ro_interviewer_pressing_04",
+        "mx_ro_interviewer_pressing_05",
+        "mx_ro_lawyer_argument_06",
+        "mx_ro_lawyer_argument_07",
+        "mx_ro_lawyer_argument_08",
+        "mx_ro_two_hosts_presenting_01",
+        "mx_ro_two_hosts_presenting_02",
+        "mx_ro_two_hosts_presenting_04",
+        "mx_ro_two_hosts_presenting_05",
+        "mx_ro_two_hosts_presenting_08",
+        "mx_ro_two_hosts_presenting_10"
+      ],
+      "question": [
+        "mx_shrugging_shoulder_shrug",
+        "mx_talking_asking_a_question",
+        "mx_talking_asking_a_question_with_one_hand",
+        "mx_talking_asking_a_question_with_two_hands",
+        "mx_whatever_gesture_aj_whatever_gesture",
+        "mx_ro_shrugging_01",
+        "mx_ro_shrugging_02",
+        "mx_ro_shrugging_03",
+        "mx_ro_shrugging_05",
+        "mx_ro_shrugging_06",
+        "mx_ro_shrugging_07"
+      ],
+      "react": [
+        "mx_clapping_clap_while_standing",
+        "mx_fist_pump_pumping_a_fist",
+        "mx_standing_fist_pump_restrained_enthusiasm_standing_fist_pump",
+        "mx_standing_thumbs_up_giving_thumbs_up_while_standing",
+        "mx_laughing_laughing_standing",
+        "mx_ro_double_takes_01",
+        "mx_ro_double_takes_07",
+        "mx_ro_double_takes_08",
+        "mx_ro_double_takes_09",
+        "mx_ro_double_takes_10",
+        "mx_ro_double_takes_11",
+        "mx_ro_face_palms_01",
+        "mx_ro_face_palms_02",
+        "mx_ro_face_palms_03",
+        "mx_ro_face_palms_05",
+        "mx_ro_face_palms_06",
+        "mx_ro_face_palms_09",
+        "mx_ro_fist_pumps_01",
+        "mx_ro_fist_pumps_02",
+        "mx_ro_fist_pumps_05",
+        "mx_ro_fist_pumps_06",
+        "mx_ro_fist_pumps_07",
+        "mx_ro_fist_pumps_08",
+        "mx_ro_game_show_contestant_01",
+        "mx_ro_game_show_contestant_05",
+        "mx_ro_game_show_contestant_06",
+        "mx_ro_game_show_contestant_08",
+        "mx_ro_game_show_contestant_09",
+        "mx_ro_game_show_contestant_10",
+        "mx_ro_laughs_03",
+        "mx_ro_laughs_04",
+        "mx_ro_laughs_08",
+        "mx_ro_laughs_10",
+        "mx_ro_laughs_12",
+        "mx_ro_laughs_13",
+        "mx_ro_sarcastic_clap_01",
+        "mx_ro_sarcastic_clap_02",
+        "mx_ro_sarcastic_clap_03",
+        "mx_ro_sarcastic_clap_04",
+        "mx_ro_sarcastic_clap_05",
+        "mx_ro_sarcastic_clap_06",
+        "mx_ro_slow_clap_04",
+        "mx_ro_slow_clap_05",
+        "mx_ro_slow_clap_11"
+      ]
+    },
+    "standing.female": {
+      "expressive": [
+        "mx_bashful_being_bashful_while_standing",
+        "mx_telling_a_secret_telling_a_secret"
+      ],
+      "idle": [
+        "mx_catwalk_idle_01_male_standing_idle_01",
+        "mx_catwalk_idle_02_male_standing_idle_02",
+        "mx_catwalk_idle_female_standing_idle",
+        "mx_catwalk_idle_twist_l_female_twist_left_idle",
+        "mx_catwalk_idle_twist_l_male_twist_left_idle",
+        "mx_catwalk_idle_twist_r_female_twist_right_idle",
+        "mx_catwalk_idle_twist_r_male_twist_right_idle",
+        "mx_idle_female_idle",
+        "mx_ro_chatting_idle_01",
+        "mx_ro_chatting_idle_02",
+        "mx_ro_chatting_idle_03",
+        "mx_ro_chatting_idle_04",
+        "mx_ro_chatting_idle_05",
+        "mx_ro_chatting_idle_two_01",
+        "mx_ro_chatting_idle_two_04",
+        "mx_ro_chatting_idle_two_05",
+        "mx_ro_chatting_idle_two_06",
+        "mx_ro_chatting_idle_two_08",
+        "mx_ro_chatting_idle_two_09"
+      ],
+      "listen": [
+        "mx_ro_head_tilts_01",
+        "mx_ro_head_tilts_05",
+        "mx_ro_head_tilts_07",
+        "mx_ro_head_tilts_08",
+        "mx_ro_head_tilts_09",
+        "mx_ro_head_tilts_11"
+      ],
+      "open": [
+        "mx_happy_hand_gesture_happy_forward_hand_gesture",
+        "mx_thankful_being_thankful_while_standing",
+        "mx_ro_aside_to_camera_01",
+        "mx_ro_aside_to_camera_02",
+        "mx_ro_aside_to_camera_03",
+        "mx_ro_aside_to_camera_04",
+        "mx_ro_aside_to_camera_05",
+        "mx_ro_aside_to_camera_two_01",
+        "mx_ro_aside_to_camera_two_02",
+        "mx_ro_aside_to_camera_two_03",
+        "mx_ro_aside_to_camera_two_04",
+        "mx_ro_aside_to_camera_two_05",
+        "mx_ro_product_pitch_01",
+        "mx_ro_product_pitch_02",
+        "mx_ro_product_pitch_04",
+        "mx_ro_product_pitch_05",
+        "mx_ro_product_pitch_08",
+        "mx_ro_product_pitch_11"
+      ],
+      "point": [
+        "mx_ro_two_hosts_presenting_01",
+        "mx_ro_two_hosts_presenting_02",
+        "mx_ro_two_hosts_presenting_04",
+        "mx_ro_two_hosts_presenting_05",
+        "mx_ro_two_hosts_presenting_08",
+        "mx_ro_two_hosts_presenting_10"
+      ]
+    },
+    "standing.male": {
+      "beat": [
+        "mx_hard_head_nod_hard_head_nod_yes"
+      ],
+      "emphasis": [
+        "mx_standing_arguing_standing_and_arguing_with_another_person",
+        "mx_standing_arguing_standing_arguing_with_another_person",
+        "mx_strong_gesture_sporty_granny_strong_gesture"
+      ],
+      "expressive": [
+        "mx_being_cocky_cocky_lean_back"
+      ],
+      "idle": [
+        "mx_ro_arguing_idle_01",
+        "mx_ro_arguing_idle_04",
+        "mx_ro_arguing_idle_05",
+        "mx_ro_arguing_idle_06",
+        "mx_ro_arguing_idle_07",
+        "mx_ro_arguing_idle_09"
+      ],
+      "negation": [
+        "mx_dismissing_gesture_dismissing_with_back_hand",
+        "mx_dismissing_gesture_dismissing_with_hand_forward"
+      ],
+      "open": [
+        "mx_ro_lawyer_address_01",
+        "mx_ro_lawyer_address_02",
+        "mx_ro_lawyer_address_03",
+        "mx_ro_lawyer_address_04",
+        "mx_ro_lawyer_address_06",
+        "mx_ro_lawyer_address_07",
+        "mx_ro_panel_judges_01",
+        "mx_ro_panel_judges_02",
+        "mx_ro_panel_judges_03",
+        "mx_ro_panel_judges_08",
+        "mx_ro_panel_judges_11",
+        "mx_ro_panel_judges_12"
+      ],
+      "point": [
+        "mx_ro_interviewer_pressing_01",
+        "mx_ro_interviewer_pressing_02",
+        "mx_ro_interviewer_pressing_03",
+        "mx_ro_interviewer_pressing_04",
+        "mx_ro_interviewer_pressing_05",
+        "mx_ro_lawyer_argument_06",
+        "mx_ro_lawyer_argument_07",
+        "mx_ro_lawyer_argument_08"
+      ],
+      "question": [
+        "mx_whatever_gesture_aj_whatever_gesture"
+      ],
+      "react": [
+        "mx_fist_pump_pumping_a_fist",
+        "mx_standing_fist_pump_restrained_enthusiasm_standing_fist_pump",
+        "mx_ro_fist_pumps_01",
+        "mx_ro_fist_pumps_02",
+        "mx_ro_fist_pumps_05",
+        "mx_ro_fist_pumps_06",
+        "mx_ro_fist_pumps_07",
+        "mx_ro_fist_pumps_08",
+        "mx_ro_game_show_contestant_01",
+        "mx_ro_game_show_contestant_05",
+        "mx_ro_game_show_contestant_06",
+        "mx_ro_game_show_contestant_08",
+        "mx_ro_game_show_contestant_09",
+        "mx_ro_game_show_contestant_10"
+      ]
     }
   }
 }
