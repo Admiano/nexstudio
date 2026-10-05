@@ -179,9 +179,11 @@
       "stroke": 14,
       "apex": 22,
       "release": 38,
-      "reachCm": 18.2,
-      "peakSpeed": 0.19,
+      "reachCm": 18.0,
+      "peakSpeed": 0.17,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Acknowledging (Acknowledging Gesture)"
     },
     "mx_agreeing_agreeing_yes": {
@@ -193,12 +195,14 @@
       "hands": "both",
       "category": "beat",
       "onset": 2,
-      "stroke": 7,
-      "apex": 24,
+      "stroke": 8,
+      "apex": 25,
       "release": 37,
-      "reachCm": 14.0,
-      "peakSpeed": 0.2,
+      "reachCm": 13.9,
+      "peakSpeed": 0.18,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Agreeing (Agreeing Yes)"
     },
     "mx_annoyed_head_shake_shaking_head_no_annoyed": {
@@ -213,9 +217,11 @@
       "stroke": 21,
       "apex": 40,
       "release": 44,
-      "reachCm": 14.0,
-      "peakSpeed": 0.19,
+      "reachCm": 13.8,
+      "peakSpeed": 0.17,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Annoyed Head Shake (Shaking Head No Annoyed)"
     },
     "mx_arm_gesture_gesturing_with_arm_to_the_side": {
@@ -230,26 +236,30 @@
       "stroke": 11,
       "apex": 23,
       "release": 46,
-      "reachCm": 67.1,
-      "peakSpeed": 2.06,
-      "tempo": 0.874,
+      "reachCm": 67.0,
+      "peakSpeed": 1.95,
+      "tempo": 0.925,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Arm Gesture (Gesturing With Arm To The Side)"
     },
     "mx_bashful_being_bashful_while_standing": {
       "mixamo": "bashful_being_bashful_while_standing",
       "frames": [
-        47,
-        142
+        54,
+        149
       ],
       "hands": "both",
       "category": "expressive",
       "onset": 0,
-      "stroke": 72,
+      "stroke": 65,
       "apex": 48,
       "release": 0,
-      "reachCm": 36.3,
-      "peakSpeed": 0.92,
+      "reachCm": 36.2,
+      "peakSpeed": 0.8,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Bashful (Being Bashful While Standing)"
     },
     "mx_being_cocky_cocky_lean_back": {
@@ -262,11 +272,13 @@
       "category": "expressive",
       "onset": 5,
       "stroke": 32,
-      "apex": 43,
+      "apex": 42,
       "release": 52,
-      "reachCm": 19.0,
-      "peakSpeed": 0.61,
+      "reachCm": 33.6,
+      "peakSpeed": 0.54,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Being Cocky (Cocky Lean Back)"
     },
     "mx_bored_standing_around_bored_idle": {
@@ -278,12 +290,14 @@
       "hands": "both",
       "category": "idle",
       "onset": 4,
-      "stroke": 225,
-      "apex": 235,
-      "release": 253,
-      "reachCm": 48.2,
-      "peakSpeed": 1.59,
+      "stroke": 227,
+      "apex": 234,
+      "release": 254,
+      "reachCm": 39.6,
+      "peakSpeed": 1.2,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Bored (Standing Around Bored Idle)"
     },
     "mx_breathing_idle_breathing_idle": {
@@ -294,13 +308,15 @@
       ],
       "hands": "both",
       "category": "idle",
-      "onset": 4,
-      "stroke": 130,
-      "apex": 116,
+      "onset": 0,
+      "stroke": 93,
+      "apex": 119,
       "release": 237,
-      "reachCm": 12.4,
+      "reachCm": 16.3,
       "peakSpeed": 0.17,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Breathing Idle (Breathing Idle)"
     },
     "mx_clapping_clap_while_standing": {
@@ -310,31 +326,35 @@
         29
       ],
       "hands": "both",
-      "category": "emphasis",
+      "category": "react",
       "onset": 0,
-      "stroke": 26,
-      "apex": 21,
+      "stroke": 27,
+      "apex": 22,
       "release": 27,
-      "reachCm": 42.2,
-      "peakSpeed": 0.99,
+      "reachCm": 40.4,
+      "peakSpeed": 0.44,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Clapping (Clap While Standing)"
     },
     "mx_counting_counting_to_five_on_one_hand": {
       "mixamo": "counting_counting_to_five_on_one_hand",
       "frames": [
-        13,
-        108
+        57,
+        152
       ],
       "hands": "right",
       "category": "count",
-      "onset": 6,
-      "stroke": 12,
-      "apex": 17,
-      "release": 91,
-      "reachCm": 30.1,
-      "peakSpeed": 1.2,
+      "onset": 5,
+      "stroke": 74,
+      "apex": 83,
+      "release": 87,
+      "reachCm": 70.2,
+      "peakSpeed": 1.04,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Counting (Counting To Five On One Hand)"
     },
     "mx_disappointed_disappointed_awe_shucks": {
@@ -343,15 +363,17 @@
         3,
         68
       ],
-      "hands": "right",
+      "hands": "both",
       "category": "expressive",
       "onset": 6,
       "stroke": 26,
       "apex": 16,
       "release": 57,
-      "reachCm": 58.2,
-      "peakSpeed": 3.93,
-      "tempo": 0.458,
+      "reachCm": 60.3,
+      "peakSpeed": 3.45,
+      "tempo": 0.522,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Disappointed (Disappointed \"Awe-Shucks\")"
     },
     "mx_dismissing_gesture_dismissing_with_back_hand": {
@@ -362,47 +384,53 @@
       ],
       "hands": "both",
       "category": "negation",
-      "onset": 5,
-      "stroke": 27,
-      "apex": 20,
+      "onset": 4,
+      "stroke": 26,
+      "apex": 34,
       "release": 32,
-      "reachCm": 23.3,
-      "peakSpeed": 1.08,
+      "reachCm": 41.9,
+      "peakSpeed": 0.98,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Dismissing Gesture (Dismissing With Back Hand)"
     },
     "mx_dismissing_gesture_dismissing_with_hand_forward": {
       "mixamo": "dismissing_gesture_dismissing_with_hand_forward",
       "frames": [
         1,
-        51
+        42
       ],
-      "hands": "right",
+      "hands": "both",
       "category": "negation",
       "onset": 3,
       "stroke": 9,
-      "apex": 17,
-      "release": 42,
-      "reachCm": 41.6,
-      "peakSpeed": 1.56,
+      "apex": 23,
+      "release": 33,
+      "reachCm": 44.4,
+      "peakSpeed": 1.4,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Dismissing Gesture (Dismissing With Hand Forward)"
     },
     "mx_fist_pump_pumping_a_fist": {
       "mixamo": "fist_pump_pumping_a_fist",
       "frames": [
         4,
-        64
+        65
       ],
-      "hands": "right",
-      "category": "emphasis",
+      "hands": "both",
+      "category": "react",
       "onset": 6,
       "stroke": 33,
-      "apex": 28,
-      "release": 52,
-      "reachCm": 41.5,
-      "peakSpeed": 2.26,
-      "tempo": 0.795,
+      "apex": 58,
+      "release": 53,
+      "reachCm": 135.2,
+      "peakSpeed": 2.01,
+      "tempo": 0.893,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Fist Pump (Pumping A Fist)"
     },
     "mx_hand_raising_raising_a_hand": {
@@ -411,15 +439,17 @@
         1,
         91
       ],
-      "hands": "right",
+      "hands": "both",
       "category": "greeting",
-      "onset": 2,
-      "stroke": 5,
-      "apex": 12,
+      "onset": 1,
+      "stroke": 7,
+      "apex": 41,
       "release": 82,
-      "reachCm": 93.4,
-      "peakSpeed": 3.33,
-      "tempo": 0.541,
+      "reachCm": 147.8,
+      "peakSpeed": 3.18,
+      "tempo": 0.565,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Hand Raising (Raising A Hand)"
     },
     "mx_hands_forward_gesture_two_handed_forward_gesture": {
@@ -431,12 +461,14 @@
       "hands": "both",
       "category": "emphasis",
       "onset": 4,
-      "stroke": 36,
-      "apex": 19,
+      "stroke": 10,
+      "apex": 20,
       "release": 52,
-      "reachCm": 37.2,
-      "peakSpeed": 1.38,
+      "reachCm": 136.1,
+      "peakSpeed": 1.24,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Hands Forward Gesture (Two Handed Forward Gesture)"
     },
     "mx_happy_hand_gesture_happy_forward_hand_gesture": {
@@ -447,13 +479,15 @@
       ],
       "hands": "both",
       "category": "open",
-      "onset": 4,
+      "onset": 3,
       "stroke": 9,
       "apex": 17,
       "release": 38,
-      "reachCm": 24.2,
-      "peakSpeed": 1.11,
+      "reachCm": 132.6,
+      "peakSpeed": 0.95,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Happy Hand Gesture (Happy Forward Hand Gesture)"
     },
     "mx_happy_idle_happy_idle_variation_1": {
@@ -465,12 +499,14 @@
       "hands": "both",
       "category": "idle",
       "onset": 0,
-      "stroke": 42,
-      "apex": 13,
-      "release": 47,
-      "reachCm": 18.1,
-      "peakSpeed": 0.09,
+      "stroke": 3,
+      "apex": 12,
+      "release": 46,
+      "reachCm": 22.9,
+      "peakSpeed": 0.12,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Happy Idle (Happy Idle Variation 1)"
     },
     "mx_happy_idle_happy_idle_variation_2": {
@@ -482,29 +518,33 @@
       "hands": "both",
       "category": "idle",
       "onset": 1,
-      "stroke": 14,
+      "stroke": 29,
       "apex": 23,
       "release": 49,
-      "reachCm": 43.4,
-      "peakSpeed": 1.5,
+      "reachCm": 46.0,
+      "peakSpeed": 1.24,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Happy Idle (Happy Idle Variation 2)"
     },
     "mx_head_gesture_gesturing_head_side_to_side": {
       "mixamo": "head_gesture_gesturing_head_side_to_side",
       "frames": [
-        2,
-        64
+        1,
+        66
       ],
       "hands": "both",
       "category": "beat",
-      "onset": 6,
-      "stroke": 41,
-      "apex": 44,
-      "release": 54,
-      "reachCm": 15.1,
-      "peakSpeed": 0.26,
+      "onset": 5,
+      "stroke": 42,
+      "apex": 45,
+      "release": 57,
+      "reachCm": 12.2,
+      "peakSpeed": 0.17,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Head Gesture (Gesturing Head Side To Side)"
     },
     "mx_head_nod_yes_nodding_head_yes": {
@@ -517,11 +557,13 @@
       "category": "beat",
       "onset": 1,
       "stroke": 13,
-      "apex": 28,
-      "release": 61,
-      "reachCm": 15.0,
-      "peakSpeed": 0.05,
+      "apex": 27,
+      "release": 60,
+      "reachCm": 11.5,
+      "peakSpeed": 0.04,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Head Nod Yes (Nodding Head Yes)"
     },
     "mx_idle_standing_idle": {
@@ -533,12 +575,14 @@
       "hands": "both",
       "category": "idle",
       "onset": 0,
-      "stroke": 110,
-      "apex": 24,
-      "release": 198,
-      "reachCm": 13.3,
+      "stroke": 159,
+      "apex": 192,
+      "release": 199,
+      "reachCm": 19.3,
       "peakSpeed": 0.02,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Idle (Standing Idle)"
     },
     "mx_idle_standing_short_idle": {
@@ -549,13 +593,15 @@
       ],
       "hands": "right",
       "category": "idle",
-      "onset": 0,
-      "stroke": 25,
-      "apex": 0,
+      "onset": 1,
+      "stroke": 12,
+      "apex": 47,
       "release": 44,
-      "reachCm": 32.4,
-      "peakSpeed": 0.04,
+      "reachCm": 38.2,
+      "peakSpeed": 0.03,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Idle (Standing Short Idle)"
     },
     "mx_idle_weight_shift_idle": {
@@ -567,46 +613,52 @@
       "hands": "both",
       "category": "idle",
       "onset": 5,
-      "stroke": 149,
-      "apex": 163,
-      "release": 391,
-      "reachCm": 18.0,
-      "peakSpeed": 0.14,
+      "stroke": 256,
+      "apex": 162,
+      "release": 383,
+      "reachCm": 24.6,
+      "peakSpeed": 0.18,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Idle (Weight Shift Idle)"
     },
     "mx_lengthy_head_nod_nodding_head_yes": {
       "mixamo": "lengthy_head_nod_nodding_head_yes",
       "frames": [
         1,
-        39
+        42
       ],
       "hands": "both",
       "category": "beat",
-      "onset": 2,
-      "stroke": 16,
-      "apex": 15,
-      "release": 30,
-      "reachCm": 15.8,
-      "peakSpeed": 0.25,
+      "onset": 0,
+      "stroke": 19,
+      "apex": 14,
+      "release": 40,
+      "reachCm": 21.4,
+      "peakSpeed": 0.11,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Lengthy Head Nod (Nodding Head Yes)"
     },
     "mx_look_away_gesture_sarcastically_looking_away": {
       "mixamo": "look_away_gesture_sarcastically_looking_away",
       "frames": [
         1,
-        55
+        57
       ],
       "hands": "both",
       "category": "expressive",
       "onset": 2,
-      "stroke": 25,
+      "stroke": 26,
       "apex": 20,
-      "release": 46,
-      "reachCm": 16.8,
-      "peakSpeed": 0.3,
+      "release": 51,
+      "reachCm": 22.3,
+      "peakSpeed": 0.27,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Look Away Gesture (Sarcastically Looking Away)"
     },
     "mx_looking_around_idle_stand_looking_around": {
@@ -617,30 +669,34 @@
       ],
       "hands": "both",
       "category": "idle",
-      "onset": 11,
-      "stroke": 95,
-      "apex": 101,
+      "onset": 10,
+      "stroke": 116,
+      "apex": 102,
       "release": 125,
       "reachCm": 47.9,
-      "peakSpeed": 1.33,
+      "peakSpeed": 1.15,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Looking Around (Idle Stand Looking Around)"
     },
     "mx_no_indicating_no": {
       "mixamo": "no_indicating_no",
       "frames": [
-        5,
+        4,
         76
       ],
       "hands": "both",
       "category": "negation",
       "onset": 6,
-      "stroke": 11,
-      "apex": 16,
-      "release": 63,
-      "reachCm": 43.3,
-      "peakSpeed": 2.06,
-      "tempo": 0.874,
+      "stroke": 12,
+      "apex": 24,
+      "release": 64,
+      "reachCm": 41.7,
+      "peakSpeed": 1.75,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: No (Indicating No)"
     },
     "mx_pointing_forward_looking_down_then_pointing_forward": {
@@ -652,46 +708,52 @@
       "hands": "left",
       "category": "point",
       "onset": 6,
-      "stroke": 32,
-      "apex": 26,
+      "stroke": 33,
+      "apex": 25,
       "release": 49,
-      "reachCm": 44.3,
-      "peakSpeed": 1.69,
+      "reachCm": 38.7,
+      "peakSpeed": 1.54,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Pointing Forward (Looking Down Then Pointing Forward)"
     },
     "mx_pointing_gesture_aj_pointing_gesture": {
       "mixamo": "pointing_gesture_aj_pointing_gesture",
       "frames": [
         1,
-        42
+        43
       ],
       "hands": "both",
       "category": "point",
-      "onset": 2,
+      "onset": 1,
       "stroke": 5,
       "apex": 12,
-      "release": 33,
-      "reachCm": 50.2,
-      "peakSpeed": 2.21,
-      "tempo": 0.815,
+      "release": 34,
+      "reachCm": 46.3,
+      "peakSpeed": 1.94,
+      "tempo": 0.929,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Pointing Gesture (Aj Pointing Gesture)"
     },
     "mx_pointing_gesture_big_vegas_pointing_gesture": {
       "mixamo": "pointing_gesture_big_vegas_pointing_gesture",
       "frames": [
         1,
-        41
+        44
       ],
       "hands": "both",
       "category": "point",
-      "onset": 4,
-      "stroke": 6,
-      "apex": 15,
-      "release": 32,
-      "reachCm": 62.5,
-      "peakSpeed": 3.77,
-      "tempo": 0.478,
+      "onset": 3,
+      "stroke": 9,
+      "apex": 17,
+      "release": 35,
+      "reachCm": 59.7,
+      "peakSpeed": 2.66,
+      "tempo": 0.677,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Pointing Gesture (Big Vegas Pointing Gesture)"
     },
     "mx_pointing_pointing_behind_with_thumb": {
@@ -706,9 +768,11 @@
       "stroke": 14,
       "apex": 21,
       "release": 54,
-      "reachCm": 68.4,
-      "peakSpeed": 2.87,
-      "tempo": 0.628,
+      "reachCm": 67.8,
+      "peakSpeed": 2.7,
+      "tempo": 0.667,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Pointing (Pointing Behind With Thumb)"
     },
     "mx_pointing_pointing_with_arm_bent": {
@@ -719,30 +783,34 @@
       ],
       "hands": "right",
       "category": "point",
-      "onset": 6,
+      "onset": 5,
       "stroke": 10,
       "apex": 21,
       "release": 56,
-      "reachCm": 56.3,
-      "peakSpeed": 1.9,
-      "tempo": 0.949,
+      "reachCm": 36.0,
+      "peakSpeed": 1.65,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Pointing (Pointing With Arm Bent)"
     },
     "mx_reaching_out_reaching_out_gesture": {
       "mixamo": "reaching_out_reaching_out_gesture",
       "frames": [
         6,
-        87
+        88
       ],
       "hands": "right",
       "category": "open",
       "onset": 6,
-      "stroke": 21,
-      "apex": 81,
-      "release": 73,
-      "reachCm": 66.0,
-      "peakSpeed": 0.38,
+      "stroke": 40,
+      "apex": 82,
+      "release": 74,
+      "reachCm": 46.0,
+      "peakSpeed": 0.37,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Reaching Out (Reaching Out Gesture)"
     },
     "mx_sarcastic_head_nod_sarcastically_nodding_head_yes": {
@@ -753,13 +821,15 @@
       ],
       "hands": "both",
       "category": "beat",
-      "onset": 1,
-      "stroke": 4,
+      "onset": 0,
+      "stroke": 5,
       "apex": 45,
       "release": 37,
-      "reachCm": 13.6,
-      "peakSpeed": 0.23,
+      "reachCm": 20.2,
+      "peakSpeed": 0.21,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Sarcastic Head Nod (Sarcastically Nodding Head Yes)"
     },
     "mx_shake_gesture_big_vegas_shaking_gesturing": {
@@ -771,12 +841,14 @@
       "hands": "both",
       "category": "emphasis",
       "onset": 0,
-      "stroke": 5,
-      "apex": 17,
-      "release": 34,
-      "reachCm": 31.3,
-      "peakSpeed": 2.78,
-      "tempo": 0.647,
+      "stroke": 4,
+      "apex": 28,
+      "release": 36,
+      "reachCm": 29.8,
+      "peakSpeed": 1.55,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Shake Gesture (Big Vegas Shaking Gesturing)"
     },
     "mx_shaking_head_no_shaking_head_no_dismissively": {
@@ -788,12 +860,14 @@
       "hands": "both",
       "category": "negation",
       "onset": 5,
-      "stroke": 29,
+      "stroke": 28,
       "apex": 19,
       "release": 34,
-      "reachCm": 18.2,
-      "peakSpeed": 0.16,
+      "reachCm": 25.0,
+      "peakSpeed": 0.15,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Shaking Head No (Shaking Head No Dismissively)"
     },
     "mx_shrugging_shoulder_shrug": {
@@ -804,64 +878,72 @@
       ],
       "hands": "both",
       "category": "question",
-      "onset": 5,
+      "onset": 4,
       "stroke": 9,
       "apex": 17,
       "release": 44,
-      "reachCm": 34.0,
-      "peakSpeed": 1.04,
+      "reachCm": 31.8,
+      "peakSpeed": 0.97,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Shrugging (Shoulder Shrug)"
     },
     "mx_standing_arguing_standing_and_arguing_with_another_person": {
       "mixamo": "standing_arguing_standing_and_arguing_with_another_person",
       "frames": [
-        255,
-        350
+        149,
+        244
       ],
       "hands": "both",
       "category": "emphasis",
-      "onset": 21,
-      "stroke": 40,
+      "onset": 16,
+      "stroke": 44,
       "apex": 48,
-      "release": 90,
-      "reachCm": 83.3,
-      "peakSpeed": 3.77,
-      "tempo": 0.478,
+      "release": 95,
+      "reachCm": 176.4,
+      "peakSpeed": 3.33,
+      "tempo": 0.541,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Standing Arguing (Standing And Arguing With Another Person)"
     },
     "mx_standing_arguing_standing_arguing_with_another_person": {
       "mixamo": "standing_arguing_standing_arguing_with_another_person",
       "frames": [
-        278,
-        373
+        222,
+        317
       ],
       "hands": "both",
       "category": "emphasis",
       "onset": 14,
-      "stroke": 44,
+      "stroke": 73,
       "apex": 48,
-      "release": 73,
-      "reachCm": 78.4,
-      "peakSpeed": 4.58,
-      "tempo": 0.393,
+      "release": 75,
+      "reachCm": 187.0,
+      "peakSpeed": 3.82,
+      "tempo": 0.471,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Standing Arguing (Standing Arguing With Another Person)"
     },
     "mx_standing_fist_pump_restrained_enthusiasm_standing_fist_pump": {
       "mixamo": "standing_fist_pump_restrained_enthusiasm_standing_fist_pump",
       "frames": [
         9,
-        51
+        53
       ],
-      "hands": "right",
-      "category": "emphasis",
+      "hands": "both",
+      "category": "react",
       "onset": 6,
       "stroke": 18,
-      "apex": 14,
-      "release": 34,
-      "reachCm": 47.1,
-      "peakSpeed": 3.46,
-      "tempo": 0.52,
+      "apex": 4,
+      "release": 36,
+      "reachCm": 171.7,
+      "peakSpeed": 2.37,
+      "tempo": 0.76,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Standing Fist Pump (Restrained Enthusiasm Standing Fist Pump)"
     },
     "mx_standing_greeting_greeting_while_standing": {
@@ -870,32 +952,36 @@
         23,
         112
       ],
-      "hands": "right",
+      "hands": "both",
       "category": "greeting",
       "onset": 6,
       "stroke": 11,
-      "apex": 25,
+      "apex": 33,
       "release": 81,
-      "reachCm": 63.8,
-      "peakSpeed": 1.76,
+      "reachCm": 160.5,
+      "peakSpeed": 1.69,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Standing Greeting (Greeting While Standing)"
     },
     "mx_standing_thumbs_up_giving_thumbs_up_while_standing": {
       "mixamo": "standing_thumbs_up_giving_thumbs_up_while_standing",
       "frames": [
-        8,
-        83
+        7,
+        87
       ],
       "hands": "both",
-      "category": "beat",
+      "category": "react",
       "onset": 6,
-      "stroke": 31,
-      "apex": 54,
-      "release": 67,
-      "reachCm": 70.9,
-      "peakSpeed": 3.03,
-      "tempo": 0.594,
+      "stroke": 13,
+      "apex": 55,
+      "release": 72,
+      "reachCm": 68.8,
+      "peakSpeed": 2.2,
+      "tempo": 0.819,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Standing Thumbs Up (Giving Thumbs Up While Standing)"
     },
     "mx_strong_gesture_sporty_granny_strong_gesture": {
@@ -907,12 +993,14 @@
       "hands": "both",
       "category": "emphasis",
       "onset": 2,
-      "stroke": 8,
+      "stroke": 9,
       "apex": 14,
       "release": 37,
-      "reachCm": 81.2,
-      "peakSpeed": 4.53,
-      "tempo": 0.398,
+      "reachCm": 122.5,
+      "peakSpeed": 3.68,
+      "tempo": 0.489,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Strong Gesture (Sporty Granny Strong Gesture)"
     },
     "mx_talking_asking_a_question": {
@@ -925,28 +1013,32 @@
       "category": "question",
       "onset": 6,
       "stroke": 10,
-      "apex": 22,
+      "apex": 19,
       "release": 95,
-      "reachCm": 44.1,
-      "peakSpeed": 1.4,
+      "reachCm": 114.1,
+      "peakSpeed": 1.3,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Talking (Asking A Question)"
     },
     "mx_talking_asking_a_question_with_one_hand": {
       "mixamo": "talking_asking_a_question_with_one_hand",
       "frames": [
         1,
-        90
+        91
       ],
       "hands": "both",
       "category": "question",
       "onset": 6,
-      "stroke": 57,
-      "apex": 22,
-      "release": 81,
-      "reachCm": 34.9,
-      "peakSpeed": 1.56,
+      "stroke": 56,
+      "apex": 23,
+      "release": 82,
+      "reachCm": 116.2,
+      "peakSpeed": 1.34,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Talking (Asking A Question With One Hand)"
     },
     "mx_talking_asking_a_question_with_two_hands": {
@@ -959,11 +1051,13 @@
       "category": "question",
       "onset": 6,
       "stroke": 54,
-      "apex": 22,
+      "apex": 24,
       "release": 81,
-      "reachCm": 37.5,
-      "peakSpeed": 1.94,
-      "tempo": 0.926,
+      "reachCm": 113.3,
+      "peakSpeed": 1.68,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Talking (Asking A Question With Two Hands)"
     },
     "mx_talking_general_conversation": {
@@ -976,45 +1070,51 @@
       "category": "open",
       "onset": 0,
       "stroke": 75,
-      "apex": 54,
+      "apex": 55,
       "release": 87,
-      "reachCm": 46.9,
-      "peakSpeed": 1.23,
+      "reachCm": 114.8,
+      "peakSpeed": 1.08,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Talking (General Conversation)"
     },
     "mx_talking_talking_finding_something_funny": {
       "mixamo": "talking_talking_finding_something_funny",
       "frames": [
-        20,
-        115
+        35,
+        130
       ],
       "hands": "both",
       "category": "open",
-      "onset": 2,
-      "stroke": 71,
-      "apex": 48,
-      "release": 74,
-      "reachCm": 50.6,
-      "peakSpeed": 2.01,
-      "tempo": 0.897,
+      "onset": 0,
+      "stroke": 55,
+      "apex": 55,
+      "release": 87,
+      "reachCm": 45.0,
+      "peakSpeed": 1.83,
+      "tempo": 0.986,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Talking (Talking Finding Something Funny)"
     },
     "mx_telling_a_secret_telling_a_secret": {
       "mixamo": "telling_a_secret_telling_a_secret",
       "frames": [
-        33,
-        128
+        145,
+        240
       ],
       "hands": "both",
       "category": "expressive",
-      "onset": 2,
-      "stroke": 13,
-      "apex": 48,
-      "release": 27,
-      "reachCm": 33.3,
-      "peakSpeed": 0.49,
+      "onset": 33,
+      "stroke": 62,
+      "apex": 57,
+      "release": 87,
+      "reachCm": 42.5,
+      "peakSpeed": 0.46,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Telling A Secret (Telling A Secret)"
     },
     "mx_thankful_being_thankful_while_standing": {
@@ -1027,11 +1127,13 @@
       "category": "open",
       "onset": 2,
       "stroke": 9,
-      "apex": 37,
+      "apex": 24,
       "release": 51,
-      "reachCm": 40.2,
-      "peakSpeed": 1.67,
+      "reachCm": 47.9,
+      "peakSpeed": 1.52,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Thankful (Being Thankful While Standing)"
     },
     "mx_thinking_thinking_while_standing": {
@@ -1043,12 +1145,14 @@
       "hands": "both",
       "category": "think",
       "onset": 1,
-      "stroke": 12,
-      "apex": 66,
+      "stroke": 73,
+      "apex": 4,
       "release": 81,
-      "reachCm": 47.8,
-      "peakSpeed": 1.83,
-      "tempo": 0.984,
+      "reachCm": 42.6,
+      "peakSpeed": 1.71,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Thinking (Thinking While Standing)"
     },
     "mx_thoughtful_head_nod_thoughtfully_nodding_head_yes": {
@@ -1063,26 +1167,30 @@
       "stroke": 32,
       "apex": 37,
       "release": 61,
-      "reachCm": 17.6,
-      "peakSpeed": 0.17,
+      "reachCm": 44.9,
+      "peakSpeed": 0.14,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Thoughtful Head Nod (Thoughtfully Nodding Head Yes)"
     },
     "mx_thoughtful_head_shake_shaking_head_no_thoughtfully": {
       "mixamo": "thoughtful_head_shake_shaking_head_no_thoughtfully",
       "frames": [
         1,
-        71
+        65
       ],
       "hands": "both",
       "category": "negation",
-      "onset": 5,
-      "stroke": 30,
-      "apex": 23,
-      "release": 62,
-      "reachCm": 15.7,
-      "peakSpeed": 0.19,
+      "onset": 4,
+      "stroke": 31,
+      "apex": 32,
+      "release": 56,
+      "reachCm": 42.2,
+      "peakSpeed": 0.17,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Thoughtful Head Shake (Shaking Head No Thoughtfully)"
     },
     "mx_unarmed_idle_standing_idle_loop": {
@@ -1094,29 +1202,33 @@
       "hands": "both",
       "category": "idle",
       "onset": 0,
-      "stroke": 16,
-      "apex": 27,
+      "stroke": 20,
+      "apex": 28,
       "release": 45,
-      "reachCm": 15.1,
-      "peakSpeed": 0.11,
+      "reachCm": 19.1,
+      "peakSpeed": 0.1,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Unarmed Idle (Standing Idle- Loop)"
     },
     "mx_waving_emotional_waving_forward": {
       "mixamo": "waving_emotional_waving_forward",
       "frames": [
         6,
-        84
+        100
       ],
-      "hands": "right",
+      "hands": "both",
       "category": "greeting",
       "onset": 6,
       "stroke": 12,
-      "apex": 43,
-      "release": 70,
-      "reachCm": 60.5,
-      "peakSpeed": 2.08,
-      "tempo": 0.865,
+      "apex": 64,
+      "release": 86,
+      "reachCm": 77.8,
+      "peakSpeed": 1.96,
+      "tempo": 0.918,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Waving (Emotional Waving Forward)"
     },
     "mx_waving_gesture_aj_waving_gesture": {
@@ -1129,11 +1241,13 @@
       "category": "greeting",
       "onset": 2,
       "stroke": 24,
-      "apex": 15,
+      "apex": 16,
       "release": 32,
-      "reachCm": 45.1,
-      "peakSpeed": 1.51,
+      "reachCm": 41.1,
+      "peakSpeed": 1.4,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Waving Gesture (Aj Waving Gesture)"
     },
     "mx_waving_waving": {
@@ -1142,32 +1256,36 @@
         1,
         14
       ],
-      "hands": "right",
+      "hands": "both",
       "category": "greeting",
       "onset": 0,
       "stroke": 9,
-      "apex": 5,
+      "apex": 6,
       "release": 12,
-      "reachCm": 59.9,
-      "peakSpeed": 1.24,
+      "reachCm": 77.4,
+      "peakSpeed": 0.48,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Waving (Waving)"
     },
     "mx_waving_waving_with_both_hands": {
       "mixamo": "waving_waving_with_both_hands",
       "frames": [
         1,
-        72
+        73
       ],
       "hands": "both",
       "category": "greeting",
-      "onset": 5,
-      "stroke": 10,
+      "onset": 4,
+      "stroke": 11,
       "apex": 20,
-      "release": 63,
-      "reachCm": 95.6,
-      "peakSpeed": 3.26,
-      "tempo": 0.553,
+      "release": 64,
+      "reachCm": 96.7,
+      "peakSpeed": 3.05,
+      "tempo": 0.591,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Waving (Waving With Both Hands)"
     },
     "mx_weight_shift_gesture_big_vegas_weight_shift_gesturing": {
@@ -1176,15 +1294,17 @@
         1,
         48
       ],
-      "hands": "right",
+      "hands": "both",
       "category": "idle",
       "onset": 2,
-      "stroke": 4,
-      "apex": 13,
-      "release": 31,
-      "reachCm": 83.5,
-      "peakSpeed": 3.98,
-      "tempo": 0.452,
+      "stroke": 5,
+      "apex": 18,
+      "release": 33,
+      "reachCm": 84.8,
+      "peakSpeed": 3.55,
+      "tempo": 0.506,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Weight Shift Gesture (Big Vegas Weight Shift Gesturing)"
     },
     "mx_weight_shift_shifting_weight_from_side_to_side": {
@@ -1195,13 +1315,15 @@
       ],
       "hands": "both",
       "category": "idle",
-      "onset": 9,
-      "stroke": 112,
+      "onset": 4,
+      "stroke": 175,
       "apex": 120,
-      "release": 215,
-      "reachCm": 15.4,
+      "release": 213,
+      "reachCm": 22.2,
       "peakSpeed": 0.15,
       "tempo": 1,
+      "posture": "standing",
+      "legs": true,
       "source": "Mixamo: Weight Shift (Shifting Weight From Side To Side)"
     },
     "mx_whatever_gesture_aj_whatever_gesture": {
@@ -1214,12 +1336,1515 @@
       "category": "question",
       "onset": 1,
       "stroke": 6,
-      "apex": 18,
+      "apex": 16,
       "release": 31,
-      "reachCm": 35.5,
-      "peakSpeed": 1.43,
+      "reachCm": 36.1,
+      "peakSpeed": 1.34,
       "tempo": 1,
+      "posture": "standing",
+      "legs": false,
       "source": "Mixamo: Whatever Gesture (Aj Whatever Gesture)"
+    },
+    "mx_beckoning_waving_someone_over_while_seated": {
+      "mixamo": "beckoning_waving_someone_over_while_seated",
+      "frames": [
+        1,
+        49
+      ],
+      "hands": "right",
+      "category": "greeting",
+      "onset": 3,
+      "stroke": 8,
+      "apex": 31,
+      "release": 40,
+      "reachCm": 26.4,
+      "peakSpeed": 0.89,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Beckoning (Waving Someone Over While Seated)"
+    },
+    "mx_catwalk_idle_01_male_standing_idle_01": {
+      "mixamo": "catwalk_idle_01_male_standing_idle_01",
+      "frames": [
+        1,
+        107
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 2,
+      "stroke": 40,
+      "apex": 75,
+      "release": 82,
+      "reachCm": 21.3,
+      "peakSpeed": 0.03,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle 01 (Male Standing Idle 01)"
+    },
+    "mx_catwalk_idle_02_male_standing_idle_02": {
+      "mixamo": "catwalk_idle_02_male_standing_idle_02",
+      "frames": [
+        1,
+        153
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 1,
+      "stroke": 48,
+      "apex": 112,
+      "release": 151,
+      "reachCm": 21.7,
+      "peakSpeed": 0.06,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle 02 (Male Standing Idle 02)"
+    },
+    "mx_catwalk_idle_female_standing_idle": {
+      "mixamo": "catwalk_idle_female_standing_idle",
+      "frames": [
+        1,
+        241
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 14,
+      "stroke": 88,
+      "apex": 75,
+      "release": 236,
+      "reachCm": 23.2,
+      "peakSpeed": 0.07,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle (Female Standing Idle)"
+    },
+    "mx_catwalk_idle_to_walk_forward_female_idle_to_walk_forward": {
+      "mixamo": "catwalk_idle_to_walk_forward_female_idle_to_walk_forward",
+      "frames": [
+        1,
+        33
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 13,
+      "stroke": 29,
+      "apex": 32,
+      "release": 31,
+      "reachCm": 9.6,
+      "peakSpeed": 0.54,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle To Walk Forward (Female Idle To Walk Forward)"
+    },
+    "mx_catwalk_idle_to_walk_forward_male_idle_to_walk_forward": {
+      "mixamo": "catwalk_idle_to_walk_forward_male_idle_to_walk_forward",
+      "frames": [
+        1,
+        33
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 27,
+      "apex": 21,
+      "release": 31,
+      "reachCm": 7.5,
+      "peakSpeed": 0.32,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle To Walk Forward (Male Idle To Walk Forward)"
+    },
+    "mx_catwalk_idle_twist_l_female_twist_left_idle": {
+      "mixamo": "catwalk_idle_twist_l_female_twist_left_idle",
+      "frames": [
+        1,
+        125
+      ],
+      "hands": "left",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 18,
+      "apex": 122,
+      "release": 102,
+      "reachCm": 34.3,
+      "peakSpeed": 0.11,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle Twist L (Female Twist Left Idle)"
+    },
+    "mx_catwalk_idle_twist_l_male_twist_left_idle": {
+      "mixamo": "catwalk_idle_twist_l_male_twist_left_idle",
+      "frames": [
+        1,
+        69
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 23,
+      "apex": 10,
+      "release": 67,
+      "reachCm": 24.3,
+      "peakSpeed": 0.04,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle Twist L (Male Twist Left Idle)"
+    },
+    "mx_catwalk_idle_twist_r_female_twist_right_idle": {
+      "mixamo": "catwalk_idle_twist_r_female_twist_right_idle",
+      "frames": [
+        1,
+        125
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 40,
+      "apex": 76,
+      "release": 123,
+      "reachCm": 31.4,
+      "peakSpeed": 0.04,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle Twist R (Female Twist Right Idle)"
+    },
+    "mx_catwalk_idle_twist_r_male_twist_right_idle": {
+      "mixamo": "catwalk_idle_twist_r_male_twist_right_idle",
+      "frames": [
+        1,
+        81
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 71,
+      "apex": 58,
+      "release": 79,
+      "reachCm": 22.9,
+      "peakSpeed": 0.03,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Catwalk Idle Twist R (Male Twist Right Idle)"
+    },
+    "mx_catwalk_walk_stop_female_walk_forward_to_idle": {
+      "mixamo": "catwalk_walk_stop_female_walk_forward_to_idle",
+      "frames": [
+        1,
+        47
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 9,
+      "apex": 17,
+      "release": 45,
+      "reachCm": 12.7,
+      "peakSpeed": 0.68,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Catwalk Walk Stop (Female Walk Forward To Idle)"
+    },
+    "mx_catwalk_walk_stop_male_walk_forward_to_idle": {
+      "mixamo": "catwalk_walk_stop_male_walk_forward_to_idle",
+      "frames": [
+        1,
+        41
+      ],
+      "hands": "left",
+      "category": "walk",
+      "onset": 1,
+      "stroke": 14,
+      "apex": 22,
+      "release": 33,
+      "reachCm": 13.5,
+      "peakSpeed": 0.51,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Catwalk Walk Stop (Male Walk Forward To Idle)"
+    },
+    "mx_cheering_while_sitting_cheering_while_sitting_and_talking_to": {
+      "mixamo": "cheering_while_sitting_cheering_while_sitting_and_talking_to",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "right",
+      "category": "react",
+      "onset": 5,
+      "stroke": 12,
+      "apex": 39,
+      "release": 90,
+      "reachCm": 75.8,
+      "peakSpeed": 2.51,
+      "tempo": 0.718,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Cheering While Sitting (Cheering While Sitting And Talking To Neighbor)"
+    },
+    "mx_cheering_while_sitting_cheering_while_sitting_with_low_enthu": {
+      "mixamo": "cheering_while_sitting_cheering_while_sitting_with_low_enthu",
+      "frames": [
+        1,
+        49
+      ],
+      "hands": "right",
+      "category": "react",
+      "onset": 3,
+      "stroke": 7,
+      "apex": 27,
+      "release": 40,
+      "reachCm": 69.1,
+      "peakSpeed": 2.43,
+      "tempo": 0.742,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Cheering While Sitting (Cheering While Sitting With Low Enthusiasm)"
+    },
+    "mx_clapping_clap_while_seated": {
+      "mixamo": "clapping_clap_while_seated",
+      "frames": [
+        1,
+        29
+      ],
+      "hands": "right",
+      "category": "react",
+      "onset": 0,
+      "stroke": 27,
+      "apex": 10,
+      "release": 27,
+      "reachCm": 5.2,
+      "peakSpeed": 0.45,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Clapping (Clap While Seated)"
+    },
+    "mx_dice_idle_tapping_fingers_from_a_sitting_position": {
+      "mixamo": "dice_idle_tapping_fingers_from_a_sitting_position",
+      "frames": [
+        1,
+        116
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 4,
+      "stroke": 10,
+      "apex": 31,
+      "release": 114,
+      "reachCm": 0.1,
+      "peakSpeed": 0.0,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Dice Idle (Tapping Fingers From A Sitting Position)"
+    },
+    "mx_female_start_walking_female_start_walking": {
+      "mixamo": "female_start_walking_female_start_walking",
+      "frames": [
+        1,
+        46
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 12,
+      "stroke": 32,
+      "apex": 37,
+      "release": 44,
+      "reachCm": 21.2,
+      "peakSpeed": 1.01,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Female Start Walking (Female Start Walking)"
+    },
+    "mx_female_stop_and_start_walking_female_stop_start_walking": {
+      "mixamo": "female_stop_and_start_walking_female_stop_start_walking",
+      "frames": [
+        1,
+        91
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 77,
+      "apex": 83,
+      "release": 89,
+      "reachCm": 25.6,
+      "peakSpeed": 1.01,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Female Stop And Start Walking (Female Stop Start Walking)"
+    },
+    "mx_female_stop_walking_female_stop_walking": {
+      "mixamo": "female_stop_walking_female_stop_walking",
+      "frames": [
+        1,
+        38
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 8,
+      "apex": 19,
+      "release": 36,
+      "reachCm": 15.6,
+      "peakSpeed": 0.74,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Female Stop Walking (Female Stop Walking)"
+    },
+    "mx_female_walk_female_normal_walk": {
+      "mixamo": "female_walk_female_normal_walk",
+      "frames": [
+        1,
+        29
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 21,
+      "apex": 18,
+      "release": 27,
+      "reachCm": 20.5,
+      "peakSpeed": 0.73,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Female Walk (Female Normal Walk)"
+    },
+    "mx_happy_right_turn_turning_right": {
+      "mixamo": "happy_right_turn_turning_right",
+      "frames": [
+        1,
+        18
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 0,
+      "stroke": 2,
+      "apex": 17,
+      "release": 16,
+      "reachCm": 35.1,
+      "peakSpeed": 1.52,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Happy Right Turn (Turning Right)"
+    },
+    "mx_hard_head_nod_hard_head_nod_yes": {
+      "mixamo": "hard_head_nod_hard_head_nod_yes",
+      "frames": [
+        1,
+        40
+      ],
+      "hands": "both",
+      "category": "beat",
+      "onset": 3,
+      "stroke": 11,
+      "apex": 17,
+      "release": 36,
+      "reachCm": 12.5,
+      "peakSpeed": 0.17,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Mixamo: Hard Head Nod (Hard Head Nod Yes)"
+    },
+    "mx_idle_female_idle": {
+      "mixamo": "idle_female_idle",
+      "frames": [
+        1,
+        241
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 32,
+      "apex": 166,
+      "release": 234,
+      "reachCm": 25.0,
+      "peakSpeed": 0.05,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Idle (Female Idle)"
+    },
+    "mx_idle_male_fitness_idle_with_breathing": {
+      "mixamo": "idle_male_fitness_idle_with_breathing",
+      "frames": [
+        1,
+        80
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 5,
+      "stroke": 31,
+      "apex": 63,
+      "release": 77,
+      "reachCm": 19.3,
+      "peakSpeed": 0.12,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Idle (Male Fitness Idle With Breathing)"
+    },
+    "mx_laughing_laughing_standing": {
+      "mixamo": "laughing_laughing_standing",
+      "frames": [
+        39,
+        134
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 46,
+      "apex": 40,
+      "release": 80,
+      "reachCm": 35.4,
+      "peakSpeed": 1.75,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Mixamo: Laughing (Laughing Standing)"
+    },
+    "mx_left_turn_45_45_degree_left_turn_from_idle": {
+      "mixamo": "left_turn_45_45_degree_left_turn_from_idle",
+      "frames": [
+        1,
+        33
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 0,
+      "stroke": 6,
+      "apex": 13,
+      "release": 31,
+      "reachCm": 19.5,
+      "peakSpeed": 0.63,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Left Turn 45 (45 Degree Left Turn From Idle)"
+    },
+    "mx_left_turn_90_standing_left_turn": {
+      "mixamo": "left_turn_90_standing_left_turn",
+      "frames": [
+        1,
+        23
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 2,
+      "stroke": 10,
+      "apex": 22,
+      "release": 19,
+      "reachCm": 23.6,
+      "peakSpeed": 0.69,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Left Turn 90 (Standing Left Turn)"
+    },
+    "mx_looking_behind_standing_idle_looking_behind_over_right_side": {
+      "mixamo": "looking_behind_standing_idle_looking_behind_over_right_side",
+      "frames": [
+        1,
+        98
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 2,
+      "stroke": 68,
+      "apex": 28,
+      "release": 83,
+      "reachCm": 37.8,
+      "peakSpeed": 0.35,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Looking Behind (Standing Idle Looking Behind Over Right Side)"
+    },
+    "mx_neutral_idle_neutral_idle": {
+      "mixamo": "neutral_idle_neutral_idle",
+      "frames": [
+        1,
+        211
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 2,
+      "stroke": 39,
+      "apex": 169,
+      "release": 207,
+      "reachCm": 28.8,
+      "peakSpeed": 0.12,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Neutral Idle (Neutral Idle)"
+    },
+    "mx_pointing_pointing_while_seated": {
+      "mixamo": "pointing_pointing_while_seated",
+      "frames": [
+        2,
+        73
+      ],
+      "hands": "right",
+      "category": "point",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 22,
+      "release": 63,
+      "reachCm": 49.9,
+      "peakSpeed": 1.13,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Pointing (Pointing While Seated)"
+    },
+    "mx_right_turn_90_standing_right_turn": {
+      "mixamo": "right_turn_90_standing_right_turn",
+      "frames": [
+        1,
+        23
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 1,
+      "stroke": 12,
+      "apex": 22,
+      "release": 19,
+      "reachCm": 26.5,
+      "peakSpeed": 0.7,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Right Turn 90 (Standing Right Turn)"
+    },
+    "mx_right_turn_female_turning_right_in_place": {
+      "mixamo": "right_turn_female_turning_right_in_place",
+      "frames": [
+        1,
+        27
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 0,
+      "stroke": 5,
+      "apex": 26,
+      "release": 25,
+      "reachCm": 28.2,
+      "peakSpeed": 0.49,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Right Turn (Female Turning Right In Place)"
+    },
+    "mx_sad_idle_sad_idle_variation_1": {
+      "mixamo": "sad_idle_sad_idle_variation_1",
+      "frames": [
+        1,
+        68
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 1,
+      "stroke": 30,
+      "apex": 20,
+      "release": 56,
+      "reachCm": 38.0,
+      "peakSpeed": 0.57,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Sad Idle (Sad Idle Variation 1)"
+    },
+    "mx_sitting_and_pointing_sitting_and_pointing_forward": {
+      "mixamo": "sitting_and_pointing_sitting_and_pointing_forward",
+      "frames": [
+        1,
+        69
+      ],
+      "hands": "right",
+      "category": "point",
+      "onset": 4,
+      "stroke": 9,
+      "apex": 42,
+      "release": 60,
+      "reachCm": 59.4,
+      "peakSpeed": 2.12,
+      "tempo": 0.849,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting And Pointing (Sitting And Pointing Forward)"
+    },
+    "mx_sitting_angry_sitting_slightly_aggravated": {
+      "mixamo": "sitting_angry_sitting_slightly_aggravated",
+      "frames": [
+        1,
+        84
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 15,
+      "apex": 28,
+      "release": 78,
+      "reachCm": 68.7,
+      "peakSpeed": 2.08,
+      "tempo": 0.865,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Angry (Sitting Slightly Aggravated)"
+    },
+    "mx_sitting_clap_sitting_ethusiastic_clap": {
+      "mixamo": "sitting_clap_sitting_ethusiastic_clap",
+      "frames": [
+        6,
+        101
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 86,
+      "apex": 76,
+      "release": 89,
+      "reachCm": 55.5,
+      "peakSpeed": 2.17,
+      "tempo": 0.83,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Clap (Sitting Ethusiastic Clap)"
+    },
+    "mx_sitting_clap_sitting_unethusiastic_clap": {
+      "mixamo": "sitting_clap_sitting_unethusiastic_clap",
+      "frames": [
+        5,
+        100
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 8,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 61.7,
+      "peakSpeed": 1.63,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Clap (Sitting Unethusiastic Clap)"
+    },
+    "mx_sitting_disapproval_sitting_and_shaking_finger_in_disapprova": {
+      "mixamo": "sitting_disapproval_sitting_and_shaking_finger_in_disapprova",
+      "frames": [
+        5,
+        83
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 11,
+      "apex": 25,
+      "release": 70,
+      "reachCm": 28.4,
+      "peakSpeed": 0.83,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Disapproval (Sitting And Shaking Finger In Disapproval)"
+    },
+    "mx_sitting_disbelief_sitting_disbelief_with_hands_on_head": {
+      "mixamo": "sitting_disbelief_sitting_disbelief_with_hands_on_head",
+      "frames": [
+        6,
+        101
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 4,
+      "apex": 76,
+      "release": 87,
+      "reachCm": 54.9,
+      "peakSpeed": 2.17,
+      "tempo": 0.828,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Disbelief (Sitting Disbelief With Hands On Head)"
+    },
+    "mx_sitting_disbelief_sitting_in_disbelief_with_head_forward": {
+      "mixamo": "sitting_disbelief_sitting_in_disbelief_with_head_forward",
+      "frames": [
+        17,
+        112
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 10,
+      "stroke": 82,
+      "apex": 77,
+      "release": 89,
+      "reachCm": 57.3,
+      "peakSpeed": 2.87,
+      "tempo": 0.628,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Disbelief (Sitting In Disbelief With Head Forward)"
+    },
+    "mx_sitting_fist_pump_low_enthusiasm_fist_pump_while_sitting": {
+      "mixamo": "sitting_fist_pump_low_enthusiasm_fist_pump_while_sitting",
+      "frames": [
+        1,
+        68
+      ],
+      "hands": "right",
+      "category": "react",
+      "onset": 2,
+      "stroke": 10,
+      "apex": 23,
+      "release": 59,
+      "reachCm": 83.1,
+      "peakSpeed": 2.64,
+      "tempo": 0.683,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Fist Pump (Low Enthusiasm Fist Pump While Sitting)"
+    },
+    "mx_sitting_idle_sitting_in_chair_hands_resting_on_thighs": {
+      "mixamo": "sitting_idle_sitting_in_chair_hands_resting_on_thighs",
+      "frames": [
+        1,
+        155
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 6,
+      "stroke": 48,
+      "apex": 121,
+      "release": 151,
+      "reachCm": 1.6,
+      "peakSpeed": 0.03,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Idle (Sitting In Chair Hands Resting On Thighs)"
+    },
+    "mx_sitting_idle_sitting_still_in_a_chair": {
+      "mixamo": "sitting_idle_sitting_still_in_a_chair",
+      "frames": [
+        1,
+        72
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 47,
+      "apex": 22,
+      "release": 70,
+      "reachCm": 0.1,
+      "peakSpeed": 0.0,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Idle (Sitting Still In A Chair)"
+    },
+    "mx_sitting_idle_sitting_with_breathing_idle": {
+      "mixamo": "sitting_idle_sitting_with_breathing_idle",
+      "frames": [
+        1,
+        104
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 1,
+      "stroke": 99,
+      "apex": 86,
+      "release": 102,
+      "reachCm": 0.4,
+      "peakSpeed": 0.01,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Idle (Sitting With Breathing Idle)"
+    },
+    "mx_sitting_laughing_sitting_while_laughing": {
+      "mixamo": "sitting_laughing_sitting_while_laughing",
+      "frames": [
+        24,
+        119
+      ],
+      "hands": "right",
+      "category": "react",
+      "onset": 6,
+      "stroke": 45,
+      "apex": 36,
+      "release": 56,
+      "reachCm": 31.8,
+      "peakSpeed": 0.8,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Laughing (Sitting While Laughing)"
+    },
+    "mx_sitting_rubbing_arm_sitting_and_rubbing_arm": {
+      "mixamo": "sitting_rubbing_arm_sitting_and_rubbing_arm",
+      "frames": [
+        36,
+        131
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 36,
+      "release": 43,
+      "reachCm": 36.7,
+      "peakSpeed": 0.87,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Rubbing Arm (Sitting And Rubbing Arm)"
+    },
+    "mx_sitting_sit_with_fidgeting_feet": {
+      "mixamo": "sitting_sit_with_fidgeting_feet",
+      "frames": [
+        1,
+        29
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 0,
+      "stroke": 27,
+      "apex": 24,
+      "release": 27,
+      "reachCm": 0.3,
+      "peakSpeed": 0.02,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting (Sit With Fidgeting Feet)"
+    },
+    "mx_sitting_sitting_and_impatiently_waiting": {
+      "mixamo": "sitting_sitting_and_impatiently_waiting",
+      "frames": [
+        10,
+        105
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 15,
+      "apex": 41,
+      "release": 90,
+      "reachCm": 7.5,
+      "peakSpeed": 0.22,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting (Sitting And Impatiently Waiting)"
+    },
+    "mx_sitting_sitting_looking_side_to_side": {
+      "mixamo": "sitting_sitting_looking_side_to_side",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 0,
+      "stroke": 5,
+      "apex": 36,
+      "release": 95,
+      "reachCm": 0.2,
+      "peakSpeed": 0.01,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting (Sitting Looking Side To Side)"
+    },
+    "mx_sitting_talking_sitting_and_talking_to_another_person": {
+      "mixamo": "sitting_talking_sitting_and_talking_to_another_person",
+      "frames": [
+        750,
+        845
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 42,
+      "apex": 48,
+      "release": 67,
+      "reachCm": 31.7,
+      "peakSpeed": 0.91,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Talking (Sitting And Talking To Another Person)"
+    },
+    "mx_sitting_thumbs_up_giving_thumbs_up_while_sitting": {
+      "mixamo": "sitting_thumbs_up_giving_thumbs_up_while_sitting",
+      "frames": [
+        9,
+        92
+      ],
+      "hands": "right",
+      "category": "react",
+      "onset": 6,
+      "stroke": 21,
+      "apex": 18,
+      "release": 75,
+      "reachCm": 42.8,
+      "peakSpeed": 1.52,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Thumbs Up (Giving Thumbs Up While Sitting)"
+    },
+    "mx_sitting_victory_celebrating_victory_while_sitting": {
+      "mixamo": "sitting_victory_celebrating_victory_while_sitting",
+      "frames": [
+        11,
+        40
+      ],
+      "hands": "right",
+      "category": "react",
+      "onset": 6,
+      "stroke": 18,
+      "apex": 15,
+      "release": 21,
+      "reachCm": 62.2,
+      "peakSpeed": 3.22,
+      "tempo": 0.56,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Sitting Victory (Celebrating Victory While Sitting)"
+    },
+    "mx_stand_to_sit_standing_to_sitting_transition": {
+      "mixamo": "stand_to_sit_standing_to_sitting_transition",
+      "frames": [
+        1,
+        55
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 2,
+      "stroke": 13,
+      "apex": 50,
+      "release": 42,
+      "reachCm": 33.2,
+      "peakSpeed": 0.68,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Stand To Sit (Standing To Sitting Transition)"
+    },
+    "mx_stand_up_standing_up_from_seated_position": {
+      "mixamo": "stand_up_standing_up_from_seated_position",
+      "frames": [
+        1,
+        117
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 14,
+      "stroke": 24,
+      "apex": 30,
+      "release": 60,
+      "reachCm": 12.1,
+      "peakSpeed": 0.27,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Stand Up (Standing Up From Seated Position)"
+    },
+    "mx_standard_walk_standard_walk": {
+      "mixamo": "standard_walk_standard_walk",
+      "frames": [
+        1,
+        29
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 13,
+      "apex": 20,
+      "release": 27,
+      "reachCm": 30.7,
+      "peakSpeed": 1.38,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Standard Walk (Standard Walk)"
+    },
+    "mx_standing_idle_02_standing_idle_looking_around": {
+      "mixamo": "standing_idle_02_standing_idle_looking_around",
+      "frames": [
+        1,
+        125
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 2,
+      "stroke": 12,
+      "apex": 5,
+      "release": 122,
+      "reachCm": 51.4,
+      "peakSpeed": 0.91,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Standing Idle 02 (Standing Idle Looking Around)"
+    },
+    "mx_standing_idle_standing_idle": {
+      "mixamo": "standing_idle_standing_idle",
+      "frames": [
+        1,
+        145
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 7,
+      "stroke": 22,
+      "apex": 50,
+      "release": 136,
+      "reachCm": 27.3,
+      "peakSpeed": 0.03,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Standing Idle (Standing Idle)"
+    },
+    "mx_standing_turn_left_90_turning_90_degrees_left": {
+      "mixamo": "standing_turn_left_90_turning_90_degrees_left",
+      "frames": [
+        1,
+        46
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 4,
+      "stroke": 21,
+      "apex": 37,
+      "release": 41,
+      "reachCm": 55.5,
+      "peakSpeed": 0.87,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Standing Turn Left 90 (Turning 90 Degrees Left)"
+    },
+    "mx_standing_turn_right_90_turning_90_degrees_right": {
+      "mixamo": "standing_turn_right_90_turning_90_degrees_right",
+      "frames": [
+        1,
+        40
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 3,
+      "stroke": 12,
+      "apex": 37,
+      "release": 35,
+      "reachCm": 52.5,
+      "peakSpeed": 0.82,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Standing Turn Right 90 (Turning 90 Degrees Right)"
+    },
+    "mx_standing_walk_forward_walking_forwards": {
+      "mixamo": "standing_walk_forward_walking_forwards",
+      "frames": [
+        1,
+        28
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 1,
+      "stroke": 15,
+      "apex": 19,
+      "release": 26,
+      "reachCm": 7.1,
+      "peakSpeed": 0.39,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Standing Walk Forward (Walking Forwards)"
+    },
+    "mx_standing_walk_left_walking_left": {
+      "mixamo": "standing_walk_left_walking_left",
+      "frames": [
+        1,
+        29
+      ],
+      "hands": "right",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 24,
+      "apex": 18,
+      "release": 27,
+      "reachCm": 13.7,
+      "peakSpeed": 0.52,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Standing Walk Left (Walking Left)"
+    },
+    "mx_standing_walk_right_walking_right": {
+      "mixamo": "standing_walk_right_walking_right",
+      "frames": [
+        1,
+        29
+      ],
+      "hands": "left",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 11,
+      "apex": 21,
+      "release": 27,
+      "reachCm": 9.3,
+      "peakSpeed": 0.48,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Standing Walk Right (Walking Right)"
+    },
+    "mx_start_walking_walking_from_standing": {
+      "mixamo": "start_walking_walking_from_standing",
+      "frames": [
+        1,
+        71
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 17,
+      "stroke": 51,
+      "apex": 63,
+      "release": 69,
+      "reachCm": 22.8,
+      "peakSpeed": 1.16,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Start Walking (Walking From Standing)"
+    },
+    "mx_stop_walking_walking_to_standing_idle": {
+      "mixamo": "stop_walking_walking_to_standing_idle",
+      "frames": [
+        1,
+        73
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 27,
+      "apex": 21,
+      "release": 51,
+      "reachCm": 30.3,
+      "peakSpeed": 0.94,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Stop Walking (Walking To Standing Idle)"
+    },
+    "mx_talking_at_watercooler_having_a_chat_at_the_watercooler": {
+      "mixamo": "talking_at_watercooler_having_a_chat_at_the_watercooler",
+      "frames": [
+        17,
+        112
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 53,
+      "apex": 25,
+      "release": 67,
+      "reachCm": 112.1,
+      "peakSpeed": 0.51,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Mixamo: Talking At Watercooler (Having A Chat At The Watercooler)"
+    },
+    "mx_talking_male_talking_while_seated": {
+      "mixamo": "talking_male_talking_while_seated",
+      "frames": [
+        18,
+        113
+      ],
+      "hands": "right",
+      "category": "open",
+      "onset": 3,
+      "stroke": 40,
+      "apex": 48,
+      "release": 90,
+      "reachCm": 2.9,
+      "peakSpeed": 0.08,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Mixamo: Talking (Male Talking While Seated)"
+    },
+    "mx_turning_turning_in_place": {
+      "mixamo": "turning_turning_in_place",
+      "frames": [
+        1,
+        89
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 3,
+      "stroke": 11,
+      "apex": 59,
+      "release": 73,
+      "reachCm": 12.6,
+      "peakSpeed": 0.19,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Turning (Turning In Place)"
+    },
+    "mx_unarmed_idle_01_standing_idle_unarmed": {
+      "mixamo": "unarmed_idle_01_standing_idle_unarmed",
+      "frames": [
+        1,
+        123
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 75,
+      "apex": 0,
+      "release": 119,
+      "reachCm": 23.5,
+      "peakSpeed": 0.06,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Unarmed Idle 01 (Standing Idle Unarmed)"
+    },
+    "mx_unarmed_idle_01_unarmed_idle": {
+      "mixamo": "unarmed_idle_01_unarmed_idle",
+      "frames": [
+        1,
+        279
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 2,
+      "stroke": 113,
+      "apex": 83,
+      "release": 277,
+      "reachCm": 25.3,
+      "peakSpeed": 0.07,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Unarmed Idle 01 (Unarmed Idle)"
+    },
+    "mx_unarmed_idle_looking_ver_1_looking_around": {
+      "mixamo": "unarmed_idle_looking_ver_1_looking_around",
+      "frames": [
+        1,
+        271
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 3,
+      "stroke": 73,
+      "apex": 62,
+      "release": 262,
+      "reachCm": 29.5,
+      "peakSpeed": 0.45,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Unarmed Idle Looking Ver. 1 (Looking Around)"
+    },
+    "mx_unarmed_idle_looking_ver_2_looking_around": {
+      "mixamo": "unarmed_idle_looking_ver_2_looking_around",
+      "frames": [
+        1,
+        189
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 44,
+      "apex": 42,
+      "release": 185,
+      "reachCm": 24.2,
+      "peakSpeed": 0.11,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Mixamo: Unarmed Idle Looking Ver. 2 (Looking Around)"
+    },
+    "mx_unarmed_walk_forward_walking_forward": {
+      "mixamo": "unarmed_walk_forward_walking_forward",
+      "frames": [
+        1,
+        33
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 11,
+      "apex": 22,
+      "release": 31,
+      "reachCm": 39.6,
+      "peakSpeed": 1.46,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Unarmed Walk Forward (Walking Forward)"
+    },
+    "mx_walk_female_walk": {
+      "mixamo": "walk_female_walk",
+      "frames": [
+        1,
+        25
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 12,
+      "apex": 18,
+      "release": 23,
+      "reachCm": 24.3,
+      "peakSpeed": 1.23,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Walk (Female Walk)"
+    },
+    "mx_walking_arc_left_female_walk_arc_left": {
+      "mixamo": "walking_arc_left_female_walk_arc_left",
+      "frames": [
+        1,
+        25
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 12,
+      "apex": 17,
+      "release": 23,
+      "reachCm": 18.0,
+      "peakSpeed": 1.06,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Walking Arc Left (Female Walk Arc Left)"
+    },
+    "mx_walking_feminine_walk_forward": {
+      "mixamo": "walking_feminine_walk_forward",
+      "frames": [
+        1,
+        24
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 14,
+      "apex": 8,
+      "release": 22,
+      "reachCm": 22.9,
+      "peakSpeed": 1.34,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Walking (Feminine Walk Forward)"
+    },
+    "mx_walking_left_turn_turning_left_while_walking": {
+      "mixamo": "walking_left_turn_turning_left_while_walking",
+      "frames": [
+        1,
+        29
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 12,
+      "apex": 19,
+      "release": 27,
+      "reachCm": 24.8,
+      "peakSpeed": 1.38,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Walking Left Turn (Turning Left While Walking)"
+    },
+    "mx_walking_male_happy_walk": {
+      "mixamo": "walking_male_happy_walk",
+      "frames": [
+        1,
+        34
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 13,
+      "apex": 22,
+      "release": 32,
+      "reachCm": 37.4,
+      "peakSpeed": 1.34,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Walking (Male Happy Walk)"
+    },
+    "mx_walking_male_standard_walk": {
+      "mixamo": "walking_male_standard_walk",
+      "frames": [
+        1,
+        30
+      ],
+      "hands": "right",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 25,
+      "apex": 20,
+      "release": 28,
+      "reachCm": 31.5,
+      "peakSpeed": 1.09,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Walking (Male Standard Walk)"
+    },
+    "mx_walking_turn_180_turning_180_degrees_while_walking": {
+      "mixamo": "walking_turn_180_turning_180_degrees_while_walking",
+      "frames": [
+        1,
+        25
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 4,
+      "stroke": 19,
+      "apex": 20,
+      "release": 23,
+      "reachCm": 57.6,
+      "peakSpeed": 2.18,
+      "tempo": 0.826,
+      "posture": "moving",
+      "legs": true,
+      "source": "Mixamo: Walking Turn 180 (Turning 180 Degrees While Walking)"
     }
   },
   "visemes": {
@@ -1266,7 +2891,7 @@
   },
   "mixamo": {
     "library": "engine_sources/makehuman-lineart/character_system/mixamo-clips.json.gz",
-    "note": "Retargeted onto Host.rig at build time by scripts/cast_mixamo_retarget.py. gain damps a Mixamo bone (no side): shoulders so MakeHuman shoulder weights do not bulge, spine/neck/head because the hips stay planted (full Mixamo torso lean reads as falling) and to keep gaze near the camera. categories: keyword -> category, first match wins (scripts/cast-mixamo-landmarks.py). Gesture windows longer than maxFrames are cut to maxFrames around their apex. Clips whose wrists move faster than maxHandSpeed (m/s; the original take peaks at 1.6) get tempo < 1 and play slower. Clips reaching further than maxAutoReachCm are left out of automatic planning.",
+    "note": "Retargeted onto Host.rig at build time by scripts/cast_mixamo_retarget.py. gain damps a Mixamo bone (no side): shoulders so MakeHuman shoulder weights do not bulge, spine/neck/head because the hips stay planted (full Mixamo torso lean reads as falling) and to keep gaze near the camera. categories: keyword -> category, first match wins (scripts/cast-mixamo-landmarks.py). Gesture windows longer than maxFrames are cut to maxFrames around their apex. Clips whose wrists move faster than maxHandSpeed (m/s; the original take peaks at 1.6) get tempo < 1 and play slower. Clips reaching further than maxAutoReachCm are left out of automatic planning. hold pulls bones toward the presenter idle pose (head toward camera; the unused arm of one-handed clips). smooth is a Gaussian sigma (frames) against mocap jitter.",
     "gain": {
       "Shoulder": 0.6,
       "Spine": 0.5,
@@ -1277,6 +2902,78 @@
     },
     "maxFrames": 96,
     "categories": [
+      [
+        "sitting to standing",
+        "transition"
+      ],
+      [
+        "standing to sitting",
+        "transition"
+      ],
+      [
+        "stand up",
+        "transition"
+      ],
+      [
+        "standing up",
+        "transition"
+      ],
+      [
+        "sit to stand",
+        "transition"
+      ],
+      [
+        "stand to sit",
+        "transition"
+      ],
+      [
+        "walk",
+        "walk"
+      ],
+      [
+        "walking",
+        "walk"
+      ],
+      [
+        "turn",
+        "turn"
+      ],
+      [
+        "turning",
+        "turn"
+      ],
+      [
+        "laugh",
+        "react"
+      ],
+      [
+        "laughing",
+        "react"
+      ],
+      [
+        "clap",
+        "react"
+      ],
+      [
+        "cheering",
+        "react"
+      ],
+      [
+        "thumbs",
+        "react"
+      ],
+      [
+        "fist pump",
+        "react"
+      ],
+      [
+        "victory",
+        "react"
+      ],
+      [
+        "disbelief",
+        "react"
+      ],
       [
         "idle",
         "idle"
@@ -1419,6 +3116,24 @@
       ]
     ],
     "maxHandSpeed": 1.8,
-    "maxAutoReachCm": 75
+    "maxAutoReachCm": 75,
+    "hold": {
+      "Head": 0.5,
+      "Neck": 0.3,
+      "idleArm": 0.8
+    },
+    "smooth": 1.5,
+    "padFrames": 12,
+    "minAutoFrames": 24,
+    "seatedPattern": "\\b(sit|sitting|seated|chair)\\b",
+    "movingCategories": [
+      "walk",
+      "turn",
+      "transition"
+    ],
+    "legsForStandingIdle": true,
+    "idleBase": {
+      "seated": "mx_sitting_idle_sitting_in_chair_hands_resting_on_thighs"
+    }
   }
 }

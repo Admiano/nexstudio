@@ -1,7 +1,7 @@
 """Assemble a new rig action from named clips of the original take.
 
 Usage: blender -b scene.blend --python cast-gesture-timeline.py -- timeline.json out.blend
-timeline.json: {"sequence": [{"clip": "welcome"}, {"idle": 36}, ...]}
+timeline.json: {"sequence": [{"clip": "welcome"}, {"idle": 36}, ...], "idleBase": optional Mixamo clip idles play on (seated)}
 The original action is left untouched; the new action is assigned to the rig.
 """
 import bpy,sys,json,math,hashlib,struct
@@ -43,11 +43,13 @@ def mixamo_sampler(clip,sp):
         sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_mixamo_retarget as mod
         MX=(mod,mod.load(Path(__file__).resolve().parents[1]/LIB['mixamo']['library']))
     mod,lib=MX
-    if clip['mixamo'] not in mx_cache:mx_cache[clip['mixamo']]=mod.retarget(rig,lib,clip['mixamo'],rest_frame,bpy.context.scene,LIB['mixamo'].get('gain'))
+    if clip['mixamo'] not in mx_cache:mx_cache[clip['mixamo']]=mod.retarget(rig,lib,clip['mixamo'],rest_frame,bpy.context.scene,LIB['mixamo'].get('gain'),LIB['mixamo'].get('hold'),{'left':'Right','right':'Left'}.get(clip.get('hands')),LIB['mixamo'].get('smooth',0),bool(clip.get('legs')))
     vals=mx_cache[clip['mixamo']];a,b=clip.get('frames',[1,lib['clips'][clip['mixamo']]['frames']])
+    pad=int(LIB['mixamo'].get('padFrames',0));last=(b-a)/sp
     def sample(key,k):
         if key not in vals:return default(key)
-        x=a-1+k*sp;i=min(int(x),b-2);t=x-i;v=vals[key];return v[i]*(1-t)+v[i+1]*t
+        # pad frames hold the first/last pose so long blends fit around short clips
+        x=a-1+min(max(k-pad,0),last)*sp;i=min(int(x),b-2);t=x-i;v=vals[key];return v[i]*(1-t)+v[i+1]*t
     return sample,a,b
 mixamo_keys=set()
 items=[]
@@ -57,11 +59,16 @@ for i,step in enumerate(timeline['sequence']):
         clip=LIB['clips'][step['clip']]
         if 'mixamo' in clip:
             csp=sp*clip.get('tempo',1);fn,a,b=mixamo_sampler(clip,csp);mixamo_keys|=set(mx_cache[clip['mixamo']])
-            items.append(('clip',step['clip'],fn,max(2,round((b-a)/csp))))
+            items.append(('clip',step['clip'],fn,max(2,round((b-a)/csp))+2*int(LIB['mixamo'].get('padFrames',0))))
         else:
             a,b=clip['frames'];items.append(('clip',step['clip'],source_sampler(lambda k,a=a,sp=sp:a+k*sp),round((b-a+1)/sp)))
     elif 'source' in step:
         a,b=step['source'];items.append(('source',f'source{a}-{b}',source_sampler(lambda k,a=a:a+k),b-a+1))
+    elif 'idle' in step and (step.get('base') or timeline.get('idleBase')):
+        # idle on a Mixamo base clip (e.g. seated), played back and forth
+        base=LIB['clips'][step.get('base') or timeline['idleBase']];fn,a,b=mixamo_sampler(base,1);mixamo_keys|=set(mx_cache[base['mixamo']])
+        n=int(step['idle'])+48;span=max(1,b-a);pad=int(LIB['mixamo'].get('padFrames',0))
+        items.append(('idle',f'idle{n}',lambda key,k,fn=fn,span=span,pad=pad:fn(key,pad+(k%span if (k//span)%2==0 else span-k%span)),n))
     elif 'idle' in step:
         a,b=LIB['idle']['ranges'][step.get('range',0)];n=int(step['idle'])+48;span=b-a
         items.append(('idle',f'idle{n}',source_sampler(lambda k,a=a,span=span:a+(k%span if (k//span)%2==0 else span-k%span)),n))

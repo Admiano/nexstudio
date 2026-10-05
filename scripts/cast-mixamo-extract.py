@@ -3,16 +3,18 @@
 Usage: blender -b --python cast-mixamo-extract.py -- manifest.json fbx_dir out.json.gz
 For every mapped Mixamo bone and frame this stores the world-space rotation
 relative to the bone's rest (a "delta"), plus each bone's rest direction and the
-palm side vector. cast-gesture-timeline.py turns these into Host.rig channels for
+palm side vector,
+and the hips' world offset from rest per frame (seated and walking clips move it). cast-gesture-timeline.py turns these into Host.rig channels for
 whichever presenter it is building, so one library serves every body.
 """
 import bpy,sys,json,gzip,re
 from pathlib import Path
 args=sys.argv[sys.argv.index('--')+1:];manifest,fbx_dir,out=json.loads(Path(args[0]).read_text()),Path(args[1]),args[2]
 P='mixamorig:'
-CHAIN={'Spine':'Spine1','Spine1':'Spine2','Spine2':'Neck','Neck':'Head','Head':'HeadTop_End'}
+CHAIN={'Hips':'Spine','Spine':'Spine1','Spine1':'Spine2','Spine2':'Neck','Neck':'Head','Head':'HeadTop_End'}
 for s in('Left','Right'):
     CHAIN.update({f'{s}Shoulder':f'{s}Arm',f'{s}Arm':f'{s}ForeArm',f'{s}ForeArm':f'{s}Hand',f'{s}Hand':f'{s}HandMiddle1'})
+    CHAIN.update({f'{s}UpLeg':f'{s}Leg',f'{s}Leg':f'{s}Foot',f'{s}Foot':f'{s}ToeBase',f'{s}ToeBase':f'{s}Toe_End'})
     for f in('Thumb','Index','Middle','Ring','Pinky'):
         for i in(1,2,3):CHAIN[f'{s}Hand{f}{i}']=f'{s}Hand{f}{i+1}'
 lib={'fps':24,'rest':None,'clips':{}}
@@ -29,15 +31,17 @@ for fn,meta in sorted(manifest.items()):
         r={k:{'dir':[round(x,5) for x in (head(CHAIN[k])-head(k)).normalized()]} for k in bones}
         for s in('Left','Right'):
             r[f'{s}Hand']['side']=[round(x,5) for x in (head(f'{s}HandPinky1')-head(f'{s}HandIndex1')).normalized()]
+        r['Hips']['pos']=[round(x,5) for x in head('Hips')]
         lib['rest']=r
-    q={k:[] for k in bones}
+    q={k:[] for k in bones};hp=[];h0=mw@arm.data.bones[P+'Hips'].head_local
     for f in range(a,b+1):
         sc.frame_set(f)
         for k in bones:
             d=(mw@arm.pose.bones[P+k].matrix).to_quaternion()@rest[k].inverted()
             q[k].extend(round(x,4) for x in d)
+        hp.extend(round(x,4) for x in (mw@arm.pose.bones[P+'Hips'].head-h0))
     key=re.sub(r'\.fbx$','',fn)
-    lib['clips'][key]={'name':meta['name'],'description':meta['description'],'mixamoId':meta['id'],'frames':b-a+1,'q':q}
+    lib['clips'][key]={'name':meta['name'],'description':meta['description'],'mixamoId':meta['id'],'frames':b-a+1,'q':q,'hips':hp}
     print('EXTRACT',key,b-a+1,flush=True)
 with gzip.open(out,'wt') as fh:json.dump(lib,fh,separators=(',',':'))
 print('MIXAMO_LIBRARY',len(lib['clips']),flush=True)

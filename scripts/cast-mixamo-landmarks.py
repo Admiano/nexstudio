@@ -6,6 +6,9 @@ from the wrists: the active window (frames), which hands move, and
 onset/stroke/apex/release like the original clips. Categories come from
 mixamo.categories in gesture-clips.json (keyword -> category, first match wins);
 entries already present keep any hand-edited category or frames.
+Posture (standing/seated/moving) comes from mixamo.seatedPattern and
+mixamo.movingCategories; non-standing clips drive hips and legs and measure the
+wrists relative to the chest so sitting or walking is not read as a gesture.
 """
 import bpy,sys,json,re
 from pathlib import Path
@@ -22,9 +25,15 @@ def category(c):
     for kw,cat in cfg['categories']:
         if re.search(r'\b'+kw+r'\b',text):return cat
     return 'expressive'
+def posture(c,cat):
+    text=(c['name']+' '+c['description']).lower()
+    if cat in cfg.get('movingCategories',[]):return 'moving'
+    return 'seated' if re.search(cfg.get('seatedPattern',r'\b(sit|sitting|seated|chair)\b'),text) else 'standing'
 out={}
 for key,c in sorted(lib['clips'].items()):
-    vals=MX.retarget(rig,lib,key,rest_frame,scene,cfg.get('gain'))
+    old=LIB['clips'].get('mx_'+key,{});cat=category(c);pst=posture(c,cat)
+    legs=pst!='standing' or (cat=='idle' and cfg.get('legsForStandingIdle',False))
+    vals=MX.retarget(rig,lib,key,rest_frame,scene,cfg.get('gain'),cfg.get('hold'),{'left':'Right','right':'Left'}.get(old.get('hands')),cfg.get('smooth',0),legs)
     act=bpy.data.actions.new('mxprobe');sl=act.slots.new(id_type='OBJECT',name=rig.name)
     cb=act.layers.new('L').strips.new(type='KEYFRAME').channelbag(sl,ensure=True)
     for (p,i),v in vals.items():
@@ -33,25 +42,29 @@ for key,c in sorted(lib['clips'].items()):
     n=c['frames'];disp={w:[] for w in rest};pos={w:[] for w in rest}
     for f in range(1,n+1):
         scene.frame_set(f)
-        for w in rest:p=rig.matrix_world@rig.pose.bones[w].head;pos[w].append(p.copy());disp[w].append((p-rest[w]).length)
+        o=(rig.matrix_world@rig.pose.bones['spine03'].head) if pst!='standing' else None
+        if o is not None and f==1:ref={w:(rig.matrix_world@rig.pose.bones[w].head)-o for w in rest}
+        for w in rest:
+            p=rig.matrix_world@rig.pose.bones[w].head
+            if o is not None:p=p-o
+            pos[w].append(p.copy());disp[w].append((p-(ref[w] if o is not None else rest[w])).length)
     rig.animation_data.action=src;rig.animation_data.action_slot=slot0;bpy.data.actions.remove(act)
     peak={w:max(d) for w,d in disp.items()}
     hands='both' if min(peak.values())>.6*max(peak.values()) else ('left' if peak['wrist.L']>peak['wrist.R'] else 'right')
     tot=[max(disp[w][f] for w in rest) for f in range(n)]
     spd=[max((pos[w][f+1]-pos[w][f]).length for w in rest) for f in range(n-1)]+[0]
     top=max(spd) or 1;moving=[f for f in range(n) if spd[f]>.25*top]
-    cat=category(c)
-    if cat=='idle' or not moving:a,b=1,n
+    if cat=='idle' or pst=='moving' or not moving:a,b=1,n
     else:a,b=max(1,moving[0]+1-6),min(n,moving[-1]+1+8)
     mf=int(cfg.get('maxFrames',0))
-    if cat!='idle' and mf and b-a+1>mf:
+    if cat!='idle' and pst!='moving' and mf and b-a+1>mf:
         ap=max(range(a-1,b),key=lambda f:tot[f])+1;a=max(a,min(ap-mf//2,b-mf+1));b=a+mf-1
     m2=[f for f in range(a-1,b) if spd[f]>.25*top] or [a-1]
     entry={'mixamo':key,'frames':[a,b],'hands':hands,'category':cat,
            'onset':m2[0]-(a-1),'stroke':max(range(a-1,b),key=lambda f:spd[f])-(a-1),
            'apex':max(range(a-1,b),key=lambda f:tot[f])-(a-1),'release':m2[-1]-(a-1),
            'reachCm':round(100*max(peak.values()),1),'peakSpeed':round(top*scene.render.fps,2),
-           'tempo':round(min(1,cfg.get('maxHandSpeed',99)/(top*scene.render.fps)),3),'source':f"Mixamo: {c['name']} ({c['description']})"}
+           'tempo':round(min(1,cfg.get('maxHandSpeed',99)/(top*scene.render.fps)),3),'posture':pst,'legs':legs,'source':f"Mixamo: {c['name']} ({c['description']})"}
     old=LIB['clips'].get('mx_'+key,{})
     for k in('category','frames'):
         if old.get('locked') and k in old:entry[k]=old[k]
