@@ -68,10 +68,15 @@ events_all=list(events)
 events=[e for e in events if e[1]!='count']+[(i,c,10+p) for i,c,p in keep]
 
 clips={}
-for name,c in LIB['clips'].items():clips.setdefault(c['category'],[]).append(name)
-fallback={'question':'open','emphasis':'open','scale':'open','greeting':'open','point':'beat','count':'open','open':'beat'}
-length=lambda n:round((LIB['clips'][n]['frames'][1]-LIB['clips'][n]['frames'][0]+1)/a.speed)
-stroke=lambda n:round(LIB['clips'][n]['stroke']/a.speed)
+# very large Mixamo moves (arms overhead, wide T) stay addressable by name but are not auto-picked
+reach_cap=LIB.get('mixamo',{}).get('maxAutoReachCm',1e9)
+for name,c in LIB['clips'].items():
+    if c.get('reachCm',0)<=reach_cap:clips.setdefault(c['category'],[]).append(name)
+fallback={'question':'open','emphasis':'open','scale':'open','greeting':'open','point':'beat','count':'open','open':'beat','negation':'beat','think':'question'}
+# per-clip tempo (Mixamo clips slowed to the presenter hand-speed cap) times the style speed
+spd=lambda n:a.speed*LIB['clips'][n].get('tempo',1)
+length=lambda n:round((LIB['clips'][n]['frames'][1]-LIB['clips'][n]['frames'][0]+1)/spd(n))
+stroke=lambda n:round(LIB['clips'][n]['stroke']/spd(n))
 gap=round(R['minGapSec']/max(.25,a.frequency)*fps)
 chosen=[];busy=[];used={}
 for i,cat,prio in sorted(events,key=lambda e:-e[2]):
@@ -87,7 +92,7 @@ for i,cat,prio in sorted(events,key=lambda e:-e[2]):
             if 0<words[k][0]-hits[-1]<=R['countMaxSpacingSec']:hits.append(words[k][0])
         at=(hits[0]+hits[-1])/2;anchor=(clip['onset']+clip['release'])/2
     else:at=words[i][0];anchor=clip.get('apex',clip['stroke'])
-    start=round((at-R['strokeLeadSec'])*fps)+1-round(anchor/a.speed)
+    start=round((at-R['strokeLeadSec'])*fps)+1-round(anchor/spd(name))
     start=max(1,start);end=start+length(name)-1
     if any(start<=b+gap and end+gap>=s for s,b in busy):continue
     busy.append((start,end));chosen.append((start,end,name,words[i][2],cat));used[name]=used.get(name,0)+1
@@ -101,7 +106,7 @@ seq.append({'idle':max(12,total-cursor+1)})
 EX=CUES.get('expressions',{});expr=[]
 def add(cat,t):
     for key,amt,sec in EX.get(cat,[]):expr.append({'at':round(t*fps)+1,'shape':key,'amount':round(amt*a.expressiveness,3),'frames':round(sec*fps)})
-for start,end,name,word,cat in chosen:add(cat,(start-1+LIB['clips'][name].get('apex',LIB['clips'][name]['stroke'])/a.speed)/fps)
+for start,end,name,word,cat in chosen:add(cat,(start-1+LIB['clips'][name].get('apex',LIB['clips'][name]['stroke'])/spd(name))/fps)
 for ph in phrases:
     if re.search(r'[.!]$',words[ph[-1]][2]):add('sentenceEnd',words[ph[-1]][1])
 out={'name':a.name,'expressions':expr,'sequence':seq,'style':{'size':a.size,'speed':a.speed},'idleLayer':{'seed':a.seed}}

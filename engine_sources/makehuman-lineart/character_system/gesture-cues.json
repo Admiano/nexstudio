@@ -58,6 +58,36 @@
       "although",
       "yet",
       "though"
+    ],
+    "negation": [
+      "no",
+      "not",
+      "never",
+      "nothing",
+      "nobody",
+      "none",
+      "don't",
+      "doesn't",
+      "didn't",
+      "can't",
+      "won't",
+      "isn't",
+      "aren't",
+      "wasn't",
+      "shouldn't",
+      "wouldn't"
+    ],
+    "think": [
+      "think",
+      "thinking",
+      "thought",
+      "consider",
+      "imagine",
+      "wonder",
+      "maybe",
+      "perhaps",
+      "idea",
+      "ideas"
     ]
   },
   "categoryFor": {

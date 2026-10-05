@@ -27,23 +27,53 @@ def digest(cb):
 source=channelbag(src,src_slot);before=digest(source)
 blend=int(timeline.get('blendFrames',LIB['blendFrames']))
 
+chan={(fc.data_path,fc.array_index):fc for fc in source.fcurves}
+rest_frame=LIB['idle']['ranges'][0][0]
+def default(key):
+    fc=chan.get(key)
+    if fc:return fc.evaluate(rest_frame)
+    return 1.0 if key[0].endswith(('rotation_quaternion','scale')) and (key[1]==0 or key[0].endswith('scale')) else 0.0
+def source_sampler(fn):
+    return lambda key,k:(chan[key].evaluate(fn(k)) if key in chan else default(key))
+MX=None;mx_cache={}
+def mixamo_sampler(clip,sp):
+    """Retargeted Mixamo clip; channels it does not drive hold the idle pose."""
+    global MX
+    if MX is None:
+        sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_mixamo_retarget as mod
+        MX=(mod,mod.load(Path(__file__).resolve().parents[1]/LIB['mixamo']['library']))
+    mod,lib=MX
+    if clip['mixamo'] not in mx_cache:mx_cache[clip['mixamo']]=mod.retarget(rig,lib,clip['mixamo'],rest_frame,bpy.context.scene,LIB['mixamo'].get('gain'))
+    vals=mx_cache[clip['mixamo']];a,b=clip.get('frames',[1,lib['clips'][clip['mixamo']]['frames']])
+    def sample(key,k):
+        if key not in vals:return default(key)
+        x=a-1+k*sp;i=min(int(x),b-2);t=x-i;v=vals[key];return v[i]*(1-t)+v[i+1]*t
+    return sample,a,b
+mixamo_keys=set()
 items=[]
 for i,step in enumerate(timeline['sequence']):
+    sp=float(timeline.get('style',{}).get('speed',1))
     if 'clip' in step:
-        a,b=LIB['clips'][step['clip']]['frames'];sp=float(timeline.get('style',{}).get('speed',1))
-        items.append(('clip',step['clip'],lambda k,a=a,sp=sp:a+k*sp,round((b-a+1)/sp)))
+        clip=LIB['clips'][step['clip']]
+        if 'mixamo' in clip:
+            csp=sp*clip.get('tempo',1);fn,a,b=mixamo_sampler(clip,csp);mixamo_keys|=set(mx_cache[clip['mixamo']])
+            items.append(('clip',step['clip'],fn,max(2,round((b-a)/csp))))
+        else:
+            a,b=clip['frames'];items.append(('clip',step['clip'],source_sampler(lambda k,a=a,sp=sp:a+k*sp),round((b-a+1)/sp)))
     elif 'source' in step:
-        a,b=step['source'];items.append(('source',f'source{a}-{b}',lambda k,a=a:a+k,b-a+1))
+        a,b=step['source'];items.append(('source',f'source{a}-{b}',source_sampler(lambda k,a=a:a+k),b-a+1))
     elif 'idle' in step:
         a,b=LIB['idle']['ranges'][step.get('range',0)];n=int(step['idle'])+48;span=b-a
-        items.append(('idle',f'idle{n}',lambda k,a=a,span=span:a+(k%span if (k//span)%2==0 else span-k%span),n))
+        items.append(('idle',f'idle{n}',source_sampler(lambda k,a=a,span=span:a+(k%span if (k//span)%2==0 else span-k%span)),n))
     else:raise ValueError('BAD_STEP:'+json.dumps(step))
+keys=list(chan)+sorted(mixamo_keys-set(chan))
 # Blend length per join grows with how far apart the two poses are, so a clip
 # that ends mid-gesture eases back instead of snapping.
 def join(a,b):
-    diff=max(abs(fc.evaluate(a)-fc.evaluate(b)) for fc in source.fcurves)
+    (fa,ka),(fb,kb)=a,b
+    diff=max(abs(fa(key,ka)-fb(key,kb)) for key in keys if 'rotation' in key[0])
     return math.ceil(diff/float(timeline.get('blendRadPerFrame',.025)))
-joins=[0]+[min(max(blend,join(p[2](p[3]-1),q[2](0))),24,p[3]//2,q[3]//2) for p,q in zip(items,items[1:])]+[0]
+joins=[0]+[min(max(blend,join((p[2],p[3]-1),(q[2],0))),24,p[3]//2,q[3]//2) for p,q in zip(items,items[1:])]+[0]
 # idle holds keep their requested length outside the blends
 items=[(k,nm,fn,(int(timeline['sequence'][i]['idle'])+joins[i]+joins[i+1] if k=='idle' else n)) for i,(k,nm,fn,n) in enumerate(items)]
 placed=[];t=1
@@ -59,25 +89,24 @@ def weights(frame):
         w=1.0
         if bin_ and k<bin_:w=smooth((k+1)/(bin_+1))
         if bout and k>=n-bout:w=1-smooth((k-(n-bout)+1)/(bout+1))
-        out.append((w,fn(k)))
-    s=sum(w for w,_ in out);return [(w/s,f) for w,f in out]
+        out.append((w,fn,k))
+    s=sum(o[0] for o in out);return [(w/s,fn,k) for w,fn,k in out]
 
 name=timeline.get('name','gestureTimeline')
 act=bpy.data.actions.new(f'Host.{name}');slot=act.slots.new(id_type='OBJECT',name=rig.name)
 cb=act.layers.new('Layer').strips.new(type='KEYFRAME').channelbag(slot,ensure=True)
 frames=range(1,total+1);plan=[weights(f) for f in frames]
 values={}
-for fc in source.fcurves:
-    values[(fc.data_path,fc.array_index)]=[sum(w*fc.evaluate(sf) for w,sf in p) for p in plan]
+for key in keys:
+    values[key]=[sum(w*fn(key,k) for w,fn,k in p) for p in plan]
 # gesture size: scale arm channels about the resting pose
 size=float(timeline.get('style',{}).get('size',1))
 if size!=1:
-    rest_frame=LIB['idle']['ranges'][0][0]
     arm=('clavicle','shoulder01','upperarm','lowerarm','wrist')
-    for fc in source.fcurves:
-        bone=fc.data_path.split('"')[1] if '"' in fc.data_path else ''
+    for key in keys:
+        bone=key[0].split('"')[1] if '"' in key[0] else ''
         if not bone.startswith(arm):continue
-        r=fc.evaluate(rest_frame);vals=values[(fc.data_path,fc.array_index)]
+        r=default(key);vals=values[key]
         for i,v in enumerate(vals):vals[i]=r+size*(v-r)
 for (path,idx),vals in list(values.items()):
     if path.endswith('rotation_quaternion') and idx==0:

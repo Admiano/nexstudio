@@ -63,7 +63,18 @@ python3 scripts/cast-gesture-plan.py words.json timeline.json --audio voice.wav 
   --seed 7 --size 1.0 --speed 1.0 --frequency 1.0 --expressiveness 1.0
 ```
 
-It is content-agnostic. Each word's stress is its loudness and per-letter duration relative to the speaker's own average. Phrases split on pauses and sentence ends. Each phrase's most stressed word gets a beat, open or emphasis gesture, and questions get the question clip. Runs of enumeration words in a steady rhythm become a count. Placement puts each clip's `stroke` frame just before its cue word and keeps a minimum gap between gestures. `gesture-cues.json` holds the per-language lexicon (which only proposes categories), the rules and the expression envelopes (smile and brow raises on greetings, emphasis, questions and sentence ends). Replace it for another language or presenter style. `size` scales arm movement about the resting pose, `speed` time-scales clips, `frequency` changes gesture density and `expressiveness` scales the expressions.
+It is content-agnostic. Each word's stress is its loudness and per-letter duration relative to the speaker's own average. Phrases split on pauses and sentence ends. Each phrase's most stressed word gets a beat, open or emphasis gesture, and questions get the question clip. Runs of enumeration words in a steady rhythm become a count. Placement puts each clip's `apex` frame (furthest hand reach) just before its cue word and keeps a minimum gap between gestures. `gesture-cues.json` holds the per-language lexicon (which only proposes categories), the rules and the expression envelopes (smile and brow raises on greetings, emphasis, questions and sentence ends). Replace it for another language or presenter style. `size` scales arm movement about the resting pose, `speed` time-scales clips, `frequency` changes gesture density and `expressiveness` scales the expressions.
+
+### Mixamo clips
+
+`mixamo-clips.json.gz` holds standing presenter animations downloaded from [Mixamo](https://www.mixamo.com) on Y Bot (FBX binary, with skin, 24 fps, no keyframe reduction). The FBX files themselves are not committed. The library is rig-independent: for every mapped Mixamo bone and frame it stores the world rotation relative to that bone's rest, plus rest directions and the palm-side vector.
+
+```bash
+blender -b --python scripts/cast-mixamo-extract.py -- manifest.json fbx_dir mixamo-clips.json.gz
+blender -b scenes/female/native/character.blend --python scripts/cast-mixamo-landmarks.py
+```
+
+`manifest.json` maps each FBX filename to `{"id", "name", "description"}`. `scripts/cast_mixamo_retarget.py` maps the stored rotations onto `Host.rig` (spine, neck, head, clavicles, arms, wrists and fingers), aligning each Mixamo bone's rest direction to the target bone. Legs and hips keep the idle pose, so presenters stay planted. `cast-mixamo-landmarks.py` plays every clip on the rig, measures the wrists, and writes `mx_*` entries into `gesture-clips.json`: the active window, the hands used, onset/stroke/apex/release, reach, and a category taken from `mixamo.categories` (keyword → category). An entry with `"locked": true` keeps its hand-edited category and frames. `mixamo.gain` damps individual Mixamo bones (`Shoulder` is 0.6, because full clavicle lifts bulge the MakeHuman shoulder weights). The planner chooses between original and Mixamo clips in the same category and spreads usage across them. In a timeline, an `mx_*` clip is used exactly like an original one.
 
 ## Validation scope
 
