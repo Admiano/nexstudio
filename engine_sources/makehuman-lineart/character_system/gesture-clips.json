@@ -1,0 +1,160 @@
+{
+  "source": {
+    "action": "Host.rigAction.001",
+    "fps": 24,
+    "frames": [
+      1,
+      998
+    ],
+    "note": "Frame ranges are 1-based source frames of the original take, padded so every clip starts and ends at the resting arm pose."
+  },
+  "blendFrames": 6,
+  "idle": {
+    "ranges": [
+      [
+        750,
+        850
+      ],
+      [
+        440,
+        505
+      ]
+    ],
+    "note": "Quiet stretches with only head and eye drift; played forward and back."
+  },
+  "clips": {
+    "welcome": {
+      "frames": [
+        13,
+        78
+      ],
+      "hands": "both",
+      "use": "greeting, opening line"
+    },
+    "raise_right": {
+      "frames": [
+        104,
+        134
+      ],
+      "hands": "right",
+      "use": "introduce first point"
+    },
+    "offer_right": {
+      "frames": [
+        144,
+        180
+      ],
+      "hands": "right",
+      "use": "present an idea"
+    },
+    "unsure_open": {
+      "frames": [
+        211,
+        274
+      ],
+      "hands": "both",
+      "use": "question, uncertainty"
+    },
+    "emphasis": {
+      "frames": [
+        325,
+        404
+      ],
+      "hands": "both",
+      "use": "key statement"
+    },
+    "listen_left": {
+      "frames": [
+        405,
+        440
+      ],
+      "hands": "left",
+      "use": "short aside"
+    },
+    "count_three": {
+      "frames": [
+        508,
+        636
+      ],
+      "hands": "both",
+      "use": "list of three"
+    },
+    "small_to_big": {
+      "frames": [
+        636,
+        696
+      ],
+      "hands": "both",
+      "use": "range, scale"
+    },
+    "right_here": {
+      "frames": [
+        696,
+        744
+      ],
+      "hands": "both",
+      "use": "point here, this"
+    },
+    "beat_right": {
+      "frames": [
+        858,
+        891
+      ],
+      "hands": "right",
+      "use": "short beat"
+    },
+    "open_both": {
+      "frames": [
+        891,
+        938
+      ],
+      "hands": "both",
+      "use": "open explanation"
+    },
+    "open_both_short": {
+      "frames": [
+        937,
+        971
+      ],
+      "hands": "both",
+      "use": "short open beat"
+    }
+  },
+  "visemes": {
+    "X": {},
+    "A": {
+      "V3_closed": 0.6,
+      "E_press": 0.3
+    },
+    "B": {
+      "!ex-jawOpen": 0.12,
+      "V3_wide": 0.25
+    },
+    "C": {
+      "!ex-jawOpen": 0.28,
+      "V3_wide": 0.45
+    },
+    "D": {
+      "!ex-jawOpen": 0.45,
+      "V3_wide": 0.25
+    },
+    "E": {
+      "!ex-jawOpen": 0.3,
+      "V3_round": 0.5
+    },
+    "F": {
+      "!ex-jawOpen": 0.08,
+      "V3_round": 0.8,
+      "A_pucker": 0.4
+    },
+    "G": {
+      "V3_FV": 0.6,
+      "!ex-jawOpen": 0.05
+    },
+    "H": {
+      "!ex-jawOpen": 0.22,
+      "V3_wide": 0.15
+    }
+  },
+  "visemesNote": "Rhubarb mouth shapes (A-H, X rest) mapped onto the existing baked-envelope shape keys; peaks stay inside the original take's ranges."
+}

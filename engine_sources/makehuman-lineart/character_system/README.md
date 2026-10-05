@@ -39,6 +39,21 @@ BLENDER_BIN=/path/to/blender python3 scripts/build-character-system.py --request
 
 The source builder and packaged native scenes retain the original performance. The old `presenters_v1/build.sh` remains a historical V1 baseline; use the current assembled renderer for the updated appearance.
 
+## Gesture timelines
+
+`gesture-clips.json` names 12 gestures cut from the original 998-frame take (frame ranges padded to start and end at the resting arm pose) plus two quiet idle stretches. `scripts/cast-gesture-timeline.py` assembles a new rig action from any sequence of them, with smoothstep cross-fades between clips:
+
+```
+blender -b scenes/female/native/character.blend --python ../../../scripts/cast-gesture-timeline.py -- timeline.json out.blend
+```
+
+```json
+{"name": "demo", "idleLayer": {"seed": 7, "breath": 1, "sway": 1},
+ "sequence": [{"idle": 24}, {"clip": "count_three"}, {"idle": 18}, {"clip": "right_here"}]}
+```
+
+`idleLayer` adds seeded breathing, pelvis/torso sway and head drift on top of the clips, and replaces the baked blinks with seeded blinks in a copy of the face action. The original `Host.rigAction.001` and `baseAction` are never modified (the script fails if the source action changes) and the output is saved as a separate file. Without `lipSync` the face copy keeps the original take's mouth timing. With `"lipSync": {"rhubarb": "cues.json"}` the mouth is driven from [Rhubarb Lip Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) cues for any voiceover (local, CPU; e.g. `rhubarb -f json --extendedShapes GHX -d script.txt voice.wav -o cues.json`). The `visemes` table in `gesture-clips.json` maps each Rhubarb shape onto the existing mouth shape keys, smoothed and leading audio by one frame. A `{"source": [1, 998]}` step plays the original take unchanged.
+
 ## Validation scope
 
 All 15 scenes were saved/reopened with exact original action equality, ten finite-pose samples each and packed used textures. All 99 pinned original fitting assets were hash-verified. Fresh female and male builds and the Cast mapping/cache/worker checks are recorded in `validation.json`.
