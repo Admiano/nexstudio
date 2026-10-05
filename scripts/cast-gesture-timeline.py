@@ -30,7 +30,8 @@ blend=int(timeline.get('blendFrames',LIB['blendFrames']))
 items=[]
 for i,step in enumerate(timeline['sequence']):
     if 'clip' in step:
-        a,b=LIB['clips'][step['clip']]['frames'];items.append(('clip',step['clip'],lambda k,a=a:a+k,b-a+1))
+        a,b=LIB['clips'][step['clip']]['frames'];sp=float(timeline.get('style',{}).get('speed',1))
+        items.append(('clip',step['clip'],lambda k,a=a,sp=sp:a+k*sp,round((b-a+1)/sp)))
     elif 'source' in step:
         a,b=step['source'];items.append(('source',f'source{a}-{b}',lambda k,a=a:a+k,b-a+1))
     elif 'idle' in step:
@@ -41,7 +42,7 @@ for i,step in enumerate(timeline['sequence']):
 # that ends mid-gesture eases back instead of snapping.
 def join(a,b):
     diff=max(abs(fc.evaluate(a)-fc.evaluate(b)) for fc in source.fcurves)
-    return math.ceil(diff/float(timeline.get('blendRadPerFrame',.03)))
+    return math.ceil(diff/float(timeline.get('blendRadPerFrame',.025)))
 joins=[0]+[min(max(blend,join(p[2](p[3]-1),q[2](0))),24,p[3]//2,q[3]//2) for p,q in zip(items,items[1:])]+[0]
 # idle holds keep their requested length outside the blends
 items=[(k,nm,fn,(int(timeline['sequence'][i]['idle'])+joins[i]+joins[i+1] if k=='idle' else n)) for i,(k,nm,fn,n) in enumerate(items)]
@@ -68,6 +69,16 @@ frames=range(1,total+1);plan=[weights(f) for f in frames]
 values={}
 for fc in source.fcurves:
     values[(fc.data_path,fc.array_index)]=[sum(w*fc.evaluate(sf) for w,sf in p) for p in plan]
+# gesture size: scale arm channels about the resting pose
+size=float(timeline.get('style',{}).get('size',1))
+if size!=1:
+    rest_frame=LIB['idle']['ranges'][0][0]
+    arm=('clavicle','shoulder01','upperarm','lowerarm','wrist')
+    for fc in source.fcurves:
+        bone=fc.data_path.split('"')[1] if '"' in fc.data_path else ''
+        if not bone.startswith(arm):continue
+        r=fc.evaluate(rest_frame);vals=values[(fc.data_path,fc.array_index)]
+        for i,v in enumerate(vals):vals[i]=r+size*(v-r)
 for (path,idx),vals in list(values.items()):
     if path.endswith('rotation_quaternion') and idx==0:
         group=[values.get((path,i)) for i in range(4)]
@@ -151,7 +162,7 @@ def lip_layer(cfg,action):
     for c in cues:
         a=start+round(c['start']*fps)-lead;b=start+round(c['end']*fps)-lead
         for fr in range(max(1,a),min(total,b)+1):
-            for k in keys:target[k][fr]=shapes[c['value']].get(k,0.0)
+            for k in keys:target[k][fr]=min(1.0,shapes[c['value']].get(k,0.0)*(float(cfg.get('mouthOpen',1)) if k=='!ex-jawOpen' else 1))
     # two-pole smoothing toward each target: soft co-articulation, no pops
     out={};a=float(cfg.get('response',.5))
     for k in keys:
@@ -160,13 +171,25 @@ def lip_layer(cfg,action):
             v1+=a*(target[k][fr]-v1);v2+=a*(v1-v2);row[fr]=v2
         out[k]=row
     set_curves(action,out);return len(cues)
-face=face_copy() if (timeline.get('idleLayer') or timeline.get('lipSync')) else None
+face=face_copy() if (timeline.get('idleLayer') or timeline.get('lipSync') or 'expressions' in timeline) else None
 blinks=blink_layer(timeline['idleLayer'],face) if face and timeline.get('idleLayer') else []
 cues=lip_layer(timeline['lipSync'],face) if face and timeline.get('lipSync') else 0
+def expression_layer(events,action):
+    """Smile/brow envelopes over a resting baseline; overlapping events take the max."""
+    curves={k:[v]*(total+2) for k,v in LIB.get('expressionBaseline',{}).items()}
+    for e in events:
+        row=curves.setdefault(e['shape'],[0.0]*(total+2));n=max(4,int(e['frames']));up=max(2,n//4)
+        for k in range(n):
+            f=int(e['at'])-up+k
+            if 1<=f<=total:
+                x=k/up if k<up else 1-(k-up)/(n-up)
+                row[f]=max(row[f],float(e['amount'])*smooth(max(0.0,min(1.0,x))))
+    set_curves(action,curves);return len(events)
+expressions=expression_layer(timeline['expressions'],face) if face and 'expressions' in timeline else 0
 rig.animation_data.action=act;rig.animation_data.action_slot=slot
 s=bpy.context.scene;s.frame_start=1;s.frame_end=total
 if digest(source)!=before:raise RuntimeError('SOURCE_ACTION_MUTATED')
-report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,
+report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,'expressions':expressions,
         'sequence':[{'name':n,'start':st,'frames':l,'blendIn':bi} for st,l,_,n,bi,_ in placed]}
 bpy.ops.wm.save_as_mainfile(filepath=out,copy=True)
 print('GESTURE_TIMELINE',json.dumps(report),flush=True)

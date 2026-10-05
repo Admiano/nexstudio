@@ -54,6 +54,17 @@ blender -b scenes/female/native/character.blend --python ../../../scripts/cast-g
 
 `idleLayer` adds seeded breathing, pelvis/torso sway and head drift on top of the clips, and replaces the baked blinks with seeded blinks in a copy of the face action. The original `Host.rigAction.001` and `baseAction` are never modified (the script fails if the source action changes) and the output is saved as a separate file. Without `lipSync` the face copy keeps the original take's mouth timing. With `"lipSync": {"rhubarb": "cues.json"}` the mouth is driven from [Rhubarb Lip Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) cues for any voiceover (local, CPU; e.g. `rhubarb -f json --extendedShapes GHX -d script.txt voice.wav -o cues.json`). The `visemes` table in `gesture-clips.json` maps each Rhubarb shape onto the existing mouth shape keys, smoothed and leading audio by one frame. A `{"source": [1, 998]}` step plays the original take unchanged.
 
+### Automatic gesture timing
+
+`scripts/cast-gesture-plan.py` writes a timeline from word timings (`[[start, end, "word"], ...]`) and, optionally, the voiceover:
+
+```
+python3 scripts/cast-gesture-plan.py words.json timeline.json --audio voice.wav --rhubarb cues.json \
+  --seed 7 --size 1.0 --speed 1.0 --frequency 1.0 --expressiveness 1.0
+```
+
+It is content-agnostic. Each word's stress is its loudness and per-letter duration relative to the speaker's own average. Phrases split on pauses and sentence ends. Each phrase's most stressed word gets a beat, open or emphasis gesture, and questions get the question clip. Runs of enumeration words in a steady rhythm become a count. Placement puts each clip's `stroke` frame just before its cue word and keeps a minimum gap between gestures. `gesture-cues.json` holds the per-language lexicon (which only proposes categories), the rules and the expression envelopes (smile and brow raises on greetings, emphasis, questions and sentence ends). Replace it for another language or presenter style. `size` scales arm movement about the resting pose, `speed` time-scales clips, `frequency` changes gesture density and `expressiveness` scales the expressions.
+
 ## Validation scope
 
 All 15 scenes were saved/reopened with exact original action equality, ten finite-pose samples each and packed used textures. All 99 pinned original fitting assets were hash-verified. Fresh female and male builds and the Cast mapping/cache/worker checks are recorded in `validation.json`.

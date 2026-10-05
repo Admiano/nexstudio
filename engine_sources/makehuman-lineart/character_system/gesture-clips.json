@@ -29,7 +29,10 @@
         78
       ],
       "hands": "both",
-      "use": "greeting, opening line"
+      "category": "greeting",
+      "stroke": 40,
+      "onset": 5,
+      "release": 57
     },
     "raise_right": {
       "frames": [
@@ -37,7 +40,10 @@
         134
       ],
       "hands": "right",
-      "use": "introduce first point"
+      "category": "beat",
+      "stroke": 11,
+      "onset": 6,
+      "release": 22
     },
     "offer_right": {
       "frames": [
@@ -45,7 +51,10 @@
         180
       ],
       "hands": "right",
-      "use": "present an idea"
+      "category": "open",
+      "stroke": 17,
+      "onset": 6,
+      "release": 28
     },
     "unsure_open": {
       "frames": [
@@ -53,7 +62,10 @@
         274
       ],
       "hands": "both",
-      "use": "question, uncertainty"
+      "category": "question",
+      "stroke": 15,
+      "onset": 6,
+      "release": 54
     },
     "emphasis": {
       "frames": [
@@ -61,7 +73,10 @@
         404
       ],
       "hands": "both",
-      "use": "key statement"
+      "category": "emphasis",
+      "stroke": 68,
+      "onset": 7,
+      "release": 73
     },
     "listen_left": {
       "frames": [
@@ -69,7 +84,10 @@
         440
       ],
       "hands": "left",
-      "use": "short aside"
+      "category": "beat",
+      "stroke": 17,
+      "onset": 6,
+      "release": 29
     },
     "count_three": {
       "frames": [
@@ -77,7 +95,10 @@
         636
       ],
       "hands": "both",
-      "use": "list of three"
+      "category": "count",
+      "stroke": 96,
+      "onset": 7,
+      "release": 122
     },
     "small_to_big": {
       "frames": [
@@ -85,7 +106,10 @@
         696
       ],
       "hands": "both",
-      "use": "range, scale"
+      "category": "scale",
+      "stroke": 9,
+      "onset": 4,
+      "release": 54
     },
     "right_here": {
       "frames": [
@@ -93,7 +117,10 @@
         744
       ],
       "hands": "both",
-      "use": "point here, this"
+      "category": "point",
+      "stroke": 35,
+      "onset": 6,
+      "release": 42
     },
     "beat_right": {
       "frames": [
@@ -101,7 +128,10 @@
         891
       ],
       "hands": "right",
-      "use": "short beat"
+      "category": "beat",
+      "stroke": 11,
+      "onset": 7,
+      "release": 27
     },
     "open_both": {
       "frames": [
@@ -109,7 +139,10 @@
         938
       ],
       "hands": "both",
-      "use": "open explanation"
+      "category": "open",
+      "stroke": 32,
+      "onset": 7,
+      "release": 41
     },
     "open_both_short": {
       "frames": [
@@ -117,7 +150,10 @@
         971
       ],
       "hands": "both",
-      "use": "short open beat"
+      "category": "open",
+      "stroke": 17,
+      "onset": 5,
+      "release": 29
     }
   },
   "visemes": {
@@ -156,5 +192,10 @@
       "V3_wide": 0.15
     }
   },
-  "visemesNote": "Rhubarb mouth shapes (A-H, X rest) mapped onto the existing baked-envelope shape keys; peaks stay inside the original take's ranges."
+  "visemesNote": "Rhubarb mouth shapes (A-H, X rest) mapped onto the existing baked-envelope shape keys; peaks stay inside the original take's ranges.",
+  "clipsNote": "category drives automatic placement; onset/stroke/release = frames from clip start to first movement, peak hand speed and last movement. Count clips centre their active span on the list words, all others put their stroke on the cue word.",
+  "expressionBaseline": {
+    "!ex-mouthSmileLeft": 0.12,
+    "!ex-mouthSmileRight": 0.12
+  }
 }
