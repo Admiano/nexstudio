@@ -265,6 +265,20 @@ def oral_follow(probe=.55):
         ob=bpy.data.objects.get(name)
         for d in (ob.data.shape_keys.animation_data.drivers if ob and ob.data.shape_keys and ob.data.shape_keys.animation_data else []):
             if 'Authored jaw articulation' in d.data_path:d.driver.expression=re.sub(r'\bjaw\b',f'(jaw*{k:.3f})',d.driver.expression)
+    if k<1:corner_clearance(lower,min(1.0,(1-k)/.205))
+def corner_clearance(lower,amount,depth=.01,inner=.009):
+    """Raised lower teeth catch the lip corners on wide vowels: drop the side teeth below the corners as the jaw opens."""
+    import numpy as np
+    keys=lower.data.shape_keys;kb=keys.key_blocks
+    src=next(d for d in keys.animation_data.drivers if 'Authored jaw articulation' in d.data_path).driver.variables[0].targets[0]
+    base=np.array([v.co for v in kb['Basis'].data]);ax=np.abs(base[:,0]-np.median(base[:,0]))
+    w=np.clip((ax-inner)/(ax.max()-inner),0,1)**1.5
+    key=kb.get('Corner clearance') or lower.shape_key_add(name='Corner clearance',from_mix=False)
+    key.data.foreach_set('co',(base+np.stack([0*w,0*w,-depth*amount*w],1)).ravel())
+    d=key.driver_add('value').driver;d.type='SCRIPTED'
+    v=d.variables[0] if d.variables else d.variables.new();v.name='jaw';v.type='SINGLE_PROP'
+    v.targets[0].id_type=src.id_type;v.targets[0].id=src.id;v.targets[0].data_path=src.data_path
+    d.expression='max(0,min(1,jaw))';LIP_QA['cornerClearanceMm']=round(depth*amount*1000,1)
 def lip_layer(cfg,action):
     """Drive the existing mouth shape keys from phoneme timings, else Rhubarb mouth cues (local, CPU)."""
     oral_follow()
