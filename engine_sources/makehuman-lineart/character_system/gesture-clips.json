@@ -1113,7 +1113,7 @@
       "legs": false,
       "source": "Mixamo: Strong Gesture (Sporty Granny Strong Gesture)",
       "mood": "expressive",
-      "presenter": "male"
+      "presenter": "any"
     },
     "mx_talking_asking_a_question": {
       "mixamo": "talking_asking_a_question",
@@ -1533,7 +1533,7 @@
       "legs": true,
       "source": "Mixamo: Catwalk Idle 01 (Male Standing Idle 01)",
       "mood": "calm",
-      "presenter": "female"
+      "presenter": "male"
     },
     "mx_catwalk_idle_02_male_standing_idle_02": {
       "mixamo": "catwalk_idle_02_male_standing_idle_02",
@@ -1554,7 +1554,7 @@
       "legs": true,
       "source": "Mixamo: Catwalk Idle 02 (Male Standing Idle 02)",
       "mood": "calm",
-      "presenter": "female"
+      "presenter": "male"
     },
     "mx_catwalk_idle_female_standing_idle": {
       "mixamo": "catwalk_idle_female_standing_idle",
@@ -1617,7 +1617,7 @@
       "legs": true,
       "source": "Mixamo: Catwalk Idle To Walk Forward (Male Idle To Walk Forward)",
       "mood": "calm",
-      "presenter": "female"
+      "presenter": "male"
     },
     "mx_catwalk_idle_twist_l_female_twist_left_idle": {
       "mixamo": "catwalk_idle_twist_l_female_twist_left_idle",
@@ -1659,7 +1659,7 @@
       "legs": true,
       "source": "Mixamo: Catwalk Idle Twist L (Male Twist Left Idle)",
       "mood": "calm",
-      "presenter": "female"
+      "presenter": "male"
     },
     "mx_catwalk_idle_twist_r_female_twist_right_idle": {
       "mixamo": "catwalk_idle_twist_r_female_twist_right_idle",
@@ -1701,7 +1701,7 @@
       "legs": true,
       "source": "Mixamo: Catwalk Idle Twist R (Male Twist Right Idle)",
       "mood": "calm",
-      "presenter": "female"
+      "presenter": "male"
     },
     "mx_catwalk_walk_stop_female_walk_forward_to_idle": {
       "mixamo": "catwalk_walk_stop_female_walk_forward_to_idle",
@@ -1743,7 +1743,7 @@
       "legs": true,
       "source": "Mixamo: Catwalk Walk Stop (Male Walk Forward To Idle)",
       "mood": "calm",
-      "presenter": "female"
+      "presenter": "male"
     },
     "mx_cheering_while_sitting_cheering_while_sitting_and_talking_to": {
       "mixamo": "cheering_while_sitting_cheering_while_sitting_and_talking_to",
@@ -1995,7 +1995,7 @@
       "legs": true,
       "source": "Mixamo: Idle (Male Fitness Idle With Breathing)",
       "mood": "calm",
-      "presenter": "any"
+      "presenter": "male"
     },
     "mx_laughing_laughing_standing": {
       "mixamo": "laughing_laughing_standing",
@@ -2877,7 +2877,7 @@
       "legs": true,
       "source": "Mixamo: Talking (Male Talking While Seated)",
       "mood": "calm",
-      "presenter": "any"
+      "presenter": "male"
     },
     "mx_turning_turning_in_place": {
       "mixamo": "turning_turning_in_place",
@@ -3108,7 +3108,7 @@
       "legs": true,
       "source": "Mixamo: Walking (Male Happy Walk)",
       "mood": "calm",
-      "presenter": "any"
+      "presenter": "male"
     },
     "mx_walking_male_standard_walk": {
       "mixamo": "walking_male_standard_walk",
@@ -3129,7 +3129,7 @@
       "legs": true,
       "source": "Mixamo: Walking (Male Standard Walk)",
       "mood": "calm",
-      "presenter": "any"
+      "presenter": "male"
     },
     "mx_walking_turn_180_turning_180_degrees_while_walking": {
       "mixamo": "walking_turn_180_turning_180_degrees_while_walking",
@@ -6446,7 +6446,7 @@
       "posture": "standing",
       "legs": false,
       "source": "Rokoko: Panel Judges part 2 (reacting, talking, standing)",
-      "mood": "expressive",
+      "mood": "calm",
       "presenter": "male"
     },
     "mx_ro_panel_judges_03": {
@@ -6467,7 +6467,7 @@
       "posture": "standing",
       "legs": false,
       "source": "Rokoko: Panel Judges part 3 (reacting, talking, standing)",
-      "mood": "expressive",
+      "mood": "calm",
       "presenter": "male"
     },
     "mx_ro_panel_judges_08": {
@@ -6488,7 +6488,7 @@
       "posture": "standing",
       "legs": false,
       "source": "Rokoko: Panel Judges part 8 (reacting, talking, standing)",
-      "mood": "expressive",
+      "mood": "calm",
       "presenter": "male"
     },
     "mx_ro_panel_judges_11": {
@@ -6509,7 +6509,7 @@
       "posture": "standing",
       "legs": false,
       "source": "Rokoko: Panel Judges part 11 (reacting, talking, standing)",
-      "mood": "expressive",
+      "mood": "calm",
       "presenter": "male"
     },
     "mx_ro_panel_judges_12": {
@@ -6530,7 +6530,7 @@
       "posture": "standing",
       "legs": false,
       "source": "Rokoko: Panel Judges part 12 (reacting, talking, standing)",
-      "mood": "expressive",
+      "mood": "calm",
       "presenter": "male"
     },
     "mx_ro_pointing_idle_01": {
@@ -8745,7 +8745,8 @@
       "gossip",
       "aside to camera",
       "happy hand",
-      "chatting idle"
+      "chatting idle",
+      "granny"
     ],
     "maleWords": [
       "cocky",
@@ -8773,7 +8774,9 @@
         "size": 1.1,
         "speed": 1.05
       }
-    }
+    },
+    "presenterCalmMaxReachCm": 50,
+    "presenterCalmMaxPeakSpeed": 1.65
   },
   "groups": {
     "moving.calm": {
@@ -8865,9 +8868,7 @@
       ],
       "walk": [
         "mx_catwalk_idle_to_walk_forward_female_idle_to_walk_forward",
-        "mx_catwalk_idle_to_walk_forward_male_idle_to_walk_forward",
         "mx_catwalk_walk_stop_female_walk_forward_to_idle",
-        "mx_catwalk_walk_stop_male_walk_forward_to_idle",
         "mx_female_start_walking_female_start_walking",
         "mx_female_stop_and_start_walking_female_stop_start_walking",
         "mx_female_stop_walking_female_stop_walking",
@@ -8881,6 +8882,12 @@
         "mx_ro_lawyer_argument_01",
         "mx_ro_lawyer_argument_09",
         "mx_ro_lawyer_argument_10"
+      ],
+      "walk": [
+        "mx_catwalk_idle_to_walk_forward_male_idle_to_walk_forward",
+        "mx_catwalk_walk_stop_male_walk_forward_to_idle",
+        "mx_walking_male_happy_walk",
+        "mx_walking_male_standard_walk"
       ]
     },
     "seated.calm": {
@@ -8978,6 +8985,9 @@
       ]
     },
     "seated.male": {
+      "open": [
+        "mx_talking_male_talking_while_seated"
+      ],
       "react": [
         "mx_sitting_fist_pump_low_enthusiasm_fist_pump_while_sitting"
       ]
@@ -9116,7 +9126,12 @@
         "mx_ro_interviewer_calm_03",
         "mx_ro_interviewer_calm_04",
         "mx_ro_interviewer_calm_07",
-        "mx_ro_interviewer_calm_08"
+        "mx_ro_interviewer_calm_08",
+        "mx_ro_panel_judges_02",
+        "mx_ro_panel_judges_03",
+        "mx_ro_panel_judges_08",
+        "mx_ro_panel_judges_11",
+        "mx_ro_panel_judges_12"
       ],
       "point": [
         "right_here"
@@ -9201,11 +9216,6 @@
         "mx_ro_on_phone_06",
         "mx_ro_on_phone_07",
         "mx_ro_panel_judges_01",
-        "mx_ro_panel_judges_02",
-        "mx_ro_panel_judges_03",
-        "mx_ro_panel_judges_08",
-        "mx_ro_panel_judges_11",
-        "mx_ro_panel_judges_12",
         "mx_ro_product_pitch_01",
         "mx_ro_product_pitch_02",
         "mx_ro_product_pitch_04",
@@ -9306,13 +9316,9 @@
         "mx_telling_a_secret_telling_a_secret"
       ],
       "idle": [
-        "mx_catwalk_idle_01_male_standing_idle_01",
-        "mx_catwalk_idle_02_male_standing_idle_02",
         "mx_catwalk_idle_female_standing_idle",
         "mx_catwalk_idle_twist_l_female_twist_left_idle",
-        "mx_catwalk_idle_twist_l_male_twist_left_idle",
         "mx_catwalk_idle_twist_r_female_twist_right_idle",
-        "mx_catwalk_idle_twist_r_male_twist_right_idle",
         "mx_idle_female_idle",
         "mx_ro_chatting_idle_01",
         "mx_ro_chatting_idle_02",
@@ -9369,13 +9375,17 @@
       ],
       "emphasis": [
         "mx_standing_arguing_standing_and_arguing_with_another_person",
-        "mx_standing_arguing_standing_arguing_with_another_person",
-        "mx_strong_gesture_sporty_granny_strong_gesture"
+        "mx_standing_arguing_standing_arguing_with_another_person"
       ],
       "expressive": [
         "mx_being_cocky_cocky_lean_back"
       ],
       "idle": [
+        "mx_catwalk_idle_01_male_standing_idle_01",
+        "mx_catwalk_idle_02_male_standing_idle_02",
+        "mx_catwalk_idle_twist_l_male_twist_left_idle",
+        "mx_catwalk_idle_twist_r_male_twist_right_idle",
+        "mx_idle_male_fitness_idle_with_breathing",
         "mx_ro_arguing_idle_01",
         "mx_ro_arguing_idle_04",
         "mx_ro_arguing_idle_05",

@@ -92,14 +92,15 @@ def join(a,b):
     (fa,ka),(fb,kb)=a,b
     diff=max(abs(fa(key,ka)-fb(key,kb)) for key in keys if 'rotation' in key[0])
     return math.ceil(diff/float(timeline.get('blendRadPerFrame',.025)))
-joins=[0]+[min(max(blend,join((p[2],p[3]-1),(q[2],0))),24,p[3]//2,q[3]//2) for p,q in zip(items,items[1:])]+[0]
+joins=[0]+[min(max(blend,join((p[2],p[3]-1),(q[2],0))),int(timeline.get('maxBlendFrames',36)),p[3]//2,q[3]//2) for p,q in zip(items,items[1:])]+[0]
 # idle holds keep their requested length outside the blends
 items=[(k,nm,fn,(int(timeline['sequence'][i]['idle'])+joins[i]+joins[i+1] if k=='idle' else n)) for i,(k,nm,fn,n) in enumerate(items)]
 placed=[];t=1
 for i,(kind,name,fn,n) in enumerate(items):
     t-=joins[i];placed.append((t,n,fn,name,joins[i],joins[i+1]));t+=n
 total=placed[-1][0]+placed[-1][1]-1
-smooth=lambda x:x*x*(3-2*x)
+# quintic ease: zero velocity and acceleration change at both ends of a blend, so hands settle instead of popping
+smooth=lambda x:x*x*x*(x*(6*x-15)+10)
 def weights(frame):
     out=[]
     for start,n,fn,name,bin_,bout in placed:

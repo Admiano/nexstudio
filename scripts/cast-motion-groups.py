@@ -17,12 +17,19 @@ def mood(name,c,text):
     if c.get('peakSpeed') is None:return 'calm'
     return 'calm' if c['peakSpeed']<=R['calmMaxPeakSpeed'] and c.get('reachCm',0)<=R['calmMaxReachCm'] else 'expressive'
 def presenter(text):
+    # a performer named as female or male wins over performance-style words
+    if re.search(r'\bfemale\b',text):return 'female'
+    if re.search(r'\bmale\b',text):return 'male'
     f,m=hit(text,R['femaleWords']),hit(text,R['maleWords'])
     return 'female' if f and not m else 'male' if m and not f else 'any'
+def presenter_calm(c,text):
+    # a presenter's own clip that is only a little broader or quicker than the shared calm limits stays calm for that presenter
+    return not hit(text,R['expressiveWords']) and c.get('peakSpeed') is not None and c['peakSpeed']<=R['presenterCalmMaxPeakSpeed'] and c.get('reachCm',0)<=R['presenterCalmMaxReachCm']
 groups=collections.defaultdict(lambda:collections.defaultdict(list))
 for name,c in LIB['clips'].items():
     text=(name+' '+str(c.get('source',''))).lower().replace('_',' ')
     c['mood'],c['presenter']=mood(name,c,text),presenter(text)
+    if c['presenter']!='any' and c['mood']=='expressive' and presenter_calm(c,text):c['mood']='calm'
     posture=c.get('posture','standing')
     groups[f"{posture}.{c['mood']}"][c['category']].append(name)
     if c['presenter']!='any':groups[f"{posture}.{c['presenter']}"][c['category']].append(name)
