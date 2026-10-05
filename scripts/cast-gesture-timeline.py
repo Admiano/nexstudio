@@ -196,14 +196,19 @@ def face_copy():
     for k in keys:k.animation_data.action=copy
     return copy
 def set_curves(action,curves):
+    done=set();bag=None
     for layer in action.layers:
         for strip in layer.strips:
             for cb in strip.channelbags:
+                bag=bag or cb
                 for fc in cb.fcurves:
                     key=fc.data_path.split('"')[1]
                     if key not in curves:continue
                     fc.keyframe_points.clear();fc.keyframe_points.add(total)
-                    fc.keyframe_points.foreach_set('co',[c for fr in range(1,total+1) for c in (fr,curves[key][fr])]);fc.update()
+                    fc.keyframe_points.foreach_set('co',[c for fr in range(1,total+1) for c in (fr,curves[key][fr])]);fc.update();done.add(key)
+    for key in sorted(set(curves)-done):  # existing keys the baked take never animated (e.g. E_cheek)
+        fc=bag.fcurves.new(f'key_blocks["{key}"].value');fc.keyframe_points.add(total)
+        fc.keyframe_points.foreach_set('co',[c for fr in range(1,total+1) for c in (fr,curves[key][fr])]);fc.update()
 def blink_layer(cfg,action):
     """Replace the baked blinks with seeded ones."""
     import random
@@ -217,12 +222,29 @@ def blink_layer(cfg,action):
     set_curves(action,{'!ex-eyeBlinkLeft':curve,'!ex-eyeBlinkRight':curve})
     return events
 LIP_QA={}
+def jaw_bone(jaw,deg):
+    """Small jaw-bone hinge on top of the jaw-open shape: chin and lower face follow speech."""
+    from mathutils import Quaternion
+    bag=next(cb for layer in act.layers for strip in layer.strips for cb in strip.channelbags)
+    path='pose.bones["jaw"].rotation_quaternion'
+    fcs=[bag.fcurves.find(path,index=i) or bag.fcurves.new(path,index=i) for i in range(4)]
+    rows=[[fc.evaluate(fr) if len(fc.keyframe_points) else float(i==0) for fr in range(1,total+1)] for i,fc in enumerate(fcs)]
+    for fr in range(total):
+        q=Quaternion([r[fr] for r in rows])@Quaternion((1,0,0),math.radians(deg)*min(1.0,jaw[fr+1]/.5))
+        for i in range(4):rows[i][fr]=q[i]
+    for fc,row in zip(fcs,rows):
+        fc.keyframe_points.clear();fc.keyframe_points.add(total)
+        fc.keyframe_points.foreach_set('co',[c for fr in range(total) for c in (fr+1,row[fr])]);fc.update()
+    rig.pose.bones['jaw'].rotation_mode='QUATERNION'
+    LIP_QA['jawBoneMaxDeg']=round(deg*min(1.0,max(jaw)/.5),2)
 def lip_layer(cfg,action):
     """Drive the existing mouth shape keys from phoneme timings, else Rhubarb mouth cues (local, CPU)."""
     if cfg.get('phonemes'):
         sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_lip_phonemes
         out,qa=cast_lip_phonemes.build(cfg,total,LIB['source']['fps'],LIB['phonemeVisemes'])
-        set_curves(action,out);LIP_QA.update(qa);return qa['phones']
+        set_curves(action,out);LIP_QA.update(qa)
+        if float(cfg.get('jawBoneDeg',0)):jaw_bone(out['!ex-jawOpen'],float(cfg['jawBoneDeg']))
+        return qa['phones']
     cues=json.loads(Path(cfg['rhubarb']).read_text())['mouthCues'];fps=LIB['source']['fps']
     shapes=LIB['visemes'];keys=sorted({k for v in shapes.values() for k in v})
     lead=int(cfg.get('leadFrames',1));start=int(cfg.get('startFrame',1))
