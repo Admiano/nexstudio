@@ -22,13 +22,26 @@ Pipeline: concept image (generate or author) → Hunyuan `/shape_generation`
 The render script:
 - normalizes to ~1.75m, flat shades, strips Hunyuan's rembg artifacts
   (floor slab faces: `|nz|>0.9` in the slab z-band, plus rim-band faces)
+- separates head faces (world z > 1.44) into their own object and decimates
+  it harder (0.04) than the body (0.03) — big planar brow/cheek facets
 - creates `projUV` + UVProject modifier — an ortho projector camera facing
   the figure re-projects the concept image onto the mesh (the GLB has no
   UVs, so the concept supplies the palette for free)
-- paperize(): concept × kraft multiply, Pointiness crease ramp, AO
-  distance 0.015, rear-third multiply-darken (the mesh's back rim shows as
-  pale behind the silhouette otherwise), kraft normal map
-- 3-area-light studio + seamless gradient wall, Cycles 48spp
+- **per-facet flat color bake** — after applying the decimate+UVProject
+  modifiers, each face's projected texels are area-averaged (centroid +
+  loop UVs + edge midpoints) into a `paperCol` corner color attribute.
+  Every facet renders as ONE flat paper tone — the folded-paper-piece
+  construction of the reference plates. Note: attribute values are read
+  as linear in the shader, so sRGB texels are stored as `v**2.2`.
+  Faces whose samples are >50% dark deepen toward dark-brown — subtle
+  implied eye-zone shading on the planar mask face (appliqué pieces and
+  concept-painted features both failed; eyes stay authored, not pasted)
+- paperize(): baked `paperCol` (or concept texture fallback) × kraft
+  multiply 0.45, HueSat 1.28, RGBCurve S-curve, Pointiness crease ramp,
+  AO 0.028, rear-third multiply-darken (the mesh's back rim shows as pale
+  behind the silhouette otherwise), kraft normal map 0.65
+- 3-area-light studio + seamless gradient wall, Cycles 96spp, exposure
+  -0.45, AgX Medium High Contrast
 
 **Modularity / color swaps**: the mesh carries no color of its own — the
 concept image IS the palette. Recolor garment regions in the concept
@@ -88,6 +101,8 @@ terms for generated outputs before shipping renders externally.
 ```bash
 blender -b --python scripts/rain_paper.py -- out.png 0.22
 blender -b --python scripts/render_q2.py -- assets/quaternius/q_casual.glb out.png
+blender -b --python scripts/render_gen_fullbody.py -- \
+    assets/gen/casual30_shape.glb assets/gen/concept_fullbody.png out.png 0.03
 ```
 
 Cycles, 48–64 samples, ~30–90s/frame on CPU. EEVEE works for previews
