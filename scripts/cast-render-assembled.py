@@ -24,10 +24,10 @@ structure_entry=Path(__file__).with_name('cast-garment-structure.py')
 exec(compile(structure_entry.read_text(),str(structure_entry),'exec'),globals())
 scene=bpy.context.scene
 if config.get('framing') == 'upper-thigh' and '--full-body' not in args:
-    female = os.environ['CAST_CHARACTER'] == 'female'
-    scene.camera.location = (-0.42, -5.0, 1.21 if female else 1.29)
+    # Hips up with head and both relaxed hands in frame across the full gesture library.
+    scene.camera.location = (-0.42, -5.0, 1.16)
     scene.camera.rotation_euler = (1.5707963, 0, 0)
-    scene.camera.data.ortho_scale = 1.10 if female else 1.18
+    scene.camera.data.ortho_scale = 1.36
     scene.render.resolution_x = 2160
     scene.render.resolution_y = 2880
     scene.render.film_transparent = True

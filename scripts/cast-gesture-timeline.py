@@ -237,8 +237,37 @@ def jaw_bone(jaw,deg):
         fc.keyframe_points.foreach_set('co',[c for fr in range(total) for c in (fr+1,row[fr])]);fc.update()
     rig.pose.bones['jaw'].rotation_mode='QUATERNION'
     LIP_QA['jawBoneMaxDeg']=round(deg*min(1.0,max(jaw)/.5),2)
+def oral_follow(probe=.55):
+    """Scale lower teeth/tongue jaw articulation so the lower teeth drop with the lower lip on this presenter."""
+    import re,numpy as np
+    lip,lower=bpy.data.objects.get('Host.V59_face_art'),bpy.data.objects.get('Cast V12 oral lower')
+    if not lip or not lower or not lower.data.shape_keys or not lower.data.shape_keys.animation_data:return
+    keyed=[o for o in bpy.data.objects if o.type=='MESH' and o.data.shape_keys and '!ex-jawOpen' in o.data.shape_keys.key_blocks]
+    saved=[(o,o.data.shape_keys.animation_data.action if o.data.shape_keys.animation_data else None,o.data.shape_keys.key_blocks['!ex-jawOpen'].value) for o in keyed]
+    def pose(v):
+        for o in keyed:
+            if o.data.shape_keys.animation_data:o.data.shape_keys.animation_data.action=None
+            o.data.shape_keys.key_blocks['!ex-jawOpen'].value=v
+        bpy.context.view_layer.update();dg=bpy.context.evaluated_depsgraph_get();res=[]
+        for ob in (lip,lower):
+            e=ob.evaluated_get(dg);m=e.to_mesh();a=np.empty(len(m.vertices)*3);m.vertices.foreach_get('co',a);e.to_mesh_clear()
+            res.append(a.reshape(-1,3)[:,2]*ob.matrix_world[2][2])
+        return res
+    l0,t0=pose(0);l1,t1=pose(probe);dz=l1-l0
+    lipDrop=dz[dz<np.percentile(dz,1)].mean();teethDrop=np.percentile(t1-t0,5)
+    for o,a,v in saved:
+        if a:o.data.shape_keys.animation_data.action=a
+        o.data.shape_keys.key_blocks['!ex-jawOpen'].value=v
+    if teethDrop>=0 or lipDrop>=0:return
+    k=float(np.clip(lipDrop/teethDrop,.6,1.1));LIP_QA['oralJawFollow']=round(k,3)
+    if abs(k-1)<.03:return
+    for name in ('Cast V12 oral lower','Cast V12 oral tongue'):
+        ob=bpy.data.objects.get(name)
+        for d in (ob.data.shape_keys.animation_data.drivers if ob and ob.data.shape_keys and ob.data.shape_keys.animation_data else []):
+            if 'Authored jaw articulation' in d.data_path:d.driver.expression=re.sub(r'\bjaw\b',f'(jaw*{k:.3f})',d.driver.expression)
 def lip_layer(cfg,action):
     """Drive the existing mouth shape keys from phoneme timings, else Rhubarb mouth cues (local, CPU)."""
+    oral_follow()
     if cfg.get('phonemes'):
         sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_lip_phonemes
         out,qa=cast_lip_phonemes.build(cfg,total,LIB['source']['fps'],LIB['phonemeVisemes'])

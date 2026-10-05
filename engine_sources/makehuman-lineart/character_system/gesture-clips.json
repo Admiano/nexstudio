@@ -9433,7 +9433,7 @@
     }
   },
   "phonemeVisemes": {
-    "note": "ARPAbet (MFA english_us_arpa) to blends of the existing mouth keys. Used by scripts/cast_lip_phonemes.py.",
+    "note": "ARPAbet (MFA english_us_arpa) to blends of the existing mouth keys. Used by scripts/cast_lip_phonemes.py. A_lowerDown is not used: it drops the lip without the oral meshes, exposing gums. maxValue caps the jaw where teeth still meet the lips.",
     "leadSec": 0.04,
     "spreadSec": {
       "default": 0.05,
@@ -9441,7 +9441,6 @@
     },
     "openKeys": [
       "!ex-jawOpen",
-      "A_lowerDown",
       "A_funnel"
     ],
     "loudness": {
@@ -9531,7 +9530,6 @@
       "TH": {
         "target": {
           "!ex-jawOpen": 0.12,
-          "A_lowerDown": 0.15,
           "V3_wide": 0.15
         },
         "dominance": 1.2
@@ -9539,7 +9537,6 @@
       "DH": {
         "target": {
           "!ex-jawOpen": 0.1,
-          "A_lowerDown": 0.12,
           "V3_wide": 0.15
         },
         "dominance": 1.0
@@ -9569,8 +9566,7 @@
       "L": {
         "target": {
           "!ex-jawOpen": 0.16,
-          "V3_wide": 0.15,
-          "A_lowerDown": 0.08
+          "V3_wide": 0.15
         },
         "dominance": 0.7
       },
@@ -9676,8 +9672,7 @@
       },
       "AA": {
         "target": {
-          "!ex-jawOpen": 0.5,
-          "A_lowerDown": 0.2
+          "!ex-jawOpen": 0.5
         },
         "dominance": 1.0,
         "vowel": true
@@ -9686,8 +9681,7 @@
         "target": {
           "!ex-jawOpen": 0.42,
           "V3_wide": 0.45,
-          "E_cheek": 0.2,
-          "A_lowerDown": 0.1
+          "E_cheek": 0.2
         },
         "dominance": 1.0,
         "vowel": true
@@ -9764,6 +9758,9 @@
         "dominance": 1.3,
         "vowel": true
       }
+    },
+    "maxValue": {
+      "!ex-jawOpen": 0.55
     }
   }
 }

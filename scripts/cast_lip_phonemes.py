@@ -50,7 +50,7 @@ def build(cfg,total,fps,table):
             x=np.maximum(0,np.abs(t-(s+e)/2)-(e-s)/2)/spread
             d=spec.get('dominance',1.0)*np.exp(-x**2)
             num+=d*min(1.0,tgt);den+=d
-        out[k]=np.clip(num/den,0,1)
+        out[k]=np.clip(num/den,0,float(table.get('maxValue',{}).get(k,1)))
     # hard closure on bilabials: the frame nearest each p/b/m centre seals the lips
     hits=0;bil=[(s,e) for s,e,b,_ in seq if T[b].get('closure')]
     for s,e in bil:
