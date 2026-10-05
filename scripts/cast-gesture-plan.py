@@ -86,7 +86,7 @@ for i,cat,prio in sorted(events,key=lambda e:-e[2]):
         for k,c,_ in sorted((e for e in events_all if e[1]=='count'),key=lambda e:words[e[0]][0]):
             if 0<words[k][0]-hits[-1]<=R['countMaxSpacingSec']:hits.append(words[k][0])
         at=(hits[0]+hits[-1])/2;anchor=(clip['onset']+clip['release'])/2
-    else:at=words[i][0];anchor=clip['stroke']
+    else:at=words[i][0];anchor=clip.get('apex',clip['stroke'])
     start=round((at-R['strokeLeadSec'])*fps)+1-round(anchor/a.speed)
     start=max(1,start);end=start+length(name)-1
     if any(start<=b+gap and end+gap>=s for s,b in busy):continue
@@ -101,7 +101,7 @@ seq.append({'idle':max(12,total-cursor+1)})
 EX=CUES.get('expressions',{});expr=[]
 def add(cat,t):
     for key,amt,sec in EX.get(cat,[]):expr.append({'at':round(t*fps)+1,'shape':key,'amount':round(amt*a.expressiveness,3),'frames':round(sec*fps)})
-for start,end,name,word,cat in chosen:add(cat,(start-1+LIB['clips'][name]['stroke']/a.speed)/fps)
+for start,end,name,word,cat in chosen:add(cat,(start-1+LIB['clips'][name].get('apex',LIB['clips'][name]['stroke'])/a.speed)/fps)
 for ph in phrases:
     if re.search(r'[.!]$',words[ph[-1]][2]):add('sentenceEnd',words[ph[-1]][1])
 out={'name':a.name,'expressions':expr,'sequence':seq,'style':{'size':a.size,'speed':a.speed},'idleLayer':{'seed':a.seed}}

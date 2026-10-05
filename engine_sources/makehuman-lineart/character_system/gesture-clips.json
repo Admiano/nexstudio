@@ -32,7 +32,8 @@
       "category": "greeting",
       "stroke": 40,
       "onset": 5,
-      "release": 57
+      "release": 57,
+      "apex": 25
     },
     "raise_right": {
       "frames": [
@@ -43,7 +44,8 @@
       "category": "beat",
       "stroke": 11,
       "onset": 6,
-      "release": 22
+      "release": 22,
+      "apex": 20
     },
     "offer_right": {
       "frames": [
@@ -54,7 +56,8 @@
       "category": "open",
       "stroke": 17,
       "onset": 6,
-      "release": 28
+      "release": 28,
+      "apex": 21
     },
     "unsure_open": {
       "frames": [
@@ -65,7 +68,8 @@
       "category": "question",
       "stroke": 15,
       "onset": 6,
-      "release": 54
+      "release": 54,
+      "apex": 22
     },
     "emphasis": {
       "frames": [
@@ -76,7 +80,8 @@
       "category": "emphasis",
       "stroke": 68,
       "onset": 7,
-      "release": 73
+      "release": 73,
+      "apex": 63
     },
     "listen_left": {
       "frames": [
@@ -87,7 +92,8 @@
       "category": "beat",
       "stroke": 17,
       "onset": 6,
-      "release": 29
+      "release": 29,
+      "apex": 21
     },
     "count_three": {
       "frames": [
@@ -98,7 +104,8 @@
       "category": "count",
       "stroke": 96,
       "onset": 7,
-      "release": 122
+      "release": 122,
+      "apex": 68
     },
     "small_to_big": {
       "frames": [
@@ -109,7 +116,8 @@
       "category": "scale",
       "stroke": 9,
       "onset": 4,
-      "release": 54
+      "release": 54,
+      "apex": 38
     },
     "right_here": {
       "frames": [
@@ -120,7 +128,8 @@
       "category": "point",
       "stroke": 35,
       "onset": 6,
-      "release": 42
+      "release": 42,
+      "apex": 20
     },
     "beat_right": {
       "frames": [
@@ -131,7 +140,8 @@
       "category": "beat",
       "stroke": 11,
       "onset": 7,
-      "release": 27
+      "release": 27,
+      "apex": 17
     },
     "open_both": {
       "frames": [
@@ -142,7 +152,8 @@
       "category": "open",
       "stroke": 32,
       "onset": 7,
-      "release": 41
+      "release": 41,
+      "apex": 18
     },
     "open_both_short": {
       "frames": [
@@ -153,7 +164,8 @@
       "category": "open",
       "stroke": 17,
       "onset": 5,
-      "release": 29
+      "release": 29,
+      "apex": 16
     }
   },
   "visemes": {
@@ -193,7 +205,7 @@
     }
   },
   "visemesNote": "Rhubarb mouth shapes (A-H, X rest) mapped onto the existing baked-envelope shape keys; peaks stay inside the original take's ranges.",
-  "clipsNote": "category drives automatic placement; onset/stroke/release = frames from clip start to first movement, peak hand speed and last movement. Count clips centre their active span on the list words, all others put their stroke on the cue word.",
+  "clipsNote": "category drives automatic placement; onset/stroke/apex/release = frames from clip start to first movement, peak hand speed, furthest hand reach and last movement. Count clips centre their active span on the list words; all others put their apex on the cue word.",
   "expressionBaseline": {
     "!ex-mouthSmileLeft": 0.12,
     "!ex-mouthSmileRight": 0.12
