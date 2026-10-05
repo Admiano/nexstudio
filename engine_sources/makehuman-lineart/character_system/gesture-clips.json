@@ -2845,6 +2845,4718 @@
       "posture": "moving",
       "legs": true,
       "source": "Mixamo: Walking Turn 180 (Turning 180 Degrees While Walking)"
+    },
+    "mx_ro_arguing_idle_01": {
+      "mixamo": "ro_arguing_idle_01",
+      "frames": [
+        1,
+        86
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 71,
+      "reachCm": 48.7,
+      "peakSpeed": 4.84,
+      "tempo": 0.372,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Arguing Idle part 1 (arguing, standing)"
+    },
+    "mx_ro_arguing_idle_04": {
+      "mixamo": "ro_arguing_idle_04",
+      "frames": [
+        1,
+        137
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 3,
+      "stroke": 54,
+      "apex": 131,
+      "release": 130,
+      "reachCm": 54.1,
+      "peakSpeed": 1.89,
+      "tempo": 0.951,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Arguing Idle part 4 (arguing, standing)"
+    },
+    "mx_ro_arguing_idle_05": {
+      "mixamo": "ro_arguing_idle_05",
+      "frames": [
+        1,
+        92
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 4,
+      "stroke": 44,
+      "apex": 37,
+      "release": 86,
+      "reachCm": 69.1,
+      "peakSpeed": 1.82,
+      "tempo": 0.991,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Arguing Idle part 5 (arguing, standing)"
+    },
+    "mx_ro_arguing_idle_06": {
+      "mixamo": "ro_arguing_idle_06",
+      "frames": [
+        1,
+        95
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 17,
+      "stroke": 60,
+      "apex": 69,
+      "release": 89,
+      "reachCm": 48.7,
+      "peakSpeed": 2.02,
+      "tempo": 0.891,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Arguing Idle part 6 (arguing, standing)"
+    },
+    "mx_ro_arguing_idle_07": {
+      "mixamo": "ro_arguing_idle_07",
+      "frames": [
+        1,
+        161
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 10,
+      "stroke": 17,
+      "apex": 59,
+      "release": 127,
+      "reachCm": 52.6,
+      "peakSpeed": 1.8,
+      "tempo": 0.999,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Arguing Idle part 7 (arguing, standing)"
+    },
+    "mx_ro_arguing_idle_09": {
+      "mixamo": "ro_arguing_idle_09",
+      "frames": [
+        1,
+        131
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 6,
+      "stroke": 38,
+      "apex": 59,
+      "release": 73,
+      "reachCm": 53.9,
+      "peakSpeed": 1.64,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Arguing Idle part 9 (arguing, standing)"
+    },
+    "mx_ro_aside_to_camera_01": {
+      "mixamo": "ro_aside_to_camera_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 56.7,
+      "peakSpeed": 4.7,
+      "tempo": 0.383,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera part 1 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_02": {
+      "mixamo": "ro_aside_to_camera_02",
+      "frames": [
+        27,
+        122
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 34,
+      "apex": 48,
+      "release": 63,
+      "reachCm": 48.0,
+      "peakSpeed": 1.32,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera part 2 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_03": {
+      "mixamo": "ro_aside_to_camera_03",
+      "frames": [
+        37,
+        132
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 4,
+      "apex": 48,
+      "release": 88,
+      "reachCm": 50.9,
+      "peakSpeed": 0.82,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera part 3 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_04": {
+      "mixamo": "ro_aside_to_camera_04",
+      "frames": [
+        37,
+        132
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 55,
+      "apex": 63,
+      "release": 91,
+      "reachCm": 50.8,
+      "peakSpeed": 0.83,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera part 4 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_05": {
+      "mixamo": "ro_aside_to_camera_05",
+      "frames": [
+        7,
+        102
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 5,
+      "apex": 95,
+      "release": 87,
+      "reachCm": 56.6,
+      "peakSpeed": 1.05,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera part 5 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_two_01": {
+      "mixamo": "ro_aside_to_camera_two_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 64.4,
+      "peakSpeed": 5.13,
+      "tempo": 0.351,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera Two part 1 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_two_02": {
+      "mixamo": "ro_aside_to_camera_two_02",
+      "frames": [
+        3,
+        73
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 41,
+      "apex": 0,
+      "release": 62,
+      "reachCm": 51.3,
+      "peakSpeed": 1.33,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera Two part 2 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_two_03": {
+      "mixamo": "ro_aside_to_camera_two_03",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 2,
+      "stroke": 7,
+      "apex": 0,
+      "release": 95,
+      "reachCm": 47.1,
+      "peakSpeed": 0.63,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera Two part 3 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_two_04": {
+      "mixamo": "ro_aside_to_camera_two_04",
+      "frames": [
+        64,
+        159
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 10,
+      "apex": 59,
+      "release": 89,
+      "reachCm": 60.6,
+      "peakSpeed": 1.02,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera Two part 4 (telling a secret, talking, standing)"
+    },
+    "mx_ro_aside_to_camera_two_05": {
+      "mixamo": "ro_aside_to_camera_two_05",
+      "frames": [
+        1,
+        35
+      ],
+      "hands": "left",
+      "category": "open",
+      "onset": 5,
+      "stroke": 15,
+      "apex": 30,
+      "release": 26,
+      "reachCm": 58.1,
+      "peakSpeed": 0.58,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Aside To Camera Two part 5 (telling a secret, talking, standing)"
+    },
+    "mx_ro_camera_looks_03": {
+      "mixamo": "ro_camera_looks_03",
+      "frames": [
+        15,
+        100
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 58,
+      "apex": 71,
+      "release": 77,
+      "reachCm": 66.1,
+      "peakSpeed": 0.86,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Camera Looks part 3 (reacting, looking, standing)"
+    },
+    "mx_ro_camera_looks_04": {
+      "mixamo": "ro_camera_looks_04",
+      "frames": [
+        26,
+        119
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 79,
+      "apex": 57,
+      "release": 85,
+      "reachCm": 60.6,
+      "peakSpeed": 0.95,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Camera Looks part 4 (reacting, looking, standing)"
+    },
+    "mx_ro_camera_looks_06": {
+      "mixamo": "ro_camera_looks_06",
+      "frames": [
+        14,
+        109
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 80,
+      "apex": 3,
+      "release": 92,
+      "reachCm": 58.5,
+      "peakSpeed": 0.98,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Camera Looks part 6 (reacting, looking, standing)"
+    },
+    "mx_ro_camera_looks_08": {
+      "mixamo": "ro_camera_looks_08",
+      "frames": [
+        25,
+        88
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 50,
+      "apex": 45,
+      "release": 55,
+      "reachCm": 63.5,
+      "peakSpeed": 1.25,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Camera Looks part 8 (reacting, looking, standing)"
+    },
+    "mx_ro_camera_looks_10": {
+      "mixamo": "ro_camera_looks_10",
+      "frames": [
+        2,
+        70
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 51,
+      "apex": 55,
+      "release": 60,
+      "reachCm": 69.8,
+      "peakSpeed": 2.08,
+      "tempo": 0.865,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Camera Looks part 10 (reacting, looking, standing)"
+    },
+    "mx_ro_camera_looks_11": {
+      "mixamo": "ro_camera_looks_11",
+      "frames": [
+        20,
+        99
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 13,
+      "apex": 0,
+      "release": 71,
+      "reachCm": 67.5,
+      "peakSpeed": 1.85,
+      "tempo": 0.973,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Camera Looks part 11 (reacting, looking, standing)"
+    },
+    "mx_ro_chatting_idle_01": {
+      "mixamo": "ro_chatting_idle_01",
+      "frames": [
+        1,
+        154
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 26,
+      "reachCm": 48.8,
+      "peakSpeed": 5.29,
+      "tempo": 0.34,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle part 1 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_02": {
+      "mixamo": "ro_chatting_idle_02",
+      "frames": [
+        1,
+        117
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 18,
+      "stroke": 83,
+      "apex": 71,
+      "release": 100,
+      "reachCm": 33.2,
+      "peakSpeed": 1.21,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle part 2 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_03": {
+      "mixamo": "ro_chatting_idle_03",
+      "frames": [
+        1,
+        161
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 5,
+      "stroke": 10,
+      "apex": 140,
+      "release": 138,
+      "reachCm": 27.6,
+      "peakSpeed": 0.81,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle part 3 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_04": {
+      "mixamo": "ro_chatting_idle_04",
+      "frames": [
+        1,
+        132
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 12,
+      "stroke": 74,
+      "apex": 52,
+      "release": 128,
+      "reachCm": 31.0,
+      "peakSpeed": 1.09,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle part 4 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_05": {
+      "mixamo": "ro_chatting_idle_05",
+      "frames": [
+        1,
+        81
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 48,
+      "apex": 68,
+      "release": 62,
+      "reachCm": 32.3,
+      "peakSpeed": 0.65,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle part 5 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_two_01": {
+      "mixamo": "ro_chatting_idle_two_01",
+      "frames": [
+        1,
+        162
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 47.3,
+      "peakSpeed": 5.42,
+      "tempo": 0.332,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle Two part 1 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_two_04": {
+      "mixamo": "ro_chatting_idle_two_04",
+      "frames": [
+        1,
+        116
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 5,
+      "stroke": 98,
+      "apex": 28,
+      "release": 101,
+      "reachCm": 48.4,
+      "peakSpeed": 0.73,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle Two part 4 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_two_05": {
+      "mixamo": "ro_chatting_idle_two_05",
+      "frames": [
+        1,
+        93
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 8,
+      "stroke": 24,
+      "apex": 4,
+      "release": 79,
+      "reachCm": 46.0,
+      "peakSpeed": 0.97,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle Two part 5 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_two_06": {
+      "mixamo": "ro_chatting_idle_two_06",
+      "frames": [
+        1,
+        157
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 7,
+      "stroke": 82,
+      "apex": 53,
+      "release": 125,
+      "reachCm": 45.9,
+      "peakSpeed": 1.4,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle Two part 6 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_two_08": {
+      "mixamo": "ro_chatting_idle_two_08",
+      "frames": [
+        1,
+        137
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 8,
+      "stroke": 114,
+      "apex": 122,
+      "release": 133,
+      "reachCm": 61.6,
+      "peakSpeed": 0.82,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle Two part 8 (idle, talking, standing)"
+    },
+    "mx_ro_chatting_idle_two_09": {
+      "mixamo": "ro_chatting_idle_two_09",
+      "frames": [
+        1,
+        72
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 2,
+      "stroke": 22,
+      "apex": 0,
+      "release": 44,
+      "reachCm": 58.3,
+      "peakSpeed": 0.83,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Chatting Idle Two part 9 (idle, talking, standing)"
+    },
+    "mx_ro_conversation_idle_01": {
+      "mixamo": "ro_conversation_idle_01",
+      "frames": [
+        1,
+        98
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 3,
+      "reachCm": 49.7,
+      "peakSpeed": 4.26,
+      "tempo": 0.423,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Conversation Idle part 1 (idle, listening, standing)"
+    },
+    "mx_ro_conversation_idle_02": {
+      "mixamo": "ro_conversation_idle_02",
+      "frames": [
+        1,
+        82
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 16,
+      "stroke": 54,
+      "apex": 75,
+      "release": 72,
+      "reachCm": 31.8,
+      "peakSpeed": 1.05,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Conversation Idle part 2 (idle, listening, standing)"
+    },
+    "mx_ro_conversation_idle_03": {
+      "mixamo": "ro_conversation_idle_03",
+      "frames": [
+        1,
+        100
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 14,
+      "stroke": 20,
+      "apex": 56,
+      "release": 88,
+      "reachCm": 33.8,
+      "peakSpeed": 0.84,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Conversation Idle part 3 (idle, listening, standing)"
+    },
+    "mx_ro_conversation_idle_04": {
+      "mixamo": "ro_conversation_idle_04",
+      "frames": [
+        1,
+        91
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 25,
+      "stroke": 32,
+      "apex": 0,
+      "release": 73,
+      "reachCm": 30.1,
+      "peakSpeed": 1.11,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Conversation Idle part 4 (idle, listening, standing)"
+    },
+    "mx_ro_conversation_idle_05": {
+      "mixamo": "ro_conversation_idle_05",
+      "frames": [
+        1,
+        80
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 43,
+      "apex": 0,
+      "release": 77,
+      "reachCm": 21.0,
+      "peakSpeed": 0.13,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Conversation Idle part 5 (idle, listening, standing)"
+    },
+    "mx_ro_conversation_idle_06": {
+      "mixamo": "ro_conversation_idle_06",
+      "frames": [
+        1,
+        156
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 19,
+      "stroke": 85,
+      "apex": 40,
+      "release": 102,
+      "reachCm": 31.7,
+      "peakSpeed": 1.16,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Conversation Idle part 6 (idle, listening, standing)"
+    },
+    "mx_ro_desk_typing_and_mouse_01": {
+      "mixamo": "ro_desk_typing_and_mouse_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 5,
+      "release": 2,
+      "reachCm": 48.6,
+      "peakSpeed": 5.83,
+      "tempo": 0.309,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Desk Typing And Mouse part 1 (typing at desk, sitting)"
+    },
+    "mx_ro_desk_typing_and_mouse_04": {
+      "mixamo": "ro_desk_typing_and_mouse_04",
+      "frames": [
+        63,
+        158
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 0,
+      "stroke": 1,
+      "apex": 95,
+      "release": 87,
+      "reachCm": 23.8,
+      "peakSpeed": 0.77,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Desk Typing And Mouse part 4 (typing at desk, sitting)"
+    },
+    "mx_ro_desk_typing_and_mouse_05": {
+      "mixamo": "ro_desk_typing_and_mouse_05",
+      "frames": [
+        63,
+        158
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 3,
+      "stroke": 88,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 5.2,
+      "peakSpeed": 0.17,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Desk Typing And Mouse part 5 (typing at desk, sitting)"
+    },
+    "mx_ro_desk_typing_and_mouse_06": {
+      "mixamo": "ro_desk_typing_and_mouse_06",
+      "frames": [
+        12,
+        107
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 5,
+      "stroke": 89,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 8.1,
+      "peakSpeed": 0.32,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Desk Typing And Mouse part 6 (typing at desk, sitting)"
+    },
+    "mx_ro_desk_typing_and_mouse_07": {
+      "mixamo": "ro_desk_typing_and_mouse_07",
+      "frames": [
+        1,
+        92
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 5,
+      "stroke": 75,
+      "apex": 86,
+      "release": 83,
+      "reachCm": 24.5,
+      "peakSpeed": 0.92,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Desk Typing And Mouse part 7 (typing at desk, sitting)"
+    },
+    "mx_ro_desk_typing_and_mouse_11": {
+      "mixamo": "ro_desk_typing_and_mouse_11",
+      "frames": [
+        20,
+        65
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 9,
+      "apex": 20,
+      "release": 37,
+      "reachCm": 26.7,
+      "peakSpeed": 0.93,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Desk Typing And Mouse part 11 (typing at desk, sitting)"
+    },
+    "mx_ro_double_takes_01": {
+      "mixamo": "ro_double_takes_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 1,
+      "release": 2,
+      "reachCm": 110.6,
+      "peakSpeed": 6.02,
+      "tempo": 0.299,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Double Takes part 1 (disbelief, surprised, reacting, standing)"
+    },
+    "mx_ro_double_takes_07": {
+      "mixamo": "ro_double_takes_07",
+      "frames": [
+        10,
+        61
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 15,
+      "apex": 2,
+      "release": 43,
+      "reachCm": 109.1,
+      "peakSpeed": 1.1,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Double Takes part 7 (disbelief, surprised, reacting, standing)"
+    },
+    "mx_ro_double_takes_08": {
+      "mixamo": "ro_double_takes_08",
+      "frames": [
+        12,
+        107
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 36,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 114.8,
+      "peakSpeed": 1.59,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Double Takes part 8 (disbelief, surprised, reacting, standing)"
+    },
+    "mx_ro_double_takes_09": {
+      "mixamo": "ro_double_takes_09",
+      "frames": [
+        5,
+        93
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 16,
+      "apex": 0,
+      "release": 80,
+      "reachCm": 106.7,
+      "peakSpeed": 1.04,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Double Takes part 9 (disbelief, surprised, reacting, standing)"
+    },
+    "mx_ro_double_takes_10": {
+      "mixamo": "ro_double_takes_10",
+      "frames": [
+        5,
+        98
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 9,
+      "apex": 18,
+      "release": 89,
+      "reachCm": 116.7,
+      "peakSpeed": 1.44,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Double Takes part 10 (disbelief, surprised, reacting, standing)"
+    },
+    "mx_ro_double_takes_11": {
+      "mixamo": "ro_double_takes_11",
+      "frames": [
+        13,
+        108
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 27,
+      "apex": 86,
+      "release": 87,
+      "reachCm": 119.6,
+      "peakSpeed": 1.36,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Double Takes part 11 (disbelief, surprised, reacting, standing)"
+    },
+    "mx_ro_face_palms_01": {
+      "mixamo": "ro_face_palms_01",
+      "frames": [
+        1,
+        85
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 76,
+      "release": 76,
+      "reachCm": 113.5,
+      "peakSpeed": 4.7,
+      "tempo": 0.383,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Face Palms part 1 (disbelief, reacting, standing)"
+    },
+    "mx_ro_face_palms_02": {
+      "mixamo": "ro_face_palms_02",
+      "frames": [
+        17,
+        112
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 12,
+      "apex": 10,
+      "release": 72,
+      "reachCm": 107.4,
+      "peakSpeed": 1.81,
+      "tempo": 0.993,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Face Palms part 2 (disbelief, reacting, standing)"
+    },
+    "mx_ro_face_palms_03": {
+      "mixamo": "ro_face_palms_03",
+      "frames": [
+        13,
+        108
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 35,
+      "apex": 35,
+      "release": 95,
+      "reachCm": 112.3,
+      "peakSpeed": 1.82,
+      "tempo": 0.991,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Face Palms part 3 (disbelief, reacting, standing)"
+    },
+    "mx_ro_face_palms_05": {
+      "mixamo": "ro_face_palms_05",
+      "frames": [
+        3,
+        90
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 34,
+      "apex": 35,
+      "release": 79,
+      "reachCm": 112.2,
+      "peakSpeed": 2.58,
+      "tempo": 0.698,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Face Palms part 5 (disbelief, reacting, standing)"
+    },
+    "mx_ro_face_palms_06": {
+      "mixamo": "ro_face_palms_06",
+      "frames": [
+        45,
+        140
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 2,
+      "stroke": 73,
+      "apex": 79,
+      "release": 87,
+      "reachCm": 107.4,
+      "peakSpeed": 0.9,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Face Palms part 6 (disbelief, reacting, standing)"
+    },
+    "mx_ro_face_palms_09": {
+      "mixamo": "ro_face_palms_09",
+      "frames": [
+        2,
+        74
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 12,
+      "apex": 72,
+      "release": 64,
+      "reachCm": 122.7,
+      "peakSpeed": 1.76,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Face Palms part 9 (disbelief, reacting, standing)"
+    },
+    "mx_ro_fist_pumps_01": {
+      "mixamo": "ro_fist_pumps_01",
+      "frames": [
+        14,
+        109
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 32,
+      "stroke": 35,
+      "apex": 48,
+      "release": 88,
+      "reachCm": 112.2,
+      "peakSpeed": 4.64,
+      "tempo": 0.388,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Fist Pumps part 1 (fist pump, cheering, standing)"
+    },
+    "mx_ro_fist_pumps_02": {
+      "mixamo": "ro_fist_pumps_02",
+      "frames": [
+        9,
+        84
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 18,
+      "apex": 12,
+      "release": 67,
+      "reachCm": 113.4,
+      "peakSpeed": 2.52,
+      "tempo": 0.714,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Fist Pumps part 2 (fist pump, cheering, standing)"
+    },
+    "mx_ro_fist_pumps_05": {
+      "mixamo": "ro_fist_pumps_05",
+      "frames": [
+        5,
+        100
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 35,
+      "apex": 27,
+      "release": 95,
+      "reachCm": 112.8,
+      "peakSpeed": 1.37,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Fist Pumps part 5 (fist pump, cheering, standing)"
+    },
+    "mx_ro_fist_pumps_06": {
+      "mixamo": "ro_fist_pumps_06",
+      "frames": [
+        9,
+        104
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 42,
+      "apex": 36,
+      "release": 72,
+      "reachCm": 115.8,
+      "peakSpeed": 2.11,
+      "tempo": 0.854,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Fist Pumps part 6 (fist pump, cheering, standing)"
+    },
+    "mx_ro_fist_pumps_07": {
+      "mixamo": "ro_fist_pumps_07",
+      "frames": [
+        15,
+        91
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 9,
+      "apex": 60,
+      "release": 68,
+      "reachCm": 114.0,
+      "peakSpeed": 2.32,
+      "tempo": 0.775,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Fist Pumps part 7 (fist pump, cheering, standing)"
+    },
+    "mx_ro_fist_pumps_08": {
+      "mixamo": "ro_fist_pumps_08",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 13,
+      "apex": 14,
+      "release": 95,
+      "reachCm": 111.8,
+      "peakSpeed": 2.57,
+      "tempo": 0.699,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Fist Pumps part 8 (fist pump, cheering, standing)"
+    },
+    "mx_ro_game_show_contestant_01": {
+      "mixamo": "ro_game_show_contestant_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 4,
+      "release": 2,
+      "reachCm": 101.7,
+      "peakSpeed": 4.98,
+      "tempo": 0.361,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Game Show Contestant part 1 (reacting, cheering, standing)"
+    },
+    "mx_ro_game_show_contestant_05": {
+      "mixamo": "ro_game_show_contestant_05",
+      "frames": [
+        10,
+        47
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 9,
+      "apex": 17,
+      "release": 29,
+      "reachCm": 117.4,
+      "peakSpeed": 0.81,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Game Show Contestant part 5 (reacting, cheering, standing)"
+    },
+    "mx_ro_game_show_contestant_06": {
+      "mixamo": "ro_game_show_contestant_06",
+      "frames": [
+        1,
+        61
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 3,
+      "stroke": 7,
+      "apex": 26,
+      "release": 52,
+      "reachCm": 102.4,
+      "peakSpeed": 0.91,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Game Show Contestant part 6 (reacting, cheering, standing)"
+    },
+    "mx_ro_game_show_contestant_08": {
+      "mixamo": "ro_game_show_contestant_08",
+      "frames": [
+        47,
+        98
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 11,
+      "apex": 15,
+      "release": 43,
+      "reachCm": 120.6,
+      "peakSpeed": 1.08,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Game Show Contestant part 8 (reacting, cheering, standing)"
+    },
+    "mx_ro_game_show_contestant_09": {
+      "mixamo": "ro_game_show_contestant_09",
+      "frames": [
+        14,
+        77
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 40,
+      "apex": 11,
+      "release": 60,
+      "reachCm": 105.7,
+      "peakSpeed": 0.82,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Game Show Contestant part 9 (reacting, cheering, standing)"
+    },
+    "mx_ro_game_show_contestant_10": {
+      "mixamo": "ro_game_show_contestant_10",
+      "frames": [
+        1,
+        87
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 1,
+      "stroke": 67,
+      "apex": 75,
+      "release": 78,
+      "reachCm": 123.6,
+      "peakSpeed": 0.67,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Game Show Contestant part 10 (reacting, cheering, standing)"
+    },
+    "mx_ro_head_tilts_01": {
+      "mixamo": "ro_head_tilts_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "listen",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 9,
+      "release": 2,
+      "reachCm": 94.5,
+      "peakSpeed": 4.6,
+      "tempo": 0.392,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Head Tilts part 1 (listening, thinking, head tilt, standing)"
+    },
+    "mx_ro_head_tilts_05": {
+      "mixamo": "ro_head_tilts_05",
+      "frames": [
+        7,
+        99
+      ],
+      "hands": "both",
+      "category": "listen",
+      "onset": 6,
+      "stroke": 48,
+      "apex": 0,
+      "release": 84,
+      "reachCm": 93.1,
+      "peakSpeed": 0.26,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Head Tilts part 5 (listening, thinking, head tilt, standing)"
+    },
+    "mx_ro_head_tilts_07": {
+      "mixamo": "ro_head_tilts_07",
+      "frames": [
+        21,
+        116
+      ],
+      "hands": "both",
+      "category": "listen",
+      "onset": 2,
+      "stroke": 48,
+      "apex": 93,
+      "release": 87,
+      "reachCm": 92.6,
+      "peakSpeed": 0.35,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Head Tilts part 7 (listening, thinking, head tilt, standing)"
+    },
+    "mx_ro_head_tilts_08": {
+      "mixamo": "ro_head_tilts_08",
+      "frames": [
+        96,
+        123
+      ],
+      "hands": "both",
+      "category": "listen",
+      "onset": 6,
+      "stroke": 13,
+      "apex": 15,
+      "release": 19,
+      "reachCm": 98.6,
+      "peakSpeed": 0.83,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Head Tilts part 8 (listening, thinking, head tilt, standing)"
+    },
+    "mx_ro_head_tilts_09": {
+      "mixamo": "ro_head_tilts_09",
+      "frames": [
+        50,
+        81
+      ],
+      "hands": "both",
+      "category": "listen",
+      "onset": 6,
+      "stroke": 14,
+      "apex": 0,
+      "release": 23,
+      "reachCm": 97.2,
+      "peakSpeed": 0.68,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Head Tilts part 9 (listening, thinking, head tilt, standing)"
+    },
+    "mx_ro_head_tilts_11": {
+      "mixamo": "ro_head_tilts_11",
+      "frames": [
+        8,
+        56
+      ],
+      "hands": "both",
+      "category": "listen",
+      "onset": 6,
+      "stroke": 26,
+      "apex": 36,
+      "release": 40,
+      "reachCm": 118.1,
+      "peakSpeed": 0.75,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Head Tilts part 11 (listening, thinking, head tilt, standing)"
+    },
+    "mx_ro_interview_suspect_01": {
+      "mixamo": "ro_interview_suspect_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 10,
+      "release": 2,
+      "reachCm": 44.5,
+      "peakSpeed": 4.8,
+      "tempo": 0.375,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Suspect part 1 (talking, explaining, denying, sitting)"
+    },
+    "mx_ro_interview_suspect_02": {
+      "mixamo": "ro_interview_suspect_02",
+      "frames": [
+        27,
+        59
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 9,
+      "apex": 13,
+      "release": 24,
+      "reachCm": 24.3,
+      "peakSpeed": 1.41,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Suspect part 2 (talking, explaining, denying, sitting)"
+    },
+    "mx_ro_interview_suspect_03": {
+      "mixamo": "ro_interview_suspect_03",
+      "frames": [
+        1,
+        85
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 5,
+      "stroke": 28,
+      "apex": 33,
+      "release": 76,
+      "reachCm": 34.2,
+      "peakSpeed": 0.81,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Suspect part 3 (talking, explaining, denying, sitting)"
+    },
+    "mx_ro_interview_suspect_05": {
+      "mixamo": "ro_interview_suspect_05",
+      "frames": [
+        52,
+        147
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 42,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 24.9,
+      "peakSpeed": 0.7,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Suspect part 5 (talking, explaining, denying, sitting)"
+    },
+    "mx_ro_interview_suspect_06": {
+      "mixamo": "ro_interview_suspect_06",
+      "frames": [
+        1,
+        68
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 2,
+      "stroke": 6,
+      "apex": 65,
+      "release": 59,
+      "reachCm": 18.9,
+      "peakSpeed": 0.62,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Suspect part 6 (talking, explaining, denying, sitting)"
+    },
+    "mx_ro_interview_suspect_08": {
+      "mixamo": "ro_interview_suspect_08",
+      "frames": [
+        21,
+        57
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 13,
+      "apex": 36,
+      "release": 28,
+      "reachCm": 62.1,
+      "peakSpeed": 1.1,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Suspect part 8 (talking, explaining, denying, sitting)"
+    },
+    "mx_ro_interview_talking_head_01": {
+      "mixamo": "ro_interview_talking_head_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 10,
+      "release": 2,
+      "reachCm": 60.2,
+      "peakSpeed": 4.23,
+      "tempo": 0.425,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Talking Head part 1 (talking to interviewer, explaining, sitting)"
+    },
+    "mx_ro_interview_talking_head_02": {
+      "mixamo": "ro_interview_talking_head_02",
+      "frames": [
+        2,
+        58
+      ],
+      "hands": "right",
+      "category": "open",
+      "onset": 6,
+      "stroke": 15,
+      "apex": 28,
+      "release": 48,
+      "reachCm": 36.0,
+      "peakSpeed": 0.76,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Talking Head part 2 (talking to interviewer, explaining, sitting)"
+    },
+    "mx_ro_interview_talking_head_03": {
+      "mixamo": "ro_interview_talking_head_03",
+      "frames": [
+        31,
+        74
+      ],
+      "hands": "left",
+      "category": "open",
+      "onset": 6,
+      "stroke": 32,
+      "apex": 26,
+      "release": 35,
+      "reachCm": 18.0,
+      "peakSpeed": 0.62,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Talking Head part 3 (talking to interviewer, explaining, sitting)"
+    },
+    "mx_ro_interview_talking_head_04": {
+      "mixamo": "ro_interview_talking_head_04",
+      "frames": [
+        8,
+        103
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 55,
+      "apex": 37,
+      "release": 94,
+      "reachCm": 32.8,
+      "peakSpeed": 1.0,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Interview Talking Head part 4 (talking to interviewer, explaining, sitting)"
+    },
+    "mx_ro_interview_talking_head_05": {
+      "mixamo": "ro_interview_talking_head_05",
+      "frames": [
+        1,
+        130
+      ],
+      "hands": "right",
+      "category": "transition",
+      "onset": 63,
+      "stroke": 75,
+      "apex": 102,
+      "release": 103,
+      "reachCm": 38.8,
+      "peakSpeed": 0.82,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Interview Talking Head part 5 (talking to interviewer, explaining, transition: sitting to standing)"
+    },
+    "mx_ro_interviewer_calm_01": {
+      "mixamo": "ro_interviewer_calm_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 158.3,
+      "peakSpeed": 4.58,
+      "tempo": 0.393,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Calm part 1 (talking, explaining, standing)"
+    },
+    "mx_ro_interviewer_calm_02": {
+      "mixamo": "ro_interviewer_calm_02",
+      "frames": [
+        30,
+        125
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 40,
+      "stroke": 45,
+      "apex": 58,
+      "release": 87,
+      "reachCm": 168.3,
+      "peakSpeed": 1.52,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Calm part 2 (talking, explaining, standing)"
+    },
+    "mx_ro_interviewer_calm_03": {
+      "mixamo": "ro_interviewer_calm_03",
+      "frames": [
+        13,
+        105
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 30,
+      "apex": 22,
+      "release": 86,
+      "reachCm": 149.8,
+      "peakSpeed": 0.97,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Calm part 3 (talking, explaining, standing)"
+    },
+    "mx_ro_interviewer_calm_04": {
+      "mixamo": "ro_interviewer_calm_04",
+      "frames": [
+        1,
+        91
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 2,
+      "stroke": 6,
+      "apex": 35,
+      "release": 82,
+      "reachCm": 154.2,
+      "peakSpeed": 0.67,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Calm part 4 (talking, explaining, standing)"
+    },
+    "mx_ro_interviewer_calm_07": {
+      "mixamo": "ro_interviewer_calm_07",
+      "frames": [
+        39,
+        134
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 68,
+      "apex": 95,
+      "release": 89,
+      "reachCm": 155.4,
+      "peakSpeed": 1.53,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Calm part 7 (talking, explaining, standing)"
+    },
+    "mx_ro_interviewer_calm_08": {
+      "mixamo": "ro_interviewer_calm_08",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 5,
+      "stroke": 23,
+      "apex": 2,
+      "release": 92,
+      "reachCm": 155.5,
+      "peakSpeed": 1.36,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Calm part 8 (talking, explaining, standing)"
+    },
+    "mx_ro_interviewer_pressing_01": {
+      "mixamo": "ro_interviewer_pressing_01",
+      "frames": [
+        58,
+        153
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 34,
+      "stroke": 85,
+      "apex": 57,
+      "release": 87,
+      "reachCm": 169.4,
+      "peakSpeed": 5.97,
+      "tempo": 0.301,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Pressing part 1 (arguing, pointing, emphasis, standing)"
+    },
+    "mx_ro_interviewer_pressing_02": {
+      "mixamo": "ro_interviewer_pressing_02",
+      "frames": [
+        28,
+        123
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 6,
+      "stroke": 78,
+      "apex": 69,
+      "release": 87,
+      "reachCm": 149.3,
+      "peakSpeed": 2.21,
+      "tempo": 0.816,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Pressing part 2 (arguing, pointing, emphasis, standing)"
+    },
+    "mx_ro_interviewer_pressing_03": {
+      "mixamo": "ro_interviewer_pressing_03",
+      "frames": [
+        16,
+        111
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 6,
+      "stroke": 16,
+      "apex": 24,
+      "release": 92,
+      "reachCm": 161.7,
+      "peakSpeed": 2.75,
+      "tempo": 0.656,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Pressing part 3 (arguing, pointing, emphasis, standing)"
+    },
+    "mx_ro_interviewer_pressing_04": {
+      "mixamo": "ro_interviewer_pressing_04",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 3,
+      "stroke": 36,
+      "apex": 28,
+      "release": 51,
+      "reachCm": 163.3,
+      "peakSpeed": 2.86,
+      "tempo": 0.63,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Pressing part 4 (arguing, pointing, emphasis, standing)"
+    },
+    "mx_ro_interviewer_pressing_05": {
+      "mixamo": "ro_interviewer_pressing_05",
+      "frames": [
+        6,
+        101
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 6,
+      "stroke": 66,
+      "apex": 0,
+      "release": 95,
+      "reachCm": 159.1,
+      "peakSpeed": 1.58,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Interviewer Pressing part 5 (arguing, pointing, emphasis, standing)"
+    },
+    "mx_ro_judge_01": {
+      "mixamo": "ro_judge_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "left",
+      "category": "listen",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 5,
+      "release": 2,
+      "reachCm": 67.1,
+      "peakSpeed": 8.21,
+      "tempo": 0.219,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Judge part 1 (listening, thinking, talking, sitting)"
+    },
+    "mx_ro_judge_03": {
+      "mixamo": "ro_judge_03",
+      "frames": [
+        10,
+        75
+      ],
+      "hands": "right",
+      "category": "listen",
+      "onset": 6,
+      "stroke": 33,
+      "apex": 61,
+      "release": 57,
+      "reachCm": 23.2,
+      "peakSpeed": 0.56,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Judge part 3 (listening, thinking, talking, sitting)"
+    },
+    "mx_ro_judge_05": {
+      "mixamo": "ro_judge_05",
+      "frames": [
+        48,
+        123
+      ],
+      "hands": "both",
+      "category": "listen",
+      "onset": 6,
+      "stroke": 30,
+      "apex": 34,
+      "release": 67,
+      "reachCm": 28.6,
+      "peakSpeed": 1.28,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Judge part 5 (listening, thinking, talking, sitting)"
+    },
+    "mx_ro_judge_06": {
+      "mixamo": "ro_judge_06",
+      "frames": [
+        1,
+        72
+      ],
+      "hands": "right",
+      "category": "listen",
+      "onset": 3,
+      "stroke": 57,
+      "apex": 28,
+      "release": 63,
+      "reachCm": 22.6,
+      "peakSpeed": 0.87,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Judge part 6 (listening, thinking, talking, sitting)"
+    },
+    "mx_ro_judge_07": {
+      "mixamo": "ro_judge_07",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "right",
+      "category": "listen",
+      "onset": 5,
+      "stroke": 17,
+      "apex": 21,
+      "release": 87,
+      "reachCm": 24.7,
+      "peakSpeed": 0.68,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Judge part 7 (listening, thinking, talking, sitting)"
+    },
+    "mx_ro_judge_08": {
+      "mixamo": "ro_judge_08",
+      "frames": [
+        42,
+        85
+      ],
+      "hands": "both",
+      "category": "listen",
+      "onset": 6,
+      "stroke": 12,
+      "apex": 42,
+      "release": 35,
+      "reachCm": 57.5,
+      "peakSpeed": 1.02,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Judge part 8 (listening, thinking, talking, sitting)"
+    },
+    "mx_ro_laughs_03": {
+      "mixamo": "ro_laughs_03",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 4,
+      "stroke": 24,
+      "apex": 14,
+      "release": 93,
+      "reachCm": 170.9,
+      "peakSpeed": 2.35,
+      "tempo": 0.765,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Laughs part 3 (laughing, standing)"
+    },
+    "mx_ro_laughs_04": {
+      "mixamo": "ro_laughs_04",
+      "frames": [
+        1,
+        56
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 14,
+      "release": 47,
+      "reachCm": 168.4,
+      "peakSpeed": 2.04,
+      "tempo": 0.881,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Laughs part 4 (laughing, standing)"
+    },
+    "mx_ro_laughs_08": {
+      "mixamo": "ro_laughs_08",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 83,
+      "apex": 31,
+      "release": 90,
+      "reachCm": 182.9,
+      "peakSpeed": 1.75,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Laughs part 8 (laughing, standing)"
+    },
+    "mx_ro_laughs_10": {
+      "mixamo": "ro_laughs_10",
+      "frames": [
+        12,
+        107
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 78,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 163.8,
+      "peakSpeed": 1.73,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Laughs part 10 (laughing, standing)"
+    },
+    "mx_ro_laughs_12": {
+      "mixamo": "ro_laughs_12",
+      "frames": [
+        8,
+        85
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 56,
+      "apex": 54,
+      "release": 73,
+      "reachCm": 167.0,
+      "peakSpeed": 1.61,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Laughs part 12 (laughing, standing)"
+    },
+    "mx_ro_laughs_13": {
+      "mixamo": "ro_laughs_13",
+      "frames": [
+        23,
+        118
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 31,
+      "apex": 86,
+      "release": 87,
+      "reachCm": 169.0,
+      "peakSpeed": 1.57,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Laughs part 13 (laughing, standing)"
+    },
+    "mx_ro_lawyer_address_01": {
+      "mixamo": "ro_lawyer_address_01",
+      "frames": [
+        21,
+        116
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 26,
+      "stroke": 26,
+      "apex": 48,
+      "release": 26,
+      "reachCm": 184.5,
+      "peakSpeed": 5.08,
+      "tempo": 0.355,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Address part 1 (talking, explaining, presenting, standing)"
+    },
+    "mx_ro_lawyer_address_02": {
+      "mixamo": "ro_lawyer_address_02",
+      "frames": [
+        1,
+        77
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 4,
+      "stroke": 38,
+      "apex": 15,
+      "release": 70,
+      "reachCm": 176.3,
+      "peakSpeed": 1.04,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Address part 2 (talking, explaining, presenting, standing)"
+    },
+    "mx_ro_lawyer_address_03": {
+      "mixamo": "ro_lawyer_address_03",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 84,
+      "apex": 0,
+      "release": 95,
+      "reachCm": 172.2,
+      "peakSpeed": 0.95,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Address part 3 (talking, explaining, presenting, standing)"
+    },
+    "mx_ro_lawyer_address_04": {
+      "mixamo": "ro_lawyer_address_04",
+      "frames": [
+        16,
+        111
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 9,
+      "apex": 48,
+      "release": 87,
+      "reachCm": 175.6,
+      "peakSpeed": 2.15,
+      "tempo": 0.836,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Address part 4 (talking, explaining, presenting, standing)"
+    },
+    "mx_ro_lawyer_address_06": {
+      "mixamo": "ro_lawyer_address_06",
+      "frames": [
+        8,
+        103
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 91,
+      "apex": 18,
+      "release": 95,
+      "reachCm": 166.5,
+      "peakSpeed": 0.86,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Address part 6 (talking, explaining, presenting, standing)"
+    },
+    "mx_ro_lawyer_address_07": {
+      "mixamo": "ro_lawyer_address_07",
+      "frames": [
+        125,
+        144
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 8,
+      "apex": 15,
+      "release": 11,
+      "reachCm": 178.8,
+      "peakSpeed": 8.05,
+      "tempo": 0.224,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Address part 7 (talking, explaining, presenting, standing)"
+    },
+    "mx_ro_lawyer_argument_01": {
+      "mixamo": "ro_lawyer_argument_01",
+      "frames": [
+        1,
+        130
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 88,
+      "release": 102,
+      "reachCm": 49.6,
+      "peakSpeed": 4.55,
+      "tempo": 0.395,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Lawyer Argument part 1 (talking, emphasis, pointing, transition: standing to sitting)"
+    },
+    "mx_ro_lawyer_argument_06": {
+      "mixamo": "ro_lawyer_argument_06",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 3,
+      "stroke": 95,
+      "apex": 44,
+      "release": 95,
+      "reachCm": 163.1,
+      "peakSpeed": 1.43,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Argument part 6 (talking, emphasis, pointing, standing)"
+    },
+    "mx_ro_lawyer_argument_07": {
+      "mixamo": "ro_lawyer_argument_07",
+      "frames": [
+        9,
+        104
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 6,
+      "stroke": 47,
+      "apex": 35,
+      "release": 85,
+      "reachCm": 128.6,
+      "peakSpeed": 1.72,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Argument part 7 (talking, emphasis, pointing, standing)"
+    },
+    "mx_ro_lawyer_argument_08": {
+      "mixamo": "ro_lawyer_argument_08",
+      "frames": [
+        31,
+        126
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 11,
+      "stroke": 25,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 152.2,
+      "peakSpeed": 4.15,
+      "tempo": 0.433,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Lawyer Argument part 8 (talking, emphasis, pointing, standing)"
+    },
+    "mx_ro_lawyer_argument_09": {
+      "mixamo": "ro_lawyer_argument_09",
+      "frames": [
+        1,
+        151
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 14,
+      "stroke": 65,
+      "apex": 73,
+      "release": 80,
+      "reachCm": 44.8,
+      "peakSpeed": 1.37,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Lawyer Argument part 9 (talking, emphasis, pointing, transition: standing to sitting)"
+    },
+    "mx_ro_lawyer_argument_10": {
+      "mixamo": "ro_lawyer_argument_10",
+      "frames": [
+        1,
+        105
+      ],
+      "hands": "left",
+      "category": "transition",
+      "onset": 25,
+      "stroke": 73,
+      "apex": 81,
+      "release": 90,
+      "reachCm": 41.0,
+      "peakSpeed": 1.21,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Lawyer Argument part 10 (talking, emphasis, pointing, transition: sitting to standing)"
+    },
+    "mx_ro_listening_idle_01": {
+      "mixamo": "ro_listening_idle_01",
+      "frames": [
+        1,
+        162
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 12,
+      "release": 2,
+      "reachCm": 50.7,
+      "peakSpeed": 6.24,
+      "tempo": 0.289,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Listening Idle part 1 (idle, listening, standing)"
+    },
+    "mx_ro_listening_idle_02": {
+      "mixamo": "ro_listening_idle_02",
+      "frames": [
+        1,
+        143
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 18,
+      "stroke": 23,
+      "apex": 132,
+      "release": 113,
+      "reachCm": 54.3,
+      "peakSpeed": 1.36,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Listening Idle part 2 (idle, listening, standing)"
+    },
+    "mx_ro_listening_idle_03": {
+      "mixamo": "ro_listening_idle_03",
+      "frames": [
+        1,
+        93
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 16,
+      "stroke": 26,
+      "apex": 1,
+      "release": 83,
+      "reachCm": 54.0,
+      "peakSpeed": 1.49,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Listening Idle part 3 (idle, listening, standing)"
+    },
+    "mx_ro_listening_idle_04": {
+      "mixamo": "ro_listening_idle_04",
+      "frames": [
+        1,
+        119
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 6,
+      "stroke": 36,
+      "apex": 4,
+      "release": 87,
+      "reachCm": 24.9,
+      "peakSpeed": 0.81,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Listening Idle part 4 (idle, listening, standing)"
+    },
+    "mx_ro_listening_idle_07": {
+      "mixamo": "ro_listening_idle_07",
+      "frames": [
+        1,
+        136
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 8,
+      "stroke": 82,
+      "apex": 93,
+      "release": 121,
+      "reachCm": 26.8,
+      "peakSpeed": 0.72,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Listening Idle part 7 (idle, listening, standing)"
+    },
+    "mx_ro_listening_idle_08": {
+      "mixamo": "ro_listening_idle_08",
+      "frames": [
+        1,
+        165
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 112,
+      "stroke": 117,
+      "apex": 160,
+      "release": 144,
+      "reachCm": 61.4,
+      "peakSpeed": 1.45,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Listening Idle part 8 (idle, listening, standing)"
+    },
+    "mx_ro_looking_around_idle_01": {
+      "mixamo": "ro_looking_around_idle_01",
+      "frames": [
+        1,
+        167
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 22,
+      "reachCm": 48.8,
+      "peakSpeed": 5.11,
+      "tempo": 0.353,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle part 1 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_02": {
+      "mixamo": "ro_looking_around_idle_02",
+      "frames": [
+        1,
+        72
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 26,
+      "stroke": 35,
+      "apex": 21,
+      "release": 70,
+      "reachCm": 18.5,
+      "peakSpeed": 0.18,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle part 2 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_03": {
+      "mixamo": "ro_looking_around_idle_03",
+      "frames": [
+        1,
+        124
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 41,
+      "apex": 90,
+      "release": 122,
+      "reachCm": 16.6,
+      "peakSpeed": 0.09,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle part 3 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_04": {
+      "mixamo": "ro_looking_around_idle_04",
+      "frames": [
+        1,
+        125
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 95,
+      "apex": 99,
+      "release": 122,
+      "reachCm": 16.1,
+      "peakSpeed": 0.06,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle part 4 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_06": {
+      "mixamo": "ro_looking_around_idle_06",
+      "frames": [
+        1,
+        165
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 8,
+      "stroke": 69,
+      "apex": 49,
+      "release": 82,
+      "reachCm": 65.1,
+      "peakSpeed": 1.52,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle part 6 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_07": {
+      "mixamo": "ro_looking_around_idle_07",
+      "frames": [
+        1,
+        86
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 49,
+      "stroke": 60,
+      "apex": 70,
+      "release": 74,
+      "reachCm": 37.5,
+      "peakSpeed": 1.01,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle part 7 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_two_01": {
+      "mixamo": "ro_looking_around_idle_two_01",
+      "frames": [
+        1,
+        138
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 49.2,
+      "peakSpeed": 4.81,
+      "tempo": 0.374,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle Two part 1 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_two_02": {
+      "mixamo": "ro_looking_around_idle_two_02",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 9,
+      "stroke": 32,
+      "apex": 81,
+      "release": 42,
+      "reachCm": 76.8,
+      "peakSpeed": 0.93,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle Two part 2 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_two_03": {
+      "mixamo": "ro_looking_around_idle_two_03",
+      "frames": [
+        1,
+        148
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 35,
+      "stroke": 137,
+      "apex": 0,
+      "release": 144,
+      "reachCm": 76.7,
+      "peakSpeed": 0.16,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle Two part 3 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_two_05": {
+      "mixamo": "ro_looking_around_idle_two_05",
+      "frames": [
+        1,
+        154
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 49,
+      "stroke": 79,
+      "apex": 109,
+      "release": 149,
+      "reachCm": 102.6,
+      "peakSpeed": 0.49,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle Two part 5 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_two_06": {
+      "mixamo": "ro_looking_around_idle_two_06",
+      "frames": [
+        1,
+        120
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 19,
+      "stroke": 28,
+      "apex": 0,
+      "release": 82,
+      "reachCm": 80.8,
+      "peakSpeed": 1.66,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle Two part 6 (idle, looking around, standing)"
+    },
+    "mx_ro_looking_around_idle_two_07": {
+      "mixamo": "ro_looking_around_idle_two_07",
+      "frames": [
+        1,
+        72
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 32,
+      "stroke": 41,
+      "apex": 0,
+      "release": 51,
+      "reachCm": 38.1,
+      "peakSpeed": 1.1,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Looking Around Idle Two part 7 (idle, looking around, standing)"
+    },
+    "mx_ro_medium_idle_01": {
+      "mixamo": "ro_medium_idle_01",
+      "frames": [
+        1,
+        72
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 49.3,
+      "peakSpeed": 4.94,
+      "tempo": 0.364,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Medium Idle part 1 (idle, standing)"
+    },
+    "mx_ro_medium_idle_06": {
+      "mixamo": "ro_medium_idle_06",
+      "frames": [
+        1,
+        153
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 28,
+      "stroke": 38,
+      "apex": 46,
+      "release": 51,
+      "reachCm": 51.6,
+      "peakSpeed": 2.09,
+      "tempo": 0.86,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Medium Idle part 6 (idle, standing)"
+    },
+    "mx_ro_medium_idle_08": {
+      "mixamo": "ro_medium_idle_08",
+      "frames": [
+        1,
+        151
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 53,
+      "stroke": 114,
+      "apex": 82,
+      "release": 123,
+      "reachCm": 43.9,
+      "peakSpeed": 0.87,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Medium Idle part 8 (idle, standing)"
+    },
+    "mx_ro_medium_idle_09": {
+      "mixamo": "ro_medium_idle_09",
+      "frames": [
+        1,
+        136
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 3,
+      "stroke": 81,
+      "apex": 38,
+      "release": 97,
+      "reachCm": 49.2,
+      "peakSpeed": 0.88,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Medium Idle part 9 (idle, standing)"
+    },
+    "mx_ro_medium_idle_11": {
+      "mixamo": "ro_medium_idle_11",
+      "frames": [
+        1,
+        163
+      ],
+      "hands": "left",
+      "category": "idle",
+      "onset": 30,
+      "stroke": 91,
+      "apex": 129,
+      "release": 153,
+      "reachCm": 47.8,
+      "peakSpeed": 0.74,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Medium Idle part 11 (idle, standing)"
+    },
+    "mx_ro_medium_idle_12": {
+      "mixamo": "ro_medium_idle_12",
+      "frames": [
+        1,
+        85
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 21,
+      "stroke": 41,
+      "apex": 56,
+      "release": 48,
+      "reachCm": 42.7,
+      "peakSpeed": 1.15,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Medium Idle part 12 (idle, standing)"
+    },
+    "mx_ro_on_phone_01": {
+      "mixamo": "ro_on_phone_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 58.3,
+      "peakSpeed": 5.05,
+      "tempo": 0.357,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: On Phone part 1 (talking on phone, standing)"
+    },
+    "mx_ro_on_phone_02": {
+      "mixamo": "ro_on_phone_02",
+      "frames": [
+        7,
+        76
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 54,
+      "apex": 38,
+      "release": 61,
+      "reachCm": 47.3,
+      "peakSpeed": 0.67,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: On Phone part 2 (talking on phone, standing)"
+    },
+    "mx_ro_on_phone_04": {
+      "mixamo": "ro_on_phone_04",
+      "frames": [
+        19,
+        99
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 64,
+      "apex": 48,
+      "release": 72,
+      "reachCm": 48.3,
+      "peakSpeed": 0.59,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: On Phone part 4 (talking on phone, standing)"
+    },
+    "mx_ro_on_phone_05": {
+      "mixamo": "ro_on_phone_05",
+      "frames": [
+        12,
+        107
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 26,
+      "apex": 79,
+      "release": 94,
+      "reachCm": 40.7,
+      "peakSpeed": 0.21,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: On Phone part 5 (talking on phone, standing)"
+    },
+    "mx_ro_on_phone_06": {
+      "mixamo": "ro_on_phone_06",
+      "frames": [
+        9,
+        104
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 50,
+      "apex": 42,
+      "release": 57,
+      "reachCm": 47.3,
+      "peakSpeed": 0.76,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: On Phone part 6 (talking on phone, standing)"
+    },
+    "mx_ro_on_phone_07": {
+      "mixamo": "ro_on_phone_07",
+      "frames": [
+        3,
+        87
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 32,
+      "apex": 61,
+      "release": 78,
+      "reachCm": 46.4,
+      "peakSpeed": 0.81,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: On Phone part 7 (talking on phone, standing)"
+    },
+    "mx_ro_pacing_walk_01": {
+      "mixamo": "ro_pacing_walk_01",
+      "frames": [
+        1,
+        162
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 100,
+      "release": 2,
+      "reachCm": 77.7,
+      "peakSpeed": 4.71,
+      "tempo": 0.382,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Pacing Walk part 1 (walking, standing)"
+    },
+    "mx_ro_pacing_walk_02": {
+      "mixamo": "ro_pacing_walk_02",
+      "frames": [
+        1,
+        114
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 27,
+      "stroke": 69,
+      "apex": 113,
+      "release": 103,
+      "reachCm": 34.8,
+      "peakSpeed": 0.85,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Pacing Walk part 2 (walking, standing)"
+    },
+    "mx_ro_pacing_walk_03": {
+      "mixamo": "ro_pacing_walk_03",
+      "frames": [
+        1,
+        116
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 99,
+      "stroke": 101,
+      "apex": 108,
+      "release": 113,
+      "reachCm": 50.2,
+      "peakSpeed": 9.59,
+      "tempo": 0.188,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Pacing Walk part 3 (walking, standing)"
+    },
+    "mx_ro_pacing_walk_04": {
+      "mixamo": "ro_pacing_walk_04",
+      "frames": [
+        1,
+        142
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 12,
+      "stroke": 113,
+      "apex": 119,
+      "release": 140,
+      "reachCm": 58.9,
+      "peakSpeed": 0.83,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Pacing Walk part 4 (walking, standing)"
+    },
+    "mx_ro_panel_judges_01": {
+      "mixamo": "ro_panel_judges_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 44.5,
+      "peakSpeed": 4.43,
+      "tempo": 0.406,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Panel Judges part 1 (reacting, talking, standing)"
+    },
+    "mx_ro_panel_judges_02": {
+      "mixamo": "ro_panel_judges_02",
+      "frames": [
+        45,
+        140
+      ],
+      "hands": "right",
+      "category": "open",
+      "onset": 2,
+      "stroke": 56,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 48.7,
+      "peakSpeed": 1.61,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Panel Judges part 2 (reacting, talking, standing)"
+    },
+    "mx_ro_panel_judges_03": {
+      "mixamo": "ro_panel_judges_03",
+      "frames": [
+        36,
+        120
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 17,
+      "release": 76,
+      "reachCm": 37.4,
+      "peakSpeed": 1.3,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Panel Judges part 3 (reacting, talking, standing)"
+    },
+    "mx_ro_panel_judges_08": {
+      "mixamo": "ro_panel_judges_08",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "right",
+      "category": "open",
+      "onset": 2,
+      "stroke": 37,
+      "apex": 42,
+      "release": 95,
+      "reachCm": 47.7,
+      "peakSpeed": 0.75,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Panel Judges part 8 (reacting, talking, standing)"
+    },
+    "mx_ro_panel_judges_11": {
+      "mixamo": "ro_panel_judges_11",
+      "frames": [
+        23,
+        79
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 0,
+      "release": 54,
+      "reachCm": 45.6,
+      "peakSpeed": 0.82,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Panel Judges part 11 (reacting, talking, standing)"
+    },
+    "mx_ro_panel_judges_12": {
+      "mixamo": "ro_panel_judges_12",
+      "frames": [
+        4,
+        99
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 56,
+      "apex": 47,
+      "release": 95,
+      "reachCm": 48.0,
+      "peakSpeed": 1.38,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Panel Judges part 12 (reacting, talking, standing)"
+    },
+    "mx_ro_pointing_idle_01": {
+      "mixamo": "ro_pointing_idle_01",
+      "frames": [
+        1,
+        129
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 54.1,
+      "peakSpeed": 4.86,
+      "tempo": 0.37,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Pointing Idle part 1 (pointing, standing)"
+    },
+    "mx_ro_pointing_idle_02": {
+      "mixamo": "ro_pointing_idle_02",
+      "frames": [
+        1,
+        105
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 14,
+      "stroke": 20,
+      "apex": 104,
+      "release": 28,
+      "reachCm": 56.6,
+      "peakSpeed": 1.48,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Pointing Idle part 2 (pointing, standing)"
+    },
+    "mx_ro_pointing_idle_03": {
+      "mixamo": "ro_pointing_idle_03",
+      "frames": [
+        1,
+        78
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 31,
+      "stroke": 42,
+      "apex": 5,
+      "release": 52,
+      "reachCm": 57.1,
+      "peakSpeed": 1.08,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Pointing Idle part 3 (pointing, standing)"
+    },
+    "mx_ro_pointing_idle_04": {
+      "mixamo": "ro_pointing_idle_04",
+      "frames": [
+        1,
+        137
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 96,
+      "stroke": 106,
+      "apex": 120,
+      "release": 120,
+      "reachCm": 36.5,
+      "peakSpeed": 1.11,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Pointing Idle part 4 (pointing, standing)"
+    },
+    "mx_ro_product_pitch_01": {
+      "mixamo": "ro_product_pitch_01",
+      "frames": [
+        7,
+        102
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 58,
+      "stroke": 58,
+      "apex": 83,
+      "release": 87,
+      "reachCm": 68.5,
+      "peakSpeed": 4.91,
+      "tempo": 0.366,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Product Pitch part 1 (presenting, emphasis, talking, standing)"
+    },
+    "mx_ro_product_pitch_02": {
+      "mixamo": "ro_product_pitch_02",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 2,
+      "stroke": 94,
+      "apex": 44,
+      "release": 95,
+      "reachCm": 62.7,
+      "peakSpeed": 1.31,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Product Pitch part 2 (presenting, emphasis, talking, standing)"
+    },
+    "mx_ro_product_pitch_04": {
+      "mixamo": "ro_product_pitch_04",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 3,
+      "stroke": 82,
+      "apex": 42,
+      "release": 95,
+      "reachCm": 50.6,
+      "peakSpeed": 0.93,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Product Pitch part 4 (presenting, emphasis, talking, standing)"
+    },
+    "mx_ro_product_pitch_05": {
+      "mixamo": "ro_product_pitch_05",
+      "frames": [
+        68,
+        163
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 43,
+      "apex": 51,
+      "release": 87,
+      "reachCm": 65.2,
+      "peakSpeed": 1.61,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Product Pitch part 5 (presenting, emphasis, talking, standing)"
+    },
+    "mx_ro_product_pitch_08": {
+      "mixamo": "ro_product_pitch_08",
+      "frames": [
+        68,
+        163
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 56,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 67.8,
+      "peakSpeed": 1.6,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Product Pitch part 8 (presenting, emphasis, talking, standing)"
+    },
+    "mx_ro_product_pitch_11": {
+      "mixamo": "ro_product_pitch_11",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 2,
+      "stroke": 66,
+      "apex": 46,
+      "release": 95,
+      "reachCm": 65.1,
+      "peakSpeed": 1.42,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Product Pitch part 11 (presenting, emphasis, talking, standing)"
+    },
+    "mx_ro_sarcastic_clap_01": {
+      "mixamo": "ro_sarcastic_clap_01",
+      "frames": [
+        1,
+        17
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 8,
+      "reachCm": 51.9,
+      "peakSpeed": 4.12,
+      "tempo": 0.436,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Sarcastic Clap part 1 (clap, standing)"
+    },
+    "mx_ro_sarcastic_clap_02": {
+      "mixamo": "ro_sarcastic_clap_02",
+      "frames": [
+        13,
+        108
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 4,
+      "apex": 83,
+      "release": 87,
+      "reachCm": 46.3,
+      "peakSpeed": 1.2,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Sarcastic Clap part 2 (clap, standing)"
+    },
+    "mx_ro_sarcastic_clap_03": {
+      "mixamo": "ro_sarcastic_clap_03",
+      "frames": [
+        2,
+        97
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 79,
+      "apex": 20,
+      "release": 95,
+      "reachCm": 46.9,
+      "peakSpeed": 1.11,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Sarcastic Clap part 3 (clap, standing)"
+    },
+    "mx_ro_sarcastic_clap_04": {
+      "mixamo": "ro_sarcastic_clap_04",
+      "frames": [
+        20,
+        73
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 20,
+      "apex": 16,
+      "release": 51,
+      "reachCm": 21.4,
+      "peakSpeed": 0.83,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Sarcastic Clap part 4 (clap, standing)"
+    },
+    "mx_ro_sarcastic_clap_05": {
+      "mixamo": "ro_sarcastic_clap_05",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 2,
+      "stroke": 11,
+      "apex": 46,
+      "release": 92,
+      "reachCm": 52.4,
+      "peakSpeed": 0.88,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Sarcastic Clap part 5 (clap, standing)"
+    },
+    "mx_ro_sarcastic_clap_06": {
+      "mixamo": "ro_sarcastic_clap_06",
+      "frames": [
+        15,
+        110
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 1,
+      "stroke": 88,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 55.5,
+      "peakSpeed": 1.36,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Sarcastic Clap part 6 (clap, standing)"
+    },
+    "mx_ro_show_host_01": {
+      "mixamo": "ro_show_host_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 42.2,
+      "peakSpeed": 5.63,
+      "tempo": 0.32,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Show Host part 1 (presenting, welcome, talking, standing)"
+    },
+    "mx_ro_show_host_02": {
+      "mixamo": "ro_show_host_02",
+      "frames": [
+        15,
+        110
+      ],
+      "hands": "left",
+      "category": "open",
+      "onset": 9,
+      "stroke": 71,
+      "apex": 95,
+      "release": 87,
+      "reachCm": 78.0,
+      "peakSpeed": 1.44,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Show Host part 2 (presenting, welcome, talking, standing)"
+    },
+    "mx_ro_show_host_03": {
+      "mixamo": "ro_show_host_03",
+      "frames": [
+        70,
+        151
+      ],
+      "hands": "left",
+      "category": "open",
+      "onset": 6,
+      "stroke": 14,
+      "apex": 6,
+      "release": 73,
+      "reachCm": 80.3,
+      "peakSpeed": 1.34,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Show Host part 3 (presenting, welcome, talking, standing)"
+    },
+    "mx_ro_show_host_05": {
+      "mixamo": "ro_show_host_05",
+      "frames": [
+        20,
+        115
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 54,
+      "apex": 0,
+      "release": 95,
+      "reachCm": 75.9,
+      "peakSpeed": 1.55,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Show Host part 5 (presenting, welcome, talking, standing)"
+    },
+    "mx_ro_show_host_06": {
+      "mixamo": "ro_show_host_06",
+      "frames": [
+        4,
+        99
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 74,
+      "apex": 46,
+      "release": 95,
+      "reachCm": 70.1,
+      "peakSpeed": 1.8,
+      "tempo": 0.997,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Show Host part 6 (presenting, welcome, talking, standing)"
+    },
+    "mx_ro_show_host_07": {
+      "mixamo": "ro_show_host_07",
+      "frames": [
+        24,
+        119
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 75,
+      "apex": 65,
+      "release": 87,
+      "reachCm": 63.4,
+      "peakSpeed": 2.65,
+      "tempo": 0.679,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Show Host part 7 (presenting, welcome, talking, standing)"
+    },
+    "mx_ro_shrugging_01": {
+      "mixamo": "ro_shrugging_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "question",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 42.6,
+      "peakSpeed": 4.8,
+      "tempo": 0.375,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Shrugging part 1 (shrug, unsure, standing)"
+    },
+    "mx_ro_shrugging_02": {
+      "mixamo": "ro_shrugging_02",
+      "frames": [
+        11,
+        106
+      ],
+      "hands": "both",
+      "category": "question",
+      "onset": 6,
+      "stroke": 12,
+      "apex": 38,
+      "release": 74,
+      "reachCm": 40.9,
+      "peakSpeed": 1.0,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Shrugging part 2 (shrug, unsure, standing)"
+    },
+    "mx_ro_shrugging_03": {
+      "mixamo": "ro_shrugging_03",
+      "frames": [
+        42,
+        137
+      ],
+      "hands": "both",
+      "category": "question",
+      "onset": 3,
+      "stroke": 61,
+      "apex": 67,
+      "release": 87,
+      "reachCm": 15.2,
+      "peakSpeed": 0.6,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Shrugging part 3 (shrug, unsure, standing)"
+    },
+    "mx_ro_shrugging_05": {
+      "mixamo": "ro_shrugging_05",
+      "frames": [
+        3,
+        72
+      ],
+      "hands": "both",
+      "category": "question",
+      "onset": 6,
+      "stroke": 11,
+      "apex": 32,
+      "release": 62,
+      "reachCm": 13.8,
+      "peakSpeed": 0.58,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Shrugging part 5 (shrug, unsure, standing)"
+    },
+    "mx_ro_shrugging_06": {
+      "mixamo": "ro_shrugging_06",
+      "frames": [
+        16,
+        111
+      ],
+      "hands": "both",
+      "category": "question",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 17,
+      "release": 89,
+      "reachCm": 37.4,
+      "peakSpeed": 1.38,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Shrugging part 6 (shrug, unsure, standing)"
+    },
+    "mx_ro_shrugging_07": {
+      "mixamo": "ro_shrugging_07",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "question",
+      "onset": 6,
+      "stroke": 11,
+      "apex": 43,
+      "release": 95,
+      "reachCm": 27.3,
+      "peakSpeed": 1.04,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Shrugging part 7 (shrug, unsure, standing)"
+    },
+    "mx_ro_sit_down_and_use_laptop_01": {
+      "mixamo": "ro_sit_down_and_use_laptop_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 10,
+      "release": 2,
+      "reachCm": 59.5,
+      "peakSpeed": 4.79,
+      "tempo": 0.376,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sit Down And Use Laptop part 1 (typing on laptop, standing)"
+    },
+    "mx_ro_sit_down_and_use_laptop_02": {
+      "mixamo": "ro_sit_down_and_use_laptop_02",
+      "frames": [
+        12,
+        82
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 13,
+      "apex": 44,
+      "release": 62,
+      "reachCm": 68.5,
+      "peakSpeed": 1.55,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sit Down And Use Laptop part 2 (typing on laptop, sitting)"
+    },
+    "mx_ro_sit_down_and_use_laptop_04": {
+      "mixamo": "ro_sit_down_and_use_laptop_04",
+      "frames": [
+        53,
+        88
+      ],
+      "hands": "right",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 18,
+      "release": 27,
+      "reachCm": 34.2,
+      "peakSpeed": 1.06,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sit Down And Use Laptop part 4 (typing on laptop, sitting)"
+    },
+    "mx_ro_sit_down_and_use_laptop_07": {
+      "mixamo": "ro_sit_down_and_use_laptop_07",
+      "frames": [
+        7,
+        72
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 6,
+      "stroke": 26,
+      "apex": 20,
+      "release": 57,
+      "reachCm": 26.0,
+      "peakSpeed": 0.92,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sit Down And Use Laptop part 7 (typing on laptop, sitting)"
+    },
+    "mx_ro_sit_down_and_use_laptop_08": {
+      "mixamo": "ro_sit_down_and_use_laptop_08",
+      "frames": [
+        1,
+        81
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 17,
+      "stroke": 65,
+      "apex": 73,
+      "release": 79,
+      "reachCm": 69.6,
+      "peakSpeed": 1.61,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Sit Down And Use Laptop part 8 (typing on laptop, transition: sitting to standing)"
+    },
+    "mx_ro_sit_down_and_use_laptop_09": {
+      "mixamo": "ro_sit_down_and_use_laptop_09",
+      "frames": [
+        1,
+        63
+      ],
+      "hands": "both",
+      "category": "expressive",
+      "onset": 1,
+      "stroke": 14,
+      "apex": 51,
+      "release": 54,
+      "reachCm": 34.3,
+      "peakSpeed": 0.85,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sit Down And Use Laptop part 9 (typing on laptop, standing)"
+    },
+    "mx_ro_sitting_talking_gossip_01": {
+      "mixamo": "ro_sitting_talking_gossip_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "left",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 10,
+      "release": 2,
+      "reachCm": 61.5,
+      "peakSpeed": 7.13,
+      "tempo": 0.252,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sitting Talking Gossip part 1 (talking to neighbor, gossip, telling a secret, sitting)"
+    },
+    "mx_ro_sitting_talking_gossip_03": {
+      "mixamo": "ro_sitting_talking_gossip_03",
+      "frames": [
+        44,
+        139
+      ],
+      "hands": "left",
+      "category": "open",
+      "onset": 8,
+      "stroke": 70,
+      "apex": 95,
+      "release": 87,
+      "reachCm": 24.5,
+      "peakSpeed": 0.68,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sitting Talking Gossip part 3 (talking to neighbor, gossip, telling a secret, sitting)"
+    },
+    "mx_ro_sitting_talking_gossip_06": {
+      "mixamo": "ro_sitting_talking_gossip_06",
+      "frames": [
+        1,
+        72
+      ],
+      "hands": "left",
+      "category": "transition",
+      "onset": 13,
+      "stroke": 52,
+      "apex": 61,
+      "release": 58,
+      "reachCm": 41.1,
+      "peakSpeed": 1.1,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Sitting Talking Gossip part 6 (talking to neighbor, gossip, telling a secret, transition: sitting to standing)"
+    },
+    "mx_ro_sitting_talking_gossip_07": {
+      "mixamo": "ro_sitting_talking_gossip_07",
+      "frames": [
+        34,
+        129
+      ],
+      "hands": "left",
+      "category": "open",
+      "onset": 15,
+      "stroke": 53,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 60.1,
+      "peakSpeed": 1.58,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sitting Talking Gossip part 7 (talking to neighbor, gossip, telling a secret, standing)"
+    },
+    "mx_ro_sitting_talking_gossip_08": {
+      "mixamo": "ro_sitting_talking_gossip_08",
+      "frames": [
+        15,
+        110
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 78,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 50.6,
+      "peakSpeed": 2.61,
+      "tempo": 0.689,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sitting Talking Gossip part 8 (talking to neighbor, gossip, telling a secret, standing)"
+    },
+    "mx_ro_sitting_talking_gossip_09": {
+      "mixamo": "ro_sitting_talking_gossip_09",
+      "frames": [
+        1,
+        54
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 1,
+      "stroke": 5,
+      "apex": 11,
+      "release": 45,
+      "reachCm": 39.0,
+      "peakSpeed": 1.38,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Sitting Talking Gossip part 9 (talking to neighbor, gossip, telling a secret, standing)"
+    },
+    "mx_ro_slow_clap_04": {
+      "mixamo": "ro_slow_clap_04",
+      "frames": [
+        1,
+        78
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 21,
+      "apex": 24,
+      "release": 74,
+      "reachCm": 67.0,
+      "peakSpeed": 0.97,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Slow Clap part 4 (clap, standing)"
+    },
+    "mx_ro_slow_clap_05": {
+      "mixamo": "ro_slow_clap_05",
+      "frames": [
+        50,
+        145
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 0,
+      "stroke": 46,
+      "apex": 65,
+      "release": 94,
+      "reachCm": 92.3,
+      "peakSpeed": 0.73,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Slow Clap part 5 (clap, standing)"
+    },
+    "mx_ro_slow_clap_06": {
+      "mixamo": "ro_slow_clap_06",
+      "frames": [
+        1,
+        167
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 4,
+      "stroke": 11,
+      "apex": 21,
+      "release": 119,
+      "reachCm": 67.9,
+      "peakSpeed": 1.68,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Slow Clap part 6 (clap, transition: standing to sitting)"
+    },
+    "mx_ro_slow_clap_09": {
+      "mixamo": "ro_slow_clap_09",
+      "frames": [
+        2,
+        74
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 6,
+      "stroke": 25,
+      "apex": 20,
+      "release": 68,
+      "reachCm": 23.5,
+      "peakSpeed": 0.91,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Slow Clap part 9 (clap, sitting)"
+    },
+    "mx_ro_slow_clap_10": {
+      "mixamo": "ro_slow_clap_10",
+      "frames": [
+        1,
+        138
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 3,
+      "stroke": 40,
+      "apex": 137,
+      "release": 124,
+      "reachCm": 35.0,
+      "peakSpeed": 0.96,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Slow Clap part 10 (clap, transition: sitting to standing)"
+    },
+    "mx_ro_slow_clap_11": {
+      "mixamo": "ro_slow_clap_11",
+      "frames": [
+        1,
+        96
+      ],
+      "hands": "both",
+      "category": "react",
+      "onset": 3,
+      "stroke": 71,
+      "apex": 3,
+      "release": 95,
+      "reachCm": 74.4,
+      "peakSpeed": 0.33,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Slow Clap part 11 (clap, standing)"
+    },
+    "mx_ro_slow_walk_forward_01": {
+      "mixamo": "ro_slow_walk_forward_01",
+      "frames": [
+        1,
+        132
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 89,
+      "release": 2,
+      "reachCm": 65.9,
+      "peakSpeed": 4.64,
+      "tempo": 0.388,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Slow Walk Forward part 1 (walking, standing)"
+    },
+    "mx_ro_slow_walk_forward_02": {
+      "mixamo": "ro_slow_walk_forward_02",
+      "frames": [
+        1,
+        160
+      ],
+      "hands": "right",
+      "category": "walk",
+      "onset": 43,
+      "stroke": 134,
+      "apex": 159,
+      "release": 149,
+      "reachCm": 6.2,
+      "peakSpeed": 0.13,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Slow Walk Forward part 2 (walking, standing)"
+    },
+    "mx_ro_slow_walk_forward_03": {
+      "mixamo": "ro_slow_walk_forward_03",
+      "frames": [
+        1,
+        110
+      ],
+      "hands": "right",
+      "category": "walk",
+      "onset": 8,
+      "stroke": 87,
+      "apex": 46,
+      "release": 98,
+      "reachCm": 7.9,
+      "peakSpeed": 0.13,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Slow Walk Forward part 3 (walking, standing)"
+    },
+    "mx_ro_slow_walk_forward_04": {
+      "mixamo": "ro_slow_walk_forward_04",
+      "frames": [
+        1,
+        103
+      ],
+      "hands": "right",
+      "category": "walk",
+      "onset": 19,
+      "stroke": 88,
+      "apex": 62,
+      "release": 100,
+      "reachCm": 10.1,
+      "peakSpeed": 0.16,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Slow Walk Forward part 4 (walking, standing)"
+    },
+    "mx_ro_slow_walk_forward_05": {
+      "mixamo": "ro_slow_walk_forward_05",
+      "frames": [
+        1,
+        72
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 13,
+      "stroke": 39,
+      "apex": 50,
+      "release": 70,
+      "reachCm": 38.3,
+      "peakSpeed": 0.79,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Slow Walk Forward part 5 (walking, standing)"
+    },
+    "mx_ro_stand_up_comedian_04": {
+      "mixamo": "ro_stand_up_comedian_04",
+      "frames": [
+        1,
+        109
+      ],
+      "hands": "left",
+      "category": "transition",
+      "onset": 2,
+      "stroke": 37,
+      "apex": 43,
+      "release": 93,
+      "reachCm": 63.9,
+      "peakSpeed": 1.8,
+      "tempo": 0.997,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Stand Up Comedian part 4 (talking, emphasis, presenting, standing)"
+    },
+    "mx_ro_stand_up_comedian_06": {
+      "mixamo": "ro_stand_up_comedian_06",
+      "frames": [
+        1,
+        140
+      ],
+      "hands": "right",
+      "category": "transition",
+      "onset": 7,
+      "stroke": 55,
+      "apex": 64,
+      "release": 131,
+      "reachCm": 50.4,
+      "peakSpeed": 1.9,
+      "tempo": 0.95,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Stand Up Comedian part 6 (talking, emphasis, presenting, standing)"
+    },
+    "mx_ro_stand_up_comedian_07": {
+      "mixamo": "ro_stand_up_comedian_07",
+      "frames": [
+        1,
+        168
+      ],
+      "hands": "right",
+      "category": "transition",
+      "onset": 5,
+      "stroke": 53,
+      "apex": 128,
+      "release": 155,
+      "reachCm": 49.7,
+      "peakSpeed": 1.66,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Stand Up Comedian part 7 (talking, emphasis, presenting, standing)"
+    },
+    "mx_ro_stand_up_comedian_08": {
+      "mixamo": "ro_stand_up_comedian_08",
+      "frames": [
+        1,
+        104
+      ],
+      "hands": "right",
+      "category": "transition",
+      "onset": 19,
+      "stroke": 55,
+      "apex": 84,
+      "release": 97,
+      "reachCm": 75.6,
+      "peakSpeed": 2.34,
+      "tempo": 0.768,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Stand Up Comedian part 8 (talking, emphasis, presenting, standing)"
+    },
+    "mx_ro_stand_up_comedian_09": {
+      "mixamo": "ro_stand_up_comedian_09",
+      "frames": [
+        1,
+        122
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 3,
+      "stroke": 108,
+      "apex": 117,
+      "release": 118,
+      "reachCm": 60.5,
+      "peakSpeed": 1.94,
+      "tempo": 0.929,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Stand Up Comedian part 9 (talking, emphasis, presenting, standing)"
+    },
+    "mx_ro_stand_up_comedian_10": {
+      "mixamo": "ro_stand_up_comedian_10",
+      "frames": [
+        1,
+        128
+      ],
+      "hands": "both",
+      "category": "transition",
+      "onset": 4,
+      "stroke": 11,
+      "apex": 80,
+      "release": 97,
+      "reachCm": 82.6,
+      "peakSpeed": 1.96,
+      "tempo": 0.916,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Stand Up Comedian part 10 (talking, emphasis, presenting, standing)"
+    },
+    "mx_ro_step_forward_01": {
+      "mixamo": "ro_step_forward_01",
+      "frames": [
+        1,
+        110
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 29,
+      "release": 2,
+      "reachCm": 49.8,
+      "peakSpeed": 5.34,
+      "tempo": 0.337,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Step Forward part 1 (step, walking, standing)"
+    },
+    "mx_ro_step_forward_02": {
+      "mixamo": "ro_step_forward_02",
+      "frames": [
+        1,
+        166
+      ],
+      "hands": "left",
+      "category": "walk",
+      "onset": 25,
+      "stroke": 78,
+      "apex": 86,
+      "release": 83,
+      "reachCm": 29.3,
+      "peakSpeed": 0.77,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Step Forward part 2 (step, walking, standing)"
+    },
+    "mx_ro_step_forward_03": {
+      "mixamo": "ro_step_forward_03",
+      "frames": [
+        1,
+        101
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 1,
+      "stroke": 85,
+      "apex": 66,
+      "release": 99,
+      "reachCm": 2.0,
+      "peakSpeed": 0.05,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Step Forward part 3 (step, walking, standing)"
+    },
+    "mx_ro_step_forward_04": {
+      "mixamo": "ro_step_forward_04",
+      "frames": [
+        1,
+        161
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 78,
+      "stroke": 111,
+      "apex": 141,
+      "release": 136,
+      "reachCm": 55.8,
+      "peakSpeed": 0.9,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Step Forward part 4 (step, walking, standing)"
+    },
+    "mx_ro_turns_01": {
+      "mixamo": "ro_turns_01",
+      "frames": [
+        1,
+        76
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 44,
+      "release": 2,
+      "reachCm": 45.4,
+      "peakSpeed": 4.8,
+      "tempo": 0.375,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Turns part 1 (turning, standing)"
+    },
+    "mx_ro_turns_02": {
+      "mixamo": "ro_turns_02",
+      "frames": [
+        1,
+        163
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 5,
+      "stroke": 66,
+      "apex": 95,
+      "release": 97,
+      "reachCm": 36.4,
+      "peakSpeed": 0.48,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Turns part 2 (turning, standing)"
+    },
+    "mx_ro_turns_03": {
+      "mixamo": "ro_turns_03",
+      "frames": [
+        1,
+        158
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 76,
+      "stroke": 87,
+      "apex": 128,
+      "release": 138,
+      "reachCm": 45.3,
+      "peakSpeed": 0.6,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Turns part 3 (turning, standing)"
+    },
+    "mx_ro_turns_04": {
+      "mixamo": "ro_turns_04",
+      "frames": [
+        1,
+        101
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 1,
+      "stroke": 41,
+      "apex": 31,
+      "release": 76,
+      "reachCm": 6.3,
+      "peakSpeed": 0.26,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Turns part 4 (turning, standing)"
+    },
+    "mx_ro_turns_05": {
+      "mixamo": "ro_turns_05",
+      "frames": [
+        1,
+        161
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 21,
+      "stroke": 59,
+      "apex": 84,
+      "release": 88,
+      "reachCm": 40.8,
+      "peakSpeed": 0.6,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Turns part 5 (turning, standing)"
+    },
+    "mx_ro_turns_06": {
+      "mixamo": "ro_turns_06",
+      "frames": [
+        1,
+        139
+      ],
+      "hands": "both",
+      "category": "turn",
+      "onset": 78,
+      "stroke": 101,
+      "apex": 121,
+      "release": 119,
+      "reachCm": 54.9,
+      "peakSpeed": 0.96,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Turns part 6 (turning, standing)"
+    },
+    "mx_ro_two_hosts_presenting_01": {
+      "mixamo": "ro_two_hosts_presenting_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 215.7,
+      "peakSpeed": 5.29,
+      "tempo": 0.34,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Two Hosts Presenting part 1 (presenting, talking, pointing, standing)"
+    },
+    "mx_ro_two_hosts_presenting_02": {
+      "mixamo": "ro_two_hosts_presenting_02",
+      "frames": [
+        1,
+        81
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 3,
+      "stroke": 46,
+      "apex": 76,
+      "release": 76,
+      "reachCm": 209.0,
+      "peakSpeed": 0.87,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Two Hosts Presenting part 2 (presenting, talking, pointing, standing)"
+    },
+    "mx_ro_two_hosts_presenting_04": {
+      "mixamo": "ro_two_hosts_presenting_04",
+      "frames": [
+        11,
+        106
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 6,
+      "stroke": 30,
+      "apex": 48,
+      "release": 95,
+      "reachCm": 210.2,
+      "peakSpeed": 0.82,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Two Hosts Presenting part 4 (presenting, talking, pointing, standing)"
+    },
+    "mx_ro_two_hosts_presenting_05": {
+      "mixamo": "ro_two_hosts_presenting_05",
+      "frames": [
+        66,
+        161
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 0,
+      "stroke": 14,
+      "apex": 87,
+      "release": 93,
+      "reachCm": 202.9,
+      "peakSpeed": 0.56,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Two Hosts Presenting part 5 (presenting, talking, pointing, standing)"
+    },
+    "mx_ro_two_hosts_presenting_08": {
+      "mixamo": "ro_two_hosts_presenting_08",
+      "frames": [
+        9,
+        104
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 0,
+      "stroke": 16,
+      "apex": 49,
+      "release": 87,
+      "reachCm": 207.2,
+      "peakSpeed": 0.72,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Two Hosts Presenting part 8 (presenting, talking, pointing, standing)"
+    },
+    "mx_ro_two_hosts_presenting_10": {
+      "mixamo": "ro_two_hosts_presenting_10",
+      "frames": [
+        63,
+        158
+      ],
+      "hands": "both",
+      "category": "point",
+      "onset": 0,
+      "stroke": 13,
+      "apex": 66,
+      "release": 92,
+      "reachCm": 217.9,
+      "peakSpeed": 0.66,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": false,
+      "source": "Rokoko: Two Hosts Presenting part 10 (presenting, talking, pointing, standing)"
+    },
+    "mx_ro_walk_cycle_01": {
+      "mixamo": "ro_walk_cycle_01",
+      "frames": [
+        1,
+        131
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 55,
+      "release": 2,
+      "reachCm": 73.5,
+      "peakSpeed": 4.94,
+      "tempo": 0.364,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Walk Cycle part 1 (walking, standing)"
+    },
+    "mx_ro_walk_cycle_02": {
+      "mixamo": "ro_walk_cycle_02",
+      "frames": [
+        1,
+        93
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 20,
+      "stroke": 78,
+      "apex": 73,
+      "release": 89,
+      "reachCm": 11.4,
+      "peakSpeed": 0.64,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Walk Cycle part 2 (walking, standing)"
+    },
+    "mx_ro_walk_cycle_03": {
+      "mixamo": "ro_walk_cycle_03",
+      "frames": [
+        1,
+        99
+      ],
+      "hands": "both",
+      "category": "walk",
+      "onset": 4,
+      "stroke": 64,
+      "apex": 69,
+      "release": 78,
+      "reachCm": 47.8,
+      "peakSpeed": 0.78,
+      "tempo": 1,
+      "posture": "moving",
+      "legs": true,
+      "source": "Rokoko: Walk Cycle part 3 (walking, standing)"
+    },
+    "mx_ro_watching_idle_01": {
+      "mixamo": "ro_watching_idle_01",
+      "frames": [
+        1,
+        133
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 0,
+      "release": 2,
+      "reachCm": 48.5,
+      "peakSpeed": 4.48,
+      "tempo": 0.401,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Watching Idle part 1 (idle, listening, standing)"
+    },
+    "mx_ro_watching_idle_02": {
+      "mixamo": "ro_watching_idle_02",
+      "frames": [
+        1,
+        106
+      ],
+      "hands": "right",
+      "category": "idle",
+      "onset": 0,
+      "stroke": 22,
+      "apex": 44,
+      "release": 98,
+      "reachCm": 9.3,
+      "peakSpeed": 0.04,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Watching Idle part 2 (idle, listening, standing)"
+    },
+    "mx_ro_watching_idle_03": {
+      "mixamo": "ro_watching_idle_03",
+      "frames": [
+        1,
+        136
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 15,
+      "stroke": 41,
+      "apex": 68,
+      "release": 128,
+      "reachCm": 13.6,
+      "peakSpeed": 0.16,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Watching Idle part 3 (idle, listening, standing)"
+    },
+    "mx_ro_watching_idle_04": {
+      "mixamo": "ro_watching_idle_04",
+      "frames": [
+        1,
+        152
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 28,
+      "stroke": 64,
+      "apex": 83,
+      "release": 105,
+      "reachCm": 19.6,
+      "peakSpeed": 0.18,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Watching Idle part 4 (idle, listening, standing)"
+    },
+    "mx_ro_watching_idle_05": {
+      "mixamo": "ro_watching_idle_05",
+      "frames": [
+        1,
+        123
+      ],
+      "hands": "both",
+      "category": "idle",
+      "onset": 14,
+      "stroke": 51,
+      "apex": 12,
+      "release": 77,
+      "reachCm": 19.3,
+      "peakSpeed": 0.23,
+      "tempo": 1,
+      "posture": "standing",
+      "legs": true,
+      "source": "Rokoko: Watching Idle part 5 (idle, listening, standing)"
+    },
+    "mx_ro_witness_testimony_01": {
+      "mixamo": "ro_witness_testimony_01",
+      "frames": [
+        1,
+        11
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 0,
+      "stroke": 0,
+      "apex": 10,
+      "release": 2,
+      "reachCm": 42.0,
+      "peakSpeed": 4.75,
+      "tempo": 0.379,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Witness Testimony part 1 (talking, explaining, sitting)"
+    },
+    "mx_ro_witness_testimony_04": {
+      "mixamo": "ro_witness_testimony_04",
+      "frames": [
+        35,
+        116
+      ],
+      "hands": "right",
+      "category": "open",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 24,
+      "release": 73,
+      "reachCm": 33.4,
+      "peakSpeed": 0.84,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Witness Testimony part 4 (talking, explaining, sitting)"
+    },
+    "mx_ro_witness_testimony_05": {
+      "mixamo": "ro_witness_testimony_05",
+      "frames": [
+        48,
+        79
+      ],
+      "hands": "right",
+      "category": "open",
+      "onset": 6,
+      "stroke": 12,
+      "apex": 23,
+      "release": 23,
+      "reachCm": 25.0,
+      "peakSpeed": 0.6,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Witness Testimony part 5 (talking, explaining, sitting)"
+    },
+    "mx_ro_witness_testimony_06": {
+      "mixamo": "ro_witness_testimony_06",
+      "frames": [
+        6,
+        96
+      ],
+      "hands": "both",
+      "category": "open",
+      "onset": 6,
+      "stroke": 66,
+      "apex": 59,
+      "release": 82,
+      "reachCm": 30.4,
+      "peakSpeed": 0.49,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Witness Testimony part 6 (talking, explaining, sitting)"
+    },
+    "mx_ro_witness_testimony_07": {
+      "mixamo": "ro_witness_testimony_07",
+      "frames": [
+        70,
+        136
+      ],
+      "hands": "right",
+      "category": "open",
+      "onset": 6,
+      "stroke": 10,
+      "apex": 25,
+      "release": 58,
+      "reachCm": 31.3,
+      "peakSpeed": 1.0,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Witness Testimony part 7 (talking, explaining, sitting)"
+    },
+    "mx_ro_witness_testimony_09": {
+      "mixamo": "ro_witness_testimony_09",
+      "frames": [
+        101,
+        127
+      ],
+      "hands": "right",
+      "category": "open",
+      "onset": 6,
+      "stroke": 11,
+      "apex": 20,
+      "release": 18,
+      "reachCm": 31.0,
+      "peakSpeed": 0.73,
+      "tempo": 1,
+      "posture": "seated",
+      "legs": true,
+      "source": "Rokoko: Witness Testimony part 9 (talking, explaining, sitting)"
     }
   },
   "visemes": {
