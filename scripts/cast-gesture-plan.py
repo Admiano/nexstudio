@@ -1,9 +1,10 @@
 """Plan a gesture timeline from word timings (and optionally the voiceover audio).
 
 Usage: python3 cast-gesture-plan.py words.json out-timeline.json [--audio voice.wav|mp3]
-       [--cues gesture-cues.json] [--rhubarb cues.json] [--seed N]
+       [--cues gesture-cues.json] [--rhubarb cues.json | --phonemes phones.json] [--seed N]
        [--size 1.0] [--speed 1.0] [--frequency 1.0]
-words.json: [[start_sec, end_sec, "word"], ...] as written by the TTS/aligner.
+words.json: [[start_sec, end_sec, "word"], ...] as written by the TTS/aligner
+(or cast-phoneme-align.py output, whose "words" list is used).
 Content-agnostic: gestures land on stressed words, phrase starts and list
 structure; the lexicon (per language, replaceable) only suggests a category.
 """
@@ -11,7 +12,7 @@ import argparse,json,math,random,re,subprocess,array
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]/'engine_sources/makehuman-lineart/character_system'
 ap=argparse.ArgumentParser();ap.add_argument('words');ap.add_argument('out')
-ap.add_argument('--audio');ap.add_argument('--cues',default=str(ROOT/'gesture-cues.json'));ap.add_argument('--rhubarb')
+ap.add_argument('--audio');ap.add_argument('--cues',default=str(ROOT/'gesture-cues.json'));ap.add_argument('--rhubarb');ap.add_argument('--phonemes',help='cast-phoneme-align.py output; preferred over --rhubarb')
 ap.add_argument('--seed',type=int,default=1);ap.add_argument('--posture',default='standing',help='standing or seated: which clips the planner may pick');ap.add_argument('--name',default='autoGestures')
 ap.add_argument('--mood',default='any',choices=('any','calm','expressive'),help='motion group from cast-motion-groups.py')
 ap.add_argument('--presenter',choices=('female','male'),help="excludes the other presenter's signature clips and favours this one's")
@@ -21,7 +22,8 @@ LIB=json.loads((ROOT/'gesture-clips.json').read_text());CUES=json.loads(Path(a.c
 # a mood also scales how often, how large and how fast the presenter gestures
 for k,v in LIB.get('groupRules',{}).get('moodStyle',{}).get(a.mood,{}).items():setattr(a,k,getattr(a,k)*v)
 fps=LIB['source']['fps'];rng=random.Random(a.seed)
-words=[(float(s),float(e),w) for s,e,w in json.loads(Path(a.words).read_text())]
+words=json.loads(Path(a.words).read_text());words=words['words'] if isinstance(words,dict) else words
+words=[(float(s),float(e),w) for s,e,w in words if w]
 norm=lambda w:re.sub(r"[^\w']+",'',w.lower())
 lex={norm(w):cat for cat,ws in CUES['lexicon'].items() for w in ws}
 
@@ -125,6 +127,7 @@ for ph in phrases:
     if re.search(r'[.!]$',words[ph[-1]][2]):add('sentenceEnd',words[ph[-1]][1])
 out={'name':a.name,'expressions':expr,'sequence':seq,'style':{'size':a.size,'speed':a.speed,'mood':a.mood,'presenter':a.presenter},'idleLayer':{'seed':a.seed}}
 if MXC.get('idleBase',{}).get(a.posture):out['idleBase']=MXC['idleBase'][a.posture]
-if a.rhubarb:out['lipSync']={'rhubarb':a.rhubarb,'mouthOpen':1.2}
+if a.phonemes:out['lipSync']={'phonemes':a.phonemes,'audio':a.audio,'mouthOpen':1.0}
+elif a.rhubarb:out['lipSync']={'rhubarb':a.rhubarb,'mouthOpen':1.2}
 Path(a.out).write_text(json.dumps(out,indent=1)+'\n')
 print('GESTURE_PLAN',json.dumps({'words':len(words),'phrases':len(phrases),'events':len(events),'gestures':[(round((s-1)/fps,2),n,w) for s,_,n,w,_ in chosen]}))

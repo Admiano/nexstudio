@@ -216,8 +216,13 @@ def blink_layer(cfg,action):
         f+=(rng.uniform(.3,.6) if rng.random()<.15 else rng.uniform(2.2,5.5))*fps
     set_curves(action,{'!ex-eyeBlinkLeft':curve,'!ex-eyeBlinkRight':curve})
     return events
+LIP_QA={}
 def lip_layer(cfg,action):
-    """Drive the existing mouth shape keys from Rhubarb mouth cues (local, CPU)."""
+    """Drive the existing mouth shape keys from phoneme timings, else Rhubarb mouth cues (local, CPU)."""
+    if cfg.get('phonemes'):
+        sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_lip_phonemes
+        out,qa=cast_lip_phonemes.build(cfg,total,LIB['source']['fps'],LIB['phonemeVisemes'])
+        set_curves(action,out);LIP_QA.update(qa);return qa['phones']
     cues=json.loads(Path(cfg['rhubarb']).read_text())['mouthCues'];fps=LIB['source']['fps']
     shapes=LIB['visemes'];keys=sorted({k for v in shapes.values() for k in v})
     lead=int(cfg.get('leadFrames',1));start=int(cfg.get('startFrame',1))
@@ -252,7 +257,7 @@ expressions=expression_layer(timeline['expressions'],face) if face and 'expressi
 rig.animation_data.action=act;rig.animation_data.action_slot=slot
 s=bpy.context.scene;s.frame_start=1;s.frame_end=total
 if digest(source)!=before:raise RuntimeError('SOURCE_ACTION_MUTATED')
-report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,'expressions':expressions,'seatNarrowedFrames':seated_frames,'handContactFrames':contact_frames,
+report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,'lipSyncQA':LIP_QA,'expressions':expressions,'seatNarrowedFrames':seated_frames,'handContactFrames':contact_frames,
         'sequence':[{'name':n,'start':st,'frames':l,'blendIn':bi} for st,l,_,n,bi,_ in placed]}
 bpy.ops.wm.save_as_mainfile(filepath=out,copy=True)
 print('GESTURE_TIMELINE',json.dumps(report),flush=True)
