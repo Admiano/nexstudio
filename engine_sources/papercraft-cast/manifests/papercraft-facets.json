@@ -3,6 +3,23 @@
   "release": "1.0.0",
   "note": "Papercraft look-family facet taxonomy. Mirrors paper-cast-v1's cast-facets vocabulary where it maps onto chassis/palette choices. 3D faceted-paper renders, not the 2D paper-doll system.",
   "chassis": {
+    "gen_casual30": {
+      "source": "assets/gen/casual30_shape.glb",
+      "concept": "assets/gen/concept_fullbody.png",
+      "renderer": "scripts/render_gen_fullbody.py",
+      "presentation": [
+        "man"
+      ],
+      "lifeStage": [
+        "adult"
+      ],
+      "framing": [
+        "full-body"
+      ],
+      "license": "Generated via tencent/Hunyuan3D-2.1 (Tencent Community License) — verify attribution terms before shipping",
+      "decimate": 0.08,
+      "notes": "Hunyuan3D image-to-shape from an authored concept (man ~30s, tee+trousers, folded-paper style). Real folded-sheet geometry — the fidelity chassis. Palette swaps = recolor the concept image and re-project; no mesh regen needed."
+    },
     "rain": {
       "source": "assets/rain/rain_v3.2.blend",
       "renderer": "scripts/rain_paper.py",
@@ -158,6 +175,9 @@
     ]
   },
   "rolesToChassis": {
+    "full_body_hero": [
+      "gen_casual30"
+    ],
     "presenter": [
       "rain",
       "q_casual"
@@ -180,7 +200,8 @@
     ]
   },
   "framing": [
-    "bust"
+    "bust",
+    "full-body"
   ],
   "renderProfile": {
     "engine": "CYCLES",

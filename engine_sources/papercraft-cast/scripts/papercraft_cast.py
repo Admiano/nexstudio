@@ -41,6 +41,11 @@ def build_cmd(spec, root=ROOT):
         cmd += [os.path.join(root, entry["source"]), out]
     elif entry["renderer"].endswith("assemble_paper.py"):
         cmd += [out]
+    elif entry["renderer"].endswith("render_gen_fullbody.py"):
+        concept = (spec.get("look") or {}).get("conceptImage") or entry["concept"]
+        cmd += [os.path.join(root, entry["source"]),
+                os.path.join(root, concept),
+                out, str(dec)]
     return cmd, out
 
 

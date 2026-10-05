@@ -1,11 +1,44 @@
 # papercraft-cast
 
-Faceted "folded paper" character bust renderer. Turns a stylized 3D
+Faceted "folded paper" character renderer. Turns a stylized 3D
 character into a low-poly papercraft plate: designed facets, matte kraft
 paper surface with fiber bump, crease darkening, seamless studio backdrop.
+Busts and full-body plates.
 
 Produced in the "papercraft characters like the reference images" session —
 verdict: passes the "really close" bar on the user's reference set.
+
+## Generated chassis (full-body, highest fidelity)
+
+`assets/gen/casual30_shape.glb` — man ~30s, tee + trousers, real
+folded-sheet geometry. Produced by **Hunyuan3D-2.1** (`tencent/Hunyuan3D-2.1`
+HF Space, free ZeroGPU tier — no local GPU needed): feed an authored
+concept image (`assets/gen/concept_fullbody.png`) to `/shape_generation`,
+get a GLB back in ~30s.
+
+Pipeline: concept image (generate or author) → Hunyuan `/shape_generation`
+→ `scripts/render_gen_fullbody.py IN.glb CONCEPT.png OUT.png DECIMATE`.
+
+The render script:
+- normalizes to ~1.75m, flat shades, strips Hunyuan's rembg artifacts
+  (floor slab faces: `|nz|>0.9` in the slab z-band, plus rim-band faces)
+- creates `projUV` + UVProject modifier — an ortho projector camera facing
+  the figure re-projects the concept image onto the mesh (the GLB has no
+  UVs, so the concept supplies the palette for free)
+- paperize(): concept × kraft multiply, Pointiness crease ramp, AO
+  distance 0.015, rear-third multiply-darken (the mesh's back rim shows as
+  pale behind the silhouette otherwise), kraft normal map
+- 3-area-light studio + seamless gradient wall, Cycles 48spp
+
+**Modularity / color swaps**: the mesh carries no color of its own — the
+concept image IS the palette. Recolor garment regions in the concept
+(PIL mask on the tee/trouser hues) and re-render; no mesh regeneration
+needed. `look.conceptImage` in the spec overrides the concept per request.
+`assets/gen/concept_fullbody_navy.png` is a worked example (navy tee,
+brown trousers).
+
+Hunyuan3D-2 is under the Tencent Community License — check attribution
+terms for generated outputs before shipping renders externally.
 
 ## The recipe
 
@@ -13,6 +46,8 @@ verdict: passes the "really close" bar on the user's reference set.
    mesh: caricature proportions + authored fold planes. Decimating a
    realistic body never reaches it (verified across ~15 attempts).
    Working chassis today:
+   - `assets/gen/casual30_shape.glb` — Hunyuan3D-generated folded-sheet
+     geometry (see "Generated chassis" above); full-body, highest fidelity
    - `assets/rain/rain_v3.2.blend` — Blender Studio "Rain" rig (CC-BY,
      attribution required). Rendered head+chest; rig scripts are disabled
      on this branch so bones cannot be reposed headless — crop, don't pose.
@@ -34,6 +69,7 @@ verdict: passes the "really close" bar on the user's reference set.
 
 | Path | Source | License |
 | --- | --- | --- |
+| `assets/gen/` | Hunyuan3D-2.1 generated mesh + authored concept images | Tencent Community License — verify terms |
 | `assets/rain/` | Blender Studio Rain v3.2 char pack (textures included, `TEX-rain_eyes.png` repainted: blue iris → dark almond) | CC-BY 4.0 — attribute "Rain – Blender Studio" |
 | `assets/quaternius/` | Poly Pizza mirrors of Quaternius models | CC0 / Public Domain |
 | `assets/kraft/` | ambientCG Paper001 1K maps | CC0 |
