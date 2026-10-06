@@ -1851,7 +1851,7 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
     # is named by the phrase itself or the model doesn't rank it far off
     curated = isinstance(ic, tuple) and (
         ic[0] == 'custom' or (str(ic[1]).startswith('kit:') and (
-            ic[1] != 'kit:world' or ic == kit_exact(phrase, exclude)
+            ic == kit_exact(phrase, exclude)
             or (rk is not None and rk <= SEM_VETO_KEYWORD))))
     if (rk is None or rk <= SEM_BAD_RANK or curated) and (
             curated or art_related(phrase, ic)):
@@ -1860,6 +1860,12 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
     if rk is None:
         rk = SEM_BAD_RANK * 10
     best, best_rk, ex = (ic, rk), rk, set(exclude or ()) | {ic}
+    named = _named_art(phrase, ex)
+    if named is not None:
+        nrk = sem_rank(phrase, named)
+        if nrk is not None and nrk <= SEM_VETO_KEYWORD:
+            SEM_LOG[phrase] = (_art_key(named), nrk)
+            return named
     for _ in range(6):
         alt = _icon_for_lex(concept, ex, 0)
         if alt in ex or alt in (None, 'card', 'tile') or _is_emblem(alt):
@@ -1872,8 +1878,35 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
             best, best_rk = (alt, ark), ark
         if ark is not None and ark <= SEM_BAD_RANK:
             break
+    if named is not None and best_rk > SEM_BAD_RANK:
+        best, best_rk = (named, nrk), nrk
     SEM_LOG[phrase] = (_art_key(best[0]), best_rk)
     return best[0]
+
+
+_NAMED_DIRS = ('tabler', 'phosphor', 'fluent')
+
+
+def _named_art(phrase: str, exclude=None):
+    """Library art whose own name is the phrase or its head noun
+    ('belt' -> the belt glyph), for when context-scored picks fail the
+    visual check. Kit art first, then the line-icon sets."""
+    words = phrase.replace('-', ' ').split()
+    if not words:
+        return None
+    names = dict.fromkeys(['-'.join(words), words[-1],
+                           _singular(words[-1])])
+    found = []
+    for (d, name) in _icon_index():
+        if name not in names or not (d in _NAMED_DIRS
+                                     or str(d).startswith('kit:')):
+            continue
+        hit = ('icon', d, name)
+        if (exclude and hit in exclude) or _is_emblem(hit):
+            continue
+        found.append((not str(d).startswith('kit:'), list(names).index(name),
+                      _NAMED_DIRS.index(d) if d in _NAMED_DIRS else 0, hit))
+    return min(found)[-1] if found else None
 
 
 def _icon_for_lex(concept: str, exclude=None, _depth: int = 0):

@@ -295,7 +295,9 @@
     "rate",
     "apr",
     "apy",
-    "yield"
+    "yield",
+    "interest",
+    "interest rate"
    ]
   },
   "hourglass": {
@@ -369,7 +371,11 @@
     "hand",
     "receive",
     "spend",
-    "offer"
+    "offer",
+    "loan",
+    "lend",
+    "lending",
+    "borrowing"
    ],
    "motif": "payment",
    "colors": true

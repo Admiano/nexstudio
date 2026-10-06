@@ -38,7 +38,9 @@
     "growth",
     "revenue",
     "statistics",
-    "bar chart"
+    "bar chart",
+    "graph",
+    "bar graph"
    ],
    "motif": "chart",
    "tone": "a_blue",
@@ -104,7 +106,8 @@
     "funding",
     "investment",
     "bankroll",
-    "savings"
+    "savings",
+    "debt"
    ],
    "tone": "a_green",
    "fill": true,

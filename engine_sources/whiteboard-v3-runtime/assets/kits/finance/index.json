@@ -165,7 +165,10 @@
         "stock price",
         "share price",
         "performance",
-        "price chart"
+        "price chart",
+        "inflation",
+        "rising prices",
+        "price rise"
       ],
       "fill": true,
       "colors": true

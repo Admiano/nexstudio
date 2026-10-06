@@ -135,6 +135,15 @@ which were AI-generated and vectorized as pipeline demos.
 - `pencil-bed-48k.wav`, `pen-cap-48k.wav` — preserved-runtime audio assets.
 
 
+### icons/kits/scene
+- `assets/kits/scene/` — 32 everyday setting pieces and story props (pier,
+  well, bench, stool, stage, barn, pot, table, desk, sofa, stairs, crib,
+  swing, slide, tractor, puddle, chalk, conveyor belt, row of chairs ...),
+  vendored by `tools/scene_kit_pack.py`. Sources: game-icons.net
+  (Delapouite, Caro Asercion; CC BY 3.0, attribution required in shipped
+  video), Lucide (ISC), Iconoir (MIT), and four NexStudio-authored
+  drawings. Per-file credits in `assets/kits/scene/LICENSE-NOTICE.txt`.
+
 ### icons/openmoji
 - `assets/openmoji/` — 473 people/activity line-art glyphs (base set;
   skin-tone variants dropped), flattened to stroke-only paths by
