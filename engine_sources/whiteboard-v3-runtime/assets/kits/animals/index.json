@@ -1,6 +1,7 @@
 {
   "name": "animals",
   "domain": "animals / nature / pets / wildlife explainers",
+  "lex": "noun.animal",
   "glyphs": {
     "dog": {
       "keywords": [
@@ -13,7 +14,8 @@
       ],
       "motif": "pet",
       "tone": "a_yellow",
-      "colors": true
+      "colors": true,
+      "fill": true
     },
     "cat": {
       "keywords": [
@@ -23,7 +25,9 @@
         "feline",
         "meow",
         "kitty"
-      ]
+      ],
+      "fill": true,
+      "colors": true
     },
     "bird": {
       "keywords": [
@@ -83,7 +87,9 @@
         "hare",
         "hop",
         "easter"
-      ]
+      ],
+      "fill": true,
+      "colors": true
     },
     "turtle": {
       "keywords": [
@@ -218,7 +224,8 @@
         "beef",
         "bull"
       ],
-      "colors": true
+      "colors": true,
+      "fill": true
     },
     "chicken": {
       "keywords": [
@@ -242,7 +249,8 @@
         "swine"
       ],
       "tone": "a_yellow",
-      "colors": true
+      "colors": true,
+      "fill": true
     },
     "duck": {
       "keywords": [

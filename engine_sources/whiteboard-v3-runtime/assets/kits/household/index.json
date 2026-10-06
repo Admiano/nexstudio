@@ -1,0 +1,11 @@
+{
+  "name": "household",
+  "domain": "everyday home and family-story things: pantry, bedtime, shopping",
+  "general": true,
+  "glyphs": {
+    "flour-sack": {"keywords": ["flour", "sack of flour", "flour sack", "bag of flour", "sugar sack"], "fill": true, "colors": true},
+    "storybook": {"keywords": ["story", "bedtime story", "storybook", "fairy tale", "tale", "picture book"], "fill": true, "colors": true},
+    "grocery-bag": {"keywords": ["groceries", "grocery", "grocery bag", "provisions"], "fill": true, "colors": true},
+    "dough": {"keywords": ["dough", "bread dough", "pastry dough"], "fill": true, "colors": true}
+  }
+}

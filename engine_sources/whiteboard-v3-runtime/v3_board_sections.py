@@ -1730,7 +1730,8 @@ def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw):
         def rel(e):
             return e['rel'] if e['kind'] == 'person' else max(
                 0.16, float(e['m'].get('size') or 0.34)) * 1.25
-        u = avail / max([rel(e) for e in flow] + [1.0])
+        # one figure unit for the whole board, whatever the panel grid
+        u = min(avail / max([rel(e) for e in flow] + [1.0]), 0.40 * bh)
         hs = [u * rel(e) for e in flow]
         ws = [max(h * e['aspect'], labw(e) * 1.04) for h, e in zip(hs, flow)]
         gaps = []

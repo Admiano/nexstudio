@@ -45,6 +45,19 @@ _THINK = {'imagine.v.01', 'dream.v.01', 'daydream.v.01', 'think.v.01',
           'think.v.03', 'plan.v.01', 'wonder.v.01', 'hope.v.01',
           'wish.v.01', 'believe.v.01', 'remember.v.01', 'decide.v.01',
           'worry.v.01', 'forget.v.01', 'consider.v.01', 'reflect.v.01'}
+@functools.lru_cache(maxsize=None)
+def people_group(label: str) -> bool:
+    """A collective of people ('crew', 'family'), not an arrangement
+    ('table', 'array') or a herd."""
+    head = (str(label or '').lower().split() or [''])[-1]
+    if _wn is None or not head:
+        return False
+    for s in _wn.synsets(_wn.morphy(head, 'n') or head, 'n')[:1]:
+        return any(h.name() == 'social_group.n.01'
+                   for path in s.hypernym_paths() for h in path)
+    return False
+
+
 # nouns that go up and down as amounts, not as bodies in space
 _AMOUNT_LEX = {'noun.attribute', 'noun.quantity', 'noun.possession',
                'noun.communication', 'noun.act', 'noun.state',
@@ -469,7 +482,8 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
             carry['person'] = e['label']
             if doc[e['at']].tag_ in ('NNS', 'NNPS'):
                 carry['they'] = e['label']
-        elif e['lex'] == 'noun.group' and not e['pron']:
+        elif e['lex'] == 'noun.group' and not e['pron'] \
+                and people_group(e['label']):
             carry['they'] = e['label']
         elif not e['pron'] and not e.get('time'):
             carry['thing'] = e['label']

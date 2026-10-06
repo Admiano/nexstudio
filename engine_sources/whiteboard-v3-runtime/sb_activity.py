@@ -763,6 +763,14 @@ def _chair(seat_=True):
     return st if seat_ else []
 
 
+def _bench():
+    st = _poly([(-0.30, -0.36), (0.26, -0.36), (0.26, -0.32),
+                (-0.30, -0.32)], C['wood'])
+    for x in (-0.26, 0.22):
+        st += _line([(x, -0.32), (x, 0.0)], INK, 0.9)
+    return st
+
+
 SEATED = _std(hip=(0.0, -0.40), lean=0.06, hn=(0.17, -0.42),
               hf=(0.14, -0.43), fn=(0.24, 0.0), ff=(0.20, 0.0),
               knee=(0.2, -0.98))
@@ -1491,6 +1499,10 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
         if box is not None:
             obj = _xf_art(partner_art, box)
             placed = bool(obj)
+    if slot is not None and slot[0] == 'seat' and not placed:
+        # a narrated seat with no art of its own: a plain bench under the hips
+        back = back + _bench()
+        placed = True
     r_back, r_over, obj, r_con, r_placed = _place_roles(
         sc, spec, pose, anch, body, obj, role_arts or {})
     if sc in _FLOW:

@@ -28,6 +28,7 @@ except Exception:  # pragma: no cover
     _wn = None
 
 import sb_activity
+import scene_map
 import sb_cast
 
 _STORY_LEX = {'verb.motion', 'verb.contact', 'verb.body',
@@ -444,7 +445,7 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
         # a collective ('the crew', 'the family') is several people
         for i in list(people_here()):
             r = rs[i]
-            if r.get('group') or _lex(r['label'].split()[-1]) != 'noun.group':
+            if r.get('group') or not scene_map.people_group(r['label']):
                 continue
             g = cast.group_for(r['label'], 3, False, '')
             r['group'] = g['label']

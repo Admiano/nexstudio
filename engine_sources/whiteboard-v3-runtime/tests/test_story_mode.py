@@ -150,3 +150,21 @@ def test_explainer_keeps_semantic_arrows_with_provenance():
     assert arrows, 'stated flows draw arrows'
     assert all(a == 'flow' or a.startswith(('edge:', 'cycle', 'before'))
                for a in arrows)
+
+
+def test_only_collectives_of_people_become_groups():
+    assert sm.people_group('crew') and sm.people_group('family')
+    assert not sm.people_group('table') and not sm.people_group('array')
+
+
+def test_table_is_never_cast_as_people():
+    import plan_author
+    p = plan_author.build_storyboard(
+        "# Lunch\n\n## Noon\nTwo friends walk into the cafe. They sit at "
+        "the table and share a sandwich. The waiter brings them tea. "
+        "Both friends laugh.\n", title='Lunch')
+    for b in p['beats']:
+        sc = b['scene']
+        for r in [sc['heroRole']] + sc['supportingRoles']:
+            if r['label'] == 'table':
+                assert r.get('icon') != 'person' and not r.get('group')

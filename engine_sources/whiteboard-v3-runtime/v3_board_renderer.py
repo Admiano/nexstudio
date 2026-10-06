@@ -1099,10 +1099,34 @@ def _kits():
                 _KITS[kd.name] = man.get('glyphs', {})
                 if man.get('general'):
                     _KIT_GENERAL.add(kd.name)
+                if man.get('lex'):
+                    _KIT_LEX[kd.name] = man['lex']
     return _KITS
 
 
 _KIT_GENERAL: set = set()
+# kits that apply to any word of their WordNet class ('noun.animal')
+_KIT_LEX: dict = {}
+
+
+def _kit_for_word(dom: str, phrase: str) -> tuple | None:
+    """_kit_live, or a class kit whose class the phrase's head noun is
+    in: 'kitten' draws from the animal kit in any script."""
+    live = _kit_live(dom)
+    if live is not None or dom not in _KIT_LEX or _WN is None:
+        return live
+    head = (str(phrase).lower().replace('-', ' ').split() or [''])[-1]
+    try:
+        ss = _WN.synsets(_WN.morphy(head, _WN.NOUN) or head, pos=_WN.NOUN)
+    except LookupError:
+        return None
+    return (0, 0) if _mostly(ss, _KIT_LEX[dom]) else None
+
+
+def _mostly(ss, lex):
+    """Most of a word's senses are of this class: 'kitten' is an animal,
+    'queen' (a person, a chess piece, a card, a bee) is not."""
+    return bool(ss) and sum(s.lexname() == lex for s in ss) * 2 >= len(ss)
 
 
 def _kit_live(dom: str) -> tuple | None:
@@ -1961,7 +1985,7 @@ def kit_exact(phrase, exclude=None):
     # markets script is a stock certificate, not the share-link glyph
     dom_hits = []
     for dom in order:
-        live = None if dom == 'world' else _kit_live(dom)
+        live = None if dom == 'world' else _kit_for_word(dom, phrase)
         if live is None:
             continue
         for name, g in kits[dom].items():
@@ -1994,7 +2018,7 @@ def kit_exact(phrase, exclude=None):
         pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
         fit = (dom == _ART_KIT, len((_CONTEXT or set()) & pool))
         if not fit[0] and fit[1] < 2 or (
-                dom != 'world' and _kit_live(dom) is None):
+                dom != 'world' and _kit_for_word(dom, phrase) is None):
             continue
         for name, g in kits[dom].items():
             hit = ('icon', f'kit:{dom}', name)
@@ -2004,7 +2028,39 @@ def kit_exact(phrase, exclude=None):
                 if rk is not None and rk > SEM_VETO_KEYWORD:
                     continue
                 hits.append((fit, -len(hits), hit))
-    return max(hits)[2] if hits else None
+    return max(hits)[2] if hits else _kit_by_gloss(phrase, exclude)
+
+
+def _kit_by_gloss(phrase, exclude=None):
+    """A class-kit word with no glyph of its own draws as the kind its
+    WordNet sense names: 'calf' (young of domestic cattle) is the cow,
+    'hound' (a breed of dog) the dog."""
+    if _WN is None or ' ' in phrase:
+        return None
+    try:
+        ss = _WN.synsets(_WN.morphy(phrase, _WN.NOUN) or phrase,
+                         pos=_WN.NOUN)
+    except LookupError:
+        return None
+    kits = _kits()
+    for s_ in ss[:1]:
+        doms = [d for d, lx in _KIT_LEX.items() if lx == s_.lexname()
+                and _mostly(ss, lx)]
+        if not doms:
+            continue
+        words = re.findall(r'[a-z]+', s_.definition().lower())
+        for h in s_.hypernyms():
+            words += [w.lower() for n in h.lemma_names()
+                      for w in n.split('_')]
+        for w in words:
+            w = _singular(w)
+            for dom in doms:
+                for name, g in kits.get(dom, {}).items():
+                    hit = ('icon', f'kit:{dom}', name)
+                    if (w == name or w in g.get('keywords', ())) and not (
+                            exclude and hit in exclude):
+                        return hit
+    return None
 
 
 def _kit_cross(words, exclude=None):
@@ -2426,7 +2482,11 @@ def _nearest_icon(words, exclude, max_depth: int = 7):
     if _WN is None:
         return None
     try:
-        for w in reversed([w for w in words if len(w) > 2]):
+        ws = [w for w in words if len(w) > 2]
+        own = kit_exact(ws[-1], exclude) if ws else None
+        if own is not None:
+            return own
+        for w in reversed(ws):
             key = (w, _ART_KIT, _INK_ONLY)
             if key in _NEAR_CACHE:
                 hit = _NEAR_CACHE[key]
@@ -2476,6 +2536,9 @@ def _nearest_for_word(w, exclude, max_depth):
         toks = re.findall(r'[a-z]+', ss.definition())
         for k, c in enumerate(toks):
             if len(c) < 3 or c == w or not _wn_concrete(c):
+                continue
+            # 'a leaven of dough': the stuff of a concrete genus isn't it
+            if k > 1 and toks[k - 1] == 'of' and _wn_concrete(toks[k - 2]):
                 continue
             # 'wind' in 'brass wind instrument' is a modifier, not a thing
             if k + 1 < len(toks) and _WN.synsets(f'{c}_{toks[k + 1]}'):
