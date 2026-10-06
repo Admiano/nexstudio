@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       return { user, session, challengeId: challenge.id };
     }, { isolationLevel: "Serializable" });
     await appendAuditEvent({ request, requestId: id, actorUserId: result.user.id, action: "AUTH_GUEST_VERIFIED", entityType: "AuthChallenge", entityId: result.challengeId });
-    const response = NextResponse.redirect(new URL("/studio", new URL(request.url).origin), 303);
+    const response = new NextResponse(null, { status: 303, headers: { Location: "/studio" } });
     setSessionCookie(response, result.session.token, result.session.expiresAt, request);
     return response;
   } catch (e) {
