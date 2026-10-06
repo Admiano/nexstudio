@@ -308,6 +308,7 @@ def lip_layer(cfg,action):
 face=face_copy() if (timeline.get('idleLayer') or timeline.get('lipSync') or 'expressions' in timeline) else None
 blinks=blink_layer(timeline['idleLayer'],face) if face and timeline.get('idleLayer') else []
 cues=lip_layer(timeline['lipSync'],face) if face and timeline.get('lipSync') else 0
+if face and not timeline.get('lipSync'):oral_follow()  # the take's own mouth keys still need the per-presenter teeth fit
 def expression_layer(events,action):
     """Smile/brow envelopes over a resting baseline; overlapping events take the max."""
     curves={k:[v]*(total+2) for k,v in LIB.get('expressionBaseline',{}).items()}

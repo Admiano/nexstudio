@@ -49,85 +49,117 @@ phrases=[[0]]
 for i in range(1,len(words)):
     if words[i][0]-words[i-1][1]>=R['pauseSec'] or re.search(r'[.!?]$',words[i-1][2]):phrases.append([])
     phrases[-1].append(i)
+MEAN=json.loads((ROOT/'gesture-meanings.json').read_text())
+# sentences carry the intent (welcome, doubt, reassurance...); pauses only split phrases
+sentences=[[0]]
+for i in range(1,len(words)):
+    if re.search(r'[.!?]$',words[i-1][2]) or words[i][0]-words[i-1][1]>=R.get('sentencePauseSec',0.7):sentences.append([])
+    sentences[-1].append(i)
+def intent_of(sen):
+    text='';pos=[]
+    for i in sen:pos.append(len(text));text+=words[i][2].lower()+' '
+    for name,pat in MEAN['intents']:
+        m=re.search(pat,text)
+        if m:return name,max(k for k,p in zip(sen,pos) if p<=m.start())
+    best=max(sen,key=lambda i:stress[i] if len(norm(words[i][2]))>=3 else 0)
+    return (MEAN['questionIntent'] if words[sen[-1]][2].strip().endswith('?') else MEAN['defaultIntent']),best
+intents=[(sen,)+intent_of(sen) for sen in sentences]
+# a sentence's gesture should end before the next specific intent's cue, so each one gets its turn
+cue_frames=sorted(round(words[c][0]*fps)+1 for _,m,c in intents if m!=MEAN['defaultIntent'])
+limit=lambda i:next((f for f in cue_frames if f>round(words[i][0]*fps)+1),10**9)
 events=[]
+intent_events={(c,m) for _,m,c in intents}
+# specific meanings place before plain explaining
+for sen,intent,cue in intents:events.append((cue,intent,5+stress[cue]+(0 if intent==MEAN['defaultIntent'] else 2.5)))
+# word-level structure: sizes, and pointing on stressed deictic words in plain explaining
+plain={i for sen,intent,_ in intents if intent in ('explain','point') for i in sen}
+for i,(s0,e0,w) in enumerate(words):
+    cat=lex.get(norm(w))
+    if cat=='scale':events.append((i,'scale',3+stress[i]))
+    if cat=='point' and i in plain and stress[i]>=1:events.append((i,'point',3+stress[i]))
+# longer phrases inside a sentence get a light explaining beat on their stressed word
 for ph in phrases:
-    question=words[ph[-1]][2].strip().endswith('?')
     best=max(ph,key=lambda i:stress[i] if len(norm(words[i][2]))>=3 else 0)
-    for i in ph:
-        cat=lex.get(norm(words[i][2]));cat=CUES.get('categoryFor',{}).get(cat,cat)
-        if cat=='greeting' and i!=ph[0]:cat=None
-        if cat=='point' and R['pointNeedsStress'] and stress[i]<1:cat=None
-        if cat:events.append((i,cat,2+stress[i]))
-    if question:events.append((best,'question',1.5+stress[best]))
-    if stress[best]>=R['stressEmphasis']/max(.25,a.frequency):events.append((best,'emphasis',1+stress[best]))
-    elif stress[best]>=R['stressBeat']/max(.25,a.frequency):
-        events.append((best,'open' if len(ph)>=R['longPhraseWords'] else 'beat',stress[best]))
-# lists: count only where enough enumeration words cluster
-counts=sorted((e for e in events if e[1]=='count'),key=lambda e:words[e[0]][0]);keep=[];run=[]
-# a list is a run of enumeration words in a steady rhythm, not any lone "next" or "one"
-for e in counts+[None]:
-    if e and run and words[e[0]][0]-words[run[-1][0]][0]<=R['countMaxSpacingSec']:run.append(e);continue
-    if len(run)>=R['countMinHits']:keep.append(run[0])
-    run=[e] if e else []
-events_all=list(events)
-# list structure outranks single-word stress
-events=[e for e in events if e[1]!='count']+[(i,c,10+p) for i,c,p in keep]
+    if len(ph)>=3 and stress[best]>=R['stressBeat']/max(.25,a.frequency):events.append((best,'explain',stress[best]))
+# lists: count only where enough enumeration words cluster in a steady rhythm
+counts=sorted((i for i,(s0,e0,w) in enumerate(words) if lex.get(norm(w))=='count'),key=lambda i:words[i][0]);keep=[];run=[]
+for i in counts+[None]:
+    if i is not None and run and words[i][0]-words[run[-1]][0]<=R['countMaxSpacingSec']:run.append(i);continue
+    if len(run)>=R['countMinHits']:keep.append(run)
+    run=[i] if i is not None else []
+events+=[(r[0],'list',20+stress[r[0]]) for r in keep]
+list_runs={r[0]:r for r in keep}
 
+def meanings(name,c):
+    text=name+' '+c.get('source','').lower()
+    if re.search(MEAN['exclude'],text):return set()
+    out=set()
+    for pat,ms in MEAN['clipRules']:
+        if re.search(pat,name) or re.search(pat,c.get('source','').lower()):out|=set(ms)
+    if not out and c['category'] in ('open','beat'):out={'explain'}
+    return out
 clips={}
 # very large Mixamo moves (arms overhead, wide T) stay addressable by name but are not auto-picked
 MXC=LIB.get('mixamo',{});reach_cap=MXC.get('maxAutoReachCm',1e9);min_frames=MXC.get('minAutoFrames',0)
+GR=LIB.get('groupRules',{});calm_reach=GR.get('presenterCalmMaxReachCm',50)
 for name,c in LIB['clips'].items():
     if c.get('reachCm',0)>reach_cap or c['frames'][1]-c['frames'][0]+1<min_frames:continue
     if c.get('posture','standing')!=a.posture:continue
     if a.presenter and c.get('presenter','any') not in ('any',a.presenter):continue
-    clips.setdefault(c['category'],[]).append(name)
-# keep a category's mood matches only; a category with no match keeps every clip
-for cat,names in clips.items():
-    keep=[n for n in names if a.mood=='any' or LIB['clips'][n].get('mood')==a.mood]
-    if keep:clips[cat]=keep
+    for m in meanings(name,c):clips.setdefault(m,[]).append(name)
+# calm keeps calm clips (or small expressive ones); big celebrations fall back to calmer meanings
+for m,names in list(clips.items()):
+    if a.mood=='calm':
+        keep=[n for n in names if LIB['clips'][n].get('mood')=='calm'] or ([] if re.search(MEAN['calmOnly'],m) else [n for n in names if LIB['clips'][n].get('reachCm',0)<=calm_reach])
+    elif a.mood=='expressive':keep=[n for n in names if LIB['clips'][n].get('mood')=='expressive'] or names
+    else:keep=names
+    if keep:clips[m]=keep
+    else:del clips[m]
 # presenter signature clips count as half-used so they are picked first
 bias=lambda n:-.5 if a.presenter and LIB['clips'][n].get('presenter')==a.presenter else 0
-fallback={'question':'open','emphasis':'open','scale':'open','greeting':'open','point':'beat','count':'open','open':'beat','negation':'beat','think':'question'}
+fallback=MEAN['fallback']
 # per-clip tempo (Mixamo clips slowed to the presenter hand-speed cap) times the style speed
 spd=lambda n:a.speed*LIB['clips'][n].get('tempo',1)
 pad=lambda n:int(MXC.get('padFrames',0)) if 'mixamo' in LIB['clips'][n] else 0
 length=lambda n:round((LIB['clips'][n]['frames'][1]-LIB['clips'][n]['frames'][0]+1)/spd(n))+2*pad(n)
-stroke=lambda n:round(LIB['clips'][n]['stroke']/spd(n))
 gap=round(R['minGapSec']/max(.25,a.frequency)*fps)
-chosen=[];busy=[];used={}
+chosen=[];busy=[];used={};DROPS=[]
+def chain(cat):
+    out=[]
+    while cat and cat not in out:out.append(cat);cat=fallback.get(cat)
+    return [c for c in out if c in clips]
 for i,cat,prio in sorted(events,key=lambda e:-e[2]):
-    while cat and cat not in clips:cat=fallback.get(cat)
-    if not cat:continue
-    # spread usage: least-used clip first, spill into the fallback category once a category is worn
-    if min(used.get(n,0) for n in clips[cat])>=R.get('maxRepeats',2) and fallback.get(cat) in clips:cat=fallback[cat]
-    low=min(used.get(n,0)+bias(n) for n in clips[cat]);name=rng.choice([n for n in clips[cat] if used.get(n,0)+bias(n)==low])
-    clip=LIB['clips'][name]
-    if cat=='count':
-        hits=[words[i][0]]
-        for k,c,_ in sorted((e for e in events_all if e[1]=='count'),key=lambda e:words[e[0]][0]):
-            if 0<words[k][0]-hits[-1]<=R['countMaxSpacingSec']:hits.append(words[k][0])
-        at=(hits[0]+hits[-1])/2;anchor=(clip['onset']+clip['release'])/2
-    else:at=words[i][0];anchor=clip.get('apex',clip['stroke'])
-    start=round((at-R['strokeLeadSec'])*fps)+1-round(anchor/spd(name))-pad(name)
-    start=max(1,start);end=start+length(name)-1
-    if any(start<=b+gap and end+gap>=s for s,b in busy):continue
-    busy.append((start,end));chosen.append((start,end,name,words[i][2],cat));used[name]=used.get(name,0)+1
+    # try this meaning's clips (least used, then shortest), then its fallbacks, until one fits the free time
+    placed=False
+    for m in chain(cat):
+        for name in sorted(clips[m],key=lambda n:(used.get(n,0)+bias(n),length(n),rng.random())):
+            if used.get(name,0)>=R.get('maxRepeats',2):continue
+            clip=LIB['clips'][name]
+            if m=='list' and i in list_runs:
+                hits=[words[k][0] for k in list_runs[i]];at=(hits[0]+hits[-1])/2;anchor=(clip['onset']+clip['release'])/2
+            else:at=words[i][0];anchor=clip.get('apex',clip['stroke'])
+            start=max(1,round((at-R['strokeLeadSec'])*fps)+1-round(anchor/spd(name))-pad(name));end=start+length(name)-1
+            if any(start<=b+gap and end+gap>=s for s,b in busy):continue
+            if (i,cat) in intent_events and end+gap>limit(i):continue
+            busy.append((start,end));chosen.append((start,end,name,words[i][2],m));used[name]=used.get(name,0)+1;placed=True;break
+        if placed:break
+    if not placed:DROPS.append((words[i][2],cat))
 chosen.sort()
 total=max(round(words[-1][1]*fps)+fps//2,(chosen[-1][1]+12) if chosen else 0)
 seq=[];cursor=1
 for start,end,name,word,cat in chosen:
     seq.append({'idle':max(4,start-cursor)});seq.append({'clip':name,'cue':word,'category':cat});cursor=start+length(name)
 seq.append({'idle':max(12,total-cursor+1)})
-# expressions: from the placed gestures plus every sentence end
-EX=CUES.get('expressions',{});expr=[]
+# expressions: every sentence's intent, at its cue word, plus a soft smile at sentence ends
+EX=MEAN.get('expressions',{});expr=[]
 def add(cat,t):
     for key,amt,sec in EX.get(cat,[]):expr.append({'at':round(t*fps)+1,'shape':key,'amount':round(amt*a.expressiveness,3),'frames':round(sec*fps)})
-for start,end,name,word,cat in chosen:add(cat,(start-1+LIB['clips'][name].get('apex',LIB['clips'][name]['stroke'])/spd(name)+pad(name))/fps)
-for ph in phrases:
-    if re.search(r'[.!]$',words[ph[-1]][2]):add('sentenceEnd',words[ph[-1]][1])
+for sen,intent,cue in intents:add(intent,words[cue][0])
+for sen,intent,cue in intents:
+    if intent in ('explain','agree','welcome','thanks','reassure','excited') and re.search(r'[.!]$',words[sen[-1]][2]):add('sentenceEnd',words[sen[-1]][1])
 out={'name':a.name,'expressions':expr,'sequence':seq,'style':{'size':a.size,'speed':a.speed,'mood':a.mood,'presenter':a.presenter},'idleLayer':{'seed':a.seed}}
 if MXC.get('idleBase',{}).get(a.posture):out['idleBase']=MXC['idleBase'][a.posture]
 if a.phonemes:out['lipSync']={'phonemes':a.phonemes,'audio':a.audio,'mouthOpen':1.0}
 elif a.rhubarb:out['lipSync']={'rhubarb':a.rhubarb,'mouthOpen':1.2}
 Path(a.out).write_text(json.dumps(out,indent=1)+'\n')
-print('GESTURE_PLAN',json.dumps({'words':len(words),'phrases':len(phrases),'events':len(events),'gestures':[(round((s-1)/fps,2),n,w) for s,_,n,w,_ in chosen]}))
+print('GESTURE_PLAN',json.dumps({'words':len(words),'phrases':len(phrases),'events':len(events),'intents':[(words[c][2],m) for _,m,c in intents],'gestures':[(round((s-1)/fps,2),n,w,c) for s,_,n,w,c in chosen]}))
