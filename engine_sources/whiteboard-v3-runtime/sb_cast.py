@@ -242,7 +242,8 @@ _MALE = re.compile(
     r"\b(he|him|his|himself|man|men|boy|boys|gentleman|father|dad|daddy|"
     r"son|husband|brother|uncle|nephew|grandfather|grandpa|king|prince|"
     r"groom|actor|waiter|monk|policeman|businessman|chairman|horseman|"
-    r"fisherman|spokesman|steward|hero|widower|boyfriend|sir|mr)\b")
+    r"fisherman|spokesman|steward|hero|widower|boyfriend|sir|mr|mister|"
+    r"lord|monsieur|senor|herr)\b")
 _CHILD = re.compile(
     r"\b(child|children|kid|kids|boy|boys|girl|girls|baby|toddler|son|"
     r"daughter|schoolboy|schoolgirl|pupil|infant|youngster|little|young|"
