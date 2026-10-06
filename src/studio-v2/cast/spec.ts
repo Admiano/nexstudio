@@ -142,6 +142,7 @@ export const WATCHES = [
   { key: "chrono", label: "Chronograph" },
   { key: "dress", label: "Dress" },
 ] as const;
+export const maleWatchAvailable = (top: string) => top === "o1" || top === "o2";
 
 export const VOICES = [
   { id: "emma", label: "Emma", tag: "US" },
@@ -235,7 +236,6 @@ export function normalizeCastSpec(input:CastSpec|null|undefined,hint?:CastCharac
  lip:character==="female"?normalizeColour(input?.lip,LIP_KEYS,d.lip!):null,
  neck:character==="female"?(input?.neck===null||input?.neck==="none"?null:input?.neck&&NECK_KEYS.has(input.neck)?input.neck:d.neck):null,
  outfit:{kind,color:normalizeColour(input?.outfit?.color,character==="female"?FEM_DRESS_COLOR_KEYS:MALE_TOP_COLOR_KEYS,defaults[kind]),...(character==="male"&&input?.outfit?.pieces?{pieces:malePieces({...d,outfit:{kind,pieces:input.outfit.pieces}})}:{})},
- watch:character==="male"?(input?.watch===null||input?.watch==="none"?null:input?.watch&&WATCH_KEYS.has(input.watch)?input.watch:d.watch):null,
+ watch:character==="male"&&maleWatchAvailable(kind)?(input?.watch===null||input?.watch==="none"?null:input?.watch&&WATCH_KEYS.has(input.watch)?input.watch:d.watch):null,
  voiceId:input?.voiceId??d.voiceId,sourceVersion:CAST_SOURCE_VERSION};
 }
-

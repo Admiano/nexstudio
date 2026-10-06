@@ -102,24 +102,6 @@
     "character": "male",
     "style": "bald",
     "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
-    "watch": {
-      "caseNormalRest": [
-        0.7244466543197632,
-        0.050366707146167755,
-        0.6874883770942688
-      ],
-      "anatomicalDorsalRest": [
-        0.7244486808776855,
-        0.05036844313144684,
-        0.6874860525131226
-      ],
-      "normalAgreement": 0.9999999997671694,
-      "dialCenterProjectedOffsetMm": 0.0,
-      "partsRigidlyRepositioned": 100,
-      "bandGeometryUnchanged": true,
-      "bindingBone": "lowerarm02.L",
-      "caseSeatGapMm": 0.1
-    },
     "path": "engine_sources/makehuman-lineart/character_system/scenes/male/bald/character.blend",
     "removedActions": [
       "baseAction \u2022 V18",
@@ -128,31 +110,13 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 21539983,
-    "sha256": "500cfa0f1be7e0686ba4c7bb41f9ef7e4c66b11b347cfe7c7d8426e1dff84452"
+    "sizeBytes": 21073458,
+    "sha256": "471dd74746aed5f0c5f4b93a5d8fa3a484b1d5f9167513c8d5c341ad393e4700"
   },
   {
     "character": "male",
     "style": "fisherman",
     "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
-    "watch": {
-      "caseNormalRest": [
-        0.7244600057601929,
-        0.05037383362650871,
-        0.6874737739562988
-      ],
-      "anatomicalDorsalRest": [
-        0.7244486808776855,
-        0.05036844313144684,
-        0.6874860525131226
-      ],
-      "normalAgreement": 0.9999999713618308,
-      "dialCenterProjectedOffsetMm": 0.0,
-      "partsRigidlyRepositioned": 29,
-      "bandGeometryUnchanged": true,
-      "bindingBone": "lowerarm02.L",
-      "caseSeatGapMm": 0.1
-    },
     "path": "engine_sources/makehuman-lineart/character_system/scenes/male/fisherman/character.blend",
     "removedActions": [
       "baseAction \u2022 V18.001",
@@ -161,31 +125,13 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 25551143,
-    "sha256": "aca275c648fdd27959723266f37b58e36d966d2cc64fc07547b1cbc2109359b4"
+    "sizeBytes": 25348062,
+    "sha256": "107fcbab6709a1e74ed0d8402b0982e3a124df16238d84f7a27bc411fe0dd7d0"
   },
   {
     "character": "male",
     "style": "knit",
     "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
-    "watch": {
-      "caseNormalRest": [
-        0.7244529128074646,
-        0.050386685878038406,
-        0.6874803304672241
-      ],
-      "anatomicalDorsalRest": [
-        0.7244486808776855,
-        0.05036844313144684,
-        0.6874860525131226
-      ],
-      "normalAgreement": 1.0000000225845724,
-      "dialCenterProjectedOffsetMm": 3.305559713510024e-07,
-      "partsRigidlyRepositioned": 29,
-      "bandGeometryUnchanged": true,
-      "bindingBone": "lowerarm02.L",
-      "caseSeatGapMm": 0.1
-    },
     "path": "engine_sources/makehuman-lineart/character_system/scenes/male/knit/character.blend",
     "removedActions": [
       "baseAction \u2022 V18.001",
@@ -194,8 +140,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 29044936,
-    "sha256": "13f95fa33c9d5124be64bf94aa824e5c375ae4772dbbd9541409e378463bd643"
+    "sizeBytes": 29086930,
+    "sha256": "57082de0a54dacf25ddf566c55107593dedf0dfd452abdbf056d397ae61721c5"
   },
   {
     "character": "male",
@@ -264,24 +210,6 @@
     "character": "male",
     "style": "shirt",
     "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
-    "watch": {
-      "caseNormalRest": [
-        0.7244731783866882,
-        0.05027198791503906,
-        0.6874673366546631
-      ],
-      "anatomicalDorsalRest": [
-        0.7244486808776855,
-        0.05036844313144684,
-        0.6874860525131226
-      ],
-      "normalAgreement": 0.9999999674037099,
-      "dialCenterProjectedOffsetMm": 1.1641532182693481e-07,
-      "partsRigidlyRepositioned": 118,
-      "bandGeometryUnchanged": true,
-      "bindingBone": "lowerarm02.L",
-      "caseSeatGapMm": 0.1
-    },
     "path": "engine_sources/makehuman-lineart/character_system/scenes/male/shirt/character.blend",
     "removedActions": [
       "baseAction \u2022 V18.001",
@@ -290,8 +218,8 @@
     "originalPerformancePreserved": true,
     "finitePoseFrames": 10,
     "texturesSelfContained": true,
-    "sizeBytes": 30047178,
-    "sha256": "06f9cfb626001c77af6392aa8cf9cefe324ec943bb35a2a90e3d3d3f62a6cebc"
+    "sizeBytes": 29838768,
+    "sha256": "b156e2301a02ccde22af04c66c2deb2222ab376b890860ba48c6a4c974e12180"
   },
   {
     "character": "male",

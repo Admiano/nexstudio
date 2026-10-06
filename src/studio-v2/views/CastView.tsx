@@ -10,7 +10,7 @@ import {castRenderConfig} from "../cast/render-config";
 import {
   DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
   MALE_BOTTOMS, MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, MALE_TOP_COLORS, NECKS, SKINS, VOICES, WATCHES,
-  malePieces, normalizeCastSpec,
+  malePieces, maleWatchAvailable, normalizeCastSpec,
   type CastMember, type CastSpec,
 } from "../cast/spec";
 
@@ -362,7 +362,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 </>
               )}
 
-              {spec.character === "male" && (
+              {spec.character === "male" && maleWatchAvailable(spec.outfit?.kind ?? "") && (
                 <div className="identity-group">
                   <div className="identity-group-head"><label>Watch</label><span>on the wrist</span></div>
                   <div className="cast-image-options">

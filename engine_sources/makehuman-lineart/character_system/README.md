@@ -11,7 +11,7 @@ This is the illustrated MakeHuman character system with the approved skin, facia
 
 The V19 directing/adapter/exporter integration, its voice alignment dependencies and test podcast are absent. Copied V18/V19 action variations are removed from the packaged scenes. The appearance module retains hand contours, garment relief and lip-seal geometry without copying or editing rig/face action curves. It accepts no semantic gesture plan.
 
-The watch generator uses the anatomical dorsal hand normal projected perpendicular to the forearm. It applies to analog, digital, smart, chronograph and dress watches. The case, dial and details remain one rigid assembly attached to the native lower-arm bone; visibility changes naturally with the wrist and camera.
+The polo and tee can use analog, digital, smart, chronograph and dress watches. Button-down, knit and fisherman looks have no watch, including their packaged scenes. On short sleeves, the watch generator uses the anatomical dorsal hand normal projected perpendicular to the forearm; the case, dial and details remain one rigid assembly attached to the native lower-arm bone.
 
 ## Open and render
 
