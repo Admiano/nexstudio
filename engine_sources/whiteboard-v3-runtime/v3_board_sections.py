@@ -712,15 +712,7 @@ def _sb_arrow(p0, p1):
 
 
 # ---------------------------------------------------------------------------
-# storyboard scene composer: a fixed typographic grid per scene —
-#   title row   : "N." + heading on a translucent highlighter swash
-#   art row     : elements share one baseline, sized by role
-#   label lane  : each label centred under its own element, one shared top
-#   caption     : one quote line, centred, pastel underline
-# Archetypes: 'journey' (chart-led: riders stand on the line, remaining
-# elements in a column right of a dashed divider) or 'chain' (L->R row with
-# short arrows between neighbours; 1-2 elements simply stage larger).
-# Every box is audited for overlap and frame containment.
+# storyboard scene composer
 # ---------------------------------------------------------------------------
 _SB_FT = 'hand-bold'
 _SB_FL = 'hand'
@@ -1071,13 +1063,13 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None,
                                             or [1.0])))
 
         def top_of(e):
-            return (0.92 * e['rel'] * r_top if e['kind'] == 'person'
-                    else 0.66)
+            return (min(1.05, 1.04 * e['rel'] * r_top)
+                    if e['kind'] == 'person' else 0.78)
 
         def need(e, rh):
             # a cell is as wide as its drawing or its label, whichever wins
             art = e['aspect'] * rh * (top_of(e) / 0.9
-                                      if e['kind'] == 'person' else 0.50)
+                                      if e['kind'] == 'person' else 0.60)
             return max(art, (labw(e) + pad) if e['label'] else 0.0)
 
         def plan_rows(nr):
@@ -1102,7 +1094,7 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None,
             yb = band_t + row_h * (ri + 1) + gapy * ri
             wts = [[need(e, row_h) for e in c] for c in rc]
             tot = Wc - gapx * (len(rc) - 1)
-            k = min(1.6, tot / max(1e-6, sum(map(sum, wts))))
+            k = min(2.1, tot / max(1e-6, sum(map(sum, wts))))
             used_w = k * sum(map(sum, wts)) + gapx * (len(rc) - 1)
             x = L + (Wc - used_w) / 2
             for c, wc in zip(rc, wts):
@@ -1274,7 +1266,7 @@ def _sb_graph_layout(sol, edges, L, R, band_t, band_b, lane):
             y_ += ch
     ppl = [i for i in range(n) if sol[i]['kind'] == 'person']
     ph = min([cells[i][3] * 0.86 - lane_(sol[i]) for i in ppl]
-             + [band_h * 0.46]) if ppl else 0.0
+             + [band_h * 0.72]) if ppl else 0.0
     for i in range(n):
         e = sol[i]
         cx, top, colw, ch = cells[i]
@@ -1283,10 +1275,10 @@ def _sb_graph_layout(sol, edges, L, R, band_t, band_b, lane):
             hmax = ph * e['rel']
             wmax = colw * 0.8
         else:
-            wf, hf = (0.70, 0.92) if i == hero else (0.52, 0.78)
+            wf, hf = (0.70, 0.92) if i == hero else (0.56, 0.84)
             hmax = max(ch * hf - lb, ch * 0.4)
             if i != hero:
-                hmax = min(hmax, th * 0.34)
+                hmax = min(hmax, th * 0.52)
             wmax = colw * wf
         _sb_boxfit(e, cx, top + ch * 0.96 - lb, wmax, hmax)
         b = e['box']
@@ -1662,9 +1654,10 @@ def _sb_word_cues(grp, wt, a_, b_, win1, mo_win, log):
              if a_ - 1.5 <= float(w[1]) < b_ + 1.0]
     cue = {}
     for e in grp:
+        roles = [e] + list(e.get('kids', ()))
         words = re.findall(r"[a-z0-9']+", ' '.join(
-            str(e['it'].get(k) or '') for k in ('label', 'annotate',
-                                                 'cast_key')).lower())
+            str(role['it'].get(k) or '') for role in roles
+            for k in ('label', 'annotate', 'cast_key')).lower())
         for tok, at in heard:
             if tok in words or tok.rstrip('s') in words:
                 cue[id(e)] = max(a_, min(at, b_ - 0.3))
@@ -1677,7 +1670,8 @@ def _sb_word_cues(grp, wt, a_, b_, win1, mo_win, log):
         s0 = max(starts[k], starts[k - 1] + 0.25) if k else starts[k]
         starts[k] = s0
         nxt = starts[k + 1] if k + 1 < len(order) else b_
-        mo_win[id(e)] = (s0, min(win1, max(s0 + 0.35, nxt)))
+        mo_win[id(e)] = (s0, min(win1, max(s0 + 0.35,
+                                          min(nxt, s0 + 1.0))))
         log.append((str(e['it'].get('label') or ''), round(s0, 2),
                     cue.get(id(e))))
 
@@ -2113,34 +2107,11 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     mx = W * 0.065
     Wc = W - 2 * mx
     L, R = -W / 2 + mx, W / 2 - mx
-    top = -H / 2 + H * 0.075
+    top = -H / 2 + H * 0.075 + (H * 0.10 if si == 0 else 0)
     audit = []
     boxes = []                      # (name, box, tag)
 
-    # ---- title row ----------------------------------------------------
-    ttl = str(beat.get('title') or sec.get('label') or '').strip()
-    ts = H * 0.088
     tst, title_bb = [], (L, top, L, top)
-    if ttl:
-        mnum = re.match(r'^\s*(\d+\.)\s*(.*)$', ttl)
-        num, words = (mnum.group(1), mnum.group(2)) if mnum else ('', ttl)
-        while (font_text_width(num + '  ' + words, ts, _SB_FT) > Wc * 0.9
-               and ts > H * 0.05):
-            ts *= 0.94
-        xw = L
-        nst = []
-        if num:
-            nst, nbb = _sb_text([num], L, top, ts, _SB_FT, 'left')
-            xw = nbb[2] + ts * 0.42
-        wst, wbb = _sb_text([words], xw + ts * 0.18, top, ts, _SB_FT,
-                            'left')
-        ih = wbb[3] - wbb[1]
-        sw = _sb_swash_poly(wbb[0] - ts * 0.10, wbb[1] + ih * 0.12,
-                            wbb[2] + ts * 0.10, wbb[3] + ih * 0.10,
-                            seed=si * 31 + 7)
-        tst = [(sw, sw_col, 0.36, 'swash', True)] + nst + wst
-        title_bb = _sb_bounds([s_[0] for s_ in tst])
-        boxes.append(('title', title_bb, 'title'))
     sec['title_st'] = tst
 
     # ---- caption ------------------------------------------------------
@@ -2163,7 +2134,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         cap_top = cap_bb[1]
         boxes.append(('caption', cap_bb, 'caption'))
 
-    band_t = title_bb[3] + H * 0.075
+    band_t = title_bb[3] + H * 0.055
     band_b = cap_top - H * 0.065
     band_h = band_b - band_t
     sec['content'] = (L, band_t, Wc, band_h)
@@ -2253,7 +2224,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 # the layout box holds the whole activity picture
                 art, n_body = pv[0] + pv[1], len(pv[0])
                 ab_ = _sb_bounds(a_[0] for a_ in art)
-                act_rel = min(1.6, max(0.35, (ab_[3] - ab_[1])
+                act_rel = min(1.6, max(0.85, (ab_[3] - ab_[1])
                                        / sb_activity.H))
             elif m.get('activity_miss'):
                 qa.append({'beat': si, 'check': 'activity-missing',
@@ -2558,10 +2529,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     sec['layout'] = lay
 
     # ---- strokes, labels, arrows --------------------------------------
-    lead = min(1.2, (t1 - t0) * 0.14)
-    cap_d = 1.2 if cap else 0.0
-    hold = 0.9
-    win0, win1 = t0 + lead, max(t0 + lead + 0.5, t1 - 0.62 - hold - cap_d)
+    win0, win1 = t0 + 0.04, max(t0 + 0.5, t1 - 0.12)
     setting = ('' if journey or lay in ('cycle', 'stair', 'graph', 'panels')
                else _sb_setting_kind(scn, beat))
     set_w = None
@@ -2642,7 +2610,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         slot = i1 - i0
         groups = []
         b = e['box']
-        cap_h = H * (0.56 if e['m'].get('activity') else 0.42)
+        cap_h = H * (0.68 if e['m'].get('activity') else 0.52)
         if e['kind'] == 'person' and b[3] - b[1] > cap_h:
             k_ = cap_h / (b[3] - b[1])
             cx_ = (b[0] + b[2]) / 2
@@ -2848,7 +2816,12 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 mst = _sb_vmark(kind_, bb_, ab_, mcol, seed=uid + mi)
             else:
                 mst = _sb_vmark(kind_, ab_, bb_, mcol, seed=uid + mi)
-            mst = [(tuple((px, max(py, band_t + 4.0)) for px, py in q[0]),)
+            mb_ = _sb_bounds(q[0] for q in mst)
+            dx = max(-W / 2 + W * 0.025 - mb_[0],
+                     min(0.0, W / 2 - W * 0.025 - mb_[2]))
+            mst = [(tuple((px + dx, min(H / 2 - H * 0.03,
+                                      max(py, band_t + 4.0)))
+                          for px, py in q[0]),)
                    + tuple(q[1:]) for q in mst]
             if not mst:
                 continue
@@ -2948,12 +2921,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                    and not e.get('on_lap')] + [rect[3] - H * 0.05])
         solid_ = [e['ink'] for e in mine] + [e['lab_box'] for e in mine
                                              if e.get('lab_box')]
-        fr_ = [(_wobble_line(p0, p1, n=8, wob=1.0, seed=si * 50 + k_ * 4 + q),
-                'ink', 1.4, False, True) for q, (p0, p1) in enumerate(
-                    zip([(rect[0], rect[1]), (rect[2], rect[1]),
-                         (rect[2], rect[3]), (rect[0], rect[3])],
-                        [(rect[2], rect[1]), (rect[2], rect[3]),
-                         (rect[0], rect[3]), (rect[0], rect[1])]))]
+        # no panel border: moments read as scenes on open paper, not boxes
+        fr_ = []
         room_ = _sb_room(kind_, rect, fl_, solid_, si * 131 + k_ * 17)
         a_ = mom_span.get(k_, (win0, win1))[0]
         uid += 1
@@ -2966,6 +2935,70 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         sec['qa_panels'].append({'moment': k_, 'place': kind_,
                                  'pieces': len(room_) - 1,
                                  'rect': rect})
+        if k_ == 0 and scn.get('moments'):
+            moment = scn['moments'][k_]
+            phrase = str(moment.get('text') or '').strip()
+            if not phrase:
+                phrase = str(next((ev.get('phrase') for ev in
+                                   scn.get('events') or []
+                                   if ev.get('phrase')), '')).strip()
+            if phrase:
+                phrase = phrase.rstrip('.')
+                size = H * 0.039
+                maxw = Wc * 0.28
+                lines = _sb_wrap(phrase, 21)
+                while (max(font_text_width(line, size, _SB_FL)
+                           for line in lines) > maxw and size > H * 0.028):
+                    size *= 0.94
+                tw, th, ttop = _sb_text_dims(lines, size, _SB_FL)
+                margin = H * 0.012
+                art = [e['ink'] for e in mine if e.get('ink')]
+                if not art:
+                    continue
+                ax0 = min(b[0] for b in art)
+                ax1 = max(b[2] for b in art)
+                ay = (min(b[1] for b in art) + max(b[3] for b in art)) / 2
+                def place(x, y):
+                    return (min(R - tw - margin, max(L + margin, x)),
+                            min(band_b - th - margin,
+                                max(band_t + band_h * 0.18, y)))
+                candidates = [
+                    place(ax1 + margin * 2, ay - th / 2),
+                    place(ax0 - tw - margin * 2, ay - th / 2),
+                    place(ax1 + margin * 2, ay - th * 1.5),
+                    place(ax0 - tw - margin * 2, ay - th * 1.5),
+                    place(ax1 + margin * 2, ay - th * 2),
+                    place(ax0 - tw - margin * 2, ay - th * 2),
+                ]
+                obstacles = [e['ink'] for e in draw_els if e.get('ink')]
+                obstacles += [e['lab_box'] for e in draw_els
+                              if e.get('lab_box')]
+                def collision(xy):
+                    x, y = xy
+                    bb = (x - margin, y - margin,
+                          x + tw + margin, y + th + margin)
+                    return sum(max(0, min(bb[2], ob[2]) - max(bb[0], ob[0]))
+                               * max(0, min(bb[3], ob[3]) - max(bb[1], ob[1]))
+                               for ob in obstacles)
+                x, y = min(candidates, key=collision)
+                if collision((x, y)) < tw * th * 0.08:
+                    notes, nb = _sb_text(lines, x, y - ttop, size,
+                                         _SB_FL, 'left')
+                    start = mom_span.get(k_, (win0, win1))[0]
+                    phrase_words = re.findall(r"[a-z0-9']+", phrase.lower())
+                    start = next((float(w[1]) for w in
+                                  beat.get('word_times') or []
+                                  if phrase_words and w[0] == phrase_words[0]
+                                  and start - 0.2 <= float(w[1]) <= win1),
+                                 start)
+                    uid += 1
+                    out_items.append({
+                        'groups': [(('plabel', notes, (0, 0), 1.0, None),
+                                    start, min(win1, start + 0.85))],
+                        'bounds2': nb, 'uid': uid, 'fade': fade,
+                        'kind': 'elem', 't_window': (start, win1),
+                        'label': 'callout'})
+                    boxes.append(('callout', nb, 'label'))
     sec['relations_drawn'] = len(g_meta)
     sec['setting'] = setting
     if setting:
@@ -2986,13 +3019,35 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                                  'uid': uid, 'fade': fade, 'kind': 'elem',
                                  't_window': set_w, 'label': 'setting'})
         sec['qa_setting'] = (setting, len(sst))
+    # scene wash: the sheet itself picks up a whisper of the scene's accent
+    # — the board is no longer one flat colour; each scene shifts subtly
+    # toward its own pastel tint
+    wpoly = [(-W / 2, -H / 2), (W / 2, -H / 2), (W / 2, H / 2),
+             (-W / 2, H / 2), (-W / 2, -H / 2)]
+    uid += 1
+    out_items.insert(0, {'groups': [(('marks',
+                                     [(wpoly, sw_col, 0.13, 'swash', True)],
+                                     (0, 0), 100.0, None), t0, t0 + 0.9)],
+                         'bounds2': (-W / 2, -H / 2, W / 2, H / 2),
+                         'uid': uid, 'fade': fade, 'kind': 'elem',
+                         't_window': (t0, t0 + 0.9), 'label': 'wash'})
     if cap_st:
         uid += 1
-        ct0 = win1 + 0.05
+        cap_tokens = [w for w in re.findall(r"[a-z0-9']+", cap.lower())
+                      if w not in ('a', 'an', 'the', 'and', 'in', 'of')]
+        spoken = beat.get('word_times') or []
+        ct0 = next((float(w[1]) for w in spoken
+                    if cap_tokens and w[0] == cap_tokens[0]
+                    and float(w[1]) >= mom_span.get(
+                        max(mom_span, default=0), (win0, win1))[0] - 0.3),
+                   mom_span.get(max(mom_span, default=0),
+                                (win1 - 1.0, win1))[0])
+        ct0 = min(win1 - 0.45, max(win0, ct0))
         out_items.append({'groups': [(('plabel', cap_st, (0, 0), 90.0, None),
-                                      ct0, ct0 + cap_d)],
+                                      ct0, min(win1, ct0 + 0.85))],
                           'bounds2': cap_bb, 'uid': uid, 'fade': fade,
-                          'kind': 'elem', 't_window': (ct0, ct0 + cap_d)})
+                          'kind': 'elem', 't_window': (
+                              ct0, min(win1, ct0 + 0.85))})
     sec['items2'] = out_items
 
     # ---- audit: pairwise overlap + frame containment ------------------
@@ -3128,9 +3183,21 @@ def _build(plan, ratio):
     title = raw.replace('_', ' ').title() or 'WHITEBOARD'
     first_t0 = sections[0]['beat']['start_seconds']
     if storyboard:
-        # no board-level masthead — each scene's numbered swash heading IS
-        # the title; a second headline only competes with it
-        title_st = []
+        # one masthead title for the whole board, centred, with the
+        # reference's squiggle underline — per-scene headings are dropped
+        th_ = min(header * 0.58, 88.0)
+        tw_ = text_width(title, th_)
+        if tw_ > bw * 0.80:
+            th_ *= bw * 0.80 / tw_
+            tw_ = text_width(title, th_)
+        tx_ = bx0 + bw / 2 - tw_ / 2
+        title_st = text_strokes(title, (tx_, by0 + header * 0.10),
+                                th_, 'ink', 1.15)
+        und0 = _wobble_line((tx_ + tw_ * 0.02, by0 + header * 0.10
+                             + th_ * 1.28),
+                            (tx_ + tw_ * 0.98, by0 + header * 0.10
+                             + th_ * 1.28), n=30, wob=2.0, seed=7)
+        title_st.append((und0, 'a_yellow', 2.6, False, True))
     else:
         th_ = min(header * 0.62, 96.0)
         tw_ = text_width(title, th_)
@@ -3161,6 +3228,10 @@ def _build(plan, ratio):
         ttl = str(sec['beat'].get('title') or sec.get('label') or '').strip()
         sw_col = _SWASH[si % len(_SWASH)]
         title_h = 0.0
+        if storyboard:
+            # no per-scene headings — the masthead title carries the board;
+            # the scene's accent lives on its quote-line underline instead
+            ttl = ''
         if ttl:
             th2 = min(rh * (0.15 if storyboard else 0.115), 120.0)
             if text_width(ttl, th2) > rw * 0.8:
@@ -3228,10 +3299,8 @@ def _build(plan, ratio):
         # paper as the next scene opens
         nxt_t0 = (beats[sec['bi'] + 1]['start_seconds']
                   if sec['bi'] + 1 < len(beats) else None)
-        # storyboard scenes hand off cleanly — the outgoing scene is fully
-        # off the paper BEFORE the next title starts inking (no ghosting)
-        sec['fade'] = ((nxt_t0 - (0.62 if storyboard else 0.15),
-                        nxt_t0 + (-0.08 if storyboard else 0.45))
+        sec['fade'] = ((nxt_t0 - 0.15,
+                        nxt_t0 + 0.45)
                        if nxt_t0 is not None
                        else (t1, t1 + WIPE_SECONDS * 0.8))
         if not k:
@@ -3872,6 +3941,11 @@ def _build(plan, ratio):
                 'uid': uid, 'fade': fade, 'kind': 'elem',
                 't_window': (ct0, t1 - dur * 0.02)})
 
+    if storyboard:
+        fade_start, fade_end = sections[0]['fade']
+        if len(sections) > 1:
+            fade_end = sections[1]['t_window'][0]
+        title_item['fade'] = (fade_start, fade_end)
     out_sections = sections
     all_items = [it for sec in out_sections for it in sec['items2']]
 
@@ -3908,7 +3982,7 @@ def _build(plan, ratio):
     }
     flow = {'sections': out_sections, 'items': all_items,
             'title_item': title_item, 'ending': ending,
-            'dividers': divs, 'persist': False,
+            'dividers': divs, 'persist': False, 'storyboard': storyboard,
             'board_rect': board_rect,
             'total_beats_end': total_beats_end}
     cache[ratio] = flow
@@ -4031,8 +4105,16 @@ def render_board_frame(plan: dict, ratio: str, t: float):
     if t < t_end:
         fade_layers = []
         ti = flow['title_item']
-        if t >= ti['groups'][0][1]:
-            draw_groups(ti['groups'], seed)
+        tf_ = ti.get('fade')
+        if t >= ti['groups'][0][1] and (tf_ is None or t < tf_[1]):
+            if tf_ is not None and t >= tf_[0]:
+                # masthead easing off the paper with the opening scene
+                tfl = Image.new('RGBA', (vw, vh), (0, 0, 0, 0))
+                draw_full(ti['groups'], tfl)
+                fade_layers.append((tfl, int(255 * (1.0 - wbp._clamp(
+                    (t - tf_[0]) / max(0.05, tf_[1] - tf_[0]))))))
+            else:
+                draw_groups(ti['groups'], seed)
         for dg, ds, de in flow.get('dividers') or []:
             dp = wbp._ease(wbp._clamp((t - ds) / max(0.05, de - ds)))
             if dp > 0:
@@ -4133,7 +4215,10 @@ def render_board_frame(plan: dict, ratio: str, t: float):
     # -------- ending --------
     ending = flow['ending']
     rel = t - t_end
-    draw_full(flow['title_item']['groups'], layer)
+    if not flow.get('storyboard'):
+        # storyboard's masthead already left with the opening scene — the
+        # ending card is just Thanks + heart on cleared paper
+        draw_full(flow['title_item']['groups'], layer)
     if persist:
         # storyboard: the finished quadrants ARE the ending — every stroke
         # and figure holds in place, the hand leaves the board
@@ -4248,4 +4333,3 @@ def pen_spans(plan: dict, ratio: str) -> list:
     for gi, g in enumerate(flow['ending']['thanks']):
         add(g, t0 + gi * 0.9, t0 + gi * 0.9 + max(0.2, THANKS_SECONDS - 0.9))
     return sorted(sp for sp in out if sp[1] > sp[0])
-

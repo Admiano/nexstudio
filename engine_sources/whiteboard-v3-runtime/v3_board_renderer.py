@@ -36,16 +36,37 @@ except ImportError:
 # Wrap it (runtime-only, file untouched) with a pre-blended paper tint.
 def _subtle_paper_texture(im, pal, seed):
     import random
+    import math as _m
     rnd = random.Random(seed)
     d = ImageDraw.Draw(im)
     w, h = im.size
-    # speckle picks up a whisper of the ink colour over the paper —
-    # subtle on white boards, a faint chalk grain on dark ones
-    speck = tuple(int(pal['bgc'][i] * 0.92 + pal['inkc'][i] * 0.08)
+    # a real sheet reads unevenly: a soft warm drift toward the bottom,
+    # a scattering of ink specks and pale flecks, a few fine fibres —
+    # still quiet, but no longer a dead flat fill
+    warm = tuple(int(pal['bgc'][i] * 0.94 + pal['inkc'][i] * 0.06)
+                 for i in range(3)) + (255,)
+    grad = Image.linear_gradient('L').resize((w, h))
+    ov = Image.new('RGBA', (w, h), warm)
+    ov.putalpha(grad.point(lambda v: int(v * 0.10)))
+    im.alpha_composite(ov)
+    speck = tuple(int(pal['bgc'][i] * 0.82 + pal['inkc'][i] * 0.18)
                   for i in range(3)) + (255,)
-    for _ in range(max(20, int(w * h / 26000))):
+    fleck = tuple(min(255, int(pal['bgc'][i] * 1.03 + 2))
+                  for i in range(3)) + (255,)
+    for _ in range(max(80, int(w * h / 9000))):
         x, y = rnd.randrange(w), rnd.randrange(h)
-        d.point((x, y), fill=speck)
+        c = speck if rnd.random() < 0.6 else fleck
+        d.point((x, y), fill=c)
+        if rnd.random() < 0.35:
+            d.point((x + 1, y), fill=c)
+    fibre = tuple(int(pal['bgc'][i] * 0.93 + pal['inkc'][i] * 0.07)
+                  for i in range(3)) + (255,)
+    for _ in range(max(10, w // 180)):
+        x, y = rnd.randrange(w), rnd.randrange(h)
+        ln = rnd.randint(12, 38)
+        a = rnd.uniform(0, _m.pi)
+        d.line((x, y, x + _m.cos(a) * ln, y + _m.sin(a) * ln),
+               fill=fibre, width=1)
 
 
 wbp._paper_texture = _subtle_paper_texture
@@ -907,7 +928,11 @@ _ICON_KEYWORDS = {
                'runner', 'cyclist', 'dancer', 'singer', 'actor',
                'shopper', 'vendor', 'merchant', 'consumer', 'guest',
                'resident', 'visitor', 'pedestrian', 'jogger', 'clerk',
-               'agent owner', 'customer agent'),
+               'validator', 'regulator', 'custodian', 'banker', 'auditor',
+               'lender', 'borrower', 'issuer', 'underwriter', 'trustee',
+               'guardian', 'warden', 'executor', 'teller', 'dealer',
+               'comptroller', 'principal', 'dean', 'pupil', 'agent owner',
+               'customer agent'),
     'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'android',
               'chatbot', 'automation bot'),
     'envelope': ('request', 'mail', 'email', 'message', 'letter', 'send', 'ticket',
@@ -2119,6 +2144,21 @@ def _icon_for_raw(concept: str, exclude=None, _depth: int = 0):
     # bespoke commissioned/generated art for this exact label wins outright
     if (_CUSTOM_DIR / f'{_slug(phrase)}.svg').is_file():
         return ('custom', _slug(phrase))
+    # people are drawn by the cast system, never a static pictogram — a kit
+    # glyph keyworded with a person noun must not hijack the 'person'
+    # sentinel, or roles like 'investor'/'patient' would draw a blob that
+    # cannot act in activities
+    head = words[-1] if words else phrase
+    # a word that is a person only by an obscure first sense still draws
+    # its literal object art ('monitor' = screen, not 'proctor')
+    literal = (_icon_lookup(phrase, exclude)
+               if len(words) > 1 else None) or _icon_lookup(head, exclude)
+    if 'person' not in (exclude or ()) and (
+            phrase in _ICON_KEYWORDS['person']
+            or head in _ICON_KEYWORDS['person']
+            or (literal is None
+                and (_is_person_noun(phrase) or _is_person_noun(head)))):
+        return 'person'
     # an active domain art kit outranks the flat icon vocabulary, literal
     # doodles and generic vignettes for anything its manifest covers —
     # 'bitcoin' draws the kit coin, not the generic money doodle

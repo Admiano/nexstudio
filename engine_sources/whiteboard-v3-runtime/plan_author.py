@@ -492,6 +492,21 @@ def _is_physical(w: str) -> bool:
 _CLAUSE = {'and', 'but', 'while', 'so', 'as', 'when', 'until', 'then'}
 _TOOL_KIND = {'device', 'conveyance', 'implement', 'container'}
 
+# agent nouns that only LOOK -er/-ist tool-derived: 'engineer' is not
+# 'engine+er', a 'trainer' holds no train, a 'programmer' no program.
+_AGENT_TOOL_FALSE = frozenset({
+    'engineer', 'trainer', 'banker', 'printer', 'painter', 'programmer',
+    'developer', 'designer', 'presenter', 'retailer', 'auditor', 'operator',
+    'instructor', 'interviewer', 'reviewer', 'founder', 'miner', 'broker',
+    'dealer', 'lender', 'borrower', 'seller', 'buyer', 'marketer',
+    'advertiser', 'analyst', 'therapist', 'custodian', 'validator',
+    'researcher', 'teacher', 'preacher', 'speaker', 'writer', 'recorder',
+    'reader', 'leader', 'manager', 'officer', 'ranger', 'keeper', 'cooker',
+    'cleaner', 'washer', 'waiter', 'porter', 'holder', 'claimer', 'announcer',
+    'builder', 'maker', 'creator', 'founder', 'carrier', 'trailer',
+    'teacher', 'lecturer', 'mentor', 'senior', 'junior', 'player',
+})
+
 
 def _relational(low: list, i: int) -> bool:
     """'front' in 'in front of', 'top' in 'on top of': a location word
@@ -521,6 +536,8 @@ def _agent_tool(label: str) -> str:
     if _wn is None or not label:
         return ''
     w = label.split()[-1].lower()
+    if w in _AGENT_TOOL_FALSE:
+        return ''
     m = re.match(r'([a-z]{3,}?)(?:ists?|ers?|ors?)$', w)
     if not m:
         return ''
@@ -616,10 +633,19 @@ def _is_person(w: str) -> bool:
     top = max(syn, key=uses)
     animal = is_animal(top) or (uses(syn[0]) <= 1 and any(
         is_animal(s_) for s_ in syn[:2]))
-    first = _lemma(w) not in _KIT_ANIMALS and not animal and any(
+    # no usage signal at all: the first sense wins only when person senses
+    # are at least half the noun's meanings, or a hospital 'monitor'
+    # (proctor first, four artifact senses after) draws a person
+    n_person = sum(1 for s_ in syn if any(
+        h.name() == 'person.n.01'
+        for p in s_.hypernym_paths() for h in p))
+    person_plurality = uses(top) > 0 or 2 * n_person >= len(syn)
+    first = _lemma(w) not in _KIT_ANIMALS and not animal \
+        and person_plurality and any(
         h.name() == 'person.n.01' for p in syn[0].hypernym_paths() for h in p)
     adj = bool(_wn.synsets(w, 'a') or _wn.synsets(w, 's'))
-    agent = _AGENT.search(w) and not animal and not adj and any(
+    agent = _AGENT.search(w) and not animal and not adj \
+        and person_plurality and any(
         any(h.name() in hit for p in s_.hypernym_paths() for h in p)
         for s_ in syn[:2])
     return bool(first or agent)
@@ -1846,6 +1872,50 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                            lambda w: v3._icon_for(w))
         else:
             _graph_scene(beats[bi]['scene'], maps)
+    for bi, b in enumerate(beats):
+        # a person persisting across moments is drawn once: the earliest
+        # slot survives and inherits the later appearance's activity when
+        # it has none of its own ('the agent' receives at 0, reads at 1).
+        # A story redraws its cast in every panel.
+        if bi in story:
+            continue
+        sc = b['scene']
+        rs = [sc['heroRole']] + sc['supportingRoles']
+        for k in range(len(rs) - 1, 0, -1):
+            r = rs[k]
+            if r.get('icon') != 'person':
+                continue
+            ident = r.get('cast_key') or r['label']
+            j = next((j for j, q in enumerate(rs[:k])
+                      if q.get('icon') == 'person'
+                      and q.get('moment') != r.get('moment')
+                      and (q.get('cast_key') or q['label']) == ident), None)
+            if j is None:
+                continue
+            if not rs[j].get('activity') and r.get('activity'):
+                for f_ in ('activity', 'action'):
+                    if f_ in r:
+                        rs[j][f_] = r[f_]
+                pt_ = (r.get('activity') or {}).get('partner')
+                if pt_:
+                    pi_ = next((i_ for i_, q in enumerate(rs)
+                                if i_ not in (j, k)
+                                and q['label'] == pt_), None)
+                    if pi_ is not None:
+                        ti_ = pi_ - (pi_ > k)
+                        if ti_ != j:
+                            rs[j]['target'] = ti_
+            for ge in (sc.get('graph') or {}).get('edges') or []:
+                for f_ in ('from', 'to'):
+                    if isinstance(ge.get(f_), int):
+                        ge[f_] = (j if ge[f_] == k
+                                  else ge[f_] - (ge[f_] > k))
+            _merge_role(rs, k, j)
+            if sc.get('graph'):
+                sc['graph']['edges'] = [
+                    ge for ge in sc['graph']['edges']
+                    if ge.get('from') != ge.get('to')]
+        sc['heroRole'], sc['supportingRoles'] = rs[0], rs[1:]
     mode = 'story' if beat_maps and len(story) >= 0.6 * len(beat_maps) \
         else 'explain'
     heading = next((ln.strip()[2:].strip() for ln in script.splitlines()
@@ -2035,12 +2105,13 @@ def _graph_scene(sc: dict, maps: list) -> None:
     graph = _scene_graph(rs, maps)
     if graph is None:
         return
-    for ge in graph['edges']:
-        verb = (str(ge.get('text') or '').split() or [''])[0].lower()
-        for k in (ge['from'], ge['to']):
-            ann = str(rs[k].get('annotate') or '').split()
-            if len(ann) > 1 and verb and ann[0].lower()[:4] == verb[:4]:
-                rs[k]['annotate'] = ' '.join(ann[1:])
+    edge_verbs = {(str(ge.get('text') or '').split() or [''])[0].lower()
+                  for ge in graph['edges']}
+    for r_ in rs:
+        ann = str(r_.get('annotate') or '').split()
+        if len(ann) > 1 and ann[0].lower()[:4] in {v[:4]
+                                                 for v in edge_verbs}:
+            r_['annotate'] = ' '.join(ann[1:])
     for r in rs:
         if r.get('attach'):
             continue
@@ -2083,8 +2154,8 @@ def _merge_role(roles: list, k: int, keep: int) -> None:
     """Delete roles[k]; references to it move to roles[keep]."""
     del roles[k]
     for q in roles:
-        if isinstance(q.get('to'), int) and q['to'] > k:
-            q['to'] -= 1
+        if isinstance(q.get('to'), int):
+            q['to'] = keep if q['to'] == k else q['to'] - (q['to'] > k)
         t_ = q.get('target')
         if isinstance(t_, int) and not isinstance(t_, bool):
             q['target'] = (keep - (keep > k) if t_ == k

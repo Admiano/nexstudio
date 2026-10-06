@@ -110,7 +110,55 @@ _LEMMA = {'jog': 'run', 'sprint': 'run', 'dash': 'run', 'race': 'run',
           'sip': 'drink', 'gulp': 'drink', 'drink': 'drink',
           'observe': 'look', 'watch': 'look', 'inspect': 'look',
           'examine': 'look', 'check': 'look', 'measure': 'look',
-          'water': 'pour', 'spray': 'pour', 'pour': 'pour', 'fill': 'pour'}
+          'water': 'pour', 'spray': 'pour', 'pour': 'pour', 'fill': 'pour',
+          # --- domain vocab: tech/finance/health/education narration ---
+          'tokenize': 'craft', 'mint': 'craft', 'generate': 'craft',
+          'choose': 'pick', 'select': 'pick', 'adopt': 'pick',
+          'encrypt': 'craft', 'compile': 'fix', 'automate': 'fix',
+          'integrate': 'fix', 'assemble': 'fix', 'configure': 'fix',
+          'maintain': 'fix', 'train': 'point', 'tutor': 'point',
+          'lecture': 'point', 'mentor': 'point', 'present': 'point',
+          'demonstrate': 'point', 'illustrate': 'point',
+          'pitch': 'point', 'prompt': 'type', 'query': 'type',
+          'search': 'look', 'scan': 'look', 'audit': 'look',
+          'verify': 'look', 'monitor': 'look', 'screen': 'look',
+          'diagnose': 'look', 'analyze': 'look', 'forecast': 'look',
+          'review': 'read', 'study': 'read', 'research': 'look',
+          'browse': 'read', 'survey': 'look', 'read': 'read',
+          'prescribe': 'write', 'record': 'write', 'register': 'write',
+          'enroll': 'write', 'sign': 'write', 'grade': 'write',
+          'assess': 'write', 'code': 'type', 'debug': 'type',
+          'deploy': 'carry', 'ship': 'carry', 'deliver': 'carry',
+          'transport': 'carry', 'migrate': 'walk', 'scale': 'climb',
+          'tokenize': 'craft', 'exchange': 'give', 'swap': 'give',
+          'trade': 'give', 'transfer': 'give', 'send': 'give',
+          'distribute': 'give', 'reward': 'give', 'pay': 'give',
+          'refund': 'give', 'lend': 'give', 'borrow': 'give',
+          'fund': 'give', 'invest': 'give', 'donate': 'give',
+          'administer': 'give', 'inject': 'give', 'vaccinate': 'give',
+          'immunize': 'give', 'dose': 'give', 'dispense': 'give',
+          'sell': 'give', 'buy': 'give', 'purchase': 'give',
+          'store': 'hold', 'stake': 'hold', 'secure': 'hold',
+          'vault': 'hold', 'hodl': 'hold', 'custody': 'hold',
+          'backup': 'hold', 'retain': 'hold', 'protect': 'hold',
+          'guard': 'hold', 'safeguard': 'hold',
+          'mine': 'dig', 'excavate': 'dig', 'drill': 'dig',
+          'unlock': 'open', 'lock': 'hold',
+          'release': 'give', 'launch': 'throw', 'publish': 'give',
+          'submit': 'give', 'upload': 'lift', 'download': 'lift',
+          'load': 'lift', 'approve': 'write', 'authorize': 'write',
+          'test': 'look', 'validate': 'look', 'inspect': 'look',
+          'negotiate': 'talk', 'pitch': 'point', 'advertise': 'talk',
+          'promote': 'talk', 'market': 'talk', 'announce': 'talk',
+          'present': 'point', 'consult': 'talk', 'meet': 'talk',
+          'collaborate': 'talk', 'interview': 'talk', 'question': 'talk',
+          'prescribe': 'write', 'operate': 'fix', 'suture': 'fix',
+          'repair': 'fix', 'patch': 'fix', 'heal': 'fix', 'treat': 'fix',
+          'feed': 'give', 'serve': 'give', 'issue': 'give',
+          'target': 'point', 'aim': 'point', 'attack': 'strike',
+          'breach': 'strike', 'exploit': 'strike', 'hack': 'strike',
+          'phish': 'strike', 'steal': 'strike', 'rob': 'strike',
+          'split': 'cut', 'divide': 'cut', 'fractionalize': 'cut'}
 
 # lemmas that never depict a body activity by themselves
 _ABSTRACT = {'be', 'have', 'seem', 'feel', 'become', 'know', 'think',
@@ -344,7 +392,7 @@ def resolve(lemma, objects=(), posture=''):
         if t_ is not None:
             sc, partner, kind = 'desk', None, ''
         else:
-            partner, kind = s_, 'seat'
+            partner, kind = s_, ('seat' if s_ is not None else '')
     if sc == 'lie':
         partner, kind = first('bed')
     if sc == 'cook' and not first('stove')[0]:
@@ -755,25 +803,17 @@ def _table(x0=0.26, x1=0.98, top=-0.52):
 
 
 def _chair(seat_=True):
-    st = _poly([(-0.16, -0.36), (0.12, -0.36), (0.12, -0.33),
-                (-0.16, -0.33)], C['wood'])
-    st += _line([(-0.15, -0.36), (-0.19, -0.86)], C['wood'], 1.4)
-    for x in (-0.14, 0.10):
-        st += _line([(x, -0.33), (x, 0.0)], INK, 0.9)
+    st = _poly([(-0.16, -0.235), (0.14, -0.235), (0.14, -0.205),
+                (-0.16, -0.205)], C['wood'])
+    st += _line([(-0.15, -0.235), (-0.19, -0.80)], C['wood'], 1.4)
+    for x in (-0.14, 0.12):
+        st += _line([(x, -0.205), (x, 0.0)], INK, 0.9)
     return st if seat_ else []
 
 
-def _bench():
-    st = _poly([(-0.30, -0.36), (0.26, -0.36), (0.26, -0.32),
-                (-0.30, -0.32)], C['wood'])
-    for x in (-0.26, 0.22):
-        st += _line([(x, -0.32), (x, 0.0)], INK, 0.9)
-    return st
-
-
-SEATED = _std(hip=(0.0, -0.40), lean=0.06, hn=(0.17, -0.42),
-              hf=(0.14, -0.43), fn=(0.24, 0.0), ff=(0.20, 0.0),
-              knee=(0.2, -0.98))
+SEATED = _std(hip=(-0.02, -0.24), lean=0.06, hn=(0.15, -0.33),
+              hf=(0.12, -0.35), fn=(0.20, -0.015), ff=(0.17, 0.0),
+              knee=(0.65, -0.75), toe=(1.0, 0.1))
 
 
 _SEATED_SCHEMAS = {'drive', 'ride', 'row', 'desk', 'sit', 'sit_drink',
@@ -1161,9 +1201,9 @@ def _schema(sc, kind, col, tool):
     if sc == 'fish':
         pose = dict(SEATED, hands={'n': (0.22, -0.56), 'f': (0.18, -0.54)},
                     elbow=(0.0, 1.0))
-        back += _poly([(-0.30, -0.36), (0.40, -0.36), (0.40, -0.30),
-                       (-0.30, -0.30)], C['wood'])
-        back += _line([(0.30, -0.30), (0.30, 0.10)], C['wood'], 1.2)
+        back += _poly([(-0.30, -0.235), (0.40, -0.235), (0.40, -0.175),
+                       (-0.30, -0.175)], C['wood'])
+        back += _line([(0.30, -0.175), (0.30, 0.10)], C['wood'], 1.2)
         extra += _line([(0.12, -0.50), (1.10, -1.30)], C['wood'], 1.1)
         extra += _line([(1.10, -1.30), (1.24, 0.02)], PALE, 0.6)
         back += _poly([(0.40, -0.02), (1.8, -0.02), (1.8, 0.14),
@@ -1241,7 +1281,7 @@ def _slot_box(slot, anchors, aspect):
         return (-w / 2, -0.94 + 0.10, w / 2, 0.0) if h < 0.94 else \
             (-w / 2, -0.84, w / 2, 0.0)
     if kind == 'seat':
-        return (-0.30, -0.42, 0.26, 0.0)
+        return (-0.30, -0.24, 0.26, 0.0)
     return None
 
 
@@ -1500,9 +1540,7 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
             obj = _xf_art(partner_art, box)
             placed = bool(obj)
     if slot is not None and slot[0] == 'seat' and not placed:
-        # a narrated seat with no art of its own: a plain bench under the hips
-        back = back + _bench()
-        placed = True
+        back = back + _chair()
     r_back, r_over, obj, r_con, r_placed = _place_roles(
         sc, spec, pose, anch, body, obj, role_arts or {})
     if sc in _FLOW:

@@ -156,30 +156,34 @@ def align_beats_to_words(plan: dict, words: list[dict]) -> dict:
         return p
     toks = [t for _, t in pairs]
     ti = 0
+    cursor = 0.0
     for b in p['beats']:
         narr = [_norm_word(x) for x in
                 str(b.get('narration') or '').split()]
         narr = [x for x in narr if x]
         if not narr:
             continue
-        # locate the narration's first token within a scan window
-        found = None
-        for j in range(ti, min(len(toks), ti + 400)):
-            if toks[j] == narr[0]:
-                found = j
-                break
-        if found is None:
+        candidates = [j for j in range(ti, min(len(toks), ti + 400))
+                      if toks[j] == narr[0]]
+        if not candidates:
+            b['start_seconds'] = cursor
+            cursor += b['duration_seconds']
             continue
-        end_i = min(len(toks) - 1, found + len(narr) - 1)
-        b['start_seconds'] = max(0.0, pairs[found][0]['start'] - 0.15)
+        found = max(candidates, key=lambda j: sum(
+            toks[j + k] == narr[k] for k in range(
+                min(4, len(narr), len(toks) - j))))
+        last = narr[-1]
+        end_i = next((j for j in range(
+            found + len(narr) + 8, found, -1)
+            if j < len(toks) and toks[j] == last), None)
+        if end_i is None:
+            end_i = min(len(toks) - 1, found + len(narr) - 1)
+        b['start_seconds'] = max(cursor, pairs[found][0]['start'] - 0.15)
         b['duration_seconds'] = max(
-            0.5, pairs[end_i][0]['end'] - b['start_seconds'] + 0.35)
+            0.5, pairs[end_i][0]['end'] - b['start_seconds'] + 0.15)
         b['word_times'] = [[t, w['start'], w['end']]
                            for w, t in pairs[found:end_i + 1]]
         ti = end_i + 1
-    cursor = 0.0
-    for b in p['beats']:
-        b['start_seconds'] = max(b['start_seconds'], cursor)
         cursor = b['start_seconds'] + b['duration_seconds']
     p['durationSeconds'] = cursor + p['pacing']['board_reveal_seconds']
     return p
@@ -715,7 +719,7 @@ def render_production(
 
         times = [b['start_seconds'] + b['duration_seconds'] * 0.5 for b in beats]
         times.append(duration - plan['pacing']['board_reveal_seconds'] * 0.2)
-        qa = contact_sheet(frames_dir, times, fps, out_dir / f'{name}_QA.jpg')
+        contact_sheet(frames_dir, times, fps, out_dir / f'{name}_QA.jpg')
     finally:
         if not keep_frames:
             shutil.rmtree(frames_dir, ignore_errors=True)

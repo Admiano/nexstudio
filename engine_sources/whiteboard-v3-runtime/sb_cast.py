@@ -51,11 +51,21 @@ _OUTFITS = (
     (r'judge',
      {'shirt': '#3A3D44', 'torso': 'robe', 'glasses': True}),
     (r'lawyer|attorney|solicitor|banker|businessm|businessw|executive|'
-     r'\bceo\b|manager|investor|trader|accountant|broker|politician|'
-     r'mayor|senator|salesm',
+     r'\bceo\b|\bcfo\b|\bcoo\b|\bcto\b|manager|investor|trader|'
+     r'accountant|broker|politician|mayor|senator|salesm|auditor|'
+     r'actuary|consultant|advisor|adviser|regulator|compliance|'
+     r'founder|cofounder|entrepreneur|shareholder|stockholder|'
+     r'executive board|board member|chairman|chairperson|'
+     r'validator|node operator|custodian',
      {'shirt': '#5B6472', 'torso': 'tie'}),
-    (r'doctor|surgeon|physician|dentist|vet\b|veterinar|pharmac',
+    (r'surgeon|anaestheti|anesthesi|radiolog',
+     {'shirt': '#9CCFC8', 'torso': 'scrubs'}),
+    (r'doctor|physician|dentist|vet\b|veterinar|pharmac|epidemiolog|'
+     r'paediatr|pediatr|cardiolog|oncolog|psychiatr|clinician|'
+     r'general practitioner|\bgp\b',
      {'shirt': '#F4F1EA', 'torso': 'coat'}),
+    (r'patient|inpatient|victim|casualty',
+     {'shirt': '#DCE6EE'}),
     (r'scientist|researcher|chemist|biologist|physicist|lab tech',
      {'shirt': '#F4F1EA', 'torso': 'coat', 'glasses': True}),
     (r'nurse|paramedic|\bmedic\b|caregiver|carer',
@@ -70,6 +80,11 @@ _OUTFITS = (
     (r'craftsman|artisan|artificer|potter|weaver|glassblower|jeweler|smith|'
      r'woodworker|cobbler|shoemaker|tailor|seamstress',
      {'shirt': '#C9B79C', 'torso': 'apron_brown'}),
+    (r'data scientist|ml engineer|ai engineer|software engineer|'
+     r'software developer|data engineer|devops|sysadmin|'
+     r'site reliability|sre\b|full.?stack|backend|frontend|'
+     r'machine learning engineer|prompt engineer',
+     {'shirt': '#8FB3E3', 'glasses': True, 'torso': 'jacket'}),
     (r'builder|construction|carpenter|plumber|electrician|mechanic|'
      r'engineer|miner|welder|roofer|labou?rer|mason|bricklayer|plasterer',
      {'shirt': '#F2B27A', 'hat': 'hardhat', 'torso': 'vest'}),
@@ -90,7 +105,13 @@ _OUTFITS = (
     (r'musician|singer|performer|entertainer|drummer|guitarist|'
      r'percussionist|pianist|dancer|actor|actress',
      {'shirt': '#9575CD', 'torso': 'jacket'}),
-    (r'thief|burglar|robber|criminal|crook|bandit',
+    (r'marketer|advertiser|copywriter|growth hacker|brand manager|'
+     r'product manager|salesperson|account manager|strategist|'
+     r'campaign manager|content creator|influencer|coach|mentor|'
+     r'trainer|facilitator',
+     {'shirt': '#8FB3E3', 'torso': 'jacket'}),
+    (r'thief|burglar|robber|criminal|crook|bandit|hacker|scammer|'
+     r'fraudster|phisher',
      {'shirt': '#46505A', 'hat': 'beanie', 'torso': 'stripes_dark'}),
     (r'jockey|equestrian|horseman|horsewoman',
      {'shirt': '#D0453E', 'hat': 'cap', 'torso': 'jersey'}),
@@ -107,7 +128,10 @@ _OUTFITS = (
     (r'soldier|marine|troop',
      {'shirt': '#8E9B6A', 'hat': 'army'}),
     (r'teacher|professor|lecturer|tutor|librarian|programmer|developer|'
-     r'coder|analyst|student|reader',
+     r'coder|analyst|student|reader|pupil|schoolboy|schoolgirl|'
+     r'undergrad|postgrad|graduate|alumn|instructor|mentor|'
+     r'research assistant|teaching assistant|principal|dean|'
+     r'headmaster|headteacher|schoolteacher',
      {'glasses': True}),
     (r'driver|trucker|courier|delivery|postman|mail carrier',
      {'shirt': '#8FB3E3', 'hat': 'cap'}),

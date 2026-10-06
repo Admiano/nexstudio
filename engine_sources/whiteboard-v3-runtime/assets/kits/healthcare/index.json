@@ -1,324 +1,560 @@
 {
-  "name": "healthcare",
-  "domain": "health / medical / wellness explainers",
-  "glyphs": {
-    "stethoscope": {
-      "keywords": [
-        "doctor",
-        "stethoscope",
-        "physician",
-        "nurse",
-        "checkup",
-        "clinic",
-        "medical"
-      ],
-      "motif": "doctor",
-      "tone": "a_blue",
-      "colors": true
-    },
-    "heart-pulse": {
-      "keywords": [
-        "heart",
-        "pulse",
-        "cardio",
-        "heartbeat",
-        "cardiac",
-        "ekg",
-        "vitals"
-      ],
-      "motif": "heart",
-      "tone": "a_red",
-      "fill": true,
-      "colors": true
-    },
-    "pill-capsule": {
-      "keywords": [
-        "pill",
-        "medicine",
-        "drug",
-        "capsule",
-        "medication",
-        "dose",
-        "pharmacy"
-      ],
-      "motif": "pill"
-    },
-    "syringe": {
-      "keywords": [
-        "vaccine",
-        "injection",
-        "syringe",
-        "shot",
-        "immunization",
-        "dose"
-      ],
-      "motif": "vaccine",
-      "tone": "a_blue",
-      "colors": true
-    },
-    "thermometer": {
-      "keywords": [
-        "fever",
-        "temperature",
-        "thermometer",
-        "sick",
-        "hot"
-      ],
-      "tone": "a_red",
-      "colors": true
-    },
-    "ambulance": {
-      "keywords": [
-        "ambulance",
-        "emergency",
-        "er",
-        "hospital transport",
-        "911",
-        "urgent"
-      ],
-      "colors": true
-    },
-    "hospital-cross": {
-      "keywords": [
-        "medical center",
-        "cross",
-        "health center",
-        "pharmacy"
-      ],
-      "motif": "hospital",
-      "tone": "a_red",
-      "fill": true,
-      "colors": true
-    },
-    "brain": {
-      "keywords": [
-        "brain",
-        "mental",
-        "mind",
-        "neuro",
-        "psychology",
-        "cognitive",
-        "memory"
-      ]
-    },
-    "dna": {
-      "keywords": [
-        "dna",
-        "gene",
-        "genetic",
-        "genome",
-        "heredity",
-        "biology",
-        "chromosome"
-      ],
-      "motif": "dna"
-    },
-    "bone": {
-      "keywords": [
-        "bone",
-        "skeleton",
-        "orthopedic",
-        "fracture",
-        "calcium"
-      ]
-    },
-    "bandage": {
-      "keywords": [
-        "bandage",
-        "wound",
-        "injury",
-        "first aid",
-        "heal",
-        "cut"
-      ],
-      "tone": "a_yellow",
-      "colors": true
-    },
-    "microscope": {
-      "keywords": [
-        "microscope",
-        "lab",
-        "research",
-        "science",
-        "experiment",
-        "pathology"
-      ],
-      "tone": "a_blue",
-      "colors": true
-    },
-    "virus": {
-      "keywords": [
-        "virus",
-        "bacteria",
-        "infection",
-        "germ",
-        "pathogen",
-        "covid",
-        "flu"
-      ],
-      "motif": "virus",
-      "tone": "a_green",
-      "fill": true,
-      "colors": true
-    },
-    "tooth": {
-      "keywords": [
-        "tooth",
-        "dental",
-        "dentist",
-        "cavity",
-        "teeth",
-        "oral"
-      ]
-    },
-    "baby": {
-      "keywords": [
-        "baby",
-        "infant",
-        "newborn",
-        "child",
-        "pediatric",
-        "maternity"
-      ]
-    },
-    "wheelchair": {
-      "keywords": [
-        "wheelchair",
-        "disability",
-        "accessibility",
-        "mobility",
-        "disabled",
-        "handicap"
-      ]
-    },
-    "clipboard-vitals": {
-      "keywords": [
-        "chart",
-        "vitals",
-        "clipboard",
-        "record",
-        "diagnosis",
-        "report",
-        "insurance"
-      ],
-      "tone": "a_blue",
-      "colors": true
-    },
-    "face-mask": {
-      "keywords": [
-        "mask",
-        "face mask",
-        "protection",
-        "pandemic",
-        "surgical mask",
-        "ppe"
-      ],
-      "tone": "a_blue",
-      "colors": true
-    },
-    "blood-drop": {
-      "keywords": [
-        "blood",
-        "donation",
-        "transfusion",
-        "blood type",
-        "hemoglobin",
-        "drop"
-      ],
-      "tone": "a_red",
-      "fill": true,
-      "colors": true
-    },
-    "lungs": {
-      "keywords": [
-        "lungs",
-        "breathing",
-        "respiratory",
-        "oxygen",
-        "asthma",
-        "pulmonary"
-      ]
-    },
-    "eye-vision": {
-      "keywords": [
-        "eye",
-        "vision",
-        "sight",
-        "optometry",
-        "ophthalmology",
-        "see"
-      ],
-      "tone": "a_blue",
-      "colors": true
-    },
-    "hospital-bed": {
-      "keywords": [
-        "bed",
-        "hospital",
-        "ward",
-        "patient",
-        "admitted",
-        "inpatient",
-        "icu",
-        "hospitalized"
-      ],
-      "motif": "bed",
-      "tone": "a_blue",
-      "fill": true,
-      "colors": true
-    },
-    "hospital": {
-      "keywords": [
-        "hospital",
-        "hospitals",
-        "clinic",
-        "infirmary",
-        "medical center"
-      ],
-      "tone": "a_red",
-      "fill": true,
-      "colors": true
-    },
-    "door-handle": {
-      "keywords": [
-        "handle",
-        "door handle",
-        "doorknob",
-        "knob",
-        "door"
-      ],
-      "fill": true,
-      "colors": true
-    },
-    "water-tap": {
-      "keywords": [
-        "water",
-        "tap",
-        "sink",
-        "faucet",
-        "wash",
-        "washing",
-        "handwashing"
-      ],
-      "colors": true
-    },
-    "phone": {
-      "keywords": [
-        "phone",
-        "phones",
-        "smartphone",
-        "mobile"
-      ],
-      "colors": true
-    },
-    "soap": {
-      "keywords": [
-        "soap",
-        "soap bar",
-        "lather",
-        "suds"
-      ],
-      "colors": true
-    }
+ "name": "healthcare",
+ "domain": "healthcare explainers \u2014 harvested + curated",
+ "glyphs": {
+  "stethoscope": {
+   "keywords": [
+    "stethoscope",
+    "physician",
+    "checkup",
+    "clinic",
+    "medical"
+   ],
+   "motif": "doctor",
+   "tone": "a_blue",
+   "colors": true
+  },
+  "heart-pulse": {
+   "keywords": [
+    "heart",
+    "pulse",
+    "cardio",
+    "heartbeat",
+    "cardiac",
+    "ekg",
+    "vitals"
+   ],
+   "motif": "heart",
+   "tone": "a_red",
+   "fill": true,
+   "colors": true
+  },
+  "pill-capsule": {
+   "keywords": [
+    "pill",
+    "medicine",
+    "drug",
+    "capsule",
+    "medication",
+    "dose",
+    "pharmacy"
+   ],
+   "motif": "pill"
+  },
+  "syringe": {
+   "keywords": [
+    "vaccine",
+    "injection",
+    "syringe",
+    "shot",
+    "immunization",
+    "dose"
+   ],
+   "motif": "vaccine",
+   "tone": "a_blue",
+   "colors": true
+  },
+  "thermometer": {
+   "keywords": [
+    "fever",
+    "temperature",
+    "thermometer",
+    "sick",
+    "hot"
+   ],
+   "tone": "a_red",
+   "colors": true
+  },
+  "ambulance": {
+   "keywords": [
+    "ambulance",
+    "emergency",
+    "er",
+    "hospital transport",
+    "911",
+    "urgent"
+   ],
+   "colors": true
+  },
+  "hospital-cross": {
+   "keywords": [
+    "medical center",
+    "cross",
+    "health center",
+    "pharmacy"
+   ],
+   "motif": "hospital",
+   "tone": "a_red",
+   "fill": true,
+   "colors": true
+  },
+  "brain": {
+   "keywords": [
+    "brain",
+    "mental",
+    "mind",
+    "neuro",
+    "psychology",
+    "cognitive",
+    "memory"
+   ]
+  },
+  "dna": {
+   "keywords": [
+    "dna",
+    "gene",
+    "genetic",
+    "genome",
+    "heredity",
+    "biology",
+    "chromosome"
+   ],
+   "motif": "dna"
+  },
+  "bone": {
+   "keywords": [
+    "bone",
+    "skeleton",
+    "orthopedic",
+    "fracture",
+    "calcium"
+   ]
+  },
+  "bandage": {
+   "keywords": [
+    "bandage",
+    "wound",
+    "injury",
+    "first aid",
+    "heal",
+    "cut"
+   ],
+   "tone": "a_yellow",
+   "colors": true
+  },
+  "microscope": {
+   "keywords": [
+    "microscope",
+    "lab",
+    "research",
+    "science",
+    "experiment",
+    "pathology"
+   ],
+   "tone": "a_blue",
+   "colors": true
+  },
+  "virus": {
+   "keywords": [
+    "virus",
+    "bacteria",
+    "infection",
+    "germ",
+    "pathogen",
+    "covid",
+    "flu"
+   ],
+   "motif": "virus",
+   "tone": "a_green",
+   "fill": true,
+   "colors": true
+  },
+  "tooth": {
+   "keywords": [
+    "tooth",
+    "dental",
+    "dentist",
+    "cavity",
+    "teeth",
+    "oral"
+   ]
+  },
+  "baby": {
+   "keywords": [
+    "baby",
+    "infant",
+    "newborn",
+    "pediatric",
+    "maternity"
+   ]
+  },
+  "wheelchair": {
+   "keywords": [
+    "wheelchair",
+    "disability",
+    "accessibility",
+    "mobility",
+    "disabled",
+    "handicap"
+   ]
+  },
+  "clipboard-vitals": {
+   "keywords": [
+    "chart",
+    "vitals",
+    "clipboard",
+    "record",
+    "diagnosis",
+    "report",
+    "insurance"
+   ],
+   "tone": "a_blue",
+   "colors": true
+  },
+  "face-mask": {
+   "keywords": [
+    "mask",
+    "face mask",
+    "protection",
+    "pandemic",
+    "surgical mask",
+    "ppe"
+   ],
+   "tone": "a_blue",
+   "colors": true
+  },
+  "blood-drop": {
+   "keywords": [
+    "blood",
+    "donation",
+    "transfusion",
+    "blood type",
+    "hemoglobin",
+    "drop"
+   ],
+   "tone": "a_red",
+   "fill": true,
+   "colors": true
+  },
+  "lungs": {
+   "keywords": [
+    "lungs",
+    "breathing",
+    "respiratory",
+    "oxygen",
+    "asthma",
+    "pulmonary"
+   ]
+  },
+  "eye-vision": {
+   "keywords": [
+    "eye",
+    "vision",
+    "sight",
+    "optometry",
+    "ophthalmology",
+    "see"
+   ],
+   "tone": "a_blue",
+   "colors": true
+  },
+  "hospital-bed": {
+   "keywords": [
+    "bed",
+    "hospital",
+    "ward",
+    "admitted",
+    "inpatient",
+    "icu",
+    "hospitalized"
+   ],
+   "motif": "bed",
+   "tone": "a_blue",
+   "fill": true,
+   "colors": true
+  },
+  "hospital": {
+   "keywords": [
+    "hospital",
+    "hospitals",
+    "clinic",
+    "infirmary",
+    "medical center"
+   ],
+   "tone": "a_red",
+   "fill": true,
+   "colors": true
+  },
+  "door-handle": {
+   "keywords": [
+    "handle",
+    "door handle",
+    "doorknob",
+    "knob",
+    "door"
+   ],
+   "fill": true,
+   "colors": true
+  },
+  "water-tap": {
+   "keywords": [
+    "water",
+    "tap",
+    "sink",
+    "faucet",
+    "wash",
+    "washing",
+    "handwashing"
+   ],
+   "colors": true
+  },
+  "phone": {
+   "keywords": [
+    "phone",
+    "phones",
+    "smartphone",
+    "mobile"
+   ],
+   "colors": true
+  },
+  "soap": {
+   "keywords": [
+    "soap",
+    "soap bar",
+    "lather",
+    "suds"
+   ],
+   "colors": true
+  },
+  "pill": {
+   "keywords": [
+    "drug",
+    "medication",
+    "medicine",
+    "new drug",
+    "pharmaceutical",
+    "pill",
+    "prescription drug",
+    "tablet"
+   ],
+   "donor": "world:pill"
+  },
+  "vaccine": {
+   "keywords": [
+    "dna vaccine",
+    "immunization",
+    "jab",
+    "shot",
+    "vaccination",
+    "vaccine"
+   ],
+   "donor": "kit:healthcare:vaccine"
+  },
+  "immune-cell": {
+   "keywords": [
+    "antibody",
+    "b cell",
+    "cell",
+    "helper t cell",
+    "immune cell",
+    "immune response",
+    "immune system",
+    "killer t cell",
+    "t cell",
+    "white blood cell"
+   ],
+   "donor": "healthicons:antibody"
+  },
+  "heart": {
+   "keywords": [
+    "cardiac",
+    "cardiovascular",
+    "heart"
+   ],
+   "donor": "healthicons:heart"
+  },
+  "insurance": {
+   "keywords": [
+    "coverage",
+    "health insurance",
+    "health insurer",
+    "insurance",
+    "insurance company",
+    "policy",
+    "policy holder",
+    "premium",
+    "private insurance"
+   ],
+   "donor": "kit:healthcare:insurance"
+  },
+  "bill": {
+   "keywords": [
+    "bill",
+    "claim",
+    "copay",
+    "cost",
+    "deductible",
+    "medical bill",
+    "out of pocket"
+   ],
+   "donor": "kit:healthcare:bill"
+  },
+  "clipboard": {
+   "keywords": [
+    "chart",
+    "clipboard",
+    "diagnosis",
+    "lab result",
+    "medical record",
+    "screening",
+    "test result"
+   ],
+   "donor": "world:clipboard"
+  },
+  "clinical-trial": {
+   "keywords": [
+    "clinical trial",
+    "experiment",
+    "phase",
+    "research",
+    "study",
+    "trial"
+   ],
+   "donor": "kit:healthcare:clinical-trial"
+  },
+  "consent": {
+   "keywords": [
+    "agreement",
+    "consent",
+    "form",
+    "informed consent",
+    "signature",
+    "signs"
+   ],
+   "donor": "phosphor:signature"
+  },
+  "calendar": {
+   "keywords": [
+    "appointment",
+    "calendar",
+    "schedule",
+    "telehealth",
+    "telemedicine",
+    "video call",
+    "visit"
+   ],
+   "donor": "phosphor:calendar"
+  },
+  "pharma": {
+   "keywords": [
+    "drug maker",
+    "manufacturer",
+    "pharma",
+    "pharmaceutical company"
+   ],
+   "donor": "healthicons:pharmacy"
+  },
+  "lab": {
+   "keywords": [
+    "drug development",
+    "drug discovery",
+    "lab",
+    "laboratory",
+    "researcher",
+    "scientist"
+   ],
+   "donor": "kit:healthcare:lab"
+  },
+  "monitor": {
+   "keywords": [
+    "blood pressure",
+    "heart rate",
+    "monitor",
+    "readings",
+    "vitals"
+   ],
+   "donor": "phosphor:monitor"
+  },
+  "bed": {
+   "keywords": [
+    "admitted",
+    "bed",
+    "bed rest",
+    "hospital bed",
+    "inpatient",
+    "recovery"
+   ],
+   "donor": "world:bed"
+  },
+  "certificate": {
+   "keywords": [
+    "approval",
+    "approved",
+    "certificate",
+    "certification",
+    "fda",
+    "license"
+   ],
+   "donor": "phosphor:certificate"
+  },
+  "person-group": {
+   "keywords": [
+    "community",
+    "family",
+    "person group",
+    "population",
+    "public health"
+   ],
+   "donor": "kit:healthcare:person-group"
+  },
+  "tumor": {
+   "keywords": [
+    "cancer",
+    "malignant",
+    "tumor",
+    "tumor cell"
+   ],
+   "donor": "game-icons:tumor"
+  },
+  "surgery": {
+   "keywords": [
+    "operation",
+    "procedure",
+    "surgery",
+    "surgical"
+   ],
+   "donor": "phosphor:first-aid-kit"
+  },
+  "network": {
+   "keywords": [
+    "coverage network",
+    "in network",
+    "network",
+    "provider network"
+   ],
+   "donor": "phosphor:network"
+  },
+  "balance": {
+   "keywords": [
+    "adverse selection",
+    "balance",
+    "balanced",
+    "risk",
+    "risk pool"
+   ],
+   "donor": "kit:healthcare:balance"
+  },
+  "money": {
+   "keywords": [
+    "affordable",
+    "cost",
+    "expensive",
+    "money",
+    "price",
+    "spending"
+   ],
+   "donor": "phosphor:money"
+  },
+  "scale": {
+   "keywords": [
+    "balance",
+    "mild",
+    "scale",
+    "severe",
+    "severity",
+    "weight"
+   ],
+   "donor": "world:scale"
   }
+ }
 }
