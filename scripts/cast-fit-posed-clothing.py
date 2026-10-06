@@ -180,7 +180,38 @@ def fit_posed_clothing(scene):
                 if 'castFitOriginalHideRender' not in ob:ob['castFitOriginalHideRender']=ob.hide_render
                 ob.hide_render=True
                 print('POSED_TOP_LET_OUT',ob.name,adjusted,'vertices; max',round(largest,4),'cuff stopped',cuff,flush=True)
+    fit_report+=_drop_stretched_strokes()
     return fit_report
+
+def _drop_stretched_strokes(limit=3.0):
+    """Ink strokes bound to a garment span the gap when a limb lifts away from the torso; drop faces stretched past `limit`× their rest length."""
+    import bmesh
+    report=[];deps=bpy.context.evaluated_depsgraph_get()
+    for ob in [o for o in bpy.data.objects if o.type=='MESH' and o.get('castGarmentSource') and 'castStrokeTaper' in o]:
+        shown=next((o for o in bpy.data.objects if o.get('castFitSource')==ob.name and not o.hide_render),None)
+        if shown is None and ob.hide_render:continue
+        source=shown or ob
+        mesh=bpy.data.meshes.new_from_object(source.evaluated_get(deps),depsgraph=deps) if shown is None else shown.data
+        rest=ob.data
+        if len(mesh.vertices)!=len(rest.vertices):
+            if shown is None:bpy.data.meshes.remove(mesh)
+            continue
+        bm=bmesh.new();bm.from_mesh(mesh);bm.verts.ensure_lookup_table()
+        bad=[f for f in bm.faces if any((e.verts[0].co-e.verts[1].co).length>limit*max((rest.vertices[e.verts[0].index].co-rest.vertices[e.verts[1].index].co).length,1e-6) for e in f.edges)]
+        if not bad:
+            bm.free()
+            if shown is None:bpy.data.meshes.remove(mesh)
+            continue
+        bmesh.ops.delete(bm,geom=bad,context='FACES_ONLY');bm.to_mesh(mesh);bm.free();mesh.update()
+        if shown is None:
+            shown=bpy.data.objects.new(ob.name+'.preview-fit',mesh);shown.matrix_world=ob.matrix_world.copy()
+            for collection in ob.users_collection:collection.objects.link(shown)
+            shown.pass_index=ob.pass_index;shown['castFitSource']=ob.name
+            if 'castFitOriginalHideRender' not in ob:ob['castFitOriginalHideRender']=ob.hide_render
+            ob.hide_render=True
+        report.append({'object':ob.name,'droppedStretchedStrokeFaces':len(bad)})
+        print('POSED_STROKES_DROPPED',ob.name,len(bad),flush=True)
+    return report
 
 fit_report=fit_posed_clothing(bpy.context.scene)
 
