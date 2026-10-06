@@ -25,6 +25,7 @@ from pathlib import Path
 import sb_activity
 import sb_cast
 import sb_story
+import scene_planner
 import scene_map
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -1866,10 +1867,18 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
     if beat_maps and len(story) >= 0.6 * len(beat_maps):
         story = set(beat_maps)
     cast = sb_story.Cast()
+    told: list = []
     for bi, (maps, sents_) in sorted(beat_maps.items()):
         if bi in story:
             sb_story.stage(beats[bi]['scene'], maps, sents_, cast,
                            lambda w: v3._icon_for(w))
+            sp = scene_planner.plan(
+                sents_, [p_ for p_ in cast.people if '#' not in p_],
+                ' '.join(told[-2:]))
+            if sp is not None:
+                beats[bi]['scene']['plan_notes'] = scene_planner.apply(
+                    beats[bi]['scene'], sp, sents_, cast)
+            told.extend(sents_)
         else:
             _graph_scene(beats[bi]['scene'], maps)
     for bi, b in enumerate(beats):

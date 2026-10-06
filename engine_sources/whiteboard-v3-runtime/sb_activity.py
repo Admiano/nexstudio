@@ -79,10 +79,11 @@ _VERB_ANCHORS = (
 _VERB_MAP = dict(_VERB_ANCHORS)
 
 # lemma senses WordNet ranks badly for narration
-_LEMMA = {'jog': 'run', 'sprint': 'run', 'dash': 'run', 'race': 'run',
+_LEMMA = {'clap': 'clap', 'applaud': 'clap', 'wave': 'wave', 'bow': 'bow',
+          'nod': 'nod', 'jog': 'run', 'sprint': 'run', 'dash': 'run', 'race': 'run',
           'hike': 'hike', 'stroll': 'walk', 'march': 'walk', 'wander': 'walk',
           'scale': 'climb', 'study': 'read', 'browse': 'read',
-          'serve': 'give', 'deliver': 'give', 'hand': 'give', 'offer': 'give',
+          'serve': 'give', 'hand': 'give', 'offer': 'give',
           'call': 'phone', 'text': 'phone', 'dial': 'phone',
           'pick': 'pick', 'harvest': 'pick', 'hold': 'hold', 'grab': 'hold',
           'catch': 'hold', 'carry': 'carry', 'haul': 'pull', 'tow': 'pull',
@@ -268,6 +269,25 @@ def noun_cat(label):
     return ''
 
 
+# gestures of the body itself: no object, no apparatus
+GESTURES = frozenset({'clap', 'wave', 'bow', 'nod', 'tap', 'cover_face',
+                      'wipe_tears', 'hug'})
+_SEATED_PLAY = {'keyboard_instrument.n.01', 'drum.n.01', 'harp.n.01',
+                'cello.n.01', 'double_bass.n.01'}
+
+
+def _played_seated(label):
+    """Instruments one sits at or behind (piano, organ, drum kit)."""
+    head = (re.findall(r'[a-z]+', str(label or '').lower()) or [''])[-1]
+    if _wn is None or not head:
+        return head in ('piano', 'organ', 'drums', 'drum', 'harp', 'cello')
+    for syn in _wn.synsets(head, 'n')[:6]:
+        if any(h.name() in _SEATED_PLAY for pth in syn.hypernym_paths()
+               for h in pth) or syn.name() in _SEATED_PLAY:
+            return True
+    return False
+
+
 def _verb_schema(lemma):
     """-> (schema, via) from the lemma table, WordNet anchors, or the
     closest pattern of the verb's lexical field; ('', '') if abstract."""
@@ -311,16 +331,23 @@ def is_physical(lemma):
     return bool(syns) and syns[0].lexname() in _PHYSICAL_LEX
 
 
-def resolve(lemma, objects=(), posture=''):
+def resolve(lemma, objects=(), posture='', schema=''):
     """Verb + the things it acts on -> activity spec or None.
 
     `objects`: [(relation, label)] — relation 'dobj' or a preposition.
     `posture`: a stance already established for the actor ('sit' ...).
+    `schema`: a body pattern already chosen for the verb in context (the
+    scene planner's reading), used instead of the verb's own.
     Returns {'schema', 'via', 'partner' (label or None), 'kind' (the
     partner's category), 'lemma'}."""
-    sc, via = _verb_schema(lemma)
+    sc, via = (schema, 'plan') if schema else _verb_schema(lemma)
     if not sc:
         return None
+    if sc in GESTURES:
+        return {'schema': sc, 'via': via, 'partner': None,
+                'kind': 'seated' if posture == 'sit' else '',
+                'lemma': str(lemma or '').lower(), 'absorb': [],
+                'setting': [], 'roles': {}}
     cats = [(rel, lab, noun_cat(lab)) for rel, lab in objects if lab]
 
     def first(*want, rels=None):
@@ -367,6 +394,9 @@ def resolve(lemma, objects=(), posture=''):
         p_, k_ = first('instrument')
         sc = 'play' if p_ is not None else 'jump'
         partner, kind = (p_, k_) if p_ is not None else (partner, kind)
+        if p_ is not None and _played_seated(p_):
+            kind = 'keyboard'
+
     if sc in ('write', 'paint', 'point'):
         b_, _k = first('board_w')
         if b_ is not None:
@@ -1209,6 +1239,18 @@ def _schema(sc, kind, col, tool):
         back += _poly([(0.40, -0.02), (1.8, -0.02), (1.8, 0.14),
                        (0.40, 0.14)], C['water'])
         return pose, back, front, marks, None, extra
+    if sc == 'play' and kind == 'keyboard':
+        # seated at a big instrument, hands forward on its keys
+        pose = dict(SEATED, hands={'n': (0.36, -0.50), 'f': (0.32, -0.49)},
+                    elbow=(0.0, 1.0), lean=0.12)
+        back += _chair()
+        for k in range(2):
+            marks += _circ(0.62 + k * 0.12, -1.00 - k * 0.08, 0.02, INK)
+            marks += _line([(0.64 + k * 0.12, -1.00 - k * 0.08),
+                            (0.64 + k * 0.12, -1.12 - k * 0.08)])
+        return pose, back, front, marks, ('ahead', 0.28, 0.62), extra
+    if sc in GESTURES:
+        return _gesture(sc, kind == 'seated', back, front, marks, extra)
     if sc == 'play':
         pose = _std(hn=(0.14, -0.52), hf=(0.14, -0.66), elbow=(0.0, 1.0))
         slot = ('hands', 0.14, 0.34)
@@ -1231,6 +1273,63 @@ def _schema(sc, kind, col, tool):
                            INK, 0.7)
         return pose, back, front, marks, None, extra
     return None
+
+
+def _gesture(sc, seated, back, front, marks, extra):
+    """Body gestures with no object: the hands go to the body or the
+    air, the head nods, the torso bows; seated ones keep the seat."""
+    base = dict(SEATED) if seated else _std()
+    dy = (base['hip'][1] + 0.39) if seated else 0.0
+
+    def at(x, y):
+        return (x, y + dy)
+    hands = dict(base['hands'])
+    pose = dict(base)
+    rest = base['hands']['f'] if seated else (-0.04, -0.44)
+    if sc == 'clap':
+        hands = {'n': at(0.20, -0.68), 'f': at(0.18, -0.67)}
+        for k in (-1, 0, 1):
+            marks += _line([at(0.26, -0.70 + k * 0.05),
+                            at(0.33, -0.72 + k * 0.08)], INK, 0.7)
+    elif sc == 'wave':
+        hands = {'n': at(0.34, -0.92), 'f': rest}
+        for k in range(2):
+            marks += _circ(0.34, -0.92 + dy, 0.10 + k * 0.05, None, n=8,
+                           a0=-2.4, a1=-0.8, w=0.7)
+    elif sc == 'bow':
+        pose['lean'] = 0.35 if seated else 0.62
+        hands = {'n': at(0.14, -0.42), 'f': at(0.10, -0.40)}
+    elif sc == 'nod':
+        pose['head'] = (0.03, 0.05)
+        for k in range(2):
+            marks += _line([at(-0.02 + k * 0.08, -1.12), at(0.00 + k * 0.08,
+                                                            -1.04)],
+                           INK, 0.7)
+    elif sc == 'tap':
+        if seated:
+            hands = {'n': (0.20, -0.29), 'f': (0.10, -0.33)}
+            spot = (0.20, -0.36)
+        else:
+            hands = {'n': (0.08, -0.36), 'f': (-0.06, -0.42)}
+            spot = (0.10, -0.44)
+        for k in (-1, 0, 1):
+            marks += _line([(spot[0] + k * 0.04, spot[1] - 0.04),
+                            (spot[0] + k * 0.06, spot[1] - 0.10)], INK, 0.6)
+    elif sc == 'cover_face':
+        hands = {'n': at(0.13, -0.86), 'f': at(0.10, -0.80)}
+        pose['head'] = (0.0, 0.03)
+        pose['lean'] = float(pose.get('lean', 0.0)) + 0.10
+    elif sc == 'wipe_tears':
+        hands = {'n': at(0.12, -0.89), 'f': rest}
+    elif sc == 'hug':
+        hands = {'n': at(0.34, -0.66), 'f': at(0.30, -0.62)}
+        pose['lean'] = float(pose.get('lean', 0.0)) + 0.08
+    pose['hands'] = hands
+    pose['elbow'] = (0.0, 1.0)
+    pose['seated'] = seated
+    if seated:
+        back += _chair()
+    return pose, back, front, marks, None, extra
 
 
 def _xf_art(art, box):
@@ -1513,7 +1612,8 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
         return None
     pose, back, front, marks, slot, extra = got
     pose = dict(pose, hands=dict(pose['hands']), feet=dict(pose['feet']))
-    pose = _settle(pose, sc in _SEATED_SCHEMAS)
+    pose = _settle(pose, sc in _SEATED_SCHEMAS or bool(pose.get('seated'))
+                   or (sc == 'play' and kind == 'keyboard'))
     body, fmarks, anch = sb_cast.posed(pose, emotion, outfit, shirt)
     if sb_cast.EMOTIONS.get(emotion, ('',))[0] == 'holdhead' \
             and sc not in HAND_SCHEMAS:
@@ -1591,7 +1691,8 @@ SCHEMAS = ('drive', 'ride', 'row', 'climb', 'hike', 'walk', 'run', 'carry',
            'eat', 'lie', 'kneel', 'plant', 'dig', 'cook', 'cut', 'wipe',
            'fix', 'strike', 'board', 'paint', 'point', 'read', 'phone',
            'photo', 'look', 'give', 'hold', 'pick', 'pour', 'fish', 'play',
-           'open', 'talk')
+           'open', 'talk', 'clap', 'wave', 'bow', 'nod', 'tap', 'cover_face',
+           'wipe_tears', 'hug')
 
 
 def _hand_slot(sc):
