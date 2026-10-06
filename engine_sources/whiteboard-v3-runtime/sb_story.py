@@ -640,6 +640,9 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
                 if not owner:
                     continue
                 oi = ensure(owner)
+                if oi == sitter:
+                    # 'taps the rhythm on his knee': their own body
+                    continue
                 if part.startswith(('shoulder', 'back')):
                     # 'asleep on his captain's shoulder': leaning on them
                     rs[sitter]['touch'] = sorted(set(
