@@ -6,6 +6,7 @@ import { studioApi } from "../api";
 import {ENVIRONMENTS,environmentImage,type EnvironmentFormat} from '../cast/environments';
 import OptionImage from "../cast/OptionImage";
 import AvatarStage, {type AvatarPreviewState} from "../cast/AvatarStage";
+import LiveCastStage from "../cast/LiveCastStage";
 import {castRenderConfig} from "../cast/render-config";
 import {
   DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
@@ -234,7 +235,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
               <div className="cast-builder-workspace">
               <div className="series-identity-live">
                 <div className="series-identity-live-preview cast-live-preview">
-                  <AvatarStage spec={spec} onStatus={state=>setPreview({key:visualKey,state})}/>
+                  <LiveCastStage spec={spec} onStatus={state=>setPreview({key:visualKey,state})}/>
                 </div>
                 <div className="series-identity-live-copy">
                   <span>On stage</span>

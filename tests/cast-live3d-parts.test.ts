@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {DEFAULT_SPEC,normalizeCastSpec} from '../src/studio-v2/cast/spec';
+import {hairShadeRatio,livePartKeys,selectLiveParts,tintRatio,hairTint,liveColours,type LiveManifest} from '../src/studio-v2/cast/live3d-parts';
+const m=DEFAULT_SPEC.male,f=DEFAULT_SPEC.female;
+assert.deepEqual(livePartKeys(m),{body:'m-face0-o3',hair:'m-quiff',garment:'m-o3'});
+assert.equal(livePartKeys({...m,outfit:{kind:'o4'},watch:'chrono'}).watch,undefined);
+assert.equal(livePartKeys({...m,outfit:{kind:'o1'},watch:'chrono'}).watch,'m-chrono-o1');
+assert.equal(livePartKeys({...m,hair:{style:'bald',color:'black'}}).hair,undefined);
+assert.equal(livePartKeys({...f,neck:'none'}).neck,undefined);
+assert.equal(livePartKeys({...f,neck:'pearls'}).neck,'f-pearls');
+assert.equal('shoes' in livePartKeys(m),false);
+const part={glb:'x.glb'},o2={glb:'g.glb',tint:liveColours(normalizeCastSpec({...m,outfit:{kind:'o2'}})).garments};
+const man:LiveManifest={version:'t',parts:{body:{'m-face1-o2':part,'m-face1-o1':part},hair:{'m-crop':part},garment:{'m-o2':o2},watch:{'m-smart-o1':part}}};
+const pick=selectLiveParts(normalizeCastSpec({...m,face:1,hair:{style:'crop',color:'black'},outfit:{kind:'o2'},watch:'smart'}),man);
+assert.equal(pick.selection.body?.key,'m-face1-o2');assert.ok(selectLiveParts(normalizeCastSpec({...m,face:1,outfit:{kind:'o5'}}),man).missing.includes('body'));assert.equal(pick.selection.watch?.key,'m-smart-o1');assert.deepEqual(pick.missing,[]);
+assert.deepEqual(selectLiveParts(m,man).missing.sort(),['body','garment','hair']);
+assert.deepEqual(tintRatio('A9C4DE','A9C4DE'),[1,1,1]);
+assert.ok(Math.abs(hairTint('5A3A24','5A3A24').scale-1/(0.2126*0.10+0.7152*0.042+0.0722*0.018))<3);
+assert.equal(liveColours(m).garments.elvs_male_shirt_untucked_bd1,'A9C4DE');assert.equal(liveColours(f).lip,'A86F66');
+assert.equal(liveColours({...f,hair:{style:'long',color:'auburn'}}).hair,'9A4A2E');
+assert.equal(liveColours(f).garments.mindfront_f_dress_11,'2B3A5C');
+assert.equal(liveColours({...m,skin:'ab8765'}).skin,'AB8765');
+const otherTrousers=normalizeCastSpec({...m,outfit:{kind:'o2',pieces:{bottom:'chinos',shoes:'sneakers'}}});
+assert.deepEqual(selectLiveParts(otherTrousers,man).missing.includes('garment'),Object.keys(liveColours(otherTrousers).garments).sort().join()!==Object.keys(o2.tint).sort().join());
+console.log('cast live3d parts ok');
+{
+ const shaded={version:'t',parts:{},hairShade:{f:{'9A4A2E':[.2,.1,.05],'D8B77A':[.4,.3,.1]}}};
+ assert.deepEqual(hairShadeRatio(shaded,'f','d8b77a','9A4A2E')?.map(v=>+v.toFixed(3)),[2,3,2]);
+ assert.equal(hairShadeRatio(shaded,'m','D8B77A','9A4A2E'),null);
+}
