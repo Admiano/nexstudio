@@ -5,7 +5,7 @@ Pipeline: script/voice-file -> voice.mp3 + alignment.json -> auto-treatment
 (style from styles.json, entities from entity_bank, customer media via
 media_library) -> regression_pack render -> web file -> poster-framed file.
 
-  python3 tools/make_reel.py --script "A few years ago, ..." --voice bm_george \
+  python3 tools/make_reel.py --script "A few years ago, ..." --voice andrew \
       --style tiles --media desk.png clip.mp4 --out out/my-reel
   python3 tools/make_reel.py --voice-file vo.mp3 --style sketch --aspects 1x1 --out out/r2
   python3 tools/make_reel.py --treatment fixtures/x/treatment.json --fixture-voice fixtures/x --out out/r3
@@ -297,7 +297,7 @@ def remux_nocaption(frames_dir, audio_wav, out_mp4):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--script"); ap.add_argument("--script-file"); ap.add_argument("--voice-file")
-    ap.add_argument("--voice", default="bm_george", choices=sorted(VOICES))
+    ap.add_argument("--voice", default="andrew", choices=sorted(VOICES))
     ap.add_argument("--style", default="tiles")
     ap.add_argument("--media", nargs="*", default=[])
     ap.add_argument("--aspects", default="16x9,1x1,9x16")

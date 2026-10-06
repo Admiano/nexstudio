@@ -11,7 +11,19 @@ export const runtime = "nodejs";
 const ENGINE = process.env.EXPLAINER_ENGINE_DIR
   ?? path.join(process.cwd(), "engine_sources", "editorial-motion-v2");
 const JOBS = path.join(ENGINE, "out", "explainer-jobs");
-const VOICES = ["af_bella","af_sarah","am_onyx","am_adam","bf_emma","bf_isabella","bm_george","bm_lewis"];
+const VOICES = [
+  { id: "heart",   name: "Heart",   gender: "female", accent: "American", engine: "Kokoro",           preview: "/voice-previews/heart.mp3" },
+  { id: "sky",     name: "Sky",     gender: "female", accent: "American", engine: "Kokoro",           preview: "/voice-previews/sky.mp3" },
+  { id: "sarah",   name: "Sarah",   gender: "female", accent: "American", engine: "Kokoro",           preview: "/voice-previews/sarah.mp3" },
+  { id: "liam",    name: "Liam",    gender: "male",   accent: "American", engine: "Kokoro",           preview: "/voice-previews/liam.mp3" },
+  { id: "adam",    name: "Adam",    gender: "male",   accent: "American", engine: "Kokoro",           preview: "/voice-previews/adam.mp3" },
+  { id: "emma",    name: "Emma",    gender: "female", accent: "American", engine: "Microsoft neural", preview: "/voice-previews/emma.mp3" },
+  { id: "emily",   name: "Emily",   gender: "female", accent: "Irish",    engine: "Microsoft neural", preview: "/voice-previews/emily.mp3" },
+  { id: "andrew",  name: "Andrew",  gender: "male",   accent: "American", engine: "Microsoft neural", preview: "/voice-previews/andrew.mp3" },
+  { id: "steffan", name: "Steffan", gender: "male",   accent: "American", engine: "Microsoft neural", preview: "/voice-previews/steffan.mp3" },
+  { id: "david",   name: "David",   gender: "male",   accent: "British",  engine: "Chatterbox clone", preview: "/voice-previews/david.mp3" },
+];
+const VOICE_IDS = new Set(VOICES.map((v) => v.id));
 const ASPECTS = new Set(["16x9", "1x1", "9x16"]);
 
 function stylesList() {
@@ -46,9 +58,9 @@ export async function POST(request: Request) {
   if (!script && !(voiceFile instanceof File))
     return problem(id, 422, "VOICE_REQUIRED", "Voice required", "Send 'script' (for a Kokoro voice) or a 'voiceFile' upload.");
 
-  const voice = String(form.get("voice") ?? "bm_george");
-  if (script && !VOICES.includes(voice))
-    return problem(id, 422, "VOICE_UNKNOWN", "Unknown voice", `Pick one of: ${VOICES.join(", ")}.`);
+  const voice = String(form.get("voice") ?? "andrew");
+  if (script && !VOICE_IDS.has(voice))
+    return problem(id, 422, "VOICE_UNKNOWN", "Unknown voice", `Pick one of: ${[...VOICE_IDS].join(", ")}.`);
 
   const aspects = String(form.get("aspects") ?? "16x9,1x1,9x16")
     .split(",").map((a) => a.trim()).filter((a) => ASPECTS.has(a));
