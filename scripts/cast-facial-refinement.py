@@ -7,7 +7,7 @@ import bpy,math,hashlib,numpy as np
 from pathlib import Path
 from mathutils import Vector
 
-PROFILE='anatomical-mouth-v12'
+PROFILE='anatomical-mouth-v13'
 MODULE_SHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 
 def shaped_coordinates(ob):
@@ -23,15 +23,19 @@ def group_indices(ob,name):
     g=ob.vertex_groups[name].index
     return [v.index for v in ob.data.vertices if any(w.group==g and w.weight>.5 for w in v.groups)]
 
-def oral_material(kind):
+def oral_material(kind,character):
     name='Cast V12 '+kind;mat=bpy.data.materials.get(name) or bpy.data.materials.new(name)
     mat.use_nodes=True;t=mat.node_tree;t.nodes.clear();out=t.nodes.new('ShaderNodeOutputMaterial');p=t.nodes.new('ShaderNodeBsdfPrincipled')
-    color,rough,sss,emission={'enamel':((.76,.72,.63,1),.25,.035,.70),'gingiva':((.25,.065,.073,1),.37,.14,.32),'tongue':((.30,.080,.095,1),.38,.17,.32),'oral mucosa':((.095,.013,.022,1),.48,.08,.13)}[kind]
+    palettes={
+        'male':{'enamel':((.76,.72,.63,1),.25,.035,.70),'gingiva':((.25,.09,.095,1),.37,.14,.65),'tongue':((.30,.10,.105,1),.38,.17,.70),'oral mucosa':((.20,.07,.075,1),.48,.08,.70)},
+        'female':{'enamel':((.76,.72,.63,1),.25,.035,.70),'gingiva':((.25,.065,.073,1),.37,.14,.32),'tongue':((.30,.080,.095,1),.38,.17,.32),'oral mucosa':((.095,.013,.022,1),.48,.08,.13)}
+    }
+    color,rough,sss,emission=palettes[character][kind]
     p.inputs['Base Color'].default_value=color;p.inputs['Roughness'].default_value=rough;p.inputs['Subsurface Weight'].default_value=sss
     p.inputs['Subsurface Radius'].default_value=(.001,.0004,.00025)
     p.inputs['Coat Weight'].default_value=.13 if kind=='enamel' else .08;p.inputs['Coat Roughness'].default_value=.25
     geo=t.nodes.new('ShaderNodeNewGeometry');ao=t.nodes.new('ShaderNodeAmbientOcclusion');ao.inputs['Distance'].default_value=.012;ao.samples=32
-    ramp=t.nodes.new('ShaderNodeMapRange');ramp.inputs['To Min'].default_value=.30 if kind=='enamel' else .20;ramp.inputs['To Max'].default_value=1;t.links.new(ao.outputs['AO'],ramp.inputs['Value'])
+    ramp=t.nodes.new('ShaderNodeMapRange');ramp.inputs['To Min'].default_value=.30 if kind=='enamel' else (.85 if character=='male' else .20);ramp.inputs['To Max'].default_value=1;t.links.new(ao.outputs['AO'],ramp.inputs['Value'])
     tint=t.nodes.new('ShaderNodeMixRGB');tint.blend_type='MULTIPLY';tint.inputs[0].default_value=1;tint.inputs[1].default_value=color;t.links.new(ramp.outputs[0],tint.inputs[2])
     t.links.new(tint.outputs[0],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=emission
     if kind=='enamel':
@@ -93,13 +97,16 @@ def restore_oral_anatomy(scene,character):
     for name in ['Host.teeth_base','Host.V11_mouth_interior','Host.V11_mouth_teeth','Host.V11_mouth_tongue']:
         ob=bpy.data.objects.get(name)
         if ob:ob.hide_render=True
-    existing=[o for o in scene.objects if o.get('castFacialProfile')==PROFILE and o.name.startswith('Cast V12 oral')]
+    existing=[o for o in scene.objects if o.get('castFacialProfile') in (PROFILE,'anatomical-mouth-v12') and o.name.startswith('Cast V12 oral')]
     if existing:
+        for kind in ('enamel','gingiva','tongue','oral mucosa'):
+            oral_material(kind,character)
         for ob in existing:
             ob.pass_index=body.pass_index
+            ob['castFacialProfile']=PROFILE
             if ob.name=='Cast V12 oral lower':gingival_clearance(ob)
         return {'reused':True,'objects':[o.name for o in existing]}
-    target_co=shaped_coordinates(body);source_co=shaped_coordinates(guest);enamel=oral_material('enamel');gums=oral_material('gingiva');tongue_mat=oral_material('tongue');rows=[]
+    target_co=shaped_coordinates(body);source_co=shaped_coordinates(guest);enamel=oral_material('enamel',character);gums=oral_material('gingiva',character);tongue_mat=oral_material('tongue',character);rows=[]
     # The source has 32 discrete crowns and one gingival component. Fit each
     # arch against corresponding semantic helper vertices, in body rest space.
     for bone,helper,label in [('head','helper-upper-teeth','upper'),('jaw','helper-lower-teeth','lower')]:
@@ -128,7 +135,7 @@ def restore_oral_anatomy(scene,character):
     # their selected complexion and lipstick material.
     lip_ids=group_indices(body,'lips');lip_points=target_co[lip_ids];low=lip_points[:,2].min();high=lip_points[:,2].max();width=max(abs(lip_points[:,0]));front=lip_points[:,1].min()
     marks=body.data.attributes.get('freestyle_face') or body.data.attributes.new('freestyle_face','BOOLEAN','FACE')
-    mucosa=oral_material('oral mucosa');slot=len(body.data.materials);body.data.materials.append(mucosa);inside=0;lip_set=set(lip_ids)
+    mucosa=oral_material('oral mucosa',character);slot=len(body.data.materials);body.data.materials.append(mucosa);inside=0;lip_set=set(lip_ids)
     for p in body.data.polygons:
         q=target_co[list(p.vertices)].mean(axis=0)
         # The underside of the lower lip also turns away from the camera.

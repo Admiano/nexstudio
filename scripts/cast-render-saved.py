@@ -4,6 +4,9 @@ from pathlib import Path
 from mathutils import Vector
 character,view,frame,output=sys.argv[sys.argv.index('--')+1:]
 s=bpy.context.scene
+oral_material=runpy.run_path(str(Path(__file__).with_name('cast-facial-refinement.py')))['oral_material']
+for kind in ('enamel','gingiva','tongue','oral mucosa'):
+    oral_material(kind,character)
 os.environ['CAST_CHARACTER']=character
 os.environ['GARMS']=';'.join(o.name for o in s.objects if o.type=='MESH' and not o.get('castGarmentSource') and not o.get('castFitSource') and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and any(m and m.get('castFabric') for m in o.data.materials))
 s.frame_set(int(frame));bpy.context.view_layer.update()

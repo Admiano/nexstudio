@@ -15,7 +15,6 @@ export function castRenderConfig(raw:CastSpec,frame=CAST_PREVIEW_FRAME){
   CAST_MALE_LOOK:f?'':s.outfit!.kind.toUpperCase(),CAST_MALE_HAIR:f?'':HAIR[s.hair!.style],CAST_HAIR_DYE:!f&&s.hair!.color==='dye'?'8A1F3C':'',
   CAST_GARMENTS:f?'':[`${TOPS[s.outfit!.kind]}=${hex(s.outfit!.color!,MALE_TOP_COLORS)}`,`${MALE_BOTTOMS.find(b=>b.key===p.bottom)!.asset}=${hex(p.bottomColor,[])}`,`${MALE_SHOES.find(b=>b.key===p.shoes)!.asset}=${hex(p.shoesColor,[])}`].join(','),
  };
- return {sourceVersion:CAST_SOURCE_VERSION,renderVersion:CAST_RENDER_VERSION,frame,framing:'upper-thigh',resolutionPercentage:50,env};
+ return {sourceVersion:CAST_SOURCE_VERSION,renderVersion:CAST_RENDER_VERSION,oralProfile:'anatomical-mouth-v13',frame,framing:'upper-thigh',resolutionPercentage:50,env};
 }
 export type CastRenderConfig=ReturnType<typeof castRenderConfig>;
-

@@ -62,7 +62,6 @@ export const FEM_HAIRSTYLES = [
 
 export const MALE_HAIRSTYLES = [
   { key: "bald", label: "Bald" },
-  { key: "afro", label: "Short afro" },
   { key: "crop", label: "Short crop" },
   { key: "quiff", label: "Textured quiff" },
   { key: "braids", label: "Braids" },
@@ -127,11 +126,11 @@ export const MALE_TOP_COLORS = [
 ] as const;
 
 export const MALE_OUTFITS = [
-  { key: "o1", label: "Polo", note: "charcoal trousers · brown Oxfords" },
-  { key: "o2", label: "Tee", note: "straight jeans · white sneakers" },
-  { key: "o3", label: "Button-down", note: "tan trousers · monk straps" },
-  { key: "o4", label: "Knit", note: "classic jeans · sneakers" },
-  { key: "o5", label: "Fisherman", note: "wool trousers · Oxfords" },
+  { key: "o1", label: "Polo", note: "charcoal trousers" },
+  { key: "o2", label: "Tee", note: "straight jeans" },
+  { key: "o3", label: "Button-down", note: "tan trousers" },
+  { key: "o4", label: "Knit", note: "classic jeans" },
+  { key: "o5", label: "Fisherman", note: "wool trousers" },
 ] as const;
 
 export const WATCHES = [

@@ -3,6 +3,9 @@ import type { CastCharacter } from './spec';
 export type CastImageCategory = 'character' | 'face' | 'hair' | 'neck' | 'dress' | 'top' | 'bottom' | 'shoes' | 'watch';
 
 export function castOptionImage(character: CastCharacter, category: CastImageCategory, key: string | number) {
+  if (category === 'character' || category === 'face' || category === 'hair' || category === 'dress' || category === 'top' || category === 'bottom') {
+    return '/cast/options/v21/' + character + '/' + category + '/' + key + '.webp';
+  }
   return '/cast/options/' + character + '/' + category + '/' + key + '.svg';
 }
 
