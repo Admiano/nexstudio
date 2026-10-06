@@ -1,5 +1,5 @@
 """Rebuild posed garment clearance for each requested frame, without accumulation."""
-import bpy,bmesh,os,math,statistics
+import bpy,bmesh,os,math
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
@@ -25,36 +25,6 @@ def _watch_cuff_stop():
             q=2*math.pi*(i+0.5)/n;dr=u*math.cos(q)+w*math.sin(q);hit=bvh.ray_cast(centre+dr*0.09,-dr,0.09)
             if hit[0] is not None:skin[i]=0.09-hit[3]
     return {'wrist':wrist,'axis':axis,'u':u,'w':w,'n':n,'rim':rim,'skin':skin,'edge':edge,'edges':tops,'ease':0.015,'low':None}
-
-def _bare_wrist_cuff_stops(top_name):
-    """Clean both sleeve openings against the posed wrist when no watch is worn."""
-    rig=bpy.data.objects.get('Host.rig');body=bpy.data.objects.get('Host.body')
-    if rig is None or body is None:return []
-    M=rig.matrix_world;pb=rig.pose.bones;n=32;deps=bpy.context.evaluated_depsgraph_get()
-    ev=body.evaluated_get(deps);me=ev.to_mesh()
-    bvh=BVHTree.FromPolygons([body.matrix_world@v.co for v in me.vertices],[tuple(f.vertices) for f in me.polygons])
-    stops=[]
-    for side in ('L','R'):
-        wrist=(M@pb['wrist.'+side].matrix).translation
-        axis=(wrist-(M@pb['lowerarm01.'+side].matrix).translation).normalized()
-        u=axis.orthogonal().normalized();w=axis.cross(u)
-        extension=min(max(0,min(1,(-axis.z-0.15)/0.20)),
-                      max(0,min(1,(axis.z+0.75)/0.20)))
-        if 'knit' in top_name.lower():
-            extension=max(extension,max(0,min(1,(axis.z+0.15)/0.20)))
-        edge=0.006-0.046*extension
-        skin=[0.0]*n;centre=wrist-axis*(edge+0.004)
-        for i in range(n):
-            q=2*math.pi*(i+0.5)/n;direction=u*math.cos(q)+w*math.sin(q)
-            hit=bvh.ray_cast(centre+direction*0.09,-direction,0.09)
-            if hit[0] is not None:skin[i]=0.09-hit[3]
-        valid=[radius for radius in skin if radius>0]
-        if valid:
-            middle=statistics.median(valid)
-            skin=[max(middle-0.006,min(middle+0.006,radius)) if radius else middle for radius in skin]
-        stops.append({'wrist':wrist,'axis':axis,'u':u,'w':w,'n':n,'rim':[0.0]*n,'skin':skin,'edge':edge,'edges':[edge]*n,'ease':0.015,'low':None})
-    ev.to_mesh_clear()
-    return stops
 
 def _fit_cuff_edge(ob,mesh,stop):
     if stop is None:return 0
@@ -89,55 +59,6 @@ def _fit_cuff_edge(ob,mesh,stop):
         if stop['skin'][i]>0 and rr>fit and tt<top:q-=r*((rr-fit)/rr*(1-(tt-edge)/ease))
         if (q-p).length>1e-6:v.co=inverse@q;moved+=1
     return moved
-
-def _taper_bare_knit_cuff(ob,mesh,stop,side):
-    groups={group.index for group in ob.vertex_groups if group.name in ('lowerarm01.'+side,'lowerarm02.'+side,'wrist.'+side)}
-    inverse=ob.matrix_world.inverted();moved=0
-    for vertex in mesh.vertices:
-        if sum(group.weight for group in vertex.groups if group.group in groups)<0.15:continue
-        point=ob.matrix_world@vertex.co;offset=point-stop['wrist']
-        t=-offset.dot(stop['axis'])
-        if not -0.065<t<0.070:continue
-        radial=offset+stop['axis']*t;radius=radial.length
-        if radius<1e-6 or radius>0.10:continue
-        if t<stop['edge']:
-            point-=stop['axis']*(stop['edge']-t)
-        angle=math.atan2(radial.dot(stop['w']),radial.dot(stop['u']))%(2*math.pi)
-        index=int(angle*stop['n']/(2*math.pi))%stop['n']
-        skin=stop['skin'][index]
-        limit=skin+(0.001 if t<stop['edge'] else 0.004)+max(0,t)*0.12
-        weight=min(1.0,(0.070-t)/0.035)
-        excess=max(0,radius-limit)*weight
-        if excess>1e-6 or t<stop['edge']:
-            vertex.co=inverse@(point-radial.normalized()*excess);moved+=1
-    return moved
-
-def _trim_skin_under_cuffs(stops):
-    body=bpy.data.objects.get('Host.body')
-    if body is None:return
-    deps=bpy.context.evaluated_depsgraph_get()
-    fitted=bpy.data.meshes.new_from_object(body.evaluated_get(deps),depsgraph=deps)
-    bm=bmesh.new();bm.from_mesh(fitted)
-    for stop in stops:
-        wrist=stop['wrist'];axis=stop['axis']
-        vertices=[v for v in bm.verts if (body.matrix_world@v.co-wrist).length<0.12]
-        selected=set(vertices)
-        edges=[e for e in bm.edges if all(v in selected for v in e.verts)]
-        faces=[f for f in bm.faces if all(v in selected for v in f.verts)]
-        bmesh.ops.bisect_plane(
-            bm,geom=vertices+edges+faces,dist=0.0001,
-            plane_co=body.matrix_world.inverted()@(wrist-axis*(stop['edge']-0.003)),
-            plane_no=body.matrix_world.to_3x3().inverted()@(-axis),
-            clear_outer=True
-        )
-    bm.to_mesh(fitted);bm.free();fitted.update()
-    display=bpy.data.objects.new(body.name+'.preview-fit',fitted)
-    display.matrix_world=body.matrix_world.copy()
-    for collection in body.users_collection:collection.objects.link(display)
-    display.pass_index=body.pass_index
-    display['castFitSource']=body.name
-    if 'castFitOriginalHideRender' not in body:body['castFitOriginalHideRender']=body.hide_render
-    body.hide_render=True
 
 def fit_posed_clothing(scene):
     # Evaluated meshes are disposable results. Restore source visibility and
@@ -222,8 +143,6 @@ def fit_posed_clothing(scene):
                 hit,normal,face,distance=tree.ray_cast(Vector((center,middle,z))+radial*0.6,-radial,0.6)
                 return None if hit is None else 0.6-distance
             watch_stop=_watch_cuff_stop()
-            bare_long_sleeve=watch_stop is None and any(k in top.name.lower() for k in ('shirt_untucked','knit','fisherman'))
-            stops=[watch_stop] if watch_stop else (_bare_wrist_cuff_stops(top.name) if bare_long_sleeve else [])
             fitted_objects=[top]+[o for o in bpy.data.objects if o.get('castGarmentSource')==top.name]
             for ob in fitted_objects:
                 evaluated=ob.evaluated_get(deps);fitted=bpy.data.meshes.new_from_object(evaluated,depsgraph=deps)
@@ -249,13 +168,9 @@ def fit_posed_clothing(scene):
                         delta=max(delta,(need+0.010-here)*weight)
                     if 0<delta<0.06:
                         point+=radial*delta;v.co=inverse@point;adjusted+=1;largest=max(largest,delta)
-                cuff_counts=[_fit_cuff_edge(ob,fitted,stop) for stop in stops]
-                cuff=sum(cuff_counts)
-                if ob is top and bare_long_sleeve and any(k in top.name.lower() for k in ('knit','fisherman')):
-                    cuff+=sum(_taper_bare_knit_cuff(ob,fitted,stop,side) for side,stop in zip(('L','R'),stops))
+                cuff=_fit_cuff_edge(ob,fitted,watch_stop)
                 if any(not all(math.isfinite(c) for c in v.co) for v in fitted.vertices):raise RuntimeError('CAST_GARMENT_NONFINITE:'+ob.name)
-                cuff_metric='cuffVerticesAdjusted' if bare_long_sleeve else 'cuffVerticesStoppedAtWatch'
-                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,cuff_metric:cuff,'maximumLetOutMetres':round(largest,4),'preservedWorldAxes':['Z']})
+                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'adjustedVertices':adjusted,'finite':True,'cuffVerticesStoppedAtWatch':cuff,'maximumLetOutMetres':round(largest,4),'preservedWorldAxes':['Z']})
                 fitted.update()
                 display=bpy.data.objects.new(ob.name+'.preview-fit',fitted);display.matrix_world=ob.matrix_world.copy()
                 for collection in ob.users_collection:collection.objects.link(display)
@@ -264,8 +179,6 @@ def fit_posed_clothing(scene):
                 if 'castFitOriginalHideRender' not in ob:ob['castFitOriginalHideRender']=ob.hide_render
                 ob.hide_render=True
                 print('POSED_TOP_LET_OUT',ob.name,adjusted,'vertices; max',round(largest,4),'cuff stopped',cuff,flush=True)
-            if bare_long_sleeve:
-                _trim_skin_under_cuffs(stops)
     fit_report+=_drop_stretched_strokes()
     return fit_report
 

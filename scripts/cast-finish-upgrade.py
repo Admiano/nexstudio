@@ -79,6 +79,7 @@ if finish_report['enabled']:
     body=bpy.data.objects['Host.body'];target=None
     for ob in garments:
         if any(k in ob.name.lower() for k in ('pants','trouser','jeans')):continue
+        if os.environ['CAST_CHARACTER']=='male' and any(k in ob.name.lower() for k in ('shirt_untucked','knit','fisherman')):continue
         wrist_groups={group.index for group in ob.vertex_groups if group.name.startswith(('wrist.','hand.'))}
         members=[v.index for v in ob.data.vertices if sum(g.weight for g in v.groups if g.group in wrist_groups)>0.12]
         if not members:continue

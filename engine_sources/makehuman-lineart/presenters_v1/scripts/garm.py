@@ -104,7 +104,10 @@ if _MG:
     # Bounded surface coverage supplements garments with missing body masks.
     from mathutils.bvhtree import BVHTree
     _covered=set()
-    _protected={g.index for g in body.vertex_groups if any(k in g.name.lower() for k in ('hand','finger','thumb','head','neck'))}
+    _long_sleeve=any(any(k in name.lower() for k in ('shirt_untucked','knit','fisherman')) for name,_ in made)
+    _protected={g.index for g in body.vertex_groups if
+                any(k in g.name.lower() for k in ('hand','finger','thumb','head','neck')) or
+                (_long_sleeve and g.name.lower().startswith(('wrist.','lowerarm02.')))}
     _bodypts=[body.matrix_world@v.co for v in body.data.vertices]
     for _name,_ in made:
         if any(k in _name.lower() for k in ('shoe','sneaker')):continue

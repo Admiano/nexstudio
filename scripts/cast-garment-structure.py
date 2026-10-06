@@ -11,6 +11,7 @@ if os.environ.get('CAST_GARMENT_STRUCTURE_PILOT')=='1':
     for name in names:
         ob=bpy.data.objects.get(name)
         if ob is None or ob.type!='MESH' or any(k in name.lower() for k in ('shoe','sneaker')):continue
+        if os.environ['CAST_CHARACTER']=='male' and any(k in name.lower() for k in ('shirt_untucked','knit','fisherman')):continue
         shell=ob.modifiers.get('Cast garment edge thickness') or ob.modifiers.new('Cast garment edge thickness','SOLIDIFY')
         shell.thickness=0.0008
         shell.offset=-1.0
