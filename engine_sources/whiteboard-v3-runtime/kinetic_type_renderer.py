@@ -17,6 +17,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+import kinetic_icons
+
 _FONTS = Path(__file__).resolve().parent / 'assets' / 'fonts'
 
 _FACES = {
@@ -31,6 +33,10 @@ _FACES = {
     'marker': (_FONTS / 'PermanentMarker.ttf',
                _FONTS / 'PermanentMarker.ttf'),
 }
+
+# an icon stands in for its word inside the line: this many font sizes
+# wide and tall
+ICON_EM = 1.25
 
 # Closed-class words: never emphasized, always settle back to plain ink.
 _FUNC = frozenset(
@@ -118,6 +124,7 @@ def typeset(sentence: dict, size: int, face: str, frame_w: int,
     """
     gap = max(10, int(size * gap_ratio))
     words = sentence['words']
+    icon = sentence.get('icon')
     # per-sentence emphasis cap — content-dense narration would otherwise
     # accent nearly every word. Keep the strongest candidates: digits >
     # proper nouns > longest open-class words; ties go to the earlier word.
@@ -142,8 +149,11 @@ def typeset(sentence: dict, size: int, face: str, frame_w: int,
             if emph is None:
                 emph = _emphasized(w['word'], sentence_first=(i == 0)) \
                     and i in keep
-            items.append({'w': w, 'emph': emph,
-                          'tw': _tw(w['word'], sz, face, True)})
+            glyph = icon is not None and i == icon['word']
+            items.append({'w': w, 'emph': emph and not glyph, 'i': i,
+                          'glyph': glyph,
+                          'tw': (int(sz * ICON_EM) if glyph
+                                 else _tw(w['word'], sz, face, True))})
         lines, cur_w = [[]], 0
         for it in items:
             need = it['tw'] + (gap if lines[-1] else 0)
@@ -166,7 +176,7 @@ def typeset(sentence: dict, size: int, face: str, frame_w: int,
             break
         size = int(size * 0.90)
     return {'lines': lines, 'size': size, 'lh': lh,
-            'block_h': lh * len(lines), 'gap': gap}
+            'block_h': lh * len(lines), 'gap': gap, 'icon': icon}
 
 
 def attach_word_times(sentence_words: list[str], word_times: list[dict],
@@ -278,7 +288,7 @@ def _swoosh(d: ImageDraw.ImageDraw, x0, x1, y, color, prog: float,
 def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
                     frame_w: int, frame_h: int, pal: dict,
                     alpha: float = 1.0, y_shift: float = 0.0,
-                    face: str = 'grotesk'):
+                    face: str = 'grotesk', img: Image.Image | None = None):
     """Draw one typeset sentence at absolute time t onto `draw`.
 
     Word states: future (dim regular), active (bold; key words get the
@@ -294,6 +304,7 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
     bg = pal.get('paper', (252, 252, 250))
     fade = lambda c: tuple(int(ch * a) + int(bg[j] * (1 - a))
                            for j, ch in enumerate(c))
+    icon = spec.get('icon')
     y = frame_h * 0.46 - spec['block_h'] / 2 + y_shift
     for line in spec['lines']:
         total = sum(it['tw'] for it in line) + gap * (len(line) - 1)
@@ -305,6 +316,19 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
             span = max(0.05, w['end'] - w['start'])
             hold = w['end'] + min(0.12, span * 0.4)
             emph = it['emph']
+            if it.get('glyph'):
+                # the drawing takes the word's place in the line, inked
+                # on as the word is spoken; dim outline before then
+                if img is not None:
+                    pre = age < -0.02
+                    kinetic_icons.draw_icon(
+                        img, icon['strokes'], (x + tw / 2, y + size * 0.55),
+                        size * ICON_EM * 0.92,
+                        w['start'] - (99 if pre else 0), t,
+                        fade(dim if pre else ink),
+                        fade(dim if pre else acc), bg)
+                x += tw + gap
+                continue
             if age < -0.02:
                 col, bold = dim, emph
             elif t < hold:
@@ -422,16 +446,17 @@ def render_kinetic_frame(sents: list[dict], specs: list[dict], t: float,
         # previous sentence exits fully upward; the new one rises in — a
         # small shift would leave two tall blocks overlapping mid-frame
         render_sentence(d, specs[i - 1], t, W, H, pal,
-                        alpha=1.0 - q, y_shift=-(H * 0.55) * q, face=face)
+                        alpha=1.0 - q, y_shift=-(H * 0.55) * q, face=face,
+                        img=img)
         # cap the entry rise so a tall block's bottom never dips below
         # the frame — no word is ever partially out of frame
         enter = min(H * 0.30,
                     max(0.0, H * 0.54 - specs[i]['block_h'] / 2 - 8))
         render_sentence(d, specs[i], t, W, H, pal,
                         alpha=min(1.0, q * 1.15),
-                        y_shift=enter * (1 - q), face=face)
+                        y_shift=enter * (1 - q), face=face, img=img)
     else:
-        render_sentence(d, specs[i], t, W, H, pal, face=face)
+        render_sentence(d, specs[i], t, W, H, pal, face=face, img=img)
     wm = watermark if watermark is not None else plan.get('watermark')
     if wm:
         ws = max(11, int(H * 0.022))

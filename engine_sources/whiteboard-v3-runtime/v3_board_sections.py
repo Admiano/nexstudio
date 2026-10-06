@@ -14,9 +14,11 @@ Beats map 1:1 to scenes.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 import math
 import re
 import random
+import textwrap
 
 from PIL import Image
 
@@ -535,7 +537,7 @@ def _bundle_scene_groups(scene, plan, ratio, beat=None):
 # chart-journey). All coords inside _sb_glyph are item-local (the normal
 # placement transform moves them).
 # ---------------------------------------------------------------------------
-_SB_GLYPHS = ('divider', 'crowd', 'stack-list', 'chart-journey')
+_SB_GLYPHS = ('divider', 'crowd', 'stack-list', 'chart-journey', 'quantity-chart')
 
 
 def _abs5(st):
@@ -741,7 +743,24 @@ def _sb_text_dims(lines, size, font):
     return bb[2] - bb[0], bb[3] - bb[1], bb[1]
 
 
-def _sb_item_art(it):
+def _sb_repeat_art(art, count):
+    """Draw small counted things separately, up to nine representatives."""
+    n = min(9, max(1, int(count or 1)))
+    if n == 1 or not art:
+        return art
+    bb = _sb_bounds(st[0] for st in art)
+    if bb is None:
+        return art
+    width = max(1.0, bb[2] - bb[0])
+    out = []
+    for k in range(n):
+        dx = (k - (n - 1) / 2) * width * 1.12
+        out.extend(([(x + dx, y) for x, y in st[0]],) + tuple(st[1:])
+                   for st in art)
+    return out
+
+
+def _sb_item_art(it, count=1):
     """An item's drawable art in world coords (labels/captions/marks and
     ground shadows dropped — the composer draws its own)."""
     out = []
@@ -763,7 +782,7 @@ def _sb_item_art(it):
                 sp = fl if isinstance(fl, float) else 0.075
                 fl = ('hatch', sp * (1.0 if ab else size))
             out.append((wp, st[1], st[2], fl))
-    return out
+    return _sb_repeat_art(out, count)
 
 
 def _sb_bounds(pts_iter):
@@ -925,6 +944,45 @@ _SB_JOURNEY = [(0.0, 0.62), (0.24, 0.0), (0.33, 0.30), (0.37, 0.24),
 _SB_ANCH = {'peak': (0.24, 0.0), 'valley': (0.57, 1.0), 'rise': (0.79, 0.30)}
 
 
+def _sb_quantity_chart(box, chart):
+    x0, y0, x1, y1 = box
+    w, h = x1 - x0, y1 - y0
+    values = chart['values']
+    maximum = max(v['value'] for v in values)
+    left, floor, top = x0 + w * 0.10, y0 + h * 0.78, y0 + h * 0.13
+    width = (x1 - left) / len(values)
+    fs = min(h * 0.055, width * 0.13)
+    base = [([(left, top), (left, floor), (x1, floor)],
+             'ink', 1.0, False, True)]
+    text, _ = _sb_text([f"0 {chart['unit']}"], left, floor + fs,
+                       fs, _SB_FT, 'left')
+    base += text
+    bars = []
+    for i, value in enumerate(values):
+        cx = left + width * (i + 0.5)
+        y = floor - (floor - top) * value['value'] / maximum
+        half = width * 0.24
+        rect = (cx - half, y, cx + half, floor)
+        outline = [(rect[0], y), (rect[2], y), (rect[2], floor),
+                   (rect[0], floor), (rect[0], y)]
+        strokes = [(outline, 'a_blue', 0.7, 'swash', True),
+                   (outline, 'ink', 1.0, False, True)]
+        text, _ = _sb_text([f"{value['value']:g}"], cx, y - fs * 1.6,
+                           fs, _SB_FT, 'center')
+        strokes += text
+        lines = textwrap.wrap(value['label'], width=max(
+            8, int(width * 0.86 / (fs * 0.65))), break_long_words=False)
+        label_size = min(
+            fs, fs * width * 0.86 / max(
+                font_text_width(line, fs, _SB_FT) for line in lines),
+            h * 0.09 / max(1, len(lines)) / 1.15)
+        text, _ = _sb_text(lines, cx, floor + fs * 2.5,
+                           label_size, _SB_FT, 'center')
+        strokes += text
+        bars.append((value, strokes, rect))
+    return base, bars
+
+
 def _sb_chart(box):
     x0, y0, x1, y1 = box
     w, h = x1 - x0, y1 - y0
@@ -1039,6 +1097,78 @@ def _sb_outfit(m, *words):
                 **sb_cast.look_for(m))
 
 
+def _sb_close_gaps(sol, gap=0.35):
+    """Pull apart-spread blocks of a picture together, in order, so no gap
+    between them is wider than `gap` x the typical element height. Elements
+    that overlap or touch move together, so contacts are kept."""
+    hs = sorted(e['box'][3] - e['box'][1] for e in sol)
+    tall = hs[len(hs) // 2]
+    blocks = []
+    for e in sorted(sol, key=lambda e: e['box'][0]):
+        if blocks and e['box'][0] <= blocks[-1][1]:
+            blocks[-1][0].append(e)
+            blocks[-1][1] = max(blocks[-1][1], e['box'][2])
+        else:
+            blocks.append([[e], e['box'][2]])
+    shift = 0.0
+    for prev, cur in zip(blocks, blocks[1:]):
+        left = min(e['box'][0] for e in cur[0]) - shift
+        shift += max(0.0, left - prev[1] - gap * tall)
+        cur[1] -= shift
+        for e in cur[0]:
+            b = e['box']
+            e['box'] = (b[0] - shift, b[1], b[2] - shift, b[3])
+
+
+def _sb_fill(group, rect, lane, unit=None, art_cap=0.72, person_cap=0.78,
+             k_max=6.0, apply=True):
+    """Scale a composed picture up about its own centre so it fills its
+    space, then centre it there. Relative sizes, contacts and order are
+    kept; label lanes under each element are reserved. With people in it,
+    `unit` (one figure unit for the whole reel) sets the scale instead, so
+    the cast keeps one size. -> the largest figure unit this picture could
+    take, or None without people."""
+    sol = [e for e in group if e.get('box') and e['kind'] != 'divider']
+    if not sol:
+        return None
+    x0, y0, x1, y1 = rect
+    w, h = x1 - x0, y1 - y0
+    _sb_close_gaps(sol)
+    ux0 = min(e['box'][0] for e in sol)
+    ux1 = max(e['box'][2] for e in sol)
+    uy0 = min(e['box'][1] for e in sol)
+    uy1 = max(e['box'][3] for e in sol)
+    lane_b = max(lane(e) for e in sol)
+    k = min(w * 0.94 / max(1.0, ux1 - ux0),
+            (h * 0.92 - lane_b) / max(1.0, uy1 - uy0), k_max)
+    for e in sol:
+        # a figure drawn inside a big apparatus (a mountain, a building)
+        # is that apparatus's picture and may take nearly the full height
+        cap = (0.95 if e['kind'] == 'person' and e['rel'] > 1.6 else
+               person_cap if e['kind'] == 'person' else art_cap) * h
+        eh = e['box'][3] - e['box'][1]
+        if e['kind'] not in ('quantity-chart', 'chart-journey'):
+            k = min(k, cap / max(1.0, eh))
+    fus = [e['figure_unit'] for e in sol
+           if e['kind'] == 'person' and e.get('figure_unit')]
+    room = min(fus) * k if fus else None
+    if fus and unit is not None:
+        k = min(k, unit / min(fus))
+    k = max(1.0, k)
+    if not apply:
+        return room
+    ucx, ucy = (ux0 + ux1) / 2, (uy0 + uy1) / 2
+    ncx = x0 + w / 2
+    ncy = y0 + (h - lane_b) / 2
+    for e in sol:
+        b = e['box']
+        e['box'] = (ncx + (b[0] - ucx) * k, ncy + (b[1] - ucy) * k,
+                    ncx + (b[2] - ucx) * k, ncy + (b[3] - ucy) * k)
+        if e.get('figure_unit'):
+            e['figure_unit'] *= k
+    return room
+
+
 def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None,
                edges=()):
     """Non-row compositions. Sets e['box'] on every element and returns
@@ -1110,6 +1240,32 @@ def _sb_layout(lay, els, L, R, band_t, band_b, labh, gap, labw=None,
     if lay == 'focus' and n >= 2:
         hero = next((e for e in sol if e['focus']),
                     next((e for e in sol if e['kind'] == 'person'), sol[0]))
+        if hero['kind'] == 'quantity-chart':
+            # the chart is the picture: it takes most of the board and the
+            # supporting drawings share the remaining strip beside it
+            # (landscape) or under it (square, portrait)
+            rest = [e for e in sol if e is not hero]
+            wide = Wc > band_h * 1.5
+            if wide:
+                cw_ = Wc * 0.68
+                hero['aspect'] = cw_ / band_h
+                hero['box'] = (L, band_t, L + cw_, band_b)
+                sx0, sw_ = L + cw_ + Wc * 0.04, Wc - cw_ - Wc * 0.04
+                rh_ = band_h / len(rest)
+                for k_, e in enumerate(rest):
+                    _sb_boxfit(e, sx0 + sw_ / 2,
+                               band_t + rh_ * (k_ + 1) - lane(e),
+                               sw_ * 0.8, rh_ * 0.82 - lane(e))
+            else:
+                ch_ = band_h * 0.70
+                hero['aspect'] = Wc / ch_
+                hero['box'] = (L, band_t, R, band_t + ch_)
+                sh_ = band_h - ch_ - band_h * 0.04
+                cw_ = Wc / len(rest)
+                for k_, e in enumerate(rest):
+                    _sb_boxfit(e, L + cw_ * (k_ + 0.5), band_b - lane(e),
+                               cw_ * 0.8, sh_ - lane(e))
+            return True
         hi_ = sol.index(hero)
         pre, post = sol[:hi_], sol[hi_ + 1:]
         hw = Wc * (0.46 if pre and post else 0.54)
@@ -1428,7 +1584,9 @@ def _sb_activity(e, fb, flip, shirt, si, qa):
     got = sb_activity.compose(spec, part['art'] if part else None,
                               e['emo'], e['fit'], shirt, flip,
                               [kd['art'] for kd in back if kd['art']],
-                              role_arts)
+                              role_arts,
+                              [kd['m'].get('size') or 1.08
+                               for kd in back if kd['art']])
     if got is None:
         qa.append({'beat': si, 'check': 'activity-undrawn',
                    'severity': 'fail', 'detail':
@@ -1437,8 +1595,15 @@ def _sb_activity(e, fb, flip, shirt, si, qa):
     strokes, marks, anch, meta = got
     pins = [([anch[k], anch[k]], 'ink', 0.0, False)
             for k in ('hand_n', 'hand_f')]
+    pb = meta.get('partner_bounds')
+    if pb:
+        pins += [([p, p], 'ink', 0.0, False)
+                 for p in ((pb[0], pb[1]), (pb[2], pb[3]))]
     fit_st, _fb = _sb_fit(strokes + marks + pins, fb)
     hw = fit_st[len(strokes) + len(marks)][0][0]
+    if pb:
+        first, last = fit_st[len(strokes) + len(marks) + 2:][:2]
+        e['partner_bounds'] = tuple(first[0][0]) + tuple(last[0][0])
     fit_st = fit_st[:len(strokes) + len(marks)]
     e['hand_w'] = hw
     e['act_meta'] = meta
@@ -1690,7 +1855,8 @@ def _sb_water_patch(bb):
     return out
 
 
-def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw):
+def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw, progressive=False,
+                     figure_unit=None):
     """Story panels: one framed picture per narrated moment. Everyone in a
     panel stands on its floor at one figure unit; people in contact close
     the gap, a lap sitter sits on the host's lap. -> {moment: rect}."""
@@ -1699,6 +1865,7 @@ def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw):
         cells.setdefault(int(e['m'].get('moment') or 0), []).append(e)
     ks = sorted(cells)
     Wc, bh = R - L, band_b - band_t
+    unit_limit = figure_unit
 
     def lap_host(e, es):
         lab = str(e['m'].get('lap_of') or '')
@@ -1709,7 +1876,8 @@ def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw):
     def touching(a, b):
         for x, y in ((a, b), (b, a)):
             t = x['m'].get('touch') or ()
-            if str(y['m'].get('label') or '') in t:
+            if any(str(y['m'].get(key) or '') in t
+                   for key in ('label', 'cast_key', 'group')):
                 return True
         return False
 
@@ -1725,13 +1893,32 @@ def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw):
             return e['rel'] if e['kind'] == 'person' else max(
                 0.16, float(e['m'].get('size') or 0.34)) * 1.25
         # one figure unit for the whole board, whatever the panel grid
-        u = min(avail / max([rel(e) for e in flow] + [1.0]), 0.40 * bh)
-        hs = [u * rel(e) for e in flow]
-        ws = [max(h * e['aspect'], labw(e) * 1.04) for h, e in zip(hs, flow)]
-        gaps = []
-        for a, b, wa, wb in zip(flow, flow[1:], ws, ws[1:]):
-            gaps.append(-0.14 * min(wa, wb) if touching(a, b)
-                        else (x1 - x0) * 0.04)
+        u = min(avail / max([rel(e) for e in flow] + [1.0]),
+                (0.64 if progressive else 0.40) * bh)
+        if unit_limit is not None:
+            u = min(u, unit_limit)
+        def widths(unit):
+            hs = [unit * rel(e) for e in flow]
+            ws = [max(h * e['aspect'], labw(e) * 1.04)
+                  for h, e in zip(hs, flow)]
+            gaps = [-0.14 * min(wa, wb) if touching(a, b)
+                    else (x1 - x0) * 0.04
+                    for a, b, wa, wb in zip(flow, flow[1:], ws, ws[1:])]
+            return hs, ws, gaps
+
+        available = x1 - x0 - 2 * pad
+        hs, ws, gaps = widths(u)
+        if sum(ws) + sum(gaps) > available:
+            low, high = 0.0, u
+            for _ in range(24):
+                middle = (low + high) / 2
+                _, mw, mg = widths(middle)
+                if sum(mw) + sum(mg) > available:
+                    high = middle
+                else:
+                    low = middle
+            u = low
+            hs, ws, gaps = widths(u)
         tot = sum(ws) + sum(gaps)
         k = min(1.0, (x1 - x0 - 2 * pad) / max(1e-6, tot))
         if not apply:
@@ -1742,20 +1929,54 @@ def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw):
             h, w = h * k, w * k
             aw = h * e['aspect']
             cx = x + w / 2
-            e['box'] = (cx - aw / 2, floor - h, cx + aw / 2, floor)
+            bottom = floor
+            if e['kind'] == 'art' and e['m'].get('label', '').split()[-1:] \
+                    == ['window']:
+                bottom -= u * 0.6
+            e['box'] = (cx - aw / 2, bottom - h, cx + aw / 2, bottom)
+            e['figure_unit'] = u * k
             cxs.append(cx)
             x += w + (gaps[i] * k if i < len(gaps) else 0.0)
         mid = sum(cxs) / max(1, len(cxs))
         for e, cx in zip(flow, cxs):
             if e['kind'] != 'person':
                 continue
-            peer = next((o for o in flow if o is not e and touching(e, o)),
-                        None)
+            gaze = e['m'].get('face_to')
+            peer = next((o for o in flow if o is not e and gaze
+                         and gaze in (o['m'].get('label'),
+                                      o['m'].get('cast_key'))), None)
+            if peer is None:
+                peer = next((o for o in flow if o is not e and touching(e, o)),
+                            None)
             tx = ((peer['box'][0] + peer['box'][2]) / 2 if peer is not None
                   else mid if len(flow) > 1 else (x0 + x1) / 2)
             e['face'] = 1 if tx >= cx else -1
             if abs(tx - cx) < 1.0:
                 e['face'] = 1 if cx < (x0 + x1) / 2 else -1
+        for helper in flow:
+            if not (helper['m'].get('activity') or {}).get('shared_partner'):
+                continue
+            primary = next((e for e in flow if e is not helper
+                            and helper['m'].get('shared_with') in (
+                                e['m'].get('cast_key'), e['m'].get('label'))),
+                           None)
+            if primary is None or not primary.get('preview') \
+                    or not helper.get('preview'):
+                continue
+            p, q = primary['preview'], helper['preview']
+            if not p['partner']:
+                continue
+            primary['face'], helper['face'] = 1, -1
+            pb, qb = p['bounds'], q['bounds']
+            target = primary['box'][0] + (
+                p['partner'][2] - pb[0]) / (pb[2] - pb[0]) * (
+                    primary['box'][2] - primary['box'][0])
+            hand = helper['box'][0] + (
+                qb[2] - q['hand'][0]) / (qb[2] - qb[0]) * (
+                    helper['box'][2] - helper['box'][0])
+            dx = target - hand
+            helper['box'] = tuple(v + dx if i % 2 == 0 else v
+                                  for i, v in enumerate(helper['box']))
         for e in es:
             host = lap_host(e, es)
             if host is None or not host.get('box'):
@@ -1768,10 +1989,22 @@ def _sb_panel_layout(sol, L, R, band_t, band_b, lane, labw):
             cx = (hb[0] + hb[2]) / 2 + f * (hb[2] - hb[0]) * 0.22
             yb = hb[3] - hh * (0.42 if e['m'].get('held') else 0.30)
             e['box'] = (cx - w / 2, yb - h, cx + w / 2, yb)
+            e['figure_unit'] = host['figure_unit']
             e['face'] = f
             e['on_lap'] = host
         return u * k
 
+    if progressive:
+        rect = (L, band_t, R, band_b)
+        limits = [fill(rect, cells[k_], False) for k_ in ks]
+        if figure_unit is not None:
+            limits.append(figure_unit)
+        unit_limit = min(limits)
+        for k_ in ks:
+            fill(rect, cells[k_], True)
+            for e in cells[k_]:
+                e['panel'] = k_
+        return {k_: rect for k_ in ks}
     best = None
     for nr in (1, 2):
         if nr > len(ks):
@@ -1838,10 +2071,17 @@ def _sb_room(kind, rect, floor, solid, seed):
     st = [seg((x0 + pad * 0.5, floor + 2), (x1 - pad * 0.5, floor + 2),
               'ink', 0.9, 99)]
     wall = floor - (y0 + pad)
-    u = min(pw * 0.22, wall * 0.42)
-    xs = [x0 + pad + u * 0.1, x1 - pad - u * 1.1, (x0 + x1) / 2 - u / 2]
-    for n_, pk in enumerate(_SB_ROOM_PIECES.get(kind, ())):
-        for tx in xs[n_:] + xs[:n_]:
+    base_u = min(pw * 0.22, wall * 0.42)
+    pieces = _SB_ROOM_PIECES.get(
+        kind, ('window', 'frame', 'clock') if kind else ())
+    for n_, pk in enumerate(pieces):
+        slots = []
+        for factor in (1.0, 0.72, 0.52):
+            u = base_u * factor
+            xs = [x0 + pad + u * 0.1, x1 - pad - u * 1.1,
+                  (x0 + x1) / 2 - u / 2]
+            slots.extend((tx, u) for tx in xs[n_:] + xs[:n_])
+        for tx, u in slots:
             ty = y0 + pad * 1.2
             if pk in ('tree', 'lamp', 'house', 'shelves'):
                 ty = floor - u * (1.5 if pk == 'shelves' else 1.2)
@@ -2098,7 +2338,8 @@ def _sb_setting(kind, txt, L, R, band_t, base, floor, boxes, seed):
     return st
 
 
-def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
+def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid, figure_unit=None,
+              fill_unit=None):
     """Compose one storyboard scene; fills sec['title_st'/'items2'] and
     returns the next uid."""
     beat = sec['beat']
@@ -2185,6 +2426,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     sec['story_hidden'] = []
     for j, it in enumerate(items):
         m = meta[j]
+        if m.get('charted'):
+            continue
         if story and (m.get('place') or m.get('surface')
                       or m.get('body_part') or m.get('absorbed')
                       or m.get('worn')):
@@ -2196,36 +2439,62 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                      for g, _s, _e in it['groups'] if g[4])
         kind = (gl if gl in _SB_GLYPHS else
                 ('person' if person else 'art'))
-        art = [] if gl in _SB_GLYPHS else _sb_item_art(it)
-        emo, n_body, act_rel = '', 0, 1.0
+        count = max(1, int(m.get('count') or 1))
+        art = [] if gl in _SB_GLYPHS else _sb_item_art(it, count)
+        emo, n_body, act_rel, preview = '', 0, 1.0, None
         if kind == 'person':
             emo = sb_cast.emotion_for(dict(m, label=it.get('label', '')))
             body, marks, _hb = sb_cast.figure(
                 emo, False, m.get('action', ''),
-                sb_cast.shirt_for(m.get('shirt') or m.get('label') or it.get('label')
+                sb_cast.shirt_for(m.get('shirt') or m.get('cast_key')
+                                  or m.get('label') or it.get('label')
                                   or m.get('concept')),
                 outfit=_sb_outfit(m, m.get('outfit'), m.get('label'),
                                   it.get('label'), m.get('concept')))
             art = body + marks
             n_body = len(body)
+            bb_ = _sb_bounds(s[0] for s in art)
+            act_rel = (bb_[3] - bb_[1]) / sb_cast.H
             spec = m.get('activity')
+            partner = next((
+                _sb_item_art(items[k], int(mk.get('count') or 1))
+                for k, mk in enumerate(meta)
+                if mk.get('label') == spec.get('partner')
+                and mk.get('to') == ris[j]
+                and mk.get('attach') in ('activity', 'held')), None) \
+                if isinstance(spec, dict) else None
             pv = sb_activity.compose(
-                spec, None, emo, backdrop=[
+                spec, partner, emo, _sb_outfit(
+                    m, m.get('outfit'), m.get('label'), it.get('label'),
+                    m.get('concept')),
+                sb_cast.shirt_for(m.get('shirt') or m.get('cast_key') or m.get('label')
+                                  or it.get('label') or m.get('concept')),
+                backdrop=[
                     _sb_item_art(items[k]) for k, mk in enumerate(meta)
                     if mk.get('attach') == 'behind'
+                    and mk.get('to') == ris[j]
                     and mk.get('label') in (spec.get('setting') or ())],
-                role_arts={rn: _sb_item_art(items[k]) for rn, rl in
+                role_arts={rn: _sb_item_art(
+                               items[k], int(mk.get('count') or 1))
+                           for rn, rl in
                            (spec.get('roles') or {}).items()
                            for k, mk in enumerate(meta)
                            if mk.get('attach') == 'activity'
-                           and mk.get('label') == rl}) \
+                            and mk.get('to') == ris[j]
+                           and mk.get('label') == rl},
+                backdrop_sizes=[
+                    mk.get('size') or 1.08 for mk in meta
+                    if mk.get('attach') == 'behind'
+                    and mk.get('to') == ris[j]
+                    and mk.get('label') in (spec.get('setting') or ())]) \
                 if isinstance(spec, dict) else None
             if pv is not None:
                 # the layout box holds the whole activity picture
                 art, n_body = pv[0] + pv[1], len(pv[0])
                 ab_ = _sb_bounds(a_[0] for a_ in art)
-                act_rel = min(1.6, max(0.85, (ab_[3] - ab_[1])
-                                       / sb_activity.H))
+                preview = {'bounds': ab_, 'hand': pv[2]['hand_n'],
+                           'partner': pv[3].get('partner_bounds')}
+                act_rel = (ab_[3] - ab_[1]) / sb_activity.H
             elif m.get('activity_miss'):
                 qa.append({'beat': si, 'check': 'activity-missing',
                            'severity': 'fail', 'detail':
@@ -2237,10 +2506,12 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             m.get('expression') or '')
         head = 1.0
         aspect = {'stack-list': 1.30, 'crowd': 1.55, 'chart-journey': 1.7,
+                  'quantity-chart': 1.7,
                   'divider': 0.0}.get(kind)
         if aspect is None:
             aspect = _sb_art_aspect(art) / head
         rel = {'stack-list': 0.92, 'crowd': 0.60, 'person': 1.0,
+               'quantity-chart': 1.0,
                'chart-journey': 1.0, 'divider': 1.0}.get(
                    kind, 0.88 if j == 0 else 0.74)
         if kind == 'person':
@@ -2251,7 +2522,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         ant = str(m.get('annotate') or '').strip()
         els.append({'j': j, 'ri': ris[j], 'it': it, 'm': m, 'kind': kind,
                     'art': art,
+                    'drawn_count': min(count, 9),
                     'emo': emo, 'n_body': n_body,
+                    'preview': preview,
                     'focus': bool(m.get('focus')),
                     'aspect': aspect, 'rel': rel, 'head': head,
                     'expr': expr, 'halo': m.get('halo') or '',
@@ -2415,10 +2688,16 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 yb = band_t + (band_h - blk) / 2 + eh
                 e['box'] = (cx_ - ew / 2, yb - eh, cx_ + ew / 2, yb)
     elif lay == 'panels' and els:
+        sec['composition'] = scn.get('composition')
         sec['panels'] = _sb_panel_layout(
             els, L, R, band_t, band_b,
             lambda e: (_labh(e, ls) + lab_gap) if e['label'] else 0.0,
-            lambda e: _labw(e, ls))
+            lambda e: _labw(e, ls),
+            progressive=scn.get('composition') == 'stage',
+            figure_unit=figure_unit)
+        sec['figure_unit'] = min(
+            [e['figure_unit'] for e in els if e.get('figure_unit')
+             and e['kind'] == 'person'] or [0.0])
         # a lap sitter is drawn over its host
         for e in [e for e in els if e.get('on_lap')]:
             els.remove(e)
@@ -2523,6 +2802,26 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 e['box'] = (pb_[0] + ox, pb_[1] - up, pb_[2] + ox,
                             pb_[3] - up)
             touch_pairs.add(frozenset((id(e), id(tgt))))
+    # every picture fills the space it owns: a moment fills its panel,
+    # any other scene fills the band
+    if not journey and not any(e['kind'] == 'quantity-chart' for e in els):
+        lane_of = (lambda e: (_labh(e, ls) + lab_gap)  # noqa: E731
+                   if e['label'] else 0.0)
+        if lay == 'panels' and sec.get('panels'):
+            sx0_, sy0_ = -W / 2 + W * 0.03, -H / 2 + H * 0.035
+            groups_ = [([e for e in els if e.get('panel') == k_],
+                        (max(rect_[0], sx0_), max(rect_[1], sy0_),
+                         min(rect_[2], -sx0_), min(rect_[3], -sy0_)))
+                       for k_, rect_ in sec['panels'].items()]
+            rooms = [r_ for r_ in (_sb_fill(g_, rect_, lane_of, apply=False)
+                                   for g_, rect_ in groups_) if r_]
+            sec['fill_rooms'] = rooms
+            unit_ = min(rooms + ([fill_unit] if fill_unit else [])) \
+                if rooms else fill_unit
+            for g_, rect_ in groups_:
+                _sb_fill(g_, rect_, lane_of, unit=unit_)
+        else:
+            _sb_fill(els, (L, band_t, R, band_b), lane_of)
     if journey:
         lay = 'journey'
     plan['_sb_layouts'][si] = lay
@@ -2544,20 +2843,28 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             pos[id(kd)] = pos[id(e)]
     all_els = draw_els + [kd for e in draw_els for kd in e.get('kids', ())]
 
-    def _mref(r):
+    def _mref(r, moment=None):
+        candidates = [e for e in all_els if moment is None
+                      or e['m'].get('moment') == moment]
         if isinstance(r, int):
-            return next((e for e in all_els if e['ri'] == r), None)
+            return next((e for e in candidates if e['ri'] == r), None)
         r = str(r or '').lower().strip()
-        return next((e for e in all_els
+        return next((e for e in candidates
                      if r in (str(e['it'].get('label', '')).lower(),
-                              str(e['m'].get('label', '')).lower())), None)
+                              str(e['m'].get('label', '')).lower(),
+                              str(e['m'].get('cast_key', '')).lower(),
+                              str(e['m'].get('group', '')).lower())), None)
 
     mark_at = {}
     flow_pairs = set()
     for mk in scn.get('marks') or []:
         kind_ = str(mk.get('type') or '').lower()
-        a_ = _mref(mk.get('from', mk.get('on', 0)))
-        b_ = _mref(mk.get('to')) if kind_ == 'flow' else None
+        if scn.get('composition') == 'stage' and kind_ in (
+                'flow', 'up', 'down'):
+            continue
+        moment = mk.get('moment') if scn.get('composition') == 'stage' else None
+        a_ = _mref(mk.get('from', mk.get('on', 0)), moment)
+        b_ = _mref(mk.get('to'), moment) if kind_ == 'flow' else None
         if kind_ not in _SB_MARKS or a_ is None or (
                 kind_ == 'flow' and b_ is None):
             qa.append({'beat': si, 'check': 'mark-unresolved',
@@ -2574,6 +2881,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     mo_at = [float(m_.get('at') or 0.0) for m_ in scn.get('moments') or []
              if isinstance(m_, dict)]
     mo_win = {}
+    box_moments = {}
     cues_ = sec['qa_cues'] = []
     mom_span = {}
     if lay in ('story', 'graph', 'panels') and len(mo_at) >= 2:
@@ -2604,6 +2912,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             _sb_word_cues(grp, beat.get('word_times') or [], a_, b_,
                           win1, mo_win, cues_)
     for n_, e in enumerate(draw_els):
+        box_start = len(boxes)
         uid += 1
         i0, i1 = mo_win.get(id(e), (win0 + n_ * slot0,
                                     win0 + (n_ + 1) * slot0))
@@ -2623,6 +2932,36 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
         if e['kind'] == 'divider':
             art_st = _sb_divider((b[0] + b[2]) / 2, b[1], b[3])
             lwsize = 1.0
+        elif e['kind'] == 'quantity-chart':
+            art_st, bars = _sb_quantity_chart(b, e['m']['chart'])
+            lwsize = 1.0
+            fig_b = b
+            search_from = 0
+            wt = [(w['word'], w['start']) if isinstance(w, dict)
+                  else (w[0], w[1])
+                  for w in beat.get('word_times') or []]
+            for value, strokes, rect in bars:
+                found = next((j for j in range(search_from, len(wt))
+                              if str(wt[j][0]).strip('.,!?').lower()
+                              == str(value['word']).lower()), None)
+                if found is not None:
+                    said = float(wt[found][1])
+                    search_from = found + 1
+                else:
+                    fractions = scn.get('moments') or []
+                    fraction = (fractions[value['moment']].get('at', 0.0)
+                                if value['moment'] < len(fractions) else 0.0)
+                    said = win0 + (win1 - win0) * fraction
+                start = max(win0, said)
+                end = min(win1, start + max(0.35, (win1 - start) * 0.14))
+                groups.append((('quantity', strokes, (0, 0), 1.0, None),
+                               start, end))
+                sec.setdefault('qa_quantities', []).append({
+                    'label': value['label'], 'value': value['value'],
+                    'source': value['source'], 'unit': value['unit'],
+                    'bounds': rect, 'start': start, 'said': said})
+                cues_.append((value['label'], start, said))
+            i0, slot = win0, min(1.0, win1 - win0)
         elif e['kind'] == 'chart-journey':
             art_st = e['st']
             fig_b = b
@@ -2657,7 +2996,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 e['engaged'] = act in sb_cast.ENGAGED or (
                     tgt is not None and tgt is not e)
                 shirt = sb_cast.shirt_for(
-                    e['m'].get('shirt') or e['m'].get('label')
+                    e['m'].get('shirt') or e['m'].get('cast_key')
+                    or e['m'].get('label')
                     or e['m'].get('concept'))
                 e['hidden'] = sec.get('story_hidden') or ()
                 got = _sb_activity(e, fb, flip, shirt, si, qa)
@@ -2729,7 +3069,8 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 kbody, kmarks, _kh = sb_cast.figure(
                     kd['emo'], (kb0[0] + kb0[2]) / 2 > 0,
                     kd['m'].get('action', ''),
-                    sb_cast.shirt_for(kd['m'].get('shirt') or kd['m'].get('label')
+                    sb_cast.shirt_for(kd['m'].get('shirt') or kd['m'].get('cast_key')
+                                      or kd['m'].get('label')
                                       or kd['m'].get('concept')),
                     outfit=_sb_outfit(kd['m'], kd['m'].get('outfit'),
                                       kd['m'].get('label'),
@@ -2847,10 +3188,55 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                 arrows_.append('flow')
             boxes.append(('mark:' + kind_, _sb_bounds(q[0] for q in mst),
                           'mark', refs))
+        moment = int(e['m'].get('moment') or 0)
+        moment_fade = fade
+        if sec.get('composition') == 'stage' and moment + 1 in mom_span:
+            end = mom_span[moment + 1][0]
+            moment_fade = (end - 0.12, end)
+        for bx in boxes[box_start:]:
+            box_moments[id(bx[1])] = moment
         out_items.append({'groups': groups, 'bounds2': e['ink'],
-                          'uid': uid, 'fade': fade, 'kind': 'elem',
+                          'uid': uid, 'fade': moment_fade, 'kind': 'elem',
                           't_window': (i0, i1),
+                          'moment': moment,
                           'label': e['it'].get('label', '')})
+    for helper in draw_els:
+        act = helper['m'].get('activity') or {}
+        if not act.get('shared_partner'):
+            continue
+        primary = next((e for e in draw_els if e is not helper
+                        and e['m'].get('moment') == helper['m'].get('moment')
+                        and helper['m'].get('shared_with') in (
+                            e['m'].get('cast_key'), e['m'].get('label'))), None)
+        prop = primary.get('partner_bounds') if primary else None
+        hand = helper.get('hand_w')
+        if prop and hand:
+            dx = max(prop[0] - hand[0], hand[0] - prop[2], 0.0)
+            dy = max(prop[1] - hand[1], hand[1] - prop[3], 0.0)
+            height = helper['box'][3] - helper['box'][1]
+            if math.hypot(dx, dy) <= height * 0.08:
+                qa.append({'beat': si, 'check': 'shared-contact',
+                           'severity': 'info', 'detail':
+                           f'{helper["m"]["label"]}: both carriers touch '
+                           f'{act["shared_partner"]}'})
+            else:
+                qa.append({'beat': si, 'check': 'shared-contact',
+                           'severity': 'fail', 'detail':
+                           f'{helper["m"]["label"]}: does not touch '
+                           f'{act["shared_partner"]}'})
+        else:
+            qa.append({'beat': si, 'check': 'shared-contact',
+                       'severity': 'fail', 'detail':
+                       f'{act["shared_partner"]}: shared prop not drawn'})
+        for name, label in (act.get('shared_roles') or {}).items():
+            drawn = primary is not None and any(
+                kid['m'].get('label') == label and kid.get('ink')
+                for kid in primary.get('kids', ()))
+            if not drawn:
+                qa.append({'beat': si, 'check': 'activity-role',
+                           'severity': 'fail', 'detail':
+                           f'{helper["m"]["label"]}: {label} ({name}) '
+                           'missing from shared activity'})
     wt_all = beat.get('word_times') or []
     link_pts = {}
     for a_, b_, kind_, text_, k_ in g_meta:
@@ -2917,25 +3303,34 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             'kid_of', {}).get('panel')) == k_ and e.get('ink')]
         places_ = scn.get('places') or []
         kind_ = str(places_[k_] if k_ < len(places_) else '')
-        fl_ = max([e['box'][3] for e in mine if e.get('box')
-                   and not e.get('on_lap')] + [rect[3] - H * 0.05])
+        feet_ = [e['box'][3] for e in mine if e.get('box')
+                 and not e.get('on_lap')]
+        fl_ = max(feet_) if feet_ else rect[3] - H * 0.05
         solid_ = [e['ink'] for e in mine] + [e['lab_box'] for e in mine
                                              if e.get('lab_box')]
         # no panel border: moments read as scenes on open paper, not boxes
         fr_ = []
-        room_ = _sb_room(kind_, rect, fl_, solid_, si * 131 + k_ * 17)
+        room_ = _sb_room(kind_, rect, fl_, solid_,
+                         si * 131 if sec.get('composition') == 'stage'
+                         else si * 131 + k_ * 17)
         a_ = mom_span.get(k_, (win0, win1))[0]
+        room_fade = fade
+        if sec.get('composition') == 'stage' and k_ + 1 in mom_span:
+            end = mom_span[k_ + 1][0]
+            room_fade = (end - 0.12, end)
         uid += 1
         out_items.insert(0, {'groups': [
             (('marks', fr_, (0, 0), 100.0, None), a_, a_ + 0.25),
             (('marks', room_, (0, 0), 100.0, None), a_ + 0.1, a_ + 0.45)],
-            'bounds2': rect, 'uid': uid, 'fade': fade, 'kind': 'elem',
+            'bounds2': rect, 'uid': uid, 'fade': room_fade, 'kind': 'elem',
+            'moment': k_,
             't_window': (a_, a_ + 0.45), 'label': 'panel'})
         boxes.append((f'panel{k_}', rect, 'panel'))
         sec['qa_panels'].append({'moment': k_, 'place': kind_,
                                  'pieces': len(room_) - 1,
                                  'rect': rect})
-        if k_ == 0 and scn.get('moments'):
+        if k_ == 0 and scn.get('moments') \
+                and sec.get('composition') != 'stage':
             moment = scn['moments'][k_]
             phrase = str(moment.get('text') or '').strip()
             if not phrase:
@@ -2992,11 +3387,14 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
                                   and start - 0.2 <= float(w[1]) <= win1),
                                  start)
                     uid += 1
+                    note_end = mom_span.get(k_, (win0, win1))[1]
+                    note_fade = ((note_end - 0.18, note_end)
+                                 if sec.get('composition') == 'stage' else fade)
                     out_items.append({
                         'groups': [(('plabel', notes, (0, 0), 1.0, None),
                                     start, min(win1, start + 0.85))],
-                        'bounds2': nb, 'uid': uid, 'fade': fade,
-                        'kind': 'elem', 't_window': (start, win1),
+                        'bounds2': nb, 'uid': uid, 'fade': note_fade,
+                        'kind': 'elem', 't_window': (start, note_end),
                         'label': 'callout'})
                     boxes.append(('callout', nb, 'label'))
     sec['relations_drawn'] = len(g_meta)
@@ -3026,7 +3424,7 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
              (-W / 2, H / 2), (-W / 2, -H / 2)]
     uid += 1
     out_items.insert(0, {'groups': [(('marks',
-                                     [(wpoly, sw_col, 0.13, 'swash', True)],
+                                     [(wpoly, sw_col, 0.13, 'sheet', True)],
                                      (0, 0), 100.0, None), t0, t0 + 0.9)],
                          'bounds2': (-W / 2, -H / 2, W / 2, H / 2),
                          'uid': uid, 'fade': fade, 'kind': 'elem',
@@ -3059,8 +3457,9 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             contact_.add(frozenset((lab_, e['on_lap']['it'].get('label'))))
         for t_ in e['m'].get('touch') or ():
             o_ = next((o for o in els if o is not e and o.get('panel')
-                       == e.get('panel') and str(o['m'].get('label') or '')
-                       == t_), None)
+                       == e.get('panel') and t_ in
+                       (o['m'].get('label'), o['m'].get('cast_key'),
+                        o['m'].get('group'))), None)
             if o_ is not None:
                 contact_.add(frozenset((lab_, o_['it'].get('label', '?'))))
     fx0, fy0, fx1, fy1 = (-W / 2 + W * 0.025, -H / 2 + H * 0.03,
@@ -3072,6 +3471,10 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
             audit.append(('off-frame', na))
         for jj in range(i + 1, len(boxes)):
             nb, B, tb, rb = boxes[jj]
+            if sec.get('composition') == 'stage' and (
+                    id(A) in box_moments and id(B) in box_moments
+                    and box_moments[id(A)] != box_moments[id(B)]):
+                continue
             if {ta, tb} in ({'rider', 'chart'}, {'rider'}) \
                     or 'panel' in (ta, tb):
                 continue
@@ -3105,10 +3508,12 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid):
     sec['qa_boxes'] = [(bx[0], bx[1], bx[2]) for bx in boxes]
     sec['qa_els'] = [{'label': e['it'].get('label', ''), 'kind': e['kind'],
                       'emo': e['emo'], 'ink': e.get('ink'),
+                      'figure_unit': e.get('figure_unit'),
                       'icon': next((g[4].get('icon') for g, _s, _e in
                                     e['it']['groups'] if g[4]
                                     and g[4].get('icon') is not None), None),
                       'role': e['m'], 'kid': bool(e.get('kid_of')),
+                      'drawn_count': e.get('drawn_count', 1),
                       'in_activity': e.get('att') in ('activity', 'behind')
                       or bool(e.get('drawn')),
                       'act_meta': e.get('act_meta'),
@@ -3212,6 +3617,24 @@ def _build(plan, ratio):
         'kind': 'title', 'uid': -1, 'fade': None,
         'bounds2': (bx0, by0, bx0 + bw, by0 + header)}
 
+    story_units, story_rooms = [], []
+    if storyboard:
+        for si, sec in enumerate(sections):
+            scene = sec['beat'].get('scene') or {}
+            if scene.get('composition') != 'stage':
+                continue
+            start = sec['beat']['start_seconds']
+            end = start + float(sec['beat'].get('duration_seconds', 3.0))
+            probe = deepcopy(sec)
+            _sb_scene(probe, si, deepcopy(plan), W, H, start, end,
+                      (end, end + 0.5), 0)
+            if probe.get('figure_unit'):
+                story_units.append(probe['figure_unit'])
+            story_rooms += probe.get('fill_rooms') or []
+    story_unit = min(story_units) if story_units else None
+    # one cast size for the whole reel: the tightest picture sets it
+    story_fill = min(story_rooms) if story_rooms else None
+
     for si, sec in enumerate(sections):
         t0 = sec['beat']['start_seconds']
         t1 = t0 + float(sec['beat'].get('duration_seconds', 3.0))
@@ -3307,7 +3730,8 @@ def _build(plan, ratio):
             sec['items2'] = []
             continue
         if storyboard:
-            uid = _sb_scene(sec, si, plan, W, H, t0, t1, sec['fade'], uid)
+            uid = _sb_scene(sec, si, plan, W, H, t0, t1, sec['fade'], uid,
+                            figure_unit=story_unit, fill_unit=story_fill)
             continue
         # title draws first, then items ink one at a time in beat order
         lead = min(0.9, dur * 0.15) if ttl else 0.0

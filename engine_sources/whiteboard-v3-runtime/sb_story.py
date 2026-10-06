@@ -128,6 +128,7 @@ _WORN = {'clothing.n.01', 'footwear.n.01', 'footwear.n.02', 'glove.n.02',
          'headdress.n.01', 'garment.n.01', 'hat.n.01', 'shoe.n.01',
          'boot.n.01', 'glove.n.01', 'mitten.n.01'}
 _SIZES = (
+    ({'door.n.01', 'doorway.n.01', 'entrance.n.01'}, 1.20),
     ({'tree.n.01', 'building.n.01'}, 1.05),
     ({'car.n.01', 'truck.n.01', 'bus.n.01', 'boat.n.01'}, 0.72),
     ({'bicycle.n.01', 'handcart.n.01', 'shopping_cart.n.01',
@@ -171,20 +172,26 @@ def _lex(word: str, pos: str = 'n') -> str:
 
 def place_kind(word: str) -> str:
     """The backdrop a place noun calls for ('' when it is not a place)."""
-    head = str(word or '').lower().split()[-1:] or ['']
+    phrase = str(word or '').lower().strip()
+    head = phrase.split()[-1:] or ['']
     head = head[0]
-    if not head or _lex(head) == 'noun.person':
+    noun = phrase.replace(' ', '_')
+    noun = noun if _lex(noun) else head
+    lex = _lex(noun)
+    if not head or lex == 'noun.person':
         return ''
-    if _lex(head) not in ('noun.artifact', 'noun.location', 'noun.object',
-                          'noun.group', 'noun.plant'):
+    if lex not in ('noun.artifact', 'noun.location', 'noun.object',
+                   'noun.group', 'noun.plant'):
         return ''
-    if _lex(head) == 'noun.artifact' and _closure(head, k=1) & (
+    cl = _closure(noun, k=1)
+    if lex == 'noun.artifact' and cl & (
             _BED | {'furniture.n.01', 'container.n.01'}):
         return ''
-    cl = _closure(head, k=1)
     for kind, anchors in _PLACES:
         if cl & anchors:
             return kind
+    if cl & {'building.n.01', 'room.n.01', 'facility.n.01'}:
+        return phrase
     return ''
 
 
@@ -201,7 +208,7 @@ def is_body_part(word: str) -> bool:
 
 def is_worn(word: str) -> bool:
     head = (str(word or '').lower().split() or [''])[-1]
-    return bool(_closure(head, k=3) & _WORN)
+    return bool(_closure(head, k=1) & _WORN)
 
 
 def size_of(word: str) -> float:
@@ -294,6 +301,7 @@ class Cast:
         self.building = ''    # {'label','n','members','sex','child'}
         self.people: dict = {}    # label -> template role
         self.order: list = []     # labels by last mention
+        self.introduced: set = set()
 
     def note(self, r: dict) -> None:
         lab = r['label']
@@ -314,8 +322,16 @@ class Cast:
             if g is not None:
                 g.setdefault('aliases', set()).add(label)
         if g is None:
+            members = [lab for lab in self.order if lab != label
+                       and lab in self.introduced
+                       and '#' not in lab
+                       and self.people[lab].get('cast_key', lab) == lab
+                       and sb_cast.look_for(dict(
+                           self.people[lab], label=lab))['child']
+                       and (not sex or self.people[lab].get('gender') == sex)]
             g = {'label': label, 'n': n, 'sex': sex, 'child': child,
-                 'members': [f'{label}#{i + 1}' for i in range(n)],
+                 'members': (members if child and len(members) == n else
+                             [f'{label}#{i + 1}' for i in range(n)]),
                  'mods': {}}
             self.groups.append(g)
         return g
@@ -372,6 +388,13 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
     for r in rs:
         if r.get('icon') == 'person':
             cast.note(r)
+            r.pop('annotate', None)
+            target = r.get('to')
+            if r.get('attach') in ('beside', 'near', 'with') \
+                    and isinstance(target, int) \
+                    and rs[target].get('icon') == 'person':
+                r.pop('attach')
+                r.pop('to')
     by_k = {int(sm.get('_k', 0)): sm for sm in maps}
     places: list = []
     posture: dict = {}
@@ -425,6 +448,7 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
                 if lab in known and '#' not in lab and not e_.get('pron') \
                         and e_.get('lex') == 'noun.person':
                     ensure(lab)
+        cast.introduced.update(rs[i]['label'] for i in people_here())
         # 2. groups: 'two boys', 'the boys', 'them both'
         for i in list(people_here()):
             r = rs[i]
@@ -440,7 +464,8 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
             if n is None:
                 n = g['n'] if g else 2
             lk = sb_cast.look_for(r)
-            g = cast.group_for(lab, n, lk['child'], lk['sex'])
+            sex = r.get('gender') or sb_cast.lexical_sex(lab)
+            g = cast.group_for(lab, n, lk['child'], sex)
             r['group'] = g['label']
         # a collective ('the crew', 'the family') is several people
         for i in list(people_here()):
@@ -488,7 +513,16 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
                 g['mods'][mod] = idx
             for i in people_here():
                 r = rs[i]
-                if r['label'] == lab and not r.get('group'):
+                words = r['label'].split()
+                qualified = len(words) > 1 and words[-1] == lab \
+                    and words[0] == mm.group(1).lower()
+                unbound = r.get('cast_key') not in g['members']
+                if (qualified or r['label'] == lab and unbound) \
+                        and not r.get('group'):
+                    if qualified:
+                        r['aliases'] = sorted(set(
+                            r.get('aliases', ())) | {r['label']})
+                        r['label'] = lab
                     r['cast_key'] = g['members'][idx]
                     r['member_rank'] = ('older' if mod in _OLDER else
                                         'younger' if mod in _YOUNGER else '')
@@ -500,7 +534,21 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
             if r.get('icon') == 'person':
                 continue
             lab = r['label']
-            if is_body_part(lab):
+            act = next((a.get('activity') or {} for a in rs
+                        if a.get('moment') == r.get('moment')
+                        and (a.get('activity') or {}).get('partner') == lab),
+                       {})
+            head = lab.split()[-1]
+            artifact_sense = _wn is not None and any(
+                s.lexname() == 'noun.artifact'
+                for s in _wn.synsets(head, 'n')[:3])
+            carried_artifact = (artifact_sense
+                                and act.get('schema') in ('carry', 'hold')
+                                and not re.search(
+                                    r'\b(her|his|their|own)\s+'
+                                    + re.escape(lab) + r'\b',
+                                    r.get('narration', ''), re.I))
+            if is_body_part(lab) and not carried_artifact:
                 r['body_part'] = True
             elif is_worn(lab) and people_here():
                 # 'pulls on his boots': on the body, not beside it
@@ -531,7 +579,39 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
         # 'bread from her bakery' names where it came from, not where we are
         here_ = re.sub(r"\bfrom\s+(?:the\s+|an?\s+|her\s+|his\s+|their\s+"
                        r"|my\s+|our\s+)?(?:\w+\s+)?\w+", ' ', low)
-        for w in re.findall(r"[a-z]+", here_):
+        ambient_outside = sm is not None and any(
+            ev['agent'] is not None
+            and sm['entities'][ev['agent']].get('lex') == 'noun.phenomenon'
+            and any(p == 'outside' for p, _e in ev.get('preps') or ())
+            for ev in sm['events'])
+        if ambient_outside:
+            here_ = _OUTSIDE.sub(' ', here_)
+            for ev in sm['events']:
+                if ev['agent'] is None or ents[ev['agent']].get(
+                        'lex') != 'noun.phenomenon':
+                    continue
+                weather = next((i for i in mom() if rs[i]['label']
+                                == ents[ev['agent']]['label']), None)
+                window_label = next((ents[eid]['label']
+                                     for prep, eid in ev.get('preps') or ()
+                                     if prep == 'outside'
+                                     and ents[eid].get('head') == 'window'), '')
+                window = next((i for i in mom()
+                               if rs[i]['label'] == window_label), None)
+                if weather is not None and window is not None:
+                    rs[weather]['attach'] = 'in'
+                    rs[weather]['to'] = window
+                    rs[weather]['setting_detail'] = True
+        person_labels = {r['label'] for r in rs
+                         if r.get('icon') == 'person'}
+        person_words = {word for label in person_labels for word in
+                        re.findall(r"[a-z]+", label)}
+        nouns = [e['label'] for e in sm['entities']
+                 if e['label'] in here_ and e['label'] not in person_labels
+                 and e.get('lex') != 'noun.person'] if sm is not None else []
+        nouns += [word for word in re.findall(r"[a-z]+", here_)
+                  if word not in person_words]
+        for w in nouns:
             k_ = place_kind(w) if len(w) > 3 else ''
             if k_ and (not pk or pk == 'home'):
                 pk = k_
@@ -539,11 +619,11 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
             for i in mom():
                 pk = pk or _room_of(rs[i]['label'])
         prev = places[-1] if places else cast.place
-        if pk and pk not in ('outdoor', 'street', 'home'):
+        if pk and pk not in ('outdoor', 'street'):
             cast.building = pk
-        if _OUTSIDE.search(low):
+        if _OUTSIDE.search(low) and not ambient_outside:
             pk = 'street' if _STREETY.search(low) else 'outdoor'
-        elif _INSIDE.search(low) and not pk:
+        elif _INSIDE.search(low) and pk in ('', 'outdoor', 'street'):
             pk = cast.building or prev
         if pk in ('', 'home') and prev and prev not in ('outdoor', 'store',
                                                         'street'):
@@ -561,7 +641,8 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
             def role_of(label):
                 return next((i for i in people_here()
                              if rs[i]['label'] == label
-                             or rs[i].get('cast_key') == label), None)
+                             or rs[i].get('cast_key') == label
+                             or label in rs[i].get('aliases', ())), None)
 
             for ev in sm['events']:
                 ai = role_of(lab_of(ev.get('agent')))
@@ -683,7 +764,8 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
             ents = sm['entities']
             for i in people_here():
                 r = rs[i]
-                names = {r['label'], r.get('cast_key') or ''}
+                names = {r['label'], r.get('cast_key') or ''} \
+                    | set(r.get('aliases') or ())
 
                 def ok(eid, names=names):
                     return eid is not None and str(
@@ -738,8 +820,9 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
         sch = {(q.get('activity') or {}).get('schema') for q in rs
                if q.get('icon') == 'person' and q.get('moment') == k_}
         cl = _closure(r['label'].split()[-1], k=1)
-        if ('lie' in sch and cl & _BED) or ('sit' in sch and cl & {
-                'seat.n.03', 'chair.n.01', 'sofa.n.01', 'bench.n.01'}):
+        if r.get('attach') != 'activity' and (('lie' in sch and cl & _BED)
+                or ('sit' in sch and cl & {
+                'seat.n.03', 'chair.n.01', 'sofa.n.01', 'bench.n.01'})):
             r['absorbed'] = True
     # a group is drawn member by member
     for i in range(len(rs) - 1, -1, -1):
@@ -756,9 +839,38 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
             cp['member_rank'] = _rank(rank.get(j))
             cp.pop('annotate', None)
             _insert(rs, i + j, cp)
+    shared = {}
+    for r in rs:
+        act = r.get('activity') or {}
+        if r.get('icon') == 'person' and act.get('schema') in (
+                'carry', 'hold', 'desk') and act.get('partner'):
+            shared.setdefault((r.get('moment'), act['partner']), []).append(r)
+    for (moment, partner), actors in shared.items():
+        prop = next((r for r in rs if r.get('moment') == moment
+                     and r['label'] == partner and int(r.get('count') or 1) == 1
+                     and isinstance(r.get('to'), int)), None)
+        if len(actors) != 2 or prop is None:
+            continue
+        primary = rs[prop['to']]
+        if not any(primary is r for r in actors):
+            continue
+        helper = next(r for r in actors if r is not primary)
+        primary['shared_with'] = helper.get('cast_key') or helper['label']
+        helper['shared_with'] = primary.get('cast_key') or primary['label']
+        primary['touch'] = sorted(set(primary.get('touch') or ())
+                                  | {primary['shared_with']})
+        helper['touch'] = sorted(set(helper.get('touch') or ())
+                                 | {helper['shared_with']})
+        helper['activity']['shared_partner'] = partner
+        if helper['activity'].get('roles'):
+            helper['activity']['shared_roles'] = helper['activity'].pop('roles')
     # a member keeps its own look ('boy#2') and its sex from the word
     for r in rs:
         if r.get('icon') == 'person':
+            identity = cast.people.get(r.get('cast_key'), {})
+            for key in ('gender', 'age', 'beard'):
+                if key in identity:
+                    r.setdefault(key, identity[key])
             lk = sb_cast.look_for({'label': r['label']})
             word_sex = sb_cast._FEMALE.search(r['label']) or \
                 sb_cast._MALE.search(r['label'])
@@ -773,6 +885,7 @@ def stage(sc: dict, maps: list, sents: list, cast: Cast,
     sc['places'] = places
     sc['mode'] = 'story'
     sc['relation'] = 'story'
+    sc['composition'] = 'stage'
     sc.pop('layout', None)
     sc.pop('graph', None)
 

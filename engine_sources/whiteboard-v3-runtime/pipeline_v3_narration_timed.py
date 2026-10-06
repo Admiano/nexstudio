@@ -173,9 +173,15 @@ def align_beats_to_words(plan: dict, words: list[dict]) -> dict:
             toks[j + k] == narr[k] for k in range(
                 min(4, len(narr), len(toks) - j))))
         last = narr[-1]
-        end_i = next((j for j in range(
-            found + len(narr) + 8, found, -1)
-            if j < len(toks) and toks[j] == last), None)
+        # the beat ends at the occurrence of its last word nearest where
+        # its word count lands; a later repeat of that word belongs to the
+        # next beat
+        expect = found + len(narr) - 1
+        ends = [j for j in range(found + 1, min(len(toks),
+                                                found + len(narr) + 9))
+                if toks[j] == last]
+        end_i = min(ends, key=lambda j: (abs(j - expect), j)) \
+            if ends else None
         if end_i is None:
             end_i = min(len(toks) - 1, found + len(narr) - 1)
         b['start_seconds'] = max(cursor, pairs[found][0]['start'] - 0.15)

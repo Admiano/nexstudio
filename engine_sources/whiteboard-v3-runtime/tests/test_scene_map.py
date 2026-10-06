@@ -45,6 +45,34 @@ def test_gendered_pronouns_follow_the_right_person():
     assert _lab(m, _ev(m, 'light')['agent']) == 'baker'
 
 
+def test_possessive_and_group_keep_singular_referent():
+    carry = {}
+    sm.parse('Asha opens the workshop.', carry)
+    sm.parse('Her two assistants carry a toolbox.', carry)
+    sm.parse('Asha and her assistants wave from the doorway.', carry)
+    m = sm.parse('She closes the door.', carry)
+    assert _lab(m, _ev(m, 'close')['agent']) == 'asha'
+    assert carry['they'] == 'assistant'
+
+
+def test_gendered_people_remain_distinct_after_an_interaction():
+    carry = {}
+    sm.parse('A woman greets a man.', carry)
+    m = sm.parse('He sits on the bench.', carry)
+    assert _lab(m, _ev(m, 'sit')['agent']) == 'man'
+    m = sm.parse('She waves from the doorway.', carry)
+    assert _lab(m, _ev(m, 'wave')['agent']) == 'woman'
+
+
+def test_named_subject_restores_gendered_reference_after_another_female():
+    carry = {}
+    sm.parse('Rita, a female librarian, walks with a girl and a boy.', carry)
+    sm.parse('The girl reads a book.', carry)
+    sm.parse('Rita opens the door with the children.', carry)
+    m = sm.parse('She carries a basket.', carry)
+    assert _lab(m, _ev(m, 'carry')['agent']) == 'rita'
+
+
 @pytest.mark.parametrize('sent,lemma,kind,way', [
     ('She panics as the chart crashes.', 'crash', 'destroy', 'down'),
     ('She panics as the chart crashes.', 'panic', 'fear', ''),
@@ -79,6 +107,19 @@ def test_partitive_draws_members_and_plural_words_keep_meaning():
     m = sm.parse('The keeper climbs the stairs and sorts letters.', {})
     heads = {e['head'] for e in m['entities']}
     assert {'stairs', 'letter'} <= heads
+
+
+def test_counted_physical_things_keep_their_exact_count():
+    m = sm.parse('Maya pours water into three cups.', {})
+    cups = next(e for e in m['entities'] if e['head'] == 'cup')
+    assert cups['count'] == 3
+
+
+def test_qualified_group_members_keep_their_own_actions():
+    m = sm.parse('The older apprentice holds a flashlight while '
+                 'the younger apprentice brings a pump.', {})
+    assert _lab(m, _ev(m, 'hold')['agent']) == 'older apprentice'
+    assert _lab(m, _ev(m, 'bring')['agent']) == 'younger apprentice'
 
 
 def test_determined_argument_is_a_noun_and_prepositions_link():

@@ -1835,7 +1835,13 @@ def sem_rank(phrase: str, ic):
     key = _art_key(ic)
     if key is None or not art_clip.available():
         return None
-    return art_clip.rank(str(phrase).lower().replace('-', ' ').strip(), key)
+    phrase = str(phrase).lower().replace('-', ' ').strip()
+    sense, senses = _context_sense(phrase.replace(' ', '_'))
+    if sense is not None and len(senses) > 1:
+        overlap = (_sense_text(sense) - set(phrase.split())) & _CONTEXT
+        if len(overlap) >= 2:
+            phrase = phrase + ', ' + sense.definition()
+    return art_clip.rank(phrase, key)
 
 
 def _icon_for(concept: str, exclude=None, _depth: int = 0):
@@ -3207,20 +3213,23 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             if 0 < p < 1:
                 tip = (x0s + edge, y0s + im.height * 0.55)
             continue
-        if fill == 'swash':
-            # highlighter pass: translucent pastel mass, no outline, swept
-            # left to right under the lettering
+        if fill in ('swash', 'sheet'):
+            # swash: highlighter pass swept left to right under lettering;
+            # sheet: a whole-sheet tint that fades in where it lies, with no
+            # sweep and no hand
             fp = wbp._clamp(p)
+            sweep = fill == 'swash'
             xs = [q[0] for q in pts_s]
             ys = [q[1] for q in pts_s]
             bx0, bx1 = min(xs) - 2, max(xs) + 2
             by0, by1 = min(ys) - 2, max(ys) + 2
             bw_ = max(2, int(bx1 - bx0))
             bh_ = max(2, int(by1 - by0))
-            edge = max(1, int(bw_ * fp))
+            edge = max(1, int(bw_ * fp)) if sweep else bw_
             mask = Image.new('L', (edge, bh_), 0)
             ImageDraw.Draw(mask).polygon(
-                [(x - bx0, y - by0) for x, y in pts_s], fill=int(255 * wscale))
+                [(x - bx0, y - by0) for x, y in pts_s],
+                fill=int(255 * wscale * (1.0 if sweep else fp)))
             fc = colors[col]
             tile = Image.new('RGBA', (edge, bh_), (fc[0], fc[1], fc[2], 0))
             tile.putalpha(mask)
@@ -3229,7 +3238,7 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             if cx0_ < edge and cy0_ < bh_:
                 layer.alpha_composite(tile.crop((cx0_, cy0_, edge, bh_)),
                                       (ox_ + cx0_, oy_ + cy0_))
-            if 0 < p < 1:
+            if sweep and 0 < p < 1:
                 tip = (bx0 + edge, (by0 + by1) / 2)
             continue
         if fill == 'solid':
@@ -4568,4 +4577,3 @@ def _fm_contours(spec, img):
         polys = []
     _FM_CONTOURS[key] = polys
     return polys
-

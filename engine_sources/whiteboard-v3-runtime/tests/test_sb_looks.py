@@ -3,6 +3,19 @@ import sb_activity
 import sb_cast
 
 
+def test_elderly_modifier_persists_after_the_first_mention():
+    sb = pa.build_storyboard(
+        '## Arrival\nAn elderly neighbor waits by the window.\n'
+        '## Home\nThe neighbor sits on the bench.')
+    neighbors = [r for b in sb['beats'] for r in
+                 [b['scene']['heroRole']] + b['scene']['supportingRoles']
+                 if r['label'] == 'neighbor']
+    assert len(neighbors) >= 2
+    assert all(r['age'] == 'elder' for r in neighbors)
+    assert all(sb_cast.look_for(r)['hair_tone'] == '#9A9A9A'
+               for r in neighbors)
+
+
 def test_explicit_female_and_male_words():
     assert sb_cast.look_for({'label': 'woman'})['sex'] == 'f'
     assert sb_cast.look_for({'label': 'mother'})['sex'] == 'f'

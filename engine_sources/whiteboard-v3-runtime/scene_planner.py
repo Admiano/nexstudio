@@ -17,20 +17,25 @@ from __future__ import annotations
 
 import glob
 import hashlib
-import importlib.util
 import json
 import os
 import re
 
+try:
+    from llama_cpp import Llama
+except ImportError:
+    Llama = None
+
 import sb_activity
 import sb_cast
 import sb_story
+import scene_map
 
 _CACHE = os.path.expanduser(os.environ.get(
     'NEXSTUDIO_SCENE_PLAN_CACHE', '~/.cache/nexstudio/scene_plans'))
 _MODEL_GLOB = ('~/models/qwen2.5-7b-instruct-q4_k_m-00001-of-*.gguf',
                '~/models/*instruct*.gguf')
-_VERSION = 'scene-plan-v2'
+_VERSION = 'scene-plan-v3'
 
 # what each body pattern looks like, so the model picks by meaning
 ACTIONS = {
@@ -165,15 +170,16 @@ def _model_path() -> str:
 def available() -> bool:
     if not _model_path():
         return False
-    return importlib.util.find_spec('llama_cpp') is not None
+    return Llama is not None
 
 
 def _complete(prompt: str) -> str:
     global _LLM
     if _LLM is None:
-        from llama_cpp import Llama
         _LLM = Llama(model_path=_model_path(), n_ctx=8192,
-                     n_threads=os.cpu_count() or 4, seed=0, verbose=False)
+                     n_threads=max(1, int(os.environ.get(
+                         'OMP_NUM_THREADS', min(8, os.cpu_count() or 1)))),
+                     seed=0, verbose=False)
     r = _LLM.create_chat_completion(
         messages=[{'role': 'system', 'content': _SYSTEM},
                   {'role': 'user', 'content': prompt}],
@@ -191,15 +197,21 @@ def plan(sents: list, people: list = (), before: str = '') -> dict | None:
     key = hashlib.sha256((_VERSION + prompt).encode()).hexdigest()[:24]
     path = os.path.join(_CACHE, key + '.json')
     if os.path.exists(path):
-        with open(path) as f:
-            return json.load(f)
+        try:
+            with open(path) as f:
+                got = _clean(json.load(f), len(sents))
+            if len(got['moments']) == len(sents):
+                return got
+        except (OSError, ValueError, TypeError):
+            pass
     if not available():
         return None
     try:
-        got = json.loads(_complete(prompt))
-    except (ValueError, KeyError):
+        got = _clean(json.loads(_complete(prompt)), len(sents))
+    except (ValueError, KeyError, TypeError):
         return None
-    got = _clean(got, len(sents))
+    if len(got['moments']) != len(sents):
+        return None
     os.makedirs(_CACHE, exist_ok=True)
     with open(path, 'w') as f:
         json.dump(got, f, indent=1)
@@ -212,18 +224,24 @@ def _word(s) -> str:
 
 
 def _clean(p: dict, n: int) -> dict:
+    if not isinstance(p, dict):
+        raise ValueError('scene plan must be an object')
     out = {'place': _word(p.get('place')),
            'fixtures': [_word(x) for x in p.get('fixtures') or []
                         if _word(x)][:4],
            'moments': []}
     seen = set()
     for m in p.get('moments') or []:
+        if not isinstance(m, dict):
+            continue
         k = m.get('sentence')
-        if not isinstance(k, int) or not 0 <= k < n or k in seen:
+        if type(k) is not int or not 0 <= k < n or k in seen:
             continue
         seen.add(k)
         ppl = []
         for q in m.get('people') or []:
+            if not isinstance(q, dict):
+                continue
             nm = _word(q.get('name'))
             if not nm:
                 continue
@@ -238,7 +256,7 @@ def _clean(p: dict, n: int) -> dict:
             'sentence': k, 'place': _word(m.get('place')) or out['place'],
             'people': ppl,
             'things': [_word(x) for x in m.get('things') or []
-                       if _word(x)][:6]})
+                       if _word(x)]})
     out['moments'].sort(key=lambda m: m['sentence'])
     return out
 
@@ -297,6 +315,7 @@ def _who(name: str, people: list, alias: dict = None):
         keys = {str(r.get(k) or '').lower() for k in
                 ('label', 'cast_key', 'group')} - {''}
         keys |= {k.split('#')[0] for k in keys}
+        keys |= set(r.get('aliases') or ())
         sc = 3 if nm in keys else 2 if any(
             toks & set(k.split()) for k in keys) else 0
         if sc > score:
@@ -306,8 +325,8 @@ def _who(name: str, people: list, alias: dict = None):
 
 def _mentioned(label: str, text: str) -> bool:
     h = _head(label)
-    return bool(h) and re.search(r'\b' + re.escape(h[:max(3, len(h) - 1)]),
-                                 text) is not None
+    return bool(h) and any(_head(w) == h for w in
+                          re.findall(r"[a-z]+", text.lower()))
 
 
 def apply(sc: dict, plan: dict, sents: list, cast=None) -> list:
@@ -328,13 +347,27 @@ def apply(sc: dict, plan: dict, sents: list, cast=None) -> list:
                 and _head(f) in named]
     for f in set(plan.get('fixtures') or ()) - set(fixtures):
         notes.append({'reject': 'fixture', 'label': f})
+    sc['scene_plan'] = plan
+    sc['places'] = list(sc.get('places') or [])
+    sc['places'].extend([''] * max(0, len(sents) - len(sc['places'])))
+    fixture_place = {}
+    carry: dict = {}
+    for f in fixtures:
+        first = next((m for m in plan['moments'] if
+                      _mentioned(f, sents[m['sentence']])), None)
+        if first is not None:
+            fixture_place[f] = first['place']
     for m in plan.get('moments') or ():
         k = m['sentence']
         if k >= len(sents):
             continue
         sent = sents[k].lower()
+        spoken = scene_map.parse(sents[k], carry)
         here = [r for r in rs if int(r.get('moment') or 0) == k]
         people = [r for r in here if r.get('icon') == 'person']
+        place = m.get('place') or plan.get('place')
+        if place and (not sc['places'][k] or _mentioned(place, sent)):
+            sc['places'][k] = sb_story.place_kind(place) or place
         heads = {_head(r['label']) for r in here}
 
         def add(label, extra):
@@ -352,23 +385,49 @@ def apply(sc: dict, plan: dict, sents: list, cast=None) -> list:
             if r is None and _head(q['name']) in heads:
                 continue
             if r is None:
-                notes.append({'reject': 'person', 'moment': k,
-                              'name': q['name']})
-                continue
+                prior = _who(q['name'], [o for o in rs
+                             if o.get('icon') == 'person' and
+                             int(o.get('moment') or 0) < k], alias)
+                if prior is None:
+                    notes.append({'reject': 'person', 'moment': k,
+                                  'name': q['name']})
+                    continue
+                r = {key: value for key, value in prior.items()
+                     if key not in ('activity', 'action', 'attach', 'to',
+                                    'touch', 'lap_of', 'held', 'lean_on')}
+                r.update(moment=k, narration=sents[k], planned=True)
+                rs.append(r)
+                here.append(r)
+                people.append(r)
             me = rs.index(r)
             act = q.get('action') or 'stand'
             sch = schema_of(act)
             cur = r.get('activity') or {}
+            if cur.get('posture'):
+                sch = cur['schema']
             part = cur.get('partner')
-            weak = (not cur or r.get('activity_miss')
-                    or (cur.get('schema') == 'jump'
-                        and cur.get('lemma') == 'play')
-                    or (part is not None and not concrete(part))
-                    or (part is None and cur.get('schema')
-                        in sb_activity.HAND_SCHEMAS))
             own = str(r.get('narration') or '').lower() == sent
-            if sch and sch != cur.get('schema') and weak and (
-                    own or not cur):
+            names = {r['label'], r.get('cast_key') or '', q['name']} \
+                | set(r.get('aliases') or ())
+            stated = sch == cur.get('schema')
+            if spoken is not None:
+                stated = stated or any(
+                    (sb_activity.resolve(ev['lemma'], ()) or {}).get(
+                        'schema') == sch
+                    and (ev['agent'] is not None
+                         and spoken['entities'][ev['agent']]['label'] in names
+                         or sch in ('walk', 'run', 'hike', 'crawl', 'swim')
+                         and any(prep == 'with'
+                                 and spoken['entities'][eid]['label'] in names
+                                 for prep, eid in ev['preps']))
+                    for ev in spoken['events'])
+            if not stated and sch not in ('stand', 'sit', 'lie'):
+                notes.append({'reject': 'unstated-action', 'moment': k,
+                              'name': q['name'], 'action': act})
+                continue
+            if sch and (own or not cur) and (
+                    sch != cur.get('schema') or
+                    _head(q.get('object')) != _head(part)):
                 obj = q.get('object') or ''
                 if obj and not (concrete(obj) or (
                         sb_activity.noun_cat(obj)
@@ -379,10 +438,31 @@ def apply(sc: dict, plan: dict, sents: list, cast=None) -> list:
                 if (q.get('on') and sb_story._closure(
                         _head(q['on']), k=1) & _SEATS):
                     posture = 'sit'
+                objects = [('dobj', obj)] if obj else []
+                if q.get('on') and concrete(q['on']):
+                    objects.append(('on', q['on']))
+                if sch == cur.get('schema'):
+                    preps = {'source': 'from', 'goal': 'into',
+                             'instrument': 'with', 'vantage': 'from'}
+                    objects.extend((preps[role], label)
+                                   for role, label in
+                                   (cur.get('roles') or {}).items()
+                                   if role in preps and label)
                 spec = sb_activity.resolve(
-                    cur.get('lemma') or act,
-                    [('dobj', obj)] if obj else [], posture, schema=sch)
+                    cur.get('lemma') or act, objects, posture, schema=sch)
                 if spec is not None:
+                    original = sb_activity.resolve(
+                        cur.get('lemma') or '',
+                        [('dobj', cur['partner'])] if cur.get('partner') else (),
+                        cur.get('posture') or '')
+                    generic = sb_activity.resolve(cur.get('lemma') or '', ())
+                    if spec['schema'] == cur.get('schema') or (
+                            original is not None
+                            and original['schema'] == cur.get('schema')
+                            and (sch in ('stand', 'sit', 'lie')
+                                 or generic is not None
+                                 and generic['schema'] == sch)):
+                        spec.update(cur)
                     old = cur.get('partner')
                     for o in here:
                         if o.get('to') == me and o['label'] == old and \
@@ -392,8 +472,10 @@ def apply(sc: dict, plan: dict, sents: list, cast=None) -> list:
                                 o.pop('to')
                             else:
                                 o['absorbed'] = True
-                    new = {kk: spec[kk] for kk in ('schema', 'kind', 'via',
-                                                     'lemma')}
+                    new = dict(spec, via='scene-plan')
+                    if cur.get('posture'):
+                        new['posture'] = cur['posture']
+                    new.pop('partner', None)
                     for o in here:
                         if o.get('to') == me and o.get('icon') != 'person' \
                                 and not concrete(o['label']):
@@ -401,6 +483,8 @@ def apply(sc: dict, plan: dict, sents: list, cast=None) -> list:
                     if spec.get('partner'):
                         pr = next((o for o in here if o['label']
                                    == spec['partner']), None)
+                        if pr is not None and pr.get('to') not in (None, me):
+                            pr = None
                         said = _mentioned(spec['partner'], sent)
                         if pr is None and (said or spec['partner'] in fixtures
                                            or implied < _MAX_IMPLIED):
@@ -420,6 +504,11 @@ def apply(sc: dict, plan: dict, sents: list, cast=None) -> list:
             if emo != 'neutral' and emo in sb_cast.EMOTIONS \
                     and not r.get('emotion'):
                 r['emotion'] = emo
+            peer = _who(q.get('with_person') or '', people, alias)
+            if peer is not None and peer is not r:
+                r['face_to'] = peer.get('cast_key') or peer['label']
+                if act == 'hug':
+                    r['touch'] = [peer.get('cast_key') or peer['label']]
             for w_ in (q.get('wearing'), q.get('holding')):
                 o = next((o for o in here if w_ and o.get('icon') != 'person'
                           and _head(o['label']) == _head(w_)
@@ -465,12 +554,13 @@ def apply(sc: dict, plan: dict, sents: list, cast=None) -> list:
                     sb_story._lex(h) in _ABSTRACT):
                 o['absorbed'] = True
                 notes.append({'moment': k, 'unsaid': o['label']})
-        if people and (m.get('place') or plan.get('place')) == \
-                plan.get('place'):
+        if people:
             seated = any((r.get('activity') or {}).get('schema') in
                          sb_activity._SEATED_SCHEMAS | {'play'}
                          or r.get('stance') == 'sit' for r in people)
             for f in fixtures:
+                if fixture_place.get(f) != place:
+                    continue
                 if seated and sb_story._closure(_head(f), k=1) & _SEATS:
                     continue
                 if add(f, {'fixture': True}) is not None:

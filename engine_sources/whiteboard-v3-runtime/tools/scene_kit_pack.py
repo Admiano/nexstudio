@@ -38,7 +38,8 @@ GAME = {
     'watering-can': ('delapouite', ['watering can']),
     'hand-truck': ('delapouite', ['hand truck', 'dolly', 'trolley']),
     'table': ('delapouite', ['table', 'dining table', 'kitchen table',
-                             'wooden table']),
+                             'wooden table', 'worktable', 'workbench',
+                             'work bench']),
     'desk': ('delapouite', ['desk', 'writing desk', 'school desk']),
     'sink': ('caro-asercion', ['sink', 'kitchen sink', 'basin']),
     'bathtub': ('delapouite', ['bathtub', 'bath', 'tub']),
@@ -49,6 +50,10 @@ GAME = {
     'tree-swing': ('delapouite', ['swing', 'tree swing', 'rope swing']),
     'kid-slide': ('delapouite', ['slide', 'playground slide', 'playground']),
     'farm-tractor': ('delapouite', ['tractor', 'farm tractor']),
+    'whisk': ('delapouite', ['whisk', 'egg whisk', 'beater']),
+    'magnifying-glass': ('lorc', ['lens', 'magnifying glass', 'magnifier',
+                                  'hand lens']),
+    'window': ('delapouite', ['window', 'house window', 'cabin window']),
 }
 ICONOIR = {
     'crib': ['crib', 'cot', 'cradle', 'baby bed'],
@@ -58,6 +63,13 @@ LUCIDE = {
     'armchair': ['armchair', 'easy chair'],
     'coffee': ['mug', 'cocoa', 'hot chocolate', 'coffee mug', 'cup of cocoa',
                'cup of coffee'],
+    'cloud-rain': ['rain', 'rain cloud', 'rainy weather', 'raindrops'],
+    'tree-deciduous': ['tree', 'oak', 'oak tree', 'deciduous tree',
+                      'leafy tree'],
+}
+AUTHORED = {
+    'air-pump': ['air pump', 'bicycle pump', 'tire pump', 'tyre pump', 'pump'],
+    'runway': ['runway', 'airport runway', 'airstrip', 'landing strip'],
 }
 
 
@@ -78,7 +90,7 @@ def main(game_root: str, lucide_root: str, iconoir_root: str) -> None:
         'name': 'scene', 'general': True, 'glyphs': {}}
     man['domain'] = ('everyday settings and props of stories: piers, '
                      'wells, benches, stages, barns, pots, furniture')
-    man['license'] = ('game-icons.net CC BY 3.0 (Delapouite, Caro Asercion), '
+    man['license'] = ('game-icons.net CC BY 3.0 (Delapouite, Caro Asercion, Lorc), '
                       'Lucide ISC, Iconoir MIT '
                       'and NexStudio-authored; see LICENSE-NOTICE.txt')
     for slug, (author, kws) in GAME.items():
@@ -94,6 +106,10 @@ def main(game_root: str, lucide_root: str, iconoir_root: str) -> None:
                f'{slug}.svg').read_text()
         (OUT / f'{slug}.svg').write_text(src.replace('currentColor', '#222'))
         man['glyphs'][slug] = {'keywords': kws, 'source': 'iconoir'}
+    for slug, kws in AUTHORED.items():
+        if not (OUT / f'{slug}.svg').is_file():
+            raise FileNotFoundError(slug)
+        man['glyphs'][slug] = {'keywords': kws, 'source': 'nexstudio'}
     idx.write_text(json.dumps(man, indent=1) + '\n')
     print('scene kit', len(man['glyphs']))
 

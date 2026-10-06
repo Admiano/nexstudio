@@ -143,6 +143,60 @@ def test_missing_role_art_is_reported_not_hidden():
                                                'theme': True}
 
 
+def test_facial_expression_is_not_an_activity_instrument():
+    for expression in ('smile', 'frown', 'grin'):
+        spec = A.resolve('sit', [('on', 'bench'), ('with', expression)])
+        assert 'instrument' not in spec['roles']
+
+
+def test_kneeling_posture_survives_later_hand_work():
+    kneel = A.resolve('kneel', [('beside', 'bicycle')])
+    fix = A.resolve('fix', [('dobj', 'wheel'), ('with', 'wrench')])
+    merged = A.merge(kneel, fix)
+    assert merged['schema'] == 'fix'
+    assert merged['posture'] == 'kneel'
+
+
+def test_boat_and_car_have_distinct_terrain():
+    boat = A.resolve('drive', [('dobj', 'ferry'), ('across', 'bay')])
+    car = A.resolve('drive', [('dobj', 'car'), ('across', 'bay')])
+    assert 'bay' in boat['absorb']
+    assert 'bay' not in car['absorb']
+
+
+def test_activity_backdrop_stays_at_the_figure_scale():
+    art = [([(0, 0), (2, 0), (2, 1), (0, 1)], 'ink', 1, False)]
+    strokes, _marks, _anchors, meta = A.compose(
+        A.resolve('kneel'), backdrop=[art], backdrop_sizes=[0.52])
+    bounds = A._bbox(strokes)
+    assert meta['backdrop'] == 1
+    assert bounds[2] - bounds[0] < 2 * A.H
+    assert bounds[3] - bounds[1] < 2 * A.H
+
+
+def test_opening_a_building_draws_an_access_door():
+    spec = A.resolve('open', [('dobj', 'workshop')])
+    assert spec['kind'] == 'building'
+    strokes, _marks, anchors, meta = A.compose(spec)
+    assert meta['placed'] and meta['partner_bounds']
+    assert A.contact_error(meta) <= 0.08
+    x0, y0, x1, y1 = meta['partner_bounds']
+    hand = anchors['hand_n']
+    assert x0 <= hand[0] <= x1 and y0 <= hand[1] <= y1
+    assert A._bbox(strokes)[3] - A._bbox(strokes)[1] < 2 * A.H
+
+
+def test_water_source_is_drawn_as_a_local_patch():
+    spec = A.resolve('lift', [('dobj', 'bucket'), ('from', 'pond')])
+    strokes, _marks, _anchors, meta = A.compose(spec)
+    assert meta['roles']['source']
+    water = [s for s in strokes if s[1] == A.C['water']]
+    assert water
+    bounds = A._bbox(water)
+    assert 0 < bounds[2] - bounds[0] <= 1.2 * A.H
+    assert 0 < bounds[3] - bounds[1] < 0.2 * A.H
+
+
 def test_plan_keeps_role_objects_attached_to_the_actor():
     rs = _roles('The keeper pours hot tea into three cups.')
     act = rs['keeper']['activity']

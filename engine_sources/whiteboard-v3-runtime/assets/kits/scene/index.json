@@ -197,7 +197,10 @@
     "table",
     "dining table",
     "kitchen table",
-    "wooden table"
+    "wooden table",
+    "worktable",
+    "workbench",
+    "work bench"
    ],
    "source": "game-icons/delapouite"
   },
@@ -281,8 +284,83 @@
     "baby bed"
    ],
    "source": "iconoir"
+  },
+  "floorboards": {
+   "keywords": [
+    "floor",
+    "floorboards",
+    "wooden floor",
+    "deck",
+    "boards",
+    "planks"
+   ],
+   "source": "authored",
+   "colors": true
+  },
+  "whisk": {
+   "keywords": [
+    "whisk",
+    "egg whisk",
+    "beater"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "magnifying-glass": {
+   "keywords": [
+    "lens",
+    "magnifying glass",
+    "magnifier",
+    "hand lens"
+   ],
+   "source": "game-icons/lorc"
+  },
+  "air-pump": {
+   "keywords": [
+    "air pump",
+    "bicycle pump",
+    "tire pump",
+    "tyre pump",
+    "pump"
+   ],
+   "source": "nexstudio"
+  },
+  "window": {
+   "keywords": [
+    "window",
+    "house window",
+    "cabin window"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "cloud-rain": {
+   "keywords": [
+    "rain",
+    "rain cloud",
+    "rainy weather",
+    "raindrops"
+   ],
+   "source": "lucide"
+  },
+  "tree-deciduous": {
+   "keywords": [
+    "tree",
+    "oak",
+    "oak tree",
+    "deciduous tree",
+    "leafy tree"
+   ],
+   "source": "lucide"
+  },
+  "runway": {
+   "keywords": [
+    "runway",
+    "airport runway",
+    "airstrip",
+    "landing strip"
+   ],
+   "source": "nexstudio"
   }
  },
  "domain": "everyday settings and props of stories: piers, wells, benches, stages, barns, pots, furniture",
- "license": "game-icons.net CC BY 3.0 (Delapouite, Caro Asercion), Lucide ISC, Iconoir MIT and NexStudio-authored; see LICENSE-NOTICE.txt"
+ "license": "game-icons.net CC BY 3.0 (Delapouite, Caro Asercion, Lorc), Lucide ISC, Iconoir MIT and NexStudio-authored; see LICENSE-NOTICE.txt"
 }

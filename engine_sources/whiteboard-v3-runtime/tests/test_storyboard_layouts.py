@@ -56,6 +56,47 @@ def test_word_alignment_recovers_after_spoken_number_replaces_written_words():
     assert second['start_seconds'] >= first['start_seconds'] + first['duration_seconds']
 
 
+def test_beat_ends_at_its_own_last_word_not_a_later_repeat():
+    plan = {'beats': [
+        {'narration': 'March gets 90 millimeters. April gets 120 millimeters.',
+         'duration_seconds': 9},
+        {'narration': 'June gets 40 millimeters. July is dry.',
+         'duration_seconds': 9},
+        {'narration': 'The reservoir drops.', 'duration_seconds': 9},
+    ]}
+    words = ('March gets 90 millimeters April gets 120 millimeters '
+             'June gets 40 millimeters July is dry '
+             'The reservoir drops').split()
+    transcript = [{'word': w, 'start': i * 0.5, 'end': i * 0.5 + 0.4}
+                  for i, w in enumerate(words)]
+    beats = pipe.align_beats_to_words(plan, transcript)['beats']
+    assert [len(b['word_times']) for b in beats] == [8, 7, 3]
+    assert beats[1]['word_times'][0][0] == 'june'
+    assert beats[2]['start_seconds'] + beats[2]['duration_seconds'] \
+        <= transcript[-1]['end'] + 0.2
+
+
+def test_scene_wash_fades_in_without_a_sweep_or_hand():
+    pipe.load_execution_body()
+    from PIL import Image
+    import v3_board_renderer as v3r
+    import v3_board_sections as bs
+    poly = [(-300, -300), (300, -300), (300, 300), (-300, 300), (-300, -300)]
+    colors = bs._colors({})
+    seen = []
+    for p in (0.3, 1.0):
+        layer = Image.new('RGBA', (720, 720), (0, 0, 0, 0))
+        tip = v3r._draw_strokes(layer, [(poly, 'a_blue', 0.13, 'sheet', True)],
+                                (0, 0), 1.0, (0, 0), colors, '1:1', p, 0, 1.0)
+        a = np.asarray(layer)[..., 3]
+        assert tip is None
+        cols = np.nonzero(a.max(axis=0))[0]
+        assert len(cols) > 100
+        assert a[:, cols[0] + 2].max() == a[:, cols[-1] - 2].max() > 0
+        seen.append(int(a.max()))
+    assert seen[0] < seen[1]
+
+
 def test_attached_prop_draws_when_it_is_spoken():
     _plan, bs, _flow = _built('storyboard_edge_plan.json')
     host = {'it': {'label': 'piece'}, 'kids': [

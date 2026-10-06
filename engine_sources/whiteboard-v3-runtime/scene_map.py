@@ -21,6 +21,8 @@ from __future__ import annotations
 
 import functools
 
+import sb_cast
+
 try:
     from nltk.corpus import wordnet as _wn
     _wn.synsets('dog')
@@ -29,6 +31,12 @@ except Exception:  # pragma: no cover - WordNet missing
 
 KINDS = ('rise', 'fall', 'destroy', 'transfer', 'move', 'think', 'fear',
          'feel', 'say', 'perceive', 'act')
+
+_COUNT_WORD = {
+    'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7,
+    'eight': 8, 'nine': 9, 'ten': 10, 'eleven': 11, 'twelve': 12,
+    'both': 2, 'pair': 2, 'couple': 2,
+}
 
 _UP = {'increase.v.01', 'increase.v.02', 'rise.v.01', 'rise.v.02',
        'ascend.v.01', 'grow.v.01', 'grow.v.02', 'better.v.02'}
@@ -318,6 +326,16 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
         if t.dep_ in ('nmod', 'amod') and t.pos_ == 'NOUN' \
                 and t.head.i == t.i + 1 and t.head.pos_ == 'NOUN':
             continue
+        if t.dep_ == 'poss' and t.pos_ == 'PRON':
+            g = {'her': 'she', 'his': 'he', 'their': 'they'}.get(t.lower_)
+            if g:
+                sex = {'she': 'f', 'he': 'm'}.get(g, '')
+                ref = next((e['label'] for e in reversed(ents)
+                            if (e.get('person') or e['lex'] == 'noun.person')
+                            and sb_cast.lexical_sex(e['label']) in ('', sex)),
+                           carry.get(g) or carry.get('person'))
+                if ref:
+                    carry[g] = ref
         if (t.dep_ == 'compound' and not mod_of_verbal(t)) or verbal(t) or (
                 t.dep_ == 'poss' and t.pos_ not in ('NOUN', 'PROPN')):
             continue
@@ -365,16 +383,38 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
         colour = [c for c in t.children if c.dep_ == 'amod'
                   and c.lower_ in _COLOUR]
         head = _noun_head(t)
-        label = ' '.join([c.lower_ for c in colour]
+        rank = [c for c in t.children if c.dep_ == 'amod'
+                and c.tag_ in ('JJR', 'JJS')
+                and (named or _noun_lex(head) == 'noun.person')]
+        label = ' '.join([c.lower_ for c in rank + colour]
                          + [c.lower_ for c in comp] + [head])
+        amount = next((c for c in t.children if c.dep_ == 'nummod'), None)
+        count = 0
+        if amount is not None:
+            raw = amount.text.lower().replace(',', '')
+            count = _COUNT_WORD.get(raw, int(raw) if raw.isdigit() else 0)
         by_tok[t.i] = len(ents)
         ents.append({'id': len(ents), 'label': label, 'head': head,
+                     'head_at': t.i,
                      'at': min([t.i] + [c.i for c in comp + colour]),
                      'char': min([t.idx] + [c.idx for c in comp + colour]),
                      'pron': False, 'person': named or None,
                      'lex': 'noun.person' if named else _noun_lex(head),
+                     **({'member_qualifier': rank[0].lower_} if rank else {}),
+                     **({'count': count} if count > 1 else {}),
                      'time': t.ent_type_ in ('DATE', 'TIME')
                      or _noun_lex(head) == 'noun.time'})
+        if ents[-1]['lex'] == 'noun.person':
+            sex = sb_cast.lexical_sex(label) or carry.get('gender:' + label, '')
+            descriptors = [t] + [c for c in t.children if c.dep_ == 'appos']
+            if not sex:
+                sex = next((sx for d in descriptors for sx in [
+                    sb_cast.lexical_sex(' '.join(
+                        [d.lower_] + [c.lower_ for c in d.children
+                                      if c.dep_ == 'amod']))] if sx), '')
+            if sex:
+                ents[-1]['gender'] = sex
+                carry['gender:' + label] = sex
     for t in doc:
         # 'a line of customers', 'a crowd of fans': draw the members
         if t.dep_ == 'pobj' and t.head.lower_ == 'of' and t.i in by_tok \
@@ -475,17 +515,48 @@ def parse(sentence: str, carry: dict | None = None) -> dict | None:
             'agent': by_tok.get(subj.i) if subj is not None else None,
             'patient': by_tok.get(obj.i) if obj is not None else None,
             'preps': preps, 'phrase': phrase})
+    shared = []
+    for ev in events:
+        if ev['agent'] is None:
+            continue
+        entity = ents[ev['agent']]
+        tok = doc[entity.get('head_at', entity['at'])]
+        queue = list(tok.children)
+        seen_conj = set()
+        while queue:
+            q = queue.pop(0)
+            if q.dep_ == 'conj':
+                if q.i in by_tok and by_tok[q.i] not in seen_conj:
+                    seen_conj.add(by_tok[q.i])
+                    shared.append(dict(ev, agent=by_tok[q.i]))
+                queue.extend(q.children)
+    events.extend(shared)
     for e in ents:
         if e.get('person') and e['pron']:
             carry['person'] = e['label']
         elif e['lex'] == 'noun.person' and not e['pron']:
-            carry['person'] = e['label']
             if doc[e['at']].tag_ in ('NNS', 'NNPS'):
                 carry['they'] = e['label']
+            else:
+                carry['person'] = e['label']
+                sex = sb_cast.lexical_sex(e['label'])
+                if sex:
+                    carry[{'f': 'she', 'm': 'he'}[sex]] = e['label']
         elif e['lex'] == 'noun.group' and not e['pron'] \
                 and people_group(e['label']):
             carry['they'] = e['label']
         elif not e['pron'] and not e.get('time'):
             carry['thing'] = e['label']
+    agent = next((ev['agent'] for ev in events if ev['agent'] is not None
+                  and doc[ev['at']].dep_ == 'ROOT'), None)
+    if agent is not None:
+        e = ents[agent]
+        if (e.get('person') or e['lex'] == 'noun.person') and \
+                doc[e['at']].tag_ not in ('NNS', 'NNPS'):
+            carry['person'] = e['label']
+            sex = e.get('gender') or carry.get('gender:' + e['label']) \
+                or sb_cast.lexical_sex(e['label'])
+            if sex:
+                carry[{'f': 'she', 'm': 'he'}[sex]] = e['label']
     return {'text': sentence, 'entities': ents, 'events': events,
             'states': states, 'links': links}

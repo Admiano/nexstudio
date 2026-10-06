@@ -18,6 +18,7 @@ sets that beat's stage label.
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -291,6 +292,7 @@ def build_plan(script: str, *, vtype: str = 'diagram',
         return {'schema': 'NexMindKineticPlanV1',
                 'production_id': pid,
                 'type': 'kinetic',
+                'icons': 'auto',
                 'beats': beats}
     if vtype == 'whiteboard':
         wb_beats = []
@@ -1049,6 +1051,8 @@ def _activity(ag, ev, ents, role, roles):
             ag.setdefault('activity_miss', ev['lemma'])
         return
     act = {k: spec[k] for k in ('schema', 'kind', 'via', 'lemma')}
+    if spec.get('posture'):
+        act['posture'] = spec['posture']
     eids = ([ev['patient']] if ev['patient'] is not None else []) + [
         e for _p, e in ev['preps']]
     part = next((role(e) for e in eids if role(e) is not None
@@ -1080,13 +1084,18 @@ def _activity(ag, ev, ents, role, roles):
         e = next((e for e in eids if lab(e) == rlab), None)
         r_ = role(e) if e is not None else None
         if r_ is None and e is not None \
-                and ents[e].get('lex') in _DRAWN_ROLE_LEX:
+                and ents[e].get('lex') in _DRAWN_ROLE_LEX \
+                and lab(e) not in spec['absorb'] \
+                and lab(e) not in spec.get('setting', ()):
             act.setdefault('roles_lost', {})[rname] = rlab
+        old_to = r_.get('to') if r_ is not None else None
+        owned_by_other = isinstance(old_to, int) and old_to != me \
+            and 0 <= old_to < len(roles) \
+            and roles[old_to].get('icon') == 'person'
         if r_ is None or r_ is part or r_['icon'] == 'person' \
                 or lab(e) in spec['absorb'] \
                 or lab(e) in spec.get('setting', ()) \
-                or r_.get('attach') not in (None, 'activity') \
-                or r_.get('to', me) != me:
+                or owned_by_other:
             continue
         r_.update(attach='activity', to=me)
         rl[rname] = r_['label']
@@ -1095,6 +1104,13 @@ def _activity(ag, ev, ents, role, roles):
     if 'activity' in ag and ag['activity'].get('partner') \
             and act.get('partner') is None:
         act['partner'] = ag['activity']['partner']
+    referenced = {act.get('partner')} | set(rl.values()) \
+        | set(spec.get('absorb') or ())
+    for r_ in roles:
+        if r_.get('attach') == 'activity' and r_.get('to') == me \
+                and r_['label'] not in referenced:
+            r_['attach'] = 'behind'
+            act.setdefault('setting', []).append(r_['label'])
     ag['activity'] = act
 
 
@@ -1140,8 +1156,14 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
               and any(x.lexname() in ('verb.communication', 'verb.cognition')
                       for x in _wn.synsets(ev['lemma'], 'v')[:1])}
     keep, seen, paper = [], set(), set()
+    ended = {ev['agent'] for ev in events if ev['agent'] is not None
+             and not ev.get('neg') and ev['lemma'] in (
+                 'stop', 'cease', 'end', 'finish')
+             and ents[ev['agent']].get('lex') == 'noun.phenomenon'}
     toks = [t.lower() for t in re.findall(r"\w+|[^\w\s]", sent)]
     for e in ents:
+        if e['id'] in ended:
+            continue
         head = e['head']
         if e['at'] < len(toks) and toks[e['at']] == head \
                 and _relational(toks, e['at']):
@@ -1176,13 +1198,7 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
             continue
         seen.add(e['label'])
         keep.append((e, person))
-    people = [k for k in keep if k[1]][:2]
-    things = sorted([k for k in keep if not k[1]],
-                    key=lambda k: -role_of.get(k[0]['id'], 0))
-    n_th = max(1, cap - len(people))
-    extra = [k for k in things[n_th:] if role_of.get(k[0]['id'], 0) >= 3][:2]
-    pick = sorted(people + things[:n_th] + extra,
-                  key=lambda k: k[0]['at'])[:cap + len(extra)]
+    pick = sorted(keep, key=lambda k: k[0]['at'])
     if not pick:
         return None
     idx = {e['id']: n for n, (e, _p) in enumerate(pick)}
@@ -1199,6 +1215,12 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
                    if e['id'] in paper else _thing_icon(v3, lab)}
         if person:
             r['narration'] = sent
+            if e.get('gender'):
+                r['gender'] = e['gender']
+            if e.get('member_qualifier'):
+                r['member_qualifier'] = e['member_qualifier']
+        elif int(e.get('count') or 0) > 1:
+            r['count'] = int(e['count'])
         roles.append(r)
 
     by_id = {eid: roles[n] for eid, n in idx.items()}
@@ -1412,7 +1434,12 @@ def _moment_map(v3, sm: dict, sent: str, cap: int, used: dict,
             chart = isinstance(art, tuple) and _TREND_ART.search(str(art[-1]))
             add({'type': 'down' if chart else 'cross', 'on': tr['label']})
         elif ev['kind'] in ('move', 'transfer'):
-            src = thing(ev['patient']) if ev['patient'] is not None else None
+            src = (thing(ev['agent']) if ev['kind'] == 'move'
+                   and ev['agent'] is not None
+                   and (ev['patient'] is None or sb_story.place_kind(
+                       lab_of.get(ev['patient'], ''))) else None)
+            src = src or (thing(ev['patient'])
+                          if ev['patient'] is not None else None)
             src = src or (thing(ev['agent']) if ev['agent'] is not None
                           else None)
             dst = next((thing(e) for p_, e in ev['preps']
@@ -1607,10 +1634,9 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 at = len(_WORD_RE.findall(sent[:m_.start()]))
                 cands.append((at, m_.group(1).lower(), True))
         cands.sort()
-        people = [c for c in cands if c[2]][:2]
+        people = [c for c in cands if c[2]]
         things = [c for c in cands if not c[2]]
-        pick = sorted(people + things[:max(1, cap - len(people))])
-        pick = pick[:cap]
+        pick = sorted(people + things)
         if not pick:
             pick = [(0, _subject(sent) or 'idea', False)]
         nouns = {c[1].split()[-1] for c in pick} | {
@@ -1854,7 +1880,7 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                          if maps else {}),
                       **({'setting': setting} if setting else {})},
         })
-        if moments and maps:
+        if maps:
             beat_maps[len(beats) - 1] = (maps, sents)
     _cast_looks(beats)
     _noun_labels(beats)
@@ -1881,6 +1907,28 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             told.extend(sents_)
         else:
             _graph_scene(beats[bi]['scene'], maps)
+            chart = _quantities(sents_)
+            if chart is not None:
+                sc = beats[bi]['scene']
+                rs = [sc['heroRole']] + sc['supportingRoles']
+                chart_words = {_lemma(w.lower()) for value in chart['values']
+                               for w in re.findall(r'\w+', value['label']
+                                                   + ' ' + value['unit'])}
+                for r in rs:
+                    if isinstance(r.get('to'), int):
+                        r['to'] += 1
+                    if isinstance(r.get('target'), int):
+                        r['target'] += 1
+                    if {_lemma(w.lower()) for w in r['label'].split()} \
+                            <= chart_words:
+                        r['charted'] = True
+                sc['heroRole'] = {
+                    'label': chart['unit'], 'icon': 'bar chart',
+                    'glyph': 'quantity-chart', 'chart': chart,
+                    'moment': 0, 'size': 1.0}
+                sc['supportingRoles'] = rs
+                sc.update(relation='comparison', layout='focus')
+                sc.pop('graph', None)
     for bi, b in enumerate(beats):
         # a person persisting across moments is drawn once: the earliest
         # slot survives and inherits the later appearance's activity when
@@ -2074,6 +2122,88 @@ def _scene_graph(roles: list, maps: list):
     return {'edges': edges[:10]}
 
 
+def _quantities(sents: list) -> dict | None:
+    values = []
+    for moment, sent in enumerate(sents):
+        if re.search(r'\d\s*[-–]\s*\d|(?<!\d)-\s*\d|\b(about|roughly|approximately|'
+                     r'nearly|between|less than|more than|up to|minus|hundred|'
+                     r'thousand|million|billion|trillion|dozen)\b', sent, re.I):
+            return None
+        doc = scene_map._parse_doc(sent)
+        if doc is None:
+            return None
+        for token in doc:
+            if not re.fullmatch(r'\d+(?:,\d{3})*(?:\.\d+)?', token.text):
+                continue
+            verb = next((a for a in token.ancestors
+                         if a.pos_ in ('VERB', 'AUX')), None)
+            if verb is None or any(c.dep_ == 'neg' for c in verb.children):
+                continue
+            subject = next((c for c in verb.children
+                            if c.dep_ in ('nsubj', 'nsubjpass')), None)
+            if subject is None:
+                continue
+            unit = ''
+            if token.dep_ in ('nummod', 'compound') and token.head.pos_ == 'NOUN':
+                root = token.head
+                while root.dep_ == 'compound' and root.head.pos_ == 'NOUN':
+                    root = root.head
+                parts, pending = [], [root]
+                while pending:
+                    part = pending.pop()
+                    parts.append(part)
+                    pending.extend(c for c in part.children if
+                                   c.dep_ in ('compound', 'amod') and
+                                   not c.like_num)
+                unit = ' '.join(p.lemma_.lower() for p in sorted(
+                    parts, key=lambda p: p.i))
+            currency = doc[token.i - 1].text if token.i else ''
+            if currency in ('$', '£', '€'):
+                unit = currency
+            elif token.i + 1 < len(doc) and doc[token.i + 1].text == '%':
+                unit = '%'
+            if not unit or unit.isdigit() or unit in ('year', 'month', 'day'):
+                continue
+            label = next((chunk.text for chunk in doc.noun_chunks
+                          if chunk.root == subject), subject.text)
+            label = re.sub(r'^(the|a|an)\s+', '', label, flags=re.I)
+            # the setting the value belongs to ("In March", "by late
+            # summer") is the axis when the subjects don't tell values apart
+            setting = next((' '.join(t.text for t in c.subtree
+                                     if t.dep_ != 'prep')
+                            for c in verb.children
+                            if c.dep_ == 'prep' and token not in c.subtree
+                            and any(g.dep_ == 'pobj' for g in c.children)),
+                           None)
+            value = float(token.text.replace(',', ''))
+            if not math.isfinite(value):
+                return None
+            values.append({'label': label, 'value': value, 'word': token.text,
+                'unit': unit, 'measure': verb.lemma_, 'moment': moment,
+                'source': sent, 'setting': setting,
+                'pronoun': subject.pos_ == 'PRON'})
+    if not 2 <= len(values) <= 6:
+        return None
+    settings = [v['setting'] for v in values]
+    by_setting = (all(settings) and
+                  len({x.lower() for x in settings}) == len(values))
+    if by_setting:
+        for v in values:
+            v['label'] = v['setting']
+    elif len({(v['unit'], v['measure']) for v in values}) != 1 or \
+            any(v['pronoun'] for v in values):
+        return None
+    if len({v['unit'] for v in values}) != 1:
+        return None
+    if len({v['label'].lower() for v in values}) != len(values):
+        return None
+    for v in values:
+        del v['setting'], v['pronoun']
+    if max(v['value'] for v in values) <= 0:
+        return None
+    return {'unit': values[0]['unit'], 'baseline': 0, 'values': values}
+
+
 def _graph_scene(sc: dict, maps: list) -> None:
     """An explaining scene becomes one diagram: each thing is drawn once
     (later mentions link back to it) and the scene carries its edges."""
@@ -2195,19 +2325,19 @@ def _noun_labels(beats: list) -> None:
                 r.pop('annotate', None)
                 continue
             k = at
-            while k and _is_adj(words[k - 1].lower()):
+            while k and _is_adj(words[k - 1].lower()) \
+                    and words[k - 1].lower() not in {
+                        'outside', 'inside', 'around', 'under', 'over',
+                        'behind', 'beside', 'near', 'through', 'along',
+                        'across', 'from', 'into', 'onto', 'with', 'at'}:
                 k -= 1
             np_ = words[k:at + 1]
             verb = at > 0 and k == at and _wn is not None and bool(
                 _wn.morphy(words[0].lower(), 'v'))
-            if len(np_) >= 2 and len(np_) < len(words) + (
-                    len(np_) > len(r['label'].split())):
-                r['annotate'] = ' '.join(np_)
-            elif verb:
-                # the step's action on the thing: 'kneads dough'
+            if verb and sc.get('mode') != 'story':
                 r['annotate'] = f'{words[0]} {words[at]}'
             else:
-                r.pop('annotate', None)
+                r['annotate'] = ' '.join(np_)
 
 
 _PRO_F = re.compile(r'\b(she|her|hers|herself)\b', re.I)
@@ -2227,7 +2357,9 @@ def _cast_looks(beats: list) -> None:
                     key=len, reverse=True)
     # one person under several names: 'the keeper' after 'the lighthouse
     # keeper', or 'her husband, a bearded fisherman'
-    root = {lab: next((o for o in labels if o.endswith(' ' + lab)), lab)
+    qualified = {r['label'] for r in roles if r.get('member_qualifier')}
+    root = {lab: next((o for o in labels if o not in qualified
+                      and o.endswith(' ' + lab)), lab)
             for lab in labels}
     text = ' '.join(b.get('narration') or '' for b in beats)
     for a_ in labels:
@@ -2243,11 +2375,13 @@ def _cast_looks(beats: list) -> None:
                 root[b_] = root[a_]
     votes: dict = {lab: [0, 0] for lab in labels}
     young: set = set()
+    elderly: set = set()
     bearded: set = set()
     cur = ''
     recent: list = []
     for b in beats:
         for sent in re.split(r'(?<=[.!?])\s+', b.get('narration') or ''):
+            prior, prior_recent = cur, list(recent)
             hits = []
             for lab in labels:
                 m = re.search(r'\b' + re.escape(lab) + r's?\b', sent, re.I)
@@ -2257,6 +2391,9 @@ def _cast_looks(beats: list) -> None:
                     pre = sent[:m.start()]
                     if _YOUNG.search(pre):
                         young.add(root[lab])
+                    if re.search(r'\b(old|elderly|elder|senior)\s+$',
+                                 pre, re.I):
+                        elderly.add(root[lab])
                     if re.search(r'\b(bearded|beard(ed)?)\s+$', pre, re.I):
                         bearded.add(root[lab])
             if hits:
@@ -2268,12 +2405,26 @@ def _cast_looks(beats: list) -> None:
             # a pronoun names the latest referent its gender can fit:
             # 'his granddaughters follow him' -> him is not a granddaughter
             for pro, idx in ((_PRO_F, 0), (_PRO_M, 1)):
-                n_ = len(pro.findall(sent))
                 want = 'fm'[idx]
-                fit = next((c for c in ([cur] if cur else []) + recent[::-1]
-                            if sb_cast.lexical_sex(c) in ('', want)), '')
-                if n_ and fit:
-                    votes[fit][idx] += n_
+                for mention in pro.finditer(sent):
+                    before = [root[lab] for at, lab in sorted(
+                        hits, reverse=True) if at < mention.start()]
+                    clause = sent[:mention.start()]
+                    if re.search(r'\band\s*$', clause, re.I):
+                        subjects = [root[lab] for at, lab in hits
+                                    if re.search(
+                                        r'\b' + re.escape(lab) +
+                                        r's?\b[^.!?;]*\b\w+(?:ed|s)\b',
+                                        clause, re.I)]
+                        if subjects:
+                            before = subjects[-1:] + [
+                                c for c in before if c != subjects[-1]]
+                    candidates = before + ([prior] if prior else []) + \
+                        prior_recent[::-1]
+                    fit = next((c for c in candidates
+                                if sb_cast.lexical_sex(c) in ('', want)), '')
+                    if fit:
+                        votes[fit][idx] += 1
     for r in roles:
         k = root.get(r['label'], r['label'])
         f, m = votes.get(k, (0, 0))
@@ -2286,6 +2437,8 @@ def _cast_looks(beats: list) -> None:
             r['gender'] = 'f' if f > m else 'm'
         if k in young:
             r.setdefault('age', 'child')
+        elif k in elderly:
+            r.setdefault('age', 'elder')
         if k in bearded:
             r.setdefault('beard', 'full')
     for b in beats:

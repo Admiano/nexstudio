@@ -61,6 +61,20 @@ def test_clean_drops_bad_moments_and_unknown_actions():
     assert got['moments'][0]['people'][0]['action'] == 'stand'
 
 
+def test_invalid_cache_is_replaced_by_a_complete_plan(monkeypatch, tmp_path):
+    monkeypatch.setenv('NEXSTUDIO_SCENE_LLM', '')
+    monkeypatch.setattr(sp, '_CACHE', str(tmp_path))
+    monkeypatch.setattr(sp, 'available', lambda: True)
+    monkeypatch.setattr(sp, '_complete', lambda prompt: json.dumps({
+        'place': 'kitchen', 'fixtures': [],
+        'moments': [{'sentence': 0, 'people': [], 'things': ['cup']}]}))
+    assert sp.plan(['Ann washes a cup.'])['place'] == 'kitchen'
+    cache = next(tmp_path.iterdir())
+    cache.write_text('{"moments":')
+    assert sp.plan(['Ann washes a cup.'])['moments'][0]['things'] == ['cup']
+    assert json.loads(cache.read_text())['place'] == 'kitchen'
+
+
 def test_concrete_things_only():
     for w in ('piano', 'umbrella', 'cup', 'dog', 'bread'):
         assert sp.concrete(w), w
@@ -149,3 +163,93 @@ def test_gestures_are_drawn_standing_and_seated():
 def test_play_without_instrument_context_keeps_plan_schema():
     spec = A.resolve('play', [('dobj', 'piano')], '', schema='play')
     assert spec['schema'] == 'play' and spec['kind'] == 'keyboard'
+
+
+def test_incomplete_model_response_is_not_cached(monkeypatch, tmp_path):
+    monkeypatch.setenv('NEXSTUDIO_SCENE_LLM', '')
+    monkeypatch.setattr(sp, '_CACHE', str(tmp_path))
+    monkeypatch.setattr(sp, 'available', lambda: True)
+    monkeypatch.setattr(sp, '_complete', lambda prompt: json.dumps({
+        'place': 'studio', 'fixtures': [], 'moments': [
+            {'sentence': 0, 'people': [], 'things': []}]}))
+    assert sp.plan(['Jo arrives.', 'She waves.']) is None
+    assert not list(tmp_path.iterdir())
+
+
+def test_required_things_are_not_truncated():
+    things = ['cup', 'plate', 'fork', 'spoon', 'bowl', 'pan', 'jug', 'knife']
+    got = sp._clean({'moments': [
+        {'sentence': 0, 'things': things}]}, 1)
+    assert got['moments'][0]['things'] == things
+
+
+def test_another_persons_action_cannot_be_assigned_to_a_named_bystander():
+    sent = 'Lena drinks tea while Omar waits beside a table.'
+    sc = _scene(sent)
+    plan = _plan([{'sentence': 0, 'place': 'room', 'people': [
+        _p('omar', 'drink', object='cup', holding='cup')], 'things': []}])
+    notes = sp.apply(sc, plan, [sent])
+    omar = _who(sc, 'omar', 0)
+    assert (omar.get('activity') or {}).get('schema') != 'drink'
+    assert any(n.get('reject') == 'unstated-action' for n in notes)
+
+
+def test_an_invented_location_does_not_replace_the_narrated_workplace():
+    sents = ['Lena sits in a workshop.', 'She fixes a bicycle.']
+    sc = _scene(' '.join(sents))
+    places = list(sc['places'])
+    plan = _plan([{'sentence': k, 'place': 'street', 'people': [],
+                   'things': []} for k in range(2)], place='street')
+    sp.apply(sc, plan, sents)
+    assert sc['places'] == places
+    assert all(place != 'outdoor' for place in sc['places'])
+
+
+def test_context_can_correct_a_valid_but_wrong_template():
+    sents = ['Sam taps the rhythm on his knee.']
+    sc = _scene(sents[0])
+    sam = next(r for r in _roles(sc) if r['label'] == 'sam')
+    sam['activity'] = {'schema': 'cut', 'kind': '', 'lemma': 'tap',
+                       'via': 'wordnet', 'partner': 'knife'}
+    sp.apply(sc, _plan([{'sentence': 0, 'people': [
+        _p('sam', 'tap')], 'things': []}]), sents)
+    assert sam['activity']['schema'] == 'tap'
+    assert sam['activity']['via'] == 'scene-plan'
+
+
+def test_fixtures_persist_only_in_their_location():
+    sents = ['Lena reads a book in bed.', 'She smiles.',
+             'She walks into the garden.']
+    sc = _scene(' '.join(sents))
+    plan = _plan([
+        {'sentence': 0, 'place': 'bedroom',
+         'people': [_p('lena', 'read', object='book')], 'things': ['bed']},
+        {'sentence': 1, 'place': 'bedroom',
+         'people': [_p('lena', 'stand')], 'things': []},
+        {'sentence': 2, 'place': 'garden',
+         'people': [_p('lena', 'walk')], 'things': []}],
+        place='bedroom', fixtures=['bed'])
+    sp.apply(sc, plan, sents)
+    assert any(r['label'] == 'bed' and r.get('moment') == 1
+               for r in _roles(sc))
+    assert not any(r['label'] == 'bed' and r.get('moment') == 2
+                   for r in _roles(sc))
+    assert sc['places'] == ['bedroom', 'bedroom', 'outdoor']
+
+
+def test_mentions_match_nouns_not_prefixes():
+    assert sp._mentioned('cup', 'She washes two cups.')
+    assert not sp._mentioned('car', 'She carries a basket.')
+
+
+def test_planned_pouring_preserves_source_and_destination():
+    sents = ['Nora pours tea from a teapot into a cup.']
+    sc = _scene(sents[0])
+    person = next(r for r in _roles(sc) if r['label'] == 'nora')
+    person['activity'] = A.resolve('pour', [
+        ('dobj', 'tea'), ('from', 'teapot'), ('into', 'cup')])
+    sp.apply(sc, _plan([{'sentence': 0, 'people': [
+        _p('nora', 'pour', object='tea')], 'things': ['teapot', 'cup']}]),
+        sents)
+    assert person['activity']['roles'] == {
+        'theme': 'tea', 'source': 'teapot', 'goal': 'cup'}

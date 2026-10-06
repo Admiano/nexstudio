@@ -327,8 +327,9 @@ def look_for(role) -> dict:
     hair = styles[_seed(key, 'hair') % len(styles)]
     tones = HAIR_TONES[:5] if child else HAIR_TONES
     tone = tones[_seed(key, 'tone') % len(tones)]
-    if re.search(r'\b(grand(father|mother|pa|ma)|granny|old|elderly|'
-                 r'elder|senior|retiree|pensioner)\b', label):
+    if role.get('age') == 'elder' or re.search(
+            r'\b(grand(father|mother|pa|ma)|granny|old|elderly|'
+            r'elder|senior|retiree|pensioner)\b', label):
         tone = '#9A9A9A'
     if tone == '#9A9A9A' and hair == 'bald':
         hair = 'short'

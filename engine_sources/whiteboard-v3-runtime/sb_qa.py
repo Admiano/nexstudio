@@ -31,6 +31,31 @@ def _issue(out, sev, check, beat, detail):
                 'detail': detail})
 
 
+def _quantitative(out, si, beat, sec):
+    charts = [e['role']['chart'] for e in sec.get('qa_els') or []
+              if e['kind'] == 'quantity-chart']
+    drawn = sec.get('qa_quantities') or []
+    for chart in charts:
+        if chart.get('baseline') != 0 or len(drawn) != len(chart['values']):
+            _issue(out, 'fail', 'chart-coverage', si,
+                   'Chart must show each stated value from a zero baseline')
+            continue
+        maximum = max(v['value'] for v in chart['values'])
+        height = max(q['bounds'][3] - q['bounds'][1] for q in drawn)
+        for value, rendered in zip(chart['values'], drawn):
+            source = value['source']
+            word = value['word']
+            if source not in str(beat.get('narration') or '') or not re.search(
+                    r'(?<!\w)' + re.escape(word) + r'(?!\w)', source) or \
+                    not re.fullmatch(r'\d+(?:,\d{3})*(?:\.\d+)?', word) or \
+                    float(word.replace(',', '')) != value['value']:
+                _issue(out, 'fail', 'chart-provenance', si, value['label'])
+            ratio = ((rendered['bounds'][3] - rendered['bounds'][1])
+                     / height if height else 0)
+            if abs(ratio - value['value'] / maximum) > 0.001:
+                _issue(out, 'fail', 'chart-scale', si, value['label'])
+
+
 def _semantic(v3r, out, si, name, ic, word: str = '') -> dict:
     """How a word resolved to art: exact authored drawing, curated kit
     fallback, or library fallback with its CLIP rank. A library pick the
@@ -49,8 +74,8 @@ def _semantic(v3r, out, si, name, ic, word: str = '') -> dict:
         _issue(out, 'fail', 'semantic-art', si,
                f'{phrase} -> {ic} (clip rank {rk} > {v3r.SEM_BAD_RANK})')
     elif how == 'library' and not v3r.art_related(phrase, ic):
-        rec['severity'] = 'warn'
-        _issue(out, 'warn', 'semantic-loose', si,
+        rec['severity'] = 'fail'
+        _issue(out, 'fail', 'semantic-loose', si,
                f'{phrase} -> {ic}: art name unrelated to the word')
     elif how != 'exact':
         rec['severity'] = 'info'
@@ -138,18 +163,41 @@ def visual(plan: dict, ratio: str = '16:9',
         _issue(out, q['severity'], q['check'], q['beat'], q['detail'])
     art_owner: dict = {}
     fig_h = []
+    cast_units: dict = {}
     for si, sec in enumerate(s for s in flow['sections']
                              if 'qa_els' in s):
         els = sec['qa_els']
         cb = sec['qa_content']
         beat = plan['beats'][si] if si < len(plan['beats']) else {}
+        _quantitative(out, si, beat, sec)
         ink_area = 0.0
         row = {'beat': si, 'layout': sec.get('layout'), 'elements': []}
         for e in els:
+            role = e['role'] or {}
+            unit = e.get('figure_unit')
+            if e['kind'] == 'person' and unit:
+                key = role.get('cast_key') or role.get('label')
+                prior = cast_units.setdefault(key, unit)
+                if abs(prior - unit) > 0.1:
+                    _issue(out, 'fail', 'cast-scale', si,
+                           f'{key}: figure unit changed from {prior:.1f} '
+                           f'to {unit:.1f}')
+            expected = int(role.get('count') or 1)
+            if 1 < expected <= 9 and e.get('drawn_count') != expected:
+                _issue(out, 'fail', 'object-count', si,
+                       f'{e["label"]}: expected {expected}, drew '
+                       f'{e.get("drawn_count") or 1}')
+            elif expected > 9:
+                _issue(out, 'warn', 'object-count', si,
+                       f'{e["label"]}: {expected} shown by nine '
+                       'representatives')
+            for name, label in ((role.get('activity') or {}).get(
+                    'roles_lost') or {}).items():
+                _issue(out, 'fail', 'activity-role', si,
+                       f'{e["label"]}: {label} ({name}) missing from plan')
             if e.get('in_activity'):
                 # drawn by its actor's activity apparatus, not as art
                 continue
-            role = e['role'] or {}
             name = str(role.get('icon') or e['label'] or '')
             ink = e.get('ink')
             if ink:

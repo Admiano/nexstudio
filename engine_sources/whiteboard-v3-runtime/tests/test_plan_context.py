@@ -1,6 +1,8 @@
 import pytest
 
 import plan_author as pa
+import pipeline_v3_narration_timed as pipe
+import sb_qa
 
 
 def test_unlisted_verbs_pose_by_meaning():
@@ -15,6 +17,30 @@ def test_unlisted_verbs_pose_by_meaning():
 
 def test_stative_verbs_do_not_pose():
     assert pa._verb_pose('the goalkeeper feels sad'.split(), 1) is None
+
+
+def test_visual_rank_uses_an_ambiguous_words_context(monkeypatch):
+    _wbc, _wbp, _vr, v3 = pipe.load_execution_body()
+    prompts = []
+    monkeypatch.setattr(v3.art_clip, 'available', lambda: True)
+    monkeypatch.setattr(v3.art_clip, 'rank',
+                        lambda phrase, key: prompts.append(phrase) or 1)
+    v3.set_context('A musician plays a musical keyboard instrument.')
+    v3.sem_rank('organ', ('icon', 'tabler', 'piano'))
+    assert 'instrument' in prompts[0]
+    assert prompts[0] != 'organ'
+    v3.set_context('')
+
+
+def test_unrelated_library_drawing_cannot_pass_without_visual_model(monkeypatch):
+    _wbc, _wbp, _vr, v3 = pipe.load_execution_body()
+    monkeypatch.setattr(v3, 'sem_rank', lambda phrase, icon: None)
+    monkeypatch.setattr(v3, 'kit_exact', lambda phrase: None)
+    failures = []
+    sb_qa._semantic(v3, failures, 0, 'mop',
+                    ('icon', 'tabler', 'crown'), 'mop')
+    assert any(i['severity'] == 'fail' and i['check'] == 'semantic-loose'
+               for i in failures)
 
 
 def test_multi_sentence_scene_keeps_every_moment():

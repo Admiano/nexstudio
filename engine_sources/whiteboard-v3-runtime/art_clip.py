@@ -5,6 +5,7 @@ at plan time a concept's text embedding ranks candidate drawings by what
 they actually depict, not by what their file names say."""
 from __future__ import annotations
 
+import importlib
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -48,7 +49,8 @@ def raster(strokes, size=224):
 def _model():
     import open_clip
     import torch
-    torch.set_num_threads(max(1, os.cpu_count() or 1))
+    torch.set_num_threads(max(1, int(os.environ.get(
+        'OMP_NUM_THREADS', min(8, os.cpu_count() or 1)))))
     m, _, pre = open_clip.create_model_and_transforms(MODEL[0],
                                                       pretrained=MODEL[1])
     m.eval()
@@ -59,7 +61,7 @@ def available() -> bool:
     if os.environ.get('NEX_NO_CLIP'):
         return False
     try:
-        import open_clip  # noqa: F401
+        importlib.import_module('open_clip')
     except Exception:
         return False
     return BANK.is_file()

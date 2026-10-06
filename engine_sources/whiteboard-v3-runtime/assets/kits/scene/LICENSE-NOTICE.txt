@@ -3,16 +3,17 @@ Scene kit art sources
 - game-icons.net, icons by Delapouite (https://delapouite.com), licensed
   CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Redrawn as
   outlines (background square removed). Attribution required in shipped
-  credits: "Icons by Delapouite and Caro Asercion, game-icons.net,
+  credits: "Icons by Delapouite, Caro Asercion and Lorc, game-icons.net,
   CC BY 3.0".
   Files: wooden-pier, bird-cage, round-straw-bale, well,
   park-bench, bar-stool, wood-beam, theater-curtains, barn, cooking-pot,
   greek-temple, wheelbarrow, watering-can, hand-truck, table, desk,
   bathtub, fireplace, stairs, bookshelf, tree-swing, kid-slide,
-  farm-tractor. Icon by Caro Asercion (game-icons.net, CC BY 3.0): sink.
+  farm-tractor, whisk, window. Icon by Caro Asercion (game-icons.net, CC BY 3.0):
+  sink. Icon by Lorc (game-icons.net, CC BY 3.0): magnifying-glass.
 - Lucide (https://lucide.dev), ISC license (LUCIDE-LICENSE.txt).
-  Files: sofa, armchair, coffee.
+  Files: sofa, armchair, coffee, cloud-rain, tree-deciduous.
 - Iconoir (https://iconoir.com), MIT license (ICONOIR-LICENSE.txt).
   Files: crib.
 - NexStudio-authored (same licence as this repository):
-  puddle, chalk, conveyor-belt, chair-row.
+  puddle, chalk, conveyor-belt, chair-row, floorboards, air-pump, runway.

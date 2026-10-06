@@ -29,7 +29,12 @@ def test_every_scene_glyph_draws_and_is_credited():
     ('cage', 'bird-cage'), ('puddles', 'puddle'), ('front row', 'chair-row'),
     ('town hall', 'greek-temple'), ('cocoa', 'coffee'), ('couch', 'sofa'),
     ('kitchen table', 'table'), ('staircase', 'stairs'),
-    ('conveyor belt', 'conveyor-belt'),
+    ('conveyor belt', 'conveyor-belt'), ('floor', 'floorboards'),
+    ('deck', 'floorboards'), ('whisk', 'whisk'),
+    ('lens', 'magnifying-glass'),
+    ('window', 'window'), ('rain', 'cloud-rain'),
+    ('oak tree', 'tree-deciduous'),
+    ('runway', 'runway'), ('landing strip', 'runway'),
 ])
 def test_story_things_get_their_own_drawing(word, art):
     assert v3._icon_for(word) == ('icon', 'kit:scene', art)
@@ -46,3 +51,8 @@ def test_named_art_finds_the_glyph_called_by_the_word():
     assert v3._named_art('leather belt') == ('icon', 'phosphor', 'belt')
     assert v3._named_art('well') == ('icon', 'kit:scene', 'well')
     assert v3._named_art('zzzz') is None
+
+
+def test_work_surfaces_and_mechanical_pumps_have_drawings():
+    assert v3._icon_for('workbench') == ('icon', 'kit:scene', 'table')
+    assert v3._icon_for('bicycle pump') == ('icon', 'kit:scene', 'air-pump')

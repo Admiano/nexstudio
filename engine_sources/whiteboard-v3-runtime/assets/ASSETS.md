@@ -1,8 +1,10 @@
 # Vendored assets — provenance & licenses
 
-All assets in this directory are cleared for commercial use without
-attribution (CC0 / public domain) or under MIT with the license text kept
-alongside. Keep this file updated when adding assets.
+All assets in this directory allow commercial use under their accompanying
+licences: CC0 / public domain, MIT, ISC, OFL, CC BY, or CC BY-SA. Assets under
+CC BY and CC BY-SA require the attribution recorded in their kit's licence
+notice; adaptations of CC BY-SA assets retain the corresponding share-alike
+licence. Keep those notices with distributed assets and retain the credits.
 
 ## custom/ — bespoke illustrations (the per-label "aha" path)
 
@@ -136,12 +138,12 @@ which were AI-generated and vectorized as pipeline demos.
 
 
 ### icons/kits/scene
-- `assets/kits/scene/` — 32 everyday setting pieces and story props (pier,
+- `assets/kits/scene/` — 35 everyday setting pieces and story props (pier,
   well, bench, stool, stage, barn, pot, table, desk, sofa, stairs, crib,
   swing, slide, tractor, puddle, chalk, conveyor belt, row of chairs ...),
   vendored by `tools/scene_kit_pack.py`. Sources: game-icons.net
-  (Delapouite, Caro Asercion; CC BY 3.0, attribution required in shipped
-  video), Lucide (ISC), Iconoir (MIT), and four NexStudio-authored
+  (Delapouite, Caro Asercion, Lorc; CC BY 3.0, attribution required in shipped
+  video), Lucide (ISC), Iconoir (MIT), and five NexStudio-authored
   drawings. Per-file credits in `assets/kits/scene/LICENSE-NOTICE.txt`.
 
 ### icons/openmoji

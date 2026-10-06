@@ -204,6 +204,9 @@ _NOUN_CATS = (
     ('counter.n.01', 'table'), ('workbench.n.01', 'table'),
     ('stove.n.01', 'stove'), ('seat.n.03', 'seat'), ('bench.n.01', 'seat'),
     ('door.n.01', 'door'), ('gate.n.01', 'door'), ('window.n.01', 'door'),
+    ('building.n.01', 'building'), ('room.n.01', 'building'),
+    ('facility.n.01', 'building'),
+    ('workplace.n.01', 'building'),
     ('computer.n.01', 'device'), ('telephone.n.01', 'phone'),
     ('camera.n.01', 'camera'), ('body_of_water.n.01', 'water'),
     ('plant.n.02', 'plant'), ('fruit.n.01', 'plant'),
@@ -420,7 +423,7 @@ def resolve(lemma, objects=(), posture='', schema=''):
         s_, _k = first('seat')
         t_, _k2 = first('table')
         if t_ is not None:
-            sc, partner, kind = 'desk', None, ''
+            sc, partner, kind = 'desk', t_, 'table'
         else:
             partner, kind = s_, ('seat' if s_ is not None else '')
     if sc == 'lie':
@@ -444,6 +447,8 @@ def resolve(lemma, objects=(), posture='', schema=''):
     if sc == 'sit_drink' and first('table')[0] is not None:
         kind = 'table'
     own = _BUILTIN.get(sc, ())
+    if sc == 'drive' and kind == 'boat':
+        own = tuple(c for c in own if c != 'road') + ('water',)
     one = sc in _ONE_SURFACE and kind in own
     absorb = [lab for _r, lab, c in cats if c in own and lab != partner
               and (not one or c == kind)]
@@ -517,6 +522,11 @@ def vantage_kind(label):
 def _roles(sc, cats):
     roles = {}
     for rel, lab, _c in cats:
+        if rel == 'with' and _wn is not None and any(
+                h.name() == 'facial_expression.n.01'
+                for s in _wn.synsets(str(lab).lower().split()[-1], 'n')[:2]
+                for path in s.hypernym_paths() for h in path):
+            continue
         if rel == 'dobj':
             r = 'theme'
         elif rel == 'with':
@@ -571,6 +581,10 @@ def merge(prev, spec):
     if prev.get('schema') == 'sit' and spec['schema'] in _SEATED_HANDS:
         return dict(spec, schema=_SEATED_HANDS[spec['schema']],
                     via=str(spec.get('via')) + '+sit')
+    if prev.get('schema') == 'kneel' and spec['schema'] in (
+            'fix', 'plant', 'dig', 'wipe', 'cut', 'craft'):
+        return dict(spec, posture='kneel',
+                    via=str(spec.get('via')) + '+kneel')
     return None
 
 
@@ -1260,6 +1274,15 @@ def _schema(sc, kind, col, tool):
                             (0.42 + k * 0.12, -1.08 - k * 0.08)])
         return pose, back, front, marks, slot, extra
     if sc == 'open':
+        if kind == 'building':
+            pose = _std(lean=0.06, hn=(0.53, -0.52), hf=(-0.06, -0.42),
+                        elbow=(0.0, 1.0))
+            front += _poly([(0.30, -1.16), (0.85, -1.16), (0.85, 0.0),
+                            (0.30, 0.0)], C['metal'])
+            front += _poly([(0.32, -1.12), (0.60, -1.02), (0.60, -0.03),
+                            (0.32, 0.0)], C['wood'])
+            front += _circ(0.53, -0.52, 0.02, INK)
+            return pose, back, front, marks, None, extra
         pose = _std(lean=0.06, hn=(0.34, -0.50), hf=(-0.06, -0.42),
                     elbow=(0.0, 1.0))
         slot = ('ahead', 0.36, 1.10 if kind == 'door' else 0.40)
@@ -1394,7 +1417,7 @@ def _tint(art):
     return max(cnt, key=cnt.get) if cnt else None
 
 
-def _backdrop(arts, strokes):
+def _backdrop(arts, strokes, sizes=()):
     """Setting art behind the picture: as tall as the apparatus + actor,
     standing on the ground past the far (facing) edge, overlapping it."""
     xs = [q[0] for s_ in strokes for q in s_[0]]
@@ -1403,18 +1426,19 @@ def _backdrop(arts, strokes):
         return []
     out = []
     x_at = max(xs)
-    for art in arts:
+    for i, art in enumerate(arts):
         pts = [q for a in art for q in a[0]]
         if not pts:
             continue
         ax = [q[0] for q in pts]
         ay = [q[1] for q in pts]
         asp = (max(ax) - min(ax)) / max(1e-6, max(ay) - min(ay))
-        h = (max(0.0, max(ys)) - min(ys)) * 1.08
+        size = float(sizes[i]) if i < len(sizes) else 1.08
+        h = (max(0.0, max(ys)) - min(ys)) * size
         w = h * asp
         box = (x_at - w * 0.45, max(0.0, max(ys)) - h, x_at + w * 0.55,
                max(0.0, max(ys)))
-        out += _xf_art(art, box)
+        out += _xf_art(art, tuple(v / H for v in box))
         x_at = box[2]
     return out
 
@@ -1573,6 +1597,17 @@ def _place_roles(sc, spec, pose, anch, body, obj, arts):
         it = _at(ins, hx, hy + 0.10 * H, 0.22 * H)
         over += it
         placed['instrument'] = bool(it)
+    if 'source' in roles and noun_cat(roles['source']) == 'water' \
+            and sc in ('pull', 'lift', 'pick', 'carry'):
+        bounds = _bbox(obj) or _bbox(body)
+        x0 = bounds[0] / H
+        width = max(0.3, min(1.2, (bounds[2] - bounds[0]) / H))
+        for row in range(3):
+            y = max(0.0, bounds[3] / H) + row * 0.05
+            behind += _line([(x0 + width * j / 12,
+                              y + 0.025 * math.sin(j * math.pi / 2))
+                             for j in range(13)], C['water'], 1.0)
+        placed['source'] = True
     allb = _bbox(behind + obj + body + over)
     for r in ('theme', 'goal', 'source'):
         if r not in roles or r in placed or not arts.get(r):
@@ -1596,7 +1631,8 @@ def _place_roles(sc, spec, pose, anch, body, obj, arts):
 
 
 def compose(spec, partner_art=None, emotion='neutral', outfit=None,
-            shirt=None, flip=False, backdrop=(), role_arts=None):
+            shirt=None, flip=False, backdrop=(), role_arts=None,
+            backdrop_sizes=()):
     """Draw an activity: apparatus + posed figure + narrated object.
 
     -> (strokes, marks, anchors, meta) in unit px, or None when the spec
@@ -1611,6 +1647,15 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
     if got is None:
         return None
     pose, back, front, marks, slot, extra = got
+    if spec.get('posture') == 'kneel':
+        knee = _schema('kneel', '', None, '')[0]
+        pose = dict(knee, hands=dict(pose['hands']),
+                    elbow=pose.get('elbow', (0.0, 1.0)))
+        if sc == 'fix':
+            front = []
+            extra = []
+            pose['hands'] = {'n': (0.35, -0.24), 'f': (0.31, -0.22)}
+            slot = ('surface', (0.45, -0.02), 0.27)
     pose = dict(pose, hands=dict(pose['hands']), feet=dict(pose['feet']))
     pose = _settle(pose, sc in _SEATED_SCHEMAS or bool(pose.get('seated'))
                    or (sc == 'play' and kind == 'keyboard'))
@@ -1630,6 +1675,13 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
         nf = sum(1 for st in body2 if st[1] == sb_cast.SHADE) + 2
         body = body2[:nf] + body[nf:]
     obj, placed = [], False
+    if sc == 'open' and kind == 'building':
+        obj, placed = front, bool(front)
+        front = []
+    if sc == 'desk' and kind == 'table':
+        if not spec.get('shared_partner'):
+            obj, placed = front, bool(front)
+        front, slot = [], None
     if slot is not None and partner_art:
         xs = [q[0] for a in partner_art for q in a[0]]
         ys = [q[1] for a in partner_art for q in a[0]]
@@ -1654,7 +1706,7 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
     else:
         strokes = back + obj + body + front + extra
     if backdrop:
-        strokes = _backdrop(backdrop, strokes) + strokes
+        strokes = _backdrop(backdrop, strokes, backdrop_sizes) + strokes
     contacts = [('hand_n', anch['hand_n'], _u([pose['hands']['n']])[0]),
                 ('hand_f', anch['hand_f'], _u([pose['hands']['f']])[0]),
                 ('foot_n', anch['foot_n'], _u([pose['feet']['n']])[0]),
@@ -1674,6 +1726,10 @@ def compose(spec, partner_art=None, emotion='neutral', outfit=None,
             'placed': placed, 'slot': slot[0] if slot else None,
             'backdrop': len(backdrop), 'roles': r_placed,
             'partner': spec.get('partner'), 'via': spec.get('via')}
+    bounds = _bbox(obj)
+    meta['partner_bounds'] = (
+        (-bounds[2], bounds[1], -bounds[0], bounds[3])
+        if flip and bounds else bounds)
     return strokes, marks, anch, meta
 
 
