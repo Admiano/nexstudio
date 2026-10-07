@@ -365,7 +365,7 @@ class IllustrationSolver:
         if il.form == 'RELATIONSHIP' and len(top) >= 4:
             cells = self._hub_layout(il, top, zone)
         elif self.collage and il.form in COLLAGE_FORMS and len(top) >= 2 and any(e.size == 'hero' for e in top):
-            cells = (self._float_hub_layout(top, zone) if self.finish == 'FLOAT_FIELD'
+            cells = (self._float_hub_layout(top, zone, beat_id) if self.finish == 'FLOAT_FIELD'
                      else self._collage_layout(il, top, zone))
         elif il.form == 'DATA_VISUAL':
             cells = self._data_layout(top, zone, vertical)
@@ -563,10 +563,16 @@ class IllustrationSolver:
             cells[e.id] = _box(x - sat / 2, y - sat / 2, sat, sat)
         return cells
 
-    def _float_hub_layout(self, top: List[IllustrationEntity], zone: Dict[str, float]) -> Dict[str, Dict[str, float]]:
-        """Reference-ad format: a dark hub pinned near the top of the field with the rest
-        of the cluster hanging beneath it in tight rows — glossy discs first, then the
-        dark UI bars. Reads as one object, not a row of equal cells."""
+    def _float_hub_layout(self, top: List[IllustrationEntity], zone: Dict[str, float],
+                          beat_id: str = '') -> Dict[str, Dict[str, float]]:
+        """Reference-ad format: a hub pinned in the field with the rest of the cluster
+        hanging around it — glossy discs and the dark UI bars. The composition rotates
+        per beat (top / left / right / bleed) so consecutive scenes never sit in the
+        same polite centered rows."""
+        try:
+            variant = int(''.join(c for c in beat_id if c.isdigit())) % 4
+        except ValueError:
+            variant = 0
         heroes = [e for e in top if e.size == 'hero' and e.kind != 'evidence']
         hub = next((e for e in top if (e.params or {}).get('tone') == 'dark'),
                    heroes[0] if heroes else top[0])
@@ -599,9 +605,87 @@ class IllustrationSolver:
                 break
             hub_s *= 0.85
         hub_y = zone['y'] + zone['h'] * 0.04
-        cells = {hub.id: _box(cx - hub_s / 2, hub_y, hub_s, hub_s)}
-        y = hub_y + hub_s + zone['h'] * 0.12
         gap_x = zone['w'] * 0.045
+        cells: Dict[str, Dict[str, float]] = {}
+
+        def lay_pill_rows(y0: float) -> None:
+            # Dark bars pair up two to a row when their labels allow it; a bar
+            # whose inside label needs more than the pair share rows solo.
+            rows_p: List[List[IllustrationEntity]] = []
+            i = 0
+            while i < len(pills):
+                e = pills[i]
+                if i + 1 < len(pills):
+                    e2 = pills[i + 1]
+                    w_pair = max(hub_s * 2.2, (self._label_need(e, floor) if e.label else 0) * 1.1) + \
+                             max(hub_s * 2.2, (self._label_need(e2, floor) if e2.label else 0) * 1.1) + gap_x
+                    if w_pair <= zone['w'] * 0.94:
+                        rows_p.append([e, e2])
+                        i += 2
+                        continue
+                rows_p.append([e])
+                i += 1
+            y = y0
+            for row in rows_p:
+                widths, ph_row = [], ph
+                # A paired bar caps at ~half the row each; a solo bar may claim
+                # the width its inside label actually needs.
+                cap = zone['w'] * (0.82 if len(row) == 1 else 0.46)
+                for e in row:
+                    need = self._label_need(e, floor) if e.label else 0.0
+                    widths.append(min(cap, max(hub_s * 2.2, need * 1.1)))
+                    ph_row = max(ph_row, need / 4.4)
+                w = sum(widths) + (len(row) - 1) * gap_x
+                x = cx - w / 2
+                for e, pw in zip(row, widths):
+                    cells[e.id] = _box(x, y, pw, ph_row)
+                    x += pw + gap_x
+                y += ph_row + zone['h'] * 0.04
+
+        if variant in (1, 2):
+            # Off-axis: the hub plants on one side and the discs fan into the
+            # open half; the dark bars still hold the centred bottom band where
+            # their inside labels have the most room.
+            flip = variant == 2
+            hub_cx = cx + (1 if flip else -1) * zone['w'] * 0.18
+            hub_cy = zone['y'] + zone['h'] * 0.30
+            cells[hub.id] = _box(hub_cx - hub_s / 2, hub_cy - hub_s / 2, hub_s, hub_s)
+            # The disc column starts just clear of the hub's near edge and fans
+            # toward the open side, clamped inside the zone.
+            side_x = hub_cx - (1 if flip else -1) * (hub_s / 2 + sat_s / 2 + gap_x)
+            yy = zone['y'] + zone['h'] * 0.10
+            for di, e in enumerate(discs):
+                dx = side_x + (-1 if flip else 1) * (di % 2) * (sat_s * 1.25 + gap_x)
+                dx = min(max(dx, zone['x'] + sat_s / 2), zone['x'] + zone['w'] - sat_s / 2)
+                cells[e.id] = _box(dx - sat_s / 2, yy, sat_s, sat_s)
+                yy += sat_s * 1.15 + zone['h'] * 0.05
+            y = max(yy, zone['y'] + zone['h'] * 0.62)
+            lay_pill_rows(y)
+            return cells
+        if variant == 3:
+            # Bleed composition: an oversized hub owns the top of the field and
+            # the satellites hold two low lines — the frame reads designed, not
+            # boxed. (Kept inside the zone: the gate forbids entities crossing it.)
+            big = min(side * 0.38, zone['h'] * 0.52)
+            cells[hub.id] = _box(cx - big / 2, zone['y'] + zone['h'] * 0.02, big, big)
+            sat_s = min(sat_s, side * 0.17)
+            yy = zone['y'] + zone['h'] * 0.02 + big + zone['h'] * 0.08
+            if discs:
+                w = len(discs) * sat_s + (len(discs) - 1) * gap_x
+                if w > zone['w'] * 0.94:
+                    sat_s *= (zone['w'] * 0.94) / w
+                    w = len(discs) * sat_s + (len(discs) - 1) * gap_x
+                x = cx - w / 2
+                for e in discs:
+                    cells[e.id] = _box(x, yy, sat_s, sat_s)
+                    x += sat_s + gap_x
+                yy += sat_s + zone['h'] * 0.05
+            lay_pill_rows(yy)
+            return cells
+        # Variant 0 — the reference's own grammar: hub top-center, satellites
+        # hanging beneath in tight rows.
+        cells[hub.id] = _box(cx - hub_s / 2, hub_y, hub_s, hub_s)
+        y = hub_y + hub_s + zone['h'] * 0.12
         while discs:
             row, discs = discs[:3], discs[3:]
             w = len(row) * sat_s + (len(row) - 1) * gap_x
@@ -610,37 +694,7 @@ class IllustrationSolver:
                 cells[e.id] = _box(x, y, sat_s, sat_s)
                 x += sat_s + gap_x
             y += sat_s + zone['h'] * 0.06
-        # Dark bars pair up two to a row when their labels allow it; a bar whose
-        # inside label needs more than the pair share takes a row of its own.
-        rows_p: List[List[IllustrationEntity]] = []
-        i = 0
-        while i < len(pills):
-            e = pills[i]
-            if i + 1 < len(pills):
-                e2 = pills[i + 1]
-                w_pair = max(hub_s * 2.2, (self._label_need(e, floor) if e.label else 0) * 1.1) + \
-                         max(hub_s * 2.2, (self._label_need(e2, floor) if e2.label else 0) * 1.1) + gap_x
-                if w_pair <= zone['w'] * 0.94:
-                    rows_p.append([e, e2])
-                    i += 2
-                    continue
-            rows_p.append([e])
-            i += 1
-        for row in rows_p:
-            widths, ph_row = [], ph
-            # A paired bar caps at ~half the row each; a solo bar may claim the
-            # width its inside label actually needs.
-            cap = zone['w'] * (0.82 if len(row) == 1 else 0.46)
-            for e in row:
-                need = self._label_need(e, floor) if e.label else 0.0
-                widths.append(min(cap, max(hub_s * 2.2, need * 1.1)))
-                ph_row = max(ph_row, need / 4.4)
-            w = sum(widths) + (len(row) - 1) * gap_x
-            x = cx - w / 2
-            for e, pw in zip(row, widths):
-                cells[e.id] = _box(x, y, pw, ph_row)
-                x += pw + gap_x
-            y += ph_row + zone['h'] * 0.04
+        lay_pill_rows(y)
         return cells
 
     def _collage_layout(self, il: IllustrationDirective, top: List[IllustrationEntity], zone: Dict[str, float]) -> Dict[str, Dict[str, float]]:

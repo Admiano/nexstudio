@@ -361,6 +361,7 @@ def build_treatment(args, style, words, media_files, film_id):
     link_style = style.get("link_style")
     groups = chunk_beats(words)
     beats, used_kw, fallback_n, prev_keys = [], set(), 0, set()
+    carry_id = carry_key = None
     fam = style["asset_family"]
     fam_key = {"colour_icons": "colour", "mono_icons": "mono", "emoji": "emoji", "photos": "photo"}[fam]
     # film-level topic vector: semantic matches rerank toward keys aligned
@@ -428,6 +429,34 @@ def build_treatment(args, style, words, media_files, film_id):
                 beat_keys.add(k)
         film_keys = [k for k in film_keys if k not in beat_keys] + [k for k in film_keys if k in beat_keys]
         prev_keys = beat_keys
+        # Momentum handoff: the previous beat's hub entity id carries into this
+        # beat — if the same concept was picked it keeps its id, otherwise it
+        # rides in as an ambient member, so something always travels into the
+        # new field instead of the scene dissolving.
+        carry = None
+        if is_float and carry_id and bi > 0:
+            # The carried concept keeps its id across beats — if this beat picked
+            # it naturally, rename it onto the carry id; else it rides in as an
+            # ambient member, so something always travels into the new field.
+            same = next((ent for ent, _a in picked
+                         if ent.get("bank_key") == carry_key), None)
+            if same is not None:
+                same["id"] = carry_id
+            else:
+                spec = BANK.get(carry_key or "", {})
+                ref = spec.get(fam_key) or spec.get("colour")
+                if ref:
+                    ent = {"id": carry_id, "kind": "object", "glyph": "TILE",
+                           "phrase": carry_key, "bank_key": carry_key}
+                    if ref == spec.get("photo"):
+                        ent["concept"] = ref
+                    else:
+                        ent["asset_ref"] = ref
+                    picked.append((ent, g[0]["text"]))
+                else:
+                    carry_id = None
+            if carry_id:
+                carry = {"from_beat": f"b{bi:02d}", "entities": [carry_id]}
         ents = []
         for ent, anchor in picked:
             ents.append([ent, anchor])
@@ -470,10 +499,21 @@ def build_treatment(args, style, words, media_files, film_id):
                 ent["glyph"] = glyph
             ent["size"] = sizes[min(ei, len(sizes) - 1)]
             entities.append(ent)
+            if ent["id"] == carry_id and carry:
+                # A carried body is already drawn — re-drawing it would flash;
+                # it only travels to its new box.
+                continue
             program.append({"op": "DRAW", "target": ent["id"], "at": {"word": anchor},
                             "duration_ms": 550})
         hub_id = next((e["id"] for e in entities if e.get("kind") != "evidence"),
                       entities[0]["id"]) if entities else None
+        if is_float:
+            # The chain continues: this beat's hub id is what the next beat
+            # carries forward.
+            carry_hub = next((e for e in entities if e.get("kind") != "evidence"), None)
+            if carry_hub is not None:
+                carry_id = carry_hub["id"]
+                carry_key = carry_hub.get("bank_key")
         for ei in range(1, len(entities)):
             tgt = (f"{hub_id}->{entities[ei]['id']}" if is_float
                    else f"{entities[ei-1]['id']}->{entities[ei]['id']}")
@@ -521,7 +561,8 @@ def build_treatment(args, style, words, media_files, film_id):
             "display_units": units,
             "illustration": {"form": "OBJECT_STAGE", "entities": entities,
                              "relations": relations,
-                             "program": program},
+                             "program": program,
+                             **({"carry": carry} if carry else {})},
         })
     media_library = []
     for mi, p in enumerate(media_files):

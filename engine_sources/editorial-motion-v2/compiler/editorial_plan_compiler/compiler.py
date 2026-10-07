@@ -647,7 +647,11 @@ class BeatCompiler:
         if self.carried_illustration and b.illustration is None:
             comp['visual_zone'] = dict(self.carried_illustration['zone'])  # persisted argument keeps its stage
         elif b.illustration is not None and b.illustration.carry_from and b.illustration.carry_from in self.illustrations:
-            comp['visual_zone'] = dict(self.illustrations[b.illustration.carry_from]['zone'])
+            # Float beats keep their own composition: the carried entity travels
+            # stage-to-stage (that IS the momentum), while locking the whole zone
+            # to the source beat would starve this beat's text split.
+            if self.film.brand.finish != 'FLOAT_FIELD':
+                comp['visual_zone'] = dict(self.illustrations[b.illustration.carry_from]['zone'])
         object_present = bool(b.media or b.figure or b.data or b.illustration or self.carried_media or self.carried_illustration)
         if object_present:
             comp['text_zone'] = _carve(comp['text_zone'], comp['visual_zone'])

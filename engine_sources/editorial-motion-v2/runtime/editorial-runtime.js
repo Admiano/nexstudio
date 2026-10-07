@@ -1901,7 +1901,21 @@
       }
       rels.set(rel.id, r);
     }
-    return { il, svg, ents, rels, sw, accent, ready: Promise.all(ready) };
+    // Depth layer for the flowing formats: a giant near-invisible disc sits behind
+    // the field, centred on the biggest body, drifting on a slow independent
+    // period — the set feels lit and layered instead of flat paper.
+    let ghost = null;
+    if (plan.motion && plan.motion.flow && il.entities.length) {
+      let heroE = il.entities[0], best = -1;
+      for (const e of il.entities) { const a = e.bbox.w * e.bbox.h; if (a > best) { best = a; heroE = e; } }
+      const gc = { x: heroE.bbox.x + heroE.bbox.w / 2, y: heroE.bbox.y + heroE.bbox.h / 2 };
+      const R = Math.min(W, H) * 0.46;
+      ghost = svgEl('g', {});
+      svg.insertBefore(ghost, svg.firstChild);
+      svgEl('circle', { cx: gc.x, cy: gc.y, r: R, fill: ink, 'fill-opacity': 0.045 }, ghost);
+      svgEl('circle', { cx: gc.x, cy: gc.y, r: R * 0.74, fill: 'none', stroke: ink, 'stroke-opacity': 0.05, 'stroke-width': sw }, ghost);
+    }
+    return { il, svg, ents, rels, sw, accent, ghost, ready: Promise.all(ready) };
   }
 
   // Value of a driven property at beat-local time lt.
@@ -2028,6 +2042,7 @@
       if (!heroNode) { let best = -1; for (const n of ill.ents.values()) { const a = n.bb.w * n.bb.h; if (a > best) { best = a; heroNode = n; } } }
     }
     const heroC = heroNode ? centre(heroNode.bb) : null;
+    if (ill.ghost) ill.ghost.setAttribute('transform', `translate(${f2(Math.sin(lt / 9200) * 26)} ${f2(Math.cos(lt / 11700) * 20)})`);
     for (const node of ill.ents.values()) {
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
@@ -2050,6 +2065,14 @@
       const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
       const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, ctx.motion.idle_amp != null ? ctx.motion.idle_amp : 1.4), breathe);
       let tx = amb.dx; ty += amb.dy; scale *= amb.s;
+      // Directional entrance: a pop-entrance body also travels in from an
+      // off-position seeded by its id — arrivals read as trajectories, not a
+      // row of identical scale-ups.
+      if (pop && pEnt < 1) {
+        const k = 1 - EASE.outCubic(pEnt);
+        tx += (hash01(ent.id + ':dx') - 0.5) * node.bb.w * 2.4 * k;
+        ty += (hash01(ent.id + ':dy') - 0.5) * node.bb.h * 1.7 * k;
+      }
       // Satellite orbit: a non-hero body travels the ellipse through its authored position,
       // centred on the hero. The radius squeezes into the visual zone's free room; the ramp
       // blends the body's arrival into orbital motion instead of snapping onto the ring.
