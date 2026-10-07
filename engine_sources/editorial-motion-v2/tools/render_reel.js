@@ -103,7 +103,7 @@ const DEFAULT_MIX = {
   buses: {
     voice: { highpass_hz: 80, compressor: { threshold_db: -20, ratio: 2.0, attack_ms: 8, release_ms: 120 }, trim_db: 0 },
     sfx: { compressor: { threshold_db: -18, ratio: 3.0, attack_ms: 3, release_ms: 90 }, trim_db: 0 },
-    music: { highpass_hz: 40, trim_db: 0, duck: { threshold: 0.1, window_db: 12, attack_ms: 30, release_ms: 450, floor_db: -8 } },
+    music: { highpass_hz: 80, trim_db: 0, duck: { threshold: 0.1, window_db: 12, attack_ms: 30, release_ms: 450, floor_db: -8 } },
   },
   limiter: { attack_ms: 5, release_ms: 50 },
 };

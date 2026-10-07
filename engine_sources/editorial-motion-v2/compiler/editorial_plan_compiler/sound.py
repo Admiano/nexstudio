@@ -292,7 +292,8 @@ def bind_film_music(film_id: str, mood: Optional[str] = None, duration_ms: Optio
     if not COMMUNITY_MANIFEST.exists():
         return silent
     beds = [a for a in json.loads(COMMUNITY_MANIFEST.read_text()).get('assets', [])
-            if a.get('kind') == 'music' and a.get('license', '').startswith('CC0') and (COMMUNITY_MANIFEST.parent / a['path']).exists()]
+            if a.get('kind') == 'music' and a.get('license', '').startswith('CC0') and not a.get('excluded')
+            and (COMMUNITY_MANIFEST.parent / a['path']).exists()]
     if not beds:
         return silent
     pool_size = len(beds)

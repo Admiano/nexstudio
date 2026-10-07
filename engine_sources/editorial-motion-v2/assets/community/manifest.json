@@ -7074,7 +7074,8 @@
    "moods": [
     "elegant",
     "wistful"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.adding-the-sun",
@@ -7186,7 +7187,8 @@
    "moods": [
     "uplifting",
     "bright"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.aquarium",
@@ -7214,7 +7216,8 @@
    "moods": [
     "dreamy",
     "calm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.asking-questions",
@@ -7242,7 +7245,8 @@
    "moods": [
     "tense",
     "focused"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.backbeat",
@@ -7354,7 +7358,8 @@
    "moods": [
     "driving",
     "focused"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.beat-thee",
@@ -7886,7 +7891,8 @@
    "moods": [
     "driving",
     "bright"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.fake-it-til-you-fake-it",
@@ -8222,7 +8228,8 @@
    "moods": [
     "playful",
     "jazzy"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.happy-whistling-ukulele",
@@ -8306,7 +8313,8 @@
    "moods": [
     "tense",
     "focused"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.hippety-hop",
@@ -8417,7 +8425,8 @@
    "moods": [
     "uplifting",
     "driving"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.icicles-melting",
@@ -8473,7 +8482,8 @@
    "moods": [
     "calm",
     "dreamy"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.infinite-wonder",
@@ -8501,7 +8511,8 @@
    "moods": [
     "dreamy",
     "uplifting"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.inspiration",
@@ -8613,7 +8624,8 @@
    "moods": [
     "calm",
     "warm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.landra-s-dream",
@@ -8641,7 +8653,8 @@
    "moods": [
     "dreamy",
     "calm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.limit-70",
@@ -8725,7 +8738,8 @@
    "moods": [
     "calm",
     "warm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.lucky-break",
@@ -8809,7 +8823,8 @@
    "moods": [
     "dreamy",
     "playful"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.managing-mischief",
@@ -8921,7 +8936,8 @@
    "moods": [
     "dreamy",
     "calm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.motions",
@@ -8949,7 +8965,8 @@
    "moods": [
     "focused",
     "driving"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.my-giant-bunny-friend",
@@ -9088,7 +9105,8 @@
    "energy": 0.567,
    "moods": [
     "wistful"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.nostalgic-piano",
@@ -9172,7 +9190,8 @@
    "moods": [
     "calm",
     "focused"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.parhelion",
@@ -9228,7 +9247,8 @@
    "moods": [
     "quirky",
     "playful"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.piano-magic-motive",
@@ -9256,7 +9276,8 @@
    "moods": [
     "dreamy",
     "elegant"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.pickled-pink",
@@ -9340,7 +9361,8 @@
    "moods": [
     "calm",
     "dreamy"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.pump-up-your-graduation",
@@ -9396,7 +9418,8 @@
    "moods": [
     "calm",
     "warm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.river-meditation",
@@ -9424,7 +9447,8 @@
    "moods": [
     "calm",
     "dreamy"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.romantic-inspiration",
@@ -9452,7 +9476,8 @@
    "moods": [
     "warm",
     "elegant"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.rush",
@@ -9564,7 +9589,8 @@
    "moods": [
     "dreamy",
     "uplifting"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.silly-boy",
@@ -9592,7 +9618,8 @@
    "moods": [
     "quirky",
     "playful"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.slice-of-life",
@@ -9704,7 +9731,8 @@
    "moods": [
     "focused",
     "driving"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.still-pickin",
@@ -9872,7 +9900,8 @@
    "moods": [
     "elegant",
     "calm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.think-about-it",
@@ -9928,7 +9957,8 @@
    "moods": [
     "wistful",
     "warm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.trip-up-north",
@@ -9956,7 +9986,8 @@
    "moods": [
     "wistful",
     "calm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "music.uberpunch",
@@ -10068,7 +10099,8 @@
    "moods": [
     "warm",
     "calm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   }
  ]
 }
