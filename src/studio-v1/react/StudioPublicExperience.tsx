@@ -33,14 +33,44 @@ const DELIVERY_FORMATS = [
   { ratio: "1:1", label: "Square", className: "square" },
 ] as const;
 
-const SOURCE_CARDS = [
-  { key: "brief", eyebrow: "Start here", label: "Your brief", note: "Say what the film needs to achieve." },
-  { key: "references", eyebrow: "Bring context", label: "Links + references", note: "Point Studio at the visual language that matters." },
-  { key: "media", eyebrow: "Show, don’t explain", label: "Images + video", note: "Use source material and visual references where the production supports them." },
-  { key: "brand", eyebrow: "Keep it yours", label: "Brand context", note: "Carry the right identity into the same production." },
+const STUDIO_REELS = [
+  { id: "float", src: "/home/hero.mp4", poster: "/home/hero.jpg", label: "A float film, made here", caption: "Stocks, explained", vertical: true },
+  { id: "board", src: "/home/board.mp4", poster: "/home/board.jpg", label: "A lesson drawing itself", caption: "Solana, on the board", vertical: false },
+  { id: "teacher", src: "/home/teacher.mp4", poster: "/home/teacher.jpg", label: "A teacher over the board", caption: "Blockchain, in one minute", vertical: false },
 ] as const;
 
-const PRODUCTION_JOURNEY = ["Brief", "Direction", "Production", "Screening", "Revision"] as const;
+const STYLE_LOOKS = [
+  { id: "tiles", name: "Tiles" },
+  { id: "ink", name: "Ink" },
+  { id: "poster", name: "Poster" },
+  { id: "emoji", name: "Emoji" },
+  { id: "float", name: "Float" },
+  { id: "deck", name: "Deck" },
+] as const;
+
+function LoopingClip({ src, poster, label, vertical = false, autoplayOnView = true }: { src: string; poster: string; label: string; vertical?: boolean; autoplayOnView?: boolean }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    const node = videoRef.current;
+    if (!node || reducedMotion) return;
+    if (!autoplayOnView) { void node.play().catch(() => undefined); return; }
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry?.isIntersecting && entry.intersectionRatio >= 0.35) void node.play().catch(() => undefined);
+      else node.pause();
+    }, { threshold: [0, 0.35, 0.7] });
+    observer.observe(node);
+    return () => { observer.disconnect(); node.pause(); };
+  }, [reducedMotion, autoplayOnView]);
+
+  return <div className={`nxs-clip${vertical ? " is-vertical" : ""}`}>
+    <video ref={videoRef} muted loop playsInline preload="metadata" poster={poster} aria-label={label}>
+      <source src={src} type="video/mp4"/>
+    </video>
+  </div>;
+}
 
 type Recommendation = { family: FamilyId; videoType: string; reason: string };
 type StagedFile = { name: string; size: number; type: string };
@@ -145,7 +175,7 @@ function ShowcaseFilm({ item, onSelect, reducedMotion }: { item: ProductionVideo
     onPointerLeave={() => { if (!reducedMotion) videoRef.current?.pause(); }}
     whileTap={reducedMotion ? undefined : { scale: .985 }}>
     <span className="nxs-film-frame">
-      <video ref={videoRef} muted loop playsInline preload="metadata" poster={item.posterFrame} aria-label={`${item.name} NexStudio film preview`}>
+      <video ref={videoRef} muted loop playsInline preload="metadata" poster={item.posterFrame ?? undefined} aria-label={`${item.name} NexStudio film preview`}>
         <source src={item.previewVideo?.src} type={item.previewVideo?.type || "video/mp4"}/>
       </video>
       <i className="nxs-film-play" aria-hidden="true">▶</i>
@@ -232,7 +262,6 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
   const types = useMemo(() => family ? getPublicVideoTypes(PRODUCTION_REGISTRY, family) : [], [family]);
   const publicTypes = useMemo(() => PRODUCTION_REGISTRY.families.flatMap((item) => getPublicVideoTypes(PRODUCTION_REGISTRY, item.id)), []);
   const certifiedCount = publicTypes.length;
-  const certifiedShowcase = useMemo(() => publicTypes.filter((item) => item.previewVideo?.src && item.posterFrame).slice(0, 3), [publicTypes]);
   const certifiedWork = useMemo(() => publicTypes.filter((item) => item.previewVideo?.src && item.posterFrame).slice(0, 6), [publicTypes]);
   const filteredCertifiedWork = useMemo(() => workFilter === "all" ? certifiedWork : certifiedWork.filter((item) => item.family === workFilter), [certifiedWork, workFilter]);
 
@@ -355,15 +384,20 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
           <div className="sv1-hero-grain" />
         </div>
 
-        {certifiedShowcase.length ? <div className="sv1-hero-showcase" aria-label="Certified NexStudio work">
-          {certifiedShowcase.map((item, index) => <motion.div key={item.id} className={`sv1-hero-showcase-card sv1-hero-showcase-${index + 1}`} initial={reducedMotion ? false : { opacity: 0, y: 20, rotate: index === 1 ? 1 : -1 }} animate={{ opacity: 1, y: 0, rotate: index === 1 ? 2.2 : index === 2 ? -2.5 : -1.6 }} transition={{ duration: .7, delay: .14 + index * .08 }}><CertifiedPreview item={item} hero/><span>{item.name}</span></motion.div>)}
-        </div> : null}
+        <div className="sv1-hero-showcase" aria-label="Films made on NexStudio">
+          {STUDIO_REELS.map((item, index) => <motion.div key={item.id} className={`sv1-hero-showcase-card sv1-hero-showcase-${index + 1}${item.vertical ? " is-vertical" : ""}`} initial={reducedMotion ? false : { opacity: 0, y: 20, rotate: index === 1 ? 1 : -1 }} animate={{ opacity: 1, y: 0, rotate: index === 1 ? 2.2 : index === 2 ? -2.5 : -1.6 }} transition={{ duration: .7, delay: .14 + index * .08 }}><LoopingClip src={item.src} poster={item.poster} label={item.label} vertical={item.vertical}/><span>{item.caption}</span></motion.div>)}
+        </div>
 
         <div className="sv1-hero-stage">
           <motion.div className="sv1-hero-copy" initial={reducedMotion ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .62 }}>
-            <p className="sv1-kicker">Your AI production studio</p>
-            <h1 id="studio-hero-title">Make something worth watching.</h1>
-            <p>Describe what you need. Add what you already have. NexStudio carries it through to a finished film.</p>
+            <p className="sv1-kicker">Your production studio</p>
+            <h1 id="studio-hero-title">You just described this. It made itself.</h1>
+            <p>Type what you need. Bring what you already have. A finished film comes back.</p>
+          </motion.div>
+
+          <motion.div className="nxs-hero-mobileclip" aria-hidden="true" initial={reducedMotion ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55, delay: .3 }}>
+            <LoopingClip src="/home/hero.mp4" poster="/home/hero.jpg" label="A film made on NexStudio" autoplayOnView={false}/>
+            <span>made here</span>
           </motion.div>
 
           <motion.div id="studio-create" className={`sv1-composer sv1-composer-premium${composerActive ? " is-active" : ""}`} layout transition={{ layout: { duration: reducedMotion ? 0 : .34 } }} style={{ viewTransitionName: "production-prompt" }}>
@@ -426,6 +460,21 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
         </div>
       </section> : null}
 
+      <section className="nxs-looks-stage" aria-labelledby="nxs-looks-title">
+        <div className="nxs-section-shell">
+          <div className="nxs-looks-head">
+            <div><p className="sv1-kicker">Pick a look</p><h2 id="nxs-looks-title">Six looks. One studio.</h2></div>
+            <p>Each is a real system playing its own work. Hover, or just watch.</p>
+          </div>
+          <div className="nxs-looks-grid">
+            {STYLE_LOOKS.map((look, index) => <motion.button key={look.id} type="button" className="nxs-look-card" onClick={goCreate} initial={reducedMotion ? false : { opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .3 }} transition={{ duration: reducedMotion ? 0 : .42, delay: index * .05 }} whileHover={reducedMotion ? undefined : { y: -4 }} whileTap={reducedMotion ? undefined : { scale: .985 }}>
+              <LoopingClip src={`/style-previews/${look.id}.mp4`} poster={`/style-previews/${look.id}.jpg`} label={`${look.name} look, real Studio render`} vertical/>
+              <span className="nxs-look-meta"><strong>{look.name}</strong></span>
+            </motion.button>)}
+          </div>
+        </div>
+      </section>
+
       <section className="nxs-format-stage" aria-labelledby="nxs-format-title">
         <div className="nxs-section-shell">
           <div className="nxs-format-head">
@@ -441,30 +490,37 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
         </div>
       </section>
 
-      <section className="nxs-source-stage" aria-labelledby="nxs-source-title">
-        <div className="nxs-source-ambient" aria-hidden="true"><i/><i/></div>
-        <div className="nxs-section-shell nxs-source-shell">
-          <div className="nxs-source-copy"><p className="sv1-kicker">Bring the context</p><h2 id="nxs-source-title">Give Studio what you already have.</h2><p>The idea can start rough. Add the context that should shape the production.</p></div>
-          <div className="nxs-source-deck">
-            {SOURCE_CARDS.map((card, index) => <motion.article key={card.key} data-source={card.key} initial={reducedMotion ? false : { opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .35 }} transition={{ duration: reducedMotion ? 0 : .4, delay: index * .055 }}>
-              <span className="nxs-source-icon" aria-hidden="true"><i/><i/></span><small>{card.eyebrow}</small><strong>{card.label}</strong><p>{card.note}</p>
-            </motion.article>)}
-          </div>
+      <section className="nxs-own-stage" aria-labelledby="nxs-own-title">
+        <div className="nxs-section-shell nxs-own-shell">
+          <motion.span className="nxs-own-seal" aria-hidden="true" initial={reducedMotion ? false : { opacity: 0, scale: 1.18 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: .6 }} transition={{ duration: reducedMotion ? 0 : .5 }}><i/><i/><b>NX</b></motion.span>
+          <motion.div className="nxs-own-copy" initial={reducedMotion ? false : { opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .5 }} transition={{ duration: reducedMotion ? 0 : .45, delay: .08 }}>
+            <p className="sv1-kicker">On the record</p>
+            <h2 id="nxs-own-title">Everything you make is yours. Provably. Permanently.</h2>
+            <p>Every film is recorded the moment it exists. Proof that can't be taken, copied or argued with.</p>
+          </motion.div>
         </div>
       </section>
 
-      <section className="nxs-journey-stage" aria-labelledby="nxs-journey-title">
-        <div className="nxs-section-shell nxs-journey-shell">
-          <div className="nxs-journey-copy"><p className="sv1-kicker">One production</p><h2 id="nxs-journey-title">The work stays connected.</h2><p>Your brief does not disappear when production starts. The same job carries through screening and revision.</p></div>
-          <div className="nxs-journey-visual" aria-label="Brief to revision production flow">
-            <span className="nxs-journey-spine" aria-hidden="true"/>
-            {PRODUCTION_JOURNEY.map((step, index) => <motion.div key={step} className={`nxs-journey-node node-${index + 1}`} initial={reducedMotion ? false : { opacity: 0, scale: .96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: .45 }} transition={{ duration: reducedMotion ? 0 : .34, delay: index * .06 }}><small>0{index + 1}</small><strong>{step}</strong>{index === 3 ? <i aria-hidden="true">▶</i> : null}</motion.div>)}
-          </div>
+      <section className="nxs-earn-stage" aria-labelledby="nxs-earn-title">
+        <div className="nxs-section-shell nxs-earn-shell">
+          <motion.div className="nxs-earn-frame" initial={reducedMotion ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .35 }} transition={{ duration: reducedMotion ? 0 : .5 }}>
+            <LoopingClip src="/home/board.mp4" poster="/home/board.jpg" label="A film moment that can carry a sponsor"/>
+            <span className="nxs-earn-moment" aria-hidden="true">a moment here can work for you</span>
+          </motion.div>
+          <motion.div className="nxs-earn-copy" initial={reducedMotion ? false : { opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .5 }} transition={{ duration: reducedMotion ? 0 : .45, delay: .08 }}>
+            <p className="sv1-kicker">It keeps working</p>
+            <h2 id="nxs-earn-title">Your films don't sit there. They work.</h2>
+            <p>A moment in your film can carry a sponsor, a brand, a link. Characters that keep showing up build an audience, and an audience is worth something.</p>
+          </motion.div>
         </div>
+      </section>
+
+      <section className="nxs-scale-stage" aria-label="Studio-grade, at a fraction of the cost">
+        <motion.h2 initial={reducedMotion ? false : { opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .6 }} transition={{ duration: reducedMotion ? 0 : .45 }}>Studio-grade. A fraction of the cost.</motion.h2>
       </section>
 
       <section className="nxs-final-signal" aria-labelledby="nxs-final-title">
-        <div className="nxs-section-shell"><div><p className="sv1-kicker">Ready when you are</p><h2 id="nxs-final-title">Make something worth watching.</h2></div><button type="button" onClick={goCreate}><span>Start creating</span><i>→</i></button></div>
+        <div className="nxs-section-shell"><div><p className="sv1-kicker">Ready when you are</p><h2 id="nxs-final-title">This is what superintelligence feels like.</h2></div><button type="button" onClick={goCreate}><span>Describe your first film</span><i>→</i></button></div>
       </section>
 
       <footer className="nxs-home-footer nxs-home-footer-final">
