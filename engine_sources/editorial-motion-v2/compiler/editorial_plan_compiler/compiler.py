@@ -100,7 +100,7 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     W, H = canvas
     st = dict(stage)
     layers: List[Dict[str, Any]] = []
-    if finish == 'PRODUCT_COLLAGE':
+    if finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD'):
         # Free canvas: no lifted panel, no rules. Objects float on the field; the light (bloom behind the
         # hero) and the far-plane depth shapes are added by `atmosphere.beat_atmosphere` once the beat is placed.
         return layers
@@ -210,19 +210,30 @@ class BeatCompiler:
         self.carried_illustration: Optional[Dict[str, Any]] = None  # illustration persisting from an earlier beat
         self.illustrations: Dict[str, Dict[str, Any]] = {}  # beat_id -> compiled illustration (carry-over source)
         self.solver = IllustrationSolver(aspect, (self.W, self.H), IllustrationRegistry(), film.media_library, self.media_files, film.brand.accent,
-                                         collage=film.brand.finish == 'PRODUCT_COLLAGE',
+                                         collage=film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD'),
                                          stagger_ms=stagger_ms or MOTION_PROFILES[film.brand.finish]['stagger_ms'], motion=MOTION_PROFILES[film.brand.finish])
 
     # ------------------------------------------------------------------ helpers
+    @staticmethod
+    def _layout_variant(b: BeatTreatment, base: str, n: int) -> str:
+        # rotate the zone skeleton per beat so consecutive scenes never repeat
+        # the same composition — the format keeps its grammar, not its template
+        digits = ''.join(ch for ch in b.beat_id if ch.isdigit())
+        idx = (int(digits) - 1) if digits else 0
+        return f'{base}_{"ABCDEF"[idx % n]}'
+
     def _native_treatment(self, b: BeatTreatment) -> str:
         t = NATIVE_TREATMENT[b.pattern]
         il = b.illustration
         if self.film.brand.finish == 'PRODUCT_COLLAGE':
             has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
             return 'COLLAGE_STAGE' if has_visual else 'COLLAGE_LOCKUP'
+        if self.film.brand.finish == 'FLOAT_FIELD':
+            has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
+            return self._layout_variant(b, 'FLOAT_STAGE' if has_visual else 'FLOAT_LOCKUP', 3 if has_visual else 2)
         if self.film.brand.finish == 'CENTER_DECK':
             has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
-            return 'DECK_STAGE' if has_visual else 'DECK_LOCKUP'
+            return self._layout_variant(b, 'DECK_STAGE' if has_visual else 'DECK_LOCKUP', 3 if has_visual else 2)
         if il is None and not self.carried_illustration:
             return t
         if il is not None and il.form in PROCESS_FORMS:
@@ -1176,7 +1187,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
             'beats': beats, 'captions': _captions(beats),
-            'captions_policy': 'kinetic' if film.brand.finish == 'PRODUCT_COLLAGE' else 'burned',
+            'captions_policy': 'kinetic' if film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD', 'CENTER_DECK') else 'burned',
             'gate': {'status': 'FAIL' if fails else 'PASS', 'failures': fails},
             'provenance': {
                 'treatment_sha256': treatment_sha, 'creative_authority': 'NEXMIND_P8', 'compiler_role': 'DETERMINISTIC_PLAN_COMPILER', 'renderer_role': 'EXECUTION_ONLY',

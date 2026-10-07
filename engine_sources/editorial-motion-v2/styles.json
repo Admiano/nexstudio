@@ -109,7 +109,7 @@
    "id": "float",
    "name": "Float",
    "tagline": "Floating chips, dashed paths, media cards \u2014 the social-ad field",
-   "finish": "PRODUCT_COLLAGE",
+   "finish": "FLOAT_FIELD",
    "reveal": "WORD_CASCADE",
    "palette": {
     "ink": "#1a1713",

@@ -147,11 +147,34 @@ def chunked_split(clauses):
     return chunked
 
 
-def display_units(gwords):
+def _key_fragment(clause, entity_words):
+    """Punchy keyword phrase for kinetic captions: the clause's longest run of
+    content words (capped at 4), preferring runs that carry a matched entity —
+    'Ethereum added, smart contracts that run themselves' → 'smart contracts'."""
+    ws = [w.strip() for w in clause.split() if w.strip()]
+    spans, cur = [], []
+    for w in ws:
+        if word_key(w) in STOPWORDS or len(word_key(w)) < 2:
+            if cur:
+                spans.append(cur); cur = []
+        else:
+            cur.append(w)
+    if cur:
+        spans.append(cur)
+    if not spans:
+        return " ".join(ws[:4])
+    def hit(span):
+        return any(word_key(w) in entity_words for w in span)
+    spans.sort(key=lambda s: (hit(s), len(s)), reverse=True)
+    frag = " ".join(spans[0][:4]).strip(" ,.;:!?")
+    return frag or " ".join(ws[:4])
+
+
+def display_units(gwords, entity_words=None):
+    # kinetic keyword captions: every clause shows its key fragment in hero
+    # weight — the kinetic type IS the caption, no small verbatim lines
     text = clean(" ".join(w["text"] for w in gwords))
-    # clauses split on , ; : — keep the index of each clause's first word so
-    # tail clauses that would enter too late to hold the legibility floor
-    # merge into the previous unit instead of starving on screen
+    entity_words = entity_words or set()
     clauses, cstarts, buf = [], [], []
     for wi, w in enumerate(gwords):
         if not buf:
@@ -169,43 +192,24 @@ def display_units(gwords):
         clauses[-2] = clauses[-2] + " " + clauses[-1]
         pairs.pop()
     clauses = chunked_split(clauses)
-    units = []
-    if len(clauses) >= 3:
-        roles = ["support"] + ["support"] * (len(clauses) - 2) + ["support"]
-        # hero is chosen among non-last clauses: a hero on the final clause
-        # lands its cascade inside the exit window and breaches LEGIBLE_HOLD
-        hero_i = max(range(1, len(clauses) - 1), key=lambda i: len(clauses[i].split()))
-        for i, c in enumerate(clauses):
-            role = "hero" if i == hero_i else ("support" if i == 0 else "support")
-            sem = "setup" if i == 0 else ("statement" if i == hero_i else "qualifier")
-            units.append({"text": c, "role": role, "anchor_word": c.split()[0],
-                          "emphasis": 0.9 if role == "hero" else 0.5, "semantic_role": sem})
-    elif len(clauses) == 2:
-        # same rule: the trailing clause stays support so the hero settles
-        # while narration continues
-        hero_i = 0
-        for i, c in enumerate(clauses):
-            units.append({"text": c, "role": "hero" if i == hero_i else "support",
-                          "anchor_word": c.split()[0],
-                          "emphasis": 0.9 if i == hero_i else 0.5,
-                          "semantic_role": "statement" if i == hero_i else ("setup" if i == 0 else "qualifier")})
-    else:
-        words_ = text.split()
-        if len(words_) >= 7:
-            # same legible-hold rule one level down: the hero must not end on
-            # the beat's last words — wrap the middle in hero, bookend with
-            # support so the cascade settles before the exit window.
-            # bookends stay at 2 words: support blocks cap at 2 lines in the
-            # narrow side-note column, so longer supports breach TYPE_FLOOR
-            units.append({"text": " ".join(words_[:2]) + ",", "role": "support",
-                          "anchor_word": words_[0], "emphasis": 0.45, "semantic_role": "setup"})
-            units.append({"text": " ".join(words_[2:-2]), "role": "hero",
-                          "anchor_word": words_[2], "emphasis": 0.9, "semantic_role": "statement"})
-            units.append({"text": " ".join(words_[-2:]), "role": "support",
-                          "anchor_word": words_[-2], "emphasis": 0.5, "semantic_role": "qualifier"})
-        else:
-            units.append({"text": text, "role": "hero", "anchor_word": words_[0],
-                          "emphasis": 0.9, "semantic_role": "statement"})
+    units, seen = [], set()
+    for i, c in enumerate(clauses):
+        frag = _key_fragment(c, entity_words)
+        if not frag:
+            continue
+        # same key fragment twice reads as a typo, not emphasis — fall back to
+        # the full clause tail so the second occurrence still says something
+        if word_key(frag) in seen:
+            tail = [w for w in c.split() if word_key(w) not in STOPWORDS]
+            frag = " ".join(tail[-4:] if tail else c.split()[:4]).strip(" ,.;:!?")
+        seen.add(word_key(frag))
+        units.append({"text": frag, "role": "hero",
+                      "anchor_word": frag.split()[0],
+                      "emphasis": 0.9,
+                      "semantic_role": "punch" if i == len(clauses) - 1 else "statement"})
+    if not units:
+        units.append({"text": text, "role": "hero", "anchor_word": text.split()[0],
+                      "emphasis": 0.9, "semantic_role": "statement"})
     return units
 
 
@@ -262,7 +266,8 @@ def fallback_entity(family, n, question=False):
     ref = spec.get(family) or spec.get("photo")
     if not ref:
         return None
-    ent = {"id": f"e1_{spec['key']}{n}", "kind": "object", "glyph": "TILE"}
+    ent = {"id": f"e1_{spec['key']}{n}", "kind": "object", "glyph": "TILE",
+           "phrase": spec["key"]}
     if family == "photos" or ref == spec.get("photo"):
         ent["concept"] = ref
     else:
@@ -323,7 +328,8 @@ def pick_entities(gwords, family, already, ctx=None):
             continue
         seen.add(ref); already.add(key)
         is_photo = family == "photos" or (family == "colour_icons" and ref == spec.get("photo")) or ref == spec.get("photo")
-        ent = {"id": f"e{len(out)+1}_{key}", "kind": "object", "glyph": "TILE"}
+        ent = {"id": f"e{len(out)+1}_{key}", "kind": "object", "glyph": "TILE",
+               "phrase": " ".join(toks[i:i + span])}
         if ref == spec.get("photo"):
             ent["concept"] = ref
         else:
@@ -387,6 +393,14 @@ def build_treatment(args, style, words, media_files, film_id):
                             "target": f"{entities[ei-1]['id']}->{entities[ei]['id']}",
                             "at": {"word": ents[ei][1]}, "duration_ms": 350})
         btype = "SETUP" if bi == 0 else ("PAYOFF" if bi == n - 1 else "EXPLANATION")
+        # entity words steer which clause fragment becomes the on-screen
+        # keyword, so the caption and the chips say the same thing
+        ent_words = set()
+        for ent, _a in ents:
+            for w in (ent.get("phrase") or "").split():
+                k = word_key(w)
+                if k:
+                    ent_words.add(k)
         beats.append({
             "beat_id": bid,
             "beat_type": btype,
@@ -395,7 +409,7 @@ def build_treatment(args, style, words, media_files, film_id):
             "narration": narration,
             "energy": 0.55 if bi == 0 else (0.75 if bi == n - 1 else 0.65),
             "complexity": 0.5,
-            "display_units": display_units(g),
+            "display_units": display_units(g, ent_words),
             "illustration": {"form": "OBJECT_STAGE", "entities": entities,
                              "relations": [{"type": "connects",
                                             "source": entities[i - 1]["id"],
