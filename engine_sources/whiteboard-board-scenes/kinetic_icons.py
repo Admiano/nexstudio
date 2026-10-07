@@ -118,6 +118,8 @@ def _noun_slot(words: list[str], i: int) -> bool:
             return True
         if wn is None:
             return False
+        if back == 1 and wn.synsets(prev, pos=wn.VERB):
+            return True  # verb's object ('recognize images')
         adj = wn.synsets(prev, pos=wn.ADJ)
         noun = wn.synsets(prev, pos=wn.NOUN)
         if not (adj or noun):
@@ -172,7 +174,9 @@ def select(sents: list[dict]) -> dict[int, dict]:
     """Pick the sparse icon set for a whole script: {sentence index:
     {'word', 'phrase', 'icon', 'strokes', 'rank', 'sim'}}."""
     used: dict = {}
-    if script_concreteness(sents) < MIN_SCRIPT_CONCRETENESS:
+    has_concrete = any(
+        candidates([w['word'] for w in s['words']]) for s in sents)
+    if not has_concrete and script_concreteness(sents) < MIN_SCRIPT_CONCRETENESS:
         return {}
     best: list[tuple[float, int, dict]] = []
     for si, s in enumerate(sents):
