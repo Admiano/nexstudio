@@ -12,6 +12,9 @@ export const runtime = "nodejs";
 const ENGINE = process.env.WHITEBOARD_V3_RUNTIME_DIR
   ?? path.join(process.cwd(), "engine_sources", "whiteboard-v3-runtime");
 const JOBS = path.join(ENGINE, "out", "whiteboard-jobs");
+const DEFAULT_KINETIC_ENGINE = path.join(homedir(), "wb-kinetic-runtime");
+const KINETIC_ENGINE = process.env.WHITEBOARD_KINETIC_RUNTIME_DIR
+  ?? (existsSync(DEFAULT_KINETIC_ENGINE) ? DEFAULT_KINETIC_ENGINE : undefined);
 
 const TYPES = {
   "kinetic-text": { id: "kinetic-text", name: "Text-Driven Whiteboard", pipeline: "kinetic" },
@@ -80,7 +83,8 @@ export async function POST(request: Request) {
   const dir = path.join(JOBS, jobId);
   mkdirSync(dir, { recursive: true });
 
-  const args: string[] = [path.join(ENGINE, "tools", "nexstudio_job.py"),
+  const runtime = spec.pipeline === "kinetic" && KINETIC_ENGINE ? KINETIC_ENGINE : ENGINE;
+  const args: string[] = [path.join(runtime, "tools", "nexstudio_job.py"),
     "--type", spec.pipeline, "--theme", theme,
     "--voice", voice, "--title", jobId.toUpperCase(),
     "--aspects", aspects.map((a) => a.replace("x", ":")).join(","),
@@ -99,6 +103,7 @@ export async function POST(request: Request) {
     args.push("--voice-file", vf);
   }
   if (accent) args.push("--accent", accent);
+  if (runtime === KINETIC_ENGINE) args.push("--icons", "auto");
 
   writeFileSync(path.join(dir, "request.json"), JSON.stringify({
     userId: auth.session!.userId, type, voice, theme, accent: accent || null, aspects,
@@ -108,7 +113,7 @@ export async function POST(request: Request) {
 
   const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
   const child = spawn("python3", args, {
-    cwd: ENGINE, detached: true, stdio: ["ignore", "pipe", "pipe"],
+    cwd: runtime, detached: true, stdio: ["ignore", "pipe", "pipe"],
     env: {
       ...process.env,
       PATH: `${nodeBin}:${process.env.PATH}`,

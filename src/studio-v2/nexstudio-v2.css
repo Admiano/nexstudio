@@ -2381,3 +2381,18 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 .opt-file{display:flex;align-items:center;height:38px;border:1px dashed rgba(17,22,18,.25);border-radius:12px;padding:0 12px;font-size:11px;color:var(--muted);cursor:pointer;max-width:220px;overflow:hidden}.opt-file input{display:none}.opt-file span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .opt-note{font-size:12px;color:var(--muted);margin:0}.opt-link{border:0;background:none;color:var(--accent-ink);font-weight:760;cursor:pointer;padding:0}
 @media(max-width:760px){.directions:has(> :nth-child(5)){grid-template-columns:1fr 1fr}.presenter-cast .presenter-pick{width:calc(50% - 4px)}.presenter-backgrounds .presenter-bg{width:calc(33.3% - 6px)}}
+
+/* Mobile review: the film takes the full width, formats and actions stack beneath it. */
+@media(max-width:850px){
+  .finished-stage{overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .review-wrap{display:flex;flex-direction:column;height:auto;min-height:calc(var(--app-h,100dvh) - 58px)}
+  .review-canvas{flex-direction:column;align-items:stretch;justify-content:flex-start;padding:14px 12px 18px;overflow:visible}
+  .review-video-shell,.review-video-shell.square{width:100%}
+  .review-video-shell.vertical{width:min(100%,calc((var(--app-h,100dvh) - 200px) * 9 / 16));align-self:center}
+  .review-video{border-radius:16px}
+  .aspect-switch{width:100%;margin-top:14px;gap:8px}
+  .aspect-chip{flex:1;height:44px;font-size:12px}
+  .aspect-chip:not(.on){background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);color:rgba(255,255,255,.78)}
+  .review-side{border-top:0;flex:1}
+  .review-revise{border-color:rgba(17,22,18,.16)!important;color:var(--ink)!important}
+}

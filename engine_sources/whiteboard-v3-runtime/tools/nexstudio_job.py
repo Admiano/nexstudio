@@ -94,6 +94,7 @@ def main() -> int:
     ap.add_argument("--aspects", default="16:9,1x1,9:16")
     ap.add_argument("--duration", type=float, default=None, help="target seconds preference")
     ap.add_argument("--speed", type=float, default=1.0, help="user narration speed multiplier")
+    ap.add_argument("--icons", choices=["auto", "off"], default=None, help="kinetic word icons (runtimes that support them)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--job-id", required=True)
     args = ap.parse_args()
@@ -131,6 +132,8 @@ def main() -> int:
             cmd += ["--word-timings", str(words_json)]
         if args.accent:
             cmd += ["--accent", args.accent]
+        if args.icons:
+            cmd += ["--icons", args.icons]
         sh(cmd, cwd=ROOT)
         mp4s = sorted(ratio_dir.glob("*.mp4"))
         if mp4s:
