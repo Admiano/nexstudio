@@ -207,6 +207,10 @@ def display_units(gwords, entity_words=None):
                       "anchor_word": frag.split()[0],
                       "emphasis": 0.9,
                       "semantic_role": "punch" if i == len(clauses) - 1 else "statement"})
+    # The contract caps a beat at three hero units — extra clauses keep their
+    # words but step down to support weight.
+    for u in units[2:-1]:
+        u["role"] = "support"; u["emphasis"] = 0.55
     if not units:
         units.append({"text": text, "role": "hero", "anchor_word": text.split()[0],
                       "emphasis": 0.9, "semantic_role": "statement"})
@@ -519,7 +523,7 @@ def build_treatment(args, style, words, media_files, film_id):
                    else f"{entities[ei-1]['id']}->{entities[ei]['id']}")
             program.append({"op": "CONNECT",
                             "target": tgt,
-                            "at": {"word": ents[ei][1]}, "duration_ms": 350})
+                            "at": {"word": ents[ei][1]}, "duration_ms": 560})
         if is_float and entities:
             # Controlled masterclass: every float beat keeps animating after the
             # cluster assembles. Two flourishes rotate through the op vocabulary
@@ -549,6 +553,11 @@ def build_treatment(args, style, words, media_files, film_id):
                           "target": entities[i]["id"],
                           **({"style": link_style} if link_style else {})}
                          for i in range(1, len(entities))]
+        if len(program) > 10:
+            # The contract caps a beat's program at ten authored ops — keep the
+            # cluster's entrances, then its stems, then flourishes if room is left.
+            order = {"DRAW": 0, "CONNECT": 1}
+            program = sorted(program, key=lambda o: order.get(o["op"], 2))[:10]
         btype = "SETUP" if bi == 0 else ("PAYOFF" if bi == n - 1 else "EXPLANATION")
         beats.append({
             "beat_id": bid,
