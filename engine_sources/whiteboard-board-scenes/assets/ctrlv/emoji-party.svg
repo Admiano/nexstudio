@@ -1,0 +1,32 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Confetti -->
+                <g transform="rotate(45 90 70)">
+                <rect x="90" y="70" width="10" height="10"  fill="#F5F0E4"/>
+            </g>
+                <g transform="rotate(-30 280 60)">
+                <rect style="animation-delay: 0.2s;" x="280" y="60" width="8" height="15"  fill="#F5F0E4"/>
+            </g>
+                <circle style="animation-delay: 0.4s;" x="300" cy="140" r="5" fill="#1A1A17"/>
+                <g transform="rotate(15 80 180)">
+                <rect style="animation-delay: 0.1s;" x="80" y="180" width="12" height="8"  fill="#F5F0E4"/>
+            </g>
+                
+                <!-- Face -->
+                <circle cx="200" cy="150" r="100" fill="#1A1A17"/>
+                <path d="M140 180 Q200 230 260 180" stroke="#F5F0E4" stroke-width="8" fill="none"/>
+                
+                <!-- Winking Eyes -->
+                <ellipse cx="160" cy="130" rx="10" ry="16" fill="#F5F0E4"/>
+                <path d="M230 135 L260 120 M230 125 L260 140" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                
+                <!-- Party Hat -->
+                <path d="M150 60 L200 -10 L220 50 Z" fill="#F5F0E4"/>
+                <path d="M150 60 L220 50 L185 20 Z" fill="#F5F0E4"/>
+                <circle cx="200" cy="-10" r="15" fill="#F5F0E4"/>
+                
+                <!-- Party Horn -->
+                <path d="M220 190 L320 220 L310 240 Z" fill="#F5F0E4"/>
+                <path d="M320 230 Q340 240 330 260 T350 280" stroke="#F5F0E4" stroke-width="4" fill="none"/>
+            </g>
+          </svg>

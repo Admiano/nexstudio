@@ -1,0 +1,18 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Open Book base -->
+                <path d="M60 100 Q130 90 200 120 Q270 90 340 100 V220 Q270 210 200 240 Q130 210 60 220 Z" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="8"/>
+                <path d="M200 120 V240" stroke="#1A1A17" stroke-width="8" stroke-linecap="round"/>
+                
+                <!-- Page contents -->
+                <g>
+                    <path d="M90 140 H170 M90 160 H180 M90 180 H160" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M230 160 H310 M230 180 H290" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                </g>
+                
+                <!-- Info Badge -->
+                <circle cx="260" cy="120" r="25" fill="#F5F0E4"/>
+                <rect x="255" y="110" width="10" height="20" rx="3" fill="#F5F0E4"/>
+                <circle cx="260" cy="100" r="5" fill="#F5F0E4"/>
+            </g>
+          </svg>

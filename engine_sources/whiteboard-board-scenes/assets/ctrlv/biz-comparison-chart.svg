@@ -1,0 +1,31 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="140" ry="10" fill="#E2E8F0" opacity="0.6"/>
+            <!-- Central Divider -->
+            <line x1="200" y1="40" x2="200" y2="260" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="10 10"/>
+            
+            <!-- Baseline -->
+            <path d="M60 220 H340" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+            
+            <g>
+                <!-- Group A (Left) -->
+                <rect x="80" y="160" width="40" height="60" rx="4" fill="#1A1A17"/>
+                <rect x="140" y="100" width="40" height="120" rx="4" fill="#F5F0E4"/>
+                
+                <!-- Group B (Right) -->
+                <rect x="220" y="140" width="40" height="80" rx="4" fill="#1A1A17"/>
+                <rect x="280" y="60" width="40" height="160" rx="4" fill="#F5F0E4"/>
+            </g>
+            
+            <g>
+                <!-- Metric Callouts -->
+                <rect x="120" y="50" width="60" height="30" rx="5" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="2"/>
+                <path d="M140 65 H160" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                
+                <rect x="240" y="20" width="60" height="30" rx="5" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="2"/>
+                <path d="M260 35 H280" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                
+                <!-- Winner Highlight -->
+                <circle cx="270" cy="15" r="10" fill="#F5F0E4"/>
+                <path d="M265 15 L268 18 L275 12" stroke="#F5F0E4" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </svg>

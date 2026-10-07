@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_SWORD_SLIDE",
+ "frames": 5,
+ "fps": 8.0,
+ "res": [
+  286,
+  163
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "rgs-proto",
+ "license": "CC0"
+}

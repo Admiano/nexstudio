@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_EX_KETTLEBELL_SWING",
+ "frames": 67,
+ "fps": 30.0,
+ "res": [
+  234,
+  477
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "proto_rig",
+ "license": "CC BY-SA 4.0 \u2014 Bryl Lim / Everkinetic (pose reference)"
+}

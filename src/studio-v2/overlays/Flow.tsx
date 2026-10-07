@@ -412,6 +412,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                     <div className="opt-row previews">
                       <PreviewChip video="/previews/wb-kinetic.mp4" label="Text-driven" desc="Type animates with the narration" selected={engine.wbType === "kinetic-text"} onSelect={() => setOpt("wbType", "kinetic-text")} />
                       <PreviewChip video="/previews/wb-hand.mp4" label="Hand-drawn" desc="The hand draws the board" selected={engine.wbType === "hand-drawn-board"} onSelect={() => setOpt("wbType", "hand-drawn-board")} />
+                      <PreviewChip video="/previews/wb-scenes.mp4" label="Board scenes" desc="Rich pastel scenes the hand writes and draws" selected={engine.wbType === "board-scenes"} onSelect={() => setOpt("wbType", "board-scenes")} />
                     </div>
                   </div>
                   <div className="opt-row sub">

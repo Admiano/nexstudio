@@ -15,10 +15,13 @@ const JOBS = path.join(ENGINE, "out", "whiteboard-jobs");
 const DEFAULT_KINETIC_ENGINE = path.join(homedir(), "wb-kinetic-runtime");
 const KINETIC_ENGINE = process.env.WHITEBOARD_KINETIC_RUNTIME_DIR
   ?? (existsSync(DEFAULT_KINETIC_ENGINE) ? DEFAULT_KINETIC_ENGINE : undefined);
+const SCENES_ENGINE = process.env.WHITEBOARD_SCENES_RUNTIME_DIR
+  ?? path.join(process.cwd(), "engine_sources", "whiteboard-board-scenes");
 
 const TYPES = {
   "kinetic-text": { id: "kinetic-text", name: "Text-Driven Whiteboard", pipeline: "kinetic" },
   "hand-drawn-board": { id: "hand-drawn-board", name: "Hand-Drawn Whiteboard", pipeline: "board" },
+  "board-scenes": { id: "board-scenes", name: "Board Scenes", pipeline: "board-scenes" },
 } as const;
 const VOICES = ["emma", "ava", "andrew", "brian", "sonia", "natasha"];
 const THEMES = new Set(["light", "dark"]);
@@ -83,7 +86,9 @@ export async function POST(request: Request) {
   const dir = path.join(JOBS, jobId);
   mkdirSync(dir, { recursive: true });
 
-  const runtime = spec.pipeline === "kinetic" && KINETIC_ENGINE ? KINETIC_ENGINE : ENGINE;
+  const runtime = spec.pipeline === "kinetic" && KINETIC_ENGINE ? KINETIC_ENGINE
+    : spec.pipeline === "board-scenes" ? SCENES_ENGINE
+    : ENGINE;
   const args: string[] = [path.join(runtime, "tools", "nexstudio_job.py"),
     "--type", spec.pipeline, "--theme", theme,
     "--voice", voice, "--title", jobId.toUpperCase(),

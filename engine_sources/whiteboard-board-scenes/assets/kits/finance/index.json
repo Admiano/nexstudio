@@ -1,0 +1,186 @@
+{
+  "name": "finance",
+  "domain": "finance / markets / investing / securities explainers",
+  "glyphs": {
+    "stock-certificate": {
+      "keywords": [
+        "share",
+        "shares",
+        "stock",
+        "stocks",
+        "equity",
+        "security",
+        "securities",
+        "stock certificate",
+        "real share",
+        "real stock",
+        "company share",
+        "tokenized stock",
+        "tokenized share"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "token-coin": {
+      "keywords": [
+        "token",
+        "tokens",
+        "digital token",
+        "crypto token",
+        "asset token",
+        "matching token",
+        "same token",
+        "security token",
+        "stablecoin",
+        "tokenized asset"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "stock-exchange": {
+      "keywords": [
+        "stock market",
+        "stock exchange",
+        "wall street",
+        "trading floor",
+        "financial market"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "broker-app": {
+      "keywords": [
+        "broker app",
+        "broker",
+        "brokerage",
+        "trading app",
+        "investing app",
+        "stock app",
+        "brokerage app"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "clearing-house": {
+      "keywords": [
+        "clearing house",
+        "clearinghouse",
+        "clearing",
+        "settlement",
+        "settlement house",
+        "middleman",
+        "intermediary"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "custodian-vault": {
+      "keywords": [
+        "custodian",
+        "custody",
+        "custodian bank",
+        "safekeeping",
+        "vault"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "issuer-press": {
+      "keywords": [
+        "issuer",
+        "issuance",
+        "mint",
+        "minting",
+        "token issuer",
+        "issuing company"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "dividend-coins": {
+      "keywords": [
+        "dividend",
+        "dividends",
+        "payout",
+        "payouts",
+        "yield",
+        "profit share",
+        "dividend payment"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "ballot-box": {
+      "keywords": [
+        "voting right",
+        "voting rights",
+        "vote",
+        "votes",
+        "voting",
+        "ballot",
+        "election",
+        "governance",
+        "shareholder vote"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "order-ticket": {
+      "keywords": [
+        "order",
+        "orders",
+        "buy order",
+        "sell order",
+        "trade order",
+        "order ticket"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "blockchain-blocks": {
+      "keywords": [
+        "blockchain",
+        "block chain",
+        "blockchains",
+        "distributed ledger",
+        "chain of blocks"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "wallet-key": {
+      "keywords": [
+        "wallet key",
+        "private key",
+        "seed phrase",
+        "secret key"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "price-line": {
+      "keywords": [
+        "price",
+        "prices",
+        "stock price",
+        "share price",
+        "performance",
+        "price chart",
+        "inflation",
+        "rising prices",
+        "price rise"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "investor-portfolio": {
+      "keywords": [
+        "investment",
+        "investments",
+        "portfolio"
+      ],
+      "fill": true,
+      "colors": true
+    }
+  }
+}

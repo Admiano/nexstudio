@@ -1,0 +1,35 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="140" ry="10" fill="#E2E8F0" opacity="0.6"/>
+            <!-- Background: City Skyline/Crane -->
+            <g opacity="0.1" fill="#F5F0E4">
+                <rect x="80" y="100" width="40" height="140"/>
+                <rect x="130" y="60" width="50" height="180"/>
+                <!-- Crane -->
+                <path d="M280 240 V60 H340 M280 80 H330" stroke="#F5F0E4" stroke-width="6" fill="none"/>
+                <path d="M300 60 V120" stroke="#F5F0E4" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+            </g>
+            
+            <g>
+                <!-- Character Body -->
+                <path d="M140 260 C140 170 240 170 240 260 Z" fill="#F5F0E4"/>
+                <!-- High-vis Vest -->
+                <path d="M150 260 L190 180 L230 260" fill="#F5F0E4" opacity="0.8"/>
+                <path d="M160 220 H220 M170 240 H210" stroke="#F5F0E4" stroke-width="6"/>
+                
+                <!-- Head -->
+                <circle cx="190" cy="130" r="35" fill="#1A1A17"/>
+                
+                <!-- Hardhat -->
+                <path d="M150 110 C150 70 230 70 230 110 Z" fill="#F5F0E4"/>
+                <path d="M140 110 H240" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+                <path d="M190 70 V110" stroke="#F5F0E4" stroke-width="4" opacity="0.5"/>
+                
+                <!-- Prop: Blueprints -->
+                <g style="transform-origin: 260px 200px;">
+                    <path d="M210 180 H280 V240 L210 220 Z" fill="#1A1A17"/>
+                    <path d="M220 195 H260 M220 210 H250" stroke="#F5F0E4" stroke-width="4" opacity="0.6"/>
+                    <!-- Rolled edge -->
+                    <ellipse cx="280" cy="210" rx="6" ry="30" fill="#1A1A17" stroke="#F5F0E4" stroke-width="2"/>
+                </g>
+            </g>
+          </svg>

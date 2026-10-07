@@ -1,0 +1,38 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Winding Path -->
+                <path d="M50 240 Q150 240 150 160 T350 160" stroke="#1A1A17" stroke-width="30" stroke-linecap="round" fill="none"/>
+                <path d="M50 240 Q150 240 150 160 T350 160" stroke="#F5F0E4" stroke-width="10" stroke-linecap="round" stroke-dasharray="20 10" fill="none"/>
+                
+                <!-- Milestones -->
+                <g transform="translate(100, 240)">
+                    <g>
+                    <path d="M0 0 L-10 -30 H10 Z" fill="#F5F0E4"/>
+                    <circle cx="0" cy="-40" r="15" fill="#F5F0E4"/>
+                    <text x="0" y="-35" font-family="monospace" font-weight="bold" font-size="14" fill="#F5F0E4" text-anchor="middle">1</text>
+                </g>
+                </g>
+                <g transform="translate(200, 160)">
+                    <g style="animation-delay: 0.2s;">
+                    <path d="M0 0 L-10 -30 H10 Z" fill="#F5F0E4"/>
+                    <circle cx="0" cy="-40" r="15" fill="#F5F0E4"/>
+                    <text x="0" y="-35" font-family="monospace" font-weight="bold" font-size="14" fill="#F5F0E4" text-anchor="middle">2</text>
+                </g>
+                </g>
+                <g transform="translate(300, 160)">
+                    <g style="animation-delay: 0.4s;">
+                    <path d="M0 0 L-10 -30 H10 Z" fill="#F5F0E4"/>
+                    <circle cx="0" cy="-40" r="15" fill="#F5F0E4"/>
+                    <text x="0" y="-35" font-family="monospace" font-weight="bold" font-size="14" fill="#F5F0E4" text-anchor="middle">3</text>
+                </g>
+                </g>
+                
+                <!-- Destination Flag -->
+                <g transform="translate(350, 160)">
+                    <g>
+                    <line x1="0" y1="0" x2="0" y2="-60" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M0 -60 L30 -45 L0 -30 Z" fill="#F5F0E4"/>
+                </g>
+                </g>
+            </g>
+          </svg>

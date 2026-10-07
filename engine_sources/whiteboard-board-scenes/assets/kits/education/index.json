@@ -1,0 +1,309 @@
+{
+ "name": "education",
+ "domain": "education explainers \u2014 harvested + curated",
+ "glyphs": {
+  "classroom": {
+   "keywords": [
+    "class",
+    "classroom",
+    "primary school",
+    "public school",
+    "school"
+   ],
+   "donor": "world:school"
+  },
+  "university": {
+   "keywords": [
+    "campus",
+    "college",
+    "higher education",
+    "open university",
+    "tertiary education",
+    "university"
+   ],
+   "donor": "world:school"
+  },
+  "book": {
+   "keywords": [
+    "book",
+    "curriculum",
+    "educational material",
+    "reading",
+    "study material",
+    "textbook"
+   ],
+   "donor": "phosphor:book"
+  },
+  "pencil": {
+   "keywords": [
+    "assignment",
+    "essay",
+    "homework",
+    "notes",
+    "pencil",
+    "write",
+    "writing"
+   ],
+   "donor": "world:pencil"
+  },
+  "test": {
+   "keywords": [
+    "assessment",
+    "educational assessment",
+    "exam",
+    "formative assessment",
+    "grade",
+    "quiz",
+    "score",
+    "summative assessment",
+    "test"
+   ],
+   "donor": "phosphor:exam"
+  },
+  "diploma": {
+   "keywords": [
+    "certificate",
+    "credential",
+    "degree",
+    "diploma",
+    "graduation"
+   ],
+   "donor": "game-icons:diploma"
+  },
+  "laptop": {
+   "keywords": [
+    "distance education",
+    "distance learning",
+    "e-learning",
+    "educational technology",
+    "laptop",
+    "online education",
+    "online learning",
+    "virtual classroom"
+   ],
+   "donor": "world:laptop"
+  },
+  "lesson-plan": {
+   "keywords": [
+    "instruction",
+    "lesson",
+    "lesson plan",
+    "plan",
+    "syllabus",
+    "teaching method"
+   ],
+   "donor": "fluent:clipboard"
+  },
+  "blackboard": {
+   "keywords": [
+    "blackboard",
+    "board",
+    "chalkboard",
+    "lecture",
+    "whiteboard"
+   ],
+   "donor": "phosphor:chalkboard"
+  },
+  "brain": {
+   "keywords": [
+    "brain",
+    "comprehension",
+    "knowledge",
+    "learning",
+    "learning process",
+    "skill",
+    "skills",
+    "understanding"
+   ],
+   "donor": "phosphor:brain"
+  },
+  "lightbulb": {
+   "keywords": [
+    "aha",
+    "curiosity",
+    "idea",
+    "insight",
+    "learning moment",
+    "lightbulb"
+   ],
+   "donor": "phosphor:lightbulb"
+  },
+  "timer": {
+   "keywords": [
+    "deadline",
+    "due date",
+    "schedule",
+    "time management",
+    "timer"
+   ],
+   "donor": "world:timer"
+  },
+  "chart": {
+   "keywords": [
+    "chart",
+    "educational success",
+    "growth",
+    "improvement",
+    "performance",
+    "progress",
+    "results"
+   ],
+   "donor": "game-icons:chart"
+  },
+  "group": {
+   "keywords": [
+    "classmates",
+    "collaboration",
+    "discussion",
+    "group",
+    "group work",
+    "peers"
+   ],
+   "donor": "world:collaboration"
+  },
+  "parent": {
+   "keywords": [
+    "family",
+    "parent",
+    "parent involvement",
+    "parents"
+   ],
+   "donor": "openmoji:family-adult-child"
+  },
+  "speech": {
+   "keywords": [
+    "communication",
+    "language",
+    "language education",
+    "speaking",
+    "speech"
+   ],
+   "donor": "fluent:speech-balloon"
+  },
+  "globe": {
+   "keywords": [
+    "global",
+    "globe",
+    "international",
+    "study abroad",
+    "worldwide"
+   ],
+   "donor": "healthicons:globe"
+  },
+  "blocks": {
+   "keywords": [
+    "blocks",
+    "early childhood",
+    "early childhood education",
+    "kindergarten",
+    "preschool",
+    "young children"
+   ],
+   "donor": "fluent:brick"
+  },
+  "special-ed": {
+   "keywords": [
+    "accommodation",
+    "disability",
+    "special ed",
+    "special education",
+    "special needs"
+   ],
+   "donor": "world:manual-wheelchair"
+  },
+  "lock": {
+   "keywords": [
+    "data protection",
+    "lock",
+    "privacy",
+    "student data"
+   ],
+   "donor": "phosphor:lock"
+  },
+  "money": {
+   "keywords": [
+    "budget",
+    "cost",
+    "debt",
+    "funding",
+    "money",
+    "scholarship",
+    "tuition"
+   ],
+   "donor": "phosphor:money"
+  },
+  "question": {
+   "keywords": [
+    "confusion",
+    "misconception",
+    "question",
+    "why"
+   ],
+   "donor": "healthicons:question"
+  },
+  "check": {
+   "keywords": [
+    "achieved",
+    "check",
+    "completion",
+    "correct",
+    "mastery",
+    "passed"
+   ],
+   "donor": "phosphor:check"
+  },
+  "alert": {
+   "keywords": [
+    "alert",
+    "dropout",
+    "failing",
+    "risk",
+    "struggle",
+    "warning"
+   ],
+   "donor": "kit:crypto:alert"
+  },
+  "badge": {
+   "keywords": [
+    "badge",
+    "certification",
+    "microcredential",
+    "skill badge"
+   ],
+   "donor": "phosphor:identification-badge"
+  },
+  "music": {
+   "keywords": [
+    "art",
+    "creative",
+    "music",
+    "pe",
+    "physical education",
+    "sports"
+   ],
+   "donor": "game-icons:music"
+  },
+  "flask": {
+   "keywords": [
+    "experiment",
+    "flask",
+    "hands on",
+    "lab",
+    "science",
+    "stem"
+   ],
+   "donor": "phosphor:flask"
+  },
+  "mind-map": {
+   "keywords": [
+    "concept",
+    "content",
+    "curriculum map",
+    "mind map",
+    "subject matter",
+    "topic"
+   ],
+   "donor": "world:world-map"
+  }
+ }
+}

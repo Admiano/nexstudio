@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_RIFLE_DEATH",
+ "frames": 7,
+ "fps": 8.0,
+ "res": [
+  334,
+  201
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "rgs-proto",
+ "license": "CC0"
+}

@@ -1,0 +1,17 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Thread wrapping -->
+            <path d="M50 150 C100 100 150 200 200 150 C250 100 300 200 350 150" stroke="#F5F0E4" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M60 160 C110 110 160 210 210 160 C260 110 310 210 360 160" stroke="#1A1A17" stroke-width="6" fill="none" stroke-linecap="round" style="animation-delay: 0.2s;"/>
+            <g>
+                <!-- Centerpiece (Rakhi Dial) -->
+                <circle cx="200" cy="150" r="40" fill="#F5F0E4"/>
+                <circle cx="200" cy="150" r="25" fill="#F5F0E4"/>
+                <polygon points="200,120 210,140 230,150 210,160 200,180 190,160 170,150 190,140" fill="#1A1A17"/>
+                <circle cx="200" cy="150" r="8" fill="#F5F0E4"/>
+            </g>
+            <!-- Floating beads -->
+            <circle cx="130" cy="140" r="8" fill="#F5F0E4"/>
+            <circle cx="100" cy="160" r="5" fill="#F5F0E4"/>
+            <circle cx="270" cy="160" r="8" fill="#F5F0E4" style="animation-delay: -1s"/>
+            <circle cx="300" cy="140" r="5" fill="#F5F0E4" style="animation-delay: -2s"/>
+          </svg>

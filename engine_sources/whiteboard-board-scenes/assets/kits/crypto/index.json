@@ -1,0 +1,2056 @@
+{
+ "domain": "crypto explainers \u2014 harvested + curated",
+ "glyphs": {
+  "airdrop": {
+   "keywords": [
+    "airdrop",
+    "airdrops",
+    "retrodrop",
+    "retroactive",
+    "free airdrop",
+    "token airdrop",
+    "points airdrop"
+   ],
+   "motif": "coin"
+  },
+  "alert": {
+   "donor": "kit:crypto:alert",
+   "keywords": [
+    "alert",
+    "fraud",
+    "hacking",
+    "risk",
+    "scam",
+    "volatility",
+    "warning",
+    "risky",
+    "caution",
+    "warning sign",
+    "flag",
+    "red flag"
+   ]
+  },
+  "alert-triangle": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "warning",
+    "alert",
+    "risk",
+    "danger",
+    "caution",
+    "risky",
+    "hack",
+    "hacks",
+    "exploit",
+    "exploits",
+    "breach",
+    "ftx",
+    "mount gox",
+    "terra",
+    "luna",
+    "terra luna",
+    "celsius",
+    "blockfi",
+    "three arrows",
+    "3ac",
+    "voyager",
+    "rug pull",
+    "rugpull",
+    "rug",
+    "scam",
+    "scams",
+    "fraud",
+    "ponzi",
+    "implosion",
+    "death spiral",
+    "depeg",
+    "de-pegged",
+    "hacked",
+    "drained",
+    "bank run",
+    "contagion",
+    "sbf",
+    "bankman",
+    "sam bankman",
+    "ftx collapse"
+   ],
+   "tone": "a_yellow"
+  },
+  "amm": {
+   "keywords": [
+    "amm",
+    "amms",
+    "automated market maker",
+    "market maker",
+    "bonding curve",
+    "constant product",
+    "xy k",
+    "impermanent loss",
+    "impermanent"
+   ],
+   "motif": "chart"
+  },
+  "arbitrage": {
+   "keywords": [
+    "arbitrage",
+    "arb",
+    "spread trade",
+    "price gap",
+    "cross exchange"
+   ],
+   "motif": "structure"
+  },
+  "audit": {
+   "keywords": [
+    "audit",
+    "audits",
+    "audited",
+    "security audit",
+    "code audit",
+    "certik",
+    "audit report"
+   ],
+   "motif": "document"
+  },
+  "automated-market-maker": {
+   "keywords": [
+    "automated market maker"
+   ],
+   "motif": "chart",
+   "slug_alias": "amm"
+  },
+  "bank": {
+   "donor": "world:bank",
+   "keywords": [
+    "bank",
+    "central bank",
+    "custody",
+    "institution",
+    "large financial institution",
+    "fiat",
+    "bank run risk",
+    "deposit",
+    "deposits",
+    "savings",
+    "usd balance"
+   ]
+  },
+  "bank-building": {
+   "colors": true,
+   "keywords": [
+    "bank",
+    "banking",
+    "institution",
+    "government",
+    "regulator",
+    "fed",
+    "treasury",
+    "banks",
+    "institutions",
+    "institutional",
+    "tradfi",
+    "traditional finance",
+    "central bank",
+    "the fed",
+    "federal reserve",
+    "credit union"
+   ],
+   "tone": "a_blue"
+  },
+  "bankruptcy": {
+   "keywords": [
+    "bankruptcy",
+    "bankrupt",
+    "insolvency",
+    "insolvent",
+    "chapter 11",
+    "went bankrupt",
+    "creditors",
+    "collapsed exchange",
+    "ftx",
+    "celsius",
+    "three arrows",
+    "3ac",
+    "blockfi",
+    "voyager"
+   ],
+   "motif": "building"
+  },
+  "bear": {
+   "keywords": [
+    "bear",
+    "bears",
+    "bear market",
+    "bearish",
+    "downtrend",
+    "crypto winter",
+    "winter"
+   ],
+   "motif": "animal",
+   "tone": "#8A5A3B"
+  },
+  "bitcoin-coin": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "bitcoin",
+    "btc",
+    "coin",
+    "crypto",
+    "currency",
+    "sats",
+    "xbt",
+    "digital gold",
+    "bitcoins",
+    "coin bitcoin",
+    "the bitcoin",
+    "satoshis",
+    "store of value"
+   ],
+   "motif": "coin",
+   "tone": "#F7931A"
+  },
+  "block-cube": {
+   "keywords": [
+    "block",
+    "cube",
+    "blockchain",
+    "mine",
+    "mined",
+    "data",
+    "blocks",
+    "blockspace",
+    "block space",
+    "new block",
+    "each block"
+   ]
+  },
+  "block-reward": {
+   "keywords": [
+    "block reward",
+    "subsidy",
+    "miner reward",
+    "issuance schedule",
+    "block subsidy"
+   ],
+   "motif": "coin"
+  },
+  "blockchain": {
+   "donor": "kit:crypto:blockchain",
+   "keywords": [
+    "bitcoin blockchain",
+    "block",
+    "blockchain",
+    "blocks",
+    "chain",
+    "new block",
+    "previous block",
+    "single block",
+    "l1",
+    "layer 1",
+    "layer one",
+    "base layer",
+    "mainchain",
+    "the chain",
+    "base chain"
+   ]
+  },
+  "bridge": {
+   "keywords": [
+    "bridge",
+    "bridges",
+    "bridging",
+    "cross chain bridge",
+    "bridge assets",
+    "move assets",
+    "bridge funds"
+   ],
+   "motif": "structure"
+  },
+  "btc": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "btc"
+   ],
+   "motif": "coin",
+   "slug_alias": "bitcoin-coin",
+   "tone": "#F7931A"
+  },
+  "building-columns": {
+   "donor": "kit:crypto:building-columns",
+   "keywords": [
+    "building columns",
+    "government",
+    "policy maker",
+    "regulation",
+    "regulator",
+    "sec",
+    "regulators",
+    "sec lawsuit",
+    "gensler",
+    "mica",
+    "law",
+    "laws",
+    "legal",
+    "compliance",
+    "policy",
+    "legislation",
+    "congress",
+    "senate",
+    "regulatory",
+    "cftc",
+    "el salvador",
+    "strategic reserve",
+    "ban",
+    "banned",
+    "china ban",
+    "crackdown",
+    "bitlicense",
+    "license",
+    "licensed"
+   ]
+  },
+  "bull": {
+   "keywords": [
+    "bull",
+    "bulls",
+    "bull market",
+    "bull run",
+    "bullish",
+    "uptrend",
+    "price surge"
+   ],
+   "motif": "animal",
+   "tone": "#3E7A46"
+  },
+  "candlestick-chart": {
+   "colors": true,
+   "keywords": [
+    "chart",
+    "candle",
+    "candlestick",
+    "price",
+    "market",
+    "trading",
+    "graph",
+    "candlesticks",
+    "perp",
+    "perps",
+    "perpetual",
+    "perpetuals",
+    "futures",
+    "ohlc",
+    "candles",
+    "price chart",
+    "derivatives",
+    "hyperliquid",
+    "dydx",
+    "gmx",
+    "open interest",
+    "spot market",
+    "spot trading",
+    "longs",
+    "shorts"
+   ],
+   "motif": "chart",
+   "tone": "a_red"
+  },
+  "cbdc": {
+   "keywords": [
+    "cbdc",
+    "central bank digital currency",
+    "digital yuan",
+    "e-cny",
+    "digital euro",
+    "government coin"
+   ],
+   "motif": "coin"
+  },
+  "celsius-network": {
+   "keywords": [
+    "three arrows capital"
+   ],
+   "motif": "building",
+   "slug_alias": "bankruptcy"
+  },
+  "chain-link": {
+   "keywords": [
+    "chain",
+    "blockchain",
+    "link",
+    "network",
+    "ledger",
+    "connected",
+    "blocks",
+    "onchain",
+    "on-chain",
+    "on chain",
+    "blockchain link",
+    "chainlink network"
+   ]
+  },
+  "cold-wallet": {
+   "keywords": [
+    "cold wallet",
+    "cold storage",
+    "hardware wallet",
+    "ledger device",
+    "trezor",
+    "offline wallet",
+    "ledger nano"
+   ],
+   "motif": "wallet"
+  },
+  "collateral": {
+   "keywords": [
+    "collateral",
+    "collateralized",
+    "backing loans",
+    "collateral value",
+    "down payment"
+   ],
+   "motif": "structure"
+  },
+  "consensus": {
+   "keywords": [
+    "consensus",
+    "nakamoto consensus",
+    "agreement",
+    "finality",
+    "finalized",
+    "confirmations"
+   ],
+   "motif": "network"
+  },
+  "cross-chain": {
+   "keywords": [
+    "cross chain",
+    "cross-chain",
+    "interoperability",
+    "omnichain",
+    "ibc",
+    "interoperable",
+    "multi chain",
+    "multichain"
+   ],
+   "motif": "network"
+  },
+  "crypto-crash": {
+   "donor": "game-icons:chart",
+   "keywords": [
+    "crypto crash"
+   ],
+   "slug_alias": "stock-chart"
+  },
+  "dao": {
+   "keywords": [
+    "dao",
+    "daos",
+    "decentralized autonomous",
+    "community governed",
+    "member owned",
+    "governance vote",
+    "snapshot vote",
+    "token holders vote"
+   ],
+   "motif": "network"
+  },
+  "death-cross": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "death cross"
+   ],
+   "slug_alias": "alert-triangle",
+   "tone": "a_yellow"
+  },
+  "death-spiral": {
+   "donor": "game-icons:chart",
+   "keywords": [
+    "death spiral"
+   ],
+   "slug_alias": "stock-chart"
+  },
+  "defi": {
+   "donor": "kit:crypto:network-nodes",
+   "keywords": [
+    "borrowing",
+    "decentralized finance",
+    "defi",
+    "lending",
+    "money legos",
+    "composability",
+    "composable",
+    "permissionless",
+    "defi summer",
+    "defi protocols"
+   ]
+  },
+  "document": {
+   "donor": "kit:business:document",
+   "keywords": [
+    "disclosure",
+    "document",
+    "paper",
+    "prospectus",
+    "terms",
+    "whitepaper",
+    "bitcoin whitepaper",
+    "docs",
+    "documentation",
+    "filing",
+    "filings",
+    "s-1",
+    "fine print",
+    "report"
+   ]
+  },
+  "etf": {
+   "keywords": [
+    "etf",
+    "etfs",
+    "bitcoin etf",
+    "spot etf",
+    "fund",
+    "etf approval",
+    "blackrock",
+    "ishares",
+    "fidelity fund",
+    "index fund",
+    "exchange traded fund",
+    "etf inflow",
+    "etf inflows",
+    "spot bitcoin etf",
+    "funds"
+   ],
+   "motif": "document",
+   "tone": "#1A1A17"
+  },
+  "etf-flows": {
+   "keywords": [
+    "etf flows"
+   ],
+   "motif": "chart",
+   "slug_alias": "etf-inflow"
+  },
+  "etf-inflow": {
+   "keywords": [
+    "etf inflow",
+    "etf inflows",
+    "etf flow",
+    "etf flows",
+    "inflow",
+    "inflows",
+    "outflow",
+    "outflows",
+    "net inflows",
+    "fund flows",
+    "etf demand",
+    "institutional flows"
+   ],
+   "motif": "chart"
+  },
+  "eth": {
+   "donor": "kit:crypto:ethereum",
+   "keywords": [
+    "eth"
+   ],
+   "slug_alias": "ethereum"
+  },
+  "ethereum": {
+   "donor": "kit:crypto:ethereum",
+   "keywords": [
+    "blockchain network",
+    "eth",
+    "ethereum",
+    "solana",
+    "ether",
+    "vitalik",
+    "etherium",
+    "ethereum network"
+   ]
+  },
+  "exchange": {
+   "donor": "kit:crypto:exchange",
+   "keywords": [
+    "exchange",
+    "market",
+    "marketplace",
+    "secondary market",
+    "swap",
+    "trade",
+    "trading",
+    "cex",
+    "centralized exchange",
+    "binance",
+    "coinbase",
+    "kraken",
+    "okx",
+    "bybit",
+    "crypto exchange",
+    "exchanges",
+    "kucoin",
+    "bitget",
+    "gemini exchange"
+   ]
+  },
+  "exchange-swap": {
+   "keywords": [
+    "swap",
+    "exchange",
+    "trade",
+    "convert",
+    "transfer",
+    "arrows",
+    "dex",
+    "swaps",
+    "uniswap",
+    "jupiter",
+    "raydium",
+    "orca",
+    "curve",
+    "balancer",
+    "pancakeswap",
+    "sushiswap",
+    "dex aggregator",
+    "swap trade",
+    "aggregator",
+    "swapped"
+   ]
+  },
+  "eye-off": {
+   "keywords": [
+    "hidden",
+    "dark",
+    "invisible",
+    "anonymous",
+    "private",
+    "secret",
+    "off",
+    "privacy",
+    "anonymity",
+    "zk",
+    "zero knowledge",
+    "zero-knowledge",
+    "zk proof",
+    "zkp",
+    "zk-snark",
+    "zk-stark",
+    "tornado",
+    "tornado cash",
+    "mixer",
+    "mixers",
+    "monero",
+    "xmr",
+    "zcash",
+    "coinjoin",
+    "confidential",
+    "dark pool",
+    "darkpool",
+    "dark pools"
+   ]
+  },
+  "faucet": {
+   "keywords": [
+    "faucet",
+    "testnet faucet",
+    "free tokens",
+    "drip",
+    "claim"
+   ],
+   "motif": "structure"
+  },
+  "fear-and-greed": {
+   "keywords": [
+    "fear and greed",
+    "fear greed",
+    "sentiment",
+    "market sentiment",
+    "extreme fear",
+    "extreme greed",
+    "fear",
+    "greed",
+    "euphoria",
+    "capitulation",
+    "oversold",
+    "overbought",
+    "panic selling",
+    "fear greed index",
+    "greedy"
+   ],
+   "motif": "gauge"
+  },
+  "fear-greed-index": {
+   "keywords": [
+    "fear greed index"
+   ],
+   "motif": "gauge",
+   "slug_alias": "fear-and-greed"
+  },
+  "fire-hot": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "fire",
+    "hot",
+    "burn",
+    "burned",
+    "trending",
+    "viral",
+    "token burn",
+    "burning",
+    "burns",
+    "buyback and burn",
+    "fee burn"
+   ],
+   "tone": "#D34541"
+  },
+  "flash-loan": {
+   "keywords": [
+    "flash loan",
+    "flash loans",
+    "flash",
+    "uncollateralized",
+    "instant loan"
+   ],
+   "motif": "money"
+  },
+  "fork": {
+   "keywords": [
+    "fork",
+    "hard fork",
+    "soft fork",
+    "ethereum classic",
+    "bitcoin cash",
+    "bch",
+    "chain split",
+    "upgrade fork"
+   ],
+   "motif": "structure"
+  },
+  "fractional": {
+   "donor": "phosphor:chart-pie",
+   "keywords": [
+    "fraction",
+    "fractional",
+    "fractional ownership",
+    "ownership stake",
+    "partial",
+    "slice",
+    "halving",
+    "bitcoin halving",
+    "the halving",
+    "halving event",
+    "halvings",
+    "split",
+    "shares",
+    "fractionalized"
+   ]
+  },
+  "ftx-collapse": {
+   "keywords": [
+    "three arrows capital"
+   ],
+   "motif": "building",
+   "slug_alias": "bankruptcy"
+  },
+  "fund-flows": {
+   "keywords": [
+    "fund flows"
+   ],
+   "motif": "chart",
+   "slug_alias": "etf-inflow"
+  },
+  "gas": {
+   "donor": "kit:crypto:gas-fee",
+   "keywords": [
+    "cost",
+    "fee",
+    "gas",
+    "gas fee",
+    "transaction fee",
+    "fuel",
+    "gas station",
+    "gas cost"
+   ]
+  },
+  "gas-fee": {
+   "donor": "kit:crypto:gas-fee",
+   "keywords": [
+    "gas fee"
+   ],
+   "slug_alias": "gas"
+  },
+  "gas-fees": {
+   "donor": "kit:crypto:gas-fee",
+   "keywords": [
+    "gas fees"
+   ],
+   "slug_alias": "gas"
+  },
+  "genesis": {
+   "keywords": [
+    "genesis",
+    "genesis block",
+    "block zero",
+    "launch day",
+    "day one",
+    "first block"
+   ],
+   "motif": "structure"
+  },
+  "global": {
+   "donor": "kit:crypto:global",
+   "keywords": [
+    "anywhere",
+    "borderless",
+    "global",
+    "international",
+    "world",
+    "worldwide",
+    "cross border",
+    "countries",
+    "emerging markets",
+    "mainnet",
+    "adoption",
+    "mainstream",
+    "everywhere"
+   ]
+  },
+  "governance": {
+   "keywords": [
+    "governance",
+    "vote",
+    "voting",
+    "proposal",
+    "proposals",
+    "ballot",
+    "dao vote",
+    "token vote",
+    "onchain vote",
+    "delegate vote"
+   ],
+   "motif": "document"
+  },
+  "hack": {
+   "keywords": [
+    "hack",
+    "hacked",
+    "hacks",
+    "exploit",
+    "exploited",
+    "exploiter",
+    "breach",
+    "breached",
+    "stolen",
+    "theft",
+    "drain",
+    "drained",
+    "attack",
+    "attacked",
+    "hacker",
+    "hackers",
+    "mt gox",
+    "mtgox"
+   ],
+   "motif": "symbol"
+  },
+  "hand-coin": {
+   "colors": true,
+   "keywords": [
+    "tip",
+    "donate",
+    "pay",
+    "paying",
+    "hand",
+    "receive",
+    "spend",
+    "offer",
+    "loan",
+    "lend",
+    "lending",
+    "borrowing",
+    "payment",
+    "payments",
+    "send",
+    "transfer",
+    "transfers",
+    "remittance",
+    "remittances",
+    "donation",
+    "spending",
+    "cash out",
+    "pay out"
+   ],
+   "motif": "payment"
+  },
+  "handshake": {
+   "donor": "phosphor:handshake",
+   "keywords": [
+    "between people",
+    "direct",
+    "handshake",
+    "p2p",
+    "peer",
+    "peer to peer",
+    "trust",
+    "agreement",
+    "deal",
+    "p2p trade",
+    "otc",
+    "counterparty deal",
+    "settle"
+   ]
+  },
+  "hardware-wallet": {
+   "keywords": [
+    "hardware wallet"
+   ],
+   "motif": "wallet",
+   "slug_alias": "cold-wallet"
+  },
+  "hash": {
+   "donor": "phosphor:hash",
+   "keywords": [
+    "cryptographic hash",
+    "encryption",
+    "fingerprint",
+    "hash",
+    "sha256",
+    "hashrate",
+    "nonce",
+    "hash rate",
+    "keccak",
+    "txid",
+    "transaction hash"
+   ]
+  },
+  "hourglass": {
+   "keywords": [
+    "time",
+    "wait",
+    "delay",
+    "pending",
+    "hourglass",
+    "duration",
+    "epoch",
+    "epochs",
+    "vesting period",
+    "waiting",
+    "lockup period",
+    "unbonding",
+    "cooldown"
+   ]
+  },
+  "intermediary": {
+   "donor": "fluent:handshake",
+   "keywords": [
+    "broker",
+    "intermediary",
+    "many intermediaries",
+    "middleman",
+    "middlemen",
+    "mev",
+    "mev attack",
+    "sandwich attack",
+    "front running",
+    "frontrun",
+    "rent seeking",
+    "trusted third party",
+    "counterparty"
+   ]
+  },
+  "key": {
+   "colors": true,
+   "keywords": [
+    "key",
+    "private",
+    "access",
+    "seed",
+    "phrase",
+    "password",
+    "unlock",
+    "private key",
+    "keys",
+    "self custody",
+    "self-custody",
+    "keypair",
+    "own your keys",
+    "key management"
+   ],
+   "tone": "a_yellow"
+  },
+  "kyc": {
+   "donor": "fluent:identification-card",
+   "keywords": [
+    "id",
+    "identity",
+    "kyc",
+    "verification",
+    "verified",
+    "aml",
+    "id check",
+    "compliance check",
+    "verified identity",
+    "sanctions"
+   ]
+  },
+  "laptop-trade": {
+   "colors": true,
+   "keywords": [
+    "trade",
+    "trader",
+    "laptop",
+    "desk",
+    "screen",
+    "trading",
+    "day trader",
+    "trades",
+    "terminal",
+    "degen",
+    "trading desk",
+    "pro trader"
+   ],
+   "tone": "a_blue"
+  },
+  "ledger": {
+   "donor": "world:ledger",
+   "keywords": [
+    "digital ledger",
+    "digital record",
+    "distributed ledger",
+    "entry",
+    "ledger",
+    "record",
+    "transaction record",
+    "ledger hardware",
+    "accounting book"
+   ]
+  },
+  "ledger-book": {
+   "keywords": [
+    "ledger",
+    "book",
+    "record",
+    "accounting",
+    "journal",
+    "register",
+    "transactions",
+    "distributed ledger",
+    "records",
+    "books",
+    "ledger entry"
+   ]
+  },
+  "leverage": {
+   "keywords": [
+    "leverage",
+    "leveraged",
+    "10x",
+    "100x",
+    "margin",
+    "margin trade",
+    "long",
+    "short",
+    "leveraged position"
+   ],
+   "motif": "coin"
+  },
+  "lightning-network": {
+   "keywords": [
+    "lightning network",
+    "ln",
+    "lightning",
+    "layer two bitcoin",
+    "payment channels",
+    "payment channel",
+    "layer 2",
+    "l2 payments"
+   ],
+   "motif": "structure"
+  },
+  "liquidation": {
+   "keywords": [
+    "liquidation",
+    "liquidated",
+    "liquidations",
+    "wipeout",
+    "margin call",
+    "rekt position"
+   ],
+   "motif": "structure"
+  },
+  "liquidity": {
+   "donor": "fluent:droplet",
+   "keywords": [
+    "depth",
+    "liquidity",
+    "liquidity pool",
+    "pool",
+    "deep liquidity",
+    "liquid",
+    "pool depth",
+    "thin liquidity",
+    "market depth"
+   ]
+  },
+  "liquidity-pool": {
+   "keywords": [
+    "liquidity pool",
+    "liquidity pools",
+    "pool",
+    "pools",
+    "lp",
+    "lps",
+    "lp tokens",
+    "liquidity",
+    "deep liquidity",
+    "shallow liquidity",
+    "tvl",
+    "total value locked",
+    "locked value",
+    "pool depth"
+   ],
+   "motif": "object"
+  },
+  "lock-closed": {
+   "keywords": [
+    "lock",
+    "locked",
+    "encrypt",
+    "escrow",
+    "frozen",
+    "vested",
+    "timelock",
+    "vesting",
+    "locked tokens",
+    "lock up",
+    "lockup",
+    "cliff"
+   ]
+  },
+  "magnify": {
+   "colors": true,
+   "keywords": [
+    "search",
+    "inspect",
+    "audit",
+    "look",
+    "find",
+    "analyze",
+    "research",
+    "magnifier",
+    "explorer",
+    "block explorer",
+    "analysis",
+    "dyor",
+    "forensics",
+    "chainalysis",
+    "arkham",
+    "onchain data",
+    "on-chain data",
+    "analytics",
+    "etherscan",
+    "solscan",
+    "defillama",
+    "defi llama",
+    "coingecko",
+    "coinmarketcap",
+    "dune",
+    "nansen",
+    "look into"
+   ]
+  },
+  "market-crash": {
+   "donor": "game-icons:chart",
+   "keywords": [
+    "market crash"
+   ],
+   "slug_alias": "stock-chart"
+  },
+  "market-sentiment": {
+   "keywords": [
+    "market sentiment"
+   ],
+   "motif": "gauge",
+   "slug_alias": "fear-and-greed"
+  },
+  "memecoin": {
+   "keywords": [
+    "memecoin",
+    "memecoins",
+    "doge",
+    "dogecoin",
+    "shib",
+    "pepe",
+    "wif",
+    "bonk",
+    "meme coin",
+    "meme coins",
+    "meme token"
+   ],
+   "motif": "coin"
+  },
+  "mempool": {
+   "keywords": [
+    "mempool",
+    "pending transactions",
+    "tx queue",
+    "unconfirmed",
+    "transaction queue"
+   ],
+   "motif": "structure"
+  },
+  "mining": {
+   "donor": "game-icons:mining",
+   "keywords": [
+    "complex puzzle",
+    "miners",
+    "mining",
+    "proof of work",
+    "validate",
+    "miner",
+    "pow",
+    "asic",
+    "asics",
+    "mining rig",
+    "hashrate",
+    "mining farm",
+    "bitcoin miners",
+    "mining pool",
+    "antminer"
+   ]
+  },
+  "mint": {
+   "keywords": [
+    "mint",
+    "minting",
+    "minted",
+    "issuance",
+    "issue",
+    "newly issued",
+    "new supply",
+    "create tokens"
+   ],
+   "motif": "coin"
+  },
+  "money": {
+   "donor": "phosphor:money",
+   "keywords": [
+    "cash",
+    "dollar",
+    "fiat",
+    "money",
+    "real money",
+    "usd",
+    "dollars",
+    "value",
+    "wealth",
+    "capital",
+    "funds",
+    "profit",
+    "pnl",
+    "flow",
+    "inflows",
+    "outflows",
+    "money supply",
+    "fresh capital"
+   ]
+  },
+  "mt-gox": {
+   "keywords": [
+    "mt gox"
+   ],
+   "motif": "symbol",
+   "slug_alias": "hack"
+  },
+  "multisig": {
+   "keywords": [
+    "multisig",
+    "multi-sig",
+    "multi signature",
+    "multi-signature",
+    "safe wallet",
+    "gnosis safe",
+    "2 of 3",
+    "m of n"
+   ],
+   "motif": "key"
+  },
+  "network": {
+   "donor": "phosphor:network",
+   "keywords": [
+    "computers",
+    "decentralized",
+    "independent computers",
+    "network",
+    "nodes",
+    "topology",
+    "mesh",
+    "web3",
+    "web 3",
+    "internet of value"
+   ]
+  },
+  "network-nodes": {
+   "keywords": [
+    "network",
+    "nodes",
+    "peer",
+    "distributed",
+    "decentralized",
+    "mesh",
+    "p2p",
+    "peer to peer",
+    "peers",
+    "decentralised",
+    "node network",
+    "decentralisation"
+   ]
+  },
+  "nft": {
+   "donor": "fluent:framed-picture",
+   "keywords": [
+    "collectible",
+    "digital art",
+    "nft",
+    "unique asset",
+    "nfts",
+    "collectibles",
+    "jpeg",
+    "jpegs",
+    "pfp",
+    "ordinals",
+    "inscriptions",
+    "nft collection",
+    "mint nft",
+    "nft boom"
+   ]
+  },
+  "on-chain": {
+   "donor": "game-icons:contract",
+   "keywords": [
+    "on chain"
+   ],
+   "slug_alias": "smart-contract"
+  },
+  "onchain": {
+   "donor": "game-icons:contract",
+   "keywords": [
+    "onchain"
+   ],
+   "slug_alias": "smart-contract"
+  },
+  "oracle": {
+   "keywords": [
+    "oracle",
+    "oracles",
+    "chainlink",
+    "pyth",
+    "price feed",
+    "price feeds",
+    "data feed",
+    "feeds",
+    "data oracle"
+   ],
+   "motif": "eye"
+  },
+  "orderbook": {
+   "keywords": [
+    "orderbook",
+    "order book",
+    "bids",
+    "asks",
+    "liquidity book",
+    "depth chart",
+    "clob",
+    "limit orders",
+    "bid",
+    "ask",
+    "bid ask",
+    "spread",
+    "order flow"
+   ],
+   "motif": "list"
+  },
+  "percent-fee": {
+   "keywords": [
+    "percent",
+    "percentage",
+    "fee",
+    "commission",
+    "rate",
+    "apr",
+    "apy",
+    "yield",
+    "interest",
+    "interest rate",
+    "yields",
+    "returns",
+    "rates",
+    "rewards rate",
+    "staking rewards",
+    "yield rate",
+    "funding rate",
+    "borrow rate",
+    "supply rate"
+   ]
+  },
+  "phone": {
+   "keywords": [
+    "phone",
+    "smartphone",
+    "mobile device",
+    "mobile",
+    "app",
+    "mobile wallet",
+    "phone app",
+    "consumer app",
+    "mobile app",
+    "on mobile"
+   ],
+   "motif": "phone",
+   "tone": "a_blue"
+  },
+  "pool-cylinder": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "pool",
+    "liquidity",
+    "reservoir",
+    "depth",
+    "barrel",
+    "fund",
+    "pools",
+    "liquidity pool",
+    "liquidity pools",
+    "lp",
+    "lp position",
+    "lps",
+    "pool share"
+   ],
+   "motif": "pool",
+   "tone": "a_blue"
+  },
+  "prediction": {
+   "keywords": [
+    "prediction market",
+    "polymarket",
+    "betting",
+    "bet",
+    "odds",
+    "event contract",
+    "election odds",
+    "fear",
+    "greed",
+    "predicts",
+    "predicted"
+   ],
+   "motif": "target"
+  },
+  "price-crash": {
+   "donor": "game-icons:chart",
+   "keywords": [
+    "price crash"
+   ],
+   "slug_alias": "stock-chart"
+  },
+  "private-key": {
+   "colors": true,
+   "keywords": [
+    "private key"
+   ],
+   "slug_alias": "key",
+   "tone": "a_yellow"
+  },
+  "private-keys": {
+   "colors": true,
+   "keywords": [
+    "private keys"
+   ],
+   "slug_alias": "key",
+   "tone": "a_yellow"
+  },
+  "proof-of-stake": {
+   "donor": "fluent:money-bag",
+   "keywords": [
+    "proof of stake"
+   ],
+   "slug_alias": "staking"
+  },
+  "proof-of-work": {
+   "donor": "game-icons:mining",
+   "keywords": [
+    "proof of work"
+   ],
+   "slug_alias": "mining"
+  },
+  "public-key": {
+   "colors": true,
+   "keywords": [
+    "public key"
+   ],
+   "slug_alias": "key",
+   "tone": "a_yellow"
+  },
+  "real-estate": {
+   "donor": "kit:crypto:real-estate",
+   "keywords": [
+    "building",
+    "house",
+    "property",
+    "real estate",
+    "real world asset",
+    "rwa",
+    "real world assets",
+    "real-world assets",
+    "tokenized assets",
+    "tokenization",
+    "tokenized",
+    "houses",
+    "treasuries",
+    "t-bills",
+    "tokenized treasuries"
+   ]
+  },
+  "recovery-phrase": {
+   "keywords": [
+    "recovery phrase"
+   ],
+   "motif": "document",
+   "slug_alias": "seed-phrase"
+  },
+  "robot-bot": {
+   "colors": true,
+   "keywords": [
+    "bot",
+    "robot",
+    "algorithm",
+    "algo",
+    "automated",
+    "ai",
+    "automation",
+    "bots",
+    "trading bot",
+    "sniper bot",
+    "mev bot",
+    "mev bots",
+    "algorithmic",
+    "trading bots",
+    "telegram bot",
+    "maestro",
+    "unibot"
+   ],
+   "tone": "a_blue"
+  },
+  "rocket": {
+   "keywords": [
+    "rocket",
+    "moon",
+    "launch",
+    "moonshot",
+    "surge",
+    "lambo",
+    "to the moon"
+   ]
+  },
+  "rollup": {
+   "keywords": [
+    "rollup",
+    "rollups",
+    "l2",
+    "layer 2",
+    "layer two",
+    "arbitrum",
+    "optimism",
+    "base chain",
+    "zksync",
+    "starknet",
+    "polygon",
+    "optimistic rollup",
+    "zk rollup",
+    "scaling solution",
+    "l2s"
+   ],
+   "motif": "structure"
+  },
+  "rug-pull": {
+   "keywords": [
+    "rug pull",
+    "rugpull",
+    "rugged",
+    "exit scam",
+    "scam coin",
+    "honeypot",
+    "pump and dump",
+    "pump & dump",
+    "scam",
+    "scams"
+   ],
+   "motif": "symbol"
+  },
+  "scarcity": {
+   "keywords": [
+    "scarcity",
+    "scarce",
+    "limited supply",
+    "21 million",
+    "hard cap",
+    "fixed supply",
+    "deflationary"
+   ],
+   "motif": "coin"
+  },
+  "seed-phrase": {
+   "keywords": [
+    "seed phrase",
+    "seed words",
+    "recovery phrase",
+    "mnemonic",
+    "12 words",
+    "backup phrase",
+    "write down"
+   ],
+   "motif": "document"
+  },
+  "sentiment-gauge": {
+   "keywords": [
+    "sentiment gauge"
+   ],
+   "motif": "gauge",
+   "slug_alias": "fear-and-greed"
+  },
+  "shield": {
+   "donor": "world:shield",
+   "keywords": [
+    "audit",
+    "audited",
+    "protected",
+    "secure",
+    "security",
+    "shield",
+    "protection",
+    "defense",
+    "safety net"
+   ]
+  },
+  "shield-check": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "shield",
+    "protect",
+    "security",
+    "audit",
+    "verified",
+    "safe",
+    "guard",
+    "secure",
+    "protected",
+    "trustless",
+    "safety",
+    "audited code",
+    "defense"
+   ],
+   "motif": "shield",
+   "tone": "a_green"
+  },
+  "signature": {
+   "keywords": [
+    "signature",
+    "sign",
+    "signed",
+    "signing",
+    "approve transaction",
+    "authorize",
+    "consent"
+   ],
+   "motif": "document"
+  },
+  "smart-contract": {
+   "donor": "game-icons:contract",
+   "keywords": [
+    "agreement",
+    "code agreement",
+    "contract",
+    "programmable",
+    "self executing",
+    "smart contract",
+    "smart contracts",
+    "protocol",
+    "protocols",
+    "dapp",
+    "dapps",
+    "onchain logic",
+    "contract code",
+    "deploy"
+   ]
+  },
+  "solana": {
+   "colors": true,
+   "keywords": [
+    "solana",
+    "sol",
+    "solana network",
+    "solana chain"
+   ],
+   "motif": "coin",
+   "tone": "#9945FF"
+  },
+  "stablecoin": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "stablecoin",
+    "stablecoins",
+    "usdc",
+    "usdt",
+    "tether",
+    "dai",
+    "usd coin",
+    "digital dollar",
+    "digital dollars",
+    "stable coin",
+    "pegged",
+    "peg",
+    "depeg",
+    "de-pegged",
+    "de pegged",
+    "de-peg",
+    "lost its peg",
+    "bank run",
+    "collapsed",
+    "crashed",
+    "death spiral",
+    "ust",
+    "terra usd",
+    "stablecoin de"
+   ],
+   "motif": "coin",
+   "tone": "#2775CA"
+  },
+  "staking": {
+   "donor": "fluent:money-bag",
+   "keywords": [
+    "interest",
+    "returns",
+    "rewards",
+    "stake",
+    "staked",
+    "staking",
+    "yield",
+    "stakers",
+    "proof of stake",
+    "pos",
+    "restaking",
+    "restake",
+    "eigenlayer",
+    "delegation",
+    "delegate",
+    "delegators",
+    "liquid staking",
+    "lido",
+    "jito",
+    "marinade",
+    "stake pool",
+    "unstake"
+   ]
+  },
+  "stock-chart": {
+   "donor": "game-icons:chart",
+   "keywords": [
+    "chart",
+    "equity",
+    "market",
+    "price",
+    "share",
+    "stock",
+    "stock chart",
+    "tokenized share",
+    "market cap",
+    "marketcap",
+    "valuation",
+    "markets",
+    "trading volume",
+    "volume",
+    "index",
+    "price action",
+    "market structure"
+   ]
+  },
+  "target-aim": {
+   "colors": true,
+   "keywords": [
+    "target",
+    "aim",
+    "goal",
+    "precision",
+    "sniper",
+    "objective",
+    "snipe"
+   ],
+   "tone": "a_red"
+  },
+  "three-arrows": {
+   "keywords": [
+    "three arrows capital"
+   ],
+   "motif": "building",
+   "slug_alias": "bankruptcy"
+  },
+  "timer": {
+   "donor": "world:timer",
+   "keywords": [
+    "instant",
+    "real time",
+    "seconds",
+    "settlement",
+    "settles",
+    "timer",
+    "finality time",
+    "settlement time",
+    "confirmation",
+    "fast",
+    "speed",
+    "latency",
+    "milliseconds",
+    "sub second",
+    "instantly",
+    "half a second",
+    "quick",
+    "tps",
+    "throughput",
+    "fast chain",
+    "low latency"
+   ]
+  },
+  "token-coin": {
+   "donor": "game-icons:token",
+   "keywords": [
+    "asset token",
+    "digital token",
+    "token",
+    "token coin",
+    "tokenized asset",
+    "tokenized stock",
+    "your token",
+    "coin",
+    "altcoin",
+    "alt",
+    "shitcoin",
+    "ico",
+    "token sale",
+    "altcoins",
+    "tokens",
+    "coins"
+   ]
+  },
+  "tps": {
+   "keywords": [
+    "tps",
+    "transactions per second",
+    "throughput",
+    "high throughput",
+    "speed of",
+    "fast chain",
+    "performance"
+   ],
+   "motif": "gauge"
+  },
+  "trend-down": {
+   "keywords": [
+    "down",
+    "loss",
+    "drop",
+    "dump",
+    "crash",
+    "bear",
+    "bearish",
+    "red",
+    "decline",
+    "bear market",
+    "downtrend",
+    "selloff",
+    "sell off",
+    "capitulation",
+    "rekt",
+    "wiped out",
+    "collapse",
+    "crashed",
+    "dumped",
+    "new low",
+    "all time low",
+    "atl",
+    "price falls",
+    "plunge",
+    "tank",
+    "bled",
+    "depreciate"
+   ],
+   "motif": "downtrend",
+   "tone": "a_red"
+  },
+  "trend-up": {
+   "keywords": [
+    "up",
+    "gain",
+    "rise",
+    "pump",
+    "growth",
+    "bull",
+    "bullish",
+    "green",
+    "bull run",
+    "rally",
+    "moon",
+    "mooning",
+    "uptrend",
+    "price up",
+    "gains",
+    "green candles",
+    "surge",
+    "pumped",
+    "new high",
+    "all time high",
+    "ath",
+    "record high",
+    "breakout",
+    "price rises",
+    "appreciate"
+   ],
+   "motif": "uptrend",
+   "tone": "a_green"
+  },
+  "trophy": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "trophy",
+    "win",
+    "winner",
+    "reward",
+    "prize",
+    "victory",
+    "champion",
+    "top",
+    "best",
+    "dominance",
+    "dominant",
+    "leader",
+    "market leader",
+    "number one",
+    "first place"
+   ],
+   "tone": "a_yellow"
+  },
+  "validator": {
+   "keywords": [
+    "validator",
+    "validators",
+    "node",
+    "nodes",
+    "full node",
+    "validator node",
+    "staker node",
+    "operator",
+    "node operator"
+   ],
+   "motif": "server"
+  },
+  "vault": {
+   "donor": "phosphor:vault",
+   "keywords": [
+    "custodian vault",
+    "custody",
+    "holds",
+    "reserve",
+    "safe",
+    "vault",
+    "backing",
+    "collateral vault",
+    "safekeeping",
+    "cold storage",
+    "hoddle"
+   ]
+  },
+  "vault-safe": {
+   "colors": true,
+   "keywords": [
+    "vault",
+    "safe",
+    "custody",
+    "secure",
+    "cold",
+    "storage",
+    "deposit",
+    "tvl",
+    "total value locked",
+    "custodian",
+    "insured",
+    "insurance fund",
+    "safu",
+    "cold storage vault",
+    "treasury",
+    "reserves"
+   ],
+   "motif": "vault",
+   "tone": "a_blue"
+  },
+  "wallet": {
+   "colors": true,
+   "keywords": [
+    "wallet",
+    "address",
+    "balance",
+    "hold",
+    "store",
+    "account",
+    "wallets",
+    "metamask",
+    "phantom",
+    "hot wallet",
+    "software wallet",
+    "wallet app",
+    "rabby",
+    "trust wallet",
+    "walletconnect"
+   ],
+   "tone": "#F7931A"
+  },
+  "whale": {
+   "colors": true,
+   "fill": true,
+   "keywords": [
+    "whale",
+    "big",
+    "institution",
+    "giant",
+    "large",
+    "whales",
+    "big holder",
+    "smart money",
+    "whale wallet",
+    "large holder",
+    "big wallets",
+    "whale wallets",
+    "big holders"
+   ],
+   "tone": "a_blue"
+  },
+  "wrapped": {
+   "keywords": [
+    "wrapped",
+    "wbtc",
+    "weth",
+    "wrapped bitcoin",
+    "wrapped ether",
+    "wrapped token"
+   ],
+   "motif": "coin"
+  }
+ },
+ "name": "crypto"
+}

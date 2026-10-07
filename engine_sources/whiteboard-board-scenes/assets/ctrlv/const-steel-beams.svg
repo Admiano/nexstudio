@@ -1,0 +1,39 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g style="animation-duration: 6s;">
+                <!-- Background Beam (Horizontal) -->
+                <g transform="translate(60, 140)">
+                    <!-- Flanges and Web -->
+                    <rect x="0" y="0" width="280" height="10" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="3"/>
+                    <rect x="0" y="30" width="280" height="10" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="3"/>
+                    <rect x="0" y="10" width="280" height="20" fill="#F5F0E4" opacity="0.5"/>
+                    <line x1="0" y1="20" x2="280" y2="20" stroke="#F5F0E4" stroke-width="3"/>
+                </g>
+                
+                <!-- Foreground Beam (Vertical) -->
+                <g transform="translate(180, 40)">
+                    <rect x="0" y="0" width="40" height="220" fill="#1A1A17" stroke="#F5F0E4" stroke-width="4"/>
+                    <!-- I-beam cross section at top/bottom -->
+                    <rect x="-10" y="-10" width="60" height="10" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                    <rect x="-10" y="220" width="60" height="10" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                    
+                    <!-- Web detailing -->
+                    <line x1="20" y1="0" x2="20" y2="220" stroke="#F5F0E4" stroke-width="2" opacity="0.5"/>
+                </g>
+                
+                <!-- Rivets / Bolts at intersection -->
+                <g transform="translate(180, 140)">
+                    <circle style="animation-duration: 4s;" cx="10" cy="10" r="4" fill="#F5F0E4"/>
+                    <circle style="animation-duration: 4s; animation-delay: 0.2s;" cx="30" cy="10" r="4" fill="#F5F0E4"/>
+                    <circle style="animation-duration: 4s; animation-delay: 0.4s;" cx="10" cy="30" r="4" fill="#F5F0E4"/>
+                    <circle style="animation-duration: 4s; animation-delay: 0.6s;" cx="30" cy="30" r="4" fill="#F5F0E4"/>
+                </g>
+                
+                <!-- Hanging Hook/Chain -->
+                <g transform="translate(280, 40)">
+<g style="animation-duration: 6s;" >
+                    <line style="animation-duration: 4s;" x1="0" y1="-40" x2="0" y2="60" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M-10 60 C-10 80 10 90 20 70 M20 70 L15 65" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round" fill="none"/>
+                </g>
+</g>
+            </g>
+          </svg>

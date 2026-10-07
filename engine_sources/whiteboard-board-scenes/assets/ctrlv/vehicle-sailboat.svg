@@ -1,0 +1,27 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Water -->
+            <path style="animation-duration:3s;" d="M30 230 Q100 215 170 230 Q240 245 310 230 Q350 220 380 230 V260 H30 Z" fill="#F5F0E4" opacity="0.3"/>
+            <path style="animation-duration:4s;animation-delay:-1s;" d="M30 245 Q100 235 170 245 Q240 255 310 245 Q350 240 380 248 V265 H30 Z" fill="#F5F0E4" opacity="0.2"/>
+
+            <g style="animation-duration:3.5s;">
+                <!-- Hull -->
+                <path d="M100 230 H310 L290 255 L120 255 Z" fill="#1A1A17"/>
+                <!-- Hull side -->
+                <path d="M100 230 L120 255" stroke="#F5F0E4" stroke-width="3" opacity="0.3"/>
+                <!-- Keel -->
+                <path d="M200 255 L210 275" stroke="#F5F0E4" stroke-width="5" stroke-linecap="round"/>
+
+                <!-- Mast -->
+                <line x1="190" y1="230" x2="190" y2="60" stroke="#F5F0E4" stroke-width="6" stroke-linecap="round"/>
+
+                <!-- Main Sail -->
+                <path style="animation-duration:3s;" d="M190 70 L190 225 L310 190 Z" fill="#1A1A17" opacity="0.9"/>
+                <!-- Jib / Foresail -->
+                <path style="animation-duration:3.5s;animation-delay:-.5s;" d="M190 100 L100 200 L190 205 Z" fill="#F5F0E4" opacity="0.7"/>
+                <!-- Boom -->
+                <line x1="190" y1="225" x2="295" y2="200" stroke="#F5F0E4" stroke-width="5" stroke-linecap="round"/>
+
+                <!-- Flag on mast -->
+                <path d="M190 60 L225 70 L190 80 Z" fill="#F5F0E4"/>
+            </g>
+          </svg>

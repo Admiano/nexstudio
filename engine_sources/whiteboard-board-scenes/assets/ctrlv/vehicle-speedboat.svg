@@ -1,0 +1,39 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Water wake -->
+            <path d="M30 240 Q80 225 130 240 Q180 255 230 240" stroke="#F5F0E4" stroke-width="5" stroke-linecap="round" opacity="0.4"/>
+            <path style="animation-delay:-.4s;" d="M20 255 Q70 242 120 255 Q170 268 220 255" stroke="#F5F0E4" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+
+            <g style="animation-duration:2s;">
+                <!-- Water surface -->
+                <path d="M30 240 Q200 220 380 240 V265 H30 Z" fill="#F5F0E4" opacity="0.2"/>
+
+                <!-- Hull -->
+                <path d="M100 230 H360 L380 215 L360 200 H100 L70 215 Z" fill="#1A1A17"/>
+                <!-- Hull underside/keel -->
+                <path d="M70 215 L100 230 H360 L380 215" stroke="#F5F0E4" stroke-width="6" fill="none" opacity="0.3"/>
+
+                <!-- Deck recess -->
+                <path d="M120 205 H350 L365 215 H120 V205 Z" fill="#F5F0E4" opacity="0.3"/>
+
+                <!-- Windshield -->
+                <path d="M250 205 H310 L325 182 L265 182 Z" fill="#F5F0E4" opacity="0.6"/>
+                <path d="M250 205 H310 L325 182 L265 182 Z" stroke="#F5F0E4" stroke-width="2" fill="none" opacity="0.4"/>
+
+                <!-- Engine cowl -->
+                <rect x="120" y="198" width="80" height="12" rx="6" fill="#F5F0E4" opacity="0.7"/>
+
+                <!-- Racing stripes -->
+                <path d="M100 210 H360" stroke="#F5F0E4" stroke-width="5" opacity="0.8"/>
+
+                <!-- Aerial / GPS mast -->
+                <line x1="290" y1="182" x2="290" y2="155" stroke="#F5F0E4" stroke-width="3"/>
+                <circle cx="290" cy="152" r="4" fill="#F5F0E4"/>
+
+                <!-- Spray -->
+                <g opacity="0.5">
+                    <circle cx="80" cy="222" r="5" fill="#F5F0E4"/>
+                    <circle cx="65" cy="215" r="4" fill="#F5F0E4"/>
+                    <circle cx="55" cy="225" r="3" fill="#F5F0E4"/>
+                </g>
+            </g>
+          </svg>
