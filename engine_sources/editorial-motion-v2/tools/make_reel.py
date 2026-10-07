@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """make_reel.py — one command: VO in, poster-framed reels out.
 
-Pipeline: script/voice-file -> voice.mp3 + alignment.json -> auto-treatment
-(style from styles.json, entities from entity_bank, customer media via
-media_library) -> regression_pack render -> web file -> poster-framed file.
+Pipeline: script/voice-file -> voice.mp3 + alignment.json -> treatment
+(style from styles.json; the story analyst authors arc/scenes/entities/motif
+when configured — see story_analyst.py — else the entity_bank keyword path;
+customer media via media_library) -> regression_pack render -> web file ->
+poster-framed file.
 
   python3 tools/make_reel.py --script "A few years ago, ..." --voice bm_george \
       --style tiles --media desk.png clip.mp4 --out out/my-reel
@@ -13,13 +15,16 @@ media_library) -> regression_pack render -> web file -> poster-framed file.
 Env: node must be on PATH for the renderer (nvm v24.x):
   export PATH=$HOME/.nvm/versions/node/v24.19.0/bin:$PATH
 """
-import argparse, json, os, re, subprocess, sys, time, uuid
+import argparse, json, os, re, subprocess, sys, uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 from generate_voice import synth, align, VOICES  # noqa: E402
+import story_analyst  # noqa: E402
+sys.path.insert(0, str(TOOLS.parent / "compiler"))
+from editorial_plan_compiler.bookauthor import BookAuthor  # noqa: E402
 
 STYLES = json.loads((ROOT / "styles.json").read_text())
 STYLE_MAP = {s["id"]: s for s in STYLES["styles"]}
@@ -51,17 +56,22 @@ def make_voice(args, fixture_dir):
     out_wav, out_mp3, out_ali = fixture_dir / "voice.wav", fixture_dir / "voice.mp3", fixture_dir / "alignment.json"
     if args.voice_file:
         src = Path(args.voice_file)
+        # Same normalization the synthesized voice gets: an uploaded track at a
+        # different level would otherwise leave the master outside the mix's
+        # bounded makeup range and fail loudness_on_target.
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(src), str(out_wav)], check=True)
-        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(src), "-b:a", "160k", str(out_mp3)], check=True)
+        norm = fixture_dir / "voice_norm.wav"
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
+                        "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", str(norm)], check=True)
+        out_wav = norm
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav), "-b:a", "160k", str(out_mp3)], check=True)
         log(f"aligning uploaded voice {src.name} ...")
         align(out_wav, out_ali)
     else:
         text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
         if not text.strip():
             sys.exit("need --script/--script-file or --voice-file")
-        # Narration speed is the user's choice only; duration never retimes the voice.
-        speed = min(max(getattr(args, 'speed', None) or 1.0, 0.6), 2.0)
-        dur = synth(text.strip(), args.voice, out_wav, speed=speed)
+        dur = synth(text.strip(), args.voice, out_wav)
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
                         "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", str(norm)], check=True)
@@ -172,8 +182,54 @@ def pick_entities(gwords, family, already):
     return out
 
 
+def _media_library(media_files):
+    library = []
+    for mi, p in enumerate(media_files):
+        p = Path(p)
+        kind = "VIDEO" if p.suffix.lower() in VIDEO_EXTS else "IMAGE"
+        entry = {"asset_id": f"media{mi+1}", "kind": kind, "path": f"media/{p.name}"}
+        wh = probe_dims(p, kind)
+        if wh:
+            entry["width"], entry["height"] = wh
+            if kind == "VIDEO":
+                entry["duration_s"] = probe_dur(p)
+        library.append(entry)
+    return library
+
+
+def _script_text(args, words):
+    text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
+    return text.strip() or " ".join(w["text"] for w in words).strip()
+
+
 def build_treatment(args, style, words, media_files, film_id):
+    """-> (treatment, storyboard_or_None, source) — story analyst first per --analyst
+    mode, legacy keyword bank otherwise."""
     groups = chunk_beats(words)
+    aspects = [a.strip() for a in args.aspects.split(",")]
+    if args.book == "paperbook":
+        return BookAuthor().author(groups, film_id), None, "bookauthor"
+    media_library = _media_library(media_files)
+    mode = story_analyst.analyst_mode(args)
+    if mode != "keywords":
+        try:
+            treatment, storyboard = story_analyst.build_llm_treatment(
+                _script_text(args, words), words, groups, style,
+                media_library, film_id, aspects)
+            treatment["note"] = (treatment.get("note") or "") + f" [story-analyst model={story_analyst.analyst_config()['model'] or 'replay'}, style={style['id']}]"
+            return treatment, storyboard, "story_analyst"
+        except story_analyst.AnalystUnavailable as e:
+            if mode == "llm":
+                sys.exit(f"story analyst unavailable: {e}")
+            log(f"story analyst unavailable ({e}) — keyword fallback")
+        except story_analyst.AnalystInvalid as e:
+            if mode == "llm":
+                sys.exit(f"story analyst output invalid: {e}")
+            log(f"story analyst invalid ({e}) — keyword fallback")
+    return _keyword_treatment(args, style, words, groups, media_files, media_library, film_id), None, "keywords"
+
+
+def _keyword_treatment(args, style, words, groups, media_files, media_library, film_id):
     beats, used_kw = [], set()
     fam = style["asset_family"]
     fam_key = {"colour_icons": "colour", "mono_icons": "mono", "emoji": "emoji", "photos": "photo"}[fam]
@@ -187,17 +243,13 @@ def build_treatment(args, style, words, media_files, film_id):
         bid = f"b{bi+1:02d}"
         narration = clean(" ".join(w["text"] for w in g))
         picked = pick_entities(g, fam_key, used_kw)
-        if not picked:
-            anchor = next((w["text"] for w in g if word_key(w["text"]) not in STOPWORDS), g[0]["text"])
-            picked = [({"id": f"e1_{word_key(anchor) or 'idea'}", "kind": "object", "glyph": "TILE",
-                        "concept": anchor.strip(".,!?;:'\"“”()[]")[:40] or "idea"}, anchor)]
         ents = []
         for ent, anchor in picked:
             ents.append([ent, anchor])
         medias = media_slots.get(bi, [])
         for mi, mf in medias:
-            ents.insert(0, ([{"id": f"media{mi+1}", "kind": "evidence", "glyph": "MEDIA",
-                              "media_ref": f"media{mi+1}"}, g[0]["text"]]))
+            ents.insert(0, [{"id": f"media{mi+1}", "kind": "evidence", "glyph": "MEDIA",
+                             "media_ref": f"media{mi+1}"}, g[0]["text"]])
         sizes = ["hero", "support", "minor", "support", "minor", "support", "minor"]
         entities, program = [], []
         for ei, (ent, anchor) in enumerate(ents):
@@ -226,17 +278,6 @@ def build_treatment(args, style, words, media_files, film_id):
                                            for i in range(1, len(entities))],
                              "program": program},
         })
-    media_library = []
-    for mi, p in enumerate(media_files):
-        p = Path(p)
-        kind = "VIDEO" if p.suffix.lower() in VIDEO_EXTS else "IMAGE"
-        entry = {"asset_id": f"media{mi+1}", "kind": kind, "path": f"media/{p.name}"}
-        wh = probe_dims(p, kind)
-        if wh:
-            entry["width"], entry["height"] = wh
-            if kind == "VIDEO":
-                entry["duration_s"] = probe_dur(p)
-        media_library.append(entry)
     return {
         "schema": "NexStudioEditorialTreatmentV2",
         "film_id": film_id,
@@ -273,11 +314,14 @@ def probe_dur(p):
 
 
 # ---------- poster ----------
-def posterize(frames_dir, src_mp4, out_mp4, w, h, tmp):
-    last = sorted(Path(frames_dir).glob("f*.jpg"))[-1]
+def posterize(frames_dir, src_mp4, out_mp4, w, h, tmp, first_frame=False):
+    # The poster intro is a held still fading into frame 0. Editorial styles hold the
+    # end card; a paperbook holds its opening spread — a book does not open on its last page.
+    fs = sorted(Path(frames_dir).glob("f*.jpg"))
+    still = fs[0] if first_frame else fs[-1]
     seg, vout = tmp / f"seg_{h}_{uuid.uuid4().hex[:6]}.mp4", tmp / f"v_{h}_{uuid.uuid4().hex[:6]}.mp4"
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-framerate", "30", "-t", "1.6",
-                    "-i", str(last), "-vf", f"scale={w}:{h},format=yuv420p",
+                    "-i", str(still), "-vf", f"scale={w}:{h},format=yuv420p",
                     "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-an", str(seg)], check=True)
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(seg), "-i", str(src_mp4),
                     "-filter_complex",
@@ -303,30 +347,32 @@ def remux_nocaption(frames_dir, audio_wav, out_mp4):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--script"); ap.add_argument("--script-file"); ap.add_argument("--voice-file")
-    ap.add_argument("--voice", default="emma", choices=sorted(VOICES))
+    ap.add_argument("--voice", default="bm_george", choices=sorted(VOICES))
     ap.add_argument("--style", default="tiles")
     ap.add_argument("--media", nargs="*", default=[])
     ap.add_argument("--aspects", default="16x9,1x1,9x16")
-    ap.add_argument("--duration", type=float, default=None, help="target seconds; narration pacing adjusts toward it")
-    ap.add_argument("--speed", type=float, default=1.0, help="user narration speed multiplier")
     ap.add_argument("--out", required=True)
     ap.add_argument("--film-id")
     ap.add_argument("--treatment", help="use an existing treatment.json instead of auto-authoring")
     ap.add_argument("--fixture-voice", help="fixture dir already containing voice.mp3+alignment.json (with --treatment)")
+    ap.add_argument("--analyst", choices=["auto", "llm", "keywords"], default=None,
+                    help="treatment source: auto uses the LLM story analyst when configured "
+                         "(STUDIO_ANALYST or --analyst; NEXMIND_STORY_ANALYST_* for provider), "
+                         "keywords forces the legacy entity-bank path")
+    ap.add_argument("--book", choices=["paperbook"], default=None,
+                    help="author the script offline as a still-page picture book (landscape)")
     ap.add_argument("--no-poster", action="store_true")
+    ap.add_argument("--no-review", action="store_true",
+                    help="skip the film-level certification pass (certification.json)")
+    ap.add_argument("--strict-review", action="store_true",
+                    help="exit non-zero when the film certification verdict is FAIL")
     args = ap.parse_args()
 
+    if args.book and args.aspects == ap.get_default("aspects"):
+        args.aspects = "16x9"
     style = style_of(args.style)
     film_id = args.film_id or f"reel-{uuid.uuid4().hex[:8]}"
     out_dir = Path(args.out); out_dir.mkdir(parents=True, exist_ok=True)
-    progress_file = out_dir.parent / "progress.json"
-    aspect_list = [a.strip() for a in args.aspects.split(",") if a.strip()]
-
-    def progress(**payload):
-        try:
-            progress_file.write_text(json.dumps(payload))
-        except OSError:
-            pass
 
     if args.treatment:
         treatment_src = Path(args.treatment)
@@ -343,47 +389,41 @@ def main():
         fixture_dir = ROOT / "fixtures" / film_id
         fixture_dir.mkdir(parents=True, exist_ok=True)
         log(f"fixture → {fixture_dir}")
-        progress(phase="voice")
         words = make_voice(args, fixture_dir)
         for mf in args.media:
             dst = fixture_dir / "media" / Path(mf).name
             dst.parent.mkdir(exist_ok=True)
             subprocess.run(["cp", str(mf), str(dst)], check=True)
         media = [fixture_dir / "media" / Path(mf).name for mf in args.media]
-        progress(phase="direction")
-        treatment = build_treatment(args, style, words, media, film_id)
+        treatment, storyboard, tsource = build_treatment(args, style, words, media, film_id)
         (fixture_dir / "treatment.json").write_text(json.dumps(treatment, indent=1))
+        if storyboard:
+            (fixture_dir / "storyboard.json").write_text(json.dumps(storyboard, indent=1))
         treatment_src = fixture_dir / "treatment.json"
+        log(f"treatment source: {tsource}")
 
     log(f"rendering {args.aspects} @ {style['id']} ...")
-    progress(phase="render", aspectsDone=0, aspectsTotal=len(aspect_list))
     env = dict(os.environ)
     env["PATH"] = os.path.expanduser("~/.nvm/versions/node/v24.19.0/bin") + ":" + env["PATH"]
-    r = subprocess.Popen([sys.executable, str(TOOLS / "regression_pack.py"),
-                          "--fixture", fixture_dir.name, "--aspects", args.aspects,
-                          "--out", str(out_dir.resolve())],
-                         env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    captured: list[str] = []
-    film_out = out_dir / fixture_dir.name
-    while True:
-        line = r.stdout.readline() if r.stdout else ""
-        if line:
-            captured.append(line)
-        else:
-            if r.poll() is not None:
-                break
-            time.sleep(1)
-        done = sum(1 for a in aspect_list if (film_out / f"render_{a}.json").exists())
-        progress(phase="render", aspectsDone=done, aspectsTotal=len(aspect_list))
-    tail = "".join(captured)[-2500:]
-    print(tail)
+    r = subprocess.run([sys.executable, str(TOOLS / "regression_pack.py"),
+                        "--fixture", fixture_dir.name, "--aspects", args.aspects,
+                        "--out", str(out_dir.resolve())],
+                       env=env, capture_output=True, text=True)
+    print(r.stdout[-2500:] or r.stderr[-2500:])
     if r.returncode != 0:
         sys.exit(f"render failed ({r.returncode})")
-    progress(phase="finishing", aspectsDone=len(aspect_list), aspectsTotal=len(aspect_list))
 
     stem = fixture_dir.name
+    try:
+        book = (json.loads(Path(treatment_src).read_text()).get("world") or {}).get("book")
+    except Exception:
+        book = None
     dims = {"16x9": (1920, 1080), "1x1": (1080, 1080), "9x16": (1080, 1920)}
     manifest = {"film_id": film_id, "style": style["id"], "outputs": {}}
+    if not args.treatment:
+        manifest["treatment_source"] = tsource
+        if storyboard:
+            manifest["storyboard"] = str(fixture_dir / "storyboard.json")
     for aspect in args.aspects.split(","):
         a = aspect.strip()
         rd = out_dir / stem
@@ -397,10 +437,23 @@ def main():
         if not args.no_poster:
             w, h = dims[a]
             poster = rd / f"{stem}_{a}_poster.mp4"
-            posterize(frames, web, poster, w, h, out_dir)
+            posterize(frames, web, poster, w, h, out_dir, first_frame=(book == "paperbook"))
             manifest["outputs"][a] = str(poster)
         else:
             manifest["outputs"][a] = str(web)
+    if not args.no_review:
+        sys.path.insert(0, str(TOOLS))
+        import film_review
+        cert = film_review.certify(out_dir / stem, [], out_dir / stem / "gate_report.json")
+        (out_dir / stem / "certification.json").write_text(json.dumps(cert, indent=1) + "\n")
+        bad = [c for c in cert["checks"] if c["status"] == "FAIL"]
+        log(f"certification: {cert['verdict']} "
+            f"({cert['counts']['PASS']} pass, {cert['counts']['WARN']} warn, "
+            f"{cert['counts']['FAIL']} fail, {cert['counts']['SKIP']} skip)")
+        for c in bad:
+            log(f"  FAIL [{c['scope']}] {c['id']}: {c['detail']}")
+        if cert["verdict"] == "FAIL" and args.strict_review:
+            sys.exit("certification failed")
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=1))
     log("done:")
     for a, p in manifest["outputs"].items():

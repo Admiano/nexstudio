@@ -31,6 +31,11 @@ FOLDER = {'16:9': 'landscape', '1:1': 'square', '9:16': 'portrait'}
 SCENES_ENGINE = Path(os.environ.get('WHITEBOARD_SCENES_RUNTIME_DIR',
                                     ROOT / 'engine_sources/whiteboard-board-scenes'))
 LESSON_BG = 'lesson_board'
+KIDS_BG = 'kids_book'
+EDITORIAL_ENGINE = Path(os.environ.get('EDITORIAL_MOTION_RUNTIME_DIR',
+                                       ROOT / 'engine_sources/editorial-motion-v2'))
+WHISPER_PY = Path(os.environ.get('NEXSTUDIO_WHISPER_PYTHON',
+                                 str(Path.home() / 'tools/whisper/bin/python3')))
 PROFILE = dict(CAST_QUALITY_PILOT='1', CAST_FINISH_UPGRADE='1', CAST_GARMENT_STRUCTURE_PILOT='1',
                CAST_SKIN_APPEARANCE='1', CAST_HAIR_GROOM='1', CAST_FACIAL_REFINEMENT='1', CAST_CLOTH_APPEARANCE='1')
 STEPS = ['voice', 'lipsync', 'gestures', 'character', 'motion', 'frames', 'compose']
@@ -207,6 +212,23 @@ def lesson_boards(wav, aspects):
     return json.loads((out / 'manifest.json').read_text())['outputs']
 
 
+def kids_books(wav, aspects):
+    """Kids math/storybook lesson: paperbook pages (ten-frames, addition joins,
+    number lines — edu.py) drawn behind the teacher. Same voice.wav drives both
+    passes; --no-poster keeps the film aligned to it (the poster holds + delays)."""
+    out = J / 'book'
+    asp = ','.join(a.replace(':', 'x') for a in aspects)
+    node_bin = Path.home() / '.nvm/versions/node/v24.19.0/bin'
+    run([str(WHISPER_PY) if WHISPER_PY.exists() else sys.executable,
+         EDITORIAL_ENGINE / 'tools/make_reel.py',
+         '--script-file', J / 'script.txt', '--voice-file', wav,
+         '--book', 'paperbook', '--aspects', asp, '--no-poster',
+         '--out', out],
+        env={**os.environ, 'PATH': str(node_bin) + os.pathsep + os.environ['PATH']})
+    man = json.loads((out / 'manifest.json').read_text())['outputs']
+    return {a: man[a.replace(':', 'x')] for a in aspects if a.replace(':', 'x') in man}
+
+
 def compose(frames_dir, boards=None):
     outputs = {}
     aspects = REQ.get('aspects') or ['16:9']
@@ -246,6 +268,8 @@ def main():
         boards = None
         if REQ.get('background') == LESSON_BG:
             boards = lesson_boards(wav, REQ.get('aspects') or ['16:9'])
+        elif REQ.get('background') == KIDS_BG:
+            boards = kids_books(wav, REQ.get('aspects') or ['16:9'])
         scene = character()
         total = motion(scene, timeline)
         fdir = frames(total)

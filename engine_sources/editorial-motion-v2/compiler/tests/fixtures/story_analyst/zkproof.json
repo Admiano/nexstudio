@@ -1,0 +1,128 @@
+{
+  "script": "When you sign in, your password never travels to our servers. Instead your device proves you know it, using a math trick called a zero knowledge proof. The server checks the proof, not the password. That's why even a breach can't leak it.",
+  "payload": {
+    "film": {
+      "thesis": "The proof travels, the password never does — so a breach leaks nothing.",
+      "motif": "the crossing packet that never leaves",
+      "mood": "focused",
+      "note": "technical explainer; precise geometry, pipeline then payoff"
+    },
+    "scenes": [
+      {"name": "the rule", "covers": ["b01"], "setting": "device and server apart", "visual_metaphor": "the packet that stays home"},
+      {"name": "the trick", "covers": ["b02"], "setting": "inside the device", "visual_metaphor": "proof minted locally"},
+      {"name": "the check", "covers": ["b03"], "setting": "server side", "visual_metaphor": "check the proof, not the password"},
+      {"name": "the consequence", "covers": ["b04"], "setting": "breach attempt", "visual_metaphor": "a breach that finds an empty vault"}
+    ],
+    "entities": [
+      {"concept": "key", "as": "the password that never leaves", "introduced": "b01"},
+      {"concept": "sealed proof", "as": "what actually travels", "introduced": "b02"},
+      {"concept": "empty vault", "as": "what a breach finds", "introduced": "b04"}
+    ],
+    "beats": [
+      {
+        "groups": [0], "beat_type": "HOOK", "pattern": "WORD_OBJECT_BRIDGE",
+        "dominant_layer": "HYBRID", "energy": 0.6, "complexity": 0.45,
+        "display_units": [
+          {"text": "your password", "role": "hero", "semantic_role": "statement", "emphasis": 0.9, "anchor_word": "password"},
+          {"text": "never travels", "role": "support", "semantic_role": "contrast", "emphasis": 0.7, "stress": ["never"], "anchor_word": "never"}
+        ],
+        "illustration": {
+          "form": "RELATIONSHIP",
+          "entities": [
+            {"id": "device", "kind": "system", "glyph": "ICON", "size": "support", "concept": "phone device"},
+            {"id": "server", "kind": "system", "glyph": "ICON", "size": "support", "concept": "server rack"},
+            {"id": "key", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "key"}
+          ],
+          "relations": [
+            {"type": "contains", "source": "device", "target": "key"},
+            {"type": "connects", "source": "device", "target": "server", "style": "dash"}
+          ],
+          "program": [
+            {"op": "DRAW", "target": "device", "at": {"word": "sign"}, "duration_ms": 500},
+            {"op": "DRAW", "target": "key", "at": {"word": "password"}, "duration_ms": 550},
+            {"op": "DRAW", "target": "server", "at": {"word": "servers"}, "duration_ms": 500},
+            {"op": "DIM", "target": "device->server", "at": {"word": "never"}, "duration_ms": 500}
+          ]
+        },
+        "metaphor": "the link between device and server dims on 'never' — the key stays inside the device"
+      },
+      {
+        "groups": [1], "beat_type": "EXPLANATION", "pattern": "PROCESS_RAIL",
+        "dominant_layer": "HYBRID", "energy": 0.65, "complexity": 0.6,
+        "display_units": [
+          {"text": "your device proves you know it", "role": "hero", "semantic_role": "statement", "emphasis": 0.9, "anchor_word": "proves"},
+          {"text": "a zero knowledge proof", "role": "support", "semantic_role": "qualifier", "emphasis": 0.6, "anchor_word": "proof"}
+        ],
+        "illustration": {
+          "form": "PROCESS_PIPELINE",
+          "entities": [
+            {"id": "device2", "kind": "system", "glyph": "ICON", "size": "support", "concept": "phone device"},
+            {"id": "proof", "kind": "object", "glyph": "TILE", "size": "hero", "concept": "sealed envelope"},
+            {"id": "server2", "kind": "system", "glyph": "ICON", "size": "support", "concept": "server rack"}
+          ],
+          "relations": [
+            {"type": "emits_to", "source": "device2", "target": "proof"},
+            {"type": "flows_to", "source": "proof", "target": "server2", "style": "link"}
+          ],
+          "program": [
+            {"op": "DRAW", "target": "device2", "at": {"word": "device"}, "duration_ms": 450},
+            {"op": "DRAW", "target": "proof", "at": {"word": "proof"}, "duration_ms": 550},
+            {"op": "DRAW", "target": "server2", "at": {"word": "using"}, "duration_ms": 400},
+            {"op": "CONNECT", "target": "device2->proof", "at": {"word": "proves"}, "duration_ms": 400},
+            {"op": "CONNECT", "target": "proof->server2", "at": {"word": "knowledge"}, "duration_ms": 400}
+          ]
+        },
+        "metaphor": "the device mints a sealed proof and only the proof travels the rail"
+      },
+      {
+        "groups": [2], "beat_type": "EXPLANATION", "pattern": "CONTRAST_RECONFIGURATION",
+        "dominant_layer": "HYBRID", "energy": 0.6, "complexity": 0.5,
+        "display_units": [
+          {"text": "checks the proof", "role": "hero", "semantic_role": "action", "emphasis": 0.9, "anchor_word": "checks"},
+          {"text": "not the password", "role": "support", "semantic_role": "contrast", "emphasis": 0.7, "stress": ["not"], "anchor_word": "not"}
+        ],
+        "illustration": {
+          "form": "COMPARISON",
+          "entities": [
+            {"id": "checkmark", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "check mark"},
+            {"id": "proof2", "kind": "object", "glyph": "TILE", "size": "support", "concept": "sealed envelope"},
+            {"id": "key2", "kind": "object", "glyph": "ICON", "size": "minor", "concept": "key"}
+          ],
+          "relations": [
+            {"type": "compares", "source": "proof2", "target": "key2", "style": "dash"},
+            {"type": "marks", "source": "checkmark", "target": "proof2"}
+          ],
+          "program": [
+            {"op": "DRAW", "target": "checkmark", "at": {"word": "checks"}, "duration_ms": 500},
+            {"op": "DRAW", "target": "proof2", "at": {"word": "proof"}, "duration_ms": 450},
+            {"op": "DRAW", "target": "key2", "at": {"word": "password"}, "duration_ms": 400},
+            {"op": "DIM", "target": "key2", "at": {"word": "not"}, "duration_ms": 400}
+          ]
+        },
+        "metaphor": "check lands on the proof while the key dims beside it"
+      },
+      {
+        "groups": [3], "beat_type": "PAYOFF", "pattern": "PAYOFF_LOCKUP",
+        "dominant_layer": "HYBRID", "energy": 0.7, "complexity": 0.45,
+        "display_units": [
+          {"text": "even a breach", "role": "support", "semantic_role": "setup", "emphasis": 0.55, "anchor_word": "breach"},
+          {"text": "can't leak it", "role": "hero", "semantic_role": "punch", "emphasis": 0.95, "anchor_word": "leak"}
+        ],
+        "illustration": {
+          "form": "OBJECT_STAGE",
+          "entities": [
+            {"id": "vault", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "empty vault"},
+            {"id": "crack", "kind": "signal", "glyph": "ICON", "size": "support", "concept": "breach crack"}
+          ],
+          "relations": [{"type": "points_at", "source": "crack", "target": "vault"}],
+          "program": [
+            {"op": "DRAW", "target": "crack", "at": {"word": "breach"}, "duration_ms": 500},
+            {"op": "DRAW", "target": "vault", "at": {"word": "leak"}, "duration_ms": 600},
+            {"op": "SETTLE", "target": "vault", "at": {"word": "it"}, "duration_ms": 400}
+          ]
+        },
+        "metaphor": "the breach opens onto an empty vault — the payoff image is the absence"
+      }
+    ]
+  }
+}

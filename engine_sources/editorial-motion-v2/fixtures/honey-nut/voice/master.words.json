@@ -1,0 +1,593 @@
+{
+ "text": "Honey Nut Cheerios has more sugar than honey. Sugar is the second ingredient. Honey is further down and there's brown sugar syrup after that. General Mills says the 12 grams of sugar in a serving come from sugar, real honey, and brown sugar syrup and it's 24% of your recommended daily amount. There are no nuts in it either. The nut in honey nut is natural almond flavour, which is why the allergen line says contains almond ingredients instead of contains almonds. The box says made with real honey. That's true, it just isn't the main sweetener.",
+ "words": [
+  {
+   "text": "Honey",
+   "start_ms": 0,
+   "end_ms": 320,
+   "p": 0.73
+  },
+  {
+   "text": "Nut",
+   "start_ms": 320,
+   "end_ms": 520,
+   "p": 0.59
+  },
+  {
+   "text": "Cheerios",
+   "start_ms": 520,
+   "end_ms": 1120,
+   "p": 0.97
+  },
+  {
+   "text": "has",
+   "start_ms": 1120,
+   "end_ms": 1420,
+   "p": 0.92
+  },
+  {
+   "text": "more",
+   "start_ms": 1420,
+   "end_ms": 1740,
+   "p": 0.99
+  },
+  {
+   "text": "sugar",
+   "start_ms": 1740,
+   "end_ms": 2080,
+   "p": 0.99
+  },
+  {
+   "text": "than",
+   "start_ms": 2080,
+   "end_ms": 2420,
+   "p": 0.99
+  },
+  {
+   "text": "honey.",
+   "start_ms": 2420,
+   "end_ms": 2720,
+   "p": 0.92
+  },
+  {
+   "text": "Sugar",
+   "start_ms": 3120,
+   "end_ms": 3280,
+   "p": 0.95
+  },
+  {
+   "text": "is",
+   "start_ms": 3280,
+   "end_ms": 3540,
+   "p": 0.99
+  },
+  {
+   "text": "the",
+   "start_ms": 3540,
+   "end_ms": 3700,
+   "p": 0.99
+  },
+  {
+   "text": "second",
+   "start_ms": 3700,
+   "end_ms": 3980,
+   "p": 0.97
+  },
+  {
+   "text": "ingredient.",
+   "start_ms": 3980,
+   "end_ms": 4400,
+   "p": 1.0
+  },
+  {
+   "text": "Honey",
+   "start_ms": 4820,
+   "end_ms": 4980,
+   "p": 0.98
+  },
+  {
+   "text": "is",
+   "start_ms": 4980,
+   "end_ms": 5220,
+   "p": 1.0
+  },
+  {
+   "text": "further",
+   "start_ms": 5220,
+   "end_ms": 5460,
+   "p": 0.99
+  },
+  {
+   "text": "down",
+   "start_ms": 5460,
+   "end_ms": 5880,
+   "p": 1.0
+  },
+  {
+   "text": "and",
+   "start_ms": 5880,
+   "end_ms": 6240,
+   "p": 0.44
+  },
+  {
+   "text": "there's",
+   "start_ms": 6240,
+   "end_ms": 6440,
+   "p": 0.95
+  },
+  {
+   "text": "brown",
+   "start_ms": 6440,
+   "end_ms": 6680,
+   "p": 0.92
+  },
+  {
+   "text": "sugar",
+   "start_ms": 6680,
+   "end_ms": 7020,
+   "p": 1.0
+  },
+  {
+   "text": "syrup",
+   "start_ms": 7020,
+   "end_ms": 7480,
+   "p": 0.99
+  },
+  {
+   "text": "after",
+   "start_ms": 7480,
+   "end_ms": 7880,
+   "p": 0.98
+  },
+  {
+   "text": "that.",
+   "start_ms": 7880,
+   "end_ms": 8160,
+   "p": 0.99
+  },
+  {
+   "text": "General",
+   "start_ms": 8540,
+   "end_ms": 8760,
+   "p": 0.9
+  },
+  {
+   "text": "Mills",
+   "start_ms": 8760,
+   "end_ms": 9000,
+   "p": 0.95
+  },
+  {
+   "text": "says",
+   "start_ms": 9000,
+   "end_ms": 9380,
+   "p": 0.99
+  },
+  {
+   "text": "the",
+   "start_ms": 9380,
+   "end_ms": 9540,
+   "p": 0.79
+  },
+  {
+   "text": "12",
+   "start_ms": 9540,
+   "end_ms": 9860,
+   "p": 0.86
+  },
+  {
+   "text": "grams",
+   "start_ms": 9860,
+   "end_ms": 10080,
+   "p": 0.81
+  },
+  {
+   "text": "of",
+   "start_ms": 10080,
+   "end_ms": 10320,
+   "p": 1.0
+  },
+  {
+   "text": "sugar",
+   "start_ms": 10320,
+   "end_ms": 10560,
+   "p": 1.0
+  },
+  {
+   "text": "in",
+   "start_ms": 10560,
+   "end_ms": 10720,
+   "p": 0.99
+  },
+  {
+   "text": "a",
+   "start_ms": 10720,
+   "end_ms": 10820,
+   "p": 0.99
+  },
+  {
+   "text": "serving",
+   "start_ms": 10820,
+   "end_ms": 11200,
+   "p": 1.0
+  },
+  {
+   "text": "come",
+   "start_ms": 11200,
+   "end_ms": 11580,
+   "p": 0.86
+  },
+  {
+   "text": "from",
+   "start_ms": 11580,
+   "end_ms": 11760,
+   "p": 1.0
+  },
+  {
+   "text": "sugar,",
+   "start_ms": 11760,
+   "end_ms": 12100,
+   "p": 0.97
+  },
+  {
+   "text": "real",
+   "start_ms": 12380,
+   "end_ms": 12620,
+   "p": 0.99
+  },
+  {
+   "text": "honey,",
+   "start_ms": 12620,
+   "end_ms": 12960,
+   "p": 0.99
+  },
+  {
+   "text": "and",
+   "start_ms": 13300,
+   "end_ms": 13380,
+   "p": 1.0
+  },
+  {
+   "text": "brown",
+   "start_ms": 13380,
+   "end_ms": 13640,
+   "p": 0.99
+  },
+  {
+   "text": "sugar",
+   "start_ms": 13640,
+   "end_ms": 13980,
+   "p": 1.0
+  },
+  {
+   "text": "syrup",
+   "start_ms": 13980,
+   "end_ms": 14360,
+   "p": 1.0
+  },
+  {
+   "text": "and",
+   "start_ms": 14360,
+   "end_ms": 14760,
+   "p": 0.43
+  },
+  {
+   "text": "it's",
+   "start_ms": 14760,
+   "end_ms": 14980,
+   "p": 0.97
+  },
+  {
+   "text": "24",
+   "start_ms": 14980,
+   "end_ms": 15460,
+   "p": 0.98
+  },
+  {
+   "text": "%",
+   "start_ms": 15460,
+   "end_ms": 15960,
+   "p": 0.78
+  },
+  {
+   "text": "of",
+   "start_ms": 15960,
+   "end_ms": 16260,
+   "p": 1.0
+  },
+  {
+   "text": "your",
+   "start_ms": 16260,
+   "end_ms": 16379,
+   "p": 0.99
+  },
+  {
+   "text": "recommended",
+   "start_ms": 16379,
+   "end_ms": 16820,
+   "p": 1.0
+  },
+  {
+   "text": "daily",
+   "start_ms": 16820,
+   "end_ms": 17120,
+   "p": 1.0
+  },
+  {
+   "text": "amount.",
+   "start_ms": 17120,
+   "end_ms": 17500,
+   "p": 1.0
+  },
+  {
+   "text": "There",
+   "start_ms": 17780,
+   "end_ms": 17940,
+   "p": 0.99
+  },
+  {
+   "text": "are",
+   "start_ms": 17940,
+   "end_ms": 18020,
+   "p": 1.0
+  },
+  {
+   "text": "no",
+   "start_ms": 18020,
+   "end_ms": 18160,
+   "p": 1.0
+  },
+  {
+   "text": "nuts",
+   "start_ms": 18160,
+   "end_ms": 18460,
+   "p": 0.99
+  },
+  {
+   "text": "in",
+   "start_ms": 18460,
+   "end_ms": 18620,
+   "p": 1.0
+  },
+  {
+   "text": "it",
+   "start_ms": 18620,
+   "end_ms": 18740,
+   "p": 1.0
+  },
+  {
+   "text": "either.",
+   "start_ms": 18740,
+   "end_ms": 18980,
+   "p": 0.93
+  },
+  {
+   "text": "The",
+   "start_ms": 19380,
+   "end_ms": 19480,
+   "p": 0.99
+  },
+  {
+   "text": "nut",
+   "start_ms": 19480,
+   "end_ms": 19760,
+   "p": 0.89
+  },
+  {
+   "text": "in",
+   "start_ms": 19760,
+   "end_ms": 20080,
+   "p": 0.89
+  },
+  {
+   "text": "honey",
+   "start_ms": 20080,
+   "end_ms": 20340,
+   "p": 0.49
+  },
+  {
+   "text": "nut",
+   "start_ms": 20340,
+   "end_ms": 20680,
+   "p": 0.94
+  },
+  {
+   "text": "is",
+   "start_ms": 20680,
+   "end_ms": 21140,
+   "p": 0.97
+  },
+  {
+   "text": "natural",
+   "start_ms": 21140,
+   "end_ms": 21600,
+   "p": 0.98
+  },
+  {
+   "text": "almond",
+   "start_ms": 21600,
+   "end_ms": 21980,
+   "p": 0.99
+  },
+  {
+   "text": "flavour,",
+   "start_ms": 21980,
+   "end_ms": 22420,
+   "p": 0.76
+  },
+  {
+   "text": "which",
+   "start_ms": 22760,
+   "end_ms": 22900,
+   "p": 1.0
+  },
+  {
+   "text": "is",
+   "start_ms": 22900,
+   "end_ms": 23040,
+   "p": 1.0
+  },
+  {
+   "text": "why",
+   "start_ms": 23040,
+   "end_ms": 23200,
+   "p": 1.0
+  },
+  {
+   "text": "the",
+   "start_ms": 23200,
+   "end_ms": 23320,
+   "p": 0.99
+  },
+  {
+   "text": "allergen",
+   "start_ms": 23320,
+   "end_ms": 23700,
+   "p": 0.66
+  },
+  {
+   "text": "line",
+   "start_ms": 23700,
+   "end_ms": 23980,
+   "p": 0.94
+  },
+  {
+   "text": "says",
+   "start_ms": 23980,
+   "end_ms": 24340,
+   "p": 0.99
+  },
+  {
+   "text": "contains",
+   "start_ms": 24340,
+   "end_ms": 24880,
+   "p": 0.21
+  },
+  {
+   "text": "almond",
+   "start_ms": 24880,
+   "end_ms": 25480,
+   "p": 0.95
+  },
+  {
+   "text": "ingredients",
+   "start_ms": 25480,
+   "end_ms": 26160,
+   "p": 0.99
+  },
+  {
+   "text": "instead",
+   "start_ms": 26160,
+   "end_ms": 26960,
+   "p": 0.88
+  },
+  {
+   "text": "of",
+   "start_ms": 26960,
+   "end_ms": 27220,
+   "p": 1.0
+  },
+  {
+   "text": "contains",
+   "start_ms": 27220,
+   "end_ms": 27780,
+   "p": 0.95
+  },
+  {
+   "text": "almonds.",
+   "start_ms": 27780,
+   "end_ms": 28300,
+   "p": 0.98
+  },
+  {
+   "text": "The",
+   "start_ms": 28300,
+   "end_ms": 28940,
+   "p": 0.57
+  },
+  {
+   "text": "box",
+   "start_ms": 28940,
+   "end_ms": 29200,
+   "p": 0.99
+  },
+  {
+   "text": "says",
+   "start_ms": 29200,
+   "end_ms": 29500,
+   "p": 0.99
+  },
+  {
+   "text": "made",
+   "start_ms": 29500,
+   "end_ms": 29920,
+   "p": 0.12
+  },
+  {
+   "text": "with",
+   "start_ms": 29920,
+   "end_ms": 30220,
+   "p": 0.99
+  },
+  {
+   "text": "real",
+   "start_ms": 30220,
+   "end_ms": 30460,
+   "p": 0.99
+  },
+  {
+   "text": "honey.",
+   "start_ms": 30460,
+   "end_ms": 30760,
+   "p": 0.98
+  },
+  {
+   "text": "That's",
+   "start_ms": 31120,
+   "end_ms": 31300,
+   "p": 0.96
+  },
+  {
+   "text": "true,",
+   "start_ms": 31300,
+   "end_ms": 31560,
+   "p": 0.99
+  },
+  {
+   "text": "it",
+   "start_ms": 31800,
+   "end_ms": 31940,
+   "p": 0.96
+  },
+  {
+   "text": "just",
+   "start_ms": 31940,
+   "end_ms": 32100,
+   "p": 0.99
+  },
+  {
+   "text": "isn't",
+   "start_ms": 32100,
+   "end_ms": 32439,
+   "p": 1.0
+  },
+  {
+   "text": "the",
+   "start_ms": 32439,
+   "end_ms": 32500,
+   "p": 0.99
+  },
+  {
+   "text": "main",
+   "start_ms": 32500,
+   "end_ms": 32700,
+   "p": 0.96
+  },
+  {
+   "text": "sweetener.",
+   "start_ms": 32700,
+   "end_ms": 33200,
+   "p": 0.93
+  }
+ ]
+}

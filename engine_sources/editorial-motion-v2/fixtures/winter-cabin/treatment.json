@@ -1,0 +1,315 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "winter-cabin",
+ "note": "authored offline by bookauthor from the plain script",
+ "aspects": [
+  "16x9"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#3a2a1e",
+  "paper": "#f4ead6",
+  "accent": "#c8553d",
+  "finish": "PAPER"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "world": {
+  "grain": "grain-fine",
+  "motif": {
+   "concept": "house",
+   "corner": "bottom-right"
+  },
+  "book": "paperbook"
+ },
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "HOOK",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Snow covered the little cabin on the mountain.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The House",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "house",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "house"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "house",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Mere lit the lantern by the window.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Lantern",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "lantern",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "lantern"
+     },
+     {
+      "id": "window",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "window"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "lantern",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "window",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Her brother poured cocoa into a mug.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Boy",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "boy",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "boy"
+     },
+     {
+      "id": "hot_beverage",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "hot-beverage"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "boy",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "hot_beverage",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Outside, a snowman melted in the morning sun.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Snowman",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dawn"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "snowman",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "snowman"
+     },
+     {
+      "id": "sun",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "sun"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "snowman",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "sun",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b05",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Six icicles hung from the roof, six take -away two leaves four.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "Fewer Ice",
+    "layout": "half",
+    "edu": {
+     "kind": "subtract",
+     "object": "ice",
+     "a": 6,
+     "b": 2
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dawn"
+   }
+  },
+  {
+   "beat_id": "b06",
+   "beat_type": "PAYOFF",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Then the owl opened its wings and flew into the woods.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Owl",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dawn"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "owl",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "owl"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "owl",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,278 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "windy-hill",
+ "note": "authored offline by bookauthor from the plain script",
+ "aspects": [
+  "16x9"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#3a2a1e",
+  "paper": "#f4ead6",
+  "accent": "#c8553d",
+  "finish": "PAPER"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "world": {
+  "grain": "grain-fine",
+  "motif": {
+   "concept": "kite",
+   "corner": "bottom-right"
+  },
+  "book": "paperbook"
+ },
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "HOOK",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "On a windy morning, Sam flew a red kite over the hill.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Kite",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dawn"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "kite",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "kite"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "kite",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "A bird raced the kite across the sky.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Bird",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dawn"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "bird",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "bird"
+     },
+     {
+      "id": "kite",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "kite"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "bird",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "kite",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Five sheep watched from the field, one, two, three, four, five.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "Count The Sheep",
+    "layout": "half",
+    "edu": {
+     "kind": "count",
+     "object": "sheep",
+     "a": 5
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dawn"
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Two more sheep came to play, five plus two makes seven.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "More Sheep",
+    "layout": "half",
+    "edu": {
+     "kind": "add",
+     "object": "sheep",
+     "a": 5,
+     "b": 2
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "dawn"
+   }
+  },
+  {
+   "beat_id": "b05",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Then the rain fell and a mushroom grew beside the tree.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Mushroom",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "storm"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "mushroom",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "mushroom"
+     },
+     {
+      "id": "tree",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "tree"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "mushroom",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "tree",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b06",
+   "beat_type": "PAYOFF",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "At night, the stars came out over the sleepy farm.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Star",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "night"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "star",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "star"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "star",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  }
+ ]
+}

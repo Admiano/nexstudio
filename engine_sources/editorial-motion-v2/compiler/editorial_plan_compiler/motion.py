@@ -4,7 +4,8 @@ One grammar for the whole film — matched moves rather than a per-profile effec
   push_through  the picture pushes into the next beat (energy rises)
   pull_back     the picture settles back out of the beat (energy falls)
   drift         a lateral matched move, direction alternating per beat (kinetic profiles, level energy)
-  dissolve      soft focus dissolve (editorial profiles, level energy; carries, whose move is the element)
+  dissolve      soft focus dissolve (carries — whose move is the element — and the last-resort cut)
+  page          the scene lifts off like a turned page (paper profiles, level energy)
   cut           the authored hard cut — only when the treatment asks (beat.cut = 'hard')
 The window is energy-scaled: hotter beats cut faster, never longer than the speaker's own exit.
 """
@@ -47,5 +48,7 @@ def camera_move(cur: BeatTreatment, nxt: Optional[BeatTreatment], mode: str, bea
     elif delta <= -ENERGY_STEP:
         move = 'pull_back'
     else:
-        move = 'drift' if kinetic else 'dissolve'
+        # Level energy is a page turn: the outgoing scene peels away and the next
+        # settles underneath. Drift survives only for kinetic profiles (text-led boards).
+        move = 'drift' if kinetic else 'page'
     return {'move': move, 'dir': direction, 'blur': 1.0}

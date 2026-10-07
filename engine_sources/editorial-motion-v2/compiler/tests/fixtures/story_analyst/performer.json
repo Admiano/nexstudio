@@ -1,0 +1,148 @@
+{
+ "script": "Everyone starts somewhere on a journey. She studies the path ahead. Sometimes the road forks and doubts appear. But the traveller keeps walking. The way was inside you all along.",
+ "payload": {
+  "film": {
+   "thesis": "A journey is made by walking it, and the guide you needed was always yourself.",
+   "motif": "winding footpath",
+   "mood": "wistful",
+   "note": "a lone traveller walks the film's beats as one persistent performer"
+  },
+  "cast": {
+   "scout": {
+    "posture": "standing",
+    "head": "bun-2",
+    "skin": "#edb98a"
+   }
+  },
+  "scenes": [
+   {"name": "Departure", "covers": [0], "setting": "an empty stage", "visual_metaphor": "every beginning is a doorway"},
+   {"name": "The search", "covers": [1, 2], "setting": "a winding path", "visual_metaphor": "looking closely at what lies ahead"},
+   {"name": "The walk", "covers": [3, 4], "setting": "the open road", "visual_metaphor": "progress is the answer"}
+  ],
+  "entities": [
+   {"concept": "magnifying glass", "stands_for": "attention"},
+   {"concept": "fork in the road", "stands_for": "doubt"},
+   {"concept": "gift box", "stands_for": "the answer that was always there"}
+  ],
+  "beats": [
+   {
+    "groups": [0],
+    "beat_type": "HOOK",
+    "pattern": "CONTROLLED_EMPTY_SPACE",
+    "dominant_layer": "FIGURE",
+    "energy": 0.4,
+    "complexity": 0.3,
+    "display_units": [
+     {"text": "Everyone starts", "role": "support", "semantic_role": "setup", "emphasis": 0.4},
+     {"text": "somewhere", "role": "hero", "semantic_role": "statement", "emphasis": 0.9, "anchor_word": "somewhere"}
+    ],
+    "figure": {
+     "valence": 0.15,
+     "arousal": 0.45,
+     "posture": "standing",
+     "energy": 0.45,
+     "formality": 0.4,
+     "facing": "CAMERA",
+     "justification": "the traveller arrives on stage for the first time",
+     "character": "scout",
+     "track": {"enter": "left", "exit": "none"}
+    }
+   },
+   {
+    "groups": [1],
+    "beat_type": "SETUP",
+    "pattern": "QUIET_SUPPORT_AFTER_HERO",
+    "dominant_layer": "FIGURE",
+    "energy": 0.35,
+    "complexity": 0.35,
+    "display_units": [
+     {"text": "studies the path", "role": "hero", "semantic_role": "action", "emphasis": 0.85, "anchor_word": "path"}
+    ],
+    "figure": {
+     "valence": 0.1,
+     "arousal": 0.4,
+     "posture": "standing",
+     "energy": 0.35,
+     "formality": 0.4,
+     "facing": "TOWARD_EVIDENCE",
+     "justification": "the traveller leans in to examine what lies ahead",
+     "character": "scout",
+     "pose": "standing-easing-1",
+     "prop": {"concept": "magnifying glass", "hand": "right"}
+    }
+   },
+   {
+    "groups": [2],
+    "beat_type": "CONTRAST",
+    "pattern": "CONTRAST_RECONFIGURATION",
+    "dominant_layer": "FIGURE",
+    "energy": 0.55,
+    "complexity": 0.55,
+    "display_units": [
+     {"text": "the road forks", "role": "hero", "semantic_role": "contrast", "emphasis": 0.9, "anchor_word": "forks"}
+    ],
+    "figure": {
+     "valence": -0.25,
+     "arousal": 0.55,
+     "posture": "standing",
+     "energy": 0.55,
+     "formality": 0.35,
+     "facing": "TOWARD_TEXT",
+     "justification": "the traveller confronts uncertainty at the fork",
+     "character": "scout",
+     "states": [
+      {"at": {"word": "doubts"}, "face": "concerned"},
+      {"at": {"word": "appear"}, "pose": "standing-crossed-arms-1"}
+     ]
+    }
+   },
+   {
+    "groups": [3],
+    "beat_type": "EMPHASIS",
+    "pattern": "PROCESS_RAIL",
+    "dominant_layer": "FIGURE",
+    "energy": 0.6,
+    "complexity": 0.4,
+    "display_units": [
+     {"text": "keeps walking", "role": "hero", "semantic_role": "action", "emphasis": 0.9, "anchor_word": "walking"}
+    ],
+    "figure": {
+     "valence": 0.3,
+     "arousal": 0.6,
+     "posture": "standing",
+     "energy": 0.65,
+     "formality": 0.3,
+     "facing": "AWAY",
+     "justification": "the traveller walks on regardless, through the frame",
+     "character": "scout",
+     "track": {"enter": "left", "exit": "right"}
+    }
+   },
+   {
+    "groups": [4],
+    "beat_type": "PAYOFF",
+    "pattern": "PAYOFF_LOCKUP",
+    "dominant_layer": "FIGURE",
+    "energy": 0.5,
+    "complexity": 0.35,
+    "display_units": [
+     {"text": "inside you", "role": "hero", "semantic_role": "punch", "emphasis": 0.95, "anchor_word": "inside"},
+     {"text": "all along", "role": "support", "semantic_role": "statement", "emphasis": 0.6}
+    ],
+    "figure": {
+     "valence": 0.55,
+     "arousal": 0.5,
+     "posture": "standing",
+     "energy": 0.5,
+     "formality": 0.4,
+     "facing": "CAMERA",
+     "justification": "the traveller turns to the viewer and offers the answer",
+     "character": "scout",
+     "face": "smile",
+     "track": {"enter": "right", "exit": "none"},
+     "prop": {"concept": "gift box", "hand": "left"}
+    }
+   }
+  ]
+ }
+}

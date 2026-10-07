@@ -1,0 +1,312 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "pond-day",
+ "note": "authored offline by bookauthor from the plain script",
+ "aspects": [
+  "16x9"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#3a2a1e",
+  "paper": "#f4ead6",
+  "accent": "#c8553d",
+  "finish": "PAPER"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "world": {
+  "grain": "grain-fine",
+  "motif": {
+   "concept": "frog",
+   "corner": "bottom-right"
+  },
+  "book": "paperbook"
+ },
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "HOOK",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Early one sunny day, a frog sat by the quiet pond.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Frog",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "frog",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "frog"
+     },
+     {
+      "id": "pond",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "pond"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "frog",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "pond",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "A duck swam slowly past the reeds.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Duck",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "duck",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "duck"
+     },
+     {
+      "id": "reed",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "reed"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "duck",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "reed",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Four ducklings followed her, one, two, three, four.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "Count The Ducks",
+    "layout": "half",
+    "edu": {
+     "kind": "count",
+     "object": "duck",
+     "a": 4
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Three fish jumped out of the water, three minus one leaves two.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "Fewer Fish",
+    "layout": "half",
+    "edu": {
+     "kind": "subtract",
+     "object": "fish",
+     "a": 3,
+     "b": 1
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   }
+  },
+  {
+   "beat_id": "b05",
+   "beat_type": "SETUP",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "A dragonfly flew over the lily pad.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Dragonfly",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "dragonfly",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "dragonfly"
+     },
+     {
+      "id": "lily_pad",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "lily pad"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "dragonfly",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "lily_pad",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b06",
+   "beat_type": "PAYOFF",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "In the evening, the moon rose above the pond.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "page": {
+    "title": "The Moon",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "night"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "moon",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "moon"
+     },
+     {
+      "id": "pond",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "pond"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "moon",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     },
+     {
+      "op": "DRAW",
+      "target": "pond",
+      "at": {
+       "offset_ms": 400
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  }
+ ]
+}
