@@ -4,17 +4,18 @@
   {
    "id": "flat_icons",
    "name": "Flat Icons",
-   "tagline": "Ink-line icons in tiles — the clean flat look",
-   "finish": "PRODUCT_COLLAGE",
+   "tagline": "Line art on warm paper — the quiet editorial look",
+   "finish": "EDITORIAL_FLAT",
+   "reveal": "WORD_CASCADE",
    "palette": {
-    "ink": "#1a1817",
-    "paper": "#f5f4f1",
-    "accent": "#3a3733"
+    "ink": "#1b150f",
+    "paper": "#f6f1e7",
+    "accent": "#8a5a2b"
    },
    "asset_family": "mono_icons",
-   "reveal": "WORD_CASCADE",
-   "captions": "none",
-   "glyph": "TILE"
+   "captions": "burned",
+   "mood": "elegant",
+   "sfx": "paper"
   },
   {
    "id": "colored_icons",
