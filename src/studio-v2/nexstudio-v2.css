@@ -2377,12 +2377,13 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 /* Mobile review: the film takes the full width, formats and actions stack beneath it. */
 @media(max-width:850px){
   .finished-stage{overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .review-wrap{display:block;height:auto;min-height:calc(var(--app-h,100dvh) - 58px)}
+  .review-wrap{display:flex;flex-direction:column;height:auto;min-height:calc(var(--app-h,100dvh) - 58px)}
   .review-canvas{flex-direction:column;align-items:stretch;justify-content:flex-start;padding:14px 12px 18px;overflow:visible}
   .review-video-shell,.review-video-shell.square{width:100%}
   .review-video-shell.vertical{width:min(100%,calc((var(--app-h,100dvh) - 200px) * 9 / 16));align-self:center}
   .review-video{border-radius:16px}
   .aspect-switch{width:100%;margin-top:14px;gap:8px}
   .aspect-chip{flex:1;height:44px;font-size:12px}
-  .review-side{border-top:0}
+  .aspect-chip:not(.on){background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);color:rgba(255,255,255,.78)}
+  .review-side{border-top:0;flex:1}
 }
