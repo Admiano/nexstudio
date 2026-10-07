@@ -82,7 +82,7 @@ const MIND_STEPS = [
 ];
 
 const DEFAULT_VIDEO_TYPE: Record<string, string> = {
-  explainer: "flat_icons",
+  explainer: "tiles",
   whiteboard: "kinetic-text",
   presenter: "presenter",
 };
@@ -107,7 +107,7 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
           } catch { /* fall through to defaults */ }
         }
         family = family ?? "explainer";
-        videoType = DEFAULT_VIDEO_TYPE[family.toLowerCase()] ?? videoType ?? "flat_icons";
+        videoType = DEFAULT_VIDEO_TYPE[family.toLowerCase()] ?? videoType ?? "tiles";
         if (!alive) return;
         setMindStep(1);
         const engineKind = engineKindOf(family);
@@ -227,7 +227,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const kind = engineKindOf(flow.family);
   const [engine, setEngine] = useState(() => ({
     wbType: "kinetic-text", wbTheme: "light", wbAccent: "#2f6fb3",
-    style: "flat_icons", voice: "emma", speed: "1.0",
+    style: "tiles", voice: "emma", speed: "1.0",
     ...(flow.engine ?? {}),
   }));
   // Studio defaults: saved voice/length fill anything the flow didn't already set.
@@ -269,7 +269,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     studioApi.script({
       brief: flow.prompt,
       family: flow.family ?? kind,
-      videoType: flow.videoType ?? (kind === "whiteboard" ? "hand-drawn-board" : kind === "presenter" ? "presenter" : "flat_icons"),
+      videoType: flow.videoType ?? (kind === "whiteboard" ? "hand-drawn-board" : kind === "presenter" ? "presenter" : "tiles"),
       duration: flow.duration ?? 45,
       beats: flow.beats?.map((b) => ({ purposeTitle: b.purposeTitle, description: b.description })),
     }).then((r) => {
@@ -488,7 +488,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                   <div className="opt-group">
                     <label>Style <span className="opt-hint">hover to preview · tap to select</span></label>
                     <div className="opt-row previews">
-                      {(styles.length ? styles : [{ id: "flat_icons", name: "Flat Icons" }]).map((s) => (
+                      {(styles.length ? styles : [{ id: "tiles", name: "Tiles" }]).map((s) => (
                         <PreviewChip key={s.id} video={`/previews/xr-${s.id}.mp4`} label={s.name} desc={s.tagline} selected={engine.style === s.id} onSelect={() => setOpt("style", s.id)} />
                       ))}
                     </div>

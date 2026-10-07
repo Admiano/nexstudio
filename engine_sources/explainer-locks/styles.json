@@ -2,8 +2,72 @@
  "version": 1,
  "styles": [
   {
-   "id": "flat_icons",
-   "name": "Flat Icons",
+   "id": "tiles",
+   "name": "Tiles",
+   "tagline": "Colour icons in tiles — the default explainer collage look",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#191512",
+    "paper": "#f2f1ee",
+    "accent": "#2f6fb3"
+   },
+   "asset_family": "colour_icons",
+   "template_fixture": "ai-leverage",
+   "captions": "none",
+   "mood": "bright",
+   "sfx": "clean"
+  },
+  {
+   "id": "photo_story",
+   "name": "Photo Story",
+   "tagline": "Real photos in tiles — evidence-led, documentary feel",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#1b150f",
+    "paper": "#f3eee6",
+    "accent": "#c4692b"
+   },
+   "asset_family": "photos",
+   "template_fixture": "ai-leverage-v2",
+   "captions": "none"
+  },
+  {
+   "id": "sketch",
+   "name": "Sketch",
+   "tagline": "Black wireframe icons in tiles — clean, technical, brand-safe",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#17161a",
+    "paper": "#fbfaf7",
+    "accent": "#2f6fb3"
+   },
+   "asset_family": "mono_icons",
+   "template_fixture": "style-glyph",
+   "captions": "none"
+  },
+  {
+   "id": "emoji",
+   "name": "Emoji",
+   "tagline": "Emoji tiles — playful, casual, social-native",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#191512",
+    "paper": "#fdfbf8",
+    "accent": "#e0496b"
+   },
+   "asset_family": "emoji",
+   "template_fixture": "style-pop",
+   "captions": "none",
+   "mood": "playful",
+   "sfx": "playful"
+  },
+  {
+   "id": "ink",
+   "name": "Ink",
    "tagline": "Line art on warm paper — the quiet editorial look",
    "finish": "EDITORIAL_FLAT",
    "reveal": "WORD_CASCADE",
@@ -13,96 +77,41 @@
     "accent": "#8a5a2b"
    },
    "asset_family": "mono_icons",
+   "template_fixture": "style-ink",
    "captions": "burned",
+   "variants": [
+    {
+     "id": "paper",
+     "name": "Paper",
+     "tagline": "Ink look on textured stock",
+     "finish": "PAPER",
+     "palette": {
+      "ink": "#241d12",
+      "paper": "#efe7d2",
+      "accent": "#6e4f26"
+     },
+     "template_fixture": "style-paper"
+    }
+   ],
    "mood": "elegant",
    "sfx": "paper"
   },
   {
-   "id": "colored_icons",
-   "name": "Colored Icons",
-   "tagline": "Colour icons in tiles — the classic explainer collage",
+   "id": "poster",
+   "name": "Poster",
+   "tagline": "One big tile + big type per beat — poster-card staging",
    "finish": "PRODUCT_COLLAGE",
+   "reveal": "BLOCK",
    "palette": {
-    "ink": "#191512",
-    "paper": "#f2f1ee",
-    "accent": "#2f6fb3"
+    "ink": "#14120f",
+    "paper": "#f4f2ed",
+    "accent": "#c2542a"
    },
-   "asset_family": "colour_icons",
-   "reveal": "WORD_CASCADE",
+   "asset_family": "mono_icons",
+   "template_fixture": "style-headline",
    "captions": "none",
-   "glyph": "TILE"
-  },
-  {
-   "id": "journey",
-   "name": "Journey",
-   "tagline": "One hero shape travels the film, morphing with the story",
-   "finish": "FLOAT_FIELD",
-   "palette": {
-    "ink": "#1a1713",
-    "paper": "#faf8f4",
-    "accent": "#d95b3f"
-   },
-   "asset_family": "colour_icons",
-   "reveal": "WORD_CASCADE",
-   "captions": "none",
-   "glyph": "BADGE",
-   "link_style": "arc",
-   "mood": "dreamy",
-   "sfx": "glassy",
-   "journey": true
-  },
-  {
-   "id": "collage",
-   "name": "Collage",
-   "tagline": "Media cards and colour chips collaged on the float field",
-   "finish": "FLOAT_FIELD",
-   "palette": {
-    "ink": "#1a1713",
-    "paper": "#faf8f4",
-    "accent": "#d95b3f"
-   },
-   "asset_family": "colour_icons",
-   "reveal": "WORD_CASCADE",
-   "captions": "none",
-   "glyph": "CHIP",
-   "link_style": "arc",
-   "mood": "dreamy",
-   "sfx": "glassy",
-   "collage": true
-  },
-  {
-   "id": "dataviz",
-   "name": "Data Viz",
-   "tagline": "Numbers become counters, bars and charts",
-   "finish": "EDITORIAL_FLAT",
-   "palette": {
-    "ink": "#14151a",
-    "paper": "#f4f5f7",
-    "accent": "#2f6fb3"
-   },
-   "asset_family": "colour_icons",
-   "reveal": "WORD_CASCADE",
-   "captions": "none",
-   "glyph": "TILE",
-   "dataviz": true
-  },
-  {
-   "id": "float",
-   "name": "Float AE",
-   "tagline": "Floating chips, dashed paths, motion flourishes — the AE look",
-   "finish": "FLOAT_FIELD",
-   "palette": {
-    "ink": "#1a1713",
-    "paper": "#faf8f4",
-    "accent": "#d95b3f"
-   },
-   "asset_family": "colour_icons",
-   "reveal": "WORD_CASCADE",
-   "captions": "none",
-   "glyph": "BADGE",
-   "link_style": "arc",
-   "mood": "dreamy",
-   "sfx": "glassy"
+   "mood": "driving",
+   "sfx": "bold"
   }
  ],
  "entity_bank": {
