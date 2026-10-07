@@ -1,7 +1,8 @@
 """Bake an animated Cast presenter into a browser point cache.
 blender animated.blend --python cache.py -- OUT F0 FIRST LAST REF.png
 Colours and line selection are baked once at F0; per-frame world positions of every mesh vertex
-(after posed-clothing fit, shape keys and armature) are written per frame; hair is fitted rigidly per frame."""
+(after posed-clothing fit, shape keys and armature) are written per frame; hair is fitted rigidly per frame.
+Meshes with a driven render visibility (teeth, blink lashes) are kept even if hidden at F0 and toggle per frame."""
 import bpy,bmesh,sys,os,json,time,struct,numpy as np
 from pathlib import Path
 from mathutils import Vector
@@ -15,7 +16,8 @@ for o in s.objects:
     for m in o.modifiers:
         if m.type=='SUBSURF':m.levels=m.render_levels
 s.frame_set(F0);fit_posed_clothing(s);dg=bpy.context.evaluated_depsgraph_get()
-src=[o for o in s.objects if o.type=='MESH' and not o.hide_render and o.visible_get()]
+driven={o.name for o in s.objects if o.animation_data and any(d.data_path=='hide_render' for d in o.animation_data.drivers)}
+src=[o for o in s.objects if o.type=='MESH' and o.visible_get() and (not o.hide_render or o.name in driven)]
 s.render.engine='CYCLES';s.cycles.device='CPU'
 coll=bpy.data.collections.new('PCACHE');s.collection.children.link(coll);copies=[]
 for o in src:
@@ -103,7 +105,7 @@ t0=time.monotonic()
 for f in FRAMES:
     s.frame_set(f);fit_posed_clothing(s);dg=bpy.context.evaluated_depsgraph_get();buf=np.zeros((acc,3),np.float32);vis=[]
     for i,o in enumerate(order):
-        a,n=offs[i];ok=o.visible_get();vis.append(ok)
+        a,n=offs[i];ok=o.visible_get() and not(o.name in driven and o.hide_render);vis.append(ok)
         if not ok:continue
         me=o.evaluated_get(dg).to_mesh();p=np.empty(len(me.vertices)*3,np.float32);me.vertices.foreach_get('co',p);o.evaluated_get(dg).to_mesh_clear()
         if len(p)!=n*3:raise RuntimeError(f'TOPOLOGY {o.name} {f}')
