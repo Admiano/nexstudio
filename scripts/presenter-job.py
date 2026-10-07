@@ -28,6 +28,9 @@ VOICES = {
 }
 ENVIRONMENTS = ROOT / 'public/cast/environments'
 FOLDER = {'16:9': 'landscape', '1:1': 'square', '9:16': 'portrait'}
+SCENES_ENGINE = Path(os.environ.get('WHITEBOARD_SCENES_RUNTIME_DIR',
+                                    ROOT / 'engine_sources/whiteboard-board-scenes'))
+LESSON_BG = 'lesson_board'
 PROFILE = dict(CAST_QUALITY_PILOT='1', CAST_FINISH_UPGRADE='1', CAST_GARMENT_STRUCTURE_PILOT='1',
                CAST_SKIN_APPEARANCE='1', CAST_HAIR_GROOM='1', CAST_FACIAL_REFINEMENT='1', CAST_CLOTH_APPEARANCE='1')
 STEPS = ['voice', 'lipsync', 'gestures', 'character', 'motion', 'frames', 'compose']
@@ -35,6 +38,9 @@ STEPS = ['voice', 'lipsync', 'gestures', 'character', 'motion', 'frames', 'compo
 _MFA = Path.home() / 'tools/mamba/envs/mfa/bin/mfa'
 if _MFA.exists():
     os.environ.setdefault('MFA_BIN', str(_MFA))
+_WHISPER = Path.home() / 'tools/whisper/bin/python3'
+if _WHISPER.exists():
+    os.environ.setdefault('WHISPER_PYTHON', str(_WHISPER))
 J = Path(sys.argv[1]).resolve()
 REQ = json.loads((J / 'request.json').read_text())
 LOG = (J / 'job.log').open('a')
@@ -172,19 +178,52 @@ def frames(total):
     return out
 
 
-def compose(frames_dir):
+def lesson_title():
+    """'\# Lesson name' heading convention first, else the opening words."""
+    lines = [l.strip() for l in (J / 'script.txt').read_text().splitlines() if l.strip()]
+    if lines and lines[0].startswith('#'):
+        return lines[0].lstrip('#').strip() or 'Lesson'
+    words = (lines[0].split() if lines else [])[:6]
+    return ' '.join(words) or 'Lesson'
+
+
+def lesson_boards(wav, aspects):
+    """Board-scenes render behind the teacher, driven by this job's own voice.wav
+    and MFA word timings so board and character stay in sync. The job runner
+    plans, gates and renders every aspect; GATE_REFUSED fails the job rather
+    than ship a broken lesson."""
+    out = J / 'board'
+    words = json.loads((J / 'words.json').read_text())
+    timings = out / 'vo_words.json'
+    out.mkdir(exist_ok=True)
+    timings.write_text(json.dumps(
+        [{'word': w[2], 'start': w[0], 'end': w[1]} for w in words]))
+    run([sys.executable, SCENES_ENGINE / 'tools/nexstudio_job.py',
+         '--script', J / 'script.txt', '--voice-file', wav, '--type', 'board-scenes',
+         '--title', lesson_title(), '--aspects', ','.join(aspects),
+         '--word-timings', timings,
+         '--out', out, '--job-id', J.name],
+        env={**os.environ, 'WHITEBOARD_SCENES_RUNTIME_DIR': str(SCENES_ENGINE)})
+    return json.loads((out / 'manifest.json').read_text())['outputs']
+
+
+def compose(frames_dir, boards=None):
     outputs = {}
     aspects = REQ.get('aspects') or ['16:9']
     promo = REQ.get('promo') or {}
     for i, a in enumerate(aspects):
         progress('compose', i / len(aspects))
-        bg = ENVIRONMENTS / FOLDER[a] / f"{REQ.get('background') or 'neutral_studio'}.jpg"
         key = a.replace(':', 'x')
         out = J / 'files' / f'{key}.mp4'
         out.parent.mkdir(exist_ok=True)
         cmd = [sys.executable, S / 'presenter-compose.py', '--frames', frames_dir, '--audio', J / 'voice.wav',
-               '--words', J / 'phones.json', '--script', J / 'script.txt', '--aspect', a, '--background', bg,
+               '--words', J / 'phones.json', '--script', J / 'script.txt', '--aspect', a,
                '--out', out, '--kinetic-dir', KINETIC]
+        if boards and a in boards:
+            cmd += ['--background-video', boards[a], '--lesson']
+        else:
+            bg = ENVIRONMENTS / FOLDER[a] / f"{REQ.get('background') or 'neutral_studio'}.jpg"
+            cmd += ['--background', bg]
         if REQ.get('accent'):
             cmd += ['--accent', REQ['accent']]
         if promo.get('mode') in ('lower-third', 'squeeze'):
@@ -204,10 +243,13 @@ def main():
         wav = voice()
         phones = lipsync(wav)
         timeline = gestures(wav, phones)
+        boards = None
+        if REQ.get('background') == LESSON_BG:
+            boards = lesson_boards(wav, REQ.get('aspects') or ['16:9'])
         scene = character()
         total = motion(scene, timeline)
         fdir = frames(total)
-        outputs = compose(fdir)
+        outputs = compose(fdir, boards)
         shutil.rmtree(J / 'frames', ignore_errors=True)
         shutil.rmtree(J / 'cache', ignore_errors=True)
         for f in ('animated.blend', 'animated.blend1'):

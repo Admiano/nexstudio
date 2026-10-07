@@ -115,6 +115,7 @@ def main() -> int:
     ap.add_argument("--duration", type=float, default=None)
     ap.add_argument("--speed", type=float, default=1.0)
     ap.add_argument("--icons", default=None)
+    ap.add_argument("--word-timings", help="precomputed word timings JSON; skips whisper pass")
     ap.add_argument("--out", required=True)
     ap.add_argument("--job-id", required=True)
     args = ap.parse_args()
@@ -137,6 +138,8 @@ def main() -> int:
     aspect_list = [a.strip() for a in args.aspects.split(",") if a.strip()]
     progress(phase="voice")
     vo_wav, words_json = build_voice(args, script_text, work)
+    if args.word_timings:
+        words_json = Path(args.word_timings)
     progress(phase="direction")
     plan_path = build_plan(args, script_text or "", work, aspect_list)
 

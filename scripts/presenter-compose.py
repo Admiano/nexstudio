@@ -41,8 +41,13 @@ def cover(img, size):
     return im.crop((x, y, x + W, y + H))
 
 
-def layout(aspect, W, H):
-    """Presenter box (x, y, w, h) per format."""
+def layout(aspect, W, H, lesson=False):
+    """Presenter box (x, y, w, h) per format. Lesson mode anchors the teacher
+    bottom-right at reduced size so the board scene behind stays readable."""
+    if lesson:
+        ph = int(H * (0.52 if aspect == '16:9' else 0.46 if aspect == '1:1' else 0.40))
+        pw = int(ph * 3 / 4)
+        return (W - pw - int(W * 0.04), H - ph, pw, ph)
     if aspect == '16:9':
         ph = H
         pw = int(ph * 3 / 4)
@@ -54,6 +59,38 @@ def layout(aspect, W, H):
     pw = W
     ph = int(pw * 4 / 3)
     return (0, H - ph, pw, ph)
+
+
+class VideoBackground:
+    """Decode an mp4 into cover-cropped RGB frames at the output size.
+
+    The board render and the presenter frames are both driven by the same
+    voice track, so frame counts line up closely; if the video ends early the
+    last frame is held, and extra video beyond the presenter is ignored.
+    """
+
+    def __init__(self, video, W, H):
+        self.W, self.H = W, H
+        self._proc = subprocess.Popen(
+            ['ffmpeg', '-loglevel', 'error', '-i', str(video),
+             '-vf', f'scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}',
+             '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'],
+            stdout=subprocess.PIPE)
+        self._last = None
+
+    def frame(self):
+        need = self.W * self.H * 3
+        buf = b''
+        while len(buf) < need:
+            chunk = self._proc.stdout.read(need - len(buf))
+            if not chunk:
+                break
+            buf += chunk
+        if len(buf) < need:
+            self._proc.wait()
+            return self._last
+        self._last = Image.frombytes('RGB', (self.W, self.H), buf).convert('RGBA')
+        return self._last
 
 
 class Captions:
@@ -229,7 +266,9 @@ def main():
     ap.add_argument('--words', required=True)
     ap.add_argument('--script', required=True)
     ap.add_argument('--aspect', choices=SIZES, default='16:9')
-    ap.add_argument('--background', required=True)
+    ap.add_argument('--background')
+    ap.add_argument('--background-video', help='MP4 to use as the per-frame background instead of a still image')
+    ap.add_argument('--lesson', action='store_true', help='Teacher-over-board layout: smaller presenter, no caption pill or icon cards')
     ap.add_argument('--out', required=True)
     ap.add_argument('--fps', type=int, default=24)
     ap.add_argument('--accent', default='#0052FF')
@@ -261,12 +300,18 @@ def main():
     script = Path(a.script).read_text().strip()
     frames = sorted(Path(a.frames).glob('*.png'))
     accent = hexrgb(a.accent)
-    bg = cover(Image.open(a.background).convert('RGB'), (W, H)).convert('RGBA')
-    pres = layout(a.aspect, W, H)
+    vbg = None
+    if a.background_video:
+        vbg = VideoBackground(a.background_video, W, H)
+    elif a.background:
+        bg = cover(Image.open(a.background).convert('RGB'), (W, H)).convert('RGBA')
+    else:
+        sys.exit('BACKGROUND_REQUIRED')
+    pres = layout(a.aspect, W, H, lesson=a.lesson)
     caps = Captions(ktr, ki, script, words, (W, H), a.accent)
     cap = caps.box
     cards = None
-    if a.icons == 'auto':
+    if a.icons == 'auto' and not a.lesson:
         taken = {pv.norm(c['words'][c['icon']['word']]['word']) for c in caps.chunks if c.get('icon')}
         concrete = ki.concrete_noun if ki is not None else None
         plan = pv.plan(words, taken, concrete, len(frames) / a.fps)
@@ -283,12 +328,18 @@ def main():
                            stdin=subprocess.PIPE)
     for i, fp in enumerate(frames):
         t = i / a.fps
-        fr = bg.copy()
+        if vbg is not None:
+            fr = vbg.frame()
+            if fr is None:
+                sys.exit('BACKGROUND_VIDEO_EMPTY')
+            fr = fr.copy()
+        else:
+            fr = bg.copy()
         p = Image.open(fp).convert('RGBA').resize((pres[2], pres[3]), Image.LANCZOS)
         fr.alpha_composite(p, (pres[0], pres[1]))
         if cards is not None:
             fr = cards.draw(fr, t)
-        c, cx = caps.frame(t)
+        c, cx = (None, 0) if a.lesson else caps.frame(t)
         if c is not None:
             sh = Image.new('RGBA', (c.width + 40, c.height + 40), (0, 0, 0, 0))
             sh.paste(Image.new('RGBA', c.size, (0, 0, 0, 255)), (20, 20), c.getchannel('A').point(lambda v: int(v * 0.2)))
