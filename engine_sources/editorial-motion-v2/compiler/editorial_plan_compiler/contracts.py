@@ -43,7 +43,7 @@ ENTITY_SIZES = ('hero', 'support', 'minor')
 RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans', 'marks')
 # Connector dress: default (hand-stroke + arrowhead) vs the product-diagram look — a hairline with
 # dot endpoints, optionally dashed straight ('dash') or bowed ('arc').
-RELATION_STYLES = ('link', 'dash', 'arc')
+RELATION_STYLES = ('link', 'dash', 'arc', 'stem')
 OPS = ('FILL', 'DRAW', 'CONNECT', 'EMIT', 'TRAVEL', 'GROW', 'SWAP', 'STRIKE', 'COUNT', 'INK', 'DIM', 'TRACE', 'SETTLE')
 OP_DEFAULT_MS = {'FILL': 900, 'DRAW': 520, 'CONNECT': 480, 'EMIT': 1100, 'TRAVEL': 700, 'GROW': 460, 'SWAP': 420, 'STRIKE': 380,
                  'COUNT': 620, 'INK': 320, 'DIM': 320, 'TRACE': 900, 'SETTLE': 360}
@@ -79,7 +79,7 @@ MOTION_PROFILES = {
     # orbit fields, never the same zone twice, plus dashed-arc connectors.
     'FLOAT_FIELD': {'entrance': 'pop', 'stagger_ms': 85, 'camera_push': 0.026, 'camera_pan_frac': 0.009, 'transition': 'scale_through', 'blur_px': 9, 'word_landing': 'rise',
                     'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0, 'media_tilt': 1.0,
-                    'idle_amp': 14, 'orbit': True, 'orbit_period_ms': 18000, 'flow': True, 'flow_px_ms': 0.05},
+                    'idle_amp': 14, 'orbit': False, 'orbit_period_ms': 18000, 'flow': True, 'flow_px_ms': 0.05},
     # One centered poster-card: the same skeleton at every aspect, so camera
     # movement stays gentle — the card is the whole stage.
     'CENTER_DECK': {'entrance': 'pop', 'stagger_ms': 85, 'camera_push': 0.018, 'camera_pan_frac': 0.005, 'transition': 'scale_through', 'blur_px': 8, 'word_landing': 'rise',

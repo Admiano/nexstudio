@@ -228,10 +228,12 @@ class IllustrationRegistry:
 
 class IllustrationSolver:
     def __init__(self, aspect: str, canvas: Tuple[int, int], registry: IllustrationRegistry, media_library: Dict[str, Any], media_files: Dict[str, Any], accent: Optional[str],
-                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS, motion: Optional[Dict[str, Any]] = None):
+                 collage: bool = False, stagger_ms: int = ENTER_STAGGER_MS, motion: Optional[Dict[str, Any]] = None,
+                 finish: str = ''):
         self.aspect = aspect
         self.canvas = canvas
         self.collage = collage
+        self.finish = finish
         self.stagger_ms = stagger_ms
         self.motion = dict(motion or {})
         self.registry = registry
@@ -363,7 +365,8 @@ class IllustrationSolver:
         if il.form == 'RELATIONSHIP' and len(top) >= 4:
             cells = self._hub_layout(il, top, zone)
         elif self.collage and il.form in COLLAGE_FORMS and len(top) >= 2 and any(e.size == 'hero' for e in top):
-            cells = self._collage_layout(il, top, zone)
+            cells = (self._float_hub_layout(top, zone) if self.finish == 'FLOAT_FIELD'
+                     else self._collage_layout(il, top, zone))
         elif il.form == 'DATA_VISUAL':
             cells = self._data_layout(top, zone, vertical)
         else:
@@ -560,6 +563,66 @@ class IllustrationSolver:
             cells[e.id] = _box(x - sat / 2, y - sat / 2, sat, sat)
         return cells
 
+    def _float_hub_layout(self, top: List[IllustrationEntity], zone: Dict[str, float]) -> Dict[str, Dict[str, float]]:
+        """Reference-ad format: a dark hub pinned near the top of the field with the rest
+        of the cluster hanging beneath it in tight rows — glossy discs first, then the
+        dark UI bars. Reads as one object, not a row of equal cells."""
+        heroes = [e for e in top if e.size == 'hero' and e.kind != 'evidence']
+        hub = next((e for e in top if (e.params or {}).get('tone') == 'dark'),
+                   heroes[0] if heroes else top[0])
+        sats = [e for e in top if e is not hub]
+        cx = zone['x'] + zone['w'] / 2
+        side = min(zone['w'], zone['h'])
+        discs = [e for e in sats if e.glyph != 'CHIP']
+        pills = [e for e in sats if e.glyph == 'CHIP']
+        if not sats:
+            # A lone concept still owns the field — centred, statement-sized.
+            return {hub.id: _fit_aspect(zone, self._entity_ar(hub), 0.6)}
+        floor = FLOOR_FRACTION['label'] * min(self.canvas)
+        # Fit-first sizing: a labelled bar is only as wide as its inside label needs, and the
+        # whole stack is scaled down until it clears the bottom of the zone. A CHIP widens
+        # only to 5:1, so its row must also be at least need/5 tall.
+        max_need = max([self._label_need(e, floor) for e in pills if e.label] or [0.0])
+        hub_s = side * 0.34
+        for _ in range(6):
+            sat_s = hub_s * 0.80
+            ph = max(hub_s * 0.62, max_need / 5.0)
+            used = hub_s + zone['h'] * 0.12
+            n_rows = (len(discs) + 2) // 3
+            used += n_rows * (sat_s + zone['h'] * 0.06)
+            n_pill_rows = (len(pills) + 1) // 2
+            used += n_pill_rows * (ph + zone['h'] * 0.04)
+            if used <= zone['h'] * 0.94:
+                break
+            hub_s *= 0.85
+        hub_y = zone['y'] + zone['h'] * 0.04
+        cells = {hub.id: _box(cx - hub_s / 2, hub_y, hub_s, hub_s)}
+        y = hub_y + hub_s + zone['h'] * 0.12
+        gap_x = zone['w'] * 0.045
+        while discs:
+            row, discs = discs[:3], discs[3:]
+            w = len(row) * sat_s + (len(row) - 1) * gap_x
+            x = cx - w / 2
+            for e in row:
+                cells[e.id] = _box(x, y, sat_s, sat_s)
+                x += sat_s + gap_x
+            y += sat_s + zone['h'] * 0.06
+        # Dark bars pair up two to a row — each is as wide as its inside label needs.
+        while pills:
+            row, pills = pills[:2], pills[2:]
+            widths, ph_row = [], ph
+            for e in row:
+                need = self._label_need(e, floor) if e.label else 0.0
+                widths.append(min(zone['w'] * 0.46, max(hub_s * 2.2, need * 1.1)))
+                ph_row = max(ph_row, need / 5.0)
+            w = sum(widths) + (len(row) - 1) * gap_x
+            x = cx - w / 2
+            for e, pw in zip(row, widths):
+                cells[e.id] = _box(x, y, pw, ph_row)
+                x += pw + gap_x
+            y += ph_row + zone['h'] * 0.04
+        return cells
+
     def _collage_layout(self, il: IllustrationDirective, top: List[IllustrationEntity], zone: Dict[str, float]) -> Dict[str, Dict[str, float]]:
         """Hero-anchored cluster: the hero fills the middle of the field and satellites stack in
         flanking columns (wide field) or in a row beneath it (tall field). Regions are disjoint,
@@ -748,8 +811,11 @@ class IllustrationSolver:
                     rel['path'] = [[round(p0[0], 1), round(p0[1], 1)], [round(p1[0], 1), round(p1[1], 1)]]
                 rel['length'] = round(sum(math.dist(rel['path'][i], rel['path'][i + 1]) for i in range(len(rel['path']) - 1)), 1)
                 rel['dots'], rel['arrow'], rel['thin'] = True, False, True
-                if style in ('dash', 'arc'):
+                if style in ('dash', 'arc', 'stem'):
                     rel['dashed'] = True
+                if style == 'stem':
+                    # A stem is the bare dashed drop from hub to satellite — no dot ends.
+                    rel['dots'] = False
                 out.append(rel)
                 continue
             if (r.type == 'blocks' and by_id[r.source]['glyph'] == 'PROHIBIT') or (r.type == 'marks' and by_id[r.source]['glyph'] == 'MARK_CIRCLE'):

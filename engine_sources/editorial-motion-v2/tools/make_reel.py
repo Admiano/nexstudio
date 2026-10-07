@@ -267,7 +267,7 @@ def fallback_entity(family, n, question=False):
     if not ref:
         return None
     ent = {"id": f"e1_{spec['key']}{n}", "kind": "object", "glyph": "TILE",
-           "phrase": spec["key"]}
+           "phrase": spec["key"], "bank_key": spec["key"]}
     if family == "photos" or ref == spec.get("photo"):
         ent["concept"] = ref
     else:
@@ -329,7 +329,7 @@ def pick_entities(gwords, family, already, ctx=None):
         seen.add(ref); already.add(key)
         is_photo = family == "photos" or (family == "colour_icons" and ref == spec.get("photo")) or ref == spec.get("photo")
         ent = {"id": f"e{len(out)+1}_{key}", "kind": "object", "glyph": "TILE",
-               "phrase": " ".join(toks[i:i + span])}
+               "phrase": " ".join(toks[i:i + span]), "bank_key": key}
         if ref == spec.get("photo"):
             ent["concept"] = ref
         else:
@@ -339,6 +339,19 @@ def pick_entities(gwords, family, already, ctx=None):
         if len(out) >= 4:
             break
     return out
+
+
+def _label_ok(label, units):
+    # An inside label must be a bare noun of at most three words and may not
+    # restate a display unit already set in type on the same beat.
+    ws = label.lower().split()
+    if not ws or len(ws) > 3 or ws[0] in ("the", "a", "an"):
+        return False
+    uws = [u["text"].lower().split() for u in units]
+    for u in uws:
+        if ws == u or (len(ws) >= 2 and any(u[i:i + len(ws)] == ws for i in range(len(u) - len(ws) + 1))):
+            return False
+    return True
 
 
 def build_treatment(args, style, words, media_files, film_id):
@@ -380,27 +393,62 @@ def build_treatment(args, style, words, media_files, film_id):
             ents.insert(0, ([{"id": f"media{mi+1}", "kind": "evidence", "glyph": "MEDIA",
                               "media_ref": f"media{mi+1}"}, g[0]["text"]]))
         sizes = ["hero", "support", "minor", "support", "minor", "support", "minor"]
-        entities, program = [], []
-        for ei, (ent, anchor) in enumerate(ents):
-            if ent["glyph"] == "TILE":
-                ent["glyph"] = glyph
-            ent["size"] = sizes[min(ei, len(sizes) - 1)]
-            entities.append(ent)
-            program.append({"op": "DRAW", "target": ent["id"], "at": {"word": anchor},
-                            "duration_ms": 550})
-        for ei in range(1, len(entities)):
-            program.append({"op": "CONNECT",
-                            "target": f"{entities[ei-1]['id']}->{entities[ei]['id']}",
-                            "at": {"word": ents[ei][1]}, "duration_ms": 350})
-        btype = "SETUP" if bi == 0 else ("PAYOFF" if bi == n - 1 else "EXPLANATION")
-        # entity words steer which clause fragment becomes the on-screen
-        # keyword, so the caption and the chips say the same thing
+        is_float = style.get("finish") == "FLOAT_FIELD"
         ent_words = set()
         for ent, _a in ents:
             for w in (ent.get("phrase") or "").split():
                 k = word_key(w)
                 if k:
                     ent_words.add(k)
+        units = display_units(g, ent_words)
+        entities, program = [], []
+        hub_done = False
+        for ei, (ent, anchor) in enumerate(ents):
+            if is_float and ent["glyph"] == "TILE":
+                # Float grammar (reference format): the first icon entity is the
+                # dark hub, brand marks wear the glossy white disc, and every
+                # other concept becomes the dark UI bar with its name inside.
+                ref = ent.get("asset_ref") or ""
+                if not hub_done:
+                    ent["glyph"] = "BADGE"
+                    ent["params"] = {"tone": "dark"}
+                    hub_done = True
+                elif ref.startswith("brand.") or ei % 2 == 0:
+                    # Brand marks always keep the glossy disc; other concepts
+                    # alternate — a white icon disc or the dark bar that carries
+                    # its name inside, the mix the reference format uses.
+                    ent["glyph"] = "BADGE"
+                else:
+                    ent["glyph"] = "CHIP"
+                    lbl = (ent.get("bank_key") or "").replace("-", " ")
+                    if lbl and _label_ok(lbl, units):
+                        ent["label"] = lbl
+            elif ent["glyph"] == "TILE":
+                ent["glyph"] = glyph
+            ent["size"] = sizes[min(ei, len(sizes) - 1)]
+            entities.append(ent)
+            program.append({"op": "DRAW", "target": ent["id"], "at": {"word": anchor},
+                            "duration_ms": 550})
+        hub_id = next((e["id"] for e in entities if e.get("kind") != "evidence"),
+                      entities[0]["id"]) if entities else None
+        for ei in range(1, len(entities)):
+            tgt = (f"{hub_id}->{entities[ei]['id']}" if is_float
+                   else f"{entities[ei-1]['id']}->{entities[ei]['id']}")
+            program.append({"op": "CONNECT",
+                            "target": tgt,
+                            "at": {"word": ents[ei][1]}, "duration_ms": 350})
+        if is_float:
+            relations = [{"type": "connects", "source": hub_id,
+                          "target": e["id"], "style": "stem"}
+                         for e in entities
+                         if e["id"] != hub_id and e.get("kind") != "evidence"]
+        else:
+            relations = [{"type": "connects",
+                          "source": entities[i - 1]["id"],
+                          "target": entities[i]["id"],
+                          **({"style": link_style} if link_style else {})}
+                         for i in range(1, len(entities))]
+        btype = "SETUP" if bi == 0 else ("PAYOFF" if bi == n - 1 else "EXPLANATION")
         beats.append({
             "beat_id": bid,
             "beat_type": btype,
@@ -409,13 +457,9 @@ def build_treatment(args, style, words, media_files, film_id):
             "narration": narration,
             "energy": 0.55 if bi == 0 else (0.75 if bi == n - 1 else 0.65),
             "complexity": 0.5,
-            "display_units": display_units(g, ent_words),
+            "display_units": units,
             "illustration": {"form": "OBJECT_STAGE", "entities": entities,
-                             "relations": [{"type": "connects",
-                                            "source": entities[i - 1]["id"],
-                                            "target": entities[i]["id"],
-                                            **({"style": link_style} if link_style else {})}
-                                           for i in range(1, len(entities))],
+                             "relations": relations,
                              "program": program},
         })
     media_library = []

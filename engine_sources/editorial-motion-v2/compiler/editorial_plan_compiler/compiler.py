@@ -211,7 +211,8 @@ class BeatCompiler:
         self.illustrations: Dict[str, Dict[str, Any]] = {}  # beat_id -> compiled illustration (carry-over source)
         self.solver = IllustrationSolver(aspect, (self.W, self.H), IllustrationRegistry(), film.media_library, self.media_files, film.brand.accent,
                                          collage=film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD'),
-                                         stagger_ms=stagger_ms or MOTION_PROFILES[film.brand.finish]['stagger_ms'], motion=MOTION_PROFILES[film.brand.finish])
+                                         stagger_ms=stagger_ms or MOTION_PROFILES[film.brand.finish]['stagger_ms'], motion=MOTION_PROFILES[film.brand.finish],
+                                         finish=film.brand.finish)
 
     # ------------------------------------------------------------------ helpers
     @staticmethod
