@@ -23,6 +23,12 @@ def build(cfg,total,fps,table):
         if base in split:
             m=(s+e)/2;seq+=[(s,m,split[base][0],stress),(m,e,split[base][1],stress)]
         else:seq.append((s,e,base if base in T else 'sil',stress))
+    # the aligner leaves pauses unlabelled; without a rest target the next sound's shape fills the gap
+    gap=float(table.get('restGapSec',.06));end=max(float(total)/fps,seq[-1][1] if seq else 0)
+    rests=[(0.0,seq[0][0])] if seq and seq[0][0]>gap else []
+    rests+=[(a[1],b[0]) for a,b in zip(seq,seq[1:]) if b[0]-a[1]>gap]
+    if seq and end-seq[-1][1]>gap:rests.append((seq[-1][1],end))
+    seq=sorted(seq+[(s,e,'sil',None) for s,e in rests])
     keys=sorted({k for v in T.values() for k in v['target']})
     # voiced (vowel-band) energy: broadband level is inflated by fricatives and breaths
     rms,hop=_rms(cfg['audio'],band=(300,3000)) if cfg.get('audio') else (None,None)
@@ -61,7 +67,7 @@ def build(cfg,total,fps,table):
                 out['V3_closed'][g]=max(out['V3_closed'][g],table['closure']['closed']*w)
                 for k in table['openKeys']:out[k][g]*=1-w*.9
         hits+=out['V3_closed'][f]>=.6 if 1<=f<=total else 0
-    qa={'phones':len(seq),'bilabials':len(bil),'bilabialClosed':int(hits)}
+    qa={'phones':sum(b!='sil' for _,_,b,_ in seq),'bilabials':len(bil),'bilabialClosed':int(hits)}
     qa['maxValue']={k:round(float(max(v)),3) for k,v in out.items()};qa['inBounds']=all(0<=float(min(v)) and float(max(v))<=1 for v in out.values())
     if rms is not None:
         # sync score on voiced energy (vowel band) at vowel frames: fricatives are loud but keep the jaw nearly shut
