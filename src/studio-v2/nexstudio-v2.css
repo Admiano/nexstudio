@@ -2386,4 +2386,5 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
   .aspect-chip{flex:1;height:44px;font-size:12px}
   .aspect-chip:not(.on){background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);color:rgba(255,255,255,.78)}
   .review-side{border-top:0;flex:1}
+  .review-revise{border-color:rgba(17,22,18,.16)!important;color:var(--ink)!important}
 }
