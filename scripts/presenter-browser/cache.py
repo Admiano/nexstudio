@@ -6,6 +6,7 @@ Meshes with a driven render visibility (teeth, blink lashes) are kept even if hi
 import bpy,bmesh,sys,os,json,time,struct,numpy as np
 from pathlib import Path
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 argv=sys.argv[sys.argv.index('--')+1:];OUT=Path(argv[0]);F0=int(argv[1]);FRAMES=list(range(int(argv[2]),int(argv[3])+1))
 REF=argv[4] if len(argv)>4 else None
 R=Path(__file__).resolve().parents[1];__file__=str(R/'cast-render-assembled.py')
@@ -29,11 +30,39 @@ for o in src:
     copies.append((o,c))
 for o in s.objects:
     if o.type in('MESH','CURVES') and not o.name.startswith('PC_'):o.hide_render=True
+VIEW=(s.camera.matrix_world.to_3x3()@Vector((0,0,-1))).normalized()
+def box(m,r,axis):
+    c=np.cumsum(np.pad(m,[(r+1,r) if a==axis else (0,0) for a in range(2)]).astype(np.int32),axis=axis)
+    return (np.take(c,range(2*r+1,c.shape[axis]),axis)-np.take(c,range(0,c.shape[axis]-2*r-1),axis))>0
+def gap_mask(path):
+    # transparent pixels walled in by the figure on both sides: the space between arm and torso
+    im=bpy.data.images.load(str(path));iw,ih=im.size;a=np.array(im.pixels[:],dtype=np.float32).reshape(ih,iw,4)[...,3]>.5;bpy.data.images.remove(im)
+    near=lambda m:(lambda c:(c[:,41:]-c[:,:-41])>0)(np.cumsum(np.pad(m,((0,0),(41,0))).astype(np.int32),1))
+    left,right=near(a),np.flip(near(np.flip(a,1)),1)
+    return box(box(~a&left&right,6,0),6,1)
+GAP=gap_mask(REF) if REF else None
+surf=None
+if GAP is not None:
+    V=[];F=[]
+    for o,c in copies:
+        if 'dress_lines' in o.name:continue
+        mw=c.matrix_world;b=len(V);V+=[mw@v.co for v in c.data.vertices];F+=[[b+i for i in p.vertices] for p in c.data.polygons]
+    surf=BVHTree.FromPolygons(V,F)
+def floating(c,f):
+    # a detail stroke over the arm/torso gap with no camera-facing garment or skin right behind or in front of it
+    p=c.matrix_world@f.calc_center_median();cam=s.camera;ih,iw=GAP.shape
+    u=(p.x-cam.location.x)/(cam.data.ortho_scale*s.render.resolution_x/s.render.resolution_y)+.5;v=(p.z-cam.location.z)/cam.data.ortho_scale+.5
+    if not GAP[min(max(int(v*ih),0),ih-1),min(max(int(u*iw),0),iw-1)]:return False
+    hits=[h for h in (surf.ray_cast(p,d,1.0) for d in (VIEW,-VIEW)) if h[0] and h[3]<.015]
+    return all(abs(h[1].normalized().dot(VIEW))<=.3 for h in hits)
 t0=time.monotonic();objs=[]
 for o,c in copies:
     me=c.data;bm=bmesh.new();bm.from_mesh(me)
     bad={i for i,m in enumerate(me.materials) if m and m.node_tree and any(n.type=='BSDF_TRANSPARENT' for n in m.node_tree.nodes) and not any(n.type in('EMISSION','BSDF_PRINCIPLED') for n in m.node_tree.nodes)}
     if bad:bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.material_index in bad],context='FACES')
+    if surf and 'dress_lines' in o.name:
+        drop=[f for f in bm.faces if floating(c,f)]
+        if drop:print('GAP_STROKES_DROPPED',o.name,len(drop),flush=True);bmesh.ops.delete(bm,geom=drop,context='FACES')
     bm.to_mesh(me);bm.free()
     if not me.polygons:continue
     ca=me.color_attributes.new('Col','BYTE_COLOR','CORNER');me.color_attributes.active_color=ca

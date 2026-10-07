@@ -8408,9 +8408,9 @@
     "note": "Retargeted onto Host.rig at build time by scripts/cast_mixamo_retarget.py. gain damps a Mixamo bone (no side): shoulders so MakeHuman shoulder weights do not bulge, spine/neck/head because the hips stay planted (full Mixamo torso lean reads as falling) and to keep gaze near the camera. categories: keyword -> category, first match wins (scripts/cast-mixamo-landmarks.py). Gesture windows longer than maxFrames are cut to maxFrames around their apex. Clips whose wrists move faster than maxHandSpeed (m/s; the original take peaks at 1.6) get tempo < 1 and play slower. Clips reaching further than maxAutoReachCm are left out of automatic planning. hold pulls bones toward the presenter idle pose (head toward camera; the unused arm of one-handed clips). smooth is a Gaussian sigma (frames) against mocap jitter.",
     "gain": {
       "Shoulder": 0.6,
-      "Spine": 0.5,
-      "Spine1": 0.5,
-      "Spine2": 0.5,
+      "Spine": 0.12,
+      "Spine1": 0.12,
+      "Spine2": 0.12,
       "Neck": 0.6,
       "Head": 0.6
     },
