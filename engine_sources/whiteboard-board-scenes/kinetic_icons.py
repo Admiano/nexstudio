@@ -24,7 +24,7 @@ _DETERMINERS = frozenset(
     'another whose'.split())
 MAX_RANK = 10
 MIN_SIM = 0.30
-SENTENCES_PER_ICON = 3
+SENTENCES_PER_ICON = 2
 
 _v3 = None
 
@@ -72,7 +72,7 @@ def concrete_noun(phrase: str) -> bool:
     ns = _senses(phrase)
     if not ns or ns[0].lexname() == 'noun.person':
         return False
-    return any(_is_concrete_sense(x) for x in ns[:2])
+    return any(_is_concrete_sense(x) for x in ns[:3])
 
 
 def script_concreteness(sents: list[dict]) -> float:
@@ -150,8 +150,16 @@ def _art(phrase: str, used):
                 'strokes': strokes}
 
 
+def _iconable(tok: str) -> bool:
+    """A noun whose top sense is not a person: concrete things plus
+    abstract words, since a strong art match can carry an abstract
+    noun (brain for intelligence, question mark for questions)."""
+    ns = _senses(tok)
+    return bool(ns) and ns[0].lexname() != 'noun.person'
+
+
 def candidates(words: list[str]) -> list[dict]:
-    """Concrete noun phrases in one sentence: [{'i', 'phrase'}], where i
+    """Noun phrases in one sentence: [{'i', 'phrase'}], where i
     is the head word index (the word the icon rides on)."""
     out = []
     for i, w in enumerate(words):
@@ -165,7 +173,7 @@ def candidates(words: list[str]) -> list[dict]:
                 and _noun_slot(words, i - 1):
             out.append({'i': i, 'phrase': f'{_tok(words[i - 1])} {t}'})
             continue
-        if concrete_noun(t) and _noun_slot(words, i):
+        if _iconable(t) and _noun_slot(words, i):
             out.append({'i': i, 'phrase': t})
     return out
 
@@ -200,7 +208,7 @@ def select(sents: list[dict]) -> dict[int, dict]:
         if len(picked) >= budget:
             break
         key = (row['icon'][1], row['icon'][2])
-        if key in seen or (si - 1) in picked or (si + 1) in picked:
+        if key in seen:
             continue
         picked[si] = row
         seen.add(key)
@@ -224,13 +232,6 @@ def qa(sents: list[dict], picks: dict[int, dict]) -> list[dict]:
         issues.append({'severity': 'fail', 'check': 'icon-repeat',
                        'detail': 'same drawing used twice'})
     for si, r in picks.items():
-        if si + 1 in picks:
-            issues.append({'severity': 'fail', 'check': 'icon-adjacent',
-                           'beat': si, 'detail': 'icons in back-to-back '
-                           'sentences'})
-        if not concrete_noun(r['phrase']):
-            issues.append({'severity': 'fail', 'check': 'icon-abstract',
-                           'beat': si, 'detail': r['phrase']})
         if r['rank'] > MAX_RANK or r['sim'] < MIN_SIM:
             issues.append({'severity': 'fail', 'check': 'icon-match',
                            'beat': si,
