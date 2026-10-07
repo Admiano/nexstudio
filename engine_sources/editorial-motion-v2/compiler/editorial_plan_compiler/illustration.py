@@ -586,11 +586,14 @@ class IllustrationSolver:
         hub_s = side * 0.34
         for _ in range(6):
             sat_s = hub_s * 0.80
-            ph = max(hub_s * 0.62, max_need / 5.0)
+            # need/4.4, not /5.0: the widen cap is height*5, so a row at exactly
+            # need/5 lands the label capacity on the threshold and measure slop
+            # tips it into ENTITY_LABEL_WORD_TOO_WIDE on narrow aspects.
+            ph = max(hub_s * 0.62, max_need / 4.4)
             used = hub_s + zone['h'] * 0.12
             n_rows = (len(discs) + 2) // 3
             used += n_rows * (sat_s + zone['h'] * 0.06)
-            n_pill_rows = (len(pills) + 1) // 2
+            n_pill_rows = len(pills)  # worst case: every wide bar rows solo
             used += n_pill_rows * (ph + zone['h'] * 0.04)
             if used <= zone['h'] * 0.94:
                 break
@@ -607,14 +610,31 @@ class IllustrationSolver:
                 cells[e.id] = _box(x, y, sat_s, sat_s)
                 x += sat_s + gap_x
             y += sat_s + zone['h'] * 0.06
-        # Dark bars pair up two to a row — each is as wide as its inside label needs.
-        while pills:
-            row, pills = pills[:2], pills[2:]
+        # Dark bars pair up two to a row when their labels allow it; a bar whose
+        # inside label needs more than the pair share takes a row of its own.
+        rows_p: List[List[IllustrationEntity]] = []
+        i = 0
+        while i < len(pills):
+            e = pills[i]
+            if i + 1 < len(pills):
+                e2 = pills[i + 1]
+                w_pair = max(hub_s * 2.2, (self._label_need(e, floor) if e.label else 0) * 1.1) + \
+                         max(hub_s * 2.2, (self._label_need(e2, floor) if e2.label else 0) * 1.1) + gap_x
+                if w_pair <= zone['w'] * 0.94:
+                    rows_p.append([e, e2])
+                    i += 2
+                    continue
+            rows_p.append([e])
+            i += 1
+        for row in rows_p:
             widths, ph_row = [], ph
+            # A paired bar caps at ~half the row each; a solo bar may claim the
+            # width its inside label actually needs.
+            cap = zone['w'] * (0.82 if len(row) == 1 else 0.46)
             for e in row:
                 need = self._label_need(e, floor) if e.label else 0.0
-                widths.append(min(zone['w'] * 0.46, max(hub_s * 2.2, need * 1.1)))
-                ph_row = max(ph_row, need / 5.0)
+                widths.append(min(cap, max(hub_s * 2.2, need * 1.1)))
+                ph_row = max(ph_row, need / 4.4)
             w = sum(widths) + (len(row) - 1) * gap_x
             x = cx - w / 2
             for e, pw in zip(row, widths):

@@ -283,7 +283,7 @@ _POLYSEME_VETO = {
 }
 
 
-def pick_entities(gwords, family, already, ctx=None):
+def pick_entities(gwords, family, already, ctx=None, max_n=4):
     seen = set()
     out = []
     toks = [word_key(w["text"]) for w in gwords]
@@ -336,7 +336,7 @@ def pick_entities(gwords, family, already, ctx=None):
             ent["asset_ref"] = ref
         out.append((ent, gwords[i]["text"]))
         i += span
-        if len(out) >= 4:
+        if len(out) >= max_n:
             break
     return out
 
@@ -360,7 +360,9 @@ def build_treatment(args, style, words, media_files, film_id):
     glyph = style.get("glyph", "TILE")
     link_style = style.get("link_style")
     groups = chunk_beats(words)
-    beats, used_kw, fallback_n = [], set(), 0
+    beats, used_kw, fallback_n, prev_keys = [], set(), 0, set()
+    fam = style["asset_family"]
+    fam_key = {"colour_icons": "colour", "mono_icons": "mono", "emoji": "emoji", "photos": "photo"}[fam]
     # film-level topic vector: semantic matches rerank toward keys aligned
     # with what the narration is actually about
     ctx = None
@@ -368,8 +370,18 @@ def build_treatment(args, style, words, media_files, film_id):
         _ev = _sem_embed(" ".join(w["text"] for w in words))
         if _ev is not None:
             ctx = _ev[0]
-    fam = style["asset_family"]
-    fam_key = {"colour_icons": "colour", "mono_icons": "mono", "emoji": "emoji", "photos": "photo"}[fam]
+    # Pre-pass: the film's ordered topic pool — every bank key any beat will
+    # introduce, first-seen order. Float beats draw ambient members from it so
+    # sparse narration still fills a cluster.
+    film_keys: list = []
+    if style.get("finish") == "FLOAT_FIELD":
+        seen_k = set()
+        for g in groups:
+            for ent, _a in pick_entities(g, fam_key, set(), ctx, max_n=6):
+                k = ent.get("bank_key")
+                if k and k not in seen_k:
+                    seen_k.add(k)
+                    film_keys.append(k)
     media_iter = iter(enumerate(media_files))
     media_slots = {}
     for mi, mf in media_iter:
@@ -379,12 +391,43 @@ def build_treatment(args, style, words, media_files, film_id):
     for bi, g in enumerate(groups):
         bid = f"b{bi+1:02d}"
         narration = clean(" ".join(w["text"] for w in g))
-        picked = pick_entities(g, fam_key, used_kw, ctx)
+        # Float scenes lead with visuals — a beat gets a denser cluster (up to six
+        # drawable concepts) so the field never reads as a lone text line. Topic
+        # keys may re-enter after one beat off (the film keeps returning to its
+        # subject); only the previous beat's set is banned, so clusters evolve
+        # instead of repeating identically.
+        is_float = style.get("finish") == "FLOAT_FIELD"
+        picked = pick_entities(g, fam_key, prev_keys if is_float else used_kw, ctx,
+                               max_n=6 if is_float else 4)
+        beat_keys = {ent.get("bank_key") for ent, _a in picked if ent.get("bank_key")}
         if not picked:
             fe = fallback_entity(fam_key, fallback_n, question="?" in narration)
             if fe:
                 picked = [(fe, g[0]["text"])]
                 fallback_n += 1
+        if is_float and len(picked) < 4:
+            # Sparse narration still leads with visuals: the field fills to four
+            # with rotating ambient members of the film's own topic pool — keys
+            # the film already introduced, minus the previous beat's, so the
+            # cluster keeps evolving instead of going minimal while the voice runs.
+            pool = [k for k in film_keys if k not in prev_keys and k not in beat_keys]
+            for k in pool[(bi * 2) % len(pool):] + pool[:(bi * 2) % len(pool)] if pool else []:
+                if len(picked) >= 4:
+                    break
+                spec = BANK[k]
+                ref = spec.get(fam_key) or spec.get("colour")
+                if not ref:
+                    continue
+                ent = {"id": f"e{len(picked)+1}_{k}", "kind": "object", "glyph": "TILE",
+                       "phrase": k, "bank_key": k}
+                if ref == spec.get("photo"):
+                    ent["concept"] = ref
+                else:
+                    ent["asset_ref"] = ref
+                picked.append((ent, g[min(len(g) - 1, 2 + len(picked))]["text"]))
+                beat_keys.add(k)
+        film_keys = [k for k in film_keys if k not in beat_keys] + [k for k in film_keys if k in beat_keys]
+        prev_keys = beat_keys
         ents = []
         for ent, anchor in picked:
             ents.append([ent, anchor])
@@ -393,7 +436,6 @@ def build_treatment(args, style, words, media_files, film_id):
             ents.insert(0, ([{"id": f"media{mi+1}", "kind": "evidence", "glyph": "MEDIA",
                               "media_ref": f"media{mi+1}"}, g[0]["text"]]))
         sizes = ["hero", "support", "minor", "support", "minor", "support", "minor"]
-        is_float = style.get("finish") == "FLOAT_FIELD"
         ent_words = set()
         for ent, _a in ents:
             for w in (ent.get("phrase") or "").split():
@@ -406,12 +448,13 @@ def build_treatment(args, style, words, media_files, film_id):
         for ei, (ent, anchor) in enumerate(ents):
             if is_float and ent["glyph"] == "TILE":
                 # Float grammar (reference format): the first icon entity is the
-                # dark hub, brand marks wear the glossy white disc, and every
+                # hub, brand marks wear the glossy white disc, and every
                 # other concept becomes the dark UI bar with its name inside.
                 ref = ent.get("asset_ref") or ""
                 if not hub_done:
+                    # A white disc like the rest — a dark hero disc reads as a
+                    # distracting void, not the format's hub.
                     ent["glyph"] = "BADGE"
-                    ent["params"] = {"tone": "dark"}
                     hub_done = True
                 elif ref.startswith("brand.") or ei % 2 == 0:
                     # Brand marks always keep the glossy disc; other concepts
@@ -437,6 +480,24 @@ def build_treatment(args, style, words, media_files, film_id):
             program.append({"op": "CONNECT",
                             "target": tgt,
                             "at": {"word": ents[ei][1]}, "duration_ms": 350})
+        if is_float and entities:
+            # Controlled masterclass: every float beat keeps animating after the
+            # cluster assembles. Two flourishes rotate through the op vocabulary
+            # per beat (icon writes itself in accent, accent fill rises, the hub
+            # emits a ring, a state flip pops) so consecutive scenes never
+            # choreograph the same way. Anchors ride mid/late narration words —
+            # motion stays tied to the voice.
+            flourishes = ["INK", "FILL", "EMIT", "SWAP"]
+            f1 = flourishes[bi % len(flourishes)]
+            f2 = flourishes[(bi + 2) % len(flourishes)]
+            mid_word = g[len(g) // 2]["text"]
+            last_word = g[-1]["text"]
+            program.append({"op": f1, "target": hub_id,
+                            "at": {"word": mid_word}, "duration_ms": 440})
+            sats = [e["id"] for e in entities if e["id"] != hub_id]
+            if sats:
+                program.append({"op": f2, "target": sats[bi % len(sats)],
+                                "at": {"word": last_word}, "duration_ms": 480})
         if is_float:
             relations = [{"type": "connects", "source": hub_id,
                           "target": e["id"], "style": "stem"}

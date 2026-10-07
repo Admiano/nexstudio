@@ -2172,7 +2172,10 @@
       }
       if (ex) { opacity *= ex.opacity; ty += ex.ty; }
       const c = centre(node.bb);
-      if (scale !== 1 || ty || tx || gl.extra.rotateDeg) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)})${gl.extra.rotateDeg ? ` rotate(${gl.extra.rotateDeg})` : ''} translate(${f2(-c.x)} ${f2(-c.y)})`;
+      // Entrance spin: a pop-entrance body also settles out of a short rotation —
+      // the tile arrives twisting into place instead of only scaling up.
+      const entSpin = pop && pEnt < 1 ? (1 - EASE.outCubic(pEnt)) * -14 : 0;
+      if (scale !== 1 || ty || tx || gl.extra.rotateDeg || entSpin) transform += ` translate(${f2(c.x + tx)} ${f2(c.y + ty)}) scale(${scale.toFixed(4)}) rotate(${((gl.extra.rotateDeg || 0) + entSpin).toFixed(2)}) translate(${f2(-c.x)} ${f2(-c.y)})`;
       g.setAttribute('transform', transform.trim() || 'translate(0 0)');
       g.style.opacity = opacity.toFixed(4);
       if (gl.extra.shadow) castShadow(gl.extra.shadow, pose.cx + tx, pose.cy, ctx.canvas, pEnt, ctx.shadowRgb);
@@ -2614,7 +2617,8 @@
       let hostM;
       try { hostM = host.getScreenCTM(); } catch (e) { hostM = null; }
       if (!hostM) return null;
-      const inv = hostM.inverse();
+      let inv;
+      try { inv = hostM.inverse(); } catch (e) { return null; }
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       for (const el of inner.querySelectorAll(GRAPHIC)) {
         let a = el, cut = false;
