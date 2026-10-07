@@ -126,17 +126,7 @@ def clean(t):
     return t.strip()
 
 
-def display_units(gwords):
-    text = clean(" ".join(w["text"] for w in gwords))
-    # clauses split on , ; :
-    clauses, buf = [], []
-    for w in gwords:
-        buf.append(w["text"])
-        if CLAUSE_MID.search(w["text"]):
-            clauses.append(" ".join(buf)); buf = []
-    if buf:
-        clauses.append(" ".join(buf))
-    clauses = [c.strip() for c in clauses if c.strip()]
+def chunked_split(clauses):
     # asymmetric split for long clauses: support bboxes are narrow (≤~4 words
     # fit above the type floor), hero bboxes hold ~8. A 14-word clause becomes
     # [setup 3w] + [hero ≤8w] + [qualifier chunks ≤4w] instead of one hero
@@ -154,18 +144,46 @@ def display_units(gwords):
                 ws = ws[4:]
         else:
             chunked.append(c)
-    clauses = chunked
+    return chunked
+
+
+def display_units(gwords):
+    text = clean(" ".join(w["text"] for w in gwords))
+    # clauses split on , ; : — keep the index of each clause's first word so
+    # tail clauses that would enter too late to hold the legibility floor
+    # merge into the previous unit instead of starving on screen
+    clauses, cstarts, buf = [], [], []
+    for wi, w in enumerate(gwords):
+        if not buf:
+            cstarts.append(wi)
+        buf.append(w["text"])
+        if CLAUSE_MID.search(w["text"]):
+            clauses.append(" ".join(buf)); buf = []
+    if buf:
+        clauses.append(" ".join(buf))
+    pairs = [(c.strip(), s) for c, s in zip(clauses, cstarts) if c.strip()]
+    clauses = [c for c, _ in pairs]
+    beat_end = gwords[-1]["end_ms"]
+    HOLD_MIN_MS = 500  # conservative: compiler floors observed at 100-200ms
+    while len(clauses) > 1 and beat_end - gwords[pairs[-1][1]]["start_ms"] < HOLD_MIN_MS:
+        clauses[-2] = clauses[-2] + " " + clauses[-1]
+        pairs.pop()
+    clauses = chunked_split(clauses)
     units = []
     if len(clauses) >= 3:
         roles = ["support"] + ["support"] * (len(clauses) - 2) + ["support"]
-        hero_i = max(range(1, len(clauses)), key=lambda i: len(clauses[i].split()))
+        # hero is chosen among non-last clauses: a hero on the final clause
+        # lands its cascade inside the exit window and breaches LEGIBLE_HOLD
+        hero_i = max(range(1, len(clauses) - 1), key=lambda i: len(clauses[i].split()))
         for i, c in enumerate(clauses):
             role = "hero" if i == hero_i else ("support" if i == 0 else "support")
             sem = "setup" if i == 0 else ("statement" if i == hero_i else "qualifier")
             units.append({"text": c, "role": role, "anchor_word": c.split()[0],
                           "emphasis": 0.9 if role == "hero" else 0.5, "semantic_role": sem})
     elif len(clauses) == 2:
-        hero_i = 0 if len(clauses[0].split()) >= len(clauses[1].split()) else 1
+        # same rule: the trailing clause stays support so the hero settles
+        # while narration continues
+        hero_i = 0
         for i, c in enumerate(clauses):
             units.append({"text": c, "role": "hero" if i == hero_i else "support",
                           "anchor_word": c.split()[0],
@@ -173,11 +191,18 @@ def display_units(gwords):
                           "semantic_role": "statement" if i == hero_i else ("setup" if i == 0 else "qualifier")})
     else:
         words_ = text.split()
-        if len(words_) > 6:
-            units.append({"text": " ".join(words_[:3]) + ",", "role": "support",
+        if len(words_) >= 7:
+            # same legible-hold rule one level down: the hero must not end on
+            # the beat's last words — wrap the middle in hero, bookend with
+            # support so the cascade settles before the exit window.
+            # bookends stay at 2 words: support blocks cap at 2 lines in the
+            # narrow side-note column, so longer supports breach TYPE_FLOOR
+            units.append({"text": " ".join(words_[:2]) + ",", "role": "support",
                           "anchor_word": words_[0], "emphasis": 0.45, "semantic_role": "setup"})
-            units.append({"text": " ".join(words_[3:]), "role": "hero",
-                          "anchor_word": words_[3], "emphasis": 0.9, "semantic_role": "statement"})
+            units.append({"text": " ".join(words_[2:-2]), "role": "hero",
+                          "anchor_word": words_[2], "emphasis": 0.9, "semantic_role": "statement"})
+            units.append({"text": " ".join(words_[-2:]), "role": "support",
+                          "anchor_word": words_[-2], "emphasis": 0.5, "semantic_role": "qualifier"})
         else:
             units.append({"text": text, "role": "hero", "anchor_word": words_[0],
                           "emphasis": 0.9, "semantic_role": "statement"})

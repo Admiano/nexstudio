@@ -262,6 +262,15 @@ class BeatCompiler:
         text_load = ktp.clamp(sum(ktp.token_count(u['text']) for u in units) / 28, .15, 1)
         ktp_zone = ktp._zones(self.aspect, shot_role, object_present, text_load).text_zone
         native_zone = comp['text_zone']
+        # The composition authority may return a text zone that bleeds past the
+        # safe frame bottom (legal for illustration, never for text). Clamp it
+        # so remapped blocks cannot land outside the safe area.
+        zx2 = min(native_zone['x'] + native_zone['w'], self.safe['x'] + self.safe['w'])
+        zy2 = min(native_zone['y'] + native_zone['h'], self.safe['y'] + self.safe['h'])
+        native_zone = {'x': max(native_zone['x'], self.safe['x']),
+                       'y': max(native_zone['y'], self.safe['y']),
+                       'w': zx2 - max(native_zone['x'], self.safe['x']),
+                       'h': zy2 - max(native_zone['y'], self.safe['y'])}
         blocks: List[Dict[str, Any]] = []
         grown: List[int] = []
         for blk in perf['text_blocks']:
