@@ -136,12 +136,14 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '9:16',
         'frame_count': frame_count,
         'sentence_count': len(sents),
         'word_count': sum(len(s['words']) for s in sents),
-        'icons': [{'sentence': si, 'phrase': r['phrase'],
+        'icons': [{'sentence': si, 'word': wi, 'phrase': r['phrase'],
                    'art': f"{r['icon'][1]}/{r['icon'][2]}",
                    'clip_rank': r['rank'], 'clip_sim': r['sim'],
+                   'floor': bool(r.get('floor')),
                    'at_seconds': round(
                        sents[si]['words'][r['word']]['start'], 3)}
-                  for si, r in picks.items()],
+                  for si, rows in picks.items()
+                  for wi, r in rows.items()],
         'icon_issues': icon_issues,
     }
     (out_dir / f'{name}_METRICS.json').write_text(

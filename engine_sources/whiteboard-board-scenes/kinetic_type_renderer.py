@@ -124,7 +124,9 @@ def typeset(sentence: dict, size: int, face: str, frame_w: int,
     """
     gap = max(10, int(size * gap_ratio))
     words = sentence['words']
-    icon = sentence.get('icon')
+    icons = sentence.get('icons')
+    if icons is None and sentence.get('icon') is not None:
+        icons = {sentence['icon']['word']: sentence['icon']}
     # per-sentence emphasis cap — content-dense narration would otherwise
     # accent nearly every word. Keep the strongest candidates: digits >
     # proper nouns > longest open-class words; ties go to the earlier word.
@@ -149,7 +151,7 @@ def typeset(sentence: dict, size: int, face: str, frame_w: int,
             if emph is None:
                 emph = _emphasized(w['word'], sentence_first=(i == 0)) \
                     and i in keep
-            glyph = icon is not None and i == icon['word']
+            glyph = icons is not None and i in icons
             items.append({'w': w, 'emph': emph and not glyph, 'i': i,
                           'glyph': glyph,
                           'tw': (int(sz * ICON_EM) if glyph
@@ -176,7 +178,7 @@ def typeset(sentence: dict, size: int, face: str, frame_w: int,
             break
         size = int(size * 0.90)
     return {'lines': lines, 'size': size, 'lh': lh,
-            'block_h': lh * len(lines), 'gap': gap, 'icon': icon}
+            'block_h': lh * len(lines), 'gap': gap, 'icons': icons}
 
 
 def attach_word_times(sentence_words: list[str], word_times: list[dict],
@@ -304,7 +306,7 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
     bg = pal.get('paper', (252, 252, 250))
     fade = lambda c: tuple(int(ch * a) + int(bg[j] * (1 - a))
                            for j, ch in enumerate(c))
-    icon = spec.get('icon')
+    icons = spec.get('icons')
     y = frame_h * 0.46 - spec['block_h'] / 2 + y_shift
     for line in spec['lines']:
         total = sum(it['tw'] for it in line) + gap * (len(line) - 1)
@@ -320,9 +322,10 @@ def render_sentence(draw: ImageDraw.ImageDraw, spec: dict, t: float,
                 # the drawing takes the word's place in the line, inked
                 # on as the word is spoken; dim outline before then
                 if img is not None:
+                    ic = icons[it['i']]
                     pre = age < -0.02
                     kinetic_icons.draw_icon(
-                        img, icon['strokes'], (x + tw / 2, y + size * 0.55),
+                        img, ic['strokes'], (x + tw / 2, y + size * 0.55),
                         size * ICON_EM * 0.92,
                         w['start'] - (99 if pre else 0), t,
                         fade(dim if pre else ink),

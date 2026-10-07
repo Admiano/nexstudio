@@ -24,7 +24,12 @@ _DETERMINERS = frozenset(
     'another whose'.split())
 MAX_RANK = 10
 MIN_SIM = 0.30
-SENTENCES_PER_ICON = 2
+MIN_PER_SENTENCE = 1
+MAX_PER_SENTENCE = 3
+# floor picks (a sentence that found no strong-art word) may use
+# looser art bounds; strict picks keep the tight bar
+FLOOR_MAX_RANK = 60
+FLOOR_MIN_SIM = 0.22
 
 _v3 = None
 
@@ -129,7 +134,7 @@ def _noun_slot(words: list[str], i: int) -> bool:
     return False
 
 
-def _art(phrase: str, used):
+def _art(phrase: str, used, floor: bool = False):
     v3 = _r()
     ic = v3.icon_for(phrase, used)
     if not (isinstance(ic, tuple) and len(ic) == 3
@@ -141,13 +146,15 @@ def _art(phrase: str, used):
     key = (ic[1], ic[2])
     rank = art_clip.rank(phrase, key) if art_clip.available() else None
     sim = art_clip.score(phrase, key) if art_clip.available() else None
-    if rank is None or sim is None or rank > MAX_RANK or sim < MIN_SIM:
+    max_rank = FLOOR_MAX_RANK if floor else MAX_RANK
+    min_sim = FLOOR_MIN_SIM if floor else MIN_SIM
+    if rank is None or sim is None or rank > max_rank or sim < min_sim:
         return None, None
     strokes = v3._strokes_for(ic)
     if not strokes:
         return None, None
     return ic, {'rank': rank, 'sim': round(float(sim), 4),
-                'strokes': strokes}
+                'strokes': strokes, 'floor': floor}
 
 
 def _iconable(tok: str) -> bool:
@@ -179,67 +186,100 @@ def candidates(words: list[str]) -> list[dict]:
 
 
 def select(sents: list[dict]) -> dict[int, dict]:
-    """Pick the sparse icon set for a whole script: {sentence index:
-    {'word', 'phrase', 'icon', 'strokes', 'rank', 'sim'}}."""
+    """Pick the icon set for a whole script: {sentence index:
+    {word index: {'word','phrase','icon','strokes','rank','sim',
+    'floor'}}}. Every sentence carries between 1 and 3 icons: the
+    top candidates by art similarity under the strict bar, then —
+    only when a sentence would otherwise ship bare — the best
+    candidate under the floor bar. The same drawing is never used
+    twice."""
     used: dict = {}
-    has_concrete = any(
-        candidates([w['word'] for w in s['words']]) for s in sents)
-    if not has_concrete and script_concreteness(sents) < MIN_SCRIPT_CONCRETENESS:
-        return {}
-    best: list[tuple[float, int, dict]] = []
-    for si, s in enumerate(sents):
-        words = [w['word'] for w in s['words']]
-        top = None
-        for c in candidates(words):
-            ic, info = _art(c['phrase'], used)
-            if ic is None:
-                continue
-            row = {'word': c['i'], 'phrase': c['phrase'], 'icon': ic,
-                   **info}
-            if top is None or row['sim'] > top['sim']:
-                top = row
-        if top:
-            best.append((top['sim'], si, top))
-    budget = max(1, math.ceil(len(sents) / SENTENCES_PER_ICON)) \
-        if sents else 0
     picked: dict[int, dict] = {}
     seen: set = set()
-    for _sim, si, row in sorted(best, key=lambda r: (-r[0], r[1])):
-        if len(picked) >= budget:
-            break
-        key = (row['icon'][1], row['icon'][2])
-        if key in seen:
+    slots: list[tuple[int, list[str], list[dict]]] = [
+        (si, [w['word'] for w in s['words']], candidates(
+            [w['word'] for w in s['words']])) for si, s in
+        enumerate(sents)]
+    for floor in (False, True):
+        for si, words, cands in slots:
+            have = picked.get(si, {})
+            room = MAX_PER_SENTENCE - len(have)
+            if room <= 0 or not cands:
+                continue
+            rows = []
+            for c in cands:
+                if c['i'] in have:
+                    continue
+                ic, info = _art(c['phrase'], used, floor=floor)
+                if ic is None:
+                    continue
+                key = (ic[1], ic[2])
+                if key in seen:
+                    continue
+                rows.append((info['sim'], c['i'],
+                             {'word': c['i'], 'phrase': c['phrase'],
+                              'icon': ic, **info}))
+            rows.sort(key=lambda r: -r[0])
+            for _sim, wi, row in rows[:room]:
+                have[wi] = row
+                seen.add((row['icon'][1], row['icon'][2]))
+            if have:
+                picked[si] = have
+    # last resort for the 1-icon floor: when a still-bare sentence's
+    # word already appeared earlier, reuse that same drawing — the
+    # repeated word is the same thing, so the repeat reads as
+    # consistent, not lazy
+    for si, words, cands in slots:
+        if picked.get(si):
             continue
-        picked[si] = row
-        seen.add(key)
-    return dict(sorted(picked.items()))
+        for c in cands:
+            match = next((r for rows0 in picked.values()
+                          for r in rows0.values()
+                          if r['phrase'] == c['phrase']), None)
+            if match is not None:
+                picked[si] = {c['i']: {**match, 'word': c['i'],
+                                       'reuse': True}}
+                break
+    return {si: dict(sorted(rows.items())) for si, rows in
+            sorted(picked.items())}
 
 
 def apply(sents: list[dict], picks: dict[int, dict]) -> None:
-    """The drawing replaces its word in the sentence."""
-    for si, row in picks.items():
-        sents[si]['icon'] = row
+    """Each drawing replaces its word in the sentence."""
+    for si, rows in picks.items():
+        sents[si]['icons'] = rows
 
 
 def qa(sents: list[dict], picks: dict[int, dict]) -> list[dict]:
     issues = []
-    budget = max(1, math.ceil(len(sents) / SENTENCES_PER_ICON))
-    if len(picks) > budget:
-        issues.append({'severity': 'fail', 'check': 'icon-budget',
-                       'detail': f'{len(picks)} icons > {budget}'})
-    keys = [(r['icon'][1], r['icon'][2]) for r in picks.values()]
+    keys = [(r['icon'][1], r['icon'][2])
+            for rows in picks.values() for r in rows.values()
+            if not r.get('reuse')]
     if len(keys) != len(set(keys)):
         issues.append({'severity': 'fail', 'check': 'icon-repeat',
                        'detail': 'same drawing used twice'})
-    for si, r in picks.items():
-        if r['rank'] > MAX_RANK or r['sim'] < MIN_SIM:
-            issues.append({'severity': 'fail', 'check': 'icon-match',
+    for si in range(len(sents)):
+        n = len(picks.get(si, {}))
+        if n < MIN_PER_SENTENCE:
+            issues.append({'severity': 'warn', 'check': 'icon-floor',
                            'beat': si,
-                           'detail': f"{r['phrase']} -> {r['icon'][2]}"})
-        w = sents[si]['words'][r['word']]
-        if not _tok(w['word']) or _tok(w['word']) not in r['phrase']:
-            issues.append({'severity': 'fail', 'check': 'icon-timing',
-                           'beat': si, 'detail': 'icon not on its word'})
+                           'detail': 'sentence has no icon'})
+        elif n > MAX_PER_SENTENCE:
+            issues.append({'severity': 'fail', 'check': 'icon-budget',
+                           'beat': si,
+                           'detail': f'{n} icons > {MAX_PER_SENTENCE}'})
+    for si, rows in picks.items():
+        for r in rows.values():
+            max_rank = FLOOR_MAX_RANK if r.get('floor') else MAX_RANK
+            min_sim = FLOOR_MIN_SIM if r.get('floor') else MIN_SIM
+            if r['rank'] > max_rank or r['sim'] < min_sim:
+                issues.append({'severity': 'fail', 'check': 'icon-match',
+                               'beat': si,
+                               'detail': f"{r['phrase']} -> {r['icon'][2]}"})
+            w = sents[si]['words'][r['word']]
+            if not _tok(w['word']) or _tok(w['word']) not in r['phrase']:
+                issues.append({'severity': 'fail', 'check': 'icon-timing',
+                               'beat': si, 'detail': 'icon not on its word'})
     return issues
 
 
