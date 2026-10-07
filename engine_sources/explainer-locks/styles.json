@@ -100,22 +100,6 @@
    "captions": "burned",
    "mood": "precise",
    "sfx": "clean"
-  },
-  {
-   "id": "float",
-   "name": "Float AE",
-   "tagline": "Floating badges, dashed arcs, glassy field — float-ae-pro look",
-   "finish": "FLOAT_FIELD",
-   "reveal": "WORD_CASCADE",
-   "palette": {
-    "ink": "#191512",
-    "paper": "#faf8f4",
-    "accent": "#d95b3f"
-   },
-   "asset_family": "colour_icons",
-   "captions": "burned",
-   "mood": "dreamy",
-   "sfx": "glassy"
   }
  ],
  "entity_bank": {
