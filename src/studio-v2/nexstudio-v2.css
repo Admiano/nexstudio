@@ -2373,3 +2373,16 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
 @media(max-width:750px){.cast-builder .series-identity-live{height:310px;min-height:310px}.cast-builder .cast-live-preview{height:262px!important}.cast-image-options{gap:7px}.cast-image-option-label{font-size:9px}.cast-image-option small{font-size:7.5px}}
 
 .cast-render-stage>.cast-environment-plate{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}.cast-render-stage>.cast-presenter-overlay{position:relative;z-index:1}.cast-preview-status{z-index:2}.cast-environment-options .cast-image-option-art{aspect-ratio:1}.cast-environment-options{margin-top:8px}
+
+/* Mobile review: the film takes the full width, formats and actions stack beneath it. */
+@media(max-width:850px){
+  .finished-stage{overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .review-wrap{display:block;height:auto;min-height:calc(var(--app-h,100dvh) - 58px)}
+  .review-canvas{flex-direction:column;align-items:stretch;justify-content:flex-start;padding:14px 12px 18px;overflow:visible}
+  .review-video-shell,.review-video-shell.square{width:100%}
+  .review-video-shell.vertical{width:min(100%,calc((var(--app-h,100dvh) - 200px) * 9 / 16));align-self:center}
+  .review-video{border-radius:16px}
+  .aspect-switch{width:100%;margin-top:14px;gap:8px}
+  .aspect-chip{flex:1;height:44px;font-size:12px}
+  .review-side{border-top:0}
+}
