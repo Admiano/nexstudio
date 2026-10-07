@@ -317,6 +317,10 @@ def lip_layer(cfg,action):
     if cfg.get('phonemes'):
         sys.path.insert(0,str(Path(__file__).resolve().parent));import cast_lip_phonemes
         out,qa=cast_lip_phonemes.build(cfg,total,LIB['source']['fps'],LIB['phonemeVisemes'])
+        for o in bpy.data.objects:
+            kb=o.data.shape_keys.key_blocks if o.type=='MESH' and o.data.shape_keys else {}
+            for k,row in out.items():
+                if k in kb and max(row)>kb[k].slider_max:kb[k].slider_max=math.ceil(max(row)*10)/10
         set_curves(action,out);LIP_QA.update(qa)
         if float(cfg.get('jawBoneDeg',0)):jaw_bone(out['!ex-jawOpen'],float(cfg['jawBoneDeg']))
         return qa['phones']

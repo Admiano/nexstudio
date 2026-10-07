@@ -4,6 +4,7 @@ Targets per ARPAbet phoneme blend the face's existing keys; dominance-weighted
 co-articulation (Cohen-Massaro) lets rounding start early and keeps closures
 sharp. The jaw scales with each vowel's loudness relative to the speaker and
 with lexical stress. p/b/m always close the lips on the frame nearest the sound.
+keyScale overdrives weak keys past 1.0 (the caller raises their slider range).
 """
 import json,subprocess
 import numpy as np
@@ -56,7 +57,8 @@ def build(cfg,total,fps,table):
             x=np.maximum(0,np.abs(t-(s+e)/2)-(e-s)/2)/spread
             d=spec.get('dominance',1.0)*np.exp(-x**2)
             num+=d*min(1.0,tgt);den+=d
-        out[k]=np.clip(num/den,0,float(table.get('maxValue',{}).get(k,1)))
+        sc=float(table.get('keyScale',{}).get(k,1))
+        out[k]=np.clip(num/den*sc,0,float(table.get('maxValue',{}).get(k,max(1.0,sc))))
     # hard closure on bilabials: the frame nearest each p/b/m centre seals the lips
     hits=0;bil=[(s,e) for s,e,b,_ in seq if T[b].get('closure')]
     for s,e in bil:
@@ -68,7 +70,7 @@ def build(cfg,total,fps,table):
                 for k in table['openKeys']:out[k][g]*=1-w*.9
         hits+=out['V3_closed'][f]>=.6 if 1<=f<=total else 0
     qa={'phones':sum(b!='sil' for _,_,b,_ in seq),'bilabials':len(bil),'bilabialClosed':int(hits)}
-    qa['maxValue']={k:round(float(max(v)),3) for k,v in out.items()};qa['inBounds']=all(0<=float(min(v)) and float(max(v))<=1 for v in out.values())
+    qa['maxValue']={k:round(float(max(v)),3) for k,v in out.items()};qa['inBounds']=all(0<=float(min(v)) and float(max(v))<=max(1.0,float(table.get('keyScale',{}).get(k,1))) for k,v in out.items())
     if rms is not None:
         # sync score on voiced energy (vowel band) at vowel frames: fricatives are loud but keep the jaw nearly shut
         vb,_=_rms(cfg['audio'],band=(300,3000))
