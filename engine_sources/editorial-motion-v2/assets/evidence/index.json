@@ -540,6 +540,33 @@
     1767
    ]
   },
+  "chain": {
+   "concept": "on chain",
+   "query": "chain",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "10010851",
+   "title": "File:Chain 1.JPG",
+   "creator": "Stomchak",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Chain_1.JPG",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Chain_1.JPG/1920px-Chain_1.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "on-chain.3293e24ba639.jpg",
+   "sha256": "2b58581bd30704f3408c76e7ba15075c8be136992e4b6fde56d2b6ec078d8183",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-10-07",
+   "subjects": [
+    "Chains",
+    "Chain textures"
+   ],
+   "year": 2010,
+   "source_size": [
+    4000,
+    3000
+   ]
+  },
   "charger": {
    "concept": "charger",
    "query": "charger",
