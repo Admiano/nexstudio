@@ -7,12 +7,13 @@ sentences land on drawable words, plus compliance guardrails (no price
 predictions, no financial advice, no fabricated stats/dates).
 
 Provider order (local-first, zero funding):
-  1. in-process llama.cpp GGUF — NEXSTUDIO_WRITER_GGUF or first *.gguf under
-     ~/.cache/nexstudio/models (needs llama-cpp-python; CPU fine, ~1B class
-     models work)
+  1. in-process llama.cpp GGUF — NEXSTUDIO_WRITER_GGUF or largest *.gguf under
+     ~/.cache/nexstudio/models (needs llama-cpp-python; CPU fine, a 7B Q4
+     writes real domain scripts at ~4min/script)
   2. OpenAI-compatible HTTP — NEXSTUDIO_WRITER_BASE_URL (default
-     http://127.0.0.1:8080/v1, llama.cpp server / LM Studio / Ollama) with
-     NEXSTUDIO_WRITER_MODEL; falls back to OPENAI_BASE_URL/OPENAI_API_KEY
+     http://127.0.0.1:8787/v1, the repo's NexMind llama.cpp server; LM Studio
+     and Ollama speak the same shape) with NEXSTUDIO_WRITER_MODEL; falls
+     back to OPENAI_BASE_URL/OPENAI_API_KEY
 
 Usage:
   python3 write_script.py --brief "How liquid staking works on Solana" \
@@ -125,7 +126,7 @@ def _chat_inprocess(system: str, user: str) -> str | None:
 
 def _chat_http(system: str, user: str) -> str | None:
     base = os.environ.get("NEXSTUDIO_WRITER_BASE_URL",
-                          os.environ.get("OPENAI_BASE_URL", "http://127.0.0.1:8080/v1"))
+                          os.environ.get("OPENAI_BASE_URL", "http://127.0.0.1:8787/v1"))
     model = os.environ.get("NEXSTUDIO_WRITER_MODEL", "local")
     key = os.environ.get("NEXSTUDIO_WRITER_API_KEY", os.environ.get("OPENAI_API_KEY", ""))
     try:
@@ -143,14 +144,18 @@ def _chat_http(system: str, user: str) -> str | None:
 
 
 def generate(system: str, user: str) -> str:
+    # quality-first: a local GGUF (typically a 7B writer model) beats the
+    # small always-on NexMind server for domain scripts; when no GGUF is
+    # installed, the HTTP server / OPENAI_* path answers instead
     out = _chat_inprocess(system, user)
     if out is None:
         out = _chat_http(system, user)
     if out is None:
         raise RuntimeError(
-            "no writer backend: set NEXSTUDIO_WRITER_GGUF (local llama.cpp model), "
-            "or NEXSTUDIO_WRITER_BASE_URL + NEXSTUDIO_WRITER_MODEL "
-            "(any OpenAI-compatible endpoint), or OPENAI_BASE_URL/OPENAI_API_KEY")
+            "no writer backend: start the NexMind llama.cpp server on :8787, set "
+            "NEXSTUDIO_WRITER_GGUF or drop a *.gguf in ~/.cache/nexstudio/models "
+            "(in-process llama.cpp), or NEXSTUDIO_WRITER_BASE_URL + "
+            "NEXSTUDIO_WRITER_MODEL / OPENAI_* for any OpenAI-compatible endpoint")
     return out
 
 
