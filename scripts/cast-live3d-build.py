@@ -101,6 +101,53 @@ def hair_calibration(parts):
             if hx in shade.get(c,{}):shade[c][hx]=[round(v*f,5) for v,f in zip(shade[c][hx],k)]
     return shade
 
+def glb_meshes(path):
+    data=bytearray(path.read_bytes());n=int.from_bytes(data[12:16],'little');gltf=json.loads(data[20:20+n]);base=20+n+8
+    def view(i):
+        a=gltf['accessors'][i];v=gltf['bufferViews'][a['bufferView']];dt=np.dtype({5126:'<f4',5125:'<u4',5123:'<u2',5121:'u1'}[a['componentType']])
+        k={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}[a['type']];off=base+v.get('byteOffset',0)+a.get('byteOffset',0)
+        return off,np.frombuffer(bytes(data[off:off+a['count']*k*dt.itemsize]),dt).reshape(-1,k)
+    meshes=[]
+    for node in gltf['nodes']:
+        if 'mesh' not in node:continue
+        assert 'matrix' not in node and 'children' not in node
+        x,y,z,w=node.get('rotation',[0,0,0,1])
+        rot=np.array([[1-2*(y*y+z*z),2*(x*y-z*w),2*(x*z+y*w)],[2*(x*y+z*w),1-2*(x*x+z*z),2*(y*z-x*w)],[2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]])
+        for prim in gltf['meshes'][node['mesh']]['primitives']:
+            pos=(view(prim['attributes']['POSITION'])[1]*np.array(node.get('scale',[1,1,1])))@rot.T+np.array(node.get('translation',[0,0,0]))
+            off,idx=view(prim['indices']);meshes.append((node['name'],pos,off,idx.reshape(-1,3)))
+    return data,meshes
+
+def cull_hidden_skin(cell=.0015):
+    """Drop body faces the garment fully covers from the fixed orthographic camera, so skin under clothes cannot show through in the browser."""
+    from scipy.ndimage import minimum_filter
+    for body in sorted((PARTS/'body').glob('*-face*-*.glb')):
+        c,o=body.stem.split('-face')[0],body.stem.rsplit('-',1)[1];garment=PARTS/'garment'/f'{c}-{o}.glb'
+        if not garment.is_file():continue
+        tris=np.concatenate([pos[idx] for _,pos,_,idx in glb_meshes(garment)[1]])
+        lo=tris[...,:2].reshape(-1,2).min(0);shape=np.ceil((tris[...,:2].reshape(-1,2).max(0)-lo)/cell).astype(int)+1
+        front=np.full(shape,-np.inf)
+        for t in tris:
+            xy=(t[:,:2]-lo)/cell;x0,y0=np.floor(xy.min(0)).astype(int);x1,y1=np.ceil(xy.max(0)).astype(int)
+            gx,gy=np.meshgrid(np.arange(x0,x1+1),np.arange(y0,y1+1),indexing='ij');px=np.stack([gx.ravel(),gy.ravel()],1)+.5
+            m=np.array([[xy[1,0]-xy[0,0],xy[2,0]-xy[0,0]],[xy[1,1]-xy[0,1],xy[2,1]-xy[0,1]]])
+            if abs(np.linalg.det(m))<1e-12:continue
+            uv=np.linalg.solve(m,(px-xy[0]).T).T;w=np.c_[1-uv.sum(1),uv];ok=(w>=-1e-6).all(1)
+            if not ok.any():continue
+            cx,cy=np.clip(px[ok,0].astype(int),0,shape[0]-1),np.clip(px[ok,1].astype(int),0,shape[1]-1)
+            np.maximum.at(front,(cx,cy),w[ok]@t[:,2])
+        front=minimum_filter(front,3,mode='constant',cval=-np.inf)
+        data,meshes=glb_meshes(body);culled=0
+        for name,pos,off,idx in meshes:
+            if not re.fullmatch(r'L3D_Host\.(body|lineart_lower_legs)',name):continue
+            g=np.floor((pos[:,:2]-lo)/cell).astype(int);inside=(g>=0).all(1)&(g<shape).all(1)
+            hid=np.zeros(len(pos),bool);hid[inside]=front[g[inside,0],g[inside,1]]>pos[inside,2]
+            drop=hid[idx].all(1)&(idx!=idx[:,:1]).any(1)
+            if not drop.any():continue
+            new=idx.copy();new[drop]=new[drop][:,:1];data[off:off+new.nbytes]=new.astype(idx.dtype).tobytes();culled+=int(drop.sum())
+        if culled:body.write_bytes(data)
+        print('CAST_LIVE3D_CULL',body.name,culled,flush=True)
+
 def write_manifest():
     parts={};digest=hashlib.sha256()
     for meta_path in sorted(PARTS.glob('meta-*.json')):
@@ -139,4 +186,5 @@ if __name__=='__main__':
     elif '--manifest-only' not in sys.argv:
         for job in sorted((OUT/'jobs').iterdir()):run_job(job)
     filter_lines()
+    cull_hidden_skin()
     write_manifest()
