@@ -2,23 +2,6 @@
  "version": 1,
  "styles": [
   {
-   "id": "tiles",
-   "name": "Tiles",
-   "tagline": "Colour icons in tiles — the default explainer collage look",
-   "finish": "PRODUCT_COLLAGE",
-   "reveal": "WORD_CASCADE",
-   "palette": {
-    "ink": "#191512",
-    "paper": "#f2f1ee",
-    "accent": "#2f6fb3"
-   },
-   "asset_family": "colour_icons",
-   "template_fixture": "ai-leverage",
-   "captions": "none",
-   "mood": "bright",
-   "sfx": "clean"
-  },
-  {
    "id": "photo_story",
    "name": "Photo Story",
    "tagline": "Real photos in tiles — evidence-led, documentary feel",
@@ -66,52 +49,23 @@
    "sfx": "playful"
   },
   {
-   "id": "ink",
-   "name": "Ink",
-   "tagline": "Line art on warm paper — the quiet editorial look",
-   "finish": "EDITORIAL_FLAT",
+   "id": "journey",
+   "name": "Journey",
+   "tagline": "One hero icon travels the whole story and morphs with each beat",
+   "finish": "FLOAT_FIELD",
    "reveal": "WORD_CASCADE",
+   "journey": true,
+   "glyph": "BADGE",
+   "link_style": "arc",
    "palette": {
-    "ink": "#1b150f",
-    "paper": "#f6f1e7",
-    "accent": "#8a5a2b"
+    "ink": "#191512",
+    "paper": "#faf8f4",
+    "accent": "#d95b3f"
    },
-   "asset_family": "mono_icons",
-   "template_fixture": "style-ink",
+   "asset_family": "colour_icons",
    "captions": "burned",
-   "variants": [
-    {
-     "id": "paper",
-     "name": "Paper",
-     "tagline": "Ink look on textured stock",
-     "finish": "PAPER",
-     "palette": {
-      "ink": "#241d12",
-      "paper": "#efe7d2",
-      "accent": "#6e4f26"
-     },
-     "template_fixture": "style-paper"
-    }
-   ],
-   "mood": "elegant",
-   "sfx": "paper"
-  },
-  {
-   "id": "poster",
-   "name": "Poster",
-   "tagline": "One big tile + big type per beat — poster-card staging",
-   "finish": "PRODUCT_COLLAGE",
-   "reveal": "BLOCK",
-   "palette": {
-    "ink": "#14120f",
-    "paper": "#f4f2ed",
-    "accent": "#c2542a"
-   },
-   "asset_family": "mono_icons",
-   "template_fixture": "style-headline",
-   "captions": "none",
-   "mood": "driving",
-   "sfx": "bold"
+   "mood": "dreamy",
+   "sfx": "glassy"
   },
   {
    "id": "collage",
