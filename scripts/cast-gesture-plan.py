@@ -70,13 +70,22 @@ intents=[(sen,)+intent_of(sen) for sen in sentences]
 for k,(sen,m,c) in enumerate(intents):
     pat=PROFILE.get('sentenceStartIntents',{}).get(m)
     if pat and not re.match(pat,' '.join(words[i][2].lower() for i in sen)):intents[k]=(sen,MEAN['defaultIntent'],max(sen,key=lambda i:stress[i] if len(norm(words[i][2]))>=3 else 0))
+# storytelling about someone else (no I/we/you) gets a small offer on a clearly stressed word, else stillness
+NAR=PROFILE.get('narrate');quiet=set()
+if NAR:
+    for k,(sen,m,c) in enumerate(intents):
+        if m!=MEAN['defaultIntent'] or re.search(NAR['personal'],' '.join(words[i][2].lower() for i in sen)):continue
+        intents[k]=(sen,'narrate',c)
+        if stress[c]<NAR['minStress']:quiet.add(k)
 # a sentence's gesture should end before the next specific intent's cue, so each one gets its turn
-cue_frames=sorted(round(words[c][0]*fps)+1 for _,m,c in intents if m!=MEAN['defaultIntent'])
-limit=lambda i:next((f for f in cue_frames if f>round(words[i][0]*fps)+1),10**9)
+# (one counting gesture may carry on through the following list items)
+cue_frames=sorted((round(words[c][0]*fps)+1,m) for _,m,c in intents if m!=MEAN['defaultIntent'])
+limit=lambda i,cat=None:next((f for f,m in cue_frames if f>round(words[i][0]*fps)+1 and not (cat=='list' and m=='list')),10**9)
 events=[]
 intent_events={(c,m) for _,m,c in intents}
 # specific meanings place before plain explaining
-for sen,intent,cue in intents:events.append((cue,intent,5+stress[cue]+(0 if intent==MEAN['defaultIntent'] else 2.5)))
+for k,(sen,intent,cue) in enumerate(intents):
+    if k not in quiet:events.append((cue,intent,5+stress[cue]+(0 if intent in (MEAN['defaultIntent'],'narrate') else 2.5)))
 # word-level structure: sizes, and pointing on stressed deictic words in plain explaining
 plain={i for sen,intent,_ in intents if intent in ('explain','point') for i in sen}
 for i,(s0,e0,w) in enumerate(words if not PROFILE.get('sentenceOnly') else []):
@@ -124,6 +133,8 @@ for m,names in list(clips.items()):
 # presenter signature clips count as half-used so they are picked first
 bias=lambda n:-.5 if a.presenter and LIB['clips'][n].get('presenter')==a.presenter else 0
 fallback={**MEAN['fallback'],**PROFILE.get('fallback',{})}
+# a profile can send unmatched meanings to a small neutral move instead of a big generic one
+if PROFILE.get('genericFallback'):fallback={k:(PROFILE['genericFallback'] if v==MEAN['defaultIntent'] else v) for k,v in fallback.items()}
 # per-clip tempo (Mixamo clips slowed to the presenter hand-speed cap) times the style speed
 spd=lambda n:a.speed*LIB['clips'][n].get('tempo',1)
 pad=lambda n:int(MXC.get('padFrames',0)) if 'mixamo' in LIB['clips'][n] else 0
@@ -142,11 +153,11 @@ for i,cat,prio in sorted(events,key=lambda e:-e[2]):
             if used.get(name,0)>=R.get('maxRepeats',2):continue
             clip=LIB['clips'][name]
             if m=='list' and i in list_runs:
-                hits=[words[k][0] for k in list_runs[i]];at=(hits[0]+hits[-1])/2;anchor=(clip['onset']+clip['release'])/2
-            else:at=words[i][0];anchor=clip.get('apex',clip['stroke'])
+                at=words[list_runs[i][0]][0];anchor=clip['onset']
+            else:at=words[i][0];anchor=clip['onset'] if m=='list' else clip.get('apex',clip['stroke'])
             start=max(1,round((at-R['strokeLeadSec'])*fps)+1-round(anchor/spd(name))-pad(name));end=start+length(name)-1
             if any(start<=b+gap and end+gap>=s for s,b in busy):continue
-            if (i,cat) in intent_events and end+gap>limit(i):continue
+            if (i,cat) in intent_events and end>limit(i,m):continue
             busy.append((start,end));chosen.append((start,end,name,words[i][2],m));used[name]=used.get(name,0)+1;placed=True;break
         if placed:break
     if not placed:DROPS.append((words[i][2],cat))
@@ -177,4 +188,4 @@ if HP:
 if a.phonemes:out['lipSync']={'phonemes':a.phonemes,'audio':a.audio,'mouthOpen':1.0}
 elif a.rhubarb:out['lipSync']={'rhubarb':a.rhubarb,'mouthOpen':1.2}
 Path(a.out).write_text(json.dumps(out,indent=1)+'\n')
-print('GESTURE_PLAN',json.dumps({'words':len(words),'phrases':len(phrases),'events':len(events),'intents':[(words[c][2],m) for _,m,c in intents],'gestures':[(round((s-1)/fps,2),n,w,c) for s,_,n,w,c in chosen]}))
+print('GESTURE_PLAN',json.dumps({'words':len(words),'phrases':len(phrases),'events':len(events),'intents':[(words[c][2],m) for _,m,c in intents],'gestures':[(round((s-1)/fps,2),n,w,c) for s,_,n,w,c in chosen],'dropped':DROPS}))

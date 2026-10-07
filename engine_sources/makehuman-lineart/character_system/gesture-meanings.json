@@ -88,7 +88,7 @@
    ]
   ],
   [
-   "interviewer_calm|panel_judges|general_conversation|watercooler|lawyer_address|product_pitch|beat_right|raise_right|^emphasis$|hands_forward",
+   "interviewer_calm|panel_judges|general_conversation|watercooler|lawyer_address|product_pitch|beat_right|^emphasis$|hands_forward",
    [
     "explain"
    ]
@@ -128,6 +128,18 @@
    "disappointed",
    [
     "concern"
+   ]
+  ],
+  [
+   "offer_right|open_both_short|beat_right",
+   [
+    "narrate"
+   ]
+  ],
+  [
+   "^raise_right$",
+   [
+    "raise"
    ]
   ]
  ],
@@ -179,6 +191,14 @@
   [
    "negate",
    "^(no|not|never|nope)\\b|\\b(don't|doesn't|can't|won't|isn't|aren't)\\b"
+  ],
+  [
+   "list",
+   "\\b(two|three|four|five|several|a few) (\\w+ ){0,2}(things|ways|steps|reasons|tips|ideas|parts|rules|questions|types|kinds)\\b|^(first|firstly|second|secondly|finally|lastly)\\b"
+  ],
+  [
+   "scale",
+   "\\b(big|bigger|biggest|huge|massive|enormous|grow|grows|growing|growth|tiny|smaller|smallest|double|doubled|triple)\\b"
   ],
   [
    "you",

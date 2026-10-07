@@ -195,7 +195,12 @@
         "yaw": 0.04,
         "tilt": 0.025,
         "poseSec": 0.9
-      }
+      },
+      "narrate": {
+        "personal": "\\b(i|i'm|i've|we|we're|you|you're|your|our|us|my|let's)\\b",
+        "minStress": 1.3
+      },
+      "genericFallback": "narrate"
     }
   }
 }
