@@ -75,7 +75,7 @@ CRYPTO = {
     "coin":           {"mono": "icon.mingcute.coin-line", "emoji": "emoji.noto.coin", "photo": "coin", "aliases": ["coins"]},
     "cryptocurrency": {"colour": "icon.icon-park-color.bitcoin", "mono": "icon.mingcute.currency-bitcoin-line", "emoji": "emoji.noto.coin", "photo": "cryptocurrency", "aliases": ["crypto", "cryptocurrencies", "cryptos"]},
     # --- core concepts ---
-    "blockchain":     {"mono": "icon.carbon.chart-network", "emoji": "emoji.noto.chains", "colour": "icon.icon-park-color.blockchain", "photo": "blockchain", "aliases": ["blockchains", "block chain", "the chain"]},
+    "blockchain":     {"mono": "icon.carbon.chart-network", "emoji": "emoji.noto.chains", "colour": "icon.icon-park-color.blockchain", "photo": "blockchain", "aliases": ["blockchains", "block chain"]},
     "wallet":         {"mono": "icon.ant-design.wallet-outlined", "emoji": "emoji.noto.handbag", "colour": "icon.icon-park-color.wallet", "photo": "crypto wallet", "aliases": ["wallets", "digital wallet", "crypto wallet", "web3 wallet"]},
     "coldwallet":     {"mono": "icon.carbon.bank-vault", "emoji": "emoji.noto.locked", "photo": "hardware wallet", "aliases": ["cold wallet", "cold storage", "hardware wallet", "hardware wallets", "cold wallets"]},
     "hotwallet":      {"emoji": "emoji.noto.mobile-phone", "photo": "mobile crypto wallet", "aliases": ["hot wallet", "hot wallets", "mobile wallet", "software wallet"]},

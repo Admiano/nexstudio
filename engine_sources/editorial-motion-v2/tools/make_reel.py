@@ -31,6 +31,26 @@ VIDEO_EXTS = {".mp4", ".mov", ".webm", ".mkv"}
 CLAUSE_END = re.compile(r"[.!?]$")
 CLAUSE_MID = re.compile(r"[,;:]$")
 STOPWORDS = set("the a an of to and or in on for with by at is are was were be been it its this that".split())
+# function words that must never fuzzy-match into a drawable entity — the
+# bank's exact vocabulary is unaffected (these never were keys anyway)
+STOPWORDS |= set("""
+i me my mine we us our ours you your yours he him his she her hers it its they
+them their theirs this these those that there here when where who whom whose
+which what how why all any both each few more most other others some such no
+nor not only own same so than too very can will would could may might must
+shall should ought just don doesnt didnt doesnt has have had do does did done
+make made take took say said says go went gone come came see saw seen know
+knew think thought want wanted let lets put set use used using find found
+gave give gives tell told work worked works call called calls try tried tries
+ask asked asks need needed needs feel felt become became leave left seem
+seemed keep kept begin began now then also really much many less least every
+everyone everything everybody anybody anyone someone somebody something
+anything nothing none nobody once twice always never often sometimes usually
+again still yet ever almost even about above across after against along among
+around before behind below beneath beside between beyond down during except
+inside into like off onto out outside over past since through throughout
+toward towards under underneath until up upon within without via per near next
+""".split())
 
 
 def log(*a):
@@ -58,8 +78,14 @@ def make_voice(args, fixture_dir):
         align(out_wav, out_ali)
     else:
         text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
+        if not text.strip() and getattr(args, "brief", None):
+            # brief -> authored narration via the local/key-gated writer
+            from write_script import author_script
+            data = author_script(args.brief, seconds=35)
+            text = data.get("script", "").strip()
+            log(f"authored script: {data.get('title', args.brief)} ({len(text.split())} words)")
         if not text.strip():
-            sys.exit("need --script/--script-file or --voice-file")
+            sys.exit("need --script/--script-file/--brief or --voice-file")
         dur = synth(text.strip(), args.voice, out_wav)
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
@@ -109,6 +135,24 @@ def display_units(gwords):
     if buf:
         clauses.append(" ".join(buf))
     clauses = [c.strip() for c in clauses if c.strip()]
+    # asymmetric split for long clauses: support bboxes are narrow (≤~4 words
+    # fit above the type floor), hero bboxes hold ~8. A 14-word clause becomes
+    # [setup 3w] + [hero ≤8w] + [qualifier chunks ≤4w] instead of one hero
+    # that breaches the legibility floor.
+    chunked = []
+    for c in clauses:
+        ws = c.split()
+        if len(ws) > 11:
+            chunked.append(" ".join(ws[:3]))
+            ws = ws[3:]
+            chunked.append(" ".join(ws[:8]))
+            ws = ws[8:]
+            while ws:
+                chunked.append(" ".join(ws[:4]))
+                ws = ws[4:]
+        else:
+            chunked.append(c)
+    clauses = chunked
     units = []
     if len(clauses) >= 3:
         roles = ["support"] + ["support"] * (len(clauses) - 2) + ["support"]
@@ -151,11 +195,67 @@ def _norm_phrase(s):
 PHRASES = {_norm_phrase(k): v for k, v in _PHRASES_RAW.items()}
 MAX_PHRASE_WORDS = max((len(p.split()) for p in PHRASES), default=1)
 
+# a word that is itself a bank key is never a stopword — the function-word
+# list must not block real vocabulary
+STOPWORDS -= set(BANK)
 
-def pick_entities(gwords, family, already):
+# semantic fallback: nearest bank concept for words exact matching misses.
+# Disabled automatically when transformers/torch or the model is unavailable.
+try:
+    from semantic_entities import init as _sem_init, lookup as _sem_lookup, embed_texts as _sem_embed
+    _SEMANTIC = _sem_init(BANK, PHRASES)
+except Exception:
+    _sem_lookup, _sem_embed, _SEMANTIC = None, None, False
+
+# neutral markers for beats whose narration names no drawable thing — every
+# beat gets an entity (compiler requires >=1), and these read as discourse
+# markers rather than a wrong metaphor. Question beats prefer 'question'.
+FALLBACK_ENTITIES = [
+    {"key": "question", "colour": "icon.icon-park-color.help",
+     "mono": "icon.lucide.message-circle-question-mark",
+     "emoji": "emoji.noto.red-question-mark", "photo": "question mark"},
+    {"key": "point", "colour": "icon.icon-park-color.comment",
+     "mono": "icon.mingcute.comment-line",
+     "emoji": "emoji.noto.speech-balloon", "photo": "speech bubble"},
+    {"key": "idea", "colour": "icon.icon-park-color.lightning",
+     "mono": "icon.lucide.lightbulb",
+     "emoji": "emoji.noto.light-bulb", "photo": "light bulb"},
+    {"key": "highlight", "colour": "icon.icon-park-color.star",
+     "mono": "icon.ant-design.star-outlined",
+     "emoji": "emoji.noto.star", "photo": "abstract"},
+    {"key": "note", "colour": "icon.icon-park-color.bookmark",
+     "mono": "icon.mingcute.bookmark-line",
+     "emoji": "emoji.noto.sparkles", "photo": "abstract"},
+]
+
+
+def fallback_entity(family, n, question=False):
+    spec = (FALLBACK_ENTITIES[0] if question
+            else FALLBACK_ENTITIES[(n % (len(FALLBACK_ENTITIES) - 1)) + 1])
+    ref = spec.get(family) or spec.get("photo")
+    if not ref:
+        return None
+    ent = {"id": f"e1_{spec['key']}{n}", "kind": "object", "glyph": "TILE"}
+    if family == "photos" or ref == spec.get("photo"):
+        ent["concept"] = ref
+    else:
+        ent["asset_ref"] = ref
+    return ent
+
+
+# exact-key vetoes: a word that is a bank key still loses when a co-occurring
+# word proves the everyday sense ("river bank" is not a financial bank)
+_POLYSEME_VETO = {
+    "bank": {"river", "shore", "canal", "stream", "bankside"},
+    "base": {"statue", "bottom", "foundation", "bases"},
+}
+
+
+def pick_entities(gwords, family, already, ctx=None):
     seen = set()
     out = []
     toks = [word_key(w["text"]) for w in gwords]
+    tokset = set(toks)
     i = 0
     while i < len(toks):
         tk = toks[i]
@@ -176,7 +276,17 @@ def pick_entities(gwords, family, already):
                 hit = next((c for c in cands if PHRASES.get(c) in BANK), None)
                 if hit:
                     key = PHRASES[hit]
+            if not key and _SEMANTIC and tk not in STOPWORDS:
+                # nearest concept for vocabulary the bank doesn't spell out
+                key = _sem_lookup(tk, BANK, family, already, ctx)
+                if not key and i + 1 < len(toks) and toks[i + 1] not in STOPWORDS:
+                    two = _sem_lookup(toks[i] + " " + toks[i + 1], BANK, family, already, ctx)
+                    if two:
+                        key, span = two, 2
         if not key or key in already or (span == 1 and tk in STOPWORDS):
+            i += 1
+            continue
+        if _POLYSEME_VETO.get(key, set()) & tokset:
             i += 1
             continue
         spec = BANK[key]
@@ -200,7 +310,14 @@ def pick_entities(gwords, family, already):
 
 def build_treatment(args, style, words, media_files, film_id):
     groups = chunk_beats(words)
-    beats, used_kw = [], set()
+    beats, used_kw, fallback_n = [], set(), 0
+    # film-level topic vector: semantic matches rerank toward keys aligned
+    # with what the narration is actually about
+    ctx = None
+    if _SEMANTIC:
+        _ev = _sem_embed(" ".join(w["text"] for w in words))
+        if _ev is not None:
+            ctx = _ev[0]
     fam = style["asset_family"]
     fam_key = {"colour_icons": "colour", "mono_icons": "mono", "emoji": "emoji", "photos": "photo"}[fam]
     media_iter = iter(enumerate(media_files))
@@ -212,7 +329,12 @@ def build_treatment(args, style, words, media_files, film_id):
     for bi, g in enumerate(groups):
         bid = f"b{bi+1:02d}"
         narration = clean(" ".join(w["text"] for w in g))
-        picked = pick_entities(g, fam_key, used_kw)
+        picked = pick_entities(g, fam_key, used_kw, ctx)
+        if not picked:
+            fe = fallback_entity(fam_key, fallback_n, question="?" in narration)
+            if fe:
+                picked = [(fe, g[0]["text"])]
+                fallback_n += 1
         ents = []
         for ent, anchor in picked:
             ents.append([ent, anchor])
@@ -325,6 +447,7 @@ def remux_nocaption(frames_dir, audio_wav, out_mp4):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--script"); ap.add_argument("--script-file"); ap.add_argument("--voice-file")
+    ap.add_argument("--brief", help="topic/brief — authored into a script by tools/write_script.py")
     ap.add_argument("--voice", default="andrew", choices=sorted(VOICES))
     ap.add_argument("--style", default="tiles")
     ap.add_argument("--media", nargs="*", default=[])
