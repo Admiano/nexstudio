@@ -37,6 +37,11 @@ VOICES = {
     "natasha": "en-AU-NatashaNeural",
 }
 
+PIPELINES = {
+    "kinetic": "pipeline_kinetic_timed.py",
+    "board-scenes": "pipeline_v3_narration_timed.py",
+}
+
 WHISPER_PYTHON = os.environ.get(
     "NEXSTUDIO_WHISPER_PYTHON", "/home/ubuntu/tools/whisper/bin/python3")
 
@@ -79,17 +84,21 @@ def build_voice(args, script_text: str | None, work: Path) -> tuple[Path, Path |
 
 def build_plan(args, script_text: str, work: Path, aspects: list[str]) -> Path:
     import plan_author
-    import sb_qa
-    plan = plan_author.build_storyboard(script_text, title=args.title)
+    if args.type == "board-scenes":
+        plan = plan_author.build_storyboard(script_text, title=args.title)
+    else:
+        plan = plan_author.build_plan(script_text, vtype="kinetic", title=args.title)
     plan_path = work / "plan.json"
     plan_path.write_text(json.dumps(plan, indent=1))
-    fails: list[str] = []
-    for aspect in aspects:
-        issues, _ = sb_qa.visual(plan, aspect)
-        fails += [f"{aspect}:{i.get('check')}:{i.get('beat','')}:{i.get('detail','')}"
-                  for i in issues if i.get("severity") == "fail"]
-    if fails:
-        raise RuntimeError("GATE_REFUSED " + "; ".join(fails[:12]))
+    if args.type == "board-scenes":
+        import sb_qa
+        fails: list[str] = []
+        for aspect in aspects:
+            issues, _ = sb_qa.visual(plan, aspect)
+            fails += [f"{aspect}:{i.get('check')}:{i.get('beat','')}:{i.get('detail','')}"
+                      for i in issues if i.get("severity") == "fail"]
+        if fails:
+            raise RuntimeError("GATE_REFUSED " + "; ".join(fails[:12]))
     return plan_path
 
 
@@ -98,7 +107,7 @@ def main() -> int:
     ap.add_argument("--script", help="narration script text file (one beat per paragraph)")
     ap.add_argument("--voice-file", help="uploaded narration audio; replaces TTS")
     ap.add_argument("--voice", default="emma", choices=sorted(VOICES))
-    ap.add_argument("--type", default="board-scenes", choices=["board-scenes"])
+    ap.add_argument("--type", default="board-scenes", choices=sorted(PIPELINES))
     ap.add_argument("--theme", default="light", choices=("light", "dark"))
     ap.add_argument("--accent", default=None)
     ap.add_argument("--title", default="NEXSTUDIO")
@@ -131,19 +140,22 @@ def main() -> int:
     progress(phase="direction")
     plan_path = build_plan(args, script_text or "", work, aspect_list)
 
-    pipeline = ROOT / "pipeline_v3_narration_timed.py"
+    pipeline = ROOT / PIPELINES[args.type]
     outputs: dict[str, str] = {}
     for ai, aspect in enumerate(aspect_list):
         progress(phase="render", aspect=aspect, aspectsDone=ai, aspectsTotal=len(aspect_list))
         ratio_dir = out / aspect.replace(":", "x")
         cmd = [sys.executable, str(pipeline), str(plan_path),
                "--out-dir", str(ratio_dir), "--ratio", aspect,
-               "--variant", "board_sections", "--theme", args.theme,
-               "--voiceover", str(vo_wav)]
+               "--theme", args.theme, "--voiceover", str(vo_wav)]
+        if args.type == "board-scenes":
+            cmd += ["--variant", "board_sections"]
         if words_json:
             cmd += ["--word-timings", str(words_json)]
         if args.accent:
             cmd += ["--accent", args.accent]
+        if args.icons:
+            cmd += ["--icons", args.icons]
         sh(cmd, cwd=ROOT,
            env={**os.environ,
                 "NEXSTUDIO_SCENE_LLM": "off",
