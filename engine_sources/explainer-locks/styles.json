@@ -112,6 +112,56 @@
    "captions": "none",
    "mood": "driving",
    "sfx": "bold"
+  },
+  {
+   "id": "collage",
+   "name": "Collage",
+   "tagline": "Dense media-card field — busy, layered, editorial",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "collage": true,
+   "palette": {
+    "ink": "#191512",
+    "paper": "#faf8f4",
+    "accent": "#d95b3f"
+   },
+   "asset_family": "colour_icons",
+   "captions": "burned",
+   "mood": "editorial",
+   "sfx": "paper"
+  },
+  {
+   "id": "dataviz",
+   "name": "Data Viz",
+   "tagline": "Spoken numbers draw themselves — counters and bars",
+   "finish": "EDITORIAL_FLAT",
+   "reveal": "WORD_CASCADE",
+   "dataviz": true,
+   "palette": {
+    "ink": "#14151a",
+    "paper": "#f6f7f9",
+    "accent": "#2f6fb3"
+   },
+   "asset_family": "colour_icons",
+   "captions": "burned",
+   "mood": "precise",
+   "sfx": "clean"
+  },
+  {
+   "id": "float",
+   "name": "Float AE",
+   "tagline": "Floating badges, dashed arcs, glassy field — float-ae-pro look",
+   "finish": "FLOAT_FIELD",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#191512",
+    "paper": "#faf8f4",
+    "accent": "#d95b3f"
+   },
+   "asset_family": "colour_icons",
+   "captions": "burned",
+   "mood": "dreamy",
+   "sfx": "glassy"
   }
  ],
  "entity_bank": {
