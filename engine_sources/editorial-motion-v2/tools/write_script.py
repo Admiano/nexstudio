@@ -185,6 +185,24 @@ def compliance_flags(script: str) -> list[tuple[str, str]]:
             for rx, tag in _COMPLIANCE if rx.search(s)]
 
 
+# uppercase ticker symbols read aloud as the asset name: TTS would otherwise
+# say "sole" for SOL, whisper captions "sole", and the solana brand mark
+# never picks. Only UPPERCASE forms rewrite — lowercase words stay untouched
+_TICKERS = {
+    "BTC": "Bitcoin", "ETH": "Ethereum", "SOL": "Solana", "USDT": "Tether",
+    "USDC": "USD Coin", "DOGE": "Dogecoin", "ADA": "Cardano",
+    "DOT": "Polkadot", "LINK": "Chainlink", "AVAX": "Avalanche",
+    "LTC": "Litecoin", "XMR": "Monero", "MATIC": "Polygon",
+    "SUI": "Sui", "TON": "Toncoin", "TRX": "Tron", "ATOM": "Cosmos",
+}
+_TICKER_RX = re.compile(r"\b(" + "|".join(map(re.escape, _TICKERS)) + r")\b")
+
+
+def normalize_tickers(text: str) -> str:
+    """Written form -> spoken form ('SOL tokens' -> 'Solana tokens')."""
+    return _TICKER_RX.sub(lambda m: _TICKERS[m.group(1)], text)
+
+
 def _coverage_report(script: str) -> tuple[str, list[str]]:
     """Sentence-level entity coverage — feedback for a second pass."""
     import make_reel as mr
@@ -277,6 +295,7 @@ def author_script(brief: str, seconds: int = 45, audience: str = "smart general"
                               if s.strip() and s.strip() not in still)
             data["script"] = script
             data["_compliance_dropped"] = sorted(still)
+    data["script"] = normalize_tickers(script)
     return data
 
 

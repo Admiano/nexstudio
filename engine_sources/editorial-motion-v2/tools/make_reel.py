@@ -86,6 +86,8 @@ def make_voice(args, fixture_dir):
             log(f"authored script: {data.get('title', args.brief)} ({len(text.split())} words)")
         if not text.strip():
             sys.exit("need --script/--script-file/--brief or --voice-file")
+        from write_script import normalize_tickers
+        text = normalize_tickers(text.strip())  # 'SOL' -> 'Solana' for TTS+captions
         dur = synth(text.strip(), args.voice, out_wav)
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
