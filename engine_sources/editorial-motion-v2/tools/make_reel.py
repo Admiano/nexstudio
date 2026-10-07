@@ -336,6 +336,10 @@ def pick_entities(gwords, family, already, ctx=None):
 
 
 def build_treatment(args, style, words, media_files, film_id):
+    # Style knobs beyond the six visual families: which housing the entity icons
+    # wear (TILE/BADGE/CHIP...) and how their connectors draw (solid/dash/arc).
+    glyph = style.get("glyph", "TILE")
+    link_style = style.get("link_style")
     groups = chunk_beats(words)
     beats, used_kw, fallback_n = [], set(), 0
     # film-level topic vector: semantic matches rerank toward keys aligned
@@ -372,6 +376,8 @@ def build_treatment(args, style, words, media_files, film_id):
         sizes = ["hero", "support", "minor", "support", "minor", "support", "minor"]
         entities, program = [], []
         for ei, (ent, anchor) in enumerate(ents):
+            if ent["glyph"] == "TILE":
+                ent["glyph"] = glyph
             ent["size"] = sizes[min(ei, len(sizes) - 1)]
             entities.append(ent)
             program.append({"op": "DRAW", "target": ent["id"], "at": {"word": anchor},
@@ -393,7 +399,8 @@ def build_treatment(args, style, words, media_files, film_id):
             "illustration": {"form": "OBJECT_STAGE", "entities": entities,
                              "relations": [{"type": "connects",
                                             "source": entities[i - 1]["id"],
-                                            "target": entities[i]["id"]}
+                                            "target": entities[i]["id"],
+                                            **({"style": link_style} if link_style else {})}
                                            for i in range(1, len(entities))],
                              "program": program},
         })

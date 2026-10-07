@@ -104,6 +104,36 @@
    "asset_family": "mono_icons",
    "template_fixture": "style-headline",
    "captions": "none"
+  },
+  {
+   "id": "float",
+   "name": "Float",
+   "tagline": "Floating chips, dashed paths, media cards \u2014 the social-ad field",
+   "finish": "PRODUCT_COLLAGE",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#1a1713",
+    "paper": "#faf8f4",
+    "accent": "#d95b3f"
+   },
+   "asset_family": "colour_icons",
+   "glyph": "BADGE",
+   "link_style": "arc",
+   "captions": "none"
+  },
+  {
+   "id": "deck",
+   "name": "Deck",
+   "tagline": "One centred poster-card plus caption \u2014 identical skeleton on every screen",
+   "finish": "CENTER_DECK",
+   "reveal": "WORD_CASCADE",
+   "palette": {
+    "ink": "#181410",
+    "paper": "#f6f3ed",
+    "accent": "#2f6fb3"
+   },
+   "asset_family": "colour_icons",
+   "captions": "none"
   }
  ],
  "entity_bank": {

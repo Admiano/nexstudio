@@ -57,7 +57,7 @@ MEDIA_KINDS = ('IMAGE', 'SCREENSHOT', 'DOCUMENT', 'VIDEO')
 MEDIA_ROLES = ('EVIDENCE', 'PROOF', 'CONTEXT')
 FIGURE_POSTURES = ('standing', 'sitting')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
-FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
+FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE', 'CENTER_DECK')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
 FILM_MOODS = ('bright', 'calm', 'dreamy', 'driving', 'elegant', 'focused', 'jazzy', 'playful', 'quirky', 'tense', 'uplifting', 'warm', 'wistful')
 # Motion profile per finish: how elements enter, how far the camera drifts per beat, how cuts dissolve.
@@ -73,6 +73,10 @@ MOTION_PROFILES = {
               'spring': 'settle', 'breathe': 0.005, 'label_lag_ms': 40, 'motion_blur': 0.6, 'media_tilt': 0.0},
     'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise',
                         'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0, 'media_tilt': 1.0},
+    # One centered poster-card: the same skeleton at every aspect, so camera
+    # movement stays gentle — the card is the whole stage.
+    'CENTER_DECK': {'entrance': 'pop', 'stagger_ms': 85, 'camera_push': 0.018, 'camera_pan_frac': 0.005, 'transition': 'scale_through', 'blur_px': 8, 'word_landing': 'rise',
+                    'spring': 'snap', 'breathe': 0.008, 'label_lag_ms': 50, 'motion_blur': 0.8, 'media_tilt': 0.4},
 }
 # How the film's camera carries one beat into the next; the compiler picks from beat energy,
 # a hard cut only when the treatment asks for one (beat.cut = 'hard').

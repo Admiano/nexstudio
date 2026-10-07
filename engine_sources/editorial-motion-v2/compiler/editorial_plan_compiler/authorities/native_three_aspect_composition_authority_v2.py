@@ -58,6 +58,10 @@ def _portrait(treatment,visual_kind):
       'CTA_LOCKUP':_profile(_box(54,300,612,420),_box(110,810,500,250),layout_family='PORTRAIT_CTA_LOCKUP',hero_scale=1.04,text_align='center',field_use='hero_dominant',max_lines=3),
       # Product collage: centred lockup over a full-width object field; no side split.
       'COLLAGE_STAGE':_profile(_box(54,96,612,300),_box(40,440,640,720),layout_family='PORTRAIT_COLLAGE',hero_scale=1.02,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=3),
+      # Center deck: one poster-card carrying the visual, caption band centred
+      # beneath it. Same skeleton at every aspect — the whole format is the card.
+      'DECK_STAGE':_profile(_box(90,830,540,260),_box(90,150,540,640),layout_family='PORTRAIT_DECK_CARD',hero_scale=1.00,evidence_scale=1.05,text_align='center',field_use='centred_card',max_lines=3),
+      'DECK_LOCKUP':_profile(_box(110,340,500,500),_box(250,900,220,200),layout_family='PORTRAIT_DECK_LOCKUP',hero_scale=1.10,text_align='center',field_use='hero_dominant',max_lines=3),
       'COLLAGE_LOCKUP':_profile(_box(54,300,612,520),_box(200,900,320,200),layout_family='PORTRAIT_COLLAGE_LOCKUP',hero_scale=1.12,text_align='center',field_use='hero_dominant',max_lines=4),
     }
     return m.get(treatment,m['PROGRESSIVE_HERO_BUILD'])
@@ -75,6 +79,8 @@ def _square(treatment,visual_kind):
       'CTA_LOCKUP':_profile(_box(115,255,850,420),_box(660,705,240,175),layout_family='SQUARE_CTA_LOCKUP',hero_scale=1.07,text_align='center',field_use='hero_dominant',max_lines=3),
       'COLLAGE_STAGE':_profile(_box(84,80,912,260),_box(70,380,940,600),layout_family='SQUARE_COLLAGE',hero_scale=1.02,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=3),
       'COLLAGE_LOCKUP':_profile(_box(100,300,880,440),_box(760,760,220,160),layout_family='SQUARE_COLLAGE_LOCKUP',hero_scale=1.14,text_align='center',field_use='hero_dominant',max_lines=3),
+      'DECK_STAGE':_profile(_box(160,690,760,240),_box(160,110,760,560),layout_family='SQUARE_DECK_CARD',hero_scale=1.02,evidence_scale=1.05,text_align='center',field_use='centred_card',max_lines=3),
+      'DECK_LOCKUP':_profile(_box(190,260,700,460),_box(390,770,300,180),layout_family='SQUARE_DECK_LOCKUP',hero_scale=1.10,text_align='center',field_use='hero_dominant',max_lines=3),
     }
     return m.get(treatment,m['PROGRESSIVE_HERO_BUILD'])
 
@@ -92,6 +98,8 @@ def _landscape(treatment,visual_kind):
       'CTA_LOCKUP':_profile(_box(110,128,1020,430),_box(980,490,170,100),layout_family='LANDSCAPE_CTA_BILLBOARD',hero_scale=1.22,text_align='center',field_use='full_width_cta',max_lines=2),
       'COLLAGE_STAGE':_profile(_box(110,62,988,200),_box(80,290,1120,376),layout_family='LANDSCAPE_COLLAGE',hero_scale=1.12,evidence_scale=1.15,text_align='center',field_use='centred_collage',max_lines=2),
       'COLLAGE_LOCKUP':_profile(_box(100,140,1008,420),_box(960,520,160,80),layout_family='LANDSCAPE_COLLAGE_LOCKUP',hero_scale=1.3,text_align='center',field_use='full_width_lockup',max_lines=3),
+      'DECK_STAGE':_profile(_box(330,475,620,132),_box(330,64,620,400),layout_family='LANDSCAPE_DECK_CARD',hero_scale=1.04,evidence_scale=1.06,text_align='center',field_use='centred_card',max_lines=2),
+      'DECK_LOCKUP':_profile(_box(280,130,720,400),_box(540,545,200,110),layout_family='LANDSCAPE_DECK_LOCKUP',hero_scale=1.2,text_align='center',field_use='hero_dominant',max_lines=3),
     }
     return m.get(treatment,m['PROGRESSIVE_HERO_BUILD'])
 

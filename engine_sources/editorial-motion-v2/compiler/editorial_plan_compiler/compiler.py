@@ -220,6 +220,9 @@ class BeatCompiler:
         if self.film.brand.finish == 'PRODUCT_COLLAGE':
             has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
             return 'COLLAGE_STAGE' if has_visual else 'COLLAGE_LOCKUP'
+        if self.film.brand.finish == 'CENTER_DECK':
+            has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
+            return 'DECK_STAGE' if has_visual else 'DECK_LOCKUP'
         if il is None and not self.carried_illustration:
             return t
         if il is not None and il.form in PROCESS_FORMS:
@@ -819,7 +822,7 @@ class BeatCompiler:
             warnings.append('SOUND_LIBRARY_MISSING')
 
         bg = (comp.get('authentic_v2_plan') or {}).get('background_template') or 'SOFT_FIELD'
-        render_bg = 'SPOTLIGHT_STAGE' if figure else ('CARD_STAGE' if (media or data) else ('STAGE_FIELD' if illustration else 'SOFT_FIELD'))
+        render_bg = 'SPOTLIGHT_STAGE' if figure else ('CARD_STAGE' if (media or data or self.film.brand.finish == 'CENTER_DECK') else ('STAGE_FIELD' if illustration else 'SOFT_FIELD'))
         stage_zone = (media or figure or data or illustration or {}).get('zone') or self.safe
         # Every beat must carry visible content inside its lead-in window: stage, chrome or first words.
         firsts = [w['start_ms'] for w in [{'text': w.text, 'start_ms': w.start_ms, 'end_ms': w.end_ms} for w in clock.words]]
