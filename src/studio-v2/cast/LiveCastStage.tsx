@@ -66,6 +66,7 @@ function recolourHair(target:Float32Array|Uint16Array|Uint8Array,base:ArrayLike<
 function nameOf(o:THREE.Object3D){let n=o.name;for(let p=o.parent;p&&!n.startsWith('L3D_');p=p.parent)n=p.name;return n.replace(/^L3D_Host\.?/,'').replace(/\./g,'');}
 
 const ID_MATERIALS=[0,1,2,3].map(i=>new THREE.MeshBasicMaterial({color:new THREE.Color(i===0?0:1,i===2?1:0,i===3?1:0),side:THREE.DoubleSide}));
+const BODY_DEPTH=.003;
 const OUTLINE_VERTEX='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
 const OUTLINE_FRAGMENT=`uniform sampler2D ids;uniform vec2 texel;uniform float strength;uniform vec3 ink;varying vec2 vUv;
 void main(){vec3 c=texture2D(ids,vUv).rgb,m=c;for(int x=-1;x<=1;x++)for(int y=-1;y<=1;y++)m=max(m,texture2D(ids,vUv+vec2(x,y)*texel).rgb);
@@ -94,13 +95,14 @@ async function assemble(spec:CastSpec,manifest:LiveManifest,selection:LiveSelect
  for(const [name,entry] of Object.entries(selection) as [string,{key:string;part:LivePart}][]){
   const part=entry.part,node=(await model(part.glb,manifest.version)).scene;
   node.traverse(o=>{if(o instanceof THREE.Mesh){if(!(o.material instanceof THREE.MeshBasicMaterial))o.material=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide});o.userData.inkId=part.ink?.[nameOf(o)]??(name==='hair'?1:0);}});
+  node.position.z=name==='body'?-BODY_DEPTH:0;
   if(name==='body'&&!globalThis.location?.search.includes('nomerge'))node.traverse(o=>{if(o instanceof THREE.Mesh&&/^(?:body|V60_ear_(?:fill|inner))/.test(nameOf(o)))mergeCornerColours(o);});
   if(name==='body'&&part.skin){const skin=tintRatio(want.skin,part.skin),lip=female&&want.lip&&part.lip?tintRatio(want.lip,part.lip):skin;node.traverse(o=>{if(o instanceof THREE.Mesh&&/^(?:body|V60_ear_(?:fill|inner))/.test(nameOf(o))){if(female&&o.geometry.getAttribute('_lipmask'))lipShade(o,skin,lip);else multiply(o,()=>skin);}});}
   const ht=name==='hair'&&part.hairHex?{...hairTint(want.hair,part.hairHex),ratio:hairShadeRatio(manifest,female?'f':'m',want.hair,part.hairHex)}:null;
   if(ht)node.traverse(o=>{if(o instanceof THREE.Mesh){const c=colourAttribute(o);if(c){const arr=c.a.array as Float32Array|Uint16Array|Uint8Array;recolourHair(arr,c.base,c.a.itemSize,c.a.count,ht,c.a.normalized?(arr instanceof Uint16Array?65535:255):1);c.a.needsUpdate=true;}}});
   if(name==='garment'&&part.tint)for(const [asset,base] of Object.entries(part.tint)){const ratio=tintRatio(want.garments[asset]??base,base),prefix=asset.replace(/\./g,'');node.traverse(o=>{if(o instanceof THREE.Mesh&&nameOf(o).startsWith(prefix))multiply(o,()=>ratio);});}
   group.add(node);
-  if(part.lines){let l=lineObjects.get(part.lines);if(!l){l=lines(await binary(part.lines,manifest.version));lineObjects.set(part.lines,l);}group.add(l);}
+  if(part.lines){let l=lineObjects.get(part.lines);if(!l){l=lines(await binary(part.lines,manifest.version));lineObjects.set(part.lines,l);}l.position.z=name==='body'?-BODY_DEPTH:0;group.add(l);}
   if(part.hair){let h=hairObjects.get(part.hair);if(!h){h=hair(await binary(part.hair,manifest.version));h.line.userData.fibre=true;hairObjects.set(part.hair,h);}
    const colour=h.line.geometry.getAttribute('color');if(colour instanceof THREE.BufferAttribute){if(ht)recolourHair(colour.array as Float32Array,h.base,3,colour.count,ht);else (colour.array as Float32Array).set(h.base);colour.needsUpdate=true;}group.add(h.line);}
  }

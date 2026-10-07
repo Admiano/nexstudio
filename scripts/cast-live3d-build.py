@@ -54,7 +54,7 @@ def close_gaps(seg,hit,rounds=3):
     return keep
 
 def filter_lines():
-    """Keep only the line segments the exact render actually inked, so edges Freestyle hid stay hidden in the browser."""
+    """Keep only the line segments the exact render actually inked, so edges Freestyle hid stay hidden in the browser. Segments on the figure's outer rim are left to the outline pass."""
     from PIL import Image
     from scipy.ndimage import binary_dilation,minimum_filter,median_filter
     cam=json.loads((PARTS/'camera.json').read_text());owners={};inks={}
@@ -68,9 +68,10 @@ def filter_lines():
         if ref not in inks:
             im=np.asarray(Image.open(ref).convert('RGBA'),dtype=np.float32)/255
             lum=(im[...,:3]@np.array([.2126,.7152,.0722]))*im[...,3]+(1-im[...,3])
-            inks[ref]=binary_dilation(minimum_filter(lum,3)<.8*median_filter(lum,9),iterations=3)
-        ink=inks[ref];h,w=ink.shape;seg=np.fromfile(raw,np.float32).reshape(-1,10);x,y=project((seg[:,0:3]+seg[:,3:6])/2,cam,w,h)
-        keep=close_gaps(seg,ink[y,x])
+            rim=(im[...,3]>.5)&(minimum_filter(im[...,3],5)<=.5)
+            inks[ref]=binary_dilation(minimum_filter(lum,3)<.8*median_filter(lum,9),iterations=3),rim
+        ink,rim=inks[ref];h,w=ink.shape;seg=np.fromfile(raw,np.float32).reshape(-1,10);x,y=project((seg[:,0:3]+seg[:,3:6])/2,cam,w,h)
+        keep=close_gaps(seg,ink[y,x])&~rim[y,x]
         seg[keep].tofile(str(raw).replace('.lines.raw.bin','.lines.bin'))
         print('CAST_LIVE3D_LINES',raw.name,len(seg),int(ink[y,x].sum()),int(keep.sum()),flush=True)
 
@@ -94,6 +95,10 @@ def hair_calibration(parts):
             if dye:continue
             px=im[...,:3][mask];lin=np.where(px<=.04045,px/12.92,((px+.055)/1.055)**2.4)
             shade.setdefault(c,{})[hx]=[round(float(x),5) for x in np.median(lin,0)]
+    cal=ROOT/'engine_sources/makehuman-lineart/character_system/live3d-hair-calibration.json'
+    for c,table in (json.loads(cal.read_text()) if cal.is_file() else {}).items():
+        for hx,k in table.items():
+            if hx in shade.get(c,{}):shade[c][hx]=[round(v*f,5) for v,f in zip(shade[c][hx],k)]
     return shade
 
 def write_manifest():
