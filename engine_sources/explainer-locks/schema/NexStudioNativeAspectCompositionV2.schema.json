@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.dev/schema/NexStudioNativeAspectCompositionV2.json",
+  "title": "NexStudioNativeAspectCompositionV2",
+  "description": "Composition authored independently for one aspect. A plan that reports derived_by_scaling=true is rejected.",
+  "type": "object",
+  "properties": {
+    "layout_family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "treatment": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text_zone": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ]
+    },
+    "visual_zone": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ]
+    },
+    "safe_area": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ]
+    },
+    "background": {
+      "type": "object"
+    },
+    "native_profile": {
+      "const": true
+    },
+    "derived_by_scaling": {
+      "const": false
+    },
+    "authority": {
+      "const": "NATIVE_THREE_ASPECT_COMPOSITION_AUTHORITY_V2"
+    }
+  },
+  "required": [
+    "layout_family",
+    "treatment",
+    "text_zone",
+    "visual_zone",
+    "safe_area",
+    "native_profile",
+    "derived_by_scaling",
+    "authority"
+  ]
+}

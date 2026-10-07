@@ -1,0 +1,17 @@
+{
+ "status": "PASS",
+ "failures": [],
+ "warnings": [
+  "16x9:b02:ILLUSTRATION_WITHOUT_STATE_CHANGE",
+  "1x1:b02:ILLUSTRATION_WITHOUT_STATE_CHANGE",
+  "9x16:b02:ILLUSTRATION_WITHOUT_STATE_CHANGE"
+ ],
+ "duration_ms": 38880,
+ "aspects": [
+  "9x16",
+  "1x1",
+  "16x9"
+ ],
+ "voice_source": "RECORDED",
+ "beats": 10
+}

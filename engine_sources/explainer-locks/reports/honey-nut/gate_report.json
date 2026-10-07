@@ -1,0 +1,38 @@
+{
+ "status": "PASS",
+ "failures": [],
+ "warnings": [
+  "16x9:b01:SETTLED_HOLD:140ms",
+  "16x9:b02:SETTLED_HOLD:232ms",
+  "16x9:b03:SETTLED_HOLD:115ms",
+  "16x9:b04:SETTLED_HOLD:280ms",
+  "16x9:b05:SETTLED_HOLD:182ms",
+  "16x9:b07:SETTLED_HOLD:264ms",
+  "16x9:b08:SETTLED_HOLD:140ms",
+  "16x9:b09:SETTLED_HOLD:131ms",
+  "1x1:b01:SETTLED_HOLD:140ms",
+  "1x1:b02:SETTLED_HOLD:232ms",
+  "1x1:b03:SETTLED_HOLD:115ms",
+  "1x1:b04:SETTLED_HOLD:280ms",
+  "1x1:b05:SETTLED_HOLD:182ms",
+  "1x1:b07:SETTLED_HOLD:264ms",
+  "1x1:b08:SETTLED_HOLD:140ms",
+  "1x1:b09:SETTLED_HOLD:131ms",
+  "9x16:b01:SETTLED_HOLD:140ms",
+  "9x16:b02:SETTLED_HOLD:232ms",
+  "9x16:b03:SETTLED_HOLD:115ms",
+  "9x16:b04:SETTLED_HOLD:280ms",
+  "9x16:b05:SETTLED_HOLD:182ms",
+  "9x16:b07:SETTLED_HOLD:264ms",
+  "9x16:b08:SETTLED_HOLD:140ms",
+  "9x16:b09:SETTLED_HOLD:131ms"
+ ],
+ "duration_ms": 34240,
+ "aspects": [
+  "9x16",
+  "1x1",
+  "16x9"
+ ],
+ "voice_source": "MASTER",
+ "beats": 10
+}

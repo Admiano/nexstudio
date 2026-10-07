@@ -10,7 +10,7 @@ import { createEngineDraft, renderCapacity, runningEngineJobs } from "@/lib/engi
 export const runtime = "nodejs";
 
 const ENGINE = process.env.EXPLAINER_ENGINE_DIR
-  ?? path.join(process.cwd(), "engine_sources", "editorial-motion-v2");
+  ?? path.join(process.cwd(), "engine_sources", "explainer-locks");
 const JOBS = path.join(ENGINE, "out", "explainer-jobs");
 const VOICES = ["emma","ava","andrew","brian","sonia","natasha"];
 const ASPECTS = new Set(["16x9", "1x1", "9x16"]);
@@ -106,7 +106,9 @@ export async function POST(request: Request) {
   const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
   const child = spawn("python3", args, {
     cwd: ENGINE, detached: true, stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}` },
+    env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}`,
+           WHISPER_PYTHON: process.env.WHISPER_PYTHON
+             ?? path.join(homedir(), "tools", "whisper", "bin", "python3") },
   });
   child.stdout?.on("data", () => {});
   child.stderr?.on("data", () => {});

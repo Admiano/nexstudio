@@ -8,7 +8,7 @@ import { maybeNotifyRenderDone } from "@/lib/render-notify";
 export const runtime = "nodejs";
 
 const ENGINE = process.env.EXPLAINER_ENGINE_DIR
-  ?? path.join(process.cwd(), "engine_sources", "editorial-motion-v2");
+  ?? path.join(process.cwd(), "engine_sources", "explainer-locks");
 const JOBS = path.join(ENGINE, "out", "explainer-jobs");
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
