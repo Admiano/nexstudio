@@ -2019,6 +2019,15 @@
   function applyIllustrationState(ill, lt, beat, ctx) {
     const paper = ctx.brand.paper, ink = ctx.brand.ink, accent = ill.accent;
     const ex = ctx.exitState({ block: { role: 'illustration' } }, lt);
+    // Orbit field: non-hero bodies circle the hero on a slow ellipse sized to stay inside the
+    // visual zone, so the ring can never cross the copy. Connectors re-tension to each body's
+    // live centre further down, so the links follow the orbit for free.
+    let heroNode = null;
+    if (ctx.motion.orbit) {
+      for (const n of ill.ents.values()) if (n.ent.size === 'hero') { heroNode = n; break; }
+      if (!heroNode) { let best = -1; for (const n of ill.ents.values()) { const a = n.bb.w * n.bb.h; if (a > best) { best = a; heroNode = n; } } }
+    }
+    const heroC = heroNode ? centre(heroNode.bb) : null;
     for (const node of ill.ents.values()) {
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
@@ -2039,8 +2048,30 @@
       const tzA = beat.composition.text_zone;
       const gap = Math.max(tzA.x - (node.bb.x + node.bb.w), node.bb.x - (tzA.x + tzA.w), tzA.y - (node.bb.y + node.bb.h), node.bb.y - (tzA.y + tzA.h));
       const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
-      const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4), breathe);
+      const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, ctx.motion.idle_amp != null ? ctx.motion.idle_amp : 1.4), breathe);
       let tx = amb.dx; ty += amb.dy; scale *= amb.s;
+      // Satellite orbit: a non-hero body travels the ellipse through its authored position,
+      // centred on the hero. The radius squeezes into the visual zone's free room; the ramp
+      // blends the body's arrival into orbital motion instead of snapping onto the ring.
+      if (heroC && node !== heroNode) {
+        const vz = beat.composition.visual_zone;
+        const ec = centre(node.bb);
+        const r0 = Math.hypot(ec.x - heroC.x, ec.y - heroC.y);
+        if (vz && r0 > 40) {
+          const hw = node.bb.w / 2, hh = node.bb.h / 2;
+          const rx = Math.min(r0, Math.max(0, Math.min(heroC.x - vz.x - hw, vz.x + vz.w - heroC.x - hw)));
+          const ry = Math.min(r0, Math.max(0, Math.min(heroC.y - vz.y - hh, vz.y + vz.h - heroC.y - hh)));
+          if (rx > 24 && ry > 24) {
+            const period = ctx.motion.orbit_period_ms || 16000;
+            const dir = hash01(ent.id) < 0.5 ? 1 : -1;
+            const a0 = Math.atan2(ec.y - heroC.y, ec.x - heroC.x);
+            const ramp = EASE.outCubic(prog(lt, node.settledAt, node.settledAt + 1200));
+            const ang = a0 + dir * ((lt - node.settledAt) / period) * Math.PI * 2;
+            tx += heroC.x + Math.cos(ang) * rx * ramp - ec.x;
+            ty += heroC.y + Math.sin(ang) * ry * ramp - ec.y;
+          }
+        }
+      }
 
       // SETTLE: a small confirming pulse; SWAP: the entity pops through a scale-and-clip beat into its new state.
       for (const op of activeOps(node, 'SETTLE', lt)) scale *= 1 + 0.03 * EASE.pulse(prog(lt, op.start_ms, op.end_ms));
@@ -2235,6 +2266,23 @@
         // would make the DOM differ by path taken.
         r.trace.style.strokeDashoffset = f2(r.len * 0.18);
       }
+      // Continuous flow: once the link has drawn, its dashes stream slowly and a soft pulse
+      // re-travels it on the music's beat grid, so the connector stays alive between events.
+      if (ctx.motion.flow && con >= 0.985) {
+        if (rel.dashed) r.path.path.style.strokeDashoffset = `${f2(-(lt * (ctx.motion.flow_px_ms || 0.05)))}`;
+        if (!trace) {
+          const gv = ctx.groove;
+          const tick = (gv && gv.tick_ms) || (gv && gv.period_ms) || 2000;
+          const gtime = beat.start_ms + lt - ((gv && gv.start_offset_ms) || 0);
+          const phase = ((gtime % tick) + tick) % tick;
+          const dur = Math.min(620, tick * 0.62);
+          if (gtime >= 0 && phase < dur) {
+            const p = EASE.inOutCubic(phase / dur);
+            r.trace.style.strokeDashoffset = `${f2(r.len * 0.18 - p * r.len * 1.18)}`;
+            r.trace.setAttribute('stroke-opacity', (EASE.pulse(p) * 0.9).toFixed(4));
+          }
+        }
+      }
       const st = propAt(r, 'strike', lt);
       r.strike.set(st.v);
       r.strike.path.setAttribute('stroke', st.accent ? accent : ink);
@@ -2283,6 +2331,7 @@
       motion: { ...DEFAULT_MOTION, ...(plan.motion || {}) },
       transition: tr,
       tonalInk: (plan.typography && plan.typography.tonal_ink) || 1,
+      groove: (plan.music && plan.music.groove) || null,
       reconfigureOffset(node) {
         // Pre-reconfiguration state: blocks sit 30% closer to the text-zone centre along their dominant axis.
         const cx = tz.x + tz.w / 2, cy = tz.y + tz.h / 2;

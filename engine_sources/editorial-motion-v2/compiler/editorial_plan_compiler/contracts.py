@@ -78,11 +78,13 @@ MOTION_PROFILES = {
     # Float shares the collage motion signature — the difference is composition:
     # orbit fields, never the same zone twice, plus dashed-arc connectors.
     'FLOAT_FIELD': {'entrance': 'pop', 'stagger_ms': 85, 'camera_push': 0.026, 'camera_pan_frac': 0.009, 'transition': 'scale_through', 'blur_px': 9, 'word_landing': 'rise',
-                    'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0, 'media_tilt': 1.0},
+                    'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0, 'media_tilt': 1.0,
+                    'idle_amp': 14, 'orbit': True, 'orbit_period_ms': 18000, 'flow': True, 'flow_px_ms': 0.05},
     # One centered poster-card: the same skeleton at every aspect, so camera
     # movement stays gentle — the card is the whole stage.
     'CENTER_DECK': {'entrance': 'pop', 'stagger_ms': 85, 'camera_push': 0.018, 'camera_pan_frac': 0.005, 'transition': 'scale_through', 'blur_px': 8, 'word_landing': 'rise',
-                    'spring': 'snap', 'breathe': 0.008, 'label_lag_ms': 50, 'motion_blur': 0.8, 'media_tilt': 0.4},
+                    'spring': 'snap', 'breathe': 0.008, 'label_lag_ms': 50, 'motion_blur': 0.8, 'media_tilt': 0.4,
+                    'idle_amp': 7, 'flow': True, 'flow_px_ms': 0.04},
 }
 # How the film's camera carries one beat into the next; the compiler picks from beat energy,
 # a hard cut only when the treatment asks for one (beat.cut = 'hard').
