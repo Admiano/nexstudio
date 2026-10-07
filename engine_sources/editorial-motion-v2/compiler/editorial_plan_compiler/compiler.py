@@ -828,7 +828,8 @@ class BeatCompiler:
             sweep = {'push_through': 0.78, 'pull_back': 0.7, 'drift': 0.74, 'dissolve': 0.32}.get(transition['camera']['move'])
             if sweep:
                 candidates.append({'event': 'TRANSITION_SWEEP', 'at_ms': transition['start_ms'], 'strength': sweep})
-        sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates)
+        sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates,
+                                profile=self.film.sfx)
         if self.lib is None and candidates and b.dominant_layer != 'QUIET':
             warnings.append('SOUND_LIBRARY_MISSING')
 

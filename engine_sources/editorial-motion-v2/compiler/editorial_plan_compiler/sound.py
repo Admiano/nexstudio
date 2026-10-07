@@ -44,6 +44,71 @@ EVENT_TAGS = {
 }
 GAIN_DB = {'type': -16.0, 'motion': -18.0, 'impact': -14.0, 'ui': -19.0, 'legacy': -18.0, 'whiteboard': -20.0, 'foley': -20.0, 'synth': -16.0}
 
+# Per-style sonic identity: a film's ``sfx`` profile swaps which tag families answer each visible
+# event, so the same landing reads as glass on FLOAT_FIELD, paper on PAPER finishes, a playful
+# pluck on emoji. Profiles override EVENT_TAGS per event; unlisted events keep the default map.
+PROFILE_EVENT_TAGS = {
+    'glassy': {
+        'ELEMENT_LAND': ('synth.glass', 'synth.pop'),
+        'EVIDENCE_LAND': ('impact.glass.light', 'synth.glass'),
+        'DATA_LAND': ('synth.glass',),
+        'TRANSITION_SWEEP': ('synth.shimmer', 'motion.ui.whoosh'),
+        'TRANSITION_CARRIER': ('synth.shimmer', 'motion.ui.whoosh'),
+        'WIPE_SWEEP': ('synth.shimmer', 'motion.ui.whoosh'),
+        'COUNT_RISE': ('synth.riser',),
+        'EMIT_CONFIRM': ('ui.confirm', 'synth.glass'),
+    },
+    'soft': {
+        'ELEMENT_LAND': ('synth.thock', 'ui.confirm'),
+        'EVIDENCE_LAND': ('impact.soft.medium', 'synth.thock'),
+        'DATA_LAND': ('synth.thock',),
+        'TRANSITION_SWEEP': ('motion.ui.contract', 'motion.ui.expand'),
+        'TRANSITION_CARRIER': ('motion.ui.contract',),
+        'COUNT_RISE': ('ui.switch.tactile', 'synth.riser'),
+        'EMIT_CONFIRM': ('ui.confirm',),
+    },
+    'playful': {
+        'ELEMENT_LAND': ('synth.pluck', 'synth.bong', 'synth.drop'),
+        'EVIDENCE_LAND': ('synth.bong', 'impact.soft.medium'),
+        'DATA_LAND': ('synth.drop',),
+        'TRANSITION_SWEEP': ('synth.glitch', 'synth.whoosh', 'motion.ui.whoosh'),
+        'TRANSITION_CARRIER': ('synth.glitch', 'motion.ui.expand'),
+        'COUNT_RISE': ('synth.riser', 'ui.switch'),
+        'COUNT_TICK': ('type.tick', 'ui.switch'),
+        'EMIT_CONFIRM': ('ui.confirm', 'synth.pluck'),
+    },
+    'bold': {
+        'ELEMENT_LAND': ('impact.plate.medium', 'impact.soft.medium', 'synth.pop'),
+        'EVIDENCE_LAND': ('impact.plate.heavy', 'impact.metal.medium'),
+        'DATA_LAND': ('impact.generic.light',),
+        'TRANSITION_SWEEP': ('motion.ui.whoosh', 'synth.whoosh'),
+        'TRANSITION_CARRIER': ('motion.ui.whoosh',),
+        'COUNT_RISE': ('synth.riser',),
+        'COUNT_TICK': ('type.tick', 'impact.tin.medium'),
+        'EMIT_CONFIRM': ('impact.bell.heavy', 'ui.confirm'),
+    },
+    'paper': {
+        'ELEMENT_LAND': ('foley.write.pen', 'foley.paper.tap', 'type.scratch'),
+        'EVIDENCE_LAND': ('foley.paper.tap', 'foley.paper.rustle'),
+        'DATA_LAND': ('foley.paper.tap',),
+        'TRANSITION_SWEEP': ('foley.paper.page', 'foley.paper.rustle'),
+        'TRANSITION_CARRIER': ('foley.paper.page',),
+        'WIPE_SWEEP': ('foley.paper.cut', 'foley.paper.rustle'),
+        'COUNT_TICK': ('type.tick',),
+        'LINE_DRAW': ('foley.write.pen', 'foley.write.pencil', 'type.scratch'),
+        'INK_WRITE': ('foley.write.chalk', 'foley.write.pen', 'foley.write.pencil'),
+        'EMIT_CONFIRM': ('foley.paper.tap', 'type.tick'),
+    },
+    'clean': {
+        'ELEMENT_LAND': ('synth.pop', 'ui.click', 'impact.soft.medium'),
+        'EVIDENCE_LAND': ('impact.plate.light', 'synth.pop'),
+        'TRANSITION_SWEEP': ('motion.ui.whoosh', 'synth.whoosh'),
+        'TRANSITION_CARRIER': ('motion.ui.expand', 'motion.ui.contract'),
+        'COUNT_RISE': ('synth.riser',),
+        'EMIT_CONFIRM': ('ui.confirm',),
+    },
+}
+
 
 def library_root() -> Optional[Path]:
     env = os.environ.get('NEXSTUDIO_SOUND_LIBRARY_ROOT', '').strip()
@@ -130,7 +195,7 @@ def _layer(lib: SoundLibrary, role: str, asset: Dict[str, Any], gain_db: float, 
 
 
 def bind_beat_sound(lib: Optional[SoundLibrary], film_id: str, beat_id: str, beat_offset_ms: int, dominant_layer: str,
-                    energy: float, candidates: List[Dict[str, Any]]) -> Dict[str, Any]:
+                    energy: float, candidates: List[Dict[str, Any]], profile: Optional[str] = None) -> Dict[str, Any]:
     """``candidates`` are visible events: {event, at_ms, strength, glyph?}. Returns bound accents and the silences kept.
 
     An accent is one slot on the SFX bus at ``beat_at_ms``; its ``layers`` are the transient / body /
@@ -143,8 +208,9 @@ def bind_beat_sound(lib: Optional[SoundLibrary], film_id: str, beat_id: str, bea
     ordered = sorted(candidates, key=lambda c: (-c.get('strength', 0.5), c['at_ms']))
     chosen: List[Dict[str, Any]] = []
     silenced: List[str] = []
+    profile_tags = PROFILE_EVENT_TAGS.get(profile) or {}
     for i, c in enumerate(ordered):
-        tags = EVENT_TAGS.get(c['event'])
+        tags = profile_tags.get(c['event']) or EVENT_TAGS.get(c['event'])
         if not tags or len(chosen) >= MAX_ACCENTS_PER_BEAT:
             silenced.append(c['event']); continue
         if c['event'] == 'TRANSITION_CARRIER' and energy < 0.5:

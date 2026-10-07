@@ -16,7 +16,9 @@
       "template_fixture": "ai-leverage",
       "captions": "none",
       "preview": "/style-previews/tiles.mp4",
-      "poster": "/style-previews/tiles.jpg"
+      "poster": "/style-previews/tiles.jpg",
+      "mood": "bright",
+      "sfx": "clean"
     },
     {
       "id": "emoji",
@@ -33,7 +35,9 @@
       "template_fixture": "style-pop",
       "captions": "none",
       "preview": "/style-previews/emoji.mp4",
-      "poster": "/style-previews/emoji.jpg"
+      "poster": "/style-previews/emoji.jpg",
+      "mood": "playful",
+      "sfx": "playful"
     },
     {
       "id": "ink",
@@ -64,7 +68,9 @@
         }
       ],
       "preview": "/style-previews/ink.mp4",
-      "poster": "/style-previews/ink.jpg"
+      "poster": "/style-previews/ink.jpg",
+      "mood": "elegant",
+      "sfx": "paper"
     },
     {
       "id": "poster",
@@ -81,7 +87,9 @@
       "template_fixture": "style-headline",
       "captions": "none",
       "preview": "/style-previews/poster.mp4",
-      "poster": "/style-previews/poster.jpg"
+      "poster": "/style-previews/poster.jpg",
+      "mood": "driving",
+      "sfx": "bold"
     },
     {
       "id": "float",
@@ -99,7 +107,9 @@
       "link_style": "arc",
       "captions": "none",
       "preview": "/style-previews/float.mp4",
-      "poster": "/style-previews/float.jpg"
+      "poster": "/style-previews/float.jpg",
+      "mood": "dreamy",
+      "sfx": "glassy"
     },
     {
       "id": "deck",
@@ -115,7 +125,9 @@
       "asset_family": "colour_icons",
       "captions": "none",
       "preview": "/style-previews/deck.mp4",
-      "poster": "/style-previews/deck.jpg"
+      "poster": "/style-previews/deck.jpg",
+      "mood": "focused",
+      "sfx": "soft"
     }
   ],
   "entity_bank": {

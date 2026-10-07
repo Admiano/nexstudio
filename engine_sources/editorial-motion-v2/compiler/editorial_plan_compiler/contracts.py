@@ -60,6 +60,8 @@ FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE', 'CENTER_DECK', 'FLOAT_FIELD')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
 FILM_MOODS = ('bright', 'calm', 'dreamy', 'driving', 'elegant', 'focused', 'jazzy', 'playful', 'quirky', 'tense', 'uplifting', 'warm', 'wistful')
+# Film-level sonic identity; the compiler overlays accent families per style so a film sounds like it looks.
+SFX_PROFILES = ('clean', 'playful', 'paper', 'bold', 'glassy', 'soft')
 # Motion profile per finish: how elements enter, how far the camera drifts per beat, how cuts dissolve.
 #   spring        damping preset every arrival is solved with ('snap' overshoots, 'settle' barely, 'float' never)
 #   breathe       idle scale amplitude of a held element (fraction), phase-offset per element
@@ -572,6 +574,7 @@ class FilmTreatment:
     fps: int = 30
     typography: TypographyMode = field(default_factory=TypographyMode)
     mood: Optional[str] = None
+    sfx: Optional[str] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -623,9 +626,12 @@ class FilmTreatment:
         mood = (str(d.get('mood') or '').strip().lower() or None)
         if mood is not None:
             _need(mood in FILM_MOODS, 'FILM_MOOD_UNKNOWN', mood)
+        sfx = (str(d.get('sfx') or '').strip().lower() or None)
+        if sfx is not None:
+            _need(sfx in SFX_PROFILES, 'SFX_PROFILE_UNKNOWN', sfx)
         spoken = [b for b in beats if b.dominant_layer != 'QUIET']
         if spoken:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood)
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx)

@@ -441,6 +441,8 @@ def build_treatment(args, style, words, media_files, film_id):
                   "alignment_path": "alignment.json", "head_pad_ms": 350},
         "media_library": media_library,
         "beats": beats,
+        **({"mood": style["mood"]} if style.get("mood") else {}),
+        **({"sfx": style["sfx"]} if style.get("sfx") else {}),
     }
 
 
