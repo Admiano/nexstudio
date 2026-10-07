@@ -10,6 +10,7 @@ import { CastView } from "./views/CastView";
 import { CreditsSheet } from "./overlays/Credits";
 import { AccountSheet, initialsOf } from "./overlays/Account";
 import { FlowOverlay, type FlowState } from "./overlays/Flow";
+import type { EngineKind } from "./api";
 import { PickerSheets, type SheetId } from "./overlays/Sheets";
 import { HistoryOverlay } from "./overlays/History";
 import { route, useStudio, formatUSD, type ContextChip, type ViewId } from "./App";
@@ -99,7 +100,7 @@ export default function Shell({ view }: { view: ViewId }) {
   const setFamily = useCallback((family: string | null) => setComposer((c) => ({ ...c, family })), []);
   const setMode = useCallback((mode: "brief" | "script") => setComposer((c) => ({ ...c, mode })), []);
 
-  const openJobFlow = useCallback((p: { id: string; engine: { kind: "whiteboard" | "explainer"; jobId: string; outputs?: Record<string, string> | null } }) => {
+  const openJobFlow = useCallback((p: { id: string; engine: { kind: EngineKind; jobId: string; outputs?: Record<string, string> | null } }) => {
     markViewed(p.id);
     setViewed(loadViewed());
     const done = p.engine.outputs && Object.keys(p.engine.outputs).length > 0;

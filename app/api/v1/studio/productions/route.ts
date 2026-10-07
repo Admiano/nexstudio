@@ -1,7 +1,7 @@
 import { requireSession } from "@/lib/route-auth";
 import { json } from "@/lib/http";
 import { getPrisma } from "@/lib/db";
-import { readEngineJob, type EngineKind } from "@/lib/engine-jobs";
+import { ENGINE_KINDS, readEngineJob, type EngineKind } from "@/lib/engine-jobs";
 export const runtime = "nodejs";
 export async function GET(request: Request) {
   const auth = await requireSession(request); if (auth.response) return auth.response;
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const items = await Promise.all(drafts.map(async (draft) => {
     const production = byId.get(draft.id); const version = production?.currentVersion;
     const engine = (draft.payload as { engine?: { kind?: string; jobId?: string } } | null)?.engine;
-    const engineKind = engine?.kind === "whiteboard" || engine?.kind === "explainer" ? engine.kind as EngineKind : null;
+    const engineKind = ENGINE_KINDS.includes(engine?.kind as EngineKind) ? engine!.kind as EngineKind : null;
     const jobId = engine?.jobId ?? "";
 
     let state = production?.studioState ?? draft.studioState;

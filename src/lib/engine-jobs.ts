@@ -2,16 +2,19 @@ import path from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { getPrisma } from "@/lib/db";
 
-export type EngineKind = "whiteboard" | "explainer";
+export type EngineKind = "whiteboard" | "explainer" | "presenter";
+export const ENGINE_KINDS: EngineKind[] = ["whiteboard", "explainer", "presenter"];
 
 function engineDir(kind: EngineKind): string {
+  if (kind === "presenter")
+    return process.env.PRESENTER_ENGINE_DIR ?? path.join(process.cwd(), "engine_sources", "makehuman-lineart");
   return kind === "whiteboard"
     ? (process.env.WHITEBOARD_V3_RUNTIME_DIR ?? path.join(process.cwd(), "engine_sources", "whiteboard-v3-runtime"))
     : (process.env.EXPLAINER_ENGINE_DIR ?? path.join(process.cwd(), "engine_sources", "editorial-motion-v2"));
 }
 
 export function engineJobsDir(kind: EngineKind): string {
-  return path.join(engineDir(kind), "out", `${kind === "whiteboard" ? "whiteboard" : "explainer"}-jobs`);
+  return path.join(engineDir(kind), "out", `${kind}-jobs`);
 }
 
 export function friendlyEngineError(dir: string): string | undefined {
@@ -49,7 +52,7 @@ export function friendlyEngineError(dir: string): string | undefined {
 export function runningEngineJobs(): number {
   const cutoff = Date.now() - 60 * 60 * 1000;
   let running = 0;
-  for (const kind of ["whiteboard", "explainer"] as EngineKind[]) {
+  for (const kind of ENGINE_KINDS) {
     const jobsDir = engineJobsDir(kind);
     if (!existsSync(jobsDir)) continue;
     for (const entry of readdirSync(jobsDir, { withFileTypes: true })) {
@@ -127,7 +130,7 @@ export async function createEngineDraft(input: {
     data: {
       ownerUserId: input.ownerUserId,
       kind: "VIDEO",
-      family: input.kind === "whiteboard" ? "WHITEBOARD" : "EXPLAINER",
+      family: input.kind === "whiteboard" ? "WHITEBOARD" : input.kind === "presenter" ? "PRESENTER" : "EXPLAINER",
       videoType: input.videoType,
       title,
       prompt: input.script || "[uploaded voiceover]",

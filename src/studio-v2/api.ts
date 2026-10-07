@@ -90,10 +90,10 @@ export interface EngineJobStatus {
   outputs?: Record<string, string>;
   exitCode?: number;
   error?: string;
-  progress?: { phase?: string; aspect?: string; aspectsDone?: number; aspectsTotal?: number } | null;
+  progress?: { phase?: string; aspect?: string; aspectsDone?: number; aspectsTotal?: number; percent?: number } | null;
 }
 
-export type EngineKind = "explainer" | "whiteboard";
+export type EngineKind = "explainer" | "whiteboard" | "presenter";
 
 async function postForm<T>(url: string, form: FormData): Promise<T> {
   const response = await fetch(url, { method: "POST", credentials: "include", body: form });

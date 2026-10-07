@@ -6,7 +6,7 @@ import type { StudioAsset } from "@/studio-v1/dashboard/domain/assets";
 import type { StudioBalance, StudioBillingEntry } from "@/studio-v1/dashboard/domain/billing";
 import type { StudioBrandRoot, StudioSeriesRoot } from "@/studio-v1/dashboard/domain/creative-memory";
 import type { DashboardProject } from "@/studio-v1/dashboard/domain/dashboard";
-import { studioApi } from "./api";
+import { studioApi, type EngineKind } from "./api";
 
 export type ViewId = "create" | "work" | "cast" | "brand" | "library" | "series";
 
@@ -20,7 +20,7 @@ export interface ContextChip {
 export type Scope = "work" | "brands" | "series" | "assets" | "balance" | "ledger";
 
 export interface StudioData {
-  projects: Array<DashboardProject & { prompt?: string | null; engine?: { kind: "whiteboard" | "explainer"; jobId: string; phase: string | null; failureCode: string | null; outputs?: Record<string, string> | null } | null }>;
+  projects: Array<DashboardProject & { prompt?: string | null; engine?: { kind: EngineKind; jobId: string; phase: string | null; failureCode: string | null; outputs?: Record<string, string> | null } | null }>;
   brands: StudioBrandRoot[];
   series: StudioSeriesRoot[];
   assets: StudioAsset[];

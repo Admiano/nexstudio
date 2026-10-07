@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Eyebrow, route, useStudio } from "../App";
 import { loadViewed, markViewed } from "../viewed";
+import type { EngineKind } from "../api";
 import { sortDashboardProjects, type DashboardProject } from "@/studio-v1/dashboard/domain/dashboard";
 
 type Filter = "all" | "needs" | "production" | "ready" | "published";
@@ -26,7 +27,7 @@ function bucket(p: DashboardProject): Filter | "other" {
 
 export function WorkView({ onOpenHistory, onOpenJob }: {
   onOpenHistory: (id: string) => void;
-  onOpenJob: (p: { engine: { kind: "whiteboard" | "explainer"; jobId: string; outputs?: Record<string, string> | null }; id: string }) => void;
+  onOpenJob: (p: { engine: { kind: EngineKind; jobId: string; outputs?: Record<string, string> | null }; id: string }) => void;
 }) {
   const { projects, loading } = useStudio();
   const [filter, setFilter] = useState<Filter>("all");

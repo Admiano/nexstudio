@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { formatUSD, MindSpark, route, useStudio, type ContextChip } from "../App";
 import { studioApi, type EngineKind } from "../api";
 import { ensureNxPresence } from "../nx-presence";
+import AvatarStage from "../cast/AvatarStage";
+import { ENVIRONMENTS, environmentImage } from "../cast/environments";
+import { normalizeCastSpec, type CastMember } from "../cast/spec";
 
 export type FlowStage = "mind" | "direction" | "closed" | "production" | "review" | "publish" | "revision";
 
@@ -40,12 +43,14 @@ export interface FlowApi {
 const FAMILY_LABEL: Record<string, string> = {
   explainer: "Explainer", EXPLAINER: "Explainer",
   whiteboard: "Whiteboard", WHITEBOARD: "Whiteboard",
+  presenter: "Presenter", PRESENTER: "Presenter",
 };
 
 function engineKindOf(family?: string | null): EngineKind | null {
   const f = (family ?? "explainer").toLowerCase();
   if (f === "whiteboard") return "whiteboard";
   if (f === "explainer") return "explainer";
+  if (f === "presenter") return "presenter";
   return null;
 }
 
@@ -79,6 +84,7 @@ const MIND_STEPS = [
 const DEFAULT_VIDEO_TYPE: Record<string, string> = {
   explainer: "tiles",
   whiteboard: "kinetic-text",
+  presenter: "presenter",
 };
 
 export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
@@ -263,7 +269,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     studioApi.script({
       brief: flow.prompt,
       family: flow.family ?? kind,
-      videoType: flow.videoType ?? (kind === "whiteboard" ? "hand-drawn-board" : "tiles"),
+      videoType: flow.videoType ?? (kind === "whiteboard" ? "hand-drawn-board" : kind === "presenter" ? "presenter" : "tiles"),
       duration: flow.duration ?? 45,
       beats: flow.beats?.map((b) => ({ purposeTitle: b.purposeTitle, description: b.description })),
     }).then((r) => {
@@ -277,6 +283,28 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind]);
   const setOpt = (k: keyof typeof engine, v: string) => setEngine((e) => ({ ...e, [k]: v }));
+  const [cast, setCast] = useState<CastMember[] | null>(null);
+  const [presenter, setPresenter] = useState<{ castMemberId: string; background: string; promo: "off" | "lower-third" | "squeeze"; promoName: string; promoLabel: string }>({
+    castMemberId: "", background: "neutral_studio", promo: "off", promoName: "", promoLabel: "",
+  });
+  const [promoImage, setPromoImage] = useState<File | null>(null);
+  useEffect(() => {
+    if (kind !== "presenter") return;
+    let alive = true;
+    studioApi.cast().then((r) => {
+      if (!alive) return;
+      const saved = r.cast.filter((m) => m.spec);
+      setCast(saved);
+      const first = saved[0];
+      if (first) {
+        setPresenter((p) => ({ ...p, castMemberId: p.castMemberId || first.id, background: first.spec?.environment ?? p.background }));
+        const v = first.spec?.voiceId;
+        if (v && MS_VOICES.some((x) => x.id === v) && !flow.engine?.voice) setOpt("voice", v);
+      }
+    }).catch(() => { if (alive) setCast([]); });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kind]);
 
   async function createVideo() {
     setBusy(true);
@@ -288,7 +316,18 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         fd.set("aspects", "16x9,1x1,9x16");
         fd.set("duration", String(flow.duration ?? 45));
         fd.set("speed", engine.speed);
-        if (kind === "whiteboard") {
+        if (kind === "presenter") {
+          if (!presenter.castMemberId) { api.notify("Pick one of your saved characters first."); return; }
+          if (presenter.promo !== "off" && !presenter.promoName.trim()) { api.notify("Give the promotion a name, or switch it off."); return; }
+          fd.set("castMemberId", presenter.castMemberId);
+          fd.set("background", presenter.background);
+          fd.set("promo", presenter.promo);
+          if (presenter.promo !== "off") {
+            fd.set("promoName", presenter.promoName.trim());
+            if (presenter.promoLabel.trim()) fd.set("promoLabel", presenter.promoLabel.trim());
+            if (promoImage) fd.set("promoImage", promoImage);
+          }
+        } else if (kind === "whiteboard") {
           fd.set("type", engine.wbType);
           fd.set("theme", engine.wbTheme);
           if (engine.wbType === "kinetic-text" && engine.wbAccent) fd.set("accent", engine.wbAccent);
@@ -391,6 +430,53 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                           <input aria-label="Highlight color" className="opt-color" type="color" value={engine.wbAccent} onChange={(e) => setOpt("wbAccent", e.target.value)} />
                           <span className="opt-value">{engine.wbAccent}</span>
                         </div>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+              {kind === "presenter" && (
+                <section className="options-band style-box presenter-box">
+                  <div className="opt-group">
+                    <label>Presenter <span className="opt-hint">your saved characters</span></label>
+                    {cast === null ? <p className="opt-note">Loading your characters…</p> : cast.length === 0 ? (
+                      <p className="opt-note">You have no saved characters yet. <button type="button" className="opt-link" onClick={() => { api.closeFlow(); route("cast"); }}>Create one in Cast →</button></p>
+                    ) : (
+                      <div className="opt-row presenter-cast">
+                        {cast.map((m) => (
+                          <button key={m.id} type="button" className={`opt-chip presenter-pick ${presenter.castMemberId === m.id ? "on" : ""}`} onClick={() => setPresenter((p) => ({ ...p, castMemberId: m.id }))}>
+                            <span className="presenter-pick-stage"><AvatarStage spec={normalizeCastSpec(m.spec!, m.spec!.character)} /></span>
+                            <b>{m.name}</b>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="opt-group">
+                    <label>Background</label>
+                    <div className="opt-row presenter-backgrounds">
+                      {ENVIRONMENTS.map((e) => (
+                        <button key={e.key} type="button" aria-label={e.label} title={e.label} className={`opt-chip presenter-bg ${presenter.background === e.key ? "on" : ""}`} onClick={() => setPresenter((p) => ({ ...p, background: e.key }))}>
+                          <img src={environmentImage(e.key, "landscape")} alt="" loading="lazy" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="opt-group">
+                    <label>Promotion <span className="opt-hint">optional · shows for a few seconds</span></label>
+                    <div className="opt-row">
+                      {([["off", "Off", "No promotion"], ["lower-third", "Lower third", "A name card slides in low on screen"], ["squeeze", "Squeeze-back", "The video steps aside for a short spot"]] as const).map(([v, l, d]) => (
+                        <button key={v} type="button" className={`opt-chip ${presenter.promo === v ? "on" : ""}`} onClick={() => setPresenter((p) => ({ ...p, promo: v }))}><b>{l}</b><span>{d}</span></button>
+                      ))}
+                    </div>
+                    {presenter.promo !== "off" && (
+                      <div className="opt-row presenter-promo">
+                        <input className="opt-text" aria-label="Promotion name" maxLength={60} placeholder="What are you promoting?" value={presenter.promoName} onChange={(e) => setPresenter((p) => ({ ...p, promoName: e.target.value }))} />
+                        <input className="opt-text" aria-label="Small label" maxLength={40} placeholder="Label, e.g. Brought to you by" value={presenter.promoLabel} onChange={(e) => setPresenter((p) => ({ ...p, promoLabel: e.target.value }))} />
+                        <label className="opt-file">
+                          <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => setPromoImage(e.target.files?.[0] ?? null)} />
+                          <span>{promoImage ? promoImage.name : "Add image or icon"}</span>
+                        </label>
                       </div>
                     )}
                   </div>
@@ -500,7 +586,7 @@ const PHASE_ORDER = ["PREPARING", "SHAPING_STORY", "VISUAL_DIRECTION", "DIRECTIN
 
 function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const [proj, setProj] = useState<{ title?: string; detail?: string; phase?: string; status?: string } | null>(null);
-  const [jobProgress, setJobProgress] = useState<{ phase?: string; aspect?: string; aspectsDone?: number; aspectsTotal?: number } | null>(null);
+  const [jobProgress, setJobProgress] = useState<{ phase?: string; aspect?: string; aspectsDone?: number; aspectsTotal?: number; percent?: number } | null>(null);
   useEffect(() => { ensureNxPresence(); }, []);
   // Engine job path: poll the job until outputs land
   useEffect(() => {
@@ -550,13 +636,23 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const idx = flow.jobKind
     ? (jobProgress ? (JOB_STEP[jobProgress.phase ?? ""] ?? 1) : 0)
     : Math.max(0, PHASE_ORDER.indexOf(proj?.phase ?? "PREPARING"));
-  const jobCopy = flow.jobKind === "whiteboard"
+  const PRESENTER_PHASE: Record<string, [string, string]> = {
+    voice: ["story", "Recording the voiceover."], lipsync: ["direction", "Matching the mouth to every sound."],
+    gestures: ["direction", "Planning the gestures."], character: ["scenes", "Setting up your presenter."],
+    motion: ["life", "Animating your presenter."], frames: ["sound", "Filming every frame."], compose: ["finish", "Adding captions and finishing the files."],
+  };
+  const presenterPhase = flow.jobKind === "presenter" ? PRESENTER_PHASE[jobProgress?.phase ?? "voice"] ?? PRESENTER_PHASE.voice : null;
+  const jobCopy = flow.jobKind === "presenter"
+    ? { title: "Your presenter is on set.", detail: "Voice, lip sync, gestures and captions are being made. A one minute video takes about 15 to 25 minutes." }
+    : flow.jobKind === "whiteboard"
     ? { title: "The hand is moving.", detail: "Voice, plan and board are rendering. One pass per screen, so all three sizes land together." }
     : flow.jobKind === "explainer"
       ? { title: "The film is being cut.", detail: "Script, voice and style are rendering. One pass per screen, so all three sizes land together." }
       : null;
   const JOB_PHASE: Record<string, string> = { voice: "Recording the voiceover.", direction: "Setting the direction.", render: "Rendering the screens.", packaging: "Finishing the files.", finishing: "Finishing the files." };
-  const jobDetail = flow.jobKind && jobProgress?.phase
+  const jobDetail = presenterPhase
+    ? (jobProgress?.phase ? presenterPhase[1] : jobCopy?.detail)
+    : flow.jobKind && jobProgress?.phase
     ? jobProgress.phase === "render" && jobProgress.aspectsTotal
       ? `Rendering the screens. ${jobProgress.aspectsDone ?? 0} of ${jobProgress.aspectsTotal} done${jobProgress.aspect ? `, now on ${ASPECT_LABEL[jobProgress.aspect] ?? jobProgress.aspect}` : ""}.`
       : JOB_PHASE[jobProgress.phase] ?? jobCopy?.detail
@@ -569,14 +665,18 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     { key: "sound", label: "Finishing sound" },
     { key: "finish", label: "Preparing final video" },
   ];
-  const v2phase = flow.jobKind
+  const v2phase = presenterPhase
+    ? presenterPhase[0]
+    : flow.jobKind
     ? (jobProgress?.phase === "render"
       ? ((jobProgress.aspectsDone ?? 0) / Math.max(1, jobProgress.aspectsTotal ?? 3) >= 0.66 ? "sound"
         : (jobProgress.aspectsDone ?? 0) / Math.max(1, jobProgress.aspectsTotal ?? 3) >= 0.33 ? "life" : "scenes")
       : ({ voice: "story", direction: "direction", packaging: "finish", finishing: "finish" } as Record<string, string>)[jobProgress?.phase ?? ""] ?? "story")
     : V2_PHASES[Math.min(Math.max(idx, 0), 5)].key;
   const v2idx = V2_PHASES.findIndex((p) => p.key === v2phase);
-  const frac = flow.jobKind
+  const frac = presenterPhase
+    ? (jobProgress?.percent ?? 0) / 100
+    : flow.jobKind
     ? (jobProgress?.phase === "render" && jobProgress.aspectsTotal
       ? (2 + 3 * ((jobProgress.aspectsDone ?? 0) / jobProgress.aspectsTotal)) / 6
       : (v2idx + 0.5) / 6)

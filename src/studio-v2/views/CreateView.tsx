@@ -12,6 +12,7 @@ import { sortDashboardProjects } from "@/studio-v1/dashboard/domain/dashboard";
 const FAMILIES = [
   { key: "explainer", label: "Explainer", desc: "Clear ideas, products and systems.", soon: false },
   { key: "whiteboard", label: "Whiteboard", desc: "Drawn reasoning and visual teaching.", soon: false },
+  { key: "presenter", label: "Presenter", desc: "Your saved character presents the script.", soon: false },
   { key: "stickman", label: "Character", desc: "Performance, dialogue and physicality.", soon: true },
   { key: "editorial-motion", label: "Illustrated Stories", desc: "Editorial motion and expressive storytelling.", soon: true },
 ];
