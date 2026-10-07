@@ -5,8 +5,6 @@ import { Eyebrow, route, useStudio } from "../App";
 import { studioApi } from "../api";
 import type { StudioMemoryItemRecord } from "@/studio-v1/dashboard/domain/creative-memory";
 import type { SheetId } from "../overlays/Sheets";
-import AvatarStage from "../cast/AvatarStage";
-import type { CastMember } from "../cast/spec";
 
 export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focusId: string | null; openSheet: (s: SheetId) => void; notify: (m: string) => void; onOpenHistory: (id: string) => void }) {
   const { series, brands, refresh, loading } = useStudio();
@@ -14,17 +12,6 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
   const [memory, setMemory] = useState<StudioMemoryItemRecord[]>([]);
   const [editor, setEditor] = useState<null | { mode: "new" | "continuity" | "identity" | "brand" }>(null);
   const [epLayout, setEpLayout] = useState<"list" | "tiles">("list");
-  const [cast, setCast] = useState<CastMember[]>([]);
-
-  useEffect(() => {
-    let alive = true;
-    const fetchCast = () => { studioApi.cast().then((r) => { if (alive) setCast(r.cast); }).catch(() => {}); };
-    fetchCast();
-    const onHash = () => { if (location.hash === "#series") fetchCast(); };
-    window.addEventListener("hashchange", onHash);
-    window.addEventListener("nx-cast-changed", fetchCast);
-    return () => { alive = false; window.removeEventListener("hashchange", onHash); window.removeEventListener("nx-cast-changed", fetchCast); };
-  }, []);
 
   useEffect(() => { if (focusId) setActiveId(focusId); }, [focusId]);
 
@@ -41,8 +28,6 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
 
   const nextOrdinal = (episodes[0]?.episodeOrdinal ?? 0) + 1;
   const continuity = memory.find((m) => m.category === "CONTINUITY" || m.key === "continuity");
-  const castMemory = memory.find((m) => m.key === "series.cast");
-  const castId = (castMemory?.versions?.[0]?.content as { castMemberId?: string } | undefined)?.castMemberId ?? null;
   const rules = memory.find((m) => m.key === "rules" || m.category === "GUIDANCE");
   const continuityText = (continuity?.versions?.[0]?.content?.text as string | undefined)
     ?? current?.description ?? "Continuity is attached to every episode.";
@@ -98,22 +83,10 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
   async function makeNextEpisode() {
     if (!current) return;
     try {
-      await studioApi.nextEpisode(current.id, { family: "EXPLAINER", videoType: "explainer-standard", prompt: `Next episode of ${current.name}`, castMemberId: castId });
+      await studioApi.nextEpisode(current.id, { family: "EXPLAINER", videoType: "explainer-standard", prompt: `Next episode of ${current.name}` });
       notify("Next episode requested.");
     } catch (e) {
       notify(e instanceof Error ? e.message : "Productions are not open yet.");
-    }
-  }
-
-  async function setSeriesCast(member: CastMember | null) {
-    if (!current) return;
-    try {
-      await studioApi.memoryWrite({ scope: "SERIES", scopeRefId: current.id, key: "series.cast", category: "SERIES_BIBLE", label: "Series presenter", content: member ? { castMemberId: member.id, name: member.name } : { castMemberId: null } });
-      const c = await studioApi.memory("SERIES", current.id);
-      setMemory(c.memories);
-      notify(member ? `${member.name} presents this series now.` : "Series cast cleared.");
-    } catch (e) {
-      notify(e instanceof Error ? e.message : "Casting could not be saved.");
     }
   }
 
@@ -154,19 +127,6 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
           <h2>{current?.name}</h2>
           <p className="series-premise">{current?.description || "Define the premise once. Every episode inherits it."}</p>
           <div className="series-stage-meta"><span>{episodes.length} episode{episodes.length === 1 ? "" : "s"}</span>{linkedBrand ? <span>Brand · {linkedBrand.name}</span> : null}</div>
-          {cast.length > 0 && (
-            <div className="series-cast-row">
-              <span className="series-cast-label">Presented by</span>
-              <div className="opt-row cast-pick-row">
-                {cast.map((m) => (
-                  <button key={m.id} type="button" className={`cast-pick ${castId === m.id ? "on" : ""}`} onClick={() => void setSeriesCast(castId === m.id ? null : m)}>
-                    <span className="cast-pick-stage">{m.spec ? <AvatarStage spec={m.spec} /> : null}</span>
-                    <b>{m.name}</b>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
         <aside className="series-next-card">
           <div><span>Next production</span><strong>Episode {String(nextOrdinal).padStart(2, "0")}</strong><p>NexMind will carry the continuity forward automatically.</p></div>
