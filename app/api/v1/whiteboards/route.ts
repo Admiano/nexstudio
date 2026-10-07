@@ -12,7 +12,9 @@ export const runtime = "nodejs";
 const ENGINE = process.env.WHITEBOARD_V3_RUNTIME_DIR
   ?? path.join(process.cwd(), "engine_sources", "whiteboard-v3-runtime");
 const JOBS = path.join(ENGINE, "out", "whiteboard-jobs");
-const KINETIC_ENGINE = process.env.WHITEBOARD_KINETIC_RUNTIME_DIR;
+const DEFAULT_KINETIC_ENGINE = path.join(homedir(), "wb-kinetic-runtime");
+const KINETIC_ENGINE = process.env.WHITEBOARD_KINETIC_RUNTIME_DIR
+  ?? (existsSync(DEFAULT_KINETIC_ENGINE) ? DEFAULT_KINETIC_ENGINE : undefined);
 
 const TYPES = {
   "kinetic-text": { id: "kinetic-text", name: "Text-Driven Whiteboard", pipeline: "kinetic" },
