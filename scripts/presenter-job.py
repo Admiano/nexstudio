@@ -17,7 +17,10 @@ WEB = S / 'presenter-browser'
 BLENDER = os.environ.get('BLENDER_BIN') or shutil.which('blender') or '/opt/blender-5.2.1-linux-x64/blender'
 SOURCE = Path(os.environ.get('CAST_SOURCE_DIR', ROOT / 'engine_sources/makehuman-lineart/presenters_v1'))
 SCENES = Path(os.environ.get('PRESENTER_SCENE_CACHE', ROOT / 'engine_sources/makehuman-lineart/out/presenter-scenes'))
-KINETIC = os.environ.get('WHITEBOARD_KINETIC_RUNTIME_DIR') or str(ROOT / 'engine_sources/whiteboard-v3-runtime')
+KINETIC = os.environ.get('WHITEBOARD_KINETIC_RUNTIME_DIR') or next(
+    (str(d) for d in (Path.home() / 'wb-kinetic-runtime', Path.home() / 'work/wb-kinetic-runtime')
+     if (d / 'kinetic_icons.py').exists()),
+    str(ROOT / 'engine_sources/whiteboard-v3-runtime'))
 VOICES = {
     'emma': 'en-US-EmmaMultilingualNeural', 'ava': 'en-US-AvaMultilingualNeural',
     'andrew': 'en-US-AndrewMultilingualNeural', 'brian': 'en-US-BrianMultilingualNeural',
