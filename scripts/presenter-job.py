@@ -8,7 +8,7 @@ Writes progress.json while running and status.json with the outputs at the end.
 Voice -> phonemes (MFA) -> gesture plan -> Blender motion timeline -> browser point
 cache -> headless Chrome frames -> kinetic captions, background and promo -> MP4.
 """
-import functools, hashlib, http.server, json, os, shutil, subprocess, sys, threading, time
+import functools, hashlib, http.server, json, os, re, shutil, subprocess, sys, threading, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,12 +86,28 @@ def lipsync(wav):
     return out
 
 
+def punctuated(words, script):
+    """Aligner words lose punctuation; carry the script's sentence ends back onto them."""
+    norm = lambda w: re.sub(r"[^\w']+", '', w.lower())
+    toks = [t for t in script.split() if norm(t)]
+    out, j = [], 0
+    for s0, e0, w in words:
+        k = next((k for k in range(j, min(j + 4, len(toks))) if norm(toks[k]) == norm(w)), None)
+        if k is not None:
+            j = k + 1
+            w = w + (re.search(r'[.!?]+$', toks[k]).group(0) if re.search(r'[.!?]+$', toks[k]) else '')
+        out.append([s0, e0, w])
+    return out
+
+
 def gestures(wav, phones):
     progress('gestures')
     out = J / 'timeline.json'
     seed = int(hashlib.sha256(J.name.encode()).hexdigest()[:6], 16)
-    run([sys.executable, S / 'cast-gesture-plan.py', phones, out, '--audio', wav, '--phonemes', phones,
-         '--presenter', REQ['config']['env']['CAST_CHARACTER'], '--seed', seed])
+    words = punctuated(json.loads(Path(phones).read_text())['words'], (J / 'script.txt').read_text())
+    (J / 'words.json').write_text(json.dumps(words))
+    run([sys.executable, S / 'cast-gesture-plan.py', J / 'words.json', out, '--audio', wav, '--phonemes', phones,
+         '--presenter', REQ['config']['env']['CAST_CHARACTER'], '--seed', seed, '--profile', 'presenter'])
     return out
 
 

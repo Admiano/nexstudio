@@ -7,10 +7,11 @@ python3 presenter-compose.py --frames DIR --audio voice.wav --words words.json
      [--promo-label TEXT] [--promo-at SEC] [--promo-seconds 5]]
 
 Frames are RGBA presenter renders (0001.png ...). Captions reuse the approved
-kinetic-type renderer with inline icons on a soft card. The promo is off unless
+kinetic-type renderer with inline icons: one short line at the bottom. The promo is off unless
 --promo is given and appears once, briefly, away from the opening and close.
 """
 import argparse, json, math, os, subprocess, sys
+import presenter_visuals as pv
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -41,47 +42,81 @@ def cover(img, size):
 
 
 def layout(aspect, W, H):
-    """Presenter box (x, y, w, h) and caption card box per format."""
+    """Presenter box (x, y, w, h) per format."""
     if aspect == '16:9':
         ph = H
         pw = int(ph * 3 / 4)
-        pres = (W - pw - int(W * 0.06), 0, pw, ph)
-        cap = (int(W * 0.05), int(H * 0.58), int(W * 0.50), int(H * 0.34))
-    elif aspect == '1:1':
+        return (W - pw - int(W * 0.06), 0, pw, ph)
+    if aspect == '1:1':
         ph = int(H * 0.96)
         pw = int(ph * 3 / 4)
-        pres = ((W - pw) // 2, H - ph, pw, ph)
-        cap = (int(W * 0.06), int(H * 0.70), int(W * 0.88), int(H * 0.25))
-    else:
-        pw = W
-        ph = int(pw * 4 / 3)
-        pres = (0, H - ph, pw, ph)
-        cap = (int(W * 0.06), int(H * 0.07), int(W * 0.88), int(H * 0.22))
-    return pres, cap
+        return ((W - pw) // 2, H - ph, pw, ph)
+    pw = W
+    ph = int(pw * 4 / 3)
+    return (0, H - ph, pw, ph)
 
 
 class Captions:
-    def __init__(self, ktr, ki, script, words, size, accent):
-        self.ktr, self.size, self.accent = ktr, size, accent
+    """One short line at the bottom: at most MAX_WORDS words on screen, drawable words still become inline icons."""
+    MAX_WORDS = 3
+
+    def __init__(self, ktr, ki, script, words, frame, accent):
+        self.ktr, self.accent = ktr, accent
+        W, H = frame
         dur = (words[-1]['end'] if words else 1.0)
         plan = {'beats': [{'narration': script, 'start_seconds': 0.0, 'duration_seconds': dur}]}
         self.sents = ktr.sentence_words(plan, words)
         if ki is not None:
             ki.apply(self.sents, ki.select(self.sents))
-        w, h = size
-        base = max(34, int(h * 0.20))
-        self.specs = [ktr.typeset(s, base, 'grotesk', w, margin=int(w * 0.05), frame_h=h) for s in self.sents]
-        for spec in self.specs:
-            s = base
-            while spec['block_h'] > h * 0.86 and s > 22:
-                s = int(s * 0.9)
-                i = self.specs.index(spec)
-                spec = ktr.typeset(self.sents[i], s, 'grotesk', w, margin=int(w * 0.05), frame_h=h)
-                self.specs[i] = spec
+        self.chunks = [c for s in self.sents for c in self.split(s)]
+        size = max(26, int(min(W, H) * 0.052))
+        self.w = int(W * 0.9)
+        self.specs = [ktr.typeset(c, size, 'grotesk', self.w, margin=int(size * 0.6)) for c in self.chunks]
+        self.h = int(max(sp['lh'] for sp in self.specs) * 1.15) if self.specs else size * 2
+        self.box = ((W - self.w) // 2, H - self.h - int(H * 0.05), self.w, self.h)
+        self.pad = int(size * 0.55)
+        self.widths = [max(sum(it['tw'] for it in sp['lines'][0]) + sp['gap'] * (len(sp['lines'][0]) - 1), 1) + 2 * self.pad
+                       for sp in self.specs]
+
+    def split(self, sent):
+        """Chunks of up to MAX_WORDS, breaking after commas when one falls inside a chunk."""
+        ws, icon, out, i = sent['words'], sent.get('icon'), [], 0
+        while i < len(ws):
+            n = min(self.MAX_WORDS, len(ws) - i)
+            comma = next((k + 1 for k in range(n - 1) if ws[i + k]['word'].endswith((',', ';', ':'))), None)
+            n = comma or n
+            if n == 2 and len(ws) - i - n == 1:
+                n = 3
+            part = ws[i:i + n]
+            c = {'text': ' '.join(w['word'] for w in part), 'words': part, 'start': part[0]['start'], 'end': part[-1]['end']}
+            if icon is not None and i <= icon['word'] < i + n:
+                c['icon'] = {**icon, 'word': icon['word'] - i}
+            out.append(c)
+            i += n
+        return out
+
+    def current(self, t):
+        i = 0
+        for k, c in enumerate(self.chunks):
+            if c['start'] <= t + 0.04:
+                i = k
+            else:
+                break
+        return i
 
     def frame(self, t):
-        img = self.ktr.render_kinetic_frame(self.sents, self.specs, t, self.size, {}, accent=self.accent, watermark='')
-        return img
+        """RGBA pill (image, x offset within the caption box)."""
+        if not self.chunks:
+            return None, 0
+        i = self.current(t)
+        img = self.ktr.render_kinetic_frame(self.chunks[i:i + 1], self.specs[i:i + 1], t, (self.w, self.h), {}, accent=self.accent, watermark='')
+        q = ease((t - self.chunks[i]['start']) / 0.34) if i > 0 else 1.0
+        pw = int(self.widths[i - 1] + (self.widths[i] - self.widths[i - 1]) * q) if i > 0 else self.widths[i]
+        pw = min(self.w, pw)
+        x = (self.w - pw) // 2
+        pill = img.crop((x, 0, x + pw, self.h)).convert('RGBA')
+        pill.putalpha(card((pw, self.h), self.h // 2).point(lambda v: int(v * 0.94)))
+        return pill, x
 
 
 def card(size, radius):
@@ -227,9 +262,15 @@ def main():
     frames = sorted(Path(a.frames).glob('*.png'))
     accent = hexrgb(a.accent)
     bg = cover(Image.open(a.background).convert('RGB'), (W, H)).convert('RGBA')
-    pres, cap = layout(a.aspect, W, H)
-    caps = Captions(ktr, ki, script, words, (cap[2], cap[3]), a.accent)
-    mask = card((cap[2], cap[3]), int(min(cap[2], cap[3]) * 0.08))
+    pres = layout(a.aspect, W, H)
+    caps = Captions(ktr, ki, script, words, (W, H), a.accent)
+    cap = caps.box
+    cards = None
+    if a.icons == 'auto':
+        taken = {pv.norm(c['words'][c['icon']['word']]['word']) for c in caps.chunks if c.get('icon')}
+        concrete = ki.concrete_noun if ki is not None else None
+        plan = pv.plan(words, taken, concrete, len(frames) / a.fps)
+        cards = pv.Cards(plan, a.aspect, W, H, pres, ktr, hexrgb(a.accent), Path(a.out).parent / '.visuals')
     icon = Image.open(a.promo_image) if a.promo_image else None
     dur = len(frames) / a.fps
     at = a.promo_at if a.promo_at is not None else max(1.5, min(dur * 0.35, dur - a.promo_seconds - 2.0))
@@ -245,12 +286,15 @@ def main():
         fr = bg.copy()
         p = Image.open(fp).convert('RGBA').resize((pres[2], pres[3]), Image.LANCZOS)
         fr.alpha_composite(p, (pres[0], pres[1]))
-        c = caps.frame(t).convert('RGBA')
-        c.putalpha(mask.point(lambda v: int(v * 0.94)))
-        sh = Image.new('RGBA', c.size, (0, 0, 0, 0))
-        sh.putalpha(mask.point(lambda v: int(v * 0.22)).filter(ImageFilter.GaussianBlur(10)))
-        fr.alpha_composite(sh, (cap[0] + 3, cap[1] + 6))
-        fr.alpha_composite(c, (cap[0], cap[1]))
+        if cards is not None:
+            fr = cards.draw(fr, t)
+        c, cx = caps.frame(t)
+        if c is not None:
+            sh = Image.new('RGBA', (c.width + 40, c.height + 40), (0, 0, 0, 0))
+            sh.paste(Image.new('RGBA', c.size, (0, 0, 0, 255)), (20, 20), c.getchannel('A').point(lambda v: int(v * 0.2)))
+            sh = sh.filter(ImageFilter.GaussianBlur(9))
+            fr.alpha_composite(sh, (cap[0] + cx - 18, cap[1] - 14))
+            fr.alpha_composite(c, (cap[0] + cx, cap[1]))
         if a.promo:
             pp = (t - at) / a.promo_seconds
             if 0 < pp < 1:
@@ -263,7 +307,7 @@ def main():
     if enc.wait() != 0:
         sys.exit('ENCODE_FAILED')
     print('PRESENTER_COMPOSE', json.dumps({'frames': len(frames), 'seconds': round(dur, 2), 'aspect': a.aspect,
-                                           'sentences': len(caps.sents), 'icons': sum(1 for s in caps.sents if s.get('icon')),
+                                           'sentences': len(caps.sents), 'captionChunks': len(caps.chunks), 'visuals': [(round(c['at'], 2), c['label']) for c in (cards.cards if cards else [])], 'icons': sum(1 for s in caps.sents if s.get('icon')),
                                            'promo': a.promo, 'promoAt': round(at, 2) if a.promo else None}))
 
 

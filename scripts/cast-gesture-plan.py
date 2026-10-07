@@ -16,12 +16,14 @@ ap.add_argument('--audio');ap.add_argument('--cues',default=str(ROOT/'gesture-cu
 ap.add_argument('--seed',type=int,default=1);ap.add_argument('--posture',default='standing',help='standing or seated: which clips the planner may pick');ap.add_argument('--name',default='autoGestures')
 ap.add_argument('--mood',default='any',choices=('any','calm','expressive'),help='motion group from cast-motion-groups.py')
 ap.add_argument('--presenter',choices=('female','male'),help="excludes the other presenter's signature clips and favours this one's")
+ap.add_argument('--profile',choices=('default','presenter'),default='default',help='presenter: at most one gesture per sentence, wider gaps, calm speech-led head')
 for k in ('size','speed','frequency','expressiveness'):ap.add_argument('--'+k,type=float,default=1.0)
 a=ap.parse_args()
 LIB=json.loads((ROOT/'gesture-clips.json').read_text());CUES=json.loads(Path(a.cues).read_text());R=CUES['rules']
 # a mood also scales how often, how large and how fast the presenter gestures
 for k,v in LIB.get('groupRules',{}).get('moodStyle',{}).get(a.mood,{}).items():setattr(a,k,getattr(a,k)*v)
 fps=LIB['source']['fps'];rng=random.Random(a.seed)
+PROFILE=CUES.get('profiles',{}).get(a.profile,{});R={**R,**PROFILE.get('rules',{})}
 words=json.loads(Path(a.words).read_text());words=words['words'] if isinstance(words,dict) else words
 words=[(float(s),float(e),w) for s,e,w in words if w]
 norm=lambda w:re.sub(r"[^\w']+",'',w.lower())
@@ -64,6 +66,10 @@ def intent_of(sen):
     best=max(sen,key=lambda i:stress[i] if len(norm(words[i][2]))>=3 else 0)
     return (MEAN['questionIntent'] if words[sen[-1]][2].strip().endswith('?') else MEAN['defaultIntent']),best
 intents=[(sen,)+intent_of(sen) for sen in sentences]
+# a profile can restrict an intent to sentences that open with it ("thank you for watching", not "will thank you")
+for k,(sen,m,c) in enumerate(intents):
+    pat=PROFILE.get('sentenceStartIntents',{}).get(m)
+    if pat and not re.match(pat,' '.join(words[i][2].lower() for i in sen)):intents[k]=(sen,MEAN['defaultIntent'],max(sen,key=lambda i:stress[i] if len(norm(words[i][2]))>=3 else 0))
 # a sentence's gesture should end before the next specific intent's cue, so each one gets its turn
 cue_frames=sorted(round(words[c][0]*fps)+1 for _,m,c in intents if m!=MEAN['defaultIntent'])
 limit=lambda i:next((f for f in cue_frames if f>round(words[i][0]*fps)+1),10**9)
@@ -73,12 +79,12 @@ intent_events={(c,m) for _,m,c in intents}
 for sen,intent,cue in intents:events.append((cue,intent,5+stress[cue]+(0 if intent==MEAN['defaultIntent'] else 2.5)))
 # word-level structure: sizes, and pointing on stressed deictic words in plain explaining
 plain={i for sen,intent,_ in intents if intent in ('explain','point') for i in sen}
-for i,(s0,e0,w) in enumerate(words):
+for i,(s0,e0,w) in enumerate(words if not PROFILE.get('sentenceOnly') else []):
     cat=lex.get(norm(w))
     if cat=='scale':events.append((i,'scale',3+stress[i]))
     if cat=='point' and i in plain and stress[i]>=1:events.append((i,'point',3+stress[i]))
 # longer phrases inside a sentence get a light explaining beat on their stressed word
-for ph in phrases:
+for ph in (phrases if not PROFILE.get('sentenceOnly') else []):
     best=max(ph,key=lambda i:stress[i] if len(norm(words[i][2]))>=3 else 0)
     if len(ph)>=3 and stress[best]>=R['stressBeat']/max(.25,a.frequency):events.append((best,'explain',stress[best]))
 # lists: count only where enough enumeration words cluster in a steady rhythm
@@ -117,7 +123,7 @@ for m,names in list(clips.items()):
     else:del clips[m]
 # presenter signature clips count as half-used so they are picked first
 bias=lambda n:-.5 if a.presenter and LIB['clips'][n].get('presenter')==a.presenter else 0
-fallback=MEAN['fallback']
+fallback={**MEAN['fallback'],**PROFILE.get('fallback',{})}
 # per-clip tempo (Mixamo clips slowed to the presenter hand-speed cap) times the style speed
 spd=lambda n:a.speed*LIB['clips'][n].get('tempo',1)
 pad=lambda n:int(MXC.get('padFrames',0)) if 'mixamo' in LIB['clips'][n] else 0
@@ -159,6 +165,15 @@ for sen,intent,cue in intents:
     if intent in ('explain','agree','welcome','thanks','reassure','excited') and re.search(r'[.!]$',words[sen[-1]][2]):add('sentenceEnd',words[sen[-1]][1])
 out={'name':a.name,'expressions':expr,'sequence':seq,'style':{'size':a.size,'speed':a.speed,'mood':a.mood,'presenter':a.presenter},'idleLayer':{'seed':a.seed}}
 if MXC.get('idleBase',{}).get(a.posture):out['idleBase']=MXC['idleBase'][a.posture]
+HP=PROFILE.get('head')
+if HP:
+    # speech-led head: a small settle on clearly stressed words, a fresh resting angle per sentence
+    beats=[];last=-1e9
+    for i,(s0,e0,w) in enumerate(words):
+        if stress[i]>=HP['beatStress'] and len(norm(w))>=3 and s0-last>=HP['beatMinGapSec']:beats.append(round(s0*fps)+1);last=s0
+    poses=[{'at':round(words[sen[0]][0]*fps)+1,'pitch':round(rng.uniform(-1,1)*HP['pitch'],4),'yaw':round(rng.uniform(-1,1)*HP['yaw'],4),'tilt':round(rng.uniform(-1,1)*HP['tilt'],4)} for sen in sentences]
+    out['headLayer']={'beats':beats,'beatAmount':HP['beatAmount'],'beatSec':HP['beatSec'],'poses':poses,'poseSec':HP['poseSec']}
+    out['idleHold']=True;out['idleLayer']['headDrift']=False
 if a.phonemes:out['lipSync']={'phonemes':a.phonemes,'audio':a.audio,'mouthOpen':1.0}
 elif a.rhubarb:out['lipSync']={'rhubarb':a.rhubarb,'mouthOpen':1.2}
 Path(a.out).write_text(json.dumps(out,indent=1)+'\n')

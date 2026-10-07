@@ -70,6 +70,9 @@ for i,step in enumerate(timeline['sequence']):
         base=LIB['clips'][step.get('base') or timeline['idleBase']];fn,a,b=mixamo_sampler(base,1);mixamo_keys|=set(mx_cache[base['mixamo']])
         n=int(step['idle'])+48;span=max(1,b-a);pad=int(LIB['mixamo'].get('padFrames',0))
         items.append(('idle',f'idle{n}',lambda key,k,fn=fn,span=span,pad=pad:fn(key,pad+(k%span if (k//span)%2==0 else span-k%span)),n))
+    elif 'idle' in step and timeline.get('idleHold'):
+        # a still resting stance; breath, sway and the head layer bring it to life
+        n=int(step['idle'])+48;items.append(('idle',f'hold{n}',source_sampler(lambda k:rest_frame),n))
     elif 'idle' in step:
         a,b=LIB['idle']['ranges'][step.get('range',0)];n=int(step['idle'])+48;span=b-a
         items.append(('idle',f'idle{n}',source_sampler(lambda k,a=a,span=span:a+(k%span if (k//span)%2==0 else span-k%span)),n))
@@ -164,6 +167,7 @@ def idle_layer(cfg):
     # bone -> per-frame local (x forward bend, y twist, z side bend) offsets
     # MakeHuman chain runs root>spine05 (pelvis)>...>spine01 (chest)>neck01
     quat={'spine05':lambda f:(lean(f),twist(f)*.5,side(f)),'spine03':lambda f:(0,twist(f)*.5,0),'spine01':lambda f:(br(f),0,0)}
+    if cfg.get('headDrift',True)==False:nod=tilt=lambda f:0
     euler={'neck01':lambda f:(nod(f)-lean(f)-1.7*br(f),0,tilt(f)-side(f)*.6)}
     from mathutils import Quaternion,Euler
     touched=[]
@@ -182,6 +186,33 @@ def idle_layer(cfg):
             for k,f in enumerate(frames):ch[k]+=fn(f)[i]
         touched.append(bone)
     return touched
+def head_layer(cfg):
+    """Replace the take's head and neck motion with a calm speech-led one: a held angle per sentence, eased between, and a small settle on stressed words."""
+    fps=LIB['source']['fps'];poses=sorted(cfg.get('poses',[]),key=lambda p:p['at'])
+    ease=max(1,round(float(cfg.get('poseSec',.9))*fps));bn=max(2,round(float(cfg.get('beatSec',.5))*fps));amt=float(cfg.get('beatAmount',.03))
+    def angle(f):
+        cur=(0.0,0.0,0.0)
+        for p in poses:
+            tgt=(p['pitch'],p['yaw'],p['tilt'])
+            if f<p['at']:break
+            u=smooth(min(1.0,(f-p['at'])/ease));cur=tuple(c+(t-c)*u for c,t in zip(cur,tgt))
+        return cur
+    def beat(f):
+        v=0.0
+        for b in cfg.get('beats',[]):
+            k=f-b+bn//3
+            if 0<=k<bn:x=k/bn;v=max(v,math.sin(math.pi*x)**2)
+        return amt*v
+    split={'neck01':.4,'head':.6};touched=[]
+    for bone,w in split.items():
+        path=f'pose.bones["{bone}"].rotation_euler'
+        if not all((path,i) in values for i in range(3)):continue
+        for k,f in enumerate(frames):
+            p,y,t=angle(f);r=[default((path,i)) for i in range(3)]
+            values[(path,0)][k]=r[0]+w*(p+beat(f));values[(path,1)][k]=r[1]+w*y;values[(path,2)][k]=r[2]+w*t
+        touched.append(bone)
+    return touched
+head_bones=head_layer(timeline['headLayer']) if timeline.get('headLayer') else []
 idle_bones=idle_layer(timeline['idleLayer']) if timeline.get('idleLayer') else []
 for (path,idx),vals in values.items():
     fc=cb.fcurves.new(path,index=idx);fc.keyframe_points.add(len(vals))
@@ -324,7 +355,7 @@ expressions=expression_layer(timeline['expressions'],face) if face and 'expressi
 rig.animation_data.action=act;rig.animation_data.action_slot=slot
 s=bpy.context.scene;s.frame_start=1;s.frame_end=total
 if digest(source)!=before:raise RuntimeError('SOURCE_ACTION_MUTATED')
-report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'blinks':blinks,'lipSyncCues':cues,'lipSyncQA':LIP_QA,'expressions':expressions,'seatNarrowedFrames':seated_frames,'handContactFrames':contact_frames,
+report={'action':act.name,'frames':total,'seconds':round(total/LIB['source']['fps'],2),'sourceDigest':before[:16],'idleLayer':idle_bones,'headLayer':head_bones,'blinks':blinks,'lipSyncCues':cues,'lipSyncQA':LIP_QA,'expressions':expressions,'seatNarrowedFrames':seated_frames,'handContactFrames':contact_frames,
         'sequence':[{'name':n,'start':st,'frames':l,'blendIn':bi} for st,l,_,n,bi,_ in placed]}
 bpy.ops.wm.save_as_mainfile(filepath=out,copy=True)
 print('GESTURE_TIMELINE',json.dumps(report),flush=True)

@@ -172,5 +172,30 @@
       ]
     ]
   },
-  "expressionsNote": "[shape key, peak amount, seconds]; triggered by the same cues as gestures, scaled by --expressiveness."
+  "expressionsNote": "[shape key, peak amount, seconds]; triggered by the same cues as gestures, scaled by --expressiveness.",
+  "profilesNote": "--profile overrides: rules, which events are planned, intent fallbacks and the speech-led head layer.",
+  "profiles": {
+    "presenter": {
+      "rules": {
+        "minGapSec": 1.6
+      },
+      "sentenceOnly": true,
+      "sentenceStartIntents": {
+        "thanks": "^(thank|thanks)\\b"
+      },
+      "fallback": {
+        "thanks": "agree"
+      },
+      "head": {
+        "beatStress": 1.6,
+        "beatMinGapSec": 2.0,
+        "beatAmount": 0.03,
+        "beatSec": 0.5,
+        "pitch": 0.025,
+        "yaw": 0.04,
+        "tilt": 0.025,
+        "poseSec": 0.9
+      }
+    }
+  }
 }
