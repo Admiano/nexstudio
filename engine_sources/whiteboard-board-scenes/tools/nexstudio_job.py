@@ -148,8 +148,9 @@ def main() -> int:
     for ai, aspect in enumerate(aspect_list):
         progress(phase="render", aspect=aspect, aspectsDone=ai, aspectsTotal=len(aspect_list))
         ratio_dir = out / aspect.replace(":", "x")
+        pipeline_ratio = aspect.replace("x", ":") if args.type == "kinetic" else aspect
         cmd = [sys.executable, str(pipeline), str(plan_path),
-               "--out-dir", str(ratio_dir), "--ratio", aspect,
+               "--out-dir", str(ratio_dir), "--ratio", pipeline_ratio,
                "--theme", args.theme, "--voiceover", str(vo_wav)]
         if args.type == "board-scenes":
             cmd += ["--variant", "board_sections"]
