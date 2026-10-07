@@ -25,6 +25,7 @@ STYLES = json.loads((ROOT / "styles.json").read_text())
 STYLE_MAP = {s["id"]: s for s in STYLES["styles"]}
 VARIANT_MAP = {f'{s["id"]}.{v["id"]}': (s, v) for s in STYLES["styles"] for v in s.get("variants", [])}
 BANK = STYLES["entity_bank"]
+_PHRASES_RAW = STYLES.get("entity_phrases", {})
 VIDEO_EXTS = {".mp4", ".mov", ".webm", ".mkv"}
 
 CLAUSE_END = re.compile(r"[.!?]$")
@@ -142,20 +143,46 @@ def word_key(t):
     return t
 
 
+def _norm_phrase(s):
+    return " ".join(word_key(w) for w in s.split() if word_key(w))
+
+
+# alias / multi-word surface form -> canonical bank key, normalized like toks
+PHRASES = {_norm_phrase(k): v for k, v in _PHRASES_RAW.items()}
+MAX_PHRASE_WORDS = max((len(p.split()) for p in PHRASES), default=1)
+
+
 def pick_entities(gwords, family, already):
     seen = set()
     out = []
     toks = [word_key(w["text"]) for w in gwords]
-    for i, tk in enumerate(toks):
-        cands = [tk, tk[:-1] if tk.endswith("s") else tk, tk.rstrip("s'’")]
-        key = next((c for c in cands if c in BANK), None)
-        if not key or key in already or tk in STOPWORDS:
+    i = 0
+    while i < len(toks):
+        tk = toks[i]
+        key = None
+        span = 1
+        # context first: longest multi-word phrase wins over single words
+        for n in range(min(MAX_PHRASE_WORDS, len(toks) - i), 1, -1):
+            phrase = " ".join(toks[i:i + n])
+            if phrase in PHRASES and PHRASES[phrase] in BANK:
+                key = PHRASES[phrase]
+                span = n
+                break
+        if not key:
+            cands = [tk, tk[:-1] if tk.endswith("s") else tk, tk.rstrip("s'’")]
+            key = next((c for c in cands if c in BANK), None)
+            if not key:
+                # single-word alias (e.g. ticker symbols: btc, eth)
+                hit = next((c for c in cands if PHRASES.get(c) in BANK), None)
+                if hit:
+                    key = PHRASES[hit]
+        if not key or key in already or (span == 1 and tk in STOPWORDS):
+            i += 1
             continue
         spec = BANK[key]
         ref = spec.get(family) or (spec.get("photo") if family == "photos" else None) or spec.get("colour")
-        if not ref:
-            continue
-        if ref in seen:
+        if not ref or ref in seen:
+            i += 1
             continue
         seen.add(ref); already.add(key)
         is_photo = family == "photos" or (family == "colour_icons" and ref == spec.get("photo")) or ref == spec.get("photo")
@@ -165,6 +192,7 @@ def pick_entities(gwords, family, already):
         else:
             ent["asset_ref"] = ref
         out.append((ent, gwords[i]["text"]))
+        i += span
         if len(out) >= 4:
             break
     return out
