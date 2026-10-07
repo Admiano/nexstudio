@@ -11,7 +11,7 @@ import {castRenderConfig} from "../cast/render-config";
 import {
   DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
   MALE_BOTTOMS, MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, MALE_TOP_COLORS, NECKS, SKINS, VOICES, WATCHES,
-  malePieces, maleWatchAvailable, normalizeCastSpec,
+  MALE_OUTFIT_PIECES, malePieces, maleWatchAvailable, normalizeCastSpec,
   type CastMember, type CastSpec,
 } from "../cast/spec";
 
@@ -103,7 +103,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
   const patchOutfitKind = (kind: string) => {
     setSpec((s) => normalizeCastSpec({
       ...s,
-      outfit: { kind, color: s.outfit?.color ?? undefined, ...(s.character==="male"?{pieces:malePieces(s)}:{}) },
+      outfit: { kind, color: s.outfit?.color ?? undefined, ...(s.character==="male"&&MALE_OUTFIT_PIECES[kind]?{pieces:{...MALE_OUTFIT_PIECES[kind]}}:{}) },
     }, s.character));
   };
 
