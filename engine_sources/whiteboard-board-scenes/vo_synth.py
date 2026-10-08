@@ -96,6 +96,7 @@ def word_timings(wav: Path, out_json: Path,
                  model_size: str = 'base', text: str = '') -> Path:
     from faster_whisper import WhisperModel
 
+    out_json = Path(out_json)
     model = WhisperModel(model_size)
     segments, _ = model.transcribe(str(wav), word_timestamps=True)
     words = [{'word': w.word.strip(), 'start': round(w.start, 3),

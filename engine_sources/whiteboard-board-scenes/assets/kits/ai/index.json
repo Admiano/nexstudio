@@ -1,1642 +1,1646 @@
 {
- "domain": "ai explainers \u2014 harvested + curated",
- "glyphs": {
-  "a100": {
-   "keywords": [
-    "a100"
-   ],
-   "motif": "chip",
-   "slug_alias": "gpu",
-   "tone": "#76B900"
-  },
-  "agent-swarm": {
-   "keywords": [
-    "agent swarm"
-   ],
-   "motif": "robot",
-   "slug_alias": "multi-agent"
-  },
-  "agi": {
-   "colors": true,
-   "keywords": [
-    "agi",
-    "artificial general intelligence",
-    "general intelligence",
-    "human level",
-    "human-level"
-   ],
-   "motif": "brain",
-   "tone": "#6C4FB6"
-  },
-  "alert": {
-   "donor": "kit:crypto:alert",
-   "keywords": [
-    "alert",
-    "error",
-    "hallucination",
-    "mistake",
-    "risk",
-    "warning",
-    "risks",
-    "danger",
-    "dangerous",
-    "misuse",
-    "abuse",
-    "bias",
-    "biased",
-    "misinformation",
-    "harm",
-    "harmful",
-    "unsafe",
-    "threat",
-    "threats"
-   ]
-  },
-  "alignment": {
-   "keywords": [
-    "alignment",
-    "aligned",
-    "align",
-    "ai alignment",
-    "value alignment",
-    "aligned with",
-    "human values"
-   ],
-   "motif": "compass"
-  },
-  "alignment-problem": {
-   "keywords": [
-    "alignment problem"
-   ],
-   "motif": "lever",
-   "slug_alias": "control"
-  },
-  "api-call": {
-   "donor": "world:hook",
-   "keywords": [
-    "api",
-    "api call",
-    "endpoint",
-    "integration",
-    "web hook",
-    "webhook",
-    "apis",
-    "call",
-    "calls",
-    "sdk",
-    "developer api",
-    "openai api"
-   ]
-  },
-  "attention": {
-   "keywords": [
-    "attention",
-    "self-attention",
-    "transformer",
-    "transformers",
-    "attention mechanism",
-    "attention is all"
-   ],
-   "motif": "grid"
-  },
-  "automation": {
-   "keywords": [
-    "automation",
-    "automate",
-    "automates",
-    "automated",
-    "jobs",
-    "job loss",
-    "replaces workers",
-    "replace jobs",
-    "augmentation",
-    "augment",
-    "productivity",
-    "replace workers",
-    "jobs replaced",
-    "replaces jobs",
-    "automation wave"
-   ],
-   "motif": "robot"
-  },
-  "b200": {
-   "keywords": [
-    "b200"
-   ],
-   "motif": "chip",
-   "slug_alias": "gpu",
-   "tone": "#76B900"
-  },
-  "base-model": {
-   "keywords": [
-    "base model"
-   ],
-   "motif": "scale",
-   "slug_alias": "weights"
-  },
-  "blackwell": {
-   "keywords": [
-    "blackwell"
-   ],
-   "motif": "chip",
-   "slug_alias": "gpu",
-   "tone": "#76B900"
-  },
-  "bottleneck": {
-   "keywords": [
-    "bottleneck",
-    "bottlenecks",
-    "constraint",
-    "constraints",
-    "chokepoint",
-    "capacity constraint",
-    "power bottleneck",
-    "supply constraint",
-    "scarce",
-    "scarcity of",
-    "limited supply"
-   ],
-   "motif": "object"
-  },
-  "brain": {
-   "donor": "phosphor:brain",
-   "keywords": [
-    "ai brain",
-    "brain",
-    "thinking",
-    "intelligence",
-    "smart",
-    "iq",
-    "reason",
-    "mind",
-    "understanding",
-    "cognition",
-    "smarter"
-   ]
-  },
-  "calendar": {
-   "donor": "phosphor:calendar",
-   "keywords": [
-    "calendar",
-    "date",
-    "my calendar",
-    "reminder",
-    "schedule",
-    "deadline",
-    "roadmap",
-    "timeline"
-   ]
-  },
-  "chat-bubble": {
-   "donor": "phosphor:chat",
-   "keywords": [
-    "ai chat",
-    "assistant",
-    "chat",
-    "chat bubble",
-    "chat gpt",
-    "chatbot",
-    "conversation",
-    "chatgpt",
-    "claude",
-    "gemini",
-    "copilot chat",
-    "message",
-    "messages",
-    "talks",
-    "speaks",
-    "replies"
-   ]
-  },
-  "check-badge": {
-   "donor": "phosphor:check",
-   "keywords": [
-    "accurate",
-    "approved",
-    "check badge",
-    "correct",
-    "success",
-    "verify",
-    "verified",
-    "passes",
-    "benchmark pass",
-    "certified",
-    "correct answer",
-    "solved"
-   ]
-  },
-  "cloud-provider": {
-   "keywords": [
-    "cloud provider"
-   ],
-   "motif": "server",
-   "slug_alias": "datacenter"
-  },
-  "cluster": {
-   "keywords": [
-    "cluster",
-    "clusters",
-    "gpu cluster",
-    "pods",
-    "fleet",
-    "server cluster"
-   ],
-   "motif": "network"
-  },
-  "code": {
-   "donor": "phosphor:code",
-   "keywords": [
-    "code",
-    "programming",
-    "script",
-    "software",
-    "writes code",
-    "coding",
-    "coder",
-    "programmer",
-    "github",
-    "pull request",
-    "pr",
-    "repository",
-    "repo",
-    "commits",
-    "debug",
-    "debugs"
-   ]
-  },
-  "code-review": {
-   "keywords": [
-    "code review"
-   ],
-   "motif": "object",
-   "slug_alias": "pull-request"
-  },
-  "context-length": {
-   "keywords": [
-    "context length"
-   ],
-   "motif": "document",
-   "slug_alias": "context-window"
-  },
-  "context-window": {
-   "keywords": [
-    "context window",
-    "context",
-    "context length",
-    "long context",
-    "context size",
-    "window",
-    "token context",
-    "million token",
-    "tokens of context"
-   ],
-   "motif": "document"
-  },
-  "control": {
-   "keywords": [
-    "control",
-    "control problem",
-    "controllable",
-    "in control",
-    "steering",
-    "under control"
-   ],
-   "motif": "lever"
-  },
-  "control-problem": {
-   "keywords": [
-    "control problem"
-   ],
-   "motif": "lever",
-   "slug_alias": "control"
-  },
-  "copilot-agent": {
-   "keywords": [
-    "devin the ai",
-    "devin agent",
-    "ai software engineer"
-   ],
-   "motif": "robot",
-   "slug_alias": "swe-agent"
-  },
-  "copyright": {
-   "keywords": [
-    "copyright",
-    "copyrighted",
-    "ip",
-    "intellectual property",
-    "licensing",
-    "lawsuit",
-    "nyt lawsuit"
-   ],
-   "motif": "document"
-  },
-  "cot": {
-   "keywords": [
-    "chain of thought",
-    "chain-of-thought",
-    "cot",
-    "reasoning",
-    "reasoning model",
-    "o1",
-    "o3",
-    "r1",
-    "deepseek r1",
-    "thinking",
-    "deliberate",
-    "reason",
-    "thinks",
-    "reasoner"
-   ],
-   "motif": "brain"
-  },
-  "cuda": {
-   "keywords": [
-    "cuda"
-   ],
-   "motif": "chip",
-   "slug_alias": "gpu",
-   "tone": "#76B900"
-  },
-  "cursor": {
-   "keywords": [
-    "devin the ai",
-    "devin agent",
-    "ai software engineer"
-   ],
-   "motif": "robot",
-   "slug_alias": "swe-agent"
-  },
-  "data-wall": {
-   "keywords": [
-    "data wall",
-    "wall of data",
-    "running out of data",
-    "data shortage",
-    "data scarcity",
-    "out of text",
-    "data limit"
-   ],
-   "motif": "wall"
-  },
-  "database": {
-   "donor": "phosphor:database",
-   "keywords": [
-    "data",
-    "database",
-    "dataset",
-    "datum",
-    "storage",
-    "training data",
-    "vector database",
-    "datasets",
-    "corpus",
-    "vector db",
-    "knowledge base",
-    "kv cache",
-    "cache",
-    "retrieval",
-    "rag",
-    "internet data",
-    "web data"
-   ]
-  },
-  "datacenter": {
-   "keywords": [
-    "datacenter",
-    "data center",
-    "data centers",
-    "datacenters",
-    "hyperscaler",
-    "hyperscalers",
-    "server farm",
-    "compute cluster",
-    "data halls",
-    "gigawatt",
-    "gigawatts",
-    "power hungry",
-    "energy demand",
-    "power grid",
-    "nuclear power"
-   ],
-   "motif": "server"
-  },
-  "decision-tree": {
-   "donor": "phosphor:tree",
-   "keywords": [
-    "chooses",
-    "decides",
-    "decision",
-    "decision tree",
-    "next step",
-    "planning",
-    "reasoning",
-    "decisions",
-    "branch",
-    "choices",
-    "if else",
-    "logic tree"
-   ]
-  },
-  "deepfake": {
-   "keywords": [
-    "deepfake",
-    "deepfakes",
-    "face swap",
-    "fake video",
-    "fake image",
-    "synthetic media"
-   ],
-   "motif": "face"
-  },
-  "devin": {
-   "keywords": [
-    "devin the ai",
-    "devin agent",
-    "ai software engineer"
-   ],
-   "motif": "robot",
-   "slug_alias": "swe-agent"
-  },
-  "devin-ai": {
-   "keywords": [
-    "devin the ai",
-    "devin agent",
-    "ai software engineer"
-   ],
-   "motif": "robot",
-   "slug_alias": "swe-agent"
-  },
-  "distill": {
-   "keywords": [
-    "distill",
-    "distillation",
-    "distilled",
-    "teacher model",
-    "student model",
-    "knowledge distillation"
-   ],
-   "motif": "funnel"
-  },
-  "document": {
-   "donor": "kit:business:document",
-   "keywords": [
-    "article",
-    "blog post",
-    "document",
-    "file",
-    "news article",
-    "pdf",
-    "report",
-    "text",
-    "your file",
-    "essay",
-    "write",
-    "writes",
-    "writing",
-    "essay writer",
-    "draft",
-    "summarize",
-    "summary",
-    "paper"
-   ]
-  },
-  "doom": {
-   "keywords": [
-    "doom",
-    "p(doom)",
-    "pdoom",
-    "extinction",
-    "x-risk",
-    "x risk",
-    "existential risk",
-    "catastrophic",
-    "catastrophe",
-    "human extinction"
-   ],
-   "motif": "skull"
-  },
-  "e-acc": {
-   "keywords": [
-    "e/acc",
-    "eacc",
-    "accelerationism",
-    "accelerate",
-    "acceleration",
-    "speed up",
-    "faster progress"
-   ],
-   "motif": "arrow"
-  },
-  "email": {
-   "donor": "kit:business:email",
-   "keywords": [
-    "email",
-    "email inbox",
-    "inbox",
-    "message",
-    "reply",
-    "emails",
-    "write email"
-   ]
-  },
-  "embedding": {
-   "keywords": [
-    "embedding",
-    "embeddings",
-    "vector",
-    "vectors",
-    "vector space",
-    "latent space",
-    "embedding space"
-   ],
-   "motif": "chart"
-  },
-  "eval-checklist": {
-   "keywords": [
-    "eval",
-    "evals",
-    "evaluation",
-    "benchmark",
-    "benchmarks",
-    "mmlu",
-    "gpqa",
-    "swe-bench",
-    "swe bench",
-    "arc agi",
-    "benchmark suite",
-    "test suite",
-    "harness"
-   ],
-   "motif": "document"
-  },
-  "existential-risk": {
-   "keywords": [
-    "existential risk"
-   ],
-   "motif": "skull",
-   "slug_alias": "doom"
-  },
-  "extinction": {
-   "keywords": [
-    "extinction"
-   ],
-   "motif": "skull",
-   "slug_alias": "doom"
-  },
-  "extinction-risk": {
-   "keywords": [
-    "extinction risk"
-   ],
-   "motif": "skull",
-   "slug_alias": "doom"
-  },
-  "eye": {
-   "donor": "healthicons:eye",
-   "keywords": [
-    "eye",
-    "image recognition",
-    "monitors",
-    "observes",
-    "vision",
-    "watches",
-    "sees",
-    "multimodal",
-    "video understanding",
-    "perception"
-   ]
-  },
-  "finetune": {
-   "keywords": [
-    "finetune",
-    "fine-tune",
-    "fine-tuning",
-    "finetuning",
-    "lora",
-    "adapter",
-    "adapters",
-    "fine tuned",
-    "fine-tuned",
-    "peft",
-    "tuning"
-   ],
-   "motif": "sliders"
-  },
-  "foundation-model": {
-   "keywords": [
-    "foundation model"
-   ],
-   "motif": "scale",
-   "slug_alias": "weights"
-  },
-  "frontier": {
-   "keywords": [
-    "frontier",
-    "frontier model",
-    "frontier models",
-    "frontier lab",
-    "flagship",
-    "flagship model",
-    "state of the art",
-    "sota",
-    "bleeding edge",
-    "frontier labs",
-    "openai",
-    "anthropic",
-    "deepmind",
-    "google deepmind",
-    "meta ai",
-    "xai",
-    "mistral"
-   ],
-   "motif": "flag"
-  },
-  "function-call": {
-   "keywords": [
-    "function call",
-    "function calls",
-    "function calling",
-    "tool call",
-    "tool calls",
-    "tool use",
-    "calls a tool",
-    "calling tools",
-    "invoke",
-    "invocation",
-    "api call",
-    "function",
-    "functions"
-   ],
-   "motif": "symbol"
-  },
-  "function-calling": {
-   "keywords": [
-    "function calling"
-   ],
-   "motif": "symbol",
-   "slug_alias": "function-call"
-  },
-  "gauge": {
-   "keywords": [
-    "tokens per second",
-    "tok/s",
-    "latency",
-    "ttft",
-    "speed",
-    "fast inference",
-    "throughput",
-    "real time",
-    "milliseconds",
-    "inference speed"
-   ],
-   "motif": "gauge"
-  },
-  "globe": {
-   "donor": "healthicons:globe",
-   "keywords": [
-    "browser",
-    "globe",
-    "internet",
-    "online",
-    "web",
-    "website",
-    "world",
-    "everyone",
-    "globally",
-    "billion users",
-    "the internet",
-    "openai",
-    "anthropic",
-    "google",
-    "meta",
-    "microsoft",
-    "xai",
-    "deepmind",
-    "mistral ai",
-    "companies",
-    "labs",
-    "lab"
-   ]
-  },
-  "gpu": {
-   "keywords": [
-    "gpu",
-    "gpus",
-    "graphics card",
-    "h100",
-    "h200",
-    "b200",
-    "gb200",
-    "a100",
-    "nvidia",
-    "cuda",
-    "accelerator",
-    "accelerators",
-    "gpu cluster"
-   ],
-   "motif": "chip",
-   "tone": "#76B900"
-  },
-  "graph-up": {
-   "donor": "phosphor:graph",
-   "keywords": [
-    "accuracy",
-    "forecast",
-    "graph up",
-    "output",
-    "prediction",
-    "predicts",
-    "result",
-    "score",
-    "growth",
-    "scaling",
-    "scale",
-    "scaling laws",
-    "scaling law",
-    "bigger",
-    "more compute",
-    "exponential",
-    "improvements",
-    "progress",
-    "capability",
-    "capabilities",
-    "benchmarks rise",
-    "emergent",
-    "emergence"
-   ]
-  },
-  "graphics-card": {
-   "keywords": [
-    "graphics card"
-   ],
-   "motif": "chip",
-   "slug_alias": "gpu",
-   "tone": "#76B900"
-  },
-  "h100": {
-   "keywords": [
-    "h100"
-   ],
-   "motif": "chip",
-   "slug_alias": "gpu",
-   "tone": "#76B900"
-  },
-  "hallucination": {
-   "keywords": [
-    "hallucination",
-    "hallucinate",
-    "hallucinates",
-    "hallucinated",
-    "made up",
-    "confabulation",
-    "making things up"
-   ],
-   "motif": "cloud"
-  },
-  "hyperscale": {
-   "keywords": [
-    "hyperscale"
-   ],
-   "motif": "server",
-   "slug_alias": "datacenter"
-  },
-  "hyperscaler": {
-   "keywords": [
-    "hyperscaler"
-   ],
-   "motif": "server",
-   "slug_alias": "datacenter"
-  },
-  "image-gen": {
-   "keywords": [
-    "image generation",
-    "image model",
-    "dalle",
-    "dall-e",
-    "midjourney",
-    "stable diffusion",
-    "imagen",
-    "flux",
-    "generate images",
-    "generated image",
-    "ai image",
-    "ai art",
-    "text to image",
-    "ads",
-    "advertisement",
-    "advertisements",
-    "ad creatives",
-    "creatives",
-    "ad",
-    "marketing images",
-    "generated ads",
-    "sdxl"
-   ],
-   "motif": "image"
-  },
-  "inference": {
-   "keywords": [
-    "inference",
-    "inference time",
-    "test-time",
-    "test time",
-    "test-time compute",
-    "inference compute",
-    "forward pass",
-    "serve",
-    "serving",
-    "deploy model",
-    "inference cost",
-    "token cost",
-    "per token",
-    "latency"
-   ],
-   "motif": "flow"
-  },
-  "interpretability": {
-   "keywords": [
-    "interpretability",
-    "mechanistic",
-    "mechanistic interpretability",
-    "internals",
-    "circuits",
-    "features",
-    "neurons",
-    "probe"
-   ],
-   "motif": "search"
-  },
-  "jailbreak": {
-   "keywords": [
-    "jailbreak",
-    "jailbroken",
-    "jailbreaks",
-    "prompt injection",
-    "injection",
-    "prompt attack",
-    "adversarial prompt"
-   ],
-   "motif": "lock"
-  },
-  "json-structure": {
-   "keywords": [
-    "json",
-    "structured output",
-    "structured outputs",
-    "schema",
-    "json mode",
-    "function output"
-   ],
-   "motif": "code"
-  },
-  "language-model": {
-   "keywords": [
-    "language model"
-   ],
-   "motif": "scale",
-   "slug_alias": "weights"
-  },
-  "large-language-model": {
-   "keywords": [
-    "large language model"
-   ],
-   "motif": "scale",
-   "slug_alias": "weights"
-  },
-  "leaderboard": {
-   "keywords": [
-    "leaderboard",
-    "leaderboards",
-    "arena",
-    "lmsys",
-    "chatbot arena",
-    "rankings",
-    "top model",
-    "elo",
-    "benchmark",
-    "benchmarks",
-    "lmarena",
-    "evals",
-    "eval"
-   ],
-   "motif": "chart"
-  },
-  "lightbulb": {
-   "donor": "phosphor:lightbulb",
-   "keywords": [
-    "idea",
-    "insight",
-    "learns",
-    "lightbulb",
-    "recommendation",
-    "suggestion",
-    "discovery",
-    "breakthrough",
-    "novel",
-    "creative",
-    "innovation",
-    "invent",
-    "eureka"
-   ]
-  },
-  "llm": {
-   "keywords": [
-    "llm"
-   ],
-   "motif": "scale",
-   "slug_alias": "weights"
-  },
-  "lock": {
-   "donor": "phosphor:lock",
-   "keywords": [
-    "guardrails",
-    "lock",
-    "permission",
-    "privacy",
-    "safety",
-    "secure",
-    "safe",
-    "guardrail",
-    "private",
-    "locked",
-    "protected",
-    "moderation",
-    "filters"
-   ]
-  },
-  "magnify-data": {
-   "donor": "kit:crypto:magnify",
-   "keywords": [
-    "finds",
-    "lookup",
-    "magnify data",
-    "rag",
-    "retrieval",
-    "retrieval augmented generation",
-    "search",
-    "semantic search",
-    "retrieval augmented",
-    "look up",
-    "research",
-    "analyzes data"
-   ]
-  },
-  "memory-chip": {
-   "donor": "phosphor:memory",
-   "keywords": [
-    "chip",
-    "context",
-    "context window",
-    "gpu",
-    "memory",
-    "memory chip",
-    "chips",
-    "semiconductor",
-    "compute",
-    "flops",
-    "compute power",
-    "vram",
-    "hardware",
-    "inference chip",
-    "tpu",
-    "trainium",
-    "asic",
-    "silicon"
-   ]
-  },
-  "merge-request": {
-   "keywords": [
-    "merge request"
-   ],
-   "motif": "object",
-   "slug_alias": "pull-request"
-  },
-  "model": {
-   "colors": [
-    "#222"
-   ],
-   "donor": "phosphor:cpu",
-   "fill": "solid",
-   "keywords": [
-    "model",
-    "llm",
-    "language model",
-    "the model",
-    "ai model",
-    "foundation model",
-    "models",
-    "llms",
-    "large language model",
-    "gpt",
-    "gpt-4",
-    "gpt-5",
-    "claude",
-    "gemini",
-    "grok",
-    "llama model",
-    "frontier model",
-    "chatgpt",
-    "deepseek model",
-    "weights model",
-    "parameters model",
-    "small model",
-    "slm",
-    "openai model",
-    "base model"
-   ],
-   "motif": "object",
-   "tone": "neutral"
-  },
-  "moe": {
-   "keywords": [
-    "moe",
-    "mixture of experts",
-    "experts",
-    "sparse model",
-    "sparse moe",
-    "routing",
-    "router",
-    "expert routing"
-   ],
-   "motif": "branch"
-  },
-  "money": {
-   "donor": "phosphor:money",
-   "keywords": [
-    "billing",
-    "cost",
-    "money",
-    "payment",
-    "price",
-    "subscription",
-    "costs",
-    "expensive",
-    "cheap",
-    "billion",
-    "billions",
-    "investment",
-    "funding",
-    "revenue",
-    "valuation",
-    "spend",
-    "capex",
-    "dollars",
-    "budget",
-    "raises"
-   ]
-  },
-  "multi-agent": {
-   "keywords": [
-    "agents",
-    "multi-agent",
-    "multi agent",
-    "swarm",
-    "agent swarm",
-    "agents working",
-    "agent network",
-    "swarms",
-    "team of agents",
-    "agents team",
-    "agent",
-    "agentic",
-    "autonomous agent",
-    "ai agent",
-    "ai agents"
-   ],
-   "motif": "robot"
-  },
-  "neural-network": {
-   "donor": "phosphor:network",
-   "keywords": [
-    "deep learning",
-    "deep neural",
-    "network of neurons",
-    "neural network",
-    "neuron",
-    "neural net",
-    "network",
-    "architecture",
-    "connections",
-    "transformer arch"
-   ]
-  },
-  "nvidia": {
-   "keywords": [
-    "nvidia"
-   ],
-   "motif": "chip",
-   "slug_alias": "gpu",
-   "tone": "#76B900"
-  },
-  "open-weights": {
-   "keywords": [
-    "open source",
-    "open-source",
-    "open weight",
-    "open-weight",
-    "llama",
-    "mistral",
-    "qwen",
-    "deepseek",
-    "open model",
-    "open models",
-    "releases weights"
-   ],
-   "motif": "lock"
-  },
-  "orchestration": {
-   "donor": "phosphor:share-network",
-   "keywords": [
-    "coordinates",
-    "multi agent",
-    "multiple agents",
-    "orchestration",
-    "orchestration layer",
-    "swarm",
-    "orchestrator",
-    "multi-step",
-    "planner",
-    "planning"
-   ]
-  },
-  "paperclip": {
-   "keywords": [
-    "paperclip",
-    "paperclips",
-    "paperclip maximizer",
-    "instrumental convergence",
-    "instrumental"
-   ],
-   "motif": "object"
-  },
-  "power": {
-   "keywords": [
-    "energy",
-    "power",
-    "megawatt",
-    "megawatts",
-    "gigawatt",
-    "electricity",
-    "grid",
-    "power draw",
-    "energy cost",
-    "power consumption",
-    "nuclear",
-    "watts",
-    "grid strain"
-   ],
-   "motif": "energy"
-  },
-  "prompt": {
-   "donor": "phosphor:terminal-window",
-   "keywords": [
-    "instruction",
-    "prompt",
-    "prompting",
-    "query",
-    "system prompt",
-    "you ask",
-    "prompts",
-    "instructions",
-    "prompt engineering",
-    "ask",
-    "input text"
-   ]
-  },
-  "pull-request": {
-   "keywords": [
-    "pull request",
-    "pull requests",
-    "pr",
-    "prs",
-    "merge request",
-    "opens a pull request",
-    "opened a pr",
-    "code review",
-    "review the pr"
-   ],
-   "motif": "object"
-  },
-  "quantize": {
-   "keywords": [
-    "quantize",
-    "quantization",
-    "quantized",
-    "int8",
-    "fp8",
-    "gguf",
-    "4-bit",
-    "8-bit",
-    "compress model",
-    "compression",
-    "bit",
-    "bits",
-    "4 bit",
-    "8 bit",
-    "four bits",
-    "bf16",
-    "fp16"
-   ],
-   "motif": "shrink"
-  },
-  "reinforcement-learning": {
-   "keywords": [
-    "reinforcement learning"
-   ],
-   "motif": "hand",
-   "slug_alias": "rlhf"
-  },
-  "rl": {
-   "keywords": [
-    "rl"
-   ],
-   "motif": "hand",
-   "slug_alias": "rlhf"
-  },
-  "rlhf": {
-   "keywords": [
-    "rlhf",
-    "human feedback",
-    "reinforcement learning from",
-    "feedback",
-    "reward model",
-    "preference",
-    "preferences",
-    "dpo",
-    "rl",
-    "reinforcement"
-   ],
-   "motif": "hand"
-  },
-  "robot": {
-   "donor": "phosphor:robot",
-   "keywords": [
-    "ai robot",
-    "bot",
-    "robot",
-    "ai",
-    "artificial intelligence",
-    "the ai",
-    "chatbot",
-    "assistant",
-    "companion",
-    "agent",
-    "agents",
-    "ai agent",
-    "agentic",
-    "android"
-   ]
-  },
-  "robotics": {
-   "keywords": [
-    "robotics",
-    "robot",
-    "robots",
-    "embodied",
-    "embodied ai",
-    "humanoid",
-    "humanoid robot",
-    "optimus",
-    "figure ai",
-    "physical ai"
-   ],
-   "motif": "robot"
-  },
-  "server": {
-   "donor": "world:cloud",
-   "keywords": [
-    "cloud",
-    "computer",
-    "computer system",
-    "machine",
-    "server",
-    "system",
-    "servers",
-    "azure",
-    "aws",
-    "gcp",
-    "hosting",
-    "infrastructure",
-    "backend",
-    "data hall"
-   ]
-  },
-  "server-farm": {
-   "keywords": [
-    "server farm"
-   ],
-   "motif": "server",
-   "slug_alias": "datacenter"
-  },
-  "singularity": {
-   "keywords": [
-    "singularity",
-    "the singularity",
-    "foom",
-    "intelligence explosion",
-    "recursive self"
-   ],
-   "motif": "space"
-  },
-  "superintelligence": {
-   "colors": true,
-   "keywords": [
-    "superintelligence",
-    "asi",
-    "artificial superintelligence",
-    "superintelligent",
-    "si",
-    "smarter than human",
-    "beyond human"
-   ],
-   "motif": "brain",
-   "tone": "#6C4FB6"
-  },
-  "swe-agent": {
-   "keywords": [
-    "swe agent",
-    "swe-agent",
-    "devin",
-    "cursor",
-    "copilot",
-    "windsurf",
-    "claude code",
-    "codex",
-    "aider",
-    "coding agent",
-    "code assistant",
-    "pair programmer",
-    "ai engineer"
-   ],
-   "motif": "robot"
-  },
-  "synthetic-data": {
-   "keywords": [
-    "synthetic data",
-    "generated data",
-    "data generation",
-    "artificial data",
-    "self-play data"
-   ],
-   "motif": "database"
-  },
-  "takeoff": {
-   "keywords": [
-    "takeoff",
-    "hard takeoff",
-    "soft takeoff",
-    "fast takeoff",
-    "slow takeoff",
-    "takes off",
-    "lift off"
-   ],
-   "motif": "rocket"
-  },
-  "target": {
-   "donor": "phosphor:target",
-   "keywords": [
-    "aim",
-    "goal",
-    "objective",
-    "target",
-    "accuracy",
-    "accurate",
-    "correct",
-    "goals",
-    "precision",
-    "hit",
-    "misaligned",
-    "goal directed"
-   ]
-  },
-  "token-streaming": {
-   "keywords": [
-    "token streaming"
-   ],
-   "motif": "flow",
-   "slug_alias": "inference"
-  },
-  "token-window": {
-   "keywords": [
-    "token window"
-   ],
-   "motif": "document",
-   "slug_alias": "context-window"
-  },
-  "tokens-per-second": {
-   "keywords": [
-    "tokens per second"
-   ],
-   "motif": "flow",
-   "slug_alias": "inference"
-  },
-  "tool-call": {
-   "keywords": [
-    "tool call"
-   ],
-   "motif": "symbol",
-   "slug_alias": "function-call"
-  },
-  "tool-use": {
-   "keywords": [
-    "tool use"
-   ],
-   "motif": "symbol",
-   "slug_alias": "function-call"
-  },
-  "tool-wrench": {
-   "donor": "world:wrench",
-   "keywords": [
-    "function call",
-    "mcp",
-    "mcp server",
-    "mcp service",
-    "tool",
-    "tool call",
-    "tool wrench",
-    "tools",
-    "tool use",
-    "function calling",
-    "plugins",
-    "extensions",
-    "tool calling",
-    "uses tools"
-   ]
-  },
-  "training": {
-   "donor": "healthicons:i-training-class",
-   "keywords": [
-    "learns from",
-    "model training",
-    "parameters",
-    "training",
-    "trains",
-    "weights",
-    "train",
-    "trained",
-    "pretraining",
-    "pre-training",
-    "post-training",
-    "post training",
-    "training run",
-    "training data",
-    "learns",
-    "learn"
-   ]
-  },
-  "video-gen": {
-   "keywords": [
-    "video generation",
-    "video model",
-    "sora",
-    "veo",
-    "runway",
-    "pika",
-    "kling",
-    "luma",
-    "text to video",
-    "generated video",
-    "ai video"
-   ],
-   "motif": "video"
-  },
-  "voice-clone": {
-   "keywords": [
-    "voice clone",
-    "voice cloning",
-    "cloned voice",
-    "voice deepfake",
-    "synthetic voice",
-    "voice"
-   ],
-   "motif": "audio"
-  },
-  "watermark": {
-   "keywords": [
-    "watermark",
-    "watermarked",
-    "provenance",
-    "c2pa",
-    "content credentials",
-    "ai label",
-    "labeled"
-   ],
-   "motif": "document"
-  },
-  "weights": {
-   "keywords": [
-    "weights",
-    "model weights",
-    "parameters",
-    "params",
-    "open weights",
-    "open-weights",
-    "open weights model"
-   ],
-   "motif": "scale"
-  },
-  "word": {
-   "colors": [
-    "#222"
-   ],
-   "donor": "fluent:input-latin-letters",
-   "fill": "solid",
-   "keywords": [
-    "language",
-    "letter",
-    "llm token",
-    "next word",
-    "spelling",
-    "text",
-    "text token",
-    "token",
-    "tokens",
-    "vocabulary",
-    "word",
-    "tokenized",
-    "tokenizer",
-    "vocab",
-    "bpe",
-    "words"
-   ],
-   "motif": "object",
-   "tone": "neutral"
-  },
-  "workflow": {
-   "donor": "phosphor:git-branch",
-   "keywords": [
-    "ai workflow",
-    "automation",
-    "pipeline",
-    "process",
-    "workflow",
-    "workflow automation",
-    "workflows",
-    "pipelines",
-    "chain",
-    "chains",
-    "flow",
-    "steps"
-   ]
-  },
-  "x-risk": {
-   "keywords": [
-    "x risk"
-   ],
-   "motif": "skull",
-   "slug_alias": "doom"
-  },
-  "log-file": {
-   "keywords": [
-    "log",
-    "logs",
-    "logging",
-    "log file",
-    "log files",
-    "terminal output",
-    "console output",
-    "ci log",
-    "build log",
-    "error log"
-   ],
-   "motif": "terminal"
-  },
-  "logs": {
-   "keywords": [
-    "logs"
-   ],
-   "motif": "terminal",
-   "slug_alias": "log-file"
-  },
-  "pitch-deck": {
-   "keywords": [
-    "pitch",
-    "pitch deck",
-    "deck",
-    "slides",
-    "keynote",
-    "presentation",
-    "fundraise deck"
-   ],
-   "motif": "person"
-  },
-  "pitch": {
-   "keywords": [
-    "pitch"
-   ],
-   "motif": "person",
-   "slug_alias": "pitch-deck"
-  },
-  "demo": {
-   "keywords": [
-    "demo",
-    "demonstration",
-    "product demo",
-    "live demo",
-    "demo video"
-   ],
-   "motif": "tech"
-  }
- },
- "name": "ai"
+  "domain": "ai explainers \u2014 harvested + curated",
+  "glyphs": {
+    "a100": {
+      "keywords": [
+        "a100"
+      ],
+      "motif": "chip",
+      "slug_alias": "gpu",
+      "tone": "#76B900"
+    },
+    "agent-swarm": {
+      "keywords": [
+        "agent swarm"
+      ],
+      "motif": "robot",
+      "slug_alias": "multi-agent"
+    },
+    "agi": {
+      "colors": true,
+      "keywords": [
+        "agi",
+        "artificial general intelligence",
+        "general intelligence",
+        "human level",
+        "human-level"
+      ],
+      "motif": "brain",
+      "tone": "#6C4FB6"
+    },
+    "alert": {
+      "donor": "kit:crypto:alert",
+      "keywords": [
+        "alert",
+        "error",
+        "hallucination",
+        "mistake",
+        "risk",
+        "warning",
+        "risks",
+        "danger",
+        "dangerous",
+        "misuse",
+        "abuse",
+        "bias",
+        "biased",
+        "misinformation",
+        "harm",
+        "harmful",
+        "unsafe",
+        "threat",
+        "threats"
+      ]
+    },
+    "alignment": {
+      "keywords": [
+        "alignment",
+        "aligned",
+        "align",
+        "ai alignment",
+        "value alignment",
+        "aligned with",
+        "human values"
+      ],
+      "motif": "compass"
+    },
+    "alignment-problem": {
+      "keywords": [
+        "alignment problem"
+      ],
+      "motif": "lever",
+      "slug_alias": "control"
+    },
+    "api-call": {
+      "donor": "world:hook",
+      "keywords": [
+        "api",
+        "api call",
+        "endpoint",
+        "integration",
+        "web hook",
+        "webhook",
+        "apis",
+        "call",
+        "calls",
+        "sdk",
+        "developer api",
+        "openai api"
+      ]
+    },
+    "attention": {
+      "keywords": [
+        "attention",
+        "self-attention",
+        "transformer",
+        "transformers",
+        "attention mechanism",
+        "attention is all"
+      ],
+      "motif": "grid"
+    },
+    "automation": {
+      "keywords": [
+        "automation",
+        "automate",
+        "automates",
+        "automated",
+        "jobs",
+        "job loss",
+        "replaces workers",
+        "replace jobs",
+        "augmentation",
+        "augment",
+        "productivity",
+        "replace workers",
+        "jobs replaced",
+        "replaces jobs",
+        "automation wave"
+      ],
+      "motif": "robot"
+    },
+    "b200": {
+      "keywords": [
+        "b200"
+      ],
+      "motif": "chip",
+      "slug_alias": "gpu",
+      "tone": "#76B900"
+    },
+    "base-model": {
+      "keywords": [
+        "base model"
+      ],
+      "motif": "scale",
+      "slug_alias": "weights"
+    },
+    "blackwell": {
+      "keywords": [
+        "blackwell"
+      ],
+      "motif": "chip",
+      "slug_alias": "gpu",
+      "tone": "#76B900"
+    },
+    "bottleneck": {
+      "keywords": [
+        "bottleneck",
+        "bottlenecks",
+        "constraint",
+        "constraints",
+        "chokepoint",
+        "capacity constraint",
+        "power bottleneck",
+        "supply constraint",
+        "scarce",
+        "scarcity of",
+        "limited supply"
+      ],
+      "motif": "object"
+    },
+    "brain": {
+      "donor": "phosphor:brain",
+      "keywords": [
+        "ai brain",
+        "brain",
+        "thinking",
+        "intelligence",
+        "smart",
+        "iq",
+        "reason",
+        "mind",
+        "understanding",
+        "cognition",
+        "smarter"
+      ]
+    },
+    "calendar": {
+      "donor": "phosphor:calendar",
+      "keywords": [
+        "calendar",
+        "date",
+        "my calendar",
+        "reminder",
+        "schedule",
+        "deadline",
+        "roadmap",
+        "timeline"
+      ]
+    },
+    "chat-bubble": {
+      "donor": "phosphor:chat",
+      "keywords": [
+        "ai chat",
+        "assistant",
+        "chat",
+        "chat bubble",
+        "chat gpt",
+        "chatbot",
+        "conversation",
+        "chatgpt",
+        "claude",
+        "gemini",
+        "copilot chat",
+        "message",
+        "messages",
+        "talks",
+        "speaks",
+        "replies"
+      ]
+    },
+    "check-badge": {
+      "donor": "phosphor:check",
+      "keywords": [
+        "accurate",
+        "approved",
+        "check badge",
+        "correct",
+        "success",
+        "verify",
+        "verified",
+        "passes",
+        "benchmark pass",
+        "certified",
+        "correct answer",
+        "solved"
+      ]
+    },
+    "cloud-provider": {
+      "keywords": [
+        "cloud provider"
+      ],
+      "motif": "server",
+      "slug_alias": "datacenter"
+    },
+    "cluster": {
+      "keywords": [
+        "cluster",
+        "clusters",
+        "gpu cluster",
+        "pods",
+        "fleet",
+        "server cluster"
+      ],
+      "motif": "network"
+    },
+    "code": {
+      "donor": "phosphor:code",
+      "keywords": [
+        "code",
+        "programming",
+        "script",
+        "software",
+        "writes code",
+        "coding",
+        "coder",
+        "programmer",
+        "github",
+        "pull request",
+        "pr",
+        "repository",
+        "repo",
+        "commits",
+        "debug",
+        "debugs"
+      ]
+    },
+    "code-review": {
+      "keywords": [
+        "code review"
+      ],
+      "motif": "object",
+      "slug_alias": "pull-request"
+    },
+    "context-length": {
+      "keywords": [
+        "context length"
+      ],
+      "motif": "document",
+      "slug_alias": "context-window"
+    },
+    "context-window": {
+      "keywords": [
+        "context window",
+        "context",
+        "context length",
+        "long context",
+        "context size",
+        "window",
+        "token context",
+        "million token",
+        "tokens of context"
+      ],
+      "motif": "document"
+    },
+    "control": {
+      "keywords": [
+        "control",
+        "control problem",
+        "controllable",
+        "in control",
+        "steering",
+        "under control"
+      ],
+      "motif": "lever"
+    },
+    "control-problem": {
+      "keywords": [
+        "control problem"
+      ],
+      "motif": "lever",
+      "slug_alias": "control"
+    },
+    "copilot-agent": {
+      "keywords": [
+        "devin the ai",
+        "devin agent",
+        "ai software engineer"
+      ],
+      "motif": "robot",
+      "slug_alias": "swe-agent"
+    },
+    "copyright": {
+      "keywords": [
+        "copyright",
+        "copyrighted",
+        "ip",
+        "intellectual property",
+        "licensing",
+        "lawsuit",
+        "nyt lawsuit"
+      ],
+      "motif": "document"
+    },
+    "cot": {
+      "keywords": [
+        "chain of thought",
+        "chain-of-thought",
+        "cot",
+        "reasoning",
+        "reasoning model",
+        "o1",
+        "o3",
+        "r1",
+        "deepseek r1",
+        "thinking",
+        "deliberate",
+        "reason",
+        "thinks",
+        "reasoner"
+      ],
+      "motif": "brain"
+    },
+    "cuda": {
+      "keywords": [
+        "cuda"
+      ],
+      "motif": "chip",
+      "slug_alias": "gpu",
+      "tone": "#76B900"
+    },
+    "cursor": {
+      "keywords": [
+        "devin the ai",
+        "devin agent",
+        "ai software engineer"
+      ],
+      "motif": "robot",
+      "slug_alias": "swe-agent"
+    },
+    "data-wall": {
+      "keywords": [
+        "data wall",
+        "wall of data",
+        "running out of data",
+        "data shortage",
+        "data scarcity",
+        "out of text",
+        "data limit"
+      ],
+      "motif": "wall"
+    },
+    "database": {
+      "donor": "phosphor:database",
+      "keywords": [
+        "data",
+        "database",
+        "dataset",
+        "datum",
+        "storage",
+        "training data",
+        "vector database",
+        "datasets",
+        "corpus",
+        "vector db",
+        "knowledge base",
+        "kv cache",
+        "cache",
+        "retrieval",
+        "rag",
+        "internet data",
+        "web data"
+      ]
+    },
+    "datacenter": {
+      "keywords": [
+        "datacenter",
+        "data center",
+        "data centers",
+        "datacenters",
+        "hyperscaler",
+        "hyperscalers",
+        "server farm",
+        "compute cluster",
+        "data halls",
+        "gigawatt",
+        "gigawatts",
+        "power hungry",
+        "energy demand",
+        "power grid",
+        "nuclear power"
+      ],
+      "motif": "server"
+    },
+    "decision-tree": {
+      "donor": "phosphor:tree",
+      "keywords": [
+        "chooses",
+        "decides",
+        "decision",
+        "decision tree",
+        "next step",
+        "planning",
+        "reasoning",
+        "decisions",
+        "branch",
+        "choices",
+        "if else",
+        "logic tree"
+      ]
+    },
+    "deepfake": {
+      "keywords": [
+        "deepfake",
+        "deepfakes",
+        "face swap",
+        "fake video",
+        "fake image",
+        "synthetic media"
+      ],
+      "motif": "face"
+    },
+    "devin": {
+      "keywords": [
+        "devin the ai",
+        "devin agent",
+        "ai software engineer"
+      ],
+      "motif": "robot",
+      "slug_alias": "swe-agent"
+    },
+    "devin-ai": {
+      "keywords": [
+        "devin the ai",
+        "devin agent",
+        "ai software engineer"
+      ],
+      "motif": "robot",
+      "slug_alias": "swe-agent"
+    },
+    "distill": {
+      "keywords": [
+        "distill",
+        "distillation",
+        "distilled",
+        "teacher model",
+        "student model",
+        "knowledge distillation"
+      ],
+      "motif": "funnel"
+    },
+    "document": {
+      "donor": "kit:business:document",
+      "keywords": [
+        "article",
+        "blog post",
+        "document",
+        "file",
+        "news article",
+        "pdf",
+        "report",
+        "text",
+        "your file",
+        "essay",
+        "write",
+        "writes",
+        "writing",
+        "essay writer",
+        "draft",
+        "summarize",
+        "summary",
+        "paper"
+      ]
+    },
+    "doom": {
+      "keywords": [
+        "doom",
+        "p(doom)",
+        "pdoom",
+        "extinction",
+        "x-risk",
+        "x risk",
+        "existential risk",
+        "catastrophic",
+        "catastrophe",
+        "human extinction"
+      ],
+      "motif": "skull"
+    },
+    "e-acc": {
+      "keywords": [
+        "e/acc",
+        "eacc",
+        "accelerationism",
+        "accelerate",
+        "acceleration",
+        "speed up",
+        "faster progress"
+      ],
+      "motif": "arrow"
+    },
+    "email": {
+      "donor": "kit:business:email",
+      "keywords": [
+        "email",
+        "email inbox",
+        "inbox",
+        "message",
+        "reply",
+        "emails",
+        "write email"
+      ]
+    },
+    "embedding": {
+      "keywords": [
+        "embedding",
+        "embeddings",
+        "vector",
+        "vectors",
+        "vector space",
+        "latent space",
+        "embedding space"
+      ],
+      "motif": "chart"
+    },
+    "eval-checklist": {
+      "keywords": [
+        "eval",
+        "evals",
+        "evaluation",
+        "benchmark",
+        "benchmarks",
+        "mmlu",
+        "gpqa",
+        "swe-bench",
+        "swe bench",
+        "arc agi",
+        "benchmark suite",
+        "test suite",
+        "harness"
+      ],
+      "motif": "document"
+    },
+    "existential-risk": {
+      "keywords": [
+        "existential risk"
+      ],
+      "motif": "skull",
+      "slug_alias": "doom"
+    },
+    "extinction": {
+      "keywords": [
+        "extinction"
+      ],
+      "motif": "skull",
+      "slug_alias": "doom"
+    },
+    "extinction-risk": {
+      "keywords": [
+        "extinction risk"
+      ],
+      "motif": "skull",
+      "slug_alias": "doom"
+    },
+    "eye": {
+      "donor": "healthicons:eye",
+      "keywords": [
+        "eye",
+        "image recognition",
+        "monitors",
+        "observes",
+        "vision",
+        "watches",
+        "sees",
+        "multimodal",
+        "video understanding",
+        "perception"
+      ]
+    },
+    "finetune": {
+      "keywords": [
+        "finetune",
+        "fine-tune",
+        "fine-tuning",
+        "finetuning",
+        "lora",
+        "adapter",
+        "adapters",
+        "fine tuned",
+        "fine-tuned",
+        "peft",
+        "tuning"
+      ],
+      "motif": "sliders"
+    },
+    "foundation-model": {
+      "keywords": [
+        "foundation model"
+      ],
+      "motif": "scale",
+      "slug_alias": "weights"
+    },
+    "frontier": {
+      "keywords": [
+        "frontier",
+        "frontier model",
+        "frontier models",
+        "frontier lab",
+        "flagship",
+        "flagship model",
+        "state of the art",
+        "sota",
+        "bleeding edge",
+        "frontier labs",
+        "openai",
+        "anthropic",
+        "deepmind",
+        "google deepmind",
+        "meta ai",
+        "xai",
+        "mistral"
+      ],
+      "motif": "flag"
+    },
+    "function-call": {
+      "keywords": [
+        "function call",
+        "function calls",
+        "function calling",
+        "tool call",
+        "tool calls",
+        "tool use",
+        "calls a tool",
+        "calling tools",
+        "invoke",
+        "invocation",
+        "api call",
+        "function",
+        "functions"
+      ],
+      "motif": "symbol"
+    },
+    "function-calling": {
+      "keywords": [
+        "function calling"
+      ],
+      "motif": "symbol",
+      "slug_alias": "function-call"
+    },
+    "gauge": {
+      "keywords": [
+        "tokens per second",
+        "tok/s",
+        "latency",
+        "ttft",
+        "speed",
+        "fast inference",
+        "throughput",
+        "real time",
+        "milliseconds",
+        "inference speed"
+      ],
+      "motif": "gauge"
+    },
+    "globe": {
+      "donor": "healthicons:globe",
+      "keywords": [
+        "browser",
+        "globe",
+        "internet",
+        "online",
+        "web",
+        "website",
+        "world",
+        "everyone",
+        "globally",
+        "billion users",
+        "the internet",
+        "openai",
+        "anthropic",
+        "google",
+        "meta",
+        "microsoft",
+        "xai",
+        "deepmind",
+        "mistral ai",
+        "companies",
+        "labs",
+        "lab"
+      ]
+    },
+    "gpu": {
+      "keywords": [
+        "gpu",
+        "gpus",
+        "graphics card",
+        "h100",
+        "h200",
+        "b200",
+        "gb200",
+        "a100",
+        "nvidia",
+        "cuda",
+        "accelerator",
+        "accelerators",
+        "gpu cluster"
+      ],
+      "motif": "chip",
+      "tone": "#76B900"
+    },
+    "graph-up": {
+      "donor": "phosphor:graph",
+      "keywords": [
+        "accuracy",
+        "forecast",
+        "graph up",
+        "output",
+        "prediction",
+        "predicts",
+        "result",
+        "score",
+        "growth",
+        "scaling",
+        "scale",
+        "scaling laws",
+        "scaling law",
+        "bigger",
+        "more compute",
+        "exponential",
+        "improvements",
+        "progress",
+        "capability",
+        "capabilities",
+        "benchmarks rise",
+        "emergent",
+        "emergence"
+      ]
+    },
+    "graphics-card": {
+      "keywords": [
+        "graphics card"
+      ],
+      "motif": "chip",
+      "slug_alias": "gpu",
+      "tone": "#76B900"
+    },
+    "h100": {
+      "keywords": [
+        "h100"
+      ],
+      "motif": "chip",
+      "slug_alias": "gpu",
+      "tone": "#76B900"
+    },
+    "hallucination": {
+      "keywords": [
+        "hallucination",
+        "hallucinate",
+        "hallucinates",
+        "hallucinated",
+        "made up",
+        "confabulation",
+        "making things up"
+      ],
+      "motif": "cloud"
+    },
+    "hyperscale": {
+      "keywords": [
+        "hyperscale"
+      ],
+      "motif": "server",
+      "slug_alias": "datacenter"
+    },
+    "hyperscaler": {
+      "keywords": [
+        "hyperscaler"
+      ],
+      "motif": "server",
+      "slug_alias": "datacenter"
+    },
+    "image-gen": {
+      "keywords": [
+        "image generation",
+        "image model",
+        "dalle",
+        "dall-e",
+        "midjourney",
+        "stable diffusion",
+        "imagen",
+        "flux",
+        "generate images",
+        "generated image",
+        "ai image",
+        "ai art",
+        "text to image",
+        "ads",
+        "advertisement",
+        "advertisements",
+        "ad creatives",
+        "creatives",
+        "ad",
+        "marketing images",
+        "generated ads",
+        "sdxl"
+      ],
+      "motif": "image"
+    },
+    "inference": {
+      "keywords": [
+        "inference",
+        "inference time",
+        "test-time",
+        "test time",
+        "test-time compute",
+        "inference compute",
+        "forward pass",
+        "serve",
+        "serving",
+        "deploy model",
+        "inference cost",
+        "token cost",
+        "per token",
+        "latency"
+      ],
+      "motif": "flow"
+    },
+    "interpretability": {
+      "keywords": [
+        "interpretability",
+        "mechanistic",
+        "mechanistic interpretability",
+        "internals",
+        "circuits",
+        "features",
+        "neurons",
+        "probe"
+      ],
+      "motif": "search"
+    },
+    "jailbreak": {
+      "keywords": [
+        "jailbreak",
+        "jailbroken",
+        "jailbreaks",
+        "prompt injection",
+        "injection",
+        "prompt attack",
+        "adversarial prompt"
+      ],
+      "motif": "lock"
+    },
+    "json-structure": {
+      "keywords": [
+        "json",
+        "structured output",
+        "structured outputs",
+        "schema",
+        "json mode",
+        "function output"
+      ],
+      "motif": "code"
+    },
+    "language-model": {
+      "keywords": [
+        "language model"
+      ],
+      "motif": "scale",
+      "slug_alias": "weights"
+    },
+    "large-language-model": {
+      "keywords": [
+        "large language model"
+      ],
+      "motif": "scale",
+      "slug_alias": "weights"
+    },
+    "leaderboard": {
+      "keywords": [
+        "leaderboard",
+        "leaderboards",
+        "arena",
+        "lmsys",
+        "chatbot arena",
+        "rankings",
+        "top model",
+        "elo",
+        "benchmark",
+        "benchmarks",
+        "lmarena",
+        "evals",
+        "eval"
+      ],
+      "motif": "chart"
+    },
+    "lightbulb": {
+      "donor": "phosphor:lightbulb",
+      "keywords": [
+        "idea",
+        "insight",
+        "learns",
+        "lightbulb",
+        "recommendation",
+        "suggestion",
+        "discovery",
+        "breakthrough",
+        "novel",
+        "creative",
+        "innovation",
+        "invent",
+        "eureka"
+      ]
+    },
+    "llm": {
+      "keywords": [
+        "llm"
+      ],
+      "motif": "scale",
+      "slug_alias": "weights"
+    },
+    "lock": {
+      "donor": "phosphor:lock",
+      "keywords": [
+        "guardrails",
+        "lock",
+        "permission",
+        "privacy",
+        "safety",
+        "secure",
+        "safe",
+        "guardrail",
+        "private",
+        "locked",
+        "protected",
+        "moderation",
+        "filters"
+      ]
+    },
+    "magnify-data": {
+      "donor": "kit:crypto:magnify",
+      "keywords": [
+        "finds",
+        "lookup",
+        "magnify data",
+        "rag",
+        "retrieval",
+        "retrieval augmented generation",
+        "search",
+        "semantic search",
+        "retrieval augmented",
+        "look up",
+        "research",
+        "analyzes data"
+      ]
+    },
+    "memory-chip": {
+      "donor": "phosphor:memory",
+      "keywords": [
+        "chip",
+        "context",
+        "context window",
+        "gpu",
+        "memory",
+        "memory chip",
+        "chips",
+        "semiconductor",
+        "compute",
+        "flops",
+        "compute power",
+        "vram",
+        "hardware",
+        "inference chip",
+        "tpu",
+        "trainium",
+        "asic",
+        "silicon"
+      ]
+    },
+    "merge-request": {
+      "keywords": [
+        "merge request"
+      ],
+      "motif": "object",
+      "slug_alias": "pull-request"
+    },
+    "model": {
+      "colors": [
+        "#222"
+      ],
+      "donor": "phosphor:cpu",
+      "fill": "solid",
+      "keywords": [
+        "model",
+        "llm",
+        "language model",
+        "the model",
+        "ai model",
+        "foundation model",
+        "models",
+        "llms",
+        "large language model",
+        "gpt",
+        "gpt-4",
+        "gpt-5",
+        "claude",
+        "gemini",
+        "grok",
+        "llama model",
+        "frontier model",
+        "chatgpt",
+        "deepseek model",
+        "weights model",
+        "parameters model",
+        "small model",
+        "slm",
+        "openai model",
+        "base model",
+        "haiku",
+        "haikus",
+        "haiku 5.5",
+        "claude haiku"
+      ],
+      "motif": "object",
+      "tone": "neutral"
+    },
+    "moe": {
+      "keywords": [
+        "moe",
+        "mixture of experts",
+        "experts",
+        "sparse model",
+        "sparse moe",
+        "routing",
+        "router",
+        "expert routing"
+      ],
+      "motif": "branch"
+    },
+    "money": {
+      "donor": "phosphor:money",
+      "keywords": [
+        "billing",
+        "cost",
+        "money",
+        "payment",
+        "price",
+        "subscription",
+        "costs",
+        "expensive",
+        "cheap",
+        "billion",
+        "billions",
+        "investment",
+        "funding",
+        "revenue",
+        "valuation",
+        "spend",
+        "capex",
+        "dollars",
+        "budget",
+        "raises"
+      ]
+    },
+    "multi-agent": {
+      "keywords": [
+        "agents",
+        "multi-agent",
+        "multi agent",
+        "swarm",
+        "agent swarm",
+        "agents working",
+        "agent network",
+        "swarms",
+        "team of agents",
+        "agents team",
+        "agent",
+        "agentic",
+        "autonomous agent",
+        "ai agent",
+        "ai agents"
+      ],
+      "motif": "robot"
+    },
+    "neural-network": {
+      "donor": "phosphor:network",
+      "keywords": [
+        "deep learning",
+        "deep neural",
+        "network of neurons",
+        "neural network",
+        "neuron",
+        "neural net",
+        "network",
+        "architecture",
+        "connections",
+        "transformer arch"
+      ]
+    },
+    "nvidia": {
+      "keywords": [
+        "nvidia"
+      ],
+      "motif": "chip",
+      "slug_alias": "gpu",
+      "tone": "#76B900"
+    },
+    "open-weights": {
+      "keywords": [
+        "open source",
+        "open-source",
+        "open weight",
+        "open-weight",
+        "llama",
+        "mistral",
+        "qwen",
+        "deepseek",
+        "open model",
+        "open models",
+        "releases weights"
+      ],
+      "motif": "lock"
+    },
+    "orchestration": {
+      "donor": "phosphor:share-network",
+      "keywords": [
+        "coordinates",
+        "multi agent",
+        "multiple agents",
+        "orchestration",
+        "orchestration layer",
+        "swarm",
+        "orchestrator",
+        "multi-step",
+        "planner",
+        "planning"
+      ]
+    },
+    "paperclip": {
+      "keywords": [
+        "paperclip",
+        "paperclips",
+        "paperclip maximizer",
+        "instrumental convergence",
+        "instrumental"
+      ],
+      "motif": "object"
+    },
+    "power": {
+      "keywords": [
+        "energy",
+        "power",
+        "megawatt",
+        "megawatts",
+        "gigawatt",
+        "electricity",
+        "grid",
+        "power draw",
+        "energy cost",
+        "power consumption",
+        "nuclear",
+        "watts",
+        "grid strain"
+      ],
+      "motif": "energy"
+    },
+    "prompt": {
+      "donor": "phosphor:terminal-window",
+      "keywords": [
+        "instruction",
+        "prompt",
+        "prompting",
+        "query",
+        "system prompt",
+        "you ask",
+        "prompts",
+        "instructions",
+        "prompt engineering",
+        "ask",
+        "input text"
+      ]
+    },
+    "pull-request": {
+      "keywords": [
+        "pull request",
+        "pull requests",
+        "pr",
+        "prs",
+        "merge request",
+        "opens a pull request",
+        "opened a pr",
+        "code review",
+        "review the pr"
+      ],
+      "motif": "object"
+    },
+    "quantize": {
+      "keywords": [
+        "quantize",
+        "quantization",
+        "quantized",
+        "int8",
+        "fp8",
+        "gguf",
+        "4-bit",
+        "8-bit",
+        "compress model",
+        "compression",
+        "bit",
+        "bits",
+        "4 bit",
+        "8 bit",
+        "four bits",
+        "bf16",
+        "fp16"
+      ],
+      "motif": "shrink"
+    },
+    "reinforcement-learning": {
+      "keywords": [
+        "reinforcement learning"
+      ],
+      "motif": "hand",
+      "slug_alias": "rlhf"
+    },
+    "rl": {
+      "keywords": [
+        "rl"
+      ],
+      "motif": "hand",
+      "slug_alias": "rlhf"
+    },
+    "rlhf": {
+      "keywords": [
+        "rlhf",
+        "human feedback",
+        "reinforcement learning from",
+        "feedback",
+        "reward model",
+        "preference",
+        "preferences",
+        "dpo",
+        "rl",
+        "reinforcement"
+      ],
+      "motif": "hand"
+    },
+    "robot": {
+      "donor": "phosphor:robot",
+      "keywords": [
+        "ai robot",
+        "bot",
+        "robot",
+        "ai",
+        "artificial intelligence",
+        "the ai",
+        "chatbot",
+        "assistant",
+        "companion",
+        "agent",
+        "agents",
+        "ai agent",
+        "agentic",
+        "android"
+      ]
+    },
+    "robotics": {
+      "keywords": [
+        "robotics",
+        "robot",
+        "robots",
+        "embodied",
+        "embodied ai",
+        "humanoid",
+        "humanoid robot",
+        "optimus",
+        "figure ai",
+        "physical ai"
+      ],
+      "motif": "robot"
+    },
+    "server": {
+      "donor": "world:cloud",
+      "keywords": [
+        "cloud",
+        "computer",
+        "computer system",
+        "machine",
+        "server",
+        "system",
+        "servers",
+        "azure",
+        "aws",
+        "gcp",
+        "hosting",
+        "infrastructure",
+        "backend",
+        "data hall"
+      ]
+    },
+    "server-farm": {
+      "keywords": [
+        "server farm"
+      ],
+      "motif": "server",
+      "slug_alias": "datacenter"
+    },
+    "singularity": {
+      "keywords": [
+        "singularity",
+        "the singularity",
+        "foom",
+        "intelligence explosion",
+        "recursive self"
+      ],
+      "motif": "space"
+    },
+    "superintelligence": {
+      "colors": true,
+      "keywords": [
+        "superintelligence",
+        "asi",
+        "artificial superintelligence",
+        "superintelligent",
+        "si",
+        "smarter than human",
+        "beyond human"
+      ],
+      "motif": "brain",
+      "tone": "#6C4FB6"
+    },
+    "swe-agent": {
+      "keywords": [
+        "swe agent",
+        "swe-agent",
+        "devin",
+        "cursor",
+        "copilot",
+        "windsurf",
+        "claude code",
+        "codex",
+        "aider",
+        "coding agent",
+        "code assistant",
+        "pair programmer",
+        "ai engineer"
+      ],
+      "motif": "robot"
+    },
+    "synthetic-data": {
+      "keywords": [
+        "synthetic data",
+        "generated data",
+        "data generation",
+        "artificial data",
+        "self-play data"
+      ],
+      "motif": "database"
+    },
+    "takeoff": {
+      "keywords": [
+        "takeoff",
+        "hard takeoff",
+        "soft takeoff",
+        "fast takeoff",
+        "slow takeoff",
+        "takes off",
+        "lift off"
+      ],
+      "motif": "rocket"
+    },
+    "target": {
+      "donor": "phosphor:target",
+      "keywords": [
+        "aim",
+        "goal",
+        "objective",
+        "target",
+        "accuracy",
+        "accurate",
+        "correct",
+        "goals",
+        "precision",
+        "hit",
+        "misaligned",
+        "goal directed"
+      ]
+    },
+    "token-streaming": {
+      "keywords": [
+        "token streaming"
+      ],
+      "motif": "flow",
+      "slug_alias": "inference"
+    },
+    "token-window": {
+      "keywords": [
+        "token window"
+      ],
+      "motif": "document",
+      "slug_alias": "context-window"
+    },
+    "tokens-per-second": {
+      "keywords": [
+        "tokens per second"
+      ],
+      "motif": "flow",
+      "slug_alias": "inference"
+    },
+    "tool-call": {
+      "keywords": [
+        "tool call"
+      ],
+      "motif": "symbol",
+      "slug_alias": "function-call"
+    },
+    "tool-use": {
+      "keywords": [
+        "tool use"
+      ],
+      "motif": "symbol",
+      "slug_alias": "function-call"
+    },
+    "tool-wrench": {
+      "donor": "world:wrench",
+      "keywords": [
+        "function call",
+        "mcp",
+        "mcp server",
+        "mcp service",
+        "tool",
+        "tool call",
+        "tool wrench",
+        "tools",
+        "tool use",
+        "function calling",
+        "plugins",
+        "extensions",
+        "tool calling",
+        "uses tools"
+      ]
+    },
+    "training": {
+      "donor": "healthicons:i-training-class",
+      "keywords": [
+        "learns from",
+        "model training",
+        "parameters",
+        "training",
+        "trains",
+        "weights",
+        "train",
+        "trained",
+        "pretraining",
+        "pre-training",
+        "post-training",
+        "post training",
+        "training run",
+        "training data",
+        "learns",
+        "learn"
+      ]
+    },
+    "video-gen": {
+      "keywords": [
+        "video generation",
+        "video model",
+        "sora",
+        "veo",
+        "runway",
+        "pika",
+        "kling",
+        "luma",
+        "text to video",
+        "generated video",
+        "ai video"
+      ],
+      "motif": "video"
+    },
+    "voice-clone": {
+      "keywords": [
+        "voice clone",
+        "voice cloning",
+        "cloned voice",
+        "voice deepfake",
+        "synthetic voice",
+        "voice"
+      ],
+      "motif": "audio"
+    },
+    "watermark": {
+      "keywords": [
+        "watermark",
+        "watermarked",
+        "provenance",
+        "c2pa",
+        "content credentials",
+        "ai label",
+        "labeled"
+      ],
+      "motif": "document"
+    },
+    "weights": {
+      "keywords": [
+        "weights",
+        "model weights",
+        "parameters",
+        "params",
+        "open weights",
+        "open-weights",
+        "open weights model"
+      ],
+      "motif": "scale"
+    },
+    "word": {
+      "colors": [
+        "#222"
+      ],
+      "donor": "fluent:input-latin-letters",
+      "fill": "solid",
+      "keywords": [
+        "language",
+        "letter",
+        "llm token",
+        "next word",
+        "spelling",
+        "text",
+        "text token",
+        "token",
+        "tokens",
+        "vocabulary",
+        "word",
+        "tokenized",
+        "tokenizer",
+        "vocab",
+        "bpe",
+        "words"
+      ],
+      "motif": "object",
+      "tone": "neutral"
+    },
+    "workflow": {
+      "donor": "phosphor:git-branch",
+      "keywords": [
+        "ai workflow",
+        "automation",
+        "pipeline",
+        "process",
+        "workflow",
+        "workflow automation",
+        "workflows",
+        "pipelines",
+        "chain",
+        "chains",
+        "flow",
+        "steps"
+      ]
+    },
+    "x-risk": {
+      "keywords": [
+        "x risk"
+      ],
+      "motif": "skull",
+      "slug_alias": "doom"
+    },
+    "log-file": {
+      "keywords": [
+        "log",
+        "logs",
+        "logging",
+        "log file",
+        "log files",
+        "terminal output",
+        "console output",
+        "ci log",
+        "build log",
+        "error log"
+      ],
+      "motif": "terminal"
+    },
+    "logs": {
+      "keywords": [
+        "logs"
+      ],
+      "motif": "terminal",
+      "slug_alias": "log-file"
+    },
+    "pitch-deck": {
+      "keywords": [
+        "pitch",
+        "pitch deck",
+        "deck",
+        "slides",
+        "keynote",
+        "presentation",
+        "fundraise deck"
+      ],
+      "motif": "person"
+    },
+    "pitch": {
+      "keywords": [
+        "pitch"
+      ],
+      "motif": "person",
+      "slug_alias": "pitch-deck"
+    },
+    "demo": {
+      "keywords": [
+        "demo",
+        "demonstration",
+        "product demo",
+        "live demo",
+        "demo video"
+      ],
+      "motif": "tech"
+    }
+  },
+  "name": "ai"
 }
