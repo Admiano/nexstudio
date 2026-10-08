@@ -67,17 +67,19 @@ FPS_REVEAL = 15  # caption reveals quantise to 15fps — text steps in like kine
 class Cine:
     """Cinematic layer — optional, per-aspect, never templated.
 
-    Captions are always the kinetic pill (Captions class) — this layer adds
-    only the *effects*: the apex hero word in our own text format beside the
-    presenter, optional infographic cards on emphasis beats, and shot-size
-    punch-in cuts. Portrait (9:16) ships clean: no cuts, no heroes — the
-    cinematic layer is removed there by design (infographic stays optional).
+    Captions are always the kinetic pill (Captions class). This layer adds
+    only the *effects*: the apex hero word BEHIND the character in our own
+    text format, hand-drawn icon infographics on emphasis beats (optional),
+    and shot-size punch-in cuts. Portrait (9:16) ships clean: no cuts, no
+    heroes — the cinematic layer is removed there by design.
     """
 
     def __init__(self, ktr, ki, words, script, audio, W, H, aspect, pres, accent,
                  infographic=False):
         import director_plan as dp
         self.dp = dp
+        self.ktr = ktr
+        self.ki = ki
         self.W, self.H, self.aspect, self.pres = W, H, aspect, pres
         self.accent = accent
         self.plan = dp.plan(script, words, audio, W, H, pres, aspect)
@@ -86,23 +88,21 @@ class Cine:
             self.plan['shots'] = []
             self.plan['sfx'] = []
         self.focus = (pres[0] + pres[2] * 0.5, pres[1] + pres[3] * 0.16)
-        self.heroes, self.cards = [], []
+        # the head zone the hero tucks behind: cx, cy, silhouette width
+        self.head = (pres[0] + pres[2] * 0.5, pres[1] + pres[3] * 0.13,
+                     pres[2] * 0.34)
+        self.heroes, self.infos = [], []
         for c in self.plan['clauses']:
-            if not cinematic or c['hero'] is None:
-                continue
-            hw = words[c['hero']]['word']
-            him = self._hero_img(ktr, hw)
-            self.heroes.append({'img': him, 'side': c.get('side', 'right'),
-                                't0': words[c['hero']]['start'] - 0.05,
-                                't1': words[c['hero']]['end'] + 0.9})
-        if infographic:
-            for c in self.plan['clauses']:
-                if c.get('role') not in ('apex', 'pivot'):
-                    continue
-                card = self._info_card(ktr, ki, c, words)
-                if card is not None:
-                    self.cards.append({'img': card, 't0': c['t0'] - 0.1,
-                                       't1': c['t1'] + 0.9,
+            if cinematic and c['hero'] is not None:
+                hw = words[c['hero']]['word']
+                self.heroes.append({'word': hw,
+                                    't0': words[c['hero']]['start'] - 0.05,
+                                    't1': words[c['hero']]['end'] + 0.9})
+            if infographic and c.get('role') in ('apex', 'pivot'):
+                st = self._icon_for(ki, c, words)
+                if st is not None:
+                    self.infos.append({'strokes': st, 't0': c['t0'],
+                                       't1': c['t1'] + 1.2,
                                        'side': 'left' if c.get('side') == 'right' else 'right'})
 
     def _word(self, word, fnt, accent):
@@ -121,86 +121,43 @@ class Cine:
                stroke_width=sw, stroke_fill=edge)
         return img
 
-    def _hero_img(self, ktr, word):
-        """Bigger than the pill, sized DOWN to fit its lane — nothing clips,
-        nothing scales past its slot. Landscape gets a wider lane than 1:1."""
-        maxw = int(self.W * (0.36 if self.aspect == '16:9' else 0.44))
-        size = int(self.H * 0.115)
-        while True:
-            img = self._word(word, font(True, size, ktr), accent=None)
-            if img.width <= maxw or size <= int(self.H * 0.055):
-                return img
-            size = int(size * 0.92)
+    def _hero_img(self, word):
+        """Sized by the text itself: the word is rendered so it clears the
+        head silhouette with padding on BOTH sides (~2.2x head width) —
+        short words get big, long words shrink to the same clearance.
+        Never clipped: 2.2x head is always inside the frame."""
+        target = self.head[2] * 2.2
+        size = int(self.H * 0.10)
+        img = self._word(word, font(True, size, self.ktr), accent=None)
+        if img.width != target:
+            size = max(int(self.H * 0.05), int(size * target / img.width))
+            img = self._word(word, font(True, size, self.ktr), accent=None)
+        return img
 
-    def _info_card(self, ktr, ki, c, words):
-        """Small infographic plate on an emphasis beat: accent bar, the
-        hand-drawn icon for the clause's keyword when the library has one,
-        keyword headline, and the clause itself as the small sub-line."""
-        if c.get('hero') is not None:
-            kw = words[c['hero']]['word']
-        else:
-            cand = [w for w in c['words'] if len(self.dp.norm(w['word'])) >= 4
-                    and self.dp.norm(w['word']) not in self.dp.STOP]
-            kw = max(cand, key=lambda w: w['stress'], default={}).get('word')
-        if not kw:
+    def _icon_for(self, ki, c, words):
+        """The hand-drawn icon strokes for the clause's keyword — the same
+        art language the whiteboard uses. None when the library has no art."""
+        if ki is None:
             return None
-        body = ' '.join(w['word'] for w in c['words'])
-        pad = int(self.H * 0.016)
-        f_h = font(True, int(self.H * 0.030), ktr)
-        f_b = font(False, int(self.H * 0.021), ktr)
-        tmp = Image.new('RGBA', (10, 10), (0, 0, 0, 0))
-        dd = ImageDraw.Draw(tmp)
-        side = int(self.H * 0.085)
-        bar = max(5, int(pad * 0.45))
-        maxtw = int(self.W * 0.26)
-        head_w = dd.textlength(kw.upper(), font=f_h)
-        # sub-line wraps to <=2 lines
-        sub_lines, cur = [], ''
-        for tok in body.split():
-            trial = (cur + ' ' + tok).strip()
-            if dd.textlength(trial, font=f_b) > maxtw and cur:
-                sub_lines.append(cur)
-                cur = tok
-            else:
-                cur = trial
-            if len(sub_lines) == 2:
-                break
-        if cur and len(sub_lines) < 2:
-            sub_lines.append(cur)
-        if len(body.split()) > sum(len(s.split()) for s in sub_lines):
-            sub_lines[-1] = sub_lines[-1].rstrip(',.;:') + '…'
-        sub_w = max((dd.textlength(s, font=f_b) for s in sub_lines), default=0)
-        strokes = None
-        if ki is not None:
+        kws = []
+        if c.get('hero') is not None:
+            kws.append(words[c['hero']]['word'])
+        kws += [w['word'] for w in sorted(
+            [w for w in c['words'] if len(self.dp.norm(w['word'])) >= 3
+             and self.dp.norm(w['word']) not in self.dp.STOP],
+            key=lambda w: -w['stress'])]
+        phrase = ' '.join(w['word'] for w in c['words'])
+        for cand in [phrase] + [self.dp.norm(w) for w in kws]:
+            if not cand:
+                continue
             try:
-                _ic, info = ki._art(self.dp.norm(kw), {}, floor=True)
-                strokes = (info or {}).get('strokes')
+                _ic, info = ki._art(cand, {}, floor=True)
+                st = (info or {}).get('strokes')
+                if st:
+                    return st
             except Exception:
-                strokes = None
-        lh_b = int(self.H * 0.030)
-        text_h = int(self.H * 0.045) + lh_b * len(sub_lines)
-        tx = bar + pad
-        text_x = tx + (side + int(pad * 0.6) if strokes else 0)
-        cw = int(text_x + max(head_w, sub_w) + pad)
-        ch = pad * 2 + max(side if strokes else 0, text_h)
-        card = Image.new('RGBA', (cw, ch), (0, 0, 0, 0))
-        d = ImageDraw.Draw(card)
-        d.rounded_rectangle((0, 0, cw - 1, ch - 1), int(pad * 0.9), fill=(250, 250, 248, 238))
-        d.rectangle((0, 0, bar - 1, ch), fill=self.accent + (255,))
-        if strokes:
-            ki.draw_icon(card, strokes, (tx + side // 2, ch // 2), side * 0.8,
-                         0.0, 9.9, (30, 30, 38), self.accent, (250, 250, 248))
-        ty = pad + (ch - pad * 2 - text_h) // 2
-        d.text((text_x, ty), kw.upper(), font=f_h, fill=(22, 22, 30, 255))
-        for li, s in enumerate(sub_lines):
-            d.text((text_x, ty + int(self.H * 0.045) + li * lh_b),
-                   s, font=f_b, fill=(96, 96, 106, 255))
-        sh = Image.new('RGBA', card.size, (0, 0, 0, 0))
-        sh.putalpha(card.getchannel('A').point(lambda v: int(v * 0.25)).filter(ImageFilter.GaussianBlur(7)))
-        out = Image.new('RGBA', (cw + 14, ch + 14), (0, 0, 0, 0))
-        out.alpha_composite(sh, (8, 9))
-        out.alpha_composite(card, (0, 0))
-        return out
+                continue
+        return None
 
     def shot_at(self, t):
         """Framing at t — piecewise constant; returns (scale, focus_x, focus_y).
@@ -213,39 +170,58 @@ class Cine:
         fy = max(ch / 2, min(self.H - ch / 2, self.focus[1]))
         return s, fx, fy
 
-    def front(self, img, t):
-        """UI layer — drawn after the crop, so heroes and cards never get
-        clipped or soft. Heroes sit BESIDE the centred presenter; cards take
-        the free side."""
+    def behind(self, img, t):
+        """World layer, drawn BEFORE the presenter: the apex hero tucked
+        behind the head — the skull occludes its middle, the padded ends
+        peek out. It scales with the punch-in like the head does."""
         for h in self.heroes:
             a = self._fade(h, t)
             if a <= 0:
                 continue
-            s = 1.0
+            him = getattr(h, '_img', None)
+            if him is None:
+                him = h['_img'] = self._hero_img(h['word'])
             u = (t - h['t0']) / 0.18
-            if u < 1.0:  # pop-bounce in, fast
-                s = 0.90 + 0.10 * (1 - (1 - u) ** 3)
-            him = h['img'] if s >= 0.999 else h['img'].resize(
-                (max(1, int(h['img'].width * s)), max(1, int(h['img'].height * s))), Image.LANCZOS)
-            if h['side'] == 'left':
-                x = int(self.W * 0.05)
-            else:
-                x = int(self.W * 0.95) - him.width
-            y = int(self.H * (0.10 if self.aspect != '9:16' else 0.06))
-            self._blit_a(img, him, x, y, a)
-        # cards are one-at-a-time: a lingering beat never overlaps the newer one
-        vis = [c for c in self.cards if self._fade(c, t) > 0]
-        for c in vis[-1:]:
+            s = 1.0 if u >= 1.0 else 0.88 + 0.12 * (1 - (1 - u) ** 3)
+            sw, sh = max(1, int(him.width * s)), max(1, int(him.height * s))
+            draw = him if s >= 0.999 else him.resize((sw, sh), Image.LANCZOS)
+            x = int(self.head[0] - sw / 2)
+            y = int(self.head[1] - sh / 2)
+            self._blit_a(img, draw, x, y, a)
+
+    def front(self, img, t):
+        """UI layer: hand-drawn icon infographics on emphasis beats — the
+        icon for what the presenter is saying draws itself on beside them.
+        UI space: always sharp, never cropped."""
+        for c in self.infos:
             a = self._fade(c, t)
-            cw, ch = c['img'].size
+            if a <= 0:
+                continue
+            size = self.H * 0.15
+            box = int(size * 1.45)
+            lay = Image.new('RGBA', (box, box), (0, 0, 0, 0))
+            # soft paper disc behind the strokes so the icon reads on any env
+            d = ImageDraw.Draw(lay)
+            r = int(size * 0.72)
+            d.ellipse((box // 2 - r, box // 2 - r, box // 2 + r, box // 2 + r),
+                      fill=(250, 250, 250, 225))
+            self._ki_draw(lay, c['strokes'], (box // 2, box // 2), size,
+                          c['t0'], t)
             if self.aspect == '9:16':
-                x, y = (self.W - cw) // 2, int(self.H * 0.06)
-            elif self.aspect == '1:1':
-                x, y = (self.W - cw) // 2, int(self.H * 0.04)
-            else:
-                x = int(self.W * 0.05) if c['side'] == 'left' else int(self.W * 0.95) - cw
+                x = int(self.W * (0.10 if c['side'] == 'left' else 0.90)) - (0 if c['side'] == 'left' else box)
                 y = int(self.H * 0.10)
-            self._blit_a(img, c['img'], x, y, a)
+            elif self.aspect == '1:1':
+                x = int(self.W * (0.08 if c['side'] == 'left' else 0.92)) - (0 if c['side'] == 'left' else box)
+                y = int(self.H * 0.14)
+            else:
+                # beside the torso in the clean panel zone — clear of furniture
+                x = int(self.W * (0.24 if c['side'] == 'left' else 0.76)) - box // 2
+                y = int(self.H * 0.50)
+            self._blit_a(img, lay, x, y, a)
+
+    def _ki_draw(self, lay, strokes, center, size, t0, t):
+        self.ki.draw_icon(lay, strokes, center, size, t0, t,
+                          (34, 34, 42), self.accent, (250, 250, 248))
 
     @staticmethod
     def _fade(h, t):
@@ -540,6 +516,8 @@ def main():
     ki = None
     if a.icons == 'auto':
         try:
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'engine_sources/whiteboard-board-scenes'))
+            sys.modules.pop('v3_board_renderer', None)  # board-scenes ships its own (art_related)
             import kinetic_icons as ki
         except ImportError:
             ki = None
@@ -605,6 +583,8 @@ def main():
             fr = fr.copy()
         else:
             fr = bg.copy()
+        if cine:
+            cine.behind(fr, t)  # hero word tucked behind the head — world space
         p = Image.open(fp).convert('RGBA').resize((pres[2], pres[3]), Image.LANCZOS)
         fr.alpha_composite(p, (pres[0], pres[1]))
         if cine:
@@ -615,7 +595,7 @@ def main():
                 cw, ch = round(W / s), round(H / s)
                 x0, y0 = round(fx - cw / 2), round(fy - ch / 2)
                 fr = fr.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.LANCZOS)
-            cine.front(fr, t)  # heroes + cards live in UI space — never clipped
+            cine.front(fr, t)  # icon infographics — UI space, always sharp
         if cards is not None:
             fr = cards.draw(fr, t)
         c, cx = (None, 0) if a.lesson else caps.frame(t)  # the kinetic pill is always the caption layer
