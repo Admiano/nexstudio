@@ -1,0 +1,93 @@
+{
+  "schema": "StudioGoldenSubtypePackV1",
+  "purpose": "Locked reference renders for every certified dispatch subtype. golden_check.py verify re-renders the fixture through site_job_runner.py and compares fingerprints — catches a subtype silently degrading while still producing a file.",
+  "fixtures": {
+    "whiteboard/kinetic-text": {
+      "family": "whiteboard", "subtype": "kinetic-text",
+      "params": {
+        "theme": "light", "voice": "emma", "aspects": ["16x9"],
+        "script": "Rockets launch into space every year.\nTeams build the rocket together.\nThe capsule reaches orbit safely.\n"
+      },
+      "expect": { "minIcons": 1, "durationSec": [4, 60] }
+    },
+    "whiteboard/hand-drawn-board": {
+      "family": "whiteboard", "subtype": "hand-drawn-board",
+      "params": {
+        "theme": "light", "voice": "emma", "aspects": ["16x9"],
+        "script": "The rocket leaves the pad.\nIt climbs through the clouds.\nIt reaches orbit safely.\n"
+      },
+      "expect": { "durationSec": [4, 90] }
+    },
+    "whiteboard/board-scenes": {
+      "family": "whiteboard", "subtype": "board-scenes",
+      "params": {
+        "theme": "light", "voice": "emma", "aspects": ["16x9"],
+        "script": "The rocket leaves the pad.\nIt climbs through the clouds.\nIt reaches orbit safely.\n"
+      },
+      "expect": { "durationSec": [4, 90] }
+    },
+    "explainer/photo_story": {
+      "family": "explainer", "subtype": "photo_story",
+      "params": {
+        "voice": "andrew", "aspects": ["16x9"],
+        "script": "Teams build the rocket together. The capsule reaches orbit safely."
+      },
+      "expect": { "durationSec": [4, 60] }
+    },
+    "explainer/sketch": {
+      "family": "explainer", "subtype": "sketch",
+      "params": {
+        "voice": "andrew", "aspects": ["16x9"],
+        "script": "Teams build the rocket together. The capsule reaches orbit safely."
+      },
+      "expect": { "durationSec": [4, 60] }
+    },
+    "explainer/emoji": {
+      "family": "explainer", "subtype": "emoji",
+      "params": {
+        "voice": "andrew", "aspects": ["16x9"],
+        "script": "Teams build the rocket together. The capsule reaches orbit safely."
+      },
+      "expect": { "durationSec": [4, 60] }
+    },
+    "explainer/journey": {
+      "family": "explainer", "subtype": "journey",
+      "params": {
+        "voice": "andrew", "aspects": ["16x9"],
+        "script": "Teams build the rocket together. The capsule reaches orbit safely."
+      },
+      "expect": { "durationSec": [4, 60] }
+    },
+    "explainer/collage": {
+      "family": "explainer", "subtype": "collage",
+      "params": {
+        "voice": "andrew", "aspects": ["16x9"],
+        "script": "Teams build the rocket together. The capsule reaches orbit safely."
+      },
+      "expect": { "durationSec": [4, 60] }
+    },
+    "explainer/dataviz": {
+      "family": "explainer", "subtype": "dataviz",
+      "params": {
+        "voice": "andrew", "aspects": ["16x9"],
+        "script": "Sales grew 40 percent this year. The team shipped 12 releases."
+      },
+      "expect": { "durationSec": [4, 60] }
+    },
+    "presenter/presenter": {
+      "family": "presenter", "subtype": "presenter",
+      "params": { "note": "uses the job's existing request.json (cast config, voice, background)" },
+      "expect": { "durationSec": [4, 120] }
+    },
+    "presenter/lesson-board": {
+      "family": "presenter", "subtype": "lesson-board",
+      "params": { "note": "uses the job's existing request.json (cast config, background lesson_board)" },
+      "expect": { "durationSec": [4, 120] }
+    },
+    "presenter/kids-lesson": {
+      "family": "presenter", "subtype": "kids-lesson",
+      "params": { "note": "uses the job's existing request.json (cast config, background kids_book)" },
+      "expect": { "durationSec": [4, 120] }
+    }
+  }
+}

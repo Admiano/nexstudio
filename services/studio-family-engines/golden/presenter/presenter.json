@@ -1,0 +1,20 @@
+{
+ "schema": "StudioGoldenBaselineV1",
+ "family": "presenter",
+ "subtype": "presenter",
+ "recordedFrom": "presenter",
+ "recordedAt": "2026-10-08T00:25:40Z",
+ "status": "done",
+ "outputs": [
+  "16x9"
+ ],
+ "videos": {
+  "16x9": {
+   "durationSec": 4.12,
+   "nonBlank": 1.0,
+   "bytes": 582022
+  }
+ },
+ "iconCount": null,
+ "gateFailures": []
+}

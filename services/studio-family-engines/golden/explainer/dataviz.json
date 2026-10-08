@@ -1,0 +1,20 @@
+{
+ "schema": "StudioGoldenBaselineV1",
+ "family": "explainer",
+ "subtype": "dataviz",
+ "recordedFrom": "golden-dataviz-zqc12h73",
+ "recordedAt": "2026-10-08T00:26:52Z",
+ "status": "done",
+ "outputs": [
+  "16x9"
+ ],
+ "videos": {
+  "16x9": {
+   "durationSec": 6.27,
+   "nonBlank": 1.0,
+   "bytes": 1341977
+  }
+ },
+ "iconCount": null,
+ "gateFailures": []
+}

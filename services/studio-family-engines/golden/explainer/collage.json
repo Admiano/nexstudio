@@ -1,0 +1,20 @@
+{
+ "schema": "StudioGoldenBaselineV1",
+ "family": "explainer",
+ "subtype": "collage",
+ "recordedFrom": "golden-collage-mfex8b85",
+ "recordedAt": "2026-10-08T00:26:32Z",
+ "status": "done",
+ "outputs": [
+  "16x9"
+ ],
+ "videos": {
+  "16x9": {
+   "durationSec": 6.33,
+   "nonBlank": 0.67,
+   "bytes": 1506125
+  }
+ },
+ "iconCount": null,
+ "gateFailures": []
+}

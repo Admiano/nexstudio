@@ -1,0 +1,20 @@
+{
+ "schema": "StudioGoldenBaselineV1",
+ "family": "presenter",
+ "subtype": "lesson-board",
+ "recordedFrom": "pr-efbf711e",
+ "recordedAt": "2026-10-08T00:17:51Z",
+ "status": "done",
+ "outputs": [
+  "16x9"
+ ],
+ "videos": {
+  "16x9": {
+   "durationSec": 26.08,
+   "nonBlank": 1.0,
+   "bytes": 1936485
+  }
+ },
+ "iconCount": null,
+ "gateFailures": []
+}

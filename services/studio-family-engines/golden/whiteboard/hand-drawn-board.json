@@ -1,0 +1,20 @@
+{
+ "schema": "StudioGoldenBaselineV1",
+ "family": "whiteboard",
+ "subtype": "hand-drawn-board",
+ "recordedFrom": "golden-hand-drawn-board-zoj8m_n2",
+ "recordedAt": "2026-10-08T00:28:01Z",
+ "status": "done",
+ "outputs": [
+  "16x9"
+ ],
+ "videos": {
+  "16x9": {
+   "durationSec": 10.83,
+   "nonBlank": 1.0,
+   "bytes": 562786
+  }
+ },
+ "iconCount": 0,
+ "gateFailures": []
+}
