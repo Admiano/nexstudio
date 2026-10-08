@@ -98,14 +98,15 @@ export const PRODUCTION_VIDEO_TYPES: readonly ProductionVideoType[] = [
   // WHITEBOARD — the two approved pipelines
   type("whiteboard", "kinetic-text", "Text-Driven Whiteboard", "Your script builds on the board line by line, with a highlight color and a light or dark board.", ["kinetic-typography", "narration", "progressive-reveal"]),
   type("whiteboard", "hand-drawn-board", "Hand-Drawn Whiteboard", "A hand draws boxes, characters and scenes on a giant board while the narration walks through.", ["whiteboard-drawing", "character-performance", "narration"]),
+  type("whiteboard", "board-scenes", "Board Scenes", "Full-screen composed scenes — headings, panels and reveals on a pastel board.", ["whiteboard-drawing", "scene-composition", "narration"]),
 
-  // EXPLAINER — the six approved styles
-  type("explainer", "tiles", "Tiles", "Colour icons in tiles — the default explainer collage look.", ["explanation", "styled-collage", "narrative-structure"]),
-  type("explainer", "photo-story", "Photo Story", "Real photos in tiles — evidence-led, documentary feel.", ["explanation", "photo-collage", "narrative-structure"]),
+  // EXPLAINER — the six live styles (ids match the capability registry)
+  type("explainer", "photo_story", "Photo Story", "Real photos in tiles — evidence-led, documentary feel.", ["explanation", "photo-collage", "narrative-structure"]),
   type("explainer", "sketch", "Sketch", "Black wireframe icons in tiles — clean, technical, brand-safe.", ["explanation", "wireframe-icons", "narrative-structure"]),
   type("explainer", "emoji", "Emoji", "Emoji tiles — playful, casual, social-native.", ["explanation", "emoji-tiles", "narrative-structure"]),
-  type("explainer", "ink-paper", "Ink & Paper", "Ink illustrations on textured paper — editorial, crafted.", ["explanation", "ink-illustration", "narrative-structure"]),
-  type("explainer", "poster", "Poster", "Bold poster compositions — loud, graphic, designed.", ["explanation", "poster-composition", "narrative-structure"]),
+  type("explainer", "journey", "Journey", "A hero icon travels a dashed arc across the beats — process and timeline stories.", ["explanation", "journey-arc", "narrative-structure"]),
+  type("explainer", "collage", "Collage", "Cut-and-paste card fields with bold headings — magazine energy.", ["explanation", "styled-collage", "narrative-structure"]),
+  type("explainer", "dataviz", "Data Viz", "Counters, charts and annotations — numbers-first explainers.", ["explanation", "data-visualisation", "narrative-structure"]),
 ] as const;
 
 export const PRODUCTION_REGISTRY: ProductionRegistry = {

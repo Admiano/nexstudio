@@ -19,11 +19,16 @@ services:
 
   web:
     build: .
+    image: nexstudio:latest
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/studio?schema=public
+      # Required in production — generate once into .env:
+      #   echo "STUDIO_TRUST_SECRET=$(openssl rand -hex 32)" >> .env
+      STUDIO_TRUST_SECRET: ${STUDIO_TRUST_SECRET:?set STUDIO_TRUST_SECRET in .env — see runbook}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
       RENDER_QUEUE: "on"
       # STORAGE_DRIVER: s3
       # S3_ENDPOINT: http://minio:9000
@@ -33,7 +38,7 @@ services:
       # S3_REGION: us-east-1
       # S3_PUBLIC_BASE_URL: http://localhost:9000/renders
     ports:
-      - "3000:3000"
+      - "${WEB_PORT:-3000}:3000"
     volumes:
       # Job dirs are shared with the worker over named volumes — the engines
       # write out/*-jobs inside their own source trees, so we mount there.
@@ -45,10 +50,11 @@ services:
 
   worker:
     build: .
+    image: nexstudio:latest
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
-    command: ["node", "dist/render-worker.mjs"]
+    command: ["node", "dist/render-worker.cjs"]
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/studio?schema=public
       RENDER_WORKER_CONCURRENCY: "1"

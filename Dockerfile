@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # NexStudio — one image, two processes:
 #   web:    node server.js            (Next standalone, :3000)
-#   worker: node dist/render-worker.mjs (pg-boss render queue)
+#   worker: node dist/render-worker.cjs (pg-boss render queue)
 # Carries the full engine toolchain: ffmpeg, chromium (CDP), Blender 5.2.1,
 # faster-whisper venv, MFA (conda), plus the Python deps the engines import.
 
@@ -11,9 +11,13 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-RUN npx prisma generate && npm run build \
+# env.ts requires a >=32-char trust secret whenever NODE_ENV=production —
+# including build-time page-data collection. Throwaway value: it never reaches
+# the runtime image and server envs resolve at run time.
+RUN export STUDIO_TRUST_SECRET="$(head -c48 /dev/urandom | base64)" \
+ && npx prisma generate && npm run build \
  && npx esbuild scripts/render-worker.ts --bundle --platform=node \
-      --format=esm --outfile=dist/render-worker.mjs
+      --format=cjs --outfile=dist/render-worker.cjs
 
 # ---------- stage 2: runtime ----------
 FROM mirror.gcr.io/library/debian:bookworm-slim
@@ -67,11 +71,12 @@ COPY --from=build /app/public ./public
 
 # Engines + orchestration + the pieces the runner delegates to
 COPY engine_sources ./engine_sources
+COPY engines ./engines
 COPY services ./services
 COPY scripts/presenter-job.py ./scripts/presenter-job.py
 COPY prisma ./prisma
 COPY --from=build /app/src/generated ./src/generated
-COPY --from=build /app/dist/render-worker.mjs ./dist/render-worker.mjs
+COPY --from=build /app/dist/render-worker.cjs ./dist/render-worker.cjs
 
 ENV NODE_ENV=production \
     WHISPER_PYTHON=/opt/whisper/bin/python3 \

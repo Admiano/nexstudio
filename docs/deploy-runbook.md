@@ -8,11 +8,26 @@ required dependency; object storage is optional.
 
 ```bash
 git clone <repo> && cd nexstudio
+echo "STUDIO_TRUST_SECRET=$(openssl rand -hex 32)" > .env   # required, once
 docker compose up -d --build
 ```
 
 That starts `postgres`, `web`, and `worker`. Visit http://<host>:3000 —
 sign-up/login works as on dev; videos render through the queue.
+`STUDIO_TRUST_SECRET` signs sessions/encryption — keep it stable, never commit it.
+
+First boot only — push the schema into the fresh database:
+
+```bash
+docker compose exec web node_modules/.bin/prisma db push
+```
+
+(`prisma migrate deploy` is not usable on this repo — migrations have drifted;
+`db push` is the canonical bootstrap, same as dev.)
+
+`APP_ORIGIN` must be the real public URL including port when not 80/443 —
+the origin check rejects POSTs whose Origin header doesn't match it.
+`WEB_PORT` remaps the host port (default 3000).
 
 Default profile renders to local disk (job dirs live on the named volumes).
 Outputs are served by the app's own `/api/v1/*/files/` routes.

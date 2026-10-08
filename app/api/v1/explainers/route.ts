@@ -37,7 +37,7 @@ export async function POST(request: Request) {
   try { form = await request.formData(); }
   catch { return problem(id, 400, "BAD_FORM", "Invalid form", "Send multipart/form-data."); }
 
-  const style = String(form.get("style") ?? "tiles");
+  const style = String(form.get("style") ?? "photo_story");
   const validStyles = new Set(stylesList().flatMap((s: any) => [s.id, ...s.variants.map((v: any) => v.id)]));
   if (validStyles.size && !validStyles.has(style))
     return problem(id, 422, "STYLE_UNKNOWN", "Unknown style", `Pick one of: ${[...validStyles].join(", ")}.`);
