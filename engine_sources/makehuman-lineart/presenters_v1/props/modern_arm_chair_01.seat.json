@@ -1,0 +1,33 @@
+{
+  "source": "/home/ubuntu/tools/chair/armchair.blend",
+  "seats": [
+    {
+      "name": "modern_arm_chair_01",
+      "objects": [
+        "modern_arm_chair_01"
+      ],
+      "floor": [
+        0.003363475203514099,
+        0.08217088878154755,
+        0.0003815953677985817
+      ],
+      "seatTop": 0.529768818145385,
+      "seatCentre": [
+        0.003363475203514099,
+        0.08217088878154755,
+        0.5301504135131836
+      ],
+      "facing": [
+        -0.0,
+        -1.0,
+        -0.0
+      ],
+      "frontEdge": 0.44395274519920347,
+      "innerWidth": 0.8203444480895996,
+      "backRise": 0.4851583242416382,
+      "scale": 0.8494271172383461,
+      "scaledSeatTop": 0.45,
+      "scaledInnerWidth": 0.6968228196832307
+    }
+  ]
+}
