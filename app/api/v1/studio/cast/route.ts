@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { castSpecSchema } from "@/lib/cast-spec-schema";
 import { normalizeCastSpec,type CastSpec } from "@/studio-v2/cast/spec";
+import { CAST_PRESETS } from "@/lib/cast-presets";
 import type { Prisma } from "@/generated/prisma/client";
 import { requireSession, requireTrustedOrigin } from "@/lib/route-auth";
 import { getPrisma } from "@/lib/db";
@@ -27,7 +28,12 @@ export async function GET(request: Request) {
     where: { ownerUserId: auth.session!.userId },
     orderBy: { updatedAt: "desc" },
   });
-  return json({ cast: members.map(castOut) }, auth.id);
+  // Studio cast presets: ready-made characters anyone can present with.
+  // Adopted into the user's cast on first use (see presenters route).
+  const presets = CAST_PRESETS.map((p) => ({
+    presetId: p.id, name: p.name, gender: p.gender, tagline: p.tagline, spec: p.spec,
+  }));
+  return json({ cast: members.map(castOut), presets }, auth.id);
 }
 
 export async function POST(request: Request) {

@@ -163,7 +163,7 @@ export const studioApi = {
   createSeries: (input: { name: string; description?: string; brandId?: string; bible?: Record<string, unknown> }, signal?: AbortSignal) =>
     postJson<{ seriesId: string }>("/api/v1/studio/series", input, signal),
   cast: (signal?: AbortSignal) =>
-    readJson<{ cast: import("./cast/spec").CastMember[] }>("/api/v1/studio/cast", signal),
+    readJson<{ cast: import("./cast/spec").CastMember[]; presets: Array<{ presetId: string; name: string; gender: "female" | "male"; tagline: string; spec: import("./cast/spec").CastSpec }> }>("/api/v1/studio/cast", signal),
   createCast: (input: { name: string; brandId?: string; spec: import("./cast/spec").CastSpec }, signal?: AbortSignal) =>
     postJson<{ member: import("./cast/spec").CastMember }>("/api/v1/studio/cast", input, signal),
   updateCast: (id: string, input: { name?: string; brandId?: string | null; spec?: import("./cast/spec").CastSpec }, signal?: AbortSignal) =>

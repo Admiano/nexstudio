@@ -9,6 +9,8 @@ import { renderInFlightLimit, submitRenderJob } from "@/lib/render-queue";
 import { castRenderConfig } from "@/studio-v2/cast/render-config";
 import { normalizeCastSpec, type CastSpec } from "@/studio-v2/cast/spec";
 import { ENVIRONMENTS } from "@/studio-v2/cast/environments";
+import { castPreset } from "@/lib/cast-presets";
+import type { Prisma } from "@/generated/prisma/client";
 
 export const runtime = "nodejs";
 
@@ -35,11 +37,30 @@ export async function POST(request: Request) {
   catch { return problem(id, 400, "BAD_FORM", "Invalid form", "Send multipart/form-data."); }
 
   const castMemberId = String(form.get("castMemberId") ?? "").trim();
-  const member = castMemberId
-    ? await getPrisma()!.studioCastMember.findFirst({ where: { id: castMemberId, ownerUserId: auth.session!.userId } })
+  const castPresetId = String(form.get("castPresetId") ?? "").trim();
+  const prisma = getPrisma()!;
+  let member = castMemberId
+    ? await prisma.studioCastMember.findFirst({ where: { id: castMemberId, ownerUserId: auth.session!.userId } })
     : null;
+  if (!member && castPresetId) {
+    // Studio cast preset: adopt it into this user's cast on first use — a real
+    // StudioCastMember under the shared preset-* identityKey so P8 sees the
+    // same performer whoever renders with it.
+    const preset = castPreset(castPresetId);
+    if (preset) {
+      member = (await prisma.studioCastMember.findFirst({
+        where: { ownerUserId: auth.session!.userId, identityKey: preset.identityKey },
+      })) ?? (await prisma.studioCastMember.create({
+        data: {
+          ownerUserId: auth.session!.userId, name: preset.name,
+          identityKey: preset.identityKey,
+          spec: normalizeCastSpec(preset.spec) as unknown as Prisma.InputJsonValue,
+        },
+      }));
+    }
+  }
   if (!member || !member.spec)
-    return problem(id, 422, "CAST_REQUIRED", "Pick a saved character", "Choose one of your saved characters to present this video.");
+    return problem(id, 422, "CAST_REQUIRED", "Pick a character", "Choose a studio character or one of your saved characters to present this video.");
 
   const script = String(form.get("script") ?? "").trim();
   const voiceFile = form.get("voiceFile");

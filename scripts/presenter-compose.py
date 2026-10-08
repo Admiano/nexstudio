@@ -61,6 +61,146 @@ def layout(aspect, W, H, lesson=False):
     return (0, H - ph, pw, ph)
 
 
+FPS_REVEAL = 15  # caption reveals quantise to 15fps — text steps in like kinetic type, not like a fade
+
+
+class Cine:
+    """Cinematic caption layer — director-planned, never templated.
+
+    Behind the presenter (the 'world' layer, camera-zoomed with the bg):
+      - clause words at depth tiers 'mid'/'far' — appear word-by-word on the
+        MFA clock (15fps quantised, ghost trail); far tier reads smaller/fainter
+      - 'hero' words: masthead-sized cards crossing the head line, occluded by
+        the presenter — emphasis earned by intent + stress, not decoration
+    Front layer (screen-space, sharp): opening 'front' tier only.
+    Camera S(t) from the plan scales the world (bg+behind text) more than the
+    presenter — parallax between the planes is what reads as a dolly.
+    """
+
+    def __init__(self, ktr, words, script, audio, W, H, aspect, pres, accent):
+        import director_plan as dp
+        self.dp = dp
+        self.W, self.H, self.aspect, self.pres = W, H, aspect, pres
+        self.accent = accent
+        self.plan = dp.plan(script, words, audio, W, H, pres)
+        # text zone per aspect: the field the presenter does NOT occupy
+        if aspect == '16:9':
+            self.zone = (int(W * 0.045), int(H * 0.20), pres[0] - 60, int(H * 0.62))
+        elif aspect == '1:1':
+            self.zone = (int(W * 0.08), int(H * 0.10), int(W * 0.92), int(H * 0.34))
+        else:
+            self.zone = (int(W * 0.07), int(H * 0.08), int(W * 0.93), int(H * 0.30))
+        self.clauses = []
+        self.heroes = []
+        zw = max(200, self.zone[2] - self.zone[0])
+        # word strips: pre-render each word once; per frame is blit-only
+        for c in self.plan['clauses']:
+            size = int(H * (0.052 if c['depth'] == 'far' else 0.068))
+            for _ in range(3):
+                fnt = font(True, size, ktr)
+                ws, x = [], 0
+                for w in c['words']:
+                    img = self._word(w['word'], fnt, accent=None)
+                    ws.append((img, x, w['start']))
+                    x += img.width + int(size * 0.28)
+                if x <= zw or size < H * 0.03:
+                    break
+                size = max(int(H * 0.03), int(size * zw * 0.95 / x))  # fit the field, never clip
+            c['strip'] = ws
+            c['w'] = min(x, zw)
+            c['size'] = size
+            self.clauses.append(c)
+            if c['hero'] is not None:
+                hw = words[c['hero']]['word']
+                hf = font(True, int(H * 0.16), ktr)
+                him = self._word(hw, hf, accent=accent)
+                tw = min(int(W * 0.62), int(pres[2] * 2.4))
+                if him.width > tw:
+                    him = him.resize((tw, max(1, int(him.height * tw / him.width))), Image.LANCZOS)
+                him = him.filter(ImageFilter.GaussianBlur(0.9))
+                self.heroes.append({'img': him, 't0': words[c['hero']]['start'], 't1': c['t1'] + 0.9})
+    def _word(self, word, fnt, accent):
+        tmp = Image.new('RGBA', (10, 10), (0, 0, 0, 0))
+        d = ImageDraw.Draw(tmp)
+        sw = max(1, fnt.size // 14)
+        bbox = d.textbbox((0, 0), word, font=fnt, stroke_width=sw)
+        w, h = bbox[2] - bbox[0] + 16, bbox[3] - bbox[1] + 16
+        img = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+        d = ImageDraw.Draw(img)
+        edge = (accent[0], accent[1], accent[2], 255) if accent else (16, 16, 26, 230)
+        d.text((8 - bbox[0], 8 - bbox[1]), word, font=fnt, fill=(250, 250, 252, 255),
+               stroke_width=sw, stroke_fill=edge)
+        return img
+
+    def camera_at(self, t):
+        return self.dp.camera_at(self.plan['camera'], t)
+
+    def _zone_xy(self, c):
+        x0, y0, x1, y1 = self.zone
+        w = c['w']
+        if self.aspect == '16:9':
+            x = x0
+            y = y0 + (c['clause'] % 3) * int(self.H * 0.11)
+        else:
+            x = max(x0, min(x1 - w, (x0 + x1 - w) // 2))
+            y = y0 + (c['clause'] % 2) * int(self.H * 0.09)
+        return int(x), int(y)
+
+    def _clause_alpha(self, c, t):
+        if t < c['t0'] - 0.15 or t > c['t1'] + 0.85:
+            return 0.0
+        a = min(1.0, max(0.0, (t - (c['t0'] - 0.15)) / 0.25))
+        if t > c['t1'] + 0.4:
+            a *= max(0.0, 1.0 - (t - c['t1'] - 0.4) / 0.45)
+        return a
+
+    def behind(self, img, t):
+        """World-layer text drawn onto the bg BEFORE the presenter is pasted."""
+        for c in self.clauses:
+            if c['depth'] == 'front':
+                continue
+            a = self._clause_alpha(c, t)
+            if a > 0:
+                self._draw_clause(img, c, t, a)
+        px, py, pw, ph = self.pres
+        for h in self.heroes:
+            if h['t0'] <= t <= h['t1']:
+                a = min(1.0, (t - h['t0']) / 0.16) * (1.0 if t <= h['t1'] - 0.4 else max(0.0, (h['t1'] - t) / 0.4))
+                x = int(px + pw / 2 - h['img'].width / 2)
+                x = max(int(self.W * 0.02), min(int(self.W * 0.98) - h['img'].width, x))
+                y = int(py + ph * 0.14)
+                self._blit_a(img, h['img'], x, y, a)
+
+    def front(self, img, t):
+        for c in self.clauses:
+            if c['depth'] != 'front':
+                continue
+            a = self._clause_alpha(c, t)
+            if a > 0:
+                self._draw_clause(img, c, t, a)
+
+    def _draw_clause(self, img, c, t, a):
+        x, y = self._zone_xy(c)
+        for wimg, wx, wstart in c['strip']:
+            qt = math.floor(wstart * FPS_REVEAL) / FPS_REVEAL  # 15fps step-in
+            if t < qt:
+                continue
+            age = t - qt
+            self._blit_a(img, wimg, x + wx, y, a)
+            if age < 0.13:  # ghost trail: the word's previous step lags behind
+                self._blit_a(img, wimg, x + wx + int(c['size'] * 0.4), y, a * 0.22)
+
+    @staticmethod
+    def _blit_a(img, strip, x, y, a):
+        if a >= 0.999:
+            img.alpha_composite(strip, (x, y))
+            return
+        mask = strip.getchannel('A').point(lambda v: int(v * a))
+        tmp = strip.copy()
+        tmp.putalpha(mask)
+        img.alpha_composite(tmp, (x, y))
+
+
 class VideoBackground:
     """Decode an mp4 into cover-cropped RGB frames at the output size.
 
@@ -269,6 +409,8 @@ def main():
     ap.add_argument('--background')
     ap.add_argument('--background-video', help='MP4 to use as the per-frame background instead of a still image')
     ap.add_argument('--lesson', action='store_true', help='Teacher-over-board layout: smaller presenter, no caption pill or icon cards')
+    ap.add_argument('--captions', choices=['cinematic', 'pill'], default='cinematic',
+                    help='cinematic: director-planned depth captions with camera moves; pill: bottom caption bar')
     ap.add_argument('--out', required=True)
     ap.add_argument('--fps', type=int, default=24)
     ap.add_argument('--accent', default='#0052FF')
@@ -310,6 +452,9 @@ def main():
     pres = layout(a.aspect, W, H, lesson=a.lesson)
     caps = Captions(ktr, ki, script, words, (W, H), a.accent)
     cap = caps.box
+    cine = None
+    if not a.lesson and a.captions == 'cinematic':
+        cine = Cine(ktr, words, script, a.audio, W, H, a.aspect, pres, accent)
     cards = None
     if a.icons == 'auto' and not a.lesson:
         taken = {pv.norm(c['words'][c['icon']['word']]['word']) for c in caps.chunks if c.get('icon')}
@@ -335,11 +480,27 @@ def main():
             fr = fr.copy()
         else:
             fr = bg.copy()
-        p = Image.open(fp).convert('RGBA').resize((pres[2], pres[3]), Image.LANCZOS)
-        fr.alpha_composite(p, (pres[0], pres[1]))
+        s = cine.camera_at(t) if cine else 1.0
+        if cine:
+            # world plane: bg + behind-the-presenter text, pushed by the camera;
+            # the presenter zooms less (0.55x) — that plane gap reads as a dolly
+            cine.behind(fr, t)
+            if s > 1.001:
+                sw, sh = round(W * s), round(H * s)
+                fr = fr.resize((sw, sh), Image.LANCZOS).crop(((sw - W) // 2, (sh - H) // 2, (sw + W) // 2, (sh + H) // 2))
+            pscale = 1.0 + (s - 1.0) * 0.55
+        else:
+            pscale = 1.0
+        pw2, ph2 = round(pres[2] * pscale), round(pres[3] * pscale)
+        px2 = round(pres[0] + pres[2] / 2 - pw2 / 2)
+        py2 = pres[1] + pres[3] - ph2  # feet anchored — the camera moves, he doesn't slide
+        p = Image.open(fp).convert('RGBA').resize((pw2, ph2), Image.LANCZOS)
+        fr.alpha_composite(p, (px2, py2))
+        if cine:
+            cine.front(fr, t)
         if cards is not None:
             fr = cards.draw(fr, t)
-        c, cx = (None, 0) if a.lesson else caps.frame(t)
+        c, cx = (None, 0) if (a.lesson or cine) else caps.frame(t)
         if c is not None:
             sh = Image.new('RGBA', (c.width + 40, c.height + 40), (0, 0, 0, 0))
             sh.paste(Image.new('RGBA', c.size, (0, 0, 0, 255)), (20, 20), c.getchannel('A').point(lambda v: int(v * 0.2)))

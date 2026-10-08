@@ -284,8 +284,9 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   }, [kind]);
   const setOpt = (k: keyof typeof engine, v: string) => setEngine((e) => ({ ...e, [k]: v }));
   const [cast, setCast] = useState<CastMember[] | null>(null);
-  const [presenter, setPresenter] = useState<{ castMemberId: string; background: string; promo: "off" | "lower-third" | "squeeze"; promoName: string; promoLabel: string }>({
-    castMemberId: "", background: "neutral_studio", promo: "off", promoName: "", promoLabel: "",
+  const [presets, setPresets] = useState<Array<{ presetId: string; name: string; gender: string; tagline: string; spec: NonNullable<CastMember["spec"]> }>>([]);
+  const [presenter, setPresenter] = useState<{ castMemberId: string; castPresetId: string; background: string; promo: "off" | "lower-third" | "squeeze"; promoName: string; promoLabel: string }>({
+    castMemberId: "", castPresetId: "", background: "neutral_studio", promo: "off", promoName: "", promoLabel: "",
   });
   const [promoImage, setPromoImage] = useState<File | null>(null);
   useEffect(() => {
@@ -295,7 +296,11 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
       if (!alive) return;
       const saved = r.cast.filter((m) => m.spec);
       setCast(saved);
+      setPresets(r.presets ?? []);
       const first = saved[0];
+      if (!first && (r.presets ?? []).length) {
+        setPresenter((p) => ({ ...p, castPresetId: p.castPresetId || r.presets![0].presetId }));
+      }
       if (first) {
         setPresenter((p) => ({ ...p, castMemberId: p.castMemberId || first.id, background: first.spec?.environment ?? p.background }));
         const v = first.spec?.voiceId;
@@ -317,9 +322,10 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         fd.set("duration", String(flow.duration ?? 45));
         fd.set("speed", engine.speed);
         if (kind === "presenter") {
-          if (!presenter.castMemberId) { api.notify("Pick one of your saved characters first."); return; }
+          if (!presenter.castMemberId && !presenter.castPresetId) { api.notify("Pick a character first."); return; }
           if (presenter.promo !== "off" && !presenter.promoName.trim()) { api.notify("Give the promotion a name, or switch it off."); return; }
-          fd.set("castMemberId", presenter.castMemberId);
+          if (presenter.castMemberId) fd.set("castMemberId", presenter.castMemberId);
+          if (presenter.castPresetId) fd.set("castPresetId", presenter.castPresetId);
           fd.set("background", presenter.background);
           fd.set("promo", presenter.promo);
           if (presenter.promo !== "off") {
@@ -439,18 +445,25 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
               {kind === "presenter" && (
                 <section className="options-band style-box presenter-box">
                   <div className="opt-group">
-                    <label>Presenter <span className="opt-hint">your saved characters</span></label>
-                    {cast === null ? <p className="opt-note">Loading your characters…</p> : cast.length === 0 ? (
-                      <p className="opt-note">You have no saved characters yet. <button type="button" className="opt-link" onClick={() => { api.closeFlow(); route("cast"); }}>Create one in Cast →</button></p>
-                    ) : (
+                    <label>Presenter <span className="opt-hint">studio cast or your saved characters</span></label>
+                    {cast === null ? <p className="opt-note">Loading characters…</p> : (
+                      <>
                       <div className="opt-row presenter-cast">
+                        {presets.map((p) => (
+                          <button key={p.presetId} type="button" className={`opt-chip presenter-pick ${presenter.castPresetId === p.presetId ? "on" : ""}`} onClick={() => setPresenter((s) => ({ ...s, castPresetId: p.presetId, castMemberId: "" }))}>
+                            <span className="presenter-pick-stage"><AvatarStage spec={normalizeCastSpec(p.spec, p.spec.character)} /></span>
+                            <b>{p.name}</b>
+                          </button>
+                        ))}
                         {cast.map((m) => (
-                          <button key={m.id} type="button" className={`opt-chip presenter-pick ${presenter.castMemberId === m.id ? "on" : ""}`} onClick={() => setPresenter((p) => ({ ...p, castMemberId: m.id }))}>
+                          <button key={m.id} type="button" className={`opt-chip presenter-pick ${presenter.castMemberId === m.id ? "on" : ""}`} onClick={() => setPresenter((s) => ({ ...s, castMemberId: m.id, castPresetId: "" }))}>
                             <span className="presenter-pick-stage"><AvatarStage spec={normalizeCastSpec(m.spec!, m.spec!.character)} /></span>
                             <b>{m.name}</b>
                           </button>
                         ))}
                       </div>
+                      {cast.length === 0 && <p className="opt-note">The studio cast is ready to present. <button type="button" className="opt-link" onClick={() => { api.closeFlow(); route("cast"); }}>Or build your own in Cast →</button></p>}
+                      </>
                     )}
                   </div>
                   <div className="opt-group">
