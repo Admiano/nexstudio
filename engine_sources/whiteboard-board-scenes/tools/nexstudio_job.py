@@ -42,8 +42,9 @@ PIPELINES = {
     "board-scenes": "pipeline_v3_narration_timed.py",
 }
 
-WHISPER_PYTHON = os.environ.get(
-    "NEXSTUDIO_WHISPER_PYTHON", "/home/ubuntu/tools/whisper/bin/python3")
+WHISPER_PYTHON = (os.environ.get("NEXSTUDIO_WHISPER_PYTHON")
+                  or os.environ.get("WHISPER_PYTHON")
+                  or str(Path.home() / "tools/whisper/bin/python3"))
 
 
 def sh(cmd: list[str], **kw) -> subprocess.CompletedProcess:
