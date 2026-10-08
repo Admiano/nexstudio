@@ -5,7 +5,7 @@ import { formatUSD, MindSpark, route, useStudio, type ContextChip } from "../App
 import { studioApi, type EngineKind } from "../api";
 import { ensureNxPresence } from "../nx-presence";
 import AvatarStage from "../cast/AvatarStage";
-import { ENVIRONMENTS, environmentImage } from "../cast/environments";
+import { PICKER_ENVIRONMENTS, environmentImage } from "../cast/environments";
 import { normalizeCastSpec, type CastMember } from "../cast/spec";
 
 export type FlowStage = "mind" | "direction" | "closed" | "production" | "review" | "publish" | "revision";
@@ -469,7 +469,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                   <div className="opt-group">
                     <label>Background</label>
                     <div className="opt-row presenter-backgrounds">
-                      {ENVIRONMENTS.map((e) => (
+                      {PICKER_ENVIRONMENTS.map((e) => (
                         <button key={e.key} type="button" aria-label={e.label} title={e.label} className={`opt-chip presenter-bg ${presenter.background === e.key ? "on" : ""}`} onClick={() => setPresenter((p) => ({ ...p, background: e.key }))}>
                           <img src={environmentImage(e.key, "landscape")} alt="" loading="lazy" />
                         </button>
