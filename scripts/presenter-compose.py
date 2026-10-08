@@ -97,9 +97,12 @@ class Cine:
         for c in self.plan['clauses']:
             size = int(H * (0.052 if c['depth'] == 'far' else 0.068))
             for _ in range(3):
-                fnt = font(True, size, ktr)
                 ws, x = [], 0
                 for w in c['words']:
+                    # kinetic weight: the speaker's measured stress sizes the word —
+                    # louder beats land bigger, quiet words yield
+                    wscale = max(0.8, min(1.45, 1.0 + 0.35 * (w.get('stress', 1.0) - 1.0)))
+                    fnt = font(True, int(size * wscale), ktr)
                     img = self._word(w['word'], fnt, accent=None)
                     ws.append((img, x, w['start']))
                     x += img.width + int(size * 0.28)
@@ -118,7 +121,21 @@ class Cine:
                 if him.width > tw:
                     him = him.resize((tw, max(1, int(him.height * tw / him.width))), Image.LANCZOS)
                 him = him.filter(ImageFilter.GaussianBlur(0.9))
-                self.heroes.append({'img': him, 't0': words[c['hero']]['start'], 't1': c['t1'] + 0.9})
+                # apex heroes reveal per-letter and carry a heat glow; minor
+                # heroes are emphasis-plus — quiet by design, that's the apex's job
+                letters = None
+                glow = None
+                if not c['minor']:
+                    letters = self._letters(hw, hf, accent, tw)
+                    glow = him.copy().filter(ImageFilter.GaussianBlur(14))
+                    ga = glow.getchannel('A').point(lambda v: int(v * 0.55))
+                    tinted = Image.new('RGBA', glow.size, (accent[0], accent[1], accent[2], 0))
+                    tinted.putalpha(ga)
+                    glow = tinted
+                self.heroes.append({'img': him, 'letters': letters, 'glow': glow,
+                                    't0': words[c['hero']]['start'], 't1': c['t1'] + 0.9,
+                                    'entrance': c['entrance'], 'amp': c.get('amp', 1.0),
+                                    'minor': c['minor'], 'apex': c['role'] == 'apex'})
     def _word(self, word, fnt, accent):
         tmp = Image.new('RGBA', (10, 10), (0, 0, 0, 0))
         d = ImageDraw.Draw(tmp)
@@ -131,6 +148,30 @@ class Cine:
         d.text((8 - bbox[0], 8 - bbox[1]), word, font=fnt, fill=(250, 250, 252, 255),
                stroke_width=sw, stroke_fill=edge)
         return img
+
+    def _letters(self, word, fnt, accent, maxw):
+        """Apex hero per-letter strips: same glyph recipe, one image per letter,
+        x-offsets from the font's own advances."""
+        sw = max(1, fnt.size // 14)
+        tmp = Image.new('RGBA', (10, 10), (0, 0, 0, 0))
+        d = ImageDraw.Draw(tmp)
+        letters, x = [], 0
+        scale = 1.0
+        for ch in word:
+            bbox = d.textbbox((0, 0), ch, font=fnt, stroke_width=sw)
+            w, h = bbox[2] - bbox[0] + 16, bbox[3] - bbox[1] + 16
+            img = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+            dd = ImageDraw.Draw(img)
+            dd.text((8 - bbox[0], 8 - bbox[1]), ch, font=fnt, fill=(250, 250, 252, 255),
+                    stroke_width=sw, stroke_fill=(accent[0], accent[1], accent[2], 255))
+            letters.append((img, x, ch))
+            x += int(d.textlength(ch, font=fnt)) if ch != ' ' else int(fnt.size * 0.3)
+        if x > maxw:
+            scale = maxw / x
+            letters = [(im.resize((max(1, int(im.width * scale)), max(1, int(im.height * scale))), Image.LANCZOS),
+                        int(xo * scale), ch) for im, xo, ch in letters]
+            x = maxw
+        return {'letters': letters, 'w': x, 'h': letters[0][0].height if letters else 0}
 
     def camera_at(self, t):
         return self.dp.camera_at(self.plan['camera'], t)
@@ -146,41 +187,128 @@ class Cine:
             y = y0 + (c['clause'] % 2) * int(self.H * 0.09)
         return int(x), int(y)
 
+    PARALLAX = {'far': 0.45, 'mid': 0.75, 'front': 1.15, 'near': 1.0}
+
     def _clause_alpha(self, c, t):
-        if t < c['t0'] - 0.15 or t > c['t1'] + 0.85:
+        end = c['t1'] + 0.85
+        # let it breathe: the beat before the apex exits early — dead air
+        # makes the payoff land instead of competing with it
+        apex = self.plan.get('apex')
+        if apex is not None and c is not apex and c['t1'] <= apex['t0'] and c['t1'] + 0.85 > apex['t0'] - 0.25:
+            end = apex['t0'] - 0.25
+        if t < c['t0'] - 0.15 or t > end:
             return 0.0
         a = min(1.0, max(0.0, (t - (c['t0'] - 0.15)) / 0.25))
-        if t > c['t1'] + 0.4:
-            a *= max(0.0, 1.0 - (t - c['t1'] - 0.4) / 0.45)
+        if t > end - 0.4:
+            a *= max(0.0, 1.0 - (t - (end - 0.4)) / 0.4)
         return a
+
+    def _dim(self, t):
+        """Act 1 SETUP: everything co-visible yields to an incoming apex hero —
+        dims to 0.42 starting 0.35s before it lands (the room makes space)."""
+        for h in self.heroes:
+            if h['minor']:
+                continue
+            if h['t0'] - 0.35 <= t <= h['t1'] - 0.55:
+                u = min(1.0, (t - (h['t0'] - 0.35)) / 0.3)
+                return 1.0 - 0.58 * min(1.0, max(0.0, u))
+        return 1.0
+
+    def _ripple(self, t):
+        """Impact ripple: an apex hero's landing bumps co-visible captions —
+        captions only, the footage never moves."""
+        dy = 0
+        for h in self.heroes:
+            if h['minor']:
+                continue
+            dt = t - h['t0']
+            if 0.04 <= dt <= 0.25:
+                dy += int(9 * h['amp'] * math.sin(min(1.0, (dt - 0.04) / 0.21) * math.pi))
+        return dy
 
     def behind(self, img, t):
         """World-layer text drawn onto the bg BEFORE the presenter is pasted."""
+        cam = self.camera_at(t)
+        dim = self._dim(t)
+        rip = self._ripple(t)
         for c in self.clauses:
             if c['depth'] == 'front':
                 continue
-            a = self._clause_alpha(c, t)
-            if a > 0:
-                self._draw_clause(img, c, t, a)
+            a = self._clause_alpha(c, t) * dim
+            if a <= 0:
+                continue
+            # parallax: nearer caption planes drift farther under the same push
+            pg = self.PARALLAX.get(c['depth'], 0.75)
+            dy = rip + int((cam - 1.0) * pg * (self.H * 0.5 - self._zone_xy(c)[1]) * 0.55)
+            self._draw_clause(img, c, t, a, dy)
         px, py, pw, ph = self.pres
         for h in self.heroes:
-            if h['t0'] <= t <= h['t1']:
-                a = min(1.0, (t - h['t0']) / 0.16) * (1.0 if t <= h['t1'] - 0.4 else max(0.0, (h['t1'] - t) / 0.4))
-                x = int(px + pw / 2 - h['img'].width / 2)
-                x = max(int(self.W * 0.02), min(int(self.W * 0.98) - h['img'].width, x))
-                y = int(py + ph * 0.14)
-                self._blit_a(img, h['img'], x, y, a)
+            if h['t0'] - 0.05 <= t <= h['t1']:
+                self._draw_hero(img, h, t, px, py, pw, ph, cam)
 
     def front(self, img, t):
         for c in self.clauses:
             if c['depth'] != 'front':
                 continue
-            a = self._clause_alpha(c, t)
+            a = self._clause_alpha(c, t) * self._dim(t)
             if a > 0:
-                self._draw_clause(img, c, t, a)
+                self._draw_clause(img, c, t, a, self._ripple(t))
 
-    def _draw_clause(self, img, c, t, a):
+    def _hero_state(self, h, t):
+        """Act 2 IMPACT: entrance transform by type, amplitude ∝ loudness.
+        Act 3 AFTERGLOW: one slow breathe until exit — deterministic, no loops."""
+        amp = h['amp']
+        ent = h['entrance']
+        dur = {'slam': 0.16, 'settle': 0.50, 'rise': 0.60, 'streak': 0.28}.get(ent, 0.55)
+        s0 = {'slam': 1 + 0.22 * amp, 'settle': 1 + 0.10 * amp, 'emergence': max(0.74, 1 - 0.18 * amp)}.get(ent, 1.0)
+        u = min(1.0, max(0.0, (t - h['t0']) / dur))
+        e = 1 - (1 - u) ** 3  # expo.out
+        s = s0 + (1 - s0) * e
+        dx = int(-90 * amp * (1 - e)) if ent == 'streak' else 0
+        dy = int(22 * amp * (1 - e)) if ent == 'rise' else 0
+        if u >= 1.0 and t <= h['t1'] - 0.4:  # afterglow breathe, capped +2%
+            s *= 1.0 + min(0.02, (t - h['t0'] - dur) * 0.008)
+        a = 1.0
+        if t < h['t0']:
+            a = 0.0
+        elif t > h['t1'] - 0.4:
+            a = max(0.0, (h['t1'] - t) / 0.4)
+        return s, dx, dy, a
+
+    def _draw_hero(self, img, h, t, px, py, pw, ph, cam):
+        s, dx, dy, a = self._hero_state(h, t)
+        if a <= 0:
+            return
+        base = h['img']
+        sw, sh = max(1, int(base.width * s)), max(1, int(base.height * s))
+        him = base if abs(s - 1.0) < 0.01 else base.resize((sw, sh), Image.LANCZOS)
+        x = int(px + pw / 2 - sw / 2) + dx
+        x = max(int(self.W * 0.02), min(int(self.W * 0.98) - sw, x))
+        y = int(py + ph * 0.14) + dy - int((sh - base.height) / 2)
+        if h['glow'] is not None:
+            ga = min(0.5, h['amp'] * 0.5) * (0.0 if t < h['t0'] else min(1.0, (t - h['t0']) / (0.3 if h['entrance'] == 'slam' else 0.5)))
+            if t > h['t1'] - 0.5:
+                ga *= max(0.0, (h['t1'] - t) / 0.5)
+            if ga > 0.02:
+                g = h['glow'] if abs(s - 1.0) < 0.01 else h['glow'].resize((sw, sh), Image.LANCZOS)
+                self._blit_a(img, g, x, y, ga)
+        if h['letters'] is not None:
+            for li, (limg, xo, ch) in enumerate(h['letters']['letters']):
+                lat = h['t0'] + li * 0.045  # per-letter stagger, ~1 frame at 24fps
+                if t < lat:
+                    continue
+                age = t - lat
+                pop = 1.06 if age < 0.09 else 1.0  # two-frame pop before settle
+                lw = max(1, int(limg.width * s * pop))
+                lh = max(1, int(limg.height * s * pop))
+                li_img = limg.resize((lw, lh), Image.LANCZOS) if (lw, lh) != limg.size else limg
+                self._blit_a(img, li_img, int(x + xo * s), int(y + (0.1 * lh if age < 0.09 else 0)), a)
+        else:
+            self._blit_a(img, him, x, y, a)
+
+    def _draw_clause(self, img, c, t, a, dy=0):
         x, y = self._zone_xy(c)
+        y += dy
         for wimg, wx, wstart in c['strip']:
             qt = math.floor(wstart * FPS_REVEAL) / FPS_REVEAL  # 15fps step-in
             if t < qt:

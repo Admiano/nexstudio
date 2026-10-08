@@ -144,49 +144,107 @@ INTENT_SHOTS = {
 }
 
 def plan(script, words, audio_path, W, H, pres_box):
-    """-> {'clauses': [...], 'camera': [(t0,t1,s0,s1,mode)], 'heroCount': n}"""
+    """-> {'clauses': [...], 'camera': [(t0,t1,s0,s1,mode)], 'apex': clause, 'heroCount': n}
+
+    Film-level grammar, not per-sentence: the whole-script energy envelope picks
+    clause ROLES (opener/dev/pivot/apex/close); the apex clause gets the full
+    three-act hero treatment while everything co-visible yields to it."""
     if not words:
-        return {'clauses': [], 'camera': [], 'heroCount': 0}
+        return {'clauses': [], 'camera': [], 'apex': None, 'heroCount': 0}
     mean = json.loads(MEAN_PATH.read_text()) if MEAN_PATH.exists() else {
         'intents': [], 'defaultIntent': 'explain', 'questionIntent': 'question'}
     stress = _stress(words, audio_path)
+    E = _energies(words, audio_path) or [0.0] * len(words)
     sentences = _sentences(words, script)
     intents = [(sen,) + _intent(words, sen, mean, stress, raw) for sen, raw in sentences]
 
-    px, py, pw, ph = pres_box
-    clauses, cam, last_hero_t = [], [], -9.9
-    # film opens on a whip-in only when the first sentence actually greets;
-    # otherwise it opens settled. Every later clause picks its shot by intent.
+    dur_total = max(1.0, words[-1]['end'] - words[0]['start'])
+    # intent weight: how much a sentence DESERVES the camera's attention
+    IW = {'contrast': 1.45, 'question': 1.35, 'negate': 1.3, 'disbelief': 1.3, 'excited': 1.3,
+          'reassure': 1.2, 'scale': 1.2, 'concern': 1.15, 'welcome': 1.0, 'you': 1.05,
+          'explain': 1.0, 'think': 0.95, 'point': 0.95, 'agree': 0.9, 'funny': 0.9,
+          'thanks': 0.9, 'list': 0.9, 'uncertain': 0.75, 'narrate': 0.7, 'still': 0.6}
+
+    # clause list first (flat), then role assignment over the whole arc
+    clauses = []
     for si, (sen, intent, cue) in enumerate(intents):
-        shot = dict(INTENT_SHOTS.get(intent, INTENT_SHOTS['explain']))
-        if si == 0 and intent != 'welcome':
-            shot['camera'] = 'settle'
         for ci, clause in enumerate(_clauses(words, sen)):
             w0, w1 = clause[0], clause[-1]
-            t0, t1 = words[w0]['start'], words[w1]['end']
-            word_list = [{'i': i, 'word': words[i]['word'], 'start': words[i]['start'], 'end': words[i]['end'],
-                          'stress': round(stress[i], 3)} for i in clause]
-            hero_i = None
-            if shot.get('hero') and t0 - last_hero_t >= 2.2:
-                hero_i = _hero_pick(words, clause, stress, cue)
-                if hero_i is not None:
-                    last_hero_t = t0
             clauses.append({
-                'sent': si, 'clause': ci, 'intent': intent, 't0': t0, 't1': t1,
-                'words': word_list,
-                'depth': 'front' if (shot['depth'] == 'front' and ci == 0) else ('far' if shot['depth'] == 'far' else 'mid'),
-                'hero': hero_i,
-                'side': 'left' if (si + ci) % 2 == 0 else 'right',
+                'sent': si, 'clause': ci, 'intent': intent, 'cue': cue,
+                't0': words[w0]['start'], 't1': words[w1]['end'],
+                'words': [{'i': i, 'word': words[i]['word'], 'start': words[i]['start'],
+                           'end': words[i]['end'], 'stress': round(stress[i], 3),
+                           'energy': round(E[i], 1)} for i in clause],
             })
-            # camera segment: push grows, settle relaxes, whip opens the film
-            if shot['camera'] == 'push':
-                cam.append((t0 - 0.25, t1, 1.0, 1.10, 'push'))
-            elif shot['camera'] == 'whip' and si == 0 and ci == 0:
-                cam.append((t0 - 0.05, t0 + 1.1, 1.18, 1.0, 'whip'))
-            elif shot['camera'] == 'settle':
-                cam.append((t0 - 0.15, t1, 1.05, 1.0, 'settle'))
-    cam.sort(key=lambda c: c[0])
-    return {'clauses': clauses, 'camera': cam, 'heroCount': sum(1 for c in clauses if c['hero'] is not None)}
+    n = len(clauses)
+    last_sent = intents[-1][0] if intents else []
+    for c in clauses:
+        s_mean = sum(w['stress'] for w in c['words']) / max(1, len(c['words']))
+        e_mean = sum(w['energy'] for w in c['words']) / max(1, len(c['words']))
+        c['w'] = IW.get(c['intent'], 1.0) * s_mean * (1.0 + 0.4 * (c['t0'] / dur_total))
+        c['e'] = e_mean
+    # apex = the clause the whole film builds toward — highest weighted energy,
+    # excluding the opener (it opens the film, it isn't the payoff)
+    apex_i = max(range(1 if n > 2 else 0, n), key=lambda i: clauses[i]['w'], default=None)
+    for i, c in enumerate(clauses):
+        if i == apex_i:
+            c['role'] = 'apex'
+        elif c['sent'] == 0 and c['clause'] == 0:
+            c['role'] = 'opener'
+        elif c['sent'] == (len(intents) - 1) and c['clause'] == len(_clauses(words, last_sent)) - 1:
+            c['role'] = 'close'
+        elif c['intent'] in ('contrast', 'negate', 'question', 'disbelief'):
+            c['role'] = 'pivot'
+        else:
+            c['role'] = 'dev'
+
+    ENTRANCE = {'contrast': 'slam', 'negate': 'slam', 'disbelief': 'slam',
+                'question': 'emergence', 'excited': 'rise', 'scale': 'emergence',
+                'reassure': 'settle', 'concern': 'rise'}
+    last_hero_t = -9.9
+    for i, c in enumerate(clauses):
+        shot = INTENT_SHOTS.get(c['intent'], INTENT_SHOTS['explain'])
+        c['depth'] = 'front' if (c['role'] == 'opener' and shot['depth'] == 'front') else \
+            ('far' if shot['depth'] == 'far' else 'mid')
+        c['side'] = 'left' if (c['sent'] + c['clause']) % 2 == 0 else 'right'
+        c['hero'] = None
+        c['minor'] = True
+        c['entrance'] = ENTRANCE.get(c['intent'], 'emergence')
+        # amp ∝ the hero word's measured loudness vs the speaker's average
+        hero_i = _hero_pick(words, [w['i'] for w in c['words']], stress, c['cue'])
+        if c['role'] == 'apex':
+            if hero_i is None:
+                cand = [w['i'] for w in c['words'] if len(norm(w['word'])) >= 4 and norm(w['word']) not in STOP]
+                hero_i = max(cand, key=lambda j: stress[j]) if cand else c['words'][-1]['i']
+            c['hero'], c['minor'] = hero_i, False
+            last_hero_t = c['t0']
+        elif shot.get('hero') and hero_i is not None and c['t0'] - last_hero_t >= 2.2:
+            c['hero'] = hero_i
+            last_hero_t = c['t0']
+        if c['hero'] is not None:
+            c['amp'] = max(0.7, min(1.6, E[c['hero']] / (sum(E) / max(1, len(E)) + 1e-6)))
+
+    # camera: clause-role driven — apex pushes hardest, the clause before it
+    # holds still (dead air makes the payoff land), openers whip or settle,
+    # closes settle and the frame never lands anywhere
+    cam = []
+    for i, c in enumerate(clauses):
+        shot = INTENT_SHOTS.get(c['intent'], INTENT_SHOTS['explain'])
+        if c['role'] == 'apex':
+            cam.append((c['t0'] - 0.3, c['t1'], 1.0, 1.13, 'push'))
+        elif apex_i is not None and i == apex_i - 1:
+            cam.append((c['t0'] - 0.15, c['t1'] + 0.25, 1.03, 1.0, 'hold'))  # let it breathe
+        elif c['role'] == 'opener' and shot['camera'] == 'whip':
+            cam.append((c['t0'] - 0.05, c['t0'] + 1.1, 1.18, 1.0, 'whip'))
+        elif shot['camera'] == 'push':
+            cam.append((c['t0'] - 0.25, c['t1'], 1.0, 1.08, 'push'))
+        else:
+            cam.append((c['t0'] - 0.15, c['t1'], 1.05, 1.0, 'settle'))
+    cam.sort(key=lambda x: x[0])
+    apex = clauses[apex_i] if apex_i is not None else None
+    return {'clauses': clauses, 'camera': cam, 'apex': apex,
+            'heroCount': sum(1 for c in clauses if c['hero'] is not None)}
 
 def camera_at(camera, t):
     """Frame scale at time t: eases between segment endpoints; between segments
