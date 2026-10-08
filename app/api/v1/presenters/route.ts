@@ -25,6 +25,7 @@ export async function GET(request: Request) {
   const auth = await requireSession(request); if (auth.response) return auth.response;
   return json({
     voices: VOICES, aspects: Object.keys(ASPECTS), promos: [...PROMOS],
+    direction: { cinematic: true, infographic: false },
     backgrounds: ENVIRONMENTS.map((e) => ({ id: e.key, name: e.label })),
   }, auth.id);
 }
@@ -90,6 +91,10 @@ export async function POST(request: Request) {
   if (!aspects.length)
     return problem(id, 422, "ASPECT_UNKNOWN", "No valid aspect", `Pick from: ${Object.keys(ASPECTS).join(", ")}.`);
 
+  // Direction layer — cinematic is opt-out, infographics opt-in. Both flow
+  // into request.json (composer flags) and the P8 engine_request envelope.
+  const cinematic = String(form.get("cinematic") ?? "true") !== "false";
+  const infographic = String(form.get("infographic") ?? "false") === "true";
   const promoMode = String(form.get("promo") ?? "off");
   if (!PROMOS.has(promoMode))
     return problem(id, 422, "PROMO_UNKNOWN", "Unknown promotion style", "Pick off, lower-third or squeeze.");
@@ -128,6 +133,7 @@ export async function POST(request: Request) {
     userId: auth.session!.userId, castMemberId: member.id, config: castRenderConfig(spec),
     script: script || null, voice, speed: speedRaw, voiceFile: voiceName,
     aspects: aspects.map((a) => ASPECTS[a]), background, accent: accent || null,
+    cinematic, infographic,
     promo: promoMode === "off" ? null : { mode: promoMode, name: promoName, label: promoLabel || null, image: imageName },
     createdAt: new Date().toISOString(),
   }, null, 1));
@@ -146,7 +152,7 @@ export async function POST(request: Request) {
   }).catch(() => null);
   writeFileSync(path.join(dir, "engine_request.json"), JSON.stringify({
     schema: "StudioSiteEngineRequestV1", family: "presenter", subtype, jobId,
-    params: { cast: castScope && {
+    params: { director: { cinematic, infographic }, cast: castScope && {
       productionId: castScope.productionId, castMemberId: member.id,
       identityKey: member.identityKey, specHash: castScope.specHash, subtype, jobId,
     } },

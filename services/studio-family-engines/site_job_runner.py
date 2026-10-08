@@ -35,10 +35,14 @@ def _result(j: Path, status: str, **fields):
     # the envelope carries the cast authority identity + spec hash so memory
     # and certification can bind the render to that performer.
     try:
-        cast = (json.loads((j / "engine_request.json").read_text())
-                .get("params") or {}).get("cast")
+        params = (json.loads((j / "engine_request.json").read_text())
+                  .get("params") or {})
+        cast = params.get("cast")
         if cast:
             doc["castAuthority"] = cast
+        director = params.get("director")
+        if director:
+            doc["director"] = director
     except Exception:
         pass
     (j / "result.json").write_text(json.dumps(doc, indent=1) + "\n")

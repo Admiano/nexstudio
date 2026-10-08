@@ -285,8 +285,8 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const setOpt = (k: keyof typeof engine, v: string) => setEngine((e) => ({ ...e, [k]: v }));
   const [cast, setCast] = useState<CastMember[] | null>(null);
   const [presets, setPresets] = useState<Array<{ presetId: string; name: string; gender: string; tagline: string; spec: NonNullable<CastMember["spec"]> }>>([]);
-  const [presenter, setPresenter] = useState<{ castMemberId: string; castPresetId: string; background: string; promo: "off" | "lower-third" | "squeeze"; promoName: string; promoLabel: string }>({
-    castMemberId: "", castPresetId: "", background: "neutral_studio", promo: "off", promoName: "", promoLabel: "",
+  const [presenter, setPresenter] = useState<{ castMemberId: string; castPresetId: string; background: string; promo: "off" | "lower-third" | "squeeze"; promoName: string; promoLabel: string; cinematic: boolean; infographic: boolean }>({
+    castMemberId: "", castPresetId: "", background: "neutral_studio", promo: "off", promoName: "", promoLabel: "", cinematic: true, infographic: false,
   });
   const [promoImage, setPromoImage] = useState<File | null>(null);
   useEffect(() => {
@@ -328,6 +328,8 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
           if (presenter.castPresetId) fd.set("castPresetId", presenter.castPresetId);
           fd.set("background", presenter.background);
           fd.set("promo", presenter.promo);
+          fd.set("cinematic", String(presenter.cinematic));
+          fd.set("infographic", String(presenter.infographic));
           if (presenter.promo !== "off") {
             fd.set("promoName", presenter.promoName.trim());
             if (presenter.promoLabel.trim()) fd.set("promoLabel", presenter.promoLabel.trim());
@@ -473,6 +475,14 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                         <button key={e.key} type="button" aria-label={e.label} title={e.label} className={`opt-chip presenter-bg ${presenter.background === e.key ? "on" : ""}`} onClick={() => setPresenter((p) => ({ ...p, background: e.key }))}>
                           <img src={environmentImage(e.key, "landscape")} alt="" loading="lazy" />
                         </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="opt-group">
+                    <label>Direction <span className="opt-hint">the cinematic layer · optional</span></label>
+                    <div className="opt-row">
+                      {([["cinematic", "Director cuts", "Punch-in cuts, the hero word behind the character, sound bed"], ["infographic", "Infographics", "Drawn-on icons on emphasis beats"]] as const).map(([k, l, d]) => (
+                        <button key={k} type="button" className={`opt-chip ${presenter[k] ? "on" : ""}`} onClick={() => setPresenter((p) => ({ ...p, [k]: !p[k] }))}><b>{l}</b><span>{d}</span></button>
                       ))}
                     </div>
                   </div>
