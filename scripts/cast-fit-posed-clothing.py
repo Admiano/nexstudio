@@ -180,6 +180,101 @@ def fit_posed_clothing(scene):
                 if 'castFitOriginalHideRender' not in ob:ob['castFitOriginalHideRender']=ob.hide_render
                 ob.hide_render=True
                 print('POSED_TOP_LET_OUT',ob.name,adjusted,'vertices; max',round(largest,4),'cuff stopped',cuff,flush=True)
+    else:
+        # Seated leg folds push skin through a dress where the hem crosses the
+        # inseam. Clearance is enforced on the garment only — the posed body is
+        # never touched: every garment surface point is kept `margin` outside
+        # the body shell. Derived garments (ink lines, trims) get the same push
+        # so decoration stays glued to the cloth.
+        body=bpy.data.objects.get('Host.body')
+        garment_names={x.split('=')[0] for x in os.environ.get('GARMS','').split(';') if x}
+        dresses=[o for o in (bpy.data.objects.get(n) for n in garment_names) if o and 'dress' in o.name.lower()]
+        if body is not None and dresses:
+            deps=bpy.context.evaluated_depsgraph_get()
+            # The skin shell is several meshes (body, lower legs, ear fills):
+            # all of them collide with the dress.
+            skin=[o for o in bpy.data.objects if o.type=='MESH' and not o.hide_render
+                  and not o.get('castFitSource') and not o.get('castGarmentSource')
+                  and o.name.startswith('Host.')
+                  and any(m and 'SKIN' in m.name.upper() for m in o.data.materials)]
+            points=[];faces=[]
+            for ob in skin:
+                oe=ob.evaluated_get(deps);om=oe.to_mesh();base=len(points)
+                points+=[oe.matrix_world@v.co for v in om.vertices]
+                faces+=[[base+i for i in p.vertices] for p in om.polygons]
+                oe.to_mesh_clear()
+            body_tree=BVHTree.FromPolygons(points,faces)
+            margin=0.006
+            source_names={d.name for d in dresses}
+            dress_tree=None;dress_faces=None;dress_pts=None
+            for ob in dresses+[o for o in bpy.data.objects if o.get('castGarmentSource') in source_names]:
+                if ob.get('castFitSource') is not None or ob.hide_render:continue
+                evaluated=ob.evaluated_get(deps);fitted=bpy.data.meshes.new_from_object(evaluated,depsgraph=deps)
+                inverse=ob.matrix_world.inverted()
+                pts=[ob.matrix_world@v.co for v in fitted.vertices];adjusted=0
+                # Clearance is a skirt problem: only verts around the legs move.
+                # Bodice and armhole edges keep their authored fit.
+                rig=bpy.data.objects.get('Host.rig')
+                hip_z=(rig.matrix_world@rig.pose.bones['upperleg01.L'].head).z if rig else 1e9
+                def leg_ok(i):
+                    return pts[i].z<hip_z+0.08
+                derived=ob.get('castGarmentSource') in source_names
+                if derived and dress_tree is not None:
+                    # Ink on the cloth rides the fitted surface: snap each
+                    # vertex onto it (plus a film) so it can't sink under or
+                    # float off the shifted dress.
+                    for i,point in enumerate(pts):
+                        hit=dress_tree.find_nearest(point)
+                        if hit[0] is None or hit[3]>0.03:continue
+                        q=hit[0]+hit[1]*0.002
+                        if (q-point).length>1e-7:pts[i]=q;adjusted+=1
+                else:
+                    def push_out(i):
+                        if not leg_ok(i):return 0
+                        point=pts[i];hit=body_tree.find_nearest(point)
+                        # Only near misses count: a vertex far inside or far
+                        # off the body is sandwiched or hanging free, not
+                        # clipping, and yanking it tears the garment.
+                        if hit[0] is None or hit[3]>0.02:return 0
+                        surface,normal=hit[0],hit[1]
+                        signed=(point-surface).dot(normal)
+                        if signed<margin:pts[i]=surface+normal*margin;return 1
+                        return 0
+                    adjusted=sum(push_out(i) for i in range(len(pts)))
+                    # Skin can still show through a face whose samples all pass:
+                    # probe the centroid, edge midpoints and the inner ring to
+                    # the centroid, shifting the face's verts where any probe
+                    # sits on/inside the body.
+                    for f in fitted.polygons:
+                        vs=[vi for vi in f.vertices if leg_ok(vi)]
+                        if not vs:continue
+                        allv=list(f.vertices)
+                        centre=sum((pts[vi] for vi in allv),Vector((0,0,0)))/len(allv)
+                        probes=[centre]+[(pts[allv[i]]+pts[allv[(i+1)%len(allv)]])/2 for i in range(len(allv))]+[(pts[vi]+centre)/2 for vi in allv]
+                        for probe in probes:
+                            hit=body_tree.find_nearest(probe)
+                            if hit[0] is None or hit[3]>0.02:continue
+                            surface,normal=hit[0],hit[1]
+                            signed=(probe-surface).dot(normal)
+                            if signed<margin:
+                                delta=normal*min(margin-signed,0.05)
+                                for vi in vs:pts[vi]+=delta
+                    # Face shifts can drag a neighbour vertex back inside; re-pin.
+                    for i in range(len(pts)):push_out(i)
+                if not derived:
+                    dress_pts=pts;dress_faces=[list(f.vertices) for f in fitted.polygons]
+                    dress_tree=BVHTree.FromPolygons(pts,dress_faces)
+                for i,v in enumerate(fitted.vertices):v.co=inverse@pts[i]
+                if any(not all(math.isfinite(c) for c in v.co) for v in fitted.vertices):raise RuntimeError('CAST_GARMENT_NONFINITE:'+ob.name)
+                fitted.update()
+                display=bpy.data.objects.new(ob.name+'.preview-fit',fitted);display.matrix_world=ob.matrix_world.copy()
+                for collection in ob.users_collection:collection.objects.link(display)
+                display.pass_index=ob.pass_index
+                display['castFitSource']=ob.name
+                if 'castFitOriginalHideRender' not in ob:ob['castFitOriginalHideRender']=ob.hide_render
+                ob.hide_render=True
+                fit_report.append({'object':ob.name,'vertexCount':len(fitted.vertices),'bodyClearanceVertices':adjusted,'finite':True})
+                print('POSED_BODY_CLEARANCE',ob.name,adjusted,flush=True)
     fit_report+=_drop_stretched_strokes()
     return fit_report
 
