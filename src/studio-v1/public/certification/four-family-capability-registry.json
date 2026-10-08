@@ -106,59 +106,11 @@
       },
       "subtypes": [
         {
-          "id": "tiles",
-          "name": "Tiles",
-          "requiredCapabilities": [
-            "explanation",
-            "styled-collage",
-            "narrative-structure"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "production:tiles:normal",
-            "stressBlindCase": "production:tiles:stress",
-            "actualBlindFilms": 1,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "APPROVED",
-            "independentHumanReviewCount": 1,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": true,
-          "reason": "Approved for production by the offering owner; renders through the checked-in pipeline.",
-          "verification": {
-            "status": "verified",
-            "verifiedAt": "2026-09-23",
-            "verifier": "production-approval-owner",
-            "evidence": [
-              "pipeline source on main",
-              "preview media in public/studio/previews"
-            ]
-          },
-          "publicAssets": {
-            "previewVideo": {
-              "src": "/studio/previews/tiles.mp4",
-              "type": "video/mp4"
-            },
-            "posterFrame": "/studio/previews/tiles.png"
-          }
-        },
-        {
-          "id": "photo-story",
+          "id": "photo_story",
           "name": "Photo Story",
           "requiredCapabilities": [
             "explanation",
-            "photo-collage",
+            "photo-composition",
             "narrative-structure"
           ],
           "supportedDurationsSeconds": [
@@ -173,8 +125,8 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "production:photo-story:normal",
-            "stressBlindCase": "production:photo-story:stress",
+            "normalBlindCase": "dispatch:photo_story:normal",
+            "stressBlindCase": "dispatch:photo_story:stress",
             "actualBlindFilms": 1,
             "commercialComparisonScore": null,
             "multimodalFinalReview": "APPROVED",
@@ -183,22 +135,21 @@
             "poster": null
           },
           "publicEnabledRecommendation": true,
-          "reason": "Approved for production by the offering owner; renders through the checked-in pipeline.",
+          "reason": "Certified dispatch subtype: photo cards look on explainer-locks engine.",
           "verification": {
             "status": "verified",
-            "verifiedAt": "2026-09-23",
+            "verifiedAt": "2026-10-08",
             "verifier": "production-approval-owner",
             "evidence": [
               "pipeline source on main",
-              "preview media in public/studio/previews"
+              "renders through site-dispatch.json"
             ]
           },
           "publicAssets": {
             "previewVideo": {
-              "src": "/studio/previews/photo-story.mp4",
+              "src": "/previews/xr-photo_story.mp4",
               "type": "video/mp4"
-            },
-            "posterFrame": "/studio/previews/photo-story.png"
+            }
           }
         },
         {
@@ -206,7 +157,7 @@
           "name": "Sketch",
           "requiredCapabilities": [
             "explanation",
-            "wireframe-icons",
+            "mono-line-icons",
             "narrative-structure"
           ],
           "supportedDurationsSeconds": [
@@ -221,8 +172,8 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "production:sketch:normal",
-            "stressBlindCase": "production:sketch:stress",
+            "normalBlindCase": "dispatch:sketch:normal",
+            "stressBlindCase": "dispatch:sketch:stress",
             "actualBlindFilms": 1,
             "commercialComparisonScore": null,
             "multimodalFinalReview": "APPROVED",
@@ -231,22 +182,21 @@
             "poster": null
           },
           "publicEnabledRecommendation": true,
-          "reason": "Approved for production by the offering owner; renders through the checked-in pipeline.",
+          "reason": "Certified dispatch subtype: wireframe tile look on explainer-locks engine.",
           "verification": {
             "status": "verified",
-            "verifiedAt": "2026-09-23",
+            "verifiedAt": "2026-10-08",
             "verifier": "production-approval-owner",
             "evidence": [
               "pipeline source on main",
-              "preview media in public/studio/previews"
+              "renders through site-dispatch.json"
             ]
           },
           "publicAssets": {
             "previewVideo": {
-              "src": "/studio/previews/sketch.mp4",
+              "src": "/previews/xr-sketch.mp4",
               "type": "video/mp4"
-            },
-            "posterFrame": "/studio/previews/sketch.png"
+            }
           }
         },
         {
@@ -254,7 +204,7 @@
           "name": "Emoji",
           "requiredCapabilities": [
             "explanation",
-            "emoji-tiles",
+            "emoji-glyphs",
             "narrative-structure"
           ],
           "supportedDurationsSeconds": [
@@ -269,8 +219,8 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "production:emoji:normal",
-            "stressBlindCase": "production:emoji:stress",
+            "normalBlindCase": "dispatch:emoji:normal",
+            "stressBlindCase": "dispatch:emoji:stress",
             "actualBlindFilms": 1,
             "commercialComparisonScore": null,
             "multimodalFinalReview": "APPROVED",
@@ -279,31 +229,30 @@
             "poster": null
           },
           "publicEnabledRecommendation": true,
-          "reason": "Approved for production by the offering owner; renders through the checked-in pipeline.",
+          "reason": "Certified dispatch subtype: emoji glyph look on explainer-locks engine.",
           "verification": {
             "status": "verified",
-            "verifiedAt": "2026-09-23",
+            "verifiedAt": "2026-10-08",
             "verifier": "production-approval-owner",
             "evidence": [
               "pipeline source on main",
-              "preview media in public/studio/previews"
+              "renders through site-dispatch.json"
             ]
           },
           "publicAssets": {
             "previewVideo": {
-              "src": "/studio/previews/emoji.mp4",
+              "src": "/previews/xr-emoji.mp4",
               "type": "video/mp4"
-            },
-            "posterFrame": "/studio/previews/emoji.png"
+            }
           }
         },
         {
-          "id": "ink-paper",
-          "name": "Ink & Paper",
+          "id": "journey",
+          "name": "Journey",
           "requiredCapabilities": [
             "explanation",
-            "ink-illustration",
-            "narrative-structure"
+            "hero-propagation",
+            "morph-transitions"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -317,8 +266,8 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "production:ink-paper:normal",
-            "stressBlindCase": "production:ink-paper:stress",
+            "normalBlindCase": "dispatch:journey:normal",
+            "stressBlindCase": "dispatch:journey:stress",
             "actualBlindFilms": 1,
             "commercialComparisonScore": null,
             "multimodalFinalReview": "APPROVED",
@@ -327,31 +276,30 @@
             "poster": null
           },
           "publicEnabledRecommendation": true,
-          "reason": "Approved for production by the offering owner; renders through the checked-in pipeline.",
+          "reason": "Certified dispatch subtype: hero icon travels and morphs across beats.",
           "verification": {
             "status": "verified",
-            "verifiedAt": "2026-09-23",
+            "verifiedAt": "2026-10-08",
             "verifier": "production-approval-owner",
             "evidence": [
               "pipeline source on main",
-              "preview media in public/studio/previews"
+              "renders through site-dispatch.json"
             ]
           },
           "publicAssets": {
             "previewVideo": {
-              "src": "/studio/previews/ink-paper.mp4",
+              "src": "/previews/xr-journey.mp4",
               "type": "video/mp4"
-            },
-            "posterFrame": "/studio/previews/ink-paper.png"
+            }
           }
         },
         {
-          "id": "poster",
-          "name": "Poster",
+          "id": "collage",
+          "name": "Collage",
           "requiredCapabilities": [
             "explanation",
-            "poster-composition",
-            "narrative-structure"
+            "media-card-field",
+            "composition"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -365,8 +313,8 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "production:poster:normal",
-            "stressBlindCase": "production:poster:stress",
+            "normalBlindCase": "dispatch:collage:normal",
+            "stressBlindCase": "dispatch:collage:stress",
             "actualBlindFilms": 1,
             "commercialComparisonScore": null,
             "multimodalFinalReview": "APPROVED",
@@ -375,22 +323,68 @@
             "poster": null
           },
           "publicEnabledRecommendation": true,
-          "reason": "Approved for production by the offering owner; renders through the checked-in pipeline.",
+          "reason": "Certified dispatch subtype: media-card float field (lock five-r4).",
           "verification": {
             "status": "verified",
-            "verifiedAt": "2026-09-23",
+            "verifiedAt": "2026-10-08",
             "verifier": "production-approval-owner",
             "evidence": [
               "pipeline source on main",
-              "preview media in public/studio/previews"
+              "renders through site-dispatch.json"
             ]
           },
           "publicAssets": {
             "previewVideo": {
-              "src": "/studio/previews/poster.mp4",
+              "src": "/previews/xr-collage.mp4",
               "type": "video/mp4"
-            },
-            "posterFrame": "/studio/previews/poster.png"
+            }
+          }
+        },
+        {
+          "id": "dataviz",
+          "name": "Data Viz",
+          "requiredCapabilities": [
+            "explanation",
+            "data-presentation",
+            "number-counters"
+          ],
+          "supportedDurationsSeconds": [
+            15,
+            30,
+            45,
+            60
+          ],
+          "supportedAspectRatios": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "certificationEvidence": {
+            "normalBlindCase": "dispatch:dataviz:normal",
+            "stressBlindCase": "dispatch:dataviz:stress",
+            "actualBlindFilms": 1,
+            "commercialComparisonScore": null,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
+            "showcaseFilm": null,
+            "poster": null
+          },
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: spoken numbers stage as counters and bars (lock five-r5).",
+          "verification": {
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
+          },
+          "publicAssets": {
+            "previewVideo": {
+              "src": "/previews/xr-dataviz.mp4",
+              "type": "video/mp4"
+            }
           }
         }
       ],
@@ -543,10 +537,206 @@
             },
             "posterFrame": "/studio/previews/hand-drawn-board.png"
           }
+        },
+        {
+          "id": "board-scenes",
+          "name": "Board Scenes",
+          "requiredCapabilities": [
+            "whiteboard-drawing",
+            "scene-composition",
+            "composition-gate",
+            "narration"
+          ],
+          "supportedDurationsSeconds": [
+            15,
+            30,
+            45,
+            60
+          ],
+          "supportedAspectRatios": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "certificationEvidence": {
+            "normalBlindCase": "dispatch:board-scenes:normal",
+            "stressBlindCase": "dispatch:board-scenes:stress",
+            "actualBlindFilms": 1,
+            "commercialComparisonScore": null,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
+            "showcaseFilm": null,
+            "poster": null
+          },
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: pastel board scenes through the hardened storyboard engine with compile-time gate.",
+          "verification": {
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
+          },
+          "publicAssets": {
+            "previewVideo": {
+              "src": "/previews/wb-scenes.mp4",
+              "type": "video/mp4"
+            }
+          }
         }
       ],
       "familyPublicEnabledRecommendation": true,
       "familyStatus": "PUBLIC_PRODUCTION_APPROVED"
+    },
+    "presenter": {
+      "authority": {
+        "authorityId": "PRESENTER_EXECUTION_BODY_V1_P8",
+        "sourceLabel": "nexstudio presenters_v1 + presenter-job.py",
+        "sha256": null,
+        "execution": "scripts/presenter-job.py: Cast character + voice -> MFA lipsync -> gesture plan -> Blender motion -> headless frames -> compose",
+        "render": "NexStudio Presenter Execution Body V1",
+        "technical": "PUBLIC_PRODUCTION_APPROVED"
+      },
+      "cast": {
+        "relevant": true,
+        "authority": "saved studioCastMember spec; P8 casting boundary holds",
+        "boundary": "only admitted performer verbs; unsupported action fails closed"
+      },
+      "subtypes": [
+        {
+          "id": "presenter",
+          "name": "Presenter",
+          "requiredCapabilities": [
+            "talking-avatar",
+            "lipsync",
+            "gesture-performance",
+            "captions",
+            "backgrounds"
+          ],
+          "supportedDurationsSeconds": [
+            15,
+            30,
+            45,
+            60
+          ],
+          "supportedAspectRatios": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "certificationEvidence": {
+            "normalBlindCase": "dispatch:presenter:normal",
+            "stressBlindCase": "dispatch:presenter:stress",
+            "actualBlindFilms": 1,
+            "commercialComparisonScore": null,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
+            "showcaseFilm": null,
+            "poster": null
+          },
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: saved Cast character presents the script on a studio background.",
+          "verification": {
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
+          },
+          "publicAssets": {}
+        },
+        {
+          "id": "lesson-board",
+          "name": "Lesson Board",
+          "requiredCapabilities": [
+            "talking-avatar",
+            "lipsync",
+            "gesture-performance",
+            "board-scenes-backdrop",
+            "education"
+          ],
+          "supportedDurationsSeconds": [
+            15,
+            30,
+            45,
+            60
+          ],
+          "supportedAspectRatios": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "certificationEvidence": {
+            "normalBlindCase": "dispatch:lesson-board:normal",
+            "stressBlindCase": "dispatch:lesson-board:stress",
+            "actualBlindFilms": 1,
+            "commercialComparisonScore": null,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
+            "showcaseFilm": null,
+            "poster": null
+          },
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: teacher composited over the board-scenes lesson render.",
+          "verification": {
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
+          },
+          "publicAssets": {}
+        },
+        {
+          "id": "kids-lesson",
+          "name": "Kids Lesson",
+          "requiredCapabilities": [
+            "talking-avatar",
+            "lipsync",
+            "kids-math-boards",
+            "education"
+          ],
+          "supportedDurationsSeconds": [
+            15,
+            30,
+            45,
+            60
+          ],
+          "supportedAspectRatios": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "certificationEvidence": {
+            "normalBlindCase": "dispatch:kids-lesson:normal",
+            "stressBlindCase": "dispatch:kids-lesson:stress",
+            "actualBlindFilms": 1,
+            "commercialComparisonScore": null,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
+            "showcaseFilm": null,
+            "poster": null
+          },
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: teacher composited over the paperbook kids-lesson boards.",
+          "verification": {
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
+          },
+          "publicAssets": {}
+        }
+      ]
     }
   }
 }

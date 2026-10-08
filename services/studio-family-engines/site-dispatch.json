@@ -1,0 +1,53 @@
+{
+  "schema": "StudioSiteDispatchRegistryV1",
+  "dispatchAuthority": "NEXMIND_P8",
+  "authorityId": "P8_SITE_DISPATCH_V1",
+  "rule": "Every studio site render routes through this registry. Unregistered subtypes fail closed; the engine's own QA gate still decides the final artifact.",
+  "families": {
+    "whiteboard": {
+      "adapter": "nexstudio_job",
+      "subtypes": {
+        "kinetic-text": {
+          "pipeline": "kinetic",
+          "engineEnv": "WHITEBOARD_KINETIC_RUNTIME_DIR",
+          "engineFallback": "engine_sources/whiteboard-board-scenes",
+          "icons": "auto",
+          "status": "CERTIFIED_FOR_DISPATCH"
+        },
+        "hand-drawn-board": {
+          "pipeline": "board",
+          "engineEnv": "WHITEBOARD_V3_RUNTIME_DIR",
+          "engineFallback": "engine_sources/whiteboard-v3-runtime",
+          "status": "CERTIFIED_FOR_DISPATCH"
+        },
+        "board-scenes": {
+          "pipeline": "board-scenes",
+          "engineEnv": "WHITEBOARD_SCENES_RUNTIME_DIR",
+          "engineFallback": "engine_sources/whiteboard-board-scenes",
+          "status": "CERTIFIED_FOR_DISPATCH"
+        }
+      }
+    },
+    "explainer": {
+      "adapter": "make_reel",
+      "engineEnv": "EXPLAINER_ENGINE_DIR",
+      "engineFallback": "engine_sources/explainer-locks",
+      "subtypes": {
+        "photo_story": { "status": "CERTIFIED_FOR_DISPATCH" },
+        "sketch": { "status": "CERTIFIED_FOR_DISPATCH" },
+        "emoji": { "status": "CERTIFIED_FOR_DISPATCH" },
+        "journey": { "status": "CERTIFIED_FOR_DISPATCH" },
+        "collage": { "status": "CERTIFIED_FOR_DISPATCH" },
+        "dataviz": { "status": "CERTIFIED_FOR_DISPATCH" }
+      }
+    },
+    "presenter": {
+      "adapter": "presenter_job",
+      "subtypes": {
+        "presenter": { "status": "CERTIFIED_FOR_DISPATCH" },
+        "lesson-board": { "status": "CERTIFIED_FOR_DISPATCH" },
+        "kids-lesson": { "status": "CERTIFIED_FOR_DISPATCH" }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import path from "node:path";
 import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync, existsSync, readFileSync, copyFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
@@ -74,17 +74,10 @@ export async function POST(request: Request) {
   const mediaDir = path.join(dir, "media");
   mkdirSync(mediaDir, { recursive: true });
 
-  const args: string[] = [path.join(ENGINE, "tools", "make_reel.py"), "--style", style,
-    "--aspects", aspects.join(","), "--out", path.join(dir, "out"), "--film-id", jobId];
-  if (durationRaw) args.push("--duration", String(durationRaw));
-    if (speedRaw) args.push("--speed", String(speedRaw));
-
+  let voicePath: string | null = null;
   if (voiceFile instanceof File) {
-    const vf = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);
-    writeFileSync(vf, Buffer.from(await voiceFile.arrayBuffer()));
-    args.push("--voice-file", vf);
-  } else {
-    args.push("--script", script, "--voice", voice);
+    voicePath = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);
+    writeFileSync(voicePath, Buffer.from(await voiceFile.arrayBuffer()));
   }
 
   const mediaPaths: string[] = [];
@@ -95,46 +88,31 @@ export async function POST(request: Request) {
     writeFileSync(dest, Buffer.from(await m.arrayBuffer()));
     mediaPaths.push(dest);
   }
-  if (mediaPaths.length) args.push("--media", ...mediaPaths);
 
   writeFileSync(path.join(dir, "request.json"), JSON.stringify({
     userId: auth.session!.userId, style, voice, aspects,
     script: script || null, media: mediaPaths.map((p) => path.basename(p)), createdAt: new Date().toISOString(),
   }, null, 1));
   writeFileSync(path.join(dir, "status.json"), JSON.stringify({ status: "running", startedAt: new Date().toISOString() }));
+  // All renders dispatch through P8's family-engine surface: the runner resolves
+  // the subtype in site-dispatch.json (fail-closed), builds the engine call and
+  // writes status.json + the P8 result envelope itself.
+  writeFileSync(path.join(dir, "engine_request.json"), JSON.stringify({
+    schema: "StudioSiteEngineRequestV1", family: "explainer", subtype: style, jobId,
+    params: {
+      script: script || null, voice, voiceFile: voicePath,
+      aspects, duration: durationRaw || null, speed: speedRaw || null, media: mediaPaths,
+    },
+  }, null, 1));
 
   const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
-  const child = spawn("python3", args, {
-    cwd: ENGINE, detached: true, stdio: ["ignore", "pipe", "pipe"],
+  const child = spawn("python3", [
+    path.join(process.cwd(), "services", "studio-family-engines", "site_job_runner.py"), dir,
+  ], {
+    cwd: process.cwd(), detached: true, stdio: "ignore",
     env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}`,
            WHISPER_PYTHON: process.env.WHISPER_PYTHON
              ?? path.join(homedir(), "tools", "whisper", "bin", "python3") },
-  });
-  child.stdout?.on("data", () => {});
-  child.stderr?.on("data", () => {});
-  child.on("exit", (code) => {
-    try {
-      const manifestPath = path.join(dir, "out", "manifest.json");
-      const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : null;
-      const filesDir = path.join(dir, "files");
-      mkdirSync(filesDir, { recursive: true });
-      const outputs: Record<string, string> = {};
-      if (manifest?.outputs) {
-        for (const [aspect, p] of Object.entries<string>(manifest.outputs)) {
-          const dest = path.join(filesDir, `${aspect}.mp4`);
-          try { copyFileSync(p, dest); } catch { continue; }
-          outputs[aspect] = `/api/v1/explainers/${jobId}/files/${aspect}.mp4`;
-        }
-      }
-      writeFileSync(path.join(dir, "status.json"), JSON.stringify({
-        status: code === 0 ? "done" : "failed",
-        exitCode: code, outputs, finishedAt: new Date().toISOString(),
-      }));
-    } catch (e) {
-      writeFileSync(path.join(dir, "status.json"), JSON.stringify({
-        status: "failed", exitCode: code, error: String(e), finishedAt: new Date().toISOString(),
-      }));
-    }
   });
   child.unref();
 

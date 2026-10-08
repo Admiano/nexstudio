@@ -1,6 +1,6 @@
 import path from "node:path";
 import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync, existsSync, readFileSync, copyFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
@@ -12,11 +12,6 @@ export const runtime = "nodejs";
 const ENGINE = process.env.WHITEBOARD_V3_RUNTIME_DIR
   ?? path.join(process.cwd(), "engine_sources", "whiteboard-v3-runtime");
 const JOBS = path.join(ENGINE, "out", "whiteboard-jobs");
-const SCENES_ENGINE = process.env.WHITEBOARD_SCENES_RUNTIME_DIR
-  ?? path.join(process.cwd(), "engine_sources", "whiteboard-board-scenes");
-const DEFAULT_KINETIC_ENGINE = path.join(homedir(), "wb-kinetic-runtime");
-const KINETIC_ENGINE = process.env.WHITEBOARD_KINETIC_RUNTIME_DIR
-  ?? (existsSync(DEFAULT_KINETIC_ENGINE) ? DEFAULT_KINETIC_ENGINE : SCENES_ENGINE);
 
 const TYPES = {
   "kinetic-text": { id: "kinetic-text", name: "Text-Driven Whiteboard", pipeline: "kinetic" },
@@ -86,72 +81,39 @@ export async function POST(request: Request) {
   const dir = path.join(JOBS, jobId);
   mkdirSync(dir, { recursive: true });
 
-  const runtime = spec.pipeline === "kinetic" && KINETIC_ENGINE ? KINETIC_ENGINE
-    : spec.pipeline === "board-scenes" ? SCENES_ENGINE
-    : ENGINE;
-  const args: string[] = [path.join(runtime, "tools", "nexstudio_job.py"),
-    "--type", spec.pipeline, "--theme", theme,
-    "--voice", voice, "--title", jobId.toUpperCase(),
-    "--aspects", aspects.map((a) => a.replace("x", ":")).join(","),
-    "--out", path.join(dir, "out"), "--job-id", jobId];
-  if (durationRaw) args.push("--duration", String(durationRaw));
-    if (speedRaw) args.push("--speed", String(speedRaw));
-
   const scriptPath = path.join(dir, "script.txt");
+  let voicePath: string | null = null;
   if (script) {
     writeFileSync(scriptPath, script.endsWith("\n") ? script : `${script}\n`);
-    args.push("--script", scriptPath);
   }
   if (voiceFile instanceof File) {
-    const vf = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);
-    writeFileSync(vf, Buffer.from(await voiceFile.arrayBuffer()));
-    args.push("--voice-file", vf);
+    voicePath = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);
+    writeFileSync(voicePath, Buffer.from(await voiceFile.arrayBuffer()));
   }
-  if (accent) args.push("--accent", accent);
-  if (runtime === KINETIC_ENGINE) args.push("--icons", "auto");
 
   writeFileSync(path.join(dir, "request.json"), JSON.stringify({
     userId: auth.session!.userId, type, voice, theme, accent: accent || null, aspects,
     script: script || null, createdAt: new Date().toISOString(),
   }, null, 1));
   writeFileSync(path.join(dir, "status.json"), JSON.stringify({ status: "running", startedAt: new Date().toISOString() }));
+  // All renders dispatch through P8's family-engine surface: the runner resolves
+  // the subtype in site-dispatch.json (fail-closed), builds the engine call and
+  // writes status.json + the P8 result envelope itself.
+  writeFileSync(path.join(dir, "engine_request.json"), JSON.stringify({
+    schema: "StudioSiteEngineRequestV1", family: "whiteboard", subtype: type, jobId,
+    params: {
+      theme, voice, accent: accent || null, aspects,
+      duration: durationRaw || null, speed: speedRaw || null,
+      scriptPath: script ? scriptPath : null, voiceFile: voicePath,
+    },
+  }, null, 1));
 
   const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
-  const child = spawn("python3", args, {
-    cwd: runtime, detached: true, stdio: ["ignore", "pipe", "pipe"],
-    env: {
-      ...process.env,
-      PATH: `${nodeBin}:${process.env.PATH}`,
-      WHITEBOARD_V3_SYSTEM_PACKAGE: path.join(
-        process.cwd(), "engines", "whiteboard-v3-system", "NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE"),
-    },
-  });
-  child.stdout?.on("data", () => {});
-  child.stderr?.on("data", () => {});
-  child.on("exit", (code) => {
-    try {
-      const manifestPath = path.join(dir, "out", "manifest.json");
-      const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : null;
-      const filesDir = path.join(dir, "files");
-      mkdirSync(filesDir, { recursive: true });
-      const outputs: Record<string, string> = {};
-      if (manifest?.outputs) {
-        for (const [aspect, p] of Object.entries<string>(manifest.outputs)) {
-          const key = aspect.replace(":", "x");
-          const dest = path.join(filesDir, `${key}.mp4`);
-          try { copyFileSync(p, dest); } catch { continue; }
-          outputs[key] = `/api/v1/whiteboards/${jobId}/files/${key}.mp4`;
-        }
-      }
-      writeFileSync(path.join(dir, "status.json"), JSON.stringify({
-        status: code === 0 ? "done" : "failed",
-        exitCode: code, outputs, finishedAt: new Date().toISOString(),
-      }));
-    } catch (e) {
-      writeFileSync(path.join(dir, "status.json"), JSON.stringify({
-        status: "failed", exitCode: code, error: String(e), finishedAt: new Date().toISOString(),
-      }));
-    }
+  const child = spawn("python3", [
+    path.join(process.cwd(), "services", "studio-family-engines", "site_job_runner.py"), dir,
+  ], {
+    cwd: process.cwd(), detached: true, stdio: "ignore",
+    env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}` },
   });
   child.unref();
 

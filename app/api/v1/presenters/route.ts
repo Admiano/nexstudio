@@ -112,9 +112,19 @@ export async function POST(request: Request) {
     createdAt: new Date().toISOString(),
   }, null, 1));
   writeFileSync(path.join(dir, "status.json"), JSON.stringify({ status: "running", startedAt: new Date().toISOString() }));
+  // All renders dispatch through P8's family-engine surface; presenter-job.py
+  // keeps owning the heavy pipeline, the runner records the P8 result envelope.
+  const subtype = background === "lesson_board" ? "lesson-board"
+    : background === "kids_book" ? "kids-lesson" : "presenter";
+  writeFileSync(path.join(dir, "engine_request.json"), JSON.stringify({
+    schema: "StudioSiteEngineRequestV1", family: "presenter", subtype, jobId,
+    params: {},
+  }, null, 1));
 
   const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
-  const child = spawn(process.env.PYTHON_BIN ?? "python3", [path.join(process.cwd(), "scripts", "presenter-job.py"), dir], {
+  const child = spawn(process.env.PYTHON_BIN ?? "python3", [
+    path.join(process.cwd(), "services", "studio-family-engines", "site_job_runner.py"), dir,
+  ], {
     cwd: process.cwd(), detached: true, stdio: "ignore",
     env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}` },
   });
