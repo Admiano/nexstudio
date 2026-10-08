@@ -56,9 +56,9 @@ def layout(aspect, W, H, lesson=False):
         ph = int(H * 0.96)
         pw = int(ph * 3 / 4)
         return ((W - pw) // 2, H - ph, pw, ph)
-    pw = W
-    ph = int(pw * 4 / 3)
-    return (0, H - ph, pw, ph)
+    pw = int(H * 0.95 * 3 / 4)   # wider than the frame — cropped sides,
+    ph = int(H * 0.95)           # headroom matches 1:1 (~5%), modern bold look
+    return ((W - pw) // 2, H - ph, pw, ph)
 
 
 FPS_REVEAL = 15  # caption reveals quantise to 15fps — text steps in like kinetic type, not like a fade
