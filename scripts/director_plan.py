@@ -2,10 +2,11 @@
 
 Reads the MFA word clock, the speaker's own loudness/duration statistics and the
 intent lexicon shared with the gesture planner (gesture-meanings.json), and emits
-a shot plan: which clause goes to which depth tier, which word earns a hero
-behind-the-head card, and how the virtual camera pushes, whips or settles through
-each beat. Same inputs, different questions — every timing and every pick comes
-from the actual narration, so two different scripts never produce the same edit.
+a shot plan: which clause earns the punch-in (a shot-size cut, never a smooth
+zoom), which word earns the apex hero behind the head, and where the
+whoosh/thump land on the audio bed. Same inputs, different questions — every
+timing and every pick comes from the actual narration, so two different
+scripts never produce the same edit.
 """
 import json, math, re, subprocess, array
 from pathlib import Path
@@ -143,14 +144,77 @@ INTENT_SHOTS = {
     'still': {'camera': 'settle', 'depth': 'far'},
 }
 
-def plan(script, words, audio_path, W, H, pres_box):
-    """-> {'clauses': [...], 'camera': [(t0,t1,s0,s1,mode)], 'apex': clause, 'heroCount': n}
+# Shot-size cut grammar: the frame never eases — it CUTS between framings on
+# beat boundaries, the punch-in convention real shorts editors use. Magnitudes
+# differ per aspect: landscape has room for a dramatic crop, portrait is
+# already tight so its close is subtle (or absent).
+CLOSE = {'16:9': 1.18, '1:1': 1.12, '9:16': 1.10}
+MAX_CLOSE = {'16:9': 2, '1:1': 2, '9:16': 1}
+
+def _shots(clauses, apex_i, aspect, words):
+    """Piecewise-constant framings [(t0,t1,scale)] — hard cuts, no easing.
+    The apex always earns the punch-in; at most one strong secondary pivot
+    joins it (>=0.78x apex weight, >=2s clear of it). Landscape/1:1 get up to
+    two close segments, 9:16 gets at most one — the frame is already tight."""
+    if not clauses:
+        return []
+    t_end = clauses[-1]['t1'] + 0.6
+    close_s = CLOSE.get(aspect, 1.12)
+    earn = []
+    if apex_i is not None:
+        ca = clauses[apex_i]
+        earn.append((apex_i, ca['w']))
+        piv = [i for i, c in enumerate(clauses)
+               if i != apex_i and c['role'] == 'pivot' and c['w'] >= ca['w'] * 0.78
+               and (c['t1'] <= ca['t0'] - 2.0 or c['t0'] >= ca['t1'] + 2.0)]
+        piv.sort(key=lambda i: -clauses[i]['w'])
+        earn += [(i, clauses[i]['w']) for i in piv[:max(0, MAX_CLOSE.get(aspect, 1) - 1)]]
+    if not earn:
+        return [(clauses[0]['t0'] - 1.0, t_end, 1.0)]
+    segs = []
+    for i, _w in earn:
+        c = clauses[i]
+        # cut in a beat before the clause lands; cut back just after it ends
+        segs.append((max(c['t0'] - 0.10, clauses[i - 1]['t1'] if i else 0.0),
+                     c['t1'] + 0.35, close_s))
+    segs.sort()
+    shots, cur = [], clauses[0]['t0'] - 1.0
+    for t0, t1, s in segs:
+        if t0 > cur:
+            shots.append((cur, t0, 1.0))
+        shots.append((t0, t1, s))
+        cur = t1
+    if cur < t_end:
+        shots.append((cur, t_end, 1.0))
+    return shots
+
+
+def shot_at(shots, t):
+    """Framing at time t — piecewise constant: the cut is instantaneous."""
+    s = 1.0
+    for (t0, t1, sc) in shots:
+        if t < t0:
+            break
+        if t <= t1:
+            s = sc
+    return s
+
+
+def _cut_times(shots):
+    """Moments where the framing actually changes — the boundary between
+    consecutive shot segments (the film's own edges are not cuts)."""
+    return sorted({round(shots[i][1], 3) for i in range(len(shots) - 1)
+                   if shots[i][2] != shots[i + 1][2] and shots[i][1] > 0})
+
+
+def plan(script, words, audio_path, W, H, pres_box, aspect='16:9'):
+    """-> {'clauses': [...], 'shots': [(t0,t1,s)], 'sfx': [...], 'apex': clause, 'heroCount': n}
 
     Film-level grammar, not per-sentence: the whole-script energy envelope picks
     clause ROLES (opener/dev/pivot/apex/close); the apex clause gets the full
     three-act hero treatment while everything co-visible yields to it."""
     if not words:
-        return {'clauses': [], 'camera': [], 'apex': None, 'heroCount': 0}
+        return {'clauses': [], 'shots': [], 'sfx': [], 'apex': None, 'heroCount': 0}
     mean = json.loads(MEAN_PATH.read_text()) if MEAN_PATH.exists() else {
         'intents': [], 'defaultIntent': 'explain', 'questionIntent': 'question'}
     stress = _stress(words, audio_path)
@@ -224,40 +288,16 @@ def plan(script, words, audio_path, W, H, pres_box):
             last_hero_t = c['t0']
         if c['hero'] is not None:
             c['amp'] = max(0.7, min(1.6, E[c['hero']] / (sum(E) / max(1, len(E)) + 1e-6)))
+        if c['role'] != 'apex':
+            c['hero'] = None  # heroes are a once-per-film privilege: the apex only
 
-    # camera: clause-role driven — apex pushes hardest, the clause before it
-    # holds still (dead air makes the payoff land), openers whip or settle,
-    # closes settle and the frame never lands anywhere
-    cam = []
-    for i, c in enumerate(clauses):
-        shot = INTENT_SHOTS.get(c['intent'], INTENT_SHOTS['explain'])
-        if c['role'] == 'apex':
-            cam.append((c['t0'] - 0.3, c['t1'], 1.0, 1.13, 'push'))
-        elif apex_i is not None and i == apex_i - 1:
-            cam.append((c['t0'] - 0.15, c['t1'] + 0.25, 1.03, 1.0, 'hold'))  # let it breathe
-        elif c['role'] == 'opener' and shot['camera'] == 'whip':
-            cam.append((c['t0'] - 0.05, c['t0'] + 1.1, 1.18, 1.0, 'whip'))
-        elif shot['camera'] == 'push':
-            cam.append((c['t0'] - 0.25, c['t1'], 1.0, 1.08, 'push'))
-        else:
-            cam.append((c['t0'] - 0.15, c['t1'], 1.05, 1.0, 'settle'))
-    cam.sort(key=lambda x: x[0])
+    # shot-size cuts: the apex earns the punch-in, at most one strong pivot
+    # joins it. Everything else holds at medium — stillness is what makes the
+    # cut mean something (no smooth zoom: a crop can't fake a lens).
+    shots = _shots(clauses, apex_i, aspect, words)
     apex = clauses[apex_i] if apex_i is not None else None
-    return {'clauses': clauses, 'camera': cam, 'apex': apex,
+    sfx = [{'t': t, 'kind': 'whoosh'} for t in _cut_times(shots)]
+    if apex is not None and apex.get('hero') is not None:
+        sfx.append({'t': words[apex['hero']]['start'], 'kind': 'thump'})
+    return {'clauses': clauses, 'shots': shots, 'sfx': sfx, 'apex': apex,
             'heroCount': sum(1 for c in clauses if c['hero'] is not None)}
-
-def camera_at(camera, t):
-    """Frame scale at time t: eases between segment endpoints; between segments
-    the frame keeps a slow creep so it never lands (1.0 -> 1.03 drift)."""
-    s = 1.0
-    for (t0, t1, s0, s1, mode) in camera:
-        if t < t0:
-            break
-        if t <= t1:
-            u = (t - t0) / max(0.01, t1 - t0)
-            e = 1 - (1 - u) ** 3 if mode == 'whip' else u * u * (3 - 2 * u)
-            s = s0 + (s1 - s0) * e
-        else:
-            # after the segment ends it keeps breathing at ~3% per clause length
-            s = s1 + min(0.03, (t - t1) * 0.012)
-    return s

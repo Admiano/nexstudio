@@ -10,7 +10,7 @@ Frames are RGBA presenter renders (0001.png ...). Captions reuse the approved
 kinetic-type renderer with inline icons: one short line at the bottom. The promo is off unless
 --promo is given and appears once, briefly, away from the opening and close.
 """
-import argparse, json, math, os, subprocess, sys
+import argparse, array, json, math, os, random, subprocess, sys, wave
 import presenter_visuals as pv
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -65,16 +65,19 @@ FPS_REVEAL = 15  # caption reveals quantise to 15fps — text steps in like kine
 
 
 class Cine:
-    """Cinematic caption layer — director-planned, never templated.
+    """Cinematic caption layer — broadcast-controlled, never templated.
 
-    Behind the presenter (the 'world' layer, camera-zoomed with the bg):
-      - clause words at depth tiers 'mid'/'far' — appear word-by-word on the
-        MFA clock (15fps quantised, ghost trail); far tier reads smaller/fainter
-      - 'hero' words: masthead-sized cards crossing the head line, occluded by
-        the presenter — emphasis earned by intent + stress, not decoration
-    Front layer (screen-space, sharp): opening 'front' tier only.
-    Camera S(t) from the plan scales the world (bg+behind text) more than the
-    presenter — parallax between the planes is what reads as a dolly.
+    Composition model, differentiated per aspect:
+      - ONE anchored caption band per aspect: 16:9 sits in the empty lower
+        field beside the right-third presenter; 1:1 is a centered bottom
+        band; 9:16 rides the chest zone (the presenter owns the floor)
+      - karaoke sweep: the ACTIVE word pops in accent at 1.12x; sung words
+        settle to neutral (KTV convention), all on the MFA clock
+      - heroes are a once-per-film privilege: the apex word only, behind
+        the head, letter-by-letter, held briefly then gone
+      - framing is a shot-size CUT grammar, not a zoom: medium holds, then
+        the frame hard-cuts to a close crop on the face for the apex (and
+        at most one strong pivot), then cuts back. Piecewise constant.
     """
 
     def __init__(self, ktr, words, script, audio, W, H, aspect, pres, accent):
@@ -82,60 +85,69 @@ class Cine:
         self.dp = dp
         self.W, self.H, self.aspect, self.pres = W, H, aspect, pres
         self.accent = accent
-        self.plan = dp.plan(script, words, audio, W, H, pres)
-        # text zone per aspect: the field the presenter does NOT occupy
-        if aspect == '16:9':
-            self.zone = (int(W * 0.045), int(H * 0.20), pres[0] - 60, int(H * 0.62))
+        self.plan = dp.plan(script, words, audio, W, H, pres, aspect)
+        # caption band per aspect — anchored differently on purpose:
+        # 16:9 lives in the lower field beside the right-third presenter,
+        # 1:1 centers at the bottom, 9:16 rides the chest zone above the fold
+        if aspect == '9:16':
+            self.band = (int(W * 0.07), int(H * 0.56), int(W * 0.93), int(H * 0.72))
         elif aspect == '1:1':
-            self.zone = (int(W * 0.08), int(H * 0.10), int(W * 0.92), int(H * 0.34))
+            self.band = (int(W * 0.06), int(H * 0.76), int(W * 0.94), int(H * 0.93))
         else:
-            self.zone = (int(W * 0.07), int(H * 0.08), int(W * 0.93), int(H * 0.30))
+            right = max(int(W * 0.52), pres[0] - int(W * 0.02))
+            self.band = (int(W * 0.05), int(H * 0.74), right, int(H * 0.93))
+        # punch-in focus: the face zone of the presenter box
+        self.focus = (pres[0] + pres[2] * 0.5, pres[1] + pres[3] * 0.16)
         self.clauses = []
         self.heroes = []
-        zw = max(200, self.zone[2] - self.zone[0])
-        # word strips: pre-render each word once; per frame is blit-only
+        bw = max(200, self.band[2] - self.band[0])
+        size = int(H * (0.046 if aspect == '9:16' else 0.055))
         for c in self.plan['clauses']:
-            size = int(H * (0.052 if c['depth'] == 'far' else 0.068))
-            for _ in range(3):
-                ws, x = [], 0
+            for _ in range(4):
+                fnt = font(True, size, ktr)
+                # wrap the clause into <=2 centered lines at fixed size
+                lines, cur, cx = [], [], 0
                 for w in c['words']:
-                    # kinetic weight: the speaker's measured stress sizes the word —
-                    # louder beats land bigger, quiet words yield
-                    wscale = max(0.8, min(1.45, 1.0 + 0.35 * (w.get('stress', 1.0) - 1.0)))
-                    fnt = font(True, int(size * wscale), ktr)
                     img = self._word(w['word'], fnt, accent=None)
-                    ws.append((img, x, w['start']))
-                    x += img.width + int(size * 0.28)
-                if x <= zw or size < H * 0.03:
+                    img_a = self._word(w['word'], fnt, accent=accent)
+                    if cur and cx + img.width > bw:
+                        lines.append(cur)
+                        cur, cx = [], 0
+                    cur.append({'w': w, 'img': img, 'img_a': img_a, 'x': cx, 'ww': img.width})
+                    cx += img.width + int(size * 0.26)
+                lines.append(cur)
+                if len(lines) <= 2 or size < H * 0.032:
                     break
-                size = max(int(H * 0.03), int(size * zw * 0.95 / x))  # fit the field, never clip
-            c['strip'] = ws
-            c['w'] = min(x, zw)
-            c['size'] = size
+                size = max(int(H * 0.032), int(size * 0.9))  # fit the band, never clip
+            # absolute positions: block centered horizontally, lines stacked
+            lh = int(size * 1.3)
+            by = self.band[1] + (self.band[3] - self.band[1] - lh * len(lines)) // 2
+            placed = []
+            for li, line in enumerate(lines):
+                lw = line[-1]['x'] + line[-1]['ww'] if line else 0
+                lx = self.band[0] + (bw - lw) // 2
+                for it in line:
+                    placed.append({**it, 'X': lx + it['x'], 'Y': by + li * lh})
+            c['placed'] = placed
             self.clauses.append(c)
             if c['hero'] is not None:
                 hw = words[c['hero']]['word']
-                hf = font(True, int(H * 0.16), ktr)
+                hf = font(True, int(H * 0.105), ktr)  # restrained: ~10% of frame
                 him = self._word(hw, hf, accent=accent)
-                tw = min(int(W * 0.62), int(pres[2] * 2.4))
+                tw = min(int(W * 0.44), int(pres[2] * 1.7))
                 if him.width > tw:
                     him = him.resize((tw, max(1, int(him.height * tw / him.width))), Image.LANCZOS)
-                him = him.filter(ImageFilter.GaussianBlur(0.9))
-                # apex heroes reveal per-letter and carry a heat glow; minor
-                # heroes are emphasis-plus — quiet by design, that's the apex's job
-                letters = None
-                glow = None
-                if not c['minor']:
-                    letters = self._letters(hw, hf, accent, tw)
-                    glow = him.copy().filter(ImageFilter.GaussianBlur(14))
-                    ga = glow.getchannel('A').point(lambda v: int(v * 0.55))
-                    tinted = Image.new('RGBA', glow.size, (accent[0], accent[1], accent[2], 0))
-                    tinted.putalpha(ga)
-                    glow = tinted
-                self.heroes.append({'img': him, 'letters': letters, 'glow': glow,
-                                    't0': words[c['hero']]['start'], 't1': c['t1'] + 0.9,
+                him = him.filter(ImageFilter.GaussianBlur(1.1))
+                letters = self._letters(hw, hf, accent, tw)
+                glow = him.copy().filter(ImageFilter.GaussianBlur(12))
+                ga = glow.getchannel('A').point(lambda v: int(v * 0.4))
+                tinted = Image.new('RGBA', glow.size, (accent[0], accent[1], accent[2], 0))
+                tinted.putalpha(ga)
+                self.heroes.append({'img': him, 'letters': letters, 'glow': tinted,
+                                    't0': words[c['hero']]['start'], 't1': words[c['hero']]['end'] + 0.9,
                                     'entrance': c['entrance'], 'amp': c.get('amp', 1.0),
-                                    'minor': c['minor'], 'apex': c['role'] == 'apex'})
+                                    'minor': False, 'apex': True})
+
     def _word(self, word, fnt, accent):
         tmp = Image.new('RGBA', (10, 10), (0, 0, 0, 0))
         d = ImageDraw.Draw(tmp)
@@ -145,18 +157,16 @@ class Cine:
         img = Image.new('RGBA', (w, h), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         edge = (accent[0], accent[1], accent[2], 255) if accent else (16, 16, 26, 230)
-        d.text((8 - bbox[0], 8 - bbox[1]), word, font=fnt, fill=(250, 250, 252, 255),
+        fill = (250, 250, 252, 255) if not accent else (255, 255, 255, 255)
+        d.text((8 - bbox[0], 8 - bbox[1]), word, font=fnt, fill=fill,
                stroke_width=sw, stroke_fill=edge)
         return img
 
     def _letters(self, word, fnt, accent, maxw):
-        """Apex hero per-letter strips: same glyph recipe, one image per letter,
-        x-offsets from the font's own advances."""
         sw = max(1, fnt.size // 14)
         tmp = Image.new('RGBA', (10, 10), (0, 0, 0, 0))
         d = ImageDraw.Draw(tmp)
         letters, x = [], 0
-        scale = 1.0
         for ch in word:
             bbox = d.textbbox((0, 0), ch, font=fnt, stroke_width=sw)
             w, h = bbox[2] - bbox[0] + 16, bbox[3] - bbox[1] + 16
@@ -173,150 +183,108 @@ class Cine:
             x = maxw
         return {'letters': letters, 'w': x, 'h': letters[0][0].height if letters else 0}
 
-    def camera_at(self, t):
-        return self.dp.camera_at(self.plan['camera'], t)
-
-    def _zone_xy(self, c):
-        x0, y0, x1, y1 = self.zone
-        w = c['w']
-        if self.aspect == '16:9':
-            x = x0
-            y = y0 + (c['clause'] % 3) * int(self.H * 0.11)
-        else:
-            x = max(x0, min(x1 - w, (x0 + x1 - w) // 2))
-            y = y0 + (c['clause'] % 2) * int(self.H * 0.09)
-        return int(x), int(y)
-
-    PARALLAX = {'far': 0.45, 'mid': 0.75, 'front': 1.15, 'near': 1.0}
+    def shot_at(self, t):
+        """Framing at t — piecewise constant; returns (scale, focus_x, focus_y).
+        The close framing is a crop centred on the face, clamped inside frame."""
+        s = self.dp.shot_at(self.plan['shots'], t)
+        if s <= 1.001:
+            return 1.0, self.W / 2, self.H / 2
+        cw, ch = self.W / s, self.H / s
+        fx = max(cw / 2, min(self.W - cw / 2, self.focus[0]))
+        fy = max(ch / 2, min(self.H - ch / 2, self.focus[1]))
+        return s, fx, fy
 
     def _clause_alpha(self, c, t):
-        end = c['t1'] + 0.85
-        # let it breathe: the beat before the apex exits early — dead air
-        # makes the payoff land instead of competing with it
+        end = c['t1'] + 0.55
         apex = self.plan.get('apex')
-        if apex is not None and c is not apex and c['t1'] <= apex['t0'] and c['t1'] + 0.85 > apex['t0'] - 0.25:
-            end = apex['t0'] - 0.25
-        if t < c['t0'] - 0.15 or t > end:
+        if apex is not None and c is not apex and c['t1'] <= apex['t0'] and c['t1'] + 0.55 > apex['t0'] - 0.2:
+            end = apex['t0'] - 0.2  # dead air: the band clears before the payoff
+        if t < c['t0'] - 0.1 or t > end:
             return 0.0
-        a = min(1.0, max(0.0, (t - (c['t0'] - 0.15)) / 0.25))
-        if t > end - 0.4:
-            a *= max(0.0, 1.0 - (t - (end - 0.4)) / 0.4)
+        a = min(1.0, max(0.0, (t - (c['t0'] - 0.1)) / 0.22))
+        if t > end - 0.28:
+            a *= max(0.0, 1.0 - (t - (end - 0.28)) / 0.28)
         return a
 
-    def _dim(self, t):
-        """Act 1 SETUP: everything co-visible yields to an incoming apex hero —
-        dims to 0.42 starting 0.35s before it lands (the room makes space)."""
-        for h in self.heroes:
-            if h['minor']:
-                continue
-            if h['t0'] - 0.35 <= t <= h['t1'] - 0.55:
-                u = min(1.0, (t - (h['t0'] - 0.35)) / 0.3)
-                return 1.0 - 0.58 * min(1.0, max(0.0, u))
-        return 1.0
-
-    def _ripple(self, t):
-        """Impact ripple: an apex hero's landing bumps co-visible captions —
-        captions only, the footage never moves."""
-        dy = 0
-        for h in self.heroes:
-            if h['minor']:
-                continue
-            dt = t - h['t0']
-            if 0.04 <= dt <= 0.25:
-                dy += int(9 * h['amp'] * math.sin(min(1.0, (dt - 0.04) / 0.21) * math.pi))
-        return dy
-
     def behind(self, img, t):
-        """World-layer text drawn onto the bg BEFORE the presenter is pasted."""
-        cam = self.camera_at(t)
-        dim = self._dim(t)
-        rip = self._ripple(t)
-        for c in self.clauses:
-            if c['depth'] == 'front':
-                continue
-            a = self._clause_alpha(c, t) * dim
-            if a <= 0:
-                continue
-            # parallax: nearer caption planes drift farther under the same push
-            pg = self.PARALLAX.get(c['depth'], 0.75)
-            dy = rip + int((cam - 1.0) * pg * (self.H * 0.5 - self._zone_xy(c)[1]) * 0.55)
-            self._draw_clause(img, c, t, a, dy)
+        """World layer: ONLY the apex hero — one per film, behind the head."""
         px, py, pw, ph = self.pres
         for h in self.heroes:
             if h['t0'] - 0.05 <= t <= h['t1']:
-                self._draw_hero(img, h, t, px, py, pw, ph, cam)
+                self._draw_hero(img, h, t, px, py, pw, ph)
 
     def front(self, img, t):
+        """Screen layer: the karaoke band, on top of everything, always sharp."""
         for c in self.clauses:
-            if c['depth'] != 'front':
+            a = self._clause_alpha(c, t)
+            if a <= 0:
                 continue
-            a = self._clause_alpha(c, t) * self._dim(t)
-            if a > 0:
-                self._draw_clause(img, c, t, a, self._ripple(t))
+            for it in c['placed']:
+                w = it['w']
+                if t < w['start'] - 0.02:
+                    continue  # unspoken words never pre-show
+                active = w['start'] <= t < w['end']
+                if active:
+                    s = 1.12  # uniform pop for every active word — controlled,
+                    it2 = it['img_a']  # the hero carries the apex emphasis
+                else:
+                    s = 1.0
+                    it2 = it['img']  # sung words settle neutral — KTV sweep
+                if s > 1.0:
+                    sw2, sh2 = int(it2.width * s), int(it2.height * s)
+                    it2 = it2.resize((sw2, sh2), Image.LANCZOS)
+                    self._blit_a(img, it2, int(it['X'] - (sw2 - it['img'].width) / 2),
+                                 int(it['Y'] - (sh2 - it['img'].height) / 2), a)
+                else:
+                    self._blit_a(img, it2, it['X'], it['Y'], a)
 
     def _hero_state(self, h, t):
-        """Act 2 IMPACT: entrance transform by type, amplitude ∝ loudness.
-        Act 3 AFTERGLOW: one slow breathe until exit — deterministic, no loops."""
         amp = h['amp']
         ent = h['entrance']
-        dur = {'slam': 0.16, 'settle': 0.50, 'rise': 0.60, 'streak': 0.28}.get(ent, 0.55)
-        s0 = {'slam': 1 + 0.22 * amp, 'settle': 1 + 0.10 * amp, 'emergence': max(0.74, 1 - 0.18 * amp)}.get(ent, 1.0)
+        dur = {'slam': 0.18, 'settle': 0.50, 'rise': 0.60, 'streak': 0.28}.get(ent, 0.55)
+        s0 = {'slam': 1 + 0.16 * amp, 'settle': 1 + 0.08 * amp, 'emergence': max(0.8, 1 - 0.14 * amp)}.get(ent, 1.0)
         u = min(1.0, max(0.0, (t - h['t0']) / dur))
-        e = 1 - (1 - u) ** 3  # expo.out
+        e = 1 - (1 - u) ** 3
         s = s0 + (1 - s0) * e
-        dx = int(-90 * amp * (1 - e)) if ent == 'streak' else 0
-        dy = int(22 * amp * (1 - e)) if ent == 'rise' else 0
-        if u >= 1.0 and t <= h['t1'] - 0.4:  # afterglow breathe, capped +2%
-            s *= 1.0 + min(0.02, (t - h['t0'] - dur) * 0.008)
+        dx = int(-60 * amp * (1 - e)) if ent == 'streak' else 0
+        dy = int(18 * amp * (1 - e)) if ent == 'rise' else 0
         a = 1.0
         if t < h['t0']:
             a = 0.0
-        elif t > h['t1'] - 0.4:
-            a = max(0.0, (h['t1'] - t) / 0.4)
-        return s, dx, dy, a
+        elif t > h['t1'] - 0.35:
+            a = max(0.0, (h['t1'] - t) / 0.35)
+        return s, dx, dy, a * 0.92
 
-    def _draw_hero(self, img, h, t, px, py, pw, ph, cam):
+    def _draw_hero(self, img, h, t, px, py, pw, ph):
         s, dx, dy, a = self._hero_state(h, t)
         if a <= 0:
             return
         base = h['img']
         sw, sh = max(1, int(base.width * s)), max(1, int(base.height * s))
-        him = base if abs(s - 1.0) < 0.01 else base.resize((sw, sh), Image.LANCZOS)
         x = int(px + pw / 2 - sw / 2) + dx
         x = max(int(self.W * 0.02), min(int(self.W * 0.98) - sw, x))
-        y = int(py + ph * 0.14) + dy - int((sh - base.height) / 2)
+        y = int(py + ph * 0.08) + dy - int((sh - base.height) / 2)
         if h['glow'] is not None:
-            ga = min(0.5, h['amp'] * 0.5) * (0.0 if t < h['t0'] else min(1.0, (t - h['t0']) / (0.3 if h['entrance'] == 'slam' else 0.5)))
-            if t > h['t1'] - 0.5:
-                ga *= max(0.0, (h['t1'] - t) / 0.5)
+            ga = min(0.4, h['amp'] * 0.4) * (0.0 if t < h['t0'] else min(1.0, (t - h['t0']) / 0.45))
+            if t > h['t1'] - 0.45:
+                ga *= max(0.0, (h['t1'] - t) / 0.45)
             if ga > 0.02:
                 g = h['glow'] if abs(s - 1.0) < 0.01 else h['glow'].resize((sw, sh), Image.LANCZOS)
                 self._blit_a(img, g, x, y, ga)
         if h['letters'] is not None:
             for li, (limg, xo, ch) in enumerate(h['letters']['letters']):
-                lat = h['t0'] + li * 0.045  # per-letter stagger, ~1 frame at 24fps
+                lat = h['t0'] + li * 0.04
                 if t < lat:
                     continue
                 age = t - lat
-                pop = 1.06 if age < 0.09 else 1.0  # two-frame pop before settle
+                pop = 1.05 if age < 0.08 else 1.0
                 lw = max(1, int(limg.width * s * pop))
                 lh = max(1, int(limg.height * s * pop))
                 li_img = limg.resize((lw, lh), Image.LANCZOS) if (lw, lh) != limg.size else limg
-                self._blit_a(img, li_img, int(x + xo * s), int(y + (0.1 * lh if age < 0.09 else 0)), a)
-        else:
-            self._blit_a(img, him, x, y, a)
+                self._blit_a(img, li_img, int(x + xo * s), int(y + (0.1 * lh if age < 0.08 else 0)), a)
 
     def _draw_clause(self, img, c, t, a, dy=0):
-        x, y = self._zone_xy(c)
-        y += dy
-        for wimg, wx, wstart in c['strip']:
-            qt = math.floor(wstart * FPS_REVEAL) / FPS_REVEAL  # 15fps step-in
-            if t < qt:
-                continue
-            age = t - qt
-            self._blit_a(img, wimg, x + wx, y, a)
-            if age < 0.13:  # ghost trail: the word's previous step lags behind
-                self._blit_a(img, wimg, x + wx + int(c['size'] * 0.4), y, a * 0.22)
+        pass  # band model: clauses draw through front(), kept for API compat
 
     @staticmethod
     def _blit_a(img, strip, x, y, a):
@@ -422,6 +390,48 @@ class Captions:
         pill = img.crop((x, 0, x + pw, self.h)).convert('RGBA')
         pill.putalpha(card((pw, self.h), self.h // 2).point(lambda v: int(v * 0.94)))
         return pill, x
+
+
+def sfx_bed(events, dur, path):
+    """Quiet cut-sound bed under the voice: a soft whoosh on every framing
+    change and a low thump where the apex hero lands. Pure-python synth,
+    mono 22050 Hz — kept well under the narration level."""
+    sr = 22050
+    buf = [0.0] * int(dur * sr)
+    n = len(buf)
+
+    def hann(i, L):
+        return 0.5 - 0.5 * math.cos(2 * math.pi * i / max(1, L))
+
+    for ev in events:
+        start = int(ev['t'] * sr)
+        if ev['kind'] == 'thump':
+            L = int(0.34 * sr)
+            for i in range(L):
+                t2 = i / sr
+                v = (math.sin(2 * math.pi * 58 * t2) * math.exp(-t2 * 13.0)
+                     + 0.4 * math.sin(2 * math.pi * 116 * t2) * math.exp(-t2 * 22.0))
+                k = start + i
+                if 0 <= k < n:
+                    buf[k] += v * 0.30 * hann(i, L)
+        else:  # whoosh — brown-ish noise under a hann window
+            L = int(0.26 * sr)
+            x = 0.0
+            for i in range(L):
+                x = x * 0.965 + random.gauss(0.0, 0.055)
+                k = start + i
+                if 0 <= k < n:
+                    buf[k] += x * hann(i, L)
+    pk = max(1e-6, max(abs(v) for v in buf))
+    g = min(1.0, 0.32 / pk)  # stay under the voice
+    data = array.array('h', (int(max(-1.0, min(1.0, v * g)) * 32000) for v in buf))
+    wv = wave.open(str(path), 'wb')
+    wv.setnchannels(1)
+    wv.setsampwidth(2)
+    wv.setframerate(sr)
+    wv.writeframes(data.tobytes())
+    wv.close()
+    return path
 
 
 def card(size, radius):
@@ -585,11 +595,12 @@ def main():
         cine = Cine(ktr, words, script, a.audio, W, H, a.aspect, pres, accent)
         # P8 evidence: the shot plan this render actually executed
         Path(a.out).with_suffix('.director.json').write_text(json.dumps({
-            'authority': 'director_plan_v1', 'aspect': a.aspect,
-            'clauses': [{'t0': c['t0'], 't1': c['t1'], 'intent': c['intent'], 'depth': c['depth'],
+            'authority': 'director_plan_v2', 'aspect': a.aspect,
+            'clauses': [{'t0': c['t0'], 't1': c['t1'], 'intent': c['intent'], 'role': c.get('role'),
                          'hero': (words[c['hero']]['word'] if c['hero'] is not None else None),
                          'words': [w['word'] for w in c['words']]} for c in cine.plan['clauses']],
-            'camera': cine.plan['camera'], 'heroCount': cine.plan['heroCount']}, indent=1))
+            'shots': cine.plan['shots'], 'sfx': cine.plan['sfx'],
+            'heroCount': cine.plan['heroCount']}, indent=1))
     cards = None
     if a.icons == 'auto' and not a.lesson:
         taken = {pv.norm(c['words'][c['icon']['word']]['word']) for c in caps.chunks if c.get('icon')}
@@ -601,11 +612,18 @@ def main():
     at = a.promo_at if a.promo_at is not None else max(1.5, min(dur * 0.35, dur - a.promo_seconds - 2.0))
     if a.promo and not a.promo_name.strip():
         sys.exit('PROMO_NAME_REQUIRED')
-    enc = subprocess.Popen(['ffmpeg', '-loglevel', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24',
-                            '-s', f'{W}x{H}', '-r', str(a.fps), '-i', '-', '-i', a.audio,
-                            '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p',
-                            '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', a.out],
-                           stdin=subprocess.PIPE)
+    bed = None
+    if cine and cine.plan.get('sfx'):
+        bed = sfx_bed(cine.plan['sfx'], dur + 0.5, str(Path(a.out).with_suffix('.sfx.wav')))
+    cmd = ['ffmpeg', '-loglevel', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24',
+           '-s', f'{W}x{H}', '-r', str(a.fps), '-i', '-', '-i', a.audio]
+    if bed:
+        cmd += ['-i', bed,
+                '-filter_complex', '[1:a][2:a]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[aout]',
+                '-map', '0:v', '-map', '[aout]']
+    cmd += ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p',
+            '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', a.out]
+    enc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for i, fp in enumerate(frames):
         t = i / a.fps
         if vbg is not None:
@@ -615,24 +633,19 @@ def main():
             fr = fr.copy()
         else:
             fr = bg.copy()
-        s = cine.camera_at(t) if cine else 1.0
         if cine:
-            # world plane: bg + behind-the-presenter text, pushed by the camera;
-            # the presenter zooms less (0.55x) — that plane gap reads as a dolly
-            cine.behind(fr, t)
+            cine.behind(fr, t)  # apex hero lives in the world, behind the head
+        p = Image.open(fp).convert('RGBA').resize((pres[2], pres[3]), Image.LANCZOS)
+        fr.alpha_composite(p, (pres[0], pres[1]))
+        if cine:
+            # shot-size cut: piecewise-constant framing — crop the composite
+            # around the face and blow it back up. Instant, no easing.
+            s, fx, fy = cine.shot_at(t)
             if s > 1.001:
-                sw, sh = round(W * s), round(H * s)
-                fr = fr.resize((sw, sh), Image.LANCZOS).crop(((sw - W) // 2, (sh - H) // 2, (sw + W) // 2, (sh + H) // 2))
-            pscale = 1.0 + (s - 1.0) * 0.55
-        else:
-            pscale = 1.0
-        pw2, ph2 = round(pres[2] * pscale), round(pres[3] * pscale)
-        px2 = round(pres[0] + pres[2] / 2 - pw2 / 2)
-        py2 = pres[1] + pres[3] - ph2  # feet anchored — the camera moves, he doesn't slide
-        p = Image.open(fp).convert('RGBA').resize((pw2, ph2), Image.LANCZOS)
-        fr.alpha_composite(p, (px2, py2))
-        if cine:
-            cine.front(fr, t)
+                cw, ch = round(W / s), round(H / s)
+                x0, y0 = round(fx - cw / 2), round(fy - ch / 2)
+                fr = fr.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.LANCZOS)
+            cine.front(fr, t)  # captions live in UI space — they don't crop
         if cards is not None:
             fr = cards.draw(fr, t)
         c, cx = (None, 0) if (a.lesson or cine) else caps.frame(t)
