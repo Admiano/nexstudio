@@ -2,6 +2,7 @@ import path from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import { requireSession } from "@/lib/route-auth";
 import { problem } from "@/lib/http";
+import { resolveOutputFile } from "@/lib/storage";
 import { engineJobsDir } from "@/lib/engine-jobs";
 
 export const runtime = "nodejs";
@@ -17,10 +18,12 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   if (req.userId !== auth.session!.userId)
     return problem(auth.id, 404, "JOB_NOT_FOUND", "Presenter job not found", "No presenter job with that id exists.");
   const base = path.basename(name);
-  const file = path.join(dir, "files", base);
-  if (!/^[\w.-]+\.mp4$/.test(base) || !existsSync(file))
+  const resolved = await resolveOutputFile(dir, "presenter", id, name);
+  if (!resolved)
     return problem(auth.id, 404, "FILE_NOT_FOUND", "Output not found", "That output file does not exist for this job.");
-  return new Response(readFileSync(file), {
+  if (resolved.kind === "redirect")
+    return Response.redirect(resolved.url, 302);
+  return new Response(readFileSync(resolved.filePath), {
     headers: { "content-type": "video/mp4", "cache-control": "private, no-store",
                "content-disposition": `inline; filename="${base}"` },
   });

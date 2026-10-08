@@ -12,7 +12,7 @@ function engineDir(kind: EngineKind): string {
     return process.env.PRESENTER_ENGINE_DIR ?? path.join(process.cwd(), "engine_sources", "makehuman-lineart");
   return kind === "whiteboard"
     ? (process.env.WHITEBOARD_V3_RUNTIME_DIR ?? path.join(process.cwd(), "engine_sources", "whiteboard-v3-runtime"))
-    : (process.env.EXPLAINER_ENGINE_DIR ?? path.join(process.cwd(), "engine_sources", "editorial-motion-v2"));
+    : (process.env.EXPLAINER_ENGINE_DIR ?? path.join(process.cwd(), "engine_sources", "explainer-locks"));
 }
 
 export function engineJobsDir(kind: EngineKind): string {

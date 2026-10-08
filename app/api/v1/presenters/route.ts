@@ -1,12 +1,11 @@
 import path from "node:path";
-import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
 import { getPrisma } from "@/lib/db";
-import { createEngineDraft, engineJobsDir, registerCastScope, renderCapacity, runningEngineJobs } from "@/lib/engine-jobs";
+import { createEngineDraft, engineJobsDir, registerCastScope, runningEngineJobs } from "@/lib/engine-jobs";
+import { renderInFlightLimit, submitRenderJob } from "@/lib/render-queue";
 import { castRenderConfig } from "@/studio-v2/cast/render-config";
 import { normalizeCastSpec, type CastSpec } from "@/studio-v2/cast/spec";
 import { ENVIRONMENTS } from "@/studio-v2/cast/environments";
@@ -85,7 +84,7 @@ export async function POST(request: Request) {
       return problem(id, 422, "PROMO_IMAGE", "Promotion image not supported", "Upload a PNG, JPEG or WebP image up to 5 MB.");
   }
 
-  if (runningEngineJobs() >= renderCapacity())
+  if (runningEngineJobs() >= renderInFlightLimit())
     return problem(id, 429, "RENDER_AT_CAPACITY", "The render floor is full right now", "A few renders are already running. Try again in a minute. Your script and choices are saved.");
 
   const jobId = `pr-${randomUUID().slice(0, 8)}`;
@@ -132,14 +131,7 @@ export async function POST(request: Request) {
     } },
   }, null, 1));
 
-  const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
-  const child = spawn(process.env.PYTHON_BIN ?? "python3", [
-    path.join(process.cwd(), "services", "studio-family-engines", "site_job_runner.py"), dir,
-  ], {
-    cwd: process.cwd(), detached: true, stdio: "ignore",
-    env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}` },
-  });
-  child.unref();
+  await submitRenderJob({ jobId, dir, family: "presenter" });
 
   try {
     await createEngineDraft({

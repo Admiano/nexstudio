@@ -28,9 +28,12 @@
     "test:trust-real-db": "tsx tests/trust-commerce/real_db_adversarial_test.ts",
     "worker:cast": "python3 scripts/cast-preview-worker.py --watch",
     "cast:assets": "python3 scripts/install-cast-assets.py",
-    "test:cast": "node --import tsx tests/cast-render-config.test.ts && node --import tsx tests/cast-preview-queue.test.ts && node --import tsx tests/cast-live3d-parts.test.ts && python3 tests/cast-preview-worker.test.py"
+    "test:cast": "node --import tsx tests/cast-render-config.test.ts && node --import tsx tests/cast-preview-queue.test.ts && node --import tsx tests/cast-live3d-parts.test.ts && python3 tests/cast-preview-worker.test.py",
+    "worker:renders": "tsx scripts/render-worker.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1147.0",
+    "@aws-sdk/s3-request-presigner": "^3.1147.0",
     "@hyperframes/core": "0.7.56",
     "@hyperframes/lint": "0.7.56",
     "@hyperframes/player": "0.7.56",
@@ -47,6 +50,7 @@
     "next": "16.2.10",
     "ogl": "1.0.11",
     "pg": "8.22.0",
+    "pg-boss": "^12.37.0",
     "playwright-core": "1.61.1",
     "react": "19.2.7",
     "react-dom": "19.2.7",
@@ -61,6 +65,7 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@types/three": "0.186.0",
+    "esbuild": "^0.28.2",
     "prisma": "7.8.0",
     "typescript": "5.9.3"
   },

@@ -1,12 +1,11 @@
 import path from "node:path";
-import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
 import { getPrisma } from "@/lib/db";
-import { createEngineDraft, registerCastScope, renderCapacity, runningEngineJobs } from "@/lib/engine-jobs";
+import { createEngineDraft, registerCastScope, runningEngineJobs } from "@/lib/engine-jobs";
+import { renderInFlightLimit, submitRenderJob } from "@/lib/render-queue";
 
 export const runtime = "nodejs";
 
@@ -75,7 +74,7 @@ export async function POST(request: Request) {
   if (speedRaw && (!Number.isFinite(speedRaw) || speedRaw < 0.7 || speedRaw > 1.5))
     return problem(id, 422, "SPEED_RANGE", "Invalid speed", "Narration speed must be 0.7 to 1.5×.");
 
-  if (runningEngineJobs() >= renderCapacity())
+  if (runningEngineJobs() >= renderInFlightLimit())
     return problem(id, 429, "RENDER_AT_CAPACITY", "The render floor is full right now", "A few renders are already running. Try again in a minute. Your brief and direction are saved.");
 
   const jobId = `wb-${randomUUID().slice(0, 8)}`;
@@ -125,14 +124,7 @@ export async function POST(request: Request) {
     },
   }, null, 1));
 
-  const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
-  const child = spawn("python3", [
-    path.join(process.cwd(), "services", "studio-family-engines", "site_job_runner.py"), dir,
-  ], {
-    cwd: process.cwd(), detached: true, stdio: "ignore",
-    env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}` },
-  });
-  child.unref();
+  await submitRenderJob({ jobId, dir, family: "whiteboard" });
 
   // Jobs are work items — surface them in Work alongside real productions.
   try {
