@@ -34,6 +34,19 @@ Three long-running services, all from one Docker image:
   (pg-boss). No external service needed.
 - **volumes** — job outputs stay on disk (or move to S3 — see §8).
 
+### What users get
+
+- **Presenter videos** — 20 studio cast presets (10 female, 10 male) plus a
+  user's own saved characters; 10 environments; Microsoft voices. The
+  **Direction** options on the presenter flow: *Director cuts* (punch-in
+  cuts, a hero word behind the character, a quiet whoosh/thump sound bed —
+  on by default, off = clean captions only) and *Infographics* (hand-drawn
+  icon discs on emphasis beats — off by default). Portrait renders ship
+  clean framing; landscape centers the presenter.
+- **Whiteboard, explainer, kids' lesson** — the certified 12-subtype set,
+  all dispatched through P8's fail-closed registry with a sha256'd result
+  envelope per job.
+
 One machine can run all three. Split them when you outgrow it — §9.
 
 ---
@@ -272,6 +285,20 @@ keep old videos downloadable. Skip both for a clean launch.
 ---
 
 ## 13. Verification after go-live
+
+1. Open `https://yourdomain` — the studio loads.
+2. Mint a tester guest pass on the server:
+   `docker compose exec web npx tsx scripts/mint-tester-guest.ts`
+   then open `https://yourdomain/api/v1/auth/guest?token=<token>`.
+3. In the create flow, pick **Presenter** → a studio cast character →
+   a background → leave *Director cuts* on → generate. The worker drains
+   the job; watch `docker compose logs -f worker`.
+4. Confirm the finished video downloads from the library, and the job's
+   `result.json` carries `authorityId: P8_SITE_DISPATCH_V1` plus a
+   `director` block and sha256'd artifacts — that is P8's evidence the
+   render went through the certified path.
+5. Re-run with *Infographics* on to see drawn-on icon discs on emphasis
+   beats; with *Director cuts* off for the clean-captions-only variant.
 
 1. `https://yourdomain` loads, signup works.
 2. Create a whiteboard video (short script, kinetic text) — watch
