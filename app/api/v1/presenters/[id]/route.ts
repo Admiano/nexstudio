@@ -2,7 +2,7 @@ import path from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
-import { engineJobsDir } from "@/lib/engine-jobs";
+import { engineJobsDir, finalizeCastScope } from "@/lib/engine-jobs";
 
 export const runtime = "nodejs";
 
@@ -18,6 +18,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   if (req.userId !== auth.session!.userId) return missing();
   const read = (f: string) => existsSync(path.join(dir, f)) ? JSON.parse(readFileSync(path.join(dir, f), "utf8")) : null;
   const status = read("status.json") ?? { status: "running" };
+  if (status.status === "done" || status.status === "failed") void finalizeCastScope(dir, status.status);
   return json({
     jobId: id, status: status.status, outputs: status.outputs ?? {}, error: status.error, finishedAt: status.finishedAt,
     aspects: req.aspects, createdAt: req.createdAt, progress: read("progress.json"),

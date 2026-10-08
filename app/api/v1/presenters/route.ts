@@ -6,7 +6,7 @@ import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
 import { getPrisma } from "@/lib/db";
-import { createEngineDraft, engineJobsDir, renderCapacity, runningEngineJobs } from "@/lib/engine-jobs";
+import { createEngineDraft, engineJobsDir, registerCastScope, renderCapacity, runningEngineJobs } from "@/lib/engine-jobs";
 import { castRenderConfig } from "@/studio-v2/cast/render-config";
 import { normalizeCastSpec, type CastSpec } from "@/studio-v2/cast/spec";
 import { ENVIRONMENTS } from "@/studio-v2/cast/environments";
@@ -116,9 +116,20 @@ export async function POST(request: Request) {
   // keeps owning the heavy pipeline, the runner records the P8 result envelope.
   const subtype = background === "lesson_board" ? "lesson-board"
     : background === "kids_book" ? "kids-lesson" : "presenter";
+  // Register the render under P8's cast scope: a Production row + cast link so
+  // P8 memory can resolve this character's authority for the job.
+  const castScope = await registerCastScope({
+    ownerUserId: auth.session!.userId,
+    member: { id: member.id, name: member.name, identityKey: member.identityKey, spec: member.spec },
+    jobId, kind: "presenter", subtype,
+    title: script.split("\n")[0]?.split(/\s+/).slice(0, 8).join(" ") || member.name,
+  }).catch(() => null);
   writeFileSync(path.join(dir, "engine_request.json"), JSON.stringify({
     schema: "StudioSiteEngineRequestV1", family: "presenter", subtype, jobId,
-    params: {},
+    params: { cast: castScope && {
+      productionId: castScope.productionId, castMemberId: member.id,
+      identityKey: member.identityKey, specHash: castScope.specHash, subtype, jobId,
+    } },
   }, null, 1));
 
   const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");

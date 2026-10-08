@@ -149,7 +149,8 @@
             "previewVideo": {
               "src": "/previews/xr-photo_story.mp4",
               "type": "video/mp4"
-            }
+            },
+            "posterFrame": "/previews/xr-photo_story.png"
           }
         },
         {
@@ -196,7 +197,8 @@
             "previewVideo": {
               "src": "/previews/xr-sketch.mp4",
               "type": "video/mp4"
-            }
+            },
+            "posterFrame": "/previews/xr-sketch.png"
           }
         },
         {
@@ -243,7 +245,8 @@
             "previewVideo": {
               "src": "/previews/xr-emoji.mp4",
               "type": "video/mp4"
-            }
+            },
+            "posterFrame": "/previews/xr-emoji.png"
           }
         },
         {
@@ -290,7 +293,8 @@
             "previewVideo": {
               "src": "/previews/xr-journey.mp4",
               "type": "video/mp4"
-            }
+            },
+            "posterFrame": "/previews/xr-journey.png"
           }
         },
         {
@@ -337,7 +341,8 @@
             "previewVideo": {
               "src": "/previews/xr-collage.mp4",
               "type": "video/mp4"
-            }
+            },
+            "posterFrame": "/previews/xr-collage.png"
           }
         },
         {
@@ -384,7 +389,8 @@
             "previewVideo": {
               "src": "/previews/xr-dataviz.mp4",
               "type": "video/mp4"
-            }
+            },
+            "posterFrame": "/previews/xr-dataviz.png"
           }
         }
       ],
@@ -583,7 +589,8 @@
             "previewVideo": {
               "src": "/previews/wb-scenes.mp4",
               "type": "video/mp4"
-            }
+            },
+            "posterFrame": "/previews/wb-scenes.png"
           }
         }
       ],
@@ -636,7 +643,7 @@
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": true,
+          "publicEnabledRecommendation": false,
           "reason": "Certified dispatch subtype: saved Cast character presents the script on a studio background.",
           "verification": {
             "status": "verified",
@@ -647,7 +654,10 @@
               "renders through site-dispatch.json"
             ]
           },
-          "publicAssets": {}
+          "publicAssets": {
+            "posterFrame": null,
+            "previewVideo": null
+          }
         },
         {
           "id": "lesson-board",
@@ -680,7 +690,7 @@
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": true,
+          "publicEnabledRecommendation": false,
           "reason": "Certified dispatch subtype: teacher composited over the board-scenes lesson render.",
           "verification": {
             "status": "verified",
@@ -691,7 +701,10 @@
               "renders through site-dispatch.json"
             ]
           },
-          "publicAssets": {}
+          "publicAssets": {
+            "posterFrame": null,
+            "previewVideo": null
+          }
         },
         {
           "id": "kids-lesson",
@@ -723,7 +736,7 @@
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": true,
+          "publicEnabledRecommendation": false,
           "reason": "Certified dispatch subtype: teacher composited over the paperbook kids-lesson boards.",
           "verification": {
             "status": "verified",
@@ -734,7 +747,10 @@
               "renders through site-dispatch.json"
             ]
           },
-          "publicAssets": {}
+          "publicAssets": {
+            "posterFrame": null,
+            "previewVideo": null
+          }
         }
       ]
     }

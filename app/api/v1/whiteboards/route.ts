@@ -5,7 +5,8 @@ import { randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
-import { createEngineDraft, renderCapacity, runningEngineJobs } from "@/lib/engine-jobs";
+import { getPrisma } from "@/lib/db";
+import { createEngineDraft, registerCastScope, renderCapacity, runningEngineJobs } from "@/lib/engine-jobs";
 
 export const runtime = "nodejs";
 
@@ -99,12 +100,28 @@ export async function POST(request: Request) {
   // All renders dispatch through P8's family-engine surface: the runner resolves
   // the subtype in site-dispatch.json (fail-closed), builds the engine call and
   // writes status.json + the P8 result envelope itself.
+  const castScope = castMemberId ? await (async () => {
+    const prisma = getPrisma();
+    const member = prisma && await prisma.studioCastMember.findFirst({
+      where: { id: castMemberId, ownerUserId: auth.session!.userId },
+    });
+    return member && registerCastScope({
+      ownerUserId: auth.session!.userId,
+      member: { id: member.id, name: member.name, identityKey: member.identityKey, spec: member.spec },
+      jobId, kind: "whiteboard", subtype: type,
+      title: script.split("\n")[0]?.split(/\s+/).slice(0, 8).join(" ") || "Whiteboard",
+    }).catch(() => null);
+  })() : null;
   writeFileSync(path.join(dir, "engine_request.json"), JSON.stringify({
     schema: "StudioSiteEngineRequestV1", family: "whiteboard", subtype: type, jobId,
     params: {
       theme, voice, accent: accent || null, aspects,
       duration: durationRaw || null, speed: speedRaw || null,
       scriptPath: script ? scriptPath : null, voiceFile: voicePath,
+      cast: castScope && {
+        productionId: castScope.productionId, castMemberId,
+        specHash: castScope.specHash, subtype: type, jobId,
+      },
     },
   }, null, 1));
 

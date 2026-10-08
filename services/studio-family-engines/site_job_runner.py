@@ -31,6 +31,16 @@ def _write_status(j: Path, **fields):
 def _result(j: Path, status: str, **fields):
     doc = {"schema": "StudioFamilyEngineResultV1", "status": status,
            "authorityId": AUTHORITY_ID, **fields}
+    # P8 cast scope: when the job was dispatched with a registered character,
+    # the envelope carries the cast authority identity + spec hash so memory
+    # and certification can bind the render to that performer.
+    try:
+        cast = (json.loads((j / "engine_request.json").read_text())
+                .get("params") or {}).get("cast")
+        if cast:
+            doc["castAuthority"] = cast
+    except Exception:
+        pass
     (j / "result.json").write_text(json.dumps(doc, indent=1) + "\n")
     return doc
 

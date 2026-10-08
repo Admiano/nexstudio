@@ -1,6 +1,8 @@
 import path from "node:path";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { getPrisma } from "@/lib/db";
+import { appendStudioMemoryVersion } from "@/studio-v1/memory/service";
 
 export type EngineKind = "whiteboard" | "explainer" | "presenter";
 export const ENGINE_KINDS: EngineKind[] = ["whiteboard", "explainer", "presenter"];
@@ -105,6 +107,139 @@ export function readEngineJob(kind: EngineKind, jobId: string): EngineJobRead {
   } catch {
     return { status: "unknown" };
   }
+}
+
+// --- P8 cast scope -------------------------------------------------------
+// Engine jobs that use a saved character must be visible to P8's memory:
+// a Production row + StudioProductionCastMember link makes the render a
+// first-class P8 production, and CAST-scope memory items record the
+// character's performer signature and render history.
+
+const CAST_SYSTEM_DIR = path.join(process.cwd(), "engine_sources", "makehuman-lineart", "character_system");
+
+export function castSpecHash(spec: unknown): string {
+  return createHash("sha256").update(JSON.stringify(spec ?? {})).digest("hex");
+}
+
+function admittedPerformerVerbs(): string[] {
+  try {
+    const meanings = JSON.parse(readFileSync(path.join(CAST_SYSTEM_DIR, "gesture-meanings.json"), "utf8"));
+    const clips = JSON.parse(readFileSync(path.join(CAST_SYSTEM_DIR, "gesture-clips.json"), "utf8"));
+    const verbs = new Set<string>((meanings.intents ?? []).map((i: [string, string]) => i[0]));
+    for (const k of Object.keys(clips.groups ?? {})) verbs.add(`group:${k}`);
+    return [...verbs].sort();
+  } catch { return []; }
+}
+
+export async function registerCastScope(input: {
+  ownerUserId: string;
+  member: { id: string; name: string; identityKey: string; spec: unknown };
+  jobId: string;
+  kind: EngineKind;
+  subtype: string;
+  title: string;
+}): Promise<{ productionId: string; specHash: string } | null> {
+  const prisma = getPrisma();
+  if (!prisma) return null;
+  const specHash = castSpecHash(input.member.spec);
+  const production = await prisma.production.create({
+    data: {
+      id: randomUUID(),
+      ownerUserId: input.ownerUserId,
+      kind: "VIDEO",
+      title: input.title,
+      status: "RENDERING",
+      studioState: "PRODUCTION",
+      direction: { engine: { kind: input.kind, jobId: input.jobId, subtype: input.subtype } },
+    },
+  });
+  await prisma.studioProductionCastMember.create({
+    data: { productionId: production.id, castMemberId: input.member.id, ordinal: 0 },
+  });
+  // Performer signature: the boundary evidence for this character — rewritten
+  // only when the spec actually changes, so the memory is signal not noise.
+  const latest = await prisma.studioMemoryItem.findUnique({
+    where: {
+      ownerUserId_scope_scopeRefId_key: {
+        ownerUserId: input.ownerUserId, scope: "CAST", scopeRefId: input.member.id, key: "performer-signature",
+      },
+    },
+    include: { versions: { orderBy: { versionNumber: "desc" }, take: 1 } },
+  });
+  const currentHash = (latest?.versions[0]?.content as { specHash?: string } | undefined)?.specHash;
+  if (currentHash !== specHash) {
+    await appendStudioMemoryVersion({
+      prisma,
+      ownerUserId: input.ownerUserId,
+      scope: "CAST",
+      scopeRefId: input.member.id,
+      key: "performer-signature",
+      category: "cast-boundary",
+      content: {
+        identityKey: input.member.identityKey,
+        name: input.member.name,
+        specHash,
+        admittedVerbs: admittedPerformerVerbs(),
+      },
+      provenance: {
+        source: "SYSTEM_INFERENCE",
+        recordedAt: new Date().toISOString(),
+        note: "Registered when the character was dispatched to render",
+      },
+      sourceProductionId: production.id,
+      createdByType: "SYSTEM",
+    });
+  }
+  return { productionId: production.id, specHash };
+}
+
+// Called lazily from the job-status route when a job reaches a terminal state.
+// Closes the Production row and appends the render to the character's CAST
+// memory under UPDATE_CHARACTER_GOING_FORWARD semantics.
+export async function finalizeCastScope(dir: string, status: string): Promise<void> {
+  const prisma = getPrisma();
+  if (!prisma) return;
+  try {
+    const reqPath = path.join(dir, "engine_request.json");
+    if (!existsSync(reqPath)) return;
+    const engineReq = JSON.parse(readFileSync(reqPath, "utf8"));
+    const cast = engineReq?.params?.cast as
+      | { productionId?: string; castMemberId?: string; identityKey?: string; specHash?: string; subtype?: string; jobId?: string }
+      | undefined;
+    if (!cast?.productionId || !cast.castMemberId) return;
+    const production = await prisma.production.findUnique({ where: { id: cast.productionId } });
+    if (!production || production.status === "VERSION_READY") return;
+    const outputs = status === "done"
+      ? (JSON.parse(readFileSync(path.join(dir, "status.json"), "utf8")).outputs ?? null)
+      : null;
+    await prisma.production.update({
+      where: { id: cast.productionId },
+      data: { status: status === "done" ? "VERSION_READY" : "DRAFT" },
+    });
+    if (status !== "done") return;
+    const req = JSON.parse(readFileSync(path.join(dir, "request.json"), "utf8"));
+    await appendStudioMemoryVersion({
+      prisma,
+      ownerUserId: req.userId,
+      scope: "CAST",
+      scopeRefId: cast.castMemberId,
+      key: "render-history",
+      category: "cast-render",
+      content: {
+        jobId: cast.jobId ?? path.basename(dir),
+        subtype: cast.subtype ?? engineReq.subtype,
+        status, outputs, specHash: cast.specHash ?? null,
+      },
+      provenance: {
+        source: "PRODUCTION",
+        sourceProductionId: cast.productionId,
+        recordedAt: new Date().toISOString(),
+      },
+      sourceProductionId: cast.productionId,
+      createdByType: "SYSTEM",
+      reason: "UPDATE_CHARACTER_GOING_FORWARD",
+    });
+  } catch { /* a missing finalization never breaks the status read */ }
 }
 
 export async function createEngineDraft(input: {
