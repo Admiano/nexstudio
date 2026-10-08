@@ -208,12 +208,12 @@ class Cine:
             self._ki_draw(lay, c['strokes'], (box // 2, box // 2), size,
                           c['t0'], t)
             if self.aspect == '9:16':
-                # centered, lower half, above the pill — never near the face
+                # centered, above the pill with clear margin — never touching it
                 x = self.W // 2 - box // 2
-                y = int(self.H * 0.70)
+                y = int(self.H * 0.62)
             elif self.aspect == '1:1':
                 x = self.W // 2 - box // 2
-                y = int(self.H * 0.68)
+                y = int(self.H * 0.60)
             else:
                 # either side of the character — beside the torso, clear of the face
                 x = int(self.W * (0.24 if c['side'] == 'left' else 0.76)) - box // 2
