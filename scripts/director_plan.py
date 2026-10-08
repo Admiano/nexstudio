@@ -120,7 +120,6 @@ def _hero_pick(words, clause, stress, cue_idx):
 # the film; 'settle' breathes out; hero intents get a behind-the-head word.
 # Names are the gesture lexicon's (gesture-meanings.json) — same source, so a
 # word that earns a gesture earns the matching camera treatment.
-EMPHATIC = {'reassure', 'contrast', 'concern', 'negate', 'excited', 'disbelief'}
 INTENT_SHOTS = {
     'welcome': {'camera': 'whip', 'depth': 'front'},
     'thanks': {'camera': 'settle', 'depth': 'mid'},
