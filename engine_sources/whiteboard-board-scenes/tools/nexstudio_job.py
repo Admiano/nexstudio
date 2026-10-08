@@ -64,7 +64,8 @@ def build_voice(args, script_text: str | None, work: Path) -> tuple[Path, Path |
             sh(["ffmpeg", "-y", "-i", str(src), "-ar", "24000", "-ac", "1", str(vo_wav)])
         return vo_wav, None
 
-    text = re.sub(r"\[[^\]]*\]", " ", script_text or "").strip()
+    text = re.sub(r"\[[^\]]*\]", " ", script_text or "")
+    text = re.sub(r"(?m)^\s*#{1,6}\s+.*$", " ", text).strip()
     if not text:
         raise RuntimeError("VOICE_REQUIRED: script produced no narration text")
     speed = min(max(getattr(args, "speed", None) or 1.0, 0.6), 2.0)
