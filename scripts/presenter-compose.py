@@ -208,15 +208,16 @@ class Cine:
             self._ki_draw(lay, c['strokes'], (box // 2, box // 2), size,
                           c['t0'], t)
             if self.aspect == '9:16':
-                x = int(self.W * (0.10 if c['side'] == 'left' else 0.90)) - (0 if c['side'] == 'left' else box)
-                y = int(self.H * 0.10)
+                # centered, lower half, above the pill — never near the face
+                x = self.W // 2 - box // 2
+                y = int(self.H * 0.70)
             elif self.aspect == '1:1':
-                x = int(self.W * (0.08 if c['side'] == 'left' else 0.92)) - (0 if c['side'] == 'left' else box)
-                y = int(self.H * 0.14)
+                x = self.W // 2 - box // 2
+                y = int(self.H * 0.68)
             else:
-                # beside the torso in the clean panel zone — clear of furniture
+                # either side of the character — beside the torso, clear of the face
                 x = int(self.W * (0.24 if c['side'] == 'left' else 0.76)) - box // 2
-                y = int(self.H * 0.50)
+                y = int(self.H * 0.48)
             self._blit_a(img, lay, x, y, a)
 
     def _ki_draw(self, lay, strokes, center, size, t0, t):
