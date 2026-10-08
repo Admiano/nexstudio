@@ -312,7 +312,7 @@ class BeatCompiler:
             for j, bl in enumerate(blocks):
                 if j != gi and _overlap(bl['bbox'], blocks[gi]['bbox']) > 0:
                     blocks[j]['bbox'] = _nudge_clear(bl['bbox'], _others(j), native_zone)
-        self._stack_in_narration_order(b, blocks)
+        self._stack_in_narration_order(b, blocks, self.safe)
         if comp.get('typography_hints', {}).get('text_align') == 'center':
             # Centred lockup: every block sits on the zone's vertical axis and sets its lines centred.
             lo = max(native_zone['x'], self.safe['x'])
@@ -365,7 +365,7 @@ class BeatCompiler:
         return typ, failures, warnings
 
     @staticmethod
-    def _stack_in_narration_order(b: BeatTreatment, blocks: List[Dict[str, Any]]) -> None:
+    def _stack_in_narration_order(b: BeatTreatment, blocks: List[Dict[str, Any]], safe: Dict[str, float]) -> None:
         """Blocks that share a column read top-down in the order the voice says them.
 
         The authority sizes the hero and its supports; it does not know which unit is spoken
@@ -397,6 +397,17 @@ class BeatCompiler:
             blocks[k]['bbox'] = {**blocks[k]['bbox'], 'y': round(y, 1)}
             # A block's box ends at its last baseline's line box; the descenders hang below it.
             y += blocks[k]['bbox']['h'] + max(gap_at.get(i, 0.0), DESCENDER_EM * blocks[k]['fit']['font_px'] if i < len(by_unit) - 1 else 0.0)
+        # The restack uses true fitted heights (grown boxes can be taller than the slots the
+        # authority drew), so the column can end lower than planned — slide it back inside
+        # the safe frame with its gaps intact when there's room above.
+        lim_b = safe['y'] + safe['h']
+        bottom = max(blocks[k]['bbox']['y'] + blocks[k]['bbox']['h'] for k in idx)
+        overflow = bottom - lim_b
+        if overflow > 0:
+            top = min(blocks[k]['bbox']['y'] for k in idx)
+            shift = min(overflow, max(0.0, top - safe['y']))
+            for k in idx:
+                blocks[k]['bbox'] = {**blocks[k]['bbox'], 'y': round(blocks[k]['bbox']['y'] - shift, 1)}
 
     def _word_cascade(self, b: BeatTreatment, blocks: List[Dict[str, Any]], events: List[Dict[str, Any]], clock: BeatClock) -> None:
         """Per-word landing times for every block: a word arrives when the voice says it.

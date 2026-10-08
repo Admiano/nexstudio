@@ -501,7 +501,8 @@
                           "enum": [
                             "link",
                             "dash",
-                            "arc"
+                            "arc",
+                            "stem"
                           ]
                         }
                       },
@@ -756,7 +757,9 @@
           "enum": [
             "EDITORIAL_FLAT",
             "PAPER",
-            "PRODUCT_COLLAGE"
+            "PRODUCT_COLLAGE",
+            "CENTER_DECK",
+            "FLOAT_FIELD"
           ]
         }
       },

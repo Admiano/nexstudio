@@ -104,26 +104,50 @@ def make_voice(args, fixture_dir):
 
 
 # ---------- auto-treatment ----------
+MAX_UNITS_PER_BEAT = 5  # compiler contract: TOO_MANY_DISPLAY_UNITS refuses above this
+
+
+def _unit_count(gwords):
+    return len(display_units(gwords))
+
+
 def chunk_beats(words, max_beats=9):
-    groups, cur = [], []
+    pieces, cur = [], []
     for i, w in enumerate(words):
         cur.append(w)
         nxt_gap = words[i + 1]["start_ms"] - w["end_ms"] if i + 1 < len(words) else 9999
         if CLAUSE_END.search(w["text"]) or nxt_gap >= 650:
-            groups.append(cur); cur = []
+            pieces.append(cur); cur = []
     if cur:
-        groups.append(cur)
-    merged = []
-    for g in groups:
-        if merged and len(g) < 3:
-            merged[-1].extend(g)
-        else:
-            merged.append(list(g))
-    while len(merged) > max_beats:
-        # merge the shortest adjacent pair
-        i = min(range(len(merged) - 1), key=lambda i: len(merged[i]) + len(merged[i + 1]))
-        merged[i:i + 2] = [merged[i] + merged[i + 1]]
-    return merged
+        pieces.append(cur)
+    # A single clause can outgrow the display cap on its own (a long run-on
+    # chunks into >5 units) — cut it at its widest legal mid-clause boundary,
+    # falling back to a word cut when there is no comma to break on.
+    fine = []
+    for p in pieces:
+        while _unit_count(p) > MAX_UNITS_PER_BEAT and len(p) > 1:
+            commas = [i for i, w in enumerate(p) if CLAUSE_MID.search(w["text"]) and i + 1 < len(p)]
+            cut = next((i for i in reversed(commas) if _unit_count(p[:i + 1]) <= MAX_UNITS_PER_BEAT), None)
+            if cut is None:
+                cut = min(10, len(p) - 1)
+            fine.append(p[:cut + 1])
+            p = p[cut + 1:]
+        fine.append(p)
+    # Merge fragments into beats under the cap: the contract is hard, the
+    # beat-count target is only pacing.
+    beats, cur = [], []
+    for p in fine:
+        if cur and _unit_count(cur + p) > MAX_UNITS_PER_BEAT:
+            beats.append(cur); cur = []
+        cur.extend(p)
+    if cur:
+        beats.append(cur)
+    while len(beats) > max_beats:
+        i = min(range(len(beats) - 1), key=lambda i: len(beats[i]) + len(beats[i + 1]))
+        if _unit_count(beats[i] + beats[i + 1]) > MAX_UNITS_PER_BEAT:
+            break
+        beats[i:i + 2] = [beats[i] + beats[i + 1]]
+    return beats
 
 
 def clean(t):
@@ -134,20 +158,21 @@ def chunked_split(clauses):
     # asymmetric split for long clauses: support bboxes are narrow (≤~4 words
     # fit above the type floor), hero bboxes hold ~8. A 14-word clause becomes
     # [setup 3w] + [hero ≤8w] + [qualifier chunks ≤4w] instead of one hero
-    # that breaches the legibility floor.
+    # that breaches the legibility floor. Returns (piece, source_clause_index)
+    # pairs so units can trace back to their clause's spoken start.
     chunked = []
-    for c in clauses:
+    for ci, c in enumerate(clauses):
         ws = c.split()
         if len(ws) > 11:
-            chunked.append(" ".join(ws[:3]))
+            chunked.append((" ".join(ws[:3]), ci))
             ws = ws[3:]
-            chunked.append(" ".join(ws[:8]))
+            chunked.append((" ".join(ws[:8]), ci))
             ws = ws[8:]
             while ws:
-                chunked.append(" ".join(ws[:4]))
+                chunked.append((" ".join(ws[:4]), ci))
                 ws = ws[4:]
         else:
-            chunked.append(c)
+            chunked.append((c, ci))
     return chunked
 
 
@@ -195,9 +220,9 @@ def display_units(gwords, entity_words=None):
     while len(clauses) > 1 and beat_end - gwords[pairs[-1][1]]["start_ms"] < HOLD_MIN_MS:
         clauses[-2] = clauses[-2] + " " + clauses[-1]
         pairs.pop()
-    clauses = chunked_split(clauses)
+    chunked = chunked_split(clauses)
     units, seen = [], set()
-    for i, c in enumerate(clauses):
+    for i, (c, ci) in enumerate(chunked):
         frag = _key_fragment(c, entity_words)
         if not frag:
             continue
@@ -210,7 +235,19 @@ def display_units(gwords, entity_words=None):
         units.append({"text": frag, "role": "hero",
                       "anchor_word": frag.split()[0],
                       "emphasis": 0.9,
-                      "semantic_role": "punch" if i == len(clauses) - 1 else "statement"})
+                      "semantic_role": "punch" if i == len(chunked) - 1 else "statement",
+                      "_clause": ci})
+    # A unit anchored on a word inside the beat's readable-close runway lands
+    # too late to be read before the beat exits — re-anchor it to the first
+    # word of its clause so the keyword arrives as the clause is spoken.
+    RUNWAY_MS = 700
+    for u in units:
+        ci = u.pop("_clause")
+        akey = word_key(u["anchor_word"])
+        cstart = pairs[ci][1]
+        aidx = next((k for k in range(cstart, len(gwords)) if word_key(gwords[k]["text"]) == akey), None)
+        if aidx is not None and gwords[aidx]["start_ms"] > beat_end - RUNWAY_MS:
+            u["anchor_word"] = gwords[cstart]["text"].strip(" ,.;:!?")
     # The contract caps a beat at three hero units — extra clauses keep their
     # words but step down to support weight.
     for u in units[2:-1]:

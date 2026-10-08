@@ -626,6 +626,8 @@ class IllustrationSolver:
                 rows_p.append([e])
                 i += 1
             y = y0
+            prev_bottom = y0
+            zone_bottom = zone['y'] + zone['h']
             for row in rows_p:
                 widths, ph_row = [], ph
                 # A paired bar caps at ~half the row each; a solo bar may claim
@@ -636,10 +638,15 @@ class IllustrationSolver:
                     widths.append(min(cap, max(hub_s * 2.2, need * 1.1)))
                     ph_row = max(ph_row, need / 4.4)
                 w = sum(widths) + (len(row) - 1) * gap_x
+                # The stack model estimates space, so a bottom row can still end up a
+                # few px past the zone edge — pull it up into the inter-row gap first.
+                y = min(y, zone_bottom - ph_row)
+                y = max(y, prev_bottom + 2.0)
                 x = cx - w / 2
                 for e, pw in zip(row, widths):
                     cells[e.id] = _box(x, y, pw, ph_row)
                     x += pw + gap_x
+                prev_bottom = y + ph_row
                 y += ph_row + zone['h'] * 0.04
 
         if variant in (1, 2):
