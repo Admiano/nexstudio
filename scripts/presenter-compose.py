@@ -51,7 +51,7 @@ def layout(aspect, W, H, lesson=False):
     if aspect == '16:9':
         ph = H
         pw = int(ph * 3 / 4)
-        return (W - pw - int(W * 0.06), 0, pw, ph)
+        return ((W - pw) // 2, 0, pw, ph)  # centered — landscape hero text lives beside the character
     if aspect == '1:1':
         ph = int(H * 0.96)
         pw = int(ph * 3 / 4)
@@ -65,90 +65,49 @@ FPS_REVEAL = 15  # caption reveals quantise to 15fps — text steps in like kine
 
 
 class Cine:
-    """Cinematic caption layer — broadcast-controlled, never templated.
+    """Cinematic layer — optional, per-aspect, never templated.
 
-    Composition model, differentiated per aspect:
-      - ONE anchored caption band per aspect: 16:9 sits in the empty lower
-        field beside the right-third presenter; 1:1 is a centered bottom
-        band; 9:16 rides the chest zone (the presenter owns the floor)
-      - karaoke sweep: the ACTIVE word pops in accent at 1.12x; sung words
-        settle to neutral (KTV convention), all on the MFA clock
-      - heroes are a once-per-film privilege: the apex word only, behind
-        the head, letter-by-letter, held briefly then gone
-      - framing is a shot-size CUT grammar, not a zoom: medium holds, then
-        the frame hard-cuts to a close crop on the face for the apex (and
-        at most one strong pivot), then cuts back. Piecewise constant.
+    Captions are always the kinetic pill (Captions class) — this layer adds
+    only the *effects*: the apex hero word in our own text format beside the
+    presenter, optional infographic cards on emphasis beats, and shot-size
+    punch-in cuts. Portrait (9:16) ships clean: no cuts, no heroes — the
+    cinematic layer is removed there by design (infographic stays optional).
     """
 
-    def __init__(self, ktr, words, script, audio, W, H, aspect, pres, accent):
+    def __init__(self, ktr, ki, words, script, audio, W, H, aspect, pres, accent,
+                 infographic=False):
         import director_plan as dp
         self.dp = dp
         self.W, self.H, self.aspect, self.pres = W, H, aspect, pres
         self.accent = accent
         self.plan = dp.plan(script, words, audio, W, H, pres, aspect)
-        # caption band per aspect — anchored differently on purpose:
-        # 16:9 lives in the lower field beside the right-third presenter,
-        # 1:1 centers at the bottom, 9:16 rides the chest zone above the fold
-        if aspect == '9:16':
-            self.band = (int(W * 0.07), int(H * 0.56), int(W * 0.93), int(H * 0.72))
-        elif aspect == '1:1':
-            self.band = (int(W * 0.06), int(H * 0.76), int(W * 0.94), int(H * 0.93))
-        else:
-            right = max(int(W * 0.52), pres[0] - int(W * 0.02))
-            self.band = (int(W * 0.05), int(H * 0.74), right, int(H * 0.93))
-        # punch-in focus: the face zone of the presenter box
+        cinematic = aspect != '9:16'   # portrait: no heroes, no cuts
+        if not cinematic:
+            self.plan['shots'] = []
+            self.plan['sfx'] = []
         self.focus = (pres[0] + pres[2] * 0.5, pres[1] + pres[3] * 0.16)
-        self.clauses = []
-        self.heroes = []
-        bw = max(200, self.band[2] - self.band[0])
-        size = int(H * (0.046 if aspect == '9:16' else 0.055))
+        self.heroes, self.cards = [], []
         for c in self.plan['clauses']:
-            for _ in range(4):
-                fnt = font(True, size, ktr)
-                # wrap the clause into <=2 centered lines at fixed size
-                lines, cur, cx = [], [], 0
-                for w in c['words']:
-                    img = self._word(w['word'], fnt, accent=None)
-                    img_a = self._word(w['word'], fnt, accent=accent)
-                    if cur and cx + img.width > bw:
-                        lines.append(cur)
-                        cur, cx = [], 0
-                    cur.append({'w': w, 'img': img, 'img_a': img_a, 'x': cx, 'ww': img.width})
-                    cx += img.width + int(size * 0.26)
-                lines.append(cur)
-                if len(lines) <= 2 or size < H * 0.032:
-                    break
-                size = max(int(H * 0.032), int(size * 0.9))  # fit the band, never clip
-            # absolute positions: block centered horizontally, lines stacked
-            lh = int(size * 1.3)
-            by = self.band[1] + (self.band[3] - self.band[1] - lh * len(lines)) // 2
-            placed = []
-            for li, line in enumerate(lines):
-                lw = line[-1]['x'] + line[-1]['ww'] if line else 0
-                lx = self.band[0] + (bw - lw) // 2
-                for it in line:
-                    placed.append({**it, 'X': lx + it['x'], 'Y': by + li * lh})
-            c['placed'] = placed
-            self.clauses.append(c)
-            if c['hero'] is not None:
-                hw = words[c['hero']]['word']
-                hf = font(True, int(H * 0.105), ktr)  # restrained: ~10% of frame
-                him = self._word(hw, hf, accent=accent)
-                tw = min(int(W * 0.44), int(pres[2] * 1.7))
-                if him.width > tw:
-                    him = him.resize((tw, max(1, int(him.height * tw / him.width))), Image.LANCZOS)
-                him = him.filter(ImageFilter.GaussianBlur(1.1))
-                letters = self._letters(hw, hf, accent, tw)
-                glow = him.copy().filter(ImageFilter.GaussianBlur(12))
-                ga = glow.getchannel('A').point(lambda v: int(v * 0.4))
-                tinted = Image.new('RGBA', glow.size, (accent[0], accent[1], accent[2], 0))
-                tinted.putalpha(ga)
-                self.heroes.append({'img': him, 'letters': letters, 'glow': tinted,
-                                    't0': words[c['hero']]['start'], 't1': words[c['hero']]['end'] + 0.9,
-                                    'entrance': c['entrance'], 'amp': c.get('amp', 1.0),
-                                    'minor': False, 'apex': True})
+            if not cinematic or c['hero'] is None:
+                continue
+            hw = words[c['hero']]['word']
+            him = self._hero_img(ktr, hw)
+            self.heroes.append({'img': him, 'side': c.get('side', 'right'),
+                                't0': words[c['hero']]['start'] - 0.05,
+                                't1': words[c['hero']]['end'] + 0.9})
+        if infographic:
+            for c in self.plan['clauses']:
+                if c.get('role') not in ('apex', 'pivot'):
+                    continue
+                card = self._info_card(ktr, ki, c, words)
+                if card is not None:
+                    self.cards.append({'img': card, 't0': c['t0'] - 0.1,
+                                       't1': c['t1'] + 0.9,
+                                       'side': 'left' if c.get('side') == 'right' else 'right'})
 
     def _word(self, word, fnt, accent):
+        """Our own text format — the same strip the kinetic pill uses:
+        grotesk bold, white fill, dark stroke. Nothing else."""
         tmp = Image.new('RGBA', (10, 10), (0, 0, 0, 0))
         d = ImageDraw.Draw(tmp)
         sw = max(1, fnt.size // 14)
@@ -162,26 +121,86 @@ class Cine:
                stroke_width=sw, stroke_fill=edge)
         return img
 
-    def _letters(self, word, fnt, accent, maxw):
-        sw = max(1, fnt.size // 14)
+    def _hero_img(self, ktr, word):
+        """Bigger than the pill, sized DOWN to fit its lane — nothing clips,
+        nothing scales past its slot. Landscape gets a wider lane than 1:1."""
+        maxw = int(self.W * (0.36 if self.aspect == '16:9' else 0.44))
+        size = int(self.H * 0.115)
+        while True:
+            img = self._word(word, font(True, size, ktr), accent=None)
+            if img.width <= maxw or size <= int(self.H * 0.055):
+                return img
+            size = int(size * 0.92)
+
+    def _info_card(self, ktr, ki, c, words):
+        """Small infographic plate on an emphasis beat: accent bar, the
+        hand-drawn icon for the clause's keyword when the library has one,
+        keyword headline, and the clause itself as the small sub-line."""
+        if c.get('hero') is not None:
+            kw = words[c['hero']]['word']
+        else:
+            cand = [w for w in c['words'] if len(self.dp.norm(w['word'])) >= 4
+                    and self.dp.norm(w['word']) not in self.dp.STOP]
+            kw = max(cand, key=lambda w: w['stress'], default={}).get('word')
+        if not kw:
+            return None
+        body = ' '.join(w['word'] for w in c['words'])
+        pad = int(self.H * 0.016)
+        f_h = font(True, int(self.H * 0.030), ktr)
+        f_b = font(False, int(self.H * 0.021), ktr)
         tmp = Image.new('RGBA', (10, 10), (0, 0, 0, 0))
-        d = ImageDraw.Draw(tmp)
-        letters, x = [], 0
-        for ch in word:
-            bbox = d.textbbox((0, 0), ch, font=fnt, stroke_width=sw)
-            w, h = bbox[2] - bbox[0] + 16, bbox[3] - bbox[1] + 16
-            img = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-            dd = ImageDraw.Draw(img)
-            dd.text((8 - bbox[0], 8 - bbox[1]), ch, font=fnt, fill=(250, 250, 252, 255),
-                    stroke_width=sw, stroke_fill=(accent[0], accent[1], accent[2], 255))
-            letters.append((img, x, ch))
-            x += int(d.textlength(ch, font=fnt)) if ch != ' ' else int(fnt.size * 0.3)
-        if x > maxw:
-            scale = maxw / x
-            letters = [(im.resize((max(1, int(im.width * scale)), max(1, int(im.height * scale))), Image.LANCZOS),
-                        int(xo * scale), ch) for im, xo, ch in letters]
-            x = maxw
-        return {'letters': letters, 'w': x, 'h': letters[0][0].height if letters else 0}
+        dd = ImageDraw.Draw(tmp)
+        side = int(self.H * 0.085)
+        bar = max(5, int(pad * 0.45))
+        maxtw = int(self.W * 0.26)
+        head_w = dd.textlength(kw.upper(), font=f_h)
+        # sub-line wraps to <=2 lines
+        sub_lines, cur = [], ''
+        for tok in body.split():
+            trial = (cur + ' ' + tok).strip()
+            if dd.textlength(trial, font=f_b) > maxtw and cur:
+                sub_lines.append(cur)
+                cur = tok
+            else:
+                cur = trial
+            if len(sub_lines) == 2:
+                break
+        if cur and len(sub_lines) < 2:
+            sub_lines.append(cur)
+        if len(body.split()) > sum(len(s.split()) for s in sub_lines):
+            sub_lines[-1] = sub_lines[-1].rstrip(',.;:') + '…'
+        sub_w = max((dd.textlength(s, font=f_b) for s in sub_lines), default=0)
+        strokes = None
+        if ki is not None:
+            try:
+                _ic, info = ki._art(self.dp.norm(kw), {}, floor=True)
+                strokes = (info or {}).get('strokes')
+            except Exception:
+                strokes = None
+        lh_b = int(self.H * 0.030)
+        text_h = int(self.H * 0.045) + lh_b * len(sub_lines)
+        tx = bar + pad
+        text_x = tx + (side + int(pad * 0.6) if strokes else 0)
+        cw = int(text_x + max(head_w, sub_w) + pad)
+        ch = pad * 2 + max(side if strokes else 0, text_h)
+        card = Image.new('RGBA', (cw, ch), (0, 0, 0, 0))
+        d = ImageDraw.Draw(card)
+        d.rounded_rectangle((0, 0, cw - 1, ch - 1), int(pad * 0.9), fill=(250, 250, 248, 238))
+        d.rectangle((0, 0, bar - 1, ch), fill=self.accent + (255,))
+        if strokes:
+            ki.draw_icon(card, strokes, (tx + side // 2, ch // 2), side * 0.8,
+                         0.0, 9.9, (30, 30, 38), self.accent, (250, 250, 248))
+        ty = pad + (ch - pad * 2 - text_h) // 2
+        d.text((text_x, ty), kw.upper(), font=f_h, fill=(22, 22, 30, 255))
+        for li, s in enumerate(sub_lines):
+            d.text((text_x, ty + int(self.H * 0.045) + li * lh_b),
+                   s, font=f_b, fill=(96, 96, 106, 255))
+        sh = Image.new('RGBA', card.size, (0, 0, 0, 0))
+        sh.putalpha(card.getchannel('A').point(lambda v: int(v * 0.25)).filter(ImageFilter.GaussianBlur(7)))
+        out = Image.new('RGBA', (cw + 14, ch + 14), (0, 0, 0, 0))
+        out.alpha_composite(sh, (8, 9))
+        out.alpha_composite(card, (0, 0))
+        return out
 
     def shot_at(self, t):
         """Framing at t — piecewise constant; returns (scale, focus_x, focus_y).
@@ -194,97 +213,46 @@ class Cine:
         fy = max(ch / 2, min(self.H - ch / 2, self.focus[1]))
         return s, fx, fy
 
-    def _clause_alpha(self, c, t):
-        end = c['t1'] + 0.55
-        apex = self.plan.get('apex')
-        if apex is not None and c is not apex and c['t1'] <= apex['t0'] and c['t1'] + 0.55 > apex['t0'] - 0.2:
-            end = apex['t0'] - 0.2  # dead air: the band clears before the payoff
-        if t < c['t0'] - 0.1 or t > end:
-            return 0.0
-        a = min(1.0, max(0.0, (t - (c['t0'] - 0.1)) / 0.22))
-        if t > end - 0.28:
-            a *= max(0.0, 1.0 - (t - (end - 0.28)) / 0.28)
-        return a
-
-    def behind(self, img, t):
-        """World layer: ONLY the apex hero — one per film, behind the head."""
-        px, py, pw, ph = self.pres
-        for h in self.heroes:
-            if h['t0'] - 0.05 <= t <= h['t1']:
-                self._draw_hero(img, h, t, px, py, pw, ph)
-
     def front(self, img, t):
-        """Screen layer: the karaoke band, on top of everything, always sharp."""
-        for c in self.clauses:
-            a = self._clause_alpha(c, t)
+        """UI layer — drawn after the crop, so heroes and cards never get
+        clipped or soft. Heroes sit BESIDE the centred presenter; cards take
+        the free side."""
+        for h in self.heroes:
+            a = self._fade(h, t)
             if a <= 0:
                 continue
-            for it in c['placed']:
-                w = it['w']
-                if t < w['start'] - 0.02:
-                    continue  # unspoken words never pre-show
-                active = w['start'] <= t < w['end']
-                if active:
-                    s = 1.12  # uniform pop for every active word — controlled,
-                    it2 = it['img_a']  # the hero carries the apex emphasis
-                else:
-                    s = 1.0
-                    it2 = it['img']  # sung words settle neutral — KTV sweep
-                if s > 1.0:
-                    sw2, sh2 = int(it2.width * s), int(it2.height * s)
-                    it2 = it2.resize((sw2, sh2), Image.LANCZOS)
-                    self._blit_a(img, it2, int(it['X'] - (sw2 - it['img'].width) / 2),
-                                 int(it['Y'] - (sh2 - it['img'].height) / 2), a)
-                else:
-                    self._blit_a(img, it2, it['X'], it['Y'], a)
+            s = 1.0
+            u = (t - h['t0']) / 0.18
+            if u < 1.0:  # pop-bounce in, fast
+                s = 0.90 + 0.10 * (1 - (1 - u) ** 3)
+            him = h['img'] if s >= 0.999 else h['img'].resize(
+                (max(1, int(h['img'].width * s)), max(1, int(h['img'].height * s))), Image.LANCZOS)
+            if h['side'] == 'left':
+                x = int(self.W * 0.05)
+            else:
+                x = int(self.W * 0.95) - him.width
+            y = int(self.H * (0.10 if self.aspect != '9:16' else 0.06))
+            self._blit_a(img, him, x, y, a)
+        # cards are one-at-a-time: a lingering beat never overlaps the newer one
+        vis = [c for c in self.cards if self._fade(c, t) > 0]
+        for c in vis[-1:]:
+            a = self._fade(c, t)
+            cw, ch = c['img'].size
+            if self.aspect == '9:16':
+                x, y = (self.W - cw) // 2, int(self.H * 0.06)
+            elif self.aspect == '1:1':
+                x, y = (self.W - cw) // 2, int(self.H * 0.04)
+            else:
+                x = int(self.W * 0.05) if c['side'] == 'left' else int(self.W * 0.95) - cw
+                y = int(self.H * 0.10)
+            self._blit_a(img, c['img'], x, y, a)
 
-    def _hero_state(self, h, t):
-        amp = h['amp']
-        ent = h['entrance']
-        dur = {'slam': 0.18, 'settle': 0.50, 'rise': 0.60, 'streak': 0.28}.get(ent, 0.55)
-        s0 = {'slam': 1 + 0.16 * amp, 'settle': 1 + 0.08 * amp, 'emergence': max(0.8, 1 - 0.14 * amp)}.get(ent, 1.0)
-        u = min(1.0, max(0.0, (t - h['t0']) / dur))
-        e = 1 - (1 - u) ** 3
-        s = s0 + (1 - s0) * e
-        dx = int(-60 * amp * (1 - e)) if ent == 'streak' else 0
-        dy = int(18 * amp * (1 - e)) if ent == 'rise' else 0
-        a = 1.0
-        if t < h['t0']:
-            a = 0.0
-        elif t > h['t1'] - 0.35:
-            a = max(0.0, (h['t1'] - t) / 0.35)
-        return s, dx, dy, a * 0.92
-
-    def _draw_hero(self, img, h, t, px, py, pw, ph):
-        s, dx, dy, a = self._hero_state(h, t)
-        if a <= 0:
-            return
-        base = h['img']
-        sw, sh = max(1, int(base.width * s)), max(1, int(base.height * s))
-        x = int(px + pw / 2 - sw / 2) + dx
-        x = max(int(self.W * 0.02), min(int(self.W * 0.98) - sw, x))
-        y = int(py + ph * 0.08) + dy - int((sh - base.height) / 2)
-        if h['glow'] is not None:
-            ga = min(0.4, h['amp'] * 0.4) * (0.0 if t < h['t0'] else min(1.0, (t - h['t0']) / 0.45))
-            if t > h['t1'] - 0.45:
-                ga *= max(0.0, (h['t1'] - t) / 0.45)
-            if ga > 0.02:
-                g = h['glow'] if abs(s - 1.0) < 0.01 else h['glow'].resize((sw, sh), Image.LANCZOS)
-                self._blit_a(img, g, x, y, ga)
-        if h['letters'] is not None:
-            for li, (limg, xo, ch) in enumerate(h['letters']['letters']):
-                lat = h['t0'] + li * 0.04
-                if t < lat:
-                    continue
-                age = t - lat
-                pop = 1.05 if age < 0.08 else 1.0
-                lw = max(1, int(limg.width * s * pop))
-                lh = max(1, int(limg.height * s * pop))
-                li_img = limg.resize((lw, lh), Image.LANCZOS) if (lw, lh) != limg.size else limg
-                self._blit_a(img, li_img, int(x + xo * s), int(y + (0.1 * lh if age < 0.08 else 0)), a)
-
-    def _draw_clause(self, img, c, t, a, dy=0):
-        pass  # band model: clauses draw through front(), kept for API compat
+    @staticmethod
+    def _fade(h, t):
+        if t < h['t0'] or t > h['t1']:
+            return 0.0
+        a = min(1.0, (t - h['t0']) / 0.16)
+        return min(a, max(0.0, (h['t1'] - t) / 0.28))
 
     @staticmethod
     def _blit_a(img, strip, x, y, a):
@@ -330,11 +298,11 @@ class VideoBackground:
 
 
 class Captions:
-    """One short line at the bottom: at most MAX_WORDS words on screen, drawable words still become inline icons."""
-    MAX_WORDS = 3
+    """One short line at the bottom: the kinetic pill — <=max_words words on
+    screen (3 on portrait/1:1, 5 on landscape), drawable words become icons."""
 
-    def __init__(self, ktr, ki, script, words, frame, accent):
-        self.ktr, self.accent = ktr, accent
+    def __init__(self, ktr, ki, script, words, frame, accent, max_words=3):
+        self.ktr, self.accent, self.max_words = ktr, accent, max_words
         W, H = frame
         dur = (words[-1]['end'] if words else 1.0)
         plan = {'beats': [{'narration': script, 'start_seconds': 0.0, 'duration_seconds': dur}]}
@@ -355,7 +323,7 @@ class Captions:
         """Chunks of up to MAX_WORDS, breaking after commas when one falls inside a chunk."""
         ws, icon, out, i = sent['words'], sent.get('icon'), [], 0
         while i < len(ws):
-            n = min(self.MAX_WORDS, len(ws) - i)
+            n = min(self.max_words, len(ws) - i)
             comma = next((k + 1 for k in range(n - 1) if ws[i + k]['word'].endswith((',', ';', ':'))), None)
             n = comma or n
             if n == 2 and len(ws) - i - n == 1:
@@ -548,7 +516,9 @@ def main():
     ap.add_argument('--background-video', help='MP4 to use as the per-frame background instead of a still image')
     ap.add_argument('--lesson', action='store_true', help='Teacher-over-board layout: smaller presenter, no caption pill or icon cards')
     ap.add_argument('--captions', choices=['cinematic', 'pill'], default='cinematic',
-                    help='cinematic: director-planned depth captions with camera moves; pill: bottom caption bar')
+                    help='cinematic: pill captions PLUS optional director effects (hero word, punch-in cuts, infographic cards); pill: captions only')
+    ap.add_argument('--infographic', action='store_true',
+                    help='show a small infographic card on emphasis beats')
     ap.add_argument('--out', required=True)
     ap.add_argument('--fps', type=int, default=24)
     ap.add_argument('--accent', default='#0052FF')
@@ -588,11 +558,13 @@ def main():
     else:
         sys.exit('BACKGROUND_REQUIRED')
     pres = layout(a.aspect, W, H, lesson=a.lesson)
-    caps = Captions(ktr, ki, script, words, (W, H), a.accent)
+    caps = Captions(ktr, ki, script, words, (W, H), a.accent,
+                    max_words=5 if a.aspect == '16:9' else 3)
     cap = caps.box
     cine = None
     if not a.lesson and a.captions == 'cinematic':
-        cine = Cine(ktr, words, script, a.audio, W, H, a.aspect, pres, accent)
+        cine = Cine(ktr, ki, words, script, a.audio, W, H, a.aspect, pres, accent,
+                    infographic=a.infographic)
         # P8 evidence: the shot plan this render actually executed
         Path(a.out).with_suffix('.director.json').write_text(json.dumps({
             'authority': 'director_plan_v2', 'aspect': a.aspect,
@@ -633,8 +605,6 @@ def main():
             fr = fr.copy()
         else:
             fr = bg.copy()
-        if cine:
-            cine.behind(fr, t)  # apex hero lives in the world, behind the head
         p = Image.open(fp).convert('RGBA').resize((pres[2], pres[3]), Image.LANCZOS)
         fr.alpha_composite(p, (pres[0], pres[1]))
         if cine:
@@ -645,10 +615,10 @@ def main():
                 cw, ch = round(W / s), round(H / s)
                 x0, y0 = round(fx - cw / 2), round(fy - ch / 2)
                 fr = fr.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.LANCZOS)
-            cine.front(fr, t)  # captions live in UI space — they don't crop
+            cine.front(fr, t)  # heroes + cards live in UI space — never clipped
         if cards is not None:
             fr = cards.draw(fr, t)
-        c, cx = (None, 0) if (a.lesson or cine) else caps.frame(t)
+        c, cx = (None, 0) if a.lesson else caps.frame(t)  # the kinetic pill is always the caption layer
         if c is not None:
             sh = Image.new('RGBA', (c.width + 40, c.height + 40), (0, 0, 0, 0))
             sh.paste(Image.new('RGBA', c.size, (0, 0, 0, 255)), (20, 20), c.getchannel('A').point(lambda v: int(v * 0.2)))

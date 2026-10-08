@@ -248,6 +248,11 @@ def compose(frames_dir, boards=None):
             cmd += ['--background', bg]
         if REQ.get('accent'):
             cmd += ['--accent', REQ['accent']]
+        # cinematic effects are opt-out; infographic cards are opt-in
+        if REQ.get('cinematic') is False:
+            cmd += ['--captions', 'pill']
+        if REQ.get('infographic'):
+            cmd += ['--infographic']
         if promo.get('mode') in ('lower-third', 'squeeze'):
             cmd += ['--promo', promo['mode'], '--promo-name', promo['name']]
             if promo.get('image'):
