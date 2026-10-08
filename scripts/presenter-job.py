@@ -255,6 +255,9 @@ def compose(frames_dir, boards=None):
             if promo.get('label'):
                 cmd += ['--promo-label', promo['label']]
         run(cmd)
+        plan_file = out.with_suffix('.director.json')
+        if plan_file.exists():
+            plan_file.rename(J / f'director-plan-{key}.json')  # the executed shot grammar, per aspect
         outputs[key] = f'/api/v1/presenters/{J.name}/files/{out.name}'
     return outputs
 

@@ -455,6 +455,13 @@ def main():
     cine = None
     if not a.lesson and a.captions == 'cinematic':
         cine = Cine(ktr, words, script, a.audio, W, H, a.aspect, pres, accent)
+        # P8 evidence: the shot plan this render actually executed
+        Path(a.out).with_suffix('.director.json').write_text(json.dumps({
+            'authority': 'director_plan_v1', 'aspect': a.aspect,
+            'clauses': [{'t0': c['t0'], 't1': c['t1'], 'intent': c['intent'], 'depth': c['depth'],
+                         'hero': (words[c['hero']]['word'] if c['hero'] is not None else None),
+                         'words': [w['word'] for w in c['words']]} for c in cine.plan['clauses']],
+            'camera': cine.plan['camera'], 'heroCount': cine.plan['heroCount']}, indent=1))
     cards = None
     if a.icons == 'auto' and not a.lesson:
         taken = {pv.norm(c['words'][c['icon']['word']]['word']) for c in caps.chunks if c.get('icon')}
