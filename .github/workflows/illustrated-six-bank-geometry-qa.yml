@@ -1,0 +1,95 @@
+name: V1 six formal suits original rig geometric sweep
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-six-bank-geometry-qa.yml']
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  geometry-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+      - name: Reuse all six verified editable scenes; never refit or overwrite
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p input
+          gh run download 38003760983 --repo Admiano/nexstudio \
+            --name NEX_V1_SIX_FORMAL_EDITABLE_BLEND_BANK --dir input
+          test "$(find input -maxdepth 2 -name '*-front.blend' | wc -l)" -eq 6
+      - name: Install certified Blender for evaluated original action geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Test all 6 outfits across 10 original animation frames
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output
+          for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            gender=${variant%%-*}
+            f="input/$variant/$variant-front.blend"
+            test -s "$f"
+            "$BLENDER_BIN" -b "$f" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/suit_bank_geometry_sweep.py \
+              -- "$gender" "output/$variant.json"
+            test -s "output/$variant.json"
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          files=sorted(Path("output").glob("*.json"))
+          assert len(files)==6
+          rows=[json.loads(x.read_text()) for x in files]
+          assert all(len(x["frames"])==10 and x["status"].startswith("PASS_") for x in rows)
+          Path("output/QA_SUMMARY.json").write_text(json.dumps({
+            "variantCount":6,"framesPerVariant":10,
+            "scope":"real original armature and evaluated mesh; NOT intersection or deformation quality certification",
+            "results":[{"name":p.stem,"gender":r["gender"],
+                        "maxWristMovement":r["maxDisplacementFromBaseMetres"],
+                        "evaluatedMeshVertices":r["frames"][0]["evaluatedVertices"],
+                        "status":r["status"]} for p,r in zip(files,rows)]
+          },indent=2)+"\n")
+          print("ALL_SIX_REAL_SUIT_RIG_EVALUATIONS_PASS",flush=True)
+          PY
+      - name: Publish transparent structural QA reports
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/formal-bank-geometry-qa
+          cp output/*.json docs/illustrated-family/formal-bank-geometry-qa/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/formal-bank-geometry-qa/
+          git commit -m "proof(character): evaluate original V1 gesture deformation for six actual CC0 outfits"
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nex-v1-six-outfit-mesh-and-rig-gesture-qa
+          path: output/
+          retention-days: 14
+          if-no-files-found: warn
