@@ -1,8 +1,5 @@
 name: V1 formal cast complete reproducible six-variant bank
 on:
-  push:
-    branches: [work/illustrated-family-expansion-v1]
-    paths: ['.github/workflows/illustrated-formal-six-build-bank.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -53,7 +50,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json,hashlib
+          import json,hashlib,os,subprocess
           from pathlib import Path
           b=Path('proofs/formal-bank')
           expected=('female-double-breasted','female-statement','male-jacket-tie','male-double-breasted','male-navy-classic','male-dinner-jacket')
@@ -80,7 +77,16 @@ jobs:
                 for chunk in iter(lambda:stream.read(1048576),b''):h.update(chunk)
               assert h.hexdigest()==entry['sha256'],p
               if p.suffix=='.png':assert p.open('rb').read(8)==b'\x89PNG\r\n\x1a\n'
-              if p.suffix=='.blend':assert p.open('rb').read(7)==b'BLENDER'
+              if p.suffix=='.blend':
+                # Compressed Blender 5.2 scenes do NOT necessarily begin with
+                # the raw "BLENDER" magic. Ask Blender to open the saved scene
+                # and verify original Host rig structure instead.
+                cmd=[os.environ['BLENDER_BIN'],'-b',str(p),'-t','2',
+                     '--python-exit-code','1','--python-expr',
+                     'import bpy; assert "Host.rig" in bpy.data.objects; assert len(bpy.data.objects["Host.rig"].data.bones)==163']
+                opened=subprocess.run(cmd,capture_output=True,text=True,timeout=120)
+                if opened.returncode:
+                  raise RuntimeError("SAVED_SCENE_COULD_NOT_BE_REOPENED:"+str(p)+"\\n"+opened.stdout+"\\n"+opened.stderr)
             manifest['variants'].append(v)
           assert len(manifest['variants'])==6
           (b/'BANK_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
