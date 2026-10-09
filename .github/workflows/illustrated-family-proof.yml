@@ -31,18 +31,27 @@ jobs:
           test -n "$BLENDER_BIN"
           echo "BLENDER_BIN=$BLENDER_BIN" >> "$GITHUB_ENV"
           "$BLENDER_BIN" --background --factory-startup --python-expr 'import bpy; print("VERIFIED_RUNTIME", bpy.app.version_string)' | tee blender-version.txt
-      - name: Verify canonical Blender scene bytes
+      - name: Decode Zstandard-packed canonical Blender scenes into isolated copies
+        shell: bash
         run: |
           set -euo pipefail
-          for f in engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_{FEMALE,MALE}.blend; do
-            echo "CHECKING $f"
-            ls -lah "$f" || true
-            file "$f" || true
-            head -c 32 "$f" | od -A x -t x1 || true
+          command -v zstd || { sudo apt-get update && sudo apt-get install -y zstd; }
+          for gender in FEMALE MALE; do
+            f="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_${gender}.blend"
+            copy="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_${gender}.decoded.blend"
             test -s "$f"
-            if ! test "$(head -c 7 "$f")" = BLENDER; then echo "INVALID_BLEND_HEADER: $f"; exit 16; fi
-            sha256sum "$f"
-          done | tee scene-hashes.txt
+            file "$f"
+            zstd -q -d -c "$f" > "$copy"
+            echo "Decoded scene: $copy"
+            file "$copy"
+            head -c 16 "$copy" | od -A x -t x1
+            test -s "$copy"
+            if test "$(head -c 7 "$copy")" != BLENDER; then
+              echo "DECODED_SCENE_HAS_UNEXPECTED_HEADER: $copy"
+              exit 16
+            fi
+            sha256sum "$f" "$copy" | tee -a scene-hashes.txt
+          done
       - name: Real Blender smoke render
         run: |
           "$BLENDER_BIN" -b -t 2 --python-exit-code 1 --python scripts/illustrated-family/audit_render.py -- --smoke --out proofs/runtime
@@ -54,7 +63,7 @@ jobs:
           for gender in female male; do
             if [ "$gender" = female ]; then UPPER=FEMALE; else UPPER=MALE; fi
             for face in 0 1 2; do
-              "$BLENDER_BIN" -b "engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$UPPER.blend" -t 2 --python-exit-code 1 --python scripts/illustrated-family/audit_render.py -- --gender "$gender" --face "$face" --facevar-script "$FACE_SCRIPT" --out "proofs/$gender/face$face"
+              "$BLENDER_BIN" -b "engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$UPPER.decoded.blend" -t 2 --python-exit-code 1 --python scripts/illustrated-family/audit_render.py -- --gender "$gender" --face "$face" --facevar-script "$FACE_SCRIPT" --out "proofs/$gender/face$face"
             done
           done
       - name: Compose actual-render comparison sheets
