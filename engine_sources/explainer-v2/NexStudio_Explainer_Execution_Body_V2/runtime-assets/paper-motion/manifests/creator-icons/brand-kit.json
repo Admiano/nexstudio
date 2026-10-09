@@ -1,0 +1,140 @@
+{
+  "id": "icon.creator.brand-kit.paper-01",
+  "name": "Brand kit",
+  "version": "1.4.0",
+  "category": "icon",
+  "subtype": "creator-media",
+  "group": "design",
+  "slug": "brand-kit",
+  "renderer": "brand-kit",
+  "order": 45,
+  "intents": [
+    "apply_brand_kit",
+    "manage_brand_assets"
+  ],
+  "keywords": [
+    "icon",
+    "creator",
+    "paper",
+    "brand",
+    "kit",
+    "logo",
+    "colours",
+    "assets"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "unfold",
+        "cut-paper-pop",
+        "scale-bounce"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.2
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.15,
+    "maximum": 3.2
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "unfold",
+    "cut-paper-pop",
+    "scale-bounce"
+  ],
+  "defaultMotion": "unfold",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "creator.brand-kit.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Brand kit creator and media paper icon",
+  "description": "A reusable layered paper-style brand kit icon for creator, media-production and publishing workflows.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "apply_brand_kit",
+      "manage_brand_assets"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "design"
+  }
+}

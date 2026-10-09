@@ -1,0 +1,79 @@
+{
+  "id": "object.letter-sheet.paper-01",
+  "name": "Letter sheet",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "mail",
+  "cssClass": "obj-letter-sheet",
+  "renderer": "letter-sheet",
+  "intents": [
+    "compose_paper_story",
+    "display_mail"
+  ],
+  "keywords": [
+    "paper",
+    "mail",
+    "letter",
+    "sheet"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 36
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 220
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "unfold",
+    "paper-slide",
+    "page-flip"
+  ],
+  "defaultMotion": "unfold",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.unfold"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Letter sheet animated paper component",
+  "description": "A formal letter sheet with address, heading and body slots.",
+  "attachable": false,
+  "bespokeMotion": false
+}

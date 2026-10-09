@@ -1,0 +1,140 @@
+{
+  "id": "typography.statistic-headline.paper-01",
+  "name": "Statistic headline",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "data",
+  "slug": "statistic-headline",
+  "renderer": "statistic-headline",
+  "order": 15,
+  "intents": [
+    "show_statistic",
+    "emphasize_metric"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "data",
+    "statistic headline",
+    "show_statistic",
+    "emphasize_metric"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "value": {
+      "type": "string",
+      "maxCharacters": 16,
+      "guidance": "Maximum 16 characters; shorter copy is preferred."
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 72,
+      "guidance": "Maximum 72 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 120,
+      "guidance": "Maximum 120 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 48,
+      "guidance": "Maximum 48 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "value": 16,
+    "title": 72,
+    "body": 120,
+    "meta": 48
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "ink-reveal",
+  "soundTags": [
+    "typography.statistic-headline.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Statistic headline animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_statistic",
+      "emphasize_metric"
+    ],
+    "semanticRole": "data",
+    "copyGuidance": {
+      "value": 16,
+      "title": 72,
+      "body": 120,
+      "meta": 48
+    }
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "id": "icon.agent.trigger.paper-01",
+  "name": "Trigger",
+  "version": "1.5.0",
+  "category": "icon",
+  "subtype": "agent-automation",
+  "group": "automation",
+  "slug": "trigger",
+  "renderer": "trigger",
+  "order": 24,
+  "intents": [
+    "start_workflow",
+    "show_trigger"
+  ],
+  "keywords": [
+    "icon",
+    "agent",
+    "automation",
+    "paper",
+    "trigger",
+    "start",
+    "event",
+    "lightning",
+    "automation"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "paper-slide",
+        "drop-and-settle",
+        "stamp-impact"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.3,
+      "maximum": 3.4
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.2,
+    "maximum": 3.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "drop-and-settle",
+    "stamp-impact"
+  ],
+  "defaultMotion": "paper-slide",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "agent.trigger.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Trigger AI agent and automation paper icon",
+  "description": "A reusable layered paper-style trigger icon for AI agents, automation and modern software workflows.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": true,
+  "agentSelection": {
+    "useWhen": [
+      "start_workflow",
+      "show_trigger"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "automation"
+  }
+}

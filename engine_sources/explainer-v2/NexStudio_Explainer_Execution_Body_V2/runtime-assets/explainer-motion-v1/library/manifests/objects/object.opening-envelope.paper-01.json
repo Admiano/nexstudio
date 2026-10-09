@@ -1,0 +1,79 @@
+{
+  "id": "object.opening-envelope.paper-01",
+  "name": "Opening envelope",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "mail",
+  "cssClass": "obj-opening-envelope",
+  "renderer": "opening-envelope",
+  "intents": [
+    "compose_paper_story",
+    "display_mail"
+  ],
+  "keywords": [
+    "paper",
+    "mail",
+    "opening",
+    "envelope"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 28
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 100
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "unfold",
+    "paper-slide",
+    "page-flip"
+  ],
+  "defaultMotion": "unfold",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.unfold"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Opening envelope animated paper component",
+  "description": "An envelope whose flap opens and letter rises.",
+  "attachable": false,
+  "bespokeMotion": true
+}

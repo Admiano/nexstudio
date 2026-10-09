@@ -1,0 +1,152 @@
+{
+  "id": "module.creator.user-generated-content-frame.paper-01",
+  "name": "User-generated content frame",
+  "version": "2.0.0",
+  "category": "creator-module",
+  "subtype": "community",
+  "slug": "user-generated-content-frame",
+  "renderer": "user-generated-content-frame",
+  "order": 19,
+  "intents": [
+    "show_user_generated_content",
+    "feature_community"
+  ],
+  "keywords": [
+    "creator",
+    "publishing",
+    "paper",
+    "animated",
+    "platform-neutral",
+    "community",
+    "user generated content frame",
+    "show_user_generated_content",
+    "feature_community"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "contentStates": [
+    "short",
+    "medium",
+    "long"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 1.8,
+    "maximum": 6
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "drop-and-settle",
+    "unfold"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 88
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 240
+    },
+    "handle": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "avatar": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ]
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "video",
+        "transparent-png",
+        "website-screenshot"
+      ]
+    },
+    "logo": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ],
+      "authorizedOnly": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "contentLength": {
+      "type": "enum",
+      "values": [
+        "short",
+        "medium",
+        "long"
+      ]
+    }
+  },
+  "soundTags": [
+    "creator.module.user-generated-content-frame.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated platform-neutral user-generated content frame paper module",
+  "platformNeutral": true,
+  "thirdPartyLogosBakedIn": false,
+  "authorizedLogoSlot": true,
+  "replaceableContent": true,
+  "composedFromLowerLevelComponents": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_user_generated_content",
+      "feature_community"
+    ],
+    "semanticRole": "community",
+    "avoidWhen": [
+      "imitate_specific_social_platform"
+    ]
+  },
+  "sampleConfig": {
+    "title": "Lena Adebayo",
+    "handle": "@lenacreates",
+    "caption": "Tried the workflow for my product launch. The storyboard was ready before lunch."
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "categories": {
+    "foundation": 40,
+    "paper-object": 40,
+    "motion": 32,
+    "icon": 172,
+    "typography": 24,
+    "media-container": 24,
+    "data-visualisation": 30,
+    "workflow-diagram": 24,
+    "creator-module": 28,
+    "documentary-module": 32,
+    "scene-family": 36,
+    "audio": 24
+  },
+  "batches": {
+    "1": 40,
+    "2": 40,
+    "3": 32,
+    "4": 40,
+    "5": 48,
+    "6": 48,
+    "7": 36,
+    "8": 24,
+    "9": 24,
+    "10": 54,
+    "11": 28,
+    "12": 32,
+    "13": 36,
+    "14": 24
+  },
+  "paperStyles": {
+    "clean-editorial": 482,
+    "handmade-scrapbook": 482,
+    "technical-notebook": 482,
+    "bold-paper-collage": 458
+  },
+  "aspectRatios": {
+    "16:9": 482,
+    "1:1": 482,
+    "9:16": 482
+  },
+  "motionEnergy": {
+    "low": 482,
+    "medium": 482,
+    "high": 482
+  },
+  "useCases": {
+    "creator": 141,
+    "general": 214,
+    "agent": 112,
+    "documentary": 53
+  },
+  "soundTags": 342
+}

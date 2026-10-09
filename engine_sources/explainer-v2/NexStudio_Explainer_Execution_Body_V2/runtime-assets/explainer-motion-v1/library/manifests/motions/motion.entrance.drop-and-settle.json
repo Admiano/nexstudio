@@ -1,0 +1,87 @@
+{
+  "id": "motion.entrance.drop-and-settle",
+  "name": "Drop and settle",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "entrance",
+  "key": "drop-and-settle",
+  "intents": [
+    "animate_entrance",
+    "drop_and_settle"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "entrance",
+    "drop",
+    "and",
+    "settle"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "back.out(1.7)"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "back.out(1.7)",
+  "soundTags": [
+    "paper.drop.medium"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Drop and settle reusable animation behaviour",
+  "description": "Drops an element from above with a restrained rebound and final grounded settle.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

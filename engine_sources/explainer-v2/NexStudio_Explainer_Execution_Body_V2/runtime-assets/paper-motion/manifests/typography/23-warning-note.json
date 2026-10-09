@@ -1,0 +1,133 @@
+{
+  "id": "typography.warning-note.paper-01",
+  "name": "Warning note",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "annotation",
+  "slug": "warning-note",
+  "renderer": "warning-note",
+  "order": 23,
+  "intents": [
+    "show_warning",
+    "communicate_caution"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "annotation",
+    "warning note",
+    "show_warning",
+    "communicate_caution"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 54,
+      "guidance": "Maximum 54 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 180,
+      "guidance": "Maximum 180 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 48,
+      "guidance": "Maximum 48 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "title": 54,
+    "body": 180,
+    "meta": 48
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "soundTags": [
+    "typography.warning-note.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Warning note animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_warning",
+      "communicate_caution"
+    ],
+    "semanticRole": "annotation",
+    "copyGuidance": {
+      "title": 54,
+      "body": 180,
+      "meta": 48
+    }
+  }
+}

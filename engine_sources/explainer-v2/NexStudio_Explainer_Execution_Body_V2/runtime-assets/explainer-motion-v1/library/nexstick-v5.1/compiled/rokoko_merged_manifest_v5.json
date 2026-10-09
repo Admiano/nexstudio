@@ -1,0 +1,62 @@
+{
+  "version": "5.0.0",
+  "sources": [
+    "rokoko_walkspline_turn_v5.json",
+    "rokoko_high_reach_capture_v5.json",
+    "rokoko_give_capture_v5.json",
+    "rokoko_typing_leanback_v5.json",
+    "rokoko_presenter_papers_v5.json",
+    "rokoko_documentary_acting_v5.json"
+  ],
+  "compiledClips": 6,
+  "clips": [
+    {
+      "id": "walkspline_turn",
+      "semantic": "turn",
+      "duration": 1.2,
+      "sourceFile": "03-walkspline.fbx",
+      "yawDeltaDeg": 90.3,
+      "license": "Rokoko free resource; commercial rendered-project use per source page; raw redistribution not intended"
+    },
+    {
+      "id": "high_reach_capture",
+      "semantic": "high_reach_capture",
+      "duration": 3.566667,
+      "sourceFile": "high-reach.fbx",
+      "yawDeltaDeg": 9.51,
+      "license": "Rokoko free resource; commercial rendered-project use per source page; raw redistribution not intended"
+    },
+    {
+      "id": "give_capture",
+      "semantic": "give_capture",
+      "duration": 3.333333,
+      "sourceFile": "give-candy.fbx",
+      "yawDeltaDeg": -3.47,
+      "license": "Rokoko free resource; commercial rendered-project use per source page; raw redistribution not intended"
+    },
+    {
+      "id": "typing_leanback",
+      "semantic": "typing_leanback",
+      "duration": 19.666667,
+      "sourceFile": "typing-leanback.fbx",
+      "yawDeltaDeg": 2.79,
+      "license": "Rokoko free resource; commercial rendered-project use per source page; raw redistribution not intended"
+    },
+    {
+      "id": "presenter_papers",
+      "semantic": "presenter_papers",
+      "duration": 27.4,
+      "sourceFile": "news-anchor-papers.fbx",
+      "yawDeltaDeg": 7.93,
+      "license": "Rokoko free resource; commercial rendered-project use per source page; raw redistribution not intended"
+    },
+    {
+      "id": "documentary_acting",
+      "semantic": "documentary_acting",
+      "duration": 53.133333,
+      "sourceFile": "NatureDocumentary_GoneWrong_hik.fbx",
+      "yawDeltaDeg": 25.96,
+      "license": "Rokoko free resource; commercial rendered-project use per source page; raw redistribution not intended"
+    }
+  ]
+}

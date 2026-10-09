@@ -1,0 +1,77 @@
+{
+  "id": "foundation.print.pencil-marker",
+  "name": "Pencil and marker hybrid",
+  "version": "1.0.0",
+  "category": "foundation",
+  "subtype": "print",
+  "intents": [
+    "style_text",
+    "style_print"
+  ],
+  "keywords": [
+    "print",
+    "pencil-marker",
+    "ink"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "intensity": {
+      "type": "number",
+      "min": 0,
+      "max": 1
+    },
+    "scale": {
+      "type": "number",
+      "min": 0.5,
+      "max": 2
+    },
+    "color": {
+      "type": "theme-token",
+      "optional": true
+    }
+  },
+  "duration": {
+    "minimum": 0.5,
+    "recommended": 1.2,
+    "maximum": 3
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "ink-reveal",
+    "paper-settle"
+  ],
+  "soundTags": [
+    "ink.marker"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Pencil and marker hybrid print treatment",
+  "description": "Pencil and marker hybrid print treatment"
+}

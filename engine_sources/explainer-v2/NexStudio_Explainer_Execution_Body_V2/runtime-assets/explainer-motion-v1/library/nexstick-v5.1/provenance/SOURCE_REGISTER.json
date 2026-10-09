@@ -1,0 +1,123 @@
+{
+  "name": "NexStick Master V2 Provenance",
+  "version": "1.1.0",
+  "generatedAt": "2026-08-13",
+  "policy": {
+    "rawDonorsPrivate": true,
+    "publicRawAssetRoutesForbidden": true,
+    "compiledMotionRuntimeOnly": true,
+    "originalFilenamesPreserved": true,
+    "licenseClaimsNotUpgradedBeyondSourceEvidence": true
+  },
+  "sources": [
+    {
+      "source": "Quaternius Universal Animation Library 2 Standard",
+      "status": "EXECUTABLE",
+      "license": "CC0 1.0",
+      "evidence": "License.txt and README.txt inside user-supplied UAL2 Standard ZIP explicitly state CC0 1.0 Public Domain Dedication.",
+      "compiledClips": 25
+    },
+    {
+      "source": "Rokoko 16 Free Walk and Run Cycle Animations",
+      "status": "SELECTIVELY_EXECUTABLE",
+      "rightsEvidence": "Official Rokoko resource page states these assets may be used in animation/VFX/game/3D projects including commercial use.",
+      "rawRedistributionClaim": false
+    },
+    {
+      "source": "Rokoko Free TV-Themed / Free Resource Collection",
+      "status": "SELECTIVELY_EXECUTABLE",
+      "rightsEvidence": "Official Rokoko resource pages state free TV-themed and broader 263-asset collection may be used in 3D projects including commercial use.",
+      "rawRedistributionClaim": false
+    },
+    {
+      "source": "Quaternius UAL1 + KayKit",
+      "status": "EXECUTABLE_VIA_LEGACY_ADMITTED_DONOR_LAYER",
+      "license": "CC0 as recorded in inherited Nex Motion Corpus provenance"
+    },
+    {
+      "source": "CMU captured safe subset",
+      "status": "EXECUTABLE_VIA_LEGACY_ADMITTED_DONOR_LAYER",
+      "rightsEvidence": "CMU FAQ supplied by user states motion capture data may be copied, modified or redistributed without permission. Full multi-GB corpus was not acquired for this rebuild."
+    },
+    {
+      "source": "NexPerformance V4 / NexStick Cast A\u2013F / Authored Master V1",
+      "status": "INTERNAL_LINEAGE",
+      "role": "proven semantic, contact, family, clothing, personality, role and debug-surface donors; V4 sequencing superseded"
+    }
+  ],
+  "rawDonorRegister": [
+    {
+      "file": "NatureDocumentary_GoneWrong_hik.fbx",
+      "bytes": 4601344,
+      "sha256": "9126497c1257c8c01035c9da2081e3b3ee02a298c867ffb49409dc2ad296aff5",
+      "packagedInProductionRelease": false
+    },
+    {
+      "file": "give-candy.fbx",
+      "bytes": 1562432,
+      "sha256": "7bd7eb6ee4752ebc51fcf6f0be05cbdcfc00895c036e9504a0b2be5454f8092c",
+      "packagedInProductionRelease": false
+    },
+    {
+      "file": "high-reach.fbx",
+      "bytes": 1415888,
+      "sha256": "f6233167fa229b1c2b06125c49b0fd32a6b5c49fe80e5e130af87028506c93b5",
+      "packagedInProductionRelease": false
+    },
+    {
+      "file": "news-anchor-papers.fbx",
+      "bytes": 3938768,
+      "sha256": "bb6a563a31c96cb03d3af0bf1aac5c33f50dc2d555eb1580feb6fdc62f19f748",
+      "packagedInProductionRelease": false
+    },
+    {
+      "file": "rokoko-walk-run.zip",
+      "bytes": 12218874,
+      "sha256": "25fafd47948e3e8d7a413b471ed3b603ce77ae3670a2bb276a60f53adb718f9d",
+      "packagedInProductionRelease": false
+    },
+    {
+      "file": "stretching-out.fbx",
+      "bytes": 3138768,
+      "sha256": "4d24354cfb683e5bcda5c0bba5d239c0a65d77d39ffc22f79a9bd1e720692847",
+      "packagedInProductionRelease": false
+    },
+    {
+      "file": "turn-and-scare.fbx",
+      "bytes": 1344032,
+      "sha256": "e6f8edf47781642e4f6128e1974c8263f48ca751d3a0dd4811f8854f1fed1fc7",
+      "packagedInProductionRelease": false
+    },
+    {
+      "file": "typing-leanback.fbx",
+      "bytes": 3001632,
+      "sha256": "6bdf0276da8fd78bdb9c59ae7bd6926f1bbdca73c64ea4411b3e02f34cb0373e",
+      "packagedInProductionRelease": false
+    },
+    {
+      "file": "ual2-standard.zip",
+      "bytes": 18735003,
+      "sha256": "4008ea208a604773a2b2177d965f0f5d3195498b5bf838c3f5785d68e95f2a68",
+      "packagedInProductionRelease": false
+    }
+  ],
+  "compiledRegisters": [
+    "compiled/ual2_compile_manifest_v5.json",
+    "compiled/rokoko_merged_manifest_v5.json",
+    "compiled/rokoko_motion_vault_v5.json",
+    "compiled/ual2_motion_vault_v5.json"
+  ],
+  "distributionBoundary": "This engineering release omits raw third-party donor binaries. Keep acquisition originals private. Rendered outputs may use admitted donor motion under recorded source permissions; do not expose raw/converted motion files as downloadable public assets without a separate rights review.",
+  "v5_1EngineeringLineage": {
+    "reason": "3D humanoid binding exposed local joint-orientation discontinuities that the V5 positional/contact gate did not measure.",
+    "changes": [
+      "stable knee bend-plane IK",
+      "spherical fixed-segment transition direction blending",
+      "stationary upper-body performance composition over stable stance",
+      "0.40 s skin-safe locomotion exit deceleration",
+      "all-12-family 60 fps angular continuity gate",
+      "all-12-family UAL-compatible 30 fps quaternion binding gate"
+    ],
+    "newExternalDonorsAdded": false
+  }
+}

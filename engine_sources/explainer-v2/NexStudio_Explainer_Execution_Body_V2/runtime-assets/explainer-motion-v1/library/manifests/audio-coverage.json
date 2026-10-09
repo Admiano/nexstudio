@@ -1,0 +1,268 @@
+{
+  "requestedSlotCount": 43,
+  "summary": {
+    "exact": 18,
+    "fallback": 17,
+    "missing": 8
+  },
+  "slots": [
+    {
+      "category": "paper-foley",
+      "requestedSound": "paper slide",
+      "status": "exact",
+      "audioId": "audio.paper-swipe-clean"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "page turn",
+      "status": "exact",
+      "audioId": "audio.page-turn-soft"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "fold",
+      "status": "fallback",
+      "audioId": "audio.map-unfold-wide"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "unfold",
+      "status": "exact",
+      "audioId": "audio.map-unfold-wide"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "tear",
+      "status": "missing",
+      "audioId": null
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "crumple",
+      "status": "missing",
+      "audioId": null
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "flatten",
+      "status": "missing",
+      "audioId": null
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "shuffle",
+      "status": "exact",
+      "audioId": "audio.newspaper-rustle"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "tape pull",
+      "status": "exact",
+      "audioId": "audio.tape-pull-snap"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "tape press",
+      "status": "fallback",
+      "audioId": "audio.tape-pull-snap"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "staple",
+      "status": "exact",
+      "audioId": "audio.staple-click-precise"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "paper clip",
+      "status": "missing",
+      "audioId": null
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "stamp",
+      "status": "exact",
+      "audioId": "audio.rubber-stamp-impact"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "pencil",
+      "status": "exact",
+      "audioId": "audio.pencil-scribble-short"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "marker",
+      "status": "exact",
+      "audioId": "audio.marker-swipe-bold"
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "chalk",
+      "status": "missing",
+      "audioId": null
+    },
+    {
+      "category": "paper-foley",
+      "requestedSound": "scissors",
+      "status": "missing",
+      "audioId": null
+    },
+    {
+      "category": "interface",
+      "requestedSound": "click",
+      "status": "fallback",
+      "audioId": "audio.typewriter-key-single"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "select",
+      "status": "fallback",
+      "audioId": "audio.typewriter-key-single"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "hover",
+      "status": "missing",
+      "audioId": null
+    },
+    {
+      "category": "interface",
+      "requestedSound": "toggle",
+      "status": "missing",
+      "audioId": null
+    },
+    {
+      "category": "interface",
+      "requestedSound": "upload",
+      "status": "fallback",
+      "audioId": "audio.fast-transition-whoosh"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "download",
+      "status": "fallback",
+      "audioId": "audio.fast-transition-whoosh"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "notification",
+      "status": "fallback",
+      "audioId": "audio.text-pop-in"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "confirmation",
+      "status": "exact",
+      "audioId": "audio.rubber-stamp-impact"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "error",
+      "status": "fallback",
+      "audioId": "audio.bass-hit"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "processing",
+      "status": "fallback",
+      "audioId": "audio.projector-start-modern"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "success",
+      "status": "fallback",
+      "audioId": "audio.text-pop-in"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "pop",
+      "status": "exact",
+      "audioId": "audio.text-pop-in"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "tick",
+      "status": "fallback",
+      "audioId": "audio.typewriter-key-single"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "counter",
+      "status": "fallback",
+      "audioId": "audio.typewriter-line-return"
+    },
+    {
+      "category": "interface",
+      "requestedSound": "progress completion",
+      "status": "fallback",
+      "audioId": "audio.soft-impact-modern"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "soft whoosh",
+      "status": "fallback",
+      "audioId": "audio.paper-swipe-clean"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "paper whoosh",
+      "status": "exact",
+      "audioId": "audio.paper-swipe-clean"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "fast swipe",
+      "status": "exact",
+      "audioId": "audio.fast-transition-whoosh"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "heavy swipe",
+      "status": "fallback",
+      "audioId": "audio.archive-drawer-slide"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "pop",
+      "status": "exact",
+      "audioId": "audio.text-pop-in"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "impact",
+      "status": "exact",
+      "audioId": "audio.soft-impact-modern"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "rise",
+      "status": "fallback",
+      "audioId": "audio.projector-start-modern"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "drop",
+      "status": "exact",
+      "audioId": "audio.soft-impact-modern"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "reveal",
+      "status": "fallback",
+      "audioId": "audio.fast-transition-whoosh"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "page transition",
+      "status": "exact",
+      "audioId": "audio.page-turn-soft"
+    },
+    {
+      "category": "motion-transition",
+      "requestedSound": "logo sting",
+      "status": "exact",
+      "audioId": "audio.final-logo-sting"
+    }
+  ]
+}

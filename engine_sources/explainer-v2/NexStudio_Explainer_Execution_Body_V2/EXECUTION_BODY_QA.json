@@ -1,0 +1,249 @@
+{
+  "schemaVersion": "explainer-execution-body-v2-qa",
+  "status": "PASS",
+  "passed": 46,
+  "total": 46,
+  "checks": [
+    {
+      "name": "P8 execution runner present",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "P8 is sole creative authority",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "rejected P14.2 Director folder absent",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no old Director invocation scripts",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "execution grammar is neutral",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "motion execution uses neutral grammar",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "specialist body is deterministic execution planning",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "specialist body contains no embedded model council",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "production-art systems include execution-fidelity check",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "premium character missing is explicit blocker",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "weak character body cannot masquerade as premium",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "environment never infers a semantic world archetype",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "environment accepts only explicit authored world or white field",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "missing environment fails/replans instead of generic fallback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "environment binding is P8/asset execution-only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "environment has no premium-context invention heuristic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "constructed-object compatibility symbol is fail-closed",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "constructed object has no canned common-prop catalogue",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "unknown object is not generic-symbol substituted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "asset body uses authored assets and never constructed fallback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "inline SVG body supported by type contract",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "compiler consumes inline SVG bodies",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "style grammar has single normalized art family",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "scene composer enforces occupancy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "scene composer enforces rich density",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "scene composer enforces environment depth",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "runtime rejects presentation substitution",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "runtime forbids raw rig exposure",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "runtime enforces style family",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "family body has execution-fidelity-only gate",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "private critic source absent",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "private critic capability router absent",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "execution body contains no private model router",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "model routing belongs outside family body",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no family-private critic role override",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "P8 motion requires explicit executable binding",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no generic visual verb fallback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "reference-language analysis retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "production art requires execution fidelity",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "production art never allows raw rig",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "embedded performer body executes mechanically",
+      "pass": true,
+      "detail": {
+        "ok": true,
+        "frames": 4,
+        "version": "2.1.0-unified-performance-v5.1"
+      }
+    },
+    {
+      "name": "all execution TypeScript parses",
+      "pass": true,
+      "detail": {
+        "files": 39
+      }
+    },
+    {
+      "name": "execution source has no named model identities",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "execution source has no rejected Director imports",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "authored vector corpus retained",
+      "pass": true,
+      "detail": 198
+    },
+    {
+      "name": "NexStick execution support retained",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "truthBoundary": {
+    "executionBodyIntegrated": true,
+    "commercial95Proven": false,
+    "liveBlindFilmProven": false
+  }
+}

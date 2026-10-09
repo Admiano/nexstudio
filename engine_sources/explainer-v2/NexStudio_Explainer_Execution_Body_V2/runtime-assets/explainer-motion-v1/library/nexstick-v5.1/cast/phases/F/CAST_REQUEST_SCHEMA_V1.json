@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.local/schemas/nexstick/cast-request-schema-v1.json",
+  "title": "NexStick CastRequest V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "request_id": {"type": "string", "minLength": 1},
+    "source_text": {"type": "string", "minLength": 1},
+    "slots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/slot"}
+    },
+    "relations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/relation"}
+    },
+    "group_template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["template_id", "roles", "diversity_intent", "count_required"],
+      "properties": {
+        "template_id": {"enum": ["business_team"]},
+        "roles": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"enum": ["office_worker", "executive", "creator", "salesperson"]}
+        },
+        "diversity_intent": {"enum": ["mixed", "unspecified"]},
+        "count_required": {"type": "boolean"}
+      }
+    }
+  },
+  "oneOf": [
+    {"required": ["slots"]},
+    {"required": ["group_template"]}
+  ],
+  "$defs": {
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slot_id", "count", "role"],
+      "properties": {
+        "slot_id": {"type": "string", "pattern": "^[A-Za-z0-9_-]+$"},
+        "count": {"type": "integer", "minimum": 1, "maximum": 64},
+        "role": {
+          "enum": [
+            "presenter", "teacher", "student", "office_worker", "executive",
+            "creator", "technician", "healthcare_worker", "builder", "parent",
+            "child", "customer", "helper", "friend", "salesperson"
+          ]
+        },
+        "family": {
+          "enum": [
+            "adult_man_average", "adult_man_broad", "adult_woman_average", "adult_woman_tall",
+            "boy", "girl", "diminutive_man", "diminutive_woman", "diminutive_boy",
+            "diminutive_girl", "neutral_adult", "neutral_child"
+          ]
+        },
+        "gender": {"enum": ["male", "female", "neutral"]},
+        "age_group": {"enum": ["adult", "child"]},
+        "morphology": {"enum": ["average", "broad", "tall", "diminutive", "neutral"]},
+        "clothing_tag": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "personality": {
+          "enum": ["calm", "cheerful", "confident", "shy", "energetic", "serious", "playful", "authoritative", "warm", "reserved"]
+        },
+        "accessory_tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+        },
+        "relation_label": {"type": "string"}
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "from_slot", "to_slot"],
+      "properties": {
+        "type": {"enum": ["parent_child", "friendship", "service", "teacher_student", "peer"]},
+        "from_slot": {"type": "string"},
+        "to_slot": {"type": "string"},
+        "metadata": {"type": "object"}
+      }
+    }
+  }
+}

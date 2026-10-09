@@ -1,0 +1,86 @@
+{
+  "id": "motion.entrance.draw-on",
+  "name": "Draw-on",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "entrance",
+  "key": "draw-on",
+  "intents": [
+    "animate_entrance",
+    "draw_on"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "entrance",
+    "draw",
+    "on"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "sine.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "sine.inOut",
+  "soundTags": [
+    "draw.ink.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Draw-on reusable animation behaviour",
+  "description": "Draws SVG strokes or an automatically generated paper-ink line onto the target.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

@@ -1,0 +1,36 @@
+{
+  "version": "5.0.0",
+  "compiled": 1,
+  "items": [
+    {
+      "key": "high_reach_capture",
+      "file": "high-reach.fbx",
+      "semantic": "high_reach_capture",
+      "duration": 20.933333,
+      "frames": 629,
+      "rootDelta": [
+        -0.024826,
+        0.0,
+        0.262443
+      ],
+      "yawDeltaDeg": 4.87,
+      "contacts": {
+        "l": 2,
+        "r": 3
+      },
+      "crop": null,
+      "status": "COMPILED_QA_PENDING"
+    }
+  ],
+  "semanticTrim": {
+    "semanticTrim": true,
+    "sourceStartSeconds": 10.55,
+    "sourceEndSeconds": 14.15,
+    "sourceStartFrame": 317,
+    "sourceEndFrame": 424,
+    "reason": "trim long raw capture to the mechanically relevant action window"
+  },
+  "duration": 3.566667,
+  "frames": 108,
+  "yawDeltaDeg": 9.51
+}

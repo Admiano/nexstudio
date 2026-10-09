@@ -1,0 +1,178 @@
+{
+  "id": "data.stacked-bar-chart.paper-01",
+  "name": "Stacked bar chart",
+  "version": "1.9.0",
+  "category": "data-visualisation",
+  "subtype": "comparison",
+  "slug": "stacked-bar-chart",
+  "renderer": "stacked-bar-chart",
+  "order": 2,
+  "intents": [
+    "show_stacked_bar_chart",
+    "visualise_data",
+    "explain_metric"
+  ],
+  "keywords": [
+    "data",
+    "chart",
+    "paper",
+    "animated",
+    "stacked bar chart",
+    "comparison",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "items": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 6
+    },
+    "format": {
+      "type": "enum",
+      "values": [
+        "number",
+        "compact",
+        "currency",
+        "percent"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "items"
+    ],
+    "itemFields": [
+      "label",
+      "value",
+      "change",
+      "segments",
+      "x",
+      "y"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 6,
+    "maximum": 6
+  },
+  "numberFormats": [
+    "number",
+    "compact",
+    "currency",
+    "percent"
+  ],
+  "supportsSigns": [
+    "positive",
+    "neutral",
+    "negative"
+  ],
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.2,
+    "maximum": 8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "draw-on",
+    "numeric-count"
+  ],
+  "defaultMotion": "draw-on",
+  "soundTags": [
+    "data.reveal",
+    "ui.tick",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven stacked bar chart",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromZero": true,
+  "usesTabularNumerals": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Channel mix",
+    "format": "number",
+    "items": [
+      {
+        "label": "Q1",
+        "value": 78,
+        "segments": [
+          28,
+          30,
+          20
+        ]
+      },
+      {
+        "label": "Q2",
+        "value": 96,
+        "segments": [
+          34,
+          37,
+          25
+        ]
+      },
+      {
+        "label": "Q3",
+        "value": 112,
+        "segments": [
+          42,
+          41,
+          29
+        ]
+      }
+    ]
+  }
+}

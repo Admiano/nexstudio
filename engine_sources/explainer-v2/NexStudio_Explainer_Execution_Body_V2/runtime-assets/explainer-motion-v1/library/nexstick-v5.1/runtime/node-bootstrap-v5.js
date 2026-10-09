@@ -1,0 +1,10 @@
+'use strict';const path=require('path');const R=path.resolve(__dirname,'..');if(!global.window)global.window=globalThis;
+require(path.join(R,'vendor/legacy-v4-donor.bundle.js'));
+require(path.join(R,'compiled/nex-ual2-motion-vault-v5.js'));
+require(path.join(R,'compiled/nex-rokoko-motion-vault-v5.js'));
+require(path.join(R,'runtime/nex-rokoko-sampler-v5.js'));
+require(path.join(R,'runtime/nex-ual2-sampler-v5.js'));
+require(path.join(R,'runtime/nex-performance-qa-v5.js'));
+require(path.join(R,'runtime/nex-interaction-native-v5.js'));
+require(path.join(R,'runtime/nex-performance-unified-v5.js'));
+module.exports=global.NexPerformanceUnifiedV5;

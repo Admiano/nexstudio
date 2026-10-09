@@ -1,0 +1,57 @@
+{
+  "title": "Research Orchestration",
+  "nodes": [
+    {
+      "id": "n1",
+      "label": "Orchestrator",
+      "type": "agent"
+    },
+    {
+      "id": "n2",
+      "label": "Research",
+      "type": "agent"
+    },
+    {
+      "id": "n3",
+      "label": "Strategy",
+      "type": "agent"
+    },
+    {
+      "id": "n4",
+      "label": "Design",
+      "type": "agent"
+    },
+    {
+      "id": "n5",
+      "label": "QA",
+      "type": "agent"
+    },
+    {
+      "id": "n6",
+      "label": "Delivery",
+      "type": "agent"
+    }
+  ],
+  "edges": [
+    {
+      "from": "n1",
+      "to": "n2"
+    },
+    {
+      "from": "n2",
+      "to": "n3"
+    },
+    {
+      "from": "n3",
+      "to": "n4"
+    },
+    {
+      "from": "n4",
+      "to": "n5"
+    },
+    {
+      "from": "n5",
+      "to": "n6"
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "id": "typography.chapter-opener.paper-01",
+  "name": "Chapter opener",
+  "version": "1.7.0",
+  "category": "typography",
+  "subtype": "display",
+  "slug": "chapter-opener",
+  "renderer": "chapter-opener",
+  "order": 1,
+  "intents": [
+    "open_chapter",
+    "introduce_section"
+  ],
+  "keywords": [
+    "typography",
+    "paper",
+    "animated",
+    "responsive",
+    "display",
+    "chapter opener",
+    "open_chapter",
+    "introduce_section"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "alignment": {
+      "type": "enum",
+      "values": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "emphasisWords": {
+      "type": "array",
+      "maximum": 6
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.6,
+      "recommended": 1.5,
+      "maximum": 5
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "kicker": {
+      "type": "string",
+      "maxCharacters": 24,
+      "guidance": "Maximum 24 characters; shorter copy is preferred."
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 72,
+      "guidance": "Maximum 72 characters; shorter copy is preferred."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 140,
+      "guidance": "Maximum 140 characters; shorter copy is preferred."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 32,
+      "guidance": "Maximum 32 characters; shorter copy is preferred."
+    }
+  },
+  "characterGuidance": {
+    "kicker": 24,
+    "title": 72,
+    "body": 140,
+    "meta": 32
+  },
+  "duration": {
+    "minimum": 0.6,
+    "recommended": 1.5,
+    "maximum": 5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "ink-reveal"
+  ],
+  "defaultMotion": "paper-slide",
+  "soundTags": [
+    "typography.chapter-opener.soft",
+    "paper.text.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Chapter opener animated paper typography component",
+  "responsiveText": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": {
+    "useWhen": [
+      "open_chapter",
+      "introduce_section"
+    ],
+    "semanticRole": "display",
+    "copyGuidance": {
+      "kicker": 24,
+      "title": 72,
+      "body": 140,
+      "meta": 32
+    }
+  }
+}

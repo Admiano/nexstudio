@@ -1,0 +1,39 @@
+{
+  "title": "Human Approval Pipeline",
+  "nodes": [
+    {
+      "id": "n1",
+      "label": "Human brief",
+      "type": "step"
+    },
+    {
+      "id": "n2",
+      "label": "Agent plans",
+      "type": "agent"
+    },
+    {
+      "id": "n3",
+      "label": "Human approves",
+      "type": "step"
+    },
+    {
+      "id": "n4",
+      "label": "Agent delivers",
+      "type": "agent"
+    }
+  ],
+  "edges": [
+    {
+      "from": "n1",
+      "to": "n2"
+    },
+    {
+      "from": "n2",
+      "to": "n3"
+    },
+    {
+      "from": "n3",
+      "to": "n4"
+    }
+  ]
+}

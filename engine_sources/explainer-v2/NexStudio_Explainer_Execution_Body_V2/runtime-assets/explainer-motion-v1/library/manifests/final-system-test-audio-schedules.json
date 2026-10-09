@@ -1,0 +1,152 @@
+{
+  "final-creator-system-test": [
+    {
+      "start": 0.1,
+      "audioId": "audio.paper-swipe-clean",
+      "volume": 0.33,
+      "approval": "candidate"
+    },
+    {
+      "start": 7.3,
+      "audioId": "audio.soft-impact-modern",
+      "volume": 0.22,
+      "approval": "candidate"
+    },
+    {
+      "start": 15.05,
+      "audioId": "audio.camera-shutter-clean",
+      "volume": 0.2,
+      "approval": "candidate"
+    },
+    {
+      "start": 22.35,
+      "audioId": "audio.marker-swipe-bold",
+      "volume": 0.2,
+      "approval": "candidate"
+    },
+    {
+      "start": 29.85,
+      "audioId": "audio.fast-transition-whoosh",
+      "volume": 0.18,
+      "approval": "candidate"
+    },
+    {
+      "start": 37.35,
+      "audioId": "audio.text-pop-in",
+      "volume": 0.18,
+      "approval": "candidate"
+    },
+    {
+      "start": 44.85,
+      "audioId": "audio.paper-swipe-legacy",
+      "volume": 0.2,
+      "approval": "candidate"
+    },
+    {
+      "start": 52.3,
+      "audioId": "audio.final-logo-sting",
+      "volume": 0.3,
+      "approval": "candidate"
+    }
+  ],
+  "final-agent-system-test": [
+    {
+      "start": 0.1,
+      "audioId": "audio.text-pop-in",
+      "volume": 0.22,
+      "approval": "candidate"
+    },
+    {
+      "start": 7.3,
+      "audioId": "audio.typewriter-line-return",
+      "volume": 0.18,
+      "approval": "candidate"
+    },
+    {
+      "start": 15.05,
+      "audioId": "audio.staple-click-precise",
+      "volume": 0.22,
+      "approval": "candidate"
+    },
+    {
+      "start": 22.35,
+      "audioId": "audio.fast-transition-whoosh",
+      "volume": 0.18,
+      "approval": "candidate"
+    },
+    {
+      "start": 29.85,
+      "audioId": "audio.rubber-stamp-impact",
+      "volume": 0.24,
+      "approval": "candidate"
+    },
+    {
+      "start": 37.35,
+      "audioId": "audio.paper-swipe-clean",
+      "volume": 0.18,
+      "approval": "candidate"
+    },
+    {
+      "start": 44.85,
+      "audioId": "audio.soft-impact-modern",
+      "volume": 0.2,
+      "approval": "candidate"
+    },
+    {
+      "start": 52.3,
+      "audioId": "audio.final-logo-sting",
+      "volume": 0.28,
+      "approval": "candidate"
+    }
+  ],
+  "final-documentary-system-test": [
+    {
+      "start": 0.1,
+      "audioId": "audio.page-turn-soft",
+      "volume": 0.28,
+      "approval": "candidate"
+    },
+    {
+      "start": 7.3,
+      "audioId": "audio.camera-shutter-clean",
+      "volume": 0.18,
+      "approval": "candidate"
+    },
+    {
+      "start": 15.05,
+      "audioId": "audio.map-unfold-wide",
+      "volume": 0.18,
+      "approval": "candidate"
+    },
+    {
+      "start": 22.35,
+      "audioId": "audio.typewriter-line-return",
+      "volume": 0.16,
+      "approval": "candidate"
+    },
+    {
+      "start": 29.85,
+      "audioId": "audio.newspaper-rustle",
+      "volume": 0.18,
+      "approval": "candidate"
+    },
+    {
+      "start": 37.35,
+      "audioId": "audio.marker-swipe-bold",
+      "volume": 0.15,
+      "approval": "candidate"
+    },
+    {
+      "start": 44.85,
+      "audioId": "audio.archive-drawer-slide",
+      "volume": 0.16,
+      "approval": "candidate"
+    },
+    {
+      "start": 52.3,
+      "audioId": "audio.final-logo-sting",
+      "volume": 0.25,
+      "approval": "candidate"
+    }
+  ]
+}

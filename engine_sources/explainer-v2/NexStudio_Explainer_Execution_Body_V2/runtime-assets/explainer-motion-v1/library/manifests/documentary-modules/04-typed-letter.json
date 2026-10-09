@@ -1,0 +1,157 @@
+{
+  "id": "module.documentary.typed-letter.paper-01",
+  "name": "Typed letter",
+  "version": "2.0.0",
+  "category": "documentary-module",
+  "subtype": "document",
+  "slug": "typed-letter",
+  "renderer": "typed-letter",
+  "order": 4,
+  "intents": [
+    "show_typed_letter",
+    "documentary_document"
+  ],
+  "keywords": [
+    "documentary",
+    "scrapbook",
+    "paper",
+    "animated",
+    "document",
+    "typed letter",
+    "show_typed_letter"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "moods": [
+    "warm",
+    "serious",
+    "investigative",
+    "celebratory"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.1,
+    "maximum": 7
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "unfold",
+    "peel-reveal",
+    "drop-and-settle",
+    "stamp-impact"
+  ],
+  "defaultMotion": "unfold",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 52
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 220
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "location": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "source": {
+      "type": "string",
+      "maxCharacters": 120,
+      "editable": true
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "replaceable": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "mood": {
+      "type": "enum",
+      "values": [
+        "warm",
+        "serious",
+        "investigative",
+        "celebratory"
+      ]
+    },
+    "redactions": {
+      "type": "boolean"
+    },
+    "highlight": {
+      "type": "string",
+      "maxCharacters": 80
+    },
+    "routeLabels": {
+      "type": "array",
+      "maximumItems": 6
+    },
+    "connections": {
+      "type": "array",
+      "maximumItems": 10
+    }
+  },
+  "soundTags": [
+    "documentary.document.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated typed letter documentary paper module",
+  "replaceableMedia": true,
+  "editableCitationSlots": true,
+  "configurableMood": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_typed_letter",
+      "documentary_document"
+    ],
+    "semanticRole": "document",
+    "avoidWhen": [
+      "sensationalize_without_evidence"
+    ]
+  },
+  "sampleConfig": {
+    "title": "Dear future team,",
+    "date": "14 FEB 1987",
+    "caption": "We are building this carefully because the work should outlast us.",
+    "media": "assets/media/documentary/investigation-document.svg"
+  }
+}

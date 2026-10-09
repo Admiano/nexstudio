@@ -1,0 +1,86 @@
+{
+  "id": "motion.action.colour-fill",
+  "name": "Colour fill",
+  "version": "1.2.0",
+  "category": "motion",
+  "subtype": "action",
+  "key": "colour-fill",
+  "intents": [
+    "animate_action",
+    "colour_fill"
+  ],
+  "keywords": [
+    "motion",
+    "paper",
+    "action",
+    "colour",
+    "fill"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 2.4
+    },
+    "delay": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "intensity": {
+      "type": "number",
+      "minimum": 0.35,
+      "maximum": 1.8
+    },
+    "easing": {
+      "type": "string",
+      "default": "power2.inOut"
+    }
+  },
+  "duration": {
+    "minimum": 0.35,
+    "recommended": 0.9,
+    "maximum": 2.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleTargets": [
+    "paper-object",
+    "text",
+    "svg"
+  ],
+  "compatibleMotions": [],
+  "defaultEase": "power2.inOut",
+  "soundTags": [
+    "paper.fill.soft"
+  ],
+  "themeTokens": [
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--ink",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Colour fill reusable animation behaviour",
+  "description": "Sweeps a theme-token colour across the target without permanently baking a colour.",
+  "deterministic": true,
+  "seekable": true,
+  "finite": true
+}

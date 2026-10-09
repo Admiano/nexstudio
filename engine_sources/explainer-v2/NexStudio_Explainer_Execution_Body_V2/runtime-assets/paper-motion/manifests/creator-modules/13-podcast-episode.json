@@ -1,0 +1,152 @@
+{
+  "id": "module.creator.podcast-episode.paper-01",
+  "name": "Podcast episode",
+  "version": "2.0.0",
+  "category": "creator-module",
+  "subtype": "publishing",
+  "slug": "podcast-episode",
+  "renderer": "podcast-episode",
+  "order": 13,
+  "intents": [
+    "promote_podcast",
+    "show_episode"
+  ],
+  "keywords": [
+    "creator",
+    "publishing",
+    "paper",
+    "animated",
+    "platform-neutral",
+    "publishing",
+    "podcast episode",
+    "promote_podcast",
+    "show_episode"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "contentStates": [
+    "short",
+    "medium",
+    "long"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 1.8,
+    "maximum": 6
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "drop-and-settle",
+    "unfold"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 88
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 240
+    },
+    "handle": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "avatar": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ]
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "video",
+        "transparent-png",
+        "website-screenshot"
+      ]
+    },
+    "logo": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ],
+      "authorizedOnly": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "contentLength": {
+      "type": "enum",
+      "values": [
+        "short",
+        "medium",
+        "long"
+      ]
+    }
+  },
+  "soundTags": [
+    "creator.module.podcast-episode.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated platform-neutral podcast episode paper module",
+  "platformNeutral": true,
+  "thirdPartyLogosBakedIn": false,
+  "authorizedLogoSlot": true,
+  "replaceableContent": true,
+  "composedFromLowerLevelComponents": true,
+  "agentSelection": {
+    "useWhen": [
+      "promote_podcast",
+      "show_episode"
+    ],
+    "semanticRole": "publishing",
+    "avoidWhen": [
+      "imitate_specific_social_platform"
+    ]
+  },
+  "sampleConfig": {
+    "title": "Build Once, Publish Better",
+    "caption": "Maya Cole with Jordan Ellis",
+    "handle": "Episode 72 \u00b7 38 min"
+  }
+}

@@ -1,0 +1,1 @@
+.agent-colours{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.agent-colours label{font:800 8px var(--mono-font);text-transform:uppercase}.agent-colours input{width:100%;height:34px;border:2px solid var(--ink);background:var(--paper-surface);padding:2px}.agent-group{font:900 9px var(--mono-font);text-transform:uppercase;color:var(--ink-muted)}

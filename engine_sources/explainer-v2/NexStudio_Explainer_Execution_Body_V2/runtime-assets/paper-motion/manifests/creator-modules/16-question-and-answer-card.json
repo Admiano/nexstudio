@@ -1,0 +1,151 @@
+{
+  "id": "module.creator.question-and-answer-card.paper-01",
+  "name": "Question and answer card",
+  "version": "2.0.0",
+  "category": "creator-module",
+  "subtype": "community",
+  "slug": "question-and-answer-card",
+  "renderer": "question-and-answer-card",
+  "order": 16,
+  "intents": [
+    "show_question_answer",
+    "educate_audience"
+  ],
+  "keywords": [
+    "creator",
+    "publishing",
+    "paper",
+    "animated",
+    "platform-neutral",
+    "community",
+    "question and answer card",
+    "show_question_answer",
+    "educate_audience"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "contentStates": [
+    "short",
+    "medium",
+    "long"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 1.8,
+    "maximum": 6
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "drop-and-settle",
+    "unfold"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 88
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 240
+    },
+    "handle": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "avatar": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ]
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "video",
+        "transparent-png",
+        "website-screenshot"
+      ]
+    },
+    "logo": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ],
+      "authorizedOnly": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "contentLength": {
+      "type": "enum",
+      "values": [
+        "short",
+        "medium",
+        "long"
+      ]
+    }
+  },
+  "soundTags": [
+    "creator.module.question-and-answer-card.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated platform-neutral question and answer card paper module",
+  "platformNeutral": true,
+  "thirdPartyLogosBakedIn": false,
+  "authorizedLogoSlot": true,
+  "replaceableContent": true,
+  "composedFromLowerLevelComponents": true,
+  "agentSelection": {
+    "useWhen": [
+      "show_question_answer",
+      "educate_audience"
+    ],
+    "semanticRole": "community",
+    "avoidWhen": [
+      "imitate_specific_social_platform"
+    ]
+  },
+  "sampleConfig": {
+    "title": "How much should be reusable?",
+    "caption": "Reuse the structure, motion and design rules. Keep the story, evidence and point of view specific."
+  }
+}

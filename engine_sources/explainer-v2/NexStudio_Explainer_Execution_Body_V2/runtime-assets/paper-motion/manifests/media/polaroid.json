@@ -1,0 +1,167 @@
+{
+  "id": "media.polaroid.paper-01",
+  "name": "Polaroid",
+  "version": "1.8.0",
+  "category": "media-container",
+  "subtype": "photo",
+  "slug": "polaroid",
+  "renderer": "polaroid",
+  "order": 2,
+  "intents": [
+    "frame_memory",
+    "replace_media",
+    "brand_content"
+  ],
+  "keywords": [
+    "media",
+    "container",
+    "replaceable",
+    "paper",
+    "animated",
+    "polaroid",
+    "photo",
+    "frame_memory"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "acceptedMedia": [
+    "image",
+    "transparent-png",
+    "website-screenshot"
+  ],
+  "mediaSlots": 1,
+  "slots": {
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png",
+        "website-screenshot"
+      ],
+      "minimum": 1,
+      "maximum": 1
+    },
+    "title": {
+      "type": "string",
+      "maxCharacters": 34,
+      "guidance": "Maximum 34 characters."
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 72,
+      "guidance": "Maximum 72 characters."
+    },
+    "meta": {
+      "type": "string",
+      "maxCharacters": 30,
+      "guidance": "Maximum 30 characters."
+    },
+    "cropMode": {
+      "type": "enum",
+      "values": [
+        "cover",
+        "contain",
+        "fill"
+      ]
+    },
+    "focalPoint": {
+      "type": "object",
+      "x": [
+        0,
+        100
+      ],
+      "y": [
+        0,
+        100
+      ]
+    },
+    "border": {
+      "type": "enum",
+      "values": [
+        "clean",
+        "torn",
+        "taped",
+        "pinned"
+      ]
+    },
+    "paperStyle": {
+      "type": "enum",
+      "values": [
+        "clean-editorial",
+        "handmade-scrapbook",
+        "technical-notebook",
+        "bold-paper-collage"
+      ]
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.7,
+      "recommended": 1.6,
+      "maximum": 6
+    }
+  },
+  "duration": {
+    "minimum": 0.7,
+    "recommended": 1.6,
+    "maximum": 6
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "drop-and-settle",
+    "unfold"
+  ],
+  "defaultMotion": "paper-slide",
+  "soundTags": [
+    "paper.slide.soft",
+    "media.reveal",
+    "ui.select"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated replaceable polaroid container",
+  "replaceable": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "contentAnimationIndependent": true,
+  "supportsLocalMedia": true,
+  "supportsConfigurableCrop": true,
+  "supportsFocalPoint": true,
+  "supportsBorderStyle": true
+}

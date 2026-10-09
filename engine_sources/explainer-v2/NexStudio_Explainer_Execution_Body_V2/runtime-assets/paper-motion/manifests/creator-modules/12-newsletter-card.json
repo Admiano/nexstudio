@@ -1,0 +1,152 @@
+{
+  "id": "module.creator.newsletter-card.paper-01",
+  "name": "Newsletter card",
+  "version": "2.0.0",
+  "category": "creator-module",
+  "subtype": "publishing",
+  "slug": "newsletter-card",
+  "renderer": "newsletter-card",
+  "order": 12,
+  "intents": [
+    "promote_newsletter",
+    "show_newsletter"
+  ],
+  "keywords": [
+    "creator",
+    "publishing",
+    "paper",
+    "animated",
+    "platform-neutral",
+    "publishing",
+    "newsletter card",
+    "promote_newsletter",
+    "show_newsletter"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "contentStates": [
+    "short",
+    "medium",
+    "long"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 1.8,
+    "maximum": 6
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "drop-and-settle",
+    "unfold"
+  ],
+  "defaultMotion": "paper-slide",
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 88
+    },
+    "caption": {
+      "type": "string",
+      "maxCharacters": 240
+    },
+    "handle": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "date": {
+      "type": "string",
+      "maxCharacters": 48
+    },
+    "avatar": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ]
+    },
+    "media": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "video",
+        "transparent-png",
+        "website-screenshot"
+      ]
+    },
+    "logo": {
+      "type": "media",
+      "accepted": [
+        "image",
+        "transparent-png"
+      ],
+      "authorizedOnly": true
+    },
+    "items": {
+      "type": "array",
+      "maximumItems": 8
+    },
+    "contentLength": {
+      "type": "enum",
+      "values": [
+        "short",
+        "medium",
+        "long"
+      ]
+    }
+  },
+  "soundTags": [
+    "creator.module.newsletter-card.soft",
+    "paper.module.reveal"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Animated platform-neutral newsletter card paper module",
+  "platformNeutral": true,
+  "thirdPartyLogosBakedIn": false,
+  "authorizedLogoSlot": true,
+  "replaceableContent": true,
+  "composedFromLowerLevelComponents": true,
+  "agentSelection": {
+    "useWhen": [
+      "promote_newsletter",
+      "show_newsletter"
+    ],
+    "semanticRole": "publishing",
+    "avoidWhen": [
+      "imitate_specific_social_platform"
+    ]
+  },
+  "sampleConfig": {
+    "title": "The Useful Systems Letter",
+    "caption": "One practical creator workflow every Thursday.",
+    "handle": "Issue 48 \u00b7 6 min read"
+  }
+}

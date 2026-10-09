@@ -1,0 +1,79 @@
+{
+  "id": "object.closed-envelope.paper-01",
+  "name": "Closed envelope",
+  "version": "1.1.0",
+  "category": "paper-object",
+  "subtype": "mail",
+  "cssClass": "obj-closed-envelope",
+  "renderer": "closed-envelope",
+  "intents": [
+    "compose_paper_story",
+    "display_mail"
+  ],
+  "keywords": [
+    "paper",
+    "mail",
+    "closed",
+    "envelope"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 26
+    },
+    "body": {
+      "type": "string",
+      "maxCharacters": 60
+    }
+  },
+  "duration": {
+    "minimum": 0.55,
+    "recommended": 1.25,
+    "maximum": 3.5
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "drop-settle",
+    "paper-slide",
+    "lift-hover"
+  ],
+  "defaultMotion": "drop-settle",
+  "soundTags": [
+    "paper.object.soft",
+    "motion.drop-settle"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Closed envelope animated paper component",
+  "description": "A sealed paper envelope ready to receive or send.",
+  "attachable": false,
+  "bespokeMotion": false
+}

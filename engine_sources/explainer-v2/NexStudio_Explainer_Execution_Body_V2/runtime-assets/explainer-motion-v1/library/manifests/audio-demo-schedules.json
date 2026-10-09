@@ -1,0 +1,113 @@
+{
+  "paper-foley-demo": [
+    {
+      "start": 0.35,
+      "audioId": "audio.paper-swipe-clean",
+      "volume": 0.72
+    },
+    {
+      "start": 2.75,
+      "audioId": "audio.page-turn-soft",
+      "volume": 0.72
+    },
+    {
+      "start": 5.2,
+      "audioId": "audio.tape-pull-snap",
+      "volume": 0.7
+    },
+    {
+      "start": 7.85,
+      "audioId": "audio.marker-swipe-bold",
+      "volume": 0.68
+    },
+    {
+      "start": 10.55,
+      "audioId": "audio.rubber-stamp-impact",
+      "volume": 0.72
+    },
+    {
+      "start": 13.25,
+      "audioId": "audio.map-unfold-wide",
+      "volume": 0.72
+    },
+    {
+      "start": 16.0,
+      "audioId": "audio.newspaper-rustle",
+      "volume": 0.58
+    }
+  ],
+  "ui-sound-demo": [
+    {
+      "start": 0.35,
+      "audioId": "audio.text-pop-in",
+      "volume": 0.68
+    },
+    {
+      "start": 2.4,
+      "audioId": "audio.typewriter-key-single",
+      "volume": 0.7
+    },
+    {
+      "start": 4.45,
+      "audioId": "audio.staple-click-precise",
+      "volume": 0.72
+    },
+    {
+      "start": 6.5,
+      "audioId": "audio.projector-start-modern",
+      "volume": 0.52
+    },
+    {
+      "start": 9.0,
+      "audioId": "audio.soft-impact-modern",
+      "volume": 0.65
+    },
+    {
+      "start": 11.4,
+      "audioId": "audio.bass-hit",
+      "volume": 0.5
+    },
+    {
+      "start": 13.4,
+      "audioId": "audio.text-pop-in",
+      "volume": 0.64
+    }
+  ],
+  "transition-sound-demo": [
+    {
+      "start": 0.3,
+      "audioId": "audio.paper-swipe-clean",
+      "volume": 0.65
+    },
+    {
+      "start": 2.8,
+      "audioId": "audio.fast-transition-whoosh",
+      "volume": 0.68
+    },
+    {
+      "start": 5.3,
+      "audioId": "audio.archive-drawer-slide",
+      "volume": 0.62
+    },
+    {
+      "start": 8.0,
+      "audioId": "audio.radio-tune-transition",
+      "volume": 0.55
+    },
+    {
+      "start": 10.9,
+      "audioId": "audio.page-turn-soft",
+      "volume": 0.68
+    },
+    {
+      "start": 13.4,
+      "audioId": "audio.soft-impact-modern",
+      "volume": 0.7
+    },
+    {
+      "start": 15.8,
+      "audioId": "audio.final-logo-sting",
+      "volume": 0.66
+    }
+  ]
+}

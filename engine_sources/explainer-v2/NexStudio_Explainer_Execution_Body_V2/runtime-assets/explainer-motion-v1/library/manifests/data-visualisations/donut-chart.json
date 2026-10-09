@@ -1,0 +1,167 @@
+{
+  "id": "data.donut-chart.paper-01",
+  "name": "Donut chart",
+  "version": "1.9.0",
+  "category": "data-visualisation",
+  "subtype": "proportion",
+  "slug": "donut-chart",
+  "renderer": "donut-chart",
+  "order": 5,
+  "intents": [
+    "show_donut_chart",
+    "visualise_data",
+    "explain_metric"
+  ],
+  "keywords": [
+    "data",
+    "chart",
+    "paper",
+    "animated",
+    "donut chart",
+    "proportion",
+    "json-driven"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "title": {
+      "type": "string",
+      "maxCharacters": 64
+    },
+    "items": {
+      "type": "array",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "format": {
+      "type": "enum",
+      "values": [
+        "number",
+        "compact",
+        "currency",
+        "percent"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "empty",
+        "loading",
+        "unavailable"
+      ]
+    }
+  },
+  "dataSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "items"
+    ],
+    "itemFields": [
+      "label",
+      "value",
+      "change",
+      "segments",
+      "x",
+      "y"
+    ]
+  },
+  "itemLimits": {
+    "minimum": 0,
+    "recommended": 6,
+    "maximum": 8
+  },
+  "numberFormats": [
+    "number",
+    "compact",
+    "currency",
+    "percent"
+  ],
+  "supportsSigns": [
+    "positive",
+    "neutral",
+    "negative"
+  ],
+  "states": [
+    "ready",
+    "empty",
+    "loading",
+    "unavailable"
+  ],
+  "duration": {
+    "minimum": 0.8,
+    "recommended": 2.2,
+    "maximum": 8
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "paper-slide",
+    "cut-paper-pop",
+    "draw-on",
+    "numeric-count"
+  ],
+  "defaultMotion": "draw-on",
+  "soundTags": [
+    "data.reveal",
+    "ui.tick",
+    "paper.slide.soft"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--grain-opacity"
+  ],
+  "accessibilityLabel": "Animated JSON-driven donut chart",
+  "jsonDriven": true,
+  "editable": true,
+  "scalable": true,
+  "agentSelection": true,
+  "animatesFromZero": true,
+  "usesTabularNumerals": true,
+  "supportsVariableItems": true,
+  "supportsStateVariants": true,
+  "sampleConfig": {
+    "title": "Audience mix",
+    "format": "percent",
+    "items": [
+      {
+        "label": "Organic",
+        "value": 48
+      },
+      {
+        "label": "Search",
+        "value": 27
+      },
+      {
+        "label": "Referral",
+        "value": 16
+      },
+      {
+        "label": "Other",
+        "value": 9
+      }
+    ]
+  }
+}

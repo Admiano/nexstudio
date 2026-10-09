@@ -1,0 +1,432 @@
+{
+  "version": "5.0.0",
+  "source_file": "/mnt/data/nexstick_rebuild_v5/extract/ual2/Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard_RM.glb",
+  "compiled_clips": 25,
+  "clips": [
+    {
+      "key": "UAL2_Chest_Open",
+      "name": "Chest_Open",
+      "semantic": "stretch_chest",
+      "duration": 1.3667,
+      "frames": 42,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_ClimbUp_1m",
+      "name": "ClimbUp_1m",
+      "semantic": "climb_up",
+      "duration": 0.6667,
+      "frames": 21,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        1.0,
+        1.676378
+      ],
+      "contacts": {
+        "l": 0,
+        "r": 0
+      }
+    },
+    {
+      "key": "UAL2_Consume",
+      "name": "Consume",
+      "semantic": "consume",
+      "duration": 1.3333,
+      "frames": 41,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Farm_Harvest",
+      "name": "Farm_Harvest",
+      "semantic": "farm_harvest",
+      "duration": 2.5,
+      "frames": 76,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Farm_PlantSeed",
+      "name": "Farm_PlantSeed",
+      "semantic": "farm_plant",
+      "duration": 2.7667,
+      "frames": 84,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 2
+      }
+    },
+    {
+      "key": "UAL2_Farm_Watering",
+      "name": "Farm_Watering",
+      "semantic": "farm_water",
+      "duration": 3.8,
+      "frames": 115,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Idle_FoldArms_Loop",
+      "name": "Idle_FoldArms_Loop",
+      "semantic": "idle_fold_arms",
+      "duration": 2.5,
+      "frames": 76,
+      "loop": true,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Idle_Lantern_Loop",
+      "name": "Idle_Lantern_Loop",
+      "semantic": "idle_lantern",
+      "duration": 2.5,
+      "frames": 76,
+      "loop": true,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Idle_No_Loop",
+      "name": "Idle_No_Loop",
+      "semantic": "idle_no",
+      "duration": 2.5,
+      "frames": 76,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Idle_Rail_Call",
+      "name": "Idle_Rail_Call",
+      "semantic": "call_out",
+      "duration": 2.5,
+      "frames": 76,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Idle_Rail_Loop",
+      "name": "Idle_Rail_Loop",
+      "semantic": "idle_rail",
+      "duration": 2.5,
+      "frames": 76,
+      "loop": true,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Idle_Shield_Break",
+      "name": "Idle_Shield_Break",
+      "semantic": "idle_shield_break",
+      "duration": 1.0667,
+      "frames": 33,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Idle_Shield_Loop",
+      "name": "Idle_Shield_Loop",
+      "semantic": "idle_shield_loop",
+      "duration": 2.5,
+      "frames": 76,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Idle_TalkingPhone_Loop",
+      "name": "Idle_TalkingPhone_Loop",
+      "semantic": "phone_talk",
+      "duration": 2.9333,
+      "frames": 89,
+      "loop": true,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_LayToIdle",
+      "name": "LayToIdle",
+      "semantic": "lay_to_idle",
+      "duration": 1.5333,
+      "frames": 47,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 2
+      }
+    },
+    {
+      "key": "UAL2_NinjaJump_Idle_Loop",
+      "name": "NinjaJump_Idle_Loop",
+      "semantic": "jump_idle",
+      "duration": 2.0,
+      "frames": 61,
+      "loop": true,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_NinjaJump_Land",
+      "name": "NinjaJump_Land",
+      "semantic": "jump_land",
+      "duration": 1.2667,
+      "frames": 39,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_NinjaJump_Start",
+      "name": "NinjaJump_Start",
+      "semantic": "jump_start",
+      "duration": 0.9667,
+      "frames": 30,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 0,
+        "r": 0
+      }
+    },
+    {
+      "key": "UAL2_OverhandThrow",
+      "name": "OverhandThrow",
+      "semantic": "throw_overhand",
+      "duration": 1.3333,
+      "frames": 41,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 2,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Slide_Exit",
+      "name": "Slide_Exit",
+      "semantic": "slide_exit",
+      "duration": 0.5,
+      "frames": 16,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "contacts": {
+        "l": 0,
+        "r": 0
+      }
+    },
+    {
+      "key": "UAL2_Slide_Loop",
+      "name": "Slide_Loop",
+      "semantic": "slide_loop",
+      "duration": 2.0,
+      "frames": 61,
+      "loop": true,
+      "rootDelta": [
+        0.0,
+        0.0,
+        9.0
+      ],
+      "contacts": {
+        "l": 0,
+        "r": 0
+      }
+    },
+    {
+      "key": "UAL2_Slide_Start",
+      "name": "Slide_Start",
+      "semantic": "slide_start",
+      "duration": 0.8333,
+      "frames": 26,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        4.0
+      ],
+      "contacts": {
+        "l": 0,
+        "r": 0
+      }
+    },
+    {
+      "key": "UAL2_TreeChopping_Loop",
+      "name": "TreeChopping_Loop",
+      "semantic": "tree_chop",
+      "duration": 0.9667,
+      "frames": 30,
+      "loop": true,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    },
+    {
+      "key": "UAL2_Walk_Carry_Loop",
+      "name": "Walk_Carry_Loop",
+      "semantic": "walk_carry",
+      "duration": 2.0,
+      "frames": 61,
+      "loop": true,
+      "rootDelta": [
+        0.0,
+        0.0,
+        1.3
+      ],
+      "contacts": {
+        "l": 2,
+        "r": 2
+      }
+    },
+    {
+      "key": "UAL2_Yes",
+      "name": "Yes",
+      "semantic": "nod_yes",
+      "duration": 2.5,
+      "frames": 76,
+      "loop": false,
+      "rootDelta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": {
+        "l": 1,
+        "r": 1
+      }
+    }
+  ]
+}

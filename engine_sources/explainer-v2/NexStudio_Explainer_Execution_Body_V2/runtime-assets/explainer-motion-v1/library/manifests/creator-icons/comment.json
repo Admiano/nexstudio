@@ -1,0 +1,140 @@
+{
+  "id": "icon.creator.comment.paper-01",
+  "name": "Comment",
+  "version": "1.4.0",
+  "category": "icon",
+  "subtype": "creator-media",
+  "group": "engagement",
+  "slug": "comment",
+  "renderer": "comment",
+  "order": 39,
+  "intents": [
+    "add_comment",
+    "show_discussion"
+  ],
+  "keywords": [
+    "icon",
+    "creator",
+    "paper",
+    "comment",
+    "reply",
+    "discussion",
+    "social",
+    "message"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "cut-paper-pop",
+        "scale-bounce",
+        "paper-slide"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.2
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.15,
+    "maximum": 3.2
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "cut-paper-pop",
+    "scale-bounce",
+    "paper-slide"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "creator.comment.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Comment creator and media paper icon",
+  "description": "A reusable layered paper-style comment icon for creator, media-production and publishing workflows.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "add_comment",
+      "show_discussion"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "engagement"
+  }
+}

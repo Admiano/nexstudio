@@ -1,0 +1,25 @@
+{
+  "version": "5.0.0",
+  "compiled": 1,
+  "items": [
+    {
+      "key": "documentary_acting",
+      "file": "NatureDocumentary_GoneWrong_hik.fbx",
+      "semantic": "documentary_acting",
+      "duration": 53.133333,
+      "frames": 1595,
+      "rootDelta": [
+        -0.726075,
+        0.0,
+        0.962578
+      ],
+      "yawDeltaDeg": 25.96,
+      "contacts": {
+        "l": 21,
+        "r": 20
+      },
+      "crop": null,
+      "status": "COMPILED_QA_PENDING"
+    }
+  ]
+}

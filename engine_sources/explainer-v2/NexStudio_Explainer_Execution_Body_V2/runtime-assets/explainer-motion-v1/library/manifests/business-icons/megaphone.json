@@ -1,0 +1,142 @@
+{
+  "id": "icon.business.megaphone.paper-01",
+  "name": "Megaphone",
+  "version": "1.6.0",
+  "category": "icon",
+  "subtype": "business-commerce",
+  "group": "marketing",
+  "slug": "megaphone",
+  "renderer": "megaphone",
+  "order": 26,
+  "intents": [
+    "announce_message",
+    "show_promotion"
+  ],
+  "keywords": [
+    "icon",
+    "business",
+    "commerce",
+    "paper",
+    "megaphone",
+    "announcement",
+    "marketing",
+    "broadcast",
+    "message"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "slots": {
+    "size": {
+      "type": "number",
+      "minimum": 24,
+      "recommended": 96,
+      "maximum": 420
+    },
+    "treatment": {
+      "type": "enum",
+      "values": [
+        "paper-cutout",
+        "printed-outline"
+      ]
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "inactive",
+        "active"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "maxCharacters": 56
+    },
+    "motion": {
+      "type": "enum",
+      "values": [
+        "cut-paper-pop",
+        "paper-slide",
+        "scale-bounce"
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.35,
+      "recommended": 1.25,
+      "maximum": 3.4
+    },
+    "motionEnergy": {
+      "type": "enum",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "duration": {
+    "minimum": 0.45,
+    "recommended": 1.2,
+    "maximum": 3.4
+  },
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "compatibleMotions": [
+    "cut-paper-pop",
+    "paper-slide",
+    "scale-bounce"
+  ],
+  "defaultMotion": "cut-paper-pop",
+  "states": [
+    "inactive",
+    "active"
+  ],
+  "treatments": [
+    "paper-cutout",
+    "printed-outline"
+  ],
+  "soundTags": [
+    "business.megaphone.soft",
+    "paper.icon.tap"
+  ],
+  "themeTokens": [
+    "--paper-surface",
+    "--paper-surface-alt",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--highlight",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Megaphone business and commerce paper icon",
+  "description": "A reusable layered paper-style megaphone icon for business, commerce, growth, marketing and organizational storytelling.",
+  "layeredSvg": true,
+  "editable": true,
+  "scalable": true,
+  "bespokeInternalMotion": false,
+  "agentSelection": {
+    "useWhen": [
+      "announce_message",
+      "show_promotion"
+    ],
+    "avoidWhen": [],
+    "semanticRole": "marketing",
+    "polarity": "neutral-or-positive"
+  }
+}

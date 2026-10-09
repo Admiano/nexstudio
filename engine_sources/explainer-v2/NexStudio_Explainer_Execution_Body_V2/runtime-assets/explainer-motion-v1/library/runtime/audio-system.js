@@ -1,0 +1,13 @@
+window.NexAudio=(()=>{
+ const registry=window.NEX_AUDIO_ASSETS||[],active=new Set();
+ const byId=id=>registry.find(x=>x.id===id||x.slug===id);
+ const gainFromDb=db=>Math.pow(10,-Math.max(0,Number(db)||0)/20);
+ function search({query='',tags=[],category='all',intensity='all',includeCandidates=true}={}){const q=String(query).toLowerCase();return registry.filter(a=>(includeCandidates||a.approvalStatus==='approved')&&(category==='all'||a.subtype===category)&&(intensity==='all'||a.intensity===intensity)&&(!tags.length||tags.every(t=>a.semanticTags.includes(t)))&&(!q||[a.name,a.slug,a.subtype,...a.semanticTags,...a.recommendedVisualActions].join(' ').toLowerCase().includes(q)))}
+ function recommend({tags=[],actions=[],intensity='medium',requireApproved=false}={}){return registry.map(a=>{let score=0;for(const t of tags)if(a.semanticTags.some(x=>x===t||x.startsWith(t)||t.startsWith(x)))score+=4;for(const x of actions)if(a.recommendedVisualActions.includes(x))score+=3;if(a.intensity===intensity)score+=1;if(requireApproved&&a.approvalStatus!=='approved')score=-999;return{asset:a,score}}).filter(x=>x.score>=0).sort((a,b)=>b.score-a.score).map(x=>x.asset)}
+ function resolvedVolume(opts={}){return Math.max(0,Math.min(1,Number(opts.volume??.72)*gainFromDb(opts.voiceoverDuckingDb||0)*gainFromDb(opts.musicDuckingDb||0)))}
+ function createElement(id,opts={}){const a=byId(opts.alternateSound||id);if(!a)throw Error('Unknown audio '+id);const el=document.createElement('audio');el.src=a.productionFile;el.preload='auto';el.dataset.audioId=a.id;el.dataset.start=String(opts.start||0);el.dataset.duration=String(opts.duration||a.measurements.durationSeconds);el.dataset.trackIndex=String(opts.trackIndex||90);el.dataset.volume=String(resolvedVolume(opts));el.volume=resolvedVolume(opts);if(a.loopable)el.loop=Boolean(opts.loop);return el}
+ async function audition(id,opts={}){stopAll();const a=byId(opts.alternateSound||id);if(!a)throw Error('Unknown audio '+id);const el=new Audio(a.productionFile);el.volume=resolvedVolume(opts);active.add(el);el.addEventListener('ended',()=>active.delete(el),{once:true});const delay=Math.max(0,(Number(opts.timingOffset)||0)*1000);if(delay)await new Promise(r=>setTimeout(r,delay));await el.play();return el}
+ function stopAll(){for(const a of active){try{a.pause();a.currentTime=0}catch(_){}}active.clear()}
+ function schedule(container,events=[],mix={}){const out=[];for(const e of events){if(e.enabled===false)continue;const el=createElement(e.audioId,{...mix,...e});container.append(el);out.push(el)}return out}
+ return{registry,byId,search,recommend,createElement,audition,stopAll,schedule,resolvedVolume};
+})();
