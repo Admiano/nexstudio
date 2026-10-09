@@ -35,8 +35,12 @@ jobs:
         run: |
           set -euo pipefail
           for f in engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_{FEMALE,MALE}.blend; do
+            echo "CHECKING $f"
+            ls -lah "$f" || true
+            file "$f" || true
+            head -c 32 "$f" | od -A x -t x1 || true
             test -s "$f"
-            test "$(head -c 7 "$f")" = BLENDER
+            if ! test "$(head -c 7 "$f")" = BLENDER; then echo "INVALID_BLEND_HEADER: $f"; exit 16; fi
             sha256sum "$f"
           done | tee scene-hashes.txt
       - name: Real Blender smoke render
