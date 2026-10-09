@@ -40,10 +40,11 @@ Actual continuous-motion proof workflow: [V1 real moving formal presenter previe
 
 On 2026-10-09 the recovery verifier passed all six canonical-rig outfits built by run `38003760983`. It independently checked 30 generated file hashes (one editable scene plus four PNGs per variant) and **reopened every saved compressed .blend in checksum-verified Blender 5.2.0** to confirm the 163-bone original `Host.rig`.
 
-- [GitHub Actions editable archive (~248 MB)](https://github.com/Admiano/nexstudio/actions/runs/38003760983/artifacts/11650990397) — temporary artifact; expires per runner retention policy.
+- **[Compact verified editable scene bank (~126 MB)](https://github.com/Admiano/nexstudio/actions/runs/38004823946/artifacts/11650637868)** — preferred user handoff; includes exactly 6 editable `.blend`, 24 real PNGs, per-outfit SHA provenance and full manifest. The earlier ~248 MB [source build artifact](https://github.com/Admiano/nexstudio/actions/runs/38003760983/artifacts/11650990397) contained unnecessary `.blend1` backups and logs. Both expire under GitHub Actions retention.
 - [Source-generated six-variant BANK_MANIFEST.json](../formal-bank/BANK_MANIFEST.json) — verified individual hashes and source identifiers.
 - [Individual first-person Blender previews](../formal-bank/) — four PNG render views per variant and separate provenance.
-- [Moving female original-gesture MP4](../motion-proofs/female-actual-original-gesture.mp4) — contiguous original performance frames, silent.
+- [Moving female original-gesture MP4](../motion-proofs/female-actual-original-gesture.mp4) · [Moving male original-gesture MP4](../motion-proofs/male-actual-original-gesture.mp4) — both 4.25-second contiguous original-performance snippets, silent.
+- [All six suits × ten original poses mechanical QA summary](../formal-bank-geometry-qa/QA_SUMMARY.json) — structural pass; **not** a full visual collision certification.
 - [Three-quarter depth-corrected face experiment](../face-surface-trials/female-resolute-threeq.png) — **unapproved** until blink/visemes integrate correctly.
 
 These are still **experimental V1 clothing presets**, not a production deployment or six different people. The missing collision and continuous-production acceptance gates remain in force.
