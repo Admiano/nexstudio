@@ -1,0 +1,69 @@
+name: V1 six-character formal cast visual family board
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-formal-six-cast-board.yml']
+permissions:
+  contents: write
+jobs:
+  board:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            docs/illustrated-family/cc0-suit-illustration-grade-proofs
+            docs/illustrated-family/cc0-suit-options-polished
+      - name: Layout six real authentic Blender renders on neutral artboard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet Pillow
+          mkdir -p docs/illustrated-family/qa
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageFont
+          from pathlib import Path
+          R=Path("docs/illustrated-family")
+          samples=[
+            ("FEMALE / Formal classic",R/"cc0-suit-illustration-grade-proofs/female-suit-front.png"),
+            ("FEMALE / Statement",R/"cc0-suit-options-polished/toigo_female_suit_2/female-suit-front.png"),
+            ("MALE / Pinstripe host",R/"cc0-suit-illustration-grade-proofs/male-suit-front.png"),
+            ("MALE / Double-breasted",R/"cc0-suit-options-polished/toigo_male_double-breasted_suit/male-suit-front.png"),
+            ("MALE / Navy tailored",R/"cc0-suit-options-polished/toigo_male_suit_3/male-suit-front.png"),
+            ("MALE / Dinner jacket",R/"cc0-suit-options-polished/toigo_suit_with_dinner_jacket/male-suit-front.png"),
+          ]
+          cw,ch=440,740
+          sheet=Image.new("RGB",(cw*3,ch*2),(250,249,247))
+          d=ImageDraw.Draw(sheet)
+          try:font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",16)
+          except OSError:font=ImageFont.load_default()
+          for i,(name,path) in enumerate(samples):
+              assert path.is_file(),path
+              img=Image.open(path).convert("RGBA")
+              bg=Image.new("RGBA",img.size,(250,249,247,255))
+              bg.alpha_composite(img)
+              x=i%3*cw;y=i//3*ch
+              # Correct row placement: i // 3 is 0 or 1
+              y=(i//3)*ch
+              sheet.paste(bg.convert("RGB").resize((cw,ch-40)),(x,y+40))
+              d.text((x+11,y+11),name,font=font,fill=(20,20,21))
+          target=R/"qa/six-authentic-illustrated-formal-cast-variants.png"
+          sheet.save(target,optimize=True)
+          print("REAL_V1_CAST_SIX_PREVIEW",target,target.stat().st_size)
+          PY
+      - name: Publish real-rendered cast family board
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/qa/six-authentic-illustrated-formal-cast-variants.png
+          git commit -m 'proof(character): six real Blender CC0 formal cast options on neutral QA board'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
