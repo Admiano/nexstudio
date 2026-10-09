@@ -1,0 +1,102 @@
+name: V1 formal presenters ten-pose original action QA
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-formal-gesture-sweep.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  gesture-sweep:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            experiments/illustrated-family
+          persist-credentials: true
+      - name: Fetch real editable V1 fitted-scene artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p input/proofs
+          gh run download 38001501107 --repo Admiano/nexstudio \
+            --name v1-real-illustration-style-cc0-suit-donor-qa --dir input/proofs
+          find input/proofs -name '*.blend' -type f | tee fitted_scenes.txt
+          test "$(wc -l < fitted_scenes.txt)" -ge 2
+      - name: Install checksum-verified Blender 5.2.0 and graphics support
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Test 10 distributed poses on the real original V1 action
+        shell: bash
+        run: |
+          set -euo pipefail
+          for gender in female male; do
+            file="$(find input/proofs -type f -name "$gender-suit-front.blend" -print -quit)"
+            test -s "$file"
+            "$BLENDER_BIN" -b "$file" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/real_formal_pose_sweep.py \
+              -- "$gender" "proofs/gesture-qa/$gender"
+            test -s "proofs/gesture-qa/$gender/pose_sweep_report.json"
+          done
+      - name: Compose clean actual-Blender per-frame contact sheets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet Pillow
+          mkdir -p docs/illustrated-family/gesture-qa
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageFont
+          from pathlib import Path
+          import json
+          frames=(27,100,220,338,450,560,700,815,891,980)
+          root=Path("docs/illustrated-family/gesture-qa")
+          try:font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",17)
+          except OSError:font=ImageFont.load_default()
+          for gender in ("female","male"):
+            sheet=Image.new("RGB",(5*440,2*750),(248,247,245))
+            draw=ImageDraw.Draw(sheet)
+            for i,frame in enumerate(frames):
+              path=Path("proofs/gesture-qa")/gender/f"frame_{frame:04d}.png"
+              img=Image.open(path).convert("RGBA")
+              base=Image.new("RGBA",img.size,(248,247,245,255))
+              base.alpha_composite(img)
+              x=(i%5)*440;y=(i//5)*750
+              sheet.paste(base.convert("RGB"),(x,y+40))
+              draw.text((x+12,y+13),f"{gender.upper()} / original frame {frame}",fill=(28,28,29),font=font)
+            sheet.save(root/f"{gender}-actual-rig-gesture-sweep.png",optimize=True)
+            (root/f"{gender}-gesture-integrity.json").write_text((Path("proofs/gesture-qa")/gender/"pose_sweep_report.json").read_text())
+            print("REAL_ACTION_CONTACT_SHEET",gender,flush=True)
+          PY
+      - name: Persist original animation proof on isolated expansion branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/gesture-qa/
+          git commit -m "proof(character): ten actual original-animation frames per formal V1 cast"
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-formal-ten-pose-real-blender-proof
+          path: proofs/gesture-qa
+          retention-days: 14
+          if-no-files-found: warn
