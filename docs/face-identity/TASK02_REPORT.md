@@ -83,3 +83,29 @@ Reviewer verdict on the v2 sheets: variants still read as one person; eyebrow ch
 - **Recommended targeted hybrid (spec-sanctioned):** keep the v3 structural field for the head shape; replace the ~6 highest-signal drawn features with authored variants as separate feature meshes — eye outline set (2–3 drawing styles), brow mesh variants, nose contour variants, mouth line variants — in the same ink material, same muscle vgroups (`oculi*`, `oris*`, `levator05`) so expressions/visemes keep working. Feature meshes are authored per-identity and swapped per variant (the `face: 0|1|2` slot already exists in `CastSpec`), instead of deforming one shared drawing. Estimated effort: 3–4 feature-mesh variants per feature per gender, authored once, reused across the whole cast.
 - Remaining minor defects in v3 stills: small residual stroke marks near the eye rim on the male (retarget clamp byproducts), faint nasolabial line shifts near the mouth on all variants (intended corner-line movement, reads as style-consistent).
 - Unchanged: nothing merged/deployed/animated; performance compatibility still untested (stills only, per spec).
+
+## §10 — Task 03 resolution: use the system's own face variants (FACE env)
+
+After three rejected custom approaches (parametric morphs, ink-segment remaps, authored
+replacement strokes), the correct path turned out to be the system's own character
+pipeline: `presenters_v1/scripts/facevar.py` implements designed face variants driven
+by the `FACE` env var (0 default / 1 defined / 2 soft / 3 unused). It applies authored
+structural deltas — jaw ±14%, chin ±9 mm, cheeks, brow placement, eye width ±10%,
+face length, temples — to every `Host.*` mesh **including all shape-key data**, in
+rest pose, so the variant persists through expressions and visemes by construction.
+
+The assembled-render wrapper `scripts/cast-preview-render.sh` hardcoded `FACE=0`;
+it now passes `${CAST_FACE:-0}` (behaviour unchanged when unset). Building
+`CAST_FACE=1|2` through `scripts/build-character-system.py` — the same builder that
+produces the canonical presenters — yields the headshots in `out/faces/`:
+
+- female: `female_{front,threeq}_sheet.png`; male: `male_{front,threeq}_sheet.png`
+- FACE 1 (defined): narrower jaw, shorter chin, lifted cheeks, lower-set brows, wider eyes.
+- FACE 2 (soft): broader/rounder head, longer chin, recessed cheeks, raised brows, narrower eyes.
+- Request configs: `scripts/experiments/face-requests/{female,male}_f{0,1,2}.json`
+- Editable .blends: `out/faces/*.blend` (untracked, ~70 MB each).
+
+FACE 2 already reads as a different person; FACE 1 is a milder sibling variant.
+The `_VAR` table in `facevar.py` accepts new entries ('3', '4', ...) with stronger
+params — additional distinct faces through the same original mechanism, and each
+face pairs with the system's own hair/skin/outfit options to form full cast members.
