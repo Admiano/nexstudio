@@ -1,0 +1,82 @@
+name: V1 actual Blender hair linework on CC0 bob
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-bob-authored-strands.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  surface-ink:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+      - name: Fetch actual unchanged original-rig fitted CC0 bob Blender scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p input
+          gh run download 38005407318 --repo Admiano/nexstudio \
+            --name v1-real-cc0-bob-and-short-messy-hair-scene-proofs --dir input
+          test -s input/female-hair-front.blend
+      - name: Load certified Blender runtime and original head surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Generate and render authentic 3D illustrated strands
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/bob-strands
+          "$BLENDER_BIN" -b input/female-hair-front.blend -t 4 --python-exit-code 1 \
+            --python experiments/illustrated-family/bob_surface_strands_trial.py \
+            --python scripts/illustrated-family-preview/quick_preview.py \
+            --python experiments/illustrated-family/wardrobe_threeq.py \
+            --python experiments/illustrated-family/hair_headshot.py \
+            --python experiments/illustrated-family/donor_suit_pose_qa.py \
+            -- female proofs/bob-strands/female-hair-front.png already-authenticated-cc0-bob
+          test -s proofs/bob-strands/female-hair-front-head-front.png
+          test -s proofs/bob-strands/female-hair-front-head-threeq.png
+          test -s proofs/bob-strands/female-hair-pose-891.png
+          test -s proofs/bob-strands/female-hair-front.blend
+          test -s proofs/bob-strands/female-hair-front-strand-qa.json
+      - name: Publish only actual rendered geometry test images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/hair-strands-trial
+          cp proofs/bob-strands/*.png docs/illustrated-family/hair-strands-trial/
+          cp proofs/bob-strands/*.json docs/illustrated-family/hair-strands-trial/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/hair-strands-trial/
+          git commit -m 'proof(character): true Blender authored bob detail on hair surface'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-bob-authored-ink-real-blender-scene
+          path: proofs/bob-strands/
+          retention-days: 14
+          if-no-files-found: warn
