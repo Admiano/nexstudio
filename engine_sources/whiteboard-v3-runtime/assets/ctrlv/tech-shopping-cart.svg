@@ -1,0 +1,35 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Cart Frame -->
+                <path d="M80 60 H120 L150 220 H280 L310 100 H130" stroke="#F5F0E4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                
+                <!-- Basket Mesh -->
+                <path d="M150 220 H280 M140 180 H290 M130 140 H300 M180 220 V100 M215 220 V100 M250 220 V100" stroke="#F5F0E4" stroke-width="2" opacity="0.3"/>
+                
+                <!-- Wheels -->
+                <g transform="translate(160, 245)">
+                    <g  style="animation-duration: 1s;">
+                    <circle cx="0" cy="0" r="15" fill="#1A1A17" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M-10 0 H10 M0 -10 V10" stroke="#F5F0E4" stroke-width="2"/>
+                </g>
+                </g>
+                <g transform="translate(270, 245)">
+                    <g  style="animation-duration: 1s;">
+                    <circle cx="0" cy="0" r="15" fill="#1A1A17" stroke="#F5F0E4" stroke-width="4"/>
+                    <path d="M-10 0 H10 M0 -10 V10" stroke="#F5F0E4" stroke-width="2"/>
+                </g>
+                </g>
+                
+                <!-- Items in Cart -->
+                <rect x="160" y="140" width="40" height="40" rx="4" fill="#F5F0E4"/>
+                <rect style="animation-delay: 0.2s;" x="210" y="120" width="50" height="50" rx="4" fill="#F5F0E4"/>
+                
+                <!-- "Add" Notification -->
+                <g transform="translate(320, 80)">
+                    <g >
+                    <circle cx="0" cy="0" r="20" fill="#1A1A17"/>
+                    <path d="M-8 0 H8 M0 -8 V8" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round"/>
+                </g>
+                </g>
+            </g>
+          </svg>

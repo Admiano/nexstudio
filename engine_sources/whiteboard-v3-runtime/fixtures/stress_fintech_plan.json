@@ -1,0 +1,110 @@
+{
+ "schema": "NexMindWhiteboardV3NarrationTimedPlanV1",
+ "production_id": "NEXMIND_WHITEBOARD_V3_FINTECH_DEMO",
+ "camera_variant": "cluster_travel",
+ "output_ratios": [
+  "16:9"
+ ],
+ "pacing": {
+  "transition_seconds": 1.1,
+  "board_reveal_seconds": 3.2
+ },
+ "beats": [
+  {
+   "beat_id": "01_wallet",
+   "start_seconds": 0,
+   "duration_seconds": 4.8,
+   "narration": "Maya pays for groceries straight from her phone wallet.",
+   "scene": {
+    "sceneId": "01_wallet",
+    "heroRole": "shopper Maya",
+    "supportingRoles": [
+     "phone wallet",
+     "credit card"
+    ],
+    "screenCopy": {
+     "primary": "CHECKOUT"
+    },
+    "semanticRelationships": [
+     {
+      "source": "shopper Maya",
+      "target": "phone wallet",
+      "kind": "taps"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "02_transfer",
+   "start_seconds": 6.0,
+   "duration_seconds": 5.0,
+   "narration": "The bank clears the transfer in two seconds flat.",
+   "scene": {
+    "sceneId": "02_transfer",
+    "heroRole": "bank transfer",
+    "supportingRoles": [
+     "old wire form",
+     "2 seconds"
+    ],
+    "screenCopy": {
+     "primary": "THE CLEARING"
+    },
+    "semanticRelationships": [
+     {
+      "source": "bank transfer",
+      "target": "2 seconds",
+      "kind": "clears"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "03_security",
+   "start_seconds": 12.2,
+   "duration_seconds": 5.4,
+   "narration": "Every payment rides behind a critical security shield.",
+   "scene": {
+    "sceneId": "03_security",
+    "heroRole": "critical security shield",
+    "supportingRoles": [
+     "fraud alert",
+     "vault"
+    ],
+    "screenCopy": {
+     "primary": "LOCKED DOWN"
+    },
+    "semanticRelationships": [
+     {
+      "source": "security shield",
+      "target": "vault",
+      "kind": "guards"
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "04_growth",
+   "start_seconds": 18.7,
+   "duration_seconds": 4.5,
+   "narration": "And her savings grew eighteen percent this year.",
+   "scene": {
+    "sceneId": "04_growth",
+    "heroRole": "savings growth",
+    "supportingRoles": [
+     "18% this year",
+     "money plant"
+    ],
+    "screenCopy": {
+     "primary": "THE PAYOFF"
+    },
+    "semanticRelationships": [
+     {
+      "source": "savings growth",
+      "target": "18% this year",
+      "kind": "hits"
+     }
+    ]
+   }
+  }
+ ]
+}

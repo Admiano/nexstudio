@@ -1,0 +1,13 @@
+.git
+node_modules
+.next
+dist
+engine_sources/*/out
+**/out/*-jobs
+**/__pycache__
+**/*.pyc
+.env
+.env.local
+*.log
+Dockerfile
+docker-compose*.yml

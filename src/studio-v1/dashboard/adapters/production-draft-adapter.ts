@@ -1,6 +1,6 @@
-import type { DashboardProject } from "../domain/dashboard.js";
-import { humanStatusFor } from "../domain/production-state.js";
-import type { ProductionDraftRecord } from "../domain/contracts.js";
+import type { DashboardProject } from "../domain/dashboard";
+import { humanStatusFor } from "../domain/production-state";
+import type { ProductionDraftRecord } from "../domain/contracts";
 
 function fallbackTitle(record: ProductionDraftRecord): string {
   const prompt = record.prompt.trim().replace(/\s+/g, " ");

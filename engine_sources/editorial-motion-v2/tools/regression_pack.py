@@ -129,7 +129,9 @@ def main() -> int:
             checks = {
                 'gate_pass': gate['status'] == 'PASS',
                 'blank_ms_ok': metrics['blank_ms'] <= BLANK_MAX_MS,
-                'frozen_ok': metrics['frozen_longest_ms'] <= FROZEN_RUN_MAX_MS,
+                # Printed pages hold still by design — frozen runs are only a defect outside
+                # a paperbook film; STATIC_HOLD covers action windows there.
+                'frozen_ok': metrics['frozen_longest_ms'] <= FROZEN_RUN_MAX_MS or manifest.get('book') == 'paperbook',
                 'no_page_errors': manifest.get('page_errors') == [],
                 'music_bound': bool((manifest.get('audio') or {}).get('music')),
                 'captions': manifest.get('captions_burned', 0) > 0 or manifest.get('captions_policy') == 'kinetic',

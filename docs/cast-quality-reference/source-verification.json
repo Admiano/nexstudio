@@ -1,0 +1,59 @@
+{
+  "unchangedSourceBlendFiles": [
+    {
+      "path": "engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_FEMALE_v3.blend",
+      "gitBlobSha": "3fcb090345811185f086041d830c91ce0ac2ce4c",
+      "sha256": "3c5dc136767a799a04eb8cf06d9997ffae33a377ee2a773efbab2c619cbe25e4"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_MALE_v6.blend",
+      "gitBlobSha": "f4214fadf565284b11a652f79b34c6280df24e80",
+      "sha256": "78adffb3df715a304601be5443aeb66c53ee5d5a5012d3dc507ae5d243c4afbe"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend",
+      "gitBlobSha": "5e5f414d76f69ce538cce7d93380d486c385fafa",
+      "sha256": "241b97c83c9301249fcb7a8c11daa442fed8ddb1c25eeff84a77c4bb045c4660"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_FEMALE.blend",
+      "gitBlobSha": "49c78cb3e69a85b44a9d9e9e3463bc5ede9c3a85",
+      "sha256": "203c2dba778207f45693ab04c4882be194794a21d2f21b58a1bf8e9c0c6148cb"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_MALE.blend",
+      "gitBlobSha": "170929b4a118dfdd05dba9da3bd1c2142da21ac2",
+      "sha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/scenes/V10/GUEST_FULLBODY_15S_V10.blend",
+      "gitBlobSha": "c569381c9986e3c9c2b7aeff55636d880f2e5dc1",
+      "sha256": "17ff97339b0759626c5c130c10a414fa2eeb56f0847b07d27143d41016c1e0ac"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/scenes/V10/HOST_FULLBODY_15S_V10.blend",
+      "gitBlobSha": "386cfac9bdeb6ec7f3ce4a7aee067a0bf17b3681",
+      "sha256": "5fddc118b26d571c87ee9a5ef8098afb1afac9f523daf4c10857f0fbb05aa070"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/scenes/V11/GUEST_FULLBODY_15S_V11.blend",
+      "gitBlobSha": "da6bf26456b0f28cae6b1bc47a3992d20b499dbf",
+      "sha256": "0fbb0e2bba2d9af5815e702f46a04b60059278f55581df95be5fbccf0bf6d6c8"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/scenes/V11/HOST_FULLBODY_15S_V11.blend",
+      "gitBlobSha": "c3f8060ba866ebec109b685c45b5626df834e565",
+      "sha256": "645b0a40c2d4219e298eb4bffd53fef1eb415933013b34351f61dfb665280218"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/scenes/V9/GUEST_FULLBODY_15S_V9.blend",
+      "gitBlobSha": "7987350c859c6746ed4f41027c1de79d6dfbc554",
+      "sha256": "0d9ef7d7e628121d1e31d4c2ef57c0ce2f33acf230c2ce078badd9f917f7723e"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/scenes/V9/HOST_FULLBODY_15S_V9.blend",
+      "gitBlobSha": "9702d530cb3fc0822e8f1c250eebf261836364d0",
+      "sha256": "c3d7391947a6c42a6afcb97e862edc14c79cbcb338a51bc3b7ea336b39dcdcb0"
+    }
+  ]
+}

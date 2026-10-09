@@ -1,0 +1,3011 @@
+{
+  "start": 240,
+  "end": 597,
+  "step": 3,
+  "fps": 8.0,
+  "frameCount": 120,
+  "sourceMeshesUnchanged": true,
+  "objectCountsStable": true,
+  "records": [
+    {
+      "frame": 240,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 243,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 246,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 249,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 252,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 30,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 255,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 24,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 258,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 24,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 261,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 264,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 267,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 270,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 273,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 276,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 279,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 282,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 285,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 288,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 291,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 294,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 297,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 300,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 303,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 306,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 309,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 312,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 315,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 318,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 321,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 324,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 327,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 330,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 333,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 336,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 46,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 339,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 24,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 342,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 27,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 345,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 28,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 348,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 28,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 351,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 27,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 354,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 24,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 357,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 360,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 363,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 366,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 17,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 369,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 372,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 375,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 378,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 381,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 19,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 384,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 387,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 390,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 393,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 30,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 396,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 399,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 402,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 405,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 408,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 411,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 32,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 414,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 30,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 417,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 28,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 420,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 25,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 423,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 426,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 429,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 432,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 435,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 438,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 441,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 19,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 444,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 19,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 447,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 20,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 450,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 453,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 20,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 456,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 19,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 459,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 19,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 462,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 465,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 468,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 471,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 474,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 477,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 20,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 480,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 483,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 486,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 489,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 492,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 495,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 498,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 501,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 504,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 507,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 510,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 513,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 18,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 516,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 21,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 519,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 27,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 522,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 32,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 525,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 528,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 36,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 531,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 534,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 537,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 540,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 543,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 546,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 549,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 552,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 36,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 555,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 558,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 561,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 564,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 39,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 567,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 570,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 573,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 576,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 579,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 34,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 582,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 585,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 588,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 591,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 594,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 38,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 597,
+      "fit": [
+        {
+          "object": "Host.mindfront_male_trousers_2",
+          "vertexCount": 29372,
+          "adjustedVertices": 36,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        },
+        {
+          "object": "Host.V64_dress_lines.001",
+          "vertexCount": 1864,
+          "adjustedVertices": 0,
+          "finite": true,
+          "preservedWorldAxes": [
+            "X",
+            "Z"
+          ]
+        }
+      ]
+    }
+  ]
+}

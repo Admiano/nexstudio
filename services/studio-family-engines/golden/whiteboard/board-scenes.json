@@ -1,0 +1,20 @@
+{
+ "schema": "StudioGoldenBaselineV1",
+ "family": "whiteboard",
+ "subtype": "board-scenes",
+ "recordedFrom": "golden-board-scenes-_khdxeix",
+ "recordedAt": "2026-10-08T00:27:46Z",
+ "status": "done",
+ "outputs": [
+  "16x9"
+ ],
+ "videos": {
+  "16x9": {
+   "durationSec": 15.92,
+   "nonBlank": 0.67,
+   "bytes": 929336
+  }
+ },
+ "iconCount": null,
+ "gateFailures": []
+}

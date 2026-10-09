@@ -34,7 +34,7 @@ export async function assembleP8MultimodalReviewPackage(input: {
   operatorUserId: string;
   requestId: string;
   body: z.infer<typeof p8MultimodalPackageInputSchema>;
-  creator?: { type: "operator" | "service"; role: string; userId?: string; runId?: string };
+  creator?: { type: "operator" | "service"; role: string; userId?: string; runId: string };
 }) {
   const prisma = getPrisma()!;
   const production = await prisma.production.findUnique({ where: { id: input.productionId }, select: { id: true } });

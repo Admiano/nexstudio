@@ -1,11 +1,18 @@
 export const studioProductionFamilies = [
   "EXPLAINER",
   "WHITEBOARD",
-  "STICKMAN",
-  "EDITORIAL_MOTION",
 ] as const;
 
 export type StudioProductionFamily = (typeof studioProductionFamilies)[number];
+
+export function isStudioProductionFamily(value: unknown): value is StudioProductionFamily {
+  return (studioProductionFamilies as readonly string[]).includes(String(value));
+}
+
+export function asStudioProductionFamily(value: unknown): StudioProductionFamily {
+  if (!isStudioProductionFamily(value)) throw new Error(`RETIRED_FAMILY_DRAFT:${String(value)}`);
+  return value;
+}
 
 export const studioProductionStates = [
   "DRAFT",

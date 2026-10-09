@@ -1,15 +1,16 @@
 import path from "node:path";
-import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync, existsSync, readFileSync, copyFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { homedir } from "node:os";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
+import { getPrisma } from "@/lib/db";
+import { createEngineDraft, registerCastScope, runningEngineJobs } from "@/lib/engine-jobs";
+import { renderInFlightLimit, submitRenderJob } from "@/lib/render-queue";
 
 export const runtime = "nodejs";
 
 const ENGINE = process.env.EXPLAINER_ENGINE_DIR
-  ?? path.join(process.cwd(), "engine_sources", "editorial-motion-v2");
+  ?? path.join(process.cwd(), "engine_sources", "explainer-locks");
 const JOBS = path.join(ENGINE, "out", "explainer-jobs");
 const VOICES = [
   { id: "heart",   name: "Heart",   gender: "female", accent: "American", engine: "Kokoro",           preview: "/voice-previews/heart.mp3" },
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
   try { form = await request.formData(); }
   catch { return problem(id, 400, "BAD_FORM", "Invalid form", "Send multipart/form-data."); }
 
-  const style = String(form.get("style") ?? "tiles");
+  const style = String(form.get("style") ?? "photo_story");
   const validStyles = new Set(stylesList().flatMap((s: any) => [s.id, ...s.variants.map((v: any) => v.id)]));
   if (validStyles.size && !validStyles.has(style))
     return problem(id, 422, "STYLE_UNKNOWN", "Unknown style", `Pick one of: ${[...validStyles].join(", ")}.`);
@@ -56,31 +57,39 @@ export async function POST(request: Request) {
   const script = String(form.get("script") ?? "").trim();
   const voiceFile = form.get("voiceFile");
   if (!script && !(voiceFile instanceof File))
-    return problem(id, 422, "VOICE_REQUIRED", "Voice required", "Send 'script' (for a Kokoro voice) or a 'voiceFile' upload.");
+    return problem(id, 422, "VOICE_REQUIRED", "Voice required", "Send 'script' (for a Microsoft voice) or a 'voiceFile' upload.");
 
   const voice = String(form.get("voice") ?? "andrew");
   if (script && !VOICE_IDS.has(voice))
     return problem(id, 422, "VOICE_UNKNOWN", "Unknown voice", `Pick one of: ${[...VOICE_IDS].join(", ")}.`);
+
+  const castMemberId = String(form.get("castMemberId") ?? "").trim() || null;
 
   const aspects = String(form.get("aspects") ?? "16x9,1x1,9x16")
     .split(",").map((a) => a.trim()).filter((a) => ASPECTS.has(a));
   if (!aspects.length)
     return problem(id, 422, "ASPECT_UNKNOWN", "No valid aspect", `Pick from: ${[...ASPECTS].join(", ")}.`);
 
+  const durationRaw = Number(form.get("duration") ?? 0);
+  if (durationRaw && (!Number.isFinite(durationRaw) || durationRaw < 5 || durationRaw > 600))
+    return problem(id, 422, "DURATION_RANGE", "Invalid length", "Target length must be 5 to 600 seconds.");
+
+  const speedRaw = Number(form.get("speed") ?? 0);
+  if (speedRaw && (!Number.isFinite(speedRaw) || speedRaw < 0.7 || speedRaw > 1.5))
+    return problem(id, 422, "SPEED_RANGE", "Invalid speed", "Narration speed must be 0.7 to 1.5×.");
+
+  if (runningEngineJobs() >= renderInFlightLimit())
+    return problem(id, 429, "RENDER_AT_CAPACITY", "The render floor is full right now", "A few renders are already running. Try again in a minute. Your brief and direction are saved.");
+
   const jobId = `xr-${randomUUID().slice(0, 8)}`;
   const dir = path.join(JOBS, jobId);
   const mediaDir = path.join(dir, "media");
   mkdirSync(mediaDir, { recursive: true });
 
-  const args: string[] = [path.join(ENGINE, "tools", "make_reel.py"), "--style", style,
-    "--aspects", aspects.join(","), "--out", path.join(dir, "out"), "--film-id", jobId];
-
+  let voicePath: string | null = null;
   if (voiceFile instanceof File) {
-    const vf = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);
-    writeFileSync(vf, Buffer.from(await voiceFile.arrayBuffer()));
-    args.push("--voice-file", vf);
-  } else {
-    args.push("--script", script, "--voice", voice);
+    voicePath = path.join(dir, `voice_src${path.extname(voiceFile.name || ".mp3")}`);
+    writeFileSync(voicePath, Buffer.from(await voiceFile.arrayBuffer()));
   }
 
   const mediaPaths: string[] = [];
@@ -91,46 +100,54 @@ export async function POST(request: Request) {
     writeFileSync(dest, Buffer.from(await m.arrayBuffer()));
     mediaPaths.push(dest);
   }
-  if (mediaPaths.length) args.push("--media", ...mediaPaths);
 
   writeFileSync(path.join(dir, "request.json"), JSON.stringify({
     userId: auth.session!.userId, style, voice, aspects,
     script: script || null, media: mediaPaths.map((p) => path.basename(p)), createdAt: new Date().toISOString(),
   }, null, 1));
   writeFileSync(path.join(dir, "status.json"), JSON.stringify({ status: "running", startedAt: new Date().toISOString() }));
+  // All renders dispatch through P8's family-engine surface: the runner resolves
+  // the subtype in site-dispatch.json (fail-closed), builds the engine call and
+  // writes status.json + the P8 result envelope itself.
+  const castScope = castMemberId ? await (async () => {
+    const prisma = getPrisma();
+    const member = prisma && await prisma.studioCastMember.findFirst({
+      where: { id: castMemberId, ownerUserId: auth.session!.userId },
+    });
+    return member && registerCastScope({
+      ownerUserId: auth.session!.userId,
+      member: { id: member.id, name: member.name, identityKey: member.identityKey, spec: member.spec },
+      jobId, kind: "explainer", subtype: style,
+      title: script.split("\n")[0]?.split(/\s+/).slice(0, 8).join(" ") || "Explainer",
+    }).catch(() => null);
+  })() : null;
+  writeFileSync(path.join(dir, "engine_request.json"), JSON.stringify({
+    schema: "StudioSiteEngineRequestV1", family: "explainer", subtype: style, jobId,
+    params: {
+      script: script || null, voice, voiceFile: voicePath,
+      aspects, duration: durationRaw || null, speed: speedRaw || null, media: mediaPaths,
+      cast: castScope && {
+        productionId: castScope.productionId, castMemberId,
+        specHash: castScope.specHash, subtype: style, jobId,
+      },
+    },
+  }, null, 1));
 
-  const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
-  const child = spawn("python3", args, {
-    cwd: ENGINE, detached: true, stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, PATH: `${nodeBin}:${process.env.PATH}` },
-  });
-  child.stdout?.on("data", () => {});
-  child.stderr?.on("data", () => {});
-  child.on("exit", (code) => {
-    try {
-      const manifestPath = path.join(dir, "out", "manifest.json");
-      const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : null;
-      const filesDir = path.join(dir, "files");
-      mkdirSync(filesDir, { recursive: true });
-      const outputs: Record<string, string> = {};
-      if (manifest?.outputs) {
-        for (const [aspect, p] of Object.entries<string>(manifest.outputs)) {
-          const dest = path.join(filesDir, `${aspect}.mp4`);
-          try { copyFileSync(p, dest); } catch { continue; }
-          outputs[aspect] = `/api/v1/explainers/${jobId}/files/${aspect}.mp4`;
-        }
-      }
-      writeFileSync(path.join(dir, "status.json"), JSON.stringify({
-        status: code === 0 ? "done" : "failed",
-        exitCode: code, outputs, finishedAt: new Date().toISOString(),
-      }));
-    } catch (e) {
-      writeFileSync(path.join(dir, "status.json"), JSON.stringify({
-        status: "failed", exitCode: code, error: String(e), finishedAt: new Date().toISOString(),
-      }));
-    }
-  });
-  child.unref();
+  await submitRenderJob({ jobId, dir, family: "explainer" });
+
+  // Jobs are work items — surface them in Work alongside real productions.
+  try {
+    await createEngineDraft({
+      ownerUserId: auth.session!.userId,
+      kind: "explainer",
+      jobId,
+      videoType: style,
+      script: script || "",
+      duration: durationRaw || null,
+      voice: script ? voice : null,
+      castMemberId,
+    });
+  } catch { /* a missing draft never blocks the render */ }
 
   return json({ jobId, status: "running", statusUrl: `/api/v1/explainers/${jobId}` }, id, { status: 202 });
 }

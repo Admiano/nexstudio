@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import type { StudioMemoryItemRecord, StudioMemoryScope } from "../../domain/creative-memory.js";
-import { useStudioMemory } from "../hooks.js";
-import { studioMutation } from "../api.js";
-import { ErrorState, LoadState } from "./shared.js";
+import type { StudioMemoryItemRecord, StudioMemoryScope } from "../../domain/creative-memory";
+import { useStudioMemory } from "../hooks";
+import { studioMutation } from "../api";
+import { ErrorState, LoadState } from "./shared";
 
 function latest(item: StudioMemoryItemRecord) { return item.versions[0] ?? null; }
 function labelFor(value: string) { return value.replaceAll("_", " ").replace(/([a-z])([A-Z])/g, "$1 $2").replace(/\b\w/g, (letter) => letter.toUpperCase()); }

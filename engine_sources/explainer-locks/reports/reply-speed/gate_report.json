@@ -1,0 +1,13 @@
+{
+ "status": "PASS",
+ "failures": [],
+ "warnings": [],
+ "duration_ms": 50364,
+ "aspects": [
+  "9x16",
+  "1x1",
+  "16x9"
+ ],
+ "voice_source": "FIXTURE",
+ "beats": 12
+}

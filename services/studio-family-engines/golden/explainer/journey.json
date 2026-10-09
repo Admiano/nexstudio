@@ -1,0 +1,20 @@
+{
+ "schema": "StudioGoldenBaselineV1",
+ "family": "explainer",
+ "subtype": "journey",
+ "recordedFrom": "journey",
+ "recordedAt": "2026-10-08T00:19:32Z",
+ "status": "done",
+ "outputs": [
+  "16x9"
+ ],
+ "videos": {
+  "16x9": {
+   "durationSec": 6.33,
+   "nonBlank": 1.0,
+   "bytes": 1429068
+  }
+ },
+ "iconCount": null,
+ "gateFailures": []
+}

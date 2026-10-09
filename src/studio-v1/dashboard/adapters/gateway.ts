@@ -1,7 +1,7 @@
-import type { StudioAssetPage } from "../domain/assets.js";
-import type { StudioBalance, StudioBillingHistory } from "../domain/billing.js";
-import type { DashboardWorkSnapshot } from "../domain/dashboard.js";
-import type { StudioBrandCollection, StudioCastCollection, StudioMemoryCollection, StudioMemoryScope, StudioSeriesCollection } from "../domain/creative-memory.js";
+import type { StudioAssetPage } from "../domain/assets";
+import type { StudioBalance, StudioBillingHistory } from "../domain/billing";
+import type { DashboardWorkSnapshot } from "../domain/dashboard";
+import type { StudioBrandCollection, StudioCastCollection, StudioMemoryCollection, StudioMemoryScope, StudioSeriesCollection } from "../domain/creative-memory";
 
 export interface StudioDashboardGateway {
   getWork(signal?: AbortSignal): Promise<DashboardWorkSnapshot>;

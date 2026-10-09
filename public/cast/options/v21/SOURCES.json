@@ -1,0 +1,200 @@
+[
+  {
+    "path": "public/cast/options/v21/female/character/female.webp",
+    "source": "female-default.png",
+    "sourceSha256": "94a0d27aa5870abb265cc52d1b7b1c0eb154bbda15cb4290dc52a712fc68d2d1",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/face/0.webp",
+    "source": "female-default.png",
+    "sourceSha256": "94a0d27aa5870abb265cc52d1b7b1c0eb154bbda15cb4290dc52a712fc68d2d1",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/face/1.webp",
+    "source": "female-face1.png",
+    "sourceSha256": "2523609cb77d2a48da9816b289e40cb49c6b685fab27ff0d047643d5b71b9a7b",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/face/2.webp",
+    "source": "female-face2.png",
+    "sourceSha256": "8527f9fbcbf18501135962e8c31f4466c6974e2fce611d7a1ba9a240341a2348",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/hair/long.webp",
+    "source": "female-default.png",
+    "sourceSha256": "94a0d27aa5870abb265cc52d1b7b1c0eb154bbda15cb4290dc52a712fc68d2d1",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/hair/bob.webp",
+    "source": "female-sheath.png",
+    "sourceSha256": "f036391e028474cdd18d56d7ec7db87f7f7cad417b05eb9f76ac40ff7e587e06",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/hair/bangs.webp",
+    "source": "female-qipao.png",
+    "sourceSha256": "72ec998e9a087e291ce4ec999656cad8ae39f5b877fdf7288a2519b419453b4e",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/hair/bun.webp",
+    "source": "female-cocktail.png",
+    "sourceSha256": "52ae7324d21842a6301cb24cc3e8395d84b73d73b9d278416a7304e7bc97a206",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/hair/braid.webp",
+    "source": "female-braid.png",
+    "sourceSha256": "31c9e0e3309d95125d129bd3979381ba0ab2764c48d9ed274e6989573b833e29",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/dress/sheath.webp",
+    "source": "female-sheath.png",
+    "sourceSha256": "f036391e028474cdd18d56d7ec7db87f7f7cad417b05eb9f76ac40ff7e587e06",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/dress/maxi.webp",
+    "source": "female-maxi.png",
+    "sourceSha256": "25bf51482a08d93d71bc80e9286cfb2bb072f20d3b8c0679394440b3dddfddb9",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/dress/column.webp",
+    "source": "female-column.png",
+    "sourceSha256": "9f81764e0b7bc4016e53bc83b94bfc63c3d3805c4511c95485c7da3c83366f20",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/dress/cocktail.webp",
+    "source": "female-cocktail.png",
+    "sourceSha256": "52ae7324d21842a6301cb24cc3e8395d84b73d73b9d278416a7304e7bc97a206",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/female/dress/qipao.webp",
+    "source": "female-qipao.png",
+    "sourceSha256": "72ec998e9a087e291ce4ec999656cad8ae39f5b877fdf7288a2519b419453b4e",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/character/male.webp",
+    "source": "male-default.png",
+    "sourceSha256": "c6882d491e3a423df6565ec2a049c447fb83523d52167f9bc093ef0736845d7f",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/face/0.webp",
+    "source": "male-default.png",
+    "sourceSha256": "c6882d491e3a423df6565ec2a049c447fb83523d52167f9bc093ef0736845d7f",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/face/1.webp",
+    "source": "male-face1.png",
+    "sourceSha256": "d2ab3a545f4cc0d5146124ca1f428fa063bf559d900d8ba9853293b4fb8434c4",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/face/2.webp",
+    "source": "male-face2.png",
+    "sourceSha256": "5b4a16bbaa989582744b74ba5a15bee07690cba13eb229f53548c3b61dffe842",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/hair/bald.webp",
+    "source": "male-bald.png",
+    "sourceSha256": "c6de16d7ba09e1ccfbdf4aa5027b39f685f57f769219ef1ee55d3d1f51c12009",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/hair/crop.webp",
+    "source": "male-tee.png",
+    "sourceSha256": "dec9b2405d5b7e93ba685200fb676e53f83a028a84ede85ad1ebb6d1236b7b12",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/hair/quiff.webp",
+    "source": "male-default.png",
+    "sourceSha256": "c6882d491e3a423df6565ec2a049c447fb83523d52167f9bc093ef0736845d7f",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/hair/braids.webp",
+    "source": "male-knit.png",
+    "sourceSha256": "61a013244438d4d082d7b78e58e78b3554753700da8da52b16e3a8bfa6b78b99",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/hair/swept.webp",
+    "source": "male-fisherman.png",
+    "sourceSha256": "336f567c864b19320f69b0e606c431cd424737a4c587020cb877eede4385fea0",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/top/o1.webp",
+    "source": "male-polo.png",
+    "sourceSha256": "65e4714407852c15b4ec310670444ea40e68ee6ad4442848c5da3183ed3ba206",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/top/o2.webp",
+    "source": "male-tee.png",
+    "sourceSha256": "dec9b2405d5b7e93ba685200fb676e53f83a028a84ede85ad1ebb6d1236b7b12",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/top/o3.webp",
+    "source": "male-shirt.png",
+    "sourceSha256": "7f777b606a48e86ad41bc50c72280f444d1cab8f79cff1d184914088f0ff6803",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/top/o4.webp",
+    "source": "male-knit.png",
+    "sourceSha256": "61a013244438d4d082d7b78e58e78b3554753700da8da52b16e3a8bfa6b78b99",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/top/o5.webp",
+    "source": "male-fisherman.png",
+    "sourceSha256": "336f567c864b19320f69b0e606c431cd424737a4c587020cb877eede4385fea0",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/bottom/trousers.webp",
+    "source": "male-polo.png",
+    "sourceSha256": "65e4714407852c15b4ec310670444ea40e68ee6ad4442848c5da3183ed3ba206",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/bottom/straight-jeans.webp",
+    "source": "male-tee.png",
+    "sourceSha256": "dec9b2405d5b7e93ba685200fb676e53f83a028a84ede85ad1ebb6d1236b7b12",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/bottom/chinos.webp",
+    "source": "male-shirt.png",
+    "sourceSha256": "7f777b606a48e86ad41bc50c72280f444d1cab8f79cff1d184914088f0ff6803",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/bottom/classic-jeans.webp",
+    "source": "male-knit.png",
+    "sourceSha256": "61a013244438d4d082d7b78e58e78b3554753700da8da52b16e3a8bfa6b78b99",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  },
+  {
+    "path": "public/cast/options/v21/male/bottom/wool-trousers.webp",
+    "source": "male-fisherman.png",
+    "sourceSha256": "336f567c864b19320f69b0e606c431cd424737a4c587020cb877eede4385fea0",
+    "renderVersion": "approved-v3-v6-corrected-original-performance-v21-oral-soft"
+  }
+]

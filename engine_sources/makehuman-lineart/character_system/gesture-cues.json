@@ -1,0 +1,206 @@
+{
+  "language": "en",
+  "note": "Replaceable per language. Lexicon hits only propose a gesture category; timing, stress and spacing come from the voiceover.",
+  "lexicon": {
+    "greeting": [
+      "hello",
+      "hi",
+      "hey",
+      "welcome",
+      "greetings"
+    ],
+    "point": [
+      "here",
+      "this",
+      "these",
+      "that",
+      "those",
+      "there",
+      "look",
+      "see"
+    ],
+    "count": [
+      "first",
+      "second",
+      "third",
+      "fourth",
+      "firstly",
+      "secondly",
+      "thirdly",
+      "next",
+      "then",
+      "finally",
+      "lastly",
+      "one",
+      "two",
+      "three",
+      "four",
+      "five"
+    ],
+    "scale": [
+      "more",
+      "less",
+      "bigger",
+      "smaller",
+      "grow",
+      "growing",
+      "every",
+      "whole",
+      "entire",
+      "across",
+      "range",
+      "all"
+    ],
+    "contrast": [
+      "but",
+      "however",
+      "instead",
+      "although",
+      "yet",
+      "though"
+    ],
+    "negation": [
+      "no",
+      "not",
+      "never",
+      "nothing",
+      "nobody",
+      "none",
+      "don't",
+      "doesn't",
+      "didn't",
+      "can't",
+      "won't",
+      "isn't",
+      "aren't",
+      "wasn't",
+      "shouldn't",
+      "wouldn't"
+    ],
+    "think": [
+      "think",
+      "thinking",
+      "thought",
+      "consider",
+      "imagine",
+      "wonder",
+      "maybe",
+      "perhaps",
+      "idea",
+      "ideas"
+    ]
+  },
+  "categoryFor": {
+    "contrast": "open"
+  },
+  "rules": {
+    "pauseSec": 0.3,
+    "countMinHits": 3,
+    "countWindowSec": 7.0,
+    "pointNeedsStress": true,
+    "strokeLeadSec": 0.12,
+    "minGapSec": 0.6,
+    "stressBeat": 0.85,
+    "stressEmphasis": 1.6,
+    "longPhraseWords": 7,
+    "countMaxSpacingSec": 2.5
+  },
+  "expressions": {
+    "greeting": [
+      [
+        "!ex-mouthSmileLeft",
+        0.45,
+        1.6
+      ],
+      [
+        "!ex-mouthSmileRight",
+        0.45,
+        1.6
+      ],
+      [
+        "E_browUp_L",
+        0.3,
+        0.8
+      ],
+      [
+        "E_browUp_R",
+        0.3,
+        0.8
+      ]
+    ],
+    "emphasis": [
+      [
+        "E_browUp_L",
+        0.45,
+        0.6
+      ],
+      [
+        "E_browUp_R",
+        0.45,
+        0.6
+      ]
+    ],
+    "question": [
+      [
+        "!ex-browInnerUp",
+        0.5,
+        0.9
+      ]
+    ],
+    "open": [
+      [
+        "E_browUp_L",
+        0.2,
+        0.5
+      ],
+      [
+        "E_browUp_R",
+        0.2,
+        0.5
+      ]
+    ],
+    "sentenceEnd": [
+      [
+        "!ex-mouthSmileLeft",
+        0.25,
+        1.0
+      ],
+      [
+        "!ex-mouthSmileRight",
+        0.25,
+        1.0
+      ]
+    ]
+  },
+  "expressionsNote": "[shape key, peak amount, seconds]; triggered by the same cues as gestures, scaled by --expressiveness.",
+  "profilesNote": "--profile overrides: rules, which events are planned, intent fallbacks and the speech-led head layer.",
+  "profiles": {
+    "presenter": {
+      "rules": {
+        "minGapSec": 1.6
+      },
+      "sentenceOnly": true,
+      "sentenceStartIntents": {
+        "thanks": "^(thank|thanks)\\b"
+      },
+      "fallback": {
+        "thanks": "agree"
+      },
+      "head": {
+        "beatStress": 1.6,
+        "beatMinGapSec": 2.0,
+        "beatAmount": 0.03,
+        "beatSec": 0.5,
+        "pitch": 0.025,
+        "yaw": 0.04,
+        "tilt": 0.025,
+        "poseSec": 0.9
+      },
+      "narrate": {
+        "personal": "\\b(i|i'm|i've|we|we're|you|you're|your|our|us|my|let's)\\b",
+        "minStress": 1.3
+      },
+      "genericFallback": "narrate"
+    }
+  }
+}

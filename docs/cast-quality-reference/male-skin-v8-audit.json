@@ -1,0 +1,358 @@
+{
+  "character": "male",
+  "sourceIdentityHash": "61af0049ac4c34e74dc784433c04f3a7e107aded99dacc86755ef44a164560df",
+  "sourceIdentityUnchanged": true,
+  "objectsMeshesActionsUnchanged": true,
+  "reapplicationStable": true,
+  "finitePoseFrames": [
+    1,
+    18,
+    35,
+    52,
+    69,
+    86,
+    103,
+    120,
+    137,
+    154,
+    171,
+    188,
+    205,
+    222,
+    239,
+    256,
+    273,
+    290,
+    307,
+    324,
+    341,
+    358,
+    375,
+    392,
+    409,
+    426,
+    443,
+    460,
+    477,
+    494,
+    511,
+    528,
+    545,
+    562,
+    579,
+    596,
+    613,
+    630,
+    647,
+    664,
+    681,
+    698,
+    715,
+    732,
+    749,
+    766,
+    783,
+    800,
+    817,
+    834,
+    851,
+    868,
+    885,
+    902,
+    919,
+    936,
+    953,
+    970,
+    987
+  ],
+  "palettes": [
+    {
+      "profile": "tone-derived-skin-v1",
+      "character": "male",
+      "selectedHex": "F7E1D3",
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 26,
+          "baseLinear": [
+            0.9301108583754237,
+            0.7529422167760779,
+            0.6514056374198242
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 18,
+          "baseLinear": [
+            0.9301108583754237,
+            0.7529422167760779,
+            0.6514056374198242
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 18,
+          "baseLinear": [
+            0.9301108583754237,
+            0.7529422167760779,
+            0.6514056374198242
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ]
+    },
+    {
+      "profile": "tone-derived-skin-v1",
+      "character": "male",
+      "selectedHex": "F1D7C8",
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 26,
+          "baseLinear": [
+            0.8796223968878317,
+            0.6795424696330938,
+            0.5775804404296506
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 18,
+          "baseLinear": [
+            0.8796223968878317,
+            0.6795424696330938,
+            0.5775804404296506
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 18,
+          "baseLinear": [
+            0.8796223968878317,
+            0.6795424696330938,
+            0.5775804404296506
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ]
+    },
+    {
+      "profile": "tone-derived-skin-v1",
+      "character": "male",
+      "selectedHex": "E0B48F",
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 26,
+          "baseLinear": [
+            0.7454042095403874,
+            0.45641102318040466,
+            0.27467731206038465
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 18,
+          "baseLinear": [
+            0.7454042095403874,
+            0.45641102318040466,
+            0.27467731206038465
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 18,
+          "baseLinear": [
+            0.7454042095403874,
+            0.45641102318040466,
+            0.27467731206038465
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ]
+    },
+    {
+      "profile": "tone-derived-skin-v1",
+      "character": "male",
+      "selectedHex": "C99A6E",
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 26,
+          "baseLinear": [
+            0.5840784178911641,
+            0.32314320911295075,
+            0.1559264637078274
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 18,
+          "baseLinear": [
+            0.5840784178911641,
+            0.32314320911295075,
+            0.1559264637078274
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 18,
+          "baseLinear": [
+            0.5840784178911641,
+            0.32314320911295075,
+            0.1559264637078274
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ]
+    },
+    {
+      "profile": "tone-derived-skin-v1",
+      "character": "male",
+      "selectedHex": "9E6B4A",
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 26,
+          "baseLinear": [
+            0.3419144249086609,
+            0.14702726649759498,
+            0.06847816984440017
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 18,
+          "baseLinear": [
+            0.3419144249086609,
+            0.14702726649759498,
+            0.06847816984440017
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 18,
+          "baseLinear": [
+            0.3419144249086609,
+            0.14702726649759498,
+            0.06847816984440017
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ]
+    },
+    {
+      "profile": "tone-derived-skin-v1",
+      "character": "male",
+      "selectedHex": "6A4431",
+      "materials": [
+        {
+          "material": "PEEPS_V2_WARM_SKIN",
+          "nodes": 26,
+          "baseLinear": [
+            0.14412847085805777,
+            0.05780543019106723,
+            0.030713443732993635
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "V60_EAR_SKIN",
+          "nodes": 18,
+          "baseLinear": [
+            0.14412847085805777,
+            0.05780543019106723,
+            0.030713443732993635
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        },
+        {
+          "material": "LINEART_SKIN_WHITE",
+          "nodes": 18,
+          "baseLinear": [
+            0.14412847085805777,
+            0.05780543019106723,
+            0.030713443732993635
+          ],
+          "contactDistance": 0.018,
+          "contactWeight": 0.16,
+          "fixedColourMasks": false
+        }
+      ],
+      "hiddenEarOverlays": [
+        "Host.V60_ear_fill_R",
+        "Host.V60_ear_inner_R",
+        "Host.V60_ear_line_R"
+      ]
+    }
+  ]
+}

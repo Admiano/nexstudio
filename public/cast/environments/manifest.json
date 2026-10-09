@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "family": "illustrated",
+  "description": "Illustrated companions to the photographic catalog, composed separately for each aspect ratio.",
+  "scene_ids": {
+    "living_room": "Contemporary living room",
+    "home_office": "Home office",
+    "creator_studio": "Creator studio",
+    "workplace": "Modern workplace",
+    "cafe": "Neighborhood caf\u00e9",
+    "kitchen": "Contemporary kitchen",
+    "library": "Library and study",
+    "classroom": "Training classroom",
+    "terrace": "Garden terrace",
+    "neutral_studio": "Neutral illustrated studio"
+  },
+  "formats": {
+    "landscape": {
+      "width": 1920,
+      "height": 1080,
+      "aspect": "1920:1080"
+    },
+    "square": {
+      "width": 1080,
+      "height": 1080,
+      "aspect": "1080:1080"
+    },
+    "portrait": {
+      "width": 1080,
+      "height": 1920,
+      "aspect": "1080:1920"
+    }
+  },
+  "assets": {
+    "living_room": {
+      "landscape": "assets/landscape/living_room.jpg",
+      "square": "assets/square/living_room.jpg",
+      "portrait": "assets/portrait/living_room.jpg"
+    },
+    "home_office": {
+      "landscape": "assets/landscape/home_office.jpg",
+      "square": "assets/square/home_office.jpg",
+      "portrait": "assets/portrait/home_office.jpg"
+    },
+    "creator_studio": {
+      "landscape": "assets/landscape/creator_studio.jpg",
+      "square": "assets/square/creator_studio.jpg",
+      "portrait": "assets/portrait/creator_studio.jpg"
+    },
+    "workplace": {
+      "landscape": "assets/landscape/workplace.jpg",
+      "square": "assets/square/workplace.jpg",
+      "portrait": "assets/portrait/workplace.jpg"
+    },
+    "cafe": {
+      "landscape": "assets/landscape/cafe.jpg",
+      "square": "assets/square/cafe.jpg",
+      "portrait": "assets/portrait/cafe.jpg"
+    },
+    "kitchen": {
+      "landscape": "assets/landscape/kitchen.jpg",
+      "square": "assets/square/kitchen.jpg",
+      "portrait": "assets/portrait/kitchen.jpg"
+    },
+    "library": {
+      "landscape": "assets/landscape/library.jpg",
+      "square": "assets/square/library.jpg",
+      "portrait": "assets/portrait/library.jpg"
+    },
+    "classroom": {
+      "landscape": "assets/landscape/classroom.jpg",
+      "square": "assets/square/classroom.jpg",
+      "portrait": "assets/portrait/classroom.jpg"
+    },
+    "terrace": {
+      "landscape": "assets/landscape/terrace.jpg",
+      "square": "assets/square/terrace.jpg",
+      "portrait": "assets/portrait/terrace.jpg"
+    },
+    "neutral_studio": {
+      "landscape": "assets/landscape/neutral_studio.jpg",
+      "square": "assets/square/neutral_studio.jpg",
+      "portrait": "assets/portrait/neutral_studio.jpg"
+    }
+  },
+  "sources": {
+    "living_room": {
+      "landscape": "masters/living_room.png",
+      "square": "variants/living_room_square_source.png",
+      "portrait": "variants/living_room_portrait_source.png"
+    },
+    "home_office": {
+      "landscape": "masters/home_office.png",
+      "square": "variants/home_office_square_source.png",
+      "portrait": "variants/home_office_portrait_source.png"
+    },
+    "creator_studio": {
+      "landscape": "masters/creator_studio.png",
+      "square": "variants/creator_studio_square_source.png",
+      "portrait": "variants/creator_studio_portrait_source.png"
+    },
+    "workplace": {
+      "landscape": "masters/workplace.png",
+      "square": "variants/workplace_square_source.png",
+      "portrait": "variants/workplace_portrait_source.png"
+    },
+    "cafe": {
+      "landscape": "masters/cafe.png",
+      "square": "variants/cafe_square_source.png",
+      "portrait": "variants/cafe_portrait_source.png"
+    },
+    "kitchen": {
+      "landscape": "masters/kitchen.png",
+      "square": "variants/kitchen_square_source.png",
+      "portrait": "variants/kitchen_portrait_source.png"
+    },
+    "library": {
+      "landscape": "masters/library.png",
+      "square": "variants/library_square_source.png",
+      "portrait": "variants/library_portrait_source.png"
+    },
+    "classroom": {
+      "landscape": "masters/classroom.png",
+      "square": "variants/classroom_square_source.png",
+      "portrait": "variants/classroom_portrait_source.png"
+    },
+    "terrace": {
+      "landscape": "masters/terrace.png",
+      "square": "variants/terrace_square_source.png",
+      "portrait": "variants/terrace_portrait_source.png"
+    },
+    "neutral_studio": {
+      "landscape": "masters/neutral_studio.png",
+      "square": "variants/neutral_studio_square_source.png",
+      "portrait": "variants/neutral_studio_portrait_source.png"
+    }
+  },
+  "framing": "Front-facing hips-up presenter with both hands visible; select the asset for the output aspect."
+}

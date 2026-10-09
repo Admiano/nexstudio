@@ -13,7 +13,9 @@ async function scanOne(){
     const bytes=await readObject(job.source.quarantineObjectKey);const structural=inspectUpload(bytes,job.source.mimeType);const scan=await clamAvScan(bytes);
     if(!scan.available)throw new Error("CLAMAV_NOT_CONFIGURED");
     if(!scan.clean){await prisma.$transaction([prisma.uploadScanJob.update({where:{id:job.id},data:{status:"BLOCKED",verdict:"MALWARE",detail:scan.detail,completedAt:new Date()}}),prisma.source.update({where:{id:job.sourceId},data:{status:"BLOCKED",securityStatus:"BLOCKED"}})]);return true;}
-    // Understand clean bytes before publishing them as READY. Failure leaves the\n    // quarantine object intact so the durable scan job can retry safely.\n    const extracted=await extractAndPersistSourceIntelligence({userId:job.source.ownerUserId,sourceId:job.source.id,name:job.source.name||"upload",mimeType:structural.detectedMime,bytes});
+    // Understand clean bytes before publishing them as READY. Failure leaves the
+    // quarantine object intact so the durable scan job can retry safely.
+    const extracted=await extractAndPersistSourceIntelligence({userId:job.source.ownerUserId,sourceId:job.source.id,name:job.source.name||"upload",mimeType:structural.detectedMime,bytes});
     const finalKey=finalSourceObjectKey(job.source.ownerUserId,job.source.id,job.source.name||"upload");
     await writeObject(finalKey,bytes,{contentType:structural.detectedMime});await deleteObject(job.source.quarantineObjectKey);
     await prisma.$transaction([

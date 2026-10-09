@@ -1,0 +1,817 @@
+{
+ "pose": {
+  "sitting-bike": {
+   "posture": "sitting",
+   "energy": 0.6,
+   "formality": 0.2,
+   "tags": [
+    "bicycle",
+    "bike",
+    "commute",
+    "cycling",
+    "movement",
+    "outdoors",
+    "ride"
+   ]
+  },
+  "sitting-closed-legs-1": {
+   "posture": "sitting",
+   "energy": 0.2,
+   "formality": 0.5,
+   "tags": [
+    "waiting",
+    "listening",
+    "composed"
+   ]
+  },
+  "sitting-closed-legs-2": {
+   "posture": "sitting",
+   "energy": 0.2,
+   "formality": 0.5,
+   "tags": [
+    "waiting",
+    "listening",
+    "composed"
+   ]
+  },
+  "sitting-crossed-legs": {
+   "posture": "sitting",
+   "energy": 0.25,
+   "formality": 0.4,
+   "tags": [
+    "relaxed",
+    "conversation",
+    "casual"
+   ]
+  },
+  "sitting-hands-back-1": {
+   "posture": "sitting",
+   "energy": 0.2,
+   "formality": 0.3,
+   "tags": [
+    "relaxed",
+    "reflection",
+    "ease"
+   ]
+  },
+  "sitting-hands-back-2": {
+   "posture": "sitting",
+   "energy": 0.2,
+   "formality": 0.3,
+   "tags": [
+    "relaxed",
+    "reflection",
+    "ease"
+   ]
+  },
+  "sitting-mid-1": {
+   "posture": "sitting",
+   "energy": 0.35,
+   "formality": 0.4,
+   "tags": [
+    "computer",
+    "desk",
+    "focus",
+    "laptop",
+    "office",
+    "work",
+    "working"
+   ]
+  },
+  "sitting-mid-2": {
+   "posture": "sitting",
+   "energy": 0.35,
+   "formality": 0.4,
+   "tags": [
+    "computer",
+    "desk",
+    "focus",
+    "laptop",
+    "office",
+    "work",
+    "working"
+   ]
+  },
+  "sitting-one-leg-up-1": {
+   "posture": "sitting",
+   "energy": 0.3,
+   "formality": 0.25,
+   "tags": [
+    "casual",
+    "thinking",
+    "pause"
+   ]
+  },
+  "sitting-one-leg-up-2": {
+   "posture": "sitting",
+   "energy": 0.3,
+   "formality": 0.25,
+   "tags": [
+    "casual",
+    "thinking",
+    "pause"
+   ]
+  },
+  "sitting-wheelchair": {
+   "posture": "sitting",
+   "energy": 0.3,
+   "formality": 0.4,
+   "tags": [
+    "accessibility",
+    "care",
+    "disability",
+    "inclusion",
+    "patient",
+    "wheelchair"
+   ]
+  },
+  "standing-blazer-1": {
+   "posture": "standing",
+   "energy": 0.4,
+   "formality": 0.9,
+   "tags": [
+    "professional",
+    "business",
+    "presenting"
+   ]
+  },
+  "standing-blazer-2": {
+   "posture": "standing",
+   "energy": 0.4,
+   "formality": 0.9,
+   "tags": [
+    "professional",
+    "business",
+    "leadership"
+   ]
+  },
+  "standing-blazer-3": {
+   "posture": "standing",
+   "energy": 0.45,
+   "formality": 0.9,
+   "tags": [
+    "professional",
+    "business",
+    "confidence"
+   ]
+  },
+  "standing-blazer-4": {
+   "posture": "standing",
+   "energy": 0.45,
+   "formality": 0.9,
+   "tags": [
+    "professional",
+    "business",
+    "confidence"
+   ]
+  },
+  "standing-crossed-arms-1": {
+   "posture": "standing",
+   "energy": 0.3,
+   "formality": 0.6,
+   "tags": [
+    "assured",
+    "authority",
+    "doubt",
+    "myth",
+    "really",
+    "scepticism",
+    "stance",
+    "sure",
+    "wait"
+   ]
+  },
+  "standing-crossed-arms-2": {
+   "posture": "standing",
+   "energy": 0.3,
+   "formality": 0.6,
+   "tags": [
+    "assured",
+    "authority",
+    "doubt",
+    "myth",
+    "really",
+    "scepticism",
+    "stance",
+    "sure",
+    "wait"
+   ]
+  },
+  "standing-doctor-nurse-01": {
+   "posture": "standing",
+   "energy": 0.35,
+   "formality": 0.8,
+   "tags": [
+    "care",
+    "clinic",
+    "clinical",
+    "doctor",
+    "expert",
+    "health",
+    "hospital",
+    "nurse",
+    "patient"
+   ]
+  },
+  "standing-doctor-nurse-02": {
+   "posture": "standing",
+   "energy": 0.35,
+   "formality": 0.8,
+   "tags": [
+    "care",
+    "clinic",
+    "clinical",
+    "doctor",
+    "expert",
+    "health",
+    "hospital",
+    "nurse",
+    "patient"
+   ]
+  },
+  "standing-doctor-nurse-03": {
+   "posture": "standing",
+   "energy": 0.35,
+   "formality": 0.8,
+   "tags": [
+    "care",
+    "clinic",
+    "clinical",
+    "doctor",
+    "expert",
+    "health",
+    "hospital",
+    "nurse",
+    "patient"
+   ]
+  },
+  "standing-easing-1": {
+   "posture": "standing",
+   "energy": 0.25,
+   "formality": 0.35,
+   "tags": [
+    "relaxed",
+    "ease",
+    "approachable"
+   ]
+  },
+  "standing-easing-2": {
+   "posture": "standing",
+   "energy": 0.25,
+   "formality": 0.35,
+   "tags": [
+    "relaxed",
+    "ease",
+    "approachable"
+   ]
+  },
+  "standing-pointing-finger-1": {
+   "posture": "standing",
+   "energy": 0.7,
+   "formality": 0.5,
+   "tags": [
+    "call-out",
+    "cta",
+    "direction",
+    "emphasis",
+    "here",
+    "look",
+    "point",
+    "pointing",
+    "start",
+    "this",
+    "try"
+   ]
+  },
+  "standing-pointing-finger-2": {
+   "posture": "standing",
+   "energy": 0.7,
+   "formality": 0.5,
+   "tags": [
+    "call-out",
+    "cta",
+    "direction",
+    "emphasis",
+    "here",
+    "look",
+    "point",
+    "pointing",
+    "start",
+    "this",
+    "try"
+   ]
+  },
+  "standing-polka-dots": {
+   "posture": "standing",
+   "energy": 0.4,
+   "formality": 0.4,
+   "tags": [
+    "personality",
+    "creative",
+    "casual"
+   ]
+  },
+  "standing-resting-1": {
+   "posture": "standing",
+   "energy": 0.2,
+   "formality": 0.4,
+   "tags": [
+    "waiting",
+    "listening",
+    "neutral"
+   ]
+  },
+  "standing-resting-2": {
+   "posture": "standing",
+   "energy": 0.2,
+   "formality": 0.4,
+   "tags": [
+    "waiting",
+    "listening",
+    "neutral"
+   ]
+  },
+  "standing-robot-dance-1": {
+   "posture": "standing",
+   "energy": 0.9,
+   "formality": 0.1,
+   "tags": [
+    "celebrate",
+    "celebration",
+    "energy",
+    "fun",
+    "hype",
+    "launch",
+    "party",
+    "win"
+   ]
+  },
+  "standing-robot-dance-2": {
+   "posture": "standing",
+   "energy": 0.9,
+   "formality": 0.1,
+   "tags": [
+    "celebrate",
+    "celebration",
+    "energy",
+    "fun",
+    "hype",
+    "launch",
+    "party",
+    "win"
+   ]
+  },
+  "standing-robot-dance-3": {
+   "posture": "standing",
+   "energy": 0.9,
+   "formality": 0.1,
+   "tags": [
+    "celebrate",
+    "celebration",
+    "energy",
+    "fun",
+    "hype",
+    "launch",
+    "party",
+    "win"
+   ]
+  },
+  "standing-shirt-1": {
+   "posture": "standing",
+   "energy": 0.35,
+   "formality": 0.6,
+   "tags": [
+    "everyday",
+    "neutral",
+    "work"
+   ]
+  },
+  "standing-shirt-2": {
+   "posture": "standing",
+   "energy": 0.35,
+   "formality": 0.6,
+   "tags": [
+    "everyday",
+    "neutral",
+    "work"
+   ]
+  },
+  "standing-shirt-3": {
+   "posture": "standing",
+   "energy": 0.35,
+   "formality": 0.6,
+   "tags": [
+    "everyday",
+    "neutral",
+    "work"
+   ]
+  },
+  "standing-shirt-4": {
+   "posture": "standing",
+   "energy": 0.35,
+   "formality": 0.6,
+   "tags": [
+    "everyday",
+    "neutral",
+    "work"
+   ]
+  },
+  "standing-walking-1": {
+   "posture": "standing",
+   "energy": 0.6,
+   "formality": 0.3,
+   "tags": [
+    "forward",
+    "journey",
+    "momentum",
+    "next-step",
+    "progress",
+    "step",
+    "walk",
+    "walking"
+   ]
+  },
+  "standing-walking-2": {
+   "posture": "standing",
+   "energy": 0.6,
+   "formality": 0.3,
+   "tags": [
+    "forward",
+    "journey",
+    "momentum",
+    "next-step",
+    "progress",
+    "step",
+    "walk",
+    "walking"
+   ]
+  },
+  "standing-walking-3": {
+   "posture": "standing",
+   "energy": 0.6,
+   "formality": 0.3,
+   "tags": [
+    "forward",
+    "journey",
+    "momentum",
+    "next-step",
+    "progress",
+    "step",
+    "walk",
+    "walking"
+   ]
+  }
+ },
+ "face": {
+  "angry-with-fang": {
+   "emotion": "anger",
+   "valence": -0.9,
+   "arousal": 0.9,
+   "tags": [
+    "anger",
+    "threat",
+    "conflict"
+   ]
+  },
+  "awe": {
+   "emotion": "awe",
+   "valence": 0.6,
+   "arousal": 0.9,
+   "tags": [
+    "surprise",
+    "wonder",
+    "reveal",
+    "scale"
+   ]
+  },
+  "blank": {
+   "emotion": "neutral",
+   "valence": 0,
+   "arousal": 0.1,
+   "tags": [
+    "neutral",
+    "deadpan",
+    "statement"
+   ]
+  },
+  "calm": {
+   "emotion": "calm",
+   "valence": 0.4,
+   "arousal": 0.15,
+   "tags": [
+    "calm",
+    "reassurance",
+    "trust",
+    "ease"
+   ]
+  },
+  "cheeky": {
+   "emotion": "playful",
+   "valence": 0.6,
+   "arousal": 0.5,
+   "tags": [
+    "playful",
+    "wit",
+    "aside"
+   ]
+  },
+  "concerned": {
+   "emotion": "concern",
+   "valence": -0.5,
+   "arousal": 0.4,
+   "tags": [
+    "concern",
+    "problem",
+    "risk",
+    "doubt"
+   ]
+  },
+  "concerned-fear": {
+   "emotion": "worry",
+   "valence": -0.7,
+   "arousal": 0.7,
+   "tags": [
+    "worry",
+    "risk",
+    "pressure",
+    "deadline"
+   ]
+  },
+  "contempt": {
+   "emotion": "contempt",
+   "valence": -0.6,
+   "arousal": 0.4,
+   "tags": [
+    "contempt",
+    "dismissal",
+    "objection"
+   ]
+  },
+  "cute": {
+   "emotion": "warmth",
+   "valence": 0.7,
+   "arousal": 0.3,
+   "tags": [
+    "warmth",
+    "friendly",
+    "soft"
+   ]
+  },
+  "cyclops": {
+   "emotion": "absurd",
+   "valence": 0.2,
+   "arousal": 0.6,
+   "tags": [
+    "absurd",
+    "novelty"
+   ],
+   "rare": true
+  },
+  "driven": {
+   "emotion": "determination",
+   "valence": 0.4,
+   "arousal": 0.8,
+   "tags": [
+    "determined",
+    "focus",
+    "ambition",
+    "drive",
+    "growth"
+   ]
+  },
+  "eating-happy": {
+   "emotion": "delight",
+   "valence": 0.8,
+   "arousal": 0.5,
+   "tags": [
+    "delight",
+    "food",
+    "enjoyment"
+   ]
+  },
+  "explaining": {
+   "emotion": "engaged",
+   "valence": 0.3,
+   "arousal": 0.6,
+   "tags": [
+    "explaining",
+    "teaching",
+    "answer",
+    "clarity"
+   ]
+  },
+  "eyes-closed": {
+   "emotion": "relief",
+   "valence": 0.3,
+   "arousal": 0.2,
+   "tags": [
+    "relief",
+    "patience",
+    "rest"
+   ]
+  },
+  "fear": {
+   "emotion": "fear",
+   "valence": -0.8,
+   "arousal": 0.9,
+   "tags": [
+    "fear",
+    "alarm",
+    "failure"
+   ]
+  },
+  "hectic": {
+   "emotion": "overwhelm",
+   "valence": -0.6,
+   "arousal": 0.95,
+   "tags": [
+    "overwhelm",
+    "chaos",
+    "workload",
+    "stress"
+   ]
+  },
+  "loving-grin-1": {
+   "emotion": "joy",
+   "valence": 0.9,
+   "arousal": 0.5,
+   "tags": [
+    "joy",
+    "love",
+    "gratitude"
+   ]
+  },
+  "loving-grin-2": {
+   "emotion": "joy",
+   "valence": 0.9,
+   "arousal": 0.55,
+   "tags": [
+    "joy",
+    "love",
+    "celebration"
+   ]
+  },
+  "monster": {
+   "emotion": "menace",
+   "valence": -0.9,
+   "arousal": 0.8,
+   "tags": [
+    "menace",
+    "villain"
+   ],
+   "rare": true
+  },
+  "old": {
+   "emotion": "weary",
+   "valence": -0.1,
+   "arousal": 0.2,
+   "tags": [
+    "weary",
+    "experience",
+    "legacy"
+   ]
+  },
+  "rage": {
+   "emotion": "anger",
+   "valence": -0.95,
+   "arousal": 0.95,
+   "tags": [
+    "anger",
+    "frustration",
+    "outrage"
+   ]
+  },
+  "serious": {
+   "emotion": "serious",
+   "valence": -0.1,
+   "arousal": 0.4,
+   "tags": [
+    "serious",
+    "authority",
+    "stakes",
+    "focus"
+   ]
+  },
+  "smile": {
+   "emotion": "positive",
+   "valence": 0.7,
+   "arousal": 0.35,
+   "tags": [
+    "positive",
+    "welcome",
+    "friendly"
+   ]
+  },
+  "smile-big": {
+   "emotion": "happy",
+   "valence": 0.85,
+   "arousal": 0.6,
+   "tags": [
+    "happy",
+    "win",
+    "success",
+    "launch"
+   ]
+  },
+  "smile-lol": {
+   "emotion": "laughter",
+   "valence": 0.9,
+   "arousal": 0.8,
+   "tags": [
+    "laughter",
+    "fun",
+    "hype"
+   ]
+  },
+  "smile-teeth-gap": {
+   "emotion": "happy",
+   "valence": 0.8,
+   "arousal": 0.5,
+   "tags": [
+    "happy",
+    "charm",
+    "approachable"
+   ]
+  },
+  "solemn": {
+   "emotion": "solemn",
+   "valence": -0.3,
+   "arousal": 0.2,
+   "tags": [
+    "solemn",
+    "respect",
+    "gravity"
+   ]
+  },
+  "suspicious": {
+   "emotion": "doubt",
+   "valence": -0.4,
+   "arousal": 0.5,
+   "tags": [
+    "doubt",
+    "scepticism",
+    "question",
+    "myth"
+   ]
+  },
+  "tired": {
+   "emotion": "fatigue",
+   "valence": -0.5,
+   "arousal": 0.15,
+   "tags": [
+    "fatigue",
+    "burnout",
+    "friction",
+    "waste"
+   ]
+  },
+  "very-angry": {
+   "emotion": "anger",
+   "valence": -0.9,
+   "arousal": 0.85,
+   "tags": [
+    "anger",
+    "conflict"
+   ]
+  },
+  "with-mask-calm": {
+   "emotion": "calm",
+   "valence": 0.3,
+   "arousal": 0.2,
+   "tags": [
+    "calm",
+    "health",
+    "safety"
+   ],
+   "requires": {
+    "mask": true
+   }
+  },
+  "with-mask-cheers": {
+   "emotion": "positive",
+   "valence": 0.7,
+   "arousal": 0.6,
+   "tags": [
+    "positive",
+    "health",
+    "safety"
+   ],
+   "requires": {
+    "mask": true
+   }
+  },
+  "with-mask-smile": {
+   "emotion": "positive",
+   "valence": 0.7,
+   "arousal": 0.4,
+   "tags": [
+    "positive",
+    "health",
+    "safety"
+   ],
+   "requires": {
+    "mask": true
+   }
+  }
+ }
+}

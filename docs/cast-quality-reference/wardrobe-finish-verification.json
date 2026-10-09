@@ -1,0 +1,2578 @@
+{
+  "frame": 27,
+  "renders": [
+    {
+      "name": "male-1-1",
+      "character": "male",
+      "topOrDress": "namuhekam_male_polo_shirt",
+      "bottom": "mindfront_male_trousers_1",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.namuhekam_male_polo_shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.namuhekam_male_polo_shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "vertexCount": 11590,
+            "adjustedVertices": 259,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1636,
+            "adjustedVertices": 40,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.83,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-1-2",
+      "character": "male",
+      "topOrDress": "namuhekam_male_polo_shirt",
+      "bottom": "elvs_jeans_straight_leg",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.namuhekam_male_polo_shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.elvs_jeans_straight_leg",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.namuhekam_male_polo_shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "vertexCount": 18218,
+            "adjustedVertices": 4841,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 2186,
+            "adjustedVertices": 768,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.82,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-1-3",
+      "character": "male",
+      "topOrDress": "namuhekam_male_polo_shirt",
+      "bottom": "mindfront_male_trousers_2",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.namuhekam_male_polo_shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_2",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.namuhekam_male_polo_shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "vertexCount": 58744,
+            "adjustedVertices": 2483,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1864,
+            "adjustedVertices": 252,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 18.97,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-1-4",
+      "character": "male",
+      "topOrDress": "namuhekam_male_polo_shirt",
+      "bottom": "punkduck_male_classic_jeans",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.namuhekam_male_polo_shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.punkduck_male_classic_jeans",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.namuhekam_male_polo_shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "vertexCount": 15778,
+            "adjustedVertices": 2771,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 3908,
+            "adjustedVertices": 1268,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.17,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-1-5",
+      "character": "male",
+      "topOrDress": "namuhekam_male_polo_shirt",
+      "bottom": "toigo_wool_pants",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.namuhekam_male_polo_shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.toigo_wool_pants",
+              "fabric": "wool",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.namuhekam_male_polo_shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.toigo_wool_pants",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_wool_pants",
+            "vertexCount": 10866,
+            "adjustedVertices": 1182,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1600,
+            "adjustedVertices": 259,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 18.6,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-2-1",
+      "character": "male",
+      "topOrDress": "toigo_basic_tucked_t-shirt",
+      "bottom": "mindfront_male_trousers_1",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_basic_tucked_t-shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "vertexCount": 10968,
+            "adjustedVertices": 1066,
+            "finite": true,
+            "hemExtension": 0.026710265159606932,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines",
+            "vertexCount": 698,
+            "adjustedVertices": 278,
+            "finite": true,
+            "hemExtension": 0.026710265159606932,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.35,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-2-2",
+      "character": "male",
+      "topOrDress": "toigo_basic_tucked_t-shirt",
+      "bottom": "elvs_jeans_straight_leg",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_basic_tucked_t-shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.elvs_jeans_straight_leg",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "vertexCount": 10968,
+            "adjustedVertices": 1066,
+            "finite": true,
+            "hemExtension": 0,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines",
+            "vertexCount": 698,
+            "adjustedVertices": 278,
+            "finite": true,
+            "hemExtension": 0,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.67,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-2-3",
+      "character": "male",
+      "topOrDress": "toigo_basic_tucked_t-shirt",
+      "bottom": "mindfront_male_trousers_2",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_basic_tucked_t-shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_2",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "vertexCount": 10968,
+            "adjustedVertices": 1066,
+            "finite": true,
+            "hemExtension": 0.009278052330017088,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines",
+            "vertexCount": 698,
+            "adjustedVertices": 278,
+            "finite": true,
+            "hemExtension": 0.009278052330017088,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 19.69,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-2-4",
+      "character": "male",
+      "topOrDress": "toigo_basic_tucked_t-shirt",
+      "bottom": "punkduck_male_classic_jeans",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_basic_tucked_t-shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.punkduck_male_classic_jeans",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "vertexCount": 10968,
+            "adjustedVertices": 1066,
+            "finite": true,
+            "hemExtension": 0.0023019247055053697,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines",
+            "vertexCount": 698,
+            "adjustedVertices": 278,
+            "finite": true,
+            "hemExtension": 0.0023019247055053697,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 16.77,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-2-5",
+      "character": "male",
+      "topOrDress": "toigo_basic_tucked_t-shirt",
+      "bottom": "toigo_wool_pants",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_basic_tucked_t-shirt",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.toigo_wool_pants",
+              "fabric": "wool",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.toigo_wool_pants",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_basic_tucked_t-shirt",
+            "vertexCount": 10968,
+            "adjustedVertices": 1066,
+            "finite": true,
+            "hemExtension": 0.007558100700378417,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines",
+            "vertexCount": 698,
+            "adjustedVertices": 278,
+            "finite": true,
+            "hemExtension": 0.007558100700378417,
+            "preservedWorldAxes": [
+              "X"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 16.42,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-3-1",
+      "character": "male",
+      "topOrDress": "elvs_male_shirt_untucked_bd1",
+      "bottom": "mindfront_male_trousers_1",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "vertices": 106,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "vertexCount": 11590,
+            "adjustedVertices": 33,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1636,
+            "adjustedVertices": 0,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.83,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-3-2",
+      "character": "male",
+      "topOrDress": "elvs_male_shirt_untucked_bd1",
+      "bottom": "elvs_jeans_straight_leg",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.elvs_jeans_straight_leg",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "vertices": 106,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "vertexCount": 18218,
+            "adjustedVertices": 593,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 2186,
+            "adjustedVertices": 169,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 18.34,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-3-3",
+      "character": "male",
+      "topOrDress": "elvs_male_shirt_untucked_bd1",
+      "bottom": "mindfront_male_trousers_2",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_2",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "vertices": 106,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "vertexCount": 58744,
+            "adjustedVertices": 60,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1864,
+            "adjustedVertices": 0,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 18.85,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-3-4",
+      "character": "male",
+      "topOrDress": "elvs_male_shirt_untucked_bd1",
+      "bottom": "punkduck_male_classic_jeans",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.punkduck_male_classic_jeans",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "vertices": 106,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "vertexCount": 15778,
+            "adjustedVertices": 267,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 3908,
+            "adjustedVertices": 76,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.76,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-3-5",
+      "character": "male",
+      "topOrDress": "elvs_male_shirt_untucked_bd1",
+      "bottom": "toigo_wool_pants",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.toigo_wool_pants",
+              "fabric": "wool",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "vertices": 106,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.toigo_wool_pants",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_wool_pants",
+            "vertexCount": 10866,
+            "adjustedVertices": 224,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1600,
+            "adjustedVertices": 2,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 18.79,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-4-1",
+      "character": "male",
+      "topOrDress": "mindfront_knitted_sweater_01",
+      "bottom": "mindfront_male_trousers_1",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "vertices": 44,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_knitted_sweater_01",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "vertexCount": 11590,
+            "adjustedVertices": 391,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1636,
+            "adjustedVertices": 154,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 18.57,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-4-2",
+      "character": "male",
+      "topOrDress": "mindfront_knitted_sweater_01",
+      "bottom": "elvs_jeans_straight_leg",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.elvs_jeans_straight_leg",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "vertices": 44,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_knitted_sweater_01",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "vertexCount": 18218,
+            "adjustedVertices": 4206,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 2186,
+            "adjustedVertices": 582,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.75,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-4-3",
+      "character": "male",
+      "topOrDress": "mindfront_knitted_sweater_01",
+      "bottom": "mindfront_male_trousers_2",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_2",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "vertices": 44,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_knitted_sweater_01",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "vertexCount": 58744,
+            "adjustedVertices": 2248,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1864,
+            "adjustedVertices": 356,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 19.69,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-4-4",
+      "character": "male",
+      "topOrDress": "mindfront_knitted_sweater_01",
+      "bottom": "punkduck_male_classic_jeans",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.punkduck_male_classic_jeans",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "vertices": 44,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_knitted_sweater_01",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "vertexCount": 15778,
+            "adjustedVertices": 1769,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 3908,
+            "adjustedVertices": 814,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.01,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-4-5",
+      "character": "male",
+      "topOrDress": "mindfront_knitted_sweater_01",
+      "bottom": "toigo_wool_pants",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.toigo_wool_pants",
+              "fabric": "wool",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "vertices": 44,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_knitted_sweater_01",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.toigo_wool_pants",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_wool_pants",
+            "vertexCount": 10866,
+            "adjustedVertices": 1173,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1600,
+            "adjustedVertices": 280,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 16.44,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-5-1",
+      "character": "male",
+      "topOrDress": "toigo_fisherman_sweater",
+      "bottom": "mindfront_male_trousers_1",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "vertices": 89,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_fisherman_sweater",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_1",
+            "vertexCount": 11590,
+            "adjustedVertices": 1268,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1636,
+            "adjustedVertices": 664,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.1,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-5-2",
+      "character": "male",
+      "topOrDress": "toigo_fisherman_sweater",
+      "bottom": "elvs_jeans_straight_leg",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.elvs_jeans_straight_leg",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "vertices": 89,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_fisherman_sweater",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.elvs_jeans_straight_leg",
+            "vertexCount": 18218,
+            "adjustedVertices": 5588,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 2186,
+            "adjustedVertices": 802,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 17.85,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-5-3",
+      "character": "male",
+      "topOrDress": "toigo_fisherman_sweater",
+      "bottom": "mindfront_male_trousers_2",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_2",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "vertices": 89,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_fisherman_sweater",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "vertexCount": 58744,
+            "adjustedVertices": 5707,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1864,
+            "adjustedVertices": 754,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 20.61,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-5-4",
+      "character": "male",
+      "topOrDress": "toigo_fisherman_sweater",
+      "bottom": "punkduck_male_classic_jeans",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.punkduck_male_classic_jeans",
+              "fabric": "denim",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "vertices": 89,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_fisherman_sweater",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.punkduck_male_classic_jeans",
+            "vertexCount": 15778,
+            "adjustedVertices": 2795,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 3908,
+            "adjustedVertices": 1495,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 19.6,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "male-5-5",
+      "character": "male",
+      "topOrDress": "toigo_fisherman_sweater",
+      "bottom": "toigo_wool_pants",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "fabric": "knit",
+              "amplitude": 0.035,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.toigo_wool_pants",
+              "fabric": "wool",
+              "amplitude": 0.025,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "vertices": 89,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.toigo_fisherman_sweater",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.toigo_wool_pants",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.toigo_wool_pants",
+            "vertexCount": 10866,
+            "adjustedVertices": 2711,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1600,
+            "adjustedVertices": 592,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 18.71,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "female-1",
+      "character": "female",
+      "topOrDress": "mindfront_f_dress_11",
+      "bottom": "",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_culturalibre_hair_01",
+              "endVerticesRefined": 328,
+              "maximumWorldDisplacement": 0.004000000364155136,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_f_dress_11",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_f_dress_11",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 13.67,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "female-2",
+      "character": "female",
+      "topOrDress": "mindfront_f_dress_09",
+      "bottom": "",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_culturalibre_hair_01",
+              "endVerticesRefined": 328,
+              "maximumWorldDisplacement": 0.004000000364155136,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_f_dress_09",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.mindfront_f_dress_09",
+              "vertices": 153,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_f_dress_09",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 15.84,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "female-3",
+      "character": "female",
+      "topOrDress": "mindfront_f_dress_07",
+      "bottom": "",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_culturalibre_hair_01",
+              "endVerticesRefined": 328,
+              "maximumWorldDisplacement": 0.004000000364155136,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_f_dress_07",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_f_dress_07",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 13.39,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "female-4",
+      "character": "female",
+      "topOrDress": "punkduck_black_cocktail_dress",
+      "bottom": "",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_culturalibre_hair_01",
+              "endVerticesRefined": 328,
+              "maximumWorldDisplacement": 0.004000000364155136,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.punkduck_black_cocktail_dress",
+              "fabric": "satin",
+              "amplitude": 0.008,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.punkduck_black_cocktail_dress",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 15.08,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "name": "female-5",
+      "character": "female",
+      "topOrDress": "punkduck_middle_length_qipao",
+      "bottom": "",
+      "metadata": {
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_culturalibre_hair_01",
+              "endVerticesRefined": 328,
+              "maximumWorldDisplacement": 0.004000000364155136,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.punkduck_middle_length_qipao",
+              "fabric": "satin",
+              "amplitude": 0.008,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.punkduck_middle_length_qipao",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-finish-v7-upper-thigh",
+        "frame": 27,
+        "seconds": 15.64,
+        "resolution": [
+          2160,
+          2880,
+          25
+        ],
+        "engine": "CYCLES",
+        "samples": 12,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    }
+  ]
+}

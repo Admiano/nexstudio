@@ -1,0 +1,98 @@
+# NexStudio self-host: web + render worker + postgres (+ optional MinIO for S3).
+#   docker compose up -d --build
+#   docker compose --profile s3 up -d        # adds MinIO + bucket bootstrap
+services:
+  postgres:
+    image: mirror.gcr.io/library/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: studio
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d studio"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build: .
+    image: nexstudio:latest
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/studio?schema=public
+      # Required in production — generate once into .env:
+      #   echo "STUDIO_TRUST_SECRET=$(openssl rand -hex 32)" >> .env
+      STUDIO_TRUST_SECRET: ${STUDIO_TRUST_SECRET:?set STUDIO_TRUST_SECRET in .env — see runbook}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      RENDER_QUEUE: "on"
+      # STORAGE_DRIVER: s3
+      # S3_ENDPOINT: http://minio:9000
+      # S3_BUCKET: renders
+      # S3_ACCESS_KEY_ID: minioadmin
+      # S3_SECRET_ACCESS_KEY: minioadmin
+      # S3_REGION: us-east-1
+      # S3_PUBLIC_BASE_URL: http://localhost:9000/renders
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    volumes:
+      # Job dirs are shared with the worker over named volumes — the engines
+      # write out/*-jobs inside their own source trees, so we mount there.
+      - jobs-whiteboard:/app/engine_sources/whiteboard-v3-runtime/out
+      - jobs-explainer:/app/engine_sources/explainer-locks/out
+      - jobs-presenter:/app/engine_sources/makehuman-lineart/out
+      - jobs-boards:/app/engine_sources/whiteboard-board-scenes/out
+      - hf-cache:/root/.cache/huggingface
+
+  worker:
+    build: .
+    image: nexstudio:latest
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+    command: ["node", "dist/render-worker.cjs"]
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/studio?schema=public
+      RENDER_WORKER_CONCURRENCY: "1"
+      # same STORAGE_* envs as web when S3 is on
+    volumes:
+      - jobs-whiteboard:/app/engine_sources/whiteboard-v3-runtime/out
+      - jobs-explainer:/app/engine_sources/explainer-locks/out
+      - jobs-presenter:/app/engine_sources/makehuman-lineart/out
+      - jobs-boards:/app/engine_sources/whiteboard-board-scenes/out
+      - hf-cache:/root/.cache/huggingface
+
+  minio:
+    image: quay.io/minio/minio:latest
+    profiles: ["s3"]
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
+  minio-init:
+    image: quay.io/minio/mc:latest
+    profiles: ["s3"]
+    depends_on: [minio]
+    entrypoint: >
+      sh -c "sleep 3 && mc alias set local http://minio:9000 minioadmin minioadmin
+             && mc mb -p local/renders || true"
+
+volumes:
+  pgdata:
+  jobs-whiteboard:
+  jobs-explainer:
+  jobs-presenter:
+  jobs-boards:
+  hf-cache:
+  minio-data:

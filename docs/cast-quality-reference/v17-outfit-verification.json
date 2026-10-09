@@ -1,0 +1,62 @@
+[
+  {
+    "character": "female",
+    "outfit": "cocktail",
+    "style": "fine",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "female",
+    "outfit": "column",
+    "style": "pendant",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "female",
+    "outfit": "maxi",
+    "style": "pearls",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "female",
+    "outfit": "qipao",
+    "style": "choker",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "female",
+    "outfit": "sheath",
+    "style": "scarf",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "male",
+    "outfit": "polo",
+    "style": "analog",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "male",
+    "outfit": "tee",
+    "style": "digital",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "male",
+    "outfit": "shirt",
+    "style": "smart",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "male",
+    "outfit": "knit",
+    "style": "chrono",
+    "finiteGeometryThreePoses": true
+  },
+  {
+    "character": "male",
+    "outfit": "fisherman",
+    "style": "dress",
+    "finiteGeometryThreePoses": true
+  }
+]

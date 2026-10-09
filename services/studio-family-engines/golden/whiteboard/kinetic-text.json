@@ -1,0 +1,20 @@
+{
+ "schema": "StudioGoldenBaselineV1",
+ "family": "whiteboard",
+ "subtype": "kinetic-text",
+ "recordedFrom": "wb-e91b044a",
+ "recordedAt": "2026-10-08T00:17:49Z",
+ "status": "done",
+ "outputs": [
+  "16x9"
+ ],
+ "videos": {
+  "16x9": {
+   "durationSec": 4.62,
+   "nonBlank": 1.0,
+   "bytes": 108859
+  }
+ },
+ "iconCount": 1,
+ "gateFailures": []
+}

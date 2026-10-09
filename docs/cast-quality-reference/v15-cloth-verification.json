@@ -1,0 +1,1880 @@
+{
+  "profile": "illustrated-fabric-v15",
+  "sourceBaseline": "c1544112d1d67d9e6ce91255035ae3774e0de542",
+  "renderVersion": "approved-v3-v6-cloth-v15-illustrated-upper-thigh",
+  "skinHairFacialModulesUnchanged": true,
+  "lockedSkinSHA256": "1b67dfa4d71eebd2c2a2a1033c862b080881cd833eee7595b3e2af7addfa3402",
+  "clothCodeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+  "images": [
+    {
+      "file": "final/female/cocktail/front.png",
+      "sha256": "0eb6878f7a63a26685faa6b906ac3cc662814cf2ca51497c774bdc500260192f",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "ba9e4541c987658cc9db1dea1796f6c39d6db37112e316c0ecb36a09f86435a6"
+    },
+    {
+      "file": "final/female/cocktail/full.png",
+      "sha256": "6de156d075780f4604de4462cb0cd873e603231b2800f4092fdd5f63b1e1271a",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "2f2cad1f8197502ab8d92ff82b0de649071424d58e31b0e59a95fb38df968d30"
+    },
+    {
+      "file": "final/female/column/front.png",
+      "sha256": "0bee272e1ae54045f064f3e1f3624cbb392196ddd442092e4a39c46640c260a5",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "9268b9632446ec8019cfc2c89961f0d137fa35e7e3615f542d3106e977cc9b75"
+    },
+    {
+      "file": "final/female/column/full.png",
+      "sha256": "38013a271eb582031737aac93f0cd973eedc222ebb5b1110ab62c9d6dc801876",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "2f2cad1f8197502ab8d92ff82b0de649071424d58e31b0e59a95fb38df968d30"
+    },
+    {
+      "file": "final/female/maxi/front.png",
+      "sha256": "b9056ea52610d713c829d7ec4f4d899e23c33ffe6fe564a22c20616bd5bb1cd1",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8"
+    },
+    {
+      "file": "final/female/maxi/full.png",
+      "sha256": "bbadc2ad41e0dffa84414975cd2b57d46cf216843a7d1e756adb6ce26771840c",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8"
+    },
+    {
+      "file": "final/female/maxi/gesture.png",
+      "sha256": "c495fad7703bc63a2f7493295b48ecabcf505fc1a4440e55f899eea6bfba6e63",
+      "character": "female",
+      "frame": 71,
+      "mode": "after",
+      "clothingCodeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8"
+    },
+    {
+      "file": "final/female/maxi/quarter.png",
+      "sha256": "2ef53a948de540cb6e080dbf9ca4c5f94c34fb6a8bcb15217178bb459073ff54",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8"
+    },
+    {
+      "file": "final/female/qipao/front.png",
+      "sha256": "07e36e090af6e000e8a907215ee2c7a3ec314561609d694bcfbbf2edd8c60280",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "ba9e4541c987658cc9db1dea1796f6c39d6db37112e316c0ecb36a09f86435a6"
+    },
+    {
+      "file": "final/female/qipao/full.png",
+      "sha256": "fc947e52b7c5889c124f8a9858534671b6d41b1ee8aba4fbe89965d8e8259fd6",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/female/sheath/front.png",
+      "sha256": "4123187a34c4f953ffb8302861aad02a0d024f69f11c1cf8f0896b2e580263a6",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "9268b9632446ec8019cfc2c89961f0d137fa35e7e3615f542d3106e977cc9b75"
+    },
+    {
+      "file": "final/female/sheath/full.png",
+      "sha256": "135e74a21db221cb5d2c9e56fe2afadb38145032a7f7455bc3178155ed89386c",
+      "character": "female",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "cf7caa6b5a1e303f364ba06d47a55dd51ac39fad0daf427c3b855e77a25732af"
+    },
+    {
+      "file": "final/male/fisherman/front.png",
+      "sha256": "7524e0d66d4997d7d2a556a78f9282f6c979047c9453ee076e7bb112ea6c0ab4",
+      "character": "male",
+      "frame": 1,
+      "mode": "view",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/fisherman/full.png",
+      "sha256": "dbfc3d6727eb492f6b48801b89ce5f7ae08340d312c82672bc87d1540368c22b",
+      "character": "male",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/knit/front.png",
+      "sha256": "01e379f56c51bd518252d11db9060054e90f98850efb596310c416b8d9b4c971",
+      "character": "male",
+      "frame": 1,
+      "mode": "view",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/knit/full.png",
+      "sha256": "272de578e97b38c06bb41eaf2774f29741762c65c449ea38d4aa3c95916b8751",
+      "character": "male",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/polo/front.png",
+      "sha256": "3b43c433a5cd84d71533b47dd7fad07f404fd815a5900857819daa104185d713",
+      "character": "male",
+      "frame": 1,
+      "mode": "view",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/polo/full.png",
+      "sha256": "dccaf0f8cf6a18da6c93ca2ad4f83f2dcbf8ba3a8431fbba1ac8498b3d76316f",
+      "character": "male",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/shirt/before.png",
+      "sha256": "0c7220c8c0a8469bbf880b33245e5b1698d63119986d2f99faddd76ba80b7f6e",
+      "character": "male",
+      "frame": 1,
+      "mode": "before",
+      "clothingCodeSHA256": null
+    },
+    {
+      "file": "final/male/shirt/front.png",
+      "sha256": "ab7090ac16ef3ce1e770932719f381459550e1e047ec53faad4b6f1657dfbaa4",
+      "character": "male",
+      "frame": 1,
+      "mode": "view",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/shirt/full.png",
+      "sha256": "1f2d297775902718e8ee705caf510743ea27bc7c7174ed306eaacf2f070f9fae",
+      "character": "male",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/tee/front.png",
+      "sha256": "58520362c945392f42ca7ac5fbead127150ba02b58b136e183363d9c8eb15867",
+      "character": "male",
+      "frame": 1,
+      "mode": "view",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "final/male/tee/full.png",
+      "sha256": "70e15de32d88172bcc50167b42d1310cb3f73eb542a5ec8bbc03dddee3cd16cc",
+      "character": "male",
+      "frame": 1,
+      "mode": "after",
+      "clothingCodeSHA256": "1609d5d3983482dbd13ec3e5db9b83c159642042213314a5c4a54cb009ca5427"
+    },
+    {
+      "file": "trials/maxi-before.png",
+      "sha256": "c6f836eb4c57d78cd445b471e65afedd3bda9a76e0ccc11981746da1a8447738",
+      "character": "female",
+      "frame": 1,
+      "mode": "before"
+    }
+  ],
+  "audits": [
+    {
+      "file": "female-cocktail.json",
+      "sha256": "bb37741365266824220bae081a67142bf0fa42dbcf06ff98697935d0e25a9fd5",
+      "result": {
+        "character": "female",
+        "protectedSHA256": "2580228f229bdb75d7a0eb76dca5cf09c9176efc6eb2bc4d3530a046c2b6ebeb",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.punkduck_black_cocktail_dress",
+            "evaluatedVertices": 13902
+          },
+          {
+            "frame": 27,
+            "garment": "Host.punkduck_black_cocktail_dress",
+            "evaluatedVertices": 13902
+          },
+          {
+            "frame": 71,
+            "garment": "Host.punkduck_black_cocktail_dress",
+            "evaluatedVertices": 13902
+          },
+          {
+            "frame": 338,
+            "garment": "Host.punkduck_black_cocktail_dress",
+            "evaluatedVertices": 13902
+          },
+          {
+            "frame": 891,
+            "garment": "Host.punkduck_black_cocktail_dress",
+            "evaluatedVertices": 13902
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.punkduck_black_cocktail_dress",
+              "baseHex": "1F5C4A",
+              "fabric": "fine satin",
+              "fit": {
+                "key": "Cast V15 fabric ease",
+                "changedVertices": 160,
+                "upperChestWeightTransfers": 0,
+                "maximumDisplacementMetres": 0.013999998731771426,
+                "seamProxies": 1,
+                "basisPreserved": true,
+                "coveredNeckline": false
+              }
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "female-column.json",
+      "sha256": "025f229ad48a85df8aaebbabc48a3808513a0fec2b9c236ded08038412e6eb43",
+      "result": {
+        "character": "female",
+        "protectedSHA256": "bbb95a094c515a4630d227dfc474092dbb22b9b422fd1bf662610661237cd651",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_f_dress_07",
+            "evaluatedVertices": 14852
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_f_dress_07",
+            "evaluatedVertices": 14852
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_f_dress_07",
+            "evaluatedVertices": 14852
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_f_dress_07",
+            "evaluatedVertices": 14852
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_f_dress_07",
+            "evaluatedVertices": 14852
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.mindfront_f_dress_07",
+              "baseHex": "7C8C6A",
+              "fabric": "woven crepe",
+              "fit": {
+                "key": "Cast V15 fabric ease",
+                "changedVertices": 126,
+                "upperChestWeightTransfers": 0,
+                "maximumDisplacementMetres": 0.013456240112201779,
+                "seamProxies": 1,
+                "basisPreserved": true,
+                "coveredNeckline": false
+              }
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "female-maxi.json",
+      "sha256": "e456550f402db0b4a1f71f66abfee73ba58805c1360565711690bf413523a9bd",
+      "result": {
+        "character": "female",
+        "protectedSHA256": "9563aa41b7a3071616b3c2777b1306528b0f85e324a8b3619d599e3cf014f867",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_f_dress_09",
+            "evaluatedVertices": 64160
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_f_dress_09",
+            "evaluatedVertices": 64160
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_f_dress_09",
+            "evaluatedVertices": 64160
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_f_dress_09",
+            "evaluatedVertices": 64160
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_f_dress_09",
+            "evaluatedVertices": 64160
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.mindfront_f_dress_09",
+              "baseHex": "6B2233",
+              "fabric": "woven crepe",
+              "fit": {
+                "key": "Cast V15 covered tailored fit",
+                "changedVertices": 1251,
+                "upperChestWeightTransfers": 1144,
+                "maximumDisplacementMetres": 0.21382111941869633,
+                "seamProxies": 1,
+                "basisPreserved": true,
+                "coveredNeckline": true,
+                "seamsRebuilt": true
+              }
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "female-qipao.json",
+      "sha256": "6d5bcd269d0961adba07985c313f85dcd5500f629ea1367f7af15a93d88e3b85",
+      "result": {
+        "character": "female",
+        "protectedSHA256": "165b6c64577f07dfd3c07d7da627c8792b340900dc4f0a5ff19cfc884a045bda",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.punkduck_middle_length_qipao",
+            "evaluatedVertices": 18450
+          },
+          {
+            "frame": 27,
+            "garment": "Host.punkduck_middle_length_qipao",
+            "evaluatedVertices": 18450
+          },
+          {
+            "frame": 71,
+            "garment": "Host.punkduck_middle_length_qipao",
+            "evaluatedVertices": 18450
+          },
+          {
+            "frame": 338,
+            "garment": "Host.punkduck_middle_length_qipao",
+            "evaluatedVertices": 18450
+          },
+          {
+            "frame": 891,
+            "garment": "Host.punkduck_middle_length_qipao",
+            "evaluatedVertices": 18450
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.punkduck_middle_length_qipao",
+              "baseHex": "B87A7F",
+              "fabric": "fine satin",
+              "fit": {
+                "key": "Cast V15 fabric ease",
+                "changedVertices": 0,
+                "upperChestWeightTransfers": 0,
+                "maximumDisplacementMetres": 0,
+                "seamProxies": 1,
+                "basisPreserved": true,
+                "coveredNeckline": false
+              }
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "female-sheath.json",
+      "sha256": "7c1cfa130a4a29c3b7c00ec1af09fdb804f0e77d2f55c054bd6466300b8c3a70",
+      "result": {
+        "character": "female",
+        "protectedSHA256": "6739c62f5a73b0b9cab12ee8430bf54228047a8c9629698ca708667aa667fa17",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_f_dress_11",
+            "evaluatedVertices": 10550
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_f_dress_11",
+            "evaluatedVertices": 10550
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_f_dress_11",
+            "evaluatedVertices": 10550
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_f_dress_11",
+            "evaluatedVertices": 10550
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_f_dress_11",
+            "evaluatedVertices": 10550
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.mindfront_f_dress_11",
+              "baseHex": "2B3A5C",
+              "fabric": "woven crepe",
+              "fit": {
+                "key": "Cast V15 fabric ease",
+                "changedVertices": 81,
+                "upperChestWeightTransfers": 0,
+                "maximumDisplacementMetres": 0.013999998731771426,
+                "seamProxies": 1,
+                "basisPreserved": true,
+                "coveredNeckline": false
+              }
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "male-fisherman.json",
+      "sha256": "90a53523471b965a9d73bc874a33e9ff9ca69898d6b2cd09c0788409019c817d",
+      "result": {
+        "character": "male",
+        "protectedSHA256": "cb8069746ccef351fdeede0b103da30c3a19445b4a9b4680262fc3a55b2105c7",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.toigo_fisherman_sweater",
+            "evaluatedVertices": 16838
+          },
+          {
+            "frame": 1,
+            "garment": "Host.toigo_wool_pants",
+            "evaluatedVertices": 10866
+          },
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          },
+          {
+            "frame": 27,
+            "garment": "Host.toigo_fisherman_sweater",
+            "evaluatedVertices": 16838
+          },
+          {
+            "frame": 27,
+            "garment": "Host.toigo_wool_pants",
+            "evaluatedVertices": 10866
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          },
+          {
+            "frame": 71,
+            "garment": "Host.toigo_fisherman_sweater",
+            "evaluatedVertices": 16838
+          },
+          {
+            "frame": 71,
+            "garment": "Host.toigo_wool_pants",
+            "evaluatedVertices": 10866
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          },
+          {
+            "frame": 338,
+            "garment": "Host.toigo_fisherman_sweater",
+            "evaluatedVertices": 16838
+          },
+          {
+            "frame": 338,
+            "garment": "Host.toigo_wool_pants",
+            "evaluatedVertices": 10866
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          },
+          {
+            "frame": 891,
+            "garment": "Host.toigo_fisherman_sweater",
+            "evaluatedVertices": 16838
+          },
+          {
+            "frame": 891,
+            "garment": "Host.toigo_wool_pants",
+            "evaluatedVertices": 10866
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.toigo_fisherman_sweater",
+              "baseHex": "D8CFBE",
+              "fabric": "knit",
+              "fit": null
+            },
+            {
+              "object": "Host.toigo_wool_pants",
+              "baseHex": "3A3A40",
+              "fabric": "wool",
+              "fit": null
+            },
+            {
+              "object": "Host.mindfront_shoes_oxford_male",
+              "baseHex": "3A2A20",
+              "fabric": "leather",
+              "fit": null
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "male-knit.json",
+      "sha256": "86d06ddbb9074bdc74d07d121f614da62c7b9359936827a8fa4070c5ff1468e6",
+      "result": {
+        "character": "male",
+        "protectedSHA256": "045ff74d8862bc3ee79dc3737460ea4645074ac7c8759d43e16808b276bc6af8",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_knitted_sweater_01",
+            "evaluatedVertices": 10680
+          },
+          {
+            "frame": 1,
+            "garment": "Host.punkduck_male_classic_jeans",
+            "evaluatedVertices": 15778
+          },
+          {
+            "frame": 1,
+            "garment": "Host.culturalibre_sneakers",
+            "evaluatedVertices": 29122
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_knitted_sweater_01",
+            "evaluatedVertices": 10680
+          },
+          {
+            "frame": 27,
+            "garment": "Host.punkduck_male_classic_jeans",
+            "evaluatedVertices": 15778
+          },
+          {
+            "frame": 27,
+            "garment": "Host.culturalibre_sneakers",
+            "evaluatedVertices": 29122
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_knitted_sweater_01",
+            "evaluatedVertices": 10680
+          },
+          {
+            "frame": 71,
+            "garment": "Host.punkduck_male_classic_jeans",
+            "evaluatedVertices": 15778
+          },
+          {
+            "frame": 71,
+            "garment": "Host.culturalibre_sneakers",
+            "evaluatedVertices": 29122
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_knitted_sweater_01",
+            "evaluatedVertices": 10680
+          },
+          {
+            "frame": 338,
+            "garment": "Host.punkduck_male_classic_jeans",
+            "evaluatedVertices": 15778
+          },
+          {
+            "frame": 338,
+            "garment": "Host.culturalibre_sneakers",
+            "evaluatedVertices": 29122
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_knitted_sweater_01",
+            "evaluatedVertices": 10680
+          },
+          {
+            "frame": 891,
+            "garment": "Host.punkduck_male_classic_jeans",
+            "evaluatedVertices": 15778
+          },
+          {
+            "frame": 891,
+            "garment": "Host.culturalibre_sneakers",
+            "evaluatedVertices": 29122
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.mindfront_knitted_sweater_01",
+              "baseHex": "6B2E2E",
+              "fabric": "knit",
+              "fit": null
+            },
+            {
+              "object": "Host.punkduck_male_classic_jeans",
+              "baseHex": "3A4660",
+              "fabric": "denim",
+              "fit": null
+            },
+            {
+              "object": "Host.culturalibre_sneakers",
+              "baseHex": "E8E6E0",
+              "fabric": "canvas",
+              "fit": null
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "male-polo.json",
+      "sha256": "a9bd69114273ef2bcbcd1b13a198e9304b354519b84da3a07e4e09f0e51f3b35",
+      "result": {
+        "character": "male",
+        "protectedSHA256": "5343f4c2dbee7aa75e1933dfc3a78394f69856bc0660f5df15063c3abb78a848",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.namuhekam_male_polo_shirt",
+            "evaluatedVertices": 16926
+          },
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_male_trousers_1",
+            "evaluatedVertices": 11590
+          },
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          },
+          {
+            "frame": 27,
+            "garment": "Host.namuhekam_male_polo_shirt",
+            "evaluatedVertices": 16926
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_male_trousers_1",
+            "evaluatedVertices": 11590
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          },
+          {
+            "frame": 71,
+            "garment": "Host.namuhekam_male_polo_shirt",
+            "evaluatedVertices": 16926
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_male_trousers_1",
+            "evaluatedVertices": 11590
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          },
+          {
+            "frame": 338,
+            "garment": "Host.namuhekam_male_polo_shirt",
+            "evaluatedVertices": 16926
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_male_trousers_1",
+            "evaluatedVertices": 11590
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          },
+          {
+            "frame": 891,
+            "garment": "Host.namuhekam_male_polo_shirt",
+            "evaluatedVertices": 16926
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_male_trousers_1",
+            "evaluatedVertices": 11590
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_shoes_oxford_male",
+            "evaluatedVertices": 9350
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.namuhekam_male_polo_shirt",
+              "baseHex": "2E3A55",
+              "fabric": "pique",
+              "fit": null
+            },
+            {
+              "object": "Host.mindfront_male_trousers_1",
+              "baseHex": "3A3A40",
+              "fabric": "woven cotton",
+              "fit": null
+            },
+            {
+              "object": "Host.mindfront_shoes_oxford_male",
+              "baseHex": "3A2A20",
+              "fabric": "leather",
+              "fit": null
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "male-shirt.json",
+      "sha256": "b07032010488576434fcccf7f7c1ffd656f47606591261d5506a757e011ec0ef",
+      "result": {
+        "character": "male",
+        "protectedSHA256": "30398bd0ba50d8a701f344f8c197c1973bba34bf15fa99c41923ecf007b0649f",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.elvs_male_shirt_untucked_bd1",
+            "evaluatedVertices": 13736
+          },
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_male_trousers_2",
+            "evaluatedVertices": 58744
+          },
+          {
+            "frame": 1,
+            "garment": "Host.mindfront_shoes_monk_strap_male",
+            "evaluatedVertices": 24388
+          },
+          {
+            "frame": 27,
+            "garment": "Host.elvs_male_shirt_untucked_bd1",
+            "evaluatedVertices": 13736
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_male_trousers_2",
+            "evaluatedVertices": 58744
+          },
+          {
+            "frame": 27,
+            "garment": "Host.mindfront_shoes_monk_strap_male",
+            "evaluatedVertices": 24388
+          },
+          {
+            "frame": 71,
+            "garment": "Host.elvs_male_shirt_untucked_bd1",
+            "evaluatedVertices": 13736
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_male_trousers_2",
+            "evaluatedVertices": 58744
+          },
+          {
+            "frame": 71,
+            "garment": "Host.mindfront_shoes_monk_strap_male",
+            "evaluatedVertices": 24388
+          },
+          {
+            "frame": 338,
+            "garment": "Host.elvs_male_shirt_untucked_bd1",
+            "evaluatedVertices": 13736
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_male_trousers_2",
+            "evaluatedVertices": 58744
+          },
+          {
+            "frame": 338,
+            "garment": "Host.mindfront_shoes_monk_strap_male",
+            "evaluatedVertices": 24388
+          },
+          {
+            "frame": 891,
+            "garment": "Host.elvs_male_shirt_untucked_bd1",
+            "evaluatedVertices": 13736
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_male_trousers_2",
+            "evaluatedVertices": 58744
+          },
+          {
+            "frame": 891,
+            "garment": "Host.mindfront_shoes_monk_strap_male",
+            "evaluatedVertices": 24388
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "baseHex": "A9C4DE",
+              "fabric": "woven cotton",
+              "fit": null
+            },
+            {
+              "object": "Host.mindfront_male_trousers_2",
+              "baseHex": "B59A6E",
+              "fabric": "woven cotton",
+              "fit": null
+            },
+            {
+              "object": "Host.mindfront_shoes_monk_strap_male",
+              "baseHex": "4A2E1E",
+              "fabric": "leather",
+              "fit": null
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    },
+    {
+      "file": "male-tee.json",
+      "sha256": "b95c5e8492f3c314265901e93ec75ec1eaf6be61a07cea21430586658c56e57f",
+      "result": {
+        "character": "male",
+        "protectedSHA256": "4034c01bf7a1c9d09b45926c50b0423bcc3067965314d7cd6f7d44d8069786e5",
+        "skinHairRigMaterialsUnchanged": true,
+        "idempotent": true,
+        "customClothingColoursPreserved": true,
+        "restSpacePatternsStable": true,
+        "posedGarments": [
+          {
+            "frame": 1,
+            "garment": "Host.toigo_basic_tucked_t-shirt",
+            "evaluatedVertices": 10968
+          },
+          {
+            "frame": 1,
+            "garment": "Host.elvs_jeans_straight_leg",
+            "evaluatedVertices": 18218
+          },
+          {
+            "frame": 1,
+            "garment": "Host.punkduck_comfortable_sneakers",
+            "evaluatedVertices": 3146
+          },
+          {
+            "frame": 27,
+            "garment": "Host.toigo_basic_tucked_t-shirt",
+            "evaluatedVertices": 10968
+          },
+          {
+            "frame": 27,
+            "garment": "Host.elvs_jeans_straight_leg",
+            "evaluatedVertices": 18218
+          },
+          {
+            "frame": 27,
+            "garment": "Host.punkduck_comfortable_sneakers",
+            "evaluatedVertices": 3146
+          },
+          {
+            "frame": 71,
+            "garment": "Host.toigo_basic_tucked_t-shirt",
+            "evaluatedVertices": 10968
+          },
+          {
+            "frame": 71,
+            "garment": "Host.elvs_jeans_straight_leg",
+            "evaluatedVertices": 18218
+          },
+          {
+            "frame": 71,
+            "garment": "Host.punkduck_comfortable_sneakers",
+            "evaluatedVertices": 3146
+          },
+          {
+            "frame": 338,
+            "garment": "Host.toigo_basic_tucked_t-shirt",
+            "evaluatedVertices": 10968
+          },
+          {
+            "frame": 338,
+            "garment": "Host.elvs_jeans_straight_leg",
+            "evaluatedVertices": 18218
+          },
+          {
+            "frame": 338,
+            "garment": "Host.punkduck_comfortable_sneakers",
+            "evaluatedVertices": 3146
+          },
+          {
+            "frame": 891,
+            "garment": "Host.toigo_basic_tucked_t-shirt",
+            "evaluatedVertices": 10968
+          },
+          {
+            "frame": 891,
+            "garment": "Host.elvs_jeans_straight_leg",
+            "evaluatedVertices": 18218
+          },
+          {
+            "frame": 891,
+            "garment": "Host.punkduck_comfortable_sneakers",
+            "evaluatedVertices": 3146
+          }
+        ],
+        "appearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.toigo_basic_tucked_t-shirt",
+              "baseHex": "EDEBE6",
+              "fabric": "jersey",
+              "fit": null
+            },
+            {
+              "object": "Host.elvs_jeans_straight_leg",
+              "baseHex": "2E3A55",
+              "fabric": "denim",
+              "fit": null
+            },
+            {
+              "object": "Host.punkduck_comfortable_sneakers",
+              "baseHex": "ECEAE4",
+              "fabric": "canvas",
+              "fit": null
+            }
+          ],
+          "skinHairRigUnchanged": true
+        }
+      }
+    }
+  ],
+  "freshAssemblies": [
+    {
+      "character": "female",
+      "style": "maxi",
+      "file": "production/baseline/female/maxi/assembled.blend",
+      "sha256": "c8967f16954a72cc03fd93a6f3a8247264d7268eeda2b8b395b0350ab064fdc4",
+      "metadata": {
+        "clothAppearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.mindfront_f_dress_09",
+              "baseHex": "6B2233",
+              "fabric": "woven crepe",
+              "fit": {
+                "key": "Cast V15 covered tailored fit",
+                "changedVertices": 1251,
+                "upperChestWeightTransfers": 1144,
+                "maximumDisplacementMetres": 0.21382111941869633,
+                "seamProxies": 1,
+                "basisPreserved": true,
+                "coveredNeckline": true,
+                "seamsRebuilt": true
+              }
+            }
+          ],
+          "skinHairRigUnchanged": true
+        },
+        "facialRefinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 0.0005492999692909229
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 0.0005355871424753157
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 109,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [],
+            "quiffCarrierVerticesMasked": 0,
+            "quiffStrayCurvesRemoved": 0,
+            "templeCutRestZ": 1.5341823523290792,
+            "earCorrection": null,
+            "originalEarCagePreserved": true
+          }
+        },
+        "hairGroom": {
+          "enabled": true,
+          "profile": "fibre-groom-v11",
+          "style": "bun",
+          "sourceHair": "Host.hair_rehmanpolanski_hair_bun_brown",
+          "object": "Cast V11 Host.hair_rehmanpolanski_hair_bun_brown fibres",
+          "binding": "Cast groom rig binding",
+          "fibres": 25839,
+          "points": 1458944,
+          "radiusMetres": [
+            2.5600042666248224e-06,
+            0.00023991268481122203
+          ],
+          "napeRestZ": null,
+          "earTuckRefinement": null,
+          "collisionTargetsRepaired": [],
+          "sourceUVFacesRestored": 0,
+          "surfaceArea": 0.11022074056317485,
+          "colour": "9A4A2E",
+          "tipDye": "",
+          "physicalShader": "Huang",
+          "boneGroups": [
+            "head",
+            "neck01",
+            "spine05"
+          ],
+          "seconds": 21.75,
+          "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+        },
+        "skinAppearance": {
+          "profile": "illustrated-colour-planes-v14",
+          "shaderCodeSHA256": "1b67dfa4d71eebd2c2a2a1033c862b080881cd833eee7595b3e2af7addfa3402",
+          "character": "female",
+          "selectedHex": "F1D7C8",
+          "surface": {
+            "coordinateSpace": "rest-surface metres",
+            "vertices": 19158,
+            "attributes": [
+              "cast_skin_rest",
+              "cast_skin_regions",
+              "cast_skin_makeup",
+              "cast_skin_joint",
+              "cast_skin_palm",
+              "cast_skin_anatomy",
+              "cast_skin_nail",
+              "cast_skin_anterior"
+            ],
+            "neckRestZ": 1.4085595607757568,
+            "neckScale": 1.0
+          },
+          "lights": [
+            {
+              "name": "Cast skin V13 Key",
+              "energyWatts": 8,
+              "sizeMetres": 0.95,
+              "location": [
+                -0.7699999809265137,
+                -1.1402359008789062,
+                1.901088833808899
+              ]
+            },
+            {
+              "name": "Cast skin V13 Fill",
+              "energyWatts": 5.5,
+              "sizeMetres": 1.15,
+              "location": [
+                -0.23999999463558197,
+                -1.0902358293533325,
+                1.6210888624191284
+              ]
+            },
+            {
+              "name": "Cast skin V13 Edge",
+              "energyWatts": 5,
+              "sizeMetres": 0.65,
+              "location": [
+                0.0599999725818634,
+                0.5097641944885254,
+                2.041088819503784
+              ]
+            }
+          ],
+          "contours": [
+            {
+              "name": "HEAD_OUTLINE",
+              "alpha": 0.949999988079071
+            },
+            {
+              "name": "HEAD_FEATURES",
+              "alpha": 0.7799999713897705
+            },
+            {
+              "name": "HEAD_NOSE",
+              "alpha": 0.7200000286102295
+            }
+          ],
+          "materials": [
+            {
+              "material": "PEEPS_V2_WARM_SKIN",
+              "nodes": 42,
+              "baseLinear": [
+                0.8796223968878317,
+                0.6795424696330938,
+                0.5775804404296506
+              ],
+              "shader": "Illustrated colour planes",
+              "physicalSkin": false,
+              "subsurfaceWeight": 0,
+              "pores": false,
+              "bump": false,
+              "viewDependentSheen": false,
+              "contactDistance": 0.006,
+              "contactWeight": 0.08,
+              "fixedSkinColourMasks": false,
+              "makeupPalette": "light",
+              "explicitLipOverride": false
+            },
+            {
+              "material": "V60_EAR_SKIN",
+              "nodes": 22,
+              "baseLinear": [
+                0.8796223968878317,
+                0.6795424696330938,
+                0.5775804404296506
+              ],
+              "shader": "Illustrated colour planes",
+              "physicalSkin": false,
+              "subsurfaceWeight": 0,
+              "pores": false,
+              "bump": false,
+              "viewDependentSheen": false,
+              "contactDistance": 0.006,
+              "contactWeight": 0.08,
+              "fixedSkinColourMasks": false,
+              "makeupPalette": null,
+              "explicitLipOverride": false
+            },
+            {
+              "material": "LINEART_SKIN_WHITE",
+              "nodes": 22,
+              "baseLinear": [
+                0.8796223968878317,
+                0.6795424696330938,
+                0.5775804404296506
+              ],
+              "shader": "Illustrated colour planes",
+              "physicalSkin": false,
+              "subsurfaceWeight": 0,
+              "pores": false,
+              "bump": false,
+              "viewDependentSheen": false,
+              "contactDistance": 0.006,
+              "contactWeight": 0.08,
+              "fixedSkinColourMasks": false,
+              "makeupPalette": null,
+              "explicitLipOverride": false
+            }
+          ],
+          "hiddenEarOverlays": [],
+          "samples": 64,
+          "denoising": true,
+          "makeup": "light",
+          "lateralInk": [
+            {
+              "object": "Host.V59_face_art",
+              "hiddenLateralInkPolygons": 0
+            },
+            {
+              "object": "Host.V59_face_frame",
+              "hiddenLateralInkPolygons": 60
+            }
+          ],
+          "earFolds": {
+            "material": "Cast V13 soft ear folds",
+            "colourLinear": [
+              0.19351692731532297,
+              0.14949934331928064,
+              0.12706769689452313
+            ]
+          },
+          "beauty": {
+            "profile": "female-beauty-v10",
+            "lipArt": [
+              {
+                "object": "Host.V59_face_frame",
+                "transparentLipPolygons": 171
+              }
+            ],
+            "earrings": [
+              {
+                "object": "Host.V60_earring_L",
+                "style": "hoop",
+                "bone": "head",
+                "anchorLocal": [
+                  0.001945494906976819,
+                  -0.01731184870004654,
+                  0.01838894560933113
+                ],
+                "wireMetres": 0.00095,
+                "outerSizeMetres": [
+                  0.0229,
+                  0.0289
+                ],
+                "blackRim": false
+              },
+              {
+                "object": "Host.V60_earring_R",
+                "style": "hoop",
+                "bone": "head",
+                "anchorLocal": [
+                  -0.004305993672460318,
+                  -0.01705167442560196,
+                  0.01868557743728161
+                ],
+                "wireMetres": 0.00095,
+                "outerSizeMetres": [
+                  0.0229,
+                  0.0289
+                ],
+                "blackRim": false
+              }
+            ],
+            "mouth": {
+              "hiddenPaintedInterior": true,
+              "nativeTeeth": true,
+              "liveOralContact": true
+            }
+          }
+        },
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_rehmanpolanski_hair_bun_brown",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.mindfront_f_dress_09",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.mindfront_f_dress_09",
+              "vertices": 153,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.mindfront_f_dress_09",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-cloth-v15-illustrated-upper-thigh",
+        "frame": 1,
+        "seconds": 34.28,
+        "resolution": [
+          2160,
+          2880,
+          50
+        ],
+        "engine": "CYCLES",
+        "samples": 128,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    },
+    {
+      "character": "male",
+      "style": "shirt",
+      "file": "production/baseline/male/shirt/assembled.blend",
+      "sha256": "b5f7a02d5c883d37e200c37f6dda4c2cba41295f14bd7cb476800385842f45e6",
+      "metadata": {
+        "clothAppearance": {
+          "profile": "illustrated-fabric-v15",
+          "codeSHA256": "fad22c32b8ce8136f15bec31540ed9231245d9a8e78e034651eb87dda8606ef8",
+          "garments": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "baseHex": "A9C4DE",
+              "fabric": "woven cotton",
+              "fit": null
+            },
+            {
+              "object": "Host.mindfront_male_trousers_2",
+              "baseHex": "B59A6E",
+              "fabric": "woven cotton",
+              "fit": null
+            },
+            {
+              "object": "Host.mindfront_shoes_monk_strap_male",
+              "baseHex": "4A2E1E",
+              "fabric": "leather",
+              "fit": null
+            }
+          ],
+          "skinHairRigUnchanged": true
+        },
+        "facialRefinement": {
+          "profile": "anatomical-mouth-v12",
+          "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+          "mouth": {
+            "objects": [
+              {
+                "object": "Cast V12 oral upper",
+                "vertices": 1984,
+                "crowns": 16,
+                "bone": "head",
+                "fitRMSMetres": 2.4446321956891766e-08
+              },
+              {
+                "object": "Cast V12 oral lower",
+                "vertices": 1884,
+                "crowns": 16,
+                "bone": "jaw",
+                "fitRMSMetres": 2.812584804715695e-08
+              },
+              {
+                "object": "Cast V12 oral tongue",
+                "vertices": 226,
+                "bones": [
+                  "tongue04",
+                  "tongue07.L",
+                  "tongue07.R",
+                  "tongue06.L",
+                  "tongue06.R",
+                  "tongue05.L",
+                  "tongue05.R",
+                  "tongue03",
+                  "tongue01",
+                  "oris01",
+                  "tongue02",
+                  "head",
+                  "levator05.R",
+                  "oris03.R",
+                  "jaw",
+                  "levator05.L",
+                  "oris03.L"
+                ],
+                "anatomicalSource": "Host.body helper-tongue"
+              }
+            ],
+            "teeth": 32,
+            "tongue": true,
+            "interiorPolygons": 91,
+            "lipInkRemoved": [
+              {
+                "object": "Host.V59_face_art",
+                "lipPolygons": 0
+              },
+              {
+                "object": "Host.V59_face_frame",
+                "lipPolygons": 171
+              }
+            ],
+            "legacyMouthStrokeDisabled": true,
+            "lowerGingivalClearanceMaximumMetres": 0.01,
+            "closedLipVisibilityGuard": {
+              "jawBelow": 0.03,
+              "upperBelow": 0.065,
+              "lowerBelow": 0.065,
+              "fvBelow": 0.05
+            },
+            "originalBodyCoordinatesUnchanged": true
+          },
+          "ear": {
+            "hiddenLegacyEarInk": [
+              "Host.V10_ear_L",
+              "Host.V10_ear_R"
+            ],
+            "quiffCarrierVerticesMasked": 48,
+            "quiffStrayCurvesRemoved": 1482,
+            "templeCutRestZ": 1.5448224544860305,
+            "earCorrection": {
+              "name": "Cast V12 balanced ears",
+              "maximumFlareReduction": 0.12,
+              "maximumHeightReduction": 0.07,
+              "symmetric": true
+            },
+            "originalEarCagePreserved": true
+          }
+        },
+        "hairGroom": {
+          "enabled": true,
+          "profile": "fibre-groom-v11",
+          "style": "quiff",
+          "sourceHair": "Host.hair_elvs_maxwell_hair",
+          "object": "Cast V11 Host.hair_elvs_maxwell_hair fibres",
+          "binding": "Cast groom rig binding",
+          "fibres": 17899,
+          "points": 572127,
+          "radiusMetres": [
+            2.5600146006355187e-06,
+            0.00023998728406164884
+          ],
+          "napeRestZ": null,
+          "earTuckRefinement": null,
+          "collisionTargetsRepaired": [],
+          "sourceUVFacesRestored": 0,
+          "surfaceArea": 0.11066438742167294,
+          "colour": "5A3A24",
+          "tipDye": "",
+          "physicalShader": "Huang",
+          "boneGroups": [
+            "head",
+            "neck01",
+            "spine05"
+          ],
+          "seconds": 8.71,
+          "codeSHA256": "a66759581ccb572e2580c73e668307a540dbf671b4a60073c5829836bc0e9d22"
+        },
+        "skinAppearance": {
+          "profile": "illustrated-colour-planes-v14",
+          "shaderCodeSHA256": "1b67dfa4d71eebd2c2a2a1033c862b080881cd833eee7595b3e2af7addfa3402",
+          "character": "male",
+          "selectedHex": "C99A6E",
+          "surface": {
+            "coordinateSpace": "rest-surface metres",
+            "vertices": 19158,
+            "attributes": [
+              "cast_skin_rest",
+              "cast_skin_regions",
+              "cast_skin_makeup",
+              "cast_skin_joint",
+              "cast_skin_palm",
+              "cast_skin_anatomy",
+              "cast_skin_nail",
+              "cast_skin_anterior"
+            ],
+            "neckRestZ": 1.7024493770372118,
+            "neckScale": 1.174958348274231
+          },
+          "lights": [
+            {
+              "name": "Cast skin V13 Key",
+              "energyWatts": 14,
+              "sizeMetres": 0.85,
+              "location": [
+                -0.9199999570846558,
+                -1.0466967821121216,
+                2.2149877548217773
+              ]
+            },
+            {
+              "name": "Cast skin V13 Fill",
+              "energyWatts": 4.5,
+              "sizeMetres": 1.0,
+              "location": [
+                0.22999992966651917,
+                -0.7966968417167664,
+                1.7849878072738647
+              ]
+            },
+            {
+              "name": "Cast skin V13 Edge",
+              "energyWatts": 5,
+              "sizeMetres": 0.65,
+              "location": [
+                0.0599999725818634,
+                0.5033031105995178,
+                2.124987840652466
+              ]
+            }
+          ],
+          "contours": [
+            {
+              "name": "HEAD_OUTLINE",
+              "alpha": 0.949999988079071
+            },
+            {
+              "name": "HEAD_FEATURES",
+              "alpha": 0.7799999713897705
+            },
+            {
+              "name": "HEAD_NOSE",
+              "alpha": 0.7200000286102295
+            }
+          ],
+          "materials": [
+            {
+              "material": "PEEPS_V2_WARM_SKIN",
+              "nodes": 38,
+              "baseLinear": [
+                0.5840784178911641,
+                0.32314320911295075,
+                0.1559264637078274
+              ],
+              "shader": "Illustrated colour planes",
+              "physicalSkin": false,
+              "subsurfaceWeight": 0,
+              "pores": false,
+              "bump": false,
+              "viewDependentSheen": false,
+              "contactDistance": 0.006,
+              "contactWeight": 0.08,
+              "fixedSkinColourMasks": false,
+              "makeupPalette": null,
+              "explicitLipOverride": false
+            },
+            {
+              "material": "V60_EAR_SKIN",
+              "nodes": 22,
+              "baseLinear": [
+                0.5840784178911641,
+                0.32314320911295075,
+                0.1559264637078274
+              ],
+              "shader": "Illustrated colour planes",
+              "physicalSkin": false,
+              "subsurfaceWeight": 0,
+              "pores": false,
+              "bump": false,
+              "viewDependentSheen": false,
+              "contactDistance": 0.006,
+              "contactWeight": 0.08,
+              "fixedSkinColourMasks": false,
+              "makeupPalette": null,
+              "explicitLipOverride": false
+            },
+            {
+              "material": "LINEART_SKIN_WHITE",
+              "nodes": 22,
+              "baseLinear": [
+                0.5840784178911641,
+                0.32314320911295075,
+                0.1559264637078274
+              ],
+              "shader": "Illustrated colour planes",
+              "physicalSkin": false,
+              "subsurfaceWeight": 0,
+              "pores": false,
+              "bump": false,
+              "viewDependentSheen": false,
+              "contactDistance": 0.006,
+              "contactWeight": 0.08,
+              "fixedSkinColourMasks": false,
+              "makeupPalette": null,
+              "explicitLipOverride": false
+            }
+          ],
+          "hiddenEarOverlays": [
+            "Host.V60_ear_fill_R",
+            "Host.V60_ear_inner_R",
+            "Host.V60_ear_line_R"
+          ],
+          "samples": 64,
+          "denoising": true,
+          "makeup": null
+        },
+        "finishUpgrade": {
+          "enabled": true,
+          "hair": [
+            {
+              "object": "Host.hair_elvs_maxwell_hair",
+              "endVerticesRefined": 0,
+              "maximumWorldDisplacement": 0,
+              "restGradient": true
+            }
+          ],
+          "fabrics": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            },
+            {
+              "object": "Host.mindfront_male_trousers_2",
+              "fabric": "woven",
+              "amplitude": 0.012,
+              "coordinates": "rest-mesh"
+            }
+          ],
+          "cuffs": [
+            {
+              "object": "Host.elvs_male_shirt_untucked_bd1",
+              "vertices": 106,
+              "clearance": 0.0018,
+              "preservesRig": true,
+              "seamProxiesCorrected": 1
+            }
+          ],
+          "hairGradientLinksReplaced": 1
+        },
+        "garmentStructure": [
+          {
+            "object": "Host.elvs_male_shirt_untucked_bd1",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          },
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "thicknessMetres": 0.0007999999797903001,
+            "afterRigAndSubdivision": true,
+            "boundedNormalOffset": true
+          }
+        ],
+        "clothingFit": [
+          {
+            "object": "Host.mindfront_male_trousers_2",
+            "vertexCount": 58744,
+            "adjustedVertices": 43,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          },
+          {
+            "object": "Host.V64_dress_lines.001",
+            "vertexCount": 1840,
+            "adjustedVertices": 0,
+            "finite": true,
+            "preservedWorldAxes": [
+              "X",
+              "Z"
+            ]
+          }
+        ],
+        "sourceVersion": "bf88447b8f898bea078c44b9202cfe2b7ff13be5",
+        "renderVersion": "approved-v3-v6-cloth-v15-illustrated-upper-thigh",
+        "frame": 1,
+        "seconds": 22.09,
+        "resolution": [
+          2160,
+          2880,
+          50
+        ],
+        "engine": "CYCLES",
+        "samples": 128,
+        "camera": "LINEART_CAMERA",
+        "viewTransform": "Standard",
+        "look": "None",
+        "exposure": 0.0,
+        "gamma": 1.0
+      }
+    }
+  ],
+  "originalSourceScenes": [
+    {
+      "path": "engine_sources/makehuman-lineart/presenters_v1/scenes/BASE_V58.blend",
+      "gitBlobSHA1": "5e5f414d76f69ce538cce7d93380d486c385fafa",
+      "bytes": 14259277,
+      "verifiedGitBlobSHA1": "5e5f414d76f69ce538cce7d93380d486c385fafa"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_MALE.blend",
+      "gitBlobSHA1": "170929b4a118dfdd05dba9da3bd1c2142da21ac2",
+      "bytes": 16991235,
+      "verifiedGitBlobSHA1": "170929b4a118dfdd05dba9da3bd1c2142da21ac2"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_FEMALE.blend",
+      "gitBlobSHA1": "49c78cb3e69a85b44a9d9e9e3463bc5ede9c3a85",
+      "bytes": 14922291,
+      "verifiedGitBlobSHA1": "49c78cb3e69a85b44a9d9e9e3463bc5ede9c3a85"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_MALE_v6.blend",
+      "gitBlobSHA1": "f4214fadf565284b11a652f79b34c6280df24e80",
+      "bytes": 16993307,
+      "verifiedGitBlobSHA1": "f4214fadf565284b11a652f79b34c6280df24e80"
+    },
+    {
+      "path": "engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_FEMALE_v3.blend",
+      "gitBlobSHA1": "3fcb090345811185f086041d830c91ce0ac2ce4c",
+      "bytes": 14952550,
+      "verifiedGitBlobSHA1": "3fcb090345811185f086041d830c91ce0ac2ce4c"
+    }
+  ],
+  "testsPassed": [
+    "cast-render-config",
+    "cast-skin-render-config",
+    "cast-preview-queue",
+    "cast-preview-worker"
+  ],
+  "notPublished": true,
+  "limitations": [
+    "Female source footwear retained.",
+    "Scenes retain original rig/action; production renders rebuild pose-specific clothing clearance per frame.",
+    "No full application build or deployment performed."
+  ]
+}

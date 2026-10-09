@@ -1,0 +1,354 @@
+{
+  "name": "forestry",
+  "domain": "forestry / logging / environment / outdoors explainers",
+  "glyphs": {
+    "tree-pine": {
+      "keywords": [
+        "pine",
+        "tree",
+        "conifer",
+        "evergreen",
+        "spruce",
+        "fir",
+        "forest"
+      ],
+      "motif": "tree",
+      "tone": "a_green",
+      "fill": true,
+      "colors": true
+    },
+    "tree-leafy": {
+      "keywords": [
+        "tree",
+        "oak",
+        "deciduous",
+        "leafy",
+        "canopy",
+        "shade"
+      ],
+      "tone": "a_green",
+      "fill": true,
+      "colors": true
+    },
+    "leaf": {
+      "keywords": [
+        "leaf",
+        "leaves",
+        "foliage",
+        "green",
+        "photosynthesis"
+      ],
+      "motif": "leaf",
+      "tone": "a_green",
+      "fill": true,
+      "colors": true
+    },
+    "seedling": {
+      "keywords": [
+        "seedling",
+        "sapling",
+        "plant",
+        "grow",
+        "sprout",
+        "reforest",
+        "new growth"
+      ],
+      "tone": "a_green",
+      "colors": true
+    },
+    "log-stack": {
+      "keywords": [
+        "logs",
+        "timber",
+        "lumber",
+        "wood",
+        "harvest",
+        "stacked",
+        "cut wood",
+        "log",
+        "fallen log",
+        "fallen logs"
+      ],
+      "motif": "logs",
+      "colors": true
+    },
+    "tree-stump": {
+      "keywords": [
+        "stump",
+        "deforestation",
+        "cut down",
+        "logged",
+        "clearcut"
+      ],
+      "motif": "stump",
+      "colors": true
+    },
+    "axe": {
+      "keywords": [
+        "axe",
+        "chop",
+        "lumberjack",
+        "hatchet",
+        "cut"
+      ],
+      "tone": "a_blue",
+      "colors": true
+    },
+    "saw": {
+      "keywords": [
+        "saw",
+        "cut",
+        "handsaw",
+        "carpentry",
+        "mill"
+      ],
+      "colors": true
+    },
+    "chainsaw": {
+      "keywords": [
+        "chainsaw",
+        "felling",
+        "power saw",
+        "logging"
+      ],
+      "tone": "a_yellow",
+      "colors": true
+    },
+    "mountain": {
+      "keywords": [
+        "mountain",
+        "peak",
+        "hill",
+        "terrain",
+        "alpine",
+        "elevation"
+      ],
+      "colors": true
+    },
+    "river": {
+      "keywords": [
+        "river",
+        "stream",
+        "creek",
+        "water",
+        "flow",
+        "watershed",
+        "tributary"
+      ],
+      "tone": "a_blue",
+      "colors": true
+    },
+    "campfire": {
+      "keywords": [
+        "fire",
+        "campfire",
+        "wildfire",
+        "burn",
+        "forest fire",
+        "flame"
+      ],
+      "motif": "fire",
+      "tone": "a_red",
+      "fill": true,
+      "colors": true
+    },
+    "mushroom": {
+      "keywords": [
+        "mushroom",
+        "fungi",
+        "fungus",
+        "forage",
+        "toadstool"
+      ],
+      "tone": "a_red",
+      "colors": true
+    },
+    "compass": {
+      "keywords": [
+        "compass",
+        "navigation",
+        "direction",
+        "orient",
+        "bearing"
+      ],
+      "tone": "a_yellow",
+      "colors": true
+    },
+    "binoculars": {
+      "keywords": [
+        "binoculars",
+        "survey",
+        "spot",
+        "watch",
+        "observe",
+        "scout"
+      ],
+      "tone": "a_blue",
+      "colors": true
+    },
+    "log-truck": {
+      "keywords": [
+        "truck",
+        "logging truck",
+        "haul",
+        "transport",
+        "harvest truck"
+      ],
+      "tone": "a_blue",
+      "colors": true
+    },
+    "recycle-leaf": {
+      "keywords": [
+        "recycle",
+        "sustainable",
+        "sustainability",
+        "conservation",
+        "eco",
+        "renewable"
+      ],
+      "tone": "a_green",
+      "colors": true
+    },
+    "sun-cloud": {
+      "keywords": [
+        "weather",
+        "cloud",
+        "climate",
+        "day"
+      ],
+      "tone": "a_yellow",
+      "colors": true
+    },
+    "rain-cloud": {
+      "keywords": [
+        "rain",
+        "storm",
+        "precipitation",
+        "wet",
+        "drizzle",
+        "monsoon"
+      ],
+      "tone": "a_blue",
+      "colors": true
+    },
+    "forest-stand": {
+      "keywords": [
+        "forest",
+        "woods",
+        "stand",
+        "grove",
+        "trees",
+        "woodland",
+        "wilderness"
+      ],
+      "tone": "a_green",
+      "fill": true,
+      "colors": true
+    },
+    "acorn": {
+      "keywords": [
+        "acorn",
+        "seed",
+        "oak seed",
+        "nut",
+        "germination"
+      ],
+      "colors": true
+    },
+    "trail-sign": {
+      "keywords": [
+        "sign",
+        "trail",
+        "direction",
+        "marker",
+        "path",
+        "guidepost"
+      ],
+      "tone": "a_green",
+      "colors": true
+    },
+    "dam": {
+      "keywords": [
+        "dam",
+        "dams",
+        "beaver dam",
+        "logjam",
+        "weir"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "smoke": {
+      "keywords": [
+        "smoke",
+        "smog",
+        "fumes",
+        "haze",
+        "smoky"
+      ],
+      "fill": true,
+      "colors": true
+    },
+    "grass": {
+      "keywords": [
+        "grass",
+        "grassland",
+        "meadow",
+        "lawn",
+        "turf",
+        "pasture"
+      ],
+      "tone": "a_green",
+      "fill": true
+    },
+    "fire-hose": {
+      "keywords": [
+        "hose",
+        "fire hose",
+        "hosepipe",
+        "nozzle"
+      ],
+      "tone": "a_red",
+      "fill": true,
+      "colors": true
+    },
+    "tree-willow": {
+      "keywords": [
+        "willow",
+        "willow tree",
+        "weeping willow",
+        "willows",
+        "willow trees"
+      ],
+      "tone": "a_green",
+      "fill": true,
+      "colors": true
+    },
+    "sunlight": {
+      "keywords": [
+        "sunlight",
+        "sunshine",
+        "sunny",
+        "sun",
+        "daylight",
+        "sunbeam"
+      ],
+      "tone": "a_yellow",
+      "fill": true,
+      "colors": true
+    },
+    "flames": {
+      "keywords": [
+        "flames",
+        "flame",
+        "wildfire",
+        "fire",
+        "blaze",
+        "burning"
+      ],
+      "tone": "a_orange",
+      "fill": true,
+      "colors": true
+    }
+  }
+}

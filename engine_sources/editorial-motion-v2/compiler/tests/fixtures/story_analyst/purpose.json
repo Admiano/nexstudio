@@ -1,0 +1,170 @@
+{
+  "script": "What is the purpose of life? We work, we eat, we sleep — and then we do it all again. But maybe the answer isn't out there. Maybe it's in the small moments: a friend's laugh, a warm meal, the walk home. The point isn't finding one big purpose. It's noticing the ones we already live.",
+  "payload": {
+    "film": {
+      "thesis": "Purpose is not found — it is noticed in ordinary moments.",
+      "motif": "a small heart that reappears in unexpected places",
+      "mood": "wistful",
+      "note": "reflective explainer; quiet arcs, one recurring heart"
+    },
+    "scenes": [
+      {"name": "the question", "covers": ["b01"], "setting": "open night field", "visual_metaphor": "a question mark as a monument"},
+      {"name": "the loop", "covers": ["b02"], "setting": "routine carousel", "visual_metaphor": "work-eat-sleep on a circular rail"},
+      {"name": "the turn", "covers": ["b03"], "setting": "horizon at dusk", "visual_metaphor": "the answer isn't out there — horizon crossed off"},
+      {"name": "small moments", "covers": ["b04", "b05"], "setting": "warm interior", "visual_metaphor": "tiny hearts among ordinary objects"},
+      {"name": "the living answer", "covers": ["b06"], "setting": "night field again", "visual_metaphor": "the heart motif returns, larger"}
+    ],
+    "entities": [
+      {"concept": "question mark", "as": "the unanswerable question", "introduced": "b01"},
+      {"concept": "tiny heart", "as": "a small lived purpose", "introduced": "b04"},
+      {"concept": "distant horizon", "as": "the 'out there' we search", "introduced": "b03"}
+    ],
+    "beats": [
+      {
+        "groups": [0], "beat_type": "HOOK", "pattern": "CONTROLLED_EMPTY_SPACE",
+        "dominant_layer": "HYBRID", "energy": 0.45, "complexity": 0.3,
+        "display_units": [
+          {"text": "What is", "role": "support", "semantic_role": "setup", "emphasis": 0.4},
+          {"text": "the purpose of life?", "role": "hero", "semantic_role": "statement", "emphasis": 0.95, "stress": ["purpose"], "anchor_word": "purpose"}
+        ],
+        "illustration": {
+          "form": "OBJECT_STAGE",
+          "entities": [
+            {"id": "qmark", "kind": "object", "glyph": "ICON", "size": "hero", "concept": "giant question mark"},
+            {"id": "sky", "kind": "state", "glyph": "TILE", "size": "minor", "concept": "starfield night sky"}
+          ],
+          "relations": [],
+          "program": [
+            {"op": "DRAW", "target": "sky", "at": {"word": "What"}, "duration_ms": 900},
+            {"op": "DRAW", "target": "qmark", "at": {"word": "purpose"}, "duration_ms": 700},
+            {"op": "GROW", "target": "qmark", "at": {"word": "life"}, "duration_ms": 600}
+          ]
+        },
+        "metaphor": "the question towers over the film's world from frame one"
+      },
+      {
+        "groups": [1], "beat_type": "SETUP", "pattern": "PROCESS_RAIL",
+        "dominant_layer": "HYBRID", "energy": 0.6, "complexity": 0.5,
+        "display_units": [
+          {"text": "We work, we eat, we sleep", "role": "support", "semantic_role": "setup", "emphasis": 0.5, "anchor_word": "work"},
+          {"text": "do it all again", "role": "hero", "semantic_role": "punch", "emphasis": 0.9, "anchor_word": "again"}
+        ],
+        "illustration": {
+          "form": "PROCESS_PIPELINE",
+          "entities": [
+            {"id": "job", "kind": "object", "glyph": "ICON", "size": "support", "concept": "briefcase"},
+            {"id": "meal", "kind": "object", "glyph": "ICON", "size": "support", "concept": "dinner plate"},
+            {"id": "bed", "kind": "object", "glyph": "ICON", "size": "support", "concept": "bed"},
+            {"id": "loop", "kind": "signal", "glyph": "ARROW", "size": "minor"}
+          ],
+          "relations": [
+            {"type": "connects", "source": "job", "target": "meal", "style": "link"},
+            {"type": "connects", "source": "meal", "target": "bed", "style": "link"},
+            {"type": "flows_to", "source": "bed", "target": "job", "style": "arc"}
+          ],
+          "program": [
+            {"op": "DRAW", "target": "job", "at": {"word": "work"}, "duration_ms": 400},
+            {"op": "DRAW", "target": "meal", "at": {"word": "eat"}, "duration_ms": 400},
+            {"op": "DRAW", "target": "bed", "at": {"word": "sleep"}, "duration_ms": 400},
+            {"op": "CONNECT", "target": "job->meal", "at": {"word": "and"}, "duration_ms": 350},
+            {"op": "CONNECT", "target": "meal->bed", "at": {"word": "then"}, "duration_ms": 350},
+            {"op": "TRACE", "target": "bed->job", "at": {"word": "again"}, "duration_ms": 800}
+          ]
+        },
+        "metaphor": "routine drawn as a literal closed loop"
+      },
+      {
+        "groups": [2], "beat_type": "CONTRAST", "pattern": "CONTRAST_RECONFIGURATION",
+        "dominant_layer": "HYBRID", "energy": 0.55, "complexity": 0.4,
+        "display_units": [
+          {"text": "the answer isn't out there", "role": "hero", "semantic_role": "contrast", "emphasis": 0.9, "stress": ["isn't"], "anchor_word": "answer"}
+        ],
+        "illustration": {
+          "form": "OBJECT_STAGE",
+          "entities": [
+            {"id": "horizon", "kind": "state", "glyph": "ICON", "size": "hero", "concept": "distant horizon"},
+            {"id": "telescope", "kind": "object", "glyph": "ICON", "size": "minor", "concept": "telescope"}
+          ],
+          "relations": [{"type": "points_at", "source": "telescope", "target": "horizon", "style": "dash"}],
+          "program": [
+            {"op": "DRAW", "target": "horizon", "at": {"word": "answer"}, "duration_ms": 700},
+            {"op": "DRAW", "target": "telescope", "at": {"word": "out"}, "duration_ms": 450},
+            {"op": "DIM", "target": "horizon", "at": {"word": "there"}, "duration_ms": 500}
+          ]
+        },
+        "metaphor": "the 'out there' we search is dimmed off — the telescope points at nothing"
+      },
+      {
+        "groups": [3], "beat_type": "EXPLANATION", "pattern": "SEQUENTIAL_SUPPORT_LIST",
+        "dominant_layer": "HYBRID", "energy": 0.5, "complexity": 0.45,
+        "display_units": [
+          {"text": "in the small moments", "role": "hero", "semantic_role": "statement", "emphasis": 0.9, "anchor_word": "small"},
+          {"text": "a friend's laugh", "role": "support", "semantic_role": "evidence", "emphasis": 0.55, "anchor_word": "laugh"},
+          {"text": "a warm meal", "role": "support", "semantic_role": "evidence", "emphasis": 0.55, "anchor_word": "meal"},
+          {"text": "the walk home", "role": "support", "semantic_role": "evidence", "emphasis": 0.55, "anchor_word": "walk"}
+        ],
+        "illustration": {
+          "form": "OBJECT_STAGE",
+          "entities": [
+            {"id": "laugh", "kind": "object", "glyph": "ICON", "size": "support", "concept": "two friends laughing"},
+            {"id": "warmmeal", "kind": "object", "glyph": "ICON", "size": "support", "concept": "steaming bowl"},
+            {"id": "path", "kind": "object", "glyph": "ICON", "size": "support", "concept": "winding footpath"},
+            {"id": "heart1", "kind": "object", "glyph": "ICON", "size": "minor", "concept": "tiny heart"}
+          ],
+          "relations": [
+            {"type": "contains", "source": "laugh", "target": "heart1"}
+          ],
+          "program": [
+            {"op": "DRAW", "target": "laugh", "at": {"word": "laugh"}, "duration_ms": 450},
+            {"op": "DRAW", "target": "warmmeal", "at": {"word": "meal"}, "duration_ms": 450},
+            {"op": "DRAW", "target": "path", "at": {"word": "walk"}, "duration_ms": 450},
+            {"op": "DRAW", "target": "heart1", "at": {"word": "home"}, "duration_ms": 600}
+          ]
+        },
+        "metaphor": "each small moment literally contains the heart motif"
+      },
+      {
+        "groups": [4], "beat_type": "REFRAME", "pattern": "QUIET_SUPPORT_AFTER_HERO",
+        "dominant_layer": "HYBRID", "energy": 0.4, "complexity": 0.35,
+        "display_units": [
+          {"text": "isn't finding one big purpose", "role": "hero", "semantic_role": "contrast", "emphasis": 0.85, "stress": ["big"], "anchor_word": "finding"}
+        ],
+        "illustration": {
+          "form": "COMPARISON",
+          "entities": [
+            {"id": "monument", "kind": "object", "glyph": "TILE", "size": "support", "concept": "tall monument"},
+            {"id": "heart2", "kind": "object", "glyph": "ICON", "size": "minor", "concept": "tiny heart"}
+          ],
+          "relations": [{"type": "compares", "source": "monument", "target": "heart2", "style": "dash"}],
+          "program": [
+            {"op": "DRAW", "target": "monument", "at": {"word": "big"}, "duration_ms": 800},
+            {"op": "DRAW", "target": "heart2", "at": {"word": "purpose"}, "duration_ms": 400},
+            {"op": "GROW", "target": "heart2", "at": {"unit": 0}, "duration_ms": 500}
+          ]
+        },
+        "metaphor": "the monument of 'one big purpose' beside the small heart — scale inverted"
+      },
+      {
+        "groups": [5], "beat_type": "PAYOFF", "pattern": "PAYOFF_LOCKUP",
+        "dominant_layer": "HYBRID", "energy": 0.75, "complexity": 0.5,
+        "display_units": [
+          {"text": "noticing the ones", "role": "support", "semantic_role": "statement", "emphasis": 0.6, "anchor_word": "noticing"},
+          {"text": "we already live", "role": "hero", "semantic_role": "punch", "emphasis": 0.95, "anchor_word": "live"}
+        ],
+        "illustration": {
+          "form": "OBJECT_STAGE",
+          "entities": [
+            {"id": "hearts", "kind": "group", "glyph": "NODE", "size": "hero", "concept": "constellation of hearts", "params": {"count": 5}},
+            {"id": "eye", "kind": "agent", "glyph": "ICON", "size": "support", "concept": "open eye"}
+          ],
+          "relations": [{"type": "points_at", "source": "eye", "target": "hearts"}],
+          "program": [
+            {"op": "DRAW", "target": "eye", "at": {"word": "noticing"}, "duration_ms": 500},
+            {"op": "EMIT", "target": "hearts", "at": {"word": "live"}, "duration_ms": 900, "params": {}}
+          ]
+        },
+        "metaphor": "the film ends on the heart motif multiplied — the answer was already inhabited"
+      }
+    ]
+  }
+}

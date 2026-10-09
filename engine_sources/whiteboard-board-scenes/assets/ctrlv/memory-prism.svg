@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            
+            <!-- Light Beam In -->
+            <path d="M0 160 L160 180 M0 140 L160 180" stroke="#F5F0E4" stroke-width="4" opacity="0.3" fill="none"/>
+            
+            <!-- Center Prism -->
+            <polygon points="200,60 140,220 260,220" fill="#1A1A17" opacity="0.9"/>
+            <polygon points="200,60 140,220 200,220" fill="#F5F0E4" opacity="0.2"/>
+            
+            <!-- Refracted Light Beams (Colors split) -->
+            <g>
+                <path d="M240 160 L360 80" stroke="#F5F0E4" stroke-width="8" opacity="0.8"/>
+                <path d="M250 180 L400 180" stroke="#F5F0E4" stroke-width="8" opacity="0.8"/>
+                <path d="M240 200 L360 280" stroke="#EF4444" stroke-width="8" opacity="0.8"/>
+            </g>
+            
+            <g style="animation-delay:-1.5s">
+                <rect x="280" y="240" width="40" height="50" fill="white" stroke="#F5F0E4" stroke-width="2" transform="rotate(25 300 265)"/>
+                <rect x="285" y="245" width="30" height="30" fill="#F5F0E4" opacity="0.8" transform="rotate(25 300 265)"/>
+            </g>
+          </svg>

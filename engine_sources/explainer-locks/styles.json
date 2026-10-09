@@ -1,0 +1,6298 @@
+{
+  "version": 1,
+  "styles": [
+    {
+      "id": "photo_story",
+      "name": "Photo Story",
+      "tagline": "Real photos in tiles \u2014 evidence-led, documentary feel",
+      "finish": "PRODUCT_COLLAGE",
+      "reveal": "WORD_CASCADE",
+      "palette": {
+        "ink": "#1b150f",
+        "paper": "#f3eee6",
+        "accent": "#c4692b"
+      },
+      "asset_family": "photos",
+      "template_fixture": "ai-leverage-v2",
+      "captions": "none"
+    },
+    {
+      "id": "sketch",
+      "name": "Sketch",
+      "tagline": "Black wireframe icons in tiles \u2014 clean, technical, brand-safe",
+      "finish": "PRODUCT_COLLAGE",
+      "reveal": "WORD_CASCADE",
+      "palette": {
+        "ink": "#17161a",
+        "paper": "#fbfaf7",
+        "accent": "#2f6fb3"
+      },
+      "asset_family": "mono_icons",
+      "template_fixture": "style-glyph",
+      "captions": "none"
+    },
+    {
+      "id": "emoji",
+      "name": "Emoji",
+      "tagline": "Emoji tiles \u2014 playful, casual, social-native",
+      "finish": "PRODUCT_COLLAGE",
+      "reveal": "WORD_CASCADE",
+      "palette": {
+        "ink": "#191512",
+        "paper": "#fdfbf8",
+        "accent": "#e0496b"
+      },
+      "asset_family": "emoji",
+      "template_fixture": "style-pop",
+      "captions": "none",
+      "mood": "playful",
+      "sfx": "playful"
+    },
+    {
+      "id": "journey",
+      "name": "Journey",
+      "tagline": "One hero icon travels the whole story and morphs with each beat",
+      "finish": "FLOAT_FIELD",
+      "reveal": "WORD_CASCADE",
+      "journey": true,
+      "glyph": "BADGE",
+      "link_style": "arc",
+      "palette": {
+        "ink": "#191512",
+        "paper": "#faf8f4",
+        "accent": "#d95b3f"
+      },
+      "asset_family": "colour_icons",
+      "captions": "burned",
+      "mood": "dreamy",
+      "sfx": "glassy"
+    },
+    {
+      "id": "collage",
+      "name": "Collage",
+      "tagline": "Dense media-card field \u2014 busy, layered, editorial",
+      "finish": "PRODUCT_COLLAGE",
+      "reveal": "WORD_CASCADE",
+      "collage": true,
+      "palette": {
+        "ink": "#191512",
+        "paper": "#faf8f4",
+        "accent": "#d95b3f"
+      },
+      "asset_family": "colour_icons",
+      "captions": "burned",
+      "mood": "elegant",
+      "sfx": "paper"
+    },
+    {
+      "id": "dataviz",
+      "name": "Data Viz",
+      "tagline": "Spoken numbers draw themselves \u2014 counters and bars",
+      "finish": "EDITORIAL_FLAT",
+      "reveal": "WORD_CASCADE",
+      "dataviz": true,
+      "palette": {
+        "ink": "#14151a",
+        "paper": "#f6f7f9",
+        "accent": "#2f6fb3"
+      },
+      "asset_family": "colour_icons",
+      "captions": "burned",
+      "mood": "focused",
+      "sfx": "clean"
+    }
+  ],
+  "entity_bank": {
+    "person": {
+      "colour": "icon.icon-park-color.user",
+      "mono": "icon.icon-park-outline.every-user",
+      "emoji": "emoji.noto.bust-in-silhouette",
+      "photo": "hard-hat"
+    },
+    "people": {
+      "colour": "icon.icon-park-color.peoples",
+      "mono": "icon.icon-park-outline.people",
+      "emoji": "emoji.noto.busts-in-silhouette",
+      "photo": "hard-hat"
+    },
+    "team": {
+      "colour": "icon.icon-park-color.peoples",
+      "mono": "icon.icon-park-outline.people",
+      "emoji": "emoji.noto.busts-in-silhouette",
+      "photo": "hard-hat"
+    },
+    "two": {
+      "colour": "icon.icon-park-color.peoples",
+      "mono": "icon.icon-park-outline.people",
+      "emoji": "emoji.noto.busts-in-silhouette",
+      "photo": "hard-hat"
+    },
+    "engineer": {
+      "colour": "icon.icon-park-color.user",
+      "mono": "icon.icon-park-outline.data-user",
+      "emoji": "emoji.noto.office-worker",
+      "photo": "hard-hat"
+    },
+    "engineers": {
+      "colour": "icon.icon-park-color.user",
+      "mono": "icon.icon-park-outline.data-user",
+      "emoji": "emoji.noto.office-worker",
+      "photo": "hard-hat"
+    },
+    "worker": {
+      "colour": "icon.icon-park-color.user",
+      "mono": "icon.icon-park-outline.data-user",
+      "emoji": "emoji.noto.office-worker",
+      "photo": "hard-hat"
+    },
+    "builder": {
+      "colour": "icon.icon-park-color.hammer-and-anvil",
+      "mono": "icon.icon-park-outline.hammer-and-anvil",
+      "emoji": "emoji.noto.construction-worker",
+      "photo": "toolbox"
+    },
+    "money": {
+      "photo": "bank",
+      "mono": "icon.icon-park-outline.paper-money",
+      "emoji": "emoji.noto.money-bag",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "dollar": {
+      "photo": "bank",
+      "mono": "icon.icon-park-outline.paper-money-two",
+      "emoji": "emoji.noto.dollar-banknote",
+      "colour": "icon.icon-park-color.paper-money-two"
+    },
+    "dollars": {
+      "photo": "bank",
+      "mono": "icon.icon-park-outline.paper-money-two",
+      "emoji": "emoji.noto.dollar-banknote",
+      "colour": "icon.icon-park-color.paper-money-two"
+    },
+    "million": {
+      "photo": "bank",
+      "mono": "icon.icon-park-outline.paper-money",
+      "emoji": "emoji.noto.money-bag",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "millions": {
+      "photo": "bank",
+      "mono": "icon.icon-park-outline.paper-money",
+      "emoji": "emoji.noto.money-bag",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "bank": {
+      "photo": "bank",
+      "mono": "icon.icon-park-outline.bank-card",
+      "emoji": "emoji.noto.classical-building",
+      "colour": "icon.icon-park-color.bank"
+    },
+    "cost": {
+      "photo": "bank",
+      "mono": "icon.icon-park-outline.paper-money",
+      "emoji": "emoji.noto.money-bag",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "cash": {
+      "photo": "bank",
+      "mono": "icon.icon-park-outline.paper-money-two",
+      "emoji": "emoji.noto.dollar-banknote",
+      "colour": "icon.icon-park-color.paper-money-two"
+    },
+    "month": {
+      "colour": "icon.icon-park-color.calendar-thirty",
+      "mono": "icon.icon-park-outline.calendar-thirty",
+      "emoji": "emoji.noto.calendar"
+    },
+    "months": {
+      "colour": "icon.icon-park-color.calendar-thirty",
+      "mono": "icon.icon-park-outline.calendar-thirty",
+      "emoji": "emoji.noto.calendar"
+    },
+    "year": {
+      "colour": "icon.icon-park-color.calendar-thirty",
+      "mono": "icon.icon-park-outline.calendar-thirty",
+      "emoji": "emoji.noto.calendar"
+    },
+    "years": {
+      "colour": "icon.icon-park-color.calendar-thirty",
+      "mono": "icon.icon-park-outline.calendar-thirty",
+      "emoji": "emoji.noto.calendar"
+    },
+    "week": {
+      "colour": "icon.icon-park-color.calendar-thirty",
+      "mono": "icon.icon-park-outline.calendar-thirty",
+      "emoji": "emoji.noto.calendar"
+    },
+    "time": {
+      "colour": "icon.icon-park-color.hourglass",
+      "mono": "icon.icon-park-outline.hourglass-full",
+      "emoji": "emoji.noto.hourglass-done",
+      "photo": "watch"
+    },
+    "idea": {
+      "colour": "icon.icon-park-color.thunderbolt",
+      "mono": "icon.icon-park-outline.lightning",
+      "emoji": "emoji.noto.light-bulb",
+      "photo": "lamp"
+    },
+    "light": {
+      "colour": "icon.icon-park-color.thunderbolt",
+      "mono": "icon.icon-park-outline.lightning",
+      "emoji": "emoji.noto.light-bulb",
+      "photo": "lamp"
+    },
+    "ai": {
+      "colour": "icon.icon-park-color.robot",
+      "mono": "icon.icon-park-outline.brain",
+      "emoji": "emoji.noto.robot",
+      "photo": "brain"
+    },
+    "robot": {
+      "colour": "icon.icon-park-color.robot",
+      "mono": "icon.icon-park-outline.robot",
+      "emoji": "emoji.noto.robot",
+      "photo": "robot"
+    },
+    "model": {
+      "colour": "icon.icon-park-color.robot",
+      "mono": "icon.icon-park-outline.brain",
+      "emoji": "emoji.noto.robot",
+      "photo": "brain"
+    },
+    "models": {
+      "colour": "icon.icon-park-color.robot",
+      "mono": "icon.icon-park-outline.brain",
+      "emoji": "emoji.noto.robot",
+      "photo": "brain"
+    },
+    "brain": {
+      "colour": "icon.icon-park-color.robot",
+      "mono": "icon.icon-park-outline.brain",
+      "emoji": "emoji.noto.robot",
+      "photo": "brain"
+    },
+    "build": {
+      "colour": "icon.icon-park-color.hammer-and-anvil",
+      "mono": "icon.icon-park-outline.hammer-and-anvil",
+      "emoji": "emoji.noto.toolbox",
+      "photo": "toolbox"
+    },
+    "built": {
+      "colour": "icon.icon-park-color.hammer-and-anvil",
+      "mono": "icon.icon-park-outline.hammer-and-anvil",
+      "emoji": "emoji.noto.toolbox",
+      "photo": "toolbox"
+    },
+    "building": {
+      "colour": "icon.icon-park-color.building-two",
+      "mono": "icon.icon-park-outline.building-three",
+      "emoji": "emoji.noto.office-building",
+      "photo": "warehouse"
+    },
+    "tool": {
+      "colour": "icon.icon-park-color.hammer-and-anvil",
+      "mono": "icon.icon-park-outline.hammer-and-anvil",
+      "emoji": "emoji.noto.toolbox",
+      "photo": "toolbox"
+    },
+    "tools": {
+      "colour": "icon.icon-park-color.hammer-and-anvil",
+      "mono": "icon.icon-park-outline.hammer-and-anvil",
+      "emoji": "emoji.noto.toolbox",
+      "photo": "toolbox"
+    },
+    "drive": {
+      "colour": "icon.icon-park-color.thunderbolt",
+      "mono": "icon.icon-park-outline.lightning",
+      "emoji": "emoji.noto.high-voltage",
+      "photo": "toolbox"
+    },
+    "work": {
+      "colour": "icon.icon-park-color.laptop",
+      "mono": "icon.icon-park-outline.collect-laptop",
+      "emoji": "emoji.noto.laptop",
+      "photo": "terminal"
+    },
+    "product": {
+      "colour": "icon.icon-park-color.laptop",
+      "mono": "icon.icon-park-outline.collect-laptop",
+      "emoji": "emoji.noto.laptop",
+      "photo": "terminal"
+    },
+    "code": {
+      "colour": "icon.icon-park-color.laptop",
+      "mono": "icon.icon-park-outline.code-computer",
+      "emoji": "emoji.noto.laptop",
+      "photo": "terminal"
+    },
+    "app": {
+      "colour": "icon.icon-park-color.laptop",
+      "mono": "icon.icon-park-outline.code-computer",
+      "emoji": "emoji.noto.mobile-phone",
+      "photo": "terminal"
+    },
+    "computer": {
+      "colour": "icon.icon-park-color.laptop",
+      "mono": "icon.icon-park-outline.code-computer",
+      "emoji": "emoji.noto.laptop",
+      "photo": "monitor"
+    },
+    "screen": {
+      "colour": "icon.icon-park-color.laptop",
+      "mono": "icon.icon-park-outline.code-computer",
+      "emoji": "emoji.noto.laptop",
+      "photo": "monitor"
+    },
+    "win": {
+      "colour": "icon.icon-park-color.trophy",
+      "mono": "icon.icon-park-outline.gold-medal",
+      "emoji": "emoji.noto.trophy"
+    },
+    "trophy": {
+      "colour": "icon.icon-park-color.trophy",
+      "mono": "icon.icon-park-outline.gold-medal",
+      "emoji": "emoji.noto.trophy"
+    },
+    "compete": {
+      "colour": "icon.icon-park-color.trophy",
+      "mono": "icon.icon-park-outline.gold-medal",
+      "emoji": "emoji.noto.trophy"
+    },
+    "level": {
+      "colour": "icon.icon-park-color.trophy",
+      "mono": "icon.icon-park-outline.gold-medal",
+      "emoji": "emoji.noto.trophy"
+    },
+    "launch": {
+      "colour": "icon.icon-park-color.rocket",
+      "mono": "icon.icon-park-outline.rocket",
+      "emoji": "emoji.noto.rocket",
+      "photo": "token launch"
+    },
+    "rocket": {
+      "colour": "icon.icon-park-color.rocket",
+      "mono": "icon.icon-park-outline.rocket",
+      "emoji": "emoji.noto.rocket"
+    },
+    "ship": {
+      "colour": "icon.icon-park-color.rocket",
+      "mono": "icon.icon-park-outline.rocket",
+      "emoji": "emoji.noto.rocket"
+    },
+    "grow": {
+      "colour": "icon.icon-park-color.trending-up",
+      "mono": "icon.icon-park-outline.chart-graph",
+      "emoji": "emoji.noto.chart-increasing"
+    },
+    "growth": {
+      "colour": "icon.icon-park-color.trending-up",
+      "mono": "icon.icon-park-outline.chart-graph",
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "growth"
+    },
+    "chart": {
+      "colour": "icon.icon-park-color.trending-up",
+      "mono": "icon.icon-park-outline.chart-graph",
+      "emoji": "emoji.noto.chart-increasing"
+    },
+    "leverage": {
+      "colour": "icon.icon-park-color.muscle",
+      "mono": "icon.icon-park-outline.hammer-and-anvil",
+      "emoji": "emoji.noto.flexed-biceps",
+      "photo": "leverage trading"
+    },
+    "power": {
+      "colour": "icon.icon-park-color.thunderbolt",
+      "mono": "icon.icon-park-outline.lightning",
+      "emoji": "emoji.noto.high-voltage"
+    },
+    "fast": {
+      "colour": "icon.icon-park-color.thunderbolt",
+      "mono": "icon.icon-park-outline.lightning",
+      "emoji": "emoji.noto.high-voltage"
+    },
+    "speed": {
+      "colour": "icon.icon-park-color.thunderbolt",
+      "mono": "icon.icon-park-outline.lightning",
+      "emoji": "emoji.noto.high-voltage",
+      "photo": "fast transactions"
+    },
+    "dream": {
+      "colour": "icon.icon-park-color.moon",
+      "mono": "icon.icon-park-outline.moon",
+      "emoji": "emoji.noto.crescent-moon"
+    },
+    "moon": {
+      "colour": "icon.icon-park-color.moon",
+      "mono": "icon.icon-park-outline.moon",
+      "emoji": "emoji.noto.crescent-moon"
+    },
+    "access": {
+      "photo": "key",
+      "mono": "icon.icon-park-outline.bolt-one",
+      "emoji": "emoji.noto.credit-card",
+      "colour": "icon.icon-park-color.key"
+    },
+    "key": {
+      "photo": "key",
+      "mono": "icon.icon-park-outline.bolt-one",
+      "emoji": "emoji.noto.credit-card",
+      "colour": "icon.icon-park-color.key"
+    },
+    "subscription": {
+      "colour": "icon.icon-park-color.chip",
+      "mono": "icon.icon-park-outline.chip",
+      "emoji": "emoji.noto.credit-card",
+      "photo": "subscription"
+    },
+    "subscriptions": {
+      "colour": "icon.icon-park-color.chip",
+      "mono": "icon.icon-park-outline.chip",
+      "emoji": "emoji.noto.credit-card"
+    },
+    "chip": {
+      "colour": "icon.icon-park-color.chip",
+      "mono": "icon.icon-park-outline.chip",
+      "emoji": "emoji.noto.credit-card"
+    },
+    "home": {
+      "colour": "icon.icon-park-color.xiaodu-home",
+      "mono": "icon.icon-park-outline.home",
+      "emoji": "emoji.noto.house-with-garden"
+    },
+    "house": {
+      "colour": "icon.icon-park-color.xiaodu-home",
+      "mono": "icon.icon-park-outline.home",
+      "emoji": "emoji.noto.house-with-garden"
+    },
+    "world": {
+      "colour": "icon.icon-park-color.globe",
+      "mono": "icon.icon-park-outline.globe",
+      "emoji": "emoji.noto.globe-showing-americas"
+    },
+    "globe": {
+      "colour": "icon.icon-park-color.globe",
+      "mono": "icon.icon-park-outline.globe",
+      "emoji": "emoji.noto.globe-showing-americas",
+      "photo": "global"
+    },
+    "big": {
+      "colour": "icon.icon-park-color.building-two",
+      "mono": "icon.icon-park-outline.building-three",
+      "emoji": "emoji.noto.office-building",
+      "photo": "warehouse"
+    },
+    "company": {
+      "colour": "icon.icon-park-color.building-two",
+      "mono": "icon.icon-park-outline.building-three",
+      "emoji": "emoji.noto.office-building",
+      "photo": "warehouse"
+    },
+    "companies": {
+      "colour": "icon.icon-park-color.building-two",
+      "mono": "icon.icon-park-outline.building-three",
+      "emoji": "emoji.noto.office-building",
+      "photo": "warehouse"
+    },
+    "factory": {
+      "colour": "icon.icon-park-color.building-two",
+      "mono": "icon.icon-park-outline.building-three",
+      "emoji": "emoji.noto.factory",
+      "photo": "factory"
+    },
+    "office": {
+      "colour": "icon.icon-park-color.building-two",
+      "mono": "icon.icon-park-outline.building-three",
+      "emoji": "emoji.noto.office-building",
+      "photo": "warehouse"
+    },
+    "star": {
+      "colour": "icon.icon-park-color.star",
+      "mono": "icon.icon-park-outline.gold-medal",
+      "emoji": "emoji.noto.star"
+    },
+    "search": {
+      "mono": "icon.icon-park-outline.file-search-two",
+      "emoji": "emoji.noto.light-bulb",
+      "colour": "icon.icon-park-color.search"
+    },
+    "lock": {
+      "photo": "key",
+      "mono": "icon.icon-park-outline.file-lock",
+      "emoji": "emoji.noto.credit-card",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "safe": {
+      "photo": "key",
+      "mono": "icon.icon-park-outline.people-safe",
+      "emoji": "emoji.noto.shield",
+      "colour": "icon.icon-park-color.safe-retrieval"
+    },
+    "secure": {
+      "photo": "key",
+      "mono": "icon.icon-park-outline.people-safe",
+      "emoji": "emoji.noto.shield",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "coffee": {
+      "photo": "coffee",
+      "mono": "icon.icon-park-outline.cup-four",
+      "emoji": "emoji.noto.teacup-without-handle",
+      "colour": "icon.icon-park-color.coffee-machine"
+    },
+    "video": {
+      "colour": "icon.icon-park-color.video-one",
+      "mono": "icon.icon-park-outline.code-computer",
+      "emoji": "emoji.noto.video-game",
+      "photo": "video"
+    },
+    "camera": {
+      "colour": "icon.icon-park-color.micro-slr-camera",
+      "mono": "icon.icon-park-outline.collect-laptop",
+      "emoji": "emoji.noto.video-game",
+      "photo": "camera"
+    },
+    "music": {
+      "colour": "icon.icon-park-color.music-one",
+      "mono": "icon.icon-park-outline.music",
+      "emoji": "emoji.noto.video-game"
+    },
+    "book": {
+      "photo": "document",
+      "mono": "icon.icon-park-outline.file-search-two",
+      "emoji": "emoji.noto.light-bulb",
+      "colour": "icon.icon-park-color.currency"
+    },
+    "document": {
+      "photo": "document",
+      "mono": "icon.icon-park-outline.file-search-two",
+      "emoji": "emoji.noto.light-bulb",
+      "colour": "icon.icon-park-color.page"
+    },
+    "folder": {
+      "colour": "icon.icon-park-color.folder-one",
+      "mono": "icon.icon-park-outline.file-search-two",
+      "emoji": "emoji.noto.light-bulb",
+      "photo": "folder"
+    },
+    "phone": {
+      "photo": "monitor",
+      "mono": "icon.icon-park-outline.collect-laptop",
+      "emoji": "emoji.noto.mobile-phone",
+      "colour": "icon.icon-park-color.phone"
+    },
+    "flag": {
+      "colour": "icon.icon-park-color.flag",
+      "mono": "icon.icon-park-outline.flag",
+      "emoji": "emoji.noto.crossed-flags"
+    },
+    "target": {
+      "colour": "icon.icon-park-color.target-one",
+      "mono": "icon.icon-park-outline.chart-graph",
+      "emoji": "emoji.noto.chart-increasing"
+    },
+    "gift": {
+      "colour": "icon.icon-park-color.gift-box",
+      "mono": "icon.icon-park-outline.cup-four",
+      "emoji": "emoji.noto.wrapped-gift"
+    },
+    "shop": {
+      "colour": "icon.icon-park-color.shopping-cart",
+      "mono": "icon.icon-park-outline.shopping-cart-del",
+      "emoji": "emoji.noto.shopping-bags"
+    },
+    "store": {
+      "colour": "icon.icon-park-color.shopping-cart",
+      "mono": "icon.icon-park-outline.shopping-cart-del",
+      "emoji": "emoji.noto.shopping-bags"
+    },
+    "warning": {
+      "mono": "icon.icon-park-outline.file-lock",
+      "emoji": "emoji.noto.warning",
+      "colour": "icon.icon-park-color.attention",
+      "photo": "warning"
+    },
+    "game": {
+      "mono": "icon.icon-park-outline.game-console-one",
+      "emoji": "emoji.noto.video-game",
+      "colour": "icon.icon-park-color.game"
+    },
+    "train": {
+      "photo": "train",
+      "colour": "icon.icon-park-color.train",
+      "emoji": "emoji.noto.train"
+    },
+    "plane": {
+      "photo": "airplane",
+      "colour": "icon.icon-park-color.airplane",
+      "mono": "icon.lucide.plane",
+      "emoji": "emoji.noto.airplane"
+    },
+    "travel": {
+      "photo": "airplane",
+      "colour": "icon.icon-park-color.airplane",
+      "emoji": "emoji.noto.airplane"
+    },
+    "car": {
+      "photo": "car",
+      "colour": "icon.icon-park-color.car",
+      "mono": "icon.icon-park-outline.car",
+      "emoji": "emoji.noto.automobile"
+    },
+    "dog": {
+      "photo": "dog",
+      "colour": "icon.icon-park-color.dog",
+      "emoji": "emoji.noto.dog"
+    },
+    "cat": {
+      "photo": "cat",
+      "colour": "icon.icon-park-color.cat",
+      "emoji": "emoji.noto.cat"
+    },
+    "fish": {
+      "photo": "fish",
+      "colour": "icon.icon-park-color.fish",
+      "mono": "icon.icon-park-outline.fish",
+      "emoji": "emoji.noto.fish"
+    },
+    "bird": {
+      "photo": "bird",
+      "colour": "icon.icon-park-color.bird",
+      "mono": "icon.icon-park-outline.bird",
+      "emoji": "emoji.noto.bird"
+    },
+    "flower": {
+      "photo": "flower",
+      "colour": "icon.icon-park-color.blossom",
+      "mono": "icon.lucide.flower",
+      "emoji": "emoji.noto.blossom"
+    },
+    "tree": {
+      "photo": "tree",
+      "colour": "icon.icon-park-color.tree",
+      "emoji": "emoji.noto.evergreen-tree"
+    },
+    "mountain": {
+      "photo": "mountain",
+      "colour": "icon.icon-park-color.mountain",
+      "mono": "icon.icon-park-outline.mountain",
+      "emoji": "emoji.noto.mountain"
+    },
+    "watch": {
+      "photo": "watch",
+      "colour": "icon.icon-park-color.watch",
+      "emoji": "emoji.noto.watch"
+    },
+    "vinyl": {
+      "photo": "vinyl-record",
+      "colour": "icon.icon-park-color.music",
+      "mono": "icon.icon-park-outline.music",
+      "emoji": "emoji.noto.optical-disk"
+    },
+    "violin": {
+      "photo": "violin",
+      "colour": "icon.icon-park-color.music",
+      "mono": "icon.icon-park-outline.music",
+      "emoji": "emoji.noto.violin"
+    },
+    "guitar": {
+      "photo": "guitar",
+      "colour": "icon.icon-park-color.music",
+      "mono": "icon.icon-park-outline.music",
+      "emoji": "emoji.noto.guitar"
+    },
+    "microphone": {
+      "photo": "microphone",
+      "colour": "icon.icon-park-color.microphone",
+      "mono": "icon.icon-park-outline.microphone",
+      "emoji": "emoji.noto.microphone"
+    },
+    "mic": {
+      "photo": "microphone",
+      "colour": "icon.icon-park-color.microphone",
+      "mono": "icon.icon-park-outline.microphone",
+      "emoji": "emoji.noto.microphone"
+    },
+    "hospital": {
+      "photo": "hospital",
+      "colour": "icon.icon-park-color.hospital",
+      "mono": "icon.icon-park-outline.hospital",
+      "emoji": "emoji.noto.hospital"
+    },
+    "health": {
+      "photo": "hospital",
+      "colour": "icon.icon-park-color.health",
+      "mono": "icon.icon-park-outline.health",
+      "emoji": "emoji.noto.red-heart"
+    },
+    "shirt": {
+      "photo": "shirt",
+      "colour": "icon.icon-park-color.clothes-turtleneck",
+      "emoji": "emoji.noto.t-shirt"
+    },
+    "dress": {
+      "photo": "dress",
+      "colour": "icon.icon-park-color.full-dress-longuette",
+      "emoji": "emoji.noto.dress"
+    },
+    "shoe": {
+      "photo": "sneaker",
+      "colour": "icon.icon-park-color.clothes-skates",
+      "emoji": "emoji.noto.mans-shoe"
+    },
+    "sneaker": {
+      "photo": "sneaker",
+      "colour": "icon.icon-park-color.clothes-skates",
+      "emoji": "emoji.noto.running-shoe"
+    },
+    "umbrella": {
+      "photo": "umbrella",
+      "colour": "icon.icon-park-color.umbrella",
+      "emoji": "emoji.noto.umbrella"
+    },
+    "bed": {
+      "photo": "bed",
+      "colour": "icon.icon-park-color.bedside",
+      "emoji": "emoji.noto.bed"
+    },
+    "sleep": {
+      "photo": "bed",
+      "colour": "icon.icon-park-color.sleep",
+      "mono": "icon.icon-park-outline.sleep",
+      "emoji": "emoji.noto.zzz"
+    },
+    "sofa": {
+      "photo": "sofa",
+      "colour": "icon.icon-park-color.sofa",
+      "emoji": "emoji.noto.couch-and-lamp"
+    },
+    "table": {
+      "photo": "table",
+      "colour": "icon.icon-park-color.table",
+      "emoji": "emoji.noto.chair"
+    },
+    "window": {
+      "photo": "window",
+      "colour": "icon.icon-park-color.windows",
+      "emoji": "emoji.noto.window"
+    },
+    "door": {
+      "photo": "door",
+      "colour": "icon.icon-park-color.gate",
+      "emoji": "emoji.noto.door"
+    },
+    "wine": {
+      "photo": "wine",
+      "colour": "icon.icon-park-color.cocktail",
+      "emoji": "emoji.noto.wine-glass"
+    },
+    "tea": {
+      "photo": "tea",
+      "colour": "icon.icon-park-color.tea",
+      "emoji": "emoji.noto.teapot"
+    },
+    "egg": {
+      "photo": "egg",
+      "colour": "icon.icon-park-color.egg",
+      "mono": "icon.icon-park-outline.egg",
+      "emoji": "emoji.noto.egg"
+    },
+    "milk": {
+      "photo": "milk",
+      "colour": "icon.icon-park-color.milk",
+      "mono": "icon.icon-park-outline.milk",
+      "emoji": "emoji.noto.glass-of-milk"
+    },
+    "cheese": {
+      "photo": "cheese",
+      "colour": "icon.icon-park-color.cheese",
+      "emoji": "emoji.noto.cheese-wedge"
+    },
+    "chocolate": {
+      "photo": "chocolate",
+      "colour": "icon.icon-park-color.candy",
+      "mono": "icon.icon-park-outline.candy",
+      "emoji": "emoji.noto.candy"
+    },
+    "sugar": {
+      "photo": "sugar",
+      "colour": "icon.icon-park-color.candy",
+      "mono": "icon.icon-park-outline.candy",
+      "emoji": "emoji.noto.candy"
+    },
+    "pill": {
+      "photo": "pill",
+      "colour": "icon.icon-park-color.pill",
+      "mono": "icon.icon-park-outline.pill",
+      "emoji": "emoji.noto.pill"
+    },
+    "tooth": {
+      "photo": "tooth",
+      "colour": "icon.icon-park-color.teeth",
+      "mono": "icon.healthicons.tooth",
+      "emoji": "emoji.noto.tooth"
+    },
+    "printer": {
+      "photo": "printer",
+      "colour": "icon.icon-park-color.printer",
+      "mono": "icon.icon-park-outline.printer",
+      "emoji": "emoji.noto.printer"
+    },
+    "keyboard": {
+      "photo": "keyboard",
+      "colour": "icon.icon-park-color.keyboard",
+      "mono": "icon.icon-park-outline.keyboard",
+      "emoji": "emoji.noto.keyboard"
+    },
+    "monitor": {
+      "photo": "monitor",
+      "colour": "icon.icon-park-color.monitor",
+      "mono": "icon.icon-park-outline.monitor",
+      "emoji": "emoji.noto.desktop-computer"
+    },
+    "sensor": {
+      "photo": "sensor",
+      "colour": "icon.icon-park-color.chip",
+      "mono": "icon.icon-park-outline.chip",
+      "emoji": "emoji.noto.satellite-antenna"
+    },
+    "router": {
+      "photo": "router",
+      "colour": "icon.icon-park-color.router",
+      "emoji": "emoji.noto.satellite-antenna"
+    },
+    "drone": {
+      "photo": "drone",
+      "emoji": "emoji.noto.flying-saucer",
+      "colour": "icon.icon-park-color.drone"
+    },
+    "battery": {
+      "photo": "battery",
+      "colour": "icon.icon-park-color.battery-full",
+      "mono": "icon.icon-park-outline.battery-full",
+      "emoji": "emoji.noto.battery"
+    },
+    "cable": {
+      "photo": "cable",
+      "colour": "icon.icon-park-color.plug",
+      "mono": "icon.icon-park-outline.plug",
+      "emoji": "emoji.noto.electric-plug"
+    },
+    "wrench": {
+      "photo": "wrench",
+      "colour": "icon.icon-park-color.tool",
+      "emoji": "emoji.noto.wrench"
+    },
+    "scooter": {
+      "photo": "scooter",
+      "colour": "icon.icon-park-color.bike",
+      "mono": "icon.icon-park-outline.bike",
+      "emoji": "emoji.noto.motor-scooter"
+    },
+    "motorcycle": {
+      "photo": "motorcycle",
+      "colour": "icon.icon-park-color.bike",
+      "mono": "icon.icon-park-outline.bike",
+      "emoji": "emoji.noto.motorcycle"
+    },
+    "bicycle": {
+      "photo": "bicycle",
+      "colour": "icon.icon-park-color.bike",
+      "mono": "icon.icon-park-outline.bike",
+      "emoji": "emoji.noto.bicycle"
+    },
+    "bus": {
+      "photo": "bus",
+      "colour": "icon.icon-park-color.bus",
+      "mono": "icon.icon-park-outline.bus",
+      "emoji": "emoji.noto.bus"
+    },
+    "truck": {
+      "photo": "truck",
+      "colour": "icon.icon-park-color.truck",
+      "emoji": "emoji.noto.delivery-truck"
+    },
+    "ferry": {
+      "photo": "ferry",
+      "colour": "icon.icon-park-color.ship",
+      "mono": "icon.icon-park-outline.ship",
+      "emoji": "emoji.noto.ship"
+    },
+    "crane": {
+      "photo": "crane",
+      "colour": "icon.icon-park-color.building-one",
+      "mono": "icon.icon-park-outline.building-one",
+      "emoji": "emoji.noto.building-construction"
+    },
+    "tractor": {
+      "photo": "tractor",
+      "colour": "icon.icon-park-color.truck",
+      "emoji": "emoji.noto.tractor"
+    },
+    "tent": {
+      "photo": "tent",
+      "colour": "icon.icon-park-color.tent",
+      "emoji": "emoji.noto.tent"
+    },
+    "grass": {
+      "photo": "grass",
+      "colour": "icon.icon-park-color.leaf",
+      "mono": "icon.icon-park-outline.leaf",
+      "emoji": "emoji.noto.herb"
+    },
+    "sun": {
+      "photo": "sun",
+      "colour": "icon.icon-park-color.sun",
+      "emoji": "emoji.noto.sun"
+    },
+    "butter": {
+      "photo": "butter",
+      "colour": "icon.icon-park-color.bread",
+      "mono": "icon.icon-park-outline.bread",
+      "emoji": "emoji.noto.bread"
+    },
+    "rice": {
+      "photo": "rice",
+      "colour": "icon.icon-park-color.rice",
+      "emoji": "emoji.noto.cooked-rice"
+    },
+    "cereal": {
+      "photo": "cereal",
+      "colour": "icon.icon-park-color.bowl",
+      "mono": "icon.icon-park-outline.bowl",
+      "emoji": "emoji.noto.bowl-with-spoon"
+    },
+    "pantry": {
+      "photo": "pantry",
+      "colour": "icon.icon-park-color.box",
+      "mono": "icon.icon-park-outline.box",
+      "emoji": "emoji.noto.file-cabinet"
+    },
+    "pencil": {
+      "photo": "pencil",
+      "colour": "icon.icon-park-color.pencil",
+      "mono": "icon.icon-park-outline.pencil",
+      "emoji": "emoji.noto.pencil"
+    },
+    "piano": {
+      "photo": "piano",
+      "colour": "icon.icon-park-color.piano",
+      "mono": "icon.icon-park-outline.piano",
+      "emoji": "emoji.noto.musical-keyboard"
+    },
+    "speaker": {
+      "photo": "speaker",
+      "colour": "icon.icon-park-color.speaker",
+      "emoji": "emoji.noto.speaker-high-volume"
+    },
+    "headphones": {
+      "photo": "headphones",
+      "colour": "icon.icon-park-color.headset",
+      "mono": "icon.lucide.headphones",
+      "emoji": "emoji.noto.headphone"
+    },
+    "glasses": {
+      "photo": "glasses",
+      "colour": "icon.icon-park-color.glasses",
+      "emoji": "emoji.noto.glasses"
+    },
+    "thermostat": {
+      "photo": "thermostat",
+      "colour": "icon.icon-park-color.power",
+      "mono": "icon.icon-park-outline.power",
+      "emoji": "emoji.noto.thermometer"
+    },
+    "tablet": {
+      "photo": "tablet",
+      "colour": "icon.icon-park-color.monitor",
+      "mono": "icon.icon-park-outline.monitor",
+      "emoji": "emoji.noto.mobile-phone"
+    },
+    "quartz": {
+      "photo": "quartz",
+      "colour": "icon.icon-park-color.diamond",
+      "mono": "icon.icon-park-outline.diamond",
+      "emoji": "emoji.noto.gem-stone"
+    },
+    "yogurt": {
+      "photo": "yogurt",
+      "colour": "icon.icon-park-color.milk",
+      "mono": "icon.icon-park-outline.milk",
+      "emoji": "emoji.noto.cup-with-straw"
+    },
+    "espresso": {
+      "photo": "espresso",
+      "colour": "icon.icon-park-color.coffee-machine",
+      "mono": "icon.icon-park-outline.coffee-machine",
+      "emoji": "emoji.noto.hot-beverage"
+    },
+    "sourdough": {
+      "photo": "sourdough",
+      "colour": "icon.icon-park-color.bread",
+      "mono": "icon.icon-park-outline.bread",
+      "emoji": "emoji.noto.bread"
+    },
+    "avocado": {
+      "photo": "avocado",
+      "colour": "icon.icon-park-color.avocado",
+      "emoji": "emoji.noto.avocado"
+    },
+    "tomato": {
+      "photo": "tomato",
+      "colour": "icon.icon-park-color.tomato",
+      "emoji": "emoji.noto.tomato"
+    },
+    "apple": {
+      "photo": "apple",
+      "colour": "icon.icon-park-color.apple",
+      "mono": "icon.icon-park-outline.apple",
+      "emoji": "emoji.noto.red-apple"
+    },
+    "almond": {
+      "photo": "almond",
+      "colour": "icon.icon-park-color.macadamia-nut",
+      "mono": "icon.icon-park-outline.macadamia-nut",
+      "emoji": "emoji.noto.chestnut"
+    },
+    "bandage": {
+      "photo": "bandage",
+      "colour": "icon.icon-park-color.first-aid-kit",
+      "mono": "icon.lucide.bandage",
+      "emoji": "emoji.noto.adhesive-bandage"
+    },
+    "backpack": {
+      "photo": "backpack",
+      "colour": "icon.icon-park-color.backpack",
+      "emoji": "emoji.noto.backpack"
+    },
+    "syringe": {
+      "photo": "syringe",
+      "colour": "icon.icon-park-color.injection",
+      "mono": "icon.healthicons.syringe",
+      "emoji": "emoji.noto.syringe"
+    },
+    "vaccine": {
+      "photo": "vaccine",
+      "colour": "icon.icon-park-color.pill",
+      "mono": "icon.icon-park-outline.pill",
+      "emoji": "emoji.noto.pill"
+    },
+    "stethoscope": {
+      "photo": "stethoscope",
+      "colour": "icon.icon-park-color.stethoscope",
+      "mono": "icon.healthicons.stethoscope",
+      "emoji": "emoji.noto.stethoscope"
+    },
+    "microscope": {
+      "photo": "microscope",
+      "colour": "icon.icon-park-color.microscope",
+      "emoji": "emoji.noto.microscope"
+    },
+    "hotel": {
+      "photo": "hotel",
+      "colour": "icon.icon-park-color.hotel",
+      "emoji": "emoji.noto.hotel"
+    },
+    "lavender": {
+      "photo": "lavender",
+      "colour": "icon.icon-park-color.blossom",
+      "emoji": "emoji.noto.blossom"
+    },
+    "pillow": {
+      "photo": "pillow",
+      "colour": "icon.icon-park-color.bedside",
+      "emoji": "emoji.noto.bed"
+    },
+    "bean": {
+      "photo": "bean",
+      "emoji": "emoji.noto.beans"
+    },
+    "bread": {
+      "photo": "bread",
+      "colour": "icon.icon-park-color.bread",
+      "mono": "icon.icon-park-outline.bread",
+      "emoji": "emoji.noto.bread"
+    },
+    "bitcoin": {
+      "colour": "brand.si.bitcoin",
+      "mono": "icon.mingcute.currency-bitcoin-line",
+      "emoji": "emoji.noto.coin",
+      "photo": "bitcoin"
+    },
+    "ethereum": {
+      "colour": "brand.si.ethereum",
+      "mono": "icon.tabler.currency-ethereum",
+      "emoji": "emoji.noto.diamond-with-a-dot",
+      "photo": "ethereum"
+    },
+    "tether": {
+      "colour": "brand.si.tether",
+      "photo": "tether usdt"
+    },
+    "usdc": {
+      "emoji": "emoji.noto.dollar-banknote",
+      "photo": "usd coin",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "solana": {
+      "colour": "brand.si.solana",
+      "photo": "solana"
+    },
+    "cardano": {
+      "colour": "brand.logos.cardano",
+      "photo": "cardano"
+    },
+    "dogecoin": {
+      "colour": "brand.si.dogecoin",
+      "mono": "icon.tabler.currency-dogecoin",
+      "photo": "dogecoin"
+    },
+    "xrp": {
+      "colour": "brand.si.xrp",
+      "photo": "xrp"
+    },
+    "binance": {
+      "colour": "brand.si.binance",
+      "mono": "icon.mingcute.binance-coin-bnb-line",
+      "photo": "binance"
+    },
+    "litecoin": {
+      "colour": "brand.si.litecoin",
+      "photo": "litecoin"
+    },
+    "monero": {
+      "colour": "brand.logos.monero",
+      "mono": "icon.tabler.coin-monero",
+      "photo": "monero"
+    },
+    "polkadot": {
+      "colour": "brand.si.polkadot",
+      "photo": "polkadot"
+    },
+    "avalanche": {
+      "emoji": "emoji.noto.snow-capped-mountain",
+      "photo": "avalanche crypto",
+      "colour": "icon.icon-park-color.mountain"
+    },
+    "chainlink": {
+      "colour": "brand.si.chainlink",
+      "photo": "chainlink"
+    },
+    "tron": {
+      "photo": "tron crypto",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "stellar": {
+      "colour": "brand.si.stellar",
+      "photo": "stellar crypto"
+    },
+    "aptos": {
+      "photo": "aptos",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "sui": {
+      "colour": "brand.si.sui",
+      "photo": "sui blockchain"
+    },
+    "arbitrum": {
+      "photo": "arbitrum",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "optimism": {
+      "colour": "brand.si.optimism",
+      "photo": "optimism rollup"
+    },
+    "polygon": {
+      "colour": "brand.si.polygon",
+      "photo": "polygon matic"
+    },
+    "cosmos": {
+      "photo": "cosmos atom",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "algorand": {
+      "colour": "brand.si.algorand",
+      "photo": "algorand"
+    },
+    "shiba": {
+      "emoji": "emoji.noto.dog",
+      "photo": "shiba inu coin",
+      "colour": "icon.icon-park-color.dog"
+    },
+    "pepe": {
+      "emoji": "emoji.noto.frog",
+      "photo": "pepe coin",
+      "colour": "icon.icon-park-color.frog"
+    },
+    "bitcoincash": {
+      "colour": "brand.si.bitcoincash",
+      "photo": "bitcoin cash"
+    },
+    "zcash": {
+      "colour": "brand.si.zcash",
+      "photo": "zcash"
+    },
+    "iota": {
+      "colour": "brand.si.iota",
+      "photo": "iota"
+    },
+    "hedera": {
+      "colour": "brand.si.hedera",
+      "photo": "hedera hashgraph"
+    },
+    "fantom": {
+      "colour": "brand.si.fantom",
+      "photo": "fantom"
+    },
+    "decentraland": {
+      "colour": "brand.si.decentraland",
+      "photo": "decentraland"
+    },
+    "ethereumclassic": {
+      "photo": "ethereum classic",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "tezos": {
+      "photo": "tezos",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "eos": {
+      "photo": "eos crypto",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "toncoin": {
+      "photo": "toncoin",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "memecoin": {
+      "mono": "icon.mingcute.coin-line",
+      "emoji": "emoji.noto.frog",
+      "photo": "meme coin",
+      "colour": "icon.icon-park-color.frog"
+    },
+    "stablecoin": {
+      "mono": "icon.mingcute.coin-2-line",
+      "emoji": "emoji.noto.dollar-banknote",
+      "photo": "stablecoin",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "altcoin": {
+      "mono": "icon.mingcute.coin-3-line",
+      "emoji": "emoji.noto.coin",
+      "photo": "altcoins",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "token": {
+      "mono": "icon.mingcute.coin-line",
+      "emoji": "emoji.noto.coin",
+      "photo": "crypto token",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "coin": {
+      "mono": "icon.mingcute.coin-line",
+      "emoji": "emoji.noto.coin",
+      "photo": "coin",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "cryptocurrency": {
+      "colour": "icon.icon-park-color.bitcoin",
+      "mono": "icon.mingcute.currency-bitcoin-line",
+      "emoji": "emoji.noto.coin",
+      "photo": "cryptocurrency"
+    },
+    "blockchain": {
+      "mono": "icon.carbon.chart-network",
+      "emoji": "emoji.noto.chains",
+      "photo": "blockchain",
+      "colour": "icon.icon-park-color.blockchain"
+    },
+    "wallet": {
+      "colour": "icon.icon-park-color.wallet",
+      "mono": "icon.ant-design.wallet-outlined",
+      "emoji": "emoji.noto.handbag",
+      "photo": "crypto wallet"
+    },
+    "coldwallet": {
+      "mono": "icon.carbon.bank-vault",
+      "emoji": "emoji.noto.locked",
+      "photo": "hardware wallet",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "hotwallet": {
+      "emoji": "emoji.noto.mobile-phone",
+      "photo": "mobile crypto wallet",
+      "colour": "icon.icon-park-color.phone"
+    },
+    "seedphrase": {
+      "mono": "icon.icon-park-outline.key",
+      "emoji": "emoji.noto.key",
+      "photo": "seed phrase backup",
+      "colour": "icon.icon-park-color.key"
+    },
+    "privatekey": {
+      "mono": "icon.carbon.api-key",
+      "emoji": "emoji.noto.old-key",
+      "photo": "private key",
+      "colour": "icon.icon-park-color.key-one"
+    },
+    "publickey": {
+      "mono": "icon.carbon.key",
+      "emoji": "emoji.noto.key",
+      "photo": "public key",
+      "colour": "icon.icon-park-color.key"
+    },
+    "address": {
+      "mono": "icon.carbon.qr-code",
+      "emoji": "emoji.noto.identification-card",
+      "photo": "wallet address",
+      "colour": "icon.icon-park-color.id-card"
+    },
+    "ledger": {
+      "mono": "icon.ant-design.account-book-outlined",
+      "emoji": "emoji.noto.ledger",
+      "photo": "ledger book",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "smartcontract": {
+      "mono": "icon.icon-park-outline.edit-name",
+      "emoji": "emoji.noto.memo",
+      "photo": "smart contract",
+      "colour": "icon.icon-park-color.file-editing"
+    },
+    "defi": {
+      "mono": "icon.icon-park-outline.exchange",
+      "emoji": "emoji.noto.bank",
+      "photo": "decentralized finance",
+      "colour": "icon.icon-park-color.bank"
+    },
+    "nft": {
+      "mono": "icon.icon-park-outline.picture-album",
+      "emoji": "emoji.noto.framed-picture",
+      "photo": "nft art",
+      "colour": "icon.icon-park-color.picture"
+    },
+    "mint": {
+      "mono": "icon.ant-design.file-add-outlined",
+      "emoji": "emoji.noto.sparkles",
+      "photo": "minting nft",
+      "colour": "icon.icon-park-color.star"
+    },
+    "gas": {
+      "emoji": "emoji.noto.fuel-pump",
+      "photo": "gas fee",
+      "colour": "icon.icon-park-color.power",
+      "mono": "icon.lucide.bolt"
+    },
+    "gwei": {
+      "photo": "gwei",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "transaction": {
+      "mono": "icon.icon-park-outline.exchange-four",
+      "emoji": "emoji.noto.left-right-arrow",
+      "photo": "crypto transaction",
+      "colour": "icon.icon-park-color.exchange"
+    },
+    "block": {
+      "emoji": "emoji.noto.package",
+      "photo": "blockchain block",
+      "colour": "icon.icon-park-color.box"
+    },
+    "mining": {
+      "mono": "icon.lucide.hammer",
+      "emoji": "emoji.noto.pick",
+      "photo": "crypto mining",
+      "colour": "icon.icon-park-color.hammer-and-anvil"
+    },
+    "miner": {
+      "emoji": "emoji.noto.pick",
+      "photo": "crypto miner",
+      "colour": "icon.icon-park-color.hammer-and-anvil"
+    },
+    "hashrate": {
+      "photo": "hashrate",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "proofofwork": {
+      "emoji": "emoji.noto.hammer-and-pick",
+      "photo": "proof of work",
+      "colour": "icon.icon-park-color.hammer-and-anvil"
+    },
+    "proofofstake": {
+      "emoji": "emoji.noto.balance-scale",
+      "photo": "proof of stake",
+      "colour": "icon.icon-park-color.balance"
+    },
+    "staking": {
+      "mono": "icon.carbon.bank-vault",
+      "emoji": "emoji.noto.money-bag",
+      "photo": "crypto staking",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "validator": {
+      "emoji": "emoji.noto.check-mark-button",
+      "photo": "blockchain validator",
+      "colour": "icon.icon-park-color.check"
+    },
+    "node": {
+      "mono": "icon.carbon.network-3",
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "network node",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "consensus": {
+      "emoji": "emoji.noto.handshake",
+      "photo": "consensus mechanism",
+      "colour": "icon.icon-park-color.cooperative-handshake"
+    },
+    "dao": {
+      "emoji": "emoji.noto.handshake",
+      "photo": "dao governance",
+      "colour": "icon.icon-park-color.cooperative-handshake"
+    },
+    "dapp": {
+      "emoji": "emoji.noto.mobile-phone",
+      "photo": "decentralized app",
+      "colour": "icon.icon-park-color.phone"
+    },
+    "dex": {
+      "mono": "icon.icon-park-outline.exchange",
+      "emoji": "emoji.noto.left-right-arrow",
+      "photo": "decentralized exchange",
+      "colour": "icon.icon-park-color.exchange"
+    },
+    "cex": {
+      "emoji": "emoji.noto.bank",
+      "photo": "centralized exchange",
+      "colour": "icon.icon-park-color.bank"
+    },
+    "exchange": {
+      "mono": "icon.icon-park-outline.exchange",
+      "emoji": "emoji.noto.left-right-arrow",
+      "photo": "crypto exchange",
+      "colour": "icon.icon-park-color.exchange"
+    },
+    "liquidity": {
+      "emoji": "emoji.noto.droplet",
+      "photo": "liquidity pool",
+      "colour": "icon.icon-park-color.water"
+    },
+    "yieldfarming": {
+      "emoji": "emoji.noto.ear-of-corn",
+      "photo": "yield farming",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "apy": {
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "apy percentage",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "lending": {
+      "emoji": "emoji.noto.money-with-wings",
+      "photo": "crypto lending",
+      "colour": "icon.icon-park-color.paper-money-two"
+    },
+    "oracle": {
+      "emoji": "emoji.noto.crystal-ball",
+      "photo": "blockchain oracle",
+      "colour": "icon.icon-park-color.magic"
+    },
+    "bridge": {
+      "emoji": "emoji.noto.rainbow",
+      "photo": "blockchain bridge",
+      "colour": "icon.icon-park-color.star"
+    },
+    "layer1": {
+      "emoji": "emoji.noto.books",
+      "photo": "layer 1 blockchain",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "layer2": {
+      "emoji": "emoji.noto.books",
+      "photo": "layer 2 scaling",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "rollup": {
+      "emoji": "emoji.noto.roll-of-paper",
+      "photo": "rollup",
+      "colour": "icon.icon-park-color.page"
+    },
+    "sidechain": {
+      "photo": "sidechain",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "mainnet": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "mainnet launch",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "testnet": {
+      "emoji": "emoji.noto.test-tube",
+      "photo": "testnet",
+      "colour": "icon.icon-park-color.test-tube"
+    },
+    "tokenomics": {
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "tokenomics",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "whitepaper": {
+      "emoji": "emoji.noto.page-facing-up",
+      "photo": "whitepaper",
+      "colour": "icon.icon-park-color.page"
+    },
+    "ico": {
+      "emoji": "emoji.noto.money-bag",
+      "photo": "token sale",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "airdrop": {
+      "emoji": "emoji.noto.wrapped-gift",
+      "photo": "airdrop",
+      "colour": "icon.icon-park-color.gift"
+    },
+    "marketcap": {
+      "mono": "icon.ant-design.pie-chart-outlined",
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "market cap",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "volume": {
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "trading volume",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "candlestick": {
+      "colour": "icon.icon-park-color.analysis",
+      "mono": "icon.tabler.chart-candle",
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "candlestick chart"
+    },
+    "bullmarket": {
+      "colour": "icon.icon-park-color.stock-market",
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "bull market"
+    },
+    "bearmarket": {
+      "emoji": "emoji.noto.bear",
+      "photo": "bear market",
+      "colour": "icon.icon-park-color.bear"
+    },
+    "whale": {
+      "mono": "icon.lucide.fish",
+      "emoji": "emoji.noto.whale",
+      "photo": "crypto whale",
+      "colour": "icon.icon-park-color.whale"
+    },
+    "hodl": {
+      "emoji": "emoji.noto.gem-stone",
+      "photo": "hodl",
+      "colour": "icon.icon-park-color.diamond"
+    },
+    "fomo": {
+      "emoji": "emoji.noto.alarm-clock",
+      "photo": "fomo",
+      "colour": "icon.icon-park-color.alarm-clock"
+    },
+    "fud": {
+      "emoji": "emoji.noto.warning",
+      "photo": "fud fear doubt",
+      "colour": "icon.icon-park-color.caution"
+    },
+    "mooning": {
+      "emoji": "emoji.noto.full-moon",
+      "photo": "mooning crypto",
+      "colour": "icon.icon-park-color.moon"
+    },
+    "rekt": {
+      "emoji": "emoji.noto.chart-decreasing",
+      "photo": "rekt trader",
+      "colour": "icon.icon-park-color.chart-stock"
+    },
+    "paperhands": {
+      "emoji": "emoji.noto.raising-hands",
+      "photo": "paper hands",
+      "colour": "icon.icon-park-color.hands"
+    },
+    "rugpull": {
+      "mono": "icon.ant-design.warning-outlined",
+      "emoji": "emoji.noto.warning",
+      "photo": "rug pull scam",
+      "colour": "icon.icon-park-color.caution"
+    },
+    "scam": {
+      "mono": "icon.ant-design.warning-outlined",
+      "emoji": "emoji.noto.warning",
+      "photo": "crypto scam",
+      "colour": "icon.icon-park-color.caution"
+    },
+    "hack": {
+      "mono": "icon.icon-park-outline.bug",
+      "emoji": "emoji.noto.skull-and-crossbones",
+      "photo": "crypto hack",
+      "colour": "icon.icon-park-color.skull"
+    },
+    "audit": {
+      "mono": "icon.icon-park-outline.file-search",
+      "emoji": "emoji.noto.magnifying-glass-tilted-left",
+      "photo": "smart contract audit",
+      "colour": "icon.icon-park-color.search"
+    },
+    "kyc": {
+      "mono": "icon.icon-park-outline.id-card",
+      "emoji": "emoji.noto.identification-card",
+      "photo": "kyc verification",
+      "colour": "icon.icon-park-color.id-card"
+    },
+    "custody": {
+      "mono": "icon.carbon.bank-vault",
+      "emoji": "emoji.noto.locked",
+      "photo": "crypto custody",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "multisig": {
+      "emoji": "emoji.noto.key",
+      "photo": "multisig wallet",
+      "colour": "icon.icon-park-color.key"
+    },
+    "satoshi": {
+      "emoji": "emoji.noto.bust-in-silhouette",
+      "photo": "satoshi nakamoto",
+      "colour": "icon.icon-park-color.avatar"
+    },
+    "halving": {
+      "mono": "icon.icon-park-outline.scissors",
+      "emoji": "emoji.noto.scissors",
+      "photo": "bitcoin halving",
+      "colour": "icon.icon-park-color.scissors"
+    },
+    "fork": {
+      "mono": "icon.lucide.git-fork",
+      "emoji": "emoji.noto.fork-and-knife",
+      "photo": "blockchain fork",
+      "colour": "icon.icon-park-color.fork"
+    },
+    "genesis": {
+      "emoji": "emoji.noto.glowing-star",
+      "photo": "genesis block",
+      "colour": "icon.icon-park-color.star"
+    },
+    "mempool": {
+      "photo": "mempool",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "signature": {
+      "mono": "icon.icon-park-outline.edit-name",
+      "emoji": "emoji.noto.writing-hand",
+      "photo": "digital signature",
+      "colour": "icon.icon-park-color.write"
+    },
+    "encryption": {
+      "mono": "icon.icon-park-outline.lock",
+      "emoji": "emoji.noto.locked-with-key",
+      "photo": "encryption",
+      "colour": "icon.icon-park-color.lock-one"
+    },
+    "hash": {
+      "mono": "icon.icon-park-outline.hashtag-key",
+      "emoji": "emoji.noto.input-symbols",
+      "photo": "hash function",
+      "colour": "icon.icon-park-color.keyboard"
+    },
+    "p2p": {
+      "emoji": "emoji.noto.handshake",
+      "photo": "peer to peer",
+      "colour": "icon.icon-park-color.cooperative-handshake"
+    },
+    "trustless": {
+      "emoji": "emoji.noto.handshake",
+      "photo": "trustless system",
+      "colour": "icon.icon-park-color.cooperative-handshake"
+    },
+    "decentralized": {
+      "mono": "icon.carbon.network-3",
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "decentralized network",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "immutable": {
+      "mono": "icon.icon-park-outline.lock",
+      "emoji": "emoji.noto.locked",
+      "photo": "immutable ledger",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "transparent": {
+      "emoji": "emoji.noto.magnifying-glass-tilted-left",
+      "photo": "transparency",
+      "colour": "icon.icon-park-color.search"
+    },
+    "anonymous": {
+      "emoji": "emoji.noto.detective",
+      "photo": "anonymous crypto",
+      "colour": "icon.icon-park-color.search"
+    },
+    "metaverse": {
+      "emoji": "emoji.noto.flying-saucer",
+      "photo": "metaverse",
+      "colour": "icon.icon-park-color.drone"
+    },
+    "playtoearn": {
+      "emoji": "emoji.noto.video-game",
+      "photo": "play to earn",
+      "colour": "icon.icon-park-color.game"
+    },
+    "rwa": {
+      "emoji": "emoji.noto.building-construction",
+      "photo": "real world assets",
+      "colour": "icon.icon-park-color.building-one"
+    },
+    "cbdc": {
+      "emoji": "emoji.noto.bank",
+      "photo": "cbdc digital currency",
+      "colour": "icon.icon-park-color.bank"
+    },
+    "fiat": {
+      "mono": "icon.mingcute.currency-dollar-line",
+      "emoji": "emoji.noto.dollar-banknote",
+      "photo": "fiat currency",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "onramp": {
+      "emoji": "emoji.noto.oncoming-automobile",
+      "photo": "fiat onramp",
+      "colour": "icon.icon-park-color.car"
+    },
+    "regulation": {
+      "mono": "icon.icon-park-outline.scale",
+      "emoji": "emoji.noto.balance-scale",
+      "photo": "crypto regulation",
+      "colour": "icon.icon-park-color.balance"
+    },
+    "cryptotax": {
+      "emoji": "emoji.noto.receipt",
+      "photo": "crypto tax",
+      "colour": "icon.icon-park-color.bill"
+    },
+    "etf": {
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "bitcoin etf",
+      "colour": "icon.icon-park-color.stock-market",
+      "mono": "icon.icon-park-outline.bill"
+    },
+    "futures": {
+      "emoji": "emoji.noto.crystal-ball",
+      "photo": "crypto futures",
+      "colour": "icon.icon-park-color.magic"
+    },
+    "options": {
+      "emoji": "emoji.noto.card-file-box",
+      "photo": "crypto options",
+      "colour": "icon.icon-park-color.box"
+    },
+    "liquidation": {
+      "emoji": "emoji.noto.chart-decreasing",
+      "photo": "liquidation",
+      "colour": "icon.icon-park-color.chart-stock"
+    },
+    "orderbook": {
+      "emoji": "emoji.noto.books",
+      "photo": "order book",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "limitorder": {
+      "emoji": "emoji.noto.bullseye",
+      "photo": "limit order",
+      "colour": "icon.icon-park-color.aiming"
+    },
+    "slippage": {
+      "emoji": "emoji.noto.down-arrow",
+      "photo": "slippage",
+      "colour": "icon.icon-park-color.arrow-down"
+    },
+    "arbitrage": {
+      "emoji": "emoji.noto.left-right-arrow",
+      "photo": "crypto arbitrage",
+      "colour": "icon.icon-park-color.exchange"
+    },
+    "portfolio": {
+      "colour": "icon.icon-park-color.finance",
+      "mono": "icon.ant-design.pie-chart-outlined",
+      "emoji": "emoji.noto.briefcase",
+      "photo": "crypto portfolio"
+    },
+    "trader": {
+      "emoji": "emoji.noto.person",
+      "photo": "crypto trader",
+      "colour": "icon.icon-park-color.avatar"
+    },
+    "technicalanalysis": {
+      "mono": "icon.tabler.chart-candle",
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "technical analysis",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "support": {
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "support level",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "roi": {
+      "emoji": "emoji.noto.money-with-wings",
+      "photo": "roi profit",
+      "colour": "icon.icon-park-color.paper-money-two"
+    },
+    "loss": {
+      "emoji": "emoji.noto.chart-decreasing",
+      "photo": "trading loss",
+      "colour": "icon.icon-park-color.chart-stock"
+    },
+    "dca": {
+      "emoji": "emoji.noto.calendar",
+      "photo": "dollar cost averaging",
+      "colour": "icon.icon-park-color.calendar"
+    },
+    "passiveincome": {
+      "emoji": "emoji.noto.money-bag",
+      "photo": "passive income crypto",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "financialfreedom": {
+      "emoji": "emoji.noto.glowing-star",
+      "photo": "financial freedom",
+      "colour": "icon.icon-park-color.star"
+    },
+    "unbanked": {
+      "emoji": "emoji.noto.bank",
+      "photo": "unbanked banking",
+      "colour": "icon.icon-park-color.bank"
+    },
+    "remittance": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "crypto remittance",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "payment": {
+      "colour": "icon.icon-park-color.flash-payment",
+      "mono": "icon.icon-park-outline.payment-method",
+      "emoji": "emoji.noto.credit-card",
+      "photo": "crypto payment"
+    },
+    "transfer": {
+      "emoji": "emoji.noto.right-arrow",
+      "photo": "crypto transfer",
+      "colour": "icon.icon-park-color.arrow-right"
+    },
+    "swap": {
+      "mono": "icon.tabler.arrows-exchange",
+      "emoji": "emoji.noto.left-right-arrow",
+      "photo": "token swap",
+      "colour": "icon.icon-park-color.exchange"
+    },
+    "qrcode": {
+      "colour": "icon.icon-park-color.pay-code",
+      "mono": "icon.carbon.qr-code",
+      "emoji": "emoji.noto.input-symbols",
+      "photo": "qr code"
+    },
+    "tvl": {
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "total value locked",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "impermanentloss": {
+      "emoji": "emoji.noto.chart-decreasing",
+      "photo": "impermanent loss",
+      "colour": "icon.icon-park-color.chart-stock"
+    },
+    "collateral": {
+      "emoji": "emoji.noto.locked",
+      "photo": "collateral",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "governance": {
+      "emoji": "emoji.noto.ballot-box-with-ballot",
+      "photo": "dao governance vote",
+      "colour": "icon.icon-park-color.checklist"
+    },
+    "treasury": {
+      "emoji": "emoji.noto.money-bag",
+      "photo": "dao treasury",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "community": {
+      "emoji": "emoji.noto.handshake",
+      "photo": "crypto community",
+      "colour": "icon.icon-park-color.cooperative-handshake"
+    },
+    "partnership": {
+      "emoji": "emoji.noto.handshake",
+      "photo": "partnership",
+      "colour": "icon.icon-park-color.cooperative-handshake"
+    },
+    "roadmap": {
+      "emoji": "emoji.noto.world-map",
+      "photo": "project roadmap",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "adoption": {
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "crypto adoption",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "utility": {
+      "emoji": "emoji.noto.toolbox",
+      "photo": "token utility",
+      "colour": "icon.icon-park-color.tool"
+    },
+    "scarcity": {
+      "emoji": "emoji.noto.gem-stone",
+      "photo": "scarcity",
+      "colour": "icon.icon-park-color.diamond"
+    },
+    "supply": {
+      "emoji": "emoji.noto.package",
+      "photo": "token supply",
+      "colour": "icon.icon-park-color.box"
+    },
+    "burn": {
+      "mono": "icon.icon-park-outline.fire",
+      "emoji": "emoji.noto.fire",
+      "photo": "token burn",
+      "colour": "icon.icon-park-color.fire"
+    },
+    "emission": {
+      "emoji": "emoji.noto.calendar",
+      "photo": "token emissions",
+      "colour": "icon.icon-park-color.calendar"
+    },
+    "vesting": {
+      "emoji": "emoji.noto.hourglass-not-done",
+      "photo": "token vesting",
+      "colour": "icon.icon-park-color.hourglass"
+    },
+    "zero knowledge": {
+      "emoji": "emoji.noto.japanese-secret-button",
+      "photo": "zero knowledge proof",
+      "colour": "icon.icon-park-color.key"
+    },
+    "mev": {
+      "emoji": "emoji.noto.robot",
+      "photo": "mev bots",
+      "colour": "icon.icon-park-color.robot"
+    },
+    "slashing": {
+      "emoji": "emoji.noto.scissors",
+      "photo": "validator slashing",
+      "colour": "icon.icon-park-color.scissors"
+    },
+    "finality": {
+      "emoji": "emoji.noto.check-mark",
+      "photo": "transaction finality",
+      "colour": "icon.icon-park-color.check"
+    },
+    "blockexplorer": {
+      "emoji": "emoji.noto.magnifying-glass-tilted-left",
+      "photo": "block explorer",
+      "colour": "icon.icon-park-color.search"
+    },
+    "ipfs": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "ipfs storage",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "ens": {
+      "emoji": "emoji.noto.label",
+      "photo": "ens domain",
+      "colour": "icon.icon-park-color.label"
+    },
+    "did": {
+      "emoji": "emoji.noto.identification-card",
+      "photo": "decentralized identity",
+      "colour": "icon.icon-park-color.id-card"
+    },
+    "accountabstraction": {
+      "emoji": "emoji.noto.gear",
+      "photo": "account abstraction",
+      "colour": "icon.icon-park-color.setting"
+    },
+    "seedless": {
+      "emoji": "emoji.noto.key",
+      "photo": "seedless wallet",
+      "colour": "icon.icon-park-color.key"
+    },
+    "insurance": {
+      "mono": "icon.icon-park-outline.lock-one",
+      "emoji": "emoji.noto.umbrella",
+      "photo": "crypto insurance",
+      "colour": "icon.icon-park-color.umbrella"
+    },
+    "bugbounty": {
+      "emoji": "emoji.noto.money-bag",
+      "photo": "bug bounty",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "opensource": {
+      "colour": "icon.icon-park-color.github",
+      "mono": "icon.icon-park-outline.folder-open",
+      "emoji": "emoji.noto.open-book",
+      "photo": "open source code"
+    },
+    "faucet": {
+      "emoji": "emoji.noto.potable-water",
+      "photo": "testnet faucet",
+      "colour": "icon.icon-park-color.water"
+    },
+    "reward": {
+      "mono": "icon.lucide.award",
+      "emoji": "emoji.noto.trophy",
+      "photo": "crypto rewards",
+      "colour": "icon.icon-park-color.trophy"
+    },
+    "whalealert": {
+      "emoji": "emoji.noto.whale",
+      "photo": "whale alert",
+      "colour": "icon.icon-park-color.whale"
+    },
+    "web3": {
+      "colour": "brand.logos.web3js",
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "web3"
+    },
+    "coinbase": {
+      "colour": "brand.si.coinbase",
+      "photo": "coinbase"
+    },
+    "kraken": {
+      "colour": "brand.logos.kraken",
+      "photo": "kraken"
+    },
+    "okx": {
+      "colour": "brand.si.okx",
+      "photo": "okx"
+    },
+    "kucoin": {
+      "colour": "brand.si.kucoin",
+      "photo": "kucoin"
+    },
+    "metamask": {
+      "colour": "brand.logos.metamask",
+      "emoji": "emoji.noto.fox",
+      "photo": "metamask wallet"
+    },
+    "phantomwallet": {
+      "emoji": "emoji.noto.ghost",
+      "photo": "phantom wallet",
+      "colour": "icon.icon-park-color.ghost"
+    },
+    "trezorwallet": {
+      "colour": "brand.si.trezor",
+      "photo": "trezor"
+    },
+    "ledgerwallet": {
+      "emoji": "emoji.noto.ledger",
+      "photo": "ledger wallet",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "uniswap": {
+      "emoji": "emoji.noto.unicorn",
+      "photo": "uniswap",
+      "colour": "icon.icon-park-color.exchange",
+      "mono": "icon.icon-park-outline.exchange"
+    },
+    "pancakeswap": {
+      "emoji": "emoji.noto.pancakes",
+      "photo": "pancakeswap",
+      "colour": "icon.icon-park-color.cake"
+    },
+    "opensea": {
+      "colour": "brand.si.opensea",
+      "photo": "opensea"
+    },
+    "rarible": {
+      "colour": "brand.si.rarible",
+      "photo": "rarible"
+    },
+    "coinmarketcap": {
+      "colour": "brand.si.coinmarketcap",
+      "photo": "coinmarketcap"
+    },
+    "coingecko": {
+      "emoji": "emoji.noto.lizard",
+      "photo": "coingecko",
+      "colour": "icon.icon-park-color.frog"
+    },
+    "tradingview": {
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "tradingview",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "etherscanbrand": {
+      "emoji": "emoji.noto.magnifying-glass-tilted-left",
+      "photo": "etherscan",
+      "colour": "icon.icon-park-color.search"
+    },
+    "binancechain": {
+      "colour": "brand.si.bnbchain",
+      "photo": "bnb chain"
+    },
+    "ethereumchain": {
+      "colour": "brand.logos.ethereum",
+      "photo": "ethereum network"
+    },
+    "solanachain": {
+      "colour": "brand.si.solana",
+      "photo": "solana network"
+    },
+    "wbtc": {
+      "photo": "wrapped bitcoin",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "dai": {
+      "photo": "dai stablecoin",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "lido": {
+      "photo": "lido staking",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "aave": {
+      "emoji": "emoji.noto.ghost",
+      "photo": "aave",
+      "colour": "icon.icon-park-color.ghost"
+    },
+    "curve": {
+      "photo": "curve finance",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "gnosissafe": {
+      "emoji": "emoji.noto.locked",
+      "photo": "safe multisig",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "worldcoin": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "worldcoin",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "hederanetwork": {
+      "colour": "brand.si.hedera",
+      "photo": "hedera network"
+    },
+    "market": {
+      "colour": "icon.icon-park-color.market-analysis",
+      "mono": "icon.icon-park-outline.shop",
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "crypto market"
+    },
+    "price": {
+      "mono": "icon.ant-design.tag-outlined",
+      "emoji": "emoji.noto.label",
+      "photo": "token price",
+      "colour": "icon.icon-park-color.label"
+    },
+    "buythedip": {
+      "emoji": "emoji.noto.shopping-cart",
+      "photo": "buy the dip",
+      "colour": "icon.icon-park-color.shopping"
+    },
+    "greenflag": {
+      "emoji": "emoji.noto.check-mark-button",
+      "photo": "green flag",
+      "colour": "icon.icon-park-color.check"
+    },
+    "dyor": {
+      "emoji": "emoji.noto.magnifying-glass-tilted-left",
+      "photo": "dyor research",
+      "colour": "icon.icon-park-color.search"
+    },
+    "shill": {
+      "emoji": "emoji.noto.megaphone",
+      "photo": "shilling token",
+      "colour": "icon.icon-park-color.announcement"
+    },
+    "bagholder": {
+      "emoji": "emoji.noto.shopping-bags",
+      "photo": "bag holder",
+      "colour": "icon.icon-park-color.shopping"
+    },
+    "gem": {
+      "colour": "icon.icon-park-color.diamond",
+      "mono": "icon.lucide.gem",
+      "emoji": "emoji.noto.gem-stone",
+      "photo": "hidden gem"
+    },
+    "rocketship": {
+      "colour": "icon.icon-park-color.rocket",
+      "mono": "icon.icon-park-outline.rocket",
+      "emoji": "emoji.noto.rocket",
+      "photo": "rocket crypto"
+    },
+    "candle": {
+      "mono": "icon.tabler.chart-candle",
+      "emoji": "emoji.noto.candle",
+      "photo": "green candle",
+      "colour": "icon.icon-park-color.chart-stock"
+    },
+    "bubblechart": {
+      "emoji": "emoji.noto.bubbles",
+      "photo": "bubble",
+      "colour": "icon.icon-park-color.comment"
+    },
+    "onchaindata": {
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "on-chain data",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "smartcontractdev": {
+      "emoji": "emoji.noto.laptop",
+      "photo": "solidity developer",
+      "colour": "icon.icon-park-color.laptop"
+    },
+    "gasless": {
+      "emoji": "emoji.noto.free-button",
+      "photo": "gasless transactions",
+      "colour": "icon.icon-park-color.label"
+    },
+    "watchlist": {
+      "emoji": "emoji.noto.eyes",
+      "photo": "watchlist",
+      "colour": "icon.icon-park-color.eyes"
+    },
+    "seedround": {
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "crypto funding",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "mainstream": {
+      "emoji": "emoji.noto.television",
+      "photo": "mainstream crypto",
+      "colour": "icon.icon-park-color.monitor"
+    },
+    "deadcoin": {
+      "emoji": "emoji.noto.skull",
+      "photo": "dead coin",
+      "colour": "icon.icon-park-color.skull"
+    },
+    "sharktank": {
+      "emoji": "emoji.noto.shark",
+      "photo": "crypto shark",
+      "colour": "icon.icon-park-color.fish"
+    },
+    "influencer": {
+      "emoji": "emoji.noto.megaphone",
+      "photo": "crypto influencer",
+      "colour": "icon.icon-park-color.announcement"
+    },
+    "telegram": {
+      "colour": "brand.logos.telegram",
+      "emoji": "emoji.noto.envelope-with-arrow",
+      "photo": "telegram"
+    },
+    "discord": {
+      "colour": "brand.logos.discord",
+      "photo": "discord"
+    },
+    "twitterx": {
+      "colour": "brand.si.x",
+      "photo": "twitter x"
+    },
+    "reddit": {
+      "colour": "brand.si.reddit",
+      "photo": "reddit"
+    },
+    "youtube": {
+      "colour": "brand.logos.youtube",
+      "photo": "youtube"
+    },
+    "news": {
+      "mono": "icon.ant-design.file-text-outlined",
+      "emoji": "emoji.noto.newspaper",
+      "photo": "crypto news",
+      "colour": "icon.icon-park-color.page"
+    },
+    "calendar": {
+      "mono": "icon.icon-park-outline.calendar",
+      "emoji": "emoji.noto.calendar",
+      "photo": "crypto calendar",
+      "colour": "icon.icon-park-color.calendar"
+    },
+    "questionmark": {
+      "emoji": "emoji.noto.red-question-mark",
+      "photo": "crypto question",
+      "colour": "icon.icon-park-color.help"
+    },
+    "success": {
+      "colour": "icon.icon-park-color.success",
+      "mono": "icon.ant-design.check-circle-outlined",
+      "emoji": "emoji.noto.check-mark-button",
+      "photo": "success"
+    },
+    "fail": {
+      "mono": "icon.icon-park-outline.minus",
+      "emoji": "emoji.noto.cross-mark",
+      "photo": "failure",
+      "colour": "icon.icon-park-color.close"
+    },
+    "security": {
+      "colour": "icon.icon-park-color.security",
+      "mono": "icon.icon-park-outline.shield",
+      "emoji": "emoji.noto.shield",
+      "photo": "crypto security"
+    },
+    "privacy": {
+      "colour": "icon.icon-park-color.personal-privacy",
+      "mono": "icon.icon-park-outline.lock",
+      "emoji": "emoji.noto.locked",
+      "photo": "privacy"
+    },
+    "analytics": {
+      "mono": "icon.carbon.chart-line",
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "crypto analytics",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "moneygeneric": {
+      "colour": "icon.icon-park-color.paper-money",
+      "mono": "icon.icon-park-outline.paper-money",
+      "emoji": "emoji.noto.money-bag",
+      "photo": "money"
+    },
+    "savings": {
+      "mono": "icon.carbon.piggy-bank",
+      "emoji": "emoji.noto.pig-face",
+      "photo": "savings",
+      "colour": "icon.icon-park-color.pig"
+    },
+    "goal": {
+      "colour": "icon.icon-park-color.target",
+      "mono": "icon.carbon.chart-bar-target",
+      "emoji": "emoji.noto.bullseye",
+      "photo": "goal"
+    },
+    "question": {
+      "emoji": "emoji.noto.red-question-mark",
+      "photo": "question",
+      "colour": "icon.icon-park-color.help"
+    },
+    "docs": {
+      "emoji": "emoji.noto.books",
+      "photo": "documentation",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "api": {
+      "mono": "icon.carbon.api",
+      "emoji": "emoji.noto.desktop-computer",
+      "photo": "crypto api",
+      "colour": "icon.icon-park-color.computer"
+    },
+    "developer": {
+      "colour": "icon.icon-park-color.code-computer",
+      "mono": "icon.icon-park-outline.code-computer",
+      "emoji": "emoji.noto.laptop",
+      "photo": "developer"
+    },
+    "integration2": {
+      "mono": "icon.icon-park-outline.puzzle",
+      "emoji": "emoji.noto.puzzle-piece",
+      "photo": "integration",
+      "colour": "icon.icon-park-color.puzzle"
+    },
+    "fees": {
+      "emoji": "emoji.noto.coin",
+      "photo": "low fees",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "scale": {
+      "emoji": "emoji.noto.bar-chart",
+      "photo": "scaling",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "audittrail": {
+      "emoji": "emoji.noto.magnifying-glass-tilted-left",
+      "photo": "audit trail",
+      "colour": "icon.icon-park-color.search"
+    },
+    "permanent": {
+      "emoji": "emoji.noto.locked",
+      "photo": "permanent record",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "middleman": {
+      "emoji": "emoji.noto.no-entry",
+      "photo": "no middleman",
+      "colour": "icon.icon-park-color.caution"
+    },
+    "ownership": {
+      "emoji": "emoji.noto.key",
+      "photo": "true ownership",
+      "colour": "icon.icon-park-color.key"
+    },
+    "borderless": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "borderless money",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "peertopeer": {
+      "emoji": "emoji.noto.handshake",
+      "photo": "peer to peer",
+      "colour": "icon.icon-park-color.cooperative-handshake"
+    },
+    "clock247": {
+      "emoji": "emoji.noto.alarm-clock",
+      "photo": "24/7 markets",
+      "colour": "icon.icon-park-color.alarm-clock"
+    },
+    "banking": {
+      "mono": "icon.icon-park-outline.bank",
+      "emoji": "emoji.noto.bank",
+      "photo": "banking",
+      "colour": "icon.icon-park-color.bank"
+    },
+    "government": {
+      "emoji": "emoji.noto.bank",
+      "photo": "government",
+      "colour": "icon.icon-park-color.bank"
+    },
+    "creditcard": {
+      "colour": "icon.icon-park-color.bank-card",
+      "mono": "icon.icon-park-outline.bank-card",
+      "emoji": "emoji.noto.credit-card",
+      "photo": "credit card"
+    },
+    "percent": {
+      "colour": "icon.icon-park-color.percentage",
+      "mono": "icon.icon-park-outline.percentage",
+      "emoji": "emoji.noto.japanese-discount-button",
+      "photo": "percent"
+    },
+    "cashback": {
+      "emoji": "emoji.noto.money-with-wings",
+      "photo": "cashback",
+      "colour": "icon.icon-park-color.paper-money-two"
+    },
+    "walletconnect": {
+      "emoji": "emoji.noto.link",
+      "photo": "wallet connect",
+      "colour": "icon.icon-park-color.link"
+    },
+    "delegation": {
+      "emoji": "emoji.noto.handshake",
+      "photo": "delegation",
+      "colour": "icon.icon-park-color.cooperative-handshake"
+    },
+    "epoch": {
+      "emoji": "emoji.noto.calendar",
+      "photo": "epoch",
+      "colour": "icon.icon-park-color.calendar"
+    },
+    "nodeoperator": {
+      "emoji": "emoji.noto.desktop-computer",
+      "photo": "node operator",
+      "colour": "icon.icon-park-color.computer"
+    },
+    "airgap": {
+      "emoji": "emoji.noto.locked",
+      "photo": "air gapped",
+      "colour": "icon.icon-park-color.lock"
+    },
+    "passkey": {
+      "emoji": "emoji.noto.key",
+      "photo": "passkey",
+      "colour": "icon.icon-park-color.key"
+    },
+    "socialfi": {
+      "emoji": "emoji.noto.speech-balloon",
+      "photo": "socialfi",
+      "colour": "icon.icon-park-color.comment"
+    },
+    "depin": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "depin network",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "ordinals": {
+      "photo": "bitcoin ordinals",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "runes": {
+      "photo": "bitcoin runes",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "erc20": {
+      "photo": "erc-20 token",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "liquidtoken": {
+      "emoji": "emoji.noto.droplet",
+      "photo": "liquid token",
+      "colour": "icon.icon-park-color.water"
+    },
+    "restaking": {
+      "emoji": "emoji.noto.repeat-button",
+      "photo": "restaking",
+      "colour": "icon.icon-park-color.cycle"
+    },
+    "modular": {
+      "emoji": "emoji.noto.puzzle-piece",
+      "photo": "modular blockchain",
+      "colour": "icon.icon-park-color.puzzle"
+    },
+    "dataavailability": {
+      "photo": "data availability",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "sequencer": {
+      "photo": "sequencer",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "onchain": {
+      "emoji": "emoji.noto.link",
+      "photo": "on chain",
+      "colour": "icon.icon-park-color.link"
+    },
+    "gasfee2": {
+      "emoji": "emoji.noto.coin",
+      "photo": "gas fees",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "whitelist": {
+      "emoji": "emoji.noto.check-box-with-check",
+      "photo": "whitelist",
+      "colour": "icon.icon-park-color.checklist"
+    },
+    "snapshot": {
+      "emoji": "emoji.noto.camera",
+      "photo": "snapshot vote",
+      "colour": "icon.icon-park-color.camera"
+    },
+    "multichain": {
+      "emoji": "emoji.noto.chains",
+      "photo": "multichain",
+      "colour": "icon.icon-park-color.link"
+    },
+    "cosmosnetwork": {
+      "photo": "cosmos network",
+      "mono": "icon.mingcute.coin-line",
+      "colour": "icon.icon-park-color.paper-money",
+      "emoji": "emoji.noto.coin"
+    },
+    "clawback": {
+      "emoji": "emoji.noto.left-arrow",
+      "photo": "clawback",
+      "colour": "icon.icon-park-color.arrow-left"
+    },
+    "insurtech": {
+      "emoji": "emoji.noto.umbrella",
+      "photo": "insurance",
+      "colour": "icon.icon-park-color.umbrella"
+    },
+    "atomic": {
+      "emoji": "emoji.noto.atom-symbol",
+      "photo": "atomic swap",
+      "colour": "icon.icon-park-color.experiment"
+    },
+    "settlement": {
+      "emoji": "emoji.noto.check-mark",
+      "photo": "settlement",
+      "colour": "icon.icon-park-color.check"
+    },
+    "provenance": {
+      "emoji": "emoji.noto.scroll",
+      "photo": "provenance",
+      "colour": "icon.icon-park-color.agreement"
+    },
+    "digitalidentity2": {
+      "emoji": "emoji.noto.identification-card",
+      "photo": "digital identity",
+      "colour": "icon.icon-park-color.id-card"
+    },
+    "prediction": {
+      "emoji": "emoji.noto.crystal-ball",
+      "photo": "prediction market",
+      "colour": "icon.icon-park-color.magic"
+    },
+    "lottery": {
+      "emoji": "emoji.noto.slot-machine",
+      "photo": "crypto lottery",
+      "colour": "icon.icon-park-color.game"
+    },
+    "gameasset": {
+      "emoji": "emoji.noto.video-game",
+      "photo": "game assets",
+      "colour": "icon.icon-park-color.game"
+    },
+    "creator": {
+      "emoji": "emoji.noto.artist-palette",
+      "photo": "content creator",
+      "colour": "icon.icon-park-color.color-card"
+    },
+    "musician": {
+      "emoji": "emoji.noto.musical-note",
+      "photo": "music nft",
+      "colour": "icon.icon-park-color.music"
+    },
+    "realestate": {
+      "emoji": "emoji.noto.building-construction",
+      "photo": "real estate",
+      "colour": "icon.icon-park-color.building-one"
+    },
+    "goldtoken": {
+      "emoji": "emoji.noto.crown",
+      "photo": "gold backed token",
+      "colour": "icon.icon-park-color.crown"
+    },
+    "stocks": {
+      "emoji": "emoji.noto.chart-increasing",
+      "photo": "tokenized stocks",
+      "colour": "icon.icon-park-color.analysis"
+    },
+    "tradfi": {
+      "emoji": "emoji.noto.bank",
+      "photo": "traditional finance",
+      "colour": "icon.icon-park-color.bank"
+    },
+    "bankless2": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "bankless",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "openai": {
+      "colour": "brand.logos.openai",
+      "photo": "openai"
+    },
+    "anthropic": {
+      "colour": "brand.logos.anthropic",
+      "photo": "anthropic"
+    },
+    "claude": {
+      "colour": "brand.logos.claude",
+      "photo": "claude ai"
+    },
+    "gemini": {
+      "colour": "brand.logos.google-gemini",
+      "photo": "google gemini"
+    },
+    "mistral": {
+      "colour": "brand.logos.mistral-ai",
+      "photo": "mistral ai"
+    },
+    "deepseek": {
+      "colour": "brand.logos.deepseek",
+      "photo": "deepseek"
+    },
+    "grok": {
+      "colour": "brand.logos.grok",
+      "photo": "grok"
+    },
+    "perplexity": {
+      "colour": "brand.logos.perplexity",
+      "photo": "perplexity"
+    },
+    "huggingface": {
+      "colour": "brand.logos.hugging-face",
+      "emoji": "emoji.noto.hugging-face",
+      "photo": "hugging face"
+    },
+    "ollama": {
+      "colour": "brand.si.ollama",
+      "photo": "ollama"
+    },
+    "midjourney": {
+      "colour": "brand.logos.midjourney",
+      "photo": "midjourney"
+    },
+    "stabilityai": {
+      "colour": "brand.logos.stability-ai",
+      "photo": "stability ai"
+    },
+    "elevenlabs": {
+      "colour": "brand.logos.elevenlabs",
+      "photo": "elevenlabs"
+    },
+    "suno": {
+      "colour": "brand.si.suno",
+      "photo": "suno ai"
+    },
+    "nvidia": {
+      "colour": "brand.logos.nvidia",
+      "photo": "nvidia gpu"
+    },
+    "amd": {
+      "colour": "brand.logos.amd",
+      "photo": "amd gpu"
+    },
+    "intel": {
+      "colour": "brand.logos.intel",
+      "photo": "intel"
+    },
+    "qualcomm": {
+      "colour": "brand.logos.qualcomm",
+      "photo": "qualcomm"
+    },
+    "githubcopilot": {
+      "colour": "brand.logos.github-copilot",
+      "photo": "github copilot"
+    },
+    "cursor": {
+      "colour": "brand.logos.cursor",
+      "photo": "cursor ai"
+    },
+    "windsurf": {
+      "colour": "brand.si.windsurf",
+      "photo": "windsurf"
+    },
+    "replit": {
+      "colour": "brand.logos.replit",
+      "photo": "replit"
+    },
+    "lovable": {
+      "colour": "brand.logos.lovable",
+      "photo": "lovable"
+    },
+    "vercel": {
+      "colour": "brand.logos.vercel",
+      "photo": "vercel"
+    },
+    "zapier": {
+      "colour": "brand.logos.zapier",
+      "photo": "zapier"
+    },
+    "n8n": {
+      "colour": "brand.logos.n8n",
+      "photo": "n8n"
+    },
+    "notion": {
+      "colour": "brand.logos.notion",
+      "photo": "notion ai"
+    },
+    "figma": {
+      "colour": "brand.logos.figma",
+      "photo": "figma"
+    },
+    "grammarly": {
+      "colour": "brand.logos.grammarly",
+      "photo": "grammarly"
+    },
+    "deepl": {
+      "colour": "brand.si.deepl",
+      "photo": "deepl"
+    },
+    "descript": {
+      "colour": "brand.logos.descript",
+      "photo": "descript"
+    },
+    "tensorflow": {
+      "colour": "brand.logos.tensorflow",
+      "photo": "tensorflow"
+    },
+    "pytorch": {
+      "colour": "brand.logos.pytorch",
+      "photo": "pytorch"
+    },
+    "keras": {
+      "colour": "brand.si.keras",
+      "photo": "keras"
+    },
+    "scikitlearn": {
+      "colour": "brand.si.scikitlearn",
+      "photo": "scikit learn"
+    },
+    "onnx": {
+      "colour": "brand.si.onnx",
+      "photo": "onnx"
+    },
+    "opencv": {
+      "colour": "brand.logos.opencv",
+      "photo": "opencv"
+    },
+    "langchain": {
+      "colour": "brand.si.langchain",
+      "photo": "langchain"
+    },
+    "llamaindex": {
+      "emoji": "emoji.noto.books",
+      "photo": "llamaindex",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "haystack": {
+      "colour": "brand.si.haystack",
+      "photo": "haystack ai"
+    },
+    "vllm": {
+      "colour": "brand.si.vllm",
+      "photo": "vllm"
+    },
+    "pinecone": {
+      "colour": "brand.logos.pinecone",
+      "photo": "pinecone"
+    },
+    "qdrant": {
+      "colour": "brand.logos.qdrant",
+      "photo": "qdrant"
+    },
+    "milvus": {
+      "colour": "brand.logos.milvus",
+      "photo": "milvus"
+    },
+    "chroma": {
+      "colour": "brand.logos.chroma",
+      "photo": "chroma db"
+    },
+    "crewai": {
+      "colour": "brand.si.crewai",
+      "photo": "crewai"
+    },
+    "dify": {
+      "colour": "brand.si.dify",
+      "photo": "dify"
+    },
+    "gradio": {
+      "colour": "brand.logos.gradio",
+      "photo": "gradio"
+    },
+    "streamlit": {
+      "colour": "brand.logos.streamlit",
+      "photo": "streamlit"
+    },
+    "replicate": {
+      "colour": "brand.si.replicate",
+      "photo": "replicate"
+    },
+    "openrouter": {
+      "colour": "brand.si.openrouter",
+      "photo": "openrouter"
+    },
+    "kaggle": {
+      "colour": "brand.si.kaggle",
+      "photo": "kaggle"
+    },
+    "jupyter": {
+      "colour": "brand.logos.jupyter",
+      "photo": "jupyter"
+    },
+    "mcp": {
+      "colour": "brand.si.modelcontextprotocol",
+      "photo": "model context protocol"
+    },
+    "metaai": {
+      "colour": "brand.si.metaai",
+      "photo": "meta ai"
+    },
+    "moonshot": {
+      "colour": "brand.logos.moonshot-ai",
+      "photo": "moonshot ai"
+    },
+    "supabase": {
+      "colour": "brand.logos.supabase",
+      "photo": "supabase"
+    },
+    "firebase": {
+      "colour": "brand.logos.firebase",
+      "photo": "firebase"
+    },
+    "docker": {
+      "colour": "brand.logos.docker",
+      "photo": "docker"
+    },
+    "kubernetes": {
+      "colour": "brand.logos.kubernetes",
+      "photo": "kubernetes"
+    },
+    "github": {
+      "colour": "brand.logos.github",
+      "photo": "github"
+    },
+    "python": {
+      "colour": "brand.logos.python",
+      "photo": "python"
+    },
+    "googlegeneric": {
+      "colour": "brand.logos.google",
+      "photo": "google"
+    },
+    "microsoft": {
+      "colour": "brand.logos.microsoft",
+      "photo": "microsoft"
+    },
+    "metageneric": {
+      "colour": "brand.logos.meta",
+      "photo": "meta"
+    },
+    "amazon": {
+      "photo": "amazon aws",
+      "mono": "icon.icon-park-outline.brain",
+      "colour": "icon.icon-park-color.brain",
+      "emoji": "emoji.noto.brain"
+    },
+    "stripe": {
+      "colour": "brand.logos.stripe",
+      "photo": "stripe"
+    },
+    "slack": {
+      "colour": "brand.logos.slack",
+      "photo": "slack"
+    },
+    "spotify": {
+      "colour": "brand.logos.spotify",
+      "photo": "spotify"
+    },
+    "tiktok": {
+      "colour": "brand.logos.tiktok",
+      "photo": "tiktok"
+    },
+    "machinelearning": {
+      "mono": "icon.icon-park-outline.brain",
+      "emoji": "emoji.noto.brain",
+      "photo": "machine learning",
+      "colour": "icon.icon-park-color.brain"
+    },
+    "deeplearning": {
+      "mono": "icon.carbon.network-4",
+      "emoji": "emoji.noto.brain",
+      "photo": "deep learning",
+      "colour": "icon.icon-park-color.brain"
+    },
+    "neuralnetwork": {
+      "colour": "icon.icon-park-color.neural",
+      "mono": "icon.carbon.network-4",
+      "emoji": "emoji.noto.brain",
+      "photo": "neural network"
+    },
+    "transformer": {
+      "mono": "icon.carbon.network-4",
+      "emoji": "emoji.noto.brain",
+      "photo": "transformer model",
+      "colour": "icon.icon-park-color.brain"
+    },
+    "llm": {
+      "colour": "icon.icon-park-color.neural",
+      "mono": "icon.icon-park-outline.brain",
+      "emoji": "emoji.noto.speech-balloon",
+      "photo": "large language model"
+    },
+    "generativeai": {
+      "colour": "icon.icon-park-color.magic",
+      "mono": "icon.icon-park-outline.magic",
+      "emoji": "emoji.noto.sparkles",
+      "photo": "generative ai"
+    },
+    "diffusion": {
+      "emoji": "emoji.noto.artist-palette",
+      "photo": "diffusion model",
+      "colour": "icon.icon-park-color.color-card"
+    },
+    "prompt": {
+      "colour": "icon.icon-park-color.code-computer",
+      "mono": "icon.icon-park-outline.edit-name",
+      "emoji": "emoji.noto.memo",
+      "photo": "ai prompt"
+    },
+    "contextwindow": {
+      "emoji": "emoji.noto.window",
+      "photo": "context window",
+      "colour": "icon.icon-park-color.browser"
+    },
+    "aitoken": {
+      "emoji": "emoji.noto.input-symbols",
+      "photo": "llm tokens",
+      "colour": "icon.icon-park-color.keyboard"
+    },
+    "embedding": {
+      "mono": "icon.carbon.chart-line-data",
+      "emoji": "emoji.noto.dizzy",
+      "photo": "vector embeddings",
+      "colour": "icon.icon-park-color.dizzy-face"
+    },
+    "vectordb": {
+      "colour": "icon.icon-park-color.database-code",
+      "mono": "icon.ant-design.database-outlined",
+      "emoji": "emoji.noto.card-file-box",
+      "photo": "vector database"
+    },
+    "rag": {
+      "emoji": "emoji.noto.books",
+      "photo": "retrieval augmented generation",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "finetuning": {
+      "mono": "icon.carbon.settings-adjust",
+      "emoji": "emoji.noto.control-knobs",
+      "photo": "fine tuning",
+      "colour": "icon.icon-park-color.config"
+    },
+    "training": {
+      "emoji": "emoji.noto.hammer-and-wrench",
+      "photo": "model training",
+      "colour": "icon.icon-park-color.hammer-and-anvil"
+    },
+    "inference": {
+      "emoji": "emoji.noto.fast-forward-button",
+      "photo": "model inference",
+      "colour": "icon.icon-park-color.arrow-right"
+    },
+    "agent": {
+      "colour": "icon.icon-park-color.robot",
+      "mono": "icon.icon-park-outline.robot",
+      "emoji": "emoji.noto.robot",
+      "photo": "ai agent"
+    },
+    "tooluse": {
+      "emoji": "emoji.noto.toolbox",
+      "photo": "ai tool use",
+      "colour": "icon.icon-park-color.tool"
+    },
+    "automation": {
+      "colour": "icon.icon-park-color.robot-one",
+      "mono": "icon.icon-park-outline.robot",
+      "emoji": "emoji.noto.gear",
+      "photo": "ai automation"
+    },
+    "chatbot": {
+      "colour": "icon.icon-park-color.communication",
+      "mono": "icon.icon-park-outline.message",
+      "emoji": "emoji.noto.speech-balloon",
+      "photo": "ai chatbot"
+    },
+    "assistant": {
+      "emoji": "emoji.noto.speech-balloon",
+      "photo": "ai assistant",
+      "colour": "icon.icon-park-color.comment"
+    },
+    "copilotconcept": {
+      "emoji": "emoji.noto.airplane",
+      "photo": "ai copilot",
+      "colour": "icon.icon-park-color.airplane"
+    },
+    "avatar": {
+      "emoji": "emoji.noto.bust-in-silhouette",
+      "photo": "ai avatar",
+      "colour": "icon.icon-park-color.avatar"
+    },
+    "voiceclone": {
+      "colour": "icon.icon-park-color.voice",
+      "mono": "icon.ri.chat-voice-line",
+      "emoji": "emoji.noto.microphone",
+      "photo": "voice cloning"
+    },
+    "tts": {
+      "emoji": "emoji.noto.speaker-high-volume",
+      "photo": "text to speech",
+      "colour": "icon.icon-park-color.speaker"
+    },
+    "stt": {
+      "emoji": "emoji.noto.microphone",
+      "photo": "speech to text",
+      "colour": "icon.icon-park-color.microphone"
+    },
+    "nlp": {
+      "emoji": "emoji.noto.books",
+      "photo": "natural language processing",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "computervision": {
+      "colour": "icon.icon-park-color.eyes",
+      "mono": "icon.lucide.eye",
+      "emoji": "emoji.noto.eye",
+      "photo": "computer vision"
+    },
+    "ocr": {
+      "emoji": "emoji.noto.page-facing-up",
+      "photo": "ocr text extraction",
+      "colour": "icon.icon-park-color.page"
+    },
+    "facerecognition": {
+      "emoji": "emoji.noto.eye",
+      "photo": "face recognition",
+      "colour": "icon.icon-park-color.eyes"
+    },
+    "imagegen": {
+      "colour": "icon.icon-park-color.picture",
+      "mono": "icon.icon-park-outline.picture-album",
+      "emoji": "emoji.noto.framed-picture",
+      "photo": "ai image generation"
+    },
+    "videogen": {
+      "colour": "icon.icon-park-color.video",
+      "mono": "icon.ant-design.video-camera-outlined",
+      "emoji": "emoji.noto.movie-camera",
+      "photo": "ai video generation"
+    },
+    "audiogen": {
+      "emoji": "emoji.noto.musical-note",
+      "photo": "ai music generation",
+      "colour": "icon.icon-park-color.music"
+    },
+    "codegen": {
+      "colour": "icon.icon-park-color.code",
+      "mono": "icon.icon-park-outline.code",
+      "emoji": "emoji.noto.laptop",
+      "photo": "ai code generation"
+    },
+    "hallucination": {
+      "emoji": "emoji.noto.face-in-clouds",
+      "photo": "ai hallucination",
+      "colour": "icon.icon-park-color.dizzy-face"
+    },
+    "bias": {
+      "emoji": "emoji.noto.balance-scale",
+      "photo": "ai bias",
+      "colour": "icon.icon-park-color.balance"
+    },
+    "alignment": {
+      "emoji": "emoji.noto.bullseye",
+      "photo": "ai alignment",
+      "colour": "icon.icon-park-color.aiming"
+    },
+    "aisafety": {
+      "colour": "icon.icon-park-color.security",
+      "mono": "icon.icon-park-outline.shield",
+      "emoji": "emoji.noto.shield",
+      "photo": "ai safety"
+    },
+    "explainable": {
+      "emoji": "emoji.noto.magnifying-glass-tilted-left",
+      "photo": "explainable ai",
+      "colour": "icon.icon-park-color.search"
+    },
+    "evaluation": {
+      "emoji": "emoji.noto.clipboard",
+      "photo": "model evaluation",
+      "colour": "icon.icon-park-color.clipboard"
+    },
+    "dataset": {
+      "colour": "icon.icon-park-color.database-code",
+      "mono": "icon.ant-design.database-outlined",
+      "emoji": "emoji.noto.card-index",
+      "photo": "training dataset"
+    },
+    "parameters": {
+      "emoji": "emoji.noto.control-knobs",
+      "photo": "model parameters",
+      "colour": "icon.icon-park-color.config"
+    },
+    "quantization": {
+      "emoji": "emoji.noto.scissors",
+      "photo": "model quantization",
+      "colour": "icon.icon-park-color.scissors"
+    },
+    "distillation": {
+      "emoji": "emoji.noto.test-tube",
+      "photo": "model distillation",
+      "colour": "icon.icon-park-color.test-tube"
+    },
+    "opensourceai": {
+      "colour": "icon.icon-park-color.github",
+      "mono": "icon.icon-park-outline.folder-open",
+      "emoji": "emoji.noto.open-book",
+      "photo": "open source ai"
+    },
+    "gpu": {
+      "colour": "icon.icon-park-color.cpu",
+      "mono": "icon.icon-park-outline.cpu",
+      "emoji": "emoji.noto.desktop-computer",
+      "photo": "gpu"
+    },
+    "edge": {
+      "emoji": "emoji.noto.mobile-phone",
+      "photo": "edge ai",
+      "colour": "icon.icon-park-color.phone"
+    },
+    "cloudai": {
+      "colour": "icon.icon-park-color.cloud-storage",
+      "mono": "icon.icon-park-outline.cloud-storage",
+      "emoji": "emoji.noto.cloud",
+      "photo": "cloud ai"
+    },
+    "agi": {
+      "emoji": "emoji.noto.brain",
+      "photo": "artificial general intelligence",
+      "colour": "icon.icon-park-color.brain"
+    },
+    "singularity": {
+      "emoji": "emoji.noto.cyclone",
+      "photo": "ai singularity",
+      "colour": "icon.icon-park-color.wind"
+    },
+    "regulation_ai": {
+      "emoji": "emoji.noto.balance-scale",
+      "photo": "ai regulation",
+      "colour": "icon.icon-park-color.balance"
+    },
+    "copyright": {
+      "emoji": "emoji.noto.page-facing-up",
+      "photo": "ai copyright",
+      "colour": "icon.icon-park-color.page"
+    },
+    "watermark": {
+      "emoji": "emoji.noto.label",
+      "photo": "ai watermark",
+      "colour": "icon.icon-park-color.label"
+    },
+    "syntheticdata": {
+      "emoji": "emoji.noto.test-tube",
+      "photo": "synthetic data",
+      "colour": "icon.icon-park-color.test-tube"
+    },
+    "humanintheloop": {
+      "emoji": "emoji.noto.person",
+      "photo": "human in the loop",
+      "colour": "icon.icon-park-color.avatar"
+    },
+    "selfdriving": {
+      "emoji": "emoji.noto.automobile",
+      "photo": "self driving car",
+      "colour": "icon.icon-park-color.car"
+    },
+    "recommendation": {
+      "emoji": "emoji.noto.bullseye",
+      "photo": "recommendation engine",
+      "colour": "icon.icon-park-color.aiming"
+    },
+    "personalization": {
+      "emoji": "emoji.noto.sparkle",
+      "photo": "personalization",
+      "colour": "icon.icon-park-color.star"
+    },
+    "search_ai": {
+      "mono": "icon.icon-park-outline.search",
+      "emoji": "emoji.noto.right-pointing-magnifying-glass",
+      "photo": "ai search",
+      "colour": "icon.icon-park-color.search"
+    },
+    "translation": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "ai translation",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "summarization": {
+      "emoji": "emoji.noto.page-facing-up",
+      "photo": "ai summarization",
+      "colour": "icon.icon-park-color.page"
+    },
+    "writing_ai": {
+      "emoji": "emoji.noto.writing-hand",
+      "photo": "ai writing",
+      "colour": "icon.icon-park-color.write"
+    },
+    "content": {
+      "emoji": "emoji.noto.memo",
+      "photo": "ai content",
+      "colour": "icon.icon-park-color.file-editing"
+    },
+    "productivity": {
+      "emoji": "emoji.noto.rocket",
+      "photo": "ai productivity",
+      "colour": "icon.icon-park-color.rocket"
+    },
+    "data": {
+      "colour": "icon.icon-park-color.database-code",
+      "mono": "icon.ant-design.database-outlined",
+      "emoji": "emoji.noto.card-index",
+      "photo": "data"
+    },
+    "algorithm": {
+      "mono": "icon.carbon.network-4",
+      "emoji": "emoji.noto.input-symbols",
+      "photo": "algorithm",
+      "colour": "icon.icon-park-color.keyboard"
+    },
+    "prediction_ai": {
+      "emoji": "emoji.noto.crystal-ball",
+      "photo": "ai prediction",
+      "colour": "icon.icon-park-color.magic"
+    },
+    "fraud": {
+      "emoji": "emoji.noto.detective",
+      "photo": "fraud detection",
+      "colour": "icon.icon-park-color.search"
+    },
+    "medical_ai": {
+      "emoji": "emoji.noto.stethoscope",
+      "photo": "ai healthcare",
+      "colour": "icon.icon-park-color.health"
+    },
+    "education_ai": {
+      "emoji": "emoji.noto.graduation-cap",
+      "photo": "ai education",
+      "colour": "icon.icon-park-color.school"
+    },
+    "legal_ai": {
+      "emoji": "emoji.noto.balance-scale",
+      "photo": "legal ai",
+      "colour": "icon.icon-park-color.balance"
+    },
+    "customerservice": {
+      "emoji": "emoji.noto.telephone",
+      "photo": "ai customer service",
+      "colour": "icon.icon-park-color.phone"
+    },
+    "marketing_ai": {
+      "emoji": "emoji.noto.megaphone",
+      "photo": "ai marketing",
+      "colour": "icon.icon-park-color.announcement"
+    },
+    "sales_ai": {
+      "emoji": "emoji.noto.money-bag",
+      "photo": "ai sales",
+      "colour": "icon.icon-park-color.paper-money"
+    },
+    "coding_ai": {
+      "colour": "icon.icon-park-color.code-computer",
+      "mono": "icon.icon-park-outline.code-computer",
+      "emoji": "emoji.noto.laptop",
+      "photo": "ai coding"
+    },
+    "design_ai": {
+      "emoji": "emoji.noto.artist-palette",
+      "photo": "ai design",
+      "colour": "icon.icon-park-color.color-card"
+    },
+    "science_ai": {
+      "emoji": "emoji.noto.microscope",
+      "photo": "ai science",
+      "colour": "icon.icon-park-color.microscope"
+    },
+    "startup_ai": {
+      "mono": "icon.icon-park-outline.rocket",
+      "emoji": "emoji.noto.rocket",
+      "photo": "ai startup",
+      "colour": "icon.icon-park-color.rocket"
+    },
+    "jobimpact": {
+      "emoji": "emoji.noto.briefcase",
+      "photo": "ai jobs",
+      "colour": "icon.icon-park-color.briefcase"
+    },
+    "ethics": {
+      "emoji": "emoji.noto.balance-scale",
+      "photo": "ai ethics",
+      "colour": "icon.icon-park-color.balance"
+    },
+    "openweight": {
+      "emoji": "emoji.noto.open-book",
+      "photo": "open weights model",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "api_ai": {
+      "mono": "icon.carbon.api",
+      "emoji": "emoji.noto.desktop-computer",
+      "photo": "ai api",
+      "colour": "icon.icon-park-color.computer"
+    },
+    "multimodal": {
+      "emoji": "emoji.noto.sparkles",
+      "photo": "multimodal ai",
+      "colour": "icon.icon-park-color.star"
+    },
+    "reasoning": {
+      "emoji": "emoji.noto.thought-balloon",
+      "photo": "ai reasoning",
+      "colour": "icon.icon-park-color.comment"
+    },
+    "longcontext": {
+      "emoji": "emoji.noto.books",
+      "photo": "long context",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "realtime_ai": {
+      "emoji": "emoji.noto.high-voltage",
+      "photo": "realtime ai",
+      "colour": "icon.icon-park-color.lightning"
+    },
+    "voice_mode": {
+      "emoji": "emoji.noto.speaker-high-volume",
+      "photo": "voice ai",
+      "colour": "icon.icon-park-color.speaker"
+    },
+    "monitoring": {
+      "emoji": "emoji.noto.eyes",
+      "photo": "ai monitoring",
+      "colour": "icon.icon-park-color.eyes"
+    },
+    "benchmark_ai": {
+      "emoji": "emoji.noto.trophy",
+      "photo": "ai benchmark",
+      "colour": "icon.icon-park-color.trophy"
+    },
+    "deepfake": {
+      "emoji": "emoji.noto.performing-arts",
+      "photo": "deepfake",
+      "colour": "icon.icon-park-color.star"
+    },
+    "aiwatermark": {
+      "emoji": "emoji.noto.label",
+      "photo": "ai detection",
+      "colour": "icon.icon-park-color.label"
+    },
+    "robotaxi": {
+      "emoji": "emoji.noto.oncoming-taxi",
+      "photo": "robotaxi",
+      "colour": "icon.icon-park-color.taxi"
+    },
+    "smart_home": {
+      "emoji": "emoji.noto.radio",
+      "photo": "smart home ai",
+      "colour": "icon.icon-park-color.broadcast-radio"
+    },
+    "wearable": {
+      "emoji": "emoji.noto.watch",
+      "photo": "ai wearable",
+      "colour": "icon.icon-park-color.watch"
+    },
+    "ai_avatar_video": {
+      "emoji": "emoji.noto.movie-camera",
+      "photo": "ai presenter video",
+      "colour": "icon.icon-park-color.film"
+    },
+    "localization": {
+      "emoji": "emoji.noto.globe-with-meridians",
+      "photo": "ai localization",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "upscaling": {
+      "emoji": "emoji.noto.magnifying-glass-tilted-left",
+      "photo": "ai upscaling",
+      "colour": "icon.icon-park-color.search"
+    },
+    "styletransfer": {
+      "emoji": "emoji.noto.artist-palette",
+      "photo": "style transfer",
+      "colour": "icon.icon-park-color.color-card"
+    },
+    "controlnet": {
+      "emoji": "emoji.noto.control-knobs",
+      "photo": "controlnet",
+      "colour": "icon.icon-park-color.config"
+    },
+    "consistency": {
+      "emoji": "emoji.noto.check-mark",
+      "photo": "character consistency",
+      "colour": "icon.icon-park-color.check"
+    },
+    "storyboard": {
+      "emoji": "emoji.noto.film-frames",
+      "photo": "storyboard",
+      "colour": "icon.icon-park-color.film"
+    },
+    "prompt_engineering2": {
+      "emoji": "emoji.noto.memo",
+      "photo": "prompt engineering",
+      "colour": "icon.icon-park-color.file-editing"
+    },
+    "finetune_custom": {
+      "emoji": "emoji.noto.control-knobs",
+      "photo": "custom ai model",
+      "colour": "icon.icon-park-color.config"
+    },
+    "opensource_data": {
+      "emoji": "emoji.noto.open-book",
+      "photo": "open data",
+      "colour": "icon.icon-park-color.book-open"
+    },
+    "aitools": {
+      "colour": "icon.icon-park-color.tool",
+      "mono": "icon.ant-design.tool-outlined",
+      "emoji": "emoji.noto.toolbox",
+      "photo": "ai tools"
+    },
+    "aitakeoff": {
+      "emoji": "emoji.noto.rocket",
+      "photo": "ai takeoff",
+      "colour": "icon.icon-park-color.rocket"
+    },
+    "aiworkflow": {
+      "emoji": "emoji.noto.clockwise-vertical-arrows",
+      "photo": "ai workflow",
+      "colour": "icon.icon-park-color.cycle"
+    },
+    "feature": {
+      "emoji": "emoji.noto.sparkles",
+      "photo": "ai feature",
+      "colour": "icon.icon-park-color.star"
+    },
+    "limitations": {
+      "emoji": "emoji.noto.warning",
+      "photo": "ai limitations",
+      "colour": "icon.icon-park-color.caution"
+    },
+    "roadmap_ai": {
+      "emoji": "emoji.noto.world-map",
+      "photo": "ai roadmap",
+      "colour": "icon.icon-park-color.globe"
+    },
+    "demo": {
+      "emoji": "emoji.noto.clapper-board",
+      "photo": "ai demo",
+      "colour": "icon.icon-park-color.film"
+    },
+    "waitlist_ai": {
+      "emoji": "emoji.noto.hourglass-not-done",
+      "photo": "waitlist",
+      "colour": "icon.icon-park-color.hourglass"
+    },
+    "announce": {
+      "emoji": "emoji.noto.megaphone",
+      "photo": "ai announcement",
+      "colour": "icon.icon-park-color.announcement"
+    },
+    "pricing_ai": {
+      "emoji": "emoji.noto.label",
+      "photo": "ai pricing",
+      "colour": "icon.icon-park-color.label"
+    },
+    "competition_ai": {
+      "emoji": "emoji.noto.vs-button",
+      "photo": "ai competition",
+      "colour": "icon.icon-park-color.contrast-view"
+    },
+    "nearprotocol": {
+      "colour": "brand.si.near",
+      "photo": "near protocol"
+    },
+    "dashcoin": {
+      "colour": "brand.si.dash",
+      "photo": "dash crypto"
+    },
+    "basechain": {
+      "colour": "brand.logos.base",
+      "photo": "base chain"
+    },
+    "appleinc": {
+      "colour": "brand.logos.apple",
+      "photo": "apple inc"
+    }
+  },
+  "entity_phrases": {
+    "%": "percent",
+    ".eth": "ens",
+    "100x": "leverage",
+    "100x gem": "gem",
+    "101": "book",
+    "10x": "leverage",
+    "11labs": "elevenlabs",
+    "12 words": "seedphrase",
+    "21 million": "scarcity",
+    "24 7": "clock247",
+    "24 words": "seedphrase",
+    "24-7": "clock247",
+    "24/7": "clock247",
+    "24h volume": "volume",
+    "2x": "leverage",
+    "3x": "leverage",
+    "4-bit": "quantization",
+    "405b": "parameters",
+    "70b": "parameters",
+    "7b": "parameters",
+    "8-bit": "quantization",
+    "a model": "model",
+    "a.i.": "ai",
+    "a1111": "controlnet",
+    "aapl": "appleinc",
+    "aave protocol": "aave",
+    "abandoned project": "deadcoin",
+    "accelerator": "gpu",
+    "accelerators": "gpu",
+    "account abstraction": "accountabstraction",
+    "accumulate": "buythedip",
+    "accumulation": "buythedip",
+    "accuracy": "evaluation",
+    "accurate": "evaluation",
+    "ad copy": "marketing_ai",
+    "ada": "cardano",
+    "addresses": "address",
+    "adopt": "adoption",
+    "adopted": "adoption",
+    "ads": "marketing_ai",
+    "advertising": "marketing_ai",
+    "affordable": "cost",
+    "age of ai": "aitakeoff",
+    "agent workflow": "agent",
+    "agent workflows": "agent",
+    "agentic": "agent",
+    "agentic ai": "agent",
+    "agents": "agent",
+    "agriculture": "tractor",
+    "ai act": "regulation_ai",
+    "ai agent": "agent",
+    "ai agents": "agent",
+    "ai alignment": "alignment",
+    "ai answers": "search_ai",
+    "ai api": "api_ai",
+    "ai art": "imagegen",
+    "ai artwork": "imagegen",
+    "ai assistant": "assistant",
+    "ai audio": "audiogen",
+    "ai avatar": "avatar",
+    "ai avatars": "avatar",
+    "ai bias": "bias",
+    "ai boom": "aitakeoff",
+    "ai chat": "chatbot",
+    "ai chip": "gpu",
+    "ai chips": "gpu",
+    "ai code": "codegen",
+    "ai companies": "startup_ai",
+    "ai company": "startup_ai",
+    "ai conversation": "chatbot",
+    "ai copilot": "copilotconcept",
+    "ai detection": "watermark",
+    "ai detector": "aiwatermark",
+    "ai doctor": "medical_ai",
+    "ai drone": "drone",
+    "ai era": "aitakeoff",
+    "ai ethics": "ethics",
+    "ai film": "videogen",
+    "ai generated": "generativeai",
+    "ai governance": "regulation_ai",
+    "ai helper": "assistant",
+    "ai hype": "aitakeoff",
+    "ai image": "imagegen",
+    "ai images": "imagegen",
+    "ai integration": "api_ai",
+    "ai law": "regulation_ai",
+    "ai laws": "regulation_ai",
+    "ai model": "model",
+    "ai models": "model",
+    "ai movie": "videogen",
+    "ai music": "audiogen",
+    "ai picture": "imagegen",
+    "ai pictures": "imagegen",
+    "ai pin": "wearable",
+    "ai pipeline": "aiworkflow",
+    "ai policy": "regulation_ai",
+    "ai presenter": "ai_avatar_video",
+    "ai presenter video": "ai_avatar_video",
+    "ai programming": "codegen",
+    "ai race": "aitakeoff",
+    "ai regulation": "regulation_ai",
+    "ai regulations": "regulation_ai",
+    "ai revolution": "aitakeoff",
+    "ai risk": "aisafety",
+    "ai risks": "aisafety",
+    "ai safety": "aisafety",
+    "ai sdk": "vercel",
+    "ai search": "search_ai",
+    "ai song": "audiogen",
+    "ai songs": "audiogen",
+    "ai spokesperson": "ai_avatar_video",
+    "ai stack": "aitools",
+    "ai startup": "startup_ai",
+    "ai startups": "startup_ai",
+    "ai taking jobs": "jobimpact",
+    "ai tool": "aitools",
+    "ai tools": "aitools",
+    "ai tutor": "education_ai",
+    "ai video": "videogen",
+    "ai videos": "videogen",
+    "ai voice": "voiceclone",
+    "ai voices": "voiceclone",
+    "ai wave": "aitakeoff",
+    "ai workflow": "aiworkflow",
+    "ai workflows": "aiworkflow",
+    "ai writing": "writing_ai",
+    "ai's": "ai",
+    "ai-generated": "generativeai",
+    "ai-generated content": "aiwatermark",
+    "ai-powered search": "search_ai",
+    "aim": "target",
+    "air gapped": "airgap",
+    "air-gapped": "airgap",
+    "airdrops": "airdrop",
+    "airplane": "plane",
+    "airpods": "headphones",
+    "alert": "warning",
+    "alexa": "smart_home",
+    "algo token": "algorand",
+    "algorithmic": "algorithm",
+    "algorithmic feed": "recommendation",
+    "algorithms": "algorithm",
+    "aligned": "alignment",
+    "aligned with": "alignment",
+    "aligns with human": "alignment",
+    "all time high": "price",
+    "all time low": "price",
+    "all-time high": "price",
+    "all-time low": "price",
+    "allow-listed": "whitelist",
+    "allowlist": "whitelist",
+    "alphafold": "science_ai",
+    "alt coin": "altcoin",
+    "alt coins": "altcoin",
+    "altcoins": "altcoin",
+    "alternative": "competition_ai",
+    "alternatives": "competition_ai",
+    "always on": "clock247",
+    "amazon web services": "amazon",
+    "amd gpu": "amd",
+    "aml": "kyc",
+    "an ai": "ai",
+    "ann": "neuralnetwork",
+    "annotated": "dataset",
+    "annotation": "dataset",
+    "announced": "announce",
+    "announcement": "news",
+    "announcements": "news",
+    "announces": "announce",
+    "announcing": "announce",
+    "annual percentage yield": "apy",
+    "anomalies": "fraud",
+    "anomaly detection": "fraud",
+    "anonymity": "anonymous",
+    "answer engine": "search_ai",
+    "anticipate": "prediction_ai",
+    "any language": "translation",
+    "anyone": "person",
+    "anyone anywhere": "borderless",
+    "anytime": "clock247",
+    "anywhere": "globe",
+    "apartment": "home",
+    "api access": "api_ai",
+    "api cost": "cost",
+    "api costs": "cost",
+    "api key": "api_ai",
+    "api keys": "api_ai",
+    "api pricing": "api_ai",
+    "apis": "api",
+    "apple company": "appleinc",
+    "apple inc": "appleinc",
+    "apple intelligence": "appleinc",
+    "apple m1": "appleinc",
+    "apple m2": "appleinc",
+    "apple m3": "appleinc",
+    "apple m4": "appleinc",
+    "apple silicon": "appleinc",
+    "apple stock": "appleinc",
+    "apple tv": "appleinc",
+    "apple vision pro": "appleinc",
+    "apple watch": "appleinc",
+    "application": "app",
+    "apply a style": "styletransfer",
+    "apps": "app",
+    "apr": "percent",
+    "aptos chain": "aptos",
+    "apy": "percent",
+    "arb": "arbitrage",
+    "arbitrage trading": "arbitrage",
+    "arena": "benchmark_ai",
+    "arms race": "aitakeoff",
+    "around the world": "globe",
+    "artificial data": "syntheticdata",
+    "artificial general intelligence": "agi",
+    "artificial intelligence": "ai",
+    "artificial neural network": "neuralnetwork",
+    "artist": "creator",
+    "artistic style": "styletransfer",
+    "artists": "creator",
+    "arweave": "ipfs",
+    "asi": "singularity",
+    "assistants": "assistant",
+    "ath": "price",
+    "atl": "price",
+    "atom coin": "cosmos",
+    "atomic settlement": "atomic",
+    "atomic swap": "atomic",
+    "atomic swaps": "atomic",
+    "attention mechanism": "transformer",
+    "audio generation": "audiogen",
+    "audit trail": "audittrail",
+    "audited": "audit",
+    "audits": "audit",
+    "auto-pilot": "automation",
+    "automate": "automation",
+    "automated": "automation",
+    "automated workflow": "automation",
+    "automates": "automation",
+    "automatic1111": "controlnet",
+    "automating": "automation",
+    "automation risk": "jobimpact",
+    "automobile": "car",
+    "autonomous agent": "agent",
+    "autonomous agents": "agent",
+    "autonomous car": "selfdriving",
+    "autonomous vehicle": "selfdriving",
+    "autonomous vehicles": "selfdriving",
+    "autopilot": "selfdriving",
+    "avatar video": "ai_avatar_video",
+    "avatars": "avatar",
+    "avax": "avalanche",
+    "award": "trophy",
+    "awards": "trophy",
+    "aws": "amazon",
+    "aws bedrock": "amazon",
+    "azure": "microsoft",
+    "b200": "gpu",
+    "baby": "person",
+    "backed by": "seedround",
+    "backpacks": "backpack",
+    "backup phrase": "seedphrase",
+    "bag holder": "bagholder",
+    "bag holders": "bagholder",
+    "bagholders": "bagholder",
+    "bags": "portfolio",
+    "bakery": "bread",
+    "baking": "bread",
+    "bandages": "bandage",
+    "bank": "banking",
+    "bank account": "banking",
+    "bank accounts": "banking",
+    "bank the unbanked": "unbanked",
+    "banking access": "unbanked",
+    "banking system": "banking",
+    "bankless": "unbanked",
+    "banks": "banking",
+    "bard": "gemini",
+    "base blockchain": "basechain",
+    "base chain": "basechain",
+    "base l2": "basechain",
+    "base layer": "layer1",
+    "base network": "basechain",
+    "batteries": "battery",
+    "bch": "bitcoincash",
+    "be careful": "warning",
+    "be your own bank": "bankless2",
+    "bear market": "bearmarket",
+    "bearish": "bearmarket",
+    "beats": "competition_ai",
+    "bedrock": "amazon",
+    "bedroom": "bed",
+    "beds": "bed",
+    "beginner": "book",
+    "beginners": "book",
+    "benchmark": "evaluation",
+    "benchmarked": "evaluation",
+    "benchmarks": "evaluation",
+    "bespoke model": "finetune_custom",
+    "best model": "benchmark_ai",
+    "best performing": "benchmark_ai",
+    "beta": "waitlist_ai",
+    "better prompts": "prompt_engineering2",
+    "better than": "competition_ai",
+    "betting": "prediction",
+    "beware": "warning",
+    "biased": "bias",
+    "bicycle": "bicycle",
+    "big data": "data",
+    "big green candle": "candle",
+    "big holder": "whale",
+    "bike": "bicycle",
+    "bikes": "bicycle",
+    "billion parameters": "parameters",
+    "binance coin": "binance",
+    "binance smart chain": "binancechain",
+    "birds": "bird",
+    "bitcoin cash": "bitcoincash",
+    "bitcoin etf": "etf",
+    "bitcoin halving": "halving",
+    "bitcoin mining": "mining",
+    "bitcoin nft": "ordinals",
+    "bitcoin nfts": "ordinals",
+    "bitcoins": "bitcoin",
+    "black box": "explainable",
+    "blackrock": "tradfi",
+    "blast off": "rocketship",
+    "block chain": "blockchain",
+    "block explorer": "blockexplorer",
+    "block reward": "reward",
+    "block reward halving": "halving",
+    "block rewards": "reward",
+    "block time": "finality",
+    "blockchain bridge": "bridge",
+    "blockchain data": "onchaindata",
+    "blockchain developer": "smartcontractdev",
+    "blockchain game": "playtoearn",
+    "blockchain games": "playtoearn",
+    "blockchain oracle": "oracle",
+    "blockchains": "blockchain",
+    "blocks": "block",
+    "blog post": "writing_ai",
+    "blog posts": "writing_ai",
+    "bnb": "binance",
+    "bnb chain": "binance",
+    "bnb smart chain": "binancechain",
+    "boat": "ship",
+    "boats": "ship",
+    "books": "book",
+    "borderless": "globe",
+    "borrow": "lending",
+    "borrowing": "lending",
+    "bounties": "bugbounty",
+    "bouquet": "flower",
+    "boy": "person",
+    "brand consistency": "consistency",
+    "branding": "design_ai",
+    "brc-20": "ordinals",
+    "brc20": "ordinals",
+    "breach": "hack",
+    "breaking news": "news",
+    "breakout": "support",
+    "breakouts": "support",
+    "breakthrough": "science_ai",
+    "breakthroughs": "science_ai",
+    "bridges": "bridge",
+    "bridging": "bridge",
+    "bright idea": "idea",
+    "bsc": "binancechain",
+    "bscscan": "binancechain",
+    "btc": "bitcoin",
+    "bubble": "bubblechart",
+    "bubbles": "bubblechart",
+    "bucks": "money",
+    "buddy": "people",
+    "budget": "cost",
+    "bug bounty": "bugbounty",
+    "build apps": "coding_ai",
+    "build on": "developer",
+    "build with": "developer",
+    "builders": "developer",
+    "buildings": "building",
+    "built": "build",
+    "bull market": "bullmarket",
+    "bull run": "bullmarket",
+    "bullish": "bullmarket",
+    "burn mechanism": "burn",
+    "burned": "burn",
+    "burning": "burn",
+    "buses": "bus",
+    "business": "company",
+    "buy back and burn": "burn",
+    "buy crypto with card": "onramp",
+    "buy the dip": "buythedip",
+    "buyback and burn": "burn",
+    "buying the dip": "buythedip",
+    "c2pa": "watermark",
+    "cafe": "coffee",
+    "cake token": "pancakeswap",
+    "calls and puts": "options",
+    "cameras": "camera",
+    "campaign": "marketing_ai",
+    "campaigns": "marketing_ai",
+    "camping": "tent",
+    "campsite": "tent",
+    "can now": "feature",
+    "can't": "limitations",
+    "candle chart": "candlestick",
+    "candles": "candlestick",
+    "candlestick chart": "candlestick",
+    "candlesticks": "candlestick",
+    "cannot": "limitations",
+    "cannot be changed": "immutable",
+    "cannot be deleted": "permanent",
+    "capabilities": "feature",
+    "capability": "feature",
+    "capital gains": "cryptotax",
+    "cappuccino": "coffee",
+    "captions": "localization",
+    "card payment": "creditcard",
+    "card payments": "creditcard",
+    "career": "work",
+    "careers": "work",
+    "cars": "car",
+    "cash": "cash",
+    "cash back": "cashback",
+    "cash flow": "moneygeneric",
+    "cash money": "fiat",
+    "cash-back": "cashback",
+    "cats": "cat",
+    "caution": "warning",
+    "celestia": "dataavailability",
+    "censorship resistance": "permanent",
+    "censorship resistant": "permanent",
+    "central bank digital currency": "cbdc",
+    "centralised exchange": "cex",
+    "centralized exchange": "cex",
+    "cexes": "cex",
+    "chain of thought": "reasoning",
+    "chain split": "fork",
+    "chain-of-thought": "reasoning",
+    "chainlink oracle": "oracle",
+    "character consistency": "consistency",
+    "chart analysis": "technicalanalysis",
+    "chart patterns": "technicalanalysis",
+    "charts": "chart",
+    "chat bot": "chatbot",
+    "chat gpt": "openai",
+    "chat interface": "chatbot",
+    "chat with ai": "chatbot",
+    "chatbots": "chatbot",
+    "chatgpt": "openai",
+    "chatgpt plus": "openai",
+    "cheap": "cost",
+    "checkout": "payment",
+    "checkpoint": "model",
+    "checkpoints": "model",
+    "checkup": "stethoscope",
+    "child": "person",
+    "children": "people",
+    "chips": "gpu",
+    "chroma db": "chroma",
+    "chromadb": "chroma",
+    "cinema": "video",
+    "circulating supply": "supply",
+    "claude code": "claude",
+    "claude opus": "claude",
+    "claude sonnet": "claude",
+    "claw back": "clawback",
+    "cliff": "vesting",
+    "clinic": "hospital",
+    "clinical": "medical_ai",
+    "clinics": "hospital",
+    "clip": "video",
+    "clone your voice": "voiceclone",
+    "cloned voice": "voiceclone",
+    "cloning": "voiceclone",
+    "cloud ai": "cloudai",
+    "cloud compute": "cloudai",
+    "cloud gpu": "cloudai",
+    "cloud hosted": "cloudai",
+    "cloud-based": "cloudai",
+    "cmc": "coinmarketcap",
+    "co-pilot": "copilotconcept",
+    "code": "coding_ai",
+    "code audit": "audit",
+    "code generation": "codegen",
+    "codeium": "windsurf",
+    "coder": "developer",
+    "coders": "developer",
+    "coding": "code",
+    "coding assistant": "codegen",
+    "coin gecko": "coingecko",
+    "coin market cap": "coinmarketcap",
+    "coinbase base": "basechain",
+    "coinbase exchange": "coinbase",
+    "coinbase wallet": "coinbase",
+    "coinmarket cap": "coinmarketcap",
+    "coins": "coin",
+    "cold email": "sales_ai",
+    "cold storage": "coldwallet",
+    "cold wallet": "coldwallet",
+    "cold wallets": "coldwallet",
+    "collaboration": "partnership",
+    "collateral ratio": "collateral",
+    "collateralized": "collateral",
+    "colleague": "team",
+    "colleagues": "team",
+    "comfy ui": "controlnet",
+    "comfyui": "controlnet",
+    "coming soon": "roadmap_ai",
+    "commodities": "goldtoken",
+    "commodity": "goldtoken",
+    "community members": "community",
+    "compared to": "competition_ai",
+    "comparison": "competition_ai",
+    "compatible": "integration2",
+    "competitors": "competition_ai",
+    "compliance": "regulation",
+    "compliance check": "legal_ai",
+    "compressed model": "quantization",
+    "compute": "gpu",
+    "compute power": "gpu",
+    "computer vision": "computervision",
+    "computers": "computer",
+    "condense": "summarization",
+    "confabulation": "hallucination",
+    "confidential": "privacy",
+    "confirmations": "finality",
+    "confirmed": "finality",
+    "connect wallet": "walletconnect",
+    "connect your wallet": "walletconnect",
+    "consensus algorithm": "consensus",
+    "consensus mechanism": "consensus",
+    "consistent character": "consistency",
+    "consistent style": "consistency",
+    "constructed": "build",
+    "container": "docker",
+    "containerized": "docker",
+    "containers": "docker",
+    "content creation": "content",
+    "content creator": "content",
+    "content creators": "creator",
+    "content credentials": "watermark",
+    "content writing": "writing_ai",
+    "context": "contextwindow",
+    "context length": "contextwindow",
+    "context size": "contextwindow",
+    "context window": "contextwindow",
+    "contract code": "smartcontract",
+    "contract development": "smartcontractdev",
+    "contract review": "legal_ai",
+    "conversational ai": "chatbot",
+    "cook": "pantry",
+    "cooked": "pantry",
+    "cooking": "pantry",
+    "copilot": "githubcopilot",
+    "copilot 365": "microsoft",
+    "copilot x": "githubcopilot",
+    "copilots": "assistant",
+    "copy": "writing_ai",
+    "copyrighted": "copyright",
+    "copywriting": "writing_ai",
+    "corporation": "company",
+    "correction": "support",
+    "cosmos atom": "cosmos",
+    "cosmos hub": "cosmos",
+    "cosmos network": "cosmos",
+    "cosmos sdk": "cosmosnetwork",
+    "costs": "pricing_ai",
+    "cot": "reasoning",
+    "couch": "sofa",
+    "couches": "sofa",
+    "counterparty": "middleman",
+    "counterparty risk": "middleman",
+    "course": "book",
+    "coverage": "insurance",
+    "crash": "support",
+    "create content": "content",
+    "creator coin": "creator",
+    "creator economy": "creator",
+    "creators": "creator",
+    "credit card": "creditcard",
+    "credit cards": "creditcard",
+    "crew ai": "crewai",
+    "crm": "sales_ai",
+    "cross border payments": "remittance",
+    "cross chain": "bridge",
+    "cross-border payments": "remittance",
+    "cross-chain": "multichain",
+    "crosschain": "multichain",
+    "crowd": "people",
+    "crv": "curve",
+    "crypto": "cryptocurrency",
+    "crypto address": "address",
+    "crypto adoption": "adoption",
+    "crypto community": "community",
+    "crypto derivatives": "futures",
+    "crypto domain": "ens",
+    "crypto exchange": "exchange",
+    "crypto exchanges": "exchange",
+    "crypto game": "playtoearn",
+    "crypto games": "playtoearn",
+    "crypto influencer": "influencer",
+    "crypto insurance": "insurance",
+    "crypto lending": "lending",
+    "crypto market": "market",
+    "crypto mining": "mining",
+    "crypto news": "news",
+    "crypto payment": "payment",
+    "crypto payments": "payment",
+    "crypto portfolio": "portfolio",
+    "crypto tax": "cryptotax",
+    "crypto taxes": "cryptotax",
+    "crypto transaction": "transaction",
+    "crypto twitter": "twitterx",
+    "crypto wallet": "wallet",
+    "crypto whale": "whale",
+    "cryptocurrencies": "cryptocurrency",
+    "cryptographic": "encryption",
+    "cryptography": "encryption",
+    "cryptos": "cryptocurrency",
+    "csat": "customerservice",
+    "ct": "influencer",
+    "cuda": "gpu",
+    "cursor ai": "cursor",
+    "cursor editor": "cursor",
+    "cursor ide": "cursor",
+    "curve finance": "curve",
+    "custodial": "custody",
+    "custodian": "custody",
+    "custody solution": "custody",
+    "custom ai": "personalization",
+    "custom ai model": "finetune_custom",
+    "custom model": "finetuning",
+    "customer data": "data",
+    "customer experience": "customerservice",
+    "customer service": "customerservice",
+    "customer support": "customerservice",
+    "cut out the middleman": "middleman",
+    "cv": "computervision",
+    "cycling": "bicycle",
+    "cyclist": "bicycle",
+    "da layer": "dataavailability",
+    "dai stablecoin": "dai",
+    "daily volume": "volume",
+    "dairy": "milk",
+    "dall-e": "openai",
+    "dalle": "openai",
+    "danger": "warning",
+    "dao treasury": "treasury",
+    "daos": "dao",
+    "dapps": "dapp",
+    "dash coin": "dashcoin",
+    "dash crypto": "dashcoin",
+    "dash token": "dashcoin",
+    "data availability": "dataavailability",
+    "data in": "data",
+    "data labeling": "dataset",
+    "data pipeline": "data",
+    "data pipelines": "data",
+    "data set": "dataset",
+    "data sets": "dataset",
+    "data-driven": "data",
+    "datacenter gpu": "gpu",
+    "datasets": "dataset",
+    "day trader": "trader",
+    "day trading": "trader",
+    "dca strategy": "dca",
+    "dead coin": "deadcoin",
+    "dead coins": "deadcoin",
+    "debit card": "creditcard",
+    "debit cards": "creditcard",
+    "debut": "launch",
+    "debuts": "announce",
+    "decentralisation": "decentralized",
+    "decentralised": "decentralized",
+    "decentralised autonomous organisation": "dao",
+    "decentralised exchange": "dex",
+    "decentralised finance": "defi",
+    "decentralization": "decentralized",
+    "decentralized app": "dapp",
+    "decentralized application": "dapp",
+    "decentralized apps": "dapp",
+    "decentralized autonomous organization": "dao",
+    "decentralized exchange": "dex",
+    "decentralized finance": "defi",
+    "decentralized identity": "did",
+    "decentralized infrastructure": "depin",
+    "decentralized network": "decentralized",
+    "decentralized networks": "decentralized",
+    "decentralized social": "socialfi",
+    "decentralized storage": "ipfs",
+    "deep fake": "deepfake",
+    "deep fakes": "deepfake",
+    "deep l": "deepl",
+    "deep learning": "deeplearning",
+    "deep neural": "deeplearning",
+    "deep neural network": "deeplearning",
+    "deep research": "search_ai",
+    "deep seek": "deepseek",
+    "deepfakes": "deepfake",
+    "deepmind": "gemini",
+    "deepseek r1": "deepseek",
+    "deepseek v3": "deepseek",
+    "deflationary": "burn",
+    "delegate": "delegation",
+    "delegate stake": "delegation",
+    "delegated": "delegation",
+    "delegating": "delegation",
+    "delegator": "delegation",
+    "delegators": "delegation",
+    "delivery drone": "drone",
+    "demos": "demo",
+    "denoise": "upscaling",
+    "dental": "tooth",
+    "dentist": "tooth",
+    "deploy": "inference",
+    "deployed": "inference",
+    "deployment": "inference",
+    "deposit address": "address",
+    "depth chart": "orderbook",
+    "derivatives": "futures",
+    "design": "design_ai",
+    "designer": "design_ai",
+    "designers": "design_ai",
+    "designs": "design_ai",
+    "desk": "table",
+    "deso": "socialfi",
+    "detect ai": "watermark",
+    "detect ai content": "aiwatermark",
+    "detect fraud": "fraud",
+    "dev": "engineer",
+    "dev team": "developer",
+    "developer": "engineer",
+    "developer api": "api_ai",
+    "developer tools": "coding_ai",
+    "developers": "developer",
+    "devs": "developer",
+    "dexes": "dex",
+    "diagnose": "medical_ai",
+    "diagnosis": "medical_ai",
+    "diamond hands": "hodl",
+    "diffusion model": "diffusion",
+    "diffusion models": "diffusion",
+    "dify ai": "dify",
+    "digital collectible": "nft",
+    "digital collectibles": "nft",
+    "digital dollar": "cbdc",
+    "digital euro": "cbdc",
+    "digital human": "avatar",
+    "digital humans": "avatar",
+    "digital identity": "did",
+    "digital land": "metaverse",
+    "digital ownership": "ownership",
+    "digital scarcity": "scarcity",
+    "digital signature": "signature",
+    "digital wallet": "wallet",
+    "digital yuan": "cbdc",
+    "dinner": "pantry",
+    "direct transfer": "peertopeer",
+    "discord community": "discord",
+    "discord server": "discord",
+    "discover": "search",
+    "discovery": "science_ai",
+    "discrimination": "bias",
+    "display": "screen",
+    "distill": "distillation",
+    "distilled": "distillation",
+    "distilled model": "distillation",
+    "distributed ledger": "ledger",
+    "distributed storage": "ipfs",
+    "do more": "productivity",
+    "do your own research": "dyor",
+    "do your research": "dyor",
+    "doctor": "stethoscope",
+    "doctors": "stethoscope",
+    "document parsing": "ocr",
+    "documentation": "docs",
+    "documents": "document",
+    "doge": "dogecoin",
+    "dogs": "dog",
+    "dollar cost averaging": "dca",
+    "dollar-cost averaging": "dca",
+    "dollars": "dollar",
+    "doors": "door",
+    "dot token": "polkadot",
+    "down bad": "loss",
+    "downloadable model": "openweight",
+    "downtrend": "bearmarket",
+    "draft": "writing_ai",
+    "drafts": "writing_ai",
+    "drained": "hack",
+    "drainer": "hack",
+    "dreambooth": "controlnet",
+    "dreams": "dream",
+    "dresses": "dress",
+    "drift": "monitoring",
+    "driverless": "selfdriving",
+    "driverless taxi": "robotaxi",
+    "drones": "drone",
+    "drug discovery": "medical_ai",
+    "dubbed": "localization",
+    "dubbing": "localization",
+    "dumping": "bearmarket",
+    "earbuds": "headphones",
+    "early": "time",
+    "early access": "waitlist_ai",
+    "earn": "roi",
+    "earn crypto back": "cashback",
+    "earn rewards": "reward",
+    "earn while you sleep": "passiveincome",
+    "earnings": "roi",
+    "earphones": "headphones",
+    "earth": "world",
+    "eat": "pantry",
+    "eating": "pantry",
+    "ecosystem": "community",
+    "edge ai": "edge",
+    "edge cases": "limitations",
+    "education": "education_ai",
+    "educational": "book",
+    "efficiency": "productivity",
+    "efficient": "productivity",
+    "eigen layer": "restaking",
+    "eigenda": "dataavailability",
+    "eigenlayer": "restaking",
+    "electricity": "power",
+    "eleven labs": "elevenlabs",
+    "elevenlabs voice": "elevenlabs",
+    "elo": "benchmark_ai",
+    "embeddings": "embedding",
+    "emission rate": "emission",
+    "emission schedule": "tokenomics",
+    "emissions": "emission",
+    "employee": "worker",
+    "employees": "worker",
+    "encrypt": "encryption",
+    "encrypted": "encryption",
+    "end to end": "aiworkflow",
+    "end-to-end": "aiworkflow",
+    "end-to-end encryption": "encryption",
+    "endpoint": "api_ai",
+    "endpoints": "api_ai",
+    "energy": "power",
+    "engineering": "coding_ai",
+    "enhance": "upscaling",
+    "enhanced": "upscaling",
+    "enhancement": "upscaling",
+    "ens domain": "ens",
+    "ens name": "ens",
+    "enterprise": "pricing_ai",
+    "entire codebase": "longcontext",
+    "epochs": "epoch",
+    "equities": "stocks",
+    "era": "epoch",
+    "eras": "epoch",
+    "erc-1155": "erc20",
+    "erc-20": "erc20",
+    "erc-721": "erc20",
+    "erc20 token": "erc20",
+    "erc721": "erc20",
+    "etc": "ethereumclassic",
+    "etfs": "etf",
+    "eth": "ethereum",
+    "eth mainnet": "ethereumchain",
+    "ether": "ethereum",
+    "ethereum classic": "ethereumclassic",
+    "ethereum etf": "etf",
+    "ethereum mainnet": "ethereumchain",
+    "ethereum name service": "ens",
+    "ethereum network": "ethereumchain",
+    "ethereum virtual machine": "ethereumchain",
+    "ethereum's": "ethereum",
+    "etherscan": "blockexplorer",
+    "etherscan.io": "etherscanbrand",
+    "ethical": "ethics",
+    "ethical ai": "ethics",
+    "eu ai act": "regulation_ai",
+    "eval": "evaluation",
+    "evals": "evaluation",
+    "evals in prod": "monitoring",
+    "evaluate": "evaluation",
+    "evaluating": "evaluation",
+    "event calendar": "calendar",
+    "everywhere": "globe",
+    "evm": "ethereumchain",
+    "evm chain": "ethereumchain",
+    "evm chains": "ethereumchain",
+    "exchange traded fund": "etf",
+    "exchange-traded fund": "etf",
+    "exchanges": "exchange",
+    "exit scam": "rugpull",
+    "expensive": "cost",
+    "expensive fees": "gasfee2",
+    "experiment": "science_ai",
+    "experiments": "science_ai",
+    "explainability": "explainable",
+    "explainable ai": "explainable",
+    "explained": "book",
+    "explainer": "book",
+    "exploit": "hack",
+    "exploited": "hack",
+    "exploits": "hack",
+    "explorer": "blockexplorer",
+    "exponential growth": "growth",
+    "extended thinking": "reasoning",
+    "extract text": "ocr",
+    "eyewear": "glasses",
+    "face detection": "facerecognition",
+    "face id": "facerecognition",
+    "face recognition": "facerecognition",
+    "face swap": "deepfake",
+    "facebook": "metageneric",
+    "faces": "facerecognition",
+    "faceswap": "deepfake",
+    "facial recognition": "facerecognition",
+    "factories": "factory",
+    "failed": "fail",
+    "failed project": "fail",
+    "fails": "fail",
+    "fails at": "limitations",
+    "failure": "fail",
+    "fair use": "copyright",
+    "fairness": "bias",
+    "fake video": "deepfake",
+    "family": "people",
+    "fan token": "creator",
+    "fan tokens": "creator",
+    "farm": "tractor",
+    "farming": "tractor",
+    "fast": "speed",
+    "faster": "speed",
+    "faster than": "competition_ai",
+    "faster work": "productivity",
+    "fastest": "speed",
+    "faucets": "faucet",
+    "fdv": "marketcap",
+    "fear of missing out": "fomo",
+    "fear uncertainty and doubt": "fud",
+    "fear uncertainty doubt": "fud",
+    "features": "feature",
+    "fee": "gasfee2",
+    "fiat currency": "fiat",
+    "fiat money": "fiat",
+    "fiat on-ramp": "onramp",
+    "fiat onramp": "onramp",
+    "fidelity": "tradfi",
+    "figma ai": "figma",
+    "figma make": "figma",
+    "file": "document",
+    "filecoin": "ipfs",
+    "files": "document",
+    "film": "video",
+    "films": "video",
+    "final": "finality",
+    "final settlement": "settlement",
+    "financial freedom": "financialfreedom",
+    "financial inclusion": "unbanked",
+    "financial independence": "financialfreedom",
+    "find": "search",
+    "fine tuned": "finetuning",
+    "fine tuning": "finetuning",
+    "fine-tune": "finetuning",
+    "fine-tuned": "finetuning",
+    "fine-tuning": "finetuning",
+    "finetune": "finetuning",
+    "firebase ai": "firebase",
+    "first aid": "bandage",
+    "fixed supply": "scarcity",
+    "flagged": "fraud",
+    "flags": "flag",
+    "flash loan": "lending",
+    "flash loans": "lending",
+    "flight": "plane",
+    "flights": "plane",
+    "flops": "gpu",
+    "flowers": "flower",
+    "folders": "folder",
+    "folks": "people",
+    "food": "pantry",
+    "footwear": "shoe",
+    "for you page": "recommendation",
+    "forecast": "prediction_ai",
+    "forecasting": "prediction_ai",
+    "forecasts": "prediction_ai",
+    "forest": "tree",
+    "forever": "permanent",
+    "forks": "fork",
+    "foundation model": "llm",
+    "foundation models": "llm",
+    "founded": "startup_ai",
+    "founder": "startup_ai",
+    "founders": "startup_ai",
+    "fractional ownership": "realestate",
+    "fractions of a penny": "fees",
+    "fraud": "scam",
+    "fraud detection": "fraud",
+    "free": "pricing_ai",
+    "free test tokens": "faucet",
+    "free tier": "pricing_ai",
+    "free tokens": "airdrop",
+    "friend": "people",
+    "friends": "people",
+    "front running": "mev",
+    "front-running": "mev",
+    "frontier model": "llm",
+    "frontier models": "llm",
+    "fsd": "selfdriving",
+    "ftm": "fantom",
+    "full node": "node",
+    "full self-driving": "selfdriving",
+    "fully diluted": "marketcap",
+    "fully on-chain": "onchain",
+    "function calling": "tooluse",
+    "funding": "startup_ai",
+    "funding round": "seedround",
+    "funds": "money",
+    "future": "roadmap_ai",
+    "future of work": "jobimpact",
+    "gains": "roi",
+    "game assets": "gameasset",
+    "game items": "gameasset",
+    "gamefi": "playtoearn",
+    "games": "game",
+    "gaming": "game",
+    "gas cost": "gas",
+    "gas costs": "gas",
+    "gas fee": "gas",
+    "gas fees": "gas",
+    "gas free": "gasless",
+    "gas price": "gas",
+    "gas-free": "gasless",
+    "gecko terminal": "coingecko",
+    "geforce": "nvidia",
+    "gemini flash": "gemini",
+    "gemini pro": "gemini",
+    "gems": "gem",
+    "gen ai": "generativeai",
+    "genai": "generativeai",
+    "general intelligence": "agi",
+    "generate images": "imagegen",
+    "generate video": "videogen",
+    "generated by ai": "generativeai",
+    "generated code": "codegen",
+    "generated content": "content",
+    "generated data": "syntheticdata",
+    "generated image": "imagegen",
+    "generated music": "audiogen",
+    "generated video": "videogen",
+    "generates code": "codegen",
+    "generational wealth": "financialfreedom",
+    "generative ai": "generativeai",
+    "generative model": "generativeai",
+    "generative models": "generativeai",
+    "genesis block": "genesis",
+    "get more done": "productivity",
+    "gguf": "quantization",
+    "ghost chain": "deadcoin",
+    "gifts": "gift",
+    "girl": "person",
+    "git hub": "github",
+    "github copilot": "githubcopilot",
+    "github repo": "github",
+    "global": "world",
+    "global payments": "borderless",
+    "gmail": "googlegeneric",
+    "gnosis safe": "gnosissafe",
+    "go long": "leverage",
+    "go short": "leverage",
+    "goal": "target",
+    "goals": "target",
+    "goes live": "launch",
+    "goes mainstream": "mainstream",
+    "goes wrong": "fail",
+    "going live": "launch",
+    "going up": "growth",
+    "gold backed": "goldtoken",
+    "gold token": "goldtoken",
+    "gold-backed": "goldtoken",
+    "gold-backed token": "goldtoken",
+    "good prompt": "prompt",
+    "google": "googlegeneric",
+    "google ai": "gemini",
+    "google bard": "gemini",
+    "google deepmind": "gemini",
+    "google gemini": "gemini",
+    "google home": "smart_home",
+    "google search": "googlegeneric",
+    "google workspace": "googlegeneric",
+    "got rekt": "rekt",
+    "governance proposal": "governance",
+    "governance snapshot": "snapshot",
+    "governance vote": "governance",
+    "governments": "government",
+    "gpt": "openai",
+    "gpt-4": "openai",
+    "gpt-4o": "openai",
+    "gpt-5": "openai",
+    "gpt4": "openai",
+    "gpt5": "openai",
+    "gpu cluster": "gpu",
+    "gpus": "gpu",
+    "gradio app": "gradio",
+    "graph": "chart",
+    "graphics": "design_ai",
+    "graphics card": "gpu",
+    "graphics cards": "gpu",
+    "graphs": "chart",
+    "green candle": "candle",
+    "green flag": "greenflag",
+    "green flags": "greenflag",
+    "groceries": "pantry",
+    "grok ai": "grok",
+    "grounded generation": "rag",
+    "grow": "growth",
+    "growing": "growth",
+    "grows": "growth",
+    "growth": "marketing_ai",
+    "guard rails": "aisafety",
+    "guardrails": "aisafety",
+    "guide": "docs",
+    "guides": "docs",
+    "guy": "person",
+    "guys": "person",
+    "h100": "gpu",
+    "hacked": "hack",
+    "hacker": "hack",
+    "hackers": "hack",
+    "hallucinate": "hallucination",
+    "hallucinated": "hallucination",
+    "hallucinates": "hallucination",
+    "halvening": "halving",
+    "hammer": "tools",
+    "hands on": "demo",
+    "hands-free": "automation",
+    "hard fork": "fork",
+    "hard-earned money": "moneygeneric",
+    "hardfork": "fork",
+    "hardware wallet": "coldwallet",
+    "hardware wallets": "coldwallet",
+    "hash function": "hash",
+    "hash power": "hashrate",
+    "hash rate": "hash",
+    "hashes": "hash",
+    "hashgraph": "hedera",
+    "hashing": "hash",
+    "hbar": "hederanetwork",
+    "headlines": "mainstream",
+    "headset": "headphones",
+    "health": "medical_ai",
+    "healthcare": "health",
+    "hedge fund": "tradfi",
+    "hedge funds": "tradfi",
+    "help desk": "customerservice",
+    "helpdesk": "customerservice",
+    "hf": "huggingface",
+    "hf hub": "huggingface",
+    "hidden gem": "gem",
+    "hidden gems": "gem",
+    "high fees": "gasfee2",
+    "hiking": "mountain",
+    "hitl": "humanintheloop",
+    "hodler": "hodl",
+    "hodlers": "hodl",
+    "hodling": "hodl",
+    "hold": "hodl",
+    "holding": "hodl",
+    "holdings": "portfolio",
+    "home": "home",
+    "home assistant": "smart_home",
+    "home automation": "smart_home",
+    "homework": "education_ai",
+    "honey pot": "scam",
+    "hospitals": "hospital",
+    "hosted model": "cloudai",
+    "hot wallet": "hotwallet",
+    "hot wallets": "hotwallet",
+    "hotels": "hotel",
+    "hours back": "productivity",
+    "house": "house",
+    "houses": "house",
+    "housing": "house",
+    "how does": "questionmark",
+    "hugging face": "huggingface",
+    "huggingface hub": "huggingface",
+    "human": "person",
+    "human approval": "humanintheloop",
+    "human control": "humanintheloop",
+    "human in the loop": "humanintheloop",
+    "human level ai": "agi",
+    "human oversight": "humanintheloop",
+    "human review": "humanintheloop",
+    "human-level ai": "agi",
+    "humanoid": "robot",
+    "humanoid robot": "robot",
+    "humanoid robots": "robot",
+    "humans stay": "humanintheloop",
+    "ibc": "cosmosnetwork",
+    "id": "digitalidentity2",
+    "ideas": "idea",
+    "identities": "digitalidentity2",
+    "identity": "digitalidentity2",
+    "identity verification": "kyc",
+    "ido": "ico",
+    "ieo": "ico",
+    "il": "impermanentloss",
+    "image diffusion": "diffusion",
+    "image generation": "imagegen",
+    "image recognition": "computervision",
+    "image to image": "imagegen",
+    "image to video": "videogen",
+    "image understanding": "computervision",
+    "immunization": "vaccine",
+    "immutability": "immutable",
+    "immutable record": "permanent",
+    "impermanent loss": "impermanentloss",
+    "impersonation": "deepfake",
+    "important dates": "calendar",
+    "in game items": "gameasset",
+    "in production": "inference",
+    "in the cloud": "cloudai",
+    "in the news": "mainstream",
+    "in the style of": "styletransfer",
+    "in-game assets": "gameasset",
+    "in-game items": "gameasset",
+    "inaccurate": "hallucination",
+    "income stream": "passiveincome",
+    "increase": "growth",
+    "individual": "person",
+    "inference chips": "gpu",
+    "inference cost": "inference",
+    "inference time": "inference",
+    "inferencing": "inference",
+    "inflation rate": "emission",
+    "inflationary": "emission",
+    "influencers": "influencer",
+    "initial coin offering": "ico",
+    "initial dex offering": "ico",
+    "injection": "syringe",
+    "injections": "syringe",
+    "injury": "bandage",
+    "innovation": "idea",
+    "innovative": "idea",
+    "inscription": "ordinals",
+    "inscriptions": "ordinals",
+    "insight": "idea",
+    "instagram": "metageneric",
+    "instant": "speed",
+    "instant finality": "finality",
+    "instant response": "realtime_ai",
+    "instant settlement": "settlement",
+    "instantly": "speed",
+    "institutional": "tradfi",
+    "institutional investors": "tradfi",
+    "institutions": "tradfi",
+    "insured": "insurance",
+    "integrate": "integration2",
+    "integrate ai": "api_ai",
+    "integrated": "integration2",
+    "integrates": "integration2",
+    "integration": "partnership",
+    "integrations": "partnership",
+    "intel chip": "intel",
+    "intel chips": "intel",
+    "intellectual property": "copyright",
+    "inter-blockchain": "cosmosnetwork",
+    "interest rate": "percent",
+    "interest rates": "percent",
+    "intermediaries": "middleman",
+    "intermediary": "middleman",
+    "international": "world",
+    "international transfer": "remittance",
+    "international transfers": "remittance",
+    "interop": "multichain",
+    "interoperability": "multichain",
+    "interoperable": "multichain",
+    "interpretability": "explainable",
+    "interpretable": "explainable",
+    "ios": "appleinc",
+    "ip": "copyright",
+    "ip-adapter": "controlnet",
+    "ipad": "appleinc",
+    "iphone": "appleinc",
+    "ipo": "startup_ai",
+    "is it ai": "aiwatermark",
+    "item": "product",
+    "jab": "syringe",
+    "jet": "plane",
+    "job": "work",
+    "jobs": "work",
+    "join our discord": "discord",
+    "journey": "travel",
+    "jupyter notebook": "jupyter",
+    "k8s": "kubernetes",
+    "kaggle competition": "kaggle",
+    "keep safe": "security",
+    "keeps a human": "humanintheloop",
+    "key points": "summarization",
+    "keyboards": "keyboard",
+    "keys": "key",
+    "kid": "person",
+    "kimi": "moonshot",
+    "kimi ai": "moonshot",
+    "kitchen": "pantry",
+    "kitten": "cat",
+    "know your customer": "kyc",
+    "kol": "influencer",
+    "kols": "influencer",
+    "kraken exchange": "kraken",
+    "kubernetes cluster": "kubernetes",
+    "kucoin exchange": "kucoin",
+    "l1": "layer1",
+    "l2": "layer2",
+    "lab": "science_ai",
+    "labeled data": "dataset",
+    "labelled data": "dataset",
+    "laboratory": "science_ai",
+    "lady": "person",
+    "lambo": "mooning",
+    "lamp": "light",
+    "lang chain": "langchain",
+    "langgraph": "langchain",
+    "language model": "llm",
+    "language models": "llm",
+    "language understanding": "nlp",
+    "languages": "translation",
+    "laptop": "computer",
+    "large documents": "longcontext",
+    "large language model": "llm",
+    "large language models": "llm",
+    "latent diffusion": "diffusion",
+    "latte": "coffee",
+    "launch": "announce",
+    "launched": "announce",
+    "launching": "launch",
+    "launchpad": "ico",
+    "law": "government",
+    "law firm": "legal_ai",
+    "lawn": "grass",
+    "laws": "government",
+    "lawyer": "legal_ai",
+    "lawyers": "legal_ai",
+    "layer 1": "layer1",
+    "layer 2": "layer2",
+    "layer one": "layer1",
+    "layer two": "layer2",
+    "layoffs": "jobimpact",
+    "le chat": "mistral",
+    "lead generation": "sales_ai",
+    "leaderboard": "evaluation",
+    "leads": "sales_ai",
+    "learn": "education_ai",
+    "learning": "education_ai",
+    "learns you": "personalization",
+    "learns your": "personalization",
+    "ledger device": "ledgerwallet",
+    "ledger nano": "ledgerwallet",
+    "ledger wallet": "ledgerwallet",
+    "ledgers": "ledger",
+    "left holding the bag": "bagholder",
+    "legal": "legal_ai",
+    "legal documents": "legal_ai",
+    "legal framework": "regulation",
+    "legislation": "government",
+    "lend": "lending",
+    "leverage trading": "leverage",
+    "leveraged": "leverage",
+    "library": "book",
+    "licensed data": "copyright",
+    "lido finance": "lido",
+    "liftoff": "rocketship",
+    "lightning fast": "speed",
+    "lights": "light",
+    "limit order": "limitorder",
+    "limit orders": "limitorder",
+    "limitation": "limitations",
+    "limited supply": "scarcity",
+    "link token": "chainlink",
+    "liquid market": "liquidity",
+    "liquid restaking": "liquidtoken",
+    "liquid staking": "staking",
+    "liquid staking token": "liquidtoken",
+    "liquidated": "liquidation",
+    "liquidations": "liquidation",
+    "liquidity mining": "yieldfarming",
+    "liquidity pool": "liquidity",
+    "liquidity pools": "liquidity",
+    "liquidity provision": "liquidity",
+    "lite paper": "whitepaper",
+    "litepaper": "whitepaper",
+    "live": "realtime_ai",
+    "live demo": "demo",
+    "llama": "metaai",
+    "llama 3": "metaai",
+    "llama 4": "metaai",
+    "llama index": "llamaindex",
+    "llama model": "metaai",
+    "llama-index": "llamaindex",
+    "llms": "llm",
+    "lm studio": "ollama",
+    "lmstudio": "ollama",
+    "loaf": "bread",
+    "loans": "lending",
+    "local ai": "edge",
+    "localisation": "localization",
+    "localize": "localization",
+    "locked": "lock",
+    "locks": "lock",
+    "logic": "algorithm",
+    "logo": "design_ai",
+    "logos": "design_ai",
+    "logs": "monitoring",
+    "long context": "longcontext",
+    "long documents": "longcontext",
+    "long position": "leverage",
+    "long-term hold": "hodl",
+    "longing": "leverage",
+    "looking for": "search",
+    "lora": "controlnet",
+    "lorry": "truck",
+    "losing money": "loss",
+    "losses": "loss",
+    "lovable ai": "lovable",
+    "low cap gem": "gem",
+    "low cost": "fees",
+    "low fees": "fees",
+    "low latency": "realtime_ai",
+    "low-cost": "fees",
+    "lp": "liquidity",
+    "lrt": "liquidtoken",
+    "lrts": "liquidtoken",
+    "lst": "liquidtoken",
+    "lsts": "liquidtoken",
+    "ltc": "litecoin",
+    "lunar": "moon",
+    "lunch": "pantry",
+    "macbook": "appleinc",
+    "machine learning": "machinelearning",
+    "machine translation": "translation",
+    "made by ai": "aiwatermark",
+    "made up": "hallucination",
+    "main net": "mainnet",
+    "mainnet launch": "mainnet",
+    "mainnets": "mainnet",
+    "mainstream adoption": "adoption",
+    "maker": "dai",
+    "makerdao": "dai",
+    "makes things up": "hallucination",
+    "making": "build",
+    "making money": "roi",
+    "mall": "shop",
+    "man": "person",
+    "mana": "decentraland",
+    "manufacturing": "factory",
+    "margin": "leverage",
+    "margin call": "liquidation",
+    "margin trading": "leverage",
+    "mark zuckerberg": "metageneric",
+    "market bubble": "bubblechart",
+    "market cap": "marketcap",
+    "market capitalisation": "marketcap",
+    "market capitalization": "marketcap",
+    "market conditions": "market",
+    "market depth": "orderbook",
+    "marketer": "marketing_ai",
+    "marketing": "marketing_ai",
+    "markets": "market",
+    "mass adoption": "adoption",
+    "massively scalable": "scale",
+    "mastercard": "creditcard",
+    "matic": "polygon",
+    "max supply": "supply",
+    "maximal extractable value": "mev",
+    "mcap": "marketcap",
+    "mcp server": "mcp",
+    "mcp servers": "mcp",
+    "mcp tool": "mcp",
+    "meal": "pantry",
+    "medal": "trophy",
+    "medals": "trophy",
+    "medical": "health",
+    "medication": "pill",
+    "medicine": "pill",
+    "meme coin": "memecoin",
+    "meme coins": "memecoin",
+    "memecoins": "memecoin",
+    "memory pool": "mempool",
+    "merchant payments": "payment",
+    "meta": "metageneric",
+    "meta ai": "metaai",
+    "meta llama": "metaai",
+    "meta mask": "metamask",
+    "metamask wallet": "metamask",
+    "metaverses": "metaverse",
+    "metrics": "analytics",
+    "metro": "train",
+    "mev bot": "mev",
+    "microsoft 365": "microsoft",
+    "microsoft copilot": "microsoft",
+    "mics": "mic",
+    "mid journey": "midjourney",
+    "middlemen": "middleman",
+    "milestone": "goal",
+    "milestones": "roadmap",
+    "million token": "longcontext",
+    "million tokens": "aitoken",
+    "million-token": "longcontext",
+    "mine": "mining",
+    "mined": "mining",
+    "miners": "miner",
+    "mining rig": "mining",
+    "mining rigs": "mining",
+    "minted": "mint",
+    "minting": "mint",
+    "mints": "mint",
+    "mistral ai": "mistral",
+    "mistralai": "mistral",
+    "mixtral": "mistral",
+    "ml": "machinelearning",
+    "ml model": "machinelearning",
+    "ml models": "machinelearning",
+    "mmlu": "benchmark_ai",
+    "mnemonic": "seedphrase",
+    "mnemonic phrase": "seedphrase",
+    "mobile": "phone",
+    "mobile wallet": "hotwallet",
+    "mockup": "design_ai",
+    "mockups": "design_ai",
+    "model bias": "bias",
+    "model context protocol": "mcp",
+    "model distillation": "distillation",
+    "model monitoring": "monitoring",
+    "model serving": "inference",
+    "model size": "parameters",
+    "model training": "training",
+    "model weights": "model",
+    "models": "model",
+    "modular blockchain": "modular",
+    "modular blockchains": "modular",
+    "modularity": "modular",
+    "money transfer": "remittance",
+    "money transfers": "remittance",
+    "monitor": "monitoring",
+    "monitored": "monitoring",
+    "monitors": "monitor",
+    "monthly": "month",
+    "months": "month",
+    "moon": "mooning",
+    "mooned": "mooning",
+    "moons": "mooning",
+    "moonshot ai": "moonshot",
+    "moped": "scooter",
+    "moral": "ethics",
+    "morality": "ethics",
+    "motorbike": "motorcycle",
+    "mountains": "mountain",
+    "move to earn": "playtoearn",
+    "movie": "video",
+    "movies": "video",
+    "multi chain": "multichain",
+    "multi sig": "multisig",
+    "multi signature": "multisig",
+    "multi-agent": "agent",
+    "multi-chain": "multichain",
+    "multi-modal": "multimodal",
+    "multi-sig": "multisig",
+    "multi-signature": "multisig",
+    "multiagent": "agent",
+    "multilingual": "translation",
+    "multisig wallet": "multisig",
+    "music generation": "audiogen",
+    "music nft": "musician",
+    "music nfts": "musician",
+    "musicians": "musician",
+    "n8n workflow": "n8n",
+    "nakamoto": "satoshi",
+    "narration": "tts",
+    "narrative": "storyboard",
+    "natural language": "nlp",
+    "natural language processing": "nlp",
+    "natural language understanding": "nlp",
+    "near blockchain": "nearprotocol",
+    "near chain": "nearprotocol",
+    "near protocol": "nearprotocol",
+    "near zero fees": "fees",
+    "nearest neighbor": "vectordb",
+    "nest egg": "savings",
+    "network fee": "gas",
+    "network fees": "gas",
+    "network node": "node",
+    "neural net": "neuralnetwork",
+    "neural nets": "neuralnetwork",
+    "neural network": "neuralnetwork",
+    "neural networks": "neuralnetwork",
+    "never closes": "clock247",
+    "never sleeps": "clock247",
+    "new block": "block",
+    "new feature": "feature",
+    "new high": "price",
+    "new idea": "idea",
+    "new low": "price",
+    "new token": "launch",
+    "next release": "roadmap_ai",
+    "nfa": "dyor",
+    "nft collection": "nft",
+    "nft collections": "nft",
+    "nft mint": "mint",
+    "nfts": "nft",
+    "night": "moon",
+    "nlu": "nlp",
+    "no borders": "borderless",
+    "no cloud": "edge",
+    "no gas fees": "gasless",
+    "no middleman": "middleman",
+    "no seed phrase": "seedless",
+    "node operator": "nodeoperator",
+    "node runner": "nodeoperator",
+    "nodes": "node",
+    "non-custodial": "custody",
+    "non-fungible token": "nft",
+    "non-fungible tokens": "nft",
+    "not financial advice": "dyor",
+    "not your keys": "privacy",
+    "notebook": "jupyter",
+    "notion ai": "notion",
+    "novel": "book",
+    "novels": "book",
+    "now able to": "feature",
+    "numbers": "analytics",
+    "nvda": "nvidia",
+    "nvidia chips": "nvidia",
+    "nvidia gpu": "nvidia",
+    "nvidia gpus": "nvidia",
+    "object detection": "computervision",
+    "objective": "target",
+    "objectives": "goal",
+    "observability": "monitoring",
+    "off chain": "onchain",
+    "off ramp": "onramp",
+    "off-chain": "onchain",
+    "off-ramp": "onramp",
+    "offchain": "onchain",
+    "office": "microsoft",
+    "offices": "office",
+    "offline ai": "edge",
+    "offline signing": "airgap",
+    "offline storage": "airgap",
+    "okx exchange": "okx",
+    "ollama local": "ollama",
+    "omni": "multimodal",
+    "omnichain": "multichain",
+    "on base": "basechain",
+    "on chain": "onchain",
+    "on device": "edge",
+    "on device ai": "edge",
+    "on ramp": "onramp",
+    "on twitter": "twitterx",
+    "on x": "twitterx",
+    "on-chain": "onchain",
+    "on-chain analysis": "onchaindata",
+    "on-chain analytics": "whalealert",
+    "on-chain data": "onchaindata",
+    "on-chain exchange": "dex",
+    "on-chain governance": "governance",
+    "on-chain metrics": "analytics",
+    "on-device": "edge",
+    "on-ramp": "onramp",
+    "onchain": "transparent",
+    "onchain analytics": "whalealert",
+    "onchain data": "onchaindata",
+    "online identity": "digitalidentity2",
+    "onnx runtime": "onnx",
+    "op mainnet": "optimism",
+    "op stack": "optimism",
+    "open ai": "openai",
+    "open code": "opensource",
+    "open cv": "opencv",
+    "open data": "opensource_data",
+    "open finance": "defi",
+    "open ledger": "transparent",
+    "open model": "opensourceai",
+    "open models": "opensourceai",
+    "open router": "openrouter",
+    "open sea": "opensea",
+    "open source": "pricing_ai",
+    "open source model": "opensourceai",
+    "open source models": "opensourceai",
+    "open sourced": "opensource",
+    "open weight": "openweight",
+    "open weights": "openweight",
+    "open-source": "opensourceai",
+    "open-source ai": "opensourceai",
+    "open-weights": "openweight",
+    "openai-compatible": "opensourceai",
+    "optical character recognition": "ocr",
+    "optimism chain": "optimism",
+    "optimistic rollup": "rollup",
+    "options trading": "options",
+    "oracles": "oracle",
+    "orchestration": "aiworkflow",
+    "order book": "orderbook",
+    "order books": "orderbook",
+    "ordinal": "ordinals",
+    "outperforms": "competition_ai",
+    "outreach": "sales_ai",
+    "over-collateralized": "collateral",
+    "overcollateralized": "collateral",
+    "own": "ownership",
+    "own your": "ownership",
+    "p2e": "playtoearn",
+    "p2p exchange": "p2p",
+    "p2p trading": "p2p",
+    "padlock": "lock",
+    "paid promotion": "shill",
+    "pair programmer": "codegen",
+    "panic sell": "paperhands",
+    "panic selling": "paperhands",
+    "paper hands": "paperhands",
+    "paperwork": "document",
+    "parameter": "parameters",
+    "parse documents": "ocr",
+    "partner": "partnership",
+    "partnerships": "partnership",
+    "pass key": "passkey",
+    "pass phrase": "passkey",
+    "passive income": "passiveincome",
+    "passkeys": "passkey",
+    "passphrase": "passkey",
+    "patient": "medical_ai",
+    "patients": "medical_ai",
+    "paxg": "goldtoken",
+    "pay with bitcoin": "payment",
+    "pay with crypto": "payment",
+    "payments": "payment",
+    "pc": "computer",
+    "peer to peer": "p2p",
+    "peer-to-peer": "p2p",
+    "pepe coin": "pepe",
+    "per month": "pricing_ai",
+    "per seat": "pricing_ai",
+    "per token": "aitoken",
+    "per-token": "cost",
+    "percentage": "percent",
+    "permanently": "permanent",
+    "permissionless": "trustless",
+    "perpetual": "futures",
+    "perpetual futures": "futures",
+    "perpetual swap": "futures",
+    "perplexity ai": "perplexity",
+    "perps": "futures",
+    "person to person": "peertopeer",
+    "personal assistant": "assistant",
+    "personalised": "personalization",
+    "personalized": "personalization",
+    "personalized ai": "personalization",
+    "persons": "people",
+    "phantom": "phantomwallet",
+    "phantom wallet": "phantomwallet",
+    "phishing": "scam",
+    "phones": "phone",
+    "photo": "camera",
+    "photography": "camera",
+    "physical infrastructure": "depin",
+    "picture": "camera",
+    "piggy bank": "savings",
+    "pillows": "pillow",
+    "pills": "pill",
+    "pinecone db": "pinecone",
+    "pipeline": "aiworkflow",
+    "pipelines": "aiworkflow",
+    "plan": "subscription",
+    "planes": "plane",
+    "planet": "world",
+    "planets": "world",
+    "plans": "subscription",
+    "play to earn": "playtoearn",
+    "play-to-earn": "playtoearn",
+    "playground": "demo",
+    "playlist": "music",
+    "plug into": "integration2",
+    "policies": "government",
+    "policy": "government",
+    "polkadot chain": "polkadot",
+    "polygon matic": "polygon",
+    "polymarket": "prediction",
+    "ponzi": "scam",
+    "ponzi scheme": "scam",
+    "portfolio tracker": "watchlist",
+    "portfolios": "portfolio",
+    "pos": "proofofstake",
+    "post training": "training",
+    "post-training": "training",
+    "pow": "proofofwork",
+    "pre-sale": "ico",
+    "pre-trained": "training",
+    "pre-training": "training",
+    "precious metals": "goldtoken",
+    "predict": "prediction_ai",
+    "predicted": "prediction_ai",
+    "predicting": "prediction_ai",
+    "prediction": "prediction_ai",
+    "prediction market": "prediction",
+    "prediction markets": "prediction",
+    "predictions": "prediction_ai",
+    "predictive": "prediction_ai",
+    "predicts": "prediction_ai",
+    "premium": "subscription",
+    "presale": "ico",
+    "present": "gift",
+    "presenter": "avatar",
+    "presenter video": "ai_avatar_video",
+    "presents": "gift",
+    "pretrained": "training",
+    "pretraining": "training",
+    "preview": "waitlist_ai",
+    "price": "pricing_ai",
+    "price action": "candlestick",
+    "price alert": "watchlist",
+    "price alerts": "watchlist",
+    "price chart": "candlestick",
+    "price difference": "arbitrage",
+    "price impact": "slippage",
+    "price of": "price",
+    "price oracle": "oracle",
+    "price target": "price",
+    "prices": "price",
+    "pricing": "pricing_ai",
+    "printers": "printer",
+    "privacy coin": "anonymous",
+    "privacy coins": "anonymous",
+    "private": "privacy",
+    "private beta": "waitlist_ai",
+    "private data": "data",
+    "private key": "privatekey",
+    "private keys": "privatekey",
+    "private model": "finetune_custom",
+    "private transaction": "anonymous",
+    "prize pool": "lottery",
+    "production": "inference",
+    "productive": "productivity",
+    "products": "product",
+    "profit": "roi",
+    "profitability": "roi",
+    "profits": "roi",
+    "program": "code",
+    "programmer": "engineer",
+    "programming": "code",
+    "project launch": "launch",
+    "project roadmap": "roadmap",
+    "prompt engineer": "prompt",
+    "prompt engineering": "prompt",
+    "prompt library": "prompt_engineering2",
+    "prompt template": "prompt_engineering2",
+    "prompt tips": "prompt_engineering2",
+    "prompt tricks": "prompt_engineering2",
+    "prompting": "prompt",
+    "prompts": "prompt",
+    "proof of stake": "proofofstake",
+    "proof of work": "proofofwork",
+    "properties": "realestate",
+    "property": "realestate",
+    "proposal": "governance",
+    "proposals": "governance",
+    "proprietary model": "finetune_custom",
+    "protect": "security",
+    "protected": "security",
+    "protection": "security",
+    "protein folding": "science_ai",
+    "protocol insurance": "insurance",
+    "protocol treasury": "treasury",
+    "provable": "audittrail",
+    "provable history": "provenance",
+    "prove": "audittrail",
+    "provenance": "watermark",
+    "prover": "sequencer",
+    "provers": "sequencer",
+    "pseudonymous": "anonymous",
+    "public code": "opensource",
+    "public dataset": "opensource_data",
+    "public key": "publickey",
+    "public keys": "publickey",
+    "publicly verifiable": "transparent",
+    "pumping": "bullmarket",
+    "puppies": "dog",
+    "puppy": "dog",
+    "py": "python",
+    "py torch": "pytorch",
+    "python code": "python",
+    "python script": "python",
+    "qr code": "qrcode",
+    "qr codes": "qrcode",
+    "quantisation": "quantization",
+    "quantize": "quantization",
+    "quantized": "quantization",
+    "questions": "question",
+    "r/cryptocurrency": "reddit",
+    "radeon": "amd",
+    "radiology": "medical_ai",
+    "raffle": "lottery",
+    "raise": "startup_ai",
+    "raised": "startup_ai",
+    "rally": "support",
+    "rari": "rarible",
+    "rate": "percent",
+    "rates": "percent",
+    "read aloud": "tts",
+    "read documents": "ocr",
+    "read text": "ocr",
+    "read the docs": "docs",
+    "reading": "book",
+    "real estate": "realestate",
+    "real money": "moneygeneric",
+    "real time": "realtime_ai",
+    "real utility": "utility",
+    "real world asset": "realestate",
+    "real world assets": "rwa",
+    "real-time": "realtime_ai",
+    "real-time translation": "translation",
+    "real-world assets": "rwa",
+    "realtime": "realtime_ai",
+    "reasoning model": "reasoning",
+    "reasons": "reasoning",
+    "receive": "transfer",
+    "receive crypto": "transfer",
+    "receiving address": "address",
+    "receiving crypto": "transfer",
+    "recommendation engine": "recommendation",
+    "recommendations": "recommendation",
+    "recommended": "recommendation",
+    "recommends": "recommendation",
+    "recovery phrase": "seedphrase",
+    "recovery phrases": "seedphrase",
+    "recurring": "subscription",
+    "red candle": "candle",
+    "red flag": "greenflag",
+    "red flags": "greenflag",
+    "red market": "bearmarket",
+    "reddit community": "reddit",
+    "regulate ai": "regulation_ai",
+    "regulated": "regulation",
+    "regulated ai": "regulation_ai",
+    "regulations": "regulation",
+    "regulator": "regulation",
+    "regulators": "government",
+    "release": "announce",
+    "released": "announce",
+    "releasing": "announce",
+    "remaster": "upscaling",
+    "remittances": "remittance",
+    "replace workers": "jobimpact",
+    "replaced by ai": "jobimpact",
+    "replit agent": "replit",
+    "repo": "github",
+    "repository": "github",
+    "research": "science_ai",
+    "research data": "opensource_data",
+    "researchers": "science_ai",
+    "resistance": "support",
+    "resistance level": "support",
+    "reskilling": "jobimpact",
+    "resolve": "customerservice",
+    "responds instantly": "realtime_ai",
+    "responsible": "ethics",
+    "responsible ai": "aisafety",
+    "responsibly": "ethics",
+    "rest api": "api_ai",
+    "restake": "restaking",
+    "restaked": "restaking",
+    "restaking": "staking",
+    "restoration": "upscaling",
+    "restore": "upscaling",
+    "restyle": "styletransfer",
+    "retrieval": "rag",
+    "retrieval augmented": "rag",
+    "retrieval augmented generation": "rag",
+    "retrieval-augmented": "rag",
+    "retrieve": "rag",
+    "return on investment": "roi",
+    "returns": "roi",
+    "reverse transaction": "clawback",
+    "reversible": "clawback",
+    "reward rate": "reward",
+    "rewards": "reward",
+    "rewards program": "cashback",
+    "right time": "time",
+    "ripple labs": "xrp",
+    "ripple xrp": "xrp",
+    "risky": "warning",
+    "rivals": "competition_ai",
+    "roadmap": "roadmap_ai",
+    "robo taxi": "robotaxi",
+    "robo-taxi": "robotaxi",
+    "robot arm": "robot",
+    "robotaxi": "selfdriving",
+    "robotics": "robot",
+    "robots": "robot",
+    "rocket": "rocketship",
+    "rockets": "rocketship",
+    "rolling out": "announce",
+    "rollout": "announce",
+    "rolls out": "announce",
+    "rollups": "rollup",
+    "royalties": "musician",
+    "royalty": "musician",
+    "rucksack": "backpack",
+    "rug pull": "rugpull",
+    "rug pulls": "rugpull",
+    "rugged": "rugpull",
+    "run a node": "nodeoperator",
+    "run it yourself": "openweight",
+    "rune": "runes",
+    "runes protocol": "runes",
+    "running a node": "nodeoperator",
+    "runs locally": "edge",
+    "runs on device": "edge",
+    "safe": "gnosissafe",
+    "safe ai": "aisafety",
+    "safe multisig": "gnosissafe",
+    "safe wallet": "gnosissafe",
+    "safely": "security",
+    "safety": "aisafety",
+    "sagemaker": "amazon",
+    "sales": "sales_ai",
+    "same character": "consistency",
+    "sandwich attack": "mev",
+    "sat": "satoshi",
+    "satoshi nakamoto": "satoshi",
+    "satoshis": "satoshi",
+    "sats": "satoshi",
+    "save": "savings",
+    "save time": "productivity",
+    "saved": "savings",
+    "saves time": "productivity",
+    "saving": "savings",
+    "sbt": "did",
+    "scalability": "scale",
+    "scalable": "scale",
+    "scales": "scale",
+    "scaling": "scale",
+    "scaling solution": "layer2",
+    "scaling solutions": "layer2",
+    "scalping": "trader",
+    "scammer": "scam",
+    "scams": "scam",
+    "scan the qr": "qrcode",
+    "scan to pay": "qrcode",
+    "scarce": "scarcity",
+    "scene": "storyboard",
+    "scenes": "storyboard",
+    "science": "science_ai",
+    "scientific": "science_ai",
+    "scikit learn": "scikitlearn",
+    "scikit-learn": "scikitlearn",
+    "screens": "screen",
+    "screwdriver": "tools",
+    "script": "code",
+    "scripts": "code",
+    "sdxl": "stabilityai",
+    "search engine": "search_ai",
+    "sec": "regulation",
+    "secret key": "privatekey",
+    "secret phrase": "seedphrase",
+    "secure": "security",
+    "security audit": "audit",
+    "see it in action": "demo",
+    "seed phrase": "seedphrase",
+    "seed phrases": "seedphrase",
+    "seed round": "seedround",
+    "seed words": "seedphrase",
+    "sees and hears": "multimodal",
+    "sees images": "computervision",
+    "self attention": "transformer",
+    "self custody": "custody",
+    "self driving": "selfdriving",
+    "self-attention": "transformer",
+    "self-custody": "custody",
+    "self-driving": "selfdriving",
+    "self-hosted model": "openweight",
+    "self-sovereign": "ownership",
+    "self-sovereign identity": "did",
+    "self-sovereign money": "bankless2",
+    "sell": "sales_ai",
+    "selling": "sales_ai",
+    "semantic search": "vectordb",
+    "send": "transfer",
+    "send and receive": "transfer",
+    "send crypto": "transfer",
+    "send money abroad": "remittance",
+    "sending crypto": "transfer",
+    "sensors": "sensor",
+    "seo": "marketing_ai",
+    "sequence": "storyboard",
+    "sequencers": "sequencer",
+    "sequences": "storyboard",
+    "serving": "inference",
+    "set it and forget it": "automation",
+    "settle": "settlement",
+    "settled": "settlement",
+    "settlement layer": "settlement",
+    "settles": "settlement",
+    "share": "stocks",
+    "shares": "stocks",
+    "shark": "sharktank",
+    "sharks": "sharktank",
+    "shib": "shiba",
+    "shiba inu": "shiba",
+    "shilled": "shill",
+    "shiller": "shill",
+    "shilling": "shill",
+    "ship code": "coding_ai",
+    "shipped": "announce",
+    "ships": "ship",
+    "shirts": "shirt",
+    "shoes": "shoe",
+    "shopping": "shop",
+    "shops": "shop",
+    "short position": "leverage",
+    "shorting": "leverage",
+    "shot": "storyboard",
+    "shots": "storyboard",
+    "side chain": "sidechain",
+    "sidechains": "sidechain",
+    "sidekick": "assistant",
+    "sign the transaction": "signature",
+    "sign up early": "waitlist_ai",
+    "signatures": "signature",
+    "signed": "signature",
+    "signing": "signature",
+    "similarity search": "vectordb",
+    "skins": "gameasset",
+    "sklearn": "scikitlearn",
+    "skyscraper": "building",
+    "slack bot": "slack",
+    "slashed": "slashing",
+    "slashing penalty": "slashing",
+    "smaller model": "quantization",
+    "smart contract": "smartcontract",
+    "smart contract audit": "audit",
+    "smart contract developer": "smartcontractdev",
+    "smart contract development": "smartcontractdev",
+    "smart contracts": "smartcontract",
+    "smart glasses": "wearable",
+    "smart home": "smart_home",
+    "smart investor": "sharktank",
+    "smart money": "whalealert",
+    "smart ring": "wearable",
+    "smart speaker": "smart_home",
+    "smart wallet": "accountabstraction",
+    "smart wallets": "accountabstraction",
+    "smartphone": "phone",
+    "smartwatch": "watch",
+    "snapdragon": "qualcomm",
+    "snapshot vote": "snapshot",
+    "snapshot voting": "snapshot",
+    "sneakers": "sneaker",
+    "social fi": "socialfi",
+    "social media": "marketing_ai",
+    "social media posts": "content",
+    "social posts": "content",
+    "social recovery": "accountabstraction",
+    "social token": "creator",
+    "soft fork": "fork",
+    "softfork": "fork",
+    "software": "code",
+    "software development": "coding_ai",
+    "software wallet": "hotwallet",
+    "sol": "solana",
+    "solana ecosystem": "solanachain",
+    "solana mainnet": "solanachain",
+    "solana network": "solanachain",
+    "solidity": "smartcontractdev",
+    "solscan": "blockexplorer",
+    "someone": "person",
+    "song": "music",
+    "songs": "music",
+    "sora": "openai",
+    "sota": "benchmark_ai",
+    "soulbound": "did",
+    "sound effects": "audiogen",
+    "speakers": "speaker",
+    "speculative bubble": "bubblechart",
+    "speech recognition": "stt",
+    "speech synthesis": "tts",
+    "speech to speech": "voice_mode",
+    "speech to text": "stt",
+    "speech-to-text": "stt",
+    "spoken": "voice_mode",
+    "sponsored": "shill",
+    "spot etf": "etf",
+    "stability": "stabilityai",
+    "stability ai": "stabilityai",
+    "stable coin": "stablecoin",
+    "stable coins": "stablecoin",
+    "stable diffusion": "stabilityai",
+    "stable diffusion xl": "stabilityai",
+    "stablecoins": "stablecoin",
+    "staff": "worker",
+    "stake": "staking",
+    "stake your": "staking",
+    "staked": "staking",
+    "staked eth": "lido",
+    "stakes": "staking",
+    "staking pool": "staking",
+    "staking rewards": "reward",
+    "stars": "star",
+    "startup": "company",
+    "startups": "startup_ai",
+    "state of the art": "benchmark_ai",
+    "state-of-the-art": "benchmark_ai",
+    "statistics": "analytics",
+    "stats": "analytics",
+    "stay safe": "security",
+    "step by step": "reasoning",
+    "steth": "lido",
+    "still early": "time",
+    "stock": "stocks",
+    "stock market": "stocks",
+    "stop loss": "limitorder",
+    "stop loss hunt": "liquidation",
+    "stop-loss": "limitorder",
+    "stores": "store",
+    "storyboards": "storyboard",
+    "storyline": "storyboard",
+    "streaming": "realtime_ai",
+    "stripe payments": "stripe",
+    "struggles": "limitations",
+    "student": "education_ai",
+    "student model": "distillation",
+    "students": "education_ai",
+    "study": "education_ai",
+    "style transfer": "styletransfer",
+    "sub-second": "realtime_ai",
+    "subreddit": "reddit",
+    "subscribe": "subscription",
+    "subscription": "pricing_ai",
+    "subscriptions": "subscription",
+    "subtitle": "localization",
+    "subtitles": "localization",
+    "subway": "train",
+    "succeeded": "success",
+    "success": "win",
+    "successful": "success",
+    "summaries": "summarization",
+    "summarize": "summarization",
+    "summarized": "summarization",
+    "summarizes": "summarization",
+    "summary": "summarization",
+    "sunglasses": "glasses",
+    "sunny": "sun",
+    "suno ai": "suno",
+    "suno music": "suno",
+    "sunshine": "sun",
+    "supabase vector": "supabase",
+    "super intelligence": "singularity",
+    "super resolution": "upscaling",
+    "superintelligence": "singularity",
+    "supply cap": "supply",
+    "supply chain": "provenance",
+    "supply chain tracking": "provenance",
+    "supply schedule": "tokenomics",
+    "support": "customerservice",
+    "support agent": "customerservice",
+    "support and resistance": "support",
+    "support level": "support",
+    "surveillance drone": "drone",
+    "suspicious": "fraud",
+    "swap crypto": "swap",
+    "swap tokens": "swap",
+    "swapping": "swap",
+    "swaps": "swap",
+    "swe-bench": "benchmark_ai",
+    "swing trading": "trader",
+    "synthetic data": "syntheticdata",
+    "synthetic datasets": "syntheticdata",
+    "synthetic media": "deepfake",
+    "synthetic voice": "voiceclone",
+    "system prompt": "prompt",
+    "ta": "technicalanalysis",
+    "tailored": "personalization",
+    "tailored to you": "personalization",
+    "take off": "rocketship",
+    "take profit": "limitorder",
+    "take-profit": "limitorder",
+    "talk to": "voice_mode",
+    "talk to ai": "chatbot",
+    "talking avatar": "ai_avatar_video",
+    "talking head": "avatar",
+    "talking head video": "ai_avatar_video",
+    "tamper proof": "immutable",
+    "tamper-proof": "immutable",
+    "target": "goal",
+    "targets": "goal",
+    "tax on crypto": "cryptotax",
+    "tax reporting": "cryptotax",
+    "taxable event": "cryptotax",
+    "teach": "education_ai",
+    "teacher model": "distillation",
+    "teaching": "education_ai",
+    "teammates": "team",
+    "teams": "team",
+    "technical analysis": "technicalanalysis",
+    "technical paper": "whitepaper",
+    "teeth": "tooth",
+    "telegram channel": "telegram",
+    "telegram group": "telegram",
+    "tendermint": "cosmosnetwork",
+    "tensor flow": "tensorflow",
+    "test net": "testnet",
+    "test network": "testnet",
+    "test set": "dataset",
+    "test-time compute": "reasoning",
+    "tested": "evaluation",
+    "testnet faucet": "faucet",
+    "testnets": "testnet",
+    "text and images": "multimodal",
+    "text extraction": "ocr",
+    "text image audio": "multimodal",
+    "text to image": "imagegen",
+    "text to speech": "tts",
+    "text to video": "videogen",
+    "text-to-image": "imagegen",
+    "text-to-speech": "tts",
+    "text-to-video": "videogen",
+    "textbook": "book",
+    "tf": "tensorflow",
+    "tg": "telegram",
+    "the ai": "ai",
+    "the algorithm": "algorithm",
+    "the community": "community",
+    "the halving": "halving",
+    "the ledger": "ledger",
+    "the market": "market",
+    "the mempool": "mempool",
+    "the model": "model",
+    "the roadmap": "roadmap",
+    "the singularity": "singularity",
+    "the unbanked": "unbanked",
+    "thinking": "reasoning",
+    "thinks": "reasoning",
+    "third parties": "middleman",
+    "third party": "middleman",
+    "threads": "metageneric",
+    "throughput": "speed",
+    "ticket": "customerservice",
+    "tickets": "customerservice",
+    "tier": "subscription",
+    "tiers": "subscription",
+    "tik tok": "tiktok",
+    "timing": "time",
+    "tl;dr": "summarization",
+    "tldr": "summarization",
+    "to the moon": "bullmarket",
+    "token airdrop": "airdrop",
+    "token bridge": "bridge",
+    "token burn": "burn",
+    "token count": "aitoken",
+    "token economics": "tokenomics",
+    "token launch": "launch",
+    "token limit": "contextwindow",
+    "token mint": "mint",
+    "token price": "price",
+    "token sale": "ico",
+    "token sales": "ico",
+    "token standard": "erc20",
+    "token standards": "erc20",
+    "token supply": "supply",
+    "token swap": "swap",
+    "token swaps": "swap",
+    "token unlock": "vesting",
+    "token unlocks": "vesting",
+    "token utility": "utility",
+    "tokenisation": "rwa",
+    "tokenised assets": "rwa",
+    "tokenization": "aitoken",
+    "tokenize": "rwa",
+    "tokenized assets": "rwa",
+    "tokenized real estate": "realestate",
+    "tokenized stocks": "stocks",
+    "tokenizer": "aitoken",
+    "tokens": "aitoken",
+    "tokens of context": "contextwindow",
+    "tokens per second": "aitoken",
+    "ton": "toncoin",
+    "ton coin": "toncoin",
+    "too late": "time",
+    "tool": "tools",
+    "tool calling": "tooluse",
+    "tool use": "tooluse",
+    "toolchain": "aitools",
+    "tooling": "tools",
+    "toolkit": "tools",
+    "tools": "tooluse",
+    "toolset": "aitools",
+    "tops the leaderboard": "benchmark_ai",
+    "torch": "pytorch",
+    "total supply": "supply",
+    "total value locked": "tvl",
+    "tps": "speed",
+    "tpu": "gpu",
+    "traceable": "audittrail",
+    "traces": "monitoring",
+    "tracing": "monitoring",
+    "track record": "provenance",
+    "track your crypto": "watchlist",
+    "trackable": "audittrail",
+    "traders": "trader",
+    "tradfi": "banking",
+    "trading platform": "exchange",
+    "trading platforms": "exchange",
+    "trading view": "tradingview",
+    "trading volume": "volume",
+    "tradingview chart": "tradingview",
+    "traditional currency": "fiat",
+    "traditional finance": "tradfi",
+    "train": "training",
+    "train your own": "finetuning",
+    "trained": "training",
+    "training data": "training",
+    "training data rights": "copyright",
+    "training dataset": "training",
+    "training run": "training",
+    "training set": "dataset",
+    "trains": "train",
+    "transaction fee": "gas",
+    "transaction fees": "gas",
+    "transaction hash": "hash",
+    "transactions": "transaction",
+    "transactions per second": "speed",
+    "transcribe": "stt",
+    "transcribed": "stt",
+    "transcription": "stt",
+    "transcripts": "stt",
+    "transformer architecture": "transformer",
+    "transformer model": "transformer",
+    "transformers": "transformer",
+    "translate": "translation",
+    "translated": "translation",
+    "translates": "translation",
+    "transparency": "transparent",
+    "transparent model": "explainable",
+    "trees": "tree",
+    "trezor": "trezorwallet",
+    "trezor wallet": "trezorwallet",
+    "trip": "travel",
+    "trips": "travel",
+    "trophies": "trophy",
+    "trucks": "truck",
+    "true ownership": "ownership",
+    "trust minimized": "trustless",
+    "trustless system": "trustless",
+    "trx": "tron",
+    "try it": "demo",
+    "try it yourself": "demo",
+    "tshirt": "shirt",
+    "tutor": "education_ai",
+    "tutorial": "book",
+    "tutorials": "docs",
+    "tutoring": "education_ai",
+    "twelve words": "seedphrase",
+    "twitter": "twitterx",
+    "twitter x": "twitterx",
+    "tx": "transaction",
+    "txid": "hash",
+    "txns": "transaction",
+    "ui": "design_ai",
+    "umbrellas": "umbrella",
+    "uncensorable": "permanent",
+    "understands images": "multimodal",
+    "unfair": "bias",
+    "unicorn": "startup_ai",
+    "uniswap dex": "uniswap",
+    "unlock": "vesting",
+    "unlocks": "vesting",
+    "unveiled": "announce",
+    "unveils": "announce",
+    "upcoming": "roadmap_ai",
+    "upcoming events": "calendar",
+    "upscale": "upscaling",
+    "upscaled": "upscaling",
+    "upskilling": "jobimpact",
+    "uptrend": "bullmarket",
+    "usage-based": "pricing_ai",
+    "usd coin": "usdc",
+    "usdcoin": "usdc",
+    "usdt": "tether",
+    "use case": "utility",
+    "use cases": "utility",
+    "use tools": "tooluse",
+    "ux": "design_ai",
+    "v0": "vercel",
+    "vacation": "travel",
+    "vaccination": "vaccine",
+    "vaccines": "vaccine",
+    "validator node": "node",
+    "validators": "validator",
+    "validity proof": "zero knowledge",
+    "validity proofs": "zero knowledge",
+    "valuation": "startup_ai",
+    "value locked": "tvl",
+    "vc": "seedround",
+    "vector": "embedding",
+    "vector database": "vectordb",
+    "vector db": "vectordb",
+    "vector embedding": "embedding",
+    "vector embeddings": "embedding",
+    "vector search": "vectordb",
+    "vector store": "vectordb",
+    "vectors": "embedding",
+    "vehicle": "car",
+    "vehicles": "car",
+    "venture capital": "seedround",
+    "vercel ai": "vercel",
+    "verifiable": "audittrail",
+    "verifiable credentials": "did",
+    "verifiable history": "provenance",
+    "verification": "kyc",
+    "verified": "kyc",
+    "versus": "competition_ai",
+    "vest": "vesting",
+    "vested": "vesting",
+    "vesting schedule": "vesting",
+    "vibe code": "codegen",
+    "vibe coding": "codegen",
+    "victory": "win",
+    "video avatar": "ai_avatar_video",
+    "video generation": "videogen",
+    "videos": "video",
+    "view on explorer": "blockexplorer",
+    "virtual assistant": "assistant",
+    "virtual items": "gameasset",
+    "virtual land": "metaverse",
+    "virtual presenter": "avatar",
+    "virtual world": "metaverse",
+    "virtual worlds": "metaverse",
+    "visa": "creditcard",
+    "vision and audio": "multimodal",
+    "vision model": "computervision",
+    "vision models": "computervision",
+    "vllm serving": "vllm",
+    "voice ai": "voice_mode",
+    "voice assistant": "voice_mode",
+    "voice clone": "voiceclone",
+    "voice cloning": "voiceclone",
+    "voice conversation": "voice_mode",
+    "voice mode": "voice_mode",
+    "voice over": "tts",
+    "voice recognition": "stt",
+    "voice replica": "voiceclone",
+    "voice synthesis": "tts",
+    "voiceover": "tts",
+    "volatile": "support",
+    "volatility": "support",
+    "vote": "governance",
+    "votes": "governance",
+    "voting": "governance",
+    "vs": "competition_ai",
+    "waitlist": "waitlist_ai",
+    "waitlisted": "whitelist",
+    "wall street": "tradfi",
+    "wallet address": "address",
+    "wallet connection": "walletconnect",
+    "wallet recovery": "seedless",
+    "wallet to wallet": "peertopeer",
+    "wallets": "wallet",
+    "warehouse robot": "robot",
+    "warn": "warning",
+    "watch": "video",
+    "watch out": "warning",
+    "watch this": "video",
+    "watches": "watch",
+    "watchlists": "watchlist",
+    "watermarked": "watermark",
+    "watermarking": "watermark",
+    "waymo": "robotaxi",
+    "weak hands": "paperhands",
+    "weakness": "limitations",
+    "weaknesses": "limitations",
+    "wealth": "financialfreedom",
+    "wealth building": "financialfreedom",
+    "wearables": "wearable",
+    "web 3": "web3",
+    "web 3.0": "web3",
+    "web3 developer": "smartcontractdev",
+    "web3 domain": "ens",
+    "web3 domains": "ens",
+    "web3 ecosystem": "web3",
+    "web3 game": "playtoearn",
+    "web3 games": "playtoearn",
+    "web3 social": "socialfi",
+    "web3 wallet": "wallet",
+    "web3.0": "web3",
+    "webhook": "api",
+    "webhooks": "api",
+    "weekly": "week",
+    "weeks": "week",
+    "weights": "parameters",
+    "wellness": "health",
+    "whale alert": "whalealert",
+    "whale tracking": "whalealert",
+    "whale watching": "whalealert",
+    "whales": "whale",
+    "what are": "questionmark",
+    "what is": "questionmark",
+    "what's next": "roadmap_ai",
+    "whatsapp": "metageneric",
+    "when moon": "mooning",
+    "whisper": "stt",
+    "white hat": "bugbounty",
+    "white paper": "whitepaper",
+    "whitelisted": "whitelist",
+    "whole document": "longcontext",
+    "why does": "questionmark",
+    "wifi": "router",
+    "win": "success",
+    "windows": "window",
+    "winner": "win",
+    "winning": "win",
+    "wins": "success",
+    "wire transfer": "banking",
+    "wire transfers": "banking",
+    "without borders": "borderless",
+    "wld": "worldcoin",
+    "woman": "person",
+    "workflow": "automation",
+    "workflows": "automation",
+    "workforce": "jobimpact",
+    "workplace": "office",
+    "works with": "integration2",
+    "workspace": "googlegeneric",
+    "world coin": "worldcoin",
+    "world id": "worldcoin",
+    "worldwide": "world",
+    "wrapped bitcoin": "wbtc",
+    "wrapped btc": "wbtc",
+    "wrecked": "rekt",
+    "write": "writing_ai",
+    "write a prompt": "prompt",
+    "write code": "codegen",
+    "write software": "coding_ai",
+    "writes code": "codegen",
+    "writes for you": "writing_ai",
+    "writing assistant": "writing_ai",
+    "wrong answers": "hallucination",
+    "x": "twitterx",
+    "x.ai": "grok",
+    "xai": "grok",
+    "xai explainability": "explainable",
+    "xlm": "stellar",
+    "xmr": "monero",
+    "xrp ledger": "xrp",
+    "xtz": "tezos",
+    "yard": "grass",
+    "yearly": "year",
+    "years": "year",
+    "yield": "apy",
+    "yield farm": "yieldfarming",
+    "yield farming": "yieldfarming",
+    "you own": "ownership",
+    "your bags": "portfolio",
+    "your data": "data",
+    "your identity": "digitalidentity2",
+    "your keys": "ownership",
+    "your keys your coins": "privacy",
+    "your own bank": "bankless2",
+    "your own data": "data",
+    "your own model": "finetune_custom",
+    "your savings": "savings",
+    "youtube channel": "youtube",
+    "youtube video": "youtube",
+    "youtuber": "youtube",
+    "zap": "zapier",
+    "zapier automation": "zapier",
+    "zec": "zcash",
+    "zero gas": "gasless",
+    "zero knowledge": "zero knowledge",
+    "zero-knowledge": "zero knowledge",
+    "zk": "zero knowledge",
+    "zk proof": "zero knowledge",
+    "zk proofs": "zero knowledge",
+    "zk rollup": "rollup",
+    "zk rollups": "rollup",
+    "zk-rollup": "rollup",
+    "zk-snark": "zero knowledge",
+    "zk-stark": "zero knowledge",
+    "zksnark": "zero knowledge",
+    "zkstark": "zero knowledge",
+    "zuckerberg": "metageneric",
+    "\u20bf": "bitcoin"
+  }
+}

@@ -1,0 +1,474 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "garden-sums",
+ "note": "a child's garden maths book — counting, adding, taking away, times, sharing; still pages, only the focus acts",
+ "aspects": [
+  "16x9"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#2c3a2a",
+  "paper": "#f4ecd6",
+  "accent": "#d0673f",
+  "finish": "PAPER"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "cast": {
+  "mia": {
+   "posture": "standing",
+   "head": "buns",
+   "skin": "#a87952",
+   "garment": "button-shirt-1"
+  }
+ },
+ "world": {
+  "grain": "grain-fine",
+  "motif": {
+   "concept": "apple",
+   "corner": "bottom-right"
+  },
+  "book": "paperbook"
+ },
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "HOOK",
+   "pattern": "CONTROLLED_EMPTY_SPACE",
+   "narration": "Mia planted a tiny seed, and the seed grew tall.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "display_units": [],
+   "page": {
+    "title": "A Tiny Seed",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "seed",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "sprout"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "seed",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   },
+   "dominant_layer": "FIGURE",
+   "figure": {
+    "valence": 0.3,
+    "arousal": 0.4,
+    "posture": "standing",
+    "energy": 0.45,
+    "formality": 0.5,
+    "facing": "CAMERA",
+    "justification": "Mia plants the seed — our guide through the garden",
+    "character": "mia",
+    "track": {
+     "enter": "left",
+     "exit": "none"
+    },
+    "prop": {
+     "concept": "sprout",
+     "hand": "auto"
+    },
+    "face": "smile",
+    "motion": {
+     "chain": [
+      {
+       "clip": "CMU_WALK",
+       "seconds": 1.2
+      },
+      {
+       "clip": "CMU_WAIT_IDLE",
+       "seconds": 1.6
+      }
+     ],
+     "look": {
+      "skin": "#a87952",
+      "hair": {
+       "color": "#241a12",
+       "style": "puffs"
+      },
+      "top": {
+       "color": "#c96f4a",
+       "garment": "shirt"
+      },
+      "bottom": {
+       "color": "#3c4a66",
+       "garment": "trousers"
+      },
+      "shoes": {
+       "color": "#2f2a22"
+      },
+      "ink": "#2c2620"
+     }
+    }
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "EMPHASIS",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Count the apples with me. One, two, three, four, five.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "display_units": [],
+   "page": {
+    "title": "Count the Apples",
+    "layout": "full",
+    "edu": {
+     "kind": "count",
+     "object": "apple",
+     "a": 5
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "frame_2",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "cloud"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "frame_2",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "EMPHASIS",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Three birds sat on the fence. Two more birds flew in. Three plus two makes five.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "display_units": [],
+   "page": {
+    "title": "Birds on the Fence",
+    "layout": "full",
+    "edu": {
+     "kind": "add",
+     "object": "bird",
+     "a": 3,
+     "b": 2
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day",
+    "elements": [
+     "fence"
+    ]
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "frame_3",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "cloud"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "frame_3",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "EMPHASIS",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Six balloons floated in the sky. Two balloons flew away. Now four are left.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "display_units": [],
+   "page": {
+    "title": "Balloons",
+    "layout": "full",
+    "edu": {
+     "kind": "subtract",
+     "object": "balloon",
+     "a": 6,
+     "b": 2
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "frame_4",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "cloud"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "frame_4",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b05",
+   "beat_type": "EMPHASIS",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Three rows of flowers, four in each row. Three times four is twelve.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "display_units": [],
+   "page": {
+    "title": "Rows of Flowers",
+    "layout": "full",
+    "edu": {
+     "kind": "multiply",
+     "object": "flower",
+     "a": 3,
+     "b": 4
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "frame_5",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "cloud"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "frame_5",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b06",
+   "beat_type": "EMPHASIS",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Share six fish between two ponds. Each pond gets three.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "display_units": [],
+   "page": {
+    "title": "Fair Shares",
+    "layout": "full",
+    "edu": {
+     "kind": "share",
+     "object": "fish",
+     "a": 6,
+     "b": 2
+    }
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day",
+    "elements": [
+     "wave"
+    ]
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "frame_6",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "cloud"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "frame_6",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b07",
+   "beat_type": "EMPHASIS",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "Then Leo kicked the ball across the grass.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "display_units": [],
+   "page": {
+    "title": "The Big Kick",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "day"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "ball",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "ball"
+     },
+     {
+      "id": "tree",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "support",
+      "concept": "tree"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "ball",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b08",
+   "beat_type": "PAYOFF",
+   "pattern": "HERO_SCALE_PROMOTION",
+   "narration": "At bedtime, the moon went dark.",
+   "energy": 0.5,
+   "complexity": 0.4,
+   "display_units": [],
+   "page": {
+    "title": "Bedtime",
+    "layout": "half"
+   },
+   "scene": {
+    "setting": "outdoor",
+    "mood": "night"
+   },
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "moon",
+      "kind": "object",
+      "glyph": "TILE",
+      "size": "hero",
+      "concept": "moon"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "moon",
+      "at": {
+       "offset_ms": 250
+      },
+      "duration_ms": 600,
+      "from": 0.0,
+      "to": 1.0
+     }
+    ]
+   }
+  }
+ ]
+}

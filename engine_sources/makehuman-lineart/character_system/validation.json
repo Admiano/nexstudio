@@ -1,0 +1,41 @@
+{
+  "version": "corrected-original-performance-v20",
+  "blender": "5.2.0 LTS",
+  "nativeScenes": 15,
+  "nativePoseSamples": 150,
+  "pinnedOriginalAssetsVerified": 99,
+  "sourceBuilds": {
+    "female": {
+      "performanceUnchanged": true,
+      "motionDigest": "946bdf1cca182ef61e448aa693e7df4b0fd4e9526d8c7537924fd45ee131f5dd",
+      "scene": "female.blend",
+      "timelineFrames": 998
+    },
+    "male": {
+      "performanceUnchanged": true,
+      "motionDigest": "946bdf1cca182ef61e448aa693e7df4b0fd4e9526d8c7537924fd45ee131f5dd",
+      "scene": "male.blend",
+      "timelineFrames": 998
+    }
+  },
+  "watchStylesVerified": [
+    "analog",
+    "digital",
+    "smart",
+    "chrono",
+    "dress"
+  ],
+  "castMappingAndCacheTests": "passed",
+  "castComplexionAndCustomColourTests": "passed",
+  "previewWorkerTests": {
+    "passed": 2
+  },
+  "pythonSyntax": "passed",
+  "actualPackagedRenders": [
+    "previews/packaged-male-front.png",
+    "previews/packaged-female-left-3q.png"
+  ],
+  "withdrawnPerformanceIntegrationIncluded": false,
+  "copiedPerformanceActionsRemoved": 22,
+  "websiteDeployment": false
+}

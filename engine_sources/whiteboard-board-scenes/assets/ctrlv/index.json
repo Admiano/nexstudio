@@ -1,0 +1,12293 @@
+{
+ "cyber-attack-shield": {
+  "title": "Cyber Attack Shield",
+  "tags": [
+   "cybersecurity",
+   "shield",
+   "protection",
+   "attack",
+   "defense",
+   "tech"
+  ]
+ },
+ "encrypted-data-lock": {
+  "title": "Encrypted Data Lock",
+  "tags": [
+   "security",
+   "encryption",
+   "lock",
+   "data",
+   "privacy",
+   "tech"
+  ]
+ },
+ "phishing-email-warning": {
+  "title": "Phishing Email Warning",
+  "tags": [
+   "phishing",
+   "email",
+   "security",
+   "warning",
+   "cyber",
+   "threat"
+  ]
+ },
+ "firewall-protection-shield": {
+  "title": "Firewall Protection Shield",
+  "tags": [
+   "firewall",
+   "security",
+   "shield",
+   "protection",
+   "cybersecurity",
+   "tech"
+  ]
+ },
+ "hacker-laptop": {
+  "title": "Hacker Laptop",
+  "tags": [
+   "hacker",
+   "laptop",
+   "cybersecurity",
+   "terminal",
+   "tech",
+   "code"
+  ]
+ },
+ "secure-password-key": {
+  "title": "Secure Password Key",
+  "tags": [
+   "security",
+   "password",
+   "key",
+   "authentication",
+   "lock",
+   "encryption"
+  ]
+ },
+ "malware-software-bug": {
+  "title": "Malware Software Bug",
+  "tags": [
+   "malware",
+   "security",
+   "bug",
+   "cyber",
+   "threat",
+   "virus"
+  ]
+ },
+ "vpn-network-tunnel": {
+  "title": "VPN Network Tunnel",
+  "tags": [
+   "vpn",
+   "network",
+   "tunnel",
+   "security",
+   "encryption",
+   "tech"
+  ]
+ },
+ "data-backup-server": {
+  "title": "Data Backup Server",
+  "tags": [
+   "server",
+   "backup",
+   "data",
+   "storage",
+   "tech",
+   "cloud",
+   "infrastructure"
+  ]
+ },
+ "fingerprint-biometrics-security": {
+  "title": "Fingerprint Biometrics Security",
+  "tags": [
+   "biometrics",
+   "fingerprint",
+   "security",
+   "identity",
+   "tech",
+   "auth"
+  ]
+ },
+ "two-factor-authentication-phone": {
+  "title": "Two Factor Authentication Phone",
+  "tags": [
+   "security",
+   "authentication",
+   "phone",
+   "mobile",
+   "2fa",
+   "lock",
+   "secure"
+  ]
+ },
+ "cloud-security": {
+  "title": "Cloud Security",
+  "tags": [
+   "cloud",
+   "security",
+   "data",
+   "protection",
+   "tech",
+   "enterprise",
+   "minimalist"
+  ]
+ },
+ "network-traffic-monitoring-eye": {
+  "title": "Network Traffic Monitoring Eye",
+  "tags": [
+   "network",
+   "monitoring",
+   "security",
+   "data",
+   "eye",
+   "tech",
+   "abstract"
+  ]
+ },
+ "ddos-attack-servers": {
+  "title": "DDoS Attack Servers",
+  "tags": [
+   "DDoS",
+   "attack",
+   "servers",
+   "cybersecurity",
+   "network",
+   "threat",
+   "data"
+  ]
+ },
+ "cyber-security-audit-magnifying-glass": {
+  "title": "Cyber Security Audit Magnifying Glass",
+  "tags": [
+   "cybersecurity",
+   "audit",
+   "magnifying glass",
+   "security",
+   "tech",
+   "scan"
+  ]
+ },
+ "secure-payment-gateway-lock": {
+  "title": "Secure Payment Gateway Lock",
+  "tags": [
+   "security",
+   "payment",
+   "gateway",
+   "lock",
+   "data",
+   "transaction",
+   "finance",
+   "tech"
+  ]
+ },
+ "identity-theft-mask": {
+  "title": "Identity Theft Mask",
+  "tags": [
+   "security",
+   "privacy",
+   "data",
+   "theft",
+   "mask",
+   "cybersecurity",
+   "abstract"
+  ]
+ },
+ "ransomware-file-warning": {
+  "title": "Ransomware File Warning",
+  "tags": [
+   "ransomware",
+   "security",
+   "warning",
+   "file",
+   "lock",
+   "cybersecurity",
+   "data"
+  ]
+ },
+ "bug-bounty-hacker-target": {
+  "title": "Bug Bounty Hacker Target",
+  "tags": [
+   "security",
+   "hacking",
+   "bug bounty",
+   "cybersecurity",
+   "target",
+   "vulnerability"
+  ]
+ },
+ "fin-6572816e": {
+  "title": "Personal Wallet",
+  "tags": [
+   "wallet",
+   "finance",
+   "personal",
+   "money",
+   "payment"
+  ]
+ },
+ "fin-58a1fe85": {
+  "title": "ATM Machine",
+  "tags": [
+   "atm",
+   "banking",
+   "finance",
+   "cash",
+   "machine",
+   "payment"
+  ]
+ },
+ "fin-37bb57bf": {
+  "title": "Piggy Bank Savings",
+  "tags": [
+   "finance",
+   "savings",
+   "piggy bank",
+   "money",
+   "banking"
+  ]
+ },
+ "fin-ab716f67": {
+  "title": "Credit Card Transaction",
+  "tags": [
+   "finance",
+   "payment",
+   "credit card",
+   "transaction",
+   "banking"
+  ]
+ },
+ "fin-f7cf2f6d": {
+  "title": "Mobile Banking App",
+  "tags": [
+   "mobile",
+   "banking",
+   "finance",
+   "app",
+   "payment"
+  ]
+ },
+ "fin-680a587d": {
+  "title": "Investment Growth Chart",
+  "tags": [
+   "finance",
+   "investment",
+   "growth",
+   "chart",
+   "stocks",
+   "analytics"
+  ]
+ },
+ "fin-2e0844f0": {
+  "title": "Cryptocurrency Coin",
+  "tags": [
+   "crypto",
+   "bitcoin",
+   "coin",
+   "currency",
+   "blockchain",
+   "finance"
+  ]
+ },
+ "fin-c18c5d48": {
+  "title": "Stock Market Bear",
+  "tags": [
+   "finance",
+   "stock market",
+   "bear",
+   "trading",
+   "investment",
+   "decline"
+  ]
+ },
+ "fin-e3d1d50f": {
+  "title": "Secure Safe Vault",
+  "tags": [
+   "security",
+   "vault",
+   "safe",
+   "finance",
+   "protection",
+   "enterprise"
+  ]
+ },
+ "fin-c31691d4": {
+  "title": "Stock Market Bull",
+  "tags": [
+   "finance",
+   "stock market",
+   "bull",
+   "trading",
+   "investment",
+   "economy"
+  ]
+ },
+ "fin-80c81316": {
+  "title": "Blockchain Network",
+  "tags": [
+   "blockchain",
+   "network",
+   "crypto",
+   "decentralized",
+   "nodes",
+   "web3"
+  ]
+ },
+ "fin-326991f5": {
+  "title": "Income Tax Return",
+  "tags": [
+   "tax",
+   "finance",
+   "return",
+   "document",
+   "money",
+   "government"
+  ]
+ },
+ "fin-37533fce": {
+  "title": "Financial Contract",
+  "tags": [
+   "finance",
+   "contract",
+   "agreement",
+   "document",
+   "money",
+   "security"
+  ]
+ },
+ "fin-aa0da898": {
+  "title": "Stack of Gold Coins",
+  "tags": [
+   "money",
+   "finance",
+   "wealth",
+   "currency",
+   "success",
+   "business",
+   "investment"
+  ]
+ },
+ "fin-7690ccc6": {
+  "title": "Briefcase of Money",
+  "tags": [
+   "finance",
+   "wealth",
+   "business",
+   "money",
+   "briefcase",
+   "success",
+   "investment"
+  ]
+ },
+ "fin-86044ac7": {
+  "title": "Shopping Receipt",
+  "tags": [
+   "shopping",
+   "receipt",
+   "invoice",
+   "transaction",
+   "payment",
+   "ecommerce",
+   "finance"
+  ]
+ },
+ "fin-86461468": {
+  "title": "House Mortgage",
+  "tags": [
+   "house",
+   "mortgage",
+   "loan",
+   "finance",
+   "property",
+   "key",
+   "growth",
+   "investment"
+  ]
+ },
+ "fin-2b348630": {
+  "title": "Car Loan",
+  "tags": [
+   "car",
+   "loan",
+   "finance",
+   "vehicle",
+   "money",
+   "key",
+   "acquisition",
+   "approval"
+  ]
+ },
+ "fin-8df742bb": {
+  "title": "Retirement Nest Egg",
+  "tags": [
+   "retirement",
+   "savings",
+   "investment",
+   "future",
+   "security",
+   "growth",
+   "finance"
+  ]
+ },
+ "fin-d13c80b8": {
+  "title": "Money Transfer",
+  "tags": [
+   "finance",
+   "transfer",
+   "payment",
+   "banking",
+   "money"
+  ]
+ },
+ "fin-e324fbeb": {
+  "title": "Wealth Management Growth",
+  "tags": [
+   "finance",
+   "wealth",
+   "management",
+   "growth",
+   "investment",
+   "security",
+   "assets",
+   "business"
+  ]
+ },
+ "fin-25a49bc7": {
+  "title": "Economic Globe",
+  "tags": [
+   "economy",
+   "global",
+   "finance",
+   "world",
+   "trade",
+   "data"
+  ]
+ },
+ "fin-6a9c7511": {
+  "title": "Passive Income",
+  "tags": [
+   "passive income",
+   "money",
+   "finance",
+   "investment",
+   "growth",
+   "wealth"
+  ]
+ },
+ "fin-079ccb7c": {
+  "title": "Bank Building",
+  "tags": [
+   "bank",
+   "finance",
+   "building",
+   "architecture",
+   "institution"
+  ]
+ },
+ "fin-8fb270ab": {
+  "title": "Interest Rate",
+  "tags": [
+   "finance",
+   "interest rate",
+   "economics",
+   "banking",
+   "chart"
+  ]
+ },
+ "fin-84505d49": {
+  "title": "Cash Register",
+  "tags": [
+   "cash register",
+   "retail",
+   "payment",
+   "pos",
+   "finance",
+   "store"
+  ]
+ },
+ "fin-b22f6417": {
+  "title": "Diamond Gemstone",
+  "tags": [
+   "diamond",
+   "gemstone",
+   "luxury",
+   "crystal",
+   "jewel",
+   "premium"
+  ]
+ },
+ "fin-3df43b82": {
+  "title": "Peer to Peer Lending",
+  "tags": [
+   "finance",
+   "lending",
+   "p2p",
+   "money",
+   "network",
+   "peer"
+  ]
+ },
+ "fin-bc2621bc": {
+  "title": "Financial Justice Scales",
+  "tags": [
+   "finance",
+   "justice",
+   "balance",
+   "law",
+   "scales",
+   "equity"
+  ]
+ },
+ "fin-f658ad97": {
+  "title": "Savings Jar",
+  "tags": [
+   "savings",
+   "finance",
+   "jar",
+   "money",
+   "piggy bank",
+   "budget"
+  ]
+ },
+ "fin-12d8b7c1": {
+  "title": "Forex Currency Exchange",
+  "tags": [
+   "forex",
+   "currency",
+   "exchange",
+   "finance",
+   "trading",
+   "money"
+  ]
+ },
+ "fin-eb90b9af": {
+  "title": "Emergency Fund",
+  "tags": [
+   "emergency",
+   "fund",
+   "savings",
+   "finance",
+   "security",
+   "shield"
+  ]
+ },
+ "fin-bc44f1fe": {
+  "title": "Financial Shield",
+  "tags": [
+   "finance",
+   "security",
+   "shield",
+   "protection",
+   "money",
+   "banking"
+  ]
+ },
+ "fin-b51bd5ae": {
+  "title": "Financial Compass",
+  "tags": [
+   "finance",
+   "compass",
+   "guidance",
+   "strategy",
+   "growth",
+   "direction"
+  ]
+ },
+ "fin-312b01c0": {
+  "title": "Financial Goal Target",
+  "tags": [
+   "finance",
+   "goal",
+   "target",
+   "growth",
+   "money",
+   "achievement",
+   "business"
+  ]
+ },
+ "fin-1806ddb3": {
+  "title": "Golden Key Financial Freedom",
+  "tags": [
+   "finance",
+   "key",
+   "freedom",
+   "growth",
+   "success",
+   "unlock",
+   "opportunity",
+   "minimalist",
+   "enterprise"
+  ]
+ },
+ "fin-7cdd4478": {
+  "title": "Financial Planning Puzzle",
+  "tags": [
+   "finance",
+   "planning",
+   "puzzle",
+   "strategy",
+   "goals",
+   "investment",
+   "budget"
+  ]
+ },
+ "fin-592f12c0": {
+  "title": "Financial Security Umbrella",
+  "tags": [
+   "finance",
+   "security",
+   "protection",
+   "umbrella",
+   "money",
+   "insurance",
+   "wealth",
+   "enterprise"
+  ]
+ },
+ "fin-364fbfb1": {
+  "title": "Financial Audit Magnifying Glass",
+  "tags": [
+   "finance",
+   "audit",
+   "magnify",
+   "data",
+   "report",
+   "analysis",
+   "business",
+   "accounting"
+  ]
+ },
+ "fin-747c1452": {
+  "title": "Deal Handshake",
+  "tags": [
+   "deal",
+   "handshake",
+   "partnership",
+   "agreement",
+   "business",
+   "contract"
+  ]
+ },
+ "fin-cbda97d5": {
+  "title": "Payday Calendar",
+  "tags": [
+   "payday",
+   "calendar",
+   "finance",
+   "salary",
+   "money",
+   "payment"
+  ]
+ },
+ "fin-79bd6517": {
+  "title": "Financial Engine Gears",
+  "tags": [
+   "finance",
+   "gears",
+   "engine",
+   "mechanical",
+   "business"
+  ]
+ },
+ "fin-73f330c3": {
+  "title": "Financial Energy Battery",
+  "tags": [
+   "finance",
+   "energy",
+   "battery",
+   "charging",
+   "power",
+   "money",
+   "investment"
+  ]
+ },
+ "fin-e1bd461e": {
+  "title": "Investment Seedling",
+  "tags": [
+   "investment",
+   "growth",
+   "finance",
+   "seedling",
+   "plant",
+   "nature",
+   "startup"
+  ]
+ },
+ "fin-235873d5": {
+  "title": "Bridging Financial Gap",
+  "tags": [
+   "finance",
+   "gap",
+   "bridge",
+   "connection",
+   "flow",
+   "data",
+   "economy",
+   "financial",
+   "growth"
+  ]
+ },
+ "fin-9e05613c": {
+  "title": "Crowdfunding Project",
+  "tags": [
+   "crowdfunding",
+   "funding",
+   "project",
+   "community",
+   "support",
+   "finance",
+   "startup"
+  ]
+ },
+ "fin-0a50ac08": {
+  "title": "Venture Capital Growth",
+  "tags": [
+   "venture capital",
+   "investment",
+   "growth",
+   "finance",
+   "startup",
+   "funding",
+   "data",
+   "chart"
+  ]
+ },
+ "fin-2cec679c": {
+  "title": "Debt Snowball",
+  "tags": [
+   "finance",
+   "debt",
+   "snowball",
+   "growth",
+   "payment",
+   "strategy"
+  ]
+ },
+ "fin-dfe61b98": {
+  "title": "Financial Independence",
+  "tags": [
+   "finance",
+   "independence",
+   "wealth",
+   "growth",
+   "investment",
+   "freedom"
+  ]
+ },
+ "fin-5da613ae": {
+  "title": "Budgeting Pie Chart",
+  "tags": [
+   "budget",
+   "finance",
+   "pie chart",
+   "data",
+   "analytics",
+   "money"
+  ]
+ },
+ "cloud-sync": {
+  "title": "Omnipresent Cloud",
+  "tags": [
+   "cloud",
+   "sync",
+   "data",
+   "upload",
+   "weather",
+   "server"
+  ]
+ },
+ "coding-flow": {
+  "title": "The Developer's Mind",
+  "tags": [
+   "code",
+   "developer",
+   "mind",
+   "brain",
+   "focus",
+   "flow",
+   "terminal"
+  ]
+ },
+ "data-growth": {
+  "title": "The Data Tree",
+  "tags": [
+   "data",
+   "chart",
+   "analytics",
+   "growth",
+   "tree",
+   "nodes",
+   "nature"
+  ]
+ },
+ "secure-login": {
+  "title": "The Vault",
+  "tags": [
+   "security",
+   "shield",
+   "lock",
+   "protect",
+   "vault",
+   "door",
+   "secure"
+  ]
+ },
+ "iot-solutions": {
+  "title": "The Connected Orbit",
+  "tags": [
+   "iot",
+   "smart",
+   "home",
+   "wireless",
+   "orbit",
+   "planet",
+   "network"
+  ]
+ },
+ "server-management": {
+  "title": "The Data Metropolis",
+  "tags": [
+   "server",
+   "hosting",
+   "storage",
+   "city",
+   "drone",
+   "racks"
+  ]
+ },
+ "cyber-security": {
+  "title": "The Deflector Shield",
+  "tags": [
+   "security",
+   "hacker",
+   "protection",
+   "firewall",
+   "shield",
+   "deflect",
+   "virus"
+  ]
+ },
+ "mobile-ux": {
+  "title": "Unbound Interfaces",
+  "tags": [
+   "mobile",
+   "app",
+   "ux",
+   "ui",
+   "screen",
+   "breakout",
+   "panels"
+  ]
+ },
+ "blockchain-tech": {
+  "title": "The Infinite Ledger",
+  "tags": [
+   "blockchain",
+   "crypto",
+   "nodes",
+   "ledger",
+   "chain",
+   "hexagons",
+   "cubes"
+  ]
+ },
+ "api-connections": {
+  "title": "The Perfect Gears",
+  "tags": [
+   "api",
+   "connect",
+   "gears",
+   "integration",
+   "engine",
+   "machine"
+  ]
+ },
+ "ecommerce-flow": {
+  "title": "The Global Storefront",
+  "tags": [
+   "ecommerce",
+   "shopping",
+   "global",
+   "store",
+   "bag",
+   "planet"
+  ]
+ },
+ "fast-delivery": {
+  "title": "The Hyper-Route",
+  "tags": [
+   "ecommerce",
+   "delivery",
+   "fast",
+   "shipping",
+   "package",
+   "speed",
+   "fiber"
+  ]
+ },
+ "secure-payment": {
+  "title": "The Trust Gate",
+  "tags": [
+   "ecommerce",
+   "payment",
+   "secure",
+   "credit card",
+   "security",
+   "vault",
+   "scan"
+  ]
+ },
+ "add-to-cart": {
+  "title": "The Gravity Basket",
+  "tags": [
+   "ecommerce",
+   "shopping",
+   "cart",
+   "basket",
+   "magnet",
+   "pull",
+   "attract"
+  ]
+ },
+ "customer-reviews": {
+  "title": "The Feedback Constellation",
+  "tags": [
+   "ecommerce",
+   "review",
+   "feedback",
+   "star",
+   "rating",
+   "constellation",
+   "chat"
+  ]
+ },
+ "product-launch": {
+  "title": "The Luminous Unboxing",
+  "tags": [
+   "ecommerce",
+   "launch",
+   "product",
+   "box",
+   "unboxing",
+   "magic",
+   "glow"
+  ]
+ },
+ "christmas-celebration": {
+  "title": "Christmas Celebration",
+  "tags": [
+   "christmas",
+   "holiday",
+   "winter",
+   "tree",
+   "celebration",
+   "character"
+  ]
+ },
+ "new-years-eve": {
+  "title": "New Year Celebration",
+  "tags": [
+   "new year",
+   "2026",
+   "celebration",
+   "countdown",
+   "fireworks",
+   "character"
+  ]
+ },
+ "valentines-love": {
+  "title": "Valentine's Day",
+  "tags": [
+   "valentine",
+   "love",
+   "heart",
+   "romance",
+   "gift",
+   "character"
+  ]
+ },
+ "st-patricks-luck": {
+  "title": "St. Patrick's Day",
+  "tags": [
+   "st patricks",
+   "luck",
+   "clover",
+   "gold",
+   "celebration",
+   "character"
+  ]
+ },
+ "ai-deep-learning": {
+  "title": "AI & Deep Learning",
+  "tags": [
+   "ai",
+   "brain",
+   "intelligence",
+   "neural",
+   "tech",
+   "character"
+  ]
+ },
+ "llm-processing": {
+  "title": "LLM Processing",
+  "tags": [
+   "llm",
+   "chat",
+   "gpt",
+   "language",
+   "processing",
+   "tokens",
+   "character"
+  ]
+ },
+ "login-access": {
+  "title": "Secure Login",
+  "tags": [
+   "login",
+   "access",
+   "auth",
+   "account",
+   "security",
+   "character"
+  ]
+ },
+ "logout-session": {
+  "title": "User Logout",
+  "tags": [
+   "logout",
+   "exit",
+   "leave",
+   "session",
+   "signout",
+   "character"
+  ]
+ },
+ "forgot-password": {
+  "title": "Forgot Password",
+  "tags": [
+   "password",
+   "reset",
+   "forgot",
+   "lock",
+   "security",
+   "recovery",
+   "character"
+  ]
+ },
+ "error-404-notfound": {
+  "title": "404 Not Found",
+  "tags": [
+   "404",
+   "error",
+   "missing",
+   "lost",
+   "notfound",
+   "web",
+   "character"
+  ]
+ },
+ "wealth-growth": {
+  "title": "Wealth Growth",
+  "tags": [
+   "wealth",
+   "growth",
+   "investment",
+   "finance",
+   "money",
+   "plant",
+   "invest",
+   "character"
+  ]
+ },
+ "investment-portfolio": {
+  "title": "Investment Portfolio",
+  "tags": [
+   "portfolio",
+   "investments",
+   "diversify",
+   "assets",
+   "dashboard",
+   "stock",
+   "character"
+  ]
+ },
+ "market-trends": {
+  "title": "Market Trends",
+  "tags": [
+   "market",
+   "stocks",
+   "trends",
+   "analysis",
+   "growth",
+   "bull",
+   "graph",
+   "character"
+  ]
+ },
+ "digital-banking": {
+  "title": "Digital Banking",
+  "tags": [
+   "banking",
+   "fintech",
+   "wallet",
+   "mobile",
+   "money",
+   "transfer",
+   "app",
+   "character"
+  ]
+ },
+ "sport-soccer": {
+  "title": "The Winning Goal",
+  "tags": [
+   "soccer",
+   "football",
+   "sport",
+   "goal",
+   "kick",
+   "champion",
+   "character"
+  ]
+ },
+ "sport-basketball": {
+  "title": "The Slam Dunk",
+  "tags": [
+   "basketball",
+   "sport",
+   "dunk",
+   "jump",
+   "hoop",
+   "character"
+  ]
+ },
+ "sport-tennis": {
+  "title": "The Perfect Serve",
+  "tags": [
+   "tennis",
+   "sport",
+   "racket",
+   "serve",
+   "match",
+   "character"
+  ]
+ },
+ "sport-cricket": {
+  "title": "The Grand Six",
+  "tags": [
+   "cricket",
+   "sport",
+   "bat",
+   "six",
+   "match",
+   "hit",
+   "character"
+  ]
+ },
+ "cricket-bowler": {
+  "title": "Fast Bowler",
+  "tags": [
+   "cricket",
+   "sport",
+   "ball",
+   "bowl",
+   "pitch",
+   "match",
+   "character"
+  ]
+ },
+ "sport-swimming": {
+  "title": "Morning Laps",
+  "tags": [
+   "swimming",
+   "sport",
+   "pool",
+   "water",
+   "laps",
+   "athlete",
+   "character"
+  ]
+ },
+ "sport-cycling": {
+  "title": "Peak Performance",
+  "tags": [
+   "cycling",
+   "sport",
+   "bike",
+   "bicycle",
+   "speed",
+   "athlete",
+   "character"
+  ]
+ },
+ "sport-yoga": {
+  "title": "Inner Balance",
+  "tags": [
+   "yoga",
+   "meditation",
+   "sport",
+   "zen",
+   "wellness",
+   "character"
+  ]
+ },
+ "smart-soil-monitor": {
+  "title": "Smart Soil Monitor",
+  "tags": [
+   "agriculture",
+   "soil",
+   "monitor",
+   "sensor",
+   "smart",
+   "farming",
+   "tech"
+  ]
+ },
+ "sustainable-harvest": {
+  "title": "Sustainable Harvest",
+  "tags": [
+   "agriculture",
+   "harvest",
+   "basket",
+   "organic",
+   "food",
+   "sustainability",
+   "farming"
+  ]
+ },
+ "drone-analysis": {
+  "title": "Drone Crop Analysis",
+  "tags": [
+   "agriculture",
+   "drone",
+   "analysis",
+   "monitoring",
+   "tech",
+   "field",
+   "crop"
+  ]
+ },
+ "wind-energy-fields": {
+  "title": "Eco-Friendly Fields",
+  "tags": [
+   "agriculture",
+   "wind",
+   "energy",
+   "renewable",
+   "farm",
+   "sustainability",
+   "wheat"
+  ]
+ },
+ "online-learning": {
+  "title": "Online Learning",
+  "tags": [
+   "student",
+   "learning",
+   "education",
+   "online",
+   "laptop",
+   "study",
+   "books",
+   "cap"
+  ]
+ },
+ "late-night-study": {
+  "title": "Late Night Study",
+  "tags": [
+   "student",
+   "study",
+   "night",
+   "desk",
+   "lamp",
+   "reading",
+   "character"
+  ]
+ },
+ "graduation-day": {
+  "title": "Graduation Day",
+  "tags": [
+   "student",
+   "graduation",
+   "degree",
+   "diploma",
+   "celebration",
+   "character"
+  ]
+ },
+ "campus-collaboration": {
+  "title": "Campus Collaboration",
+  "tags": [
+   "student",
+   "campus",
+   "teamwork",
+   "collaboration",
+   "project",
+   "presentation",
+   "character"
+  ]
+ },
+ "perfect-match-puzzle": {
+  "title": "The Perfect Match",
+  "tags": [
+   "couple",
+   "relationship",
+   "match",
+   "puzzle",
+   "connection",
+   "love"
+  ]
+ },
+ "growing-together-vines": {
+  "title": "Growing Together",
+  "tags": [
+   "couple",
+   "relationship",
+   "grow",
+   "nature",
+   "plant",
+   "heart",
+   "love"
+  ]
+ },
+ "shared-umbrella": {
+  "title": "Shared Umbrella",
+  "tags": [
+   "couple",
+   "relationship",
+   "rain",
+   "umbrella",
+   "weather",
+   "shelter",
+   "character"
+  ]
+ },
+ "magnetic-connection": {
+  "title": "Magnetic Pull",
+  "tags": [
+   "couple",
+   "relationship",
+   "magnet",
+   "attraction",
+   "love",
+   "heart",
+   "connection",
+   "people"
+  ]
+ },
+ "support-system": {
+  "title": "Support System",
+  "tags": [
+   "couple",
+   "relationship",
+   "support",
+   "help",
+   "climb",
+   "teamwork",
+   "character"
+  ]
+ },
+ "unified-frequency": {
+  "title": "Unified Frequency",
+  "tags": [
+   "couple",
+   "relationship",
+   "frequency",
+   "wave",
+   "audio",
+   "harmony",
+   "connection",
+   "merge"
+  ]
+ },
+ "family-roots": {
+  "title": "Family Roots",
+  "tags": [
+   "family",
+   "tree",
+   "roots",
+   "growth",
+   "generations",
+   "connection",
+   "people"
+  ]
+ },
+ "under-one-roof": {
+  "title": "Under One Roof",
+  "tags": [
+   "family",
+   "home",
+   "house",
+   "roof",
+   "together",
+   "safety",
+   "shelter"
+  ]
+ },
+ "generational-bond": {
+  "title": "Generational Bond",
+  "tags": [
+   "family",
+   "parent",
+   "child",
+   "bond",
+   "love",
+   "generation",
+   "character"
+  ]
+ },
+ "shared-journey": {
+  "title": "Shared Journey",
+  "tags": [
+   "family",
+   "journey",
+   "travel",
+   "van",
+   "trip",
+   "moving",
+   "together"
+  ]
+ },
+ "city-skyline": {
+  "title": "City Skyline",
+  "tags": [
+   "city",
+   "skyline",
+   "real estate",
+   "commercial",
+   "buildings",
+   "urban",
+   "architecture"
+  ]
+ },
+ "under-construction": {
+  "title": "Maintenance",
+  "tags": [
+   "construction",
+   "maintenance",
+   "working",
+   "tools",
+   "webpage",
+   "ops"
+  ]
+ },
+ "key-to-the-home": {
+  "title": "Key to the Home",
+  "tags": [
+   "real estate",
+   "house",
+   "key",
+   "home",
+   "property",
+   "buy",
+   "sell",
+   "mortgage"
+  ]
+ },
+ "blueprint-vision": {
+  "title": "Blueprint Vision",
+  "tags": [
+   "blueprint",
+   "architecture",
+   "planning",
+   "design",
+   "house",
+   "drafting",
+   "real estate"
+  ]
+ },
+ "paris-eiffel": {
+  "title": "Paris, France",
+  "tags": [
+   "paris",
+   "france",
+   "eiffel",
+   "tower",
+   "city",
+   "landmark",
+   "europe"
+  ]
+ },
+ "ny-skyline-new": {
+  "title": "New York Skyline, USA",
+  "tags": [
+   "new york",
+   "usa",
+   "america",
+   "empire state",
+   "skyline",
+   "city",
+   "landmark"
+  ]
+ },
+ "london-big-ben": {
+  "title": "London, UK",
+  "tags": [
+   "london",
+   "uk",
+   "england",
+   "big ben",
+   "clock",
+   "tower",
+   "city",
+   "landmark"
+  ]
+ },
+ "rome-colosseum": {
+  "title": "Rome, Italy",
+  "tags": [
+   "rome",
+   "italy",
+   "colosseum",
+   "arena",
+   "ancient",
+   "city",
+   "landmark"
+  ]
+ },
+ "sydney-opera": {
+  "title": "Sydney, Australia",
+  "tags": [
+   "sydney",
+   "australia",
+   "opera house",
+   "ocean",
+   "water",
+   "city",
+   "landmark"
+  ]
+ },
+ "tokyo-pagoda": {
+  "title": "Tokyo, Japan",
+  "tags": [
+   "tokyo",
+   "japan",
+   "pagoda",
+   "fuji",
+   "mountain",
+   "cherry blossom",
+   "city",
+   "landmark"
+  ]
+ },
+ "rio-christ": {
+  "title": "Rio de Janeiro, Brazil",
+  "tags": [
+   "rio",
+   "brazil",
+   "corcovado",
+   "christ",
+   "statue",
+   "city",
+   "landmark"
+  ]
+ },
+ "cairo-pyramids": {
+  "title": "Cairo, Egypt",
+  "tags": [
+   "cairo",
+   "egypt",
+   "pyramid",
+   "giza",
+   "desert",
+   "city",
+   "landmark"
+  ]
+ },
+ "agra-taj-mahal": {
+  "title": "Agra, India",
+  "tags": [
+   "agra",
+   "india",
+   "taj mahal",
+   "palace",
+   "dome",
+   "city",
+   "landmark"
+  ]
+ },
+ "dubai-burj": {
+  "title": "Dubai, UAE",
+  "tags": [
+   "dubai",
+   "uae",
+   "arab",
+   "burj khalifa",
+   "skyscraper",
+   "tall",
+   "city",
+   "landmark"
+  ]
+ },
+ "moscow-st-basil": {
+  "title": "Moscow, Russia",
+  "tags": [
+   "moscow",
+   "russia",
+   "basil",
+   "cathedral",
+   "snow",
+   "city",
+   "landmark"
+  ]
+ },
+ "beijing-temple": {
+  "title": "Beijing, China",
+  "tags": [
+   "beijing",
+   "china",
+   "temple",
+   "heaven",
+   "asia",
+   "city",
+   "landmark"
+  ]
+ },
+ "toronto-cn-tower": {
+  "title": "Toronto, Canada",
+  "tags": [
+   "toronto",
+   "canada",
+   "cn tower",
+   "needle",
+   "city",
+   "landmark"
+  ]
+ },
+ "sanfrancisco-golden-gate": {
+  "title": "San Francisco, USA",
+  "tags": [
+   "san francisco",
+   "usa",
+   "golden gate",
+   "bridge",
+   "bay",
+   "city",
+   "landmark"
+  ]
+ },
+ "seattle-space-needle": {
+  "title": "Seattle, USA",
+  "tags": [
+   "seattle",
+   "usa",
+   "space needle",
+   "tower",
+   "rain",
+   "city",
+   "landmark"
+  ]
+ },
+ "berlin-brandenburg": {
+  "title": "Berlin, Germany",
+  "tags": [
+   "berlin",
+   "germany",
+   "brandenburg",
+   "gate",
+   "europe",
+   "city",
+   "landmark"
+  ]
+ },
+ "athens-parthenon": {
+  "title": "Athens, Greece",
+  "tags": [
+   "athens",
+   "greece",
+   "parthenon",
+   "temple",
+   "ruins",
+   "history",
+   "city",
+   "landmark"
+  ]
+ },
+ "istanbul-mosque": {
+  "title": "Istanbul, Turkey",
+  "tags": [
+   "istanbul",
+   "turkey",
+   "mosque",
+   "minaret",
+   "dome",
+   "city",
+   "landmark"
+  ]
+ },
+ "kuala-lumpur-petronas": {
+  "title": "Kuala Lumpur, Malaysia",
+  "tags": [
+   "kuala lumpur",
+   "malaysia",
+   "petronas",
+   "towers",
+   "twin",
+   "city",
+   "landmark"
+  ]
+ },
+ "singapore-marina": {
+  "title": "Singapore",
+  "tags": [
+   "singapore",
+   "marina bay sands",
+   "ship",
+   "boat",
+   "hotel",
+   "city",
+   "landmark"
+  ]
+ },
+ "fitness-lifting": {
+  "title": "Heavy Lifting",
+  "tags": [
+   "fitness",
+   "gym",
+   "barbell",
+   "weights",
+   "workout",
+   "strength"
+  ]
+ },
+ "fitness-cardio": {
+  "title": "Cardio Health",
+  "tags": [
+   "fitness",
+   "heart",
+   "health",
+   "cardio",
+   "pulse",
+   "ecg"
+  ]
+ },
+ "fitness-tracker": {
+  "title": "Smart Tracker",
+  "tags": [
+   "fitness",
+   "smartwatch",
+   "tracker",
+   "steps",
+   "activity",
+   "tech",
+   "device"
+  ]
+ },
+ "fitness-yoga-mat": {
+  "title": "Yoga Space",
+  "tags": [
+   "fitness",
+   "yoga",
+   "mat",
+   "space",
+   "zen",
+   "stretching",
+   "wellness"
+  ]
+ },
+ "fitness-kettlebell": {
+  "title": "Kettlebell Swing",
+  "tags": [
+   "fitness",
+   "kettlebell",
+   "swing",
+   "power",
+   "strength",
+   "weight"
+  ]
+ },
+ "fitness-hydration": {
+  "title": "Hydration First",
+  "tags": [
+   "fitness",
+   "water",
+   "bottle",
+   "hydration",
+   "drink",
+   "health",
+   "shaker"
+  ]
+ },
+ "coimbatore-tnau": {
+  "title": "TNAU Building, Coimbatore",
+  "tags": [
+   "india",
+   "coimbatore",
+   "tnau",
+   "university",
+   "architecture",
+   "monument",
+   "landmark",
+   "agriculture"
+  ]
+ },
+ "chennai-chariot": {
+  "title": "Valluvar Kottam, Chennai",
+  "tags": [
+   "india",
+   "chennai",
+   "valluvar kottam",
+   "chariot",
+   "monument",
+   "tamil",
+   "landmark"
+  ]
+ },
+ "dublin-bridge": {
+  "title": "Ha'penny Bridge, Dublin",
+  "tags": [
+   "ireland",
+   "dublin",
+   "ha'penny bridge",
+   "bridge",
+   "liffey",
+   "river",
+   "landmark"
+  ]
+ },
+ "bio-technology": {
+  "title": "Bio Technology",
+  "tags": [
+   "bio",
+   "technology",
+   "dna",
+   "science",
+   "genetics",
+   "medical",
+   "research",
+   "helix",
+   "microscope"
+  ]
+ },
+ "modern-medicine": {
+  "title": "Modern Medicine",
+  "tags": [
+   "medicine",
+   "health",
+   "care",
+   "doctor",
+   "pill",
+   "cross",
+   "pharmacy",
+   "medical"
+  ]
+ },
+ "baby-bottle": {
+  "title": "Feeding Time",
+  "tags": [
+   "baby",
+   "bottle",
+   "milk",
+   "feed",
+   "care",
+   "infant"
+  ]
+ },
+ "baby-stroller": {
+  "title": "Stroller Walk",
+  "tags": [
+   "baby",
+   "stroller",
+   "walk",
+   "park",
+   "carriage",
+   "infant"
+  ]
+ },
+ "baby-toys": {
+  "title": "Playtime Blocks",
+  "tags": [
+   "baby",
+   "toys",
+   "play",
+   "blocks",
+   "bear",
+   "fun"
+  ]
+ },
+ "baby-monitor": {
+  "title": "Baby Monitor",
+  "tags": [
+   "baby",
+   "monitor",
+   "sound",
+   "sleep",
+   "safety",
+   "radio"
+  ]
+ },
+ "baby-mobile": {
+  "title": "Crib Mobile",
+  "tags": [
+   "baby",
+   "mobile",
+   "sleep",
+   "crib",
+   "stars",
+   "moon",
+   "dream"
+  ]
+ },
+ "space-shuttle": {
+  "title": "Space Shuttle",
+  "tags": [
+   "space",
+   "shuttle",
+   "rocket",
+   "launch",
+   "fly",
+   "explore"
+  ]
+ },
+ "space-planet": {
+  "title": "Ringed Planet",
+  "tags": [
+   "space",
+   "planet",
+   "saturn",
+   "rings",
+   "orbit",
+   "astronomy"
+  ]
+ },
+ "space-astronaut": {
+  "title": "Zero Gravity Astronaut",
+  "tags": [
+   "space",
+   "astronaut",
+   "float",
+   "zero gravity",
+   "suit",
+   "person"
+  ]
+ },
+ "space-satellite": {
+  "title": "Orbiting Satellite",
+  "tags": [
+   "space",
+   "satellite",
+   "orbit",
+   "communication",
+   "signal",
+   "solar"
+  ]
+ },
+ "space-telescope": {
+  "title": "Space Telescope",
+  "tags": [
+   "space",
+   "telescope",
+   "stars",
+   "observatory",
+   "look",
+   "astronomy"
+  ]
+ },
+ "space-rover": {
+  "title": "Mars Rover",
+  "tags": [
+   "space",
+   "rover",
+   "mars",
+   "vehicle",
+   "explore",
+   "robot"
+  ]
+ },
+ "space-galaxy": {
+  "title": "Spiral Galaxy",
+  "tags": [
+   "space",
+   "galaxy",
+   "spiral",
+   "stars",
+   "universe",
+   "milky way"
+  ]
+ },
+ "space-ufo": {
+  "title": "UFO Abduction",
+  "tags": [
+   "space",
+   "ufo",
+   "alien",
+   "abduction",
+   "flying saucer",
+   "ship"
+  ]
+ },
+ "space-blackhole": {
+  "title": "Black Hole Event Horizon",
+  "tags": [
+   "space",
+   "blackhole",
+   "gravity",
+   "singularity",
+   "event horizon",
+   "warp"
+  ]
+ },
+ "space-base": {
+  "title": "Lunar Base",
+  "tags": [
+   "space",
+   "lunar",
+   "base",
+   "moon",
+   "dome",
+   "settlement"
+  ]
+ },
+ "wonder-great-wall": {
+  "title": "Great Wall of China",
+  "tags": [
+   "wonder",
+   "china",
+   "wall",
+   "asia",
+   "landmark",
+   "history"
+  ]
+ },
+ "wonder-petra": {
+  "title": "Petra, Jordan",
+  "tags": [
+   "wonder",
+   "jordan",
+   "petra",
+   "temple",
+   "treasure",
+   "landmark",
+   "desert"
+  ]
+ },
+ "wonder-colosseum": {
+  "title": "Colosseum, Rome",
+  "tags": [
+   "wonder",
+   "rome",
+   "italy",
+   "colosseum",
+   "amphitheater",
+   "landmark",
+   "europe"
+  ]
+ },
+ "wonder-chichen-itza": {
+  "title": "Chichen Itza",
+  "tags": [
+   "wonder",
+   "mexico",
+   "chichen itza",
+   "maya",
+   "pyramid",
+   "landmark"
+  ]
+ },
+ "wonder-machu-picchu": {
+  "title": "Machu Picchu",
+  "tags": [
+   "wonder",
+   "peru",
+   "machu picchu",
+   "inca",
+   "mountains",
+   "terraces",
+   "landmark"
+  ]
+ },
+ "wonder-taj-mahal": {
+  "title": "Taj Mahal",
+  "tags": [
+   "wonder",
+   "india",
+   "taj mahal",
+   "agra",
+   "tomb",
+   "landmark",
+   "asia"
+  ]
+ },
+ "wonder-christ-redeemer": {
+  "title": "Christ the Redeemer",
+  "tags": [
+   "wonder",
+   "brazil",
+   "rio",
+   "christ",
+   "statue",
+   "landmark",
+   "south america"
+  ]
+ },
+ "wonder-pyramid-giza": {
+  "title": "Great Pyramid of Giza",
+  "tags": [
+   "wonder",
+   "egypt",
+   "pyramid",
+   "giza",
+   "desert",
+   "landmark",
+   "ancient"
+  ]
+ },
+ "wonder-stonehenge": {
+  "title": "Stonehenge",
+  "tags": [
+   "wonder",
+   "uk",
+   "stonehenge",
+   "england",
+   "rocks",
+   "landmark",
+   "mystery"
+  ]
+ },
+ "wonder-eiffel-tower": {
+  "title": "Eiffel Tower",
+  "tags": [
+   "wonder",
+   "france",
+   "paris",
+   "eiffel tower",
+   "tower",
+   "landmark",
+   "europe"
+  ]
+ },
+ "ai-brain": {
+  "title": "Artificial Intelligence",
+  "tags": [
+   "ai",
+   "artificial intelligence",
+   "brain",
+   "neural",
+   "network",
+   "tech",
+   "smart"
+  ]
+ },
+ "llm-network": {
+  "title": "Language Model",
+  "tags": [
+   "llm",
+   "language model",
+   "network",
+   "chat",
+   "text",
+   "prompt",
+   "nodes",
+   "ai"
+  ]
+ },
+ "data-center": {
+  "title": "Data Center",
+  "tags": [
+   "data center",
+   "server",
+   "rack",
+   "cloud",
+   "storage",
+   "hosting",
+   "database"
+  ]
+ },
+ "space-data-center": {
+  "title": "Space Data Center",
+  "tags": [
+   "space",
+   "data center",
+   "server",
+   "satellite",
+   "orbit",
+   "cloud",
+   "future"
+  ]
+ },
+ "quantum-core": {
+  "title": "Quantum Core",
+  "tags": [
+   "quantum",
+   "core",
+   "computer",
+   "computing",
+   "qubit",
+   "future",
+   "tech"
+  ]
+ },
+ "ml-pipeline": {
+  "title": "Machine Learning Pipeline",
+  "tags": [
+   "machine learning",
+   "pipeline",
+   "data",
+   "processing",
+   "model",
+   "algorithm",
+   "sort"
+  ]
+ },
+ "starlink-satellite": {
+  "title": "Satellite Constellation",
+  "tags": [
+   "starlink",
+   "satellite",
+   "space",
+   "internet",
+   "network",
+   "communication",
+   "orbit"
+  ]
+ },
+ "ev-car-charging": {
+  "title": "Electric Vehicle",
+  "tags": [
+   "ev",
+   "car",
+   "electric vehicle",
+   "charging",
+   "station",
+   "eco",
+   "auto",
+   "power"
+  ]
+ },
+ "movie-projector": {
+  "title": "Classic Projector",
+  "tags": [
+   "movie",
+   "projector",
+   "cinema",
+   "film",
+   "watch",
+   "theater",
+   "light"
+  ]
+ },
+ "movie-clapperboard": {
+  "title": "Action Clapperboard",
+  "tags": [
+   "movie",
+   "clapperboard",
+   "action",
+   "cut",
+   "film",
+   "production",
+   "director",
+   "cinema"
+  ]
+ },
+ "movie-reel": {
+  "title": "Film Reel",
+  "tags": [
+   "movie",
+   "reel",
+   "film",
+   "strip",
+   "cinema",
+   "tape",
+   "video"
+  ]
+ },
+ "movie-popcorn": {
+  "title": "Cinema Snacks",
+  "tags": [
+   "movie",
+   "popcorn",
+   "drink",
+   "soda",
+   "snack",
+   "cinema",
+   "food"
+  ]
+ },
+ "movie-3d-glasses": {
+  "title": "3D Glasses",
+  "tags": [
+   "movie",
+   "3d",
+   "glasses",
+   "cinema",
+   "vision",
+   "retro",
+   "watch"
+  ]
+ },
+ "movie-director": {
+  "title": "Director's Set",
+  "tags": [
+   "movie",
+   "director",
+   "chair",
+   "megaphone",
+   "film",
+   "hollywood",
+   "action"
+  ]
+ },
+ "movie-star": {
+  "title": "Walk of Fame",
+  "tags": [
+   "movie",
+   "star",
+   "walk of fame",
+   "hollywood",
+   "actor",
+   "award",
+   "fame"
+  ]
+ },
+ "movie-award": {
+  "title": "Golden Trophy",
+  "tags": [
+   "movie",
+   "award",
+   "trophy",
+   "oscar",
+   "win",
+   "best",
+   "ceremony"
+  ]
+ },
+ "movie-tickets": {
+  "title": "Cinema Tickets",
+  "tags": [
+   "movie",
+   "ticket",
+   "cinema",
+   "admit one",
+   "pass",
+   "entry"
+  ]
+ },
+ "movie-camera": {
+  "title": "Film Camera",
+  "tags": [
+   "movie",
+   "camera",
+   "film",
+   "record",
+   "shoot",
+   "tripod",
+   "cinema"
+  ]
+ },
+ "time-travel-portal": {
+  "title": "Time Travel Portal",
+  "tags": [
+   "time",
+   "travel",
+   "portal",
+   "future",
+   "past",
+   "clock",
+   "infinity"
+  ]
+ },
+ "dream-weaver": {
+  "title": "Dream Weaver",
+  "tags": [
+   "dream",
+   "weaver",
+   "sleep",
+   "mind",
+   "cloud",
+   "night",
+   "stars",
+   "web"
+  ]
+ },
+ "cybernetic-flora": {
+  "title": "Cybernetic Flora",
+  "tags": [
+   "cybernetic",
+   "flora",
+   "plant",
+   "tech",
+   "nature",
+   "robot",
+   "grow"
+  ]
+ },
+ "telepathy-network": {
+  "title": "Telepathy Network",
+  "tags": [
+   "telepathy",
+   "mind",
+   "network",
+   "connect",
+   "brain",
+   "communicate",
+   "thoughts"
+  ]
+ },
+ "quantum-origami": {
+  "title": "Quantum Origami",
+  "tags": [
+   "quantum",
+   "origami",
+   "fold",
+   "crane",
+   "space",
+   "time",
+   "dimension",
+   "abstract"
+  ]
+ },
+ "liquid-data": {
+  "title": "Liquid Data",
+  "tags": [
+   "liquid",
+   "data",
+   "fluid",
+   "drop",
+   "server",
+   "stream",
+   "flow",
+   "pool"
+  ]
+ },
+ "holographic-concert": {
+  "title": "Holographic Concert",
+  "tags": [
+   "hologram",
+   "concert",
+   "music",
+   "stage",
+   "dj",
+   "sound",
+   "virtual"
+  ]
+ },
+ "alchemy-lab": {
+  "title": "Alchemy Lab",
+  "tags": [
+   "alchemy",
+   "lab",
+   "potion",
+   "magic",
+   "science",
+   "flask",
+   "stars",
+   "universe"
+  ]
+ },
+ "idea-incubator": {
+  "title": "Idea Incubator",
+  "tags": [
+   "idea",
+   "incubator",
+   "egg",
+   "hatch",
+   "create",
+   "grow",
+   "innovation",
+   "energy"
+  ]
+ },
+ "memory-prism": {
+  "title": "Memory Prism",
+  "tags": [
+   "memory",
+   "prism",
+   "light",
+   "refract",
+   "glass",
+   "colors",
+   "polaroid",
+   "split"
+  ]
+ },
+ "scientist-einstein": {
+  "title": "Relativity & Atom",
+  "tags": [
+   "science",
+   "scientist",
+   "einstein",
+   "physics",
+   "atom",
+   "relativity",
+   "math",
+   "chalkboard"
+  ]
+ },
+ "scientist-newton": {
+  "title": "Gravity & Optics",
+  "tags": [
+   "science",
+   "scientist",
+   "newton",
+   "physics",
+   "gravity",
+   "apple",
+   "prism",
+   "light",
+   "optics"
+  ]
+ },
+ "scientist-curie": {
+  "title": "Radioactive Chemistry",
+  "tags": [
+   "science",
+   "scientist",
+   "curie",
+   "chemistry",
+   "radium",
+   "flask",
+   "glow",
+   "radioactive"
+  ]
+ },
+ "scientist-darwin": {
+  "title": "Evolution & Biology",
+  "tags": [
+   "science",
+   "scientist",
+   "darwin",
+   "biology",
+   "evolution",
+   "finch",
+   "bird",
+   "magnifier",
+   "nature"
+  ]
+ },
+ "scientist-galileo": {
+  "title": "Astronomy Telescope",
+  "tags": [
+   "science",
+   "scientist",
+   "galileo",
+   "astronomy",
+   "telescope",
+   "space",
+   "planet",
+   "stars"
+  ]
+ },
+ "scientist-tesla": {
+  "title": "Tesla Coil",
+  "tags": [
+   "science",
+   "scientist",
+   "tesla",
+   "electricity",
+   "energy",
+   "coil",
+   "lightning",
+   "power",
+   "engineering"
+  ]
+ },
+ "scientist-lovelace": {
+  "title": "Computing & Code",
+  "tags": [
+   "science",
+   "scientist",
+   "lovelace",
+   "computer",
+   "code",
+   "programming",
+   "algorithms",
+   "punch card",
+   "binary"
+  ]
+ },
+ "scientist-franklin": {
+  "title": "DNA Double Helix",
+  "tags": [
+   "science",
+   "scientist",
+   "franklin",
+   "biology",
+   "dna",
+   "helix",
+   "genetics",
+   "x-ray",
+   "structure"
+  ]
+ },
+ "scientist-hawking": {
+  "title": "Black Hole Cosmology",
+  "tags": [
+   "science",
+   "scientist",
+   "hawking",
+   "physics",
+   "cosmology",
+   "black hole",
+   "space",
+   "gravity",
+   "universe"
+  ]
+ },
+ "scientist-pasteur": {
+  "title": "Microbiology",
+  "tags": [
+   "science",
+   "scientist",
+   "pasteur",
+   "biology",
+   "microscope",
+   "microbiology",
+   "bacteria",
+   "health",
+   "research"
+  ]
+ },
+ "winter-snowcat": {
+  "title": "Mountain Snowcat",
+  "tags": [
+   "winter",
+   "snow",
+   "vehicle",
+   "snowcat",
+   "mountain",
+   "cold",
+   "machine"
+  ]
+ },
+ "portrait-einstein": {
+  "title": "Einstein Portrait",
+  "tags": [
+   "portrait",
+   "scientist",
+   "einstein",
+   "face",
+   "relativity",
+   "hair",
+   "physics",
+   "genius"
+  ]
+ },
+ "portrait-newton": {
+  "title": "Newton Portrait",
+  "tags": [
+   "portrait",
+   "scientist",
+   "newton",
+   "face",
+   "gravity",
+   "physics",
+   "17th century",
+   "historical"
+  ]
+ },
+ "portrait-tesla": {
+  "title": "Tesla Portrait",
+  "tags": [
+   "portrait",
+   "scientist",
+   "tesla",
+   "face",
+   "electricity",
+   "inventor",
+   "energy"
+  ]
+ },
+ "future-vr-headset": {
+  "title": "Virtual Reality",
+  "tags": [
+   "future",
+   "vr",
+   "headset",
+   "metaverse",
+   "gaming",
+   "immersion",
+   "3d",
+   "technology"
+  ]
+ },
+ "future-drone": {
+  "title": "Delivery Drone",
+  "tags": [
+   "future",
+   "drone",
+   "delivery",
+   "flying",
+   "quadcopter",
+   "technology",
+   "logistics"
+  ]
+ },
+ "future-dna-edit": {
+  "title": "Genetic Engineering",
+  "tags": [
+   "future",
+   "dna",
+   "genetics",
+   "science",
+   "biology",
+   "crispr",
+   "medicine",
+   "edit"
+  ]
+ },
+ "future-smart-city": {
+  "title": "Smart City",
+  "tags": [
+   "future",
+   "city",
+   "smart",
+   "buildings",
+   "network",
+   "urban",
+   "connected"
+  ]
+ },
+ "future-quantum-chip": {
+  "title": "Quantum Computing",
+  "tags": [
+   "future",
+   "quantum",
+   "chip",
+   "processor",
+   "computing",
+   "technology",
+   "hardware",
+   "cpu"
+  ]
+ },
+ "future-hologram": {
+  "title": "Holographic Interface",
+  "tags": [
+   "future",
+   "hologram",
+   "interface",
+   "ui",
+   "projection",
+   "touch",
+   "technology"
+  ]
+ },
+ "future-autonomous-car": {
+  "title": "Autonomous Vehicle",
+  "tags": [
+   "future",
+   "car",
+   "autonomous",
+   "self-driving",
+   "vehicle",
+   "transportation",
+   "electric"
+  ]
+ },
+ "future-space-colony": {
+  "title": "Space Colony",
+  "tags": [
+   "future",
+   "space",
+   "colony",
+   "mars",
+   "dome",
+   "planet",
+   "habitat"
+  ]
+ },
+ "future-cybernetic-arm": {
+  "title": "Cybernetics",
+  "tags": [
+   "future",
+   "cybernetic",
+   "arm",
+   "prosthetic",
+   "robot",
+   "human",
+   "bionic",
+   "technology"
+  ]
+ },
+ "festival-diwali": {
+  "title": "Diwali",
+  "tags": [
+   "festival",
+   "indian",
+   "diwali",
+   "light",
+   "diya",
+   "lamp",
+   "celebration",
+   "sparkler"
+  ]
+ },
+ "festival-holi": {
+  "title": "Holi",
+  "tags": [
+   "festival",
+   "indian",
+   "holi",
+   "colors",
+   "pichkari",
+   "water gun",
+   "bucket",
+   "splash"
+  ]
+ },
+ "festival-makar-sankranti": {
+  "title": "Makar Sankranti",
+  "tags": [
+   "festival",
+   "indian",
+   "makar sankranti",
+   "kite",
+   "flying",
+   "charkhi"
+  ]
+ },
+ "festival-ganesh-chaturthi": {
+  "title": "Ganesh Chaturthi",
+  "tags": [
+   "festival",
+   "indian",
+   "ganesh chaturthi",
+   "modak",
+   "sweet",
+   "celebration"
+  ]
+ },
+ "festival-navratri": {
+  "title": "Navratri",
+  "tags": [
+   "festival",
+   "indian",
+   "navratri",
+   "garba",
+   "dandiya",
+   "dance",
+   "sticks"
+  ]
+ },
+ "festival-onam": {
+  "title": "Onam",
+  "tags": [
+   "festival",
+   "indian",
+   "onam",
+   "pookalam",
+   "flower",
+   "rangoli",
+   "boat",
+   "kerala"
+  ]
+ },
+ "festival-pongal": {
+  "title": "Pongal",
+  "tags": [
+   "festival",
+   "indian",
+   "pongal",
+   "harvest",
+   "pot",
+   "sugarcane",
+   "fire"
+  ]
+ },
+ "festival-durga-puja": {
+  "title": "Durga Puja",
+  "tags": [
+   "festival",
+   "indian",
+   "durga puja",
+   "dhak",
+   "drum",
+   "trishul",
+   "bengal"
+  ]
+ },
+ "festival-raksha-bandhan": {
+  "title": "Raksha Bandhan",
+  "tags": [
+   "festival",
+   "indian",
+   "raksha bandhan",
+   "rakhi",
+   "thread",
+   "brother",
+   "sister"
+  ]
+ },
+ "festival-vasant-panchami": {
+  "title": "Vasant Panchami",
+  "tags": [
+   "festival",
+   "indian",
+   "vasant panchami",
+   "saraswati",
+   "veena",
+   "books",
+   "knowledge"
+  ]
+ },
+ "device-smartphone": {
+  "title": "Smartphone",
+  "tags": [
+   "device",
+   "smartphone",
+   "mobile",
+   "phone",
+   "cell",
+   "app",
+   "technology"
+  ]
+ },
+ "device-laptop": {
+  "title": "Laptop Computer",
+  "tags": [
+   "device",
+   "laptop",
+   "computer",
+   "macbook",
+   "pc",
+   "work",
+   "technology"
+  ]
+ },
+ "device-smartwatch": {
+  "title": "Smartwatch",
+  "tags": [
+   "device",
+   "smartwatch",
+   "wearable",
+   "clock",
+   "fitness",
+   "watch",
+   "technology"
+  ]
+ },
+ "device-headphones": {
+  "title": "Wireless Headphones",
+  "tags": [
+   "device",
+   "headphones",
+   "audio",
+   "music",
+   "sound",
+   "listening",
+   "headset"
+  ]
+ },
+ "device-tablet": {
+  "title": "Digital Tablet",
+  "tags": [
+   "device",
+   "tablet",
+   "ipad",
+   "drawing",
+   "stylus",
+   "screen",
+   "technology"
+  ]
+ },
+ "device-camera": {
+  "title": "Digital Camera",
+  "tags": [
+   "device",
+   "camera",
+   "photo",
+   "photography",
+   "lens",
+   "picture",
+   "gadget"
+  ]
+ },
+ "device-gaming-controller": {
+  "title": "Gaming Controller",
+  "tags": [
+   "device",
+   "gaming",
+   "controller",
+   "console",
+   "gamepad",
+   "play",
+   "entertainment"
+  ]
+ },
+ "device-smart-speaker": {
+  "title": "Smart Speaker",
+  "tags": [
+   "device",
+   "speaker",
+   "audio",
+   "smart",
+   "home",
+   "voice",
+   "assistant",
+   "music"
+  ]
+ },
+ "device-router": {
+  "title": "Wireless Router",
+  "tags": [
+   "device",
+   "router",
+   "wifi",
+   "internet",
+   "wireless",
+   "connection",
+   "network"
+  ]
+ },
+ "device-microphone": {
+  "title": "Studio Microphone",
+  "tags": [
+   "device",
+   "microphone",
+   "audio",
+   "recording",
+   "podcast",
+   "studio",
+   "voice"
+  ]
+ },
+ "history-pyramids": {
+  "title": "Pyramids of Giza",
+  "tags": [
+   "history",
+   "egypt",
+   "pyramid",
+   "pharaoh",
+   "desert",
+   "ancient"
+  ]
+ },
+ "history-colosseum": {
+  "title": "The Colosseum",
+  "tags": [
+   "history",
+   "rome",
+   "colosseum",
+   "italy",
+   "gladiator",
+   "ancient",
+   "architecture"
+  ]
+ },
+ "history-parthenon": {
+  "title": "Greek Temple",
+  "tags": [
+   "history",
+   "greece",
+   "parthenon",
+   "athens",
+   "temple",
+   "pillars",
+   "ancient"
+  ]
+ },
+ "history-castle": {
+  "title": "Medieval Castle",
+  "tags": [
+   "history",
+   "medieval",
+   "castle",
+   "knight",
+   "fortress",
+   "tower",
+   "king",
+   "middle ages"
+  ]
+ },
+ "history-viking-ship": {
+  "title": "Viking Longship",
+  "tags": [
+   "history",
+   "viking",
+   "ship",
+   "boat",
+   "norse",
+   "sail",
+   "sea",
+   "sailor"
+  ]
+ },
+ "history-hieroglyphs": {
+  "title": "Egyptian Hieroglyphs",
+  "tags": [
+   "history",
+   "egypt",
+   "hieroglyphs",
+   "writing",
+   "ancient",
+   "stone",
+   "wall"
+  ]
+ },
+ "history-roman-helmet": {
+  "title": "Roman Helmet",
+  "tags": [
+   "history",
+   "rome",
+   "helmet",
+   "gladiator",
+   "empire",
+   "soldier",
+   "armor"
+  ]
+ },
+ "history-papyrus": {
+  "title": "Ancient Scroll",
+  "tags": [
+   "history",
+   "scroll",
+   "papyrus",
+   "ancient",
+   "document",
+   "writing",
+   "paper"
+  ]
+ },
+ "history-dinosaur-fossil": {
+  "title": "Dinosaur Fossil",
+  "tags": [
+   "history",
+   "prehistory",
+   "dinosaur",
+   "fossil",
+   "bones",
+   "t-rex",
+   "skull",
+   "ancient"
+  ]
+ },
+ "history-printing-press": {
+  "title": "Printing Press",
+  "tags": [
+   "history",
+   "printing",
+   "press",
+   "gutenberg",
+   "books",
+   "invention",
+   "machine"
+  ]
+ },
+ "history-steam-engine": {
+  "title": "Steam Engine",
+  "tags": [
+   "history",
+   "steam",
+   "engine",
+   "train",
+   "locomotive",
+   "industrial",
+   "revolution"
+  ]
+ },
+ "history-wright-flyer": {
+  "title": "Wright Flyer",
+  "tags": [
+   "history",
+   "flight",
+   "wright brothers",
+   "airplane",
+   "plane",
+   "aviation",
+   "invention"
+  ]
+ },
+ "history-moon-landing": {
+  "title": "Moon Landing",
+  "tags": [
+   "history",
+   "space",
+   "moon",
+   "apollo",
+   "astronaut",
+   "landing",
+   "rocket",
+   "explore"
+  ]
+ },
+ "history-samurai": {
+  "title": "Samurai Armor",
+  "tags": [
+   "history",
+   "japan",
+   "samurai",
+   "armor",
+   "warrior",
+   "helmet",
+   "sword",
+   "katana"
+  ]
+ },
+ "history-native-tipi": {
+  "title": "Native American Tipi",
+  "tags": [
+   "history",
+   "native american",
+   "tipi",
+   "teepee",
+   "tent",
+   "camp",
+   "plains",
+   "culture"
+  ]
+ },
+ "history-rosetta-stone": {
+  "title": "Rosetta Stone",
+  "tags": [
+   "history",
+   "egypt",
+   "rosetta stone",
+   "language",
+   "translation",
+   "artifact",
+   "museum"
+  ]
+ },
+ "history-trojan-horse": {
+  "title": "Trojan Horse",
+  "tags": [
+   "history",
+   "greece",
+   "troy",
+   "horse",
+   "wood",
+   "soldier",
+   "mythology",
+   "ancient"
+  ]
+ },
+ "history-aztec-calendar": {
+  "title": "Aztec Sun Stone",
+  "tags": [
+   "history",
+   "aztec",
+   "calendar",
+   "mexico",
+   "stone",
+   "sun",
+   "ancient"
+  ]
+ },
+ "history-galleon": {
+  "title": "Galleon Ship",
+  "tags": [
+   "history",
+   "ship",
+   "galleon",
+   "sea",
+   "pirate",
+   "explorer",
+   "sailing",
+   "ocean"
+  ]
+ },
+ "history-cave-painting": {
+  "title": "Cave Painting",
+  "tags": [
+   "history",
+   "cave",
+   "painting",
+   "prehistoric",
+   "art",
+   "primitive",
+   "hunter",
+   "animal"
+  ]
+ },
+ "history-renaissance-art": {
+  "title": "Renaissance Art",
+  "tags": [
+   "history",
+   "renaissance",
+   "art",
+   "mona lisa",
+   "painting",
+   "frame",
+   "culture"
+  ]
+ },
+ "history-globe": {
+  "title": "Age of Discovery Globe",
+  "tags": [
+   "history",
+   "globe",
+   "discovery",
+   "exploration",
+   "map",
+   "earth",
+   "navigation",
+   "world"
+  ]
+ },
+ "history-pocket-watch": {
+  "title": "Pocket Watch",
+  "tags": [
+   "history",
+   "watch",
+   "time",
+   "clock",
+   "pocket",
+   "invention",
+   "gear",
+   "victorian"
+  ]
+ },
+ "history-telegraph": {
+  "title": "Telegraph Machine",
+  "tags": [
+   "history",
+   "telegraph",
+   "communication",
+   "morse code",
+   "machine",
+   "invention",
+   "wire"
+  ]
+ },
+ "vintage-classic-radio": {
+  "title": "Classic Radio",
+  "tags": [
+   "vintage",
+   "retro",
+   "radio",
+   "audio",
+   "music",
+   "broadcast",
+   "transistor"
+  ]
+ },
+ "vintage-penny-farthing": {
+  "title": "Penny-Farthing",
+  "tags": [
+   "vintage",
+   "retro",
+   "bicycle",
+   "bike",
+   "penny farthing",
+   "transport",
+   "victorian"
+  ]
+ },
+ "vintage-crt-tv": {
+  "title": "CRT Television",
+  "tags": [
+   "vintage",
+   "retro",
+   "tv",
+   "television",
+   "crt",
+   "screen",
+   "antenna"
+  ]
+ },
+ "vintage-cassette": {
+  "title": "Cassette Tape",
+  "tags": [
+   "vintage",
+   "retro",
+   "cassetteTape",
+   "audio",
+   "music",
+   "tape",
+   "80s",
+   "mixtape"
+  ]
+ },
+ "vintage-classic-car": {
+  "title": "Classic Car",
+  "tags": [
+   "vintage",
+   "retro",
+   "car",
+   "classic car",
+   "automobile",
+   "cruiser",
+   "vehicle",
+   "50s"
+  ]
+ },
+ "saas-dashboard": {
+  "title": "SaaS Dashboard",
+  "tags": [
+   "saas",
+   "dashboard",
+   "ui",
+   "software",
+   "product",
+   "interface",
+   "app",
+   "metrics",
+   "charts"
+  ]
+ },
+ "saas-cloud-server": {
+  "title": "Cloud Infrastructure",
+  "tags": [
+   "saas",
+   "cloud",
+   "server",
+   "hosting",
+   "database",
+   "infrastructure",
+   "network",
+   "data"
+  ]
+ },
+ "saas-api": {
+  "title": "API Integration",
+  "tags": [
+   "saas",
+   "api",
+   "integration",
+   "code",
+   "connect",
+   "plugs",
+   "developer",
+   "software"
+  ]
+ },
+ "saas-analytics": {
+  "title": "User Analytics",
+  "tags": [
+   "saas",
+   "analytics",
+   "data",
+   "growth",
+   "chart",
+   "metrics",
+   "graph",
+   "business"
+  ]
+ },
+ "saas-payment": {
+  "title": "Payment Gateway",
+  "tags": [
+   "saas",
+   "payment",
+   "gateway",
+   "stripe",
+   "credit card",
+   "billing",
+   "invoice",
+   "money"
+  ]
+ },
+ "saas-chat": {
+  "title": "Chat Support",
+  "tags": [
+   "saas",
+   "chat",
+   "support",
+   "message",
+   "bubbles",
+   "intercom",
+   "help",
+   "communication"
+  ]
+ },
+ "saas-workspace": {
+  "title": "Team Workspace",
+  "tags": [
+   "saas",
+   "workspace",
+   "collaboration",
+   "team",
+   "agile",
+   "kanban",
+   "board",
+   "project"
+  ]
+ },
+ "saas-mobile": {
+  "title": "Mobile Dashboard",
+  "tags": [
+   "saas",
+   "mobile",
+   "app",
+   "dashboard",
+   "responsive",
+   "phone",
+   "metrics",
+   "ui"
+  ]
+ },
+ "saas-security": {
+  "title": "Security Shield",
+  "tags": [
+   "saas",
+   "security",
+   "shield",
+   "protect",
+   "privacy",
+   "lock",
+   "cybersecurity",
+   "safe"
+  ]
+ },
+ "saas-funnel": {
+  "title": "Subscription Funnel",
+  "tags": [
+   "saas",
+   "funnel",
+   "conversion",
+   "sales",
+   "subscription",
+   "marketing",
+   "filter"
+  ]
+ },
+ "medical-syringe": {
+  "title": "Syringe Injection",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "syringe",
+   "injection",
+   "vaccine",
+   "medicine",
+   "needle"
+  ]
+ },
+ "medical-first-aid": {
+  "title": "First Aid Kit",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "first aid",
+   "kit",
+   "emergency",
+   "care",
+   "box",
+   "cross"
+  ]
+ },
+ "medical-iv-drip": {
+  "title": "IV Drip Bag",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "iv",
+   "drip",
+   "bag",
+   "fluid",
+   "treatment",
+   "intravenous"
+  ]
+ },
+ "medical-ambulance": {
+  "title": "Ambulance",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "ambulance",
+   "emergency",
+   "vehicle",
+   "van",
+   "transport"
+  ]
+ },
+ "medical-emergency-siren": {
+  "title": "Emergency Siren",
+  "tags": [
+   "medical",
+   "hospital",
+   "emergency",
+   "siren",
+   "light",
+   "alarm",
+   "flashing",
+   "alert"
+  ]
+ },
+ "medical-stethoscope": {
+  "title": "Stethoscope",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "stethoscope",
+   "doctor",
+   "heart",
+   "listening",
+   "auscultation",
+   "care"
+  ]
+ },
+ "medical-surgery": {
+  "title": "Surgical Tools",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "surgery",
+   "scalpel",
+   "tweezers",
+   "forceps",
+   "operation"
+  ]
+ },
+ "medical-xray": {
+  "title": "X-Ray Film",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "xray",
+   "radiology",
+   "bones",
+   "scan",
+   "skeleton",
+   "film"
+  ]
+ },
+ "medical-dentist": {
+  "title": "Dentistry",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "dentist",
+   "tooth",
+   "teeth",
+   "dental",
+   "mirror",
+   "care"
+  ]
+ },
+ "medical-optometry": {
+  "title": "Eye Chart & Glasses",
+  "tags": [
+   "medical",
+   "hospital",
+   "health",
+   "eye",
+   "optometry",
+   "glasses",
+   "vision",
+   "chart",
+   "sight"
+  ]
+ },
+ "saas-onboarding": {
+  "title": "User Onboarding",
+  "tags": [
+   "saas",
+   "onboarding",
+   "checklist",
+   "welcome",
+   "signup",
+   "start",
+   "guide",
+   "tutorial"
+  ]
+ },
+ "saas-calendar": {
+  "title": "Scheduling Calendar",
+  "tags": [
+   "saas",
+   "calendar",
+   "schedule",
+   "booking",
+   "appointment",
+   "date",
+   "events",
+   "time"
+  ]
+ },
+ "saas-crm": {
+  "title": "CRM Contacts",
+  "tags": [
+   "saas",
+   "crm",
+   "contacts",
+   "leads",
+   "customers",
+   "database",
+   "people",
+   "sales"
+  ]
+ },
+ "saas-video-call": {
+  "title": "Video Conference",
+  "tags": [
+   "saas",
+   "video",
+   "call",
+   "meeting",
+   "webcam",
+   "remote",
+   "collaboration",
+   "conference"
+  ]
+ },
+ "saas-ecommerce": {
+  "title": "E-Commerce Platform",
+  "tags": [
+   "saas",
+   "ecommerce",
+   "store",
+   "shop",
+   "cart",
+   "products",
+   "online",
+   "retail"
+  ]
+ },
+ "saas-connectors": {
+  "title": "Web Hooks & Connectors",
+  "tags": [
+   "saas",
+   "connector",
+   "webhook",
+   "integration",
+   "plugin",
+   "link",
+   "chain",
+   "puzzle"
+  ]
+ },
+ "saas-database": {
+  "title": "Cloud Database",
+  "tags": [
+   "saas",
+   "database",
+   "storage",
+   "files",
+   "sql",
+   "nosql",
+   "cloud",
+   "server"
+  ]
+ },
+ "saas-settings": {
+  "title": "System Settings",
+  "tags": [
+   "saas",
+   "settings",
+   "preference",
+   "toggles",
+   "options",
+   "configuration",
+   "gear",
+   "control"
+  ]
+ },
+ "saas-workflow": {
+  "title": "Automated Workflow",
+  "tags": [
+   "saas",
+   "workflow",
+   "automation",
+   "pipeline",
+   "nodes",
+   "process",
+   "trigger",
+   "action"
+  ]
+ },
+ "saas-mail": {
+  "title": "Email Campaigns",
+  "tags": [
+   "saas",
+   "mail",
+   "email",
+   "campaign",
+   "marketing",
+   "newsletter",
+   "send",
+   "envelope"
+  ]
+ },
+ "food-pizza": {
+  "title": "Italian Pizza",
+  "tags": [
+   "food",
+   "pizza",
+   "italy",
+   "cuisine",
+   "slice",
+   "cheese",
+   "pepperoni",
+   "dinner"
+  ]
+ },
+ "food-burger": {
+  "title": "Classic Burger",
+  "tags": [
+   "food",
+   "burger",
+   "usa",
+   "cuisine",
+   "fast food",
+   "hamburger",
+   "cheeseburger",
+   "lunch"
+  ]
+ },
+ "food-sushi": {
+  "title": "Japanese Sushi",
+  "tags": [
+   "food",
+   "sushi",
+   "japan",
+   "cuisine",
+   "nigiri",
+   "salmon",
+   "rice",
+   "seafood"
+  ]
+ },
+ "food-taco": {
+  "title": "Mexican Taco",
+  "tags": [
+   "food",
+   "taco",
+   "mexico",
+   "cuisine",
+   "tortilla",
+   "spicy",
+   "mexican",
+   "dinner"
+  ]
+ },
+ "food-ramen": {
+  "title": "Japanese Ramen",
+  "tags": [
+   "food",
+   "ramen",
+   "japan",
+   "cuisine",
+   "noodles",
+   "soup",
+   "bowl",
+   "dinner"
+  ]
+ },
+ "food-dumplings": {
+  "title": "Chinese Dim Sum",
+  "tags": [
+   "food",
+   "dumplings",
+   "china",
+   "cuisine",
+   "dim sum",
+   "steamed",
+   "basket",
+   "lunch"
+  ]
+ },
+ "food-croissant": {
+  "title": "French Croissant",
+  "tags": [
+   "food",
+   "croissant",
+   "france",
+   "cuisine",
+   "pastry",
+   "breakfast",
+   "bakery",
+   "bread"
+  ]
+ },
+ "food-fish-chips": {
+  "title": "British Fish & Chips",
+  "tags": [
+   "food",
+   "fish and chips",
+   "uk",
+   "british",
+   "cuisine",
+   "seafood",
+   "fries",
+   "dinner"
+  ]
+ },
+ "food-paella": {
+  "title": "Spanish Paella",
+  "tags": [
+   "food",
+   "paella",
+   "spain",
+   "cuisine",
+   "rice",
+   "seafood",
+   "shrimp",
+   "dinner"
+  ]
+ },
+ "food-pad-thai": {
+  "title": "Thai Pad Thai",
+  "tags": [
+   "food",
+   "pad thai",
+   "thailand",
+   "cuisine",
+   "noodles",
+   "thai",
+   "stir fry",
+   "dinner"
+  ]
+ },
+ "food-kebab": {
+  "title": "Turkish D\u00f6ner Kebab",
+  "tags": [
+   "food",
+   "kebab",
+   "turkey",
+   "turkish",
+   "cuisine",
+   "meat",
+   "rotisserie",
+   "shawarma",
+   "dinner"
+  ]
+ },
+ "food-pho": {
+  "title": "Vietnamese Pho",
+  "tags": [
+   "food",
+   "pho",
+   "vietnam",
+   "cuisine",
+   "soup",
+   "noodles",
+   "herbs",
+   "bowl",
+   "dinner"
+  ]
+ },
+ "food-curry": {
+  "title": "South Asian Curry",
+  "tags": [
+   "food",
+   "curry",
+   "india",
+   "cuisine",
+   "spicy",
+   "stew",
+   "pakistan",
+   "south asia",
+   "dinner"
+  ]
+ },
+ "food-pretzel": {
+  "title": "German Pretzel",
+  "tags": [
+   "food",
+   "pretzel",
+   "germany",
+   "cuisine",
+   "snack",
+   "bread",
+   "bavarian",
+   "bakery"
+  ]
+ },
+ "food-gelato": {
+  "title": "Italian Gelato",
+  "tags": [
+   "food",
+   "gelato",
+   "italy",
+   "cuisine",
+   "ice cream",
+   "dessert",
+   "cone",
+   "sweet"
+  ]
+ },
+ "food-hotdog": {
+  "title": "American Hot Dog",
+  "tags": [
+   "food",
+   "hot dog",
+   "usa",
+   "germany",
+   "cuisine",
+   "fast food",
+   "snack",
+   "sausage"
+  ]
+ },
+ "food-burrito": {
+  "title": "Mexican Burrito",
+  "tags": [
+   "food",
+   "burrito",
+   "mexico",
+   "usa",
+   "cuisine",
+   "tortilla",
+   "wrap",
+   "lunch"
+  ]
+ },
+ "food-steak": {
+  "title": "Grilled Steak",
+  "tags": [
+   "food",
+   "steak",
+   "argentina",
+   "cuisine",
+   "meat",
+   "beef",
+   "grilled",
+   "dinner"
+  ]
+ },
+ "food-baguette": {
+  "title": "French Baguette",
+  "tags": [
+   "food",
+   "baguette",
+   "france",
+   "cuisine",
+   "bread",
+   "cheese",
+   "breakfast",
+   "bakery"
+  ]
+ },
+ "food-spaghetti": {
+  "title": "Spaghetti & Meatballs",
+  "tags": [
+   "food",
+   "spaghetti",
+   "italy",
+   "usa",
+   "cuisine",
+   "pasta",
+   "meatballs",
+   "dinner"
+  ]
+ },
+ "food-nasi-goreng": {
+  "title": "Indonesian Nasi Goreng",
+  "tags": [
+   "food",
+   "nasi goreng",
+   "indonesia",
+   "cuisine",
+   "fried rice",
+   "egg",
+   "spicy",
+   "dinner"
+  ]
+ },
+ "food-falafel": {
+  "title": "Falafel & Hummus",
+  "tags": [
+   "food",
+   "falafel",
+   "hummus",
+   "middle east",
+   "cuisine",
+   "pita",
+   "vegetarian",
+   "snack"
+  ]
+ },
+ "food-macarons": {
+  "title": "French Macarons",
+  "tags": [
+   "food",
+   "macarons",
+   "france",
+   "cuisine",
+   "sweet",
+   "dessert",
+   "colorful",
+   "bakery"
+  ]
+ },
+ "food-lobster": {
+  "title": "Seafood Platter",
+  "tags": [
+   "food",
+   "lobster",
+   "seafood",
+   "cuisine",
+   "shellfish",
+   "dinner",
+   "ocean",
+   "luxury"
+  ]
+ },
+ "food-waffle": {
+  "title": "Belgian Waffle",
+  "tags": [
+   "food",
+   "waffle",
+   "belgium",
+   "cuisine",
+   "breakfast",
+   "sweet",
+   "dessert",
+   "syrup"
+  ]
+ },
+ "vehicle-steam-train": {
+  "title": "Steam Train",
+  "tags": [
+   "vehicle",
+   "train",
+   "steam",
+   "locomotive",
+   "transport",
+   "railway",
+   "vintage",
+   "engine"
+  ]
+ },
+ "vehicle-f1-car": {
+  "title": "Formula 1 Racing Car",
+  "tags": [
+   "vehicle",
+   "f1",
+   "formula 1",
+   "racing",
+   "car",
+   "sport",
+   "speed",
+   "motorsport"
+  ]
+ },
+ "vehicle-double-decker-bus": {
+  "title": "Double-Decker Bus",
+  "tags": [
+   "vehicle",
+   "bus",
+   "double decker",
+   "london",
+   "transport",
+   "public",
+   "red",
+   "travel"
+  ]
+ },
+ "vehicle-semi-truck": {
+  "title": "18-Wheeler Semi-Truck",
+  "tags": [
+   "vehicle",
+   "truck",
+   "semi",
+   "18-wheeler",
+   "transport",
+   "lorry",
+   "cargo",
+   "freight"
+  ]
+ },
+ "vehicle-motorcycle": {
+  "title": "Motorcycle",
+  "tags": [
+   "vehicle",
+   "motorcycle",
+   "motorbike",
+   "bike",
+   "sport",
+   "transport",
+   "ride",
+   "speed"
+  ]
+ },
+ "vehicle-bicycle": {
+  "title": "City Bicycle",
+  "tags": [
+   "vehicle",
+   "bicycle",
+   "bike",
+   "cycling",
+   "transport",
+   "eco",
+   "sport",
+   "commute"
+  ]
+ },
+ "vehicle-helicopter": {
+  "title": "Helicopter",
+  "tags": [
+   "vehicle",
+   "helicopter",
+   "aircraft",
+   "rotor",
+   "transport",
+   "air",
+   "flight",
+   "aviation"
+  ]
+ },
+ "vehicle-airplane": {
+  "title": "Commercial Airplane",
+  "tags": [
+   "vehicle",
+   "airplane",
+   "aircraft",
+   "flight",
+   "jet",
+   "travel",
+   "airport",
+   "aviation"
+  ]
+ },
+ "vehicle-hot-air-balloon": {
+  "title": "Hot Air Balloon",
+  "tags": [
+   "vehicle",
+   "hot air balloon",
+   "balloon",
+   "air",
+   "sky",
+   "travel",
+   "adventure",
+   "float"
+  ]
+ },
+ "vehicle-sailboat": {
+  "title": "Sailboat",
+  "tags": [
+   "vehicle",
+   "sailboat",
+   "sailing",
+   "boat",
+   "ocean",
+   "sea",
+   "maritime",
+   "wind",
+   "water"
+  ]
+ },
+ "vehicle-speedboat": {
+  "title": "Speedboat",
+  "tags": [
+   "vehicle",
+   "speedboat",
+   "powerboat",
+   "boat",
+   "ocean",
+   "sea",
+   "race",
+   "water",
+   "fast"
+  ]
+ },
+ "vehicle-submarine": {
+  "title": "Submarine",
+  "tags": [
+   "vehicle",
+   "submarine",
+   "sub",
+   "underwater",
+   "ocean",
+   "naval",
+   "military",
+   "sonar"
+  ]
+ },
+ "vehicle-tractor": {
+  "title": "Farm Tractor",
+  "tags": [
+   "vehicle",
+   "tractor",
+   "farm",
+   "agriculture",
+   "farming",
+   "field",
+   "country",
+   "machinery"
+  ]
+ },
+ "vehicle-fire-truck": {
+  "title": "Fire Truck",
+  "tags": [
+   "vehicle",
+   "fire truck",
+   "firetruck",
+   "fire engine",
+   "emergency",
+   "fireman",
+   "ladder",
+   "rescue"
+  ]
+ },
+ "festival-carnival": {
+  "title": "Rio Carnival",
+  "tags": [
+   "festival",
+   "carnival",
+   "rio",
+   "brazil",
+   "samba",
+   "dance",
+   "celebration",
+   "costume"
+  ]
+ },
+ "festival-cherry-blossom": {
+  "title": "Japanese Hanami",
+  "tags": [
+   "festival",
+   "hanami",
+   "japan",
+   "cherry blossom",
+   "sakura",
+   "spring",
+   "celebration"
+  ]
+ },
+ "festival-oktoberfest": {
+  "title": "Oktoberfest",
+  "tags": [
+   "festival",
+   "oktoberfest",
+   "germany",
+   "beer",
+   "bavaria",
+   "celebration",
+   "munich"
+  ]
+ },
+ "festival-lanterns": {
+  "title": "Chinese Lantern Festival",
+  "tags": [
+   "festival",
+   "lantern",
+   "china",
+   "chinese",
+   "new year",
+   "celebration",
+   "light"
+  ]
+ },
+ "festival-halloween": {
+  "title": "Halloween",
+  "tags": [
+   "festival",
+   "halloween",
+   "usa",
+   "spooky",
+   "pumpkin",
+   "ghost",
+   "witch",
+   "celebration"
+  ]
+ },
+ "festival-christmas": {
+  "title": "Christmas",
+  "tags": [
+   "festival",
+   "christmas",
+   "tree",
+   "gifts",
+   "snow",
+   "celebration",
+   "winter",
+   "holiday"
+  ]
+ },
+ "festival-mardi-gras": {
+  "title": "Mardi Gras",
+  "tags": [
+   "festival",
+   "mardi gras",
+   "usa",
+   "new orleans",
+   "carnival",
+   "mask",
+   "beads",
+   "celebration"
+  ]
+ },
+ "festival-dragon-boat": {
+  "title": "Dragon Boat Festival",
+  "tags": [
+   "festival",
+   "dragon boat",
+   "china",
+   "duanwu",
+   "racing",
+   "water",
+   "celebration"
+  ]
+ },
+ "festival-songkran": {
+  "title": "Songkran Water Festival",
+  "tags": [
+   "festival",
+   "songkran",
+   "thailand",
+   "water",
+   "new year",
+   "celebration",
+   "splash"
+  ]
+ },
+ "festival-day-of-dead": {
+  "title": "Day of the Dead",
+  "tags": [
+   "festival",
+   "day of the dead",
+   "mexico",
+   "dia de muertos",
+   "skull",
+   "marigold",
+   "celebration"
+  ]
+ },
+ "emotion-joy": {
+  "title": "Joy",
+  "tags": [
+   "emotion",
+   "joy",
+   "happy",
+   "elated",
+   "smile",
+   "delight",
+   "bliss",
+   "cheerful"
+  ]
+ },
+ "emotion-sadness": {
+  "title": "Sadness",
+  "tags": [
+   "emotion",
+   "sadness",
+   "sad",
+   "cry",
+   "tears",
+   "melancholy",
+   "grief",
+   "sorrow"
+  ]
+ },
+ "emotion-anger": {
+  "title": "Anger",
+  "tags": [
+   "emotion",
+   "anger",
+   "rage",
+   "furious",
+   "mad",
+   "frustration",
+   "aggressive",
+   "wrathful"
+  ]
+ },
+ "emotion-fear": {
+  "title": "Fear",
+  "tags": [
+   "emotion",
+   "fear",
+   "scared",
+   "terror",
+   "anxiety",
+   "dread",
+   "phobia",
+   "horrified"
+  ]
+ },
+ "emotion-surprise": {
+  "title": "Surprise",
+  "tags": [
+   "emotion",
+   "surprise",
+   "shock",
+   "amazed",
+   "astonished",
+   "startled",
+   "wonder",
+   "unexpected"
+  ]
+ },
+ "emotion-disgust": {
+  "title": "Disgust",
+  "tags": [
+   "emotion",
+   "disgust",
+   "repulsed",
+   "revolted",
+   "nauseated",
+   "gross",
+   "aversion",
+   "yuck"
+  ]
+ },
+ "emotion-love": {
+  "title": "Love",
+  "tags": [
+   "emotion",
+   "love",
+   "adoration",
+   "affection",
+   "heart",
+   "romance",
+   "passion",
+   "devoted"
+  ]
+ },
+ "emotion-pride": {
+  "title": "Pride",
+  "tags": [
+   "emotion",
+   "pride",
+   "confident",
+   "smug",
+   "proud",
+   "self-assured",
+   "dignity",
+   "triumphant"
+  ]
+ },
+ "emotion-calm": {
+  "title": "Calm",
+  "tags": [
+   "emotion",
+   "calm",
+   "peaceful",
+   "serene",
+   "tranquil",
+   "relaxed",
+   "zen",
+   "still"
+  ]
+ },
+ "emotion-excitement": {
+  "title": "Excitement",
+  "tags": [
+   "emotion",
+   "excitement",
+   "enthusiastic",
+   "thrill",
+   "eager",
+   "animated",
+   "energetic",
+   "hyped"
+  ]
+ },
+ "emotion-anxiety": {
+  "title": "Anxiety",
+  "tags": [
+   "emotion",
+   "anxiety",
+   "worry",
+   "nervous",
+   "stress",
+   "overthinking",
+   "panicked",
+   "uneasy"
+  ]
+ },
+ "emotion-nostalgia": {
+  "title": "Nostalgia",
+  "tags": [
+   "emotion",
+   "nostalgia",
+   "longing",
+   "reminisce",
+   "memory",
+   "wistful",
+   "sentimental",
+   "past"
+  ]
+ },
+ "emotion-gratitude": {
+  "title": "Gratitude",
+  "tags": [
+   "emotion",
+   "gratitude",
+   "thankful",
+   "blessed",
+   "appreciative",
+   "grace",
+   "humble",
+   "warmth"
+  ]
+ },
+ "emotion-jealousy": {
+  "title": "Jealousy",
+  "tags": [
+   "emotion",
+   "jealousy",
+   "envy",
+   "covetous",
+   "green-eyed",
+   "resentful",
+   "possessive",
+   "bitter"
+  ]
+ },
+ "emotion-boredom": {
+  "title": "Boredom",
+  "tags": [
+   "emotion",
+   "boredom",
+   "dull",
+   "tedious",
+   "uninterested",
+   "apathy",
+   "listless",
+   "monotone"
+  ]
+ },
+ "emotion-hope": {
+  "title": "Hope",
+  "tags": [
+   "emotion",
+   "hope",
+   "optimism",
+   "aspiration",
+   "inspired",
+   "faith",
+   "future",
+   "wishful"
+  ]
+ },
+ "emotion-melancholy": {
+  "title": "Melancholy",
+  "tags": [
+   "emotion",
+   "melancholy",
+   "wistful",
+   "pensive",
+   "forlorn",
+   "blue",
+   "mournful",
+   "brooding"
+  ]
+ },
+ "emotion-embarrassment": {
+  "title": "Embarrassment",
+  "tags": [
+   "emotion",
+   "embarrassed",
+   "blush",
+   "ashamed",
+   "self-conscious",
+   "awkward",
+   "shy",
+   "sheepish"
+  ]
+ },
+ "emotion-curiosity": {
+  "title": "Curiosity",
+  "tags": [
+   "emotion",
+   "curiosity",
+   "inquisitive",
+   "wondering",
+   "questioning",
+   "exploring",
+   "interest",
+   "keen"
+  ]
+ },
+ "emotion-loneliness": {
+  "title": "Loneliness",
+  "tags": [
+   "emotion",
+   "lonely",
+   "isolation",
+   "solitude",
+   "alone",
+   "forlorn",
+   "disconnected",
+   "withdrawn"
+  ]
+ },
+ "emotion-contentment": {
+  "title": "Contentment",
+  "tags": [
+   "emotion",
+   "contentment",
+   "satisfied",
+   "at ease",
+   "comfortable",
+   "fulfilled",
+   "mellow",
+   "settled"
+  ]
+ },
+ "emotion-confidence": {
+  "title": "Confidence",
+  "tags": [
+   "emotion",
+   "confidence",
+   "bold",
+   "assured",
+   "fearless",
+   "strong",
+   "empowered",
+   "decisive"
+  ]
+ },
+ "emotion-grief": {
+  "title": "Grief",
+  "tags": [
+   "emotion",
+   "grief",
+   "mourning",
+   "sorrow",
+   "devastated",
+   "heartbreak",
+   "loss",
+   "weeping"
+  ]
+ },
+ "emotion-awe": {
+  "title": "Awe",
+  "tags": [
+   "emotion",
+   "awe",
+   "wonder",
+   "amazement",
+   "reverence",
+   "sublime",
+   "overwhelmed",
+   "speechless"
+  ]
+ },
+ "emotion-relief": {
+  "title": "Relief",
+  "tags": [
+   "emotion",
+   "relief",
+   "relaxed",
+   "unburdened",
+   "exhale",
+   "ease",
+   "freed",
+   "recovered"
+  ]
+ },
+ "emotion-determination": {
+  "title": "Determination",
+  "tags": [
+   "emotion",
+   "determination",
+   "resolved",
+   "focused",
+   "decisive",
+   "willpower",
+   "persistent",
+   "driven"
+  ]
+ },
+ "covid-virus": {
+  "title": "Coronavirus (Pathogen)",
+  "tags": [
+   "covid",
+   "virus",
+   "pathogen",
+   "disease",
+   "pandemic",
+   "corona",
+   "health",
+   "infection"
+  ]
+ },
+ "covid-face-mask": {
+  "title": "Medical Face Mask",
+  "tags": [
+   "covid",
+   "mask",
+   "face mask",
+   "ppe",
+   "protection",
+   "medical",
+   "surgical",
+   "health"
+  ]
+ },
+ "covid-sanitizer": {
+  "title": "Hand Sanitizer",
+  "tags": [
+   "covid",
+   "sanitizer",
+   "soap",
+   "clean",
+   "hygiene",
+   "wash",
+   "health",
+   "alcohol"
+  ]
+ },
+ "covid-vaccine": {
+  "title": "Vaccine Vial & Syringe",
+  "tags": [
+   "covid",
+   "vaccine",
+   "syringe",
+   "vial",
+   "cure",
+   "injection",
+   "health",
+   "shot"
+  ]
+ },
+ "covid-wash-hands": {
+  "title": "Soap & Washing Hands",
+  "tags": [
+   "covid",
+   "wash tools",
+   "hands",
+   "soap",
+   "clean",
+   "hygiene",
+   "bubble",
+   "water"
+  ]
+ },
+ "covid-social-distancing": {
+  "title": "Social Distancing",
+  "tags": [
+   "covid",
+   "social distance",
+   "distance",
+   "space",
+   "prevention",
+   "people",
+   "safety",
+   "health"
+  ]
+ },
+ "covid-thermometer": {
+  "title": "Infrared Thermometer",
+  "tags": [
+   "covid",
+   "thermometer",
+   "temperature",
+   "fever",
+   "check",
+   "health",
+   "infrared",
+   "sensor"
+  ]
+ },
+ "covid-ppe-suit": {
+  "title": "Biohazard PPE Suit",
+  "tags": [
+   "covid",
+   "ppe",
+   "suit",
+   "biohazard",
+   "hazmat",
+   "protection",
+   "health",
+   "doctor"
+  ]
+ },
+ "covid-antigen-test": {
+  "title": "Rapid Antigen Test",
+  "tags": [
+   "covid",
+   "test",
+   "antigen",
+   "rapid",
+   "positive",
+   "negative",
+   "swab",
+   "health"
+  ]
+ },
+ "covid-stay-home": {
+  "title": "Stay Home / Quarantine",
+  "tags": [
+   "covid",
+   "stay home",
+   "quarantine",
+   "house",
+   "safe",
+   "shield",
+   "prevention",
+   "health"
+  ]
+ },
+ "fashion-high-heels": {
+  "title": "High Heels",
+  "tags": [
+   "fashion",
+   "shoes",
+   "heels",
+   "footwear",
+   "elegant",
+   "style"
+  ]
+ },
+ "fashion-sneakers": {
+  "title": "Sneakers",
+  "tags": [
+   "fashion",
+   "shoes",
+   "sneakers",
+   "athletic",
+   "sports",
+   "footwear",
+   "urban"
+  ]
+ },
+ "fashion-winter-coat": {
+  "title": "Winter Coat",
+  "tags": [
+   "fashion",
+   "clothing",
+   "coat",
+   "winter",
+   "jacket",
+   "apparel",
+   "warm"
+  ]
+ },
+ "fashion-handbag": {
+  "title": "Handbag",
+  "tags": [
+   "fashion",
+   "bag",
+   "handbag",
+   "purse",
+   "luxury",
+   "accessory"
+  ]
+ },
+ "fashion-sunglasses": {
+  "title": "Sunglasses",
+  "tags": [
+   "fashion",
+   "glasses",
+   "sunglasses",
+   "eyewear",
+   "summer",
+   "accessories",
+   "style"
+  ]
+ },
+ "fashion-watch": {
+  "title": "Classic Watch",
+  "tags": [
+   "fashion",
+   "watch",
+   "smartwatch",
+   "time",
+   "accessory",
+   "wrist",
+   "luxury"
+  ]
+ },
+ "fashion-dress": {
+  "title": "Elegant Dress",
+  "tags": [
+   "fashion",
+   "clothing",
+   "dress",
+   "evening",
+   "gown",
+   "apparel"
+  ]
+ },
+ "fashion-tshirt": {
+  "title": "T-Shirt",
+  "tags": [
+   "fashion",
+   "clothing",
+   "tshirt",
+   "tee",
+   "casual",
+   "apparel",
+   "shirt"
+  ]
+ },
+ "fashion-jeans": {
+  "title": "Denim Jeans",
+  "tags": [
+   "fashion",
+   "clothing",
+   "jeans",
+   "denim",
+   "pants",
+   "casual",
+   "apparel"
+  ]
+ },
+ "fashion-suit-tie": {
+  "title": "Suit & Tie",
+  "tags": [
+   "fashion",
+   "clothing",
+   "suit",
+   "tie",
+   "formal",
+   "menswear",
+   "business",
+   "tuxedo"
+  ]
+ },
+ "fashion-backpack": {
+  "title": "Backpack",
+  "tags": [
+   "fashion",
+   "bag",
+   "backpack",
+   "travel",
+   "school",
+   "accessory",
+   "rucksack"
+  ]
+ },
+ "fashion-perfume": {
+  "title": "Perfume Bottle",
+  "tags": [
+   "fashion",
+   "beauty",
+   "perfume",
+   "fragrance",
+   "cologne",
+   "scent",
+   "luxury"
+  ]
+ },
+ "fashion-makeup": {
+  "title": "Makeup Palette",
+  "tags": [
+   "fashion",
+   "beauty",
+   "makeup",
+   "palette",
+   "brush",
+   "cosmetics"
+  ]
+ },
+ "fashion-hat": {
+  "title": "Classic Hat",
+  "tags": [
+   "fashion",
+   "clothing",
+   "hat",
+   "cap",
+   "fedora",
+   "accessory",
+   "headwear"
+  ]
+ },
+ "fashion-shopping-bags": {
+  "title": "Shopping Bags",
+  "tags": [
+   "fashion",
+   "shopping",
+   "bags",
+   "retail",
+   "buy",
+   "luxury",
+   "store"
+  ]
+ },
+ "biz-adj-innovative": {
+  "title": "Innovative",
+  "tags": [
+   "business",
+   "adjective",
+   "innovative",
+   "creative",
+   "new",
+   "idea",
+   "lightbulb"
+  ]
+ },
+ "biz-adj-scalable": {
+  "title": "Scalable",
+  "tags": [
+   "business",
+   "adjective",
+   "scalable",
+   "growth",
+   "expansion",
+   "upward",
+   "stairs"
+  ]
+ },
+ "biz-adj-disruptive": {
+  "title": "Disruptive",
+  "tags": [
+   "business",
+   "adjective",
+   "disruptive",
+   "change",
+   "break",
+   "impact",
+   "innovation"
+  ]
+ },
+ "biz-adj-agile": {
+  "title": "Agile",
+  "tags": [
+   "business",
+   "adjective",
+   "agile",
+   "flexible",
+   "fast",
+   "loop",
+   "sprint"
+  ]
+ },
+ "biz-adj-efficient": {
+  "title": "Efficient",
+  "tags": [
+   "business",
+   "adjective",
+   "efficient",
+   "optimal",
+   "process",
+   "gears",
+   "smooth"
+  ]
+ },
+ "biz-adj-robust": {
+  "title": "Robust",
+  "tags": [
+   "business",
+   "adjective",
+   "robust",
+   "strong",
+   "reliable",
+   "foundation",
+   "shield"
+  ]
+ },
+ "biz-adj-sustainable": {
+  "title": "Sustainable",
+  "tags": [
+   "business",
+   "adjective",
+   "sustainable",
+   "green",
+   "eco",
+   "growth",
+   "leaf"
+  ]
+ },
+ "biz-adj-data-driven": {
+  "title": "Data-Driven",
+  "tags": [
+   "business",
+   "adjective",
+   "data",
+   "analytics",
+   "driven",
+   "chart",
+   "insights"
+  ]
+ },
+ "biz-adj-global": {
+  "title": "Global",
+  "tags": [
+   "business",
+   "adjective",
+   "global",
+   "worldwide",
+   "earth",
+   "network",
+   "connect"
+  ]
+ },
+ "biz-adj-secure": {
+  "title": "Secure",
+  "tags": [
+   "business",
+   "adjective",
+   "secure",
+   "protection",
+   "lock",
+   "safety",
+   "trust"
+  ]
+ },
+ "biz-adj-collaborative": {
+  "title": "Collaborative",
+  "tags": [
+   "business",
+   "adjective",
+   "collaborative",
+   "team",
+   "together",
+   "unity",
+   "network"
+  ]
+ },
+ "biz-adj-visionary": {
+  "title": "Visionary",
+  "tags": [
+   "business",
+   "adjective",
+   "visionary",
+   "future",
+   "eye",
+   "prediction",
+   "scope"
+  ]
+ },
+ "biz-adj-strategic": {
+  "title": "Strategic",
+  "tags": [
+   "business",
+   "adjective",
+   "strategic",
+   "chess",
+   "plan",
+   "move",
+   "win"
+  ]
+ },
+ "biz-adj-growth-oriented": {
+  "title": "Growth-Oriented",
+  "tags": [
+   "business",
+   "adjective",
+   "growth",
+   "oriented",
+   "upward",
+   "plants",
+   "success"
+  ]
+ },
+ "biz-adj-user-centric": {
+  "title": "User-Centric",
+  "tags": [
+   "business",
+   "adjective",
+   "user",
+   "centric",
+   "customer",
+   "heart",
+   "focus"
+  ]
+ },
+ "biz-adj-transparent": {
+  "title": "Transparent",
+  "tags": [
+   "business",
+   "adjective",
+   "transparent",
+   "clear",
+   "open",
+   "glass",
+   "visible"
+  ]
+ },
+ "biz-adj-dynamic": {
+  "title": "Dynamic",
+  "tags": [
+   "business",
+   "adjective",
+   "dynamic",
+   "energy",
+   "motion",
+   "waves",
+   "active"
+  ]
+ },
+ "biz-adj-reliable": {
+  "title": "Reliable",
+  "tags": [
+   "business",
+   "adjective",
+   "reliable",
+   "trust",
+   "solid",
+   "anchor",
+   "firm"
+  ]
+ },
+ "biz-adj-flexible": {
+  "title": "Flexible",
+  "tags": [
+   "business",
+   "adjective",
+   "flexible",
+   "adapt",
+   "bend",
+   "spring",
+   "versatile"
+  ]
+ },
+ "biz-adj-modern": {
+  "title": "Modern",
+  "tags": [
+   "business",
+   "adjective",
+   "modern",
+   "sleek",
+   "minimal",
+   "new-age",
+   "style"
+  ]
+ },
+ "biz-adj-smart": {
+  "title": "Smart",
+  "tags": [
+   "business",
+   "adjective",
+   "smart",
+   "intelligent",
+   "brain",
+   "tech",
+   "ai"
+  ]
+ },
+ "biz-adj-integrated": {
+  "title": "Integrated",
+  "tags": [
+   "business",
+   "adjective",
+   "integrated",
+   "connect",
+   "parts",
+   "puzzle",
+   "whole"
+  ]
+ },
+ "biz-adj-proactive": {
+  "title": "Proactive",
+  "tags": [
+   "business",
+   "adjective",
+   "proactive",
+   "forward",
+   "ready",
+   "radar",
+   "detect",
+   "alert"
+  ]
+ },
+ "biz-adj-seamless": {
+  "title": "Seamless",
+  "tags": [
+   "business",
+   "adjective",
+   "seamless",
+   "smooth",
+   "fluid",
+   "puzzle",
+   "merge",
+   "fit"
+  ]
+ },
+ "biz-adj-synergistic": {
+  "title": "Synergistic",
+  "tags": [
+   "business",
+   "adjective",
+   "synergistic",
+   "combined",
+   "energy",
+   "plus",
+   "greater",
+   "gears"
+  ]
+ },
+ "biz-term-roi": {
+  "title": "ROI",
+  "tags": [
+   "business",
+   "terminology",
+   "roi",
+   "return",
+   "investment",
+   "money",
+   "growth"
+  ]
+ },
+ "biz-term-kpi": {
+  "title": "KPI",
+  "tags": [
+   "business",
+   "terminology",
+   "kpi",
+   "performance",
+   "indicator",
+   "gauge",
+   "metric"
+  ]
+ },
+ "biz-term-b2b": {
+  "title": "B2B",
+  "tags": [
+   "business",
+   "terminology",
+   "b2b",
+   "collaboration",
+   "corporate",
+   "link"
+  ]
+ },
+ "biz-term-b2c": {
+  "title": "B2C",
+  "tags": [
+   "business",
+   "terminology",
+   "b2c",
+   "consumer",
+   "customer",
+   "retail",
+   "link"
+  ]
+ },
+ "biz-term-mvp": {
+  "title": "MVP",
+  "tags": [
+   "business",
+   "terminology",
+   "mvp",
+   "product",
+   "launch",
+   "minimal",
+   "core"
+  ]
+ },
+ "biz-term-crm": {
+  "title": "CRM",
+  "tags": [
+   "business",
+   "terminology",
+   "crm",
+   "customer",
+   "relationship",
+   "network",
+   "data"
+  ]
+ },
+ "biz-term-seo": {
+  "title": "SEO",
+  "tags": [
+   "business",
+   "terminology",
+   "seo",
+   "search",
+   "ranking",
+   "optimization",
+   "visibility"
+  ]
+ },
+ "biz-term-churn": {
+  "title": "Churn Rate",
+  "tags": [
+   "business",
+   "terminology",
+   "churn",
+   "loss",
+   "leak",
+   "funnel",
+   "retention"
+  ]
+ },
+ "biz-term-conversion": {
+  "title": "Conversion Rate",
+  "tags": [
+   "business",
+   "terminology",
+   "conversion",
+   "success",
+   "funnel",
+   "sales",
+   "leads"
+  ]
+ },
+ "biz-term-ltv": {
+  "title": "LTV",
+  "tags": [
+   "business",
+   "terminology",
+   "ltv",
+   "lifetime",
+   "value",
+   "customer",
+   "growth",
+   "bars"
+  ]
+ },
+ "biz-term-cac": {
+  "title": "CAC",
+  "tags": [
+   "business",
+   "terminology",
+   "cac",
+   "cost",
+   "acquisition",
+   "customer",
+   "price",
+   "marketing"
+  ]
+ },
+ "biz-term-pivot": {
+  "title": "Pivot",
+  "tags": [
+   "business",
+   "terminology",
+   "pivot",
+   "change",
+   "direction",
+   "strategy",
+   "turn"
+  ]
+ },
+ "biz-term-bootstrapping": {
+  "title": "Bootstrapping",
+  "tags": [
+   "business",
+   "terminology",
+   "bootstrapping",
+   "self-funded",
+   "growth",
+   "seedling",
+   "simple"
+  ]
+ },
+ "biz-term-market-penetration": {
+  "title": "Market Penetration",
+  "tags": [
+   "business",
+   "terminology",
+   "market",
+   "penetration",
+   "growth",
+   "entry",
+   "spread",
+   "grid",
+   "nodes"
+  ]
+ },
+ "biz-term-proposition": {
+  "title": "Value Proposition",
+  "tags": [
+   "business",
+   "terminology",
+   "proposition",
+   "value",
+   "benefit",
+   "customer",
+   "offer",
+   "match"
+  ]
+ },
+ "biz-term-competency": {
+  "title": "Core Competency",
+  "tags": [
+   "business",
+   "terminology",
+   "competency",
+   "core",
+   "skill",
+   "strength",
+   "gear"
+  ]
+ },
+ "biz-term-touchpoint": {
+  "title": "Touchpoint",
+  "tags": [
+   "business",
+   "terminology",
+   "touchpoint",
+   "interaction",
+   "customer",
+   "contact",
+   "tap"
+  ]
+ },
+ "biz-term-pain-point": {
+  "title": "Pain Point",
+  "tags": [
+   "business",
+   "terminology",
+   "pain",
+   "point",
+   "issue",
+   "problem",
+   "lightning"
+  ]
+ },
+ "biz-term-low-hanging": {
+  "title": "Low-Hanging Fruit",
+  "tags": [
+   "business",
+   "terminology",
+   "low-hanging",
+   "easy",
+   "opportunity",
+   "fruit",
+   "win"
+  ]
+ },
+ "biz-term-shift": {
+  "title": "Paradigm Shift",
+  "tags": [
+   "business",
+   "terminology",
+   "shift",
+   "paradigm",
+   "change",
+   "new",
+   "transformation"
+  ]
+ },
+ "biz-term-deep-dive": {
+  "title": "Deep Dive",
+  "tags": [
+   "business",
+   "terminology",
+   "deep",
+   "dive",
+   "analysis",
+   "detail",
+   "data"
+  ]
+ },
+ "biz-term-bandwidth": {
+  "title": "Bandwidth",
+  "tags": [
+   "business",
+   "terminology",
+   "bandwidth",
+   "capacity",
+   "flow",
+   "resource",
+   "load"
+  ]
+ },
+ "biz-term-bottom-line": {
+  "title": "Bottom Line",
+  "tags": [
+   "business",
+   "terminology",
+   "bottom",
+   "line",
+   "profit",
+   "result",
+   "final"
+  ]
+ },
+ "biz-term-run-rate": {
+  "title": "Run Rate",
+  "tags": [
+   "business",
+   "terminology",
+   "run",
+   "rate",
+   "projection",
+   "forecast",
+   "revenue"
+  ]
+ },
+ "biz-term-burn-rate": {
+  "title": "Burn Rate",
+  "tags": [
+   "business",
+   "terminology",
+   "burn",
+   "rate",
+   "money",
+   "spending",
+   "flame"
+  ]
+ },
+ "fashion-stiletto": {
+  "title": "Stiletto",
+  "tags": [
+   "fashion",
+   "shoe",
+   "heel",
+   "stiletto",
+   "footwear",
+   "elegant",
+   "women"
+  ]
+ },
+ "fashion-suit": {
+  "title": "Suit",
+  "tags": [
+   "fashion",
+   "suit",
+   "jacket",
+   "tie",
+   "menswear",
+   "formal",
+   "corporate"
+  ]
+ },
+ "fashion-lipstick": {
+  "title": "Lipstick",
+  "tags": [
+   "fashion",
+   "lipstick",
+   "makeup",
+   "beauty",
+   "cosmetics",
+   "lips",
+   "red"
+  ]
+ },
+ "fashion-mannequin": {
+  "title": "Mannequin",
+  "tags": [
+   "fashion",
+   "mannequin",
+   "dummy",
+   "tailor",
+   "sewing",
+   "body",
+   "dressmaker"
+  ]
+ },
+ "fashion-hanger": {
+  "title": "Hanger",
+  "tags": [
+   "fashion",
+   "hanger",
+   "closet",
+   "wardrobe",
+   "clothes",
+   "hook"
+  ]
+ },
+ "fashion-scissors": {
+  "title": "Scissors",
+  "tags": [
+   "fashion",
+   "scissors",
+   "shears",
+   "cut",
+   "fabric",
+   "tailor",
+   "tool"
+  ]
+ },
+ "fashion-needle": {
+  "title": "Needle & Thread",
+  "tags": [
+   "fashion",
+   "needle",
+   "thread",
+   "sewing",
+   "stitch",
+   "tailor",
+   "craft"
+  ]
+ },
+ "fashion-measuring-tape": {
+  "title": "Measuring Tape",
+  "tags": [
+   "fashion",
+   "tape",
+   "measure",
+   "tailor",
+   "size",
+   "fit",
+   "sewing"
+  ]
+ },
+ "fashion-bowtie": {
+  "title": "Bowtie",
+  "tags": [
+   "fashion",
+   "bowtie",
+   "tie",
+   "formal",
+   "suit",
+   "menswear",
+   "tuxedo"
+  ]
+ },
+ "fashion-diamond": {
+  "title": "Diamond",
+  "tags": [
+   "fashion",
+   "diamond",
+   "gem",
+   "jewel",
+   "necklace",
+   "ring",
+   "sparkle"
+  ]
+ },
+ "fashion-shopping-bag": {
+  "title": "Shopping Bag",
+  "tags": [
+   "fashion",
+   "shopping",
+   "bag",
+   "boutique",
+   "retail",
+   "buy",
+   "store"
+  ]
+ },
+ "fashion-tiara": {
+  "title": "Tiara",
+  "tags": [
+   "fashion",
+   "tiara",
+   "crown",
+   "princess",
+   "jewelry",
+   "headpiece",
+   "royal"
+  ]
+ },
+ "fashion-runway": {
+  "title": "Runway",
+  "tags": [
+   "fashion",
+   "runway",
+   "catwalk",
+   "model",
+   "show",
+   "spotlight",
+   "event"
+  ]
+ },
+ "fashion-fabric": {
+  "title": "Fabric Roll",
+  "tags": [
+   "fashion",
+   "fabric",
+   "textile",
+   "roll",
+   "material",
+   "sewing",
+   "pattern"
+  ]
+ },
+ "sales-funnel": {
+  "title": "Sales Funnel",
+  "tags": [
+   "sales",
+   "funnel",
+   "conversion",
+   "leads",
+   "marketing"
+  ]
+ },
+ "sales-handshake": {
+  "title": "Deal Closed",
+  "tags": [
+   "sales",
+   "handshake",
+   "deal",
+   "agreement",
+   "partnership",
+   "b2b"
+  ]
+ },
+ "sales-target": {
+  "title": "Sales Target",
+  "tags": [
+   "sales",
+   "target",
+   "goal",
+   "bullseye",
+   "aim"
+  ]
+ },
+ "sales-growth": {
+  "title": "Sales Growth",
+  "tags": [
+   "sales",
+   "growth",
+   "chart",
+   "increase",
+   "revenue"
+  ]
+ },
+ "sales-magnet": {
+  "title": "Lead Magnet",
+  "tags": [
+   "sales",
+   "leads",
+   "magnet",
+   "attract",
+   "inbound",
+   "marketing"
+  ]
+ },
+ "sales-discount": {
+  "title": "Discount Tag",
+  "tags": [
+   "sales",
+   "discount",
+   "tag",
+   "promo",
+   "coupon",
+   "percentage"
+  ]
+ },
+ "sales-pos": {
+  "title": "Point of Sale",
+  "tags": [
+   "sales",
+   "pos",
+   "register",
+   "terminal",
+   "checkout",
+   "retail",
+   "payment"
+  ]
+ },
+ "sales-invoice": {
+  "title": "Invoice",
+  "tags": [
+   "sales",
+   "invoice",
+   "bill",
+   "receipt",
+   "document",
+   "payment"
+  ]
+ },
+ "sales-contract": {
+  "title": "Contract Agreement",
+  "tags": [
+   "sales",
+   "contract",
+   "signature",
+   "pen",
+   "agreement",
+   "document"
+  ]
+ },
+ "sales-pipeline": {
+  "title": "Sales Pipeline",
+  "tags": [
+   "sales",
+   "pipeline",
+   "process",
+   "flow",
+   "funnel",
+   "crm"
+  ]
+ },
+ "sales-crm": {
+  "title": "CRM Network",
+  "tags": [
+   "sales",
+   "crm",
+   "contacts",
+   "network",
+   "clients",
+   "management",
+   "database"
+  ]
+ },
+ "sales-commission": {
+  "title": "Commission",
+  "tags": [
+   "sales",
+   "commission",
+   "bonus",
+   "money",
+   "bag",
+   "pay",
+   "reward"
+  ]
+ },
+ "sales-call": {
+  "title": "Sales Call",
+  "tags": [
+   "sales",
+   "call",
+   "cold calling",
+   "outreach",
+   "phone",
+   "headset",
+   "communication"
+  ]
+ },
+ "sales-meeting": {
+  "title": "Sales Meeting",
+  "tags": [
+   "sales",
+   "meeting",
+   "presentation",
+   "negotiation",
+   "table",
+   "team"
+  ]
+ },
+ "sales-presentation": {
+  "title": "Sales Pitch",
+  "tags": [
+   "sales",
+   "pitch",
+   "presentation",
+   "easel",
+   "board",
+   "chart",
+   "strategy"
+  ]
+ },
+ "sales-loyalty": {
+  "title": "Customer Loyalty",
+  "tags": [
+   "sales",
+   "loyalty",
+   "retention",
+   "award",
+   "medal",
+   "ribbon",
+   "star"
+  ]
+ },
+ "sales-megaphone": {
+  "title": "Sales Campaign",
+  "tags": [
+   "sales",
+   "campaign",
+   "megaphone",
+   "bullhorn",
+   "promotion",
+   "announcement"
+  ]
+ },
+ "sales-shopping-cart": {
+  "title": "B2C Sales",
+  "tags": [
+   "sales",
+   "cart",
+   "b2c",
+   "consumer",
+   "shopping",
+   "ecommerce",
+   "buy"
+  ]
+ },
+ "sales-conversion": {
+  "title": "Conversion",
+  "tags": [
+   "sales",
+   "conversion",
+   "user",
+   "money",
+   "flip",
+   "transition",
+   "success"
+  ]
+ },
+ "sales-b2b": {
+  "title": "B2B Sales",
+  "tags": [
+   "sales",
+   "b2b",
+   "business",
+   "enterprise",
+   "buildings",
+   "partnership",
+   "trade"
+  ]
+ },
+ "marketing-email": {
+  "title": "Email Campaign",
+  "tags": [
+   "marketing",
+   "digital",
+   "email",
+   "campaign",
+   "newsletter",
+   "broadcast"
+  ]
+ },
+ "marketing-social": {
+  "title": "Social Media Strategy",
+  "tags": [
+   "marketing",
+   "social",
+   "media",
+   "strategy",
+   "phone",
+   "like",
+   "heart"
+  ]
+ },
+ "marketing-ppc": {
+  "title": "Pay-Per-Click HQ",
+  "tags": [
+   "marketing",
+   "ppc",
+   "pay",
+   "click",
+   "ad",
+   "cursor",
+   "banner"
+  ]
+ },
+ "marketing-content": {
+  "title": "Content Creation",
+  "tags": [
+   "marketing",
+   "content",
+   "creation",
+   "document",
+   "pencil",
+   "write"
+  ]
+ },
+ "marketing-viral": {
+  "title": "Viral Content",
+  "tags": [
+   "marketing",
+   "viral",
+   "content",
+   "network",
+   "nodes",
+   "connections",
+   "share"
+  ]
+ },
+ "marketing-analytics": {
+  "title": "Web Analytics",
+  "tags": [
+   "marketing",
+   "analytics",
+   "dashboard",
+   "charts",
+   "graphs",
+   "data",
+   "web"
+  ]
+ },
+ "marketing-demographics": {
+  "title": "Target Demographics",
+  "tags": [
+   "marketing",
+   "target",
+   "demographics",
+   "audience",
+   "focus",
+   "ring",
+   "users"
+  ]
+ },
+ "marketing-brand": {
+  "title": "Brand Identity",
+  "tags": [
+   "marketing",
+   "brand",
+   "identity",
+   "fingerprint",
+   "badge",
+   "unique"
+  ]
+ },
+ "marketing-automation": {
+  "title": "Marketing Automation",
+  "tags": [
+   "marketing",
+   "automation",
+   "gears",
+   "envelope",
+   "email",
+   "system"
+  ]
+ },
+ "marketing-video-ads": {
+  "title": "Video Ads",
+  "tags": [
+   "marketing",
+   "video",
+   "ads",
+   "play",
+   "screen",
+   "monitor",
+   "watch"
+  ]
+ },
+ "marketing-podcast": {
+  "title": "Podcast Advertising",
+  "tags": [
+   "marketing",
+   "podcast",
+   "audio",
+   "mic",
+   "broadcast",
+   "speak"
+  ]
+ },
+ "marketing-retargeting": {
+  "title": "Retargeting Ads",
+  "tags": [
+   "marketing",
+   "retargeting",
+   "ads",
+   "loop",
+   "arrows",
+   "user",
+   "avatar"
+  ]
+ },
+ "marketing-mobile": {
+  "title": "Mobile Optimization",
+  "tags": [
+   "marketing",
+   "mobile",
+   "optimization",
+   "phone",
+   "rocket",
+   "fast"
+  ]
+ },
+ "marketing-ab-testing": {
+  "title": "A/B Testing",
+  "tags": [
+   "marketing",
+   "ab",
+   "testing",
+   "split",
+   "compare",
+   "screens"
+  ]
+ },
+ "marketing-keyword": {
+  "title": "Keyword Analysis",
+  "tags": [
+   "marketing",
+   "keyword",
+   "analysis",
+   "search",
+   "seo",
+   "magnifying glass"
+  ]
+ },
+ "marketing-inbound": {
+  "title": "Inbound Strategy",
+  "tags": [
+   "marketing",
+   "inbound",
+   "strategy",
+   "magnet",
+   "pull",
+   "attract",
+   "leads"
+  ]
+ },
+ "marketing-omnichannel": {
+  "title": "Omnichannel",
+  "tags": [
+   "marketing",
+   "omnichannel",
+   "devices",
+   "store",
+   "connect",
+   "integrate"
+  ]
+ },
+ "marketing-webinar": {
+  "title": "Webinar",
+  "tags": [
+   "marketing",
+   "webinar",
+   "online",
+   "presentation",
+   "video",
+   "teach",
+   "monitor"
+  ]
+ },
+ "marketing-copywriting": {
+  "title": "Copywriting",
+  "tags": [
+   "marketing",
+   "copywriting",
+   "text",
+   "pen",
+   "quill",
+   "write",
+   "creative"
+  ]
+ },
+ "marketing-influencer": {
+  "title": "Influencer Collaboration",
+  "tags": [
+   "marketing",
+   "influencer",
+   "collaboration",
+   "network",
+   "stars",
+   "people"
+  ]
+ },
+ "marketing-affiliate": {
+  "title": "Affiliate Link",
+  "tags": [
+   "marketing",
+   "affiliate",
+   "link",
+   "chain",
+   "earn",
+   "percentage",
+   "referral"
+  ]
+ },
+ "marketing-landing-page": {
+  "title": "Landing Page",
+  "tags": [
+   "marketing",
+   "landing",
+   "page",
+   "website",
+   "cta",
+   "button",
+   "lead",
+   "capture"
+  ]
+ },
+ "marketing-ctr": {
+  "title": "Click-Through Rate",
+  "tags": [
+   "marketing",
+   "ctr",
+   "click",
+   "through",
+   "rate",
+   "arrow",
+   "cursor",
+   "success"
+  ]
+ },
+ "marketing-sem": {
+  "title": "Search Engine Marketing",
+  "tags": [
+   "marketing",
+   "sem",
+   "search",
+   "engine",
+   "ad",
+   "sponsored",
+   "results"
+  ]
+ },
+ "marketing-engagement": {
+  "title": "User Engagement",
+  "tags": [
+   "marketing",
+   "engagement",
+   "user",
+   "comments",
+   "love",
+   "heart",
+   "interaction"
+  ]
+ },
+ "cloud-server": {
+  "title": "Cloud Server",
+  "tags": [
+   "cloud",
+   "server",
+   "infrastructure",
+   "hosting",
+   "rack"
+  ]
+ },
+ "cloud-storage": {
+  "title": "Cloud Storage",
+  "tags": [
+   "cloud",
+   "storage",
+   "files",
+   "folder",
+   "drive",
+   "archive"
+  ]
+ },
+ "cloud-computing": {
+  "title": "Cloud Computing",
+  "tags": [
+   "cloud",
+   "computing",
+   "cpu",
+   "processor",
+   "power",
+   "tech"
+  ]
+ },
+ "multicloud-architecture": {
+  "title": "Multi-Cloud",
+  "tags": [
+   "cloud",
+   "multi",
+   "architecture",
+   "network",
+   "nodes",
+   "hybrid"
+  ]
+ },
+ "edge-computing": {
+  "title": "Edge Computing",
+  "tags": [
+   "edge",
+   "computing",
+   "analytics",
+   "iot",
+   "devices",
+   "network",
+   "cloud"
+  ]
+ },
+ "auto-scaling": {
+  "title": "Auto-Scaling",
+  "tags": [
+   "cloud",
+   "scaling",
+   "elastic",
+   "grow",
+   "expand",
+   "capacity"
+  ]
+ },
+ "serverless-functions": {
+  "title": "Serverless",
+  "tags": [
+   "serverless",
+   "functions",
+   "lambda",
+   "code",
+   "cloud",
+   "execute"
+  ]
+ },
+ "load-balancer": {
+  "title": "Load Balancer",
+  "tags": [
+   "load",
+   "balancer",
+   "traffic",
+   "split",
+   "network",
+   "routing",
+   "cloud"
+  ]
+ },
+ "data-center-rack": {
+  "title": "Server Rack",
+  "tags": [
+   "data",
+   "center",
+   "server",
+   "rack",
+   "infrastructure",
+   "hardware"
+  ]
+ },
+ "data-center-mainframe": {
+  "title": "Mainframe",
+  "tags": [
+   "mainframe",
+   "supercomputer",
+   "data",
+   "processing",
+   "server",
+   "tech"
+  ]
+ },
+ "data-center-switch": {
+  "title": "Network Switch",
+  "tags": [
+   "network",
+   "switch",
+   "router",
+   "cables",
+   "ethernet",
+   "data",
+   "hub"
+  ]
+ },
+ "data-center-cooling": {
+  "title": "Cooling System",
+  "tags": [
+   "cooling",
+   "fan",
+   "hvac",
+   "temperature",
+   "data",
+   "center",
+   "air"
+  ]
+ },
+ "data-center-fiber": {
+  "title": "Fiber Optics",
+  "tags": [
+   "fiber",
+   "optics",
+   "cable",
+   "speed",
+   "light",
+   "data",
+   "transmission"
+  ]
+ },
+ "data-center-ups": {
+  "title": "UPS Power",
+  "tags": [
+   "ups",
+   "power",
+   "battery",
+   "backup",
+   "energy",
+   "data",
+   "center"
+  ]
+ },
+ "data-center-floor": {
+  "title": "Raised Floor",
+  "tags": [
+   "raised",
+   "floor",
+   "architecture",
+   "cabling",
+   "data",
+   "center",
+   "infrastructure"
+  ]
+ },
+ "data-center-nodes": {
+  "title": "Data Nodes",
+  "tags": [
+   "data",
+   "nodes",
+   "cubes",
+   "storage",
+   "blocks",
+   "assemble",
+   "cloud"
+  ]
+ },
+ "data-center-topology": {
+  "title": "Network Topology",
+  "tags": [
+   "network",
+   "topology",
+   "tree",
+   "mesh",
+   "connections",
+   "nodes",
+   "graph"
+  ]
+ },
+ "data-center-tape": {
+  "title": "Tape Archive",
+  "tags": [
+   "tape",
+   "archive",
+   "backup",
+   "reels",
+   "storage",
+   "long-term",
+   "data"
+  ]
+ },
+ "security-antivirus": {
+  "title": "Antivirus Shield",
+  "tags": [
+   "security",
+   "antivirus",
+   "shield",
+   "protect",
+   "defense",
+   "secure"
+  ]
+ },
+ "security-firewall": {
+  "title": "Firewall",
+  "tags": [
+   "security",
+   "firewall",
+   "wall",
+   "block",
+   "protect",
+   "network",
+   "barrier"
+  ]
+ },
+ "security-encryption": {
+  "title": "Encryption",
+  "tags": [
+   "encryption",
+   "security",
+   "padlock",
+   "crypto",
+   "safe",
+   "lock",
+   "code"
+  ]
+ },
+ "security-access-control": {
+  "title": "Access Control",
+  "tags": [
+   "security",
+   "access",
+   "control",
+   "keyhole",
+   "auth",
+   "login"
+  ]
+ },
+ "security-malware": {
+  "title": "Malware Bug",
+  "tags": [
+   "security",
+   "malware",
+   "virus",
+   "bug",
+   "threat",
+   "insect",
+   "hack"
+  ]
+ },
+ "security-phishing": {
+  "title": "Phishing",
+  "tags": [
+   "security",
+   "phishing",
+   "email",
+   "hook",
+   "scam",
+   "spam",
+   "fraud"
+  ]
+ },
+ "security-biometric": {
+  "title": "Biometric Scan",
+  "tags": [
+   "security",
+   "biometric",
+   "scan",
+   "fingerprint",
+   "identity",
+   "laser"
+  ]
+ },
+ "security-mfa": {
+  "title": "Multi-Factor Auth",
+  "tags": [
+   "security",
+   "mfa",
+   "2fa",
+   "authentication",
+   "phone",
+   "code",
+   "password"
+  ]
+ },
+ "security-vpn": {
+  "title": "VPN Tunnel",
+  "tags": [
+   "security",
+   "vpn",
+   "tunnel",
+   "network",
+   "private",
+   "encryption",
+   "safe"
+  ]
+ },
+ "security-surveillance": {
+  "title": "Surveillance",
+  "tags": [
+   "security",
+   "surveillance",
+   "cctv",
+   "camera",
+   "monitor",
+   "watch",
+   "eye"
+  ]
+ },
+ "security-identity": {
+  "title": "Identity Protection",
+  "tags": [
+   "security",
+   "identity",
+   "protection",
+   "privacy",
+   "mask",
+   "anonymous",
+   "user"
+  ]
+ },
+ "security-breach": {
+  "title": "Data Breach",
+  "tags": [
+   "security",
+   "breach",
+   "leak",
+   "hack",
+   "cracked",
+   "vulnerability",
+   "data"
+  ]
+ },
+ "security-threat-map": {
+  "title": "Threat Map",
+  "tags": [
+   "security",
+   "threat",
+   "map",
+   "globe",
+   "attack",
+   "cyber",
+   "global"
+  ]
+ },
+ "security-zero-trust": {
+  "title": "Zero Trust",
+  "tags": [
+   "security",
+   "zero",
+   "trust",
+   "gate",
+   "verify",
+   "auth",
+   "eye"
+  ]
+ },
+ "security-secure-payment": {
+  "title": "Secure Payment",
+  "tags": [
+   "security",
+   "secure",
+   "payment",
+   "credit",
+   "card",
+   "vault",
+   "transaction"
+  ]
+ },
+ "ai-agentic": {
+  "title": "Agentic AI",
+  "tags": [
+   "agentic",
+   "ai",
+   "autonomous",
+   "artificial",
+   "intelligence",
+   "bot",
+   "agent",
+   "nodes"
+  ]
+ },
+ "ai-mcp": {
+  "title": "Model Context Protocol",
+  "tags": [
+   "mcp",
+   "model",
+   "context",
+   "protocol",
+   "api",
+   "connection",
+   "bridge",
+   "ai"
+  ]
+ },
+ "ai-chatbot": {
+  "title": "Chatbot",
+  "tags": [
+   "chatbot",
+   "bot",
+   "assistant",
+   "chat",
+   "message",
+   "bubble",
+   "ai",
+   "conversation"
+  ]
+ },
+ "legal-scales": {
+  "title": "Scales of Justice",
+  "tags": [
+   "legal",
+   "scales",
+   "justice",
+   "law",
+   "balance",
+   "court",
+   "fairness"
+  ]
+ },
+ "legal-gavel": {
+  "title": "Gavel",
+  "tags": [
+   "legal",
+   "gavel",
+   "judge",
+   "law",
+   "court",
+   "hammer",
+   "order",
+   "verdict"
+  ]
+ },
+ "legal-book": {
+  "title": "Law Book",
+  "tags": [
+   "legal",
+   "book",
+   "law",
+   "rules",
+   "justice",
+   "code",
+   "guide"
+  ]
+ },
+ "legal-courthouse": {
+  "title": "Courthouse",
+  "tags": [
+   "legal",
+   "courthouse",
+   "building",
+   "law",
+   "justice",
+   "pillars",
+   "\ud83c\udfdb\ufe0f"
+  ]
+ },
+ "legal-contract": {
+  "title": "Contract",
+  "tags": [
+   "legal",
+   "contract",
+   "agreement",
+   "document",
+   "sign",
+   "signature",
+   "paper",
+   "deal"
+  ]
+ },
+ "legal-briefcase": {
+  "title": "Lawyer Briefcase",
+  "tags": [
+   "legal",
+   "briefcase",
+   "lawyer",
+   "attorney",
+   "bag",
+   "case",
+   "portfolio",
+   "business"
+  ]
+ },
+ "legal-official-seal": {
+  "title": "Official Seal",
+  "tags": [
+   "legal",
+   "seal",
+   "official",
+   "stamp",
+   "wax",
+   "certified",
+   "document",
+   "authentic"
+  ]
+ },
+ "legal-handcuffs": {
+  "title": "Handcuffs",
+  "tags": [
+   "legal",
+   "handcuffs",
+   "arrest",
+   "crime",
+   "police",
+   "jail",
+   "criminal"
+  ]
+ },
+ "legal-copyright": {
+  "title": "Copyright & IP",
+  "tags": [
+   "legal",
+   "copyright",
+   "ip",
+   "intellectual",
+   "property",
+   "trademark",
+   "symbol"
+  ]
+ },
+ "legal-patent": {
+  "title": "Patent",
+  "tags": [
+   "legal",
+   "patent",
+   "invention",
+   "idea",
+   "certificate",
+   "ip",
+   "lightbulb"
+  ]
+ },
+ "legal-jail": {
+  "title": "Prison Cell",
+  "tags": [
+   "legal",
+   "jail",
+   "prison",
+   "cell",
+   "bars",
+   "crime",
+   "guilty",
+   "incarceration"
+  ]
+ },
+ "legal-investigation": {
+  "title": "Legal Investigation",
+  "tags": [
+   "legal",
+   "investigation",
+   "search",
+   "magnifying",
+   "glass",
+   "evidence",
+   "discovery",
+   "document"
+  ]
+ },
+ "legal-settlement": {
+  "title": "Settlement",
+  "tags": [
+   "legal",
+   "settlement",
+   "handshake",
+   "agreement",
+   "deal",
+   "lawyer",
+   "client"
+  ]
+ },
+ "legal-nda": {
+  "title": "NDA & Confidentiality",
+  "tags": [
+   "legal",
+   "nda",
+   "confidential",
+   "secret",
+   "folder",
+   "lock",
+   "privacy"
+  ]
+ },
+ "legal-witness-stand": {
+  "title": "Witness Stand",
+  "tags": [
+   "legal",
+   "witness",
+   "testimony",
+   "stand",
+   "courtroom",
+   "podium",
+   "speak"
+  ]
+ },
+ "vacation-luggage": {
+  "title": "Luggage",
+  "tags": [
+   "vacation",
+   "luggage",
+   "suitcase",
+   "travel",
+   "bag",
+   "trip",
+   "holiday"
+  ]
+ },
+ "vacation-airplane": {
+  "title": "Airplane",
+  "tags": [
+   "vacation",
+   "airplane",
+   "flight",
+   "travel",
+   "plane",
+   "fly",
+   "trip"
+  ]
+ },
+ "vacation-passport": {
+  "title": "Passport",
+  "tags": [
+   "vacation",
+   "passport",
+   "visa",
+   "document",
+   "id",
+   "globe",
+   "travel"
+  ]
+ },
+ "vacation-umbrella": {
+  "title": "Beach Umbrella",
+  "tags": [
+   "vacation",
+   "beach",
+   "umbrella",
+   "shade",
+   "sun",
+   "sand",
+   "summer"
+  ]
+ },
+ "vacation-palm-tree": {
+  "title": "Palm Tree",
+  "tags": [
+   "vacation",
+   "palm",
+   "tree",
+   "island",
+   "tropical",
+   "beach",
+   "coconut"
+  ]
+ },
+ "vacation-beach-chair": {
+  "title": "Beach Chair",
+  "tags": [
+   "vacation",
+   "beach",
+   "chair",
+   "lounger",
+   "relax",
+   "sunbathe",
+   "rest"
+  ]
+ },
+ "vacation-camera": {
+  "title": "Tourist Camera",
+  "tags": [
+   "vacation",
+   "camera",
+   "photo",
+   "tourist",
+   "picture",
+   "lens",
+   "flash"
+  ]
+ },
+ "vacation-map-pin": {
+  "title": "Map & Pin",
+  "tags": [
+   "vacation",
+   "map",
+   "pin",
+   "location",
+   "destination",
+   "travel",
+   "navigate"
+  ]
+ },
+ "vacation-compass": {
+  "title": "Compass",
+  "tags": [
+   "vacation",
+   "compass",
+   "navigation",
+   "direction",
+   "north",
+   "explore",
+   "guide"
+  ]
+ },
+ "vacation-cruise-ship": {
+  "title": "Cruise Ship",
+  "tags": [
+   "vacation",
+   "cruise",
+   "ship",
+   "boat",
+   "ocean",
+   "sea",
+   "liner"
+  ]
+ },
+ "vacation-boarding-pass": {
+  "title": "Boarding Pass",
+  "tags": [
+   "vacation",
+   "boarding",
+   "pass",
+   "ticket",
+   "flight",
+   "fly",
+   "document"
+  ]
+ },
+ "vacation-tropical-drink": {
+  "title": "Tropical Drink",
+  "tags": [
+   "vacation",
+   "tropical",
+   "drink",
+   "cocktail",
+   "coconut",
+   "beach",
+   "refresh",
+   "party"
+  ]
+ },
+ "vacation-hotel-bell": {
+  "title": "Hotel Bell",
+  "tags": [
+   "vacation",
+   "hotel",
+   "bell",
+   "concierge",
+   "service",
+   "reception",
+   "desk"
+  ]
+ },
+ "vacation-tent": {
+  "title": "Camping Tent",
+  "tags": [
+   "vacation",
+   "camping",
+   "tent",
+   "outdoor",
+   "nature",
+   "trip",
+   "camp"
+  ]
+ },
+ "vacation-backpack": {
+  "title": "Travel Backpack",
+  "tags": [
+   "vacation",
+   "backpack",
+   "travel",
+   "hike",
+   "nature",
+   "bag",
+   "camp"
+  ]
+ },
+ "vacation-mountains": {
+  "title": "Mountain Peaks",
+  "tags": [
+   "vacation",
+   "mountains",
+   "peaks",
+   "nature",
+   "hike",
+   "scenic",
+   "landscape"
+  ]
+ },
+ "vacation-swim-ring": {
+  "title": "Swim Ring",
+  "tags": [
+   "vacation",
+   "swim",
+   "ring",
+   "pool",
+   "floatie",
+   "water",
+   "summer"
+  ]
+ },
+ "vacation-flip-flops": {
+  "title": "Flip Flops",
+  "tags": [
+   "vacation",
+   "flip",
+   "flops",
+   "sandals",
+   "beach",
+   "summer",
+   "shoes"
+  ]
+ },
+ "vacation-sun": {
+  "title": "Radiant Sun",
+  "tags": [
+   "vacation",
+   "sun",
+   "sunny",
+   "weather",
+   "summer",
+   "hot",
+   "heat"
+  ]
+ },
+ "vacation-camper-van": {
+  "title": "Camper Van",
+  "tags": [
+   "vacation",
+   "camper",
+   "van",
+   "rv",
+   "road",
+   "trip",
+   "drive"
+  ]
+ },
+ "vacation-train": {
+  "title": "Scenic Train",
+  "tags": [
+   "vacation",
+   "train",
+   "railway",
+   "trip",
+   "scenic",
+   "journey",
+   "locomotive"
+  ]
+ },
+ "vacation-globe": {
+  "title": "Globe",
+  "tags": [
+   "vacation",
+   "globe",
+   "world",
+   "travel",
+   "earth",
+   "international",
+   "global"
+  ]
+ },
+ "vacation-snorkel": {
+  "title": "Snorkel & Mask",
+  "tags": [
+   "vacation",
+   "snorkel",
+   "mask",
+   "dive",
+   "swim",
+   "ocean",
+   "sea",
+   "water"
+  ]
+ },
+ "vacation-surfboard": {
+  "title": "Surfboard",
+  "tags": [
+   "vacation",
+   "surfboard",
+   "surf",
+   "waves",
+   "beach",
+   "ocean",
+   "ride"
+  ]
+ },
+ "vacation-skis": {
+  "title": "Skis & Poles",
+  "tags": [
+   "vacation",
+   "skis",
+   "poles",
+   "winter",
+   "snow",
+   "skiing",
+   "mountain",
+   "holiday"
+  ]
+ },
+ "support-headset": {
+  "title": "Support Headset",
+  "tags": [
+   "support",
+   "headset",
+   "customer",
+   "service",
+   "audio",
+   "listen",
+   "call",
+   "agent",
+   "microphone"
+  ]
+ },
+ "support-live-chat": {
+  "title": "Live Chat",
+  "tags": [
+   "support",
+   "chat",
+   "live",
+   "message",
+   "communication",
+   "bubble",
+   "talk",
+   "help",
+   "bot"
+  ]
+ },
+ "support-ticket": {
+  "title": "Helpdesk Ticket",
+  "tags": [
+   "support",
+   "ticket",
+   "helpdesk",
+   "issue",
+   "bug",
+   "report",
+   "document",
+   "wrench",
+   "tool"
+  ]
+ },
+ "support-star-rating": {
+  "title": "Star Rating",
+  "tags": [
+   "support",
+   "star",
+   "rating",
+   "review",
+   "satisfaction",
+   "feedback",
+   "excellent",
+   "5"
+  ]
+ },
+ "support-faq": {
+  "title": "FAQ Document",
+  "tags": [
+   "support",
+   "faq",
+   "question",
+   "answer",
+   "help",
+   "document",
+   "info"
+  ]
+ },
+ "support-24-7": {
+  "title": "24/7 Support",
+  "tags": [
+   "support",
+   "24/7",
+   "time",
+   "clock",
+   "always",
+   "service",
+   "available",
+   "continuous"
+  ]
+ },
+ "support-email": {
+  "title": "Email Support",
+  "tags": [
+   "support",
+   "email",
+   "mail",
+   "letter",
+   "envelope",
+   "contact",
+   "write",
+   "send"
+  ]
+ },
+ "support-phone": {
+  "title": "Phone Support",
+  "tags": [
+   "support",
+   "phone",
+   "telephone",
+   "classic",
+   "call",
+   "ring",
+   "contact",
+   "speak"
+  ]
+ },
+ "support-satisfaction": {
+  "title": "Customer Satisfaction",
+  "tags": [
+   "support",
+   "satisfaction",
+   "smile",
+   "happy",
+   "face",
+   "thumbs",
+   "up",
+   "feedback",
+   "positive"
+  ]
+ },
+ "support-tech": {
+  "title": "Technical Support",
+  "tags": [
+   "support",
+   "technical",
+   "tech",
+   "wrench",
+   "gear",
+   "repair",
+   "fix",
+   "helpdesk"
+  ]
+ },
+ "support-user-guide": {
+  "title": "User Guide / Manual",
+  "tags": [
+   "support",
+   "user",
+   "guide",
+   "manual",
+   "book",
+   "info",
+   "information",
+   "instructions"
+  ]
+ },
+ "support-video-call": {
+  "title": "Video Call Support",
+  "tags": [
+   "support",
+   "video",
+   "call",
+   "agent",
+   "screen",
+   "monitor",
+   "webcam",
+   "remote"
+  ]
+ },
+ "support-solution": {
+  "title": "Solution / Idea",
+  "tags": [
+   "support",
+   "solution",
+   "idea",
+   "lightbulb",
+   "glow",
+   "fix",
+   "answer",
+   "creative"
+  ]
+ },
+ "support-community": {
+  "title": "Community Forum",
+  "tags": [
+   "support",
+   "community",
+   "forum",
+   "users",
+   "network",
+   "help",
+   "together"
+  ]
+ },
+ "support-reliability": {
+  "title": "Reliability Shield",
+  "tags": [
+   "support",
+   "reliability",
+   "trust",
+   "guarantee",
+   "shield",
+   "check",
+   "secure",
+   "safe"
+  ]
+ },
+ "webarch-client-server": {
+  "title": "Client-Server Model",
+  "tags": [
+   "web",
+   "architecture",
+   "client",
+   "server",
+   "network",
+   "request",
+   "response",
+   "api"
+  ]
+ },
+ "webarch-rest-api": {
+  "title": "RESTful API",
+  "tags": [
+   "web",
+   "rest",
+   "api",
+   "endpoint",
+   "http",
+   "get",
+   "post",
+   "json",
+   "architecture"
+  ]
+ },
+ "webarch-database": {
+  "title": "Database",
+  "tags": [
+   "web",
+   "database",
+   "db",
+   "sql",
+   "store",
+   "data",
+   "architecture",
+   "table",
+   "query"
+  ]
+ },
+ "webarch-json": {
+  "title": "JSON Tree",
+  "tags": [
+   "web",
+   "json",
+   "tree",
+   "data",
+   "structure",
+   "api",
+   "object",
+   "schema",
+   "architecture"
+  ]
+ },
+ "devops-cicd": {
+  "title": "CI/CD Pipeline",
+  "tags": [
+   "devops",
+   "ci",
+   "cd",
+   "pipeline",
+   "deploy",
+   "build",
+   "test",
+   "cloud",
+   "automation"
+  ]
+ },
+ "devops-docker": {
+  "title": "Docker Container",
+  "tags": [
+   "devops",
+   "docker",
+   "container",
+   "image",
+   "cloud",
+   "microservice",
+   "deploy"
+  ]
+ },
+ "devops-serverless": {
+  "title": "Serverless Function",
+  "tags": [
+   "devops",
+   "serverless",
+   "lambda",
+   "function",
+   "cloud",
+   "faas",
+   "event",
+   "trigger"
+  ]
+ },
+ "char-alien": {
+  "title": "Alien",
+  "tags": [
+   "character",
+   "alien",
+   "extraterrestrial",
+   "space",
+   "ufo",
+   "sci-fi",
+   "creature"
+  ]
+ },
+ "char-wizard": {
+  "title": "Wizard / Mage",
+  "tags": [
+   "character",
+   "wizard",
+   "mage",
+   "magic",
+   "spell",
+   "fantasy",
+   "wand",
+   "sorcerer"
+  ]
+ },
+ "char-knight": {
+  "title": "Knight",
+  "tags": [
+   "character",
+   "knight",
+   "armor",
+   "sword",
+   "shield",
+   "castle",
+   "warrior",
+   "medieval"
+  ]
+ },
+ "char-ninja": {
+  "title": "Ninja",
+  "tags": [
+   "character",
+   "ninja",
+   "stealth",
+   "sword",
+   "katana",
+   "assassin",
+   "martial arts",
+   "japan"
+  ]
+ },
+ "char-pirate": {
+  "title": "Pirate",
+  "tags": [
+   "character",
+   "pirate",
+   "ocean",
+   "ship",
+   "captain",
+   "hook",
+   "eyepatch",
+   "sailor"
+  ]
+ },
+ "char-artist": {
+  "title": "Artist",
+  "tags": [
+   "character",
+   "artist",
+   "painter",
+   "art",
+   "palette",
+   "brush",
+   "creative",
+   "easel"
+  ]
+ },
+ "char-musician": {
+  "title": "Musician",
+  "tags": [
+   "character",
+   "musician",
+   "music",
+   "guitar",
+   "rock",
+   "concert",
+   "singer",
+   "band"
+  ]
+ },
+ "char-director": {
+  "title": "Film Director",
+  "tags": [
+   "character",
+   "director",
+   "film",
+   "movie",
+   "cinema",
+   "megaphone",
+   "clapperboard",
+   "hollywood"
+  ]
+ },
+ "char-chef": {
+  "title": "Chef",
+  "tags": [
+   "character",
+   "chef",
+   "cook",
+   "culinary",
+   "kitchen",
+   "food",
+   "pan",
+   "restaurant"
+  ]
+ },
+ "char-photographer": {
+  "title": "Photographer",
+  "tags": [
+   "character",
+   "photographer",
+   "camera",
+   "photo",
+   "creative",
+   "picture",
+   "lens",
+   "shoot"
+  ]
+ },
+ "char-police": {
+  "title": "Police Officer",
+  "tags": [
+   "character",
+   "police",
+   "cop",
+   "officer",
+   "law",
+   "security",
+   "badge",
+   "siren"
+  ]
+ },
+ "char-firefighter": {
+  "title": "Firefighter",
+  "tags": [
+   "character",
+   "firefighter",
+   "fire",
+   "rescue",
+   "axe",
+   "hero",
+   "emergency"
+  ]
+ },
+ "char-builder": {
+  "title": "Builder / Construction",
+  "tags": [
+   "character",
+   "builder",
+   "construction",
+   "worker",
+   "architect",
+   "blueprints",
+   "hardhat",
+   "tool"
+  ]
+ },
+ "char-pilot": {
+  "title": "Pilot",
+  "tags": [
+   "character",
+   "pilot",
+   "aviation",
+   "airplane",
+   "flight",
+   "sky",
+   "goggles",
+   "captain"
+  ]
+ },
+ "char-farmer": {
+  "title": "Farmer",
+  "tags": [
+   "character",
+   "farmer",
+   "agriculture",
+   "farm",
+   "pitchfork",
+   "wheat",
+   "rural"
+  ]
+ },
+ "char-teacher": {
+  "title": "Teacher",
+  "tags": [
+   "character",
+   "teacher",
+   "education",
+   "school",
+   "learning",
+   "apple",
+   "chalkboard",
+   "pointer"
+  ]
+ },
+ "char-judge": {
+  "title": "Judge",
+  "tags": [
+   "character",
+   "judge",
+   "law",
+   "court",
+   "gavel",
+   "justice",
+   "legal",
+   "pillar"
+  ]
+ },
+ "char-detective": {
+  "title": "Detective",
+  "tags": [
+   "character",
+   "detective",
+   "sleuth",
+   "investigator",
+   "mystery",
+   "magnifying glass",
+   "crime",
+   "clue"
+  ]
+ },
+ "char-athlete": {
+  "title": "Athlete",
+  "tags": [
+   "character",
+   "athlete",
+   "sports",
+   "winner",
+   "trophy",
+   "medal",
+   "stadium",
+   "track"
+  ]
+ },
+ "char-explorer": {
+  "title": "Archaeologist",
+  "tags": [
+   "character",
+   "archaeologist",
+   "explorer",
+   "adventure",
+   "history",
+   "map",
+   "pyramid",
+   "treasure"
+  ]
+ },
+ "covid-soap": {
+  "title": "Soap & Washing",
+  "tags": [
+   "covid",
+   "soap",
+   "wash",
+   "hands",
+   "hygiene",
+   "bubbles",
+   "clean",
+   "water"
+  ]
+ },
+ "covid-distance": {
+  "title": "Safe Distance Marker",
+  "tags": [
+   "covid",
+   "social",
+   "distance",
+   "spacing",
+   "separation",
+   "prevention",
+   "people",
+   "safety",
+   "marker",
+   "safe distance"
+  ]
+ },
+ "covid-ppe": {
+  "title": "Biohazard / PPE Suit",
+  "tags": [
+   "covid",
+   "ppe",
+   "biohazard",
+   "hazmat",
+   "suit",
+   "protection",
+   "virus",
+   "safety"
+  ]
+ },
+ "biz-bar-chart": {
+  "title": "Bar Chart",
+  "tags": [
+   "chart",
+   "bar",
+   "graph",
+   "data",
+   "statistics",
+   "growth",
+   "metrics",
+   "analytics"
+  ]
+ },
+ "biz-pie-chart": {
+  "title": "Pie Chart",
+  "tags": [
+   "chart",
+   "pie",
+   "distribution",
+   "data",
+   "analytics",
+   "percentage",
+   "circle",
+   "slice"
+  ]
+ },
+ "biz-line-chart": {
+  "title": "Line Chart",
+  "tags": [
+   "chart",
+   "line",
+   "trend",
+   "graph",
+   "progress",
+   "data",
+   "analytics",
+   "time"
+  ]
+ },
+ "biz-area-chart": {
+  "title": "Area Chart",
+  "tags": [
+   "chart",
+   "area",
+   "layers",
+   "overlap",
+   "growth",
+   "stack",
+   "data",
+   "graph"
+  ]
+ },
+ "biz-donut-chart": {
+  "title": "Donut Chart",
+  "tags": [
+   "chart",
+   "donut",
+   "doughnut",
+   "ring",
+   "percentage",
+   "circle",
+   "metrics",
+   "share"
+  ]
+ },
+ "biz-scatter-plot": {
+  "title": "Scatter Plot",
+  "tags": [
+   "chart",
+   "scatter",
+   "plot",
+   "dots",
+   "correlation",
+   "data",
+   "distribution",
+   "analysis"
+  ]
+ },
+ "biz-bubble-chart": {
+  "title": "Bubble Chart",
+  "tags": [
+   "chart",
+   "bubble",
+   "spheres",
+   "data",
+   "size",
+   "comparison",
+   "analytics",
+   "graph"
+  ]
+ },
+ "biz-radar-chart": {
+  "title": "Radar Chart",
+  "tags": [
+   "chart",
+   "radar",
+   "spider",
+   "web",
+   "multivariate",
+   "data",
+   "metrics",
+   "polygon"
+  ]
+ },
+ "biz-funnel-chart": {
+  "title": "Funnel Chart",
+  "tags": [
+   "chart",
+   "funnel",
+   "conversion",
+   "sales",
+   "stages",
+   "filter",
+   "analytics",
+   "pipeline"
+  ]
+ },
+ "biz-gauge-chart": {
+  "title": "Gauge Chart",
+  "tags": [
+   "chart",
+   "gauge",
+   "speedometer",
+   "dial",
+   "score",
+   "performance",
+   "meter",
+   "measure"
+  ]
+ },
+ "biz-data-pipeline": {
+  "title": "Data Pipeline",
+  "tags": [
+   "data",
+   "pipeline",
+   "process",
+   "funnel",
+   "analytics",
+   "engineering",
+   "blocks",
+   "filter"
+  ]
+ },
+ "biz-comparison-chart": {
+  "title": "Comparison Chart",
+  "tags": [
+   "chart",
+   "comparison",
+   "compare",
+   "ab test",
+   "split",
+   "versus",
+   "data",
+   "different"
+  ]
+ },
+ "biz-financial-report": {
+  "title": "Financial Report",
+  "tags": [
+   "financial",
+   "report",
+   "document",
+   "chart",
+   "folder",
+   "accounting",
+   "profits",
+   "paper"
+  ]
+ },
+ "biz-metrics-tracking": {
+  "title": "Metrics Tracking",
+  "tags": [
+   "metrics",
+   "tracking",
+   "magnifying glass",
+   "search",
+   "inspect",
+   "data",
+   "grid",
+   "zoom"
+  ]
+ },
+ "biz-trend-analysis": {
+  "title": "Trend Analysis",
+  "tags": [
+   "trend",
+   "analysis",
+   "candlestick",
+   "stock",
+   "market",
+   "eye",
+   "vision",
+   "forecasting"
+  ]
+ },
+ "software-update": {
+  "title": "Software Update",
+  "tags": [
+   "software",
+   "update",
+   "refresh",
+   "progress",
+   "system",
+   "download",
+   "install",
+   "upgrade"
+  ]
+ },
+ "unit-testing": {
+  "title": "Unit Testing",
+  "tags": [
+   "test",
+   "unit",
+   "code",
+   "logic",
+   "verify",
+   "quality",
+   "check",
+   "bug"
+  ]
+ },
+ "integration-testing": {
+  "title": "Integration Testing",
+  "tags": [
+   "test",
+   "integration",
+   "system",
+   "components",
+   "interface",
+   "link",
+   "api",
+   "flow"
+  ]
+ },
+ "gantt-chart": {
+  "title": "Gantt Chart",
+  "tags": [
+   "chart",
+   "gantt",
+   "timeline",
+   "project",
+   "schedule",
+   "plan",
+   "management",
+   "milestone"
+  ]
+ },
+ "heatmap-chart": {
+  "title": "Heatmap Chart",
+  "tags": [
+   "chart",
+   "heatmap",
+   "grid",
+   "density",
+   "data",
+   "visualization",
+   "matrix",
+   "hot"
+  ]
+ },
+ "emoji-smile": {
+  "title": "Smile Emoji",
+  "tags": [
+   "emoji",
+   "smile",
+   "happy",
+   "face",
+   "glad",
+   "joy"
+  ]
+ },
+ "emoji-laugh": {
+  "title": "Laughing Emoji",
+  "tags": [
+   "emoji",
+   "laugh",
+   "happy",
+   "face",
+   "joy",
+   "tears",
+   "lol"
+  ]
+ },
+ "emoji-wink": {
+  "title": "Wink Emoji",
+  "tags": [
+   "emoji",
+   "wink",
+   "face",
+   "playful",
+   "cheeky",
+   "joke"
+  ]
+ },
+ "emoji-heart-eyes": {
+  "title": "Heart Eyes Emoji",
+  "tags": [
+   "emoji",
+   "heart",
+   "love",
+   "eyes",
+   "face",
+   "adore"
+  ]
+ },
+ "emoji-sunglasses": {
+  "title": "Sunglasses Emoji",
+  "tags": [
+   "emoji",
+   "sunglasses",
+   "cool",
+   "face",
+   "shades",
+   "chill"
+  ]
+ },
+ "emoji-star-eyes": {
+  "title": "Star Eyes Emoji",
+  "tags": [
+   "emoji",
+   "star",
+   "eyes",
+   "face",
+   "excited",
+   "wow",
+   "amazing"
+  ]
+ },
+ "emoji-tongue-out": {
+  "title": "Tongue Out Emoji",
+  "tags": [
+   "emoji",
+   "tongue",
+   "out",
+   "face",
+   "silly",
+   "cheeky",
+   "joke",
+   "funny"
+  ]
+ },
+ "emoji-thinking": {
+  "title": "Thinking Emoji",
+  "tags": [
+   "emoji",
+   "thinking",
+   "face",
+   "hmm",
+   "ponder",
+   "wonder",
+   "thought"
+  ]
+ },
+ "emoji-mind-blown": {
+  "title": "Mind Blown Emoji",
+  "tags": [
+   "emoji",
+   "mind",
+   "blown",
+   "head",
+   "explode",
+   "wow",
+   "shock"
+  ]
+ },
+ "emoji-sleeping": {
+  "title": "Sleeping Emoji",
+  "tags": [
+   "emoji",
+   "sleeping",
+   "face",
+   "sleep",
+   "zzz",
+   "tired",
+   "rest"
+  ]
+ },
+ "emoji-nerd": {
+  "title": "Nerd Emoji",
+  "tags": [
+   "emoji",
+   "nerd",
+   "face",
+   "glasses",
+   "smart",
+   "geek",
+   "teeth"
+  ]
+ },
+ "emoji-party": {
+  "title": "Party Emoji",
+  "tags": [
+   "emoji",
+   "party",
+   "face",
+   "celebrate",
+   "hat",
+   "horn",
+   "confetti"
+  ]
+ },
+ "emoji-angel": {
+  "title": "Angel Emoji",
+  "tags": [
+   "emoji",
+   "angel",
+   "face",
+   "halo",
+   "good",
+   "innocent",
+   "sweet"
+  ]
+ },
+ "emoji-devil": {
+  "title": "Devil Emoji",
+  "tags": [
+   "emoji",
+   "devil",
+   "face",
+   "horns",
+   "evil",
+   "naughty",
+   "bad"
+  ]
+ },
+ "emoji-alien": {
+  "title": "Alien Emoji",
+  "tags": [
+   "emoji",
+   "alien",
+   "face",
+   "extraterrestrial",
+   "space",
+   "ufo",
+   "martian"
+  ]
+ },
+ "emoji-robot": {
+  "title": "Robot Emoji",
+  "tags": [
+   "emoji",
+   "robot",
+   "face",
+   "bot",
+   "mechanical",
+   "tech",
+   "ai"
+  ]
+ },
+ "emoji-ghost": {
+  "title": "Ghost Emoji",
+  "tags": [
+   "emoji",
+   "ghost",
+   "face",
+   "spooky",
+   "spirit",
+   "halloween",
+   "boo"
+  ]
+ },
+ "emoji-skull": {
+  "title": "Skull Emoji",
+  "tags": [
+   "emoji",
+   "skull",
+   "bones",
+   "dead",
+   "skeleton",
+   "death",
+   "face"
+  ]
+ },
+ "emoji-poop": {
+  "title": "Poop Emoji",
+  "tags": [
+   "emoji",
+   "poop",
+   "turd",
+   "smile",
+   "funny",
+   "crap"
+  ]
+ },
+ "emoji-thumbs-up": {
+  "title": "Thumbs Up",
+  "tags": [
+   "emoji",
+   "thumbs",
+   "up",
+   "hand",
+   "approve",
+   "like",
+   "good",
+   "yes"
+  ]
+ },
+ "emoji-fire": {
+  "title": "Fire Emoji",
+  "tags": [
+   "emoji",
+   "fire",
+   "flame",
+   "hot",
+   "lit",
+   "burn"
+  ]
+ },
+ "emoji-sparkles": {
+  "title": "Sparkles Emoji",
+  "tags": [
+   "emoji",
+   "sparkles",
+   "stars",
+   "magic",
+   "clean",
+   "shine",
+   "bling"
+  ]
+ },
+ "emoji-hundred": {
+  "title": "100 Emoji",
+  "tags": [
+   "emoji",
+   "100",
+   "hundred",
+   "perfect",
+   "score",
+   "points",
+   "keep"
+  ]
+ },
+ "emoji-clapping": {
+  "title": "Clapping Hands",
+  "tags": [
+   "emoji",
+   "clap",
+   "hands",
+   "applause",
+   "praise",
+   "good",
+   "job"
+  ]
+ },
+ "emoji-folded-hands": {
+  "title": "Folded Hands",
+  "tags": [
+   "emoji",
+   "folded",
+   "hands",
+   "pray",
+   "thank",
+   "you",
+   "please"
+  ]
+ },
+ "diverse-agile-kanban": {
+  "title": "Agile Kanban Board",
+  "tags": [
+   "diverse",
+   "agile",
+   "kanban",
+   "board",
+   "project",
+   "management",
+   "scrum",
+   "tasks"
+  ]
+ },
+ "diverse-product-roadmap": {
+  "title": "Product Roadmap",
+  "tags": [
+   "diverse",
+   "product",
+   "roadmap",
+   "strategy",
+   "planning",
+   "vision",
+   "path"
+  ]
+ },
+ "diverse-financial-chart": {
+  "title": "Financial Chart",
+  "tags": [
+   "diverse",
+   "financial",
+   "chart",
+   "planning",
+   "kpi",
+   "growth",
+   "budget"
+  ]
+ },
+ "diverse-legal-contract": {
+  "title": "Legal Contract",
+  "tags": [
+   "diverse",
+   "legal",
+   "contract",
+   "ethics",
+   "compliance",
+   "law",
+   "document",
+   "sign"
+  ]
+ },
+ "diverse-remote-team": {
+  "title": "Remote Team Connected",
+  "tags": [
+   "diverse",
+   "remote",
+   "team",
+   "hr",
+   "culture",
+   "connected",
+   "network",
+   "people"
+  ]
+ },
+ "diverse-green-tech": {
+  "title": "Green Tech Leaf",
+  "tags": [
+   "diverse",
+   "green",
+   "tech",
+   "sustainability",
+   "esg",
+   "eco",
+   "leaf",
+   "nature"
+  ]
+ },
+ "diverse-ux-wireframe": {
+  "title": "UX Wireframe",
+  "tags": [
+   "diverse",
+   "ux",
+   "ui",
+   "wireframe",
+   "design",
+   "layout",
+   "web",
+   "app"
+  ]
+ },
+ "diverse-podcast-mic": {
+  "title": "Podcast Mic",
+  "tags": [
+   "diverse",
+   "podcast",
+   "mic",
+   "microphone",
+   "audio",
+   "media",
+   "content",
+   "broadcast"
+  ]
+ },
+ "diverse-social-megaphone": {
+  "title": "Social Megaphone",
+  "tags": [
+   "diverse",
+   "social",
+   "megaphone",
+   "media",
+   "influencer",
+   "shout",
+   "announce",
+   "marketing"
+  ]
+ },
+ "diverse-virtual-webinar": {
+  "title": "Virtual Webinar",
+  "tags": [
+   "diverse",
+   "virtual",
+   "webinar",
+   "event",
+   "video",
+   "call",
+   "presentation",
+   "online"
+  ]
+ },
+ "diverse-brand-swatches": {
+  "title": "Brand Swatches",
+  "tags": [
+   "diverse",
+   "brand",
+   "swatches",
+   "color",
+   "palette",
+   "identity",
+   "design",
+   "creative"
+  ]
+ },
+ "diverse-api-nodes": {
+  "title": "API Nodes",
+  "tags": [
+   "diverse",
+   "api",
+   "nodes",
+   "architecture",
+   "data",
+   "server",
+   "json",
+   "endpoint"
+  ]
+ },
+ "diverse-cyber-firewall": {
+  "title": "Cyber Firewall",
+  "tags": [
+   "diverse",
+   "cyber",
+   "firewall",
+   "security",
+   "privacy",
+   "shield",
+   "protect",
+   "wall"
+  ]
+ },
+ "diverse-neural-brain": {
+  "title": "Neural Network Brain",
+  "tags": [
+   "diverse",
+   "neural",
+   "network",
+   "brain",
+   "ai",
+   "machine",
+   "learning",
+   "intelligence"
+  ]
+ },
+ "diverse-data-dashboard": {
+  "title": "Data Dashboard",
+  "tags": [
+   "diverse",
+   "data",
+   "dashboard",
+   "analytics",
+   "mining",
+   "metrics",
+   "chart",
+   "graphs"
+  ]
+ },
+ "diverse-blockchain-graph": {
+  "title": "Blockchain Graph",
+  "tags": [
+   "diverse",
+   "blockchain",
+   "crypto",
+   "web3",
+   "decentralized",
+   "nodes",
+   "chain"
+  ]
+ },
+ "diverse-iot-smarthome": {
+  "title": "IoT Smart Home",
+  "tags": [
+   "diverse",
+   "iot",
+   "smart",
+   "home",
+   "internet",
+   "things",
+   "devices",
+   "network"
+  ]
+ },
+ "diverse-telehealth-cross": {
+  "title": "Telehealth Cross",
+  "tags": [
+   "diverse",
+   "telehealth",
+   "health",
+   "medical",
+   "cross",
+   "doctor",
+   "online",
+   "care"
+  ]
+ },
+ "diverse-edtech-screen": {
+  "title": "EdTech Learning",
+  "tags": [
+   "diverse",
+   "edtech",
+   "education",
+   "learning",
+   "school",
+   "e-learning",
+   "book",
+   "graduation"
+  ]
+ },
+ "diverse-smart-building": {
+  "title": "Smart Building",
+  "tags": [
+   "diverse",
+   "smart",
+   "building",
+   "real",
+   "estate",
+   "proptech",
+   "city",
+   "digital"
+  ]
+ },
+ "diverse-remote-desk": {
+  "title": "Remote Desk",
+  "tags": [
+   "diverse",
+   "remote",
+   "desk",
+   "work",
+   "lifestyle",
+   "nomad",
+   "laptop",
+   "office"
+  ]
+ },
+ "business-scrum-board": {
+  "title": "Scrum Board",
+  "tags": [
+   "business",
+   "scrum",
+   "board",
+   "agile",
+   "project",
+   "management",
+   "tasks",
+   "sticky"
+  ]
+ },
+ "business-sprint-cycle": {
+  "title": "Sprint Cycle",
+  "tags": [
+   "business",
+   "sprint",
+   "cycle",
+   "loop",
+   "agile",
+   "iterate",
+   "process",
+   "continuous"
+  ]
+ },
+ "business-milestone-target": {
+  "title": "Milestone Target",
+  "tags": [
+   "business",
+   "milestone",
+   "target",
+   "goal",
+   "dart",
+   "bullseye",
+   "achievement",
+   "success"
+  ]
+ },
+ "business-lead-gen": {
+  "title": "Lead Generation",
+  "tags": [
+   "business",
+   "lead",
+   "generation",
+   "magnet",
+   "attract",
+   "sales",
+   "inbound",
+   "customers"
+  ]
+ },
+ "business-customer-retention": {
+  "title": "Customer Retention",
+  "tags": [
+   "business",
+   "customer",
+   "retention",
+   "loyalty",
+   "hands",
+   "star",
+   "care",
+   "support"
+  ]
+ },
+ "business-competitive-analysis": {
+  "title": "Competitive Analysis",
+  "tags": [
+   "business",
+   "competitive",
+   "analysis",
+   "chess",
+   "strategy",
+   "compare",
+   "market",
+   "graph"
+  ]
+ },
+ "business-vision-board": {
+  "title": "Vision Board",
+  "tags": [
+   "business",
+   "vision",
+   "board",
+   "strategy",
+   "ideas",
+   "future",
+   "concept",
+   "canvas"
+  ]
+ },
+ "business-go-to-market": {
+  "title": "Go-to-Market Strategy",
+  "tags": [
+   "business",
+   "go-to-market",
+   "strategy",
+   "rocket",
+   "launch",
+   "product",
+   "release"
+  ]
+ },
+ "business-profit-loss": {
+  "title": "Profit & Loss",
+  "tags": [
+   "business",
+   "profit",
+   "loss",
+   "finance",
+   "scale",
+   "balance",
+   "money",
+   "accounting"
+  ]
+ },
+ "business-budgeting-calculator": {
+  "title": "Budgeting Calculator",
+  "tags": [
+   "business",
+   "budget",
+   "calculator",
+   "finance",
+   "plan",
+   "expenses",
+   "revenue",
+   "math"
+  ]
+ },
+ "business-financial-forecast": {
+  "title": "Financial Forecasting",
+  "tags": [
+   "business",
+   "finance",
+   "forecast",
+   "trend",
+   "upward",
+   "growth",
+   "chart",
+   "metrics"
+  ]
+ },
+ "business-tax-season": {
+  "title": "Tax Season",
+  "tags": [
+   "business",
+   "tax",
+   "season",
+   "document",
+   "stamp",
+   "calculator",
+   "finance",
+   "compliance"
+  ]
+ },
+ "business-gdpr-compliance": {
+  "title": "GDPR Compliance",
+  "tags": [
+   "business",
+   "gdpr",
+   "compliance",
+   "data",
+   "privacy",
+   "shield",
+   "protect",
+   "law"
+  ]
+ },
+ "business-patent-document": {
+  "title": "Patent Document",
+  "tags": [
+   "business",
+   "patent",
+   "document",
+   "invention",
+   "idea",
+   "certificate",
+   "intellectual",
+   "property"
+  ]
+ },
+ "business-terms-service": {
+  "title": "Terms of Service",
+  "tags": [
+   "business",
+   "terms",
+   "service",
+   "agreement",
+   "contract",
+   "signature",
+   "check",
+   "legal"
+  ]
+ },
+ "business-remote-onboarding": {
+  "title": "Remote Onboarding",
+  "tags": [
+   "business",
+   "remote",
+   "onboarding",
+   "laptop",
+   "hr",
+   "welcome",
+   "employee",
+   "hiring"
+  ]
+ },
+ "business-employee-benefits": {
+  "title": "Employee Benefits",
+  "tags": [
+   "business",
+   "employee",
+   "benefits",
+   "perks",
+   "health",
+   "gift",
+   "heart",
+   "hr"
+  ]
+ },
+ "business-diversity-inclusion": {
+  "title": "Diversity & Inclusion",
+  "tags": [
+   "business",
+   "diversity",
+   "inclusion",
+   "hands",
+   "team",
+   "culture",
+   "people",
+   "together"
+  ]
+ },
+ "business-carbon-footprint": {
+  "title": "Carbon Footprint",
+  "tags": [
+   "business",
+   "carbon",
+   "footprint",
+   "esg",
+   "green",
+   "sustainability",
+   "eco",
+   "environment"
+  ]
+ },
+ "business-renewable-energy": {
+  "title": "Renewable Energy",
+  "tags": [
+   "business",
+   "renewable",
+   "energy",
+   "solar",
+   "wind",
+   "turbine",
+   "power",
+   "green"
+  ]
+ },
+ "business-global-shipping": {
+  "title": "Global Shipping",
+  "tags": [
+   "business",
+   "global",
+   "shipping",
+   "cargo",
+   "logistics",
+   "supply",
+   "chain",
+   "transport"
+  ]
+ },
+ "business-warehouse-inventory": {
+  "title": "Warehouse Inventory",
+  "tags": [
+   "business",
+   "warehouse",
+   "inventory",
+   "boxes",
+   "racks",
+   "storage",
+   "logistics",
+   "barcode"
+  ]
+ },
+ "design-wireframing": {
+  "title": "Wireframing",
+  "tags": [
+   "design",
+   "ux",
+   "wireframe",
+   "layout",
+   "browser",
+   "prototype",
+   "blocks",
+   "structure"
+  ]
+ },
+ "design-user-personas": {
+  "title": "User Personas",
+  "tags": [
+   "design",
+   "ux",
+   "persona",
+   "user",
+   "profile",
+   "data",
+   "segments",
+   "research"
+  ]
+ },
+ "design-user-journey": {
+  "title": "User Journey",
+  "tags": [
+   "design",
+   "ux",
+   "journey",
+   "flow",
+   "map",
+   "path",
+   "experience",
+   "touchpoints"
+  ]
+ },
+ "media-podcasting": {
+  "title": "Podcasting",
+  "tags": [
+   "media",
+   "podcast",
+   "audio",
+   "mic",
+   "sound",
+   "voice",
+   "recording",
+   "broadcast"
+  ]
+ },
+ "media-video-production": {
+  "title": "Video Production",
+  "tags": [
+   "media",
+   "video",
+   "clapper",
+   "film",
+   "movie",
+   "director",
+   "production",
+   "content"
+  ]
+ },
+ "media-blogging-laptop": {
+  "title": "Blogging",
+  "tags": [
+   "media",
+   "blog",
+   "writing",
+   "content",
+   "laptop",
+   "article",
+   "keyboard",
+   "text"
+  ]
+ },
+ "media-content-calendar": {
+  "title": "Content Calendar",
+  "tags": [
+   "media",
+   "content",
+   "calendar",
+   "strategy",
+   "plan",
+   "schedule",
+   "social",
+   "posts"
+  ]
+ },
+ "social-viral-trends": {
+  "title": "Viral Trends",
+  "tags": [
+   "social",
+   "viral",
+   "trends",
+   "hot",
+   "growth",
+   "flame",
+   "star",
+   "exponential"
+  ]
+ },
+ "social-brand-ambassadors": {
+  "title": "Brand Ambassadors",
+  "tags": [
+   "social",
+   "brand",
+   "ambassador",
+   "influencer",
+   "megaphone",
+   "audience",
+   "community"
+  ]
+ },
+ "social-audience-growth": {
+  "title": "Audience Growth",
+  "tags": [
+   "social",
+   "growth",
+   "audience",
+   "followers",
+   "plant",
+   "organic",
+   "mobile",
+   "phone"
+  ]
+ },
+ "social-hashtags": {
+  "title": "Hashtags",
+  "tags": [
+   "social",
+   "hashtag",
+   "tag",
+   "topic",
+   "trend",
+   "metadata",
+   "chat",
+   "bubbles"
+  ]
+ },
+ "event-virtual-stage": {
+  "title": "Virtual Stage",
+  "tags": [
+   "event",
+   "webinar",
+   "stage",
+   "screen",
+   "podium",
+   "presenter",
+   "online",
+   "virtual"
+  ]
+ },
+ "event-ticketing": {
+  "title": "Event Ticketing",
+  "tags": [
+   "event",
+   "ticket",
+   "admit",
+   "entry",
+   "secure",
+   "barcode",
+   "admission",
+   "pass"
+  ]
+ },
+ "event-networking-nodes": {
+  "title": "Networking",
+  "tags": [
+   "event",
+   "networking",
+   "connections",
+   "nodes",
+   "community",
+   "interaction",
+   "contact",
+   "links"
+  ]
+ },
+ "event-schedules-clipboard": {
+  "title": "Event Schedule",
+  "tags": [
+   "event",
+   "schedule",
+   "calendar",
+   "list",
+   "timing",
+   "clipboard",
+   "planning",
+   "itinerary"
+  ]
+ },
+ "brand-color-palettes": {
+  "title": "Color Palette",
+  "tags": [
+   "brand",
+   "color",
+   "palette",
+   "design",
+   "swatches",
+   "creative",
+   "style",
+   "hex"
+  ]
+ },
+ "brand-vector-paths": {
+  "title": "Vector Paths",
+  "tags": [
+   "brand",
+   "vector",
+   "path",
+   "pen",
+   "bazier",
+   "curve",
+   "nodes",
+   "points"
+  ]
+ },
+ "brand-creative-brainstorming": {
+  "title": "Brainstorming",
+  "tags": [
+   "brand",
+   "creative",
+   "brainstorm",
+   "idea",
+   "lightbulb",
+   "strategy",
+   "thinking",
+   "innovation"
+  ]
+ },
+ "brand-typography-layout": {
+  "title": "Typography",
+  "tags": [
+   "brand",
+   "typography",
+   "font",
+   "layout",
+   "baseline",
+   "kerning",
+   "creative",
+   "style"
+  ]
+ },
+ "tech-server-racks": {
+  "title": "Server Racks",
+  "tags": [
+   "cloud",
+   "server",
+   "data",
+   "infrastructure",
+   "devops",
+   "hosting",
+   "storage",
+   "tech"
+  ]
+ },
+ "tech-cloud-sync": {
+  "title": "Cloud Sync",
+  "tags": [
+   "cloud",
+   "sync",
+   "download",
+   "upload",
+   "refresh",
+   "rotate",
+   "service",
+   "storage"
+  ]
+ },
+ "tech-containerization": {
+  "title": "Containerization",
+  "tags": [
+   "cloud",
+   "container",
+   "docker",
+   "kubernetes",
+   "stack",
+   "deploy",
+   "isolated",
+   "devops"
+  ]
+ },
+ "tech-deployment-pipeline": {
+  "title": "Deployment",
+  "tags": [
+   "cloud",
+   "deploy",
+   "pipeline",
+   "rocket",
+   "ci/cd",
+   "workflow",
+   "automation",
+   "devops"
+  ]
+ },
+ "tech-shopping-cart": {
+  "title": "Shopping Cart",
+  "tags": [
+   "ecommerce",
+   "shopping",
+   "cart",
+   "buy",
+   "online",
+   "retail",
+   "basket",
+   "commerce"
+  ]
+ },
+ "tech-package-delivery": {
+  "title": "Packge Delivery",
+  "tags": [
+   "ecommerce",
+   "delivery",
+   "package",
+   "box",
+   "shipping",
+   "logistics",
+   "fast",
+   "post"
+  ]
+ },
+ "tech-digital-receipt": {
+  "title": "Digital Receipt",
+  "tags": [
+   "ecommerce",
+   "receipt",
+   "mobile",
+   "transaction",
+   "payment",
+   "billing",
+   "history",
+   "tech"
+  ]
+ },
+ "tech-storefront": {
+  "title": "Digital Storefront",
+  "tags": [
+   "ecommerce",
+   "store",
+   "shop",
+   "online",
+   "retail",
+   "business",
+   "boutique",
+   "open"
+  ]
+ },
+ "tech-discount-ticket": {
+  "title": "Discount Ticket",
+  "tags": [
+   "ecommerce",
+   "discount",
+   "ticket",
+   "promo",
+   "coupon",
+   "sale",
+   "offer",
+   "voucher"
+  ]
+ },
+ "tech-neural-network": {
+  "title": "Neural Network",
+  "tags": [
+   "ai",
+   "neural",
+   "network",
+   "nodes",
+   "intelligence",
+   "learning",
+   "data",
+   "connections"
+  ]
+ },
+ "tech-ai-processor": {
+  "title": "AI Processor",
+  "tags": [
+   "ai",
+   "processor",
+   "microchip",
+   "brain",
+   "hardware",
+   "cpu",
+   "compute",
+   "intelligence"
+  ]
+ },
+ "tech-data-training": {
+  "title": "Data Training",
+  "tags": [
+   "ai",
+   "data",
+   "training",
+   "funnel",
+   "intelligence",
+   "structured",
+   "raw",
+   "processing"
+  ]
+ },
+ "tech-robotic-arm": {
+  "title": "Robotic Arm",
+  "tags": [
+   "ai",
+   "robot",
+   "arm",
+   "precision",
+   "assembly",
+   "manufacture",
+   "automation",
+   "tech"
+  ]
+ },
+ "tech-smart-search": {
+  "title": "Smart Search",
+  "tags": [
+   "ai",
+   "search",
+   "magnify",
+   "binary",
+   "data",
+   "analyze",
+   "find",
+   "insight"
+  ]
+ },
+ "tech-digital-lock": {
+  "title": "Digital Lock",
+  "tags": [
+   "security",
+   "lock",
+   "padlock",
+   "pin",
+   "secure",
+   "privacy",
+   "protection",
+   "access"
+  ]
+ },
+ "tech-biometrics": {
+  "title": "Biometrics",
+  "tags": [
+   "security",
+   "fingerprint",
+   "biometric",
+   "scan",
+   "identity",
+   "iris",
+   "access",
+   "tech"
+  ]
+ },
+ "tech-encrypted-mail": {
+  "title": "Encrypted Mail",
+  "tags": [
+   "security",
+   "mail",
+   "envelope",
+   "encrypted",
+   "secure",
+   "private",
+   "shield",
+   "msg"
+  ]
+ },
+ "tech-security-camera": {
+  "title": "Security Camera",
+  "tags": [
+   "security",
+   "camera",
+   "cctv",
+   "monitor",
+   "surveillance",
+   "guard",
+   "record",
+   "tech"
+  ]
+ },
+ "tech-video-call": {
+  "title": "Video Call",
+  "tags": [
+   "productivity",
+   "video",
+   "call",
+   "remote",
+   "meeting",
+   "grid",
+   "zoom",
+   "collaboration"
+  ]
+ },
+ "tech-focus-mode": {
+  "title": "Focus Mode",
+  "tags": [
+   "productivity",
+   "focus",
+   "deepwork",
+   "meditation",
+   "zen",
+   "balance",
+   "calm",
+   "study"
+  ]
+ },
+ "tech-time-tracker": {
+  "title": "Time Tracker",
+  "tags": [
+   "productivity",
+   "time",
+   "clock",
+   "tracker",
+   "pomodoro",
+   "timer",
+   "schedule",
+   "deadline"
+  ]
+ },
+ "tech-coworking": {
+  "title": "Collaboration",
+  "tags": [
+   "productivity",
+   "cowork",
+   "collaboration",
+   "shared",
+   "editing",
+   "multiplayer",
+   "realtime",
+   "team"
+  ]
+ },
+ "tech-task-done": {
+  "title": "Task Completion",
+  "tags": [
+   "productivity",
+   "done",
+   "complete",
+   "checklist",
+   "success",
+   "milestone",
+   "finish",
+   "goal"
+  ]
+ },
+ "const-excavator": {
+  "title": "Excavator",
+  "tags": [
+   "construction",
+   "heavy",
+   "machinery",
+   "excavator",
+   "digger",
+   "build",
+   "tractor",
+   "earth"
+  ]
+ },
+ "const-crane": {
+  "title": "Crane",
+  "tags": [
+   "construction",
+   "crane",
+   "lift",
+   "tower",
+   "building",
+   "beam",
+   "heavy",
+   "hoist"
+  ]
+ },
+ "const-cement-mixer": {
+  "title": "Cement Mixer",
+  "tags": [
+   "construction",
+   "cement",
+   "mixer",
+   "truck",
+   "concrete",
+   "heavy",
+   "machinery",
+   "transport"
+  ]
+ },
+ "const-bulldozer": {
+  "title": "Bulldozer",
+  "tags": [
+   "construction",
+   "bulldozer",
+   "tractor",
+   "push",
+   "earth",
+   "dirt",
+   "moving",
+   "blade"
+  ]
+ },
+ "const-dump-truck": {
+  "title": "Dump Truck",
+  "tags": [
+   "construction",
+   "truck",
+   "dump",
+   "tipper",
+   "rubble",
+   "hauling",
+   "vehicle",
+   "lift"
+  ]
+ },
+ "const-blueprints": {
+  "title": "Blueprints",
+  "tags": [
+   "architecture",
+   "blueprint",
+   "plan",
+   "drafting",
+   "design",
+   "paper",
+   "rolled",
+   "ruler"
+  ]
+ },
+ "const-drafting-compass": {
+  "title": "Drafting Compass",
+  "tags": [
+   "architecture",
+   "compass",
+   "circle",
+   "drafting",
+   "precision",
+   "draw",
+   "tool",
+   "plan"
+  ]
+ },
+ "const-3d-cad": {
+  "title": "3D CAD",
+  "tags": [
+   "architecture",
+   "cad",
+   "computer",
+   "3d",
+   "screen",
+   "wireframe",
+   "model",
+   "render"
+  ]
+ },
+ "const-measurements": {
+  "title": "Tape Measure",
+  "tags": [
+   "construction",
+   "measure",
+   "tape",
+   "ruler",
+   "length",
+   "dimensions",
+   "tools",
+   "precision"
+  ]
+ },
+ "const-theodolite": {
+  "title": "Surveying",
+  "tags": [
+   "construction",
+   "survey",
+   "theodolite",
+   "tripod",
+   "measure",
+   "land",
+   "architect",
+   "equip"
+  ]
+ },
+ "const-hard-hat": {
+  "title": "Hard Hat",
+  "tags": [
+   "construction",
+   "hard",
+   "hat",
+   "safety",
+   "helmet",
+   "gear",
+   "protection",
+   "builder"
+  ]
+ },
+ "const-electric-drill": {
+  "title": "Power Drill",
+  "tags": [
+   "construction",
+   "drill",
+   "power",
+   "tool",
+   "electric",
+   "screws",
+   "builder",
+   "rotary"
+  ]
+ },
+ "const-hammer-nails": {
+  "title": "Hammer & Nails",
+  "tags": [
+   "construction",
+   "hammer",
+   "nail",
+   "wood",
+   "carpentry",
+   "tool",
+   "pound",
+   "builder"
+  ]
+ },
+ "const-hand-saw": {
+  "title": "Hand Saw",
+  "tags": [
+   "construction",
+   "saw",
+   "wood",
+   "carpentry",
+   "cut",
+   "timber",
+   "tool",
+   "blade"
+  ]
+ },
+ "const-level-tool": {
+  "title": "Spirit Level",
+  "tags": [
+   "construction",
+   "level",
+   "bubble",
+   "balance",
+   "flat",
+   "tool",
+   "carpentry",
+   "measure"
+  ]
+ },
+ "const-brick-wall": {
+  "title": "Brick Wall",
+  "tags": [
+   "construction",
+   "brick",
+   "masonry",
+   "wall",
+   "trowel",
+   "mortar",
+   "build",
+   "cement"
+  ]
+ },
+ "const-steel-beams": {
+  "title": "Steel I-Beams",
+  "tags": [
+   "construction",
+   "steel",
+   "beam",
+   "iron",
+   "girders",
+   "structure",
+   "heavy",
+   "metal"
+  ]
+ },
+ "const-scaffolding": {
+  "title": "Scaffolding",
+  "tags": [
+   "construction",
+   "scaffold",
+   "structure",
+   "support",
+   "poles",
+   "platform",
+   "build",
+   "grid"
+  ]
+ },
+ "const-cement-bags": {
+  "title": "Cement Bags",
+  "tags": [
+   "construction",
+   "cement",
+   "concrete",
+   "bag",
+   "sack",
+   "materials",
+   "pallet",
+   "powder"
+  ]
+ },
+ "const-timber": {
+  "title": "Timber Planks",
+  "tags": [
+   "construction",
+   "timber",
+   "wood",
+   "lumber",
+   "planks",
+   "materials",
+   "stack",
+   "boards"
+  ]
+ },
+ "const-house-framing": {
+  "title": "House Framing",
+  "tags": [
+   "construction",
+   "house",
+   "frame",
+   "home",
+   "building",
+   "skeleton",
+   "timber",
+   "roof"
+  ]
+ },
+ "const-skyscraper": {
+  "title": "Skyscraper Construction",
+  "tags": [
+   "construction",
+   "skyscraper",
+   "tower",
+   "city",
+   "crane",
+   "tall",
+   "office",
+   "urban"
+  ]
+ },
+ "const-keys": {
+  "title": "Keys to Home",
+  "tags": [
+   "architecture",
+   "keys",
+   "home",
+   "house",
+   "door",
+   "move in",
+   "completion",
+   "real estate"
+  ]
+ },
+ "const-bridge": {
+  "title": "Bridge Blueprint",
+  "tags": [
+   "architecture",
+   "bridge",
+   "suspend",
+   "civil",
+   "engineering",
+   "connect",
+   "span",
+   "structure"
+  ]
+ },
+ "shakespeare-literature": {
+  "title": "Shakespearean Drama",
+  "tags": [
+   "shakespeare",
+   "literature",
+   "play",
+   "drama",
+   "theater",
+   "quill",
+   "book",
+   "comedy",
+   "tragedy"
+  ]
+ },
+ "sherlock-holmes": {
+  "title": "The Detective",
+  "tags": [
+   "sherlock",
+   "holmes",
+   "detective",
+   "investigate",
+   "crime",
+   "clue",
+   "magnifying glass",
+   "pipe"
+  ]
+ },
+ "police-badge": {
+  "title": "Law Enforcement",
+  "tags": [
+   "police",
+   "law",
+   "enforcement",
+   "badge",
+   "shield",
+   "siren",
+   "cop",
+   "security"
+  ]
+ },
+ "crime-scene": {
+  "title": "Crime Scene",
+  "tags": [
+   "crime",
+   "police",
+   "tape",
+   "outline",
+   "evidence",
+   "investigate",
+   "murder",
+   "scene"
+  ]
+ },
+ "science-scientist": {
+  "title": "Scientist",
+  "tags": [
+   "science",
+   "scientist",
+   "lab",
+   "research",
+   "eureka",
+   "chemistry",
+   "biology",
+   "discovery"
+  ]
+ },
+ "science-lab-rat": {
+  "title": "Lab Rat",
+  "tags": [
+   "science",
+   "lab",
+   "rat",
+   "mouse",
+   "animal",
+   "experiment",
+   "research",
+   "test"
+  ]
+ },
+ "science-clinical-trials": {
+  "title": "Clinical Trials",
+  "tags": [
+   "science",
+   "clinical",
+   "trial",
+   "medicine",
+   "drug",
+   "pill",
+   "test",
+   "research",
+   "placebo"
+  ]
+ },
+ "science-mental-health": {
+  "title": "Mental Health",
+  "tags": [
+   "mental",
+   "health",
+   "mind",
+   "brain",
+   "therapy",
+   "wellness",
+   "mindfulness",
+   "psychology"
+  ]
+ },
+ "maternity-pregnancy": {
+  "title": "Pregnancy",
+  "tags": [
+   "pregnancy",
+   "pregnant",
+   "baby",
+   "belly",
+   "maternity",
+   "expecting",
+   "mother",
+   "heartbeat"
+  ]
+ },
+ "maternity-newborn": {
+  "title": "Newborn",
+  "tags": [
+   "newborn",
+   "baby",
+   "infant",
+   "birth",
+   "swaddle",
+   "maternity",
+   "care",
+   "cradle"
+  ]
+ },
+ "maternity-mother-child": {
+  "title": "Maternity",
+  "tags": [
+   "maternity",
+   "mother",
+   "child",
+   "mom",
+   "toddler",
+   "love",
+   "family",
+   "bonding"
+  ]
+ },
+ "lgbtq-pride-flag": {
+  "title": "Pride Flag",
+  "tags": [
+   "lgbtq",
+   "pride",
+   "rainbow",
+   "flag",
+   "color",
+   "diversity",
+   "equality",
+   "love"
+  ]
+ },
+ "lgbtq-rainbow-heart": {
+  "title": "Rainbow Heart",
+  "tags": [
+   "lgbtq",
+   "pride",
+   "rainbow",
+   "heart",
+   "love",
+   "equality",
+   "acceptance",
+   "inclusive"
+  ]
+ },
+ "lgbtq-pride-march": {
+  "title": "Pride March",
+  "tags": [
+   "lgbtq",
+   "pride",
+   "march",
+   "parade",
+   "community",
+   "celebrate",
+   "diversity",
+   "together"
+  ]
+ },
+ "party-balloons": {
+  "title": "Celebration Balloons",
+  "tags": [
+   "party",
+   "celebration",
+   "balloons",
+   "event",
+   "fun"
+  ]
+ },
+ "clinking-glasses": {
+  "title": "Cheers",
+  "tags": [
+   "toast",
+   "celebration",
+   "drink",
+   "social",
+   "cheers",
+   "glasses"
+  ]
+ },
+ "coffee-date": {
+  "title": "Coffee Date",
+  "tags": [
+   "cafe",
+   "coffee",
+   "meeting",
+   "friendship",
+   "talk"
+  ]
+ },
+ "campfire-circle": {
+  "title": "Campfire Stories",
+  "tags": [
+   "community",
+   "outdoor",
+   "gathering",
+   "fire",
+   "night"
+  ]
+ },
+ "high-five": {
+  "title": "High Five",
+  "tags": [
+   "success",
+   "collaboration",
+   "teamwork",
+   "win"
+  ]
+ },
+ "speech-bubble-group": {
+  "title": "Town Hall",
+  "tags": [
+   "discussion",
+   "debate",
+   "community",
+   "talk",
+   "voices"
+  ]
+ },
+ "gift-box": {
+  "title": "Kindness Box",
+  "tags": [
+   "gift",
+   "present",
+   "kindness",
+   "giving",
+   "holiday"
+  ]
+ },
+ "park-bench": {
+  "title": "Quiet Spot",
+  "tags": [
+   "relaxation",
+   "park",
+   "bench",
+   "rest",
+   "outdoor"
+  ]
+ },
+ "camera-flash": {
+  "title": "Instant Memory",
+  "tags": [
+   "camera",
+   "photography",
+   "flash",
+   "photo",
+   "social"
+  ]
+ },
+ "meditation-mat": {
+  "title": "Zen Space",
+  "tags": [
+   "meditation",
+   "wellness",
+   "yoga",
+   "zen",
+   "peace"
+  ]
+ },
+ "skincare-routine": {
+  "title": "Glow Ritual",
+  "tags": [
+   "skincare",
+   "beauty",
+   "health",
+   "self-care"
+  ]
+ },
+ "journal-pen": {
+  "title": "Mindful Journal",
+  "tags": [
+   "journal",
+   "writing",
+   "reflection",
+   "mental health"
+  ]
+ },
+ "voting-ballot": {
+  "title": "The Vote",
+  "tags": [
+   "voting",
+   "election",
+   "ballot",
+   "choice",
+   "democracy"
+  ]
+ },
+ "government-building": {
+  "title": "The Capitol",
+  "tags": [
+   "government",
+   "law",
+   "power",
+   "capitol",
+   "politics"
+  ]
+ },
+ "megaphone-protest": {
+  "title": "Activism",
+  "tags": [
+   "protest",
+   "voice",
+   "speech",
+   "activism",
+   "rally"
+  ]
+ },
+ "scales-of-justice": {
+  "title": "Justice",
+  "tags": [
+   "law",
+   "scales",
+   "justice",
+   "ethics",
+   "court"
+  ]
+ },
+ "world-globe-hand": {
+  "title": "Global Unity",
+  "tags": [
+   "diplomacy",
+   "climate",
+   "peace",
+   "global",
+   "world"
+  ]
+ },
+ "podium-speech": {
+  "title": "Leadership",
+  "tags": [
+   "campaign",
+   "speech",
+   "podium",
+   "politics"
+  ]
+ },
+ "peace-dove": {
+  "title": "Dove of Peace",
+  "tags": [
+   "peace",
+   "hope",
+   "dove",
+   "freedom"
+  ]
+ },
+ "handshake-deal": {
+  "title": "The Agreement",
+  "tags": [
+   "diplomacy",
+   "deal",
+   "handshake",
+   "agreement"
+  ]
+ },
+ "united-figures": {
+  "title": "Solidarity",
+  "tags": [
+   "union",
+   " solidarity",
+   "strength",
+   "diversity"
+  ]
+ },
+ "broken-chain": {
+  "title": "Liberation",
+  "tags": [
+   "freedom",
+   "rights",
+   "liberation",
+   "chain",
+   "protest"
+  ]
+ },
+ "artist-palette": {
+  "title": "Artistic Flow",
+  "tags": [
+   "art",
+   "painting",
+   "palette",
+   "creative",
+   "hobby"
+  ]
+ },
+ "guitar-play": {
+  "title": "Acoustic Vibes",
+  "tags": [
+   "music",
+   "guitar",
+   "instrument",
+   "hobby",
+   "sound"
+  ]
+ },
+ "baking-bread": {
+  "title": "Warm Bread",
+  "tags": [
+   "baking",
+   "food",
+   "kitchen",
+   "hobby",
+   "bread"
+  ]
+ },
+ "gardening-pot": {
+  "title": "Home Garden",
+  "tags": [
+   "gardening",
+   "plant",
+   "hobby",
+   "nature",
+   "grow"
+  ]
+ },
+ "hiking-mountain": {
+  "title": "The Summit",
+  "tags": [
+   "hiking",
+   "adventure",
+   "mountain",
+   "outdoor",
+   "sport"
+  ]
+ },
+ "film-reel": {
+  "title": "Cinema Reel",
+  "tags": [
+   "film",
+   "movies",
+   "cinema",
+   "entertainment",
+   "history"
+  ]
+ },
+ "theater-masks": {
+  "title": "Drama & Comedy",
+  "tags": [
+   "theater",
+   "acting",
+   "drama",
+   "entertainment",
+   "stage"
+  ]
+ },
+ "popcorn-bucket": {
+  "title": "Movie Night",
+  "tags": [
+   "popcorn",
+   "snacks",
+   "movies",
+   "cinema",
+   "fun"
+  ]
+ },
+ "vr-headset": {
+  "title": "Virtual World",
+  "tags": [
+   "vr",
+   "metaverse",
+   "gaming",
+   "tech",
+   "entertainment"
+  ]
+ },
+ "disco-ball": {
+  "title": "Dance Floor",
+  "tags": [
+   "disco",
+   "party",
+   "dance",
+   "music",
+   "nightlife"
+  ]
+ },
+ "television-set": {
+  "title": "Retro Tube",
+  "tags": [
+   "tv",
+   "television",
+   "media",
+   "entertainment",
+   "retro"
+  ]
+ },
+ "game-controller": {
+  "title": "Pro Gamer",
+  "tags": [
+   "gaming",
+   "esports",
+   "controller",
+   "play",
+   "hobby"
+  ]
+ },
+ "magic-hat": {
+  "title": "The Reveal",
+  "tags": [
+   "magic",
+   "show",
+   "performance",
+   "mystery",
+   "fun"
+  ]
+ },
+ "microphone-stand": {
+  "title": "Live Session",
+  "tags": [
+   "microphone",
+   "podcast",
+   "singing",
+   "concert",
+   "voice"
+  ]
+ },
+ "trophy-award": {
+  "title": "Champion",
+  "tags": [
+   "trophy",
+   "win",
+   "award",
+   "achievement",
+   "success"
+  ]
+ },
+ "rocket-launch": {
+  "title": "Startup Launch",
+  "tags": [
+   "startup",
+   "launch",
+   "growth",
+   "rocket",
+   "business"
+  ]
+ },
+ "unicorn-startup": {
+  "title": "Unicorn",
+  "tags": [
+   "unicorn",
+   "success",
+   "valuation",
+   "dream",
+   "startup"
+  ]
+ },
+ "seed-funding": {
+  "title": "Seed Funding",
+  "tags": [
+   "seed",
+   "funding",
+   "investment",
+   "capital",
+   "growth"
+  ]
+ },
+ "venture-capital": {
+  "title": "Venture Capital",
+  "tags": [
+   "vc",
+   "investment",
+   "briefcase",
+   "capital",
+   "funding"
+  ]
+ },
+ "equity-pie": {
+  "title": "Cap Table",
+  "tags": [
+   "equity",
+   "pie chart",
+   "ownership",
+   "shares",
+   "startup"
+  ]
+ },
+ "pitch-deck": {
+  "title": "The Pitch",
+  "tags": [
+   "pitch",
+   "deck",
+   "presentation",
+   "storytelling",
+   "funding"
+  ]
+ },
+ "demo-day": {
+  "title": "Incubator Demo Day",
+  "tags": [
+   "demo day",
+   "incubator",
+   "pitch",
+   "stage",
+   "startup"
+  ]
+ },
+ "incubator-lab": {
+  "title": "Incubator Lab",
+  "tags": [
+   "incubator",
+   "lab",
+   "innovation",
+   "ideas",
+   "startup"
+  ]
+ },
+ "scaling-growth": {
+  "title": "Scaling Up",
+  "tags": [
+   "scaling",
+   "growth",
+   "metrics",
+   "graph",
+   "startup"
+  ]
+ },
+ "founders-collab": {
+  "title": "Co-founders",
+  "tags": [
+   "founders",
+   "collaboration",
+   "team",
+   "startup",
+   "duo"
+  ]
+ },
+ "fighter-jet": {
+  "title": "Fighter Jet",
+  "tags": [
+   "jet",
+   "plane",
+   "fighter",
+   "military",
+   "aviation",
+   "supersonic"
+  ]
+ },
+ "t-rex": {
+  "title": "T-Rex",
+  "tags": [
+   "dinosaur",
+   "trex",
+   "paleontology",
+   "prehistoric",
+   "jurassic"
+  ]
+ },
+ "brontosaurus": {
+  "title": "Brontosaurus",
+  "tags": [
+   "dinosaur",
+   "long neck",
+   "paleontology",
+   "prehistoric"
+  ]
+ },
+ "mammoth": {
+  "title": "Mammoth",
+  "tags": [
+   "elephant",
+   "mammoth",
+   "ice age",
+   "prehistoric",
+   "tusks"
+  ]
+ },
+ "cute-anaconda": {
+  "title": "Cute Anaconda",
+  "tags": [
+   "snake",
+   "anaconda",
+   "reptile",
+   "cute",
+   "jungle"
+  ]
+ },
+ "polar-bear": {
+  "title": "Polar Bear",
+  "tags": [
+   "bear",
+   "polar",
+   "arctic",
+   "animal",
+   "ice"
+  ]
+ },
+ "dolphin": {
+  "title": "Dolphin",
+  "tags": [
+   "dolphin",
+   "ocean",
+   "sea",
+   "animal",
+   "jump"
+  ]
+ },
+ "whale": {
+  "title": "Whale",
+  "tags": [
+   "whale",
+   "ocean",
+   "sea",
+   "animal",
+   "mammal"
+  ]
+ },
+ "fox": {
+  "title": "Fox",
+  "tags": [
+   "fox",
+   "animal",
+   "forest",
+   "wildlife",
+   "cute"
+  ]
+ },
+ "dog": {
+  "title": "Dog",
+  "tags": [
+   "dog",
+   "pet",
+   "animal",
+   "cute",
+   "canine"
+  ]
+ },
+ "elephant": {
+  "title": "Elephant",
+  "tags": [
+   "elephant",
+   "animal",
+   "safari",
+   "wildlife",
+   "trunk"
+  ]
+ },
+ "indian-auto": {
+  "title": "Indian Auto Rickshaw",
+  "tags": [
+   "auto",
+   "rickshaw",
+   "india",
+   "transport",
+   "travel",
+   "tuk tuk"
+  ]
+ },
+ "tea-cup": {
+  "title": "Chai Tea",
+  "tags": [
+   "tea",
+   "chai",
+   "drink",
+   "hot",
+   "beverage",
+   "cup"
+  ]
+ },
+ "coffee-mug": {
+  "title": "Hot Coffee",
+  "tags": [
+   "coffee",
+   "cup",
+   "mug",
+   "drink",
+   "hot",
+   "beverage"
+  ]
+ },
+ "agile-method": {
+  "title": "Agile Board",
+  "tags": [
+   "agile",
+   "scrum",
+   "kanban",
+   "sticky notes",
+   "teamwork",
+   "productivity"
+  ]
+ },
+ "business-plan": {
+  "title": "Strategy Map",
+  "tags": [
+   "strategy",
+   "business plan",
+   "document",
+   "planning",
+   "vision",
+   "goals"
+  ]
+ },
+ "data-report": {
+  "title": "Performance Metrics",
+  "tags": [
+   "data",
+   "analytics",
+   "report",
+   "growth",
+   "chart",
+   "metrics"
+  ]
+ },
+ "investment-tree": {
+  "title": "Money Tree",
+  "tags": [
+   "investment",
+   "growth",
+   "money",
+   "nurturing",
+   "funding",
+   "wealth"
+  ]
+ },
+ "team-meeting": {
+  "title": "Team Collaboration",
+  "tags": [
+   "meeting",
+   "conference",
+   "collaboration",
+   "table",
+   "discussion",
+   "remote"
+  ]
+ },
+ "startup-spirit": {
+  "title": "Startup Energy",
+  "tags": [
+   "startup",
+   "rocket",
+   "laptop",
+   "launch",
+   "energy",
+   "grind"
+  ]
+ },
+ "mobile-map": {
+  "title": "Navigation Map",
+  "tags": [
+   "map",
+   "gps",
+   "navigation",
+   "location",
+   "pin",
+   "travel",
+   "direction"
+  ]
+ },
+ "mobile-wallet": {
+  "title": "Digital Wallet",
+  "tags": [
+   "wallet",
+   "cards",
+   "payment",
+   "finance",
+   "mobile",
+   "banking"
+  ]
+ },
+ "mobile-camera": {
+  "title": "Camera App",
+  "tags": [
+   "camera",
+   "photography",
+   "lens",
+   "capture",
+   "photo",
+   "shutter"
+  ]
+ },
+ "voice-assistant": {
+  "title": "Voice Assistant",
+  "tags": [
+   "ai",
+   "voice",
+   "assistant",
+   "sound",
+   "waves",
+   "microphone",
+   "audio"
+  ]
+ },
+ "mobile-coupon": {
+  "title": "Promo Coupon",
+  "tags": [
+   "coupon",
+   "discount",
+   "offer",
+   "sale",
+   "promo",
+   "ticket",
+   "save"
+  ]
+ },
+ "payment-app": {
+  "title": "Contactless Payment",
+  "tags": [
+   "payment",
+   "nfc",
+   "tap",
+   "transaction",
+   "mobile",
+   "money"
+  ]
+ },
+ "face-unlock": {
+  "title": "Face Unlock",
+  "tags": [
+   "face unlock",
+   "biometrics",
+   "security",
+   "scan",
+   "privacy",
+   "mobile"
+  ]
+ },
+ "ai-code-assistant": {
+  "title": "AI Code Assistant",
+  "tags": [
+   "ai",
+   "robot",
+   "coding",
+   "assistant",
+   "automation",
+   "intelligence"
+  ]
+ },
+ "cloud-hosting": {
+  "title": "Cloud Hosting",
+  "tags": [
+   "cloud",
+   "hosting",
+   "server",
+   "network",
+   "data",
+   "web"
+  ]
+ },
+ "coding-desk": {
+  "title": "Deep Coding",
+  "tags": [
+   "coding",
+   "programming",
+   "brackets",
+   "developer",
+   "desk",
+   "work"
+  ]
+ },
+ "fixing-bugs": {
+  "title": "Bug Hunter",
+  "tags": [
+   "bug",
+   "fix",
+   "debug",
+   "net",
+   "coding",
+   "software",
+   "hunter"
+  ]
+ },
+ "mobile-development": {
+  "title": "Mobile Development",
+  "tags": [
+   "mobile",
+   "app",
+   "dev",
+   "smartphone",
+   "design",
+   "ui",
+   "ux"
+  ]
+ },
+ "pair-programming": {
+  "title": "Pair Programming",
+  "tags": [
+   "pair",
+   "coding",
+   "team",
+   "collaboration",
+   "developers",
+   "peer"
+  ]
+ },
+ "secure-usb": {
+  "title": "Secure Data",
+  "tags": [
+   "usb",
+   "security",
+   "data",
+   "storage",
+   "encrypted",
+   "hardware",
+   "lock"
+  ]
+ },
+ "server-status": {
+  "title": "Server Status",
+  "tags": [
+   "server",
+   "rack",
+   "status",
+   "monitoring",
+   "datacenter",
+   "uptime"
+  ]
+ },
+ "software-engineer": {
+  "title": "Software Engineer",
+  "tags": [
+   "engineer",
+   "developer",
+   "coding",
+   "software",
+   "monitors",
+   "workspace"
+  ]
+ },
+ "web-design": {
+  "title": "Web Design",
+  "tags": [
+   "design",
+   "web",
+   "browser",
+   "drag",
+   "ui",
+   "creative",
+   "layout"
+  ]
+ },
+ "fitness-stats": {
+  "title": "Fitness Progress",
+  "tags": [
+   "fitness",
+   "stats",
+   "watch",
+   "smartwatch",
+   "health",
+   "workout",
+   "progress",
+   "data"
+  ]
+ },
+ "healthy-habit": {
+  "title": "Nutrition Balance",
+  "tags": [
+   "habit",
+   "healthy",
+   "fruit",
+   "apple",
+   "diet",
+   "nutrition",
+   "wellness",
+   "lifestyle"
+  ]
+ },
+ "pool-relax": {
+  "title": "Summer Swim",
+  "tags": [
+   "pool",
+   "relax",
+   "swimming",
+   "water",
+   "summer",
+   "vacation",
+   "resort",
+   "leisure"
+  ]
+ },
+ "meditation-peace": {
+  "title": "Zen Mindfulness",
+  "tags": [
+   "meditation",
+   "peace",
+   "lotus",
+   "yoga",
+   "mindfulness",
+   "calm",
+   "spirituality",
+   "zen"
+  ]
+ },
+ "morning-routine": {
+  "title": "Cozy Morning",
+  "tags": [
+   "morning",
+   "coffee",
+   "sun",
+   "routine",
+   "wake up",
+   "start",
+   "sunrise",
+   "cozy"
+  ]
+ },
+ "personal-trainer": {
+  "title": "Guided Training",
+  "tags": [
+   "trainer",
+   "coaching",
+   "fitness",
+   "workout",
+   "gym",
+   "tutor",
+   "mentor",
+   "active"
+  ]
+ },
+ "vacation-selfie": {
+  "title": "Travel Selfie",
+  "tags": [
+   "vacation",
+   "selfie",
+   "photo",
+   "holiday",
+   "camera",
+   "travel",
+   "tourism",
+   "social"
+  ]
+ },
+ "walking-together": {
+  "title": "Healthy Walk",
+  "tags": [
+   "walking",
+   "social",
+   "movement",
+   "friends",
+   "together",
+   "health",
+   "exercise",
+   "community"
+  ]
+ },
+ "yoga-poses": {
+  "title": "Yoga Balance",
+  "tags": [
+   "yoga",
+   "poses",
+   "stretching",
+   "health",
+   "balance",
+   "meditation",
+   "flexibility",
+   "wellness"
+  ]
+ },
+ "error-404": {
+  "title": "Page Not Found",
+  "tags": [
+   "404",
+   "error",
+   "lost",
+   "missing",
+   "broken",
+   "empty",
+   "ops"
+  ]
+ },
+ "apps-notifications": {
+  "title": "App Notifications",
+  "tags": [
+   "notifications",
+   "apps",
+   "pop-up",
+   "alerts",
+   "messages",
+   "mobile",
+   "ops"
+  ]
+ },
+ "authentication-id": {
+  "title": "Identity Access",
+  "tags": [
+   "authentication",
+   "password",
+   "id",
+   "security",
+   "fingerprint",
+   "login",
+   "ops"
+  ]
+ },
+ "choose-card": {
+  "title": "Payment Selection",
+  "tags": [
+   "payment",
+   "card",
+   "billing",
+   "checkout",
+   "finance",
+   "ops"
+  ]
+ },
+ "completion-progress": {
+  "title": "Success Progress",
+  "tags": [
+   "progress",
+   "completion",
+   "loading",
+   "status",
+   "ready",
+   "ops"
+  ]
+ },
+ "no-connection": {
+  "title": "Offline State",
+  "tags": [
+   "connection",
+   "offline",
+   "disconnected",
+   "wifi",
+   "cable",
+   "ops"
+  ]
+ },
+ "plan-mode": {
+  "title": "Product Plans",
+  "tags": [
+   "plans",
+   "pricing",
+   "subscription",
+   "upgrade",
+   "tier",
+   "ops"
+  ]
+ },
+ "creative-process": {
+  "title": "Creative Spark",
+  "tags": [
+   "creative",
+   "process",
+   "ideas",
+   "lightbulb",
+   "innovation",
+   "brainstorm",
+   "edu"
+  ]
+ },
+ "e-learning-cap": {
+  "title": "E-Learning",
+  "tags": [
+   "elearning",
+   "study",
+   "graduate",
+   "tablet",
+   "tablet",
+   "tablet",
+   "edu"
+  ]
+ },
+ "online-research": {
+  "title": "Digital Library",
+  "tags": [
+   "research",
+   "library",
+   "online",
+   "books",
+   "screen",
+   "edu"
+  ]
+ },
+ "open-notes": {
+  "title": "Smart Notes",
+  "tags": [
+   "notes",
+   "student",
+   "study",
+   "reading",
+   "writing",
+   "notepad",
+   "edu"
+  ]
+ },
+ "reading-mountain": {
+  "title": "Reading List",
+  "tags": [
+   "reading",
+   "books",
+   "mountain",
+   "student",
+   "knowledge",
+   "edu"
+  ]
+ },
+ "visual-data-art": {
+  "title": "Visual Data",
+  "tags": [
+   "data",
+   "art",
+   "visualization",
+   "creative",
+   "analytics",
+   "edu"
+  ]
+ },
+ "transfer-data": {
+  "title": "Transfer Data",
+  "tags": [
+   "download",
+   "upload",
+   "transfer",
+   "data",
+   "cloud",
+   "ops"
+  ]
+ },
+ "problem-statement": {
+  "title": "Problem Statement",
+  "tags": [
+   "problem",
+   "statement",
+   "question",
+   "puzzle",
+   "strategy",
+   "biz"
+  ]
+ },
+ "solution-found": {
+  "title": "Solution Found",
+  "tags": [
+   "solution",
+   "found",
+   "key",
+   "lightbulb",
+   "strategy",
+   "biz"
+  ]
+ },
+ "go-to-market": {
+  "title": "Go-to-Market",
+  "tags": [
+   "market",
+   "launch",
+   "rocket",
+   "strategy",
+   "biz",
+   "growth"
+  ]
+ },
+ "key-to-success": {
+  "title": "Key to Success",
+  "tags": [
+   "success",
+   "key",
+   "star",
+   "goal",
+   "strategy",
+   "biz"
+  ]
+ },
+ "moat-castle": {
+  "title": "Economic Moat",
+  "tags": [
+   "moat",
+   "castle",
+   "competitive advantage",
+   "security",
+   "protect",
+   "invest"
+  ]
+ },
+ "pe-ratio-scale": {
+  "title": "PE Ratio",
+  "tags": [
+   "pe ratio",
+   "valuation",
+   "price earnings",
+   "invest",
+   "stock",
+   "finance"
+  ]
+ },
+ "peg-ratio-growth": {
+  "title": "PEG Ratio",
+  "tags": [
+   "peg ratio",
+   "growth",
+   "valuation",
+   "invest",
+   "stock",
+   "finance"
+  ]
+ },
+ "dividend-rain": {
+  "title": "Dividend Yield",
+  "tags": [
+   "dividend",
+   "income",
+   "yield",
+   "passive",
+   "invest",
+   "coins"
+  ]
+ },
+ "moving-average-smooth": {
+  "title": "Moving Average",
+  "tags": [
+   "moving average",
+   "ma",
+   "chart",
+   "trading",
+   "invest",
+   "finance"
+  ]
+ },
+ "stock-screener-lens": {
+  "title": "Stock Screener",
+  "tags": [
+   "screener",
+   "search",
+   "filter",
+   "invest",
+   "stock",
+   "finance"
+  ]
+ },
+ "dca-periodic": {
+  "title": "DCA Strategy",
+  "tags": [
+   "dca",
+   "dollar cost averaging",
+   "invest",
+   "routine",
+   "savings"
+  ]
+ },
+ "ps-ratio-sales": {
+  "title": "PS Ratio",
+  "tags": [
+   "ps ratio",
+   "price sales",
+   "valuation",
+   "invest",
+   "stock",
+   "finance"
+  ]
+ },
+ "analyst-rating-meter": {
+  "title": "Analyst Rating",
+  "tags": [
+   "analyst",
+   "rating",
+   "buy",
+   "sell",
+   "hold",
+   "invest",
+   "stock"
+  ]
+ },
+ "bear-market-down": {
+  "title": "Bear Market",
+  "tags": [
+   "bear",
+   "market",
+   "crash",
+   "down",
+   "invest",
+   "negative",
+   "trend"
+  ]
+ },
+ "bull-market-up": {
+  "title": "Bull Market",
+  "tags": [
+   "bull",
+   "market",
+   "growth",
+   "up",
+   "invest",
+   "positive",
+   "trend"
+  ]
+ },
+ "bear-bull-match": {
+  "title": "Bear vs Bull",
+  "tags": [
+   "bear",
+   "bull",
+   "market",
+   "clash",
+   "invest",
+   "trading",
+   "fight"
+  ]
+ },
+ "market-correction-dip": {
+  "title": "Market Correction",
+  "tags": [
+   "correction",
+   "dip",
+   "invest",
+   "market",
+   "adjustment",
+   "stock"
+  ]
+ },
+ "economic-bubble-pop": {
+  "title": "Economic Bubble",
+  "tags": [
+   "bubble",
+   "pop",
+   "crash",
+   "invest",
+   "market",
+   "mania"
+  ]
+ },
+ "portfolio-diversified": {
+  "title": "Portfolio Diversification",
+  "tags": [
+   "portfolio",
+   "diversification",
+   "assets",
+   "pie chart",
+   "invest",
+   "spread"
+  ]
+ },
+ "compound-interest-snowball": {
+  "title": "Compound Interest",
+  "tags": [
+   "compound interest",
+   "growth",
+   "snowball",
+   "invest",
+   "multiplication",
+   "time"
+  ]
+ },
+ "market-volatility-zigzag": {
+  "title": "Market Volatility",
+  "tags": [
+   "volatility",
+   "risk",
+   "invest",
+   "market",
+   "zig zag",
+   "fear"
+  ]
+ },
+ "ipo-launch-pad": {
+  "title": "Stock IPO",
+  "tags": [
+   "ipo",
+   "launch",
+   "stock",
+   "invest",
+   "finance",
+   "public"
+  ]
+ },
+ "gold-bar-stack": {
+  "title": "Gold & Commodities",
+  "tags": [
+   "gold",
+   "commodities",
+   "asset",
+   "invest",
+   "safe haven",
+   "wealth"
+  ]
+ },
+ "crypto-coin-circuit": {
+  "title": "Crypto Assets",
+  "tags": [
+   "crypto",
+   "bitcoin",
+   "blockchain",
+   "invest",
+   "digital",
+   "finance"
+  ]
+ },
+ "retirement-sunset-house": {
+  "title": "Retirement Planning",
+  "tags": [
+   "retirement",
+   "planning",
+   "invest",
+   "sunset",
+   "savings",
+   "pension"
+  ]
+ },
+ "risk-reward-balance": {
+  "title": "Risk vs Reward",
+  "tags": [
+   "risk",
+   "reward",
+   "balance",
+   "invest",
+   "finance",
+   "tradeoff"
+  ]
+ },
+ "candlestick-chart-trade": {
+  "title": "Trading Chart",
+  "tags": [
+   "candlestick",
+   "chart",
+   "trading",
+   "invest",
+   "stock",
+   "finance"
+  ]
+ },
+ "asset-allocation-mix": {
+  "title": "Asset Allocation",
+  "tags": [
+   "asset",
+   "allocation",
+   "pie chart",
+   "invest",
+   "finance",
+   "diversified"
+  ]
+ },
+ "mutual-funds-hands": {
+  "title": "Mutual Funds",
+  "tags": [
+   "mutual funds",
+   "group",
+   "invest",
+   "collective",
+   "finance",
+   "etf"
+  ]
+ },
+ "etf-basket-stocks": {
+  "title": "ETF Basket",
+  "tags": [
+   "etf",
+   "basket",
+   "invest",
+   "stock",
+   "finance",
+   "index"
+  ]
+ },
+ "savings-goal-target": {
+  "title": "Savings Goal",
+  "tags": [
+   "savings",
+   "goal",
+   "target",
+   "invest",
+   "money",
+   "center"
+  ]
+ },
+ "piggy-bank-coin": {
+  "title": "Piggy Bank",
+  "tags": [
+   "piggy bank",
+   "savings",
+   "invest",
+   "money",
+   "child",
+   "bank"
+  ]
+ },
+ "financial-news-tablet": {
+  "title": "Financial News",
+  "tags": [
+   "news",
+   "finance",
+   "stock",
+   "invest",
+   "newspaper",
+   "data"
+  ]
+ },
+ "yield-curve-rates": {
+  "title": "Yield Curve",
+  "tags": [
+   "yield curve",
+   "rates",
+   "interest",
+   "invest",
+   "macro",
+   "finance"
+  ]
+ },
+ "inflation-balloon-up": {
+  "title": "Market Inflation",
+  "tags": [
+   "inflation",
+   "balloon",
+   "growth",
+   "invest",
+   "economy",
+   "macro"
+  ]
+ },
+ "mortgage-house-key": {
+  "title": "Home Mortgage",
+  "tags": [
+   "mortgage",
+   "house",
+   "loan",
+   "property",
+   "bank",
+   "invest",
+   "real estate"
+  ]
+ },
+ "underwriting-check": {
+  "title": "Underwriting Process",
+  "tags": [
+   "underwriting",
+   "check",
+   "audit",
+   "approval",
+   "risk",
+   "finance"
+  ]
+ },
+ "interest-rate-percent": {
+  "title": "Interest Rates",
+  "tags": [
+   "interest rate",
+   "percentage",
+   "yield",
+   "bank",
+   "fed",
+   "finance"
+  ]
+ },
+ "sip-regular-invest": {
+  "title": "SIP Plan",
+  "tags": [
+   "sip",
+   "systematic investment plan",
+   "mutual fund",
+   "routine",
+   "invest",
+   "wealth"
+  ]
+ },
+ "swp-withdrawal-income": {
+  "title": "SWP Withdrawal",
+  "tags": [
+   "swp",
+   "systematic withdrawal plan",
+   "income",
+   "retirement",
+   "pension",
+   "finance"
+  ]
+ },
+ "mutual-funds-portfolio": {
+  "title": "Diversified Funds",
+  "tags": [
+   "mutual funds",
+   "portfolio",
+   "diversified",
+   "stocks",
+   "invest",
+   "basket"
+  ]
+ },
+ "bonds-fixed-income": {
+  "title": "Bond Certificate",
+  "tags": [
+   "bonds",
+   "debt",
+   "fixed income",
+   "certificate",
+   "invest",
+   "finance"
+  ]
+ },
+ "rate-of-return-tree": {
+  "title": "Rate of Return",
+  "tags": [
+   "rate of return",
+   "ror",
+   "growth",
+   "invest",
+   "profit",
+   "yield"
+  ]
+ },
+ "compound-interest-growth": {
+  "title": "Compounding Power",
+  "tags": [
+   "compound interest",
+   "growth",
+   "exponential",
+   "wealth",
+   "time",
+   "invest"
+  ]
+ },
+ "fire-independence-early": {
+  "title": "FIRE Freedom",
+  "tags": [
+   "fire",
+   "financial independence",
+   "retire early",
+   "pension",
+   "freedom",
+   "invest"
+  ]
+ },
+ "no-cap-true": {
+  "title": "No Cap",
+  "tags": [
+   "no cap",
+   "truth",
+   "lie",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "sus-eye": {
+  "title": "Sus",
+  "tags": [
+   "sus",
+   "suspicious",
+   "fraud",
+   "impostor",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "bet-check": {
+  "title": "Bet",
+  "tags": [
+   "bet",
+   "agree",
+   "okay",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "bussin-food": {
+  "title": "Bussin'",
+  "tags": [
+   "bussin",
+   "delicious",
+   "food",
+   "tasty",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "sheesh-wow": {
+  "title": "Sheesh",
+  "tags": [
+   "sheesh",
+   "wow",
+   "impressive",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "rent-free-brain": {
+  "title": "Rent Free",
+  "tags": [
+   "rent free",
+   "thinking",
+   "head",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "main-character-spotlight": {
+  "title": "Main Character",
+  "tags": [
+   "main character",
+   "spotlight",
+   "energy",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "salty-angry": {
+  "title": "Salty",
+  "tags": [
+   "salty",
+   "angry",
+   "upset",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "vibe-check-radar": {
+  "title": "Vibe Check",
+  "tags": [
+   "vibe check",
+   "energy",
+   "radar",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "stan-fan": {
+  "title": "Stan",
+  "tags": [
+   "stan",
+   "fan",
+   "heart",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "glow-up-star": {
+  "title": "Glow Up",
+  "tags": [
+   "glow up",
+   "transform",
+   "star",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "tea-spill": {
+  "title": "Tea",
+  "tags": [
+   "tea",
+   "gossip",
+   "truth",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "ghosting-disappear": {
+  "title": "Ghosting",
+  "tags": [
+   "ghosting",
+   "disappear",
+   "chat",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "hits-different-target": {
+  "title": "Hits Different",
+  "tags": [
+   "hits different",
+   "unique",
+   "better",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "big-yikes-sweat": {
+  "title": "Big Yikes",
+  "tags": [
+   "big yikes",
+   "embarrassing",
+   "oops",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "delulu-dream": {
+  "title": "Delulu",
+  "tags": [
+   "delulu",
+   "delusional",
+   "dream",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "iykyk-wink": {
+  "title": "IYKYK",
+  "tags": [
+   "iykyk",
+   "wink",
+   "secret",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "fomo-look": {
+  "title": "FOMO",
+  "tags": [
+   "fomo",
+   "miss out",
+   "fear",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "mid-average": {
+  "title": "Mid",
+  "tags": [
+   "mid",
+   "average",
+   "okay",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "caught-4k-camera": {
+  "title": "Caught in 4K",
+  "tags": [
+   "caught in 4k",
+   "camera",
+   "evidence",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "bestie-hearts": {
+  "title": "Bestie",
+  "tags": [
+   "bestie",
+   "friend",
+   "love",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "slay-crown": {
+  "title": "Slay",
+  "tags": [
+   "slay",
+   "win",
+   "crown",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "rizz-magnet": {
+  "title": "Rizz",
+  "tags": [
+   "rizz",
+   "charisma",
+   "magnet",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "ate-that-bite": {
+  "title": "Ate That",
+  "tags": [
+   "ate that",
+   "perfect",
+   "success",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "era-phase-record": {
+  "title": "Era",
+  "tags": [
+   "era",
+   "phase",
+   "style",
+   "slang",
+   "genz",
+   "abbreviation"
+  ]
+ },
+ "brb-clock": {
+  "title": "BRB",
+  "tags": [
+   "brb",
+   "be right back",
+   "break",
+   "clock",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "tu-thanks": {
+  "title": "Thank You",
+  "tags": [
+   "tu",
+   "thanks",
+   "thank you",
+   "gratitude",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "faq-bubbles": {
+  "title": "FAQ",
+  "tags": [
+   "faq",
+   "questions",
+   "answers",
+   "help",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "q-and-a-session": {
+  "title": "Q&A",
+  "tags": [
+   "q&a",
+   "qanda",
+   "discussion",
+   "talk",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "asap-rocket": {
+  "title": "ASAP",
+  "tags": [
+   "asap",
+   "urgency",
+   "fast",
+   "soon",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "fyi-info": {
+  "title": "FYI",
+  "tags": [
+   "fyi",
+   "information",
+   "notice",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "eod-deadline": {
+  "title": "EOD",
+  "tags": [
+   "eod",
+   "end of day",
+   "deadline",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "ooo-vacation": {
+  "title": "OOO",
+  "tags": [
+   "ooo",
+   "out of office",
+   "vacation",
+   "away",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "wfh-home": {
+  "title": "WFH",
+  "tags": [
+   "wfh",
+   "work from home",
+   "remote",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "eta-timer": {
+  "title": "ETA",
+  "tags": [
+   "eta",
+   "arrival",
+   "time",
+   "soon",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "tbd-question": {
+  "title": "TBD",
+  "tags": [
+   "tbd",
+   "to be determined",
+   "unknown",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "tldr-doc": {
+  "title": "TL;DR",
+  "tags": [
+   "tldr",
+   "summary",
+   "short",
+   "long",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "qa-tools": {
+  "title": "QA",
+  "tags": [
+   "qa",
+   "quality",
+   "testing",
+   "bugs",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "okr-target": {
+  "title": "OKR",
+  "tags": [
+   "okr",
+   "targets",
+   "goals",
+   "objectives",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "pov-perspective": {
+  "title": "POV",
+  "tags": [
+   "pov",
+   "perspective",
+   "view",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "rd-flask": {
+  "title": "R&D",
+  "tags": [
+   "r&d",
+   "research",
+   "development",
+   "innovation",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "pm-task": {
+  "title": "PM",
+  "tags": [
+   "pm",
+   "project manager",
+   "management",
+   "tasks",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "na-dash": {
+  "title": "N/A",
+  "tags": [
+   "n/a",
+   "not applicable",
+   "empty",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "iam-calendar": {
+  "title": "IAM",
+  "tags": [
+   "iam",
+   "in a meeting",
+   "calendar",
+   "busy",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "ux-ui-design": {
+  "title": "UX/UI",
+  "tags": [
+   "ux",
+   "ui",
+   "design",
+   "screens",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "ty-heart-hands": {
+  "title": "TY",
+  "tags": [
+   "ty",
+   "thank you",
+   "thanks",
+   "gratitude",
+   "pro",
+   "slang",
+   "abbreviation"
+  ]
+ },
+ "upi-payment": {
+  "title": "UPI Payment",
+  "tags": [
+   "upi",
+   "payment",
+   "scan",
+   "qr code",
+   "mobile pay",
+   "india",
+   "finance"
+  ]
+ },
+ "ear-pod": {
+  "title": "Wireless Ear Pods",
+  "tags": [
+   "ear pod",
+   "air pods",
+   "wireless",
+   "bluetooth",
+   "music",
+   "gadget",
+   "audio"
+  ]
+ },
+ "podcast-mic": {
+  "title": "Podcast Studio",
+  "tags": [
+   "podcast",
+   "microphone",
+   "audio",
+   "recording",
+   "radio",
+   "voice",
+   "content creator"
+  ]
+ },
+ "photo-camera": {
+  "title": "DSLR Camera",
+  "tags": [
+   "photography",
+   "camera",
+   "photo",
+   "dslr",
+   "lens",
+   "picture",
+   "shoot",
+   "capture"
+  ]
+ },
+ "photo-film": {
+  "title": "Film Roll",
+  "tags": [
+   "photography",
+   "film",
+   "roll",
+   "analog",
+   "vintage",
+   "movie",
+   "cinema",
+   "picture"
+  ]
+ },
+ "photo-tripod": {
+  "title": "Tripod",
+  "tags": [
+   "photography",
+   "tripod",
+   "stand",
+   "stabilizer",
+   "camera",
+   "mount",
+   "shoot",
+   "equipment"
+  ]
+ },
+ "photo-lighting": {
+  "title": "Studio Lighting",
+  "tags": [
+   "photography",
+   "lighting",
+   "softbox",
+   "studio",
+   "flash",
+   "strobe",
+   "equipment",
+   "shoot"
+  ]
+ },
+ "photo-gallery": {
+  "title": "Photo Gallery",
+  "tags": [
+   "photography",
+   "gallery",
+   "photos",
+   "pictures",
+   "polaroid",
+   "print",
+   "album",
+   "memories"
+  ]
+ }
+}

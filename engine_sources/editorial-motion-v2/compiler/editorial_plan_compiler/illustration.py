@@ -638,7 +638,7 @@ class IllustrationSolver:
         return cells
 
     def _entity_plan(self, e: IllustrationEntity, bbox: Dict[str, float], label_box: Optional[Dict[str, float]], failures: List[str], beat_id: str) -> Dict[str, Any]:
-        plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'bbox': bbox, 'art_bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
+        plan: Dict[str, Any] = {'id': e.id, 'kind': e.kind, 'glyph': e.glyph, 'size': e.size, 'concept': e.concept, 'bbox': bbox, 'art_bbox': bbox, 'params': dict(e.params), 'label': None, 'asset': None, 'media': None}
         plan['photo'] = plan['params'].pop('photo', None)
         if e.glyph == 'TILE' and plan['params'].get('word') and (plan['photo'] or e.asset_ref):
             plan['params']['descriptor_fit'] = self._descriptor_fits(plan, bbox)
@@ -1026,6 +1026,7 @@ class IllustrationSolver:
         settled = max([e['enter_ms'] + e['enter_duration_ms'] for e in ents] + [r['enter_ms'] + r['enter_duration_ms'] for r in rels] + [o['end_ms'] for o in ops] + [CARRY_REFRAME_MS if carry_in else 0])
         ops += self._decorate(ops, ents, rels, clock.duration_ms - EXIT_MS - 60, il, int(settled))
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
+        assign_actions(ents, zone, clock.duration_ms - EXIT_MS - 60)
         state_changes = sum(o['state_change'] for o in ops)
         plan = {
             'form': il.form, 'zone': zone, 'entities': ents, 'relations': rels, 'ops': ops, 'settled_ms': int(settled),
@@ -1040,6 +1041,174 @@ class IllustrationSolver:
 OP_PROPERTY = {'DRAW': 'draw', 'FILL': 'fill', 'INK': 'ink', 'DIM': 'dim', 'GROW': 'grow', 'STRIKE': 'strike', 'SWAP': 'swap',
                'COUNT': 'count', 'EMIT': 'emit', 'CONNECT': 'connect'}
 PROPERTY_REST = {'draw': 1.0, 'fill': 0.0, 'ink': 0.0, 'dim': 1.0, 'grow': 1.0, 'strike': 0.0, 'swap': 0.0, 'count': 1.0, 'emit': 0.0, 'connect': 1.0}
+
+
+# Story actions: the plate keeps its still environment, but the subject the narration
+# is about moves — plants grow from the soil, moons go dark, balls get kicked, counted
+# objects pop in one at a time. Assigned per concept, evaluated on the beat's own clock.
+LOOP_ACTIONS = {'orbit', 'pulse', 'spin', 'swim', 'flutter', 'wave'}
+
+
+def _action_for(concept: str, ready_ms: int, zone: Dict[str, float], bbox: Dict[str, float]) -> Optional[Dict[str, Any]]:
+    n = concept.lower().replace('_', '-')
+
+    def has(*ws: str) -> bool:
+        return any(w in n for w in ws)
+
+    if has('roots', 'root'):
+        # Roots grow the other way — down from the seed, anchored at the top.
+        return {'kind': 'grow', 'at': ready_ms + 150, 'dur': 1500, 'anchor': 'top'}
+    if has('plant', 'sprout', 'seedling', 'seed', 'flower', 'tree', 'pine', 'mushroom', 'cactus',
+           'shoot', 'sapling', 'vine', 'leaf', 'leaves', 'grass', 'tuft', 'kelp', 'reed', 'stem', 'bud'):
+        return {'kind': 'grow', 'at': ready_ms + 150, 'dur': 1500}
+    if has('moon'):
+        return {'kind': 'phase', 'at': ready_ms + 320, 'dur': 1700}
+    if has('soccer', 'football', 'basketball', 'tennis-ball', 'ball'):
+        # The kick travels toward the plate's open side.
+        cx = float(bbox['x']) + float(bbox['w']) / 2
+        zx, zw = float(zone.get('x') or 0), float(zone.get('w') or 1)
+        return {'kind': 'kick', 'at': ready_ms + 320, 'dur': 950, 'dir': -1 if cx > zx + zw * 0.6 else 1}
+    if has('rocket', 'balloon', 'kite', 'sunrise', 'firework'):
+        return {'kind': 'rise', 'at': ready_ms + 320, 'dur': 2300}
+    if has('drop', 'rain', 'snow', 'waterfall', 'tear'):
+        return {'kind': 'fall', 'at': ready_ms + 200, 'dur': 1300}
+    if has('earth', 'planet', 'saturn', 'satellite', 'globe', 'orbit', 'comet'):
+        return {'kind': 'orbit'}
+    if has('fish', 'whale', 'turtle', 'shark', 'dolphin', 'coral', 'shell', 'boat', 'ship'):
+        return {'kind': 'swim'}
+    if has('bird', 'butterfly', 'bee', 'owl', 'dragonfly'):
+        return {'kind': 'flutter'}
+    if has('gear', 'wheel', 'windmill', 'clock', 'hourglass', 'fan'):
+        return {'kind': 'spin'}
+    if has('flag', 'banner', 'pennant', 'sail', 'curtain', 'ribbon', 'target', 'goal'):
+        return {'kind': 'wave'}
+    if has('sun', 'star', 'heart', 'bulb', 'candle', 'lantern', 'bell', 'trophy', 'medal',
+           'crown', 'gem', 'coin', 'fire', 'volcano'):
+        return {'kind': 'pulse'}
+    return None
+
+
+# Focus matching: a printed page is still, so only the subject the narration actually
+# names may act. Concept tokens match narration words by exact/prefix/plural form, and
+# a few cross-word synonyms keep "the seed" able to wake its "seedling".
+FOCUS_SYNONYMS = {
+    'soccer': ('ball', 'football'), 'football': ('ball', 'soccer'), 'basketball': ('ball',),
+    'seedling': ('seed', 'plant', 'sprout', 'shoot'), 'seed': ('seedling', 'plant'),
+    'sprout': ('seedling', 'shoot', 'plant'), 'shoot': ('sprout', 'seedling', 'plant'),
+    'sapling': ('shoot', 'seedling', 'plant', 'tree'), 'drop': ('rain', 'water', 'raindrop'),
+    'ship': ('boat', 'sail'), 'boat': ('ship', 'sail'), 'planet': ('earth', 'world'),
+    'earth': ('planet', 'world'), 'home': ('house',), 'house': ('home',),
+    'moon': ('lunar',), 'butterfly': ('bird',), 'flower': ('blossom', 'bloom'),
+    'target': ('net', 'goal'), 'net': ('goal', 'mesh'), 'wave': ('sea', 'ocean', 'water'),
+    'leaves': ('leaf',), 'leaf': ('leaves',), 'stars': ('star',), 'star': ('stars',),
+}
+
+
+def _narration_words(narration: Optional[str]) -> set:
+    import re
+    return {w for w in re.split(r'[^a-z]+', (narration or '').lower()) if len(w) >= 3}
+
+
+def _is_focus(concept: str, words: set) -> bool:
+    import re
+    toks = [t for t in re.split(r'[-_\s]+', concept.lower()) if len(t) >= 3]
+    forms = set(toks)
+    for t in toks:
+        forms.update(FOCUS_SYNONYMS.get(t, ()))
+        if t.endswith('s'):
+            forms.add(t[:-1])
+        else:
+            forms.add(t + 's')
+    for w in words:
+        for t in forms:
+            if t == w or (len(t) >= 4 and t.startswith(w)) or (len(w) >= 4 and w.startswith(t)):
+                return True
+    return False
+
+
+def assign_actions(ents: List[Dict[str, Any]], zone: Dict[str, float], window_ms: Optional[int] = None,
+                   narration: Optional[str] = None) -> None:
+    """Attach a story action to the subject the narration is about — and nothing else.
+
+    The page is a printed page: everything sits still except the element in focus.
+    `narration` is the beat's spoken line; a subject acts only when its concept (or a
+    close synonym) is named there. When the line names no subject, the plate's primary
+    subject alone acts. Counted sets (≥3 of a kind) always pop in sequence — the count
+    is the action. Guards: garnish (`support_*`) marks never act, and a plate with
+    several moons is a phases chart — its cells stay fixed so the sequence reads.
+    `window_ms` is the latest beat-local time a one-shot action may still be running
+    (the hold ends on schedule; nothing may be mid-flight as the page turns)."""
+    from collections import Counter
+    subjects = [e for e in ents if not str(e.get('id') or '').startswith('support_')]
+    counts = Counter(str(e.get('concept') or '') for e in subjects)
+    moons = sum(1 for e in subjects if 'moon' in str(e.get('concept') or '').lower())
+    words = _narration_words(narration) if narration is not None else None
+    pop_idx: Dict[str, int] = {}
+    acted = False
+    for e in ents:
+        if str(e.get('id') or '').startswith('support_'):
+            e.pop('action', None)
+            continue  # garnish marks sit still — they are the printed environment
+        if e.get('action'):
+            continue  # an action already fixed upstream (e.g. carry choreography) stands
+        concept = str(e.get('concept') or '').lower().replace('_', '-')
+        if not concept:
+            continue
+        ready = int(e.get('enter_ms') or 0) + int(e.get('enter_duration_ms') or 0)
+        if counts.get(concept, 0) >= 3:
+            # A counting plate: several of a kind land as a counted sequence, each
+            # popping in with a spring — the "one… two… three" of a picture book.
+            # The cadence compresses when the hold cannot fit the full count at a
+            # readable pace.
+            n_pop = counts[concept]
+            space = 240
+            if window_ms is not None:
+                space = max(110, min(240, int((window_ms - 380 - ready) / max(1, n_pop - 1))))
+            idx = pop_idx.get(concept, 0)
+            pop_idx[concept] = idx + 1
+            act: Optional[Dict[str, Any]] = {'kind': 'pop', 'at': ready + idx * space, 'dur': 380}
+        elif words is None or _is_focus(concept, words):
+            act = _action_for(concept, ready, zone, e.get('bbox') or {})
+            if act and act['kind'] == 'phase' and moons > 1:
+                act = None  # a phases row teaches the sequence — it must not blur it
+        else:
+            act = None  # named subjects act; everything else is printed still
+        if act is not None and window_ms is not None and act['kind'] not in LOOP_ACTIONS and 'at' in act:
+            # The action must land before the hold closes: run it earlier rather than
+            # let it bleed into the page turn. A subject that only arrives inside the
+            # exit window has no room for its beat — it stays printed still.
+            latest_at = int(window_ms) - 200
+            if ready > latest_at:
+                act = None
+            else:
+                if act['at'] > latest_at:
+                    act['at'] = max(ready, latest_at)
+                act['dur'] = min(int(act.get('dur') or 600), max(200, int(window_ms) - act['at']))
+        if act is None:
+            e.pop('action', None)
+            continue
+        e['action'] = act
+        acted = True
+    if words is not None and not acted and subjects:
+        # The line named nothing on the plate — the primary subject is still the focus.
+        heroes = [e for e in subjects if e.get('size') == 'hero']
+        pool = heroes or subjects
+        e = max(pool, key=lambda x: float((x.get('bbox') or {}).get('w') or 0) * float((x.get('bbox') or {}).get('h') or 0))
+        concept = str(e.get('concept') or '').lower().replace('_', '-')
+        ready = int(e.get('enter_ms') or 0) + int(e.get('enter_duration_ms') or 0)
+        act = _action_for(concept, ready, zone, e.get('bbox') or {})
+        if act and act['kind'] == 'phase' and moons > 1:
+            act = None
+        if act is not None and window_ms is not None and act['kind'] not in LOOP_ACTIONS and 'at' in act:
+            latest_at = int(window_ms) - 200
+            if ready > latest_at:
+                act = None
+            else:
+                if act['at'] > latest_at:
+                    act['at'] = max(ready, latest_at)
+                act['dur'] = min(int(act.get('dur') or 600), max(200, int(window_ms) - act['at']))
+        if act is not None:
+            e['action'] = act
 
 
 def terminal_state(plan: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:

@@ -1,0 +1,122 @@
+{
+ "presenter": {
+  "viewBox": "-245.56 -515.4 622.11 1124.85",
+  "proportion": "adult-average",
+  "pose": "point",
+  "face": "warm"
+ },
+ "teacher": {
+  "viewBox": "-245.56 -515.4 676.3 1124.85",
+  "proportion": "adult-average",
+  "pose": "explain",
+  "face": "attentive"
+ },
+ "student": {
+  "viewBox": "-204.62 -407.68 409.24 875.04",
+  "proportion": "teen",
+  "pose": "rest",
+  "face": "attentive"
+ },
+ "child": {
+  "viewBox": "-150.01 -345.93 279.59 674.49",
+  "proportion": "child",
+  "pose": "wave",
+  "face": "joy"
+ },
+ "executive": {
+  "viewBox": "-272.31 -500.3 544.62 1127.25",
+  "proportion": "adult-tall",
+  "pose": "rest",
+  "face": "stern"
+ },
+ "office-worker": {
+  "viewBox": "-245.56 -515.4 574.34 1124.85",
+  "proportion": "adult-average",
+  "pose": "think",
+  "face": "neutral"
+ },
+ "creator": {
+  "viewBox": "-219.33 -502.4 527.31 1107.74",
+  "proportion": "adult-slight",
+  "pose": "think",
+  "face": "thoughtful"
+ },
+ "technician": {
+  "viewBox": "-260.8 -518.29 539.92 1122.04",
+  "proportion": "adult-broad",
+  "pose": "lift",
+  "face": "effort"
+ },
+ "healthcare-worker": {
+  "viewBox": "-227.4 -515.4 530.77 1124.85",
+  "proportion": "adult-average",
+  "pose": "explain",
+  "face": "warm"
+ },
+ "builder": {
+  "viewBox": "-260.8 -518.29 539.92 1122.04",
+  "proportion": "adult-broad",
+  "pose": "lift",
+  "face": "effort"
+ },
+ "parent": {
+  "viewBox": "-245.56 -515.4 646.09 1124.85",
+  "proportion": "adult-average",
+  "pose": "carry",
+  "face": "warm"
+ },
+ "customer": {
+  "viewBox": "-280.27 -515.4 560.54 1124.85",
+  "proportion": "adult-average",
+  "pose": "rest",
+  "face": "attentive"
+ },
+ "support-helper": {
+  "viewBox": "-219.33 -502.4 598.2 1107.74",
+  "proportion": "adult-slight",
+  "pose": "beckon",
+  "face": "warm"
+ },
+ "salesperson": {
+  "viewBox": "-272.31 -500.3 490.11 1127.25",
+  "proportion": "adult-tall",
+  "pose": "beckon",
+  "face": "warm"
+ },
+ "peer-friend": {
+  "viewBox": "-257.8 -626.34 463.2 1231.68",
+  "proportion": "adult-slight",
+  "pose": "wave",
+  "face": "joy"
+ },
+ "mentor": {
+  "viewBox": "-223.38 -473.95 615.67 1027.29",
+  "proportion": "senior",
+  "pose": "explain",
+  "face": "thoughtful"
+ },
+ "analyst": {
+  "viewBox": "-245.56 -515.4 622.11 1124.85",
+  "proportion": "adult-average",
+  "pose": "point",
+  "face": "attentive"
+ },
+ "field-reporter": {
+  "viewBox": "-227.4 -515.4 530.77 1124.85",
+  "proportion": "adult-average",
+  "pose": "explain",
+  "face": "attentive"
+ },
+ "toddler": {
+  "viewBox": "-134.53 -247.39 269.06 539.93",
+  "proportion": "toddler",
+  "pose": "rest",
+  "face": "joy"
+ },
+ "heavyset": {
+  "viewBox": "-280.27 -515.4 560.54 1124.85",
+  "proportion": "adult-heavy",
+  "pose": "rest",
+  "face": "neutral"
+ }
+}

@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .chassis import CHASSIS
+from .places import PLACES
 
 AUTHORITIES = Path(__file__).resolve().parent / 'authorities'
 GRAMMAR = json.loads((AUTHORITIES / 'REFERENCE_EDITORIAL_MOTION_GRAMMAR_V1.json').read_text())
@@ -56,6 +57,37 @@ SEMANTIC_ROLES = ('statement', 'setup', 'contrast', 'proof', 'punch', 'qualifier
 MEDIA_KINDS = ('IMAGE', 'SCREENSHOT', 'DOCUMENT', 'VIDEO')
 MEDIA_ROLES = ('EVIDENCE', 'PROOF', 'CONTEXT')
 FIGURE_POSTURES = ('standing', 'sitting')
+FIGURE_TRACK_SIDES = ('left', 'right', 'none')
+FIGURE_HANDS = ('left', 'right', 'auto')
+CAST_MEMBER_CAP = 6
+# The world bible: film-level look authored per script, not per style preset.
+WORLD_GRAINS = ('grain-fine', 'dots-24', 'grid-24', 'graph-paper', 'hatch-45')
+WORLD_CORNERS = ('top-left', 'top-right', 'bottom-left', 'bottom-right')
+# Diorama backdrops: stacked paper planes per beat. tone resolves 'auto' by depth (far = pale,
+# near = dark), or an authored ink|paper|accent|#hex; band is the plane's vertical slice of the
+# stage; depth is its parallax factor — 0 frame-fixed (sky) .. 1 with the content (ground).
+BACKDROP_TONES = ('ink', 'paper', 'accent', 'auto')
+BACKDROP_PLANE_CAP = 4
+# Scene engine: a beat declares its setting and mood and the compiler composes that
+# environment from paper pieces — any place, not one fixed horizon stack.
+SCENE_SETTINGS = ('outdoor', 'indoor', 'space', 'underwater', 'urban', 'ground', 'abstract', 'paper') + tuple(
+    p.name for p in PLACES if p.name not in ('space', 'underwater'))
+PLACE_NAMES = frozenset(p.name for p in PLACES)
+
+
+def _names(v: Any) -> List[str]:
+    return [' '.join(str(e).split())[:40] for e in (v or []) if str(e).strip()]
+SCENE_MOODS = ('day', 'dawn', 'dusk', 'night', 'storm', 'golden')
+SCENE_ELEMENT_CAP = 8
+# Page layout grammar: how the paperbook page carries its print and its plate —
+# the four classic illustration types plus the cut family.
+PAGE_LAYOUTS = ('half', 'full', 'diagonal', 'zipped', 'scissor', 'vignette', 'spot', 'series', 'portrait')
+EDU_KINDS = ('count', 'add', 'subtract', 'multiply', 'share', 'compare', 'fraction', 'numberline')
+EDU_MAX = 20
+PAGE_CUTS = ('left', 'right', 'top', 'bottom')
+# Material drops: modern paper-book materials layered onto the page.
+PAGE_MATERIALS = ('vellum', 'foil', 'ribbon', 'deckle', 'sticker')
+HEX_COLOUR_RE = re.compile(r'^#[0-9a-fA-F]{3,8}$')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
 FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
@@ -76,7 +108,7 @@ MOTION_PROFILES = {
 }
 # How the film's camera carries one beat into the next; the compiler picks from beat energy,
 # a hard cut only when the treatment asks for one (beat.cut = 'hard').
-CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'cut')
+CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'page', 'cut')
 CUT_MODES = ('hard',)
 DATA_KINDS = ('STAT', 'COMPARISON', 'SEQUENCE')
 # Entity labels are nouns, not captions: no leading article, at most three words, and never a
@@ -381,7 +413,11 @@ class IllustrationDirective:
 
 @dataclass
 class FigureDirective:
-    """A still Open Peeps figure appears only when the beat is about a person's state."""
+    """A still Open Peeps figure appears only when the beat is about a person's state.
+
+    `character` names a film-cast member so the figure keeps one identity across beats; `track`
+    slides it on/off the stage (walks between scenes); `prop` pins a concept to a hand anchor;
+    `states` morph pose/face parts mid-beat so the performer can react inside its beat."""
 
     valence: float  # -1 .. 1
     arousal: float  # 0 .. 1
@@ -390,6 +426,13 @@ class FigureDirective:
     formality: float = 0.5
     facing: str = 'TOWARD_TEXT'
     justification: str = ''
+    character: Optional[str] = None
+    track: Optional[Dict[str, str]] = None
+    prop: Optional[Dict[str, Any]] = None
+    states: Optional[List[Dict[str, Any]]] = None
+    pose: Optional[str] = None
+    face: Optional[str] = None
+    motion: Optional[Dict[str, Any]] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any], beat_id: str) -> 'FigureDirective':
@@ -399,6 +442,31 @@ class FigureDirective:
         _need(facing in FIGURE_FACINGS, 'FIGURE_FACING_UNKNOWN', facing, beat_id)
         just = ' '.join(str(d.get('justification') or '').split())
         _need(bool(just), 'FIGURE_UNJUSTIFIED', 'figure directive must state the human state it embodies', beat_id)
+        character = (str(d.get('character') or '').strip() or None)
+        _need(character is None or len(character) <= 32, 'FIGURE_CHARACTER_INVALID', character or '', beat_id)
+        track = d.get('track')
+        if track is not None:
+            _need(isinstance(track, dict), 'FIGURE_TRACK_INVALID', 'track must be an object', beat_id)
+            for k in ('enter', 'exit'):
+                side = str(track.get(k) or 'none')
+                _need(side in FIGURE_TRACK_SIDES, 'FIGURE_TRACK_SIDE_UNKNOWN', side, beat_id)
+                track[k] = side
+        prop = d.get('prop')
+        if prop is not None:
+            _need(isinstance(prop, dict), 'FIGURE_PROP_INVALID', 'prop must be an object', beat_id)
+            concept = ' '.join(str(prop.get('concept') or '').split())
+            _need(0 < len(concept) <= 40, 'FIGURE_PROP_CONCEPT', concept, beat_id)
+            hand = str(prop.get('hand') or 'auto')
+            _need(hand in FIGURE_HANDS, 'FIGURE_HAND_UNKNOWN', hand, beat_id)
+            prop = {**prop, 'concept': concept, 'hand': hand}
+        states = d.get('states')
+        if states is not None:
+            _need(isinstance(states, list) and 1 <= len(states) <= 3, 'FIGURE_STATES_CAP', 'at most 3 states', beat_id)
+            for st in states:
+                _need(isinstance(st, dict) and any(st.get(k) for k in ('pose', 'face', 'head')), 'FIGURE_STATE_INVALID', 'a state needs a pose, face or head part to swap', beat_id)
+                at = st.get('at') or {}
+                _need(sum(1 for k in ('word', 'offset_ms') if k in at) == 1, 'FIGURE_STATE_AT', 'state needs exactly one of word/offset_ms', beat_id)
+        motion = _figure_motion(d.get('motion'), beat_id)
         return cls(
             valence=max(-1.0, min(1.0, float(d.get('valence', 0)))),
             arousal=_unit(d.get('arousal', 0.5)),
@@ -407,7 +475,80 @@ class FigureDirective:
             formality=_unit(d.get('formality', 0.5)),
             facing=facing,
             justification=just,
+            character=character,
+            track={k: str(v) for k, v in track.items()} if isinstance(track, dict) else None,
+            prop=prop,
+            states=states,
+            pose=(str(d.get('pose') or '').strip() or None),
+            face=(str(d.get('face') or '').strip() or None),
+            motion=motion,
         )
+
+
+# Locomotion-style clips hold a cycle; one-shots (a wave, a sit-down, a pick-up) play
+# once and settle on their final frame.
+_FIGURE_MOTION_LOCOMOTION = re.compile(
+    r'WALK|RUN|JOG|SPRINT|IDLE|WAIT|PACE|STAIRS|CYCLE|HOLD|PLANK|MARCH|DANCE|SWIM|CRAWL|CLIMB|POSE|BREATHE',
+    re.IGNORECASE)
+
+
+def _figure_motion(d: Any, beat_id: str) -> Optional[Dict[str, Any]]:
+    """`motion` turns the still figure into a mocap performer: one clip or a short chain
+    (walk in, then idle) baked to SVG frames at render time and swapped per frame."""
+    if d is None:
+        return None
+    _need(isinstance(d, dict), 'FIGURE_MOTION_INVALID', 'motion must be an object', beat_id)
+
+    def _seg(sd: Any, i: int) -> Dict[str, Any]:
+        _need(isinstance(sd, dict), 'FIGURE_MOTION_SEG', f'motion segment {i} must be an object', beat_id)
+        clip = str(sd.get('clip') or sd.get('cmu_clip') or '').strip()
+        action = str(sd.get('action') or '').strip()
+        _need(bool(clip) != bool(action), 'FIGURE_MOTION_CLIP', f'motion segment {i} needs exactly one of clip/action', beat_id)
+        seconds = float(sd.get('seconds') or 0)
+        _need(0 < seconds <= 30, 'FIGURE_MOTION_SECONDS', str(seconds), beat_id)
+        return {'clip': clip or None, 'action': action or None, 'seconds': seconds}
+
+    if d.get('chain') is not None:
+        chain = d['chain']
+        _need(isinstance(chain, list) and 1 <= len(chain) <= 4, 'FIGURE_MOTION_CHAIN', 'chain takes 1-4 segments', beat_id)
+        segs = [_seg(sd, i) for i, sd in enumerate(chain)]
+        clip_name = segs[-1]['clip'] or segs[-1]['action'] or ''
+    else:
+        segs = [_seg(d, 0)]
+        clip_name = segs[0]['clip'] or segs[0]['action'] or ''
+    look = d.get('look')
+    _need(look is None or isinstance(look, dict), 'FIGURE_MOTION_LOOK', 'look must be an object', beat_id)
+    return {
+        'chain': segs,
+        'loop': bool(d.get('loop', bool(_FIGURE_MOTION_LOCOMOTION.search(clip_name)))),
+        'speed_mps': float(d.get('speed_mps') or 1.1),
+        'look': look,
+        'proportion': str(d.get('proportion') or 'adult-average'),
+        'emotion': str(d.get('emotion') or 'warm'),
+        't': float(d.get('t') or 0),
+    }
+
+
+@dataclass
+class CastMember:
+    """A named performer identity held consistent across the film. Optional part pins fix the
+    composition/parts; otherwise the member's seed keeps the same picks on every beat it plays."""
+
+    posture: str = 'standing'
+    head: Optional[str] = None
+    face: Optional[str] = None
+    skin: Optional[str] = None
+    garment: Optional[str] = None
+
+    @classmethod
+    def parse(cls, member_id: str, d: Dict[str, Any]) -> 'CastMember':
+        posture = str(d.get('posture') or 'standing')
+        _need(posture in FIGURE_POSTURES, 'CAST_POSTURE_UNKNOWN', posture, member_id)
+        return cls(posture=posture,
+                   head=(str(d.get('head') or '').strip() or None),
+                   face=(str(d.get('face') or '').strip() or None),
+                   skin=(str(d.get('skin') or '').strip() or None),
+                   garment=(str(d.get('garment') or '').strip() or None))
 
 
 @dataclass
@@ -468,6 +609,9 @@ class BeatTreatment:
     features: Dict[str, float] = field(default_factory=dict)
     min_duration_ms: int = 0
     cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
+    backdrop: Optional[List[Dict[str, Any]]] = None
+    scene: Optional[Dict[str, Any]] = None  # {setting, mood, elements[]} — the environment engine
+    page: Optional[Dict[str, Any]] = None  # paperbook: {title, quote, layout, cut, materials}
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -489,7 +633,8 @@ class BeatTreatment:
         if layer == 'QUIET':
             _need(len(units) <= 1 and not figure and not media and not illus, 'QUIET_BEAT_OVERLOADED', 'QUIET carries at most one unit and no figure/media/illustration', bid)
         else:
-            _need(bool(units) or media or data or illus, 'BEAT_HAS_NOTHING_TO_SHOW', 'beat has no display units, media, data or illustration', bid)
+            page_art = bool((d.get('page') or {}).get('edu'))
+            _need(bool(units) or media or data or illus or page_art, 'BEAT_HAS_NOTHING_TO_SHOW', 'beat has no display units, media, data or illustration', bid)
         if layer == 'ILLUSTRATION':
             _need(illus is not None, 'ILLUSTRATION_LAYER_WITHOUT_ILLUSTRATION', 'ILLUSTRATION dominant layer requires an illustration directive', bid)
         if layer == 'HYBRID':
@@ -510,12 +655,74 @@ class BeatTreatment:
         cut = str(d['cut']) if d.get('cut') else None
         if cut is not None:
             _need(cut in CUT_MODES, 'CUT_MODE_UNKNOWN', cut, bid)
+        backdrop = None
+        rb = d.get('backdrop')
+        if rb is not None:
+            _need(isinstance(rb, list) and 1 <= len(rb) <= BACKDROP_PLANE_CAP, 'BACKDROP_PLANE_CAP', f'at most {BACKDROP_PLANE_CAP} planes', bid)
+            backdrop = []
+            for p in rb:
+                _need(isinstance(p, dict), 'BACKDROP_PLANE_INVALID', 'a plane must be an object', bid)
+                tone = str(p.get('tone') or 'auto')
+                _need(tone in BACKDROP_TONES or bool(HEX_COLOUR_RE.match(tone)), 'BACKDROP_TONE_UNKNOWN', tone, bid)
+                band = p.get('band') or {}
+                top = _unit(band.get('top', 0.5))
+                height = float(band.get('height') or 0.2)
+                _need(0.05 <= height <= 0.7 and top + height <= 1.05, 'BACKDROP_BAND_INVALID', f'top {top} height {height}', bid)
+                depth = _unit(p.get('depth', 0.4))
+                concept = ' '.join(str(p.get('concept') or '').split())
+                _need(len(concept) <= 40, 'BACKDROP_CONCEPT_LONG', concept, bid)
+                backdrop.append({'tone': tone, 'band': {'top': top, 'height': height}, 'depth': depth,
+                                 'ragged': bool(p.get('ragged')), 'concept': concept or None})
+            backdrop.sort(key=lambda p: p['depth'])
+        scene = None
+        sc = d.get('scene')
+        if sc is not None:
+            _need(isinstance(sc, dict), 'BEAT_SCENE_INVALID', 'scene must be an object', bid)
+            setting = str(sc.get('setting') or '')
+            _need(setting in SCENE_SETTINGS, 'BEAT_SCENE_SETTING_UNKNOWN', setting, bid)
+            mood = str(sc.get('mood') or 'day')
+            _need(mood in SCENE_MOODS, 'BEAT_SCENE_MOOD_UNKNOWN', mood, bid)
+            elements = [' '.join(str(e).split()) for e in (sc.get('elements') or []) if str(e).strip()]
+            _need(len(elements) <= SCENE_ELEMENT_CAP, 'BEAT_SCENE_ELEMENT_CAP', f'at most {SCENE_ELEMENT_CAP} elements', bid)
+            _need(all(len(e) <= 40 for e in elements), 'BEAT_SCENE_ELEMENT_LONG', bid)
+            scene = {'setting': setting, 'mood': mood, 'elements': elements}
+            if setting in PLACE_NAMES:
+                scene.update({'winter': bool(sc.get('winter')), 'far': _names(sc.get('far')),
+                              'covers': _names(sc.get('covers')), 'omit': _names(sc.get('omit'))})
+        page = None
+        pg = d.get('page')
+        if pg is not None:
+            _need(isinstance(pg, dict), 'BEAT_PAGE_INVALID', 'page must be an object', bid)
+            title = ' '.join(str(pg.get('title') or '').split())
+            quote = ' '.join(str(pg.get('quote') or '').split())
+            _need(len(title) <= 60 and len(quote) <= 120, 'BEAT_PAGE_TEXT_LONG', bid)
+            layout = str(pg.get('layout') or 'half')
+            _need(layout in PAGE_LAYOUTS, 'BEAT_PAGE_LAYOUT_UNKNOWN', layout, bid)
+            pcut = str(pg.get('cut') or '')
+            _need(not pcut or pcut in PAGE_CUTS, 'BEAT_PAGE_CUT_UNKNOWN', pcut, bid)
+            materials = [str(m) for m in (pg.get('materials') or [])]
+            _need(all(m in PAGE_MATERIALS for m in materials), 'BEAT_PAGE_MATERIAL_UNKNOWN', ','.join(materials), bid)
+            _need(len(materials) <= 3, 'BEAT_PAGE_MATERIAL_CAP', bid)
+            edu = None
+            if pg.get('edu') is not None:
+                raw = pg['edu']
+                _need(isinstance(raw, dict), 'BEAT_EDU_INVALID', 'edu must be an object', bid)
+                edu = {'kind': str(raw.get('kind') or ''), 'object': ' '.join(str(raw.get('object') or 'apple').split())[:40],
+                       'a': raw.get('a'), 'b': raw.get('b')}
+                errs = edu_validate(edu)
+                _need(not errs, errs[0] if errs else 'BEAT_EDU_INVALID', ','.join(errs), bid)
+            page = {k: v for k, v in {'title': title or None, 'quote': quote or None,
+                                      'layout': layout if layout != 'half' else None,
+                                      'cut': pcut or None,
+                                      'materials': materials or None,
+                                      'edu': edu}.items() if v}
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut)
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, backdrop, scene, page)
 
     @property
     def has_visual(self) -> bool:
-        return bool(self.illustration or self.media or self.figure or self.data)
+        return bool(self.illustration or self.media or self.figure or self.data
+                    or (self.page or {}).get('edu'))
 
 
 @dataclass
@@ -554,6 +761,16 @@ class TypographyMode:
 
 
 @dataclass
+class World:
+    """The film's visual bible: a grain/overlay pick and a recurring motif emblem stamped in a
+    corner of every beat (the thread the viewer follows between scenes). Authored per film."""
+
+    grain: Optional[str] = None
+    motif: Optional[Dict[str, Any]] = None  # {concept, corner} -> resolved to a mark in _resolve_concepts
+    book: Any = False                     # True = bound-book chassis; 'paperbook' = two-page storybook spread
+
+
+@dataclass
 class FilmTreatment:
     film_id: str
     beats: List[BeatTreatment]
@@ -564,6 +781,8 @@ class FilmTreatment:
     fps: int = 30
     typography: TypographyMode = field(default_factory=TypographyMode)
     mood: Optional[str] = None
+    cast: Dict[str, CastMember] = field(default_factory=dict)
+    world: Optional[World] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -578,6 +797,30 @@ class FilmTreatment:
         for a in aspects:
             _need(a in ASPECTS, 'ASPECT_UNKNOWN', a)
         library = {m.asset_id: m for m in (MediaAsset.parse(x) for x in (d.get('media_library') or []))}
+        cast_d = d.get('cast') or {}
+        _need(isinstance(cast_d, dict) and len(cast_d) <= CAST_MEMBER_CAP, 'CAST_MEMBER_CAP', f'at most {CAST_MEMBER_CAP} cast members')
+        cast: Dict[str, CastMember] = {}
+        for cid, m in cast_d.items():
+            mid = str(cid).strip()
+            _need(bool(mid) and len(mid) <= 32, 'CAST_MEMBER_ID_INVALID', str(cid))
+            _need(isinstance(m, dict), 'CAST_MEMBER_INVALID', str(cid))
+            cast[mid] = CastMember.parse(mid, m)
+        world = None
+        world_d = d.get('world')
+        if isinstance(world_d, dict):
+            grain = str(world_d.get('grain') or '').strip() or None
+            _need(grain is None or grain in WORLD_GRAINS, 'WORLD_GRAIN_UNKNOWN', grain or '')
+            motif = world_d.get('motif')
+            if motif is not None:
+                _need(isinstance(motif, dict), 'WORLD_MOTIF_INVALID', 'motif must be an object')
+                concept = ' '.join(str(motif.get('concept') or '').split())
+                _need(0 < len(concept) <= 40, 'WORLD_MOTIF_CONCEPT', concept)
+                corner = str(motif.get('corner') or 'bottom-right')
+                _need(corner in WORLD_CORNERS, 'WORLD_CORNER_UNKNOWN', corner)
+                motif = {**motif, 'concept': concept, 'corner': corner}
+            book_v = world_d.get('book')
+            book = 'paperbook' if str(book_v).strip().lower() == 'paperbook' else bool(book_v)
+            world = World(grain, motif, book)
         by_id = {b.beat_id: b for b in beats}
         for b in beats:
             il = b.illustration
@@ -594,6 +837,8 @@ class FilmTreatment:
                         _need(ce in src_ids, 'CARRY_ENTITY_NOT_IN_SOURCE', f'{ce} not in {il.carry_from}', b.beat_id)
                 if il.persist_to:
                     _need(il.persist_to in ids and ids.index(il.persist_to) > ids.index(b.beat_id), 'ILLUSTRATION_PERSIST_TARGET_INVALID', il.persist_to, b.beat_id)
+            if b.figure and b.figure.character:
+                _need(b.figure.character in cast, 'PERFORMER_CHARACTER_UNKNOWN', b.figure.character, b.beat_id)
             if b.media:
                 _need(b.media.asset_id in library, 'MEDIA_ASSET_NOT_IN_LIBRARY', b.media.asset_id, b.beat_id)
                 if b.media.persist_to:
@@ -620,4 +865,37 @@ class FilmTreatment:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood)
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, cast, world)
+
+
+def edu_validate(edu: Dict[str, Any]) -> List[str]:
+    """Contract-level truth: the numbers must describe a drawable, correct page."""
+    errs: List[str] = []
+    k = edu.get('kind')
+    a, b = edu.get('a'), edu.get('b')
+    if k not in EDU_KINDS:
+        return [f'EDU_KIND_UNKNOWN:{k}']
+    if not isinstance(a, int) or a < 0:
+        errs.append('EDU_A_INVALID')
+    if k != 'count' and (not isinstance(b, int) or b < 0):
+        errs.append('EDU_B_INVALID')
+    if errs:
+        return errs
+    b = b or 0
+    if k == 'count' and not 1 <= a <= EDU_MAX:
+        errs.append('EDU_COUNT_RANGE')
+    if k == 'add' and a + b > EDU_MAX:
+        errs.append('EDU_SUM_RANGE')
+    if k == 'subtract' and (b > a or a > EDU_MAX):
+        errs.append('EDU_SUBTRACT_RANGE')
+    if k == 'multiply' and (a < 1 or b < 1 or a > 5 or b > 6):
+        errs.append('EDU_ARRAY_RANGE')
+    if k == 'share' and (b < 1 or b > 5 or a > EDU_MAX or a % b):
+        errs.append('EDU_SHARE_UNEQUAL')
+    if k == 'compare' and (a > 10 or b > 10):
+        errs.append('EDU_COMPARE_RANGE')
+    if k == 'fraction' and (b < 2 or b > 8 or a > b):
+        errs.append('EDU_FRACTION_RANGE')
+    if k == 'numberline' and a + b > 10:
+        errs.append('EDU_NUMBERLINE_RANGE')
+    return errs

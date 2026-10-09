@@ -1,0 +1,7 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="50%" y="160" text-anchor="middle" font-family="Inter" font-weight="900" font-size="80" fill="#1A1A17">SHEESH!</text>
+        <g>
+            <circle cx="100" cy="100" r="20" fill="#F5F0E4" opacity="0.3"/>
+            <circle cx="300" cy="200" r="15" fill="#F5F0E4" opacity="0.3"/>
+        </g>
+    </svg>

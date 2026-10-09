@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_RIFLE_WALK",
+ "frames": 8,
+ "fps": 8.0,
+ "res": [
+  153,
+  181
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "rgs-proto",
+ "license": "CC0"
+}

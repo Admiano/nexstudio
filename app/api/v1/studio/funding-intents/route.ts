@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { appendAuditEvent } from "@/lib/audit-log";
+import { getPrisma } from "@/lib/db";
 import { json, problem, zodProblem } from "@/lib/http";
 import { createFundingCheckout, paymentProviderStatus, retrieveFundingCheckout } from "@/lib/payment-provider";
 import { idempotencyKey, requireSession } from "@/lib/route-auth";
@@ -10,6 +11,9 @@ const schema=z.object({productionId:z.string().uuid().optional(),quoteId:z.strin
 export async function POST(request:Request){
   const auth=await requireSession(request);if(auth.response)return auth.response;const limit=await consumeRateLimit(auth.session!.userId,"funding_intent",20,3600000);if(!limit.allowed)return problem(auth.id,429,"FUNDING_RATE_LIMITED","Too many funding attempts",`Wait ${limit.retryAfterSeconds} seconds.`);const key=idempotencyKey(request,auth.id);if(key.response)return key.response;
   const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return zodProblem(auth.id,parsed.error);
+  const prisma=getPrisma();
+  const method=prisma?await prisma.user.findUnique({where:{id:auth.session!.userId},select:{settings:true}}).then(u=>(u?.settings as Record<string,unknown>|null)?.paymentMethod).catch(()=>null):null;
+  if(method==="usdc")return problem(auth.id,503,"PAYMENT_METHOD_NOT_LIVE","USDC checkout is not live yet","Switch to card in Account → Credits to fund this pack, or wait for USDC checkout to open.");
   const provider=paymentProviderStatus();if(!provider.configured||!provider.readyForLive)return problem(auth.id,503,"STUDIO_PAYMENT_PROVIDER_NOT_CONFIGURED","Online funding is unavailable","Your production and approved plan remain saved. A verified live payment provider must be configured before funding is enabled.");
   try{
     const intent=await createOrLoadStandaloneFundingIntent({userId:auth.session!.userId,productionId:parsed.data.productionId,quoteId:parsed.data.quoteId,purpose:parsed.data.purpose,requestedTopupMinor:parsed.data.requestedTopupMinor,idempotencyKey:key.value!});

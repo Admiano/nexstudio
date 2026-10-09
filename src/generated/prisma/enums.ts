@@ -49,6 +49,7 @@ export type ProductionStatus = (typeof ProductionStatus)[keyof typeof Production
 export const StudioProductionFamily = {
   EXPLAINER: 'EXPLAINER',
   WHITEBOARD: 'WHITEBOARD',
+  PRESENTER: 'PRESENTER',
   STICKMAN: 'STICKMAN',
   EDITORIAL_MOTION: 'EDITORIAL_MOTION'
 } as const

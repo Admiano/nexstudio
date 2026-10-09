@@ -41,6 +41,7 @@
     "contracts",
     "hyperframes",
     "tmp",
-    ".next/dev/types"
+    ".next/dev/types",
+    "engines"
   ]
 }

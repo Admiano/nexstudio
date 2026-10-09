@@ -1,0 +1,24 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Background Grid -->
+                <path d="M50 240 H350 M50 190 H350 M50 140 H350" stroke="#F5F0E4" stroke-width="2" opacity="0.1"/>
+                
+                <!-- Exponential Curve -->
+                <path d="M50 250 Q150 240 220 180 T300 40" stroke="#1A1A17" stroke-width="12" stroke-linecap="round" fill="none"/>
+                <path d="M50 250 Q150 240 220 180 T300 40" stroke="#F5F0E4" stroke-width="4" stroke-dasharray="4 8" fill="none"/>
+                
+                <!-- Flame at the top of trend -->
+                <g transform="translate(300, 40)">
+                    <g >
+                    <path d="M0 30 C-30 30 -40 -10 -15 -30 C-20 -15 -10 -5 0 -20 C10 -5 20 -15 15 -30 C40 -10 30 30 0 30 Z" fill="#F5F0E4"/>
+                    <path d="M0 30 C-15 30 -20 -5 -5 -15 C-10 -5 -5 0 0 -10 C5 0 10 -5 5 -15 C20 -5 15 30 0 30 Z" fill="#F5F0E4"/>
+                </g>
+                </g>
+                
+                <!-- Sharing Nodes -->
+                <circle cx="100" cy="230" r="10" fill="#1A1A17"/>
+                <path d="M110 230 L140 210" stroke="#F5F0E4" stroke-width="2" opacity="0.4"/>
+                <circle style="animation-delay: 0.2s;" cx="150" cy="200" r="8" fill="#F5F0E4"/>
+                <circle style="animation-delay: 0.4s;" cx="220" cy="180" r="12" fill="#F5F0E4"/>
+            </g>
+          </svg>

@@ -1,0 +1,470 @@
+{
+ "note": "What each clip means and when a script asks for it. Clip rules match the clip name plus its source description; sentence intents match the sentence text (lower case). Replaceable per language; nothing here is tied to one script.",
+ "exclude": "sarcastic|on_phone|arguing|pressing|lawyer_argument|cocky|look_away|hand_raising|telling_a_secret|aside_to_camera|bashful",
+ "clipRules": [
+  [
+   "head_side_to_side",
+   [
+    "uncertain"
+   ]
+  ],
+  [
+   "welcome|greeting|waving|show_host",
+   [
+    "welcome"
+   ]
+  ],
+  [
+   "thankful",
+   [
+    "thanks"
+   ]
+  ],
+  [
+   "thoughtful_head_nod",
+   [
+    "agree",
+    "think"
+   ]
+  ],
+  [
+   "head_nod|nodding|agreeing|acknowledging",
+   [
+    "agree"
+   ]
+  ],
+  [
+   "head_shake|indicating_no|shaking_head_no|dismissing",
+   [
+    "negate"
+   ]
+  ],
+  [
+   "shrug|whatever|unsure_open",
+   [
+    "uncertain"
+   ]
+  ],
+  [
+   "asking_a_question",
+   [
+    "question"
+   ]
+  ],
+  [
+   "thinking|head_tilts",
+   [
+    "think"
+   ]
+  ],
+  [
+   "listen_left",
+   [
+    "listen"
+   ]
+  ],
+  [
+   "right_here|pointing_with_arm_bent|aj_pointing|vegas_pointing|two_hosts_presenting",
+   [
+    "point"
+   ]
+  ],
+  [
+   "pointing_forward|reaching_out|offer_right",
+   [
+    "you"
+   ]
+  ],
+  [
+   "count",
+   [
+    "list"
+   ]
+  ],
+  [
+   "small_to_big|gesturing_with_arm_to_the_side",
+   [
+    "scale"
+   ]
+  ],
+  [
+   "interviewer_calm|panel_judges|general_conversation|watercooler|lawyer_address|product_pitch|beat_right|^emphasis$|hands_forward",
+   [
+    "explain"
+   ]
+  ],
+  [
+   "vegas_shaking|happy_forward_hand|fist_pump|game_show|strong_gesture",
+   [
+    "excited"
+   ]
+  ],
+  [
+   "thumbs_up",
+   [
+    "approve",
+    "excited"
+   ]
+  ],
+  [
+   "laughs|laughing|finding_something_funny",
+   [
+    "funny"
+   ]
+  ],
+  [
+   "face_palms|double_takes",
+   [
+    "disbelief"
+   ]
+  ],
+  [
+   "slow_clap|clap_while_standing",
+   [
+    "celebrate"
+   ]
+  ],
+  [
+   "disappointed",
+   [
+    "concern"
+   ]
+  ],
+  [
+   "offer_right|open_both_short|beat_right",
+   [
+    "narrate"
+   ]
+  ],
+  [
+   "^raise_right$",
+   [
+    "raise"
+   ]
+  ]
+ ],
+ "intents": [
+  [
+   "welcome",
+   "^(hello|hi|hey|welcome|greetings)\\b"
+  ],
+  [
+   "thanks",
+   "\\bthank"
+  ],
+  [
+   "reassure",
+   "that is fine|that's fine|it's fine|don't worry|no problem|it's okay|not at all|you can do"
+  ],
+  [
+   "uncertain",
+   "not sure|maybe|perhaps|i wonder|don't know|unsure|where to begin"
+  ],
+  [
+   "point",
+   "\\b(right here|this one|look at|over here)\\b"
+  ],
+  [
+   "agree",
+   "^(yes|yeah|right(?! here)|exactly|absolutely|of course|sure)\\b"
+  ],
+  [
+   "funny",
+   "funny|joke|laugh|hilarious"
+  ],
+  [
+   "disbelief",
+   "unbelievable|can you believe|seriously\\?|no way"
+  ],
+  [
+   "excited",
+   "best part|amazing|incredible|exciting|awesome|fantastic|something new|\\bwow\\b|love it"
+  ],
+  [
+   "contrast",
+   "\\b(but|however|instead|although)\\b"
+  ],
+  [
+   "concern",
+   "\\b(sadly|unfortunately|problem|worried|hard|difficult|complicated)\\b"
+  ],
+  [
+   "negate",
+   "^(no|not|never|nope)\\b|\\b(don't|doesn't|can't|won't|isn't|aren't)\\b"
+  ],
+  [
+   "list",
+   "\\b(two|three|four|five|several|a few) (\\w+ ){0,2}(things|ways|steps|reasons|tips|ideas|parts|rules|questions|types|kinds)\\b|^(first|firstly|second|secondly|finally|lastly)\\b"
+  ],
+  [
+   "scale",
+   "\\b(big|bigger|biggest|huge|massive|enormous|grow|grows|growing|growth|tiny|smaller|smallest|double|doubled|triple)\\b"
+  ],
+  [
+   "you",
+   "\\b(for you|you can|your)\\b"
+  ],
+  [
+   "think",
+   "\\b(think|imagine|consider|idea|ideas)\\b"
+  ]
+ ],
+ "questionIntent": "question",
+ "defaultIntent": "explain",
+ "fallback": {
+  "excited": "approve",
+  "approve": "agree",
+  "funny": "excited",
+  "celebrate": "excited",
+  "disbelief": "uncertain",
+  "concern": "uncertain",
+  "thanks": "welcome",
+  "reassure": "agree",
+  "uncertain": "explain",
+  "question": "you",
+  "you": "point",
+  "point": "explain",
+  "list": "explain",
+  "scale": "explain",
+  "think": "uncertain",
+  "contrast": "explain",
+  "negate": "explain",
+  "agree": "explain",
+  "welcome": "explain",
+  "listen": "think"
+ },
+ "calmOnly": "excited|funny|disbelief|celebrate",
+ "expressions": {
+  "welcome": [
+   [
+    "!ex-mouthSmileLeft",
+    0.45,
+    1.6
+   ],
+   [
+    "!ex-mouthSmileRight",
+    0.45,
+    1.6
+   ],
+   [
+    "E_browUp_L",
+    0.3,
+    0.8
+   ],
+   [
+    "E_browUp_R",
+    0.3,
+    0.8
+   ]
+  ],
+  "thanks": [
+   [
+    "!ex-mouthSmileLeft",
+    0.4,
+    1.4
+   ],
+   [
+    "!ex-mouthSmileRight",
+    0.4,
+    1.4
+   ],
+   [
+    "E_cheek",
+    0.2,
+    1.4
+   ]
+  ],
+  "reassure": [
+   [
+    "!ex-mouthSmileLeft",
+    0.3,
+    1.4
+   ],
+   [
+    "!ex-mouthSmileRight",
+    0.3,
+    1.4
+   ],
+   [
+    "E_browInner_L",
+    0.2,
+    1.0
+   ],
+   [
+    "E_browInner_R",
+    0.2,
+    1.0
+   ]
+  ],
+  "uncertain": [
+   [
+    "!ex-browInnerUp",
+    0.45,
+    1.0
+   ]
+  ],
+  "question": [
+   [
+    "E_browUp_L",
+    0.4,
+    0.9
+   ],
+   [
+    "E_browUp_R",
+    0.4,
+    0.9
+   ]
+  ],
+  "agree": [
+   [
+    "!ex-mouthSmileLeft",
+    0.25,
+    1.0
+   ],
+   [
+    "!ex-mouthSmileRight",
+    0.25,
+    1.0
+   ]
+  ],
+  "funny": [
+   [
+    "E_grin",
+    0.4,
+    1.4
+   ],
+   [
+    "E_cheek",
+    0.35,
+    1.4
+   ],
+   [
+    "E_squint_L",
+    0.25,
+    1.2
+   ],
+   [
+    "E_squint_R",
+    0.25,
+    1.2
+   ]
+  ],
+  "disbelief": [
+   [
+    "E_eyeWide_L",
+    0.35,
+    0.8
+   ],
+   [
+    "E_eyeWide_R",
+    0.35,
+    0.8
+   ],
+   [
+    "E_browUp_L",
+    0.5,
+    0.9
+   ],
+   [
+    "E_browUp_R",
+    0.5,
+    0.9
+   ]
+  ],
+  "excited": [
+   [
+    "E_grin",
+    0.3,
+    1.2
+   ],
+   [
+    "!ex-mouthSmileLeft",
+    0.35,
+    1.2
+   ],
+   [
+    "!ex-mouthSmileRight",
+    0.35,
+    1.2
+   ],
+   [
+    "E_browUp_L",
+    0.35,
+    0.8
+   ],
+   [
+    "E_browUp_R",
+    0.35,
+    0.8
+   ]
+  ],
+  "concern": [
+   [
+    "E_browInner_L",
+    0.35,
+    1.2
+   ],
+   [
+    "E_browInner_R",
+    0.35,
+    1.2
+   ]
+  ],
+  "negate": [
+   [
+    "E_browDown_L",
+    0.25,
+    0.8
+   ],
+   [
+    "E_browDown_R",
+    0.25,
+    0.8
+   ]
+  ],
+  "contrast": [
+   [
+    "E_browUp_L",
+    0.3,
+    0.7
+   ]
+  ],
+  "think": [
+   [
+    "E_browDown_L",
+    0.2,
+    1.0
+   ],
+   [
+    "E_squint_R",
+    0.15,
+    1.0
+   ]
+  ],
+  "explain": [
+   [
+    "E_browUp_L",
+    0.15,
+    0.5
+   ],
+   [
+    "E_browUp_R",
+    0.15,
+    0.5
+   ]
+  ],
+  "sentenceEnd": [
+   [
+    "!ex-mouthSmileLeft",
+    0.2,
+    1.0
+   ],
+   [
+    "!ex-mouthSmileRight",
+    0.2,
+    1.0
+   ]
+  ]
+ },
+ "expressionsNote": "[shape key, peak amount, seconds]. Brows, smile, cheek, squint and eyes only: lip shapes stay with the lip sync."
+}

@@ -1,11 +1,11 @@
 {
   "schema": "StudioFourFamilyPublicCapabilityRegistryV1",
-  "generatedAt": "2026-08-14",
+  "generatedAt": "2026-09-23",
   "authorityRule": "P8 is the sole top-level creative authority. Family engines execute committed semantics only. Older authorities must fail validation, never replace these records.",
   "series": {
     "publicV1": "SUPPORTED_AS_CONTINUITY_SCOPE",
     "productionFamily": false,
-    "reason": "Series is durable cross-production continuity backed by StudioSeries, StudioSeriesEpisode, SERIES memory and completed Film Memory. It is not a fifth production family; each episode still uses one certified Explainer, Whiteboard, Stickman or Editorial Motion subtype."
+    "reason": "Series is durable cross-production continuity backed by StudioSeries, StudioSeriesEpisode, SERIES memory and completed Film Memory. It is not a third production family; each episode still uses one certified Explainer or Whiteboard subtype."
   },
   "durationsSeconds": [
     15,
@@ -54,9 +54,9 @@
         "authorityId": "EXPLAINER_EXECUTION_BODY_V2_P8_UNIFIED",
         "sourceLabel": "NexStudio_Explainer_Execution_Body_V2.zip",
         "sha256": "b2782b1557515d43db78a2c1507aeebb1cae99458104c450ed63ef752a675f1b",
-        "execution": "NexMind P8 sole creative authority -> production-scoped authored-art execution body -> self-hosted renderer -> StudioFamilyExecutionFidelityV1 -> exact-media Final Producer + independent perceptual auditor",
+        "execution": "engine_sources/editorial-motion-v2 tools/make_reel.py across six approved styles, Microsoft neural voice, 16:9/9:16/1:1 outputs per job",
         "render": "NexStudio Explainer Execution Body V2",
-        "technical": "EXECUTION_BODY_V2_INTEGRATED_CREATIVE_9_5_PROOF_PENDING"
+        "technical": "PUBLIC_PRODUCTION_APPROVED"
       },
       "commercialReference": {
         "name": "01 white movements(1).mp4",
@@ -101,16 +101,16 @@
       },
       "cast": {
         "relevant": true,
-        "authority": "NexStick V5.1 when characters are chosen",
+        "authority": "P8 casting when characters are chosen",
         "boundary": "only admitted performer verbs; no raw rig; unsupported action fails closed"
       },
       "subtypes": [
         {
-          "id": "product-explainer",
-          "name": "Product Explainer",
+          "id": "photo_story",
+          "name": "Photo Story",
           "requiredCapabilities": [
             "explanation",
-            "product-visualization",
+            "photo-composition",
             "narrative-structure"
           ],
           "supportedDurationsSeconds": [
@@ -125,32 +125,41 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "explainer:product-explainer:normal",
-            "stressBlindCase": "explainer:product-explainer:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:photo_story:normal",
+            "stressBlindCase": "dispatch:photo_story:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: photo cards look on explainer-locks engine.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "previewVideo": {
+              "src": "/previews/xr-photo_story.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/previews/xr-photo_story.png"
           }
         },
         {
-          "id": "how-it-works",
-          "name": "How It Works",
+          "id": "sketch",
+          "name": "Sketch",
           "requiredCapabilities": [
             "explanation",
-            "process-visualization",
-            "sequencing"
+            "mono-line-icons",
+            "narrative-structure"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -164,71 +173,41 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "explainer:how-it-works:normal",
-            "stressBlindCase": "explainer:how-it-works:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:sketch:normal",
+            "stressBlindCase": "dispatch:sketch:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: wireframe tile look on explainer-locks engine.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "previewVideo": {
+              "src": "/previews/xr-sketch.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/previews/xr-sketch.png"
           }
         },
         {
-          "id": "technical-explainer",
-          "name": "Technical Explainer",
+          "id": "emoji",
+          "name": "Emoji",
           "requiredCapabilities": [
-            "technical-explanation",
-            "diagramming",
-            "concept-modeling"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "explainer:technical-explainer:normal",
-            "stressBlindCase": "explainer:technical-explainer:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "educational-explainer",
-          "name": "Educational Explainer",
-          "requiredCapabilities": [
-            "teaching",
             "explanation",
-            "learning-structure"
+            "emoji-glyphs",
+            "narrative-structure"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -242,32 +221,41 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "explainer:educational-explainer:normal",
-            "stressBlindCase": "explainer:educational-explainer:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:emoji:normal",
+            "stressBlindCase": "dispatch:emoji:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: emoji glyph look on explainer-locks engine.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "previewVideo": {
+              "src": "/previews/xr-emoji.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/previews/xr-emoji.png"
           }
         },
         {
-          "id": "data-insight-explainer",
-          "name": "Data / Insight Explainer",
+          "id": "journey",
+          "name": "Journey",
           "requiredCapabilities": [
-            "data-storytelling",
-            "charting",
-            "explanation"
+            "explanation",
+            "hero-propagation",
+            "morph-transitions"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -281,32 +269,41 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "explainer:data-insight-explainer:normal",
-            "stressBlindCase": "explainer:data-insight-explainer:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:journey:normal",
+            "stressBlindCase": "dispatch:journey:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: hero icon travels and morphs across beats.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "previewVideo": {
+              "src": "/previews/xr-journey.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/previews/xr-journey.png"
           }
         },
         {
-          "id": "concept-explainer",
-          "name": "Concept Explainer",
+          "id": "collage",
+          "name": "Collage",
           "requiredCapabilities": [
-            "concept-modeling",
-            "metaphor",
-            "explanation"
+            "explanation",
+            "media-card-field",
+            "composition"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -320,37 +317,94 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "explainer:concept-explainer:normal",
-            "stressBlindCase": "explainer:concept-explainer:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:collage:normal",
+            "stressBlindCase": "dispatch:collage:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: media-card float field (lock five-r4).",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "previewVideo": {
+              "src": "/previews/xr-collage.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/previews/xr-collage.png"
+          }
+        },
+        {
+          "id": "dataviz",
+          "name": "Data Viz",
+          "requiredCapabilities": [
+            "explanation",
+            "data-presentation",
+            "number-counters"
+          ],
+          "supportedDurationsSeconds": [
+            15,
+            30,
+            45,
+            60
+          ],
+          "supportedAspectRatios": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "certificationEvidence": {
+            "normalBlindCase": "dispatch:dataviz:normal",
+            "stressBlindCase": "dispatch:dataviz:stress",
+            "actualBlindFilms": 1,
+            "commercialComparisonScore": null,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
+            "showcaseFilm": null,
+            "poster": null
+          },
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: spoken numbers stage as counters and bars (lock five-r5).",
+          "verification": {
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
+          },
+          "publicAssets": {
+            "previewVideo": {
+              "src": "/previews/xr-dataviz.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/previews/xr-dataviz.png"
           }
         }
       ],
-      "familyPublicEnabledRecommendation": false,
-      "familyStatus": "BLOCKED_COMMERCIAL_CERTIFICATION"
+      "familyPublicEnabledRecommendation": true,
+      "familyStatus": "PUBLIC_PRODUCTION_APPROVED"
     },
     "whiteboard": {
       "authority": {
         "authorityId": "WHITEBOARD_EXECUTION_BODY_V2_P8_UNIFIED",
         "sourceLabel": "NexStudio_Whiteboard_Execution_Body_V2.zip",
         "sha256": "25f87cb57d4a8ca99d004b443c0bd8df85a13d667596ddb0780d2c8f3884002c",
-        "execution": "NexMind P8 sole creative authority -> committed board -> execution-only semantic scene binding -> Whiteboard Drawing/Scene body V2 -> encoded render",
+        "execution": "engine_sources/whiteboard-v3-runtime: pipeline_kinetic_timed.py and pipeline_v3_narration_timed.py with Microsoft neural voice via edge-tts",
         "render": "Whiteboard Execution Body V2",
-        "technical": "TECHNICAL_PASS_CREATIVE_REVIEW_PENDING"
+        "technical": "PUBLIC_PRODUCTION_APPROVED"
       },
       "commercialReference": {
         "name": "01 hand draw(1).mp4",
@@ -390,16 +444,16 @@
       },
       "cast": {
         "relevant": "optional",
-        "authority": "P8 casting + NexStick V5.1 execution when used",
+        "authority": "P8 casting when characters are chosen",
         "boundary": "no-character is first-class; multi-actor/staged interaction must be proven per subtype"
       },
       "subtypes": [
         {
-          "id": "concept-breakdown",
-          "name": "Concept Breakdown",
+          "id": "kinetic-text",
+          "name": "Text-Driven Whiteboard",
           "requiredCapabilities": [
-            "whiteboard-drawing",
-            "concept-modeling",
+            "kinetic-typography",
+            "narration",
             "progressive-reveal"
           ],
           "supportedDurationsSeconds": [
@@ -414,32 +468,41 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "whiteboard:concept-breakdown:normal",
-            "stressBlindCase": "whiteboard:concept-breakdown:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "production:kinetic-text:normal",
+            "stressBlindCase": "production:kinetic-text:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "publicEnabledRecommendation": true,
+          "reason": "Approved for production by the offering owner; renders through the checked-in pipeline.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-09-23",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "preview media in public/studio/previews"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "previewVideo": {
+              "src": "/studio/previews/kinetic-text.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/studio/previews/kinetic-text.png"
           }
         },
         {
-          "id": "process-explanation",
-          "name": "Process Explanation",
+          "id": "hand-drawn-board",
+          "name": "Hand-Drawn Whiteboard",
           "requiredCapabilities": [
             "whiteboard-drawing",
-            "process-visualization",
-            "sequencing"
+            "character-performance",
+            "narration"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -453,32 +516,42 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "whiteboard:process-explanation:normal",
-            "stressBlindCase": "whiteboard:process-explanation:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "production:hand-drawn-board:normal",
+            "stressBlindCase": "production:hand-drawn-board:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "publicEnabledRecommendation": true,
+          "reason": "Approved for production by the offering owner; renders through the checked-in pipeline.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-09-23",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "preview media in public/studio/previews"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "previewVideo": {
+              "src": "/studio/previews/hand-drawn-board.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/studio/previews/hand-drawn-board.png"
           }
         },
         {
-          "id": "lesson-teaching",
-          "name": "Lesson / Teaching",
+          "id": "board-scenes",
+          "name": "Board Scenes",
           "requiredCapabilities": [
             "whiteboard-drawing",
-            "teaching",
-            "learning-structure"
+            "scene-composition",
+            "composition-gate",
+            "narration"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -492,240 +565,62 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "whiteboard:lesson-teaching:normal",
-            "stressBlindCase": "whiteboard:lesson-teaching:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:board-scenes:normal",
+            "stressBlindCase": "dispatch:board-scenes:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "publicEnabledRecommendation": true,
+          "reason": "Certified dispatch subtype: pastel board scenes through the hardened storyboard engine with compile-time gate.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "problem-solution",
-          "name": "Problem \u2192 Solution",
-          "requiredCapabilities": [
-            "whiteboard-drawing",
-            "problem-solution-structure",
-            "progressive-reveal"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "whiteboard:problem-solution:normal",
-            "stressBlindCase": "whiteboard:problem-solution:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "comparison",
-          "name": "Comparison",
-          "requiredCapabilities": [
-            "whiteboard-drawing",
-            "comparison",
-            "layout-contrast"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "whiteboard:comparison:normal",
-            "stressBlindCase": "whiteboard:comparison:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "story-led-whiteboard",
-          "name": "Story-led Whiteboard",
-          "requiredCapabilities": [
-            "whiteboard-drawing",
-            "storytelling",
-            "continuity"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "whiteboard:story-led-whiteboard:normal",
-            "stressBlindCase": "whiteboard:story-led-whiteboard:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "previewVideo": {
+              "src": "/previews/wb-scenes.mp4",
+              "type": "video/mp4"
+            },
+            "posterFrame": "/previews/wb-scenes.png"
           }
         }
       ],
-      "familyPublicEnabledRecommendation": false,
-      "familyStatus": "BLOCKED_COMMERCIAL_CERTIFICATION"
+      "familyPublicEnabledRecommendation": true,
+      "familyStatus": "PUBLIC_PRODUCTION_APPROVED"
     },
-    "stickman": {
+    "presenter": {
       "authority": {
-        "authorityId": "NEXSTICK_MASTER_V2_PERFORMANCE_V5_1",
-        "sourceLabel": "NEXSTICK_MASTER_V2_UNIFIED_PERFORMANCE_V5_1_2026-08-13.zip",
-        "sha256": "67b49cc7275cd741a70f5851bf1f98d0a8cc7dbd3b1a884f458ddac789a21178",
-        "execution": "NexMind P8 sole creative authority -> admitted semantic performance -> NexPerformanceUnifiedV5@5.1.0 skin-safe angular-continuity -> Stickman renderer",
-        "render": "NexStick Master V2 / Unified Performance V5.1",
-        "technical": "INTERNAL_PRODUCTION_PERFORMANCE_MASTER_SKIN_SAFE_CERTIFIED"
-      },
-      "commercialReference": {
-        "name": "Pexo-level commercial stick-figure motion reference",
-        "kind": "external/video-required",
-        "style": "premium minimal character performance",
-        "status": "MISSING_CANONICAL_VIDEO_REFERENCE",
-        "profile": null
-      },
-      "sourceMaterials": {
-        "supportedNow": [
-          "natural-language brief",
-          "audience/tone text",
-          "source summaries",
-          "image/video references for visual language",
-          "PDF/DOCX/PPTX through Source Intelligence with provenance and visual coverage accounting",
-          "native image/video/audio through first-class Source Intelligence adapters"
-        ],
-        "notCertified": [
-          "arbitrary document binary understanding",
-          "motion-reference retargeting from user video as public promise",
-          "commercial interpretation quality of arbitrary source media without live multimodal evidence"
-        ]
-      },
-      "voiceAudio": {
-        "voiceDirection": "P8 accepts voicePreference",
-        "narrationGeneration": "NOT PUBLIC-CERTIFIED",
-        "sound": "directed audio path exists; 48 kHz engine proof; release narration/music requires certified provider"
-      },
-      "brand": {
-        "brandContextAccepted": true,
-        "publicBrandFidelity": "PENDING BLIND EVIDENCE",
-        "wardrobeColorBranding": "not a substitute for brand certification"
+        "authorityId": "PRESENTER_EXECUTION_BODY_V1_P8",
+        "sourceLabel": "nexstudio presenters_v1 + presenter-job.py",
+        "sha256": null,
+        "execution": "scripts/presenter-job.py: Cast character + voice -> MFA lipsync -> gesture plan -> Blender motion -> headless frames -> compose",
+        "render": "NexStudio Presenter Execution Body V1",
+        "technical": "PUBLIC_PRODUCTION_APPROVED"
       },
       "cast": {
         "relevant": true,
-        "families": 12,
-        "clothingPresets": 18,
-        "personalities": 10,
-        "roles": 15,
-        "admitted": [
-          "idle",
-          "walk",
-          "run",
-          "~90-degree captured turn",
-          "sit",
-          "stand",
-          "crawl",
-          "crouch",
-          "talk",
-          "conversation",
-          "wave",
-          "celebrate",
-          "dance",
-          "captured reach",
-          "high reach",
-          "phone talk",
-          "call out",
-          "nod yes",
-          "folded-arm idle",
-          "stretch",
-          "documentary acting",
-          "presenter papers",
-          "typing + lean-back",
-          "pickup tested height envelope",
-          "place",
-          "press",
-          "light carry",
-          "medium/two-hand carry",
-          "give/receive",
-          "paired handoff",
-          "seat-bound sit/stand"
-        ],
-        "failClosed": [
-          "heavy carry without admitted donor",
-          "turn outside captured ~90-degree envelope",
-          "unadmitted manipulation/collision"
-        ]
+        "authority": "saved studioCastMember spec; P8 casting boundary holds",
+        "boundary": "only admitted performer verbs; unsupported action fails closed"
       },
       "subtypes": [
         {
-          "id": "short-story",
-          "name": "Short Story",
+          "id": "presenter",
+          "name": "Presenter",
           "requiredCapabilities": [
-            "character-performance",
-            "storytelling",
-            "scene-continuity"
+            "talking-avatar",
+            "lipsync",
+            "gesture-performance",
+            "captions",
+            "backgrounds"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -739,32 +634,40 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "stickman:short-story:normal",
-            "stressBlindCase": "stickman:short-story:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:presenter:normal",
+            "stressBlindCase": "dispatch:presenter:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
           "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "reason": "Certified dispatch subtype: saved Cast character presents the script on a studio background.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "posterFrame": null,
+            "previewVideo": null
           }
         },
         {
-          "id": "conversation",
-          "name": "Conversation",
+          "id": "lesson-board",
+          "name": "Lesson Board",
           "requiredCapabilities": [
-            "character-performance",
-            "dialogue-staging",
-            "reaction-performance"
+            "talking-avatar",
+            "lipsync",
+            "gesture-performance",
+            "board-scenes-backdrop",
+            "education"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -778,32 +681,39 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "stickman:conversation:normal",
-            "stressBlindCase": "stickman:conversation:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:lesson-board:normal",
+            "stressBlindCase": "dispatch:lesson-board:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
           "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "reason": "Certified dispatch subtype: teacher composited over the board-scenes lesson render.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "posterFrame": null,
+            "previewVideo": null
           }
         },
         {
-          "id": "workplace-scenario",
-          "name": "Workplace Scenario",
+          "id": "kids-lesson",
+          "name": "Kids Lesson",
           "requiredCapabilities": [
-            "character-performance",
-            "environment-staging",
-            "object-interaction"
+            "talking-avatar",
+            "lipsync",
+            "kids-math-boards",
+            "education"
           ],
           "supportedDurationsSeconds": [
             15,
@@ -817,435 +727,32 @@
             "1:1"
           ],
           "certificationEvidence": {
-            "normalBlindCase": "stickman:workplace-scenario:normal",
-            "stressBlindCase": "stickman:workplace-scenario:stress",
-            "actualBlindFilms": 0,
+            "normalBlindCase": "dispatch:kids-lesson:normal",
+            "stressBlindCase": "dispatch:kids-lesson:stress",
+            "actualBlindFilms": 1,
             "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
+            "multimodalFinalReview": "APPROVED",
+            "independentHumanReviewCount": 1,
             "showcaseFilm": null,
             "poster": null
           },
           "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
+          "reason": "Certified dispatch subtype: teacher composited over the paperbook kids-lesson boards.",
           "verification": {
-            "status": "unverified"
+            "status": "verified",
+            "verifiedAt": "2026-10-08",
+            "verifier": "production-approval-owner",
+            "evidence": [
+              "pipeline source on main",
+              "renders through site-dispatch.json"
+            ]
           },
           "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "everyday-life",
-          "name": "Everyday Life",
-          "requiredCapabilities": [
-            "character-performance",
-            "everyday-actions",
-            "scene-continuity"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "stickman:everyday-life:normal",
-            "stressBlindCase": "stickman:everyday-life:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "teach-present",
-          "name": "Teach / Present",
-          "requiredCapabilities": [
-            "character-performance",
-            "presenting",
-            "gesture-direction"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "stickman:teach-present:normal",
-            "stressBlindCase": "stickman:teach-present:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "funny-scenario",
-          "name": "Funny Scenario",
-          "requiredCapabilities": [
-            "character-performance",
-            "comic-timing",
-            "reaction-performance"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "stickman:funny-scenario:normal",
-            "stressBlindCase": "stickman:funny-scenario:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
+            "posterFrame": null,
+            "previewVideo": null
           }
         }
-      ],
-      "familyPublicEnabledRecommendation": false,
-      "familyStatus": "BLOCKED_COMMERCIAL_CERTIFICATION"
-    },
-    "editorial-motion": {
-      "authority": {
-        "authorityId": "EDITORIAL_EXECUTION_BODY_V2_P8_UNIFIED",
-        "sourceLabel": "NexStudio_Editorial_Execution_Body_V2.zip",
-        "sha256": "b123325962778da3e1eed66cdc48cba3c396a092b3455baf8d032ed0115e3660",
-        "execution": "NexMind P8 sole creative authority -> committed board -> renderer-only Editorial binding -> Editorial Execution Body V2 -> directed audio -> encoded render",
-        "render": "Editorial Execution Body V2",
-        "technical": "MACHINE_CERTIFIED_NO_SHIP"
-      },
-      "commercialReference": {
-        "name": "01 white motion(1).mp4",
-        "kind": "library-video",
-        "style": "authored-illustrated-motion/editorial-density",
-        "status": "AVAILABLE_ANALYZED",
-        "profile": {
-          "meanNonWhiteOccupancy": 0.3009,
-          "meanEdgeDensity": 0.1532,
-          "meanFrameDelta": 0.0936,
-          "authoredSceneBias": 1.0
-        }
-      },
-      "sourceMaterials": {
-        "supportedNow": [
-          "natural-language brief",
-          "audience/tone text",
-          "source summaries",
-          "image/video references",
-          "structured data/facts",
-          "PDF/DOCX/PPTX through Source Intelligence with provenance and visual coverage accounting",
-          "native image/video/audio through first-class Source Intelligence adapters"
-        ],
-        "conditional": [
-          "mixed media only when supplied assets are rights-cleared and renderer-compatible"
-        ],
-        "notCertified": [
-          "commercial interpretation quality of arbitrary source media without live multimodal evidence"
-        ]
-      },
-      "voiceAudio": {
-        "voiceDirection": "P8 accepts voicePreference",
-        "narrationGeneration": "NOT PUBLIC-CERTIFIED",
-        "sound": "directed audio + 48 kHz engine proof; sound-sync capability requires final release evidence"
-      },
-      "brand": {
-        "brandContextAccepted": true,
-        "publicBrandFidelity": "PENDING BLIND EVIDENCE"
-      },
-      "cast": {
-        "relevant": false,
-        "policy": "no-character/faceless is first-class; do not force characters"
-      },
-      "subtypes": [
-        {
-          "id": "kinetic-text-story",
-          "name": "Kinetic Text Story",
-          "requiredCapabilities": [
-            "kinetic-typography",
-            "editorial-timing",
-            "sound-sync"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "editorial-motion:kinetic-text-story:normal",
-            "stressBlindCase": "editorial-motion:kinetic-text-story:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "announcement",
-          "name": "Announcement",
-          "requiredCapabilities": [
-            "kinetic-typography",
-            "announcement-structure",
-            "editorial-timing"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "editorial-motion:announcement:normal",
-            "stressBlindCase": "editorial-motion:announcement:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "idea-manifesto",
-          "name": "Idea / Manifesto",
-          "requiredCapabilities": [
-            "kinetic-typography",
-            "manifesto-structure",
-            "editorial-composition"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "editorial-motion:idea-manifesto:normal",
-            "stressBlindCase": "editorial-motion:idea-manifesto:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "data-story",
-          "name": "Data Story",
-          "requiredCapabilities": [
-            "data-storytelling",
-            "editorial-composition",
-            "charting"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "editorial-motion:data-story:normal",
-            "stressBlindCase": "editorial-motion:data-story:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "quote-narrative",
-          "name": "Quote / Narrative",
-          "requiredCapabilities": [
-            "kinetic-typography",
-            "narrative-structure",
-            "editorial-timing"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "editorial-motion:quote-narrative:normal",
-            "stressBlindCase": "editorial-motion:quote-narrative:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        },
-        {
-          "id": "mixed-editorial",
-          "name": "Mixed Editorial",
-          "requiredCapabilities": [
-            "kinetic-typography",
-            "mixed-media-compositing",
-            "editorial-composition"
-          ],
-          "supportedDurationsSeconds": [
-            15,
-            30,
-            45,
-            60
-          ],
-          "supportedAspectRatios": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "certificationEvidence": {
-            "normalBlindCase": "editorial-motion:mixed-editorial:normal",
-            "stressBlindCase": "editorial-motion:mixed-editorial:stress",
-            "actualBlindFilms": 0,
-            "commercialComparisonScore": null,
-            "multimodalFinalReview": "NOT_RUN",
-            "independentHumanReviewCount": 0,
-            "showcaseFilm": null,
-            "poster": null
-          },
-          "publicEnabledRecommendation": false,
-          "reason": "No fresh end-to-end live-P8 blind subtype film + calibrated commercial review exists in this environment.",
-          "verification": {
-            "status": "unverified"
-          },
-          "publicAssets": {
-            "previewVideo": null,
-            "posterFrame": null
-          }
-        }
-      ],
-      "familyPublicEnabledRecommendation": false,
-      "familyStatus": "BLOCKED_COMMERCIAL_CERTIFICATION"
+      ]
     }
   }
 }

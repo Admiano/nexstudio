@@ -51,6 +51,20 @@ def mix(a: str, b: str, t: float) -> str:
     return _hex([ra[i] + (rb[i] - ra[i]) * t for i in range(3)])
 
 
+def hrot(hex_colour: str, degrees: float, sat_mul: float = 1.0, val_add: float = 0.0) -> str:
+    """Rotate a colour's hue (and optionally scale saturation / shift value) so a film's
+    palette can grow true hue families — green hills, blue water, warm light — that stay
+    harmonious with the brand inks they were derived from."""
+    import colorsys
+    r, g, b = _rgb(hex_colour)
+    h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+    h = (h + degrees / 360.0) % 1.0
+    s = max(0.0, min(1.0, s * sat_mul))
+    v = max(0.0, min(1.0, v + val_add))
+    rr, gg, bb = colorsys.hsv_to_rgb(h, s, v)
+    return _hex((rr * 255, gg * 255, bb * 255))
+
+
 def luminance(hex_colour: str) -> float:
     def lin(c: int) -> float:
         v = c / 255.0

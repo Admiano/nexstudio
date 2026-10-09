@@ -8,7 +8,7 @@ type ArtifactInput={
   schemaVersion?:string;
   projectVersion?:number;
   artifactType:string;
-  status:"candidate"|"approved"|"rejected"|"superseded";
+  status:"candidate"|"approved"|"rejected"|"superseded"|"observed";
   content:unknown;
   inputs:{artifactId:string;sha256:string}[];
   createdBy:{type:"user"|"agent"|"service"|"operator";role:string;runId:string;promptVersion?:string;model?:string;userId?:string};

@@ -1,0 +1,11 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <path d="M100 200 Q150 150 200 150 T300 100" stroke="#1A1A17" stroke-width="12" stroke-linecap="round" fill="none"/>
+                <path d="M280 80 L320 100 L280 120 Z" fill="#1A1A17"/>
+                <circle cx="200" cy="150" r="40" fill="#F5F0E4"/>
+                <g style="animation-delay: 0.2s;">
+                    <path d="M200 130 L220 170 L210 170 L210 190 H190 V170 L180 170 Z" fill="#F5F0E4"/>
+                    <circle cx="200" cy="150" r="15" fill="#F5F0E4" opacity="0.5"/>
+                </g>
+            </g>
+          </svg>

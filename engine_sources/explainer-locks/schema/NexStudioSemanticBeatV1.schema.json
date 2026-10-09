@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexstudio.dev/schema/NexStudioSemanticBeatV1.json",
+  "title": "NexStudioSemanticBeatV1",
+  "type": "object",
+  "properties": {
+    "beat_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "salience": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "type"
+        ]
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        },
+        "required": [
+          "source",
+          "target",
+          "type"
+        ]
+      }
+    },
+    "features": {
+      "type": "object",
+      "properties": {
+        "human_agency": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "emotional_intensity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "emotional_valence": {
+          "type": "number",
+          "minimum": -1.0,
+          "maximum": 1.0
+        },
+        "relational_density": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "transformation_degree": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "comparison_degree": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "spatiality": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "physicality": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "evidence_density": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "uncertainty": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "sociality": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "causality": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "continuity_required": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": [
+        "human_agency",
+        "emotional_intensity",
+        "emotional_valence",
+        "relational_density",
+        "transformation_degree",
+        "comparison_degree",
+        "spatiality",
+        "physicality",
+        "evidence_density",
+        "uncertainty",
+        "sociality",
+        "causality",
+        "continuity_required"
+      ]
+    },
+    "protagonist_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "beat_id",
+    "text",
+    "features"
+  ]
+}

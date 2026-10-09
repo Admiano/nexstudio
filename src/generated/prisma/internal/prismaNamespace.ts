@@ -3641,6 +3641,7 @@ export const StudioCastMemberScalarFieldEnum = {
   name: 'name',
   assetNamespace: 'assetNamespace',
   identityKey: 'identityKey',
+  spec: 'spec',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

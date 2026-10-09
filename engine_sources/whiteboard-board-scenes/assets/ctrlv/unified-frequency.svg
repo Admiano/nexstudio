@@ -1,0 +1,16 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <!-- Multiple chaotic/separate signals converging -->
+                <path d="M60 80 Q100 40 140 100 T200 150" stroke="#1A1A17" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <path style="animation-delay: 0.2s;" d="M60 150 Q100 200 140 150 T200 150" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <path style="animation-delay: 0.4s;" d="M60 220 Q100 260 140 200 T200 150" stroke="#F5F0E4" stroke-width="4" stroke-linecap="round" fill="none"/>
+                
+                <!-- Convergence Node -->
+                <circle cx="200" cy="150" r="12" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+                <circle cx="200" cy="150" r="6" fill="#F5F0E4"/>
+                
+                <!-- Single Unified Powerful Waveform -->
+                <path d="M200 150 Q240 50 280 150 T360 150" stroke="#F5F0E4" stroke-width="12" stroke-linecap="round" fill="none"/>
+                <path d="M200 150 Q240 50 280 150 T360 150" stroke="#1A1A17" stroke-width="6" stroke-linecap="round" fill="none"/>
+            </g>
+          </svg>

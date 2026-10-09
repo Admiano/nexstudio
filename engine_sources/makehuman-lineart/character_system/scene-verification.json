@@ -1,0 +1,287 @@
+[
+  {
+    "character": "female",
+    "style": "cocktail",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/female/cocktail/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18",
+      "Host.rigAction.001 \u2022 V18"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 36732639,
+    "sha256": "d04b0ae0e8ede4cf16bb8e9ecf8bc4ce631467c779d43b3191512df4c1e24e05"
+  },
+  {
+    "character": "female",
+    "style": "column",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/female/column/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18",
+      "Host.rigAction.001 \u2022 V18"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 40342530,
+    "sha256": "7a34dbdc7fcf073ce2ed1a9e2a414cf16776f88b9edc63531cb8ccdf7eff377f"
+  },
+  {
+    "character": "female",
+    "style": "maxi",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/female/maxi/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18.001",
+      "Host.rigAction.001 \u2022 V18.001"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 51264772,
+    "sha256": "bae063ee224142d6d8c6d017c41aa8ccf7d2e4a4018bf65d9ab003722b680046"
+  },
+  {
+    "character": "female",
+    "style": "native",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/female/native/character.blend",
+    "removedActions": [],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 43671701,
+    "sha256": "a7418c13117abb33ec46e83facf0419c8f216298dbf75c96606998207c3a70aa"
+  },
+  {
+    "character": "female",
+    "style": "qipao",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/female/qipao/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18",
+      "Host.rigAction.001 \u2022 V18"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 42994121,
+    "sha256": "368920369ef156548e78fb299aaf909a52a58a97976a37966488c9bdc63fdeb8"
+  },
+  {
+    "character": "female",
+    "style": "sheath",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/female/sheath/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18.001",
+      "Host.rigAction.001 \u2022 V18.001"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 51773249,
+    "sha256": "f5385b5b9cb3ba6dc38c4fbb2be50514341feb17323a0ab641bb8e78797667af"
+  },
+  {
+    "character": "female",
+    "style": "fixed-left-3q",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/female/fixed-left-3q/character.blend",
+    "removedActions": [],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 43672262,
+    "sha256": "d5b5dde07c8cee2a098b41cb34c4a71577db00e85aac465e8cb326bc78b5d09d"
+  },
+  {
+    "character": "male",
+    "style": "bald",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/male/bald/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18",
+      "Host.rigAction.001 \u2022 V18"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 21073458,
+    "sha256": "471dd74746aed5f0c5f4b93a5d8fa3a484b1d5f9167513c8d5c341ad393e4700"
+  },
+  {
+    "character": "male",
+    "style": "fisherman",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/male/fisherman/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18.001",
+      "Host.rigAction.001 \u2022 V18.001"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 25348062,
+    "sha256": "107fcbab6709a1e74ed0d8402b0982e3a124df16238d84f7a27bc411fe0dd7d0"
+  },
+  {
+    "character": "male",
+    "style": "knit",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/male/knit/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18.001",
+      "Host.rigAction.001 \u2022 V18.001"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 29086930,
+    "sha256": "57082de0a54dacf25ddf566c55107593dedf0dfd452abdbf056d397ae61721c5"
+  },
+  {
+    "character": "male",
+    "style": "native",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "watch": {
+      "caseNormalRest": [
+        0.7244517207145691,
+        0.05035512521862984,
+        0.6874838471412659
+      ],
+      "anatomicalDorsalRest": [
+        0.7244486808776855,
+        0.05036844313144684,
+        0.6874860525131226
+      ],
+      "normalAgreement": 0.9999999527353793,
+      "dialCenterProjectedOffsetMm": 0.0,
+      "partsRigidlyRepositioned": 100,
+      "bandGeometryUnchanged": true,
+      "bindingBone": "lowerarm02.L",
+      "caseSeatGapMm": 0.1
+    },
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/male/native/character.blend",
+    "removedActions": [],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 38922119,
+    "sha256": "caf9e2aa4b71982d8b85a965e7adcd411642902d683701fc8c2355756c021b94"
+  },
+  {
+    "character": "male",
+    "style": "polo",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "watch": {
+      "caseNormalRest": [
+        0.7244517207145691,
+        0.05035512521862984,
+        0.6874838471412659
+      ],
+      "anatomicalDorsalRest": [
+        0.7244486808776855,
+        0.05036844313144684,
+        0.6874860525131226
+      ],
+      "normalAgreement": 0.9999999527353793,
+      "dialCenterProjectedOffsetMm": 0.0,
+      "partsRigidlyRepositioned": 100,
+      "bandGeometryUnchanged": true,
+      "bindingBone": "lowerarm02.L",
+      "caseSeatGapMm": 0.1
+    },
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/male/polo/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18.001",
+      "Host.rigAction.001 \u2022 V18.001"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 38921366,
+    "sha256": "1c5b96c3ca6cb382328e19cf52f2b26ae1bad420a8444fae5066940033e9b362"
+  },
+  {
+    "character": "male",
+    "style": "shirt",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/male/shirt/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18.001",
+      "Host.rigAction.001 \u2022 V18.001"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 29838768,
+    "sha256": "b156e2301a02ccde22af04c66c2deb2222ab376b890860ba48c6a4c974e12180"
+  },
+  {
+    "character": "male",
+    "style": "tee",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "watch": {
+      "caseNormalRest": [
+        0.7244398593902588,
+        0.05041453242301941,
+        0.6874919533729553
+      ],
+      "anatomicalDorsalRest": [
+        0.7244486808776855,
+        0.05036844313144684,
+        0.6874860525131226
+      ],
+      "normalAgreement": 0.9999999350402504,
+      "dialCenterProjectedOffsetMm": 3.2959365207079463e-07,
+      "partsRigidlyRepositioned": 175,
+      "bandGeometryUnchanged": true,
+      "bindingBone": "lowerarm02.L",
+      "caseSeatGapMm": 0.1
+    },
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/male/tee/character.blend",
+    "removedActions": [
+      "baseAction \u2022 V18.001",
+      "Host.rigAction.001 \u2022 V18.001"
+    ],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 25800854,
+    "sha256": "6771b113b6e7f2a968fe923be9df520f1fb5cfb85c3c78f16153c5d6c9378c72"
+  },
+  {
+    "character": "male",
+    "style": "fixed-left-3q",
+    "originalMotionSha256": "77044cd8ef60733372328975f0f0e2a133191449b6d0ffe5f8d887bec4591cb2",
+    "watch": {
+      "caseNormalRest": [
+        0.7244517207145691,
+        0.05035512521862984,
+        0.6874838471412659
+      ],
+      "anatomicalDorsalRest": [
+        0.7244486808776855,
+        0.05036844313144684,
+        0.6874860525131226
+      ],
+      "normalAgreement": 0.9999999527353793,
+      "dialCenterProjectedOffsetMm": 0.0,
+      "partsRigidlyRepositioned": 100,
+      "bandGeometryUnchanged": true,
+      "bindingBone": "lowerarm02.L",
+      "caseSeatGapMm": 0.1
+    },
+    "path": "engine_sources/makehuman-lineart/character_system/scenes/male/fixed-left-3q/character.blend",
+    "removedActions": [],
+    "originalPerformancePreserved": true,
+    "finitePoseFrames": 10,
+    "texturesSelfContained": true,
+    "sizeBytes": 38922190,
+    "sha256": "480c58d6b76599de337cb477afa5354672540c403314bd8a31a1a35362c84210"
+  }
+]

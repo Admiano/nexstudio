@@ -1,0 +1,752 @@
+{
+  "character": "female",
+  "boundRibbonsChecked": 0,
+  "maximumRibbonSurfaceDistance": 0,
+  "frames": [
+    {
+      "frame": 240,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 243,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 246,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 249,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 252,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 255,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 258,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 261,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 264,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 267,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 270,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 273,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 276,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 279,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 282,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 285,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 288,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 291,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 294,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 297,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 300,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 303,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 306,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 309,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 312,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 315,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 318,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 321,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 324,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 327,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 330,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 333,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 336,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 339,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 342,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 345,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 348,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 351,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 354,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 357,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 360,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 363,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 366,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 369,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 372,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 375,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 378,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 381,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 384,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 387,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 390,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 393,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 396,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 399,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 402,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 405,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 408,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 411,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 414,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 417,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 420,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 423,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 426,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 429,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 432,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 435,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 438,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 441,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 444,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 447,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 450,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 453,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 456,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 459,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 462,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 465,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 468,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 471,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 474,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 477,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 480,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 483,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 486,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 489,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 492,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 495,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 498,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 501,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 504,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 507,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 510,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 513,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 516,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 519,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 522,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 525,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 528,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 531,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 534,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 537,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 540,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 543,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 546,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 549,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 552,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 555,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 558,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 561,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 564,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 567,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 570,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 573,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 576,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 579,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 582,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 585,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 588,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 591,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 594,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    },
+    {
+      "frame": 597,
+      "finiteVertices": 50947,
+      "fittedObjects": 0,
+      "ribbonSurfaceDistances": {}
+    }
+  ],
+  "sourceMeshHashes": {
+    "Host.body": "e10452c5233eacf30ac33bd112193db3c405f4e5beb923823e317f7aa3040e96",
+    "Host.eyebrow001": "1491966c52a1a9a61bb64d1941ce0ac70e93cdd61a66f77a13c78eb9ebda6c67",
+    "Host.hair_culturalibre_hair_01": "1f502bedbbfc73765f8d880b57d5ce313950255da7bc58e401579e45309f6d98",
+    "Host.high-poly": "452c24e737cce5c73e9f0c637007f09b4645e1731a29341da9c71f37f65e08a0",
+    "Host.lineart_lower_legs": "e10452c5233eacf30ac33bd112193db3c405f4e5beb923823e317f7aa3040e96",
+    "Host.lineart_shoe.L": "31ab9d9fafa7f9ad87edd4a7b376667fdcf260f9b49888e8de4216d5636322f7",
+    "Host.lineart_shoe.R": "31ab9d9fafa7f9ad87edd4a7b376667fdcf260f9b49888e8de4216d5636322f7",
+    "Host.mindfront_f_dress_11": "1c75f3db72b9ad99dc885a9726c6e4538ad3d29bf66bbe547a047919c0f375af",
+    "Host.teeth_base": "8cf13dd22e048390d6f296b341043cf841dc70442b0319c7945af79ed861e4f1",
+    "Host.V10_ear_L": "8465f1ccd740fcbef826e97d8b4730fcc2fb605330ea858f4e0d129ba5ef28db",
+    "Host.V10_ear_R": "34876d984bd90239e976eee3c4f37fab4b7c9de8ac433fddd5a384fbe4d90ff3",
+    "Host.V11_mouth_interior": "1d6ff0a32d95470547faad828a39c1df2e123a8287d34bff60c529c2f0bb8c68",
+    "Host.V59_face_art": "69068f85125b7fdd8f22da7cf214565a6984364495ba270f31df958158c8a3bd",
+    "Host.V59_face_frame": "69068f85125b7fdd8f22da7cf214565a6984364495ba270f31df958158c8a3bd",
+    "Host.V60_ear_fill_R": "bb3ccccf01346414c0815135b27cfc9efe459c1d044bdd6a3809586b31d249a7",
+    "Host.V60_ear_inner_R": "1834948021c0bdf614ea984a79d8cafb2de24b50702ac00d763773e2c29b8010",
+    "Host.V60_ear_line_R": "ce7a5595c13105442808099972fa241ddff100acbbcb8bf7cde7c8b9a7b76ddb",
+    "Host.V60_earring_R": "4e89df5192826c0beebd65ada87f28f3a4ae24319d139a80c1d781b90b183176",
+    "Host.V60_earring_rim_R": "2832abf218072ded536d53be14495617cea9c8d71d2af58d0c0641188de33f76",
+    "Host.V64_dress_lines": "2885d7d768122d090cde6903fe29aaf1eedfc46fc2beaff6fb9e04459538e002"
+  },
+  "sourceMeshesUnchanged": true,
+  "objectCountsStable": true,
+  "visibleBoneParentsValid": true
+}

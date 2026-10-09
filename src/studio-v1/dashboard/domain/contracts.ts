@@ -1,5 +1,5 @@
-import type { ProductionFamily } from "./dashboard.js";
-import type { ProductionState } from "./production-state.js";
+import type { ProductionFamily } from "./dashboard";
+import type { ProductionState } from "./production-state";
 
 export interface ProductionDraftRecord {
   id: string;

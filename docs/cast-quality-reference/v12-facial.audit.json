@@ -1,0 +1,223 @@
+{
+  "profile": "anatomical-mouth-v12",
+  "characters": [
+    {
+      "character": "male",
+      "profile": "anatomical-mouth-v12",
+      "moduleSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+      "sourceIdentityHash": "620230079fb6386c5b417184b625f87dd7264838125ff91fb373f568ebd2d4d8",
+      "allOriginalMeshCoordinatesKeysWeightsUVsAndRigUnchanged": true,
+      "restoration": {
+        "profile": "anatomical-mouth-v12",
+        "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+        "mouth": {
+          "objects": [
+            {
+              "object": "Cast V12 oral upper",
+              "vertices": 1984,
+              "crowns": 16,
+              "bone": "head",
+              "fitRMSMetres": 2.4446321956891766e-08
+            },
+            {
+              "object": "Cast V12 oral lower",
+              "vertices": 1884,
+              "crowns": 16,
+              "bone": "jaw",
+              "fitRMSMetres": 2.812584804715695e-08
+            },
+            {
+              "object": "Cast V12 oral tongue",
+              "vertices": 226,
+              "bones": [
+                "tongue04",
+                "tongue07.L",
+                "tongue07.R",
+                "tongue06.L",
+                "tongue06.R",
+                "tongue05.L",
+                "tongue05.R",
+                "tongue03",
+                "tongue01",
+                "oris01",
+                "tongue02",
+                "head",
+                "levator05.R",
+                "oris03.R",
+                "jaw",
+                "levator05.L",
+                "oris03.L"
+              ],
+              "anatomicalSource": "Host.body helper-tongue"
+            }
+          ],
+          "teeth": 32,
+          "tongue": true,
+          "interiorPolygons": 91,
+          "lipInkRemoved": [
+            {
+              "object": "Host.V59_face_art",
+              "lipPolygons": 0
+            },
+            {
+              "object": "Host.V59_face_frame",
+              "lipPolygons": 171
+            }
+          ],
+          "legacyMouthStrokeDisabled": true,
+          "lowerGingivalClearanceMaximumMetres": 0.01,
+          "closedLipVisibilityGuard": {
+            "jawBelow": 0.03,
+            "upperBelow": 0.065,
+            "lowerBelow": 0.065,
+            "fvBelow": 0.05
+          },
+          "originalBodyCoordinatesUnchanged": true
+        },
+        "ear": {
+          "hiddenLegacyEarInk": [
+            "Host.V10_ear_L",
+            "Host.V10_ear_R"
+          ],
+          "quiffCarrierVerticesMasked": 48,
+          "quiffStrayCurvesRemoved": 1491,
+          "templeCutRestZ": 1.5448224544860305,
+          "earCorrection": {
+            "name": "Cast V12 balanced ears",
+            "maximumFlareReduction": 0.12,
+            "maximumHeightReduction": 0.07,
+            "symmetric": true
+          },
+          "originalEarCagePreserved": true
+        }
+      },
+      "reapplicationStable": true,
+      "frames": [
+        1,
+        27,
+        71,
+        106,
+        160,
+        260,
+        360,
+        500,
+        650,
+        820,
+        998
+      ],
+      "maximumBindingErrorMetres": 4.830979454787132e-07,
+      "observedMovementMetres": {
+        "Cast V12 oral upper": 0.032562887798815505,
+        "Cast V12 oral lower": 0.03419481662781044,
+        "Cast V12 oral tongue": 0.032580032256760816
+      },
+      "attachment": "Original head, jaw and tongue bones; no frame handlers or replacement action"
+    },
+    {
+      "character": "female",
+      "profile": "anatomical-mouth-v12",
+      "moduleSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+      "sourceIdentityHash": "7cb0944e17225844993ea6568930372846a129bbe41da358b64d5b32987e0c3f",
+      "allOriginalMeshCoordinatesKeysWeightsUVsAndRigUnchanged": true,
+      "restoration": {
+        "profile": "anatomical-mouth-v12",
+        "codeSHA256": "13cd1c8986e1eedb9c9a3cc33c72d49e406261e8b47b1bb659e7b70d0a04c0f3",
+        "mouth": {
+          "objects": [
+            {
+              "object": "Cast V12 oral upper",
+              "vertices": 1984,
+              "crowns": 16,
+              "bone": "head",
+              "fitRMSMetres": 0.0005492999692909229
+            },
+            {
+              "object": "Cast V12 oral lower",
+              "vertices": 1884,
+              "crowns": 16,
+              "bone": "jaw",
+              "fitRMSMetres": 0.0005355871424753157
+            },
+            {
+              "object": "Cast V12 oral tongue",
+              "vertices": 226,
+              "bones": [
+                "tongue04",
+                "tongue07.L",
+                "tongue07.R",
+                "tongue06.L",
+                "tongue06.R",
+                "tongue05.L",
+                "tongue05.R",
+                "tongue03",
+                "tongue01",
+                "oris01",
+                "tongue02",
+                "head",
+                "levator05.R",
+                "oris03.R",
+                "jaw",
+                "levator05.L",
+                "oris03.L"
+              ],
+              "anatomicalSource": "Host.body helper-tongue"
+            }
+          ],
+          "teeth": 32,
+          "tongue": true,
+          "interiorPolygons": 109,
+          "lipInkRemoved": [
+            {
+              "object": "Host.V59_face_art",
+              "lipPolygons": 0
+            },
+            {
+              "object": "Host.V59_face_frame",
+              "lipPolygons": 171
+            }
+          ],
+          "legacyMouthStrokeDisabled": true,
+          "lowerGingivalClearanceMaximumMetres": 0.01,
+          "closedLipVisibilityGuard": {
+            "jawBelow": 0.03,
+            "upperBelow": 0.065,
+            "lowerBelow": 0.065,
+            "fvBelow": 0.05
+          },
+          "originalBodyCoordinatesUnchanged": true
+        },
+        "ear": {
+          "hiddenLegacyEarInk": [],
+          "quiffCarrierVerticesMasked": 0,
+          "quiffStrayCurvesRemoved": 0,
+          "templeCutRestZ": 1.5341823523290792,
+          "earCorrection": null,
+          "originalEarCagePreserved": true
+        }
+      },
+      "reapplicationStable": true,
+      "exteriorLipMucosaExcluded": true,
+      "closedLipVisibilityAndFVExposureVerified": true,
+      "frames": [
+        1,
+        27,
+        71,
+        106,
+        160,
+        260,
+        360,
+        500,
+        650,
+        820,
+        998
+      ],
+      "maximumBindingErrorMetres": 3.6557347271238267e-07,
+      "observedMovementMetres": {
+        "Cast V12 oral upper": 0.03517702667500764,
+        "Cast V12 oral lower": 0.03641170541366762,
+        "Cast V12 oral tongue": 0.0352181394893853
+      },
+      "attachment": "Original head, jaw and tongue bones; no frame handlers or replacement action"
+    }
+  ]
+}

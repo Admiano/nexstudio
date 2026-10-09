@@ -1,0 +1,31 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Frame -->
+            <rect x="120" y="80" width="20" height="200" fill="#1A1A17"/>
+            <rect x="260" y="80" width="20" height="200" fill="#1A1A17"/>
+            <rect x="110" y="70" width="180" height="20" fill="#F5F0E4" opacity="0.9"/>
+            <rect x="110" y="160" width="180" height="20" fill="#1A1A17"/>
+            
+            <!-- Turn Screw -->
+            <rect x="190" y="40" width="20" height="150" fill="#F5F0E4"/>
+            <path d="M185 45 H215 M185 60 H215 M185 75 H215 M185 90 H215 M185 105 H215 M185 120 H215" stroke="#F5F0E4" stroke-width="4"/>
+            <!-- Handle -->
+            <rect  x="140" y="130" width="120" height="10" rx="5" fill="#F5F0E4"/>
+            <circle cx="140" cy="135" r="8" fill="#F5F0E4"/>
+            <circle cx="260" cy="135" r="8" fill="#F5F0E4"/>
+            
+            <!-- Press Plate -->
+            <rect x="150" y="190" width="100" height="10" fill="#F5F0E4"/>
+            
+            <!-- Bed and Paper -->
+            <rect x="130" y="220" width="140" height="20" fill="#F5F0E4" opacity="0.8"/>
+            <!-- Paper -->
+            <rect x="160" y="215" width="80" height="5" fill="white"/>
+            <!-- Freshly printed paper falling -->
+            <path d="M220 230 L260 250 L280 230 L240 210 Z" fill="white" stroke="#1A1A17" stroke-width="2"/>
+            <path d="M235 230 L255 240 M245 220 L265 230" stroke="#F5F0E4" stroke-width="2"/>
+            
+            <!-- Ink pads -->
+            <circle cx="90" cy="240" r="15" fill="#F5F0E4"/>
+            <rect x="85" y="180" width="10" height="60" fill="#F5F0E4"/>
+            <ellipse cx="90" cy="180" rx="20" ry="10" fill="#F5F0E4"/>
+          </svg>

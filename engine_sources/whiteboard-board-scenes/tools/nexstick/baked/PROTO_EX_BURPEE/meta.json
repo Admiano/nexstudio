@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_EX_BURPEE",
+ "frames": 133,
+ "fps": 30.0,
+ "res": [
+  388,
+  481
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "proto_rig",
+ "license": "CC BY-SA 4.0 \u2014 Bryl Lim / Everkinetic (pose reference)"
+}

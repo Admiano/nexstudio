@@ -1,0 +1,8 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="100" y1="150" x2="300" y2="150" stroke="#F5F0E4" stroke-width="12" stroke-linecap="round"/>
+        <g>
+            <rect x="180" y="130" width="40" height="40" rx="10" fill="#F5F0E4" stroke="#F5F0E4" stroke-width="4"/>
+            <text x="200" y="157" text-anchor="middle" font-family="Inter" font-weight="900" font-size="20" fill="#F5F0E4">5</text>
+        </g>
+        <text x="200" y="220" text-anchor="middle" font-family="Inter" font-weight="900" font-size="40" fill="#F5F0E4">MID</text>
+    </svg>

@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="200" cy="270" rx="130" ry="10" fill="#E2E8F0"/>
+            <g style="animation-duration: 4s;">
+              <circle cx="200" cy="155" r="88" fill="#F5F0E4" opacity="0.8"/>
+              <!-- Eyes gazing upward -->
+              <ellipse cx="172" cy="142" rx="14" ry="18" fill="#F5F0E4"/>
+              <ellipse cx="228" cy="142" rx="14" ry="18" fill="#F5F0E4"/>
+              <circle cx="172" cy="136" r="8" fill="#F5F0E4"/>
+              <circle cx="228" cy="136" r="8" fill="#F5F0E4"/>
+              <!-- Pupils with gleam -->
+              <circle cx="175" cy="133" r="3" fill="#F5F0E4"/>
+              <circle cx="231" cy="133" r="3" fill="#F5F0E4"/>
+              <!-- Gentle upturned smile -->
+              <path d="M168 180 Q200 198 232 180" stroke="#F5F0E4" stroke-width="7" stroke-linecap="round" fill="none"/>
+            </g>
+            <!-- Sunrise beams from above -->
+            <g style="animation-duration: 2.5s;" stroke="#1A1A17" stroke-linecap="round" stroke-width="5" opacity="0.6">
+              <path d="M200 30 V50 M160 42 L170 58 M240 42 L230 58 M130 65 L148 72 M270 65 L252 72"/>
+            </g>
+            <circle style="animation-duration: 2.5s;" cx="200" cy="30" r="18" fill="#1A1A17" opacity="0.7"/>
+          </svg>

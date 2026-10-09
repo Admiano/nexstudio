@@ -7,15 +7,11 @@ ROOT=Path(__file__).resolve().parents[1]
 ENGINE_PATHS={
  'WHITEBOARD':ROOT/'engines/whiteboard/Whiteboard_Execution_Body_V2',
  'EXPLAINER':ROOT/'engines/explainer/NexStudio_Explainer_Execution_Body_V2',
- 'EDITORIAL_MOTION':ROOT/'engines/editorial',
- 'STICKMAN':ROOT/'engines/stickman/NEXSTICK_MASTER_V2_UNIFIED_PERFORMANCE_V5_1_CLEAN_2026-08-13',
  'SOUND':ROOT/'engines/sound/NexStudio_Sound_Library_V2_Production',
 }
 AUTHORITIES={
  'WHITEBOARD':'WHITEBOARD_EXECUTION_BODY_V2_P8_UNIFIED',
  'EXPLAINER':'EXPLAINER_EXECUTION_BODY_V2_P8_UNIFIED',
- 'EDITORIAL_MOTION':'EDITORIAL_EXECUTION_BODY_V2_P8_UNIFIED',
- 'STICKMAN':'NEXSTICK_MASTER_V2_PERFORMANCE_V5_1',
 }
 
 def sha(path:Path)->str:
@@ -25,12 +21,8 @@ def sha(path:Path)->str:
  return h.hexdigest()
 
 def request_for(family:str,out:Path)->dict:
- if family=='STICKMAN':
-  action={'action_id':'A1','performer_class':'STICKMAN_V2','actor':'male presenter broad','requested_verb':'HOLD','execution':{'resolved_verb':'HOLD'},'contact_requirement':'NONE','available_requirements':[]}
-  thesis='A presenter holds a calm opening pose.'; hero='presenter'
- else:
-  action={'action_id':'A1','performer_class':'SCENE_GRAPH','actor':'scene','requested_verb':'TYPE_REVEAL','execution':{'resolved_verb':'TYPE_REVEAL'},'contact_requirement':'NONE','available_requirements':[]}
-  thesis='MAKE THE IDEA CLEAR.'; hero='central idea'
+ action={'action_id':'A1','performer_class':'SCENE_GRAPH','actor':'scene','requested_verb':'TYPE_REVEAL','execution':{'resolved_verb':'TYPE_REVEAL'},'contact_requirement':'NONE','available_requirements':[]}
+ thesis='MAKE THE IDEA CLEAR.'; hero='central idea'
  board={'schema':'NexMindCanonicalSoundStoryboardV4','beats':[{
   'beat_id':'B1','scene_thesis':thesis,'hero_identity':hero,'supporting_assets':[],
   'continuity_in':'opening','continuity_out':'settled',
@@ -50,8 +42,6 @@ def main()->int:
  env={**os.environ,
   'STUDIO_WHITEBOARD_ENGINE_ROOT':str(ENGINE_PATHS['WHITEBOARD']),
   'STUDIO_EXPLAINER_ENGINE_ROOT':str(ENGINE_PATHS['EXPLAINER']),
-  'STUDIO_EDITORIAL_ENGINE_ROOT':str(ENGINE_PATHS['EDITORIAL_MOTION']),
-  'STUDIO_STICKMAN_ENGINE_ROOT':str(ENGINE_PATHS['STICKMAN']),
   'STUDIO_SOUND_LIBRARY_ROOT':str(ENGINE_PATHS['SOUND']),
   'STUDIO_CHROMIUM_PATH':os.environ.get('STUDIO_CHROMIUM_PATH','/usr/bin/chromium')}
  worker=ROOT/'services/studio-family-engines/worker.py'; results={};passed=True

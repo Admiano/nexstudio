@@ -102,6 +102,34 @@
     2656
    ]
   },
+  "baby chick": {
+   "concept": "baby chick",
+   "query": "baby chick",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "187263566",
+   "title": "File:New Born Baby Chicks.jpg",
+   "creator": "Yvessurbano0",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:New_Born_Baby_Chicks.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/New_Born_Baby_Chicks.jpg/1920px-New_Born_Baby_Chicks.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "baby-chick.45af0ccf9979.jpg",
+   "sha256": "8115c37a6a32e54b568ea25e3b8a5dc655fa483c604fb57aec0ca4db8fdb820c",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-28",
+   "subjects": [
+    "Chicken breeds",
+    "Chicks hatching",
+    "Chick coops"
+   ],
+   "year": 2026,
+   "source_size": [
+    4032,
+    3024
+   ]
+  },
   "backpack": {
    "concept": "backpack",
    "query": "backpack",
@@ -304,6 +332,39 @@
    "source_size": [
     4080,
     3072
+   ]
+  },
+  "boat": {
+   "concept": "boat",
+   "query": "boat",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "32768767",
+   "title": "File:Boats in Chacachacare 2.jpg",
+   "creator": "Wilfredor",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Boats_in_Chacachacare_2.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Boats_in_Chacachacare_2.jpg/1920px-Boats_in_Chacachacare_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "boat.d8feff9abaf4.jpg",
+   "sha256": "014d4ebbfddb9f32bce062816fc247a3ffb299c4cb0c6a062b76ce66b38cf61e",
+   "width": 1400,
+   "height": 824,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "May 2014",
+    "Wikiviajes por Venezuela 2014",
+    "Images of Venezuela by User:Wilfredor",
+    "Photographs of Isla Margarita by Wilfredor",
+    "Boats of Margarita Island by Wilfredor",
+    "Chacachacare (Margarita Island)",
+    "Boats by Wilfredor",
+    "Boats in Margarita Island"
+   ],
+   "year": 2014,
+   "source_size": [
+    4224,
+    2487
    ]
   },
   "brain": {
@@ -670,6 +731,32 @@
    "year": null,
    "source_size": []
   },
+  "coffee grinder": {
+   "concept": "coffee grinder",
+   "query": "coffee grinder",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "109524898",
+   "title": "File:Coffee grinder 2.jpg",
+   "creator": "Flanoz",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Coffee_grinder_2.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Coffee_grinder_2.jpg/1920px-Coffee_grinder_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "coffee-grinder.cfe0d7972fae.jpg",
+   "sha256": "3179df426b1da7b17eff6e9e5af9ab75c5046d80d2702bf278eead6af425b302",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Wall mounted hand coffee mills"
+   ],
+   "year": 2021,
+   "source_size": [
+    4000,
+    3000
+   ]
+  },
   "crane": {
    "concept": "crane",
    "query": "crane",
@@ -695,6 +782,62 @@
    "source_size": [
     4080,
     3072
+   ]
+  },
+  "crescent moon": {
+   "concept": "crescent moon",
+   "query": "crescent moon",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "148521542",
+   "title": "File:Crescent Moon (cropped).JPG",
+   "creator": "P. Bramwell Y0kwetahoe",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Crescent_Moon_(cropped).JPG",
+   "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Crescent_Moon_%28cropped%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file": "crescent-moon.9990084ccec7.jpg",
+   "sha256": "7c852c6cbf50f194e34fb446fc64138f8a7b4328d48ffc8b1b4012d2a4014f01",
+   "width": 1330,
+   "height": 1330,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Waxing crescent moon",
+    "Extracted images"
+   ],
+   "year": 2008,
+   "source_size": [
+    1330,
+    1330
+   ]
+  },
+  "cup": {
+   "concept": "cup",
+   "query": "cup",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "111654466",
+   "title": "File:Cup of coffee surrounded by beans.jpg",
+   "creator": "Zacharias Korsalka from Vienna, Austria",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Cup_of_coffee_surrounded_by_beans.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Cup_of_coffee_surrounded_by_beans.jpg/1920px-Cup_of_coffee_surrounded_by_beans.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "cup.10392a6e1adc.jpg",
+   "sha256": "c9b0a04b4fa3e7c9bc9625aaacea9791d59e7dd03c2d7f89324f6a9bb140e4fd",
+   "width": 1400,
+   "height": 990,
+   "fetched": "2026-09-28",
+   "subjects": [
+    "Coffee beans",
+    "Coffee cups and saucers",
+    "White coffee cups",
+    "Cups of black coffee"
+   ],
+   "year": 2017,
+   "source_size": [
+    3857,
+    2728
    ]
   },
   "document": {
@@ -821,6 +964,34 @@
    "source_size": [
     3024,
     2268
+   ]
+  },
+  "drop": {
+   "concept": "drop",
+   "query": "drop",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "148516209",
+   "title": "File:Drop creates waves.jpg",
+   "creator": "Sindugab",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Drop_creates_waves.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Drop_creates_waves.jpg/1920px-Drop_creates_waves.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "drop.222361a3c8b2.jpg",
+   "sha256": "f70eb3077c35b875cb73477dffee7b0c72906cc8cbaac209e2e9a28c4a1d7bab",
+   "width": 1400,
+   "height": 1000,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Water waves",
+    "Brass",
+    "Drops"
+   ],
+   "year": 2024,
+   "source_size": [
+    4909,
+    3505
    ]
   },
   "egg": {
@@ -1013,6 +1184,34 @@
    "year": null,
    "source_size": []
   },
+  "fork road": {
+   "concept": "fork in the road",
+   "query": "fork road",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "160709939",
+   "title": "File:Inside North Fork Road (36944864194).jpg",
+   "creator": "GlacierNPS",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Inside_North_Fork_Road_(36944864194).jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Inside_North_Fork_Road_%2836944864194%29.jpg/1920px-Inside_North_Fork_Road_%2836944864194%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "fork-in-the-road.e8552177e738.jpg",
+   "sha256": "86ddc21b0ac2c86db03bdf4cd1331381fbe089aa1830b2a0e490fc081b248b11",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "North Fork Road",
+    "U.S. National Park Service Flickr files uploaded by OptimusPrimeBot",
+    "United States National Park Service images (review needed)"
+   ],
+   "year": 2017,
+   "source_size": [
+    5472,
+    3648
+   ]
+  },
   "glass": {
    "concept": "glasses",
    "query": "glasses",
@@ -1076,6 +1275,32 @@
    "year": null,
    "source_size": []
   },
+  "half moon": {
+   "concept": "half moon",
+   "query": "half moon",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "4637015",
+   "title": "File:Half moon bay1.JPG",
+   "creator": "Intothewoods29",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Half_moon_bay1.JPG",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Half_moon_bay1.JPG/1920px-Half_moon_bay1.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "half-moon.fd464f56ae2a.jpg",
+   "sha256": "eb3a04ebeb5f3d56d9e58c6b9bae37a179f46531d9824006b9066237d35268d0",
+   "width": 1400,
+   "height": 1191,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Buildings in Half Moon Bay, California"
+   ],
+   "year": 2008,
+   "source_size": [
+    2560,
+    2178
+   ]
+  },
   "hard hat": {
    "concept": "hard hat",
    "query": "hard hat",
@@ -1122,6 +1347,32 @@
    "subjects": [],
    "year": null,
    "source_size": []
+  },
+  "hill": {
+   "concept": "hill",
+   "query": "hill",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "193495538",
+   "title": "File:View of hills through a car window.jpg",
+   "creator": "C.M.B.",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:View_of_hills_through_a_car_window.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/View_of_hills_through_a_car_window.jpg/1920px-View_of_hills_through_a_car_window.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "hill.bfbe41303f3d.jpg",
+   "sha256": "91bf197911d0cf03097ffb713512a07575c68e9a48977df4c410e96b501a8484",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Hill"
+   ],
+   "year": 2026,
+   "source_size": [
+    3648,
+    2432
+   ]
   },
   "hospital": {
    "concept": "hospital",
@@ -1258,6 +1509,86 @@
    "subjects": [],
    "year": null,
    "source_size": []
+  },
+  "lighthouse": {
+   "concept": "lighthouse",
+   "query": "lighthouse",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "2839073",
+   "title": "File:Currituck lighthouse.jpg",
+   "creator": "Warfieldian",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Currituck_lighthouse.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Currituck_lighthouse.jpg/1920px-Currituck_lighthouse.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "lighthouse.194f083293bd.jpg",
+   "sha256": "64bddfc73f0867714348b96801009fe4d6d59ab3f527691e27bee9b2f81c0476",
+   "width": 937,
+   "height": 1400,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Currituck Beach Lighthouse",
+    "National Register of Historic Places with known IDs"
+   ],
+   "year": null,
+   "source_size": [
+    2592,
+    3872
+   ]
+  },
+  "long queue": {
+   "concept": "long queue",
+   "query": "long queue",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "131378136",
+   "title": "File:Long queue (27705649093).jpg",
+   "creator": "freestocks.org from Olsztyn, Poland",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Long_queue_(27705649093).jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Long_queue_%2827705649093%29.jpg/1920px-Long_queue_%2827705649093%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "long-queue.9b26565a3932.jpg",
+   "sha256": "e08acb8269e8804c3777b491d73ce022b8b3053fdcc59760cae056b220818d03",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Stock photographs"
+   ],
+   "year": 2016,
+   "source_size": [
+    5056,
+    3371
+   ]
+  },
+  "magnifying glass": {
+   "concept": "magnifying glass",
+   "query": "magnifying glass",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "159118433",
+   "title": "File:Magnifying glass (53501034130).jpg",
+   "creator": "BLM Alaska",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Magnifying_glass_(53501034130).jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Magnifying_glass_%2853501034130%29.jpg/1920px-Magnifying_glass_%2853501034130%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "magnifying-glass.d9816099c0bd.jpg",
+   "sha256": "02a67a7c314a0536157c6349eb34099241e8e29971a859cb25d3821186221a14",
+   "width": 1400,
+   "height": 1243,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "United States Bureau of Land Management images (review needed)",
+    "U.S. Bureau of Land Management Flickr files uploaded by OptimusPrimeBot"
+   ],
+   "year": 2023,
+   "source_size": [
+    2696,
+    2392
+   ]
   },
   "microphone": {
    "concept": "microphone",
@@ -1432,6 +1763,32 @@
    "source_size": [
     1582,
     2500
+   ]
+  },
+  "paper boat": {
+   "concept": "paper boat",
+   "query": "paper boat",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "154519706",
+   "title": "File:Paper boat.jpg",
+   "creator": "Mohanraj55",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Paper_boat.jpg",
+   "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Paper_boat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file": "paper-boat.f6d2610da181.jpg",
+   "sha256": "6b9189fdacbacbf2eddcf3c40601e1113df3f07371bbe16bc538e58d146281d0",
+   "width": 650,
+   "height": 1156,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Paper boats"
+   ],
+   "year": 2024,
+   "source_size": [
+    650,
+    1156
    ]
   },
   "pencil": {
@@ -1635,6 +1992,38 @@
     480
    ]
   },
+  "sailing ship": {
+   "concept": "sailing ship",
+   "query": "sailing ship",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "147306585",
+   "title": "File:Baghlah sailing ship.jpg",
+   "creator": "Aliparsa",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Baghlah_sailing_ship.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Baghlah_sailing_ship.jpg/1920px-Baghlah_sailing_ship.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "sailing-ship.b5567b3adab6.jpg",
+   "sha256": "0352094c05630c10877035bc613a0c6128e4d4fce0f72c8852a45e71024388bc",
+   "width": 1400,
+   "height": 1028,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "1974 in Iran",
+    "Sailing ships",
+    "Dhows",
+    "Ships in Hormozgan Province",
+    "Baghlah",
+    "Persian Gulf in Iran",
+    "Ships in the Persian Gulf"
+   ],
+   "year": 1974,
+   "source_size": [
+    6380,
+    4686
+   ]
+  },
   "scooter": {
    "concept": "scooter",
    "query": "scooter",
@@ -1730,6 +2119,33 @@
     3456
    ]
   },
+  "soccer ball": {
+   "concept": "soccer_ball",
+   "query": "soccer ball",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "33477368",
+   "title": "File:Soccer ball on ground.jpg",
+   "creator": "Petey21",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Soccer_ball_on_ground.jpg",
+   "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Soccer_ball_on_ground.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "file": "soccer-ball.c26dfdad0268.jpg",
+   "sha256": "d3c3dfa9004ae4409b728f72a514fe40cb1f8d249d1cd40476a176bd1acddbd8",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Association football balls",
+    "Truncated icosahedron footballs"
+   ],
+   "year": 2014,
+   "source_size": [
+    1600,
+    1200
+   ]
+  },
   "sofa": {
    "concept": "sofa",
    "query": "sofa",
@@ -1809,6 +2225,34 @@
     3264
    ]
   },
+  "sprout": {
+   "concept": "sprout",
+   "query": "sprout",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "151552656",
+   "title": "File:Pea sprouts.jpg",
+   "creator": "Fumikas Sagisavas",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Pea_sprouts.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Pea_sprouts.jpg/1920px-Pea_sprouts.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "sprout.16f80a0ec4c5.jpg",
+   "sha256": "76d0f28a81a7023caa97667390d46a19a40a24ba51e5af7b47aa8d2dcd1d7c72",
+   "width": 1400,
+   "height": 1400,
+   "fetched": "2026-09-28",
+   "subjects": [
+    "Pisum sativum",
+    "Sprouts as food",
+    "Vegetable textures"
+   ],
+   "year": 2024,
+   "source_size": [
+    3000,
+    3000
+   ]
+  },
   "stethoscope": {
    "concept": "stethoscope",
    "query": "stethoscope",
@@ -1883,6 +2327,32 @@
    "source_size": [
     8160,
     6120
+   ]
+  },
+  "sunflower": {
+   "concept": "sunflower",
+   "query": "sunflower",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "153483472",
+   "title": "File:Common Sunflower 🌻.jpg",
+   "creator": "Nedia020415",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Common_Sunflower_%F0%9F%8C%BB.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Common_Sunflower_%F0%9F%8C%BB.jpg/1920px-Common_Sunflower_%F0%9F%8C%BB.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "sunflower.44f7fec1ae02.jpg",
+   "sha256": "6fe790481fcfdde58f1d8f51ad89d97a41a881d3260b0ef3132b523380d8e103",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-09-24",
+   "subjects": [
+    "Sunflowers"
+   ],
+   "year": 2024,
+   "source_size": [
+    4032,
+    3024
    ]
   },
   "syringe": {
@@ -2428,6 +2898,35 @@
    "source_size": [
     2848,
     2144
+   ]
+  },
+  "whistle": {
+   "concept": "whistle",
+   "query": "whistle",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "75765212",
+   "title": "File:Pioneer whistle.jpg",
+   "creator": "Takács István",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Pioneer_whistle.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Pioneer_whistle.jpg/1920px-Pioneer_whistle.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "whistle.4dff35d8f77f.jpg",
+   "sha256": "7dd79b6a6bdd7f040591ec7fd45c541b0d96994a06a389dd291e2715fbdbf061",
+   "width": 1400,
+   "height": 933,
+   "fetched": "2026-09-26",
+   "subjects": [
+    "Whistles",
+    "Úttörők",
+    "Red background",
+    "Photos by Takkk"
+   ],
+   "year": 2007,
+   "source_size": [
+    2339,
+    1559
    ]
   },
   "window": {

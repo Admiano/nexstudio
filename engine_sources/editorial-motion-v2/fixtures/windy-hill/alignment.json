@@ -1,0 +1,319 @@
+{
+ "words": [
+  {
+   "text": " On",
+   "start_ms": 0,
+   "end_ms": 340
+  },
+  {
+   "text": " a",
+   "start_ms": 340,
+   "end_ms": 460
+  },
+  {
+   "text": " windy",
+   "start_ms": 460,
+   "end_ms": 660
+  },
+  {
+   "text": " morning,",
+   "start_ms": 660,
+   "end_ms": 1120
+  },
+  {
+   "text": " Sam",
+   "start_ms": 1600,
+   "end_ms": 1800
+  },
+  {
+   "text": " flew",
+   "start_ms": 1800,
+   "end_ms": 2140
+  },
+  {
+   "text": " a",
+   "start_ms": 2140,
+   "end_ms": 2300
+  },
+  {
+   "text": " red",
+   "start_ms": 2300,
+   "end_ms": 2560
+  },
+  {
+   "text": " kite",
+   "start_ms": 2560,
+   "end_ms": 2860
+  },
+  {
+   "text": " over",
+   "start_ms": 2860,
+   "end_ms": 3220
+  },
+  {
+   "text": " the",
+   "start_ms": 3220,
+   "end_ms": 3400
+  },
+  {
+   "text": " hill.",
+   "start_ms": 3400,
+   "end_ms": 3680
+  },
+  {
+   "text": " A",
+   "start_ms": 4560,
+   "end_ms": 4720
+  },
+  {
+   "text": " bird",
+   "start_ms": 4720,
+   "end_ms": 4960
+  },
+  {
+   "text": " raced",
+   "start_ms": 4960,
+   "end_ms": 5460
+  },
+  {
+   "text": " the",
+   "start_ms": 5460,
+   "end_ms": 5620
+  },
+  {
+   "text": " kite",
+   "start_ms": 5620,
+   "end_ms": 5900
+  },
+  {
+   "text": " across",
+   "start_ms": 5900,
+   "end_ms": 6320
+  },
+  {
+   "text": " the",
+   "start_ms": 6320,
+   "end_ms": 6600
+  },
+  {
+   "text": " sky.",
+   "start_ms": 6600,
+   "end_ms": 6900
+  },
+  {
+   "text": " Five",
+   "start_ms": 7900,
+   "end_ms": 8160
+  },
+  {
+   "text": " sheep",
+   "start_ms": 8160,
+   "end_ms": 8420
+  },
+  {
+   "text": " watched",
+   "start_ms": 8420,
+   "end_ms": 8740
+  },
+  {
+   "text": " from",
+   "start_ms": 8740,
+   "end_ms": 8960
+  },
+  {
+   "text": " the",
+   "start_ms": 8960,
+   "end_ms": 9060
+  },
+  {
+   "text": " field,",
+   "start_ms": 9060,
+   "end_ms": 9460
+  },
+  {
+   "text": " one,",
+   "start_ms": 9860,
+   "end_ms": 10040
+  },
+  {
+   "text": " two,",
+   "start_ms": 10160,
+   "end_ms": 10320
+  },
+  {
+   "text": " three,",
+   "start_ms": 10460,
+   "end_ms": 10640
+  },
+  {
+   "text": " four,",
+   "start_ms": 10800,
+   "end_ms": 10980
+  },
+  {
+   "text": " five.",
+   "start_ms": 11040,
+   "end_ms": 11360
+  },
+  {
+   "text": " Two",
+   "start_ms": 12340,
+   "end_ms": 12500
+  },
+  {
+   "text": " more",
+   "start_ms": 12500,
+   "end_ms": 12740
+  },
+  {
+   "text": " sheep",
+   "start_ms": 12740,
+   "end_ms": 13040
+  },
+  {
+   "text": " came",
+   "start_ms": 13040,
+   "end_ms": 13300
+  },
+  {
+   "text": " to",
+   "start_ms": 13300,
+   "end_ms": 13480
+  },
+  {
+   "text": " play,",
+   "start_ms": 13480,
+   "end_ms": 13760
+  },
+  {
+   "text": " five",
+   "start_ms": 14180,
+   "end_ms": 14400
+  },
+  {
+   "text": " plus",
+   "start_ms": 14400,
+   "end_ms": 14680
+  },
+  {
+   "text": " two",
+   "start_ms": 14680,
+   "end_ms": 15040
+  },
+  {
+   "text": " makes",
+   "start_ms": 15040,
+   "end_ms": 15260
+  },
+  {
+   "text": " seven.",
+   "start_ms": 15260,
+   "end_ms": 15620
+  },
+  {
+   "text": " Then",
+   "start_ms": 16580,
+   "end_ms": 16780
+  },
+  {
+   "text": " the",
+   "start_ms": 16780,
+   "end_ms": 16940
+  },
+  {
+   "text": " rain",
+   "start_ms": 16940,
+   "end_ms": 17200
+  },
+  {
+   "text": " fell",
+   "start_ms": 17200,
+   "end_ms": 17560
+  },
+  {
+   "text": " and",
+   "start_ms": 17560,
+   "end_ms": 18140
+  },
+  {
+   "text": " a",
+   "start_ms": 18140,
+   "end_ms": 18240
+  },
+  {
+   "text": " mushroom",
+   "start_ms": 18240,
+   "end_ms": 18600
+  },
+  {
+   "text": " grew",
+   "start_ms": 18600,
+   "end_ms": 19000
+  },
+  {
+   "text": " beside",
+   "start_ms": 19000,
+   "end_ms": 19360
+  },
+  {
+   "text": " the",
+   "start_ms": 19360,
+   "end_ms": 19680
+  },
+  {
+   "text": " tree.",
+   "start_ms": 19680,
+   "end_ms": 19960
+  },
+  {
+   "text": " At",
+   "start_ms": 20900,
+   "end_ms": 21080
+  },
+  {
+   "text": " night,",
+   "start_ms": 21080,
+   "end_ms": 21360
+  },
+  {
+   "text": " the",
+   "start_ms": 21680,
+   "end_ms": 21720
+  },
+  {
+   "text": " stars",
+   "start_ms": 21720,
+   "end_ms": 22040
+  },
+  {
+   "text": " came",
+   "start_ms": 22040,
+   "end_ms": 22340
+  },
+  {
+   "text": " out",
+   "start_ms": 22340,
+   "end_ms": 22620
+  },
+  {
+   "text": " over",
+   "start_ms": 22620,
+   "end_ms": 22980
+  },
+  {
+   "text": " the",
+   "start_ms": 22980,
+   "end_ms": 23120
+  },
+  {
+   "text": " sleepy",
+   "start_ms": 23120,
+   "end_ms": 23440
+  },
+  {
+   "text": " farm.",
+   "start_ms": 23440,
+   "end_ms": 23860
+  }
+ ]
+}

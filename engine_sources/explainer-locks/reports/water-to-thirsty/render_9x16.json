@@ -1,0 +1,25 @@
+{
+  "schema": "EditorialRenderManifestV1",
+  "runtime": "EDITORIAL_RUNTIME_V3.0",
+  "film_id": "fixture-water-to-thirsty",
+  "aspect": "9x16",
+  "plan_sha256": "983314161d2c7fcb347b83023984cb055dfc53c647218d2280c8e0f18f37e15a",
+  "frames": 1167,
+  "fps": 30,
+  "output": {
+    "w": 1080,
+    "h": 1920,
+    "scale": 1.5
+  },
+  "mp4": "fixture-water-to-thirsty_9x16.mp4",
+  "mp4_sha256": "c96b6031aa206319de2b99facf0ad07fd2eb1072ed4b8899dfc001650bf0dea3",
+  "contact_sheet": "contact_9x16.png",
+  "transition_strip": "transitions_9x16.png",
+  "audio": {
+    "voice_segments": 10,
+    "accents": 22,
+    "music": "SILENT_UNTIL_RIGHTS_CLEAN_SOURCE_SELECTED"
+  },
+  "page_errors": [],
+  "native_profile": true
+}

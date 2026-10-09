@@ -1,0 +1,4 @@
+Kenney Particle Pack sprites
+Copyright (c) Kenney Vleugels (kenney.nl).
+Creative Commons Zero (CC0) - public domain, no attribution required.
+https://kenney.nl/assets/particle-pack

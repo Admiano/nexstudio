@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   try {
     const result = await appendStudioMemoryVersion({ prisma: getPrisma()!, ownerUserId: auth.session!.userId, ...body.data,
       effectiveFrom: body.data.effectiveFrom ? new Date(body.data.effectiveFrom) : undefined,
-      effectiveUntil: body.data.effectiveUntil ? new Date(body.data.effectiveUntil) : body.data.effectiveUntil,
+      effectiveUntil: body.data.effectiveUntil ? new Date(body.data.effectiveUntil) : body.data.effectiveUntil === null ? null : undefined,
       provenance: { source: "CUSTOMER", recordedAt: new Date().toISOString(), customerConfirmed: true, ...body.data.provenance },
       createdByType: "customer", createdById: auth.session!.userId,
     });

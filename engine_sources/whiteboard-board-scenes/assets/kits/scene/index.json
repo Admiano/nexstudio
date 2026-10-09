@@ -1,0 +1,366 @@
+{
+ "name": "scene",
+ "general": true,
+ "glyphs": {
+  "wooden-pier": {
+   "keywords": [
+    "pier",
+    "jetty",
+    "wharf",
+    "boardwalk",
+    "dock",
+    "quay"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "bird-cage": {
+   "keywords": [
+    "cage",
+    "birdcage",
+    "bird cage"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "round-straw-bale": {
+   "keywords": [
+    "bale",
+    "hay bale",
+    "hay",
+    "straw",
+    "straw bale"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "well": {
+   "keywords": [
+    "well",
+    "water well",
+    "village well",
+    "wishing well"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "park-bench": {
+   "keywords": [
+    "bench",
+    "park bench",
+    "piano bench",
+    "pew"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "bar-stool": {
+   "keywords": [
+    "stool",
+    "bar stool",
+    "piano stool"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "wood-beam": {
+   "keywords": [
+    "beam",
+    "wooden beam",
+    "plank",
+    "rafter",
+    "timber"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "theater-curtains": {
+   "keywords": [
+    "stage",
+    "theater",
+    "theatre",
+    "curtain",
+    "curtains",
+    "concert"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "barn": {
+   "keywords": [
+    "barn",
+    "stable",
+    "farmhouse"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "cooking-pot": {
+   "keywords": [
+    "pot",
+    "cooking pot",
+    "stew",
+    "soup pot",
+    "cauldron"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "greek-temple": {
+   "keywords": [
+    "town hall",
+    "city hall",
+    "courthouse",
+    "museum",
+    "temple"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "wheelbarrow": {
+   "keywords": [
+    "wheelbarrow",
+    "barrow"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "watering-can": {
+   "keywords": [
+    "watering can"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "hand-truck": {
+   "keywords": [
+    "hand truck",
+    "dolly",
+    "trolley"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "sofa": {
+   "keywords": [
+    "sofa",
+    "couch",
+    "settee"
+   ],
+   "source": "lucide"
+  },
+  "armchair": {
+   "keywords": [
+    "armchair",
+    "easy chair"
+   ],
+   "source": "lucide"
+  },
+  "coffee": {
+   "keywords": [
+    "mug",
+    "cocoa",
+    "hot chocolate",
+    "coffee mug",
+    "cup of cocoa",
+    "cup of coffee"
+   ],
+   "source": "lucide"
+  },
+  "puddle": {
+   "keywords": [
+    "puddle",
+    "puddles",
+    "pool of water",
+    "spill"
+   ],
+   "source": "authored",
+   "colors": true
+  },
+  "chalk": {
+   "keywords": [
+    "chalk",
+    "stick of chalk",
+    "crayon"
+   ],
+   "source": "authored"
+  },
+  "conveyor-belt": {
+   "keywords": [
+    "conveyor belt",
+    "conveyor",
+    "assembly line",
+    "production line"
+   ],
+   "source": "authored",
+   "colors": true
+  },
+  "chair-row": {
+   "keywords": [
+    "front row",
+    "row of chairs",
+    "rows of chairs",
+    "seats",
+    "seating",
+    "chairs"
+   ],
+   "source": "authored"
+  },
+  "table": {
+   "keywords": [
+    "table",
+    "dining table",
+    "kitchen table",
+    "wooden table",
+    "worktable",
+    "workbench",
+    "work bench"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "desk": {
+   "keywords": [
+    "desk",
+    "writing desk",
+    "school desk"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "sink": {
+   "keywords": [
+    "sink",
+    "kitchen sink",
+    "basin"
+   ],
+   "source": "game-icons/caro-asercion"
+  },
+  "bathtub": {
+   "keywords": [
+    "bathtub",
+    "bath",
+    "tub"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "fireplace": {
+   "keywords": [
+    "fireplace",
+    "hearth"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "stairs": {
+   "keywords": [
+    "stairs",
+    "staircase",
+    "steps",
+    "stairway"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "bookshelf": {
+   "keywords": [
+    "bookshelf",
+    "bookcase",
+    "shelf",
+    "shelves"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "tree-swing": {
+   "keywords": [
+    "swing",
+    "tree swing",
+    "rope swing"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "kid-slide": {
+   "keywords": [
+    "slide",
+    "playground slide",
+    "playground"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "farm-tractor": {
+   "keywords": [
+    "tractor",
+    "farm tractor"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "crib": {
+   "keywords": [
+    "crib",
+    "cot",
+    "cradle",
+    "baby bed"
+   ],
+   "source": "iconoir"
+  },
+  "floorboards": {
+   "keywords": [
+    "floor",
+    "floorboards",
+    "wooden floor",
+    "deck",
+    "boards",
+    "planks"
+   ],
+   "source": "authored",
+   "colors": true
+  },
+  "whisk": {
+   "keywords": [
+    "whisk",
+    "egg whisk",
+    "beater"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "magnifying-glass": {
+   "keywords": [
+    "lens",
+    "magnifying glass",
+    "magnifier",
+    "hand lens"
+   ],
+   "source": "game-icons/lorc"
+  },
+  "air-pump": {
+   "keywords": [
+    "air pump",
+    "bicycle pump",
+    "tire pump",
+    "tyre pump",
+    "pump"
+   ],
+   "source": "nexstudio"
+  },
+  "window": {
+   "keywords": [
+    "window",
+    "house window",
+    "cabin window"
+   ],
+   "source": "game-icons/delapouite"
+  },
+  "cloud-rain": {
+   "keywords": [
+    "rain",
+    "rain cloud",
+    "rainy weather",
+    "raindrops"
+   ],
+   "source": "lucide"
+  },
+  "tree-deciduous": {
+   "keywords": [
+    "tree",
+    "oak",
+    "oak tree",
+    "deciduous tree",
+    "leafy tree"
+   ],
+   "source": "lucide"
+  },
+  "runway": {
+   "keywords": [
+    "runway",
+    "airport runway",
+    "airstrip",
+    "landing strip"
+   ],
+   "source": "nexstudio"
+  }
+ },
+ "domain": "everyday settings and props of stories: piers, wells, benches, stages, barns, pots, furniture",
+ "license": "game-icons.net CC BY 3.0 (Delapouite, Caro Asercion, Lorc), Lucide ISC, Iconoir MIT and NexStudio-authored; see LICENSE-NOTICE.txt"
+}

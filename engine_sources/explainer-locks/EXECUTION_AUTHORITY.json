@@ -1,0 +1,27 @@
+{
+  "schema": "NexStudioEditorialMotionV2ExecutionBody",
+  "creativeAuthority": "NEXMIND_P8_CANONICAL_CREATIVE_AUTHORITY",
+  "role": "EXECUTION_ONLY",
+  "commercialCreativeCertification": false,
+  "unsupportedCreativeBehavior": "FAIL_OR_REPLAN__NO_HOUSE_FALLBACK",
+  "truthBoundary": "This body compiles and renders only a committed P8 treatment decision (NexStudioEditorialTreatmentV2). The compiler realises bounded per-beat decisions through the vendored bundle authorities and gates the result; it does not read script wording to choose layout, motif, icon, figure, media or sound, and it never rewrites display copy. The runtime executes plan data only.",
+  "treatmentContract": "NexStudioEditorialTreatmentV2",
+  "planContract": "NexStudioEditorialPlanV2",
+  "treatmentDirectives": [
+    "beat_type",
+    "pattern",
+    "dominant_layer",
+    "display_units",
+    "promoted_words",
+    "replace_groups",
+    "figure",
+    "media",
+    "data",
+    "voice_alignment"
+  ],
+  "nativeAspects": ["9x16", "1x1", "16x9"],
+  "aspectDerivation": "AUTHORED_PER_ASPECT__NEVER_SCALED_OR_CROPPED",
+  "figurePolicy": "OPEN_PEEPS_FULL_BODY_STILL_EMPHASIS_ONLY",
+  "musicPolicy": "AUTHORED_SLOT_SILENT_BY_DEFAULT",
+  "voicePolicy": "WORD_ALIGNMENT_IS_THE_CLOCK__ELEVENLABS_ROUTE_OR_FIXTURE"
+}

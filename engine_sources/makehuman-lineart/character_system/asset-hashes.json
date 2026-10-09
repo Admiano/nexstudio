@@ -1,0 +1,492 @@
+[
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_07/f_dress_07.obj",
+    "sizeBytes": 149487,
+    "sha256": "8e39c6240bc10e75d1a62ddf088ba57177badc6120047c6440b2746f018f55fd"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_07/f_dress_07.mhmat",
+    "sizeBytes": 603,
+    "sha256": "45c6540b9eade23b004a3e86166e337fe8517f4498764a27c284a51d59dfff76"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_07/mindfront_f_dress_07.mhclo",
+    "sizeBytes": 130389,
+    "sha256": "e9c993c9282bdc770e207b69bffd5c30b814cc21027f526440668deb84d61fe4"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/punkduck_middle_length_qipao/qipao.mhmat",
+    "sizeBytes": 833,
+    "sha256": "5c0f0229b41bd654e27cb31f1c8b2c00c78afda0fda7c3ce31371d29b1a35201"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/punkduck_middle_length_qipao/qipao.obj",
+    "sizeBytes": 338654,
+    "sha256": "78dffeaa2bd0e84aaa5f02870830bab2e8bae32d4301be934ccfaf89f8004763"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/punkduck_middle_length_qipao/punkduck_middle_length_qipao.mhclo",
+    "sizeBytes": 264369,
+    "sha256": "d7f1f6757ae69762487b6c3baff76dd5c5516ebb88e3acf5b42bbe5d80ed94fd"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_09/mindfront_f_dress_09.mhclo",
+    "sizeBytes": 547899,
+    "sha256": "3da2428ac7f6858871526331ee540b812eaf9ab7b4c843d77dd526a4559c32eb"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_09/f_dress_09.mhmat",
+    "sizeBytes": 603,
+    "sha256": "f93c150721b113973ce212439bc24d5b34a701d2d5570d35387724783bf49107"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_09/f_dress_09.obj",
+    "sizeBytes": 679244,
+    "sha256": "705157f431fbe7ee5fa71cc75e771067d510b9f607590856bffd629f63bbd618"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/punkduck_black_cocktail_dress/cocktaildress.mhmat",
+    "sizeBytes": 844,
+    "sha256": "c081e9bfca178503f7ecc05bc40d4f7d2c5ae51d226e0f88b733c7c76eb37184"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/punkduck_black_cocktail_dress/cocktaildress.obj",
+    "sizeBytes": 137809,
+    "sha256": "fd5235179cc211a4f65dc69501d966df57c2be19d6ce3a1047408c516d00cc62"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/punkduck_black_cocktail_dress/punkduck_black_cocktail_dress.mhclo",
+    "sizeBytes": 120524,
+    "sha256": "64bc159926dcbf213430efc0fefc5d7701363a03d37a666f0aabef93aa5321c5"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_11/mindfront_f_dress_11.mhclo",
+    "sizeBytes": 92458,
+    "sha256": "22d5ab72917f93d1cc4f0392d558f9234b61a020398fc8fd3a8472436e0cbae1"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_11/f_dress_11.obj",
+    "sizeBytes": 106495,
+    "sha256": "b16fb897ea23b8f973f3f86c279c7ae6730686a623ed304e9454f030bb082e01"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/dress03_cc-by/clothes/mindfront_f_dress_11/f_dress_11.mhmat",
+    "sizeBytes": 643,
+    "sha256": "6613d4ce4457eeb57a04ba8e4a1d83069de0f1dd6a2c133ea8b5677cde08a570"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/tongue/tongue01/tongue01.obj",
+    "sizeBytes": 17155,
+    "sha256": "12f4a6a9f85abae2ce3b4aa42d8119e1f679a437e0e89cb928ec68b29a7a1587"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/tongue/tongue01/tongue01.mhmat",
+    "sizeBytes": 1261,
+    "sha256": "7769df66c69b8c09a0ec713d70d8381abbb08ac82207369f5413970495cd4340"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/tongue/tongue01/tongue01.mhclo",
+    "sizeBytes": 2113,
+    "sha256": "61d825899cd78ff3146fa1324118060cb44b095fae1427d408c199ade74e3c9e"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/eyelashes/eyelashes01/eyelashes01.obj",
+    "sizeBytes": 18832,
+    "sha256": "f78f5b93fea1946fcae103d32c4f082dd9612a1ec2e7e2f90b03ebe59b0baf20"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/eyelashes/eyelashes01/eyelashes01.mhclo",
+    "sizeBytes": 2265,
+    "sha256": "5a86b29c15649273d723084954b7fa7bf199112571d4f58539b46734d397ee6b"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/eyelashes/eyelashes01/eyelashes01.mhmat",
+    "sizeBytes": 1074,
+    "sha256": "8029c99d94f3d87a1e81825fad6b90eec773ae6955a5b2592222ef237377e190"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/hair/afro01/afro01.mhmat",
+    "sizeBytes": 1030,
+    "sha256": "6da1c6778df2450b135009274ed0145dc2dffbc5d8e287fc1d4c69ba539b483c"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/hair/afro01/afro01.mhclo",
+    "sizeBytes": 149574,
+    "sha256": "9977bd4507e2dd1408504b7a39a6f585ffa2d3ba3aa40ad4bdc2844884bbebb5"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/hair/afro01/afro01.obj",
+    "sizeBytes": 130040,
+    "sha256": "8344fffef15120a05a89219f31184ca2958537223fa885c885137ad1e97edcb8"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/hair/short01/short01.mhclo",
+    "sizeBytes": 201588,
+    "sha256": "ae1ffaa98da5753b803b3a173bede4895d2215e6bb94763f3765a71f0e984f35"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/hair/short01/short01.obj",
+    "sizeBytes": 194450,
+    "sha256": "d998d8416f9b5d5591f1d756f4d292288d000a6951bc0f4d2e8e72727bbc44fa"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/hair/short01/short01.mhmat",
+    "sizeBytes": 1314,
+    "sha256": "01e2e12ce3f3d3c859225456660acadcdd27d4f4b4d888bcbd6f11998cadd975"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/eyes/high-poly/high-poly.obj",
+    "sizeBytes": 100882,
+    "sha256": "da2493215b708a344c33dc72f2a9a5b8fa985dcc5a70ad3b208995cf871da8e1"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/eyes/high-poly/high-poly.mhclo",
+    "sizeBytes": 72490,
+    "sha256": "b183cfe37120ab726f9b3f2ea6cd3a64c44ce7b4bd91a77c841cf70c04f83a0d"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/eyebrows/eyebrow001/eyebrow001.mhmat",
+    "sizeBytes": 1098,
+    "sha256": "976e5f4f1d3922d7a11c6e2db233f8b4584b068d00619d5749687e81c92d61fc"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/eyebrows/eyebrow001/eyebrow001.mhclo",
+    "sizeBytes": 9141,
+    "sha256": "54c8892c2ba577f4152d779ce1f20f7cd323beb8cbd9cb701796165c221b4f5b"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/eyebrows/eyebrow001/eyebrow001.obj",
+    "sizeBytes": 8227,
+    "sha256": "88b13146395133f3901715e11706cdfd293e5d6087ad7c5e01efe1485a26b513"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/teeth/teeth_base/teeth_base.mhclo",
+    "sizeBytes": 263220,
+    "sha256": "9edc3deff3bb97a95c791878064dd069a74a38f95ea6d9707a9ba68d888b3b5c"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/teeth/teeth_base/teeth_base.obj",
+    "sizeBytes": 313110,
+    "sha256": "f55198069e55d360c4b4cc7ecb1cc292b2c7665753ab8b65eabf46a8783f2875"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/makehuman_system_assets_cc0/teeth/teeth_base/teeth.mhmat",
+    "sizeBytes": 1086,
+    "sha256": "3baeff72d9eb06ca16c3cff7ca2ab304216717dee247e0d88f1dc33037c8320e"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+    "sizeBytes": 135942,
+    "sha256": "1639239b0d6d16ef2ca98f1f5af1af447d1e9e6950cd0fad9ecf774fa597434b"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/namuhekam_male_polo_shirt/Polo_t-shirt.obj",
+    "sizeBytes": 181381,
+    "sha256": "aaee5f49077a8bacb8b1077910e4b9cc7946d587c75e367273f4ecaf94abd627"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/namuhekam_male_polo_shirt/Polo_t-shirt.mhmat",
+    "sizeBytes": 427,
+    "sha256": "fb47735dab1f3aacf39b9aea7e9c8343ea47c39f8a13fab559ba505b7c28356c"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/toigo_fisherman_sweater/sweater_fisherman.mhmat",
+    "sizeBytes": 509,
+    "sha256": "254c011b3edae8cbab7adb2d082de670dd41b26324bf5772318b7557a127fd64"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/toigo_fisherman_sweater/toigo_fisherman_sweater.mhclo",
+    "sizeBytes": 144016,
+    "sha256": "b454960bdd61985f246e88e547a127a75d590dc87d6c1a4062fb7c7c281d8999"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/toigo_fisherman_sweater/sweater_fisherman.obj",
+    "sizeBytes": 172798,
+    "sha256": "2844465f4e798666a90f631ea4a89ae30d3e526ef045a978d338908750d21d09"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+    "sizeBytes": 94278,
+    "sha256": "c34bd03895c5ad9ec46965ef7d5f3e5e8c567630797ab312f8762c1d9fde8f71"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.obj",
+    "sizeBytes": 109974,
+    "sha256": "22159cf14d1f6831f931b49625f8f7692910bac22499c43466c0b5a2159b4d03"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts01_cc0/clothes/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.mhmat",
+    "sizeBytes": 509,
+    "sha256": "44098003a7ed47cd4c613d04adcdccaae47fe0d2b380bf3c25f105a739814f94"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/toigo_blunt_bob_with_bangs/bob_blunt_bangs.mhmat",
+    "sizeBytes": 558,
+    "sha256": "1e284e295c9b87684fdf434696c6a12b29d24d858fcc411947cb6a32baa8b3bf"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/toigo_blunt_bob_with_bangs/toigo_blunt_bob_with_bangs.mhclo",
+    "sizeBytes": 179911,
+    "sha256": "a10c85fea05740d19fbdb378169052ed0a857281753b5d286080c7a8720fee50"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/toigo_blunt_bob_with_bangs/bob_blunt_bangs.obj",
+    "sizeBytes": 211773,
+    "sha256": "88429d8919a9bf30bdf3ace3a0f18751561e02ef67c8fc839c57a610fa49dfe4"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/toigo_blunt_bob/bob_blunt.obj",
+    "sizeBytes": 118207,
+    "sha256": "e77b50e03ed0957fa596cc6d388cade25629c8650f734b16b581a1b51bbf11ff"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/toigo_blunt_bob/toigo_blunt_bob.mhclo",
+    "sizeBytes": 102588,
+    "sha256": "252f6b2edbc9f1568b85ff7f367709f5c328110023573df35720a4c84879f4e1"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/toigo_blunt_bob/bob_blunt.mhmat",
+    "sizeBytes": 576,
+    "sha256": "2cb32864aaa374bb45dfb0224a023b0a5993dfaafbac051aea170c2cbe6dfea1"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/elvs_french_braid_variation/frenchbraid1mh01.mhmat",
+    "sizeBytes": 761,
+    "sha256": "a7086f921beb8509eeeb67a36f2f92edc66254a1fd4d3ca127627e0be47de815"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/elvs_french_braid_variation/elvs_french_braid_variation.mhclo",
+    "sizeBytes": 440039,
+    "sha256": "61ea506301f39cff5079485597aac6bf876689c1922c0ae2386d45226578d340"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/elvs_french_braid_variation/frenchbraid1mh01.obj",
+    "sizeBytes": 440567,
+    "sha256": "708f019f2cbcc11f883890aa6c0b5a98209e6f1fc45833851c160b9385d89a34"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/rehmanpolanski_hair_bun_brown/hair_bun_brown.mhmat",
+    "sizeBytes": 467,
+    "sha256": "4f5c86a531b73707505632b36507c30f8759cea2f001de06d794aa1c4e1be716"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/rehmanpolanski_hair_bun_brown/hair_bun_brown.obj",
+    "sizeBytes": 194911,
+    "sha256": "87620ef37e13235c103415db778ae583b4f1abab21323ac1180bce57bef64856"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair01_cc0/hair/rehmanpolanski_hair_bun_brown/rehmanpolanski_hair_bun_brown.mhclo",
+    "sizeBytes": 171791,
+    "sha256": "54f136555d516f940268881e75453305789ff430be85032f25864d773ebe9676"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants01_cc0/clothes/toigo_wool_pants/pants_wool.obj",
+    "sizeBytes": 108902,
+    "sha256": "e02cd1e417ca3365e4dafc033f415c5186739df535d98810075cface0ce59c96"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants01_cc0/clothes/toigo_wool_pants/pants_wool.mhmat",
+    "sizeBytes": 473,
+    "sha256": "fedf31e98ea92b57c8f45e10ec167d420f5eb11b9410feb075c321c3798fdb53"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants01_cc0/clothes/toigo_wool_pants/toigo_wool_pants.mhclo",
+    "sizeBytes": 93219,
+    "sha256": "ac1a57a817976d80ece8a88698873d54de7f252d01ba3dca5e361693621fcf22"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/punkduck_comfortable_sneakers/sneakers.obj",
+    "sizeBytes": 67250,
+    "sha256": "1afc98831d2b945cc7f904e2d4eaace6aba3a5285b329d39e008adec361f25d9"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/punkduck_comfortable_sneakers/punkduck_comfortable_sneakers.mhclo",
+    "sizeBytes": 63449,
+    "sha256": "3a1af3a3c9c44f6857fc10fc0151c846111f9a5fe46d8a9a4695be2cd6d5fe15"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/punkduck_comfortable_sneakers/sneakers.mhmat",
+    "sizeBytes": 688,
+    "sha256": "3a249dbc17c5abb4b18f07e699413d0655aea80681fef980949de2e44c5da8fc"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/mindfront_shoes_monk_strap_male/mindfront_shoes_monk_strap_male.mhclo",
+    "sizeBytes": 469873,
+    "sha256": "cd0d962441eaed2a77cebe37672ce25eef24101fbf38452847405f7668378971"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/mindfront_shoes_monk_strap_male/shoes_monk_strap_male.obj",
+    "sizeBytes": 580161,
+    "sha256": "0b116de3452d5f3c3219c078774ba44bf7462f1d4a73511aabd4b1a11a4ed695"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/mindfront_shoes_monk_strap_male/shoes_monk_strap_male.mhmat",
+    "sizeBytes": 578,
+    "sha256": "9de413e2e934f8c1d77cdbb0abd96aea96bdb419fe7382ada0262ba328a1c450"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/mindfront_shoes_oxford_male/shoes_oxford_male.mhmat",
+    "sizeBytes": 562,
+    "sha256": "ff42db401d17eeed3fd7a33f857cf37ab7c44b786dda04bad0a585c6b90cb169"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/mindfront_shoes_oxford_male/shoes_oxford_male.obj",
+    "sizeBytes": 229164,
+    "sha256": "82f4893ab908acf5cbac8bdc5057cc5f7fbaa28e09d1f4e18f77f0e0ede80c0e"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/mindfront_shoes_oxford_male/mindfront_shoes_oxford_male.mhclo",
+    "sizeBytes": 189934,
+    "sha256": "a3f8a3e541a8c9bf059842b6b63d64936988079c06db98554b0b75be51a101c3"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/culturalibre_sneakers/sneakers.obj",
+    "sizeBytes": 633960,
+    "sha256": "a9799d8c1d96a3e737d54afc7bc66410d7539fcc08e983cd7861e5a2fb31356a"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/culturalibre_sneakers/culturalibre_sneakers.mhclo",
+    "sizeBytes": 372975,
+    "sha256": "fdb2a1d62dce8f759d544e5022f87e7530d43b1d03b7db80f0bbcd69ba7ddfab"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shoes02_ccby/clothes/culturalibre_sneakers/sneakers.mhmat",
+    "sizeBytes": 484,
+    "sha256": "d05d66b5890e0325eb9ca77955f7e1d6733ed80dd0463765dc36929be120dd80"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/mindfront_male_trousers_2/m_trousers_02.mhmat",
+    "sizeBytes": 615,
+    "sha256": "9454601e3f264becefc094026d22a39f0ab29b2e75793314e124f92126368184"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/mindfront_male_trousers_2/mindfront_male_trousers_2.mhclo",
+    "sizeBytes": 502082,
+    "sha256": "fa4a1b702b33b4052bceb8a07172dc7b2d8bec5f5b27e60333cab58e0b238b33"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/mindfront_male_trousers_2/m_trousers_02.obj",
+    "sizeBytes": 614555,
+    "sha256": "43bd510dd3c4d2e2a505d2665e4a2ca1fb5031737e55d9e3bf88912d9bb387dd"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/elvs_jeans_straight_leg/elvs_jeans_straight_leg.mhclo",
+    "sizeBytes": 210287,
+    "sha256": "a236750938e771e7f887e853a2e7dc1604b3fe247cbfe901147eff768b7f0087"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/elvs_jeans_straight_leg/mens_elv_jeans2slf.obj",
+    "sizeBytes": 256638,
+    "sha256": "b023a0fbf686b6246358e65548256a528914a17bc98ab99290f8bbcf5de8781f"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/elvs_jeans_straight_leg/mens_elv_jeans2slf.mhmat",
+    "sizeBytes": 814,
+    "sha256": "8d86cceb685eef8a5bea4c35fb3c03b9f1bc4d029f1912eede4346ddbf3a063e"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/punkduck_male_classic_jeans/punkduck_male_classic_jeans.mhclo",
+    "sizeBytes": 177711,
+    "sha256": "8e375d1fc5eae9a52f2677eb02474b116d2ce6918c8e45142d254391c6b46944"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/punkduck_male_classic_jeans/male-classic-jeans.obj",
+    "sizeBytes": 199711,
+    "sha256": "847cd28a532f12a560c5cbdd7069b1fea49ee9565f372e9965f8fd3653595fbf"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/punkduck_male_classic_jeans/male-classic-jeans.mhmat",
+    "sizeBytes": 907,
+    "sha256": "bfd98ff38b170843406a78f09823eb2c5a39efc6f94e192cf7c5ce67500f5723"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/mindfront_male_trousers_1/m_trousers_01.obj",
+    "sizeBytes": 134735,
+    "sha256": "8866ae70637c11d6944738e50819609096749a4acb7d3ccef6533cc029607121"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/mindfront_male_trousers_1/m_trousers_01.mhmat",
+    "sizeBytes": 566,
+    "sha256": "cc339e7c4094594264b4761f4ff7154e8c5e94c2d33529e355be6f68e2ab9d10"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/pants02_ccby/clothes/mindfront_male_trousers_1/mindfront_male_trousers_1.mhclo",
+    "sizeBytes": 117202,
+    "sha256": "8b0e1764cfe03d03eeec9d3a89326df99d446c0842f52c3def5c0f23dfe3d30f"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_braided_rows/cornrowsofelv5.obj",
+    "sizeBytes": 1854974,
+    "sha256": "e2959b6e9b4e263dbf588c4b0308cb5f9843b4fd0be5e67719e338f3133174c0"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_braided_rows/cornrowsofelv5.mhmat",
+    "sizeBytes": 913,
+    "sha256": "85a350cb866bd65b7d3f510b9c47f8ebac895f720a8d9bfbca8f8806e7b1cd96"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_braided_rows/elvs_braided_rows.mhclo",
+    "sizeBytes": 1473152,
+    "sha256": "67d7125acf45a370709527efce6a61a128e6a0e66416971a33fdbfb8980d41bc"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_maxwell_hair/elvs_maxwell_hair.mhclo",
+    "sizeBytes": 53045,
+    "sha256": "fff6f231faf78d8b7fe83452063433325bd62dd3b0456d3eb53b1192446cedd9"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_maxwell_hair/maxwell_hair_mh.obj",
+    "sizeBytes": 75902,
+    "sha256": "c62a26b1cf6001dd0d682acb379f1adcad988f13a938c5ec27da7a42b8a3c188"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_maxwell_hair/maxwell_hair_mh.mhmat",
+    "sizeBytes": 820,
+    "sha256": "dfe817b16524d809002f89b358c1ee0f819870111338bb162c6c5061df147cae"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_grump_hair/elvs_grumphair.obj",
+    "sizeBytes": 667024,
+    "sha256": "77e1582912e562c753f218dec4c94b5e92a72a77a15f553b9f409a78826b6564"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_grump_hair/elvs_grumphair.mhmat",
+    "sizeBytes": 771,
+    "sha256": "361106dcad51c4ffef80c7fea192d66b4d1226ea72f25a27f08b966062bd1701"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/hair02_ccby/hair/elvs_grump_hair/elvs_grump_hair.mhclo",
+    "sizeBytes": 601553,
+    "sha256": "269c03cf637e00bf5602964c71661c00ab0cc2cbd036718abb47c68609bda869"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts02_ccby/clothes/elvs_male_shirt_untucked_bd1/mens_shirt_untuck_elvbhp1f.obj",
+    "sizeBytes": 360017,
+    "sha256": "142b0116fc725ddbbcc4e442b0da74cd89ae9e93b7d2b218e09eaef9a2222f1e"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts02_ccby/clothes/elvs_male_shirt_untucked_bd1/mens_shirt_untuck_elvbhp1f.mhmat",
+    "sizeBytes": 820,
+    "sha256": "dd5e7cebc113593f621a1be6d303b2d815ce2412d903d5497831e918b6a953a1"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts02_ccby/clothes/elvs_male_shirt_untucked_bd1/elvs_male_shirt_untucked_bd1.mhclo",
+    "sizeBytes": 316292,
+    "sha256": "51cfb1288868958b34fbce824a06fab83d6c8191467c1c483bba36fb3e54e470"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts02_ccby/clothes/mindfront_knitted_sweater_01/knitted_sweater_01.mhmat",
+    "sizeBytes": 586,
+    "sha256": "1af23a024860e92a5e704bedb2f034bb500bfb3dd134d35b775c165b86c66903"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts02_ccby/clothes/mindfront_knitted_sweater_01/mindfront_knitted_sweater_01.mhclo",
+    "sizeBytes": 82032,
+    "sha256": "3583506f0d368843a903db0f317dd93dd70022b0081e06086d3ee7bcd5e4e212"
+  },
+  {
+    "path": "engine_sources/makehuman-lineart/assets/shirts02_ccby/clothes/mindfront_knitted_sweater_01/knitted_sweater_01.obj",
+    "sizeBytes": 106522,
+    "sha256": "a86c9d400c5fffb1071ab4144cd49034d784041d216ae46a618fc90f3afc771f"
+  }
+]
