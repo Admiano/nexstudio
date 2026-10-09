@@ -5,7 +5,28 @@ from mathutils import Vector
 args=sys.argv[sys.argv.index("--")+1:]
 gender,render_path,suit_src,shoe_src=args[:4]
 if gender!="female":
-    print("CC0_SHOE_FIT_SKIPPED",gender,flush=True)
+    # Reuse the original rigged V1 male footwear asset instead of leaving the
+    # suit donor's leg hems with no finished footwear. Read-only canonical;
+    # these visibility changes apply exclusively to the disposable proof.
+    obj=bpy.data.objects.get("Host.mindfront_shoes_monk_strap_male")
+    rig=bpy.data.objects.get("Host.rig")
+    if obj is None or rig is None:
+        raise RuntimeError("CANONICAL_MALE_MONK_STRAP_SHOES_MISSING")
+    if not any(m.type=="ARMATURE" and m.object==rig for m in obj.modifiers):
+        raise RuntimeError("CANONICAL_MALE_SHOES_NOT_BOUND_TO_ORIGINAL_RIG")
+    obj.hide_render=False
+    obj.hide_viewport=False
+    for name in ("Host.lineart_shoe.L","Host.lineart_shoe.R"):
+        proxy=bpy.data.objects.get(name)
+        if proxy:proxy.hide_render=True
+    out=Path(render_path).resolve()
+    bpy.ops.wm.save_as_mainfile(filepath=str(out.with_suffix(".blend")),copy=True,compress=True)
+    report={"asset":"Host.mindfront_shoes_monk_strap_male","gender":gender,
+            "source":"pre-existing approved V1 male footwear",
+            "sourceRigUnchanged":True,
+            "status":"UNAPPROVED_MALE_ORIGINAL_SHOE_REUSE_TRIAL"}
+    out.with_name(out.stem+"-shoes.json").write_text(json.dumps(report,indent=2))
+    print("V1_MALE_EXISTING_MONK_SHOES_RESTORED",json.dumps(report),flush=True)
 else:
     src=Path(shoe_src).resolve()
     assert src.is_file(), "CC0 shoes MHClO missing"
