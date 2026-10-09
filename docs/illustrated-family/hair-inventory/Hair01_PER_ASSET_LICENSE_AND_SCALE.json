@@ -1,0 +1,528 @@
+{
+  "kind": "EXACT_SOURCE_FILE_LICENSING_NOT_COLLECTION_LEVEL",
+  "zipSha256": "49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9",
+  "count": {
+    "CC0_INDIVIDUAL_HEADER": 11,
+    "AGPL_NOT_CC0": 10,
+    "UNKNOWN_EXCLUDE": 4
+  },
+  "total": 25,
+  "assets": [
+    {
+      "name": "cortu_shaggy_green_hair",
+      "directory": "hair/cortu_shaggy_green_hair",
+      "mhclo": "hair/cortu_shaggy_green_hair/cortu_shaggy_green_hair.mhclo",
+      "sourceLicense": "# Cortu Johnstone - CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Cortu Johnstone - CC0"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 60884,
+      "mhcloBytes": 65636
+    },
+    {
+      "name": "cortu_short_messy_hair",
+      "directory": "hair/cortu_short_messy_hair",
+      "mhclo": "hair/cortu_short_messy_hair/cortu_short_messy_hair.mhclo",
+      "sourceLicense": "# Cortu Johnstone - CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Cortu Johnstone - CC0"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 52093,
+      "mhcloBytes": 56368
+    },
+    {
+      "name": "cortu_straight_bangs",
+      "directory": "hair/cortu_straight_bangs",
+      "mhclo": "hair/cortu_straight_bangs/cortu_straight_bangs.mhclo",
+      "sourceLicense": "# Cortu Johnstone - CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Cortu Johnstone - CC0"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 53419,
+      "mhcloBytes": 57446
+    },
+    {
+      "name": "cortu_strawberry_cloud_hair",
+      "directory": "hair/cortu_strawberry_cloud_hair",
+      "mhclo": "hair/cortu_strawberry_cloud_hair/cortu_strawberry_cloud_hair.mhclo",
+      "sourceLicense": "# Cortu Johnstone - CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Cortu Johnstone - CC0"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 29029,
+      "mhcloBytes": 32727
+    },
+    {
+      "name": "culturalibre_hair_01",
+      "directory": "hair/culturalibre_hair_01",
+      "mhclo": "hair/culturalibre_hair_01/culturalibre_hair_01.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/node/320)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Unknown",
+        "# license AGPL3 (see also http://www.makehuman.org/node/320)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 214425,
+      "mhcloBytes": 212444
+    },
+    {
+      "name": "culturalibre_hair_02",
+      "directory": "hair/culturalibre_hair_02",
+      "mhclo": "hair/culturalibre_hair_02/culturalibre_hair_02.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/node/320)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author MHteam",
+        "# license AGPL3 (see also http://www.makehuman.org/node/320)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 163203,
+      "mhcloBytes": 156223
+    },
+    {
+      "name": "culturalibre_hair_05",
+      "directory": "hair/culturalibre_hair_05",
+      "mhclo": "hair/culturalibre_hair_05/culturalibre_hair_05.mhclo",
+      "sourceLicense": "# license CC-0",
+      "licenseStatus": "UNKNOWN_EXCLUDE",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author culturalibre",
+        "# license CC-0",
+        "# Original by swift502",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 257893,
+      "mhcloBytes": 175979
+    },
+    {
+      "name": "culturalibre_hair_06",
+      "directory": "hair/culturalibre_hair_06",
+      "mhclo": "hair/culturalibre_hair_06/culturalibre_hair_06.mhclo",
+      "sourceLicense": "# license CC-0",
+      "licenseStatus": "UNKNOWN_EXCLUDE",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author culturalibre",
+        "# license CC-0",
+        "# Original by swift502",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 776535,
+      "mhcloBytes": 510220
+    },
+    {
+      "name": "elvs_double_mh_braid",
+      "directory": "hair/elvs_double_mh_braid",
+      "mhclo": "hair/elvs_double_mh_braid/elvs_double_mh_braid.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Unknown",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 540640,
+      "mhcloBytes": 543904
+    },
+    {
+      "name": "elvs_french_braid_variation",
+      "directory": "hair/elvs_french_braid_variation",
+      "mhclo": "hair/elvs_french_braid_variation/elvs_french_braid_variation.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Unknown",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 440567,
+      "mhcloBytes": 440039
+    },
+    {
+      "name": "elvs_reverse_french_braid_bun",
+      "directory": "hair/elvs_reverse_french_braid_bun",
+      "mhclo": "hair/elvs_reverse_french_braid_bun/elvs_reverse_french_braid_bun.mhclo",
+      "sourceLicense": "# license CC_by",
+      "licenseStatus": "UNKNOWN_EXCLUDE",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Elvaerwyn",
+        "# license CC_by",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 392939,
+      "mhcloBytes": 388054
+    },
+    {
+      "name": "elvs_unkempt_french_braid",
+      "directory": "hair/elvs_unkempt_french_braid",
+      "mhclo": "hair/elvs_unkempt_french_braid/elvs_unkempt_french_braid.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Unknown",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 443879,
+      "mhcloBytes": 443703
+    },
+    {
+      "name": "faydaen_hair_1",
+      "directory": "hair/faydaen_hair_1",
+      "mhclo": "hair/faydaen_hair_1/faydaen_hair_1.mhclo",
+      "sourceLicense": "# license: CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# This is a clothes file for MakeHuman Community, exported by MakeClothes 2",
+        "#",
+        "# author: unknown",
+        "# license: CC0",
+        "#"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 47591,
+      "mhcloBytes": 33164
+    },
+    {
+      "name": "learning_anime_hair",
+      "directory": "hair/learning_anime_hair",
+      "mhclo": "hair/learning_anime_hair/learning_anime_hair.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Unknown",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 4085611,
+      "mhcloBytes": 3108063
+    },
+    {
+      "name": "littleright_bobcut_hair",
+      "directory": "hair/littleright_bobcut_hair",
+      "mhclo": "hair/littleright_bobcut_hair/littleright_bobcut_hair.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author littleright",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+        "# homepage https://twitter.com/littleright_lr"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 127949,
+      "mhcloBytes": 129746
+    },
+    {
+      "name": "o4saken_long01",
+      "directory": "hair/o4saken_long01",
+      "mhclo": "hair/o4saken_long01/o4saken_long01.mhclo",
+      "sourceLicense": "# license CC BY 4.0",
+      "licenseStatus": "UNKNOWN_EXCLUDE",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author 04saken",
+        "# license CC BY 4.0",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 907650,
+      "mhcloBytes": 1016141
+    },
+    {
+      "name": "rehmanpolanski_hair_bun_brown",
+      "directory": "hair/rehmanpolanski_hair_bun_brown",
+      "mhclo": "hair/rehmanpolanski_hair_bun_brown/rehmanpolanski_hair_bun_brown.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Rehman Polanski",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 194911,
+      "mhcloBytes": 171791
+    },
+    {
+      "name": "sonntag78_blond_with_headband",
+      "directory": "hair/sonntag78_blond_with_headband",
+      "mhclo": "hair/sonntag78_blond_with_headband/sonntag78_blond_with_headband.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Unknown",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 91771,
+      "mhcloBytes": 86444
+    },
+    {
+      "name": "sonntag78_junglebook_hair",
+      "directory": "hair/sonntag78_junglebook_hair",
+      "mhclo": "hair/sonntag78_junglebook_hair/sonntag78_junglebook_hair.mhclo",
+      "sourceLicense": "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "licenseStatus": "AGPL_NOT_CC0",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author Unknown",
+        "# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 372375,
+      "mhcloBytes": 329609
+    },
+    {
+      "name": "toigo_blunt_bob",
+      "directory": "hair/toigo_blunt_bob",
+      "mhclo": "hair/toigo_blunt_bob/toigo_blunt_bob.mhclo",
+      "sourceLicense": "# license CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author MRT",
+        "# license CC0",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 118207,
+      "mhcloBytes": 102588
+    },
+    {
+      "name": "toigo_blunt_bob_with_bangs",
+      "directory": "hair/toigo_blunt_bob_with_bangs",
+      "mhclo": "hair/toigo_blunt_bob_with_bangs/toigo_blunt_bob_with_bangs.mhclo",
+      "sourceLicense": "# license CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author MRT",
+        "# license CC0",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 211773,
+      "mhcloBytes": 179911
+    },
+    {
+      "name": "toigo_curled_under_bob",
+      "directory": "hair/toigo_curled_under_bob",
+      "mhclo": "hair/toigo_curled_under_bob/toigo_curled_under_bob.mhclo",
+      "sourceLicense": "# license CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author MRT",
+        "# license CC0",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 111278,
+      "mhcloBytes": 102450
+    },
+    {
+      "name": "toigo_curled_under_bob_with_bangs",
+      "directory": "hair/toigo_curled_under_bob_with_bangs",
+      "mhclo": "hair/toigo_curled_under_bob_with_bangs/toigo_curled_under_bob_with_bangs.mhclo",
+      "sourceLicense": "# license CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author MRT",
+        "# license CC0",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 206188,
+      "mhcloBytes": 179915
+    },
+    {
+      "name": "toigo_inverted_bob",
+      "directory": "hair/toigo_inverted_bob",
+      "mhclo": "hair/toigo_inverted_bob/toigo_inverted_bob.mhclo",
+      "sourceLicense": "# license CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author MRT",
+        "# license CC0",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 118025,
+      "mhcloBytes": 102805
+    },
+    {
+      "name": "toigo_inverted_bob_with_bangs",
+      "directory": "hair/toigo_inverted_bob_with_bangs",
+      "mhclo": "hair/toigo_inverted_bob_with_bangs/toigo_inverted_bob_with_bangs.mhclo",
+      "sourceLicense": "# license CC0",
+      "licenseStatus": "CC0_INDIVIDUAL_HEADER",
+      "headerComments": [
+        "# Exported from MakeClothes (TM)",
+        "# author MRT",
+        "# license CC0",
+        "# homepage http://www.makehuman.org/"
+      ],
+      "scaleKeys": [
+        "x_scale",
+        "y_scale",
+        "z_scale"
+      ],
+      "hasOBJ": true,
+      "objSizeBytes": 209719,
+      "mhcloBytes": 180524
+    }
+  ]
+}
