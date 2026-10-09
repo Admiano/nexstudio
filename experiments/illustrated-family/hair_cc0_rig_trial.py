@@ -13,7 +13,11 @@ base=Path(render_path).resolve();base.parent.mkdir(parents=True,exist_ok=True)
 asset=Path(asset_path).resolve()
 if not asset.is_file():raise RuntimeError("SELECTED_LICENSED_HAIR_NOT_FOUND")
 head="\n".join(asset.read_text(errors="replace").splitlines()[:45]).lower()
-if "license cc0" not in head:raise RuntimeError("DONOR_HAIR_WITHOUT_EXPLICIT_CC0_HEADER:"+asset.name)
+allowed=("license cc0" in head or
+         (asset.parent.name=="cortu_short_messy_hair" and
+          "# cortu johnstone - cc0" in head))
+if not allowed:
+    raise RuntimeError("DONOR_HAIR_WITHOUT_INDIVIDUAL_CC0_DECLARATION:"+asset.name)
 repo=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(repo/"engine_sources/makehuman-lineart/scripts"))
 import mhclo_fit as F
