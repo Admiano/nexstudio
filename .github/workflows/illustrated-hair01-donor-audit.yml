@@ -17,17 +17,17 @@ jobs:
           curl -fL --retry 5 --retry-delay 2 -o /tmp/hair01_cc0.zip https://files2.makehumancommunity.org/asset_packs/hair01/hair01_cc0.zip
           unzip -tq /tmp/hair01_cc0.zip
           sha256sum /tmp/hair01_cc0.zip | tee hair01_sha256.txt
-          unzip -Z1 /tmp/hair01_cc0.zip | grep -E '(rehmanpolanski_hair_bun_brown|cortu_short_messy_hair|toigo_blunt_bob_with_bangs)' | tee hair01_selected_paths.txt
+          unzip -Z1 /tmp/hair01_cc0.zip | grep -E '(culturalibre_hair_02|cortu_short_messy_hair|toigo_blunt_bob_with_bangs|toigo_blunt_bob/|elvs_french_braid_variation)' | tee hair01_selected_paths.txt
           test -s hair01_selected_paths.txt
           while IFS= read -r path; do
             case "$path" in
               *.mhclo)
                 echo "===== $path ====="
-                unzip -p /tmp/hair01_cc0.zip "$path" | head -n 36 | grep -iE '^#.*(author|license)|^((x|y|z)_scale|l_shear_|obj_file)' || true
+                unzip -p /tmp/hair01_cc0.zip "$path" | head -n 16 || true
                 ;;
             esac
           done < hair01_selected_paths.txt | tee hair01_selected_headers.txt
-          test "$(grep -c 'license CC0' hair01_selected_headers.txt)" -ge 2
+          test "$(grep -ci 'license CC0' hair01_selected_headers.txt)" -ge 2
       - uses: actions/upload-artifact@v4
         with:
           name: v1-real-hair01-cc0-donor-validation
