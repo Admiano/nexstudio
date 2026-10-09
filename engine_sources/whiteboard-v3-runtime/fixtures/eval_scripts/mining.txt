@@ -1,0 +1,9 @@
+# Deep Underground
+## The Shaft
+The miner rides an elevator down the shaft.
+
+## Digging
+A miner breaks the rock with a drill.
+
+## Gold
+The geologist holds a small nugget of gold.

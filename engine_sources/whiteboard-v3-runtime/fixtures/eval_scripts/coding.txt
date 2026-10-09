@@ -1,0 +1,9 @@
+# Shipping an App
+## The Bug
+The programmer finds a bug in the code.
+
+## The Fix
+A developer repairs the broken login on her laptop.
+
+## Launch
+The manager presses the launch button and the team cheers.

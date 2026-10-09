@@ -1,0 +1,12 @@
+# How Tokenized Assets Work
+## The Vault
+A custodian holds the real asset in a vault. The auditor verifies the reserve.
+
+## Minting
+The developer mints a token on the blockchain. The smart contract records the hash.
+
+## Trading
+An investor buys a fractional share. The trader exchanges the token for money.
+
+## The Attack
+A scammer tries to steal the private key. The wallet locks the vault and alerts the network.

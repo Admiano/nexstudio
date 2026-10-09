@@ -1,0 +1,13 @@
+{
+ "clip": "PROTO_SWORD_IDLE",
+ "frames": 4,
+ "fps": 8.0,
+ "res": [
+  160,
+  204
+ ],
+ "cam": "side",
+ "proto": true,
+ "source": "rgs-proto",
+ "license": "CC0"
+}

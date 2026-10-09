@@ -191,6 +191,84 @@
   }
 
   /**
+   * Articulated hand — the whiteboard performer's semantic digit projection,
+   * ported to rig space. Five digits with per-finger curl/spread driven by a
+   * hand state (relaxed/open/point/pinch/grip/…), so a pointing figure really
+   * points and a gripping one really grips.
+   */
+  const HAND_STATES = {
+    relaxed: { spread: 0.34, curl: 0.30, index: 0.78, thumb: 0.60 },
+    open: { spread: 0.86, curl: 0.06, index: 1.00, thumb: 0.82 },
+    present: { spread: 0.72, curl: 0.08, index: 0.96, thumb: 0.82 },
+    point: { spread: 0.24, curl: 0.72, index: 1.34, thumb: 0.58 },
+    tap: { spread: 0.20, curl: 0.76, index: 1.24, thumb: 0.52 },
+    pinch: { spread: 0.18, curl: 0.58, index: 0.88, thumb: 0.88 },
+    grip: { spread: 0.18, curl: 0.88, index: 0.60, thumb: 0.66 },
+    receive: { spread: 0.76, curl: 0.12, index: 0.96, thumb: 0.84 },
+    give: { spread: 0.60, curl: 0.18, index: 0.92, thumb: 0.78 },
+    wave: { spread: 0.55, curl: 0.15, index: 1.00, thumb: 0.80 }
+  };
+  const _DIGITS = [
+    { name: 'thumb', off: -0.62, L: 0.66 },
+    { name: 'index', off: -0.30, L: 0.98 },
+    { name: 'middle', off: 0.0, L: 1.04 },
+    { name: 'ring', off: 0.27, L: 0.95 },
+    { name: 'little', off: 0.50, L: 0.80 }
+  ];
+
+  /**
+   * @returns {{mass:string, details:string}} mass geometry merges into the
+   * silhouette (fingers are part of the outline); details are inner strokes.
+   */
+  function handDigitShapes(part, semName, stroke) {
+    const sem = HAND_STATES[semName] || HAND_STATES.relaxed;
+    const a = part.a;
+    const b = part.b;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const fx = dx / len;
+    const fy = dy / len;
+    const tx = -fy;
+    const ty = fx;
+    const w = part.widthFrom;
+    const sideSign = part.side === 'right' ? 1 : -1;
+    const palm = { x: a.x + fx * len * 0.5, y: a.y + fy * len * 0.5 };
+    const masses = [
+      limbMass({ x: a.x, y: a.y }, palm, w * 0.95, w * 0.85),
+      `<ellipse cx="${round(palm.x)}" cy="${round(palm.y)}" rx="${round(w * 0.6)}" ry="${round(w * 0.52)}" transform="rotate(${round(Math.atan2(fy, fx) * 180 / Math.PI)} ${round(palm.x)} ${round(palm.y)})"/>`
+    ];
+    const details = [];
+    for (const d of _DIGITS) {
+      const factor = d.name === 'thumb' ? sem.thumb : (d.name === 'index' ? sem.index : 1.0);
+      const curl = (semName === 'point' || semName === 'tap') && d.name === 'index'
+        ? 0.02
+        : semName === 'pinch' && (d.name === 'thumb' || d.name === 'index')
+          ? 0.42
+          : sem.curl;
+      const spread = d.off * w * 1.1 * sem.spread * sideSign;
+      const base = { x: palm.x + tx * spread + fx * w * 0.32, y: palm.y + ty * spread + fy * w * 0.32 };
+      let dvx = fx + tx * d.off * 0.62 * sem.spread * sideSign;
+      let dvy = fy + ty * d.off * 0.62 * sem.spread * sideSign;
+      const dl = Math.hypot(dvx, dvy) || 1;
+      dvx /= dl; dvy /= dl;
+      const digLen = w * 1.25 * d.L * factor;
+      const mid = { x: base.x + dvx * digLen * 0.52, y: base.y + dvy * digLen * 0.52 };
+      let bvx = dvx + tx * sideSign * curl * 0.75;
+      let bvy = dvy + ty * sideSign * curl * 0.75;
+      const bl = Math.hypot(bvx, bvy) || 1;
+      bvx /= bl; bvy /= bl;
+      const tip = { x: mid.x + bvx * digLen * 0.48 * (1 - 0.42 * curl), y: mid.y + bvy * digLen * 0.48 * (1 - 0.42 * curl) };
+      const dw = d.name === 'thumb' ? w * 0.4 : w * 0.32;
+      masses.push(limbMass(base, tip, dw, dw * 0.8));
+      if (d.name !== 'thumb' && d.name !== 'little') {
+        details.push(`<path d="M ${round(base.x)} ${round(base.y)} L ${round(mid.x)} ${round(mid.y)}" fill="none" stroke="${stroke}" stroke-width="${round(w * 0.07)}" stroke-linecap="round" opacity="0.5"/>`);
+      }
+    }
+    return { mass: masses.join(''), details: details.join('') };
+  }
+
+  /**
    * A hand: palm and thumb rather than the tapered tube the limb builder
    * gives every other segment. At book scale this is the difference between
    * a hand on an oar and a stick touching it.
@@ -211,6 +289,53 @@
       `<ellipse cx="${round(palm.x)}" cy="${round(palm.y)}" rx="${round(w * 0.62)}" ry="${round(w * 0.52)}" transform="rotate(${round(Math.atan2(uy, ux) * 180 / Math.PI)} ${round(palm.x)} ${round(palm.y)})"/>`,
       `<ellipse cx="${round(thumb.x)}" cy="${round(thumb.y)}" rx="${round(w * 0.3)}" ry="${round(w * 0.24)}"/>`
     ].join('');
+  }
+
+  /**
+   * A crease where a joint actually bends. The mark sits inside the V the two
+   * limb segments form, so it only appears when cloth would genuinely bunch —
+   * detail a fixed asset cannot carry, because it follows the pose.
+   */
+  function bendCrease(prev, joint, next, width, stroke) {
+    const ax = joint.x - prev.x;
+    const ay = joint.y - prev.y;
+    const bx = next.x - joint.x;
+    const by = next.y - joint.y;
+    const al = Math.hypot(ax, ay) || 1;
+    const bl = Math.hypot(bx, by) || 1;
+    let ix = bx / bl - ax / al;
+    let iy = by / bl - ay / al;
+    const il = Math.hypot(ix, iy);
+    if (il < 0.28) return '';   // straighter than ~16 degrees: no bunch
+    ix /= il; iy /= il;
+    const px = -iy;
+    const py = ix;
+    const cxp = joint.x + ix * width * 0.2;
+    const cyp = joint.y + iy * width * 0.2;
+    const hw = width * 0.34;
+    const bow = width * 0.14;
+    return `<path d="M ${round(cxp - px * hw)} ${round(cyp - py * hw)} Q ${round(cxp + ix * bow)} ${round(cyp + iy * bow)} ${round(cxp + px * hw)} ${round(cyp + py * hw)}" fill="none" stroke="${stroke}" stroke-width="${round(width * 0.07)}" stroke-linecap="round"/>`;
+  }
+
+  /** Finger separations: two short strokes inside the palm, along its length. */
+  function fingerMarks(part) {
+    const a = part.a;
+    const b = part.b;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len;
+    const uy = dy / len;
+    const w = part.widthFrom;
+    const nx = -uy;
+    const ny = ux;
+    const marks = [];
+    for (const off of [-0.2, 0.2]) {
+      const sx = a.x + ux * len * 0.58 + nx * w * off;
+      const sy = a.y + uy * len * 0.58 + ny * w * off;
+      marks.push(`<path d="M ${round(sx)} ${round(sy)} L ${round(sx + ux * len * 0.34)} ${round(sy + uy * len * 0.34)}" fill="none" stroke-width="${round(w * 0.12)}" stroke-linecap="round"/>`);
+    }
+    return marks.join('');
   }
 
   /** A shoe: the mass, plus a sole that puts the foot on the floor. */
@@ -358,14 +483,68 @@
       if (isFoot) {
         for (const s of footShapes(part, solid, mix(look.shoes.bare ? look.skin : look.shoes.color, '#1a120c', 0.42))) emit(depth, piece(s.fill, s.svg, 'pb-foot'));
       } else if (isHand) {
-        emit(depth, piece(solid, handShape(part), 'pb-hand'));
+        const handState = (opts.hands && (opts.hands[part.side] || opts.hands.both)) || opts.hand || 'relaxed';
+        const hd = handDigitShapes(part, handState, mix(look.skin, '#1c150f', 0.55));
+        emit(depth, piece(solid, hd.mass, 'pb-hand'));
+        if (hd.details) emit(depth + 0.001, `<g class="pb-detail" fill="none">${hd.details}</g>`);
       } else {
         emit(depth, piece(solid, isUpper ? cappedMass(part.a, part.b, part.widthFrom, part.widthTo, 'end') : limbMass(part.a, part.b, part.widthFrom, part.widthTo), `pb-${part.kind}`));
+        // Proximal joint disc: at extreme limb angles a shoulder or hip can
+        // part from the torso edge inside the union silhouette — a cap at
+        // the joint keeps the limb visually attached at any pose.
+        if (isUpper || /thigh/.test(part.id)) {
+          const jr = part.widthFrom * 0.74;
+          emit(depth - 0.0005, piece(solid, `<circle cx="${round(part.a.x)}" cy="${round(part.a.y)}" r="${round(jr)}"/>`, 'pb-joint'));
+        }
       }
 
       if (isUpper && look.top.sleeve > 0.05 && look.top.sleeve < 1) {
         const end = { x: part.a.x + (part.b.x - part.a.x) * look.top.sleeve, y: part.a.y + (part.b.y - part.a.y) * look.top.sleeve };
         emit(depth, piece(shade(look.top.color, part.depth, span), cappedMass(part.a, end, part.widthFrom * 1.1, part.widthFrom * 1.04, 'none'), 'pb-sleeve'));
+      }
+      // Garment construction: where a long sleeve takes over the arm it needs
+      // a shoulder seam and a wrist cuff, or the limb reads as a fold of the
+      // torso's cloth rather than an arm inside a sleeve.
+      if (sleeved && (isUpper || isFore)) {
+        const ux = (part.b.x - part.a.x) / (Math.hypot(part.b.x - part.a.x, part.b.y - part.a.y) || 1);
+        const uy = (part.b.y - part.a.y) / (Math.hypot(part.b.x - part.a.x, part.b.y - part.a.y) || 1);
+        const seamAt = isUpper ? 0.16 : 0.82;
+        const hw = (isUpper ? part.widthFrom : part.widthTo) * (isFore ? 0.62 : 0.5);
+        const cx = part.a.x + ux * Math.hypot(part.b.x - part.a.x, part.b.y - part.a.y) * seamAt;
+        const cy = part.a.y + uy * Math.hypot(part.b.x - part.a.x, part.b.y - part.a.y) * seamAt;
+        const px = -uy, py = ux;
+        const bow = hw * 0.34;
+        const mx = cx + (isFore ? ux : -ux) * bow;
+        const my = cy + (isFore ? uy : -uy) * bow;
+        emit(depth + 0.001, `<g class="pb-detail" fill="none"><path d="M ${round(cx - px * hw)} ${round(cy - py * hw)} Q ${round(mx)} ${round(my)} ${round(cx + px * hw)} ${round(cy + py * hw)}" stroke="${mix(look.top.color, '#1c150f', 0.55)}" stroke-width="${round(hw * 0.16)}" stroke-linecap="round"/></g>`);
+      }
+    }
+
+    // Joint creases follow the actual bend of each elbow and knee: the ink
+    // sits inside the V the segments form and only appears where the pose
+    // really bunches cloth or skin.
+    if (opts.creases !== false) {
+      const J = figure.joints;
+      const inkStroke = mix(look.skin, '#1c150f', 0.5);
+      for (const side of ['left', 'right']) {
+        const fore = figure.parts.find((p) => p.id === `${side}-fore-arm`);
+        const shin = figure.parts.find((p) => p.id === `${side}-shin`);
+        if (fore && J[`${side}Shoulder`] && J[`${side}Elbow`] && J[`${side}Wrist`]) {
+          const c = bendCrease(J[`${side}Shoulder`], J[`${side}Elbow`], J[`${side}Wrist`], fore.widthFrom, inkStroke);
+          if (c) {
+            emit(fore.depth + 0.001, `<g class="pb-detail" fill="none">${c}</g>`);
+            const e = J[`${side}Elbow`];
+            emit(fore.depth - 0.0005, piece(shade(look.skin, fore.depth, span), `<circle cx="${round(e.x)}" cy="${round(e.y)}" r="${round(fore.widthFrom * 0.7)}"/>`, 'pb-joint'));
+          }
+        }
+        if (shin && J[`${side}Hip`] && J[`${side}Knee`] && J[`${side}Ankle`]) {
+          const c = bendCrease(J[`${side}Hip`], J[`${side}Knee`], J[`${side}Ankle`], shin.widthFrom, inkStroke);
+          if (c) {
+            emit(shin.depth + 0.001, `<g class="pb-detail" fill="none">${c}</g>`);
+            const k = J[`${side}Knee`];
+            emit(shin.depth - 0.0005, piece(shade(look.skin, shin.depth, span), `<circle cx="${round(k.x)}" cy="${round(k.y)}" r="${round(shin.widthFrom * 0.7)}"/>`, 'pb-joint'));
+          }
+        }
       }
     }
 

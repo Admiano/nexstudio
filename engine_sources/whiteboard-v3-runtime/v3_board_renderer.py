@@ -18,10 +18,17 @@ import math
 import re
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageDraw
 
 import whiteboard_pil_adapter as wbp
 import svg_paths
+import art_clip
+
+try:
+    from nltk.corpus import wordnet as _WN
+except ImportError:
+    _WN = None
 
 
 # The preserved adapter's paper grain draws near-black specks: ImageDraw on
@@ -29,16 +36,37 @@ import svg_paths
 # Wrap it (runtime-only, file untouched) with a pre-blended paper tint.
 def _subtle_paper_texture(im, pal, seed):
     import random
+    import math as _m
     rnd = random.Random(seed)
     d = ImageDraw.Draw(im)
     w, h = im.size
-    # speckle picks up a whisper of the ink colour over the paper —
-    # subtle on white boards, a faint chalk grain on dark ones
-    speck = tuple(int(pal['bgc'][i] * 0.92 + pal['inkc'][i] * 0.08)
+    # a real sheet reads unevenly: a soft warm drift toward the bottom,
+    # a scattering of ink specks and pale flecks, a few fine fibres —
+    # still quiet, but no longer a dead flat fill
+    warm = tuple(int(pal['bgc'][i] * 0.94 + pal['inkc'][i] * 0.06)
+                 for i in range(3)) + (255,)
+    grad = Image.linear_gradient('L').resize((w, h))
+    ov = Image.new('RGBA', (w, h), warm)
+    ov.putalpha(grad.point(lambda v: int(v * 0.10)))
+    im.alpha_composite(ov)
+    speck = tuple(int(pal['bgc'][i] * 0.82 + pal['inkc'][i] * 0.18)
                   for i in range(3)) + (255,)
-    for _ in range(max(14, int(w * h / 46000))):
+    fleck = tuple(min(255, int(pal['bgc'][i] * 1.03 + 2))
+                  for i in range(3)) + (255,)
+    for _ in range(max(80, int(w * h / 9000))):
         x, y = rnd.randrange(w), rnd.randrange(h)
-        d.point((x, y), fill=speck)
+        c = speck if rnd.random() < 0.6 else fleck
+        d.point((x, y), fill=c)
+        if rnd.random() < 0.35:
+            d.point((x + 1, y), fill=c)
+    fibre = tuple(int(pal['bgc'][i] * 0.93 + pal['inkc'][i] * 0.07)
+                  for i in range(3)) + (255,)
+    for _ in range(max(10, w // 180)):
+        x, y = rnd.randrange(w), rnd.randrange(h)
+        ln = rnd.randint(12, 38)
+        a = rnd.uniform(0, _m.pi)
+        d.line((x, y, x + _m.cos(a) * ln, y + _m.sin(a) * ln),
+               fill=fibre, width=1)
 
 
 wbp._paper_texture = _subtle_paper_texture
@@ -79,7 +107,9 @@ wbp._map_point = _map_point_zone_fit
 _ASSETS = Path(__file__).resolve().parent / 'assets'
 _ASSET_DIR = _ASSETS / 'open_peeps'
 _PEEPS_DIR = _ASSETS / 'peeps'
+# our own illustrated marker-hand sprite (per user direction — no stock photo)
 _HAND_PATH = _ASSETS / 'hand' / 'drawing-hand.png'
+_HAND_PATH_ALT = _ASSETS / 'hand' / 'drawing-hand.png'
 _FONT_DIR = _ASSETS / 'fonts'
 
 # Authored Open Peeps pose library: the V15/V16 donor-lineage files shipped in
@@ -594,13 +624,14 @@ def _sparkle_strokes():
 # ---------------------------------------------------------------------------
 
 def _taper_profile(i: int, n: int) -> float:
-    """Marker-tip width profile: ramps in fast, rides full, eases to a taper."""
+    """Marker-tip width profile: ramps in fast, swells mid, tapers out."""
     if n < 4:
         return 1.0
     t = i / (n - 1)
-    ramp_in = min(1.0, t / 0.10)
-    ramp_out = min(1.0, (1 - t) / 0.22)
-    return max(0.28, min(ramp_in, ramp_out))
+    ramp_in = min(1.0, t / 0.08)
+    ramp_out = min(1.0, (1 - t) / 0.26)
+    swell = 1.0 + 0.10 * math.sin(t * math.pi)
+    return max(0.20, min(ramp_in, ramp_out) * swell)
 
 
 def _taper_line(layer, pts, color, width, seed, rough=.3, p=1.0):
@@ -647,7 +678,6 @@ def _hatch_segments(poly, spacing=0.07, angle_deg=45.0):
     dx, dy = math.cos(a), math.sin(a)
     nx, ny = -dy, dx  # hatch normal sweeps the bbox diagonal
     c0, c1 = x0 * nx + y0 * ny, x1 * nx + y1 * ny
-    d0, d1 = x0 * dx + y0 * dy, x1 * dx + y1 * dy
     lo, hi = min(c0, c1, x1 * nx + y0 * ny, x0 * nx + y1 * ny), \
         max(c0, c1, x1 * nx + y0 * ny, x0 * nx + y1 * ny)
     # signed crossings along each hatch line
@@ -738,17 +768,113 @@ def text_width(text: str, height: float) -> float:
     return x
 
 
+
+# -- font lettering (Kalam, SIL OFL 1.1) ------------------------------------
+# Bold casual handwriting revealed letter by letter. Each character is one
+# 'ftext' stroke whose points are its world box diagonal; the draw layer
+# rasterizes the glyph at screen size and wipes it in left to right.
+
+_FONT_FILES = {'hand': 'Kalam-Regular.ttf', 'hand-bold': 'Kalam-Bold.ttf'}
+_FONT_CACHE: dict = {}
+_GLYPH_CACHE: dict = {}
+
+
+def _font(key: str, px: int):
+    from PIL import ImageFont
+    k = (key, px)
+    f = _FONT_CACHE.get(k)
+    if f is None:
+        f = ImageFont.truetype(str(_FONT_DIR / _FONT_FILES[key]), px)
+        _FONT_CACHE[k] = f
+    return f
+
+
+_FONT_REF_PX = 200
+
+
+def font_metrics(size: float, font: str = 'hand'):
+    """(ascent, descent) in world units for a font size."""
+    a, d = _font(font, _FONT_REF_PX).getmetrics()
+    return a * size / _FONT_REF_PX, d * size / _FONT_REF_PX
+
+
+def font_text_width(text: str, size: float, font: str = 'hand') -> float:
+    return _font(font, _FONT_REF_PX).getlength(text) * size / _FONT_REF_PX
+
+
+def font_ink_box(text: str, origin, size: float, font: str = 'hand'):
+    """Tight world bounds of the actual ink (origin = top-left of line)."""
+    f = _font(font, _FONT_REF_PX)
+    bb = f.getbbox(text, anchor='la')
+    k = size / _FONT_REF_PX
+    return (origin[0] + bb[0] * k, origin[1] + bb[1] * k,
+            origin[0] + bb[2] * k, origin[1] + bb[3] * k)
+
+
+def font_text_strokes(text: str, origin, size: float, color='ink',
+                      font: str = 'hand'):
+    """Letter strokes for `text`; origin is the line's top-left (ascender
+    line) in world space."""
+    f = _font(font, _FONT_REF_PX)
+    k = size / _FONT_REF_PX
+    out = []
+    for i, ch in enumerate(text):
+        if ch.isspace():
+            continue
+        x = origin[0] + f.getlength(text[:i]) * k
+        bb = f.getbbox(ch, anchor='la')
+        pts = [(x + bb[0] * k, origin[1] + bb[1] * k),
+               (x + bb[2] * k, origin[1] + bb[3] * k)]
+        out.append((pts, color, 1.0, 'ftext', True, ch, size, font,
+                    (x, origin[1])))
+    return out
+
+
+def _glyph_img(ch, font, px, col):
+    k = (ch, font, px, col)
+    im = _GLYPH_CACHE.get(k)
+    if im is None:
+        f = _font(font, px)
+        bb = f.getbbox(ch, anchor='la')
+        w, h = max(1, bb[2] - bb[0] + 2), max(1, bb[3] - bb[1] + 2)
+        im = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+        ImageDraw.Draw(im).text((1 - bb[0], 1 - bb[1]), ch, font=f,
+                                fill=col, anchor='la')
+        if len(_GLYPH_CACHE) > 6000:
+            _GLYPH_CACHE.clear()
+        _GLYPH_CACHE[k] = im
+    return im
+
+
 # -- drawing hand ------------------------------------------------------------
 
 _HAND_IMG = None
-_HAND_NIB = (5, 8)  # marker tip inside the sprite (px, source image space)
+# marker nib position per sprite (px, source image space)
+_HAND_NIBS = {_HAND_PATH.name: (5, 8), _HAND_PATH_ALT.name: (5, 8)}
 
 
 def _hand():
     global _HAND_IMG
-    if _HAND_IMG is None and _HAND_PATH.exists():
-        _HAND_IMG = Image.open(_HAND_PATH).convert('RGBA')
+    if _HAND_IMG is None:
+        for p in (_HAND_PATH, _HAND_PATH_ALT):
+            if p.exists():
+                _HAND_IMG = _fade_arm(Image.open(p).convert('RGBA'))
+                break
     return _HAND_IMG
+
+
+def _fade_arm(img: Image.Image) -> Image.Image:
+    """Feather the forearm where the sprite is cut (down-right) so the arm
+    trails off softly instead of ending in a hard square edge."""
+    a = np.asarray(img).copy()
+    h, w = a.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w]
+    proj = (xx / w) * 0.74 + (yy / h) * 0.67
+    lo, hi = 1.08, 1.34
+    k = np.clip((hi - proj) / (hi - lo), 0, 1)
+    k = k * k * (3 - 2 * k)
+    a[..., 3] = (a[..., 3] * k).astype(np.uint8)
+    return Image.fromarray(a, 'RGBA')
 
 
 def _overlay_hand(frame: Image.Image, tip, ratio: str, wobble: float = 0.0):
@@ -760,7 +886,9 @@ def _overlay_hand(frame: Image.Image, tip, ratio: str, wobble: float = 0.0):
     scale = (h * 0.24) / hand.height
     hw, hh = int(hand.width * scale), int(hand.height * scale)
     img = hand.resize((hw, hh), Image.LANCZOS)
-    nx, ny = _HAND_NIB[0] * scale, _HAND_NIB[1] * scale
+    nib = _HAND_NIBS.get(_HAND_PATH.name, (5, 8)) if _HAND_PATH.exists() \
+        else _HAND_NIBS[_HAND_PATH_ALT.name]
+    nx, ny = nib[0] * scale, nib[1] * scale
     # wobble: the hand breathes with the stroke, ±1.5px
     dx = tip[0] - nx + math.sin(wobble) * 1.5
     dy = tip[1] - ny + math.cos(wobble * 1.3) * 1.2
@@ -800,7 +928,11 @@ _ICON_KEYWORDS = {
                'runner', 'cyclist', 'dancer', 'singer', 'actor',
                'shopper', 'vendor', 'merchant', 'consumer', 'guest',
                'resident', 'visitor', 'pedestrian', 'jogger', 'clerk',
-               'agent owner', 'customer agent'),
+               'validator', 'regulator', 'custodian', 'banker', 'auditor',
+               'lender', 'borrower', 'issuer', 'underwriter', 'trustee',
+               'guardian', 'warden', 'executor', 'teller', 'dealer',
+               'comptroller', 'principal', 'dean', 'pupil', 'agent owner',
+               'customer agent'),
     'agent': ('agent', 'robot', 'ai', 'bot', 'assistant', 'android',
               'chatbot', 'automation bot'),
     'envelope': ('request', 'mail', 'email', 'message', 'letter', 'send', 'ticket',
@@ -961,6 +1093,140 @@ def _tabler_lookup(concept: str):
 
 _ICON_INDEX = None
 _SYN = None
+_KITS = None
+_ART_KIT: str | None = None
+
+
+def set_art_kit(name):
+    """Active domain art kit for this render — kit glyphs win resolution
+    ties and can be addressed verbatim as 'kit:<domain>:<slug>' or a motif
+    via 'kit:<domain>:@<motif>' from role icon fields."""
+    global _ART_KIT
+    _ART_KIT = str(name).strip().lower() if name else None
+
+
+def _kits():
+    """Domain art kits under assets/kits/<domain>/ — manifest index.json
+    {'glyphs': {slug: {'keywords': [...], 'motif': id, 'tone': accent}}}."""
+    global _KITS
+    if _KITS is None:
+        _KITS = {}
+        kroot = _ASSETS / 'kits'
+        if kroot.is_dir():
+            for kd in kroot.iterdir():
+                idx = kd / 'index.json'
+                if not idx.is_file():
+                    continue
+                try:
+                    man = json.loads(idx.read_text())
+                except Exception:
+                    continue
+                _KITS[kd.name] = man.get('glyphs', {})
+                if man.get('general'):
+                    _KIT_GENERAL.add(kd.name)
+                if man.get('lex'):
+                    _KIT_LEX[kd.name] = man['lex']
+    return _KITS
+
+
+_KIT_GENERAL: set = set()
+# kits that apply to any word of their WordNet class ('noun.animal')
+_KIT_LEX: dict = {}
+
+
+def _kit_for_word(dom: str, phrase: str) -> tuple | None:
+    """_kit_live, or a class kit whose class the phrase's head noun is
+    in: 'kitten' draws from the animal kit in any script."""
+    live = _kit_live(dom)
+    if live is not None or dom not in _KIT_LEX or _WN is None:
+        return live
+    head = (str(phrase).lower().replace('-', ' ').split() or [''])[-1]
+    try:
+        ss = _WN.synsets(_WN.morphy(head, _WN.NOUN) or head, pos=_WN.NOUN)
+    except LookupError:
+        return None
+    return (0, 0) if _mostly(ss, _KIT_LEX[dom]) else None
+
+
+def _mostly(ss, lex):
+    """Most of a word's senses are of this class: 'kitten' is an animal,
+    'queen' (a person, a chess piece, a card, a bee) is not."""
+    return bool(ss) and sum(s.lexname() == lex for s in ss) * 2 >= len(ss)
+
+
+def _kit_live(dom: str) -> tuple | None:
+    """How strongly a domain kit applies to this script: the plan's own
+    kit, a general-ideas kit, or a kit whose distinctive vocabulary the
+    script uses (>= 3 of its keywords). None when it doesn't apply."""
+    kits = _kits()
+    pool = {k for g in kits.get(dom, {}).values()
+            for k in g.get('keywords', [])}
+    if dom not in _KIT_GENERAL:
+        # everyday words shared with the general-world kit prove nothing
+        pool -= {k for g in kits.get('world', {}).values()
+                 for k in g.get('keywords', [])} | set(kits.get('world', {}))
+    hits = (_CONTEXT or set()) & pool
+    n = len(hits)
+    if dom == _ART_KIT:
+        return (2, n)
+    if dom in _KIT_GENERAL:
+        return (0, n)
+    if dom != 'world' and n >= 3 and sum(
+            1 for k in hits if _distinctive(k)) >= 2:
+        return (1, n)
+    return None
+
+
+def _distinctive(word: str) -> bool:
+    """A word that names little besides its own thing (custodian,
+    blockchain), as opposed to an everyday polysemous word (price, order,
+    share) that cannot by itself say what a script is about."""
+    if _WN is None:
+        return False
+    return len(_WN.synsets(word.replace(' ', '_'))) <= 3
+
+
+def _kit_glyph(domain: str, slug: str):
+    """Deterministic kit resolution — 'kit:crypto:bitcoin-coin' or a motif
+    handle 'kit:crypto:@coin' resolves to ('icon', 'kit:crypto', slug)."""
+    if slug.startswith('@'):
+        want = slug[1:]
+        for g, meta in _kits().get(domain, {}).items():
+            if meta.get('motif') == want:
+                return ('icon', f'kit:{domain}', g)
+        return None
+    if slug in _kits().get(domain, {}):
+        return ('icon', f'kit:{domain}', slug)
+    return None
+
+
+def _kit_probe(phrase: str, exclude=None):
+    """Score a concept against the ACTIVE kit's glyph index only — same
+    weighting as _icon_lookup, restricted to kit:<ART_KIT> entries so a
+    domain glyph always beats a generic doodle/illust for its domain."""
+    if not _ART_KIT:
+        return None
+    words = [w for w in re.findall(r'[a-z0-9]+', str(phrase).lower())
+             if len(w) > 2]
+    if not words:
+        return None
+    direct, expanded = _expanded(words)
+    best, best_score = None, 0.0
+    for (d, name), toks in _icon_index().items():
+        if d != f'kit:{_ART_KIT}':
+            continue
+        if exclude and ('icon', d, name) in exclude:
+            continue
+        name_parts = set(name.split('-'))
+        score = sum((5 if w in name_parts else 3) + 0.15 * len(w)
+                    for w in direct & toks)
+        score += 1.8 * len((expanded & toks) - direct)
+        score += len(direct & name_parts)
+        score += 1.5 * len(direct & toks) / len(direct)
+        score -= len(name) * 0.04
+        if score > best_score:
+            best, best_score = ('icon', d, name), score
+    return best if best_score >= 3.5 else None
 
 
 def _synonyms():
@@ -999,6 +1265,29 @@ def _icon_index():
                 toks = set(slug.split('-')) | set(m.get('keywords', ()))
                 toks |= set(str(m.get('group', '')).lower().replace('&', ' ').split())
                 idx[('fluent', slug)] = {t for t in toks if len(t) > 1}
+        # domain art kits — keyword sets from each kit's manifest
+        for dom, glyphs in _kits().items():
+            for slug, meta in glyphs.items():
+                toks = set(slug.split('-'))
+                toks |= {str(t).lower() for t in meta.get('keywords', ())}
+                if meta.get('motif'):
+                    toks.add(str(meta['motif']).lower())
+                idx[(f'kit:{dom}', slug)] = {t for t in toks if len(t) > 1}
+        om = _ASSETS / 'openmoji' / 'index.json'
+        if om.is_file():
+            for slug, m in json.loads(om.read_text()).items():
+                toks = set(slug.split('-')) | set(m.get('tokens', ()))
+                idx[('openmoji', slug)] = {t for t in toks if len(t) > 1}
+        ai = _ASSETS / 'animicons' / 'index.json'
+        if ai.is_file():
+            for slug, m in json.loads(ai.read_text()).items():
+                toks = set(slug.split('-')) | set(m.get('tokens', ()))
+                idx[('animicon', slug)] = {t for t in toks if len(t) > 1}
+        nm = _ASSETS / 'notomoji' / 'index.json'
+        if nm.is_file():
+            for slug, m in json.loads(nm.read_text()).items():
+                toks = set(slug.split('-')) | set(m.get('tokens', ()))
+                idx[('notomoji', slug)] = {t for t in toks if len(t) > 1}
         _ICON_INDEX = idx
     return _ICON_INDEX
 
@@ -1036,6 +1325,14 @@ def _icon_lookup(concept: str, exclude=None):
         score += 1.5 * len(direct & toks) / len(direct)
         if d == 'tabler':
             score += 0.15                     # cleanest stroke style wins ties
+        if d == 'animicon':
+            score += 0.30                     # animated art wins ties outright
+        if d == 'notomoji':
+            score += 0.05                     # emoji accent — must win on tokens
+        if d.startswith('kit:'):
+            # active-kit glyphs are bespoke domain art — they should beat
+            # generic vocabulary whenever the concept touches the domain
+            score += 3.5 if d == f'kit:{_ART_KIT}' else -1.0
         score -= len(name) * 0.04
         if score > best_score:
             best, best_score = ('icon', d, name), score
@@ -1137,11 +1434,50 @@ def _slug(text: str) -> str:
     return re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
 
 
+# named paper-illustration tones a kit SVG's own fills snap to
+SVG_TONES = {
+    'paper': (245, 240, 228), 'a_cream': (236, 226, 204),
+    'a_grey': (190, 192, 196), 'a_slate': (142, 148, 156),
+    'a_dark': (70, 74, 80),
+    'a_brown': (150, 102, 68), 'a_tan': (205, 160, 112),
+    'a_skin': (240, 196, 160), 'a_pink': (238, 170, 190),
+    'a_sky': (160, 202, 232), 'a_blue': (59, 123, 212),
+    'a_leaf': (120, 160, 72), 'a_mint': (132, 186, 128),
+    'a_green': (79, 157, 105),
+    'a_red': (208, 69, 62), 'a_orange': (232, 131, 58),
+    'a_yellow': (229, 184, 58), 'a_purple': (149, 117, 205),
+    'ink': (34, 34, 34),
+}
+
+
+def svg_tone(hexcol: str) -> str:
+    h = str(hexcol).lstrip('#')
+    if len(h) == 3:
+        h = ''.join(c * 2 for c in h)
+    try:
+        rgb = tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+    except ValueError:
+        return 'ink'
+    def sat(c):
+        return (max(c) - min(c)) / max(1, max(c))
+    pool = [k for k in SVG_TONES
+            if (sat(SVG_TONES[k]) > 0.18) == (sat(rgb) > 0.18)] or SVG_TONES
+    return min(pool, key=lambda k: sum(
+        (a - b) ** 2 * w for a, b, w in zip(SVG_TONES[k], rgb, (3, 4, 2))))
+
+
 def _dir_strokes(dir_name: str, slug: str):
     """Unit-space strokes for an SVG in assets/<dir_name>/<slug>.svg.
     Ink-filled elements hatch; paper/secondary fills draw as outlines only
-    so the art reads on the board's paper."""
-    path = _ASSETS / dir_name / f'{slug}.svg'
+    so the art reads on the board's paper. 'kit:<dom>' reads
+    assets/kits/<dom>/ and applies the glyph's manifest tone/fill rules."""
+    kit_meta = None
+    if dir_name.startswith('kit:'):
+        dom = dir_name[4:]
+        kit_meta = (_kits().get(dom) or {}).get(slug)
+        path = _ASSETS / 'kits' / dom / f'{slug}.svg'
+    else:
+        path = _ASSETS / dir_name / f'{slug}.svg'
     if not path.is_file():
         return None
     try:
@@ -1167,24 +1503,46 @@ def _dir_strokes(dir_name: str, slug: str):
     # pop inside a vignette (giant background fills are skipped)
     accent_el = -1
     if dir_name != 'custom':
-        filled = [(i, (max(p[0] for p in pls[0])
-                       - min(p[0] for p in pls[0]))
-                  * (max(p[1] for p in pls[0]) - min(p[1] for p in pls[0])))
+        filled = [(i, (max(p[0] for pl in pls for p in pl)
+                       - min(p[0] for pl in pls for p in pl))
+                  * (max(p[1] for pl in pls for p in pl)
+                     - min(p[1] for pl in pls for p in pl)))
                   for i, (pls, f, c) in enumerate(elements)
                   if c and str(f).startswith('#')
                   and f not in ('#F5F0E4', '#FFFFFF', '#fff', 'white')]
         if filled:
-            biggest = max(filled, key=lambda t: t[1])
-            total_area = vbw * vbh or 1
-            if biggest[1] <= total_area * 0.40:
-                accent_el = biggest[0]
+            # a hero silhouette (coin, whale body) can be most of the viewBox
+            # and is still the right accent — reject only full-bleed backdrop
+            # rects that span ~all of both axes
+            try:
+                vw, vh = float(vb[2]), float(vb[3])
+            except Exception:
+                vw = vh = 0
+            def _backdrop(i):
+                pls = elements[i][0]
+                span_x = max(p[0] for pl in pls for p in pl) \
+                    - min(p[0] for pl in pls for p in pl)
+                span_y = max(p[1] for pl in pls for p in pl) \
+                    - min(p[1] for pl in pls for p in pl)
+                return vw > 0 and span_x >= vw * 0.8 and span_y >= vh * 0.8
+            accent_candidates = [t for t in filled if not _backdrop(t[0])]
+            if accent_candidates:
+                accent_el = max(accent_candidates, key=lambda t: t[1])[0]
     strokes = []
     # library vignettes draw at a lighter pen weight than bespoke art —
     # dense multi-path art at full width reads as a blob beside the icon set
-    weight = 0.95 if dir_name == 'custom' else 0.5
-    hatch_ok = dir_name == 'custom'
+    bespoke = dir_name == 'custom' or dir_name.startswith('kit:')
+    weight = 0.95 if bespoke else 0.5
+    hatch_ok = bespoke
+    svgcol = bool(kit_meta and kit_meta.get('colors'))
     for ei, (polys_el, fill, closed) in enumerate(elements):
-        if fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
+        if svgcol and closed and str(fill).startswith('#') \
+                and svg_tone(fill) not in ('paper', 'a_cream', 'a_grey',
+                                           'a_slate'):
+            color, hatch = svg_tone(fill), 'solid'
+        elif svgcol:
+            color, hatch = 'ink', False
+        elif fill in ('#F5F0E4', '#FFFFFF', '#fff', 'white'):
             color, hatch = 'ink', False
         elif ei == accent_el:
             color, hatch = 'accent', True
@@ -1199,6 +1557,23 @@ def _dir_strokes(dir_name: str, slug: str):
             strokes.append(([( (x - x0 + ox) / side - 0.5,
                               (y - y0 + oy) / side - 0.5) for x, y in poly],
                             color, weight, hatch))
+    if kit_meta and strokes:
+        # kit manifest may re-tone a glyph's fills and promote them to flat
+        # solid masses — the per-domain color language
+        tone = kit_meta.get('tone')
+        solid = bool(kit_meta.get('fill'))
+        if (tone or solid) and not svgcol:
+            out = []
+            for st in strokes:
+                pts, col, w, f = st[0], st[1], st[2], (st[3] if len(st) > 3
+                                                      else False)
+                rest = st[4:]
+                if col == 'accent' and tone:
+                    col = tone
+                if f and solid:
+                    f = 'solid'
+                out.append((pts, col, w, f) + tuple(rest))
+            strokes = out
     return strokes or None
 
 
@@ -1322,15 +1697,481 @@ def _asset_key(icon):
     return (icon,)
 
 
+_CONTEXT: frozenset = frozenset()
+# function words carry no sense: they would tie a gloss to any script
+_CTX_STOP = frozenset((
+    'with', 'through', 'that', 'this', 'from', 'into', 'onto', 'over',
+    'under', 'upon', 'have', 'which', 'what', 'when', 'where', 'while',
+    'their', 'there', 'they', 'them', 'then', 'than', 'were', 'been',
+    'being', 'some', 'such', 'used', 'uses', 'using', 'very', 'more',
+    'most', 'other', 'about', 'after', 'before', 'also', 'only', 'each',
+    'every', 'like', 'will', 'would', 'could', 'should', 'your', 'those',
+    'these', 'down', 'back', 'around', 'between', 'without', 'within',
+    'something', 'someone', 'especially', 'usually', 'often', 'made'))
+
+
+def set_context(text):
+    """Words of the whole script (title + narration + labels): the sense
+    of an ambiguous concept is the one its gloss shares words with
+    ('queen' in a bee script is the colony queen, not the chess piece)."""
+    global _CONTEXT
+    _CONTEXT = frozenset(w for w in re.findall(r'[a-z]+', str(text or '').lower())
+                         if len(w) >= 4 and w not in _CTX_STOP)
+    _NEAR_CACHE.clear()
+
+
+def _sense_text(ss) -> set:
+    toks = set(re.findall(r'[a-z]+', ss.definition().lower()))
+    toks.update(t for lm in ss.lemma_names() for t in lm.lower().split('_'))
+    for h in ss.hypernyms():
+        toks.update(t for lm in h.lemma_names() for t in lm.lower().split('_'))
+    return toks
+
+
+def _context_sense(word):
+    """(best-in-context noun sense, all noun senses) or (None, senses)."""
+    if _WN is None or not _CONTEXT:
+        return None, []
+    try:
+        senses = _WN.synsets(word, pos=_WN.NOUN)[:8]
+    except LookupError:
+        return None, []
+    best, best_n = None, 0
+    for ss in senses:
+        n = len((_sense_text(ss) - {word}) & _CONTEXT)
+        if n > best_n:
+            best, best_n = ss, n
+    return best, senses
+
+
+def _sense_conflict(phrase: str, icon) -> bool:
+    """True when the icon's extra name words belong to a different sense
+    of a single-word concept than the one the script means."""
+    if not (isinstance(icon, tuple) and icon[0] == 'icon') or ' ' in phrase:
+        return False
+    ctx, senses = _context_sense(phrase)
+    if ctx is None:
+        return False
+    extra = set(icon[2].split('-')) - {phrase}
+    mine = _sense_text(ctx)
+    other = set().union(*[_sense_text(s) for s in senses if s != ctx])
+    return any(e in other and e not in mine for e in extra)
+
+
+_INK_ONLY = False
+
+
+def set_ink_only(flag):
+    """Modes that only draw ink (storyboard) can't paste sprite slots —
+    resolution then skips emoji/animicon art for the nearest inkable pick."""
+    global _INK_ONLY
+    _INK_ONLY = bool(flag)
+
+
+def configure_art(plan: dict) -> None:
+    """Art-resolution state for one plan: its kit, ink-only storyboard
+    mode and whole-script sense context — resolution never depends on
+    whatever plan was resolved before it."""
+    set_art_kit(plan.get('art_kit'))
+    set_ink_only(plan.get('board_layout') == 'storyboard')
+    set_context(json.dumps([plan.get('title'), [
+        (b.get('title'), b.get('narration'), b.get('scene'))
+        for b in plan.get('beats') or []]]))
+
+
+def _is_sprite(ic) -> bool:
+    return (isinstance(ic, tuple) and len(ic) == 3 and ic[0] == 'icon'
+            and ic[1] in ('animicon', 'notomoji'))
+
+
+_SLUG_NEG = ('without', 'no', 'not', 'anti', 'non')
+
+
+def _modifier_hit(phrase: str, ic) -> bool:
+    """True when a glyph name only shares a modifier with the phrase —
+    'green beans' -> 'diverse-green-tech', 'handle' -> 'teacup-without-
+    handle': the art names a different thing than the phrase's head."""
+    if not (isinstance(ic, tuple) and len(ic) >= 3 and isinstance(ic[2], str)):
+        return False
+    words = phrase.replace('-', ' ').split()
+    if not words:
+        return False
+    toks = ic[2].lower().replace('_', '-').split('-')
+    toks_s = [_singular(t) for t in toks]
+    head = _singular(words[-1])
+    if head in toks_s:
+        k = toks_s.index(head)
+        return k > 0 and toks[k - 1] in _SLUG_NEG
+    shared = {_singular(w) for w in words} & set(toks_s)
+    if shared and len(words) > 1 and _compound_kin(words) & set(toks_s):
+        return False
+    return bool(shared)
+
+
+def _compound_kin(words) -> set:
+    """Singular words of a WordNet compound's family ('candy bar' ->
+    candy, sweet, confection...), empty when the phrase isn't a lemma."""
+    key = '_'.join(w.lower() for w in words)
+    if _WN is None or not _WN.synsets(key, pos=_WN.NOUN):
+        return set()
+    return {_singular(y) for x in _wn_family(key) for y in x.split()}
+
+
+SEM_BAD_RANK = 300
+# a kit keyword hit the model ranks this far down is a different sense
+SEM_VETO_KEYWORD = 1500
+SEM_LOG: dict = {}
+
+
+def _art_key(ic):
+    if isinstance(ic, tuple) and len(ic) == 3 and ic[0] in ('icon', 'custom'):
+        return (ic[1], ic[2])
+    return None
+
+
+def sem_rank(phrase: str, ic):
+    """Library rank of `ic` for `phrase` under the local CLIP model, or
+    None when the model/bank is unavailable or `ic` is not banked art."""
+    key = _art_key(ic)
+    if key is None or not art_clip.available():
+        return None
+    return art_clip.rank(str(phrase).lower().replace('-', ' ').strip(), key)
+
+
 def _icon_for(concept: str, exclude=None, _depth: int = 0):
+    """Lexical/contextual resolution, then a visual-semantic veto: a pick
+    that the CLIP model ranks far down the library for the phrase is
+    swapped for the next lexical candidate that actually depicts it."""
+    ic = _icon_for_lex(concept, exclude, _depth)
+    if _depth:
+        return ic
+    phrase = str(concept).lower().replace('-', ' ').strip()
+    rk = sem_rank(phrase, ic)
+    # bespoke domain art is trusted; general-world art is trusted when it
+    # is named by the phrase itself or the model doesn't rank it far off
+    curated = isinstance(ic, tuple) and (
+        ic[0] == 'custom' or (str(ic[1]).startswith('kit:') and (
+            ic[1] != 'kit:world' or ic == kit_exact(phrase, exclude)
+            or (rk is not None and rk <= SEM_VETO_KEYWORD))))
+    if (rk is None or rk <= SEM_BAD_RANK or curated) and (
+            curated or art_related(phrase, ic)):
+        SEM_LOG[phrase] = (_art_key(ic), rk)
+        return ic
+    if rk is None:
+        rk = SEM_BAD_RANK * 10
+    best, best_rk, ex = (ic, rk), rk, set(exclude or ()) | {ic}
+    for _ in range(6):
+        alt = _icon_for_lex(concept, ex, 0)
+        if alt in ex or alt in (None, 'card', 'tile') or _is_emblem(alt):
+            break
+        ex.add(alt)
+        if not art_related(phrase, alt):
+            continue
+        ark = sem_rank(phrase, alt)
+        if ark is not None and ark < best_rk:
+            best, best_rk = (alt, ark), ark
+        if ark is not None and ark <= SEM_BAD_RANK:
+            break
+    SEM_LOG[phrase] = (_art_key(best[0]), best_rk)
+    return best[0]
+
+
+def _icon_for_lex(concept: str, exclude=None, _depth: int = 0):
+    ic = _icon_for_raw(concept, exclude, _depth)
+    if _depth:
+        return ic
+    phrase = str(concept).lower().strip()
+    if ic is not None and ic == kit_exact(phrase, exclude):
+        return ic
+    tries = 0
+    while _INK_ONLY and _is_sprite(ic) and tries < 4:
+        exclude = (exclude or set()) | {ic}
+        ic = _icon_for_raw(concept, exclude, _depth)
+        tries += 1
+    if phrase in _SYNONYMS and not (isinstance(ic, tuple)
+                                    and str(ic[1]).startswith('kit:')):
+        for alt in _SYNONYMS[phrase]:
+            a_ic = _icon_for_raw(alt, exclude, 1)
+            if a_ic and a_ic not in ('card', 'tile') and not _is_emblem(a_ic) \
+                    and not (_INK_ONLY and _is_sprite(a_ic)):
+                return a_ic
+    words = phrase.replace('-', ' ').split()
+    if (ic == 'person' and len(words) > 1 and _WN is not None
+            and _WN.synsets('_'.join(words), pos=_WN.NOUN)
+            and not any(x.lexname() == 'noun.person' for x in
+                        _WN.synsets('_'.join(words), pos=_WN.NOUN))):
+        near = _nearest_icon(['_'.join(words)], (exclude or set()) | {ic}) \
+            or _icon_for_raw(words[-1], exclude, 1)
+        if near:
+            ic = near
+    tries = 0
+    while _modifier_hit(phrase, ic) and tries < 4:
+        exclude = (exclude or set()) | {ic}
+        head = phrase.replace('-', ' ').split()[-1]
+        alt = _icon_for_raw(head, exclude, _depth) if ' ' in phrase else None
+        ic = alt if alt and not _modifier_hit(head, alt) else \
+            _icon_for_raw(concept, exclude, _depth)
+        tries += 1
+    if _WN is not None and not art_related(phrase, ic):
+        near = _nearest_icon(phrase.replace('-', ' ').split(),
+                             (exclude or set()) | {ic})
+        if near:
+            return near
+    if (_CONTEXT and _WN is not None and ' ' not in phrase
+            and not (isinstance(ic, tuple) and str(ic[1]).startswith('kit:'))
+            and _sense_conflict(phrase, ic)):
+        near = _nearest_icon([phrase], (exclude or set()) | {ic})
+        if near:
+            return near
+    return ic
+
+
+def _wn_family(w: str) -> set:
+    """Words WordNet ties to `w`: its synonyms, near ancestors, kinds,
+    parts and wholes (noun senses only)."""
+    if _WN is None:
+        return set()
+    out = set()
+    try:
+        senses = _WN.synsets(w, pos=_WN.NOUN)[:3]
+    except LookupError:
+        return out
+    frontier = list(senses)
+    for depth in range(3):
+        nxt = []
+        for ss in frontier:
+            out.update(x.lower() for x in ss.lemma_names())
+            rel = ss.hypernyms()
+            if depth == 0:
+                rel += (ss.hyponyms() + ss.part_meronyms() + ss.part_holonyms()
+                        + ss.member_holonyms() + ss.substance_meronyms())
+            nxt.extend(rel)
+        frontier = nxt
+    for ss in frontier:
+        out.update(x.lower() for x in ss.lemma_names())
+    return {x.replace('_', ' ') for x in out}
+
+
+def art_related(phrase: str, ic) -> bool:
+    """Does a library glyph's own name belong to the phrase's meaning?
+    'dog' for puppy (ancestor) or 'plate' for dinner plate (stem) do;
+    'flag-minus' for reef or 'leg' for arm don't."""
+    if not (isinstance(ic, tuple) and len(ic) == 3 and ic[0] in (
+            'icon', 'illust') and isinstance(ic[2], str)):
+        return True
+    toks = {_singular(t) for t in re.split(r'[-_ ]', ic[2].lower()) if t}
+    words = [_singular(w) for w in phrase.lower().replace('-', ' ').split()]
+    if len(words) > 1 and _WN is not None and _WN.synsets(
+            '_'.join(words), pos=_WN.NOUN):
+        extra = {t for t in toks if len(t) > 2} - set(words)
+        fam = {_singular(y) for x in _wn_family('_'.join(words))
+               for y in x.split()}
+        if extra and not extra & fam:
+            return False
+    for w in words:
+        for t in toks:
+            if len(t) >= 3 and len(w) >= 3 and (
+                    t == w or (len(t) >= 4 and len(w) >= 4
+                               and t[:4] == w[:4])):
+                return True
+    fam = set()
+    for w in words[-1:] + words[:-1]:
+        fam |= {_singular(x) for x in _wn_family(w)}
+    return bool(toks & fam)
+
+
+def _is_person_noun(w: str) -> bool:
+    """Primary noun sense names a person — drawn by the character system,
+    never by a head-noun glyph ('scientist' is not 'drunk-person')."""
+    if w in _ICON_KEYWORDS['person']:
+        return True
+    if _WN is None:
+        return False
+    try:
+        ss = _WN.synsets(w.replace('-', '_'), pos=_WN.NOUN)[:1]
+    except LookupError:
+        return False
+    return bool(ss) and ss[0].lexname() == 'noun.person'
+
+
+def kit_exact(phrase, exclude=None):
+    """Curated kit art named exactly by the phrase — a glyph slug or a
+    full-phrase manifest keyword ('willow trees', 'hot water')."""
+    phrase = ' '.join(str(phrase).lower().replace('-', ' ').split())
+    kits = _kits()
+    order = sorted(kits, key=lambda d: (d != _ART_KIT, d))
+    slug = phrase.replace(' ', '-')
+    for dom in order:
+        hit = ('icon', f'kit:{dom}', slug)
+        if dom != 'world' and slug in kits[dom] and not (
+                exclude and hit in exclude):
+            return hit
+    # the script's own domain names its terms first: 'share' in a
+    # markets script is a stock certificate, not the share-link glyph
+    dom_hits = []
+    for dom in order:
+        live = None if dom == 'world' else _kit_for_word(dom, phrase)
+        if live is None:
+            continue
+        for name, g in kits[dom].items():
+            hit = ('icon', f'kit:{dom}', name)
+            if phrase in g.get('keywords', ()) and not (
+                    exclude and hit in exclude):
+                k_ = g['keywords'].index(phrase)
+                dom_hits.append((k_ < 2, live, -k_, -len(dom_hits), hit))
+    if dom_hits:
+        return max(dom_hits)[-1]
+    # general-world art names its things by kind: 'full moon', 'fishing
+    # pole' — a bare head noun takes the plainest glyph ending in it
+    world = kits.get('world', {})
+    for s_ in dict.fromkeys((slug, _singular(slug))):
+        if s_ in world and not (exclude and ('icon', 'kit:world', s_)
+                                in exclude):
+            return ('icon', 'kit:world', s_)
+        if ' ' in phrase or _is_person_noun(s_):
+            continue
+        heads = [('icon', 'kit:world', n) for n in sorted(world)
+                 if (n.endswith('-' + s_) or n.startswith(s_ + '-'))
+                 and n.count('-') == 1
+                 and not (exclude and ('icon', 'kit:world', n) in exclude)]
+        ranked = sorted((rk, h[2].count('-'), h) for h in heads
+                        for rk in [sem_rank(phrase, h)] if rk is not None)
+        if ranked and ranked[0][0] <= SEM_BAD_RANK:
+            return ranked[0][2]
+    hits = []
+    for dom in order:
+        pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
+        fit = (dom == _ART_KIT, len((_CONTEXT or set()) & pool))
+        if not fit[0] and fit[1] < 2 or (
+                dom != 'world' and _kit_for_word(dom, phrase) is None):
+            continue
+        for name, g in kits[dom].items():
+            hit = ('icon', f'kit:{dom}', name)
+            if phrase in g.get('keywords', ()) and not (
+                    exclude and hit in exclude):
+                rk = sem_rank(phrase, hit)
+                if rk is not None and rk > SEM_VETO_KEYWORD:
+                    continue
+                hits.append((fit, -len(hits), hit))
+    return max(hits)[2] if hits else _kit_by_gloss(phrase, exclude)
+
+
+def _kit_by_gloss(phrase, exclude=None):
+    """A class-kit word with no glyph of its own draws as the kind its
+    WordNet sense names: 'calf' (young of domestic cattle) is the cow,
+    'hound' (a breed of dog) the dog."""
+    if _WN is None or ' ' in phrase:
+        return None
+    try:
+        ss = _WN.synsets(_WN.morphy(phrase, _WN.NOUN) or phrase,
+                         pos=_WN.NOUN)
+    except LookupError:
+        return None
+    kits = _kits()
+    for s_ in ss[:1]:
+        doms = [d for d, lx in _KIT_LEX.items() if lx == s_.lexname()
+                and _mostly(ss, lx)]
+        if not doms:
+            continue
+        words = re.findall(r'[a-z]+', s_.definition().lower())
+        for h in s_.hypernyms():
+            words += [w.lower() for n in h.lemma_names()
+                      for w in n.split('_')]
+        for w in words:
+            w = _singular(w)
+            for dom in doms:
+                for name, g in kits.get(dom, {}).items():
+                    hit = ('icon', f'kit:{dom}', name)
+                    if (w == name or w in g.get('keywords', ())) and not (
+                            exclude and hit in exclude):
+                        return hit
+    return None
+
+
+def _kit_cross(words, exclude=None):
+    """Bespoke kit art outside the active kit: an exact glyph name always
+    counts; a keyword hit on the head noun counts when the script itself
+    carries that kit's domain vocabulary (>= 2 other kit keywords)."""
+    if not words:
+        return None
+    kits = _kits()
+    order = sorted(kits, key=lambda d: (d != _ART_KIT, d))
+    slug = '-'.join(words)
+    for dom in order:
+        hit = ('icon', f'kit:{dom}', slug)
+        if slug in kits[dom] and not (exclude and hit in exclude):
+            return hit
+    if not _CONTEXT or len(words) > 2:
+        return None
+    heads = {words[-1], _singular(words[-1])}
+    if any(_is_person_noun(h) for h in heads):
+        return None
+    for dom in order:
+        pool = {k for g in kits[dom].values() for k in g.get('keywords', [])}
+        if dom != _ART_KIT and (len((_CONTEXT & pool) - heads) < 2 or (
+                dom != 'world' and _kit_live(dom) is None)):
+            continue
+        cands = [n for n, g in kits[dom].items()
+                 if heads & set(g.get('keywords', []))
+                 and not (exclude and ('icon', f'kit:{dom}', n) in exclude)]
+        if cands:
+            cands.sort(key=lambda n: (not (heads & set(n.split('-'))),
+                                      kits[dom][n]['keywords'].index(
+                                          next(h for h in kits[dom][n]['keywords']
+                                               if h in heads))))
+            return ('icon', f'kit:{dom}', cands[0])
+    return None
+
+
+def _icon_for_raw(concept: str, exclude=None, _depth: int = 0):
     phrase = str(concept).lower().replace('-', ' ').replace('_', ' ').strip()
     words = phrase.split()
     wset = set(words)
     if any(f'{k} agent' in phrase or f'{k} rep' in phrase for k in _PERSON_AGENT_PREFIXES):
         return 'person'
+    # explicit kit addressing: 'kit:<dom>:<slug>' / 'kit:<dom>:@motif'
+    # (phrase normalization above already turned '-' into ' ')
+    if phrase.startswith('kit:'):
+        parts = phrase.split(':', 2)
+        if len(parts) == 3:
+            hit = _kit_glyph(parts[1], parts[2].replace(' ', '-'))
+            if hit:
+                return hit
+        if len(parts) == 2 and _ART_KIT:
+            hit = _kit_glyph(_ART_KIT, parts[1].replace(' ', '-'))
+            if hit:
+                return hit
     # bespoke commissioned/generated art for this exact label wins outright
     if (_CUSTOM_DIR / f'{_slug(phrase)}.svg').is_file():
         return ('custom', _slug(phrase))
+    # people are drawn by the cast system, never a static pictogram — a kit
+    # glyph keyworded with a person noun must not hijack the 'person'
+    # sentinel, or roles like 'investor'/'patient' would draw a blob that
+    # cannot act in activities
+    head = words[-1] if words else phrase
+    # a word that is a person only by an obscure first sense still draws
+    # its literal object art ('monitor' = screen, not 'proctor')
+    literal = (_icon_lookup(phrase, exclude)
+               if len(words) > 1 else None) or _icon_lookup(head, exclude)
+    if 'person' not in (exclude or ()) and (
+            phrase in _ICON_KEYWORDS['person']
+            or head in _ICON_KEYWORDS['person']
+            or (literal is None
+                and (_is_person_noun(phrase) or _is_person_noun(head)))):
+        return 'person'
+    # an active domain art kit outranks the flat icon vocabulary, literal
+    # doodles and generic vignettes for anything its manifest covers —
+    # 'bitcoin' draws the kit coin, not the generic money doodle
+    hit = kit_exact(phrase, exclude)
+    if hit:
+        return hit
+    if _ART_KIT:
+        hit = _kit_probe(phrase, exclude)
+        if hit:
+            return hit
+    hit = _kit_cross(words, exclude)
+    if hit:
+        return hit
     # action-word figure art (running, sitting, reading...) beats a static pose
     for w in words:
         if (_ASSETS / 'doodles' / f'{w}.svg').is_file() and w in (
@@ -1373,6 +2214,15 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
             # 'head' should draw a face, not the HTTP-HEAD icon
             hit = ((_word_form_icon(phrase, exclude) if _depth < 2 else None)
                    or lit)
+            # a keyword-only compound hit ('glacier' -> ice-shelf) yields
+            # to its plain head when WordNet independently lands on it
+            if (_depth == 0 and isinstance(hit, tuple) and hit[0] == 'icon'
+                    and '-' in hit[2] and phrase not in hit[2].split('-')):
+                near = _nearest_for_word(phrase, exclude, 3)
+                if (isinstance(near, tuple) and near[0] == 'icon'
+                        and '-' not in near[2]
+                        and near[2] in hit[2].split('-')):
+                    return near
             if hit:
                 return hit
         # a strong scene-vignette match beats the flat icon vocabulary
@@ -1412,6 +2262,12 @@ def _icon_for(concept: str, exclude=None, _depth: int = 0):
     hit = _icon_lookup(phrase, exclude)
     if hit:
         return hit
+    # nothing literal — draw the closest thing WordNet knows it to be
+    # ('oncologist' -> doctor, 'tuba' -> brass -> trumpet, 'kiln' -> oven)
+    if _depth == 0:
+        near = _nearest_icon(words, exclude)
+        if near:
+            return near
     # no single asset covers the phrase — the artist layer composes it
     # from its parts ('solar panel' draws sun + panel, not a lettered box)
     if _depth == 0 and len(words) >= 2:
@@ -1440,6 +2296,10 @@ def _is_emblem(icon) -> bool:
 # newspaper, 'say' a speech balloon. Curated and domain-agnostic; extend
 # when a word class surfaces, never per-plan.
 _SYNONYMS: dict[str, tuple[str, ...]] = {
+    'drought': ('sun', 'desert'), 'orchard': ('tree',), 'orchards': ('tree',),
+    'riverbank': ('river',), 'riverbanks': ('river',), 'dams': ('dam',),
+    'handle': ('door',), 'handles': ('door',), 'jam': ('car',),
+    'commute': ('bus',),
     'say': ('speech',), 'says': ('speech',), 'said': ('speech',),
     'speak': ('speech',), 'speaks': ('speech',), 'tell': ('speech',),
     'tells': ('speech',), 'claim': ('speech',), 'claims': ('speech',),
@@ -1567,6 +2427,195 @@ def _word_form_icon(word: str, exclude):
     return None
 
 
+# synsets too generic to stand for anything on a board
+_WN_STOP = {'entity', 'physical_entity', 'abstraction', 'object', 'whole',
+            'thing', 'matter', 'artifact', 'unit', 'group', 'relation',
+            'measure', 'attribute', 'psychological_feature', 'event',
+            'act', 'state', 'causal_agent', 'living_thing', 'organism',
+            'instrumentality', 'part', 'communication', 'location',
+            'region', 'substance', 'content', 'cognition', 'activity',
+            'process', 'phenomenon', 'condition', 'quality', 'property',
+            'device', 'structure', 'container', 'natural_object',
+            'geological_formation', 'body', 'material', 'covering',
+            'commodity', 'social_group', 'people', 'change', 'action',
+            'happening', 'person', 'adult', 'worker', 'being'}
+
+
+def _nearest_lemma_icon(lemma: str, exclude):
+    hit = _nearest_lemma_icon_any(lemma, exclude)
+    return None if (_INK_ONLY and _is_sprite(hit)) else hit
+
+
+def _nearest_lemma_icon_any(lemma: str, exclude):
+    ph = lemma.replace('_', ' ').lower()
+    slug = '-'.join(ph.split())
+    for dom in sorted(_kits()):
+        if (f'kit:{dom}', slug) in _icon_index():
+            hit = ('icon', f'kit:{dom}', slug)
+            if not (exclude and hit in exclude):
+                return hit
+    for icon, keys in _ICON_KEYWORDS.items():
+        if ph in keys:
+            return icon
+    if _ART_KIT:
+        hit = _kit_probe(ph, exclude)
+        if hit:
+            return hit
+    hit = _icon_lookup(ph, exclude)
+    if isinstance(hit, tuple) and hit[0] == 'icon':
+        slug = '-'.join(ph.split())
+        if hit[2] == slug:
+            return hit
+        # keyword-indexed sets (emoji art) name concepts in their tags
+        if (hit[1] in ('notomoji', 'fluent', 'openmoji')
+                and slug in _icon_index().get((hit[1], hit[2]), ())):
+            return hit
+    return None
+
+
+_DRAW_VOCAB = None
+_NEAR_CACHE: dict = {}
+
+
+def _draw_vocab():
+    """{primary noun synset: icon} for every single word the art library
+    draws verbatim — the targets 'closest drawable meaning' ranks over."""
+    global _DRAW_VOCAB
+    if _DRAW_VOCAB is None:
+        words = {}
+        for (d, name) in _icon_index():
+            if '-' not in name and name.isalpha() and len(name) > 2:
+                words.setdefault(name, ('icon', d, name))
+        for icon, keys in _ICON_KEYWORDS.items():
+            for k in keys:
+                if k.isalpha() and len(k) > 2:
+                    words.setdefault(k, icon)
+        vocab = {}
+        for wd, icon in sorted(words.items()):
+            ss = _WN.synsets(wd, pos=_WN.NOUN)[:1]
+            if ss and ss[0] not in vocab:
+                vocab[ss[0]] = icon
+        _DRAW_VOCAB = vocab
+    return _DRAW_VOCAB
+
+
+def _noun_senses(w):
+    ctx, _ = _context_sense(w)
+    seeds = [ctx] if ctx else list(_WN.synsets(w, pos=_WN.NOUN))[:1]
+    for ss in _WN.synsets(w)[:4]:
+        if ss.pos() == 'n':
+            continue
+        for lm in ss.lemmas():
+            for d in lm.derivationally_related_forms():
+                if d.synset().pos() == 'n' and d.synset() not in seeds:
+                    seeds.append(d.synset())
+    return seeds[:4]
+
+
+def _nearest_icon(words, exclude, max_depth: int = 7):
+    """Closest drawable concept by WordNet meaning. Per word (tail first):
+    1) climb the hypernym tree — the first ancestor whose primary lemma
+       names an icon draws ('oncologist' -> doctor, 'poodle' -> dog);
+    2) otherwise the drawable word with the highest Wu-Palmer similarity
+       ('tuba' -> trumpet, 'glacier' -> iceberg).
+    Returns None only for words WordNet doesn't know."""
+    if _WN is None:
+        return None
+    try:
+        ws = [w for w in words if len(w) > 2]
+        own = kit_exact(ws[-1], exclude) if ws else None
+        if own is not None:
+            return own
+        for w in reversed(ws):
+            key = (w, _ART_KIT, _INK_ONLY)
+            if key in _NEAR_CACHE:
+                hit = _NEAR_CACHE[key]
+            else:
+                hit = _nearest_for_word(w, exclude, max_depth)
+                _NEAR_CACHE[key] = hit
+            if hit and not (exclude and hit in exclude):
+                return hit
+    except LookupError:
+        return None
+    return None
+
+
+def _hypernym_hit(w, senses, exclude, lo, hi):
+    frontier, seen = list(senses), set()
+    for depth in range(hi + 1):
+        nxt = []
+        for ss in frontier:
+            if ss in seen:
+                continue
+            seen.add(ss)
+            if ss.name().split('.')[0] in _WN_STOP:
+                continue
+            if depth >= lo:
+                for lm in ss.lemma_names():
+                    if lm.lower() == w or _WN.synsets(lm)[:1] != [ss]:
+                        continue
+                    hit = _nearest_lemma_icon(lm, exclude)
+                    if hit:
+                        return hit
+            nxt.extend(ss.hypernyms() + ss.instance_hypernyms())
+        frontier = nxt
+    return None
+
+
+def _nearest_for_word(w, exclude, max_depth):
+    senses = _noun_senses(w)
+    if not senses:
+        return None
+    # near ancestors first ('oncologist' -> doctor) ...
+    hit = _hypernym_hit(w, senses, exclude, 0, 2)
+    if hit:
+        return hit
+    # the definition names what the thing is made of or does
+    # ('glacier: a slowly moving mass of ice' -> ice)
+    for ss in senses[:2]:
+        toks = re.findall(r'[a-z]+', ss.definition())
+        for k, c in enumerate(toks):
+            if len(c) < 3 or c == w or not _wn_concrete(c):
+                continue
+            # 'a leaven of dough': the stuff of a concrete genus isn't it
+            if k > 1 and toks[k - 1] == 'of' and _wn_concrete(toks[k - 2]):
+                continue
+            # 'wind' in 'brass wind instrument' is a modifier, not a thing
+            if k + 1 < len(toks) and _WN.synsets(f'{c}_{toks[k + 1]}'):
+                continue
+            hit = _nearest_lemma_icon(c, exclude)
+            if isinstance(hit, tuple) and hit[2] == c:
+                return hit
+    # a close cousin in the tree ('tuba' -> cornet, 'sonar' -> radar)
+    best, best_key = None, (0.0, 0)
+    for ss in senses[:2]:
+        for tv, icon in _draw_vocab().items():
+            if (_INK_ONLY and _is_sprite(icon)) or (exclude and icon in exclude):
+                continue
+            sim = ss.wup_similarity(tv) or 0.0
+            # a drawable the script itself mentions is the closer pick
+            if _CONTEXT and tv.lemma_names()[0].lower() in _CONTEXT:
+                sim += 0.08
+            # equally close cousins: the more familiar concept reads better
+            key = (round(sim, 6), sum(lm.count() for lm in tv.lemmas()))
+            if key > best_key and (ss.shortest_path_distance(tv) or 99) <= 2:
+                best, best_key = icon, key
+    best_sim = best_key[0]
+    if best_sim >= 0.88:
+        return best
+    # ... and only then a distant ancestor ('sedan' ... -> vehicle)
+    return _hypernym_hit(w, senses, exclude, 3, max_depth)
+
+
+def _wn_concrete(word: str) -> bool:
+    """True when the word's primary noun sense is a physical thing."""
+    ss = _WN.synsets(word, pos=_WN.NOUN)[:1]
+    if not ss:
+        return False
+    phys = _WN.synset('physical_entity.n.01')
+    return any(phys in path for path in ss[0].hypernym_paths())
+
+
 # the last-resort artist layer: a hand-drawn emblem — blob, burst or
 # banner picked deterministically per phrase — so every concept on the
 # board is drawn ink, never a plain boxed word
@@ -1646,7 +2695,12 @@ def icon_for(concept: str, used=None):
     reg = used.setdefault('_reg', {})
     assets = reg.setdefault('assets', {})
     nouns = reg.setdefault('nouns', {})
-    excl = {k for k, v in assets.items() if v != label}
+    mine = set(label.split())
+    excl = {k for k, v in assets.items()
+            if v != label and not set(str(v).split()) < mine}
+    named = kit_exact(concept)
+    if isinstance(named, tuple):
+        excl.discard(_asset_key(named))
     words = [w for w in label.split() if len(w) > 2]
     head = _singular(words[-1]) if words else None
     icon = None
@@ -1671,6 +2725,8 @@ def _strokes_for(icon, pose='point', facing: int = 1, cast=None):
         verb = _strokes_for(icon[2]) or []
         return base + _shift_strokes(verb, 0.40, 0.56, 0.56, color='accent')
     if isinstance(icon, tuple) and icon[0] == 'icon':
+        if icon[1] in ('animicon', 'notomoji'):
+            return []  # sprite-animated slot — no strokes
         if icon[1] == 'tabler':
             return _tabler_strokes(icon[2])
         st = _dir_strokes(icon[1], icon[2])
@@ -1840,8 +2896,17 @@ def _stable_hash(s: str) -> int:
 # Scene composition — character anchors left, props compose right; no connectors
 # ---------------------------------------------------------------------------
 
-def _scene_slots(labels: list[str], zone: dict, ratio: str, used=None):
-    icons = [icon_for(l, used) for l in labels]
+def _scene_slots(labels: list, zone: dict, ratio: str, used=None):
+    # role dicts carry {label, icon?, tone?, scale?, facing?, bubble?};
+    # strings resolve their icon from the label text
+    def _rl(l):
+        return str(l.get('label') or '') if isinstance(l, dict) else str(l)
+    extra = [l if isinstance(l, dict) else {} for l in labels]
+    labs = [_rl(l) for l in labels]
+    icons = [icon_for(str(e['icon']), used)
+             if e.get('icon') else icon_for(labs[i], used)
+             for i, e in enumerate(extra)]
+    labels = labs
     x, y, w, h = zone['x'], zone['y'], zone['w'], zone['h']
     portrait = ratio == '9:16'
     cy = y + h * (0.54 if portrait else 0.56)
@@ -1990,6 +3055,17 @@ def _scene_slots(labels: list[str], zone: dict, ratio: str, used=None):
                  y + h - pad - s['size'] * 1.10)
         if (cx, cy) != s['center']:
             s['center'] = (cx, cy)
+    # authored role dicts stamp their styling onto the resolved slot
+    for i, s in enumerate(slots):
+        if s is None:
+            continue
+        e = extra[i]
+        if e.get('scale'):
+            s['size'] *= float(e['scale'])
+        for k in ('tone', 'facing', 'bubble', 'no_caption', 'wgt', 'chip',
+                  '_ri'):
+            if k in e:
+                s[k] = e[k]
     return [s for s in slots if s is not None]
 
 
@@ -2013,10 +3089,13 @@ def _palette(plan):
     accf = wbp._mix(pal['bgc'], pal['accentc'], 0.20)
     accdeep = wbp._mix(pal['bgc'], pal['accentc'], 0.72)
     inkfill = wbp._mix(pal['bgc'], pal['inkc'], 0.88)
-    return {'ink': pal['inkc'], 'accent': pal['accentc'],
-            'pale': (pal['secondaryc'][0], pal['secondaryc'][1], pal['secondaryc'][2], 190),
-            'accfill': accf, 'accdeep': accdeep, 'inkfill': inkfill,
-            'paper': pal['bgc'], 'bg': pal['bg']}
+    tones = {k: v + (255,) for k, v in SVG_TONES.items()}
+    tones.update({'ink': pal['inkc'], 'accent': pal['accentc'],
+                  'pale': (pal['secondaryc'][0], pal['secondaryc'][1],
+                           pal['secondaryc'][2], 190),
+                  'accfill': accf, 'accdeep': accdeep, 'inkfill': inkfill,
+                  'paper': pal['bgc'], 'bg': pal['bg']})
+    return tones
 
 
 _HATCH_CACHE: dict = {}
@@ -2057,7 +3136,10 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
     if n == 0:
         return None
     scale = _map_scale(ratio)
-    lw = max(2.0, size * scale * 0.028)
+    # uniform marker weight: unit-space groups (size>4) get their line width
+    # from a banded slot size so tiny/huge elements don't draw thin or fat
+    lws = min(max(size, 72.0), 170.0) if size > 4 else size
+    lw = max(2.0, lws * scale * 0.028)
     tip = None
     for j, st in enumerate(strokes):
         pts, col, wscale = st[0], st[1], st[2]
@@ -2066,6 +3148,10 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
         p = wbp._clamp(progress * n - j)
         if p <= 0:
             break
+        # marker pressure varies stroke to stroke — same ink, never a
+        # mechanical uniform width
+        wj = 1.0 + (((seed + j * 7919) % 977) / 977.0 - 0.5) * 0.22
+        lwj = lw * wj
         if absolute:
             pts_b = pts
         else:
@@ -2076,23 +3162,121 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             if 0 < p < 1:
                 tip = _stroke_tip(pts_s, p)
             continue
+        if fill == 'ftext':
+            ch, fsize, fkey = st[5], st[6], st[7]
+            px_ = max(6, int(round(fsize * scale * zoom)))
+            im = _glyph_img(ch, fkey, px_, tuple(colors[col]))
+            x0s, y0s = pts_s[0]
+            edge = max(1, int(im.width * wbp._clamp(p)))
+            part = im.crop((0, 0, edge, im.height)) if edge < im.width else im
+            layer.paste(part, (int(round(x0s)) - 1, int(round(y0s)) - 1),
+                        part)
+            if 0 < p < 1:
+                tip = (x0s + edge, y0s + im.height * 0.55)
+            continue
+        if fill == 'swash':
+            # highlighter pass: translucent pastel mass, no outline, swept
+            # left to right under the lettering
+            fp = wbp._clamp(p)
+            xs = [q[0] for q in pts_s]
+            ys = [q[1] for q in pts_s]
+            bx0, bx1 = min(xs) - 2, max(xs) + 2
+            by0, by1 = min(ys) - 2, max(ys) + 2
+            bw_ = max(2, int(bx1 - bx0))
+            bh_ = max(2, int(by1 - by0))
+            edge = max(1, int(bw_ * fp))
+            mask = Image.new('L', (edge, bh_), 0)
+            ImageDraw.Draw(mask).polygon(
+                [(x - bx0, y - by0) for x, y in pts_s], fill=int(255 * wscale))
+            fc = colors[col]
+            tile = Image.new('RGBA', (edge, bh_), (fc[0], fc[1], fc[2], 0))
+            tile.putalpha(mask)
+            ox_, oy_ = int(bx0), int(by0)
+            cx0_, cy0_ = max(0, -ox_), max(0, -oy_)
+            if cx0_ < edge and cy0_ < bh_:
+                layer.alpha_composite(tile.crop((cx0_, cy0_, edge, bh_)),
+                                      (ox_ + cx0_, oy_ + cy0_))
+            if 0 < p < 1:
+                tip = (bx0 + edge, (by0 + by1) / 2)
+            continue
+        if fill == 'solid':
+            # flat color mass: outline inks first, then the fill sweeps in
+            # left-to-right like a marker flood — the reference's saturated
+            # fills rather than hatch shading
+            op = wbp._clamp(p / 0.38)
+            if op > 0:
+                closed = pts_s if pts_s[0] == pts_s[-1] else pts_s + [pts_s[0]]
+                t = _taper_line(layer, closed, colors[col], lwj * wscale,
+                                seed + j * 13, .26, op)
+                if 0 < op < 1:
+                    tip = t
+            fp = wbp._clamp((p - 0.30) / 0.62)
+            if fp > 0:
+                xs = [q[0] for q in pts_s]
+                ys = [q[1] for q in pts_s]
+                bx0, bx1 = min(xs) - 3, max(xs) + 3
+                by0, by1 = min(ys) - 3, max(ys) + 3
+                bw_ = max(2, int(bx1 - bx0))
+                bh_ = max(2, int(by1 - by0))
+                edge = max(1, int(bw_ * fp))
+                mask = Image.new('L', (edge, bh_), 0)
+                ImageDraw.Draw(mask).polygon(
+                    [(x - bx0, y - by0) for x, y in pts_s], fill=235)
+                fc = colors[col]
+                tile = Image.new('RGBA', (edge, bh_),
+                                 (fc[0], fc[1], fc[2], 225))
+                layer.paste(tile, (int(bx0), int(by0)), mask)
+                if fp < 1:
+                    tip = (bx0 + edge, (by0 + by1) / 2)
+            continue
+        if fill == 'wash':
+            # soft pastel wash: low-alpha color mass blooming in behind the
+            # element — the reference's emotion halos / tinted backdrops
+            op = wbp._clamp(p / 0.30)
+            fp = wbp._clamp((p - 0.22) / 0.55)
+            if fp > 0:
+                xs = [q[0] for q in pts_s]
+                ys = [q[1] for q in pts_s]
+                bx0, bx1 = min(xs) - 3, max(xs) + 3
+                by0, by1 = min(ys) - 3, max(ys) + 3
+                bw_ = max(2, int(bx1 - bx0))
+                bh_ = max(2, int(by1 - by0))
+                edge = max(1, int(bw_ * fp))
+                mask = Image.new('L', (edge, bh_), 0)
+                ImageDraw.Draw(mask).polygon(
+                    [(x - bx0, y - by0) for x, y in pts_s], fill=60)
+                fc = colors[col]
+                tile = Image.new('RGBA', (edge, bh_),
+                                 (fc[0], fc[1], fc[2], 255))
+                layer.paste(tile, (int(bx0), int(by0)), mask)
+                tip = (bx0 + edge, (by0 + by1) / 2)
+            if op > 0:
+                closed = pts_s if pts_s[0] == pts_s[-1] else pts_s + [pts_s[0]]
+                t = _taper_line(layer, closed, colors[col], lwj * wscale,
+                                seed + j * 13, .26, op)
+                if 0 < op < 1:
+                    tip = t
+            continue
         if fill:
             # marker shading pass: hatches sweep in over the last 60% of the
             # element window, following the outline
             hp = wbp._clamp((p - 0.38) / 0.62)
             if hp <= 0:
                 continue
-            segs = _hatch_for(pts, size)
+            segs = _hatch_for(pts, size,
+                              spacing=fill if isinstance(fill, float)
+                              and not isinstance(fill, bool) else 0.075)
             hcol = colors[_HATCH_COLOR.get(col, col)]
             hcol = (hcol[0], hcol[1], hcol[2], min(215, hcol[3]))
-            hw = max(1.4, lw * 0.42)
+            hw = max(1.4, lwj * 0.42)
             m = len(segs)
             for k, seg in enumerate(segs):
                 sp = wbp._clamp(hp * m - k)
                 if sp <= 0:
                     break
-                seg_b = [(center[0] + px * size, center[1] + py * size)
-                         for px, py in seg]
+                seg_b = (seg if absolute else
+                         [(center[0] + px * size, center[1] + py * size)
+                          for px, py in seg])
                 seg_s = [wbp._map_point(q, cam, ratio, zoom) for q in seg_b]
                 t = _taper_line(layer, seg_s, hcol, hw, seed + j * 131 + k * 7,
                                 .18, sp)
@@ -2101,7 +3285,7 @@ def _draw_strokes(layer, strokes, center, size, cam, colors, ratio, progress,
             if hp < 1 and not tip:
                 tip = None
             continue
-        t = _taper_line(layer, pts_s, colors[col], lw * wscale, seed + j * 13,
+        t = _taper_line(layer, pts_s, colors[col], lwj * wscale, seed + j * 13,
                         .26, p)
         if 0 < p < 1:
             tip = t
@@ -2142,10 +3326,12 @@ def _move_strokes(strokes, dx, dy):
             for s in strokes]
 
 
-def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
+def _caption_strokes(center, size, label, zone=None, row=0, pitch=None,
+                     chip=None):
     txt = str(label).upper()
-    h = size * 0.11
-    maxw = min(size * 1.9, (zone['w'] * 0.42 if zone else size * 1.9))
+    # captions must read at feed size — ~2x the old footnote scale
+    h = size * 0.15
+    maxw = min(size * 2.4, (zone['w'] * 0.40 if zone else size * 2.4))
     if pitch:
         # captions live in the column under their slot — never wider than the
         # gap to the next slot, or neighbours collide
@@ -2160,9 +3346,9 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
         lines = [' '.join(words[:best]), ' '.join(words[best:])]
     tw = max(text_width(l, h) for l in lines)
     if tw > maxw:
-        h = max(size * 0.060, h * maxw / tw)
+        h = max(size * 0.105, h * maxw / tw)
         tw = max(text_width(l, h) for l in lines)
-    oy = center[1] + size * (0.56 + 0.34 * row)
+    oy = center[1] + size * (0.62 + 0.30 * row)
     mg = max(10.0, (zone['w'] * 0.022) if zone else 10.0)
     strokes = []
     left_edge = right_edge = None
@@ -2174,7 +3360,27 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
         strokes += text_strokes(ln, (ox, oy + li * h * 1.45), h, 'ink', 0.85)
         left_edge = ox if left_edge is None else min(left_edge, ox)
         right_edge = ox + lw if right_edge is None else max(right_edge, ox + lw)
-    y = oy + (len(lines) - 1) * h * 1.45 + _text_bottom(lines[-1], h) + h * 0.16
+    text_bot = oy + (len(lines) - 1) * h * 1.45 + _text_bottom(lines[-1], h)
+    if chip:
+        # boxed label tag — the reference's colored chips: accent box,
+        # ink text inside; chip may be a tone name or #rrggbb
+        pad = h * 0.55
+        bx0 = (left_edge - pad) if left_edge is not None \
+            else center[0] - tw / 2 - pad
+        bx1 = (right_edge + pad) if right_edge is not None \
+            else center[0] + tw / 2 + pad
+        by0 = oy - h * 0.30
+        by1 = text_bot + pad * 0.75
+        col = chip if isinstance(chip, str) else 'accent'
+        box = _rounded_rect((bx0 + bx1) / 2, (by0 + by1) / 2,
+                            bx1 - bx0, by1 - by0, h * 0.34)
+        strokes = ([(box, col, 1.35, 'solid', True),
+                    (box, 'ink', 0.9, False, True)]
+                   + strokes)
+        # collision bookkeeping needs the true rendered span (per-line
+        # edges), not min-left + widest-line width
+        return strokes, bx0, bx1
+    y = text_bot + h * 0.16
     ox0 = min(center[0] - text_width(l, h) / 2 for l in lines)
     if zone:
         ox0 = max(ox0, zone['x'] + mg)
@@ -2185,12 +3391,20 @@ def _caption_strokes(center, size, label, zone=None, row=0, pitch=None):
     return strokes, left_edge, right_edge
 
 
-def _scene_labels(scene: dict) -> list[str]:
-    labs: list[str] = []
+def _scene_labels(scene: dict) -> list:
+    # entries are role strings or authored dicts {label, icon?, tone?,
+    # scale?, facing?, bubble?} — dicts carry per-item styling downstream
+    labs: list = []
     hero = scene.get('heroRole')
     if hero:
-        labs.append(str(hero))
-    labs += [str(r) for r in (scene.get('supportingRoles') or []) if str(r).strip()]
+        labs.append(dict(hero, _ri=0) if isinstance(hero, dict)
+                    else str(hero))
+    for ri, r in enumerate(scene.get('supportingRoles') or [], 1):
+        if isinstance(r, dict):
+            if str(r.get('label') or '').strip():
+                labs.append(dict(r, _ri=ri))
+        elif str(r).strip():
+            labs.append(str(r))
     if not labs:
         for v in (scene.get('semanticBeats') or scene.get('visualAnchors') or
                   scene.get('visuals') or []):
@@ -2237,21 +3451,68 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                          plan.setdefault('_icon_used', {}))
 
     order = {'headline': -1, 'ground': 0, 'icon': 0, 'arrow': 0.5,
-             'bubble': 1, 'marks': 2, 'sparkle': 2, 'strike': 2.5,
-             'emphasis': 2.6, 'caption': 3}
+             'bubble': 1, 'marks': 2, 'sparkle': 2, 'fx': 2.2,
+             'strike': 2.5, 'emphasis': 2.6, 'caption': 3}
     groups = [('headline', _headline_strokes(scene, zone, ratio),
                (zone['x'], zone['y']), 1.0, None)]
     mark_groups = []
+    fm_slot = None
     for s in slots:
         if s['icon'] == 'stat':
             groups.append(('icon', _stat_strokes(s['center'], s['size'],
                                                  s['label']),
                            s['center'], s['size'], s))
             s['no_caption'] = True
+        elif (s['icon'] in ('person', 'agent')
+                and scene.get('figureMotion')
+                and (fm_slot is None
+                     or (scene.get('figureMotion2')
+                         and scene.get('_fm2_slot') is None))):
+            # the animated figure replaces the drawn person at this slot —
+            # empty group keeps the draw window + caption cadence intact.
+            # A second person slot claims scene['figureMotion2'] when given.
+            key = '' if fm_slot is None else '2'
+            if fm_slot is None:
+                fm_slot = s
+            scene['_fm' + key + '_slot'] = s
+            scene['_fm' + key + '_anchor'] = dict(
+                center=s['center'], size=s['size'],
+                facing=s.get('facing', 1))
+            groups.append(('icon', [], s['center'], s['size'], s))
         else:
-            groups.append(('icon', _strokes_for(
-                s['icon'], s.get('pose') or 'point', s.get('facing', 1),
-                s.get('cast')), s['center'], s['size'], s))
+            ic = s['icon']
+            up_key = ic if isinstance(ic, str) else (
+                ic[2] if isinstance(ic, tuple) and len(ic) == 3
+                and ic[0] == 'icon' and ic[1] in ('tabler', 'phosphor', 'fluent')
+                else None)
+            if up_key in _ANIM_UPGRADE:
+                ic = ('icon', 'animicon', _ANIM_UPGRADE[up_key])
+            if isinstance(ic, tuple) and ic[0] == 'icon' \
+                    and ic[1] in ('animicon', 'notomoji'):
+                # animated sprite slot — reserve the draw window, sprite pastes in
+                s['sprite'] = (ic[1], ic[2])
+                groups.append(('icon', [], s['center'], s['size'], s))
+            else:
+                ist = _strokes_for(
+                    ic, s.get('pose') or 'point', s.get('facing', 1),
+                    s.get('cast'))
+                # authored tone recolors the whole element (accent-colored
+                # art — orange coin, teal tag, red arrow — the reference's
+                # signature against black ink). Kit glyphs are excluded:
+                # their manifest pins the palette (a bitcoin is orange even
+                # when the role asked for a different accent).
+                _kit_meta = (isinstance(s.get('icon'), tuple)
+                             and len(s['icon']) == 3
+                             and str(s['icon'][1]).startswith('kit:')
+                             and _kits().get(s['icon'][1][4:], {})
+                             .get(s['icon'][2]) or {})
+                kit_owned = bool(_kit_meta.get('tone') or
+                                 _kit_meta.get('fill'))
+                if s.get('tone') and not kit_owned:
+                    tone = str(s['tone'])
+                    ist = [tuple([x_[0], tone] + list(x_[2:]))
+                           for x_ in ist]
+                groups.append(('icon', ist, s['center'], s['size'], s))
         if s['icon'] == 'card':
             groups.append(('icon', _card_text_strokes(s['center'], s['size'],
                                                       s['label'], zone),
@@ -2260,12 +3521,16 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
         if s['icon'] in ('person', 'agent'):
             gc = (s['center'][0], s['center'][1] + s['size'] * 0.52)
             groups.append(('ground', _ground_shadow_strokes(), gc, s['size'], s))
-            if s['icon'] == 'person':
+            if (s['icon'] == 'person' and s is not fm_slot
+                    and s is not scene.get('_fm2_slot')):
                 mark_groups.append(('marks', _motion_marks_strokes(),
                                     s['center'], s['size'], s))
         low_lbl = str(s['label']).lower()
         ltoks = set(re.findall(r"[a-z']+", low_lbl))
-        if ltoks & _STRIKE_TOKENS or low_lbl.startswith(('no ', 'not ')):
+        # a chip is an authored emphasis tag — negation words inside it are
+        # claims ("no signal leak"), never strike targets
+        if not s.get('chip') and (ltoks & _STRIKE_TOKENS
+                                  or low_lbl.startswith(('no ', 'not '))):
             groups.append(('strike', _strike_strokes(s['size']),
                            s['center'], s['size'], s))
         if ltoks & _EMPHASIS_TOKENS or '!' in str(s['label']):
@@ -2279,8 +3544,12 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
             groups.append(('bubble', _bubble_strokes(), bc, s['size'] * 0.62, s))
         if s['icon'] in ('envelope', 'phone', 'question'):
             groups.append(('sparkle', _ping_strokes(), s['center'], s['size'], s))
-        if s['icon'] in ('check', 'coin', 'coins', 'rocket', 'lightbulb', 'chart', 'target'):
-            groups.append(('sparkle', _sparkle_strokes(), s['center'], s['size'], s))
+        fx_key = s['icon'] if isinstance(s['icon'], str) else (
+            s['icon'][2] if isinstance(s['icon'], tuple)
+            and len(s['icon']) == 3 and s['icon'][0] == 'icon' else None)
+        if fx_key in ('check', 'coin', 'coins', 'rocket', 'lightbulb', 'chart', 'target'):
+            s['fx'] = 'spark'
+            groups.append(('fx', [], s['center'], s['size'], s))
     # verb arrow — the drawn relationship from actor to first object
     arrow_drawn = False
     person_slots = [s for s in slots if s['icon'] == 'person']
@@ -2317,7 +3586,8 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
 
         def cap(r):
             st, a, b = _caption_strokes(s['center'], s['size'],
-                                        s['label'], zone, r, pitch)
+                                        s['label'], zone, r, pitch,
+                                        chip=s.get('chip'))
             if s['icon'] in ('person', 'agent'):
                 st = _move_strokes(st, 0, s['size'] * (dy - 0.56))
             return st, a, b
@@ -2386,8 +3656,11 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                 a, b = jj / n, (jj + 1) / n
                 if len(stt) > 3 and stt[3]:  # hatch fills skip p<0.38
                     a += 0.38 / n
+                pts_ = stt[0]
+                plen = sum(math.hypot(q[0] - p_[0], q[1] - p_[1])
+                           for p_, q in zip(pts_, pts_[1:]))
                 pen.append([s_ + (e_ - s_) * _ease_inv(a),
-                            s_ + (e_ - s_) * _ease_inv(b)])
+                            s_ + (e_ - s_) * _ease_inv(b), round(plen, 1)])
             pens.setdefault(j, []).extend(pen)
         for j, st in enumerate(dp):
             if j in spans:
@@ -2395,7 +3668,131 @@ def _scene_groups(scene: dict, plan: dict, ratio: str):
                 st['pen'] = sorted(pens[j])
             else:
                 st['soundRole'] = None  # no drawn group left for this step
+    if fm_slot is not None:
+        for g, s_, e_ in out:
+            if g[4] is fm_slot:
+                scene['_fm_window'] = (s_, e_)
+                break
+        fm2 = scene.get('_fm2_slot')
+        if fm2 is not None:
+            for g, s_, e_ in out:
+                if g[4] is fm2:
+                    scene['_fm2_window'] = (s_, e_)
+                    break
     return out
+
+
+# static icon names that upgrade to the animated sprite when it exists —
+# a checkmark that ticks itself beats four strokes
+_ANIM_UPGRADE = {
+    'check': 'checkmark', 'settings': 'settings', 'gear': 'settings',
+    'heart': 'heart', 'star': 'star', 'lock': 'lock',
+    'eye': 'visibility', 'mail': 'mail', 'envelope': 'mail', 'home': 'home',
+    'search': 'searchToX', 'menu': 'menu', 'play': 'playPause',
+    'video': 'video', 'download': 'download', 'upload': 'share',
+    'trash': 'trash', 'calendar': 'calendar', 'folder': 'folder',
+    'edit': 'edit', 'bell': 'notification',
+    'warning': 'alertTriangle', 'alert': 'alertCircle',
+    'help': 'help', 'question': 'help', 'mic': 'microphone',
+    'archive': 'archive', 'bookmark': 'bookmark', 'film': 'video2',
+    'increase': 'arrowUp', 'decrease': 'arrowDown', 'infinity': 'infinity',
+}
+_SPRITE_DIRS = {'animicon': _ASSETS / 'animicons',
+                'notomoji': _ASSETS / 'notomoji'}
+_ANIMICON_CACHE = {}
+
+
+def _sprite_meta(pack: str, slug: str):
+    key = ('meta', pack, slug)
+    if key not in _ANIMICON_CACHE:
+        mp = _SPRITE_DIRS[pack] / slug / 'meta.json'
+        _ANIMICON_CACHE[key] = (
+            json.loads(mp.read_text()) if mp.is_file() else None)
+    return _ANIMICON_CACHE[key]
+
+
+def _sprite_frame(pack: str, slug: str, idx: int):
+    key = (pack, slug, idx)
+    if key not in _ANIMICON_CACHE:
+        fp = _SPRITE_DIRS[pack] / slug / f'f{idx:04d}.png'
+        _ANIMICON_CACHE[key] = (Image.open(fp).convert('RGBA')
+                                if fp.is_file() else None)
+    return _ANIMICON_CACHE[key]
+
+
+def _paste_sprite(layer, pack, slug, center, size, cam, ratio, zoom, p,
+                  mono=None):
+    """Paste frame p of the animated sprite into the slot — the icon plays
+    its own animation across its draw window and holds the last frame.
+    mono=<rgba> flattens the sprite to a single ink tone (pure-line look)."""
+    meta = _sprite_meta(pack, slug)
+    if not meta:
+        return
+    n = meta['frames']
+    img = _sprite_frame(pack, slug, min(n - 1, max(0, int(p * n))))
+    if img is None:
+        return
+    scale = _map_scale(ratio, zoom)
+    w = max(8, int(size * scale))
+    if mono:
+        tint = Image.new('RGBA', img.size, tuple(mono[:3]) + (255,))
+        tint.putalpha(img.split()[3])
+        img = tint
+    im = img.resize((w, w), Image.LANCZOS)
+    sx, sy = wbp._map_point(center, cam, ratio, zoom)
+    layer.alpha_composite(im, (int(sx - w / 2), int(sy - w / 2)))
+
+
+_FX_DIR = _ASSETS / 'fx'
+_FX_INDEX = None
+_FX_CACHE = {}
+
+
+def _fx_index():
+    global _FX_INDEX
+    if _FX_INDEX is None:
+        ip = _FX_DIR / 'index.json'
+        _FX_INDEX = json.loads(ip.read_text()) if ip.is_file() else {}
+    return _FX_INDEX
+
+
+def _fx_image(mark: str, seed: int):
+    key = (mark, seed)
+    if key not in _FX_CACHE:
+        files = _fx_index().get(mark) or []
+        if not files:
+            _FX_CACHE[key] = None
+        else:
+            fn = files[(seed // 97) % len(files)]
+            _FX_CACHE[key] = Image.open(_FX_DIR / fn).convert('RGBA')
+    return _FX_CACHE[key]
+
+
+def _paste_fx(layer, mark, center, size, cam, ratio, zoom, p, colors, seed):
+    """Kenney CC0 particle sprite as an accent mark — alpha-tinted to the
+    accent color, pops in over the first 45% of the window, then holds."""
+    img = _fx_image(mark, seed)
+    if img is None:
+        return
+    k = _pop_scale(min(1.0, p / 0.45))
+    w = max(6, int(size * 0.5 * _map_scale(ratio, zoom) * k))
+    accent = colors.get('accent', (60, 60, 60, 255))
+    tint = Image.new('RGBA', img.size, tuple(accent[:3]) + (255,))
+    tint.putalpha(img.split()[3])
+    im = tint.resize((w, w), Image.LANCZOS)
+    bc = (center[0] + size * 0.38, center[1] - size * 0.35)
+    sx, sy = wbp._map_point(bc, cam, ratio, zoom)
+    layer.alpha_composite(im, (int(sx - w / 2), int(sy - w / 2)))
+
+
+def _pop_scale(p: float) -> float:
+    """POP spring (dampingRatio 0.8, appllama grammar) mapped onto the draw
+    progress: the element lands slightly oversize then settles. Applies to
+    icon/figure groups only — headline/text stay flat."""
+    if p <= 0 or p >= 1:
+        return 1.0
+    # underdamped settle: one soft overshoot (~+7%) then back to 1
+    return 1.0 + 0.07 * math.sin(p * math.pi * 2.2) * math.exp(-3.2 * p)
 
 
 def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
@@ -2410,7 +3807,20 @@ def draw_scene_layer(scene: dict, plan: dict, ratio: str, scene_time: float,
         p = wbp._ease(wbp._clamp((scene_time - start) / max(0.05, end - start)))
         if p <= 0:
             continue
-        t = _draw_strokes(layer, strokes or [], center, size, cam, colors,
+        if slot and slot.get('sprite'):
+            if draw:
+                mono = colors.get('ink') if plan.get('sprite_ink') else None
+                _paste_sprite(layer, *slot['sprite'], center,
+                              size * _pop_scale(p), cam, ratio, zoom, p,
+                              mono=mono)
+            continue
+        if kind == 'fx':
+            if draw and slot and slot.get('fx'):
+                _paste_fx(layer, slot['fx'], center, size, cam,
+                          ratio, zoom, p, colors, seed + gi * 97)
+            continue
+        sz = size * (_pop_scale(p) if kind == 'icon' else 1.0)
+        t = _draw_strokes(layer, strokes or [], center, sz, cam, colors,
                           ratio, p, seed + gi * 97, zoom, draw)
         if p < 1 and t is not None:
             tip = t
@@ -2482,17 +3892,20 @@ def _journey_title(plan: dict) -> str:
 
 
 _SLICE_SPAN = {
-    'ground':   (0.00, 0.50),
-    'icon':     (0.00, 0.62),
-    'arrow':    (0.50, 0.85),
-    'marks':    (0.55, 0.90),
-    'sparkle':  (0.60, 0.95),
-    'bubble':   (0.30, 0.80),
-    'caption':  (0.52, 1.00),
-    'strike':   (0.45, 0.90),
-    'emphasis': (0.60, 1.00),
-    'divider':  (0.00, 0.95),
-    'plabel':   (0.00, 0.90),
+    # one element at a time: each group's window mostly clears the previous
+    # group's before it starts, so the hand visibly finishes a thing before
+    # the next appears
+    'ground':   (0.00, 0.18),
+    'divider':  (0.00, 0.50),
+    'plabel':   (0.00, 0.85),
+    'icon':     (0.05, 0.55),
+    'bubble':   (0.50, 0.70),
+    'caption':  (0.64, 0.97),
+    'arrow':    (0.86, 1.00),
+    'marks':    (0.88, 1.00),
+    'sparkle':  (0.90, 1.00),
+    'strike':   (0.86, 1.00),
+    'emphasis': (0.86, 1.00),
 }
 _FOCAL_BOOST = 1.55
 _PERSON_BOOST = 1.85
@@ -2556,7 +3969,6 @@ def _journey_items(plan: dict, ratio: str):
 
     n = max(1, len(beats))
     cols = max(1, math.ceil(math.sqrt(n * (pw / ph))))
-    rows = max(1, math.ceil(n / cols))
     gy0 = margin + head_h
 
     def _wobble_line(p0, p1, n=26, wob=9.0):
@@ -2927,6 +4339,8 @@ def render_scene_frame(scene: dict, plan: dict, ratio: str, scene_time: float) -
                           zoom)
     layers.append((lyr, 255))
     frame = _composite_frame(plan, ratio, cam, layers, seed)
+    frame = _figure_motion_overlay(frame, scene, plan, ratio, cam, zoom,
+                                   scene_time)
     return _overlay_hand(frame, tip, ratio, scene_time * 8 + seed)
 
 
@@ -2952,7 +4366,6 @@ def render_transition_frame(prev_scene, next_scene, plan, ratio, p: float):
                 if s.get('sceneId') == next_scene.get('sceneId')), len(scenes) - 1)
     wb = next_scene.get('whiteboardRuntime') or {}
     seed = int(wb.get('seed', 9))
-    dur = float(wb.get('sceneDuration') or 4.0)
     next_time = 0.0
     tip = None
     layers = []
@@ -2970,3 +4383,156 @@ def render_transition_frame(prev_scene, next_scene, plan, ratio, p: float):
         layers.append((lyr, 255))
     frame = _composite_frame(plan, ratio, cam, layers, seed)
     return _overlay_hand(frame, tip, ratio, p * 30 + seed)
+
+
+_FM_MOD = None
+
+
+def _fm_mod():
+    """tools/nexstick/fig_motion — lazy: node/strips only run when a scene
+    actually carries a motion figure."""
+    global _FM_MOD
+    if _FM_MOD is None:
+        import importlib.util
+        p = Path(__file__).resolve().parent / 'tools' / 'nexstick' / 'fig_motion.py'
+        spec = importlib.util.spec_from_file_location('nexstick_fig_motion', p)
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        _FM_MOD = m
+    return _FM_MOD
+
+
+def _figure_motion_overlay(frame, scene, plan, ratio, cam, zoom, scene_time):
+    """Composite the animated mocap figure over the drawn board at the
+    person slot. Pops in during the slot's draw window, then plays the clip
+    for the rest of the beat; the ground shadow and caption still draw.
+    scene['figureMotion2'] draws a second figure at the next person slot."""
+    for key in ('', '2'):
+        fm = scene.get('figureMotion' + key)
+        if not fm:
+            continue
+        frame = _fm_one(frame, scene, fm, key, plan, ratio, cam, zoom,
+                        scene_time)
+    return frame
+
+
+def _fm_one(frame, scene, fm, key, plan, ratio, cam, zoom, scene_time):
+    anchor = scene.get('_fm' + key + '_anchor')
+    if not anchor:
+        zone = (scene.get('whiteboardRuntime') or {}).get('boardZone') or {}
+        zw = float(zone.get('w', 1))
+        zh = float(zone.get('h', 1))
+        size = min(zw, zh) * 0.5
+        anchor = {'center': (float(zone.get('x', 0)) + zw * 0.26,
+                             float(zone.get('y', 0)) + zh * 0.86 - size * 0.5),
+                  'size': size, 'facing': 1}
+    win = scene.get('_fm' + key + '_window') or (0.45, 1.1)
+    dt = scene_time - win[0]
+    if dt < -0.05:
+        return frame
+    dur = float((scene.get('whiteboardRuntime') or {}).get('sceneDuration')
+                or scene.get('timingOverrideSeconds') or 4.0)
+    spec = dict(fm)
+    if spec.get('visemes'):
+        spec['visemeOffset'] = float(spec.get('beatStart', 0.0)) + win[0]
+    if anchor.get('facing', 1) == 1:
+        spec['mirror'] = True  # skin_rig presents facing-left
+    strip = _fm_mod().get_strip(spec, max(dur - win[0], 0.6), fps=12)
+    if not strip:
+        return frame
+    img = strip[min(len(strip) - 1, max(0, int(dt * 12)))]
+    sc = _pop_scale(wbp._clamp(dt / 0.4))
+    w, h = wbp.RATIO_SIZES[ratio]
+    scale = min(w, h) / (650 if ratio != '9:16' else 760) * zoom
+    h_px = anchor['size'] * float(fm.get('scale', 0.95)) * scale * sc
+    img2 = img.resize((max(1, int(img.width * h_px / img.height)),
+                       max(1, int(h_px))), Image.LANCZOS)
+    fx, fy = wbp._map_point(
+        (anchor['center'][0], anchor['center'][1] + anchor['size'] * 0.5),
+        cam, ratio, zoom)
+    ox, oy = int(fx - img2.width / 2), int(fy - img2.height)
+    out = frame.convert('RGBA')
+    tile = Image.new('RGBA', out.size, (0, 0, 0, 0))
+    # the reference draws every element stroke-by-stroke — the figure is no
+    # exception: the hand traces the sprite's silhouette first, then the
+    # sprite fades in over the traced outline
+    draw_dur = min(1.1, max(0.5, (dur - win[0]) * 0.30))
+    rp = wbp._clamp(dt / draw_dur)
+    if rp < 1.0:
+        conts = _fm_contours(spec, img)
+        if conts:
+            op = wbp._clamp(rp / 0.62)
+            sp = wbp._clamp((rp - 0.55) / 0.45)
+            fpolys = [[(ox + qx * img2.width, oy + qy * img2.height)
+                       for qx, qy in poly] for poly in conts]
+            total = sum(len(pp) for pp in fpolys)
+            budget = int(total * op) + 1
+            dd = ImageDraw.Draw(tile)
+            wd = max(2, int(round(h_px * 0.011)))
+            tipxy = None
+            for pp in fpolys:
+                if budget <= 0:
+                    break
+                n = min(len(pp), budget)
+                if n >= 2:
+                    dd.line(pp[:n], fill=(34, 34, 40, 255), width=wd,
+                            joint='curve')
+                if n > 0:
+                    tipxy = pp[n - 1]
+                budget -= n
+            if tipxy is not None:
+                scene['_fm' + key + '_tip'] = tipxy
+            if sp > 0:
+                spr = img2.copy()
+                spr.putalpha(spr.getchannel('A').point(
+                    lambda v: int(v * sp)))
+                tile.alpha_composite(spr, (ox, oy))
+        else:
+            spr = img2.copy()
+            spr.putalpha(spr.getchannel('A').point(lambda v: int(v * rp)))
+            tile.alpha_composite(spr, (ox, oy))
+    else:
+        tile.alpha_composite(img2, (ox, oy))
+    return Image.alpha_composite(out, tile).convert('RGB')
+
+
+_FM_CONTOURS: dict = {}
+
+
+def _fm_contours(spec, img):
+    """Silhouette polylines of a sprite frame, normalized to 0..1 — the
+    hand 'draws' these before the sprite fades in. Cached per clip/pose."""
+    key = (str(spec.get('clip')), round(float(spec.get('pose') or 0.0), 3),
+           str(spec.get('variant') or ''), img.size)
+    hit = _FM_CONTOURS.get(key)
+    if hit is not None:
+        return hit
+    polys = []
+    try:
+        import cv2
+        import numpy as np
+        a = np.asarray(img.convert('RGBA').split()[3])
+        cnts, _ = cv2.findContours(a, cv2.RETR_EXTERNAL,
+                                   cv2.CHAIN_APPROX_SIMPLE)
+        eps = max(1.2, max(img.size) * 0.006)
+        cps = []
+        for c in cnts:
+            area = cv2.contourArea(c)
+            if area < img.width * img.height * 0.002:
+                continue
+            ap = cv2.approxPolyDP(c, eps, True)
+            if len(ap) >= 3:
+                cps.append((area, [[float(p[0][0]) / img.width,
+                                    float(p[0][1]) / img.height]
+                                   for p in ap]))
+        cps.sort(key=lambda x: -x[0])
+        polys = [p for _a, p in cps[:8]]
+        # start each contour at its topmost point — the order a hand draws
+        for poly in polys:
+            i0 = min(range(len(poly)), key=lambda i: poly[i][1])
+            poly[:] = poly[i0:] + poly[:i0]
+    except Exception:
+        polys = []
+    _FM_CONTOURS[key] = polys
+    return polys
+

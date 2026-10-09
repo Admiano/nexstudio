@@ -37,6 +37,8 @@ import tempfile
 from pathlib import Path
 from typing import Any, Iterator
 
+import marker_sfx
+
 SCHEMA = 'NexMindWhiteboardV3NarrationTimedPlanV1'
 RECEIPT_SCHEMA = 'NexMindWhiteboardV3ReconstructedExecutionReceiptV1'
 VERSION = '3.0.0-reconstruction.1'
@@ -154,28 +156,34 @@ def align_beats_to_words(plan: dict, words: list[dict]) -> dict:
         return p
     toks = [t for _, t in pairs]
     ti = 0
+    cursor = 0.0
     for b in p['beats']:
         narr = [_norm_word(x) for x in
                 str(b.get('narration') or '').split()]
         narr = [x for x in narr if x]
         if not narr:
             continue
-        # locate the narration's first token within a scan window
-        found = None
-        for j in range(ti, min(len(toks), ti + 400)):
-            if toks[j] == narr[0]:
-                found = j
-                break
-        if found is None:
+        candidates = [j for j in range(ti, min(len(toks), ti + 400))
+                      if toks[j] == narr[0]]
+        if not candidates:
+            b['start_seconds'] = cursor
+            cursor += b['duration_seconds']
             continue
-        end_i = min(len(toks) - 1, found + len(narr) - 1)
-        b['start_seconds'] = max(0.0, pairs[found][0]['start'] - 0.15)
+        found = max(candidates, key=lambda j: sum(
+            toks[j + k] == narr[k] for k in range(
+                min(4, len(narr), len(toks) - j))))
+        last = narr[-1]
+        end_i = next((j for j in range(
+            found + len(narr) + 8, found, -1)
+            if j < len(toks) and toks[j] == last), None)
+        if end_i is None:
+            end_i = min(len(toks) - 1, found + len(narr) - 1)
+        b['start_seconds'] = max(cursor, pairs[found][0]['start'] - 0.15)
         b['duration_seconds'] = max(
-            0.5, pairs[end_i][0]['end'] - b['start_seconds'] + 0.35)
+            0.5, pairs[end_i][0]['end'] - b['start_seconds'] + 0.15)
+        b['word_times'] = [[t, w['start'], w['end']]
+                           for w, t in pairs[found:end_i + 1]]
         ti = end_i + 1
-    cursor = 0.0
-    for b in p['beats']:
-        b['start_seconds'] = max(b['start_seconds'], cursor)
         cursor = b['start_seconds'] + b['duration_seconds']
     p['durationSeconds'] = cursor + p['pacing']['board_reveal_seconds']
     return p
@@ -208,6 +216,17 @@ def normalize_plan(plan: dict) -> dict:
         b['start_seconds'] = float(start) if start is not None else cursor
         cursor = b['start_seconds'] + dur
         scene['timingOverrideSeconds'] = dur
+        # an animated figure on this beat: 'figure' -> scene.figureMotion
+        # {clip} or {say} resolved via clip_select; {visemes} carries a
+        # rhubarb cues path with beatStart offset for clip-local timing
+        if b.get('figure'):
+            fm = dict(b['figure'])
+            fm['beatStart'] = b['start_seconds']
+            scene['figureMotion'] = fm
+        if b.get('figure2'):
+            fm2 = dict(b['figure2'])
+            fm2['beatStart'] = b['start_seconds']
+            scene['figureMotion2'] = fm2
         b['scene'] = scene
         norm_beats.append(b)
     p['beats'] = norm_beats
@@ -321,6 +340,8 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
     variant = plan.get('camera_variant')
     journey = variant == 'giant_board_journey'
     boards = variant == 'board_sections'
+    shorts = variant == 'shorts'
+    comic = variant == 'comic'
     pacing = plan['pacing']
     trans = pacing['transition_seconds']
     reveal = pacing['board_reveal_seconds']
@@ -329,6 +350,12 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
     if boards:
         import v3_board_sections as v3bs
         total += v3bs.ending_seconds(plan, ratio)
+    if shorts:
+        import v3_shorts as v3sh
+        total += v3sh.ending_seconds(plan, ratio)
+    if comic:
+        import v3_comic as v3cm
+        total += v3cm.ending_seconds(plan, ratio)
 
     t = 0.0
     while t < total - 1e-9:
@@ -342,6 +369,18 @@ def render_frames(wbp, v3r, plan: dict, ratio: str, fps: int) -> Iterator[tuple[
             # fixed camera on one board; sections draw in place,
             # wipes between boards, ending thanks + montage
             yield t, v3bs.render_board_frame(plan, ratio, t)
+            t += step
+            continue
+        if shorts:
+            # stage mode — the character performs center-frame on a
+            # floor line; walk-cycle entrances/exits, caption per beat
+            yield t, v3sh.render_short_frame(plan, ratio, t)
+            t += step
+            continue
+        if comic:
+            # comic page — one panel per beat draws itself in order:
+            # border, posed figure, speech bubble, narration box
+            yield t, v3cm.render_comic_frame(plan, ratio, t)
             t += step
             continue
         # Current beat = last beat whose window has opened; a completed beat holds.
@@ -386,102 +425,54 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def build_sfx(snd, plan: dict, duration: float, out_path: Path) -> Path:
-    # sound_choreographer reads plan['sceneSpecs'][*]['whiteboardRuntime']['drawPlan']
-    # Runtime wrap (preserved module untouched): point its audio dir at our
-    # denser synthesized marker bed — the packaged bed was ~16x too quiet.
+def build_sfx(snd, plan: dict, duration: float, out_path: Path,
+              ratio: str = '16:9', board: bool = False) -> Path:
+    """Marker foley: one synthesized felt-tip stroke per pen-down interval
+    the renderer wrote into each drawPlan step (``pen`` = [start, end,
+    length_px]), so the sound starts, stops and scales with the ink.
+    Nothing plays during lifts, travel, holds or scene handoffs."""
     sfx_dir = Path(__file__).parent / 'assets' / 'sfx'
-    marker_bed = sfx_dir / 'marker-real-bed-48k.wav'
-    if not marker_bed.is_file():
-        marker_bed = sfx_dir / 'marker-scratch-bed-48k.wav'
-    if marker_bed.is_file():
-        snd.AUDIO = sfx_dir
-        snd.ROLE_FILE['marker.short'] = marker_bed.name
-        snd.ROLE_FILE['marker.swipe'] = marker_bed.name
-        snd.ROLE_GAIN['marker.short'] = 0.30 * 0.7
-        snd.ROLE_GAIN['marker.swipe'] = 0.38 * 0.7
-
-    # Bed loudness map: the source recording has quiet valleys between its
-    # strokes (crossfaded when looped) — a random offset can land a slice on
-    # silence while the pen is visibly inking. Index the bed's windows whose
-    # envelope stays above a floor so every emitted scratch actually sounds.
-    def _loud_windows(wav_path: Path, span_s: float) -> list[float]:
-        import wave
-        import numpy as np
-        w = wave.open(str(wav_path))
-        n, sr = w.getnframes(), w.getframerate()
-        e = np.abs(np.frombuffer(w.readframes(n), dtype=np.int16)
-                   ).astype(np.float32)
-        b = int(sr * 0.05)  # 50ms bins
-        env = e[:n // b * b].reshape(-1, b).mean(1)
-        floor = np.percentile(env, 35)
-        span_bins = max(1, int(span_s / 0.05))
-        starts = []
-        for i in range(0, max(1, len(env) - span_bins)):
-            if env[i:i + span_bins].min() >= floor:
-                starts.append(i * 0.05)
-        return starts or [0.0]
-
-    _loud_cache: dict[tuple, list[float]] = {}
-
-    def bed_offset(bed_name: str, span_s: float, rnd) -> float:
-        key = (bed_name, round(span_s, 2))
-        if key not in _loud_cache:
-            _loud_cache[key] = _loud_windows(
-                sfx_dir / bed_name, min(span_s, 5.9))
-        wins = _loud_cache[key]
-        return wins[int(rnd.random() * len(wins)) % len(wins)]
-
-    # Emit one scratch event per polyline pen-down interval (written into the
-    # drawPlan by the renderer) — the sound plays only while the pen inks,
-    # never during lifts or travel between strokes.
-    def pen_events(pl):
-        import random as _rnd
-        out = []
-        base = 0.0
-        beats = pl.get('beats') or []
-        scenes = pl.get('sceneSpecs') or []
-        for si, s in enumerate(scenes):
-            wb = s.get('whiteboardRuntime') or {}
-            dur = float(wb.get('sceneDuration') or 1)
-            # The video places each scene at its word-aligned beat start —
-            # narration pauses create gaps, so a cumulative-duration clock
-            # would schedule scratches early (before the ink appears).
-            bstart = (float(beats[si]['start_seconds'])
-                      if si < len(beats) else base)
-            for i, st in enumerate(wb.get('drawPlan') or []):
-                role = st.get('soundRole')
-                if not role:
-                    continue
-                rnd = _rnd.Random(snd._seed(wb.get('seed'), st.get('id'), role))
-                spans = st.get('pen') or [[st.get('start', 0), st.get('end', 0)]]
-                for ps, pe in spans:
-                    out.append({
-                        'role': role,
-                        'file': snd.ROLE_FILE.get(role, snd.ROLE_FILE['marker.short']),
-                        'start': bstart + float(ps),
-                        'duration': max(.05, float(pe) - float(ps)),
-                        'offset': (bed_offset(marker_bed.name,
-                                            float(pe) - float(ps), rnd)
-                                   if (marker_bed.is_file() and
-                                       snd.ROLE_FILE.get(role)
-                                       == marker_bed.name)
-                                   else rnd.random() * 4.8),
-                        'gain': snd.ROLE_GAIN.get(role, .12),
-                        'seed': snd._seed(si, i, role)})
-            base = bstart + dur
-        if scenes:
-            out.append({'role': 'cap', 'file': snd.ROLE_FILE['cap'],
-                        'start': .04, 'duration': .23, 'offset': .15,
-                        'gain': snd.ROLE_GAIN['cap'],
-                        'seed': snd._seed('cap', 'open')})
-            out.append({'role': 'cap', 'file': snd.ROLE_FILE['cap'],
-                        'start': max(.05, base - .28), 'duration': .24,
-                        'offset': 1.28, 'gain': snd.ROLE_GAIN['cap'] * .8,
-                        'seed': snd._seed('cap', 'close')})
-        return sorted(out, key=lambda x: (x['start'], x['role']))
-    snd.events = pen_events
-    return Path(snd.render(plan, duration, out_path)['path'])
+    out = []
+    base = 0.0
+    beats = plan.get('beats') or []
+    scenes = plan.get('sceneSpecs') or []
+    if board:
+        import v3_board_sections as v3bs
+        for ps, pe, ln in v3bs.pen_spans(plan, ratio):
+            out.append({'start': ps, 'duration': max(.03, pe - ps),
+                        'length': ln, 'gain': 1.0})
+        base = duration
+    for si, s in enumerate([] if board else scenes):
+        wb = s.get('whiteboardRuntime') or {}
+        dur = float(wb.get('sceneDuration') or 1)
+        # scenes sit at their word-aligned beat start (narration pauses make
+        # gaps), not at a cumulative-duration clock
+        bstart = (float(beats[si]['start_seconds'])
+                  if si < len(beats) else base)
+        for st in wb.get('drawPlan') or []:
+            if not st.get('soundRole'):
+                continue
+            spans = st.get('pen') or [[st.get('start', 0), st.get('end', 0)]]
+            for sp in spans:
+                ps, pe = float(sp[0]), float(sp[1])
+                out.append({'start': bstart + ps,
+                            'duration': max(.03, pe - ps),
+                            'length': sp[2] if len(sp) > 2 else None,
+                            'gain': 1.0})
+        base = bstart + dur
+    if scenes:
+        cap_gain = snd.ROLE_GAIN.get('cap', .34)
+        out.append({'role': 'cap', 'start': .04, 'duration': .23,
+                    'offset': .15, 'gain': cap_gain})
+        out.append({'role': 'cap', 'start': max(.05, base - .28),
+                    'duration': .24, 'offset': 1.28, 'gain': cap_gain * .8})
+    out.sort(key=lambda e: e['start'])
+    Path(out_path).with_suffix('.events.json').write_text(json.dumps(
+        [e for e in out if e.get('role') != 'cap']))
+    seed = snd._seed(plan.get('seed', 0), 'marker')
+    return Path(marker_sfx.render(out, duration, out_path,
+                                  cap_wav=sfx_dir / 'pen-cap-48k.wav',
+                                  seed=seed)['path'])
 
 
 def build_music(duration: float, out_path: Path, rate: int = 48000) -> Path:
@@ -667,9 +658,23 @@ def render_production(
     if ratio not in wbp.RATIO_SIZES:
         raise _err('WHITEBOARD_V3_RATIO_UNSUPPORTED', ratio)
 
+    # domain art kit: plan['art_kit'] makes the kit's bespoke glyphs win
+    # icon resolution for the whole render
+    v3r.configure_art(plan)
     compiled = wbc.compile_whiteboard_plan(plan, {'ratio': ratio})
     compiled['_pal'] = wbp._pal(compiled)
     plan.update(compiled)
+    # the compiler rebuilds sceneSpecs — re-attach figure specs dropped there
+    for b, sc in zip(plan.get('beats') or [],
+                     plan.get('sceneSpecs') or []):
+        if b.get('figure'):
+            fm = dict(b['figure'])
+            fm['beatStart'] = b['start_seconds']
+            sc['figureMotion'] = fm
+        if b.get('figure2'):
+            fm2 = dict(b['figure2'])
+            fm2['beatStart'] = b['start_seconds']
+            sc['figureMotion2'] = fm2
     beats = plan['beats']
     duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] + plan['pacing']['board_reveal_seconds']
     if plan.get('camera_variant') == 'board_sections':
@@ -679,6 +684,12 @@ def render_production(
         import v3_board_sections as _v3bs
         duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] \
             + _v3bs.ending_seconds(plan, ratio)
+    if plan.get('camera_variant') in ('shorts', 'comic'):
+        import v3_shorts as _v3sh
+        import v3_comic as _v3cm
+        mod = _v3sh if plan['camera_variant'] == 'shorts' else _v3cm
+        duration = beats[-1]['start_seconds'] + beats[-1]['duration_seconds'] \
+            + mod.ending_seconds(plan, ratio)
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -694,7 +705,10 @@ def render_production(
         ffmpeg = shutil.which('ffmpeg')
         mp4 = out_dir / f'{name}.mp4'
         if ffmpeg:
-            sfx_wav = build_sfx(snd, plan, duration, out_dir / f'{name}.sfx.wav')
+            sfx_wav = build_sfx(snd, plan, duration,
+                                    out_dir / f'{name}.sfx.wav', ratio,
+                                    plan.get('camera_variant')
+                                    == 'board_sections')
             vo = None
             vo_spec = plan.get('voiceover') or {}
             vo_path = Path(vo_spec.get('path')) if vo_spec.get('path') else voiceover
@@ -705,7 +719,7 @@ def render_production(
 
         times = [b['start_seconds'] + b['duration_seconds'] * 0.5 for b in beats]
         times.append(duration - plan['pacing']['board_reveal_seconds'] * 0.2)
-        qa = contact_sheet(frames_dir, times, fps, out_dir / f'{name}_QA.jpg')
+        contact_sheet(frames_dir, times, fps, out_dir / f'{name}_QA.jpg')
     finally:
         if not keep_frames:
             shutil.rmtree(frames_dir, ignore_errors=True)
@@ -753,7 +767,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('plan', help='Narration-timed plan JSON (NexMindWhiteboardV3NarrationTimedPlanV1)')
     ap.add_argument('--out-dir', default='out')
     ap.add_argument('--ratio', default=None, choices=['16:9', '1:1', '9:16'])
-    ap.add_argument('--variant', default=None, choices=['cluster_travel', 'giant_board_journey', 'board_sections'])
+    ap.add_argument('--variant', default=None, choices=['cluster_travel', 'giant_board_journey', 'board_sections', 'shorts', 'comic'])
     ap.add_argument('--fps', type=int, default=DEFAULT_FPS)
     ap.add_argument('--voiceover', default=None, help='Optional VO audio file to mix under the pen bed')
     ap.add_argument('--word-timings', default=None,

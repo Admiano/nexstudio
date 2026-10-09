@@ -1,0 +1,9 @@
+# Where Savings Go
+## Deposit
+A customer gives cash to the bank teller.
+
+## Loans
+The banker lends money to a small business owner.
+
+## Growth
+The shop owner opens a new store.

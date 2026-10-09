@@ -1,0 +1,174 @@
+{
+ "production_id": "nexmind_whiteboard_v3_storyboard_edge",
+ "title": "What's your edge?",
+ "board_layout": "storyboard",
+ "art_kit": "crypto",
+ "brandExecution": {
+  "brandAuthority": {
+   "background": "#F7F2E7",
+   "ink": "#1A1A17",
+   "accent": "#1A1A17",
+   "secondary": "#8B8577"
+  }
+ },
+ "beats": [
+  {
+   "beat_id": "edge_informational",
+   "duration_seconds": 9.0,
+   "title": "1. Informational",
+   "subtitle": "see it before everyone else",
+   "caption": "\"Being early is the whole trade.\"",
+   "narration": "Informational edge - you learn it before anyone else does.",
+   "scene": {
+    "sceneId": "informational",
+    "heroRole": {
+     "label": "sources",
+     "icon": "stack of documents",
+     "glyph": "stack-list",
+     "rows": [
+      "INFO",
+      "FILINGS",
+      "ON-CHAIN"
+     ],
+     "annotate": "the signal"
+    },
+    "supportingRoles": [
+     {
+      "label": "early reader",
+      "icon": "person",
+      "annotate": "you see it\nearlier",
+      "expression": "thinking",
+      "emotion": "alert"
+     },
+     {
+      "label": "gap",
+      "icon": "divider",
+      "glyph": "divider"
+     },
+     {
+      "label": "the crowd",
+      "icon": "crowd of people",
+      "glyph": "crowd",
+      "annotate": "market finds\nout later"
+     }
+    ],
+    "relation": "contrast"
+   }
+  },
+  {
+   "beat_id": "edge_analytical",
+   "duration_seconds": 9.0,
+   "title": "2. Analytical",
+   "subtitle": "same picture, deeper read",
+   "caption": "\"The edge is in the interpretation.\"",
+   "narration": "Analytical edge - everyone sees the same chart, you see more.",
+   "scene": {
+    "sceneId": "analytical",
+    "heroRole": {
+     "label": "the chart",
+     "icon": "kit:crypto:candlesticks",
+     "tone": "a_red",
+     "annotate": "same data,\neveryone"
+    },
+    "supportingRoles": [
+     {
+      "label": "sharp reader",
+      "icon": "person",
+      "annotate": "you read\nit better",
+      "expression": "thinking",
+      "halo": "a_green",
+      "emotion": "think"
+     },
+     {
+      "label": "clearer picture",
+      "icon": "magnifying glass",
+      "annotate": "clearer\npicture"
+     }
+    ],
+    "relation": "sequence"
+   }
+  },
+  {
+   "beat_id": "edge_behavioral",
+   "duration_seconds": 10.0,
+   "title": "3. Behavioral",
+   "subtitle": "master the emotion, keep the plan",
+   "caption": "\"Others misbehave - you stay rational.\"",
+   "narration": "Behavioral edge - discipline while the crowd panics.",
+   "scene": {
+    "sceneId": "behavioral",
+    "heroRole": {
+     "label": "the cycle",
+     "icon": "chart journey",
+     "glyph": "chart-journey"
+    },
+    "supportingRoles": [
+     {
+      "label": "top buyer",
+      "icon": "person",
+      "on_chart": "peak",
+      "annotate": "FOMO",
+      "expression": "exclaim",
+      "halo": "a_yellow",
+      "emotion": "excited"
+     },
+     {
+      "label": "bottom seller",
+      "icon": "person",
+      "on_chart": "valley",
+      "annotate": "PANIC",
+      "expression": "exclaim",
+      "halo": "a_red",
+      "emotion": "panic"
+     },
+     {
+      "label": "calm trader",
+      "icon": "person",
+      "annotate": "you stay\nrational",
+      "expression": "thinking",
+      "halo": "a_blue",
+      "emotion": "calm"
+     }
+    ],
+    "relation": "journey"
+   }
+  },
+  {
+   "beat_id": "edge_quantitative",
+   "duration_seconds": 9.0,
+   "title": "4. Quantitative",
+   "subtitle": "a system that wins on average",
+   "caption": "\"Edge = E[x] > 0, repeated.\"",
+   "narration": "Quantitative edge - a system that wins on average.",
+   "scene": {
+    "sceneId": "quantitative",
+    "heroRole": {
+     "label": "the backtest",
+     "icon": "backtest results",
+     "glyph": "stack-list",
+     "rows": [
+      "BACKTEST",
+      "WIN 62%",
+      "LOSS 38%"
+     ],
+     "annotate": "proven on\nhistory"
+    },
+    "supportingRoles": [
+     {
+      "label": "the bot",
+      "icon": "kit:crypto:robot",
+      "annotate": "runs it\nexactly",
+      "focus": true
+     },
+     {
+      "label": "compounding",
+      "icon": "kit:crypto:trend-up",
+      "tone": "a_green",
+      "annotate": "edge\ncompounds"
+     }
+    ],
+    "relation": "focus"
+   }
+  }
+ ]
+}

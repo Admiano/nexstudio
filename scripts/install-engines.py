@@ -4,6 +4,8 @@ ROOT=Path(__file__).resolve().parents[1]
 SOURCES=ROOT/'engine_sources'; ENGINES=ROOT/'engines'
 items={
  'whiteboard':'WHITEBOARD_ENGINE_SOURCE.zip',
+ 'whiteboard-v3-system':'NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE.zip',
+ 'whiteboard-v3-approved-source':'NEXSTUDIO_WHITEBOARD_APPROVED_V3_SOURCE_FOCUSED_2026-09-18.zip',
  'explainer':'EXPLAINER_ENGINE_SOURCE.zip',
  'sound':'SOUND_LIBRARY_V2_SOURCE.zip',
  'whiteboard-v3-system':'NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE.zip',
@@ -25,4 +27,8 @@ for name,archive in items.items():
 # (no archive install step). The approved explainer pipeline lives unpacked at
 # engine_sources/editorial-motion-v2 (compiler + runtime + fixtures).
 
-print('\nEngine source installed. Use the paths in .env.example.')
+# NexMind Whiteboard V3 curated package (Cluster Travel TEXTFIX_V2 lineage): provenance and
+# reference-output archive extracted for audit. The runtime adapter still roots at
+# engines/whiteboard/Whiteboard_Execution_Body_V2 via STUDIO_WHITEBOARD_ENGINE_ROOT.
+
+print('\nEngine source installed, shared Paper Motion dependencies assembled, and runtime package boundaries applied. Use the paths in .env.example.')

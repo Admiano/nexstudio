@@ -1,0 +1,224 @@
+{
+  "name": "agriculture",
+  "domain": "farming / beekeeping / gardening / food explainers",
+  "glyphs": {
+    "beehive": {
+      "keywords": [
+        "beehive",
+        "hive",
+        "skep",
+        "colony",
+        "apiary",
+        "bees"
+      ],
+      "motif": "hive",
+      "tone": "a_yellow",
+      "fill": true,
+      "colors": true
+    },
+    "honeycomb": {
+      "keywords": [
+        "honeycomb",
+        "comb",
+        "wax",
+        "cells",
+        "honey",
+        "hexagon"
+      ],
+      "motif": "honeycomb",
+      "tone": "a_yellow",
+      "fill": true,
+      "colors": true
+    },
+    "bee-smoker": {
+      "keywords": [
+        "smoker",
+        "beekeeping"
+      ],
+      "motif": "smoker",
+      "tone": "a_orange",
+      "colors": true
+    },
+    "bee": {
+      "keywords": [
+        "bee",
+        "bees",
+        "honeybee",
+        "bumblebee",
+        "pollinator",
+        "queen",
+        "worker",
+        "drone",
+        "sting"
+      ],
+      "motif": "bee",
+      "tone": "a_yellow",
+      "fill": true,
+      "colors": true
+    },
+    "flower-pollen": {
+      "keywords": [
+        "pollen",
+        "pollination",
+        "pollinate",
+        "nectar",
+        "blossom",
+        "bloom",
+        "flower"
+      ],
+      "motif": "flower",
+      "tone": "a_red",
+      "fill": true,
+      "colors": true
+    },
+    "crop-field": {
+      "keywords": [
+        "crop",
+        "crops",
+        "field",
+        "farmland",
+        "harvest",
+        "planting",
+        "seed"
+      ],
+      "motif": "field",
+      "tone": "a_green",
+      "colors": true
+    },
+    "sprayer": {
+      "keywords": [
+        "pesticide",
+        "pesticides",
+        "spray",
+        "sprayer",
+        "herbicide",
+        "insecticide",
+        "chemical",
+        "chemicals"
+      ],
+      "motif": "spray",
+      "tone": "a_blue",
+      "colors": true
+    },
+    "cracked-earth": {
+      "keywords": [
+        "arid",
+        "drought",
+        "dry",
+        "dryness",
+        "heatwave",
+        "parched"
+      ],
+      "motif": "drought",
+      "tone": "a_orange",
+      "fill": true,
+      "colors": true
+    },
+    "tractor": {
+      "keywords": [
+        "tractor",
+        "farm",
+        "machinery",
+        "plough",
+        "plow"
+      ],
+      "motif": "tractor",
+      "tone": "a_red",
+      "fill": true,
+      "colors": true
+    },
+    "barn": {
+      "keywords": [
+        "barn",
+        "farmhouse",
+        "ranch",
+        "farmstead"
+      ],
+      "motif": "barn",
+      "tone": "a_red",
+      "fill": true,
+      "colors": true
+    },
+    "watering-can": {
+      "keywords": [
+        "watering",
+        "irrigate",
+        "irrigation",
+        "garden",
+        "gardening"
+      ],
+      "motif": "water",
+      "tone": "a_blue",
+      "colors": true
+    },
+    "apple-basket": {
+      "keywords": [
+        "apples",
+        "apple",
+        "fruit",
+        "produce",
+        "yield",
+        "basket"
+      ],
+      "motif": "fruit",
+      "tone": "a_red",
+      "fill": true,
+      "colors": true
+    },
+    "fruit-tree": {
+      "keywords": [
+        "orchard",
+        "orchards",
+        "fruit tree",
+        "apple tree",
+        "tree",
+        "trees",
+        "grove"
+      ],
+      "motif": "tree",
+      "tone": "a_green",
+      "fill": true,
+      "colors": true
+    },
+    "coffee-bush": {
+      "keywords": [
+        "coffee bush",
+        "coffee plant",
+        "coffee cherries",
+        "bush",
+        "bushes",
+        "shrub",
+        "cherry",
+        "cherries",
+        "coffee cherry"
+      ],
+      "tone": "a_green",
+      "fill": true,
+      "colors": true
+    },
+    "pour-over": {
+      "keywords": [
+        "filter",
+        "pour",
+        "pours",
+        "pour over",
+        "hot water",
+        "brew",
+        "brewing",
+        "kettle"
+      ],
+      "colors": true
+    },
+    "coffee-beans": {
+      "keywords": [
+        "bean",
+        "beans",
+        "green bean",
+        "green beans",
+        "coffee bean",
+        "coffee beans"
+      ],
+      "colors": true
+    }
+  }
+}

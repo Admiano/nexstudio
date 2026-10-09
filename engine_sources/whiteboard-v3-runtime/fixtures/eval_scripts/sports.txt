@@ -1,0 +1,9 @@
+# Game Day
+## Warmup
+The coach shows the players a new play.
+
+## The Game
+A striker kicks the ball into the goal.
+
+## After
+The goalkeeper feels sad but the fans clap.

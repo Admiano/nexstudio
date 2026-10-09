@@ -7,6 +7,7 @@ end point — sufficient for authored outline assets.
 """
 from __future__ import annotations
 
+import math
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -42,6 +43,52 @@ def _quad(p0, c, p1, n=QUAD_SAMPLES):
                 mt * mt * p0[1] + 2 * mt * t * c[1] + t * t * p1[1],
             )
         )
+    return out
+
+
+def _arc(p0, rx, ry, rot, large, sweep, p1, n=24):
+    """Sample an SVG elliptical arc (endpoint form, SVG 1.1 F.6.5)."""
+    if p0 == p1:
+        return []
+    rx, ry = abs(rx), abs(ry)
+    if rx < 1e-9 or ry < 1e-9:
+        return [p1]
+    phi = math.radians(rot)
+    cp, sp = math.cos(phi), math.sin(phi)
+    dx, dy = (p0[0] - p1[0]) / 2, (p0[1] - p1[1]) / 2
+    x1 = cp * dx + sp * dy
+    y1 = -sp * dx + cp * dy
+    lam = (x1 * x1) / (rx * rx) + (y1 * y1) / (ry * ry)
+    if lam > 1:
+        k = math.sqrt(lam)
+        rx, ry = rx * k, ry * k
+    num_ = rx * rx * ry * ry - rx * rx * y1 * y1 - ry * ry * x1 * x1
+    den = rx * rx * y1 * y1 + ry * ry * x1 * x1
+    co = math.sqrt(max(0.0, num_ / den)) if den else 0.0
+    if bool(large) == bool(sweep):
+        co = -co
+    cxp, cyp = co * rx * y1 / ry, -co * ry * x1 / rx
+    cx = cp * cxp - sp * cyp + (p0[0] + p1[0]) / 2
+    cy = sp * cxp + cp * cyp + (p0[1] + p1[1]) / 2
+
+    def ang(ux, uy, vx, vy):
+        a = math.atan2(ux * vy - uy * vx, ux * vx + uy * vy)
+        return a
+
+    t1 = ang(1, 0, (x1 - cxp) / rx, (y1 - cyp) / ry)
+    dt = ang((x1 - cxp) / rx, (y1 - cyp) / ry,
+             (-x1 - cxp) / rx, (-y1 - cyp) / ry)
+    if not sweep and dt > 0:
+        dt -= 2 * math.pi
+    elif sweep and dt < 0:
+        dt += 2 * math.pi
+    m = max(4, int(n * abs(dt) / (2 * math.pi)) + 2)
+    out = []
+    for k in range(1, m + 1):
+        t = t1 + dt * k / m
+        ex, ey = rx * math.cos(t), ry * math.sin(t)
+        out.append((cp * ex - sp * ey + cx, sp * ex + cp * ey + cy))
+    out[-1] = p1
     return out
 
 
@@ -149,9 +196,9 @@ def parse_path_d(d: str):
                     prev_ctrl = c1
             elif c == "A":
                 while i < len(toks) and not is_cmd(toks[i]):
-                    num(); num(); num(); num(); num()
+                    rx, ry, rot, large, sweep = num(), num(), num(), num(), num()
                     p = pt()
-                    cur.append(p)
+                    cur.extend(_arc(pos, rx, ry, rot, large, sweep, p))
                     pos = p
                 prev_ctrl = None
             else:

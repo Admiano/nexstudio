@@ -1,0 +1,9 @@
+# How a Letter Travels
+## Sorting
+A postal worker sorts letters in the office.
+
+## The Route
+The mail carrier rides a bicycle down the street.
+
+## Delivery
+The mail carrier hands a package to a grandmother.
