@@ -1,0 +1,24 @@
+{
+  "gender": "female",
+  "asset": "toigo_female_suit_2",
+  "donorCC0Header": true,
+  "sourceAuthor": "MRT / Margaret Toigo",
+  "inputSourceScene": "/home/runner/work/nexstudio/nexstudio/engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_FEMALE.decoded.blend",
+  "blender": "5.2.0 LTS",
+  "fittedVertices": 8509,
+  "faces": 8107,
+  "uvCoordinates": 9781,
+  "uvFaceLoops": 32428,
+  "originalDiffuseTexture": "Fsuit2.png",
+  "rig": "Host.rig",
+  "boneWeightGroups": 55,
+  "bodyShapeKeysPreserved": 34,
+  "hiddenOriginalWardrobeInDisposableScene": [
+    "Host.mindfront_f_dress_11",
+    "Host.V64_dress_lines"
+  ],
+  "sourceAssetsInRepoUnchanged": true,
+  "status": "UNAPPROVED_REAL_MAKEHUMAN_SUIT_FIT_UV_TEXTURED_PROOF",
+  "fitPipeline": "NexStudio mhclo_fit.py; original Host armature and weights; UV loops and original CC0 diffuse texture",
+  "editableSceneFile": "female-suit-front.blend"
+}
