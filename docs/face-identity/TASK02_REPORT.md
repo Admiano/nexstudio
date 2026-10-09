@@ -63,3 +63,23 @@ Each differs in skull silhouette, face thirds, AND the drawn feature set — rea
 ## 7. Preservation
 
 Read-only as before; all writes to `out/faceid2/*.blend`. Nothing merged, deployed, animated, or integrated into the cast pipeline. Stopping here for review.
+
+# V3 addendum — after review feedback ("still the same person")
+
+Reviewer verdict on the v2 sheets: variants still read as one person; eyebrow changes read as "eyebrows removed". This section records what v3 changed, what it achieved, and the honest ceiling.
+
+## 8. What v3 did (same script + params, no new topology)
+
+- **Much stronger structural fields**: head_width up to ±0.22, forehead ±0.06, face_len ±0.14, jaw_width ±0.035 with wider radii (0.05–0.06 m) so the jawline/chin/cheek **ink on `V59_face_frame`** moves with the skin — previously the silhouette field barely reached the drawn contour.
+- **Feature re-draw via curve retarget** (`retarget_eyes`): eye-region art verts are moved to the nearest point on a per-identity parametric outline (`round` / `upturned` / `narrow` / `almond`, scaled by eye_w/eye_h, tilted), capped at 3.5 mm/vert to avoid rim kinks. This reshapes the stroke itself, not just its scale — the mechanism needed for "different drawings" on shared topology.
+- **Brow visibility restored**: thickness kept ≥ baseline-ish (−0.25 / +0.9 / +0.45) with distinct arch/height/angle — v2's −0.85 thickness + arch changes had rendered brows effectively invisible.
+- **Artifact gates**: feature-seg claims below 0.12 are snapped to zero (small edge verts were the source of stray cheek/eye strokes); `lip_corner`/`lip_shape_z` and `ear_size` beyond ±0.2 were dropped — corner hooks and extreme ear transforms produced readable defects on the male head.
+
+## 9. Result and honest assessment
+
+- Shipped v3 sheets: `female_front/threeq_sheet.png`, `male_front/threeq_sheet.png`, `mixed_front_sheet.png` + `*_identities_v3.blend`.
+- Achieved: each identity now differs in silhouette (long-oval / round-full / square-jawed), eye shape, brow silhouette, nose line, and mouth line — systematic, reproducible variation on one topology.
+- **Ceiling (the deliverable the spec anticipated in §6 of the task):** parametric deformation of a single drawn topology tops out at "systematically different proportions/features of the same cast family". It CANNOT produce "completely different people" for two structural reasons: (a) every variant shares the same stroke inventory, line weight, and feature placement grammar — the flat illustrated style compresses identity signals into those few strokes; (b) the face fill, hair, ears and frame are identical by constraint, so remaining sameness dominates perception.
+- **Recommended targeted hybrid (spec-sanctioned):** keep the v3 structural field for the head shape; replace the ~6 highest-signal drawn features with authored variants as separate feature meshes — eye outline set (2–3 drawing styles), brow mesh variants, nose contour variants, mouth line variants — in the same ink material, same muscle vgroups (`oculi*`, `oris*`, `levator05`) so expressions/visemes keep working. Feature meshes are authored per-identity and swapped per variant (the `face: 0|1|2` slot already exists in `CastSpec`), instead of deforming one shared drawing. Estimated effort: 3–4 feature-mesh variants per feature per gender, authored once, reused across the whole cast.
+- Remaining minor defects in v3 stills: small residual stroke marks near the eye rim on the male (retarget clamp byproducts), faint nasolabial line shifts near the mouth on all variants (intended corner-line movement, reads as style-consistent).
+- Unchanged: nothing merged/deployed/animated; performance compatibility still untested (stills only, per spec).

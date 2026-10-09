@@ -133,11 +133,11 @@ def build_fields(P):
             lambda v,c: np.array([0, 0, (v[2]-eyeL[2])*P["forehead"] if v[2] > eyeL[2] else 0]))
     if P.get("jaw_width"):
         for j, s in ((jawL, 1), (jawR, -1)):
-            add("struct", j, 0.035, lambda v,c: np.array([s*P["jaw_width"], 0, 0]))
+            add("struct", j, 0.060, lambda v,c: np.array([s*P["jaw_width"] * max(0.0, 1.0 - abs(v[2]-c[2])/0.10), 0, 0]))
     if P.get("chin"):
-        add("struct", chinC, 0.028, lambda v,c: np.array([0, -P["chin"], -abs(P["chin"])*0.4]))
+        add("struct", chinC, 0.050, lambda v,c: np.array([0, -P["chin"], -abs(P["chin"])*0.4]))
     if P.get("chin_len"):
-        add("struct", chinC, 0.030, lambda v,c: np.array([0, 0, -P["chin_len"]]))
+        add("struct", chinC, 0.050, lambda v,c: np.array([0, 0, -P["chin_len"]]))
     if P.get("nose_len"):
         add("mouth", noseC, 0.020, lambda v,c: np.array([0, -P["nose_len"], -P["nose_len"]*0.15]))
     if P.get("nose_width"):
@@ -145,7 +145,7 @@ def build_fields(P):
         add("mouth", c0, 0.020, lambda v,c: np.array([(v[0]-c[0])*P["nose_width"], 0, 0]))
     if P.get("cheek"):
         for cch, s in ((cheekL, 1), (cheekR, -1)):
-            add("struct", cch, 0.032, lambda v,c: np.array([s*P["cheek"]*0.5, -P["cheek"], 0]))
+            add("struct", cch, 0.050, lambda v,c: np.array([s*P["cheek"]*0.5, -P["cheek"], 0]))
     if P.get("eye_spacing"):
         add("struct", eyeL, 0.020, lambda v,c: np.array([P["eye_spacing"], 0, 0]))
         add("struct", eyeR, 0.020, lambda v,c: np.array([-P["eye_spacing"], 0, 0]))
@@ -210,6 +210,10 @@ def seg_weights(ob, vw):
     keep = np.argmax(W, 0)
     for j, k in enumerate(order):
         segs[k] = np.where(keep == j, W[j], 0.0)
+    # tiny claims are where stray strokes live — snap them to zero so small
+    # edge verts can't fly off and leave jagged marks on the cheek/eye rim
+    for k in order:
+        segs[k][segs[k] < 0.12] = 0.0
     return segs
 
 def lip_vec(p, P):
@@ -221,22 +225,91 @@ def lip_vec(p, P):
     if P.get("mouth_pos"): t += np.array([0, 0, P["mouth_pos"]])
     return t
 
+# ---------- feature RE-DRAW: retarget art verts onto per-identity curves ----
+# Scaling the same stroke tops out at "same person, different proportions".
+# Distinct people need different DRAWN shapes: each art vert is moved to the
+# nearest point on a parametric target curve in the feature's local frame.
+def _eye_curve(shape, w, h):
+    """Closed eye-outline polyline in local (x: -w..w, z: -h..h) coords."""
+    ts = np.linspace(0, 2*math.pi, 64)
+    if shape == 'round':
+        x = w*np.cos(ts); z = h*np.sin(ts)
+    elif shape == 'narrow':
+        x = w*np.cos(ts); z = h*np.sin(ts)*0.55
+    elif shape == 'upturned':
+        x = w*np.cos(ts); z = h*np.sin(ts)*(0.6 + 0.4*(np.cos(ts)*-1+1)/2)
+        z = z + x*0.35
+    elif shape == 'downturned':
+        x = w*np.cos(ts); z = h*np.sin(ts)*(0.6 + 0.4*(np.cos(ts)+1)/2)
+        z = z - x*0.35
+    else:  # almond (default lens)
+        x = w*np.cos(ts); z = h*np.sin(ts)*0.75*(1.0 - 0.15*np.cos(2*ts))
+    return np.stack([x, z], 1)
+
+def retarget_eyes(vw, segs, P):
+    """Move eye-region art verts onto the target eye curve shape."""
+    d = np.zeros_like(vw)
+    shape = P.get('eye_shape')
+    if not shape: return d
+    for e, sgn, seg in ((eyeL, 1.0, 'eyeL'), (eyeR, -1.0, 'eyeR')):
+        w = segs[seg]
+        idx = np.where(w > 0.05)[0]
+        if not len(idx): continue
+        pts = vw[idx]
+        # current bbox → target curve with the identity's aspect
+        hw_ = max(0.004, (pts[:,0].max()-pts[:,0].min())/2)
+        hh_ = max(0.003, (pts[:,2].max()-pts[:,2].min())/2)
+        ew_ = hw_ * (1.0 + P.get('eye_w', 0) + P.get('eye_size', 0))
+        eh_ = hh_ * (1.0 + P.get('eye_h', 0) + P.get('eye_size', 0))
+        cc = pts.mean(0)
+        C = _eye_curve(shape, ew_, eh_)
+        tilt = P.get('eye_tilt', 0) * 0.35
+        Ct = C.copy(); Ct[:,1] += sgn * C[:,0] * tilt
+        Ct[:,0] += cc[0]; Ct[:,1] += cc[2]
+        for k, i in enumerate(idx):
+            p = vw[i]
+            j = np.argmin((Ct[:,0]-p[0])**2 + (Ct[:,1]-p[2])**2)
+            tgt = np.array([Ct[j,0], p[1], Ct[j,1]])
+            dd = (tgt - p) * w[i]
+            n = np.linalg.norm(dd)
+            if n > 0.0035: dd *= 0.0035 / n   # cap: avoid angular kinks on the eye rim
+            d[i] += dd
+    return d
+
+def retarget_lips(vw, segs, P):
+    """Reshape the drawn mouth line: width + corner raise/drop + fullness."""
+    d = np.zeros_like(vw)
+    lw = P.get('lip_width'); cr = P.get('lip_corner'); lf = P.get('lip_shape_z')
+    if not (lw or cr or lf): return d
+    w = segs['lips']; idx = np.where(w > 0.05)[0]
+    if not len(idx): return d
+    pts = vw[idx]; cc = mouthC.copy()
+    half = max(0.006, (pts[:,0].max()-pts[:,0].min())/2)
+    for k, i in enumerate(idx):
+        p = vw[i]
+        xn = np.clip((p[0]-cc[0])/half, -1, 1)
+        t = np.zeros(3)
+        if lw: t += np.array([xn*lw, 0, 0])
+        if cr: t += np.array([0, 0, cr*(xn*xn)])
+        if lf: t += np.array([0, 0, lf*(1-xn*xn)*math.copysign(1, p[2]-cc[2] or 1)])
+        d[i] += t * w[i]
+    return d
+
 def feat_delta(vw, P, segs, name):
     d = np.zeros_like(vw)
-    if P.get("eye_size") or P.get("eye_spacing") or P.get("eye_tilt"):
+    if any(P.get(k) for k in ("eye_size", "eye_w", "eye_h", "eye_spacing", "eye_tilt", "eye_depth")):
         for e, sgn, seg in ((eyeL, 1, 'eyeL'), (eyeR, -1, 'eyeR')):
             w = segs[seg]
             for i, p in enumerate(vw):
                 wi = w[i]
                 if wi < 0.03: continue
                 t = np.zeros(3)
-                if P.get("eye_size"):
-                    es = P["eye_size"]
-                    t += np.array([(p[0]-e[0])*es, 0, (p[2]-e[2])*es])
-                if P.get("eye_spacing"):
-                    t += np.array([sgn*P["eye_spacing"], 0, 0])
-                if P.get("eye_tilt"):
-                    t += np.array([0, 0, sgn*(p[0]-e[0])*P["eye_tilt"]])
+                ew = P.get("eye_size", 0) + P.get("eye_w", 0)
+                eh = P.get("eye_size", 0) + P.get("eye_h", 0)
+                t += np.array([(p[0]-e[0])*ew, 0, (p[2]-e[2])*eh])
+                if P.get("eye_depth"): t += np.array([0, P["eye_depth"], 0])
+                if P.get("eye_spacing"): t += np.array([sgn*P["eye_spacing"], 0, 0])
+                if P.get("eye_tilt"):   t += np.array([0, 0, sgn*(p[0]-e[0])*P["eye_tilt"]])
                 d[i] += t * wi
     if P.get("nose_width") or P.get("nose_len") or P.get("nose_tip"):
         w = segs['nose']
@@ -287,14 +360,16 @@ def brow_delta(ob, vw, P):
     return d
 
 def lash_delta(vw, P):
-    if not (P.get("eye_size") or P.get("eye_spacing") or P.get("eye_tilt")):
+    if not any(P.get(k) for k in ("eye_size", "eye_w", "eye_h", "eye_spacing", "eye_tilt")):
         return np.zeros_like(vw)
     d = np.zeros_like(vw)
+    ew = P.get("eye_size", 0) + P.get("eye_w", 0)
+    eh = P.get("eye_size", 0) + P.get("eye_h", 0)
     for i, p in enumerate(vw):
         e = eyeL if p[0] >= 0 else eyeR
         sgn = 1.0 if p[0] >= 0 else -1.0
         t = np.zeros(3)
-        if P.get("eye_size"):    t += np.array([(p[0]-e[0])*P["eye_size"], 0, (p[2]-e[2])*P["eye_size"]])
+        t += np.array([(p[0]-e[0])*ew, 0, (p[2]-e[2])*eh])
         if P.get("eye_spacing"):t += np.array([sgn*P["eye_spacing"], 0, 0])
         if P.get("eye_tilt"):   t += np.array([0, 0, sgn*(p[0]-e[0])*P["eye_tilt"]])
         d[i] += t
@@ -340,7 +415,7 @@ for ob, grp in meshes:
         feats = build_fields(P)
         d_struct = np.array([field(p, feats) for p in vw])
         if is_art:
-            d_extra = feat_delta(vw, P, segs, name)
+            d_extra = feat_delta(vw, P, segs, name) + retarget_eyes(vw, segs, P) + retarget_lips(vw, segs, P)
         elif is_brow:
             d_extra = brow_delta(ob, vw, P)
         elif is_lash:
