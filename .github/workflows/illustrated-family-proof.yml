@@ -1,0 +1,83 @@
+name: V1 illustrated family proof
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-family-proof.yml', 'scripts/illustrated-family/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          lfs: true
+          sparse-checkout: |
+            scripts/illustrated-family
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+            engine_sources/makehuman-lineart/presenters_v1/scripts/facevar.py
+      - name: Install verified Blender 5.2.0
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-delay 3 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          BLENDER_BIN="$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)"
+          test -n "$BLENDER_BIN"
+          echo "BLENDER_BIN=$BLENDER_BIN" >> "$GITHUB_ENV"
+          "$BLENDER_BIN" --background --factory-startup --python-expr 'import bpy; print("VERIFIED_RUNTIME", bpy.app.version_string)' | tee blender-version.txt
+      - name: Verify canonical Blender scene bytes
+        run: |
+          set -euo pipefail
+          for f in engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_{FEMALE,MALE}.blend; do
+            test -s "$f"
+            test "$(head -c 7 "$f")" = BLENDER
+            sha256sum "$f"
+          done | tee scene-hashes.txt
+      - name: Real Blender smoke render
+        run: |
+          "$BLENDER_BIN" -b -t 2 --python-exit-code 1 --python scripts/illustrated-family/audit_render.py -- --smoke --out proofs/runtime
+          test -s proofs/runtime/blender-smoke.png
+      - name: Real baseline and native identity renders
+        run: |
+          set -euo pipefail
+          FACE_SCRIPT="$GITHUB_WORKSPACE/engine_sources/makehuman-lineart/presenters_v1/scripts/facevar.py"
+          for gender in female male; do
+            if [ "$gender" = female ]; then UPPER=FEMALE; else UPPER=MALE; fi
+            for face in 0 1 2; do
+              "$BLENDER_BIN" -b "engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$UPPER.blend" -t 2 --python-exit-code 1 --python scripts/illustrated-family/audit_render.py -- --gender "$gender" --face "$face" --facevar-script "$FACE_SCRIPT" --out "proofs/$gender/face$face"
+            done
+          done
+      - name: Compose actual-render comparison sheets
+        run: |
+          python - <<'PY'
+          from PIL import Image, ImageDraw
+          from pathlib import Path
+          out=Path("proofs")
+          for kind in ("face_front","face_threeq","body_front"):
+              slots=[(g,f,out/g/f"face{f}"/f"{kind}.png") for g in ("female","male") for f in range(3)]
+              cw,ch=(500,540) if kind.startswith("face") else (480,760)
+              sheet=Image.new("RGB",(cw*3,ch*2),(240,241,240))
+              draw=ImageDraw.Draw(sheet)
+              for i,(g,f,p) in enumerate(slots):
+                  im=Image.open(p).convert("RGBA")
+                  bg=Image.new("RGBA",im.size,(240,241,240,255));bg.alpha_composite(im)
+                  sheet.paste(bg.convert("RGB").resize((cw,ch-40)),((i%3)*cw,(i//3)*ch+40))
+                  draw.text(((i%3)*cw+12,(i//3)*ch+12),f"{g.upper()} FACE {f}",fill=(15,15,15))
+              sheet.save(out/f"{kind}_comparison.png")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nexstudio-illustrated-family-blender-proofs
+          path: |
+            proofs/
+            blender-version.txt
+            scene-hashes.txt
+          retention-days: 14
+          if-no-files-found: warn
