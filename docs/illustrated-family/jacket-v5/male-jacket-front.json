@@ -1,0 +1,24 @@
+{
+  "gender": "male",
+  "source": "Host.elvs_male_shirt_untucked_bd1",
+  "coat": "NEX_V1_TAILORED_JACKET_V5_MALE",
+  "coat_faces": 1233,
+  "source_unchanged": true,
+  "source_visible": true,
+  "armature_modifiers": 1,
+  "new_lapel_objects": [
+    "NEX_V5_NOTCHED_LAPEL_male_L",
+    "NEX_V5_NOTCHED_LAPEL_male_L_perimeter_ink",
+    "NEX_V5_WELT_male_L",
+    "NEX_V5_NOTCHED_LAPEL_male_R",
+    "NEX_V5_NOTCHED_LAPEL_male_R_perimeter_ink",
+    "NEX_V5_WELT_male_R"
+  ],
+  "anchoring": "gap-aware continuous XZ contour, local source front Y, original weights",
+  "status": "UNAPPROVED_V5_NO_TRIANGLE_FACE_RIM_GESTURE_QA_PENDING",
+  "source_license": "MakeHuman garment, retain source credits",
+  "editable_proof_file": "male-jacket-front.blend",
+  "blender": "5.2.0 LTS",
+  "render_is_approved": false,
+  "requires_performance_check": true
+}

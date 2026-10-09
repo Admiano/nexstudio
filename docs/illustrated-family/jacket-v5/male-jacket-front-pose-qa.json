@@ -1,0 +1,71 @@
+{
+  "geometry": "V5",
+  "gender": "male",
+  "blender": "5.2.0 LTS",
+  "rig": "Host.rig",
+  "source_object": "Host.elvs_male_shirt_untucked_bd1",
+  "underlayer_visible": true,
+  "shape_key_count": 34,
+  "frames": [
+    {
+      "frame": 338,
+      "image": "male-jacket-pose-338.png",
+      "jacket_bounds": {
+        "min": [
+          -0.687,
+          -0.2576,
+          0.8736
+        ],
+        "max": [
+          -0.1386,
+          0.1124,
+          1.5044
+        ]
+      },
+      "source_bounds": {
+        "min": [
+          -0.6815,
+          -0.2567,
+          0.8597
+        ],
+        "max": [
+          -0.1436,
+          0.1325,
+          1.5404
+        ]
+      },
+      "camera": "front",
+      "jacket_rigged": true
+    },
+    {
+      "frame": 891,
+      "image": "male-jacket-pose-891.png",
+      "jacket_bounds": {
+        "min": [
+          -0.7275,
+          -0.5079,
+          0.873
+        ],
+        "max": [
+          -0.1364,
+          0.113,
+          1.5042
+        ]
+      },
+      "source_bounds": {
+        "min": [
+          -0.7235,
+          -0.5088,
+          0.8609
+        ],
+        "max": [
+          -0.1415,
+          0.1323,
+          1.5406
+        ]
+      },
+      "camera": "front",
+      "jacket_rigged": true
+    }
+  ]
+}
