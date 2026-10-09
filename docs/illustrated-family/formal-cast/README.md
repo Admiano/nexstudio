@@ -36,6 +36,18 @@ All six full editable proof scenes, front/three-quarter previews, two action-fra
 
 Actual continuous-motion proof workflow: [V1 real moving formal presenter preview](../../../.github/workflows/illustrated-real-motion-clip.yml). It uses the existing original action's frame timing and is a silent gesture test, not a generated talking performance.
 
+## Verified complete six-outfit handoff
+
+On 2026-10-09 the recovery verifier passed all six canonical-rig outfits built by run `38003760983`. It independently checked 30 generated file hashes (one editable scene plus four PNGs per variant) and **reopened every saved compressed .blend in checksum-verified Blender 5.2.0** to confirm the 163-bone original `Host.rig`.
+
+- [GitHub Actions editable archive (~248 MB)](https://github.com/Admiano/nexstudio/actions/runs/38003760983/artifacts/11650990397) — temporary artifact; expires per runner retention policy.
+- [Source-generated six-variant BANK_MANIFEST.json](../formal-bank/BANK_MANIFEST.json) — verified individual hashes and source identifiers.
+- [Individual first-person Blender previews](../formal-bank/) — four PNG render views per variant and separate provenance.
+- [Moving female original-gesture MP4](../motion-proofs/female-actual-original-gesture.mp4) — contiguous original performance frames, silent.
+- [Three-quarter depth-corrected face experiment](../face-surface-trials/female-resolute-threeq.png) — **unapproved** until blink/visemes integrate correctly.
+
+These are still **experimental V1 clothing presets**, not a production deployment or six different people. The missing collision and continuous-production acceptance gates remain in force.
+
 ## QA decisions
 
 **Validated so far:** Source license and exact archive SHA, unmodified original rig presence, original body shape keys, original arms and garment skinning, 10 original-action frame renders for the first female and male formalwear, and one standalone reproducible formal builder example. More builds/render jobs must complete before marking them validated.
