@@ -32,7 +32,9 @@ jobs:
             names=set(zip.namelist())
             for p in sorted(names):
               if not p.endswith('.mhclo'):continue
-              # Read header only. Huge donor MHClO vertex rows are not needed for license audit.\n              with zip.open(p) as fp:\n                head=fp.read(4096).decode('utf-8','replace').splitlines()[:36]
+              # Read header only. Huge donor MHClO vertex rows are not needed for license audit.
+              with zip.open(p) as fp:
+                head=fp.read(4096).decode('utf-8','replace').splitlines()[:36]
               header='\n'.join(head)
               lines=[x.strip() for x in head if x.strip().startswith('#')]
               lic=next((x for x in lines if 'license' in x.lower()),'')
