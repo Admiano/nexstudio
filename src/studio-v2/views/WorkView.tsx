@@ -16,9 +16,10 @@ const FILTERS: Array<{ key: Filter; label: string }> = [
   { key: "published", label: "Published / handed off" },
 ];
 
-function bucket(p: DashboardProject): Filter | "other" {
+function bucket(p: DashboardProject & { engine?: { failureCode?: string | null } | null }): Filter | "other" {
   if (p.needsAction) return "needs";
   const s = (p.state || "").toUpperCase();
+  if (s.includes("FAILED") || p.engine?.failureCode) return "other";
   if (s.includes("REVIEW") || s === "READY" || p.statusTone === "ready") return "ready";
   if (s.includes("PROGRESS") || s.includes("RENDER") || s.includes("PRODUC")) return "production";
   if (s.includes("PUBLISH") || s.includes("COMPLETE") || s.includes("DELIVER")) return "published";
@@ -75,7 +76,9 @@ export function WorkView({ onOpenHistory, onOpenJob }: {
             : s.includes("PRODUCTION") || s.includes("PLANNING") || s.includes("PENDING") || s.includes("RETRY") ? "production"
             : s.includes("PUBLISH") || s.includes("DELIVER") ? "published"
             : "direction";
+          const failed = s.includes("FAILED") || !!p.engine?.failureCode;
           const detail = p.needsAction ? "Waiting on you"
+            : failed ? "Didn't finish — open to see why"
             : dot === "production" ? "Rendering now"
             : dot === "ready" ? "Ready to open"
             : "In direction";

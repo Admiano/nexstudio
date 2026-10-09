@@ -44,9 +44,11 @@ RUN curl -fsSL "https://download.blender.org/release/Blender${BLENDER_MINOR}/ble
       | tar -xJ -C /opt \
  && ln -s /opt/blender-${BLENDER_VERSION}-linux-x64/blender /usr/local/bin/blender
 
-# faster-whisper venv (engine phoneme/word timing)
+# faster-whisper venv (engine phoneme/word timing).
+# av<19 is required: faster-whisper 1.2.1 calls av.open(metadata_errors=...),
+# a keyword PyAV 19 removed — without the pin every align step fails.
 RUN python3.11 -m venv /opt/whisper \
- && /opt/whisper/bin/pip install --no-cache-dir faster-whisper==1.2.1
+ && /opt/whisper/bin/pip install --no-cache-dir faster-whisper==1.2.1 "av<19"
 
 # Python deps the engines import under the system interpreter
 RUN pip3 install --no-cache-dir --break-system-packages \
@@ -58,7 +60,24 @@ RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download
  && /opt/mamba/bin/mamba create -y -n mfa -c conda-forge montreal-forced-aligner=3.4.2 \
  && /opt/mamba/bin/mamba clean -afy && rm /tmp/mf.sh
 
+# MFA english_us_arpa models — cast-phoneme-align.py exits without them.
+# Direct release-asset URLs: the GitHub API endpoint mfa uses is rate-limited.
+RUN mkdir -p /root/Documents/MFA/pretrained_models/dictionary \
+             /root/Documents/MFA/pretrained_models/acoustic \
+             /root/Documents/MFA/pretrained_models/g2p \
+ && curl -fsSL -o /root/Documents/MFA/pretrained_models/dictionary/english_us_arpa.dict \
+      "https://github.com/MontrealCorpusTools/mfa-models/releases/download/dictionary-english_us_arpa-v3.0.0/english_us_arpa.dict" \
+ && curl -fsSL -o /root/Documents/MFA/pretrained_models/acoustic/english_us_arpa.zip \
+      "https://github.com/MontrealCorpusTools/mfa-models/releases/download/acoustic-english_us_arpa-v3.0.0/english_us_arpa.zip" \
+ && curl -fsSL -o /root/Documents/MFA/pretrained_models/g2p/english_us_arpa.zip \
+      "https://github.com/MontrealCorpusTools/mfa-models/releases/download/g2p-english_us_arpa-v2.0.0/english_us_arpa.zip"
+
 WORKDIR /app
+
+# requirements.txt — full dep list the engines expect under system python
+# (cairosvg/cv2/jsonschema for board-scenes icon packs, etc.)
+COPY requirements.txt ./requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 # Engine JS tools resolve playwright-core upward — install prod deps at root.
 COPY package.json package-lock.json ./
@@ -71,10 +90,14 @@ COPY --from=build /app/public ./public
 
 # Engines + orchestration + the pieces the runner delegates to
 COPY engine_sources ./engine_sources
-COPY engines ./engines
 COPY services ./services
-COPY scripts/presenter-job.py ./scripts/presenter-job.py
+COPY scripts ./scripts
 COPY prisma ./prisma
+# engines/ is generated and gitignored — extract the tracked archives at build time.
+RUN python3 scripts/install-engines.py
+# Presenter cast assets: downloaded from makehumancommunity.org and sha1-verified
+# against engine_sources/makehuman-lineart/assets/FILES.json (~800 MB unpacked).
+RUN python3 scripts/install-cast-assets.py
 COPY --from=build /app/src/generated ./src/generated
 COPY --from=build /app/dist/render-worker.cjs ./dist/render-worker.cjs
 
