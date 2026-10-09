@@ -90,7 +90,7 @@ def fit_posed_clothing(scene):
             middle=sum(p.y for p in tp)/len(tp)
             waist=max(p.z for p in pp if abs(p.x-center)<0.12 and p.y<middle)
             hem=min(p.z for p in tp if abs(p.x-center)<0.12 and p.y<middle);te.to_mesh_clear()
-            extension=max(0,hem-waist+0.018)
+            extension=max(0,hem-waist+0.045)
             if extension>0.12:raise RuntimeError('CAST_TUCKED_HEM_FIT_OUT_OF_BOUNDS')
             fitted_objects=[top]+[o for o in bpy.data.objects if o.get('castGarmentSource')==top.name]
             for ob in fitted_objects:
@@ -250,7 +250,11 @@ def fit_posed_clothing(scene):
                         if not vs:continue
                         allv=list(f.vertices)
                         centre=sum((pts[vi] for vi in allv),Vector((0,0,0)))/len(allv)
-                        probes=[centre]+[(pts[allv[i]]+pts[allv[(i+1)%len(allv)]])/2 for i in range(len(allv))]+[(pts[vi]+centre)/2 for vi in allv]
+                        probes=[centre]
+                        for i in range(len(allv)):
+                            a,b=pts[allv[i]],pts[allv[(i+1)%len(allv)]]
+                            probes+=[(a+b)/2,(a*3+b)/4,(a+b*3)/4]
+                        probes+=[(pts[vi]+centre)/2 for vi in allv]
                         for probe in probes:
                             hit=body_tree.find_nearest(probe)
                             if hit[0] is None or hit[3]>0.02:continue

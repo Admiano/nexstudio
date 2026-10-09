@@ -5,7 +5,9 @@ script places those plans on a shared clock — speakers listed in `dialogue.jso
 with a `start` (seconds). For every speaker it emits a timeline.json where:
 
 - rhubarb mouthCue times and expression `at` frames shift by the speaker's start
-- listening windows fill with idle plus one `listen` clip near the middle
+- listening windows fill with idle plus one `listen` clip near the middle —
+  listen clips must be quiet seated idles (still/breathing); the silent partner
+  never plays gesture clips while the other speaker is talking
 - the tail pads with idle so every timeline reaches `total` seconds
 
 dialogue.json:
@@ -38,7 +40,7 @@ def shift_rhubarb(src, dst, offset):
 def main():
     cfg=json.loads(Path(sys.argv[1]).read_text());out=Path(sys.argv[2]);out.mkdir(parents=True,exist_ok=True)
     fps=cfg.get('fps',24);total_f=int(round(cfg['total']*fps))
-    listens=cfg.get('listenClips') or ['mx_ro_judge_03','mx_ro_judge_05']
+    listens=cfg.get('listenClips') or ['mx_sitting_idle_sitting_with_breathing_idle','mx_sitting_idle_sitting_still_in_a_chair']
     for i,sp in enumerate(cfg['speakers']):
         plan=json.loads(Path(sp['plan']).read_text());off_s=sp['start'];off_f=int(round(off_s*fps))
         for e in plan.get('expressions',[]):e['at']+=off_f

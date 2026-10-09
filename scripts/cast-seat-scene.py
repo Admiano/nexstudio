@@ -64,9 +64,12 @@ if opt('--render'):
     s.render.image_settings.file_format='PNG';s.render.image_settings.color_mode='RGBA'
     out=opt('--render');os.makedirs(out,exist_ok=True)
     fit=str(Path(__file__).with_name('cast-fit-posed-clothing.py'))
+    contact=str(Path(__file__).with_name('cast_contact.py'))
+    contact=contact if os.environ.get('CONTACT') and os.path.exists(contact) else None
     for f in range(int(opt('--from','1')),int(opt('--to',str(s.frame_end)))+1):
         s.frame_set(min(f,s.frame_end));bpy.context.view_layer.update()
         runpy.run_path(fit)
+        if contact:runpy.run_path(contact)
         s.render.filepath=f'{out}/f{f:04d}.png'
         bpy.ops.render.render(write_still=True)
         print('SEAT_FRAME',f,flush=True)
