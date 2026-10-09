@@ -1,0 +1,36 @@
+name: Export Rain V3 source for NexStudio V2 audit
+on:
+  push:
+    branches:
+      - experimental/v2-rain-signature-20261009
+    paths:
+      - .github/workflows/export-rain-v3-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            engine_sources/charpack-lineart/Rain_x/Rain v3.3
+          sparse-checkout-cone-mode: false
+      - name: Verify exact Rain v3 source and assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="engine_sources/charpack-lineart/Rain_x/Rain v3.3/rain_v3.2.blend"
+          test -s "$FILE"
+          test -d "engine_sources/charpack-lineart/Rain_x/Rain v3.3/textures"
+          sha256sum "$FILE"
+          du -sh "engine_sources/charpack-lineart/Rain_x/Rain v3.3"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rain-v3.2-original-scene-and-textures
+          path: engine_sources/charpack-lineart/Rain_x/Rain v3.3/
+          retention-days: 7
+          if-no-files-found: error
