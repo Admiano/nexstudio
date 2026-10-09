@@ -47,6 +47,16 @@ jobs:
             grep -c '^vt ' "$src" || true
             grep -m 3 '^f ' "$src" || true
           done | tee suit_material_uv_audit.txt
+      - name: Record every donor fit scale specification
+        shell: bash
+        run: |
+          set -euo pipefail
+          find donor/suits01 -type f -name '*.mhclo' -print0 | sort -z | while IFS= read -r -d '' path; do
+            echo "======= $path ======="
+            head -n 60 "$path" | grep -E '^((x|y|z)_scale|l_shear_|offset|verts|delete_verts|# author|# license)' || true
+            echo "META:"
+            grep -E '^((x|y|z)_scale|l_shear_)' "$path" || true
+          done | tee suits01_scale_metadata.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -57,5 +67,6 @@ jobs:
             suit_mhclo_paths.txt
             suits01_license_headers.txt
             suit_material_uv_audit.txt
+            suits01_scale_metadata.txt
           retention-days: 14
           if-no-files-found: warn
