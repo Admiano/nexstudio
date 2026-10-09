@@ -1,0 +1,115 @@
+name: V1 recover and certify real editable six-outfit bank
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-formal-bank-recovery.yml']
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  certify-existing-blender-bank:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            docs/illustrated-family
+      - name: Retrieve six REAL original Blender outputs built in run 38003760983
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/formal-bank
+          gh run download 38003760983 --repo Admiano/nexstudio \
+            --name NEX_V1_SIX_FORMAL_EDITABLE_BLEND_BANK \
+            --dir proofs/formal-bank
+          find proofs/formal-bank -maxdepth 2 -type f -name '*.blend' -size +100k | sort | tee six_scene_paths.txt
+          test "$(wc -l < six_scene_paths.txt)" -eq 6
+      - name: Install original SHA-certified Blender 5.2.0 runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Re-open all six compressed scenes and verify independent output SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,hashlib,os,subprocess
+          from pathlib import Path
+          base=Path("proofs/formal-bank")
+          names=("female-double-breasted","female-statement","male-jacket-tie","male-double-breasted","male-navy-classic","male-dinner-jacket")
+          manifest={"schema":"nexstudio.illustrated.v1.formal-bank-verified/1",
+                    "validation":"ALL_SAVED_SCENES_REOPENED_IN_BLENDER_5_2",
+                    "status":"EXPERIMENTAL_NOT_MERGED",
+                    "sourceRun":38003760983,"variants":[]}
+          for name in names:
+            record=json.loads((base/name/"build_provenance.json").read_text())
+            assert record["variant"]==name,(name,record.get("variant"))
+            assert record["blenderVersion"].startswith("Blender 5.2.0")
+            assert len(record["files"])==5
+            expected={name+"-front.png",name+"-front.blend",name+"-threeq.png",
+                      name+"-pose-338.png",name+"-pose-891.png"}
+            assert {x["name"] for x in record["files"]}==expected
+            for entry in record["files"]:
+              p=base/name/entry["name"]
+              assert p.is_file() and p.stat().st_size==entry["bytes"],p
+              h=hashlib.sha256()
+              with p.open("rb") as f:
+                for chunk in iter(lambda:f.read(1<<20),b""):h.update(chunk)
+              assert h.hexdigest()==entry["sha256"],p
+              if p.suffix==".png":
+                assert p.open("rb").read(8)==bytes.fromhex("89504e470d0a1a0a")
+              else:
+                cmd=[os.environ["BLENDER_BIN"],"-b",str(p),"-t","2","--python-exit-code","1",
+                     "--python-expr",'import bpy; rig=bpy.data.objects["Host.rig"]; assert len(rig.data.bones)==163; assert "Host.body" in bpy.data.objects']
+                test=subprocess.run(cmd,capture_output=True,text=True,timeout=150)
+                if test.returncode:
+                  raise RuntimeError("SCENE_FAILED_BLENDER_REOPEN:"+str(p)+"\n"+test.stdout[-3000:]+"\n"+test.stderr[-3000:])
+                print("EDITABLE_SCENE_OPENED_IN_CERTIFIED_BLENDER",name,flush=True)
+            manifest["variants"].append(record)
+          assert len(manifest["variants"])==6
+          (base/"BANK_MANIFEST.json").write_text(json.dumps(manifest,indent=2)+"\n")
+          print("REPRODUCIBLE_ALL_SIX_REOPENED_AND_SHA_VERIFIED",flush=True)
+          PY
+      - name: Publish individual actual PNGs, deterministic manifest and proofs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/formal-bank
+          for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            mkdir -p "docs/illustrated-family/formal-bank/$variant"
+            cp "proofs/formal-bank/$variant/"*.png "docs/illustrated-family/formal-bank/$variant/"
+            cp "proofs/formal-bank/$variant/build_provenance.json" "docs/illustrated-family/formal-bank/$variant/"
+          done
+          cp proofs/formal-bank/BANK_MANIFEST.json docs/illustrated-family/formal-bank/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/formal-bank/
+          git commit -m "proof(character): independently reopen six canonical-rig suits and publish genuine renders"
+          for attempt in 1 2 3 4; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: NEX_V1_SIX_SUIT_BANK_VERIFIED_MANIFEST
+          path: |
+            proofs/formal-bank/BANK_MANIFEST.json
+            six_scene_paths.txt
+          retention-days: 14
+          if-no-files-found: warn
