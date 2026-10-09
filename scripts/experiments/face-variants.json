@@ -1,0 +1,35 @@
+{
+  "comment": "Identity morph parameter sets for face-identity-morphs.py. Values are additive deltas (meters for translations, fractions for scales) applied as one composite shape key per variant. baseline = all keys at 0.",
+  "variants": {
+    "angular": {
+      "jaw_width": 0.018,
+      "chin": 0.006,
+      "chin_len": 0.005,
+      "cheek": 0.006,
+      "face_len": 0.1,
+      "eye_size": -0.22,
+      "nose_width": -0.18,
+      "brow_height": -0.005,
+      "nose_len": 0.004
+    },
+    "slim": {
+      "head_width": -0.15,
+      "face_len": 0.12,
+      "nose_len": 0.008,
+      "jaw_width": -0.012,
+      "eye_spacing": 0.006,
+      "brow_height": 0.007
+    },
+    "soft": {
+      "head_width": 0.13,
+      "cheek": 0.012,
+      "jaw_width": -0.014,
+      "chin": -0.004,
+      "eye_size": 0.24,
+      "eye_spacing": 0.006,
+      "face_len": -0.08,
+      "nose_len": -0.004,
+      "brow_height": 0.008
+    }
+  }
+}
