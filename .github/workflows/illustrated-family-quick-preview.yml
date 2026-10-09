@@ -1,0 +1,61 @@
+name: V1 illustrated quick real preview
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-family-quick-preview.yml']
+permissions:
+  contents: write
+jobs:
+  render-and-publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/illustrated-family-preview
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+          persist-credentials: true
+      - name: Install Blender and CPU graphics dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6 zstd
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Decode, render, verify preview files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/previews
+          for gender in FEMALE MALE; do
+            f="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.blend"
+            s="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.decoded.blend"
+            zstd -q -d -c "$f" > "$s"
+            test "$(head -c 7 "$s")" = BLENDER
+            lower=$(printf '%s' "$gender" | tr '[:upper:]' '[:lower:]')
+            "$BLENDER_BIN" -b "$s" -t 4 --python-exit-code 1 --python scripts/illustrated-family-preview/quick_preview.py -- "$lower" "docs/illustrated-family/previews/$lower-baseline-quick.png"
+            file "docs/illustrated-family/previews/$lower-baseline-quick.png"
+            test -s "docs/illustrated-family/previews/$lower-baseline-quick.png"
+          done
+      - name: Publish verified image files to isolated branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/illustrated-family/previews/*-baseline-quick.png
+          git diff --cached --quiet && exit 0
+          git commit -m "proof(character): actual Blender 5.2 female and male baseline still previews"
+          git push origin HEAD:work/illustrated-family-expansion-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-quick-real-blender-previews
+          path: docs/illustrated-family/previews/*.png
+          retention-days: 14
+          if-no-files-found: warn
