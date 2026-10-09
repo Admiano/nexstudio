@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "body_hash",
+      "pass": true,
+      "got": "a6b27905d1e502c1d1317bbb1e9cbed12e1517128a76dbd46aca7446c842ac84",
+      "expected": "a6b27905d1e502c1d1317bbb1e9cbed12e1517128a76dbd46aca7446c842ac84"
+    },
+    {
+      "name": "face_mesh_hash",
+      "pass": true,
+      "got": "3cfaa4ef432cd32921997ba5ecee1bb89ef60c7bc3a7da69bfdda061757b553b",
+      "expected": "3cfaa4ef432cd32921997ba5ecee1bb89ef60c7bc3a7da69bfdda061757b553b"
+    },
+    {
+      "name": "face_shapekey_hash",
+      "pass": true,
+      "got": "e4c5fbc5e4ae6738b5350f3ccae2777b9e518529797316630912bdbb386e5e1d",
+      "expected": "e4c5fbc5e4ae6738b5350f3ccae2777b9e518529797316630912bdbb386e5e1d"
+    },
+    {
+      "name": "rig_hash",
+      "pass": true,
+      "got": "712e6ccbecef13590a34de776e8e85fc132481d2e85aab2d1f2955465682e594",
+      "expected": "712e6ccbecef13590a34de776e8e85fc132481d2e85aab2d1f2955465682e594"
+    },
+    {
+      "name": "carrier_hash",
+      "pass": true,
+      "got": "50bb9231825558d0afa87afe865a4eae69040def583bceb3ac29afec3a56f267",
+      "expected": "50bb9231825558d0afa87afe865a4eae69040def583bceb3ac29afec3a56f267"
+    },
+    {
+      "name": "preserve_volume",
+      "pass": true,
+      "got": true,
+      "expected": true
+    }
+  ],
+  "baseline_actions": 212,
+  "current_actions": 306,
+  "missing_actions": [],
+  "changed_actions": [],
+  "face_shapekey_count": 42
+}

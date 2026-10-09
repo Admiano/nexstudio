@@ -1,0 +1,83 @@
+{
+  "schema": "NITA_CERT_V4_3_POST_REPAIR_QA",
+  "source": "/mnt/data/nita_work/NITA_CERT_V4_3_G1_READABILITY_CANDIDATE.blend",
+  "substeps_per_frame": 4,
+  "frame_range": [
+    1,
+    534
+  ],
+  "collision": {
+    "unique_intersections": 0,
+    "intersection_samples": 0,
+    "first_violations": [],
+    "min_clearance_m": {
+      "L_palm__pelvis": 0.074041,
+      "L_forearm__pelvis": 0.064786,
+      "L_palm__abdomen": 0.088164,
+      "L_forearm__abdomen": 0.0587,
+      "L_palm__ribcage": 0.131156,
+      "L_forearm__ribcage": 0.04359,
+      "L_palm__left_thigh": 0.039074,
+      "L_forearm__left_thigh": 0.04267,
+      "L_palm__right_thigh": 0.191444,
+      "L_forearm__right_thigh": 0.194382,
+      "R_palm__pelvis": 0.090747,
+      "R_forearm__pelvis": 0.081081,
+      "R_palm__abdomen": 0.095925,
+      "R_forearm__abdomen": 0.065253,
+      "R_palm__ribcage": 0.12752,
+      "R_forearm__ribcage": 0.048583,
+      "R_palm__left_thigh": 0.21321,
+      "R_forearm__left_thigh": 0.216839,
+      "R_palm__right_thigh": 0.061676,
+      "R_forearm__right_thigh": 0.065676
+    },
+    "pass_zero_penetration": true
+  },
+  "hand_zone": {
+    "samples_above_upper_chest_zone": 0,
+    "min_hand_to_head_distance_m": 0.5382204424225657,
+    "pass": true
+  },
+  "temporal": {
+    "bilateral_hand_speed_corr": 0.33663696556823464,
+    "max_hand_jump_m": {
+      "L": 0.004833110922542668,
+      "R": 0.004231566211242011
+    },
+    "p95_hand_jump_m": {
+      "L": 0.0021979297980280416,
+      "R": 0.0021864004274877408
+    },
+    "max_jump_under_2cm": true
+  },
+  "gestures": [
+    {
+      "name": "G1_R",
+      "window": [
+        115,
+        252
+      ],
+      "hand_peak_displacement_frame": 147,
+      "hand_peak_displacement_m": 0.027872258253632876,
+      "apex_sec": 4.866666666666666,
+      "nearest_locked_audio_energy_peak_sec": 4.888,
+      "apex_minus_energy_peak_sec": -0.02133333333333365,
+      "pass_pre_stress_0_to_150ms": true
+    },
+    {
+      "name": "G2_L",
+      "window": [
+        360,
+        512
+      ],
+      "hand_peak_displacement_frame": 437,
+      "hand_peak_displacement_m": 0.03594626875184608,
+      "apex_sec": 14.533333333333333,
+      "nearest_locked_audio_energy_peak_sec": 14.663,
+      "apex_minus_energy_peak_sec": -0.12966666666666704,
+      "pass_pre_stress_0_to_150ms": true
+    }
+  ],
+  "pass": true
+}

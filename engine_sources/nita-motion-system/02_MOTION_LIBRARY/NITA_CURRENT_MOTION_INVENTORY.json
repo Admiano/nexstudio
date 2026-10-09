@@ -1,0 +1,2907 @@
+{
+  "file": "/mnt/data/nita_package_sources/current/NITA_CERT_V4_3_FULL_RENDER_CANDIDATE.blend",
+  "actions": [
+    {
+      "name": "NEX_ACTPRIM_ANTI_ROTATION_V3_BILATERAL_PALLOF_BODY",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_ATHLETIC_READY_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_BACK_EXTENSION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_BALLISTIC_HINGE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_BRACE_HOLD_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_BURPEE_CYCLE_V1_SUPPORT_DEPENDENT",
+      "frame_start": 1.0,
+      "frame_end": 84.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CALF_RAISE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CARDIO_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CARRY_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 32.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CONTRALATERAL_CORE_V2_BIRD_DOG_DENSE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CONTRALATERAL_CORE_V2_BRIDGE_MARCH_DENSE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CONTRALATERAL_CORE_V2_DEAD_BUG_DENSE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CORE_FLEXEXTEND_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_COUNTERBALANCE_REACH_RIGHT_V1_HANDSAFE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CRAB_WALK_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 33.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CRAWL_CYCLE_V1_BEAR",
+      "frame_start": 1.0,
+      "frame_end": 33.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_CURL_BILATERAL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_DIP_CYCLE_V1_SUPPORT_DEPENDENT",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_ELBOW_EXTENSION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_FLY_ARC_V1_STANDING_HANDSAFE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_FLY_ARC_V1_SUPINE_HANDSAFE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_FORWARD_PRESS_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_HIP_ABDUCTION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_HIP_ADDUCTION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_HIP_EXTENSION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_HIP_HINGE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_INCHWORM_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 108.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_INVERTED_TRANSITION_V1_WALL_WALK",
+      "frame_start": 1.0,
+      "frame_end": 119.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_JOINT_MOBILITY_V1_ARM_CIRCLES",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_JOINT_MOBILITY_V1_LEG_SWINGS",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_JUMPING_JACK_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_KNEE_FLEXEXTEND_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_LATERAL_PLYOMETRIC_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_LATERAL_RAISE_BILATERAL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_LEG_RAISE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_LUNGE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_OVERHEAD_REACH_BILATERAL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_OVERHEAD_REACH_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_PARTIAL_SQUAT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_PLANK_DYNAMIC_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_POSTERIOR_CHAIN_CURL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_PUSHUP_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_REAR_FLY_ARC_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_RECOVERY_SETTLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_ROW_PULL_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_SHRUG_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_SIDE_BEND_LEFT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_SIDE_BEND_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_SINGLE_LEG_SQUAT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_SPINE_MOBILITY_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_STEP_LOAD_LEFT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_STEP_LOAD_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_STEP_VERTICAL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_STRETCH_HOLD_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_TORSO_ROTATE_LEFT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_TORSO_ROTATE_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_VERTICAL_PRESS_V5_DENSE_WRIST_NATIVE_GRIP",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_VERTICAL_PULL_V5_DENSE_WRIST_NATIVE_GRIP",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_WEIGHT_SHIFT_LEFT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_WEIGHT_SHIFT_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_ACTPRIM_WRIST_FLEXEXTEND_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_AGREE_NOD",
+      "frame_start": 1.0,
+      "frame_end": 34.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_EMPHASIS_SMALL",
+      "frame_start": 1.0,
+      "frame_end": 38.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_EXPLAIN_MEDIUM",
+      "frame_start": 1.0,
+      "frame_end": 46.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_EXPLAIN_SMALL",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_LISTEN_ATTENTIVE",
+      "frame_start": 1.0,
+      "frame_end": 48.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_LOOK_SIDE",
+      "frame_start": 1.0,
+      "frame_end": 40.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_PRESENT_OPEN",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_QUESTION_OPEN",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_RECOVER_TO_REST_V1",
+      "frame_start": 1.0,
+      "frame_end": 18.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NEX_HOST_REST_V1",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NITA_BODY_CARRIER_P5C_SAFE_V1",
+      "frame_start": 1.0,
+      "frame_end": 995.0,
+      "users": 1,
+      "fake_user": false,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NITA_CERT_AUDIO_V2_GAZE_EYES",
+      "frame_start": 1.0,
+      "frame_end": 534.0,
+      "users": 1,
+      "fake_user": false,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NITA_CERT_V4_1_PROSODY_HEAD_CHEST",
+      "frame_start": 1.0,
+      "frame_end": 534.0,
+      "users": 1,
+      "fake_user": false,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NITA_CERT_V4_3_COSPEECH_ARMS_G1_READABLE",
+      "frame_start": 1.0,
+      "frame_end": 534.0,
+      "users": 1,
+      "fake_user": false,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NITA_CERT_V4_PHONE_FACE_PHRASE_BLINKS",
+      "frame_start": 1.0,
+      "frame_end": 534.0,
+      "users": 1,
+      "fake_user": false,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "NITA_RELAXED_BASE_P1_V1",
+      "frame_start": 1.0,
+      "frame_end": 758.0,
+      "users": 1,
+      "fake_user": false,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Sitckman@Claps",
+      "frame_start": 1.0,
+      "frame_end": 20.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Boxing",
+      "frame_start": 1.0,
+      "frame_end": 67.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Cheers",
+      "frame_start": 1.0,
+      "frame_end": 88.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Dance",
+      "frame_start": 1.0,
+      "frame_end": 742.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@FloatOnWater",
+      "frame_start": 1.0,
+      "frame_end": 91.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Idle",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Idle2",
+      "frame_start": 1.0,
+      "frame_end": 300.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Jump",
+      "frame_start": 1.0,
+      "frame_end": 58.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Push",
+      "frame_start": 1.0,
+      "frame_end": 81.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Run",
+      "frame_start": 1.0,
+      "frame_end": 20.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Sad",
+      "frame_start": 1.0,
+      "frame_end": 121.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Sitting",
+      "frame_start": 1.0,
+      "frame_end": 130.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Walk",
+      "frame_start": 1.0,
+      "frame_end": 32.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "Stickman@Wave",
+      "frame_start": 1.0,
+      "frame_end": 17.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA18__NEX_ACTPRIM_BURPEE_CYCLE_V1_SUPPORT_DEPENDENT",
+      "frame_start": 1.0,
+      "frame_end": 84.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA18__NEX_ACTPRIM_CRAWL_CYCLE_V1_BEAR",
+      "frame_start": 1.0,
+      "frame_end": 33.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA18__NEX_ACTPRIM_INCHWORM_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 108.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA18__NEX_ACTPRIM_INVERTED_TRANSITION_V1_WALL_WALK",
+      "frame_start": 1.0,
+      "frame_end": 119.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA18__NEX_ACTPRIM_PLANK_DYNAMIC_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA18__NEX_ACTPRIM_PUSHUP_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA18__NEX_HOST_EXPLAIN_MEDIUM",
+      "frame_start": 1.0,
+      "frame_end": 46.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA18__NEX_HOST_PRESENT_OPEN",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_ANTI_ROTATION_V3_BILATERAL_PALLOF_BODY",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_ATHLETIC_READY_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_BACK_EXTENSION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_BALLISTIC_HINGE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_BRACE_HOLD_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CALF_RAISE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CARDIO_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CARRY_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 32.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CONTRALATERAL_CORE_V2_BIRD_DOG_DENSE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CONTRALATERAL_CORE_V2_BRIDGE_MARCH_DENSE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CONTRALATERAL_CORE_V2_DEAD_BUG_DENSE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CORE_FLEXEXTEND_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_COUNTERBALANCE_REACH_RIGHT_V1_HANDSAFE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CRAB_WALK_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 33.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_CURL_BILATERAL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_DIP_CYCLE_V1_SUPPORT_DEPENDENT",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_ELBOW_EXTENSION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_FLY_ARC_V1_STANDING_HANDSAFE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_FLY_ARC_V1_SUPINE_HANDSAFE",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_FORWARD_PRESS_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_HIP_ABDUCTION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_HIP_ADDUCTION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_HIP_EXTENSION_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_HIP_HINGE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_JOINT_MOBILITY_V1_ARM_CIRCLES",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_JOINT_MOBILITY_V1_LEG_SWINGS",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_JUMPING_JACK_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_KNEE_FLEXEXTEND_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_LATERAL_PLYOMETRIC_CYCLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_LATERAL_RAISE_BILATERAL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_LEG_RAISE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_LUNGE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_OVERHEAD_REACH_BILATERAL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_OVERHEAD_REACH_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_PARTIAL_SQUAT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_POSTERIOR_CHAIN_CURL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_REAR_FLY_ARC_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_RECOVERY_SETTLE_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_ROW_PULL_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_SHRUG_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_SIDE_BEND_LEFT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_SIDE_BEND_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_SINGLE_LEG_SQUAT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_SPINE_MOBILITY_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_STEP_LOAD_LEFT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_STEP_LOAD_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_STEP_VERTICAL_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_STRETCH_HOLD_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_TORSO_ROTATE_LEFT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_TORSO_ROTATE_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_VERTICAL_PRESS_V5_DENSE_WRIST_NATIVE_GRIP",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_VERTICAL_PULL_V5_DENSE_WRIST_NATIVE_GRIP",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_WEIGHT_SHIFT_LEFT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_WEIGHT_SHIFT_RIGHT_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_ACTPRIM_WRIST_FLEXEXTEND_V1",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_HOST_AGREE_NOD",
+      "frame_start": 1.0,
+      "frame_end": 34.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_HOST_EMPHASIS_SMALL",
+      "frame_start": 1.0,
+      "frame_end": 38.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_HOST_EXPLAIN_SMALL",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_HOST_LISTEN_ATTENTIVE",
+      "frame_start": 1.0,
+      "frame_end": 48.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_HOST_LOOK_SIDE",
+      "frame_start": 1.0,
+      "frame_end": 40.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_HOST_QUESTION_OPEN",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_HOST_RECOVER_TO_REST_V1",
+      "frame_start": 1.0,
+      "frame_end": 18.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__NEX_HOST_REST_V1",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Sitckman@Claps",
+      "frame_start": 1.0,
+      "frame_end": 20.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Boxing",
+      "frame_start": 1.0,
+      "frame_end": 67.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Cheers",
+      "frame_start": 1.0,
+      "frame_end": 88.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Dance",
+      "frame_start": 1.0,
+      "frame_end": 742.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@FloatOnWater",
+      "frame_start": 1.0,
+      "frame_end": 91.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Idle",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Idle2",
+      "frame_start": 1.0,
+      "frame_end": 300.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Jump",
+      "frame_start": 1.0,
+      "frame_end": 58.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Push",
+      "frame_start": 1.0,
+      "frame_end": 81.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Run",
+      "frame_start": 1.0,
+      "frame_end": 20.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Sad",
+      "frame_start": 1.0,
+      "frame_end": 121.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Sitting",
+      "frame_start": 1.0,
+      "frame_end": 130.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Walk",
+      "frame_start": 1.0,
+      "frame_end": 32.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA85__Stickman@Wave",
+      "frame_start": 1.0,
+      "frame_end": 17.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_COSPEECH_BODY_CARRIER_V1_1_DONOR_TIMED",
+      "frame_start": 1.0,
+      "frame_end": 758.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_COSPEECH_HEAD_CARRIER_V1_1_DONOR_TIMED",
+      "frame_start": 1.0,
+      "frame_end": 758.0,
+      "users": 2,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_COSPEECH_RELAXED_BASE_V1_1",
+      "frame_start": 1.0,
+      "frame_end": 758.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_AMUSED_ACK",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_ANTICIPATION",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_ATTENTIVE",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_BLINK",
+      "frame_start": 1.0,
+      "frame_end": 6.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_CONCERNED",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_CONFIDENT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_CURIOUS",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_EMPATHY",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_ENGAGED_V2",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_FOCUSED_V2",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_MICRO_SMILE",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_MILD_FRICTION",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_MILD_UNCERTAINTY_V2",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_PLEASED",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_POLITE_DISAGREE",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_REASSURANCE",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_RELIEVED",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_RESOLVE",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_SERIOUS_FOCUS",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_SKEPTICAL_L",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_SURPRISED_SOFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_THINKING",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_UNCERTAIN",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FACE_WARM_ATTENTIVE",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_ASSURE_L_A",
+      "frame_start": 1.0,
+      "frame_end": 48.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_ASSURE_L_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 48.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_ASSURE_L_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 53.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_ASSURE_L_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 48.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_CLARIFY_L_A",
+      "frame_start": 1.0,
+      "frame_end": 94.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_CLARIFY_L_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 94.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_CLARIFY_L_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 99.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_CLARIFY_L_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 94.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_COMPARE_B_A",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_COMPARE_B_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_COMPARE_B_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 52.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_COMPARE_B_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_COUNT_1_R_A",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_COUNT_2_R_A",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_COUNT_3_R_A",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_COUNT_SEQUENCE_123_R_V1",
+      "frame_start": 1.0,
+      "frame_end": 96.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_EYE_DOWN_SOFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_EYE_LEFT_SOFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_EYE_LEFT_THINK",
+      "frame_start": 1.0,
+      "frame_end": 30.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_EYE_REACQUIRE_L",
+      "frame_start": 1.0,
+      "frame_end": 20.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_EYE_REACQUIRE_R",
+      "frame_start": 1.0,
+      "frame_end": 20.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_EYE_RIGHT_SOFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_EYE_UP_SOFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_AGREE",
+      "frame_start": 1.0,
+      "frame_end": 34.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_AGREE_CAM_V2",
+      "frame_start": 1.0,
+      "frame_end": 34.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_CHATTER_V1",
+      "frame_start": 1.0,
+      "frame_end": 720.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_DISAGREE",
+      "frame_start": 1.0,
+      "frame_end": 54.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_DISAGREE_CAM_V2",
+      "frame_start": 1.0,
+      "frame_end": 54.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_LISTEN",
+      "frame_start": 1.0,
+      "frame_end": 73.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_LISTEN_CAM_V2",
+      "frame_start": 1.0,
+      "frame_end": 73.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_LOOK_SIDE",
+      "frame_start": 1.0,
+      "frame_end": 40.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_LOOK_SIDE_CAM_V2",
+      "frame_start": 1.0,
+      "frame_end": 40.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_NEUTRAL_FLOOR_V1",
+      "frame_start": 1.0,
+      "frame_end": 1200.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_SURPRISE",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_SURPRISE_CAM_V2",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_THINK",
+      "frame_start": 1.0,
+      "frame_end": 67.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_HEAD_THINK_CAM_V2",
+      "frame_start": 1.0,
+      "frame_end": 67.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_IMPORTANT_R_A",
+      "frame_start": 1.0,
+      "frame_end": 49.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_IMPORTANT_R_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 49.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_IMPORTANT_R_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 54.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_IMPORTANT_R_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 49.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_LIVING_CHATTER_V1",
+      "frame_start": 1.0,
+      "frame_end": 1200.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_L_A",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_L_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_L_CAM_V3",
+      "frame_start": 1.0,
+      "frame_end": 72.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_L_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 77.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_L_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 72.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_R_A",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_R_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_R_CAM_V3",
+      "frame_start": 1.0,
+      "frame_end": 72.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_R_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 77.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_MICRO_BEAT_R_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 72.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_PRECISION_R_A",
+      "frame_start": 1.0,
+      "frame_end": 47.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_PRECISION_R_CAM_V3",
+      "frame_start": 1.0,
+      "frame_end": 60.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUALIFY_R_A",
+      "frame_start": 1.0,
+      "frame_end": 80.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUALIFY_R_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 80.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUALIFY_R_CAM_V3",
+      "frame_start": 1.0,
+      "frame_end": 105.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUALIFY_R_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 110.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUALIFY_R_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 105.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUIET_LIVING_A",
+      "frame_start": 1.0,
+      "frame_end": 104.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUIET_LIVING_LONG_V2",
+      "frame_start": 1.0,
+      "frame_end": 1200.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUIET_LIVING_LONG_V3",
+      "frame_start": 1.0,
+      "frame_end": 1200.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUIET_LIVING_LONG_V4",
+      "frame_start": 1.0,
+      "frame_end": 1200.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_QUIET_LIVING_LONG_V5_NATURAL",
+      "frame_start": 1.0,
+      "frame_end": 1200.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_STORY_R_A",
+      "frame_start": 1.0,
+      "frame_end": 79.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_STORY_R_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 79.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_STORY_R_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 84.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_STORY_R_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 79.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_SUMMARY_B_A",
+      "frame_start": 1.0,
+      "frame_end": 64.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_SUMMARY_B_A_BODY_V2",
+      "frame_start": 1.0,
+      "frame_end": 64.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_SUMMARY_B_FLOW_V5",
+      "frame_start": 1.0,
+      "frame_end": 69.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_FFG_SUMMARY_B_NATURAL_V4",
+      "frame_start": 1.0,
+      "frame_end": 64.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_GAZE_DOWN",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_GAZE_DOWN_SOFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_GAZE_LEFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_GAZE_LEFT_SOFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_GAZE_RIGHT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_GAZE_RIGHT_SOFT",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_GAZE_UP",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_PHRASE_DOC_EXPLAIN_ASYM",
+      "frame_start": 1.0,
+      "frame_end": 54.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_PHRASE_DOC_IMPORTANT_POINT",
+      "frame_start": 1.0,
+      "frame_end": 46.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_PHRASE_DOC_REFLECT_OPEN",
+      "frame_start": 1.0,
+      "frame_end": 54.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_PHRASE_DOC_REVEAL_RECOVER",
+      "frame_start": 1.0,
+      "frame_end": 46.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_AGREE_NOD",
+      "frame_start": 1.0,
+      "frame_end": 34.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_BASE_STABLE",
+      "frame_start": 1.0,
+      "frame_end": 24.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_DISAGREE",
+      "frame_start": 1.0,
+      "frame_end": 54.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_EMPHASIS_COMPACT",
+      "frame_start": 1.0,
+      "frame_end": 38.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_EMPHASIS_COMPACT_LEFT",
+      "frame_start": 1.0,
+      "frame_end": 38.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_EXPLAIN_SMALL",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_EXPLAIN_SMALL_LEFT",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_LISTEN",
+      "frame_start": 1.0,
+      "frame_end": 48.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_LISTEN_HUMAN",
+      "frame_start": 1.0,
+      "frame_end": 73.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_LOOK_SIDE",
+      "frame_start": 1.0,
+      "frame_end": 40.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_QUESTION_OPEN",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_QUESTION_OPEN_LEFT",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_RECOVER_TO_REST",
+      "frame_start": 1.0,
+      "frame_end": 18.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_SURPRISED",
+      "frame_start": 1.0,
+      "frame_end": 42.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_SOCIAL_THINK",
+      "frame_start": 1.0,
+      "frame_end": 67.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_VISEME_A",
+      "frame_start": 1.0,
+      "frame_end": 10.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_VISEME_E",
+      "frame_start": 1.0,
+      "frame_end": 10.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_VISEME_I",
+      "frame_start": 1.0,
+      "frame_end": 10.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_VISEME_O",
+      "frame_start": 1.0,
+      "frame_end": 10.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    },
+    {
+      "name": "VITA_VISEME_U",
+      "frame_start": 1.0,
+      "frame_end": 10.0,
+      "users": 1,
+      "fake_user": true,
+      "slots": 1,
+      "layers": 1
+    }
+  ],
+  "animated_objects": [
+    {
+      "object": "NEX_PERFORMANCE_CARRIER_RIG__VITA_SOURCE",
+      "action": null,
+      "nla": []
+    },
+    {
+      "object": "VITA_RIG",
+      "action": null,
+      "nla": [
+        {
+          "track": "00_RELAXED_BASE_STATIC",
+          "mute": false,
+          "strips": [
+            {
+              "name": "VITA_COSPEECH_RELAXED_BASE_V1_1",
+              "action": "NITA_RELAXED_BASE_P1_V1",
+              "start": 1.0,
+              "end": 534.0,
+              "influence": 1.0
+            }
+          ]
+        },
+        {
+          "track": "10_BODY_CARRIER_DONOR_TIMED",
+          "mute": false,
+          "strips": [
+            {
+              "name": "VITA_COSPEECH_BODY_CARRIER_V1_1_DONOR_TIMED",
+              "action": "NITA_BODY_CARRIER_P5C_SAFE_V1",
+              "start": 1.0,
+              "end": 534.0,
+              "influence": 0.550000011920929
+            }
+          ]
+        },
+        {
+          "track": "20_HEAD_CARRIER_DONOR_TIMED",
+          "mute": false,
+          "strips": [
+            {
+              "name": "VITA_COSPEECH_HEAD_CARRIER_V1_1_DONOR_TIMED",
+              "action": "VITA_COSPEECH_HEAD_CARRIER_V1_1_DONOR_TIMED",
+              "start": 1.0,
+              "end": 534.0,
+              "influence": 0.6000000238418579
+            }
+          ]
+        },
+        {
+          "track": "30_EYE_GAZE_P5",
+          "mute": false,
+          "strips": [
+            {
+              "name": "NITA_GAZE_EYES_P5_V1",
+              "action": "NITA_CERT_AUDIO_V2_GAZE_EYES",
+              "start": 1.0,
+              "end": 534.0,
+              "influence": 1.0
+            }
+          ]
+        },
+        {
+          "track": "30_COSPEECH_ARMS_CERT_V4_PROSODY",
+          "mute": false,
+          "strips": [
+            {
+              "name": "NITA_CERT_V4_3_G1_READABLE",
+              "action": "NITA_CERT_V4_3_COSPEECH_ARMS_G1_READABLE",
+              "start": 1.0,
+              "end": 534.0,
+              "influence": 1.0
+            }
+          ]
+        },
+        {
+          "track": "25_PROSODY_HEAD_CHEST_V4_1",
+          "mute": false,
+          "strips": [
+            {
+              "name": "NITA_CERT_V4_1_PROSODY_HEAD_CHEST",
+              "action": "NITA_CERT_V4_1_PROSODY_HEAD_CHEST",
+              "start": 1.0,
+              "end": 534.0,
+              "influence": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "shape_keys": [
+    {
+      "name": "Face.baked",
+      "keys": [
+        "Basis",
+        "target_0",
+        "target_1",
+        "target_2",
+        "target_3",
+        "target_4",
+        "target_5",
+        "target_6",
+        "target_7",
+        "target_8",
+        "target_9",
+        "target_10",
+        "target_11",
+        "target_12",
+        "target_13",
+        "target_14",
+        "target_15",
+        "target_16",
+        "target_17",
+        "target_18",
+        "target_19",
+        "target_20",
+        "target_21",
+        "target_22",
+        "target_23",
+        "target_24",
+        "target_25",
+        "target_26",
+        "target_27",
+        "target_28",
+        "target_29",
+        "target_30",
+        "target_31",
+        "target_32",
+        "target_33",
+        "target_34",
+        "target_35",
+        "target_36",
+        "target_37",
+        "target_38",
+        "target_39",
+        "target_40"
+      ],
+      "action": "NITA_CERT_V4_PHONE_FACE_PHRASE_BLINKS"
+    }
+  ],
+  "sounds": [
+    {
+      "name": "NITA_CERTIFICATION_AUDIO_MASTER.mp3",
+      "filepath": "/mnt/data/nita_work/NITA_CERTIFICATION_AUDIO_MASTER.mp3",
+      "packed": true
+    }
+  ]
+}

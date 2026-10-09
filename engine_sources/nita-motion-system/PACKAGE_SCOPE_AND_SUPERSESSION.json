@@ -1,0 +1,89 @@
+{
+  "package_rule": "LATEST CHECKPOINT ONLY. No historical/lineage blend files included.",
+  "current_checkpoint": "NITA_CERT_V4_3_FULL_RENDER_CANDIDATE.blend",
+  "embedded_action_count": 306,
+  "action_category_counts": {
+    "other_motion_specialist": 160,
+    "gaze_head_attention": 28,
+    "living_body_rest": 15,
+    "gesture_presenter_phrase": 78,
+    "face_expression_viseme": 25
+  },
+  "shape_key_sets": [
+    {
+      "name": "Face.baked",
+      "keys": [
+        "Basis",
+        "target_0",
+        "target_1",
+        "target_2",
+        "target_3",
+        "target_4",
+        "target_5",
+        "target_6",
+        "target_7",
+        "target_8",
+        "target_9",
+        "target_10",
+        "target_11",
+        "target_12",
+        "target_13",
+        "target_14",
+        "target_15",
+        "target_16",
+        "target_17",
+        "target_18",
+        "target_19",
+        "target_20",
+        "target_21",
+        "target_22",
+        "target_23",
+        "target_24",
+        "target_25",
+        "target_26",
+        "target_27",
+        "target_28",
+        "target_29",
+        "target_30",
+        "target_31",
+        "target_32",
+        "target_33",
+        "target_34",
+        "target_35",
+        "target_36",
+        "target_37",
+        "target_38",
+        "target_39",
+        "target_40"
+      ],
+      "action": "NITA_CERT_V4_PHONE_FACE_PHRASE_BLINKS"
+    }
+  ],
+  "packed_sounds": [
+    {
+      "name": "NITA_CERTIFICATION_AUDIO_MASTER.mp3",
+      "filepath": "/mnt/data/nita_work/NITA_CERTIFICATION_AUDIO_MASTER.mp3",
+      "packed": true
+    }
+  ],
+  "historical_action_names_seen_but_not_included": {
+    "NITA_AUDIO_FACE_BELLA_V1": "superseded by NITA_CERT_V4_PHONE_FACE_PHRASE_BLINKS",
+    "NITA_GAZE_EYES_P5_V1": "superseded by NITA_CERT_AUDIO_V2_GAZE_EYES",
+    "NITA_HEAD_CARRIER_P5_GAZE_FOLLOW_V1": "superseded by current prosody/head carrier stack",
+    "NITA_COSPEECH_ARMS_CAPTURED_TIMING_V1": "superseded by current NITA_CERT_V4_3_COSPEECH_ARMS_G1_READABLE performance action",
+    "NITA_COSPEECH_ARMS_CAPTURED_TIMING_V3": "superseded by current NITA_CERT_V4_3_COSPEECH_ARMS_G1_READABLE performance action",
+    "NITA_CERT_V4_COSPEECH_ARMS_PROSODY_LOCKED": "superseded by NITA_CERT_V4_3_COSPEECH_ARMS_G1_READABLE",
+    "NITA_CERT_AUDIO_V3_PHONE_FACE": "superseded by NITA_CERT_V4_PHONE_FACE_PHRASE_BLINKS"
+  },
+  "reason_no_historical_extraction": "All historical-only action names found were superseded by current checkpoint actions; no unique required motion asset remained absent.",
+  "excluded_categories": [
+    "historical Nita/Vita checkpoint blends",
+    "Blender application/runtime binaries",
+    "render frames and videos",
+    "render caches/logs",
+    "unrelated NexStick/Pill Man/Ryan/Elaine assets",
+    "NexStudio website/product files",
+    "application/lender files",
+    "generic core .blend duplicated by Nita-bound actions"
+  ]
+}
