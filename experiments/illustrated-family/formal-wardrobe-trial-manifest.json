@@ -1,0 +1,107 @@
+{
+  "schema": "nexstudio.illustrated.v1.formal-wardrobe-trials/1",
+  "authority": {
+    "originalScenes": "devin/20261006-board-scenes-option",
+    "originalCommit": "1216552afc8eb1a756ee5451f8949a9cde39bd5e",
+    "requiredBlender": "5.2.0 LTS",
+    "characterRig": "Host.rig",
+    "originalFaceShapeKeys": 34
+  },
+  "sourceDonors": [
+    {
+      "pack": "suits01_cc0",
+      "url": "https://files2.makehumancommunity.org/asset_packs/suits01/suits01_cc0.zip",
+      "sha256": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+      "author": "MRT / Margaret Toigo",
+      "license": "CC0"
+    },
+    {
+      "pack": "shoes01_cc0",
+      "url": "https://files2.makehumancommunity.org/asset_packs/shoes01/shoes01_cc0.zip",
+      "sha256": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada",
+      "author": "MRT / Margaret Toigo",
+      "license": "CC0"
+    }
+  ],
+  "variants": [
+    {
+      "id": "formal_female_double_breasted",
+      "gender": "female",
+      "donor": "toigo_female_double-breasted_suit",
+      "footwear": "toigo_ballet_flats",
+      "fitProof": "docs/illustrated-family/cc0-suit-shoe-proofs",
+      "fitTest": "passed_original_rig",
+      "visualReview": "improved_candidate_not_approved",
+      "remaining": [
+        "full_clip_qa",
+        "material_ink_convergence",
+        "face_lineart QA"
+      ]
+    },
+    {
+      "id": "formal_male_jacket_tie",
+      "gender": "male",
+      "donor": "toigo_male_suit_tie_and_jacket",
+      "footwear": "Host.mindfront_shoes_monk_strap_male",
+      "fitProof": "docs/illustrated-family/cc0-suit-uv-proofs",
+      "fitTest": "passed_original_rig",
+      "visualReview": "improved_candidate_not_approved",
+      "remaining": [
+        "footwear_qa",
+        "full_clip_qa",
+        "material_ink_convergence"
+      ]
+    },
+    {
+      "id": "formal_female_suit_2",
+      "gender": "female",
+      "donor": "toigo_female_suit_2",
+      "fitTest": "pending_real_render",
+      "visualReview": "pending"
+    },
+    {
+      "id": "formal_male_suit_3",
+      "gender": "male",
+      "donor": "toigo_male_suit_3",
+      "fitTest": "pending_real_render",
+      "visualReview": "pending"
+    },
+    {
+      "id": "formal_male_double_breasted",
+      "gender": "male",
+      "donor": "toigo_male_double-breasted_suit",
+      "fitTest": "pending_real_render",
+      "visualReview": "pending"
+    },
+    {
+      "id": "formal_male_dinner_jacket",
+      "gender": "male",
+      "donor": "toigo_suit_with_dinner_jacket",
+      "fitTest": "pending_real_render",
+      "visualReview": "pending"
+    },
+    {
+      "id": "formal_female_suit_legacy",
+      "gender": "female",
+      "donor": "toigo_female_suit",
+      "fitTest": "blocked_missing_scale_spec",
+      "visualReview": "not_tested",
+      "remark": "This MHClO file supplies neither x/y/z_scale nor complete l_shear values, unlike the other seven suit sources. Requires an explicit fit convention investigation."
+    },
+    {
+      "id": "formal_bowtie",
+      "gender": "male",
+      "donor": "toigo_suit_with_jacket_and_bowtie",
+      "fitTest": "not_started",
+      "visualReview": "not_tested"
+    }
+  ],
+  "constraints": {
+    "canonicalBlendsReadOnly": true,
+    "actionsReadOnly": true,
+    "faceMorphsReadOnly": true,
+    "cc0LicensePerMhcloRequired": true,
+    "prototypeProductionIntegration": false,
+    "provenanceCitationFile": "docs/illustrated-family/SUITS01_DONOR_PROVENANCE.md"
+  }
+}
