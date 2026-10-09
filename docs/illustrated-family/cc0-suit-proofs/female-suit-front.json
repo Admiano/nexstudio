@@ -1,0 +1,20 @@
+{
+  "gender": "female",
+  "asset": "toigo_female_double-breasted_suit",
+  "donorCC0Header": true,
+  "sourceAuthor": "MRT / Margaret Toigo",
+  "inputSourceScene": "/home/runner/work/nexstudio/nexstudio/engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_FEMALE.decoded.blend",
+  "blender": "5.2.0 LTS",
+  "fittedVertices": 5393,
+  "faces": 5031,
+  "rig": "Host.rig",
+  "boneWeightGroups": 46,
+  "bodyShapeKeysPreserved": 34,
+  "hiddenOriginalWardrobeInDisposableScene": [
+    "Host.mindfront_f_dress_11"
+  ],
+  "sourceAssetsInRepoUnchanged": true,
+  "status": "UNAPPROVED_REAL_MAKEHUMAN_SUIT_FIT_PROOF",
+  "fitPipeline": "NexStudio mhclo_fit.py; original Host armature and weights",
+  "editableSceneFile": "female-suit-front.blend"
+}
