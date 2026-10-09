@@ -23,7 +23,8 @@ Source authority: `devin/20261006-board-scenes-option` at `1216552afc8eb1a756ee5
 | Jacket V2 | More torso coverage, but cardigan-like and short | REJECT |
 | Jacket V3 | Subtle lapels, still reads as overlay | REJECT |
 | Jacket V4 | Armature follows selected action frames 338 and 891, but angular lapel facets and odd male front | REJECT for integration |
-| Jacket V5 | Gap-aware outer lapel seams, single-perimeter ink, longer female hem | PENDING visual and gesture review |
+| Jacket V5 | Better perimeter anchoring but lapels still read as flat hanging straps | REJECT for integration |
+| Real MakeHuman suits01 CC0 | Actual original-rig skinned mesh, 46 bone-weight groups per suit; rendered at frames 27, 338, 891 and three-quarter | PASSED structural proof; UV, legacy skirt lines, shoes and full motion still under QA |
 | New expressive/resolute/thoughtful faces | Actual drawn-eye/brow/nose stills, but face-line registration wrong in 3/4 and blink/visemes unproven | REJECT for integration pending repair |
 
 Do not mark V5 approved simply because a Blender job exits successfully. Publish the individual actual PNGs, scene proof, and report and **inspect** the result before any claim of V1 readiness.
