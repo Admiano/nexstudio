@@ -30,7 +30,7 @@ cam.rotation_euler=(center-cam.location).to_track_quat("-Z","Y").to_euler()
 scene.camera=cam
 scene.render.engine="CYCLES"
 scene.cycles.device="CPU"
-scene.cycles.samples=3
+scene.cycles.samples=8
 scene.cycles.use_denoising=True
 scene.render.resolution_x=440
 scene.render.resolution_y=700
@@ -38,6 +38,16 @@ scene.render.resolution_percentage=100
 scene.render.image_settings.file_format="PNG"
 scene.render.image_settings.color_mode="RGBA"
 scene.render.film_transparent=True
+# Match the frozen production renderer's resolution-aware ink and compositor
+# policy. Without this, render stills at 700 px develop oversized black areas.
+h=scene.render.resolution_y*scene.render.resolution_percentage/100
+for layer in scene.view_layers:
+    for lineset in layer.freestyle_settings.linesets:
+        lineset.linestyle.thickness *= h/4320
+if scene.compositing_node_group is not None:
+    for node in scene.compositing_node_group.nodes:
+        if node.type == "DILATEERODE":
+            node.inputs["Size"].default_value=max(1,round(node.inputs["Size"].default_value*h/2160))
 scene.render.filepath=str(output)
 bpy.ops.render.render(write_still=True)
 assert output.is_file() and output.stat().st_size>4096, "Missing actual rendered image"
