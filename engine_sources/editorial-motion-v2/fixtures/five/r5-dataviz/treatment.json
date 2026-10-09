@@ -1,0 +1,221 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "five-r5-dataviz",
+ "note": "hand-authored: data-viz led (counter + donut + chart)",
+ "aspects": [
+  "1x1"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#14151a",
+  "paper": "#f4f5f7",
+  "accent": "#2f6fb3",
+  "finish": "EDITORIAL_FLAT"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "mood": "focused",
+ "sfx": "clean",
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "SETUP",
+   "pattern": "PROGRESSIVE_HERO_BUILD",
+   "dominant_layer": "HYBRID",
+   "narration": "Last sprint, Devin closed 42 pull requests.",
+   "energy": 0.6,
+   "complexity": 0.55,
+   "display_units": [
+    {
+     "text": "last sprint,",
+     "role": "support",
+     "anchor_word": "sprint",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "42 pull requests",
+     "role": "hero",
+     "anchor_word": "closed",
+     "emphasis": 0.9,
+     "semantic_role": "punch"
+    }
+   ],
+   "illustration": {
+    "form": "DATA_VISUAL",
+    "entities": [
+     {
+      "id": "e1_counter",
+      "kind": "object",
+      "glyph": "COUNTER",
+      "size": "hero",
+      "params": {
+       "count": 42,
+       "caption": "PRs merged",
+       "tone": "dark"
+      }
+     },
+     {
+      "id": "e2_bar",
+      "kind": "evidence",
+      "glyph": "BAR",
+      "size": "support",
+      "params": {
+       "level": 0.7,
+       "caption": "velocity"
+      }
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_counter",
+      "at": {
+       "word": "closed"
+      },
+      "duration_ms": 600
+     },
+     {
+      "op": "COUNT",
+      "target": "e1_counter",
+      "at": {
+       "word": "42"
+      },
+      "duration_ms": 900,
+      "params": {
+       "count": 42
+      }
+     },
+     {
+      "op": "GROW",
+      "target": "e2_bar",
+      "at": {
+       "word": "pull"
+      },
+      "duration_ms": 700
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "PROOF",
+   "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+   "dominant_layer": "HYBRID",
+   "narration": "Cycle time dropped 38%.",
+   "energy": 0.7,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "cycle time,",
+     "role": "support",
+     "anchor_word": "cycle",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "dropped 38%",
+     "role": "hero",
+     "anchor_word": "dropped",
+     "emphasis": 0.9,
+     "semantic_role": "punch"
+    }
+   ],
+   "illustration": {
+    "form": "DATA_VISUAL",
+    "entities": [
+     {
+      "id": "e3_donut",
+      "kind": "object",
+      "glyph": "DONUT",
+      "size": "hero",
+      "params": {
+       "count": 38,
+       "suffix": "%",
+       "level": 0.38
+      }
+     },
+     {
+      "id": "e4_chart",
+      "kind": "object",
+      "glyph": "CHART_LINE",
+      "size": "support",
+      "params": {
+       "points": [
+        0.08,
+        0.4,
+        0.22,
+        0.55,
+        0.38,
+        0.85
+       ]
+      }
+     }
+    ],
+    "relations": [
+     {
+      "type": "compares",
+      "source": "e3_donut",
+      "target": "e4_chart"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e3_donut",
+      "at": {
+       "word": "cycle"
+      },
+      "duration_ms": 600
+     },
+     {
+      "op": "GROW",
+      "target": "e3_donut",
+      "at": {
+       "word": "dropped"
+      },
+      "duration_ms": 900
+     },
+     {
+      "op": "COUNT",
+      "target": "e3_donut",
+      "at": {
+       "word": "dropped"
+      },
+      "duration_ms": 900,
+      "params": {
+       "count": 38
+      }
+     },
+     {
+      "op": "DRAW",
+      "target": "e4_chart",
+      "at": {
+       "word": "dropped"
+      },
+      "duration_ms": 800
+     },
+     {
+      "op": "SETTLE",
+      "target": "e3_donut",
+      "at": {
+       "word": "38%"
+      },
+      "duration_ms": 300
+     }
+    ]
+   }
+  }
+ ]
+}

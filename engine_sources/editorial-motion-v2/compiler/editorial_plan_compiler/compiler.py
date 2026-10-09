@@ -110,7 +110,7 @@ def _background_layers(render_bg: str, authored: str, stage: Dict[str, float], s
     W, H = canvas
     st = dict(stage)
     layers: List[Dict[str, Any]] = []
-    if finish == 'PRODUCT_COLLAGE':
+    if finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD'):
         # Free canvas: no lifted panel, no rules. Objects float on the field; the light (bloom behind the
         # hero) and the far-plane depth shapes are added by `atmosphere.beat_atmosphere` once the beat is placed.
         return layers
@@ -558,16 +558,31 @@ class BeatCompiler:
         self.carried_illustration: Optional[Dict[str, Any]] = None  # illustration persisting from an earlier beat
         self.illustrations: Dict[str, Dict[str, Any]] = {}  # beat_id -> compiled illustration (carry-over source)
         self.solver = IllustrationSolver(aspect, (self.W, self.H), IllustrationRegistry(), film.media_library, self.media_files, film.brand.accent,
-                                         collage=film.brand.finish == 'PRODUCT_COLLAGE',
-                                         stagger_ms=stagger_ms or MOTION_PROFILES[film.brand.finish]['stagger_ms'], motion=MOTION_PROFILES[film.brand.finish])
+                                         collage=film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD'),
+                                         stagger_ms=stagger_ms or MOTION_PROFILES[film.brand.finish]['stagger_ms'], motion=MOTION_PROFILES[film.brand.finish],
+                                         finish=film.brand.finish)
 
     # ------------------------------------------------------------------ helpers
+    @staticmethod
+    def _layout_variant(b: BeatTreatment, base: str, n: int) -> str:
+        # rotate the zone skeleton per beat so consecutive scenes never repeat
+        # the same composition — the format keeps its grammar, not its template
+        digits = ''.join(ch for ch in b.beat_id if ch.isdigit())
+        idx = (int(digits) - 1) if digits else 0
+        return f'{base}_{"ABCDEF"[idx % n]}'
+
     def _native_treatment(self, b: BeatTreatment) -> str:
         t = NATIVE_TREATMENT[b.pattern]
         il = b.illustration
         if self.film.brand.finish == 'PRODUCT_COLLAGE':
             has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
             return 'COLLAGE_STAGE' if has_visual else 'COLLAGE_LOCKUP'
+        if self.film.brand.finish == 'FLOAT_FIELD':
+            has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
+            return self._layout_variant(b, 'FLOAT_STAGE' if has_visual else 'FLOAT_LOCKUP', 3 if has_visual else 2)
+        if self.film.brand.finish == 'CENTER_DECK':
+            has_visual = bool(il or b.media or b.data or b.figure or self.carried_illustration or self.carried_media)
+            return self._layout_variant(b, 'DECK_STAGE' if has_visual else 'DECK_LOCKUP', 3 if has_visual else 2)
         if il is None and not self.carried_illustration:
             return t
         if il is not None and il.form in PROCESS_FORMS:
@@ -610,6 +625,15 @@ class BeatCompiler:
         text_load = ktp.clamp(sum(ktp.token_count(u['text']) for u in units) / 28, .15, 1)
         ktp_zone = ktp._zones(self.aspect, shot_role, object_present, text_load).text_zone
         native_zone = comp['text_zone']
+        # The composition authority may return a text zone that bleeds past the
+        # safe frame bottom (legal for illustration, never for text). Clamp it
+        # so remapped blocks cannot land outside the safe area.
+        zx2 = min(native_zone['x'] + native_zone['w'], self.safe['x'] + self.safe['w'])
+        zy2 = min(native_zone['y'] + native_zone['h'], self.safe['y'] + self.safe['h'])
+        native_zone = {'x': max(native_zone['x'], self.safe['x']),
+                       'y': max(native_zone['y'], self.safe['y']),
+                       'w': zx2 - max(native_zone['x'], self.safe['x']),
+                       'h': zy2 - max(native_zone['y'], self.safe['y'])}
         blocks: List[Dict[str, Any]] = []
         grown: List[int] = []
         for blk in perf['text_blocks']:
@@ -1026,7 +1050,11 @@ class BeatCompiler:
         if self.carried_illustration and b.illustration is None:
             comp['visual_zone'] = dict(self.carried_illustration['zone'])  # persisted argument keeps its stage
         elif b.illustration is not None and b.illustration.carry_from and b.illustration.carry_from in self.illustrations:
-            comp['visual_zone'] = dict(self.illustrations[b.illustration.carry_from]['zone'])
+            # Float beats keep their own composition: the carried entity travels
+            # stage-to-stage (that IS the momentum), while locking the whole zone
+            # to the source beat would starve this beat's text split.
+            if self.film.brand.finish != 'FLOAT_FIELD':
+                comp['visual_zone'] = dict(self.illustrations[b.illustration.carry_from]['zone'])
         object_present = bool(b.media or b.figure or b.data or b.illustration or self.carried_media or self.carried_illustration)
         if object_present:
             comp['text_zone'] = _carve(comp['text_zone'], comp['visual_zone'])
@@ -1239,7 +1267,8 @@ class BeatCompiler:
             sweep = {'push_through': 0.78, 'pull_back': 0.7, 'drift': 0.74, 'page': 0.86, 'dissolve': 0.32}.get(transition['camera']['move'])
             if sweep:
                 candidates.append({'event': 'TRANSITION_SWEEP', 'at_ms': transition['start_ms'], 'strength': sweep})
-        sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates)
+        sound = bind_beat_sound(self.lib, self.film.film_id, b.beat_id, beat_offset_ms, b.dominant_layer, b.energy, candidates,
+                                profile=self.film.sfx)
         if b.dominant_layer != 'QUIET':
             amb_concepts = [e.get('concept') for e in (illustration or {}).get('entities', [])] + [m.get('concept') for m in (illustration or {}).get('marks', [])] + [p.get('concept') for p in (b.backdrop or [])]
             amb_tones = [p.get('tone') for p in (b.backdrop or [])]
@@ -1252,7 +1281,7 @@ class BeatCompiler:
             warnings.append('SOUND_LIBRARY_MISSING')
 
         bg = (comp.get('authentic_v2_plan') or {}).get('background_template') or 'SOFT_FIELD'
-        render_bg = 'SPOTLIGHT_STAGE' if figure else ('CARD_STAGE' if (media or data) else ('STAGE_FIELD' if illustration else 'SOFT_FIELD'))
+        render_bg = 'SPOTLIGHT_STAGE' if figure else ('CARD_STAGE' if (media or data or self.film.brand.finish == 'CENTER_DECK') else ('STAGE_FIELD' if illustration else 'SOFT_FIELD'))
         stage_zone = (media or figure or data or illustration or {}).get('zone') or self.safe
         # Every beat must carry visible content inside its lead-in window: stage, chrome or first words.
         firsts = [w['start_ms'] for w in [{'text': w.text, 'start_ms': w.start_ms, 'end_ms': w.end_ms} for w in clock.words]]
@@ -2280,7 +2309,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
                        'asset': film.world.motif.get('asset'), 'photo': film.world.motif.get('photo'), 'word': film.world.motif.get('word')}
                       if film.world and film.world.motif else None),
             'beats': beats, 'captions': _captions(beats),
-            'captions_policy': 'kinetic' if film.brand.finish == 'PRODUCT_COLLAGE' else 'burned',
+            'captions_policy': 'kinetic' if film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD', 'CENTER_DECK') else 'burned',
             'gate': {'status': 'FAIL' if fails else 'PASS', 'failures': fails},
             'provenance': {
                 'treatment_sha256': treatment_sha, 'creative_authority': 'NEXMIND_P8', 'compiler_role': 'DETERMINISTIC_PLAN_COMPILER', 'renderer_role': 'EXECUTION_ONLY',

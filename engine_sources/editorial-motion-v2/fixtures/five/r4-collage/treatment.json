@@ -1,0 +1,163 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "five-r4-collage",
+ "note": "hand-authored: media-card collage on the float field",
+ "aspects": [
+  "1x1"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#181410",
+  "paper": "#f6f3ed",
+  "accent": "#d95b3f",
+  "finish": "FLOAT_FIELD"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.4,
+  "min_visual_share": 0.62
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [
+  {
+   "asset_id": "media1",
+   "kind": "IMAGE",
+   "path": "media/terminal.png",
+   "width": 720,
+   "height": 460
+  },
+  {
+   "asset_id": "media2",
+   "kind": "IMAGE",
+   "path": "media/pr.png",
+   "width": 720,
+   "height": 460
+  }
+ ],
+ "mood": "dreamy",
+ "sfx": "glassy",
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "SETUP",
+   "pattern": "HERO_TO_EVIDENCE_HANDOFF",
+   "dominant_layer": "HYBRID",
+   "narration": "Devin works where your team already works,",
+   "energy": 0.6,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "your team's",
+     "role": "hero",
+     "anchor_word": "team",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "already works",
+     "role": "support",
+     "anchor_word": "already",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "shot_card",
+      "kind": "evidence",
+      "glyph": "MEDIA",
+      "size": "hero",
+      "media_ref": "media1"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "shot_card",
+      "at": {
+       "word": "works"
+      },
+      "duration_ms": 640
+     }
+    ]
+   }
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "PAYOFF",
+   "pattern": "PAYOFF_LOCKUP",
+   "dominant_layer": "HYBRID",
+   "narration": "tickets, repos, pull requests.",
+   "energy": 0.75,
+   "complexity": 0.6,
+   "display_units": [
+    {
+     "text": "pull requests",
+     "role": "hero",
+     "anchor_word": "pull",
+     "emphasis": 0.9,
+     "semantic_role": "punch"
+    },
+    {
+     "text": "tickets,",
+     "role": "support",
+     "anchor_word": "tickets",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "repos,",
+     "role": "support",
+     "anchor_word": "repos",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "shot_card",
+      "kind": "evidence",
+      "glyph": "MEDIA",
+      "size": "hero",
+      "media_ref": "media2"
+     }
+    ],
+    "relations": [],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "shot_card",
+      "at": {
+       "word": "tickets"
+      },
+      "duration_ms": 640
+     },
+     {
+      "op": "EMIT",
+      "target": "shot_card",
+      "at": {
+       "word": "requests"
+      },
+      "duration_ms": 900
+     }
+    ],
+    "carry": {
+     "from_beat": "b01",
+     "entities": [
+      "shot_card"
+     ]
+    }
+   }
+  }
+ ]
+}

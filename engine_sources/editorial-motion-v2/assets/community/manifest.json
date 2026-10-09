@@ -8492,7 +8492,8 @@
    "moods": [
     "warm",
     "calm"
-   ]
+   ],
+   "excluded": "sustained-drone"
   },
   {
    "id": "synth.pop.01",

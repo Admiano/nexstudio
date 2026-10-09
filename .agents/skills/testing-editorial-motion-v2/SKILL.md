@@ -56,3 +56,10 @@ description: How to end-to-end test the editorial-motion v2 engine (compile→re
 
 ## Devin Secrets Needed
 None. (A real `ELEVENLABS_API_KEY` would additionally exercise the premium route priority path; without it the route is correctly skipped by `credentialEnv` gating.)
+
+## Authoring path (--brief / semantic entities)
+- `python3` in interactive shells on these boxes is pyenv 3.12 WITHOUT the engine deps — pipeline runs die with `no writer backend`/ImportError. Always invoke `/usr/bin/python3` (3.10) for make_reel/write_script/compiler.
+- `make_reel --brief` authoring takes ~3-5 min on CPU (each writer pass loads a 4.7GB GGUF) — normal, not a hang.
+- To capture the verbatim authored script without editing repo code: drop a `sitecustomize.py` on PYTHONPATH that wraps `write_script.author_script` and dumps its return to /tmp.
+- Ticker symbols roundtrip badly through TTS→whisper ("SOL" → "sole") — `write_script.normalize_tickers` rewrites uppercase tickers to asset names before synth; if captions show homophones, the normalization ran too late or missed a symbol.
+- Entity coverage per sentence: `import make_reel; make_reel.pick_entities([{text,start_ms,end_ms}...], family, set())` — authored thin sentences should trigger the writer's coverage retry, not reach the compiler.

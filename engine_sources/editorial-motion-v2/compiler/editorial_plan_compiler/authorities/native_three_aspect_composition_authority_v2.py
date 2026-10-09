@@ -58,6 +58,22 @@ def _portrait(treatment,visual_kind):
       'CTA_LOCKUP':_profile(_box(54,300,612,420),_box(110,810,500,250),layout_family='PORTRAIT_CTA_LOCKUP',hero_scale=1.04,text_align='center',field_use='hero_dominant',max_lines=3),
       # Product collage: centred lockup over a full-width object field; no side split.
       'COLLAGE_STAGE':_profile(_box(54,96,612,300),_box(40,440,640,720),layout_family='PORTRAIT_COLLAGE',hero_scale=1.02,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=3),
+      # Center deck: one poster-card carrying the visual, caption band centred
+      # beneath it. Same skeleton at every aspect — the whole format is the card.
+      'DECK_STAGE':_profile(_box(90,830,540,260),_box(90,150,540,640),layout_family='PORTRAIT_DECK_CARD',hero_scale=1.00,evidence_scale=1.05,text_align='center',field_use='centred_card',max_lines=3),
+      'DECK_LOCKUP':_profile(_box(110,340,500,500),_box(250,900,220,200),layout_family='PORTRAIT_DECK_LOCKUP',hero_scale=1.10,text_align='center',field_use='hero_dominant',max_lines=3),
+      # per-beat rotations: same format grammar, never the same scene twice.
+      # A captions-under, B captions-over, C text column beside the field/card.
+      'FLOAT_STAGE_A':_profile(_box(54,110,612,260),_box(40,400,640,730),layout_family='PORTRAIT_FLOAT_FIELD_LOW',hero_scale=1.02,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=3),
+      'FLOAT_STAGE_B':_profile(_box(54,880,612,260),_box(40,150,640,690),layout_family='PORTRAIT_FLOAT_FIELD_HIGH',hero_scale=1.02,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=3),
+      'FLOAT_STAGE_C':_profile(_box(54,380,320,440),_box(390,240,270,720),layout_family='PORTRAIT_FLOAT_SIDE_FIELD',hero_scale=0.95,evidence_scale=0.9,text_align='left',field_use='split_field',max_lines=4),
+      'FLOAT_LOCKUP_A':_profile(_box(100,330,520,520),_box(250,920,220,180),layout_family='PORTRAIT_FLOAT_LOCKUP_A',hero_scale=1.12,text_align='center',field_use='hero_dominant',max_lines=4),
+      'FLOAT_LOCKUP_B':_profile(_box(70,290,560,590),_box(320,950,200,140),layout_family='PORTRAIT_FLOAT_LOCKUP_B',hero_scale=1.10,text_align='left',field_use='hero_dominant',max_lines=4),
+      'DECK_STAGE_A':_profile(_box(90,830,540,260),_box(90,150,540,640),layout_family='PORTRAIT_DECK_CARD',hero_scale=1.00,evidence_scale=1.05,text_align='center',field_use='centred_card',max_lines=3),
+      'DECK_STAGE_B':_profile(_box(90,130,540,240),_box(90,410,540,660),layout_family='PORTRAIT_DECK_CARD_UNDER',hero_scale=1.00,evidence_scale=1.05,text_align='center',field_use='centred_card',max_lines=3),
+      'DECK_STAGE_C':_profile(_box(70,830,560,250),_box(150,170,420,620),layout_family='PORTRAIT_DECK_CARD_TALL',hero_scale=0.98,evidence_scale=1.05,text_align='left',field_use='centred_card',max_lines=3),
+      'DECK_LOCKUP_A':_profile(_box(110,340,500,500),_box(250,900,220,200),layout_family='PORTRAIT_DECK_LOCKUP',hero_scale=1.10,text_align='center',field_use='hero_dominant',max_lines=3),
+      'DECK_LOCKUP_B':_profile(_box(90,300,540,580),_box(330,940,180,140),layout_family='PORTRAIT_DECK_LOCKUP_B',hero_scale=1.08,text_align='left',field_use='hero_dominant',max_lines=4),
       'COLLAGE_LOCKUP':_profile(_box(54,300,612,520),_box(200,900,320,200),layout_family='PORTRAIT_COLLAGE_LOCKUP',hero_scale=1.12,text_align='center',field_use='hero_dominant',max_lines=4),
     }
     return m.get(treatment,m['PROGRESSIVE_HERO_BUILD'])
@@ -75,6 +91,18 @@ def _square(treatment,visual_kind):
       'CTA_LOCKUP':_profile(_box(115,255,850,420),_box(660,705,240,175),layout_family='SQUARE_CTA_LOCKUP',hero_scale=1.07,text_align='center',field_use='hero_dominant',max_lines=3),
       'COLLAGE_STAGE':_profile(_box(84,80,912,260),_box(70,380,940,600),layout_family='SQUARE_COLLAGE',hero_scale=1.02,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=3),
       'COLLAGE_LOCKUP':_profile(_box(100,300,880,440),_box(760,760,220,160),layout_family='SQUARE_COLLAGE_LOCKUP',hero_scale=1.14,text_align='center',field_use='hero_dominant',max_lines=3),
+      'DECK_STAGE':_profile(_box(160,690,760,240),_box(160,110,760,560),layout_family='SQUARE_DECK_CARD',hero_scale=1.02,evidence_scale=1.05,text_align='center',field_use='centred_card',max_lines=3),
+      'DECK_LOCKUP':_profile(_box(190,260,700,460),_box(390,770,300,180),layout_family='SQUARE_DECK_LOCKUP',hero_scale=1.10,text_align='center',field_use='hero_dominant',max_lines=3),
+      'FLOAT_STAGE_A':_profile(_box(84,110,912,230),_box(70,380,940,560),layout_family='SQUARE_FLOAT_FIELD_LOW',hero_scale=1.02,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=3),
+      'FLOAT_STAGE_B':_profile(_box(84,740,912,230),_box(70,130,940,570),layout_family='SQUARE_FLOAT_FIELD_HIGH',hero_scale=1.02,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=3),
+      'FLOAT_STAGE_C':_profile(_box(84,330,400,420),_box(500,150,490,640),layout_family='SQUARE_FLOAT_SIDE_FIELD',hero_scale=0.95,evidence_scale=0.9,text_align='left',field_use='split_field',max_lines=4),
+      'FLOAT_LOCKUP_A':_profile(_box(190,260,700,460),_box(390,770,300,180),layout_family='SQUARE_FLOAT_LOCKUP_A',hero_scale=1.12,text_align='center',field_use='hero_dominant',max_lines=4),
+      'FLOAT_LOCKUP_B':_profile(_box(120,230,720,500),_box(430,790,260,150),layout_family='SQUARE_FLOAT_LOCKUP_B',hero_scale=1.08,text_align='left',field_use='hero_dominant',max_lines=4),
+      'DECK_STAGE_A':_profile(_box(160,690,760,240),_box(160,110,760,560),layout_family='SQUARE_DECK_CARD',hero_scale=1.02,evidence_scale=1.05,text_align='center',field_use='centred_card',max_lines=3),
+      'DECK_STAGE_B':_profile(_box(160,100,760,220),_box(160,360,760,560),layout_family='SQUARE_DECK_CARD_UNDER',hero_scale=1.02,evidence_scale=1.05,text_align='center',field_use='centred_card',max_lines=3),
+      'DECK_STAGE_C':_profile(_box(150,700,780,230),_box(320,90,440,560),layout_family='SQUARE_DECK_CARD_NARROW',hero_scale=0.98,evidence_scale=1.05,text_align='left',field_use='centred_card',max_lines=3),
+      'DECK_LOCKUP_A':_profile(_box(190,260,700,460),_box(390,770,300,180),layout_family='SQUARE_DECK_LOCKUP',hero_scale=1.10,text_align='center',field_use='hero_dominant',max_lines=3),
+      'DECK_LOCKUP_B':_profile(_box(150,230,700,500),_box(430,790,240,150),layout_family='SQUARE_DECK_LOCKUP_B',hero_scale=1.08,text_align='left',field_use='hero_dominant',max_lines=4),
     }
     return m.get(treatment,m['PROGRESSIVE_HERO_BUILD'])
 
@@ -92,6 +120,18 @@ def _landscape(treatment,visual_kind):
       'CTA_LOCKUP':_profile(_box(110,128,1020,430),_box(980,490,170,100),layout_family='LANDSCAPE_CTA_BILLBOARD',hero_scale=1.22,text_align='center',field_use='full_width_cta',max_lines=2),
       'COLLAGE_STAGE':_profile(_box(110,62,988,200),_box(80,290,1120,376),layout_family='LANDSCAPE_COLLAGE',hero_scale=1.12,evidence_scale=1.15,text_align='center',field_use='centred_collage',max_lines=2),
       'COLLAGE_LOCKUP':_profile(_box(100,140,1008,420),_box(960,520,160,80),layout_family='LANDSCAPE_COLLAGE_LOCKUP',hero_scale=1.3,text_align='center',field_use='full_width_lockup',max_lines=3),
+      'DECK_STAGE':_profile(_box(330,475,620,132),_box(330,64,620,400),layout_family='LANDSCAPE_DECK_CARD',hero_scale=1.04,evidence_scale=1.06,text_align='center',field_use='centred_card',max_lines=2),
+      'DECK_LOCKUP':_profile(_box(280,130,720,400),_box(540,545,200,110),layout_family='LANDSCAPE_DECK_LOCKUP',hero_scale=1.2,text_align='center',field_use='hero_dominant',max_lines=3),
+      'FLOAT_STAGE_A':_profile(_box(110,66,988,170),_box(80,265,1120,345),layout_family='LANDSCAPE_FLOAT_FIELD_LOW',hero_scale=1.08,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=2),
+      'FLOAT_STAGE_B':_profile(_box(110,468,988,140),_box(80,66,1120,385),layout_family='LANDSCAPE_FLOAT_FIELD_HIGH',hero_scale=1.05,evidence_scale=1.1,text_align='center',field_use='centred_collage',max_lines=2),
+      'FLOAT_STAGE_C':_profile(_box(80,160,430,380),_box(540,70,590,480),layout_family='LANDSCAPE_FLOAT_SIDE_FIELD',hero_scale=0.98,evidence_scale=0.95,text_align='left',field_use='split_field',max_lines=4),
+      'FLOAT_LOCKUP_A':_profile(_box(280,130,720,400),_box(540,545,200,60),layout_family='LANDSCAPE_FLOAT_LOCKUP_A',hero_scale=1.2,text_align='center',field_use='hero_dominant',max_lines=3),
+      'FLOAT_LOCKUP_B':_profile(_box(140,110,760,420),_box(950,545,160,60),layout_family='LANDSCAPE_FLOAT_LOCKUP_B',hero_scale=1.15,text_align='left',field_use='hero_dominant',max_lines=3),
+      'DECK_STAGE_A':_profile(_box(330,475,620,132),_box(330,64,620,400),layout_family='LANDSCAPE_DECK_CARD',hero_scale=1.04,evidence_scale=1.06,text_align='center',field_use='centred_card',max_lines=2),
+      'DECK_STAGE_B':_profile(_box(330,62,620,110),_box(330,186,620,410),layout_family='LANDSCAPE_DECK_CARD_UNDER',hero_scale=1.04,evidence_scale=1.06,text_align='center',field_use='centred_card',max_lines=2),
+      'DECK_STAGE_C':_profile(_box(700,150,430,320),_box(120,68,540,470),layout_family='LANDSCAPE_DECK_CARD_SIDE',hero_scale=1.0,evidence_scale=1.06,text_align='left',field_use='split_field',max_lines=4),
+      'DECK_LOCKUP_A':_profile(_box(280,130,720,400),_box(540,545,200,110),layout_family='LANDSCAPE_DECK_LOCKUP',hero_scale=1.2,text_align='center',field_use='hero_dominant',max_lines=3),
+      'DECK_LOCKUP_B':_profile(_box(140,110,760,420),_box(940,545,170,60),layout_family='LANDSCAPE_DECK_LOCKUP_B',hero_scale=1.15,text_align='left',field_use='hero_dominant',max_lines=3),
     }
     return m.get(treatment,m['PROGRESSIVE_HERO_BUILD'])
 

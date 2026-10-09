@@ -1,0 +1,412 @@
+{
+ "schema": "NexStudioEditorialTreatmentV2",
+ "film_id": "five-r3-journey",
+ "note": "hand-authored: single-object morph journey (ticket->branch->pr->shipped)",
+ "aspects": [
+  "1x1"
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#1a1713",
+  "paper": "#faf8f4",
+  "accent": "#d95b3f",
+  "finish": "FLOAT_FIELD"
+ },
+ "typography": {
+  "reveal": "WORD_CASCADE",
+  "tonal_ink": 0.42,
+  "min_visual_share": 0.6
+ },
+ "voice": {
+  "source": "MASTER",
+  "audio_path": "voice.mp3",
+  "alignment_path": "alignment.json",
+  "head_pad_ms": 350
+ },
+ "media_library": [],
+ "mood": "dreamy",
+ "sfx": "glassy",
+ "beats": [
+  {
+   "beat_id": "b01",
+   "beat_type": "SETUP",
+   "pattern": "OBJECT_LED_TRANSITION",
+   "dominant_layer": "HYBRID",
+   "narration": "Devon takes a ticket.",
+   "energy": 0.6,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "Devin takes",
+     "role": "hero",
+     "anchor_word": "takes",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    },
+    {
+     "text": "a ticket",
+     "role": "support",
+     "anchor_word": "ticket",
+     "emphasis": 0.5,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e1_ticket",
+      "kind": "object",
+      "glyph": "BADGE",
+      "size": "hero",
+      "asset_ref": "icon.carbon.document"
+     },
+     {
+      "id": "e2_chip1",
+      "kind": "object",
+      "glyph": "CHIP",
+      "size": "support",
+      "label": "intake"
+     }
+    ],
+    "relations": [
+     {
+      "type": "connects",
+      "source": "e1_ticket",
+      "target": "e2_chip1",
+      "style": "stem"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e1_ticket",
+      "at": {
+       "word": "takes"
+      },
+      "duration_ms": 560
+     },
+     {
+      "op": "CONNECT",
+      "target": "e1_ticket->e2_chip1",
+      "at": {
+       "word": "ticket"
+      },
+      "duration_ms": 380
+     },
+     {
+      "op": "DRAW",
+      "target": "e2_chip1",
+      "at": {
+       "offset_ms": 700
+      },
+      "duration_ms": 300
+     }
+    ]
+   },
+   "min_duration_ms": 0
+  },
+  {
+   "beat_id": "b02",
+   "beat_type": "EXPLANATION",
+   "pattern": "OBJECT_LED_TRANSITION",
+   "dominant_layer": "HYBRID",
+   "narration": "It becomes a branch.",
+   "energy": 0.6,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "a branch",
+     "role": "hero",
+     "anchor_word": "branch",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e3_branch",
+      "kind": "object",
+      "glyph": "BADGE",
+      "size": "hero",
+      "asset_ref": "icon.lucide.git-branch-plus"
+     },
+     {
+      "id": "e1_ticket",
+      "kind": "object",
+      "glyph": "BADGE",
+      "size": "support",
+      "asset_ref": "icon.carbon.document"
+     },
+     {
+      "id": "e4_chip2",
+      "kind": "object",
+      "glyph": "CHIP",
+      "size": "support",
+      "label": "tracked"
+     }
+    ],
+    "relations": [
+     {
+      "type": "transforms_into",
+      "source": "e1_ticket",
+      "target": "e3_branch"
+     },
+     {
+      "type": "connects",
+      "source": "e3_branch",
+      "target": "e4_chip2",
+      "style": "stem"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e3_branch",
+      "at": {
+       "word": "becomes"
+      },
+      "duration_ms": 560
+     },
+     {
+      "op": "CONNECT",
+      "target": "e1_ticket->e3_branch",
+      "at": {
+       "word": "becomes"
+      },
+      "duration_ms": 380
+     },
+     {
+      "op": "DIM",
+      "target": "e1_ticket",
+      "at": {
+       "word": "branch"
+      },
+      "from": 1.0,
+      "to": 0.3
+     },
+     {
+      "op": "DRAW",
+      "target": "e4_chip2",
+      "at": {
+       "word": "branch"
+      },
+      "duration_ms": 380
+     }
+    ],
+    "carry": {
+     "from_beat": "b01",
+     "entities": [
+      "e1_ticket"
+     ]
+    }
+   }
+  },
+  {
+   "beat_id": "b03",
+   "beat_type": "EXPLANATION",
+   "pattern": "OBJECT_LED_TRANSITION",
+   "dominant_layer": "HYBRID",
+   "narration": "Then a pull request.",
+   "energy": 0.6,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "a pull request",
+     "role": "hero",
+     "anchor_word": "request",
+     "emphasis": 0.9,
+     "semantic_role": "statement"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e5_pr",
+      "kind": "object",
+      "glyph": "BADGE",
+      "size": "hero",
+      "asset_ref": "icon.ant-design.fork-outlined"
+     },
+     {
+      "id": "e3_branch",
+      "kind": "object",
+      "glyph": "BADGE",
+      "size": "support",
+      "asset_ref": "icon.lucide.git-branch-plus"
+     },
+     {
+      "id": "e6_chip3",
+      "kind": "object",
+      "glyph": "CHIP",
+      "size": "support",
+      "label": "review"
+     }
+    ],
+    "relations": [
+     {
+      "type": "transforms_into",
+      "source": "e3_branch",
+      "target": "e5_pr"
+     },
+     {
+      "type": "connects",
+      "source": "e5_pr",
+      "target": "e6_chip3",
+      "style": "stem"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e5_pr",
+      "at": {
+       "word": "pull"
+      },
+      "duration_ms": 560
+     },
+     {
+      "op": "CONNECT",
+      "target": "e3_branch->e5_pr",
+      "at": {
+       "word": "pull"
+      },
+      "duration_ms": 380
+     },
+     {
+      "op": "DIM",
+      "target": "e3_branch",
+      "at": {
+       "word": "request"
+      },
+      "from": 1.0,
+      "to": 0.3
+     },
+     {
+      "op": "DRAW",
+      "target": "e6_chip3",
+      "at": {
+       "word": "request"
+      },
+      "duration_ms": 380
+     }
+    ],
+    "carry": {
+     "from_beat": "b02",
+     "entities": [
+      "e3_branch"
+     ]
+    }
+   }
+  },
+  {
+   "beat_id": "b04",
+   "beat_type": "PAYOFF",
+   "pattern": "OBJECT_LED_TRANSITION",
+   "dominant_layer": "HYBRID",
+   "narration": "Then ship code.",
+   "energy": 0.6,
+   "complexity": 0.5,
+   "display_units": [
+    {
+     "text": "shipped code",
+     "role": "hero",
+     "anchor_word": "code",
+     "emphasis": 0.9,
+     "semantic_role": "punch"
+    }
+   ],
+   "illustration": {
+    "form": "OBJECT_STAGE",
+    "entities": [
+     {
+      "id": "e7_ship",
+      "kind": "object",
+      "glyph": "BADGE",
+      "size": "hero",
+      "asset_ref": "icon.ant-design.rocket-outlined"
+     },
+     {
+      "id": "e5_pr",
+      "kind": "object",
+      "glyph": "BADGE",
+      "size": "support",
+      "asset_ref": "icon.ant-design.fork-outlined"
+     },
+     {
+      "id": "e8_chip4",
+      "kind": "object",
+      "glyph": "CHIP",
+      "size": "support",
+      "label": "merged"
+     }
+    ],
+    "relations": [
+     {
+      "type": "transforms_into",
+      "source": "e5_pr",
+      "target": "e7_ship"
+     },
+     {
+      "type": "connects",
+      "source": "e7_ship",
+      "target": "e8_chip4",
+      "style": "stem"
+     }
+    ],
+    "program": [
+     {
+      "op": "DRAW",
+      "target": "e7_ship",
+      "at": {
+       "word": "ship"
+      },
+      "duration_ms": 560
+     },
+     {
+      "op": "CONNECT",
+      "target": "e5_pr->e7_ship",
+      "at": {
+       "word": "ship"
+      },
+      "duration_ms": 380
+     },
+     {
+      "op": "DIM",
+      "target": "e5_pr",
+      "at": {
+       "word": "ship"
+      },
+      "from": 1.0,
+      "to": 0.3
+     },
+     {
+      "op": "DRAW",
+      "target": "e8_chip4",
+      "at": {
+       "word": "code"
+      },
+      "duration_ms": 380
+     },
+     {
+      "op": "EMIT",
+      "target": "e7_ship",
+      "at": {
+       "word": "code"
+      },
+      "duration_ms": 1000
+     }
+    ],
+    "carry": {
+     "from_beat": "b03",
+     "entities": [
+      "e5_pr"
+     ]
+    }
+   }
+  }
+ ]
+}

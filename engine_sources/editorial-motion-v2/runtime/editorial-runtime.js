@@ -4273,9 +4273,23 @@
       }
       rels.set(rel.id, r);
     }
+    // Depth layer for the flowing formats: a giant near-invisible disc sits behind
+    // the field, centred on the biggest body, drifting on a slow independent
+    // period — the set feels lit and layered instead of flat paper.
+    let ghost = null;
+    if (plan.motion && plan.motion.flow && il.entities.length) {
+      let heroE = il.entities[0], best = -1;
+      for (const e of il.entities) { const a = e.bbox.w * e.bbox.h; if (a > best) { best = a; heroE = e; } }
+      const gc = { x: heroE.bbox.x + heroE.bbox.w / 2, y: heroE.bbox.y + heroE.bbox.h / 2 };
+      const R = Math.min(W, H) * 0.46;
+      ghost = svgEl('g', {});
+      svg.insertBefore(ghost, svg.firstChild);
+      svgEl('circle', { cx: gc.x, cy: gc.y, r: R, fill: ink, 'fill-opacity': 0.045 }, ghost);
+      svgEl('circle', { cx: gc.x, cy: gc.y, r: R * 0.74, fill: 'none', stroke: ink, 'stroke-opacity': 0.05, 'stroke-width': sw }, ghost);
+    }
     const edu = il.edu ? buildEduOverlay(il.edu, plan, svg, accent) : null;
     if (edu) svg.insertBefore(svg.lastChild, relLayer);
-    return { il, svg, ents, rels, sw, accent, edu, ready: Promise.all(ready) };
+    return { il, svg, ents, rels, sw, accent, edu, ghost, ready: Promise.all(ready) };
   }
 
   // Value of a driven property at beat-local time lt.
@@ -4693,6 +4707,16 @@
   function applyIllustrationState(ill, lt, beat, ctx) {
     const paper = ctx.brand.paper, ink = ctx.brand.ink, accent = ill.accent;
     const ex = ctx.exitState({ block: { role: 'illustration' } }, lt);
+    // Orbit field: non-hero bodies circle the hero on a slow ellipse sized to stay inside the
+    // visual zone, so the ring can never cross the copy. Connectors re-tension to each body's
+    // live centre further down, so the links follow the orbit for free.
+    let heroNode = null;
+    if (ctx.motion.orbit) {
+      for (const n of ill.ents.values()) if (n.ent.size === 'hero') { heroNode = n; break; }
+      if (!heroNode) { let best = -1; for (const n of ill.ents.values()) { const a = n.bb.w * n.bb.h; if (a > best) { best = a; heroNode = n; } } }
+    }
+    const heroC = heroNode ? centre(heroNode.bb) : null;
+    if (ill.ghost) ill.ghost.setAttribute('transform', `translate(${f2(Math.sin(lt / 9200) * 26)} ${f2(Math.cos(lt / 11700) * 20)})`);
     if (ill.edu) applyEduOverlay(ill.edu, lt);
     for (const node of ill.ents.values()) {
       const ent = node.ent, g = node.g, gl = node.glyph;
@@ -4717,8 +4741,39 @@
         const tzA = beat.composition.text_zone;
         const gap = Math.max(tzA.x - (node.bb.x + node.bb.w), node.bb.x - (tzA.x + tzA.w), tzA.y - (node.bb.y + node.bb.h), node.bb.y - (tzA.y + tzA.h));
         const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
-        const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, 1.4), breathe);
+        const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, ctx.motion.idle_amp != null ? ctx.motion.idle_amp : 1.4), breathe);
         tx = amb.dx; ty += amb.dy; scale *= amb.s; ambS = amb.s;
+      }
+      // Directional entrance: a pop-entrance body also travels in from an
+      // off-position seeded by its id — arrivals read as trajectories, not a
+      // row of identical scale-ups.
+      if (pop && pEnt < 1) {
+        const k = 1 - EASE.outCubic(pEnt);
+        tx += (hash01(ent.id + ':dx') - 0.5) * node.bb.w * 2.4 * k;
+        ty += (hash01(ent.id + ':dy') - 0.5) * node.bb.h * 1.7 * k;
+      }
+      // Satellite orbit: a non-hero body travels the ellipse through its authored position,
+      // centred on the hero. The radius squeezes into the visual zone's free room; the ramp
+      // blends the body's arrival into orbital motion instead of snapping onto the ring.
+      // It is ambient motion, so like the drift above it stays out of the paperbook.
+      if (ctx.book !== 'paperbook' && heroC && node !== heroNode) {
+        const vz = beat.composition.visual_zone;
+        const ec = centre(node.bb);
+        const r0 = Math.hypot(ec.x - heroC.x, ec.y - heroC.y);
+        if (vz && r0 > 40) {
+          const hw = node.bb.w / 2, hh = node.bb.h / 2;
+          const rx = Math.min(r0, Math.max(0, Math.min(heroC.x - vz.x - hw, vz.x + vz.w - heroC.x - hw)));
+          const ry = Math.min(r0, Math.max(0, Math.min(heroC.y - vz.y - hh, vz.y + vz.h - heroC.y - hh)));
+          if (rx > 24 && ry > 24) {
+            const period = ctx.motion.orbit_period_ms || 16000;
+            const dir = hash01(ent.id) < 0.5 ? 1 : -1;
+            const a0 = Math.atan2(ec.y - heroC.y, ec.x - heroC.x);
+            const ramp = EASE.outCubic(prog(lt, node.settledAt, node.settledAt + 1200));
+            const ang = a0 + dir * ((lt - node.settledAt) / period) * Math.PI * 2;
+            tx += heroC.x + Math.cos(ang) * rx * ramp - ec.x;
+            ty += heroC.y + Math.sin(ang) * ry * ramp - ec.y;
+          }
+        }
       }
 
       // SETTLE: a small confirming pulse; SWAP: the entity pops through a scale-and-clip beat into its new state.
@@ -4831,8 +4886,11 @@
         }
       }
       const c = centre(node.bb);
+      // Entrance spin: a pop-entrance body also settles out of a short rotation —
+      // the tile arrives twisting into place instead of only scaling up.
+      const entSpin = pop && pEnt < 1 ? (1 - EASE.outCubic(pEnt)) * -14 : 0;
       const anchorY = act && act.anchor === 'bottom' ? node.bb.y + node.bb.h : act && act.anchor === 'top' ? node.bb.y : c.y;
-      const rot = (gl.extra.rotateDeg || 0) + (act && act.rot ? act.rot : 0);
+      const rot = (gl.extra.rotateDeg || 0) + entSpin + (act && act.rot ? act.rot : 0);
       const sBase = scale * (act && act.s != null ? act.s : 1);
       const sx = act && act.sx != null ? sBase * act.sx : sBase;
       const sy = act && act.sy != null ? scale * act.sy : sBase;
@@ -4930,6 +4988,23 @@
         // would make the DOM differ by path taken.
         r.trace.style.strokeDashoffset = f2(r.len * 0.18);
       }
+      // Continuous flow: once the link has drawn, its dashes stream slowly and a soft pulse
+      // re-travels it on the music's beat grid, so the connector stays alive between events.
+      if (ctx.motion.flow && con >= 0.985) {
+        if (rel.dashed) r.path.path.style.strokeDashoffset = `${f2(-(lt * (ctx.motion.flow_px_ms || 0.05)))}`;
+        if (!trace) {
+          const gv = ctx.groove;
+          const tick = (gv && gv.tick_ms) || (gv && gv.period_ms) || 2000;
+          const gtime = beat.start_ms + lt - ((gv && gv.start_offset_ms) || 0);
+          const phase = ((gtime % tick) + tick) % tick;
+          const dur = Math.min(620, tick * 0.62);
+          if (gtime >= 0 && phase < dur) {
+            const p = EASE.inOutCubic(phase / dur);
+            r.trace.style.strokeDashoffset = `${f2(r.len * 0.18 - p * r.len * 1.18)}`;
+            r.trace.setAttribute('stroke-opacity', (EASE.pulse(p) * 0.9).toFixed(4));
+          }
+        }
+      }
       const st = propAt(r, 'strike', lt);
       r.strike.set(st.v);
       r.strike.path.setAttribute('stroke', st.accent ? accent : ink);
@@ -4997,6 +5072,7 @@
       motion: { ...DEFAULT_MOTION, ...(plan.motion || {}) },
       transition: tr,
       tonalInk: (plan.typography && plan.typography.tonal_ink) || 1,
+      groove: (plan.music && plan.music.groove) || null,
       reconfigureOffset(node) {
         // Pre-reconfiguration state: blocks sit 30% closer to the text-zone centre along their dominant axis.
         const cx = tz.x + tz.w / 2, cy = tz.y + tz.h / 2;

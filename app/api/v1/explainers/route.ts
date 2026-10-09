@@ -32,6 +32,7 @@ function stylesList() {
     const doc = JSON.parse(readFileSync(path.join(ENGINE, "styles.json"), "utf8"));
     return (doc.styles ?? []).map((s: any) => ({
       id: s.id, name: s.name, tagline: s.tagline,
+      preview: s.preview ?? null, poster: s.poster ?? null,
       variants: (s.variants ?? []).map((v: any) => ({ id: `${s.id}.${v.id}`, name: `${s.name} · ${v.name}`, tagline: v.tagline })),
     }));
   } catch { return []; }

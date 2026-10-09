@@ -44,7 +44,7 @@ ENTITY_SIZES = ('hero', 'support', 'minor')
 RELATION_TYPES = ('flows_to', 'connects', 'points_at', 'blocks', 'contains', 'compares', 'transforms_into', 'emits_to', 'scans', 'marks')
 # Connector dress: default (hand-stroke + arrowhead) vs the product-diagram look — a hairline with
 # dot endpoints, optionally dashed straight ('dash') or bowed ('arc').
-RELATION_STYLES = ('link', 'dash', 'arc')
+RELATION_STYLES = ('link', 'dash', 'arc', 'stem')
 OPS = ('FILL', 'DRAW', 'CONNECT', 'EMIT', 'TRAVEL', 'GROW', 'SWAP', 'STRIKE', 'COUNT', 'INK', 'DIM', 'TRACE', 'SETTLE')
 OP_DEFAULT_MS = {'FILL': 900, 'DRAW': 520, 'CONNECT': 480, 'EMIT': 1100, 'TRAVEL': 700, 'GROW': 460, 'SWAP': 420, 'STRIKE': 380,
                  'COUNT': 620, 'INK': 320, 'DIM': 320, 'TRACE': 900, 'SETTLE': 360}
@@ -89,9 +89,11 @@ PAGE_CUTS = ('left', 'right', 'top', 'bottom')
 PAGE_MATERIALS = ('vellum', 'foil', 'ribbon', 'deckle', 'sticker')
 HEX_COLOUR_RE = re.compile(r'^#[0-9a-fA-F]{3,8}$')
 FIGURE_FACINGS = ('TOWARD_TEXT', 'TOWARD_EVIDENCE', 'CAMERA', 'AWAY')
-FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE')
+FINISHES = ('EDITORIAL_FLAT', 'PAPER', 'PRODUCT_COLLAGE', 'CENTER_DECK', 'FLOAT_FIELD')
 # Film-level musical intent; the compiler binds a mood-matched CC0 bed of covering duration.
 FILM_MOODS = ('bright', 'calm', 'dreamy', 'driving', 'elegant', 'focused', 'jazzy', 'playful', 'quirky', 'tense', 'uplifting', 'warm', 'wistful')
+# Film-level sonic identity; the compiler overlays accent families per style so a film sounds like it looks.
+SFX_PROFILES = ('clean', 'playful', 'paper', 'bold', 'glassy', 'soft')
 # Motion profile per finish: how elements enter, how far the camera drifts per beat, how cuts dissolve.
 #   spring        damping preset every arrival is solved with ('snap' overshoots, 'settle' barely, 'float' never)
 #   breathe       idle scale amplitude of a held element (fraction), phase-offset per element
@@ -105,6 +107,16 @@ MOTION_PROFILES = {
               'spring': 'settle', 'breathe': 0.005, 'label_lag_ms': 40, 'motion_blur': 0.6, 'media_tilt': 0.0},
     'PRODUCT_COLLAGE': {'entrance': 'pop', 'stagger_ms': 80, 'camera_push': 0.03, 'camera_pan_frac': 0.008, 'transition': 'scale_through', 'blur_px': 10, 'word_landing': 'rise',
                         'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0, 'media_tilt': 1.0},
+    # Float shares the collage motion signature — the difference is composition:
+    # orbit fields, never the same zone twice, plus dashed-arc connectors.
+    'FLOAT_FIELD': {'entrance': 'pop', 'stagger_ms': 85, 'camera_push': 0.026, 'camera_pan_frac': 0.009, 'transition': 'scale_through', 'blur_px': 9, 'word_landing': 'rise',
+                    'spring': 'snap', 'breathe': 0.012, 'label_lag_ms': 60, 'motion_blur': 1.0, 'media_tilt': 1.0,
+                    'idle_amp': 14, 'orbit': False, 'orbit_period_ms': 18000, 'flow': True, 'flow_px_ms': 0.05},
+    # One centered poster-card: the same skeleton at every aspect, so camera
+    # movement stays gentle — the card is the whole stage.
+    'CENTER_DECK': {'entrance': 'pop', 'stagger_ms': 85, 'camera_push': 0.018, 'camera_pan_frac': 0.005, 'transition': 'scale_through', 'blur_px': 8, 'word_landing': 'rise',
+                    'spring': 'snap', 'breathe': 0.008, 'label_lag_ms': 50, 'motion_blur': 0.8, 'media_tilt': 0.4,
+                    'idle_amp': 7, 'flow': True, 'flow_px_ms': 0.04},
 }
 # How the film's camera carries one beat into the next; the compiler picks from beat energy,
 # a hard cut only when the treatment asks for one (beat.cut = 'hard').
@@ -783,6 +795,7 @@ class FilmTreatment:
     mood: Optional[str] = None
     cast: Dict[str, CastMember] = field(default_factory=dict)
     world: Optional[World] = None
+    sfx: Optional[str] = None
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -860,12 +873,15 @@ class FilmTreatment:
         mood = (str(d.get('mood') or '').strip().lower() or None)
         if mood is not None:
             _need(mood in FILM_MOODS, 'FILM_MOOD_UNKNOWN', mood)
+        sfx = (str(d.get('sfx') or '').strip().lower() or None)
+        if sfx is not None:
+            _need(sfx in SFX_PROFILES, 'SFX_PROFILE_UNKNOWN', sfx)
         spoken = [b for b in beats if b.dominant_layer != 'QUIET']
         if spoken:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, cast, world)
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, cast, world, sfx)
 
 
 def edu_validate(edu: Dict[str, Any]) -> List[str]:

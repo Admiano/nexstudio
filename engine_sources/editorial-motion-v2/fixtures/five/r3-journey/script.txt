@@ -1,0 +1,1 @@
+Devin takes a ticket. It becomes a branch. Then a pull request. Then shipped code.
