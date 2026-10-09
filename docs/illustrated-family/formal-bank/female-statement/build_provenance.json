@@ -1,0 +1,39 @@
+{
+  "variant": "female-statement",
+  "gender": "female",
+  "donor": "toigo_female_suit_2",
+  "upstreamArchiveSha256": {
+    "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+    "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+  },
+  "originalSceneSha256": "203c2dba778207f45693ab04c4882be194794a21d2f21b58a1bf8e9c0c6148cb",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+  "files": [
+    {
+      "name": "female-statement-front.png",
+      "bytes": 190507,
+      "sha256": "40f55cd426cec15a86a867ae9cb6d82851852b92a61c77b9d97e13f59043d596"
+    },
+    {
+      "name": "female-statement-front.blend",
+      "bytes": 20982921,
+      "sha256": "60dc9f79dcb2617106231cb91ec0e4a5310f06ddf4155330e72fbb354a1e1c5f"
+    },
+    {
+      "name": "female-statement-threeq.png",
+      "bytes": 192719,
+      "sha256": "1271d1233a9091630891e2a1b9572f177cdf5473874913d8bd1e23d8e4c82f98"
+    },
+    {
+      "name": "female-statement-pose-338.png",
+      "bytes": 191384,
+      "sha256": "4cbac250f7788375692fd99064b6e8a29c4e9d9952f6d0135f19213ec268c315"
+    },
+    {
+      "name": "female-statement-pose-891.png",
+      "bytes": 190051,
+      "sha256": "3e24d0e91787da8abce29ea787ce8817dd06aa96e525316fe7bc50adbb907fbb"
+    }
+  ]
+}

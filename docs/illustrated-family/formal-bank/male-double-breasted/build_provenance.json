@@ -1,0 +1,39 @@
+{
+  "variant": "male-double-breasted",
+  "gender": "male",
+  "donor": "toigo_male_double-breasted_suit",
+  "upstreamArchiveSha256": {
+    "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+    "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+  },
+  "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+  "files": [
+    {
+      "name": "male-double-breasted-front.png",
+      "bytes": 190892,
+      "sha256": "4fdab38e792e641a6744f3a092fb173c8b6199a8cea29f104f195a1e0e031a8b"
+    },
+    {
+      "name": "male-double-breasted-front.blend",
+      "bytes": 20147800,
+      "sha256": "323e1e2524afc0a2386a6ffd478cb3e41c6083af2970aa3041803d512bd45512"
+    },
+    {
+      "name": "male-double-breasted-threeq.png",
+      "bytes": 190804,
+      "sha256": "de3398fb2155adb3d4a42b5bd72a9176a9ac62e7ff3f46c751a51e9e25c082c1"
+    },
+    {
+      "name": "male-double-breasted-pose-338.png",
+      "bytes": 193565,
+      "sha256": "7a6042d8ba8f020bd08452cbab101e97848cb8e313b3d64279ab1d9cadba667a"
+    },
+    {
+      "name": "male-double-breasted-pose-891.png",
+      "bytes": 191692,
+      "sha256": "3d06812e7cecc8991b1aea30b82b03e9156c2ca1a2f5b1f883c7d07f338bdc5e"
+    }
+  ]
+}

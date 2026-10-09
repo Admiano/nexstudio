@@ -1,0 +1,39 @@
+{
+  "variant": "male-jacket-tie",
+  "gender": "male",
+  "donor": "toigo_male_suit_tie_and_jacket",
+  "upstreamArchiveSha256": {
+    "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+    "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+  },
+  "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+  "files": [
+    {
+      "name": "male-jacket-tie-front.png",
+      "bytes": 178814,
+      "sha256": "a53bc28eca0026ea87413d7fc161e6a35fc0e46fc9df84e39434e8cc4b9c7b67"
+    },
+    {
+      "name": "male-jacket-tie-front.blend",
+      "bytes": 18080255,
+      "sha256": "f1bd19aca27aee2e45d46f0360bc8de467bc149994c3949512cb49c072e7b5e4"
+    },
+    {
+      "name": "male-jacket-tie-threeq.png",
+      "bytes": 179500,
+      "sha256": "831724d04899ad6cbe942aa2611b6ec2d1aaa7e496d98098db050f7295cfcb13"
+    },
+    {
+      "name": "male-jacket-tie-pose-338.png",
+      "bytes": 180499,
+      "sha256": "59aa87781bb4b8efe12fe4b84012f0d1a35fee318d540b9653e9b55515773739"
+    },
+    {
+      "name": "male-jacket-tie-pose-891.png",
+      "bytes": 179726,
+      "sha256": "0ca939ab3235b3e6092da6a938518c59cb9118cda362399c250c923ce34ea6ca"
+    }
+  ]
+}

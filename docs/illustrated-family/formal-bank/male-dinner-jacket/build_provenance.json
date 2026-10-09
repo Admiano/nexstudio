@@ -1,0 +1,39 @@
+{
+  "variant": "male-dinner-jacket",
+  "gender": "male",
+  "donor": "toigo_suit_with_dinner_jacket",
+  "upstreamArchiveSha256": {
+    "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+    "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+  },
+  "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+  "files": [
+    {
+      "name": "male-dinner-jacket-front.png",
+      "bytes": 193864,
+      "sha256": "f293cac43ad1f046b1e8a3c1a4d0a36321af0118ea35f6b6a09fde9644c2be0c"
+    },
+    {
+      "name": "male-dinner-jacket-front.blend",
+      "bytes": 22451352,
+      "sha256": "d2b55f5acc45ce488a72ba844b6aeec3439d2feafe04b84ac2f26f4aced46e6b"
+    },
+    {
+      "name": "male-dinner-jacket-threeq.png",
+      "bytes": 195105,
+      "sha256": "81fb349e0634c328a1084c69c3c9f6ba0412fefbcd8582737d7d68c41956ff60"
+    },
+    {
+      "name": "male-dinner-jacket-pose-338.png",
+      "bytes": 198206,
+      "sha256": "27ae549299a90b63533b2f948f7d65c4be58c80ff8e8d6faafe093b8e4325e10"
+    },
+    {
+      "name": "male-dinner-jacket-pose-891.png",
+      "bytes": 196798,
+      "sha256": "8f66e30d681163c414b2edfe349ee3b87006bf98a4c36c8088d288e4f2e13921"
+    }
+  ]
+}
