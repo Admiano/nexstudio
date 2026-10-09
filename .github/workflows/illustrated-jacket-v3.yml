@@ -57,7 +57,19 @@ jobs:
           git add --sparse docs/illustrated-family/jacket-v3/
           git diff --cached --quiet && exit 0
           git commit -m 'proof(character): unapproved real Blender jacket-v3 garment comparisons'
-          git push origin HEAD:work/illustrated-family-expansion-v1
+          # A separate proof job may commit while Blender is rendering.
+          # Rebase the isolated proof commit against the latest working branch.
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then
+              echo "PREVIEW_PUBLICATION_OK"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "PREVIEW_PUBLICATION_FAILED" >&2
+          exit 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
