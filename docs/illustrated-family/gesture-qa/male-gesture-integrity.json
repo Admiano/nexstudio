@@ -1,0 +1,185 @@
+{
+  "gender": "male",
+  "blender": "5.2.0 LTS",
+  "originalRig": "Host.rig",
+  "boneCount": 163,
+  "shapeKeyCount": 34,
+  "suit": "NEX_V1_CC0_FORMAL_SUIT_MALE",
+  "frames": [
+    {
+      "frame": 27,
+      "render": "frame_0027.png",
+      "bytes": 161700,
+      "wristWorld": {
+        "wrist.L": [
+          -0.25089,
+          -0.25902,
+          1.02865
+        ],
+        "wrist.R": [
+          -0.5433,
+          -0.27731,
+          1.0213
+        ]
+      }
+    },
+    {
+      "frame": 100,
+      "render": "frame_0100.png",
+      "bytes": 165260,
+      "wristWorld": {
+        "wrist.L": [
+          -0.17778,
+          -0.13974,
+          0.91555
+        ],
+        "wrist.R": [
+          -0.69841,
+          -0.10962,
+          0.91218
+        ]
+      }
+    },
+    {
+      "frame": 220,
+      "render": "frame_0220.png",
+      "bytes": 163989,
+      "wristWorld": {
+        "wrist.L": [
+          -0.18946,
+          -0.16289,
+          0.92015
+        ],
+        "wrist.R": [
+          -0.65357,
+          -0.17935,
+          0.92418
+        ]
+      }
+    },
+    {
+      "frame": 338,
+      "render": "frame_0338.png",
+      "bytes": 163374,
+      "wristWorld": {
+        "wrist.L": [
+          -0.17513,
+          -0.11995,
+          0.90653
+        ],
+        "wrist.R": [
+          -0.57717,
+          -0.20452,
+          0.95141
+        ]
+      }
+    },
+    {
+      "frame": 450,
+      "render": "frame_0450.png",
+      "bytes": 165407,
+      "wristWorld": {
+        "wrist.L": [
+          -0.16413,
+          -0.1378,
+          0.9177
+        ],
+        "wrist.R": [
+          -0.69116,
+          -0.11325,
+          0.91301
+        ]
+      }
+    },
+    {
+      "frame": 560,
+      "render": "frame_0560.png",
+      "bytes": 163132,
+      "wristWorld": {
+        "wrist.L": [
+          -0.17613,
+          -0.10315,
+          0.8975
+        ],
+        "wrist.R": [
+          -0.63623,
+          -0.39278,
+          1.31935
+        ]
+      }
+    },
+    {
+      "frame": 700,
+      "render": "frame_0700.png",
+      "bytes": 165195,
+      "wristWorld": {
+        "wrist.L": [
+          -0.18608,
+          -0.12053,
+          0.90727
+        ],
+        "wrist.R": [
+          -0.68772,
+          -0.1094,
+          0.90802
+        ]
+      }
+    },
+    {
+      "frame": 815,
+      "render": "frame_0815.png",
+      "bytes": 165254,
+      "wristWorld": {
+        "wrist.L": [
+          -0.17421,
+          -0.1249,
+          0.91057
+        ],
+        "wrist.R": [
+          -0.69178,
+          -0.11393,
+          0.91176
+        ]
+      }
+    },
+    {
+      "frame": 891,
+      "render": "frame_0891.png",
+      "bytes": 162695,
+      "wristWorld": {
+        "wrist.L": [
+          -0.17388,
+          -0.12577,
+          0.90653
+        ],
+        "wrist.R": [
+          -0.67842,
+          -0.47654,
+          1.2533
+        ]
+      }
+    },
+    {
+      "frame": 980,
+      "render": "frame_0980.png",
+      "bytes": 163312,
+      "wristWorld": {
+        "wrist.L": [
+          -0.17689,
+          -0.12292,
+          0.90803
+        ],
+        "wrist.R": [
+          -0.68408,
+          -0.47414,
+          1.26425
+        ]
+      }
+    }
+  ],
+  "wristMotionSpanMetres": {
+    "wrist.L": 0.21698,
+    "wrist.R": 0.50985
+  },
+  "result": "PASS_ORIGINAL_RIG_DYNAMIC_ACTION_POSE_SWEEP_NOT_FULL_COLLISION_CERTIFICATION"
+}
