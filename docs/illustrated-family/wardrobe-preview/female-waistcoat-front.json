@@ -1,0 +1,16 @@
+{
+  "gender": "female",
+  "object": "V1_WARDROBE_TRIAL_FEMALE_WAISTCOAT",
+  "source": "Host.mindfront_f_dress_11",
+  "new_faces": 397,
+  "rig": "Host.rig",
+  "armature_modifiers": 1,
+  "source_visible": true,
+  "base_garment_preserved": true,
+  "qa_status": "VISUAL_AND_PERFORMANCE_REVIEW_REQUIRED",
+  "license_note": "Source-derived MakeHuman garment. Retain asset CC-BY attribution.",
+  "scene_path": "/home/runner/work/nexstudio/nexstudio/proofs/wardrobe/female-waistcoat-front.blend",
+  "blender": "5.2.0 LTS",
+  "source_scene": "/home/runner/work/nexstudio/nexstudio/engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_FEMALE.decoded.blend",
+  "render_image": "/home/runner/work/nexstudio/nexstudio/proofs/wardrobe/female-waistcoat-front.png"
+}
