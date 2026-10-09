@@ -1,0 +1,70 @@
+name: V1 illustrated wardrobe geometry experiments
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-family-wardrobe.yml']
+permissions:
+  contents: write
+jobs:
+  actual-blender-wardrobe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+          persist-credentials: true
+      - name: Install verified Blender runtime and headless libraries
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6 zstd
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Run real garment experiment on a read-only source copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/wardrobe
+          for gender in FEMALE MALE; do
+            src="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.blend"
+            decoded="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.decoded.blend"
+            zstd -q -d -c "$src" > "$decoded"
+            test "$(head -c 7 "$decoded")" = BLENDER
+            lower=$(printf '%s' "$gender" | tr '[:upper:]' '[:lower:]')
+            "$BLENDER_BIN" -b "$decoded" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/wardrobe_hook.py \
+              --python scripts/illustrated-family-preview/quick_preview.py \
+              --python experiments/illustrated-family/wardrobe_threeq.py \
+              -- "$lower" "proofs/wardrobe/$lower-waistcoat-front.png"
+            test -s "proofs/wardrobe/$lower-waistcoat-front.png"
+            test -s "proofs/wardrobe/$lower-waistcoat-threeq.png"
+            test -s "proofs/wardrobe/$lower-waistcoat-front.blend"
+          done
+      - name: Commit experimental still previews for accessible visual review
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/wardrobe-preview
+          cp proofs/wardrobe/*.png docs/illustrated-family/wardrobe-preview/
+          cp proofs/wardrobe/*.json docs/illustrated-family/wardrobe-preview/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/wardrobe-preview/
+          git diff --cached --quiet && exit 0
+          git commit -m "proof(character): unapproved skinned wardrobe geometry side-by-side stills"
+          git push origin HEAD:work/illustrated-family-expansion-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-wardrobe-experimental-actual-blender
+          path: proofs/wardrobe
+          retention-days: 14
+          if-no-files-found: warn
