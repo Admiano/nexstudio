@@ -1,0 +1,323 @@
+{
+  "gender": "female",
+  "donor": "toigo_female_suit_2",
+  "sourceScene": "/home/runner/work/nexstudio/nexstudio/input/female-statement/female-statement-front.blend",
+  "rigName": "Host.rig",
+  "boneCount": 163,
+  "shapeKeyCount": 34,
+  "blender": "5.2.0 LTS",
+  "frames": [
+    {
+      "frame": 27,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.66148,
+        -0.2715,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.18397,
+        0.12361,
+        1.4587
+      ],
+      "worldExtents": [
+        0.4775,
+        0.39512,
+        1.41793
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.26821,
+          -0.22372,
+          0.9752
+        ],
+        "wrist.R": [
+          -0.53458,
+          -0.2452,
+          0.97012
+        ]
+      }
+    },
+    {
+      "frame": 100,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.69249,
+        -0.19897,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.17327,
+        0.12366,
+        1.45862
+      ],
+      "worldExtents": [
+        0.51922,
+        0.32264,
+        1.41785
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.20563,
+          -0.12415,
+          0.87953
+        ],
+        "wrist.R": [
+          -0.66254,
+          -0.09867,
+          0.87665
+        ]
+      }
+    },
+    {
+      "frame": 220,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.65779,
+        -0.20727,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.17305,
+        0.12381,
+        1.45859
+      ],
+      "worldExtents": [
+        0.48474,
+        0.33108,
+        1.41782
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.21552,
+          -0.1446,
+          0.88379
+        ],
+        "wrist.R": [
+          -0.62577,
+          -0.15941,
+          0.88658
+        ]
+      }
+    },
+    {
+      "frame": 338,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.65138,
+        -0.22196,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.17191,
+        0.12368,
+        1.45933
+      ],
+      "worldExtents": [
+        0.47947,
+        0.34564,
+        1.41855
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.20469,
+          -0.10703,
+          0.87185
+        ],
+        "wrist.R": [
+          -0.56219,
+          -0.17947,
+          0.90992
+        ]
+      }
+    },
+    {
+      "frame": 450,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.68538,
+        -0.199,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.16171,
+        0.12354,
+        1.45886
+      ],
+      "worldExtents": [
+        0.52367,
+        0.32253,
+        1.41808
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.19304,
+          -0.12183,
+          0.88159
+        ],
+        "wrist.R": [
+          -0.65543,
+          -0.10148,
+          0.87722
+        ]
+      }
+    },
+    {
+      "frame": 560,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.65016,
+        -0.37102,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.1698,
+        0.12355,
+        1.45802
+      ],
+      "worldExtents": [
+        0.48036,
+        0.49457,
+        1.41725
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.20339,
+          -0.09141,
+          0.86646
+        ],
+        "wrist.R": [
+          -0.60967,
+          -0.34763,
+          1.22592
+        ]
+      }
+    },
+    {
+      "frame": 700,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.68275,
+        -0.199,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.17814,
+        0.12353,
+        1.45896
+      ],
+      "worldExtents": [
+        0.50461,
+        0.32253,
+        1.41819
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.21234,
+          -0.10697,
+          0.87264
+        ],
+        "wrist.R": [
+          -0.65258,
+          -0.09789,
+          0.87311
+        ]
+      }
+    },
+    {
+      "frame": 815,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.68609,
+        -0.199,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.16908,
+        0.12351,
+        1.4586
+      ],
+      "worldExtents": [
+        0.51701,
+        0.32251,
+        1.41783
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.20177,
+          -0.11079,
+          0.87548
+        ],
+        "wrist.R": [
+          -0.656,
+          -0.1019,
+          0.87621
+        ]
+      }
+    },
+    {
+      "frame": 891,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.68753,
+        -0.44101,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.17052,
+        0.12353,
+        1.45869
+      ],
+      "worldExtents": [
+        0.51701,
+        0.56454,
+        1.41792
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.20314,
+          -0.11152,
+          0.87161
+        ],
+        "wrist.R": [
+          -0.64514,
+          -0.42561,
+          1.17321
+        ]
+      }
+    },
+    {
+      "frame": 980,
+      "evaluatedVertices": 33226,
+      "worldBoundsMin": [
+        -0.69008,
+        -0.43919,
+        0.04077
+      ],
+      "worldBoundsMax": [
+        -0.17316,
+        0.12353,
+        1.45879
+      ],
+      "worldExtents": [
+        0.51691,
+        0.56271,
+        1.41801
+      ],
+      "wristWorld": {
+        "wrist.L": [
+          -0.20601,
+          -0.1092,
+          0.87268
+        ],
+        "wrist.R": [
+          -0.65014,
+          -0.42362,
+          1.18247
+        ]
+      }
+    }
+  ],
+  "maxDisplacementFromBaseMetres": 0.30047,
+  "status": "PASS_RIG_DYNAMIC_GEOMETRY_FINITE_NOT_COLLISION_CERTIFICATION"
+}
