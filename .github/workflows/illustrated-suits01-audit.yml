@@ -1,0 +1,47 @@
+name: V1 CC0 formal suit asset pack inspection
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-suits01-audit.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Fetch exact official MakeHuman CC0 suits archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-delay 3 \
+            -o /tmp/suits01_cc0.zip \
+            https://files2.makehumancommunity.org/asset_packs/suits01/suits01_cc0.zip
+          file /tmp/suits01_cc0.zip
+          unzip -tq /tmp/suits01_cc0.zip
+          sha256sum /tmp/suits01_cc0.zip | tee suits01_sha256.txt
+          unzip -l /tmp/suits01_cc0.zip | tee suits01_archive_listing.txt
+      - name: Inspect donor garment names and each embedded license
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p donor/suits01
+          unzip -oq /tmp/suits01_cc0.zip -d donor/suits01
+          find donor/suits01 -type f -name '*.mhclo' | sort > suit_mhclo_paths.txt
+          cat suit_mhclo_paths.txt
+          test "$(wc -l < suit_mhclo_paths.txt)" -ge 6
+          while IFS= read -r path; do
+            echo "---- $path ----"
+            head -n 24 "$path" | grep -iE 'author|license|cc0|name|obj_file' || true
+          done < suit_mhclo_paths.txt | tee suits01_license_headers.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: suits01-cc0-original-donor-metadata
+          path: |
+            suits01_sha256.txt
+            suits01_archive_listing.txt
+            suit_mhclo_paths.txt
+            suits01_license_headers.txt
+          retention-days: 14
+          if-no-files-found: warn
