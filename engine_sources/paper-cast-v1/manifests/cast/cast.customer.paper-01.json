@@ -1,0 +1,157 @@
+{
+  "id": "cast.customer.paper-01",
+  "name": "Customer",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "customer",
+  "slug": "customer",
+  "renderer": "paper-cast-figure",
+  "role": "customer",
+  "ageBand": "adult",
+  "proportion": "adult-average",
+  "formality": "casual",
+  "intents": [
+    "evaluate_option",
+    "buy",
+    "ask_question",
+    "react"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "customer",
+    "shopper",
+    "buyer",
+    "client",
+    "checkout",
+    "store"
+  ],
+  "useCases": [
+    "commerce",
+    "explainer",
+    "business"
+  ],
+  "personalities": [
+    "curious",
+    "cheerful",
+    "reserved"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "poses": [
+    "think-considering",
+    "listen-attentive",
+    "walk-stride",
+    "celebrate-lift",
+    "idle-stance"
+  ],
+  "defaultPose": "think-considering",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#c1895f",
+    "hair": {
+      "color": "#2f2a26",
+      "length": 0.36
+    },
+    "top": {
+      "color": "#5c6f3f",
+      "sleeve": 0.42
+    },
+    "bottom": {
+      "color": "#454a55"
+    },
+    "shoes": {
+      "color": "#d8d2c8"
+    },
+    "accent": "#c96f4a"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.customer",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Customer paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "evaluate_option",
+      "buy",
+      "ask_question",
+      "react"
+    ],
+    "storyRole": "customer",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}

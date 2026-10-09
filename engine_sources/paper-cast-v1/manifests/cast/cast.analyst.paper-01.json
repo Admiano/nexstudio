@@ -1,0 +1,157 @@
+{
+  "id": "cast.analyst.paper-01",
+  "name": "Analyst",
+  "version": "1.0.0",
+  "category": "cast-character",
+  "subtype": "analyst",
+  "slug": "analyst",
+  "renderer": "paper-cast-figure",
+  "role": "analyst",
+  "ageBand": "adult",
+  "proportion": "adult-average",
+  "formality": "business-casual",
+  "intents": [
+    "show_data",
+    "compare_options",
+    "report_status",
+    "investigate"
+  ],
+  "keywords": [
+    "character",
+    "cast",
+    "paper",
+    "analyst",
+    "data",
+    "report",
+    "chart",
+    "metrics",
+    "research"
+  ],
+  "useCases": [
+    "business",
+    "agent",
+    "documentary"
+  ],
+  "personalities": [
+    "serious",
+    "calm",
+    "curious"
+  ],
+  "paperStyles": [
+    "clean-editorial",
+    "handmade-scrapbook",
+    "technical-notebook",
+    "bold-paper-collage"
+  ],
+  "aspectRatios": [
+    "16:9",
+    "1:1",
+    "9:16"
+  ],
+  "viewAxes": [
+    "front",
+    "three-quarter-left",
+    "three-quarter-right",
+    "profile-left",
+    "profile-right",
+    "back-left",
+    "back-right",
+    "back"
+  ],
+  "defaultViewAxis": "three-quarter-right",
+  "motionEnergy": [
+    "medium",
+    "high",
+    "low"
+  ],
+  "poses": [
+    "point-at-detail",
+    "present-to-content",
+    "work-at-surface",
+    "think-considering",
+    "idle-stance"
+  ],
+  "defaultPose": "point-at-detail",
+  "duration": {
+    "minimum": 2,
+    "recommended": 6,
+    "maximum": 14
+  },
+  "look": {
+    "skin": "#6f4630",
+    "hair": {
+      "color": "#2f2a26",
+      "length": 0.34
+    },
+    "top": {
+      "color": "#46536b",
+      "sleeve": 0.82
+    },
+    "bottom": {
+      "color": "#2f3540"
+    },
+    "shoes": {
+      "color": "#262320"
+    },
+    "accent": "#5fa8d3"
+  },
+  "slots": {
+    "name": {
+      "type": "string",
+      "maxCharacters": 32
+    },
+    "line": {
+      "type": "string",
+      "maxCharacters": 120
+    },
+    "prop": {
+      "type": "string",
+      "maximumItems": 1,
+      "replaceable": true
+    }
+  },
+  "compatibleMotions": [
+    "cast-settle",
+    "cast-gesture",
+    "cast-turn",
+    "cast-walk"
+  ],
+  "compatibleTransitions": [
+    "page-turn",
+    "paper-wipe",
+    "torn-paper-reveal",
+    "collage-push"
+  ],
+  "soundTags": [
+    "cast.analyst",
+    "paper.character.settle",
+    "paper.cutout.move"
+  ],
+  "themeTokens": [
+    "--paper-bg",
+    "--paper-surface",
+    "--ink",
+    "--ink-muted",
+    "--primary",
+    "--secondary",
+    "--accent",
+    "--shadow-color",
+    "--shadow-opacity",
+    "--grain-opacity",
+    "--outline-width"
+  ],
+  "accessibilityLabel": "Analyst paper cut-out character, orientation and pose resolved from script context",
+  "agentSelection": {
+    "useWhen": [
+      "show_data",
+      "compare_options",
+      "report_status",
+      "investigate"
+    ],
+    "storyRole": "analyst",
+    "avoidWhen": [
+      "no_character_in_script",
+      "view_axis_unsupported"
+    ]
+  }
+}
