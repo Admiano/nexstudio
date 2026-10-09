@@ -1,0 +1,99 @@
+name: V1 genuine CC0 alternate hairstyles on original character rigs
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-alternate-hair-real-proofs.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  real-hairstyles:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+            engine_sources/makehuman-lineart/scripts
+      - name: Certified Blender, original formal character proof and CC0 hairstyle geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+          mkdir -p original/cc0-bank
+          gh run download 38004823946 --repo Admiano/nexstudio \
+             --name NEX_V1_LEAN_SIX_EDITABLE_FORMAL_SCENES --dir original/cc0-bank
+          curl -fL --retry 5 --retry-delay 2 -o /tmp/hair01_cc0.zip https://files2.makehumancommunity.org/asset_packs/hair01/hair01_cc0.zip
+          echo '49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9  /tmp/hair01_cc0.zip' | sha256sum -c -
+          mkdir -p donors/hair01
+          unzip -oq /tmp/hair01_cc0.zip \
+            'hair/toigo_blunt_bob_with_bangs/*' \
+            'hair/cortu_short_messy_hair/*' \
+            -d donors/hair01
+          test -s donors/hair01/hair/toigo_blunt_bob_with_bangs/toigo_blunt_bob_with_bangs.mhclo
+          test -s donors/hair01/hair/cortu_short_messy_hair/cortu_short_messy_hair.mhclo
+      - name: Render front, 3/4, close head shots and original presenter gestures
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/hair
+          for selected in female:toigo_blunt_bob_with_bangs:female-double-breasted male:cortu_short_messy_hair:male-jacket-tie; do
+            gender="${selected%%:*}"
+            remainder="${selected#*:}"
+            donor="${remainder%%:*}"
+            variant="${remainder#*:}"
+            input="original/cc0-bank/$variant/$variant-front.blend"
+            asset="donors/hair01/hair/$donor/$donor.mhclo"
+            test -s "$input"
+            test -s "$asset"
+            out="proofs/hair/$gender-hair-front.png"
+            "$BLENDER_BIN" -b "$input" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/hair_cc0_rig_trial.py \
+              --python scripts/illustrated-family-preview/quick_preview.py \
+              --python experiments/illustrated-family/wardrobe_threeq.py \
+              --python experiments/illustrated-family/hair_headshot.py \
+              --python experiments/illustrated-family/donor_suit_pose_qa.py \
+              -- "$gender" "$out" "$asset"
+            for suffix in front threeq front-head-front front-head-threeq pose-338 pose-891; do
+              test -s "proofs/hair/$gender-hair-$suffix.png"
+            done
+            test -s "proofs/hair/$gender-hair-front.blend"
+            echo "ORIGINAL_RIG_CC0_HAIR_TRIAL_RENDERED:$gender:$donor"
+          done
+      - name: Publish only real neutral and gesture stills, never production presets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/hair-trial-previews
+          cp proofs/hair/*.png docs/illustrated-family/hair-trial-previews/
+          cp proofs/hair/*.json docs/illustrated-family/hair-trial-previews/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/hair-trial-previews/
+          git commit -m "proof(character): non-destructive licensed CC0 hair swaps on original V1 formal hosts"
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-real-cc0-bob-and-short-messy-hair-scene-proofs
+          path: proofs/hair
+          retention-days: 14
+          if-no-files-found: warn
