@@ -60,6 +60,7 @@ def narrow(rig,values,frames,knee_gap,foot_gap=None,seat_height=None,seat_offset
     prev={};changed=0;bones=rig.data.bones
     floor=min(bones['foot.L'].head_local.z,bones['foot.R'].head_local.z)
     root=chans.get(('root','location'));up_local=bones['root'].matrix_local.to_3x3().inverted()@Vector((0,0,1))
+    anchor_xy=None  # seat keeps the pelvis over the same spot for the whole take
     try:
         for k,_ in enumerate(frames):
             for (b,prop),ch in chans.items():
@@ -71,11 +72,17 @@ def narrow(rig,values,frames,knee_gap,foot_gap=None,seat_height=None,seat_offset
             w=_seatedness(pb)
             _swing(pb,'upperleg01','lowerleg01',knee_gap,hw,w);_swing(pb,'lowerleg01','foot',foot_gap,hw,w)
             changed+=(pb['lowerleg01.L'].head-pb['lowerleg01.R'].head).length<before-1e-4
-            if seat_height is not None and root and w>0:
-                # pelvis onto the seat, feet kept where they are, lowest foot on the floor
+            if seat_height is not None and root:
+                # pelvis onto the seat, feet kept where they are, lowest foot on the floor.
+                # Root x/y is pinned to the first frame: clips that slide or lift the
+                # hips would otherwise walk the seated body off the chair. The pin is
+                # unconditional because a seat block means the take is seated throughout.
+                cur=(rig.matrix_world@pb['root'].head)
+                if anchor_xy is None:anchor_xy=cur.xy.copy()
+                inv=rig.matrix_world.inverted().to_3x3()
                 feet={sd:pb[f'foot.{sd}'].head.copy() for sd in 'LR'};drop=min(f.z for f in feet.values())-floor
-                inv=rig.matrix_world.inverted().to_3x3();cur=(rig.matrix_world@pb['root'].head).z
-                da=inv@Vector((0,0,(seat_height+seat_offset-cur)*w));d=bones['root'].matrix_local.to_3x3().inverted()@da
+                da=inv@Vector((anchor_xy.x-cur.x,anchor_xy.y-cur.y,seat_height+seat_offset-cur.z))
+                d=bones['root'].matrix_local.to_3x3().inverted()@da
                 for i in range(3):
                     if i in root:root[i][k]+=d[i]
                 pb['root'].location+=d;bpy.context.view_layer.update()
