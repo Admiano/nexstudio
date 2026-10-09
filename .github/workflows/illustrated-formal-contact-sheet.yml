@@ -1,0 +1,69 @@
+name: V1 illustrated formal clothing comparison sheet
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-formal-contact-sheet.yml']
+permissions:
+  contents: write
+jobs:
+  compose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            docs/illustrated-family/cc0-suit-uv-proofs
+            docs/illustrated-family/cc0-suit-shoe-proofs
+            docs/illustrated-family/cc0-suit-options
+      - name: Arrange only original rendered Blender PNGs on neutral ground
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet Pillow
+          mkdir -p docs/illustrated-family/qa
+          python - <<'PY'
+          from PIL import Image, ImageDraw, ImageFont
+          from pathlib import Path
+          root=Path("docs/illustrated-family")
+          examples=[
+           ("FEMALE / Before real shoes",root/"cc0-suit-uv-proofs/female-suit-front.png"),
+           ("FEMALE / Corrected CC0 flats",root/"cc0-suit-shoe-proofs/female-suit-front.png"),
+           ("FEMALE / Three-quarter",root/"cc0-suit-shoe-proofs/female-suit-threeq.png"),
+           ("MALE / Authentic textured suit",root/"cc0-suit-uv-proofs/male-suit-front.png"),
+           ("MALE / Three-quarter",root/"cc0-suit-uv-proofs/male-suit-threeq.png"),
+           ("MALE / Original present gesture",root/"cc0-suit-uv-proofs/male-suit-pose-891.png")
+          ]
+          W,H=450,738
+          sheet=Image.new("RGB",(3*W,2*H),(250,249,247))
+          d=ImageDraw.Draw(sheet)
+          try:font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",17)
+          except OSError:font=ImageFont.load_default()
+          for i,(label,path) in enumerate(examples):
+            if not path.is_file():raise FileNotFoundError(path)
+            rgba=Image.open(path).convert("RGBA")
+            base=Image.new("RGBA",rgba.size,(250,249,247,255))
+            base.alpha_composite(rgba)
+            resized=base.convert("RGB").resize((W,H-38),Image.Resampling.LANCZOS)
+            x=(i%3)*W;y=(i//3)*H
+            sheet.paste(resized,(x,y+38))
+            d.text((x+14,y+11),label,fill=(20,20,23),font=font)
+          dest=root/"qa/real-blender-formal-cast-contact-sheet.png"
+          sheet.save(dest,optimize=True)
+          print("QA_SHEET_CREATED",dest,dest.stat().st_size)
+          PY
+      - name: Publish contact sheet
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/qa/real-blender-formal-cast-contact-sheet.png
+          git commit -m "proof(character): V1 CC0 formal cast before/after in one real-render contact sheet"
+          for i in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
