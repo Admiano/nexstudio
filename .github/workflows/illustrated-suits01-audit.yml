@@ -34,6 +34,19 @@ jobs:
             echo "---- $path ----"
             head -n 24 "$path" | grep -iE 'author|license|cc0|name|obj_file' || true
           done < suit_mhclo_paths.txt | tee suits01_license_headers.txt
+      - name: Inspect source material files and OBJ UV coordinate inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          for asset in toigo_female_double-breasted_suit toigo_male_suit_tie_and_jacket; do
+            echo "------ ASSET $asset material ------"
+            find "donor/suits01/clothes/$asset" -maxdepth 1 -name '*.mhmat' -print -exec cat {} \;
+            echo "------ ASSET $asset OBJ header and UV statistics ------"
+            src=$(find "donor/suits01/clothes/$asset" -maxdepth 1 -name '*.obj' | head -1)
+            sed -n '1,20p' "$src"
+            grep -c '^vt ' "$src" || true
+            grep -m 3 '^f ' "$src" || true
+          done | tee suit_material_uv_audit.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -43,5 +56,6 @@ jobs:
             suits01_archive_listing.txt
             suit_mhclo_paths.txt
             suits01_license_headers.txt
+            suit_material_uv_audit.txt
           retention-days: 14
           if-no-files-found: warn
