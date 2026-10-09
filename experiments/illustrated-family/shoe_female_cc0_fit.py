@@ -111,5 +111,7 @@ else:
             "deformGroups":len(weights),"visibleOriginalShoesHiddenOnlyInTestScene":hidden,
             "sourceRigUnchanged":True,"status":"UNAPPROVED_SHOE_FIT_TRIAL"}
     out=Path(render_path).resolve()
+    # Update ONLY the disposable proof scene; never the canonical source .blend.
+    bpy.ops.wm.save_as_mainfile(filepath=str(out.with_suffix(".blend")),copy=True,compress=True)
     out.with_name(out.stem+"-shoes.json").write_text(json.dumps(report,indent=2))
     print("REAL_CC0_FEMALE_SHOE_FIT_OK",json.dumps(report),flush=True)
